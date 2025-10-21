@@ -1,4 +1,4 @@
-import { useAuthenticateUser, useModal, useRequestToJoinTeam, useTeamInvitations } from '@/core/hooks';
+import { useModal, useRequestToJoinTeam } from '@/core/hooks';
 import { Button, NoData } from '@/core/components';
 import { SearchNormalIcon } from 'assets/svg';
 import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
@@ -6,14 +6,17 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { InvitationTable } from '../../../teams/invite/invitation-table';
 import { InputField } from '@/core/components/duplicated-components/_input';
+import { getTeamInvitationsState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 export const InvitationSetting = () => {
 	const t = useTranslations();
 
-	const { teamInvitations } = useTeamInvitations();
+	const teamInvitations = useAtomValue(getTeamInvitationsState);
 	const { getRequestToJoin, requestToJoin } = useRequestToJoinTeam();
 
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 	const { openModal, isOpen, closeModal } = useModal();
 
 	const [filterString, setFilterString] = useState<string>('');
@@ -30,7 +33,7 @@ export const InvitationSetting = () => {
 
 	return (
 		<div className="flex overflow-auto flex-col">
-			<div className="flex items-center justify-between w-full mt-8">
+			<div className="flex justify-between items-center mt-8 w-full">
 				<div className="w-auto">
 					<InputField
 						type="text"
@@ -46,7 +49,7 @@ export const InvitationSetting = () => {
 						}}
 					/>
 				</div>
-				<div className="flex items-center justify-between w-auto gap-0 md:gap-4">
+				<div className="flex gap-0 justify-between items-center w-auto md:gap-4">
 					{/* TODO: Will imlement Sort/FIlter logic in future */}
 					{/* <FilterDropdown setValue={() => console.log('filter')} /> */}
 					<Button
@@ -59,7 +62,7 @@ export const InvitationSetting = () => {
 				</div>
 			</div>
 			{invitations.length > 0 ? (
-				<div className="mb-8 mt-7">
+				<div className="mt-7 mb-8">
 					<InvitationTable invitations={invitations} />
 				</div>
 			) : (
@@ -69,14 +72,14 @@ export const InvitationSetting = () => {
 			{/* TODO Dynamic */}
 			{/* <Divider className="mb-9" />
 			<div className="flex flex-col gap-8">
-				<div className="flex items-center gap-16">
-					<div className="flex items-start gap-1">
+				<div className="flex gap-16 items-center">
+					<div className="flex gap-1 items-start">
 						<Text className="flex-none font-normal text-[#7E7991] dark:text-white flex-grow-0 text-lg md-2">
 							{t('pages.settingsTeam.INVITATION_EXPIRATION')}
 						</Text>
 						<SettingGearIcon className="stroke-[#B1AEBC] dark:stroke-white" />
 					</div>
-					<div className="flex items-center ">
+					<div className="flex items-center">
 						<div className="flex gap-4 items-center flex-col sm:flex-row w-[29.7rem]">
 							<div className="flex flex-row mb-0">
 								<InputField
@@ -87,10 +90,10 @@ export const InvitationSetting = () => {
 									disabled={true}
 								/>
 							</div>
-							<div className="flex flex-row ">
+							<div className="flex flex-row">
 								<Button
 									variant="outline"
-									className="p-0 text-base font-semibold border-2 rounded-xl h-14 w-28 min-w-max"
+									className="p-0 w-28 min-w-max h-14 text-base font-semibold rounded-xl border-2"
 									type="button"
 									onClick={() => {
 										setCopied(true);
@@ -108,13 +111,13 @@ export const InvitationSetting = () => {
 						</div>
 					</div>
 				</div>
-				<div className="flex items-center ">
+				<div className="flex items-center">
 					<div className="flex items-start gap-1 w-[16.5rem]">
 						<Text className="flex-none font-normal text-[#7E7991] flex-grow-0 text-lg md-2 dark:text-white">
 							{t('pages.settingsTeam.NOTIFY_IF')}
 						</Text>
 					</div>
-					<div className="flex items-center ">
+					<div className="flex items-center">
 						<div className="flex gap-10 items-center flex-col sm:flex-row w-[29.7rem]">
 							<div className="flex flex-row mb-0">
 								<NotifyDropdown setValue={() => console.log('')} />
@@ -126,7 +129,7 @@ export const InvitationSetting = () => {
 						</div>
 					</div>
 				</div>
-				<div className="flex items-start gap-20 ">
+				<div className="flex gap-20 items-start">
 					<Text className="flex-none font-normal text-[#7E7991] flex-grow-0 text-lg md-2 dark:text-white">
 						{t('pages.settingsTeam.TEAM_REQUEST')}
 					</Text>

@@ -23,10 +23,12 @@ export function createOrganizationRequest(datas: IOrganizationCreate, bearerToke
 export function getUserOrganizationsRequest(
 	{
 		tenantId,
-		userId
+		userId,
+		userPermissions
 	}: {
 		tenantId: string;
 		userId: string;
+		userPermissions?: string[];
 	},
 	bearerToken: string
 ) {
@@ -44,8 +46,9 @@ export function getUserOrganizationsRequest(
 	const relations: string[] = [
 		'organization',
 		'organization.contact',
-		'organization.featureOrganizations',
-		'organization.featureOrganizations.feature'
+		...(userPermissions?.includes('ALL_ORG_VIEW')
+			? ['organization.featureOrganizations', 'organization.featureOrganizations.feature']
+			: [])
 	];
 	// Append each relation to the query string
 	relations.forEach((relation, index) => {

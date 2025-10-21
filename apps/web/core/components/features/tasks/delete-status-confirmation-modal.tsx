@@ -5,6 +5,8 @@ import { useCallback, useMemo } from 'react';
 import { EverCard } from '../../common/ever-card';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { TTaskStatus } from '@/core/types/schemas';
+import { useAtomValue } from 'jotai';
+import { tasksByTeamState } from '@/core/stores';
 
 interface DeleteTaskStatusModalProps {
 	open: boolean;
@@ -28,7 +30,9 @@ export function DeleteTaskStatusConfirmationModal(props: DeleteTaskStatusModalPr
 	const { closeModal, open, status, onCancel } = props;
 	const { deleteTaskStatus, deleteTaskStatusLoading, setTaskStatuses } = useTaskStatus();
 	const t = useTranslations();
-	const { tasks, updateTask } = useTeamTasks();
+
+	const tasks = useAtomValue(tasksByTeamState);
+	const { updateTask } = useTeamTasks();
 
 	// Filter tasks that are using the current status
 	const tasksUsingStatus = useMemo(() => tasks.filter((task) => task.status === status.name), [tasks, status.name]);
@@ -77,11 +81,11 @@ export function DeleteTaskStatusConfirmationModal(props: DeleteTaskStatusModalPr
 			aria-describedby="delete-status-modal-description"
 		>
 			<EverCard className="w-full" shadow="custom">
-				<div className="flex flex-col justify-between w-full gap-6">
+				<div className="flex flex-col gap-6 justify-between w-full">
 					<Text.Heading as="h5" id="delete-status-modal-title" className="mb-3 text-center">
 						{t('pages.taskStatus.DELETE_STATUS_CONFIRMATION', { statusName: status.name })}
 					</Text.Heading>
-					<div className="flex items-center w-full justify-evenly">
+					<div className="flex justify-evenly items-center w-full">
 						<Button
 							disabled={deleteTaskStatusLoading}
 							variant="outline"
@@ -97,7 +101,7 @@ export function DeleteTaskStatusConfirmationModal(props: DeleteTaskStatusModalPr
 							onClick={handleDeleteTaskStatus}
 							variant="primary"
 							type="submit"
-							className="font-light rounded-md  text-md dark:text-white"
+							className="font-light rounded-md text-md dark:text-white"
 						>
 							{t('common.YES')}
 						</Button>

@@ -1,4 +1,5 @@
 import { EInviteStatus } from '../../generics/enums/invite';
+import { ERoleName } from '../../generics/enums/role';
 import { IBasePerTenantAndOrganizationEntityModel, ID } from '../common/base-interfaces';
 import { IOrganizationProject } from '../project/organization-project';
 import { IRelationalRole } from '../role/role';
@@ -64,6 +65,7 @@ export interface IInviteRequest {
 	name: string;
 	teamId: string;
 	organizationId: string;
+	roleId?: string;
 }
 
 // Types for better security and performance
@@ -74,6 +76,12 @@ export interface InviteUserParams extends IInviteRequest {
 export interface TeamInvitationsQueryParams {
 	tenantId: string;
 	organizationId: string;
-	role: string;
+	role?: ERoleName;
 	teamId: string;
+}
+
+export interface IGetInvitationRequest {
+	roles?: string[];
+	teamId?: string;
+	status?: EInviteStatus;
 }

@@ -3,7 +3,7 @@ import { validateForm } from '@/core/lib/helpers/validations';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import {
 	getEmployeeRoleRequest,
-	getTeamInvitationsRequest,
+	getAllTeamInvitationsRequest,
 	inviteByEmailsRequest
 } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
@@ -54,12 +54,13 @@ export async function POST(req: Request) {
 		access_token
 	);
 
-	const { data } = await getTeamInvitationsRequest(
+	// WORKAROUND: Use combined request to get all invitations (EMPLOYEE + non-EMPLOYEE)
+	// This is needed due to Gauzy API bug where no role filter excludes EMPLOYEE by default
+	const { data } = await getAllTeamInvitationsRequest(
 		{
 			tenantId,
 			teamId,
-			organizationId,
-			role: 'EMPLOYEE'
+			organizationId
 		},
 		access_token
 	);

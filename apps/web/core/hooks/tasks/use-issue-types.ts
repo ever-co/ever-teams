@@ -1,5 +1,5 @@
 'use client';
-import { userState, issueTypesListState, activeTeamIdState } from '@/core/stores';
+import { issueTypesListState, activeTeamIdState, activeTeamState } from '@/core/stores';
 import { useCallback, useMemo } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -7,30 +7,23 @@ import { useFirstLoad } from '../common/use-first-load';
 import { issueTypeService } from '@/core/services/client/api/tasks/issue-type.service';
 import { IIssueTypesCreate } from '@/core/types/interfaces/task/issue-type';
 import { queryKeys } from '@/core/query/keys';
-import { useAuthenticateUser } from '../auth';
-import { useOrganizationTeams } from '../organizations';
 import { useConditionalUpdateEffect } from '../common';
+import { useUserQuery } from '../queries/user-user.query';
 
 export function useIssueType() {
-	const [user] = useAtom(userState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
-	const { user: authUser } = useAuthenticateUser();
-	const { activeTeam } = useOrganizationTeams();
+	const { data: authUser } = useUserQuery();
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const queryClient = useQueryClient();
 
 	const [issueTypes, setIssueTypes] = useAtom(issueTypesListState);
 	const { firstLoadData: firstLoadIssueTypeData } = useFirstLoad();
 
 	//  Memoize derived values to avoid recalculation on every render
-	const organizationId = useMemo(
-		() => authUser?.employee?.organizationId || user?.employee?.organizationId,
-		[authUser?.employee?.organizationId, user?.employee?.organizationId]
-	);
+	const organizationId = useMemo(() => authUser?.employee?.organizationId, [authUser?.employee?.organizationId]);
 
-	const tenantId = useMemo(
-		() => authUser?.employee?.tenantId || user?.tenantId,
-		[authUser?.employee?.tenantId, user?.tenantId]
-	);
+	const tenantId = useMemo(() => authUser?.employee?.tenantId, [authUser?.employee?.tenantId]);
 
 	const teamId = useMemo(() => activeTeam?.id || activeTeamId, [activeTeam?.id, activeTeamId]);
 
@@ -43,7 +36,7 @@ export function useIssueType() {
 			}
 
 			// Clean queryFn - only fetch and return data
-			const res = await issueTypeService.getIssueTypeList(tenantId, organizationId, teamId);
+			const res = await issueTypeService.getIssueTypeList();
 			return res.data;
 		},
 		enabled: !!tenantId && !!organizationId && !!teamId, // Only fetch when all required params are available
@@ -70,7 +63,7 @@ export function useIssueType() {
 				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
 			const requestData = { ...data, organizationTeamId: teamId };
-			return issueTypeService.createIssueType(requestData, tenantId);
+			return issueTypeService.createIssueType(requestData);
 		},
 		onSuccess: () => {
 			teamId &&
@@ -85,7 +78,7 @@ export function useIssueType() {
 			if (!tenantId || !teamId) {
 				throw new Error('Required parameters missing: tenantId, teamId is required');
 			}
-			return issueTypeService.editIssueType(id, data, tenantId);
+			return issueTypeService.editIssueType({ issueTypeId: id, data });
 		},
 		onSuccess: () => {
 			teamId &&

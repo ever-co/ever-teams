@@ -73,7 +73,7 @@ export const saveFilesToFirebase = async ({
 					.storage()
 					.ref(`${prefix}/${id}`)
 					.put(
-						new Blob([buffer], {
+						new Blob([new Uint8Array(buffer)], {
 							type: MIME_TYPES.binary
 						}),
 						{

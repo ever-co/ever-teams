@@ -7,8 +7,8 @@ export function WorkedOnTask({ memberTask, isAuthUser }: { memberTask: TTask | n
 	const { activeTaskDailyStat, activeTaskTotalStat, getTaskStat } = useTaskStatistics();
 	const t = useTranslations();
 	if (isAuthUser) {
-		const { h, m } = secondsToTime(activeTaskTotalStat?.duration || 0);
-		const { h: dh, m: dm } = secondsToTime(activeTaskDailyStat?.duration || 0);
+		const { hours: h, minutes: m } = secondsToTime(activeTaskTotalStat?.duration || 0);
+		const { hours: dh, minutes: dm } = secondsToTime(activeTaskDailyStat?.duration || 0);
 
 		return (
 			<div className="w-[122px]  text-center">
@@ -21,8 +21,8 @@ export function WorkedOnTask({ memberTask, isAuthUser }: { memberTask: TTask | n
 	}
 	const { taskDailyStat, taskTotalStat } = getTaskStat(memberTask);
 
-	const { h, m } = secondsToTime(taskTotalStat?.duration || 0);
-	const { h: dh, m: dm } = secondsToTime(taskDailyStat?.duration || 0);
+	const { hours: h, minutes: m } = secondsToTime(taskTotalStat?.duration || 0);
+	const { hours: dh, minutes: dm } = secondsToTime(taskDailyStat?.duration || 0);
 
 	return (
 		<div className="w-[122px]  text-center">

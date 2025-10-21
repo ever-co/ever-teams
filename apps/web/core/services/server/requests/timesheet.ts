@@ -1,6 +1,6 @@
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { TTaskStatistics } from '@/core/types/interfaces/task/task';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import {
 	ITimesheet,
@@ -16,26 +16,15 @@ export type TTasksTimesheetStatisticsParams = {
 	organizationId: string;
 	startDate?: string;
 	endDate?: string;
-	employeeIds: string[];
+	employeeIds?: string[];
 	defaultRange?: string;
-	'taskIds[0]'?: string;
+	taskIds?: string[];
 	unitOfTime?: 'day';
 };
 export function tasksTimesheetStatisticsRequest(params: TTasksTimesheetStatisticsParams, bearer_token: string) {
-	const { employeeIds, ...rest } = params;
+	const queries = qs.stringify(params, { arrayFormat: 'indices' });
 
-	const queries = qs.stringify({
-		...rest,
-		...employeeIds.reduce(
-			(acc, v, i) => {
-				acc[`employeeIds[${i}]`] = v;
-				return acc;
-			},
-			{} as Record<string, any>
-		)
-	});
-
-	return serverFetch<ITasksStatistics[]>({
+	return serverFetch<TTaskStatistics[]>({
 		path: `/timesheet/statistics/tasks?${queries}`,
 		method: 'POST',
 		bearer_token,
@@ -47,14 +36,14 @@ export type TTaskActivityParams = {
 	tenantId: string;
 	organizationId: string;
 	defaultRange?: string;
-	'taskIds[0]'?: string;
+	taskIds?: string[];
 	unitOfTime?: 'day';
 };
 
 export function taskActivityRequest(params: TTaskActivityParams, bearer_token: string) {
 	const queries = qs.stringify(params);
 
-	return serverFetch<ITasksStatistics[]>({
+	return serverFetch<TTaskStatistics[]>({
 		path: `/timesheet/activity?${queries.toString()}`,
 		method: 'GET',
 		bearer_token,

@@ -23,23 +23,10 @@ import { Modal } from '../common/modal';
 import Image from 'next/image';
 import { ScrollArea } from '@/core/components/common/scroll-area';
 import { cn } from '../../lib/helpers';
-import { useKanban } from '../../hooks/tasks/use-kanban';
 import { Suspense } from 'react';
-import dynamic from 'next/dynamic';
 import { ModalSkeleton } from '../common/skeleton/modal-skeleton';
 import { KanbanColumnLoadingSkeleton } from '../common/skeleton/kanban-column-loading-skeleton';
-
-const LazyCreateTaskModal = dynamic(() => import('../features/tasks/create-task-modal'), {
-	ssr: false
-	// Note: Removed loading here to avoid double loading states
-	// Suspense fallback will handle all loading states uniformly
-});
-
-const LazyEditStatusModal = dynamic(() => import('../features/tasks/edit-status-modal'), {
-	ssr: false
-	// Note: Removed loading here to avoid double loading states
-	// Suspense fallback will handle all loading states uniformly
-});
+import { LazyCreateTaskModal, LazyEditStatusModal } from '@/core/components/optimized-components/tasks';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
 const grid = 8;
@@ -209,40 +196,6 @@ function InnerList(props: {
 	);
 }
 /**
- * Calculates the dynamic height of a Kanban column based on the number of items
- *
- * @param {number} itemsLength - The number of items in the column
- * @param {RefObject<HTMLDivElement> | undefined} containerRef - Reference to the container element
- * @returns {string} The calculated height with 'px' unit
- *
- * Rules:
- * - 2 items or less: fixed height of 320px
- * - 3 items: fixed height of 520px
- * - More than 3 items: uses container height or fallback to 720px
- *
- * @example
- * // For 1 items or less
- * getKanbanColumnHeight(1, containerRef) // returns '320px'
- *
- * // For 3 items
- * getColumnHeight(3, containerRef) // returns '520px'
- *
- * // For more than 3 items
- * getColumnHeight(4, containerRef) // returns container height or '720px'
- */
-const getKanbanColumnHeight = (itemsLength: number, containerRef: RefObject<HTMLDivElement> | undefined): string => {
-	switch (true) {
-		case itemsLength <= 1:
-			return '320px';
-		case itemsLength <= 3:
-			return '520px';
-		case itemsLength > 3:
-			return `${containerRef?.current?.offsetHeight || 720}px`;
-		default:
-			return '320px';
-	}
-};
-/**
  * wrapper to allow the inner column to act as
  * a droppable area for cards being dragged
  * @param param0
@@ -295,7 +248,8 @@ export const EmptyKanbanDroppable = ({
 	status,
 	setColumn,
 	items,
-	backgroundColor
+	backgroundColor,
+	toggleColumn
 }: {
 	index: number;
 	title: string;
@@ -303,10 +257,11 @@ export const EmptyKanbanDroppable = ({
 	setColumn: any;
 	backgroundColor: any;
 	items: TTask[];
+	toggleColumn: (column: string, status: boolean) => Promise<void>;
 }) => {
 	const [enabled, setEnabled] = useState(false);
 	const t = useTranslations();
-	const { toggleColumn } = useKanban();
+	// toggleColumn is now passed as prop instead of using useKanban hook
 
 	useEffect(() => {
 		const animation = requestAnimationFrame(() => setEnabled(true));
@@ -455,7 +410,8 @@ const KanbanDraggableHeader = ({
 	snapshot,
 	createTask,
 	provided,
-	backgroundColor
+	backgroundColor,
+	toggleColumn
 }: {
 	title: string;
 	items: any;
@@ -466,15 +422,18 @@ const KanbanDraggableHeader = ({
 	snapshot: DraggableStateSnapshot;
 	backgroundColor: string;
 	provided: DraggableProvided;
+	toggleColumn: (column: string, status: boolean) => Promise<void>;
 }) => {
-	const { toggleColumn } = useKanban();
+	// toggleColumn is now passed as prop instead of using useKanban hook
 	const { isOpen, closeModal, openModal } = useModal();
 	const t = useTranslations();
 	return (
 		<>
 			{title && (
 				<header
-					className={'flex flex-row justify-between items-center rounded-lg px-[15px] py-[7px] z-[500]'}
+					className={
+						'flex sticky inset-x-0 top-0 z-10 flex-row justify-between items-center rounded-lg px-[15px] py-[7px]'
+					}
 					style={headerStyleChanger(snapshot, backgroundColor)}
 				>
 					<div className="flex flex-row gap-2.5 items-center">
@@ -557,7 +516,9 @@ const KanbanDraggable = ({
 	items,
 	backgroundColor,
 	containerRef,
-	allColumnsData
+	allColumnsData,
+	addNewTask,
+	toggleColumn
 }: {
 	index: number;
 	setColumn: any;
@@ -570,6 +531,7 @@ const KanbanDraggable = ({
 	containerRef?: RefObject<HTMLDivElement>;
 	addNewTask: (value: TTask, status: string) => void;
 	allColumnsData?: { [key: string]: TTask[] };
+	toggleColumn: (column: string, status: boolean) => Promise<void>;
 }) => {
 	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();
@@ -586,33 +548,26 @@ const KanbanDraggable = ({
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
 							// style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className={cn(
-								'relative flex flex-col w-[355px] h-fit',
-								items.length > 4 ? 'min-h-svh' : 'min-h-fit'
-							)}
+							className={cn('flex relative flex-col w-[355px] h-fit min-h-[840px]')}
 							style={{
-								height:
-									containerRef && items && items.length > 1
-										? getKanbanColumnHeight(items.length, containerRef)
-										: '320px',
+								height: `840px`,
 								paddingBottom: `${containerRef && items && items.length > 1 ? 25 : '0'}px`
 							}}
 						>
 							{title ? (
 								<>
-									<div>
-										<KanbanDraggableHeader
-											title={title}
-											icon={icon}
-											setColumn={setColumn}
-											status={status}
-											items={items}
-											snapshot={snapshot}
-											provided={provided}
-											createTask={openModal}
-											backgroundColor={backgroundColor}
-										/>
-									</div>
+									<KanbanDraggableHeader
+										title={title}
+										icon={icon}
+										setColumn={setColumn}
+										status={status}
+										items={items}
+										snapshot={snapshot}
+										provided={provided}
+										createTask={openModal}
+										backgroundColor={backgroundColor}
+										toggleColumn={toggleColumn}
+									/>
 									<div className="flex flex-col">
 										<KanbanDroppable
 											isLoading={isLoading}

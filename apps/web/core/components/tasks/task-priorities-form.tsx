@@ -1,5 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { userState } from '@/core/stores';
+import { taskPrioritiesListState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { Button, ColorPicker, Text } from '@/core/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -22,7 +23,7 @@ type StatusForm = {
 };
 
 export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) => {
-	const user = useAtomValue(userState);
+	const { data: user } = useUserQuery();
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<TTaskPriority | null>(null);
@@ -47,9 +48,9 @@ export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) 
 
 	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
 
+	const taskPriorities = useAtomValue(taskPrioritiesListState);
 	const {
 		loading,
-		taskPriorities,
 		deleteTaskPriorities,
 		createTaskPriorities,
 		editTaskPriorities,
@@ -177,7 +178,7 @@ export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) 
 											onChange={(color) => setValue('color', color)}
 										/>
 									</div>
-									<div className="flex mt-5 gap-x-4">
+									<div className="flex gap-x-4 mt-5">
 										<Button
 											variant="primary"
 											className="px-4 py-4 font-normal rounded-xl text-md"
@@ -209,7 +210,7 @@ export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) 
 									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
 										{t('pages.settingsTeam.LIST_OF_PRIORITIES')}
 									</Text>
-									<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
+									<div className="flex flex-wrap gap-3 justify-center w-full sm:justify-start">
 										{loading && !taskPriorities?.length && <Spinner dark={false} />}
 										{taskPriorities && taskPriorities?.length ? (
 											taskPriorities.map((priority) => (

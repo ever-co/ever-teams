@@ -36,7 +36,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 
 	const { isOpen: isAllPlansModalOpen, closeModal: closeAllPlansModal, openModal: openAllPlansModal } = useModal();
 
-	const menu = useMemo(
+	const allMenuItems = useMemo(
 		() => [
 			{
 				name: t('common.EDIT_TASK'),
@@ -99,17 +99,20 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 				name: t('common.REMOVE'),
 				type: 'danger',
 				action: 'remove',
-				active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser && !memberInfo.isTeamOwner,
+				active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser && !memberInfo.isTeamCreator,
 				onClick: onRemoveMember
 			}
 		],
 		[t, memberInfo, edition, isFavoriteTask]
 	);
 
+	// Filter menu items to show only active ones
+	const menu = useMemo(() => allMenuItems.filter((item) => item.active), [allMenuItems]);
+
 	return (
 		<>
 			<Popover
-				className="relative flex flex-col items-center justify-center w-full"
+				className="flex relative flex-col justify-center items-center w-full"
 				ref={mergeRefs([
 					edition.estimateEditIgnoreElement.ignoreElementRef,
 					edition.taskEditIgnoreElement.ignoreElementRef
@@ -216,11 +219,11 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 											);
 										})}
 										<HorizontalSeparator className="-mx-2" />
-										<ul className="flex flex-col items-start w-full py-1">
+										<ul className="flex flex-col items-start py-1 w-full">
 											<button
 												onClick={openAllPlansModal}
 												className={clsxm(
-													'font-normal whitespace-nowrap text-sm hover:font-semibold hover:transition-all'
+													'text-sm font-normal whitespace-nowrap hover:font-semibold hover:transition-all'
 												)}
 											>
 												{t('common.plan.SEE_PLANS')}

@@ -1,14 +1,9 @@
 'use client';
 
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { BackdropLoader, Meta } from '@/core/components';
-import dynamic from 'next/dynamic';
+import { Meta } from '@/core/components';
 import '@excalidraw/excalidraw/index.css';
-
-const Board = dynamic(() => import('@/core/components/integration/boards/exalidraw'), {
-	ssr: false,
-	loading: () => <BackdropLoader show />
-});
+import { LazyBoard as Board } from '@/core/components/optimized-components/common';
 
 function BoardPage() {
 	return (

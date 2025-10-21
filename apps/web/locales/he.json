@@ -28,6 +28,8 @@
 		"NO_ACTIVITY_DATA": "אין נתוני פעילות זמינים",
 		"SELECT_DIFFERENT_DATE": "בחר טווח תאריכים אחר או בדוק מאוחר יותר",
 		"PENDING_TASKS": "משימות ממתינות",
+		"RECENT_TASKS": "משימות אחרונות",
+		"OLDER_TASKS": "משימות ישנות",
 		"SHOW_MORE": "הצג עוד",
 		"TASKS": "משימות",
 		"MEN_HOURS": "שעות עבודה",
@@ -40,7 +42,7 @@
 		"MANAGERS": "מנהלים",
 		"EDIT_STATUS": "ערוך סטטוס",
 		"ADD_TIME_ENTRY": "הוסף כניסת זמן",
-		"OPT_IN_UPDATES": "בחר לקבל עדכונים וחדשות על Ever Teams.",
+		"OPT_IN_UPDATES": "בחר לקבל עדכונים וחדשות על {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "הירשם לניוזלטר שלנו",
 		"VIEW_PROJECT": "צפה בפרויקט",
 		"SHARE_PROJECT": "שתף פרויקט",
@@ -217,6 +219,9 @@
 		"PERMISSION": "הרשאה",
 		"SEARCH": "חפש",
 		"ADD_PARENT": "הוסף הורה",
+		"PARENT_TASK_ASSIGNED_SUCCESS": "משימת ההורה \"{parentTitle}\" הוקצתה בהצלחה ל-\"{childTitle}\"",
+		"PARENT_TASK_ASSIGNMENT_FAILED": "הקצאת המשימה \"{childTitle}\" להורה \"{parentTitle}\" נכשלה",
+		"PARENT_TASK_ASSIGNMENT_ERROR": "אירעה שגיאה בהקצאת משימת ההורה \"{parentTitle}\" למשימה \"{childTitle}\". נסה שוב.",
 		"BLOCKS": "חוסמים",
 		"CLONES": "משכפלים",
 		"DUPLICATES": "מכפילים",
@@ -231,6 +236,8 @@
 		"NO_TASKS": "אין משימות",
 		"FULL_WIDTH": "רוחב מלא",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "אנא עצור את הטיימר לפני שינוי המשימה",
+		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "אנא עצור את הטיימר לפני החלפת הצוות",
+		"CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "אנא עצור את הטיימר לפני יצירת פריטים חדשים",
 		"COLLABORATE_DIALOG_TITLE": "התחל שיתוף פעולה",
 		"COLLABORATE_DIALOG_SUB_TITLE": "הזמן חבר/ים והתחל לשתף פעולה",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "התחל פגישה או שיתוף פעולה בלוח",
@@ -346,6 +353,8 @@
 		"APPLY_FILTER": "החל סינון",
 		"CREATE_NEW": "צור חדש",
 		"NO_RESULT": "אין תוצאות",
+		"NO_TEAM_MEMBERS_FOUND": "לא נמצאו חברי צוות",
+		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "נסה להתאים את החיפוש או הסינון כדי למצוא את מה שאתה מחפש.",
 		"PICK_A_DATE": "בחר תאריך",
 		"THIS_WEEK": "השבוע",
 		"LAST_WEEK": "שבוע שעבר",
@@ -382,7 +391,6 @@
 		"NEUTRAL": "נייטרלי",
 		"UNPRODUCTIVE": "לא פרודוקטיבי",
 		"ACTIVITIES": "פעילויות",
-		"NO_PROJECT": "אין פרויקט",
 		"DURATION": "משך זמן",
 		"PROGRESS": "התקדמות",
 		"EMPLOYEE": "עובד",
@@ -640,7 +648,7 @@
 			"INPUT_INVITE_CODE": "הכנס קוד הזמנה.",
 			"INPUT_INVITE_CODE_DESC": "הכנס את קוד ההזמנה ששלחנו לאימייל שלך.",
 			"INVALID_INVITE_CODE_MESSAGE": "קוד לאתקין",
-			"WELCOME_TEAMS": "ברוך הבא ל-Ever צוותים",
+			"WELCOME_TEAMS": "ברוך הבא ל-{appName}",
 			"COVER_TITLE": "עקוב אחר התקדמות העבודה של הצוותים שלך בזמן אמת!",
 			"COVER_DESCRIPTION": "ניהול עבודה וכוח עבודה הכל-באחד, ניהול זמן, מעקב אחר זמן, מעקב אחר פעילות, מעקב ומדדים של פרודוקטיביות, ניהול פרויקטים/משימות ובעיות, ארגונים וצוותים, אינטגרציות (GitHub, JIRA,...) ועוד!",
 			"LOGIN": "התחברות",
@@ -671,6 +679,7 @@
 			"HEADING_TITLE": "צור צוות חדש",
 			"HEADING_DESCRIPTION": "אנא הכנס את פרטי הצוות שלך כדי ליצור צוות חדש.",
 			"LOADING_TEXT": "אנחנו עכשיו יוצרים את סביבת העבודה החדשה שלך, רגע קטן...",
+			"LOADING_WORKSPACE": "אנחנו טוענים את סביבת העבודה, רגע קטן...",
 			"REDIRECT_TO_WORSPACE_LOADING": "מכוון מחדש לחלל העבודה שלך",
 			"VERIFY_EMAIL_LOADING_TEXT": "אנחנו מאמתים את האימייל שלך, רגע קטן...",
 			"INPUT_TEAM_NAME": "הכנס את שם הצוות שלך",
@@ -819,6 +828,25 @@
 				"POSITION": "תפקיד",
 				"DATE_AND_TIME_REQUEST": "תאריך ושעת בקשה",
 				"CV_OR_ATTACHMENT": "קורות חיים / קובץ מצורף"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "קבל הזמנה לצוות {team}",
+				"USER_DETAILS": "פרטי משתמש",
+				"COMPLETE_REGISTRATION": "השלם את הרישום שלך {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "הזמנה זו אינה תקפה יותר",
+						"DESCRIPTION": "אנא צור קשר עם מנהל מרחב העבודה כדי לבקש חדשה. או שהזנת URL שגוי או שההזמנה פגה"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "מרחב העבודה הזה כבר לא קיים",
+						"DESCRIPTION": "אנא צור קשר עם מנהל מרחב העבודה כדי לבקש חדש"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "חזור ללוח הבקרה",
+					"CREATE_NEW_WORKSPACE": "צור מרחב עבודה חדש"
+				}
 			}
 		},
 		"permissions": {
@@ -973,6 +1001,13 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "כמה שעות עבד העובד בסך הכול והיום על המשימה",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "כמה שעות עבד העובד היום בכל המשימות לצוות שנבחר"
 		},
+		"teamMemberTableHead": {
+			"TEAM_MEMBER": "חבר צוות",
+			"TASK": "משימה",
+			"WORKED_ON_TASK": "עבד על משימה",
+			"ESTIMATE": "הערכה",
+			"ACTION": "פעולה"
+		},
 		"CONFIRM_CLOSE_TASK": "אנא אשר אם ברצונך לסגור את המשימה",
 		"toastMessages": {
 			"TASK_UNASSIGNED": "משימה לא הוקצתה",
@@ -1034,12 +1069,14 @@
 		"LAST_NAME_PLACEHOLDER": "שם משפחה",
 		"EMAIL_PLACEHOLDER": "הכנס כתובת אימייל",
 		"PASSWORD_PLACEHOLDER": "הכנס את הסיסמה שלך",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "אשר את הסיסמה שלך",
 		"PHONE_PLACEHOLDER": "מספר טלפון",
 		"ISSUE_NAME_PLACEHOLDER": "שם בעיה",
 		"TEAM_NAME_PLACEHOLDER": "אנא הכנס את שם הצוות שלך",
 		"TASK_INPUT_PLACEHOLDER": "על מה אתה עובד?",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "שם חבר צוות",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "כתובת אימייל של חבר צוות",
+		"TEAM_MEMBER_ROLE": "תפקיד חבר צוות",
 		"COMPLETION_DESCRIPTION": "כתוב תיאור",
 		"UPLOAD_FILES": "העלה קבצים",
 		"ATTACHMENT_FILE": "קבצים מצורפים",
@@ -1047,16 +1084,18 @@
 		"SET_THEME": "קבע ערכת עיצוב",
 		"CHANGE_AVATAR": "שנה אווטר",
 		"SELECT_TEAM_SIZE": "בחר גודל צוות",
-		"INVALID_ALLOWED_CHARACTER": "ערך לא חוקי עבור allowedCharacters. השתמש ב- alpha, numeric, או alphanumeric"
+		"INVALID_ALLOWED_CHARACTER": "ערך לא חוקי עבור allowedCharacters. השתמש ב- alpha, numeric, או alphanumeric",
+		"AGREE_TO": "מסכים ל"
 	},
 	"layout": {
 		"footer": {
 			"RIGHTS_RESERVED": "כל הזכויות שמורות.",
 			"COPY_RIGHT1": "© {date}-היום,",
-			"COPY_RIGHT2": "Ever Teams",
+			"COPY_RIGHT2": "{appName}",
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "תנאי שימוש",
+			"TERMS_AND_CONDITIONS": "תנאים והגבלות",
 			"PRIVACY_POLICY": "מדיניות פרטיות",
 			"COOKIES": "מדיניות עוגיות",
 			"BY": "על ידי"
@@ -1067,7 +1106,9 @@
 		"ERROR_WHILE_VERIFY_CODE": "שגיאה באימות קוד.",
 		"LENGTH_NUMBER_ERROR": "אורך צריך להיות מספר וגדול מ-0",
 		"INVALID_ALLOWED_CHARACTER": "ערך לא חוקי עבור allowedCharacters. השתמש ב- alpha, numeric, או alphanumeric",
-		"VALID_EMAIL": "אנא הכנס אימייל חוקי"
+		"VALID_EMAIL": "אנא הכנס אימייל חוקי",
+		"SELECT_ROLE": "אנא בחר תפקיד",
+		"PASSWORDS_DO_NOT_MATCH": "הסיסמאות אינן תואמות"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "לחץ Enter כדי לאמת"

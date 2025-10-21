@@ -1,18 +1,26 @@
 'use client';
 
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { useAuthenticateUser, useOrganizationTeams, useTeamInvitations } from '@/core/hooks';
-import { fetchingTeamInvitationsState } from '@/core/stores';
+import { useAuthenticateUser } from '@/core/hooks';
+import { activeTeamState, fetchingTeamInvitationsState, isTeamMemberState, teamInvitationsState } from '@/core/stores';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { Accordian } from '@/core/components/common/accordian';
 import { activeSettingTeamTab } from '@/core/stores/common/setting';
 import { InteractionObserverVisible } from '@/core/components/pages/settings/interaction-observer';
 import NoTeam from '@/core/components/common/no-team';
 import { TeamAvatar } from '@/core/components/teams/team-avatar';
 import { EverCard } from '@/core/components/common/ever-card';
-import dynamic from 'next/dynamic';
+// Import optimized components from centralized location
+import {
+	LazyTeamSettingForm,
+	LazyInvitationSetting,
+	LazyMemberSetting,
+	LazyIntegrationSetting,
+	LazyIssuesSettings,
+	LazyDangerZoneTeam
+} from '@/core/components/optimized-components/settings';
 import { Suspense } from 'react';
 import {
 	TeamSettingFormSkeleton,
@@ -23,79 +31,16 @@ import {
 	DangerZoneTeamSkeleton
 } from '@/core/components/common/skeleton/settings-skeletons';
 
-// Lazy load heavy Settings Team components
-const LazyTeamSettingForm = dynamic(
-	() =>
-		import('@/core/components/pages/settings/team/team-setting-form').then((mod) => ({
-			default: mod.TeamSettingForm
-		})),
-	{
-		ssr: false
-	}
-);
-
-//  InvitationSetting (tables with actions)
-const LazyInvitationSetting = dynamic(
-	() =>
-		import('@/core/components/pages/settings/team/invitation-setting').then((mod) => ({
-			default: mod.InvitationSetting
-		})),
-	{
-		ssr: false
-	}
-);
-
-// Priority 3: MemberSetting (member management tables)
-const LazyMemberSetting = dynamic(
-	() =>
-		import('@/core/components/pages/settings/team/member-setting').then((mod) => ({
-			default: mod.MemberSetting
-		})),
-	{
-		ssr: false
-	}
-);
-
-// IntegrationSetting (integration configurations)
-const LazyIntegrationSetting = dynamic(
-	() =>
-		import('@/core/components/pages/settings/team/integration-setting').then((mod) => ({
-			default: mod.IntegrationSetting
-		})),
-	{
-		ssr: false
-	}
-);
-
-// IssuesSettings (issue type configurations)
-const LazyIssuesSettings = dynamic(
-	() =>
-		import('@/core/components/pages/settings/team/issues-settings').then((mod) => ({
-			default: mod.IssuesSettings
-		})),
-	{
-		ssr: false
-		// Note: No loading property for accordion content (Medium article pattern)
-	}
-);
-
-// DangerZoneTeam (danger actions with confirmations)
-const LazyDangerZoneTeam = dynamic(
-	() =>
-		import('@/core/components/pages/settings/team/danger-zone-team').then((mod) => ({
-			default: mod.DangerZoneTeam
-		})),
-	{
-		ssr: false
-	}
-);
-
 const Team = () => {
 	const t = useTranslations();
 
 	const setActiveTeam = useSetAtom(activeSettingTeamTab);
 	const [isFetchingTeamInvitations] = useAtom(fetchingTeamInvitationsState);
 	const { user, isTeamManager } = useAuthenticateUser();
+
+	const activeTeam = useAtomValue(activeTeamState);
+	const isTeamMember = useAtomValue(isTeamMemberState);
+	const teamInvitations = useAtomValue(teamInvitationsState);
 
 	if (!user) {
 		return (
@@ -111,10 +56,6 @@ const Team = () => {
 			</div>
 		);
 	}
-
-	const { isTeamMember, activeTeam } = useOrganizationTeams();
-	const { teamInvitations } = useTeamInvitations();
-
 	return (
 		<div className="overflow-hidden pb-16">
 			{isTeamMember ? (

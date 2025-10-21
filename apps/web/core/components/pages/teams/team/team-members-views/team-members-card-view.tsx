@@ -1,4 +1,4 @@
-import { useAuthenticateUser, useModal, useOrganizationEmployeeTeams, useTeamInvitations } from '@/core/hooks';
+import { useIsMemberManager, useModal, useOrganizationEmployeeTeams } from '@/core/hooks';
 import { Transition } from '@headlessui/react';
 import React, { memo, useCallback } from 'react';
 import { InviteUserTeamSkeleton, UserTeamCardSkeleton } from './team-members-header';
@@ -6,6 +6,10 @@ import { UserTeamCard } from './user-team-card';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { InvitedCard, InviteUserTeamCard } from '@/core/components/teams/invite/user-invite-card';
 import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
+import { EInviteStatus } from '@/core/types/generics/enums/invite';
+import { useAtomValue } from 'jotai';
+import { getTeamInvitationsState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 interface Props {
 	teamMembers: TOrganizationTeamEmployee[];
@@ -16,8 +20,11 @@ interface Props {
 
 const TeamMembersCardView: React.FC<Props> = memo(
 	({ teamMembers: members, currentUser, teamsFetching = false, publicTeam = false }) => {
-		const { isTeamManager } = useAuthenticateUser();
-		const { teamInvitations } = useTeamInvitations();
+		const { data: user } = useUserQuery();
+
+		const { isTeamManager } = useIsMemberManager(user);
+
+		const teamInvitations = useAtomValue(getTeamInvitationsState);
 
 		const { updateOrganizationTeamEmployeeOrderOnList } = useOrganizationEmployeeTeams();
 
@@ -105,12 +112,14 @@ const TeamMembersCardView: React.FC<Props> = memo(
 						);
 					})}
 
-					{members.length > 0 &&
-						teamInvitations.map((invitation) => (
-							<li key={invitation.id}>
-								<InvitedCard invitation={invitation} />
-							</li>
-						))}
+					{teamInvitations.length > 0 &&
+						teamInvitations
+							.filter((invitation) => invitation.status !== EInviteStatus.ACCEPTED)
+							.map((invitation) => (
+								<li key={invitation.id}>
+									<InvitedCard invitation={invitation} />
+								</li>
+							))}
 
 					{/* Loader skeleton */}
 					<Transition
@@ -154,7 +163,7 @@ const TeamMembersCardView: React.FC<Props> = memo(
 );
 
 function Invite() {
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 	const { openModal, isOpen, closeModal } = useModal();
 
 	return (

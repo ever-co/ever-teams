@@ -1,6 +1,6 @@
 'use client';
 import { getActiveTaskIdCookie, setActiveTaskIdCookie, setActiveUserTaskCookie } from '@/core/lib/helpers/index';
-import { activeTeamTaskState, allTaskStatisticsState } from '@/core/stores';
+import { activeTeamState, activeTeamTaskState, allTaskStatisticsState } from '@/core/stores';
 import { getPublicState } from '@/core/stores/common/public';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
@@ -14,6 +14,7 @@ import { useOutsideClick } from '../../common';
 import { Nullable } from '@/core/types/generics/utils';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { ERoleName } from '@/core/types/generics/enums/role';
 
 /**
  * It returns a bunch of data about a team member, including whether or not the user is the team
@@ -32,7 +33,8 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
-	const { activeTeam, updateOrganizationTeam, updateOTeamLoading } = useOrganizationTeams();
+	const activeTeam = useAtomValue(activeTeamState);
+	const { updateOrganizationTeam, updateOTeamLoading } = useOrganizationTeams();
 
 	const activeTeamRef = useSyncRef(activeTeam);
 
@@ -100,13 +102,24 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 		const employeeId = member?.employee?.id;
 
 		if (!activeTeamRef.current || !employeeId) return;
-		const team = activeTeamRef.current;
 
-		updateOrganizationTeam(activeTeamRef.current, {
-			managerIds: team.members
-				?.filter((r: TOrganizationTeamEmployee) => r.role && r.role.name === 'MANAGER')
-				?.map((r: TOrganizationTeamEmployee) => r.employee?.id || '')
-				.concat(employeeId)
+		const team = activeTeamRef.current;
+		const managerIdSet = new Set<string>();
+		const memberIdSet = new Set<string>();
+
+		for (const member of team.members || []) {
+			if (member.employee?.id && member.role?.name === ERoleName.MANAGER) {
+				managerIdSet.add(member.employee.id);
+			} else {
+				memberIdSet.add(member.employee?.id);
+			}
+		}
+
+		managerIdSet.add(employeeId); // add new employeeId if not already present
+
+		updateOrganizationTeam(team, {
+			managerIds: Array.from(managerIdSet),
+			memberIds: Array.from(memberIdSet)
 		});
 	}, [updateOrganizationTeam, member, activeTeamRef]);
 
@@ -117,14 +130,22 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 		const employeeId = member?.employee?.id;
 
 		if (!activeTeamRef.current || !employeeId) return;
-		const team = activeTeamRef.current;
 
-		updateOrganizationTeam(activeTeamRef.current, {
-			managerIds: team.members
-				?.filter((r) => r.role && r.role.name === 'MANAGER')
-				?.filter((r) => r.employee?.id !== employeeId)
-				?.map((r) => r.employee?.id || '')
-				?.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index) // To make the array Unique list of ids
+		const team = activeTeamRef.current;
+		const managerIdSet = new Set<string>();
+		const memberIdSet = new Set<string>();
+
+		for (const member of team.members || []) {
+			if (member.employee?.id && member.employee.id !== employeeId && member.role?.name === ERoleName.MANAGER) {
+				managerIdSet.add(member.employee.id);
+			} else {
+				memberIdSet.add(member.employee?.id);
+			}
+		}
+
+		updateOrganizationTeam(team, {
+			managerIds: Array.from(managerIdSet),
+			memberIds: Array.from(memberIdSet)
 		});
 	}, [updateOrganizationTeam, member, activeTeamRef]);
 
@@ -133,20 +154,26 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 	 */
 	const removeMemberFromTeam = useCallback(() => {
 		const employeeId = member?.employee?.id;
-
 		if (!activeTeamRef.current || !employeeId) return;
+
 		const team = activeTeamRef.current;
+		const memberIdSet = new Set<string>();
+		const managerIdSet = new Set<string>();
 
-		deleteEmployeeFromTasks(employeeId, team.id); // Unassign all the task
-		updateOrganizationTeam(activeTeamRef.current, {
-			// remove from members
-			memberIds: team.members?.filter((r) => r.employee?.id !== employeeId)?.map((r) => r.employee?.id || ''),
+		for (const member of team.members || []) {
+			const id = member.employee?.id;
+			if (!id || id === employeeId) continue;
 
-			// remove from managers
-			managerIds: team.members
-				?.filter((r) => r.role && r.role.name === 'MANAGER')
-				?.filter((r) => r.employee?.id !== employeeId)
-				?.map((r) => r.employee?.id || '')
+			memberIdSet.add(id);
+			if (member.role?.name === ERoleName.MANAGER) {
+				managerIdSet.add(id);
+			}
+		}
+
+		deleteEmployeeFromTasks(employeeId);
+		updateOrganizationTeam(team, {
+			memberIds: Array.from(memberIdSet),
+			managerIds: Array.from(managerIdSet)
 		});
 	}, [updateOrganizationTeam, member, activeTeamRef, deleteEmployeeFromTasks]);
 
@@ -172,7 +199,7 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 			setAssignTaskLoading(true);
 			return updateTask({
 				...task,
-				members: [...(task.members || []), (member?.employeeId ? { id: member?.employeeId } : {}) as any]
+				members: [...(task.members || []), (member ? member : {}) as any]
 			}).then(() => {
 				if (isAuthUser && !activeTeamTask) {
 					setActiveTask(task);

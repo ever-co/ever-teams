@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useMemo } from 'react';
+import { Suspense, useMemo, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Card } from '@/core/components/common/card';
@@ -13,51 +13,19 @@ import { fullWidthState } from '@/core/stores/common/full-width';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { useReportActivity } from '@/core/hooks/activities/use-report-activity';
 import { useTranslations } from 'next-intl';
-import { useOrganizationTeams } from '@/core/hooks/organizations';
 
 import { TeamStatsTableSkeleton } from '@/core/components/common/skeleton/team-stats-table-skeleton';
 import { TeamDashboardPageSkeleton } from '@/core/components/common/skeleton/team-dashboard-page-skeleton';
-import { TeamStatsGridSkeleton } from '@/core/components/common/skeleton/team-stats-grid-skeleton';
-import dynamic from 'next/dynamic';
-
-// Lazy load TeamStatsChart (Recharts) for performance optimization
-const LazyTeamStatsChart = dynamic(
-	() =>
-		import('@/core/components/pages/dashboard/team-dashboard/team-stats-chart').then((mod) => ({
-			default: mod.TeamStatsChart
-		})),
-	{
-		ssr: false,
-		loading: () => <ChartSkeleton />
-	}
-);
-
-// Lazy load TeamStatsTable for performance optimization
-const LazyTeamStatsTable = dynamic(
-	() =>
-		import('@/core/components/pages/dashboard/team-dashboard/team-stats-table').then((mod) => ({
-			default: mod.TeamStatsTable
-		})),
-	{
-		ssr: false
-	}
-);
-
-// Lazy load TeamStatsGrid for performance optimization
-const LazyTeamStatsGrid = dynamic(
-	() =>
-		import('@/core/components/pages/dashboard/team-dashboard').then((mod) => ({
-			default: mod.TeamStatsGrid
-		})),
-	{
-		ssr: false,
-		loading: () => <TeamStatsGridSkeleton />
-	}
-);
+// Import optimized components from centralized location
+import {
+	LazyTeamStatsChart,
+	LazyTeamStatsTable,
+	LazyTeamStatsGrid
+} from '@/core/components/optimized-components/dashboard';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { ChartSkeleton } from '@/core/components/common/skeleton/chart-skeleton';
 import { LazyDashboardHeader } from '@/core/components/pages/dashboard/team-dashboard/lazy-components';
+import { isTrackingEnabledState } from '@/core/stores';
 
 function TeamDashboard() {
 	const t = useTranslations();
@@ -65,7 +33,7 @@ function TeamDashboard() {
 	const router = useRouter();
 	const fullWidth = useAtomValue(fullWidthState);
 	const paramsUrl = useParams<{ locale: string }>();
-	const { isTrackingEnabled } = useOrganizationTeams();
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
 	const {
 		rapportChartActivity,
@@ -74,7 +42,10 @@ function TeamDashboard() {
 		updateDateRange,
 		loading,
 		isManage,
-		currentFilters
+		currentFilters,
+		fetchReportActivity,
+		fetchDailyReport,
+		fetchStatisticsCounts
 	} = useReportActivity({ types: 'TEAM-DASHBOARD' });
 
 	const currentLocale = paramsUrl?.locale;
@@ -88,6 +59,14 @@ function TeamDashboard() {
 	);
 
 	const handleBack = () => router.back();
+
+	// Handle filter application - triggers data refetch
+	const handleFiltersApply = useCallback(() => {
+		// Refetch all dashboard data with current filter state
+		fetchReportActivity();
+		fetchDailyReport();
+		fetchStatisticsCounts();
+	}, [fetchReportActivity, fetchDailyReport, fetchStatisticsCounts]);
 
 	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
 	if (loading && (!rapportDailyActivity || rapportDailyActivity.length === 0)) {
@@ -120,6 +99,7 @@ function TeamDashboard() {
 								reportData={rapportDailyActivity || []}
 								startDate={new Date(currentFilters.startDate || '')}
 								endDate={new Date(currentFilters.endDate || '')}
+								onFiltersApply={handleFiltersApply}
 							/>
 							<LazyTeamStatsGrid
 								statisticsCounts={statisticsCounts}

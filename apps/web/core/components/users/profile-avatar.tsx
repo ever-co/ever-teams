@@ -29,12 +29,7 @@ export const ProfileAvatar = () => {
 	const onChangeAvatar = useCallback(
 		async (e: any) => {
 			if (e.target.files && user) {
-				createImageAssets(
-					e.target.files[0],
-					'profile_pictures_avatars',
-					user.tenantId as string,
-					user?.employee?.organizationId || ''
-				)
+				createImageAssets(e.target.files[0], 'profile_pictures_avatars')
 					.then((image) => {
 						updateAvatar({ imageId: image.id, id: user.id });
 					})

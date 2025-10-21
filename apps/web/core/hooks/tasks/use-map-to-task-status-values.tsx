@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
 import { useMemo } from 'react';
@@ -6,7 +5,10 @@ import Image from 'next/legacy/image';
 import { TTaskStatus } from '@/core/types/schemas';
 import { TStatus } from '@/core/types/interfaces/task/task-card';
 
-export function useMapToTaskStatusValues<T extends TTaskStatus>(data: T[], bordered = false): TStatus<any> {
+export function useMapToTaskStatusValues<T extends Omit<TTaskStatus, 'name'> & { name: string }>(
+	data: T[],
+	bordered = false
+): TStatus<any> {
 	return useMemo(() => {
 		return data.reduce((acc, item) => {
 			const value: TStatus<any>[string] = {
@@ -17,7 +19,7 @@ export function useMapToTaskStatusValues<T extends TTaskStatus>(data: T[], borde
 				bgColor: item.color,
 				bordered,
 				icon: (
-					<div className="flex relative items-center">
+					<div className="relative flex items-center">
 						{item.fullIconUrl && (
 							<Image layout="fixed" src={item.fullIconUrl} height="20" width="16" alt={item.name} />
 						)}

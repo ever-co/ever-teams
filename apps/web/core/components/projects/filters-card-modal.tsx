@@ -3,11 +3,12 @@ import { ListFilterPlus, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { MultiSelectWithSearch } from '../common/multi-select-with-search';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useOrganizationProjects, useOrganizationTeams, useTaskStatus } from '@/core/hooks';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { EverCard } from '../common/ever-card';
 import { EProjectBudgetType } from '@/core/types/generics/enums/project';
+import { useAtomValue } from 'jotai';
+import { organizationProjectsState, organizationTeamsState, taskStatusesState } from '@/core/stores';
 
 interface IFiltersCardModalProps {
 	open: boolean;
@@ -22,8 +23,9 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 	const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
 	const [selectedBudgetType, setSelectedBudgetType] = useState<string[]>([]);
 	const params = useSearchParams();
-	const { teams } = useOrganizationTeams();
-	const { organizationProjects } = useOrganizationProjects();
+	const teams = useAtomValue(organizationTeamsState);
+
+	const organizationProjects = useAtomValue(organizationProjectsState);
 	const teamMembers = useMemo(
 		() => organizationProjects?.flatMap((project) => project.members ?? []),
 		[organizationProjects]
@@ -44,7 +46,8 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 		],
 		[t]
 	);
-	const { taskStatuses } = useTaskStatus();
+
+	const taskStatuses = useAtomValue(taskStatusesState);
 	const router = useRouter();
 	const statusColorsMap: Map<string | undefined, string | undefined | null> = useMemo(() => {
 		return new Map(taskStatuses.map((status) => [status.name, status.color]));
@@ -126,14 +129,14 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 	const selectedStatusOptions = useMemo(
 		() =>
 			selectedStatus.map((statusId) => ({
-				value: taskStatuses.find((status) => status.name === statusId)?.name ?? '-',
+				value: taskStatuses.find((status) => status.id === statusId)?.value ?? '-',
 				id: statusId
 			})),
 		[selectedStatus, taskStatuses]
 	);
 
 	const handleStatusChange = useCallback((data: Array<{ id: string; value: string }>) => {
-		setSelectedStatus(data.map((status) => status.value));
+		setSelectedStatus(data.map((status) => status.id));
 	}, []);
 
 	// Memoize derived data for managers
@@ -296,19 +299,19 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							options={statusOptions}
 							placeholder="Select a status..."
 						/>
-						<div className="flex gap-1 w-full">
+						<div className="flex flex-wrap gap-1 w-full">
 							{selectedStatus.map((statusId) => (
 								<div
 									style={{
 										backgroundColor:
-											statusColorsMap.get(taskStatuses.find((el) => el.name == statusId)?.name) ??
+											statusColorsMap.get(taskStatuses.find((el) => el.id == statusId)?.name) ??
 											undefined
 									}}
 									className=" rounded-md flex items-center gap-1 bg-gray-200 py-[.125rem] dark:text-black px-2"
 									key={statusId}
 								>
 									<span className="text-[.65rem] font-light">
-										{taskStatuses.find((el) => el.name == statusId)?.name}
+										{taskStatuses.find((el) => el.id == statusId)?.name}
 									</span>
 									<button
 										onClick={() => setSelectedStatus(selectedStatus.filter((t) => t !== statusId))}
@@ -338,7 +341,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 							options={managerOptions}
 							placeholder="Select a manager..."
 						/>
-						<div className="flex gap-1 w-full">
+						<div className="flex gap-1 flex-wrap w-full">
 							{selectedManagers.map((managerId) => {
 								const manager = managers.find((manager) => manager.id === managerId);
 

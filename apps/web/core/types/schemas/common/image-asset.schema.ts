@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { idSchema } from './base.schema';
+import { uuIdSchema } from './base.schema';
 import { EFileStorageProvider } from '../../generics/enums/file-storage';
-import { basePerTenantAndOrganizationEntityModelSchema } from './tenant-organization.schema';
+import { basePerTenantAndOrganizationEntitySchema } from './tenant-organization.schema';
 
 /**
  * Zod schemas for Image Asset-related interfaces
@@ -20,12 +20,12 @@ export const imageAssetSchema = z
 		height: z.number().optional(),
 		size: z.number().optional(),
 		isFeatured: z.boolean().optional(),
-		externalProviderId: idSchema.optional(),
+		externalProviderId: uuIdSchema.optional(),
 		storageProvider: fileStorageProviderSchema.optional(),
 		fullUrl: z.string().optional(),
 		thumbUrl: z.string().optional()
 	})
-	.merge(basePerTenantAndOrganizationEntityModelSchema)
+	.merge(basePerTenantAndOrganizationEntitySchema)
 	.strict();
 
 // Create image assets schema

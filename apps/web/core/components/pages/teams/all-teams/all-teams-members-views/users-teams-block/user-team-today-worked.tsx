@@ -1,23 +1,25 @@
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { useTaskStatistics, useTeamMemberCard } from '@/core/hooks';
-import { timerSecondsState } from '@/core/stores';
+import { activeTaskStatisticsState, timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { TTaskStatistics } from '@/core/types/interfaces/task/task';
 
 export function BlockCardMemberTodayWorked({ member }: { member: any }) {
 	const t = useTranslations();
 	const memberInfo = useTeamMemberCard(member);
 
 	const seconds = useAtomValue(timerSecondsState);
-	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
+	const statActiveTask = useAtomValue(activeTaskStatisticsState);
+	const activeTaskTotalStat = statActiveTask.total;
+	const { addSeconds } = useTaskStatistics(seconds);
 
-	const { h, m } = secondsToTime(
+	const { hours: h, minutes: m } = secondsToTime(
 		((member?.totalTodayTasks &&
 			member?.totalTodayTasks.reduce(
-				(previousValue: number, currentValue: ITasksStatistics) => previousValue + (currentValue.duration || 0),
+				(previousValue: number, currentValue: TTaskStatistics) => previousValue + (currentValue.duration || 0),
 				0
 			)) ||
 			activeTaskTotalStat?.duration ||
@@ -25,8 +27,8 @@ export function BlockCardMemberTodayWorked({ member }: { member: any }) {
 	);
 
 	return (
-		<div className={clsxm('flex space-x-2 items-center justify-center  font-normal flex-col mr-4')}>
-			<span className="text-xs text-gray-500 text-center	capitalize">{t('common.TOTAL_WORKED_TODAY')}</span>
+		<div className={clsxm('flex flex-col justify-center items-center mr-4 space-x-2 font-normal')}>
+			<span className="text-xs text-center text-gray-500 capitalize">{t('common.TOTAL_WORKED_TODAY')}</span>
 			<Text className="text-sm">{memberInfo.isAuthUser ? `${h}h : ${m}m` : `0h : 0m`}</Text>
 		</div>
 	);

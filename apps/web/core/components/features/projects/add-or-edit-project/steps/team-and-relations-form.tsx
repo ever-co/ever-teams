@@ -5,12 +5,12 @@ import { Identifiable, Select, Thumbnail } from './basic-information-form';
 import { IStepElementProps } from '../container';
 import { cn } from '@/core/lib/helpers';
 import { useTranslations } from 'next-intl';
-import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks/organizations';
-import { useRoles } from '@/core/hooks/roles';
 import { getInitialValue } from '@/core/lib/helpers/create-project';
 import { EProjectRelation } from '@/core/types/generics/enums/project';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { TProjectRelation } from '@/core/types/schemas';
+import { useAtomValue } from 'jotai';
+import { organizationProjectsState, organizationTeamsState, rolesState } from '@/core/stores';
 
 export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const { goToNext, goToPrevious, currentData } = props;
@@ -18,9 +18,12 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 		getInitialValue(currentData, 'members', [])
 	);
 	const [relations, setRelations] = useState<(TProjectRelation & { id: string })[]>([]);
-	const { organizationProjects } = useOrganizationProjects();
-	const { teams } = useOrganizationTeams();
-	const { roles } = useRoles();
+
+	const organizationProjects = useAtomValue(organizationProjectsState);
+
+	const teams = useAtomValue(organizationTeamsState);
+
+	const roles = useAtomValue(rolesState);
 	const relationsData = Object.values(EProjectRelation);
 	const t = useTranslations();
 
@@ -86,13 +89,13 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 	}, [goToPrevious, members, relations]);
 
 	return (
-		<form onSubmit={handleSubmit} className="w-full pt-4 space-y-5">
-			<div className="flex flex-col w-full gap-2">
+		<form onSubmit={handleSubmit} className="pt-4 space-y-5 w-full">
+			<div className="flex flex-col gap-2 w-full">
 				<label className="text-xs font-medium">
 					{t('pages.projects.teamAndRelationsForm.formFields.assignMembers')}
 				</label>
-				<div className="flex flex-col w-full gap-2">
-					<div className="flex flex-col w-full gap-1">
+				<div className="flex flex-col gap-2 w-full">
+					<div className="flex flex-col gap-1 w-full">
 						{members.length ? (
 							members.map((el) => (
 								<PairingItem
@@ -132,7 +135,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 								/>
 							))
 						) : (
-							<span className="text-xs ">
+							<span className="text-xs">
 								{t('pages.projects.teamAndRelationsForm.formFields.noMembers')}
 							</span>
 						)}
@@ -150,12 +153,12 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 			{
 				// Will be implemented later on the api side (we keep this here)
 			}
-			<div className="flex-col hidden w-full gap-2">
+			<div className="hidden flex-col gap-2 w-full">
 				<label className="text-xs font-medium">
 					{t('pages.projects.teamAndRelationsForm.formFields.relations')}
 				</label>
-				<div className="flex flex-col w-full gap-2">
-					<div className="flex flex-col w-full gap-1">
+				<div className="flex flex-col gap-2 w-full">
+					<div className="flex flex-col gap-1 w-full">
 						{relations.length ? (
 							relations.map((el) => (
 								<PairingItem
@@ -197,7 +200,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 								/>
 							))
 						) : (
-							<span className="text-xs ">
+							<span className="text-xs">
 								{t('pages.projects.teamAndRelationsForm.formFields.noRelations')}
 							</span>
 						)}
@@ -214,7 +217,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 				</div>
 			</div>
 
-			<div className="flex items-center justify-between w-full">
+			<div className="flex justify-between items-center w-full">
 				<Button onClick={handlePrevious} className=" h-[2.5rem]" type="button">
 					{t('common.BACK')}
 				</Button>
@@ -244,7 +247,7 @@ function PairingItem<K extends Identifiable, V extends Identifiable>(props: IPai
 	const [valueId, setValueId] = useState<string | null>(selected[1] || null);
 
 	return (
-		<div className="flex items-center w-full gap-3">
+		<div className="flex gap-3 items-center w-full">
 			<div className="w-full">
 				<Select
 					placeholder={keysLabel}

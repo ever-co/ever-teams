@@ -24,8 +24,8 @@
 		"@plasmohq/prettier-plugin-sort-imports": "^4.0.1",
 		"@types/chrome": "^0.0.203",
 		"@types/node": "^20.12.2",
-		"@types/react": "18.0.21",
-		"@types/react-dom": "18.0.6",
+		"@types/react": "19.1.2",
+		"@types/react-dom": "19.1.2",
 		"postcss": "^8.4.19",
 		"prettier": "^3.2.5",
 		"typescript": "^4.9.4"

@@ -1,4 +1,4 @@
-import { PaginationDropdown } from '@/core/components/settings/page-dropdown';
+import { PaginationItemsDropdown } from '@/core/components/settings/page-dropdown';
 import { useTranslations } from 'next-intl';
 import { Dispatch, SetStateAction } from 'react';
 import ReactPaginate, { ReactPaginateProps } from 'react-paginate';
@@ -16,7 +16,7 @@ type Props = {
 
 export function Paginate({
 	total,
-	//   itemsPerPage,
+	itemsPerPage,
 	onPageChange,
 	itemOffset,
 	endOffset,
@@ -81,8 +81,8 @@ export function Paginate({
 			/>
 
 			<div className="flex relative gap-x-5 items-center">
-				<PaginationDropdown setValue={setItemsPerPage} />
-				<div className="min-w-[240px] text-sm font-normal text-gray-500 dark:text-gray-400">
+				<PaginationItemsDropdown onChange={setItemsPerPage} totalItems={total} itemsPerPage={itemsPerPage} />
+				<div className="text-sm font-normal text-gray-500 dark:text-gray-400">
 					{`Showing ${itemOffset + 1} to ${Math.min(endOffset, total)} of ${total} entries`}
 				</div>
 			</div>

@@ -1,4 +1,3 @@
-import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { APIService } from '../../api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
@@ -30,13 +29,10 @@ class FavoriteService extends APIService {
 	 */
 	createFavorite = async (body: IFavoriteCreateRequest): Promise<TFavorite> => {
 		try {
-			const organizationId = getOrganizationIdCookie();
-			const tenantId = getTenantIdCookie();
-
 			const data = {
 				...body,
-				organizationId,
-				tenantId
+				organizationId: this.organizationId,
+				tenantId: this.tenantId
 			};
 
 			// Validate input data before sending
@@ -46,7 +42,7 @@ class FavoriteService extends APIService {
 				'createFavorite input data'
 			);
 
-			const response = await this.post<TFavorite>('/favorite', validatedInput, { tenantId });
+			const response = await this.post<TFavorite>('/favorite', validatedInput, { tenantId: this.tenantId });
 
 			// Validate the response data
 			return validateApiResponse(favoriteSchema, response.data, 'createFavorite API response');
@@ -72,21 +68,18 @@ class FavoriteService extends APIService {
 	 * @returns Promise<PaginationResponse<TFavorite>> - Validated favorites data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getFavoritesByEmployee = async (employeeId: ID): Promise<PaginationResponse<TFavorite>> => {
+	getFavoritesByEmployee = async ({ employeeId }: { employeeId: ID }): Promise<PaginationResponse<TFavorite>> => {
 		try {
-			const organizationId = getOrganizationIdCookie();
-			const tenantId = getTenantIdCookie();
-
 			const obj = {
 				'where[employeeId]': employeeId,
-				'where[organizationId]': organizationId,
-				'where[tenantId]': tenantId
+				'where[organizationId]': this.organizationId,
+				'where[tenantId]': this.tenantId
 			} as Record<string, string>;
 
 			const query = qs.stringify(obj);
 			const endpoint = `/favorite/employee?${query}`;
 
-			const response = await this.get<PaginationResponse<TFavorite>>(endpoint, { tenantId });
+			const response = await this.get<PaginationResponse<TFavorite>>(endpoint, { tenantId: this.tenantId });
 
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(favoriteSchema, response.data, 'getFavoritesByEmployee API response');
@@ -112,7 +105,7 @@ class FavoriteService extends APIService {
 	 * @returns Promise<DeleteResponse> - Validated delete response
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	deleteFavorite = async (favoriteId: ID): Promise<DeleteResponse> => {
+	deleteFavorite = async (favoriteId: string): Promise<DeleteResponse> => {
 		try {
 			const endpoint = `/favorite/${favoriteId}`;
 

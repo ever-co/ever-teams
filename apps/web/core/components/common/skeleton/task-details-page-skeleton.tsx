@@ -6,7 +6,6 @@ import {
 	DetailsAsideSkeleton,
 	IssueCardSkeleton
 } from './rich-text-editor-skeleton';
-
 interface TaskDetailsPageSkeletonProps {
 	className?: string;
 }
@@ -41,15 +40,7 @@ export const TaskDetailsPageSkeleton: FC<TaskDetailsPageSkeletonProps> = ({ clas
 				</section>
 
 				{/* Sidebar Section */}
-				<div className="flex flex-col my-4 lg:mt-0 3xl:min-w-[24rem] gap-3 w-full lg:w-[30%]">
-					{/* Task Details Aside Skeleton */}
-					<div className="flex flex-col bg-white rounded-xl dark:bg-dark--theme-light">
-						<DetailsAsideSkeleton />
-					</div>
-
-					{/* Task Properties Skeleton */}
-					<TaskPropertiesSkeleton />
-				</div>
+				<TaskDetailAsideSkeleton />
 			</section>
 		</div>
 	);
@@ -165,6 +156,19 @@ export const TaskDetailsCompactSkeleton: FC = () => {
 					<div className="h-32 bg-[#F0F0F0] dark:bg-[#353741] rounded" />
 				</div>
 			</div>
+		</div>
+	);
+};
+export const TaskDetailAsideSkeleton: FC = () => {
+	return (
+		<div className="flex flex-col my-4 lg:mt-0 3xl:min-w-[24rem] gap-3 w-full lg:w-[30%]">
+			{/* Task Details Aside Skeleton */}
+			<div className="flex flex-col bg-white rounded-xl dark:bg-dark--theme-light">
+				<DetailsAsideSkeleton />
+			</div>
+
+			{/* Task Properties Skeleton */}
+			<TaskPropertiesSkeleton />
 		</div>
 	);
 };

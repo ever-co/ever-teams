@@ -27,7 +27,7 @@ export function useIntegrationTenant() {
 			: ['integrations', 'tenant', 'disabled'],
 		queryFn: () => {
 			if (!queryName) throw new Error('Query name is required');
-			return integrationTenantService.getIntegrationTenant(queryName);
+			return integrationTenantService.getIntegrationTenant({ name: queryName });
 		},
 		enabled: !!queryName,
 		staleTime: 1000 * 60 * 30, // Integration tenant data changes moderately, cache for 30 minutes

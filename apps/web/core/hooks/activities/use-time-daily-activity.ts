@@ -30,14 +30,12 @@ export function useTimeDailyActivity(type?: string) {
 		const employeeId = activityFilter.member ? activityFilter.member?.employeeId : user?.employee?.id;
 
 		return {
-			tenantId: user.tenantId,
-			organizationId: user.employee.organizationId,
 			employeeId: employeeId ?? '',
 			todayEnd,
 			todayStart,
 			type
 		};
-	}, [user?.tenantId, user?.employee?.organizationId, user?.employee?.id, activityFilter.member?.employeeId, type]);
+	}, [user?.employee?.id, activityFilter.member?.employeeId, type]);
 
 	// Check if user is authorized to view daily activities
 	const isAuthorized = useMemo(() => {
@@ -52,8 +50,6 @@ export function useTimeDailyActivity(type?: string) {
 	// React Query for daily activities data with dynamic title
 	const dailyActivitiesQuery = useQuery({
 		queryKey: queryKeys.activities.daily({
-			tenantId: baseParams?.tenantId,
-			organizationId: baseParams?.organizationId,
 			employeeId: baseParams?.employeeId,
 			todayStart: baseParams?.todayStart?.toISOString(),
 			todayEnd: baseParams?.todayEnd?.toISOString(),
@@ -71,7 +67,10 @@ export function useTimeDailyActivity(type?: string) {
 			return response;
 		},
 		enabled: isEnabled,
-		gcTime: 1000 * 60 * 15 // 15 minutes in cache
+		staleTime: 1000 * 60 * 5, // 5 minutes to prevent recalculation on tab switch
+		gcTime: 1000 * 60 * 30, // Increased to 30 minutes for better caching
+		refetchOnWindowFocus: false, // Disable aggressive refetching
+		refetchOnReconnect: false // Disable aggressive refetching
 	});
 
 	// Sync React Query data with Jotai state for backward compatibility

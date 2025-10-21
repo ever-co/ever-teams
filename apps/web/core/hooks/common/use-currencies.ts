@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { UseCurrenciesReturn } from '@/core/types/interfaces/common/currency';
+import { useFirstLoad } from './use-first-load';
 
 /**
  * Custom hook for managing application currencies with React Query integration
@@ -59,6 +60,7 @@ import { UseCurrenciesReturn } from '@/core/types/interfaces/common/currency';
  */
 export const useCurrencies = (): UseCurrenciesReturn => {
 	const [currencies, setCurrencies] = useAtom(currenciesState);
+	const { firstLoadData } = useFirstLoad();
 
 	/**
 	 * React Query for currencies data with optimized caching strategy
@@ -97,10 +99,19 @@ export const useCurrencies = (): UseCurrenciesReturn => {
 		await currenciesQuery.refetch();
 	}, [currenciesQuery]);
 
+	const handleFirstLoad = useCallback(async () => {
+		// Only fetch if we don't have data and not currently fetching
+		if (!currenciesQuery.data && currenciesQuery.fetchStatus !== 'fetching') {
+			await currenciesQuery.refetch();
+		}
+		firstLoadData();
+	}, [firstLoadData, currenciesQuery]);
+
 	return {
 		currencies,
 		loading: currenciesQuery.isLoading,
 		getCurrencies,
+		firstLoadCurrenciesData: handleFirstLoad,
 		error: currenciesQuery.error,
 		isError: currenciesQuery.isError,
 		refetch: currenciesQuery.refetch

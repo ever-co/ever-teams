@@ -18,7 +18,7 @@ export function CreateTaskOption({ onClick, loading }: { onClick: () => void; lo
 			className="relative px-4 py-2 text-gray-700 cursor-pointer select-none"
 			onClick={!loading ? onClick : undefined}
 		>
-			<div className="flex items-center justify-start cursor-pointer text-primary dark:text-white">
+			<div className="flex justify-start items-center cursor-pointer text-primary dark:text-white">
 				<span className="mr-[11px]">
 					{loading ? <Spinner dark={false} /> : <PlusIcon className=" font-bold w-[16px] h-[16px]" />}
 				</span>
@@ -64,9 +64,24 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: TTask) => void
 		setCombxShow(undefined);
 	}, [setCombxShow]);
 
+	// Wrapper to handle null values from Headless UI Combobox
+	const handleTaskChange = useCallback(
+		(task: TTask | null) => {
+			// Guard against null values - preserve existing behavior
+			if (!task) return;
+
+			if (onClickTask) {
+				onClickTask(task);
+			} else {
+				setActiveTask(task);
+			}
+		},
+		[onClickTask, setActiveTask]
+	);
+
 	return (
 		<>
-			<Combobox value={inputTask} onChange={onClickTask ? onClickTask : setActiveTask}>
+			<Combobox value={inputTask} onChange={handleTaskChange}>
 				<div className="relative mt-1">
 					<div className="relative w-full cursor-default overflow-hidden rounded-lg  bg-[#EEEFF5] dark:bg-[#1B1B1E] text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm ">
 						<Combobox.Input
@@ -89,7 +104,7 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: TTask) => void
 						/>
 						<Combobox.Button
 							onClick={closeCombox}
-							className="absolute inset-y-0 right-0 flex items-center pr-2"
+							className="flex absolute inset-y-0 right-0 items-center pr-2"
 						>
 							{tasksFetching || createLoading || updateLoading ? (
 								<Spinner dark={false} />
@@ -111,7 +126,7 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: TTask) => void
 						}}
 					>
 						<Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-							<div className="flex items-center justify-start mt-2 mb-4 ml-10 space-x-2">
+							<div className="flex justify-start items-center mt-2 mb-4 ml-10 space-x-2">
 								<TaskFilter
 									count={openTaskCount}
 									type="open"

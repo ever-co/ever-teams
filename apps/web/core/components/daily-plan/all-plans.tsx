@@ -1,6 +1,6 @@
 'use client';
 import { useAtomValue } from 'jotai';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
 
 import { formatDayPlanDate } from '@/core/lib/helpers/index';
@@ -9,7 +9,7 @@ import { FilterTabs, useDailyPlan } from '@/core/hooks';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
-import { dailyPlanViewHeaderTabs } from '@/core/stores/common';
+import { dailyPlanViewHeaderTabs } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import TaskBlockCard from '@/core/components/tasks/task-block-card';
@@ -36,7 +36,10 @@ export function AllPlans({
 }) {
 	// Filter plans
 	const filteredPlans = useRef<TDailyPlan[]>([]);
-	const { sortedPlans, todayPlan } = useDailyPlan();
+
+	const targetEmployeeId = user?.employee?.id ?? user?.employeeId ?? '';
+	const { sortedPlans, todayPlan } = useDailyPlan(targetEmployeeId);
+
 	const { date } = useDateRange(currentTab);
 
 	if (currentTab === 'Today Tasks') {
@@ -47,13 +50,9 @@ export function AllPlans({
 
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 
-	const [plans, setPlans] = useState(filteredPlans.current);
-
-	useEffect(() => {
-		setPlans(filterDailyPlan(date as any, filteredPlans.current));
-	}, [date, todayPlan]);
-
-	useEffect(() => {
+	// Optimized with useMemo to prevent unnecessary recalculations
+	const plans = useMemo(() => {
+		// Single call to filterDailyPlan for better performance
 		let filteredData = filterDailyPlan(date as any, filteredPlans.current);
 
 		// Filter tasks for specific user if provided
@@ -66,24 +65,32 @@ export function AllPlans({
 				.filter((plan) => plan.tasks && plan.tasks.length > 0);
 		}
 
-		setPlans(filteredData);
+		return filteredData;
 	}, [date, todayPlan, user]);
+
+	// Local state for drag-and-drop functionality
+	const [dragPlans, setDragPlans] = useState(plans);
+
+	// Sync drag state when plans change
+	useEffect(() => {
+		setDragPlans(plans);
+	}, [plans]);
 
 	return (
 		<div className="flex flex-col gap-6">
-			{Array.isArray(plans) && plans?.length > 0 ? (
+			{Array.isArray(dragPlans) && dragPlans?.length > 0 ? (
 				// @ts-ignore
-				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, plans, setPlans)}>
+				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, dragPlans, setDragPlans)}>
 					<Accordion
 						type="multiple"
 						className="text-sm"
 						defaultValue={
 							currentTab === 'Today Tasks'
 								? [new Date().toISOString().split('T')[0]]
-								: [plans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])[0]]
+								: [dragPlans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])[0]]
 						}
 					>
-						{plans.map((plan) => (
+						{dragPlans.map((plan) => (
 							<AccordionItem
 								value={plan.date.toString().split('T')[0]}
 								key={plan.id}
@@ -97,7 +104,7 @@ export function AllPlans({
 										<HorizontalSeparator />
 									</div>
 								</AccordionTrigger>
-								<AccordionContent className="bg-transparent border-none dark:bg-dark--theme">
+								<AccordionContent className="bg-transparent border-none bg-gray-100 dark:bg-dark--theme !px-4 !py-4 rounded-xl">
 									<PlanHeader plan={plan} planMode={currentTab as any} />
 
 									{view === 'TABLE' ? (
@@ -159,6 +166,7 @@ export function AllPlans({
 																					: undefined
 																			}
 																			plan={plan}
+																			taskContentClassName="!w-72 !max-w-80" // UX: consistent card width across all tabs
 																			className="shadow-[0px_0px_15px_0px_#e2e8f0]"
 																		/>
 																	</div>

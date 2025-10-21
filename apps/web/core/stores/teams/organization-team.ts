@@ -9,7 +9,7 @@ export const activeTeamIdState = atom<string | null>(null);
 export const teamsFetchingState = atom<boolean>(false);
 
 export const isTeamMemberState = atom<boolean>(true);
-
+export const isTeamManagerState = atom<boolean>(false);
 export const isTeamMemberJustDeletedState = atom<boolean>(false);
 
 export const isTeamJustDeletedState = atom<boolean>(false);
@@ -25,12 +25,22 @@ export const activeTeamState = atom<
 	(get) => {
 		const teams = get(organizationTeamsState);
 		const activeId = get(activeTeamIdState);
-		return teams.find((team) => team.id === activeId) || teams[0] || null;
+
+		// 🎯 FIX: Only fallback to teams[0] if no activeId is set
+		// This prevents switching to first team when activeId exists but teams aren't loaded yet
+		if (activeId) {
+			return teams.find((team) => team.id === activeId) || null;
+		}
+
+		// Only use first team as fallback when no specific team is selected
+		return teams[0] || null;
 	},
 	(get, set, update) => {
 		const teams = get(organizationTeamsState);
 		const activeId = get(activeTeamIdState);
-		const currentTeam = teams.find((team) => team.id === activeId) || teams[0];
+
+		// 🎯 FIX: Consistent logic with getter - only fallback to teams[0] if no activeId
+		const currentTeam = activeId ? teams.find((team) => team.id === activeId) : teams[0];
 
 		if (!currentTeam) return;
 

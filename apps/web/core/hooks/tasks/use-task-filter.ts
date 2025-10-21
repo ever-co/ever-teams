@@ -1,8 +1,6 @@
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { I_UserProfilePage } from '../users';
-import { useOrganizationTeams } from '../organizations';
-import { useAuthenticateUser } from '../auth';
-import { useDailyPlan, useLocalStorageState, useOutsideClick, useTimeLogs } from '..';
+import { useDailyPlan, useLocalStorageState, useOutsideClick } from '@/core/hooks';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -10,6 +8,9 @@ import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/consta
 import { estimatedTotalTime, getTotalTasks } from '@/core/components/tasks/daily-plan';
 import intersection from 'lodash/intersection';
 import { ITab } from '@/core/components/pages/profile/task-filters';
+import { timeLogsDailyReportState, activeTeamManagersState, activeTeamState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
+import { useUserQuery } from '../queries/user-user.query';
 
 type IStatusType = 'status' | 'size' | 'priority' | 'label';
 type FilterType = 'status' | 'search' | undefined;
@@ -24,8 +25,7 @@ type ITabs = {
 
 /**
  * It returns an object with the current tab, a function to set the current tab, and an array of tabs
- * @param {I_UserProfilePage} hook - I_UserProfilePage - this is the hook that we're using in the
- * component.
+ * @param {I_UserProfilePage} profile - User profile page data containing task groups
  */
 export function useTaskFilter(profile: I_UserProfilePage) {
 	const t = useTranslations();
@@ -33,16 +33,34 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	// 	() => (typeof window !== 'undefined' ? (window.localStorage.getItem('task-tab') as ITab) || null : 'worked'),
 	// 	[]
 	// );
-	const { activeTeamManagers, activeTeam } = useOrganizationTeams();
-	const { user } = useAuthenticateUser();
-	const { profileDailyPlans, outstandingPlans, todayPlan } = useDailyPlan();
-	const { timerLogsDailyReport } = useTimeLogs();
+
+	const activeTeamManagers = useAtomValue(activeTeamManagersState);
+	const activeTeam = useAtomValue(activeTeamState);
+
+	const { data: user } = useUserQuery();
+
+	// Correct employee ID selection based on context (auth user vs profile user)
+	// Following the pattern from user-employee-id-management.md guide
+	const targetEmployeeId = useMemo(() => {
+		return profile?.isAuthUser
+			? (user?.employee?.id ?? user?.employeeId ?? '')
+			: (profile?.member?.employeeId ?? profile?.member?.employee?.id ?? '');
+	}, [
+		profile?.isAuthUser,
+		user?.employee?.id,
+		user?.employeeId,
+		profile?.member?.employeeId,
+		profile?.member?.employee?.id
+	]);
+	// const profileDailyPlans = useAtomValue(profileDailyPlanListState);
+	const { todayPlan, outstandingPlans, profileDailyPlans } = useDailyPlan(targetEmployeeId);
+	const timeLogsDailyReport = useAtomValue(timeLogsDailyReportState);
 	const isManagerConnectedUser = useMemo(
-		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id),
+		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id),
 		[activeTeamManagers, user?.id]
 	);
 	const canSeeActivity = useMemo(
-		() => profile?.userProfile?.id === user?.id || isManagerConnectedUser != -1,
+		() => profile?.userProfile?.id === user?.id || isManagerConnectedUser !== -1,
 		[isManagerConnectedUser, profile?.userProfile?.id, user?.id]
 	);
 	const path = usePathname();
@@ -56,6 +74,21 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	const [appliedStatusFilter, setAppliedStatusFilter] = useState<StatusFilter>({} as StatusFilter);
 
 	const [taskName, setTaskName] = useState('');
+	/*
+	 * TASK FILTERING LOGIC WITH DAILY PLANS INTEGRATION
+	 *
+	 * Original Problem: The dailyplan tab always returned an empty array ([])
+	 * with a "Change this soon" comment, making the daily plans functionality
+	 * completely non-functional in the task filter system.
+	 *
+	 * Solution: Implemented proper daily plans task extraction using:
+	 * - profileDailyPlans?.items?.flatMap() to flatten all tasks from all plans
+	 * - Null-safe operations with optional chaining and fallback to empty array
+	 * - Added profileDailyPlans?.items to dependency array for proper reactivity
+	 *
+	 * Impact: The dailyplan tab now correctly displays all tasks from user's
+	 * daily plans, enabling the full daily plans workflow in the UI.
+	 */
 
 	const tasksFiltered: { [x in ITab]: TTask[] } = useMemo(
 		() => ({
@@ -63,12 +96,17 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 			assigned: profile.tasksGrouped.assignedTasks,
 			worked: profile.tasksGrouped.workedTasks,
 			stats: [],
-			dailyplan: [] // Change this soon
+
+			// Changed from empty array [] to extract tasks from daily plans
+			// Extract all tasks from all daily plans and flatten into single array
+			// flatMap: [plan1.tasks, plan2.tasks, ...] → [task1, task2, task3, ...]
+			dailyplan: profileDailyPlans?.items?.flatMap((plan) => plan.tasks || []) || []
 		}),
 		[
 			profile?.tasksGrouped?.assignedTasks,
 			profile?.tasksGrouped?.unassignedTasks,
-			profile?.tasksGrouped?.workedTasks
+			profile?.tasksGrouped?.workedTasks,
+			profileDailyPlans?.items // Added dependency for daily plans reactivity
 		]
 	);
 
@@ -113,7 +151,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 			tab: 'stats',
 			name: 'Stats',
 			description: 'This tab shows all stats',
-			count: timerLogsDailyReport.length
+			count: timeLogsDailyReport.length
 		});
 		tabs.unshift({
 			tab: 'worked',

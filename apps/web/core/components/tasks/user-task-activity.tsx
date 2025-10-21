@@ -13,7 +13,7 @@ export const UserTaskActivity = ({ timesheet }: { timesheet: TActivity }) => {
 	return (
 		<div className="shadow-md rounded-md  p-4 my-4 bg-[#00000014] dark:bg-[#26272C]">
 			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-[#7B8089]">
-				<div className="flex items-center gap-2 my-2">
+				<div className="flex gap-2 items-center my-2">
 					<h4 className="text-base">{timesheet.employee?.fullName}</h4>
 					<span>{timesheet.duration}</span>
 				</div>
@@ -28,7 +28,7 @@ export const UserTaskActivity = ({ timesheet }: { timesheet: TActivity }) => {
 					</button>
 				</div>
 			</div>
-			<div className={clsxm('flex flex-col max-h-80 gap-3', hidden && ['hidden'])}>
+			<div className={clsxm('flex flex-col max-h-96 gap-3 overflow-y-auto', hidden && ['hidden'])}>
 				<Tab.Group>
 					<Tab.List className="w-full flex rounded-xl bg-gray-200 dark:bg-[#FFFFFF14] p-2">
 						{Object.values(ActivityFilters)
@@ -51,8 +51,8 @@ export const UserTaskActivity = ({ timesheet }: { timesheet: TActivity }) => {
 							))}
 					</Tab.List>
 					<Tab.Panels>
-						<Tab.Panel className="w-full py-4 mx-4">
-							<div className="flex w-full my-2 overflow-x-auto">
+						<Tab.Panel className="py-4 mx-4 w-full">
+							<div className="flex overflow-x-auto my-2 w-full">
 								{timesheet.timeSlot?.screenshots?.map((screenshot, i) => (
 									<div key={i} className="w-1/3 min-w-[20rem] p-2">
 										<Tooltip
@@ -92,8 +92,8 @@ export const UserTaskActivity = ({ timesheet }: { timesheet: TActivity }) => {
 								))}
 							</div>
 						</Tab.Panel>
-						<Tab.Panel className="w-full py-4 mx-4">{'Apps Tab'}</Tab.Panel>
-						<Tab.Panel className="w-full py-4 mx-4">{'VisitedSites Tab'}</Tab.Panel>
+						<Tab.Panel className="py-4 mx-4 w-full">{'Apps Tab'}</Tab.Panel>
+						<Tab.Panel className="py-4 mx-4 w-full">{'VisitedSites Tab'}</Tab.Panel>
 					</Tab.Panels>
 				</Tab.Group>
 			</div>

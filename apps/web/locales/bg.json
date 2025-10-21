@@ -28,6 +28,8 @@
 		"NO_ACTIVITY_DATA": "Няма налични данни за активност",
 		"SELECT_DIFFERENT_DATE": "Изберете различен период или проверете по-късно",
 		"PENDING_TASKS": "Чакащи задачи",
+		"RECENT_TASKS": "Скорошни задачи",
+		"OLDER_TASKS": "По-стари задачи",
 		"SHOW_MORE": "Покажи още",
 		"TASKS": "Задачи",
 		"MEN_HOURS": "Човеко-часове",
@@ -40,7 +42,7 @@
 		"EXPAND_COLUMN": "Разгъни колона",
 		"EDIT_STATUS": "Редактирай статус",
 		"ADD_TIME_ENTRY": "Добавяне на запис на време",
-		"OPT_IN_UPDATES": "Абонирайте се за актуализации и новини за Ever Teams.",
+		"OPT_IN_UPDATES": "Абонирайте се за актуализации и новини за {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "Абонирайте се за нашия бюлетин",
 		"VIEW_PROJECT": "Преглед на проекта",
 		"SHARE_PROJECT": "Споделяне на проекта",
@@ -217,6 +219,9 @@
 		"PERMISSION": "Разрешение",
 		"SEARCH": "Търсене",
 		"ADD_PARENT": "Добави родител",
+		"PARENT_TASK_ASSIGNED_SUCCESS": "Родителската задача \"{parentTitle}\" беше успешно присвоена на \"{childTitle}\"",
+		"PARENT_TASK_ASSIGNMENT_FAILED": "Неуспешно присвояване на задача \"{childTitle}\" към родител \"{parentTitle}\"",
+		"PARENT_TASK_ASSIGNMENT_ERROR": "Възникна грешка при присвояването на родителската задача \"{parentTitle}\" към задача \"{childTitle}\". Моля, опитайте отново.",
 		"BLOCKS": "Блокира",
 		"CLONES": "Клонира",
 		"DUPLICATES": "Дублира",
@@ -231,6 +236,8 @@
 		"NO_TASKS": "Няма задачи",
 		"FULL_WIDTH": "Пълна ширина",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Моля спрете таймера преди да промените задачата",
+		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Моля спрете таймера преди да смените екипа",
+		"CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Моля спрете таймера преди да създадете нови елементи",
 		"COLLABORATE_DIALOG_TITLE": "Стартиране на сътрудничество",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Поканете член(ове) и започнете да си сътрудничите",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Стартиране на среща или сътрудничество с дъска",
@@ -346,6 +353,8 @@
 		"APPLY_FILTER": "Приложи филтър",
 		"CREATE_NEW": "Създай нов",
 		"NO_RESULT": "Няма резултати",
+		"NO_TEAM_MEMBERS_FOUND": "Не са намерени членове на отбора",
+		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Опитайте да коригирате търсенето или филтъра, за да намерите това, което търсите.",
 		"PICK_A_DATE": "Изберете дата",
 		"THIS_WEEK": "Тази седмица",
 		"LAST_WEEK": "Миналата седмица",
@@ -382,7 +391,6 @@
 		"NEUTRAL": "Неутрален",
 		"UNPRODUCTIVE": "Непродуктивен",
 		"ACTIVITIES": "дейности",
-		"NO_PROJECT": "Няма проект",
 		"DURATION": "Продължителност",
 		"PROGRESS": "Напредък",
 		"EMPLOYEE": "Служител",
@@ -541,7 +549,6 @@
 					"currency": "Избор на валута",
 					"currencyPlaceholder": "Изберете валута...",
 					"billing": "Тип фактуриране",
-
 					"billingPlaceholder": "Изберете интервал..."
 				}
 			},
@@ -641,7 +648,7 @@
 			"INPUT_INVITE_CODE": "Въведете код за покана.",
 			"INPUT_INVITE_CODE_DESC": "Въведете кода за покана, който изпратихме до имейла ви.",
 			"INVALID_INVITE_CODE_MESSAGE": "Невалиден код",
-			"WELCOME_TEAMS": "Добре дошли в Ever Teams",
+			"WELCOME_TEAMS": "Добре дошли в {appName}",
 			"COVER_TITLE": "Следете напредъка на работата на отборите си в реално време!",
 			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
 			"LOGIN": "Вход",
@@ -672,6 +679,7 @@
 			"HEADING_TITLE": "Създаване на нов отбор",
 			"HEADING_DESCRIPTION": "Моля, въведете данните на вашия отбор, за да създадете нов отбор.",
 			"LOADING_TEXT": "В момента създаваме новото ви работно място, изчакайте...",
+			"LOADING_WORKSPACE": "Зареждаме работното пространство, изчакайте...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Пренасочване към вашето работно пространство...",
 			"VERIFY_EMAIL_LOADING_TEXT": "Проверяваме имейла ви, изчакайте...",
 			"INPUT_TEAM_NAME": "Въведете име на отбора",
@@ -820,6 +828,25 @@
 				"POSITION": "Позиция",
 				"DATE_AND_TIME_REQUEST": "Дата и час на искането",
 				"CV_OR_ATTACHMENT": "Автобиография / прикачен файл"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "Приемете покана за отбор {team}",
+				"USER_DETAILS": "Потребителски данни",
+				"COMPLETE_REGISTRATION": "Завършете регистрацията си {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "Тази покана вече не е валидна",
+						"DESCRIPTION": "Моля, свържете се с администратора на работното пространство, за да поискате ново. Или сте въвели неправилен URL, или поканата е изтекла"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "Това работно пространство вече не съществува",
+						"DESCRIPTION": "Моля, свържете се с администратора на работното пространство, за да поискате ново"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "Връщане към таблото",
+					"CREATE_NEW_WORKSPACE": "Създаване на ново работно пространство"
+				}
 			}
 		},
 		"permissions": {
@@ -974,6 +1001,13 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Колко часа работил служителят общо и днес по задача",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "Колко часа е работил служителят днес по всички задачи за избрания екип"
 		},
+		"teamMemberTableHead": {
+			"TEAM_MEMBER": "Член на отбора",
+			"TASK": "Задача",
+			"WORKED_ON_TASK": "Работено по задача",
+			"ESTIMATE": "Оценка",
+			"ACTION": "Действие"
+		},
 		"CONFIRM_CLOSE_TASK": "Моля, потвърдете ако искате да затворите задачата",
 		"toastMessages": {
 			"TASK_UNASSIGNED": "Задачата не е възложена",
@@ -1035,12 +1069,14 @@
 		"LAST_NAME_PLACEHOLDER": "Фамилия",
 		"EMAIL_PLACEHOLDER": "Въведете имейл адреса си",
 		"PASSWORD_PLACEHOLDER": "Въведете паролата си",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "Потвърдете паролата си",
 		"PHONE_PLACEHOLDER": "Телефонен номер",
 		"ISSUE_NAME_PLACEHOLDER": "Име на проблема",
 		"TEAM_NAME_PLACEHOLDER": "Моля въведете име на отбора",
 		"TASK_INPUT_PLACEHOLDER": "По какво работите?",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Име на члена на отбора",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "Имейл адрес на члена на отбора",
+		"TEAM_MEMBER_ROLE": "Роля на члена на отбора",
 		"COMPLETION_DESCRIPTION": "Напишете описание",
 		"UPLOAD_FILES": "Качване на файлове",
 		"ATTACHMENT_FILE": "Прикачени файлове",
@@ -1048,16 +1084,18 @@
 		"SET_THEME": "Задаване на тема",
 		"CHANGE_AVATAR": "Смяна на аватар",
 		"SELECT_TEAM_SIZE": "Изберете размер на отбора",
-		"INVALID_ALLOWED_CHARACTER": "Невалидна стойност за allowedCharacters. Използвайте alpha, numeric или alphanumeric"
+		"INVALID_ALLOWED_CHARACTER": "Невалидна стойност за allowedCharacters. Използвайте alpha, numeric или alphanumeric",
+		"AGREE_TO": "Съгласявам се с"
 	},
 	"layout": {
 		"footer": {
 			"RIGHTS_RESERVED": "Всички права запазени.",
 			"COPY_RIGHT1": "© {date}-настояще,",
-			"COPY_RIGHT2": "Ever Teams",
+			"COPY_RIGHT2": "{appName}",
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Общи условия",
+			"TERMS_AND_CONDITIONS": "Общи условия",
 			"PRIVACY_POLICY": "Политика за поверителност",
 			"COOKIES": "Политика за бисквитки",
 			"BY": "От"
@@ -1068,7 +1106,9 @@
 		"ERROR_WHILE_VERIFY_CODE": "Грешка при потвърждаване на кода.",
 		"LENGTH_NUMBER_ERROR": "Дължината трябва да е число и по-голяма от 0",
 		"INVALID_ALLOWED_CHARACTER": "Невалидна стойност за allowedCharacters. Използвайте alpha, numeric или alphanumeric",
-		"VALID_EMAIL": "Моля, въведете валиден имейл"
+		"VALID_EMAIL": "Моля, въведете валиден имейл",
+		"SELECT_ROLE": "Моля, изберете роля",
+		"PASSWORDS_DO_NOT_MATCH": "Паролите не съвпадат"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Натиснете Enter за валидиране"

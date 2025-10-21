@@ -2,7 +2,7 @@ import { INextParams } from '@/core/types/interfaces/common/data-response';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { deleteTaskVersionRequest, editTaskVersionRequest } from '@/core/services/server/requests/task-version';
 import { NextResponse } from 'next/server';
-import { ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
+import { TTaskVersionCreate } from '@/core/types/schemas/task/task-version.schema';
 
 export async function PUT(req: Request, props: INextParams) {
 	const params = await props.params;
@@ -16,7 +16,7 @@ export async function PUT(req: Request, props: INextParams) {
 
 	if (!user) return $res('Unauthorized');
 
-	const datas = (await req.json()) as ITaskVersionCreate;
+	const datas = (await req.json()) as TTaskVersionCreate;
 
 	const response = await editTaskVersionRequest({
 		id: params.id,

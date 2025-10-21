@@ -1,6 +1,5 @@
 import UserTeamBlockCard from './users-teams-block/member-block';
-import { TOrganizationTeamEmployee } from '@/core/types/schemas';
-import { TOrganizationTeam } from '@/core/types/schemas/team/team.schema';
+import { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 interface Employee extends TOrganizationTeamEmployee {
 	teams: { team: TOrganizationTeam; activeTaskId?: string | null }[];

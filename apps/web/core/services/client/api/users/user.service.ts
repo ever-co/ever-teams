@@ -11,9 +11,9 @@ import {
 } from '@/core/types/schemas';
 
 class UserService extends APIService {
-	deleteUser = async (id: string): Promise<TDeleteResponse> => {
+	deleteUser = async (userId: string): Promise<TDeleteResponse> => {
 		try {
-			const response = await this.delete<TDeleteResponse>(`/user/${id}`);
+			const response = await this.delete<TDeleteResponse>(`/user/${userId}`);
 
 			// Validate API response using utility function
 			return validateApiResponse(deleteResponseSchema, response.data, 'deleteUser API response');
@@ -89,14 +89,14 @@ class UserService extends APIService {
 		}
 	};
 
-	savePersonalSettings = async (id: string, data: any) => {
-		return this.post<TUser>(`/user/${id}`, { ...data });
+	savePersonalSettings = async ({ userId, data }: { userId: string; data: any }) => {
+		return this.post<TUser>(`/user/${userId}`, { ...data });
 	};
 
 	// update/delete profile avatar for user setting
-	updateUserAvatar = async (id: string, body: Partial<TUser>): Promise<TUser> => {
+	updateUserAvatar = async ({ userId, body }: { userId: string; body: Partial<TUser> }): Promise<TUser> => {
 		try {
-			const response = await this.put<TUser>(`/user/${id}`, body);
+			const response = await this.put<TUser>(`/user/${userId}`, body);
 
 			// Validate API response using utility function
 			return validateApiResponse(userSchema, response.data, 'updateUserAvatar API response');

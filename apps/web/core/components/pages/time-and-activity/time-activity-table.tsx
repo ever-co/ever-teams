@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useMemo, useCallback } from 'react';
 import { Avatar } from '@/core/components/common/avatar';
 import Image from 'next/image';
 import { formatDuration, getWeekRange } from '@/core/lib/utils/formatDuration';
@@ -6,7 +6,7 @@ import { EmptyTimeActivity } from '../../activities/empty-time-activity';
 import { Column, TimeActivityTableAdapter } from './time-activity-table-adapter';
 import ProgressBar from '../../duplicated-components/progress-bar';
 import { useTranslations } from 'next-intl';
-
+import { TEmployee } from '@/core/types/schemas';
 interface TimeEntry {
 	member: {
 		name: string;
@@ -23,14 +23,10 @@ interface TimeEntry {
 }
 
 interface RawEmployeeLog {
-	employee: {
-		user: {
-			name: string;
-			imageUrl: string;
-		};
-	};
+	employee: TEmployee;
 	sum: number;
 	activity: number;
+	earnings?: number; // Add calculated earnings
 }
 
 interface RawProjectLog {
@@ -55,10 +51,6 @@ interface TimeActivityTableProps {
 
 export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = false }) => {
 	const t = useTranslations();
-
-	if (!loading && (!data || data.length === 0)) {
-		return <EmptyTimeActivity />;
-	}
 
 	const columns: Column<TimeEntry>[] = [
 		{
@@ -138,89 +130,137 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 		}
 	];
 
-	const weeklyData = data.reduce(
-		(acc, dayLog) => {
-			const date = new Date(dayLog.date);
-			const { start, end } = getWeekRange(date);
-			const weekKey = start.toISOString();
+	// Memoize weekly data transformation to prevent unnecessary recalculations
+	const weeklyData = useMemo(() => {
+		return data.reduce(
+			(acc, dayLog) => {
+				const date = new Date(dayLog.date);
+				const { start, end } = getWeekRange(date);
+				const weekKey = start.toISOString();
 
-			if (!acc[weekKey]) {
-				acc[weekKey] = {
-					start,
-					end,
-					logs: [],
-					totalSum: 0,
-					totalActivity: 0,
-					daysCount: 0,
-					totalEarnings: 0
-				};
-			}
-
-			acc[weekKey].logs.push(...dayLog.logs);
-			acc[weekKey].totalSum += dayLog.sum;
-			acc[weekKey].totalActivity += dayLog.activity;
-			acc[weekKey].daysCount++;
-			acc[weekKey].totalEarnings += 2000;
-
-			return acc;
-		},
-		{} as Record<
-			string,
-			{
-				start: Date;
-				end: Date;
-				logs: RawProjectLog[];
-				totalSum: number;
-				totalActivity: number;
-				daysCount: number;
-				totalEarnings: number;
-			}
-		>
-	);
-
-	const formattedData = Object.values(weeklyData).map((week) => {
-		const entries: TimeEntry[] = week.logs.flatMap((projectLog) =>
-			projectLog.employeeLogs.map((employeeLog) => ({
-				member: {
-					name: employeeLog.employee?.user?.name || 'No Member',
-					imageUrl: employeeLog.employee?.user?.imageUrl || '/assets/images/avatar.png'
-				},
-				project: {
-					name: projectLog.project?.name || t('common.NO_PROJECT'),
-					imageUrl: projectLog.project?.imageUrl || '/assets/images/default-project.png'
-				},
-				trackedHours: `${formatDuration(employeeLog.sum)}h`,
-				earnings: '160.00 USD',
-				activityLevel: employeeLog.activity || 0,
-				status: Math.random() > 0.5 ? 'active' : 'inactive'
-			}))
-		);
-
-		const startDate = week.start.toLocaleDateString('en-US', {
-			day: 'numeric',
-			month: 'long',
-			year: 'numeric'
-		});
-
-		const endDate = week.end.toLocaleDateString('en-US', {
-			day: 'numeric',
-			month: 'long',
-			year: 'numeric'
-		});
-
-		return {
-			headers: [
-				{ label: t('timeActivity.HOURS_LABEL'), value: `${formatDuration(week.totalSum)}h` },
-				{ label: t('timeActivity.EARNINGS_LABEL'), value: `${week.totalEarnings.toFixed(2)} USD` },
-				{
-					label: t('timeActivity.AVERAGE_ACTIVITY_LABEL'),
-					value: `${Math.round(week.totalActivity / week.daysCount)}%`
+				if (!acc[weekKey]) {
+					acc[weekKey] = {
+						start,
+						end,
+						logs: [],
+						totalSum: 0,
+						totalActivity: 0,
+						daysCount: 0,
+						totalEarnings: 0
+					};
 				}
-			],
-			dateRange: `${startDate} - ${endDate}`,
-			entries
-		};
-	});
 
+				acc[weekKey].logs.push(...dayLog.logs);
+				acc[weekKey].totalSum += dayLog.sum;
+				acc[weekKey].totalActivity += dayLog.activity;
+				acc[weekKey].daysCount++;
+
+				// Calculate real earnings from employee data
+				const dayEarnings = dayLog.logs.reduce((dayAcc, projectLog) => {
+					return (
+						dayAcc +
+						projectLog.employeeLogs.reduce((empAcc, employeeLog) => {
+							const billRate = employeeLog.employee.billRateValue || 0;
+							const durationHours = employeeLog.sum / 3600; // Convert seconds to hours
+							return empAcc + durationHours * billRate;
+						}, 0)
+					);
+				}, 0);
+
+				acc[weekKey].totalEarnings += dayEarnings;
+
+				return acc;
+			},
+			{} as Record<
+				string,
+				{
+					start: Date;
+					end: Date;
+					logs: RawProjectLog[];
+					totalSum: number;
+					totalActivity: number;
+					daysCount: number;
+					totalEarnings: number;
+				}
+			>
+		);
+	}, [data]);
+
+	// Memoized function to get the primary currency from week's logs
+	const getPrimaryCurrency = useCallback((logs: RawProjectLog[]): string => {
+		for (const log of logs) {
+			for (const empLog of log.employeeLogs) {
+				if (empLog.employee.billRateCurrency && empLog.employee.billRateCurrency !== 'USD') {
+					return empLog.employee.billRateCurrency;
+				}
+			}
+		}
+		return 'USD'; // Default to USD
+	}, []);
+
+	// Memoized function to calculate earnings for an employee
+	const calculateEarnings = useCallback((employeeLog: RawEmployeeLog): string => {
+		const billRate = employeeLog?.employee?.billRateValue || 0;
+		const currency = employeeLog?.employee.billRateCurrency || 'USD';
+		const durationHours = employeeLog?.sum / 3600; // Convert seconds to hours
+		const earnings = durationHours * billRate;
+		return `${earnings.toFixed(2)} ${currency}`;
+	}, []);
+
+	// Memoize formatted data to prevent unnecessary recalculations
+	const formattedData = useMemo(() => {
+		return Object.values(weeklyData).map((week) => {
+			const entries: TimeEntry[] = week.logs.flatMap((projectLog) =>
+				projectLog.employeeLogs.map((employeeLog) => ({
+					member: {
+						name: employeeLog?.employee?.user?.name || 'No Member',
+						imageUrl: employeeLog?.employee?.user?.imageUrl || '/assets/images/avatar.png'
+					},
+					project: {
+						name: projectLog.project?.name || t('common.NO_PROJECT'),
+						imageUrl: projectLog.project?.imageUrl || '/assets/images/default-project.png'
+					},
+					trackedHours: `${formatDuration(employeeLog?.sum)}h`,
+					earnings: calculateEarnings(employeeLog),
+					activityLevel: employeeLog?.activity || 0,
+					status: employeeLog?.employee?.isActive ? 'active' : 'inactive'
+				}))
+			);
+
+			const startDate = week.start.toLocaleDateString('en-US', {
+				day: 'numeric',
+				month: 'long',
+				year: 'numeric'
+			});
+
+			const endDate = week.end.toLocaleDateString('en-US', {
+				day: 'numeric',
+				month: 'long',
+				year: 'numeric'
+			});
+
+			const primaryCurrency = getPrimaryCurrency(week.logs);
+
+			return {
+				headers: [
+					{ label: t('timeActivity.HOURS_LABEL'), value: `${formatDuration(week.totalSum)}h` },
+					{
+						label: t('timeActivity.EARNINGS_LABEL'),
+						value: `${week.totalEarnings.toFixed(2)} ${primaryCurrency}`
+					},
+					{
+						label: t('timeActivity.AVERAGE_ACTIVITY_LABEL'),
+						value: `${Math.round(week.totalActivity / week.daysCount)}%`
+					}
+				],
+				dateRange: `${startDate} - ${endDate}`,
+				entries
+			};
+		});
+	}, [weeklyData, getPrimaryCurrency, calculateEarnings, t]);
+
+	if (!loading && (!data || data.length === 0)) {
+		return <EmptyTimeActivity />;
+	}
 	return <TimeActivityTableAdapter data={formattedData} columns={columns} loading={loading} />;
 };

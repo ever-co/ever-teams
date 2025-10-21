@@ -3,28 +3,40 @@
 import { AxiosError } from 'axios';
 import { isEmail, isNotEmpty } from 'class-validator';
 import { BackButton, Button, Modal, Text } from '@/core/components';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { InviteEmailDropdown } from '../../teams/invite/invite-email-dropdown';
-import { useEmployee, useOrganizationTeams, useTeamInvitations } from '@/core/hooks/organizations';
+import { useTeamInvitations } from '@/core/hooks/organizations';
 import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
 import { IInviteEmail } from '../../teams/invite/invite-email-item';
 import { toast } from 'sonner';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../../common/select';
+import { useAtomValue } from 'jotai';
+import { activeTeamState, getTeamInvitationsState, rolesState, workingEmployeesState } from '@/core/stores';
+import { ERoleName } from '@/core/types/generics/enums/role';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
+	const { data: user } = useUserQuery();
+	const roles = useAtomValue(rolesState);
 	const t = useTranslations();
-	const { inviteUser, inviteLoading, teamInvitations, resendTeamInvitation, resendInviteLoading } =
-		useTeamInvitations();
 
-	const [errors, setErrors] = useState<{ email?: string; name?: string }>({});
+	const teamInvitations = useAtomValue(getTeamInvitationsState);
+	const { inviteUser, inviteLoading, resendTeamInvitation, resendInviteLoading } = useTeamInvitations();
+
+	const [errors, setErrors] = useState<{ email?: string; name?: string; role?: string }>({});
 	const [selectedEmail, setSelectedEmail] = useState<IInviteEmail>();
-	const { workingEmployees } = useEmployee();
+	const workingEmployees = useAtomValue(workingEmployeesState);
 	const [currentOrgEmails, setCurrentOrgEmails] = useState<IInviteEmail[]>([]);
-	const { activeTeam } = useOrganizationTeams();
+	const activeTeam = useAtomValue(activeTeamState);
 	const nameInputRef = useRef<HTMLInputElement>(null);
 	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const isLoading = inviteLoading || resendInviteLoading;
+	const defaultSelectedRole = useMemo(() => roles.find((role) => role.name === ERoleName.EMPLOYEE), [roles]);
+	const [selectedRoleId, setSelectedRoleId] = useState(() => defaultSelectedRole?.id);
+	const isAdmin = user?.role?.name && [ERoleName.ADMIN, ERoleName.SUPER_ADMIN].includes(user?.role.name as ERoleName);
+	const allowedRoles = new Set([ERoleName.ADMIN, ERoleName.EMPLOYEE, ERoleName.MANAGER]);
 
 	useEffect(() => {
 		return () => {
@@ -83,8 +95,8 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 		showSuccessToast(email);
 	};
 
-	const handleInvite = async (email: string, name: string, form: HTMLFormElement) => {
-		await inviteUser(email, name);
+	const handleInvite = async (email: string, name: string, form: HTMLFormElement, roleId?: string) => {
+		await inviteUser(email, name, roleId);
 
 		form.reset();
 		showSuccessToast(email);
@@ -109,7 +121,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 				if (existingInvitation) {
 					await handleResend(existingInvitation.id, email);
 				} else {
-					await handleInvite(email, name, e.currentTarget);
+					await handleInvite(email, name, e.currentTarget, selectedRoleId);
 				}
 
 				timeoutRef.current = setTimeout(() => closeModal(), 1000);
@@ -133,7 +145,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 		<Modal isOpen={open} closeModal={closeModal}>
 			<form className="w-[98%] md:w-[530px] relative" autoComplete="off" onSubmit={handleSubmit}>
 				<EverCard className="w-full" shadow="custom">
-					<div className="flex flex-col items-center justify-between">
+					<div className="flex flex-col justify-between items-center">
 						<div className="mb-7">
 							<Text.Heading as="h3" className="mb-3 text-center">
 								{t('pages.invite.HEADING_TITLE')}
@@ -144,7 +156,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 							</Text>
 						</div>
 
-						<div className="flex flex-col w-full gap-3">
+						<div className="flex flex-col gap-3 w-full">
 							<InviteEmailDropdown
 								emails={currentOrgEmails}
 								setSelectedEmail={setSelectedEmail}
@@ -159,13 +171,42 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 								name="name"
 								placeholder={t('form.TEAM_MEMBER_NAME_PLACEHOLDER')}
 								errors={errors}
+								className="h-[3rem]"
 								setErrors={setErrors}
+								noWrapper
 								required
 								defaultValue={selectedEmail?.name || ''}
 							/>
+
+							{isAdmin ? (
+								<Select
+									defaultValue={selectedRoleId}
+									value={selectedRoleId}
+									onValueChange={(value) => setSelectedRoleId(value)}
+								>
+									<SelectTrigger className="w-full input-border h-[3rem] data-[placeholder]:text-gray-400 data-[placeholder]:dark::text-[#3b3c44]  bg-white rounded-lg border-gray-300 text-ellipsis dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
+										<SelectValue placeholder={t('form.TEAM_MEMBER_ROLE')} />
+									</SelectTrigger>
+									<SelectContent className="z-[1001] max-h-60 overflow-y-auto">
+										<SelectGroup>
+											{roles
+												.filter((role) => allowedRoles.has(role.name as ERoleName))
+												.map((role) => (
+													<SelectItem
+														key={role.id}
+														value={role.id}
+														className="hover:bg-primary focus:bg-primary focus:text-white hover:!text-white  py-1 cursor-pointer"
+													>
+														{role.name}
+													</SelectItem>
+												))}
+										</SelectGroup>
+									</SelectContent>
+								</Select>
+							) : null}
 						</div>
 
-						<div className="flex items-center justify-between w-full mt-3">
+						<div className="flex justify-between items-center mt-6 w-full">
 							<BackButton onClick={closeModal} />
 							<Button type="submit" disabled={isLoading} loading={isLoading}>
 								{t('pages.invite.SEND_INVITE')}

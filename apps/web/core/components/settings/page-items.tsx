@@ -1,11 +1,12 @@
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 import { useTranslations } from 'next-intl';
-import { IPagination } from './page-dropdown';
 
-export type PaginationItems = DropdownItem<IPagination>;
+export type PaginationItems = DropdownItem<{
+	title: string;
+}>;
 
-export function mappaginationItems(PaginationList: IPagination[]) {
+export function mappaginationItems(PaginationList: { title: string }[]) {
 	const items = PaginationList.map<PaginationItems>((page) => {
 		return {
 			key: page.title,

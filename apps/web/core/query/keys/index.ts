@@ -4,14 +4,6 @@
  */
 export const queryKeys = {
 	// Keys related to authentication and users
-	auth: {
-		all: ['auth'] as const,
-		workspaces: (userId: string | undefined | null) => ['auth', 'workspaces', ...(userId ? [userId] : [])] as const,
-		currentWorkspace: (userId: string | undefined | null) =>
-			['auth', 'current-workspace', ...(userId ? [userId] : [])] as const,
-		switchWorkspace: (workspaceId: string | undefined | null, userId: string | undefined | null) =>
-			['auth', 'switch-workspace', ...(workspaceId ? [workspaceId] : []), ...(userId ? [userId] : [])] as const
-	},
 	// Keys related to users
 	users: {
 		auth: {
@@ -84,6 +76,10 @@ export const queryKeys = {
 				['users', 'invitations', 'my', ...(tenantId ? [tenantId] : [])] as const,
 			operations: {
 				all: ['users', 'invitations', 'operations'] as const,
+				validateByCode: (code: string | undefined | null, email: string | undefined | null) =>
+					['validate-invite-by-code', ...(code ? [code] : []), ...(email ? [email] : [])] as const,
+				validateByToken: (token: string | undefined | null, email: string | undefined | null) =>
+					['validate-invite-byt-token', ...(token ? [token] : []), ...(email ? [email] : [])] as const,
 				invite: (teamId: string | undefined | null) =>
 					['users', 'invitations', 'operations', 'invite', ...(teamId ? [teamId] : [])] as const,
 				remove: (invitationId: string | undefined | null) =>
@@ -106,7 +102,9 @@ export const queryKeys = {
 		detail: (roleId: string | undefined | null) => ['roles', ...(roleId ? [roleId] : [])] as const,
 		permissions: (roleId: string | undefined | null) =>
 			['roles', ...(roleId ? [roleId] : []), 'permissions'] as const,
-		users: (roleId: string | undefined | null) => ['roles', ...(roleId ? [roleId] : []), 'users'] as const
+		users: (roleId: string | undefined | null) => ['roles', ...(roleId ? [roleId] : []), 'users'] as const,
+		myPermissions: (tenantId: string | undefined | null) =>
+			['roles', 'my-permissions', ...(tenantId ? [tenantId] : [])] as const
 	},
 	permissions: {
 		all: ['permissions'] as const,
@@ -143,7 +141,20 @@ export const queryKeys = {
 				] as const
 		}
 	},
-
+	workspaces: {
+		all: ['workspaces'] as const,
+		byUser: (userId: string | undefined | null) => ['workspaces', ...(userId ? [userId] : [])] as const,
+		currentWorkspace: (userId: string | undefined | null) =>
+			['workspaces', 'current-workspace', ...(userId ? [userId] : [])] as const,
+		switchWorkspace: (workspaceId: string | undefined | null, userId: string | undefined | null) =>
+			[
+				'workspaces',
+				'switch-workspace',
+				...(workspaceId ? [workspaceId] : []),
+				...(userId ? [userId] : [])
+			] as const,
+		currentOrganization: (id: string) => ['workspaces', 'current-organization', id] as const
+	},
 	// Keys related to Daily Plans
 	dailyPlans: {
 		// Standard daily plans keys (preserved for backward compatibility)
@@ -528,5 +539,24 @@ export const queryKeys = {
 
 	board: {
 		liveCollaboration: ['live-collaboration'] as const
+	},
+
+	timeLogs: {
+		all: ['time-logs'] as const,
+		dailyReport: {
+			withParams: (params: Record<string, any> | null) =>
+				[
+					'time-logs',
+					'daily-report',
+					'with-params',
+					...(params ? Object.entries(params).map(([key, value]) => `${key}-${value}`) : [])
+				] as const
+		},
+		withParams: (params: Record<string, any> | null) =>
+			[
+				'time-logs',
+				'with-params',
+				...(params ? Object.entries(params).map(([key, value]) => `${key}-${value}`) : [])
+			] as const
 	}
 };

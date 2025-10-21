@@ -7,6 +7,8 @@
 		"NO_ACTIVITY_DATA": "لا توجد بيانات نشاط متاحة",
 		"SELECT_DIFFERENT_DATE": "حدد نطاق تاريخ مختلف أو تحقق لاحقًا",
 		"PENDING_TASKS": "المهام المعلقة",
+		"RECENT_TASKS": "المهام الحديثة",
+		"OLDER_TASKS": "المهام القديمة",
 		"SHOW_MORE": "عرض المزيد",
 		"TASKS": "المهام",
 		"MEN_HOURS": "ساعات العمل",
@@ -15,7 +17,7 @@
 		"EXPAND_COLUMN": "توسيع العمود",
 		"EDIT_STATUS": "تعديل الحالة",
 		"ADD_TIME_ENTRY": "إضافة إدخال وقت",
-		"OPT_IN_UPDATES": "اشترك لتلقي التحديثات والأخبار حول Ever Teams.",
+		"OPT_IN_UPDATES": "اشترك لتلقي التحديثات والأخبار حول {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "اشترك في النشرة الإخبارية",
 		"VIEW_PROJECT": "عرض المشروع",
 		"SHARE_PROJECT": "مشاركة المشروع",
@@ -196,6 +198,9 @@
 		"PERMISSION": "الإذن",
 		"SEARCH": "بحث",
 		"ADD_PARENT": "إضافة أصل",
+		"PARENT_TASK_ASSIGNED_SUCCESS": "تم تعيين المهمة الأصل \"{parentTitle}\" بنجاح إلى \"{childTitle}\"",
+		"PARENT_TASK_ASSIGNMENT_FAILED": "فشل في تعيين المهمة \"{childTitle}\" إلى الأصل \"{parentTitle}\"",
+		"PARENT_TASK_ASSIGNMENT_ERROR": "حدث خطأ أثناء تعيين المهمة الأصل \"{parentTitle}\" إلى المهمة \"{childTitle}\". يرجى المحاولة مرة أخرى.",
 		"BLOCKS": "يحجب",
 		"CLONES": "نسخ",
 		"DUPLICATES": "مكررات",
@@ -210,6 +215,8 @@
 		"NO_TASKS": "لا توجد مهام",
 		"FULL_WIDTH": "العرض الكاملh",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "يرجى إيقاف المؤقت قبل تغيير المهمة",
+		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "يرجى إيقاف المؤقت قبل تغيير الفريق",
+		"CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "يرجى إيقاف المؤقت قبل إنشاء عناصر جديدة",
 		"COLLABORATE_DIALOG_TITLE": "بدء التعاون",
 		"COLLABORATE_DIALOG_SUB_TITLE": "ادعُ عضوًا (أعضاء) وابدأ التعاون",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "بدء اجتماع أو تعاون لوحة",
@@ -325,6 +332,8 @@
 		"APPLY_FILTER": "تطبيق الفلتر",
 		"CREATE_NEW": "إنشاء جديد",
 		"NO_RESULT": "لا توجد نتائج",
+		"NO_TEAM_MEMBERS_FOUND": "لم يتم العثور على أعضاء فريق",
+		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "حاول تعديل البحث أو الفلتر للعثور على ما تبحث عنه.",
 		"PICK_A_DATE": "اختر تاريخًا",
 		"THIS_WEEK": "هذا الأسبوع",
 		"LAST_WEEK": "الأسبوع الماضي",
@@ -361,7 +370,6 @@
 		"NEUTRAL": "محايد",
 		"UNPRODUCTIVE": "غير منتج",
 		"ACTIVITIES": "أنشطة",
-		"NO_PROJECT": "لا يوجد مشروع",
 		"DURATION": "المدة",
 		"PROGRESS": "التقدم",
 		"EMPLOYEE": "موظف",
@@ -535,7 +543,6 @@
 					"billingPlaceholder": "اختر الفاصل الزمني..."
 				}
 			},
-
 			"categorizationForm": {
 				"formFields": {
 					"labels": "التصنيفات",
@@ -672,6 +679,7 @@
 			"HEADING_TITLE": "إنشاء فريق جديد",
 			"HEADING_DESCRIPTION": "يرجى إدخال تفاصيل فريقك لإنشاء فريق جديد.",
 			"LOADING_TEXT": "نحن الآن ننشئ مساحة عملك الجديدة، انتظر...",
+			"LOADING_WORKSPACE": "نحن نقوم بتحميل مساحة العمل، انتظر...",
 			"REDIRECT_TO_WORSPACE_LOADING": "إعادة التوجيه إلى مساحة العمل الخاصة بك",
 			"VERIFY_EMAIL_LOADING_TEXT": "نحن نحقق من بريدك الإلكتروني، انتظر...",
 			"INPUT_TEAM_NAME": "أدخل اسم فريقك",
@@ -820,6 +828,25 @@
 				"POSITION": "المنصب",
 				"DATE_AND_TIME_REQUEST": "التاريخ والوقت للطلب",
 				"CV_OR_ATTACHMENT": "المرفقات"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "قبول الدعوة لفريق {team}",
+				"USER_DETAILS": "تفاصيل المستخدم",
+				"COMPLETE_REGISTRATION": "أكمل تسجيلك {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "هذه الدعوة لم تعد صالحة",
+						"DESCRIPTION": "يرجى الاتصال بمدير مساحة العمل لطلب رسالة جديدة. إما أنك أدخلت رابطًا غير صحيح أو انتهت صلاحية الدعوة"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "مساحة العمل هذه لم تعد موجودة",
+						"DESCRIPTION": "يرجى الاتصال بمدير مساحة العمل لطلب رسالة جديدة"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "العودة إلى لوحة التحكم",
+					"CREATE_NEW_WORKSPACE": "إنشاء مساحة عمل جديدة"
+				}
 			}
 		},
 		"permissions": {
@@ -982,6 +1009,13 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "كم ساعة عمل الموظف اليوم والإجمالي في المهمة",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "كم ساعة عمل الموظف اليوم في جميع المهام للفريق المحدد"
 		},
+		"teamMemberTableHead": {
+			"TEAM_MEMBER": "عضو الفريق",
+			"TASK": "المهمة",
+			"WORKED_ON_TASK": "عمل على المهمة",
+			"ESTIMATE": "التقدير",
+			"ACTION": "الإجراء"
+		},
 		"CONFIRM_CLOSE_TASK": "يرجى تأكيد رغبتك في إغلاق المهمة",
 		"toastMessages": {
 			"TASK_UNASSIGNED": "لم يتم تعيين المهمة",
@@ -1043,12 +1077,14 @@
 		"LAST_NAME_PLACEHOLDER": "اسم العائلة",
 		"EMAIL_PLACEHOLDER": "أدخل عنوان بريدك الإلكتروني",
 		"PASSWORD_PLACEHOLDER": "ادخل رقمك السري",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "تأكيد كلمة المرور",
 		"PHONE_PLACEHOLDER": "رقم الهاتف",
 		"ISSUE_NAME_PLACEHOLDER": "اسم القضية",
 		"TEAM_NAME_PLACEHOLDER": "يرجى إدخال اسم فريقك",
 		"TASK_INPUT_PLACEHOLDER": "على ماذا تعمل؟",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "اسم عضو الفريق",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "عنوان بريد عضو الفريق الإلكتروني",
+		"TEAM_MEMBER_ROLE": "دور عضو الفريق",
 		"COMPLETION_DESCRIPTION": "اكتب الوصف",
 		"UPLOAD_FILES": "تحميل الملفات",
 		"ATTACHMENT_FILE": "ملفات مرفقة",
@@ -1056,16 +1092,18 @@
 		"SET_THEME": "تعيين الموضوع",
 		"CHANGE_AVATAR": "تغيير الصورة الرمزية",
 		"SELECT_TEAM_SIZE": "حدد حجم الفريق",
-		"INVALID_ALLOWED_CHARACTER": "قيمة غير صالحة لـ allowedCharacters. استخدم أبجدي أو رقمي أو أبجدي رقمي"
+		"INVALID_ALLOWED_CHARACTER": "قيمة غير صالحة لـ allowedCharacters. استخدم أبجدي أو رقمي أو أبجدي رقمي",
+		"AGREE_TO": "أوافق على"
 	},
 	"layout": {
 		"footer": {
 			"RIGHTS_RESERVED": "جميع الحقوق محفوظة.",
 			"COPY_RIGHT1": "© {date}-حاضر،",
-			"COPY_RIGHT2": "Ever Teams",
+			"COPY_RIGHT2": "{appName}",
 			"COPY_RIGHT4": "إيفر ش.م.م.",
 			"COMPANY_NAME": "إيفر ش.م.م.",
 			"TERMS": "شروط الخدمة",
+			"TERMS_AND_CONDITIONS": "الشروط والأحكام",
 			"PRIVACY_POLICY": "سياسة الخصوصية",
 			"COOKIES": "سياسة ملفات تعريف الارتباط",
 			"BY": "من طرف"
@@ -1076,7 +1114,9 @@
 		"ERROR_WHILE_VERIFY_CODE": "حدث خطأ أثناء التحقق من الرمز.",
 		"LENGTH_NUMBER_ERROR": "يجب أن يكون الطول رقمًا وأكبر من 0",
 		"INVALID_ALLOWED_CHARACTER": "قيمة غير صالحة لـ allowedCharacters. استخدم أبجدي أو رقمي أو أبجدي رقمي ",
-		"VALID_EMAIL": "يرجى إدخال بريد إلكتروني صالح"
+		"VALID_EMAIL": "يرجى إدخال بريد إلكتروني صالح",
+		"SELECT_ROLE": "يرجى اختيار دور",
+		"PASSWORDS_DO_NOT_MATCH": "كلمات المرور غير متطابقة"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "اضغط إدخال للتحقق"

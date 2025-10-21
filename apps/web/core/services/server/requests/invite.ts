@@ -4,8 +4,9 @@ import { IInviteVerified, IInviteVerifyCode } from '@/core/types/interfaces/user
 import { IInviteCreate } from '@/core/types/interfaces/user/invite';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
-import { EInviteAction } from '@/core/types/generics/enums/invite';
+import { EInviteAction, EInviteStatus } from '@/core/types/generics/enums/invite';
 import { TInvite } from '@/core/types/schemas';
+import { ERoleName } from '@/core/types/generics/enums/role';
 
 /**
  * Invite user using email request
@@ -53,7 +54,7 @@ export function removeTeamInvitationsRequest({
 type ITeamInvitationsRequest = {
 	tenantId: string;
 	organizationId: string;
-	role: 'EMPLOYEE';
+	roles?: ERoleName[];
 	teamId: string;
 };
 
@@ -65,16 +66,30 @@ type ITeamInvitationsRequest = {
  * @returns
  */
 export function getTeamInvitationsRequest(
-	{ teamId, tenantId, organizationId, role }: ITeamInvitationsRequest,
+	{ teamId, tenantId, organizationId, roles }: ITeamInvitationsRequest,
 	bearer_token: string
 ) {
-	const query = qs.stringify({
+	const queryParams: Record<string, any> = {
 		'where[tenantId]': tenantId,
 		'where[organizationId]': organizationId,
-		'where[role][name]': role,
 		'where[teams][id][0]': teamId,
-		'where[status]': 'INVITED'
-	});
+		'where[status]': EInviteStatus.INVITED
+	};
+
+	// Add role filter if roles are specified
+	if (roles && roles.length > 0) {
+		if (roles.length === 1) {
+			// Single role filter
+			queryParams['where[role][name]'] = roles[0];
+		} else {
+			// Multiple roles filter - use array format
+			roles.forEach((role, index) => {
+				queryParams[`where[role][name][${index}]`] = role;
+			});
+		}
+	}
+
+	const query = qs.stringify(queryParams);
 
 	return serverFetch<PaginationResponse<TInvite>>({
 		path: `/invite?${query}`,
@@ -82,6 +97,36 @@ export function getTeamInvitationsRequest(
 		bearer_token,
 		tenantId: tenantId
 	});
+}
+
+/**
+ * Get all team invitations for all roles
+ *
+ * Now that the Gauzy API bug is fixed, we can get all invitations in a single request
+ * by not specifying any role filter, which returns all roles by default.
+ */
+export async function getAllTeamInvitationsRequest(
+	{ teamId, tenantId, organizationId }: Omit<ITeamInvitationsRequest, 'roles'>,
+	bearer_token: string
+): Promise<{ data: PaginationResponse<TInvite> }> {
+	try {
+		// Single request to get all invitations (no role filter = all roles)
+		const response = await getTeamInvitationsRequest(
+			{ teamId, tenantId, organizationId }, // No roles specified = get all roles
+			bearer_token
+		);
+
+		return response;
+	} catch (error) {
+		console.error('Error fetching all team invitations:', error);
+		// Fallback to empty result
+		return {
+			data: {
+				items: [],
+				total: 0
+			}
+		};
+	}
 }
 
 type ResetInviteParams = {

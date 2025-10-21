@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
+import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 import { taskSchema } from './task.schema';
 
 /**
@@ -12,7 +12,7 @@ export const dailyPlanStatusSchema = z.enum(['open', 'in-progress', 'completed']
  * Base Daily Plan Schema (IDailyPlanBase)
  * Represents the core properties of a daily plan extending IBasePerTenantAndOrganizationEntityModel
  */
-export const dailyPlanBaseSchema = basePerTenantAndOrganizationEntityModelSchema.extend({
+export const dailyPlanBaseSchema = basePerTenantAndOrganizationEntitySchema.extend({
 	id: z.string().optional(),
 	date: z.string(),
 	workTimePlanned: z.coerce.number(),
@@ -33,7 +33,10 @@ export const dailyPlanSchema = dailyPlanBaseSchema.extend({
 	organizationTeam: z.any().optional().nullable(), // IOrganizationTeam - complex interface, using any for now
 
 	// Tasks relation
-	tasks: z.array(taskSchema).optional().nullable()
+	tasks: z
+		.array(z.lazy(() => taskSchema))
+		.optional()
+		.nullable()
 });
 
 /**

@@ -1,7 +1,7 @@
 'use client';
 import { cn } from '@/core/lib/helpers';
 import { PropsWithChildren, useEffect, useRef, useState, Suspense } from 'react';
-import dynamic from 'next/dynamic';
+// dynamic import removed - using optimized components
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/core/components/common/resizable';
@@ -16,13 +16,9 @@ import GlobalHeader from './global-header';
 import MainSidebarTrigger from './main-sidebar-trigger';
 import GlobalFooter from './global-footer';
 
-// Lazy load AppSidebar for performance optimization
+// Import optimized components from centralized location
+import { LazyAppSidebar } from '@/core/components/optimized-components/common';
 import { AppSidebarSkeleton } from '@/core/components/common/skeleton/app-sidebar-skeleton';
-
-const LazyAppSidebar = dynamic(() => import('../app-sidebar').then((mod) => ({ default: mod.AppSidebar })), {
-	loading: () => <AppSidebarSkeleton />,
-	ssr: false // Client-only to avoid hydration issues with heavy hooks
-});
 
 /**
  * Props interface for the MainLayout component
@@ -197,7 +193,7 @@ export function MainLayout({
 								{/* Warning: this is to remove the unwanted double scroll on the Dashboard */}
 								<div
 									className={cn(
-										'min-h-[calc(100vh_-_240px)] h-full w-full flex-1 overflow-x-hidden',
+										'overflow-x-hidden flex-1 w-full h-full min-h-[calc(100vh_-_240px)]',
 										childrenClassName
 									)}
 									style={{

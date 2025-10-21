@@ -28,6 +28,8 @@
 		"NO_ACTIVITY_DATA": "No hay datos de actividad disponibles",
 		"SELECT_DIFFERENT_DATE": "Selecciona un rango de fechas diferente o vuelve más tarde",
 		"PENDING_TASKS": "Tareas pendientes",
+		"RECENT_TASKS": "Tareas recientes",
+		"OLDER_TASKS": "Tareas anteriores",
 		"SHOW_MORE": "Mostrar más",
 		"TASKS": "Tareas",
 		"MEN_HOURS": "Horas Hombre",
@@ -36,7 +38,7 @@
 		"EXPAND_COLUMN": "Expandir columna",
 		"EDIT_STATUS": "Editar estado",
 		"ADD_TIME_ENTRY": "Agregar entrada de tiempo",
-		"OPT_IN_UPDATES": "Opta por recibir actualizaciones y noticias sobre Ever Teams.",
+		"OPT_IN_UPDATES": "Opta por recibir actualizaciones y noticias sobre {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "Suscríbete a nuestro boletín",
 		"VIEW_PROJECT": "Ver proyecto",
 		"SHARE_PROJECT": "Compartir proyecto",
@@ -213,6 +215,9 @@
 		"PERMISSION": "Permiso",
 		"SEARCH": "Buscar",
 		"ADD_PARENT": "Agregar padre",
+		"PARENT_TASK_ASSIGNED_SUCCESS": "La tarea padre \"{parentTitle}\" ha sido asignada exitosamente a \"{childTitle}\"",
+		"PARENT_TASK_ASSIGNMENT_FAILED": "Error al asignar la tarea \"{childTitle}\" a la padre \"{parentTitle}\"",
+		"PARENT_TASK_ASSIGNMENT_ERROR": "Ocurrió un error al asignar la tarea padre \"{parentTitle}\" a la tarea \"{childTitle}\". Por favor, inténtalo de nuevo.",
 		"BLOCKS": "Bloques",
 		"CLONES": "Clones",
 		"DUPLICATES": "Duplicados",
@@ -227,6 +232,8 @@
 		"NO_TASKS": "Sin tareas",
 		"FULL_WIDTH": "Ancho total",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Detén el cronómetro antes de cambiar la tarea",
+		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Detén el cronómetro antes de cambiar de equipo",
+		"CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Detén el cronómetro antes de crear nuevos elementos",
 		"COLLABORATE_DIALOG_TITLE": "Iniciar colaboración",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Invitar miembro(s) y empezar a colaborar",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Iniciar reunión o colaboración en tablero",
@@ -346,6 +353,8 @@
 		"APPLY_FILTER": "Aplicar filtro",
 		"CREATE_NEW": "Crear nuevo",
 		"NO_RESULT": "Sin resultados",
+		"NO_TEAM_MEMBERS_FOUND": "No se encontraron miembros del equipo",
+		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Intenta ajustar tu búsqueda o filtro para encontrar lo que buscas.",
 		"PICK_A_DATE": "Selecciona una fecha",
 		"THIS_WEEK": "Esta semana",
 		"LAST_WEEK": "La semana pasada",
@@ -382,7 +391,6 @@
 		"NEUTRAL": "Neutral",
 		"UNPRODUCTIVE": "Improductivo",
 		"ACTIVITIES": "actividades",
-		"NO_PROJECT": "Sin proyecto",
 		"DURATION": "Duración",
 		"PROGRESS": "Progreso",
 		"EMPLOYEE": "Empleado",
@@ -583,7 +591,6 @@
 					"uploadingImage": "Subiendo la imagen del proyecto"
 				}
 			},
-
 			"categorizationForm": {
 				"formFields": {
 					"labels": "Etiquetas",
@@ -672,6 +679,7 @@
 			"HEADING_TITLE": "Crear nuevo equipo",
 			"HEADING_DESCRIPTION": "Por favor ingrese los detalles de su equipo para crear un nuevo equipo.",
 			"LOADING_TEXT": "Ahora estamos creando su nuevo lugar de trabajo, espere...",
+			"LOADING_WORKSPACE": "Estamos cargando el espacio de trabajo, espere...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Redirigiendo a tu espacio de trabajo...",
 			"VERIFY_EMAIL_LOADING_TEXT": "Estamos verificando su correo electrónico, espere...",
 			"INPUT_TEAM_NAME": "Ingrese el nombre de su equipo",
@@ -820,6 +828,25 @@
 				"POSITION": "Posición",
 				"DATE_AND_TIME_REQUEST": "Fecha y hora de solicitud",
 				"CV_OR_ATTACHMENT": "CV / Archivo adjunto"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "Aceptar invitación al equipo {team}",
+				"USER_DETAILS": "Detalles del usuario",
+				"COMPLETE_REGISTRATION": "Completa tu registro {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "Esta invitación ya no es válida",
+						"DESCRIPTION": "Por favor contacta al administrador del espacio de trabajo para solicitar uno nuevo. O ingresaste una URL incorrecta o la invitación ha expirado"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "Este espacio de trabajo ya no existe",
+						"DESCRIPTION": "Por favor contacta al administrador del espacio de trabajo para solicitar uno nuevo"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "Volver al panel",
+					"CREATE_NEW_WORKSPACE": "Crear un nuevo espacio de trabajo"
+				}
 			}
 		},
 		"permissions": {
@@ -974,6 +1001,13 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Cuántas horas trabajó el empleado en total y hoy en la tarea",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "Cuántas horas trabajó el empleado hoy en todas las tareas para el equipo seleccionado"
 		},
+		"teamMemberTableHead": {
+			"TEAM_MEMBER": "Miembro del equipo",
+			"TASK": "Tarea",
+			"WORKED_ON_TASK": "Trabajó en  tarea",
+			"ESTIMATE": "Estimación",
+			"ACTION": "Acción"
+		},
 		"CONFIRM_CLOSE_TASK": "Por favor, confirma si deseas cerrar la tarea",
 		"toastMessages": {
 			"TASK_UNASSIGNED": "Tarea no asignada",
@@ -1035,12 +1069,14 @@
 		"LAST_NAME_PLACEHOLDER": "Apellido",
 		"EMAIL_PLACEHOLDER": "Ingresa tu dirección de correo electrónico",
 		"PASSWORD_PLACEHOLDER": "Ingresa tu contraseña",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "Confirma tu contraseña",
 		"PHONE_PLACEHOLDER": "Número de teléfono",
 		"ISSUE_NAME_PLACEHOLDER": "Nombre del problema",
 		"TEAM_NAME_PLACEHOLDER": "Ingresa el nombre de tu equipo",
 		"TASK_INPUT_PLACEHOLDER": "¿En qué estás trabajando?",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Nombre del miembro del equipo",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "Dirección de correo electrónico del miembro del equipo",
+		"TEAM_MEMBER_ROLE": "Rol del miembro del equipo",
 		"COMPLETION_DESCRIPTION": "Escribe la descripción",
 		"UPLOAD_FILES": "Subir archivos",
 		"ATTACHMENT_FILE": "Archivos adjuntos",
@@ -1048,16 +1084,18 @@
 		"SET_THEME": "Establecer tema",
 		"CHANGE_AVATAR": "Cambiar avatar",
 		"SELECT_TEAM_SIZE": "Seleccionar tamaño de equipo",
-		"INVALID_ALLOWED_CHARACTER": "Valor no válido para allowedCharacters. Use alfa, numérico o alfanumérico"
+		"INVALID_ALLOWED_CHARACTER": "Valor no válido para allowedCharacters. Use alfa, numérico o alfanumérico",
+		"AGREE_TO": "Acepto"
 	},
 	"layout": {
 		"footer": {
 			"RIGHTS_RESERVED": "Todos los derechos reservados.",
 			"COPY_RIGHT1": "© {date}-Presente,",
-			"COPY_RIGHT2": "Ever Teams",
+			"COPY_RIGHT2": "{appName}",
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Términos del servicio",
+			"TERMS_AND_CONDITIONS": "Términos y condiciones",
 			"PRIVACY_POLICY": "Política de privacidad",
 			"COOKIES": "Política de cookies",
 			"BY": "Por"
@@ -1068,7 +1106,9 @@
 		"ERROR_WHILE_VERIFY_CODE": "Error al verificar el código.",
 		"LENGTH_NUMBER_ERROR": "La longitud debe ser un número y mayor que 0",
 		"INVALID_ALLOWED_CHARACTER": "Valor no válido para allowedCharacters. Use alfa, numérico o alfanumérico",
-		"VALID_EMAIL": "Por favor ingrese un correo electrónico válido"
+		"VALID_EMAIL": "Por favor ingrese un correo electrónico válido",
+		"SELECT_ROLE": "Por favor seleccione un rol",
+		"PASSWORDS_DO_NOT_MATCH": "Las contraseñas no coinciden"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Presione Enter para validar"

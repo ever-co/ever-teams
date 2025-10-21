@@ -1,5 +1,4 @@
 'use client';
-import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useEffect, useMemo, useState } from 'react';
@@ -17,99 +16,32 @@ import { IOrganization } from '@/core/types/interfaces/organization/organization
 import { TTimeLimitReportList } from '@/core/types/schemas';
 import { TGroupByOption } from '@/core/components/pages/reports/weekly-limit/group-by-select';
 import { ReportsPageSkeleton } from '@/core/components/common/skeleton/reports-page-skeleton';
+// Skeletons are now handled by optimized components
+
+// Import optimized components from centralized location
 import {
-	MembersSelectSkeleton,
-	GroupBySelectSkeleton,
-	DatePickerWithRangeSkeleton,
-	WeeklyLimitExportMenuSkeleton,
-	TimeReportTableSkeleton,
-	TimeReportTableByMemberSkeleton,
-	PaginateSkeleton
-} from '@/core/components/common/skeleton/reports-component-skeletons';
-import dynamic from 'next/dynamic';
-
-const LazyDatePickerWithRange = dynamic(
-	() => import('@/core/components/common/date-range-select').then((mod) => ({ default: mod.DatePickerWithRange })),
-	{
-		ssr: false,
-		loading: () => <DatePickerWithRangeSkeleton />
-	}
-);
-
-const LazyMembersSelect = dynamic(
-	() =>
-		import('@/core/components/pages/reports/weekly-limit/members-select').then((mod) => ({
-			default: mod.MembersSelect
-		})),
-	{
-		ssr: false,
-		loading: () => <MembersSelectSkeleton />
-	}
-);
-
-const LazyGroupBySelect = dynamic(
-	() =>
-		import('@/core/components/pages/reports/weekly-limit/group-by-select').then((mod) => ({
-			default: mod.GroupBySelect
-		})),
-	{
-		ssr: false,
-		loading: () => <GroupBySelectSkeleton />
-	}
-);
-
-const LazyWeeklyLimitExportMenu = dynamic(
-	() =>
-		import('@/core/components/pages/reports/weekly-limit/weekly-limit-report-export-menu').then((mod) => ({
-			default: mod.WeeklyLimitExportMenu
-		})),
-	{
-		ssr: false,
-		loading: () => <WeeklyLimitExportMenuSkeleton />
-	}
-);
-
-// Priority 2: Heavy table components
-const LazyTimeReportTable = dynamic(
-	() =>
-		import('@/core/components/pages/reports/weekly-limit/time-report-table').then((mod) => ({
-			default: mod.TimeReportTable
-		})),
-	{
-		ssr: false,
-		loading: () => <TimeReportTableSkeleton />
-	}
-);
-
-const LazyTimeReportTableByMember = dynamic(
-	() =>
-		import('@/core/components/pages/reports/weekly-limit/time-report-table').then((mod) => ({
-			default: mod.TimeReportTableByMember
-		})),
-	{
-		ssr: false,
-		loading: () => <TimeReportTableByMemberSkeleton />
-	}
-);
-
-// Priority 3: Pagination component
-const LazyPaginate = dynamic(
-	() => import('@/core/components/duplicated-components/_pagination').then((mod) => ({ default: mod.Paginate })),
-	{
-		ssr: false,
-		loading: () => <PaginateSkeleton />
-	}
-);
+	LazyGroupBySelect,
+	LazyWeeklyLimitExportMenu,
+	LazyTimeReportTable,
+	LazyDatePickerWithRange,
+	LazyMembersSelect,
+	LazyTimeReportTableByMember,
+	LazyPaginate
+} from '@/core/components/optimized-components/reports';
+import { activeTeamState, isTrackingEnabledState, myPermissionsState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 function WeeklyLimitReport() {
-	const { isTrackingEnabled } = useOrganizationTeams();
-	const { user } = useAuthenticateUser();
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
+	const { data: user } = useUserQuery();
 	const [organization, setOrganization] = useState<IOrganization>();
 	const { timeLimitsReports, getTimeLimitsReport, getTimeLimitReportLoading } = useTimeLimits();
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
 	const [groupBy, setGroupBy] = useState<TGroupByOption[]>(['date']);
 	const t = useTranslations();
+	const myPermissions = useAtomValue(myPermissionsState);
 	const breadcrumbPath = useMemo(
 		() => [
 			{ title: t('common.REPORTS'), href: '/' },
@@ -126,7 +58,7 @@ function WeeklyLimitReport() {
 			},
 		[organization]
 	);
-	const { activeTeam } = useOrganizationTeams();
+	const activeTeam = useAtomValue(activeTeamState);
 	const [member, setMember] = useState<string>('all');
 	const [dateRange, setDateRange] = useState<DateRange>({
 		from: startOfMonth(new Date()),
@@ -150,7 +82,10 @@ function WeeklyLimitReport() {
 	// Get the organization
 	useEffect(() => {
 		if (organizationId && tenantId) {
-			getUserOrganizationsRequest({ tenantId, userId: user?.id ?? '' }, accessToken ?? '').then((org) => {
+			getUserOrganizationsRequest(
+				{ tenantId, userId: user?.id ?? '', userPermissions: myPermissions },
+				accessToken ?? ''
+			).then((org) => {
 				setOrganization(org.data.items[0].organization);
 			});
 		}
@@ -159,8 +94,6 @@ function WeeklyLimitReport() {
 	// Get Time limits data
 	useEffect(() => {
 		getTimeLimitsReport({
-			organizationId,
-			tenantId,
 			employeeIds: [
 				...(member === 'all' ? (activeTeam?.members?.map((m: any) => m.employeeId) ?? []) : [member])
 			],

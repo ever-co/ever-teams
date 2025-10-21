@@ -1,17 +1,11 @@
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { TTaskStatistics } from '@/core/types/interfaces/task/task';
 import { TaskAllStatusTypes } from './task-all-status-type';
 import MenuKanbanCard from '@/core/components/pages/kanban/menu-kanban-card';
 import { TaskInput } from './task-input';
-import { useAtom } from 'jotai';
-import { activeTeamTaskId } from '@/core/stores';
+import { useAtom, useAtomValue } from 'jotai';
+import { activeTeamState, activeTeamTaskId, activeTeamTaskState, timerStatusState } from '@/core/stores';
 import Link from 'next/link';
-import {
-	useAuthenticateUser,
-	useOrganizationTeams,
-	useTaskStatistics,
-	useTeamMemberCard,
-	useTimerView
-} from '@/core/hooks';
+import { useTaskStatistics, useTeamMemberCard } from '@/core/hooks';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
 import { TaskIssueStatus } from './task-issue';
 import { Priority, setCommentIconColor } from '@/core/components/tasks/kanban-card';
@@ -20,6 +14,7 @@ import { secondsToTime } from '@/core/lib/helpers/index';
 import React from 'react';
 import { HorizontalSeparator } from '../duplicated-components/separator';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 interface TaskItemProps {
 	task: TTask;
@@ -28,10 +23,12 @@ interface TaskItemProps {
 export default function TaskBlockCard(props: TaskItemProps) {
 	const { task } = props;
 	const [activeTask, setActiveTask] = useAtom(activeTeamTaskId);
-	const { activeTeam } = useOrganizationTeams();
-	const { timerStatus, activeTeamTask } = useTimerView();
+	const activeTeam = useAtomValue(activeTeamState);
+	const timerStatus = useAtomValue(timerStatusState);
 
-	const { user } = useAuthenticateUser();
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+
+	const { data: user } = useUserQuery();
 	const { getEstimation } = useTaskStatistics(0);
 	const members = activeTeam?.members || [];
 	const currentUser = members.find((m) => m.employee?.userId === user?.id);
@@ -59,13 +56,17 @@ export default function TaskBlockCard(props: TaskItemProps) {
 
 	const currentMember = activeTeam?.members?.find((member) => member.id === memberInfo.member?.id || task?.id);
 
-	const { h, m, s } = secondsToTime(
+	const {
+		hours: h,
+		minutes: m,
+		seconds: s
+	} = secondsToTime(
 		(currentMember?.totalWorkedTasks &&
 			currentMember?.totalWorkedTasks?.length &&
 			currentMember?.totalWorkedTasks
 				.filter((t: TTask) => t.id === task?.id)
 				.reduce(
-					(previousValue: number, currentValue: ITasksStatistics) =>
+					(previousValue: number, currentValue: TTaskStatistics) =>
 						previousValue + (currentValue.duration || 0),
 					0
 				)) ||

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import {
 	APPLICATION_LANGUAGES_CODE,
 	DEFAULT_APP_PATH,
@@ -11,7 +12,12 @@ export const getFallbackAPI = async () => {
 	return await getAPI();
 };
 
-import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import {
+	getAccessTokenCookie,
+	getActiveTeamIdCookie,
+	getOrganizationIdCookie,
+	getTenantIdCookie
+} from '@/core/lib/helpers/cookies';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { APIConfig, desktopServerOverride } from './axios';
 import { HttpLoggerAdapter } from '../logs/logger-adapter.service';
@@ -34,7 +40,7 @@ interface HttpClientConfig {
 /**
  * Abstract base class for making typed HTTP requests using Axios.
  *
- * Used internally to create feature-specific services (Tasks, Projects, Teams, etc.) in Ever Teams.
+ * Used internally to create feature-specific services (Tasks, Projects, Teams, etc.) in our App.
  *
  * @abstract
  */
@@ -88,6 +94,47 @@ export class APIService {
 		this.setupRequestInterceptors();
 		this.setupResponseInterceptors();
 	}
+
+	/**
+	 * Gets the active team ID from cookies
+	 * @returns {string} The active team ID
+	 */
+	protected get activeTeamId(): string {
+		return getActiveTeamIdCookie();
+	}
+
+	/**
+	 * Gets the organization ID from cookies
+	 * @returns {string} The organization ID
+	 */
+	protected get organizationId(): string {
+		return getOrganizationIdCookie();
+	}
+
+	/**
+	 * Gets the tenant ID from cookies
+	 * @returns {string} The tenant ID
+	 */
+	protected get tenantId(): string {
+		return getTenantIdCookie();
+	}
+
+	/**
+	 * Gets all active team-based query parameters
+	 * @returns {object} Object containing organizationTeamId, organizationId, and tenantId
+	 */
+	protected get activeTeamBasedQueries(): {
+		organizationTeamId: string;
+		organizationId: string;
+		tenantId: string;
+	} {
+		return {
+			organizationTeamId: this.activeTeamId,
+			organizationId: this.organizationId,
+			tenantId: this.tenantId
+		};
+	}
+
 	getConfig() {
 		return this.config;
 	}
@@ -114,7 +161,6 @@ export class APIService {
 				message: `Request cancelled (${error.message})`
 			});
 		}
-
 		throw ApiErrorService.fromAxiosError(error);
 	}
 
@@ -177,7 +223,7 @@ export class APIService {
 
 	/**
 	 * Handles 401 Unauthorized errors by redirecting users appropriately.
-	 * This logic adapts to special path prefixes used in Ever Teams (e.g., /god-mode, /spaces).
+	 * This logic adapts to special path prefixes used in Our App (e.g., /god-mode, /spaces).
 	 *
 	 * @param {any} error - The error object from Axios response.
 	 * @private
@@ -185,8 +231,9 @@ export class APIService {
 	private handleUnauthorized(error: any) {
 		const paths = location.pathname.split('/').filter(Boolean);
 		const isAuthPath =
-			!paths.includes('join') &&
-			(paths[0] === 'team' || (APPLICATION_LANGUAGES_CODE.includes(paths[0]) && paths[1] === 'team'));
+			(!paths.includes('join') &&
+				(paths[0] === 'team' || (APPLICATION_LANGUAGES_CODE.includes(paths[0]) && paths[1] === 'team'))) ||
+			paths[0] === 'auth';
 		if (isAuthPath) {
 			return error?.response;
 		}
@@ -344,6 +391,7 @@ export class APIService {
 			throw this._handleAxiosError(error);
 		}
 	}
+
 	/**
 	 * Sends a GET request.
 	 *
@@ -383,7 +431,8 @@ export class APIService {
 	async post<T = any>(
 		url: string,
 		data?: Record<string, any> | FormData,
-		config?: APIConfig
+		config?: APIConfig,
+		includeTenantAndOrganizationIds = true
 	): Promise<AxiosResponse<T>> {
 		const { baseURL, headers, tenantId, organizationId } = await this.getApiConfig(config);
 		const { directAPI = true } = config || {};
@@ -398,7 +447,7 @@ export class APIService {
 		try {
 			return await this.executeRequest<T>(() => {
 				// Automatically add tenantId / organizationId
-				if (data && !(data instanceof FormData)) {
+				if (data && !(data instanceof FormData) && includeTenantAndOrganizationIds) {
 					if (!('tenantId' in data) && tenantId !== undefined) {
 						(data as any).tenantId = tenantId;
 					}

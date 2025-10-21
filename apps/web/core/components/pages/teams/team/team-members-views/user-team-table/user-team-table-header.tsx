@@ -15,7 +15,7 @@ function UserTeamTableHeader() {
 						{t('common.TEAM')} {t('common.MEMBER')}
 					</div>
 					<div className="w-[31.2%] shrink-0 font-normal">{t('common.TASK')}</div>
-					<div className={`w-[15.6%] shrink-0 font-normal`}>
+					<div className={`w-[15.6%] shrink-0 font-normal capitalize`}>
 						<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}>
 							{t('dailyPlan.TASK_TIME')}
 						</Tooltip>

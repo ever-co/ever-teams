@@ -189,12 +189,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 
 	const createProjectImage = useCallback(
 		async (file: File) => {
-			return createImageAssets(
-				file,
-				'project_images',
-				user?.tenantId as string,
-				user?.employee?.organizationId as string
-			).then((image) => {
+			return createImageAssets(file, 'project_images').then((image) => {
 				return image;
 			});
 		},
@@ -553,7 +548,6 @@ interface ISelectProps<IItem extends Identifiable, IsMulti extends boolean> {
 /**
  * Performance-optimized Select component with comprehensive memoization
  *
- * Senior-level optimizations applied:
  * - React.memo for component-level memoization with shallow comparison
  * - useCallback for stable event handlers preventing child re-renders
  * - useMemo for expensive calculations (filtering, height calculation)
@@ -739,7 +733,7 @@ function SelectComponent<T extends Identifiable, IsMulti extends boolean = false
 				</PopoverTrigger>
 				<PopoverContent
 					className={cn(
-						'w-[var(--radix-popover-trigger-width)] p-0 dark:bg-dark--theme-light dark:border-white/20',
+						'p-0 w-[var(--radix-popover-trigger-width)] dark:bg-dark--theme-light dark:border-white/20',
 						selectOptionsListClassName
 					)}
 					align={alignOptionsList}

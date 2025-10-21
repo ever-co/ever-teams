@@ -1,8 +1,8 @@
-import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
+import { TEmployee } from '@/core/types/schemas/organization/employee.schema';
 import { FC } from 'react';
 
-const AssigneeUser: FC<{ users?: IEmployee[] }> = ({ users }) => {
+const AssigneeUser: FC<{ users?: TEmployee[] | null }> = ({ users }) => {
 	const employee = users && users.length > 0 ? users.at(0) : null;
 	return (
 		<div className="flex items-center gap-1.5 h-full" role="group" aria-label="Task assignee">

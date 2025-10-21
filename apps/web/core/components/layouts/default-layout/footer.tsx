@@ -24,14 +24,20 @@ export function Footer({ className }: IClassName) {
 	return (
 		<footer
 			className={clsxm(
-				'flex flex-col gap-7 md:gap-2 xs:flex-row justify-around items-center w-full py-4 px-3',
+				'flex flex-col gap-7 justify-around items-center px-3 py-4 w-full md:gap-2 xs:flex-row',
 				className
 			)}
 		>
 			<p className="text-neutral text-xs font-normal leading-4 -tracking-[-0.02em] text-center">
 				{t('layout.footer.COPY_RIGHT1', { date: new Date().getFullYear() })}{' '}
-				<Text.Link href={APP_LINK}>{APP_NAME}</Text.Link> {t('layout.footer.BY')}{' '}
-				<Text.Link href={COMPANY_LINK!}>{COMPANY_NAME}</Text.Link> {t('layout.footer.RIGHTS_RESERVED')}
+				{APP_NAME && APP_LINK ? <Text.Link href={APP_LINK}>{APP_NAME}</Text.Link> : <span>{APP_NAME}</span>}{' '}
+				{t('layout.footer.BY')}{' '}
+				{COMPANY_NAME && COMPANY_LINK ? (
+					<Text.Link href={COMPANY_LINK}>{COMPANY_NAME}</Text.Link>
+				) : (
+					<span>{COMPANY_NAME}</span>
+				)}{' '}
+				{t('layout.footer.RIGHTS_RESERVED')}
 			</p>
 			<div className="flex gap-3 items-center" style={{ marginRight: fullWidth && showChatwoot ? '66px' : 0 }}>
 				<LanguageDropDownWithFlags btnClassName="bg-light--theme-dark dark:bg-[#1D222A]" />

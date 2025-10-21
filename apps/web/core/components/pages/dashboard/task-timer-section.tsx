@@ -1,18 +1,8 @@
-import dynamic from 'next/dynamic';
 import { EverCard } from '@/core/components/common/ever-card';
 import { clsxm } from '@/core/lib/utils';
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { AuthUserTaskInputSkeleton } from '../../common/skeleton/auth-user-task-input-skeleton';
-import { LazyTimer } from '../../optimized-components';
-
-const AuthUserTaskInput = dynamic(
-	() => import('@/core/components/auth/auth-user-task-input').then((mod) => ({ default: mod.AuthUserTaskInput })),
-	{
-		ssr: false,
-		loading: () => <AuthUserTaskInputSkeleton />
-	}
-);
+import { LazyTimer, LazyAuthUserTaskInput } from '../../optimized-components/dashboard';
 export function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEnabled: boolean }>) {
 	const [showInput, setShowInput] = useState(false);
 	return (
@@ -23,7 +13,7 @@ export function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEna
 				'border-[#00000008]  border-[0.125rem] dark:border-[#26272C] dark:shadow-lg dark:bg-[#1B1D22] md:px-4'
 			)}
 		>
-			<AuthUserTaskInput
+			<LazyAuthUserTaskInput
 				className={clsxm(
 					'w-full lg:basis-3/4 grow max-w-[72%]',
 					!showInput && '!hidden md:!flex',

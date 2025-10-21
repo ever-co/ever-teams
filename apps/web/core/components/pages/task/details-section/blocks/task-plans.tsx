@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
 import { useDailyPlan } from '@/core/hooks';
 import { detailedTaskState } from '@/core/stores';
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import TaskRow from '../components/task-row';
 import { formatDayPlanDate } from '@/core/lib/helpers/index';
 
 export function TaskPlans() {
-	const [task] = useAtom(detailedTaskState);
+	const task = useAtomValue(detailedTaskState);
+
 	const { taskPlanList, getPlansByTask } = useDailyPlan();
 
 	useEffect(() => {
@@ -57,7 +58,7 @@ export function TaskPlans() {
 						</div>
 					))
 				) : (
-					<div className="text-center text-xs font-normal">Task not planned</div>
+					<div className="text-xs font-normal text-center">Task not planned</div>
 				)}
 			</div>
 		</section>

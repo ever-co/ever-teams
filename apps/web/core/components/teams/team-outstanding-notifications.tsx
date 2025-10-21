@@ -29,7 +29,7 @@ export function TeamOutstandingNotifications({
 	user: TUser | null;
 }) {
 	return (
-		<div className="flex flex-col gap-1">
+		<div className="flex flex-col gap-1 mb-1">
 			{outstandingPlans.length > 0 && (
 				<UserOutstandingNotification outstandingPlans={outstandingPlans} user={user} />
 			)}
@@ -135,7 +135,7 @@ const ManagerOutstandingUsersNotification = memo(function ManagerOutstandingUser
 	useEffect(() => {
 		const show = shouldShowNotification(
 			uniqueEmployees.length,
-			uniqueEmployees.map((e) => ({ id: e.employeeId, status: 'outstanding' })),
+			uniqueEmployees.map((e) => ({ id: e.employeeId, status: 'outstanding' as ETaskStatusName })),
 			NOTIFICATION_KEYS.MANAGER_OUTSTANDING
 		);
 		setVisible(show);

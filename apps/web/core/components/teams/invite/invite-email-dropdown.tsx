@@ -48,7 +48,7 @@ export const InviteEmailDropdown = ({
 		<>
 			<AutoCompleteDropdown
 				className="min-w-[150px]  z-10"
-				buttonClassName={clsxm('font-normal h-[54px] placeholder:font-light focus:outline-none p-4')}
+				buttonClassName={clsxm('font-normal h-[3rem] placeholder:font-light focus:outline-none p-4')}
 				value={emailItem}
 				onChange={onChangeActive}
 				items={items}

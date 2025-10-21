@@ -9,6 +9,7 @@ import { useQueryCall } from '../common/use-query';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { authService } from '@/core/services/client/api/auth/auth.service';
+import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
 
 type AuthCodeRef = {
 	focus: () => void;
@@ -108,6 +109,9 @@ export function useAuthenticationPasscode() {
 	 */
 	const verifySignInEmailConfirmRequest = useCallback(
 		async ({ email, code, lastTeamId }: { email: string; code: string; lastTeamId?: string }) => {
+			// First attempt
+
+			let firstAttemptError: unknown;
 			try {
 				setStatus('loading');
 				const loginResponse = await queryCall(email, code);
@@ -119,12 +123,7 @@ export function useAuthenticationPasscode() {
 					return;
 				}
 			} catch (loginError) {
-				setStatus('error');
-				if (isAxiosError(loginError) && loginError.response?.status === 400) {
-					setErrors(loginError.response.data?.errors || {});
-				} else {
-					setErrors({ code: t('pages.auth.INVALID_CODE_TRY_AGAIN') });
-				}
+				firstAttemptError = loginError;
 			}
 
 			// Second attempt: signInEmailConfirmQueryCall
@@ -152,6 +151,8 @@ export function useAuthenticationPasscode() {
 				setStatus('error');
 				if (isAxiosError(confirmError) && confirmError.response?.status === 400) {
 					setErrors(confirmError.response.data?.errors || {});
+				} else if (isAxiosError(firstAttemptError) && firstAttemptError.response?.status === 400) {
+					setErrors(firstAttemptError.response.data?.errors || {});
 				} else {
 					setErrors({ code: t('pages.auth.INVALID_CODE_TRY_AGAIN') });
 				}
@@ -250,6 +251,11 @@ export function useAuthenticationPasscode() {
 	}, [query, verifySignInEmailConfirmRequest, queryEmail, queryCode]);
 
 	const sendAuthCodeHandler = useCallback(() => {
+		const { errors, valid } = authFormValidate(['email'], formValues as any);
+		if (!valid) {
+			setErrors(errors);
+			return;
+		}
 		const promise = signInEmailQueryCall(formValues['email']);
 
 		promise.then(() => setErrors({}));
@@ -262,18 +268,12 @@ export function useAuthenticationPasscode() {
 		return promise;
 	}, [formValues, signInEmailQueryCall]);
 
-	const getLastTeamIdWithRecentLogout = useCallback(() => {
+	const getLastTeamIdWithRecentLogout = useCallback((): string | null => {
 		if (workspaces.length === 0) {
 			throw new Error('No workspaces found');
 		}
-
-		const mostRecentWorkspace = workspaces.reduce((prev, current) => {
-			const prevDate = new Date(prev.user.lastLoginAt ?? '');
-			const currentDate = new Date(current.user.lastLoginAt ?? '');
-			return currentDate > prevDate ? current : prev;
-		});
-
-		return mostRecentWorkspace.user.lastTeamId;
+		const mostRecentWorkspace = findMostRecentWorkspace(workspaces);
+		return mostRecentWorkspace.user.lastTeamId ?? null;
 	}, [workspaces]);
 
 	return {

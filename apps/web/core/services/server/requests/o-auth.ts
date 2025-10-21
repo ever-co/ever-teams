@@ -14,7 +14,7 @@ import {
 } from '@/core/services/server/requests';
 import { generateToken } from '@/core/lib/helpers/index';
 import { NextRequest } from 'next/server';
-import { VERIFY_EMAIL_CALLBACK_PATH } from '@/core/constants/config/constants';
+import { APP_NAME, VERIFY_EMAIL_CALLBACK_PATH } from '@/core/constants/config/constants';
 import { signinService } from '../../client/api/auth/signin.service';
 import { userOrganizationService } from '../../client/api/users/user-organization.service';
 import { EProvider } from '@/core/types/generics/enums/social-accounts';
@@ -147,7 +147,7 @@ async function signIn(provider: EProvider, access_token: string) {
 		if (!gauzyUser) {
 			return Promise.reject({
 				errors: {
-					email: 'Your account is not yet ready to be used on the Ever Teams Platform'
+					email: 'Your account isn’t fully set up yet'
 				}
 			});
 		}
@@ -171,7 +171,7 @@ async function signIn(provider: EProvider, access_token: string) {
 		if (!organization) {
 			return Promise.reject({
 				errors: {
-					email: 'Your account is not yet ready to be used on the Ever Teams Platform'
+					email: `Your account is not yet ready to be used on the ${APP_NAME} Platform`
 				}
 			});
 		}

@@ -24,61 +24,41 @@ import {
 } from '@/core/components/common/sidebar';
 import Link from 'next/link';
 import { cn } from '@/core/lib/helpers';
-import {
-	useAuthenticateUser,
-	useFavorites,
-	useModal,
-	useOrganizationProjects,
-	useOrganizationTeams,
-	useTeamTasks
-} from '@/core/hooks';
+import { useFavorites, useModal } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { SidebarOptInForm } from './sidebar-opt-in-form';
-import { useActiveTeam } from '@/core/hooks/organizations/teams/use-active-team';
 import { useMemo } from 'react';
 import { DashboardIcon, FavoriteIcon, HomeIcon, InboxIcon, SidebarTaskIcon } from '../icons';
 import { TaskIssueStatus } from '../tasks/task-issue';
 import { WorkspacesSwitcher } from '../common/workspace-switcher';
-// Lazy load SidebarCommandModal for performance optimization - unified loading state
-const LazySidebarCommandModal = dynamic(
-	() => import('./default-layout/header/sidebar-command-modal').then((mod) => ({ default: mod.SidebarCommandModal })),
-	{
-		ssr: false
-		// Note: Removed loading here to avoid double loading states
-		// Suspense fallback will handle all loading states uniformly
-	}
-);
+// Import optimized components from centralized location
+import { LazySidebarCommandModal } from '@/core/components/optimized-components/common';
+import { LazyCreateTeamModal } from '@/core/components/optimized-components/teams';
 import { NavHome } from '../nav-home';
 import { NavMain } from './nav-main';
-// Lazy load CreateTeamModal for performance optimization
-import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
-
-const LazyCreateTeamModal = dynamic(
-	() => import('../features/teams/create-team-modal').then((mod) => ({ default: mod.CreateTeamModal })),
-	{
-		ssr: false
-		// Note: Removed loading here to avoid double loading states
-		// Suspense fallback will handle all loading states uniformly
-	}
-);
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
 import { currentEmployeeFavoritesState } from '@/core/stores/common/favorites';
+import { activeTeamState, isTeamManagerState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { APP_NAME } from '@/core/constants/config/constants';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 	const username = user?.name || user?.firstName || user?.lastName || user?.username;
-	const { isTeamManager } = useOrganizationTeams();
+
+	const isTeamManager = useAtomValue(isTeamManagerState);
 	const { state } = useSidebar();
 	const currentEmployeeFavorites = useAtomValue(currentEmployeeFavoritesState);
-	const { tasks } = useTeamTasks();
+	const tasks = useAtomValue(tasksByTeamState);
 	const { isOpen, closeModal } = useModal();
 	const t = useTranslations();
-	const { activeTeam } = useActiveTeam();
-	const { organizationProjects } = useOrganizationProjects();
+	const activeTeam = useAtomValue(activeTeamState);
+	const organizationProjects = useAtomValue(organizationProjectsState);
+
 	const projects = useMemo(
 		() =>
 			activeTeam
@@ -101,7 +81,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const data = {
 		workspaces: [
 			{
-				name: 'Ever Teams',
+				name: APP_NAME,
 				logo: ({ className }: { className?: string }) => (
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -302,38 +282,38 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 							items: [
 								{
 									title: t('sidebar.TIMESHEETS'),
-									url: `/timesheet/${user?.id}?name=${encodeURIComponent(username || '')}`,
-									label: 'timesheets'
+									url: `/reports/timesheet/${user?.id}?name=${encodeURIComponent(username || '')}`,
+									label: 'reports-timesheets'
 								},
 								{
 									title: t('sidebar.MANUAL_TIME_EDIT'),
-									label: 'manual-time-edit',
+									label: 'reports-manual-time-edit',
 									url: '#'
 								},
 								{
 									title: t('sidebar.WEEKLY_LIMIT'),
-									label: 'weekly-limit',
+									label: 'reports-weekly-limit',
 									url: '/reports/weekly-limit'
 								},
 								{
 									title: t('sidebar.ACTUAL_AND_EXPECTED_HOURS'),
-									label: 'actual-and-expected-hours',
+									label: 'reports-actual-and-expected-hours',
 									url: '#'
 								},
 								{
 									title: t('sidebar.PAYMENTS_DUE'),
-									label: 'payments-due',
+									label: 'reports-payments-due',
 									url: '#'
 								},
 								{
 									title: t('sidebar.PROJECT_BUDGET'),
-									label: 'project-budget',
+									label: 'reports-project-budget',
 									url: '#'
 								},
 								{
 									title: t('sidebar.TIME_AND_ACTIVITY'),
-									label: 'time-and-activity',
-									url: '/time-and-activity'
+									label: 'reports-time-and-activity',
+									url: '/reports/time-and-activity'
 								}
 							]
 						}
@@ -428,7 +408,7 @@ const FavoriteTaskItem = ({ task }: { task: TTask }) => {
 					</span>
 				</Link>
 				{deleteFavoriteLoading ? (
-					<LoaderCircle className=" animate-spin" size={15} />
+					<LoaderCircle className="animate-spin" size={15} />
 				) : (
 					<X
 						className="w-5 h-5 cursor-pointer"

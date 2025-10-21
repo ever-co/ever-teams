@@ -24,7 +24,8 @@ import { InputField } from '../../duplicated-components/_input';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
-
+import { useAtomValue } from 'jotai';
+import { profileDailyPlanListState } from '@/core/stores';
 export function AddTaskToPlan({
 	open,
 	closeModal,
@@ -36,8 +37,8 @@ export function AddTaskToPlan({
 	task: TTask;
 	employee?: IEmployee;
 }) {
-	const { createDailyPlan, addTaskToPlan, getEmployeeDayPlans, profileDailyPlans, addTaskToPlanLoading } =
-		useDailyPlan();
+	const profileDailyPlans = useAtomValue(profileDailyPlanListState);
+	const { createDailyPlan, addTaskToPlan, getEmployeeDayPlans, addTaskToPlanLoading } = useDailyPlan();
 	const [selectedPlan, setSelectedPlan] = useState<TDailyPlan | null>(null);
 	const [newPlan, setNewPlan] = useState<boolean>(false);
 	const [date, setDate] = useState<Date>(new Date());
@@ -86,7 +87,7 @@ export function AddTaskToPlan({
 	return (
 		<Modal isOpen={open} closeModal={closeModal} className="w-[98%] md:w-[530px] relative">
 			<EverCard className="w-full" shadow="custom">
-				<div className="flex flex-col items-center justify-between">
+				<div className="flex flex-col justify-between items-center">
 					<div className="mb-7">
 						<Text.Heading as="h3" className="mb-3 text-center">
 							ADD THE TASK TO DAY PLAN
@@ -98,7 +99,7 @@ export function AddTaskToPlan({
 						</Text>
 					</div>
 					{newPlan ? (
-						<div className="flex flex-col w-full gap-4 mb-5">
+						<div className="flex flex-col gap-4 mb-5 w-full">
 							<InputField
 								type="number"
 								placeholder="Working time to plan"
@@ -116,7 +117,7 @@ export function AddTaskToPlan({
 											!date && 'text-muted-foreground'
 										)}
 									>
-										<CalendarIcon className="w-4 h-4 mr-2" />
+										<CalendarIcon className="mr-2 w-4 h-4" />
 										{date ? moment(date).format('DD.MM.YYYY') : <span>Pick a date</span>}
 									</Button>
 								</PopoverTrigger>
@@ -146,11 +147,11 @@ export function AddTaskToPlan({
 					<Button
 						variant="default"
 						type="submit"
-						className="w-full font-normal p-7 rounded-xl text-md"
+						className="p-7 w-full font-normal rounded-xl text-md"
 						disabled={addTaskToPlanLoading}
 						onClick={onSubmit}
 					>
-						{addTaskToPlanLoading && <ReloadIcon className="w-4 h-4 mr-2 animate-spin" />}
+						{addTaskToPlanLoading && <ReloadIcon className="mr-2 w-4 h-4 animate-spin" />}
 						{newPlan ? 'Create new Plan' : 'Add task to plan'}
 					</Button>
 					<span
@@ -206,7 +207,7 @@ function PlansList({
 										</p>
 									</div>
 									{selectedPlan?.id == plan?.id && (
-										<Check className="flex w-5 h-5 ml-auto text-primary dark:text-white" />
+										<Check className="flex ml-auto w-5 h-5 text-primary dark:text-white" />
 									)}
 								</CommandItem>
 							))}

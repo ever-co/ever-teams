@@ -11,33 +11,34 @@ import { IconsCloseRounded } from '@/core/components/icons';
 
 interface MultiSelectProps<T> {
 	items: T[];
+	value?: T[]; // <-- controlled state
 	onValueChange?: (value: T | T[] | null) => void;
 	itemToString: (item: T) => string;
 	itemId: (item: T) => string;
 	triggerClassName?: string;
 	popoverClassName?: string;
 	renderItem?: (item: T, onClick: () => void, isSelected: boolean) => JSX.Element;
-	defaultValue?: T | T[];
 	multiSelect?: boolean;
-	removeItems?: boolean;
 	localStorageKey?: string;
 }
 
 export function MultiSelect<T>({
 	items,
+	value,
 	onValueChange,
 	itemToString,
 	itemId,
 	triggerClassName = '',
 	popoverClassName = '',
 	renderItem,
-	defaultValue,
 	multiSelect = false,
-	removeItems,
 	localStorageKey = 'select-items-selected'
 }: MultiSelectProps<T>) {
 	const t = useTranslations();
-	const [selectedItems, setSelectedItems] = useState<T[]>(() => {
+	const isControlled = value !== undefined;
+
+	// Internal state only if not controlled (optional here, but useful if you want fallback)
+	const [internalSelectedItems, setInternalSelectedItems] = useState<T[]>(() => {
 		if (typeof window === 'undefined') return [];
 		try {
 			const saved = localStorage.getItem(localStorageKey);
@@ -46,38 +47,24 @@ export function MultiSelect<T>({
 			return [];
 		}
 	});
+
+	const selectedItems = isControlled ? value! : internalSelectedItems;
+
 	const [isPopoverOpen, setPopoverOpen] = useState(false);
 	const [popoverWidth, setPopoverWidth] = useState<number | null>(null);
 	const triggerRef = useRef<HTMLButtonElement>(null);
 
-	// Load selected items from localStorage on component mount
-	useEffect(() => {
-		if (defaultValue) {
-			const initialItems = Array.isArray(defaultValue) ? defaultValue : [defaultValue];
-			setSelectedItems(initialItems);
+	// Synchronize the selection with the parent
+	const updateSelectedItems = useCallback((newItems: T[]) => {
+		if (!isControlled) {
+			setInternalSelectedItems(newItems);
 		}
-	}, [defaultValue, setSelectedItems]);
-
-	useEffect(() => {
 		if (onValueChange) {
-			onValueChange(multiSelect ? selectedItems : selectedItems[0] || null);
+			onValueChange(multiSelect ? newItems : newItems[0] || null);
 		}
-	}, [selectedItems, multiSelect, onValueChange]);
+	}, [isControlled, onValueChange, multiSelect]);
 
-	// Save selected items to localStorage whenever they change
-	// Handle persistence
-	useEffect(() => {
-		if (typeof window !== 'undefined') {
-			try {
-				localStorage.setItem(localStorageKey, JSON.stringify(selectedItems));
-			} catch (error) {
-				console.error('Failed to save to localStorage:', error);
-			}
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedItems, localStorageKey]);
-
-	const onClick = (item: T) => {
+	const onClick = useCallback((item: T) => {
 		let newSelectedItems: T[];
 		if (multiSelect) {
 			if (selectedItems.some((selectedItem) => itemId(selectedItem) === itemId(item))) {
@@ -89,23 +76,13 @@ export function MultiSelect<T>({
 			newSelectedItems = [item];
 			setPopoverOpen(false);
 		}
-		setSelectedItems(newSelectedItems);
-	};
+		updateSelectedItems(newSelectedItems);
+	}, [updateSelectedItems, selectedItems, itemId, multiSelect]);
 
-	const removeItem = (item: T) => {
+	const removeItem = useCallback((item: T) => {
 		const newSelectedItems = selectedItems.filter((selectedItem) => itemId(selectedItem) !== itemId(item));
-		setSelectedItems(newSelectedItems);
-	};
-
-	const removeAllItems = useCallback(() => {
-		setSelectedItems([]);
-	}, []);
-
-	useEffect(() => {
-		if (removeItems) {
-			removeAllItems();
-		}
-	}, [removeItems, removeAllItems]);
+		updateSelectedItems(newSelectedItems);
+	}, [updateSelectedItems, selectedItems, itemId]);
 
 	useEffect(() => {
 		if (triggerRef.current) {
@@ -114,7 +91,7 @@ export function MultiSelect<T>({
 	}, []);
 
 	return (
-		<div className="relative w-full overflow-hidden">
+		<div className="overflow-hidden relative w-full">
 			<Popover open={isPopoverOpen} onOpenChange={setPopoverOpen}>
 				<PopoverTrigger asChild>
 					<Button
@@ -122,7 +99,7 @@ export function MultiSelect<T>({
 						onClick={() => setPopoverOpen(!isPopoverOpen)}
 						variant="outline"
 						className={cn(
-							'w-full justify-between text-left font-normal h-10 rounded-lg dark:bg-dark--theme-light',
+							'justify-between w-full h-10 font-normal text-left rounded-lg dark:bg-dark--theme-light',
 							triggerClassName
 						)}
 					>
@@ -140,43 +117,37 @@ export function MultiSelect<T>({
 				</PopoverTrigger>
 				<PopoverContent
 					className={cn(
-						'w-full max-w-full max-h-[80vh] border border-transparent dark:bg-dark--theme-light',
+						'w-full max-w-full border border-transparent max-h-[80vh] dark:bg-dark--theme-light',
 						popoverClassName
 					)}
 					style={{ width: popoverWidth || 'auto', overflow: 'auto' }}
 				>
-					<div className="w-full max-h-[80vh] overflow-auto flex flex-col">
-						<React.Fragment>
-							{items.map((item) => {
-								const isSelected = selectedItems.some(
-									(selectedItem) => itemId(selectedItem) === itemId(item)
-								);
-								const element = renderItem ? (
-									<div key={itemId(item)}>
-										{/* @ts-ignore */}
-										{renderItem(item, () => onClick(item), isSelected)}
-									</div>
-								) : (
-									<span
-										key={itemId(item)}
-										onClick={() => onClick(item)}
-										className={cn(
-											'truncate hover:cursor-pointer hover:bg-slate-50 w-full text-[13px] hover:rounded-lg p-1 hover:font-normal dark:text-white dark:hover:bg-primary',
-											isSelected && 'font-semibold bg-slate-100 dark:bg-primary-light'
-										)}
-										style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}
-									>
-										{itemToString(item)}
-									</span>
-								);
-								return element;
-							})}
-						</React.Fragment>
-					</div>
+					<ul className="w-full max-h-[80vh] overflow-auto flex flex-col gap-1.5">
+						{items.map((item) => {
+							const isSelected = selectedItems.some(
+								(selectedItem) => itemId(selectedItem) === itemId(item)
+							);
+							const element = renderItem ? (
+								<li key={itemId(item)}>{renderItem(item, () => onClick(item), isSelected)}</li>
+							) : (
+								<li
+									key={itemId(item)}
+									onClick={() => onClick(item)}
+									className={cn(
+										'truncate hover:cursor-pointer hover:bg-slate-50 w-full text-[13px] h-fit max-w-72 rounded-md p-1 px-1.5 dark:text-white dark:hover:bg-primary whitespace-nowrap transition-all duration-300 text-ellipsis overflow-hidden',
+										isSelected && 'font-semibold bg-slate-100 dark:bg-primary-light'
+									)}
+								>
+									{itemToString(item)}
+								</li>
+							);
+							return element;
+						})}
+					</ul>
 				</PopoverContent>
 			</Popover>
 			{selectedItems.length > 0 && (
-				<div className="mt-2 flex flex-wrap gap-2">
+				<div className="flex flex-wrap gap-2 mt-2">
 					{selectedItems.map((item) => (
 						<div
 							key={itemId(item)}
@@ -192,7 +163,7 @@ export function MultiSelect<T>({
 								className="ml-2 text-gray-600 dark:text-white hover:text-red-500 dark:hover:text-red-500"
 								aria-label="Remove item"
 							>
-								<span className="h-4 w-4 flex items-center justify-center">
+								<span className="flex justify-center items-center w-4 h-4">
 									<IconsCloseRounded className="w-4 h-4" aria-hidden="true" />
 								</span>
 							</button>

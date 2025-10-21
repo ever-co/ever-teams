@@ -8,6 +8,8 @@ import { RadioGroup } from '@headlessui/react';
 import { DEFAULT_PLANNED_TASK_ID } from '@/core/constants/config/constants';
 import { EverCard } from '../../common/ever-card';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useAtomValue } from 'jotai';
+import { activeTeamTaskState } from '@/core/stores';
 
 /**
  * A Modal that suggests the user to change the active task to a task from the today's plan.
@@ -30,7 +32,9 @@ export function ActiveTaskHandlerModal({
 }) {
 	const t = useTranslations();
 	const { startTimer, hasPlan: todayPlan } = useTimerView();
-	const { activeTeamTask, setActiveTask } = useTeamTasks();
+
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { setActiveTask } = useTeamTasks();
 	const { addTaskToPlan } = useDailyPlan();
 
 	const [selectedOption, setSelectedOption] = useState<number>();
@@ -96,7 +100,7 @@ export function ActiveTaskHandlerModal({
 	return (
 		<Modal isOpen={open} closeModal={handleCloseModal} className="w-[98%] md:w-[530px] relative">
 			<EverCard className="w-full" shadow="custom">
-				<div className="flex flex-col items-center justify-between">
+				<div className="flex flex-col justify-between items-center">
 					<div className="mb-7">
 						<Text.Heading as="h3" className="mb-3 text-center uppercase">
 							{t('dailyPlan.chang_active_task_popup.TITLE')}
@@ -110,16 +114,16 @@ export function ActiveTaskHandlerModal({
 						</Text>
 					</div>
 
-					<div className="w-full max-w-md mx-auto">
+					<div className="mx-auto w-full max-w-md">
 						<RadioGroup value={selectedOption} onChange={setSelectedOption}>
 							{options.map((option) => {
 								return (
 									<RadioGroup.Option key={option.id} value={option.id}>
 										{({ checked }) => (
-											<div className={clsxm('flex items-center gap-2 cursor-pointer')}>
+											<div className={clsxm('flex gap-2 items-center cursor-pointer')}>
 												<span
 													className={clsxm(
-														'h-4 w-4 p-[1px] border border-primary rounded-full flex items-center justify-center'
+														'flex justify-center items-center w-4 h-4 rounded-full border p-[1px] border-primary'
 													)}
 												>
 													<span
@@ -138,7 +142,7 @@ export function ActiveTaskHandlerModal({
 						</RadioGroup>
 					</div>
 
-					<div className="flex items-center justify-between w-full mt-7">
+					<div className="flex justify-between items-center mt-7 w-full">
 						<Button
 							variant="outline"
 							type="submit"
@@ -150,7 +154,7 @@ export function ActiveTaskHandlerModal({
 						<Button
 							variant="default"
 							type="submit"
-							className={clsxm('py-3 px-5 rounded-md font-light text-md dark:text-white')}
+							className={clsxm('px-5 py-3 font-light rounded-md text-md dark:text-white')}
 							onClick={handleSubmit}
 						>
 							{t('timer.todayPlanSettings.START_WORKING_BUTTON')}

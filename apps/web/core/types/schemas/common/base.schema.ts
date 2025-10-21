@@ -5,11 +5,11 @@ import { z } from 'zod';
  */
 
 // ID type schema
-export const idSchema = z.string().uuid('Invalid UUID');
+export const uuIdSchema = z.string().uuid('Invalid UUID');
 
 // Base entity action by user model schema
 export const baseDateSchema = z.object({
-	id: idSchema,
+	id: uuIdSchema,
 	createdAt: z.coerce.date().optional(),
 	updatedAt: z.coerce.date().optional(),
 	isActive: z.boolean().optional().nullable(),

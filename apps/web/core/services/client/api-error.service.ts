@@ -229,7 +229,7 @@ export class ApiErrorService extends Error {
 		const details = data?.details;
 
 		// We put them in our ApiError box
-		return new ApiErrorService(message, statusCode, code, details);
+		return new ApiErrorService(message, errorFrom.status ?? response?.status ?? extractStatus, code, details);
 	}
 	/**
 	 * @description Checks if a given error is an instance of ApiErrorService

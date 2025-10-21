@@ -6,17 +6,20 @@ import { useTeamTasks } from '../organizations';
 import { useOutsideClick } from '../common';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useAtomValue } from 'jotai';
+import { activeTeamTaskState } from '@/core/stores';
 
-export function useTaskEstimation(task?: Nullable<TTask>) {
-	const { activeTeamTask, updateTask, updateLoading, activeTeamId } = useTeamTasks();
+export function useTaskEstimation(task?: Nullable<TTask>, useActiveTeamTaskByDefault = true) {
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { updateTask, updateLoading, activeTeamId } = useTeamTasks();
 	const [editableMode, setEditableMode] = useState(false);
 	const [value, setValue] = useState({ hours: '', minutes: '' });
 	const editMode = useRef(false);
 
-	const $task = task || activeTeamTask;
+	const $task = useActiveTeamTaskByDefault ? task || activeTeamTask : task;
 
 	useEffect(() => {
-		const { h, m } = secondsToTime($task?.estimate || 0);
+		const { hours: h, minutes: m } = secondsToTime($task?.estimate || 0);
 		setValue({
 			hours: h ? h.toString() : '',
 			minutes: m ? pad(m).toString() : ''
@@ -105,7 +108,7 @@ export function useTaskEstimation(task?: Nullable<TTask>) {
 			return;
 		}
 
-		const { h: estimateHours, m: estimateMinutes } = secondsToTime($task.estimate || 0);
+		const { hours: estimateHours, minutes: estimateMinutes } = secondsToTime($task.estimate || 0);
 
 		if (hours === estimateHours && minutes === estimateMinutes) {
 			return;

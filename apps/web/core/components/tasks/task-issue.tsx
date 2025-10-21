@@ -23,6 +23,7 @@ import {
 } from '@/core/types/interfaces/task/task-card';
 import { useActiveTaskStatus } from '@/core/hooks/tasks/use-active-task-status';
 import { StatusDropdown, TaskStatus } from './task-status';
+import { toast } from 'sonner';
 
 const defaultTaskClasses = 'w-full min-w-[10px] flex-none aspect-square max-w-[12px] text-white';
 export const taskIssues: TStatus<EIssueType> = {
@@ -71,6 +72,8 @@ export function TaskIssuesDropdown({
 	const { isOpen, closeModal } = useModal();
 	const taskIssues = useAtomValue(issueTypesListState);
 	const [taskIssueType, setTaskIssueType] = useState(defaultValue ?? null);
+	const [isLoading, setIsLoading] = useState(false);
+	const [previousValue, setPreviousValue] = useState<EIssueType | null>(defaultValue ?? null);
 	/**
 	 * Memoize props to prevent unnecessary re-renders.
 	 */
@@ -133,26 +136,66 @@ export function TaskIssuesDropdown({
 	}, []);
 
 	const handleTaskIssueChange = useCallback(
-		(value: string) => {
-			onValueChange?.(value as EIssueType);
-			setTaskIssueType(value as EIssueType);
+		async (value: string) => {
+			const newValue = value as EIssueType;
+
+			// Skip if no actual change
+			if (taskIssueType === newValue) return;
+
+			// Store previous value for potential rollback
+			setPreviousValue(taskIssueType);
+
+			// STEP 1: Immediate UI update (optimistic)
+			setTaskIssueType(newValue);
+
+			// STEP 2: Start loading state
+			setIsLoading(true);
+
+			try {
+				// STEP 3: API call
+				await onValueChange?.(newValue);
+
+				// STEP 4: Success - keep optimistic value and show success toast
+				toast.success(`Task issue type updated successfully`, {
+					description: `Changed from "${taskIssueType}" to "${newValue}"`
+				});
+			} catch (error) {
+				// STEP 5: Error - revert to previous value and show error toast
+				setTaskIssueType(previousValue);
+				toast.error(`Failed to update task issue type`, {
+					description: (error as any)?.message || 'Please try again. The change has been reverted.'
+				});
+				console.error('Error updating task issue type:', error);
+			} finally {
+				// Always clear loading state
+				setIsLoading(false);
+			}
 		},
-		[onValueChange]
+		[taskIssueType, onValueChange, previousValue]
 	);
 
 	return (
 		<>
-			<Select
-				placeholder="Issue Type"
-				showChevronDownIcon={false}
-				options={taskIssuesOptions}
-				selected={taskIssueType}
-				onChange={handleTaskIssueChange}
-				selectTriggerClassName="w-full h-full p-0 border-none hover:bg-transparent"
-				selectOptionsListClassName="w-full h-full"
-				renderItem={renderItem}
-				renderValue={renderValue}
-			/>
+			<div className="relative">
+				<Select
+					placeholder="Issue Type"
+					showChevronDownIcon={false}
+					options={taskIssuesOptions}
+					selected={taskIssueType}
+					onChange={handleTaskIssueChange}
+					selectTriggerClassName="w-full h-full p-0 border-none hover:bg-transparent"
+					selectOptionsListClassName="w-full h-full"
+					renderItem={renderItem}
+					renderValue={renderValue}
+				/>
+
+				{/* Loading indicator */}
+				{isLoading && (
+					<div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+						<div className="w-4 h-4 rounded-full border-b-2 animate-spin border-primary"></div>
+					</div>
+				)}
+			</div>
 
 			<CreateTaskIssueModal open={isOpen} closeModal={closeModal} />
 		</>
@@ -166,7 +209,7 @@ export function TaskIssuesDropdown({
  */
 export function ActiveTaskIssuesDropdown({ ...props }: IActiveTaskStatuses<'issueType'>) {
 	const t = useTranslations();
-	const { item, items, onChange, field } = useActiveTaskStatus(props, taskIssues, 'issueType');
+	const { item, items, onChange, field, isLocalLoading } = useActiveTaskStatus(props, taskIssues, 'issueType');
 
 	const validTransitions: Record<EIssueType, TStatusItem[]> = useMemo(
 		() => ({
@@ -218,6 +261,7 @@ export function ActiveTaskIssuesDropdown({ ...props }: IActiveTaskStatuses<'issu
 			showIssueLabels={props.showIssueLabels}
 			disabledReason={item?.name === 'Epic' ? t('pages.taskDetails.TASK_IS_ALREADY_EPIC') : ''}
 			taskStatusClassName={props.taskStatusClassName}
+			isLoading={isLocalLoading}
 		/>
 	);
 }

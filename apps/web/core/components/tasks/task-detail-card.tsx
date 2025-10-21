@@ -1,7 +1,6 @@
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
-import { timerSecondsState } from '@/core/stores';
+import { activeTaskStatisticsState, activeTeamTaskState, timerSecondsState } from '@/core/stores';
 import { RawStatusDropdown } from '@/core/components/tasks/status-dropdown';
 import { ProgressBar } from '@/core/components/common/progress-bar';
 import Separator from '@/core/components/common/separator';
@@ -9,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import { useRef } from 'react';
 import { useAtomValue } from 'jotai';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
 
 interface ITaskDetailCard {
 	now?: boolean;
@@ -20,9 +20,14 @@ const TaskDetailCard = ({ now = false, task }: ITaskDetailCard) => {
 	const timerReconds = useAtomValue(timerSecondsState);
 	const t = useTranslations();
 
-	let taskStat: ITasksStatistics | null | undefined = null;
+	let taskStat: TTaskStatistic | null | undefined = null;
 
-	const { getTaskStat, activeTeamTask, activeTaskEstimation, activeTaskTotalStat } = useTaskStatistics(timerReconds);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+
+	const statActiveTask = useAtomValue(activeTaskStatisticsState);
+
+	const activeTaskTotalStat = statActiveTask.total;
+	const { getTaskStat, activeTaskEstimation } = useTaskStatistics(timerReconds);
 
 	if (activeTeamTask?.id === task?.id) {
 		estimationPourtcent.current = activeTaskEstimation;
@@ -36,8 +41,8 @@ const TaskDetailCard = ({ now = false, task }: ITaskDetailCard) => {
 		);
 	}
 
-	const { m, h } = secondsToTime((task && task.estimate) || 0);
-	const { m: tm, h: th } = secondsToTime((taskStat && taskStat.duration) || 0);
+	const { minutes: m, hours: h } = secondsToTime((task && task.estimate) || 0);
+	const { minutes: tm, hours: th } = secondsToTime((taskStat && taskStat.duration) || 0);
 
 	return (
 		<div
@@ -47,7 +52,7 @@ const TaskDetailCard = ({ now = false, task }: ITaskDetailCard) => {
 					: ' hover:border hover:border-primary dark:border-[#202023]'
 			} bg-[#FFFFFF] my-[15px] dark:bg-[#202023] justify-between dark:hover:border-gray-100 font-bold px-[24px] dark:text-[#FFFFFF] py-[10px]`}
 		>
-			<div className="flex items-center justify-between ">
+			<div className="flex justify-between items-center">
 				<div
 					className={`text-primary dark:text-[#FFFFFF] text-[14px] ${
 						now == true ? 'font-normal' : 'font-light'

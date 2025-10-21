@@ -60,7 +60,7 @@ export interface ITask extends IBaseTaskProperties, ITaskAssociations {
 	estimateMinutes?: number;
 }
 
-export interface ITasksStatistics extends ITask {
+export interface TTaskStatistics extends ITask {
 	duration?: number;
 	durationPercentage?: number;
 }

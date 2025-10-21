@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { I_TeamMemberCardHook, useTimer } from '@/core/hooks';
+import { I_TeamMemberCardHook } from '@/core/hooks';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import Link from 'next/link';
@@ -8,13 +8,15 @@ import { useMemo } from 'react';
 import stc from 'string-to-color';
 import { imgTitle } from '@/core/lib/helpers/index';
 import { MailIcon } from 'assets/svg';
-import { UserManagerIcon } from 'assets/svg';
 import { getTimerStatusValue, TimerStatus } from '@/core/components/timer/timer-status';
 import { Avatar } from '@/core/components/duplicated-components/avatar';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
-
+import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
+import { ManagerIcon, CreatorIcon } from '@/core/components/icons/icons';
+import { timerStatusState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 type Props = {
 	memberInfo: I_TeamMemberCardHook;
 	publicTeam?: boolean;
@@ -24,11 +26,12 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 	const { memberUser, member } = memberInfo;
 	const fullname = `${memberUser?.firstName || ''} ${memberUser?.lastName || ''}`;
 
+	const { isTeamCreator, isTeamManager } = useIsMemberManager(memberUser);
+
 	const imageUrl = useMemo(() => {
 		return memberUser?.image?.thumbUrl || memberUser?.image?.fullUrl || memberUser?.imageUrl || '';
 	}, [memberUser?.image?.thumbUrl, memberUser?.image?.fullUrl, memberUser?.imageUrl]);
-
-	const { timerStatus } = useTimer();
+	const timerStatus = useAtomValue(timerStatusState);
 	const timerStatusValue: ETimerStatus = useMemo(() => {
 		return getTimerStatusValue(timerStatus, member, publicTeam);
 	}, [timerStatus, member, publicTeam]);
@@ -36,7 +39,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 	return (
 		<Link
 			href={publicTeam ? '#' : `/profile/${memberInfo.memberUser?.id}?name=${fullname}`}
-			className={clsxm('flex items-center lg:gap-4 gap-2 w-fit', className)}
+			className={clsxm('flex gap-2 items-center lg:gap-4 w-fit', className)}
 		>
 			<div
 				className={clsxm(
@@ -71,24 +74,28 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 				>
 					<Text.Heading
 						as="h3"
-						className="flex w-full gap-2 overflow-hidden text-base text-ellipsis whitespace-nowrap lg:text-lg"
+						className="flex overflow-hidden gap-2 w-full text-base whitespace-nowrap text-ellipsis lg:text-lg"
 					>
 						<div className="max-w-[176px] truncate text-base">
 							{publicTeam ? <span className="flex capitalize">{fullname.slice(0, 1)}</span> : fullname}
 						</div>
-						{(member?.role?.name === 'MANAGER' ||
-							member?.role?.name === 'SUPER_ADMIN' ||
-							member?.role?.name === 'ADMIN') && (
+						{(isTeamManager || isTeamCreator) && (
 							<Tooltip
-								label={'Manager'}
+								label={`Team ${isTeamCreator ? 'Creator' : 'Manager'}`}
 								placement="auto"
-								enabled={
-									member?.role?.name === 'MANAGER' ||
-									member?.role?.name === 'SUPER_ADMIN' ||
-									member?.role?.name === 'ADMIN'
-								}
+								enabled={isTeamManager || isTeamCreator}
 							>
-								<UserManagerIcon strokeWidth="2" className="w-4 mt-1" />
+								{isTeamCreator ? (
+									<CreatorIcon
+										className="mt-1 text-gray-800 size-4 dark:text-gray-200"
+										strokeWidth={1.5}
+									/>
+								) : (
+									<ManagerIcon
+										className="mt-1 text-gray-800 size-4 dark:text-gray-200"
+										strokeWidth={1.5}
+									/>
+								)}
 							</Tooltip>
 						)}
 					</Text.Heading>
@@ -100,9 +107,9 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 						placement="auto"
 						enabled={`${memberUser?.email || ''} `.trim().length > CHARACTER_LIMIT_TO_SHOW}
 					>
-						<Text className="flex items-center gap-1 text-sm text-gray-400">
+						<Text className="flex gap-1 items-center text-sm text-gray-400">
 							<MailIcon className="w-4 h-4" />
-							<span className="pr-1 overflow-hidden text-nowrap max-w-40 text-ellipsis whitespace-nowrap">
+							<span className="overflow-hidden pr-1 whitespace-nowrap text-nowrap max-w-40 text-ellipsis">
 								{memberUser?.email}
 							</span>
 						</Text>

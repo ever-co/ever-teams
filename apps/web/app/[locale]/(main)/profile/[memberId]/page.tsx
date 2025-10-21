@@ -1,13 +1,15 @@
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useAuthenticateUser, useLocalStorageState, useOrganizationTeams, useUserProfilePage } from '@/core/hooks';
+import { useLocalStorageState, useUserProfilePage } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { Button, Container, Text } from '@/core/components';
+import { Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout';
 import Link from 'next/link';
 import React, { Suspense, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
+import { useProfileValidation } from '@/core/hooks/users/use-profile-validation';
+import { ProfileErrorBoundary } from '@/core/components/common/profile-error-boundary';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
@@ -27,26 +29,38 @@ import {
 	LazyTimer,
 	LazyTaskFilter
 } from '@/core/components/optimized-components';
+import { activeTeamManagersState, activeTeamState, isTrackingEnabledState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
 const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
 	const unwrappedParams = React.use(params as any) as { memberId: string };
+	const { data: user } = useUserQuery();
+
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
+
+	// Use our new validation hook
+	const profileValidation = useProfileValidation(unwrappedParams.memberId);
+
+	// const { filteredTeams, userManagedTeams } = useOrganizationAndTeamManagers();
+	const activeTeam = useAtomValue(activeTeamState);
+	const profileUser = profileValidation.member?.employee?.user ?? null;
+
 	const profile = useUserProfilePage();
-	const { user } = useAuthenticateUser();
-	const { isTrackingEnabled, activeTeam, activeTeamManagers } = useOrganizationTeams();
-	const members = activeTeam?.members;
+	const activeTeamManagers = useAtomValue(activeTeamManagersState);
+
 	const fullWidth = useAtomValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useLocalStorageState<FilterTab>('activity-filter', 'Tasks');
 	const setActivityTypeFilter = useSetAtom(activityTypeState);
 	const hook = useTaskFilter(profile);
 
 	const isManagerConnectedUser = useMemo(
-		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id),
+		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id),
 		[activeTeamManagers, user?.id]
 	);
 	const canSeeActivity = useMemo(
-		() => profile.userProfile?.id === user?.id || isManagerConnectedUser != -1,
+		() => profile.userProfile?.id === user?.id || isManagerConnectedUser !== -1,
 		[isManagerConnectedUser, profile.userProfile?.id, user?.id]
 	);
 
@@ -91,36 +105,27 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [profile.member]);
 
-	// Show unified skeleton while initial data is loading
-	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
-	if ((!profile.isAuthUser && !profile.member) || !profile.userProfile) {
-		return <ProfilePageSkeleton showTimer={profileIsAuthUser && isTrackingEnabled} fullWidth={fullWidth} />;
+	// Handle error states with our new boundary component
+	if (!profileValidation.isValid) {
+		// Show loading skeleton for loading state
+		if (profileValidation.state === 'loading') {
+			return <ProfilePageSkeleton showTimer={profileIsAuthUser && isTrackingEnabled} fullWidth={fullWidth} />;
+		}
+
+		// Show error boundary for all other error states
+		return (
+			<ProfileErrorBoundary
+				validation={profileValidation}
+				loadTaskStatsIObserverRef={profile.loadTaskStatsIObserverRef}
+			>
+				<div>This will never render due to validation.isValid being false</div>
+			</ProfileErrorBoundary>
+		);
 	}
 
-	// Check if team has members but no specific member found
-	if (Array.isArray(members) && members.length > 0 && !unwrappedParams.memberId) {
-		return (
-			<MainLayout>
-				<div
-					ref={profile.loadTaskStatsIObserverRef}
-					className="absolute top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2"
-				>
-					<div className="flex flex-col gap-5 justify-center items-center">
-						<Text className="text-[40px] font-bold text-center text-[#282048] dark:text-light--theme">
-							{t('common.MEMBER')} {t('common.NOT_FOUND')}!
-						</Text>
-
-						<Text className="font-light text-center text-gray-400">
-							{t('pages.profile.MEMBER_NOT_FOUND_MSG_1')}
-						</Text>
-
-						<Button className="m-auto font-normal rounded-lg">
-							<Link href="/">{t('pages.profile.GO_TO_HOME')}</Link>
-						</Button>
-					</div>
-				</div>
-			</MainLayout>
-		);
+	// Additional check for userProfile (keep existing logic)
+	if (!profile.userProfile) {
+		return <ProfilePageSkeleton showTimer={profileIsAuthUser && isTrackingEnabled} fullWidth={fullWidth} />;
 	}
 
 	return (
@@ -184,7 +189,12 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 				{hook.tab === 'worked' && activityFilter !== 'Tasks' ? (
 					activityScreen
 				) : (
-					<LazyUserProfileTask profile={profile} tabFiltered={hook} paginateTasks={true} />
+					<LazyUserProfileTask
+						profile={profile}
+						tabFiltered={hook}
+						paginateTasks={true}
+						user={profileUser?.employee?.user}
+					/>
 				)}
 			</Container>
 		</MainLayout>

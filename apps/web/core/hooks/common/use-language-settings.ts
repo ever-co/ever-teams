@@ -1,13 +1,7 @@
 'use client';
 import { APPLICATION_LANGUAGES_CODE } from '@/core/constants/config/constants';
 import { getActiveLanguageIdCookie, setActiveLanguageIdCookie } from '@/core/lib/helpers/cookies';
-import {
-	activeLanguageIdState,
-	activeLanguageState,
-	languageListState,
-	languagesFetchingState,
-	userState
-} from '@/core/stores';
+import { activeLanguageIdState, activeLanguageState, languageListState, languagesFetchingState } from '@/core/stores';
 import { useCallback, useMemo } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from './use-first-load';
@@ -20,6 +14,7 @@ import { PaginationResponse } from '@/core/types/interfaces/common/data-response
 import { TLanguageItemList } from '@/core/types/schemas';
 import { useUserLanguagePreference } from './use-user-language-preference';
 import { useLanguageStateSync } from './use-language-state-sync';
+import { useUserQuery } from '../queries/user-user.query';
 
 /**
  * Filters languages based on APPLICATION_LANGUAGES_CODE configuration
@@ -91,7 +86,7 @@ const filterLanguagesByCode = (data: PaginationResponse<TLanguageItemList>) => {
  * @throws {ZodValidationError} When API response doesn't match expected schema
  */
 export function useLanguageSettings(): UseLanguageSettingsReturn {
-	const [user] = useAtom(userState);
+	const { data: user } = useUserQuery();
 	const [languages, setLanguages] = useAtom(languageListState);
 	const { changeLanguage } = useLanguage();
 	const activeLanguage = useAtomValue(activeLanguageState);
@@ -130,7 +125,7 @@ export function useLanguageSettings(): UseLanguageSettingsReturn {
 	const activeLanguageId = useMemo(() => getActiveLanguageIdCookie(), []);
 	// Use custom hooks to reduce complexity
 	useLanguageStateSync(languagesQuery, setLanguages, setLanguagesFetching);
-	useUserLanguagePreference(user, changeLanguage);
+	useUserLanguagePreference(user!, changeLanguage);
 
 	/**
 	 * Loads languages data intelligently - uses cache if fresh, fetches if stale

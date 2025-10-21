@@ -92,7 +92,7 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 		(e: FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
 
-			form.sendAuthCodeHandler().then(() => {
+			form.sendAuthCodeHandler()?.then(() => {
 				form.authScreen.setScreen('passcode');
 			});
 		},

@@ -6,14 +6,13 @@ import { cn } from '@/core/lib/helpers';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
-import { Suspense, useMemo } from 'react';
+import { Suspense, useMemo, useCallback } from 'react';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useRouter } from 'next/navigation';
 import { Container } from '@/core/components';
 
 import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-report-activity';
 import { Card } from '@/core/components/common/card';
-import { useOrganizationTeams } from '@/core/hooks/organizations';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useLocalStorageState, useModal } from '@/core/hooks/common';
 import {
@@ -30,46 +29,15 @@ import {
 	ProductivityEmployeeTableSkeleton,
 	ProductivityApplicationTableSkeleton
 } from '@/core/components/common/skeleton/productivity-skeletons';
-import { ChartSkeleton } from '@/core/components/common/skeleton/chart-skeleton';
 import { AppUrlsDashboardPageSkeleton } from '@/core/components/common/skeleton/app-urls-dashboard-page-skeleton';
-import { ProductivityHeaderSkeleton } from '@/core/components/common/skeleton/productivity-header-skeleton';
-import { ProductivityStatsSkeleton } from '@/core/components/common/skeleton/productivity-stats-skeleton';
-import dynamic from 'next/dynamic';
 
-const LazyProductivityChart = dynamic(
-	() =>
-		import('@/core/components/pages/dashboard/app-url/productivity-chart').then((mod) => ({
-			default: mod.ProductivityChart
-		})),
-	{
-		ssr: false,
-		loading: () => <ChartSkeleton />
-	}
-);
-
-// Lazy load ProductivityHeader for performance optimization
-const LazyProductivityHeader = dynamic(
-	() =>
-		import('@/core/components/pages/dashboard/app-url').then((mod) => ({
-			default: mod.ProductivityHeader
-		})),
-	{
-		ssr: false,
-		loading: () => <ProductivityHeaderSkeleton />
-	}
-);
-
-// Lazy load ProductivityStats for performance optimization
-const LazyProductivityStats = dynamic(
-	() =>
-		import('@/core/components/pages/dashboard/app-url').then((mod) => ({
-			default: mod.ProductivityStats
-		})),
-	{
-		ssr: false,
-		loading: () => <ProductivityStatsSkeleton />
-	}
-);
+// Import optimized components from centralized location
+import {
+	LazyProductivityChart,
+	LazyProductivityHeader,
+	LazyProductivityStats
+} from '@/core/components/optimized-components';
+import { isTrackingEnabledState } from '@/core/stores';
 interface ProductivityData {
 	date: string;
 	productive: number;
@@ -83,18 +51,32 @@ function AppUrls() {
 	const fullWidth = useAtomValue(fullWidthState);
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
-	const { isTrackingEnabled } = useOrganizationTeams();
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const [groupByType, setGroupByType] = useLocalStorageState<GroupByType>('group-by-type', 'date');
 	const { closeModal, isOpen, openModal } = useModal();
 	const { user } = useAuthenticateUser();
 
-	const { activityReport, handleGroupByChange, updateDateRange, updateFilters, currentFilters, isManage, loading } =
-		useReportActivity({ types: 'APPS-URLS' });
+	const {
+		activityReport,
+		handleGroupByChange,
+		updateDateRange,
+		updateFilters,
+		currentFilters,
+		isManage,
+		loading,
+		fetchActivityReport
+	} = useReportActivity({ types: 'APPS-URLS' });
 
 	const handleGroupTypeChange = (type: GroupByType) => {
 		setGroupByType(type);
 		handleGroupByChange(type);
 	};
+
+	// Handle filter application - triggers data refetch
+	const handleFiltersApply = useCallback(() => {
+		// Refetch activity report data with current filter state
+		fetchActivityReport();
+	}, [fetchActivityReport]);
 
 	const generateMonthData = (date: Date): ProductivityData[] => {
 		const year = date.getFullYear();
@@ -211,23 +193,6 @@ function AppUrls() {
 
 	const pdfCompatibleData = createPDFCompatibleData();
 
-	// Debug what's being passed to PDF export
-	if (process.env.NODE_ENV === 'development') {
-		console.log('📄 PDF Export Data Debug:', {
-			originalActivityReport: activityReport?.length,
-			pdfCompatibleDataLength: pdfCompatibleData?.length,
-			pdfCompatibleDataStructure: pdfCompatibleData?.[0],
-			reportDataType: typeof pdfCompatibleData,
-			reportDataIsArray: Array.isArray(pdfCompatibleData),
-			userInfo: {
-				fullName: user?.fullName,
-				firstName: user?.firstName,
-				lastName: user?.lastName,
-				employeeId: user?.employee?.id
-			}
-		});
-	}
-
 	// Calculate current month and year from filters
 	const startDate = new Date(currentFilters.startDate || new Date());
 	const endDate = new Date(currentFilters.endDate || new Date());
@@ -317,6 +282,7 @@ function AppUrls() {
 								reportData={pdfCompatibleData}
 								startDate={new Date(currentFilters.startDate || '')}
 								endDate={new Date(currentFilters.endDate || '')}
+								onFiltersApply={handleFiltersApply}
 								closeModal={closeModal}
 								isOpen={isOpen}
 								openModal={openModal}

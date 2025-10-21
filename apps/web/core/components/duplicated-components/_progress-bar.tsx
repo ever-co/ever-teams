@@ -3,6 +3,8 @@ import { JSX, memo, useMemo } from 'react';
 
 // Memoized utility function for colors
 const getProgressColor = (progress: number): string => {
+	// Neutral state when no estimation exists
+	if (progress === 0) return 'bg-gray-400 dark:bg-gray-500';
 	if (progress < 25) return 'bg-red-600 dark:bg-red-400';
 	if (progress >= 25 && progress < 50) return 'bg-yellow-600 dark:bg-yellow-400';
 	if (progress >= 50 && progress < 75) return 'bg-blue-600 dark:bg-blue-400';

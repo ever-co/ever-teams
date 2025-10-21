@@ -1,132 +1,95 @@
 'use client';
 
-import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
-
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { paginationPageSizeOptions } from '@/core/constants/config/constants';
+import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
 import { clsxm } from '@/core/lib/utils';
-import { PaginationItems, mappaginationItems } from './page-items';
-import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { ChevronDownIcon } from 'lucide-react';
 
-export interface IPagination {
-	title: string;
+interface IProps {
+	onChange: (value: number) => void;
+	totalItems: number;
+	itemsPerPage?: number;
 }
 
-export const PaginationDropdown = ({
-	setValue,
-	active,
-	total
-}: {
-	setValue: Dispatch<SetStateAction<number>>;
-	active?: IPagination | null;
-	total?: number;
-}) => {
-	const calculatePaginationOptions = useCallback((total = 0) => {
-		const baseOptions = [10, 20, 30, 40, 50];
+export const PaginationItemsDropdown = ({ onChange, totalItems, itemsPerPage }: IProps) => {
+	const didUserChangeRef = useRef(false);
+	const MIN = paginationPageSizeOptions[0];
 
-		if (total > 50) {
-			const nextOption = Math.ceil(total / 10) * 10;
-			if (!baseOptions.includes(nextOption)) {
-				baseOptions.push(nextOption);
-			}
+	const initialState = useMemo(() => {
+		let baseOptions = [...paginationPageSizeOptions];
+		let selectedValue: number;
+
+		if (totalItems === 0) {
+			selectedValue = MIN;
+		} else if (totalItems < MIN) {
+			selectedValue = totalItems;
+		} else if (itemsPerPage && itemsPerPage <= totalItems) {
+			selectedValue = itemsPerPage;
+		} else {
+			selectedValue = MIN;
 		}
-		baseOptions.sort((a, b) => a - b);
 
-		return baseOptions.map((size) => ({
-			title: size.toString()
-		}));
-	}, []);
-
-	const [paginationList, setPagination] = useState<IPagination[]>([
-		{
-			title: '10'
-		},
-		{
-			title: '20'
-		},
-		{
-			title: '30'
-		},
-		{
-			title: '40'
-		},
-		{
-			title: '50'
+		if (!baseOptions.includes(selectedValue)) {
+			baseOptions = [selectedValue, ...baseOptions];
 		}
-	]);
 
-	useEffect(() => {
-		if (total) {
-			setPagination(calculatePaginationOptions(total));
-		}
-	}, [total, calculatePaginationOptions]);
+		const options = Array.from(new Set(baseOptions)).sort((a, b) => a - b);
+		return { options, selected: selectedValue };
+	}, [totalItems, itemsPerPage]);
 
-	const items: PaginationItems[] = useMemo(() => mappaginationItems(paginationList), [paginationList]);
+	const [paginationOptions, setPaginationOptions] = useState(initialState.options);
+	const [selected, setSelected] = useState(initialState.selected);
 	const [open, setOpen] = useState(false);
-	const [paginationItem, setPaginationItem] = useState<PaginationItems | null>();
-
-	const onChangeActiveTeam = useCallback(
-		(item: PaginationItems) => {
-			if (item.data) {
-				setPaginationItem(item);
-				setValue(+item.data.title);
-			}
-		},
-		[setPaginationItem, setValue]
-	);
 
 	useEffect(() => {
-		if (!paginationItem && items.length > 0) {
-			setPaginationItem(items[0]);
+		// If user changed the value, do not update with initial state
+		if (!didUserChangeRef.current) {
+			setPaginationOptions(initialState.options);
+			setSelected(initialState.selected);
+			onChange(initialState.selected);
 		}
-	}, [paginationItem, items]);
+	}, [initialState]);
 
-	useEffect(() => {
-		if (active && paginationList.every((filter) => filter.title !== active.title)) {
-			setPagination([...paginationList, active]);
-		}
-	}, [paginationList, setPagination, setPaginationItem, active]);
-
-	useEffect(() => {
-		if (active) {
-			setPaginationItem(items.find((item: any) => item.key === active?.title));
-		}
-	}, [active, items]);
+	const handleChange = (value: number) => {
+		// Set the flag to true to indicate that the user has changed the value
+		didUserChangeRef.current = true;
+		onChange(value);
+		setSelected(value);
+		setOpen(false);
+	};
 
 	return (
-		<>
-			<Popover open={open} onOpenChange={setOpen}>
-				<PopoverTrigger
+		<Popover open={open} onOpenChange={setOpen}>
+			<PopoverTrigger
+				className={clsxm(
+					'input-border',
+					'flex justify-between items-center px-3 py-2 w-full text-sm rounded-xl',
+					'font-normal outline-none',
+					'z-10 py-0 font-medium h-[45px] w-[145px] dark:bg-dark--theme-light'
+				)}
+			>
+				<span className="text-xs">{`Show ${selected} item${selected > 1 ? 's' : ''}`}</span>
+				<ChevronDownIcon
 					className={clsxm(
-						'input-border',
-						'flex justify-between items-center px-3 py-2 w-full text-sm rounded-xl',
-						'font-normal outline-none',
-						'z-10 py-0 font-medium outline-none h-[45px] w-[145px] dark:bg-dark--theme-light'
+						'ml-2 h-5 w-5 dark:text-white transition duration-150 ease-in-out',
+						open && 'rotate-180'
 					)}
-				>
-					<span>{paginationItem?.selectedLabel || (paginationItem?.Label && <paginationItem.Label />)}</span>{' '}
-					<ChevronDownIcon
-						className={clsxm(
-							'ml-2 h-5 w-5 dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80',
-							open && 'transform rotate-180'
-						)}
-						aria-hidden="true"
-					/>
-				</PopoverTrigger>
-				<PopoverContent className="w-36 p-2">
-					{items.map((Item, index) => (
-						<div
-							onClick={() => {
-								onChangeActiveTeam(Item);
-								setOpen(false);
-							}}
-							key={Item.key ? Item.key : index}
-							className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded"
-						>
-							<Item.Label />
-						</div>
-					))}
-				</PopoverContent>
-			</Popover>
-		</>
+					aria-hidden="true"
+				/>
+			</PopoverTrigger>
+
+			<PopoverContent className="w-36 p-2 bg-light--theme-light shadow dark:bg-dark--theme-light">
+				{paginationOptions.map((item) => (
+					<div
+						key={item}
+						onClick={() => handleChange(item)}
+						className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 p-2 text-xs rounded"
+					>
+						{`Show ${item} item${item > 1 ? 's' : ''}`}
+					</div>
+				))}
+			</PopoverContent>
+		</Popover>
 	);
 };

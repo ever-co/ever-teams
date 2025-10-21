@@ -1,4 +1,4 @@
-import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { APP_NAME, GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '../../api.service';
 
 import { authFormValidate } from '@/core/lib/helpers/validations';
@@ -32,7 +32,7 @@ class SigninService extends APIService {
 			return Promise.reject({ errors });
 		}
 
-		const inviteReq = await inviteService.verifyInviteCode({ email, code });
+		const inviteReq = await inviteService.validateInvitationByCodeAndEmail({ email, code });
 
 		if (inviteReq && inviteReq.fullName) {
 			const password = generateToken(8);
@@ -57,7 +57,7 @@ class SigninService extends APIService {
 				});
 			}
 
-			loginResponse = acceptInviteRes;
+			loginResponse = acceptInviteRes as IAuthResponse;
 		}
 
 		if (loginResponse) {
@@ -78,7 +78,7 @@ class SigninService extends APIService {
 			if (!organization) {
 				return Promise.reject({
 					errors: {
-						email: 'Your account is not yet ready to be used on the Ever Teams Platform'
+						email: `Your account is not yet ready to be used on the ${APP_NAME} Platform`
 					}
 				});
 			}
@@ -203,7 +203,7 @@ class SigninService extends APIService {
 		if (!organization) {
 			return Promise.reject({
 				errors: {
-					email: 'Your account is not yet ready to be used on the Ever Teams Platform'
+					email: `Your account is not yet ready to be used on the ${APP_NAME} Platform`
 				}
 			});
 		}

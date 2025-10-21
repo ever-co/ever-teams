@@ -1,4 +1,3 @@
-/* eslint-disable react/display-name */
 import { useTranslations } from 'next-intl';
 import React, { useState, useEffect } from 'react';
 import { FieldError, UseFormRegister } from 'react-hook-form';

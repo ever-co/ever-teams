@@ -71,5 +71,6 @@ export enum HttpStatusCode {
 export interface ApiErrorResponse {
 	message: string;
 	code?: string;
+	statusCode: number;
 	details?: Record<string, any>;
 }

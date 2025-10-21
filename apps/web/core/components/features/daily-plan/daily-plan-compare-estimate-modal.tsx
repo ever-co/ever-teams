@@ -35,7 +35,7 @@ export function DailyPlanCompareEstimatedModal({
 }) {
 	const { difference, workTimePlanned, estimated, plan } = dailyPlanCompareEstimated(todayPlan);
 	const { updateDailyPlan, updateDailyPlanLoading } = useDailyPlan();
-	const { h: dh, m: dm } = secondsToTime(workTimePlanned || 0);
+	const { hours: dh, minutes: dm } = secondsToTime(workTimePlanned || 0);
 	const { startTimer } = useTimer();
 	const hour = dh.toString()?.padStart(2, '0');
 	const minute = dm.toString()?.padStart(2, '0');

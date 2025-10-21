@@ -1,8 +1,7 @@
 'use client';
 import React, { Suspense, useEffect } from 'react';
-import dynamic from 'next/dynamic';
 
-import { useAuthenticateUser, useDailyPlan, useOrganizationTeams, useTeamInvitations } from '@/core/hooks';
+import { useDailyPlan, useIsMemberManager, useTeamInvitations } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container } from '@/core/components';
@@ -15,7 +14,7 @@ import { Analytics } from '@vercel/analytics/react';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '@/styles/globals.css';
 
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import HeaderTabs from '@/core/components/common/header-tabs';
 import { headerTabs } from '@/core/stores/common/header-tabs';
@@ -33,69 +32,34 @@ import { TaskTimerSectionSkeleton } from '@/core/components/common/skeleton/task
 import { TaskTimerSection } from '@/core/components/pages/dashboard/task-timer-section';
 import { TeamMemberHeaderSkeleton } from '@/core/components/common/skeleton/team-member-header-skeleton';
 import { NoTeamSkeleton } from '@/core/components/common/skeleton/no-team-skeleton';
-export const TeamOutstandingNotifications = dynamic(
-	() =>
-		import('@/core/components/teams/team-outstanding-notifications').then((mod) => ({
-			default: mod.TeamOutstandingNotifications
-		})),
-	{
-		ssr: false
-		// Note: Removed loading here to avoid double loading states
-		// Suspense fallback will handle all loading states uniformly
-	}
-);
-
-const TeamMembers = dynamic(
-	() => import('@/core/components/pages/teams/team/team-members').then((mod) => ({ default: mod.TeamMembers })),
-	{
-		ssr: false
-		// Note: Removed loading here to avoid double loading states
-		// Suspense fallback will handle all loading states uniformly
-	}
-);
-
-const ChatwootWidget = dynamic(() => import('@/core/components/integration/chatwoot'), {
-	ssr: false
-	// Note: No loading needed for chat widget - renders invisibly
-});
-
-const TeamInvitations = dynamic(
-	() => import('@/core/components/teams/team-invitations').then((mod) => ({ default: mod.TeamInvitations })),
-	{
-		ssr: false
-		// Note: Removed loading here to avoid double loading states
-		// Suspense fallback will handle all loading states uniformly
-	}
-);
-
-const UnverifiedEmail = dynamic(
-	() => import('@/core/components/common/unverified-email').then((mod) => ({ default: mod.UnverifiedEmail })),
-	{
-		ssr: false
-		// Note: Removed loading here to avoid double loading states
-		// Suspense fallback will handle all loading states uniformly
-	}
-);
-
-const LazyTeamMemberHeader = dynamic(() => import('@/core/components/teams/team-member-header'), {
-	ssr: false
-	// Note: Removed loading here to avoid double loading states
-	// Suspense fallback will handle all loading states uniformly
-});
-
-const LazyNoTeam = dynamic(() => import('@/core/components/common/no-team'), {
-	ssr: false
-	// Note: Removed loading here to avoid double loading states
-	// Suspense fallback will handle all loading states uniformly
-});
+// Import optimized components from centralized location
+import {
+	LazyTeamOutstandingNotifications,
+	LazyTeamMembers,
+	LazyTeamInvitations,
+	LazyTeamMemberHeader
+} from '@/core/components/optimized-components/teams';
+import { LazyChatwootWidget, LazyUnverifiedEmail, LazyNoTeam } from '@/core/components/optimized-components/common';
+import { activeTeamState, isTeamMemberState, isTrackingEnabledState, myInvitationsState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 function MainPage() {
 	const t = useTranslations();
 
-	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
-	const { outstandingPlans, dailyPlan } = useDailyPlan();
-	const { user, isTeamManager } = useAuthenticateUser();
-	const { myInvitationsList, myInvitations } = useTeamInvitations();
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
+
+	const activeTeam = useAtomValue(activeTeamState);
+
+	const isTeamMember = useAtomValue(isTeamMemberState);
+
+	const { data: user } = useUserQuery();
+	const employeeId = user?.employee?.id ?? user?.employeeId ?? '';
+	const { dailyPlan, outstandingPlans } = useDailyPlan(employeeId);
+
+	const { isTeamManager } = useIsMemberManager(user);
+
+	const myInvitationsList = useAtomValue(myInvitationsState);
+	const { myInvitations } = useTeamInvitations();
 	const [fullWidth, setFullWidth] = useAtom(fullWidthState);
 	const [view, setView] = useAtom(headerTabs);
 	const path = usePathname();
@@ -113,7 +77,6 @@ function MainPage() {
 	}, [path, setView]);
 
 	React.useEffect(() => {
-		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 		window && window?.localStorage.getItem('conf-fullWidth-mode');
 		setFullWidth(JSON.parse(window?.localStorage.getItem('conf-fullWidth-mode') || 'true'));
 	}, [setFullWidth]);
@@ -128,13 +91,13 @@ function MainPage() {
 						<div className="bg-white dark:bg-dark-high">
 							<div className={clsxm('bg-white dark:bg-dark-high ', !fullWidth && 'x-container')}>
 								<div className="mx-8-container my-3 !px-0 flex flex-row items-start justify-between ">
-									<div className="flex gap-8 justify-center items-center h-10">
+									<div className="flex items-center justify-center h-10 gap-8">
 										<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 
 										<Breadcrumb paths={breadcrumb} className="text-sm" />
 									</div>
 
-									<div className="flex gap-1 justify-center items-center w-max h-10">
+									<div className="flex items-center justify-center h-10 gap-1 w-max">
 										<HeaderTabs linkAll={false} />
 									</div>
 								</div>
@@ -144,14 +107,14 @@ function MainPage() {
 										{/* UnverifiedEmail - Only render when user email is not verified */}
 										{user && !user.isEmailVerified && (
 											<Suspense fallback={<UnverifiedEmailSkeleton />}>
-												<UnverifiedEmail user={user} />
+												<LazyUnverifiedEmail user={user} />
 											</Suspense>
 										)}
 
 										{/* TeamInvitations - Only render when user has pending invitations */}
 										{myInvitationsList && myInvitationsList.length > 0 && (
 											<Suspense fallback={<TeamInvitationsSkeleton />}>
-												<TeamInvitations
+												<LazyTeamInvitations
 													className="!m-0"
 													myInvitationsList={myInvitationsList}
 													myInvitations={myInvitations}
@@ -162,11 +125,11 @@ function MainPage() {
 										{((outstandingPlans && outstandingPlans.length > 0) ||
 											(dailyPlan?.items && dailyPlan.items.length > 0 && isTeamManager)) && (
 											<Suspense fallback={<TeamNotificationsSkeleton />}>
-												<TeamOutstandingNotifications
+												<LazyTeamOutstandingNotifications
 													outstandingPlans={outstandingPlans}
 													dailyPlan={dailyPlan}
 													isTeamManager={isTeamManager}
-													user={user}
+													user={user!}
 												/>
 											</Suspense>
 										)}
@@ -190,12 +153,12 @@ function MainPage() {
 					}
 					footerClassName={clsxm('')}
 				>
-					<ChatwootWidget />
+					<LazyChatwootWidget />
 					<div className="h-full">
 						<Container fullWidth={fullWidth} className="mx-auto">
 							{isTeamMember ? (
 								<Suspense fallback={<TeamMembersSkeleton view={view} fullWidth={fullWidth} />}>
-									<TeamMembers kanbanView={view} />
+									<LazyTeamMembers kanbanView={view} />
 								</Suspense>
 							) : (
 								<Suspense fallback={<NoTeamSkeleton fullWidth={fullWidth} />}>

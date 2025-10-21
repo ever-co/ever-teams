@@ -4,10 +4,8 @@ import { z } from 'zod';
  * Zod schemas for Time Slot-related interfaces
  */
 
-// Schema for get timer logs request parameters
-export const getTimerLogsRequestSchema = z.object({
-	tenantId: z.string().min(1, 'Tenant ID is required'),
-	organizationId: z.string().min(1, 'Organization ID is required'),
+// Schema for get time slots statistics request parameters
+export const getTimeSlotsStatisticsRequestSchema = z.object({
 	employeeId: z.string().min(1, 'Employee ID is required'),
 	todayEnd: z.date(),
 	todayStart: z.date()
@@ -81,7 +79,7 @@ export const minimalTimeSlotsDataSchema = z
 export const deleteTimeSlotsResponseSchema = z.boolean();
 
 // Types inferred from schemas
-export type TGetTimerLogsRequest = z.infer<typeof getTimerLogsRequestSchema>;
+export type TGetTimeSlotsStatisticsRequest = z.infer<typeof getTimeSlotsStatisticsRequestSchema>;
 export type TDeleteTimeSlotsRequest = z.infer<typeof deleteTimeSlotsRequestSchema>;
 export type TDeleteTimeSlotsResponse = z.infer<typeof deleteTimeSlotsResponseSchema>;
 export type TTimeSlotsData = z.infer<typeof timeSlotsDataSchema>;

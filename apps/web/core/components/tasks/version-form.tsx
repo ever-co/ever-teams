@@ -2,37 +2,39 @@ import { Button, Text } from '@/core/components';
 import { StatusesListCard } from '../settings/list-card';
 
 import { useCallbackRef, useTaskVersion } from '@/core/hooks';
-import { userState } from '@/core/stores';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useAtom } from 'jotai';
 
 import { useRefetchData } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { useTranslations } from 'next-intl';
 import { InputField } from '../duplicated-components/_input';
-import { ITaskVersion, ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
+import { TTaskVersion } from '@/core/types/schemas';
+import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 type StatusForm = {
 	formOnly?: boolean;
 	onCreated?: () => void;
-	onVersionCreated?: (version: ITaskVersionCreate) => void;
+	onVersionCreated?: (version: TTaskVersion) => void;
 };
 
-export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: StatusForm) => {
+export const TaskVersionForm = ({ formOnly = false, onCreated, onVersionCreated }: StatusForm) => {
 	const t = useTranslations();
-
-	const [user] = useAtom(userState);
+	const tenantId = getTenantIdCookie();
+	const activeTeamId = getActiveTeamIdCookie();
+	const { data: user } = useUserQuery();
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
-	const [edit, setEdit] = useState<ITaskVersion | null>(null);
+	const [edit, setEdit] = useState<TTaskVersion | null>(null);
 	const $onVersionCreated = useCallbackRef(onVersionCreated);
+	const organizationId = getOrganizationIdCookie();
 
 	const {
 		loading,
-		taskVersion,
+		taskVersions,
 		createTaskVersion,
 		deleteTaskVersion,
 		editTaskVersion,
@@ -45,7 +47,7 @@ export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: S
 		if (!edit && !getValues().name) {
 			setValue('name', '');
 		}
-	}, [taskVersion, edit, setValue, getValues]);
+	}, [taskVersions, edit, setValue, getValues]);
 
 	useEffect(() => {
 		if (edit) {
@@ -62,8 +64,9 @@ export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: S
 					name: values.name,
 					color: '#FFFFFF',
 					// description: '',
-					organizationId: user?.employee?.organizationId,
-					tenantId: user?.tenantId
+					organizationId: organizationId,
+					organizationTeamId: activeTeamId,
+					tenantId
 					// icon: values.icon,
 					// projectId: '',
 				})?.then((res: any) => {
@@ -146,7 +149,7 @@ export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: S
 											{...register('name')}
 										/>
 									</div>
-									<div className="flex mt-5 gap-x-4">
+									<div className="flex gap-x-4 mt-5">
 										<Button
 											variant="primary"
 											className="px-4 py-4 font-normal rounded-xl text-md"
@@ -173,15 +176,15 @@ export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: S
 								</>
 							)}
 
-							{!formOnly && taskVersion?.length > 0 && (
+							{!formOnly && taskVersions?.length > 0 && (
 								<>
 									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
 										{t('pages.settingsTeam.LIST_OF_VERSONS')}
 									</Text>
-									<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
-										{loading && !taskVersion?.length && <Spinner dark={false} />}
-										{taskVersion && taskVersion?.length ? (
-											taskVersion.map((version) => (
+									<div className="flex flex-wrap gap-3 justify-center w-full sm:justify-start">
+										{loading && !taskVersions?.length && <Spinner dark={false} />}
+										{taskVersions && taskVersions?.length ? (
+											taskVersions.map((version) => (
 												<StatusesListCard
 													key={version.id}
 													statusTitle={version.name ? version.name?.split('-').join(' ') : ''}

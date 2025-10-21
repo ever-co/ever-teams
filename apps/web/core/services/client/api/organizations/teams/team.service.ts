@@ -1,7 +1,7 @@
 import { APIService, getFallbackAPI } from '@/core/services/client/api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
 import moment from 'moment';
 import { organizationProjectService } from '../organization-project.service';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
@@ -18,18 +18,17 @@ import {
 	TUser,
 	TOrganizationProject,
 	organizationTeamCreateResponseSchema,
-	organizationTeamUpdateSchema
+	organizationTeamUpdateSchema,
+	TOrganizationTeamUpdate
 } from '@/core/types/schemas';
 
 class OrganizationTeamService extends APIService {
 	/**
 	 * Fetches a list of teams for a specified organization.
 	 *
-	 * @param {string} organizationId The unique identifier for the organization.
-	 * @param {string} tenantId The tenant identifier.
 	 * @returns A Promise resolving to a paginated response containing the list of organization teams.
 	 */
-	getOrganizationTeams = async (organizationId: string, tenantId: string) => {
+	getOrganizationTeams = async () => {
 		const relations = [
 			'members',
 			'members.role',
@@ -41,8 +40,8 @@ class OrganizationTeamService extends APIService {
 		];
 		// Construct the query parameters including relations
 		const queryParameters = {
-			'where[organizationId]': organizationId,
-			'where[tenantId]': tenantId,
+			'where[organizationId]': this.organizationId,
+			'where[tenantId]': this.tenantId,
 			source: ETimeLogSource.TEAMS,
 			withLastWorkedTask: 'true', // Corrected the typo here
 			relations
@@ -54,7 +53,9 @@ class OrganizationTeamService extends APIService {
 		const endpoint = `/organization-team?${query}`;
 
 		try {
-			const response = await this.get<PaginationResponse<TOrganizationTeam>>(endpoint, { tenantId });
+			const response = await this.get<PaginationResponse<TOrganizationTeam>>(endpoint, {
+				tenantId: this.tenantId
+			});
 
 			// Validate paginated response data and return the original response structure
 			const validatedData = validatePaginationResponse(
@@ -80,7 +81,13 @@ class OrganizationTeamService extends APIService {
 		}
 	};
 
-	createOrganizationTeamGauzy = async (data: TOrganizationTeamCreate, bearer_token: string) => {
+	createOrganizationTeamGauzy = async ({
+		data,
+		bearer_token
+	}: {
+		data: TOrganizationTeamCreate;
+		bearer_token: string;
+	}) => {
 		// Validate input data before sending to API
 		const validatedInput = validateApiResponse(
 			organizationTeamCreateSchema,
@@ -130,22 +137,22 @@ class OrganizationTeamService extends APIService {
 		const $name = name.trim();
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
-			const tenantId = getTenantIdCookie();
-			const organizationId = getOrganizationIdCookie();
+			const tenantId = this.tenantId;
+			const organizationId = this.organizationId;
 			const access_token = getAccessTokenCookie() || '';
 
-			await this.createOrganizationTeamGauzy(
-				{
+			await this.createOrganizationTeamGauzy({
+				data: {
 					name: $name,
 					tenantId,
 					organizationId,
 					managerIds: user?.employee?.id ? [user.employee.id] : [],
 					public: true
 				},
-				access_token
-			);
+				bearer_token: access_token
+			});
 
-			return this.getOrganizationTeams(organizationId, tenantId);
+			return this.getOrganizationTeams();
 		}
 
 		const api = await getFallbackAPI();
@@ -180,11 +187,9 @@ class OrganizationTeamService extends APIService {
 	 * Fetches details of a specific team within an organization.
 	 *
 	 * @param {string} teamId The unique identifier of the team.
-	 * @param {string} organizationId The unique identifier of the organization.
-	 * @param {string} tenantId The tenant identifier.
 	 * @returns A Promise resolving to the details of the specified organization team.
 	 */
-	getOrganizationTeam = async (teamId: string, organizationId: string, tenantId: string) => {
+	getOrganizationTeam = async (teamId: string) => {
 		const relations = [
 			'members',
 			'members.role',
@@ -197,8 +202,8 @@ class OrganizationTeamService extends APIService {
 
 		// Define base parameters including organization and tenant IDs, and date range
 		const queryParams = {
-			organizationId,
-			tenantId,
+			organizationId: this.organizationId,
+			tenantId: this.tenantId,
 			withLastWorkedTask: 'true', // Corrected the typo here
 			startDate: moment().startOf('day').toISOString(),
 			endDate: moment().endOf('day').toISOString(),
@@ -235,29 +240,26 @@ class OrganizationTeamService extends APIService {
 					issues: error.issues,
 					context: 'getOrganizationTeam',
 					teamId,
-					organizationId
+					organizationId: this.organizationId
 				});
 			}
 			throw error;
 		}
 	};
 
-	editOrganizationTeam = async (data: Partial<TOrganizationTeam>) => {
+	editOrganizationTeam = async (data: Partial<TOrganizationTeamUpdate>) => {
 		// Validate input data before sending to API
 		const validatedInput = validateApiResponse(
 			organizationTeamUpdateSchema.partial(),
 			data,
 			'editOrganizationTeam input data'
-		) as Partial<TOrganizationTeam>;
-
-		const tenantId = getTenantIdCookie();
-		const organizationId = getOrganizationIdCookie();
+		) as Partial<TOrganizationTeamUpdate>;
 
 		try {
 			let response = await this.put<TOrganizationTeam>(`/organization-team/${validatedInput.id}`, validatedInput);
 
 			if (GAUZY_API_BASE_SERVER_URL.value) {
-				response = await this.getOrganizationTeam(validatedInput.id!, organizationId, tenantId);
+				response = await this.getOrganizationTeam(validatedInput.id!);
 			} else {
 				// Validate the response data for non-Gauzy API
 				const validatedData = validateApiResponse(
@@ -287,7 +289,7 @@ class OrganizationTeamService extends APIService {
 		}
 	};
 
-	updateOrganizationTeam = async (teamId: string, data: Partial<TOrganizationTeam>) => {
+	updateOrganizationTeam = async (teamId: string, data: Partial<TOrganizationTeamUpdate>) => {
 		// Validate input data before sending to API
 		const validatedInput = validateApiResponse(
 			organizationTeamUpdateSchema.partial(),
@@ -295,14 +297,11 @@ class OrganizationTeamService extends APIService {
 			'updateOrganizationTeam input data'
 		) as Partial<TOrganizationTeam>;
 
-		const tenantId = getTenantIdCookie();
-		const organizationId = getOrganizationIdCookie();
-
 		try {
 			let response = await this.put<TOrganizationTeam>(`/organization-team/${teamId}`, validatedInput);
 
 			if (GAUZY_API_BASE_SERVER_URL.value) {
-				response = await this.getOrganizationTeam(teamId, organizationId, tenantId);
+				response = await this.getOrganizationTeam(teamId);
 			} else {
 				// Validate the response data for non-Gauzy API
 				const validatedData = validateApiResponse(
@@ -338,11 +337,9 @@ class OrganizationTeamService extends APIService {
 			throw new Error('Valid team ID is required for deletion');
 		}
 
-		const organizationId = getOrganizationIdCookie();
-
 		try {
 			const response = await this.delete<TOrganizationTeam>(
-				`/organization-team/${id}?organizationId=${organizationId}`
+				`/organization-team/${id}?organizationId=${this.organizationId}`
 			);
 
 			// Validate delete response data

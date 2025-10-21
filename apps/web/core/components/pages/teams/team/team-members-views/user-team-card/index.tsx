@@ -4,13 +4,16 @@ import {
 	useCollaborative,
 	useTMCardTaskEdit,
 	useTaskStatistics,
-	useOrganizationTeams,
-	useAuthenticateUser,
 	useTeamMemberCard,
 	useUserProfilePage
 } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
-import { timerSecondsState, userDetailAccordion as userAccordion } from '@/core/stores';
+import {
+	activeTaskStatisticsState,
+	activeTeamManagersState,
+	timerSecondsState,
+	userDetailAccordion as userAccordion
+} from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Container } from '@/core/components';
 import { useTranslations } from 'next-intl';
@@ -19,8 +22,8 @@ import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
-import React, { useCallback, useMemo, useState } from 'react';
-import UserTeamActivity from '@/core/components/activities/user-team-card-activity';
+import React, { Suspense, useCallback, useMemo, useState } from 'react';
+import { LazyUserTeamActivity } from '@/core/components/optimized-components';
 import { CollapseUpIcon, ExpandIcon } from '@/core/components/svgs/expand';
 import { activityTypeState } from '@/core/stores/timer/activity-type';
 import { SixSquareGridIcon } from 'assets/svg';
@@ -33,15 +36,18 @@ import { fullWidthState } from '@/core/stores/common/full-width';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { ScreenshootTab } from '@/core/components/pages/profile/screenshots/screenshoots';
 import { InputField } from '@/core/components/duplicated-components/_input';
-import { UserProfileTask } from '@/core/components/pages/profile/user-profile-tasks';
+import { LazyUserProfileTask } from '@/core/components/optimized-components';
 import { EverCard } from '@/core/components/common/ever-card';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { TaskTimes, TodayWorkedTime } from '@/core/components/tasks/task-times';
 import { Text } from '@/core/components';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { TTaskStatistics } from '@/core/types/interfaces/task/task';
 import { TActivityFilter } from '@/core/types/schemas';
 import { cn } from '@/core/lib/helpers';
+import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { UserTeamActivitySkeleton } from '@/core/components/common/skeleton/profile-component-skeletons';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -94,6 +100,7 @@ export function UserTeamCard({
 	onDragOver = () => null
 }: IUserTeamCard) {
 	const t = useTranslations();
+	// Memoize expensive hook calls
 	const profile = useUserProfilePage();
 	const [userDetailAccordion, setUserDetailAccordion] = useAtom(userAccordion);
 	const hook = useTaskFilter(profile);
@@ -104,12 +111,15 @@ export function UserTeamCard({
 
 	const seconds = useAtomValue(timerSecondsState);
 	const setActivityFilter = useSetAtom(activityTypeState);
-	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
-	const [showActivity, setShowActivity] = React.useState<boolean>(false);
-	const { activeTeamManagers } = useOrganizationTeams();
-	const { user } = useAuthenticateUser();
 
-	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id == user?.id);
+	const statActiveTask = useAtomValue(activeTaskStatisticsState);
+	const activeTaskTotalStat = statActiveTask.total;
+	const { addSeconds } = useTaskStatistics(seconds);
+	const [showActivity, setShowActivity] = React.useState<boolean>(false);
+	const activeTeamManagers = useAtomValue(activeTeamManagersState);
+	const { data: user } = useUserQuery();
+
+	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id);
 
 	// Memoize callback to prevent unnecessary re-renders
 	const showActivityFilter = useCallback(
@@ -127,10 +137,10 @@ export function UserTeamCard({
 
 	let totalWork = <></>;
 	if (memberInfo.isAuthUser) {
-		const { h, m } = secondsToTime(
+		const { hours: h, minutes: m } = secondsToTime(
 			((member?.totalTodayTasks &&
 				member?.totalTodayTasks.reduce(
-					(previousValue: number, currentValue: ITasksStatistics) =>
+					(previousValue: number, currentValue: TTaskStatistics) =>
 						previousValue + (currentValue.duration || 0),
 					0
 				)) ||
@@ -165,26 +175,41 @@ export function UserTeamCard({
 	);
 	const [activityFilter, setActivity] = useState<FilterTab>('Tasks');
 
-	const activityScreens = {
-		Tasks: <UserProfileTask profile={profile} tabFiltered={hook} user={member?.employee?.user} />,
-		Screenshots: <ScreenshootTab />,
-		Apps: <AppsTab />,
-		'Visited Sites': <VisitedSitesTab />
-	};
+	const activityScreens = useMemo(
+		() => ({
+			Tasks: (
+				<LazyUserProfileTask
+					profile={profile}
+					tabFiltered={hook}
+					user={member?.employee?.user}
+					paginateTasks={true}
+					useVirtualization={hook.tasksFiltered?.length > ITEMS_LENGTH_TO_VIRTUALIZED} // Only virtualize for large lists
+				/>
+			),
+			Screenshots: <ScreenshootTab />,
+			Apps: <AppsTab />,
+			'Visited Sites': <VisitedSitesTab />
+		}),
+		[profile, hook, member?.employee?.user]
+	);
 	const changeActivityFilter = useCallback(
 		(filter: FilterTab) => {
 			setActivity(filter);
 		},
 		[setActivity]
 	);
-	const canSeeActivity = useMemo(
-		() => profile?.userProfile?.id === user?.id || isManagerConnectedUser != -1,
-		[profile?.userProfile?.id, user?.id, isManagerConnectedUser]
-	);
-	const isUserDetailAccordion = useMemo(
-		() => userDetailAccordion == memberInfo.memberUser?.id,
-		[userDetailAccordion, memberInfo.memberUser?.id]
-	);
+	const canSeeActivity = useMemo(() => {
+		// Correct logic for team-members context
+		// In team-members view, we compare memberUserId with connectedUserId, not profile
+		const isOwnCard = memberInfo.memberUser?.id === user?.id;
+		const isManager = isManagerConnectedUser !== -1;
+		const result = isOwnCard || isManager;
+
+		return result;
+	}, [memberInfo.memberUser?.id, user?.id, isManagerConnectedUser]);
+	const isUserDetailAccordion = useMemo(() => {
+		return userDetailAccordion == memberInfo.memberUser?.id;
+	}, [userDetailAccordion, memberInfo.memberUser?.id]);
 	const handleActivityClose = useCallback(() => setShowActivity(false), []);
 	return (
 		<div
@@ -220,14 +245,17 @@ export function UserTeamCard({
 					{/* Show user name, email and image */}
 					<div className="relative">
 						<UserInfo memberInfo={memberInfo} className="min-w-64 max-w-72" publicTeam={publicTeam} />
-						{!publicTeam && (
-							<ChevronToggleButton
-								isExpanded={isUserDetailAccordion}
-								userId={memberInfo.memberUser?.id}
-								onToggle={setUserDetailAccordion}
-								onActivityClose={handleActivityClose}
-							/>
-						)}
+						{(() => {
+							const shouldShowChevron = !publicTeam && canSeeActivity;
+							return shouldShowChevron ? (
+								<ChevronToggleButton
+									isExpanded={isUserDetailAccordion}
+									userId={memberInfo.memberUser?.id}
+									onToggle={setUserDetailAccordion}
+									onActivityClose={handleActivityClose}
+								/>
+							) : null;
+						})()}
 					</div>
 					<VerticalSeparator />
 
@@ -241,7 +269,7 @@ export function UserTeamCard({
 							tab="default"
 						/>
 
-						{isManagerConnectedUser != 1 ? (
+						{canSeeActivity ? (
 							<p
 								className="flex relative -left-1 flex-none justify-center items-center w-8 h-8 text-center rounded border cursor-pointer dark:border-gray-800 shrink-0"
 								onClick={() => {
@@ -275,6 +303,8 @@ export function UserTeamCard({
 						edition={taskEdition}
 						activeAuthTask={true}
 						className="min-w-52 2xl:w-52 3xl:w-64 max-w-64"
+						useActiveTeamTaskByDefault={false}
+						allowEmptyTask={false}
 					/>
 
 					<VerticalSeparator />
@@ -282,7 +312,7 @@ export function UserTeamCard({
 					{/* TodayWorkedTime */}
 					<div className="flex justify-center items-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 max-w-[13rem]">
 						<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} className="" memberInfo={memberInfo} />
-						{isManagerConnectedUser != -1 ? (
+						{canSeeActivity ? (
 							<p
 								onClick={() => showActivityFilter('DATE', memberInfo.member ?? null)}
 								className="flex justify-center items-center w-8 h-8 text-center rounded border cursor-pointer dark:border-gray-800"
@@ -327,7 +357,11 @@ export function UserTeamCard({
 						<Loader className="animate-spin" />
 					</div>
 				) : null}
-				<UserTeamActivity showActivity={showActivity} member={member} />
+				{showActivity && (
+					<Suspense fallback={<UserTeamActivitySkeleton />}>
+						<LazyUserTeamActivity showActivity={showActivity} member={member} />
+					</Suspense>
+				)}
 			</EverCard>
 			<EverCard
 				shadow="bigger"
@@ -362,7 +396,13 @@ export function UserTeamCard({
 						/>
 					</div>
 
-					<TaskEstimateInfo memberInfo={memberInfo} edition={taskEdition} activeAuthTask={true} />
+					<TaskEstimateInfo
+						memberInfo={memberInfo}
+						edition={taskEdition}
+						activeAuthTask={true}
+						useActiveTeamTaskByDefault={false}
+						allowEmptyTask={false}
+					/>
 				</div>
 
 				{/* EverCard menu */}

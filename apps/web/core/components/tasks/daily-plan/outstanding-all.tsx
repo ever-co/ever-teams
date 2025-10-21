@@ -1,44 +1,97 @@
 import { EmptyPlans } from '@/core/components/daily-plan';
-import { TaskCard } from '../task-card';
-import { useDailyPlan } from '@/core/hooks';
+
+import { LazyTaskCard } from '@/core/components/optimized-components';
 import { TaskEstimatedCount } from '.';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
 import { DragDropContext, Draggable, Droppable, DroppableProvided } from '@hello-pangea/dnd';
-import { useState } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { TUser } from '@/core/types/schemas';
 import { handleDragAndDropDailyOutstandingAll } from '@/core/lib/helpers/index';
-import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useDailyPlan } from '@/core/hooks';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 interface OutstandingAll {
 	profile: any;
 	user?: TUser;
 }
 export function OutstandingAll({ profile, user }: OutstandingAll) {
-	const { outstandingPlans } = useDailyPlan();
-	const view = useAtomValue(dailyPlanViewHeaderTabs);
-	const displayedTaskId = new Set();
+	// Use contextual employee ID selection based on profile context
+	// Following the pattern from user-employee-id-management.md guide
+	const { data: authUser } = useUserQuery();
+	const employeeId = useMemo(() => {
+		if (profile.isAuthUser) {
+			// For authenticated user: use their own employee ID
+			return authUser?.employee?.id ?? authUser?.employeeId ?? '';
+		} else {
+			// For another user's profile: use the passed user's employee ID
+			return user?.employee?.id ?? user?.employeeId ?? '';
+		}
+	}, [profile.isAuthUser, authUser?.employee?.id, authUser?.employeeId, user?.employee?.id, user?.employeeId]);
 
-	const tasks = outstandingPlans.flatMap(
-		(plan) =>
-			(user
-				? plan.tasks?.filter((task) => task.members?.some((member: IEmployee) => member.userId === user.id))
-				: plan.tasks) ?? []
+	const outstandingPlans = useDailyPlan(employeeId).outstandingPlans;
+	const view = useAtomValue(dailyPlanViewHeaderTabs);
+
+	// Memoized user filter function for performance
+	const filterTasksByUser = useCallback(
+		(tasks: TTask[]) => {
+			if (!user?.id) return tasks;
+			return tasks.filter((task) => task.members?.some((member: any) => member.userId === user.id));
+		},
+		[user?.id]
 	);
 
-	const [task, setTask] = useState<TTask[]>(() => tasks);
+	// Memoized task deduplication to prevent unnecessary recalculations
+	// This fixes the bug where duplicate tasks caused count/display mismatch
+	const uniqueTasks = useMemo(() => {
+		// Early return for empty data to avoid unnecessary processing
+		if (!outstandingPlans.length) return [];
+
+		const allTasks = outstandingPlans.flatMap((plan) => {
+			const tasks = plan.tasks ?? [];
+			return user ? filterTasksByUser(tasks) : tasks;
+		});
+
+		// Use Map for deduplication by task ID to handle large datasets efficiently
+		const taskMap = new Map<string, TTask>();
+		allTasks.forEach((task) => {
+			if (task?.id && !taskMap.has(task.id)) {
+				taskMap.set(task.id, task);
+			}
+		});
+
+		return Array.from(taskMap.values());
+	}, [outstandingPlans, filterTasksByUser]);
+
+	// State for drag & drop functionality only
+	const [dragTasks, setDragTasks] = useState<TTask[]>(uniqueTasks);
+
+	// Sync drag state only when source data changes
+	useEffect(() => {
+		setDragTasks(uniqueTasks);
+	}, [uniqueTasks]);
+
+	// Create filtered plans for TaskEstimatedCount to match the displayed tasks
+	const filteredPlansForCount = useMemo(() => {
+		return outstandingPlans
+			.map((plan) => ({
+				...plan,
+				tasks: user ? filterTasksByUser(plan.tasks ?? []) : plan.tasks
+			}))
+			.filter((plan) => plan.tasks && plan.tasks.length > 0);
+	}, [outstandingPlans, filterTasksByUser, user]);
 
 	return (
 		<div className="flex flex-col gap-6">
-			<TaskEstimatedCount outstandingPlans={outstandingPlans} />
+			<TaskEstimatedCount outstandingPlans={filteredPlansForCount} />
 
-			{tasks.length > 0 ? (
+			{uniqueTasks.length > 0 ? (
 				<>
 					<DragDropContext
-						onDragEnd={(result) => handleDragAndDropDailyOutstandingAll(result, task, setTask)}
+						onDragEnd={(result) => handleDragAndDropDailyOutstandingAll(result, dragTasks, setDragTasks)}
 					>
 						<Droppable
 							droppableId="droppableId"
@@ -56,15 +109,9 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 										'flex gap-2 pb-[1.5rem] overflow-x-auto !flex-wrap'
 									)}
 								>
-									{tasks?.map((task, index) => {
-										//If the task is already displayed, skip it
-										if (displayedTaskId.has(task.id)) {
-											return null;
-										}
-										// Add the task to the Set to avoid displaying it again
-										displayedTaskId.add(task.id);
+									{uniqueTasks?.map((taskItem, index) => {
 										return view === 'CARDS' ? (
-											<Draggable key={task.id} draggableId={task.id} index={index}>
+											<Draggable key={taskItem.id} draggableId={taskItem.id} index={index}>
 												{(provided) => (
 													<div
 														ref={provided.innerRef}
@@ -75,12 +122,12 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 															marginBottom: 4
 														}}
 													>
-														<TaskCard
-															key={`${task.id}`}
+														<LazyTaskCard
+															key={`${taskItem.id}`}
 															isAuthUser={true}
 															activeAuthTask={true}
 															viewType={'dailyplan'}
-															task={task}
+															task={taskItem}
 															profile={profile}
 															type="HORIZONTAL"
 															taskBadgeClassName={`rounded-sm`}
@@ -92,7 +139,7 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 												)}
 											</Draggable>
 										) : (
-											<Draggable key={task.id} draggableId={task.id} index={index}>
+											<Draggable key={taskItem.id} draggableId={taskItem.id} index={index}>
 												{(provided) => (
 													<div
 														ref={provided.innerRef}
@@ -103,7 +150,7 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 															marginBottom: 8
 														}}
 													>
-														<TaskBlockCard key={task.id} task={task} />
+														<TaskBlockCard key={taskItem.id} task={taskItem} />
 													</div>
 												)}
 											</Draggable>

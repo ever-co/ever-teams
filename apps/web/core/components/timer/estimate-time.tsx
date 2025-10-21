@@ -7,15 +7,18 @@ import { useTranslations } from 'next-intl';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useOutsideClick } from '@/core/hooks/common';
 import { useTeamTasks } from '@/core/hooks/organizations';
+import { useAtomValue } from 'jotai';
+import { activeTeamTaskState } from '@/core/stores';
 
 export function EstimateTime() {
-	const { activeTeamTask, updateTask, updateLoading } = useTeamTasks();
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { updateTask, updateLoading } = useTeamTasks();
 	const [editableMode, setEditableMode] = useState(false);
 	const [value, setValue] = useState({ hours: '', minutes: '' });
 	const editMode = useRef(false);
 	const t = useTranslations();
 	useEffect(() => {
-		const { h, m } = secondsToTime(activeTeamTask?.estimate || 0);
+		const { hours: h, minutes: m } = secondsToTime(activeTeamTask?.estimate || 0);
 		setValue({
 			hours: h.toString(),
 			minutes: pad(m).toString()
@@ -103,7 +106,7 @@ export function EstimateTime() {
 			return;
 		}
 
-		const { h: estimateHours, m: estimateMinutes } = secondsToTime(activeTeamTask.estimate || 0);
+		const { hours: estimateHours, minutes: estimateMinutes } = secondsToTime(activeTeamTask.estimate || 0);
 
 		if (hours === estimateHours && minutes === estimateMinutes) {
 			return;
@@ -126,7 +129,7 @@ export function EstimateTime() {
 
 	return (
 		<>
-			<div className="flex items-end ">
+			<div className="flex items-end">
 				<span className="text-[16px] flex text-[#9490A0] dark:text-[#616164] items-end">
 					{t('timer.ESTIMATION.ESTIMATE_LABEL')} :{' '}
 				</span>

@@ -22,12 +22,13 @@ import { EverCard } from '../common/ever-card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Nullable } from '@/core/types/generics/utils';
 import { ETaskSizeName, ETaskPriority, EIssueType, ETaskStatusName } from '@/core/types/generics/enums/task';
-import { TTag, TTask } from '@/core/types/schemas/task/task.schema';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Select } from '../features/projects/add-or-edit-project/steps/basic-information-form';
 import Image from 'next/image';
 import { cn } from '@/core/lib/helpers';
 import { X } from 'lucide-react';
 import { getTextColor } from '@/core/lib/helpers/colors';
+import { TTag } from '@/core/types/schemas/tag/tag.schema';
 
 type Props = {
 	task?: Nullable<TTask>;
@@ -272,7 +273,7 @@ export function TaskInputKanban(props: Props) {
 			}}
 			trailingNode={
 				/* Showing the spinner when the task is being updated. */
-				<div className="flex items-center justify-center h-full p-2">
+				<div className="flex justify-center items-center p-2 h-full">
 					{props.task ? (
 						(updateLoading || props.inputLoader) && <SpinnerLoader size={25} />
 					) : (
@@ -289,7 +290,7 @@ export function TaskInputKanban(props: Props) {
 			leadingNode={
 				// showTaskNumber &&
 				// inputTask &&
-				<div className=" flex items-center justify-center w-10 h-full" ref={ignoreElementRef}>
+				<div className="flex justify-center items-center w-10 h-full" ref={ignoreElementRef}>
 					<TaskIssuesDropdown
 						taskStatusClassName="!px-1 py-1 rounded-sm"
 						showIssueLabels={false}
@@ -361,7 +362,12 @@ function TaskCard({
 			}, 10);
 		}
 	}, [datas.editMode]);
-	const taskStatusHook = useTaskStatus();
+
+	const timerStatus = useAtomValue(timerStatusState);
+	const timerRunningStatus = useMemo(() => {
+		return Boolean(timerStatus?.running);
+	}, [timerStatus]);
+	const { loadTaskStatuses } = useTaskStatus();
 	const taskPriorities = useAtomValue(taskPrioritiesListState);
 	const taskSizes = useAtomValue(taskSizesListState);
 	const taskLabels = useAtomValue(taskLabelsListState);
@@ -435,7 +441,7 @@ function TaskCard({
 		(item: (typeof taskLabelsOptions)[number]) => (
 			<div
 				style={{ backgroundColor: item.color ?? undefined }}
-				className="flex w-full items-center gap-2 py-1 px-2 rounded-md relative"
+				className="flex relative gap-2 items-center px-2 py-1 w-full rounded-md"
 			>
 				<div className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded">
 					{item.fullIconUrl && (
@@ -448,13 +454,13 @@ function TaskCard({
 						/>
 					)}
 				</div>
-				<span style={{ color: getTextColor(item.color ?? 'white') }} className=" text-xs">
+				<span style={{ color: getTextColor(item.color ?? 'white') }} className="text-xs">
 					{item.name}
 				</span>
 				{selectedTaskLabels?.includes(item.name) && (
 					<div
 						onClick={() => setSelectedTaskLabels(selectedTaskLabels.filter((el) => el !== item.name))}
-						className="flex absolute items-center right-1 top-1/2 -translate-y-1/2 justify-center"
+						className="flex absolute right-1 top-1/2 justify-center items-center -translate-y-1/2"
 					>
 						<X size={10} />
 					</div>
@@ -466,7 +472,7 @@ function TaskCard({
 
 	const labelSelectRenderValue = useCallback(() => {
 		return (
-			<div className="flex w-full items-center h-full  gap-2">
+			<div className="flex gap-2 items-center w-full h-full">
 				{selectedTaskLabels.length ? (
 					<div
 						className={cn(
@@ -474,12 +480,12 @@ function TaskCard({
 							selectedTaskLabels.length > 0 ? '' : 'text-slate-500 '
 						)}
 					>
-						<span className=" text-xs">{`${selectedTaskLabels.length} ${selectedTaskLabels.length > 1 ? 'Items' : 'Item'}`}</span>
+						<span className="text-xs">{`${selectedTaskLabels.length} ${selectedTaskLabels.length > 1 ? 'Items' : 'Item'}`}</span>
 					</div>
 				) : (
-					<div className="flex items-center gap-1">
+					<div className="flex gap-1 items-center">
 						<div className="w-4 h-4 rounded-full border"></div>
-						<p className=" text-xs text-slate-500  font-light ">{t('pages.taskDetails.LABELS')}</p>
+						<p className="text-xs font-light text-slate-500">{t('pages.taskDetails.LABELS')}</p>
 					</div>
 				)}
 			</div>
@@ -506,7 +512,7 @@ function TaskCard({
 									className={'dark:bg-[#1B1D22]'}
 								/>
 
-								<div className="flex flex-wrap justify-start gap-2">
+								<div className="flex flex-wrap gap-2 justify-start">
 									<TaskPropertySelect
 										placeholder={t('pages.taskDetails.PRIORITY')}
 										emptyLabel={t('pages.taskDetails.PRIORITY')}
@@ -554,13 +560,18 @@ function TaskCard({
 						>
 							<Button
 								variant="outline"
-								disabled={!datas.hasCreateForm || datas.createLoading || !datas.user?.isEmailVerified}
+								disabled={
+									!datas.hasCreateForm ||
+									datas.createLoading ||
+									!datas.user?.isEmailVerified ||
+									timerRunningStatus
+								}
 								loading={datas.createLoading}
 								className="font-normal text-sm rounded-xl min-w-[240px] max-w-[230px] inline-flex"
 								onClick={() => {
 									handleTaskCreation();
 									setTimeout(() => {
-										taskStatusHook.loadTaskStatuses();
+										loadTaskStatuses();
 									}, 4000);
 								}}
 							>
@@ -600,7 +611,7 @@ export function TaskPropertySelect({ placeholder, options, selected, onChange, e
 		(item: (typeof options)[number]) => (
 			<div
 				style={{ backgroundColor: item.color ?? undefined }}
-				className="flex w-full items-center gap-2 py-1 px-2 rounded-md"
+				className="flex gap-2 items-center px-2 py-1 w-full rounded-md"
 			>
 				<div className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded">
 					{item.fullIconUrl && (
@@ -623,9 +634,9 @@ export function TaskPropertySelect({ placeholder, options, selected, onChange, e
 		(value: string | null) => {
 			const item = options.find((el) => el.id === value);
 			return (
-				<div className="flex w-full items-center h-full gap-2">
+				<div className="flex gap-2 items-center w-full h-full">
 					{value ? (
-						<div className="flex w-full h-full items-center gap-2 rounded-md">
+						<div className="flex gap-2 items-center w-full h-full rounded-md">
 							<div className="w-[1rem] shrink-0 flex items-center justify-center h-[1rem] p-[.02rem] rounded">
 								{item?.fullIconUrl && (
 									<Image
@@ -640,9 +651,9 @@ export function TaskPropertySelect({ placeholder, options, selected, onChange, e
 							<span className="text-xs">{item?.name}</span>
 						</div>
 					) : (
-						<div className="flex items-center gap-1">
+						<div className="flex gap-1 items-center">
 							<div className="w-4 h-4 rounded-full border"></div>
-							<p className="text-xs text-slate-500 font-light">{emptyLabel}</p>
+							<p className="text-xs font-light text-slate-500">{emptyLabel}</p>
 						</div>
 					)}
 				</div>

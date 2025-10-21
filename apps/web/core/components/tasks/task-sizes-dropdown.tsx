@@ -1,14 +1,14 @@
 import { useStatusValue } from '@/core/hooks';
 import { useMapToTaskStatusValues } from '@/core/hooks/tasks/use-map-to-task-status-values';
-import { useTaskSizes } from '@/core/hooks/tasks/use-task-sizes';
+import { taskSizesListState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 import { TTaskStatusesDropdown } from '@/core/types/interfaces/task/task-card';
 import { TTaskStatus } from '@/core/types/schemas';
 import { StatusDropdown } from './task-status';
 
 /**
  * Task dropdown that lets you select a task size
- * @param {IClassName}  - IClassName - This is the interface that the component will accept.
- * @returns A React component
+ * @param {TTaskStatusesDropdown<'size'>} props - Props for the task sizes dropdown component
  */
 export function TaskSizesDropdown({
 	className,
@@ -21,7 +21,7 @@ export function TaskSizesDropdown({
 	children,
 	isMultiple = false
 }: TTaskStatusesDropdown<'size'>) {
-	const { taskSizes } = useTaskSizes();
+	const taskSizes = useAtomValue(taskSizesListState);
 	const taskSizesValue = useMapToTaskStatusValues(taskSizes as TTaskStatus[], false);
 
 	const { item, items, onChange, values } = useStatusValue<'size'>({

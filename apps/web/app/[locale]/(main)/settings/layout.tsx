@@ -1,8 +1,6 @@
 'use client';
 import { fullWidthState } from '@/core/stores/common/full-width';
-import SettingsPageSkeleton, {
-	LeftSideSettingMenuSkeleton
-} from '@/core/components/common/skeleton/settings-page-skeleton';
+import SettingsPageSkeleton from '@/core/components/common/skeleton/settings-page-skeleton';
 import { Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { MainLayout } from '@/core/components/layouts/default-layout';
@@ -11,24 +9,16 @@ import Link from 'next/link';
 import { useAtomValue } from 'jotai';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { usePathname } from 'next/navigation';
-import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
 import { cn } from '@/core/lib/helpers';
 import { ReactNode } from 'react';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
-import dynamic from 'next/dynamic';
-const LazyLeftSideSettingMenu = dynamic(
-	() =>
-		import('@/core/components/pages/settings/left-side-setting-menu').then((mod) => ({
-			default: mod.LeftSideSettingMenu
-		})),
-	{
-		ssr: false,
-		loading: () => <LeftSideSettingMenuSkeleton />
-	}
-);
+// Import optimized components from centralized location
+import { LazyLeftSideSettingMenu } from '@/core/components/optimized-components/settings';
+import { isTrackingEnabledState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 const SettingsLayout = ({ children }: { children: ReactNode }) => {
 	const t = useTranslations();
-	const { user, userLoading } = useAuthenticateUser();
+	const { data: user, isFetching: userLoading } = useUserQuery();
 	const fullWidth = useAtomValue(fullWidthState);
 	const pathName = usePathname();
 
@@ -40,11 +30,11 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
 		{ title: t(`common.${endWord}`), href: pathName as string }
 	];
 
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
+
 	if (userLoading && !user) {
 		return <SettingsPageSkeleton showTimer={false} fullWidth={fullWidth} />;
 	}
-
-	const { isTrackingEnabled } = useOrganizationTeams();
 
 	return (
 		<MainLayout

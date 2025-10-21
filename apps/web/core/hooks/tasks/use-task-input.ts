@@ -1,10 +1,9 @@
 'use client';
-import { ETaskStatusName } from '@/core/types/generics/enums/task';
-import { memberActiveTaskIdState } from '@/core/stores';
+import { EIssueType, ETaskPriority, ETaskSize, ETaskStatusName } from '@/core/types/generics/enums/task';
+import { activeTeamTaskState, memberActiveTaskIdState, taskStatusesState } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useModal, useSyncRef } from '../common';
-import { useTaskStatus } from './use-task-status';
 import { useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
 import { Nullable } from '@/core/types/generics/utils';
@@ -39,10 +38,11 @@ export function useTaskInput({
 } = {}) {
 	const { isOpen: isModalOpen, openModal, closeModal } = useModal();
 	const [closeableTask, setCloseableTaskTask] = useState<TTask | null>(null);
-	const { taskStatuses: taskStatusList } = useTaskStatus();
+	const taskStatusList = useAtomValue(taskStatusesState);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+
 	const {
 		tasks: teamTasks,
-		activeTeamTask,
 		setActiveTask,
 		createLoading,
 		tasksFetching,
@@ -156,18 +156,15 @@ export function useTaskInput({
 
 		return createTask({
 			title: query.trim(),
-			issueType: taskIssue || 'Bug',
+			issueType: (taskIssue as EIssueType) || EIssueType.BUG,
 			taskStatusId: statusId || (openId as string),
-			status: taskStatus.current || undefined,
-			priority: taskPriority.current || undefined,
-			size: taskSize.current || undefined,
+			status: (taskStatus.current as ETaskStatusName) || undefined,
+			priority: (taskPriority.current as ETaskPriority) || undefined,
+			size: (taskSize.current as ETaskSize) || undefined,
 			tags: taskLabels.current || [],
 			description: taskDescription.current ?? '',
 			projectId: taskProject.current,
-			members: [
-				...(autoAssignTaskAuth && user?.employee?.id ? [{ id: user?.employee.id }] : []),
-				...taskAssignees.current
-			]
+			members: [...(autoAssignTaskAuth && user?.employee?.id ? [user?.employee] : []), ...taskAssignees.current]
 		}).then((res) => {
 			setQuery('');
 			setIsCreatingTask(false); // Reset creation state after task creation

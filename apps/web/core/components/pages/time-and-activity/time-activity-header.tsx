@@ -1,4 +1,3 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
 import React from 'react';
 import { DateRange } from 'react-day-picker';
 import { GroupByType } from '@/core/hooks/activities/use-report-activity';
@@ -6,9 +5,17 @@ import { GroupBySelectTimeActivity } from '@/core/components/pages/time-and-acti
 import { TimeActivityFilterPopover } from '../../activities/time-activity-filter-popover';
 import { DateRangePickerTimeActivity } from './date-range-picker-time-activity';
 import ViewSelect, { ViewOption } from '../../common/view-select';
-import { TOrganizationProject, TOrganizationTeam } from '@/core/types/schemas';
+import { TOrganizationProject, TOrganizationTeam, TEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TranslationHooks, useTranslations } from 'next-intl';
+import { TimeActivityExportMenu } from './export';
+
+interface FilterState {
+	teams: TOrganizationTeam[];
+	members: TEmployee[];
+	projects: TOrganizationProject[];
+	tasks: TTask[];
+}
 
 export interface TimeActivityHeaderProps {
 	viewOptions?: ViewOption[];
@@ -20,6 +27,13 @@ export interface TimeActivityHeaderProps {
 	onUpdateDateRange: (startDate: Date, endDate: Date) => void;
 	onGroupByChange?: (value: GroupByType) => void;
 	groupByType?: GroupByType;
+	onFiltersApply?: (filters: FilterState) => void;
+	// Export-related props
+	rapportDailyActivity?: any[];
+	isManage?: boolean;
+	currentFilters?: FilterState;
+	startDate?: Date;
+	endDate?: Date;
 }
 
 const getDefaultViewOptions = (t: TranslationHooks): ViewOption[] => [
@@ -65,24 +79,14 @@ function TimeActivityHeader({
 				<TimeActivityFilterPopover {...props} />
 				<ViewSelect viewOptions={currentViewOptions} onChange={handleViewOptionsChange} />
 				<DateRangePickerTimeActivity onDateRangeChange={handleDateRangeChange} />
-				<div className="flex gap-2 items-center">
-					<Select defaultValue="export">
-						<SelectTrigger className="w-[100px] border border-[#E4E4E7] dark:border-[#2D2D2D] dark:bg-dark--theme-light">
-							<SelectValue placeholder={t('common.EXPORT')} />
-						</SelectTrigger>
-						<SelectContent className="dark:bg-dark--theme-light">
-							<SelectItem className=" data-[state=checked]:text-blue-600" value="export">
-								{t('common.EXPORT')}
-							</SelectItem>
-							<SelectItem className=" data-[state=checked]:text-blue-600" value="pdf">
-								{t('common.PDF')}
-							</SelectItem>
-							<SelectItem className=" data-[state=checked]:text-blue-600" value="xlsx">
-								{t('common.XLSX')}
-							</SelectItem>
-						</SelectContent>
-					</Select>
-				</div>
+				<TimeActivityExportMenu
+					rapportDailyActivity={props.rapportDailyActivity}
+					isManage={props.isManage}
+					currentFilters={props.currentFilters}
+					startDate={props.startDate}
+					endDate={props.endDate}
+					groupByType={props.groupByType}
+				/>
 			</div>
 		</div>
 	);

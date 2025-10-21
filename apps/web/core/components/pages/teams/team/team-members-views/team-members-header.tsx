@@ -63,7 +63,7 @@ export function UserTeamCardHeader() {
 					<div className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex justify-center items-center pl-6">
 						<Tooltip
 							label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}
-							className="font-semibold text-nowrap"
+							className="font-semibold capitalize text-nowrap"
 						>
 							{t('dailyPlan.TASK_TIME')}
 						</Tooltip>

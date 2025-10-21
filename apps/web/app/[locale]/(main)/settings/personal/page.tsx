@@ -4,64 +4,18 @@ import { withAuthentication } from '@/core/components/layouts/app/authenticator'
 import { Accordian } from '@/core/components/common/accordian';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-const LazyWorkingHours = dynamic(
-	() =>
-		import('@/core/components/pages/settings/personal/working-hours').then((mod) => ({
-			default: mod.WorkingHours
-		})),
-	{
-		ssr: false
-	}
-);
-
-const LazySyncZone = dynamic(
-	() => import('@/core/components/pages/settings/personal/sync.zone').then((mod) => ({ default: mod.SyncZone })),
-	{
-		ssr: false
-	}
-);
-import dynamic from 'next/dynamic';
+// Import optimized components from centralized location
+import {
+	LazyWorkingHours,
+	LazySyncZone,
+	LazyPersonalSettingForm,
+	LazyDangerZone,
+	LazyProfileAvatar
+} from '@/core/components/optimized-components/settings';
 import { Suspense } from 'react';
 import { AccordionContentSkeleton } from '@/core/components/common/skeleton/accordion-content-skeleton';
 import { PersonalSettingFormSkeleton } from '@/core/components/common/skeleton/personal-setting-form-skeleton';
 import { WorkingHoursSkeleton } from '@/core/components/common/skeleton/working-hours-skeleton';
-
-// Lazy load heavy components for Settings Personal optimization
-const LazyPersonalSettingForm = dynamic(
-	() =>
-		import('@/core/components/pages/settings/personal/personal-setting-form').then((mod) => ({
-			default: mod.PersonalSettingForm
-		})),
-	{
-		ssr: false
-	}
-);
-
-const LazyDangerZone = dynamic(
-	() =>
-		import('@/core/components/pages/settings/personal/danger-zone-personal').then((mod) => ({
-			default: mod.DangerZone
-		})),
-	{
-		ssr: false
-	}
-);
-
-const LazyProfileAvatar = dynamic(
-	() => import('@/core/components/users/profile-avatar').then((mod) => ({ default: mod.ProfileAvatar })),
-	{
-		ssr: false,
-		loading: () => (
-			<div className="flex gap-4 items-center mb-5">
-				<div className="w-20 h-20 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-				<div className="flex flex-col gap-2">
-					<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-					<div className="w-24 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-				</div>
-			</div>
-		)
-	}
-);
 
 const Personal = () => {
 	const t = useTranslations();

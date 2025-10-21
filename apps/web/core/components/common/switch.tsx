@@ -6,13 +6,16 @@ import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/consta
 import { useOrganizationEmployeeTeams, useOrganizationTeams } from '../../hooks/organizations';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { ERoleName } from '@/core/types/generics/enums/role';
+import { useAtomValue } from 'jotai';
+import { activeTeamState } from '@/core/stores';
 
 export default function TimeTrackingToggle({ activeManager }: { activeManager: IEmployee | undefined }) {
 	const t = useTranslations();
 	const [enabled, setEnabled] = useState(activeManager?.isTrackingEnabled);
 
 	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
-	const { activeTeam } = useOrganizationTeams();
+
+	const activeTeam = useAtomValue(activeTeamState);
 
 	const handleChange = useCallback(() => {
 		if (activeManager && activeTeam) {
@@ -46,14 +49,16 @@ export default function TimeTrackingToggle({ activeManager }: { activeManager: I
             pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-[#3826A6] shadow-lg ring-0 transition duration-200 ease-in-out`}
 				/>
 			</Switch>
-			<Text className="text-gray-400 ">{enabled ? t('common.ACTIVATED') : t('common.DEACTIVATED')}</Text>
+			<Text className="text-gray-400">{enabled ? t('common.ACTIVATED') : t('common.DEACTIVATED')}</Text>
 		</div>
 	);
 }
 
 export function ShareProfileViewsToggle() {
 	const t = useTranslations();
-	const { activeTeam, editOrganizationTeam } = useOrganizationTeams();
+
+	const activeTeam = useAtomValue(activeTeamState);
+	const { editOrganizationTeam } = useOrganizationTeams();
 	const [enabled, setEnabled] = useState<boolean | undefined>(activeTeam?.shareProfileView);
 
 	const handleChange = useCallback(async () => {
@@ -100,14 +105,15 @@ export function ShareProfileViewsToggle() {
             pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-[#3826A6] shadow-lg ring-0 transition duration-200 ease-in-out`}
 				/>
 			</Switch>
-			<Text className="text-gray-400 ">{enabled ? t('common.ACTIVATED') : t('common.DEACTIVATED')}</Text>
+			<Text className="text-gray-400">{enabled ? t('common.ACTIVATED') : t('common.DEACTIVATED')}</Text>
 		</div>
 	);
 }
 
 export function RequireDailyPlanToTrack() {
 	const t = useTranslations();
-	const { activeTeam, editOrganizationTeam } = useOrganizationTeams();
+	const activeTeam = useAtomValue(activeTeamState);
+	const { editOrganizationTeam } = useOrganizationTeams();
 	const [enabled, setEnabled] = useState<boolean | undefined>(activeTeam?.requirePlanToTrack);
 
 	const handleChange = useCallback(async () => {
@@ -157,7 +163,7 @@ export function RequireDailyPlanToTrack() {
             pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-[#3826A6] shadow-lg ring-0 transition duration-200 ease-in-out`}
 				/>
 			</Switch>
-			<Text className="text-gray-400 ">{enabled ? t('common.ACTIVATED') : t('common.DEACTIVATED')}</Text>
+			<Text className="text-gray-400">{enabled ? t('common.ACTIVATED') : t('common.DEACTIVATED')}</Text>
 		</div>
 	);
 }

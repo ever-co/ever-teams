@@ -16,10 +16,14 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { IIssueType } from '@/core/types/interfaces/task/issue-type';
+import { issueTypesListState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 
 export const DefaultIssueTypeForm = () => {
 	const t = useTranslations();
-	const { issueTypes, editIssueType, editIssueTypeLoading } = useIssueType();
+	const issueTypes = useAtomValue(issueTypesListState);
+
+	const { editIssueType, editIssueTypeLoading } = useIssueType();
 	const defaultIssueType: IIssueType | undefined = issueTypes.find((issue) => issue.isDefault);
 	const textColor = defaultIssueType?.color ? getTextColor(defaultIssueType.color) : '#cdd1d8';
 
@@ -33,14 +37,14 @@ export const DefaultIssueTypeForm = () => {
 						</Text>
 
 						<div className="flex flex-col w-full">
-							<div className="flex flex-wrap w-full gap-3">
+							<div className="flex flex-wrap gap-3 w-full">
 								{defaultIssueType ? (
 									<div className="border w-[21.4rem] flex items-center p-1 rounded-xl justify-between">
 										<div
 											className={clsxm(
 												'rounded-xl',
 												'w-2/3',
-												'flex items-center p-3 gap-x-2 overflow-hidden mr-1'
+												'flex overflow-hidden gap-x-2 items-center p-3 mr-1'
 											)}
 											style={{
 												backgroundColor:
@@ -66,7 +70,7 @@ export const DefaultIssueTypeForm = () => {
 												// enabled={defaultIssueType.description.length >= CHARACTER_LIMIT_TO_SHOW}
 												placement="auto"
 												className={clsxm(
-													'overflow-hidden text-ellipsis whitespace-nowrap w-full'
+													'overflow-hidden w-full whitespace-nowrap text-ellipsis'
 												)}
 											>
 												<Text.Label
@@ -112,7 +116,7 @@ export const DefaultIssueTypeForm = () => {
 																				});
 																			}}
 																			className={clsxm(
-																				'flex gap-2 rounded-lg cursor-pointer p-2 text-black/70 hover:text-black/70'
+																				'flex gap-2 p-2 rounded-lg cursor-pointer text-black/70 hover:text-black/70'
 																			)}
 																			style={{ background: issue.color }}
 																			key={index}

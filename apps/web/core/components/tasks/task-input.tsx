@@ -5,14 +5,17 @@ import {
 	useAuthenticateUser,
 	useCallbackRef,
 	useHotkeys,
-	useIssueType,
 	useOrganizationEmployeeTeams,
-	useOrganizationTeams,
 	useOutsideClick,
-	useTaskInput,
-	useTaskLabels
+	useTaskInput
 } from '@/core/hooks';
-import { activeTeamTaskId, timerStatusState } from '@/core/stores';
+import {
+	activeTeamState,
+	activeTeamTaskId,
+	issueTypesListState,
+	timerStatusState,
+	taskLabelsListState
+} from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Combobox, Popover, PopoverPanel, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon, PlusIcon, UserGroupIcon } from '@heroicons/react/20/solid';
@@ -40,6 +43,7 @@ import { IIssueType } from '@/core/types/interfaces/task/issue-type';
 import { EIssueType, ETaskSizeName, ETaskStatusName, ETaskPriority } from '@/core/types/generics/enums/task';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 type Props = {
 	task?: Nullable<TTask>;
@@ -79,7 +83,8 @@ type Props = {
 
 export function TaskInput(props: Props) {
 	const t = useTranslations();
-	const { issueTypes } = useIssueType();
+
+	const issueTypes = useAtomValue(issueTypesListState);
 	const defaultIssueType: IIssueType | undefined = issueTypes.find((issue) => issue.isDefault);
 
 	const { viewType = 'input-trigger', showTaskNumber = false, showCombobox = true } = props;
@@ -91,8 +96,9 @@ export function TaskInput(props: Props) {
 	});
 
 	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
-	const { activeTeam } = useOrganizationTeams();
-	const { user } = useAuthenticateUser();
+
+	const activeTeam = useAtomValue(activeTeamState);
+	const { data: user } = useUserQuery();
 
 	const onCloseComboboxRef = useCallbackRef(props.onCloseCombobox);
 	const closeable_fcRef = useCallbackRef(props.closeable_fc);
@@ -135,10 +141,7 @@ export function TaskInput(props: Props) {
 	);
 
 	useEffect(() => {
-		// Don't reset query during task creation to maintain the creation UI
-		if (!datas.isCreatingTask) {
-			setQuery(taskName === inputTask?.title ? '' : taskName);
-		}
+		setQuery(taskName === inputTask?.title ? '' : taskName);
 	}, [taskName, inputTask, setQuery, datas.isCreatingTask]);
 
 	useEffect(() => {
@@ -164,8 +167,8 @@ export function TaskInput(props: Props) {
 				const currentEmployeeDetails = activeTeam?.members?.find(
 					(member) => member.employeeId === user?.employee?.id
 				);
-				if (currentEmployeeDetails && currentEmployeeDetails.id) {
-					updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
+				if (currentEmployeeDetails && currentEmployeeDetails.employeeId) {
+					updateOrganizationTeamEmployee(currentEmployeeDetails.employeeId, {
 						organizationId: task.organizationId,
 						activeTaskId: task.id,
 						organizationTeamId: activeTeam?.id,
@@ -285,9 +288,9 @@ export function TaskInput(props: Props) {
 				// Only close if it's not a dropdown interaction and we're not creating a new task
 				if (!isDropdownClick && !datas.isCreatingTask && taskName == inputTaskTitle) {
 					setEditMode(false);
-					setActiveTask({
-						id: ''
-					});
+					// setActiveTask({
+					// 	id: ''
+					// });
 				}
 			}
 		};
@@ -397,7 +400,7 @@ export function TaskInput(props: Props) {
 						<ActiveTaskIssuesDropdown
 							key={(inputTask && inputTask.id) || ''}
 							task={inputTask}
-							forParentChildRelationship={true}
+							forParentChildRelationship
 							taskStatusClassName={clsxm(
 								inputTask && inputTask.issueType === 'Bug'
 									? '!px-[0.3312rem] py-[0.2875rem] rounded-sm'
@@ -506,8 +509,9 @@ function TaskCard({
 }) {
 	const t = useTranslations();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
-	const { taskLabels: taskLabelsData } = useTaskLabels();
-	const { activeTeam } = useOrganizationTeams();
+	const taskLabelsData = useAtomValue(taskLabelsListState);
+
+	const activeTeam = useAtomValue(activeTeamState);
 
 	// Refs for dropdown elements to exclude from outside click detection
 	const statusDropdownRef = useRef<HTMLDivElement>(null);
@@ -611,13 +615,13 @@ function TaskCard({
 			<EverCard
 				shadow="custom"
 				className={clsxm(
-					'rounded-xl md:px-4 md:py-4 overflow-hidden',
+					'rounded-xl md:px-4 md:py-4',
 					!cardWithoutShadow && ['shadow-xl card'],
 					fullWidth ? ['w-full'] : ['md:w-[500px]'],
-					fullHeight ? 'h-full' : 'max-h-96'
+					fullHeight && 'h-full'
 				)}
 			>
-				<div className="flex flex-col gap-4">
+				<div className="flex flex-col gap-3">
 					<>
 						{inputField}
 						{datas.hasCreateForm && (
@@ -714,7 +718,7 @@ function TaskCard({
 						</Tooltip>
 					</>
 					{/* Task filter buttons  */}
-					<div className="flex mt-4 space-x-3">
+					<div className="flex space-x-3">
 						<OutlineBadge
 							className="py-2 text-xs cursor-pointer input-border"
 							onClick={() => datas.setFilter && datas.setFilter('open')}
@@ -745,9 +749,9 @@ function TaskCard({
 					</div>
 				</div>
 
-				<Divider className="mt-4" />
+				<Divider className="my-4" />
 				{/* Task list */}
-				<ul className={assignTaskPopup ? 'overflow-y-auto py-6 max-h-[40vh]' : 'overflow-y-auto py-6 max-h-56'}>
+				<ul className={assignTaskPopup ? 'overflow-y-auto py-6 max-h-[40vh]' : 'overflow-y-auto py-6 max-h-60'}>
 					{forParentChildRelationship && (
 						<LazyRender items={data || []}>
 							{(task, i) => {

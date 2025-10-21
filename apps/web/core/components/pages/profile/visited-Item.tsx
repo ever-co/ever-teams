@@ -5,7 +5,11 @@ import { ProgressBar } from '../../duplicated-components/_progress-bar';
 import { TActivity } from '@/core/types/schemas';
 
 const VisitedItem = ({ app, totalMilliseconds, type }: { app: TActivity; totalMilliseconds: number; type: string }) => {
-	const { h, m, s } = app?.duration ? secondsToTime(+app.duration) : { h: 0, m: 0, s: 0 };
+	const {
+		hours: h,
+		minutes: m,
+		seconds: s
+	} = app?.duration ? secondsToTime(+app.duration) : { hours: 0, minutes: 0, seconds: 0 };
 	const percent = app?.duration && ((+app.duration * 100) / totalMilliseconds).toFixed(2);
 
 	const itemCellsWidth = useMemo(

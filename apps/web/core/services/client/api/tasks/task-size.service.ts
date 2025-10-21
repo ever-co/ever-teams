@@ -1,5 +1,4 @@
 import { APIService } from '../../api.service';
-import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { ITaskSizesCreate } from '@/core/types/interfaces/task/task-size';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
@@ -27,10 +26,8 @@ class TaskSizeService extends APIService {
 	 */
 	createTaskSize = async (data: ITaskSizesCreate): Promise<TTaskSize> => {
 		try {
-			const tenantId = getTenantIdCookie();
-
 			const response = await this.post<TTaskSize>('/task-sizes', data, {
-				tenantId
+				tenantId: this.tenantId
 			});
 
 			// Validate the response data
@@ -53,17 +50,15 @@ class TaskSizeService extends APIService {
 	/**
 	 * Update a task size with validation
 	 *
-	 * @param id - Task size ID to update
+	 * @param taskSizeId - Task size ID to update
 	 * @param data - Task size data to update
 	 * @returns Promise<TTaskSize> - Validated updated task size
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	editTaskSize = async (id: string, data: ITaskSizesCreate): Promise<TTaskSize> => {
+	editTaskSize = async ({ taskSizeId, data }: { taskSizeId: string; data: ITaskSizesCreate }) => {
 		try {
-			const tenantId = getTenantIdCookie();
-
-			const response = await this.put<TTaskSize>(`/task-sizes/${id}`, data, {
-				tenantId
+			const response = await this.put<TTaskSize>(`/task-sizes/${taskSizeId}`, data, {
+				tenantId: this.tenantId
 			});
 
 			// Validate the response data
@@ -86,13 +81,13 @@ class TaskSizeService extends APIService {
 	/**
 	 * Delete a task size with validation
 	 *
-	 * @param id - Task size ID to delete
+	 * @param taskSizeId - Task size ID to delete
 	 * @returns Promise<TTaskSize> - Validated deleted task size data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	deleteTaskSize = async (id: string) => {
+	deleteTaskSize = async (taskSizeId: string) => {
 		try {
-			const response = await this.delete(`/task-sizes/${id}`);
+			const response = await this.delete(`/task-sizes/${taskSizeId}`);
 
 			return response;
 		} catch (error) {
@@ -118,11 +113,7 @@ class TaskSizeService extends APIService {
 	 */
 	getTaskSizes = async (): Promise<PaginationResponse<TTaskSize>> => {
 		try {
-			const tenantId = getTenantIdCookie();
-			const organizationId = getOrganizationIdCookie();
-			const activeTeamId = getActiveTeamIdCookie();
-
-			const endpoint = `/task-sizes?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`;
+			const endpoint = `/task-sizes?tenantId=${this.tenantId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`;
 			const response = await this.get<PaginationResponse<TTaskSize>>(endpoint);
 
 			// Validate the response data using Zod schema

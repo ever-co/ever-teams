@@ -1,5 +1,5 @@
 import { secondsToTime } from '@/core/lib/helpers/index';
-import { I_TeamMemberCardHook, useOrganizationTeams } from '@/core/hooks';
+import { I_TeamMemberCardHook } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { Nullable } from '@/core/types/generics/utils';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
@@ -10,7 +10,9 @@ import { useMemo } from 'react';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { ITasksStatistics } from '@/core/types/interfaces/task/task';
+import { useAtomValue } from 'jotai';
+import { activeTeamState } from '@/core/stores';
+import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
 
 type Props = {
 	task: Nullable<TTask>;
@@ -24,13 +26,14 @@ type Props = {
 
 export function TaskTimes({ className, task, memberInfo, showDaily = true, showTotal = true, isBlock = false }: Props) {
 	// For public page
-	const { activeTeam } = useOrganizationTeams();
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const currentMember = useMemo(
 		() => activeTeam?.members?.find((member) => member.id === memberInfo?.member?.id || memberInfo?.id),
 		[activeTeam?.members, memberInfo?.id, memberInfo?.member?.id]
 	);
 
-	const { h, m } = useMemo(
+	const { hours: h, minutes: m } = useMemo(
 		() =>
 			secondsToTime(
 				(currentMember?.totalWorkedTasks &&
@@ -38,7 +41,7 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 					currentMember?.totalWorkedTasks
 						.filter((t: TTask) => t.id === task?.id)
 						.reduce(
-							(previousValue: number, currentValue: ITasksStatistics) =>
+							(previousValue: number, currentValue: TTaskStatistic) =>
 								previousValue + (currentValue?.duration || 0),
 							0
 						)) ||
@@ -47,7 +50,7 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 		[currentMember?.totalWorkedTasks, task?.id]
 	);
 
-	const { h: dh, m: dm } = useMemo(
+	const { hours: dh, minutes: dm } = useMemo(
 		() =>
 			secondsToTime(
 				(currentMember?.totalTodayTasks &&
@@ -55,7 +58,7 @@ export function TaskTimes({ className, task, memberInfo, showDaily = true, showT
 					currentMember?.totalTodayTasks
 						.filter((t: TTask) => t.id === task?.id)
 						.reduce(
-							(previousValue: number, currentValue: ITasksStatistics) =>
+							(previousValue: number, currentValue: TTaskStatistic) =>
 								previousValue + (currentValue?.duration || 0),
 							0
 						)) ||
@@ -212,16 +215,16 @@ function TimeBlockInfo({
 
 export function TodayWorkedTime({ className, memberInfo }: Omit<Props, 'task' | 'activeAuthTask'>) {
 	// Get current timer seconds
-	const { activeTeam } = useOrganizationTeams();
+
+	const activeTeam = useAtomValue(activeTeamState);
 
 	const t = useTranslations();
 
 	const currentMember = activeTeam?.members?.find((member) => member.id === memberInfo?.member?.id);
-	const { h, m } = secondsToTime(
+	const { hours: h, minutes: m } = secondsToTime(
 		(currentMember?.totalTodayTasks &&
 			currentMember?.totalTodayTasks.reduce(
-				(previousValue: number, currentValue: ITasksStatistics) =>
-					previousValue + (currentValue?.duration || 0),
+				(previousValue: number, currentValue: TTaskStatistic) => previousValue + (currentValue?.duration || 0),
 				0
 			)) ||
 			0

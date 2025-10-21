@@ -1,50 +1,37 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { IHookModal, useModal, useQueryCall, useTeamTasks } from '@/core/hooks';
-import { detailedTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { useCallback, useMemo, useState } from 'react';
-import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { AddIcon } from 'assets/svg';
 import { taskLinkedIssueService } from '@/core/services/client/api/tasks/task-linked-issue.service';
 import { EverCard } from '../../common/ever-card';
 import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
 import { TaskInput } from '../../tasks/task-input';
-import { ITaskLinkedIssue } from '@/core/types/interfaces/task/task-linked-issue';
 import { EIssueType, ERelatedIssuesRelation } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { FC } from 'react';
 
-export const RelatedIssueCard = () => {
+import { useAtomValue, useSetAtom } from 'jotai';
+import { detailedTaskState, tasksByTeamState } from '@/core/stores';
+export const RelatedIssueCard: FC<{ task: TTask }> = ({ task }) => {
 	const t = useTranslations();
 	const modal = useModal();
 
-	const task = useAtomValue(detailedTaskState);
-	const { tasks } = useTeamTasks();
 	const [hidden, setHidden] = useState(false);
 
-	// const { actionType, actionTypeItems, onChange } = useActionType();
-
 	const linkedTasks = useMemo(() => {
-		const issues = task?.linkedIssues?.reduce(
-			(acc, item) => {
-				const $item = tasks.find((ts) => ts.id === item.taskFrom?.id) || item.taskFrom;
-
-				if ($item /*&& item.action === actionType?.data?.value*/) {
-					acc.push({
-						issue: item,
-						task: $item
-					});
-				}
-
-				return acc;
-			},
-			[] as { issue: ITaskLinkedIssue; task: TTask }[]
+		return (
+			task.linkedIssues
+				?.map((t) => ({
+					issue: t,
+					task: t.taskFrom
+				}))
+				?.sort((a, b) => String(a.task?.id).localeCompare(String(b.task?.id))) ?? []
 		);
-
-		return issues || [];
-	}, [task, tasks]);
+	}, [task]);
 
 	return (
 		<EverCard
@@ -86,8 +73,8 @@ export const RelatedIssueCard = () => {
 
 			{/* {linkedTasks.length > 0 && <hr className="dark:border-[#7B8089]" />} */}
 
-			{linkedTasks.length > 0 && (
-				<div className={clsxm('flex flex-col max-h-80 gap-3', hidden && ['hidden'])}>
+			{linkedTasks.length > 0 ? (
+				<div className={clsxm('flex flex-col max-h-96 gap-3 overflow-y-auto', hidden && ['hidden'])}>
 					{linkedTasks?.map(({ task, issue }) => {
 						return (
 							<TaskLinkedIssue
@@ -100,7 +87,7 @@ export const RelatedIssueCard = () => {
 						);
 					})}
 				</div>
-			)}
+			) : null}
 
 			{task && <CreateLinkedTask task={task} modal={modal} />}
 		</EverCard>
@@ -110,7 +97,10 @@ export const RelatedIssueCard = () => {
 function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 	const t = useTranslations();
 
-	const { tasks, loadTeamTasksData } = useTeamTasks();
+	const tasks = useAtomValue(tasksByTeamState);
+	const detailedTask = useAtomValue(detailedTaskState);
+	const { loadTeamTasksData } = useTeamTasks();
+	const setDetailedTask = useSetAtom(detailedTaskState);
 	const { queryCall } = useQueryCall(taskLinkedIssueService.createTaskLinkedIssue);
 	const [loading, setLoading] = useState(false);
 
@@ -126,7 +116,23 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 
 				organizationId: task.organizationId,
 				action: ERelatedIssuesRelation.RELATES_TO
-			}).catch(console.error);
+			})
+				.then((res) => {
+					if (task.id === detailedTask?.id) {
+						(async () => {
+							const newLinkedIssue = {
+								...res.data,
+								taskFrom: childTask,
+								taskTo: parentTask
+							};
+							setDetailedTask({
+								...detailedTask,
+								linkedIssues: [...(detailedTask?.linkedIssues || []), newLinkedIssue as any]
+							});
+						})();
+					}
+				})
+				.catch(console.error);
 
 			loadTeamTasksData(false).finally(() => {
 				setLoading(false);
@@ -162,12 +168,12 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 		<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
 			<div className="w-[98%] md:w-[42rem] relative">
 				{loading && (
-					<div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30">
+					<div className="flex absolute inset-0 z-10 justify-center items-center bg-black/30">
 						<SpinnerLoader />
 					</div>
 				)}
 				<EverCard className="w-full" shadow="custom">
-					<div className="flex flex-col items-center justify-between w-full">
+					<div className="flex flex-col justify-between items-center w-full">
 						<Text.Heading as="h3" className="mb-2 text-center">
 							{t('common.LINK_TASK')}
 						</Text.Heading>

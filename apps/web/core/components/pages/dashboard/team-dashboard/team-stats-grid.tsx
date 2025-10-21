@@ -34,7 +34,7 @@ export function TeamStatsGrid({
 	statisticsCounts: ITimesheetCountsStatistics | null;
 	loadingTimesheetStatisticsCounts: boolean;
 }) {
-	const { h: hours, m: minutes, s: seconds } = secondsToTime(statisticsCounts?.weekDuration || 0);
+	const { hours, minutes, seconds } = secondsToTime(statisticsCounts?.weekDuration || 0);
 	const timeValue = formatTime(hours, minutes, seconds);
 	const progress = formatPercentage(statisticsCounts?.weekActivities);
 	const t = useTranslations();

@@ -37,7 +37,7 @@ export async function signIn(params: ISignInDataAPI) {
 			response: {
 				status: 400,
 				errors: {
-					email: 'Your account is not yet ready to be used on the Ever Teams Platform'
+					email: 'Your account isn’t fully set up yet'
 				}
 			}
 		};

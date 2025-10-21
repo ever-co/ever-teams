@@ -7,6 +7,8 @@ import { ChangeEvent, Dispatch, KeyboardEvent, SetStateAction, useCallback, useM
 import { useTranslations } from 'next-intl';
 import { ChevronDownIcon } from 'assets/svg';
 import { useRoles } from '@/core/hooks/roles';
+import { useAtomValue } from 'jotai';
+import { rolesState } from '@/core/stores';
 import { PermissonItem } from './permission-item';
 import { EverCard } from '../common/ever-card';
 import { InputField } from '../duplicated-components/_input';
@@ -19,7 +21,8 @@ export const PermissionDropDown = ({
 	selectedRole: TRole | null;
 	setSelectedRole: Dispatch<SetStateAction<TRole | null>>;
 }) => {
-	const { roles, createRole, createRoleLoading, deleteRole, updateRole } = useRoles();
+	const roles = useAtomValue(rolesState);
+	const { createRole, createRoleLoading, deleteRole, updateRole } = useRoles();
 	const [filterValue, setFilterValue] = useState<string>('');
 
 	const [editRole, setEditRole] = useState<TRole | null>(null);
@@ -109,7 +112,7 @@ export const PermissionDropDown = ({
 					leaveFrom="transform scale-100 opacity-100"
 					leaveTo="transform scale-95 opacity-0"
 				>
-					<PopoverPanel className="absolute w-full z-12 rounded-xl bg-light--theme-light dark:bg-dark--theme-light">
+					<PopoverPanel className="absolute w-full rounded-xl z-12 bg-light--theme-light dark:bg-dark--theme-light">
 						{({ close }) => (
 							<EverCard
 								shadow="custom"
@@ -117,7 +120,7 @@ export const PermissionDropDown = ({
 								style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.12)' }}
 							>
 								{/* Search */}
-								<div className="flex items-center justify-between w-full">
+								<div className="flex justify-between items-center w-full">
 									<InputField
 										type="text"
 										placeholder={t('common.SEARCH')}
@@ -131,13 +134,13 @@ export const PermissionDropDown = ({
 								</div>
 
 								{rolesList.map((role) => (
-									<div className="flex justify-between w-full py-3" key={role.name}>
+									<div className="flex justify-between py-3 w-full" key={role.name}>
 										<div className="max-w-[90%]">
 											{editRole && editRole.id === role.id ? (
 												<InputField
 													type="text"
 													placeholder={'Enter Role Name'}
-													className="w-full h-5 py-0 pl-0 mb-0 border-none rounded-none border-b-1"
+													className="py-0 pl-0 mb-0 w-full h-5 rounded-none border-none border-b-1"
 													noWrapper
 													autoFocus
 													defaultValue={role.name}
@@ -157,7 +160,7 @@ export const PermissionDropDown = ({
 											)}
 										</div>
 
-										<div className="flex justify-end gap-1">
+										<div className="flex gap-1 justify-end">
 											<span
 												onClick={() => {
 													handleEdit(role);
@@ -178,7 +181,7 @@ export const PermissionDropDown = ({
 								))}
 
 								<Button
-									className="w-full mt-3 text-xs dark:text-white dark:border-white rounded-xl"
+									className="mt-3 w-full text-xs rounded-xl dark:text-white dark:border-white"
 									variant="outline"
 									onClick={handleCreateRole}
 									disabled={createRoleLoading || !filterValue.length}

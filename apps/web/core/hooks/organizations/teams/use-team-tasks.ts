@@ -12,10 +12,10 @@ import {
 	activeTeamTaskId,
 	detailedTaskState,
 	memberActiveTaskIdState,
-	userState,
 	activeTeamTaskState,
 	tasksByTeamState,
-	teamTasksState
+	teamTasksState,
+	taskStatusesState
 } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
 import { useCallback, useState } from 'react';
@@ -23,13 +23,15 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useOrganizationEmployeeTeams } from './use-organization-teams-employee';
 import { useAuthenticateUser } from '../../auth';
 import { useFirstLoad, useConditionalUpdateEffect, useSyncRef, useQueryCall } from '../../common';
-import { useTaskStatus } from '../../tasks';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
-import { TOrganizationTeamEmployee, TTag } from '@/core/types/schemas';
+import { ETaskStatusName, TEmployee, TOrganizationTeamEmployee, TTag } from '@/core/types/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import { useUserQuery } from '../../queries/user-user.query';
+import { EIssueType, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
 
 /**
  * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
@@ -73,12 +75,12 @@ export function useTeamTasks() {
 	const tasks = useAtomValue(tasksByTeamState);
 	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
 	const tasksRef = useSyncRef(tasks);
-
-	const authUser = useSyncRef(useAtomValue(userState));
+	const { data: userData } = useUserQuery();
+	const authUser = useSyncRef(userData);
 	const setActive = useSetAtom(activeTeamTaskId);
 	const memberActiveTaskId = useAtomValue(memberActiveTaskIdState);
 	const $memberActiveTaskId = useSyncRef(memberActiveTaskId);
-	const { taskStatuses } = useTaskStatus();
+	const taskStatuses = useAtomValue(taskStatusesState);
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamRef = useSyncRef(activeTeam);
 	const [selectedEmployeeId, setSelectedEmployeeId] = useState(user?.employee?.id);
@@ -90,31 +92,15 @@ export function useTeamTasks() {
 	const teamTasksQuery = useQuery({
 		queryKey: queryKeys.tasks.byTeam(activeTeam?.id),
 		queryFn: async () => {
-			if (!user?.employee?.organizationId || !user?.employee?.tenantId || !activeTeam?.id) {
+			if (!activeTeam?.id) {
 				throw new Error('Required parameters missing');
 			}
 			const projectId = activeTeam?.projects && activeTeam?.projects.length > 0 ? activeTeam.projects[0].id : '';
-			return await taskService.getTasks(
-				user.employee.organizationId,
-				user.employee.tenantId,
-				projectId,
-				activeTeam.id
-			);
+			return await taskService.getTasks({ projectId });
 		},
-		enabled: !!user?.employee?.organizationId && !!user?.employee?.tenantId && !!activeTeam?.id,
+		enabled: !!activeTeam?.id,
 		gcTime: 1000 * 60 * 60
 	});
-
-	// const getTaskByIdQuery = useQuery({
-	// 	queryKey: queryKeys.tasks.detail(detailedTask?.id),
-	// 	queryFn: async () => {
-	// 		if (!detailedTask?.id) {
-	// 			throw new Error('Task ID is required');
-	// 		}
-	// 		return await taskService.getTaskById(detailedTask?.id);
-	// 	},
-	// 	enabled: !!detailedTask?.id
-	// });
 
 	const { queryCall: getTaskByIdQuery, loading: getTasksByIdLoading } = useQueryCall(async (taskId: string) =>
 		queryClient.fetchQuery({
@@ -134,7 +120,7 @@ export function useTeamTasks() {
 			if (!activeTeam?.id) {
 				throw new Error('Required parameters missing');
 			}
-			return await taskService.getTasksByEmployeeId(selectedEmployeeId!, selectedOrganizationTeamId!);
+			return await taskService.getTasksByEmployeeId({ employeeId: selectedEmployeeId! });
 		},
 		enabled: !!selectedEmployeeId && !!activeTeam?.id && !!selectedOrganizationTeamId,
 		gcTime: 1000 * 60 * 60
@@ -152,11 +138,23 @@ export function useTeamTasks() {
 
 	const updateTaskMutation = useMutation({
 		mutationFn: async ({ taskId, taskData }: { taskId: string; taskData: Partial<TTask> }) => {
-			return await taskService.updateTask(taskId, taskData);
+			return await taskService.updateTask({ taskId, data: taskData });
 		},
-		onSuccess: ({ id }) => {
+		onSuccess: (updatedTask, { taskId }) => {
+			queryClient.setQueryData(queryKeys.tasks.byTeam(activeTeam?.id), (oldTasks: PaginationResponse<TTask>) => {
+				if (!oldTasks) return oldTasks;
+
+				const updatedItems = oldTasks?.items?.map((task) =>
+					task.id === taskId ? { ...task, ...updatedTask } : task
+				);
+
+				// Sync the tasks store
+				setAllTasks(updatedItems);
+
+				return updatedItems ? { items: updatedItems, total: updatedItems.length } : oldTasks;
+			});
 			queryClient.invalidateQueries({
-				queryKey: queryKeys.tasks.detail(id)
+				queryKey: queryKeys.tasks.all
 			});
 		}
 	});
@@ -171,8 +169,8 @@ export function useTeamTasks() {
 	});
 
 	const deleteEmployeeFromTasksMutation = useMutation({
-		mutationFn: async ({ employeeId, organizationTeamId }: { employeeId: string; organizationTeamId: string }) => {
-			return await taskService.deleteEmployeeFromTasks(employeeId, organizationTeamId);
+		mutationFn: async (employeeId: string) => {
+			return await taskService.deleteEmployeeFromTasks(employeeId);
 		},
 		onSuccess: () => {
 			invalidateTeamTasksData();
@@ -331,15 +329,15 @@ export function useTeamTasks() {
 			members
 		}: {
 			title: string;
-			issueType?: string;
-			status?: string;
+			issueType?: EIssueType | null;
+			status?: ETaskStatusName | null;
 			taskStatusId: string;
-			priority?: string;
-			size?: string;
+			priority?: ETaskPriority | null;
+			size?: ETaskSize | null;
 			tags?: TTag[] | null;
 			description?: string | null;
 			projectId?: string | null;
-			members?: { id: string }[];
+			members?: TEmployee[] | { id: string }[] | null;
 		}) => {
 			try {
 				const res = await createTaskMutation.mutateAsync({
@@ -353,7 +351,7 @@ export function useTeamTasks() {
 					// TODO: Make it dynamic when we add Dropdown in Navbar
 					projectId,
 					...(description ? { description: `<p>${description}</p>` } : {}),
-					members,
+					members: members ?? [],
 					taskStatusId: taskStatusId
 				});
 				return res;
@@ -390,40 +388,87 @@ export function useTeamTasks() {
 	);
 
 	const updateTitle = useCallback(
-		(newTitle: string, task?: TTask | null, loader?: boolean) => {
+		async ({
+			newTitle,
+			task,
+			loader,
+			isDetailedTask
+		}: {
+			newTitle: string;
+			task?: TTask | null;
+			loader?: boolean;
+			isDetailedTask?: boolean;
+		}) => {
 			if (task && newTitle !== task.title) {
-				return updateTask({
+				const res = await updateTask({
 					...task,
 					title: newTitle
 				});
+				if (isDetailedTask) {
+					setDetailedTask(res);
+				}
+				return res;
 			}
 			return Promise.resolve();
 		},
-		[updateTask]
+		[updateTask, setDetailedTask]
 	);
 
 	const updateDescription = useCallback(
-		(newDescription: string, task?: TTask | null, loader?: boolean) => {
+		async ({
+			newDescription,
+			task,
+			loader,
+			isDetailedTask
+		}: {
+			newDescription: string;
+			task?: TTask | null;
+			loader?: boolean;
+			isDetailedTask?: boolean;
+		}) => {
 			if (task && newDescription !== task.description) {
-				return updateTask({
+				const res = await updateTask({
 					...task,
 					description: newDescription
 				});
+				if (isDetailedTask) {
+					setDetailedTask(res);
+				}
+				return res;
 			}
+			return Promise.resolve();
 		},
-		[updateTask]
+		[updateTask, setDetailedTask]
 	);
 
 	const updatePublicity = useCallback(
-		(publicity: boolean, task?: TTask | null, loader?: boolean) => {
+		async ({
+			publicity,
+			task,
+			loader,
+			isDetailedTask
+		}: {
+			publicity: boolean;
+			task?: TTask | null;
+			loader?: boolean;
+			isDetailedTask?: boolean;
+		}) => {
 			if (task && publicity !== task.public) {
-				return updateTask({
+				const res = await updateTask({
 					...task,
 					public: publicity
 				});
+				if (isDetailedTask) {
+					setDetailedTask({
+						...detailedTask,
+						public: res.public
+					} as TTask);
+				}
+				return res;
 			}
+			return Promise.resolve();
 		},
-		[updateTask]
+		[updateTask, setDetailedTask]
 	);
 
 	const handleStatusUpdate = useCallback(
@@ -488,8 +533,8 @@ export function useTeamTasks() {
 					(member: TOrganizationTeamEmployee) => member.employeeId === authUser.current?.employee?.id
 				);
 
-				if (currentEmployeeDetails && currentEmployeeDetails.id) {
-					updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
+				if (currentEmployeeDetails && currentEmployeeDetails.employeeId) {
+					updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.employeeId, {
 						organizationId: task.organizationId,
 						activeTaskId: task.id,
 						organizationTeamId: activeTeam?.id,
@@ -512,9 +557,9 @@ export function useTeamTasks() {
 	);
 
 	const deleteEmployeeFromTasks = useCallback(
-		async (employeeId: string, organizationTeamId: string) => {
+		async (employeeId: string) => {
 			try {
-				await deleteEmployeeFromTasksMutation.mutateAsync({ employeeId, organizationTeamId });
+				await deleteEmployeeFromTasksMutation.mutateAsync(employeeId);
 			} catch (error) {
 				console.error('Error deleting employee from tasks:', error);
 				throw error;

@@ -6,7 +6,6 @@ import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
-import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { getCoreRowModel, getFilteredRowModel, useReactTable, VisibilityState } from '@tanstack/react-table';
 import { cn, getStatusColor } from '@/core/lib/helpers';
@@ -24,13 +23,15 @@ import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { ColumnDef } from '@tanstack/react-table';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TeamTasksPageSkeleton } from '@/core/components/layouts/skeletons/team-tasks-page-skeleton';
+import { activeTeamState, tasksByTeamState } from '@/core/stores';
 
 const TeamTask = () => {
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
 	const fullWidth = useAtomValue(fullWidthState);
 	const currentLocale = params ? params.locale : null;
-	const { activeTeam } = useOrganizationTeams();
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const breadcrumbPath = useMemo(
 		() => [
 			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
@@ -40,7 +41,7 @@ const TeamTask = () => {
 		[activeTeam?.name, currentLocale, t]
 	);
 
-	const { tasks } = useTeamTasks();
+	const tasks = useAtomValue(tasksByTeamState);
 	const [searchTaskTerm, setSearchTaskTerm] = useState('');
 	const filteredTasks = useMemo(
 		() => tasks.filter((el) => el.title.toLowerCase().includes(searchTaskTerm.toLowerCase())),
@@ -56,7 +57,7 @@ const TeamTask = () => {
 	});
 
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems, pageCount } =
-		usePagination<TTask>({ items: filteredTasks, defaultItemsPerPage: 10 });
+		usePagination<TTask>({ items: filteredTasks, defaultItemsPerPage: 5 });
 	useReactTable<TTask>({
 		data: currentItems,
 		columns: columns as ColumnDef<TTask, any>[],
@@ -73,16 +74,6 @@ const TeamTask = () => {
 	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
 	if (!activeTeam || !tasks) {
 		return <TeamTasksPageSkeleton fullWidth={fullWidth} />;
-	}
-
-	if (tasks.length === 0) {
-		return (
-			<div className="flex flex-col p-4 pt-6 w-full min-h-full">
-				<div className="flex flex-col p-4 pt-6 w-full min-h-full">
-					<TaskTable columnVisibility={tableColumnsVisibility} currentItems={currentItems} />
-				</div>
-			</div>
-		);
 	}
 
 	return (
@@ -216,19 +207,21 @@ const TeamTask = () => {
 			}
 			childrenClassName="bg-white dark:bg-dark--theme"
 		>
-			<div className="flex flex-col p-4 pt-6 w-full min-h-full">
+			<div className="flex flex-col p-4 mt-6 w-full min-h-full">
 				<TaskTable columnVisibility={tableColumnsVisibility} currentItems={currentItems} />
 
-				<Paginate
-					total={total}
-					onPageChange={onPageChange}
-					pageCount={pageCount}
-					itemsPerPage={itemsPerPage}
-					itemOffset={itemOffset}
-					endOffset={endOffset}
-					setItemsPerPage={setItemsPerPage}
-					className="mt-auto"
-				/>
+				{tasks.length > 0 && (
+					<Paginate
+						total={total}
+						onPageChange={onPageChange}
+						pageCount={pageCount}
+						itemsPerPage={itemsPerPage}
+						itemOffset={itemOffset}
+						endOffset={endOffset}
+						setItemsPerPage={setItemsPerPage}
+						className="mt-auto"
+					/>
+				)}
 			</div>
 		</MainLayout>
 	);

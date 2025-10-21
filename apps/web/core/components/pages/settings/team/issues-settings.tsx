@@ -2,7 +2,7 @@ import { CommonToggle, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { PeriodDropdown } from '../../../settings/period-dropdown';
 import { ProofDropdown } from '../../../settings/proof-dropdown';
-import { VersionForm } from '../../../tasks/version-form';
+import { TaskVersionForm } from '../../../tasks/version-form';
 // import { IssueTypeForm } from './issue-type-form';
 import { TaskLabelForm } from '../../../tasks/task-labels-form';
 import { TaskPrioritiesForm } from '../../../tasks/task-priorities-form';
@@ -28,7 +28,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none flex-grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
 					{t('pages.settingsTeam.MULTIPLE_ASSIGNEES')}
 				</Text>
@@ -131,7 +131,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none flex-grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
 					{t('pages.settingsTeam.AUTO_CLOSE_ISSUE')}
 				</Text>
@@ -141,7 +141,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none flex-grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
 					{t('pages.settingsTeam.AUTO_ARCHIVE_ISSUE')}
 				</Text>
@@ -161,7 +161,7 @@ export const IssuesSettings = () => {
 			</div>
 
 			<div className="flex w-full items-center justify-between gap-[2rem]">
-				<VersionForm />
+				<TaskVersionForm />
 			</div>
 			{/* TODO */}
 			{/* <div className="hidden _flex w-full items-center justify-between gap-[2rem]">

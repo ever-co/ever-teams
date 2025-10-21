@@ -1,9 +1,10 @@
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
-import { useTimer } from '@/core/hooks/activities/use-timer';
+import { useAtomValue } from 'jotai';
+import { timerStatusState } from '@/core/stores';
 
 export function Worked24Hours({ isAuthUser }: { isAuthUser: boolean }) {
-	const { timerStatus } = useTimer();
-	const { h, m } = secondsToTime(timerStatus?.duration || 0);
+	const timerStatus = useAtomValue(timerStatusState);
+	const { hours: h, minutes: m } = secondsToTime(timerStatus?.duration || 0);
 	if (!isAuthUser) {
 		return (
 			<div className="w-[177px] text-center">

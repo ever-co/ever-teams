@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import '@/styles/style.css';
 
 import { format } from 'date-fns';
@@ -6,12 +5,10 @@ import { Button, Modal } from '@/core/components';
 import { cn } from '@/core/lib/helpers';
 import { CalendarDays, Clock7 } from 'lucide-react';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { manualTimeReasons } from '@/core/constants/config/constants';
-import { useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
-import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { clsxm } from '@/core/lib/utils';
 import { DatePicker } from '@/core/components/common/date-picker';
@@ -20,6 +17,9 @@ import { CustomSelect } from '../../common/multiple-select';
 import { IAddManualTimeRequest } from '@/core/types/interfaces/timer/time-slot/time-slot';
 import { TOrganizationTeam } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useAtomValue } from 'jotai';
+import { activeTeamState, activeTeamTaskState, organizationTeamsState, tasksByTeamState } from '@/core/stores';
 
 /**
  * Interface for the properties of the `AddManualTimeModal` component.
@@ -52,12 +52,22 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const [team, setTeam] = useState<TOrganizationTeam>();
 	const [taskId, setTaskId] = useState<string>('');
 	const [timeDifference, setTimeDifference] = useState<string>('');
-	const { activeTeamTask, tasks, activeTeam } = useTeamTasks();
-	const { teams } = useOrganizationTeams();
-	const { user } = useAuthenticateUser();
+
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const tasks = useAtomValue(tasksByTeamState);
+	const activeTeam = useAtomValue(activeTeamState);
+	const teams = useAtomValue(organizationTeamsState);
+	const { data: user } = useUserQuery();
 	const { isTeamManager } = useIsMemberManager(user);
 
-	const { addManualTime, addManualTimeLoading, timeLog } = useManualTime();
+	const {
+		addManualTime,
+		addManualTimeLoading,
+		addManualTimeSuccess,
+		addManualTimeError,
+		addManualTimeErrorMessage,
+		timeLog
+	} = useManualTime();
 
 	useEffect(() => {
 		const now = new Date();
@@ -71,6 +81,9 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const handleSubmit = useCallback(
 		(e: FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
+
+			// Clear any previous error messages before validation
+			setErrorMsg('');
 
 			const startedAt = new Date(date);
 			const stoppedAt = new Date(date);
@@ -96,20 +109,6 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			// Improved validation with better error messages
 			const isValidForm = date && startTime && endTime && (team || activeTeam) && taskId;
 
-			// Debug validation in development
-			if (process.env.NODE_ENV === 'development') {
-				console.log('🔧 Form validation:', {
-					date: !!date,
-					startTime: !!startTime,
-					endTime: !!endTime,
-					team: !!team,
-					activeTeam: !!activeTeam,
-					taskId: !!taskId,
-					taskIdValue: taskId,
-					isValidForm
-				});
-			}
-
 			if (!isValidForm) {
 				const missingFields = [];
 				if (!date) missingFields.push('Date');
@@ -127,9 +126,10 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				return;
 			}
 
+			// All validation passed, submit the request
 			addManualTime(requestData);
 		},
-		[addManualTime, date, description, endTime, isBillable, reason, startTime, taskId, team]
+		[addManualTime, date, description, endTime, isBillable, reason, startTime, taskId, team, activeTeam]
 	);
 
 	const calculateTimeDifference = useCallback(() => {
@@ -159,15 +159,46 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		calculateTimeDifference();
 	}, [calculateTimeDifference, endTime, startTime]);
 
-	// This useEffect will be moved after activeTeamTasks declaration
-
+	// Handle successful manual time addition - only close modal on confirmed success
 	useEffect(() => {
-		if (!addManualTimeLoading && timeLog) {
+		if (addManualTimeSuccess && timeLog) {
+			// Close modal and reset form only on success
 			closeModal();
 			setDescription('');
 			setErrorMsg('');
+			setReason('');
+			setIsBillable(false);
 		}
-	}, [addManualTimeLoading, closeModal, timeLog]);
+	}, [addManualTimeSuccess, timeLog, closeModal]);
+
+	// Handle manual time addition errors - keep modal open and show error
+	useEffect(() => {
+		if (addManualTimeError && addManualTimeErrorMessage) {
+			// Set error message from API response
+			setErrorMsg(addManualTimeErrorMessage);
+		}
+	}, [addManualTimeError, addManualTimeErrorMessage]);
+
+	// Reset states when modal opens - use ref to prevent infinite loops
+	const isOpenRef = useRef(isOpen);
+	const hasResetRef = useRef(false);
+
+	useEffect(() => {
+		// Only reset when modal transitions from closed to open
+		if (isOpen && !isOpenRef.current && !hasResetRef.current) {
+			// Clear any previous error states
+			setErrorMsg('');
+			// Mark that we've reset to prevent multiple resets
+			hasResetRef.current = true;
+		}
+
+		// Reset the flag when modal closes
+		if (!isOpen && isOpenRef.current) {
+			hasResetRef.current = false;
+		}
+
+		isOpenRef.current = isOpen;
+	}, [isOpen]);
 
 	// Simplified task validation for performance
 	const isValidTask = useCallback((task: any): task is TTask => {
@@ -196,7 +227,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		return employee?.id && employee?.employee?.fullName;
 	}, []);
 	const filterTasksByTeamAndRole = useCallback(
-		(tasks: any[], teamId: string | undefined, filterByTeam: (task: TTask, teamId: string) => boolean) => {
+		(tasks: TTask[], teamId: string | undefined, filterByTeam: (task: TTask, teamId: string) => boolean) => {
 			if (!tasks || !Array.isArray(tasks) || !teamId) {
 				return [];
 			}
@@ -354,23 +385,6 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 						mode={'single'}
 					/>
 				</div>
-
-				<div className="flex items-center">
-					<label className="block mr-2 text-xs text-gray-500">{t('pages.timesheet.BILLABLE.BILLABLE')}</label>
-					<div
-						className={`w-12 h-6 flex items-center bg-[#6c57f4b7] rounded-full p-1 cursor-pointer `}
-						onClick={() => setIsBillable(!isBillable)}
-						style={
-							isBillable
-								? { background: 'linear-gradient(to right, #9d91efb7, #8a7bedb7)' }
-								: { background: '#6c57f4b7' }
-						}
-					>
-						<div
-							className={` bg-[#3826A6] w-4 h-4 rounded-full shadow-md transform transition-transform ${isBillable ? 'translate-x-6' : 'translate-x-0'}`}
-						/>
-					</div>
-				</div>
 				<div className="flex items-center">
 					<div className=" w-[48%] mr-[4%]">
 						<label className="block mb-1 text-xs text-gray-500">
@@ -381,7 +395,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							type="time"
 							value={startTime}
 							onChange={(e) => setStartTime(e.target.value)}
-							className="p-2 w-full text-sm font-normal rounded-md border border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
+							className="w-full p-2 text-sm font-normal border rounded-md border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
 							required
 						/>
 					</div>
@@ -396,21 +410,42 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							type="time"
 							value={endTime}
 							onChange={(e) => setEndTime(e.target.value)}
-							className="p-2 w-full font-normal rounded-md border border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
+							className="w-full p-2 font-normal border rounded-md border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
 							required
 						/>
 					</div>
 				</div>
-
-				<div className="flex items-center">
-					<label className="block mb-1 text-xs text-primary">
-						{`${params === 'AddManuelTime' ? t('timer.TOTAL_HOURS') : t('manualTime.ADDED_HOURS')}`}:{' '}
-					</label>
-					<div className="ml-[10px] p-1 flex items-center font-semibold text-sm dark:border-regal-rose  pr-3">
-						<div className="mr-[10px] bg-gradient-to-tl text-[#3826A6]  rounded-full ">
-							<Clock7 size={20} className="rounded-full text-primary dark:text-[#8a7bedb7]" />
+				<div className="flex justify-between">
+					<div className="flex items-center">
+						<label className="block mr-2 text-xs text-gray-500">
+							{t('pages.timesheet.BILLABLE.BILLABLE')}
+						</label>
+						<div
+							className={`w-12 h-6 flex items-center bg-[#6c57f4b7] rounded-full p-1 cursor-pointer `}
+							onClick={() => setIsBillable(!isBillable)}
+							style={
+								isBillable
+									? { background: 'linear-gradient(to right, #9d91efb7, #8a7bedb7)' }
+									: { background: '#6c57f4b7' }
+							}
+						>
+							<div
+								className={` bg-[#3826A6] w-4 h-4 rounded-full shadow-md transform transition-transform ${isBillable ? 'translate-x-6' : 'translate-x-0'}`}
+							/>
 						</div>
-						{timeDifference}
+					</div>
+
+					<div className="flex items-center">
+						<label className="block mb-1 text-xs text-primary">
+							{`${params === 'AddManuelTime' ? t('timer.TOTAL_HOURS') : t('manualTime.ADDED_HOURS')}`}
+							:{' '}
+						</label>
+						<div className="ml-[10px] p-1 flex items-center font-semibold text-sm dark:border-regal-rose  pr-3">
+							<div className="mr-[10px] bg-gradient-to-tl text-[#3826A6]  rounded-full ">
+								<Clock7 size={20} className="rounded-full text-primary dark:text-[#8a7bedb7]" />
+							</div>
+							{timeDifference}
+						</div>
 					</div>
 				</div>
 				{params === 'AddManuelTime' ? (
@@ -432,7 +467,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								value={description}
 								placeholder="What did you worked on..."
 								onChange={(e) => setDescription(e.target.value)}
-								className="p-2 w-full h-32 rounded-md border border-gray-300 resize-none grow dark:border-slate-600 dark:bg-dark--theme-light"
+								className="w-full h-32 p-2 border border-gray-300 rounded-md resize-none grow dark:border-slate-600 dark:bg-dark--theme-light"
 							/>
 						</div>
 					</>
@@ -463,7 +498,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							<CustomSelect
 								valueKey="id"
 								defaultValue={taskId || ''}
-								classNameGroup="max-h-[40vh] dark:!text-white "
+								classNameGroup="max-h-[40vh] overflow-x-hidden max-w-[420px] dark:!text-white "
 								ariaLabel="task"
 								className="w-full text-sm border-gray-300 dark:border-slate-600 dark:text-white"
 								options={team ? selectedTeamTasks : activeTeamTasks}
@@ -490,7 +525,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								value={description}
 								placeholder="What worked on? "
 								onChange={(e) => setDescription(e.target.value)}
-								className="p-2 w-full text-sm rounded-md border border-gray-300 resize-none min-h-20 grow dark:border-slate-600 dark:bg-dark--theme-light"
+								className="w-full p-2 text-sm border border-gray-300 rounded-md resize-none min-h-20 grow dark:border-slate-600 dark:bg-dark--theme-light"
 							/>
 						</div>
 

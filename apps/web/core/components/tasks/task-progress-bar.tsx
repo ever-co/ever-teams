@@ -1,6 +1,6 @@
-import { I_TeamMemberCardHook, useOrganizationTeams, useTaskStatistics } from '@/core/hooks';
+import { I_TeamMemberCardHook, useTaskStatistics } from '@/core/hooks';
 import { Nullable } from '@/core/types/generics/utils';
-import { timerSecondsState } from '@/core/stores';
+import { activeTeamState, timerSecondsState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 import RadialProgress from '@/core/components/common/radial-progress';
 import { ProgressBar } from '../duplicated-components/_progress-bar';
@@ -24,7 +24,7 @@ export function TaskProgressBar({
 	const seconds = useAtomValue(timerSecondsState);
 	const { getEstimation /*, addSeconds*/ } = useTaskStatistics(isAuthUser && activeAuthTask ? seconds : 0);
 
-	const { activeTeam } = useOrganizationTeams();
+	const activeTeam = useAtomValue(activeTeamState);
 	//removed as when certain task's timer was active it was affecting the timers with no estimations. Was taking user's previous task's estimation
 	// const currentMember = activeTeam?.members.find(
 	// 	(member) => member.id === memberInfo?.member?.id

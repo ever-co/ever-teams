@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
 const withNextIntl = require('next-intl/plugin')('./core/lib/i18n/request.ts');
 const { withSentryConfig } = require('@sentry/nextjs');
@@ -9,6 +7,59 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 const isProduction = process.env.NODE_ENV === 'production';
 
 const isSentryEnabled = isProduction && process.env.SENTRY_DSN;
+
+// Parse images hosts from environment variable
+const parseImagesHosts = () => {
+	const hostsEnv = process.env.NEXT_PUBLIC_IMAGES_HOSTS;
+	if (!hostsEnv) {
+		// Default hosts if environment variable is not set
+		return [
+			'dummyimage.com',
+			'res.cloudinary.com',
+			'gauzy.sfo2.digitaloceanspaces.com',
+			'cdn-icons-png.flaticon.com',
+			'api.gauzy.co',
+			'apida.gauzy.co',
+			'apicw.gauzy.co',
+			'apicivo.gauzy.co',
+			'apidev.gauzy.co',
+			'apidemo.gauzy.co',
+			'apidemocw.gauzy.co',
+			'apidemodt.gauzy.co',
+			'apidemodts.gauzy.co',
+			'apidemocivo.gauzy.co',
+			'apidemoda.gauzy.co',
+			'apistage.gauzy.co',
+			'apistagecivo.gauzy.co',
+			'apistagecw.gauzy.co',
+			'apistageda.gauzy.co',
+			'apistagedt.gauzy.co',
+			'apistagedts.gauzy.co',
+			'api.ever.team',
+			'app.ever.team',
+			'apidev.ever.team',
+			'gauzy.s3.wasabisys.com',
+			'gauzystage.s3.wasabisys.com'
+		];
+	}
+	return hostsEnv.split(',').map((host) => host.trim());
+};
+
+const allowedImageHosts = parseImagesHosts();
+const localImageHosts = [
+	{
+		hostname: '127.0.0.1',
+		port: '3000'
+	},
+	{
+		hostname: 'localhost',
+		port: '3030'
+	},
+	{
+		hostname: '127.0.0.1',
+		port: '3030'
+	}
+];
 
 const BUILD_OUTPUT_MODE = process.env.NEXT_BUILD_OUTPUT_TYPE;
 
@@ -41,11 +92,9 @@ const eslintBuildConfig = process.env.NEXT_IGNORE_ESLINT_ERROR_ON_BUILD
 			}
 		}
 	: {};
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	output: ['standalone', 'export'].includes(BUILD_OUTPUT_MODE) ? BUILD_OUTPUT_MODE : undefined,
-	reactStrictMode: false,
 	experimental: {
 		optimizePackageImports: [
 			'geist',
@@ -105,148 +154,18 @@ const nextConfig = {
 	},
 	images: {
 		remotePatterns: [
-			{
-				protocol: 'https',
-				hostname: 'dummyimage.com',
-				port: ''
-			},
-			{
+			// Static localhost patterns
+			...localImageHosts.map((host) => ({
 				protocol: 'http',
-				hostname: 'localhost',
-				port: '3000'
-			},
-			{ protocol: 'https', hostname: 'res.cloudinary.com', port: '' },
-			{
+				hostname: host.hostname,
+				port: host.port
+			})),
+			// Dynamic hosts from environment variable
+			...allowedImageHosts.map((hostname) => ({
 				protocol: 'https',
-				hostname: 'gauzy.sfo2.digitaloceanspaces.com',
+				hostname: hostname,
 				port: ''
-			},
-			{
-				protocol: 'http',
-				hostname: 'localhost',
-				port: '3030'
-			},
-			{
-				protocol: 'http',
-				hostname: '127.0.0.1',
-				port: '3030'
-			},
-			{
-				// Remove this domain once the Backend Icons list is added
-				protocol: 'https',
-				hostname: 'cdn-icons-png.flaticon.com',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'api.gauzy.co',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'apida.gauzy.co',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'apicw.gauzy.co',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'apicivo.gauzy.co',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'apidev.gauzy.co',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'apidemo.gauzy.co',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'apidemocw.gauzy.co',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'apidemodt.gauzy.co',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'apidemodts.gauzy.co',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'apidemocivo.gauzy.co',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'apidemoda.gauzy.co',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'apistage.gauzy.co',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'apistagecivo.gauzy.co',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'apistagecw.gauzy.co',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'apistageda.gauzy.co',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'apistagedt.gauzy.co',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'apistagedts.gauzy.co',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'api.ever.team',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'app.ever.team',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'apidev.ever.team',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'gauzy.s3.wasabisys.com',
-				port: ''
-			},
-			{
-				protocol: 'https',
-				hostname: 'gauzystage.s3.wasabisys.com',
-				port: ''
-			}
+			}))
 		]
 	},
 	async rewrites() {
@@ -269,6 +188,13 @@ const nextConfig = {
 		PRIVACY_POLICY_LINK: process.env.PRIVACY_POLICY_LINK,
 		MAIN_PICTURE: process.env.MAIN_PICTURE,
 		MAIN_PICTURE_DARK: process.env.MAIN_PICTURE_DARK,
+		// New branding variables
+		NEXT_PUBLIC_SITE_NAME: process.env.NEXT_PUBLIC_SITE_NAME,
+		NEXT_PUBLIC_SITE_TITLE: process.env.NEXT_PUBLIC_SITE_TITLE,
+		NEXT_PUBLIC_SITE_DESCRIPTION: process.env.NEXT_PUBLIC_SITE_DESCRIPTION,
+		NEXT_PUBLIC_SITE_KEYWORDS: process.env.NEXT_PUBLIC_SITE_KEYWORDS,
+		NEXT_PUBLIC_WEB_APP_URL: process.env.NEXT_PUBLIC_WEB_APP_URL,
+		NEXT_PUBLIC_TWITTER_USERNAME: process.env.NEXT_PUBLIC_TWITTER_USERNAME,
 		ANALYZE: process.env.ANALYZE
 	},
 	...sentryConfig

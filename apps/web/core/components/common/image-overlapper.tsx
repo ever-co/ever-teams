@@ -1,23 +1,24 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import Image from 'next/image';
 import Link from 'next/link';
 import Skeleton from 'react-loading-skeleton';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
-import { useModal } from '@/core/hooks';
-import { Modal, Divider } from '@/core/components';
-import { useOrganizationTeams } from '@/core/hooks';
+import { useModal, useTeamTasks } from '@/core/hooks';
+import { Modal, Divider, SpinnerLoader } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { TaskAssignButton } from '@/core/components/tasks/task-assign-button';
 import { clsxm } from '@/core/lib/utils';
 import TeamMember from '@/core/components/teams/team-member';
-import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { Url } from 'next/dist/shared/lib/router/router';
 import { IconsCheck, IconsPersonAddRounded, IconsPersonRounded } from '@/core/components/icons';
 import { cn } from '../../lib/helpers';
 import { TaskAvatars } from '../tasks/task-items';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
+import { useAtomValue } from 'jotai';
+import { activeTeamState } from '@/core/stores';
+import { TEmployee, TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export interface ImageOverlapperProps {
@@ -65,27 +66,31 @@ export default function ImageOverlapper({
 	const isMoreThanDisplay = images?.length > displayImageCount;
 	const imageLength = images?.length;
 	const { isOpen, openModal, closeModal } = useModal();
-	const { activeTeam } = useOrganizationTeams();
-	const allMembers = activeTeam?.members || [];
-	const [assignedMembers, setAssignedMembers] = useState<IEmployee[]>([...(item?.members || [])]);
-	const [unassignedMembers, setUnassignedMembers] = useState<IEmployee[]>([]);
-	const [validate, setValidate] = useState<boolean>(false);
+
+	const activeTeam = useAtomValue(activeTeamState);
+	const allMembers = useMemo(() => activeTeam?.members || [], [activeTeam]);
+	const [assignedMembers, setAssignedMembers] = useState<TEmployee[]>([...(item?.members || [])]);
+	const [unassignedMembers, setUnassignedMembers] = useState<TEmployee[]>([]);
 	const [showInfo, setShowInfo] = useState<boolean>(false);
+	const { updateTask, updateLoading } = useTeamTasks();
 
 	const t = useTranslations();
 
-	const onCheckMember = (member: any) => {
-		const checkUser = assignedMembers.some((el: IEmployee) => el.id === member.id);
-		if (checkUser) {
-			const updatedMembers = assignedMembers.filter((el: IEmployee) => el.id != member.id);
-			setAssignedMembers(updatedMembers);
-			setUnassignedMembers([...unassignedMembers, member]);
-		} else {
-			setAssignedMembers([...assignedMembers, member]);
-			const updatedUnassign = unassignedMembers.filter((el: IEmployee) => el.id != member.id);
-			setUnassignedMembers(updatedUnassign);
-		}
-	};
+	const handleMemberClick = useCallback(
+		(member: TEmployee) => {
+			const checkUser = assignedMembers.some((el: TEmployee) => el.id === member.id);
+			if (checkUser) {
+				const updatedMembers = assignedMembers.filter((el: TEmployee) => el.id !== member.id);
+				setAssignedMembers(updatedMembers);
+				setUnassignedMembers([...unassignedMembers, member]);
+			} else {
+				setAssignedMembers([...assignedMembers, member]);
+				const updatedUnassign = unassignedMembers.filter((el: TEmployee) => el.id !== member.id);
+				setUnassignedMembers(updatedUnassign);
+			}
+		},
+		[assignedMembers, unassignedMembers]
+	);
 
 	const onRedirect = useCallback(
 		(image: ImageOverlapperProps): Url => {
@@ -108,15 +113,23 @@ export default function ImageOverlapper({
 		[activeTeam?.members, onAvatarClickRedirectTo]
 	);
 
-	const onCLickValidate = () => {
-		setValidate(!validate);
-		closeModal();
-	};
+	const onConfirm = useCallback(async () => {
+		if (updateLoading) return;
+		try {
+			await updateTask({
+				...item,
+				members: assignedMembers
+			});
+
+			closeModal();
+		} catch (error) {
+			console.error('Error updating task members:', error);
+		}
+	}, [closeModal, updateTask, item, assignedMembers, updateLoading]);
 
 	const hasMembers = item?.members?.length > 0;
-	const membersList = { assignedMembers, unassignedMembers };
 
-	if (imageLength == undefined) {
+	if (imageLength === undefined) {
 		return <Skeleton height={40} width={40} borderRadius={100} className="rounded-full dark:bg-[#353741]" />;
 	}
 
@@ -183,19 +196,17 @@ export default function ImageOverlapper({
 						titleClass="font-normal"
 					>
 						<Divider className="mt-4" />
-						<ul className="p-5 py-6 overflow-auto">
-							{allMembers?.map((member: any) => {
+						<ul className="overflow-auto p-5 py-6">
+							{allMembers?.map((member: TOrganizationTeamEmployee) => {
 								return (
 									<li
-										key={member.employee}
-										className="border border-transparent rounded-lg cursor-pointer w-100 hover:border-blue-500 hover:border-opacity-50"
+										key={member.id}
+										className="rounded-lg border border-transparent cursor-pointer w-100 hover:border-blue-500 hover:border-opacity-50"
 									>
 										<TeamMember
 											member={member}
-											item={item}
-											onCheckMember={onCheckMember}
-											membersList={membersList}
-											validate={validate}
+											onClick={handleMemberClick}
+											assigned={assignedMembers.some((el) => el.id === member.employee?.id)}
 										/>
 									</li>
 								);
@@ -208,12 +219,13 @@ export default function ImageOverlapper({
 								<TaskAvatars task={{ members: assignedMembers }} limit={3} />
 								<div className="flex px-4 h-fit">
 									<button
-										className="flex flex-row items-center justify-center h-12 min-w-0 gap-1 px-4 py-2 text-sm text-white bg-primary dark:bg-primary-light disabled:bg-primary-light disabled:opacity-40 rounded-xl w-28"
+										className="flex flex-row gap-3 justify-center items-center px-2 py-2 w-28 min-w-0 h-12 text-sm text-white rounded-xl bg-primary dark:bg-primary-light disabled:bg-primary-light disabled:opacity-40"
+										disabled={updateLoading}
 										onClick={() => {
-											onCLickValidate();
+											onConfirm();
 										}}
 									>
-										<IconsCheck fill="#ffffff" />
+										{updateLoading ? <SpinnerLoader size={20} /> : <IconsCheck fill="#ffffff" />}
 										{t('common.CONFIRM')}
 									</button>
 								</div>
@@ -225,18 +237,17 @@ export default function ImageOverlapper({
 		);
 	}
 	return (
-		<div className="relative flex items-center min-w-fit">
-			<div className="relative flex items-center">
+		<div className="flex relative items-center min-w-fit">
+			<div className="flex relative items-center -space-x-3">
 				{firstArray.map((image, index) => (
 					<Link className="!h-10 !w-10" key={index} href={onRedirect(image)}>
 						<div
 							className={cn(
-								'absolute w-full h-full [&:not(:hover)]:!z-0 hover:!z-[5] transition-all hover:scale-110 even:z-[1] odd:z-[2]'
+								'w-full h-full [&:not(:hover)]:!z-0 hover:!z-[5] transition-all hover:scale-110 even:z-[1] odd:z-[2]'
 							)}
-							style={{ left: index * 30 }}
 						>
 							<Tooltip
-								label={image.alt ?? 'untitled'}
+								label={image.alt ?? 'avatar'}
 								labelClassName={image.alt ? '' : 'text-gray-500'}
 								className="absolute hover:!z-[1]"
 								placement="top"
@@ -262,7 +273,7 @@ export default function ImageOverlapper({
 					</PopoverTrigger>
 					<PopoverContent className="!py-2 !px-0 bg-white dark:bg-dark--theme input-border">
 						<ScrollArea className="h-40">
-							<div className="flex flex-col m-2 gap-y-2">
+							<div className="flex flex-col gap-y-2 m-2">
 								{secondArray.map((image: ImageOverlapperProps, index: number) => {
 									return (
 										<Link

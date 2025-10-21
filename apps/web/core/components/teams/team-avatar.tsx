@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { imgTitle } from '@/core/lib/helpers/index';
-import { useAuthenticateUser, useOrganizationTeams } from '@/core/hooks';
+import { useAuthenticateUser } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { Button } from '@/core/components';
 import { useTheme } from 'next-themes';
@@ -12,12 +12,16 @@ import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
 import { useImageAssets } from '@/core/hooks/common/use-image-assets';
 import { Avatar } from '../duplicated-components/avatar';
+import { useAtomValue } from 'jotai';
+import { activeTeamState } from '@/core/stores';
+import { useUpdateOrganizationTeam } from '@/core/hooks/organizations/teams/use-update-organization-team';
 
 export const TeamAvatar = ({ disabled, bgColor }: { disabled: boolean; bgColor?: string | null }) => {
 	const t = useTranslations();
 	const { register } = useForm();
 	const [avatarBtn, setAvatarBtn] = useState(false);
-	const { updateOrganizationTeam, activeTeam } = useOrganizationTeams();
+	const activeTeam = useAtomValue(activeTeamState);
+	const { updateOrganizationTeam } = useUpdateOrganizationTeam();
 	const { createImageAssets } = useImageAssets();
 	const { user } = useAuthenticateUser();
 	const { theme } = useTheme();
@@ -33,12 +37,7 @@ export const TeamAvatar = ({ disabled, bgColor }: { disabled: boolean; bgColor?:
 	const onChangeAvatar = useCallback(
 		async (e: any) => {
 			if (e.target.files && activeTeam && user) {
-				createImageAssets(
-					e.target.files[0],
-					'organization_teams_avatars',
-					user.tenantId as string,
-					user.employee?.organizationId || ''
-				)
+				createImageAssets(e.target.files[0], 'organization_teams_avatars')
 					.then((image) => {
 						updateOrganizationTeam(activeTeam, {
 							...activeTeam,

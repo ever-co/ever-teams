@@ -25,13 +25,18 @@ export const useConditionalUpdateEffect = (
 	dependencies: React.DependencyList,
 	shouldSkipFirstRender: boolean | (() => boolean)
 ) => {
-	const isFirstRender = useRef(true);
-	const prevDeps = useRef<React.DependencyList>([]);
+	const isFirstRender = useRef(true); // Track if it's the first render
+	const prevDeps = useRef<React.DependencyList>(undefined); // Store previous dependencies
+	const skipFirstRef = useRef<boolean>(undefined); // Store skip condition (immutable)
+
+	// Evaluate skip condition only once on mount
+	if (skipFirstRef.current === undefined) {
+		skipFirstRef.current =
+			typeof shouldSkipFirstRender === 'function' ? shouldSkipFirstRender() : shouldSkipFirstRender;
+	}
 
 	useEffect(() => {
-		const skipFirst = typeof shouldSkipFirstRender === 'function' ? shouldSkipFirstRender() : shouldSkipFirstRender;
-
-		// Check if dependencies have actually changed
+		const skipFirst = skipFirstRef.current!;
 		const depsChanged = !prevDeps.current || dependencies.some((dep, index) => dep !== prevDeps.current![index]);
 
 		if (skipFirst && isFirstRender.current) {
@@ -40,12 +45,10 @@ export const useConditionalUpdateEffect = (
 			return;
 		}
 
-		// If we're not skipping first render, we still need to track it for subsequent calls
 		if (isFirstRender.current) {
 			isFirstRender.current = false;
 		}
 
-		// Only execute callback if dependencies have changed
 		if (depsChanged) {
 			prevDeps.current = dependencies;
 			return callback();

@@ -1,8 +1,8 @@
-import { TTaskStatus } from '@/core/types/schemas';
 import { useMapToTaskStatusValues } from './use-map-to-task-status-values';
-import { useTaskSizes } from './use-task-sizes';
+import { taskSizesListState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 
 export function useTaskSizesValue() {
-	const { taskSizes } = useTaskSizes();
-	return useMapToTaskStatusValues(taskSizes as TTaskStatus[], false);
+	const taskSizes = useAtomValue(taskSizesListState);
+	return useMapToTaskStatusValues(taskSizes, false);
 }

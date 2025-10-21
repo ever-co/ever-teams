@@ -1,10 +1,11 @@
 'use client';
 
 import { MainLayout } from '@/core/components/layouts/default-layout';
-import { useLocalStorageState, useModal, useOrganizationProjects, useOrganizationTeams } from '@/core/hooks';
+import { organizationProjectsState } from '@/core/stores';
+import { useLocalStorageState, useModal, useOrganizationProjects } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { useCallback, useEffect, useMemo, useState, Suspense } from 'react';
-import dynamic from 'next/dynamic';
+// dynamic import removed - using optimized components
 import {
 	Archive,
 	ArrowLeftIcon,
@@ -39,74 +40,20 @@ import { InputField } from '../../duplicated-components/_input';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 
 import { TOrganizationProject } from '@/core/types/schemas';
-import { ProjectListSkeleton } from './project-views/list-view/list-skeleton';
-import { ProjectsGridSkeleton } from './project-views/grid-view/grid-skeleton';
+// Skeletons now handled by optimized components
 import { ModalSkeleton } from '../../common/skeleton/modal-skeleton';
 
-// Lazy load heavy components for Projects page optimization
-// Priority 1: Modals (conditional rendering)
-const LazyFiltersCardModal = dynamic(
-	() => import('../../projects/filters-card-modal').then((mod) => ({ default: mod.default })),
-	{
-		ssr: false
-		// Note: No loading property for conditional modals
-	}
-);
-
-const LazyCreateProjectModal = dynamic(
-	() => import('../../features/projects/create-project-modal').then((mod) => ({ default: mod.CreateProjectModal })),
-	{
-		ssr: false
-		// Note: No loading property for conditional modals
-	}
-);
-
-const LazyBulkArchiveProjectsModal = dynamic(
-	() =>
-		import('@/core/components/features/projects/bulk-actions/bulk-archive-projects-modal').then((mod) => ({
-			default: mod.BulkArchiveProjectsModal
-		})),
-	{
-		ssr: false
-		// Note: No loading property for conditional modals
-	}
-);
-
-const LazyBulkRestoreProjectsModal = dynamic(
-	() =>
-		import('@/core/components/features/projects/bulk-actions/bulk-restore-projects-modal').then((mod) => ({
-			default: mod.BulkRestoreProjectsModal
-		})),
-	{
-		ssr: false
-	}
-);
-
-// Priority 2: Conditional views
-const LazyProjectsListView = dynamic(
-	() => import('./project-views/list-view').then((mod) => ({ default: mod.ProjectsListView })),
-	{
-		ssr: false,
-		loading: () => <ProjectListSkeleton />
-	}
-);
-
-const LazyProjectsGridView = dynamic(
-	() => import('./project-views/grid-view').then((mod) => ({ default: mod.ProjectsGridView })),
-	{
-		ssr: false,
-		loading: () => <ProjectsGridSkeleton />
-	}
-);
-
-// Priority 3: Heavy components
-const LazyProjectExportMenu = dynamic(
-	() => import('./project-export-menu').then((mod) => ({ default: mod.ProjectExportMenu })),
-	{
-		ssr: false,
-		loading: () => <div className="w-32 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-	}
-);
+// Import optimized components from centralized location
+import {
+	LazyFiltersCardModal,
+	LazyCreateProjectModal,
+	LazyBulkArchiveProjectsModal,
+	LazyBulkRestoreProjectsModal,
+	LazyProjectsListView,
+	LazyProjectsGridView,
+	LazyProjectExportMenu
+} from '@/core/components/optimized-components/projects';
+import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 
 type TViewMode = 'GRID' | 'LIST';
 
@@ -118,15 +65,18 @@ function PageComponent() {
 		openModal: openFiltersCardModal
 	} = useModal();
 	const { isOpen: isProjectModalOpen, closeModal: closeProjectModal, openModal: openProjectModal } = useModal();
-	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
+
+	const activeTeam = useAtomValue(activeTeamState);
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const [selectedView, setSelectedView] = useLocalStorageState<TViewMode>(LAST_SELECTED_PROJECTS_VIEW, 'LIST');
 	const [projects, setProjects] = useState<ProjectViewDataType[]>([]);
 
 	const fullWidth = useAtomValue(fullWidthState);
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
+	const organizationProjects = useAtomValue(organizationProjectsState);
 
-	const { getOrganizationProjectsLoading, organizationProjects, setSearchQueries } = useOrganizationProjects();
+	const { getOrganizationProjectsLoading, setSearchQueries } = useOrganizationProjects();
 	const [searchTerm, setSearchTerm] = useState('');
 	const params = useSearchParams();
 	const router = useRouter();

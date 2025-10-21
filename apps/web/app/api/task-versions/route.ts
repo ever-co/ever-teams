@@ -1,6 +1,6 @@
-import { ITaskVersionCreate } from '@/core/types/interfaces/task/task-version';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createVersionRequest, getTaskVersionListRequest } from '@/core/services/server/requests/task-version';
+import { TTaskVersionCreate } from '@/core/types/schemas/task/task-version.schema';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
 
 	if (!user) return $res('Unauthorized');
 
-	const body = (await req.json()) as unknown as ITaskVersionCreate;
+	const body = (await req.json()) as unknown as TTaskVersionCreate;
 
 	const response = await createVersionRequest(body, access_token || '', body?.tenantId);
 

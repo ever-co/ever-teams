@@ -1,9 +1,11 @@
 import { useOrganizationProjects } from '@/core/hooks';
+import { useAtomValue } from 'jotai';
 import { Button, Modal, Text } from '@/core/components';
 import { RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 import { EverCard } from '@/core/components/common/ever-card';
+import { organizationProjectsState } from '@/core/stores';
 
 interface IBulkRestoreProjectModalProps {
 	open: boolean;
@@ -23,8 +25,9 @@ interface IBulkRestoreProjectModalProps {
 export function BulkRestoreProjectsModal(props: IBulkRestoreProjectModalProps) {
 	const t = useTranslations();
 	const { open, closeModal, projectIds = [] } = props;
-	const { editOrganizationProject, setOrganizationProjects, organizationProjects, getOrganizationProjects } =
-		useOrganizationProjects();
+	const organizationProjects = useAtomValue(organizationProjectsState);
+
+	const { editOrganizationProject, setOrganizationProjects, getOrganizationProjects } = useOrganizationProjects();
 	const [isLoading, setIsLoading] = useState(false);
 
 	const projects = useMemo(
@@ -65,24 +68,24 @@ export function BulkRestoreProjectsModal(props: IBulkRestoreProjectModalProps) {
 	return (
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
 			<EverCard className=" sm:w-[33rem] w-[20rem]" shadow="custom">
-				<div className="flex items-center justify-center w-full py-3 text-primary">
+				<div className="flex justify-center items-center py-3 w-full text-primary">
 					<RotateCcw size={45} />
 				</div>
 
-				<div className="flex flex-col items-center justify-between gap-5">
+				<div className="flex flex-col gap-5 justify-between items-center">
 					<Text.Heading as="h3" className="text-center">
 						{t('pages.projects.bulkActions.bulkRestoreModal.title', { projectsCount: projects.length })}
 					</Text.Heading>
 
-					<div className="flex flex-col items-center w-full gap-1">
+					<div className="flex flex-col gap-1 items-center w-full">
 						<p className=" text-center text-[1rem] text-gray-600">
 							{t('pages.projects.bulkActions.bulkRestoreModal.description')}:
 						</p>
 
-						<p className="font-medium ">{projects.map((el) => el?.name ?? '-').join(', ')}</p>
+						<p className="font-medium">{projects.map((el) => el?.name ?? '-').join(', ')}</p>
 					</div>
 
-					<div className="flex items-center justify-between w-full">
+					<div className="flex justify-between items-center w-full">
 						<Button disabled={isLoading} onClick={closeModal} className="h-[2.75rem]" variant="outline">
 							{t('common.CANCEL')}
 						</Button>

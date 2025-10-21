@@ -1,4 +1,3 @@
-import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '@/core/services/client/api.service';
 import {
@@ -14,34 +13,28 @@ import {
 import { updateActiveTaskSchema } from '@/core/types/schemas/task/task.schema';
 
 class OrganizationTeamEmployeeService extends APIService {
-	deleteOrganizationEmployeeTeam = async ({
-		id,
-		employeeId,
-		organizationId,
-		tenantId
+	deleteOrganizationTeamEmployee = async ({
+		organizationTeamEmployeeId,
+		employeeId
 	}: {
-		id: string;
+		organizationTeamEmployeeId: string;
 		employeeId: string;
-		organizationId: string;
-		tenantId: string;
 	}): Promise<TOrganizationTeam> => {
 		try {
-			const teamId = getActiveTeamIdCookie();
-
 			const response = await this.delete<TOrganizationTeam>(
-				`/organization-team-employee/${id}?tenantId=${tenantId}&employeeId=${employeeId}&organizationId=${organizationId}&organizationTeamId=${teamId}`
+				`/organization-team-employee/${organizationTeamEmployeeId}?tenantId=${this.tenantId}&employeeId=${employeeId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`
 			);
 
 			// Validate API response using utility function
 			return validateApiResponse(
 				organizationTeamSchema,
 				response.data,
-				'deleteOrganizationEmployeeTeam API response'
+				'deleteOrganizationTeamEmployee API response'
 			);
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
-					'Delete organization employee team validation failed:',
+					'Delete organization team employee validation failed:',
 					{
 						message: error.message,
 						issues: error.issues
@@ -53,23 +46,29 @@ class OrganizationTeamEmployeeService extends APIService {
 		}
 	};
 
-	updateOrganizationEmployeeTeam = async (
-		id: string,
-		data: Partial<TOrganizationTeamEmployeeUpdate>
-	): Promise<TOrganizationTeamEmployeeUpdate> => {
+	updateOrganizationTeamEmployee = async ({
+		organizationTeamEmployeeId,
+		data
+	}: {
+		organizationTeamEmployeeId: string;
+		data: Partial<TOrganizationTeamEmployeeUpdate>;
+	}): Promise<TOrganizationTeamEmployeeUpdate> => {
 		try {
-			const response = await this.put<TOrganizationTeamEmployeeUpdate>(`/organization-team-employee/${id}`, data);
+			const response = await this.put<TOrganizationTeamEmployeeUpdate>(
+				`/organization-team-employee/${organizationTeamEmployeeId}`,
+				data
+			);
 
 			// Validate API response using utility function
 			return validateApiResponse(
 				organizationTeamEmployeeUpdateSchema,
 				response.data,
-				'updateOrganizationEmployeeTeam API response'
+				'updateOrganizationTeamEmployee API response'
 			);
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
-					'Update organization employee team validation failed:',
+					'Update organization team employee validation failed:',
 					{
 						message: error.message,
 						issues: error.issues
@@ -81,10 +80,16 @@ class OrganizationTeamEmployeeService extends APIService {
 		}
 	};
 
-	updateOrganizationTeamEmployeeActiveTask = async (id: string, data: Partial<TOrganizationTeamEmployeeUpdate>) => {
+	updateOrganizationTeamEmployeeActiveTask = async ({
+		organizationTeamEmployeeId,
+		data
+	}: {
+		organizationTeamEmployeeId: string;
+		data: Partial<TOrganizationTeamEmployeeUpdate>;
+	}) => {
 		try {
 			const response = await this.put<TOrganizationTeamEmployee>(
-				`/organization-team-employee/${id}/active-task`,
+				`/organization-team-employee/${organizationTeamEmployeeId}/active-task`,
 				data
 			);
 
@@ -109,7 +114,7 @@ class OrganizationTeamEmployeeService extends APIService {
 		}
 	};
 
-	removeEmployeeOrganizationTeam = async (employeeId: string): Promise<boolean> => {
+	removeOrganizationTeamEmployee = async ({ employeeId }: { employeeId: string }): Promise<boolean> => {
 		try {
 			const endpoint = GAUZY_API_BASE_SERVER_URL.value
 				? `/organization-team-employee/${employeeId}`
@@ -119,16 +124,16 @@ class OrganizationTeamEmployeeService extends APIService {
 
 			// For boolean responses, we can validate directly
 			if (typeof response.data !== 'boolean') {
-				throw new Error('Expected boolean response from removeEmployeeOrganizationTeam API');
+				throw new Error('Expected boolean response from removeOrganizationTeamEmployee API');
 			}
 
 			return response.data;
 		} catch (error) {
 			this.logger.error(
-				'Remove employee organization team failed:',
+				'Remove organization team employee failed:',
 				{
 					message: error instanceof Error ? error.message : 'Unknown error',
-					context: 'removeEmployeeOrganizationTeam'
+					context: 'removeOrganizationTeamEmployee'
 				},
 				'OrganizationTeamEmployeeService'
 			);
@@ -136,28 +141,40 @@ class OrganizationTeamEmployeeService extends APIService {
 		}
 	};
 
-	editEmployeeOrderOrganizationTeam = async (
-		employeeId: string,
-		data: { order: number; organizationTeamId: string; organizationId: string },
-		tenantId?: string
-	): Promise<TOrganizationTeamEmployee> => {
+	editOrganizationTeamEmployeeOrder = async ({
+		organizationTeamEmployeeId,
+		data
+	}: {
+		organizationTeamEmployeeId: string;
+		data: { order: number };
+	}): Promise<TOrganizationTeamEmployee> => {
 		try {
 			const endpoint = GAUZY_API_BASE_SERVER_URL.value
-				? `/organization-team-employee/${employeeId}`
-				: `/organization-team/employee/${employeeId}`;
+				? `/organization-team-employee/${organizationTeamEmployeeId}`
+				: `/organization-team/employee/${organizationTeamEmployeeId}`;
 
-			const response = await this.put<TOrganizationTeamEmployee>(endpoint, data, { tenantId });
+			const response = await this.put<TOrganizationTeamEmployee>(
+				endpoint,
+				{
+					...data,
+					organizationId: this.organizationId,
+					organizationTeamId: this.activeTeamId
+				},
+				{
+					tenantId: this.tenantId
+				}
+			);
 
 			// Validate API response using utility function
 			return validateApiResponse(
 				organizationTeamEmployeeSchema,
 				response.data,
-				'editEmployeeOrderOrganizationTeam API response'
+				'editOrganizationTeamEmployeeOrder API response'
 			);
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
-					'Edit employee order organization team validation failed:',
+					'Edit organization team employee order validation failed:',
 					{
 						message: error.message,
 						issues: error.issues

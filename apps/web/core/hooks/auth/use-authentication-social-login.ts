@@ -8,6 +8,7 @@ import { useSession } from 'next-auth/react';
 import { signinService } from '@/core/services/client/api/auth/signin.service';
 import { userOrganizationService } from '@/core/services/client/api/users/user-organization.service';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { APP_NAME } from '@/core/constants/config/constants';
 type SigninResult = {
 	access_token: string;
 	confirmed_mail: string;
@@ -55,7 +56,7 @@ export function useAuthenticationSocialLogin() {
 					if (!organization) {
 						return Promise.reject({
 							errors: {
-								email: 'Your account is not yet ready to be used on the Ever Teams Platform'
+								email: `Your account is not yet ready to be used on the ${APP_NAME} Platform`
 							}
 						});
 					}

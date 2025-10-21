@@ -10,6 +10,7 @@ import {
 import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/index';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
+import { APP_NAME } from '@/core/constants/config/constants';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method !== 'POST') {
@@ -103,7 +104,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			if (!organization) {
 				return res.status(400).json({
 					errors: {
-						email: 'Your account is not yet ready to be used on the Ever Teams Platform'
+						email: `Your account is not yet ready to be used on the ${APP_NAME} Platform`
 					}
 				});
 			}
@@ -163,7 +164,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 	if (!organization) {
 		return res.status(400).json({
 			errors: {
-				email: 'Your account is not yet ready to be used on the Ever Teams Platform'
+				email: `Your account is not yet ready to be used on the ${APP_NAME} Platform`
 			}
 		});
 	}

@@ -9,7 +9,6 @@ import { ETaskListType, ETaskStatusName } from '../../generics/enums/task';
 
 export const organizationProjectSettingSchema = z
 	.object({
-		id: z.string().optional(),
 		createdAt: z.coerce.date().optional(),
 		updatedAt: z.coerce.date().optional(),
 		tenantId: z.string().optional(),
@@ -17,7 +16,7 @@ export const organizationProjectSettingSchema = z
 		customFields: z.record(z.any()).optional(),
 		isTasksAutoSync: z.boolean().optional(),
 		isTasksAutoSyncOnLabel: z.boolean().optional(),
-		syncTag: z.string().optional()
+		syncTag: z.string().optional().nullable()
 	})
 	.passthrough();
 
@@ -91,36 +90,42 @@ export const organizationProjectBaseSchema = z
 		repository: organizationProjectRepositorySchema.optional(),
 		// Image asset fields
 		imageId: z.string().optional().nullable(),
-		image: z.any().optional()
+		image: z.any().optional(),
+		isActive: z.boolean().optional(),
+		isArchived: z.boolean().optional()
 	})
 	.passthrough();
 
-export const organizationProjectSchema = organizationProjectBaseSchema.extend({
-	name: z.string().min(1, 'Project name is required')
-});
+export const organizationProjectSchema = organizationProjectBaseSchema
+	.extend({
+		name: z.string().min(1, 'Project name is required')
+	})
+	.merge(organizationProjectSettingSchema);
 
-export const createProjectRequestSchema = z
-	.object({
-		name: z.string().min(1, 'Project name is required'),
-		organizationId: z.string().min(1, 'Organization ID is required'),
-		tenantId: z.string().min(1, 'Tenant ID is required'),
-		projectUrl: z.string().optional().nullable(),
-		description: z.string().nullable(),
-		color: z.string().nullable(),
-		tags: z.array(z.any()).optional(),
-		imageUrl: z.string().optional(),
-		imageId: z.string().optional().nullable(),
-		budget: z.coerce.number().optional(),
-		budgetType: z.nativeEnum(EProjectBudgetType).optional(),
-		startDate: z.coerce.string(),
-		endDate: z.coerce.string(),
-		archivedAt: z.coerce.string().nullable().optional(),
-		billing: z.string().optional(),
-		currency: z.nativeEnum(ECurrencies).or(z.string()).optional().nullable(),
+export const createProjectRequestSchema = organizationProjectBaseSchema
+	.pick({
+		name: true,
+		organizationId: true,
+		tenantId: true,
+		projectUrl: true,
+		description: true,
+		color: true,
+		tags: true,
+		imageUrl: true,
+		imageId: true,
+		budget: true,
+		budgetType: true,
+		startDate: true,
+		endDate: true,
+		archivedAt: true,
+		billing: true,
+		currency: true,
+		teams: true,
+		status: true
+	})
+	.extend({
 		memberIds: z.array(z.string()).optional(),
 		managerIds: z.array(z.string()).optional(),
-		teams: z.array(z.any()).optional(),
-		status: z.nativeEnum(ETaskStatusName).optional().nullable(),
 		isActive: z.boolean().optional(),
 		isArchived: z.boolean().optional(),
 		isTasksAutoSync: z.boolean().optional(),

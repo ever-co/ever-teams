@@ -1,20 +1,21 @@
-import { formatDayPlanDate, handleDragAndDrop, yesterdayDate } from '@/core/lib/helpers/index';
+import { formatDayPlanDate, yesterdayDate } from '@/core/lib/helpers/index';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { FilterTabs } from '@/core/types/interfaces/task/task-card';
-import { TaskCard } from '../task-card';
-import { useDailyPlan } from '@/core/hooks';
+
+import { LazyTaskCard } from '@/core/components/optimized-components';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import { clsxm } from '@/core/lib/utils';
 import TaskBlockCard from '../task-block-card';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
-import { useEffect, useState } from 'react';
-import { TDailyPlan, TUser } from '@/core/types/schemas';
+import { useMemo } from 'react';
+import { TUser } from '@/core/types/schemas';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
+import { useDailyPlan } from '@/core/hooks';
 
 export function PastTasks({
 	user,
@@ -25,21 +26,21 @@ export function PastTasks({
 	currentTab?: FilterTabs;
 	user?: TUser;
 }) {
-	const { pastPlans: _pastPlans } = useDailyPlan();
+	const employeeId = user?.employee?.id ?? user?.employeeId ?? '';
+
+	const { pastPlans } = useDailyPlan(employeeId);
 
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
-	const [pastPlans, setPastPlans] = useState<TDailyPlan[]>(_pastPlans);
 	// Use a safe default instead of direct localStorage access
 	const { date } = useDateRange('Past Tasks');
 
-	useEffect(() => {
-		setPastPlans(filterDailyPlan(date as any, pastPlans));
-	}, [date, pastPlans]);
+	// Use useMemo instead of useEffect to prevent infinite re-render loop
+	// The previous useEffect was modifying pastPlans while depending on pastPlans, causing infinite loop
+	const filteredPastPlans = useMemo(() => {
+		// First apply date filtering
+		let filteredData = filterDailyPlan(date as any, pastPlans);
 
-	useEffect(() => {
-		let filteredData = pastPlans;
-
-		// Filter tasks for specific user if provided
+		// Then filter tasks for specific user if provided
 		if (user) {
 			filteredData = filteredData
 				.map((plan) => ({
@@ -49,19 +50,23 @@ export function PastTasks({
 				.filter((plan) => plan.tasks && plan.tasks.length > 0);
 		}
 
-		setPastPlans(filteredData);
-	}, [date, pastPlans, user]);
+		return filteredData;
+	}, [date, pastPlans, user?.id]); // Use user.id instead of user object for stable dependency
 
 	return (
 		<div className="flex flex-col gap-6">
-			{pastPlans?.length > 0 ? (
-				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, pastPlans, setPastPlans)}>
+			{filteredPastPlans?.length > 0 ? (
+				<DragDropContext
+					onDragEnd={() => {
+						/* TODO: Implement drag and drop for filtered plans */
+					}}
+				>
 					<Accordion
 						type="multiple"
 						className="text-sm"
 						defaultValue={[yesterdayDate.toISOString().split('T')[0]]}
 					>
-						{pastPlans?.map((plan) => (
+						{filteredPastPlans?.map((plan) => (
 							<AccordionItem
 								value={plan.date.toString().split('T')[0]}
 								key={plan.id}
@@ -75,7 +80,7 @@ export function PastTasks({
 										<HorizontalSeparator />
 									</div>
 								</AccordionTrigger>
-								<AccordionContent className="pb-6 border-none dark:bg-dark--theme">
+								<AccordionContent className="pb-6 border-none bg-gray-100 dark:bg-dark--theme !px-4 !py-4 rounded-xl">
 									{/* Plan header */}
 									<PlanHeader plan={plan} planMode="Outstanding" />
 									{view === 'TABLE' ? (
@@ -118,7 +123,7 @@ export function PastTasks({
 																			marginBottom: 4
 																		}}
 																	>
-																		<TaskCard
+																		<LazyTaskCard
 																			key={`${task.id}${plan.id}`}
 																			isAuthUser={true}
 																			activeAuthTask={true}
@@ -134,6 +139,7 @@ export function PastTasks({
 																					? 'Past Tasks'
 																					: undefined
 																			}
+																			taskContentClassName="!w-72 !max-w-80" // UX: consistent card width across all tabs
 																			className="shadow-[0px_0px_15px_0px_#e2e8f0]"
 																		/>
 																	</div>

@@ -44,7 +44,7 @@ export function usePagination<T>({ items, defaultItemsPerPage = 5 }: UsePaginati
 		pageCount
 	};
 }
-export function useScrollPagination<T>({
+export function useScrollPagination<T extends { id: string }>({
 	enabled,
 	defaultItemsPerPage = 10,
 	items,
@@ -55,48 +55,87 @@ export function useScrollPagination<T>({
 	defaultItemsPerPage?: number;
 	scrollableElement?: HTMLElement | null;
 }) {
-	const [slicedItems, setSlicedItems] = useState(items.slice(0, defaultItemsPerPage));
+	const [slicedItems, setSlicedItems] = useState<T[]>([]);
 	const [page, setPage] = useState(1);
+	const [isInitialized, setIsInitialized] = useState(false);
 
 	const $scrollableElement = useRef<HTMLElement | null>(null);
+	const itemsRef = useRef<T[]>([]);
 
 	$scrollableElement.current = scrollableElement || $scrollableElement.current;
 
+	const SCROLL_THRESHOLD = 100;
+
+	// Initialize or reset when items change significantly
 	useEffect(() => {
 		if (enabled) {
-			setPage(1);
-			setSlicedItems(items.slice(0, defaultItemsPerPage));
-		}
-	}, [enabled, items, defaultItemsPerPage]);
+			// Enhanced change detection for better synchronization
+			const hasLengthChanged = itemsRef.current.length !== items.length;
+			const hasReferenceChanged = itemsRef.current !== items;
 
+			// Deep check for content changes when length is the same but items might have changed
+			// Only check first few items for performance (most changes happen at the beginning)
+			const hasContentChanged =
+				!hasLengthChanged &&
+				hasReferenceChanged &&
+				itemsRef.current.length > 0 &&
+				items.length > 0 &&
+				itemsRef.current.slice(0, Math.min(5, itemsRef.current.length)).some((oldItem, index) => {
+					const newItem = items[index];
+					return !newItem || oldItem.id !== newItem.id;
+				});
+
+			const shouldReset = !isInitialized || hasLengthChanged || hasReferenceChanged || hasContentChanged;
+
+			if (shouldReset) {
+				setPage(1);
+				setSlicedItems(items.slice(0, defaultItemsPerPage));
+				itemsRef.current = items;
+				setIsInitialized(true);
+			}
+		} else {
+			setIsInitialized(false);
+		}
+	}, [enabled, items, defaultItemsPerPage, isInitialized]);
+
+	// Handle scroll events with throttling
 	useEffect(() => {
 		const container = $scrollableElement.current;
 		if (!container || !enabled) return;
 
+		let isScrolling = false;
+
 		const handleScroll = () => {
-			if (
-				container.scrollTop + container.clientHeight >=
-				container.scrollHeight - 100 // Adjust this value for how close to the bottom you want to trigger loading
-			) {
-				setPage((prevPage) => prevPage + 1);
-			}
+			if (isScrolling) return;
+
+			isScrolling = true;
+			requestAnimationFrame(() => {
+				if (container.scrollTop + container.clientHeight >= container.scrollHeight - SCROLL_THRESHOLD) {
+					setPage((prevPage) => prevPage + 1);
+				}
+				isScrolling = false;
+			});
 		};
 
-		container.addEventListener('scroll', handleScroll);
+		container.addEventListener('scroll', handleScroll, { passive: true });
 
 		return () => {
 			container.removeEventListener('scroll', handleScroll);
 		};
+	}, [enabled, $scrollableElement.current]);
 
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [$scrollableElement.current, enabled]);
-
+	// Update sliced items when page changes
 	useEffect(() => {
-		const newItems = items.slice(0, defaultItemsPerPage * page);
-		if (items.length > newItems.length) {
-			setSlicedItems((prevItems) => (prevItems.length === newItems.length ? prevItems : newItems));
+		if (!enabled || !isInitialized) return;
+
+		const maxItems = defaultItemsPerPage * page;
+		const newItems = items.slice(0, maxItems);
+
+		// Only update if we actually have more items to show
+		if (newItems.length > slicedItems.length && newItems.length <= items.length) {
+			setSlicedItems(newItems);
 		}
-	}, [page, items, defaultItemsPerPage]);
+	}, [page, items, defaultItemsPerPage, enabled, isInitialized, slicedItems.length]);
 
 	return {
 		slicedItems: enabled ? slicedItems : items,

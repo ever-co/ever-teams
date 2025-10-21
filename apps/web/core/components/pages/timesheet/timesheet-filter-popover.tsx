@@ -1,5 +1,4 @@
 import React from 'react';
-import { useOrganizationProjects, useOrganizationTeams, useTeamTasks } from '@/core/hooks';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { SettingFilterIcon } from '@/assets/svg';
@@ -9,13 +8,17 @@ import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { cn } from '@/core/lib/helpers';
 import { statusTable } from '../../timesheet/timesheet-action';
 import { MultiSelect } from '../../common/multi-select';
+import { useAtomValue } from 'jotai';
+import { activeTeamState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
 
 export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover() {
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
-	const { activeTeam } = useOrganizationTeams();
-	const { organizationProjects } = useOrganizationProjects();
 
-	const { tasks } = useTeamTasks();
+	const activeTeam = useAtomValue(activeTeamState);
+
+	const organizationProjects = useAtomValue(organizationProjectsState);
+	const tasks = useAtomValue(tasksByTeamState);
+
 	const t = useTranslations();
 	const { setEmployeeState, setProjectState, setStatusState, setTaskState, employee, project, statusState, task } =
 		useTimelogFilterOptions();
@@ -142,7 +145,6 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 									</label>
 									<MultiSelect
 										localStorageKey="timesheet-select-filter-employee"
-										removeItems={shouldRemoveItems}
 										items={activeTeam?.members ?? []}
 										itemToString={(members) => (members ? members?.employee?.fullName || '' : '')}
 										itemId={(item) => item.id}
@@ -166,7 +168,6 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								</label>
 								<MultiSelect
 									localStorageKey="timesheet-select-filter-projects"
-									removeItems={shouldRemoveItems}
 									items={organizationProjects ?? []}
 									itemToString={(project) =>
 										(organizationProjects && project ? project.name : '') || ''
@@ -191,7 +192,6 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								</label>
 								<MultiSelect
 									localStorageKey="timesheet-select-filter-task"
-									removeItems={shouldRemoveItems}
 									items={tasks}
 									onValueChange={(selectedItems) => setTaskState(selectedItems as any)}
 									itemId={(task) => (task ? task.id : '')}
@@ -214,7 +214,6 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								</label>
 								<MultiSelect
 									localStorageKey="timesheet-select-filter-status"
-									removeItems={shouldRemoveItems}
 									items={statusTable?.flat()}
 									itemToString={(status) => (status ? status.label : '')}
 									itemId={(item) => item.label}

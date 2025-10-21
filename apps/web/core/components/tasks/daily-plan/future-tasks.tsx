@@ -1,68 +1,61 @@
-import { formatDayPlanDate, handleDragAndDrop, tomorrowDate } from '@/core/lib/helpers/index';
+import { formatDayPlanDate, tomorrowDate } from '@/core/lib/helpers/index';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
-import { TaskCard } from '../task-card';
-import { Button } from '@/core/components/duplicated-components/_button';
-import { useCanSeeActivityScreen, useDailyPlan } from '@/core/hooks';
-import { ReloadIcon } from '@radix-ui/react-icons';
+
+import { LazyTaskCard } from '@/core/components/optimized-components';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
-import { AlertPopup } from '@/core/components';
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
-import { TDailyPlan, TUser } from '@/core/types/schemas';
+import { TUser } from '@/core/types/schemas';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
-import { IEmployee } from '@/core/types/interfaces/organization/employee';
+import { useDailyPlan } from '@/core/hooks';
 
 export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
-	const { deleteDailyPlan, deleteDailyPlanLoading, futurePlans } = useDailyPlan();
-	const canSeeActivity = useCanSeeActivityScreen();
-	const [popupOpen, setPopupOpen] = useState(false);
-
-	const [currentDeleteIndex, setCurrentDeleteIndex] = useState(0);
+	const targetEmployeeId = user?.employee?.id ?? user?.employeeId ?? '';
+	const { futurePlans } = useDailyPlan(targetEmployeeId);
 	// Use a safe default instead of direct localStorage access
-	const { setDate, date } = useDateRange('Future Tasks');
-	const [futureDailyPlanTasks, setFutureDailyPlanTasks] = useState<TDailyPlan[]>(futurePlans);
-	useEffect(() => {
-		setFutureDailyPlanTasks(filterDailyPlan(date as any, futurePlans));
-	}, [date, setDate, futurePlans]);
+	const { date } = useDateRange('Future Tasks');
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 
-	useEffect(() => {
-		let filteredData = futurePlans;
+	// Use useMemo instead of useEffect to prevent infinite re-render loop
+	// The previous useEffect was modifying futureDailyPlanTasks while depending on futurePlans, causing infinite loop
+	const futureDailyPlanTasks = useMemo(() => {
+		// First apply date filtering
+		let filteredData = filterDailyPlan(date as any, futurePlans);
 
-		// Filter tasks for specific user if provided
+		// Then filter tasks for specific user if provided
 		if (user) {
 			filteredData = filteredData
 				.map((plan) => ({
 					...plan,
-					tasks: plan.tasks?.filter((task) =>
-						task.members?.some((member: IEmployee) => member.userId === user.id)
-					)
+					tasks: plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
 				}))
 				.filter((plan) => plan.tasks && plan.tasks.length > 0);
-
-			setFutureDailyPlanTasks(filterDailyPlan(date as any, filteredData));
 		}
-	}, [date, futurePlans, user]);
+
+		return filteredData;
+	}, [date, futurePlans, user?.id]); // Use user.id instead of user object for stable dependency
 
 	return (
 		<div className="flex flex-col gap-6">
 			{futureDailyPlanTasks?.length > 0 ? (
 				<DragDropContext
-					onDragEnd={(result) => handleDragAndDrop(result, futureDailyPlanTasks, setFutureDailyPlanTasks)}
+					onDragEnd={() => {
+						/* TODO: Implement drag and drop for filtered plans */
+					}}
 				>
 					<Accordion
 						type="multiple"
 						className="text-sm"
 						defaultValue={[tomorrowDate.toISOString().split('T')[0]]}
 					>
-						{futureDailyPlanTasks.map((plan, index) => (
+						{futureDailyPlanTasks.map((plan) => (
 							<AccordionItem
 								value={plan.date.toString().split('T')[0]}
 								key={plan.id}
@@ -76,7 +69,7 @@ export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 										<HorizontalSeparator />
 									</div>
 								</AccordionTrigger>
-								<AccordionContent className="border-none dark:bg-dark--theme">
+								<AccordionContent className="border-none bg-gray-100 dark:bg-dark--theme !px-4 !py-4 rounded-xl">
 									<PlanHeader plan={plan} planMode="Future Tasks" />
 									{view === 'TABLE' ? (
 										<DailyPlanTasksTableView
@@ -85,16 +78,22 @@ export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 											data={plan.tasks ?? []}
 										/>
 									) : (
-										<Droppable droppableId={plan.id as string} key={plan.id} type="task">
-											{(provided) => (
+										<Droppable
+											droppableId={plan.id as string}
+											key={plan.id}
+											type="task"
+											direction={view === 'CARDS' ? 'vertical' : 'horizontal'}
+										>
+											{(provided, snapshot) => (
 												<ul
 													ref={provided.innerRef}
 													{...provided.droppableProps}
 													className={clsxm(
-														'flex-wrap',
+														'flex-wrap border border-transparent',
 														view === 'CARDS' && 'flex-col',
-														'flex gap-2 pb-[1.5rem]',
-														view === 'BLOCKS' && 'overflow-x-auto'
+														'flex gap-2 pb-[1.5rem] flex-wrap',
+														view === 'BLOCKS' && 'overflow-x-auto',
+														snapshot.isDraggingOver ? 'bg-[lightblue]' : 'bg-transparent'
 													)}
 												>
 													{plan.tasks?.map((task, index) =>
@@ -114,7 +113,7 @@ export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 																			marginBottom: 4
 																		}}
 																	>
-																		<TaskCard
+																		<LazyTaskCard
 																			key={`${task.id}${plan.id}`}
 																			isAuthUser={true}
 																			activeAuthTask={true}
@@ -126,6 +125,7 @@ export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 																			taskTitleClassName="mt-[0.0625rem]"
 																			plan={plan}
 																			planMode="Future Tasks"
+																			taskContentClassName="!w-72 !max-w-80" // UX: consistent card width across all tabs
 																			className="shadow-[0px_0px_15px_0px_#e2e8f0]"
 																		/>
 																	</div>
@@ -154,51 +154,14 @@ export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 														)
 													)}
 													<>{provided.placeholder as React.ReactElement}</>
-													{canSeeActivity ? (
-														<div className="flex justify-end shrink-0">
-															<AlertPopup
-																open={currentDeleteIndex === index && popupOpen}
-																buttonOpen={
-																	//button open popup
-																	<Button
-																		onClick={() => {
-																			setPopupOpen((prev) => !prev);
-																			setCurrentDeleteIndex(index);
-																		}}
-																		variant="outline"
-																		className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
-																	>
-																		Delete this plan
-																	</Button>
-																}
-															>
-																{/*button confirm*/}
-																<Button
-																	disabled={deleteDailyPlanLoading}
-																	onClick={() => {
-																		deleteDailyPlan(plan.id ?? '');
-																	}}
-																	variant="destructive"
-																	className="flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
-																>
-																	{deleteDailyPlanLoading && (
-																		<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
-																	)}
-																	Delete
-																</Button>
-																{/*button cancel*/}
-																<Button
-																	onClick={() => setPopupOpen(false)}
-																	variant="outline"
-																	className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
-																>
-																	Cancel
-																</Button>
-															</AlertPopup>
-														</div>
-													) : (
-														<></>
-													)}
+													{/*
+													 * DELETE PLAN BUTTON MOVED TO PLAN HEADER
+													 *
+													 * The delete functionality for Future Tasks has been moved to
+													 * the PlanHeader component to maintain consistency with the
+													 * requested UX where the button appears at the header level
+													 * with justify-between layout.
+													 */}
 												</ul>
 											)}
 										</Droppable>

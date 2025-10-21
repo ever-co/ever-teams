@@ -1,7 +1,8 @@
 import { DISABLE_AUTO_REFRESH } from '@/core/constants/config/constants';
 
-import { useTimeLogs } from '@/core/hooks/activities/use-time-logs';
-import { publicState, userState } from '@/core/stores';
+import { useTimeLogsDailyReport } from '@/core/hooks/activities/time-logs/use-time-logs-daily-report';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { publicState } from '@/core/stores';
 // import { useSyncLanguage } from 'ni18n';
 import { useEffect, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
@@ -16,7 +17,7 @@ import {
 	useEmployee
 } from '@/core/hooks/organizations';
 import { useWorkspaces, useCurrentOrg } from '@/core/hooks/auth';
-import { useRoles } from '@/core/hooks/roles';
+import { useRolePermissions, useRoles } from '@/core/hooks/roles';
 import {
 	useTaskStatistics,
 	useAutoAssignTask,
@@ -28,9 +29,12 @@ import {
 	useIssueType,
 	useTaskRelatedIssueType
 } from '@/core/hooks/tasks';
+import { useTimeLogs } from '@/core/hooks/activities/time-logs/use-time-logs';
+import { useGetCurrentOrganization } from '@/core/hooks/auth/use-current-organization';
+import { useCurrencies } from '@/core/hooks/common/use-currencies';
 
 export function AppState() {
-	const user = useAtomValue(userState);
+	const { data: user } = useUserQuery();
 
 	// const { currentLanguage } = useLanguage();
 	// useSyncLanguage(currentLanguage);
@@ -49,6 +53,8 @@ function InitState() {
 	const { firstLoadData: firstLoadAutoAssignTask } = useAutoAssignTask();
 	const { firstLoadRolesData } = useRoles();
 	const { firstLoadTaskStatusesData, loadTaskStatuses: loadTaskStatusesData } = useTaskStatus();
+	const { firstLoadMyRolePermissionsData } = useRolePermissions();
+	const { firstLoadCurrenciesData } = useCurrencies();
 
 	// Load workspaces data on app initialization
 	const { firstLoadWorkspacesData } = useWorkspaces();
@@ -64,9 +70,15 @@ function InitState() {
 	const { firstLoadTaskRelatedIssueTypeData, loadTaskRelatedIssueTypeData } = useTaskRelatedIssueType();
 
 	const { firstLoadDailyPlanData, loadAllDayPlans, loadMyDailyPlans, loadEmployeeDayPlans } = useDailyPlan();
-	const { firstLoadTimeLogs } = useTimeLogs();
 
 	const { firstLoadDataEmployee } = useEmployee();
+
+	// Load time logs / daily report for the current year (global state)
+	useTimeLogsDailyReport();
+	// Load time logs for the current year (global state)
+	useTimeLogs();
+	// Load current organization
+	useGetCurrentOrganization();
 
 	useOneTimeLoad(() => {
 		//To be called once, at the top level component (e.g main.tsx | _app.tsx);
@@ -91,9 +103,10 @@ function InitState() {
 		firstLoadIssueTypeData();
 		firstLoadTaskRelatedIssueTypeData();
 		firstLoadDailyPlanData();
-		firstLoadTimeLogs();
 		firstLoadDataEmployee();
 		firstLoadRolesData();
+		firstLoadMyRolePermissionsData();
+		firstLoadCurrenciesData();
 		// --------------
 
 		getTimerStatus();
@@ -133,7 +146,6 @@ function InitState() {
 		const five_minutes = 1000 * 60 * 5; // in milliseconds
 		const one_minute = 1000 * 60; // in milliseconds
 
-		// eslint-disable-next-line react/no-unstable-nested-components
 		const Component = () => {
 			useSyncTimer();
 

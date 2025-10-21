@@ -1,22 +1,34 @@
-import { publicActiveTeamState } from '@/core/stores';
+import {
+	publicActiveTeamState,
+	activeTeamState,
+	taskLabelsListState,
+	taskPrioritiesListState,
+	taskSizesListState,
+	taskStatusesState,
+	teamTasksState,
+	organizationTeamsState
+} from '@/core/stores';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useAtom } from 'jotai';
-import { useTeamTasks } from './use-team-tasks';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useOrganizationTeams } from './use-organization-teams';
-import { useTaskLabels, useTaskPriorities, useTaskSizes, useTaskStatus } from '../../tasks';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { publicOrganizationTeamService } from '@/core/services/client/api/organizations';
 
 export function usePublicOrganizationTeams() {
-	const { activeTeam, teams, setTeams, getOrganizationTeamsLoading } = useOrganizationTeams();
-	const { setAllTasks } = useTeamTasks();
-	const { setTaskStatuses } = useTaskStatus();
-	const { setTaskSizes } = useTaskSizes();
-	const { setTaskPriorities } = useTaskPriorities();
-	const { setTaskLabels } = useTaskLabels();
+	const activeTeam = useAtomValue(activeTeamState);
+
+	const [teams, setTeams] = useAtom(organizationTeamsState);
+	const { getOrganizationTeamsLoading } = useOrganizationTeams();
+	const setAllTasks = useSetAtom(teamTasksState);
+	const setTaskStatuses = useSetAtom(taskStatusesState);
+	const setTaskSizes = useSetAtom(taskSizesListState);
+
+	const setTaskPriorities = useSetAtom(taskPrioritiesListState);
+	const setTaskLabels = useSetAtom(taskLabelsListState);
+
 	const [publicTeam, setPublicTeam] = useAtom(publicActiveTeamState);
 
 	// State for query parameters - enables React Query when parameters are set

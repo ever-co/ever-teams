@@ -79,7 +79,7 @@ export const useRequestToJoinTeam = () => {
 	const acceptRejectMutation = useMutation({
 		mutationKey: queryKeys.organizationTeams.requestToJoin.mutations.acceptReject,
 		mutationFn: async ({ id, action }: { id: string; action: ERequestStatus }) => {
-			return await requestToJoinTeamService.acceptRejectRequestToJoin(id, action);
+			return await requestToJoinTeamService.acceptRejectRequestToJoin({ id, action });
 		},
 		onSuccess: () => {
 			// Invalidate and refetch request list

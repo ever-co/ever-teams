@@ -103,7 +103,7 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: Reado
 				<div className="mt-5"></div>
 				<TableBody
 					className={cn(
-						'overflow-y-auto h-40 divide-y divide-gray-200 bg-light--theme-light dark:bg-dark--theme-light'
+						'overflow-y-auto divide-y divide-gray-200 min-h-28 bg-light--theme-light dark:bg-dark--theme-light'
 					)}
 				>
 					{table.getRowModel().rows?.length ? (

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
@@ -41,7 +40,6 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 }: PropsWithChildren<{
 	value: T | undefined;
 	values?: NonNullable<T['name']>[];
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	onChange?(value: string[]): void;
 	items: T[];
 	className?: string;
@@ -117,7 +115,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 	const renderItem = (item: T, isSelected: boolean) => {
 		const item_value = item.value || item.name;
 		return (
-			<div className="relative w-full cursor-pointer outline-none">
+			<div className="relative w-full outline-none cursor-pointer">
 				<TaskStatus
 					showIcon={showIcon}
 					{...item}
@@ -132,7 +130,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 				/>
 				{isSelected && issueType !== 'issue' && (
 					<button
-						onClick={(e: any) => {
+						onClick={(e) => {
 							e.stopPropagation();
 
 							if (onChange && item_value) {
@@ -151,7 +149,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 		);
 	};
 
-	const handleChange = (selectedValue: any) => {
+	const handleChange = (selectedValue: string[] | string) => {
 		if (!onChange) return;
 		if (Array.isArray(selectedValue)) {
 			onChange(selectedValue);

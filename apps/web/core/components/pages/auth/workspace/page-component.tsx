@@ -16,7 +16,7 @@ export default function SocialLoginChooseWorspace() {
 	const t = useTranslations();
 	return (
 		<AuthLayout title={t('pages.authLogin.HEADING_TITLE')} description={'Choose your workspace'}>
-			<div className="w-[98%] md:w-[550px] overflow-x-hidden overflow-clip">
+			<div className="w-full overflow-x-hidden overflow-clip">
 				<div className={clsxm('flex flex-row transition-[transform] duration-500')}>
 					<WorkSpaceScreen />
 				</div>

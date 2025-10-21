@@ -8,6 +8,8 @@ import { AxiosError, isAxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
+import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
 
 type AuthCodeRef = {
 	focus: () => void;
@@ -79,6 +81,12 @@ export function useAuthenticationPassword() {
 				} else {
 					setErrors(err.errors || {});
 				}
+
+				if (err instanceof ApiErrorService) {
+					if (err.statusCode.toString().startsWith('4')) {
+						setErrors({ loginFailed: 'Incorrect email address or password' });
+					}
+				}
 			});
 	};
 
@@ -123,18 +131,12 @@ export function useAuthenticationPassword() {
 		});
 	};
 
-	const getLastTeamIdWithRecentLogout = useCallback(() => {
+	const getLastTeamIdWithRecentLogout = useCallback((): string | null => {
 		if (workspaces.length === 0) {
 			throw new Error('No workspaces found');
 		}
-
-		const mostRecentWorkspace = workspaces.reduce((prev, current) => {
-			const prevDate = new Date(prev.user.lastLoginAt ?? '');
-			const currentDate = new Date(current.user.lastLoginAt ?? '');
-			return currentDate > prevDate ? current : prev;
-		});
-
-		return mostRecentWorkspace.user.lastTeamId;
+		const mostRecentWorkspace = findMostRecentWorkspace(workspaces);
+		return mostRecentWorkspace.user.lastTeamId ?? null;
 	}, [workspaces]);
 
 	return {

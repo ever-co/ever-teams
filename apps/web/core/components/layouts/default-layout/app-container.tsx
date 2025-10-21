@@ -3,10 +3,11 @@ import { ToastMessageManager } from '@/core/components/common/toaster';
 import { Meta } from '@/core/components/common/meta';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
+import { APP_NAME } from '@/core/constants/config/constants';
 interface AppContainerProps extends PropsWithChildren {
 	title?: string;
 }
-const AppContainer: FC<AppContainerProps> = ({ children, title = 'Ever Teams' }) => {
+const AppContainer: FC<AppContainerProps> = ({ children, title = APP_NAME }) => {
 	const fullWidth = useAtomValue(fullWidthState);
 	return (
 		<>

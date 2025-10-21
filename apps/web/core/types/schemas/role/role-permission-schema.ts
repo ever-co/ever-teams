@@ -1,16 +1,15 @@
 import { z } from 'zod';
-import { idSchema, basePerTenantEntityModelSchema } from '../common/base.schema';
-import { roleSchema } from '@/core/types/schemas/role/role.schema';
+import { uuIdSchema, basePerTenantEntityModelSchema } from '../common/base.schema';
+import { roleZodSchemaType } from '@/core/types/schemas/role/role.schema';
 
 // Role permission schema
-
 export const rolePermissionSchema = z
 	.object({
-		role: roleSchema,
-		roleId: idSchema,
+		role: z.lazy(() => roleZodSchemaType).optional(),
+		roleId: uuIdSchema,
 		permission: z.string(),
 		enabled: z.boolean(),
-		description: z.string()
+		description: z.string().nullable().optional()
 	})
 	.merge(basePerTenantEntityModelSchema)
 	.strict();

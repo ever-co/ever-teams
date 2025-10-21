@@ -27,3 +27,4 @@ export * from './use-sync-ref';
 export * from './use-timezone-settings';
 export * from './use-element-height';
 export * from './use-image-assets';
+export * from './use-cache-invalidation';

@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/alt-text */
 'use client';
 
 import { format } from 'date-fns';
@@ -9,6 +8,7 @@ import {
 	IProjectWithActivity
 } from '@/core/types/interfaces/activity/activity-report';
 import { formatDuration } from './productivity-application-table';
+import { APP_NAME } from '@/core/constants/config/constants';
 
 Font.register({
 	family: 'Helvetica',
@@ -155,7 +155,7 @@ export function ProductivityApplicationPDF({ data = [], title }: ProductivityPDF
 									if (activity?.title) {
 										if (!apps[activity.title]) apps[activity.title] = [];
 										const projectName =
-											projectData.project?.name || activity.project?.name || 'Ever Teams';
+											projectData.project?.name || activity.project?.name || APP_NAME;
 										apps[activity.title].push({
 											date: dayData.date,
 											activity,
@@ -192,8 +192,8 @@ export function ProductivityApplicationPDF({ data = [], title }: ProductivityPDF
 				</View>
 				<View style={styles.table}>
 					<TableHeader />
-					{Object.entries(groupedByApp).map(([appName, activities]) => (
-						<View key={appName}>
+					{Object.entries(groupedByApp).map(([appName, activities], index) => (
+						<View key={`${appName}-${index}`}>
 							<View style={styles.appHeader}>
 								<Text>{appName}</Text>
 							</View>

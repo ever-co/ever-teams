@@ -293,7 +293,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		projectIds?: string[] | undefined;
 		employeeIds?: string[] | undefined;
 		taskIds?: string[] | undefined;
-		status?: string[] | undefined;
+		status?: ETimesheetStatus[] | undefined;
 	} | null>(null);
 
 	// React Query for timesheet logs
@@ -312,8 +312,8 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			if (!timesheetParams) {
 				throw new Error('Timesheet query parameters are required');
 			}
-			const response = await timeLogService.getTaskTimesheetLogs(timesheetParams);
-			return response.data as unknown as ITimeLog[];
+			const response = await timeLogService.getTimeLogs(timesheetParams);
+			return response as unknown as ITimeLog[];
 		},
 		enabled: !!timesheetParams && !!timesheetParams.startDate && !!timesheetParams.endDate,
 		staleTime: 1000 * 60 * 3, // 3 minutes - timesheet data changes moderately
@@ -327,8 +327,6 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 				throw new Error('User not authenticated');
 			}
 			return await timeLogService.deleteTaskTimesheetLogs({
-				organizationId: user.employee?.organizationId || '',
-				tenantId: user.tenantId ?? '',
 				logIds
 			});
 		},
@@ -416,7 +414,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			employeeIds: memoizedFilterIds.employeeIds,
 			projectIds: memoizedFilterIds.projectIds,
 			taskIds: memoizedFilterIds.taskIds,
-			status: memoizedFilterIds.status
+			status: memoizedFilterIds.status as ETimesheetStatus[]
 		};
 
 		// Deep comparison to prevent unnecessary updates and infinite API calls
@@ -435,12 +433,6 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 			filtersChanged;
 
 		if (paramsChanged) {
-			console.log('🔄 Timesheet params updated:', {
-				dateChanged: !timesheetParams || timesheetParams.startDate !== from || timesheetParams.endDate !== to,
-				filtersChanged,
-				newParams
-			});
-
 			setTimesheetParams(newParams);
 			prevFilterIdsRef.current = memoizedFilterIds;
 		}
@@ -454,7 +446,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 		timesheetParams // Current params for comparison
 	]);
 
-	// Fixed: Sync React Query data with Jotai state (removed problematic condition)
+	// Sync React Query data with Jotai state (removed problematic condition)
 	useConditionalUpdateEffect(
 		() => {
 			if (timesheetLogsQuery.data) {
@@ -533,7 +525,7 @@ export function useTimesheet({ startDate, endDate, timesheetViewMode, inputSearc
 					employeeIds: memoizedFilterIds.employeeIds,
 					projectIds: memoizedFilterIds.projectIds,
 					taskIds: memoizedFilterIds.taskIds,
-					status: memoizedFilterIds.status
+					status: memoizedFilterIds.status as ETimesheetStatus[]
 				};
 
 				// React Query will automatically refetch when queryKey changes (no manual refetch needed)

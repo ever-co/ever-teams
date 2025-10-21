@@ -3,40 +3,22 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/common/table';
-import { PaginationDropdown } from '@/core/components/settings/page-dropdown';
 import { format } from 'date-fns';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Fragment, useState } from 'react';
 import { SortPopover } from '@/core/components/common/sort-popover';
 import { ChartIcon } from '../../../common/team-icon';
-import dynamic from 'next/dynamic';
+// Import optimized components from centralized location
+import { LazyActivityModal } from '@/core/components/optimized-components/dashboard';
+import { LazyAnimatedEmptyState } from '@/core/components/optimized-components/common';
 import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
-
-const LazyActivityModal = dynamic(() => import('../activity-modal').then((mod) => ({ default: mod.ActivityModal })), {
-	ssr: false
-	// Note: No loading property for conditional components
-});
-import { useModal } from '@/core/hooks';
+import { useModal, usePagination } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { useSortableData } from '@/core/hooks/common/use-sortable-data';
 import { Skeleton } from '@/core/components/common/skeleton';
 import { Card } from '@/core/components/common/card';
-// Lazy load AnimatedEmptyState for performance optimization
-const LazyAnimatedEmptyState = dynamic(
-	() => import('@/core/components/common/empty-state').then((mod) => ({ default: mod.AnimatedEmptyState })),
-	{
-		ssr: false,
-		loading: () => (
-			<div className="grow w-full min-h-[600px] flex items-center justify-center flex-col">
-				<div className="w-32 h-32 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full mb-4" />
-				<div className="w-48 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-2" />
-				<div className="w-64 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-			</div>
-		)
-	}
-);
 import { ITimerEmployeeLog, ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
+import { Paginate } from '@/core/components/duplicated-components/_pagination';
 
 const getProgressColor = (activityLevel: number) => {
 	if (isNaN(activityLevel) || activityLevel < 0) return 'bg-gray-300';
@@ -69,11 +51,7 @@ export function TeamStatsTable({
 }) {
 	const t = useTranslations();
 	const [employeeLog, setEmployeeLog] = useState<ITimerEmployeeLog | undefined>(undefined);
-	const [currentPage, setCurrentPage] = useState(1);
-	const [pageSize, setPageSize] = useState(10);
-	const totalPages = rapportDailyActivity ? Math.ceil(rapportDailyActivity.length / pageSize) : 0;
-	const startIndex = (currentPage - 1) * pageSize;
-	const endIndex = startIndex + pageSize;
+
 	const { openModal, closeModal, isOpen } = useModal();
 
 	const getEmployeeLog = (data: ITimeLogGroupedDailyReport): ITimerEmployeeLog | undefined => {
@@ -135,18 +113,9 @@ export function TeamStatsTable({
 		}
 	};
 
-	const { items: sortedData, sortConfig, requestSort } = useSortableData(rapportDailyActivity || [], sortableColumns);
-
-	const paginatedData = sortedData.slice(startIndex, endIndex);
-
-	const goToPage = (page: number) => {
-		setCurrentPage(page);
-	};
-
-	const goToFirstPage = () => goToPage(1);
-	const goToLastPage = () => goToPage(totalPages);
-	const goToPreviousPage = () => goToPage(Math.max(1, currentPage - 1));
-	const goToNextPage = () => goToPage(Math.min(totalPages, currentPage + 1));
+	const { items, sortConfig, requestSort } = useSortableData(rapportDailyActivity || [], sortableColumns);
+	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems, pageCount } =
+		usePagination({ items, defaultItemsPerPage: 10 });
 
 	if (isLoading) {
 		return <LoadingTable />;
@@ -247,7 +216,7 @@ export function TeamStatsTable({
 										</TableRow>
 									</TableHeader>
 									<TableBody>
-										{paginatedData?.map((dayData) => (
+										{currentItems?.map((dayData) => (
 											<Fragment key={`date-group-${dayData.date}`}>
 												<TableRow className="bg-gray-50/50 dark:bg-gray-800/50">
 													<TableCell colSpan={9} className="py-3 font-medium">
@@ -342,57 +311,18 @@ export function TeamStatsTable({
 						</div>
 					</div>
 				</div>
-				<div className="flex gap-4 justify-between items-center p-2 sm:flex-row">
-					<div className="flex items-center space-x-2">
-						<Button variant="outline" size="icon" onClick={goToFirstPage} disabled={currentPage === 1}>
-							<ChevronsLeft className="w-4 h-4" />
-						</Button>
-						<Button variant="outline" size="icon" onClick={goToPreviousPage} disabled={currentPage === 1}>
-							<ChevronLeft className="w-4 h-4" />
-						</Button>
-						<div className="flex gap-1 items-center overflow-x-auto max-w-[300px] p-1">
-							{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-								<Button
-									key={page}
-									variant="outline"
-									size="sm"
-									onClick={() => goToPage(page)}
-									className={currentPage === page ? 'bg-primary text-primary-foreground' : ''}
-								>
-									{page}
-								</Button>
-							))}
-						</div>
-						<Button
-							variant="outline"
-							size="icon"
-							onClick={goToNextPage}
-							disabled={currentPage === totalPages}
-						>
-							<ChevronRight className="w-4 h-4" />
-						</Button>
-						<Button
-							variant="outline"
-							size="icon"
-							onClick={goToLastPage}
-							disabled={currentPage === totalPages}
-						>
-							<ChevronsRight className="w-4 h-4" />
-						</Button>
-					</div>
-					<div className="flex gap-4 items-center">
-						<PaginationDropdown
-							setValue={(value) => {
-								setPageSize(value);
-								setCurrentPage(1);
-							}}
-							total={rapportDailyActivity?.length}
-						/>
-						<div className="text-sm text-center text-[#111827] dark:text-gray-400 sm:text-left">
-							Showing {startIndex + 1} to {Math.min(endIndex, rapportDailyActivity?.length || 0)} of{' '}
-							{rapportDailyActivity?.length || 0} entries
-						</div>
-					</div>
+
+				<div className="flex gap-4 justify-between items-center p-2 w-full sm:flex-row">
+					<Paginate
+						total={total}
+						itemsPerPage={itemsPerPage}
+						onPageChange={onPageChange}
+						pageCount={pageCount}
+						itemOffset={itemOffset}
+						endOffset={endOffset}
+						setItemsPerPage={setItemsPerPage}
+						className="px-1 w-full"
+					/>
 				</div>
 			</div>
 		</>

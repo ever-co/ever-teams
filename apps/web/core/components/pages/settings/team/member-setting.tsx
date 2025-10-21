@@ -1,4 +1,4 @@
-import { useAuthenticateUser, useModal, useOrganizationTeams } from '@/core/hooks';
+import { useModal } from '@/core/hooks';
 import { Button, NoData, Text } from '@/core/components';
 import { SearchNormalIcon } from 'assets/svg';
 import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
@@ -6,14 +6,17 @@ import { ChangeEvent, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { MemberTable } from '../../../teams/member-table';
 import { InputField } from '@/core/components/duplicated-components/_input';
+import { activeTeamState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 export const MemberSetting = () => {
 	const t = useTranslations();
 
-	const { activeTeam } = useOrganizationTeams();
+	const activeTeam = useAtomValue(activeTeamState);
 	const [filterString, setFilterString] = useState<string>('');
 
-	const { user } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
 	const { isOpen, closeModal } = useModal();
 
 	const members = useMemo(() => {
@@ -28,10 +31,10 @@ export const MemberSetting = () => {
 
 	return (
 		<div className="flex flex-col">
-			<Text className="flex-none flex-grow-0 w-full md:w-1/5 mt-8 mb-2 text-xl font-normal text-gray-400">
+			<Text className="flex-none flex-grow-0 mt-8 mb-2 w-full text-xl font-normal text-gray-400 md:w-1/5">
 				{t('pages.settingsTeam.MEMBER_AND_ROLES')}
 			</Text>
-			<div className="flex items-center justify-between w-full mt-8">
+			<div className="flex justify-between items-center mt-8 w-full">
 				<div className="w-auto">
 					<InputField
 						type="text"
@@ -50,7 +53,7 @@ export const MemberSetting = () => {
 			</div>
 
 			{members.length > 0 ? (
-				<div className="mb-8 mt-7 ">
+				<div className="mt-7 mb-8">
 					<MemberTable members={members as any} />
 				</div>
 			) : (
@@ -65,21 +68,21 @@ export const MemberSetting = () => {
 						<Text className="flex-none font-normal text-[#7E7991] flex-grow-0 text-lg md-2 w-auto dark:text-white">
 							{t('pages.settingsTeam.POSITION_CUSTOM')}
 						</Text>
-						<div className="flex flex-row items-center justify-between flex-grow-0 w-auto">
+						<div className="flex flex-row flex-grow-0 justify-between items-center w-auto">
 							<MemberInfo />
 						</div>
 					</div>
 					<ChooseDropdown setValue={() => console.log('')} />
 				</div>
-				<div className="flex items-center justify-between w-full gap-12">
+				<div className="flex gap-12 justify-between items-center w-full">
 					<Text className="flex-none font-normal text-[#7E7991] flex-grow-0 text-lg md-2 w-1/4 dark:text-white">
 						{t('pages.settingsTeam.HIDE_PERSONAL_MEMBERS_INFOTMATION')}
 					</Text>
-					<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
+					<div className="flex flex-row flex-grow-0 justify-between items-center w-4/5">
 						<MemberInfo />
 					</div>
 				</div>
-				<div className="flex items-center justify-between w-full gap-12">
+				<div className="flex gap-12 justify-between items-center w-full">
 					<Text className="flex-none font-normal text-[#7E7991] flex-grow-0 text-lg md-2 w-1/5 dark:text-white">
 						{t('pages.settingsTeam.WORK_SCHEDULE')}
 					</Text>

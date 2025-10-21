@@ -1,14 +1,13 @@
 'use client';
 
-import { useOrganizationTeams, useTeamTasks, useUserProfilePage } from '@/core/hooks';
+import { useTeamTasks, useUserProfilePage } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Button, Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useRouter, useParams } from 'next/navigation';
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import dynamic from 'next/dynamic';
 
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { useAtomValue } from 'jotai';
@@ -18,21 +17,20 @@ import { DocumentMagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { clsxm } from '@/core/lib/utils';
 import Link from 'next/link';
 
-// Lazy load TaskDetailsComponent for better performance
-const LazyTaskDetailsComponent = dynamic(
-	() => import('@/core/components/pages/task/task-details').then((mod) => ({ default: mod.TaskDetailsComponent })),
-	{
-		ssr: false
-	}
-);
+// Import optimized components from centralized location
+import { LazyTaskDetailsComponent } from '@/core/components/optimized-components';
+import { activeTeamState, detailedTaskState, isTrackingEnabledState } from '@/core/stores';
 
 const TaskDetails = () => {
 	const profile = useUserProfilePage();
 	const t = useTranslations();
 	const router = useRouter();
 	const params = useParams();
-	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
-	const { getTaskById, detailedTask: task, getTasksByIdLoading } = useTeamTasks();
+
+	const activeTeam = useAtomValue(activeTeamState);
+	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
+	const detailedTask = useAtomValue(detailedTaskState);
+	const { getTaskById, getTasksByIdLoading } = useTeamTasks();
 	const fullWidth = useAtomValue(fullWidthState);
 
 	// State to track if we've already tried to load the task
@@ -54,28 +52,24 @@ const TaskDetails = () => {
 			// If id is passed in query param
 			id &&
 			// Either no task or task id doesn't match query id
-			(!task || (task && task.id !== id)) &&
+			(!detailedTask || (detailedTask && detailedTask.id !== id)) &&
 			!getTasksByIdLoading
 		) {
 			getTaskById(id as string);
 			setHasAttemptedLoad(true);
 		}
-	}, [getTaskById, router, task, getTasksByIdLoading, id]);
+	}, [getTaskById, router, detailedTask, getTasksByIdLoading, id]);
 
 	// Optimized render logic
 	const renderContent = useMemo(() => {
 		// If we're loading or haven't tried to load yet
-		if (getTasksByIdLoading || !hasAttemptedLoad) {
+		if ((getTasksByIdLoading || !hasAttemptedLoad) && !detailedTask) {
 			return <TaskDetailsPageSkeleton />;
 		}
 
 		// If we've finished loading and have a task
-		if (task) {
-			return (
-				<Suspense fallback={<TaskDetailsPageSkeleton />}>
-					<LazyTaskDetailsComponent task={task} />
-				</Suspense>
-			);
+		if (detailedTask) {
+			return <LazyTaskDetailsComponent task={detailedTask} />;
 		}
 
 		// If we've finished loading and don't have a task (after trying)
@@ -102,7 +96,7 @@ const TaskDetails = () => {
 				</div>
 			</div>
 		);
-	}, [getTasksByIdLoading, hasAttemptedLoad, task]);
+	}, [getTasksByIdLoading, hasAttemptedLoad, detailedTask]);
 
 	return (
 		<MainLayout

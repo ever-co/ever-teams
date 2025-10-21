@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useAuthenticateUser, useModal, useOrganizationEmployeeTeams, useOrganizationTeams } from '@/core/hooks';
-import { activeTeamManagersState } from '@/core/stores';
+import { useIsMemberManager, useModal, useOrganizationEmployeeTeams, useOrganizationTeams } from '@/core/hooks';
+import { activeTeamManagersState, activeTeamState } from '@/core/stores';
 import { Button, Text } from '@/core/components';
 import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -8,6 +8,7 @@ import { useAtomValue } from 'jotai';
 import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { RemoveModal } from '@/core/components/settings/remove-modal';
 import { TransferTeamModal } from '@/core/components/features/teams/transfer-team-modal';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 export const DangerZoneTeam = () => {
 	const t = useTranslations();
@@ -15,9 +16,12 @@ export const DangerZoneTeam = () => {
 	const { isOpen: dangerIsOpen, closeModal: dangerCloseModal, openModal: dangerOpenaModal } = useModal();
 	const [removeModalType, setRemoveModalType] = useState<'DISPOSE' | 'QUIT' | null>(null);
 
-	const { activeTeam, deleteOrganizationTeam, deleteOrganizationTeamLoading } = useOrganizationTeams();
+	const activeTeam = useAtomValue(activeTeamState);
+	const { deleteOrganizationTeam, deleteOrganizationTeamLoading } = useOrganizationTeams();
 	const { deleteOrganizationTeamEmployee, deleteOrganizationEmployeeTeamLoading } = useOrganizationEmployeeTeams();
-	const { user, isTeamManager } = useAuthenticateUser();
+	const { data: user } = useUserQuery();
+
+	const { isTeamManager } = useIsMemberManager(user);
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 
 	const handleDisposeTeam = useCallback(() => {
@@ -37,9 +41,7 @@ export const DangerZoneTeam = () => {
 				// Remove from Team API call
 				return deleteOrganizationTeamEmployee({
 					id: currentEmployeeDetails.id,
-					employeeId: currentEmployeeDetails.employeeId || '',
-					organizationId: activeTeam.organizationId || '',
-					tenantId: activeTeam.tenantId || ''
+					employeeId: currentEmployeeDetails.employeeId || ''
 				});
 			}
 		}
@@ -48,11 +50,11 @@ export const DangerZoneTeam = () => {
 
 	return (
 		<>
-			<div className="flex flex-col items-center justify-between">
-				<div className="w-full mt-5">
+			<div className="flex flex-col justify-between items-center">
+				<div className="mt-5 w-full">
 					<div className="">
 						{/* Current User is the Manager of the Team and there are more that 1 Managers */}
-						<div className="flex flex-col items-center justify-center w-full gap-6 sm:justify-between sm:flex-row">
+						<div className="flex flex-col gap-6 justify-center items-center w-full sm:justify-between sm:flex-row">
 							<div className="flex-auto md:w-64">
 								<Text className="text-xl font-normal">{t('common.TRANSFERT_OWNERSHIP')}</Text>
 							</div>
@@ -75,7 +77,7 @@ export const DangerZoneTeam = () => {
 						</div>
 
 						{/* Current User is the Only Manager of the Team*/}
-						<div className="flex flex-col items-center justify-center w-full gap-6 mt-5 sm:justify-between sm:flex-row">
+						<div className="flex flex-col gap-6 justify-center items-center mt-5 w-full sm:justify-between sm:flex-row">
 							<div className="flex-auto md:w-64">
 								<Text className="text-xl font-normal text-center sm:text-left">
 									{t('common.REMOVE_TEAM')}
@@ -102,7 +104,7 @@ export const DangerZoneTeam = () => {
 							</div>
 						</div>
 
-						<div className="flex flex-col items-center justify-center w-full gap-6 mt-5 sm:justify-between sm:flex-row">
+						<div className="flex flex-col gap-6 justify-center items-center mt-5 w-full sm:justify-between sm:flex-row">
 							<div className="flex-auto md:w-64">
 								<Text className="text-xl font-normal text-center sm:text-left">
 									{t('common.QUIT_TEAM')}

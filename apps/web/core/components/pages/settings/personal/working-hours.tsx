@@ -1,6 +1,7 @@
 import React from 'react';
 import { TimePicker } from '@/core/components/common/time-picker';
 import { TimezoneDropDown } from '../../../settings/timezone-dropdown';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import {
 	getActiveLanguageIdCookie,
 	getActiveTimezoneIdCookie,
@@ -8,8 +9,6 @@ import {
 	userTimezone
 } from '@/core/lib/helpers/index';
 import { useForm } from 'react-hook-form';
-import { useAtom } from 'jotai';
-import { userState } from '@/core/stores';
 
 import { useTranslations } from 'next-intl';
 
@@ -30,7 +29,7 @@ interface WorkScheduleProps {
 
 export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) => {
 	const [currentTimezone, setCurrentTimezone] = React.useState('');
-	const [user] = useAtom(userState);
+	const { data: user } = useUserQuery();
 	const t = useTranslations();
 	const { setValue } = useForm();
 
@@ -134,7 +133,7 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 	};
 
 	return (
-		<div className="p-6 bg-white dark:bg-dark--theme-light rounded-lg shadow-sm">
+		<div className="p-6 bg-white rounded-lg shadow-sm dark:bg-dark--theme-light">
 			<div className="space-y-2">
 				<div className="flex items-center mb-6">
 					<p className="w-40 text-base font-medium text-gray-700 dark:text-gray-300">
@@ -176,7 +175,7 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 										onChange={(value) => handleTimeChange(dayIndex, slotIndex, 'startTime', value)}
 										className="w-[100px] text-sm bg-white dark:bg-gray-700/50 dark:text-gray-300 rounded-md"
 									/>
-									<span className="text-gray-400 dark:text-gray-500 mx-1">-</span>
+									<span className="mx-1 text-gray-400 dark:text-gray-500">-</span>
 									<TimePicker
 										value={timeSlot.endTime}
 										onChange={(value) => handleTimeChange(dayIndex, slotIndex, 'endTime', value)}
@@ -185,9 +184,9 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 									{workDay.timeSlots.length > 1 && (
 										<button
 											onClick={() => handleRemoveTimeSlot(dayIndex, slotIndex)}
-											className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100/80 dark:hover:bg-gray-600/30"
+											className="flex justify-center items-center w-7 h-7 text-gray-400 rounded-full hover:text-gray-600 hover:bg-gray-100/80 dark:hover:bg-gray-600/30"
 										>
-											<span className="text-xl leading-none font-medium">×</span>
+											<span className="text-xl font-medium leading-none">×</span>
 										</button>
 									)}
 								</div>

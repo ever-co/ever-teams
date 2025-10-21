@@ -1,47 +1,39 @@
-import qs from 'qs';
-import { APIService, getFallbackAPI } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import qs from 'qs';
+import { APIService, getFallbackAPI } from '../../api.service';
 
-import { TUser } from '@/core/types/schemas';
-import {
-	getActiveTaskIdCookie,
-	getActiveTeamIdCookie,
-	getOrganizationIdCookie,
-	getTenantIdCookie
-} from '@/core/lib/helpers/cookies';
+import { getActiveTaskIdCookie } from '@/core/lib/helpers/cookies';
 import { ITimerStatus, IToggleTimerStatusParams } from '@/core/types/interfaces/timer/timer-status';
+import { TUser } from '@/core/types/schemas';
 
 class TimerService extends APIService {
-	getTimerStatus = async (tenantId: string, organizationId: string) => {
-		const params = qs.stringify({ tenantId, organizationId });
+	getTimerStatus = async () => {
+		const params = qs.stringify({ tenantId: this.tenantId, organizationId: this.organizationId });
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/timesheet/timer/status?${params}` : '/timer/status';
 
 		return this.get<ITimerStatus>(endpoint);
 	};
 
 	toggleTimer = async (body: Pick<IToggleTimerStatusParams, 'taskId'>) => {
-		const organizationId = getOrganizationIdCookie();
-		const tenantId = getTenantIdCookie();
-
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			await this.post('/timesheet/timer/toggle', {
 				source: ETimeLogSource.TEAMS,
 				logType: 'TRACKED',
 				taskId: body.taskId,
-				tenantId,
-				organizationId
+				tenantId: this.tenantId,
+				organizationId: this.organizationId
 			});
 
 			await this.post('/timesheet/timer/stop', {
 				source: ETimeLogSource.TEAMS,
 				logType: 'TRACKED',
 				taskId: body.taskId,
-				tenantId,
-				organizationId
+				tenantId: this.tenantId,
+				organizationId: this.organizationId
 			});
 
-			return this.getTimerStatus(tenantId, organizationId);
+			return this.getTimerStatus();
 		}
 
 		const api = await getFallbackAPI();
@@ -49,32 +41,27 @@ class TimerService extends APIService {
 	};
 
 	startTimer = async () => {
-		const organizationId = getOrganizationIdCookie();
-		const tenantId = getTenantIdCookie();
-		const teamId = getActiveTeamIdCookie();
 		const taskId = getActiveTaskIdCookie();
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			await this.post('/timesheet/timer/start', {
-				tenantId,
-				organizationId,
+				tenantId: this.tenantId,
+				organizationId: this.organizationId,
 				taskId,
 				logType: 'TRACKED',
 				source: ETimeLogSource.TEAMS,
 				tags: [],
-				organizationTeamId: teamId
+				organizationTeamId: this.activeTeamId
 			});
 
-			return this.getTimerStatus(tenantId, organizationId);
+			return this.getTimerStatus();
 		}
 
 		const api = await getFallbackAPI();
 		return api.post<ITimerStatus>('/timer/start');
 	};
 
-	stopTimer = async (source: ETimeLogSource) => {
-		const organizationId = getOrganizationIdCookie();
-		const tenantId = getTenantIdCookie();
+	stopTimer = async ({ source }: { source: ETimeLogSource }) => {
 		const taskId = getActiveTaskIdCookie();
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
@@ -82,11 +69,11 @@ class TimerService extends APIService {
 				source,
 				logType: 'TRACKED',
 				...(taskId ? { taskId } : {}),
-				tenantId,
-				organizationId
+				tenantId: this.tenantId,
+				organizationId: this.organizationId
 			});
 
-			return this.getTimerStatus(tenantId, organizationId);
+			return this.getTimerStatus();
 		}
 
 		const api = await getFallbackAPI();
@@ -95,21 +82,18 @@ class TimerService extends APIService {
 		});
 	};
 
-	syncTimer = async (source: ETimeLogSource, user?: TUser | null) => {
-		const organizationId = getOrganizationIdCookie();
-		const tenantId = getTenantIdCookie();
-
+	syncTimer = async ({ source, user }: { source: ETimeLogSource; user?: TUser | null }) => {
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			await this.post('/timesheet/time-slot', {
-				tenantId,
-				organizationId,
+				tenantId: this.tenantId,
+				organizationId: this.organizationId,
 				logType: 'TRACKED',
 				source,
 				employeeId: user?.employee?.id,
 				duration: 5
 			});
 
-			return this.getTimerStatus(tenantId, organizationId);
+			return this.getTimerStatus();
 		}
 
 		const api = await getFallbackAPI();
@@ -118,30 +102,25 @@ class TimerService extends APIService {
 		});
 	};
 
-	getTaskStatusList = async (
-		tenantId: string,
-		organizationId: string,
-		employeeId: string,
-		organizationTeamId: string | null
-	) => {
+	getTaskStatusList = async ({ employeeId }: { employeeId: string }) => {
 		const params: {
 			tenantId: string;
 			organizationId: string;
 			employeeId: string;
 			organizationTeamId?: string;
 		} = {
-			tenantId,
-			organizationId,
+			tenantId: this.tenantId,
+			organizationId: this.organizationId,
 			employeeId
 		};
-		if (organizationTeamId) params.organizationTeamId = organizationTeamId;
+		if (this.activeTeamId) params.organizationTeamId = this.activeTeamId;
 		const query = qs.stringify(params);
 
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value
 			? `/timesheet/timer/status?${query}`
-			: `/timer/status?tenantId=${tenantId}&organizationId=${organizationId}${organizationTeamId ? `&organizationTeamId=${organizationTeamId}` : ''}&employeeId=${employeeId}`;
+			: `/timer/status?tenantId=${this.tenantId}&organizationId=${this.organizationId}${this.activeTeamId ? `&organizationTeamId=${this.activeTeamId}` : ''}&employeeId=${employeeId}`;
 
-		return this.get<ITimerStatus>(endpoint, { tenantId });
+		return this.get<ITimerStatus>(endpoint, { tenantId: this.tenantId });
 	};
 }
 

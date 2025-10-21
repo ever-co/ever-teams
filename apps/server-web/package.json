@@ -41,8 +41,8 @@
         "electron-debug": "^3.2.0",
         "electron-log": "^4.4.8",
         "electron-updater": "^6.1.4",
-        "react": "^19.1.0",
-        "react-dom": "^19.1.0",
+        "react": "19.1.0",
+        "react-dom": "19.1.0",
         "react-router-dom": "^6.16.0",
         "electron-store": "^8.1.0",
         "i18next-browser-languagedetector": "^7.2.1",
@@ -56,8 +56,8 @@
         "sharp": "^0.33.4"
     },
     "devDependencies": {
-        "electron": "28.3.2",
-        "electron-builder": "^24.6.4",
+        "electron": "35.7.5",
+        "electron-builder": "^26.0.12",
         "@electron/notarize": "^2.1.0",
         "@electron/rebuild": "^3.3.0",
         "@pmmmwh/react-refresh-webpack-plugin": "^0.5.11",
@@ -213,7 +213,6 @@
         },
         "win": {
             "icon": "icon.ico",
-            "publisherName": "Ever",
             "target": [
                 {
                     "target": "nsis",

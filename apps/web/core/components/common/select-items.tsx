@@ -78,11 +78,11 @@ export function SelectItems<T>({
 			</PopoverTrigger>
 			<PopoverContent
 				className={cn(
-					'w-[430px] border border-transparent max-h-[80vh] dark:bg-dark--theme-light',
+					'border border-transparent w-[430px] max-h-[80vh] dark:bg-dark--theme-light',
 					popoverClassName
 				)}
 			>
-				<div className="w-full max-h-[80vh] overflow-auto flex flex-col">
+				<ul className="w-full max-h-[80vh] overflow-auto flex flex-col gap-1.5">
 					{items.map((item: T) => {
 						const key = itemId(item);
 						if (renderItem) {
@@ -90,17 +90,16 @@ export function SelectItems<T>({
 							return React.cloneElement(renderedItem, { key });
 						}
 						return (
-							<span
+							<li
 								onClick={() => onClick(item)}
 								key={key}
-								className="truncate hover:cursor-pointer hover:bg-slate-50 w-full text-[13px] hover:rounded-lg p-1 hover:font-normal dark:text-white dark:hover:bg-primary"
-								style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}
+								className="truncate hover:cursor-pointer hover:bg-slate-50 w-full text-[13px] hover:rounded-lg p-1 hover:font-normal dark:text-white dark:hover:bg-primary whitespace-nowrap text-ellipsis overflow-hidden"
 							>
 								{itemToString(item)}
-							</span>
+							</li>
 						);
 					})}
-				</div>
+				</ul>
 			</PopoverContent>
 		</Popover>
 	);

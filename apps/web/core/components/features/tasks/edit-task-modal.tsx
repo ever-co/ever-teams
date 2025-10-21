@@ -1,11 +1,9 @@
-/* eslint-disable @next/next/no-img-element */
 import { Modal, statusColor } from '@/core/components';
 import { DatePickerFilter } from '../../pages/timesheet/timesheet-filter-date';
 import { FormEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { clsxm } from '@/core/lib/utils';
 import { Item, ManageOrMemberComponent, getNestedValue } from '@/core/components/teams/manage-member-component';
-import { useOrganizationProjects, useOrganizationTeams } from '@/core/hooks';
 import { statusTable } from '../../timesheet/timesheet-action';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { differenceBetweenHours, formatTimeFromDate, secondsToTime, toDate } from '@/core/lib/helpers/index';
@@ -17,6 +15,8 @@ import { Clock7 } from 'lucide-react';
 import { CustomSelect } from '../../common/multiple-select';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { toast } from 'sonner';
+import { useAtomValue } from 'jotai';
+import { activeTeamState, organizationProjectsState } from '@/core/stores';
 
 export interface IEditTaskModalProps {
 	isOpen: boolean;
@@ -24,8 +24,9 @@ export interface IEditTaskModalProps {
 	dataTimesheet: ITimeLog;
 }
 export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskModalProps) {
-	const { organizationProjects } = useOrganizationProjects();
-	const { activeTeam } = useOrganizationTeams();
+	const organizationProjects = useAtomValue(organizationProjectsState);
+
+	const activeTeam = useAtomValue(activeTeamState);
 	const t = useTranslations();
 	const { updateTimesheet, loadingUpdateTimesheet } = useTimesheet({});
 	const initialTimeRange = {
@@ -40,7 +41,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 		dataTimesheet.startedAt && dataTimesheet.stoppedAt
 			? differenceBetweenHours(toDate(dataTimesheet.startedAt), toDate(dataTimesheet.stoppedAt))
 			: 0;
-	const { h: hours, m: minutes } = secondsToTime(seconds);
+	const { hours, minutes } = secondsToTime(seconds);
 
 	const [timeRange, setTimeRange] = useState<{ startTime: string; endTime: string }>(initialTimeRange);
 
@@ -229,7 +230,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 						dash
 						taskNumberClassName="text-sm"
 					/>
-					<div className="flex items-center gap-x-1 ">
+					<div className="flex gap-x-1 items-center">
 						<span className="text-gray-400">for</span>
 						<CustomSelect
 							defaultValue={dataTimesheet.employee?.fullName}
@@ -242,7 +243,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 								setTimesheetData({ ...timesheetData, employeeId: value });
 							}}
 							renderOption={(option) => (
-								<div className="flex items-center gap-x-2">
+								<div className="flex gap-x-2 items-center">
 									<img
 										className="w-6 h-6 rounded-full"
 										src={option.employee.user.imageUrl}
@@ -254,12 +255,12 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 						/>
 					</div>
 				</div>
-				<div className="flex flex-col items-start justify-center gap-4">
+				<div className="flex flex-col gap-4 justify-center items-start">
 					<div>
 						<span className="text-[#282048] dark:text-gray-500 capitalize ">
 							{t('dailyPlan.TASK_TIME')}
 						</span>
-						<div className="flex items-center gap-x-2 ">
+						<div className="flex gap-x-2 items-center">
 							<Clock7 className="text-[#30B366]" />
 							<span>
 								{String(hours).padStart(2, '0')}:{String(minutes).padStart(2, '0')} h
@@ -281,7 +282,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 								max="23:59"
 								pattern="[0-9]{2}:[0-9]{2}"
 								onChange={(e) => updateTime('startTime', e.target.value)}
-								className="w-full p-1 font-normal border rounded-md border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
+								className="p-1 w-full font-normal rounded-md border border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
 								required
 							/>
 						</div>
@@ -298,7 +299,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 								type="time"
 								min={getMinEndTime()}
 								onChange={(e) => updateTime('endTime', e.target.value)}
-								className="w-full p-1 font-normal border rounded-md border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
+								className="p-1 w-full font-normal rounded-md border border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
 								required
 							/>
 						</div>
@@ -319,11 +320,11 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 							itemToValue={itemToValue}
 						/>
 					</div>
-					<div className="flex flex-col items-center ">
+					<div className="flex flex-col items-center">
 						<label className="text-[#282048] dark:text-gray-500   mr-12 capitalize">
 							{t('pages.timesheet.BILLABLE.BILLABLE').toLowerCase()}
 						</label>
-						<div className="flex items-center gap-3">
+						<div className="flex gap-3 items-center">
 							<ToggleButton
 								isActive={timesheetData.isBillable}
 								onClick={() =>
@@ -374,21 +375,21 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 					</div>
 					<div className="w-full border-t border-t-gray-200 dark:border-t-gray-700"></div>
 					<div className="!flex items-center justify-between gap-2 w-full">
-						<div className="flex flex-col items-start justify-center ">
+						<div className="flex flex-col justify-center items-start">
 							<CustomSelect
 								defaultValue={dataTimesheet.timesheet?.status ?? ''}
 								ariaLabel={dataTimesheet.timesheet?.status ?? ''}
 								className="ring-offset-sidebar-primary-foreground w-[150px]"
 								options={statusTable?.flatMap((status) => status.label)}
 								renderOption={(option) => (
-									<div className="flex items-center cursor-pointer gap-x-2">
+									<div className="flex gap-x-2 items-center cursor-pointer">
 										<div className={clsxm('p-2 rounded-full', statusColor(option).bg)}></div>
 										<span className={clsxm('ml-1', statusColor(option).text)}>{option}</span>
 									</div>
 								)}
 							/>
 						</div>
-						<div className="flex items-center justify-end w-full gap-x-2">
+						<div className="flex gap-x-2 justify-end items-center w-full">
 							<button
 								onClick={closeModal}
 								type="button"
@@ -405,7 +406,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 									'bg-primary dark:bg-primary-light h-[2.3rem] w-[5.5rem] justify-center font-normal flex items-center text-white px-2 rounded-lg'
 								)}
 							>
-								{loadingUpdateTimesheet && <ReloadIcon className="w-4 h-4 mr-2 animate-spin" />}
+								{loadingUpdateTimesheet && <ReloadIcon className="mr-2 w-4 h-4 animate-spin" />}
 								{loadingUpdateTimesheet ? 'Processing...' : t('common.SAVE')}
 							</button>
 						</div>
@@ -428,7 +429,7 @@ export const ToggleButton = ({ isActive, onClick, label }: ToggleButtonProps) =>
 		onClick={onClick}
 		aria-pressed={isActive}
 		className={clsxm(
-			'flex items-center gap-x-2 p-2 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 dark:focus:ring-primary-light/50',
+			'flex gap-x-2 items-center p-2 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 dark:focus:ring-primary-light/50',
 			'transition-colors duration-200 ease-in-out'
 		)}
 	>

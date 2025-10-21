@@ -19,7 +19,7 @@ class UserOrganizationService extends APIService {
 		query.append('where[tenantId]', params.tenantId);
 
 		// If there are relations, add them to the query
-		const relations: string[] = [];
+		const relations: string[] = ['organization'];
 		// Append each relation to the query string
 		relations.forEach((relation, index) => {
 			query.append(`relations[${index}]`, relation);

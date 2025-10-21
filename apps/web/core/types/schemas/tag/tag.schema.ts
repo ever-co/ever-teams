@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { relationalOrganizationTeamSchema, idSchema } from '../common/base.schema';
-import { basePerTenantAndOrganizationEntityModelSchema } from '../common/tenant-organization.schema';
+import { relationalOrganizationTeamSchema, uuIdSchema } from '../common/base.schema';
+import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organization.schema';
 
 /**
  * Zod schemas for Tag-related interfaces
@@ -11,7 +11,7 @@ export const tagTypeSchema = z
 	.object({
 		type: z.string()
 	})
-	.merge(basePerTenantAndOrganizationEntityModelSchema)
+	.merge(basePerTenantAndOrganizationEntitySchema)
 	.merge(
 		z.object({
 			tags: z.array(z.lazy(() => tagSchema)).optional() // Taggable interface
@@ -23,12 +23,12 @@ export const tagTypeSchema = z
 export const tagSchema = z
 	.object({
 		name: z.string(),
-		color: z.string(),
+		color: z.string().optional().nullable(),
 		textColor: z.string().optional().nullable(),
 		icon: z.string().optional().nullable(),
 		description: z.string().optional().nullable(),
 		isSystem: z.boolean().optional(),
-		tagTypeId: idSchema.optional().nullable(),
+		tagTypeId: uuIdSchema.optional().nullable(),
 		tagTypeName: z.string().optional().nullable(),
 		fix_relational_custom_fields: z.any().optional().nullable(),
 		customFields: z.any().optional().nullable(),
@@ -61,9 +61,11 @@ export const tagSchema = z
 		warehouse_counter: z.number().optional(),
 		proposals_counter: z.number().optional()
 	})
-	.merge(basePerTenantAndOrganizationEntityModelSchema)
+	.merge(basePerTenantAndOrganizationEntitySchema)
 	.merge(relationalOrganizationTeamSchema)
 	.strict();
+
+export const tagZodSchemaType: z.ZodType<TTag> = z.lazy(() => tagSchema);
 
 // Tag create schema
 export const tagCreateSchema = z.object({
@@ -82,3 +84,9 @@ export const tagCreateSchema = z.object({
 export type TTag = z.infer<typeof tagSchema>;
 export type TTagType = z.infer<typeof tagTypeSchema>;
 export type TTagCreate = z.infer<typeof tagCreateSchema>;
+
+// Define strongly-typed action for optimistic updates
+export type OptimisticAction =
+	| { type: 'add'; label: TTag }
+	| { type: 'update'; label: TTag }
+	| { type: 'delete'; id: string };

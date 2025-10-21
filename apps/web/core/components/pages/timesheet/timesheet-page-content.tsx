@@ -20,17 +20,8 @@ import {
 	SelectedTimesheet
 } from '@/core/components/timesheet';
 import { ArrowLeftIcon } from 'assets/svg';
-import dynamic from 'next/dynamic';
 import type { IconBaseProps } from 'react-icons';
-
-import {
-	CalendarViewSkeleton,
-	TimesheetCardSkeleton,
-	TimesheetDetailModalSkeleton,
-	TimesheetFilterSkeleton,
-	TimesheetPaginationSkeleton,
-	TimesheetViewSkeleton
-} from '@/core/components/common/skeleton/timesheet-skeletons';
+import { TimesheetDetailModalSkeleton } from '@/core/components/common/skeleton/timesheet-skeletons';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { IconsSearch } from '@/core/components/icons';
 import { ViewToggleButton } from '@/core/components/timesheet/timesheet-toggle-view';
@@ -39,70 +30,23 @@ import { useTimesheetFilters } from '@/core/hooks/activities/use-timesheet-filte
 import { useTimesheetPagination } from '@/core/hooks/activities/use-timesheet-pagination';
 import { useTimesheetViewData } from '@/core/hooks/activities/use-timesheet-view-data';
 import { differenceBetweenHours, getGreeting, secondsToTime } from '@/core/lib/helpers/index';
-import { activeTeamState, userState } from '@/core/stores';
-
-// Lazy load heavy timesheet components for performance optimization
-// Priority 1: CalendarView (heaviest component with complex calendar logic)
-const LazyCalendarView = dynamic(
-	() => import('@/core/components/pages/timesheet/calendar-view').then((mod) => ({ default: mod.CalendarView })),
-	{
-		ssr: false,
-		loading: () => <CalendarViewSkeleton />
-	}
-);
-
-// Priority 2: TimesheetView (complex DataTable with sorting/filtering)
-const LazyTimesheetView = dynamic(
-	() => import('@/core/components/pages/timesheet/timesheet-view').then((mod) => ({ default: mod.TimesheetView })),
-	{
-		ssr: false,
-		loading: () => <TimesheetViewSkeleton />
-	}
-);
-
-// Priority 3: TimesheetDetailModal (conditional modal component)
-const LazyTimesheetDetailModal = dynamic(
-	() => import('@/core/components/pages/timesheet/timesheet-detail-modal').then((mod) => ({ default: mod.default })),
-	{
-		ssr: false,
-		loading: () => <TimesheetDetailModalSkeleton />
-	}
-);
-
-// Priority 4: TimesheetFilter (filter components with date pickers)
-const LazyTimesheetFilter = dynamic(
-	() =>
-		import('@/core/components/pages/timesheet/timesheet-filter').then((mod) => ({ default: mod.TimesheetFilter })),
-	{
-		ssr: false,
-		loading: () => <TimesheetFilterSkeleton />
-	}
-);
-
-// Priority 5: TimesheetCard (stats cards with icons and actions)
-const LazyTimesheetCard = dynamic(
-	() => import('@/core/components/pages/timesheet/timesheet-card').then((mod) => ({ default: mod.TimesheetCard })),
-	{
-		ssr: false,
-		loading: () => <TimesheetCardSkeleton />
-	}
-);
-
-// Priority 6: TimesheetPagination (pagination controls)
-const LazyTimesheetPagination = dynamic(
-	() => import('@/core/components/timesheet/timesheet-pagination').then((mod) => ({ default: mod.default })),
-	{
-		ssr: false,
-		loading: () => <TimesheetPaginationSkeleton />
-	}
-);
+import { activeTeamState } from '@/core/stores';
+import {
+	LazyCalendarView,
+	LazyTimesheetView,
+	LazyTimesheetDetailModal,
+	LazyTimesheetFilter,
+	LazyTimesheetCard,
+	LazyTimesheetPagination
+} from '@/core/components/optimized-components/calendar';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
 export type TimesheetDetailMode = 'Pending' | 'MenHours' | 'MemberWork';
 export function TimeSheetPageContent({ params }: { params: { memberId: string } }) {
 	const unwrappedParams = use(params as any) as { memberId: string };
 	const t = useTranslations();
-	const user = useAtomValue(userState);
+	const { data: user } = useUserQuery();
 	const [pageSize, setPageSize] = useState(10);
 
 	const getPageSizeOptions = (total: number) => {
@@ -136,7 +80,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 			{ title: activeTeam?.name || '', href: '/' },
 			{
 				title: t('pages.timesheet.TIMESHEET_TITLE'),
-				href: `/${currentLocale}/timesheet/${unwrappedParams.memberId}`
+				href: `/${currentLocale}/reports/timesheet/${unwrappedParams.memberId}`
 			}
 		],
 		[activeTeam?.name, currentLocale, unwrappedParams.memberId, t]
@@ -251,7 +195,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 					.reduce((total, current) => total + current, 0)
 			: 0;
 	}, [statusTimesheet]);
-	const { h: hours, m: minute } = secondsToTime(totalDuration || 0);
+	const { hours: hours, minutes: minute } = secondsToTime(totalDuration || 0);
 
 	const fullWidth = useAtomValue(fullWidthState);
 

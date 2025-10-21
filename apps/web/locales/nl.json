@@ -1,5 +1,5 @@
 {
-	"TITLE": "Ever Teams",
+	"TITLE": "{appName}",
 	"sidebar": {
 		"DASHBOARD": "Dashboard",
 		"FORYOU": "Algemeen",
@@ -28,6 +28,8 @@
 		"NO_ACTIVITY_DATA": "Geen activiteitsgegevens beschikbaar",
 		"SELECT_DIFFERENT_DATE": "Selecteer een andere datumbereik of probeer later opnieuw",
 		"PENDING_TASKS": "In afwachting Taken",
+		"RECENT_TASKS": "Recente taken",
+		"OLDER_TASKS": "Oudere taken",
 		"SHOW_MORE": "Meer weergeven",
 		"TASKS": "Taken",
 		"MEN_HOURS": "Manuren",
@@ -40,7 +42,7 @@
 		"EXPAND_COLUMN": "Kolom uitvouwen",
 		"EDIT_STATUS": "Status bewerken",
 		"ADD_TIME_ENTRY": "Tijdinvoer toevoegen",
-		"OPT_IN_UPDATES": "Kies ervoor om updates en nieuws over Ever Teams te ontvangen.",
+		"OPT_IN_UPDATES": "Kies ervoor om updates en nieuws over {appName} te ontvangen.",
 		"SUBSCRIBE_NEWSLETTER": "Abonneer je op onze nieuwsbrief",
 		"VIEW_PROJECT": "Project bekijken",
 		"SHARE_PROJECT": "Project delen",
@@ -216,6 +218,9 @@
 		"PERMISSION": "Machtiging",
 		"SEARCH": "Zoeken",
 		"ADD_PARENT": "Hoofd toevoegen",
+		"PARENT_TASK_ASSIGNED_SUCCESS": "Hoofdtaak \"{parentTitle}\" is succesvol toegewezen aan \"{childTitle}\"",
+		"PARENT_TASK_ASSIGNMENT_FAILED": "Toewijzing van taak \"{childTitle}\" aan hoofdtaak \"{parentTitle}\" mislukt",
+		"PARENT_TASK_ASSIGNMENT_ERROR": "Er is een fout opgetreden bij het toewijzen van hoofdtaak \"{parentTitle}\" aan taak \"{childTitle}\". Probeer het opnieuw.",
 		"BLOCKS": "Blokkeert",
 		"CLONES": "Klonen",
 		"DUPLICATES": "Dupliceert",
@@ -230,6 +235,8 @@
 		"NO_TASKS": "Geen taken",
 		"FULL_WIDTH": "Volledige breedte",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Stop de timer voordat u de taak wijzigt",
+		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Stop de timer voordat u van team wisselt",
+		"CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Stop de timer voordat u nieuwe items aanmaakt",
 		"COLLABORATE_DIALOG_TITLE": "Samenwerking starten",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Nodig teamleden uit en begin samen te werken",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Vergadering of bord samenwerking starten",
@@ -346,6 +353,8 @@
 		"APPLY_FILTER": "Filter toepassen",
 		"CREATE_NEW": "Nieuwe maken",
 		"NO_RESULT": "Geen resultaat",
+		"NO_TEAM_MEMBERS_FOUND": "Geen teamleden gevonden",
+		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Probeer je zoekopdracht of filter aan te passen om te vinden wat je zoekt.",
 		"PICK_A_DATE": "Kies een datum",
 		"THIS_WEEK": "Deze week",
 		"LAST_WEEK": "Vorige week",
@@ -382,7 +391,6 @@
 		"NEUTRAL": "Neutraal",
 		"UNPRODUCTIVE": "Onproductief",
 		"ACTIVITIES": "activiteiten",
-		"NO_PROJECT": "Geen project",
 		"DURATION": "Duur",
 		"PROGRESS": "Voortgang",
 		"EMPLOYEE": "Medewerker",
@@ -640,7 +648,7 @@
 			"INPUT_INVITE_CODE": "Uitnodigingscode invoeren.",
 			"INPUT_INVITE_CODE_DESC": "Voer de uitnodigingscode in die we naar uw e-mail hebben gestuurd.",
 			"INVALID_INVITE_CODE_MESSAGE": "Ongeldige code",
-			"WELCOME_TEAMS": "Welkom bij Ever Teams",
+			"WELCOME_TEAMS": "Welkom bij {appName}",
 			"COVER_TITLE": "Volg de werkvoortgang van uw teams in realtime!",
 			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
 			"LOGIN": "Inloggen",
@@ -671,6 +679,7 @@
 			"HEADING_TITLE": "Nieuw team maken",
 			"HEADING_DESCRIPTION": "Voer uw teamgegevens in om een nieuw team te maken.",
 			"LOADING_TEXT": "We maken nu uw nieuwe werkplek aan, even geduld...",
+			"LOADING_WORKSPACE": "We laden de werkruimte, even geduld...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Doorverwijzen naar uw werkruimte...",
 			"VERIFY_EMAIL_LOADING_TEXT": "We controleren uw e-mailadres, even geduld...",
 			"INPUT_TEAM_NAME": "Voer uw teamnaam in",
@@ -819,6 +828,25 @@
 				"POSITION": "Positie",
 				"DATE_AND_TIME_REQUEST": "Datum & Tijd Aanvraag",
 				"CV_OR_ATTACHMENT": "CV / Bijlage"
+			},
+			"acceptInvite": {
+				"ACCEPT_INVITATION_TO_TEAM": "Accepteer uitnodiging voor team {team}",
+				"USER_DETAILS": "Gebruikersgegevens",
+				"COMPLETE_REGISTRATION": "Voltooi je registratie {userEmail}",
+				"messages": {
+					"INVALID_INVITATION": {
+						"TITLE": "Deze uitnodiging is niet meer geldig",
+						"DESCRIPTION": "Neem contact op met de workspace-beheerder om een nieuwe aan te vragen. Je hebt een onjuiste URL ingevoerd of de uitnodiging is verlopen"
+					},
+					"WORKSPACE_NOT_EXIST": {
+						"TITLE": "Deze workspace bestaat niet meer",
+						"DESCRIPTION": "Neem contact op met de workspace-beheerder om een nieuwe aan te vragen"
+					}
+				},
+				"buttons": {
+					"RETURN_TO_DASHBOARD": "Terug naar dashboard",
+					"CREATE_NEW_WORKSPACE": "Nieuwe workspace maken"
+				}
 			}
 		},
 		"permissions": {
@@ -973,6 +1001,13 @@
 			"TOTAL_WORKED_TODAY_HEADER_TOOLTIP": "Hoeveel uur heeft de werknemer in totaal en vandaag aan de taak gewerkt",
 			"WORKED_ON_TASK_HEADER_TOOLTIP": "Hoeveel uur heeft de werknemer vandaag gewerkt aan alle taken voor het geselecteerde team"
 		},
+		"teamMemberTableHead": {
+			"TEAM_MEMBER": "Teamlid",
+			"TASK": "Taak",
+			"WORKED_ON_TASK": "Gewerkt aan taak",
+			"ESTIMATE": "Schatting",
+			"ACTION": "Actie"
+		},
 		"CONFIRM_CLOSE_TASK": "Bevestig als u de taak wilt sluiten",
 		"toastMessages": {
 			"TASK_UNASSIGNED": "Taak niet toegewezen",
@@ -1034,12 +1069,14 @@
 		"LAST_NAME_PLACEHOLDER": "Achternaam",
 		"EMAIL_PLACEHOLDER": "Voer uw e-mailadres in",
 		"PASSWORD_PLACEHOLDER": "Voer uw wachtwoord in",
+		"CONFIRM_PASSWORD_PLACEHOLDER": "Bevestig uw wachtwoord",
 		"PHONE_PLACEHOLDER": "Telefoonnummer",
 		"ISSUE_NAME_PLACEHOLDER": "Probleemnaam",
 		"TEAM_NAME_PLACEHOLDER": "Voer uw teamnaam in",
 		"TASK_INPUT_PLACEHOLDER": "Waar werk je aan?",
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Teamlidnaam",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "E-mailadres teamlid",
+		"TEAM_MEMBER_ROLE": "Teamlidrol",
 		"COMPLETION_DESCRIPTION": "Schrijf de omschrijving",
 		"UPLOAD_FILES": "Bestanden uploaden",
 		"ATTACHMENT_FILE": "Bijgevoegde bestanden",
@@ -1047,16 +1084,18 @@
 		"SET_THEME": "Thema instellen",
 		"CHANGE_AVATAR": "Avatar wijzigen",
 		"SELECT_TEAM_SIZE": "Selecteer teamgrootte",
-		"INVALID_ALLOWED_CHARACTER": "Ongeldige waarde voor allowedCharacters. Gebruik alpha, numeriek of alfanumeriek"
+		"INVALID_ALLOWED_CHARACTER": "Ongeldige waarde voor allowedCharacters. Gebruik alpha, numeriek of alfanumeriek",
+		"AGREE_TO": "Akkoord met"
 	},
 	"layout": {
 		"footer": {
 			"RIGHTS_RESERVED": "Alle rechten voorbehouden.",
 			"COPY_RIGHT1": "© {date}-Heden,",
-			"COPY_RIGHT2": "Ever Teams",
+			"COPY_RIGHT2": "{appName}",
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Gebruiksvoorwaarden",
+			"TERMS_AND_CONDITIONS": "Algemene voorwaarden",
 			"PRIVACY_POLICY": "Privacybeleid",
 			"COOKIES": "Cookiebeleid",
 			"BY": "Door"
@@ -1067,7 +1106,9 @@
 		"ERROR_WHILE_VERIFY_CODE": "Fout tijdens verificatiecode.",
 		"LENGTH_NUMBER_ERROR": "Lengte moet een getal zijn en groter dan 0",
 		"INVALID_ALLOWED_CHARACTER": "Ongeldige waarde voor allowedCharacters. Gebruik alpha, numeriek of alfanumeriek",
-		"VALID_EMAIL": "Voer een geldig e-mailadres in"
+		"VALID_EMAIL": "Voer een geldig e-mailadres in",
+		"SELECT_ROLE": "Selecteer een rol",
+		"PASSWORDS_DO_NOT_MATCH": "Wachtwoorden komen niet overeen"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Druk op Enter om te valideren"
