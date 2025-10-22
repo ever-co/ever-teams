@@ -22,7 +22,7 @@ import { LoaderCircle } from 'lucide-react';
 
 export const TeamSettingForm = () => {
 	const { data: user } = useUserQuery();
-	const { register, setValue, handleSubmit, getValues } = useForm();
+	const { register, setValue, handleSubmit, getValues, trigger } = useForm();
 	const t = useTranslations();
 
 	const [activeTeam, setActiveTeam] = useAtom(activeTeamState);
@@ -198,7 +198,7 @@ export const TeamSettingForm = () => {
 			console.error('Team name update failed:', error);
 			toast.error('Failed to update team name. Please try again.');
 		}
-	}, []);
+	}, [editOrganizationTeam, activeTeam?.id, getValues]);
 
 	return (
 		<>
@@ -245,6 +245,11 @@ export const TeamSettingForm = () => {
 														type="button"
 														disabled={editOrganizationTeamLoading}
 														onClick={async () => {
+															const isValid = await trigger('teamName');
+															if (!isValid)
+																return toast.error(
+																	'Team name is required, max 80 characters'
+																);
 															await handleTeamNameUpdate();
 															setDisabled(true);
 														}}
