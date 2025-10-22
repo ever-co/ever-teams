@@ -27,7 +27,7 @@
 		"lint": "eslint src --ext .ts,.tsx",
 		"lint:errors": "eslint src --ext .ts,.tsx --quiet",
 		"type-check": "tsc --noEmit",
-		"build": "npx tailwindcss -i src/styles/globals.css -o dist/styles.css --minify && rollup -c",
+		"build": "yarn tailwindcss -i src/styles/globals.css -o dist/styles.css --minify && rollup -c",
 		"dev": "postcss src/styles/globals.css -o dist/styles.css --watch && rollup -c --watch"
 	},
 	"peerDependencies": {
