@@ -21,7 +21,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 export const TeamSettingForm = () => {
 	const { data: user } = useUserQuery();
-	const { register, setValue, handleSubmit } = useForm();
+	const { register, setValue, handleSubmit, getValues } = useForm();
 	const t = useTranslations();
 
 	const [activeTeam, setActiveTeam] = useAtom(activeTeamState);
@@ -184,10 +184,10 @@ export const TeamSettingForm = () => {
 		[setValue]
 	);
 
-	const handleTeamNameUpdate = useCallback(async (newTeamName: string) => {
+	const handleTeamNameUpdate = useCallback(async () => {
 		await editOrganizationTeam({
 			id: activeTeam?.id,
-			name: newTeamName
+			name: getValues('teamName')
 		});
 	}, []);
 
@@ -220,8 +220,7 @@ export const TeamSettingForm = () => {
 														variant="ghost"
 														className="p-0 m-0 mr-[0.5rem] min-w-0 outline-none"
 														disabled={!isTeamManager}
-														onClick={(e) => {
-															e.stopPropagation();
+														onClick={() => {
 															setDisabled(false);
 														}}
 													>
@@ -233,7 +232,10 @@ export const TeamSettingForm = () => {
 														className="p-0 m-0 mr-[0.8rem] mb-[0.2rem] min-w-0 outline-none"
 														type="button"
 														disabled={!isTeamManager}
-														onClick={() => setDisabled(true)}
+														onClick={async () => {
+															await handleTeamNameUpdate();
+															setDisabled(true);
+														}}
 													>
 														<CheckSquareOutlineIcon
 															className="w-[18px] h-[18px]"
