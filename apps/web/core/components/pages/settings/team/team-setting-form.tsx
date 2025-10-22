@@ -243,7 +243,7 @@ export const TeamSettingForm = () => {
 														variant="ghost"
 														className="p-0 m-0 mr-[0.8rem] mb-[0.2rem] min-w-0 outline-none"
 														type="button"
-														disabled={!isTeamManager || editOrganizationTeamLoading}
+														disabled={editOrganizationTeamLoading}
 														onClick={async () => {
 															await handleTeamNameUpdate();
 															setDisabled(true);
