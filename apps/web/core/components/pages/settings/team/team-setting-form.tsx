@@ -224,7 +224,7 @@ export const TeamSettingForm = () => {
 															setDisabled(false);
 														}}
 													>
-														<EditPenUnderlineIcon className="w-6 h-6 !bg-red-800  text-inherit" />
+														<EditPenUnderlineIcon className="w-6 h-6 text-inherit" />
 													</Button>
 												) : (
 													<Button
