@@ -18,10 +18,11 @@ import { Tooltip } from '@/core/components/duplicated-components/tooltip';
 import { toast } from 'sonner';
 import { TOrganizationTeam, TOrganizationTeamUpdate } from '@/core/types/schemas';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { LoaderCircle } from 'lucide-react';
 
 export const TeamSettingForm = () => {
 	const { data: user } = useUserQuery();
-	const { register, setValue, handleSubmit } = useForm();
+	const { register, setValue, handleSubmit, getValues, trigger } = useForm();
 	const t = useTranslations();
 
 	const [activeTeam, setActiveTeam] = useAtom(activeTeamState);
@@ -29,7 +30,8 @@ export const TeamSettingForm = () => {
 		editOrganizationTeam,
 		getOrganizationTeamsLoading: loading,
 		loadingTeam,
-		setTeams
+		setTeams,
+		editOrganizationTeamLoading
 	} = useOrganizationTeams();
 	const { isTeamManager, activeManager } = useIsMemberManager(user);
 	const [copied, setCopied] = useState<boolean>(false);
@@ -184,6 +186,20 @@ export const TeamSettingForm = () => {
 		[setValue]
 	);
 
+	const handleTeamNameUpdate = useCallback(async () => {
+		try {
+			await editOrganizationTeam({
+				id: activeTeam?.id,
+				name: getValues('teamName')
+			});
+
+			toast.success('Team name updated successfully');
+		} catch (error) {
+			console.error('Team name update failed:', error);
+			toast.error('Failed to update team name. Please try again.');
+		}
+	}, [editOrganizationTeam, activeTeam?.id, getValues]);
+
 	return (
 		<>
 			<form className="mt-8 w-fit" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
@@ -203,16 +219,22 @@ export const TeamSettingForm = () => {
 										autoCustomFocus={!disabled}
 										type="text"
 										placeholder={t('pages.settingsTeam.TEAM_NAME')}
-										{...register('teamName', { required: true, maxLength: 80 })}
+										{...register('teamName', {
+											required: true,
+											maxLength: 80
+										})}
 										className={`${disabled ? 'disabled:bg-[#FCFCFC]' : ''}`}
 										trailingNode={
 											isTeamManager ? (
 												disabled ? (
 													<Button
+														type="button"
 														variant="ghost"
 														className="p-0 m-0 mr-[0.5rem] min-w-0 outline-none"
 														disabled={!isTeamManager}
-														onClick={() => setDisabled(false)}
+														onClick={() => {
+															setDisabled(false);
+														}}
 													>
 														<EditPenUnderlineIcon className="w-6 h-6 text-inherit" />
 													</Button>
@@ -220,14 +242,29 @@ export const TeamSettingForm = () => {
 													<Button
 														variant="ghost"
 														className="p-0 m-0 mr-[0.8rem] mb-[0.2rem] min-w-0 outline-none"
-														type="submit"
-														disabled={!isTeamManager}
-														onClick={() => setDisabled(true)}
+														type="button"
+														disabled={editOrganizationTeamLoading}
+														onClick={async () => {
+															const isValid = await trigger('teamName');
+															if (!isValid)
+																return toast.error(
+																	'Team name is required, max 80 characters'
+																);
+															await handleTeamNameUpdate();
+															setDisabled(true);
+														}}
 													>
-														<CheckSquareOutlineIcon
-															className="w-[18px] h-[18px]"
-															strokeWidth="1.4"
-														/>
+														{editOrganizationTeamLoading ? (
+															<LoaderCircle
+																className="w-[18px] h-[18px] animate-spin"
+																strokeWidth="1.4"
+															/>
+														) : (
+															<CheckSquareOutlineIcon
+																className="w-[18px] h-[18px]"
+																strokeWidth="1.4"
+															/>
+														)}
 													</Button>
 												)
 											) : (
