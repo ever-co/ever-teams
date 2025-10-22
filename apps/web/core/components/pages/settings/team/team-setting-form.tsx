@@ -187,12 +187,17 @@ export const TeamSettingForm = () => {
 	);
 
 	const handleTeamNameUpdate = useCallback(async () => {
-		await editOrganizationTeam({
-			id: activeTeam?.id,
-			name: getValues('teamName')
-		});
+		try {
+			await editOrganizationTeam({
+				id: activeTeam?.id,
+				name: getValues('teamName')
+			});
 
-		toast.success('Team name updated successfully');
+			toast.success('Team name updated successfully');
+		} catch (error) {
+			console.error('Team name update failed:', error);
+			toast.error('Failed to update team name. Please try again.');
+		}
 	}, []);
 
 	return (
@@ -214,7 +219,10 @@ export const TeamSettingForm = () => {
 										autoCustomFocus={!disabled}
 										type="text"
 										placeholder={t('pages.settingsTeam.TEAM_NAME')}
-										{...register('teamName', { required: true, maxLength: 80 })}
+										{...register('teamName', {
+											required: true,
+											maxLength: 80
+										})}
 										className={`${disabled ? 'disabled:bg-[#FCFCFC]' : ''}`}
 										trailingNode={
 											isTeamManager ? (
