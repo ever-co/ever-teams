@@ -1,9 +1,13 @@
 # Ever Teams Platform
 
+[uri_gauzy]: https://ever.team
+[uri_license]: https://www.gnu.org/licenses/agpl-3.0.html
+[uri_license_image]: https://img.shields.io/badge/License-AGPL%20v3-blue.svg
+
+![visitors](https://visitor-badge.laobi.icu/badge?page_id=ever-co.ever-teams-platform)
+[![License: AGPL v3][uri_license_image]][uri_license]
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/ever-co/ever-teams)
 [![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/ever-co/ever-teams)
-[![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/gauzy)
-[![Gitter](https://badges.gitter.im/JoinChat.svg)](https://gitter.im/ever-co/ever-gauzy?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Get help on Codementor](https://cdn.codementor.io/badges/get_help_github.svg)](https://www.codementor.io/evereq?utm_source=github&utm_medium=button&utm_term=evereq&utm_campaign=github)
 
 ## ⭐️ What is it?
 
@@ -218,9 +222,8 @@ Please see our [Wiki](https://github.com/ever-co/ever-teams/wiki/Deploy-to-Digit
 -   [Ever.co Website Contact Us page](https://ever.co/contacts)
 -   [Slack Community](https://join.slack.com/t/gauzy/shared_invite/enQtNzc5MTA5MDUwODg2LTI0MGEwYTlmNWFlNzQzMzBlOWExNTk0NzAyY2IwYWYwMzZjMTliYjMwNDI3NTJmYmM4MDQ4NDliMDNiNDY1NWU)
 -   [Discord Chat](https://discord.gg/hKQfn4j)
--   [Spectrum Community](https://spectrum.chat/gauzy)
--   [Gitter Chat](https://gitter.im/ever-co/gauzy)
--   [CodeMentor](https://www.codementor.io/evereq)
+-   [![Gitter](https://badges.gitter.im/JoinChat.svg)](https://gitter.im/ever-co/ever-teams?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+-   [![Get help on Codementor](https://cdn.codementor.io/badges/get_help_github.svg)](https://www.codementor.io/evereq?utm_source=github&utm_medium=button&utm_term=evereq&utm_campaign=github)
 -   For business inquiries: <mailto:gauzy@ever.co>
 -   Please report security vulnerabilities to <mailto:security@ever.co>
 -   [Gauzy Platform @ Twitter](https://twitter.com/gauzyplatform)
@@ -297,15 +300,11 @@ You can also view a full list of our [contributors tracked by Github](https://gi
 #### Copyright © 2022-present, Ever Co. LTD. All rights reserved
 
 ---
-
-![visitors](https://visitor-badge.laobi.icu/badge?page_id=ever-co.ever-teams-platform)
 [![Circle CI](https://circleci.com/gh/ever-co/ever-teams.svg?style=svg)](https://circleci.com/gh/ever-co/ever-teams)
 [![codecov](https://codecov.io/gh/ever-co/ever-teams/branch/master/graph/badge.svg)](https://codecov.io/gh/ever-co/ever-teams)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/8c46f9eb9df64aa9859dea4d572059ac)](https://www.codacy.com/gh/ever-co/ever-teams/dashboard?utm_source=github.com&utm_medium=referral&utm_content=ever-co/ever-teams&utm_campaign=Badge_Grade)
 [![DeepScan grade](https://deepscan.io/api/teams/3293/projects/25855/branches/814579/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=3293&pid=25855&bid=814579)
 [![Known Vulnerabilities](https://snyk.io/test/github/ever-co/ever-teams/badge.svg)](https://snyk.io/test/github/ever-co/ever-teams)
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/ever-co/ever-teams.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/ever-co/ever-teams/alerts/)
-[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/ever-co/ever-teams.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/ever-co/ever-teams/context:javascript)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fever-co%2Fever-teams.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fever-co%2Fever-teams?ref=badge_shield)
 [![Crowdin](https://badges.crowdin.net/e/1d2b3405d65a56ec116d0984fd579cc9/localized.svg)](https://ever.crowdin.com/ever-teams)
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/ever-co/ever-teams?utm_source=oss&utm_medium=github&utm_campaign=ever-co%2Fever-teams&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
