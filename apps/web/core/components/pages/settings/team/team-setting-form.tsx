@@ -184,6 +184,13 @@ export const TeamSettingForm = () => {
 		[setValue]
 	);
 
+	const handleTeamNameUpdate = useCallback(async (newTeamName: string) => {
+		await editOrganizationTeam({
+			id: activeTeam?.id,
+			name: newTeamName
+		});
+	}, []);
+
 	return (
 		<>
 			<form className="mt-8 w-fit" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
@@ -209,18 +216,22 @@ export const TeamSettingForm = () => {
 											isTeamManager ? (
 												disabled ? (
 													<Button
+														type="button"
 														variant="ghost"
 														className="p-0 m-0 mr-[0.5rem] min-w-0 outline-none"
 														disabled={!isTeamManager}
-														onClick={() => setDisabled(false)}
+														onClick={(e) => {
+															e.stopPropagation();
+															setDisabled(false);
+														}}
 													>
-														<EditPenUnderlineIcon className="w-6 h-6 text-inherit" />
+														<EditPenUnderlineIcon className="w-6 h-6 !bg-red-800  text-inherit" />
 													</Button>
 												) : (
 													<Button
 														variant="ghost"
 														className="p-0 m-0 mr-[0.8rem] mb-[0.2rem] min-w-0 outline-none"
-														type="submit"
+														type="button"
 														disabled={!isTeamManager}
 														onClick={() => setDisabled(true)}
 													>
