@@ -18,6 +18,7 @@ import { Tooltip } from '@/core/components/duplicated-components/tooltip';
 import { toast } from 'sonner';
 import { TOrganizationTeam, TOrganizationTeamUpdate } from '@/core/types/schemas';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { LoaderCircle } from 'lucide-react';
 
 export const TeamSettingForm = () => {
 	const { data: user } = useUserQuery();
@@ -29,7 +30,8 @@ export const TeamSettingForm = () => {
 		editOrganizationTeam,
 		getOrganizationTeamsLoading: loading,
 		loadingTeam,
-		setTeams
+		setTeams,
+		editOrganizationTeamLoading
 	} = useOrganizationTeams();
 	const { isTeamManager, activeManager } = useIsMemberManager(user);
 	const [copied, setCopied] = useState<boolean>(false);
@@ -237,10 +239,17 @@ export const TeamSettingForm = () => {
 															setDisabled(true);
 														}}
 													>
-														<CheckSquareOutlineIcon
-															className="w-[18px] h-[18px]"
-															strokeWidth="1.4"
-														/>
+														{editOrganizationTeamLoading ? (
+															<LoaderCircle
+																className="w-[18px] h-[18px] animate-spin"
+																strokeWidth="1.4"
+															/>
+														) : (
+															<CheckSquareOutlineIcon
+																className="w-[18px] h-[18px]"
+																strokeWidth="1.4"
+															/>
+														)}
 													</Button>
 												)
 											) : (
