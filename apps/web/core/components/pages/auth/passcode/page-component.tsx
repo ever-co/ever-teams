@@ -16,7 +16,11 @@ import stc from 'string-to-color';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import SocialLogins from '@/core/components/auth/social-logins-buttons';
 import { useSession } from 'next-auth/react';
-import { LAST_WORKSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
+import {
+	APP_NAME,
+	LAST_WORKSPACE_AND_TEAM,
+	USER_SAW_OUTSTANDING_NOTIFICATION
+} from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
 import { ChevronDown } from 'lucide-react';
 import { AuthCodeInputField } from '@/core/components/auth/auth-code-input';
@@ -51,7 +55,7 @@ function AuthPasscode() {
 			title={
 				form.authScreen.screen === 'workspace'
 					? t('pages.authLogin.WORKSPACE')
-					: t('pages.authLogin.HEADING_TITLE')
+					: t('pages.authLogin.HEADING_TITLE', { appName: APP_NAME })
 			}
 			description={
 				form.authScreen.screen === 'workspace' ? (

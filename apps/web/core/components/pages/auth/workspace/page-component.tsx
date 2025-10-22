@@ -9,15 +9,22 @@ import { WorkSpaceComponent } from '../passcode/page-component';
 import { useAuthenticationSocialLogin } from '@/core/hooks/auth/use-authentication-social-login';
 import Cookies from 'js-cookie';
 import { useSession } from 'next-auth/react';
-import { LAST_WORKSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
+import {
+	APP_NAME,
+	LAST_WORKSPACE_AND_TEAM,
+	USER_SAW_OUTSTANDING_NOTIFICATION
+} from '@/core/constants/config/constants';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
 
 export default function SocialLoginChooseWorspace() {
 	const t = useTranslations();
 	return (
-		<AuthLayout title={t('pages.authLogin.HEADING_TITLE')} description={'Choose your workspace'}>
-			<div className="w-full overflow-x-hidden overflow-clip">
-				<div className={clsxm('flex flex-row transition-[transform] duration-500')}>
+		<AuthLayout
+			title={t('pages.authLogin.HEADING_TITLE', { appName: APP_NAME })}
+			description={'Choose your workspace'}
+		>
+			<div className="overflow-x-hidden w-full overflow-clip">
+				<div className={clsxm('flex flex-row duration-500 transition-[transform]')}>
 					<WorkSpaceScreen />
 				</div>
 			</div>

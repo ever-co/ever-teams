@@ -11,7 +11,11 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { WorkSpaceComponent } from '../passcode/page-component';
 import SocialLogins from '@/core/components/auth/social-logins-buttons';
-import { LAST_WORKSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
+import {
+	APP_NAME,
+	LAST_WORKSPACE_AND_TEAM,
+	USER_SAW_OUTSTANDING_NOTIFICATION
+} from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
 import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '@/core/components/duplicated-components/_input';
@@ -23,11 +27,11 @@ export default function AuthPassword() {
 
 	return (
 		<AuthLayout
-			title={t('pages.authLogin.HEADING_TITLE')}
+			title={t('pages.authLogin.HEADING_TITLE', { appName: APP_NAME })}
 			description={t('pages.authPassword.HEADING_DESCRIPTION')}
 		>
 			<div className="w-full md:w-[35rem] overflow-x-hidden overflow-y-clip">
-				<div className={cn('flex flex-row transition-[transform] duration-500')}>
+				<div className={cn('flex flex-row duration-500 transition-[transform]')}>
 					{form.authScreen.screen === 'login' && <LoginForm form={form} />}
 
 					{form.authScreen.screen === 'workspace' && <WorkSpaceScreen form={form} className="w-full" />}
@@ -48,11 +52,11 @@ function LoginForm({ form }: { form: TAuthenticationPassword }) {
 	return (
 		<div className="w-full flex flex-col gap-4 bg-[#ffffff] dark:bg-transparent rounded-2xl">
 			<EverCard className={cn('w-full dark:bg-[#25272D]')} shadow="bigger">
-				<form onSubmit={form.handleSubmit} className="flex flex-col items-center justify-between">
+				<form onSubmit={form.handleSubmit} className="flex flex-col justify-between items-center">
 					<Text.Heading as="h3" className="mb-10 text-center">
 						{t('pages.authLogin.LOGIN_WITH_PASSWORD')}
 					</Text.Heading>
-					<div className="w-full mb-8">
+					<div className="mb-8 w-full">
 						<InputField
 							name="email"
 							type="email"
@@ -78,13 +82,13 @@ function LoginForm({ form }: { form: TAuthenticationPassword }) {
 							trailingNode={
 								<button
 									type="button"
-									className="text-xs   px-4 font-normal text-gray-500 dark:text-gray-400"
+									className="px-4 text-xs font-normal text-gray-500 dark:text-gray-400"
 									onClick={togglePasswordVisibility}
 								>
 									{showPassword ? (
-										<Eye size={15} className=" font-light" />
+										<Eye size={15} className="font-light" />
 									) : (
-										<EyeOff size={15} className=" font-light" />
+										<EyeOff size={15} className="font-light" />
 									)}
 								</button>
 							}
@@ -93,15 +97,15 @@ function LoginForm({ form }: { form: TAuthenticationPassword }) {
 						<Text.Error className="justify-self-start self-start">{form.errors.loginFailed}</Text.Error>
 					</div>
 
-					<div className="flex items-center justify-between w-full">
-						<div className="flex flex-col items-start gap-2">
-							<div className="flex items-center justify-start gap-2 text-sm">
+					<div className="flex justify-between items-center w-full">
+						<div className="flex flex-col gap-2 items-start">
+							<div className="flex gap-2 justify-start items-center text-sm">
 								<Link href="/auth/passcode" className="text-primary dark:text-primary-light">
 									{t('pages.authLogin.LOGIN_WITH_MAGIC_CODE')}.
 								</Link>
 							</div>
 
-							<div className="flex items-center justify-start gap-2 text-sm">
+							<div className="flex gap-2 justify-start items-center text-sm">
 								<span>{t('common.DONT_HAVE_ACCOUNT')}</span>
 								<Link href="/auth/team" className="text-primary dark:text-primary-light">
 									<span>{t('common.REGISTER')}</span>

@@ -19,7 +19,7 @@ export const IssuesSettings = () => {
 	return (
 		<div>
 			{/* TODO */}
-			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none flex-grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
 					{t('pages.settingsTeam.TASK_PRIVACY')}
 				</Text>
@@ -37,7 +37,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none flex-grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
 					{t('pages.settingsTeam.MANUAL_TIME')}
 				</Text>
@@ -46,7 +46,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden  w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none flex-grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
 					{t('pages.settingsTeam.GROUP_ESTIMATION')}
 				</Text>
@@ -55,7 +55,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden  w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none flex-grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
 					{t('pages.settingsTeam.ESTIMATION_IN_HOURS')}
 				</Text>
@@ -73,7 +73,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none flex-grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
 					{t('pages.settingsTeam.PROOF_OF_COMPLETION')}
 				</Text>
@@ -86,7 +86,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none flex-grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
 					{t('pages.settingsTeam.LINKED_ISSUES')}
 				</Text>
@@ -95,7 +95,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden  w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none flex-grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
 					{t('pages.settingsTeam.COMMENTS')}
 				</Text>
@@ -104,7 +104,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden  w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none flex-grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
 					{t('pages.settingsTeam.HISTORY')}
 				</Text>
@@ -113,7 +113,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none flex-grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
 					{t('pages.settingsTeam.ACCEPTANCE_CRITERIA')}
 				</Text>
@@ -122,7 +122,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden  w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none flex-grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
 					{t('pages.settingsTeam.DRAFT_ISSUES')}
 				</Text>
@@ -151,7 +151,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none flex-grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
 					{t('pages.settingsTeam.AUTO_STATUS')}
 				</Text>
@@ -164,9 +164,6 @@ export const IssuesSettings = () => {
 				<TaskVersionForm />
 			</div>
 			{/* TODO */}
-			{/* <div className="hidden _flex w-full items-center justify-between gap-[2rem]">
-				<IssueTypeForm />
-			</div> */}
 			<div className="flex w-full items-center justify-between gap-[2rem]">
 				<DefaultIssueTypeForm />
 			</div>
@@ -190,13 +187,6 @@ export const IssuesSettings = () => {
 					<TaskLabelForm />
 				</div>
 			</InteractionObserverVisible>
-
-			{/* <div
-				id="related-issue-types"
-				className="flex w-full items-center justify-between gap-[2rem]"
-			>
-				<RelatedIssueTypeForm />
-			</div> */}
 		</div>
 	);
 };
