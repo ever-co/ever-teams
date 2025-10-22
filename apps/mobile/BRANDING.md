@@ -1,4 +1,4 @@
-# Mobile App Branding Configuration
+# Mobile Apps Branding Configuration
 
 This document explains how to configure branding for the Ever Teams mobile
 application.
