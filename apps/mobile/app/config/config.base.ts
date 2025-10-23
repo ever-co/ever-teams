@@ -37,7 +37,7 @@ const BaseConfig: ConfigBaseProps = {
 		appName: process.env.APP_NAME || 'Ever Teams',
 		companyName: process.env.COMPANY_NAME || 'Ever Co. LTD',
 		copyrightText: `© 2022-Present, ${process.env.APP_NAME || 'Ever Teams'} by ${process.env.COMPANY_NAME || 'Ever Co. LTD'}. All rights reserved.`,
-		appLogo: process.env.APP_LOGO_URL || 'https://app.ever.team/assets/ever-teams.png',
+		appLogo: process.env.APP_LOGO_URL || '/assets/ever-teams.png',
 		appLink: process.env.APP_WEBSITE_URL || 'https://ever.team/',
 		appEmailConfirmationUrl: process.env.APP_EMAIL_CONFIRMATION_URL || 'https://app.gauzy.co/#/auth/confirm-email'
 	}

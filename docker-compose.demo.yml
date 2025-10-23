@@ -10,15 +10,15 @@ services:
       # App Branding Variables
       APP_NAME: ${APP_NAME:-Ever Teams}
       APP_SIGNATURE: ${APP_SIGNATURE:-Ever Teams}
-      APP_LOGO_URL: ${APP_LOGO_URL:-https://app.ever.team/assets/ever-teams.png}
+      APP_LOGO_URL: ${APP_LOGO_URL:-/assets/ever-teams.png}
       APP_LINK: ${APP_LINK:-https://ever.team}
       APP_SLOGAN_TEXT: ${APP_SLOGAN_TEXT:-Real-Time Clarity, Real-Time Reality™.}
       COMPANY_NAME: ${COMPANY_NAME:-Ever Co. LTD}
       COMPANY_LINK: ${COMPANY_LINK:-https://ever.team}
       TERMS_LINK: ${TERMS_LINK:-https://ever.team/terms}
       PRIVACY_POLICY_LINK: ${PRIVACY_POLICY_LINK:-https://ever.team/privacy}
-      MAIN_PICTURE: ${MAIN_PICTURE:-https://app.ever.team/assets/ever-teams.png}
-      MAIN_PICTURE_DARK: ${MAIN_PICTURE_DARK:-https://app.ever.team/assets/ever-teams.png}
+      MAIN_PICTURE: ${MAIN_PICTURE:-/assets/ever-teams.png}
+      MAIN_PICTURE_DARK: ${MAIN_PICTURE_DARK:-/assets/ever-teams.png}
       # Site Metadata Variables
       NEXT_PUBLIC_SITE_NAME: ${NEXT_PUBLIC_SITE_NAME:-Ever Teams}
       NEXT_PUBLIC_SITE_TITLE: ${NEXT_PUBLIC_SITE_TITLE:-Open Work and Project Management Platform}

@@ -16,7 +16,7 @@ customization:
 ### Optional Variables
 
 - `APP_LOGO_URL` - URL to your app logo
-  (default: "<https://app.ever.team/assets/ever-teams.png>")
+  (default: "</assets/ever-teams.png>")
 - `APP_WEBSITE_URL` - Your app's website URL (default: "<https://ever.team/>")
 - `APP_EMAIL_CONFIRMATION_URL` - Email confirmation URL
   (default: "<https://app.gauzy.co/#/auth/confirm-email>")
@@ -48,7 +48,7 @@ branding: {
     process.env.COMPANY_NAME || 'Ever Co. LTD'
   }. All rights reserved.`,
   appLogo: process.env.APP_LOGO_URL ||
-    'https://app.ever.team/assets/ever-teams.png',
+    '/assets/ever-teams.png',
   appLink: process.env.APP_WEBSITE_URL || 'https://ever.team/',
   appEmailConfirmationUrl: process.env.APP_EMAIL_CONFIRMATION_URL ||
     'https://app.gauzy.co/#/auth/confirm-email'

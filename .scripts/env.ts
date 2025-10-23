@@ -34,7 +34,7 @@ export const env = cleanEnv(process.env, {
         default: 'https://github.com/ever-co/ever-teams'
     }),
     PLATFORM_LOGO: str({
-        default: 'https://app.ever.team/assets/ever-teams.png'
+        default: '/assets/ever-teams.png'
     }),
     DESKTOP_WEB_SERVER_APP_NAME: str({
         default: 'ever-teams-server-web'

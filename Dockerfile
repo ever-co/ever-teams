@@ -23,15 +23,15 @@ ARG NEXT_IGNORE_ESLINT_ERROR_ON_BUILD=true
 # App Branding Variables
 ARG APP_NAME=Ever Teams
 ARG APP_SIGNATURE=Ever Teams
-ARG APP_LOGO_URL=https://app.ever.team/assets/ever-teams.png
+ARG APP_LOGO_URL=/assets/ever-teams.png
 ARG APP_LINK=https://ever.team
 ARG APP_SLOGAN_TEXT=Real-Time Clarity, Real-Time Reality™.
 ARG COMPANY_NAME=Ever Co. LTD
 ARG COMPANY_LINK=https://ever.team
 ARG TERMS_LINK=https://ever.team/terms
 ARG PRIVACY_POLICY_LINK=https://ever.team/privacy
-ARG MAIN_PICTURE=https://app.ever.team/assets/ever-teams.png
-ARG MAIN_PICTURE_DARK=https://app.ever.team/assets/ever-teams.png
+ARG MAIN_PICTURE=/assets/ever-teams.png
+ARG MAIN_PICTURE_DARK=/assets/ever-teams.png
 
 # Site Metadata Variables
 ARG NEXT_PUBLIC_SITE_NAME=Ever Teams
