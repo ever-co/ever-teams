@@ -180,6 +180,40 @@ export const APP_LOGO_URL = process.env.APP_LOGO_URL || 'https://app.ever.team/a
 export const APP_LINK = process.env.APP_LINK || 'https://app.ever.team';
 export const APP_SLOGAN_TEXT = process.env.APP_SLOGAN_TEXT || 'Real-Time Clarity, Real-Time Reality™.';
 
+const isHttpUrl = (value?: string | null) => Boolean(value && /^https?:\/\//i.test(value));
+const getHostname = (value?: string | null) => {
+	if (!value) return undefined;
+	try {
+		return new URL(value).hostname;
+	} catch {
+		return undefined;
+	}
+};
+
+const APP_LINK_HOSTNAME = getHostname(APP_LINK);
+
+const resolveLogoSource = (value: string) => {
+	if (!isHttpUrl(value)) {
+		return value;
+	}
+
+	try {
+		const url = new URL(value);
+		const isSameHostAsApp = APP_LINK_HOSTNAME && url.hostname === APP_LINK_HOSTNAME;
+		const isAppAssetPath = url.pathname.startsWith('/assets/');
+
+		if (isSameHostAsApp && isAppAssetPath) {
+			return `${url.pathname}${url.search}${url.hash}`;
+		}
+
+		return value;
+	} catch {
+		return value;
+	}
+};
+
+export const APP_LOGO_SRC = resolveLogoSource(APP_LOGO_URL);
+
 export const COMPANY_NAME = process.env.COMPANY_NAME || 'Ever Co. LTD';
 export const COMPANY_LINK = process.env.COMPANY_LINK || 'https://ever.co';
 
