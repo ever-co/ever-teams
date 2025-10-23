@@ -203,7 +203,7 @@ const resolveLogoSource = (value: string) => {
 		const isAppAssetPath = url.pathname.startsWith('/assets/');
 
 		if (isSameHostAsApp && isAppAssetPath) {
-			return `${url.pathname}${url.search}${url.hash}`;
+			return url.pathname;
 		}
 
 		return value;
