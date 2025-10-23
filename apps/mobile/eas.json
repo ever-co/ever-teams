@@ -7,42 +7,19 @@
 		"development": {
 			"developmentClient": true,
 			"distribution": "internal",
-			"channel": "development",
-			"env": {
-				"SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",
-				"SENTRY_ORG": "${SENTRY_ORG}",
-				"SENTRY_PROJECT": "${SENTRY_PROJECT}"
-			}
+			"channel": "development"
 		},
 		"preview": {
 			"distribution": "internal",
-			"channel": "preview",
-			"env": {
-				"SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",
-				"SENTRY_ORG": "${SENTRY_ORG}",
-				"SENTRY_PROJECT": "${SENTRY_PROJECT}",
-				"SENTRY_URL": "https://sentry.io"
-			}
+			"channel": "preview"
 		},
 		"production": {
 			"autoIncrement": true,
-			"channel": "production",
-			"env": {
-				"SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",
-				"SENTRY_ORG": "${SENTRY_ORG}",
-				"SENTRY_PROJECT": "${SENTRY_PROJECT}",
-				"SENTRY_URL": "https://sentry.io"
-			}
+			"channel": "production"
 		},
 		"internal": {
 			"distribution": "internal",
-			"channel": "internal",
-			"env": {
-				"SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",
-				"SENTRY_ORG": "${SENTRY_ORG}",
-				"SENTRY_PROJECT": "${SENTRY_PROJECT}",
-				"SENTRY_URL": "https://sentry.io"
-			}
+			"channel": "internal"
 		}
 	},
 	"submit": {
