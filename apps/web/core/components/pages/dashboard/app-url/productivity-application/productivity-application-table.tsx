@@ -19,7 +19,7 @@ import { usePagination } from '@/core/hooks/common/use-pagination';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { format } from 'date-fns';
 import { Paginate } from '@/core/components/duplicated-components/_pagination';
-import { APP_LOGO_URL, APP_NAME } from '@/core/constants/config/constants';
+import { APP_LOGO_SRC, APP_NAME } from '@/core/constants/config/constants';
 
 export function ProductivityApplicationTable({ data, isLoading }: { data?: IActivityReport[]; isLoading?: boolean }) {
 	const reportData = data as IActivityReportGroupByDate[] | undefined;
@@ -141,7 +141,7 @@ export function ProductivityApplicationTable({ data, isLoading }: { data?: IActi
 									<TableCell>
 										<div className="flex gap-2 items-center">
 											<Avatar className="object-contain w-8 h-8">
-												<AvatarImage src={APP_LOGO_URL} alt={APP_NAME} />
+												<AvatarImage src={APP_LOGO_SRC} alt={APP_NAME} />
 												<AvatarFallback>ET</AvatarFallback>
 											</Avatar>
 											<span>{projectName}</span>
