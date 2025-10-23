@@ -1,4 +1,4 @@
-import { APP_LINK, APP_LOGO_URL } from '@/core/constants/config/constants';
+import { APP_LINK, APP_LOGO_SRC } from '@/core/constants/config/constants';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { clsxm } from '@/core/lib/utils';
 import Image from 'next/image';
@@ -7,9 +7,9 @@ import Link from 'next/link';
 export function AppLogo({ className, dash }: IClassName & { dash?: boolean }) {
 	return (
 		<Link href={dash ? '/' : APP_LINK!} target="_self">
-			{APP_LOGO_URL ? (
+			{APP_LOGO_SRC ? (
 				<Image
-					src={APP_LOGO_URL}
+					src={APP_LOGO_SRC}
 					alt="EverTeams Logo"
 					className="w-[128.104px] h-[25px] object-contain"
 					width={350}
