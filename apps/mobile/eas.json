@@ -9,18 +9,18 @@
 			"distribution": "internal",
 			"channel": "development",
 			"env": {
-				"SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",
-				"SENTRY_ORG": "${SENTRY_ORG}",
-				"SENTRY_PROJECT": "${SENTRY_PROJECT}"
+				"SENTRY_AUTH_TOKEN": "SENTRY_AUTH_TOKEN_PLACEHOLDER",
+				"SENTRY_ORG": "SENTRY_ORG_PLACEHOLDER",
+				"SENTRY_PROJECT": "SENTRY_PROJECT_PLACEHOLDER"
 			}
 		},
 		"preview": {
 			"distribution": "internal",
 			"channel": "preview",
 			"env": {
-				"SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",
-				"SENTRY_ORG": "${SENTRY_ORG}",
-				"SENTRY_PROJECT": "${SENTRY_PROJECT}",
+				"SENTRY_AUTH_TOKEN": "SENTRY_AUTH_TOKEN_PLACEHOLDER",
+				"SENTRY_ORG": "SENTRY_ORG_PLACEHOLDER",
+				"SENTRY_PROJECT": "SENTRY_PROJECT_PLACEHOLDER",
 				"SENTRY_URL": "https://sentry.io"
 			}
 		},
@@ -28,9 +28,9 @@
 			"autoIncrement": true,
 			"channel": "production",
 			"env": {
-				"SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",
-				"SENTRY_ORG": "${SENTRY_ORG}",
-				"SENTRY_PROJECT": "${SENTRY_PROJECT}",
+				"SENTRY_AUTH_TOKEN": "SENTRY_AUTH_TOKEN_PLACEHOLDER",
+				"SENTRY_ORG": "SENTRY_ORG_PLACEHOLDER",
+				"SENTRY_PROJECT": "SENTRY_PROJECT_PLACEHOLDER",
 				"SENTRY_URL": "https://sentry.io"
 			}
 		},
@@ -38,9 +38,9 @@
 			"distribution": "internal",
 			"channel": "internal",
 			"env": {
-				"SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",
-				"SENTRY_ORG": "${SENTRY_ORG}",
-				"SENTRY_PROJECT": "${SENTRY_PROJECT}",
+				"SENTRY_AUTH_TOKEN": "SENTRY_AUTH_TOKEN_PLACEHOLDER",
+				"SENTRY_ORG": "SENTRY_ORG_PLACEHOLDER",
+				"SENTRY_PROJECT": "SENTRY_PROJECT_PLACEHOLDER",
 				"SENTRY_URL": "https://sentry.io"
 			}
 		}
