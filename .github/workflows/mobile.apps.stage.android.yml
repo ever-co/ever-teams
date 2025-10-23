@@ -4,10 +4,10 @@ on:
     branches:
       - apps-stage
     paths:
-      - ".github/workflows/mobile.apps.stage.yml"
-      - "apps/mobile/**"
-      - "package.json"
-      - "yarn.lock"
+      - '.github/workflows/mobile.apps.stage.yml'
+      - 'apps/mobile/**'
+      - 'package.json'
+      - 'yarn.lock'
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -35,8 +35,8 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20.19.0"
-          cache: "yarn"
+          node-version: '20.19.0'
+          cache: 'yarn'
 
       - name: Setup EAS
         uses: expo/expo-github-action@v8
@@ -72,23 +72,31 @@ jobs:
           EXPO_PROJECT_ID: ${{ secrets.EXPO_PROJECT_ID }}
           EXPO_PROJECT_PACKAGE_NAME: ${{ secrets.EXPO_PROJECT_PACKAGE_NAME || 'ever.teams' }}
           EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER: ${{ secrets.EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER || 'co.ever.teams' }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
 
       - name: Build on EAS
         run: cd apps/mobile && eas build --profile internal --platform android --non-interactive
+        env:
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
 
       - name: Publish update
         run: cd apps/mobile && eas update --auto --profile internal --platform android --non-interactive
 
-      - name: "Authenticate to Google Cloud"
-        uses: "google-github-actions/auth@v1"
+      - name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
         with:
           credentials_json: ${{ env.DECODED_GOOGLE_CREDENTIALS }}
 
       # Install gcloud, `setup-gcloud` automatically picks up authentication from `auth`.
-      - name: "Set up Cloud SDK"
-        uses: "google-github-actions/setup-gcloud@v1"
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
         with:
-          project_id: "ever-teams-399720"
+          project_id: 'ever-teams-399720'
 
       - name: Upload to Play Store Console
         run: cd apps/mobile && eas submit --platform android --profile internal --latest --non-interactive

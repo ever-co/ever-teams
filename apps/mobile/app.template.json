@@ -24,8 +24,10 @@
 			[
 				"@sentry/react-native/expo",
 				{
-					"organization": "ever-co",
-					"project": "ever-teams-mobile"
+					"organization": "$SENTRY_ORG",
+					"project": "$SENTRY_PROJECT",
+					"dsn": "$SENTRY_DSN",
+					"url": "https://sentry.io/"
 				}
 			],
 			[
@@ -111,7 +113,10 @@
 		},
 		"extra": {
 			"eas": {
-				"projectId": "$EXPO_PROJECT_ID"
+				"projectId": "$EXPO_PROJECT_ID",
+				"sentry": {
+					"release": "$EXPO_PROJECT_NAME@0.1.0"
+				}
 			}
 		},
 		"runtimeVersion": "exposdk:53.0.0"
