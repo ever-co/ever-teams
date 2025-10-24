@@ -57,7 +57,7 @@ jobs:
           sed -i 's/APPSTORE_API_KEY_ID_PLACEHOLDER/${{ secrets.APPSTORE_API_KEY_ID }}/' ./apps/mobile/eas.json
           sed -i 's/SENTRY_AUTH_TOKEN_PLACEHOLDER/${{ secrets.SENTRY_AUTH_TOKEN }}/g' ./apps/mobile/eas.json
           sed -i 's/SENTRY_ORG_PLACEHOLDER/${{ secrets.SENTRY_ORG }}/g' ./apps/mobile/eas.json
-          sed -i 's/SENTRY_PROJECT_PLACEHOLDER/${{ secrets.SENTRY_PROJECT }}/g' ./apps/mobile/eas.json
+          sed -i 's/SENTRY_PROJECT_PLACEHOLDER/${{ vars.EXPO_SENTRY_PROJECT }}/g' ./apps/mobile/eas.json
 
       - name: Create Apple API Key File
         run: |
@@ -81,9 +81,9 @@ jobs:
           EXPO_PROJECT_ID: ${{ secrets.EXPO_PROJECT_ID }}
           EXPO_PROJECT_PACKAGE_NAME: ${{ secrets.EXPO_PROJECT_PACKAGE_NAME || 'ever.teams' }}
           EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER: ${{ secrets.EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER || 'co.ever.teams' }}
-          EXPO_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          EXPO_PUBLIC_SENTRY_DSN: ${{ vars.EXPO_PUBLIC_SENTRY_DSN }}
           EXPO_SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
-          EXPO_SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+          EXPO_SENTRY_PROJECT: ${{ vars.EXPO_SENTRY_PROJECT }}
 
       - name: Build on EAS
         run: cd apps/mobile && eas build --profile production --platform ios --non-interactive
