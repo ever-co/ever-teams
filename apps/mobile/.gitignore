@@ -80,7 +80,9 @@ web-build/
 !env.js
 
 # local env files
-.env*
+.env
+.env.local
+.env.*.local
 !.env.template
 
 dist/
