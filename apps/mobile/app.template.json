@@ -26,7 +26,7 @@
 				{
 					"organization": "$EXPO_SENTRY_ORG",
 					"project": "$EXPO_SENTRY_PROJECT",
-					"dsn": "$EXPO_SENTRY_DSN",
+					"dsn": "$EXPO_PUBLIC_SENTRY_DSN",
 					"url": "https://sentry.io/"
 				}
 			],
