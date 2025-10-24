@@ -24,9 +24,9 @@
 			[
 				"@sentry/react-native/expo",
 				{
-					"organization": "$SENTRY_ORG",
-					"project": "$SENTRY_PROJECT",
-					"dsn": "$SENTRY_DSN",
+					"organization": "$EXPO_SENTRY_ORG",
+					"project": "$EXPO_SENTRY_PROJECT",
+					"dsn": "$EXPO_PUBLIC_SENTRY_DSN",
 					"url": "https://sentry.io/"
 				}
 			],
