@@ -102,10 +102,10 @@ FROM node:${NODE_VERSION}-slim AS base
 
 # Output the environment variable value (debug)
 ARG NEXT_PUBLIC_GAUZY_API_SERVER_URL
-RUN echo "NEXT_PUBLIC_GAUZY_API_SERVER_URL=${NEXT_PUBLIC_GAUZY_API_SERVER_URL}"
+RUN echo 'NEXT_PUBLIC_GAUZY_API_SERVER_URL=${NEXT_PUBLIC_GAUZY_API_SERVER_URL}'
 
-LABEL maintainer="ever@ever.co"
-LABEL org.opencontainers.image.source="https://github.com/ever-co/ever-teams"
+LABEL maintainer='ever@ever.co'
+LABEL org.opencontainers.image.source='https://github.com/ever-co/ever-teams'
 
 WORKDIR /app
 
@@ -276,4 +276,4 @@ EXPOSE 3030
 ENV PORT=3030
 
 # Start Next.js server
-CMD [ "node", "./apps/web/server.js" ]
+CMD [ 'node', './apps/web/server.js' ]
