@@ -56,9 +56,9 @@ jobs:
 
       - name: Replace Secrets in eas.json
         run: |
-          sed -i 's/SENTRY_AUTH_TOKEN_PLACEHOLDER/${{ secrets.SENTRY_AUTH_TOKEN }}/g' ./apps/mobile/eas.json
-          sed -i 's/SENTRY_ORG_PLACEHOLDER/${{ secrets.SENTRY_ORG }}/g' ./apps/mobile/eas.json
-          sed -i 's/SENTRY_PROJECT_PLACEHOLDER/${{ secrets.EXPO_SENTRY_PROJECT }}/g' ./apps/mobile/eas.json
+          sed -i 's|SENTRY_AUTH_TOKEN_PLACEHOLDER|${{ secrets.SENTRY_AUTH_TOKEN }}|g' ./apps/mobile/eas.json
+          sed -i 's|SENTRY_ORG_PLACEHOLDER|${{ secrets.SENTRY_ORG }}|g' ./apps/mobile/eas.json
+          sed -i 's|SENTRY_PROJECT_PLACEHOLDER|${{ secrets.EXPO_SENTRY_PROJECT }}|g' ./apps/mobile/eas.json
 
       - name: Install Packages
         run: |
