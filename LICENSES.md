@@ -2,7 +2,7 @@
 
 Copyright © 2022-present, Ever Co. LTD. All rights reserved.
 
-This document represents official information about our licensing, make sure you read and understand it before starting to use software and source code.
+This document represents official information about our licensing. Make sure you read and understand it before starting to use the software and source code.
 
 - Check more detailed information about licensing in our [Wiki](https://github.com/ever-co/ever-teams/wiki/Licensing).
 - You can also ask any questions in the [Issue](https://github.com/ever-co/ever-teams/issues/TODO) or [Contact Us](https://github.com/ever-co/ever-teams#contact-us).
@@ -30,12 +30,14 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the relevant GNU Licenses along with this program. If not, see <http://www.gnu.org/licenses>.
 
 We suggest checking out a great overview of different open-source licenses at <https://choosealicense.com/licenses>.  
-For example, for AGPL v3 (the strongest copyleft license we use) conditions can be summarized as follows:
+For example, for AGPL v3 (the strongest copyleft license we use), conditions can be summarized as follows:
 
 -   making available complete source code of licensed works and modifications, which include larger works using a licensed work, under the same license.
 -   Copyright and license notices must be preserved
 -   Contributors provide an express grant of patent rights.
 -   When a modified version is used to provide a service over a network, the complete source code of the modified version must be made available.
+
+Please note that some files may be automatically added or installed during the build process (for example, through npm dependencies). Such third-party components are governed by their **own respective licenses**, which may impose additional or more restrictive terms. It is your responsibility to review and comply with the license terms applicable to any third-party dependencies included in this project.
 
 Feel free to [Contact Us](https://github.com/ever-co/ever-teams#contact-us) for additional information about used open-source licenses!
 
