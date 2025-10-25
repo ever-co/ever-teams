@@ -103,7 +103,12 @@ const LocaleLayout = (props: Props) => {
 
 	const messages = require(`@/locales/${locale}.json`);
 	return (
-		<html lang={locale} className={`${font.variable} ${font.className}`} suppressHydrationWarning>
+		<html
+			lang={locale}
+			className={`${font.variable} ${font.className}`}
+			data-scroll-behavior="smooth"
+			suppressHydrationWarning
+		>
 			<head>
 				<title>{formatTitle(`${pathname}${name ? `?name=${name}` : ''}`) || 'Home'}</title>
 			</head>

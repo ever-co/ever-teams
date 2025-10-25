@@ -204,7 +204,7 @@ export function CommonToggle({
             pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
 				/>
 			</Switch>
-			<Text className="text-gray-400 text-md font-normal">{enabled ? enabledText : disabledText}</Text>
+			<Text className="font-normal text-gray-400 text-md">{enabled ? enabledText : disabledText}</Text>
 		</div>
 	);
 }
