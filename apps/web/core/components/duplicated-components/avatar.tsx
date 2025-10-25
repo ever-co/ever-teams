@@ -3,7 +3,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { avatarState } from '@/core/stores';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
-import Image from 'next/legacy/image';
+import Image from 'next/image';
 import { PropsWithChildren, useEffect, useMemo } from 'react';
 import { useAtom } from 'jotai';
 import hasOwn from 'lodash/has';
@@ -71,15 +71,15 @@ export function Avatar({
 
 			{imgUrl && (
 				<Image
-					layout="fill"
+					fill
+					sizes={`${size}px`}
 					src={imgUrl}
 					className={clsxm(
-						'w-full h-full',
+						'w-full h-full object-cover',
 						shape === 'circle' && ['rounded-full'],
 						shape === 'square' && ['rounded-md']
 					)}
-					alt={alt}
-					objectFit="cover"
+					alt={alt || 'Avatar'}
 				/>
 			)}
 			{children}

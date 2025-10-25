@@ -1,7 +1,7 @@
 import { useAuthenticateUser } from '@/core/hooks';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import capitalize from 'lodash/capitalize';
-import Image from 'next/legacy/image';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
@@ -37,9 +37,9 @@ const Profile = () => {
 							<Image
 								src={user?.imageUrl || ''}
 								alt="User Icon"
-								layout="fill"
-								objectFit="cover"
-								className="w-full h-full rounded-full"
+								fill
+								sizes="48px"
+								className="w-full h-full rounded-full object-cover"
 							/>
 						</div>
 					</PopoverButton>
