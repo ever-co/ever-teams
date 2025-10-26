@@ -2,7 +2,7 @@ import { TUser } from '@/core/types/schemas';
 import TimerCard from '@/core/components/timer/timer-card';
 import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import capitalize from 'lodash/capitalize';
-import Image from 'next/legacy/image';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 

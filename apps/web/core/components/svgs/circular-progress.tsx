@@ -15,14 +15,14 @@ export default function CircularProgress({
 		<>
 			<div
 				x-data="scrollProgress"
-				className="relative max-h-12 h-12 w-12 max-w-12 min-w-12 -rotate-90 inline-flex items-center justify-center overflow-hidden rounded-full"
+				className="inline-flex overflow-hidden relative justify-center items-center w-12 h-12 max-h-12 rounded-full -rotate-90 max-w-12 min-w-12"
 			>
 				<svg className="w-12 h-12">
 					<circle
 						className="text-gray-300"
 						strokeWidth="8"
 						stroke="currentColor"
-						fill="transparent"
+						fill="none"
 						r={radius}
 						cx={cx}
 						cy={cy}
@@ -34,14 +34,14 @@ export default function CircularProgress({
 						strokeDashoffset={`calc(${circumference} - ${(percentage / 100) * circumference})`}
 						strokeLinecap="round"
 						stroke="currentColor"
-						fill="transparent"
+						fill="none"
 						r={radius}
 						cx={cx}
 						cy={cy}
 					/>
 				</svg>
 				<span
-					className="absolute text-xs font-normal text-black dark:text-white rotate-90"
+					className="absolute text-xs font-normal text-black rotate-90 dark:text-white"
 					x-text={`${percentage}%`}
 				>
 					{percentage}%{' '}
