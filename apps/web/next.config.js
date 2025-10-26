@@ -1,4 +1,3 @@
-const path = require('path');
 const withNextIntl = require('next-intl/plugin')('./core/lib/i18n/request.ts');
 const { withSentryConfig } = require('@sentry/nextjs');
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
@@ -83,18 +82,14 @@ const sentryConfig = isSentryEnabled && {
 		disableLogger: true
 	}
 };
-const eslintBuildConfig = process.env.NEXT_IGNORE_ESLINT_ERROR_ON_BUILD
-	? {
-			// Warning: IF TRUE This allows production builds to successfully complete even if
-			// your project has ESLint errors.
-			eslint: {
-				ignoreDuringBuilds: true
-			}
-		}
-	: {};
+// Next.js 16: eslint configuration in next.config.js is no longer supported
+// Use eslint.config.mjs for ESLint configuration instead
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	output: ['standalone', 'export'].includes(BUILD_OUTPUT_MODE) ? BUILD_OUTPUT_MODE : undefined,
+	// Next.js 16: Cache Components for explicit caching control
+	// Note: Disabled for now due to incompatibility with route segment config "runtime"
+	// cacheComponents: true,
 	experimental: {
 		optimizePackageImports: [
 			'geist',
@@ -104,7 +99,9 @@ const nextConfig = {
 			'@ever-teams/types',
 			'@ever-teams/utils',
 			'@ever-teams/ui'
-		]
+		],
+		// Next.js 16: Turbopack File System Caching for faster builds
+		turbopackFileSystemCacheForDev: true
 	},
 	transpilePackages: [
 		'geist',
@@ -118,41 +115,9 @@ const nextConfig = {
 		'react-icons',
 		'@heroicons/react'
 	],
-	...eslintBuildConfig,
-	webpack: (config, { isServer }) => {
-		config.resolve.alias['@app'] = path.join(__dirname, 'app');
-		config.resolve.alias['@components'] = path.join(__dirname, 'components');
-		config.resolve.alias['app'] = path.join(__dirname, 'app');
-		config.resolve.alias['components'] = path.join(__dirname, 'components');
-		config.resolve.alias['lib'] = path.join(__dirname, 'lib');
 
-		const fileLoaderRule = config.module.rules.find((rule) => rule.test?.test?.('.svg'));
-
-		config.module.rules.push(
-			{
-				...fileLoaderRule,
-				type: 'javascript/auto',
-				test: /\.svg$/i,
-				resourceQuery: /url/ // *.svg?url
-			},
-			{
-				test: /\.svg$/i,
-				type: 'javascript/auto',
-				issuer: fileLoaderRule.issuer,
-				resourceQuery: { not: [...fileLoaderRule.resourceQuery.not, /url/] }, // exclude if *.svg?url
-				use: [
-					{
-						loader: '@svgr/webpack',
-						options: {
-							dimensions: false
-						}
-					}
-				]
-			}
-		);
-		return config;
-	},
 	images: {
+		// Next.js 16: remotePatterns replaces deprecated domains config
 		remotePatterns: [
 			// Static localhost patterns
 			...localImageHosts.map((host) => ({
@@ -166,7 +131,11 @@ const nextConfig = {
 				hostname: hostname,
 				port: ''
 			}))
-		]
+		],
+		// Next.js 16: New image optimization defaults
+		minimumCacheTTL: 14400, // 4 hours (changed from 60s in Next.js 16)
+		dangerouslyAllowLocalIP: true, // Allow local IP optimization for development
+		maximumRedirects: 3 // Limit redirects to prevent infinite loops
 	},
 	async rewrites() {
 		return [

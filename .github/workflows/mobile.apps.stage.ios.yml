@@ -52,12 +52,12 @@ jobs:
 
       - name: Replace Secrets in eas.json
         run: |
-          sed -i 's/APPLE_ID_PLACEHOLDER/${{ secrets.APPLE_ID }}/' ./apps/mobile/eas.json
-          sed -i 's/APPSTORE_ISSUER_ID_PLACEHOLDER/${{ secrets.APPSTORE_ISSUER_ID }}/' ./apps/mobile/eas.json
-          sed -i 's/APPSTORE_API_KEY_ID_PLACEHOLDER/${{ secrets.APPSTORE_API_KEY_ID }}/' ./apps/mobile/eas.json
-          sed -i 's/SENTRY_AUTH_TOKEN_PLACEHOLDER/${{ secrets.SENTRY_AUTH_TOKEN }}/g' ./apps/mobile/eas.json
-          sed -i 's/SENTRY_ORG_PLACEHOLDER/${{ secrets.SENTRY_ORG }}/g' ./apps/mobile/eas.json
-          sed -i 's/SENTRY_PROJECT_PLACEHOLDER/${{ secrets.EXPO_SENTRY_PROJECT }}/g' ./apps/mobile/eas.json
+          sed -i 's|APPLE_ID_PLACEHOLDER|${{ secrets.APPLE_ID }}|' ./apps/mobile/eas.json
+          sed -i 's|APPSTORE_ISSUER_ID_PLACEHOLDER|${{ secrets.APPSTORE_ISSUER_ID }}|' ./apps/mobile/eas.json
+          sed -i 's|APPSTORE_API_KEY_ID_PLACEHOLDER|${{ secrets.APPSTORE_API_KEY_ID }}|' ./apps/mobile/eas.json
+          sed -i 's|SENTRY_AUTH_TOKEN_PLACEHOLDER|${{ secrets.SENTRY_AUTH_TOKEN }}|g' ./apps/mobile/eas.json
+          sed -i 's|SENTRY_ORG_PLACEHOLDER|${{ secrets.SENTRY_ORG }}|g' ./apps/mobile/eas.json
+          sed -i 's|SENTRY_PROJECT_PLACEHOLDER|${{ secrets.EXPO_SENTRY_PROJECT }}|g' ./apps/mobile/eas.json
 
       - name: Create Apple API Key File
         run: |
