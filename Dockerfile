@@ -276,4 +276,4 @@ EXPOSE 3030
 ENV PORT=3030
 
 # Start Next.js server
-CMD [ 'node', './apps/web/server.js' ]
+CMD ["node", "./apps/web/server.js"]
