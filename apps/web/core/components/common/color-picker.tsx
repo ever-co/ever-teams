@@ -34,7 +34,6 @@ export const ColorPicker = ({
 	const [isInternalUpdate, setIsInternalUpdate] = useState(false);
 	const activeTeam = useAtomValue(activeTeamState);
 	const { editOrganizationTeam, editOrganizationTeamLoading } = useOrganizationTeams();
-
 	const toggleDisabled = useCallback(() => {
 		setDisabled(!disabled);
 	}, [disabled]);
