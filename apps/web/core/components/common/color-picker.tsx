@@ -100,7 +100,7 @@ export const ColorPicker = ({
 			console.error('Team color update failed:', error);
 			toast.error('Failed to update team color. Please try again.');
 		}
-	}, [editOrganizationTeam]);
+	}, [editOrganizationTeam, activeTeam?.id, color]);
 
 	return fullWidthInput ? (
 		<Popover
