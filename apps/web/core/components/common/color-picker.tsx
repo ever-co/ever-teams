@@ -1,11 +1,15 @@
 'use client';
 
-import { useCallbackRef } from '@/core/hooks';
+import { useCallbackRef, useOrganizationTeams } from '@/core/hooks';
 import { Transition, Popover, PopoverButton } from '@headlessui/react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { HexColorPicker } from 'react-colorful';
-import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
+import { CheckSquareOutlineIcon, EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
 import { PopoverTrigger, PopoverContent, Popover as PopoverDropdown } from '@/core/components/common/popover';
+import { LoaderCircle } from 'lucide-react';
+import { useAtomValue } from 'jotai';
+import { activeTeamState } from '@/core/stores';
+import { toast } from 'sonner';
 
 export const ColorPicker = ({
 	defaultColor,
@@ -28,6 +32,8 @@ export const ColorPicker = ({
 	const panelRef = useRef<HTMLDivElement>(null);
 	const [disabled, setDisabled] = useState<boolean>(true);
 	const [isInternalUpdate, setIsInternalUpdate] = useState(false);
+	const activeTeam = useAtomValue(activeTeamState);
+	const { editOrganizationTeam, editOrganizationTeamLoading } = useOrganizationTeams();
 
 	const toggleDisabled = useCallback(() => {
 		setDisabled(!disabled);
@@ -82,12 +88,26 @@ export const ColorPicker = ({
 		};
 	}, []);
 
+	const handleTeamColorUpdate = useCallback(async () => {
+		try {
+			await editOrganizationTeam({
+				id: activeTeam?.id,
+				color
+			});
+
+			toast.success('Team color updated successfully');
+		} catch (error) {
+			console.error('Team color update failed:', error);
+			toast.error('Failed to update team color. Please try again.');
+		}
+	}, [editOrganizationTeam, activeTeam?.id, color]);
+
 	return fullWidthInput ? (
 		<Popover
 			className={'z-[1000] relative border-none no-underline w-full mt-3' + className}
 			onProgressCapture={(e) => e.stopPropagation()}
 		>
-			{() => (
+			{({ open }) => (
 				<>
 					<PopoverButton
 						className={'w-full outline-none mb-[15px]'}
@@ -119,7 +139,22 @@ export const ColorPicker = ({
 											setDisabled(!disabled);
 										}}
 									>
-										<EditPenUnderlineIcon className="w-6 h-6 cursor-pointer" />
+										{open ? (
+											editOrganizationTeamLoading ? (
+												<LoaderCircle
+													className="w-[18px] h-[18px] animate-spin"
+													strokeWidth="1.4"
+												/>
+											) : (
+												<CheckSquareOutlineIcon
+													className="w-[18px] h-[18px]"
+													strokeWidth="1.4"
+													onClick={handleTeamColorUpdate}
+												/>
+											)
+										) : (
+											<EditPenUnderlineIcon className="w-6 h-6 cursor-pointer" />
+										)}
 									</button>
 
 									<span
