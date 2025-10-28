@@ -288,9 +288,7 @@ export const TeamSettingForm = () => {
 										onChange={(color: any | null) => {
 											debounceHandleColorChange(color);
 										}}
-										isTeamManager={isTeamManager}
 										disabled={!isTeamManager}
-										fullWidthInput
 									/>
 								</div>
 							</div>
