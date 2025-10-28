@@ -31,36 +31,21 @@ export const ColorPicker = ({
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const panelRef = useRef<HTMLDivElement>(null);
 	const [disabled, setDisabled] = useState<boolean>(true);
-	const [isInternalUpdate, setIsInternalUpdate] = useState(false);
 	const activeTeam = useAtomValue(activeTeamState);
 	const { editOrganizationTeam, editOrganizationTeamLoading } = useOrganizationTeams();
 	const toggleDisabled = useCallback(() => {
 		setDisabled(!disabled);
 	}, [disabled]);
 
-	// Handle external defaultColor changes (avoid infinite loop)
-	useEffect(() => {
-		// Only sync when defaultColor is actually provided and different
-		if (defaultColor && defaultColor !== color && !isInternalUpdate) {
-			setColor(defaultColor);
-		}
-	}, [defaultColor, isInternalUpdate]); // Removed 'color' to prevent circular dependency
-
 	// Handle internal color changes and notify parent
 	const handleColorChange = useCallback(
 		(newColor: string) => {
-			setIsInternalUpdate(true);
 			setColor(newColor);
 
 			// Notify parent of change
 			if (onChangeRef.current) {
 				onChangeRef.current(newColor);
 			}
-
-			// Reset flag after a brief delay to allow parent updates
-			setTimeout(() => {
-				setIsInternalUpdate(false);
-			}, 0);
 		},
 		[onChangeRef]
 	);
@@ -158,14 +143,14 @@ export const ColorPicker = ({
 
 									<span
 										onClick={() => {
-											setIsInternalUpdate(true);
+											// setIsInternalUpdate(true);
 											setColor(null);
 											if (onChange) {
 												onChange(null);
 											}
-											setTimeout(() => {
-												setIsInternalUpdate(false);
-											}, 0);
+											// setTimeout(() => {
+											// 	setIsInternalUpdate(false);
+											// }, 0);
 										}}
 										className={`outline-none ${'cursor-pointer'}`}
 									>
