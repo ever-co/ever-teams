@@ -80,7 +80,9 @@ export const ColorPicker = ({
 
 	return (
 		<div
-			className={`group px-3 relative w-[100%] h-[48px] border rounded-[10px] flex gap-1 items-center justify-between input-border  dark:bg-dark--theme-light`}
+			className={`group px-3 relative w-[100%] h-[48px] border rounded-[10px] flex gap-1 items-center justify-between input-border  dark:bg-dark--theme-light ${
+				disabled ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
+			}`}
 		>
 			<span className="w-[5rem] shrink-0 text-left ">{color || 'Color'}</span>
 			{!disabled ? (

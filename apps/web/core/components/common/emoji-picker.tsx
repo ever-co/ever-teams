@@ -76,7 +76,9 @@ export const EmojiPicker = ({
 
 	return (
 		<div
-			className={`group px-3 relative w-[100%] h-[48px] border rounded-[10px] flex gap-1 items-center justify-between input-border  dark:bg-dark--theme-light`}
+			className={`group px-3 relative w-[100%] h-[48px] border rounded-[10px] flex gap-1 items-center justify-between input-border  dark:bg-dark--theme-light ${
+				disabled ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
+			}`}
 		>
 			<span className="w-[12rem] shrink-0 text-left truncate ">{value ? `${value?.native} ${value?.name}` : 'Emoji'}</span>
 			{!disabled ? (

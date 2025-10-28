@@ -205,10 +205,10 @@ export const TeamSettingForm = () => {
 			<form className="mt-8 w-fit" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
 				<div className="flex flex-col justify-between items-center">
 					<div className="mt-5 w-full">
-						<div className="">
+						<div className="flex flex-col gap-4">
 							{/* Team Name */}
 							<div className="flex flex-col justify-between items-center w-full sm:gap-12 sm:flex-row">
-								<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400 sm:w-1/5">
+								<Text className="flex-none flex-grow-0 text-lg font-normal text-gray-400 sm:w-1/5">
 									{t('pages.settingsTeam.TEAM_NAME')}
 								</Text>
 								<div
@@ -223,7 +223,7 @@ export const TeamSettingForm = () => {
 											required: true,
 											maxLength: 80
 										})}
-										className={`${disabled ? 'disabled:bg-[#FCFCFC]' : ''}`}
+										className={`h-[48px] ${disabled ? 'disabled:bg-[#FCFCFC]' : ''}`}
 										trailingNode={
 											isTeamManager ? (
 												disabled ? (
@@ -272,14 +272,14 @@ export const TeamSettingForm = () => {
 											)
 										}
 										disabled={disabled}
-										wrapperClassName={`rounded-lg bg-light--theme-light dark:bg-dark--theme-light`}
+										wrapperClassName={`rounded-lg bg-light--theme-light dark:bg-dark--theme-light mb-0`}
 									/>
 								</div>
 							</div>
 
 							{/* Team Color */}
 							<div className="flex flex-col gap-1 justify-between items-center w-full lg:flex-row lg:gap-12">
-								<Text className="flex-none flex-grow-0 mb-2 w-full text-lg font-normal text-gray-400 lg:w-1/5">
+								<Text className="flex-none flex-grow-0 w-full text-lg font-normal text-gray-400 lg:w-1/5">
 									{t('pages.settingsTeam.TEAM_COLOR')}
 								</Text>
 								<div className="flex z-10 flex-row flex-grow-0 justify-between items-center w-full lg:w-4/5">
@@ -295,7 +295,7 @@ export const TeamSettingForm = () => {
 
 							{/* Emoji */}
 							<div className="flex flex-col gap-1 justify-between items-center w-full lg:flex-row lg:gap-12">
-								<Text className="flex-none flex-grow-0 mb-2 w-full text-lg font-normal text-gray-400 lg:w-1/5">
+								<Text className="flex-none flex-grow-0 w-full text-lg font-normal text-gray-400 lg:w-1/5">
 									{t('pages.settingsTeam.EMOJI')}
 								</Text>
 								<div className="flex flex-row items-start lg:items-center justify-between flex-grow-0 w-full max-w-[88vw] lg:w-4/5">
@@ -311,8 +311,8 @@ export const TeamSettingForm = () => {
 
 							{/* Team Size */}
 							{
-								<div className="flex flex-col gap-1 justify-between items-center mt-3 w-full lg:flex-row lg:gap-12">
-									<Text className="flex-none flex-grow-0 mb-2 w-full text-lg font-normal text-gray-400 lg:w-1/5">
+								<div className="flex flex-col gap-1 justify-between items-center w-full lg:flex-row lg:gap-12">
+									<Text className="flex-none flex-grow-0 w-full text-lg font-normal text-gray-400 lg:w-1/5">
 										{t('pages.settingsTeam.TEAM_SIZE')}
 									</Text>
 									<div className="flex flex-row flex-grow-0 justify-between items-center w-full lg:w-4/5">
