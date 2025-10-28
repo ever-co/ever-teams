@@ -72,8 +72,9 @@ export const ColorPicker = ({
 		};
 	}, []);
 
-	const handleTeamColorUpdate = useCallback(async () => {
+	const updateTeamColor = useCallback(async () => {
 		try {
+			if(color === activeTeam?.color) return;
 			await editOrganizationTeam({
 				id: activeTeam?.id,
 				color
@@ -85,6 +86,25 @@ export const ColorPicker = ({
 			toast.error('Failed to update team color. Please try again.');
 		}
 	}, [editOrganizationTeam, activeTeam?.id, color]);
+
+	const removeTeamColor = useCallback(async () => {
+		try {
+			setColor(null);
+			if (onChangeRef.current) {
+				onChangeRef.current(null);
+			}
+
+			await editOrganizationTeam({
+				id: activeTeam?.id,
+				color: null
+			});
+
+			toast.success('Team color removed successfully');
+		} catch (error) {
+			console.error('Team color removal failed:', error);
+			toast.error('Failed to remove team color. Please try again.');
+		}
+	}, [onChangeRef]);
 
 	return fullWidthInput ? (
 		<Popover
@@ -133,7 +153,7 @@ export const ColorPicker = ({
 												<CheckSquareOutlineIcon
 													className="w-[18px] h-[18px]"
 													strokeWidth="1.4"
-													onClick={handleTeamColorUpdate}
+													onClick={updateTeamColor}
 												/>
 											)
 										) : (
@@ -142,16 +162,7 @@ export const ColorPicker = ({
 									</button>
 
 									<span
-										onClick={() => {
-											// setIsInternalUpdate(true);
-											setColor(null);
-											if (onChange) {
-												onChange(null);
-											}
-											// setTimeout(() => {
-											// 	setIsInternalUpdate(false);
-											// }, 0);
-										}}
+										onClick={removeTeamColor}
 										className={`outline-none ${'cursor-pointer'}`}
 									>
 										<TrashIcon className="w-5" />
