@@ -32,9 +32,11 @@ export const EmojiPicker = ({
 	const activeTeam = useAtomValue(activeTeamState);
 
 	useEffect(() => {
-		getEmojiDataFromNative(defaultEmoji).then((item) => {
-			setValue(item);
-		});
+		if (!defaultEmoji) {
+			setValue(undefined);
+			return;
+		}
+		getEmojiDataFromNative(defaultEmoji).then((item) => setValue(item));
 	}, [defaultEmoji]);
 
 	const updateTeamEmoji = useCallback(async () => {

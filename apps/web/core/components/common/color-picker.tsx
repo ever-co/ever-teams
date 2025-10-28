@@ -13,11 +13,13 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 export const ColorPicker = ({
 	defaultColor,
 	onChange,
-	disabled
+	disabled,
+	className
 }: {
 	defaultColor?: string;
 	onChange?: (color?: string | undefined) => void;
 	disabled?: boolean;
+	className?: string;
 }) => {
 	const [color, setColor] = useState<string>();
 	const onChangeRef = useCallbackRef(onChange);
@@ -82,7 +84,7 @@ export const ColorPicker = ({
 		<div
 			className={`group px-3 relative w-[100%] h-[48px] border rounded-[10px] flex gap-1 items-center justify-between input-border  dark:bg-dark--theme-light ${
 				disabled ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
-			}`}
+			} ${className}`}
 		>
 			<span className="w-[5rem] shrink-0 text-left ">{color || 'Color'}</span>
 			{!disabled ? (
