@@ -303,8 +303,7 @@ export const TeamSettingForm = () => {
 										onChange={(emoji: string | undefined) => {
 											setValue('emoji', emoji);
 										}}
-										emoji={activeTeam?.emoji || null}
-										isTeamManager={isTeamManager}
+										defaultEmoji={activeTeam?.emoji || null}
 										disabled={!isTeamManager}
 									/>
 								</div>
