@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallbackRef, useOrganizationTeams } from '@/core/hooks';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { CheckSquareOutlineIcon, EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
 import { LoaderCircle } from 'lucide-react';
@@ -13,16 +13,20 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 export const ColorPicker = ({
 	defaultColor,
 	onChange,
-	disabled,
+	disabled
 }: {
 	defaultColor?: string;
 	onChange?: (color?: string | undefined) => void;
 	disabled?: boolean;
 }) => {
-	const [color, setColor] = useState<string | undefined>(defaultColor);
+	const [color, setColor] = useState<string>();
 	const onChangeRef = useCallbackRef(onChange);
 	const activeTeam = useAtomValue(activeTeamState);
 	const { editOrganizationTeam, editOrganizationTeamLoading } = useOrganizationTeams();
+
+	useEffect(() => {
+		setColor(defaultColor);
+	}, [defaultColor]);
 
 	// Handle internal color changes and notify parent
 	const handleColorChange = useCallback(

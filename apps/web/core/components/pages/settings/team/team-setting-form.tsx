@@ -300,7 +300,7 @@ export const TeamSettingForm = () => {
 								</Text>
 								<div className="flex flex-row items-start lg:items-center justify-between flex-grow-0 w-full max-w-[88vw] lg:w-4/5">
 									<EmojiPicker
-										onChange={(emoji: string) => {
+										onChange={(emoji: string | undefined) => {
 											setValue('emoji', emoji);
 										}}
 										emoji={activeTeam?.emoji || null}
