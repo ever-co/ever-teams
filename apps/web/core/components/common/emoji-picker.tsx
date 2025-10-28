@@ -108,7 +108,7 @@ export const EmojiPicker = ({
 								) : (
 									<div className="grow h-full flex items-center  justify-end gap-2">
 										<EditPenUnderlineIcon className="w-6 h-6 cursor-pointer" />
-										{!open && value ? (
+										{ value ? (
 											editOrganizationTeamLoading ? (
 												<LoaderCircle
 													className="w-[18px] h-[18px] animate-spin"
