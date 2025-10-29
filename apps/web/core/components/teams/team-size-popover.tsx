@@ -3,24 +3,8 @@ import { Button } from '@/core/components';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { EditPenUnderlineIcon } from 'assets/svg';
+import { sizeOption } from '@/core/constants/config/constants';
 
-const sizeOption = [
-	{
-		name: 'Only me'
-	},
-	{
-		name: '2 - 5'
-	},
-	{
-		name: '6 - 20'
-	},
-	{
-		name: '21 - 100'
-	},
-	{
-		name: '100+'
-	}
-];
 const TeamSize = ({
 	defaultValue,
 	onChange,

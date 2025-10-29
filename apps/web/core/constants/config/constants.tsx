@@ -844,3 +844,21 @@ export const InviteStatusDisplayMap = {
 } as const;
 export const ITEMS_LENGTH_TO_VIRTUALIZED = 8;
 export const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
+
+export const sizeOption = [
+	{
+		name: 'Only me'
+	},
+	{
+		name: '2 - 5'
+	},
+	{
+		name: '6 - 20'
+	},
+	{
+		name: '21 - 100'
+	},
+	{
+		name: '100+'
+	}
+];
