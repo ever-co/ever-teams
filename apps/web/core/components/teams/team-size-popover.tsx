@@ -54,7 +54,7 @@ const TeamSize = ({
 			toast.error('Failed to update team size. Please try again.');
 			console.error('Failed to update team size:', error);
 		}
-	}, [value, editOrganizationTeam, activeTeam?.id]);
+	}, [value, editOrganizationTeam, activeTeam?.id, activeTeam?.teamSize, handleSave]);
 
 	return (
 		<div
