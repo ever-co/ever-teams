@@ -350,11 +350,10 @@ export const TeamSettingForm = () => {
 									</Text>
 									<div className="flex flex-row flex-grow-0 justify-between items-center w-full lg:w-4/5">
 										<TeamSize
-											defaultValue={activeTeam?.teamSize || ''}
+											defaultValue={activeTeam?.teamSize || 'Only me'}
 											onChange={(teamSize: string) => {
 												setValue('teamSize', teamSize);
 											}}
-											isTeamManager={isTeamManager}
 											disabled={!isTeamManager}
 										/>
 									</div>
