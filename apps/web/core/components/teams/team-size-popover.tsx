@@ -7,6 +7,8 @@ import { sizeOption } from '@/core/constants/config/constants';
 import { LoaderCircle } from 'lucide-react';
 import { useOrganizationTeams } from '@/core/hooks';
 import { toast } from 'sonner';
+import { useAtomValue } from 'jotai';
+import { activeTeamState } from '@/core/stores';
 
 const TeamSize = ({
 	defaultValue,
@@ -19,6 +21,7 @@ const TeamSize = ({
 }) => {
 	const t = useTranslations();
 	const [value, setValue] = useState(defaultValue || 'Only me');
+	const activeTeam = useAtomValue(activeTeamState);
 	const { editOrganizationTeamLoading, editOrganizationTeam } = useOrganizationTeams();
 
 	const onSelect = (value: any) => {
@@ -39,9 +42,10 @@ const TeamSize = ({
 	}, [defaultValue, onChange]);
 
 	const updateTeamSize = useCallback(async () => {
-		if (value === defaultValue) return;
+		if (value === defaultValue || activeTeam?.teamSize === value) return;
 		try {
 			await editOrganizationTeam({
+				id: activeTeam?.id,
 				teamSize: value
 			});
 			handleSave();
@@ -50,7 +54,7 @@ const TeamSize = ({
 			toast.error('Failed to update team size. Please try again.');
 			console.error('Failed to update team size:', error);
 		}
-	}, [value, editOrganizationTeam]);
+	}, [value, editOrganizationTeam, activeTeam?.id]);
 
 	return (
 		<div
@@ -63,12 +67,12 @@ const TeamSize = ({
 				<Popover className="group grow">
 					{({ close }) => (
 						<>
-							<PopoverButton className="w-full flex items-center gap-2 justify-between h-full outline-none">
+							<PopoverButton className="w-full flex items-center gap-2 justify-end h-full outline-none">
 								<EditPenUnderlineIcon className="w-6 h-6 cursor-pointer" />
 							</PopoverButton>
 							<PopoverPanel
 								anchor="bottom end"
-								className="mt-5 bg-light--theme-light dark:bg-dark--theme-light border p-3 rounded-xl shadow-xlcard"
+								className="mt-5 bg-light--theme-light dark:bg-dark--theme-light border p-3 rounded-xl shadow-xlcard flex flex-col gap-3"
 							>
 								<div className="text-lg text-[#7E7991] dark:text-gray-400 font-[500]">
 									{t('form.SELECT_TEAM_SIZE')}
