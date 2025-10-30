@@ -32,8 +32,7 @@ import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { TUser } from '@/core/types/schemas/user/user.schema';
 import { queryKeys } from '@/core/query/keys';
-
-const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
+import { LOCAL_TIMER_STORAGE_KEY } from '@/core/constants/config/constants';
 
 /**
  * ! Don't modify this function unless you know what you're doing
