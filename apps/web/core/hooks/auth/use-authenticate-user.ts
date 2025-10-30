@@ -53,7 +53,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		return userDataQuery.isFetching || refreshTokenMutation.isPending;
 	}, [userDataQuery.isFetching, refreshTokenMutation.isPending]);
 
-	const updateUserFromAPI = useCallback(() => {
+	const refreshUserData = useCallback(() => {
 		if (userDataQuery.isFetching) {
 			return;
 		}
@@ -100,7 +100,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		userLoading: userDataQuery.isFetching,
 		setUser,
 		isTeamManager,
-		updateUserFromAPI,
+		refreshUserData,
 		refreshUserLoading,
 		logOut,
 		timeToTimeRefreshToken,

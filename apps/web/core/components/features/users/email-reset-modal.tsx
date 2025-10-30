@@ -23,7 +23,7 @@ export function EmailResetModal({ open, closeModal, email }: { open: boolean; cl
 		setValue('email', email);
 	}, [email, setValue]);
 
-	const { updateUserFromAPI } = useAuthenticateUser();
+	const { refreshUserData } = useAuthenticateUser();
 
 	const {
 		emailResetRequestLoading,
@@ -46,10 +46,10 @@ export function EmailResetModal({ open, closeModal, email }: { open: boolean; cl
 	}, [emailResetRequestQueryCall, getValues, t]);
 	const handleConfirm = useCallback(() => {
 		verifyChangeEmailRequestQueryCall(code).then(() => {
-			updateUserFromAPI();
+			refreshUserData();
 			onCloseModal();
 		});
-	}, [code, verifyChangeEmailRequestQueryCall, updateUserFromAPI, onCloseModal]);
+	}, [code, verifyChangeEmailRequestQueryCall, refreshUserData, onCloseModal]);
 
 	return (
 		<Modal isOpen={open} closeModal={onCloseModal}>

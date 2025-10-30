@@ -69,7 +69,7 @@ export interface UseAuthenticateUserResult {
 	userLoading: boolean;
 	setUser: (user: TUser | null) => void;
 	isTeamManager: boolean;
-	updateUserFromAPI: () => void;
+	refreshUserData: () => void;
 	refreshUserLoading: boolean;
 	logOut: () => void;
 	timeToTimeRefreshToken: (interval?: number) => () => void;
