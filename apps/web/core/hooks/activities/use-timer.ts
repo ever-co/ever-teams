@@ -36,7 +36,6 @@ import { LOCAL_TIMER_STORAGE_KEY } from '@/core/constants/config/constants';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 
-
 /**
  * ! Don't modify this function unless you know what you're doing
  * "This function is used to update the local timer status and time counter."
@@ -310,13 +309,18 @@ export function useTimer() {
 
 	// Start timer
 	const startTimer = useCallback(async () => {
-
 		// Check if the user is tracking time in another tab or device
-		const isUserTrackingTimeElsewhere = (await refreshUserData())?.employee.isTrackingTime;
-		if (isUserTrackingTimeElsewhere) {
-			toast.info(t('timer.ALREADY_TRACKING_MESSAGE'));
+		try {
+			const userData = await refreshUserData();
+			if (userData?.employee.isTrackingTime) {
+				toast.info(t('timer.ALREADY_TRACKING_MESSAGE'));
+				return;
+			}
+		} catch (error) {
+			console.error('Failed to verify tracking status:', error);
 			return;
 		}
+
 		if (pathname?.startsWith('/task/')) setActiveTask(detailedTask);
 		if (!taskId.current) return;
 		updateLocalTimerStatus({
