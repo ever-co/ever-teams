@@ -159,7 +159,7 @@ export function useTimer() {
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
 	const { user, $user } = useAuthenticateUser();
 	const myDailyPlans = useAtomValue(myDailyPlanListState);
-
+	const {refreshUserData} = useAuthenticateUser()
 	const [timerStatus, setTimerStatus] = useAtom(timerStatusState);
 
 	const [timerStatusFetching, setTimerStatusFetching] = useAtom(timerStatusFetchingState);
@@ -307,6 +307,10 @@ export function useTimer() {
 
 	// Start timer
 	const startTimer = useCallback(async () => {
+
+		// Check if the user is running a timer in another session
+		const isTimerRunningInOtherSession = await refreshUserData()
+
 		if (pathname?.startsWith('/task/')) setActiveTask(detailedTask);
 		if (!taskId.current) return;
 		updateLocalTimerStatus({
