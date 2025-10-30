@@ -34,6 +34,7 @@ import { TUser } from '@/core/types/schemas/user/user.schema';
 import { queryKeys } from '@/core/query/keys';
 import { LOCAL_TIMER_STORAGE_KEY } from '@/core/constants/config/constants';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 
 /**
@@ -156,6 +157,7 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: T
 export function useTimer() {
 	const pathname = usePathname();
 	const { updateTask, setActiveTask, detailedTask, activeTeamId, activeTeam, activeTeamTask } = useTeamTasks();
+	const t = useTranslations();
 
 	const taskStatuses = useAtomValue(taskStatusesState);
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
@@ -313,7 +315,7 @@ export function useTimer() {
 		// Check if the user is tracking time in another tab or device
 		const isUserTrackingTimeElsewhere = (await refreshUserData())?.employee.isTrackingTime;
 		if (isUserTrackingTimeElsewhere) {
-			toast.info('You’re already tracking time in another tab or device.');
+			toast.info(t('timer.ALREADY_TRACKING_MESSAGE'));
 			return;
 		}
 		if (pathname?.startsWith('/task/')) setActiveTask(detailedTask);
@@ -388,7 +390,8 @@ export function useTimer() {
 		activeTeam?.id,
 		activeTeam?.tenantId,
 		user?.employee?.id,
-		updateOrganizationTeamEmployeeActiveTask
+		updateOrganizationTeamEmployeeActiveTask,
+		t
 	]);
 
 	// Stop timer

@@ -923,6 +923,7 @@
 		"APPS": "تطبيقات",
 		"ARCHIVED": "مؤرشف",
 		"START_TIMER": "يرجى تحديد أو إنشاء مهمة جديدة لبدء تتبع الوقت أو وضع خطة",
+		"ALREADY_TRACKING_MESSAGE": "أنت تتبع الوقت بالفعل في علامة تبويب أو جهاز آخر.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "توقف المؤقت",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "توقف المؤقت بسبب التبديل بين الفرق"
