@@ -161,9 +161,8 @@ export function useTimer() {
 
 	const taskStatuses = useAtomValue(taskStatusesState);
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
-	const { user, $user } = useAuthenticateUser();
+	const { user, $user, refreshUserData } = useAuthenticateUser();
 	const myDailyPlans = useAtomValue(myDailyPlanListState);
-	const { refreshUserData } = useAuthenticateUser();
 	const [timerStatus, setTimerStatus] = useAtom(timerStatusState);
 
 	const [timerStatusFetching, setTimerStatusFetching] = useAtom(timerStatusFetchingState);
@@ -391,7 +390,8 @@ export function useTimer() {
 		activeTeam?.tenantId,
 		user?.employee?.id,
 		updateOrganizationTeamEmployeeActiveTask,
-		t
+		t,
+		refreshUserData
 	]);
 
 	// Stop timer
