@@ -33,6 +33,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { TUser } from '@/core/types/schemas/user/user.schema';
 import { queryKeys } from '@/core/query/keys';
 import { LOCAL_TIMER_STORAGE_KEY } from '@/core/constants/config/constants';
+import { toast } from 'sonner';
+
 
 /**
  * ! Don't modify this function unless you know what you're doing
@@ -159,7 +161,7 @@ export function useTimer() {
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
 	const { user, $user } = useAuthenticateUser();
 	const myDailyPlans = useAtomValue(myDailyPlanListState);
-	const {refreshUserData} = useAuthenticateUser()
+	const { refreshUserData } = useAuthenticateUser();
 	const [timerStatus, setTimerStatus] = useAtom(timerStatusState);
 
 	const [timerStatusFetching, setTimerStatusFetching] = useAtom(timerStatusFetchingState);
@@ -308,9 +310,12 @@ export function useTimer() {
 	// Start timer
 	const startTimer = useCallback(async () => {
 
-		// Check if the user is running a timer in another session
-		const isTimerRunningInOtherSession = await refreshUserData()
-
+		// Check if the user is tracking time in another tab or device
+		const isUserTrackingTimeElsewhere = (await refreshUserData())?.employee.isTrackingTime;
+		if (isUserTrackingTimeElsewhere) {
+			toast.info('You’re already tracking time in another tab or device.');
+			return;
+		}
 		if (pathname?.startsWith('/task/')) setActiveTask(detailedTask);
 		if (!taskId.current) return;
 		updateLocalTimerStatus({
