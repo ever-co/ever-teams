@@ -9,11 +9,13 @@ import { queryKeys } from '@/core/query/keys';
 import { TUpdateEmployee } from '@/core/types/schemas/organization/employee.schema';
 import { toast } from 'sonner';
 import { useUserQuery } from '../../queries/user-user.query';
+import { useIsMemberManager } from '../teams/use-team-member';
 
 export const useEmployee = () => {
 	const { data: user } = useUserQuery();
 	const [workingEmployees, setWorkingEmployees] = useAtom(workingEmployeesState);
 	const [workingEmployeesEmail, setWorkingEmployeesEmail] = useAtom(workingEmployeesEmailState);
+	const { isTeamManager } = useIsMemberManager(user);
 	const { firstLoadData: firstLoadDataEmployee } = useFirstLoad();
 
 	// Memoize query parameters to prevent unnecessary re-renders
@@ -29,7 +31,7 @@ export const useEmployee = () => {
 	const { data: employeesData, isLoading: getWorkingEmployeeLoading } = useQuery({
 		queryKey: queryKeys.users.employees.working(queryParams.tenantId, queryParams.organizationId),
 		queryFn: () => employeeService.getWorkingEmployees(),
-		enabled: !!queryParams.tenantId && !!queryParams.organizationId
+		enabled: !!queryParams.tenantId && !!queryParams.organizationId && isTeamManager
 	});
 
 	// Sync React Query data with Jotai state

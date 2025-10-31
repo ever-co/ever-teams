@@ -49,7 +49,8 @@ export enum ETaskStatusName {
 	READY_FOR_REVIEW = 'ready-for-review',
 	IN_REVIEW_STATUS = 'in-review',
 	DONE = 'done',
-	CANCELLED = 'cancelled'
+	CANCELLED = 'cancelled',
+	CREATE_NEW_TASK = 'Create New Task'
 }
 export enum ETaskSizeName {
 	X_LARGE = 'X-Large',
