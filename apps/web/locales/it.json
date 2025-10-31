@@ -912,6 +912,7 @@
 	},
 	"timer": {
 		"START_TIMER": "Per favore, seleziona o crea un nuovo compito per iniziare a tracciare il tempo o creare un piano",
+		"ALREADY_TRACKING_MESSAGE": "Stai già tracciando il tempo in un'altra scheda o dispositivo.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer Fermato",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Il timer è stato fermato a causa del cambio di team"
