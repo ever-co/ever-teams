@@ -1,5 +1,5 @@
 /**
- * Smart Validation System
+ * Zod Validation System
  *
  * Intelligent Zod validators that automatically normalize data before validation.
  * This provides a seamless experience where API data is transformed to match
@@ -13,15 +13,20 @@ import { ZodValidationError } from '@/core/types/schemas';
 /**
  * Enhanced validation response with detailed error information
  */
-export interface SmartValidationResult<T> {
-  success: boolean;
-  data?: T;
-  error?: ZodValidationError;
-  normalized: boolean; // Indicates if data was transformed
-}
+export type ZodValidationResult<T> =
+  | {
+      success: true;
+      data: T;
+      normalized: boolean;
+    }
+  | {
+      success: false;
+      error: ZodValidationError;
+      normalized: boolean;
+    };
 
 /**
- * Smart API response validator
+ * Zod API response validator
  *
  * Automatically normalizes data before Zod validation, providing seamless
  * handling of different API response formats.
@@ -34,18 +39,18 @@ export interface SmartValidationResult<T> {
  *
  * @example
  * ```typescript
- * const result = smartValidateApiResponse(taskSchema, rawApiData, 'getTasks');
+ * const result = zodApiResponseValidate(taskSchema, rawApiData, 'getTasks');
  * if (result.success) {
  *   console.log('Data validated:', result.data);
  *   console.log('Was normalized:', result.normalized);
  * }
  * ```
  */
-export function smartValidateApiResponse<T>(
+export function zodApiResponseValidate<T>(
   schema: z.ZodSchema<T>,
   data: unknown,
   context: string
-): SmartValidationResult<T> {
+): ZodValidationResult<T> {
   try {
     // Direct validation - enums now support both formats
     const result = schema.safeParse(data);
@@ -84,7 +89,7 @@ export function smartValidateApiResponse<T>(
 }
 
 /**
- * Smart pagination response validator
+ * Zod pagination response validator
  *
  * Validates paginated API responses with automatic data normalization.
  *
@@ -94,17 +99,17 @@ export function smartValidateApiResponse<T>(
  * @param context - Context for error reporting
  * @returns Validated pagination response
  */
-export function smartValidatePaginationResponse<T>(
+export function zodPaginationResponseValidate<T>(
   itemSchema: z.ZodSchema<T>,
   data: unknown,
   context: string
-): SmartValidationResult<{ items: T[]; total: number }> {
+): ZodValidationResult<{ items: T[]; total: number }> {
   const paginationSchema = z.object({
     items: z.array(itemSchema),
     total: z.number(),
   });
 
-  return smartValidateApiResponse(paginationSchema, data, context);
+  return zodApiResponseValidate(paginationSchema, data, context);
 }
 
 /**
@@ -121,78 +126,33 @@ export function smartValidatePaginationResponse<T>(
  * @returns Validated and normalized data
  * @throws ZodValidationError if validation fails
  */
-export function validateApiResponseSmart<T>(
+export function zodStrictApiResponseValidate<T>(
   schema: z.ZodSchema<T>,
   data: unknown,
   context: string
 ): T {
-  const result = smartValidateApiResponse(schema, data, context);
+  const result = zodApiResponseValidate(schema, data, context);
 
   if (!result.success) {
     throw result.error;
   }
 
-  return result.data!;
+  return result.data;
 }
 
 /**
- * Pagination version of validateApiResponseSmart
+ * Pagination version of zodStrictApiResponseValidate
  */
-export function validatePaginationResponseSmart<T>(
+export function zodStrictPaginationResponseValidate<T>(
   itemSchema: z.ZodSchema<T>,
   data: unknown,
   context: string
 ): { items: T[]; total: number } {
-  const result = smartValidatePaginationResponse(itemSchema, data, context);
+  const result = zodPaginationResponseValidate(itemSchema, data, context);
 
   if (!result.success) {
     throw result.error;
   }
 
-  return result.data!;
-}
-
-/**
- * Batch validation for multiple items
- *
- * Validates an array of items, collecting all validation errors
- * instead of failing on the first error.
- *
- * @template T - The item type
- * @param schema - Zod schema for individual items
- * @param items - Array of items to validate
- * @param context - Context for error reporting
- * @returns Validation results for all items
- */
-export function smartValidateBatch<T>(
-  schema: z.ZodSchema<T>,
-  items: unknown[],
-  context: string
-): {
-  validItems: T[];
-  errors: Array<{ index: number; error: ZodValidationError }>;
-  totalNormalized: number;
-} {
-  const validItems: T[] = [];
-  const errors: Array<{ index: number; error: ZodValidationError }> = [];
-  let totalNormalized = 0;
-
-  items.forEach((item, index) => {
-    const result = smartValidateApiResponse(schema, item, `${context}[${index}]`);
-
-    if (result.success) {
-      validItems.push(result.data!);
-      if (result.normalized) {
-        totalNormalized++;
-      }
-    } else {
-      errors.push({ index, error: result.error! });
-    }
-  });
-
-  return {
-    validItems,
-    errors,
-    totalNormalized,
-  };
+  return result.data;
 }

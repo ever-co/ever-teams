@@ -5,7 +5,7 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { createTaskSchema, taskSchema, TCreateTask, TTask } from '@/core/types/schemas/task/task.schema';
 import { TEmployee, ZodValidationError } from '@/core/types/schemas';
-import { validateApiResponseSmart, validatePaginationResponseSmart } from '@/core/lib/validation/smart-validators';
+import { zodStrictApiResponseValidate, zodStrictPaginationResponseValidate } from '@/core/lib/validation/zod-validators';
 
 /**
  * Enhanced Task Service with Zod validation
@@ -56,8 +56,8 @@ class TaskService extends APIService {
 
 			const response = await this.get<TTask>(endpoint);
 
-			// Validate the response data using smart validation with auto-normalization
-			return validateApiResponseSmart(taskSchema, response.data, 'getTaskById API response');
+			// Validate the response data using zod validation with auto-normalization
+			return zodStrictApiResponseValidate(taskSchema, response.data, 'getTaskById API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
@@ -92,8 +92,8 @@ class TaskService extends APIService {
 
 			const response = await this.get<PaginationResponse<TTask>>(endpoint, { tenantId: this.tenantId });
 
-			// Validate the response data using smart validation with auto-normalization
-			return validatePaginationResponseSmart(taskSchema, response.data, 'getTasks API response');
+			// Validate the response data using zod validation with auto-normalization
+			return zodStrictPaginationResponseValidate(taskSchema, response.data, 'getTasks API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
@@ -217,7 +217,7 @@ class TaskService extends APIService {
 			}
 
 			// Validate input data before sending (partial validation) Now safe to validate since we normalized the member structures
-			const validatedInput = validateApiResponseSmart(
+			const validatedInput = zodStrictApiResponseValidate(
 				taskSchema.partial(),
 				cleanedData,
 				'updateTask input data'
@@ -229,13 +229,13 @@ class TaskService extends APIService {
 
 				const response = await this.put<TTask>(`/tasks/${taskId}`, nBody);
 
-				return validateApiResponseSmart(taskSchema, response.data, 'updateTask API response');
+				return zodStrictApiResponseValidate(taskSchema, response.data, 'updateTask API response');
 			}
 
 			const response = await this.put<TTask>(`/tasks/${taskId}`, validatedInput);
 
 			// Validate the response data
-			return validateApiResponseSmart(taskSchema, response.data, 'updateTask API response');
+			return zodStrictApiResponseValidate(taskSchema, response.data, 'updateTask API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
@@ -285,7 +285,7 @@ class TaskService extends APIService {
 				};
 
 				// Validate input data before sending
-				const validatedInput = validateApiResponseSmart(
+				const validatedInput = zodStrictApiResponseValidate(
 					createTaskSchema,
 					datas,
 					'createTask input data'
@@ -300,7 +300,7 @@ class TaskService extends APIService {
 			const response = await api.post<PaginationResponse<TTask>>('/tasks/team', body);
 
 			// Validate the response data
-			return validatePaginationResponseSmart(taskSchema, response.data, 'createTask API response');
+			return zodStrictPaginationResponseValidate(taskSchema, response.data, 'createTask API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
@@ -365,9 +365,9 @@ class TaskService extends APIService {
 
 			const response = await this.get<TTask[]>(`/tasks/employee/${employeeId}?${query}`);
 
-			// Validate the response data using smart validation with auto-normalization
+			// Validate the response data using zod validation with auto-normalization
 			return response.data.map((task) =>
-				validateApiResponseSmart(taskSchema, task, 'getTasksByEmployeeId API response')
+				zodStrictApiResponseValidate(taskSchema, task, 'getTasksByEmployeeId API response')
 			);
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
