@@ -6,7 +6,23 @@ import { taskSchema } from './task.schema';
  * Daily Plan Status Enum Schema
  * Based on EDailyPlanStatus enum
  */
-export const dailyPlanStatusSchema = z.enum(['open', 'in-progress', 'completed']);
+export const dailyPlanStatusSchema = z.enum([
+	'blocked',
+	'ready',
+	'backlog',
+	'todo',
+	'in-progress',
+	'completed',
+	'closed',
+	'in review',
+	'open',
+	'custom',
+	'ready-for-review',
+	'in-review',
+	'done',
+	'cancelled',
+	'Create New Task'
+]);
 
 /**
  * Base Daily Plan Schema (IDailyPlanBase)
@@ -73,7 +89,7 @@ export const updateDailyPlanSchema = dailyPlanBaseSchema.partial().extend({
  * Pick taskId & employeeId from ICreateDailyPlan, omit 'id' from IBasePerTenantAndOrganizationEntityModel
  */
 export const dailyPlanTasksUpdateSchema = z.object({
-	// From Pick<ICreateDailyPlan, 'taskId' | 'employeeId'>
+	// From Pick<ICreateDailyPlan, 'taskId','employeeId'>
 	taskId: z.string().optional().nullable(),
 	employeeId: z.string().optional().nullable(),
 

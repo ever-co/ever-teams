@@ -40,7 +40,7 @@ import { OutlineBadge } from '../duplicated-components/badge';
 import { ObserverComponent } from './observer';
 import { Nullable } from '@/core/types/generics/utils';
 import { IIssueType } from '@/core/types/interfaces/task/issue-type';
-import { EIssueType, ETaskSizeName, ETaskStatusName, ETaskPriority } from '@/core/types/generics/enums/task';
+import { EIssueType, ETaskStatusName, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
@@ -659,7 +659,7 @@ function TaskCard({
 											className="min-w-fit lg:max-w-[170px]"
 											taskStatusClassName="h-7 text-xs"
 											onValueChange={handleSizeChange}
-											defaultValue={taskSize?.current as ETaskSizeName}
+											defaultValue={taskSize?.current as ETaskSize}
 											task={null}
 										/>
 									</div>
