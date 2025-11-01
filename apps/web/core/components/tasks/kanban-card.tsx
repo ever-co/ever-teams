@@ -85,7 +85,7 @@ export function TagList({ tags }: { tags: ITag[] }) {
 	);
 }
 
-export function Priority({ level }: { level: ETaskPriority }) {
+export function Priority({ level }: { level: ETaskPriority | string }) {
 	const levelSmallCase = level.toString().toLowerCase();
 	const levelIntoNumber =
 		levelSmallCase === 'low' ? 1 : levelSmallCase === 'medium' ? 2 : levelSmallCase === 'high' ? 3 : 4;
