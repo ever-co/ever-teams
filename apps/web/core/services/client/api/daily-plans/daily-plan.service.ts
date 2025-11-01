@@ -4,9 +4,7 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
 
 import {
-	validatePaginationResponse,
 	dailyPlanSchema,
-	validateApiResponse,
 	createDailyPlanSchema,
 	updateDailyPlanSchema,
 	dailyPlanTasksUpdateSchema,
@@ -17,6 +15,7 @@ import {
 	TDailyPlanTasksUpdate,
 	TRemoveTaskFromPlansRequest
 } from '@/core/types/schemas';
+import { zodStrictApiResponseValidate, zodStrictPaginationResponseValidate } from '@/core/lib/validation/zod-validators';
 
 /**
  * Enhanced Daily Plan Service with Zod validation
@@ -50,8 +49,8 @@ class DailyPlanService extends APIService {
 				tenantId: this.tenantId
 			});
 
-			// Validate the response data using Zod schema
-			return validatePaginationResponse(dailyPlanSchema, response.data, 'getAllDayPlans API response');
+			// Validate the response data using zod validation with auto-normalization
+			return zodStrictPaginationResponseValidate(dailyPlanSchema, response.data, 'getAllDayPlans API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
@@ -92,8 +91,8 @@ class DailyPlanService extends APIService {
 				tenantId: this.tenantId
 			});
 
-			// Validate the response data using Zod schema
-			return validatePaginationResponse(dailyPlanSchema, response.data, 'getMyDailyPlans API response');
+			// Validate the response data using zod validation with auto-normalization
+			return zodStrictPaginationResponseValidate(dailyPlanSchema, response.data, 'getMyDailyPlans API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
@@ -136,8 +135,8 @@ class DailyPlanService extends APIService {
 				{ tenantId: this.tenantId }
 			);
 
-			// Validate the response data using Zod schema
-			return validatePaginationResponse(dailyPlanSchema, response.data, 'getDayPlansByEmployee API response');
+			// Validate the response data using zod validation with auto-normalization
+			return zodStrictPaginationResponseValidate(dailyPlanSchema, response.data, 'getDayPlansByEmployee API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
@@ -173,8 +172,8 @@ class DailyPlanService extends APIService {
 				tenantId: this.tenantId
 			});
 
-			// Validate the response data using Zod schema
-			return validatePaginationResponse(dailyPlanSchema, response.data, 'getPlansByTask API response');
+			// Validate the response data using zod validation with auto-normalization
+			return zodStrictPaginationResponseValidate(dailyPlanSchema, response.data, 'getPlansByTask API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
@@ -200,7 +199,7 @@ class DailyPlanService extends APIService {
 	createDailyPlan = async (data: TCreateDailyPlan): Promise<TDailyPlan> => {
 		try {
 			// Validate input data before sending
-			const validatedInput = validateApiResponse(
+			const validatedInput = zodStrictApiResponseValidate(
 				createDailyPlanSchema, // Allow partial data for creation
 				data,
 				'createDailyPlan input data'
@@ -211,7 +210,7 @@ class DailyPlanService extends APIService {
 			});
 
 			// Validate the response data
-			return validateApiResponse(dailyPlanSchema, response.data, 'createDailyPlan API response');
+			return zodStrictApiResponseValidate(dailyPlanSchema, response.data, 'createDailyPlan API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
@@ -238,7 +237,7 @@ class DailyPlanService extends APIService {
 	updateDailyPlan = async (data: TUpdateDailyPlan, planId: string): Promise<TDailyPlan> => {
 		try {
 			// Validate input data before sending
-			const validatedInput = validateApiResponse(updateDailyPlanSchema, data, 'updateDailyPlan input data');
+			const validatedInput = zodStrictApiResponseValidate(updateDailyPlanSchema, data, 'updateDailyPlan input data');
 
 			const response = await this.put<TDailyPlan>(
 				`/daily-plan/${planId}`,
@@ -247,7 +246,7 @@ class DailyPlanService extends APIService {
 			);
 
 			// Validate the response data
-			return validateApiResponse(dailyPlanSchema, response.data, 'updateDailyPlan API response');
+			return zodStrictApiResponseValidate(dailyPlanSchema, response.data, 'updateDailyPlan API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
@@ -274,7 +273,7 @@ class DailyPlanService extends APIService {
 	addTaskToPlan = async (data: TDailyPlanTasksUpdate, planId: string): Promise<TDailyPlan> => {
 		try {
 			// Validate input data before sending
-			const validatedInput = validateApiResponse(
+			const validatedInput = zodStrictApiResponseValidate(
 				dailyPlanTasksUpdateSchema,
 				{ ...data, organizationId: this.organizationId },
 				'addTaskToPlan input data'
@@ -287,7 +286,7 @@ class DailyPlanService extends APIService {
 			);
 
 			// Validate the response data
-			return validateApiResponse(dailyPlanSchema, response.data, 'addTaskToPlan API response');
+			return zodStrictApiResponseValidate(dailyPlanSchema, response.data, 'addTaskToPlan API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
@@ -314,7 +313,7 @@ class DailyPlanService extends APIService {
 	removeTaskFromPlan = async (data: TRemoveTaskFromPlansRequest, planId: string): Promise<TDailyPlan> => {
 		try {
 			// Validate input data before sending
-			const validatedInput = validateApiResponse(
+			const validatedInput = zodStrictApiResponseValidate(
 				dailyPlanTasksUpdateSchema, // or create a dedicated removal schema
 				{ ...data, organizationId: this.organizationId },
 				'removeManyTaskFromPlans input data'
@@ -325,7 +324,7 @@ class DailyPlanService extends APIService {
 			});
 
 			// Validate the response data
-			return validateApiResponse(dailyPlanSchema, response.data, 'removeTaskFromPlan API response');
+			return zodStrictApiResponseValidate(dailyPlanSchema, response.data, 'removeTaskFromPlan API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
@@ -357,7 +356,7 @@ class DailyPlanService extends APIService {
 	}): Promise<TDailyPlan[]> => {
 		try {
 			// Validate input data before sending
-			const validatedInput = validateApiResponse(
+			const validatedInput = zodStrictApiResponseValidate(
 				dailyPlanTasksUpdateSchema, // or create a dedicated removal schema
 				{ ...data, organizationId: this.organizationId },
 				'removeManyTaskFromPlans input data'
@@ -369,7 +368,7 @@ class DailyPlanService extends APIService {
 
 			// Validate the response data (array of daily plans)
 			const validatedPlans = response.data.map((plan, index) =>
-				validateApiResponse(dailyPlanSchema, plan, `removeManyTaskFromPlans API response item ${index}`)
+				zodStrictApiResponseValidate(dailyPlanSchema, plan, `removeManyTaskFromPlans API response item ${index}`)
 			);
 
 			return validatedPlans;

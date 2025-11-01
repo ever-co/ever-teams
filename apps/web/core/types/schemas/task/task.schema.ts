@@ -49,7 +49,10 @@ const baseTaskSchema = z
 		prefix: z.string().optional().nullable(),
 		description: z.string().optional(),
 		status: z.nativeEnum(ETaskStatusName).optional().nullable(),
-		priority: z.nativeEnum(ETaskPriority).optional().nullable(),
+		priority: z.nativeEnum(ETaskPriority)
+			.or(z.enum(['Urgent', 'High', 'Medium', 'Low']))
+			.transform(val => val.toLowerCase())
+			.optional().nullable(),
 		size: z.nativeEnum(ETaskSize).optional().nullable(),
 		issueType: z.nativeEnum(EIssueType).optional().nullable(),
 		startDate: z.coerce.date().optional().nullable(),
