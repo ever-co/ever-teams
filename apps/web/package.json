@@ -116,7 +116,7 @@
 		"moment": "^2.29.4",
 		"moment-timezone": "^0.5.42",
 		"nanoid": "5.0.9",
-		"next": "^16",
+		"next": "^16.0.0",
 		"next-auth": "^5.0.0-beta.18",
 		"next-intl": "^3.3.2",
 		"next-themes": "^0.4.6",
@@ -172,7 +172,7 @@
 		"dotenv": "^16.4.1",
 		"eslint": "^9.38.0",
 		"@eslint/js": "^9.38.0",
-		"eslint-config-next": "16.0.0",
+		"eslint-config-next": "^16.0.0",
 		"eslint-plugin-unused-imports": "^4.3.0",
 		"knip": "^5.58.0",
 		"postcss": "^8.4.19",
@@ -207,16 +207,16 @@
 		]
 	},
 	"engines": {
-		"node": ">=22.20.0",
-		"yarn": ">=1.22.21"
+		"node": ">=20.x.x <=22.x.x",
+		"yarn": ">=1.13.0"
 	},
 	"exclude": [
 		"/app/[locale]/layout.tsx"
 	],
 	"resolutions": {
 		"react": "19.2.0",
-		"react-dom": "19.2.0",
-		"@types/react": "19.2.2",
-		"@types/react-dom": "19.2.2"
+		"react-dom": "^19.2.0",
+		"@types/react": "^19.2.2",
+		"@types/react-dom": "^19.2.2"
 	}
 }
