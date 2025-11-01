@@ -56,7 +56,7 @@ class TaskService extends APIService {
 
 			const response = await this.get<TTask>(endpoint);
 
-			// Validate the response data using zod validation with auto-normalization
+			// Validate the response data using zod validation with enum normalization
 			return zodStrictApiResponseValidate(taskSchema, response.data, 'getTaskById API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
@@ -92,7 +92,7 @@ class TaskService extends APIService {
 
 			const response = await this.get<PaginationResponse<TTask>>(endpoint, { tenantId: this.tenantId });
 
-			// Validate the response data using zod validation with auto-normalization
+			// Validate the response data using zod validation with enum normalization
 			return zodStrictPaginationResponseValidate(taskSchema, response.data, 'getTasks API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
@@ -365,7 +365,7 @@ class TaskService extends APIService {
 
 			const response = await this.get<TTask[]>(`/tasks/employee/${employeeId}?${query}`);
 
-			// Validate the response data using zod validation with auto-normalization
+			// Validate the response data using zod validation with enum normalization
 			return response.data.map((task) =>
 				zodStrictApiResponseValidate(taskSchema, task, 'getTasksByEmployeeId API response')
 			);

@@ -51,14 +51,17 @@ export function zodApiResponseValidate<T>(
   context: string
 ): ZodValidationResult<T> {
   try {
-    // Direct validation using expanded enum schemas
+    // Validation with enum normalization (title-case → lowercase)
     const result = schema.safeParse(data);
 
     if (result.success) {
+      // Check if normalization occurred by comparing input vs output
+      const normalized = JSON.stringify(data) !== JSON.stringify(result.data);
+
       return {
         success: true,
         data: result.data,
-        normalized: false,
+        normalized,
       };
     }
 
@@ -71,7 +74,7 @@ export function zodApiResponseValidate<T>(
     return {
       success: false,
       error,
-      normalized: false, // No normalization occurs - just validation
+      normalized: false, // No normalization on validation failure
     };
 
   } catch (error) {

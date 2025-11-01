@@ -7,12 +7,7 @@ export enum ETaskPriority {
 	URGENT = 'urgent',
 	HIGH = 'high',
 	MEDIUM = 'medium',
-	LOW = 'low',
-	// Support for Title Case variants from API
-	URGENT_TITLE = 'Urgent',
-	HIGH_TITLE = 'High',
-	MEDIUM_TITLE = 'Medium',
-	LOW_TITLE = 'Low'
+	LOW = 'low'
 }
 
 export enum ETaskSize {
