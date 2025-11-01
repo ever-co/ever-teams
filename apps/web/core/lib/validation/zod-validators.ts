@@ -1,9 +1,8 @@
 /**
  * Zod Validation System
  *
- * Intelligent Zod validators that automatically normalize data before validation.
- * This provides a seamless experience where API data is transformed to match
- * our schema expectations without manual intervention.
+ * Enhanced Zod validators with improved error handling and type safety.
+ * Provides consistent validation patterns across API services.
  *
  */
 
@@ -28,21 +27,21 @@ export type ZodValidationResult<T> =
 /**
  * Zod API response validator
  *
- * Automatically normalizes data before Zod validation, providing seamless
- * handling of different API response formats.
+ * Validates API responses using Zod schemas with enhanced error handling.
  *
  * @template T - The expected data type
  * @param schema - Zod schema for validation
  * @param data - Raw data from API
  * @param context - Context for error reporting
- * @returns Validated and normalized data
+ * @returns Validation result with success/error information
  *
  * @example
  * ```typescript
  * const result = zodApiResponseValidate(taskSchema, rawApiData, 'getTasks');
  * if (result.success) {
  *   console.log('Data validated:', result.data);
- *   console.log('Was normalized:', result.normalized);
+ * } else {
+ *   console.error('Validation failed:', result.error);
  * }
  * ```
  */
@@ -52,7 +51,7 @@ export function zodApiResponseValidate<T>(
   context: string
 ): ZodValidationResult<T> {
   try {
-    // Direct validation - enums now support both formats
+    // Direct validation using expanded enum schemas
     const result = schema.safeParse(data);
 
     if (result.success) {
@@ -72,7 +71,7 @@ export function zodApiResponseValidate<T>(
     return {
       success: false,
       error,
-      normalized: true,
+      normalized: false, // No normalization occurs - just validation
     };
 
   } catch (error) {
@@ -91,7 +90,7 @@ export function zodApiResponseValidate<T>(
 /**
  * Zod pagination response validator
  *
- * Validates paginated API responses with automatic data normalization.
+ * Validates paginated API responses using expanded enum schemas.
  *
  * @template T - The item type in the pagination
  * @param itemSchema - Zod schema for individual items
@@ -123,7 +122,7 @@ export function zodPaginationResponseValidate<T>(
  * @param schema - Zod schema for validation
  * @param data - Raw data from API
  * @param context - Context for error reporting
- * @returns Validated and normalized data
+ * @returns Validated data
  * @throws ZodValidationError if validation fails
  */
 export function zodStrictApiResponseValidate<T>(
