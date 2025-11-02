@@ -5,6 +5,11 @@
 	"$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
 	"words": [
 		"Aaiun",
+		"recompiles",
+		"opencontainers",
+		"libc",
+		"WORKDIR",
+		"Recompiles",
 		"Ababa",
 		"accepte",
 		"Accordian",
