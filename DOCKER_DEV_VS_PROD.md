@@ -3,6 +3,7 @@
 ## Visual Overview
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#4CAF50','primaryTextColor':'#000','primaryBorderColor':'#2E7D32','lineColor':'#666','secondaryColor':'#FF9800','tertiaryColor':'#2196F3'}}}%%
 graph LR
     subgraph DevMode["🔧 DEVELOPMENT MODE"]
         DevFeatures["✅ Hot Reload<br/>✅ Fast Feedback<br/>✅ No Rebuild<br/>⚠️ ~1GB Image"]
@@ -19,12 +20,12 @@ graph LR
     DevMode -->|"Test before deploy"| ProdMode
     ProdMode --> Deployment
 
-    style DevMode fill:#c8e6c9,stroke:#388e3c,stroke-width:3px
-    style ProdMode fill:#ffccbc,stroke:#d84315,stroke-width:3px
-    style Developer fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-    style Deployment fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    style DevFeatures fill:#a5d6a7,stroke:#2e7d32
-    style ProdFeatures fill:#ffab91,stroke:#bf360c
+    style DevMode fill:none,stroke:#4CAF50,stroke-width:3px
+    style ProdMode fill:none,stroke:#FF9800,stroke-width:3px
+    style Developer fill:none,stroke:#2196F3,stroke-width:2px
+    style Deployment fill:none,stroke:#9C27B0,stroke-width:2px
+    style DevFeatures fill:none,stroke:#4CAF50
+    style ProdFeatures fill:none,stroke:#FF9800
 ```
 
 ## Comparison Table
@@ -54,6 +55,7 @@ graph LR
 ### Architecture
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#4CAF50','primaryTextColor':'#000','primaryBorderColor':'#2E7D32','lineColor':'#666','secondaryColor':'#FF9800','tertiaryColor':'#2196F3'}}}%%
 graph TB
     subgraph Host["YOUR COMPUTER (Host)"]
         SourceCode["📁 Source Code<br/>(apps/web, packages/*)<br/><i>You edit the code here</i>"]
@@ -72,13 +74,13 @@ graph TB
     DevServer --> Port
     Port --> Browser
 
-    style Host fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    style Container fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    style SourceCode fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
-    style SyncedCode fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
-    style DevServer fill:#ffccbc,stroke:#d84315,stroke-width:2px
-    style Port fill:#b3e5fc,stroke:#0277bd,stroke-width:2px
-    style Browser fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    style Host fill:none,stroke:#2196F3,stroke-width:2px
+    style Container fill:none,stroke:#FF9800,stroke-width:2px
+    style SourceCode fill:none,stroke:#4CAF50,stroke-width:2px
+    style SyncedCode fill:none,stroke:#4CAF50,stroke-width:2px
+    style DevServer fill:none,stroke:#FF5722,stroke-width:2px
+    style Port fill:none,stroke:#2196F3,stroke-width:2px
+    style Browser fill:none,stroke:#9C27B0,stroke-width:2px
 ```
 
 ### Workflow
@@ -110,6 +112,7 @@ graph TB
 ### Architecture
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#4CAF50','primaryTextColor':'#000','primaryBorderColor':'#2E7D32','lineColor':'#666','secondaryColor':'#FF9800','tertiaryColor':'#2196F3'}}}%%
 graph TB
     subgraph Host["YOUR COMPUTER (Host)"]
         SourceCodeProd["📁 Source Code<br/>(apps/web, packages/*)"]
@@ -128,13 +131,13 @@ graph TB
     ProdServer --> PortProd
     PortProd --> BrowserProd
 
-    style Host fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    style ContainerProd fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    style SourceCodeProd fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
-    style CompiledCode fill:#ffe0b2,stroke:#e65100,stroke-width:2px
-    style ProdServer fill:#ffccbc,stroke:#d84315,stroke-width:2px
-    style PortProd fill:#b3e5fc,stroke:#0277bd,stroke-width:2px
-    style BrowserProd fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    style Host fill:none,stroke:#2196F3,stroke-width:2px
+    style ContainerProd fill:none,stroke:#FF9800,stroke-width:2px
+    style SourceCodeProd fill:none,stroke:#4CAF50,stroke-width:2px
+    style CompiledCode fill:none,stroke:#FF6F00,stroke-width:2px
+    style ProdServer fill:none,stroke:#FF5722,stroke-width:2px
+    style PortProd fill:none,stroke:#2196F3,stroke-width:2px
+    style BrowserProd fill:none,stroke:#9C27B0,stroke-width:2px
 ```
 
 ### Workflow
@@ -193,6 +196,7 @@ graph TB
 ## Recommended Workflow
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#4CAF50','primaryTextColor':'#000','primaryBorderColor':'#2E7D32','lineColor':'#666','secondaryColor':'#FF9800','tertiaryColor':'#2196F3'}}}%%
 graph TD
     Start([👨‍💻 Start Development]) --> BuildDev[🔨 Build Dev Image<br/>./docker-run.sh dev:build]
     BuildDev --> StartDev[▶️ Start Dev Mode<br/>./docker-run.sh dev]
@@ -211,20 +215,20 @@ graph TD
     StopProd2 --> Commit[📝 Commit & Push<br/>git commit && git push]
     Commit --> End([✅ Done])
 
-    style Start fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-    style BuildDev fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
-    style StartDev fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
-    style Code fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
-    style StopDev fill:#ffecb3,stroke:#f57f17,stroke-width:2px
-    style BuildProd fill:#ffccbc,stroke:#d84315,stroke-width:2px
-    style StartProd fill:#ffccbc,stroke:#d84315,stroke-width:2px
-    style Test fill:#ffccbc,stroke:#d84315,stroke-width:2px
-    style StopProd1 fill:#ffecb3,stroke:#f57f17,stroke-width:2px
-    style StopProd2 fill:#ffecb3,stroke:#f57f17,stroke-width:2px
-    style Commit fill:#b2dfdb,stroke:#00695c,stroke-width:2px
-    style End fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    style Decision fill:#fff9c4,stroke:#f57f17,stroke-width:2px
-    style TestOK fill:#fff9c4,stroke:#f57f17,stroke-width:2px
+    style Start fill:none,stroke:#2196F3,stroke-width:2px
+    style BuildDev fill:none,stroke:#4CAF50,stroke-width:2px
+    style StartDev fill:none,stroke:#4CAF50,stroke-width:2px
+    style Code fill:none,stroke:#4CAF50,stroke-width:2px
+    style StopDev fill:none,stroke:#FFC107,stroke-width:2px
+    style BuildProd fill:none,stroke:#FF9800,stroke-width:2px
+    style StartProd fill:none,stroke:#FF9800,stroke-width:2px
+    style Test fill:none,stroke:#FF9800,stroke-width:2px
+    style StopProd1 fill:none,stroke:#FFC107,stroke-width:2px
+    style StopProd2 fill:none,stroke:#FFC107,stroke-width:2px
+    style Commit fill:none,stroke:#009688,stroke-width:2px
+    style End fill:none,stroke:#9C27B0,stroke-width:2px
+    style Decision fill:none,stroke:#FFC107,stroke-width:2px
+    style TestOK fill:none,stroke:#FFC107,stroke-width:2px
 ```
 
 ### For daily development

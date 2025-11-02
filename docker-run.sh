@@ -259,10 +259,12 @@ main() {
     case "${1:-help}" in
         # Production commands
         build)
+            ENV_FILE="$ENV_FILE_PROD"
             check_env_file
             build
             ;;
         start)
+            ENV_FILE="$ENV_FILE_PROD"
             check_env_file
             start
             ;;
@@ -270,6 +272,7 @@ main() {
             stop
             ;;
         restart)
+            ENV_FILE="$ENV_FILE_PROD"
             check_env_file
             restart
             ;;
