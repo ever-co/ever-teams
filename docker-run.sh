@@ -91,6 +91,23 @@ check_env_file() {
     print_success "File $ENV_FILE found"
 }
 
+# Execute docker-compose command with proper config
+# Usage: run_compose <mode> <command> [args...]
+# mode: "prod" or "dev"
+run_compose() {
+    local mode=$1
+    shift
+
+    if [ "$mode" = "prod" ]; then
+        docker-compose -f "$COMPOSE_FILE_PROD" --env-file "$ENV_FILE_PROD" "$@"
+    elif [ "$mode" = "dev" ]; then
+        docker-compose -f "$COMPOSE_FILE_DEV" --env-file "$ENV_FILE_DEV" "$@"
+    else
+        print_error "Invalid mode: $mode (use 'prod' or 'dev')"
+        exit 1
+    fi
+}
+
 # ==============================================================================
 # PRODUCTION MODE FUNCTIONS
 # ==============================================================================
@@ -98,14 +115,14 @@ check_env_file() {
 # Function to build production image
 build() {
     print_info "Building Docker image (PRODUCTION)..."
-    docker-compose -f "$COMPOSE_FILE_PROD" --env-file "$ENV_FILE_PROD" build
+    run_compose prod build
     print_success "Production image built successfully"
 }
 
 # Function to start application in production
 start() {
     print_info "Starting application (PRODUCTION)..."
-    docker-compose -f "$COMPOSE_FILE_PROD" --env-file "$ENV_FILE_PROD" up -d
+    run_compose prod up -d
     print_success "Application started in production mode"
     print_info "Access the application at: http://localhost:3030"
     print_info "To view logs: ./docker-run.sh logs"
@@ -114,13 +131,8 @@ start() {
 # Function to stop ALL containers (dev AND prod)
 stop() {
     print_info "Stopping all containers (dev + prod)..."
-
-    # Stop production container
-    docker-compose -f "$COMPOSE_FILE_PROD" down 2>/dev/null || true
-
-    # Stop development container
-    docker-compose -f "$COMPOSE_FILE_DEV" down 2>/dev/null || true
-
+    run_compose prod down 2>/dev/null || true
+    run_compose dev down 2>/dev/null || true
     print_success "All containers stopped"
 }
 
@@ -144,16 +156,17 @@ logs() {
 # Function to build development image
 dev_build() {
     print_info "Building Docker image (DEVELOPMENT)..."
-    docker-compose -f "$COMPOSE_FILE_DEV" --env-file "$ENV_FILE_DEV" build
+    run_compose dev build
     print_success "Development image built successfully"
 }
 
 # Function to start application in development mode
 dev() {
-    print_info "Starting application (DEVELOPMENT with HOT RELOAD)..."
+    print_info "Starting application (DEVELOPMENT MODE)"
     print_warning "First startup may take a few minutes..."
-    docker-compose -f "$COMPOSE_FILE_DEV" --env-file "$ENV_FILE_DEV" up
-    # Note: We don't use -d to see logs in real-time
+    print_info "Hot reload enabled via mounted volumes + Next.js file watching"
+    echo ""
+    run_compose dev up
 }
 
 # Function to show development container logs
@@ -209,9 +222,9 @@ show_help() {
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "DEVELOPMENT COMMANDS (hot reload enabled)"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "  dev        - Run in development mode with hot reload"
-    echo "  dev:build  - Build development image"
-    echo "  dev:logs   - Show development logs"
+    echo "  dev          - Run in development mode (hot reload enabled)"
+    echo "  dev:build    - Build development image"
+    echo "  dev:logs     - Show development logs"
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "GLOBAL COMMANDS (affect dev AND prod)"
@@ -232,11 +245,11 @@ show_help() {
     echo "    ./docker-run.sh stop       # Stop ALL (dev + prod)"
     echo ""
     echo "  Development Mode (recommended for coding):"
-    echo "    ./docker-run.sh dev:build  # Build dev image (once)"
-    echo "    ./docker-run.sh dev        # Run with hot reload (logs in real-time)"
-    echo "                               # Edit your code, it reloads automatically!"
-    echo "    ./docker-run.sh dev:logs   # View dev logs (if running in background)"
-    echo "    ./docker-run.sh stop       # Stop ALL (dev + prod)"
+    echo "    ./docker-run.sh dev:build    # Build dev image (once)"
+    echo "    ./docker-run.sh dev          # Run in dev mode (hot reload enabled)"
+    echo "                                 # Edit your code, it reloads automatically!"
+    echo "    ./docker-run.sh dev:logs     # View dev logs (if running in background)"
+    echo "    ./docker-run.sh stop         # Stop ALL (dev + prod)"
     echo ""
     echo "  Complete Cleanup:"
     echo "    ./docker-run.sh stop       # Stop all containers"
@@ -285,7 +298,6 @@ main() {
 
         # Development commands
         dev)
-            print_info "DEVELOPMENT MODE with HOT RELOAD"
             dev
             ;;
         dev:build)

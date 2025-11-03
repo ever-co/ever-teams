@@ -32,13 +32,22 @@ chmod +x docker-run.sh
 # 3. Start the application in development mode
 ./docker-run.sh dev
 
-# 4. Edit your code and see changes in real-time!
-# The application reloads automatically
+# The application will start at http://localhost:3030
+# Edit your code and see changes in real-time!
 
-# 5. Stop the application (Ctrl + C in terminal)
+# 4. Stop the application (Ctrl + C in terminal)
 # Or in another terminal:
 ./docker-run.sh stop  # Stops ALL containers (dev + prod)
 ```
+
+**How does hot reload work?**
+
+The development mode uses **mounted volumes** + **Next.js file watching** (with polling):
+
+- ✅ **Automatic hot reload**: Changes appear in real-time
+- ✅ **Compatible**: Works with all Docker Compose versions
+- ✅ **Reliable**: Proven method for Docker development
+- ⚠️ **Polling-based**: Uses `CHOKIDAR_USEPOLLING=true` for file detection
 
 ### Manual Method: Use docker-compose directly
 
@@ -226,5 +235,43 @@ Check the logs:
 ```bash
 docker logs webapp
 ```
+
+### Build fails with "Unable to download sentry-cli binary" or timeout errors
+
+This happens when optional binaries (Sentry CLI, Cypress, Playwright) fail to download during `yarn install`.
+
+**Solution**: The `Dockerfile.dev` now skips these optional downloads by default using:
+
+- `SENTRYCLI_SKIP_DOWNLOAD=1` - Skips Sentry CLI binary
+- `CYPRESS_INSTALL_BINARY=0` - Skips Cypress binary
+- `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1` - Skips Playwright browsers
+
+If you still encounter timeout errors:
+
+1. **Increase network timeout** (already set to 600 seconds in Dockerfile.dev):
+
+   ```dockerfile
+   RUN yarn install --frozen-lockfile --non-interactive --network-timeout 600000
+   ```
+
+2. **Check your internet connection** - Slow or unstable connections can cause timeouts
+
+3. **Use Docker BuildKit cache** - Rebuild to use cached layers:
+
+   ```bash
+   ./docker-run.sh dev:build
+   ```
+
+4. **If on ARM64/M1/M2 Mac** - Some binaries may not be available for ARM architecture. The skip flags prevent these issues.
+
+### Build is very slow (5-10 minutes)
+
+This is normal for the first build. Docker caches layers, so subsequent builds are much faster (30 seconds to 2 minutes).
+
+To speed up builds:
+
+- ✅ Use `./docker-run.sh dev:build` which uses BuildKit caching
+- ✅ Don't change `package.json` files frequently (invalidates cache)
+- ✅ Keep Docker Desktop running (preserves cache)
 
 ---

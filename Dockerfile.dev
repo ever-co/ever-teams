@@ -96,8 +96,18 @@ COPY packages/utils/package.json ./packages/utils/
 # Options used:
 # --frozen-lockfile: Use exact versions from yarn.lock (deterministic)
 # --non-interactive: No interactive prompts (for CI/CD)
+# --network-timeout: Increase timeout for slow downloads (default: 30000ms)
+#
+# Environment variables to skip optional binary downloads:
+# - SENTRYCLI_SKIP_DOWNLOAD: Skip Sentry CLI binary download (can cause timeouts)
+# - CYPRESS_INSTALL_BINARY: Skip Cypress binary download (large file)
+# - PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: Skip Playwright browsers download
 
-RUN yarn install --frozen-lockfile --non-interactive
+ENV SENTRYCLI_SKIP_DOWNLOAD=1 \
+	CYPRESS_INSTALL_BINARY=0 \
+	PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+
+RUN yarn install --frozen-lockfile --non-interactive --network-timeout 600000
 
 # ==============================================================================
 # STEP 5: COPY SOURCE CODE
