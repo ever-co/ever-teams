@@ -469,27 +469,30 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 
 	// Memoize workspace with teams status and apply conditional filtering
 	const workspacesWithTeamsStatus = useMemo(() => {
-		// Get all valid workspaces
-		const allWorkspaces = props.workspaces.filter((workspace) => workspace && workspace.user);
+		// Get all valid workspaces with their original indices
+		const allWorkspacesWithIndices = props.workspaces
+			.map((workspace, index) => ({ workspace, originalIndex: index }))
+			.filter(({ workspace }) => workspace && workspace.user);
 
 		// Check if at least one workspace has teams
-		const hasAtLeastOneWorkspaceWithTeams = allWorkspaces.some((workspace) => hasTeams(workspace));
+		const hasAtLeastOneWorkspaceWithTeams = allWorkspacesWithIndices.some(({ workspace }) => hasTeams(workspace));
 
 		// If at least one workspace has teams, show ONLY workspaces with teams
 		// Otherwise, show all workspaces (even empty ones with warnings)
 		const filteredWorkspaces = hasAtLeastOneWorkspaceWithTeams
-			? allWorkspaces.filter((workspace) => hasTeams(workspace))
-			: allWorkspaces;
+			? allWorkspacesWithIndices.filter(({ workspace }) => hasTeams(workspace))
+			: allWorkspacesWithIndices;
 
-		return filteredWorkspaces.map((workspace) => ({
+		return filteredWorkspaces.map(({ workspace, originalIndex }) => ({
 			workspace,
+			originalIndex,
 			hasTeams: hasTeams(workspace),
 			teamCount: workspace.current_teams?.length || 0
 		}));
 	}, [props.workspaces]);
 
-	// Check if selected workspace is empty
-	const selectedWorkspaceData = workspacesWithTeamsStatus[props.selectedWorkspace];
+	// Find the selected workspace in the filtered array using originalIndex
+	const selectedWorkspaceData = workspacesWithTeamsStatus.find((ws) => ws.originalIndex === props.selectedWorkspace);
 	const isSelectedWorkspaceEmpty = selectedWorkspaceData && !selectedWorkspaceData.hasTeams;
 
 	return (
@@ -534,14 +537,17 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 					<ScrollArea className="relative w-full h-64 pr-2">
 						<div className="flex flex-col gap-y-4">
 							{workspacesWithTeamsStatus.map(
-								({ workspace: worksace, hasTeams: workspaceHasTeams, teamCount }, index) => {
+								(
+									{ workspace: worksace, originalIndex, hasTeams: workspaceHasTeams, teamCount },
+									index
+								) => {
 									const isEmpty = !workspaceHasTeams;
 									const workspaceName =
 										worksace.user.tenant?.name || worksace.user.name || 'Workspace';
 
 									return (
 										<div
-											key={index}
+											key={originalIndex}
 											className={cn(
 												'w-full overflow-hidden h-16 flex flex-col border rounded-xl transition-all',
 												expandedWorkspace === index && 'h-auto',
@@ -551,10 +557,10 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 												// Normal workspace styling
 												!isEmpty && 'border-[#0000001A] dark:border-[#34353D]',
 												// Selected workspace styling
-												props.selectedWorkspace === index &&
+												props.selectedWorkspace === originalIndex &&
 													!isEmpty &&
 													'bg-[#FCFCFC] -order-1 dark:bg-[#1F2024]',
-												props.selectedWorkspace === index &&
+												props.selectedWorkspace === originalIndex &&
 													isEmpty &&
 													'bg-amber-100/50 -order-1 dark:bg-amber-900/20',
 												// Hover styling
@@ -609,7 +615,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 													<span
 														className="hover:cursor-pointer"
 														onClick={() => {
-															props.setSelectedWorkspace(index);
+															props.setSelectedWorkspace(originalIndex);
 															// Only auto-select first team if workspace has teams
 															if (workspaceHasTeams && props.selectedTeam) {
 																const teamIds = worksace.current_teams.map(
@@ -624,7 +630,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 															}
 														}}
 													>
-														{props.selectedWorkspace === index ? (
+														{props.selectedWorkspace === originalIndex ? (
 															<CheckCircleOutlineIcon className="w-6 h-6 stroke-[#27AE60] fill-[#27AE60]" />
 														) : (
 															<CircleIcon className="w-6 h-6" />
@@ -640,7 +646,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 														?.filter((team) => team && team.team_name)
 														.map((team) => (
 															<div
-																key={`${index}-${team.team_id}`}
+																key={`${originalIndex}-${team.team_id}`}
 																className="flex items-center justify-between gap-4 min-h-[2.875rem]"
 															>
 																<span className="flex items-center justify-between gap-4">
@@ -660,8 +666,8 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 																	className="hover:cursor-pointer"
 																	onClick={() => {
 																		props.setSelectedTeam(team.team_id);
-																		if (props.selectedWorkspace !== index) {
-																			props.setSelectedWorkspace(index);
+																		if (props.selectedWorkspace !== originalIndex) {
+																			props.setSelectedWorkspace(originalIndex);
 																		}
 																	}}
 																>
