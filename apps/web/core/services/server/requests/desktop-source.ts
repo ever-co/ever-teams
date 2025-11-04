@@ -8,5 +8,5 @@ export function getDesktopConfig(): Partial<IServerRuntimeConfig> {
 			GAUZY_API_SERVER_URL: process.env.GAUZY_API_SERVER_URL || GAUZY_API_SERVER_URL
 		};
 	}
-	return {}
+	return {};
 }
