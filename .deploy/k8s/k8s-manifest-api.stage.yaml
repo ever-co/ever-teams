@@ -44,7 +44,7 @@ apiVersion: apps/v1
 metadata:
     name: ever-teams-stage-api
 spec:
-    replicas: 2
+    replicas: 1
     selector:
         matchLabels:
             app: ever-teams-stage-api
