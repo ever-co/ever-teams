@@ -549,7 +549,12 @@
 			"SELECT_WORKSPACE": "Seleccionar espacio de trabajo",
 			"ENTER_EMAIL": "Ingresar correo electrónico",
 			"WORKSPACES_NOT_FOUND": "Espacios de trabajo no encontrados",
-			"INVALID_CODE_TRY_AGAIN": "Código inválido. Por favor, inténtelo de nuevo."
+			"INVALID_CODE_TRY_AGAIN": "Código inválido. Por favor, inténtelo de nuevo.",
+			"EMPTY_WORKSPACE_WARNING_TITLE": "Este espacio de trabajo no tiene equipos",
+			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Se le pedirá que cree un equipo después de iniciar sesión.",
+			"NO_TEAMS_BADGE": "Sin equipos",
+			"TEAM_COUNT_SINGULAR": "equipo",
+			"TEAM_COUNT_PLURAL": "equipos"
 		},
 		"projects": {
 			"projectTitle": {

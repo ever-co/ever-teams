@@ -655,7 +655,12 @@
 			"SELECT_WORKSPACE": "تحديد مساحة العمل",
 			"ENTER_EMAIL": "أدخل البريد الإلكتروني",
 			"WORKSPACES_NOT_FOUND": "لم يتم العثور على مساحات عمل",
-			"INVALID_CODE_TRY_AGAIN": "رمز غير صالح. الرجاء المحاولة مرة أخرى."
+			"INVALID_CODE_TRY_AGAIN": "رمز غير صالح. الرجاء المحاولة مرة أخرى.",
+			"EMPTY_WORKSPACE_WARNING_TITLE": "مساحة العمل هذه لا تحتوي على فرق",
+			"EMPTY_WORKSPACE_WARNING_MESSAGE": "ستتم مطالبتك بإنشاء فريق بعد تسجيل الدخول.",
+			"NO_TEAMS_BADGE": "لا توجد فرق",
+			"TEAM_COUNT_SINGULAR": "فريق",
+			"TEAM_COUNT_PLURAL": "فرق"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "الانضمام إلى فريق موجود",

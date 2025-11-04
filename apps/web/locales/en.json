@@ -659,7 +659,12 @@
 			"SELECT_WORKSPACE": "Select Workspace",
 			"ENTER_EMAIL": "Enter Email",
 			"WORKSPACES_NOT_FOUND": "Workspaces Not Found",
-			"INVALID_CODE_TRY_AGAIN": "Invalid code. Please try again."
+			"INVALID_CODE_TRY_AGAIN": "Invalid code. Please try again.",
+			"EMPTY_WORKSPACE_WARNING_TITLE": "This workspace has no teams",
+			"EMPTY_WORKSPACE_WARNING_MESSAGE": "You'll be prompted to create a team after logging in.",
+			"NO_TEAMS_BADGE": "No teams",
+			"TEAM_COUNT_SINGULAR": "team",
+			"TEAM_COUNT_PLURAL": "teams"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Join existing Team",

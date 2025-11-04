@@ -4,7 +4,7 @@ import { clsxm } from '@/core/lib/utils';
 import { AuthLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { WorkSpaceComponent } from '../passcode/page-component';
 import { useAuthenticationSocialLogin } from '@/core/hooks/auth/use-authentication-social-login';
 import Cookies from 'js-cookie';
@@ -15,6 +15,7 @@ import {
 	USER_SAW_OUTSTANDING_NOTIFICATION
 } from '@/core/constants/config/constants';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
+import { hasTeams, getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
 
 export default function SocialLoginChooseWorspace() {
 	const t = useTranslations();
@@ -65,31 +66,54 @@ function WorkSpaceScreen() {
 		loadOAuthSession();
 	}, [session]);
 
+	// Memoize workspace analysis to avoid recalculations
+	const workspaceAnalysis = useMemo(() => {
+		const firstWorkspace = workspaces[0];
+		const firstWorkspaceHasTeams = hasTeams(firstWorkspace);
+		const firstWorkspaceTeamCount = firstWorkspaceHasTeams ? firstWorkspace.current_teams.length : 0;
+
+		return {
+			firstWorkspace,
+			firstWorkspaceHasTeams,
+			firstWorkspaceTeamCount
+		};
+	}, [workspaces]);
+
 	useEffect(() => {
+		// Auto-select first workspace if only one exists
 		if (workspaces.length === 1) {
 			setSelectedWorkspace(0);
 		}
 
-		const currentTeams = workspaces[0]?.current_teams;
+		const { firstWorkspace, firstWorkspaceHasTeams, firstWorkspaceTeamCount } = workspaceAnalysis;
 
-		if (workspaces.length === 1 && currentTeams?.length === 1) {
-			setSelectedTeam(currentTeams[0].team_id);
+		// Auto-select team if only one workspace with one team
+		if (workspaces.length === 1 && firstWorkspaceTeamCount === 1 && firstWorkspaceHasTeams) {
+			const firstTeamId = getFirstTeamId(firstWorkspace);
+			if (firstTeamId) {
+				setSelectedTeam(firstTeamId);
+			}
 		} else {
-			const lastSelectedTeam = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) || currentTeams[0].team_id;
-			const lastSelectedWorkspace =
-				workspaces.findIndex((workspace) =>
-					workspace.current_teams.find((team) => team.team_id === lastSelectedTeam)
-				) || 0;
+			// Try to restore last selected team or use default
+			const storedTeam = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM);
+			const fallbackTeamId = getFirstTeamId(firstWorkspace);
+			const lastSelectedTeam = storedTeam || fallbackTeamId || '';
+
+			// Find workspace containing the last selected team
+			const lastSelectedWorkspaceIndex = findWorkspaceIndexByTeamId(workspaces, lastSelectedTeam);
+			const workspaceIndex = lastSelectedWorkspaceIndex >= 0 ? lastSelectedWorkspaceIndex : 0;
+
 			setSelectedTeam(lastSelectedTeam);
-			setSelectedWorkspace(lastSelectedWorkspace);
+			setSelectedWorkspace(workspaceIndex);
 		}
 
-		if (workspaces.length === 1 && (currentTeams?.length || 0) <= 1) {
+		// Auto-submit if only one workspace with 0 or 1 team
+		if (workspaces.length === 1 && firstWorkspaceTeamCount <= 1) {
 			setTimeout(() => {
 				document.getElementById('continue-to-workspace')?.click();
 			}, 100);
 		}
-	}, [workspaces]);
+	}, [workspaces, workspaceAnalysis]);
 
 	const signInToWorkspace = (e: any) => {
 		e.preventDefault();

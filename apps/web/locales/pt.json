@@ -656,7 +656,12 @@
 			"SELECT_WORKSPACE": "Selecionar Espaço de Trabalho",
 			"ENTER_EMAIL": "Inserir E-mail",
 			"WORKSPACES_NOT_FOUND": "Espaços de trabalho não encontrados",
-			"INVALID_CODE_TRY_AGAIN": "Código inválido. Por favor, tente novamente."
+			"INVALID_CODE_TRY_AGAIN": "Código inválido. Por favor, tente novamente.",
+			"EMPTY_WORKSPACE_WARNING_TITLE": "Este espaço de trabalho não tem equipes",
+			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Você será solicitado a criar uma equipe após o login.",
+			"NO_TEAMS_BADGE": "Sem equipes",
+			"TEAM_COUNT_SINGULAR": "equipe",
+			"TEAM_COUNT_PLURAL": "equipes"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Participar de uma Equipe Existente",

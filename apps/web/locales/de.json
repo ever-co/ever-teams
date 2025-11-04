@@ -655,7 +655,12 @@
 			"SELECT_WORKSPACE": "Arbeitsbereich auswählen",
 			"ENTER_EMAIL": "E-Mail-Adresse eingeben",
 			"WORKSPACES_NOT_FOUND": "Keine Arbeitsbereiche gefunden",
-			"INVALID_CODE_TRY_AGAIN": "Ungültiger Code. Bitte versuchen Sie es erneut."
+			"INVALID_CODE_TRY_AGAIN": "Ungültiger Code. Bitte versuchen Sie es erneut.",
+			"EMPTY_WORKSPACE_WARNING_TITLE": "Dieser Arbeitsbereich hat keine Teams",
+			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Sie werden nach der Anmeldung aufgefordert, ein Team zu erstellen.",
+			"NO_TEAMS_BADGE": "Keine Teams",
+			"TEAM_COUNT_SINGULAR": "Team",
+			"TEAM_COUNT_PLURAL": "Teams"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Bestehendem Team beitreten",
