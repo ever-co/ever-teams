@@ -9,7 +9,7 @@ import { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 import { LAST_WORKSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
 import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
 import { useUserQuery } from '../queries/user-user.query';
-import { setAuthCookies, getOrganizationIdCookie } from '@/core/lib/helpers/cookies';
+import { setAuthCookies, getOrganizationIdCookie, getActiveLanguageIdCookie } from '@/core/lib/helpers/cookies';
 
 export function useWorkspaceSwitcher() {
 	const { data: user } = useUserQuery();
@@ -88,6 +88,9 @@ export function useWorkspaceSwitcher() {
 			// Get organizationId from user.employee or fallback to current cookie
 			const organizationId = authUser.employee?.organizationId || getOrganizationIdCookie() || '';
 
+			// Use the language preference hierarchy
+			const preferredLanguage = authUser.preferredLanguage || getActiveLanguageIdCookie() || 'en';
+
 			// Update cookies with new authentication data
 			setAuthCookies({
 				access_token: token,
@@ -97,7 +100,7 @@ export function useWorkspaceSwitcher() {
 				teamId: selectedTeam,
 				tenantId,
 				organizationId,
-				languageId: 'en',
+				languageId: preferredLanguage,
 				noTeamPopup: true,
 				userId
 			});

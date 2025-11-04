@@ -262,15 +262,9 @@ export function WorkspacesSwitcher() {
 		// Check if we're in initial loading state
 		const isInitialLoading = workspacesLoading && !workspacesInitialized;
 
-		// Check if React Query is fetching for the first time
-		const isQueryLoading = workspacesQuery.isLoading && !workspacesQuery.data;
-
-		// Check if we're switching workspaces
-		const isSwitchingWorkspace = isSwitching;
-
 		// We're loading if any of these conditions are true
-		return isInitialLoading || isQueryLoading || isSwitchingWorkspace;
-	}, [workspacesLoading, workspacesInitialized, workspacesQuery.isLoading, workspacesQuery.data, isSwitching]);
+		return isInitialLoading || workspacesQuery.isLoading || isSwitching;
+	}, [workspacesLoading, workspacesInitialized, workspacesQuery.isLoading, isSwitching]);
 
 	// Render the active workspace with robust state management
 	const renderActiveWorkspace = () => {

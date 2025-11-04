@@ -142,7 +142,8 @@ export function useCacheInvalidation() {
 					await invalidateMultipleQueries(queryClient, [
 						...QUERY_GROUPS.TEAM_RELATED,
 						...QUERY_GROUPS.WORKSPACE_RELATED,
-						...QUERY_GROUPS.TASK_METADATA
+						...QUERY_GROUPS.TASK_METADATA,
+						...QUERY_GROUPS.USER_RELATED
 					]);
 					break;
 				case 'team-update':
