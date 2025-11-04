@@ -3,23 +3,31 @@
 import { useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
+import { useSetAtom } from 'jotai';
 import { useCacheInvalidation } from '@/core/hooks/common/use-cache-invalidation';
 import { toast } from 'sonner';
 import { useWorkspaces } from './use-workspaces';
-import { authService } from '@/core/services/client/api/auth';
+import { workspaceService } from '@/core/services/client/api/auth';
 import { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 import { LAST_WORKSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
 import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
 import { useUserQuery } from '../queries/user-user.query';
+import { activeWorkspaceIdState } from '@/core/stores/auth';
+import { activeTeamIdState } from '@/core/stores/teams';
+import { setAuthCookies, getOrganizationIdCookie } from '@/core/lib/helpers/cookies';
 
 /**
- * Smart workspace switcher hook based on password/page-component.tsx logic
- * Reuses the existing authentication flow that works perfectly
+ * Smart workspace switcher hook - FIXED to use switchWorkspace endpoint
+ * Based on EVER_TEAMS_WORKSPACE_SWITCHER_FIX.md documentation
  */
 export function useWorkspaceSwitcher() {
 	const router = useRouter();
 	const { data: user } = useUserQuery();
 	const { workspaces } = useWorkspaces();
+
+	// Jotai state setters for workspace context
+	const setActiveWorkspaceId = useSetAtom(activeWorkspaceIdState);
+	const setActiveTeamId = useSetAtom(activeTeamIdState);
 
 	// Use cache invalidation hook - much cleaner than manual invalidations
 	const { smartInvalidate } = useCacheInvalidation();
@@ -79,33 +87,52 @@ export function useWorkspaceSwitcher() {
 	);
 
 	/**
-	 * Workspace switch mutation using the EXACT same flow as password authentication
+	 * Workspace switch mutation - FIXED to use switchWorkspace endpoint
+	 * Uses POST /auth/switch-workspace with only tenantId (JWT auth automatic)
 	 */
 	const switchWorkspaceMutation = useMutation({
 		mutationFn: async ({ workspace, selectedTeam }: { workspace: TWorkspace; selectedTeam: string }) => {
-			if (!user?.email) {
-				throw new Error('User email not found');
-			}
+			// Use switchWorkspace with only tenantId
+			const tenantId = workspace.user.tenant.id;
+			const response = await workspaceService.switchWorkspace(tenantId);
 
-			const params = {
-				email: user.email,
-				token: workspace.token, // THE WORKSPACE TOKEN (not tenantId!)
-				defaultTeamId: selectedTeam,
-				selectedTeam: selectedTeam,
-				lastTeamId: selectedTeam
-			};
-
-			// Use the EXACT same parameters as password component
-			return await authService.signInWorkspace(params);
+			// Return both response and selectedTeam for onSuccess
+			return { response, selectedTeam, workspace };
 		},
-		onSuccess: async () => {
+		onSuccess: async ({ response, selectedTeam }) => {
+			// Extract data from response
+			const { user: authUser, token, refresh_token } = response;
+			const tenantId = authUser.tenantId || '';
+			const userId = authUser.id || '';
+
+			// Get organizationId from user.employee or fallback to current cookie
+			const organizationId = authUser.employee?.organizationId || getOrganizationIdCookie() || '';
+
+			// Update cookies with new authentication data
+			setAuthCookies({
+				access_token: token,
+				refresh_token: {
+					token: refresh_token
+				},
+				teamId: selectedTeam,
+				tenantId,
+				organizationId,
+				languageId: 'en',
+				noTeamPopup: true,
+				userId
+			});
+
+			// Update Jotai states
+			setActiveWorkspaceId(tenantId);
+			setActiveTeamId(selectedTeam);
+
 			// Show success message
 			toast.success('Workspace changed successfully');
 
 			// Invalidate all workspace-related queries
-			// Cache invalidation using semantic hook - much cleaner and more maintainable!
-			await smartInvalidate('team-creation');
-			// Navigate to home (EXACT same as password component)
+			await smartInvalidate('all');
+
+			// Navigate to home
 			router.push('/');
 		},
 		onError: (error: any) => {

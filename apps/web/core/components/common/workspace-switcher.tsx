@@ -74,7 +74,7 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 				aria-describedby="workspace-switch-description"
 			>
 				<DialogHeader>
-					<DialogTitle id="workspace-switch-title" className="flex gap-2 items-center">
+					<DialogTitle id="workspace-switch-title" className="flex items-center gap-2">
 						<AlertTriangle className="w-5 h-5 text-amber-500" aria-hidden="true" />
 						Changer the workspace ?
 					</DialogTitle>
@@ -90,7 +90,7 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 							</span>
 							.
 						</div>
-						<div className="flex gap-3 items-center p-3 bg-amber-50 rounded-md border border-amber-200 dark:bg-amber-950/20 dark:border-amber-800">
+						<div className="flex items-center gap-3 p-3 border rounded-md bg-amber-50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-800">
 							<AlertTriangle
 								className="flex-shrink-0 w-4 h-4 text-amber-600 dark:text-amber-400"
 								aria-hidden="true"
@@ -119,7 +119,7 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 					>
 						{isLoading ? (
 							<>
-								<Loader2 className="mr-2 w-4 h-4 animate-spin" aria-hidden="true" />
+								<Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden="true" />
 								Changing...
 							</>
 						) : (
@@ -138,7 +138,7 @@ const WorkspaceSkeleton: React.FC = () => {
 		<>
 			{/* Icon skeleton - matches exact dimensions and styling */}
 			<div
-				className="flex justify-center items-center rounded-lg animate-pulse aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground"
+				className="flex items-center justify-center rounded-lg animate-pulse aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground"
 				aria-hidden="true"
 				role="presentation"
 			>
@@ -195,9 +195,11 @@ export function WorkspacesSwitcher() {
 		return null;
 	}, [currentWorkspace, workspaces]);
 	// Workspaces for dropdown - exclude only the actual current workspace
-	const availableWorkspaces = workspaces.filter(
-		(workspace) => workspace.user.tenant.id !== actualCurrentWorkspace?.user.tenant.id
-	);
+	const availableWorkspaces = React.useMemo(() => {
+		return workspaces.filter(
+			(w) => w.current_teams.length > 0 && w.user.tenant.id !== actualCurrentWorkspace?.user.tenant.id
+		);
+	}, [workspaces, actualCurrentWorkspace]);
 
 	// Simple state management for modal
 	const [targetWorkspace, setTargetWorkspace] = React.useState<TWorkspace | null>(null);
@@ -283,7 +285,7 @@ export function WorkspacesSwitcher() {
 		if (actualCurrentWorkspace) {
 			return (
 				<>
-					<div className="flex justify-center items-center rounded-lg aspect-square size-7 bg-sidebar-primary text-sidebar-primary-foreground">
+					<div className="flex items-center justify-center rounded-lg aspect-square size-7 bg-sidebar-primary text-sidebar-primary-foreground">
 						{actualCurrentWorkspace.user.tenant.logo || actualCurrentWorkspace.user.tenant.name ? (
 							<Avatar className="rounded !size-8">
 								<AvatarImage
@@ -314,7 +316,7 @@ export function WorkspacesSwitcher() {
 		// Final fallback - default workspace display
 		return (
 			<>
-				<div className="flex justify-center items-center rounded-lg aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground">
+				<div className="flex items-center justify-center rounded-lg aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground">
 					<DefaultWorkspaceIcon className="!size-6" />
 				</div>
 				<div className="grid flex-1 text-sm leading-tight text-left">
@@ -378,7 +380,7 @@ export function WorkspacesSwitcher() {
 													role="menuitem"
 													aria-label={`Change to the workspace ${workspace.user.tenant.name} with ${teamCount} team${teamCount > 1 ? 's' : ''}`}
 												>
-													<div className="flex justify-center items-center rounded-sm border size-8">
+													<div className="flex items-center justify-center border rounded-sm size-8">
 														{workspace.user.tenant.logo ? (
 															<Avatar className="rounded !size-6">
 																<AvatarImage
@@ -409,7 +411,7 @@ export function WorkspacesSwitcher() {
 							{/* Message if no other workspaces */}
 							{workspaces.length > 0 && availableWorkspaces.length === 0 && (
 								<DropdownMenuItem disabled className="gap-2 p-2 text-muted-foreground">
-									<div className="flex justify-center items-center rounded-sm border size-6">
+									<div className="flex items-center justify-center border rounded-sm size-6">
 										<DefaultWorkspaceIcon className="size-4" />
 									</div>
 									No other workspace available
@@ -418,7 +420,7 @@ export function WorkspacesSwitcher() {
 
 							<DropdownMenuSeparator />
 							<DropdownMenuItem className="gap-2 p-2" disabled>
-								<div className="flex justify-center items-center rounded-md border size-6 bg-background">
+								<div className="flex items-center justify-center border rounded-md size-6 bg-background">
 									<Plus className="size-4" />
 								</div>
 								<div className="font-medium text-muted-foreground">Add workspace</div>
