@@ -74,7 +74,7 @@ export const tagCreateSchema = z.object({
 	icon: z.string().optional().nullable(),
 	color: z.string().optional().nullable(),
 	projectId: z.string().optional().nullable(),
-	organizationId: z.string().optional().nullable(),
+	organizationId: z.string().nullable().optional(),
 	tenantId: z.string().optional().nullable(),
 	organizationTeamId: z.string().optional().nullable(),
 	customFields: z.any().optional().nullable()

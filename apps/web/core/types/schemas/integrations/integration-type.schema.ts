@@ -25,7 +25,7 @@ export const integrationTypeListSchema = z
 		createdAt: z.coerce.date().optional(),
 		updatedAt: z.coerce.date().optional(),
 		tenantId: z.string().optional(),
-		organizationId: z.string().optional(),
+		organizationId: z.string().nullable().optional(),
 		name: z.string(),
 		description: z.string().nullable(),
 		icon: z.string().nullable(),

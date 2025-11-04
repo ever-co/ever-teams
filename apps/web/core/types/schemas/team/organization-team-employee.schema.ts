@@ -63,7 +63,7 @@ export const organizationTeamEmployeeSchema = z
 // Organization team employee create schema
 export const organizationTeamEmployeeCreateSchema = z.object({
 	name: z.string().optional(),
-	organizationId: z.string().optional(),
+	organizationId: z.string().nullable().optional(),
 	organizationTeamId: z.string().optional(),
 	tenantId: z.string().optional(),
 	employeeId: z.string().optional(),

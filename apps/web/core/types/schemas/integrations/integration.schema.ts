@@ -34,7 +34,7 @@ export const integrationListSchema = z
 		createdAt: z.coerce.date().optional(),
 		updatedAt: z.coerce.date().optional(),
 		tenantId: z.string().optional(),
-		organizationId: z.string().optional(),
+		organizationId: z.string().nullable().optional(),
 		name: z.string(),
 		provider: z.string(),
 		redirectUrl: z.string(),
