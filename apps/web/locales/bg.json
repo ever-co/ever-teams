@@ -655,7 +655,12 @@
 			"SELECT_WORKSPACE": "Избери работно пространство",
 			"ENTER_EMAIL": "Въведи имейл",
 			"WORKSPACES_NOT_FOUND": "Работни пространства не са намерени",
-			"INVALID_CODE_TRY_AGAIN": "Невалиден код. Моля, опитайте отново."
+			"INVALID_CODE_TRY_AGAIN": "Невалиден код. Моля, опитайте отново.",
+			"EMPTY_WORKSPACE_WARNING_TITLE": "Това работно пространство няма отбори",
+			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Ще бъдете подканени да създадете отбор след влизане.",
+			"NO_TEAMS_BADGE": "Няма отбори",
+			"TEAM_COUNT_SINGULAR": "отбор",
+			"TEAM_COUNT_PLURAL": "отбора"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Присъединяване към съществуващ отбор",

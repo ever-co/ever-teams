@@ -655,7 +655,12 @@
 			"SELECT_WORKSPACE": "选择工作区",
 			"ENTER_EMAIL": "输入电子邮箱",
 			"WORKSPACES_NOT_FOUND": "工作区未找到",
-			"INVALID_CODE_TRY_AGAIN": "无效的代码。请重试。"
+			"INVALID_CODE_TRY_AGAIN": "无效的代码。请重试。",
+			"EMPTY_WORKSPACE_WARNING_TITLE": "此工作区没有团队",
+			"EMPTY_WORKSPACE_WARNING_MESSAGE": "登录后将提示您创建团队。",
+			"NO_TEAMS_BADGE": "无团队",
+			"TEAM_COUNT_SINGULAR": "团队",
+			"TEAM_COUNT_PLURAL": "团队"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "加入已有团队",

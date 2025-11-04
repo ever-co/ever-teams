@@ -655,7 +655,12 @@
 			"SELECT_WORKSPACE": "Selecteer werkruimte",
 			"ENTER_EMAIL": "Voer e-mail in",
 			"WORKSPACES_NOT_FOUND": "Werkruimtes niet gevonden",
-			"INVALID_CODE_TRY_AGAIN": "Ongeldige code. Probeer opnieuw."
+			"INVALID_CODE_TRY_AGAIN": "Ongeldige code. Probeer opnieuw.",
+			"EMPTY_WORKSPACE_WARNING_TITLE": "Deze werkruimte heeft geen teams",
+			"EMPTY_WORKSPACE_WARNING_MESSAGE": "U wordt gevraagd een team aan te maken na het inloggen.",
+			"NO_TEAMS_BADGE": "Geen teams",
+			"TEAM_COUNT_SINGULAR": "team",
+			"TEAM_COUNT_PLURAL": "teams"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Bestaand team joinen",

@@ -467,15 +467,25 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 		setExpandedWorkspace(props.selectedWorkspace);
 	}, [props.selectedWorkspace]);
 
-	// Memoize workspace with teams status
+	// Memoize workspace with teams status and apply conditional filtering
 	const workspacesWithTeamsStatus = useMemo(() => {
-		return props.workspaces
-			.filter((workspace) => workspace && workspace.user)
-			.map((workspace) => ({
-				workspace,
-				hasTeams: hasTeams(workspace),
-				teamCount: workspace.current_teams?.length || 0
-			}));
+		// Get all valid workspaces
+		const allWorkspaces = props.workspaces.filter((workspace) => workspace && workspace.user);
+
+		// Check if at least one workspace has teams
+		const hasAtLeastOneWorkspaceWithTeams = allWorkspaces.some((workspace) => hasTeams(workspace));
+
+		// If at least one workspace has teams, show ONLY workspaces with teams
+		// Otherwise, show all workspaces (even empty ones with warnings)
+		const filteredWorkspaces = hasAtLeastOneWorkspaceWithTeams
+			? allWorkspaces.filter((workspace) => hasTeams(workspace))
+			: allWorkspaces;
+
+		return filteredWorkspaces.map((workspace) => ({
+			workspace,
+			hasTeams: hasTeams(workspace),
+			teamCount: workspace.current_teams?.length || 0
+		}));
 	}, [props.workspaces]);
 
 	// Check if selected workspace is empty
@@ -511,10 +521,10 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 								</svg>
 								<div className="flex-1">
 									<p className="text-sm font-medium text-amber-800 dark:text-amber-200">
-										This workspace has no teams
+										{t('pages.auth.EMPTY_WORKSPACE_WARNING_TITLE')}
 									</p>
 									<p className="mt-1 text-xs text-amber-700 dark:text-amber-300">
-										You'll be prompted to create a team after logging in.
+										{t('pages.auth.EMPTY_WORKSPACE_WARNING_MESSAGE')}
 									</p>
 								</div>
 							</div>
@@ -569,14 +579,17 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 														{/* Badge for empty workspace */}
 														{isEmpty && (
 															<span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
-																No teams
+																{t('pages.auth.NO_TEAMS_BADGE')}
 															</span>
 														)}
 
 														{/* Team count badge for non-empty workspaces */}
 														{!isEmpty && teamCount > 0 && (
 															<span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-																{teamCount} {teamCount === 1 ? 'team' : 'teams'}
+																{teamCount}{' '}
+																{teamCount === 1
+																	? t('pages.auth.TEAM_COUNT_SINGULAR')
+																	: t('pages.auth.TEAM_COUNT_PLURAL')}
 															</span>
 														)}
 
