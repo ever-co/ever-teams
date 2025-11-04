@@ -36,7 +36,7 @@ export const timeSlotsDataSchema = z
 		isAllowDelete: z.boolean().optional(),
 		// Base entity fields
 		tenantId: z.string().optional(),
-		organizationId: z.string().optional(),
+		organizationId: z.string().nullable().optional(),
 		createdAt: z.coerce.date().optional(),
 		updatedAt: z.coerce.date().optional(),
 		// Related entities (optional for flexibility)

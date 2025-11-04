@@ -24,8 +24,8 @@ export interface IIssueTypesCreate {
 	icon?: string;
 	color?: string;
 	projectId?: string;
-	organizationId?: string;
-	tenantId?: string | undefined | null;
-	organizationTeamId?: string | undefined | null;
+	organizationId?: string | null;
+	tenantId?: string | null;
+	organizationTeamId?: string | null;
 	isDefault?: boolean;
 }

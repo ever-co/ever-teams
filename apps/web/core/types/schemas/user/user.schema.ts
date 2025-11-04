@@ -54,7 +54,7 @@ const inviteSchema = z.object({
 	email: z.string(),
 	status: z.string().optional(),
 	tenantId: z.string().optional(),
-	organizationId: z.string().optional(),
+	organizationId: z.string().nullable().optional(),
 	createdAt: z.coerce.date().optional(),
 	updatedAt: z.coerce.date().optional()
 });

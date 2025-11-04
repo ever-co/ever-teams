@@ -40,7 +40,7 @@ export const timeLogSchema = z
 	.merge(relationalOrganizationTeamSchema)
 	.merge(
 		basePerTenantEntityModelSchema.extend({
-			organizationId: z.string().optional()
+			organizationId: z.string().nullable().optional()
 		})
 	);
 
@@ -48,7 +48,7 @@ export const timeLogSchema = z
 export const addManualTimeRequestSchema = z.object({
 	employeeId: z.string().min(1, 'Employee ID is required'),
 	tenantId: z.string().min(1, 'Tenant ID is required'),
-	organizationId: z.string().optional(),
+	organizationId: z.string().nullable().optional(),
 	projectId: z.string().optional(),
 	taskId: z.string().optional(),
 	organizationContactId: z.string().optional(),

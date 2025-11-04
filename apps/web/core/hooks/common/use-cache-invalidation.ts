@@ -37,6 +37,42 @@ const QUERY_GROUPS = {
 		queryKeys.taskVersions.all,
 		queryKeys.projects.all,
 		queryKeys.issueTypes.all
+	],
+	USER_RELATED: [
+		queryKeys.users.all,
+		queryKeys.users.invitations.all,
+		queryKeys.users.settings.all,
+		queryKeys.users.employees.all,
+		queryKeys.organizationTeams.all
+	],
+	ALL: [
+		queryKeys.users.all,
+		queryKeys.organizationTeams.all,
+		queryKeys.tasks.all,
+		queryKeys.dailyPlans.all,
+		queryKeys.organizationProjects.all,
+		queryKeys.timer.timer,
+		queryKeys.integrations.all,
+		queryKeys.workspaces.all,
+		queryKeys.taskPriorities.all,
+		queryKeys.taskSizes.all,
+		queryKeys.taskLabels.all,
+		queryKeys.taskVersions.all,
+		queryKeys.projects.all,
+		queryKeys.issueTypes.all,
+		queryKeys.roles.all,
+		queryKeys.permissions.all,
+		queryKeys.organizations.all,
+		queryKeys.teams.all,
+		queryKeys.timesheet.all,
+		queryKeys.tags.all,
+		queryKeys.favorites.all,
+		queryKeys.activities.all,
+		queryKeys.taskStatuses.all,
+		queryKeys.taskRelatedIssueTypes.all,
+		queryKeys.languages.all,
+		queryKeys.timeLogs.all,
+		queryKeys.currencies.all
 	]
 } as const;
 
@@ -97,13 +133,17 @@ export function useCacheInvalidation() {
 	 * Optimized to avoid circular dependencies
 	 */
 	const smartInvalidate = useCallback(
-		async (context: 'team-creation' | 'team-update' | 'user-change'): Promise<void> => {
+		async (context: 'all' | 'team-creation' | 'team-update' | 'user-change'): Promise<void> => {
 			switch (context) {
+				case 'all':
+					await invalidateMultipleQueries(queryClient, [...QUERY_GROUPS.ALL]);
+					break;
 				case 'team-creation':
 					await invalidateMultipleQueries(queryClient, [
 						...QUERY_GROUPS.TEAM_RELATED,
 						...QUERY_GROUPS.WORKSPACE_RELATED,
-						...QUERY_GROUPS.TASK_METADATA
+						...QUERY_GROUPS.TASK_METADATA,
+						...QUERY_GROUPS.USER_RELATED
 					]);
 					break;
 				case 'team-update':

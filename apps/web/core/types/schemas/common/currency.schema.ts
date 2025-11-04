@@ -22,7 +22,7 @@ export const currencyListSchema = z
 		createdAt: z.coerce.date().optional(),
 		updatedAt: z.string(),
 		tenantId: z.string().optional(),
-		organizationId: z.string().optional(),
+		organizationId: z.string().nullable().optional(),
 		isoCode: z.string(),
 		currency: z.string(),
 		// Additional fields that might be returned by the API
