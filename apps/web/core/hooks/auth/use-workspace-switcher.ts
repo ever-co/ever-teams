@@ -1,10 +1,7 @@
 'use client';
 
 import { useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
-import { useSetAtom } from 'jotai';
-import { useCacheInvalidation } from '@/core/hooks/common/use-cache-invalidation';
 import { toast } from 'sonner';
 import { useWorkspaces } from './use-workspaces';
 import { workspaceService } from '@/core/services/client/api/auth';
@@ -12,8 +9,6 @@ import { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 import { LAST_WORKSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
 import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
 import { useUserQuery } from '../queries/user-user.query';
-import { activeWorkspaceIdState } from '@/core/stores/auth';
-import { activeTeamIdState } from '@/core/stores/teams';
 import { setAuthCookies, getOrganizationIdCookie } from '@/core/lib/helpers/cookies';
 
 /**
@@ -21,16 +16,9 @@ import { setAuthCookies, getOrganizationIdCookie } from '@/core/lib/helpers/cook
  * Based on EVER_TEAMS_WORKSPACE_SWITCHER_FIX.md documentation
  */
 export function useWorkspaceSwitcher() {
-	const router = useRouter();
 	const { data: user } = useUserQuery();
 	const { workspaces } = useWorkspaces();
 
-	// Jotai state setters for workspace context
-	const setActiveWorkspaceId = useSetAtom(activeWorkspaceIdState);
-	const setActiveTeamId = useSetAtom(activeTeamIdState);
-
-	// Use cache invalidation hook - much cleaner than manual invalidations
-	const { smartInvalidate } = useCacheInvalidation();
 	/**
 	 * Get last team ID with recent logout logic (from password component)
 	 */
@@ -122,18 +110,22 @@ export function useWorkspaceSwitcher() {
 				userId
 			});
 
-			// Update Jotai states
-			setActiveWorkspaceId(tenantId);
-			setActiveTeamId(selectedTeam);
+			// NOTE_CRITICAL: Do NOT update Jotai states here!
+			// Updating states while components are mounted causes "Maximum update depth exceeded"
+			// The page reload will reinitialize all states automatically from cookies
 
 			// Show success message
 			toast.success('Workspace changed successfully');
 
-			// Invalidate all workspace-related queries
-			await smartInvalidate('all');
-
-			// Navigate to home
-			router.push('/');
+			// NOTE_CRITICAL: Use hard navigation (window.location) instead of router.push()
+			// This forces a full page reload which:
+			// 1. Clears all React Query cache automatically
+			// 2. Reinitializes all components with new workspace context
+			// 3. Prevents stale queries with old organizationId/teamId
+			// 4. Avoids "Maximum update depth exceeded" errors from state updates
+			if (typeof window !== 'undefined') {
+				window.location.href = '/';
+			}
 		},
 		onError: (error: any) => {
 			console.error('Error switching workspace:', error);

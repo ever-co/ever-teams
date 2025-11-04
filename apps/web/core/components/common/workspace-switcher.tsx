@@ -245,13 +245,11 @@ export function WorkspacesSwitcher() {
 			return;
 		}
 
-		// Switch to workspace using the smart hook
+		// Switch to workspace to another
+		// NOTE: Do NOT close modal or reset state here!
+		// The page will reload via window.location.href, so any state cleanup is unnecessary
 		switchToWorkspace(targetWorkspace);
-
-		// Close modal and reset state
-		closeConfirmModal();
-		setTargetWorkspace(null);
-	}, [targetWorkspace, switchToWorkspace, closeConfirmModal]);
+	}, [targetWorkspace, switchToWorkspace]);
 
 	// Handle modal close
 	const handleCloseModal = React.useCallback(() => {
