@@ -40,7 +40,8 @@ export function useAuthenticationSocialLogin() {
 				.signInWorkspace({
 					email: signinResult.confirmed_mail,
 					token: workspaces[selectedWorkspace].token,
-					defaultTeamId
+					defaultTeamId: selectedTeam,
+					lastTeamId: selectedTeam
 				})
 				.then(async (result) => {
 					const tenantId = result.user?.tenantId || '';
