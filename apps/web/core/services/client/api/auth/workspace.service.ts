@@ -70,10 +70,9 @@ class WorkspaceService extends APIService {
 	/**
 	 * Switch to a different workspace for an authenticated user
 	 * Uses POST /auth/switch-workspace endpoint
-	 * Requires JWT authentication (automatically added by interceptor)
 	 *
 	 * @param tenantId - The ID of the workspace (tenant) to switch to
-	 * @returns Authentication response with new tokens and user data
+	 * @returns {IAuthResponse} Authentication response with new tokens and user data
 	 */
 	switchWorkspace = async (tenantId: string): Promise<IAuthResponse> => {
 		try {

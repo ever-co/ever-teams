@@ -11,10 +11,6 @@ import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils'
 import { useUserQuery } from '../queries/user-user.query';
 import { setAuthCookies, getOrganizationIdCookie } from '@/core/lib/helpers/cookies';
 
-/**
- * Smart workspace switcher hook - FIXED to use switchWorkspace endpoint
- * Based on EVER_TEAMS_WORKSPACE_SWITCHER_FIX.md documentation
- */
 export function useWorkspaceSwitcher() {
 	const { data: user } = useUserQuery();
 	const { workspaces } = useWorkspaces();
@@ -74,10 +70,6 @@ export function useWorkspaceSwitcher() {
 		[getLastTeamIdWithRecentLogout]
 	);
 
-	/**
-	 * Workspace switch mutation - FIXED to use switchWorkspace endpoint
-	 * Uses POST /auth/switch-workspace with only tenantId (JWT auth automatic)
-	 */
 	const switchWorkspaceMutation = useMutation({
 		mutationFn: async ({ workspace, selectedTeam }: { workspace: TWorkspace; selectedTeam: string }) => {
 			// Use switchWorkspace with only tenantId
