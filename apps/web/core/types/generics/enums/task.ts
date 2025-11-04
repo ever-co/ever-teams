@@ -15,7 +15,13 @@ export enum ETaskSize {
 	LARGE = 'large',
 	MEDIUM = 'medium',
 	SMALL = 'small',
-	TINY = 'tiny'
+	TINY = 'tiny',
+	// Support for Title Case variants from API
+	X_LARGE_TITLE = 'X-Large',
+	LARGE_TITLE = 'Large',
+	MEDIUM_TITLE = 'Medium',
+	SMALL_TITLE = 'Small',
+	TINY_TITLE = 'Tiny'
 }
 
 export enum ETaskType {
@@ -49,7 +55,8 @@ export enum ETaskStatusName {
 	READY_FOR_REVIEW = 'ready-for-review',
 	IN_REVIEW_STATUS = 'in-review',
 	DONE = 'done',
-	CANCELLED = 'cancelled'
+	CANCELLED = 'cancelled',
+	CREATE_NEW_TASK = 'Create New Task'
 }
 export enum ETaskSizeName {
 	X_LARGE = 'X-Large',

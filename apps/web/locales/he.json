@@ -915,6 +915,7 @@
 		"APPS": "אפליקציות",
 		"ARCHIVED": "ארכיון",
 		"START_TIMER": "אנא בחר או צור משימה חדשה כדי להתחיל לעקוב אחר הזמן או ליצור תוכנית",
+		"ALREADY_TRACKING_MESSAGE": "אתה כבר עוקב אחר הזמן בכרטיסייה או במכשיר אחר.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "טיימר הופסק",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "הטיימר הופסק בגלל מעבר צוות"

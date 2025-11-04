@@ -53,15 +53,15 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		return userDataQuery.isFetching || refreshTokenMutation.isPending;
 	}, [userDataQuery.isFetching, refreshTokenMutation.isPending]);
 
-	const updateUserFromAPI = useCallback(() => {
+	const refreshUserData = useCallback(async () => {
 		if (userDataQuery.isFetching) {
 			return;
 		}
-		userDataQuery.refetch().then((result) => {
-			if (result.data) {
-				setUser(result.data);
-			}
-		});
+		const result = await userDataQuery.refetch();
+		if (result.data) {
+			setUser(result.data);
+			return result.data;
+		}
 	}, [userDataQuery, setUser]);
 
 	$user.current = useMemo(() => {
@@ -100,7 +100,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		userLoading: userDataQuery.isFetching,
 		setUser,
 		isTeamManager,
-		updateUserFromAPI,
+		refreshUserData,
 		refreshUserLoading,
 		logOut,
 		timeToTimeRefreshToken,

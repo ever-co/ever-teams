@@ -1,0 +1,141 @@
+# ==============================================================================
+# DOCKER COMPOSE FOR DEVELOPMENT MODE WITH HOT RELOAD
+# ==============================================================================
+#
+# This file configures the Docker development environment with:
+# - Automatic hot reload (reloads on every code change)
+# - Mounted volumes to sync code between host and container
+# - Development environment variables
+# - Polling enabled for file change detection
+#
+# USAGE:
+#   docker-compose -f docker-compose.dev.yml --env-file .env.dev.docker up
+#
+# OR with the automated script:
+#   ./docker-run.sh dev
+#
+# ==============================================================================
+
+services:
+    webapp-dev:
+        # Container name (visible with `docker ps`)
+        container_name: webapp-dev
+
+        # Docker image name that will be created
+        image: ever-teams-webapp:dev
+
+        # Build configuration
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+
+        # Environment variables for development
+        environment:
+            NODE_ENV: development
+            IS_DOCKER: "true"
+            GAUZY_API_SERVER_URL: ${GAUZY_API_SERVER_URL:-https://api.ever.team}
+            NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${NEXT_PUBLIC_GAUZY_API_SERVER_URL:-https://api.ever.team}
+
+            # Enable polling for hot reload in Docker
+            # Required because file watchers don't always work well with Docker volumes
+            CHOKIDAR_USEPOLLING: "true"
+            WATCHPACK_POLLING: "true"
+
+            # Other environment variables
+            AUTH_SECRET: ${AUTH_SECRET:-ever-app-auth-secret}
+            NEXT_PUBLIC_CAPTCHA_TYPE: ${NEXT_PUBLIC_CAPTCHA_TYPE:-}
+            NEXT_PUBLIC_CAPTCHA_SITE_KEY: ${NEXT_PUBLIC_CAPTCHA_SITE_KEY:-}
+            CAPTCHA_SECRET_KEY: ${CAPTCHA_SECRET_KEY:-}
+
+            # OAuth
+            NEXT_PUBLIC_GOOGLE_APP_NAME: ${NEXT_PUBLIC_GOOGLE_APP_NAME:-ever-google}
+            GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+            GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+            NEXT_PUBLIC_GITHUB_APP_NAME: ${NEXT_PUBLIC_GITHUB_APP_NAME:-ever-github}
+            GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+            GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+
+            # Meet
+            NEXT_PUBLIC_MEET_TYPE: ${NEXT_PUBLIC_MEET_TYPE:-Jitsi}
+            NEXT_PUBLIC_MEET_DOMAIN: ${NEXT_PUBLIC_MEET_DOMAIN:-meet.ever.team}
+
+            # Logs
+            LOG_FOLDER_MAX_SIZE: ${LOG_FOLDER_MAX_SIZE:-10}
+            NEXT_PUBLIC_LOG_FOLDER_MAX_SIZE: ${NEXT_PUBLIC_LOG_FOLDER_MAX_SIZE:-10}
+            ACTIVE_LOCAL_LOG_SYSTEM: ${ACTIVE_LOCAL_LOG_SYSTEM:-true}
+            NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM: ${NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM:-true}
+
+            # App Branding
+            APP_NAME: ${APP_NAME:-Ever Teams}
+            APP_SIGNATURE: ${APP_SIGNATURE:-Ever Teams}
+            APP_LOGO_URL: ${APP_LOGO_URL:-https://app.ever.team/assets/ever-teams.png}
+            APP_LINK: ${APP_LINK:-https://ever.team}
+            COMPANY_NAME: ${COMPANY_NAME:-Ever Co. LTD}
+            COMPANY_LINK: ${COMPANY_LINK:-https://ever.co}
+
+            # Analytics (optional in dev)
+            NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+            NEXT_PUBLIC_POSTHOG_KEY: ${NEXT_PUBLIC_POSTHOG_KEY:-}
+            NEXT_PUBLIC_GA_MEASUREMENT_ID: ${NEXT_PUBLIC_GA_MEASUREMENT_ID:-}
+
+        # Load variables from .env.dev.docker file
+        env_file:
+            - .env.dev.docker
+
+        # Mount source code as volume for hot reload
+        volumes:
+            # Web application source code
+            - ./apps/web:/app/apps/web
+
+            # Shared packages
+            - ./packages:/app/packages
+
+            # Configuration files
+            - ./tsconfig.base.json:/app/tsconfig.base.json
+            - ./tsconfig.json:/app/tsconfig.json
+            - ./turbo.json:/app/turbo.json
+            - ./nx.json:/app/nx.json
+
+            # Exclude node_modules to avoid conflicts
+            # Container's node_modules will be used
+            - /app/node_modules
+            - /app/apps/web/node_modules
+            - /app/apps/web/.next
+            - /app/packages/constants/node_modules
+            - /app/packages/hooks/node_modules
+            - /app/packages/services/node_modules
+            - /app/packages/types/node_modules
+            - /app/packages/ui/node_modules
+            - /app/packages/utils/node_modules
+
+        # Automatically restart container on error
+        restart: unless-stopped
+
+        # Map container port 3030 to host port 3030
+        ports:
+            - "${UI_PORT:-3030}:3030"
+
+        # Network
+        networks:
+            - ever-teams-dev-network
+
+        # Health check to verify application is running
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "node",
+                    "-e",
+                    "require('http').get('http://localhost:3030', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+                ]
+            interval: 30s
+            timeout: 10s
+            retries: 5
+            start_period: 120s
+
+        # Custom command (optional, can be overridden)
+        # command: yarn dev:web
+
+networks:
+    ever-teams-dev-network:
+        driver: bridge

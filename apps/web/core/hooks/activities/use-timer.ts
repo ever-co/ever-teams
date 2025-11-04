@@ -32,8 +32,9 @@ import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { TUser } from '@/core/types/schemas/user/user.schema';
 import { queryKeys } from '@/core/query/keys';
-
-const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
+import { LOCAL_TIMER_STORAGE_KEY } from '@/core/constants/config/constants';
+import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 /**
  * ! Don't modify this function unless you know what you're doing
@@ -155,12 +156,12 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: T
 export function useTimer() {
 	const pathname = usePathname();
 	const { updateTask, setActiveTask, detailedTask, activeTeamId, activeTeam, activeTeamTask } = useTeamTasks();
+	const t = useTranslations();
 
 	const taskStatuses = useAtomValue(taskStatusesState);
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
-	const { user, $user } = useAuthenticateUser();
+	const { user, $user, refreshUserData } = useAuthenticateUser();
 	const myDailyPlans = useAtomValue(myDailyPlanListState);
-
 	const [timerStatus, setTimerStatus] = useAtom(timerStatusState);
 
 	const [timerStatusFetching, setTimerStatusFetching] = useAtom(timerStatusFetchingState);
@@ -308,6 +309,18 @@ export function useTimer() {
 
 	// Start timer
 	const startTimer = useCallback(async () => {
+		// Check if the user is tracking time in another tab or device
+		try {
+			const userData = await refreshUserData();
+			if (userData?.employee.isTrackingTime) {
+				toast.info(t('timer.ALREADY_TRACKING_MESSAGE'));
+				return;
+			}
+		} catch (error) {
+			console.error('Failed to verify tracking status:', error);
+			return;
+		}
+
 		if (pathname?.startsWith('/task/')) setActiveTask(detailedTask);
 		if (!taskId.current) return;
 		updateLocalTimerStatus({
@@ -380,7 +393,9 @@ export function useTimer() {
 		activeTeam?.id,
 		activeTeam?.tenantId,
 		user?.employee?.id,
-		updateOrganizationTeamEmployeeActiveTask
+		updateOrganizationTeamEmployeeActiveTask,
+		t,
+		refreshUserData
 	]);
 
 	// Stop timer

@@ -26,7 +26,9 @@ export const weekDaysSchema = z.nativeEnum(EWeekDays);
 
 // Task related enums
 export const taskStatusNameSchema = z.nativeEnum(ETaskStatusName);
-export const taskPrioritySchema = z.nativeEnum(ETaskPriority);
+export const taskPrioritySchema = z.nativeEnum(ETaskPriority)
+	.or(z.enum(['Urgent', 'High', 'Medium', 'Low']))
+	.transform(val => val.toLowerCase());
 export const taskSizeSchema = z.nativeEnum(ETaskSize);
 export const taskTypeSchema = z.nativeEnum(ETaskType);
 
