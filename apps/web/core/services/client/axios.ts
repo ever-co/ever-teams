@@ -86,17 +86,17 @@ export const getAPIDirect = async (): Promise<APIService> => {
 
 export type APIConfig = AxiosRequestConfig<any> & { tenantId?: string; directAPI?: boolean };
 
-export async function desktopServerOverride() {
-	if (typeof window !== 'undefined') {
-		try {
-			const serverConfig = await api.get<{ NEXT_PUBLIC_GAUZY_API_SERVER_URL: string }>('/desktop-server');
-
-			return serverConfig?.data?.NEXT_PUBLIC_GAUZY_API_SERVER_URL;
-		} catch (error) {
-			return GAUZY_API_BASE_SERVER_URL;
+export async function desktopServerOverride(): Promise<string> {
+	try {
+		const resp = await fetch('/api/desktop-server', { cache: 'no-cache' });
+		if (resp.ok) {
+			const serverConfig = await resp.json();
+			return serverConfig?.GAUZY_API_SERVER_URL as string;
 		}
+		throw Error(resp.statusText);
+	} catch (error) {
+		return GAUZY_API_BASE_SERVER_URL.value as string;
 	}
-	return GAUZY_API_BASE_SERVER_URL;
 }
 async function apiConfig(config?: APIConfig) {
 	const tenantId = getTenantIdCookie();
