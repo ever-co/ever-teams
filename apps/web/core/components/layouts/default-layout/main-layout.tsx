@@ -10,7 +10,7 @@ import { SidebarProvider, SidebarInset } from '@/core/components/common/sidebar'
 import { useElementHeight } from '@/core/hooks/common';
 import { useActiveTimer } from '@/core/hooks/common/use-active-timer';
 import { usePathname } from 'next/navigation';
-import { PATH_WITH_MORE_THAN_ONE_TIMER } from '@/core/constants/config/constants';
+import { PATH_WITH_MORE_THAN_ONE_TIMER, APPLICATION_LANGUAGES_CODE } from '@/core/constants/config/constants';
 import AppContainer from './app-container';
 import GlobalHeader from './global-header';
 import MainSidebarTrigger from './main-sidebar-trigger';
@@ -135,12 +135,22 @@ export function MainLayout({
 	useEffect(() => {
 		if (!headerHeight) return;
 
+		// Remove locale prefix from path for consistent matching across all languages
+		const normalizedPath = (() => {
+			const segments = path.split('/').filter(Boolean);
+			// If first segment is a locale code, remove it
+			if (segments.length > 0 && APPLICATION_LANGUAGES_CODE.includes(segments[0])) {
+				return '/' + segments.slice(1).join('/');
+			}
+			return path;
+		})();
+
 		// Verify if the page has potentially more than one timer using precise matching
 		const hasMultipleTimers = PATH_WITH_MORE_THAN_ONE_TIMER.some((p: string) => {
 			if (p === '/') {
-				return path === '/'; // Exact match for the home page
+				return normalizedPath === '/' || normalizedPath === ''; // Exact match for the home page
 			}
-			return path.startsWith(p); // Match for paths that start with the pattern
+			return normalizedPath.startsWith(p); // Match for paths that start with the pattern
 		});
 
 		// If the page has multiple timers, only show the timer navbar when the header is reduced

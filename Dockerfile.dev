@@ -1,0 +1,156 @@
+# syntax = docker/dockerfile:1
+
+# ==============================================================================
+# DOCKERFILE FOR DEVELOPMENT MODE WITH HOT RELOAD
+# ==============================================================================
+#
+# KEY DIFFERENCES WITH PRODUCTION Dockerfile:
+#
+# 1. NO BUILD STEP:
+#    - Production: Compiles the app with `yarn build:web` (Next.js build)
+#    - Development: Runs `yarn dev:web` directly (Next.js dev server)
+#
+# 2. NO ARG FOR ENVIRONMENT VARIABLES:
+#    - Production: NEXT_PUBLIC_* variables are baked in during build
+#    - Development: Variables are read at runtime from .env.dev.docker
+#
+# 3. SOURCE CODE MOUNTED AS VOLUME:
+#    - Production: Compiled code copied into image (immutable)
+#    - Development: Source code mounted from host (hot reload)
+#
+# 4. ALL DEPENDENCIES INSTALLED:
+#    - Production: Only production dependencies (--prod)
+#    - Development: All dependencies (including devDependencies)
+#
+# 5. LARGER IMAGE SIZE:
+#    - Production: Multi-stage build to reduce size (~200MB)
+#    - Development: Full image with all tools (~1GB)
+#
+# ==============================================================================
+
+# Node.js version (same as production for consistency)
+ARG NODE_VERSION=22.18.0
+
+# ==============================================================================
+# SINGLE STAGE: DEVELOPMENT
+# ==============================================================================
+# Unlike production which has 2 stages (build + runtime),
+# development has only one stage because we don't compile the application.
+
+FROM node:${NODE_VERSION}-alpine AS development
+
+LABEL maintainer='ever@ever.co'
+LABEL org.opencontainers.image.source='https://github.com/ever-co/ever-teams'
+LABEL description='Ever Teams Web - Development Environment with Hot Reload'
+
+# ==============================================================================
+# STEP 1: INSTALL SYSTEM DEPENDENCIES
+# ==============================================================================
+# These packages are required to compile native Node.js modules
+# (like Sharp for image optimization)
+
+RUN apk add --no-cache \
+	libc6-compat \
+	python3 \
+	make \
+	g++ \
+	git \
+	curl
+
+# ==============================================================================
+# STEP 2: SET WORKING DIRECTORY
+# ==============================================================================
+
+WORKDIR /app
+
+# ==============================================================================
+# STEP 3: COPY DEPENDENCY CONFIGURATION FILES
+# ==============================================================================
+# We copy only configuration files first to leverage Docker cache.
+# If these files don't change, Docker will reuse the layer with
+# node_modules already installed.
+
+# Root configuration files
+COPY package.json yarn.lock ./
+COPY lerna.json nx.json turbo.json ./
+COPY tsconfig.base.json tsconfig.json ./
+
+# package.json files from all workspaces
+# (required for Yarn to resolve dependencies)
+COPY apps/web/package.json ./apps/web/
+COPY packages/constants/package.json ./packages/constants/
+COPY packages/eslint-config/package.json ./packages/eslint-config/
+COPY packages/hooks/package.json ./packages/hooks/
+COPY packages/services/package.json ./packages/services/
+COPY packages/ts-config/package.json ./packages/ts-config/
+COPY packages/types/package.json ./packages/types/
+COPY packages/ui/package.json ./packages/ui/
+COPY packages/utils/package.json ./packages/utils/
+
+# ==============================================================================
+# STEP 4: INSTALL ALL DEPENDENCIES
+# ==============================================================================
+# In development, we install ALL dependencies (including devDependencies)
+# because we need development tools (ESLint, TypeScript, etc.)
+#
+# Options used:
+# --frozen-lockfile: Use exact versions from yarn.lock (deterministic)
+# --non-interactive: No interactive prompts (for CI/CD)
+# --network-timeout: Increase timeout for slow downloads (default: 30000ms)
+#
+# Environment variables to skip optional binary downloads:
+# - SENTRYCLI_SKIP_DOWNLOAD: Skip Sentry CLI binary download (can cause timeouts)
+# - CYPRESS_INSTALL_BINARY: Skip Cypress binary download (large file)
+# - PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: Skip Playwright browsers download
+
+ENV SENTRYCLI_SKIP_DOWNLOAD=1 \
+	CYPRESS_INSTALL_BINARY=0 \
+	PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+
+RUN yarn install --frozen-lockfile --non-interactive --network-timeout 600000
+
+# ==============================================================================
+# STEP 5: COPY SOURCE CODE
+# ==============================================================================
+# IMPORTANT: In development mode, this code will be OVERRIDDEN by the volume
+# mounted from docker-compose.dev.yml. This copy only serves as a fallback
+# if the container is run without volumes.
+
+COPY . .
+
+# ==============================================================================
+# STEP 6: CONFIGURE ENVIRONMENT VARIABLES
+# ==============================================================================
+# These variables are default values. They will be overridden by:
+# 1. Variables in docker-compose.dev.yml
+# 2. Variables in .env.dev.docker
+
+ENV NODE_ENV=development
+ENV IS_DOCKER=true
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Variables to enable hot reload in Docker
+# (required because file watchers don't always work well with volumes)
+ENV CHOKIDAR_USEPOLLING=true
+ENV WATCHPACK_POLLING=true
+
+# ==============================================================================
+# STEP 7: EXPOSE PORT
+# ==============================================================================
+# Port used by Next.js in development mode (defined in apps/web/package.json)
+
+EXPOSE 3030
+
+# ==============================================================================
+# STEP 8: START COMMAND
+# ==============================================================================
+# Start the Next.js development server with hot reload
+#
+# The `yarn dev:web` command executes:
+# 1. Build shared packages (services, types, constants, ui, hooks, utils)
+# 2. Run `turbo dev --filter=@ever-teams/web`
+# 3. Next.js starts in dev mode on port 3030
+#
+# Hot reload works thanks to volumes mounted in docker-compose.dev.yml
+
+CMD ["yarn", "dev:web"]

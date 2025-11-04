@@ -842,3 +842,4 @@ export const InviteStatusDisplayMap = {
 	}
 } as const;
 export const ITEMS_LENGTH_TO_VIRTUALIZED = 8;
+export const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
