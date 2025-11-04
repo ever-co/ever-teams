@@ -28,7 +28,7 @@ export function getTeamCount(workspace: ISigninEmailConfirmWorkspaces | null | u
 export function filterWorkspacesWithTeams(
 	workspaces: ISigninEmailConfirmWorkspaces[]
 ): ISigninEmailConfirmWorkspaces[] {
-	if (!workspaces) return [];
+	if (!workspaces || workspaces.length === 0) return [];
 	return workspaces.filter((workspace) => hasTeams(workspace));
 }
 

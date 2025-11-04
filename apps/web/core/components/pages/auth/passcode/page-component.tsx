@@ -467,12 +467,15 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 		setExpandedWorkspace(props.selectedWorkspace);
 	}, [props.selectedWorkspace]);
 
-	// Memoize workspace with teams status and apply conditional filtering
+	// UX Logic: If user has at least one workspace with teams, hide empty workspaces
+	// to avoid confusion. If ALL workspaces are empty, show them all with warnings
+	// so the user can still proceed to create a team.
+	// Also preserve original indices to correctly map filtered UI selections back to the original array.
 	const workspacesWithTeamsStatus = useMemo(() => {
 		// Get all valid workspaces with their original indices
 		const allWorkspacesWithIndices = props.workspaces
 			.map((workspace, index) => ({ workspace, originalIndex: index }))
-			.filter(({ workspace }) => workspace && workspace.user);
+			.filter(({ workspace }) => workspace?.user);
 
 		// Check if at least one workspace has teams
 		const hasAtLeastOneWorkspaceWithTeams = allWorkspacesWithIndices.some(({ workspace }) => hasTeams(workspace));
@@ -493,7 +496,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 
 	// Find the selected workspace in the filtered array using originalIndex
 	const selectedWorkspaceData = workspacesWithTeamsStatus.find((ws) => ws.originalIndex === props.selectedWorkspace);
-	const isSelectedWorkspaceEmpty = selectedWorkspaceData && !selectedWorkspaceData.hasTeams;
+	const isSelectedWorkspaceEmpty = selectedWorkspaceData ? !selectedWorkspaceData.hasTeams : false;
 
 	return (
 		<form
@@ -509,7 +512,10 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 
 					{/* Warning message for empty workspace selection */}
 					{isSelectedWorkspaceEmpty && (
-						<div className="w-full px-4 py-3 border rounded-lg bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
+						<div
+							role="alert"
+							className="w-full px-4 py-3 border rounded-lg bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800"
+						>
 							<div className="flex items-start gap-2">
 								<svg
 									className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0"
