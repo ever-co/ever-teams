@@ -10,7 +10,17 @@ import { AuthLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Dispatch, FormEvent, FormEventHandler, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
+import {
+	Dispatch,
+	FormEvent,
+	FormEventHandler,
+	SetStateAction,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState
+} from 'react';
 
 import stc from 'string-to-color';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
@@ -28,6 +38,7 @@ import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { Avatar } from '@/core/components/duplicated-components/avatar';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
+import { hasTeams, getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
 
 function AuthPasscode() {
 	const form = useAuthenticationPasscode();
@@ -106,8 +117,8 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 	return (
 		<form className={className} autoComplete="off" onSubmit={handleSendCode}>
 			<EverCard className="w-full dark:bg-[#25272D]" shadow="custom">
-				<div className="flex flex-col justify-between items-center">
-					<Text.Heading as="h3" className="mb-7 text-center">
+				<div className="flex flex-col items-center justify-between">
+					<Text.Heading as="h3" className="text-center mb-7">
 						{t('pages.auth.ENTER_EMAIL')}
 					</Text.Heading>
 
@@ -125,16 +136,16 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 						className="dark:bg-[#25272D]"
 					/>
 
-					<div className="flex justify-between items-center mt-6 w-full">
-						<div className="flex flex-col gap-2 items-start">
-							<div className="flex gap-2 justify-start items-center text-sm">
+					<div className="flex items-center justify-between w-full mt-6">
+						<div className="flex flex-col items-start gap-2">
+							<div className="flex items-center justify-start gap-2 text-sm">
 								<span className="text-sm">{t('pages.authLogin.HAVE_PASSWORD')}</span>
 								<Link href="/auth/password" className="text-primary dark:text-primary-light">
 									{t('pages.authLogin.LOGIN_WITH_PASSWORD')}.
 								</Link>
 							</div>
 
-							<div className="flex gap-2 justify-start items-center text-sm">
+							<div className="flex items-center justify-start gap-2 text-sm">
 								<span>{t('common.DONT_HAVE_ACCOUNT')}</span>
 								<Link href="/auth/team" className="text-primary dark:text-primary-light">
 									<span>{t('common.REGISTER')}</span>
@@ -205,13 +216,13 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 	return (
 		<form className={className} ref={formRef} onSubmit={form.handleCodeSubmit} autoComplete="off">
 			<EverCard className="w-full dark:bg-[#25272D]" shadow="custom">
-				<div className="flex flex-col justify-between items-center">
+				<div className="flex flex-col items-center justify-between">
 					<Text.Heading as="h3" className="mb-10 text-center">
 						{t('pages.auth.LOGIN')}
 					</Text.Heading>
 
 					{/* Auth code input */}
-					<div className="mt-5 w-full">
+					<div className="w-full mt-5">
 						<div className="flex justify-between">
 							<Text className="text-xs font-normal text-gray-400">
 								{t('pages.auth.INPUT_INVITE_CODE')}
@@ -244,13 +255,13 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 							autoFocus={form.authScreen.screen === 'passcode'}
 						/>
 						{form.status === 'error' && (form.errors['code'] || form.errors['email']) && (
-							<Text.Error className="justify-self-start self-start">
+							<Text.Error className="self-start justify-self-start">
 								{form.errors['code'] || form.errors['email']}
 							</Text.Error>
 						)}
 					</div>
 
-					<div className="flex justify-between mt-10 w-full">
+					<div className="flex justify-between w-full mt-10">
 						{/* Send code */}
 						<div className="flex flex-col space-y-2">
 							<div className="flex flex-row items-center mb-1 space-x-2">
@@ -326,35 +337,61 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 
 	const lastSelectedTeamFromAPI = form.getLastTeamIdWithRecentLogout();
 
+	// Memoize workspace analysis to avoid recalculations
+	const workspaceAnalysis = useMemo(() => {
+		const firstWorkspace = form.workspaces[0];
+		const hasMultipleWorkspaces = form.workspaces.length > 1;
+		const firstWorkspaceHasTeams = hasTeams(firstWorkspace);
+		const firstWorkspaceTeamCount = firstWorkspaceHasTeams ? firstWorkspace.current_teams.length : 0;
+		const hasMultipleTeamsInAnyWorkspace = form.workspaces.some(
+			(workspace) => hasTeams(workspace) && workspace.current_teams.length > 1
+		);
+
+		return {
+			firstWorkspace,
+			hasMultipleWorkspaces,
+			firstWorkspaceHasTeams,
+			firstWorkspaceTeamCount,
+			hasMultipleTeamsInAnyWorkspace
+		};
+	}, [form.workspaces]);
+
 	useEffect(() => {
+		// Auto-select first workspace if only one exists
 		if (form.workspaces.length === 1) {
 			setSelectedWorkspace(0);
 		}
 
-		const currentTeams = form.workspaces[0]?.current_teams;
+		const { firstWorkspace, firstWorkspaceHasTeams, firstWorkspaceTeamCount } = workspaceAnalysis;
 
-		if (form.workspaces.length === 1 && currentTeams?.length === 1) {
-			setSelectedTeam(currentTeams[0].team_id);
+		// Auto-select team if only one workspace with one team
+		if (form.workspaces.length === 1 && firstWorkspaceTeamCount === 1 && firstWorkspaceHasTeams) {
+			const firstTeamId = getFirstTeamId(firstWorkspace);
+			if (firstTeamId) {
+				setSelectedTeam(firstTeamId);
+			}
 		} else {
+			// Try to restore last selected team or use default
+			const storedTeam = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM);
+			const fallbackTeamId = getFirstTeamId(firstWorkspace);
 			const lastSelectedTeam =
-				window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) ||
-				lastSelectedTeamFromAPI ||
-				form.defaultTeamId ||
-				currentTeams[0]?.team_id;
-			const lastSelectedWorkspace =
-				form.workspaces.findIndex((workspace) =>
-					workspace.current_teams.find((team) => team.team_id === lastSelectedTeam)
-				) || 0;
+				storedTeam || lastSelectedTeamFromAPI || form.defaultTeamId || fallbackTeamId || '';
+
+			// Find workspace containing the last selected team
+			const lastSelectedWorkspaceIndex = findWorkspaceIndexByTeamId(form.workspaces, lastSelectedTeam);
+			const workspaceIndex = lastSelectedWorkspaceIndex >= 0 ? lastSelectedWorkspaceIndex : 0;
+
 			setSelectedTeam(lastSelectedTeam);
-			setSelectedWorkspace(lastSelectedWorkspace);
+			setSelectedWorkspace(workspaceIndex);
 		}
 
-		if (form.workspaces.length === 1 && (currentTeams?.length || 0) <= 1) {
+		// Auto-submit if only one workspace with 0 or 1 team
+		if (form.workspaces.length === 1 && firstWorkspaceTeamCount <= 1) {
 			setTimeout(() => {
 				document.getElementById('continue-to-workspace')?.click();
 			}, 100);
 		}
-	}, [form.defaultTeamId, form.workspaces, lastSelectedTeamFromAPI]);
+	}, [form.defaultTeamId, form.workspaces, lastSelectedTeamFromAPI, workspaceAnalysis]);
 
 	useEffect(() => {
 		if (form.authScreen.screen === 'workspace') {
@@ -364,6 +401,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 			}
 		}
 	}, [form.authScreen, router]);
+
 	useEffect(() => {
 		if (form.status === 'success') {
 			const timeout = setTimeout(() => form.setStatus('idle'), 1500);
@@ -371,12 +409,17 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 		}
 	}, [form.status]);
 
-	const hasMultipleTeams = form.workspaces.some((workspace) => workspace.current_teams.length > 1);
+	const { hasMultipleTeamsInAnyWorkspace } = workspaceAnalysis;
 
 	return (
 		<>
 			{/* The workspace component will be visible only if there are two or many workspaces and/or teams */}
-			<div className={clsxm(`${form.workspaces.length === 1 && !hasMultipleTeams ? 'hidden' : ''}`, 'w-full')}>
+			<div
+				className={clsxm(
+					`${form.workspaces.length === 1 && !hasMultipleTeamsInAnyWorkspace ? 'hidden' : ''}`,
+					'w-full'
+				)}
+			>
 				<WorkSpaceComponent
 					className={className}
 					workspaces={form.workspaces}
@@ -394,7 +437,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 			</div>
 
 			{/* If the user is a member of only one workspace and only one team, render a redirecting component */}
-			{form.workspaces.length === 1 && !hasMultipleTeams && (
+			{form.workspaces.length === 1 && !hasMultipleTeamsInAnyWorkspace && (
 				<div>
 					<BackdropLoader show={true} title={t('pages.authTeam.REDIRECT_TO_WORSPACE_LOADING')} />
 				</div>
@@ -424,6 +467,21 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 		setExpandedWorkspace(props.selectedWorkspace);
 	}, [props.selectedWorkspace]);
 
+	// Memoize workspace with teams status
+	const workspacesWithTeamsStatus = useMemo(() => {
+		return props.workspaces
+			.filter((workspace) => workspace && workspace.user)
+			.map((workspace) => ({
+				workspace,
+				hasTeams: hasTeams(workspace),
+				teamCount: workspace.current_teams?.length || 0
+			}));
+	}, [props.workspaces]);
+
+	// Check if selected workspace is empty
+	const selectedWorkspaceData = workspacesWithTeamsStatus[props.selectedWorkspace];
+	const isSelectedWorkspaceEmpty = selectedWorkspaceData && !selectedWorkspaceData.hasTeams;
+
 	return (
 		<form
 			className={clsxm(props.className, 'flex justify-center w-full')}
@@ -431,114 +489,187 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 			autoComplete="off"
 		>
 			<EverCard className="w-full max-w-[30rem] dark:bg-[#25272D]" shadow="custom">
-				<div className="flex flex-col gap-8 justify-between items-center">
+				<div className="flex flex-col items-center justify-between gap-8">
 					<Text.Heading as="h3" className="text-center">
 						{t('pages.auth.SELECT_WORKSPACE')}
 					</Text.Heading>
-					<ScrollArea className="relative pr-2 w-full h-64">
+
+					{/* Warning message for empty workspace selection */}
+					{isSelectedWorkspaceEmpty && (
+						<div className="w-full px-4 py-3 border rounded-lg bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
+							<div className="flex items-start gap-2">
+								<svg
+									className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0"
+									fill="currentColor"
+									viewBox="0 0 20 20"
+								>
+									<path
+										fillRule="evenodd"
+										d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+										clipRule="evenodd"
+									/>
+								</svg>
+								<div className="flex-1">
+									<p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+										This workspace has no teams
+									</p>
+									<p className="mt-1 text-xs text-amber-700 dark:text-amber-300">
+										You'll be prompted to create a team after logging in.
+									</p>
+								</div>
+							</div>
+						</div>
+					)}
+
+					<ScrollArea className="relative w-full h-64 pr-2">
 						<div className="flex flex-col gap-y-4">
-							{props.workspaces
-								?.filter((workspace) => workspace && workspace.user)
-								.map((worksace, index) => (
-									<div
-										key={index}
-										className={`w-full overflow-hidden h-16 ${expandedWorkspace === index && 'h-auto'}   flex flex-col border border-[#0000001A] dark:border-[#34353D] ${
-											props.selectedWorkspace === index
-												? 'bg-[#FCFCFC] -order-1 dark:bg-[#1F2024]'
-												: ''
-										} hover:bg-[#FCFCFC]  dark:hover:bg-[#1F2024] rounded-xl`}
-									>
-										<div className="text-base font-medium py-[1.25rem] px-4 flex flex-col gap-[1.0625rem]">
-											<div className="flex justify-between">
-												<div
-													onClick={() => setExpandedWorkspace(index)}
-													className="flex gap-1 justify-center items-center cursor-pointer"
-												>
-													<span>
-														{worksace.user.tenant?.name ||
-															worksace.user.name ||
-															'Workspace'}
-													</span>
-													<span
-														className={cn(
-															'h-6 w-6 flex items-center justify-center transition-transform',
-															expandedWorkspace === index && 'rotate-180'
-														)}
+							{workspacesWithTeamsStatus.map(
+								({ workspace: worksace, hasTeams: workspaceHasTeams, teamCount }, index) => {
+									const isEmpty = !workspaceHasTeams;
+									const workspaceName =
+										worksace.user.tenant?.name || worksace.user.name || 'Workspace';
+
+									return (
+										<div
+											key={index}
+											className={cn(
+												'w-full overflow-hidden h-16 flex flex-col border rounded-xl transition-all',
+												expandedWorkspace === index && 'h-auto',
+												// Empty workspace styling
+												isEmpty &&
+													'border-amber-200 dark:border-amber-800 bg-amber-50/30 dark:bg-amber-900/10',
+												// Normal workspace styling
+												!isEmpty && 'border-[#0000001A] dark:border-[#34353D]',
+												// Selected workspace styling
+												props.selectedWorkspace === index &&
+													!isEmpty &&
+													'bg-[#FCFCFC] -order-1 dark:bg-[#1F2024]',
+												props.selectedWorkspace === index &&
+													isEmpty &&
+													'bg-amber-100/50 -order-1 dark:bg-amber-900/20',
+												// Hover styling
+												!isEmpty && 'hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024]',
+												isEmpty && 'hover:bg-amber-100/40 dark:hover:bg-amber-900/15'
+											)}
+										>
+											<div className="text-base font-medium py-[1.25rem] px-4 flex flex-col gap-[1.0625rem]">
+												<div className="flex items-start justify-between">
+													<div
+														onClick={() => setExpandedWorkspace(index)}
+														className="flex items-center flex-1 gap-2 cursor-pointer"
 													>
-														<ChevronDown />
+														<span
+															className={cn(
+																isEmpty && 'text-amber-700 dark:text-amber-300'
+															)}
+														>
+															{workspaceName}
+														</span>
+
+														{/* Badge for empty workspace */}
+														{isEmpty && (
+															<span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
+																No teams
+															</span>
+														)}
+
+														{/* Team count badge for non-empty workspaces */}
+														{!isEmpty && teamCount > 0 && (
+															<span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+																{teamCount} {teamCount === 1 ? 'team' : 'teams'}
+															</span>
+														)}
+
+														<span
+															className={cn(
+																'h-6 w-6 flex items-center justify-center transition-transform',
+																expandedWorkspace === index && 'rotate-180'
+															)}
+														>
+															<ChevronDown
+																className={cn(
+																	isEmpty && 'text-amber-600 dark:text-amber-400'
+																)}
+															/>
+														</span>
+													</div>
+													<span
+														className="hover:cursor-pointer"
+														onClick={() => {
+															props.setSelectedWorkspace(index);
+															// Only auto-select first team if workspace has teams
+															if (workspaceHasTeams && props.selectedTeam) {
+																const teamIds = worksace.current_teams.map(
+																	(team) => team.team_id
+																);
+																if (!teamIds.includes(props.selectedTeam)) {
+																	const firstTeamId = getFirstTeamId(worksace);
+																	if (firstTeamId) {
+																		props.setSelectedTeam(firstTeamId);
+																	}
+																}
+															}
+														}}
+													>
+														{props.selectedWorkspace === index ? (
+															<CheckCircleOutlineIcon className="w-6 h-6 stroke-[#27AE60] fill-[#27AE60]" />
+														) : (
+															<CircleIcon className="w-6 h-6" />
+														)}
 													</span>
 												</div>
 												<span
-													className="hover:cursor-pointer"
-													onClick={() => {
-														props.setSelectedWorkspace(index);
-														if (
-															props.selectedTeam &&
-															!worksace.current_teams
-																?.map((team) => team.team_id)
-																.includes(props.selectedTeam)
-														) {
-															props.setSelectedTeam(worksace.current_teams[0].team_id);
-														}
-													}}
-												>
-													{props.selectedWorkspace === index ? (
-														<CheckCircleOutlineIcon className="w-6 h-6 stroke-[#27AE60] fill-[#27AE60]" />
-													) : (
-														<CircleIcon className="w-6 h-6" />
-													)}
-												</span>
-											</div>
-											<span
-												className={`bg-[#E5E5E5] w-full h-[1px] hidden ${expandedWorkspace === index && 'block'}`}
-											></span>
-											{/* <div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div> */}
-											<div className="flex flex-col gap-4 px-5 py-1.5">
-												{worksace.current_teams
-													?.filter((team) => team && team.team_name)
-													.map((team) => (
-														<div
-															key={`${index}-${team.team_id}`}
-															className="flex items-center justify-between gap-4 min-h-[2.875rem]"
-														>
-															<span className="flex gap-4 justify-between items-center">
-																<Avatar
-																	imageTitle={team.team_name}
-																	size={34}
-																	backgroundColor={`${stc(team.team_name)}80`}
-																/>
-																<div className="flex justify-between">
-																	<span className="max-w-[14rem] whitespace-nowrap text-ellipsis overflow-hidden">
-																		{team.team_name}
-																	</span>
-																	<span>({team.team_member_count})</span>
-																</div>
-															</span>
-															<span
-																className="hover:cursor-pointer"
-																onClick={() => {
-																	props.setSelectedTeam(team.team_id);
-																	if (props.selectedWorkspace !== index) {
-																		props.setSelectedWorkspace(index);
-																	}
-																}}
+													className={`bg-[#E5E5E5] w-full h-[1px] hidden ${expandedWorkspace === index && 'block'}`}
+												></span>
+												{/* <div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div> */}
+												<div className="flex flex-col gap-4 px-5 py-1.5">
+													{worksace.current_teams
+														?.filter((team) => team && team.team_name)
+														.map((team) => (
+															<div
+																key={`${index}-${team.team_id}`}
+																className="flex items-center justify-between gap-4 min-h-[2.875rem]"
 															>
-																{props.selectedTeam === team.team_id ? (
-																	<CheckCircleOutlineIcon className="w-5 h-5 stroke-[#27AE60] fill-[#27AE60]" />
-																) : (
-																	<CircleIcon className="w-5 h-5" />
-																)}
-															</span>
-														</div>
-													))}
+																<span className="flex items-center justify-between gap-4">
+																	<Avatar
+																		imageTitle={team.team_name}
+																		size={34}
+																		backgroundColor={`${stc(team.team_name)}80`}
+																	/>
+																	<div className="flex justify-between">
+																		<span className="max-w-[14rem] whitespace-nowrap text-ellipsis overflow-hidden">
+																			{team.team_name}
+																		</span>
+																		<span>({team.team_member_count})</span>
+																	</div>
+																</span>
+																<span
+																	className="hover:cursor-pointer"
+																	onClick={() => {
+																		props.setSelectedTeam(team.team_id);
+																		if (props.selectedWorkspace !== index) {
+																			props.setSelectedWorkspace(index);
+																		}
+																	}}
+																>
+																	{props.selectedTeam === team.team_id ? (
+																		<CheckCircleOutlineIcon className="w-5 h-5 stroke-[#27AE60] fill-[#27AE60]" />
+																	) : (
+																		<CircleIcon className="w-5 h-5" />
+																	)}
+																</span>
+															</div>
+														))}
+												</div>
 											</div>
 										</div>
-									</div>
-								))}
+									);
+								}
+							)}
 						</div>
 						<ScrollBar className="-pr-20" />
 					</ScrollArea>
-					<div className="flex justify-between items-center w-full">
+					<div className="flex items-center justify-between w-full">
 						<div className="flex flex-col space-y-2">
 							<div>
 								<BackButton onClick={props.onBackButtonClick} />
