@@ -558,7 +558,7 @@ export function TaskCardMenu({
 						{loading && <SpinnerLoader size={20} />}
 					</button>
 				</DropdownMenuTrigger>
-				<DropdownMenuPortal forceMount>
+				<DropdownMenuPortal>
 					<DropdownMenuContent
 						align="end"
 						className="z-50 min-w-[110px] w-[11rem] shadow-xl border bg-white dark:bg-dark--theme-light p-3"
