@@ -75,7 +75,9 @@ function MainPage() {
 		}
 		const lastTeamMembersViewMode = localStorage?.getItem(LAST_SELECTED_TEAM_MEMBERS_VIEW_MODE);
 		if (lastTeamMembersViewMode && path == '/') {
-			if (Object.values(IssuesView).includes(lastTeamMembersViewMode as IssuesView)) {
+			if (Object.values(IssuesView).includes(lastTeamMembersViewMode as IssuesView) &&
+				lastTeamMembersViewMode != IssuesView.KANBAN
+			) {
 				setView(lastTeamMembersViewMode as IssuesView);
 			}
 		}
