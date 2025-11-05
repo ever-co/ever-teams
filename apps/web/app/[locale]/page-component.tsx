@@ -75,7 +75,9 @@ function MainPage() {
 		}
 		const lastTeamMembersViewMode = localStorage?.getItem(LAST_SELECTED_TEAM_MEMBERS_VIEW_MODE);
 		if (lastTeamMembersViewMode && path == '/') {
-			setView(lastTeamMembersViewMode as IssuesView);
+			if (Object.values(IssuesView).includes(lastTeamMembersViewMode as IssuesView)) {
+				setView(lastTeamMembersViewMode as IssuesView);
+			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [path, setView]);
