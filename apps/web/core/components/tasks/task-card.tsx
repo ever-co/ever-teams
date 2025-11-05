@@ -56,7 +56,6 @@ import { useTimerButtonLogic } from '@/core/hooks/tasks/use-timer-button';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { LoaderCircle } from 'lucide-react';
 import { useFavoriteTasks } from '@/core/hooks/tasks/use-favorites-task';
-import { createPortal } from 'react-dom';
 
 type Props = {
 	active?: boolean;
