@@ -595,7 +595,7 @@ export function TaskCardMenu({
 						<DropdownMenuSeparator className="my-3" />
 						<div className="mt-3">
 							{!taskPlannedToday && (
-								<DropdownMenuItem className="p-0 mb-2 transition-all duration-300 hover:font-semibold hover:!bg-transparent">
+								<DropdownMenuItem asChild className="p-0 mb-2 transition-all duration-300 hover:font-semibold hover:!bg-transparent">
 									<PlanTask
 										planMode={EDailyPlanMode['TODAY']}
 										taskId={task.id}
@@ -605,7 +605,7 @@ export function TaskCardMenu({
 								</DropdownMenuItem>
 							)}
 							{!taskPlannedTomorrow && (
-								<DropdownMenuItem className="p-0 mb-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent">
+								<DropdownMenuItem asChild className="p-0 mb-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent">
 									<PlanTask
 										planMode={EDailyPlanMode['TOMORROW']}
 										taskId={task.id}
@@ -614,7 +614,7 @@ export function TaskCardMenu({
 									/>
 								</DropdownMenuItem>
 							)}
-							<DropdownMenuItem className="p-0 mb-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent">
+							<DropdownMenuItem  asChild className="p-0 mb-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent">
 								<PlanTask
 									planMode={EDailyPlanMode['CUSTOM']}
 									taskId={task.id}
