@@ -453,6 +453,7 @@ export const HAS_VISITED_OUTSTANDING_TASKS = 'has-visited-outstanding-tasks';
 export const HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL = 'has-seen-daily-plan-suggestion-modal';
 export const LAST_SELECTED_PROJECTS_VIEW = 'last-selected-projects-view';
 export const PROJECTS_TABLE_VIEW_LAST_SORTING = 'projects-table-view-last-sorting';
+export const LAST_SELECTED_TEAM_MEMBERS_VIEW_MODE = 'last-selected-team-members-view-mode';
 
 // OAuth provider's keys
 
