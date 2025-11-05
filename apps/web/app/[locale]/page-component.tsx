@@ -6,7 +6,7 @@ import { clsxm } from '@/core/lib/utils';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container } from '@/core/components';
 import { MainLayout } from '@/core/components/layouts/default-layout';
-import { IssuesView, LAST_TEAM_MEMBERS_VIEW_MODE } from '@/core/constants/config/constants';
+import { IssuesView, LAST_SELECTED_TEAM_MEMBERS_VIEW_MODE } from '@/core/constants/config/constants';
 import { useTranslations } from 'next-intl';
 
 import { Analytics } from '@vercel/analytics/react';
@@ -73,7 +73,7 @@ function MainPage() {
 		if (view == IssuesView.KANBAN && path == '/') {
 			setView(IssuesView.CARDS);
 		}
-		const lastTeamMembersViewMode = localStorage?.getItem(LAST_TEAM_MEMBERS_VIEW_MODE);
+		const lastTeamMembersViewMode = localStorage?.getItem(LAST_SELECTED_TEAM_MEMBERS_VIEW_MODE);
 		if (lastTeamMembersViewMode && path == '/') {
 			setView(lastTeamMembersViewMode as IssuesView);
 		}

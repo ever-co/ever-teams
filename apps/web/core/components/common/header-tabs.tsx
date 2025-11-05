@@ -2,7 +2,7 @@ import { clsxm } from '@/core/lib/utils';
 import LinkWrapper from './link-wrapper';
 import { QueueListIcon, Squares2X2Icon, TableCellsIcon } from '@heroicons/react/20/solid';
 import KanbanIcon from '@/core/components/svgs/kanban';
-import { IssuesView, LAST_TEAM_MEMBERS_VIEW_MODE } from '@/core/constants/config/constants';
+import { IssuesView, LAST_SELECTED_TEAM_MEMBERS_VIEW_MODE } from '@/core/constants/config/constants';
 import { useAtom } from 'jotai';
 import { headerTabs } from '@/core/stores/common/header-tabs';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
@@ -21,7 +21,7 @@ const HeaderTabs = ({ linkAll, kanban = false }: { linkAll: boolean; kanban?: bo
 	const activeView = kanban ? IssuesView.KANBAN : view;
 
 	const setLastTeamMembersViewMode = (viewMode: IssuesView) => {
-		localStorage?.setItem(LAST_TEAM_MEMBERS_VIEW_MODE, viewMode);
+		localStorage?.setItem(LAST_SELECTED_TEAM_MEMBERS_VIEW_MODE, viewMode);
 	};
 	return (
 		<>
