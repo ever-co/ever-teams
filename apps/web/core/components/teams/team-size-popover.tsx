@@ -99,9 +99,6 @@ const TeamSize = ({
 							onClick={toggleDisabled}
 							as="div"
 						>
-							<div className="flex gap-[8px] h-[40px] items-center pl-[15px]">
-								<div className="dark:text-white">{defaultValue}</div>
-							</div>
 							{isTeamManager && (
 								<button
 									className={`flex mr-[0.5rem] gap-3 outline-none`}
