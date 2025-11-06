@@ -1,4 +1,4 @@
-import { useAuthenticateUser, useModal, useTeamMemberCard, useTeamTasks, useUserProfilePage } from '@/core/hooks';
+import { useAuthenticateUser, useModal, useTeamMemberCard, useTeamTasks } from '@/core/hooks';
 import { activeTeamState, activeTeamTaskId, taskStatusesState } from '@/core/stores';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
