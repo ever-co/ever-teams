@@ -32,6 +32,7 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { useUserQuery } from '../../queries/user-user.query';
 import { EIssueType, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
+import { toast } from 'sonner';
 
 /**
  * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
@@ -505,10 +506,10 @@ export function useTeamTasks() {
 	);
 
 	/**
-	 * Change active taskT
+	 * Change active task
 	 */
 	const setActiveTask = useCallback(
-		(task: TTask | null) => {
+		async (task: TTask | null) => {
 			/**
 			 * Unassign previous active task
 			 */
@@ -533,13 +534,21 @@ export function useTeamTasks() {
 					(member: TOrganizationTeamEmployee) => member.employeeId === authUser.current?.employee?.id
 				);
 
-				if (currentEmployeeDetails && currentEmployeeDetails.employeeId) {
-					updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.employeeId, {
-						organizationId: task.organizationId,
-						activeTaskId: task.id,
-						organizationTeamId: activeTeam?.id,
-						tenantId: activeTeam?.tenantId ?? ''
-					});
+				if (currentEmployeeDetails && currentEmployeeDetails.id) {
+					try {
+						// Await the active task update to prevent race conditions
+						// Use currentEmployeeDetails.id (OrganizationTeamEmployee ID), not employeeId
+						await updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
+							organizationId: task.organizationId,
+							activeTaskId: task.id,
+							organizationTeamId: activeTeam?.id,
+							tenantId: activeTeam?.tenantId ?? ''
+						});
+					} catch (error) {
+						toast.error('Failed to update active task', {
+							description: JSON.stringify({ error })
+						});
+					}
 				}
 			}
 		},

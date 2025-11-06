@@ -317,7 +317,9 @@ export function useTimer() {
 				return;
 			}
 		} catch (error) {
-			console.error('Failed to verify tracking status:', error);
+			toast.error('Failed to verify tracking status', {
+				description: JSON.stringify({ error })
+			});
 			return;
 		}
 
@@ -375,12 +377,19 @@ export function useTimer() {
 			const currentEmployeeDetails = activeTeam?.members?.find(
 				(member) => member.employeeId === user?.employee?.id
 			);
-			if (currentEmployeeDetails && currentEmployeeDetails.employeeId) {
-				updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.employeeId, {
+			if (currentEmployeeDetails && currentEmployeeDetails.id) {
+				// Fire-and-forget: don't wait for this call to complete
+				// This reduces perceived delay for the user
+				updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
 					organizationId: activeTeamTaskRef.current.organizationId,
 					activeTaskId: activeTeamTaskRef.current.id,
 					organizationTeamId: activeTeam?.id,
 					tenantId: activeTeam?.tenantId ?? ''
+				}).catch((error) => {
+					toast.error('Failed to update active task', {
+						description: JSON.stringify({ error })
+					});
+					// Don't throw - timer already started successfully
 				});
 			}
 		}
