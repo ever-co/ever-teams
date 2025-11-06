@@ -90,7 +90,7 @@ export const ColorPicker = ({
 			{() => (
 				<>
 					<PopoverButton
-						className={'w-full border border-red-800 outline-none mb-[15px]'}
+						className={'w-full outline-none mb-[15px]'}
 						ref={buttonRef}
 						disabled={disableButton}
 						onClick={toggleDisabled}
