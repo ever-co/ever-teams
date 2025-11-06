@@ -200,6 +200,20 @@ export const TeamSettingForm = () => {
 		}
 	}, [editOrganizationTeam, activeTeam?.id, getValues]);
 
+	const handleTeamColorUpdate = useCallback(async () => {
+		try {
+			await editOrganizationTeam({
+				id: activeTeam?.id,
+				color: getValues('color')
+			});
+
+			toast.success('Team color updated successfully');
+		} catch (error) {
+			console.error('Team color update failed:', error);
+			toast.error('Failed to update team color. Please try again.');
+		}
+	}, [editOrganizationTeam, activeTeam?.id, getValues]);
+
 	return (
 		<>
 			<form className="mt-8 w-fit" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
@@ -284,6 +298,7 @@ export const TeamSettingForm = () => {
 								</Text>
 								<div className="flex z-10 flex-row flex-grow-0 justify-between items-center w-full lg:w-4/5">
 									<ColorPicker
+										onSave={handleTeamColorUpdate}
 										defaultColor={activeTeam?.color || ''}
 										onChange={(color: any | null) => {
 											debounceHandleColorChange(color);
