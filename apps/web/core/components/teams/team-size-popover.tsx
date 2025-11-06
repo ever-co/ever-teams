@@ -92,7 +92,7 @@ const TeamSize = ({
 			{() => (
 				<>
 					<PopoverButton
-						className="outline-none mb-[15px] w-full"
+						className="outline-none w-full"
 						ref={buttonRef}
 						disabled={disableButton}
 						onClick={toggleDisabled}
