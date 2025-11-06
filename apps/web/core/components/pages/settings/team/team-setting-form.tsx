@@ -186,6 +186,20 @@ export const TeamSettingForm = () => {
 		[setValue]
 	);
 
+	const handleTimeSizeUpdate = useCallback(async () => {
+		try {
+			await editOrganizationTeam({
+				id: activeTeam?.id,
+				teamSize: getValues('teamSize')
+			});
+
+			toast.success('Team name updated successfully');
+		} catch (error) {
+			console.error('Team size update failed:', error);
+			toast.error('Failed to update team size. Please try again.');
+		}
+	}, [editOrganizationTeam, activeTeam?.id, getValues]);
+
 	const handleTeamNameUpdate = useCallback(async () => {
 		try {
 			await editOrganizationTeam({
@@ -356,6 +370,7 @@ export const TeamSettingForm = () => {
 											}}
 											isTeamManager={isTeamManager}
 											disabled={!isTeamManager}
+											onSave={handleTimeSizeUpdate}
 										/>
 									</div>
 								</div>

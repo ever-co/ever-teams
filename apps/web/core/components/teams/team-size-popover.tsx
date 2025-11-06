@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { EditPenUnderlineIcon } from 'assets/svg';
 import { sizeOption } from '@/core/constants/config/constants';
+import { LoaderCircle } from 'lucide-react';
 
 const TeamSize = ({
 	defaultValue,
@@ -23,6 +24,7 @@ const TeamSize = ({
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const panelRef = useRef<HTMLDivElement>(null);
 	const [disabled, setDisabled] = useState<boolean>(true);
+	const [loading, setLoading] = useState(false)
 
 	const toggleDisabled = useCallback(() => {
 		setDisabled(!disabled);
@@ -30,16 +32,24 @@ const TeamSize = ({
 
 	const onSelect = (value: any) => {
 		setValue(value);
+		onChange(value);
 	};
 	// const Close = () => {
 	// 	setValue('');
 	// 	buttonRef.current?.click();
 	// };
 
-	const handleSave = useCallback(() => {
-		onChange(value);
+	const handleSave = useCallback(async () => {
+		setLoading(true);
+		try {
+			await onSave?.();
+		} catch (error) {
+			console.error('Error saving team size:', error);
+		} finally {
+		setLoading(false);
+		}
 		setDisabled(true);
-	}, [value, onChange]);
+	}, [value, onChange, onSave]);
 
 	useEffect(() => {
 		setValue(defaultValue);
@@ -155,6 +165,7 @@ const TeamSize = ({
 										type="submit"
 										style={{ background: '#E6E6E9' }}
 										onClick={handleClose}
+										disabled={loading}
 									>
 										{t('common.CANCEL')}
 									</Button>
@@ -163,8 +174,9 @@ const TeamSize = ({
 										className="font-normal rounded-xl text-sm min-w-[90px] h-[48px]"
 										type="submit"
 										onClick={handleSave}
+										disabled={loading}
 									>
-										{t('common.SAVE')}
+										{loading ? <LoaderCircle className="w-[18px] h-[18px] animate-spin" strokeWidth="1.4" /> : t('common.SAVE')}
 									</Button>
 								</div>
 							</PopoverPanel>
