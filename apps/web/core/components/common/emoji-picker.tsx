@@ -2,151 +2,139 @@ import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import { getEmojiDataFromNative } from 'emoji-mart';
 import { useTheme } from 'next-themes';
-import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
-import { useCallback, useEffect, useState } from 'react';
-import { CheckSquareOutlineIcon, EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
+import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
 import { init } from 'emoji-mart';
-import { useCallbackRef, useOrganizationTeams } from '@/core/hooks';
-import { useAtomValue } from 'jotai';
-import { activeTeamState } from '@/core/stores';
-import { toast } from 'sonner';
-import { LoaderCircle } from 'lucide-react';
 
 // init has to be called on page load to load the emojis, otherwise it won't show it in Picker
 init({ data });
 
 export const EmojiPicker = ({
-	defaultEmoji,
+	emoji,
 	onChange,
-	disabled
+	isTeamManager,
+	disabled: disableButton
 }: {
-	defaultEmoji?: string | null;
-	onChange: (emoji: string | undefined) => void;
+	emoji: string | null;
+	onChange: (emoji: string) => void;
+	isTeamManager: boolean;
 	disabled?: boolean;
 }) => {
 	const { theme } = useTheme();
 
-	const [value, setValue] = useState<{ id: string; name: string; native: string }>();
-	const { editOrganizationTeam, editOrganizationTeamLoading } = useOrganizationTeams();
-	const onChangeRef = useCallbackRef(onChange);
-	const activeTeam = useAtomValue(activeTeamState);
+	const [value, setValue] = useState<any>();
+	const buttonRef = useRef<HTMLButtonElement>(null);
+	const panelRef = useRef<HTMLDivElement>(null);
+	const [disabled, setDisabled] = useState<boolean>(true);
+
+	const toggleDisabled = useCallback(() => {
+		setDisabled(!disabled);
+	}, [disabled]);
 
 	useEffect(() => {
-		if (!defaultEmoji) {
-			setValue(undefined);
-			return;
-		}
-		getEmojiDataFromNative(defaultEmoji).then((item) => setValue(item));
-	}, [defaultEmoji]);
+		getEmojiDataFromNative(emoji).then((item) => {
+			setValue(item);
+		});
+	}, [emoji]);
 
-	const updateTeamEmoji = useCallback(async () => {
-		try {
-			if (!value || value.native === activeTeam?.emoji) return;
-			await editOrganizationTeam({
-				id: activeTeam?.id,
-				emoji: value.native
-			});
-
-			toast.success('Team emoji updated successfully');
-		} catch (error) {
-			console.error('Team emoji update failed:', error);
-			toast.error('Failed to update team emoji. Please try again.');
-		}
-	}, [editOrganizationTeam, activeTeam?.id, value?.native]);
-
-	const removeTeamEmoji = useCallback(async () => {
-		try {
-			if (!value) return;
-
-			if (onChangeRef.current) {
-				onChangeRef.current(undefined);
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
+				setDisabled(true);
 			}
+		};
 
-			await editOrganizationTeam({
-				id: activeTeam?.id,
-				emoji: null
-			});
+		const handleKeyPress = (event: KeyboardEvent) => {
+			if (event.key === 'Escape') {
+				setDisabled(true);
+			}
+		};
 
-			setValue(undefined);
+		document.addEventListener('mousedown', handleClickOutside);
+		document.addEventListener('keydown', handleKeyPress);
 
-			toast.success('Team emoji removed successfully');
-		} catch (error) {
-			console.error('Team emoji removal failed:', error);
-			toast.error('Failed to remove team emoji. Please try again.');
-		}
-	}, [editOrganizationTeam, activeTeam?.id, value?.native]);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+			document.removeEventListener('keydown', handleKeyPress);
+		};
+	}, []);
 
 	return (
-		<div
-			className={`group px-3 relative w-[100%] h-[48px] border rounded-[10px] flex gap-1 items-center justify-between input-border  dark:bg-dark--theme-light ${
-				disabled ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
-			}`}
-		>
-			<span className="w-[12rem] shrink-0 text-left truncate ">{value ? `${value?.native} ${value?.name}` : 'Emoji'}</span>
-			{!disabled ? (
-				<Popover className="group grow">
-					{({ open, close }) => (
-						<>
-							<PopoverButton className="w-full flex items-center gap-2 justify-between h-full outline-none">
-								{open ? (
-									<div className="grow h-full flex items-center justify-end gap-2">
-										{editOrganizationTeamLoading ? (
-											<LoaderCircle
-												className="w-[18px] h-[18px] animate-spin"
-												strokeWidth="1.4"
-											/>
-										) : (
-											<CheckSquareOutlineIcon
-												className="w-[18px] h-[18px]"
-												strokeWidth="1.4"
-												onClick={async (e) => {
-													e.stopPropagation();
-													await updateTeamEmoji();
-													close();
-												}}
-											/>
-										)}
-									</div>
-								) : (
-									<div className="grow h-full flex items-center  justify-end gap-2">
+		<Popover className="relative border-none no-underline w-full mt-3">
+			{() => (
+				<>
+					<PopoverButton
+						className="outline-none mb-[15px] w-full"
+						ref={buttonRef}
+						disabled={disableButton}
+						onClick={toggleDisabled}
+						as="div"
+					>
+						<div
+							className={` relative w-[100%] h-[48px] ${
+								disabled ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
+							}  dark:bg-dark--theme-light border rounded-[10px] flex items-center justify-between input-border`}
+						>
+							<div className="flex gap-[8px] h-[40px]  items-center pl-[15px]">
+								<div className="dark:text-white">
+									{value?.native} {value?.name}
+								</div>
+							</div>
+							{isTeamManager && (
+								<div className="flex mr-[0.5rem] gap-3">
+									<button
+										disabled={!isTeamManager}
+										className={`outline-none `}
+										onClick={() => {
+											setDisabled(!disabled);
+										}}
+									>
 										<EditPenUnderlineIcon className="w-6 h-6 cursor-pointer" />
-										{ value ? (
-											editOrganizationTeamLoading ? (
-												<LoaderCircle
-													className="w-[18px] h-[18px] animate-spin"
-													strokeWidth="1.4"
-												/>
-											) : (
-												<TrashIcon
-													className="w-5 cursor-pointer"
-													onClick={async (e) => {
-														e.stopPropagation();
-														await removeTeamEmoji();
-													}}
-												/>
-											)
-										) : null}
-									</div>
-								)}
-							</PopoverButton>
-							<PopoverPanel anchor="bottom" className="shadow-lgcard mt-6">
-								<Picker
-									data={data}
-									onEmojiSelect={(emoji: any) => {
-										setValue(emoji);
-										onChange(emoji.native);
-									}}
-									theme={theme}
-									skinTonePosition={'none'}
-									maxFrequentRows={1}
-									autoFocus
-									className="h-full overflow-y-hidden"
-								/>
-							</PopoverPanel>
-						</>
-					)}
-				</Popover>
-			) : null}
-		</div>
+									</button>
+									<button
+										onClick={() => {
+											setValue(null);
+											onChange('');
+										}}
+										className={`outline-none `}
+									>
+										<TrashIcon className="w-5" />
+									</button>
+								</div>
+							)}
+						</div>
+					</PopoverButton>
+					<Transition
+						as="div"
+						enter="transition ease-out duration-200"
+						enterFrom="opacity-0 translate-y-1"
+						enterTo="opacity-100 translate-y-0"
+						leave="transition ease-in duration-150"
+						leaveFrom="opacity-100 translate-y-0"
+						leaveTo="opacity-0 translate-y-1"
+						show={!disabled}
+					>
+						<PopoverPanel
+							ref={panelRef}
+							className="absolute left-1/2 z-10 mt-0 w-[354px] max-w-sm -translate-x-1/2 transform  sm:px-0 lg:max-w-3xl shandow "
+						>
+							<Picker
+								data={data}
+								onEmojiSelect={(emoji: any) => {
+									setValue(emoji);
+									onChange(emoji.native);
+									setDisabled(true);
+								}}
+								theme={theme}
+								skinTonePosition={'none'}
+								maxFrequentRows={1}
+								autoFocus
+							/>
+						</PopoverPanel>
+					</Transition>
+				</>
+			)}
+		</Popover>
 	);
 };

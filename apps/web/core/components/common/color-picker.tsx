@@ -90,7 +90,7 @@ export const ColorPicker = ({
 			{() => (
 				<>
 					<PopoverButton
-						className={'w-full outline-none mb-[15px]'}
+						className={'w-full border border-red-800 outline-none mb-[15px]'}
 						ref={buttonRef}
 						disabled={disableButton}
 						onClick={toggleDisabled}
@@ -171,7 +171,7 @@ export const ColorPicker = ({
 	) : (
 		<PopoverDropdown>
 			<PopoverTrigger asChild>
-				<div className="flex items-center px-2 space-x-2 h-14 rounded-xl cursor-pointer dark:bg-dark--theme-light input-border">
+				<div className="flex w-full items-center px-2 space-x-2 h-14 rounded-xl cursor-pointer dark:bg-dark--theme-light input-border">
 					<span className="block w-5 h-5 rounded-full" style={{ backgroundColor: color || '#000' }} />
 					<span className="font-normal">{color || 'Color'}</span>
 				</div>
