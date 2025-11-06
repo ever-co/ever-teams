@@ -30,7 +30,7 @@ export const ColorPicker = ({
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const panelRef = useRef<HTMLDivElement>(null);
 	const [disabled, setDisabled] = useState<boolean>(true);
-	const [isInternalUpdate, setIsInternalUpdate] = useState(false);
+	const [,setIsInternalUpdate] = useState(false);
 	const [loading, setLoading] = useState(false);
 
 	const toggleDisabled = useCallback(() => {
@@ -140,7 +140,7 @@ export const ColorPicker = ({
 							{isTeamManager && (
 								<div className="flex mr-[0.5rem] gap-3">
 									{open ? (
-										<button onClick={handleSave}>
+										<button type="button" onClick={handleSave}>
 											{loading ? (
 												<LoaderCircle
 													className="w-[18px] h-[18px] animate-spin"
@@ -163,7 +163,7 @@ export const ColorPicker = ({
 											) : (
 												<>
 													<button
-														disabled={!isTeamManager || loading}
+														disabled={loading}
 														className={`z-50 outline-none`}
 														onClick={() => {
 															setDisabled(!disabled);

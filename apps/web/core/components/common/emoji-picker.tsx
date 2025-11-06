@@ -126,7 +126,7 @@ export const EmojiPicker = ({
 											) : (
 												<>
 													<button
-														disabled={!isTeamManager || loading}
+														disabled={loading}
 														className={`z-50 outline-none`}
 														onClick={() => {
 															setDisabled(!disabled);
