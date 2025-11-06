@@ -94,7 +94,7 @@ export const organizationTeamUpdateSchema = z.object({
 		})
 		.optional()
 		.nullable(),
-	tenantId: z.string().optional(),
+	tenantId: z.string().nullable().optional(),
 	organization: organizationSchema
 		.merge(
 			z.object({

@@ -65,7 +65,7 @@ export const organizationTeamEmployeeCreateSchema = z.object({
 	name: z.string().optional(),
 	organizationId: z.string().nullable().optional(),
 	organizationTeamId: z.string().optional(),
-	tenantId: z.string().optional(),
+	tenantId: z.string().nullable().optional(),
 	employeeId: z.string().optional(),
 	roleId: z.string().optional().nullable(),
 	isTrackingEnabled: z.boolean().optional(),

@@ -11,7 +11,7 @@ export const organizationProjectSettingSchema = z
 	.object({
 		createdAt: z.coerce.date().optional(),
 		updatedAt: z.coerce.date().optional(),
-		tenantId: z.string().optional(),
+		tenantId: z.string().nullable().optional(),
 		organizationId: z.string().nullable().optional(),
 		customFields: z.record(z.any()).optional(),
 		isTasksAutoSync: z.boolean().optional(),
@@ -52,7 +52,7 @@ export const organizationProjectBaseSchema = z
 		createdAt: z.coerce.date().optional(),
 		updatedAt: z.coerce.date().optional(),
 		archivedAt: z.coerce.string().nullable().optional(),
-		tenantId: z.string().optional(),
+		tenantId: z.string().nullable().optional(),
 		organizationId: z.string().nullable().optional(),
 		name: z.string(),
 		startDate: z.coerce.date().optional(),

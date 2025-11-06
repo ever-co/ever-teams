@@ -53,7 +53,7 @@ const inviteSchema = z.object({
 	id: z.string(),
 	email: z.string(),
 	status: z.string().optional(),
-	tenantId: z.string().optional(),
+	tenantId: z.string().nullable().optional(),
 	organizationId: z.string().nullable().optional(),
 	createdAt: z.coerce.date().optional(),
 	updatedAt: z.coerce.date().optional()

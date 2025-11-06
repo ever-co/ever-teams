@@ -33,7 +33,7 @@ export const languageItemListSchema = z
 		id: z.string(),
 		createdAt: z.coerce.date().optional(),
 		updatedAt: z.coerce.date().optional(),
-		tenantId: z.string().optional(),
+		tenantId: z.string().nullable().optional(),
 		code: z.string(),
 		name: z.string(),
 		is_system: z.boolean().optional(),
