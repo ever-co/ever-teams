@@ -14,9 +14,9 @@ export function Container({ children, className, fullWidth }: PropsWithChildren<
 			leave="transition-opacity duration-150"
 			leaveFrom="opacity-100"
 			leaveTo="opacity-0"
-			className="w-full p-0 m-0"
+			className="p-0 m-0 w-full"
 		>
-			<div className={clsxm('transition-all', !fullWidth && 'x-container', fullWidth && 'px-5', className)}>
+			<div className={clsxm('transition-all', !fullWidth && 'x-container', fullWidth && 'px-3', className)}>
 				{children}
 			</div>
 		</Transition>

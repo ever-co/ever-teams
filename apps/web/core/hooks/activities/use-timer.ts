@@ -332,6 +332,18 @@ export function useTimer() {
 		setTimerStatusFetching(true);
 		const promise = startTimerMutation.mutateAsync().then((res) => {
 			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
+
+			// Invalidate team-related queries to update member stats in real-time
+			// This ensures the "Working" | "Pause" | "Not Working" tab count updates immediately when timer starts
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.organizationTeams.all
+			});
+			if (activeTeamId) {
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.organizationTeams.detail(activeTeamId)
+				});
+			}
+
 			return;
 		});
 
@@ -395,7 +407,9 @@ export function useTimer() {
 		user?.employee?.id,
 		updateOrganizationTeamEmployeeActiveTask,
 		t,
-		refreshUserData
+		refreshUserData,
+		queryClient,
+		activeTeamId
 	]);
 
 	// Stop timer
@@ -414,9 +428,20 @@ export function useTimer() {
 
 		return stopTimerMutation.mutateAsync(timerStatus?.lastLog?.source || ETimeLogSource.TEAMS).then((res) => {
 			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
+
+			// Invalidate team-related queries to update member stats in real-time
+			// This ensures the "Working" |"Pause" | "Not Working" tab count updates immediately when timer stops
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.organizationTeams.all
+			});
+			if (activeTeamId) {
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.organizationTeams.detail(activeTeamId)
+				});
+			}
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [timerStatus, setTimerStatus, stopTimerMutation, taskId, updateLocalTimerStatus]);
+	}, [timerStatus, setTimerStatus, stopTimerMutation, taskId, updateLocalTimerStatus, queryClient, activeTeamId]);
 
 	useEffect(() => {
 		let syncTimerInterval: NodeJS.Timeout;
