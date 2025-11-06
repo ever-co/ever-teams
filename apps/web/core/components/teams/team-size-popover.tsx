@@ -5,17 +5,18 @@ import { useTranslations } from 'next-intl';
 import { EditPenUnderlineIcon } from 'assets/svg';
 import { sizeOption } from '@/core/constants/config/constants';
 
-
 const TeamSize = ({
 	defaultValue,
 	onChange,
 	isTeamManager,
-	disabled: disableButton
+	disabled: disableButton,
+	onSave
 }: {
 	defaultValue: string;
 	onChange: (teamSize: string) => void;
 	isTeamManager: boolean;
 	disabled?: boolean;
+	onSave? : (data? : Record<string, any>) => Promise<void>
 }) => {
 	const t = useTranslations();
 	const [value, setValue] = useState(defaultValue || 'Only me');
@@ -73,20 +74,20 @@ const TeamSize = ({
 	}, [defaultValue, onChange]);
 
 	return (
-		<Popover className="relative w-full no-underline border-none">
-			{() => (
-				<>
-					<PopoverButton
-						className="outline-none mb-[15px] w-full"
-						ref={buttonRef}
-						disabled={disableButton}
-						onClick={toggleDisabled}
-						as="div"
-					>
-						<div
-							className={`relative w-[100%] h-[48px] ${
-								disabled ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
-							} dark:bg-dark--theme-light border rounded-[10px] flex items-center justify-between input-border`}
+		<div
+			className={`group px-3 relative w-[100%] h-[48px] border rounded-[10px] flex gap-1 items-center justify-between input-border  dark:bg-dark--theme-light ${
+				disabled ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
+			}`}
+		>
+			<span className="w-[5rem] shrink-0 text-left ">{defaultValue}</span>
+			<Popover className="group grow">
+				{({ close }) => (
+					<>
+						<PopoverButton className="w-full flex items-center gap-2 justify-end h-full outline-none"
+							ref={buttonRef}
+							disabled={disableButton}
+							onClick={toggleDisabled}
+							as="div"
 						>
 							<div className="flex gap-[8px] h-[40px] items-center pl-[15px]">
 								<div className="dark:text-white">{defaultValue}</div>
@@ -102,29 +103,27 @@ const TeamSize = ({
 									<EditPenUnderlineIcon className="w-6 h-6 text-inherit" />
 								</button>
 							)}
-						</div>
-					</PopoverButton>
-					<Transition
-						as="div"
-						enter="transition ease-out duration-200"
-						enterFrom="opacity-0 translate-y-1"
-						enterTo="opacity-100 translate-y-0"
-						leave="transition ease-in duration-150"
-						leaveFrom="opacity-100 translate-y-0"
-						leaveTo="opacity-0 translate-y-1"
-						show={!disabled}
-					>
-						<PopoverPanel
-							ref={panelRef}
-							className="absolute left-1/2 z-10 mt-0 w-[354px] max-w-sm -translate-x-1/2 transform  sm:px-0 lg:max-w-3xl shandow outline-none"
+						</PopoverButton>
+						<Transition
+							as="div"
+							enter="transition ease-out duration-200"
+							enterFrom="opacity-0 translate-y-1"
+							enterTo="opacity-100 translate-y-0"
+							leave="transition ease-in duration-150"
+							leaveFrom="opacity-100 translate-y-0"
+							leaveTo="opacity-0 translate-y-1"
+							show={!disabled}
 						>
-							<div className="bg-white shadow rounded-xl text-[14px] p-[16px] dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-4">
+							<PopoverPanel
+								ref={panelRef}
+								anchor="bottom end"
+								className="mt-5 bg-light--theme-light dark:bg-dark--theme-light border p-3 rounded-xl shadow-xlcard flex flex-col gap-3"
+							>
 								<div className="text-lg text-[#7E7991] dark:text-gray-400 font-[500]">
 									{t('form.SELECT_TEAM_SIZE')}
 								</div>
 								{/* Divider */}
 								<div className="h-[0.0625rem] bg-[#E5E5E5] dark:bg-[#FFFFFF14]"></div>
-
 								<div className="flex flex-col hover:cursor-pointer">
 									{sizeOption.map((size, index) => {
 										return (
@@ -147,10 +146,8 @@ const TeamSize = ({
 										);
 									})}
 								</div>
-
 								{/* Divider */}
 								<div className="h-[0.0625rem] bg-[#E5E5E5] dark:bg-[#FFFFFF14]"></div>
-
 								<div className="flex items-center justify-end space-x-2">
 									<Button
 										variant="primary"
@@ -170,12 +167,12 @@ const TeamSize = ({
 										{t('common.SAVE')}
 									</Button>
 								</div>
-							</div>
-						</PopoverPanel>
-					</Transition>
-				</>
-			)}
-		</Popover>
+							</PopoverPanel>
+						</Transition>
+					</>
+				)}
+			</Popover>
+		</div>
 	);
 };
 
