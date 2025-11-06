@@ -374,7 +374,7 @@ const TimerButtonCall = React.memo(
 			hasPlan,
 			startTimer,
 			t
-		} = useTimerButtonLogic({ task, currentMember, activeTeam });
+		} = useTimerButtonLogic({ task, activeTeam });
 
 		return loading ? (
 			<SpinnerLoader size={30} />

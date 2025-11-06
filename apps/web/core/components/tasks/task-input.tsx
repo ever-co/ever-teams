@@ -167,13 +167,27 @@ export function TaskInput(props: Props) {
 				const currentEmployeeDetails = activeTeam?.members?.find(
 					(member) => member.employeeId === user?.employee?.id
 				);
-				if (currentEmployeeDetails && currentEmployeeDetails.employeeId) {
-					updateOrganizationTeamEmployee(currentEmployeeDetails.employeeId, {
-						organizationId: task.organizationId,
-						activeTaskId: task.id,
-						organizationTeamId: activeTeam?.id,
-						tenantId: activeTeam?.tenantId
-					});
+				if (currentEmployeeDetails && currentEmployeeDetails.id) {
+					try {
+						// Handle the update without blocking the UI
+						// Use currentEmployeeDetails.id (OrganizationTeamEmployee ID), not employeeId
+						updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
+							organizationId: task.organizationId,
+							activeTaskId: task.id,
+							organizationTeamId: activeTeam?.id,
+							tenantId: activeTeam?.tenantId
+						}).catch((error) => {
+							toast.error('Failed to update employee active task:', {
+								description: JSON.stringify({ error })
+							});
+							// Don't throw - task is already set locally
+						});
+					} catch (error) {
+						toast.error('Failed to update employee active task', {
+							description: JSON.stringify({ error })
+						});
+						// Don't throw - task is already set locally
+					}
 				}
 			}
 			setEditMode(false);
@@ -378,7 +392,7 @@ export function TaskInput(props: Props) {
 			}}
 			trailingNode={
 				/* Showing the spinner when the task is being updated. */
-				<div className="flex justify-center items-center p-2 h-full">
+				<div className="flex items-center justify-center h-full p-2">
 					{props.task ? (
 						(updateLoading || props.inputLoader) && <SpinnerLoader size={25} />
 					) : (
@@ -633,7 +647,7 @@ function TaskCard({
 									className={'dark:bg-[#1B1D22]'}
 								/>
 
-								<div className="flex gap-2 justify-start">
+								<div className="flex justify-start gap-2">
 									<div ref={statusDropdownRef}>
 										<ActiveTaskStatusDropdown
 											className="min-w-fit lg:max-w-[170px]"
@@ -872,9 +886,9 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 			)}
 		>
 			<Combobox multiple={true}>
-				<div className="relative my-auto h-full">
-					<div className="overflow-hidden w-full h-full text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
-						<Combobox.Button className="flex justify-between items-center h-full min-w-fit max-w-40 hover:transition-all">
+				<div className="relative h-full my-auto">
+					<div className="w-full h-full overflow-hidden text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
+						<Combobox.Button className="flex items-center justify-between h-full min-w-fit max-w-40 hover:transition-all">
 							<div
 								className={cn(
 									'flex gap-1 items-center  !text-default dark:!text-white text-xs',
