@@ -4,8 +4,9 @@ import { getEmojiDataFromNative } from 'emoji-mart';
 import { useTheme } from 'next-themes';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
+import { CheckSquareOutlineIcon, EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
 import { init } from 'emoji-mart';
+import { LoaderCircle } from 'lucide-react';
 
 // init has to be called on page load to load the emojis, otherwise it won't show it in Picker
 init({ data });
@@ -14,12 +15,14 @@ export const EmojiPicker = ({
 	emoji,
 	onChange,
 	isTeamManager,
-	disabled: disableButton
+	disabled: disableButton,
+	onSave
 }: {
 	emoji: string | null;
 	onChange: (emoji: string) => void;
 	isTeamManager: boolean;
 	disabled?: boolean;
+	onSave?: (data?: Record<string, any>) => Promise<void>;
 }) => {
 	const { theme } = useTheme();
 
@@ -27,6 +30,7 @@ export const EmojiPicker = ({
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const panelRef = useRef<HTMLDivElement>(null);
 	const [disabled, setDisabled] = useState<boolean>(true);
+	const [loading, setLoading] = useState(false);
 
 	const toggleDisabled = useCallback(() => {
 		setDisabled(!disabled);
@@ -60,9 +64,24 @@ export const EmojiPicker = ({
 		};
 	}, []);
 
+	const handleSave = useCallback(async () => {
+		try {
+			setLoading(true);
+
+			if (onSave) {
+				await onSave();
+			}
+			setDisabled(true);
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setLoading(false);
+		}
+	}, [onSave]);
+
 	return (
 		<Popover className="relative border-none no-underline w-full mt-3">
-			{() => (
+			{({ open }) => (
 				<>
 					<PopoverButton
 						className="outline-none mb-[15px] w-full"
@@ -83,24 +102,52 @@ export const EmojiPicker = ({
 							</div>
 							{isTeamManager && (
 								<div className="flex mr-[0.5rem] gap-3">
-									<button
-										disabled={!isTeamManager}
-										className={`outline-none `}
-										onClick={() => {
-											setDisabled(!disabled);
-										}}
-									>
-										<EditPenUnderlineIcon className="w-6 h-6 cursor-pointer" />
-									</button>
-									<button
-										onClick={() => {
-											setValue(null);
-											onChange('');
-										}}
-										className={`outline-none `}
-									>
-										<TrashIcon className="w-5" />
-									</button>
+									{open ? (
+										<button type="button" onClick={handleSave}>
+											{loading ? (
+												<LoaderCircle
+													className="w-[18px] h-[18px] animate-spin"
+													strokeWidth="1.4"
+												/>
+											) : (
+												<CheckSquareOutlineIcon
+													className="w-[18px] h-[18px]"
+													strokeWidth="1.4"
+												/>
+											)}
+										</button>
+									) : (
+										<>
+											{loading ? (
+												<LoaderCircle
+													className="w-[18px] h-[18px] animate-spin"
+													strokeWidth="1.4"
+												/>
+											) : (
+												<>
+													<button
+														disabled={!isTeamManager || loading}
+														className={`z-50 outline-none`}
+														onClick={() => {
+															setDisabled(!disabled);
+														}}
+														type="button"
+													>
+														<EditPenUnderlineIcon className="w-6 h-6 cursor-pointer" />
+													</button>
+													<button
+														onClick={() => {
+															setValue(null);
+															onChange('');
+														}}
+														className={`outline-none `}
+													>
+														<TrashIcon className="w-5" />
+													</button>
+												</>
+											)}
+										</>
+									)}
 								</div>
 							)}
 						</div>

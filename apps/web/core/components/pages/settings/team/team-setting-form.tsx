@@ -214,6 +214,20 @@ export const TeamSettingForm = () => {
 		}
 	}, [editOrganizationTeam, activeTeam?.id, getValues]);
 
+	const handleTeamEmojiUpdate = useCallback(async () => {
+		try {
+			await editOrganizationTeam({
+				id: activeTeam?.id,
+				emoji: getValues('emoji')
+			});
+
+			toast.success('Team emoji updated successfully');
+		} catch (error) {
+			console.error('Team emoji update failed:', error);
+			toast.error('Failed to update team emoji. Please try again.');
+		}
+	}, [editOrganizationTeam, activeTeam?.id, getValues]);
+
 	return (
 		<>
 			<form className="mt-8 w-fit" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
@@ -323,6 +337,7 @@ export const TeamSettingForm = () => {
 										emoji={activeTeam?.emoji || null}
 										isTeamManager={isTeamManager}
 										disabled={!isTeamManager}
+										onSave={handleTeamEmojiUpdate}
 									/>
 								</div>
 							</div>
