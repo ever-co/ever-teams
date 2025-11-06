@@ -916,7 +916,7 @@ function TaskCard(props: ITaskCardProps) {
 									className="flex justify-center items-center h-6 truncate min-w-fit max-w-28"
 									style={{
 										backgroundColor:
-											taskStatuses.filter((s) => s.value === task.status)[0].color ?? undefined
+											taskStatuses.find((s) => s.value === task.status)?.color ?? undefined
 									}}
 								>
 									{task.status}
