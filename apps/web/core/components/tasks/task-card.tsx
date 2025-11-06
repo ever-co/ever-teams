@@ -24,7 +24,8 @@ import {
 	DropdownMenuTrigger,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuSeparator
+	DropdownMenuSeparator,
+	DropdownMenuPortal
 } from '@/core/components/common/dropdown-menu';
 import { SpinnerLoader, Text } from '@/core/components';
 import Link from 'next/link';
@@ -502,7 +503,7 @@ export function TaskCardMenu({
 	planMode?: FilterTabs;
 }) {
 	const t = useTranslations();
-
+	const { closeModal, isOpen, openModal } = useModal();
 	const { toggleFavoriteTask, isFavoriteTask, addTaskToFavoriteLoading, deleteTaskFromFavoritesLoading } =
 		useFavoriteTasks();
 
@@ -547,104 +548,117 @@ export function TaskCardMenu({
 	);
 
 	return (
-		<DropdownMenu>
-			<DropdownMenuTrigger asChild>
-				<button className="flex items-center border-none outline-none">
-					{!loading && <ThreeCircleOutlineVerticalIcon className="w-6 max-w-[24px] dark:text-[#B1AEBC]" />}
-					{loading && <SpinnerLoader size={20} />}
-				</button>
-			</DropdownMenuTrigger>
-
-			<DropdownMenuContent
-				align="end"
-				className="z-50 min-w-[110px] w-[11rem] shadow-xl border bg-white dark:bg-dark--theme-light p-3"
-			>
-				<DropdownMenuItem
-					className="p-0 mb-2 font-normal hover:!bg-transparent duration-300 hover:font-semibold transition-all"
-					asChild
-				>
-					<Link href={`/task/${task.id}`} className={clsxm('w-full whitespace-nowrap')}>
-						{t('common.TASK_DETAILS')}
-					</Link>
-				</DropdownMenuItem>
-				<DropdownMenuItem
-					className="p-0 mb-2 transition-all duration-300 hover:font-semibold hover:!bg-transparent cursor-pointer font-normal"
-					onSelect={() => toggleFavoriteTask(task)}
-				>
-					<span className={clsxm('w-full whitespace-nowrap')}>
-						{addTaskToFavoriteLoading || deleteTaskFromFavoritesLoading ? (
-							<LoaderCircle size={15} className="animate-spin" />
-						) : isFavoriteTask(task.id) ? (
-							t('common.REMOVE_FAVORITE_TASK')
-						) : (
-							t('common.ADD_FAVORITE_TASK')
+		<>
+			<DropdownMenu>
+				<DropdownMenuTrigger asChild>
+					<button className="flex items-center border-none outline-none">
+						{!loading && (
+							<ThreeCircleOutlineVerticalIcon className="w-6 max-w-[24px] dark:text-[#B1AEBC]" />
 						)}
-					</span>
-				</DropdownMenuItem>
-				<DropdownMenuItem
-					className="p-0 mb-3 transition-all duration-300 hover:font-semibold hover:!bg-transparent cursor-pointer font-normal"
-					onSelect={handleAssignment}
-				>
-					<span className={clsxm('w-full whitespace-nowrap')}>
-						{viewType === 'unassign' ? t('common.ASSIGN_TASK') : t('common.UNASSIGN_TASK')}
-					</span>
-				</DropdownMenuItem>
-
-				{(viewType == 'default' || (viewType === 'dailyplan' && planMode === 'Outstanding')) && (
-					<>
-						<DropdownMenuSeparator className="my-3" />
-						<div className="mt-3">
-							{!taskPlannedToday && (
-								<DropdownMenuItem className="p-0 mb-2 transition-all duration-300 hover:font-semibold hover:!bg-transparent">
-									<PlanTask
-										planMode={EDailyPlanMode['TODAY']}
-										taskId={task.id}
-										employeeId={profile?.member?.employeeId ?? ''}
-										taskPlannedToday={taskPlannedToday}
-									/>
-								</DropdownMenuItem>
-							)}
-							{!taskPlannedTomorrow && (
-								<DropdownMenuItem className="p-0 mb-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent">
-									<PlanTask
-										planMode={EDailyPlanMode['TOMORROW']}
-										taskId={task.id}
-										employeeId={profile?.member?.employeeId ?? ''}
-										taskPlannedForTomorrow={taskPlannedTomorrow}
-									/>
-								</DropdownMenuItem>
-							)}
-							<DropdownMenuItem className="p-0 mb-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent">
-								<PlanTask
-									planMode={EDailyPlanMode['CUSTOM']}
-									taskId={task.id}
-									employeeId={profile?.member?.employeeId ?? ''}
-								/>
-							</DropdownMenuItem>
-						</div>
-					</>
-				)}
-
-				{viewType === 'dailyplan' && (planMode === 'Today Tasks' || planMode === 'Future Tasks') && (
-					<>
-						{canSeeActivity ? (
-							<div>
-								<DropdownMenuSeparator className="my-2" />
-								<DropdownMenuItem className="p-0 mt-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent">
-									<RemoveTaskFromPlan member={profile?.member} task={task} plan={plan} />
-								</DropdownMenuItem>
-								{isTaskPlannedMultipleTimes && (
-									<DropdownMenuItem className="p-0 mt-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent">
-										<RemoveManyTaskFromPlan task={task} member={profile?.member} />
-									</DropdownMenuItem>
+						{loading && <SpinnerLoader size={20} />}
+					</button>
+				</DropdownMenuTrigger>
+				<DropdownMenuPortal>
+					<DropdownMenuContent
+						align="end"
+						className="z-50 min-w-[110px] w-[11rem] shadow-xl border bg-white dark:bg-dark--theme-light p-3"
+					>
+						<DropdownMenuItem
+							className="p-0 mb-2 font-normal hover:!bg-transparent duration-300 hover:font-semibold transition-all"
+							asChild
+						>
+							<Link href={`/task/${task.id}`} className={clsxm('w-full whitespace-nowrap')}>
+								{t('common.TASK_DETAILS')}
+							</Link>
+						</DropdownMenuItem>
+						<DropdownMenuItem
+							className="p-0 mb-2 transition-all duration-300 hover:font-semibold hover:!bg-transparent cursor-pointer font-normal"
+							onSelect={() => toggleFavoriteTask(task)}
+						>
+							<span className={clsxm('w-full whitespace-nowrap')}>
+								{addTaskToFavoriteLoading || deleteTaskFromFavoritesLoading ? (
+									<LoaderCircle size={15} className="animate-spin" />
+								) : isFavoriteTask(task.id) ? (
+									t('common.REMOVE_FAVORITE_TASK')
+								) : (
+									t('common.ADD_FAVORITE_TASK')
 								)}
-							</div>
-						) : (
-							<></>
+							</span>
+						</DropdownMenuItem>
+						<DropdownMenuItem
+							className="p-0 mb-3 transition-all duration-300 hover:font-semibold hover:!bg-transparent cursor-pointer font-normal"
+							onSelect={handleAssignment}
+						>
+							<span className={clsxm('w-full whitespace-nowrap')}>
+								{viewType === 'unassign' ? t('common.ASSIGN_TASK') : t('common.UNASSIGN_TASK')}
+							</span>
+						</DropdownMenuItem>
+
+						{(viewType == 'default' || (viewType === 'dailyplan' && planMode === 'Outstanding')) && (
+							<>
+								<DropdownMenuSeparator className="my-3" />
+								<div className="mt-3">
+									{!taskPlannedToday && (
+										<DropdownMenuItem
+											asChild
+											className="p-0 mb-2 transition-all duration-300 hover:font-semibold hover:!bg-transparent"
+										>
+											<PlanTask
+												planMode={EDailyPlanMode['TODAY']}
+												taskId={task.id}
+												employeeId={profile?.member?.employeeId ?? ''}
+												taskPlannedToday={taskPlannedToday}
+											/>
+										</DropdownMenuItem>
+									)}
+									{!taskPlannedTomorrow && (
+										<DropdownMenuItem
+											asChild
+											className="p-0 mb-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent"
+										>
+											<PlanTask
+												planMode={EDailyPlanMode['TOMORROW']}
+												taskId={task.id}
+												employeeId={profile?.member?.employeeId ?? ''}
+												taskPlannedForTomorrow={taskPlannedTomorrow}
+											/>
+										</DropdownMenuItem>
+									)}
+									<DropdownMenuItem
+										asChild
+										className="p-0 mb-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent"
+									>
+										<PlanTask
+											planMode={EDailyPlanMode['CUSTOM']}
+											taskId={task.id}
+											employeeId={profile?.member?.employeeId ?? ''}
+											openModal={openModal}
+										/>
+									</DropdownMenuItem>
+								</div>
+							</>
 						)}
-					</>
-				)}
-				{/* <DropdownMenuItem>
+
+						{viewType === 'dailyplan' && (planMode === 'Today Tasks' || planMode === 'Future Tasks') && (
+							<>
+								{canSeeActivity ? (
+									<div>
+										<DropdownMenuSeparator className="my-2" />
+										<DropdownMenuItem className="p-0 mt-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent">
+											<RemoveTaskFromPlan member={profile?.member} task={task} plan={plan} />
+										</DropdownMenuItem>
+										{isTaskPlannedMultipleTimes && (
+											<DropdownMenuItem className="p-0 mt-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent">
+												<RemoveManyTaskFromPlan task={task} member={profile?.member} />
+											</DropdownMenuItem>
+										)}
+									</div>
+								) : (
+									<></>
+								)}
+							</>
+						)}
+						{/* <DropdownMenuItem>
 					<ConfirmDropdown
 						className="right-[110%] top-0"
 						onConfirm={() => {
@@ -661,8 +675,18 @@ export function TaskCardMenu({
 						</Text>
 					</ConfirmDropdown>
 				</DropdownMenuItem> */}
-			</DropdownMenuContent>
-		</DropdownMenu>
+					</DropdownMenuContent>
+				</DropdownMenuPortal>
+			</DropdownMenu>
+
+			<CreateDailyPlanFormModal
+				open={isOpen}
+				closeModal={closeModal}
+				taskId={task.id}
+				employeeId={profile?.member?.employeeId ?? ''}
+				planMode={EDailyPlanMode['CUSTOM']}
+			/>
+		</>
 	);
 }
 
@@ -670,9 +694,10 @@ export function PlanTask({
 	planMode,
 	taskId,
 	employeeId,
-	chooseMember,
+	chooseMember = false,
 	taskPlannedToday,
-	taskPlannedForTomorrow
+	taskPlannedForTomorrow,
+	openModal
 }: {
 	taskId: string;
 	planMode: EDailyPlanMode;
@@ -680,16 +705,17 @@ export function PlanTask({
 	chooseMember?: boolean;
 	taskPlannedToday?: TTask;
 	taskPlannedForTomorrow?: TTask;
+	openModal?: () => void;
 }) {
 	const t = useTranslations();
 	const [isPending, startTransition] = useTransition();
-	const { closeModal, isOpen, openModal } = useModal();
+
 	const { createDailyPlan, createDailyPlanLoading } = useDailyPlan();
 	const { data: user } = useUserQuery();
 
 	const handleOpenModal = async () => {
 		try {
-			if (planMode === 'custom') {
+			if (planMode === 'custom' && openModal) {
 				openModal();
 				// Note: Toast for custom plan will be shown when the plan is actually created in the modal
 			} else if (planMode === 'today') {
@@ -745,14 +771,6 @@ export function PlanTask({
 
 	return (
 		<div>
-			<CreateDailyPlanFormModal
-				open={isOpen}
-				closeModal={closeModal}
-				taskId={taskId}
-				planMode={planMode}
-				employeeId={employeeId}
-				chooseMember={chooseMember}
-			/>
 			<button
 				className={clsxm(
 					'font-normal whitespace-nowrap transition-all',
