@@ -46,7 +46,7 @@ export const ColorPicker = ({
 	// 	}
 	// }, [defaultColor, isInternalUpdate]); // Removed 'color' to prevent circular dependency
 
-  // If parent supplies defaultColor later, use it only if we don't already have a selection
+  // If parent supplies defaultColor asynchronously, use it only if we don't already have a selection
   useEffect(() => {
     if (defaultColor && !color && !loading) {
       setColor(defaultColor);
