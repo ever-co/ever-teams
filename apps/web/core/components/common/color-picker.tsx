@@ -38,12 +38,13 @@ export const ColorPicker = ({
 	}, [disabled]);
 
 	// Handle external defaultColor changes (avoid infinite loop)
-	useEffect(() => {
-		// Only sync when defaultColor is actually provided and different
-		if (defaultColor && defaultColor !== color && !isInternalUpdate) {
-			setColor(defaultColor);
-		}
-	}, [defaultColor, isInternalUpdate]); // Removed 'color' to prevent circular dependency
+	// ⚠️ This hook is setting the color back to the default color on color change (when isInternalUpdate is set back to false)
+	// useEffect(() => {
+	// 	// Only sync when defaultColor is actually provided and different
+	// 	if (defaultColor && defaultColor !== color && !isInternalUpdate) {
+	// 		setColor(defaultColor);
+	// 	}
+	// }, [defaultColor, isInternalUpdate]); // Removed 'color' to prevent circular dependency
 
 	// Handle internal color changes and notify parent
 	const handleColorChange = useCallback(
