@@ -49,7 +49,7 @@ const TeamSize = ({
 		setLoading(false);
 		}
 		setDisabled(true);
-	}, [value, onChange, onSave]);
+	}, [onSave]);
 
 	useEffect(() => {
 		setValue(defaultValue);
@@ -91,7 +91,7 @@ const TeamSize = ({
 		>
 			<span className="w-[5rem] shrink-0 text-left ">{defaultValue}</span>
 			<Popover className="group grow">
-				{({ close }) => (
+				{() => (
 					<>
 						<PopoverButton className="w-full flex items-center gap-2 justify-end h-full outline-none"
 							ref={buttonRef}

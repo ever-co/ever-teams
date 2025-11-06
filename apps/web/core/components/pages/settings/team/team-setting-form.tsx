@@ -193,7 +193,7 @@ export const TeamSettingForm = () => {
 				teamSize: getValues('teamSize')
 			});
 
-			toast.success('Team name updated successfully');
+			toast.success('Team size updated successfully');
 		} catch (error) {
 			console.error('Team size update failed:', error);
 			toast.error('Failed to update team size. Please try again.');
