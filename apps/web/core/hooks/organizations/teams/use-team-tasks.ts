@@ -525,6 +525,8 @@ export function useTeamTasks() {
 				}
 			}
 
+			const previousTask = activeTeamTask;
+			const previousTaskId = getActiveTaskIdCookie();
 			setActiveTaskIdCookie(task?.id || '');
 			setActiveTeamTask(task);
 			setActiveUserTaskCookieCb(task);
@@ -549,6 +551,9 @@ export function useTeamTasks() {
 						toast.error('Failed to update active task', {
 							description: getErrorMessage(error)
 						});
+						setActiveTaskIdCookie(previousTaskId || '');
+						setActiveTeamTask(previousTask);
+						setActiveUserTaskCookieCb(previousTask);
 					}
 				}
 			}

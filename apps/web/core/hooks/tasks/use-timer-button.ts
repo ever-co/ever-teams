@@ -19,7 +19,7 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 	const t = useTranslations();
 
 	// Use optimistic UI hook for timer button feedback
-	const { optimisticRunning, handleStop, resetOptimisticState } = useTimerOptimisticUI({
+	const { optimisticRunning, handleStop } = useTimerOptimisticUI({
 		onStop: stopTimer
 	});
 
@@ -38,10 +38,20 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 
 		if (timerStatus?.running) {
 			setLoading(true);
-			// Use optimistic UI hook to handle stop with immediate feedback
-			await handleStop().finally(() => {
+			try {
+				// Use optimistic UI hook to handle stop with immediate feedback
+				// If stop fails, this will throw and we won't continue to start
+				await handleStop();
+			} catch (error) {
+				// Stop failed - don't continue to start a new timer
+				// This prevents backend state inconsistency when stop fails
 				setLoading(false);
-			});
+				toast.error(t('timer.TIMER_START_FAILED'));
+				console.error('Failed to stop timer before starting new one:', error);
+				return;
+			} finally {
+				setLoading(false);
+			}
 		}
 
 		setActiveTask(task);
@@ -65,9 +75,6 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 			window.scrollTo({ top: 0, behavior: 'smooth' });
 			toast.success(t('timer.TIMER_STARTED'), { id: toastId });
 		} catch (error) {
-			// Revert any optimistic UI changes when starting the timer fails
-			resetOptimisticState();
-
 			// Show error message
 			toast.error(t('timer.TIMER_START_FAILED'), { id: toastId });
 			console.error('Failed to start timer:', error);

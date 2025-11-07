@@ -27,6 +27,7 @@ export function useTimerOptimisticUI({
 	 * - Immediately set optimistic state to false
 	 * - Call onStop callback in background
 	 * - Reset optimistic state when done
+	 * - Propagates errors to caller so they can handle stop failures
 	 */
 	const handleStop = useCallback(async () => {
 		if (!onStop) return;
@@ -37,11 +38,12 @@ export function useTimerOptimisticUI({
 		try {
 			await onStop();
 		} catch (error) {
-			// On error, reset to real state (will be updated by Jotai)
-			console.error('Failed to stop timer:', error);
-		} finally {
-			// Reset optimistic state to use real state from Jotai
+			// Reset optimistic state before propagating error
 			setOptimisticRunning(null);
+			// Propagate error to caller so they can handle stop failures
+			// This prevents starting a new timer when stop failed
+			console.error('Failed to stop timer:', error);
+			throw error;
 		}
 	}, [onStop]);
 
@@ -50,6 +52,7 @@ export function useTimerOptimisticUI({
 	 * - Immediately set optimistic state to true
 	 * - Call onStart callback in background
 	 * - Reset optimistic state when done
+	 * - Propagates errors to caller so they can handle start failures
 	 */
 	const handleStart = useCallback(async () => {
 		if (!onStart) return;
@@ -60,11 +63,11 @@ export function useTimerOptimisticUI({
 		try {
 			await onStart();
 		} catch (error) {
-			// On error, reset to real state (will be updated by Jotai)
-			console.error('Failed to start timer:', error);
-		} finally {
-			// Reset optimistic state to use real state from Jotai
+			// Reset optimistic state before propagating error
 			setOptimisticRunning(null);
+			// Propagate error to caller so they can handle start failures
+			console.error('Failed to start timer:', error);
+			throw error;
 		}
 	}, [onStart]);
 
@@ -83,4 +86,3 @@ export function useTimerOptimisticUI({
 		resetOptimisticState
 	};
 }
-
