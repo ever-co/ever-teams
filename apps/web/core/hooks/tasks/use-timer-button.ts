@@ -48,15 +48,13 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 			// 2. Calling it twice caused race conditions and 403 errors
 			// 3. The startTimer function properly handles all necessary updates
 			// Therefore, we only call startTimer() to avoid duplicate API calls and race conditions
-			const timerPromise = new Promise<void>((resolve) => {
-				window.setTimeout(() => {
-					startTimer()
-						.then(() => resolve())
-						.catch(() => resolve());
-				}, 100);
-			});
 
-			await timerPromise;
+			// Wait 100ms before starting timer to allow UI to update
+			await new Promise((resolve) => globalThis.setTimeout(resolve, 100));
+
+			// Start timer - errors will naturally propagate to catch block
+			await startTimer();
+
 			window.scrollTo({ top: 0, behavior: 'smooth' });
 
 			// Update toast on success
