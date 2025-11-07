@@ -54,7 +54,10 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 			}
 		}
 
-		setActiveTask(task);
+		// Await setActiveTask to prevent race condition with startTimer
+		// Both setActiveTask and startTimer call updateOrganizationTeamEmployeeActiveTask
+		// Without await, they run concurrently and cause 403 errors
+		await setActiveTask(task);
 
 		// Show immediate feedback to user
 		const toastId = toast.loading(t('timer.STARTING_TIMER'), {
