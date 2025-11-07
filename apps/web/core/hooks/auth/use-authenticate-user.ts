@@ -1,7 +1,7 @@
 'use client';
 import { DEFAULT_APP_PATH, LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { removeAuthCookies } from '@/core/lib/helpers/cookies';
-import { handleUnauthorized } from '@/core/lib/auth/handle-unauthorized';
+import { handleUnauthorized, cancelPendingLogout } from '@/core/lib/auth/handle-unauthorized';
 import { activeTeamManagersState, activeTeamState, userState } from '@/core/stores';
 import { useCallback, useMemo, useRef, useEffect } from 'react';
 import { useSetAtom, useAtomValue } from 'jotai';
@@ -60,6 +60,26 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		return userDataQuery.isFetching || refreshTokenMutation.isPending;
 	}, [userDataQuery.isFetching, refreshTokenMutation.isPending]);
 
+	/**
+	 * Manually refresh user data with graceful token recovery
+	 *
+	 * This function is called for user-initiated actions (startTimer, emailReset, etc.)
+	 * where we need fresh user data to proceed.
+	 *
+	 * Pattern: "Optimistic Recovery with Cancellation"
+	 * 1. Try to fetch user data
+	 * 2. If 401, the axios interceptor calls handleUnauthorized() (120ms debounce)
+	 * 3. We attempt token refresh within that window
+	 * 4. If refresh succeeds, we cancel the pending logout and retry the fetch
+	 * 5. If refresh fails, the logout proceeds normally
+	 *
+	 * This provides better UX for cases like:
+	 * - startTimer: User sees "Already tracking" instead of being logged out
+	 * - emailReset: User sees updated email instead of being logged out
+	 *
+	 * The cancelPendingLogout() call prevents the race condition where
+	 * the user would be logged out even after a successful token refresh.
+	 */
 	const refreshUserData = useCallback(async () => {
 		if (userDataQuery.isFetching) {
 			return;
@@ -77,7 +97,13 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 				console.log('[Auth] refreshUserData got 401, attempting token refresh...');
 				try {
 					await refreshTokenMutation.mutateAsync();
-					// Retry the user data fetch after token refresh
+
+					// NOTE_CRITICAL: Cancel the pending logout since token refresh succeeded
+					// This prevents the race condition where handleUnauthorized()'s setTimeout
+					// would log out the user even after successful token refresh
+					cancelPendingLogout();
+
+					// Retry the user data fetch with the new token
 					const retryResult = await userDataQuery.refetch();
 					if (retryResult.data) {
 						setUser(retryResult.data);
@@ -85,7 +111,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 					}
 				} catch (refreshError) {
 					console.error('[Auth] Token refresh failed in refreshUserData:', refreshError);
-					// Let the error propagate - handleUnauthorized will be called by mutation onError
+					// Let the error propagate - handleUnauthorized will proceed with logout
 					throw refreshError;
 				}
 			}
