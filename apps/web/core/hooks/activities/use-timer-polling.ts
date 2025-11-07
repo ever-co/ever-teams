@@ -66,5 +66,7 @@ export function useTimerPolling(timerRunning: boolean) {
 				intervalRef.current = null;
 			}
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// queryClient is a stable singleton from useQueryClient() and doesn't need to be in dependencies
 	}, [timerRunning, activeTeamId]);
 }

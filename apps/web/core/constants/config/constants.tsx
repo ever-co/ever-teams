@@ -133,7 +133,7 @@ export const GAUZY_API_BASE_SERVER_URL = getNextPublicEnv(
 	'NEXT_PUBLIC_GAUZY_API_SERVER_URL',
 	process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL
 );
-
+export const IS_DEV_MODE = process.env.NODE_ENV === 'development';
 export const ACTIVE_LOCAL_LOG_SYSTEM = getNextPublicEnv(
 	'NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM',
 	process.env.NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM

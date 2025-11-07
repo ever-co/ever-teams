@@ -17,6 +17,7 @@ import {
 	taskLabelsListState
 } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
+import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
 import { Combobox, Popover, PopoverPanel, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon, PlusIcon, UserGroupIcon } from '@heroicons/react/20/solid';
 import { Button, Divider, SpinnerLoader } from '@/core/components';
@@ -177,14 +178,16 @@ export function TaskInput(props: Props) {
 							organizationTeamId: activeTeam?.id,
 							tenantId: activeTeam?.tenantId
 						}).catch((error) => {
+							logErrorInDev('Failed to update employee active task', error);
 							toast.error('Failed to update employee active task:', {
-								description: JSON.stringify({ error })
+								description: getErrorMessage(error, 'Unable to update active task')
 							});
 							// Don't throw - task is already set locally
 						});
 					} catch (error) {
+						logErrorInDev('Failed to update employee active task', error);
 						toast.error('Failed to update employee active task', {
-							description: JSON.stringify({ error })
+							description: getErrorMessage(error, 'Unable to update active task')
 						});
 						// Don't throw - task is already set locally
 					}

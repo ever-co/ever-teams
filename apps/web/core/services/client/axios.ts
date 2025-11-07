@@ -84,7 +84,7 @@ export const getAPIDirect = async (): Promise<APIService> => {
 	return apiDirect;
 };
 
-export type APIConfig = AxiosRequestConfig<any> & { tenantId?: string; directAPI?: boolean };
+export type APIConfig = AxiosRequestConfig<any> & { tenantId?: string | null; directAPI?: boolean };
 
 export async function desktopServerOverride() {
 	if (typeof window !== 'undefined') {

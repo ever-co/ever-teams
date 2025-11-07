@@ -351,7 +351,6 @@ const UsersTaskAssigned = React.memo(({ task, className }: { task: Nullable<TTas
 const TimerButtonCall = React.memo(
 	({
 		task,
-		currentMember,
 		activeTeam,
 		className
 	}: {

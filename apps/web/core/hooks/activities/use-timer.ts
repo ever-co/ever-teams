@@ -1,6 +1,7 @@
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { convertMsToTime, secondsToTime } from '@/core/lib/helpers/date-and-time';
+import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
 import {
 	localTimerStatusState,
 	timeCounterIntervalState,
@@ -318,8 +319,9 @@ export function useTimer() {
 				return;
 			}
 		} catch (error) {
+			logErrorInDev('Failed to verify tracking status', error);
 			toast.error('Failed to verify tracking status', {
-				description: JSON.stringify({ error })
+				description: getErrorMessage(error, 'Unable to verify tracking status')
 			});
 			return;
 		}
@@ -387,8 +389,9 @@ export function useTimer() {
 					organizationTeamId: activeTeam?.id,
 					tenantId: activeTeam?.tenantId ?? ''
 				}).catch((error) => {
+					logErrorInDev('Failed to update active task', error);
 					toast.error('Failed to update active task', {
-						description: JSON.stringify({ error })
+						description: getErrorMessage(error, 'Unable to update active task')
 					});
 					// Don't throw - timer already started successfully
 				});
