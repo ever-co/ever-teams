@@ -24,6 +24,7 @@ import { timerService } from '@/core/services/client/api/timers';
 import { useOrganizationEmployeeTeams, useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
 import { useRefreshIntervalV2 } from '../common';
+import { useTimerPolling } from './use-timer-polling';
 import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
@@ -598,6 +599,11 @@ export function useTimerView() {
 export function useSyncTimer() {
 	const { syncTimer } = useTimer();
 	const timerStatus = useAtomValue(timerStatusState);
+
+	// Enable real-time polling of team data when timer is active
+	// This ensures all team members see updated statuses (Working/Pause/Not Working) in real-time
+	// Note: This hook is called only once in init-state.tsx, so we have a single polling instance
+	useTimerPolling(timerStatus?.running ?? false);
 
 	useRefreshIntervalV2(timerStatus?.running ? syncTimer : () => void 0, 5000);
 }
