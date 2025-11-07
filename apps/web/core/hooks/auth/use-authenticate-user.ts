@@ -64,12 +64,34 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		if (userDataQuery.isFetching) {
 			return;
 		}
-		const result = await userDataQuery.refetch();
-		if (result.data) {
-			setUser(result.data);
-			return result.data;
+
+		try {
+			const result = await userDataQuery.refetch();
+			if (result.data) {
+				setUser(result.data);
+				return result.data;
+			}
+		} catch (error: any) {
+			// If 401, try to refresh token once before failing
+			if (error?.response?.status === 401 || error?.status === 401) {
+				console.log('[Auth] refreshUserData got 401, attempting token refresh...');
+				try {
+					await refreshTokenMutation.mutateAsync();
+					// Retry the user data fetch after token refresh
+					const retryResult = await userDataQuery.refetch();
+					if (retryResult.data) {
+						setUser(retryResult.data);
+						return retryResult.data;
+					}
+				} catch (refreshError) {
+					console.error('[Auth] Token refresh failed in refreshUserData:', refreshError);
+					// Let the error propagate - handleUnauthorized will be called by mutation onError
+					throw refreshError;
+				}
+			}
+			throw error;
 		}
-	}, [userDataQuery, setUser]);
+	}, [userDataQuery, setUser, refreshTokenMutation]);
 
 	$user.current = useMemo(() => {
 		return user || $user.current;

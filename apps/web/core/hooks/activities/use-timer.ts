@@ -201,6 +201,21 @@ export function useTimer() {
 	const syncTimerMutation = useMutation({
 		mutationFn: async (data: { source: ETimeLogSource; user?: TUser | null }) => {
 			await timerService.syncTimer({ source: data.source, user: data.user });
+		},
+		onError: (error: any) => {
+			// Don't log every sync error to avoid console spam
+			// The 401 handler will take care of logout if needed
+			if (error?.response?.status !== 401) {
+				console.error('[Timer] Sync timer failed:', error);
+			}
+		},
+		retry: (failureCount, error: any) => {
+			// Don't retry on 401 - let the auth system handle it
+			if (error?.response?.status === 401) {
+				return false;
+			}
+			// Retry up to 2 times for other errors
+			return failureCount < 2;
 		}
 	});
 
