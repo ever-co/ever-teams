@@ -1,6 +1,7 @@
 // core/hooks/task-card/useTimerButton.ts
 import { useCallback, useMemo, useState } from 'react';
 import { useStartStopTimerHandler, useTeamTasks, useTimerView } from '@/core/hooks';
+import { useTimerOptimisticUI } from '@/core/hooks/activities/use-timer-optimistic-ui';
 import { TOrganizationTeam } from '@/core/types/schemas/team/organization-team.schema';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
@@ -17,6 +18,11 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 	const { setActiveTask } = useTeamTasks();
 	const t = useTranslations();
 
+	// Use optimistic UI hook for timer button feedback
+	const { optimisticRunning, handleStop } = useTimerOptimisticUI({
+		onStop: stopTimer
+	});
+
 	const activeTaskStatus = useMemo(
 		() => (activeTeamTask?.id === task.id ? timerStatus : undefined),
 		[activeTeamTask?.id, task.id, timerStatus]
@@ -32,7 +38,10 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 
 		if (timerStatus?.running) {
 			setLoading(true);
-			await stopTimer().finally(() => setLoading(false));
+			// Use optimistic UI hook to handle stop with immediate feedback
+			await handleStop().finally(() => {
+				setLoading(false);
+			});
 		}
 
 		setActiveTask(task);
@@ -60,13 +69,14 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 			toast.error(t('timer.TIMER_START_FAILED'), { id: toastId });
 			console.error('Failed to start timer:', error);
 		}
-	}, [task, timerStatus?.running, setActiveTask, activeTeam, startTimer, stopTimer, t]);
+	}, [task, timerStatus?.running, setActiveTask, activeTeam, startTimer, handleStop, t]);
 
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
 
 	return {
 		loading,
 		activeTaskStatus,
+		optimisticRunning,
 		requirePlan,
 		startTimerWithTask,
 		modals,
