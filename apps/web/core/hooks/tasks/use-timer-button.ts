@@ -49,14 +49,12 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 			// 3. The startTimer function properly handles all necessary updates
 			// Therefore, we only call startTimer() to avoid duplicate API calls and race conditions
 
-			// Wait 100ms before starting timer to allow UI to update
-			await new Promise((resolve) => setTimeout(resolve, 100));
-			const ok = await startTimer().catch(() => false);
+			// Start timer immediately - no artificial delay needed
+			// The toast feedback is already shown above, so UI is responsive
+			await startTimer();
 
 			window.scrollTo({ top: 0, behavior: 'smooth' });
-			toast[ok ? 'success' : 'error'](t(ok ? 'timer.TIMER_STARTED' : 'timer.TIMER_START_FAILED'), {
-				id: toastId
-			});
+			toast.success(t('timer.TIMER_STARTED'), { id: toastId });
 		} catch (error) {
 			// Show error message
 			toast.error(t('timer.TIMER_START_FAILED'), { id: toastId });
