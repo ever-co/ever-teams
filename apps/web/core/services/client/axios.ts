@@ -4,6 +4,7 @@ import {
 	GAUZY_API_BASE_SERVER_URL
 } from '@/core/constants/config/constants';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { handleUnauthorized } from '@/core/lib/auth/handle-unauthorized';
 import { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { APIService } from './api.service';
 import { buildAPIService, buildDirectAPIService } from './api-factory';
@@ -34,7 +35,7 @@ export const getAPI = async (): Promise<APIService> => {
 			(response: AxiosResponse) => response,
 			async (error: { response: AxiosResponse }) => {
 				if (error.response?.status === 401) {
-					window.location.assign(DEFAULT_APP_PATH);
+					handleUnauthorized(); // ✅ Use centralized handler
 				}
 				return Promise.reject(error);
 			}
@@ -74,7 +75,7 @@ export const getAPIDirect = async (): Promise<APIService> => {
 					) {
 						return error.response;
 					}
-					window.location.assign(DEFAULT_APP_PATH);
+					handleUnauthorized(); // Use centralized handler
 				}
 				return Promise.reject(error);
 			}

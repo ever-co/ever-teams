@@ -17,6 +17,7 @@ import {
 	getOrganizationIdCookie,
 	getTenantIdCookie
 } from '@/core/lib/helpers/cookies';
+import { handleUnauthorized } from '@/core/lib/auth/handle-unauthorized';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { APIConfig } from './axios';
 import { HttpLoggerAdapter } from '../logs/logger-adapter.service';
@@ -241,7 +242,7 @@ export class APIService {
 			return error?.response;
 		}
 
-		window.location.assign(DEFAULT_APP_PATH);
+		handleUnauthorized(); // Use centralized handler
 	}
 
 	/**

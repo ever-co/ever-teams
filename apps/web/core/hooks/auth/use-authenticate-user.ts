@@ -1,6 +1,7 @@
 'use client';
 import { DEFAULT_APP_PATH, LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { removeAuthCookies } from '@/core/lib/helpers/cookies';
+import { handleUnauthorized } from '@/core/lib/auth/handle-unauthorized';
 import { activeTeamManagersState, activeTeamState, userState } from '@/core/stores';
 import { useCallback, useMemo, useRef, useEffect } from 'react';
 import { useSetAtom, useAtomValue } from 'jotai';
@@ -34,8 +35,14 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
 		},
-		onError: () => {
+		onError: (error: any) => {
 			toast.error('Failed to refresh token');
+
+			console.error('[Auth] Refresh token failed:', error);
+
+			// Logout user on refresh failure to prevent "zombie" sessions
+			// This prevents the infinite login/logout loop bug
+			handleUnauthorized();
 		},
 		retry: 1,
 		gcTime: 0
@@ -77,7 +84,8 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 	}, [activeTeam?.id, queryClient]);
 
 	const timeToTimeRefreshToken = useCallback(
-		(interval = 3000 * 60) => {
+		(interval = 10 * 60 * 1000) => {
+			// 10 minutes (600000ms) - Reduced from 3 minutes to decrease API calls by 70%
 			window.clearInterval(intervalRt.current);
 			intervalRt.current = window.setInterval(() => {
 				refreshTokenMutation.mutate();
