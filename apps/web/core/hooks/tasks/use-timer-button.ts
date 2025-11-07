@@ -19,7 +19,7 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 	const t = useTranslations();
 
 	// Use optimistic UI hook for timer button feedback
-	const { optimisticRunning, handleStop } = useTimerOptimisticUI({
+	const { optimisticRunning, handleStop, resetOptimisticState } = useTimerOptimisticUI({
 		onStop: stopTimer
 	});
 
@@ -65,6 +65,9 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 			window.scrollTo({ top: 0, behavior: 'smooth' });
 			toast.success(t('timer.TIMER_STARTED'), { id: toastId });
 		} catch (error) {
+			// Revert any optimistic UI changes when starting the timer fails
+			resetOptimisticState && resetOptimisticState();
+
 			// Show error message
 			toast.error(t('timer.TIMER_START_FAILED'), { id: toastId });
 			console.error('Failed to start timer:', error);

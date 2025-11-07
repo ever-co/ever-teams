@@ -921,7 +921,7 @@
 		"TASK_CLOSED": "L'attività è chiusa",
 		"STARTING_TIMER": "Avvio del timer...",
 		"TIMER_STARTED": "Timer avviato con successo",
-		"TIMER_START_FAILED": "Impossibile avviare il timer",
+		"TIMER_START_FAILED": "Impossibile avviare il Timer",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer Fermato",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Il timer è stato fermato a causa del cambio di team"

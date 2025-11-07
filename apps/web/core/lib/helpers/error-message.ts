@@ -15,12 +15,19 @@ export function getErrorMessage(error: unknown, userFriendlyMessage: string = 'A
 		if (error instanceof Error) {
 			// Handle Axios errors with response data
 			const axiosError = error as any;
-			if (axiosError.response?.data) {
+			// Check if it's an Axios error by checking for response property
+			if (
+				'response' in error &&
+				error.response &&
+				typeof error.response === 'object' &&
+				'data' in error.response
+			) {
+				// Try to extract detailed error message from response data
 				try {
-					return JSON.stringify(axiosError.response.data);
+					return JSON.stringify(error.response.data);
 				} catch {
 					// If JSON.stringify fails, fall back to message
-					return axiosError.message || String(error);
+					return error.message || String(error);
 				}
 			}
 			return error.message;
@@ -54,4 +61,3 @@ export function logErrorInDev(context: string, error: unknown): void {
 		console.error(`[${context}]`, error);
 	}
 }
-

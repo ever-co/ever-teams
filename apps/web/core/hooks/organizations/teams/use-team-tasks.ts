@@ -6,6 +6,7 @@ import {
 	setActiveTaskIdCookie,
 	setActiveUserTaskCookie
 } from '@/core/lib/helpers/index';
+import { getErrorMessage } from '@/core/lib/helpers/error-message';
 import { taskService } from '@/core/services/client/api';
 import {
 	activeTeamState,
@@ -546,7 +547,7 @@ export function useTeamTasks() {
 						});
 					} catch (error) {
 						toast.error('Failed to update active task', {
-							description: JSON.stringify({ error })
+							description: getErrorMessage(error)
 						});
 					}
 				}
