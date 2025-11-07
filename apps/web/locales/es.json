@@ -916,11 +916,12 @@
 		}
 	},
 	"timer": {
-		"ACTIVE": "Activo",
-		"APPS": "Aplicaciones",
-		"ARCHIVED": "Archivado",
 		"START_TIMER": "Por favor, selecciona o crea una nueva tarea para comenzar a rastrear el tiempo o crear un plan",
 		"ALREADY_TRACKING_MESSAGE": "Ya estás rastreando el tiempo en otra pestaña o dispositivo.",
+		"TASK_CLOSED": "La tarea está cerrada",
+		"STARTING_TIMER": "Iniciando temporizador...",
+		"TIMER_STARTED": "Temporizador iniciado exitosamente",
+		"TIMER_START_FAILED": "Error al iniciar el temporizador",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Temporizador detenido",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Temporizador detenido debido al cambio de equipo"
@@ -928,6 +929,9 @@
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Estimar"
 		},
+		"ACTIVE": "Activo",
+		"APPS": "Aplicaciones",
+		"ARCHIVED": "Archivado",
 		"INACTIVE": "Inactivo",
 		"KEYBOARD": "Teclado",
 		"MOUSE": "Ratón",

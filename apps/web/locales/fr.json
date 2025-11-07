@@ -922,6 +922,10 @@
 	"timer": {
 		"START_TIMER": "Veuillez sélectionner ou créer une nouvelle tâche pour commencer le suivi du temps ou créer un plan",
 		"ALREADY_TRACKING_MESSAGE": "Vous suivez déjà le temps dans un autre onglet ou appareil.",
+		"TASK_CLOSED": "La tâche est fermée",
+		"STARTING_TIMER": "Démarrage du chronomètre...",
+		"TIMER_STARTED": "Chronomètre démarré avec succès",
+		"TIMER_START_FAILED": "Échec du démarrage du chronomètre",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Chronomètre arrêté",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Le chronomètre s'est arrêté en raison du changement d'équipe"

@@ -924,15 +924,19 @@
 		}
 	},
 	"timer": {
-		"ACTIVE": "نشط",
-		"APPS": "تطبيقات",
-		"ARCHIVED": "مؤرشف",
 		"START_TIMER": "يرجى تحديد أو إنشاء مهمة جديدة لبدء تتبع الوقت أو وضع خطة",
 		"ALREADY_TRACKING_MESSAGE": "أنت تتبع الوقت بالفعل في علامة تبويب أو جهاز آخر.",
+		"TASK_CLOSED": "المهمة مغلقة",
+		"STARTING_TIMER": "جاري بدء المؤقت...",
+		"TIMER_STARTED": "تم بدء المؤقت بنجاح",
+		"TIMER_START_FAILED": "فشل بدء المؤقت",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "توقف المؤقت",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "توقف المؤقت بسبب التبديل بين الفرق"
 		},
+		"ACTIVE": "نشط",
+		"APPS": "تطبيقات",
+		"ARCHIVED": "مؤرشف",
 		"THERE_IS_NO_APPS_VISITED": "لا توجد تطبيقات تم زيارتها.",
 		"TIME_ACTIVITY": "النشاط",
 		"TIME_SPENT_IN_HOURS": "الوقت المستغرق (ساعات)",

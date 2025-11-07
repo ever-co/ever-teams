@@ -917,14 +917,18 @@
 	},
 	"timer": {
 		"ACTIVE": "Активен",
-		"APPS": "Приложения",
-		"ARCHIVED": "Архивиран",
 		"START_TIMER": "Моля, изберете или създайте нова задача, за да започнете да проследявате времето или да създадете план",
 		"ALREADY_TRACKING_MESSAGE": "Вече проследявате времето в друг раздел или устройство.",
+		"TASK_CLOSED": "Задачата е затворена",
+		"STARTING_TIMER": "Стартиране на таймера...",
+		"TIMER_STARTED": "Таймерът е стартиран успешно",
+		"TIMER_START_FAILED": "Неуспешно стартиране на таймера",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Таймерът спря",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Таймерът спря поради смяна на отбора"
 		},
+		"APPS": "Приложения",
+		"ARCHIVED": "Архивиран",
 		"THERE_IS_NO_APPS_VISITED": "Няма посетени приложения.",
 		"TIME_ACTIVITY": "Дейност",
 		"TIME_SPENT_IN_HOURS": "Време, прекарано (часове)",

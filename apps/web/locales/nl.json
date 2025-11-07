@@ -916,15 +916,19 @@
 		}
 	},
 	"timer": {
-		"ACTIVE": "Actief",
-		"APPS": "Apps",
-		"ARCHIVED": "Gearchiveerd",
 		"START_TIMER": "Selecteer of maak een nieuwe taak aan om de tijd bij te houden of maak een plan",
 		"ALREADY_TRACKING_MESSAGE": "Je houdt al tijd bij in een ander tabblad of apparaat.",
+		"TASK_CLOSED": "Taak is gesloten",
+		"STARTING_TIMER": "Timer starten...",
+		"TIMER_STARTED": "Timer succesvol gestart",
+		"TIMER_START_FAILED": "Kan timer niet starten",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer gestopt",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer gestopt wegens teamwissel"
 		},
+		"ACTIVE": "Actief",
+		"APPS": "Apps",
+		"ARCHIVED": "Gearchiveerd",
 		"INACTIVE": "Inactief",
 		"KEYBOARD": "toetsenbord",
 		"MOUSE": "muis",
