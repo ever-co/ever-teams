@@ -124,22 +124,25 @@ export async function proxy(request: NextRequest) {
 	};
 
 	// Handle protected paths
-	if ((protected_path && !refresh_token) || (protected_path && !access_token)) {
+	if (protected_path && !access_token && !refresh_token) {
+		// Case 1: No tokens available - redirect to login
+		console.log('[Proxy] No authentication tokens available, redirecting to login');
 		deny_redirect(false);
 	} else if (protected_path && access_token) {
-		// Try to authenticate with current access token
+		// Case 2: Access token exists - try to authenticate with it
 		const authResult = await currentAuthenticatedUserRequest({
 			bearer_token: access_token
 		}).catch(() => null);
 
-		// If authentication failed, try to refresh token
 		if (authResult?.response.ok) {
 			// Access token is valid
 			response.headers.set('x-user', JSON.stringify(authResult.data));
 		} else {
+			// Access token invalid/expired - try to refresh
 			const refreshResult = await tryRefreshAndVerify();
 
 			if (refreshResult.success && refreshResult.userData) {
+				console.log('[Proxy] Token refreshed successfully (access_token fallback path)');
 				response.headers.set('x-user', JSON.stringify(refreshResult.userData));
 				return response;
 			}
@@ -147,6 +150,21 @@ export async function proxy(request: NextRequest) {
 			// Both access token and refresh failed - redirect to login
 			deny_redirect(true);
 		}
+	} else if (protected_path && !access_token && refresh_token) {
+		// Case 3: Only refresh token exists - attempt direct refresh
+		// This handles the scenario where access_token expired but refresh_token is still valid
+		console.log('[Proxy] No access token but refresh token exists, attempting direct refresh');
+		const refreshResult = await tryRefreshAndVerify();
+
+		if (refreshResult.success && refreshResult.userData) {
+			console.log('[Proxy] Token refreshed successfully (refresh_token only path)');
+			response.headers.set('x-user', JSON.stringify(refreshResult.userData));
+			return response;
+		}
+
+		// Refresh failed - redirect to login
+		console.log('[Proxy] Refresh token invalid or expired, redirecting to login');
+		deny_redirect(true);
 	}
 	// Note: We intentionally allow authenticated users to access public paths
 	// (e.g., /auth/passcode, /auth/workspace, /auth/accept-invite)
