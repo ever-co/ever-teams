@@ -66,7 +66,7 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 			toast.success(t('timer.TIMER_STARTED'), { id: toastId });
 		} catch (error) {
 			// Revert any optimistic UI changes when starting the timer fails
-			resetOptimisticState && resetOptimisticState();
+			resetOptimisticState();
 
 			// Show error message
 			toast.error(t('timer.TIMER_START_FAILED'), { id: toastId });

@@ -13,8 +13,6 @@ export function getErrorMessage(error: unknown, userFriendlyMessage: string = 'A
 	// In development, show full error details for debugging
 	if (IS_DEV_MODE) {
 		if (error instanceof Error) {
-			// Handle Axios errors with response data
-			const axiosError = error as any;
 			// Check if it's an Axios error by checking for response property
 			if (
 				'response' in error &&
