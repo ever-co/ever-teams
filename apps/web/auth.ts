@@ -19,7 +19,7 @@ if (!secretKey) {
 
 const config: NextAuthConfig = {
 	providers: filteredProviders,
-	trustHost: IS_DESKTOP_APP || process.env.NODE_ENV === 'production',
+	trustHost: true, // Trust all hosts in development, specific hosts in production
 	secret: secretKey,
 	debug: process.env.NODE_ENV === 'development',
 	session: { strategy: 'jwt' },

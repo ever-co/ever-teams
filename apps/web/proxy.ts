@@ -102,7 +102,6 @@ export async function proxy(request: NextRequest) {
 		try {
 			console.log('[Proxy] Attempting token refresh...');
 			const refreshRes = await refreshTokenRequest(refresh_token);
-
 			if (!refreshRes?.data?.token) {
 				console.error('[Proxy] Token refresh failed: No token in response', refreshRes);
 				return { success: false, error: 'No token in refresh response' };
@@ -140,6 +139,45 @@ export async function proxy(request: NextRequest) {
 			};
 		}
 	};
+
+	// Check if user is trying to access auth pages while already authenticated
+	const is_auth_path = /^\/auth\//.test(url.pathname);
+	const has_any_token = access_token || refresh_token;
+
+	if (is_auth_path && has_any_token) {
+		// User is authenticated but trying to access auth pages - verify token and redirect
+		console.log('[Proxy] Authenticated user accessing auth page, verifying token...');
+
+		if (access_token) {
+			// Try to verify access token
+			const authResult = await currentAuthenticatedUserRequest({
+				bearer_token: access_token
+			}).catch(() => null);
+
+			if (authResult?.response.ok) {
+				// User is authenticated, redirect to main app
+				console.log('[Proxy] User is authenticated, redirecting from auth page to main app');
+				return NextResponse.redirect(new URL(DEFAULT_MAIN_PATH, request.url));
+			}
+		}
+
+		if (refresh_token) {
+			// Try to refresh token
+			const refreshResult = await tryRefreshAndVerify();
+			if (refreshResult.success) {
+				// User is authenticated after refresh, redirect to main app
+				console.log('[Proxy] User authenticated after refresh, redirecting from auth page to main app');
+				return NextResponse.redirect(new URL(DEFAULT_MAIN_PATH, request.url));
+			}
+		}
+
+		// If we reach here, tokens are invalid - clear them and allow access to auth page
+		console.log('[Proxy] Invalid tokens detected on auth page, clearing cookies');
+		cookiesKeys().forEach((key) => {
+			response.cookies.set(key, '');
+		});
+		response.cookies.delete(`${TOKEN_COOKIE_NAME}_totalChunks`);
+	}
 
 	// Handle protected paths
 	if (protected_path && !access_token && !refresh_token) {
