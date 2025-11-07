@@ -93,19 +93,24 @@ export async function proxy(request: NextRequest) {
 	});
 
 	// Helper function to attempt token refresh and verify
-	const tryRefreshAndVerify = async (): Promise<{ success: boolean; userData?: any }> => {
+	const tryRefreshAndVerify = async (): Promise<{ success: boolean; userData?: any; error?: string }> => {
 		if (!refresh_token) {
-			return { success: false };
+			console.log('[Proxy] No refresh token available for refresh attempt');
+			return { success: false, error: 'No refresh token' };
 		}
 
 		try {
+			console.log('[Proxy] Attempting token refresh...');
 			const refreshRes = await refreshTokenRequest(refresh_token);
+
 			if (!refreshRes?.data?.token) {
-				return { success: false };
+				console.error('[Proxy] Token refresh failed: No token in response', refreshRes);
+				return { success: false, error: 'No token in refresh response' };
 			}
 
 			// Update cookie with new token
 			setAccessTokenCookie(refreshRes.data.token, { res: response, req: request });
+			console.log('[Proxy] Access token cookie updated with new token');
 
 			// Verify the new token works
 			const verifyRes = await currentAuthenticatedUserRequest({
@@ -113,13 +118,26 @@ export async function proxy(request: NextRequest) {
 			});
 
 			if (verifyRes?.response.ok) {
+				console.log('[Proxy] Token refresh and verification successful');
 				return { success: true, userData: verifyRes.data };
 			}
 
-			return { success: false };
-		} catch (error) {
-			console.error('[Proxy] Token refresh failed:', error);
-			return { success: false };
+			console.error('[Proxy] Token verification failed after refresh', verifyRes?.response?.status);
+			return { success: false, error: `Token verification failed: ${verifyRes?.response?.status}` };
+		} catch (error: any) {
+			const errorMsg = error?.message || 'Unknown error';
+			const statusCode = error?.response?.status || error?.status;
+
+			console.error('[Proxy] Token refresh failed:', {
+				error: errorMsg,
+				status: statusCode,
+				isUnauthorized: statusCode === 401
+			});
+
+			return {
+				success: false,
+				error: `Refresh failed: ${errorMsg} (${statusCode || 'no status'})`
+			};
 		}
 	};
 
@@ -148,6 +166,7 @@ export async function proxy(request: NextRequest) {
 			}
 
 			// Both access token and refresh failed - redirect to login
+			console.log(`[Proxy] Both access token and refresh failed: ${refreshResult.error}`);
 			deny_redirect(true);
 		}
 	} else if (protected_path && !access_token && refresh_token) {
@@ -163,7 +182,7 @@ export async function proxy(request: NextRequest) {
 		}
 
 		// Refresh failed - redirect to login
-		console.log('[Proxy] Refresh token invalid or expired, redirecting to login');
+		console.log(`[Proxy] Refresh token refresh failed: ${refreshResult.error}, redirecting to login`);
 		deny_redirect(true);
 	}
 	// Note: We intentionally allow authenticated users to access public paths

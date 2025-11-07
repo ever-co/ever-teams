@@ -25,6 +25,10 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 	const activeTeam = useAtomValue(activeTeamState);
 	const queryClient = useQueryClient();
 
+	// Track consecutive refresh failures for smarter error handling
+	const consecutiveFailures = useRef(0);
+	const maxConsecutiveFailures = 3; // Allow 3 failures before logout
+
 	const { isTeamManager } = useIsMemberManager(user);
 
 	const refreshTokenMutation = useMutation({
@@ -33,16 +37,42 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 			return await authService.refreshToken();
 		},
 		onSuccess: () => {
+			// Reset failure counter on successful refresh
+			consecutiveFailures.current = 0;
 			queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
+			console.log('[Auth] Token refreshed successfully');
 		},
 		onError: (error: any) => {
-			toast.error('Failed to refresh token');
+			consecutiveFailures.current += 1;
 
-			console.error('[Auth] Refresh token failed:', error);
+			const isUnauthorized = error?.response?.status === 401 || error?.status === 401;
+			const isNetworkError = !error?.response || error?.code === 'NETWORK_ERROR';
 
-			// Logout user on refresh failure to prevent "zombie" sessions
-			// This prevents the infinite login/logout loop bug
-			handleUnauthorized();
+			console.error(`[Auth] Refresh token failed (attempt ${consecutiveFailures.current}/${maxConsecutiveFailures}):`, {
+				status: error?.response?.status || error?.status,
+				isUnauthorized,
+				isNetworkError,
+				error: error?.message || error
+			});
+
+			// Immediate logout for 401 (token definitely expired/invalid)
+			if (isUnauthorized) {
+				console.log('[Auth] 401 error - refresh token is invalid/expired, logging out immediately');
+				toast.error('Session expired. Please log in again.');
+				handleUnauthorized();
+				return;
+			}
+
+			// For network/server errors, only logout after multiple consecutive failures
+			if (consecutiveFailures.current >= maxConsecutiveFailures) {
+				console.log(`[Auth] ${maxConsecutiveFailures} consecutive refresh failures, logging out user`);
+				toast.error('Unable to refresh session. Please log in again.');
+				handleUnauthorized();
+			} else {
+				// Show warning but don't logout yet
+				console.warn(`[Auth] Refresh failed (${consecutiveFailures.current}/${maxConsecutiveFailures}), will retry later`);
+				toast.warning(`Connection issue. Retrying... (${consecutiveFailures.current}/${maxConsecutiveFailures})`);
+			}
 		},
 		retry: 1,
 		gcTime: 0
