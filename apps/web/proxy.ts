@@ -7,8 +7,8 @@ import {
 	REFRESH_TOKEN_COOKIE_NAME,
 	TOKEN_COOKIE_NAME
 } from '@/core/constants/config/constants';
-import { cookiesKeys } from '@/core/lib/helpers/cookies';
-import { currentAuthenticatedUserRequest } from '@/core/services/server/requests/auth';
+import { cookiesKeys, setAccessTokenCookie } from '@/core/lib/helpers/cookies';
+import { currentAuthenticatedUserRequest, refreshTokenRequest } from '@/core/services/server/requests/auth';
 import { range } from '@/core/lib/helpers';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -92,25 +92,65 @@ export async function proxy(request: NextRequest) {
 		return v.test(url.pathname);
 	});
 
+	// Helper function to attempt token refresh and verify
+	const tryRefreshAndVerify = async (): Promise<{ success: boolean; userData?: any }> => {
+		if (!refresh_token) {
+			return { success: false };
+		}
+
+		try {
+			const refreshRes = await refreshTokenRequest(refresh_token);
+			if (!refreshRes?.data?.token) {
+				return { success: false };
+			}
+
+			// Update cookie with new token
+			setAccessTokenCookie(refreshRes.data.token, { res: response, req: request });
+
+			// Verify the new token works
+			const verifyRes = await currentAuthenticatedUserRequest({
+				bearer_token: refreshRes.data.token
+			});
+
+			if (verifyRes?.response.ok) {
+				return { success: true, userData: verifyRes.data };
+			}
+
+			return { success: false };
+		} catch (error) {
+			console.error('[Proxy] Token refresh failed:', error);
+			return { success: false };
+		}
+	};
+
+	// Handle protected paths
 	if ((protected_path && !refresh_token) || (protected_path && !access_token)) {
 		deny_redirect(false);
-		// Next condition, if all tokens are presents
 	} else if (protected_path && access_token) {
-		const res = await currentAuthenticatedUserRequest({
+		// Try to authenticate with current access token
+		const authResult = await currentAuthenticatedUserRequest({
 			bearer_token: access_token
-		}).catch(() => {
-			deny_redirect(true);
-		});
+		}).catch(() => null);
 
-		if (!res || !res.response.ok) {
-			deny_redirect(true);
+		// If authentication failed, try to refresh token
+		if (authResult?.response.ok) {
+			// Access token is valid
+			response.headers.set('x-user', JSON.stringify(authResult.data));
 		} else {
-			response.headers.set('x-user', JSON.stringify(res.data));
+			const refreshResult = await tryRefreshAndVerify();
+
+			if (refreshResult.success && refreshResult.userData) {
+				response.headers.set('x-user', JSON.stringify(refreshResult.userData));
+				return response;
+			}
+
+			// Both access token and refresh failed - redirect to login
+			deny_redirect(true);
 		}
-	} else if (!protected_path && (refresh_token || access_token)) {
-		console.log('url.origin + DEFAULT_MAIN_PATH', url.origin + DEFAULT_MAIN_PATH);
-		// response = NextResponse.redirect(url.origin + DEFAULT_MAIN_PATH);
 	}
+	// Note: We intentionally allow authenticated users to access public paths
+	// (e.g., /auth/passcode, /auth/workspace, /auth/accept-invite)
+	// This enables users to switch accounts, workspaces, or accept invitations
 
 	return response;
 }
