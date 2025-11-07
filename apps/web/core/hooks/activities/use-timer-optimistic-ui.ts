@@ -44,6 +44,9 @@ export function useTimerOptimisticUI({
 			// This prevents starting a new timer when stop failed
 			console.error('Failed to stop timer:', error);
 			throw error;
+		} finally {
+			// Always reset optimistic state when done
+			setOptimisticRunning(null);
 		}
 	}, [onStop]);
 
@@ -68,6 +71,9 @@ export function useTimerOptimisticUI({
 			// Propagate error to caller so they can handle start failures
 			console.error('Failed to start timer:', error);
 			throw error;
+		} finally {
+			// Always reset optimistic state when done
+			setOptimisticRunning(null);
 		}
 	}, [onStart]);
 
