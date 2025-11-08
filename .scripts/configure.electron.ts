@@ -34,7 +34,7 @@ function updateWebConstant(setDesktopApp: boolean) {
 		const [from, to] = setDesktopApp ? [envCheck, hardcoded] : [hardcoded, envCheck];
 
 		if (!fileContent.includes(from)) {
-			console.error(`Expected content not found in ${filePath}`);
+			throw Error(`Expected content not found in ${filePath}`);
 		}
 
 		fileContent = fileContent.replace(from, to);
