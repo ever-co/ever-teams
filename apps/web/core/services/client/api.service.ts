@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import {
 	APPLICATION_LANGUAGES_CODE,
 	DEFAULT_APP_PATH,
-	GAUZY_API_BASE_SERVER_URL,
-	IS_DESKTOP_APP
+	IS_DESKTOP_APP,
+	GAUZY_API_BASE_SERVER_URL
 } from '@/core/constants/config/constants';
 
 export const getFallbackAPI = async () => {
@@ -19,7 +18,7 @@ import {
 	getTenantIdCookie
 } from '@/core/lib/helpers/cookies';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { APIConfig, desktopServerOverride } from './axios';
+import { APIConfig } from './axios';
 import { HttpLoggerAdapter } from '../logs/logger-adapter.service';
 import { Logger } from '../logs/logger.service';
 import { ApiErrorService } from './api-error.service';
@@ -133,6 +132,10 @@ export class APIService {
 			organizationId: this.organizationId,
 			tenantId: this.tenantId
 		};
+	}
+
+	protected get desktopBaseURL() {
+		return GAUZY_API_BASE_SERVER_URL.value;
 	}
 
 	getConfig() {
@@ -320,6 +323,8 @@ export class APIService {
 		this.httpLogger.logError(error);
 	}
 
+
+
 	/**
 	 * Get active request statistics for debugging and monitoring
 	 */
@@ -356,14 +361,11 @@ export class APIService {
 		const tenantId = getTenantIdCookie();
 		const organizationId = getOrganizationIdCookie();
 		let baseURL: string | undefined = this.baseURL;
-
 		if (IS_DESKTOP_APP) {
-			// dynamic api host while on desktop mode
-			const runtimeConfig = await desktopServerOverride();
-			baseURL = (runtimeConfig || GAUZY_API_BASE_SERVER_URL.value) as string;
+			baseURL = this.desktopBaseURL;
 		}
-
 		baseURL = baseURL ? `${baseURL}/api` : undefined;
+
 		if (this.config.directAPI) {
 			this.axiosInstance.defaults.baseURL = baseURL;
 		}

@@ -1,8 +1,7 @@
 import {
 	APPLICATION_LANGUAGES_CODE,
 	DEFAULT_APP_PATH,
-	GAUZY_API_BASE_SERVER_URL,
-	IS_DESKTOP_APP
+	GAUZY_API_BASE_SERVER_URL
 } from '@/core/constants/config/constants';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { AxiosRequestConfig, AxiosResponse } from 'axios';
@@ -86,29 +85,11 @@ export const getAPIDirect = async (): Promise<APIService> => {
 
 export type APIConfig = AxiosRequestConfig<any> & { tenantId?: string; directAPI?: boolean };
 
-export async function desktopServerOverride() {
-	if (typeof window !== 'undefined') {
-		try {
-			const serverConfig = await api.get<{ NEXT_PUBLIC_GAUZY_API_SERVER_URL: string }>('/desktop-server');
-
-			return serverConfig?.data?.NEXT_PUBLIC_GAUZY_API_SERVER_URL;
-		} catch (error) {
-			return GAUZY_API_BASE_SERVER_URL;
-		}
-	}
-	return GAUZY_API_BASE_SERVER_URL;
-}
 async function apiConfig(config?: APIConfig) {
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
 
 	let baseURL: string | undefined = GAUZY_API_BASE_SERVER_URL.value;
-
-	if (IS_DESKTOP_APP) {
-		// dynamic api host while on desktop mode
-		const runtimeConfig = await desktopServerOverride();
-		baseURL = (runtimeConfig || GAUZY_API_BASE_SERVER_URL.value) as string;
-	}
 
 	baseURL = baseURL ? `${baseURL}/api` : undefined;
 
