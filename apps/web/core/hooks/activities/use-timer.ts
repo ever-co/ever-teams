@@ -1,6 +1,7 @@
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { convertMsToTime, secondsToTime } from '@/core/lib/helpers/date-and-time';
+import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
 import {
 	localTimerStatusState,
 	timeCounterIntervalState,
@@ -24,6 +25,7 @@ import { timerService } from '@/core/services/client/api/timers';
 import { useOrganizationEmployeeTeams, useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
 import { useRefreshIntervalV2 } from '../common';
+import { useTimerPolling } from './use-timer-polling';
 import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
@@ -317,7 +319,10 @@ export function useTimer() {
 				return;
 			}
 		} catch (error) {
-			console.error('Failed to verify tracking status:', error);
+			logErrorInDev('Failed to verify tracking status', error);
+			toast.error('Failed to verify tracking status', {
+				description: getErrorMessage(error, 'Unable to verify tracking status')
+			});
 			return;
 		}
 
@@ -375,12 +380,20 @@ export function useTimer() {
 			const currentEmployeeDetails = activeTeam?.members?.find(
 				(member) => member.employeeId === user?.employee?.id
 			);
-			if (currentEmployeeDetails && currentEmployeeDetails.employeeId) {
-				updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.employeeId, {
+			if (currentEmployeeDetails && currentEmployeeDetails.id) {
+				// Fire-and-forget: don't wait for this call to complete
+				// This reduces perceived delay for the user
+				updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
 					organizationId: activeTeamTaskRef.current.organizationId,
 					activeTaskId: activeTeamTaskRef.current.id,
 					organizationTeamId: activeTeam?.id,
 					tenantId: activeTeam?.tenantId ?? ''
+				}).catch((error) => {
+					logErrorInDev('Failed to update active task', error);
+					toast.error('Failed to update active task', {
+						description: getErrorMessage(error, 'Unable to update active task')
+					});
+					// Don't throw - timer already started successfully
 				});
 			}
 		}
@@ -589,6 +602,11 @@ export function useTimerView() {
 export function useSyncTimer() {
 	const { syncTimer } = useTimer();
 	const timerStatus = useAtomValue(timerStatusState);
+
+	// Enable real-time polling of team data when timer is active
+	// This ensures all team members see updated statuses (Working/Pause/Not Working) in real-time
+	// Note: This hook is called only once in init-state.tsx, so we have a single polling instance
+	useTimerPolling(timerStatus?.running ?? false);
 
 	useRefreshIntervalV2(timerStatus?.running ? syncTimer : () => void 0, 5000);
 }

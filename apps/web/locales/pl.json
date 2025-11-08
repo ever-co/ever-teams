@@ -918,6 +918,10 @@
 	"timer": {
 		"START_TIMER": "Proszę wybrać lub utworzyć nowe zadanie, aby rozpocząć śledzenie czasu lub utwórz plan",
 		"ALREADY_TRACKING_MESSAGE": "Już śledzisz czas w innej karcie lub urządzeniu.",
+		"TASK_CLOSED": "Zadanie jest zamknięte",
+		"STARTING_TIMER": "Uruchamianie timera...",
+		"TIMER_STARTED": "Timer uruchomiony pomyślnie",
+		"TIMER_START_FAILED": "Nie udało się uruchomić timera",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Zatrzymany Timer",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Zatrzymano Timer z powodu zmiany zespołu"

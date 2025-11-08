@@ -922,6 +922,10 @@
 	"timer": {
 		"START_TIMER": "Please, select or create a new task to start tracking the time or create a plan",
 		"ALREADY_TRACKING_MESSAGE": "You're already tracking time in another tab or device.",
+		"TASK_CLOSED": "Task is closed",
+		"STARTING_TIMER": "Starting timer...",
+		"TIMER_STARTED": "Timer started successfully",
+		"TIMER_START_FAILED": "Failed to start timer",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer Stopped",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer Stopped due to Team Switch"

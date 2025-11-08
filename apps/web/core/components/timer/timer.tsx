@@ -1,5 +1,6 @@
 import { pad, secondsToTime } from '@/core/lib/helpers/index';
 import { HostKeys, useDetectOS, useHotkeys, useTimerView } from '@/core/hooks';
+import { useTimerOptimisticUI } from '@/core/hooks/activities/use-timer-optimistic-ui';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
@@ -38,13 +39,23 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 		timerStatus,
 		disabled,
 		hasPlan,
-		startTimer
+		startTimer,
+		stopTimer
 	} = useTimerView();
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const todayLoggedDurationFormated = secondsToTime(timerStatus?.duration || 0);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
+
+	// Use optimistic UI hook for timer button feedback
+	const { optimisticRunning } = useTimerOptimisticUI({
+		onStop: stopTimer,
+		onStart: startTimer
+	});
+
+	// Display optimistic state if available, otherwise use real state
+	const displayRunning = optimisticRunning ?? timerStatus?.running;
 
 	const { os } = useDetectOS();
 
@@ -141,7 +152,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 						>
 							<TimerButton
 								onClick={startStopTimerHandler}
-								running={timerStatus?.running}
+								running={displayRunning}
 								disabled={
 									// If timer is running at some other source and user may or may not have selected the task
 									!canRunTimer || (disabled && timerStatus?.lastLog?.source !== ETimeLogSource.TEAMS)
@@ -198,13 +209,22 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 }
 
 export function MinTimerFrame({ className }: IClassName) {
-	const { hours, minutes, seconds, ms_p, timerStatus, disabled, hasPlan, startTimer } = useTimerView();
+	const { hours, minutes, seconds, ms_p, timerStatus, disabled, hasPlan, startTimer, stopTimer } = useTimerView();
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 	const t = useTranslations();
 	const todayLoggedDurationFormated = secondsToTime(timerStatus?.duration || 0);
+
+	// Use optimistic UI hook for timer button feedback
+	const { optimisticRunning } = useTimerOptimisticUI({
+		onStop: stopTimer,
+		onStart: startTimer
+	});
+
+	// Display optimistic state if available, otherwise use real state
+	const displayRunning = optimisticRunning ?? timerStatus?.running;
 
 	return (
 		<div
@@ -242,7 +262,7 @@ export function MinTimerFrame({ className }: IClassName) {
 			<div className="z-[50]">
 				<TimerButton
 					onClick={startStopTimerHandler}
-					running={timerStatus?.running}
+					running={displayRunning}
 					disabled={disabled}
 					className="w-7 h-7"
 				/>

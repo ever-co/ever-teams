@@ -919,6 +919,10 @@
 	"timer": {
 		"START_TIMER": "Por favor, selecione ou crie uma nova tarefa para começar a rastrear o tempo ou crie um plano",
 		"ALREADY_TRACKING_MESSAGE": "Você já está rastreando o tempo em outra aba ou dispositivo.",
+		"TASK_CLOSED": "A tarefa está fechada",
+		"STARTING_TIMER": "Iniciando temporizador...",
+		"TIMER_STARTED": "Temporizador iniciado com sucesso",
+		"TIMER_START_FAILED": "Falha ao iniciar o temporizador",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Temporizador Parado",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Temporizador Parado devido à Troca de Equipe"

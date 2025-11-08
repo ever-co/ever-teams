@@ -83,7 +83,7 @@ export const getAPIDirect = async (): Promise<APIService> => {
 	return apiDirect;
 };
 
-export type APIConfig = AxiosRequestConfig<any> & { tenantId?: string; directAPI?: boolean };
+export type APIConfig = AxiosRequestConfig<any> & { tenantId?: string | null; directAPI?: boolean };
 
 async function apiConfig(config?: APIConfig) {
 	const tenantId = getTenantIdCookie();

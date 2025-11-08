@@ -351,7 +351,6 @@ const UsersTaskAssigned = React.memo(({ task, className }: { task: Nullable<TTas
 const TimerButtonCall = React.memo(
 	({
 		task,
-		currentMember,
 		activeTeam,
 		className
 	}: {
@@ -365,6 +364,7 @@ const TimerButtonCall = React.memo(
 		const {
 			loading,
 			activeTaskStatus,
+			optimisticRunning,
 			requirePlan,
 			startTimerWithTask,
 			modals,
@@ -374,7 +374,10 @@ const TimerButtonCall = React.memo(
 			hasPlan,
 			startTimer,
 			t
-		} = useTimerButtonLogic({ task, currentMember, activeTeam });
+		} = useTimerButtonLogic({ task, activeTeam });
+
+		// Use optimistic state if available, otherwise use real state
+		const displayRunning = optimisticRunning ?? activeTaskStatus?.running;
 
 		return loading ? (
 			<SpinnerLoader size={30} />
@@ -382,7 +385,7 @@ const TimerButtonCall = React.memo(
 			<>
 				<TimerButton
 					onClick={activeTaskStatus ? startStopTimerHandler : startTimerWithTask}
-					running={activeTaskStatus?.running}
+					running={displayRunning}
 					disabled={activeTaskStatus ? disabled : task.status === 'closed' || !canTrack}
 					className={clsxm('w-14 h-14', className)}
 				/>

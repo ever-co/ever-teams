@@ -916,11 +916,12 @@
 		}
 	},
 	"timer": {
-		"ACTIVE": "Aktiv",
-		"APPS": "Apps",
-		"ARCHIVED": "Archiviert",
 		"START_TIMER": "Bitte wählen oder erstellen Sie eine neue Aufgabe, um die Zeit zu tracken oder einen Plan erstellen",
 		"ALREADY_TRACKING_MESSAGE": "Sie verfolgen bereits die Zeit in einem anderen Tab oder Gerät.",
+		"TASK_CLOSED": "Aufgabe ist geschlossen",
+		"STARTING_TIMER": "Timer wird gestartet...",
+		"TIMER_STARTED": "Timer erfolgreich gestartet",
+		"TIMER_START_FAILED": "Timer konnte nicht gestartet werden",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer gestoppt",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer wegen Teamwechsel gestoppt"
@@ -928,6 +929,9 @@
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Schätzen"
 		},
+		"ACTIVE": "Aktiv",
+		"APPS": "Apps",
+		"ARCHIVED": "Archiviert",
 		"INACTIVE": "Inaktiv",
 		"KEYBOARD": "Tastatur",
 		"MOUSE": "Maus",
