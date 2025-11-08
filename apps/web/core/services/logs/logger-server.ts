@@ -81,10 +81,13 @@ export async function createLogDir(logger: Logger): Promise<void> {
 		if (!existsSync(config.logDir!)) {
 			await mkdir(config.logDir!, { recursive: true });
 		} else {
-			cleanIfTooBig(config.logDir!, Number(process.env.LOG_FOLDER_MAX_SIZE || 10));
+			// Clean up logs if they're too big - don't await to avoid blocking
+			cleanIfTooBig(config.logDir!, Number(process.env.LOG_FOLDER_MAX_SIZE || 10)).catch(error => {
+				console.warn(`[Logger] Warning: Failed to clean logs directory:`, error.message);
+			});
 		}
 	} catch (error) {
-		console.error(`Failed to create log directory: ${config.logDir}`, error);
+		console.error(`[Logger] Failed to create log directory: ${config.logDir}`, error);
 	}
 }
 
@@ -93,17 +96,35 @@ export async function createLogDir(logger: Logger): Promise<void> {
  */
 async function getFolderSizeInBytes(dirPath: string): Promise<number> {
 	let totalSize = 0;
-	const entries = await readdir(dirPath, { withFileTypes: true });
 
-	for (const entry of entries) {
-		const fullPath = join(dirPath, entry.name);
-		if (entry.isDirectory()) {
-			totalSize += await getFolderSizeInBytes(fullPath);
-		} else {
-			const fileStat = await stat(fullPath);
-			totalSize += fileStat.size;
+	try {
+		const entries = await readdir(dirPath, { withFileTypes: true });
+
+		for (const entry of entries) {
+			const fullPath = join(dirPath, entry.name);
+			try {
+				if (entry.isDirectory()) {
+					totalSize += await getFolderSizeInBytes(fullPath);
+				} else {
+					const fileStat = await stat(fullPath);
+					totalSize += fileStat.size;
+				}
+			} catch (fileError: any) {
+				// Skip files that don't exist or can't be accessed
+				if (fileError.code !== 'ENOENT') {
+					console.warn(`[Logger] Warning: Could not stat file ${fullPath}:`, fileError.message);
+				}
+				// Continue with other files
+			}
 		}
+	} catch (dirError: any) {
+		// Directory doesn't exist or can't be read
+		if (dirError.code !== 'ENOENT') {
+			console.warn(`[Logger] Warning: Could not read directory ${dirPath}:`, dirError.message);
+		}
+		return 0;
 	}
+
 	return totalSize;
 }
 
@@ -125,17 +146,22 @@ async function clearFolder(dirPath: string): Promise<void> {
  * Delete it if the size > maxMB
  */
 async function cleanIfTooBig(dirPath: string, maxMB = 10): Promise<void> {
-	const sizeInBytes = await getFolderSizeInBytes(dirPath);
-	const sizeInMB = sizeInBytes / (1024 * 1024);
-	console.log(`📦 ${dirPath} = ${sizeInMB.toFixed(2)} MB, Max for this logs folder must be = ${maxMB.toFixed(2)} MB`);
+	try {
+		const sizeInBytes = await getFolderSizeInBytes(dirPath);
+		const sizeInMB = sizeInBytes / (1024 * 1024);
+		console.log(`📦 ${dirPath} = ${sizeInMB.toFixed(2)} MB, Max for this logs folder must be = ${maxMB.toFixed(2)} MB`);
 
-	if (sizeInMB > maxMB) {
-		console.warn('⚠️⚠️⚠️ 📦 Logs folder too big. Cleaning up 🗑🧹...');
-		await clearFolder(dirPath);
-		console.log('✅ ✨ Logs folder cleared.');
-	} else {
-		console.log(
-			`✅ 📦 Logs folder size is within limit ${dirPath} = ${sizeInMB.toFixed(2)} MB <= ${maxMB.toFixed(2)} MB`
-		);
+		if (sizeInMB > maxMB) {
+			console.warn('⚠️⚠️⚠️ 📦 Logs folder too big. Cleaning up 🗑🧹...');
+			await clearFolder(dirPath);
+			console.log('✅ ✨ Logs folder cleared.');
+		} else {
+			console.log(
+				`✅ 📦 Logs folder size is within limit ${dirPath} = ${sizeInMB.toFixed(2)} MB <= ${maxMB.toFixed(2)} MB`
+			);
+		}
+	} catch (error: any) {
+		// Don't let logging errors crash the application
+		console.warn(`[Logger] Warning: Could not clean logs directory ${dirPath}:`, error.message);
 	}
 }
