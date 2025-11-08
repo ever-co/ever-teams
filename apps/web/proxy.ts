@@ -55,7 +55,15 @@ export async function proxy(request: NextRequest) {
 
 	let access_token = null;
 
+	// Debug: Log all cookies for debugging
+	const allCookieNames: string[] = [];
+	for (const [name] of request.cookies) {
+		allCookieNames.push(name);
+	}
+
 	const totalChunksCookie = request.cookies.get(`${TOKEN_COOKIE_NAME}_totalChunks`)?.value.trim();
+
+
 	if (!totalChunksCookie) {
 		access_token = request.cookies.get(TOKEN_COOKIE_NAME)?.value.trim() || '';
 	} else if (totalChunksCookie) {
@@ -64,18 +72,31 @@ export async function proxy(request: NextRequest) {
 			const chunkCookie = request.cookies.get(`${TOKEN_COOKIE_NAME}${index}`)?.value.trim();
 
 			if (!chunkCookie) {
+				console.warn(`[Proxy] Missing chunk ${index} of ${totalChunks}`);
 				return null; // Chunk cookie not found.
 			}
 
 			return chunkCookie;
 		});
 
-		// Concatenate and return the large string.
-		access_token = chunks.join('');
+		// Check if any chunks are missing
+		const missingChunks = chunks.filter(chunk => chunk === null).length;
+		if (missingChunks > 0) {
+			console.error(`[Proxy] ${missingChunks} chunks missing out of ${totalChunks}`);
+			access_token = null;
+		} else {
+			// Concatenate and return the large string.
+			access_token = chunks.join('');
+			console.log('[Proxy] Reconstructed token from chunks:', {
+				totalChunks,
+				tokenLength: access_token?.length || 0
+			});
+		}
 	}
 
 	// request.cookies.get(TOKEN_COOKIE_NAME)?.value.trim();
 	const refresh_token = request.cookies.get(REFRESH_TOKEN_COOKIE_NAME)?.value.trim();
+
 
 	const url = new URL(request.url);
 
@@ -181,8 +202,36 @@ export async function proxy(request: NextRequest) {
 
 	// Handle protected paths
 	if (protected_path && !access_token && !refresh_token) {
-		// Case 1: No tokens available - redirect to login
-		console.log('[Proxy] No authentication tokens available, redirecting to login');
+		// RACE CONDITION PROTECTION: Check if this might be a timing issue
+		const hasAnyCookies = allCookieNames.length > 0;
+		const hasNextAuthCookies = allCookieNames.some(name => name.includes('authjs'));
+
+		if (!hasAnyCookies) {
+			console.warn('[Proxy] No cookies available yet - possible race condition, allowing request to proceed');
+			// Let the request proceed - cookies might be set on subsequent requests
+			return response;
+		}
+
+		if (hasNextAuthCookies && !allCookieNames.some(name => name.includes(TOKEN_COOKIE_NAME))) {
+			console.warn('[Proxy] NextAuth cookies present but auth tokens not ready yet - allowing request to proceed');
+			// NextAuth is working but our tokens aren't ready yet
+			return response;
+		}
+
+
+		// SAFETY CHECK: Don't clear cookies if we have any auth-related cookies
+		// This prevents accidental logout due to parsing errors
+		const hasAuthCookies = allCookieNames.some(name =>
+			name.includes('auth-token') || name.includes('auth-refresh-token')
+		);
+
+		if (hasAuthCookies) {
+			console.error('[Proxy] PREVENTING COOKIE DELETION - Auth cookies detected but not parsed correctly!');
+			// Return without clearing cookies - let the user stay on current page
+			return response;
+		}
+
+		console.log('[Proxy] No auth cookies found, proceeding with redirect to login');
 		deny_redirect(false);
 	} else if (protected_path && access_token) {
 		// Case 2: Access token exists - try to authenticate with it

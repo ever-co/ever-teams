@@ -169,6 +169,18 @@ export class Logger {
 	 */
 	private async appendToLogFile(filename: string, logEntry: LogEntry) {
 		if (!ACTIVE_LOCAL_LOG_SYSTEM.value || this.isLoggingError) return;
+
+		// Validate log entry before processing
+		if (!logEntry || !logEntry.timestamp || !logEntry.level || !logEntry.message) {
+			console.warn('[Logger] Invalid log entry, skipping file write:', {
+				hasEntry: !!logEntry,
+				hasTimestamp: !!logEntry?.timestamp,
+				hasLevel: !!logEntry?.level,
+				hasMessage: !!logEntry?.message
+			});
+			return;
+		}
+
 		try {
 			console.log(`<== A NEW LOG WAS BEEN WRITTEN TO FILE==> ${filename}`);
 			if (isServer()) {
