@@ -1,8 +1,7 @@
 import {
 	APPLICATION_LANGUAGES_CODE,
 	DEFAULT_APP_PATH,
-	GAUZY_API_BASE_SERVER_URL,
-	IS_DESKTOP_APP
+	GAUZY_API_BASE_SERVER_URL
 } from '@/core/constants/config/constants';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { AxiosRequestConfig, AxiosResponse } from 'axios';
