@@ -64,4 +64,14 @@ export function loadNextPublicEnvs() {
 }
 
 // Preload Some variables
-setNextPublicEnv(loadNextPublicEnvs());
+if (process.env.NEXT_PUBLIC_IS_DESKTOP_APP === 'true' && typeof window !== 'undefined' && !Object.keys(NEXT_PUBLIC_ENVS.value).length) {
+	(async () => {
+		const resp = await fetch('/api/desktop-server');
+		if (resp.ok) {
+			const serverConfig = await resp.json();
+			setNextPublicEnv({ ...loadNextPublicEnvs(), ...{ NEXT_PUBLIC_GAUZY_API_SERVER_URL: serverConfig?.GAUZY_API_SERVER_URL } });
+		}
+	})();
+} else {
+	setNextPublicEnv(loadNextPublicEnvs());
+}
