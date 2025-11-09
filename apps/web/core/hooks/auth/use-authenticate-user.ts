@@ -20,7 +20,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 	const userDataQuery = useUserQuery();
 	const user = userDataQuery.data;
 	const setUser = useSetAtom(userState);
-	const $user = useRef<TUser | null>(defaultUser || null);
+	const $user = useRef<TUser | null>(defaultUser || user || null);
 	const intervalRt = useRef(0);
 	const activeTeam = useAtomValue(activeTeamState);
 	const queryClient = useQueryClient();
@@ -37,41 +37,27 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 			return await authService.refreshToken();
 		},
 		onSuccess: () => {
-			// Reset failure counter on successful refresh
 			consecutiveFailures.current = 0;
 			queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
-			console.log('[Auth] Token refreshed successfully');
 		},
 		onError: (error: any) => {
 			consecutiveFailures.current += 1;
 
 			const isUnauthorized = error?.response?.status === 401 || error?.status === 401;
-			const isNetworkError = !error?.response || error?.code === 'NETWORK_ERROR';
 
-			console.error(`[Auth] Refresh token failed (attempt ${consecutiveFailures.current}/${maxConsecutiveFailures}):`, {
-				status: error?.response?.status || error?.status,
-				isUnauthorized,
-				isNetworkError,
-				error: error?.message || error
-			});
-
-			// Immediate logout for 401 (token definitely expired/invalid)
 			if (isUnauthorized) {
-				console.log('[Auth] 401 error - refresh token is invalid/expired, logging out immediately');
 				toast.error('Session expired. Please log in again.');
 				handleUnauthorized();
 				return;
 			}
 
-			// For network/server errors, only logout after multiple consecutive failures
 			if (consecutiveFailures.current >= maxConsecutiveFailures) {
-				console.log(`[Auth] ${maxConsecutiveFailures} consecutive refresh failures, logging out user`);
 				toast.error('Unable to refresh session. Please log in again.');
 				handleUnauthorized();
 			} else {
-				// Show warning but don't logout yet
-				console.warn(`[Auth] Refresh failed (${consecutiveFailures.current}/${maxConsecutiveFailures}), will retry later`);
-				toast.warning(`Connection issue. Retrying... (${consecutiveFailures.current}/${maxConsecutiveFailures})`);
+				toast.warning(
+					`Connection issue. Retrying... (${consecutiveFailures.current}/${maxConsecutiveFailures})`
+				);
 			}
 		},
 		retry: 1,
@@ -93,22 +79,11 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 	/**
 	 * Manually refresh user data with graceful token recovery
 	 *
-	 * This function is called for user-initiated actions (startTimer, emailReset, etc.)
-	 * where we need fresh user data to proceed.
-	 *
 	 * Pattern: "Optimistic Recovery with Cancellation"
 	 * 1. Try to fetch user data
-	 * 2. If 401, the axios interceptor calls handleUnauthorized() (120ms debounce)
-	 * 3. We attempt token refresh within that window
-	 * 4. If refresh succeeds, we cancel the pending logout and retry the fetch
-	 * 5. If refresh fails, the logout proceeds normally
-	 *
-	 * This provides better UX for cases like:
-	 * - startTimer: User sees "Already tracking" instead of being logged out
-	 * - emailReset: User sees updated email instead of being logged out
-	 *
-	 * The cancelPendingLogout() call prevents the race condition where
-	 * the user would be logged out even after a successful token refresh.
+	 * 2. If 401, attempt token refresh within the debounce window
+	 * 3. If refresh succeeds, cancel pending logout and retry fetch
+	 * 4. If refresh fails, logout proceeds normally
 	 */
 	const refreshUserData = useCallback(async () => {
 		if (userDataQuery.isFetching) {
@@ -124,23 +99,16 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		} catch (error: any) {
 			// If 401, try to refresh token once before failing
 			if (error?.response?.status === 401 || error?.status === 401) {
-				console.log('[Auth] refreshUserData got 401, attempting token refresh...');
 				try {
 					await refreshTokenMutation.mutateAsync();
-
-					// NOTE_CRITICAL: Cancel the pending logout since token refresh succeeded
-					// This prevents the race condition where handleUnauthorized()'s setTimeout
-					// would log out the user even after successful token refresh
 					cancelPendingLogout();
 
-					// Retry the user data fetch with the new token
 					const retryResult = await userDataQuery.refetch();
 					if (retryResult.data) {
 						setUser(retryResult.data);
 						return retryResult.data;
 					}
 				} catch (refreshError) {
-					console.error('[Auth] Token refresh failed in refreshUserData:', refreshError);
 					// Let the error propagate - handleUnauthorized will proceed with logout
 					throw refreshError;
 				}

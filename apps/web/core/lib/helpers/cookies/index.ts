@@ -52,7 +52,7 @@ export const setLargeStringInCookies = (
 		setCookie(`${COOKIE_NAME}${index}`, cookieValue, ctx, crossSite);
 	});
 
-	setCookie(`${COOKIE_NAME}_totalChunks`, chunks.length, ctx, crossSite);
+	setCookie(`${COOKIE_NAME}_totalChunks`, String(chunks.length), ctx, crossSite);
 };
 
 export const getLargeStringFromCookies = (COOKIE_NAME: string, ctx?: NextCtx) => {
@@ -94,9 +94,9 @@ export function setAuthCookies(datas: CookiesDataType, ctx?: NextCtx) {
 	// Handle Large Access Token
 	// Cookie can support upto 4096 characters only!
 	if (access_token.length <= 4096) {
-		setCookie(TOKEN_COOKIE_NAME, access_token, ctx); // cross site cookie
+		setCookie(TOKEN_COOKIE_NAME, access_token, ctx, true); // cross site cookie
 	} else {
-		setLargeStringInCookies(TOKEN_COOKIE_NAME, access_token, ctx); // cross site cookie
+		setLargeStringInCookies(TOKEN_COOKIE_NAME, access_token, ctx, true); // cross site cookie
 	}
 
 	setCookie(REFRESH_TOKEN_COOKIE_NAME, refresh_token.token, ctx); // cross site cookie
@@ -158,7 +158,13 @@ export function getRefreshTokenCookie(ctx?: NextCtx) {
 }
 
 export function setAccessTokenCookie(accessToken: string, ctx?: NextCtx) {
-	return setCookie(TOKEN_COOKIE_NAME, accessToken, ctx, true); // cross site cookie
+	// Handle Large Access Token
+	// Cookie can support upto 4096 characters only!
+	if (accessToken.length <= 4096) {
+		return setCookie(TOKEN_COOKIE_NAME, accessToken, ctx, true); // cross site cookie
+	} else {
+		return setLargeStringInCookies(TOKEN_COOKIE_NAME, accessToken, ctx, true); // cross site cookie
+	}
 }
 
 // Active team id

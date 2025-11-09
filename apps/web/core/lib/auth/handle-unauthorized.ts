@@ -15,21 +15,24 @@ let redirectTimeout: NodeJS.Timeout | null = null;
  *
  */
 export function handleUnauthorized() {
-	// Prevent multiple simultaneous redirects
-	if (isRedirecting) {
-		console.warn('[Auth] Redirect already in progress, ignoring duplicate 401');
-		return;
-	}
-
-	isRedirecting = true;
-
-	// Debounce redirects (120ms timeout)
-	// This prevents race conditions when multiple 401 errors occur simultaneously
-	// The 120ms window allows refreshUserData() to attempt token refresh before logout
-	// This enables "optimistic recovery" for user-initiated actions (startTimer, emailReset, etc.)
+	// Always clear any existing timeout to ensure the latest call controls the timing
 	if (redirectTimeout) {
 		clearTimeout(redirectTimeout);
+		redirectTimeout = null;
 	}
+
+	// Prevent multiple simultaneous redirects
+	if (isRedirecting) {
+		console.warn('[Auth] Redirect already in progress, resetting timeout for latest call');
+		// Don't return - allow updating the timeout for better timing control
+	} else {
+		isRedirecting = true;
+	}
+
+	// Debounce redirects (600ms timeout)
+	// This prevents race conditions when multiple 401 errors occur simultaneously
+	// The 600ms window allows refreshUserData() to attempt token refresh before logout
+	// This enables "optimistic recovery" for user-initiated actions (startTimer, emailReset, etc.)
 
 	redirectTimeout = setTimeout(() => {
 		console.log('[Auth] Handling 401 Unauthorized - Logging out user');
@@ -61,7 +64,7 @@ export function handleUnauthorized() {
 
 		// Reset flag after redirect (for safety, though page will reload)
 		isRedirecting = false;
-	}, 120); // Increased from 100ms to 120ms for better token refresh reliability
+	}, 600); // Increased from 120ms to 600ms to allow token refresh to complete (network RTT + processing)
 }
 
 /**

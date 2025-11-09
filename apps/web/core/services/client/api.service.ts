@@ -229,6 +229,10 @@ export class APIService {
 	 * Handles 401 Unauthorized errors by redirecting users appropriately.
 	 * This logic adapts to special path prefixes used in Our App (e.g., /god-mode, /spaces).
 	 *
+	 * NOTE: Token refresh is handled by the centralized handleUnauthorized() function
+	 * which has a 600ms debounce window allowing refreshUserData() to attempt refresh
+	 * before logout (optimistic recovery pattern).
+	 *
 	 * @param {any} error - The error object from Axios response.
 	 * @private
 	 */
@@ -242,7 +246,8 @@ export class APIService {
 			return error?.response;
 		}
 
-		handleUnauthorized(); // Use centralized handler
+		// Use centralized handler which has 600ms debounce for token refresh attempts
+		handleUnauthorized();
 	}
 
 	/**

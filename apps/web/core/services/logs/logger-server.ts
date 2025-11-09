@@ -82,7 +82,7 @@ export async function createLogDir(logger: Logger): Promise<void> {
 			await mkdir(config.logDir!, { recursive: true });
 		} else {
 			// Clean up logs if they're too big - don't await to avoid blocking
-			cleanIfTooBig(config.logDir!, Number(process.env.LOG_FOLDER_MAX_SIZE || 10)).catch(error => {
+			cleanIfTooBig(config.logDir!, Number(process.env.LOG_FOLDER_MAX_SIZE || 10)).catch((error) => {
 				console.warn(`[Logger] Warning: Failed to clean logs directory:`, error.message);
 			});
 		}
@@ -149,16 +149,11 @@ async function cleanIfTooBig(dirPath: string, maxMB = 10): Promise<void> {
 	try {
 		const sizeInBytes = await getFolderSizeInBytes(dirPath);
 		const sizeInMB = sizeInBytes / (1024 * 1024);
-		console.log(`📦 ${dirPath} = ${sizeInMB.toFixed(2)} MB, Max for this logs folder must be = ${maxMB.toFixed(2)} MB`);
 
 		if (sizeInMB > maxMB) {
 			console.warn('⚠️⚠️⚠️ 📦 Logs folder too big. Cleaning up 🗑🧹...');
 			await clearFolder(dirPath);
 			console.log('✅ ✨ Logs folder cleared.');
-		} else {
-			console.log(
-				`✅ 📦 Logs folder size is within limit ${dirPath} = ${sizeInMB.toFixed(2)} MB <= ${maxMB.toFixed(2)} MB`
-			);
 		}
 	} catch (error: any) {
 		// Don't let logging errors crash the application
