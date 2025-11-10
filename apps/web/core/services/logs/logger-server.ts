@@ -82,9 +82,7 @@ export async function createLogDir(logger: Logger): Promise<void> {
 			await mkdir(config.logDir!, { recursive: true });
 		} else {
 			// Clean up logs if they're too big - don't await to avoid blocking
-			cleanIfTooBig(config.logDir!, Number(process.env.LOG_FOLDER_MAX_SIZE || 10)).catch((error) => {
-				console.warn(`[Logger] Warning: Failed to clean logs directory:`, error.message);
-			});
+			cleanIfTooBig(config.logDir!, Number(process.env.LOG_FOLDER_MAX_SIZE || 10)).catch((error) => {});
 		}
 	} catch (error) {
 		console.error(`[Logger] Failed to create log directory: ${config.logDir}`, error);
