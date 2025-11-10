@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
 	APPLICATION_LANGUAGES_CODE,
-	DEFAULT_APP_PATH,
 	IS_DESKTOP_APP,
 	GAUZY_API_BASE_SERVER_URL
 } from '@/core/constants/config/constants';
@@ -343,8 +342,6 @@ export class APIService {
 		// Use the existing HttpLoggerAdapter which already handles all error types properly
 		this.httpLogger.logError(error);
 	}
-
-
 
 	/**
 	 * Get active request statistics for debugging and monitoring
