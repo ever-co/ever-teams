@@ -4,7 +4,6 @@ import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 interface FuseMemberSearchOptions {
 	threshold?: number;
-	keys?: string[];
 }
 
 /**
@@ -45,20 +44,14 @@ export function useFuseMemberSearch(
 ): TOrganizationTeamEmployee[] {
 	const { threshold = 0.4 } = options;
 
-	return useMemo(() => {
-		// Return all members if search query is empty
-		if (!searchQuery.trim()) {
-			return members;
-		}
-
-		// Create searchable data with combined text fields
+	// Create Fuse index once per members array change (expensive operation)
+	const fuse = useMemo(() => {
 		const searchableMembers = members.map((member) => ({
 			member,
 			searchText: getMemberSearchableText(member)
 		}));
 
-		// Create Fuse instance with combined searchable text
-		const fuse = new Fuse(searchableMembers, {
+		return new Fuse(searchableMembers, {
 			keys: ['searchText'],
 			threshold,
 			includeScore: false,
@@ -66,9 +59,17 @@ export function useFuseMemberSearch(
 			ignoreLocation: true,
 			useExtendedSearch: false
 		});
+	}, [members, threshold]);
+
+	// Search in the index (fast operation, reuses Fuse instance)
+	return useMemo(() => {
+		// Return all members if search query is empty
+		if (!searchQuery.trim()) {
+			return members;
+		}
 
 		// Search and extract items from results
 		const results = fuse.search(searchQuery);
 		return results.map((result) => result.item.member);
-	}, [members, searchQuery, threshold]);
+	}, [fuse, searchQuery, members]);
 }
