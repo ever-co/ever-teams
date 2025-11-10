@@ -99,10 +99,6 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 	 * 4. If refresh fails, logout proceeds normally
 	 */
 	const refreshUserData = useCallback(async () => {
-		if (userDataQuery.isFetching) {
-			return;
-		}
-
 		const result = await userDataQuery.refetch();
 		if (result.data) {
 			setUser(result.data);

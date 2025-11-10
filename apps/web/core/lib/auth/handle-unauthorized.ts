@@ -129,4 +129,6 @@ async function performLogout(reason: DisconnectionReason, details?: Record<strin
  */
 export function resetUnauthorizedHandler() {
 	isHandling401 = false;
+	isRedirecting = false;
+	refreshTokenCallbacks.clear();
 }
