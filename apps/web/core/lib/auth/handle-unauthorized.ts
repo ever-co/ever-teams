@@ -1,96 +1,115 @@
 import { removeAuthCookies } from '@/core/lib/helpers/cookies';
 import { DEFAULT_APP_PATH } from '@/core/constants/config/constants';
 import { globalQueryClient } from '@/core/query/config';
+import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
+import { logDisconnection } from '@/core/lib/auth/disconnect-logger';
 
-let isRedirecting = false;
-let redirectTimeout: NodeJS.Timeout | null = null;
+let isHandling401 = false;
+
+// Callback to attempt token refresh when 401 occurs
+let refreshTokenCallback: (() => Promise<any>) | null = null;
+
+/**
+ * Register a callback to attempt token refresh when 401 occurs
+ * This is called by useAuthenticateUser hook to enable automatic recovery
+ */
+export function registerRefreshTokenCallback(callback: () => Promise<any>) {
+	refreshTokenCallback = callback;
+}
+
+/**
+ * Unregister the refresh token callback
+ */
+export function unregisterRefreshTokenCallback() {
+	refreshTokenCallback = null;
+}
 
 /**
  * Centralized handler for 401 Unauthorized errors
- * Prevents multiple simultaneous redirects and ensures clean logout
  *
- * This handler solves the critical bug where 3 different 401 handlers
- * (proxy.ts, axios.ts, api.service.ts) were creating race conditions
- * and causing infinite login/logout loops.
+ * NEW STRATEGY (no timeout):
+ * 1. If 401 + callback registered → Try refresh immediately
+ * 2. If refresh succeeds → Do nothing (user stays logged in)
+ * 3. If refresh fails → Disconnect user
  *
+ * This prevents the race condition where timeout redirects user even if refresh succeeds.
+ *
+ * @param reason - The reason for the unauthorized error (default: UNAUTHORIZED_401)
+ * @param details - Additional details about the error
  */
-export function handleUnauthorized() {
-	// Always clear any existing timeout to ensure the latest call controls the timing
-	if (redirectTimeout) {
-		clearTimeout(redirectTimeout);
-		redirectTimeout = null;
+export async function handleUnauthorized(
+	reason: DisconnectionReason = DisconnectionReason.UNAUTHORIZED_401,
+	details?: Record<string, any>
+) {
+	// Prevent multiple simultaneous 401 handlers
+	if (isHandling401) {
+		console.warn('[Auth] Already handling 401, ignoring duplicate call');
+		return;
 	}
 
-	// Prevent multiple simultaneous redirects
-	if (isRedirecting) {
-		console.warn('[Auth] Redirect already in progress, resetting timeout for latest call');
-		// Don't return - allow updating the timeout for better timing control
-	} else {
-		isRedirecting = true;
+	isHandling401 = true;
+
+	try {
+		// Attempt token refresh immediately if callback is registered
+		if (reason === DisconnectionReason.UNAUTHORIZED_401 && refreshTokenCallback) {
+			console.log('[Auth] Attempting automatic token refresh on 401...');
+			try {
+				await refreshTokenCallback();
+				console.log('[Auth] Token refresh succeeded, user stays logged in');
+				// Success! User stays logged in, no redirect
+				return;
+			} catch (error) {
+				console.log('[Auth] ❌ Token refresh failed, proceeding with logout:', error);
+				// Refresh failed, continue to logout below
+			}
+		} else if (reason === DisconnectionReason.UNAUTHORIZED_401) {
+			console.warn('[Auth] No refresh callback registered, proceeding with logout');
+		}
+
+		// If we reach here, we need to disconnect the user
+		await performLogout(reason, details);
+	} finally {
+		isHandling401 = false;
 	}
-
-	// Debounce redirects (600ms timeout)
-	// This prevents race conditions when multiple 401 errors occur simultaneously
-	// The 600ms window allows refreshUserData() to attempt token refresh before logout
-	// This enables "optimistic recovery" for user-initiated actions (startTimer, emailReset, etc.)
-
-	redirectTimeout = setTimeout(() => {
-		console.log('[Auth] Handling 401 Unauthorized - Logging out user');
-
-		// 1. Clear all authentication cookies
-		removeAuthCookies();
-
-		// 2. Clear React Query cache (if available)
-		if (globalQueryClient) {
-			try {
-				globalQueryClient.clear();
-			} catch (error) {
-				console.warn('[Auth] Failed to clear queryClient:', error);
-			}
-		}
-
-		// 3. Clear localStorage (if used for auth state)
-		if (typeof window !== 'undefined') {
-			try {
-				localStorage.removeItem('auth-state');
-				localStorage.removeItem('user-data');
-			} catch (error) {
-				console.warn('[Auth] Failed to clear localStorage:', error);
-			}
-		}
-
-		// 4. Redirect to login page
-		window.location.assign(DEFAULT_APP_PATH);
-
-		// Reset flag after redirect (for safety, though page will reload)
-		isRedirecting = false;
-	}, 600); // Increased from 120ms to 600ms to allow token refresh to complete (network RTT + processing)
 }
 
 /**
- * Cancel the pending logout if token refresh succeeds
- * This allows refreshUserData() to attempt token refresh before logout
- *
- * IMPORTANT: Only call this if you've successfully refreshed the token
- * and want to prevent the user from being logged out
+ * Perform the actual logout (clear cookies, cache, redirect)
  */
-export function cancelPendingLogout() {
-	if (redirectTimeout) {
-		console.log('[Auth] Token refresh succeeded, canceling pending logout');
-		clearTimeout(redirectTimeout);
-		redirectTimeout = null;
+async function performLogout(reason: DisconnectionReason, details?: Record<string, any>) {
+	// Log the disconnection
+	logDisconnection(reason, details);
+
+	// 1. Clear all authentication cookies
+	removeAuthCookies();
+
+	// 2. Clear React Query cache (if available)
+	if (globalQueryClient) {
+		try {
+			globalQueryClient.clear();
+		} catch (error) {
+			console.warn('[Auth] Failed to clear queryClient:', error);
+		}
 	}
-	isRedirecting = false;
+
+	// 3. Clear localStorage (if used for auth state)
+	if (typeof window !== 'undefined') {
+		try {
+			localStorage.removeItem('auth-state');
+			localStorage.removeItem('user-data');
+		} catch (error) {
+			console.warn('[Auth] Failed to clear localStorage:', error);
+		}
+	}
+
+	// 4. Redirect to login page
+	window.location.assign(DEFAULT_APP_PATH);
 }
 
 /**
- * Reset the redirect flag (for testing purposes)
+ * Reset the handler flag (for testing purposes)
  * This should only be used in tests
  */
 export function resetUnauthorizedHandler() {
-	isRedirecting = false;
-	if (redirectTimeout) {
-		clearTimeout(redirectTimeout);
-		redirectTimeout = null;
-	}
+	isHandling401 = false;
 }

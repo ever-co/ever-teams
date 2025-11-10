@@ -18,6 +18,7 @@ import {
 	getTenantIdCookie
 } from '@/core/lib/helpers/cookies';
 import { handleUnauthorized } from '@/core/lib/auth/handle-unauthorized';
+import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { APIConfig } from './axios';
 import { HttpLoggerAdapter } from '../logs/logger-adapter.service';
@@ -233,6 +234,13 @@ export class APIService {
 	 * which has a 600ms debounce window allowing refreshUserData() to attempt refresh
 	 * before logout (optimistic recovery pattern).
 	 *
+	 * The 600ms window is critical:
+	 * 1. When 401 occurs, handleUnauthorized() is called
+	 * 2. It sets a 600ms timeout before logout
+	 * 3. During this window, refreshUserData() can attempt token refresh
+	 * 4. If refresh succeeds, cancelPendingLogout() prevents the logout
+	 * 5. If refresh fails, logout proceeds normally
+	 *
 	 * @param {any} error - The error object from Axios response.
 	 * @private
 	 */
@@ -247,7 +255,14 @@ export class APIService {
 		}
 
 		// Use centralized handler which has 600ms debounce for token refresh attempts
-		handleUnauthorized();
+		// Don't disconnect immediately - this gives refreshUserData() a chance to recover
+		handleUnauthorized(DisconnectionReason.UNAUTHORIZED_401, {
+			status: 401,
+			endpoint: error.config?.url,
+			method: error.config?.method,
+			path: location.pathname,
+			context: 'api.service.ts -> handleUnauthorized'
+		});
 	}
 
 	/**

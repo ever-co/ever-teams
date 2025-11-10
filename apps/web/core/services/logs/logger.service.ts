@@ -186,11 +186,20 @@ export class Logger {
 
 	/**
 	 * Log a message to a file
+	 * @param logEntry - The log entry to write
+	 * @param customFilename - Optional custom filename (without date/extension). If provided, uses this instead of auto-generated name
 	 */
-	public logToFile(logEntry: LogEntry): void {
+	public logToFile(logEntry: LogEntry, customFilename?: string): void {
 		try {
 			const { timestamp, level } = logEntry;
 			const date = new Date(timestamp);
+
+			// If custom filename is provided, use it directly
+			if (customFilename) {
+				const filename = customFilename.endsWith('.log') ? customFilename : `${customFilename}.log`;
+				this.appendToLogFile(filename, logEntry);
+				return;
+			}
 
 			// Create the filename based on the date
 			let filename: string;

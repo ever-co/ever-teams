@@ -78,17 +78,10 @@ export async function proxy(request: NextRequest) {
 
 		const missingChunks = chunks.filter((chunk) => chunk === null).length;
 		if (missingChunks > 0) {
-			console.error(`[Proxy] ${missingChunks} chunks missing out of ${totalChunks} (retry: ${retryCount})`);
 			return null;
 		}
 
-		const reconstructed = chunks.join('');
-		console.log('[Proxy] Reconstructed token from chunks:', {
-			totalChunks,
-			tokenLength: reconstructed?.length || 0,
-			retryCount
-		});
-		return reconstructed;
+		return chunks.join('');
 	};
 
 	if (!totalChunksCookie) {
@@ -112,7 +105,9 @@ export async function proxy(request: NextRequest) {
 
 	const url = new URL(request.url);
 
-	const deny_redirect = (defaultRoute: boolean) => {
+	const deny_redirect = (
+		defaultRoute: boolean,
+	) => {
 		const redirectToPassCode = defaultRoute || url.pathname == DEFAULT_MAIN_PATH;
 		response = NextResponse.redirect(url.origin + (redirectToPassCode ? DEFAULT_APP_PATH : '/unauthorized'));
 		cookiesKeys().forEach((key) => {
@@ -166,20 +161,12 @@ export async function proxy(request: NextRequest) {
 				return { success: true, userData: verifyRes.data };
 			}
 
-			console.error('[Proxy] Token verification failed after refresh', verifyRes?.response?.status);
 			const isExpired = isTokenExpiredError(verifyRes);
 			return { success: false, error: `Token verification failed: ${verifyRes?.response?.status}`, isExpired };
 		} catch (error: any) {
 			const errorMsg = error?.message || 'Unknown error';
 			const statusCode = error?.response?.status || error?.status;
 			const isExpired = isTokenExpiredError(error);
-
-			console.error('[Proxy] Token refresh failed:', {
-				error: errorMsg,
-				status: statusCode,
-				isUnauthorized: statusCode === 401,
-				isExpired
-			});
 
 			return {
 				success: false,
@@ -302,7 +289,6 @@ export async function proxy(request: NextRequest) {
 			response.headers.set('x-user', JSON.stringify(authResult.data));
 		} else {
 			// Access token invalid/expired - try to refresh with aggressive retry
-			console.log('[Proxy] Access token invalid, attempting refresh with retry...');
 			const refreshResult = await tryRefreshAndVerifyWithRetry();
 
 			if (refreshResult.success && refreshResult.userData) {
@@ -315,9 +301,6 @@ export async function proxy(request: NextRequest) {
 			if (refreshResult.isExpired) {
 				console.log('[Proxy] Refresh token expired, redirecting to login');
 				deny_redirect(true);
-			} else {
-				// Temporary error - allow request to proceed (client will retry)
-				console.log('[Proxy] Refresh failed due to temporary error, allowing request to proceed');
 			}
 		}
 	} else if (protected_path && !access_token && refresh_token) {
@@ -335,9 +318,6 @@ export async function proxy(request: NextRequest) {
 		if (refreshResult.isExpired) {
 			console.log('[Proxy] Refresh token expired, redirecting to login');
 			deny_redirect(true);
-		} else {
-			// Temporary error - allow request to proceed (client will retry)
-			console.log('[Proxy] Refresh failed due to temporary error, allowing request to proceed');
 		}
 	}
 	// Note: We intentionally allow authenticated users to access public paths

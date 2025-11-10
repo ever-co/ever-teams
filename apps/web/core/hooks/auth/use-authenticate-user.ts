@@ -1,7 +1,13 @@
 'use client';
 import { DEFAULT_APP_PATH, LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { removeAuthCookies } from '@/core/lib/helpers/cookies';
-import { handleUnauthorized, cancelPendingLogout } from '@/core/lib/auth/handle-unauthorized';
+import {
+	handleUnauthorized,
+	registerRefreshTokenCallback,
+	unregisterRefreshTokenCallback
+} from '@/core/lib/auth/handle-unauthorized';
+import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
+import { logDisconnection } from '@/core/lib/auth/disconnect-logger';
 import { activeTeamManagersState, activeTeamState, userState } from '@/core/stores';
 import { useCallback, useMemo, useRef, useEffect } from 'react';
 import { useSetAtom, useAtomValue } from 'jotai';
@@ -47,13 +53,24 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 
 			if (isUnauthorized) {
 				toast.error('Session expired. Please log in again.');
-				handleUnauthorized();
+				handleUnauthorized(DisconnectionReason.REFRESH_TOKEN_EXPIRED, {
+					status: 401,
+					endpoint: error.config?.url,
+					method: error.config?.method,
+					context: 'useAuthenticateUser -> refreshTokenMutation 1'
+				});
 				return;
 			}
 
 			if (consecutiveFailures.current >= maxConsecutiveFailures) {
 				toast.error('Unable to refresh session. Please log in again.');
-				handleUnauthorized();
+				handleUnauthorized(DisconnectionReason.TEMPORARY_ERROR, {
+					consecutiveFailures: consecutiveFailures.current,
+					maxConsecutiveFailures,
+					error: error?.message,
+					stack: error?.stack,
+					context: 'useAuthenticateUser -> refreshTokenMutation 2'
+				});
 			} else {
 				toast.warning(
 					`Connection issue. Retrying... (${consecutiveFailures.current}/${maxConsecutiveFailures})`
@@ -101,7 +118,6 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 			if (error?.response?.status === 401 || error?.status === 401) {
 				try {
 					await refreshTokenMutation.mutateAsync();
-					cancelPendingLogout();
 
 					const retryResult = await userDataQuery.refetch();
 					if (retryResult.data) {
@@ -117,17 +133,32 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		}
 	}, [userDataQuery, setUser, refreshTokenMutation]);
 
+	// Register the refresh callback so handleUnauthorized can attempt token refresh on 401
+	useEffect(() => {
+		registerRefreshTokenCallback(refreshUserData);
+
+		return () => {
+			unregisterRefreshTokenCallback();
+		};
+	}, [refreshUserData]);
+
 	$user.current = useMemo(() => {
 		return user || $user.current;
 	}, [user]);
 
 	const logOut = useCallback(() => {
+		// Log the intentional logout
+		logDisconnection(DisconnectionReason.USER_LOGOUT, {
+			userId: user?.id,
+			email: user?.email
+		});
+
 		window && window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, activeTeam?.id ?? '');
 		removeAuthCookies();
 		window.clearInterval(intervalRt.current);
 		queryClient.clear();
 		window.location.replace(DEFAULT_APP_PATH);
-	}, [activeTeam?.id, queryClient]);
+	}, [activeTeam?.id, queryClient, user?.id, user?.email]);
 
 	const timeToTimeRefreshToken = useCallback(
 		(interval = 10 * 60 * 1000) => {
