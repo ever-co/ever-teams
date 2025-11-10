@@ -26,20 +26,51 @@ class AuthService extends APIService {
 	refreshToken = async () => {
 		const refresh_token = getRefreshTokenCookie();
 
-		if (GAUZY_API_BASE_SERVER_URL.value) {
-			const { data } = await this.post<{ token: string }>('/auth/refresh-token', {
+		if (!refresh_token) {
+			throw new Error('No refresh token available');
+		}
+
+		console.log('[AuthService] Attempting token refresh...');
+
+		try {
+			if (GAUZY_API_BASE_SERVER_URL.value) {
+				console.log('[AuthService] Using direct Gauzy API for token refresh');
+				const { data } = await this.post<{ token: string }>('/auth/refresh-token', {
+					refresh_token
+				});
+
+				if (!data?.token) {
+					throw new Error('No token received from refresh endpoint');
+				}
+
+				setAccessTokenCookie(data.token);
+				console.log('[AuthService] Token refreshed successfully via direct API');
+
+				// Get fresh user data with the new token
+				return userService.getAuthenticatedUserData();
+			}
+
+			console.log('[AuthService] Using Next.js API route for token refresh');
+			const api = await getFallbackAPI();
+			const result = await api.post<IAuthResponse>(`/auth/refresh`, {
 				refresh_token
 			});
 
-			setAccessTokenCookie(data.token);
+			console.log('[AuthService] Token refreshed successfully via API route');
+			return result;
+		} catch (error: any) {
+			console.error('[AuthService] Token refresh failed:', {
+				status: error?.response?.status || error?.status,
+				message: error?.message,
+				hasRefreshToken: !!refresh_token
+			});
 
-			return userService.getAuthenticatedUserData();
+			// Re-throw with more context
+			const enhancedError = new Error(`Token refresh failed: ${error?.message || 'Unknown error'}`);
+			(enhancedError as any).status = error?.response?.status || error?.status;
+			(enhancedError as any).response = error?.response;
+			throw enhancedError;
 		}
-
-		const api = await getFallbackAPI();
-		return api.post<IAuthResponse>(`/auth/refresh`, {
-			refresh_token
-		});
 	};
 
 	// PRIMARY METHOD: Mobile uses this for both invite and auth codes
@@ -150,15 +181,7 @@ class AuthService extends APIService {
 		defaultTeamId?: IOrganizationTeam['id'];
 		lastTeamId?: IOrganizationTeam['id'];
 	}) => {
-		console.log('🔍 authService.signInWorkspace called with:', {
-			email: params.email,
-			hasToken: !!params.token,
-			selectedTeam: params.selectedTeam,
-			gauzyApiUrl: GAUZY_API_BASE_SERVER_URL.value
-		});
-
 		if (GAUZY_API_BASE_SERVER_URL.value) {
-			console.log('📡 Using Gauzy API endpoint: /auth/signin.workspace');
 			const workspaceParams = {
 				email: params.email,
 				token: params.token,

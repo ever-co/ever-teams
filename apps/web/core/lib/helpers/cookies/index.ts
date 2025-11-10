@@ -14,8 +14,11 @@ import {
 	ACTIVE_PROJECT_COOKIE_NAME
 } from '@/core/constants/config/constants';
 import { IDecodedRefreshToken } from '@/core/types/interfaces/auth/auth';
-import { deleteCookie, getCookie, setCookie } from './helpers';
+import { deleteCookie, getCookie, setCookie, deleteCookieCrossSite as _deleteCookieCrossSite } from './helpers';
 import { chunk, range } from '@/core/lib/helpers';
+
+// Re-export for use in other modules
+export const deleteCookieCrossSite = _deleteCookieCrossSite;
 
 export type CookiesDataType = {
 	refresh_token: {
@@ -52,7 +55,7 @@ export const setLargeStringInCookies = (
 		setCookie(`${COOKIE_NAME}${index}`, cookieValue, ctx, crossSite);
 	});
 
-	setCookie(`${COOKIE_NAME}_totalChunks`, chunks.length, ctx, crossSite);
+	setCookie(`${COOKIE_NAME}_totalChunks`, String(chunks.length), ctx, crossSite);
 };
 
 export const getLargeStringFromCookies = (COOKIE_NAME: string, ctx?: NextCtx) => {
@@ -94,9 +97,9 @@ export function setAuthCookies(datas: CookiesDataType, ctx?: NextCtx) {
 	// Handle Large Access Token
 	// Cookie can support upto 4096 characters only!
 	if (access_token.length <= 4096) {
-		setCookie(TOKEN_COOKIE_NAME, access_token, ctx); // cross site cookie
+		setCookie(TOKEN_COOKIE_NAME, access_token, ctx, true); // cross site cookie
 	} else {
-		setLargeStringInCookies(TOKEN_COOKIE_NAME, access_token, ctx); // cross site cookie
+		setLargeStringInCookies(TOKEN_COOKIE_NAME, access_token, ctx, true); // cross site cookie
 	}
 
 	setCookie(REFRESH_TOKEN_COOKIE_NAME, refresh_token.token, ctx); // cross site cookie
@@ -123,17 +126,32 @@ export function cookiesKeys() {
 	];
 }
 
-export function removeAuthCookies() {
-	cookiesKeys().forEach((key) => deleteCookie(key));
-
+/**
+ * Delete access token cookie with cross-site attributes
+ * Access tokens are set with SameSite=None; Secure, so they must be deleted with the same attributes
+ */
+function deleteAccessTokenCookie() {
 	const totalChunksCookie = getTotalChunksCookie(TOKEN_COOKIE_NAME);
+
+	// Delete chunked access tokens if they exist
 	if (totalChunksCookie) {
 		const totalChunks = parseInt(totalChunksCookie);
 		range(totalChunks).forEach((index) => {
-			deleteCookie(`${TOKEN_COOKIE_NAME}${index}`);
+			deleteCookieCrossSite(`${TOKEN_COOKIE_NAME}${index}`);
 		});
+		deleteCookieCrossSite(`${TOKEN_COOKIE_NAME}_totalChunks`);
+	} else {
+		// Delete single access token
+		deleteCookieCrossSite(TOKEN_COOKIE_NAME);
 	}
-	deleteCookie(`${TOKEN_COOKIE_NAME}_totalChunks`);
+}
+
+export function removeAuthCookies() {
+	// Delete other auth cookies (without cross-site attributes)
+	cookiesKeys().forEach((key) => deleteCookie(key));
+
+	// Delete access token with cross-site attributes
+	deleteAccessTokenCookie();
 }
 
 // Access Token
@@ -158,7 +176,13 @@ export function getRefreshTokenCookie(ctx?: NextCtx) {
 }
 
 export function setAccessTokenCookie(accessToken: string, ctx?: NextCtx) {
-	return setCookie(TOKEN_COOKIE_NAME, accessToken, ctx, true); // cross site cookie
+	// Handle Large Access Token
+	// Cookie can support upto 4096 characters only!
+	if (accessToken.length <= 4096) {
+		return setCookie(TOKEN_COOKIE_NAME, accessToken, ctx, true); // cross site cookie
+	} else {
+		return setLargeStringInCookies(TOKEN_COOKIE_NAME, accessToken, ctx, true); // cross site cookie
+	}
 }
 
 // Active team id
