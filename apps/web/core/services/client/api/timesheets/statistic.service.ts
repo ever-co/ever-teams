@@ -54,7 +54,7 @@ class StatisticsService extends APIService {
 
 	getStatisticsForTasks = async (queries: Record<string, string | string[] | number>) => {
 		try {
-			const query = qs.stringify(queries, { arrayFormat: 'indices' });
+			const query = qs.stringify(queries);
 
 			const response = await this.post<TTaskStatistics>(`/timesheet/statistics/tasks?${query}`, {
 				tenantId: this.tenantId
@@ -80,10 +80,17 @@ class StatisticsService extends APIService {
 			}
 
 			if (GAUZY_API_BASE_SERVER_URL.value) {
+				const employeesParams = employeeId
+					? [employeeId].reduce((acc: any, v, i) => {
+							acc[`employeeIds[${i}]`] = v;
+							return acc;
+						})
+					: {};
 				const commonParams = {
 					tenantId: this.tenantId,
 					organizationId: this.organizationId,
-					...(employeeId ? { employeeIds: [employeeId] } : {})
+					// ...(activeTaskId ? { 'taskIds[0]': activeTaskId } : {}),
+					...employeesParams
 				};
 				const globalParams = {
 					...commonParams,
@@ -128,11 +135,18 @@ class StatisticsService extends APIService {
 			}
 
 			if (GAUZY_API_BASE_SERVER_URL.value) {
+				const employeesParams = employeeId
+					? [employeeId].reduce((acc: any, v, i) => {
+							acc[`employeeIds[${i}]`] = v;
+							return acc;
+						}, {})
+					: {};
+
 				const commonParams = {
 					tenantId: this.tenantId,
 					organizationId: this.organizationId,
-					taskIds: [activeTaskId],
-					...(employeeId ? { employeeIds: [employeeId] } : {})
+					'taskIds[0]': activeTaskId,
+					...employeesParams
 				};
 
 				const globalParams = {
