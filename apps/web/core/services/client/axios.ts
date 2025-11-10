@@ -1,8 +1,4 @@
-import {
-	APPLICATION_LANGUAGES_CODE,
-	DEFAULT_APP_PATH,
-	GAUZY_API_BASE_SERVER_URL
-} from '@/core/constants/config/constants';
+import { APPLICATION_LANGUAGES_CODE, GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { handleUnauthorized } from '@/core/lib/auth/handle-unauthorized';
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';

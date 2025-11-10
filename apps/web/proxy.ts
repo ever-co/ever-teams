@@ -36,12 +36,10 @@ export async function proxy(request: NextRequest) {
 	const nextIntlMiddleware = createMiddleware({
 		defaultLocale: APPLICATION_DEFAULT_LANGUAGE,
 		locales: APPLICATION_LANGUAGES_CODE,
-		// pathnames,
 		localePrefix: 'as-needed'
 	});
 
 	// Setting cookies on the response
-	// let response = NextResponse.next();
 	let response = nextIntlMiddleware(request);
 
 	const paths = new URL(request.url).pathname.split('/').filter(Boolean);
@@ -54,12 +52,6 @@ export async function proxy(request: NextRequest) {
 	}
 
 	let access_token = null;
-
-	// Debug: Log all cookies for debugging
-	const allCookieNames: string[] = [];
-	for (const [name] of request.cookies) {
-		allCookieNames.push(name);
-	}
 
 	const totalChunksCookie = request.cookies.get(`${TOKEN_COOKIE_NAME}_totalChunks`)?.value.trim();
 
@@ -105,9 +97,7 @@ export async function proxy(request: NextRequest) {
 
 	const url = new URL(request.url);
 
-	const deny_redirect = (
-		defaultRoute: boolean,
-	) => {
+	const deny_redirect = (defaultRoute: boolean) => {
 		const redirectToPassCode = defaultRoute || url.pathname == DEFAULT_MAIN_PATH;
 		response = NextResponse.redirect(url.origin + (redirectToPassCode ? DEFAULT_APP_PATH : '/unauthorized'));
 		cookiesKeys().forEach((key) => {
@@ -123,7 +113,7 @@ export async function proxy(request: NextRequest) {
 	// Helper function to check if error is a token expiration error
 	const isTokenExpiredError = (error: any): boolean => {
 		const status = error?.response?.status;
-		// 401 = Token invalide ou expiré
+		// 401 = Token invalid or expired
 		return status === 401;
 	};
 
