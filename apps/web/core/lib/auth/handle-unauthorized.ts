@@ -5,23 +5,30 @@ import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { logDisconnection } from '@/core/lib/auth/disconnect-logger';
 
 let isHandling401 = false;
+let isRedirecting = false;
 
-// Callback to attempt token refresh when 401 occurs
-let refreshTokenCallback: (() => Promise<any>) | null = null;
+// Stack of callbacks to attempt token refresh when 401 occurs
+// Using a Set to maintain multiple callbacks from different hook instances
+// This prevents the race condition where unmounting one component clears the callback for others
+let refreshTokenCallbacks: Set<() => Promise<any>> = new Set();
 
 /**
  * Register a callback to attempt token refresh when 401 occurs
  * This is called by useAuthenticateUser hook to enable automatic recovery
+ *
+ * Multiple components can register callbacks simultaneously.
+ * When a 401 occurs, we try each callback until one succeeds.
+ *
+ * @param callback - The refresh callback function
+ * @returns A function to unregister this specific callback
  */
 export function registerRefreshTokenCallback(callback: () => Promise<any>) {
-	refreshTokenCallback = callback;
-}
+	refreshTokenCallbacks.add(callback);
 
-/**
- * Unregister the refresh token callback
- */
-export function unregisterRefreshTokenCallback() {
-	refreshTokenCallback = null;
+	// Return an unregister function that removes THIS specific callback
+	return () => {
+		refreshTokenCallbacks.delete(callback);
+	};
 }
 
 /**
@@ -42,7 +49,7 @@ export async function handleUnauthorized(
 	details?: Record<string, any>
 ) {
 	// Prevent multiple simultaneous 401 handlers
-	if (isHandling401) {
+	if (isHandling401 || isRedirecting) {
 		console.warn('[Auth] Already handling 401, ignoring duplicate call');
 		return;
 	}
@@ -50,18 +57,27 @@ export async function handleUnauthorized(
 	isHandling401 = true;
 
 	try {
-		// Attempt token refresh immediately if callback is registered
-		if (reason === DisconnectionReason.UNAUTHORIZED_401 && refreshTokenCallback) {
-			console.log('[Auth] Attempting automatic token refresh on 401...');
-			try {
-				await refreshTokenCallback();
-				console.log('[Auth] Token refresh succeeded, user stays logged in');
-				// Success! User stays logged in, no redirect
-				return;
-			} catch (error) {
-				console.log('[Auth] ❌ Token refresh failed, proceeding with logout:', error);
-				// Refresh failed, continue to logout below
+		// Attempt token refresh immediately if callbacks are registered
+		if (reason === DisconnectionReason.UNAUTHORIZED_401 && refreshTokenCallbacks.size > 0) {
+			console.log(
+				`[Auth] Attempting automatic token refresh on 401 (${refreshTokenCallbacks.size} callback(s) registered)...`
+			);
+
+			// Try each registered callback until one succeeds
+			for (const callback of refreshTokenCallbacks) {
+				try {
+					await callback();
+					console.log('[Auth] ✅ Token refresh succeeded, user stays logged in');
+					// Success! User stays logged in, no redirect
+					return;
+				} catch (error) {
+					console.log('[Auth] ⚠️ Token refresh attempt failed, trying next callback:', error);
+					// Continue to next callback
+				}
 			}
+
+			// All callbacks failed
+			console.log('[Auth] ❌ All token refresh attempts failed, proceeding with logout');
 		} else if (reason === DisconnectionReason.UNAUTHORIZED_401) {
 			console.warn('[Auth] No refresh callback registered, proceeding with logout');
 		}
@@ -77,6 +93,8 @@ export async function handleUnauthorized(
  * Perform the actual logout (clear cookies, cache, redirect)
  */
 async function performLogout(reason: DisconnectionReason, details?: Record<string, any>) {
+	if (isRedirecting) return; // Prevent multiple simultaneous redirects
+	if (isRedirecting) return;
 	// Log the disconnection
 	logDisconnection(reason, details);
 
@@ -100,10 +118,9 @@ async function performLogout(reason: DisconnectionReason, details?: Record<strin
 		} catch (error) {
 			console.warn('[Auth] Failed to clear localStorage:', error);
 		}
+		// 4. Redirect to login page
+		window.location.assign(DEFAULT_APP_PATH);
 	}
-
-	// 4. Redirect to login page
-	window.location.assign(DEFAULT_APP_PATH);
 }
 
 /**

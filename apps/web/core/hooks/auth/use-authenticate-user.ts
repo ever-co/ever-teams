@@ -1,11 +1,7 @@
 'use client';
 import { DEFAULT_APP_PATH, LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { removeAuthCookies } from '@/core/lib/helpers/cookies';
-import {
-	handleUnauthorized,
-	registerRefreshTokenCallback,
-	unregisterRefreshTokenCallback
-} from '@/core/lib/auth/handle-unauthorized';
+import { handleUnauthorized, registerRefreshTokenCallback } from '@/core/lib/auth/handle-unauthorized';
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { logDisconnection } from '@/core/lib/auth/disconnect-logger';
 import { activeTeamManagersState, activeTeamState, userState } from '@/core/stores';
@@ -107,25 +103,22 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 			return;
 		}
 
-		try {
-			const result = await userDataQuery.refetch();
-			if (result.data) {
-				setUser(result.data);
-				return result.data;
-			}
-		} catch (error: any) {
-			// If 401, try to refresh token once before failing
+		const result = await userDataQuery.refetch();
+		if (result.data) {
+			setUser(result.data);
+			return result.data;
+		}
+		if (result.isError && result.error) {
+			const error = result.error as any;
 			if (error?.response?.status === 401 || error?.status === 401) {
 				try {
 					await refreshTokenMutation.mutateAsync();
-
 					const retryResult = await userDataQuery.refetch();
 					if (retryResult.data) {
 						setUser(retryResult.data);
 						return retryResult.data;
 					}
 				} catch (refreshError) {
-					// Let the error propagate - handleUnauthorized will proceed with logout
 					throw refreshError;
 				}
 			}
@@ -134,11 +127,14 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 	}, [userDataQuery, setUser, refreshTokenMutation]);
 
 	// Register the refresh callback so handleUnauthorized can attempt token refresh on 401
+	// The registerRefreshTokenCallback returns an unregister function that removes THIS specific callback
+	// This prevents the race condition where unmounting one component clears callbacks for others
 	useEffect(() => {
-		registerRefreshTokenCallback(refreshUserData);
+		const unregister = registerRefreshTokenCallback(refreshUserData);
 
 		return () => {
-			unregisterRefreshTokenCallback();
+			// Call the returned unregister function to remove THIS specific callback
+			unregister();
 		};
 	}, [refreshUserData]);
 

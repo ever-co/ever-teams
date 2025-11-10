@@ -97,13 +97,16 @@ export async function proxy(request: NextRequest) {
 
 	const url = new URL(request.url);
 
-	const deny_redirect = (defaultRoute: boolean) => {
+	const deny_redirect = (defaultRoute: boolean): NextResponse => {
 		const redirectToPassCode = defaultRoute || url.pathname == DEFAULT_MAIN_PATH;
-		response = NextResponse.redirect(url.origin + (redirectToPassCode ? DEFAULT_APP_PATH : '/unauthorized'));
+		const redirectResponse = NextResponse.redirect(
+			url.origin + (redirectToPassCode ? DEFAULT_APP_PATH : '/unauthorized')
+		);
 		cookiesKeys().forEach((key) => {
-			response.cookies.set(key, '');
+			redirectResponse.cookies.set(key, '');
 		});
-		response.cookies.delete(`${TOKEN_COOKIE_NAME}_totalChunks`);
+		redirectResponse.cookies.delete(`${TOKEN_COOKIE_NAME}_totalChunks`);
+		return redirectResponse;
 	};
 
 	const protected_path = PROTECTED_APP_URL_PATHS.some((v) => {
@@ -166,9 +169,10 @@ export async function proxy(request: NextRequest) {
 		}
 	};
 
-	// Helper function to retry refresh with exponential backoff (up to 6 seconds)
+	// Helper function to retry refresh with exponential backoff (up to 3 seconds)
+	// 3s allows ~3-4 retry attempts while keeping acceptable UX (2s+ is noticeable but tolerable)
 	const tryRefreshAndVerifyWithRetry = async (
-		maxDurationMs = 6000
+		maxDurationMs = 3000
 	): Promise<{ success: boolean; userData?: any; error?: string; isExpired?: boolean }> => {
 		const startTime = Date.now();
 		let lastResult: any = null;
@@ -213,6 +217,7 @@ export async function proxy(request: NextRequest) {
 		return lastResult || { success: false, error: 'Max retry duration exceeded', isExpired: true };
 	};
 
+	// SECTION 1: Handle authenticated users accessing auth pages
 	// Check if user is trying to access auth pages while already authenticated
 	const is_auth_path = /^\/auth\//.test(url.pathname);
 	const has_any_token = access_token || refresh_token;
@@ -225,17 +230,21 @@ export async function proxy(request: NextRequest) {
 			// Try to verify access token
 			const authResult = await currentAuthenticatedUserRequest({
 				bearer_token: access_token
-			}).catch(() => null);
+			}).catch((error) => {
+				console.error('[Proxy] Token verification failed on auth page:', error?.message || error);
+				return null;
+			});
 
 			if (authResult?.response.ok) {
 				// User is authenticated, redirect to main app
 				console.log('[Proxy] User is authenticated, redirecting from auth page to main app');
 				return NextResponse.redirect(new URL(DEFAULT_MAIN_PATH, request.url));
 			}
+			// If access token verification fails, continue to refresh attempt below
 		}
 
 		if (refresh_token) {
-			// Try to refresh token with aggressive retry (up to 6 seconds)
+			// Try to refresh token with retry (up to 3 seconds)
 			console.log('[Proxy] Access token invalid, attempting refresh with retry...');
 			const refreshResult = await tryRefreshAndVerifyWithRetry();
 			if (refreshResult.success) {
@@ -256,29 +265,44 @@ export async function proxy(request: NextRequest) {
 		}
 
 		// If we reach here, tokens are invalid - clear them and allow access to auth page
+		// This handles the edge case where we have tokens but both verification and refresh failed
 		console.log('[Proxy] Invalid tokens detected on auth page, clearing cookies');
 		for (const key of cookiesKeys()) {
 			response.cookies.set(key, '');
 		}
 		response.cookies.delete(`${TOKEN_COOKIE_NAME}_totalChunks`);
+		// Note: We intentionally don't return here - we fall through to return response at the end
 	}
 
-	// Handle protected paths - user must be authenticated
+	// SECTION 2: Handle protected paths - user must be authenticated
+	// Protected paths require valid authentication. We handle three cases:
+	// 1. No tokens at all → redirect to login
+	// 2. Access token exists → verify it, refresh if needed
+	// 3. Only refresh token exists → attempt refresh
+	//
+	// Note: These cases are mutually exclusive (if/else if/else if structure)
+	// so a single request will only execute ONE of these branches.
+
 	if (protected_path && !access_token && !refresh_token) {
-		// No tokens at all - redirect to login
+		// CASE 1: No tokens at all - redirect to login
 		console.log('[Proxy] No auth tokens found on protected path, redirecting to login');
-		deny_redirect(false);
+		return deny_redirect(false);
 	} else if (protected_path && access_token) {
-		// Case 2: Access token exists - try to authenticate with it
+		// CASE 2: Access token exists - try to authenticate with it
 		const authResult = await currentAuthenticatedUserRequest({
 			bearer_token: access_token
-		}).catch(() => null);
+		}).catch((error) => {
+			console.error('[Proxy] Token verification failed on protected path:', error?.message || error);
+			return null;
+		});
 
 		if (authResult?.response.ok) {
-			// Access token is valid
+			// Access token is valid - set user header and continue
+			// We don't return here because we want to allow the request to proceed
+			// with the authenticated user context in the x-user header
 			response.headers.set('x-user', JSON.stringify(authResult.data));
 		} else {
-			// Access token invalid/expired - try to refresh with aggressive retry
+			// Access token invalid/expired - try to refresh with retry (up to 3 seconds)
 			const refreshResult = await tryRefreshAndVerifyWithRetry();
 
 			if (refreshResult.success && refreshResult.userData) {
@@ -290,11 +314,15 @@ export async function proxy(request: NextRequest) {
 			// Refresh failed - check if token is expired
 			if (refreshResult.isExpired) {
 				console.log('[Proxy] Refresh token expired, redirecting to login');
-				deny_redirect(true);
+				return deny_redirect(true);
 			}
+			// If refresh failed due to temporary error, we don't return here.
+			// The request will proceed without x-user header, and the application
+			// will handle the missing authentication context appropriately.
 		}
+		// After this block, we fall through to return response at the end
 	} else if (protected_path && !access_token && refresh_token) {
-		// Case 3: Only refresh token exists - attempt direct refresh with aggressive retry
+		// CASE 3: Only refresh token exists - attempt direct refresh with retry (up to 3 seconds)
 		console.log('[Proxy] No access token but refresh token exists, attempting refresh with retry...');
 		const refreshResult = await tryRefreshAndVerifyWithRetry();
 
@@ -307,9 +335,20 @@ export async function proxy(request: NextRequest) {
 		// Refresh failed - check if token is expired
 		if (refreshResult.isExpired) {
 			console.log('[Proxy] Refresh token expired, redirecting to login');
-			deny_redirect(true);
+			return deny_redirect(true);
 		}
+		// If refresh failed due to temporary error, we don't return here.
+		// The request will proceed without x-user header, and the application
+		// will handle the missing authentication context appropriately.
 	}
+
+	// SECTION 3: Return response
+
+	// At this point, we've handled all authentication scenarios:
+	// - Authenticated users on auth pages: either redirected or cleared cookies
+	// - Protected paths: either authenticated, redirected, or proceeding without auth
+	// - Public paths: allowed through as-is
+	//
 	// Note: We intentionally allow authenticated users to access public paths
 	// (e.g., /auth/passcode, /auth/workspace, /auth/accept-invite)
 	// This enables users to switch accounts, workspaces, or accept invitations

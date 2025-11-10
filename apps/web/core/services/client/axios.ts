@@ -32,8 +32,7 @@ export const getAPI = async (): Promise<APIService> => {
 			(response: AxiosResponse) => response,
 			async (error: { response: AxiosResponse; config?: any }) => {
 				if (error.response?.status === 401) {
-					// Don't disconnect immediately - let handleUnauthorized() trigger the 600ms debounce
-					// which gives refreshUserData() a chance to attempt token refresh
+					// Let handleUnauthorized() attempt token refresh before logging out
 					handleUnauthorized(DisconnectionReason.UNAUTHORIZED_401, {
 						status: 401,
 						endpoint: error.config?.url,

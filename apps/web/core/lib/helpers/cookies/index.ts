@@ -14,8 +14,11 @@ import {
 	ACTIVE_PROJECT_COOKIE_NAME
 } from '@/core/constants/config/constants';
 import { IDecodedRefreshToken } from '@/core/types/interfaces/auth/auth';
-import { deleteCookie, getCookie, setCookie } from './helpers';
+import { deleteCookie, getCookie, setCookie, deleteCookieCrossSite as _deleteCookieCrossSite } from './helpers';
 import { chunk, range } from '@/core/lib/helpers';
+
+// Re-export for use in other modules
+export const deleteCookieCrossSite = _deleteCookieCrossSite;
 
 export type CookiesDataType = {
 	refresh_token: {
@@ -123,17 +126,32 @@ export function cookiesKeys() {
 	];
 }
 
-export function removeAuthCookies() {
-	cookiesKeys().forEach((key) => deleteCookie(key));
-
+/**
+ * Delete access token cookie with cross-site attributes
+ * Access tokens are set with SameSite=None; Secure, so they must be deleted with the same attributes
+ */
+function deleteAccessTokenCookie() {
 	const totalChunksCookie = getTotalChunksCookie(TOKEN_COOKIE_NAME);
+
+	// Delete chunked access tokens if they exist
 	if (totalChunksCookie) {
 		const totalChunks = parseInt(totalChunksCookie);
 		range(totalChunks).forEach((index) => {
-			deleteCookie(`${TOKEN_COOKIE_NAME}${index}`);
+			deleteCookieCrossSite(`${TOKEN_COOKIE_NAME}${index}`);
 		});
+		deleteCookieCrossSite(`${TOKEN_COOKIE_NAME}_totalChunks`);
+	} else {
+		// Delete single access token
+		deleteCookieCrossSite(TOKEN_COOKIE_NAME);
 	}
-	deleteCookie(`${TOKEN_COOKIE_NAME}_totalChunks`);
+}
+
+export function removeAuthCookies() {
+	// Delete other auth cookies (without cross-site attributes)
+	cookiesKeys().forEach((key) => deleteCookie(key));
+
+	// Delete access token with cross-site attributes
+	deleteAccessTokenCookie();
 }
 
 // Access Token

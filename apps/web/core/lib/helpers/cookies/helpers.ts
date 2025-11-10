@@ -1,6 +1,8 @@
 import { COOKIE_DOMAINS } from '@/core/constants/config/constants';
 import { deleteCookie as _deleteCookie, getCookie as _getCookie, setCookie as _setCookie } from 'cookies-next';
 
+type DeleteCookieOptions = Parameters<typeof _deleteCookie>[1];
+
 export const deleteCookie: typeof _deleteCookie = (key, options) => {
 	_deleteCookie(key, options);
 
@@ -8,6 +10,27 @@ export const deleteCookie: typeof _deleteCookie = (key, options) => {
 		_deleteCookie(key, {
 			domain,
 			...options
+		});
+	});
+};
+
+/**
+ * Delete a cookie with cross-site attributes (SameSite=None; Secure)
+ * Required for cookies set with crossSite=true, as js-cookie requires exact attribute match to delete
+ */
+export const deleteCookieCrossSite = (key: string, options?: DeleteCookieOptions) => {
+	const crossSiteOptions = {
+		sameSite: 'none' as const,
+		secure: true,
+		...options
+	};
+
+	_deleteCookie(key, crossSiteOptions);
+
+	COOKIE_DOMAINS.value.forEach((domain) => {
+		_deleteCookie(key, {
+			domain,
+			...crossSiteOptions
 		});
 	});
 };
