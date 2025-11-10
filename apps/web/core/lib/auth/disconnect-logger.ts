@@ -78,14 +78,15 @@ export async function logDisconnection(reason: DisconnectionReason, details?: Re
 			stackTrace
 		}
 	};
-
-	// Pass custom filename via details so API can use it
-	sendLogToAPI({
-		...logEntryForAPI,
-		details: {
-			...logEntryForAPI.details,
-			context: 'disconnect-logger.ts -> logDisconnection',
-			customLogFile: 'disconnect_logs'
-		}
-	});
+	if (process.env.NODE_ENV !== 'production') {
+		// Pass custom filename via details so API can use it
+		sendLogToAPI({
+			...logEntryForAPI,
+			details: {
+				...logEntryForAPI.details,
+				context: 'disconnect-logger.ts -> logDisconnection',
+				customLogFile: 'disconnect_logs'
+			}
+		});
+	}
 }
