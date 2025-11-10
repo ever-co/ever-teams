@@ -94,7 +94,7 @@ export async function handleUnauthorized(
  */
 async function performLogout(reason: DisconnectionReason, details?: Record<string, any>) {
 	if (isRedirecting) return; // Prevent multiple simultaneous redirects
-	if (isRedirecting) return;
+	isRedirecting = true;
 	// Log the disconnection
 	logDisconnection(reason, details);
 

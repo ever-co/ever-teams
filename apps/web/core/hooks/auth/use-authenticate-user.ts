@@ -119,6 +119,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 						return retryResult.data;
 					}
 				} catch (refreshError) {
+					console.error('Failed to refresh token:', refreshError);
 					throw refreshError;
 				}
 			}
