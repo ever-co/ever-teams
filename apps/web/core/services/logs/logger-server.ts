@@ -1,32 +1,12 @@
 'use server';
 import { appendFile, mkdir } from 'fs/promises';
 import { join, resolve } from 'path';
-import { existsSync, realpathSync } from 'fs';
+import { existsSync } from 'fs';
 import { LogEntry } from '@/core/types/generics';
 import { Logger } from './logger.service';
 import { isServer } from '@/core/lib/helpers';
 
-// Define root for logs — you may want to set this more robustly or via config
-const ROOT_LOG_DIR = resolve(process.cwd(), 'logs');
-
 import { readdir, stat, rm } from 'fs/promises';
-/**
- * Ensure a path is inside the log root dir. Resolves and checks path; throws if outside root.
- */
-function getSafeLogDirPath(userSuppliedPath: string): string {
-    const resolvedPath = resolve(ROOT_LOG_DIR, userSuppliedPath);
-    const realResolved = realpathSync(ROOT_LOG_DIR); // Ensure in case of symlinks
-    // Because realpathSync will throw if ROOT_LOG_DIR doesn't exist, guard it:
-    // (ROOT_LOG_DIR should normally exist or be created just before calling this)
-    if (!existsSync(realResolved)) throw new Error(`Root log directory does not exist: ${realResolved}`);
-    const realUserPath = resolve(realResolved, userSuppliedPath);
-    if (!realUserPath.startsWith(realResolved)) {
-        throw new Error(`SecurityError: Attempted access outside log root: ${userSuppliedPath}`);
-    }
-    return realUserPath;
-}
-
-
 /**
  * Append a log entry to a file
  */
@@ -98,15 +78,13 @@ export async function createLogDir(logger: Logger): Promise<void> {
 	const config = logger.getConfig();
 
 	try {
-		const logDir = getSafeLogDirPath(config.logDir!);
-		if (!existsSync(logDir)) {
-			await mkdir(logDir, { recursive: true });
+		if (!existsSync(config.logDir!)) {
+			await mkdir(config.logDir!, { recursive: true });
 		} else {
 			// Clean up logs if they're too big - don't await to avoid blocking
-			cleanIfTooBig(logDir, Number(process.env.LOG_FOLDER_MAX_SIZE || 10)).catch((error) => {});
+			cleanIfTooBig(config.logDir!, Number(process.env.LOG_FOLDER_MAX_SIZE || 10)).catch((error) => {});
 		}
 	} catch (error) {
-	const safePath = getSafeLogDirPath(dirPath);
 		console.error(`[Logger] Failed to create log directory: ${config.logDir}`, error);
 	}
 }
@@ -118,13 +96,13 @@ async function getFolderSizeInBytes(dirPath: string): Promise<number> {
 	let totalSize = 0;
 
 	try {
-		const entries = await readdir(safePath, { withFileTypes: true });
+		const entries = await readdir(dirPath, { withFileTypes: true });
 
 		for (const entry of entries) {
-			const fullPath = join(safePath, entry.name);
+			const fullPath = join(dirPath, entry.name);
 			try {
 				if (entry.isDirectory()) {
-					totalSize += await getFolderSizeInBytes(join(dirPath, entry.name)); // Use original param for recursion (it will be re-safed)
+					totalSize += await getFolderSizeInBytes(fullPath);
 				} else {
 					const fileStat = await stat(fullPath);
 					totalSize += fileStat.size;
@@ -152,12 +130,11 @@ async function getFolderSizeInBytes(dirPath: string): Promise<number> {
  * Delete all the content of the folder (not the folder itself)
  */
 async function clearFolder(dirPath: string): Promise<void> {
-	const safePath = getSafeLogDirPath(dirPath);
-	const entries = await readdir(safePath, { withFileTypes: true });
+	const entries = await readdir(dirPath, { withFileTypes: true });
 
 	await Promise.all(
 		entries.map(async (entry) => {
-			const fullPath = join(safePath, entry.name);
+			const fullPath = join(dirPath, entry.name);
 			await rm(fullPath, { recursive: true, force: true });
 		})
 	);
@@ -168,13 +145,12 @@ async function clearFolder(dirPath: string): Promise<void> {
  */
 async function cleanIfTooBig(dirPath: string, maxMB = 10): Promise<void> {
 	try {
-		const safePath = getSafeLogDirPath(dirPath);
-		const sizeInBytes = await getFolderSizeInBytes(safePath);
+		const sizeInBytes = await getFolderSizeInBytes(dirPath);
 		const sizeInMB = sizeInBytes / (1024 * 1024);
 
 		if (sizeInMB > maxMB) {
 			console.warn('⚠️⚠️⚠️ 📦 Logs folder too big. Cleaning up 🗑🧹...');
-			await clearFolder(safePath);
+			await clearFolder(dirPath);
 			console.log('✅ ✨ Logs folder cleared.');
 		}
 	} catch (error: any) {
