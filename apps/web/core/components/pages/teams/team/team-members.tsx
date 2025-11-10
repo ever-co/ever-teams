@@ -5,7 +5,7 @@ import InviteUserTeamCardSkeleton from '@/core/components/teams/invite-team-card
 import { UserCard } from '@/core/components/teams/team-page-skeleton';
 import { IssuesView } from '@/core/constants/config/constants';
 import { useAtomValue } from 'jotai';
-import { taskBlockFilterState } from '@/core/stores/tasks/task-filter';
+import { taskBlockFilterState, blockViewSearchQueryState } from '@/core/stores/tasks/task-filter';
 import { Container } from '@/core/components';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { useMemo, memo } from 'react';
@@ -18,6 +18,18 @@ import { useProcessedTeamMembers, useFilteredTeamMembers } from '@/core/hooks/te
 import { activeTeamState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { TeamMemberFilterType } from '@/core/lib/utils/team-members.utils';
+
+// Utility function to extract member's full name for search filtering
+function getMemberFullName(member: TOrganizationTeamEmployee): string {
+	return (
+		member.fullName ||
+		member.name ||
+		`${member.firstName || ''} ${member.lastName || ''}`.trim() ||
+		member.employee?.user?.name ||
+		`${member.employee?.user?.firstName || ''} ${member.employee?.user?.lastName || ''}`.trim() ||
+		''
+	);
+}
 
 // Types for better performance and security
 
@@ -50,6 +62,7 @@ export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanV
 	// Hooks
 	const { data: user } = useUserQuery();
 	const activeFilter = useAtomValue(taskBlockFilterState) as TeamMemberFilterType;
+	const searchQuery = useAtomValue(blockViewSearchQueryState);
 	const fullWidth = useAtomValue(fullWidthState);
 
 	const activeTeam = useAtomValue(activeTeamState);
@@ -58,6 +71,13 @@ export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanV
 	// Use refactored hooks for member processing
 	const processedMembers = useProcessedTeamMembers(activeTeam, user!);
 	const { filteredMembers: blockViewMembers } = useFilteredTeamMembers(processedMembers, activeFilter, user!);
+
+	// Apply search query filter to block view members
+	const filteredBlockViewMembers = useMemo(() => {
+		if (!searchQuery.trim()) return blockViewMembers;
+		const query = searchQuery.toLowerCase();
+		return blockViewMembers.filter((member) => getMemberFullName(member).toLowerCase().includes(query));
+	}, [blockViewMembers, searchQuery]);
 
 	// Simple calculation without useless memoization
 	const isTeamsFetching = teamsFetching && processedMembers.members.length === 0;
@@ -70,7 +90,7 @@ export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanV
 			fullWidth={fullWidth}
 			publicTeam={publicTeam}
 			view={view}
-			blockViewMembers={blockViewMembers}
+			blockViewMembers={filteredBlockViewMembers}
 			isMemberActive={user?.isEmailVerified}
 		/>
 	);
