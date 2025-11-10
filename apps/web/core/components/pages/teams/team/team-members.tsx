@@ -18,18 +18,7 @@ import { useProcessedTeamMembers, useFilteredTeamMembers } from '@/core/hooks/te
 import { activeTeamState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { TeamMemberFilterType } from '@/core/lib/utils/team-members.utils';
-
-// Utility function to extract member's full name for search filtering
-function getMemberFullName(member: TOrganizationTeamEmployee): string {
-	return (
-		member.fullName ||
-		member.name ||
-		`${member.firstName || ''} ${member.lastName || ''}`.trim() ||
-		member.employee?.user?.name ||
-		`${member.employee?.user?.firstName || ''} ${member.employee?.user?.lastName || ''}`.trim() ||
-		''
-	);
-}
+import { useFuseMemberSearch } from '@/core/hooks/teams/use-fuse-member-search';
 
 // Types for better performance and security
 
@@ -72,12 +61,10 @@ export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanV
 	const processedMembers = useProcessedTeamMembers(activeTeam, user!);
 	const { filteredMembers: blockViewMembers } = useFilteredTeamMembers(processedMembers, activeFilter, user!);
 
-	// Apply search query filter to block view members
-	const filteredBlockViewMembers = useMemo(() => {
-		if (!searchQuery.trim()) return blockViewMembers;
-		const query = searchQuery.toLowerCase();
-		return blockViewMembers.filter((member) => getMemberFullName(member).toLowerCase().includes(query));
-	}, [blockViewMembers, searchQuery]);
+	// Apply fuzzy search filter to block view members using Fuse.js
+	const filteredBlockViewMembers = useFuseMemberSearch(blockViewMembers, searchQuery, {
+		threshold: 0.4
+	});
 
 	// Simple calculation without useless memoization
 	const isTeamsFetching = teamsFetching && processedMembers.members.length === 0;
