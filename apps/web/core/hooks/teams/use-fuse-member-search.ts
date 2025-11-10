@@ -34,7 +34,7 @@ function getMemberSearchableText(member: TOrganizationTeamEmployee): string {
  *
  * @param members - Array of team members to search
  * @param searchQuery - Search query string
- * @param options - Fuse.js options (threshold, keys)
+ * @param options - Fuse.js options (threshold)
  * @returns Filtered members based on fuzzy search
  */
 export function useFuseMemberSearch(
