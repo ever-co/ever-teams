@@ -5,6 +5,7 @@ import { organizationTeamEmployeeService } from '@/core/services/client/api/orga
 import { queryKeys } from '@/core/query/keys';
 import { toast } from 'sonner';
 import { TOrganizationTeamEmployee, TOrganizationTeamEmployeeUpdate } from '@/core/types/schemas';
+import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
 
 export function useOrganizationEmployeeTeams() {
 	const { loadTeamsData } = useOrganizationTeams();
@@ -103,7 +104,10 @@ export function useOrganizationEmployeeTeams() {
 			});
 		},
 		onError: (error) => {
-			toast.error('Failed to update employee active task:', { description: error.message });
+			toast.error('Failed to update employee active task:', {
+				description: getErrorMessage(error, 'Unable to update active task')
+			});
+			logErrorInDev('Failed to update employee active task:', error);
 		}
 	});
 

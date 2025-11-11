@@ -10,7 +10,12 @@ import {
 	timerStatusFetchingState,
 	timerStatusState,
 	taskStatusesState,
-	myDailyPlanListState
+	myDailyPlanListState,
+	activeTeamIdState,
+	activeTeamTaskState,
+	detailedTaskState,
+	activeTeamState,
+	teamTasksState
 } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -34,9 +39,9 @@ import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { TUser } from '@/core/types/schemas/user/user.schema';
 import { queryKeys } from '@/core/query/keys';
-import { LOCAL_TIMER_STORAGE_KEY } from '@/core/constants/config/constants';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { getLocalTimerStorageKey } from '@/core/lib/helpers/timer';
 
 /**
  * ! Don't modify this function unless you know what you're doing
@@ -49,7 +54,12 @@ import { useTranslations } from 'next-intl';
  * for the first time.
  * @returns An object with the following properties:
  */
-function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: TTask | null, firstLoad: boolean) {
+function useLocalTimeCounter(
+	timerStatus: ITimerStatus | null,
+	activeTeamTask: TTask | null,
+	firstLoad: boolean,
+	activeTeamId?: string | null
+) {
 	const [timeCounterInterval, setTimeCounterInterval] = useAtom(timeCounterIntervalState);
 	const [localTimerStatus, setLocalTimerStatus] = useAtom(localTimerStatusState);
 
@@ -62,9 +72,12 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: T
 	const timerSecondsRef = useRef(0);
 	const seconds = Math.floor(timeCounter / 1000);
 
-	const updateLocalStorage = useCallback((status: ILocalTimerStatus) => {
-		localStorage.setItem(LOCAL_TIMER_STORAGE_KEY, JSON.stringify(status));
-	}, []);
+	const updateLocalStorage = useCallback(
+		(status: ILocalTimerStatus) => {
+			localStorage.setItem(getLocalTimerStorageKey(activeTeamId), JSON.stringify(status));
+		},
+		[activeTeamId]
+	);
 
 	const updateLocalTimerStatus = useCallback(
 		(status: ILocalTimerStatus) => {
@@ -77,12 +90,12 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: T
 	const getLocalCounterStatus = useCallback(() => {
 		let data: ILocalTimerStatus | null = null;
 		try {
-			data = JSON.parse(localStorage.getItem(LOCAL_TIMER_STORAGE_KEY) || 'null');
+			data = JSON.parse(localStorage.getItem(getLocalTimerStorageKey(activeTeamId)) || 'null');
 		} catch (error) {
 			console.log(error);
 		}
 		return data;
-	}, []);
+	}, [activeTeamId]);
 
 	// Update local time status (storage and store) only when global timerStatus changes
 	useEffect(() => {
@@ -157,16 +170,32 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: T
  */
 export function useTimer() {
 	const pathname = usePathname();
-	const { updateTask, setActiveTask, detailedTask, activeTeamId, activeTeam, activeTeamTask } = useTeamTasks();
-	const t = useTranslations();
+
+	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
 	const taskStatuses = useAtomValue(taskStatusesState);
-	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
-	const { user, $user, refreshUserData } = useAuthenticateUser();
+	const detailedTask = useAtomValue(detailedTaskState);
+	const activeTeamId = useAtomValue(activeTeamIdState);
 	const myDailyPlans = useAtomValue(myDailyPlanListState);
-	const [timerStatus, setTimerStatus] = useAtom(timerStatusState);
+	const teamTasks = useAtomValue(teamTasksState);
 
 	const [timerStatusFetching, setTimerStatusFetching] = useAtom(timerStatusFetchingState);
+
+	const [timerStatus, setTimerStatus] = useAtom(timerStatusState);
+
+	const timerStatusRef = useSyncRef(timerStatus);
+	const taskId = useSyncRef(activeTeamTask?.id);
+	const activeTeamTaskRef = useSyncRef(activeTeamTask);
+	const lastActiveTeamId = useRef<string | null>(null);
+	const lastActiveTeam = useRef<typeof activeTeam | null>(null);
+	const lastActiveTaskId = useRef<string | null>(null);
+	const lastActiveTask = useRef<TTask | null>(null);
+	const { updateTask, setActiveTask } = useTeamTasks();
+	const t = useTranslations();
+
+	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
+	const { user, $user, refreshUserData } = useAuthenticateUser();
 
 	const { firstLoad, firstLoadData: firstLoadTimerData } = useFirstLoad();
 	const queryClient = useQueryClient();
@@ -174,7 +203,7 @@ export function useTimer() {
 	// Queries
 	const { queryCall, loading, loadingRef } = useQueryCall(async () =>
 		queryClient.fetchQuery({
-			queryKey: queryKeys.timer.timer,
+			queryKey: queryKeys.timer.timer(activeTeamId),
 			queryFn: () => timerService.getTimerStatus()
 		})
 	);
@@ -219,13 +248,6 @@ export function useTimer() {
 		}
 	});
 
-	// const wasRunning = timerStatus?.running || false;
-	const timerStatusRef = useSyncRef(timerStatus);
-	const taskId = useSyncRef(activeTeamTask?.id);
-	const activeTeamTaskRef = useSyncRef(activeTeamTask);
-	const lastActiveTeamId = useRef<string | null>(null);
-	const lastActiveTaskId = useRef<string | null>(null);
-
 	// Find if the connected user has a today plan. Help to know if he can track time when require daily plan is set to true
 	const hasPlan = myDailyPlans?.items.find(
 		(plan: TDailyPlan) =>
@@ -267,7 +289,8 @@ export function useTimer() {
 	const { timeCounter, updateLocalTimerStatus, timerSeconds } = useLocalTimeCounter(
 		timerStatus,
 		activeTeamTask,
-		firstLoad
+		firstLoad,
+		activeTeamId
 	);
 
 	const getTimerStatus = useCallback(
@@ -334,10 +357,10 @@ export function useTimer() {
 				return;
 			}
 		} catch (error) {
-			logErrorInDev('Failed to verify tracking status', error);
 			toast.error('Failed to verify tracking status', {
 				description: getErrorMessage(error, 'Unable to verify tracking status')
 			});
+			logErrorInDev('Failed to verify tracking status', error);
 			return;
 		}
 
@@ -350,19 +373,38 @@ export function useTimer() {
 		});
 
 		setTimerStatusFetching(true);
-		const promise = startTimerMutation.mutateAsync().then((res) => {
+		const promise = startTimerMutation.mutateAsync().then(async (res) => {
 			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
+
+			// Save active task via API when timer starts
+			// Skip if we're on /task/ page because setActiveTask (line 366) already does it
+			if (activeTeamId && taskId.current && user && !pathname?.startsWith('/task/')) {
+				const currentMember = activeTeam?.members?.find((m) => m.employee?.userId === user.id);
+
+				if (currentMember?.id) {
+					// Use mutation instead of direct service call for better error handling and cache management
+					await updateOrganizationTeamEmployeeActiveTask(currentMember.id, {
+						organizationId: activeTeam?.organizationId,
+						activeTaskId: taskId.current,
+						organizationTeamId: activeTeam?.id,
+						tenantId: activeTeam?.tenantId ?? ''
+					});
+				}
+			}
+
+			// Invalidate timer query for current team
+			if (activeTeamId) {
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.timer.all
+				});
+			}
 
 			// Invalidate team-related queries to update member stats in real-time
 			// This ensures the "Working" | "Pause" | "Not Working" tab count updates immediately when timer starts
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.organizationTeams.all
 			});
-			if (activeTeamId) {
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.organizationTeams.detail(activeTeamId)
-				});
-			}
+			// NOTE: The invalidate organization team details is not needed because it's already invalidated by the above query
 
 			return;
 		});
@@ -398,17 +440,11 @@ export function useTimer() {
 			if (currentEmployeeDetails && currentEmployeeDetails.id) {
 				// Fire-and-forget: don't wait for this call to complete
 				// This reduces perceived delay for the user
-				updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
+				await updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
 					organizationId: activeTeamTaskRef.current.organizationId,
 					activeTaskId: activeTeamTaskRef.current.id,
 					organizationTeamId: activeTeam?.id,
 					tenantId: activeTeam?.tenantId ?? ''
-				}).catch((error) => {
-					logErrorInDev('Failed to update active task', error);
-					toast.error('Failed to update active task', {
-						description: getErrorMessage(error, 'Unable to update active task')
-					});
-					// Don't throw - timer already started successfully
 				});
 			}
 		}
@@ -454,8 +490,30 @@ export function useTimer() {
 			return Promise.resolve();
 		}
 
-		return stopTimerMutation.mutateAsync(timerStatus?.lastLog?.source || ETimeLogSource.TEAMS).then((res) => {
+		return stopTimerMutation.mutateAsync(timerStatus?.lastLog?.source || ETimeLogSource.TEAMS).then(async (res) => {
 			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
+
+			// Clear active task via API when timer stops
+			if (activeTeamId && user) {
+				const currentMember = activeTeam?.members?.find((m) => m.employee?.userId === user.id);
+
+				if (currentMember?.id) {
+					// Use mutation instead of direct service call for better error handling and cache management
+					await updateOrganizationTeamEmployeeActiveTask(currentMember.id, {
+						organizationId: activeTeam?.organizationId,
+						activeTaskId: null,
+						organizationTeamId: activeTeam?.id,
+						tenantId: activeTeam?.tenantId ?? ''
+					});
+				}
+			}
+
+			// Invalidate timer query for current team
+			if (activeTeamId) {
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.timer.all
+				});
+			}
 
 			// Invalidate team-related queries to update member stats in real-time
 			// This ensures the "Working" |"Pause" | "Not Working" tab count updates immediately when timer stops
@@ -483,25 +541,72 @@ export function useTimer() {
 		};
 	}, [syncTimer, timerStatus, firstLoad]);
 
-	// If active team changes then stop the timer
+	// If active team changes then stop the timer and reinitialize
 	useEffect(() => {
-		if (
-			lastActiveTeamId.current !== null &&
-			activeTeamId !== lastActiveTeamId.current &&
-			firstLoad &&
-			timerStatusRef.current?.running
-		) {
-			// If timer is started at some other source keep the timer running...
-			// If timer is started in the browser Stop the timer on Team Change
-			if (timerStatusRef.current.lastLog?.source === ETimeLogSource.TEAMS) {
-				stopTimer();
+		if (lastActiveTeamId.current !== null && activeTeamId !== lastActiveTeamId.current && firstLoad) {
+			// Stop timer if it's running from TEAMS source
+			if (timerStatusRef.current?.running) {
+				if (timerStatusRef.current.lastLog?.source === ETimeLogSource.TEAMS) {
+					stopTimer();
+				}
 			}
+
+			// Save active task for the previous team via API
+			const previousTeamId = lastActiveTeamId.current;
+			const previousTeam = lastActiveTeam.current;
+			const previousTask = lastActiveTask.current;
+			if (previousTeamId && previousTeam && previousTask && user) {
+				// Find the current user's member record in the PREVIOUS team (not the new active team)
+				const currentMember = previousTeam.members?.find((m) => m.employee?.userId === user.id);
+
+				if (currentMember?.id && previousTask.id) {
+					// Save active task via API (don't await to avoid blocking team switch)
+					// Use mutation instead of direct service call for better error handling and cache management
+					updateOrganizationTeamEmployeeActiveTask(currentMember.id, {
+						organizationId: previousTeam.organizationId,
+						activeTaskId: previousTask.id,
+						organizationTeamId: previousTeam.id,
+						tenantId: previousTeam.tenantId ?? ''
+					}).catch((error) => {
+						toast.error('Failed to save active task on team switch', {
+							description: getErrorMessage(error, 'Unable to save active task')
+						});
+						logErrorInDev('Failed to save active task on team switch:', error);
+					});
+				}
+			}
+
+			// Reinitialize the timer state for the new team
+			setTimerStatus(null);
+
+			// Invalidate the React Query cache to force a refetch for the new team
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.timer.all
+			});
+
+			// Invalidate organization teams to reload totalTodayTasks and totalWorkedTasks
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.organizationTeams.all
+			});
 		}
+
 		if (activeTeamId) {
 			lastActiveTeamId.current = activeTeamId;
+			lastActiveTeam.current = activeTeam;
+			lastActiveTask.current = activeTeamTask;
 		}
-	}, [firstLoad, activeTeamId, stopTimer, timerStatusRef]);
-
+	}, [
+		firstLoad,
+		activeTeamId,
+		activeTeam,
+		activeTeamTask,
+		stopTimer,
+		timerStatusRef,
+		setTimerStatus,
+		queryClient,
+		user,
+		updateOrganizationTeamEmployeeActiveTask
+	]);
 	// If active task changes then stop the timer
 	useEffect(() => {
 		const taskId = activeTeamTask?.id;
@@ -520,13 +625,38 @@ export function useTimer() {
 		}
 	}, [firstLoad, activeTeamTask?.id, stopTimer, timerStatusRef]);
 
+	// Filter timerStatus to only show timer for current team's tasks
+	const filteredTimerStatus = useMemo<ITimerStatus | null>(() => {
+		if (!timerStatus) return null;
+
+		// If timer is not running, return as is
+		if (!timerStatus.running) return timerStatus;
+
+		// If timer is running, check if the task belongs to current team
+		const taskId = timerStatus.lastLog?.taskId;
+		if (!taskId) return timerStatus;
+
+		// Check if task exists in current team's tasks
+		const taskBelongsToCurrentTeam = teamTasks.some((task) => task.id === taskId);
+
+		// If task doesn't belong to current team, return timer as stopped
+		if (!taskBelongsToCurrentTeam) {
+			return {
+				...timerStatus,
+				running: false
+			};
+		}
+
+		return timerStatus;
+	}, [timerStatus, teamTasks]);
+
 	return {
 		timeCounter,
 		fomatedTimeCounter: convertMsToTime(timeCounter),
 		timerStatusFetching,
 		getTimerStatus,
 		loading,
-		timerStatus,
+		timerStatus: filteredTimerStatus,
 		firstLoadTimerData,
 		startTimer,
 		stopTimer,

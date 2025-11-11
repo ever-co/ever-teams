@@ -1,10 +1,12 @@
-import { pad, secondsToTime } from '@/core/lib/helpers/index';
+import { pad } from '@/core/lib/helpers/index';
 import { HostKeys, useDetectOS, useHotkeys, useTimerView } from '@/core/hooks';
 import { useTimerOptimisticUI } from '@/core/hooks/activities/use-timer-optimistic-ui';
+import { useTodayWorkedTime } from '@/core/hooks/activities/use-today-worked-time';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { TimerButton } from './timer-button';
+import { Transition } from '@headlessui/react';
 
 import {
 	ArrowUturnUpIcon,
@@ -45,8 +47,12 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const todayLoggedDurationFormated = secondsToTime(timerStatus?.duration || 0);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
+
+	// FIX_NOTE: Use team-scoped time instead of global timerStatus.duration
+	// timerStatus.duration is global and doesn't change when switching teams
+	// useTodayWorkedTime uses totalTodayTasks which is team-scoped and updates on team switch
+	const { hours: todayHours, minutes: todayMinutes, seconds: todaySeconds } = useTodayWorkedTime();
 
 	// Use optimistic UI hook for timer button feedback
 	const { optimisticRunning } = useTimerOptimisticUI({
@@ -102,22 +108,34 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 			<div className="flex items-center justify-center w-full pr-2 space-x-2 xl:w-4/5">
 				<div className="flex items-start justify-between w-full">
 					<div className="w-full mx-auto">
-						<Text.Heading
-							as="h3"
-							className={`text-4xl w-[200px] lg:text-start tracking-wide font-normal ${
-								timerStatus?.running &&
-								timerStatus?.lastLog?.source &&
-								timerStatus?.lastLog?.source !== ETimeLogSource.TEAMS
-									? 'text-[#888] dark:text-[#888]'
-									: ''
-							} `}
+						<Transition
+							show={true}
+							appear={true}
+							enter="transition-opacity duration-300 ease-in-out"
+							enterFrom="opacity-0"
+							enterTo="opacity-100"
+							leave="transition-opacity duration-200 ease-in-out"
+							leaveFrom="opacity-100"
+							leaveTo="opacity-0"
+							key={timerStatus?.running ? 'running' : 'stopped'}
 						>
-							{timerStatus?.running
-								? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
-								: `${pad(todayLoggedDurationFormated.hours)}:${pad(todayLoggedDurationFormated.minutes)}:${pad(todayLoggedDurationFormated.seconds)}`}
+							<Text.Heading
+								as="h3"
+								className={`text-4xl w-[200px] lg:text-start tracking-wide font-normal ${
+									timerStatus?.running &&
+									timerStatus?.lastLog?.source &&
+									timerStatus?.lastLog?.source !== ETimeLogSource.TEAMS
+										? 'text-[#888] dark:text-[#888]'
+										: ''
+								} `}
+							>
+								{timerStatus?.running
+									? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+									: `${pad(todayHours)}:${pad(todayMinutes)}:${pad(todaySeconds)}`}
 
-							{timerStatus?.running && <span className="text-sm">:{pad(ms_p)}</span>}
-						</Text.Heading>
+								{timerStatus?.running && <span className="text-sm">:{pad(ms_p)}</span>}
+							</Text.Heading>
+						</Transition>
 
 						<ProgressBar width="100%" className="mt-2" progress={`${activeTaskEstimation}%`} />
 					</div>
@@ -215,7 +233,11 @@ export function MinTimerFrame({ className }: IClassName) {
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 	const t = useTranslations();
-	const todayLoggedDurationFormated = secondsToTime(timerStatus?.duration || 0);
+
+	// NOTE_FIX: Use team-scoped time instead of global timerStatus.duration
+	// timerStatus.duration is global and doesn't change when switching teams
+	// useTodayWorkedTime uses totalTodayTasks which is team-scoped and updates on team switch
+	const { hours: todayHours, minutes: todayMinutes, seconds: todaySeconds } = useTodayWorkedTime();
 
 	// Use optimistic UI hook for timer button feedback
 	const { optimisticRunning } = useTimerOptimisticUI({
@@ -234,14 +256,24 @@ export function MinTimerFrame({ className }: IClassName) {
 				className
 			)}
 		>
-			<Text className="text-lg tracking-wide font-normal w-[110px]">
-				{timerStatus?.running
-					? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
-					: `${pad(todayLoggedDurationFormated.hours)}:${pad(todayLoggedDurationFormated.minutes)}:${pad(
-							todayLoggedDurationFormated.seconds
-						)}`}
-				{timerStatus?.running && <span className="text-sm">:{pad(ms_p)}</span>}
-			</Text>
+			<Transition
+				show={true}
+				appear={true}
+				enter="transition-opacity duration-300 ease-in-out"
+				enterFrom="opacity-0"
+				enterTo="opacity-100"
+				leave="transition-opacity duration-200 ease-in-out"
+				leaveFrom="opacity-100"
+				leaveTo="opacity-0"
+				key={timerStatus?.running ? 'running' : 'stopped'}
+			>
+				<Text className="text-lg tracking-wide font-normal w-[110px]">
+					{timerStatus?.running
+						? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+						: `${pad(todayHours)}:${pad(todayMinutes)}:${pad(todaySeconds)}`}
+					{timerStatus?.running && <span className="text-sm">:{pad(ms_p)}</span>}
+				</Text>
+			</Transition>
 
 			{timerStatus && timerStatus.running && (
 				<Tooltip

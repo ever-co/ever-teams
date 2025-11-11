@@ -25,7 +25,7 @@ const QUERY_GROUPS = {
 
 	WORKSPACE_RELATED: [
 		queryKeys.organizationProjects.all,
-		queryKeys.timer.timer,
+		queryKeys.timer.all,
 		queryKeys.integrations.all,
 		queryKeys.workspaces.all
 	],
@@ -51,7 +51,7 @@ const QUERY_GROUPS = {
 		queryKeys.tasks.all,
 		queryKeys.dailyPlans.all,
 		queryKeys.organizationProjects.all,
-		queryKeys.timer.timer,
+		queryKeys.timer.all,
 		queryKeys.integrations.all,
 		queryKeys.workspaces.all,
 		queryKeys.taskPriorities.all,
