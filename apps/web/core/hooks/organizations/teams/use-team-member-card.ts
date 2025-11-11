@@ -79,9 +79,11 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 			taskId = member.lastWorkedTask.id;
 		}
 
-		if (taskId) {
-			cTask = tasks.find((t) => t.id === taskId);
-			find = cTask?.members?.some((m) => m.id === member.employee?.id);
+		// Support for public teams: if publicTeam is true, allow any task to be displayed
+		// Public teams are read-only and accessible without authentication via /team/[teamId]/[profileLink]
+		if (taskId || publicTeam) {
+			cTask = tasks.find((t) => t.id === taskId || publicTeam);
+			find = publicTeam ? cTask : cTask?.members?.some((m) => m.id === member.employee?.id);
 		}
 
 		// Fallback: find any task assigned to the member
@@ -103,7 +105,7 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 		}
 
 		return responseTask;
-	}, [isAuthUser, member, tasks, allTaskStatistics, setActiveUserTaskCookieCb]);
+	}, [isAuthUser, member, tasks, publicTeam, allTaskStatistics, setActiveUserTaskCookieCb]);
 
 	/**
 	 * Give the manager role to the member
