@@ -188,6 +188,7 @@ export function useTimer() {
 	const taskId = useSyncRef(activeTeamTask?.id);
 	const activeTeamTaskRef = useSyncRef(activeTeamTask);
 	const lastActiveTeamId = useRef<string | null>(null);
+	const lastActiveTeam = useRef<typeof activeTeam | null>(null);
 	const lastActiveTaskId = useRef<string | null>(null);
 	const { updateTask, setActiveTask } = useTeamTasks();
 	const t = useTranslations();
@@ -551,18 +552,19 @@ export function useTimer() {
 
 			// Save active task for the previous team via API
 			const previousTeamId = lastActiveTeamId.current;
-			if (previousTeamId && activeTeamTask && user) {
-				// Find the current user's member record in the active team
-				const currentMember = activeTeam?.members?.find((m) => m.employee?.userId === user.id);
+			const previousTeam = lastActiveTeam.current;
+			if (previousTeamId && previousTeam && activeTeamTask && user) {
+				// Find the current user's member record in the PREVIOUS team (not the new active team)
+				const currentMember = previousTeam.members?.find((m) => m.employee?.userId === user.id);
 
 				if (currentMember?.id && activeTeamTask.id) {
 					// Save active task via API (don't await to avoid blocking team switch)
 					// Use mutation instead of direct service call for better error handling and cache management
 					updateOrganizationTeamEmployeeActiveTask(currentMember.id, {
-						organizationId: activeTeam?.organizationId,
+						organizationId: previousTeam.organizationId,
 						activeTaskId: activeTeamTask.id,
-						organizationTeamId: activeTeam?.id,
-						tenantId: activeTeam?.tenantId ?? ''
+						organizationTeamId: previousTeam.id,
+						tenantId: previousTeam.tenantId ?? ''
 					}).catch((error) => {
 						toast.error('Failed to save active task on team switch', {
 							description: getErrorMessage(error, 'Unable to save active task')
@@ -588,8 +590,9 @@ export function useTimer() {
 
 		if (activeTeamId) {
 			lastActiveTeamId.current = activeTeamId;
+			lastActiveTeam.current = activeTeam;
 		}
-	}, [firstLoad, activeTeamId, stopTimer, timerStatusRef, setTimerStatus, queryClient]);
+	}, [firstLoad, activeTeamId, activeTeam, stopTimer, timerStatusRef, setTimerStatus, queryClient]);
 	// If active task changes then stop the timer
 	useEffect(() => {
 		const taskId = activeTeamTask?.id;

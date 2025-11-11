@@ -2,7 +2,6 @@
 
 import { useModal, useOrganizationTeams } from '@/core/hooks';
 import { useProfileValidation } from '@/core/hooks/users/use-profile-validation';
-import { clsxm } from '@/core/lib/utils';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { Button, Dropdown } from '@/core/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -186,7 +185,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 					// loading={teamsFetching} // TODO: Enable loading in future when we implement better data fetching library like TanStack
 					publicTeam={publicTeam}
 				>
-					{!publicTeam && !timerRunningStatus && (
+					{!publicTeam || !timerRunningStatus ? (
 						<Tooltip
 							enabled={!user?.isEmailVerified || timerRunningStatus}
 							label={
@@ -214,7 +213,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 								<span className="whitespace-nowrap text-nowrap">{t('common.CREATE_TEAM')}</span>
 							</Button>
 						</Tooltip>
-					)}
+					) : null}
 				</Dropdown>
 			</Tooltip>
 
