@@ -34,9 +34,9 @@ import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { TUser } from '@/core/types/schemas/user/user.schema';
 import { queryKeys } from '@/core/query/keys';
-import { LOCAL_TIMER_STORAGE_KEY } from '@/core/constants/config/constants';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { getLocalTimerStorageKey } from '@/core/lib/helpers/timer';
 
 /**
  * ! Don't modify this function unless you know what you're doing
@@ -63,7 +63,7 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: T
 	const seconds = Math.floor(timeCounter / 1000);
 
 	const updateLocalStorage = useCallback((status: ILocalTimerStatus) => {
-		localStorage.setItem(LOCAL_TIMER_STORAGE_KEY, JSON.stringify(status));
+		localStorage.setItem(getLocalTimerStorageKey(activeTeamTask?.id), JSON.stringify(status));
 	}, []);
 
 	const updateLocalTimerStatus = useCallback(
@@ -77,7 +77,7 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: T
 	const getLocalCounterStatus = useCallback(() => {
 		let data: ILocalTimerStatus | null = null;
 		try {
-			data = JSON.parse(localStorage.getItem(LOCAL_TIMER_STORAGE_KEY) || 'null');
+			data = JSON.parse(localStorage.getItem(getLocalTimerStorageKey(activeTeamTask?.id)) || 'null');
 		} catch (error) {
 			console.log(error);
 		}
@@ -174,7 +174,7 @@ export function useTimer() {
 	// Queries
 	const { queryCall, loading, loadingRef } = useQueryCall(async () =>
 		queryClient.fetchQuery({
-			queryKey: queryKeys.timer.timer,
+			queryKey: queryKeys.timer.timer(activeTeamId),
 			queryFn: () => timerService.getTimerStatus()
 		})
 	);
@@ -502,6 +502,22 @@ export function useTimer() {
 		}
 	}, [firstLoad, activeTeamId, stopTimer, timerStatusRef]);
 
+	// Reinitialize the timer when activeTeamId changes
+	useEffect(() => {
+		if (lastActiveTeamId.current !== null && activeTeamId !== lastActiveTeamId.current && firstLoad) {
+			// Reinitialize the timer state for the new team
+			setTimerStatus(null);
+
+			// Invalidate the React Query cache to force a refetch
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.timer.timer(activeTeamId)
+			});
+		}
+
+		if (activeTeamId) {
+			lastActiveTeamId.current = activeTeamId;
+		}
+	}, [firstLoad, activeTeamId, setTimerStatus, queryClient]);
 	// If active task changes then stop the timer
 	useEffect(() => {
 		const taskId = activeTeamTask?.id;
