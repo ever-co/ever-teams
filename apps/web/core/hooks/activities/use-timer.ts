@@ -14,7 +14,8 @@ import {
 	activeTeamIdState,
 	activeTeamTaskState,
 	detailedTaskState,
-	activeTeamState
+	activeTeamState,
+	teamTasksState
 } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -28,6 +29,7 @@ import { usePathname } from 'next/navigation';
 import { timerService } from '@/core/services/client/api/timers';
 import { useOrganizationEmployeeTeams, useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
+import { organizationTeamEmployeeService } from '@/core/services/client/api/organizations/teams/team-employee.service';
 import { useRefreshIntervalV2 } from '../common';
 import { useTimerPolling } from './use-timer-polling';
 import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
@@ -157,13 +159,6 @@ function useLocalTimeCounter(
 		}
 	}, [localTimerStatus, firstLoad, setTimeCounter, setTimeCounterInterval, timeCounterIntervalRef]);
 
-	// Reset local timer state when activeTeamId changes
-	useEffect(() => {
-		setLocalTimerStatus(null);
-		setTimeCounter(0);
-		window.clearInterval(timeCounterIntervalRef.current);
-	}, [activeTeamId, setLocalTimerStatus, setTimeCounter, timeCounterIntervalRef]);
-
 	return {
 		updateLocalTimerStatus,
 		timeCounter,
@@ -184,12 +179,12 @@ export function useTimer() {
 	const detailedTask = useAtomValue(detailedTaskState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
 	const myDailyPlans = useAtomValue(myDailyPlanListState);
+	const teamTasks = useAtomValue(teamTasksState);
 
 	const [timerStatusFetching, setTimerStatusFetching] = useAtom(timerStatusFetchingState);
 
 	const [timerStatus, setTimerStatus] = useAtom(timerStatusState);
 
-	// const wasRunning = timerStatus?.running || false;
 	const timerStatusRef = useSyncRef(timerStatus);
 	const taskId = useSyncRef(activeTeamTask?.id);
 	const activeTeamTaskRef = useSyncRef(activeTeamTask);
@@ -380,16 +375,36 @@ export function useTimer() {
 		const promise = startTimerMutation.mutateAsync().then((res) => {
 			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
 
+			// Save active task via API when timer starts
+			// Skip if we're on /task/ page because setActiveTask (line 366) already does it
+			if (activeTeamId && taskId.current && user && !pathname?.startsWith('/task/')) {
+				const currentMember = activeTeam?.members?.find((m) => m.employee?.userId === user.id);
+
+				if (currentMember?.id) {
+					organizationTeamEmployeeService
+						.updateOrganizationTeamEmployeeActiveTask({
+							organizationTeamEmployeeId: currentMember.id,
+							data: { activeTaskId: taskId.current }
+						})
+						.catch((error) => {
+							logErrorInDev('Failed to save active task on timer start:', error);
+						});
+				}
+			}
+
+			// Invalidate timer query for current team
+			if (activeTeamId) {
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.timer.all
+				});
+			}
+
 			// Invalidate team-related queries to update member stats in real-time
 			// This ensures the "Working" | "Pause" | "Not Working" tab count updates immediately when timer starts
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.organizationTeams.all
 			});
-			if (activeTeamId) {
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.organizationTeams.detail(activeTeamId)
-				});
-			}
+			// NOTE: The invalidate organization team details is not needed because it's already invalidated by the above query
 
 			return;
 		});
@@ -484,6 +499,29 @@ export function useTimer() {
 		return stopTimerMutation.mutateAsync(timerStatus?.lastLog?.source || ETimeLogSource.TEAMS).then((res) => {
 			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
 
+			// ✅ Clear active task via API when timer stops
+			if (activeTeamId && user) {
+				const currentMember = activeTeam?.members?.find((m) => m.employee?.userId === user.id);
+
+				if (currentMember?.id) {
+					organizationTeamEmployeeService
+						.updateOrganizationTeamEmployeeActiveTask({
+							organizationTeamEmployeeId: currentMember.id,
+							data: { activeTaskId: null }
+						})
+						.catch((error) => {
+							logErrorInDev('Failed to clear active task on timer stop:', error);
+						});
+				}
+			}
+
+			// Invalidate timer query for current team
+			if (activeTeamId) {
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.timer.all
+				});
+			}
+
 			// Invalidate team-related queries to update member stats in real-time
 			// This ensures the "Working" |"Pause" | "Not Working" tab count updates immediately when timer stops
 			queryClient.invalidateQueries({
@@ -520,12 +558,36 @@ export function useTimer() {
 				}
 			}
 
+			// Save active task for the previous team via API
+			const previousTeamId = lastActiveTeamId.current;
+			if (previousTeamId && activeTeamTask && user) {
+				// Find the current user's member record in the active team
+				const currentMember = activeTeam?.members?.find((m) => m.employee?.userId === user.id);
+
+				if (currentMember?.id && activeTeamTask.id) {
+					// Save active task via API (don't await to avoid blocking team switch)
+					organizationTeamEmployeeService
+						.updateOrganizationTeamEmployeeActiveTask({
+							organizationTeamEmployeeId: currentMember.id,
+							data: { activeTaskId: activeTeamTask.id }
+						})
+						.catch((error) => {
+							logErrorInDev('Failed to save active task on team switch:', error);
+						});
+				}
+			}
+
 			// Reinitialize the timer state for the new team
 			setTimerStatus(null);
 
-			// Invalidate the React Query cache to force a refetch
+			// Invalidate the React Query cache to force a refetch for the new team
 			queryClient.invalidateQueries({
-				queryKey: queryKeys.timer.timer(activeTeamId)
+				queryKey: queryKeys.timer.all
+			});
+
+			// Invalidate organization teams to reload totalTodayTasks and totalWorkedTasks
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.organizationTeams.all
 			});
 		}
 
@@ -551,13 +613,38 @@ export function useTimer() {
 		}
 	}, [firstLoad, activeTeamTask?.id, stopTimer, timerStatusRef]);
 
+	// Filter timerStatus to only show timer for current team's tasks
+	const filteredTimerStatus = useMemo<ITimerStatus | null>(() => {
+		if (!timerStatus) return null;
+
+		// If timer is not running, return as is
+		if (!timerStatus.running) return timerStatus;
+
+		// If timer is running, check if the task belongs to current team
+		const taskId = timerStatus.lastLog?.taskId;
+		if (!taskId) return timerStatus;
+
+		// Check if task exists in current team's tasks
+		const taskBelongsToCurrentTeam = teamTasks.some((task) => task.id === taskId);
+
+		// If task doesn't belong to current team, return timer as stopped
+		if (!taskBelongsToCurrentTeam) {
+			return {
+				...timerStatus,
+				running: false
+			};
+		}
+
+		return timerStatus;
+	}, [timerStatus, teamTasks]);
+
 	return {
 		timeCounter,
 		fomatedTimeCounter: convertMsToTime(timeCounter),
 		timerStatusFetching,
 		getTimerStatus,
 		loading,
-		timerStatus,
+		timerStatus: filteredTimerStatus,
 		firstLoadTimerData,
 		startTimer,
 		stopTimer,

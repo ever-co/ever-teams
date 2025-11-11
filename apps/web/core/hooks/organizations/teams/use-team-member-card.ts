@@ -1,5 +1,5 @@
 'use client';
-import { getActiveTaskIdCookie, setActiveTaskIdCookie, setActiveUserTaskCookie } from '@/core/lib/helpers/index';
+import { setActiveTaskIdCookie, setActiveUserTaskCookie } from '@/core/lib/helpers/index';
 import { activeTeamState, activeTeamTaskState, allTaskStatisticsState } from '@/core/stores';
 import { getPublicState } from '@/core/stores/common/public';
 import { useCallback, useMemo, useRef, useState } from 'react';
@@ -66,22 +66,32 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 		if (!member) {
 			return null;
 		}
-		const active_task_id = getActiveTaskIdCookie();
 
-		if (active_task_id && isAuthUser) {
-			cTask = tasks.find((t) => active_task_id === t.id || publicTeam);
-			find = cTask;
-		} else if (member.lastWorkedTask) {
-			cTask = tasks.find((t) => t.id === member.lastWorkedTask?.id);
+		// Use member.activeTaskId from API for ALL members (including authenticated user)
+		// This ensures each team has its own active task, not a global cookie
+		let taskId: string | null = null;
+
+		if (member.activeTaskId) {
+			// Priority 1: activeTaskId from API (set when timer starts/stops or task is selected)
+			taskId = member.activeTaskId;
+		} else if (member.lastWorkedTask?.id) {
+			// Priority 2: lastWorkedTask from API (last task user worked on)
+			taskId = member.lastWorkedTask.id;
+		}
+
+		if (taskId) {
+			cTask = tasks.find((t) => t.id === taskId);
 			find = cTask?.members?.some((m) => m.id === member.employee?.id);
-		} else {
+		}
+
+		// Fallback: find any task assigned to the member
+		if (!find) {
 			cTask = tasks.find((t) => t.members?.some((m) => m.userId === member.employee?.userId));
 			find = cTask?.members?.some((m) => m.id === member.employee?.id);
 		}
 
-		if (isAuthUser && member.lastWorkedTask && !active_task_id) {
-			setActiveUserTaskCookieCb(member.lastWorkedTask);
-		} else if (isAuthUser && find && cTask && !active_task_id) {
+		// For authenticated user, sync with cookies for backward compatibility
+		if (isAuthUser && cTask) {
 			setActiveUserTaskCookieCb(cTask);
 		}
 
@@ -93,7 +103,7 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 		}
 
 		return responseTask;
-	}, [isAuthUser, member, tasks, publicTeam, allTaskStatistics, setActiveUserTaskCookieCb]);
+	}, [isAuthUser, member, tasks, allTaskStatistics, setActiveUserTaskCookieCb]);
 
 	/**
 	 * Give the manager role to the member
