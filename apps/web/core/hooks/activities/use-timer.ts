@@ -29,7 +29,6 @@ import { usePathname } from 'next/navigation';
 import { timerService } from '@/core/services/client/api/timers';
 import { useOrganizationEmployeeTeams, useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
-import { organizationTeamEmployeeService } from '@/core/services/client/api/organizations/teams/team-employee.service';
 import { useRefreshIntervalV2 } from '../common';
 import { useTimerPolling } from './use-timer-polling';
 import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
@@ -356,10 +355,10 @@ export function useTimer() {
 				return;
 			}
 		} catch (error) {
-			logErrorInDev('Failed to verify tracking status', error);
 			toast.error('Failed to verify tracking status', {
 				description: getErrorMessage(error, 'Unable to verify tracking status')
 			});
+			logErrorInDev('Failed to verify tracking status', error);
 			return;
 		}
 
@@ -372,7 +371,7 @@ export function useTimer() {
 		});
 
 		setTimerStatusFetching(true);
-		const promise = startTimerMutation.mutateAsync().then((res) => {
+		const promise = startTimerMutation.mutateAsync().then(async (res) => {
 			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
 
 			// Save active task via API when timer starts
@@ -381,14 +380,13 @@ export function useTimer() {
 				const currentMember = activeTeam?.members?.find((m) => m.employee?.userId === user.id);
 
 				if (currentMember?.id) {
-					organizationTeamEmployeeService
-						.updateOrganizationTeamEmployeeActiveTask({
-							organizationTeamEmployeeId: currentMember.id,
-							data: { activeTaskId: taskId.current }
-						})
-						.catch((error) => {
-							logErrorInDev('Failed to save active task on timer start:', error);
-						});
+					// Use mutation instead of direct service call for better error handling and cache management
+					await updateOrganizationTeamEmployeeActiveTask(currentMember.id, {
+						organizationId: activeTeam?.organizationId,
+						activeTaskId: taskId.current,
+						organizationTeamId: activeTeam?.id,
+						tenantId: activeTeam?.tenantId ?? ''
+					});
 				}
 			}
 
@@ -440,17 +438,11 @@ export function useTimer() {
 			if (currentEmployeeDetails && currentEmployeeDetails.id) {
 				// Fire-and-forget: don't wait for this call to complete
 				// This reduces perceived delay for the user
-				updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
+				await updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
 					organizationId: activeTeamTaskRef.current.organizationId,
 					activeTaskId: activeTeamTaskRef.current.id,
 					organizationTeamId: activeTeam?.id,
 					tenantId: activeTeam?.tenantId ?? ''
-				}).catch((error) => {
-					logErrorInDev('Failed to update active task', error);
-					toast.error('Failed to update active task', {
-						description: getErrorMessage(error, 'Unable to update active task')
-					});
-					// Don't throw - timer already started successfully
 				});
 			}
 		}
@@ -496,22 +488,21 @@ export function useTimer() {
 			return Promise.resolve();
 		}
 
-		return stopTimerMutation.mutateAsync(timerStatus?.lastLog?.source || ETimeLogSource.TEAMS).then((res) => {
+		return stopTimerMutation.mutateAsync(timerStatus?.lastLog?.source || ETimeLogSource.TEAMS).then(async (res) => {
 			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
 
-			// ✅ Clear active task via API when timer stops
+			// Clear active task via API when timer stops
 			if (activeTeamId && user) {
 				const currentMember = activeTeam?.members?.find((m) => m.employee?.userId === user.id);
 
 				if (currentMember?.id) {
-					organizationTeamEmployeeService
-						.updateOrganizationTeamEmployeeActiveTask({
-							organizationTeamEmployeeId: currentMember.id,
-							data: { activeTaskId: null }
-						})
-						.catch((error) => {
-							logErrorInDev('Failed to clear active task on timer stop:', error);
-						});
+					// Use mutation instead of direct service call for better error handling and cache management
+					await updateOrganizationTeamEmployeeActiveTask(currentMember.id, {
+						organizationId: activeTeam?.organizationId,
+						activeTaskId: null,
+						organizationTeamId: activeTeam?.id,
+						tenantId: activeTeam?.tenantId ?? ''
+					});
 				}
 			}
 
@@ -566,14 +557,18 @@ export function useTimer() {
 
 				if (currentMember?.id && activeTeamTask.id) {
 					// Save active task via API (don't await to avoid blocking team switch)
-					organizationTeamEmployeeService
-						.updateOrganizationTeamEmployeeActiveTask({
-							organizationTeamEmployeeId: currentMember.id,
-							data: { activeTaskId: activeTeamTask.id }
-						})
-						.catch((error) => {
-							logErrorInDev('Failed to save active task on team switch:', error);
+					// Use mutation instead of direct service call for better error handling and cache management
+					updateOrganizationTeamEmployeeActiveTask(currentMember.id, {
+						organizationId: activeTeam?.organizationId,
+						activeTaskId: activeTeamTask.id,
+						organizationTeamId: activeTeam?.id,
+						tenantId: activeTeam?.tenantId ?? ''
+					}).catch((error) => {
+						toast.error('Failed to save active task on team switch', {
+							description: getErrorMessage(error, 'Unable to save active task')
 						});
+						logErrorInDev('Failed to save active task on team switch:', error);
+					});
 				}
 			}
 
