@@ -49,7 +49,12 @@ import { getLocalTimerStorageKey } from '@/core/lib/helpers/timer';
  * for the first time.
  * @returns An object with the following properties:
  */
-function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: TTask | null, firstLoad: boolean) {
+function useLocalTimeCounter(
+	timerStatus: ITimerStatus | null,
+	activeTeamTask: TTask | null,
+	firstLoad: boolean,
+	activeTeamId?: string | null
+) {
 	const [timeCounterInterval, setTimeCounterInterval] = useAtom(timeCounterIntervalState);
 	const [localTimerStatus, setLocalTimerStatus] = useAtom(localTimerStatusState);
 
@@ -62,9 +67,12 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: T
 	const timerSecondsRef = useRef(0);
 	const seconds = Math.floor(timeCounter / 1000);
 
-	const updateLocalStorage = useCallback((status: ILocalTimerStatus) => {
-		localStorage.setItem(getLocalTimerStorageKey(activeTeamTask?.id), JSON.stringify(status));
-	}, []);
+	const updateLocalStorage = useCallback(
+		(status: ILocalTimerStatus) => {
+			localStorage.setItem(getLocalTimerStorageKey(activeTeamId), JSON.stringify(status));
+		},
+		[activeTeamId]
+	);
 
 	const updateLocalTimerStatus = useCallback(
 		(status: ILocalTimerStatus) => {
@@ -77,12 +85,12 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: T
 	const getLocalCounterStatus = useCallback(() => {
 		let data: ILocalTimerStatus | null = null;
 		try {
-			data = JSON.parse(localStorage.getItem(getLocalTimerStorageKey(activeTeamTask?.id)) || 'null');
+			data = JSON.parse(localStorage.getItem(getLocalTimerStorageKey(activeTeamId)) || 'null');
 		} catch (error) {
 			console.log(error);
 		}
 		return data;
-	}, []);
+	}, [activeTeamId]);
 
 	// Update local time status (storage and store) only when global timerStatus changes
 	useEffect(() => {
@@ -144,6 +152,17 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: T
 			setTimeCounter(0);
 		}
 	}, [localTimerStatus, firstLoad, setTimeCounter, setTimeCounterInterval, timeCounterIntervalRef]);
+
+	// Reset local timer state when activeTeamId changes (only if value actually changes, not reference)
+	const prevActiveTeamIdRef = useRef<string | null | undefined>(activeTeamId);
+	useEffect(() => {
+		if (prevActiveTeamIdRef.current !== activeTeamId && prevActiveTeamIdRef.current !== undefined) {
+			setLocalTimerStatus(null);
+			setTimeCounter(0);
+			window.clearInterval(timeCounterIntervalRef.current);
+		}
+		prevActiveTeamIdRef.current = activeTeamId;
+	}, [activeTeamId, setLocalTimerStatus, setTimeCounter, timeCounterIntervalRef]);
 
 	return {
 		updateLocalTimerStatus,
@@ -267,7 +286,8 @@ export function useTimer() {
 	const { timeCounter, updateLocalTimerStatus, timerSeconds } = useLocalTimeCounter(
 		timerStatus,
 		activeTeamTask,
-		firstLoad
+		firstLoad,
+		activeTeamId
 	);
 
 	const getTimerStatus = useCallback(
@@ -483,28 +503,16 @@ export function useTimer() {
 		};
 	}, [syncTimer, timerStatus, firstLoad]);
 
-	// If active team changes then stop the timer
-	useEffect(() => {
-		if (
-			lastActiveTeamId.current !== null &&
-			activeTeamId !== lastActiveTeamId.current &&
-			firstLoad &&
-			timerStatusRef.current?.running
-		) {
-			// If timer is started at some other source keep the timer running...
-			// If timer is started in the browser Stop the timer on Team Change
-			if (timerStatusRef.current.lastLog?.source === ETimeLogSource.TEAMS) {
-				stopTimer();
-			}
-		}
-		if (activeTeamId) {
-			lastActiveTeamId.current = activeTeamId;
-		}
-	}, [firstLoad, activeTeamId, stopTimer, timerStatusRef]);
-
-	// Reinitialize the timer when activeTeamId changes
+	// If active team changes then stop the timer and reinitialize
 	useEffect(() => {
 		if (lastActiveTeamId.current !== null && activeTeamId !== lastActiveTeamId.current && firstLoad) {
+			// Stop timer if it's running from TEAMS source
+			if (timerStatusRef.current?.running) {
+				if (timerStatusRef.current.lastLog?.source === ETimeLogSource.TEAMS) {
+					stopTimer();
+				}
+			}
+
 			// Reinitialize the timer state for the new team
 			setTimerStatus(null);
 
@@ -517,7 +525,7 @@ export function useTimer() {
 		if (activeTeamId) {
 			lastActiveTeamId.current = activeTeamId;
 		}
-	}, [firstLoad, activeTeamId, setTimerStatus, queryClient]);
+	}, [firstLoad, activeTeamId, stopTimer, timerStatusRef, setTimerStatus, queryClient]);
 	// If active task changes then stop the timer
 	useEffect(() => {
 		const taskId = activeTeamTask?.id;
