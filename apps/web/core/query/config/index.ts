@@ -42,3 +42,4 @@ export const getQueryClient = () => {
 		return browserQueryClient;
 	}
 };
+export const globalQueryClient = getQueryClient();

@@ -121,7 +121,8 @@ class SigninService extends APIService {
 	};
 
 	signInWorkspace = async (input: ISigninWorkspaceInput) => {
-		const res = await this.post<IAuthResponse>('/auth/signin.workspace', input);
+		// Don't add tenantId/organizationId for workspace signin - user is not authenticated yet
+		const res = await this.post<IAuthResponse>('/auth/signin.workspace', input, {}, false);
 		return res.data;
 	};
 

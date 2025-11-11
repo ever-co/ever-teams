@@ -655,7 +655,12 @@
 			"SELECT_WORKSPACE": "Выберите рабочее пространство",
 			"ENTER_EMAIL": "Введите электронную почту",
 			"WORKSPACES_NOT_FOUND": "Рабочие пространства не найдены",
-			"INVALID_CODE_TRY_AGAIN": "Неверный код. Пожалуйста, попробуйте еще раз."
+			"INVALID_CODE_TRY_AGAIN": "Неверный код. Пожалуйста, попробуйте еще раз.",
+			"EMPTY_WORKSPACE_WARNING_TITLE": "В этом рабочем пространстве нет команд",
+			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Вам будет предложено создать команду после входа.",
+			"NO_TEAMS_BADGE": "Нет команд",
+			"TEAM_COUNT_SINGULAR": "команда",
+			"TEAM_COUNT_PLURAL": "команды"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Присоединиться к существующей команде",
@@ -913,6 +918,10 @@
 	"timer": {
 		"START_TIMER": "Пожалуйста, выберите или создайте новую задачу, чтобы начать отслеживание времени или создайте план",
 		"ALREADY_TRACKING_MESSAGE": "Вы уже отслеживаете время в другой вкладке или устройстве.",
+		"TASK_CLOSED": "Задача закрыта",
+		"STARTING_TIMER": "Запуск таймера...",
+		"TIMER_STARTED": "Таймер успешно запущен",
+		"TIMER_START_FAILED": "Ошибка при запуске таймера",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Таймер остановлен",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Таймер остановлен из-за смены команды"

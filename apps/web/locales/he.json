@@ -655,7 +655,12 @@
 			"SELECT_WORKSPACE": "בחר סביבת עבודה",
 			"ENTER_EMAIL": "הכנס אימייל",
 			"WORKSPACES_NOT_FOUND": "סביבות עבודה לא נמצאו",
-			"INVALID_CODE_TRY_AGAIN": "קוד לא תקין. אנא נסה שוב."
+			"INVALID_CODE_TRY_AGAIN": "קוד לא תקין. אנא נסה שוב.",
+			"EMPTY_WORKSPACE_WARNING_TITLE": "סביבת עבודה זו אין לה צוותים",
+			"EMPTY_WORKSPACE_WARNING_MESSAGE": "תתבקש ליצור צוות לאחר ההתחברות.",
+			"NO_TEAMS_BADGE": "אין צוותים",
+			"TEAM_COUNT_SINGULAR": "צוות",
+			"TEAM_COUNT_PLURAL": "צוותים"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "הצטרף לצוות קיים",
@@ -911,15 +916,19 @@
 		}
 	},
 	"timer": {
-		"ACTIVE": "פעיל",
-		"APPS": "אפליקציות",
-		"ARCHIVED": "ארכיון",
 		"START_TIMER": "אנא בחר או צור משימה חדשה כדי להתחיל לעקוב אחר הזמן או ליצור תוכנית",
 		"ALREADY_TRACKING_MESSAGE": "אתה כבר עוקב אחר הזמן בכרטיסייה או במכשיר אחר.",
+		"TASK_CLOSED": "המשימה סגורה",
+		"STARTING_TIMER": "הפעלת טיימר...",
+		"TIMER_STARTED": "טיימר הופעל בהצלחה",
+		"TIMER_START_FAILED": "כישלון בהפעלת טיימר",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "טיימר הופסק",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "הטיימר הופסק בגלל מעבר צוות"
 		},
+		"ACTIVE": "פעיל",
+		"APPS": "אפליקציות",
+		"ARCHIVED": "ארכיון",
 		"INACTIVE": "לא פעיל",
 		"KEYBOARD": "מקלדת",
 		"MOUSE": "עכבר",

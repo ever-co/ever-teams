@@ -549,7 +549,12 @@
 			"SELECT_WORKSPACE": "Seleccionar espacio de trabajo",
 			"ENTER_EMAIL": "Ingresar correo electrónico",
 			"WORKSPACES_NOT_FOUND": "Espacios de trabajo no encontrados",
-			"INVALID_CODE_TRY_AGAIN": "Código inválido. Por favor, inténtelo de nuevo."
+			"INVALID_CODE_TRY_AGAIN": "Código inválido. Por favor, inténtelo de nuevo.",
+			"EMPTY_WORKSPACE_WARNING_TITLE": "Este espacio de trabajo no tiene equipos",
+			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Se le pedirá que cree un equipo después de iniciar sesión.",
+			"NO_TEAMS_BADGE": "Sin equipos",
+			"TEAM_COUNT_SINGULAR": "equipo",
+			"TEAM_COUNT_PLURAL": "equipos"
 		},
 		"projects": {
 			"projectTitle": {
@@ -911,11 +916,12 @@
 		}
 	},
 	"timer": {
-		"ACTIVE": "Activo",
-		"APPS": "Aplicaciones",
-		"ARCHIVED": "Archivado",
 		"START_TIMER": "Por favor, selecciona o crea una nueva tarea para comenzar a rastrear el tiempo o crear un plan",
 		"ALREADY_TRACKING_MESSAGE": "Ya estás rastreando el tiempo en otra pestaña o dispositivo.",
+		"TASK_CLOSED": "La tarea está cerrada",
+		"STARTING_TIMER": "Iniciando temporizador...",
+		"TIMER_STARTED": "Temporizador iniciado exitosamente",
+		"TIMER_START_FAILED": "Error al iniciar el temporizador",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Temporizador detenido",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Temporizador detenido debido al cambio de equipo"
@@ -923,6 +929,9 @@
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Estimar"
 		},
+		"ACTIVE": "Activo",
+		"APPS": "Aplicaciones",
+		"ARCHIVED": "Archivado",
 		"INACTIVE": "Inactivo",
 		"KEYBOARD": "Teclado",
 		"MOUSE": "Ratón",

@@ -59,7 +59,7 @@ export interface IBasePerTenantEntityMutationInput extends Pick<IBasePerTenantEn
 }
 
 export interface IBasePerTenantAndOrganizationEntityModel extends IBasePerTenantEntityModel {
-	organizationId?: IOrganization['id'];
+	organizationId?: IOrganization['id'] | null;
 	organization?: IOrganization;
 }
 

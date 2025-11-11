@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import {
 	APPLICATION_LANGUAGES_CODE,
-	DEFAULT_APP_PATH,
-	GAUZY_API_BASE_SERVER_URL,
-	IS_DESKTOP_APP
+	IS_DESKTOP_APP,
+	GAUZY_API_BASE_SERVER_URL
 } from '@/core/constants/config/constants';
 
 export const getFallbackAPI = async () => {
@@ -18,8 +16,10 @@ import {
 	getOrganizationIdCookie,
 	getTenantIdCookie
 } from '@/core/lib/helpers/cookies';
+import { handleUnauthorized } from '@/core/lib/auth/handle-unauthorized';
+import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { APIConfig, desktopServerOverride } from './axios';
+import { APIConfig } from './axios';
 import { HttpLoggerAdapter } from '../logs/logger-adapter.service';
 import { Logger } from '../logs/logger.service';
 import { ApiErrorService } from './api-error.service';
@@ -135,6 +135,10 @@ export class APIService {
 		};
 	}
 
+	protected get desktopBaseURL() {
+		return GAUZY_API_BASE_SERVER_URL.value;
+	}
+
 	getConfig() {
 		return this.config;
 	}
@@ -225,6 +229,17 @@ export class APIService {
 	 * Handles 401 Unauthorized errors by redirecting users appropriately.
 	 * This logic adapts to special path prefixes used in Our App (e.g., /god-mode, /spaces).
 	 *
+	 * NOTE: Token refresh is handled by the centralized handleUnauthorized() function
+	 * which has a 600ms debounce window allowing refreshUserData() to attempt refresh
+	 * before logout (optimistic recovery pattern).
+	 *
+	 * The 600ms window is critical:
+	 * 1. When 401 occurs, handleUnauthorized() is called
+	 * 2. It sets a 600ms timeout before logout
+	 * 3. During this window, refreshUserData() can attempt token refresh
+	 * 4. If refresh succeeds, cancelPendingLogout() prevents the logout
+	 * 5. If refresh fails, logout proceeds normally
+	 *
 	 * @param {any} error - The error object from Axios response.
 	 * @private
 	 */
@@ -238,7 +253,15 @@ export class APIService {
 			return error?.response;
 		}
 
-		window.location.assign(DEFAULT_APP_PATH);
+		// Use centralized handler which has 600ms debounce for token refresh attempts
+		// Don't disconnect immediately - this gives refreshUserData() a chance to recover
+		handleUnauthorized(DisconnectionReason.UNAUTHORIZED_401, {
+			status: 401,
+			endpoint: error.config?.url,
+			method: error.config?.method,
+			path: location.pathname,
+			context: 'api.service.ts -> handleUnauthorized'
+		});
 	}
 
 	/**
@@ -356,14 +379,11 @@ export class APIService {
 		const tenantId = getTenantIdCookie();
 		const organizationId = getOrganizationIdCookie();
 		let baseURL: string | undefined = this.baseURL;
-
 		if (IS_DESKTOP_APP) {
-			// dynamic api host while on desktop mode
-			const runtimeConfig = await desktopServerOverride();
-			baseURL = (runtimeConfig || GAUZY_API_BASE_SERVER_URL.value) as string;
+			baseURL = this.desktopBaseURL;
 		}
-
 		baseURL = baseURL ? `${baseURL}/api` : undefined;
+
 		if (this.config.directAPI) {
 			this.axiosInstance.defaults.baseURL = baseURL;
 		}

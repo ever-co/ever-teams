@@ -50,7 +50,7 @@ export const taskStatusCreateSchema = z.object({
 	fullIconUrl: z.string().optional().nullable(),
 	template: taskStatusNameSchema.optional().nullable(),
 	projectId: z.string().optional().nullable(),
-	organizationId: z.string().optional().nullable(),
+	organizationId: z.string().nullable().optional(),
 	tenantId: z.string().optional().nullable(),
 	organizationTeamId: z.string().optional().nullable(),
 	isTodo: z.boolean().optional(),

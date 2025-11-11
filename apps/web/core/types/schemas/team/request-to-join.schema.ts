@@ -82,7 +82,7 @@ export const getRequestToJoinResponseSchema = z
 // Request parameters schemas for service methods
 export const getRequestToJoinParamsSchema = z
 	.object({
-		organizationId: z.string().optional(),
+		organizationId: z.string().nullable().optional(),
 		tenantId: z.string().optional()
 	})
 	.passthrough();
