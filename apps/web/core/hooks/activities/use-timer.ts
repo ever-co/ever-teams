@@ -10,7 +10,11 @@ import {
 	timerStatusFetchingState,
 	timerStatusState,
 	taskStatusesState,
-	myDailyPlanListState
+	myDailyPlanListState,
+	activeTeamIdState,
+	activeTeamTaskState,
+	detailedTaskState,
+	activeTeamState
 } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -153,15 +157,11 @@ function useLocalTimeCounter(
 		}
 	}, [localTimerStatus, firstLoad, setTimeCounter, setTimeCounterInterval, timeCounterIntervalRef]);
 
-	// Reset local timer state when activeTeamId changes (only if value actually changes, not reference)
-	const prevActiveTeamIdRef = useRef<string | null | undefined>(activeTeamId);
+	// Reset local timer state when activeTeamId changes
 	useEffect(() => {
-		if (prevActiveTeamIdRef.current !== activeTeamId && prevActiveTeamIdRef.current !== undefined) {
-			setLocalTimerStatus(null);
-			setTimeCounter(0);
-			window.clearInterval(timeCounterIntervalRef.current);
-		}
-		prevActiveTeamIdRef.current = activeTeamId;
+		setLocalTimerStatus(null);
+		setTimeCounter(0);
+		window.clearInterval(timeCounterIntervalRef.current);
 	}, [activeTeamId, setLocalTimerStatus, setTimeCounter, timeCounterIntervalRef]);
 
 	return {
@@ -176,16 +176,30 @@ function useLocalTimeCounter(
  */
 export function useTimer() {
 	const pathname = usePathname();
-	const { updateTask, setActiveTask, detailedTask, activeTeamId, activeTeam, activeTeamTask } = useTeamTasks();
-	const t = useTranslations();
+
+	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
 	const taskStatuses = useAtomValue(taskStatusesState);
-	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
-	const { user, $user, refreshUserData } = useAuthenticateUser();
+	const detailedTask = useAtomValue(detailedTaskState);
+	const activeTeamId = useAtomValue(activeTeamIdState);
 	const myDailyPlans = useAtomValue(myDailyPlanListState);
-	const [timerStatus, setTimerStatus] = useAtom(timerStatusState);
 
 	const [timerStatusFetching, setTimerStatusFetching] = useAtom(timerStatusFetchingState);
+
+	const [timerStatus, setTimerStatus] = useAtom(timerStatusState);
+
+	// const wasRunning = timerStatus?.running || false;
+	const timerStatusRef = useSyncRef(timerStatus);
+	const taskId = useSyncRef(activeTeamTask?.id);
+	const activeTeamTaskRef = useSyncRef(activeTeamTask);
+	const lastActiveTeamId = useRef<string | null>(null);
+	const lastActiveTaskId = useRef<string | null>(null);
+	const { updateTask, setActiveTask } = useTeamTasks();
+	const t = useTranslations();
+
+	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
+	const { user, $user, refreshUserData } = useAuthenticateUser();
 
 	const { firstLoad, firstLoadData: firstLoadTimerData } = useFirstLoad();
 	const queryClient = useQueryClient();
@@ -237,13 +251,6 @@ export function useTimer() {
 			return failureCount < 2;
 		}
 	});
-
-	// const wasRunning = timerStatus?.running || false;
-	const timerStatusRef = useSyncRef(timerStatus);
-	const taskId = useSyncRef(activeTeamTask?.id);
-	const activeTeamTaskRef = useSyncRef(activeTeamTask);
-	const lastActiveTeamId = useRef<string | null>(null);
-	const lastActiveTaskId = useRef<string | null>(null);
 
 	// Find if the connected user has a today plan. Help to know if he can track time when require daily plan is set to true
 	const hasPlan = myDailyPlans?.items.find(
