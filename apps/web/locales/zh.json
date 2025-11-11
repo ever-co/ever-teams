@@ -655,7 +655,12 @@
 			"SELECT_WORKSPACE": "选择工作区",
 			"ENTER_EMAIL": "输入电子邮箱",
 			"WORKSPACES_NOT_FOUND": "工作区未找到",
-			"INVALID_CODE_TRY_AGAIN": "无效的代码。请重试。"
+			"INVALID_CODE_TRY_AGAIN": "无效的代码。请重试。",
+			"EMPTY_WORKSPACE_WARNING_TITLE": "此工作区没有团队",
+			"EMPTY_WORKSPACE_WARNING_MESSAGE": "登录后将提示您创建团队。",
+			"NO_TEAMS_BADGE": "无团队",
+			"TEAM_COUNT_SINGULAR": "团队",
+			"TEAM_COUNT_PLURAL": "团队"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "加入已有团队",
@@ -911,15 +916,19 @@
 		}
 	},
 	"timer": {
-		"ACTIVE": "活跃",
-		"APPS": "应用",
-		"ARCHIVED": "已归档",
 		"START_TIMER": "请选择或创建新任务以开始计时 或製定計劃",
 		"ALREADY_TRACKING_MESSAGE": "您已经在另一个标签页或设备上跟踪时间。",
+		"TASK_CLOSED": "任务已关闭",
+		"STARTING_TIMER": "正在启动计时器...",
+		"TIMER_STARTED": "计时器启动成功",
+		"TIMER_START_FAILED": "启动计时器失败",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "计时器已停止",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "由于切换团队,计时器已停止"
 		},
+		"ACTIVE": "活跃",
+		"APPS": "应用",
+		"ARCHIVED": "已归档",
 		"INACTIVE": "不活跃",
 		"KEYBOARD": "键盘",
 		"MOUSE": "鼠标",

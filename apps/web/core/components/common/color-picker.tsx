@@ -4,8 +4,9 @@ import { useCallbackRef } from '@/core/hooks';
 import { Transition, Popover, PopoverButton } from '@headlessui/react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { HexColorPicker } from 'react-colorful';
-import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
+import { CheckSquareOutlineIcon, EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
 import { PopoverTrigger, PopoverContent, Popover as PopoverDropdown } from '@/core/components/common/popover';
+import { LoaderCircle } from 'lucide-react';
 
 export const ColorPicker = ({
 	defaultColor,
@@ -13,7 +14,8 @@ export const ColorPicker = ({
 	fullWidthInput,
 	isTeamManager,
 	disabled: disableButton,
-	className
+	className,
+	onSave
 }: {
 	defaultColor?: string;
 	onChange?: (color?: string | null) => void;
@@ -21,25 +23,35 @@ export const ColorPicker = ({
 	isTeamManager?: boolean;
 	disabled?: boolean;
 	className?: string;
+	onSave?: (data?: Record<string, any>) => Promise<void>;
 }) => {
 	const [color, setColor] = useState(defaultColor || null);
 	const onChangeRef = useCallbackRef(onChange);
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const panelRef = useRef<HTMLDivElement>(null);
 	const [disabled, setDisabled] = useState<boolean>(true);
-	const [isInternalUpdate, setIsInternalUpdate] = useState(false);
+	const [,setIsInternalUpdate] = useState(false);
+	const [loading, setLoading] = useState(false);
 
 	const toggleDisabled = useCallback(() => {
 		setDisabled(!disabled);
 	}, [disabled]);
 
 	// Handle external defaultColor changes (avoid infinite loop)
+	// ⚠️ This hook is setting the color back to the default color on color change (when isInternalUpdate is set back to false)
+	// useEffect(() => {
+	// 	// Only sync when defaultColor is actually provided and different
+	// 	if (defaultColor && defaultColor !== color && !isInternalUpdate) {
+	// 		setColor(defaultColor);
+	// 	}
+	// }, [defaultColor, isInternalUpdate]); // Removed 'color' to prevent circular dependency
+
+	// If parent supplies defaultColor asynchronously, use it only if we don't already have a selection
 	useEffect(() => {
-		// Only sync when defaultColor is actually provided and different
-		if (defaultColor && defaultColor !== color && !isInternalUpdate) {
+		if (defaultColor && !color && !loading) {
 			setColor(defaultColor);
 		}
-	}, [defaultColor, isInternalUpdate]); // Removed 'color' to prevent circular dependency
+	}, [defaultColor, color, loading]);
 
 	// Handle internal color changes and notify parent
 	const handleColorChange = useCallback(
@@ -82,12 +94,27 @@ export const ColorPicker = ({
 		};
 	}, []);
 
+	const handleSave = useCallback(async () => {
+		try {
+			setLoading(true);
+
+			if (onSave) {
+				await onSave();
+			}
+			setDisabled(true);
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setLoading(false);
+		}
+	}, [onSave]);
+
 	return fullWidthInput ? (
 		<Popover
 			className={'z-[1000] relative border-none no-underline w-full mt-3' + className}
 			onProgressCapture={(e) => e.stopPropagation()}
 		>
-			{() => (
+			{({ open }) => (
 				<>
 					<PopoverButton
 						className={'w-full outline-none mb-[15px]'}
@@ -112,31 +139,60 @@ export const ColorPicker = ({
 							</div>
 							{isTeamManager && (
 								<div className="flex mr-[0.5rem] gap-3">
-									<button
-										disabled={!isTeamManager}
-										className={`z-50 outline-none`}
-										onClick={() => {
-											setDisabled(!disabled);
-										}}
-									>
-										<EditPenUnderlineIcon className="w-6 h-6 cursor-pointer" />
-									</button>
-
-									<span
-										onClick={() => {
-											setIsInternalUpdate(true);
-											setColor(null);
-											if (onChange) {
-												onChange(null);
-											}
-											setTimeout(() => {
-												setIsInternalUpdate(false);
-											}, 0);
-										}}
-										className={`outline-none ${'cursor-pointer'}`}
-									>
-										<TrashIcon className="w-5" />
-									</span>
+									{open ? (
+										<button type="button" onClick={handleSave}>
+											{loading ? (
+												<LoaderCircle
+													className="w-[18px] h-[18px] animate-spin"
+													strokeWidth="1.4"
+												/>
+											) : (
+												<CheckSquareOutlineIcon
+													className="w-[18px] h-[18px]"
+													strokeWidth="1.4"
+												/>
+											)}
+										</button>
+									) : (
+										<>
+											{loading ? (
+												<LoaderCircle
+													className="w-[18px] h-[18px] animate-spin"
+													strokeWidth="1.4"
+												/>
+											) : (
+												<>
+													<button
+														disabled={loading}
+														className={`z-50 outline-none`}
+														onClick={() => {
+															setDisabled(!disabled);
+														}}
+														type="button"
+													>
+														<EditPenUnderlineIcon className="w-6 h-6 cursor-pointer" />
+													</button>
+													<button
+														disabled={loading}
+														onClick={() => {
+															setIsInternalUpdate(true);
+															setColor(null);
+															if (onChange) {
+																onChange(null);
+															}
+															setTimeout(() => {
+																setIsInternalUpdate(false);
+															}, 0);
+														}}
+														className={`outline-none ${'cursor-pointer'}`}
+														type="button"
+													>
+														<TrashIcon className="w-5" />
+													</button>
+												</>
+											)}
+										</>
+									)}
 								</div>
 							)}
 						</div>
@@ -171,7 +227,7 @@ export const ColorPicker = ({
 	) : (
 		<PopoverDropdown>
 			<PopoverTrigger asChild>
-				<div className="flex items-center px-2 space-x-2 h-14 rounded-xl cursor-pointer dark:bg-dark--theme-light input-border">
+				<div className="flex w-full items-center px-2 space-x-2 h-14 rounded-xl cursor-pointer dark:bg-dark--theme-light input-border">
 					<span className="block w-5 h-5 rounded-full" style={{ backgroundColor: color || '#000' }} />
 					<span className="font-normal">{color || 'Color'}</span>
 				</div>

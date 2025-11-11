@@ -1,4 +1,4 @@
-import { useTeamMemberCard, useTeamTasks } from '@/core/hooks';
+import { useAuthenticateUser, useModal, useTeamMemberCard, useTeamTasks } from '@/core/hooks';
 import { activeTeamState, activeTeamTaskId, taskStatusesState } from '@/core/stores';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
@@ -7,13 +7,14 @@ import { PlanTask } from '@/core/components/tasks/task-card';
 import { useTranslations } from 'next-intl';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { Combobox, Transition } from '@headlessui/react';
-import React, { JSX, useCallback } from 'react';
+import React, { JSX, useCallback, useMemo } from 'react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import { EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { EIssueType, ETaskPriority } from '@/core/types/generics/enums/task';
+import { CreateDailyPlanFormModal } from '../../features/daily-plan/create-daily-plan-form-modal';
 
 export default function MenuKanbanCard({ item: task, member }: { item: TTask; member: any }) {
 	const t = useTranslations();
@@ -21,8 +22,16 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 	const { createTask, createLoading } = useTeamTasks();
 	const { assignTask, unassignTask, assignTaskLoading, unAssignTaskLoading } = useTeamMemberCard(member);
 	const taskStatuses = useAtomValue(taskStatusesState);
+	const { closeModal, isOpen, openModal } = useModal();
+	const authUser = useAuthenticateUser()
 
 	const activeTeam = useAtomValue(activeTeamState);
+
+	const employeeId = useMemo(() => activeTeam?.members?.find((m) => m.employee?.userId === authUser?.user?.id)?.employee?.id ?? '', [
+		activeTeam?.members,
+		authUser?.user?.id
+	]);
+
 	const menu = [
 		{
 			name: t('common.EDIT_TASK'),
@@ -143,52 +152,62 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 	].filter((item) => item.active || item.active === undefined);
 
 	return (
-		<Popover>
-			<PopoverTrigger asChild>
-				<button>
-					<ThreeCircleOutlineVerticalIcon className="z-50 w-4 h-4" />
-				</button>
-			</PopoverTrigger>
-			<PopoverContent
-				align="end"
-				className=" w-44 border-[0.125rem] dark:border-[#26272C] bg-white dark:bg-dark--theme-light p-0"
-			>
-				<ul>
-					{menu.map((item) => {
-						return (
-							<li key={item.name} onClick={async () => await item?.onClick?.()}>
-								{item.action == 'assignee' ? (
-									<div className="flex justify-between px-2 py-1 w-full text-sm font-normal text-left capitalize whitespace-nowrap hover:bg-secondary-foreground/20">
-										<TeamMembersSelect
-											key={item.name}
-											task={task}
-											teamMembers={activeTeam?.members ?? []}
-										/>
-									</div>
-								) : (
-									<button className="flex justify-between items-center px-2 py-1 w-full text-sm font-normal text-left capitalize whitespace-nowrap hover:bg-secondary-foreground/20 hover:font-semibold hover:transition-all">
-										<p>{item.name}</p>
-										{item.loading && <SpinnerLoader size={15} />}
-									</button>
-								)}
-							</li>
-						);
-					})}
-				</ul>
-				<HorizontalSeparator />
-				<ul className="list-none">
-					<li className="flex justify-between px-2 py-1 w-full text-sm font-normal text-left capitalize whitespace-nowrap hover:bg-secondary-foreground/20 hover:font-semibold hover:transition-all">
-						<PlanTask planMode={EDailyPlanMode.TODAY} taskId={task.id} chooseMember={true} />
-					</li>
-					<li className="flex justify-between px-2 py-1 w-full text-sm font-normal text-left capitalize whitespace-nowrap hover:bg-secondary-foreground/20 hover:font-semibold hover:transition-all">
-						<PlanTask planMode={EDailyPlanMode.TOMORROW} taskId={task.id} chooseMember={true} />
-					</li>
-					<li className="flex justify-between px-2 py-1 w-full text-sm font-normal text-left capitalize whitespace-nowrap hover:bg-secondary-foreground/20 hover:font-semibold hover:transition-all">
-						<PlanTask planMode={EDailyPlanMode.CUSTOM} taskId={task.id} chooseMember={true} />
-					</li>
-				</ul>
-			</PopoverContent>
-		</Popover>
+		<>
+			<Popover>
+				<PopoverTrigger asChild>
+					<button>
+						<ThreeCircleOutlineVerticalIcon className="z-50 w-4 h-4" />
+					</button>
+				</PopoverTrigger>
+				<PopoverContent
+					align="end"
+					className=" w-44 border-[0.125rem] dark:border-[#26272C] bg-white dark:bg-dark--theme-light p-0"
+				>
+					<ul>
+						{menu.map((item) => {
+							return (
+								<li key={item.name} onClick={async () => await item?.onClick?.()}>
+									{item.action == 'assignee' ? (
+										<div className="flex justify-between px-2 py-1 w-full text-sm font-normal text-left capitalize whitespace-nowrap hover:bg-secondary-foreground/20">
+											<TeamMembersSelect
+												key={item.name}
+												task={task}
+												teamMembers={activeTeam?.members ?? []}
+											/>
+										</div>
+									) : (
+										<button className="flex justify-between items-center px-2 py-1 w-full text-sm font-normal text-left capitalize whitespace-nowrap hover:bg-secondary-foreground/20 hover:font-semibold hover:transition-all">
+											<p>{item.name}</p>
+											{item.loading && <SpinnerLoader size={15} />}
+										</button>
+									)}
+								</li>
+							);
+						})}
+					</ul>
+					<HorizontalSeparator />
+					<ul className="list-none">
+						<li className="flex justify-between px-2 py-1 w-full text-sm font-normal text-left capitalize whitespace-nowrap hover:bg-secondary-foreground/20 hover:font-semibold hover:transition-all">
+							<PlanTask planMode={EDailyPlanMode.TODAY} taskId={task.id} chooseMember={true} />
+						</li>
+						<li className="flex justify-between px-2 py-1 w-full text-sm font-normal text-left capitalize whitespace-nowrap hover:bg-secondary-foreground/20 hover:font-semibold hover:transition-all">
+							<PlanTask planMode={EDailyPlanMode.TOMORROW} taskId={task.id} chooseMember={true} />
+						</li>
+						<li className="flex justify-between px-2 py-1 w-full text-sm font-normal text-left capitalize whitespace-nowrap hover:bg-secondary-foreground/20 hover:font-semibold hover:transition-all">
+							<PlanTask openModal={openModal} planMode={EDailyPlanMode.CUSTOM} taskId={task.id} chooseMember={true} />
+						</li>
+					</ul>
+				</PopoverContent>
+			</Popover>
+
+			<CreateDailyPlanFormModal
+				open={isOpen}
+				closeModal={closeModal}
+				taskId={task.id}
+				employeeId={employeeId}
+				planMode={EDailyPlanMode['CUSTOM']}
+			/>
+		</>
 	);
 }
 

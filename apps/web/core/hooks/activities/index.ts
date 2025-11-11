@@ -7,6 +7,7 @@ export * from './time-logs/use-time-logs-daily-report';
 export * from './use-time-slots';
 export * from './use-timelog-filter-options';
 export * from './use-timer';
+export * from './use-today-worked-time';
 export * from './use-timesheet';
 export * from './use-timesheet-filters';
 export * from './use-timesheet-pagination';

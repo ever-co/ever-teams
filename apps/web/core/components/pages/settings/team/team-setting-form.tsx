@@ -186,6 +186,20 @@ export const TeamSettingForm = () => {
 		[setValue]
 	);
 
+	const handleTimeSizeUpdate = useCallback(async () => {
+		try {
+			await editOrganizationTeam({
+				id: activeTeam?.id,
+				teamSize: getValues('teamSize')
+			});
+
+			toast.success('Team size updated successfully');
+		} catch (error) {
+			console.error('Team size update failed:', error);
+			toast.error('Failed to update team size. Please try again.');
+		}
+	}, [editOrganizationTeam, activeTeam?.id, getValues]);
+
 	const handleTeamNameUpdate = useCallback(async () => {
 		try {
 			await editOrganizationTeam({
@@ -197,6 +211,34 @@ export const TeamSettingForm = () => {
 		} catch (error) {
 			console.error('Team name update failed:', error);
 			toast.error('Failed to update team name. Please try again.');
+		}
+	}, [editOrganizationTeam, activeTeam?.id, getValues]);
+
+	const handleTeamColorUpdate = useCallback(async () => {
+		try {
+			await editOrganizationTeam({
+				id: activeTeam?.id,
+				color: getValues('color')
+			});
+
+			toast.success('Team color updated successfully');
+		} catch (error) {
+			console.error('Team color update failed:', error);
+			toast.error('Failed to update team color. Please try again.');
+		}
+	}, [editOrganizationTeam, activeTeam?.id, getValues]);
+
+	const handleTeamEmojiUpdate = useCallback(async () => {
+		try {
+			await editOrganizationTeam({
+				id: activeTeam?.id,
+				emoji: getValues('emoji')
+			});
+
+			toast.success('Team emoji updated successfully');
+		} catch (error) {
+			console.error('Team emoji update failed:', error);
+			toast.error('Failed to update team emoji. Please try again.');
 		}
 	}, [editOrganizationTeam, activeTeam?.id, getValues]);
 
@@ -284,6 +326,7 @@ export const TeamSettingForm = () => {
 								</Text>
 								<div className="flex z-10 flex-row flex-grow-0 justify-between items-center w-full lg:w-4/5">
 									<ColorPicker
+										onSave={handleTeamColorUpdate}
 										defaultColor={activeTeam?.color || ''}
 										onChange={(color: any | null) => {
 											debounceHandleColorChange(color);
@@ -308,6 +351,7 @@ export const TeamSettingForm = () => {
 										emoji={activeTeam?.emoji || null}
 										isTeamManager={isTeamManager}
 										disabled={!isTeamManager}
+										onSave={handleTeamEmojiUpdate}
 									/>
 								</div>
 							</div>
@@ -326,6 +370,7 @@ export const TeamSettingForm = () => {
 											}}
 											isTeamManager={isTeamManager}
 											disabled={!isTeamManager}
+											onSave={handleTimeSizeUpdate}
 										/>
 									</div>
 								</div>

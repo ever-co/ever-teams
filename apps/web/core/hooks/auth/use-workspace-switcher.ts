@@ -1,28 +1,20 @@
 'use client';
 
 import { useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
-import { useCacheInvalidation } from '@/core/hooks/common/use-cache-invalidation';
 import { toast } from 'sonner';
 import { useWorkspaces } from './use-workspaces';
-import { authService } from '@/core/services/client/api/auth';
+import { workspaceService } from '@/core/services/client/api/auth';
 import { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 import { LAST_WORKSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
 import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
 import { useUserQuery } from '../queries/user-user.query';
+import { setAuthCookies, getOrganizationIdCookie, getActiveLanguageIdCookie } from '@/core/lib/helpers/cookies';
 
-/**
- * Smart workspace switcher hook based on password/page-component.tsx logic
- * Reuses the existing authentication flow that works perfectly
- */
 export function useWorkspaceSwitcher() {
-	const router = useRouter();
 	const { data: user } = useUserQuery();
 	const { workspaces } = useWorkspaces();
 
-	// Use cache invalidation hook - much cleaner than manual invalidations
-	const { smartInvalidate } = useCacheInvalidation();
 	/**
 	 * Get last team ID with recent logout logic (from password component)
 	 */
@@ -78,35 +70,57 @@ export function useWorkspaceSwitcher() {
 		[getLastTeamIdWithRecentLogout]
 	);
 
-	/**
-	 * Workspace switch mutation using the EXACT same flow as password authentication
-	 */
 	const switchWorkspaceMutation = useMutation({
 		mutationFn: async ({ workspace, selectedTeam }: { workspace: TWorkspace; selectedTeam: string }) => {
-			if (!user?.email) {
-				throw new Error('User email not found');
-			}
+			// Use switchWorkspace with only tenantId
+			const tenantId = workspace.user.tenant.id;
+			const response = await workspaceService.switchWorkspace(tenantId);
 
-			const params = {
-				email: user.email,
-				token: workspace.token, // THE WORKSPACE TOKEN (not tenantId!)
-				defaultTeamId: selectedTeam,
-				selectedTeam: selectedTeam,
-				lastTeamId: selectedTeam
-			};
-
-			// Use the EXACT same parameters as password component
-			return await authService.signInWorkspace(params);
+			// Return both response and selectedTeam for onSuccess
+			return { response, selectedTeam, workspace };
 		},
-		onSuccess: async () => {
+		onSuccess: async ({ response, selectedTeam }) => {
+			// Extract data from response
+			const { user: authUser, token, refresh_token } = response;
+			const tenantId = authUser.tenantId || '';
+			const userId = authUser.id || '';
+
+			// Get organizationId from user.employee or fallback to current cookie
+			const organizationId = authUser.employee?.organizationId || getOrganizationIdCookie() || '';
+
+			// Use the language preference hierarchy
+			const preferredLanguage = authUser.preferredLanguage || getActiveLanguageIdCookie() || 'en';
+
+			// Update cookies with new authentication data
+			setAuthCookies({
+				access_token: token,
+				refresh_token: {
+					token: refresh_token
+				},
+				teamId: selectedTeam,
+				tenantId,
+				organizationId,
+				languageId: preferredLanguage,
+				noTeamPopup: true,
+				userId
+			});
+
+			// NOTE_CRITICAL: Do NOT update Jotai states here!
+			// Updating states while components are mounted causes "Maximum update depth exceeded"
+			// The page reload will reinitialize all states automatically from cookies
+
 			// Show success message
 			toast.success('Workspace changed successfully');
 
-			// Invalidate all workspace-related queries
-			// Cache invalidation using semantic hook - much cleaner and more maintainable!
-			await smartInvalidate('team-creation');
-			// Navigate to home (EXACT same as password component)
-			router.push('/');
+			// NOTE_CRITICAL: Use hard navigation (window.location) instead of router.push()
+			// This forces a full page reload which:
+			// 1. Clears all React Query cache automatically
+			// 2. Reinitializes all components with new workspace context
+			// 3. Prevents stale queries with old organizationId/teamId
+			// 4. Avoids "Maximum update depth exceeded" errors from state updates
+			if (typeof window !== 'undefined') {
+				window.location.href = '/';
+			}
 		},
 		onError: (error: any) => {
 			console.error('Error switching workspace:', error);

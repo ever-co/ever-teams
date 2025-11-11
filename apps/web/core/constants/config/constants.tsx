@@ -133,7 +133,7 @@ export const GAUZY_API_BASE_SERVER_URL = getNextPublicEnv(
 	'NEXT_PUBLIC_GAUZY_API_SERVER_URL',
 	process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL
 );
-
+export const IS_DEV_MODE = process.env.NODE_ENV === 'development';
 export const ACTIVE_LOCAL_LOG_SYSTEM = getNextPublicEnv(
 	'NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM',
 	process.env.NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM
@@ -453,6 +453,7 @@ export const HAS_VISITED_OUTSTANDING_TASKS = 'has-visited-outstanding-tasks';
 export const HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL = 'has-seen-daily-plan-suggestion-modal';
 export const LAST_SELECTED_PROJECTS_VIEW = 'last-selected-projects-view';
 export const PROJECTS_TABLE_VIEW_LAST_SORTING = 'projects-table-view-last-sorting';
+export const LAST_SELECTED_TEAM_MEMBERS_VIEW_MODE = 'last-selected-team-members-view-mode';
 
 // OAuth provider's keys
 
@@ -843,3 +844,21 @@ export const InviteStatusDisplayMap = {
 } as const;
 export const ITEMS_LENGTH_TO_VIRTUALIZED = 8;
 export const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
+
+export const sizeOption = [
+	{
+		name: 'Only me'
+	},
+	{
+		name: '2 - 5'
+	},
+	{
+		name: '6 - 20'
+	},
+	{
+		name: '21 - 100'
+	},
+	{
+		name: '100+'
+	}
+];

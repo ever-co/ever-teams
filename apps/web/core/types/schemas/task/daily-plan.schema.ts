@@ -94,8 +94,8 @@ export const dailyPlanTasksUpdateSchema = z.object({
 	employeeId: z.string().optional().nullable(),
 
 	// From Omit<IBasePerTenantAndOrganizationEntityModel, 'id'>
-	tenantId: z.string().optional(),
-	organizationId: z.string().optional()
+	tenantId: z.string().nullable().optional(),
+	organizationId: z.string().nullable().optional()
 });
 
 /**
@@ -104,7 +104,7 @@ export const dailyPlanTasksUpdateSchema = z.object({
 export const removeTaskFromManyPlansRequestSchema = z.object({
 	employeeId: z.string().optional().nullable(), // ID type
 	plansIds: z.array(z.string()).optional().nullable(), // ID[] type
-	organizationId: z.string().optional().nullable() // ID type
+	organizationId: z.string().nullable().optional() // ID type
 });
 
 // Export TypeScript types

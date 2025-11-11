@@ -655,7 +655,12 @@
 			"SELECT_WORKSPACE": "Избери работно пространство",
 			"ENTER_EMAIL": "Въведи имейл",
 			"WORKSPACES_NOT_FOUND": "Работни пространства не са намерени",
-			"INVALID_CODE_TRY_AGAIN": "Невалиден код. Моля, опитайте отново."
+			"INVALID_CODE_TRY_AGAIN": "Невалиден код. Моля, опитайте отново.",
+			"EMPTY_WORKSPACE_WARNING_TITLE": "Това работно пространство няма отбори",
+			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Ще бъдете подканени да създадете отбор след влизане.",
+			"NO_TEAMS_BADGE": "Няма отбори",
+			"TEAM_COUNT_SINGULAR": "отбор",
+			"TEAM_COUNT_PLURAL": "отбора"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Присъединяване към съществуващ отбор",
@@ -912,14 +917,18 @@
 	},
 	"timer": {
 		"ACTIVE": "Активен",
-		"APPS": "Приложения",
-		"ARCHIVED": "Архивиран",
 		"START_TIMER": "Моля, изберете или създайте нова задача, за да започнете да проследявате времето или да създадете план",
 		"ALREADY_TRACKING_MESSAGE": "Вече проследявате времето в друг раздел или устройство.",
+		"TASK_CLOSED": "Задачата е затворена",
+		"STARTING_TIMER": "Стартиране на таймера...",
+		"TIMER_STARTED": "Таймерът е стартиран успешно",
+		"TIMER_START_FAILED": "Неуспешно стартиране на таймера",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Таймерът спря",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Таймерът спря поради смяна на отбора"
 		},
+		"APPS": "Приложения",
+		"ARCHIVED": "Архивиран",
 		"THERE_IS_NO_APPS_VISITED": "Няма посетени приложения.",
 		"TIME_ACTIVITY": "Дейност",
 		"TIME_SPENT_IN_HOURS": "Време, прекарано (часове)",

@@ -1,19 +1,25 @@
 import { Button } from '@/core/components';
 import { useModal, useUserProfilePage } from '@/core/hooks';
-import { taskBlockFilterState } from '@/core/stores/tasks/task-filter';
+import { taskBlockFilterState, blockViewSearchQueryState } from '@/core/stores/tasks/task-filter';
 import { useAtom, useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
+import { activeTeamState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
-import { SearchNormalIcon, TimerPlayIcon } from 'assets/svg';
-import { CheckCircleTickIcon, CrossCircleIcon, StopCircleIcon, PauseIcon } from 'assets/svg';
+import {
+	SearchNormalIcon,
+	TimerPlayIcon,
+	CheckCircleTickIcon,
+	CrossCircleIcon,
+	StopCircleIcon,
+	PauseIcon
+} from 'assets/svg';
 import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { TaskNameFilter } from '@/core/components/pages/profile/task-filters';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { useProcessedTeamMembers } from '@/core/hooks/teams/use-processed-team-members';
 import { useTeamMemberFilterStatsForUI } from '@/core/hooks/teams/use-team-member-filter-stats';
-import { activeTeamState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { TeamMemberFilterType } from '@/core/lib/utils/team-members.utils';
 
@@ -71,9 +77,15 @@ export function UserTeamBlockHeader() {
 	const { data: user } = useUserQuery();
 	const { openModal, isOpen, closeModal } = useModal();
 	const [activeFilter, setActiveFilter] = useAtom<TeamMemberFilterType>(taskBlockFilterState);
+	const [, setSearchQuery] = useAtom(blockViewSearchQueryState);
 
 	const profile = useUserProfilePage();
 	const hook = useTaskFilter(profile);
+
+	// Sync search query to global state for member filtering
+	useEffect(() => {
+		setSearchQuery(hook.taskName);
+	}, [hook.taskName, setSearchQuery]);
 
 	// Use refactored hooks for member processing and stats
 	const processedMembers = useProcessedTeamMembers(activeTeam, user!);
@@ -129,7 +141,7 @@ export function UserTeamBlockHeader() {
 					))}
 				</div>
 
-				<div className="flex gap-2 justify-end items-center pr-4 w-3/12">
+				<div className="flex items-center justify-end w-3/12 gap-2 pr-4">
 					{hook.filterType === 'search' ? (
 						<TaskNameFilter
 							fullWidth={true}

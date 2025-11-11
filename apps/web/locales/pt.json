@@ -656,7 +656,12 @@
 			"SELECT_WORKSPACE": "Selecionar Espaço de Trabalho",
 			"ENTER_EMAIL": "Inserir E-mail",
 			"WORKSPACES_NOT_FOUND": "Espaços de trabalho não encontrados",
-			"INVALID_CODE_TRY_AGAIN": "Código inválido. Por favor, tente novamente."
+			"INVALID_CODE_TRY_AGAIN": "Código inválido. Por favor, tente novamente.",
+			"EMPTY_WORKSPACE_WARNING_TITLE": "Este espaço de trabalho não tem equipes",
+			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Você será solicitado a criar uma equipe após o login.",
+			"NO_TEAMS_BADGE": "Sem equipes",
+			"TEAM_COUNT_SINGULAR": "equipe",
+			"TEAM_COUNT_PLURAL": "equipes"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Participar de uma Equipe Existente",
@@ -914,6 +919,10 @@
 	"timer": {
 		"START_TIMER": "Por favor, selecione ou crie uma nova tarefa para começar a rastrear o tempo ou crie um plano",
 		"ALREADY_TRACKING_MESSAGE": "Você já está rastreando o tempo em outra aba ou dispositivo.",
+		"TASK_CLOSED": "A tarefa está fechada",
+		"STARTING_TIMER": "Iniciando temporizador...",
+		"TIMER_STARTED": "Temporizador iniciado com sucesso",
+		"TIMER_START_FAILED": "Falha ao iniciar o temporizador",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Temporizador Parado",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Temporizador Parado devido à Troca de Equipe"

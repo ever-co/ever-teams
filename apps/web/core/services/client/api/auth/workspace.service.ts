@@ -5,6 +5,7 @@ import { TUser } from '@/core/types/schemas/user/user.schema';
 import { TWorkspace, TWorkspaceResponse, workspaceResponseSchema } from '@/core/types/schemas';
 import QueryString from 'qs';
 import { validateApiResponse } from '@/core/types/schemas/utils/validation';
+import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 
 /**
  * Service for workspace management
@@ -63,6 +64,32 @@ class WorkspaceService extends APIService {
 		} catch (error) {
 			this.logger.error('Error validating workspace access:', { error });
 			return false;
+		}
+	};
+
+	/**
+	 * Switch to a different workspace for an authenticated user
+	 * Uses POST /auth/switch-workspace endpoint
+	 *
+	 * @param tenantId - The ID of the workspace (tenant) to switch to
+	 * @returns {IAuthResponse} Authentication response with new tokens and user data
+	 */
+	switchWorkspace = async (tenantId: string): Promise<IAuthResponse> => {
+		try {
+			const response = await this.post<IAuthResponse>('/auth/switch-workspace', {
+				tenantId
+			});
+			return response.data;
+		} catch (error) {
+			this.logger.error(
+				'Error switching workspace:',
+				{
+					error,
+					tenantId
+				},
+				'WorkspaceService'
+			);
+			throw error;
 		}
 	};
 }
