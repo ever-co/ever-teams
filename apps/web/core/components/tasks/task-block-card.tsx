@@ -1,6 +1,4 @@
 import { TTaskStatistics } from '@/core/types/interfaces/task/task';
-import { TaskAllStatusTypes } from './task-all-status-type';
-import MenuKanbanCard from '@/core/components/pages/kanban/menu-kanban-card';
 import { TaskInput } from './task-input';
 import { useAtom, useAtomValue } from 'jotai';
 import { activeTeamState, activeTeamTaskId, activeTeamTaskState, timerStatusState } from '@/core/stores';
@@ -15,6 +13,7 @@ import React from 'react';
 import { HorizontalSeparator } from '../duplicated-components/separator';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { LazyMenuKanbanCard, LazyTaskAllStatusTypes } from '../optimized-components';
 
 interface TaskItemProps {
 	task: TTask;
@@ -83,7 +82,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
 			<div className="justify-between w-full h-fit">
 				<div className="flex justify-between w-full">
 					<span className="!w-64">
-						<TaskAllStatusTypes
+						<LazyTaskAllStatusTypes
 							className="justify-start"
 							task={task}
 							showStatus={false}
@@ -92,7 +91,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
 						/>
 					</span>
 					<span>
-						<MenuKanbanCard member={currentMember} item={task} />
+						<LazyMenuKanbanCard member={currentMember} item={task} />
 					</span>
 				</div>
 				<div className="flex justify-between my-3 w-full">
