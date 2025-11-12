@@ -15,6 +15,7 @@ import React from 'react';
 import { HorizontalSeparator } from '../duplicated-components/separator';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { LazyMenuKanbanCard, LazyTaskAllStatusTypes } from '../optimized-components';
 
 interface TaskItemProps {
 	task: TTask;
@@ -83,7 +84,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
 			<div className="justify-between w-full h-fit">
 				<div className="flex justify-between w-full">
 					<span className="!w-64">
-						<TaskAllStatusTypes
+						<LazyTaskAllStatusTypes
 							className="justify-start"
 							task={task}
 							showStatus={false}
@@ -92,10 +93,10 @@ export default function TaskBlockCard(props: TaskItemProps) {
 						/>
 					</span>
 					<span>
-						<MenuKanbanCard member={currentMember} item={task} />
+						<LazyMenuKanbanCard member={currentMember} item={task} />
 					</span>
 				</div>
-				<div className="flex justify-between my-3 w-full">
+				<div className="flex justify-between w-full my-3">
 					<div className="flex items-center w-64">
 						{activeTask?.id == task.id ? (
 							<>
@@ -149,17 +150,17 @@ export default function TaskBlockCard(props: TaskItemProps) {
 				<div className="my-2">
 					<HorizontalSeparator />
 				</div>
-				<div className="flex justify-between items-center w-full h-10">
+				<div className="flex items-center justify-between w-full h-10">
 					<div>
 						{activeTaskStatus ? (
-							<div className="flex gap-2 items-center">
+							<div className="flex items-center gap-2">
 								<small className="text-xs text-grey text-normal">Live:</small>
 								<p className="text-[#219653] font-medium text-sm">
 									{h}h : {m}m : {s}s
 								</p>
 							</div>
 						) : (
-							<div className="flex gap-2 items-center">
+							<div className="flex items-center gap-2">
 								<small className="text-xs text-grey text-normal">Worked:</small>
 								<p className="text-sm font-medium text-black whitespace-nowrap text-nowrap min-w-20 dark:text-white">
 									{h}h : {m}m : {s}s
