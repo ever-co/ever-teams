@@ -1,91 +1,19 @@
 'use client';
 
 import { isTestDateRange } from '@/core/lib/helpers/index';
-import {
-	dateRangeAllPlanState,
-	dateRangeFuturePlanState,
-	dateRangePastPlanState,
-	filteredAllPlanDataState,
-	filteredFuturePlanDataState,
-	filteredPastPlanDataState,
-	originalAllPlanState,
-	originalFuturePlanState,
-	originalPastPlanDataState
-} from '@/core/stores';
-import { useEffect, useMemo } from 'react';
 import { DateRange } from 'react-day-picker';
-import { useAtom, useAtomValue } from 'jotai';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
+
 /**
- *custom filter the data with date range
+ * Utility function to filter daily plans by date range
  *
- * @export
- * @param {TDailyPlan[]} itemsDailyPlan
- * @param {('future' | 'past' | 'all')} [typeItems]
- * @return {*}
+ * Migrated from global Jotai atoms to a pure utility function.
+ * This function is used by multiple components to filter plans based on date ranges.
+ *
+ * @param date - The date range to filter by (from/to)
+ * @param data - The array of daily plans to filter
+ * @returns Filtered array of daily plans that fall within the date range
  */
-export function useFilterDateRange(itemsDailyPlan: TDailyPlan[], typeItems?: 'future' | 'past' | 'all') {
-	const [dateAllPlan, setDateAllPlan] = useAtom(dateRangeAllPlanState);
-	const [datePastPlan, setDatePastPlan] = useAtom(dateRangePastPlanState);
-	const [dateFuture, setDateFuture] = useAtom(dateRangeFuturePlanState);
-
-	const [originalAllPlanData, setOriginalAllPlanState] = useAtom(originalAllPlanState);
-	const [originalPastPlanData, setOriginalPastPlanData] = useAtom(originalPastPlanDataState);
-	const [originalFuturePlanData, setOriginalFuturePlanData] = useAtom(originalFuturePlanState);
-
-	const filteredAllPlanData = useAtomValue(filteredAllPlanDataState);
-	const filteredPastPlanData = useAtomValue(filteredPastPlanDataState);
-	const filteredFuturePlanData = useAtomValue(filteredFuturePlanDataState);
-
-	// useEffect(() => {
-	//     if (!itemsDailyPlan) return;
-
-	//     if (typeItems === 'future') {
-	//         setOriginalFuturePlanData(itemsDailyPlan);
-	//     } else if (typeItems === 'past') {
-	//         setOriginalPastPlanData(itemsDailyPlan);
-	//     } else if (typeItems === 'all') {
-	//         setOriginalAllPlanState(itemsDailyPlan);
-	//     }
-	// }, [itemsDailyPlan, dateFuture, datePastPlan, dateAllPlan, typeItems, setOriginalAllPlanState, setOriginalFuturePlanData, setOriginalAllPlanState]);
-	const updateOriginalPlanData = useMemo(
-		() => (data: TDailyPlan[]) => {
-			switch (typeItems) {
-				case 'future':
-					setOriginalFuturePlanData(data);
-					break;
-				case 'past':
-					setOriginalPastPlanData(data);
-					break;
-				case 'all':
-					setOriginalAllPlanState(data);
-					break;
-				default:
-					break;
-			}
-		},
-		[typeItems, setOriginalAllPlanState, setOriginalFuturePlanData, setOriginalPastPlanData]
-	);
-
-	useEffect(() => {
-		if (!itemsDailyPlan) return;
-		updateOriginalPlanData(itemsDailyPlan);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [updateOriginalPlanData, dateAllPlan, datePastPlan, dateFuture, setDateAllPlan, setDatePastPlan, setDateFuture]);
-
-	return {
-		filteredAllPlanData,
-		filteredPastPlanData,
-		filteredFuturePlanData,
-		originalAllPlanData,
-		originalFuturePlanData,
-		originalPastPlanData,
-		setDateAllPlan,
-		setDateFuture,
-		setDatePastPlan
-	};
-}
-
 export const filterDailyPlan = (date: DateRange, data: TDailyPlan[]) => {
 	if (!date || !data.length) return data;
 	const { from, to } = date;

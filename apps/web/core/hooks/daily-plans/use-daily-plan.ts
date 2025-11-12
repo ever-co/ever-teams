@@ -228,8 +228,12 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 		}
 	}, [getMyDailyPlansQuery]);
 
-	// ❌ REMOVED - No longer needed (data comes from React Query directly)
-	// const loadMyDailyPlans = ...
+	// Loader function for pre-caching in init-state.tsx
+	// Does NOT update atoms - data is available via React Query cache
+	const loadMyDailyPlans = useCallback(async () => {
+		await getMyDailyPlans();
+		// Data is automatically available via React Query cache
+	}, [getMyDailyPlans]);
 
 	// Employee day plans
 	const getEmployeeDayPlans = useCallback(
@@ -260,8 +264,14 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 		[queryClient, activeTeam?.id, setEmployeeId]
 	);
 
-	// ❌ REMOVED - No longer needed (data comes from React Query directly)
-	// const loadCurrentEmployeeDayPlans = ...
+	// Loader function for pre-caching in init-state.tsx
+	// Does NOT update atoms - data is available via React Query cache
+	const loadEmployeeDayPlans = useCallback(async () => {
+		if (targetEmployeeId) {
+			await getEmployeeDayPlans(targetEmployeeId);
+			// Data is automatically available via React Query cache
+		}
+	}, [getEmployeeDayPlans, targetEmployeeId]);
 
 	const getPlansByTask = useCallback(
 		async (taskId?: string) => {
@@ -423,6 +433,9 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 		//  BACKWARD COMPATIBILITY - Alias for components still using myDailyPlans
 		myDailyPlans: profileDailyPlans,
 
+		//  EMPLOYEE-SPECIFIC data (from React Query, not atoms)
+		employeePlans: getDayPlansByEmployeeQuery.data?.items ?? [],
+
 		//  Queries
 		getAllDayPlans,
 		getAllDayPlansLoading: getAllDayPlansQuery.isLoading,
@@ -462,8 +475,10 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 		todayPlan,
 		sortedPlans,
 
-		//  Loaders
+		//  Loaders (for pre-caching in init-state.tsx)
 		loadAllDayPlans,
+		loadMyDailyPlans,
+		loadEmployeeDayPlans,
 		firstLoadDailyPlanData: handleFirstLoad
 	};
 }
