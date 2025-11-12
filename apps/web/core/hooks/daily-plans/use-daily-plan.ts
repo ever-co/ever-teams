@@ -2,14 +2,7 @@
 
 import { useAtom, useAtomValue } from 'jotai';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-	activeTeamState,
-	dailyPlanListState,
-	employeePlansListState,
-	myDailyPlanListState,
-	profileDailyPlanListState,
-	taskPlans
-} from '@/core/stores';
+import { activeTeamState, dailyPlanListState } from '@/core/stores';
 import {
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlansRequest
@@ -30,7 +23,7 @@ import { useUserQuery } from '../queries/user-user.query';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
-export function useDailyPlan(defaultEmployeeId: string = '') {
+export function useDailyPlan(defaultEmployeeId: string | null = null) {
 	const { data: user } = useUserQuery();
 	const activeTeam = useAtomValue(activeTeamState);
 	const targetEmployeeId = defaultEmployeeId || user?.employee?.id;
@@ -162,34 +155,11 @@ export function useDailyPlan(defaultEmployeeId: string = '') {
 		});
 	}, [activeTeam?.id, employeeId, queryClient]);
 
+	//  TEAM-WIDE atom - Keep for backward compatibility
 	const [dailyPlan, setDailyPlan] = useAtom(dailyPlanListState);
-	const [myDailyPlans, setMyDailyPlans] = useAtom(myDailyPlanListState);
-	const [profileDailyPlans, setProfileDailyPlans] = useAtom(profileDailyPlanListState);
-	const [employeePlans, setEmployeePlans] = useAtom(employeePlansListState);
-	const [taskPlanList, setTaskPlans] = useAtom(taskPlans);
 	const { firstLoadData: firstLoadDailyPlanData } = useFirstLoad();
 
-	// Sync jotai state
-	useConditionalUpdateEffect(
-		() => {
-			if (getDayPlansByEmployeeQuery.data?.items) {
-				setEmployeePlans(getDayPlansByEmployeeQuery.data?.items);
-			}
-		},
-		[getDayPlansByEmployeeQuery.data?.items, setEmployeePlans],
-		Boolean(employeePlans?.length)
-	);
-
-	useConditionalUpdateEffect(
-		() => {
-			if (getMyDailyPlansQuery.data) {
-				setMyDailyPlans(getMyDailyPlansQuery.data);
-			}
-		},
-		[getMyDailyPlansQuery.data, setMyDailyPlans],
-		Boolean(myDailyPlans?.items?.length)
-	);
-
+	//  Sync team-wide daily plans (only team-wide atom)
 	useConditionalUpdateEffect(
 		() => {
 			if (getAllDayPlansQuery.data) {
@@ -200,22 +170,24 @@ export function useDailyPlan(defaultEmployeeId: string = '') {
 		Boolean(dailyPlan?.items?.length)
 	);
 
-	useConditionalUpdateEffect(
-		() => {
-			if (getMyDailyPlansQuery.data) {
-				setProfileDailyPlans(getMyDailyPlansQuery.data);
-				if (process.env.NODE_ENV === 'development') {
-					console.log(
-						'[Daily Plans] Profile plans synchronized:',
-						getMyDailyPlansQuery.data.items?.length || 0,
-						'plans'
-					);
-				}
-			}
-		},
-		[getMyDailyPlansQuery.data, setProfileDailyPlans],
-		Boolean(profileDailyPlans?.items?.length)
-	);
+	//  LOCAL data - Calculate profileDailyPlans from React Query
+	const profileDailyPlans = useMemo(() => {
+		const isViewingOtherEmployee = targetEmployeeId && targetEmployeeId !== user?.employee?.id;
+
+		if (process.env.NODE_ENV === 'development') {
+			console.log('[useDailyPlan] Computing profileDailyPlans:', {
+				targetEmployeeId,
+				currentUserId: user?.employee?.id,
+				isViewingOtherEmployee,
+				employeeData: getDayPlansByEmployeeQuery.data?.items?.length || 0,
+				myData: getMyDailyPlansQuery.data?.items?.length || 0
+			});
+		}
+
+		return isViewingOtherEmployee
+			? getDayPlansByEmployeeQuery.data || { items: [], total: 0 }
+			: getMyDailyPlansQuery.data || { items: [], total: 0 };
+	}, [targetEmployeeId, user?.employee?.id, getDayPlansByEmployeeQuery.data, getMyDailyPlansQuery.data]);
 
 	// All day plans
 	const getAllDayPlans = useCallback(async () => {
@@ -256,13 +228,8 @@ export function useDailyPlan(defaultEmployeeId: string = '') {
 		}
 	}, [getMyDailyPlansQuery]);
 
-	const loadMyDailyPlans = useCallback(async () => {
-		const myDailyPlans = await getMyDailyPlans();
-
-		if (myDailyPlans) {
-			setMyDailyPlans(myDailyPlans);
-		}
-	}, [getMyDailyPlans, setMyDailyPlans]);
+	// ❌ REMOVED - No longer needed (data comes from React Query directly)
+	// const loadMyDailyPlans = ...
 
 	// Employee day plans
 	const getEmployeeDayPlans = useCallback(
@@ -290,28 +257,18 @@ export function useDailyPlan(defaultEmployeeId: string = '') {
 				return null; // Return null on error to maintain consistent return type
 			}
 		},
-		[queryClient, activeTeam?.id]
+		[queryClient, activeTeam?.id, setEmployeeId]
 	);
 
-	const loadCurrentEmployeeDayPlans = useCallback(async () => {
-		if (targetEmployeeId) {
-			const employeeDayPlans = await getEmployeeDayPlans(targetEmployeeId);
-
-			if (employeeDayPlans) {
-				setEmployeePlans(employeeDayPlans.items);
-				setProfileDailyPlans(employeeDayPlans);
-			}
-		}
-	}, [getEmployeeDayPlans, setEmployeePlans, setProfileDailyPlans, targetEmployeeId]);
+	// ❌ REMOVED - No longer needed (data comes from React Query directly)
+	// const loadCurrentEmployeeDayPlans = ...
 
 	const getPlansByTask = useCallback(
 		async (taskId?: string) => {
 			try {
 				if (taskId) {
 					const res = await getPlansByTaskQuery(taskId);
-					if (res) {
-						setTaskPlans(res.items);
-					}
+					return res; //  Return data directly instead of setting atom
 				} else {
 					return;
 				}
@@ -319,7 +276,7 @@ export function useDailyPlan(defaultEmployeeId: string = '') {
 				console.error('Error fetching plans by task:', error);
 			}
 		},
-		[getPlansByTaskQuery, setTaskPlans]
+		[getPlansByTaskQuery]
 	);
 
 	const createDailyPlan = useCallback(
@@ -397,54 +354,49 @@ export function useDailyPlan(defaultEmployeeId: string = '') {
 	}, [descSortedPlans]);
 
 	const todayPlan = useMemo(() => {
-		const now = new Date();
-		const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-		const startOfTomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime();
-
-		return (profileDailyPlans.items ?? []).filter((plan) => {
-			if (!plan.date) return false;
-			const planTime = new Date(plan.date).getTime();
-			return planTime >= startOfToday && planTime < startOfTomorrow;
-		});
+		//  EXACT LOGIC from todayPlanState atom
+		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].filter((plan) =>
+			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])
+		);
 	}, [profileDailyPlans]);
 
 	const todayTasks = useMemo(() => {
-		return todayPlan
-			.map((plan) => {
-				return plan.tasks ? plan.tasks : [];
-			})
-			.flat();
+		return todayPlan.flatMap((plan) => plan.tasks ?? []);
 	}, [todayPlan]);
 
 	const futureTasks = useMemo(() => {
-		return futurePlans
-			.map((plan) => {
-				return plan.tasks ? plan.tasks : [];
-			})
-			.flat();
+		return futurePlans.flatMap((plan) => plan.tasks ?? []);
 	}, [futurePlans]);
 
 	const outstandingPlans = useMemo(() => {
-		const now = new Date();
-		const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-
-		// Build a Set of task IDs from today/future to avoid repeated linear searches (O(1) lookup)
+		//  EXACT LOGIC from outstandingPlansState atom (with Set optimization for performance)
+		// Build a Set of task IDs from today/future to avoid repeated linear searches (O(1) lookup instead of O(n²))
 		const usedIds = new Set<string>([...todayTasks, ...futureTasks].map((t: TTask) => t.id));
 
 		return (
-			(profileDailyPlans.items ?? [])
-				// Strictly past plans only (numeric comparison)
-				.filter((plan) => new Date(plan.date).getTime() < startOfToday)
+			[...(profileDailyPlans.items ? profileDailyPlans.items : [])]
+				// Exclude today plans (EXACT logic from atom)
+				.filter((plan) => !plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]))
+
+				// Exclude future plans (EXACT logic from atom)
+				.filter((plan) => {
+					const planDate = new Date(plan.date);
+					const today = new Date();
+					today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
+					return planDate.getTime() <= today.getTime();
+				})
 				.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 				.map((plan) => ({
 					...plan,
-					// Keep only non-completed tasks not already scheduled today/future (single pass)
-					tasks: (plan.tasks ?? []).filter(
-						(task: TTask) => task.status !== 'completed' && !usedIds.has(task.id)
-					)
+					// Include only non-completed tasks (EXACT logic from atom)
+					tasks: plan.tasks?.filter((task) => task.status !== 'completed')
 				}))
-				// Drop any plans with no remaining tasks
-				.filter((plan) => plan.tasks.length > 0)
+				.map((plan) => ({
+					...plan,
+					// Include only tasks not added yet to today/future plans (OPTIMIZED with Set instead of .find())
+					tasks: plan.tasks?.filter((_task) => !usedIds.has(_task.id))
+				}))
+				.filter((plan) => plan.tasks?.length && plan.tasks.length > 0)
 		);
 	}, [profileDailyPlans, todayTasks, futureTasks]);
 
@@ -456,27 +408,25 @@ export function useDailyPlan(defaultEmployeeId: string = '') {
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadAllDayPlans();
-		await loadMyDailyPlans();
-		await loadCurrentEmployeeDayPlans();
+		//  Data is automatically loaded by React Query - no need to manually load
 		firstLoadDailyPlanData();
-	}, [firstLoadDailyPlanData, loadAllDayPlans, loadCurrentEmployeeDayPlans, loadMyDailyPlans]);
+	}, [firstLoadDailyPlanData, loadAllDayPlans]);
 
 	return {
+		//  TEAM-WIDE data (kept for backward compatibility)
 		dailyPlan,
 		setDailyPlan,
 
+		//  LOCAL data (calculated from React Query)
 		profileDailyPlans,
-		setProfileDailyPlans,
 
-		employeePlans,
-		setEmployeePlans,
+		//  BACKWARD COMPATIBILITY - Alias for components still using myDailyPlans
+		myDailyPlans: profileDailyPlans,
 
-		taskPlanList,
-
+		//  Queries
 		getAllDayPlans,
 		getAllDayPlansLoading: getAllDayPlansQuery.isLoading,
 
-		myDailyPlans,
 		getMyDailyPlans,
 		getMyDailyPlansLoading: getMyDailyPlansQuery.isLoading,
 
@@ -486,6 +436,7 @@ export function useDailyPlan(defaultEmployeeId: string = '') {
 		getPlansByTask,
 		getPlansByTaskLoading: getPlansByTaskQueryLoading,
 
+		//  Mutations
 		createDailyPlan,
 		createDailyPlanLoading: createDailyplanMutation.isPending,
 
@@ -504,15 +455,15 @@ export function useDailyPlan(defaultEmployeeId: string = '') {
 		deleteDailyPlan,
 		deleteDailyPlanLoading: deleteDailyPlanMutation.isPending,
 
+		//  DERIVED VALUES (calculated locally with useMemo)
 		futurePlans,
 		pastPlans,
 		outstandingPlans,
 		todayPlan,
 		sortedPlans,
 
+		//  Loaders
 		loadAllDayPlans,
-		loadMyDailyPlans,
-		loadEmployeeDayPlans: loadCurrentEmployeeDayPlans,
 		firstLoadDailyPlanData: handleFirstLoad
 	};
 }

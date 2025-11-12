@@ -52,7 +52,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		profile?.member?.employeeId,
 		profile?.member?.employee?.id
 	]);
-	// const profileDailyPlans = useAtomValue(profileDailyPlanListState);
+
 	const { todayPlan, outstandingPlans, profileDailyPlans } = useDailyPlan(targetEmployeeId);
 	const timeLogsDailyReport = useAtomValue(timeLogsDailyReportState);
 	const isManagerConnectedUser = useMemo(

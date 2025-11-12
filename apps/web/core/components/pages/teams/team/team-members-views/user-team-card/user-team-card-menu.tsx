@@ -236,7 +236,11 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 					</PopoverPanel>
 				</Transition>
 			</Popover>
-			<AllPlansModal isOpen={isAllPlansModalOpen} closeModal={closeAllPlansModal} />
+			<AllPlansModal
+				isOpen={isAllPlansModalOpen}
+				closeModal={closeAllPlansModal}
+				employeeId={memberInfo.member?.employeeId ?? undefined}
+			/>
 		</>
 	);
 }

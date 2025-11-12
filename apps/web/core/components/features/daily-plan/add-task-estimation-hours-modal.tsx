@@ -29,14 +29,7 @@ import { ID } from '@/core/types/interfaces/common/base-interfaces';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
-import {
-	activeTeamTaskState,
-	tasksByTeamState,
-	taskStatusesState,
-	timerStatusState,
-	profileDailyPlanListState,
-	myDailyPlanListState
-} from '@/core/stores';
+import { activeTeamTaskState, tasksByTeamState, taskStatusesState, timerStatusState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { EIssueType } from '@/core/types/generics/enums/task';
 
@@ -60,10 +53,19 @@ interface IAddTasksEstimationHoursModalProps {
 	tasks: TTask[];
 	isRenderedInSoftFlow?: boolean;
 	selectedDate?: Date;
+	employeeId?: string | null; // ✅ Optional employeeId to view plans for a specific employee
 }
 
 export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModalProps) {
-	const { isOpen, closeModal, plan: propsPlan, tasks: propsTasks, isRenderedInSoftFlow = true, selectedDate } = props;
+	const {
+		isOpen,
+		closeModal,
+		plan: propsPlan,
+		tasks: propsTasks,
+		isRenderedInSoftFlow = true,
+		selectedDate,
+		employeeId
+	} = props;
 	const {
 		isOpen: isActiveTaskHandlerModalOpen,
 		closeModal: closeActiveTaskHandlerModal,
@@ -71,10 +73,9 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	} = useModal();
 
 	const t = useTranslations();
-	const profileDailyPlans = useAtomValue(profileDailyPlanListState);
-	const myDailyPlans = useAtomValue(myDailyPlanListState);
 
-	const { updateDailyPlan } = useDailyPlan();
+	// ✅ Use useDailyPlan with employeeId to get the correct employee's plans
+	const { profileDailyPlans, updateDailyPlan } = useDailyPlan(employeeId);
 
 	// Get the updated plan from the hook instead of relying only on props
 	const plan = useMemo(() => {
@@ -301,7 +302,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [workTimePlanned, tasksEstimationTimes, plan?.tasks, myDailyPlans]);
+	}, [workTimePlanned, tasksEstimationTimes, plan?.tasks, profileDailyPlans]);
 
 	// Put tasks without estimates at the top of the list
 	const sortedTasks = useMemo(
