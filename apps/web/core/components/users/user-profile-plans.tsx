@@ -89,9 +89,6 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		'All Tasks': <AllPlans profile={profile} user={user} />,
 		Outstanding: <Outstanding filter={screenOutstanding[currentOutstanding]} />
 	};
-	const [filterFuturePlanData, setFilterFuturePlanData] = useState<TDailyPlan[]>(futurePlans);
-	const [filterPastPlanData, setFilteredPastPlanData] = useState<TDailyPlan[]>(pastPlans);
-	const [filterAllPlanData, setFilterAllPlanData] = useState<TDailyPlan[]>(sortedPlans);
 	const dailyPlanSuggestionModalDate = window && window?.localStorage.getItem(DAILY_PLAN_SUGGESTION_MODAL_DATE);
 	const path = usePathname();
 	const haveSeenDailyPlanSuggestionModal = window?.localStorage.getItem(HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL);
@@ -121,22 +118,6 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	// Memoize expensive computations to prevent unnecessary re-renders
-	const filteredData = useMemo(() => {
-		if (!currentDataDailyPlan) return null;
-
-		switch (currentTab) {
-			case 'All Tasks':
-				return filterDailyPlan(date as any, sortedPlans);
-			case 'Past Tasks':
-				return filterDailyPlan(date as any, pastPlans);
-			case 'Future Tasks':
-				return filterDailyPlan(date as any, futurePlans);
-			default:
-				return null;
-		}
-	}, [currentTab, date, sortedPlans, pastPlans, futurePlans, currentDataDailyPlan]);
-
 	// Handle tab changes with optimized effects
 	useEffect(() => {
 		if (!currentDataDailyPlan) return;
@@ -144,15 +125,12 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		switch (currentTab) {
 			case 'All Tasks':
 				setCurrentDataDailyPlan(sortedPlans);
-				if (filteredData) setFilterAllPlanData(filteredData);
 				break;
 			case 'Past Tasks':
 				setCurrentDataDailyPlan(pastPlans);
-				if (filteredData) setFilteredPastPlanData(filteredData);
 				break;
 			case 'Future Tasks':
 				setCurrentDataDailyPlan(futurePlans);
-				if (filteredData) setFilterFuturePlanData(filteredData);
 				break;
 			case 'Outstanding':
 				// Only update localStorage when necessary
@@ -167,13 +145,20 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 				}
 				break;
 		}
-	}, [currentTab, filteredData, sortedPlans, pastPlans, futurePlans, currentDataDailyPlan, setCurrentDataDailyPlan]);
+	}, [currentTab, sortedPlans, pastPlans, futurePlans, currentDataDailyPlan, setCurrentDataDailyPlan]);
+	// Use data directly from useDailyPlan instead of local states to prevent stale data
+	// when targetEmployeeId changes (e.g., when viewing different user profiles)
 	const totalTasksDailyPlansMap = useMemo(() => {
+		// Apply date filtering to get the correct counts
+		const filteredFuturePlans = filterDailyPlan(date as any, futurePlans);
+		const filteredPastPlans = filterDailyPlan(date as any, pastPlans);
+		const filteredAllPlans = filterDailyPlan(date as any, sortedPlans);
+
 		return {
 			'Today Tasks': getTotalTasks(todayPlan, user),
-			'Future Tasks': getTotalTasks(filterFuturePlanData, user),
-			'Past Tasks': getTotalTasks(filterPastPlanData, user),
-			'All Tasks': getTotalTasks(filterAllPlanData, user),
+			'Future Tasks': getTotalTasks(filteredFuturePlans, user),
+			'Past Tasks': getTotalTasks(filteredPastPlans, user),
+			'All Tasks': getTotalTasks(filteredAllPlans, user),
 			Outstanding: estimatedTotalTime(
 				outstandingPlans.map((plan) => {
 					const tasks = plan.tasks ?? [];
@@ -184,7 +169,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 				})
 			).totalTasks
 		};
-	}, [todayPlan, filterFuturePlanData, filterPastPlanData, filterAllPlanData, outstandingPlans, user]);
+	}, [todayPlan, futurePlans, pastPlans, sortedPlans, outstandingPlans, user, date]);
 	/*
 	 * DAILY PLANS DISPLAY LOGIC FIX
 	 *
@@ -227,7 +212,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 					{shouldShowDailyPlans ? (
 						<div className="space-y-4">
 							{getMyDailyPlansLoading ? (
-								<div className="flex justify-center items-center py-8">
+								<div className="flex items-center justify-center py-8">
 									<ReloadIcon className="w-6 h-6 animate-spin" />
 									<span className="ml-2">{t('common.LOADING')}</span>
 								</div>
@@ -238,7 +223,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 											{Object.keys(tabsScreens).map((filter, i) => (
 												<div
 													key={i}
-													className="flex gap-4 justify-start items-center cursor-pointer"
+													className="flex items-center justify-start gap-4 cursor-pointer"
 												>
 													{i !== 0 && <VerticalSeparator className="border-slate-400" />}
 													<div
@@ -269,7 +254,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 												</div>
 											))}
 										</div>
-										<div className="flex gap-2 items-center">
+										<div className="flex items-center gap-2">
 											{currentTab === 'Today Tasks' && todayPlan[0] && (
 												<>
 													{canSeeActivity ? (
@@ -310,10 +295,10 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 																		}
 																	}}
 																	variant="destructive"
-																	className="flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
+																	className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
 																>
 																	{deleteDailyPlanLoading && (
-																		<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
+																		<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
 																	)}
 																	{t('common.DELETE')}
 																</Button>

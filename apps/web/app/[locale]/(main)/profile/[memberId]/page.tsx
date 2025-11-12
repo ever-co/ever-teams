@@ -132,9 +132,9 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		<MainLayout
 			mainHeaderSlot={
 				<MainHeader fullWidth={fullWidth} className={cn(hookFilterType && ['pb-0'], '!pt-14')}>
-					<div className="space-y-4 w-full">
+					<div className="w-full space-y-4">
 						{/* Breadcrumb */}
-						<div className="flex gap-8 items-center">
+						<div className="flex items-center gap-8">
 							<Link href="/">
 								<ArrowLeftIcon className="w-6 h-6" />
 							</Link>
@@ -143,7 +143,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 						</div>
 
 						{/* User Profile Detail */}
-						<div className="flex flex-col justify-between items-center md:flex-row">
+						<div className="flex flex-col items-center justify-between md:flex-row">
 							<LazyUserProfileDetail member={profile.member} />
 
 							{profileIsAuthUser && isTrackingEnabled && (
@@ -169,7 +169,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 				<Container fullWidth={fullWidth} className="py-8">
 					<div className={cn('flex gap-4 justify-start items-center mt-3')}>
 						{Object.keys(activityScreens).map((filter, i) => (
-							<div key={i} className="flex gap-4 justify-start items-center cursor-pointer">
+							<div key={i} className="flex items-center justify-start gap-4 cursor-pointer">
 								{i !== 0 && <VerticalSeparator />}
 								<div
 									className={cn(
@@ -189,12 +189,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 				{hook.tab === 'worked' && activityFilter !== 'Tasks' ? (
 					activityScreen
 				) : (
-					<LazyUserProfileTask
-						profile={profile}
-						tabFiltered={hook}
-						paginateTasks={true}
-						user={profileUser?.employee?.user}
-					/>
+					<LazyUserProfileTask profile={profile} tabFiltered={hook} paginateTasks={true} user={profileUser} />
 				)}
 			</Container>
 		</MainLayout>
