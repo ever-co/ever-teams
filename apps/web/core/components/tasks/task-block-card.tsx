@@ -1,6 +1,4 @@
 import { TTaskStatistics } from '@/core/types/interfaces/task/task';
-import { TaskAllStatusTypes } from './task-all-status-type';
-import MenuKanbanCard from '@/core/components/pages/kanban/menu-kanban-card';
 import { TaskInput } from './task-input';
 import { useAtom, useAtomValue } from 'jotai';
 import { activeTeamState, activeTeamTaskId, activeTeamTaskState, timerStatusState } from '@/core/stores';
@@ -96,7 +94,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
 						<LazyMenuKanbanCard member={currentMember} item={task} />
 					</span>
 				</div>
-				<div className="flex justify-between w-full my-3">
+				<div className="flex justify-between my-3 w-full">
 					<div className="flex items-center w-64">
 						{activeTask?.id == task.id ? (
 							<>
@@ -150,17 +148,17 @@ export default function TaskBlockCard(props: TaskItemProps) {
 				<div className="my-2">
 					<HorizontalSeparator />
 				</div>
-				<div className="flex items-center justify-between w-full h-10">
+				<div className="flex justify-between items-center w-full h-10">
 					<div>
 						{activeTaskStatus ? (
-							<div className="flex items-center gap-2">
+							<div className="flex gap-2 items-center">
 								<small className="text-xs text-grey text-normal">Live:</small>
 								<p className="text-[#219653] font-medium text-sm">
 									{h}h : {m}m : {s}s
 								</p>
 							</div>
 						) : (
-							<div className="flex items-center gap-2">
+							<div className="flex gap-2 items-center">
 								<small className="text-xs text-grey text-normal">Worked:</small>
 								<p className="text-sm font-medium text-black whitespace-nowrap text-nowrap min-w-20 dark:text-white">
 									{h}h : {m}m : {s}s
