@@ -10,6 +10,7 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 
 export const StatusesListCard = ({
+	statusId,
 	statusIcon,
 	statusTitle = '',
 	bgColor,
@@ -25,13 +26,14 @@ export const StatusesListCard = ({
 	onDelete: any;
 	showDeleteButton?: boolean;
 	isStatus?: boolean;
+	statusId?: string;
 }>) => {
 	const textColor = getTextColor(bgColor);
 	const t = useTranslations();
 
 	useEffect(() => {
 		if (statusIcon) {
-			loadSVG(statusIcon, 'icon-container' + statusTitle, textColor);
+			loadSVG(statusIcon, `icon-container-${statusTitle}-${statusId}`, textColor);
 		}
 	}, [statusIcon, statusTitle, textColor]);
 
@@ -45,7 +47,7 @@ export const StatusesListCard = ({
 				)}
 				style={{ backgroundColor: bgColor === '' ? undefined : bgColor }}
 			>
-				{statusIcon && <div id={'icon-container' + statusTitle}></div>}
+				{statusIcon && <div id={`icon-container-${statusTitle}-${statusId}`}></div>}
 				<Tooltip
 					label={statusTitle}
 					enabled={statusTitle.length >= CHARACTER_LIMIT_TO_SHOW}
