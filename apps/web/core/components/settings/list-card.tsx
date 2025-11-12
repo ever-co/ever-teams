@@ -35,7 +35,7 @@ export const StatusesListCard = ({
 		if (statusIcon) {
 			loadSVG(statusIcon, `icon-container-${statusTitle}-${statusId}`, textColor);
 		}
-	}, [statusIcon, statusTitle, textColor]);
+	}, [statusIcon, statusTitle, textColor, statusId]);
 
 	return (
 		<div className="border w-[21.4rem] flex items-center p-1 rounded-xl justify-between">
