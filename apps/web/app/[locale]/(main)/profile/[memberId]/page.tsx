@@ -78,12 +78,19 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 	const activityScreens = useMemo(
 		() => ({
-			Tasks: <LazyUserProfileTask profile={profile} tabFiltered={hook} />,
+			Tasks: (
+				<LazyUserProfileTask
+					profile={profile}
+					tabFiltered={hook}
+					user={profileUser}
+					employeeId={profileValidation.member?.employeeId ?? undefined}
+				/>
+			),
 			Screenshots: <LazyScreenshootTab />,
 			Apps: <LazyAppsTab />,
 			'Visited Sites': <LazyVisitedSitesTab />
 		}),
-		[hook, profile]
+		[hook, profile, profileUser, profileValidation.member?.employeeId]
 	);
 
 	const activityScreen = activityScreens[activityFilter] ?? null;
@@ -189,7 +196,13 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 				{hook.tab === 'worked' && activityFilter !== 'Tasks' ? (
 					activityScreen
 				) : (
-					<LazyUserProfileTask profile={profile} tabFiltered={hook} paginateTasks={true} user={profileUser} />
+					<LazyUserProfileTask
+						profile={profile}
+						tabFiltered={hook}
+						paginateTasks={true}
+						user={profileUser}
+						employeeId={profileValidation.member?.employeeId ?? undefined}
+					/>
 				)}
 			</Container>
 		</MainLayout>

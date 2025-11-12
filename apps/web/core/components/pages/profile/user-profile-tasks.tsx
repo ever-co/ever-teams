@@ -21,6 +21,7 @@ type Props = {
 	paginateTasks?: boolean;
 	useVirtualization?: boolean;
 	user?: TUser;
+	employeeId?: string; // Accept employeeId to pass to UserProfilePlans
 };
 /**
  * It displays a list of tasks, the first task being the active task and the rest being the last 24 hours of tasks
@@ -28,7 +29,7 @@ type Props = {
  * @returns A component that displays a user's profile page.
  */
 export const UserProfileTask = memo(
-	({ profile, paginateTasks, tabFiltered, useVirtualization = false, user }: Props) => {
+	({ profile, paginateTasks, tabFiltered, useVirtualization = false, user, employeeId }: Props) => {
 		const [scrollableContainer, setScrollableContainer] = useState<HTMLDivElement | null>(null);
 
 		const t = useTranslations();
@@ -132,12 +133,12 @@ export const UserProfileTask = memo(
 		}, [setupScrollContainer]);
 
 		return (
-			<div className="flex flex-col mt-5 w-full h-full">
+			<div className="flex flex-col w-full h-full mt-5">
 				{tabFiltered.tab === 'worked' &&
 					(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && timerStatus?.running)) &&
 					otherTasks.length > 0 && (
 						/* Displaying the current time. */
-						<div className="flex gap-x-2 items-center mb-3 w-fit">
+						<div className="flex items-center mb-3 gap-x-2 w-fit">
 							<Text className="font-normal">{t('common.NOW')}</Text>
 							<Divider className="flex-1" />
 							<div className="flex items-center space-x-4">
@@ -175,7 +176,7 @@ export const UserProfileTask = memo(
 						<LazyActivityCalendar />
 					</Suspense>
 				)}
-				{tabFiltered.tab === 'dailyplan' && <UserProfilePlans user={user} />}
+				{tabFiltered.tab === 'dailyplan' && <UserProfilePlans user={user} employeeId={employeeId} />}
 
 				{tabFiltered.tab === 'worked' && otherTasks.length > 0 && (
 					<div className="flex items-center my-6 space-x-2">
@@ -367,7 +368,7 @@ const TanStackVirtualizedTaskList = memo(
 			<div style={containerStyle} ref={parentRef} className="custom-scrollbar">
 				<div style={innerStyle}>{virtualItems.map(renderVirtualItem)}</div>
 				{isScrolling && (
-					<div className="absolute top-2 right-2 px-2 py-1 text-xs text-white rounded bg-black/50">
+					<div className="absolute px-2 py-1 text-xs text-white rounded top-2 right-2 bg-black/50">
 						Scrolling...
 					</div>
 				)}

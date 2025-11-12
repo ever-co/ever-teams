@@ -42,23 +42,30 @@ type FilterOutstanding = 'ALL' | 'DATE';
 
 interface IUserProfilePlansProps {
 	user?: TUser;
+	employeeId?: string; // Accept employeeId directly from parent
 }
 
 export function UserProfilePlans(props: IUserProfilePlansProps) {
 	const t = useTranslations();
 
-	const { user } = props;
+	const { user, employeeId: propsEmployeeId } = props;
 
 	const profile = useUserProfilePage();
 	const { data: authUser } = useUserQuery();
 
 	const targetEmployeeId = useMemo(() => {
-		if (profile.isAuthUser) {
-			return authUser?.employee?.id ?? authUser?.employeeId ?? '';
-		} else {
-			return user?.employee?.id ?? user?.employeeId ?? '';
+		// PRIORITY 1: Use employeeId from props if provided (from UserTeamCard)
+		if (propsEmployeeId) {
+			return propsEmployeeId;
 		}
-	}, [profile.isAuthUser, authUser, user]);
+
+		// PRIORITY 2: Calculate from user context (for profile pages)
+		const employeeId = profile.isAuthUser
+			? (authUser?.employee?.id ?? authUser?.employeeId ?? '')
+			: (user?.employee?.id ?? user?.employeeId ?? '');
+
+		return employeeId;
+	}, [profile.isAuthUser, authUser, user, propsEmployeeId]);
 
 	const {
 		futurePlans,
@@ -79,14 +86,14 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	const { setDate, date } = useDateRange(currentTab);
 
 	const screenOutstanding = {
-		ALL: <OutstandingAll profile={profile} user={user} />,
-		DATE: <OutstandingFilterDate profile={profile} user={user} />
+		ALL: <OutstandingAll profile={profile} user={user} employeeId={targetEmployeeId} />,
+		DATE: <OutstandingFilterDate profile={profile} user={user} employeeId={targetEmployeeId} />
 	};
 	const tabsScreens = {
-		'Today Tasks': <AllPlans profile={profile} currentTab={currentTab} user={user} />,
-		'Future Tasks': <FutureTasks profile={profile} user={user} />,
-		'Past Tasks': <PastTasks profile={profile} user={user} />,
-		'All Tasks': <AllPlans profile={profile} user={user} />,
+		'Today Tasks': <AllPlans profile={profile} currentTab={currentTab} user={user} employeeId={targetEmployeeId} />,
+		'Future Tasks': <FutureTasks profile={profile} user={user} employeeId={targetEmployeeId} />,
+		'Past Tasks': <PastTasks profile={profile} user={user} employeeId={targetEmployeeId} />,
+		'All Tasks': <AllPlans profile={profile} user={user} employeeId={targetEmployeeId} />,
 		Outstanding: <Outstanding filter={screenOutstanding[currentOutstanding]} />
 	};
 	const dailyPlanSuggestionModalDate = window && window?.localStorage.getItem(DAILY_PLAN_SUGGESTION_MODAL_DATE);

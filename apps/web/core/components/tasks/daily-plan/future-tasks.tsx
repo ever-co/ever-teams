@@ -16,8 +16,17 @@ import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import { useDailyPlan } from '@/core/hooks';
 
-export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
-	const targetEmployeeId = user?.employee?.id ?? user?.employeeId ?? '';
+export function FutureTasks({
+	profile,
+	user,
+	employeeId
+}: {
+	profile: any;
+	user?: TUser;
+	employeeId?: string; // Accept employeeId directly from parent
+}) {
+	// Use employeeId from props if provided, otherwise calculate from user
+	const targetEmployeeId = employeeId ?? user?.employee?.id ?? user?.employeeId ?? '';
 	const { futurePlans } = useDailyPlan(targetEmployeeId);
 	// Use a safe default instead of direct localStorage access
 	const { date } = useDateRange('Future Tasks');
@@ -62,8 +71,8 @@ export function FutureTasks({ profile, user }: { profile: any; user?: TUser }) {
 								className="dark:border-slate-600 !border-none"
 							>
 								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex gap-3 justify-between items-center w-full">
-										<div className="min-w-max text-lg">
+									<div className="flex items-center justify-between w-full gap-3">
+										<div className="text-lg min-w-max">
 											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 										</div>
 										<HorizontalSeparator />

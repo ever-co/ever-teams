@@ -2,7 +2,7 @@ import { useDailyPlan } from '@/core/hooks';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
-import { estimatedTotalTime, getTotalTasks } from '@/core/components/tasks/daily-plan';
+import { getTotalTasks } from '@/core/components/tasks/daily-plan';
 import { TUser } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
@@ -16,7 +16,7 @@ export function useAuthTeamTasks(user: TUser | undefined) {
 	const targetUser = user || authenticatedUser;
 	const currentMember = activeTeam?.members?.find((member) => member.employee?.userId === targetUser?.id);
 	const employeeId = targetUser?.employee?.id ?? targetUser?.employeeId ?? currentMember?.employee?.id ?? '';
-	const { futurePlans, todayPlan, outstandingPlans } = useDailyPlan(employeeId);
+	const { futurePlans, todayPlan } = useDailyPlan(employeeId);
 
 	const assignedTasks = useMemo(() => {
 		if (!targetUser) return [];
@@ -36,26 +36,19 @@ export function useAuthTeamTasks(user: TUser | undefined) {
 		// Return stable 0 until we know whose plans to show
 		if (!targetUser || !employeeId) return 0;
 
-		// Helper function to filter tasks by user
-		const filterTasksByUser = (tasks: TTask[]) =>
-			tasks.filter((task) => task.members?.some((member) => member.userId === targetUser.id));
-
-		// Filter outstanding plans tasks by user before calculating
-		const filteredOutstandingTasks = outstandingPlans?.map((plan) => filterTasksByUser(plan.tasks || [])) ?? [];
-		const outstandingTasksCount = estimatedTotalTime(filteredOutstandingTasks).totalTasks;
-
 		// Pass targetUser to getTotalTasks for proper filtering
 		const todayTasksCount = getTotalTasks(todayPlan, targetUser);
 		const futureTasksCount = getTotalTasks(futurePlans, targetUser);
 
-		return outstandingTasksCount + futureTasksCount + todayTasksCount;
-	}, [futurePlans, outstandingPlans, todayPlan, targetUser, employeeId]);
+		// NOTE_FIX: "planned" should only include tasks in daily plans (today + future)
+		// Outstanding tasks are NOT planned by definition - they are tasks without plans
+		// or tasks in past plans that are incomplete
+		return todayTasksCount + futureTasksCount;
+	}, [futurePlans, todayPlan, targetUser, employeeId]);
 
 	const totalTodayTasks = useMemo(
 		() =>
-			currentMember?.totalTodayTasks && currentMember?.totalTodayTasks.length
-				? currentMember?.totalTodayTasks.map((task: TTask) => task.id)
-				: [],
+			currentMember?.totalTodayTasks?.length ? currentMember?.totalTodayTasks.map((task: TTask) => task.id) : [],
 		[currentMember]
 	);
 

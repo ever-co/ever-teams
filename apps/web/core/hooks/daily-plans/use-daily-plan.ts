@@ -2,7 +2,7 @@
 
 import { useAtom, useAtomValue } from 'jotai';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { activeTeamState, dailyPlanListState } from '@/core/stores';
+import { activeTeamState, dailyPlanListState, tasksByTeamState } from '@/core/stores';
 import {
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlansRequest
@@ -14,6 +14,7 @@ import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import {
 	TCreateDailyPlan,
+	TDailyPlan,
 	TDailyPlanTasksUpdate,
 	TRemoveTaskFromPlansRequest,
 	TUpdateDailyPlan
@@ -27,9 +28,9 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 	const { data: user } = useUserQuery();
 	const activeTeam = useAtomValue(activeTeamState);
 	const targetEmployeeId = defaultEmployeeId || user?.employee?.id;
-	// const [taskId, setTaskId] = useState('');
 	const [employeeId, setEmployeeId] = useState(targetEmployeeId || '');
 	const queryClient = useQueryClient();
+	const allTeamTasks = useAtomValue(tasksByTeamState);
 
 	// Keep employeeId in sync with targetEmployeeId unless intentionally overridden elsewhere
 	useEffect(() => {
@@ -344,7 +345,9 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 			const planDate = new Date(plan.date);
 			const today = new Date();
 			today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
-			return planDate.getTime() >= today.getTime();
+			// NOTE_FIX: Use > instead of >= to exclude today's plans from future plans
+			// Future plans should only include dates AFTER today, not today itself
+			return planDate.getTime() > today.getTime();
 		});
 	}, [ascSortedPlans]);
 
@@ -379,36 +382,75 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 	}, [futurePlans]);
 
 	const outstandingPlans = useMemo(() => {
-		//  EXACT LOGIC from outstandingPlansState atom (with Set optimization for performance)
 		// Build a Set of task IDs from today/future to avoid repeated linear searches (O(1) lookup instead of O(n²))
 		const usedIds = new Set<string>([...todayTasks, ...futureTasks].map((t: TTask) => t.id));
 
-		return (
-			[...(profileDailyPlans.items ? profileDailyPlans.items : [])]
-				// Exclude today plans (EXACT logic from atom)
-				.filter((plan) => !plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]))
+		// PART 1: Past plans with incomplete tasks not in today/future
+		const pastPlansWithIncompleteTasks = [...(profileDailyPlans.items ? profileDailyPlans.items : [])]
+			// Exclude today plans
+			.filter((plan) => !plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]))
+			// Exclude future plans (keep only past plans)
+			.filter((plan) => {
+				const planDate = new Date(plan.date);
+				const today = new Date();
+				today.setHours(23, 59, 59, 0);
+				return planDate.getTime() <= today.getTime();
+			})
+			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+			.map((plan) => ({
+				...plan,
+				// Include only non-completed tasks
+				tasks: plan.tasks?.filter((task) => task.status !== 'completed')
+			}))
+			.map((plan) => ({
+				...plan,
+				// Include only tasks not added yet to today/future plans
+				tasks: plan.tasks?.filter((_task) => !usedIds.has(_task.id))
+			}))
+			.filter((plan) => plan.tasks?.length && plan.tasks.length > 0);
 
-				// Exclude future plans (EXACT logic from atom)
-				.filter((plan) => {
-					const planDate = new Date(plan.date);
-					const today = new Date();
-					today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
-					return planDate.getTime() <= today.getTime();
-				})
-				.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-				.map((plan) => ({
-					...plan,
-					// Include only non-completed tasks (EXACT logic from atom)
-					tasks: plan.tasks?.filter((task) => task.status !== 'completed')
-				}))
-				.map((plan) => ({
-					...plan,
-					// Include only tasks not added yet to today/future plans (OPTIMIZED with Set instead of .find())
-					tasks: plan.tasks?.filter((_task) => !usedIds.has(_task.id))
-				}))
-				.filter((plan) => plan.tasks?.length && plan.tasks.length > 0)
+		// PART 2: Tasks assigned to member that are NOT in ANY plan
+		// Build a Set of ALL task IDs that are in ANY plan (today, future, past)
+		const allPlannedTaskIds = new Set<string>(
+			profileDailyPlans.items?.flatMap((plan) => plan.tasks?.map((t) => t.id) ?? []) ?? []
 		);
-	}, [profileDailyPlans, todayTasks, futureTasks]);
+
+		// Filter tasks assigned to the target user that are NOT in any plan
+		const tasksNotInAnyPlan = allTeamTasks.filter((task) => {
+			// Must be assigned to the target user
+			const isAssignedToUser = task.members?.some((member) => member.userId === user?.id);
+			// Must NOT be in any plan
+			const isNotInAnyPlan = !allPlannedTaskIds.has(task.id);
+			// Must have time tracked OR estimation set
+			const hasTimeOrEstimate =
+				(task.totalWorkedTime && task.totalWorkedTime > 0) || (task.estimate && task.estimate > 0);
+
+			return isAssignedToUser && isNotInAnyPlan && hasTimeOrEstimate;
+		});
+
+		// Create a virtual plan for tasks not in any plan (if any exist)
+		const virtualPlanForUnplannedTasks: TDailyPlan[] =
+			tasksNotInAnyPlan.length > 0
+				? [
+						{
+							id: 'outstanding-no-plan',
+							date: new Date().toISOString(),
+							tasks: tasksNotInAnyPlan,
+							workTimePlanned: 0,
+							status: 'open',
+							tenantId: activeTeam?.tenantId ?? null,
+							organizationId: activeTeam?.organizationId ?? null,
+							employeeId: targetEmployeeId ?? null,
+							employee: null,
+							organizationTeamId: activeTeam?.id ?? null,
+							organizationTeam: null
+						}
+					]
+				: [];
+
+		// Combine past plans with incomplete tasks + virtual plan for unplanned tasks
+		return [...pastPlansWithIncompleteTasks, ...virtualPlanForUnplannedTasks];
+	}, [profileDailyPlans, todayTasks, futureTasks, allTeamTasks, user?.id, activeTeam, targetEmployeeId]);
 
 	const sortedPlans = useMemo(() => {
 		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].sort(

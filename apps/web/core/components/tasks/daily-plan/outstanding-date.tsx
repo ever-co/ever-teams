@@ -19,12 +19,17 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 interface IOutstandingFilterDate {
 	profile: any;
 	user?: TUser;
+	employeeId?: string; // Accept employeeId directly from parent
 }
-export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate) {
+export function OutstandingFilterDate({ profile, user, employeeId: propsEmployeeId }: IOutstandingFilterDate) {
 	// Use contextual employee ID selection based on profile context
 	// Following the pattern from user-employee-id-management.md guide
 	const { data: authUser } = useUserQuery();
 	const employeeId = useMemo(() => {
+		// PRIORITY 1: Use employeeId from props if provided
+		if (propsEmployeeId) return propsEmployeeId;
+
+		// PRIORITY 2: Calculate from profile context
 		if (profile.isAuthUser) {
 			// For authenticated user: use their own employee ID
 			return authUser?.employee?.id ?? authUser?.employeeId ?? '';
@@ -32,7 +37,14 @@ export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate)
 			// For another user's profile: use the passed user's employee ID
 			return user?.employee?.id ?? user?.employeeId ?? '';
 		}
-	}, [profile.isAuthUser, authUser?.employee?.id, authUser?.employeeId, user?.employee?.id, user?.employeeId]);
+	}, [
+		propsEmployeeId,
+		profile.isAuthUser,
+		authUser?.employee?.id,
+		authUser?.employeeId,
+		user?.employee?.id,
+		user?.employeeId
+	]);
 
 	const { outstandingPlans } = useDailyPlan(employeeId);
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
