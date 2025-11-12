@@ -87,6 +87,9 @@ const sentryConfig = isSentryEnabled && {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	output: ['standalone', 'export'].includes(BUILD_OUTPUT_MODE) ? BUILD_OUTPUT_MODE : undefined,
+	watchOptions: {
+		ignored: ['**/.git/**', '**/.next/**', '**/node_modules/**', '**/public/**', '**/dist/**']
+	},
 	// Next.js 16: Cache Components for explicit caching control
 	// Note: Disabled for now due to incompatibility with route segment config "runtime"
 	// cacheComponents: true,
