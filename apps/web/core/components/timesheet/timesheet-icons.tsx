@@ -153,9 +153,9 @@ export const DeleteSelectedIcon = ({ className }: { className?: string }) => <sv
  *
  * @returns {React.ReactElement} - The rendered plus icon component.
  */
-export const PlusIcon = () => <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M3.99609 8H11.9961" stroke="#282048" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M7.99609 12V4" stroke="#282048" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+export const PlusIcon = ({ className }: { className?: string }) => <svg  className={className} width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M3.99609 8H11.9961" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M7.99609 12V4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
 </svg>
 
 

@@ -63,7 +63,7 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
 					aria-label="View timesheet details"
 					onClick={onClick}
 				>
-					<PlusIcon />
+					<PlusIcon className='dark:text-[#6b7280] text-[#282048] '/>
 					<span>{t('pages.timesheet.TIMESHEET_VIEW_DETAILS')}</span>
 					<ArrowRightIcon className={cn('h-6 w-6', 'text-[#282048] dark:text-[#6b7280]')} />
 				</Button>
