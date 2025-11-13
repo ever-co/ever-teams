@@ -607,7 +607,7 @@ export function TaskCardMenu({
 											className="p-0 mb-2 transition-all duration-300 hover:font-semibold hover:!bg-transparent"
 										>
 											<PlanTask
-												planMode={EDailyPlanMode['TODAY']}
+												planMode={EDailyPlanMode.TODAY}
 												taskId={task.id}
 												employeeId={profile?.member?.employeeId ?? ''}
 												taskPlannedToday={taskPlannedToday}
@@ -620,7 +620,7 @@ export function TaskCardMenu({
 											className="p-0 mb-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent"
 										>
 											<PlanTask
-												planMode={EDailyPlanMode['TOMORROW']}
+												planMode={EDailyPlanMode.TOMORROW}
 												taskId={task.id}
 												employeeId={profile?.member?.employeeId ?? ''}
 												taskPlannedForTomorrow={taskPlannedTomorrow}
@@ -632,7 +632,7 @@ export function TaskCardMenu({
 										className="p-0 mb-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent"
 									>
 										<PlanTask
-											planMode={EDailyPlanMode['CUSTOM']}
+											planMode={EDailyPlanMode.CUSTOM}
 											taskId={task.id}
 											employeeId={profile?.member?.employeeId ?? ''}
 											openModal={openModal}

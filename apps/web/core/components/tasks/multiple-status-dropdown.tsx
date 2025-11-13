@@ -140,7 +140,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 
 							onRemoveSelected?.();
 						}}
-						className="absolute top-2.5 right-2 h-4 w-4 bg-transparent"
+						className="absolute top-1/2 -translate-y-1/2 right-1 h-4 w-4 bg-transparent"
 					>
 						<XMarkIcon className="text-dark" height={16} width={16} aria-hidden="true" />
 					</button>

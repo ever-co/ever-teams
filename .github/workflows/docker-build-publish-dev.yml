@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   ever-teams-webapp:
-    runs-on: buildjet-8vcpu-ubuntu-2204
+    runs-on: ubicloud-standard-8
 
     environment: dev
 
