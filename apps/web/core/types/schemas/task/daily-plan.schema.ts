@@ -6,7 +6,23 @@ import { taskSchema } from './task.schema';
  * Daily Plan Status Enum Schema
  * Based on EDailyPlanStatus enum
  */
-export const dailyPlanStatusSchema = z.enum(['open', 'in-progress', 'completed']);
+export const dailyPlanStatusSchema = z.enum([
+	'blocked',
+	'ready',
+	'backlog',
+	'todo',
+	'in-progress',
+	'completed',
+	'closed',
+	'in review',
+	'open',
+	'custom',
+	'ready-for-review',
+	'in-review',
+	'done',
+	'cancelled',
+	'Create New Task'
+]);
 
 /**
  * Base Daily Plan Schema (IDailyPlanBase)
@@ -73,13 +89,13 @@ export const updateDailyPlanSchema = dailyPlanBaseSchema.partial().extend({
  * Pick taskId & employeeId from ICreateDailyPlan, omit 'id' from IBasePerTenantAndOrganizationEntityModel
  */
 export const dailyPlanTasksUpdateSchema = z.object({
-	// From Pick<ICreateDailyPlan, 'taskId' | 'employeeId'>
+	// From Pick<ICreateDailyPlan, 'taskId','employeeId'>
 	taskId: z.string().optional().nullable(),
 	employeeId: z.string().optional().nullable(),
 
 	// From Omit<IBasePerTenantAndOrganizationEntityModel, 'id'>
-	tenantId: z.string().optional(),
-	organizationId: z.string().optional()
+	tenantId: z.string().nullable().optional(),
+	organizationId: z.string().nullable().optional()
 });
 
 /**
@@ -88,7 +104,7 @@ export const dailyPlanTasksUpdateSchema = z.object({
 export const removeTaskFromManyPlansRequestSchema = z.object({
 	employeeId: z.string().optional().nullable(), // ID type
 	plansIds: z.array(z.string()).optional().nullable(), // ID[] type
-	organizationId: z.string().optional().nullable() // ID type
+	organizationId: z.string().nullable().optional() // ID type
 });
 
 // Export TypeScript types

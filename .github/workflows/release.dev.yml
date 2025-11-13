@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubicloud-standard-2]
 
     steps:
       - name: Check out Git repository

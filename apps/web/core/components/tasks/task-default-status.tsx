@@ -16,10 +16,15 @@ import {
 	TrackingIcon as TimerIcon,
 	LoginIcon
 } from 'assets/svg';
+import { DiamondPlus } from 'lucide-react';
 import { TStatus } from '@/core/types/interfaces/task/task-card';
 import { ETaskStatusName, ETaskSizeName } from '@/core/types/generics/enums/task';
 
 export const taskStatus: TStatus<ETaskStatusName> = {
+	[ETaskStatusName.CREATE_NEW_TASK]: {
+		icon: <DiamondPlus className="text-[#292D32] w-full max-w-[18px]" strokeWidth="1.6" />,
+		bgColor: '#D6E4F9'
+	},
 	todo: {
 		icon: <LoginIcon className="text-[#292D32] w-full max-w-[18px]" strokeWidth="1.6" />,
 		bgColor: '#D6E4F9'

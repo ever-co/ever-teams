@@ -43,7 +43,7 @@ export interface IAddManualTimeRequest {
 	editedAt?: Date;
 	tags?: string[];
 	isBillable?: boolean;
-	organizationId?: string;
+	organizationId?: string | null;
 	organization?: Pick<IOrganization, 'id'>;
 	tenantId?: string;
 	logType: ETimeLogType;

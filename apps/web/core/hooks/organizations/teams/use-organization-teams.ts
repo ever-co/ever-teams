@@ -215,7 +215,7 @@ export function useOrganizationTeams() {
 	const { firstLoadData: firstLoadTeamsData } = useFirstLoad();
 	const [isTeamMember, setIsTeamMember] = useAtom(isTeamMemberState);
 	const { data: user } = useUserQuery();
-	const { updateUserFromAPI, refreshToken } = useAuthenticateUser();
+	const { refreshUserData, refreshToken } = useAuthenticateUser();
 	const { updateAvatar: updateUserLastTeam } = useSettings();
 	const timerStatus = useAtomValue(timerStatusState);
 	const setIsTrackingEnabledState = useSetAtom(isTrackingEnabledState);
@@ -494,7 +494,7 @@ export function useOrganizationTeams() {
 			try {
 				await refreshToken();
 				// 3. Finally: Update user data from API
-				updateUserFromAPI();
+				refreshUserData();
 			} catch (error) {
 				toast.error('Failed to refresh token after removing user from team');
 				console.error('Failed to refresh token after removing user from team:', error);

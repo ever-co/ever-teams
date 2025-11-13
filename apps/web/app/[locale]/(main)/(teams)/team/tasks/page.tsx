@@ -108,7 +108,7 @@ const TeamTask = () => {
 										<Menu.Button>
 											<Button
 												type="button"
-												className=" border-gray-200 !border hover:bg-slate-100 dark:border text-sm min-w-fit text-black h-[2.2rem] hover:dark:bg-transparent"
+												className=" border-gray-200 !border hover:bg-slate-100 dark:border  dark:border-gray-400   text-sm min-w-fit text-black dark:text-white h-[2.2rem]  dark:bg-transparent"
 												variant="outline"
 											>
 												<Settings2 size={15} /> <span>{t('common.VIEW')}</span>
@@ -137,7 +137,7 @@ const TeamTask = () => {
 																	}))
 																}
 																className={cn(
-																	`${active && 'bg-primary/10'} rounded gap-2 group flex w-full items-center px-2 py-2 text-xs`
+																	`${active && 'bg-primary/10'} rounded gap-2 group flex w-full dark:text-white items-center px-2 py-2 text-xs`
 																)}
 															>
 																<div className="flex justify-center items-center w-5 h-full">

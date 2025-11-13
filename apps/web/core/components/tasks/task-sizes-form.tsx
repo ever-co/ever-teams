@@ -41,11 +41,11 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 		'completed'
 	]);
 	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', [
-		'x-large'
-		// 'large',
-		// 'medium',
-		// 'small',
-		// 'tiny',
+		'x-large',
+		'large',
+		'medium',
+		'small',
+		'tiny',
 	]);
 	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', ['urgent', 'high', 'medium', 'low']);
 
@@ -212,6 +212,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 											taskSizes.map((size) => (
 												<StatusesListCard
 													key={size.id}
+													statusId={size.id}
 													statusTitle={size.name ? size.name?.split('-').join(' ') : ''}
 													bgColor={size.color || ''}
 													statusIcon={size.fullIconUrl || ''}

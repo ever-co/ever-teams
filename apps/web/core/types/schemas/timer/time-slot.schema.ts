@@ -35,8 +35,8 @@ export const timeSlotsDataSchema = z
 		mousePercentage: z.coerce.number().optional(),
 		isAllowDelete: z.boolean().optional(),
 		// Base entity fields
-		tenantId: z.string().optional(),
-		organizationId: z.string().optional(),
+		tenantId: z.string().nullable().optional(),
+		organizationId: z.string().nullable().optional(),
 		createdAt: z.coerce.date().optional(),
 		updatedAt: z.coerce.date().optional(),
 		// Related entities (optional for flexibility)

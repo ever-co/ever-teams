@@ -655,7 +655,12 @@
 			"SELECT_WORKSPACE": "Arbeitsbereich auswählen",
 			"ENTER_EMAIL": "E-Mail-Adresse eingeben",
 			"WORKSPACES_NOT_FOUND": "Keine Arbeitsbereiche gefunden",
-			"INVALID_CODE_TRY_AGAIN": "Ungültiger Code. Bitte versuchen Sie es erneut."
+			"INVALID_CODE_TRY_AGAIN": "Ungültiger Code. Bitte versuchen Sie es erneut.",
+			"EMPTY_WORKSPACE_WARNING_TITLE": "Dieser Arbeitsbereich hat keine Teams",
+			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Sie werden nach der Anmeldung aufgefordert, ein Team zu erstellen.",
+			"NO_TEAMS_BADGE": "Keine Teams",
+			"TEAM_COUNT_SINGULAR": "Team",
+			"TEAM_COUNT_PLURAL": "Teams"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Bestehendem Team beitreten",
@@ -911,10 +916,12 @@
 		}
 	},
 	"timer": {
-		"ACTIVE": "Aktiv",
-		"APPS": "Apps",
-		"ARCHIVED": "Archiviert",
 		"START_TIMER": "Bitte wählen oder erstellen Sie eine neue Aufgabe, um die Zeit zu tracken oder einen Plan erstellen",
+		"ALREADY_TRACKING_MESSAGE": "Sie verfolgen bereits die Zeit in einem anderen Tab oder Gerät.",
+		"TASK_CLOSED": "Aufgabe ist geschlossen",
+		"STARTING_TIMER": "Timer wird gestartet...",
+		"TIMER_STARTED": "Timer erfolgreich gestartet",
+		"TIMER_START_FAILED": "Timer konnte nicht gestartet werden",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer gestoppt",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer wegen Teamwechsel gestoppt"
@@ -922,6 +929,9 @@
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Schätzen"
 		},
+		"ACTIVE": "Aktiv",
+		"APPS": "Apps",
+		"ARCHIVED": "Archiviert",
 		"INACTIVE": "Inaktiv",
 		"KEYBOARD": "Tastatur",
 		"MOUSE": "Maus",

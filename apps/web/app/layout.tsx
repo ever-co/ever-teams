@@ -2,6 +2,7 @@ import '@/styles/globals.css';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { Toaster } from 'sonner';
 import { QueryClientProvider } from '@/core/components/providers/query-client-provider';
+import { ProactiveTokenRefreshProvider } from '@/core/components/providers/proactive-token-refresh-provider';
 import dynamic from 'next/dynamic';
 
 // Since we have a `not-found.tsx` page on the root, a layout file
@@ -15,10 +16,12 @@ const ReactQueryDevtools =
 export default function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<QueryClientProvider>
-			{children}
-			<Toaster richColors />
-			{/* Render devtools only in development */}
-			{process.env.NODE_ENV === 'development' && <ReactQueryDevtools initialIsOpen={false} />}
+			<ProactiveTokenRefreshProvider>
+				{children}
+				<Toaster richColors />
+				{/* Render devtools only in development */}
+				{process.env.NODE_ENV === 'development' && <ReactQueryDevtools initialIsOpen={false} />}
+			</ProactiveTokenRefreshProvider>
 		</QueryClientProvider>
 	);
 }

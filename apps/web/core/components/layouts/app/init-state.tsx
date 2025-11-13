@@ -16,7 +16,7 @@ import {
 	useOrganizationProjects,
 	useEmployee
 } from '@/core/hooks/organizations';
-import { useWorkspaces, useCurrentOrg } from '@/core/hooks/auth';
+import { useWorkspaces, useCurrentOrg, useAuthenticateUser } from '@/core/hooks/auth';
 import { useRolePermissions, useRoles } from '@/core/hooks/roles';
 import {
 	useTaskStatistics,
@@ -55,6 +55,9 @@ function InitState() {
 	const { firstLoadTaskStatusesData, loadTaskStatuses: loadTaskStatusesData } = useTaskStatus();
 	const { firstLoadMyRolePermissionsData } = useRolePermissions();
 	const { firstLoadCurrenciesData } = useCurrencies();
+
+	// Start automatic token refresh
+	const { timeToTimeRefreshToken } = useAuthenticateUser();
 
 	// Load workspaces data on app initialization
 	const { firstLoadWorkspacesData } = useWorkspaces();
@@ -112,6 +115,10 @@ function InitState() {
 		getTimerStatus();
 		loadTeamsData();
 		loadLanguagesData();
+
+		// Start automatic token refresh every 10 minutes
+		// This prevents token expiration and automatic logout
+		timeToTimeRefreshToken();
 
 		// Perform organization access validation (non-blocking)
 		// This runs after initial data loading to avoid blocking the app startup

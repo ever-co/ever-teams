@@ -2,7 +2,6 @@
 
 import { useModal, useOrganizationTeams } from '@/core/hooks';
 import { useProfileValidation } from '@/core/hooks/users/use-profile-validation';
-import { clsxm } from '@/core/lib/utils';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { Button, Dropdown } from '@/core/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -20,6 +19,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { activeTeamState, detailedTaskState, organizationTeamsState, timerStatusState } from '@/core/stores';
 import { useAtomValue, useAtom } from 'jotai';
 import { usePathname, useRouter } from 'next/navigation';
+import { cn } from '@/core/lib/helpers';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { data: user } = useUserQuery();
@@ -150,35 +150,42 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				enabled={timerRunningStatus}
 			>
 				<Dropdown
-					className="min-w-fit md:max-w-[223px] outline-none"
+					className={cn(
+						'min-w-fit md:max-w-[223px] outline-none',
+						timerRunningStatus && '!cursor-not-allowed'
+					)}
 					optionsClassName="min-w-fit md:max-w-[223px] outline-none"
-					buttonClassName={clsxm(
-						'py-0 font-medium outline-none dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]',
+					buttonClassName={cn(
+						'py-0 font-medium outline-none dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C] cursor-pointer',
 						items.length === 0 && ['py-2'],
-						timerRunningStatus ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+						timerRunningStatus && '!cursor-not-allowed opacity-50'
 					)}
 					value={teamItem}
 					onChange={onChangeActiveTeam}
-					items={[
-						...items,
-						...(userManagedTeams.length > 1 || path.includes('/all-teams')
-							? [
-									{
-										key: 'all-teams',
-										Label: () => (
-											<AllTeamItem
-												title={t('common.ALL_TEAMS')}
-												count={userManagedTeams.length}
-											/>
-										)
-									}
+					items={
+						timerRunningStatus
+							? []
+							: [
+									...items,
+									...(userManagedTeams.length > 1 || path.includes('/all-teams')
+										? [
+												{
+													key: 'all-teams',
+													Label: () => (
+														<AllTeamItem
+															title={t('common.ALL_TEAMS')}
+															count={userManagedTeams.length}
+														/>
+													)
+												}
+											]
+										: [])
 								]
-							: [])
-					]}
+					}
 					// loading={teamsFetching} // TODO: Enable loading in future when we implement better data fetching library like TanStack
 					publicTeam={publicTeam}
 				>
-					{!publicTeam && (
+					{!publicTeam || !timerRunningStatus ? (
 						<Tooltip
 							enabled={!user?.isEmailVerified || timerRunningStatus}
 							label={
@@ -206,7 +213,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 								<span className="whitespace-nowrap text-nowrap">{t('common.CREATE_TEAM')}</span>
 							</Button>
 						</Tooltip>
-					)}
+					) : null}
 				</Dropdown>
 			</Tooltip>
 

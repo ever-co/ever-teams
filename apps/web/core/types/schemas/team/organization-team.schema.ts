@@ -94,7 +94,7 @@ export const organizationTeamUpdateSchema = z.object({
 		})
 		.optional()
 		.nullable(),
-	tenantId: z.string().optional(),
+	tenantId: z.string().nullable().optional(),
 	organization: organizationSchema
 		.merge(
 			z.object({
@@ -105,7 +105,7 @@ export const organizationTeamUpdateSchema = z.object({
 		)
 		.optional()
 		.nullable(),
-	organizationId: z.string().optional(),
+	organizationId: z.string().nullable().optional(),
 	sentTo: z.string().optional(),
 	tags: z.array(z.lazy(() => tagZodSchemaType)).optional(), // Allow flexible tags array
 	memberIds: z.array(z.string()).optional(),

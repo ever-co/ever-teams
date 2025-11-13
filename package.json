@@ -95,7 +95,7 @@
 		"pack:server-web": "yarn run pack --desktop=server-web",
 		"config:server-web": "yarn run config:electron -- --environment=prod --desktop=server-web",
 		"dev:server-web": "cross-env NODE_ENV=production yarn prepare:config:server-web && yarn build:web:desktop && yarn run prepare:server-web && yarn copy:build:web && yarn run start:server-web",
-		"build:web:desktop": "yarn config:electron:web:build -- --type=constant && cross-env NEXT_BUILD_OUTPUT_TYPE=standalone NEXT_SHARP_PATH=/tmp/node_modules/sharp yarn build:web",
+		"build:web:desktop": "yarn config:electron:web:build -- --type=constant && cross-env NEXT_PUBLIC_IS_DESKTOP_APP=true NEXT_BUILD_OUTPUT_TYPE=standalone NEXT_SHARP_PATH=/tmp/node_modules/sharp yarn build:web",
 		"copy:build:web": "yarn ts-node .scripts/copy-web-build.ts && yarn config:electron:web:build -- --type=server",
 		"start:server-web": "cd apps/server-web && yarn run start",
 		"postinstall:electron": "cd apps/server-web && yarn run postinstall",
@@ -185,10 +185,10 @@
 		"nohoist": []
 	},
 	"resolutions": {
-		"react": "19.1.0",
-		"react-dom": "19.1.0",
-		"@types/react": "19.1.2",
-		"@types/react-dom": "19.1.2"
+		"react": "19.2.0",
+		"react-dom": "19.2.0",
+		"@types/react": "19.2.2",
+		"@types/react-dom": "19.2.2"
 	},
 	"dependencies": {
 		"@lexical/react": "^0.8.0",

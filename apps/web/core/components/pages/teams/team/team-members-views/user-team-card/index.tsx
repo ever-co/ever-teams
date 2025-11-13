@@ -48,6 +48,7 @@ import { cn } from '@/core/lib/helpers';
 import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { UserTeamActivitySkeleton } from '@/core/components/common/skeleton/profile-component-skeletons';
+import { uniqueId } from 'lodash';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -331,10 +332,10 @@ export function UserTeamCard({
 				{isUserDetailAccordion && memberInfo.memberUser.id == profile?.userProfile?.id && !showActivity ? (
 					<div className="overflow-y-auto h-96">
 						{canSeeActivity && (
-							<Container fullWidth={fullWidth} className="px-3 py-5">
+							<Container fullWidth={fullWidth} className="px-3 py-5 xl:px-0">
 								<div className={clsxm('flex gap-4 justify-start items-center mt-3')}>
 									{Object.keys(activityScreens).map((filter, i) => (
-										<div key={i} className="flex gap-4 justify-start items-center cursor-pointer">
+										<div key={uniqueId(`${i + 1}`)} className="flex gap-4 justify-start items-center cursor-pointer">
 											{i !== 0 && <VerticalSeparator />}
 											<div
 												className={clsxm(

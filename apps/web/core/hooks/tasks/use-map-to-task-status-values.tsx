@@ -1,7 +1,7 @@
 'use client';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
 import { useMemo } from 'react';
-import Image from 'next/legacy/image';
+import Image from 'next/image';
 import { TTaskStatus } from '@/core/types/schemas';
 import { TStatus } from '@/core/types/interfaces/task/task-card';
 

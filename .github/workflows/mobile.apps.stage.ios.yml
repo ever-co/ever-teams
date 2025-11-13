@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-8
 
     environment: prod
 

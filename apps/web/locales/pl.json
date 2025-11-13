@@ -655,7 +655,12 @@
 			"SELECT_WORKSPACE": "Wybierz Przestrzeń Roboczą",
 			"ENTER_EMAIL": "Wprowadź E-mail",
 			"WORKSPACES_NOT_FOUND": "Nie znaleziono Przestrzeni Roboczych",
-			"INVALID_CODE_TRY_AGAIN": "Nieprawidłowy Kod. Proszę spróbować ponownie."
+			"INVALID_CODE_TRY_AGAIN": "Nieprawidłowy Kod. Proszę spróbować ponownie.",
+			"EMPTY_WORKSPACE_WARNING_TITLE": "Ta przestrzeń robocza nie ma zespołów",
+			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Zostaniesz poproszony o utworzenie zespołu po zalogowaniu.",
+			"NO_TEAMS_BADGE": "Brak zespołów",
+			"TEAM_COUNT_SINGULAR": "zespół",
+			"TEAM_COUNT_PLURAL": "zespoły"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Dołącz do istniejącego zespołu",
@@ -912,6 +917,11 @@
 	},
 	"timer": {
 		"START_TIMER": "Proszę wybrać lub utworzyć nowe zadanie, aby rozpocząć śledzenie czasu lub utwórz plan",
+		"ALREADY_TRACKING_MESSAGE": "Już śledzisz czas w innej karcie lub urządzeniu.",
+		"TASK_CLOSED": "Zadanie jest zamknięte",
+		"STARTING_TIMER": "Uruchamianie timera...",
+		"TIMER_STARTED": "Timer uruchomiony pomyślnie",
+		"TIMER_START_FAILED": "Nie udało się uruchomić timera",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Zatrzymany Timer",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Zatrzymano Timer z powodu zmiany zespołu"

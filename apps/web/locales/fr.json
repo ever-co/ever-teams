@@ -659,7 +659,12 @@
 			"SELECT_WORKSPACE": "Sélectionner un espace de travail",
 			"ENTER_EMAIL": "Saisissez votre adresse e-mail",
 			"WORKSPACES_NOT_FOUND": "Aucun espace de travail trouvé",
-			"INVALID_CODE_TRY_AGAIN": "Code invalide. Veuillez réessayer."
+			"INVALID_CODE_TRY_AGAIN": "Code invalide. Veuillez réessayer.",
+			"EMPTY_WORKSPACE_WARNING_TITLE": "Cet espace de travail n'a aucune équipe",
+			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Vous serez invité à créer une équipe après la connexion.",
+			"NO_TEAMS_BADGE": "Aucune équipe",
+			"TEAM_COUNT_SINGULAR": "équipe",
+			"TEAM_COUNT_PLURAL": "équipes"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Rejoindre une équipe existante",
@@ -916,6 +921,11 @@
 	},
 	"timer": {
 		"START_TIMER": "Veuillez sélectionner ou créer une nouvelle tâche pour commencer le suivi du temps ou créer un plan",
+		"ALREADY_TRACKING_MESSAGE": "Vous suivez déjà le temps dans un autre onglet ou appareil.",
+		"TASK_CLOSED": "La tâche est fermée",
+		"STARTING_TIMER": "Démarrage du chronomètre...",
+		"TIMER_STARTED": "Chronomètre démarré avec succès",
+		"TIMER_START_FAILED": "Échec du démarrage du chronomètre",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Chronomètre arrêté",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Le chronomètre s'est arrêté en raison du changement d'équipe"

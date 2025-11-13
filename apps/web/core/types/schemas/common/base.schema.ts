@@ -38,7 +38,7 @@ export const baseEntitySchema = baseDateSchema
 // Base per tenant entity model schema
 export const basePerTenantEntityModelSchema = z
 	.object({
-		tenantId: z.string().optional(),
+		tenantId: z.string().nullable().optional(),
 		tenant: z.any().optional().nullable() // Will be properly typed when tenant schema is created
 	})
 	.merge(baseEntitySchema);

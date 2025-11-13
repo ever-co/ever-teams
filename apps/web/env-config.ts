@@ -1,5 +1,3 @@
-import getConfig from 'next/config';
-
 type Env = Record<string, string | undefined>;
 
 const NEXT_PUBLIC_ENVS: { value: Env } = { value: {} };
@@ -41,14 +39,10 @@ export function getNextPublicEnv<O extends Options<unknown>>(name: string, optio
 }
 
 export function getServerRuntimeConfig() {
-	try {
-		const { serverRuntimeConfig } = getConfig();
-		return {
-			GAUZY_API_SERVER_URL: serverRuntimeConfig.GAUZY_API_SERVER_URL
-		};
-	} catch (e) {
-		console.log('skip get config on call from client');
-	}
+	// Next.js 16: serverRuntimeConfig removed, use environment variables instead
+	return {
+		GAUZY_API_SERVER_URL: process.env.GAUZY_API_SERVER_URL
+	};
 }
 
 export function setNextPublicEnv(envs: Env) {
@@ -70,4 +64,14 @@ export function loadNextPublicEnvs() {
 }
 
 // Preload Some variables
-setNextPublicEnv(loadNextPublicEnvs());
+if (process.env.NEXT_PUBLIC_IS_DESKTOP_APP === 'true' && typeof window !== 'undefined' && !Object.keys(NEXT_PUBLIC_ENVS.value).length) {
+	(async () => {
+		const resp = await fetch('/api/desktop-server');
+		if (resp.ok) {
+			const serverConfig = await resp.json();
+			setNextPublicEnv({ ...loadNextPublicEnvs(), ...{ NEXT_PUBLIC_GAUZY_API_SERVER_URL: serverConfig?.GAUZY_API_SERVER_URL } });
+		}
+	})();
+} else {
+	setNextPublicEnv(loadNextPublicEnvs());
+}

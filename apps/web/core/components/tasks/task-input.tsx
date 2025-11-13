@@ -17,6 +17,7 @@ import {
 	taskLabelsListState
 } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
+import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
 import { Combobox, Popover, PopoverPanel, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon, PlusIcon, UserGroupIcon } from '@heroicons/react/20/solid';
 import { Button, Divider, SpinnerLoader } from '@/core/components';
@@ -40,7 +41,7 @@ import { OutlineBadge } from '../duplicated-components/badge';
 import { ObserverComponent } from './observer';
 import { Nullable } from '@/core/types/generics/utils';
 import { IIssueType } from '@/core/types/interfaces/task/issue-type';
-import { EIssueType, ETaskSizeName, ETaskStatusName, ETaskPriority } from '@/core/types/generics/enums/task';
+import { EIssueType, ETaskStatusName, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
@@ -167,13 +168,29 @@ export function TaskInput(props: Props) {
 				const currentEmployeeDetails = activeTeam?.members?.find(
 					(member) => member.employeeId === user?.employee?.id
 				);
-				if (currentEmployeeDetails && currentEmployeeDetails.employeeId) {
-					updateOrganizationTeamEmployee(currentEmployeeDetails.employeeId, {
-						organizationId: task.organizationId,
-						activeTaskId: task.id,
-						organizationTeamId: activeTeam?.id,
-						tenantId: activeTeam?.tenantId
-					});
+				if (currentEmployeeDetails && currentEmployeeDetails.id) {
+					try {
+						// Handle the update without blocking the UI
+						// Use currentEmployeeDetails.id (OrganizationTeamEmployee ID), not employeeId
+						updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
+							organizationId: task.organizationId,
+							activeTaskId: task.id,
+							organizationTeamId: activeTeam?.id,
+							tenantId: activeTeam?.tenantId
+						}).catch((error) => {
+							logErrorInDev('Failed to update employee active task', error);
+							toast.error('Failed to update employee active task:', {
+								description: getErrorMessage(error, 'Unable to update active task')
+							});
+							// Don't throw - task is already set locally
+						});
+					} catch (error) {
+						logErrorInDev('Failed to update employee active task', error);
+						toast.error('Failed to update employee active task', {
+							description: getErrorMessage(error, 'Unable to update active task')
+						});
+						// Don't throw - task is already set locally
+					}
 				}
 			}
 			setEditMode(false);
@@ -378,7 +395,7 @@ export function TaskInput(props: Props) {
 			}}
 			trailingNode={
 				/* Showing the spinner when the task is being updated. */
-				<div className="flex justify-center items-center p-2 h-full">
+				<div className="flex items-center justify-center h-full p-2">
 					{props.task ? (
 						(updateLoading || props.inputLoader) && <SpinnerLoader size={25} />
 					) : (
@@ -633,7 +650,7 @@ function TaskCard({
 									className={'dark:bg-[#1B1D22]'}
 								/>
 
-								<div className="flex gap-2 justify-start">
+								<div className="flex justify-start gap-2">
 									<div ref={statusDropdownRef}>
 										<ActiveTaskStatusDropdown
 											className="min-w-fit lg:max-w-[170px]"
@@ -659,7 +676,7 @@ function TaskCard({
 											className="min-w-fit lg:max-w-[170px]"
 											taskStatusClassName="h-7 text-xs"
 											onValueChange={handleSizeChange}
-											defaultValue={taskSize?.current as ETaskSizeName}
+											defaultValue={taskSize?.current as ETaskSize}
 											task={null}
 										/>
 									</div>
@@ -872,9 +889,9 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 			)}
 		>
 			<Combobox multiple={true}>
-				<div className="relative my-auto h-full">
-					<div className="overflow-hidden w-full h-full text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
-						<Combobox.Button className="flex justify-between items-center h-full min-w-fit max-w-40 hover:transition-all">
+				<div className="relative h-full my-auto">
+					<div className="w-full h-full overflow-hidden text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
+						<Combobox.Button className="flex items-center justify-between h-full min-w-fit max-w-40 hover:transition-all">
 							<div
 								className={cn(
 									'flex gap-1 items-center  !text-default dark:!text-white text-xs',

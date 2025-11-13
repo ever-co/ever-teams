@@ -1,8 +1,8 @@
-import { ETaskStatusName, ETaskSizeName, EIssueType, ETaskPriority } from '../../../generics/enums/task';
+import { ETaskStatusName, ETaskSize, EIssueType, ETaskPriority } from '../../../generics/enums/task';
 
 export type ITaskStatusStack = {
 	status: ETaskStatusName;
-	size: ETaskSizeName;
+	size: ETaskSize;
 	label: string;
 	priority: ETaskPriority;
 	issueType: EIssueType;
