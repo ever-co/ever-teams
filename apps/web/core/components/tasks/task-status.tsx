@@ -742,7 +742,7 @@ export function StatusDropdown<T extends TStatusItem>({
 					const renderItem = (item: T, isSelected: boolean) => {
 						const item_value = item.value || item.name;
 						return (
-							<div className="w-full cursor-pointer outline-none">
+							<div className="w-full relative cursor-pointer outline-none">
 								<TaskStatus
 									showIcon={showIcon}
 									{...item}
@@ -766,7 +766,7 @@ export function StatusDropdown<T extends TStatusItem>({
 											}
 											onRemoveSelected?.();
 										}}
-										className="absolute top-2.5 right-2.5 h-4 w-4 bg-transparent bg-white dark:bg-black rounded"
+										className="absolute top-1/2 right-1 -translate-y-1/2 h-4 w-4 bg-transparent bg-white dark:bg-black rounded"
 									>
 										<XMarkIcon
 											className="text-dark dark:text-white"
