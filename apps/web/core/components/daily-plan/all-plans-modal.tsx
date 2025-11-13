@@ -170,7 +170,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 				date: moment(customDate).format('YYYY-MM-DD'),
 				status: EDailyPlanStatus.OPEN,
 				tenantId: user?.tenantId ?? '',
-				employeeId: user?.employee?.id,
+				employeeId: employeeId ?? user?.employee?.id,
 				organizationId: user?.employee?.organizationId!
 			});
 
@@ -181,6 +181,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	}, [
 		createDailyPlan,
 		customDate,
+		employeeId,
 		handleCalendarSelect,
 		user?.employee?.id,
 		user?.employee?.organizationId,

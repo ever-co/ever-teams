@@ -409,12 +409,19 @@ const TimerButtonCall = React.memo(
 				)}
 
 				{hasPlan && hasPlan.tasks && (
-					<AddTasksEstimationHoursModal
-						isOpen={modals.isTasksEstimationHoursModalOpen}
-						closeModal={modals.tasksEstimationHoursCloseModal}
-						plan={hasPlan}
-						tasks={hasPlan.tasks}
-					/>
+					<>
+						{console.log('[TaskCard.tsx] Rendering AddTasksEstimationHoursModal', {
+							isOpen: modals.isTasksEstimationHoursModalOpen,
+							planId: hasPlan.id,
+							employeeId: undefined
+						})}
+						<AddTasksEstimationHoursModal
+							isOpen={modals.isTasksEstimationHoursModalOpen}
+							closeModal={modals.tasksEstimationHoursCloseModal}
+							plan={hasPlan}
+							tasks={hasPlan.tasks}
+						/>
+					</>
 				)}
 
 				{/**

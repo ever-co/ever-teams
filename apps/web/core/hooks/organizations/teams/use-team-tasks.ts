@@ -185,10 +185,7 @@ export function useTeamTasks() {
 			queryKey: queryKeys.tasks.byTeam(activeTeam?.id)
 		});
 		queryClient.invalidateQueries({
-			queryKey: queryKeys.dailyPlans.myPlans(activeTeam?.id)
-		});
-		queryClient.invalidateQueries({
-			queryKey: queryKeys.dailyPlans.allPlans(activeTeam?.id)
+			queryKey: queryKeys.dailyPlans.all
 		});
 	}, [activeTeam?.id, queryClient]);
 

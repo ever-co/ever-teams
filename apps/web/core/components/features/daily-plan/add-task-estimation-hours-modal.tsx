@@ -66,6 +66,12 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		selectedDate,
 		employeeId
 	} = props;
+
+	console.log('[AddTasksEstimationHoursModal] Props received:', {
+		employeeId,
+		propsPlanId: propsPlan?.id,
+		isOpen
+	});
 	const {
 		isOpen: isActiveTaskHandlerModalOpen,
 		closeModal: closeActiveTaskHandlerModal,
@@ -82,10 +88,17 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		if (propsPlan?.id) {
 			// Find the updated plan from the hook's state
 			const updatedPlan = profileDailyPlans.items?.find((p) => p.id === propsPlan.id);
+			console.log('[AddTaskModal] Plan resolution:', {
+				propsPlanId: propsPlan.id,
+				updatedPlanId: updatedPlan?.id,
+				profileDailyPlansCount: profileDailyPlans.items?.length,
+				employeeId,
+				usingUpdatedPlan: !!updatedPlan
+			});
 			return updatedPlan || propsPlan;
 		}
 		return propsPlan;
-	}, [propsPlan, profileDailyPlans.items]);
+	}, [propsPlan, profileDailyPlans.items, employeeId]);
 
 	// Use the updated plan's tasks if available, otherwise fall back to props
 	const tasks = useMemo(() => {
@@ -426,6 +439,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 						setShowSearchInput={setShowSearchInput}
 						selectedPlan={plan}
 						selectedDate={selectedDate}
+						employeeId={employeeId}
 					/>
 				) : plan || selectedDate ? (
 					<div
@@ -630,6 +644,7 @@ interface ISearchTaskInputProps {
 	setDefaultTask: Dispatch<SetStateAction<TTask | null>>;
 	defaultTask: TTask | null;
 	selectedDate?: Date;
+	employeeId?: string | null;
 }
 
 /**
@@ -645,7 +660,7 @@ interface ISearchTaskInputProps {
  * @returns The Search input component
  */
 export function SearchTaskInput(props: ISearchTaskInputProps) {
-	const { selectedPlan, setShowSearchInput, defaultTask, setDefaultTask, selectedDate } = props;
+	const { selectedPlan, setShowSearchInput, defaultTask, setDefaultTask, selectedDate, employeeId } = props;
 
 	const teamTasks = useAtomValue(tasksByTeamState);
 	const { createTask } = useTeamTasks();
@@ -761,6 +776,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 										isDefaultTask={task.id == defaultTask?.id}
 										selectedDate={selectedDate}
 										onTaskAdded={() => setShowSearchInput(false)}
+										employeeId={employeeId}
 									/>
 								</li>
 							))}
@@ -796,12 +812,22 @@ interface ITaskCardProps {
 	viewListMode?: 'planned' | 'searched';
 	selectedDate?: Date;
 	onTaskAdded?: () => void; // Callback to close search input after adding task
+	employeeId?: string | null;
 }
 
 function TaskCard(props: ITaskCardProps) {
-	const { task, plan, viewListMode = 'planned', isDefaultTask, setDefaultTask, selectedDate, onTaskAdded } = props;
+	const {
+		task,
+		plan,
+		viewListMode = 'planned',
+		isDefaultTask,
+		setDefaultTask,
+		selectedDate,
+		onTaskAdded,
+		employeeId
+	} = props;
 	const { getTaskById } = useTeamTasks();
-	const { addTaskToPlan, createDailyPlan } = useDailyPlan();
+	const { addTaskToPlan, createDailyPlan } = useDailyPlan(employeeId);
 	const { data: user } = useUserQuery();
 	const [addToPlanLoading, setAddToPlanLoading] = useState(false);
 
@@ -836,7 +862,15 @@ function TaskCard(props: ITaskCardProps) {
 		try {
 			setAddToPlanLoading(true);
 
+			console.log('[TaskCard] handleAddTask called:', {
+				hasPlan: !!plan,
+				planId: plan?.id,
+				taskId: task.id,
+				employeeId
+			});
+
 			if (plan && plan.id) {
+				console.log('[TaskCard] Adding task to existing plan:', plan.id);
 				await addTaskToPlan({ taskId: task.id }, plan.id);
 				toast.success('Task added to plan', {
 					description: `"${task.title}" has been added to your daily plan`,
@@ -854,7 +888,7 @@ function TaskCard(props: ITaskCardProps) {
 						date: moment(planDate).format('YYYY-MM-DD'),
 						status: EDailyPlanStatus.OPEN,
 						tenantId: user?.tenantId ?? '',
-						employeeId: user?.employee?.id,
+						employeeId: employeeId ?? user?.employee?.id,
 						organizationId: user?.employee?.organizationId!
 					});
 					toast.success('Daily plan created', {
@@ -874,6 +908,7 @@ function TaskCard(props: ITaskCardProps) {
 	}, [
 		addTaskToPlan,
 		createDailyPlan,
+		employeeId,
 		plan,
 		selectedDate,
 		task.id,
@@ -934,6 +969,7 @@ function TaskCard(props: ITaskCardProps) {
 								openUnplanActiveTaskModal={openUnplanActiveTaskModal}
 								selectedPlan={plan}
 								task={task}
+								employeeId={employeeId}
 							/>
 						</span>
 					</>
@@ -963,6 +999,7 @@ interface ITaskCardActionsProps {
 	selectedPlan: TDailyPlan;
 	openTaskDetailsModal: () => void;
 	openUnplanActiveTaskModal: () => void;
+	employeeId?: string | null;
 }
 
 /**
@@ -978,9 +1015,9 @@ interface ITaskCardActionsProps {
  */
 
 function TaskCardActions(props: ITaskCardActionsProps) {
-	const { task, selectedPlan, openTaskDetailsModal, openUnplanActiveTaskModal } = props;
+	const { task, selectedPlan, openTaskDetailsModal, openUnplanActiveTaskModal, employeeId } = props;
 	const { data: user } = useUserQuery();
-	const { futurePlans, todayPlan, removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan();
+	const { futurePlans, todayPlan, removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan(employeeId);
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
@@ -1013,7 +1050,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 					} else {
 						if (selectedPlan?.id) {
 							await removeTaskFromPlan(
-								{ taskId: task.id, employeeId: user?.employee?.id },
+								{ taskId: task.id, employeeId: employeeId ?? user?.employee?.id },
 								selectedPlan?.id
 							);
 							toast.success('Task removed from plan', {
@@ -1024,7 +1061,10 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 					}
 				} else {
 					if (selectedPlan?.id) {
-						await removeTaskFromPlan({ taskId: task.id, employeeId: user?.employee?.id }, selectedPlan?.id);
+						await removeTaskFromPlan(
+							{ taskId: task.id, employeeId: employeeId ?? user?.employee?.id },
+							selectedPlan?.id
+						);
 						toast.success('Task removed from plan', {
 							description: `"${task.title}" has been removed from your daily plan`,
 							duration: 3000
@@ -1040,6 +1080,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 		},
 		[
 			activeTeamTask?.id,
+			employeeId,
 			isTodayPLan,
 			openUnplanActiveTaskModal,
 			removeTaskFromPlan,
@@ -1093,6 +1134,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 															openUnplanActiveTaskModal={openUnplanActiveTaskModal}
 															unplanSelectedDate={unplanSelectedDate}
 															unPlanSelectedDateLoading={removeTaskFromPlanLoading}
+															employeeId={employeeId}
 														/>
 													) : (
 														<span
@@ -1138,6 +1180,7 @@ interface IUnplanTaskProps {
 	unplanSelectedDate: (closePopover: () => void) => Promise<void>;
 	unPlanSelectedDateLoading: boolean;
 	openUnplanActiveTaskModal: () => void;
+	employeeId?: string | null;
 }
 
 /**
@@ -1163,12 +1206,11 @@ function UnplanTask(props: IUnplanTaskProps) {
 		closeActionPopover,
 		unplanSelectedDate,
 		openUnplanActiveTaskModal,
-		unPlanSelectedDateLoading
+		unPlanSelectedDateLoading,
+		employeeId
 	} = props;
 	const { data: user } = useUserQuery();
-	const { todayPlan } = useDailyPlan();
-
-	const { removeManyTaskPlans, removeManyTaskFromPlanLoading } = useDailyPlan();
+	const { todayPlan, removeManyTaskPlans, removeManyTaskFromPlanLoading } = useDailyPlan(employeeId);
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const { timerStatus } = useTimerView();
@@ -1189,14 +1231,20 @@ function UnplanTask(props: IUnplanTaskProps) {
 						openUnplanActiveTaskModal();
 						// TODO: Unplan from all plans after clicks 'YES'
 					} else {
-						await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee?.id }, taskId!);
+						await removeManyTaskPlans(
+							{ plansIds: planIds, employeeId: employeeId ?? user?.employee?.id },
+							taskId!
+						);
 						toast.success('Task removed from all plans', {
 							description: 'Task has been removed from all daily plans',
 							duration: 3000
 						});
 					}
 				} else {
-					await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee?.id }, taskId);
+					await removeManyTaskPlans(
+						{ plansIds: planIds, employeeId: employeeId ?? user?.employee?.id },
+						taskId
+					);
 					toast.success('Task removed from all plans', {
 						description: 'Task has been removed from all daily plans',
 						duration: 3000
@@ -1214,6 +1262,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 		[
 			activeTeamTask?.id,
 			closeActionPopover,
+			employeeId,
 			isActiveTaskPlannedToday,
 			openUnplanActiveTaskModal,
 			planIds,

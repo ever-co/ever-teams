@@ -86,11 +86,20 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 	// Mutations
 	const createDailyplanMutation = useMutation({
 		mutationFn: async (data: TCreateDailyPlan) => {
+			console.log('[useDailyPlan] createDailyPlan mutationFn:', {
+				data,
+				targetEmployeeId
+			});
 			const res = await dailyPlanService.createDailyPlan(data);
+			console.log('[useDailyPlan] createDailyPlan result:', res);
 			return res;
 		},
 		onSuccess: (data) => {
+			console.log('[useDailyPlan] createDailyPlan onSuccess:', data);
 			invalidateDailyPlanData();
+		},
+		onError: (error) => {
+			console.error('[useDailyPlan] createDailyPlan onError:', error);
 		}
 	});
 
@@ -106,11 +115,21 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 
 	const addTaskToPlanMutation = useMutation({
 		mutationFn: async ({ dailyPlanId, data }: { dailyPlanId: string; data: TDailyPlanTasksUpdate }) => {
+			console.log('[useDailyPlan] addTaskToPlanMutation mutationFn:', {
+				dailyPlanId,
+				data,
+				targetEmployeeId
+			});
 			const res = await dailyPlanService.addTaskToPlan(data, dailyPlanId);
+			console.log('[useDailyPlan] addTaskToPlanMutation result:', res);
 			return res;
 		},
 		onSuccess: (data) => {
+			console.log('[useDailyPlan] addTaskToPlanMutation onSuccess:', data);
 			invalidateDailyPlanData();
+		},
+		onError: (error) => {
+			console.error('[useDailyPlan] addTaskToPlanMutation onError:', error);
 		}
 	});
 
@@ -152,9 +171,9 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 			queryKey: queryKeys.dailyPlans.allPlans(activeTeam?.id)
 		});
 		queryClient.invalidateQueries({
-			queryKey: queryKeys.dailyPlans.byEmployee(employeeId, activeTeam?.id)
+			queryKey: queryKeys.dailyPlans.byEmployee(targetEmployeeId, activeTeam?.id)
 		});
-	}, [activeTeam?.id, employeeId, queryClient]);
+	}, [activeTeam?.id, targetEmployeeId, queryClient]);
 
 	//  TEAM-WIDE atom - Keep for backward compatibility
 	const [dailyPlan, setDailyPlan] = useAtom(dailyPlanListState);
@@ -308,9 +327,15 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 
 	const addTaskToPlan = useCallback(
 		async (data: IDailyPlanTasksUpdate, planId: string) => {
+			console.log('[useDailyPlan] addTaskToPlan called:', {
+				data,
+				planId,
+				targetEmployeeId,
+				currentUserId: user?.employee?.id
+			});
 			return await addTaskToPlanMutation.mutateAsync({ data, dailyPlanId: planId });
 		},
-		[addTaskToPlanMutation]
+		[addTaskToPlanMutation, targetEmployeeId, user?.employee?.id]
 	);
 
 	const removeTaskFromPlan = useCallback(
