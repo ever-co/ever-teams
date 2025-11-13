@@ -9,7 +9,7 @@ on:
 
 jobs:
   deploy-stage:
-    runs-on: ubuntu-latest
+    runs-on: ubicloud-standard-2
 
     environment: prod
 

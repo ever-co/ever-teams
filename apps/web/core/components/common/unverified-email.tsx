@@ -57,26 +57,37 @@ export function UnverifiedEmail({ user: propUser }: UnverifiedEmailProps = {}) {
 					'border dark:border-[#28292F] dark:shadow-lg dark:bg-[#1B1D22] my-3'
 				)}
 			>
-				<Text className="flex gap-1 items-center">
-					{t('pages.home.SENT_EMAIL_VERIFICATION_YOU_NEED_TO')}
-					<span className="cursor-pointer text-primary dark:text-primary-light" onClick={openModal}>
+				<div className="flex items-center gap-1 flex-wrap">
+					<span className="leading-tight">{t('pages.home.SENT_EMAIL_VERIFICATION_YOU_NEED_TO')}</span>
+
+					<span
+						role="button"
+						onClick={openModal}
+						className="inline-flex items-center cursor-pointer border-0 p-0 text-primary dark:text-primary-light align-middle leading-tight"
+					>
 						{t('common.VERIFY')}
 					</span>
-					{t('pages.home.SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS')}
 
-					{resendLinkLoading && <SpinnerLoader size={18} className="self-center" />}
+					<span className="leading-tight">{t('pages.home.SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS')}</span>
+
+					{resendLinkLoading && (
+						<span className="inline-flex items-center align-middle">
+							<SpinnerLoader size={18} className="self-center" />
+						</span>
+					)}
 
 					{!resendLinkLoading && (
 						<button
 							type="button"
-							className="cursor-pointer text-primary dark:text-primary-light"
 							onClick={() => user && resendLinkQueryCall(user as TUser)}
+							className="inline-flex items-center p-0 bg-transparent border-0 cursor-pointer text-primary dark:text-primary-light align-middle leading-tight"
 						>
 							{t('common.HERE')}
 						</button>
 					)}
-					{t('pages.home.SENT_EMAIL_VERIFICATION_RESEND')}
-				</Text>
+
+					<span className="leading-tight">{t('pages.home.SENT_EMAIL_VERIFICATION_RESEND')}</span>
+				</div>
 
 				{/* <button onClick={closeIt}>
 					<CloseIcon />
