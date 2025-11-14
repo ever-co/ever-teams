@@ -12,24 +12,40 @@ import { DateRange } from 'react-day-picker';
  * @param tab - The current tab name ('Future Tasks', 'Past Tasks', 'All Tasks')
  * @returns Object containing date range and setter function
  */
-export const useDateRange = (tab: string | any) => {
-	// NOTE: Replacement for dateRangeFuturePlanState atom; range is now
-	// scoped to this view/tab instead of a global Jotai store.
-	const [dateFuture, setDateFuture] = useState<DateRange | undefined>(undefined);
-	// NOTE: Replacement for dateRangeAllPlanState atom; keeps "All" tab
-	// date range local to the caller.
-	const [dateAllPlan, setDateAllPlan] = useState<DateRange | undefined>(undefined);
-	// NOTE: Replacement for dateRangePastPlanState atom; used for Past Tasks
-	// history filters.
-	const [datePastPlan, setDatePastPlan] = useState<DateRange | undefined>(undefined);
 
+type DateRangeKey = 'future' | 'past' | 'all';
+
+const getDateRangeKey = (tab: string): DateRangeKey => {
 	switch (tab) {
 		case 'Future Tasks':
-			return { date: dateFuture, setDate: setDateFuture };
+			return 'future';
 		case 'Past Tasks':
-			return { date: datePastPlan, setDate: setDatePastPlan };
+			return 'past';
 		case 'All Tasks':
 		default:
-			return { date: dateAllPlan, setDate: setDateAllPlan };
+			return 'all';
 	}
+};
+
+export const useDateRange = (tab?: string) => {
+	// NOTE: We keep a single state object keyed by tab to replace
+	// Replacement for dateRangeFuturePlanState / dateRangePastPlanState / dateRangeAllPlanState atoms
+	// while keeping the hook API ({ date, setDate }) unchanged.
+	const [ranges, setRanges] = useState<Record<DateRangeKey, DateRange | undefined>>({
+		future: undefined,
+		past: undefined,
+		all: undefined
+	});
+
+	const key = getDateRangeKey(tab ?? 'All Tasks');
+	const date = ranges[key];
+
+	const setDate = (next: DateRange | undefined) => {
+		setRanges((prev) => ({
+			...prev,
+			[key]: next
+		}));
+	};
+
+	return { date, setDate };
 };
