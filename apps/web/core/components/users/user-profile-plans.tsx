@@ -82,13 +82,13 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		getMyDailyPlansLoading
 	} = useDailyPlan(targetEmployeeId);
 	const fullWidth = useAtomValue(fullWidthState);
-	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'ALL');
+	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'DATE');
 	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');
 	const { setDate, date } = useDateRange(currentTab);
 
 	const screenOutstanding = {
-		ALL: <OutstandingAll profile={profile} user={user} employeeId={targetEmployeeId} />,
-		DATE: <OutstandingFilterDate profile={profile} user={user} employeeId={targetEmployeeId} />
+		ALL: <OutstandingAll profile={profile} user={user} outstandingPlans={outstandingPlans} />,
+		DATE: <OutstandingFilterDate profile={profile} user={user} outstandingPlans={outstandingPlans} />
 	};
 	const tabsScreens = {
 		'Today Tasks': <AllPlans profile={profile} currentTab={currentTab} user={user} employeeId={targetEmployeeId} />,

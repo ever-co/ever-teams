@@ -8,45 +8,16 @@ import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
 import { DragDropContext, Draggable, Droppable, DroppableProvided } from '@hello-pangea/dnd';
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { TUser } from '@/core/types/schemas';
+import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { handleDragAndDropDailyOutstandingAll } from '@/core/lib/helpers/index';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useDailyPlan } from '@/core/hooks';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
-interface OutstandingAll {
+interface OutstandingAllProps {
 	profile: any;
 	user?: TUser;
-	employeeId?: string; // Accept employeeId directly from parent
+	outstandingPlans: TDailyPlan[];
 }
-export function OutstandingAll({ profile, user, employeeId: propsEmployeeId }: OutstandingAll) {
-	// Use contextual employee ID selection based on profile context.
-	// NOTE: This replaces implicit "auth user only" logic so outstanding tasks
-	// always match the same employee as the Plans tab and See Plans entrypoint.
-	// Following the pattern from user-employee-id-management.md guide
-	const { data: authUser } = useUserQuery();
-	const employeeId = useMemo(() => {
-		// PRIORITY 1: Use employeeId from props if provided
-		if (propsEmployeeId) return propsEmployeeId;
-
-		// PRIORITY 2: Calculate from profile context
-		if (profile.isAuthUser) {
-			// For authenticated user: use their own employee ID
-			return authUser?.employee?.id ?? authUser?.employeeId ?? '';
-		} else {
-			// For another user's profile: use the passed user's employee ID
-			return user?.employee?.id ?? user?.employeeId ?? '';
-		}
-	}, [
-		propsEmployeeId,
-		profile.isAuthUser,
-		authUser?.employee?.id,
-		authUser?.employeeId,
-		user?.employee?.id,
-		user?.employeeId
-	]);
-
-	const { outstandingPlans } = useDailyPlan(employeeId);
+export function OutstandingAll({ profile, user, outstandingPlans }: OutstandingAllProps) {
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 
 	// Memoized user filter function for performance
