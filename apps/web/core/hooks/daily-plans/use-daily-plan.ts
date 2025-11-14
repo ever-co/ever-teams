@@ -435,17 +435,18 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 			profileDailyPlans.items?.flatMap((plan) => plan.tasks?.map((t) => t.id) ?? []) ?? []
 		);
 
-		// Filter tasks assigned to the target user that are NOT in any plan
+		// Filter tasks assigned to the target employee that are NOT in any plan
 		const tasksNotInAnyPlan = allTeamTasks.filter((task) => {
-			// Must be assigned to the target user
-			const isAssignedToUser = task.members?.some((member) => member.userId === user?.id);
+			// Must be assigned to the target employee (match by employeeId, not current user)
+			const isAssignedToTargetEmployee =
+				!!targetEmployeeId && task.members?.some((member) => member.id === targetEmployeeId);
 			// Must NOT be in any plan
 			const isNotInAnyPlan = !allPlannedTaskIds.has(task.id);
 			// Must have time tracked OR estimation set
 			const hasTimeOrEstimate =
 				(task.totalWorkedTime && task.totalWorkedTime > 0) || (task.estimate && task.estimate > 0);
 
-			return isAssignedToUser && isNotInAnyPlan && hasTimeOrEstimate;
+			return isAssignedToTargetEmployee && isNotInAnyPlan && hasTimeOrEstimate;
 		});
 
 		// Create a virtual plan for tasks not in any plan (if any exist)
@@ -470,7 +471,7 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 
 		// Combine past plans with incomplete tasks + virtual plan for unplanned tasks
 		return [...pastPlansWithIncompleteTasks, ...virtualPlanForUnplannedTasks];
-	}, [profileDailyPlans, todayTasks, futureTasks, allTeamTasks, user?.id, activeTeam, targetEmployeeId]);
+	}, [profileDailyPlans, todayTasks, futureTasks, allTeamTasks, activeTeam, targetEmployeeId]);
 
 	// NOTE: Replacement for sortedPlansState atom; generic sorted list
 	// used by multiple views (tabs, filters, etc.).
