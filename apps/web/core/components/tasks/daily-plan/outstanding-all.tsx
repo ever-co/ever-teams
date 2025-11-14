@@ -44,7 +44,7 @@ export function OutstandingAll({ profile, user, employeeId: propsEmployeeId }: O
 		user?.employeeId
 	]);
 
-	const outstandingPlans = useDailyPlan(employeeId).outstandingPlans;
+	const { outstandingPlans } = useDailyPlan(employeeId);
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 
 	// Memoized user filter function for performance

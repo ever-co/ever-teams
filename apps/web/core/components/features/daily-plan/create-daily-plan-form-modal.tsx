@@ -52,7 +52,7 @@ export function CreateDailyPlanFormModal({
 
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 
-	// ✅ Use useDailyPlan with employeeId to get the correct employee's plans
+	// Use useDailyPlan with employeeId to get the correct employee's plans
 	const { profileDailyPlans, createDailyPlan, createDailyPlanLoading } = useDailyPlan(employeeId ?? null);
 	const latestOption: 'Select' | 'Select & Close' | null = window.localStorage.getItem(
 		LAST_OPTION__CREATE_DAILY_PLAN_MODAL
@@ -146,7 +146,7 @@ export function CreateDailyPlanFormModal({
 		<Modal isOpen={open} closeModal={handleCloseModal}>
 			<form className="w-[98%] md:w-[430px] relative" autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
 				<EverCard className="w-full" shadow="custom">
-					<div className="flex flex-col justify-between items-center">
+					<div className="flex flex-col items-center justify-between">
 						{/* Form header */}
 						<div className="mb-3">
 							<Text.Heading as="h3" className="text-start">
@@ -155,7 +155,7 @@ export function CreateDailyPlanFormModal({
 						</div>
 
 						{/* Form Fields */}
-						<div className="flex flex-col gap-6 w-full">
+						<div className="flex flex-col w-full gap-6">
 							{chooseMember && isManagerConnectedUser && (
 								<MembersList
 									activeTeam={activeTeam}
@@ -178,7 +178,7 @@ export function CreateDailyPlanFormModal({
 								<Button
 									variant="outline"
 									type="button"
-									className="px-7 py-4 w-36 font-light rounded-md"
+									className="py-4 font-light rounded-md px-7 w-36"
 									onClick={() => closeModal()}
 								>
 									{t('common.CANCEL')}
@@ -189,21 +189,21 @@ export function CreateDailyPlanFormModal({
 									)}
 								>
 									{createDailyPlanLoading ? (
-										<div className="flex justify-center items-center w-full h-full">
+										<div className="flex items-center justify-center w-full h-full">
 											<ReloadIcon className="w-4 h-4 text-white animate-spin" />
 										</div>
 									) : (
-										<div className="flex overflow-hidden justify-between items-center w-full h-full">
+										<div className="flex items-center justify-between w-full h-full overflow-hidden">
 											<Button
 												onClick={lastSelectedOption}
-												className="flex justify-center items-center w-full h-full text-sm font-light text-white"
+												className="flex items-center justify-center w-full h-full text-sm font-light text-white"
 											>
 												{latestOption ?? 'Select & close'}
 											</Button>
 
 											<div
 												onClick={() => setIsOpen(!isOpen)}
-												className="flex justify-center items-center w-8 h-full text-white border-l"
+												className="flex items-center justify-center w-8 h-full text-white border-l"
 											>
 												<ChevronDown
 													size={10}
@@ -217,8 +217,8 @@ export function CreateDailyPlanFormModal({
 									)}
 
 									{isOpen && (
-										<div className="absolute right-0 p-2 mt-2 w-full bg-white rounded-md divide-y divide-gray-100 ring-1 ring-black ring-opacity-5 shadow-lg origin-top-right z-5 focus:outline-none">
-											<div className="flex flex-col gap-1 items-center w-full">
+										<div className="absolute right-0 w-full p-2 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-5 focus:outline-none">
+											<div className="flex flex-col items-center w-full gap-1">
 												<Button
 													disabled={createDailyPlanLoading}
 													onClick={handleSelect}
@@ -351,7 +351,7 @@ function MembersList({
 									<p className="text-xs text-muted-foreground">{member?.employee?.user?.email}</p>
 								</div>
 								{selectedMember?.id == member?.id && (
-									<Check className="flex ml-auto w-5 h-5 text-primary dark:text-white" />
+									<Check className="flex w-5 h-5 ml-auto text-primary dark:text-white" />
 								)}
 							</CommandItem>
 						))}

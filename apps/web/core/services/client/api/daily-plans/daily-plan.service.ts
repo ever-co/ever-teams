@@ -325,7 +325,7 @@ class DailyPlanService extends APIService {
 	removeTaskFromPlan = async (data: TRemoveTaskFromPlansRequest, planId: string): Promise<TDailyPlan> => {
 		try {
 			// Validate input data before sending
-			// ✅ Only use this.organizationId as fallback if not provided in data
+			// Only use this.organizationId as fallback if not provided in data
 			const validatedInput = zodStrictApiResponseValidate(
 				dailyPlanTasksUpdateSchema, // or create a dedicated removal schema
 				{ organizationId: this.organizationId, ...data },
