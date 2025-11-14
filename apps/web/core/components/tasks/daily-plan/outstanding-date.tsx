@@ -9,32 +9,17 @@ import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useMemo, useCallback, useState, useEffect } from 'react';
-import { TUser } from '@/core/types/schemas';
+import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import DailyPlanTasksTableView from './table-view';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useDailyPlan } from '@/core/hooks';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 interface IOutstandingFilterDate {
 	profile: any;
 	user?: TUser;
+	outstandingPlans: TDailyPlan[];
 }
-export function OutstandingFilterDate({ profile, user }: IOutstandingFilterDate) {
-	// Use contextual employee ID selection based on profile context
-	// Following the pattern from user-employee-id-management.md guide
-	const { data: authUser } = useUserQuery();
-	const employeeId = useMemo(() => {
-		if (profile.isAuthUser) {
-			// For authenticated user: use their own employee ID
-			return authUser?.employee?.id ?? authUser?.employeeId ?? '';
-		} else {
-			// For another user's profile: use the passed user's employee ID
-			return user?.employee?.id ?? user?.employeeId ?? '';
-		}
-	}, [profile.isAuthUser, authUser?.employee?.id, authUser?.employeeId, user?.employee?.id, user?.employeeId]);
-
-	const { outstandingPlans } = useDailyPlan(employeeId);
+export function OutstandingFilterDate({ profile, user, outstandingPlans }: IOutstandingFilterDate) {
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 
 	// Performance: useMemo prevents recalculating filtered plans on every render

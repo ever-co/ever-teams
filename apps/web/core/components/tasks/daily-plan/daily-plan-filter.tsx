@@ -2,13 +2,12 @@ import { formatDayPlanDate } from '@/core/lib/helpers/index';
 import { useDailyPlan } from '@/core/hooks';
 import { cn } from '@/core/lib/helpers';
 import { CircleIcon } from 'assets/svg';
-import { PropsWithChildren, useEffect, useState } from 'react';
+import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import { Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { Tooltip } from '../../duplicated-components/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '../../common/popover';
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '../../common/command';
 import { Button } from '../../common/button';
-import { isEqual } from 'lodash';
 
 export function DailyPlanDropDownItem({
 	children,
@@ -50,29 +49,24 @@ export function DailyPlanDropDownItem({
 export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
 	const [selectedPlans, setSelectedPlans] = useState<string[]>([]);
 
-	const { employeePlans, getEmployeeDayPlans, setProfileDailyPlans } = useDailyPlan(employeeId);
-	const filteredPlans = employeePlans;
+	// Get employee plans from React Query (not global atom)
+	const { employeePlans, getEmployeeDayPlans } = useDailyPlan(employeeId);
 	const [open, setOpen] = useState(false);
 
+	// Load employee plans on mount
 	useEffect(() => {
 		if (selectedPlans.length === 0) {
 			getEmployeeDayPlans(employeeId);
 		}
 	}, [selectedPlans, getEmployeeDayPlans, employeeId]);
 
-	useEffect(() => {
-		setProfileDailyPlans((prevState) => {
-			const filtered = employeePlans.filter((plan) =>
-				selectedPlans.length > 0 ? selectedPlans.includes(plan.date.toString()) : true
-			);
-
-			// Only update if the items have changed - use efficient deep comparison
-			if (!isEqual(filtered, prevState.items)) {
-				return { ...prevState, items: filtered };
-			}
-			return prevState;
-		});
-	}, [employeePlans, selectedPlans, setProfileDailyPlans]);
+	// Filter plans locally without modifying global atoms.
+	// NOTE: This prevents data conflicts when multiple components view different employees.
+	const filteredPlans = useMemo(() => {
+		return selectedPlans.length > 0
+			? employeePlans.filter((plan) => selectedPlans.includes(plan.date.toString()))
+			: employeePlans;
+	}, [employeePlans, selectedPlans]);
 
 	const togglePlanSelection = (planDate: string) => {
 		setSelectedPlans((current) => {

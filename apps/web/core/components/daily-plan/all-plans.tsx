@@ -28,16 +28,19 @@ import { EmptyPlans } from './empty-plans';
 export function AllPlans({
 	profile,
 	currentTab = 'All Tasks',
-	user
+	user,
+	employeeId
 }: {
 	profile: any;
 	currentTab?: FilterTabs;
 	user?: TUser;
+	employeeId?: string; // Accept employeeId directly from parent
 }) {
 	// Filter plans
 	const filteredPlans = useRef<TDailyPlan[]>([]);
 
-	const targetEmployeeId = user?.employee?.id ?? user?.employeeId ?? '';
+	// Use employeeId from props if provided, otherwise calculate from user
+	const targetEmployeeId = employeeId ?? user?.employee?.id ?? user?.employeeId ?? '';
 	const { sortedPlans, todayPlan } = useDailyPlan(targetEmployeeId);
 
 	const { date } = useDateRange(currentTab);
@@ -56,6 +59,8 @@ export function AllPlans({
 		let filteredData = filterDailyPlan(date as any, filteredPlans.current);
 
 		// Filter tasks for specific user if provided
+		// NOTE: `user` here is the profile user linked to `targetEmployeeId` (not the auth user).
+		// We intentionally filter by userId because task members are associated with users, not employees.
 		if (user) {
 			filteredData = filteredData
 				.map((plan) => ({
@@ -66,7 +71,7 @@ export function AllPlans({
 		}
 
 		return filteredData;
-	}, [date, todayPlan, user]);
+	}, [date, todayPlan, sortedPlans, user?.id]);
 
 	// Local state for drag-and-drop functionality
 	const [dragPlans, setDragPlans] = useState(plans);
@@ -97,8 +102,8 @@ export function AllPlans({
 								className="dark:border-slate-600 !border-none"
 							>
 								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex gap-3 justify-between items-center w-full">
-										<div className="min-w-max text-lg">
+									<div className="flex items-center justify-between w-full gap-3">
+										<div className="text-lg min-w-max">
 											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 										</div>
 										<HorizontalSeparator />

@@ -10,7 +10,6 @@ import {
 	timerStatusFetchingState,
 	timerStatusState,
 	taskStatusesState,
-	myDailyPlanListState,
 	activeTeamIdState,
 	activeTeamTaskState,
 	detailedTaskState,
@@ -42,6 +41,7 @@ import { queryKeys } from '@/core/query/keys';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { getLocalTimerStorageKey } from '@/core/lib/helpers/timer';
+import { useDailyPlan } from '../daily-plans/use-daily-plan';
 
 /**
  * ! Don't modify this function unless you know what you're doing
@@ -177,7 +177,10 @@ export function useTimer() {
 	const taskStatuses = useAtomValue(taskStatusesState);
 	const detailedTask = useAtomValue(detailedTaskState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
-	const myDailyPlans = useAtomValue(myDailyPlanListState);
+
+	// Use useDailyPlan to get the logged-in user's plans (no employeeId = current user)
+	const { myDailyPlans } = useDailyPlan();
+
 	const teamTasks = useAtomValue(teamTasksState);
 
 	const [timerStatusFetching, setTimerStatusFetching] = useAtom(timerStatusFetchingState);
