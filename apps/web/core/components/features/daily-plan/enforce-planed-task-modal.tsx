@@ -43,8 +43,9 @@ export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 		if (user?.employee && task && plan.id) {
 			addTaskToPlan(
 				{
-					taskId: task.id
-					// ❌ DO NOT send employeeId or organizationId - backend bug
+					taskId: task.id,
+					employeeId: plan.employeeId ?? user.employee.id,
+					organizationId: plan.organizationId ?? user.employee.organizationId
 				},
 				plan.id
 			).then(() => {

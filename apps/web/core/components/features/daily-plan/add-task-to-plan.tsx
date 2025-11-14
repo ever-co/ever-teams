@@ -62,8 +62,9 @@ export function AddTaskToPlan({
 				})
 			: addTaskToPlan(
 					{
-						taskId: task.id
-						// ❌ DO NOT send employeeId or organizationId - backend bug prevents finding plan
+						taskId: task.id,
+						employeeId: employee?.employeeId,
+						organizationId: employee?.organizationId
 					},
 					selectedPlan?.id ?? ''
 				).then(() => {

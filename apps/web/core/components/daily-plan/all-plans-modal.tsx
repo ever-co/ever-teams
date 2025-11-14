@@ -6,6 +6,7 @@ import { ChevronRightIcon } from 'assets/svg';
 import { AddTasksEstimationHoursModal } from '../features/daily-plan/add-task-estimation-hours-modal';
 import { useDailyPlan } from '@/core/hooks';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Calendar } from '@/core/components/common/calendar';
 import moment from 'moment';
@@ -17,6 +18,7 @@ import { EverCard } from '../common/ever-card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { VerticalSeparator } from '../duplicated-components/separator';
 import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
+import { ERoleName } from '@/core/types/generics/enums/role';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 
 interface IAllPlansModal {
@@ -144,6 +146,16 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	}, [selectedTab, todayPlan, tomorrowPlan, selectedPlan]);
 
 	const { data: user } = useUserQuery();
+	const { isTeamManager } = useIsMemberManager(user);
+
+	const targetEmployeeId = employeeId ?? user?.employee?.id ?? null;
+	const isSelf = !targetEmployeeId || targetEmployeeId === user?.employee?.id;
+
+	const isAdmin = user?.role?.name
+		? [ERoleName.ADMIN, ERoleName.SUPER_ADMIN].includes(user.role.name as ERoleName)
+		: false;
+
+	const canEditPlans = isSelf || isTeamManager || isAdmin;
 
 	// Set the related tab for today and tomorrow dates
 	const handleCalendarSelect = useCallback(() => {
@@ -164,13 +176,15 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	}, [customDate, isSameDate]);
 
 	const createEmptyPlan = useCallback(async () => {
+		if (!canEditPlans) return;
+
 		try {
 			await createDailyPlan({
 				workTimePlanned: 0,
 				date: moment(customDate).format('YYYY-MM-DD'),
 				status: EDailyPlanStatus.OPEN,
 				tenantId: user?.tenantId ?? '',
-				employeeId: employeeId ?? user?.employee?.id,
+				employeeId: targetEmployeeId ?? undefined,
 				organizationId: user?.employee?.organizationId!
 			});
 
@@ -179,11 +193,11 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 			console.log(error);
 		}
 	}, [
+		canEditPlans,
 		createDailyPlan,
 		customDate,
-		employeeId,
 		handleCalendarSelect,
-		user?.employee?.id,
+		targetEmployeeId,
 		user?.employee?.organizationId,
 		user?.tenantId
 	]);
@@ -367,7 +381,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 										{t('common.CANCEL')}
 									</Button>
 									<Button
-										disabled={!customDate || createDailyPlanLoading}
+										disabled={!customDate || createDailyPlanLoading || !canEditPlans}
 										variant="default"
 										type="submit"
 										className={clsxm(
@@ -396,6 +410,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 										closeModal={handleCloseModal}
 										selectedDate={customDate}
 										employeeId={employeeId}
+										canEdit={canEditPlans}
 									/>
 								) : customDate ? (
 									<AddTasksEstimationHoursModal
@@ -405,6 +420,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 										closeModal={handleCloseModal}
 										selectedDate={customDate}
 										employeeId={employeeId}
+										canEdit={canEditPlans}
 									/>
 								) : (
 									<div className="flex items-center justify-center h-full">

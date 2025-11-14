@@ -41,8 +41,9 @@ export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 			if (plan.id) {
 				await removeTaskFromPlan(
 					{
-						taskId: task.id
-						// ❌ DO NOT send employeeId or organizationId - backend bug
+						taskId: task.id,
+						employeeId: plan.employeeId ?? undefined,
+						organizationId: plan.organizationId
 					},
 					plan.id
 				);
@@ -50,7 +51,7 @@ export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 		} catch (error) {
 			console.log(error);
 		}
-	}, [plan.id, removeTaskFromPlan, task.id]);
+	}, [plan.employeeId, plan.id, plan.organizationId, removeTaskFromPlan, task.id]);
 
 	// The function that will be called when the user clicks on 'YES' button
 	const onYes = useCallback(async () => {
@@ -64,11 +65,11 @@ export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 	return (
 		<Modal isOpen={open} closeModal={closeModal} className="w-[98%] md:w-[530px] relative" showCloseIcon={false}>
 			<EverCard className="w-full" shadow="custom">
-				<div className="flex flex-col gap-6 justify-between w-full">
+				<div className="flex flex-col justify-between w-full gap-6">
 					<Text.Heading as="h5" className="mb-3 text-center">
 						You are about to unplan the current active task, please confirm the action
 					</Text.Heading>
-					<div className="flex justify-evenly items-center w-full">
+					<div className="flex items-center w-full justify-evenly">
 						<Button
 							disabled={removeTaskFromPlanLoading}
 							variant="outline"

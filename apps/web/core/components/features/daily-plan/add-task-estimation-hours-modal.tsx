@@ -54,6 +54,7 @@ interface IAddTasksEstimationHoursModalProps {
 	isRenderedInSoftFlow?: boolean;
 	selectedDate?: Date;
 	employeeId?: string | null; // Optional employeeId to view plans for a specific employee
+	canEdit?: boolean;
 }
 
 export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModalProps) {
@@ -64,7 +65,8 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		tasks: propsTasks,
 		isRenderedInSoftFlow = true,
 		selectedDate,
-		employeeId
+		employeeId,
+		canEdit = true
 	} = props;
 	const {
 		isOpen: isActiveTaskHandlerModalOpen,
@@ -405,14 +407,14 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 	// TODO: Add onclick handler
 	const TimeSheetsButton = (
-		<Button className="px-5 py-3 w-full font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600">
+		<Button className="w-full px-5 py-3 font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600">
 			{t('common.timesheets.PLURAL')}
 		</Button>
 	);
 
 	const content = (
 		<div className="flex flex-col justify-between w-full">
-			<div className="flex flex-col gap-4 w-full">
+			<div className="flex flex-col w-full gap-4">
 				{isRenderedInSoftFlow && (
 					<Text.Heading as="h3" className="mb-3 text-center">
 						{t('timer.todayPlanSettings.TITLE')}
@@ -427,6 +429,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 						selectedPlan={plan}
 						selectedDate={selectedDate}
 						employeeId={employeeId}
+						canEdit={canEdit}
 					/>
 				) : plan || selectedDate ? (
 					<div
@@ -435,7 +438,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							checkPastDate(plan?.date ?? selectedDate) && 'flex items-center justify-between gap-2'
 						)}
 					>
-						<div className="flex flex-col gap-2 w-full">
+						<div className="flex flex-col w-full gap-2">
 							{checkPastDate(plan?.date ?? selectedDate) ? (
 								<span className="text-sm">{t('dailyPlan.PLANNED_TIME')}</span>
 							) : (
@@ -446,7 +449,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							)}
 							<div className="w-full flex gap-3 h-[3rem]">
 								{checkPastDate(plan?.date ?? selectedDate) ? (
-									<div className="flex gap-3 items-center px-3 w-full h-full rounded-lg border">
+									<div className="flex items-center w-full h-full gap-3 px-3 border rounded-lg">
 										{formatTimeString(formatIntegerToHour(tasksEstimationTimes))}
 									</div>
 								) : (
@@ -456,6 +459,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 										className="h-full"
 										wrapperClassName=" h-full"
 										onChange={(e) => {
+											if (!canEdit) return;
 											!isNaN(parseInt(e.target.value))
 												? setWorkTimePlanned(parseInt(e.target.value))
 												: setWorkTimePlanned(0);
@@ -486,16 +490,17 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 										defaultValue={
 											plan && plan.workTimePlanned ? parseInt(plan.workTimePlanned.toString()) : 0
 										}
-										readOnly={checkPastDate(plan?.date ?? selectedDate)}
+										readOnly={checkPastDate(plan?.date ?? selectedDate) || !canEdit}
 									/>
 								)}
 
 								{!checkPastDate(plan?.date ?? selectedDate) && (
 									<button
 										onClick={() => {
+											if (!canEdit) return;
 											setShowSearchInput(true);
 										}}
-										className="flex justify-center items-center w-10 h-full rounded-lg border shrink-0"
+										className="flex items-center justify-center w-10 h-full border rounded-lg shrink-0"
 									>
 										<AddIcon className="w-4 h-4 text-dark dark:text-white" />
 									</button>
@@ -503,7 +508,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							</div>
 						</div>
 						{checkPastDate(plan?.date ?? selectedDate) && (
-							<div className="flex flex-col gap-2 w-full">
+							<div className="flex flex-col w-full gap-2">
 								<span className="text-sm">{t('common.plan.TRACKED_TIME')}</span>
 								<div className="w-full border rounded-lg px-3 items-center flex gap-3 h-[3rem]">
 									{formatTimeString(formatIntegerToHour(totalWorkedTime ?? 0))}
@@ -518,12 +523,12 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 						<div className="flex flex-col gap-3 text-sm">
 							<div className="flex flex-col gap-3 text-sm">
 								<div className="flex flex-col gap-2 text-sm">
-									<div className="flex gap-2 justify-between items-center w-full">
-										<div className="flex gap-1 justify-center items-center">
+									<div className="flex items-center justify-between w-full gap-2">
+										<div className="flex items-center justify-center gap-1">
 											<span>{t('task.TITLE_PLURAL')}</span>
 											{!checkPastDate(plan.date) && <span className="text-red-600">*</span>}
 										</div>
-										<div className="flex gap-1 justify-center items-center">
+										<div className="flex items-center justify-center gap-1">
 											{checkPastDate(plan.date) ? (
 												<>
 													<span>{t('dailyPlan.ESTIMATED')} :</span>
@@ -542,7 +547,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 										</div>
 									</div>
 									<div className="w-full h-full">
-										<ul className="flex overflow-y-auto flex-col gap-2 h-80">
+										<ul className="flex flex-col gap-2 overflow-y-auto h-80">
 											{sortedTasks.map((task, index) => (
 												<TaskCard
 													plan={plan}
@@ -555,7 +560,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 										</ul>
 									</div>
 								</div>
-								<div className="flex gap-2 items-center h-6 text-sm text-red-500">
+								<div className="flex items-center h-6 gap-2 text-sm text-red-500">
 									{!checkPastDate(plan.date) && warning && (
 										<>
 											<IconsErrorWarningFill className="text-[14px]" />
@@ -565,12 +570,12 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 								</div>
 							</div>
 						</div>
-						<div className="flex justify-between items-center">
+						<div className="flex items-center justify-between">
 							<Button
 								disabled={loading}
 								variant="outline"
 								type="submit"
-								className="px-5 py-3 w-40 font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+								className="w-40 px-5 py-3 font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
 								onClick={isRenderedInSoftFlow ? closeModalAndSubmit : handleCloseModal}
 							>
 								{isRenderedInSoftFlow ? t('common.SKIP_ADD_LATER') : t('common.CANCEL')}
@@ -632,6 +637,7 @@ interface ISearchTaskInputProps {
 	defaultTask: TTask | null;
 	selectedDate?: Date;
 	employeeId?: string | null;
+	canEdit?: boolean;
 }
 
 /**
@@ -647,7 +653,15 @@ interface ISearchTaskInputProps {
  * @returns The Search input component
  */
 export function SearchTaskInput(props: ISearchTaskInputProps) {
-	const { selectedPlan, setShowSearchInput, defaultTask, setDefaultTask, selectedDate, employeeId } = props;
+	const {
+		selectedPlan,
+		setShowSearchInput,
+		defaultTask,
+		setDefaultTask,
+		selectedDate,
+		employeeId,
+		canEdit = true
+	} = props;
 
 	const teamTasks = useAtomValue(tasksByTeamState);
 	const { createTask } = useTeamTasks();
@@ -716,7 +730,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 
 	return (
 		<Popover className={clsxm('relative z-20 w-full')}>
-			<div className="flex flex-col gap-2 items-start w-full">
+			<div className="flex flex-col items-start w-full gap-2">
 				<span className="text-sm">Select or create task for the plan</span>
 				<div className="w-full flex gap-3 h-[3rem]">
 					<PopoverButton
@@ -740,7 +754,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 						onClick={() => {
 							setShowSearchInput(false);
 						}}
-						className="flex justify-center items-center w-10 h-full rounded-lg border shrink-0"
+						className="flex items-center justify-center w-10 h-full border rounded-lg shrink-0"
 					>
 						<Tooltip label={t('common.CLOSE')}>
 							<Cross2Icon className="text-xl cursor-pointer" />
@@ -764,6 +778,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 										selectedDate={selectedDate}
 										onTaskAdded={() => setShowSearchInput(false)}
 										employeeId={employeeId}
+										canEdit={canEdit}
 									/>
 								</li>
 							))}
@@ -800,6 +815,7 @@ interface ITaskCardProps {
 	selectedDate?: Date;
 	onTaskAdded?: () => void; // Callback to close search input after adding task
 	employeeId?: string | null;
+	canEdit?: boolean;
 }
 
 function TaskCard(props: ITaskCardProps) {
@@ -811,7 +827,8 @@ function TaskCard(props: ITaskCardProps) {
 		setDefaultTask,
 		selectedDate,
 		onTaskAdded,
-		employeeId
+		employeeId,
+		canEdit = true
 	} = props;
 	const { getTaskById } = useTeamTasks();
 	const { addTaskToPlan, createDailyPlan } = useDailyPlan(employeeId);
@@ -846,16 +863,19 @@ function TaskCard(props: ITaskCardProps) {
 	 * The function that adds the task to the selected plan
 	 */
 	const handleAddTask = useCallback(async () => {
+		if (!canEdit) return;
+
 		try {
 			setAddToPlanLoading(true);
 
 			if (plan && plan.id) {
 				// ⚠️ WORKAROUND: Ever-Gauzy backend has a bug where it searches for the plan with employeeId and organizationId in WHERE clause
-				// This prevents adding tasks to other employees' plans. Solution: only send taskId, let backend find plan by planId only
+				// This prevents adding tasks to other employees' plans.
 				await addTaskToPlan(
 					{
-						taskId: task.id
-						// ❌ DO NOT send employeeId or organizationId - backend will fail to find plan if they don't match authenticated user
+						taskId: task.id,
+						employeeId: employeeId ?? user?.employee?.id,
+						organizationId: user?.employee?.organizationId
 					},
 					plan.id
 				);
@@ -926,17 +946,23 @@ function TaskCard(props: ITaskCardProps) {
 				<TaskNameInfoDisplay task={task} />
 			</div>
 			<VerticalSeparator />
-			<div className="flex gap-2 justify-end items-center h-full grow">
+			<div className="flex items-center justify-end h-full gap-2 grow">
 				{viewListMode === 'searched' ? (
-					<Button onClick={handleAddTask} variant="outline" className="mon-h-12" type="button">
+					<Button
+						onClick={handleAddTask}
+						variant="outline"
+						className="mon-h-12"
+						type="button"
+						disabled={!canEdit}
+					>
 						{addToPlanLoading ? <SpinnerLoader variant="dark" size={20} /> : 'Add'}
 					</Button>
 				) : plan ? (
 					<>
-						<div className="flex gap-1 items-center h-full min-w-fit">
+						<div className="flex items-center h-full gap-1 min-w-fit">
 							{checkPastDate(plan.date) ? (
 								<span
-									className="flex justify-center items-center h-6 truncate min-w-fit max-w-28"
+									className="flex items-center justify-center h-6 truncate min-w-fit max-w-28"
 									style={{
 										backgroundColor:
 											taskStatuses.find((s) => s.value === task.status)?.color ?? undefined
@@ -950,13 +976,14 @@ function TaskCard(props: ITaskCardProps) {
 
 							<TaskEstimate showEditAndSaveButton={!checkPastDate(plan.date)} _task={task} />
 						</div>
-						<span className="flex justify-center items-center w-4 h-full">
+						<span className="flex items-center justify-center w-4 h-full">
 							<TaskCardActions
 								openTaskDetailsModal={handleOpenTaskDetailsModal}
 								openUnplanActiveTaskModal={openUnplanActiveTaskModal}
 								selectedPlan={plan}
 								task={task}
 								employeeId={employeeId}
+								canEdit={canEdit}
 							/>
 						</span>
 					</>
@@ -987,6 +1014,7 @@ interface ITaskCardActionsProps {
 	openTaskDetailsModal: () => void;
 	openUnplanActiveTaskModal: () => void;
 	employeeId?: string | null;
+	canEdit?: boolean;
 }
 
 /**
@@ -1002,7 +1030,7 @@ interface ITaskCardActionsProps {
  */
 
 function TaskCardActions(props: ITaskCardActionsProps) {
-	const { task, selectedPlan, openTaskDetailsModal, openUnplanActiveTaskModal, employeeId } = props;
+	const { task, selectedPlan, openTaskDetailsModal, openUnplanActiveTaskModal, employeeId, canEdit = true } = props;
 	const { data: user } = useUserQuery();
 	const { futurePlans, todayPlan, removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan(employeeId);
 
@@ -1030,6 +1058,10 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 	 */
 	const unplanSelectedDate = useCallback(
 		async (closePopover: () => void) => {
+			if (!canEdit) {
+				closePopover();
+				return;
+			}
 			try {
 				if (task.id == activeTeamTask?.id) {
 					if (timerStatus?.running && isTodayPLan) {
@@ -1038,8 +1070,9 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 						if (selectedPlan?.id) {
 							await removeTaskFromPlan(
 								{
-									taskId: task.id
-									// ❌ DO NOT send employeeId or organizationId - backend bug
+									taskId: task.id,
+									employeeId: employeeId ?? user?.employee?.id,
+									organizationId: user?.employee?.organizationId
 								},
 								selectedPlan?.id
 							);
@@ -1052,8 +1085,9 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 				} else if (selectedPlan?.id) {
 					await removeTaskFromPlan(
 						{
-							taskId: task.id
-							// ❌ DO NOT send employeeId or organizationId - backend bug
+							taskId: task.id,
+							employeeId: employeeId ?? user?.employee?.id,
+							organizationId: user?.employee?.organizationId
 						},
 						selectedPlan?.id
 					);
@@ -1071,13 +1105,12 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 		},
 		[
 			activeTeamTask?.id,
+			canEdit,
 			employeeId,
 			isTodayPLan,
 			openUnplanActiveTaskModal,
 			removeTaskFromPlan,
 			selectedPlan?.id,
-			selectedPlan?.employeeId,
-			selectedPlan?.organizationId,
 			task.id,
 			task.title,
 			timerStatus?.running,
@@ -1088,7 +1121,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 
 	return (
 		<Popover>
-			<PopoverButton className="flex justify-center items-center w-4 h-full border-none outline-none">
+			<PopoverButton className="flex items-center justify-center w-4 h-full border-none outline-none">
 				<ThreeCircleOutlineVerticalIcon className="  dark:text-[#B1AEBC]" />
 			</PopoverButton>
 
@@ -1106,7 +1139,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 					{({ close }) => {
 						return (
 							<EverCard shadow="custom" className="shadow-xl card  !p-3 !rounded-lg !border-2">
-								<ul className="flex flex-col gap-3 justify-end">
+								<ul className="flex flex-col justify-end gap-3">
 									<li
 										onClick={openTaskDetailsModal}
 										className={clsxm('hover:font-semibold hover:transition-all')}
@@ -1290,7 +1323,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 								shadow="custom"
 								className=" shadow-xl card  min-w-max w-[11rem] flex flex-col justify-end !p-0 !rounded-lg !border-2"
 							>
-								<ul className="flex flex-col gap-3 justify-end p-3 w-full border">
+								<ul className="flex flex-col justify-end w-full gap-3 p-3 border">
 									<li
 										onClick={() => unplanSelectedDate(close)}
 										className={clsxm(

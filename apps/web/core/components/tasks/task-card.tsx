@@ -830,10 +830,10 @@ export function RemoveTaskFromPlan({
 	plan?: TDailyPlan;
 }) {
 	const t = useTranslations();
-	const { removeTaskFromPlan } = useDailyPlan();
+	const { removeTaskFromPlan } = useDailyPlan(member?.employeeId);
 	const data: IDailyPlanTasksUpdate = {
-		taskId: task.id
-		// ❌ DO NOT send employeeId or organizationId - backend bug prevents finding plan
+		taskId: task.id,
+		employeeId: member?.employeeId ?? undefined
 	};
 	const onClick = () => {
 		removeTaskFromPlan(data, plan?.id ?? '');
