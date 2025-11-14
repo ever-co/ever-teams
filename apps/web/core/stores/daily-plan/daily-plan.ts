@@ -10,7 +10,10 @@ import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
  *
  * NOTE_KEEP - This is a legitimate team-wide global state.
  * Per-employee daily plans are now derived from React Query in `useDailyPlan`
- * to avoid desynced views and duplicated per-user global stores.
+ * to avoid out-of-sync views and duplicated per-user global stores.
+ * NOTE_MIGRATION - This file previously hosted many per-employee plan atoms
+ * (today, past, future, outstanding, profile/my plans). Their replacements
+ * now live in `useDailyPlan`, `useDateRange` and `filterDailyPlan`.
  */
 export const dailyPlanListState = atom<PaginationResponse<TDailyPlan>>({
 	items: [],

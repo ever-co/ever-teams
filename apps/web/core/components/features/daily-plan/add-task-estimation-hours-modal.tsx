@@ -76,7 +76,9 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 	const t = useTranslations();
 
-	// Use useDailyPlan with employeeId to get the correct employee's plans
+	// Use useDailyPlan with employeeId to get the correct employee's plans.
+	// NOTE: This replaces profileDailyPlanListState/myDailyPlanListState atoms
+	// so AllPlans modal and Profile "Plans" tab stay in sync
 	const { profileDailyPlans, updateDailyPlan } = useDailyPlan(employeeId);
 
 	// Get the updated plan from the hook instead of relying only on props

@@ -8,6 +8,9 @@ import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
  * Utility function to filter daily plans by date range
  *
  * Migrated from global Jotai atoms to a pure utility function.
+ * NOTE: Replacement for filteredPastPlanDataState / filteredFuturePlanDataState
+ * / filteredAllPlanDataState atoms; callers now pass their own data to avoid
+ * cross-screen coupling and hidden side effects.
  * This function is used by multiple components to filter plans based on date ranges.
  *
  * @param date - The date range to filter by (from/to)

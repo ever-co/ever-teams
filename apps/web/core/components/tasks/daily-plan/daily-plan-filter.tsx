@@ -60,8 +60,8 @@ export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
 		}
 	}, [selectedPlans, getEmployeeDayPlans, employeeId]);
 
-	// Filter plans locally without modifying global atoms
-	// This prevents data conflicts when multiple components view different employees
+	// Filter plans locally without modifying global atoms.
+	// NOTE: This prevents data conflicts when multiple components view different employees.
 	const filteredPlans = useMemo(() => {
 		return selectedPlans.length > 0
 			? employeePlans.filter((plan) => selectedPlans.includes(plan.date.toString()))

@@ -37,6 +37,9 @@ export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 	}, [closeModal]);
 
 	const handleUnplanTask = useCallback(async () => {
+		// NOTE: Use plan.employeeId/organizationId instead of inferring from the
+		// authenticated user so unplan respects backend filters and works for
+		// other employees' plans as well
 		try {
 			if (plan.id) {
 				await removeTaskFromPlan(

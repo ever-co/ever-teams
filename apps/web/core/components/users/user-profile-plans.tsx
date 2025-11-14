@@ -64,6 +64,9 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 			? (authUser?.employee?.id ?? authUser?.employeeId ?? '')
 			: (user?.employee?.id ?? user?.employeeId ?? '');
 
+		// NOTE: Centralizing employeeId resolution here replaces older implicit
+		// assumptions based on the authenticated user only, so "See Plans" and
+		// Profile "Plans" tab always target the same employee
 		return employeeId;
 	}, [profile.isAuthUser, authUser, user, propsEmployeeId]);
 
@@ -81,7 +84,9 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	const fullWidth = useAtomValue(fullWidthState);
 	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'ALL');
 	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');
-	// Replace global atom with local state to prevent data conflicts
+	// Replace global atom with local state to prevent data conflicts.
+	// NOTE: dataDailyPlanState Jotai atom was removed; this keeps daily plan
+	// lists scoped to the current profile instead of leaking between users.
 	const [currentDataDailyPlan, setCurrentDataDailyPlan] = useState<TDailyPlan[]>([]);
 	const { setDate, date } = useDateRange(currentTab);
 

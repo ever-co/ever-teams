@@ -26,6 +26,13 @@ import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
+/**
+ * NOTE: This hook replaces several legacy Jotai atoms
+ * (myDailyPlanListState, profileDailyPlanListState, employeePlansListState, taskPlans).
+ * Team-wide plans still use dailyPlanListState; per-employee plans and
+ * derived views now rely on React Query so Home modal and Profile "Plans"
+ * tab stay in sync for the selected employee
+ */
 export function useDailyPlan(defaultEmployeeId: string | null = null) {
 	const { data: user } = useUserQuery();
 	const activeTeam = useAtomValue(activeTeamState);
@@ -179,7 +186,7 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 		Boolean(dailyPlan?.items?.length)
 	);
 
-	//  LOCAL data - Calculate profileDailyPlans from React Query.
+	//  NOTE: Calculate profileDailyPlans from React Query.
 	//  Per-employee plans are no longer stored in global atoms; they are derived
 	//  from queries to keep views in sync (Home modal, Profile tab, etc.).
 	const profileDailyPlans = useMemo(() => {
@@ -334,6 +341,8 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 		[deleteDailyPlanMutation]
 	);
 
+	// NOTE: Replacement for ascSortedPlansState atom; keeps plans sorted
+	// by date ascending for future/past calculations.
 	const ascSortedPlans = useMemo(() => {
 		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].sort(
 			(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
@@ -351,12 +360,16 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 		});
 	}, [ascSortedPlans]);
 
+	// NOTE: Replacement for descSortedPlansState atom; keeps plans sorted
+	// by date descending for past calculations.
 	const descSortedPlans = useMemo(() => {
 		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].sort(
 			(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
 		);
 	}, [profileDailyPlans]);
 
+	// NOTE: Replacement for pastPlansState atom; exposes strictly past plans
+	// for Outstanding and history-related views.
 	const pastPlans = useMemo(() => {
 		return descSortedPlans?.filter((plan) => {
 			const planDate = new Date(plan.date);
@@ -367,20 +380,27 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 	}, [descSortedPlans]);
 
 	const todayPlan = useMemo(() => {
-		//  EXACT LOGIC from todayPlanState atom
+		// NOTE: Replacement for todayPlanState atom.
+		// We keep the same ISO-date prefix logic so counters/charts using
+		// "today" are not affected by this refactor.
 		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].filter((plan) =>
 			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])
 		);
 	}, [profileDailyPlans]);
 
+	// NOTE: Replacement for todayTasksState atom; derived locally from todayPlan.
 	const todayTasks = useMemo(() => {
 		return todayPlan.flatMap((plan) => plan.tasks ?? []);
 	}, [todayPlan]);
 
+	// NOTE: Replacement for futureTasksState atom; keeps future task list
+	// local to this hook instead of global Jotai.
 	const futureTasks = useMemo(() => {
 		return futurePlans.flatMap((plan) => plan.tasks ?? []);
 	}, [futurePlans]);
 
+	// NOTE: Replacement for outstandingPlansState atom; keeps "outstanding"
+	// logic close to daily-plan queries instead of global Jotai stores.
 	const outstandingPlans = useMemo(() => {
 		// Build a Set of task IDs from today/future to avoid repeated linear searches (O(1) lookup instead of O(n²))
 		const usedIds = new Set<string>([...todayTasks, ...futureTasks].map((t: TTask) => t.id));
@@ -452,6 +472,8 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 		return [...pastPlansWithIncompleteTasks, ...virtualPlanForUnplannedTasks];
 	}, [profileDailyPlans, todayTasks, futureTasks, allTeamTasks, user?.id, activeTeam, targetEmployeeId]);
 
+	// NOTE: Replacement for sortedPlansState atom; generic sorted list
+	// used by multiple views (tabs, filters, etc.).
 	const sortedPlans = useMemo(() => {
 		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].sort(
 			(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()

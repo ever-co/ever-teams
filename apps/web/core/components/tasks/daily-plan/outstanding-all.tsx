@@ -20,7 +20,9 @@ interface OutstandingAll {
 	employeeId?: string; // Accept employeeId directly from parent
 }
 export function OutstandingAll({ profile, user, employeeId: propsEmployeeId }: OutstandingAll) {
-	// Use contextual employee ID selection based on profile context
+	// Use contextual employee ID selection based on profile context.
+	// NOTE: This replaces implicit "auth user only" logic so outstanding tasks
+	// always match the same employee as the Plans tab and See Plans entrypoint.
 	// Following the pattern from user-employee-id-management.md guide
 	const { data: authUser } = useUserQuery();
 	const employeeId = useMemo(() => {
