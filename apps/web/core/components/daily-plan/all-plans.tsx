@@ -59,6 +59,8 @@ export function AllPlans({
 		let filteredData = filterDailyPlan(date as any, filteredPlans.current);
 
 		// Filter tasks for specific user if provided
+		// NOTE: `user` here is the profile user linked to `targetEmployeeId` (not the auth user).
+		// We intentionally filter by userId because task members are associated with users, not employees.
 		if (user) {
 			filteredData = filteredData
 				.map((plan) => ({
@@ -69,7 +71,7 @@ export function AllPlans({
 		}
 
 		return filteredData;
-	}, [date, todayPlan, user]);
+	}, [date, todayPlan, sortedPlans, user?.id]);
 
 	// Local state for drag-and-drop functionality
 	const [dragPlans, setDragPlans] = useState(plans);
