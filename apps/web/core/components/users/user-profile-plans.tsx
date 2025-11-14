@@ -13,7 +13,7 @@ import {
 	HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL,
 	HAS_VISITED_OUTSTANDING_TASKS
 } from '@/core/constants/config/constants';
-import { TDailyPlan, TUser } from '@/core/types/schemas';
+import { TUser } from '@/core/types/schemas';
 import { activeTeamState } from '@/core/stores';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { clsxm } from '@/core/lib/utils';
@@ -84,10 +84,6 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	const fullWidth = useAtomValue(fullWidthState);
 	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'ALL');
 	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');
-	// Replace global atom with local state to prevent data conflicts.
-	// NOTE: dataDailyPlanState Jotai atom was removed; this keeps daily plan
-	// lists scoped to the current profile instead of leaking between users.
-	const [currentDataDailyPlan, setCurrentDataDailyPlan] = useState<TDailyPlan[]>([]);
 	const { setDate, date } = useDateRange(currentTab);
 
 	const screenOutstanding = {
@@ -130,34 +126,20 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	// Handle tab changes with optimized effects
+	// Track first visit to Outstanding tab for notifications
 	useEffect(() => {
-		if (!currentDataDailyPlan) return;
+		if (currentTab !== 'Outstanding') return;
 
-		switch (currentTab) {
-			case 'All Tasks':
-				setCurrentDataDailyPlan(sortedPlans);
-				break;
-			case 'Past Tasks':
-				setCurrentDataDailyPlan(pastPlans);
-				break;
-			case 'Future Tasks':
-				setCurrentDataDailyPlan(futurePlans);
-				break;
-			case 'Outstanding':
-				// Only update localStorage when necessary
-				try {
-					const today = new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0];
-					const lastVisited = window?.localStorage.getItem(HAS_VISITED_OUTSTANDING_TASKS);
-					if (lastVisited !== today) {
-						window.localStorage.setItem(HAS_VISITED_OUTSTANDING_TASKS, today);
-					}
-				} catch (error) {
-					console.error('Error updating outstanding tasks visit date:', error);
-				}
-				break;
+		try {
+			const today = new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0];
+			const lastVisited = window?.localStorage.getItem(HAS_VISITED_OUTSTANDING_TASKS);
+			if (lastVisited !== today) {
+				window.localStorage.setItem(HAS_VISITED_OUTSTANDING_TASKS, today);
+			}
+		} catch (error) {
+			console.error('Error updating outstanding tasks visit date:', error);
 		}
-	}, [currentTab, sortedPlans, pastPlans, futurePlans, currentDataDailyPlan, setCurrentDataDailyPlan]);
+	}, [currentTab]);
 	// Use data directly from useDailyPlan instead of local states to prevent stale data
 	// when targetEmployeeId changes (e.g., when viewing different user profiles)
 	const totalTasksDailyPlansMap = useMemo(() => {
