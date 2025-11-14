@@ -179,7 +179,9 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 		Boolean(dailyPlan?.items?.length)
 	);
 
-	//  LOCAL data - Calculate profileDailyPlans from React Query
+	//  LOCAL data - Calculate profileDailyPlans from React Query.
+	//  Per-employee plans are no longer stored in global atoms; they are derived
+	//  from queries to keep views in sync (Home modal, Profile tab, etc.).
 	const profileDailyPlans = useMemo(() => {
 		const isViewingOtherEmployee = targetEmployeeId && targetEmployeeId !== user?.employee?.id;
 
