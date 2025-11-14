@@ -1043,7 +1043,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 		() =>
 			[...futurePlans, ...todayPlan]
 				// Remove selected plan
-				.filter((plan) => plan.id! !== selectedPlan.id)
+				.filter((plan) => plan.id! !== selectedPlan?.id)
 				.filter((plan) => plan.tasks && plan.tasks.find((_task) => _task.id == task.id))
 				.map((plan) => plan.id!),
 		[futurePlans, selectedPlan?.id, task.id, todayPlan]
@@ -1152,13 +1152,13 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 										<>
 											<li className={clsxm('hover:font-semibold hover:transition-all')}>Edit</li>
 
-											{selectedPlan.id && (
+											{selectedPlan?.id && (
 												<li>
 													{otherPlanIds.length ? (
 														<UnplanTask
 															taskId={task.id}
-															selectedPlanId={selectedPlan.id}
-															planIds={[selectedPlan.id, ...otherPlanIds]}
+															selectedPlanId={selectedPlan?.id}
+															planIds={[selectedPlan?.id, ...otherPlanIds]}
 															closeActionPopover={close}
 															openUnplanActiveTaskModal={openUnplanActiveTaskModal}
 															unplanSelectedDate={unplanSelectedDate}
