@@ -576,8 +576,6 @@ function TaskCard({
 			if (v && taskPriority) {
 				taskPriority.current = v;
 			}
-
-			console.log('taskPriority', taskPriority);
 		},
 		[taskPriority]
 	);
