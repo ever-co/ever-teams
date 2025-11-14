@@ -1,7 +1,7 @@
 import { HostKeys, useHotkeys, useModal } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { Modal } from '@/core/components';
-import { PropsWithChildren, useCallback } from 'react';
+import { PropsWithChildren, useCallback, useMemo } from 'react';
 import { TaskInput } from '../../tasks/task-input';
 import { useTranslations } from 'next-intl';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
@@ -68,7 +68,7 @@ export function TaskUnOrAssignPopover({
 					keepOpen={true}
 					autoAssignTaskAuth={false}
 					createOnEnterClick={true}
-					viewType="one-view"
+					// viewType="one-view"
 					onTaskClick={(task) => onTaskClick && onTaskClick(task, close)}
 					onTaskCreated={(task) => onTaskCreated && onTaskCreated(task, close)}
 					usersTaskCreatedAssignTo={usersTaskCreatedAssignTo}
