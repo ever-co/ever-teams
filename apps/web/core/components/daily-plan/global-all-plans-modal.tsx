@@ -8,11 +8,11 @@ import { ModalSkeleton } from '../common/skeleton/modal-skeleton';
 
 /**
  * Global instance of AllPlansModal
- * This component should be rendered ONCE at the root level (e.g., in layout.tsx)
+ * This component should be rendered ONCE at a root level component
  * to ensure only one modal instance exists across the entire app.
  *
  * Usage:
- * 1. Import and render <GlobalAllPlansModal /> in your root layout
+ * 1. Import and render <GlobalAllPlansModal /> in your a root level component
  * 2. Use the allPlansModalState atom to open/close the modal from anywhere:
  *
  * ```tsx
