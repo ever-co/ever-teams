@@ -917,6 +917,7 @@ function TaskCard(props: ITaskCardProps) {
 	}, [
 		addTaskToPlan,
 		createDailyPlan,
+		canEdit,
 		employeeId,
 		plan,
 		selectedDate,
@@ -1052,7 +1053,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 		() =>
 			new Date(selectedPlan?.date).toLocaleDateString('en') ==
 			new Date(todayPlan[0]?.date).toLocaleDateString('en'),
-		[selectedPlan.date, todayPlan]
+		[selectedPlan?.date, todayPlan]
 	);
 
 	/**
@@ -1148,7 +1149,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 									>
 										View
 									</li>
-									{checkPastDate(selectedPlan.date) ? null : (
+									{checkPastDate(selectedPlan?.date) ? null : (
 										<>
 											<li className={clsxm('hover:font-semibold hover:transition-all')}>Edit</li>
 
@@ -1164,6 +1165,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 															unplanSelectedDate={unplanSelectedDate}
 															unPlanSelectedDateLoading={removeTaskFromPlanLoading}
 															employeeId={employeeId}
+															canEdit={canEdit}
 														/>
 													) : (
 														<span
@@ -1210,6 +1212,7 @@ interface IUnplanTaskProps {
 	unPlanSelectedDateLoading: boolean;
 	openUnplanActiveTaskModal: () => void;
 	employeeId?: string | null;
+	canEdit?: boolean;
 }
 
 /**
@@ -1236,7 +1239,8 @@ function UnplanTask(props: IUnplanTaskProps) {
 		unplanSelectedDate,
 		openUnplanActiveTaskModal,
 		unPlanSelectedDateLoading,
-		employeeId
+		employeeId,
+		canEdit = true
 	} = props;
 	const { data: user } = useUserQuery();
 	const { todayPlan, removeManyTaskPlans, removeManyTaskFromPlanLoading } = useDailyPlan(employeeId);
@@ -1253,6 +1257,10 @@ function UnplanTask(props: IUnplanTaskProps) {
 	 */
 	const unplanAll = useCallback(
 		async (closePopover: () => void) => {
+			if (!canEdit) {
+				closePopover();
+				return;
+			}
 			try {
 				// First, check if the user wants to unplan the active task
 				if (taskId == activeTeamTask?.id) {
@@ -1261,7 +1269,11 @@ function UnplanTask(props: IUnplanTaskProps) {
 						// TODO: Unplan from all plans after clicks 'YES'
 					} else {
 						await removeManyTaskPlans(
-							{ plansIds: planIds, employeeId: employeeId ?? user?.employee?.id },
+							{
+								plansIds: planIds,
+								employeeId: employeeId ?? user?.employee?.id,
+								organizationId: user?.employee?.organizationId
+							},
 							taskId!
 						);
 						toast.success('Task removed from all plans', {
@@ -1271,7 +1283,11 @@ function UnplanTask(props: IUnplanTaskProps) {
 					}
 				} else {
 					await removeManyTaskPlans(
-						{ plansIds: planIds, employeeId: employeeId ?? user?.employee?.id },
+						{
+							plansIds: planIds,
+							employeeId: employeeId ?? user?.employee?.id,
+							organizationId: user?.employee?.organizationId
+						},
 						taskId
 					);
 					toast.success('Task removed from all plans', {
@@ -1290,6 +1306,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 		},
 		[
 			activeTeamTask?.id,
+			canEdit,
 			closeActionPopover,
 			employeeId,
 			isActiveTaskPlannedToday,
@@ -1298,7 +1315,8 @@ function UnplanTask(props: IUnplanTaskProps) {
 			removeManyTaskPlans,
 			taskId,
 			timerStatus?.running,
-			user?.employee?.id
+			user?.employee?.id,
+			user?.employee?.organizationId
 		]
 	);
 
