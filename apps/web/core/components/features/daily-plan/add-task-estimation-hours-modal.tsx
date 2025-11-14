@@ -1046,7 +1046,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 				.filter((plan) => plan.id! !== selectedPlan.id)
 				.filter((plan) => plan.tasks && plan.tasks.find((_task) => _task.id == task.id))
 				.map((plan) => plan.id!),
-		[futurePlans, selectedPlan.id, task.id, todayPlan]
+		[futurePlans, selectedPlan?.id, task.id, todayPlan]
 	);
 	const isTodayPLan = useMemo(
 		() =>
