@@ -527,7 +527,27 @@ function TaskCard({
 	const t = useTranslations();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
 	const taskLabelsData = useAtomValue(taskLabelsListState);
-
+	const [, setTaskData] = useState<{
+		taskName: string;
+		taskIssue: string;
+		taskStatus: string;
+		taskPriority: string;
+		taskSize: string;
+		taskLabels: string[];
+		taskDescription: string;
+		taskProject: string;
+		taskAssignees: string[];
+	}>({
+		taskName: '',
+		taskIssue: '',
+		taskStatus: '',
+		taskPriority: '',
+		taskSize: '',
+		taskLabels: [],
+		taskDescription: '',
+		taskProject: '',
+		taskAssignees: []
+	});
 	const activeTeam = useAtomValue(activeTeamState);
 
 	// Refs for dropdown elements to exclude from outside click detection
@@ -566,6 +586,7 @@ function TaskCard({
 		(v: any) => {
 			if (v && taskStatus) {
 				taskStatus.current = v;
+				setTaskData((prev) => ({ ...prev, taskStatus: v }));
 			}
 		},
 		[taskStatus]
@@ -575,6 +596,7 @@ function TaskCard({
 		(v: any) => {
 			if (v && taskPriority) {
 				taskPriority.current = v;
+				setTaskData((prev) => ({ ...prev, taskPriority: v }));
 			}
 		},
 		[taskPriority]
@@ -584,6 +606,7 @@ function TaskCard({
 		(v: any) => {
 			if (v && taskSize) {
 				taskSize.current = v;
+				setTaskData((prev) => ({ ...prev, taskSize: v }));
 			}
 		},
 		[taskSize]
@@ -592,7 +615,9 @@ function TaskCard({
 	const handleLabelsChange = useCallback(
 		(_: any, values: string[] | undefined) => {
 			if (taskLabels && values?.length) {
-				taskLabels.current = taskLabelsData.filter((tag) => (tag.name ? values?.includes(tag.name) : false));
+				const newValues = taskLabelsData.filter((tag) => (tag.name ? values?.includes(tag.name) : false));
+				taskLabels.current = newValues;
+				setTaskData((prev) => ({ ...prev, taskLabels: newValues.map((tag) => tag.name) }));
 			}
 		},
 		[taskLabels, taskLabelsData]
@@ -602,6 +627,7 @@ function TaskCard({
 		(project: any) => {
 			if (taskProject) {
 				taskProject.current = project.id;
+				setTaskData((prev) => ({ ...prev, taskProject: project.id }));
 			}
 		},
 		[taskProject]
@@ -611,6 +637,7 @@ function TaskCard({
 		(e: React.ChangeEvent<HTMLInputElement>) => {
 			if (taskDescription) {
 				taskDescription.current = e.target.value;
+				setTaskData((prev) => ({ ...prev, taskDescription: e.target.value }));
 			}
 		},
 		[taskDescription]
