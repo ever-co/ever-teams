@@ -409,19 +409,12 @@ const TimerButtonCall = React.memo(
 				)}
 
 				{hasPlan && hasPlan.tasks && (
-					<>
-						{console.log('[TaskCard.tsx] Rendering AddTasksEstimationHoursModal', {
-							isOpen: modals.isTasksEstimationHoursModalOpen,
-							planId: hasPlan.id,
-							employeeId: undefined
-						})}
-						<AddTasksEstimationHoursModal
-							isOpen={modals.isTasksEstimationHoursModalOpen}
-							closeModal={modals.tasksEstimationHoursCloseModal}
-							plan={hasPlan}
-							tasks={hasPlan.tasks}
-						/>
-					</>
+					<AddTasksEstimationHoursModal
+						isOpen={modals.isTasksEstimationHoursModalOpen}
+						closeModal={modals.tasksEstimationHoursCloseModal}
+						plan={hasPlan}
+						tasks={hasPlan.tasks}
+					/>
 				)}
 
 				{/**
@@ -839,8 +832,8 @@ export function RemoveTaskFromPlan({
 	const t = useTranslations();
 	const { removeTaskFromPlan } = useDailyPlan();
 	const data: IDailyPlanTasksUpdate = {
-		taskId: task.id,
-		employeeId: member?.employeeId ?? undefined
+		taskId: task.id
+		// ❌ DO NOT send employeeId or organizationId - backend bug prevents finding plan
 	};
 	const onClick = () => {
 		removeTaskFromPlan(data, plan?.id ?? '');

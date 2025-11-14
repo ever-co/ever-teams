@@ -6,7 +6,6 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { useAtomValue } from 'jotai';
 import { timerStatusState } from '@/core/stores';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 interface UnplanActiveTaskModalProps {
 	open: boolean;
@@ -28,7 +27,6 @@ interface UnplanActiveTaskModalProps {
  */
 export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 	const { closeModal, task, open, plan } = props;
-	const { data: user } = useUserQuery();
 	const timerStatus = useAtomValue(timerStatusState);
 
 	const { removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan();
@@ -40,11 +38,19 @@ export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 
 	const handleUnplanTask = useCallback(async () => {
 		try {
-			plan.id && (await removeTaskFromPlan({ taskId: task.id, employeeId: user?.employee?.id }, plan.id));
+			if (plan.id) {
+				await removeTaskFromPlan(
+					{
+						taskId: task.id
+						// ❌ DO NOT send employeeId or organizationId - backend bug
+					},
+					plan.id
+				);
+			}
 		} catch (error) {
 			console.log(error);
 		}
-	}, [plan.id, removeTaskFromPlan, task.id, user?.employee?.id]);
+	}, [plan.id, removeTaskFromPlan, task.id]);
 
 	// The function that will be called when the user clicks on 'YES' button
 	const onYes = useCallback(async () => {

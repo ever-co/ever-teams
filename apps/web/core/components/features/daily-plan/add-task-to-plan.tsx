@@ -35,7 +35,7 @@ export function AddTaskToPlan({
 	task: TTask;
 	employee?: IEmployee;
 }) {
-	// ✅ Use useDailyPlan with employee?.id to get the correct employee's plans
+	// Use useDailyPlan with employee?.id to get the correct employee's plans
 	const { profileDailyPlans, createDailyPlan, addTaskToPlan, getEmployeeDayPlans, addTaskToPlanLoading } =
 		useDailyPlan(employee?.id ?? null);
 	const [selectedPlan, setSelectedPlan] = useState<TDailyPlan | null>(null);
@@ -60,11 +60,15 @@ export function AddTaskToPlan({
 				}).then(() => {
 					closeModal();
 				})
-			: addTaskToPlan({ employeeId: employee?.employeeId ?? '', taskId: task.id }, selectedPlan?.id ?? '').then(
-					() => {
-						closeModal();
-					}
-				);
+			: addTaskToPlan(
+					{
+						taskId: task.id
+						// ❌ DO NOT send employeeId or organizationId - backend bug prevents finding plan
+					},
+					selectedPlan?.id ?? ''
+				).then(() => {
+					closeModal();
+				});
 	}, [
 		addTaskToPlan,
 		closeModal,
@@ -75,6 +79,8 @@ export function AddTaskToPlan({
 		employee?.tenantId,
 		newPlan,
 		selectedPlan?.id,
+		selectedPlan?.employeeId,
+		selectedPlan?.organizationId,
 		task.id,
 		workTimePlanned
 	]);

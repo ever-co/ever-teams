@@ -41,7 +41,13 @@ export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 
 	const handleAddTaskToPlan = useCallback(() => {
 		if (user?.employee && task && plan.id) {
-			addTaskToPlan({ employeeId: user.employee.id, taskId: task.id }, plan.id).then(() => {
+			addTaskToPlan(
+				{
+					taskId: task.id
+					// ❌ DO NOT send employeeId or organizationId - backend bug
+				},
+				plan.id
+			).then(() => {
 				closeModal();
 				if (requirePlan) {
 					if (hasWorkedHours && areAllTasksEstimated && task.estimate) {
@@ -62,6 +68,8 @@ export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 		onOK,
 		openDailyPlanModal,
 		plan.id,
+		plan.employeeId,
+		plan.organizationId,
 		requirePlan,
 		task,
 		user?.employee

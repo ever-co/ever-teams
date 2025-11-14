@@ -15,7 +15,10 @@ import {
 	TDailyPlanTasksUpdate,
 	TRemoveTaskFromPlansRequest
 } from '@/core/types/schemas';
-import { zodStrictApiResponseValidate, zodStrictPaginationResponseValidate } from '@/core/lib/validation/zod-validators';
+import {
+	zodStrictApiResponseValidate,
+	zodStrictPaginationResponseValidate
+} from '@/core/lib/validation/zod-validators';
 
 /**
  * Enhanced Daily Plan Service with Zod validation
@@ -136,7 +139,11 @@ class DailyPlanService extends APIService {
 			);
 
 			// Validate the response data using zod validation with auto-normalization
-			return zodStrictPaginationResponseValidate(dailyPlanSchema, response.data, 'getDayPlansByEmployee API response');
+			return zodStrictPaginationResponseValidate(
+				dailyPlanSchema,
+				response.data,
+				'getDayPlansByEmployee API response'
+			);
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
@@ -237,7 +244,11 @@ class DailyPlanService extends APIService {
 	updateDailyPlan = async (data: TUpdateDailyPlan, planId: string): Promise<TDailyPlan> => {
 		try {
 			// Validate input data before sending
-			const validatedInput = zodStrictApiResponseValidate(updateDailyPlanSchema, data, 'updateDailyPlan input data');
+			const validatedInput = zodStrictApiResponseValidate(
+				updateDailyPlanSchema,
+				data,
+				'updateDailyPlan input data'
+			);
 
 			const response = await this.put<TDailyPlan>(
 				`/daily-plan/${planId}`,
@@ -273,9 +284,10 @@ class DailyPlanService extends APIService {
 	addTaskToPlan = async (data: TDailyPlanTasksUpdate, planId: string): Promise<TDailyPlan> => {
 		try {
 			// Validate input data before sending
+			// Only use this.organizationId as fallback if not provided in data
 			const validatedInput = zodStrictApiResponseValidate(
 				dailyPlanTasksUpdateSchema,
-				{ ...data, organizationId: this.organizationId },
+				{ organizationId: this.organizationId, ...data },
 				'addTaskToPlan input data'
 			);
 
@@ -313,9 +325,10 @@ class DailyPlanService extends APIService {
 	removeTaskFromPlan = async (data: TRemoveTaskFromPlansRequest, planId: string): Promise<TDailyPlan> => {
 		try {
 			// Validate input data before sending
+			// ✅ Only use this.organizationId as fallback if not provided in data
 			const validatedInput = zodStrictApiResponseValidate(
 				dailyPlanTasksUpdateSchema, // or create a dedicated removal schema
-				{ ...data, organizationId: this.organizationId },
+				{ organizationId: this.organizationId, ...data },
 				'removeManyTaskFromPlans input data'
 			);
 
@@ -356,9 +369,10 @@ class DailyPlanService extends APIService {
 	}): Promise<TDailyPlan[]> => {
 		try {
 			// Validate input data before sending
+			// Only use this.organizationId as fallback if not provided in data
 			const validatedInput = zodStrictApiResponseValidate(
 				dailyPlanTasksUpdateSchema, // or create a dedicated removal schema
-				{ ...data, organizationId: this.organizationId },
+				{ organizationId: this.organizationId, ...data },
 				'removeManyTaskFromPlans input data'
 			);
 
@@ -368,7 +382,11 @@ class DailyPlanService extends APIService {
 
 			// Validate the response data (array of daily plans)
 			const validatedPlans = response.data.map((plan, index) =>
-				zodStrictApiResponseValidate(dailyPlanSchema, plan, `removeManyTaskFromPlans API response item ${index}`)
+				zodStrictApiResponseValidate(
+					dailyPlanSchema,
+					plan,
+					`removeManyTaskFromPlans API response item ${index}`
+				)
 			);
 
 			return validatedPlans;

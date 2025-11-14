@@ -1,5 +1,5 @@
 import { mergeRefs } from '@/core/lib/helpers/index';
-import { I_TeamMemberCardHook, I_TMCardTaskEditHook, useModal } from '@/core/hooks';
+import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
@@ -8,12 +8,13 @@ import { TaskUnOrAssignPopover } from '@/core/components/features/tasks/task-ass
 import { useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
-import { AllPlansModal } from '@/core/components/daily-plan/all-plans-modal';
 import { EverCard } from '@/core/components/common/ever-card';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Spinner } from '@/core/components/common/spinner';
 import { useFavoriteTasks } from '@/core/hooks/tasks/use-favorites-task';
+import { useSetAtom } from 'jotai';
+import { allPlansModalState } from '@/core/stores/all-plans-modal';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;
@@ -34,7 +35,15 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 	const t = useTranslations();
 	const loading = edition.loading || memberInfo.updateOTeamLoading;
 
-	const { isOpen: isAllPlansModalOpen, closeModal: closeAllPlansModal, openModal: openAllPlansModal } = useModal();
+	// Use global modal state instead of local state
+	const setAllPlansModal = useSetAtom(allPlansModalState);
+
+	const openAllPlansModal = useCallback(() => {
+		setAllPlansModal({
+			isOpen: true,
+			employeeId: memberInfo.member?.employeeId ?? null
+		});
+	}, [setAllPlansModal, memberInfo.member?.employeeId]);
 
 	const allMenuItems = useMemo(
 		() => [
@@ -112,7 +121,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 	return (
 		<>
 			<Popover
-				className="flex relative flex-col justify-center items-center w-full"
+				className="relative flex flex-col items-center justify-center w-full"
 				ref={mergeRefs([
 					edition.estimateEditIgnoreElement.ignoreElementRef,
 					edition.taskEditIgnoreElement.ignoreElementRef
@@ -219,7 +228,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 											);
 										})}
 										<HorizontalSeparator className="-mx-2" />
-										<ul className="flex flex-col items-start py-1 w-full">
+										<ul className="flex flex-col items-start w-full py-1">
 											<button
 												onClick={openAllPlansModal}
 												className={clsxm(
@@ -236,11 +245,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 					</PopoverPanel>
 				</Transition>
 			</Popover>
-			<AllPlansModal
-				isOpen={isAllPlansModalOpen}
-				closeModal={closeAllPlansModal}
-				employeeId={memberInfo.member?.employeeId ?? undefined}
-			/>
+			{/* AllPlansModal is now rendered globally in app-sidebar.tsx */}
 		</>
 	);
 }

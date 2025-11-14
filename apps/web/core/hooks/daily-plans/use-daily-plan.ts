@@ -21,6 +21,8 @@ import {
 } from '@/core/types/schemas/task/daily-plan.schema';
 import { useConditionalUpdateEffect, useQueryCall } from '../common';
 import { useUserQuery } from '../queries/user-user.query';
+import { toast } from 'sonner';
+import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
@@ -86,20 +88,17 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 	// Mutations
 	const createDailyplanMutation = useMutation({
 		mutationFn: async (data: TCreateDailyPlan) => {
-			console.log('[useDailyPlan] createDailyPlan mutationFn:', {
-				data,
-				targetEmployeeId
-			});
 			const res = await dailyPlanService.createDailyPlan(data);
-			console.log('[useDailyPlan] createDailyPlan result:', res);
 			return res;
 		},
-		onSuccess: (data) => {
-			console.log('[useDailyPlan] createDailyPlan onSuccess:', data);
+		onSuccess: () => {
 			invalidateDailyPlanData();
 		},
 		onError: (error) => {
-			console.error('[useDailyPlan] createDailyPlan onError:', error);
+			toast.error('Failed to create daily plan', {
+				description: getErrorMessage(error, 'Failed to create daily plan')
+			});
+			logErrorInDev('Failed to create daily plan', error);
 		}
 	});
 
@@ -115,21 +114,11 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 
 	const addTaskToPlanMutation = useMutation({
 		mutationFn: async ({ dailyPlanId, data }: { dailyPlanId: string; data: TDailyPlanTasksUpdate }) => {
-			console.log('[useDailyPlan] addTaskToPlanMutation mutationFn:', {
-				dailyPlanId,
-				data,
-				targetEmployeeId
-			});
 			const res = await dailyPlanService.addTaskToPlan(data, dailyPlanId);
-			console.log('[useDailyPlan] addTaskToPlanMutation result:', res);
 			return res;
 		},
-		onSuccess: (data) => {
-			console.log('[useDailyPlan] addTaskToPlanMutation onSuccess:', data);
+		onSuccess: () => {
 			invalidateDailyPlanData();
-		},
-		onError: (error) => {
-			console.error('[useDailyPlan] addTaskToPlanMutation onError:', error);
 		}
 	});
 
@@ -193,16 +182,6 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 	//  LOCAL data - Calculate profileDailyPlans from React Query
 	const profileDailyPlans = useMemo(() => {
 		const isViewingOtherEmployee = targetEmployeeId && targetEmployeeId !== user?.employee?.id;
-
-		if (process.env.NODE_ENV === 'development') {
-			console.log('[useDailyPlan] Computing profileDailyPlans:', {
-				targetEmployeeId,
-				currentUserId: user?.employee?.id,
-				isViewingOtherEmployee,
-				employeeData: getDayPlansByEmployeeQuery.data?.items?.length || 0,
-				myData: getMyDailyPlansQuery.data?.items?.length || 0
-			});
-		}
 
 		return isViewingOtherEmployee
 			? getDayPlansByEmployeeQuery.data || { items: [], total: 0 }
@@ -327,15 +306,9 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 
 	const addTaskToPlan = useCallback(
 		async (data: IDailyPlanTasksUpdate, planId: string) => {
-			console.log('[useDailyPlan] addTaskToPlan called:', {
-				data,
-				planId,
-				targetEmployeeId,
-				currentUserId: user?.employee?.id
-			});
 			return await addTaskToPlanMutation.mutateAsync({ data, dailyPlanId: planId });
 		},
-		[addTaskToPlanMutation, targetEmployeeId, user?.employee?.id]
+		[addTaskToPlanMutation]
 	);
 
 	const removeTaskFromPlan = useCallback(
