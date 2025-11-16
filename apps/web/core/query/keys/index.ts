@@ -40,13 +40,18 @@ export const queryKeys = {
 		// Employee-related keys under users
 		employees: {
 			all: ['users', 'employees'] as const,
-			working: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+			working: (
+				tenantId: string | undefined | null,
+				organizationId: string | undefined | null,
+				organizationTeamId?: string | undefined | null
+			) =>
 				[
 					'users',
 					'employees',
 					'working',
 					...(tenantId ? [tenantId] : []),
-					...(organizationId ? [organizationId] : [])
+					...(organizationId ? [organizationId] : []),
+					...(organizationTeamId ? [organizationTeamId] : [])
 				] as const,
 			detail: (employeeId: string | undefined | null) =>
 				['users', 'employees', ...(employeeId ? [employeeId] : [])] as const,
