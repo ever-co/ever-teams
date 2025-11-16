@@ -36,7 +36,11 @@ export const useEmployee = () => {
 	// React Query for fetching employees using /employee/members
 	// NOTE: (migrated from /employee/pagination?.. because of security reasons)
 	const { data: employeesData, isLoading: getWorkingEmployeeLoading } = useQuery({
-		queryKey: queryKeys.users.employees.working(queryParams.tenantId, queryParams.organizationId),
+		queryKey: queryKeys.users.employees.working(
+			queryParams.tenantId,
+			queryParams.organizationId,
+			queryParams.organizationTeamId
+		),
 		queryFn: () => employeeService.getWorkingEmployees(queryParams.organizationTeamId),
 		enabled: !!queryParams.tenantId && !!queryParams.organizationId
 	});
