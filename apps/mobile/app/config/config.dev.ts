@@ -1,3 +1,3 @@
 export default {
-	API_URL: `${process.env.GAUZY_API_URL}/api`,
+	API_URL: `${process.env.GAUZY_API_URL}/api`
 };

@@ -1,8 +1,7 @@
 import { setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/cookies';
 import { generateToken } from '@/core/lib/helpers/generate-token';
 import { authFormValidate } from '@/core/lib/helpers/validations';
-import { ILoginDataAPI } from '@/core/types/interfaces/auth/auth';
-import { IAuthResponse as IAuthResponse } from '@/core/types/interfaces/auth/auth';
+import type { IAuthResponse, ILoginDataAPI } from '@/core/types/interfaces/auth/auth';
 import {
 	acceptInviteRequest,
 	getAllOrganizationTeamRequest,
@@ -27,10 +26,7 @@ export async function POST(req: Request) {
 	/**
 	 * Verify first if matches with invite code
 	 */
-	const inviteReq = await verifyInviteCodeRequest({
-		email: body.email,
-		code: body.code
-	}).catch(() => void 0);
+	const inviteReq = await verifyInviteCodeRequest({ email: body.email, code: body.code }).catch(() => void 0);
 	/**
 	 * If the invite code verification failed then try again with the Auth code
 	 */
@@ -43,21 +39,13 @@ export async function POST(req: Request) {
 				(authReq.data as any).status === 400 ||
 				(authReq.data as any).status === 401
 			) {
-				return NextResponse.json({
-					errors: {
-						email: 'Authentication code or email address invalid'
-					}
-				});
+				return NextResponse.json({ errors: { email: 'Authentication code or email address invalid' } });
 			}
 
 			loginResponse = authReq.data;
 		} catch (error) {
 			// return notFound(res);
-			return NextResponse.json({
-				errors: {
-					email: 'Authentication code or email address invalid'
-				}
-			});
+			return NextResponse.json({ errors: { email: 'Authentication code or email address invalid' } });
 		}
 
 		/**
@@ -72,11 +60,7 @@ export async function POST(req: Request) {
 			code: body.code,
 			email: inviteReq.data.email,
 			password: password,
-			user: {
-				firstName: names[0],
-				lastName: names[1] || '',
-				email: body.email
-			}
+			user: { firstName: names[0], lastName: names[1] || '', email: body.email }
 		}).catch(() => void 0);
 
 		if (
@@ -86,22 +70,14 @@ export async function POST(req: Request) {
 			acceptInviteRes.response.status === 400 ||
 			(acceptInviteRes.data as any).response?.statusCode
 		) {
-			return NextResponse.json({
-				errors: {
-					email: 'Authentication code or email address invalid'
-				}
-			});
+			return NextResponse.json({ errors: { email: 'Authentication code or email address invalid' } });
 		}
 
 		loginResponse = acceptInviteRes.data;
 	}
 
 	if (!loginResponse) {
-		return NextResponse.json({
-			errors: {
-				email: 'Authentication code or email address invalid'
-			}
-		});
+		return NextResponse.json({ errors: { email: 'Authentication code or email address invalid' } });
 	}
 
 	/**
@@ -137,9 +113,7 @@ export async function POST(req: Request) {
 	setAuthCookies(
 		{
 			access_token: loginResponse.token,
-			refresh_token: {
-				token: loginResponse.refresh_token
-			},
+			refresh_token: { token: loginResponse.refresh_token },
 			teamId: team?.id,
 			tenantId,
 			organizationId: organization?.organizationId || '',

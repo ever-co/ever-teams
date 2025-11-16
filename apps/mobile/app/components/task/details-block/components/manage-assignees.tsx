@@ -44,7 +44,7 @@ const ManageAssignees: React.FC<IManageAssignees> = ({ memberList, task }) => {
 			memberList?.filter((member) =>
 				member.employee
 					? task?.members.map((item) => item.userId).includes(member.employee?.userId) &&
-					  member.employee?.isActive
+						member.employee?.isActive
 					: false
 			),
 		[memberList, task?.members]
@@ -55,7 +55,7 @@ const ManageAssignees: React.FC<IManageAssignees> = ({ memberList, task }) => {
 			memberList?.filter((member) =>
 				member.employee
 					? !task?.members.map((item) => item.userId).includes(member.employee.userId) &&
-					  member.employee?.isActive
+						member.employee?.isActive
 					: false
 			),
 		[memberList, task?.members]

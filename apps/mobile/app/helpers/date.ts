@@ -20,7 +20,6 @@ export function addHours(numOfHours: number, date = new Date()) {
 	return date;
 }
 
-
 export function secondsToTime(secs: number) {
 	const hours = Math.floor(secs / (60 * 60));
 
@@ -40,9 +39,9 @@ export function secondsToTime(secs: number) {
 export function convertMsToTime(milliseconds: number) {
 	let seconds = Math.floor(milliseconds / 1000);
 	let minutes = Math.floor(seconds / 60);
-	let hours = Math.floor(minutes / 60);
+	const hours = Math.floor(minutes / 60);
 
-	let ms = milliseconds % 1000;
+	const ms = milliseconds % 1000;
 	minutes = minutes % 60;
 	seconds = seconds % 60;
 

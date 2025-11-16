@@ -1,8 +1,7 @@
 'use client';
 
-import { Suspense, useMemo, useCallback } from 'react';
+import { Suspense, useMemo, useCallback, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
 import { Card } from '@/core/components/common/card';
 import { ArrowLeftIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-react';
 import { MainLayout } from '@/core/components/layouts/default-layout';

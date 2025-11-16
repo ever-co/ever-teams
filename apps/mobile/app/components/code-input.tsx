@@ -109,7 +109,7 @@ export const CodeInput: FC<IInput> = (props) => {
 					editable
 						? {
 								borderColor: active === i ? colors.primary : colors.border
-						  }
+							}
 						: null
 				]}
 				onKeyPress={onKeyPress}

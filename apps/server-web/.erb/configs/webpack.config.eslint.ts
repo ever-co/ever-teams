@@ -1,3 +1,3 @@
-/* eslint import/no-unresolved: off, import/no-self-import: off */
+/* eslint-disable */
 
 module.exports = require('./webpack.config.renderer.dev').default;

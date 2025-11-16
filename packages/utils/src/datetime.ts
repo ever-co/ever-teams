@@ -1,4 +1,4 @@
-import { differenceInDays, format, formatDistanceToNow, isAfter, isEqual, isValid, parseISO } from "date-fns";
+import { differenceInDays, format, formatDistanceToNow, isAfter, isEqual, isValid, parseISO } from 'date-fns';
 
 /* -------------------------------------------------------------------------- */
 /*                          Core Date Parsing Utilities                      */
@@ -25,7 +25,7 @@ export const parseDateSafely = (input: DateInput): Date | undefined => {
 
 	if (input instanceof Date) return input;
 
-	const [yearStr, monthStr, dayStr] = input.substring(0, 10).split("-");
+	const [yearStr, monthStr, dayStr] = input.substring(0, 10).split('-');
 	const year = Number(yearStr);
 	const month = Number(monthStr);
 	const day = Number(dayStr);
@@ -80,14 +80,14 @@ export const convertDateStringToEpoch = (dateString: string | undefined): number
  * formatDate("2024-01-01") // => "Jan 01, 2024"
  * formatDate(new Date(), "yyyy-MM-dd") // => "2024-04-27"
  */
-export const formatDate = (date: DateInput, formatPattern = "MMM dd, yyyy"): string | undefined => {
+export const formatDate = (date: DateInput, formatPattern = 'MMM dd, yyyy'): string | undefined => {
 	const parsed = parseDateSafely(date);
 	if (!parsed || !isValid(parsed)) return undefined;
 
 	try {
 		return format(parsed, formatPattern);
 	} catch {
-		return format(parsed, "MMM dd, yyyy");
+		return format(parsed, 'MMM dd, yyyy');
 	}
 };
 
@@ -101,9 +101,7 @@ export const formatDate = (date: DateInput, formatPattern = "MMM dd, yyyy"): str
  * isValidDateStringFormat("2024-01-01") // => true
  * isValidDateStringFormat("01/01/2024") // => false
  */
-export const isValidDateStringFormat = (date: string): boolean => {
-	return /^\d{4}-\d{2}-\d{2}$/.test(date);
-};
+export const isValidDateStringFormat = (date: string): boolean => /^\d{4}-\d{2}-\d{2}$/.test(date);
 
 /* -------------------------------------------------------------------------- */
 /*                          Date Calculation Utilities                       */
@@ -159,9 +157,8 @@ export const addDays = (startDate: DateInput, daysToAdd: number): Date | undefin
  * @example
  * calculateDaysLeft("2024-12-31") // => 248
  */
-export const calculateDaysLeft = (targetDate: DateInput, inclusive = true): number | undefined => {
-	return calculateDaysBetween(new Date(), targetDate, inclusive);
-};
+export const calculateDaysLeft = (targetDate: DateInput, inclusive = true): number | undefined =>
+	calculateDaysBetween(new Date(), targetDate, inclusive);
 
 /**
  * Gets the ISO week number of a given date.
@@ -230,10 +227,10 @@ export const isFutureDate = (dateString: string): boolean => {
  * formatTimeAgo("2024-01-01") // => "4 months ago"
  */
 export const formatTimeAgo = (input: string | number | Date | null): string => {
-	if (!input) return "";
+	if (!input) return '';
 
-	const parsed = typeof input === "string" || typeof input === "number" ? parseISO(String(input)) : input;
-	if (!parsed) return "";
+	const parsed = typeof input === 'string' || typeof input === 'number' ? parseISO(String(input)) : input;
+	if (!parsed) return '';
 
 	return formatDistanceToNow(parsed, { addSuffix: true });
 };
@@ -248,9 +245,9 @@ export const formatTimeAgo = (input: string | number | Date | null): string => {
  * formatTimeAgoShort("2023-01-01") // => "1y"
  */
 export const formatTimeAgoShort = (input: string | number | Date | null): string => {
-	if (!input) return "";
+	if (!input) return '';
 
-	const date = typeof input === "string" ? parseISO(input) : new Date(input);
+	const date = typeof input === 'string' ? parseISO(input) : new Date(input);
 	const now = new Date();
 	const diffSeconds = (now.getTime() - date.getTime()) / 1000;
 
@@ -281,9 +278,7 @@ export const formatTimeAgoShort = (input: string | number | Date | null): string
  * @example
  * convertToMinutes(2, 30) // => 150
  */
-export const convertToMinutes = (hours: number, minutes: number): number => {
-	return hours * 60 + minutes;
-};
+export const convertToMinutes = (hours: number, minutes: number): number => hours * 60 + minutes;
 
 /**
  * Converts total minutes into an object with hours and minutes.
@@ -311,7 +306,7 @@ export const convertMinutesToHoursMinutes = (totalMinutes: number): { hours: num
  */
 export const formatMinutesAsHoursMinutes = (totalMinutes: number): string => {
 	const { hours, minutes } = convertMinutesToHoursMinutes(totalMinutes);
-	return `${hours ? `${hours}h ` : ""}${minutes ? `${minutes}m` : ""}`.trim();
+	return `${hours ? `${hours}h ` : ''}${minutes ? `${minutes}m` : ''}`.trim();
 };
 
 /* -------------------------------------------------------------------------- */
@@ -351,7 +346,7 @@ export const generateDateRangeArray = (start: string | Date, end: string | Date)
 
 	while (startDate < endDate) {
 		startDate.setDate(startDate.getDate() + 1);
-		dates.push({ date: new Date(startDate).toISOString().split("T")[0] });
+		dates.push({ date: new Date(startDate).toISOString().split('T')[0] });
 	}
 
 	return dates;
@@ -365,6 +360,4 @@ export const generateDateRangeArray = (start: string | Date, end: string | Date)
  * @example
  * getCurrentDateTimeISO() // => "2024-04-27T14:00:00.000Z"
  */
-export const getCurrentDateTimeISO = (): string => {
-	return new Date().toISOString();
-};
+export const getCurrentDateTimeISO = (): string => new Date().toISOString();

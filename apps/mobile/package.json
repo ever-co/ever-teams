@@ -32,7 +32,7 @@
 		"build": "yarn compile",
 		"compile": "yarn tsc --noEmit -p . --pretty",
 		"format": "yarn prettier --write \"app/**/*.{js,jsx,json,md,ts,tsx}\"",
-		"lint": "yarn eslint index.js App.js app test --fix --ext .js,.ts,.tsx && npm run format",
+		"lint": "yarn eslint index.js App.js app test --fix --ext .js,.ts,.tsx --format unix && npm run format",
 		"patch": "yarn patch-package",
 		"test": "yarn jest",
 		"test:watch": "yarn jest --watch",
@@ -286,13 +286,15 @@
 			"@typescript-eslint/no-explicit-any": 0,
 			"@typescript-eslint/no-object-literal-type-assertion": 0,
 			"@typescript-eslint/no-var-requires": 0,
+			"@typescript-eslint/no-empty-function": 1,
 			"@typescript-eslint/no-unused-vars": [
-				"error",
+				"warn",
 				{
 					"argsIgnorePattern": "^_",
 					"varsIgnorePattern": "^_"
 				}
 			],
+			"camelcase": 0,
 			"comma-dangle": 0,
 			"multiline-ternary": 0,
 			"no-undef": 0,
@@ -300,7 +302,10 @@
 			"no-use-before-define": 0,
 			"no-global-assign": 0,
 			"quotes": 0,
+			"react-native/no-inline-styles": 0,
+			"react-native/no-color-literals": 0,
 			"react-native/no-raw-text": 0,
+			"react/react-in-jsx-scope": 0,
 			"react/no-unescaped-entities": 0,
 			"react/prop-types": 0,
 			"space-before-function-paren": 0

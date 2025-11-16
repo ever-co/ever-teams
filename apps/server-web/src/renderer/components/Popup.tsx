@@ -93,7 +93,7 @@ export function Popup(props: IPopupComponent) {
                 className="text-lg leading-6 font-medium text-gray-900 dark:text-white"
                 id="modal-headline"
               >
-                {props.type == 'success' || 'warning'
+                {props.type === 'success' || props.type === 'warning'
                   ? t('MESSAGE.SUCCESS')
                   : t('MESSAGE.ERROR')}
               </h3>

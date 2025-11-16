@@ -1,20 +1,20 @@
-export * from "./welcome-screen"
+export * from './welcome-screen';
 // @demo remove-block-start
-export * from "./login-screen"
-export * from "./demo-community-screen"
-export * from "./demo-debug-screen"
-export * from "./demo-show-room-screen/demo-showroom-screen"
+export * from './login-screen';
+export * from './demo-community-screen';
+export * from './demo-debug-screen';
+export * from './demo-show-room-screen/demo-showroom-screen';
 // @demo remove-block-end
-export * from "./error-screen/error-boundary"
+export * from './error-screen/error-boundary';
 // export other screens here
-export * from "./authenticated/timer-screen"
-export * from "./authenticated/team-screen"
-export * from "./authenticated/profile-screen"
-export * from "./authenticated/setting-screen"
-export * from "./authenticated/task-status-screen"
-export * from "./authenticated/task-priorities-screen"
-export * from "./authenticated/task-label-screen"
-export * from "./authenticated/task-size-screen"
-export * from "./authenticated/members-settings-screen"
-export * from "./authenticated/task-screen"
-export * from "./authenticated/task-version-screen"
+export * from './authenticated/timer-screen';
+export * from './authenticated/team-screen';
+export * from './authenticated/profile-screen';
+export * from './authenticated/setting-screen';
+export * from './authenticated/task-status-screen';
+export * from './authenticated/task-priorities-screen';
+export * from './authenticated/task-label-screen';
+export * from './authenticated/task-size-screen';
+export * from './authenticated/members-settings-screen';
+export * from './authenticated/task-screen';
+export * from './authenticated/task-version-screen';

@@ -1,4 +1,3 @@
-/* eslint import/prefer-default-export: off */
 import path from 'path';
 import url from 'url';
 
@@ -12,7 +11,7 @@ export function resolveHtmlPath(htmlFileName: string, hash: string) {
     pathname: path.resolve(__dirname, '../renderer/', `${htmlFileName}`),
     protocol: 'file:',
     slashes: true,
-    hash: `/${hash}`
-  })
+    hash: `/${hash}`,
+  });
   return pathUrl;
 }

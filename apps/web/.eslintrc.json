@@ -1,12 +1,10 @@
 {
-	"extends": [
-		"@ever-teams/eslint-config/next.js",
-		"next/core-web-vitals"
-	],
-	"plugins": [
-		"unused-imports"
-	],
+	"extends": ["@ever-teams/eslint-config/next.js"],
+	"plugins": ["unused-imports"],
 	"rules": {
-		"unused-imports/no-unused-imports": "error"
+		"unused-imports/no-unused-imports": "error",
+		"import/order": "warn",
+		"arrow-body-style": "warn",
+		"@typescript-eslint/no-require-imports": "warn"
 	}
 }

@@ -2,10 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import { getTaskStatusesRequest } from '../../requests/task-status';
 
 interface IGetTaskStatusesParams {
-  authToken: string;
-  tenantId: string;
-  organizationId: string;
-  activeTeamId: string;
+	authToken: string;
+	tenantId: string;
+	organizationId: string;
+	activeTeamId: string;
 }
 
 /**
@@ -14,18 +14,18 @@ interface IGetTaskStatusesParams {
  * @returns Task status data from the API
  */
 const fetchAllStatuses = async (params: IGetTaskStatusesParams) => {
-  const { organizationId, tenantId, activeTeamId, authToken } = params;
+	const { organizationId, tenantId, activeTeamId, authToken } = params;
 
-  const { data } = await getTaskStatusesRequest(
-    {
-      tenantId,
-      organizationId,
-      activeTeamId
-    },
-    authToken
-  );
+	const { data } = await getTaskStatusesRequest(
+		{
+			tenantId,
+			organizationId,
+			activeTeamId
+		},
+		authToken
+	);
 
-  return data;
+	return data;
 };
 
 /**
@@ -34,10 +34,10 @@ const fetchAllStatuses = async (params: IGetTaskStatusesParams) => {
  * @returns Query result containing task statuses data
  */
 const useFetchAllStatuses = (params: IGetTaskStatusesParams) =>
-  useQuery({
-	queryKey: ['statuses', params.organizationId, params.activeTeamId],
-    queryFn: () => fetchAllStatuses(params),
-    refetchInterval: 62000 // Auto-refresh approximately every minute
-  });
+	useQuery({
+		queryKey: ['statuses', params.organizationId, params.activeTeamId],
+		queryFn: () => fetchAllStatuses(params),
+		refetchInterval: 62000 // Auto-refresh approximately every minute
+	});
 
 export default useFetchAllStatuses;

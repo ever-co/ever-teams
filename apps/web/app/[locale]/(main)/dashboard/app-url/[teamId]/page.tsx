@@ -5,10 +5,9 @@ import { MainLayout } from '@/core/components/layouts/default-layout';
 import { cn } from '@/core/lib/helpers';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Suspense, useMemo, useCallback } from 'react';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
-import { useRouter } from 'next/navigation';
 import { Container } from '@/core/components';
 
 import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-report-activity';

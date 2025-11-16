@@ -170,7 +170,7 @@ const TabNavigator = observer(function TabNavigator() {
 									) : null}
 								</View>
 							)
-					  }
+						}
 					: null)
 			}}
 			initialRouteName="Team"
@@ -250,36 +250,12 @@ export const AuthenticatedNavigator = observer(function AuthenticatedNavigator()
 		>
 			<drawer.Screen name="AuthenticatedTab" component={TabNavigator} options={{ unmountOnBlur: true }} />
 			<drawer.Screen name="TaskScreen" component={AuthenticatedTaskScreen} options={{ unmountOnBlur: true }} />
-			<drawer.Screen
-				name="Setting"
-				component={AuthenticatedSettingScreen}
-				options={{ unmountOnBlur: true }}
-			/>
-			<drawer.Screen
-				name="TaskVersion"
-				component={TaskVersionScreen}
-				options={{ unmountOnBlur: true }}
-			/>
-			<drawer.Screen
-				name="TaskStatus"
-				component={TaskStatusScreen}
-				options={{ unmountOnBlur: true }}
-			/>
-			<drawer.Screen
-				name="TaskLabelScreen"
-				component={TaskLabelScreen}
-				options={{ unmountOnBlur: true }}
-			/>
-			<drawer.Screen
-				name="TaskSizeScreen"
-				component={TaskSizeScreen}
-				options={{ unmountOnBlur: true }}
-			/>
-			<drawer.Screen
-				name="TaskPriority"
-				component={TaskPriorityScreen}
-				options={{ unmountOnBlur: true }}
-			/>
+			<drawer.Screen name="Setting" component={AuthenticatedSettingScreen} options={{ unmountOnBlur: true }} />
+			<drawer.Screen name="TaskVersion" component={TaskVersionScreen} options={{ unmountOnBlur: true }} />
+			<drawer.Screen name="TaskStatus" component={TaskStatusScreen} options={{ unmountOnBlur: true }} />
+			<drawer.Screen name="TaskLabelScreen" component={TaskLabelScreen} options={{ unmountOnBlur: true }} />
+			<drawer.Screen name="TaskSizeScreen" component={TaskSizeScreen} options={{ unmountOnBlur: true }} />
+			<drawer.Screen name="TaskPriority" component={TaskPriorityScreen} options={{ unmountOnBlur: true }} />
 			<drawer.Screen
 				name="MembersSettingsScreen"
 				component={MembersSettingsScreen}

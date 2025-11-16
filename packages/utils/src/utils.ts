@@ -11,9 +11,7 @@
  * @example
  * extractIds([{ id: "1" }, { id: "2" }]) => ["1", "2"]
  */
-export const extractIdsFromItems = <T extends { id: string }>(items: T[]): string[] => {
-	return items.map((item) => item.id);
-};
+export const extractIdsFromItems = <T extends { id: string }>(items: T[]): string[] => items.map((item) => item.id);
 
 /**
  * Check whether a specific ID exists within a list of valid IDs.
@@ -25,9 +23,8 @@ export const extractIdsFromItems = <T extends { id: string }>(items: T[]): strin
  * @example
  * isValidId("abc", ["abc", "def"]) => true
  */
-export const isValidIdInList = (id: string | null | undefined, validIds: string[]): boolean => {
-	return !!id && validIds.includes(id);
-};
+export const isValidIdInList = (id: string | null | undefined, validIds: string[]): boolean =>
+	!!id && validIds.includes(id);
 
 /**
  * Filter a list of IDs to retain only those present in a valid IDs list.
@@ -39,9 +36,8 @@ export const isValidIdInList = (id: string | null | undefined, validIds: string[
  * @example
  * filterValidIds(["1", "2", "3"], ["2", "3"]) => ["2", "3"]
  */
-export const filterValidIds = (ids: string[], validIds: string[]): string[] => {
-	return ids.filter((id) => validIds.includes(id));
-};
+export const filterValidIds = (ids: string[], validIds: string[]): string[] =>
+	ids.filter((id) => validIds.includes(id));
 
 /**
  * Partition a list of IDs into valid and invalid based on a valid IDs list.
@@ -68,6 +64,5 @@ export const partitionIdsByValidity = (ids: string[], validIds: string[]): { val
 	return { valid, invalid };
 };
 
-export const isObject = (value: unknown): value is Record<string, unknown> => {
-	return typeof value === "object" && value !== null;
-};
+export const isObject = (value: unknown): value is Record<string, unknown> =>
+	typeof value === 'object' && value !== null;

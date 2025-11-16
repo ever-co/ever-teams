@@ -2,23 +2,11 @@ const { resolve } = require('node:path');
 const project = resolve(process.cwd(), 'tsconfig.json');
 
 module.exports = {
-	extends: ['next', 'prettier', 'plugin:@typescript-eslint/recommended'],
-	globals: {
-		React: 'readonly',
-		JSX: 'readonly'
-	},
-	env: {
-		node: true,
-		browser: true
-	},
+	extends: ['next/core-web-vitals', 'prettier', 'plugin:@typescript-eslint/recommended'],
+	globals: { React: 'readonly', JSX: 'readonly' },
+	env: { node: true, browser: true },
 	plugins: ['react', '@typescript-eslint', 'import'],
-	settings: {
-		'import/resolver': {
-			typescript: {
-				project
-			}
-		}
-	},
+	settings: { 'import/resolver': { typescript: { project } } },
 	ignorePatterns: ['.*.js', 'node_modules/'],
 	rules: {
 		'no-useless-escape': 'off',
@@ -56,31 +44,13 @@ module.exports = {
 			{
 				groups: ['builtin', 'external', 'internal', 'parent', 'sibling'],
 				pathGroups: [
-					{
-						pattern: 'react',
-						group: 'external',
-						position: 'before'
-					},
-					{
-						pattern: 'lucide-react',
-						group: 'external',
-						position: 'after'
-					},
-					{
-						pattern: '@ever-teams/**',
-						group: 'external',
-						position: 'after'
-					},
-					{
-						pattern: '@/**',
-						group: 'internal'
-					}
+					{ pattern: 'react', group: 'external', position: 'before' },
+					{ pattern: 'lucide-react', group: 'external', position: 'after' },
+					{ pattern: '@ever-teams/**', group: 'external', position: 'after' },
+					{ pattern: '@/**', group: 'internal' }
 				],
 				pathGroupsExcludedImportTypes: ['builtin', 'internal', 'react'],
-				alphabetize: {
-					order: 'asc',
-					caseInsensitive: true
-				}
+				alphabetize: { order: 'asc', caseInsensitive: true }
 			}
 		]
 	}

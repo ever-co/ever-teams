@@ -1,6 +1,5 @@
 import { NextRequest } from 'next/server';
-import { getActivityReportRequest } from '@/core/services/server/requests/timesheet';
-import { IActivityRequestParams } from '@/core/services/server/requests/timesheet';
+import { getActivityReportRequest, type IActivityRequestParams } from '@/core/services/server/requests/timesheet';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 
 export const dynamic = 'force-dynamic';
@@ -30,12 +29,7 @@ export async function GET(req: NextRequest) {
 					message:
 						'Required parameters missing: tenantId, organizationId, startDate, and endDate are required'
 				}),
-				{
-					status: 400,
-					headers: {
-						'Content-Type': 'application/json'
-					}
-				}
+				{ status: 400, headers: { 'Content-Type': 'application/json' } }
 			);
 		}
 
@@ -56,21 +50,13 @@ export async function GET(req: NextRequest) {
 		const activityLevelEnd = searchParams.get('activityLevel[end]');
 
 		if (activityLevelStart && activityLevelEnd) {
-			params.activityLevel = {
-				start: parseInt(activityLevelStart),
-				end: parseInt(activityLevelEnd)
-			};
+			params.activityLevel = { start: parseInt(activityLevelStart), end: parseInt(activityLevelEnd) };
 		}
 
 		// Fetch activity report data
 		const data = await getActivityReportRequest(params as IActivityRequestParams);
 
-		return new Response(JSON.stringify(data), {
-			status: 200,
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		});
+		return new Response(JSON.stringify(data), { status: 200, headers: { 'Content-Type': 'application/json' } });
 	} catch (error) {
 		console.error('Error fetching activity report:', error);
 
@@ -79,12 +65,7 @@ export async function GET(req: NextRequest) {
 				message: 'Internal server error',
 				error: error instanceof Error ? error.message : 'Unknown error'
 			}),
-			{
-				status: 500,
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			}
+			{ status: 500, headers: { 'Content-Type': 'application/json' } }
 		);
 	}
 }

@@ -1,4 +1,4 @@
-import DOMPurify from "isomorphic-dompurify";
+import DOMPurify from 'isomorphic-dompurify';
 
 /* -------------------------------------------------------------------------- */
 /*                                String Utilities                            */
@@ -14,8 +14,8 @@ import DOMPurify from "isomorphic-dompurify";
  * addSpaceInCamelCase("camelCase") // => "camel Case"
  */
 export const addSpaceInCamelCase = (text: string): string => {
-	if (!text) return "";
-	return text.replace(/([a-z])([A-Z])/g, "$1 $2");
+	if (!text) return '';
+	return text.replace(/([a-z])([A-Z])/g, '$1 $2');
 };
 
 /**
@@ -27,9 +27,7 @@ export const addSpaceInCamelCase = (text: string): string => {
  * @example
  * replaceUnderscores("snake_case_string") // => "snake case string"
  */
-export const replaceUnderscores = (text: string): string => {
-	return text.replace(/_/g, " ");
-};
+export const replaceUnderscores = (text: string): string => text.replace(/_/g, ' ');
 
 /**
  * Truncates a string to a maximum length, appending ellipsis if needed.
@@ -42,7 +40,7 @@ export const replaceUnderscores = (text: string): string => {
  * truncateText("Hello world!", 5) // => "Hello..."
  */
 export const truncateText = (text: string, maxLength: number): string => {
-	if (!text) return "";
+	if (!text) return '';
 	return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
 };
 
@@ -55,12 +53,11 @@ export const truncateText = (text: string, maxLength: number): string => {
  * @example
  * shuffleString("abc") // => "cab" or "bca" etc.
  */
-export const shuffleString = (text: string): string => {
-	return text
-		.split("")
+export const shuffleString = (text: string): string =>
+	text
+		.split('')
 		.sort(() => Math.random() - 0.5)
-		.join("");
-};
+		.join('');
 
 /**
  * Returns the initials of a string (first letter of first and second word).
@@ -72,7 +69,7 @@ export const shuffleString = (text: string): string => {
  * getInitials("John Doe") // => "JD"
  */
 export const getInitials = (text: string): string => {
-	const words = text.trim().split(" ");
+	const words = text.trim().split(' ');
 	return words.length > 1 ? `${words[0][0]}${words[1][0]}` : `${words[0][0]}`;
 };
 
@@ -86,7 +83,7 @@ export const getInitials = (text: string): string => {
  * capitalizeFirstLetter("hello") // => "Hello"
  */
 export const capitalizeFirstLetter = (text: string): string => {
-	if (!text) return "";
+	if (!text) return '';
 	return text.charAt(0).toUpperCase() + text.slice(1);
 };
 
@@ -104,14 +101,14 @@ export const capitalizeFirstLetter = (text: string): string => {
  * await copyTextToClipboard("Hello World!")
  */
 export const copyTextToClipboard = async (text: string): Promise<void> => {
-	if (typeof navigator === "undefined" || !navigator.clipboard) {
-		console.error("Clipboard API not available");
+	if (typeof navigator === 'undefined' || !navigator.clipboard) {
+		console.error('Clipboard API not available');
 		return;
 	}
 	try {
 		await navigator.clipboard.writeText(text);
 	} catch (error) {
-		console.error("Failed to copy text:", error);
+		console.error('Failed to copy text:', error);
 	}
 };
 
@@ -125,7 +122,7 @@ export const copyTextToClipboard = async (text: string): Promise<void> => {
  * await copyUrlToClipboard("/profile/123")
  */
 export const copyUrlToClipboard = async (path: string): Promise<void> => {
-	const origin = typeof window !== "undefined" ? window.location.origin : "";
+	const origin = typeof window !== 'undefined' ? window.location.origin : '';
 	const fullUrl = new URL(path, origin).toString();
 	await copyTextToClipboard(fullUrl);
 };
@@ -144,14 +141,11 @@ export const copyUrlToClipboard = async (path: string): Promise<void> => {
  * sanitizeHTML("<p>Test</p>") // => "Test"
  */
 export const sanitizeHTML = (html: string): string => {
-	if (!html) return "";
+	if (!html) return '';
 
-	const cleanText = DOMPurify.sanitize(html, {
-		ALLOWED_TAGS: [],
-		ALLOWED_ATTR: [],
-	});
+	const cleanText = DOMPurify.sanitize(html, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
 
-	return cleanText.trim().replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+	return cleanText.trim().replace(/'/g, '&apos;').replace(/"/g, '&quot;');
 };
 
 /**
@@ -166,7 +160,7 @@ export const sanitizeHTML = (html: string): string => {
  */
 export const isEmptyHtmlString = (html: string, allowedTags: string[] = []): boolean => {
 	const cleaned = DOMPurify.sanitize(html, { ALLOWED_TAGS: allowedTags });
-	return cleaned.trim() === "";
+	return cleaned.trim() === '';
 };
 
 /**
@@ -181,9 +175,9 @@ export const isEmptyHtmlString = (html: string, allowedTags: string[] = []): boo
 export const isCommentEmpty = (comment: string | undefined): boolean => {
 	if (!comment) return true;
 	return (
-		comment.trim() === "" ||
-		comment === "<p></p>" ||
-		isEmptyHtmlString(comment, ["img", "mention-component", "image-component"])
+		comment.trim() === '' ||
+		comment === '<p></p>' ||
+		isEmptyHtmlString(comment, ['img', 'mention-component', 'image-component'])
 	);
 };
 
@@ -201,12 +195,10 @@ export const isCommentEmpty = (comment: string | undefined): boolean => {
  * generateColorFromString("hello") // => "hsl(123, 70%, 60%)"
  */
 export const generateColorFromString = (text: string): string => {
-	if (!text) return "rgb(var(--color-primary-100))";
+	if (!text) return 'rgb(var(--color-primary-100))';
 
 	const uniqueSeed = `${text.length}${text}${text}`;
-	const hash = Array.from(uniqueSeed).reduce((acc, char) => {
-		return (acc << 5) - acc + char.charCodeAt(0);
-	}, 0);
+	const hash = Array.from(uniqueSeed).reduce((acc, char) => (acc << 5) - acc + char.charCodeAt(0), 0);
 
 	const hue = Math.abs(hash) % 360;
 	return `hsl(${hue}, 70%, 60%)`;
@@ -281,6 +273,4 @@ export const objectToQueryParams = (obj: Record<string, any>): string => {
  * @example
  * formatCount(120) // => "99+"
  */
-export const formatCount = (count: number): string => {
-	return count > 99 ? "99+" : count.toString();
-};
+export const formatCount = (count: number): string => (count > 99 ? '99+' : count.toString());

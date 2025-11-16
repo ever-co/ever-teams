@@ -1,1 +1,1 @@
-export interface SVGIcon<SvgIcons extends React.SVGProps<SVGSVGElement>> extends React.FC<SvgIcons> {}
+export type SVGIcon<SvgIcons extends React.SVGProps<SVGSVGElement>> = React.FC<SvgIcons>;

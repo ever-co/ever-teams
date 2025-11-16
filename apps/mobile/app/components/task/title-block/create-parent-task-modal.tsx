@@ -10,29 +10,29 @@ import {
 	StyleSheet,
 	ActivityIndicator,
 	Pressable,
-	TextInput,
-} from "react-native"
-import React, { useCallback, useEffect, useRef, useState } from "react"
-import ComboBox from "../../../screens/authenticated/timer-screen/components/combo-box"
-import { translate } from "../../../i18n"
-import IssuesModal from "../../issues-modal"
-import { useStores } from "../../../models"
-import { useTaskInput } from "../../../services/hooks/features/use-task-input"
-import { typography, useAppTheme } from "../../../theme"
-import { Feather } from "@expo/vector-icons"
-import { ITeamTask } from "../../../services/interfaces/ITask"
-import { BlurView } from "expo-blur"
+	TextInput
+} from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import ComboBox from '../../../screens/authenticated/timer-screen/components/combo-box';
+import { translate } from '../../../i18n';
+import IssuesModal from '../../issues-modal';
+import { useStores } from '../../../models';
+import { useTaskInput } from '../../../services/hooks/features/use-task-input';
+import { typography, useAppTheme } from '../../../theme';
+import { Feather } from '@expo/vector-icons';
+import { ITeamTask } from '../../../services/interfaces/ITask';
+import { BlurView } from 'expo-blur';
 
 interface ICreateParentTaskModal {
-	visible: boolean
-	onDismiss: () => void
-	task: ITeamTask
+	visible: boolean;
+	onDismiss: () => void;
+	task: ITeamTask;
 }
 
 const CreateParentTaskModal: React.FC<ICreateParentTaskModal> = ({ visible, onDismiss, task }) => {
-	const { colors } = useAppTheme()
+	const { colors } = useAppTheme();
 
-	const taskInput = useTaskInput()
+	const taskInput = useTaskInput();
 	const {
 		setEditMode,
 		setQuery,
@@ -41,29 +41,29 @@ const CreateParentTaskModal: React.FC<ICreateParentTaskModal> = ({ visible, onDi
 		// isModalOpen,
 		hasCreateForm,
 		handleTaskCreation,
-		createLoading,
-	} = taskInput
+		createLoading
+	} = taskInput;
 
-	const [combxShow, setCombxShow] = useState<boolean>(true)
-	const inputRef = useRef<TextInput>(null)
+	const [combxShow, setCombxShow] = useState<boolean>(true);
+	const inputRef = useRef<TextInput>(null);
 	const {
-		TimerStore: { localTimerStatus },
-	} = useStores()
+		TimerStore: { localTimerStatus }
+	} = useStores();
 
 	const closeCombox = useCallback(() => {
-		setCombxShow(false)
-	}, [setCombxShow])
+		setCombxShow(false);
+	}, [setCombxShow]);
 
 	useEffect(() => {
-		setEditMode(true)
-		setCombxShow(true)
-	}, [editMode, combxShow])
+		setEditMode(true);
+		setCombxShow(true);
+	}, [editMode, combxShow]);
 
 	useEffect(() => {
 		if (!editMode) {
-			inputRef.current?.blur()
+			inputRef.current?.blur();
 		}
-	}, [editMode])
+	}, [editMode]);
 
 	return (
 		<ModalPopUp visible={visible} onDismiss={onDismiss}>
@@ -72,17 +72,17 @@ const CreateParentTaskModal: React.FC<ICreateParentTaskModal> = ({ visible, onDi
 					style={[
 						styles.wrapInput,
 						{
-							flexDirection: "row",
-							alignItems: "center",
+							flexDirection: 'row',
+							alignItems: 'center',
 							borderColor: colors.border,
-							backgroundColor: colors.background,
-						},
+							backgroundColor: colors.background
+						}
 					]}
 				>
 					<IssuesModal task={activeTask} />
 
 					<Text style={styles.taskNumberStyle}>
-						{!editMode && activeTask ? `#${activeTask.taskNumber} ` : ""}
+						{!editMode && activeTask ? `#${activeTask.taskNumber} ` : ''}
 					</Text>
 					<TextInput
 						ref={inputRef}
@@ -93,12 +93,12 @@ const CreateParentTaskModal: React.FC<ICreateParentTaskModal> = ({ visible, onDi
 							{
 								backgroundColor: colors.background,
 								color: colors.primary,
-								width: "80%",
-								opacity: localTimerStatus.running ? 0.5 : 1,
-							},
+								width: '80%',
+								opacity: localTimerStatus.running ? 0.5 : 1
+							}
 						]}
-						placeholder={translate("myWorkScreen.taskFieldPlaceholder")}
-						defaultValue={activeTask ? activeTask.title : ""}
+						placeholder={translate('myWorkScreen.taskFieldPlaceholder')}
+						defaultValue={activeTask ? activeTask.title : ''}
 						autoFocus={false}
 						autoCapitalize="none"
 						autoCorrect={false}
@@ -110,7 +110,7 @@ const CreateParentTaskModal: React.FC<ICreateParentTaskModal> = ({ visible, onDi
 					{hasCreateForm && editMode && !createLoading ? (
 						<Pressable
 							onPress={() => {
-								handleTaskCreation()
+								handleTaskCreation();
 								// setEditMode(false)
 							}}
 						>
@@ -118,9 +118,7 @@ const CreateParentTaskModal: React.FC<ICreateParentTaskModal> = ({ visible, onDi
 						</Pressable>
 					) : null}
 
-					{createLoading ? (
-						<ActivityIndicator color={colors.primary} style={styles.loading} />
-					) : null}
+					{createLoading ? <ActivityIndicator color={colors.primary} style={styles.loading} /> : null}
 				</View>
 				{combxShow && (
 					<ComboBox
@@ -134,61 +132,56 @@ const CreateParentTaskModal: React.FC<ICreateParentTaskModal> = ({ visible, onDi
 				)}
 			</View>
 		</ModalPopUp>
-	)
-}
+	);
+};
 
-export default CreateParentTaskModal
+export default CreateParentTaskModal;
 
 const ModalPopUp = ({ visible, children, onDismiss }) => {
-	const [showModal, setShowModal] = React.useState(visible)
-	const scaleValue = React.useRef(new Animated.Value(0)).current
-	const modalRef = useRef(null)
+	const [showModal, setShowModal] = React.useState(visible);
+	const scaleValue = React.useRef(new Animated.Value(0)).current;
+	const modalRef = useRef(null);
 
 	React.useEffect(() => {
-		toggleModal()
-	}, [visible])
+		toggleModal();
+	}, [visible]);
 	const toggleModal = () => {
 		if (visible) {
-			setShowModal(true)
+			setShowModal(true);
 			Animated.spring(scaleValue, {
 				toValue: 1,
-				useNativeDriver: true,
-			}).start()
+				useNativeDriver: true
+			}).start();
 		} else {
-			setTimeout(() => setShowModal(false), 200)
+			setTimeout(() => setShowModal(false), 200);
 			Animated.timing(scaleValue, {
 				toValue: 0,
 				duration: 300,
-				useNativeDriver: true,
-			}).start()
+				useNativeDriver: true
+			}).start();
 		}
-	}
+	};
 
 	const handlePressOutside = (event) => {
-		const { locationX, locationY } = event.nativeEvent
+		const { locationX, locationY } = event.nativeEvent;
 
 		if (modalRef.current) {
 			modalRef.current.measureInWindow((x, y, width, height) => {
-				if (
-					locationX < x ||
-					locationX > x + width ||
-					locationY < y ||
-					locationY > y + height
-				) {
-					onDismiss()
+				if (locationX < x || locationX > x + width || locationY < y || locationY > y + height) {
+					onDismiss();
 				}
-			})
+			});
 		}
-	}
+	};
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
 			<BlurView
 				intensity={15}
 				tint="dark"
 				style={{
-					position: "absolute",
-					width: "100%",
-					height: "100%",
+					position: 'absolute',
+					width: '100%',
+					height: '100%'
 				}}
 			/>
 			<TouchableWithoutFeedback onPress={handlePressOutside}>
@@ -199,49 +192,49 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 				</View>
 			</TouchableWithoutFeedback>
 		</Modal>
-	)
-}
+	);
+};
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	justifyContent: "center",
-}
+	justifyContent: 'center'
+};
 
 const styles = StyleSheet.create({
 	container: {
-		alignSelf: "center",
+		alignSelf: 'center',
 		borderRadius: 20,
 		padding: 20,
-		width: "90%",
+		width: '90%'
 	},
 	loading: {
-		right: 10,
+		right: 10
 	},
 	taskNumberStyle: {
-		color: "#7B8089",
+		color: '#7B8089',
 		fontFamily: typography.primary.semiBold,
 		fontSize: 14,
-		marginLeft: 5,
+		marginLeft: 5
 	},
 	textInput: {
-		backgroundColor: "#fff",
+		backgroundColor: '#fff',
 		borderRadius: 10,
-		color: "rgba(40, 32, 72, 0.4)",
+		color: 'rgba(40, 32, 72, 0.4)',
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 		fontSize: 12,
 		height: 43,
 		paddingHorizontal: 6,
 		paddingVertical: 13,
-		width: "80%",
+		width: '80%'
 	},
 	wrapInput: {
-		backgroundColor: "#fff",
-		borderColor: "rgba(0, 0, 0, 0.1)",
+		backgroundColor: '#fff',
+		borderColor: 'rgba(0, 0, 0, 0.1)',
 		borderRadius: 10,
 		borderWidth: 1,
 		height: 45,
 		paddingHorizontal: 16,
 		paddingVertical: 2,
-		width: "100%",
-	},
-})
+		width: '100%'
+	}
+});

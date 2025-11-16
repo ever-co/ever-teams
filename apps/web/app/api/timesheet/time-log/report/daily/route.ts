@@ -1,6 +1,5 @@
 import { NextRequest } from 'next/server';
-import { getTimeLogReportDailyRequest } from '@/core/services/server/requests/timesheet';
-import { ITimeLogRequestParams } from '@/core/services/server/requests/timesheet';
+import { getTimeLogReportDailyRequest, type ITimeLogRequestParams } from '@/core/services/server/requests/timesheet';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -24,12 +23,7 @@ export async function GET(req: NextRequest) {
 					message:
 						'Required parameters missing: tenantId, organizationId, startDate, and endDate are required'
 				}),
-				{
-					status: 400,
-					headers: {
-						'Content-Type': 'application/json'
-					}
-				}
+				{ status: 400, headers: { 'Content-Type': 'application/json' } }
 			);
 		}
 
@@ -47,20 +41,12 @@ export async function GET(req: NextRequest) {
 		const activityLevelEnd = searchParams.get('activityLevel[end]');
 
 		if (activityLevelStart && activityLevelEnd) {
-			params.activityLevel = {
-				start: parseInt(activityLevelStart),
-				end: parseInt(activityLevelEnd)
-			};
+			params.activityLevel = { start: parseInt(activityLevelStart), end: parseInt(activityLevelEnd) };
 		}
 
 		const response = await getTimeLogReportDailyRequest(params as ITimeLogRequestParams);
 
-		return new Response(JSON.stringify(response), {
-			status: 200,
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		});
+		return new Response(JSON.stringify(response), { status: 200, headers: { 'Content-Type': 'application/json' } });
 	} catch (error) {
 		console.error('Error in daily report API:', error);
 		return new Response(
@@ -68,12 +54,7 @@ export async function GET(req: NextRequest) {
 				message: 'Internal server error',
 				error: error instanceof Error ? error.message : 'Unknown error'
 			}),
-			{
-				status: 500,
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			}
+			{ status: 500, headers: { 'Content-Type': 'application/json' } }
 		);
 	}
 }

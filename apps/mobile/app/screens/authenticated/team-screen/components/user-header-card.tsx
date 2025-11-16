@@ -54,10 +54,10 @@ const TimerStatus: FC<ITimerStatus> = ({ status }) => {
 						status === 'online'
 							? '#6EE7B7'
 							: status === 'pause'
-							? '#EFCF9E'
-							: status === 'idle'
-							? '#F5BEBE'
-							: '#DCD6D6'
+								? '#EFCF9E'
+								: status === 'idle'
+									? '#F5BEBE'
+									: '#DCD6D6'
 				}
 			]}
 		>

@@ -374,10 +374,7 @@ const getEnvApi = (): ServerConfig | undefined => {
 };
 
 const SendMessageToSettingWindow = (type: string, data: any) => {
-  settingWindow?.webContents.send('setting-page', {
-    type,
-    data,
-  });
+  settingWindow?.webContents.send('setting-page', { type, data });
 };
 
 const onInitApplication = () => {
@@ -459,9 +456,7 @@ const onInitApplication = () => {
     if (logWindow) {
       logWindow.webContents.send(IPC_TYPES.SERVER_PAGE, {
         type: ServerPageTypeMessage.SERVER_STATUS,
-        data: {
-          isRun: true,
-        },
+        data: { isRun: true },
       });
     }
     isServerRun = true;
@@ -504,9 +499,7 @@ const onInitApplication = () => {
     if (logWindow) {
       logWindow.webContents.send(IPC_TYPES.SERVER_PAGE, {
         type: ServerPageTypeMessage.SERVER_STATUS,
-        data: {
-          isRun: false,
-        },
+        data: { isRun: false },
       });
     }
     isServerRun = false;
@@ -569,19 +562,11 @@ const onInitApplication = () => {
 
   eventEmitter.on(EventLists.CHANGE_LANGUAGE, (data) => {
     i18nextMainBackend.changeLanguage(data.code);
-    LocalStore.updateConfigSetting({
-      general: {
-        lang: data.code,
-      },
-    });
+    LocalStore.updateConfigSetting({ general: { lang: data.code } });
   });
 
   eventEmitter.on(EventLists.CHANGE_THEME, (data) => {
-    LocalStore.updateConfigSetting({
-      general: {
-        theme: data,
-      },
-    });
+    LocalStore.updateConfigSetting({ general: { theme: data } });
     logWindow?.webContents.send('themeSignal', {
       type: SettingPageTypeMessage.themeChange,
       data,
@@ -614,9 +599,7 @@ const onInitApplication = () => {
         // SendMessageToSettingWindow(SettingPageTypeMessage.selectMenu, { key: 'about' });
         logWindow?.webContents.send(IPC_TYPES.SERVER_PAGE, {
           type: ServerPageTypeMessage.SERVER_STATUS,
-          data: {
-            isRun: isServerRun,
-          },
+          data: { isRun: isServerRun },
         });
       }, 100);
     });
@@ -750,26 +733,17 @@ const getWebDirPath = () => {
 ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
   switch (arg.type) {
     case SettingPageTypeMessage.saveSetting: {
-      LocalStore.updateConfigSetting({
-        server: arg.data,
-      });
+      LocalStore.updateConfigSetting({ server: arg.data });
       const diFilesPath = getWebDirPath();
       await clearDesktopConfig(diFilesPath);
       if (arg.isSetup) {
-        LocalStore.updateConfigSetting({
-          general: {
-            setup: true,
-          },
-        });
+        LocalStore.updateConfigSetting({ general: { setup: true } });
         setupWindow?.close();
         eventEmitter.emit(EventLists.SERVER_WINDOW);
       } else {
         event.sender.send(IPC_TYPES.SETTING_PAGE, {
           type: SettingPageTypeMessage.mainResponse,
-          data: {
-            status: true,
-            isServerRun: isServerRun,
-          },
+          data: { status: true, isServerRun: isServerRun },
         });
       }
       break;
@@ -780,13 +754,14 @@ ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
     case SettingPageTypeMessage.installUpdate:
       updater.installUpdate();
       break;
-    case SettingPageTypeMessage.showVersion:
+    case SettingPageTypeMessage.showVersion: {
       const currentVersion = app.getVersion();
       event.sender.send(IPC_TYPES.SETTING_PAGE, {
         type: SettingPageTypeMessage.showVersion,
         data: currentVersion,
       });
       break;
+    }
     case SettingPageTypeMessage.langChange:
       event.sender.send('languageSignal', arg.data);
       eventEmitter.emit(EventLists.CHANGE_LANGUAGE, { code: arg.data });

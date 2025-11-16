@@ -1,38 +1,36 @@
 /* eslint-disable react-native/no-inline-styles  */
 /* eslint-disable react-native/no-color-literals  */
-import { View, Text, StyleSheet } from "react-native"
-import React from "react"
-import Accordion from "../../accordion"
-import TaskRow from "../details-block/components/task-row"
-import { useStores } from "../../../models"
-import ProfileInfoWithTime from "./components/profile-info-with-time"
-import { useAppTheme } from "../../../theme"
-import { translate } from "../../../i18n"
+import { View, Text, StyleSheet } from 'react-native';
+import React from 'react';
+import Accordion from '../../accordion';
+import TaskRow from '../details-block/components/task-row';
+import { useStores } from '../../../models';
+import ProfileInfoWithTime from './components/profile-info-with-time';
+import { useAppTheme } from '../../../theme';
+import { translate } from '../../../i18n';
 
 const EstimateBlock = () => {
 	const {
-		TaskStore: { detailedTask: task },
-	} = useStores()
+		TaskStore: { detailedTask: task }
+	} = useStores();
 
-	const { colors } = useAppTheme()
+	const { colors } = useAppTheme();
 	return (
-		<Accordion title={translate("taskDetailsScreen.estimate")}>
+		<Accordion title={translate('taskDetailsScreen.estimate')}>
 			<View style={{ paddingBottom: 12 }}>
 				<TaskRow
 					labelComponent={
 						<View style={[styles.labelComponent, { marginLeft: 12 }]}>
-							<Text style={styles.labelText}>
-								{translate("taskDetailsScreen.estimations")}
-							</Text>
+							<Text style={styles.labelText}>{translate('taskDetailsScreen.estimations')}</Text>
 						</View>
 					}
 				>
 					<Text
 						style={{
-							fontWeight: "600",
+							fontWeight: '600',
 							fontSize: 12,
 							marginLeft: 5,
-							color: colors.primary,
+							color: colors.primary
 						}}
 					>
 						6 h: 40 m
@@ -42,27 +40,25 @@ const EstimateBlock = () => {
 							key={index}
 							userId={member?.userId || member?.user?.id}
 							profilePicSrc={member?.user?.imageUrl}
-							names={`${member?.user?.firstName || ""} ${
-								member?.user?.lastName || ""
-							}`}
+							names={`${member?.user?.firstName || ''} ${member?.user?.lastName || ''}`}
 						/>
 					))}
 				</TaskRow>
 			</View>
 		</Accordion>
-	)
-}
+	);
+};
 
-export default EstimateBlock
+export default EstimateBlock;
 
 const styles = StyleSheet.create({
 	labelComponent: {
-		alignItems: "center",
-		flexDirection: "row",
-		gap: 7,
+		alignItems: 'center',
+		flexDirection: 'row',
+		gap: 7
 	},
 	labelText: {
-		color: "#A5A2B2",
-		fontSize: 12,
-	},
-})
+		color: '#A5A2B2',
+		fontSize: 12
+	}
+});

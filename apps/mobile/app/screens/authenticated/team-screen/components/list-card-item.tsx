@@ -151,20 +151,23 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 		setShowUnassignedList(false);
 	}, []);
 
-	const onPressIn = useCallback((isTaskScreen?: boolean) => {
-		taskEdition.setEditMode(false);
-		taskEdition.setEstimateEditMode(false);
-		props.setOpenMenuIndex(null);
+	const onPressIn = useCallback(
+		(isTaskScreen?: boolean) => {
+			taskEdition.setEditMode(false);
+			taskEdition.setEstimateEditMode(false);
+			props.setOpenMenuIndex(null);
 
-		if (props.canNavigate) {
-			isTaskScreen
-				? memberInfo.memberTask && navigation.navigate('TaskScreen', { taskId: memberInfo.memberTask?.id })
-				: navigation.navigate('Profile', {
-						userId: memberInfo.memberUser.id,
-						activeTab: 'worked'
-				  });
-		}
-	}, [props, taskEdition, memberInfo, navigation]);
+			if (props.canNavigate) {
+				isTaskScreen
+					? memberInfo.memberTask && navigation.navigate('TaskScreen', { taskId: memberInfo.memberTask?.id })
+					: navigation.navigate('Profile', {
+							userId: memberInfo.memberUser.id,
+							activeTab: 'worked'
+						});
+			}
+		},
+		[props, taskEdition, memberInfo, navigation]
+	);
 
 	// Handle task actions with memoized functions to prevent re-renders
 	const handleEditTask = useCallback(() => {
@@ -216,10 +219,10 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 					timerStatusValue === 'idle'
 						? '#F1A2A2'
 						: timerStatusValue === 'pause'
-						? '#EBC386'
-						: timerStatusValue === 'online'
-						? '#88D1A5'
-						: '#DCD6D6'
+							? '#EBC386'
+							: timerStatusValue === 'online'
+								? '#88D1A5'
+								: '#DCD6D6'
 			}}
 			HeadingComponent={
 				<View
@@ -345,11 +348,7 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 			ContentComponent={
 				<>
 					{!showUnassignedList ? (
-						<ListItemContent
-							taskEdition={taskEdition}
-							memberInfo={memberInfo}
-							onPressIn={onPressIn}
-						/>
+						<ListItemContent taskEdition={taskEdition} memberInfo={memberInfo} onPressIn={onPressIn} />
 					) : (
 						<UnassignedTasksList memberInfo={memberInfo} setShowUnassignedList={setShowUnassignedList} />
 					)}

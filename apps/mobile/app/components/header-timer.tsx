@@ -43,7 +43,6 @@ const HeaderTimer = observer(() => {
 			const seconds = timeCounterState / 1000;
 			const percentage = seconds / activeTask.estimate;
 
-
 			return Math.min(Math.round(percentage * 100) / 100, 1);
 		} else {
 			return 0;

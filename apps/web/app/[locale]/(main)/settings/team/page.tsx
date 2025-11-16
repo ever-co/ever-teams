@@ -153,7 +153,7 @@ const Team = () => {
 						<Accordian
 							title={t('pages.settings.DANDER_ZONE')}
 							className="w-full max-w-[96vw] p-4 mt-8 mb-40 dark:bg-dark--theme"
-							isDanger={true}
+							isDanger
 						>
 							{/* Use lazy loaded DangerZoneTeam with Suspense */}
 							<Suspense fallback={<DangerZoneTeamSkeleton />}>

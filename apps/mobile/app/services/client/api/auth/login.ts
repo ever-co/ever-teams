@@ -57,7 +57,7 @@ export async function login(params: ILoginDataAPI) {
 		 */
 	} else {
 		// generate a random password
-		const password = '123456' + await generateSecureToken(6);
+		const password = '123456' + (await generateSecureToken(6));
 		const email = inviteResponse.data.email;
 		const names = inviteResponse.data.fullName.split(' ');
 

@@ -45,9 +45,7 @@ const BottomSheetContent: FC<IBottomProps> = ({ onDismiss, openBottomSheet, open
 
 	return (
 		<View style={styles.container}>
-			<Text style={[styles.headerText, { color: colors.text }]}>
-				{getSheetTitle(openedSheet)}
-			</Text>
+			<Text style={[styles.headerText, { color: colors.text }]}>{getSheetTitle(openedSheet)}</Text>
 			<View style={styles.contentContainer}>
 				{openedSheet === 'Names' ? (
 					<UpdateFullNameForm onUpdateFullName={updateUserInfo} onDismiss={dismissSheet} />
@@ -67,18 +65,10 @@ const BottomSheetContent: FC<IBottomProps> = ({ onDismiss, openBottomSheet, open
 					/>
 				) : null}
 				{openedSheet === 'TimeZone' ? (
-					<UserTimezone
-						user={user as IUser}
-						onUpdateTimezone={updateUserInfo}
-						onDismiss={dismissSheet}
-					/>
+					<UserTimezone user={user as IUser} onUpdateTimezone={updateUserInfo} onDismiss={dismissSheet} />
 				) : null}
 				{openedSheet === 'Language' ? (
-					<LanguageForm
-						user={user as IUser}
-						onUpdateLanguage={updateUserInfo}
-						onDismiss={dismissSheet}
-					/>
+					<LanguageForm user={user as IUser} onUpdateLanguage={updateUserInfo} onDismiss={dismissSheet} />
 				) : null}
 				{openedSheet === 'Remove Account' ? (
 					<UserRemoveAccount userId={user?.id} actionType={'Remove'} onDismiss={dismissSheet} />
@@ -127,20 +117,20 @@ function getSheetTitle(sheetType: IPopup): string {
 
 const styles = StyleSheet.create({
 	container: {
-		width: '100%',
 		minHeight: 300,
+		paddingHorizontal: 8,
 		paddingVertical: 16,
-		paddingHorizontal: 8
-	},
-	headerText: {
-		fontSize: 20,
-		fontFamily: typography.primary.semiBold,
-		marginBottom: 20,
-		textAlign: 'center'
+		width: '100%'
 	},
 	contentContainer: {
 		flex: 1,
 		width: '100%'
+	},
+	headerText: {
+		fontFamily: typography.primary.semiBold,
+		fontSize: 20,
+		marginBottom: 20,
+		textAlign: 'center'
 	}
 });
 

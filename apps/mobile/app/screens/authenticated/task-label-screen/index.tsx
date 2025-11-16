@@ -29,7 +29,7 @@ import { useRoute, RouteProp } from '@react-navigation/native';
 
 // Create a type for the route params
 type TaskLabelRouteParams = {
-  previousTab?: 1 | 2; // Explicitly type as 1 | 2 union type
+	previousTab?: 1 | 2; // Explicitly type as 1 | 2 union type
 };
 
 // Properly type the route object
@@ -41,15 +41,15 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen
 		const { navigation } = _props;
 
 		// Use the properly typed route
-    const route = useRoute<TaskLabelRouteProp>();
+		const route = useRoute<TaskLabelRouteProp>();
 
-    // Get the previousTab parameter with type assertion
-    const previousTab = route.params?.previousTab || 2 as const;
+		// Get the previousTab parameter with type assertion
+		const previousTab = route.params?.previousTab || (2 as const);
 
-    // Handle back navigation with correct tab
-    const handleGoBack = useCallback(() => {
-      navigation.navigate('Setting', { activeTab: previousTab });
-    }, [navigation, previousTab]);
+		// Handle back navigation with correct tab
+		const handleGoBack = useCallback(() => {
+			navigation.navigate('Setting', { activeTab: previousTab });
+		}, [navigation, previousTab]);
 
 		const { isLoading, labels, deleteLabel, updateLabel, createLabel } = useTaskLabels();
 		const [editMode, setEditMode] = useState(false);
@@ -159,42 +159,42 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen
 
 		const handleUpdateLabel = useCallback(
 			async (labelData) => {
-			  try {
-				// No need to extract id - the updated hook will handle this correctly
-				await updateLabel(labelData);
-				handleClose();
-			  } catch (err) {
-				setError('Failed to update label. Please try again.');
-				console.error('Error updating label:', err);
-			  }
+				try {
+					// No need to extract id - the updated hook will handle this correctly
+					await updateLabel(labelData);
+					handleClose();
+				} catch (err) {
+					setError('Failed to update label. Please try again.');
+					console.error('Error updating label:', err);
+				}
 			},
 			[updateLabel, handleClose]
-		  );
+		);
 
-		  const handleCreateLabel = useCallback(
+		const handleCreateLabel = useCallback(
 			async (labelData) => {
-			  try {
-				await createLabel(labelData);
-				handleClose();
-			  } catch (err) {
-				setError('Failed to create label. Please try again.');
-				console.error('Error creating label:', err);
-			  }
+				try {
+					await createLabel(labelData);
+					handleClose();
+				} catch (err) {
+					setError('Failed to create label. Please try again.');
+					console.error('Error creating label:', err);
+				}
 			},
 			[createLabel, handleClose]
-		  );
+		);
 
-		  const handleDeleteLabel = useCallback(
+		const handleDeleteLabel = useCallback(
 			async (id) => {
-			  try {
-				await deleteLabel(id);
-			  } catch (err) {
-				setError('Failed to delete label. Please try again.');
-				console.error('Error deleting label:', err);
-			  }
+				try {
+					await deleteLabel(id);
+				} catch (err) {
+					setError('Failed to delete label. Please try again.');
+					console.error('Error deleting label:', err);
+				}
 			},
 			[deleteLabel]
-		  );
+		);
 
 		return (
 			<Screen
@@ -285,17 +285,15 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen
 
 				{/* Bottom Sheet Container */}
 				<View
-					style={[
-						{
-							position: 'absolute',
-							left: 0,
-							right: 0,
-							top: 0,
-							bottom: 0,
-							pointerEvents: bottomSheetVisible ? 'auto' : 'none',
-							zIndex: bottomSheetVisible ? 1000 : -1
-						}
-					]}
+					style={{
+						position: 'absolute',
+						left: 0,
+						right: 0,
+						top: 0,
+						bottom: 0,
+						pointerEvents: bottomSheetVisible ? 'auto' : 'none',
+						zIndex: bottomSheetVisible ? 1000 : -1
+					}}
 				>
 					<BottomSheet
 						ref={sheetRef}

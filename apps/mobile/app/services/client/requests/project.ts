@@ -10,12 +10,15 @@ import { serverFetch } from '../fetch';
  * @param {string} bearer_token - Authentication token
  * @returns {Promise} - Promise resolving to created project data
  */
-export function createOrganizationProjectRequest(data: { name: string; tenantId: string; organizationId: string }, bearer_token: string)  {
-    return serverFetch({
-        path: '/organization-projects',
-        method: 'POST',
-        body: data,
-        bearer_token,
-        tenantId: data.tenantId // Make sure tenantId is included both in body and as param
-    });
+export function createOrganizationProjectRequest(
+	data: { name: string; tenantId: string; organizationId: string },
+	bearer_token: string
+) {
+	return serverFetch({
+		path: '/organization-projects',
+		method: 'POST',
+		body: data,
+		bearer_token,
+		tenantId: data.tenantId // Make sure tenantId is included both in body and as param
+	});
 }

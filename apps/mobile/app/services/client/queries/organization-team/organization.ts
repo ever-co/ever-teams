@@ -22,9 +22,9 @@ const fetchUserOrganization = async (params: IGetUserOrganizationParams) => {
 
 		const seen = new Set<string>();
 		const filteredOrganization = organizationsItems?.filter((org) => {
-		  if (seen.has(org.organizationId)) return false;
-		  seen.add(org.organizationId);
-		  return true;
+			if (seen.has(org.organizationId)) return false;
+			seen.add(org.organizationId);
+			return true;
 		});
 
 		if (!filteredOrganization || filteredOrganization.length === 0) {

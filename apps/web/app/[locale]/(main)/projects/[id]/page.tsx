@@ -21,7 +21,7 @@ function Page() {
 					</div>
 				</div>
 			}
-		></MainLayout>
+		/>
 	);
 }
 

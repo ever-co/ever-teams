@@ -1,15 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import {
-	View,
-	ViewStyle,
-	LogBox,
-	StatusBar,
-	Keyboard,
-	StyleSheet,
-	Platform,
-	KeyboardAvoidingView
-} from 'react-native';
+import { View, ViewStyle, LogBox, StatusBar, Keyboard, StyleSheet, Platform, KeyboardAvoidingView } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -76,7 +67,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 		const snapPoints = useMemo(() => ['1%', '50%', '70%', '85%'], []);
 
 		// Fixed open function - dismisses keyboard first
-		const openBottomSheet = useCallback((name: IPopup, snapPoint: number = 1) => {
+		const openBottomSheet = useCallback((name: IPopup, snapPoint = 1) => {
 			// Dismiss any existing keyboard first
 			Keyboard.dismiss();
 
@@ -316,11 +307,11 @@ const styles = StyleSheet.create({
 		zIndex: 1
 	},
 	sheetContainer: {
-		position: 'absolute',
+		bottom: 0,
 		left: 0,
+		position: 'absolute',
 		right: 0,
 		top: 0,
-		bottom: 0,
 		zIndex: 1000
 	}
 });

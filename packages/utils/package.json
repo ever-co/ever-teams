@@ -30,6 +30,7 @@
 		"@types/node": "^20.12.2",
 		"@types/react": "19.1.2",
 		"@types/zxcvbn": "^4.4.5",
+		"react": "19.1.0",
 		"tsup": "^8.4.0",
 		"typescript": "^5.3.3"
 	}

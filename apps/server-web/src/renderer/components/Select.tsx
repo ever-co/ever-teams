@@ -25,6 +25,8 @@ const SelectItem = forwardRef(
     );
   },
 );
+
+SelectItem.displayName = 'SelectItem';
 export const SelectComponent = ({
   title,
   items,

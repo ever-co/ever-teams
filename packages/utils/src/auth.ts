@@ -1,8 +1,6 @@
-import { AUTHENTICATION_ERROR_MESSAGES, PASSWORD_CRITERIA, PASSWORD_MINIMUM_LENGTH } from '@ever-teams/constants';
-import { AuthErrorAlertType, AuthErrorDetails } from '@ever-teams/types';
-import { AuthErrorCode } from '@ever-teams/types';
-import { PasswordValidationResult } from '@ever-teams/types';
 import zxcvbn from 'zxcvbn';
+import { AUTHENTICATION_ERROR_MESSAGES, PASSWORD_CRITERIA, PASSWORD_MINIMUM_LENGTH } from '@ever-teams/constants';
+import { AuthErrorAlertType, AuthErrorDetails, AuthErrorCode, PasswordValidationResult } from '@ever-teams/types';
 
 /* -------------------------------------------------------------------------- */
 /*                           Password Validation Utils                        */

@@ -89,7 +89,7 @@ const CalendarPage = () => {
 								<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 							</div>
 							<div className="flex items-center justify-center h-10 gap-1 w-max">
-								<HeaderTabs kanban={true} linkAll={true} />
+								<HeaderTabs kanban linkAll />
 							</div>
 						</div>
 						<div className="flex flex-col w-full">
@@ -98,7 +98,7 @@ const CalendarPage = () => {
 								timesheet={calendarTimeSheet}
 								setCalendarTimeSheet={setCalendarTimeSheet}
 							/>
-							<div className="w-full border border-gray-100 dark:border-gray-800"></div>
+							<div className="w-full border border-gray-100 dark:border-gray-800" />
 						</div>
 					</Container>
 				</div>

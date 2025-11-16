@@ -1,74 +1,70 @@
 /* eslint-disable camelcase */
-import { PaginationResponse } from "../../interfaces/IDataResponse"
-import { ITaskVersionCreate, ITaskVersionItemList } from "../../interfaces/ITaskVersion"
-import { serverFetch } from "../fetch"
+import { PaginationResponse } from '../../interfaces/IDataResponse';
+import { ITaskVersionCreate, ITaskVersionItemList } from '../../interfaces/ITaskVersion';
+import { serverFetch } from '../fetch';
 
-export function createVersionRequest(
-	datas: ITaskVersionCreate,
-	bearer_token: string,
-	tenantId?: any,
-) {
+export function createVersionRequest(datas: ITaskVersionCreate, bearer_token: string, tenantId?: any) {
 	return serverFetch<ITaskVersionItemList>({
-		path: "/task-versions",
-		method: "POST",
+		path: '/task-versions',
+		method: 'POST',
 		body: datas,
 		bearer_token,
-		tenantId,
-	})
+		tenantId
+	});
 }
 
 export function editTaskVersionRequest({
 	id,
 	datas,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
-	id: string | any
-	datas: ITaskVersionCreate
-	bearer_token: string
-	tenantId?: any
+	id: string | any;
+	datas: ITaskVersionCreate;
+	bearer_token: string;
+	tenantId?: any;
 }) {
 	return serverFetch<ITaskVersionItemList>({
 		path: `/task-versions/${id}`,
-		method: "PUT",
+		method: 'PUT',
 		body: datas,
 		bearer_token,
-		tenantId,
-	})
+		tenantId
+	});
 }
 
 export function deleteTaskVersionRequest({
 	id,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
-	id: string | any
-	bearer_token: string | any
-	tenantId?: any
+	id: string | any;
+	bearer_token: string | any;
+	tenantId?: any;
 }) {
 	return serverFetch<ITaskVersionItemList>({
 		path: `/task-versions/${id}`,
-		method: "DELETE",
+		method: 'DELETE',
 		bearer_token,
-		tenantId,
-	})
+		tenantId
+	});
 }
 
 export function getTaskVersionListRequest(
 	{
 		organizationId,
 		tenantId,
-		activeTeamId,
+		activeTeamId
 	}: {
-		tenantId: string
-		organizationId: string
-		activeTeamId: string | null
+		tenantId: string;
+		organizationId: string;
+		activeTeamId: string | null;
 	},
-	bearer_token: string,
+	bearer_token: string
 ) {
 	return serverFetch<PaginationResponse<ITaskVersionItemList>>({
 		path: `/task-versions?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`,
-		method: "GET",
-		bearer_token,
-	})
+		method: 'GET',
+		bearer_token
+	});
 }

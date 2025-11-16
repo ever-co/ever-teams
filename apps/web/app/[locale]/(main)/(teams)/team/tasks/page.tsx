@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { getCoreRowModel, getFilteredRowModel, useReactTable, VisibilityState } from '@tanstack/react-table';
+import { ColumnDef, getCoreRowModel, getFilteredRowModel, useReactTable, VisibilityState } from '@tanstack/react-table';
 import { cn, getStatusColor } from '@/core/lib/helpers';
 import { Input } from '@/core/components/common/input';
 import { Check, Search, Settings2 } from 'lucide-react';

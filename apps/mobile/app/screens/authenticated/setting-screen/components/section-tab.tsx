@@ -75,7 +75,7 @@ const Tab = observer(
 									backgroundColor: colors.background,
 									borderColor: dark ? colors.secondary : '#2A1B8E'
 								}
-						  ]
+							]
 						: [styles.inactiveSection]
 				}
 				onPress={() => (item.id === 2 && !activeTeam ? {} : toggleTab(item.id))}

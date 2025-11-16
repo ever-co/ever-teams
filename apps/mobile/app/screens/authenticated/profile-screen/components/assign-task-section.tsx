@@ -77,22 +77,21 @@ const ModalPopUp = ({ visible, children }) => {
 
 // Create a default task that satisfies the ICreateTask interface
 const createDefaultTask = (): ICreateTask => {
-    return {
-	title: '', // Required
-	status: 'open', // Required
-	description: '', // Required
-	teams: [], // Required
-	tags: [], // Required and needed for our fix
-	estimate: 0, // If required
-	priority: 'medium', // If required
-	size: 'medium',
-	organizationId: '',
-	tenantId: ''
-};
+	return {
+		title: '', // Required
+		status: 'open', // Required
+		description: '', // Required
+		teams: [], // Required
+		tags: [], // Required and needed for our fix
+		estimate: 0, // If required
+		priority: 'medium', // If required
+		size: 'medium',
+		organizationId: '',
+		tenantId: ''
+	};
 };
 
 const queryClient = new QueryClient();
-
 
 const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({ visible, onDismiss, createNewTask, isAuthUser }) {
 	const [taskInputText, setTaskInputText] = useState<string>('');

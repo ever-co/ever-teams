@@ -1,28 +1,25 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { useMemo } from "react"
-import { View, Text } from "react-native"
-import { SvgUri } from "react-native-svg"
-import { typography, useAppTheme } from "../theme"
-import { observer } from "mobx-react-lite"
-import { limitTextCharaters } from "../helpers/sub-text"
-import { useTaskVersion } from "../services/hooks/features/use-task-version"
+import React, { useMemo } from 'react';
+import { View, Text } from 'react-native';
+import { SvgUri } from 'react-native-svg';
+import { typography, useAppTheme } from '../theme';
+import { observer } from 'mobx-react-lite';
+import { limitTextCharaters } from '../helpers/sub-text';
+import { useTaskVersion } from '../services/hooks/features/use-task-version';
 
 export const BadgedTaskVersion = observer(
 	({ version, TextSize, iconSize }: { version: string; TextSize: number; iconSize: number }) => {
-		const { taskVersionList } = useTaskVersion()
-		const { colors } = useAppTheme()
+		const { taskVersionList } = useTaskVersion();
+		const { colors } = useAppTheme();
 
-		const currentSize = useMemo(
-			() => taskVersionList.find((s) => s.name === version),
-			[version, taskVersionList],
-		)
+		const currentSize = useMemo(() => taskVersionList.find((s) => s.name === version), [version, taskVersionList]);
 
 		return (
 			<View
 				style={{
-					flexDirection: "row",
-					alignItems: "center",
+					flexDirection: 'row',
+					alignItems: 'center'
 				}}
 			>
 				<SvgUri width={iconSize} height={iconSize} uri={currentSize?.fullIconUrl} />
@@ -32,12 +29,12 @@ export const BadgedTaskVersion = observer(
 						left: 5,
 						fontSize: TextSize,
 						fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-						textTransform: "capitalize",
+						textTransform: 'capitalize'
 					}}
 				>
 					{limitTextCharaters({ text: currentSize?.name, numChars: 15 })}
 				</Text>
 			</View>
-		)
-	},
-)
+		);
+	}
+);

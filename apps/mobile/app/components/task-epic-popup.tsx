@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
-import React from "react"
-import { BlurView } from "expo-blur"
+import React from 'react';
+import { BlurView } from 'expo-blur';
 import {
 	Animated,
 	Modal,
@@ -11,20 +11,20 @@ import {
 	ViewStyle,
 	StyleSheet,
 	FlatList,
-	TouchableOpacity,
-} from "react-native"
-import { Feather, AntDesign } from "@expo/vector-icons"
-import { useAppTheme } from "../theme"
-import { ITeamTask } from "../services/interfaces/ITask"
-import { formattedEpic } from "./task-epic"
+	TouchableOpacity
+} from 'react-native';
+import { Feather, AntDesign } from '@expo/vector-icons';
+import { useAppTheme } from '../theme';
+import { ITeamTask } from '../services/interfaces/ITask';
+import { formattedEpic } from './task-epic';
 
 interface ITaskEpicPopup {
-	visible: boolean
-	onDismiss: () => unknown
-	onTaskSelect: (parentTask: ITeamTask | undefined) => Promise<void>
-	epicsList: formattedEpic
-	currentEpic: string
-	teamTasks: ITeamTask[]
+	visible: boolean;
+	onDismiss: () => unknown;
+	onTaskSelect: (parentTask: ITeamTask | undefined) => Promise<void>;
+	epicsList: formattedEpic;
+	currentEpic: string;
+	teamTasks: ITeamTask[];
 }
 
 const TaskEpicPopup: React.FC<ITaskEpicPopup> = ({
@@ -33,11 +33,11 @@ const TaskEpicPopup: React.FC<ITaskEpicPopup> = ({
 	onTaskSelect,
 	epicsList,
 	currentEpic,
-	teamTasks,
+	teamTasks
 }) => {
-	const { colors } = useAppTheme()
+	const { colors } = useAppTheme();
 
-	const allEpics = Object.values(epicsList)
+	const allEpics = Object.values(epicsList);
 
 	return (
 		<ModalPopUp visible={visible} onDismiss={onDismiss}>
@@ -60,38 +60,38 @@ const TaskEpicPopup: React.FC<ITaskEpicPopup> = ({
 				/>
 			</View>
 		</ModalPopUp>
-	)
-}
+	);
+};
 
-export default TaskEpicPopup
+export default TaskEpicPopup;
 
 interface ItemProps {
-	currentEpicId: string
-	onTaskSelect: (parentTask: ITeamTask | undefined) => Promise<void>
-	epic: formattedEpic[keyof formattedEpic]
-	teamTasks: ITeamTask[]
-	onDismiss()
+	currentEpicId: string;
+	onTaskSelect: (parentTask: ITeamTask | undefined) => Promise<void>;
+	epic: formattedEpic[keyof formattedEpic];
+	teamTasks: ITeamTask[];
+	onDismiss();
 }
 const Item: React.FC<ItemProps> = ({ currentEpicId, epic, onTaskSelect, teamTasks, onDismiss }) => {
-	const { colors } = useAppTheme()
-	const selected = epic.id === currentEpicId
+	const { colors } = useAppTheme();
+	const selected = epic.id === currentEpicId;
 
-	const epicTask = teamTasks.find((task) => task.id === epic.id)
+	const epicTask = teamTasks.find((task) => task.id === epic.id);
 
 	return (
 		<TouchableOpacity
 			onPress={() => {
-				onTaskSelect(epicTask)
-				onDismiss()
+				onTaskSelect(epicTask);
+				onDismiss();
 			}}
 		>
 			<View
 				style={{
 					...styles.wrapperItem,
-					borderColor: colors.border,
+					borderColor: colors.border
 				}}
 			>
-				<View style={{ ...styles.colorFrame, backgroundColor: "#FFFFFF" }}>
+				<View style={{ ...styles.colorFrame, backgroundColor: '#FFFFFF' }}>
 					{epic.icon}
 					<Text>{epic.name}</Text>
 				</View>
@@ -104,88 +104,86 @@ const Item: React.FC<ItemProps> = ({ currentEpicId, epic, onTaskSelect, teamTask
 				</View>
 			</View>
 		</TouchableOpacity>
-	)
-}
+	);
+};
 
 const ModalPopUp = ({ visible, children, onDismiss }) => {
-	const [showModal, setShowModal] = React.useState(visible)
-	const scaleValue = React.useRef(new Animated.Value(0)).current
+	const [showModal, setShowModal] = React.useState(visible);
+	const scaleValue = React.useRef(new Animated.Value(0)).current;
 
 	React.useEffect(() => {
-		toggleModal()
-	}, [visible])
+		toggleModal();
+	}, [visible]);
 	const toggleModal = () => {
 		if (visible) {
-			setShowModal(true)
+			setShowModal(true);
 			Animated.spring(scaleValue, {
 				toValue: 1,
-				useNativeDriver: true,
-			}).start()
+				useNativeDriver: true
+			}).start();
 		} else {
-			setTimeout(() => setShowModal(false), 200)
+			setTimeout(() => setShowModal(false), 200);
 			Animated.timing(scaleValue, {
 				toValue: 0,
 				duration: 300,
-				useNativeDriver: true,
-			}).start()
+				useNativeDriver: true
+			}).start();
 		}
-	}
+	};
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
 			<BlurView
 				intensity={15}
 				tint="dark"
 				style={{
-					position: "absolute",
-					width: "100%",
-					height: "100%",
+					position: 'absolute',
+					width: '100%',
+					height: '100%'
 				}}
 			/>
 			<TouchableWithoutFeedback onPress={() => onDismiss()}>
 				<View style={$modalBackGround}>
-					<Animated.View style={{ transform: [{ scale: scaleValue }] }}>
-						{children}
-					</Animated.View>
+					<Animated.View style={{ transform: [{ scale: scaleValue }] }}>{children}</Animated.View>
 				</View>
 			</TouchableWithoutFeedback>
 		</Modal>
-	)
-}
+	);
+};
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	justifyContent: "center",
-}
+	justifyContent: 'center'
+};
 
 const styles = StyleSheet.create({
 	colorFrame: {
-		alignItems: "center",
+		alignItems: 'center',
 		borderRadius: 10,
-		flexDirection: "row",
+		flexDirection: 'row',
 		gap: 5,
 		height: 44,
 		paddingLeft: 16,
-		width: 180,
+		width: 180
 	},
 	container: {
-		alignSelf: "center",
-		backgroundColor: "#fff",
+		alignSelf: 'center',
+		backgroundColor: '#fff',
 		borderRadius: 20,
 		maxHeight: 396,
 		paddingHorizontal: 6,
 		paddingVertical: 16,
-		width: "80%",
+		width: '80%'
 	},
 	wrapperItem: {
-		alignItems: "center",
-		borderColor: "rgba(0,0,0,0.13)",
+		alignItems: 'center',
+		borderColor: 'rgba(0,0,0,0.13)',
 		borderRadius: 10,
 		borderWidth: 1,
-		flexDirection: "row",
-		justifyContent: "space-between",
+		flexDirection: 'row',
+		justifyContent: 'space-between',
 		marginBottom: 10,
 		padding: 2,
 		paddingRight: 18,
-		width: "100%",
-	},
-})
+		width: '100%'
+	}
+});

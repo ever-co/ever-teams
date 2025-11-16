@@ -2,12 +2,9 @@
 	"lerna": "3.22.1",
 	"npmClient": "yarn",
 	"version": "independent",
+	"useNx": false,
 	"concurrency": 8,
-	"changelog": {
-		"repo": "ever-co/ever-teams",
-		"cacheDir": ".changelog",
-		"labels": {}
-	},
+	"changelog": { "repo": "ever-co/ever-teams", "cacheDir": ".changelog", "labels": {} },
 	"packages": ["libs/*", "apps/*", "packages/*"],
 	"stream": true,
 	"npmClientArgs": ["--no-package-lock"]

@@ -89,7 +89,7 @@ const Team = () => {
 			</MainHeader>
 
 			{/* Divider */}
-			<div className="h-0.5 bg-[#FFFFFF14]"></div>
+			<div className="h-0.5 bg-[#FFFFFF14]" />
 
 			<Container fullWidth={fullWidth}>
 				<TeamMembersView
