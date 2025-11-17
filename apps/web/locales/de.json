@@ -237,6 +237,7 @@
 		"FULL_WIDTH": "Volle Breite",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Bitte stoppen Sie den Timer, bevor Sie die Aufgabe ändern",
 		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Bitte stoppen Sie den Timer, bevor Sie das Team wechseln",
+		"WORKSPACE_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Bitte stoppen Sie den Timer, bevor Sie den Arbeitsbereich wechseln",
 		"CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Bitte stoppen Sie den Timer, bevor Sie neue Elemente erstellen",
 		"COLLABORATE_DIALOG_TITLE": "Zusammenarbeit beginnen",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Mitglied(er) einladen und zusammenarbeiten",
