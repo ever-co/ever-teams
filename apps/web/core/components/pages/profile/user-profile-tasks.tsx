@@ -368,7 +368,7 @@ const TanStackVirtualizedTaskList = memo(
 			<div style={containerStyle} ref={parentRef} className="custom-scrollbar">
 				<div style={innerStyle}>{virtualItems.map(renderVirtualItem)}</div>
 				{isScrolling && (
-					<div className="absolute px-2 py-1 text-xs text-white rounded top-2 right-2 bg-black/50">
+					<div className="absolute top-2 right-2 px-2 py-1 text-xs text-white rounded-sm bg-black/50">
 						Scrolling...
 					</div>
 				)}

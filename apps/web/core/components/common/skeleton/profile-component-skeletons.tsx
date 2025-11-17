@@ -49,7 +49,7 @@ export const TaskCardSkeleton: FC<SkeletonProps> = ({ className }) => {
 							<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 						</div>
 						{/* Task Title */}
-						<div className="w-28 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-1" />
+						<div className="w-28 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-1" />
 						{/* Task Status */}
 						<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 					</div>
@@ -112,7 +112,7 @@ export const TaskCardSkeleton: FC<SkeletonProps> = ({ className }) => {
 				<div className="flex items-center justify-center w-1/5 h-full min-w-fit xl:justify-between lg:px-3 2xl:max-w-52 3xl:max-w-72">
 					{/* Status Dropdown */}
 					<div className="flex items-center justify-center">
-						<div className="w-36 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
+						<div className="w-36 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 					</div>
 					{/* Task Menu */}
 					<div className="flex items-end justify-end mt-2 shrink-0 xl:mt-0">
@@ -138,7 +138,7 @@ export const TaskCardSkeleton: FC<SkeletonProps> = ({ className }) => {
 							<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 							<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 						</div>
-						<div className="w-full h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-1" />
+						<div className="w-full h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-1" />
 						<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 					</div>
 					<div className="flex items-end py-4 mx-auto space-x-2">
@@ -155,7 +155,7 @@ export const TaskCardSkeleton: FC<SkeletonProps> = ({ className }) => {
 						</div>
 						<div className="w-9 h-9 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
 					</div>
-					<div className="w-28 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
+					<div className="w-28 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 					<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 				</div>
 			</div>
@@ -189,16 +189,16 @@ export const UserProfileTaskSkeleton: FC<SkeletonProps> = ({ className }) => {
 				{/* Left Info */}
 				<div className="flex items-center gap-2">
 					<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-					<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
+					<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 					<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 				</div>
 
 				{/* Right Navigation */}
 				<div className="flex items-center gap-2">
-					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
-					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
-					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
-					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
+					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 				</div>
 			</div>
 		</div>
@@ -419,7 +419,7 @@ export const UserTeamActivitySkeleton: FC<SkeletonProps> = ({ className }) => {
 
 				{/* Title skeleton */}
 				<div className="py-2">
-					<div className="w-48 bg-gray-300 rounded h-7 dark:bg-gray-600 animate-pulse"></div>
+					<div className="w-48 bg-gray-300 rounded-sm h-7 dark:bg-gray-600 animate-pulse"></div>
 				</div>
 
 				<div className="flex flex-col justify-between w-full overflow-hidden gap-y-5">
@@ -427,9 +427,9 @@ export const UserTeamActivitySkeleton: FC<SkeletonProps> = ({ className }) => {
 					<div className="flex items-center w-full gap-3">
 						<div className="shadow basis-1/4 min-w-56 max-w-80 rounded-md p-4 h-32 bg-light--theme-light dark:bg-[#26272C] animate-pulse">
 							{/* TIME_ACTIVITY label */}
-							<div className="w-24 h-4 mb-3 bg-gray-300 rounded dark:bg-gray-600"></div>
+							<div className="w-24 h-4 mb-3 bg-gray-300 rounded-sm dark:bg-gray-600"></div>
 							{/* Percentage value */}
-							<div className="w-20 mb-3 bg-gray-300 rounded h-9 dark:bg-gray-600"></div>
+							<div className="w-20 mb-3 bg-gray-300 rounded-sm h-9 dark:bg-gray-600"></div>
 							{/* Progress bar */}
 							<div className="w-4/5 h-2 bg-gray-300 rounded-full dark:bg-gray-600">
 								<div className="w-1/3 h-2 bg-gray-400 rounded-full dark:bg-gray-500"></div>
@@ -450,7 +450,7 @@ export const UserTeamActivitySkeleton: FC<SkeletonProps> = ({ className }) => {
 									}`}
 								>
 									<div
-										className={`h-4 rounded mx-auto ${
+										className={`h-4 rounded-sm mx-auto ${
 											index === 0
 												? 'bg-blue-300 dark:bg-blue-600 w-12'
 												: 'bg-gray-300 dark:bg-gray-600 w-16'
@@ -470,12 +470,12 @@ export const UserTeamActivitySkeleton: FC<SkeletonProps> = ({ className }) => {
 										<div className="flex items-center p-4 space-x-4 bg-white border border-gray-200 rounded-lg dark:border-gray-700 dark:bg-gray-800">
 											<div className="w-10 h-10 bg-gray-300 rounded-full dark:bg-gray-600"></div>
 											<div className="flex-1 space-y-2">
-												<div className="w-3/4 h-4 bg-gray-300 rounded dark:bg-gray-600"></div>
-												<div className="w-1/2 h-3 bg-gray-300 rounded dark:bg-gray-600"></div>
+												<div className="w-3/4 h-4 bg-gray-300 rounded-sm dark:bg-gray-600"></div>
+												<div className="w-1/2 h-3 bg-gray-300 rounded-sm dark:bg-gray-600"></div>
 											</div>
 											<div className="flex space-x-2">
-												<div className="w-16 h-6 bg-gray-300 rounded dark:bg-gray-600"></div>
-												<div className="w-20 h-6 bg-gray-300 rounded dark:bg-gray-600"></div>
+												<div className="w-16 h-6 bg-gray-300 rounded-sm dark:bg-gray-600"></div>
+												<div className="w-20 h-6 bg-gray-300 rounded-sm dark:bg-gray-600"></div>
 											</div>
 										</div>
 									</div>
@@ -486,12 +486,12 @@ export const UserTeamActivitySkeleton: FC<SkeletonProps> = ({ className }) => {
 											<div className="flex items-center p-4 space-x-4 border border-gray-200 rounded-lg dark:border-gray-700">
 												<div className="w-10 h-10 bg-gray-300 rounded-full dark:bg-gray-600"></div>
 												<div className="flex-1 space-y-2">
-													<div className="w-2/3 h-4 bg-gray-300 rounded dark:bg-gray-600"></div>
-													<div className="w-1/3 h-3 bg-gray-300 rounded dark:bg-gray-600"></div>
+													<div className="w-2/3 h-4 bg-gray-300 rounded-sm dark:bg-gray-600"></div>
+													<div className="w-1/3 h-3 bg-gray-300 rounded-sm dark:bg-gray-600"></div>
 												</div>
 												<div className="flex space-x-2">
-													<div className="w-12 h-6 bg-gray-300 rounded dark:bg-gray-600"></div>
-													<div className="w-16 h-6 bg-gray-300 rounded dark:bg-gray-600"></div>
+													<div className="w-12 h-6 bg-gray-300 rounded-sm dark:bg-gray-600"></div>
+													<div className="w-16 h-6 bg-gray-300 rounded-sm dark:bg-gray-600"></div>
 												</div>
 											</div>
 										</div>

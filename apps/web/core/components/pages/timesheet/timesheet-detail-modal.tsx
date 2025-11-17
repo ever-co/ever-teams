@@ -36,7 +36,7 @@ function TimesheetDetailModal({ closeModal, isOpen, timesheet, timesheetDetailMo
 			closeModal={closeModal}
 			title={title}
 			showCloseIcon
-			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded w-full md:w-40 md:min-w-[35rem]"
+			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-sm w-full md:w-40 md:min-w-[35rem]"
 			titleClass="font-bold flex justify-start w-full text-xl dark:text-white"
 		>
 			<div className="py-4 w-full">

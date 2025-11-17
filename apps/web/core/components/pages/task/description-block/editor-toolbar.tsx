@@ -299,7 +299,7 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 					</span>
 				</Button>
 				{/* {showDropdown && (
-					<div className="absolute left-0 z-10 w-40 py-2 bg-white border border-gray-300 rounded shadow-sm top-full dark:bg-dark--theme-light dark:border-gray-700">
+					<div className="absolute left-0 z-10 w-40 py-2 bg-white border border-gray-300 rounded-sm shadow-sm top-full dark:bg-dark--theme-light dark:border-gray-700">
 						{blockOptions.map((option) => (
 							<button
 								key={option.format}

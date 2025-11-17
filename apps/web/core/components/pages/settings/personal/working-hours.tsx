@@ -162,7 +162,7 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 						{workDay.enabled && (
 							<button
 								onClick={() => handleAddTimeSlot(dayIndex)}
-								className="ml-auto w-7 h-7 flex items-center justify-center bg-[#D8D0F84D] text-[#3826A6] hover:text-[#3826A6]/80 rounded hover:bg-[#DBD3FA]/20 top-2 right-0 absolute"
+								className="ml-auto w-7 h-7 flex items-center justify-center bg-[#D8D0F84D] text-[#3826A6] hover:text-[#3826A6]/80 rounded-sm hover:bg-[#DBD3FA]/20 top-2 right-0 absolute"
 							>
 								<span className="text-2xl leading-none">+</span>
 							</button>

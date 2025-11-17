@@ -353,7 +353,7 @@ export function DatePickerFilter({
 								disabled={isDayDisabled}
 								{...props}
 								className={cn(
-									`h-9 w-9 rounded ${isSelected ? 'bg-primary dark:bg-primary-light text-primary-foreground dark:text-white' : ''}`
+									`h-9 w-9 rounded-sm ${isSelected ? 'bg-primary dark:bg-primary-light text-primary-foreground dark:text-white' : ''}`
 								)}
 								onClick={() => handleSelect(dayDate)}
 							>

@@ -108,7 +108,7 @@ const TaskSecondaryInfo = () => {
 					className="lg:min-w-[130px] text-black"
 					forDetails={true}
 					sidebarUI={true}
-					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
+					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				>
 					<Button
 						className="w-full py-1 px-2 text-[0.625rem] mt-3  dark:text-white dark:border-white"
@@ -132,7 +132,7 @@ const TaskSecondaryInfo = () => {
 						className="min-w-fit lg:max-w-[170px] text-black"
 						forDetails={true}
 						sidebarUI={true}
-						taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
+						taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 						defaultValue={task.parentId || ''}
 					/>
 				</TaskRow>
@@ -147,7 +147,7 @@ const TaskSecondaryInfo = () => {
 					className="lg:min-w-[130px] text-black"
 					forDetails={true}
 					sidebarUI={true}
-					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
+					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				>
 					<Button
 						className="px-2 py-1 w-full text-xs dark:text-white dark:border-white"
@@ -165,7 +165,7 @@ const TaskSecondaryInfo = () => {
 					task={task}
 					className="lg:min-w-[130px] text-black lg:mt-0"
 					forDetails={true}
-					taskStatusClassName="text-[0.625rem] h-[2.35rem] min-w-[7.6875rem] rounded 3xl:text-xs"
+					taskStatusClassName="text-[0.625rem] h-[2.35rem] min-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				/>
 			</TaskRow>
 			{tags.length > 0 && (
@@ -195,7 +195,7 @@ const TaskSecondaryInfo = () => {
 					className="lg:min-w-[130px] text-black"
 					forDetails={true}
 					sidebarUI={true}
-					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
+					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				>
 					<Button
 						className="px-2 py-1 w-full text-xs dark:text-white dark:border-white"
@@ -214,7 +214,7 @@ const TaskSecondaryInfo = () => {
 					className="lg:min-w-[130px] text-black"
 					forDetails={true}
 					sidebarUI={true}
-					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
+					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				>
 					<Button
 						className="px-2 py-1 w-full text-xs dark:text-white dark:border-white"

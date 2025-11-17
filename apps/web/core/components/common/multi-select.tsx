@@ -152,7 +152,7 @@ export function MultiSelect<T>({
 						<div
 							key={itemId(item)}
 							className={clsxm(
-								'flex items-center justify-between px-2 py-[0.5px] rounded text-[12px]',
+								'flex items-center justify-between px-2 py-[0.5px] rounded-sm text-[12px]',
 								'dark:text-white',
 								statusColor(itemToString(item))?.bg || 'bg-gray-100 dark:bg-slate-700'
 							)}

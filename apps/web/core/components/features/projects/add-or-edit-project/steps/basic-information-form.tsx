@@ -768,7 +768,7 @@ function SelectComponent<T extends Identifiable, IsMulti extends boolean = false
 										value={item?.id}
 										onSelect={() => handleItemSelect(item)}
 										className={cn(
-											'text-sm cursor-pointer rounded px-2 py-1.5 dark:text-white dark:hover:bg-dark--theme',
+											'text-sm cursor-pointer rounded-sm px-2 py-1.5 dark:text-white dark:hover:bg-dark--theme',
 											isMulti && 'flex items-center gap-2'
 										)}
 									>

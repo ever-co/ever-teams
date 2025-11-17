@@ -100,7 +100,7 @@ export const TimezoneDropDown = ({
 						{filteredSearchResult?.map((item) => (
 							<ListboxOption key={item.id} value={item.value.toLowerCase()} as="div">
 								{({ selected }) => (
-									<li className={cn('text-xs cursor-pointer rounded ')}>
+									<li className={cn('text-xs cursor-pointer rounded-sm ')}>
 										<div
 											className={cn(
 												'w-full h-full p-1 px-2 flex items-center gap-2 rounded',

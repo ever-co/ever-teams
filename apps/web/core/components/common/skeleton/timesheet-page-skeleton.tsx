@@ -171,15 +171,15 @@ export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({
 							<div className="flex justify-between items-center mb-6">
 								{/* Navigation Skeleton */}
 								<div className="flex gap-4 items-center">
-									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
+									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 									<div className="w-32 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
+									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 								</div>
 
 								{/* View Controls Skeleton */}
 								<div className="flex gap-2 items-center">
-									<div className="w-20 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
-									<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
+									<div className="w-20 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+									<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 								</div>
 							</div>
 
@@ -188,7 +188,7 @@ export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({
 								{/* Week Headers */}
 								{['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, index) => (
 									<div key={index} className="p-2 text-center">
-										<div className="w-8 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mx-auto" />
+										<div className="w-8 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mx-auto" />
 									</div>
 								))}
 
@@ -196,10 +196,10 @@ export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({
 								{[...Array(35)].map((_, index) => (
 									<div
 										key={index}
-										className="p-2 rounded border border-gray-200 aspect-square dark:border-gray-600"
+										className="p-2 rounded-sm border border-gray-200 aspect-square dark:border-gray-600"
 									>
 										{/* Day Number */}
-										<div className="w-6 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-2" />
+										<div className="w-6 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
 
 										{/* Time Entries */}
 										{index % 3 === 0 && (
@@ -216,15 +216,15 @@ export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({
 							<div className="flex justify-between items-center mt-6">
 								<div className="flex gap-2 items-center">
 									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-									<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
+									<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 									<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 								</div>
 
 								<div className="flex gap-2 items-center">
-									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
-									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
-									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
-									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
+									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 								</div>
 							</div>
 						</div>

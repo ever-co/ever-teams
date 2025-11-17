@@ -58,7 +58,7 @@ export const AppDropdown: FC<IAppDropdownProps> = ({
 			<div
 				id="dropdown"
 				className={classNames(
-					'scrollbar absolute overflow-auto max-h-64 mt-1.5 z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow-sm dark:bg-gray-700',
+					'scrollbar absolute overflow-auto max-h-64 mt-1.5 z-10 w-44 bg-white rounded-sm divide-y divide-gray-100 shadow-sm dark:bg-gray-700',
 					dropdownHidden && 'hidden',
 					optionContainerClassNames
 				)}>

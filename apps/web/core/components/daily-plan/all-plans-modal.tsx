@@ -327,7 +327,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 								</li>
 							))}
 						</ul>
-						<div className="flex items-center justify-between h-8 border rounded">
+						<div className="flex justify-between items-center h-8 rounded-sm border">
 							<span
 								onClick={() =>
 									navigationMode === 'DATE'

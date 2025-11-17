@@ -22,7 +22,7 @@ interface TooltipProps {
 const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
 	if (active && payload && payload.length) {
 		return (
-			<div className="p-3 bg-[#ffff] dark:bg-[#2D2F31] rounded border border-gray-200 dark:border-gray-700 shadow-lg">
+			<div className="p-3 bg-[#ffff] dark:bg-[#2D2F31] rounded-sm border border-gray-200 dark:border-gray-700 shadow-lg">
 				<p className="mb-1 text-xs text-gray-400">{label}</p>
 				{payload.map((item, index) => (
 					<p key={index} className="flex gap-2 items-center text-xs" style={{ color: item.color }}>

@@ -110,7 +110,7 @@ function MeetPage() {
 				<p className="mb-4 text-gray-600">{error.message}</p>
 				<button
 					onClick={() => router.refresh()}
-					className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
+					className="px-4 py-2 text-white bg-blue-500 rounded-sm hover:bg-blue-600"
 				>
 					Try Again
 				</button>

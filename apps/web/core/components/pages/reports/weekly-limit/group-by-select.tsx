@@ -63,7 +63,7 @@ export function GroupBySelect({ defaultValues, onChange }: IProps) {
 						{selected.map((option) => (
 							<Badge
 								key={option}
-								className=" capitalize rounded flex gap-1 font-light"
+								className=" capitalize rounded-sm flex gap-1 font-light"
 								variant={'outline'}
 							>
 								{t(

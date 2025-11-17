@@ -335,7 +335,7 @@ interface ShiftTimingSelectProps {
 }
 
 const ShiftTimingSelect = ({ label, timeOptions, placeholder, className, onChange, value }: ShiftTimingSelectProps) => (
-	<div className="flex gap-2 items-center w-full rounded border border-gray-200 dark:border-gray-700">
+	<div className="flex gap-2 items-center w-full rounded-sm border border-gray-200 dark:border-gray-700">
 		<button
 			className={clsxm(
 				'flex items-center px-2 py-2 font-medium text-center border-r hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none',
@@ -475,7 +475,7 @@ const OptimizedAccordion = ({
 				);
 			})}
 			<button onClick={handleAddShift} className="flex gap-2 justify-start items-center cursor-pointer">
-				<div className="bg-[#3826A6] dark:bg-primary-light p-[0.5] rounded text-white">
+				<div className="bg-[#3826A6] dark:bg-primary-light p-[0.5] rounded-sm text-white">
 					<PlusIcon />
 				</div>
 				<span className="text-[#3826A6] dark:text-primary-light hover:underline">

@@ -20,7 +20,7 @@ export const TimeReportTableSkeleton: FC<SkeletonProps> = ({ className }) => {
 			<div className="flex items-center h-12 px-4 border rounded-md bg-slate-100 dark:bg-gray-800 dark:text-white">
 				<div className="w-48 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 			</div>
-			
+
 			{/* Data Table */}
 			<div className="bg-white dark:bg-dark--theme-light rounded-lg border border-gray-200 dark:border-gray-600">
 				{/* Table Header */}
@@ -87,7 +87,7 @@ export const TimeReportTableByMemberSkeleton: FC<SkeletonProps> = ({ className }
 			<div className="flex items-center h-12 px-4 border rounded-md bg-slate-100 dark:bg-gray-800 dark:text-white">
 				<div className="w-32 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 			</div>
-			
+
 			{/* Data Table */}
 			<div className="bg-white dark:bg-dark--theme-light rounded-lg border border-gray-200 dark:border-gray-600">
 				{/* Table Header */}
@@ -190,16 +190,16 @@ export const PaginateSkeleton: FC<SkeletonProps> = ({ className }) => {
 			{/* Left Info */}
 			<div className="flex items-center gap-2">
 				<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-				<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
+				<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 				<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 			</div>
-			
+
 			{/* Right Navigation */}
 			<div className="flex items-center gap-2">
-				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
-				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
-				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
-				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
+				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 			</div>
 		</div>
 	);

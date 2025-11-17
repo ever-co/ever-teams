@@ -174,7 +174,7 @@ const TaskTitleBlock = () => {
 				<div className="flex flex-row gap-3 justify-start items-center">
 					<div className="flex flex-row gap-2">
 						{/* Task number */}
-						<div className="bg-gray-200 dark:bg-slate-600 rounded text-center flex justify-center items-center h-7 py-1 px-2.5">
+						<div className="bg-gray-200 dark:bg-slate-600 rounded-sm text-center flex justify-center items-center h-7 py-1 px-2.5">
 							<span className="text-xs font-medium text-gray-700 dark:text-gray-200">
 								#{task?.taskNumber}
 							</span>
@@ -318,7 +318,7 @@ const ParentTaskInput = ({ task }: { task: TTask | null }) => {
 
 	return task && task.issueType !== EIssueType.EPIC ? (
 		<>
-			<div className="box-border flex justify-center items-center h-7 text-center bg-transparent rounded cursor-pointer">
+			<div className="box-border flex justify-center items-center h-7 text-center bg-transparent rounded-sm cursor-pointer">
 				<Button
 					variant="outline-danger"
 					className="text-[#f07258] font-medium text-xs py-1 px-2.5 min-w-[4.75rem] outline-none h-7 rounded"

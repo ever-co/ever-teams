@@ -429,7 +429,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 					<div className="relative">
 						<button
 							onClick={() => setShowEntriesDropdown(!showEntriesDropdown)}
-							className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+							className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded-sm dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
 						>
 							{t('timeActivity.SHOW_ENTRIES', { count: entriesPerPage })}
 							<svg
@@ -442,7 +442,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 							</svg>
 						</button>
 						{showEntriesDropdown && (
-							<div className="absolute left-0 z-10 w-full mt-1 bg-white border border-gray-200 rounded shadow-lg top-full dark:bg-dark--theme dark:border-gray-600">
+							<div className="absolute left-0 z-10 w-full mt-1 bg-white border border-gray-200 rounded-sm shadow-lg top-full dark:bg-dark--theme dark:border-gray-600">
 								{entryOptions.map((option) => (
 									<button
 										key={option}
@@ -466,28 +466,28 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 
 				<div className="flex items-center gap-2">
 					<button
-						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded-sm dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
 						onClick={() => handlePageChange(1)}
 						disabled={currentPage === 1}
 					>
 						{t('timeActivity.FIRST')}
 					</button>
 					<button
-						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded-sm dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
 						onClick={() => handlePageChange(currentPage - 1)}
 						disabled={currentPage === 1}
 					>
 						{t('timeActivity.PREVIOUS')}
 					</button>
 					<button
-						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded-sm dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
 						onClick={() => handlePageChange(currentPage + 1)}
 						disabled={currentPage === totalPages}
 					>
 						{t('timeActivity.NEXT')}
 					</button>
 					<button
-						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+						className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded-sm dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
 						onClick={() => handlePageChange(totalPages)}
 						disabled={currentPage === totalPages}
 					>

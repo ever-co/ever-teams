@@ -117,14 +117,14 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
 			<div className={classNames.header || 'flex items-center justify-between mb-4'}>
 				<button
 					onClick={handlePreviousMonth}
-					className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 dark:bg-primary-light hover:dark:bg-primary-light"
+					className="px-4 py-2 bg-gray-200 rounded-sm hover:bg-gray-300 dark:bg-primary-light hover:dark:bg-primary-light"
 				>
 					{t('common.PREV')}
 				</button>
 				<h2 className="text-xl font-bold">{format(currentMonth, 'MMMM yyyy', { locale: locale })}</h2>
 				<button
 					onClick={handleNextMonth}
-					className="px-4 py-2 bg-gray-200 rounded dark:bg-primary-light hover:bg-gray-300 hover:dark:bg-primary-light"
+					className="px-4 py-2 bg-gray-200 rounded-sm dark:bg-primary-light hover:bg-gray-300 hover:dark:bg-primary-light"
 				>
 					{t('common.NEXT')}
 				</button>
@@ -149,7 +149,7 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
 							aria-label={format(date, 'MMMM d, yyyy')}
 							className={cn(
 								classNames.day,
-								'border flex flex-col gap-2 relative shadow-xs rounded min-h-[150px] sm:w-[250px] md:w-[300px] lg:w-[350px] max-w-full',
+								'border flex flex-col gap-2 relative shadow-xs rounded-sm min-h-[150px] sm:w-[250px] md:w-[300px] lg:w-[350px] max-w-full',
 								{
 									'bg-gray-100 dark:bg-gray-900': date.getMonth() !== currentMonth.getMonth()
 								}

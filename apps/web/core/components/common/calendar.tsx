@@ -108,7 +108,7 @@ function CustomCaption({ displayMonth, onMonthChange }: CustomCaptionProps) {
 									key={month}
 									value={month}
 									className={cn(
-										'text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition dark:text-gray-300',
+										'text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm transition dark:text-gray-300',
 										displayMonth.getMonth() === index ? 'bg-gray-100 dark:bg-gray-700' : ''
 									)}
 								>
@@ -133,7 +133,7 @@ function CustomCaption({ displayMonth, onMonthChange }: CustomCaptionProps) {
 									key={year}
 									value={year.toString()}
 									className={cn(
-										'text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition dark:text-gray-300',
+										'text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm transition dark:text-gray-300',
 										displayMonth.getFullYear() === year ? 'bg-gray-100 dark:bg-gray-700' : ''
 									)}
 								>

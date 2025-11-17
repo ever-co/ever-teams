@@ -27,7 +27,7 @@ export const CalendarViewSkeleton: FC<TimesheetSkeletonProps> = ({ className }) 
 				{[...Array(7)].map((_, i) => (
 					<div
 						key={i}
-						className="h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded text-center flex items-center justify-center"
+						className="h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm text-center flex items-center justify-center"
 					>
 						<div className="w-8 h-4 bg-[#E0E0E0] dark:bg-[#404040] animate-pulse rounded" />
 					</div>
@@ -39,10 +39,10 @@ export const CalendarViewSkeleton: FC<TimesheetSkeletonProps> = ({ className }) 
 				{[...Array(35)].map((_, i) => (
 					<div
 						key={i}
-						className="h-24 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded p-2 border border-gray-200 dark:border-gray-700"
+						className="h-24 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm p-2 border border-gray-200 dark:border-gray-700"
 					>
 						{/* Day number */}
-						<div className="w-6 h-4 bg-[#E0E0E0] dark:bg-[#404040] animate-pulse rounded mb-2" />
+						<div className="w-6 h-4 bg-[#E0E0E0] dark:bg-[#404040] animate-pulse rounded-sm mb-2" />
 
 						{/* Time entries */}
 						{i % 3 === 0 && (
@@ -91,7 +91,7 @@ export const TimesheetViewSkeleton: FC<TimesheetSkeletonProps> = ({ className })
 							</div>
 
 							{/* Table Header */}
-							<div className="grid grid-cols-6 gap-4 p-2 bg-gray-50 rounded dark:bg-gray-800">
+							<div className="grid grid-cols-6 gap-4 p-2 bg-gray-50 rounded-sm dark:bg-gray-800">
 								{[...Array(6)].map((_, colIndex) => (
 									<div
 										key={colIndex}
@@ -147,7 +147,7 @@ export const TimesheetDetailModalSkeleton: FC<TimesheetSkeletonProps> = ({ class
 					<div className="grid grid-cols-3 gap-4">
 						{[...Array(3)].map((_, i) => (
 							<div key={i} className="p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-								<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-2" />
+								<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
 								<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 							</div>
 						))}
@@ -156,7 +156,7 @@ export const TimesheetDetailModalSkeleton: FC<TimesheetSkeletonProps> = ({ class
 					{/* Content Area */}
 					<div className="space-y-4">
 						{[...Array(5)].map((_, i) => (
-							<div key={i} className="p-4 rounded border border-gray-200 dark:border-gray-700">
+							<div key={i} className="p-4 rounded-sm border border-gray-200 dark:border-gray-700">
 								<div className="flex justify-between items-center mb-2">
 									<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
@@ -191,7 +191,7 @@ export const TimesheetFilterSkeleton: FC<TimesheetSkeletonProps> = ({ className 
 				{[...Array(4)].map((_, i) => (
 					<div
 						key={i}
-						className="h-8 px-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded flex items-center"
+						className="h-8 px-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm flex items-center"
 					>
 						<div className="w-16 h-4 bg-[#E0E0E0] dark:bg-[#404040] animate-pulse rounded" />
 					</div>
@@ -234,7 +234,7 @@ export const TimesheetCardSkeleton: FC<TimesheetSkeletonProps> = ({ className })
 				</div>
 
 				{/* Button (h-9 px-2 py-2 w-fit) */}
-				<div className="h-9 w-48 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600 mt-auto" />
+				<div className="h-9 w-48 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600 mt-auto" />
 			</div>
 
 			{/* Icon area (p-5 w-16 h-16) */}

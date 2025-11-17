@@ -153,13 +153,13 @@ const WorkspaceSkeleton: React.FC = () => {
 			<div className="grid flex-1 space-y-1 text-sm leading-tight text-left" role="presentation">
 				{/* Main title skeleton */}
 				<div
-					className="h-[1.25rem] bg-sidebar-foreground/10 rounded animate-pulse"
+					className="h-[1.25rem] bg-sidebar-foreground/10 rounded-sm animate-pulse"
 					style={{ width: '70%' }}
 					aria-hidden="true"
 				/>
 				{/* Subtitle skeleton */}
 				<div
-					className="h-[0.75rem] bg-sidebar-foreground/10 rounded animate-pulse"
+					className="h-[0.75rem] bg-sidebar-foreground/10 rounded-sm animate-pulse"
 					style={{ width: '40%' }}
 					aria-hidden="true"
 				/>
