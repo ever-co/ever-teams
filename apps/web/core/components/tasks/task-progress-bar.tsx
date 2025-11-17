@@ -45,7 +45,7 @@ export function TaskProgressBar({
 	const progress = getEstimation(
 		null,
 		task,
-		totalTimeWithLocalTimer || 1,
+		totalTimeWithLocalTimer || 0,
 		task?.estimate || 0 //<-- task?.estimate || currentMember?.lastWorkedTask?.estimate || 0 - removed as when certain task's timer was active it was affecting the timers with no estimations. Was taking user's previous task's estimation
 	);
 
