@@ -27,6 +27,11 @@ import { useModal } from '@/core/hooks/common/use-modal';
 import { ModalSkeleton } from './skeleton/modal-skeleton';
 import { Suspense } from 'react';
 import { APP_NAME } from '@/core/constants/config/constants';
+import { useAtomValue } from 'jotai';
+import { timerStatusState } from '@/core/stores';
+import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
+import { Tooltip } from '../duplicated-components/tooltip';
 
 // Fallback for workspace icon
 const DefaultWorkspaceIcon = ({ className }: { className?: string }) => (
@@ -66,6 +71,8 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 	currentWorkspace,
 	isLoading = false
 }) => {
+	const t = useTranslations();
+
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent
@@ -74,29 +81,24 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 				aria-describedby="workspace-switch-description"
 			>
 				<DialogHeader>
-					<DialogTitle id="workspace-switch-title" className="flex items-center gap-2">
+					<DialogTitle id="workspace-switch-title" className="flex gap-2 items-center">
 						<AlertTriangle className="w-5 h-5 text-amber-500" aria-hidden="true" />
-						Changer the workspace ?
+						{t('common.WORKSPACE_SWITCH_CONFIRM_TITLE')}
 					</DialogTitle>
 					<DialogDescription id="workspace-switch-description" className="space-y-3">
 						<div className="text-sm text-muted-foreground">
-							You are about to switch workspaces from{' '}
-							<span className="font-medium text-foreground">
-								"{currentWorkspace?.user.tenant.name ?? 'current workspace'}"
-							</span>{' '}
-							to{' '}
-							<span className="font-medium text-foreground">
-								"{targetWorkspace?.user.tenant.name ?? 'target workspace'}"
-							</span>
-							.
+							{t('common.WORKSPACE_SWITCH_CONFIRM_DESCRIPTION', {
+								currentWorkspace: currentWorkspace?.user.tenant.name ?? t('common.CURRENT_WORKSPACE'),
+								targetWorkspace: targetWorkspace?.user.tenant.name ?? t('common.TARGET_WORKSPACE')
+							})}
 						</div>
-						<div className="flex items-center gap-3 p-3 border rounded-md bg-amber-50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-800">
+						<div className="flex gap-3 items-center p-3 bg-amber-50 rounded-md border border-amber-200 dark:bg-amber-950/20 dark:border-amber-800">
 							<AlertTriangle
 								className="flex-shrink-0 w-4 h-4 text-amber-600 dark:text-amber-400"
 								aria-hidden="true"
 							/>
 							<span className="text-sm text-amber-800 dark:text-amber-200">
-								This action will reload the application to synchronize all data.
+								{t('common.WORKSPACE_SWITCH_CONFIRM_WARNING')}
 							</span>
 						</div>
 					</DialogDescription>
@@ -107,23 +109,25 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 						onClick={onClose}
 						disabled={isLoading}
 						className="mt-2 text-red-500 border border-red-500 sm:mt-0"
-						aria-label="Cancel the workspace change"
+						aria-label={t('common.WORKSPACE_SWITCH_CANCEL_ARIA')}
 					>
-						Cancel
+						{t('common.CANCEL')}
 					</Button>
 					<Button
 						onClick={onConfirm}
 						disabled={isLoading}
 						className="min-w-[140px]"
-						aria-label={`Confirm the change to ${targetWorkspace?.user.tenant.name}`}
+						aria-label={t('common.WORKSPACE_SWITCH_CONFIRM_ARIA', {
+							workspace: targetWorkspace?.user.tenant.name ?? ''
+						})}
 					>
 						{isLoading ? (
 							<>
-								<Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden="true" />
-								Changing...
+								<Loader2 className="mr-2 w-4 h-4 animate-spin" aria-hidden="true" />
+								{t('common.WORKSPACE_SWITCH_CHANGING')}
 							</>
 						) : (
-							'Confirm the change'
+							t('common.WORKSPACE_SWITCH_CONFIRM_BUTTON')
 						)}
 					</Button>
 				</DialogFooter>
@@ -138,7 +142,7 @@ const WorkspaceSkeleton: React.FC = () => {
 		<>
 			{/* Icon skeleton - matches exact dimensions and styling */}
 			<div
-				className="flex items-center justify-center rounded-lg animate-pulse aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground"
+				className="flex justify-center items-center rounded-lg animate-pulse aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground"
 				aria-hidden="true"
 				role="presentation"
 			>
@@ -166,6 +170,7 @@ const WorkspaceSkeleton: React.FC = () => {
 
 export function WorkspacesSwitcher() {
 	const { isMobile } = useSidebar();
+	const t = useTranslations();
 
 	// Use the new hooks with comprehensive state management
 	const {
@@ -178,6 +183,12 @@ export function WorkspacesSwitcher() {
 
 	// Use the smart workspace switcher hook (based on password component logic)
 	const { switchToWorkspace, isLoading: isSwitching } = useWorkspaceSwitcher();
+
+	// Timer protection logic - similar to teams-dropdown.tsx
+	const timerStatus = useAtomValue(timerStatusState);
+	const timerRunningStatus = React.useMemo(() => {
+		return Boolean(timerStatus?.running);
+	}, [timerStatus]);
 
 	// Determine the actual current workspace with robust fallback logic
 	const actualCurrentWorkspace = React.useMemo(() => {
@@ -222,6 +233,12 @@ export function WorkspacesSwitcher() {
 	// Handling clicks on workspaces - now shows confirmation modal
 	const handleWorkspaceClick = React.useCallback(
 		(workspaceId: string) => {
+			// Prevent workspace switching when timer is running
+			if (timerRunningStatus) {
+				toast.error(t('common.WORKSPACE_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING'));
+				return;
+			}
+
 			if (isSwitching || !canSwitchToWorkspace(workspaceId)) {
 				return;
 			}
@@ -236,7 +253,7 @@ export function WorkspacesSwitcher() {
 			setTargetWorkspace(workspace);
 			openConfirmModal();
 		},
-		[isSwitching, canSwitchToWorkspace, workspaces, openConfirmModal]
+		[timerRunningStatus, t, isSwitching, canSwitchToWorkspace, workspaces, openConfirmModal]
 	);
 
 	// Handle confirmed workspace switch
@@ -277,7 +294,7 @@ export function WorkspacesSwitcher() {
 		if (actualCurrentWorkspace) {
 			return (
 				<>
-					<div className="flex items-center justify-center rounded-lg aspect-square size-7 bg-sidebar-primary text-sidebar-primary-foreground">
+					<div className="flex justify-center items-center rounded-lg aspect-square size-7 bg-sidebar-primary text-sidebar-primary-foreground">
 						{actualCurrentWorkspace.user.tenant.logo || actualCurrentWorkspace.user.tenant.name ? (
 							<Avatar className="rounded !size-8">
 								<AvatarImage
@@ -308,7 +325,7 @@ export function WorkspacesSwitcher() {
 		// Final fallback - default workspace display
 		return (
 			<>
-				<div className="flex items-center justify-center rounded-lg aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground">
+				<div className="flex justify-center items-center rounded-lg aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground">
 					<DefaultWorkspaceIcon className="!size-6" />
 				</div>
 				<div className="grid flex-1 text-sm leading-tight text-left">
@@ -324,27 +341,37 @@ export function WorkspacesSwitcher() {
 			<SidebarMenu>
 				<SidebarMenuItem>
 					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<SidebarMenuButton
-								size="lg"
-								className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-								disabled={isSwitching || isWorkspaceLoading}
-								aria-label={
-									isWorkspaceLoading
-										? 'Loading workspace information...'
-										: `Current workspace: ${actualCurrentWorkspace?.user.tenant.name || 'No workspace'}. Click to change the workspace`
-								}
-								aria-haspopup="menu"
-								aria-busy={isWorkspaceLoading}
-							>
-								{renderActiveWorkspace()}
-								{isSwitching ? (
-									<Loader2 className="ml-auto animate-spin size-4" />
-								) : (
-									<ChevronsUpDown className="ml-auto size-4" />
-								)}
-							</SidebarMenuButton>
-						</DropdownMenuTrigger>
+						<Tooltip
+							label={t('common.WORKSPACE_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')}
+							placement="top"
+							enabled={timerRunningStatus}
+						>
+							<DropdownMenuTrigger asChild>
+								<SidebarMenuButton
+									size="lg"
+									className={`data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground ${
+										timerRunningStatus ? 'opacity-50 cursor-not-allowed' : ''
+									}`}
+									disabled={isSwitching || isWorkspaceLoading || timerRunningStatus}
+									aria-label={
+										isWorkspaceLoading
+											? 'Loading workspace information...'
+											: timerRunningStatus
+												? t('common.WORKSPACE_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')
+												: `Current workspace: ${actualCurrentWorkspace?.user.tenant.name || 'No workspace'}. Click to change the workspace`
+									}
+									aria-haspopup="menu"
+									aria-busy={isWorkspaceLoading}
+								>
+									{renderActiveWorkspace()}
+									{isSwitching ? (
+										<Loader2 className="ml-auto animate-spin size-4" />
+									) : (
+										<ChevronsUpDown className="ml-auto size-4" />
+									)}
+								</SidebarMenuButton>
+							</DropdownMenuTrigger>
+						</Tooltip>
 						<DropdownMenuContent
 							className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
 							align="start"
@@ -354,6 +381,13 @@ export function WorkspacesSwitcher() {
 							aria-label="List of available workspaces"
 						>
 							<DropdownMenuLabel className="text-xs text-muted-foreground">Workspaces</DropdownMenuLabel>
+
+							{/* Timer warning banner */}
+							{timerRunningStatus && (
+								<div className="px-3 py-2 mb-1 text-xs text-amber-600 bg-amber-50 border-b border-amber-200 dark:text-amber-400 dark:bg-amber-900/20 dark:border-amber-800">
+									⏱️ {t('common.WORKSPACE_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')}
+								</div>
+							)}
 
 							{/* Display other workspaces (not current) */}
 							{availableWorkspaces.length > 0 && (
@@ -367,12 +401,12 @@ export function WorkspacesSwitcher() {
 												<DropdownMenuItem
 													key={workspace.user.tenant.id}
 													onClick={() => handleWorkspaceClick(workspace.user.tenant.id)}
-													className="gap-2 p-2"
-													disabled={isSwitching}
+													className={`gap-2 p-2 ${timerRunningStatus ? 'opacity-50 cursor-not-allowed' : ''}`}
+													disabled={isSwitching || timerRunningStatus}
 													role="menuitem"
 													aria-label={`Change to the workspace ${workspace.user.tenant.name} with ${teamCount} team${teamCount > 1 ? 's' : ''}`}
 												>
-													<div className="flex items-center justify-center border rounded-sm size-8">
+													<div className="flex justify-center items-center rounded-sm border size-8">
 														{workspace.user.tenant.logo ? (
 															<Avatar className="rounded !size-6">
 																<AvatarImage
@@ -403,7 +437,7 @@ export function WorkspacesSwitcher() {
 							{/* Message if no other workspaces */}
 							{workspaces.length > 0 && availableWorkspaces.length === 0 && (
 								<DropdownMenuItem disabled className="gap-2 p-2 text-muted-foreground">
-									<div className="flex items-center justify-center border rounded-sm size-6">
+									<div className="flex justify-center items-center rounded-sm border size-6">
 										<DefaultWorkspaceIcon className="size-4" />
 									</div>
 									No other workspace available
@@ -412,7 +446,7 @@ export function WorkspacesSwitcher() {
 
 							<DropdownMenuSeparator />
 							<DropdownMenuItem className="gap-2 p-2" disabled>
-								<div className="flex items-center justify-center border rounded-md size-6 bg-background">
+								<div className="flex justify-center items-center rounded-md border size-6 bg-background">
 									<Plus className="size-4" />
 								</div>
 								<div className="font-medium text-muted-foreground">Add workspace</div>
@@ -423,10 +457,10 @@ export function WorkspacesSwitcher() {
 			</SidebarMenu>
 
 			{/* Workspace Switch Confirmation Modal */}
-			{isConfirmModalOpen && (
+			{isConfirmModalOpen && !timerRunningStatus && (
 				<Suspense fallback={<ModalSkeleton />}>
 					<WorkspaceSwitchConfirmModal
-						isOpen={isConfirmModalOpen}
+						isOpen={true}
 						onClose={handleCloseModal}
 						onConfirm={handleConfirmWorkspaceSwitch}
 						targetWorkspace={targetWorkspace}
