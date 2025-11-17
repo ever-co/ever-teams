@@ -36,7 +36,7 @@ export const UserProfileDetailSkeleton: FC<SkeletonProps> = ({ className }) => {
 export const TaskCardSkeleton: FC<SkeletonProps> = ({ className }) => {
 	return (
 		<div
-			className={`relative flex justify-between py-3 px-4 bg-white dark:bg-dark--theme-light rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm ${className || ''}`}
+			className={`relative flex justify-between py-3 px-4 bg-white dark:bg-dark--theme-light rounded-lg border border-gray-200 dark:border-gray-600 shadow-xs ${className || ''}`}
 		>
 			{/* Large screen layout */}
 			<div className="items-center justify-between hidden w-full lg:flex">

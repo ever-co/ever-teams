@@ -112,7 +112,7 @@ export const TimeActivityPageSkeleton: FC<TimeActivityPageSkeletonProps> = ({
 							{[...Array(3)].map((_, dayIndex) => (
 								<div
 									key={dayIndex}
-									className="overflow-hidden bg-white rounded-lg border border-gray-200 shadow-sm dark:bg-dark--theme-light dark:border-gray-600"
+									className="overflow-hidden bg-white rounded-lg border border-gray-200 shadow-xs dark:bg-dark--theme-light dark:border-gray-600"
 								>
 									{/* Day Header */}
 									<div className="p-4 border-b border-gray-200 dark:border-gray-600">

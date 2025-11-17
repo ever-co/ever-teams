@@ -15,21 +15,21 @@ export const TimeActivityHeaderSkeleton: FC<TimeActivitySkeletonProps> = ({ clas
 		<div className={cn('flex items-center justify-between w-full dark:bg-dar', className)}>
 			{/* Title Skeleton */}
 			<div className="w-48 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-			
+
 			{/* Filters Container */}
 			<div className="flex items-center gap-4">
 				{/* GroupBy Select Skeleton */}
 				<div className="w-32 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
-				
+
 				{/* Filter Popover Skeleton */}
 				<div className="w-24 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
-				
+
 				{/* View Select Skeleton */}
 				<div className="w-20 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
-				
+
 				{/* Date Range Picker Skeleton */}
 				<div className="w-40 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
-				
+
 				{/* Export Select Skeleton */}
 				<div className="w-24 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
 			</div>
@@ -41,19 +41,19 @@ export const TimeActivityHeaderSkeleton: FC<TimeActivitySkeletonProps> = ({ clas
  * Skeleton for CardTimeAndActivity component
  * Matches exact structure: title + value + optional progress bar
  */
-export const CardTimeAndActivitySkeleton: FC<TimeActivitySkeletonProps & { showProgress?: boolean }> = ({ 
-	className, 
-	showProgress = false 
+export const CardTimeAndActivitySkeleton: FC<TimeActivitySkeletonProps & { showProgress?: boolean }> = ({
+	className,
+	showProgress = false
 }) => {
 	return (
 		<Card className={cn('p-6 bg-white dark:bg-dark--theme-light', className)}>
 			<div className="flex flex-col gap-4">
 				{/* Title Skeleton */}
 				<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-				
+
 				{/* Value Skeleton */}
 				<div className="w-20 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-				
+
 				{/* Progress Bar Skeleton (conditional) */}
 				{showProgress && (
 					<div className="w-full h-2 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
@@ -74,14 +74,14 @@ export const ActivityTableSkeleton: FC<TimeActivitySkeletonProps> = ({ className
 			{[...Array(3)].map((_, dayIndex) => (
 				<div
 					key={dayIndex}
-					className="overflow-hidden bg-white rounded-lg shadow-sm dark:bg-dark--theme-light"
+					className="overflow-hidden bg-white rounded-lg shadow-xs dark:bg-dark--theme-light"
 				>
 					{/* Day Header */}
 					<div className="p-4 border-b border-gray-200 dark:border-gray-600">
 						<div className="flex items-center gap-8 text-sm">
 							{/* Date Skeleton */}
 							<div className="w-48 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-							
+
 							{/* Hours Badge Skeleton */}
 							<div className="flex items-center gap-1.5 border border-gray-200 dark:border-gray-600 rounded-lg py-1.5 px-2">
 								<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
@@ -164,7 +164,7 @@ export const ActivityTableSkeleton: FC<TimeActivitySkeletonProps> = ({ className
 					<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
 					<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 				</div>
-				
+
 				<div className="flex items-center gap-2">
 					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
 					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
@@ -190,7 +190,7 @@ export const TimeActivityTableSkeleton: FC<TimeActivitySkeletonProps> = ({ class
 					<div className="flex items-center justify-between mb-6">
 						{/* Date Range */}
 						<div className="w-64 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-						
+
 						{/* Summary Stats */}
 						<div className="flex items-center gap-6">
 							<div className="flex items-center gap-2">

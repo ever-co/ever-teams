@@ -133,7 +133,7 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 	};
 
 	return (
-		<div className="p-6 bg-white rounded-lg shadow-sm dark:bg-dark--theme-light">
+		<div className="p-6 bg-white rounded-lg shadow-xs dark:bg-dark--theme-light">
 			<div className="space-y-2">
 				<div className="flex items-center mb-6">
 					<p className="w-40 text-base font-medium text-gray-700 dark:text-gray-300">
@@ -215,7 +215,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ enabled, onToggle, label })
 			onClick={onToggle}
 		>
 			<span
-				className={`${enabled ? 'bg-[#3826A6] dark:bg-purple-500' : 'bg-white dark:bg-gray-300'} pointer-events-none absolute left-1 top-[0.9px] inline-block h-6 w-6 transform rounded-full shadow-sm ring-0 transition duration-200 ease-in-out ${enabled ? 'translate-x-7' : 'translate-x-0'}`}
+				className={`${enabled ? 'bg-[#3826A6] dark:bg-purple-500' : 'bg-white dark:bg-gray-300'} pointer-events-none absolute left-1 top-[0.9px] inline-block h-6 w-6 transform rounded-full shadow-xs ring-0 transition duration-200 ease-in-out ${enabled ? 'translate-x-7' : 'translate-x-0'}`}
 			/>
 		</button>
 		{label && (

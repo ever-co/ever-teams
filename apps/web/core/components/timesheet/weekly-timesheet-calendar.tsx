@@ -135,7 +135,7 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
 							aria-label={format(date, 'MMMM d, yyyy')}
 							className={cn(
 								classNames.day,
-								'border flex flex-col gap-2 relative shadow-sm rounded min-h-[150px]',
+								'border flex flex-col gap-2 relative shadow-xs rounded min-h-[150px]',
 								{
 									'bg-gray-100 dark:bg-gray-900': date.getMonth() !== currentDate.getMonth()
 								}

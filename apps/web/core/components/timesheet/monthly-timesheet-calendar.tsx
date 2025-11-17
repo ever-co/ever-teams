@@ -149,7 +149,7 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
 							aria-label={format(date, 'MMMM d, yyyy')}
 							className={cn(
 								classNames.day,
-								'border flex flex-col gap-2 relative shadow-sm rounded min-h-[150px] sm:w-[250px] md:w-[300px] lg:w-[350px] max-w-full',
+								'border flex flex-col gap-2 relative shadow-xs rounded min-h-[150px] sm:w-[250px] md:w-[300px] lg:w-[350px] max-w-full',
 								{
 									'bg-gray-100 dark:bg-gray-900': date.getMonth() !== currentMonth.getMonth()
 								}

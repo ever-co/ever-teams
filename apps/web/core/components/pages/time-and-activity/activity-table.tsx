@@ -274,7 +274,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 					dayLog && (
 						<div
 							key={dayLog?.date || 'no-date'}
-							className="overflow-hidden bg-white rounded-lg shadow-sm dark:bg-dark--theme-light"
+							className="overflow-hidden bg-white rounded-lg shadow-xs dark:bg-dark--theme-light"
 						>
 							<div className="p-4 border-b border-gray-200 dark:border-gray-600">
 								<div className="flex items-center gap-8 text-sm text-gray-500 dark:text-gray-400">

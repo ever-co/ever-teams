@@ -304,7 +304,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 										type="search"
 										name="timesheet-search"
 										id="timesheet-search"
-										className="!h-[2.2rem] w-full bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent placeholder-gray-500 placeholder:font-medium shadow-sm outline-none"
+										className="!h-[2.2rem] w-full bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent placeholder-gray-500 placeholder:font-medium shadow-xs outline-none"
 										placeholder={t('common.SEARCH')}
 									/>
 								</div>
