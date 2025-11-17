@@ -21,6 +21,7 @@ metadata:
     namespace: default
     annotations:
         nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
+        nginx.ingress.kubernetes.io/proxy-body-size: "20m"
 spec:
     ingressClassName: nginx
     rules:
