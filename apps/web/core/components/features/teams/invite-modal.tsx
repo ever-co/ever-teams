@@ -107,7 +107,7 @@ const InviteModal = ({ isOpen, closeModal }: IInviteProps) => {
 	return (
 		<Transition appear show={isOpen} as="div">
 			<Dialog as="div" className="relative z-50" onClose={closeModal}>
-				<div className="fixed inset-0 backdrop-blur-sm backdrop-brightness-50" aria-hidden="true" />
+				<div className="fixed inset-0 backdrop-blur-xs backdrop-brightness-50" aria-hidden="true" />
 				<TransitionChild
 					as="div"
 					enter="ease-out duration-300"
