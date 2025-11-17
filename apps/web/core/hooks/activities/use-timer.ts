@@ -142,6 +142,14 @@ function useLocalTimeCounter(
 		}
 	}, [setTimerSeconds, firstLoad]);
 
+	// Update timerSeconds state when timerSecondsRef changes
+	// This ensures the progress bar updates in real-time as the timer runs
+	useEffect(() => {
+		if (firstLoad && timerSecondsRef.current !== timerSeconds) {
+			setTimerSeconds(timerSecondsRef.current);
+		}
+	}, [seconds, firstLoad, setTimerSeconds, timerSeconds]);
+
 	// Time Counter
 	useEffect(() => {
 		if (!firstLoad || !localTimerStatus) return;

@@ -206,8 +206,11 @@ export function useTaskStatistics(addSeconds = 0) {
 			}
 		});
 
-		return getEstimation(null, activeTeamTask, totalWorkedTasksTimer, activeTeamTask?.estimate || 0);
-	}, [activeTeam, activeTeamTask, getEstimation]);
+		// Add local timer seconds (addSeconds) to the total worked time
+		// This ensures the progress bar updates in real-time as the timer runs locally
+		const estimation = getEstimation(null, activeTeamTask, totalWorkedTasksTimer + addSeconds, activeTeamTask?.estimate || 0);
+		return estimation;
+	}, [activeTeam?.members, activeTeamTask, getEstimation, addSeconds]);
 
 	const activeTaskDailyEstimation =
 		activeTeamTask && activeTeamTask.estimate ? getEstimation(statActiveTask.today, activeTeamTask, addSeconds) : 0;
