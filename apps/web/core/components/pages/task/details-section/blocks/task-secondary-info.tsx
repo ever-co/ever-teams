@@ -386,7 +386,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 						<DropdownMenuTrigger className="w-full" asChild>
 							<button
 								className={clsxm(
-									`cursor-pointer outline-none min-w-fit w-full flex dark:text-white
+									`cursor-pointer outline-hidden min-w-fit w-full flex dark:text-white
 										items-center justify-between h-fit p-1
 										border-solid border-color-[#F2F2F2]
 										dark:bg-[#1B1D22] dark:border dark:border-gray-800 gap-[.4rem] rounded-lg`,
@@ -435,7 +435,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 						</DropdownMenuTrigger>
 
 						<DropdownMenuContent
-							className={clsxm('z-[9999] min-w-full outline-none w-max p-0', styles?.listCard)}
+							className={clsxm('z-[9999] min-w-full outline-hidden w-max p-0', styles?.listCard)}
 							style={{
 								maxHeight: 'calc(100vh - 100%)',
 								overflow: 'auto'
@@ -464,7 +464,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 															setSelected(item);
 														}
 													}}
-													className="relative border flex items-center gap-2 p-1.5 rounded-lg outline-none cursor-pointer dark:text-white"
+													className="relative border flex items-center gap-2 p-1.5 rounded-lg outline-hidden cursor-pointer dark:text-white"
 												>
 													{item.imageUrl && (
 														<Image

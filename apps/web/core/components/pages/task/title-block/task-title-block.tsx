@@ -321,7 +321,7 @@ const ParentTaskInput = ({ task }: { task: TTask | null }) => {
 			<div className="box-border flex justify-center items-center h-7 text-center bg-transparent rounded-sm cursor-pointer">
 				<Button
 					variant="outline-danger"
-					className="text-[#f07258] font-medium text-xs py-1 px-2.5 min-w-[4.75rem] outline-none h-7 rounded"
+					className="text-[#f07258] font-medium text-xs py-1 px-2.5 min-w-[4.75rem] outline-hidden h-7 rounded"
 					onClick={modal.openModal}
 				>
 					{task.parentId ? t('common.CHANGE_PARENT') : `+ ${t('common.ADD_PARENT')}`}

@@ -66,7 +66,7 @@ export function RawStatusDropdown({ task }: { task: TTask | null }) {
 						<Combobox.Input
 							className={`h-[30px] ${
 								task ? 'bg-[#F0ECFD]' : 'bg-white'
-							} dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] outline-none py-1`}
+							} dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] outline-hidden py-1`}
 							displayValue={(status: ETaskStatusName) => status}
 							onChange={() => {
 								//

@@ -98,7 +98,7 @@ export const PermissionDropDown = ({
 	return (
 		<>
 			<Popover className="relative bg-light--theme-light dark:bg-dark--theme-light">
-				<PopoverButton className="md:min-w-[10.75rem] flex justify-between items-center px-4 py-3 text-sm border text-[#B1AEBC] outline-none rounded-xl bg-light--theme-light dark:bg-dark--theme-light">
+				<PopoverButton className="md:min-w-[10.75rem] flex justify-between items-center px-4 py-3 text-sm border text-[#B1AEBC] outline-hidden rounded-xl bg-light--theme-light dark:bg-dark--theme-light">
 					{selectedRole ? selectedRole.name : t('pages.permissions.SELECT_ROLES')}
 					<ChevronDownIcon />
 				</PopoverButton>

@@ -131,7 +131,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 					<PopoverButton
 						disabled={menu.length === 0}
 						className={clsxm(
-							'flex items-center outline-none border-none',
+							'flex items-center outline-hidden border-none',
 							menu.length === 0 && ['opacity-50 hidden']
 						)}
 					>

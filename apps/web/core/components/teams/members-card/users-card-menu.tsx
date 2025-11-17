@@ -80,7 +80,7 @@ function OptionPopover({ setEdit, setEstimateEdit, children }: PropsWithChildren
 		<Popover className="relative no-underline border-none">
 			{() => (
 				<>
-					<PopoverButton className="no-underline border-none outline-none active:border-none">
+					<PopoverButton className="no-underline border-none outline-hidden active:border-none">
 						<EllipsisVerticalIcon
 							className="h-7 w-7 text-gray-300 dark:text-[#616164] cursor-pointer no-underline"
 							aria-hidden="true"
