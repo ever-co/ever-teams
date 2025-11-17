@@ -22,7 +22,7 @@ export function TaskProgressBar({
 	radial?: boolean;
 }) {
 	const seconds = useAtomValue(timerSecondsState);
-	const { getEstimation /*, addSeconds*/ } = useTaskStatistics(isAuthUser && activeAuthTask ? seconds : 0);
+	const { getEstimation } = useTaskStatistics(isAuthUser && activeAuthTask ? seconds : 0);
 
 	const activeTeam = useAtomValue(activeTeamState);
 	//removed as when certain task's timer was active it was affecting the timers with no estimations. Was taking user's previous task's estimation
@@ -37,10 +37,15 @@ export function TaskProgressBar({
 		}
 	});
 
+	// Add local timer seconds to total worked time for real-time progress updates
+	// Only add seconds if this is the authenticated user's active task
+	const addSeconds = isAuthUser && activeAuthTask ? seconds : 0;
+	const totalTimeWithLocalTimer = totalWorkedTasksTimer + addSeconds;
+
 	const progress = getEstimation(
 		null,
 		task,
-		/*addSeconds || */ totalWorkedTasksTimer || 1,
+		totalTimeWithLocalTimer || 1,
 		task?.estimate || 0 //<-- task?.estimate || currentMember?.lastWorkedTask?.estimate || 0 - removed as when certain task's timer was active it was affecting the timers with no estimations. Was taking user's previous task's estimation
 	);
 
