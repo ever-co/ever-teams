@@ -71,6 +71,8 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 	currentWorkspace,
 	isLoading = false
 }) => {
+	const t = useTranslations();
+
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent
@@ -81,19 +83,14 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 				<DialogHeader>
 					<DialogTitle id="workspace-switch-title" className="flex gap-2 items-center">
 						<AlertTriangle className="w-5 h-5 text-amber-500" aria-hidden="true" />
-						Changer the workspace ?
+						{t('common.WORKSPACE_SWITCH_CONFIRM_TITLE')}
 					</DialogTitle>
 					<DialogDescription id="workspace-switch-description" className="space-y-3">
 						<div className="text-sm text-muted-foreground">
-							You are about to switch workspaces from{' '}
-							<span className="font-medium text-foreground">
-								"{currentWorkspace?.user.tenant.name ?? 'current workspace'}"
-							</span>{' '}
-							to{' '}
-							<span className="font-medium text-foreground">
-								"{targetWorkspace?.user.tenant.name ?? 'target workspace'}"
-							</span>
-							.
+							{t('common.WORKSPACE_SWITCH_CONFIRM_DESCRIPTION', {
+								currentWorkspace: currentWorkspace?.user.tenant.name ?? t('common.CURRENT_WORKSPACE'),
+								targetWorkspace: targetWorkspace?.user.tenant.name ?? t('common.TARGET_WORKSPACE')
+							})}
 						</div>
 						<div className="flex gap-3 items-center p-3 bg-amber-50 rounded-md border border-amber-200 dark:bg-amber-950/20 dark:border-amber-800">
 							<AlertTriangle
@@ -101,7 +98,7 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 								aria-hidden="true"
 							/>
 							<span className="text-sm text-amber-800 dark:text-amber-200">
-								This action will reload the application to synchronize all data.
+								{t('common.WORKSPACE_SWITCH_CONFIRM_WARNING')}
 							</span>
 						</div>
 					</DialogDescription>
@@ -112,23 +109,25 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 						onClick={onClose}
 						disabled={isLoading}
 						className="mt-2 text-red-500 border border-red-500 sm:mt-0"
-						aria-label="Cancel the workspace change"
+						aria-label={t('common.WORKSPACE_SWITCH_CANCEL_ARIA')}
 					>
-						Cancel
+						{t('common.CANCEL')}
 					</Button>
 					<Button
 						onClick={onConfirm}
 						disabled={isLoading}
 						className="min-w-[140px]"
-						aria-label={`Confirm the change to ${targetWorkspace?.user.tenant.name}`}
+						aria-label={t('common.WORKSPACE_SWITCH_CONFIRM_ARIA', {
+							workspace: targetWorkspace?.user.tenant.name ?? ''
+						})}
 					>
 						{isLoading ? (
 							<>
 								<Loader2 className="mr-2 w-4 h-4 animate-spin" aria-hidden="true" />
-								Changing...
+								{t('common.WORKSPACE_SWITCH_CHANGING')}
 							</>
 						) : (
-							'Confirm the change'
+							t('common.WORKSPACE_SWITCH_CONFIRM_BUTTON')
 						)}
 					</Button>
 				</DialogFooter>
@@ -461,7 +460,7 @@ export function WorkspacesSwitcher() {
 			{isConfirmModalOpen && !timerRunningStatus && (
 				<Suspense fallback={<ModalSkeleton />}>
 					<WorkspaceSwitchConfirmModal
-						isOpen={isConfirmModalOpen && !timerRunningStatus}
+						isOpen={true}
 						onClose={handleCloseModal}
 						onConfirm={handleConfirmWorkspaceSwitch}
 						targetWorkspace={targetWorkspace}
