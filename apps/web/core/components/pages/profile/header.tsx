@@ -28,7 +28,7 @@ export function Header({ user }: { user: TUser | undefined }) {
 							/>
 						)}
 
-						<div className="absolute inset-0 z-10 w-full h-full shadow animate-pulse dark:divide-gray-700 dark:border-gray-700">
+						<div className="absolute inset-0 z-10 w-full h-full shadow-sm animate-pulse dark:divide-gray-700 dark:border-gray-700">
 							<div className="w-full h-full rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
 						</div>
 

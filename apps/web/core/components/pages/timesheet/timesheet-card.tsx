@@ -39,7 +39,7 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
 		<EverCard
 			aria-label={`Timesheet card for ${title}`}
 			shadow="custom"
-			className="flex w-full gap-2 !p-5 border border-gray-200 rounded-md shadow min-h-40 h-fit dark:border-gray-600 shadow-gray-100 dark:shadow-transparent"
+			className="flex w-full gap-2 !p-5 border border-gray-200 rounded-md shadow-sm min-h-40 h-fit dark:border-gray-600 shadow-gray-100 dark:shadow-transparent"
 		>
 			<div className="flex flex-col w-full gap-2 ">
 				<div className="flex flex-col items-start justify-start gap-1">

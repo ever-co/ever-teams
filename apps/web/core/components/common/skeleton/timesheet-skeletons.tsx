@@ -217,7 +217,7 @@ export const TimesheetCardSkeleton: FC<TimesheetSkeletonProps> = ({ className })
 	return (
 		<div
 			className={clsxm(
-				'flex w-full gap-2 !p-5 border border-gray-200 rounded-md shadow min-h-40 h-fit dark:border-gray-600 shadow-gray-100 dark:shadow-transparent',
+				'flex w-full gap-2 !p-5 border border-gray-200 rounded-md shadow-sm min-h-40 h-fit dark:border-gray-600 shadow-gray-100 dark:shadow-transparent',
 				className
 			)}
 		>
