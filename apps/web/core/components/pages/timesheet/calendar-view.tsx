@@ -123,7 +123,7 @@ const CalendarDataView = ({ data }: { data?: GroupedTimesheet[]; t: TranslationH
 													<AccordionTrigger
 														type="button"
 														className={cn(
-															'flex flex-row-reverse justify-end items-center w-full h-[30px] rounded-sm gap-x-2 hover:no-underline px-2',
+															'flex flex-row-reverse justify-end items-center w-full h-[30px] rounded-xs gap-x-2 hover:no-underline px-2',
 															statusColor(status).text
 														)}
 													>
@@ -253,7 +253,7 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
 													<AccordionTrigger
 														type="button"
 														className={cn(
-															'flex flex-row-reverse justify-end items-center w-full !h-[16px] rounded-sm gap-x-2 hover:no-underline',
+															'flex flex-row-reverse justify-end items-center w-full !h-[16px] rounded-xs gap-x-2 hover:no-underline',
 															statusColor(status).text
 														)}
 													>

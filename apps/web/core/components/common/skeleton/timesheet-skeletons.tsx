@@ -78,7 +78,7 @@ export const TimesheetViewSkeleton: FC<TimesheetSkeletonProps> = ({ className })
 					{[...Array(2)].map((_, statusIndex) => (
 						<div key={statusIndex} className="mb-4">
 							{/* Status Header */}
-							<div className="h-12 flex justify-between items-center w-full bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm px-2 mb-2">
+							<div className="h-12 flex justify-between items-center w-full bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-xs px-2 mb-2">
 								<div className="flex gap-2 items-center">
 									<div className="w-4 h-4 bg-[#E0E0E0] dark:bg-[#404040] animate-pulse rounded" />
 									<div className="w-24 h-4 bg-[#E0E0E0] dark:bg-[#404040] animate-pulse rounded" />

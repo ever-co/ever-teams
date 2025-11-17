@@ -303,7 +303,7 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 						{blockOptions.map((option) => (
 							<button
 								key={option.format}
-								className={`flex items-center gap-1 px-2 py-1 w-full focus:outline-none rounded-sm transition duration-300 ${
+								className={`flex items-center gap-1 px-2 py-1 w-full focus:outline-none rounded-xs transition duration-300 ${
 									isBlockActiveMemo && isBlockActiveMemo(option.format)
 										? 'dark:bg-[#6a6a6a] bg-[#ddd]'
 										: 'bg-transparent'

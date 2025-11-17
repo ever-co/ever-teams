@@ -406,7 +406,7 @@ export function WorkspacesSwitcher() {
 													role="menuitem"
 													aria-label={`Change to the workspace ${workspace.user.tenant.name} with ${teamCount} team${teamCount > 1 ? 's' : ''}`}
 												>
-													<div className="flex justify-center items-center rounded-sm border size-8">
+													<div className="flex items-center justify-center border rounded-xs size-8">
 														{workspace.user.tenant.logo ? (
 															<Avatar className="rounded !size-6">
 																<AvatarImage
@@ -437,7 +437,7 @@ export function WorkspacesSwitcher() {
 							{/* Message if no other workspaces */}
 							{workspaces.length > 0 && availableWorkspaces.length === 0 && (
 								<DropdownMenuItem disabled className="gap-2 p-2 text-muted-foreground">
-									<div className="flex justify-center items-center rounded-sm border size-6">
+									<div className="flex items-center justify-center border rounded-xs size-6">
 										<DefaultWorkspaceIcon className="size-4" />
 									</div>
 									No other workspace available

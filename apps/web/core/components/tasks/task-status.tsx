@@ -247,7 +247,7 @@ export function EpicPropertiesDropdown({
 					name: `#${task.taskNumber} ${task.title}`,
 					value: task.id,
 					icon: (
-						<div className="bg-[#8154BA] p-1 rounded-sm mr-1">
+						<div className="bg-[#8154BA] p-1 rounded-xs mr-1">
 							<Square4OutlineIcon className="w-full mn-w-2 min-h-2 aspect-square max-w-[10px] text-white" />
 						</div>
 					)

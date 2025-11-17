@@ -295,7 +295,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 										t={t}
 									/>
 								</div>
-								<div className="flex items-center !h-[2.2rem] w-[700px] bg-white dark:bg-dark--theme-light gap-x-2 px-2 border border-gray-200 dark:border-gray-700 rounded-sm mb-2">
+								<div className="flex items-center !h-[2.2rem] w-[700px] bg-white dark:bg-dark--theme-light gap-x-2 px-2 border border-gray-200 dark:border-gray-700 rounded-xs mb-2">
 									<SearchIcon className="text-[#7E7991]" />
 									<input
 										onChange={(v) => setSearch(v.target.value)}

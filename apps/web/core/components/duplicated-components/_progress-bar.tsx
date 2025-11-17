@@ -20,7 +20,7 @@ const PercentageDisplay = memo(({ progress }: { progress: number | string }) => 
 
 // Memoized component for an individual segment
 const ProgressSegment = memo(({ isActive, colorClass }: { isActive: boolean; colorClass: string }) => (
-	<div className={clsxm('h-2 rounded-sm w-[.3rem]', isActive ? colorClass : 'bg-[#dfdfdf] dark:bg-[#2B303B]')} />
+	<div className={clsxm('h-2 rounded-xs w-[.3rem]', isActive ? colorClass : 'bg-[#dfdfdf] dark:bg-[#2B303B]')} />
 ));
 
 export const ProgressBar = memo(function ProgressBar({

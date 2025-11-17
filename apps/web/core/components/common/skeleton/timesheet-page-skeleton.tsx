@@ -131,7 +131,7 @@ export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({
 							</div>
 
 							{/* Search Input Skeleton */}
-							<div className="flex items-center !h-[2.2rem] w-[700px] bg-white dark:bg-dark--theme-light gap-x-2 px-2 border border-gray-200 dark:border-gray-700 rounded-sm mb-2">
+							<div className="flex items-center !h-[2.2rem] w-[700px] bg-white dark:bg-dark--theme-light gap-x-2 px-2 border border-gray-200 dark:border-gray-700 rounded-xs mb-2">
 								{/* Search Icon Skeleton */}
 								<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 
