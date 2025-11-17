@@ -140,7 +140,7 @@ export const TimesheetCardDetail = ({ data }: { data?: Record<ETimesheetStatus, 
 														</div>
 														<Badge
 															variant={'outline'}
-															className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 flex-grow-0"
+															className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 grow-0"
 														>
 															<span className="text-[#5f5f61]">
 																{t('timer.TOTAL_HOURS').split(' ')[0]}

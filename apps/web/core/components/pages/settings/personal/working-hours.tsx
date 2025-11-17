@@ -211,7 +211,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ enabled, onToggle, label })
 	<div className="flex items-center">
 		<button
 			type="button"
-			className={`relative inline-flex h-[32px] w-16 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${enabled ? 'bg-[#DBD3FA] dark:bg-purple-400/30' : 'bg-[#EDEDED] dark:bg-gray-600'}`}
+			className={`relative inline-flex h-[32px] w-16 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${enabled ? 'bg-[#DBD3FA] dark:bg-purple-400/30' : 'bg-[#EDEDED] dark:bg-gray-600'}`}
 			onClick={onToggle}
 		>
 			<span

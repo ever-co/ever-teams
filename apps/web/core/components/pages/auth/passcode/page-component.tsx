@@ -510,7 +510,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 						>
 							<div className="flex gap-2 items-start">
 								<svg
-									className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0"
+									className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0"
 									fill="currentColor"
 									viewBox="0 0 20 20"
 								>

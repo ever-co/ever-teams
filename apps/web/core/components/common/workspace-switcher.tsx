@@ -94,7 +94,7 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 						</div>
 						<div className="flex gap-3 items-center p-3 bg-amber-50 rounded-md border border-amber-200 dark:bg-amber-950/20 dark:border-amber-800">
 							<AlertTriangle
-								className="flex-shrink-0 w-4 h-4 text-amber-600 dark:text-amber-400"
+								className="shrink-0 w-4 h-4 text-amber-600 dark:text-amber-400"
 								aria-hidden="true"
 							/>
 							<span className="text-sm text-amber-800 dark:text-amber-200">
