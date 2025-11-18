@@ -216,7 +216,6 @@ export function useOrganizationTeams() {
 	const [isTeamMember, setIsTeamMember] = useAtom(isTeamMemberState);
 	const { data: user } = useUserQuery();
 	const { refreshUserData, refreshToken } = useAuthenticateUser();
-	const { updateAvatar: updateUserLastTeam } = useSettings();
 	const timerStatus = useAtomValue(timerStatusState);
 	const setIsTrackingEnabledState = useSetAtom(isTrackingEnabledState);
 
@@ -321,7 +320,7 @@ export function useOrganizationTeams() {
 	}, [organizationTeamQuery.data, setTeamsUpdate, activeTeam]);
 
 	// ===== LEGACY HOOKS FOR MUTATIONS & CREATION (Phase 2 & 3) =====
-	const { createOrganizationTeam, loading: createOTeamLoading } = useCreateOrganizationTeam();
+	const { createOrganizationTeam, loading: createOTeamLoading, setActiveTeam } = useCreateOrganizationTeam();
 	const { updateOrganizationTeam, loading: updateOTeamLoading } = useUpdateOrganizationTeam();
 
 	const isManager = useCallback(() => {
@@ -332,27 +331,6 @@ export function useOrganizationTeams() {
 		});
 		setIsTeamManager(!!isM);
 	}, [user, members]);
-
-	const setActiveTeam = useCallback(
-		(team: (typeof teams)[0]) => {
-			setActiveTeamIdCookie(team?.id);
-			setOrganizationIdCookie(team?.organizationId || '');
-			// This must be called at the end (Update store)
-			setActiveTeamId(team?.id);
-
-			// Set Project Id to cookie
-			// TODO: Make it dynamic when we add Dropdown in Navbar
-			if (team && team?.projects && team.projects.length) {
-				setActiveProjectIdCookie(team.projects[0].id);
-			}
-			window && window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, team.id);
-			// Only update user last team if it's different to avoid unnecessary API calls
-			if (user && user.lastTeamId !== team.id) {
-				updateUserLastTeam({ id: user.id, lastTeamId: team.id });
-			}
-		},
-		[setActiveTeamId, updateUserLastTeam, user]
-	);
 
 	// ===== BACKWARD COMPATIBLE FUNCTIONS =====
 
