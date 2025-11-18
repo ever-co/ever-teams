@@ -12,7 +12,7 @@ jobs:
   ever-teams-webapp:
     runs-on: ubicloud-standard-8
 
-    environment: prod
+    environment: stage
 
     steps:
       - name: Checkout

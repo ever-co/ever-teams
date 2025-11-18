@@ -62,7 +62,7 @@ export class APIService {
 
 	private static readonly DEFAULT_CONFIG: Required<HttpClientConfig> = {
 		baseURL: '',
-		timeout: 60 * 1000,
+		timeout: 60_000,
 		customHeaders: {
 			'Content-Type': 'application/json',
 			Accept: 'application/json'

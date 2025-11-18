@@ -13,16 +13,29 @@ import {
 } from '@/core/types/schemas';
 
 class EmployeeService extends APIService {
-	getWorkingEmployees = async (): Promise<PaginationResponse<TOrganizationTeamEmployee>> => {
+	/**
+	 * Get working employees using /employee/members endpoint
+	 * Migrated from /employee/pagination to /employee/members for security reasons
+	 * @param organizationTeamId - Optional team ID to filter members by specific team
+	 * @returns Paginated list of employees
+	 */
+	getWorkingEmployees = async (organizationTeamId?: string): Promise<PaginationResponse<TOrganizationTeamEmployee>> => {
 		try {
-			const params = {
-				'where[tenantId]': this.tenantId,
-				'where[organizationId]': this.organizationId,
+			const params: Record<string, any> = {
+				organizationId: this.organizationId,
+				tenantId: this.tenantId,
 				'relations[0]': 'user'
 			};
+
+			// Filter by team if provided (correct parameter name: organizationTeamId, NOT teamId)
+			if (organizationTeamId) {
+				params.organizationTeamId = organizationTeamId;
+			}
+
 			const query = qs.stringify(params);
 
-			const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/employee/pagination?${query}` : '/employee/working';
+			// Use /employee/members instead of /employee/pagination
+			const endpoint = `/employee/members?${query}`;
 
 			const response = await this.get<PaginationResponse<TOrganizationTeamEmployee>>(endpoint, {
 				tenantId: this.tenantId

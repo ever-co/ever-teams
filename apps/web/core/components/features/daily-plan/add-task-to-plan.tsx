@@ -24,8 +24,6 @@ import { InputField } from '../../duplicated-components/_input';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
-import { useAtomValue } from 'jotai';
-import { profileDailyPlanListState } from '@/core/stores';
 export function AddTaskToPlan({
 	open,
 	closeModal,
@@ -37,8 +35,9 @@ export function AddTaskToPlan({
 	task: TTask;
 	employee?: IEmployee;
 }) {
-	const profileDailyPlans = useAtomValue(profileDailyPlanListState);
-	const { createDailyPlan, addTaskToPlan, getEmployeeDayPlans, addTaskToPlanLoading } = useDailyPlan();
+	// Use useDailyPlan with employee?.id to get the correct employee's plans
+	const { profileDailyPlans, createDailyPlan, addTaskToPlan, getEmployeeDayPlans, addTaskToPlanLoading } =
+		useDailyPlan(employee?.id ?? null);
 	const [selectedPlan, setSelectedPlan] = useState<TDailyPlan | null>(null);
 	const [newPlan, setNewPlan] = useState<boolean>(false);
 	const [date, setDate] = useState<Date>(new Date());
@@ -61,11 +60,16 @@ export function AddTaskToPlan({
 				}).then(() => {
 					closeModal();
 				})
-			: addTaskToPlan({ employeeId: employee?.employeeId ?? '', taskId: task.id }, selectedPlan?.id ?? '').then(
-					() => {
-						closeModal();
-					}
-				);
+			: addTaskToPlan(
+					{
+						taskId: task.id,
+						employeeId: employee?.employeeId,
+						organizationId: employee?.organizationId
+					},
+					selectedPlan?.id ?? ''
+				).then(() => {
+					closeModal();
+				});
 	}, [
 		addTaskToPlan,
 		closeModal,
@@ -76,6 +80,8 @@ export function AddTaskToPlan({
 		employee?.tenantId,
 		newPlan,
 		selectedPlan?.id,
+		selectedPlan?.employeeId,
+		selectedPlan?.organizationId,
 		task.id,
 		workTimePlanned
 	]);

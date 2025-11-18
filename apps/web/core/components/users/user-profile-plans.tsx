@@ -1,5 +1,5 @@
 'use client';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { AlertPopup, Container } from '@/core/components';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
@@ -13,8 +13,8 @@ import {
 	HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL,
 	HAS_VISITED_OUTSTANDING_TASKS
 } from '@/core/constants/config/constants';
-import { TDailyPlan, TUser } from '@/core/types/schemas';
-import { activeTeamState, dataDailyPlanState } from '@/core/stores';
+import { TUser } from '@/core/types/schemas';
+import { activeTeamState } from '@/core/stores';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { clsxm } from '@/core/lib/utils';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -42,23 +42,33 @@ type FilterOutstanding = 'ALL' | 'DATE';
 
 interface IUserProfilePlansProps {
 	user?: TUser;
+	employeeId?: string; // Accept employeeId directly from parent
 }
 
 export function UserProfilePlans(props: IUserProfilePlansProps) {
 	const t = useTranslations();
 
-	const { user } = props;
+	const { user, employeeId: propsEmployeeId } = props;
 
 	const profile = useUserProfilePage();
 	const { data: authUser } = useUserQuery();
 
 	const targetEmployeeId = useMemo(() => {
-		if (profile.isAuthUser) {
-			return authUser?.employee?.id ?? authUser?.employeeId ?? '';
-		} else {
-			return user?.employee?.id ?? user?.employeeId ?? '';
+		// PRIORITY 1: Use employeeId from props if provided (from UserTeamCard)
+		if (propsEmployeeId) {
+			return propsEmployeeId;
 		}
-	}, [profile.isAuthUser, authUser, user]);
+
+		// PRIORITY 2: Calculate from user context (for profile pages)
+		const employeeId = profile.isAuthUser
+			? (authUser?.employee?.id ?? authUser?.employeeId ?? '')
+			: (user?.employee?.id ?? user?.employeeId ?? '');
+
+		// NOTE: Centralizing employeeId resolution here replaces older implicit
+		// assumptions based on the authenticated user only, so "See Plans" and
+		// Profile "Plans" tab always target the same employee
+		return employeeId;
+	}, [profile.isAuthUser, authUser, user, propsEmployeeId]);
 
 	const {
 		futurePlans,
@@ -72,25 +82,21 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		getMyDailyPlansLoading
 	} = useDailyPlan(targetEmployeeId);
 	const fullWidth = useAtomValue(fullWidthState);
-	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'ALL');
+	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'DATE');
 	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');
-	const [currentDataDailyPlan, setCurrentDataDailyPlan] = useAtom(dataDailyPlanState);
 	const { setDate, date } = useDateRange(currentTab);
 
 	const screenOutstanding = {
-		ALL: <OutstandingAll profile={profile} user={user} />,
-		DATE: <OutstandingFilterDate profile={profile} user={user} />
+		ALL: <OutstandingAll profile={profile} user={user} outstandingPlans={outstandingPlans} />,
+		DATE: <OutstandingFilterDate profile={profile} user={user} outstandingPlans={outstandingPlans} />
 	};
 	const tabsScreens = {
-		'Today Tasks': <AllPlans profile={profile} currentTab={currentTab} user={user} />,
-		'Future Tasks': <FutureTasks profile={profile} user={user} />,
-		'Past Tasks': <PastTasks profile={profile} user={user} />,
-		'All Tasks': <AllPlans profile={profile} user={user} />,
+		'Today Tasks': <AllPlans profile={profile} currentTab={currentTab} user={user} employeeId={targetEmployeeId} />,
+		'Future Tasks': <FutureTasks profile={profile} user={user} employeeId={targetEmployeeId} />,
+		'Past Tasks': <PastTasks profile={profile} user={user} employeeId={targetEmployeeId} />,
+		'All Tasks': <AllPlans profile={profile} user={user} employeeId={targetEmployeeId} />,
 		Outstanding: <Outstanding filter={screenOutstanding[currentOutstanding]} />
 	};
-	const [filterFuturePlanData, setFilterFuturePlanData] = useState<TDailyPlan[]>(futurePlans);
-	const [filterPastPlanData, setFilteredPastPlanData] = useState<TDailyPlan[]>(pastPlans);
-	const [filterAllPlanData, setFilterAllPlanData] = useState<TDailyPlan[]>(sortedPlans);
 	const dailyPlanSuggestionModalDate = window && window?.localStorage.getItem(DAILY_PLAN_SUGGESTION_MODAL_DATE);
 	const path = usePathname();
 	const haveSeenDailyPlanSuggestionModal = window?.localStorage.getItem(HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL);
@@ -120,59 +126,33 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	// Memoize expensive computations to prevent unnecessary re-renders
-	const filteredData = useMemo(() => {
-		if (!currentDataDailyPlan) return null;
-
-		switch (currentTab) {
-			case 'All Tasks':
-				return filterDailyPlan(date as any, sortedPlans);
-			case 'Past Tasks':
-				return filterDailyPlan(date as any, pastPlans);
-			case 'Future Tasks':
-				return filterDailyPlan(date as any, futurePlans);
-			default:
-				return null;
-		}
-	}, [currentTab, date, sortedPlans, pastPlans, futurePlans, currentDataDailyPlan]);
-
-	// Handle tab changes with optimized effects
+	// Track first visit to Outstanding tab for notifications
 	useEffect(() => {
-		if (!currentDataDailyPlan) return;
+		if (currentTab !== 'Outstanding') return;
 
-		switch (currentTab) {
-			case 'All Tasks':
-				setCurrentDataDailyPlan(sortedPlans);
-				if (filteredData) setFilterAllPlanData(filteredData);
-				break;
-			case 'Past Tasks':
-				setCurrentDataDailyPlan(pastPlans);
-				if (filteredData) setFilteredPastPlanData(filteredData);
-				break;
-			case 'Future Tasks':
-				setCurrentDataDailyPlan(futurePlans);
-				if (filteredData) setFilterFuturePlanData(filteredData);
-				break;
-			case 'Outstanding':
-				// Only update localStorage when necessary
-				try {
-					const today = new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0];
-					const lastVisited = window?.localStorage.getItem(HAS_VISITED_OUTSTANDING_TASKS);
-					if (lastVisited !== today) {
-						window.localStorage.setItem(HAS_VISITED_OUTSTANDING_TASKS, today);
-					}
-				} catch (error) {
-					console.error('Error updating outstanding tasks visit date:', error);
-				}
-				break;
+		try {
+			const today = new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0];
+			const lastVisited = window?.localStorage.getItem(HAS_VISITED_OUTSTANDING_TASKS);
+			if (lastVisited !== today) {
+				window.localStorage.setItem(HAS_VISITED_OUTSTANDING_TASKS, today);
+			}
+		} catch (error) {
+			console.error('Error updating outstanding tasks visit date:', error);
 		}
-	}, [currentTab, filteredData, sortedPlans, pastPlans, futurePlans, currentDataDailyPlan, setCurrentDataDailyPlan]);
+	}, [currentTab]);
+	// Use data directly from useDailyPlan instead of local states to prevent stale data
+	// when targetEmployeeId changes (e.g., when viewing different user profiles)
 	const totalTasksDailyPlansMap = useMemo(() => {
+		// Apply date filtering to get the correct counts
+		const filteredFuturePlans = filterDailyPlan(date as any, futurePlans);
+		const filteredPastPlans = filterDailyPlan(date as any, pastPlans);
+		const filteredAllPlans = filterDailyPlan(date as any, sortedPlans);
+
 		return {
 			'Today Tasks': getTotalTasks(todayPlan, user),
-			'Future Tasks': getTotalTasks(filterFuturePlanData, user),
-			'Past Tasks': getTotalTasks(filterPastPlanData, user),
-			'All Tasks': getTotalTasks(filterAllPlanData, user),
+			'Future Tasks': getTotalTasks(filteredFuturePlans, user),
+			'Past Tasks': getTotalTasks(filteredPastPlans, user),
+			'All Tasks': getTotalTasks(filteredAllPlans, user),
 			Outstanding: estimatedTotalTime(
 				outstandingPlans.map((plan) => {
 					const tasks = plan.tasks ?? [];
@@ -183,7 +163,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 				})
 			).totalTasks
 		};
-	}, [todayPlan, filterFuturePlanData, filterPastPlanData, filterAllPlanData, outstandingPlans, user]);
+	}, [todayPlan, futurePlans, pastPlans, sortedPlans, outstandingPlans, user, date]);
 	/*
 	 * DAILY PLANS DISPLAY LOGIC FIX
 	 *
