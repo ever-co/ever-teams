@@ -176,23 +176,23 @@ export function UserTeamCard({
 	);
 	const [activityFilter, setActivity] = useState<FilterTab>('Tasks');
 
-	const activityScreens = useMemo(
-		() => ({
+	const activityScreens = useMemo(() => {
+		return {
 			Tasks: (
 				<LazyUserProfileTask
 					profile={profile}
 					tabFiltered={hook}
 					user={member?.employee?.user}
+					employeeId={member?.employeeId}
 					paginateTasks={true}
-					useVirtualization={hook.tasksFiltered?.length > ITEMS_LENGTH_TO_VIRTUALIZED} // Only virtualize for large lists
+					useVirtualization={hook.tasksFiltered?.length > ITEMS_LENGTH_TO_VIRTUALIZED}
 				/>
 			),
 			Screenshots: <ScreenshootTab />,
 			Apps: <AppsTab />,
 			'Visited Sites': <VisitedSitesTab />
-		}),
-		[profile, hook, member?.employee?.user]
-	);
+		};
+	}, [profile, hook, member?.employee?.user, member?.employeeId]);
 	const changeActivityFilter = useCallback(
 		(filter: FilterTab) => {
 			setActivity(filter);
@@ -209,7 +209,7 @@ export function UserTeamCard({
 		return result;
 	}, [memberInfo.memberUser?.id, user?.id, isManagerConnectedUser]);
 	const isUserDetailAccordion = useMemo(() => {
-		return userDetailAccordion == memberInfo.memberUser?.id;
+		return userDetailAccordion === memberInfo.memberUser?.id;
 	}, [userDetailAccordion, memberInfo.memberUser?.id]);
 	const handleActivityClose = useCallback(() => setShowActivity(false), []);
 	return (
@@ -265,14 +265,14 @@ export function UserTeamCard({
 						<TaskInfo
 							edition={taskEdition}
 							memberInfo={memberInfo}
-							className="overflow-y-hidden flex-1 px-2 lg:px-4"
+							className="flex-1 px-2 overflow-y-hidden lg:px-4"
 							publicTeam={publicTeam}
 							tab="default"
 						/>
 
 						{canSeeActivity ? (
 							<p
-								className="flex relative -left-1 flex-none justify-center items-center w-8 h-8 text-center rounded border cursor-pointer dark:border-gray-800 shrink-0"
+								className="relative flex items-center justify-center flex-none w-8 h-8 text-center border rounded cursor-pointer -left-1 dark:border-gray-800 shrink-0"
 								onClick={() => {
 									showActivityFilter('TICKET', memberInfo.member ?? null);
 									setUserDetailAccordion('');
@@ -316,7 +316,7 @@ export function UserTeamCard({
 						{canSeeActivity ? (
 							<p
 								onClick={() => showActivityFilter('DATE', memberInfo.member ?? null)}
-								className="flex justify-center items-center w-8 h-8 text-center rounded border cursor-pointer dark:border-gray-800"
+								className="flex items-center justify-center w-8 h-8 text-center border rounded cursor-pointer dark:border-gray-800"
 							>
 								{!showActivity ? (
 									<ExpandIcon height={24} width={24} />
@@ -335,7 +335,10 @@ export function UserTeamCard({
 							<Container fullWidth={fullWidth} className="px-3 py-5 xl:px-0">
 								<div className={clsxm('flex gap-4 justify-start items-center mt-3')}>
 									{Object.keys(activityScreens).map((filter, i) => (
-										<div key={uniqueId(`${i + 1}`)} className="flex gap-4 justify-start items-center cursor-pointer">
+										<div
+											key={uniqueId(`${i + 1}`)}
+											className="flex items-center justify-start gap-4 cursor-pointer"
+										>
 											{i !== 0 && <VerticalSeparator />}
 											<div
 												className={clsxm(
@@ -354,7 +357,7 @@ export function UserTeamCard({
 						{activityScreens[activityFilter] ?? null}
 					</div>
 				) : isUserDetailAccordion ? (
-					<div className="flex justify-center items-center w-full h-20">
+					<div className="flex items-center justify-center w-full h-20">
 						<Loader className="animate-spin" />
 					</div>
 				) : null}
@@ -372,12 +375,12 @@ export function UserTeamCard({
 					className
 				)}
 			>
-				<div className="flex justify-between items-center mb-4">
+				<div className="flex items-center justify-between mb-4">
 					<UserInfo memberInfo={memberInfo} publicTeam={publicTeam} className="w-9/12" />
 					{totalWork}
 				</div>
 
-				<div className="flex flex-wrap justify-between items-start pb-4 border-b">
+				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
 					<TaskInfo
 						edition={taskEdition}
 						memberInfo={memberInfo}

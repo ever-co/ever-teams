@@ -21,6 +21,7 @@ import { TaskDatePickerWithRange } from '../../tasks/task-date-range';
 import { DateRange } from 'react-day-picker';
 import '@/styles/style.css';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
+import { useDailyPlan } from '@/core/hooks';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { Tooltip } from '../../duplicated-components/tooltip';
 import { InputField } from '../../duplicated-components/_input';
@@ -226,7 +227,21 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 	const t = useTranslations();
 	// Use useLocalStorageState for consistent state management
 	const [dailyPlanTab] = useLocalStorageState<string>('daily-plan-tab', 'Future Tasks');
-	const { date, setDate, data } = useDateRange(dailyPlanTab);
+
+	// Get plans data from useDailyPlan instead of useDateRange to avoid global atom conflicts
+	const { sortedPlans, futurePlans, pastPlans } = useDailyPlan(employeeId);
+	const { date, setDate } = useDateRange(dailyPlanTab);
+
+	// Map tab names to their corresponding plan data
+	const mapFilter: Record<string, typeof futurePlans> = {
+		'Future Tasks': futurePlans,
+		'Past Tasks': pastPlans,
+		'All Tasks': sortedPlans
+	};
+
+	// Determine which plan data to use based on the current tab
+	const planData = mapFilter[dailyPlanTab] ?? sortedPlans;
+
 	return (
 		<div className="flex flex-col items-center pt-2 mt-4 space-x-2 md:justify-between md:flex-row">
 			<div className="flex flex-wrap justify-center flex-1 mb-2 space-x-3 h-9 md:justify-start">
@@ -265,7 +280,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 				{hook.tab === 'dailyplan' && <DailyPlanFilter employeeId={employeeId} />}
 				{['Future Tasks', 'Past Tasks', 'All Tasks'].includes(dailyPlanTab) && (
 					<TaskDatePickerWithRange
-						data={data.data}
+						data={planData}
 						date={date}
 						onSelect={(range: DateRange | undefined) => setDate(range)}
 						label="Planned date"

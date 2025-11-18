@@ -11,7 +11,7 @@ jobs:
   deploy-stage:
     runs-on: ubicloud-standard-2
 
-    environment: prod
+    environment: stage
 
     steps:
       - name: Checkout

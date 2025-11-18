@@ -2,7 +2,7 @@ name: Web Build & Vercel Deploy Stage
 on:
   push:
     branches:
-      - stage_fix_to_be_different_from_prod
+      - vercel
     paths:
       - ".deploy/web/**"
       - ".github/workflows/**"

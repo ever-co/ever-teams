@@ -45,6 +45,7 @@ import { currentEmployeeFavoritesState } from '@/core/stores/common/favorites';
 import { activeTeamState, isTeamManagerState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { APP_NAME } from '@/core/constants/config/constants';
+import { GlobalAllPlansModal } from '../daily-plan';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { data: user } = useUserQuery();
@@ -365,6 +366,9 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 					<LazyCreateTeamModal open={isOpen} closeModal={closeModal} />
 				</Suspense>
 			)}
+
+			{/* Global AllPlansModal - rendered once for the entire app */}
+			<GlobalAllPlansModal />
 		</>
 	);
 }
@@ -384,7 +388,7 @@ const FavoriteTaskItem = ({ task }: { task: TTask }) => {
 			)}
 			asChild
 		>
-			<span className="flex justify-between items-center w-full min-w-fit">
+			<span className="flex items-center justify-between w-full min-w-fit">
 				<Link href={`/task/${task?.id}`} className="flex items-center">
 					{task && (
 						// Show task issue and task number
