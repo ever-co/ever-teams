@@ -145,13 +145,35 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 
 	const lastSelectedTeamFromAPI = form.getLastTeamIdWithRecentLogout();
 
-	const hasMultipleTeams = useMemo(
-		() => form.workspaces.some((workspace) => workspace.current_teams.length > 1),
-		[form.workspaces]
-	);
+	// Analyze workspace structure to determine if we should show workspace selection
+	const workspaceAnalysis = useMemo(() => {
+		const hasMultipleWorkspaces = form.workspaces.length > 1;
+		const firstWorkspace = form.workspaces[0];
+		const firstWorkspaceHasTeams = firstWorkspace?.current_teams && firstWorkspace.current_teams.length > 0;
+		const firstWorkspaceTeamCount = firstWorkspaceHasTeams ? firstWorkspace.current_teams.length : 0;
+		const hasMultipleTeamsInAnyWorkspace = form.workspaces.some(
+			(workspace) => workspace.current_teams && workspace.current_teams.length > 1
+		);
+
+		// Only auto-submit if user has exactly 1 workspace with exactly 1 team
+		// Do NOT auto-submit if current_teams is empty (user has no teams)
+		const shouldAutoSubmit =
+			form.workspaces.length === 1 &&
+			firstWorkspaceTeamCount === 1;
+
+		return {
+			hasMultipleWorkspaces,
+			firstWorkspace,
+			firstWorkspaceHasTeams,
+			firstWorkspaceTeamCount,
+			hasMultipleTeamsInAnyWorkspace,
+			shouldAutoSubmit
+		};
+	}, [form.workspaces]);
 
 	useEffect(() => {
-		if (form.workspaces.length === 1 && !hasMultipleTeams) {
+		// Only auto-submit if shouldAutoSubmit is true (1 workspace with exactly 1 team)
+		if (workspaceAnalysis.shouldAutoSubmit) {
 			setTimeout(() => {
 				document.getElementById('continue-to-workspace')?.click();
 			}, 100);
@@ -190,8 +212,8 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 
 	return (
 		<>
-			{/* The workspace component will be visible only if there are two or many workspaces and/or teams */}
-			<div className={cn(`${form.workspaces.length === 1 && !hasMultipleTeams ? 'hidden' : ''}`, 'w-full')}>
+			{/* Show workspace component unless we're auto-submitting (1 workspace with exactly 1 team) */}
+			<div className={cn(`${workspaceAnalysis.shouldAutoSubmit ? 'hidden' : ''}`, 'w-full')}>
 				<WorkSpaceComponent
 					className={className}
 					workspaces={form.workspaces}
@@ -208,8 +230,8 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 				/>
 			</div>
 
-			{/* If the user is a member of only one workspace and only one team, render a redirecting component */}
-			{form.workspaces.length === 1 && !hasMultipleTeams && (
+			{/* Only show loader when auto-submitting (1 workspace with exactly 1 team) */}
+			{workspaceAnalysis.shouldAutoSubmit && (
 				<div>
 					<BackdropLoader show={true} title={t('pages.authTeam.REDIRECT_TO_WORSPACE_LOADING')} />
 				</div>

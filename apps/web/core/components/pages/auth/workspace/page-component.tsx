@@ -72,10 +72,17 @@ function WorkSpaceScreen() {
 		const firstWorkspaceHasTeams = hasTeams(firstWorkspace);
 		const firstWorkspaceTeamCount = firstWorkspaceHasTeams ? firstWorkspace.current_teams.length : 0;
 
+		// Only auto-submit if user has exactly 1 workspace with exactly 1 team
+		// Do NOT auto-submit if current_teams is empty (user has no teams)
+		const shouldAutoSubmit =
+			workspaces.length === 1 &&
+			firstWorkspaceTeamCount === 1;
+
 		return {
 			firstWorkspace,
 			firstWorkspaceHasTeams,
-			firstWorkspaceTeamCount
+			firstWorkspaceTeamCount,
+			shouldAutoSubmit
 		};
 	}, [workspaces]);
 
@@ -107,8 +114,8 @@ function WorkSpaceScreen() {
 			setSelectedWorkspace(workspaceIndex);
 		}
 
-		// Auto-submit if only one workspace with 0 or 1 team
-		if (workspaces.length === 1 && firstWorkspaceTeamCount <= 1) {
+		// Only auto-submit if shouldAutoSubmit is true (1 workspace with exactly 1 team)
+		if (workspaceAnalysis.shouldAutoSubmit) {
 			setTimeout(() => {
 				document.getElementById('continue-to-workspace')?.click();
 			}, 100);
