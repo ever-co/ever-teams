@@ -28,7 +28,35 @@ html.dark {
 	-webkit-font-variant-ligatures: none;
 	text-rendering: optimizeLegibility;
 }
+
+@theme {
+	--default-ring-width: 3px;
+	--default-ring-color: var(--color-blue-500);
+}
+
 @layer base {
+	*,
+	::after,
+	::before,
+	::backdrop,
+	::file-selector-button {
+		border-color: var(--color-gray-200, currentColor);
+	}
+
+	input::placeholder,
+	textarea::placeholder {
+		color: var(--color-gray-400);
+	}
+
+	button:not(:disabled),
+	[role='button']:not(:disabled) {
+		cursor: pointer;
+	}
+
+	dialog {
+		margin: auto;
+	}
+
 	:root {
 		--background: 0 0% 100%;
 		--foreground: 222.2 84% 4.9%;

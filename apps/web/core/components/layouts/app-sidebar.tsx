@@ -327,14 +327,14 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	return (
 		<>
 			<Sidebar
-				className={cn('z-[1000]', state === 'collapsed' ? 'items-center' : '')}
+				className={cn('z-1000', state === 'collapsed' ? 'items-center' : '')}
 				collapsible="icon"
 				{...props}
 			>
 				<SidebarTrigger
 					className={cn(
 						state === 'collapsed' ? 'right-[-20%]' : ' right-[-5%]',
-						'absolute  top-[8%] size-7 !bg-[#1C75FD] flex items-center justify-center !rounded-full transition-all duration-300 filter drop-shadow-[0px_0px_6px_rgba(28,117,253,0.30)] z-[55]'
+						'absolute  top-[8%] size-7 bg-[#1C75FD]! flex items-center justify-center rounded-full! transition-all duration-300 filter drop-shadow-[0px_0px_6px_rgba(28,117,253,0.30)] z-55'
 					)}
 				/>
 				<SidebarHeader className={cn(state === 'collapsed' ? 'items-center' : '')}>
