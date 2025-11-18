@@ -39,6 +39,7 @@ import { InputField } from '@/core/components/duplicated-components/_input';
 import { Avatar } from '@/core/components/duplicated-components/avatar';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
 import { hasTeams, getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
+import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
 
 function AuthPasscode() {
 	const form = useAuthenticationPasscode();
@@ -117,8 +118,8 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 	return (
 		<form className={className} autoComplete="off" onSubmit={handleSendCode}>
 			<EverCard className="w-full dark:bg-[#25272D]" shadow="custom">
-				<div className="flex flex-col items-center justify-between">
-					<Text.Heading as="h3" className="text-center mb-7">
+				<div className="flex flex-col justify-between items-center">
+					<Text.Heading as="h3" className="mb-7 text-center">
 						{t('pages.auth.ENTER_EMAIL')}
 					</Text.Heading>
 
@@ -136,16 +137,16 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 						className="dark:bg-[#25272D]"
 					/>
 
-					<div className="flex items-center justify-between w-full mt-6">
-						<div className="flex flex-col items-start gap-2">
-							<div className="flex items-center justify-start gap-2 text-sm">
+					<div className="flex justify-between items-center mt-6 w-full">
+						<div className="flex flex-col gap-2 items-start">
+							<div className="flex gap-2 justify-start items-center text-sm">
 								<span className="text-sm">{t('pages.authLogin.HAVE_PASSWORD')}</span>
 								<Link href="/auth/password" className="text-primary dark:text-primary-light">
 									{t('pages.authLogin.LOGIN_WITH_PASSWORD')}.
 								</Link>
 							</div>
 
-							<div className="flex items-center justify-start gap-2 text-sm">
+							<div className="flex gap-2 justify-start items-center text-sm">
 								<span>{t('common.DONT_HAVE_ACCOUNT')}</span>
 								<Link href="/auth/team" className="text-primary dark:text-primary-light">
 									<span>{t('common.REGISTER')}</span>
@@ -216,13 +217,13 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 	return (
 		<form className={className} ref={formRef} onSubmit={form.handleCodeSubmit} autoComplete="off">
 			<EverCard className="w-full dark:bg-[#25272D]" shadow="custom">
-				<div className="flex flex-col items-center justify-between">
+				<div className="flex flex-col justify-between items-center">
 					<Text.Heading as="h3" className="mb-10 text-center">
 						{t('pages.auth.LOGIN')}
 					</Text.Heading>
 
 					{/* Auth code input */}
-					<div className="w-full mt-5">
+					<div className="mt-5 w-full">
 						<div className="flex justify-between">
 							<Text className="text-xs font-normal text-gray-400">
 								{t('pages.auth.INPUT_INVITE_CODE')}
@@ -255,13 +256,13 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 							autoFocus={form.authScreen.screen === 'passcode'}
 						/>
 						{form.status === 'error' && (form.errors['code'] || form.errors['email']) && (
-							<Text.Error className="self-start justify-self-start">
+							<Text.Error className="justify-self-start self-start">
 								{form.errors['code'] || form.errors['email']}
 							</Text.Error>
 						)}
 					</div>
 
-					<div className="flex justify-between w-full mt-10">
+					<div className="flex justify-between mt-10 w-full">
 						{/* Send code */}
 						<div className="flex flex-col space-y-2">
 							<div className="flex flex-row items-center mb-1 space-x-2">
@@ -337,24 +338,9 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 
 	const lastSelectedTeamFromAPI = form.getLastTeamIdWithRecentLogout();
 
-	// Memoize workspace analysis to avoid recalculations
-	const workspaceAnalysis = useMemo(() => {
-		const firstWorkspace = form.workspaces[0];
-		const hasMultipleWorkspaces = form.workspaces.length > 1;
-		const firstWorkspaceHasTeams = hasTeams(firstWorkspace);
-		const firstWorkspaceTeamCount = firstWorkspaceHasTeams ? firstWorkspace.current_teams.length : 0;
-		const hasMultipleTeamsInAnyWorkspace = form.workspaces.some(
-			(workspace) => hasTeams(workspace) && workspace.current_teams.length > 1
-		);
-
-		return {
-			firstWorkspace,
-			hasMultipleWorkspaces,
-			firstWorkspaceHasTeams,
-			firstWorkspaceTeamCount,
-			hasMultipleTeamsInAnyWorkspace
-		};
-	}, [form.workspaces]);
+	// Analyze workspace structure to determine if we should show workspace selection
+	// Using centralized hook to avoid code duplication across auth components
+	const workspaceAnalysis = useWorkspaceAnalysis(form.workspaces);
 
 	useEffect(() => {
 		// Auto-select first workspace if only one exists
@@ -379,14 +365,22 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 
 			// Find workspace containing the last selected team
 			const lastSelectedWorkspaceIndex = findWorkspaceIndexByTeamId(form.workspaces, lastSelectedTeam);
-			const workspaceIndex = lastSelectedWorkspaceIndex >= 0 ? lastSelectedWorkspaceIndex : 0;
 
-			setSelectedTeam(lastSelectedTeam);
-			setSelectedWorkspace(workspaceIndex);
+			// Only set selectedTeam if the team actually exists in current_teams
+			if (lastSelectedWorkspaceIndex >= 0) {
+				setSelectedTeam(lastSelectedTeam);
+				setSelectedWorkspace(lastSelectedWorkspaceIndex);
+			} else {
+				// Team doesn't exist (user was removed from team)
+				// Set workspace to first one but leave selectedTeam empty
+				// This prevents 401 errors when trying to sign in with a non-existent team
+				setSelectedWorkspace(0);
+				setSelectedTeam('');
+			}
 		}
 
-		// Auto-submit if only one workspace with 0 or 1 team
-		if (form.workspaces.length === 1 && firstWorkspaceTeamCount <= 1) {
+		// Only auto-submit if shouldAutoSubmit is true (1 workspace with exactly 1 team)
+		if (workspaceAnalysis.shouldAutoSubmit) {
 			setTimeout(() => {
 				document.getElementById('continue-to-workspace')?.click();
 			}, 100);
@@ -409,14 +403,12 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 		}
 	}, [form.status]);
 
-	const { hasMultipleTeamsInAnyWorkspace } = workspaceAnalysis;
-
 	return (
 		<>
-			{/* The workspace component will be visible only if there are two or many workspaces and/or teams */}
+			{/* Show workspace component unless we're auto-submitting (1 workspace with exactly 1 team) */}
 			<div
 				className={clsxm(
-					`${form.workspaces.length === 1 && !hasMultipleTeamsInAnyWorkspace ? 'hidden' : ''}`,
+					`${workspaceAnalysis.shouldAutoSubmit ? 'hidden' : ''}`,
 					'w-full'
 				)}
 			>
@@ -436,8 +428,8 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 				/>
 			</div>
 
-			{/* If the user is a member of only one workspace and only one team, render a redirecting component */}
-			{form.workspaces.length === 1 && !hasMultipleTeamsInAnyWorkspace && (
+			{/* Only show loader when auto-submitting (1 workspace with exactly 1 team) */}
+			{workspaceAnalysis.shouldAutoSubmit && (
 				<div>
 					<BackdropLoader show={true} title={t('pages.authTeam.REDIRECT_TO_WORSPACE_LOADING')} />
 				</div>
@@ -505,7 +497,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 			autoComplete="off"
 		>
 			<EverCard className="w-full max-w-[30rem] dark:bg-[#25272D]" shadow="custom">
-				<div className="flex flex-col items-center justify-between gap-8">
+				<div className="flex flex-col gap-8 justify-between items-center">
 					<Text.Heading as="h3" className="text-center">
 						{t('pages.auth.SELECT_WORKSPACE')}
 					</Text.Heading>
@@ -514,9 +506,9 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 					{isSelectedWorkspaceEmpty && (
 						<div
 							role="alert"
-							className="w-full px-4 py-3 border rounded-lg bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800"
+							className="px-4 py-3 w-full bg-amber-50 rounded-lg border border-amber-200 dark:bg-amber-900/20 dark:border-amber-800"
 						>
-							<div className="flex items-start gap-2">
+							<div className="flex gap-2 items-start">
 								<svg
 									className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0"
 									fill="currentColor"
@@ -540,7 +532,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 						</div>
 					)}
 
-					<ScrollArea className="relative w-full h-64 pr-2">
+					<ScrollArea className="relative pr-2 w-full h-64">
 						<div className="flex flex-col gap-y-4">
 							{workspacesWithTeamsStatus.map(
 								(
@@ -575,10 +567,10 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 											)}
 										>
 											<div className="text-base font-medium py-[1.25rem] px-4 flex flex-col gap-[1.0625rem]">
-												<div className="flex items-start justify-between">
+												<div className="flex justify-between items-start">
 													<div
 														onClick={() => setExpandedWorkspace(index)}
-														className="flex items-center flex-1 gap-2 cursor-pointer"
+														className="flex flex-1 gap-2 items-center cursor-pointer"
 													>
 														<span
 															className={cn(
@@ -655,7 +647,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 																key={`${originalIndex}-${team.team_id}`}
 																className="flex items-center justify-between gap-4 min-h-[2.875rem]"
 															>
-																<span className="flex items-center justify-between gap-4">
+																<span className="flex gap-4 justify-between items-center">
 																	<Avatar
 																		imageTitle={team.team_name}
 																		size={34}
@@ -694,7 +686,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 						</div>
 						<ScrollBar className="-pr-20" />
 					</ScrollArea>
-					<div className="flex items-center justify-between w-full">
+					<div className="flex justify-between items-center w-full">
 						<div className="flex flex-col space-y-2">
 							<div>
 								<BackButton onClick={props.onBackButtonClick} />

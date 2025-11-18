@@ -8,7 +8,7 @@ import { AuthLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { WorkSpaceComponent } from '../passcode/page-component';
 import SocialLogins from '@/core/components/auth/social-logins-buttons';
 import {
@@ -20,6 +20,7 @@ import { cn } from '@/core/lib/helpers';
 import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { Eye, EyeOff } from 'lucide-react';
+import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
 
 export default function AuthPassword() {
 	const t = useTranslations();
@@ -145,13 +146,13 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 
 	const lastSelectedTeamFromAPI = form.getLastTeamIdWithRecentLogout();
 
-	const hasMultipleTeams = useMemo(
-		() => form.workspaces.some((workspace) => workspace.current_teams.length > 1),
-		[form.workspaces]
-	);
+	// Analyze workspace structure to determine if we should show workspace selection
+	// Using centralized hook to avoid code duplication across auth components
+	const workspaceAnalysis = useWorkspaceAnalysis(form.workspaces);
 
 	useEffect(() => {
-		if (form.workspaces.length === 1 && !hasMultipleTeams) {
+		// Only auto-submit if shouldAutoSubmit is true (1 workspace with exactly 1 team)
+		if (workspaceAnalysis.shouldAutoSubmit) {
 			setTimeout(() => {
 				document.getElementById('continue-to-workspace')?.click();
 			}, 100);
@@ -171,10 +172,18 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 		}
 
 		if (lastSelectedTeamId && lastSelectedTeamId !== 'undefined') {
-			setSelectedWorkspace(
-				form.workspaces.findIndex((el) => el.current_teams.find((el) => el.team_id == lastSelectedTeamId)) || 0
+			// Find workspace containing the last selected team
+			const workspaceIndex = form.workspaces.findIndex((el) =>
+				el.current_teams.find((el) => el.team_id == lastSelectedTeamId)
 			);
-			setSelectedTeam(lastSelectedTeamId);
+
+			// Only set selectedTeam if the team actually exists in current_teams
+			if (workspaceIndex >= 0) {
+				setSelectedWorkspace(workspaceIndex);
+				setSelectedTeam(lastSelectedTeamId);
+			}
+			// If team doesn't exist (user was removed from team), don't set selectedTeam
+			// This prevents 401 errors when trying to sign in with a non-existent team
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [form.workspaces]);
@@ -190,8 +199,8 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 
 	return (
 		<>
-			{/* The workspace component will be visible only if there are two or many workspaces and/or teams */}
-			<div className={cn(`${form.workspaces.length === 1 && !hasMultipleTeams ? 'hidden' : ''}`, 'w-full')}>
+			{/* Show workspace component unless we're auto-submitting (1 workspace with exactly 1 team) */}
+			<div className={cn(`${workspaceAnalysis.shouldAutoSubmit ? 'hidden' : ''}`, 'w-full')}>
 				<WorkSpaceComponent
 					className={className}
 					workspaces={form.workspaces}
@@ -208,8 +217,8 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 				/>
 			</div>
 
-			{/* If the user is a member of only one workspace and only one team, render a redirecting component */}
-			{form.workspaces.length === 1 && !hasMultipleTeams && (
+			{/* Only show loader when auto-submitting (1 workspace with exactly 1 team) */}
+			{workspaceAnalysis.shouldAutoSubmit && (
 				<div>
 					<BackdropLoader show={true} title={t('pages.authTeam.REDIRECT_TO_WORSPACE_LOADING')} />
 				</div>

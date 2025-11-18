@@ -238,7 +238,9 @@ export function useAuthenticationPasscode() {
 			token,
 			selectedTeam,
 			defaultTeamId: selectedTeam,
-			lastTeamId: selectedTeam
+			// Only send lastTeamId if selectedTeam is not empty
+			// Empty string causes 400 Bad Request: "lastTeamId must be a UUID"
+			lastTeamId: selectedTeam || undefined
 		});
 	};
 
