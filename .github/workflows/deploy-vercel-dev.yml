@@ -2,7 +2,7 @@ name: Web Build & Vercel Deploy DEV
 on:
   push:
     branches:
-      - develop
+      - vercel
     paths:
       - ".deploy/web/**"
       - ".github/workflows/**"
