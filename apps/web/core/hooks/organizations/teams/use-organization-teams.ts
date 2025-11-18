@@ -2,8 +2,6 @@
 import {
 	getActiveTeamIdCookie,
 	setActiveProjectIdCookie,
-	setActiveTeamIdCookie,
-	setOrganizationIdCookie
 } from '@/core/lib/helpers/cookies';
 
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
@@ -21,12 +19,10 @@ import {
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
-// import isEqual from 'lodash/isEqual'; // ✅ REMOVED: No longer needed after performance optimization
 import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
 import { useFirstLoad, useSyncRef } from '../../common';
 import { useAuthenticateUser } from '../../auth';
-import { useSettings } from '../../users';
 import { TOrganizationTeamUpdate } from '@/core/types/schemas';
 import { ZodValidationError } from '@/core/types/schemas/utils/validation';
 import { useTeamsState } from './use-teams-state';
