@@ -104,7 +104,7 @@ const TaskTitleBlock = () => {
 	};
 
 	return (
-		<div className="flex flex-col gap-[1.1875rem]" ref={titleContainerRef}>
+		<div className="flex flex-col gap-4.75" ref={titleContainerRef}>
 			{task ? (
 				<div className="flex gap-1">
 					<textarea
@@ -112,7 +112,7 @@ const TaskTitleBlock = () => {
 							'w-full',
 							edit && 'textAreaOutline',
 							'bg-transparent p-1 resize-none text-black dark:text-white not-italic font-medium text-2xl',
-							'items-start outline-1 rounded-[0.1875rem] border-2 border-transparent scrollbar-hide'
+							'items-start rounded-[0.1875rem] border-2 border-transparent scrollbar-hide'
 						)}
 						onChange={handleTaskTitleChange}
 						onKeyDown={saveOnEnter}
