@@ -193,10 +193,18 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 		}
 
 		if (lastSelectedTeamId && lastSelectedTeamId !== 'undefined') {
-			setSelectedWorkspace(
-				form.workspaces.findIndex((el) => el.current_teams.find((el) => el.team_id == lastSelectedTeamId)) || 0
+			// Find workspace containing the last selected team
+			const workspaceIndex = form.workspaces.findIndex((el) =>
+				el.current_teams.find((el) => el.team_id == lastSelectedTeamId)
 			);
-			setSelectedTeam(lastSelectedTeamId);
+
+			// Only set selectedTeam if the team actually exists in current_teams
+			if (workspaceIndex >= 0) {
+				setSelectedWorkspace(workspaceIndex);
+				setSelectedTeam(lastSelectedTeamId);
+			}
+			// If team doesn't exist (user was removed from team), don't set selectedTeam
+			// This prevents 401 errors when trying to sign in with a non-existent team
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [form.workspaces]);

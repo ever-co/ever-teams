@@ -108,10 +108,18 @@ function WorkSpaceScreen() {
 
 			// Find workspace containing the last selected team
 			const lastSelectedWorkspaceIndex = findWorkspaceIndexByTeamId(workspaces, lastSelectedTeam);
-			const workspaceIndex = lastSelectedWorkspaceIndex >= 0 ? lastSelectedWorkspaceIndex : 0;
 
-			setSelectedTeam(lastSelectedTeam);
-			setSelectedWorkspace(workspaceIndex);
+			// Only set selectedTeam if the team actually exists in current_teams
+			if (lastSelectedWorkspaceIndex >= 0) {
+				setSelectedTeam(lastSelectedTeam);
+				setSelectedWorkspace(lastSelectedWorkspaceIndex);
+			} else {
+				// Team doesn't exist (user was removed from team)
+				// Set workspace to first one but leave selectedTeam empty
+				// This prevents 401 errors when trying to sign in with a non-existent team
+				setSelectedWorkspace(0);
+				setSelectedTeam('');
+			}
 		}
 
 		// Only auto-submit if shouldAutoSubmit is true (1 workspace with exactly 1 team)
