@@ -39,6 +39,7 @@ import { InputField } from '@/core/components/duplicated-components/_input';
 import { Avatar } from '@/core/components/duplicated-components/avatar';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
 import { hasTeams, getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
+import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
 
 function AuthPasscode() {
 	const form = useAuthenticationPasscode();
@@ -337,31 +338,9 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 
 	const lastSelectedTeamFromAPI = form.getLastTeamIdWithRecentLogout();
 
-	// Memoize workspace analysis to avoid recalculations
-	const workspaceAnalysis = useMemo(() => {
-		const firstWorkspace = form.workspaces[0];
-		const hasMultipleWorkspaces = form.workspaces.length > 1;
-		const firstWorkspaceHasTeams = hasTeams(firstWorkspace);
-		const firstWorkspaceTeamCount = firstWorkspaceHasTeams ? firstWorkspace.current_teams.length : 0;
-		const hasMultipleTeamsInAnyWorkspace = form.workspaces.some(
-			(workspace) => hasTeams(workspace) && workspace.current_teams.length > 1
-		);
-
-		// Only auto-submit if user has exactly 1 workspace with exactly 1 team
-		// Do NOT auto-submit if current_teams is empty (user has no teams)
-		const shouldAutoSubmit =
-			form.workspaces.length === 1 &&
-			firstWorkspaceTeamCount === 1;
-
-		return {
-			firstWorkspace,
-			hasMultipleWorkspaces,
-			firstWorkspaceHasTeams,
-			firstWorkspaceTeamCount,
-			hasMultipleTeamsInAnyWorkspace,
-			shouldAutoSubmit
-		};
-	}, [form.workspaces]);
+	// Analyze workspace structure to determine if we should show workspace selection
+	// Using centralized hook to avoid code duplication across auth components
+	const workspaceAnalysis = useWorkspaceAnalysis(form.workspaces);
 
 	useEffect(() => {
 		// Auto-select first workspace if only one exists

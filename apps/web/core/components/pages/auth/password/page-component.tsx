@@ -8,7 +8,7 @@ import { AuthLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { WorkSpaceComponent } from '../passcode/page-component';
 import SocialLogins from '@/core/components/auth/social-logins-buttons';
 import {
@@ -20,6 +20,7 @@ import { cn } from '@/core/lib/helpers';
 import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { Eye, EyeOff } from 'lucide-react';
+import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
 
 export default function AuthPassword() {
 	const t = useTranslations();
@@ -146,30 +147,8 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 	const lastSelectedTeamFromAPI = form.getLastTeamIdWithRecentLogout();
 
 	// Analyze workspace structure to determine if we should show workspace selection
-	const workspaceAnalysis = useMemo(() => {
-		const hasMultipleWorkspaces = form.workspaces.length > 1;
-		const firstWorkspace = form.workspaces[0];
-		const firstWorkspaceHasTeams = firstWorkspace?.current_teams && firstWorkspace.current_teams.length > 0;
-		const firstWorkspaceTeamCount = firstWorkspaceHasTeams ? firstWorkspace.current_teams.length : 0;
-		const hasMultipleTeamsInAnyWorkspace = form.workspaces.some(
-			(workspace) => workspace.current_teams && workspace.current_teams.length > 1
-		);
-
-		// Only auto-submit if user has exactly 1 workspace with exactly 1 team
-		// Do NOT auto-submit if current_teams is empty (user has no teams)
-		const shouldAutoSubmit =
-			form.workspaces.length === 1 &&
-			firstWorkspaceTeamCount === 1;
-
-		return {
-			hasMultipleWorkspaces,
-			firstWorkspace,
-			firstWorkspaceHasTeams,
-			firstWorkspaceTeamCount,
-			hasMultipleTeamsInAnyWorkspace,
-			shouldAutoSubmit
-		};
-	}, [form.workspaces]);
+	// Using centralized hook to avoid code duplication across auth components
+	const workspaceAnalysis = useWorkspaceAnalysis(form.workspaces);
 
 	useEffect(() => {
 		// Only auto-submit if shouldAutoSubmit is true (1 workspace with exactly 1 team)

@@ -4,7 +4,7 @@ import { clsxm } from '@/core/lib/utils';
 import { AuthLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { WorkSpaceComponent } from '../passcode/page-component';
 import { useAuthenticationSocialLogin } from '@/core/hooks/auth/use-authentication-social-login';
 import Cookies from 'js-cookie';
@@ -15,7 +15,8 @@ import {
 	USER_SAW_OUTSTANDING_NOTIFICATION
 } from '@/core/constants/config/constants';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
-import { hasTeams, getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
+import { getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
+import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
 
 export default function SocialLoginChooseWorspace() {
 	const t = useTranslations();
@@ -66,25 +67,9 @@ function WorkSpaceScreen() {
 		loadOAuthSession();
 	}, [session]);
 
-	// Memoize workspace analysis to avoid recalculations
-	const workspaceAnalysis = useMemo(() => {
-		const firstWorkspace = workspaces[0];
-		const firstWorkspaceHasTeams = hasTeams(firstWorkspace);
-		const firstWorkspaceTeamCount = firstWorkspaceHasTeams ? firstWorkspace.current_teams.length : 0;
-
-		// Only auto-submit if user has exactly 1 workspace with exactly 1 team
-		// Do NOT auto-submit if current_teams is empty (user has no teams)
-		const shouldAutoSubmit =
-			workspaces.length === 1 &&
-			firstWorkspaceTeamCount === 1;
-
-		return {
-			firstWorkspace,
-			firstWorkspaceHasTeams,
-			firstWorkspaceTeamCount,
-			shouldAutoSubmit
-		};
-	}, [workspaces]);
+	// Analyze workspace structure to determine if we should show workspace selection
+	// Using centralized hook to avoid code duplication across auth components
+	const workspaceAnalysis = useWorkspaceAnalysis(workspaces);
 
 	useEffect(() => {
 		// Auto-select first workspace if only one exists
