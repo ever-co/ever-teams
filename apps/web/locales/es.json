@@ -685,7 +685,12 @@
 			"HAVE_PASSWORD": "¿Tiene contraseña?",
 			"LOGIN_WITH_PASSWORD": "Iniciar sesión con la contraseña",
 			"LOGIN_WITH_MAGIC_CODE": "Inicia sesión con un código mágico",
-			"ERROR_SIGNIN": "Error al firmar"
+			"ERROR_SIGNIN": "Error al firmar",
+			"DEMO_ACCOUNTS_TITLE": "Iniciar sesión automáticamente en cuentas de demostración",
+			"DEMO_ACCOUNTS_SUBTITLE": "Por favor seleccione el tipo de cuenta a continuación.",
+			"DEMO_SUPER_ADMIN": "Demo Super Admin",
+			"DEMO_ADMIN": "Demo Admin",
+			"DEMO_EMPLOYEE": "Demo Empleado"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Por favor, introduzca su información de registro."

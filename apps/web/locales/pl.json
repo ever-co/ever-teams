@@ -685,7 +685,12 @@
 			"HAVE_PASSWORD": "Masz hasło?",
 			"LOGIN_WITH_PASSWORD": "Zaloguj się za pomocą hasła",
 			"LOGIN_WITH_MAGIC_CODE": "Zaloguj się za pomocą magicznego kodu",
-			"ERROR_SIGNIN": "Błąd przy podpisywaniu"
+			"ERROR_SIGNIN": "Błąd przy podpisywaniu",
+			"DEMO_ACCOUNTS_TITLE": "Automatyczne logowanie do kont demonstracyjnych",
+			"DEMO_ACCOUNTS_SUBTITLE": "Wybierz typ konta poniżej.",
+			"DEMO_SUPER_ADMIN": "Demo Super Admin",
+			"DEMO_ADMIN": "Demo Admin",
+			"DEMO_EMPLOYEE": "Demo Pracownik"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Proszę wprowadzić swoje dane logowania."

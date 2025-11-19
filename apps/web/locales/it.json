@@ -685,7 +685,12 @@
 			"HAVE_PASSWORD": "Hai la password?",
 			"LOGIN_WITH_PASSWORD": "Accedi con la password",
 			"LOGIN_WITH_MAGIC_CODE": "Accedi con un codice magico",
-			"ERROR_SIGNIN": "Errore nella firma"
+			"ERROR_SIGNIN": "Errore durante l'accesso",
+			"DEMO_ACCOUNTS_TITLE": "Accedi automaticamente agli account demo",
+			"DEMO_ACCOUNTS_SUBTITLE": "Seleziona il tipo di account qui sotto.",
+			"DEMO_SUPER_ADMIN": "Demo Super Admin",
+			"DEMO_ADMIN": "Demo Admin",
+			"DEMO_EMPLOYEE": "Demo Dipendente"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Si prega di inserire le informazioni di accesso."

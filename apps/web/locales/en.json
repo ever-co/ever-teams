@@ -689,7 +689,12 @@
 			"HAVE_PASSWORD": "Have Password?",
 			"LOGIN_WITH_PASSWORD": "Login with the Password",
 			"LOGIN_WITH_MAGIC_CODE": "Log in with a magic code",
-			"ERROR_SIGNIN": "Error on signing"
+			"ERROR_SIGNIN": "Error on signing",
+			"DEMO_ACCOUNTS_TITLE": "Login Automatically into Demo accounts",
+			"DEMO_ACCOUNTS_SUBTITLE": "Please select account type below.",
+			"DEMO_SUPER_ADMIN": "Super Admin Demo",
+			"DEMO_ADMIN": "Admin Demo",
+			"DEMO_EMPLOYEE": "Employee Demo"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Please enter your login information."

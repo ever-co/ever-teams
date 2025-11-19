@@ -689,7 +689,12 @@
 			"HAVE_PASSWORD": "Vous avez un mot de passe ?",
 			"LOGIN_WITH_PASSWORD": "Connectez-vous avec le mot de passe",
 			"LOGIN_WITH_MAGIC_CODE": "Connectez-vous avec un code magique",
-			"ERROR_SIGNIN": "Erreur lors de la connexion"
+			"ERROR_SIGNIN": "Erreur lors de la connexion",
+			"DEMO_ACCOUNTS_TITLE": "Connexion automatique aux comptes de démonstration",
+			"DEMO_ACCOUNTS_SUBTITLE": "Veuillez sélectionner le type de compte ci-dessous.",
+			"DEMO_SUPER_ADMIN": "Démo Super Admin",
+			"DEMO_ADMIN": "Démo Admin",
+			"DEMO_EMPLOYEE": "Démo Employé"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "S'il vous plaît entrer vos informations de connexion."

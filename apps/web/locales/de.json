@@ -685,7 +685,12 @@
 			"HAVE_PASSWORD": "Haben Sie ein Passwort?",
 			"LOGIN_WITH_PASSWORD": "Melden Sie sich mit dem Passwort an",
 			"LOGIN_WITH_MAGIC_CODE": "Melden Sie sich mit einem magischen Code an",
-			"ERROR_SIGNIN": "Fehler beim Signieren"
+			"ERROR_SIGNIN": "Fehler beim Signieren",
+			"DEMO_ACCOUNTS_TITLE": "Automatisch bei Demo-Konten anmelden",
+			"DEMO_ACCOUNTS_SUBTITLE": "Bitte wählen Sie unten den Kontotyp aus.",
+			"DEMO_SUPER_ADMIN": "Super Admin Demo",
+			"DEMO_ADMIN": "Admin Demo",
+			"DEMO_EMPLOYEE": "Mitarbeiter Demo"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Bitte geben Sie Ihre Anmeldedaten ein."
