@@ -18,10 +18,8 @@ interface DemoCredentialsDropdownProps {
 }
 
 /**
- * DemoCredentialsDropdown Component
  *
- * Displays a shadcn/ui Select dropdown showing demo credentials in text format.
- * Design matches demo.gauzy.co - positioned above the login form.
+ * Displays a Select dropdown showing demo credentials in text format, positioned above the login form.
  *
  * When closed: Shows only the selected role (e.g., "Super Admin")
  * When open: Shows full details (role + email + password)

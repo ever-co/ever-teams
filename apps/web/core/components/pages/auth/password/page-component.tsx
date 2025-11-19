@@ -119,7 +119,7 @@ function LoginFormFields({
  * LoginFormActions Component
  *
  * Reusable form actions section with Register link and Continue button.
- * Uses the better design from DEMO mode (justify-between, w-full button).
+ * Uses the better design from DEMO mode
  *
  * @param form - Authentication form state for loading state
  * @param t - Translation function from next-intl
