@@ -19,6 +19,7 @@ import {
 	USER_SAW_OUTSTANDING_NOTIFICATION
 } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
+import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { Eye, EyeOff } from 'lucide-react';
@@ -36,7 +37,7 @@ export default function AuthPassword() {
 			description={t('pages.authPassword.HEADING_DESCRIPTION')}
 		>
 			<div className={cn("w-full md:min-w-[26rem] md:w-fit max-w-[450px] overflow-x-hidden overflow-y-clip", IS_DEMO_MODE && '!min-w-fit')}>
-				<div className={cn('flex flex-row duration-500 transition-[transform]w-full')}>
+				<div className={cn('flex flex-row w-full duration-500 transition-[transform]')}>
 					{form.authScreen.screen === 'login' && <LoginForm form={form} />}
 
 					{form.authScreen.screen === 'workspace' && <WorkSpaceScreen form={form} className="w-full" />}
@@ -194,6 +195,9 @@ function LoginForm({ form }: { form: TAuthenticationPassword }) {
 					// Create a proper submit event
 					const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
 					formElement.dispatchEvent(submitEvent);
+				} else {
+					// Log error in development mode only for debugging
+					logErrorInDev('Demo Auto-Login', 'Form element not found - cannot submit login form');
 				}
 			}, 200);
 		},

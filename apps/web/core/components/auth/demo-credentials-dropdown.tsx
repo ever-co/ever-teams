@@ -57,7 +57,7 @@ export function DemoCredentialsDropdown({ onCredentialSelect, className }: DemoC
 						className
 					)}
 				>
-					<SelectValue placeholder="Demo Credentials" className='text-xs'>
+					<SelectValue placeholder="Demo Credentials" className="text-xs">
 						{selectedRole || 'Demo Credentials'}
 					</SelectValue>
 				</SelectTrigger>

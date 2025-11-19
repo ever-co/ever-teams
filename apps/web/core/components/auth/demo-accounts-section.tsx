@@ -31,7 +31,7 @@ export function DemoAccountsSection({ onDemoLogin, className }: DemoAccountsSect
 	return (
 		<div
 			className={cn(
-				'p-6 w-full rounded-[16px]',
+				'p-6 rounded-[16px]',
 				'bg-gradient-to-br from-indigo-600 to-purple-700',
 				'dark:from-indigo-700 dark:to-purple-800',
 				'w-min shadow-lg min-w-36',
