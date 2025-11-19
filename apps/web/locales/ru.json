@@ -685,7 +685,12 @@
 			"HAVE_PASSWORD": "Есть пароль?",
 			"LOGIN_WITH_PASSWORD": "Войти с паролем",
 			"LOGIN_WITH_MAGIC_CODE": "Войдите с помощью магического кода",
-			"ERROR_SIGNIN": "Ошибка при подписании"
+			"ERROR_SIGNIN": "Ошибка при подписании",
+			"DEMO_ACCOUNTS_TITLE": "Автоматический вход в демо-аккаунты",
+			"DEMO_ACCOUNTS_SUBTITLE": "Пожалуйста, выберите тип аккаунта ниже.",
+			"DEMO_SUPER_ADMIN": "Демо Супер Админ",
+			"DEMO_ADMIN": "Демо Админ",
+			"DEMO_EMPLOYEE": "Демо Сотрудник"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Пожалуйста введите ваш логин."

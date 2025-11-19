@@ -686,7 +686,12 @@
 			"HAVE_PASSWORD": "Tem senha?",
 			"LOGIN_WITH_PASSWORD": "Faça login com a senha",
 			"LOGIN_WITH_MAGIC_CODE": "Faça login com um código mágico",
-			"ERROR_SIGNIN": "Erro ao assinar"
+			"ERROR_SIGNIN": "Erro ao assinar",
+			"DEMO_ACCOUNTS_TITLE": "Login automático em contas de demonstração",
+			"DEMO_ACCOUNTS_SUBTITLE": "Por favor, selecione o tipo de conta abaixo.",
+			"DEMO_SUPER_ADMIN": "Demo Super Admin",
+			"DEMO_ADMIN": "Demo Admin",
+			"DEMO_EMPLOYEE": "Demo Funcionário"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Por favor digite suas informações de login."
