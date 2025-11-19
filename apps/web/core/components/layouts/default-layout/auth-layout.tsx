@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { PropsWithChildren, ReactNode } from 'react';
 
-import { APP_NAME, MAIN_PICTURE, MAIN_PICTURE_DARK } from '@/core/constants/config/constants';
+import { APP_NAME, MAIN_PICTURE, MAIN_PICTURE_DARK, IS_DEMO_MODE } from '@/core/constants/config/constants';
 import { clsxm } from '@/core/lib/utils';
 
 import { Footer } from './footer';
@@ -20,20 +20,20 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 	const t = useTranslations();
 
 	return (
-		<>
-			<div className="flex flex-row">
-				{/* Bg Cover side */}
+		<div className="flex flex-row">
+			{/* Bg Cover side - Hide in demo mode to give more space to login form */}
+			{!IS_DEMO_MODE && (
 				<div
 					className={clsxm(
 						'hidden overflow-hidden fixed w-1/2 h-full min-h-screen lg:flex lg:flex-col lg:justify-between bg-primary dark:bg-primary-xlight'
 					)}
 				>
-					<div className="absolute top-0 z-10 w-10 h-full shadow-2xl -right-10 shadow-black" />
+					<div className="absolute top-0 -right-10 z-10 w-10 h-full shadow-2xl shadow-black" />
 
 					<div className="overflow-hidden h-[100vh]">
-						<div className="pt-4 p-9">
+						<div className="p-9 pt-4">
 							<EverTeamsLogo color="white-black" className="mt-3 mb-1 ml-7" />
-							<Text className="text-xs text-gray-300 ml-7 dark:text-default">
+							<Text className="ml-7 text-xs text-gray-300 dark:text-default">
 								{t('pages.auth.WELCOME_TEAMS', { appName: APP_NAME })}
 							</Text>
 						</div>
@@ -72,7 +72,7 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 						</div>
 					</div>
 
-					<div className="self-end w-full p-9 h-fit bg-primary-mid">
+					<div className="self-end p-9 w-full h-fit bg-primary-mid">
 						<Text.Heading
 							as="h3"
 							className="text-white lg:text-lg xl:text-xl 2xl:text-3xl font-normal leading-[120%] px-9 text-ellipsis mb-5"
@@ -80,45 +80,43 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 							{t('pages.auth.COVER_TITLE')}
 						</Text.Heading>
 
-						<Text.Label className="text-sm text-gray-400 px-9 text-ellipsis">
+						<Text.Label className="px-9 text-sm text-gray-400 text-ellipsis">
 							{t('pages.auth.COVER_DESCRIPTION')}
 						</Text.Label>
 					</div>
 				</div>
+			)}
 
+			<div
+				className={clsxm(
+					'w-full h-screen min-h-[500px]',
+					!IS_DEMO_MODE && 'lg:w-1/2',
+					'flex flex-col justify-between items-center ml-auto'
+				)}
+			>
 				<div
-					className={clsxm(
-						'w-full h-screen lg:w-1/2 min-h-[500px]',
-						'flex flex-col justify-between items-center ml-auto'
-					)}
+					className={cn(isAuthPage && 'flex flex-col items-center gap-10 justify-center', 'w-full flex-grow')}
 				>
-					<div
-						className={cn(
-							isAuthPage && 'flex flex-col items-center gap-10 justify-center',
-							'w-full flex-grow'
-						)}
-					>
-						{isAuthPage && (
-							<div className="flex flex-col items-center justify-center w-11/12 gap-1">
-								{title && (
-									<Text.Heading as="h1" className="text-center">
-										{title}
-									</Text.Heading>
-								)}
-								{description &&
-									(typeof description === 'string' ? (
-										<p className="text-sm text-center text-gray-400 md:text-lg">{description}</p>
-									) : (
-										description
-									))}
-							</div>
-						)}
+					{isAuthPage && (
+						<div className="flex flex-col gap-1 justify-center items-center w-11/12">
+							{title && (
+								<Text.Heading as="h1" className="text-center">
+									{title}
+								</Text.Heading>
+							)}
+							{description &&
+								(typeof description === 'string' ? (
+									<p className="text-sm text-center text-gray-400 md:text-lg">{description}</p>
+								) : (
+									description
+								))}
+						</div>
+					)}
 
-						{children}
-					</div>
-					<Footer className="md:flex-col h-[4.5rem] flex-shrink border xl:flex-row" />
+					{children}
 				</div>
+				<Footer className="md:flex-col h-[4.5rem] flex-shrink border xl:flex-row" />
 			</div>
-		</>
+		</div>
 	);
 }

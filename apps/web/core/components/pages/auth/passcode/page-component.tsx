@@ -83,8 +83,8 @@ function AuthPasscode() {
 				)
 			}
 		>
-			<div className="w-[98%] md:w-[550px] overflow-x-hidden overflow-y-clip">
-				<div className={clsxm('flex flex-row mb-4 duration-500 transition-[transform]')}>
+			<div className="w-[98%] md:w-[550px] overflow-x-hidden overflow-y-clip  max-w-[450px] mx-auto">
+				<div className={clsxm('flex flex-row justify-center mb-4 w-full duration-500 transition-[transform]')}>
 					{form.authScreen.screen === 'email' && <EmailScreen form={form} className={clsxm('w-full')} />}
 					{form.authScreen.screen === 'passcode' && (
 						<PasscodeScreen form={form} className={clsxm('w-full')} />
@@ -137,24 +137,24 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 						className="dark:bg-[#25272D]"
 					/>
 
-					<div className="flex gap-3 justify-between items-center mt-6 w-full">
-						<div className="flex flex-col gap-2 items-start">
-							<div className="flex gap-2 justify-start items-center text-sm">
+					<div className="flex flex-col gap-3 justify-center items-center mt-6 w-full">
+						<div className="flex flex-col gap-3 items-start mb-3 w-full">
+							<div className="flex gap-2 justify-between items-center w-full text-sm">
 								<span className="text-sm">{t('pages.authLogin.HAVE_PASSWORD')}</span>
-								<Link href="/auth/password" className="text-primary dark:text-primary-light">
+								<Link href="/auth/password" className="underline text-primary dark:text-primary-light">
 									{t('pages.authLogin.LOGIN_WITH_PASSWORD')}.
 								</Link>
 							</div>
 
-							<div className="flex gap-2 justify-start items-center text-sm">
+							<div className="flex gap-2 justify-between items-center w-full text-sm">
 								<span>{t('common.DONT_HAVE_ACCOUNT')}</span>
-								<Link href="/auth/team" className="whitespace-nowrap text-primary dark:text-primary-light text-nowrap">
+								<Link href="/auth/team" className="underline whitespace-nowrap text-primary dark:text-primary-light text-nowrap">
 									<span>{t('common.REGISTER')}</span>
 								</Link>
 							</div>
 						</div>
 
-						<Button type="submit" loading={form.signInEmailLoading} disabled={form.signInEmailLoading} className='!ml-1'>
+						<Button type="submit" loading={form.signInEmailLoading} disabled={form.signInEmailLoading} className='w-full'>
 							{t('common.CONTINUE')}
 						</Button>
 					</div>
@@ -496,7 +496,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 			onSubmit={props.onSubmit}
 			autoComplete="off"
 		>
-			<EverCard className="w-full max-w-[30rem] dark:bg-[#25272D]" shadow="custom">
+			<EverCard className="w-full max-w-[30rem] bg-[#ffffff] dark:bg-[#25272D]" shadow="custom">
 				<div className="flex flex-col gap-8 justify-between items-center">
 					<Text.Heading as="h3" className="text-center">
 						{t('pages.auth.SELECT_WORKSPACE')}

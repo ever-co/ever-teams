@@ -32,8 +32,9 @@ function AuthTeam() {
 	return (
 		<>
 			<AuthLayout title={t('pages.authTeam.HEADING_TITLE')} description={t('pages.authTeam.HEADING_DESCRIPTION')}>
-				<div className="w-[98%] md:w-[550px] overflow-x-hidden overflow-y-clip">
-					<form onSubmit={handleSubmit} autoComplete="off">
+
+			<div className="w-[98%] md:w-[550px] overflow-x-hidden overflow-y-clip  max-w-[450px] mx-auto">
+					<form onSubmit={handleSubmit} autoComplete="off" className='w-full'>
 						<div
 							className={clsxm(
 								'w-[200%] flex flex-row transition-[transform] duration-500',
