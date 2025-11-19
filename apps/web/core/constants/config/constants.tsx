@@ -5,6 +5,7 @@ import enLanguage from '@/locales/en.json';
 import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
 import { EManualTimeReasons } from '@/core/types/generics/enums/timer';
 import { EInviteStatus } from '@/core/types/generics/enums/invite';
+import { Shield, User2, UserCog } from 'lucide-react';
 
 export const BREAKPOINTS = {
 	MOBILE: 768
@@ -146,21 +147,24 @@ export const DEMO_ACCOUNTS_CONFIG = IS_DEMO_MODE ? [
 		email: 'admin@ever.co',
 		password: 'admin',
 		translationKey: 'DEMO_SUPER_ADMIN',
-		role: 'Super Admin'
+		role: 'Super Admin',
+		icon:UserCog
 	},
 	{
 		type: 'ADMIN',
 		email: 'local.admin@ever.co',
 		password: 'admin',
 		translationKey: 'DEMO_ADMIN',
-		role: 'Admin'
+		role: 'Admin',
+		icon:Shield
 	},
 	{
 		type: 'EMPLOYEE',
 		email: 'employee@ever.co',
 		password: '123456',
 		translationKey: 'DEMO_EMPLOYEE',
-		role: 'Employee'
+		role: 'Employee',
+		icon:User2
 	}
 ] :[] as const;
 

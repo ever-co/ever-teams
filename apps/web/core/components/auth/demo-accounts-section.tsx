@@ -3,7 +3,6 @@
 import { IS_DEMO_MODE, DEMO_ACCOUNTS_CONFIG } from '@/core/constants/config/constants';
 import { Button } from '@/core/components';
 import { useTranslations } from 'next-intl';
-import { Star } from 'lucide-react';
 import { cn } from '@/core/lib/helpers';
 import { DottedLanguageObjectStringPaths } from 'next-intl';
 
@@ -41,34 +40,33 @@ export function DemoAccountsSection({ onDemoLogin, className }: DemoAccountsSect
 		>
 			{/* Header */}
 			<div className="mb-6 text-left text-pretty">
-				<h3 className="mb-2 text-lg font-semibold text-white">
-					{t('pages.authLogin.DEMO_ACCOUNTS_TITLE')}
-				</h3>
-				<p className="text-sm text-indigo-100">
-					{t('pages.authLogin.DEMO_ACCOUNTS_SUBTITLE')}
-				</p>
+				<h3 className="mb-2 text-lg font-semibold text-white">{t('pages.authLogin.DEMO_ACCOUNTS_TITLE')}</h3>
+				<p className="text-sm text-indigo-100">{t('pages.authLogin.DEMO_ACCOUNTS_SUBTITLE')}</p>
 			</div>
 
 			{/* Quick Access Buttons */}
 			<div className="flex flex-col gap-y-3">
-				{DEMO_ACCOUNTS_CONFIG.map((account) => (
-					<Button
-						key={account.type}
-						type="button"
-						onClick={() => onDemoLogin(account.email, account.password)}
-						className={cn(
-							'flex gap-2 justify-start items-center text-left px-3 text-nowrap whitespace-nowrap w-full py-1.5',
-							'bg-white hover:bg-gray-50',
-							'font-medium text-indigo-700',
-							'rounded-lg border-0',
-							'transition-all duration-200',
-							'text-xs shadow-sm hover:shadow-md dark:text-white'
-						)}
-					>
-						<Star className="w-4 h-4 fill-current" />
-						<span>{t(`pages.authLogin.${account.translationKey}`)}</span>
-					</Button>
-				))}
+				{DEMO_ACCOUNTS_CONFIG.map((account) => {
+					const Icon = account.icon || null;
+					return (
+						<Button
+							key={account.type}
+							type="button"
+							onClick={() => onDemoLogin(account.email, account.password)}
+							className={cn(
+								'flex gap-2 justify-start items-center text-left px-3 text-nowrap whitespace-nowrap w-full py-1.5',
+								'bg-white hover:bg-gray-50',
+								'font-medium text-indigo-700',
+								'rounded-lg border-0',
+								'transition-all duration-200',
+								'text-xs shadow-sm hover:shadow-md dark:text-white'
+							)}
+						>
+							<Icon className="w-4 h-4 fill-current" />
+							<span>{t(`pages.authLogin.${account.translationKey}` as DottedLanguageObjectStringPaths)}</span>
+						</Button>
+					);
+				})}
 			</div>
 		</div>
 	);
