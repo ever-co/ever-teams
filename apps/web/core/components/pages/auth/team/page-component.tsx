@@ -179,7 +179,7 @@ function FillUserDataForm({
 					{t('pages.authTeam.CREATE_FIRST_TEAM')}
 				</Text.Heading>
 
-				<div className="mb-8 w-full">
+				<div className="mb-6 w-full">
 					<InputField
 						placeholder={t('form.NAME_PLACEHOLDER')}
 						name="name"
