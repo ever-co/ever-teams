@@ -137,7 +137,7 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 						className="dark:bg-[#25272D]"
 					/>
 
-					<div className="flex justify-between items-center mt-6 w-full">
+					<div className="flex gap-3 justify-between items-center mt-6 w-full">
 						<div className="flex flex-col gap-2 items-start">
 							<div className="flex gap-2 justify-start items-center text-sm">
 								<span className="text-sm">{t('pages.authLogin.HAVE_PASSWORD')}</span>
@@ -148,13 +148,13 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 
 							<div className="flex gap-2 justify-start items-center text-sm">
 								<span>{t('common.DONT_HAVE_ACCOUNT')}</span>
-								<Link href="/auth/team" className="text-primary dark:text-primary-light">
+								<Link href="/auth/team" className="whitespace-nowrap text-primary dark:text-primary-light text-nowrap">
 									<span>{t('common.REGISTER')}</span>
 								</Link>
 							</div>
 						</div>
 
-						<Button type="submit" loading={form.signInEmailLoading} disabled={form.signInEmailLoading}>
+						<Button type="submit" loading={form.signInEmailLoading} disabled={form.signInEmailLoading} className='!ml-1'>
 							{t('common.CONTINUE')}
 						</Button>
 					</div>
