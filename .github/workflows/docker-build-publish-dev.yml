@@ -42,6 +42,7 @@ jobs:
           cache-to: type=inline
           build-args: |
             NODE_ENV=development
+            DEMO=true
             NEXT_PUBLIC_GAUZY_API_SERVER_URL=${{ secrets.NEXT_PUBLIC_GAUZY_API_SERVER_URL }}
             NEXT_PUBLIC_GA_MEASUREMENT_ID=${{ secrets.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
             NEXT_PUBLIC_CAPTCHA_SITE_KEY=${{ secrets.NEXT_PUBLIC_CAPTCHA_SITE_KEY }}

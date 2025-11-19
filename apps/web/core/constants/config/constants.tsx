@@ -135,7 +135,7 @@ export const GAUZY_API_BASE_SERVER_URL = getNextPublicEnv(
 	process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL
 );
 export const IS_DEV_MODE = process.env.NODE_ENV === 'development';
-export const IS_DEMO_MODE = process.env.DEMO==='true';
+export const IS_DEMO_MODE = process.env.DEMO === 'true';
 
 /**
  * Demo account credentials for auto-login feature
