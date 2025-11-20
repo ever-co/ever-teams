@@ -47,13 +47,13 @@ export function PastTasks({
 
 		// Then filter tasks for specific user if filterByEmployee flag is enabled
 		// By default (filterByEmployee = false), we show ALL tasks in the daily plan
-		if (filterByEmployee) {
+		if (filterByEmployee && filteredData) {
 			filteredData = filterDailyPlansByEmployee(filteredData, user);
 		}
 
 		return filteredData;
 	}, [date, pastPlans, user, filterByEmployee]);
-
+	if (!filteredPastPlans) return null;
 	return (
 		<div className="flex flex-col gap-6">
 			{filteredPastPlans?.length > 0 ? (

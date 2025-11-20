@@ -64,7 +64,7 @@ export function AllPlans({
 		// NOTE: `user` here is the profile user linked to `targetEmployeeId` (not the auth user).
 		// We intentionally filter by userId because task members are associated with users, not employees.
 		// By default (filterByEmployee = false), we show ALL tasks in the daily plan
-		if (filterByEmployee) {
+		if (filterByEmployee && filteredData) {
 			filteredData = filterDailyPlansByEmployee(filteredData, user);
 		}
 
@@ -78,7 +78,7 @@ export function AllPlans({
 	useEffect(() => {
 		setDragPlans(plans);
 	}, [plans]);
-
+	if(!dragPlans) return null;
 	return (
 		<div className="flex flex-col gap-6">
 			{Array.isArray(dragPlans) && dragPlans?.length > 0 ? (

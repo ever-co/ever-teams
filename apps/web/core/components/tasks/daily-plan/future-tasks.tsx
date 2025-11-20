@@ -42,13 +42,14 @@ export function FutureTasks({
 
 		// Then filter tasks for specific user if filterByEmployee flag is enabled
 		// By default (filterByEmployee = false), we show ALL tasks in the daily plan
-		if (filterByEmployee) {
+		if (filterByEmployee && filteredData) {
 			filteredData = filterDailyPlansByEmployee(filteredData, user);
 		}
 
 		return filteredData;
 	}, [date, futurePlans, user, filterByEmployee]);
 
+	if(!futureDailyPlanTasks) return null;
 	return (
 		<div className="flex flex-col gap-6">
 			{futureDailyPlanTasks?.length > 0 ? (
@@ -62,15 +63,15 @@ export function FutureTasks({
 						className="text-sm"
 						defaultValue={[tomorrowDate.toISOString().split('T')[0]]}
 					>
-						{futureDailyPlanTasks.map((plan) => (
+						{futureDailyPlanTasks?.map((plan) => (
 							<AccordionItem
 								value={plan.date.toString().split('T')[0]}
 								key={plan.id}
 								className="dark:border-slate-600 !border-none"
 							>
 								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex items-center justify-between w-full gap-3">
-										<div className="text-lg min-w-max">
+									<div className="flex gap-3 justify-between items-center w-full">
+										<div className="min-w-max text-lg">
 											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 										</div>
 										<HorizontalSeparator />
