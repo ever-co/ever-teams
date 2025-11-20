@@ -708,7 +708,6 @@ function TaskCard({
 												container: 'rounded-xl min-w-fit max-w-[10.625rem]',
 												listCard: 'rounded-xl'
 											}}
-											controlled
 											onChange={handleProjectChange}
 										/>
 									</div>
