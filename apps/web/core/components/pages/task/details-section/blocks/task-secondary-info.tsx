@@ -426,7 +426,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 								) : (
 									<ChevronDownIcon
 										className={clsxm(
-											'w-5 h-5 transition duration-150 ease-in-out group-hover:text-opacity-80 text-default dark:text-white'
+											'w-5 h-5 transition duration-150 ease-in-out group-hover:text-default/80 dark:group-hover:text-white/80 text-default dark:text-white'
 										)}
 										aria-hidden="true"
 									/>

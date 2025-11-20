@@ -182,7 +182,7 @@ const UserCardMenu = ({ setEstimateEdit, setEdit }: IDropdownUserProps & { membe
 				<div className="mx-9">
 					<Combobox>
 						<div className="relative mt-1">
-							<div className="relative w-full cursor-default overflow-hidden rounded-lg  bg-[#EEEFF5] dark:bg-[#1B1B1E] text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm ">
+							<div className="relative w-full cursor-default overflow-hidden rounded-lg  bg-[#EEEFF5] dark:bg-[#1B1B1E] text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm ">
 								<ComboboxInput
 									key={`${editMode}`}
 									className="h-[60px] bg-[#EEEFF5] dark:bg-[#202023] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] py-[18px] shadow-inner"
@@ -213,7 +213,7 @@ const UserCardMenu = ({ setEstimateEdit, setEdit }: IDropdownUserProps & { membe
 									setFilter('open');
 								}}
 							>
-								<ComboboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+								<ComboboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
 									{hasCreateForm && (
 										<CreateTaskOption
 											onClick={() => handleTaskCreation({ autoActiveTask: false })}

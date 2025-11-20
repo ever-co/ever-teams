@@ -50,7 +50,7 @@ const IconPopover = ({
 							<div className="flex mr-[0.5rem] gap-3">
 								<ChevronDownIcon
 									className={clsxm(
-										'ml-2 w-5 h-5 text-gray-600 transition duration-150 ease-in-out dark:text-gray-300 group-hover:text-opacity-80'
+										'ml-2 w-5 h-5 text-gray-600 transition duration-150 ease-in-out dark:text-gray-300 group-hover:text-gray-600/80 dark:group-hover:text-gray-300/80'
 									)}
 									aria-hidden="true"
 								/>

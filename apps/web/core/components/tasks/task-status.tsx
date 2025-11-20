@@ -691,8 +691,8 @@ export function StatusDropdown<T extends TStatusItem>({
 				!showButtonOnly && (
 					<ChevronDownIcon
 						className={cn(
-							'h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
-							(!value || currentValue.bordered) && ['text-dark dark:text-white'],
+							'h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-default/80',
+							(!value || currentValue.bordered) && ['text-dark dark:text-white group-hover:text-dark/80 dark:group-hover:text-white/80'],
 							hasBtnIcon && ['whitespace-nowrap w-5 h-5'],
 							isVersion && 'dark:text-white'
 						)}

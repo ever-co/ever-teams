@@ -117,7 +117,7 @@ const InviteModal = ({ isOpen, closeModal }: IInviteProps) => {
 					leaveFrom="opacity-100"
 					leaveTo="opacity-0"
 				>
-					<div className="fixed inset-0 bg-black bg-opacity-25 blur-xl" />
+					<div className="fixed inset-0 bg-black/25 blur-xl" />
 				</TransitionChild>
 
 				<div className="overflow-y-auto fixed inset-0">
@@ -199,7 +199,7 @@ const InviteModal = ({ isOpen, closeModal }: IInviteProps) => {
 									<div className="flex justify-between items-center">
 										<div />
 										<button
-											className="w-full flex justify-center items-center mt-10 px-4 font-bold h-[55px] py-2 rounded-[12px] tracking-wide text-white dark:text-primary transition-colors duration-200 transform bg-primary dark:bg-white hover:text-opacity-90 focus:outline-none text-[18px]"
+											className="w-full flex justify-center items-center mt-10 px-4 font-bold h-[55px] py-2 rounded-[12px] tracking-wide text-white dark:text-primary transition-colors duration-200 transform bg-primary dark:bg-white hover:text-white/90 dark:hover:text-primary/90 focus:outline-none text-[18px]"
 											type="submit"
 											disabled={isLoading}
 										>

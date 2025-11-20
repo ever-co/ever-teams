@@ -55,7 +55,7 @@ export function RawStatusDropdown({ task }: { task: TTask | null }) {
 				<div
 					className={`relative w-full cursor-default overflow-hidden rounded-lg  ${
 						task ? 'bg-[#EEEFF5]' : 'bg-white'
-					} dark:bg-[#1B1B1E] text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm`}
+					} dark:bg-[#1B1B1E] text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm`}
 				>
 					<div className="flex px-[10px] items-center justify-center">
 						{selected && (
@@ -82,7 +82,7 @@ export function RawStatusDropdown({ task }: { task: TTask | null }) {
 							</span>
 						) : (
 							<ChevronDownIcon
-								className={`ml-2 w-5 h-5 transition duration-150 ease-in-out text-primary dark:text-white group-hover:text-opacity-80`}
+								className={`ml-2 w-5 h-5 transition duration-150 ease-in-out text-primary dark:text-white group-hover:text-primary/80 dark:group-hover:text-white/80`}
 								aria-hidden="true"
 							/>
 						)}
@@ -94,7 +94,7 @@ export function RawStatusDropdown({ task }: { task: TTask | null }) {
 					leaveFrom="opacity-100"
 					leaveTo="opacity-0"
 				>
-					<Combobox.Options className="absolute z-10 mt-1 max-h-60 w-[141px] overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+					<Combobox.Options className="absolute z-10 mt-1 max-h-60 w-[141px] overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
 						{statusKeys.map((status) => {
 							return (
 								<Combobox.Option

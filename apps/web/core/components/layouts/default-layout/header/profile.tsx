@@ -89,7 +89,7 @@ const Profile = () => {
 											</div>
 											<Link
 												href={option.link}
-												className="hover:text-opacity-75  py-2 mt-1 flex items-center text-[#1B005D] text-[15px] font-normal dark:text-gray-200 justify-start w-full"
+												className="hover:text-[#1B005D]/75 dark:hover:text-gray-200/75  py-2 mt-1 flex items-center text-[#1B005D] text-[15px] font-normal dark:text-gray-200 justify-start w-full"
 											>
 												{option.name}
 											</Link>
@@ -110,7 +110,7 @@ const Profile = () => {
 										</div>
 										<button
 											onClick={logOut}
-											className="hover:text-opacity-75  py-2 mt-1 flex items-center text-[#DE437B] text-[15px] font-normal justify-start w-full"
+											className="hover:text-[#DE437B]/75  py-2 mt-1 flex items-center text-[#DE437B] text-[15px] font-normal justify-start w-full"
 										>
 											{t('common.LOGOUT')}
 										</button>
