@@ -88,7 +88,7 @@ export const PERMISSION_ROLES: PermissionMap = {
 	VIEWER: ['SUPER_ADMIN', 'ADMIN', 'VIEWER']
 };
 export const API_BASE_URL = '/api';
-export const DEFAULT_APP_PATH = process.env.DEMO === 'true' ? '/auth/password' : '/auth/passcode';
+export const DEFAULT_APP_PATH = process.env.NEXT_PUBLIC_DEMO === 'true' ? '/auth/password' : '/auth/passcode';
 export const DEFAULT_MAIN_PATH = '/';
 export const PROTECTED_APP_URL_PATHS: RegExp[] = [
 	/^\/$/,
@@ -135,7 +135,7 @@ export const GAUZY_API_BASE_SERVER_URL = getNextPublicEnv(
 	process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL
 );
 export const IS_DEV_MODE = process.env.NODE_ENV === 'development';
-export const IS_DEMO_MODE = process.env.DEMO === 'true';
+export const IS_DEMO_MODE = process.env.NEXT_PUBLIC_DEMO === 'true';
 
 /**
  * Demo account credentials for auto-login feature
