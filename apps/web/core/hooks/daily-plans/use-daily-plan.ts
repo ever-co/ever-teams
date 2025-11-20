@@ -143,6 +143,9 @@ export function useDailyPlan(defaultEmployeeId: string | null = null, options?: 
 		onSuccess: async (_data, variables) => {
 			try {
 				const taskId = variables.data.taskId;
+				// Use employeeId from the request data to ensure we assign the correct employee
+				// when adding tasks to other employees' plans
+				const requestEmployeeId = variables.data.employeeId;
 
 				// Get the task from React Query cache
 				const tasksData = queryClient.getQueryData<{ items: TTask[]; total: number }>(
@@ -151,13 +154,13 @@ export function useDailyPlan(defaultEmployeeId: string | null = null, options?: 
 
 				const task = tasksData?.items?.find((t) => t.id === taskId);
 
-				if (task && targetEmployeeId) {
+				if (task && requestEmployeeId) {
 					// Check if employee is already assigned to the task
-					const isAlreadyAssigned = task.members?.some((member) => member.id === targetEmployeeId);
+					const isAlreadyAssigned = task.members?.some((member) => member.id === requestEmployeeId);
 
 					if (!isAlreadyAssigned) {
 						// Get employee object from activeTeam.members
-						const employee = activeTeam?.members?.find((m) => m.employeeId === targetEmployeeId);
+						const employee = activeTeam?.members?.find((m) => m.employeeId === requestEmployeeId);
 						if (employee && employee.employeeId) {
 							// Add employee to task members (deduplicate by userId for idempotence)
 							const existingMembers = task.members ?? [];
