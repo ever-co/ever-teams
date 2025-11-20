@@ -270,10 +270,14 @@ export function useOrganizationTeams() {
 		if (organizationTeamsQuery.data?.data?.items) {
 			const latestTeams = organizationTeamsQuery.data.data.items;
 
-			// CRITICAL FIX: Create a signature based on essential data only
-			// This avoids comparing full objects which can have different references
+			// CRITICAL FIX: Create a signature based on ALL mutable fields
+			// This ensures we detect changes in team properties even when members are undefined
+			// Includes: id, updatedAt, name, settings (shareProfileView, requirePlanToTrack, public),
+			// visual properties (color, emoji, prefix), and members count
 			const latestSignature = latestTeams
-				.map((t) => `${t.id}:${t.updatedAt ?? ''}:${t.members?.length ?? 0}`)
+				.map((t) =>
+					`${t.id}:${t.updatedAt ?? ''}:${t.name}:${t.shareProfileView ?? ''}:${t.requirePlanToTrack ?? ''}:${t.public ?? ''}:${t.color ?? ''}:${t.emoji ?? ''}:${t.prefix ?? ''}:${t.members?.length ?? 0}`
+				)
 				.sort()
 				.join('|');
 
