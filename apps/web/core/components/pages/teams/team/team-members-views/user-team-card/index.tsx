@@ -5,7 +5,8 @@ import {
 	useTMCardTaskEdit,
 	useTaskStatistics,
 	useTeamMemberCard,
-	useUserProfilePage
+	useUserProfilePage,
+	useDailyPlan
 } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import {
@@ -47,7 +48,7 @@ import { TActivityFilter } from '@/core/types/schemas';
 import { cn } from '@/core/lib/helpers';
 import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { UserTeamActivitySkeleton } from '@/core/components/common/skeleton/profile-component-skeletons';
+import { UserTeamActivitySkeleton, UserProfileTaskSkeleton } from '@/core/components/common/skeleton/profile-component-skeletons';
 import { uniqueId } from 'lodash';
 
 type IUserTeamCard = {
@@ -121,6 +122,11 @@ export function UserTeamCard({
 	const { data: user } = useUserQuery();
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id);
+
+	// Get daily plan loading states for proper skeleton display
+	const { getDayPlansByEmployeeLoading, getMyDailyPlansLoading } = useDailyPlan(
+		memberInfo.isAuthUser ? undefined : memberInfo.member?.employeeId
+	);
 
 	// Memoize callback to prevent unnecessary re-renders
 	const showActivityFilter = useCallback(
@@ -211,6 +217,14 @@ export function UserTeamCard({
 	const isUserDetailAccordion = useMemo(() => {
 		return userDetailAccordion === memberInfo.memberUser?.id;
 	}, [userDetailAccordion, memberInfo.memberUser?.id]);
+
+	// Determine if we're loading member data (for skeleton display)
+	const isLoadingMemberData = useMemo(() => {
+		if (!isUserDetailAccordion) return false;
+
+		return memberInfo.isAuthUser ? getMyDailyPlansLoading : getDayPlansByEmployeeLoading;
+	}, [isUserDetailAccordion, memberInfo.isAuthUser, getMyDailyPlansLoading, getDayPlansByEmployeeLoading]);
+
 	const handleActivityClose = useCallback(() => setShowActivity(false), []);
 	return (
 		<div
@@ -265,14 +279,14 @@ export function UserTeamCard({
 						<TaskInfo
 							edition={taskEdition}
 							memberInfo={memberInfo}
-							className="flex-1 px-2 overflow-y-hidden lg:px-4"
+							className="overflow-y-hidden flex-1 px-2 lg:px-4"
 							publicTeam={publicTeam}
 							tab="default"
 						/>
 
 						{canSeeActivity ? (
 							<p
-								className="relative flex items-center justify-center flex-none w-8 h-8 text-center border rounded cursor-pointer -left-1 dark:border-gray-800 shrink-0"
+								className="flex relative -left-1 flex-none justify-center items-center w-8 h-8 text-center rounded border cursor-pointer dark:border-gray-800 shrink-0"
 								onClick={() => {
 									showActivityFilter('TICKET', memberInfo.member ?? null);
 									setUserDetailAccordion('');
@@ -316,7 +330,7 @@ export function UserTeamCard({
 						{canSeeActivity ? (
 							<p
 								onClick={() => showActivityFilter('DATE', memberInfo.member ?? null)}
-								className="flex items-center justify-center w-8 h-8 text-center border rounded cursor-pointer dark:border-gray-800"
+								className="flex justify-center items-center w-8 h-8 text-center rounded border cursor-pointer dark:border-gray-800"
 							>
 								{!showActivity ? (
 									<ExpandIcon height={24} width={24} />
@@ -329,15 +343,21 @@ export function UserTeamCard({
 					{/* EverCard menu */}
 					<div className="absolute right-2">{menu}</div>
 				</div>
-				{isUserDetailAccordion && memberInfo.memberUser.id == profile?.userProfile?.id && !showActivity ? (
-					<div className="overflow-y-auto h-96">
-						{canSeeActivity && (
+				{isUserDetailAccordion && canSeeActivity && !showActivity ? (
+					isLoadingMemberData ? (
+						// Show skeleton while loading member data
+						<div className="overflow-y-auto h-96">
+							<UserProfileTaskSkeleton />
+						</div>
+					) : (
+						// Show content once loaded
+						<div className="overflow-y-auto h-96">
 							<Container fullWidth={fullWidth} className="px-3 py-5 xl:px-0">
 								<div className={clsxm('flex gap-4 justify-start items-center mt-3')}>
 									{Object.keys(activityScreens).map((filter, i) => (
 										<div
 											key={uniqueId(`${i + 1}`)}
-											className="flex items-center justify-start gap-4 cursor-pointer"
+											className="flex gap-4 justify-start items-center cursor-pointer"
 										>
 											{i !== 0 && <VerticalSeparator />}
 											<div
@@ -353,11 +373,11 @@ export function UserTeamCard({
 									))}
 								</div>
 							</Container>
-						)}
-						{activityScreens[activityFilter] ?? null}
-					</div>
+							{activityScreens[activityFilter] ?? null}
+						</div>
+					)
 				) : isUserDetailAccordion ? (
-					<div className="flex items-center justify-center w-full h-20">
+					<div className="flex justify-center items-center w-full h-20">
 						<Loader className="animate-spin" />
 					</div>
 				) : null}
@@ -375,12 +395,12 @@ export function UserTeamCard({
 					className
 				)}
 			>
-				<div className="flex items-center justify-between mb-4">
+				<div className="flex justify-between items-center mb-4">
 					<UserInfo memberInfo={memberInfo} publicTeam={publicTeam} className="w-9/12" />
 					{totalWork}
 				</div>
 
-				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
+				<div className="flex flex-wrap justify-between items-start pb-4 border-b">
 					<TaskInfo
 						edition={taskEdition}
 						memberInfo={memberInfo}
