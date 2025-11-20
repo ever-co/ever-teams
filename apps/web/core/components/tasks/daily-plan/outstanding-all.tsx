@@ -7,27 +7,20 @@ import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
 import { DragDropContext, Draggable, Droppable, DroppableProvided } from '@hello-pangea/dnd';
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { handleDragAndDropDailyOutstandingAll } from '@/core/lib/helpers/index';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { filterDailyPlansByEmployee } from '@/core/hooks/daily-plans/use-filter-date-range';
 
 interface OutstandingAllProps {
 	profile: any;
 	user?: TUser;
 	outstandingPlans: TDailyPlan[];
+	filterByEmployee?: boolean; // Filter tasks by employee (default: false = show all tasks)
 }
-export function OutstandingAll({ profile, user, outstandingPlans }: OutstandingAllProps) {
+export function OutstandingAll({ profile, user, outstandingPlans, filterByEmployee = false }: OutstandingAllProps) {
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
-
-	// Memoized user filter function for performance
-	const filterTasksByUser = useCallback(
-		(tasks: TTask[]) => {
-			if (!user?.id) return tasks;
-			return tasks.filter((task) => task.members?.some((member: any) => member.userId === user.id));
-		},
-		[user?.id]
-	);
 
 	// Memoized task deduplication to prevent unnecessary recalculations
 	// This fixes the bug where duplicate tasks caused count/display mismatch
@@ -35,10 +28,11 @@ export function OutstandingAll({ profile, user, outstandingPlans }: OutstandingA
 		// Early return for empty data to avoid unnecessary processing
 		if (!outstandingPlans.length) return [];
 
-		const allTasks = outstandingPlans.flatMap((plan) => {
-			const tasks = plan.tasks ?? [];
-			return user ? filterTasksByUser(tasks) : tasks;
-		});
+		// Filter plans by employee if flag is enabled
+		const filteredPlans = filterByEmployee ? filterDailyPlansByEmployee(outstandingPlans, user) : outstandingPlans;
+
+		// Flatten all tasks from filtered plans
+		const allTasks = filteredPlans.flatMap((plan) => plan.tasks ?? []);
 
 		// Use Map for deduplication by task ID to handle large datasets efficiently
 		const taskMap = new Map<string, TTask>();
@@ -49,7 +43,7 @@ export function OutstandingAll({ profile, user, outstandingPlans }: OutstandingA
 		});
 
 		return Array.from(taskMap.values());
-	}, [outstandingPlans, filterTasksByUser]);
+	}, [outstandingPlans, user, filterByEmployee]);
 
 	// State for drag & drop functionality only
 	const [dragTasks, setDragTasks] = useState<TTask[]>(uniqueTasks);
@@ -61,13 +55,8 @@ export function OutstandingAll({ profile, user, outstandingPlans }: OutstandingA
 
 	// Create filtered plans for TaskEstimatedCount to match the displayed tasks
 	const filteredPlansForCount = useMemo(() => {
-		return outstandingPlans
-			.map((plan) => ({
-				...plan,
-				tasks: user ? filterTasksByUser(plan.tasks ?? []) : plan.tasks
-			}))
-			.filter((plan) => plan.tasks && plan.tasks.length > 0);
-	}, [outstandingPlans, filterTasksByUser, user]);
+		return filterByEmployee ? filterDailyPlansByEmployee(outstandingPlans, user) : outstandingPlans;
+	}, [outstandingPlans, user, filterByEmployee]);
 
 	return (
 		<div className="flex flex-col gap-6">
