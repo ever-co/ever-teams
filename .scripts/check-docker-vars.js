@@ -45,7 +45,7 @@ if (checkFileExists(dockerfilePath)) {
 					'MAIN_PICTURE',
 					'MAIN_PICTURE_DARK',
 					'NODE_ENV',
-					'DEMO'
+					'NEXT_PUBLIC_DEMO'
 				].includes(varName)
 		);
 

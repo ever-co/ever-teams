@@ -175,7 +175,7 @@ jobs:
           TWITTER_CLIENT_ID: '${{ secrets.TWITTER_CLIENT_ID }}'
           TWITTER_CLIENT_SECRET: '${{ secrets.TWITTER_CLIENT_SECRET }}'
           # Additional Configuration
-          DEMO: '${{ secrets.DEMO }}'
+          NEXT_PUBLIC_DEMO: '${{ secrets.NEXT_PUBLIC_DEMO }}'
           NEXT_PUBLIC_CAPTCHA_TYPE: '${{ secrets.NEXT_PUBLIC_CAPTCHA_TYPE }}'
           NEXT_PUBLIC_MEET_TYPE: '${{ secrets.NEXT_PUBLIC_MEET_TYPE }}'
           LIVEKIT_API_SECRET: '${{ secrets.LIVEKIT_API_SECRET }}'

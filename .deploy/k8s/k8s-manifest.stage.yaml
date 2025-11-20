@@ -59,7 +59,7 @@ spec:
         - name: ever-teams-stage-webapp
           image: registry.digitalocean.com/ever/ever-teams-webapp-stage:latest
           env:
-            - name: DEMO
+            - name: NEXT_PUBLIC_DEMO
               value: 'false'
             - name: NEXT_PUBLIC_SENTRY_DSN
               value: '$NEXT_PUBLIC_SENTRY_DSN'

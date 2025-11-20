@@ -167,8 +167,8 @@ const nextConfig = {
 		NEXT_PUBLIC_SITE_KEYWORDS: process.env.NEXT_PUBLIC_SITE_KEYWORDS,
 		NEXT_PUBLIC_WEB_APP_URL: process.env.NEXT_PUBLIC_WEB_APP_URL,
 		NEXT_PUBLIC_TWITTER_USERNAME: process.env.NEXT_PUBLIC_TWITTER_USERNAME,
-		ANALYZE: process.env.ANALYZE,
-		DEMO: process.env.DEMO
+		ANALYZE: process.env.ANALYZE
+		// NEXT_PUBLIC_DEMO is automatically accessible (no need to add it here)
 	},
 	...sentryConfig
 };
