@@ -23,7 +23,7 @@ import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
 import { useFirstLoad, useSyncRef } from '../../common';
 import { useAuthenticateUser } from '../../auth';
-import { TOrganizationTeamUpdate, TOrganizationTeam } from '@/core/types/schemas';
+import { TOrganizationTeamUpdate } from '@/core/types/schemas';
 import { ZodValidationError } from '@/core/types/schemas/utils/validation';
 import { useTeamsState } from './use-teams-state';
 import { useCreateOrganizationTeam } from './use-create-organization-team';
