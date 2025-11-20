@@ -97,7 +97,7 @@ const Tasks: React.FC<Props> = ({ port }) => {
 	const isEmptyEstimate = () => activeTaskEstimate === '00:00' || activeTaskEstimate === '';
 
 	return (
-		<div className="p-2 rounded-sm bg-zinc-100">
+		<div className="p-2 rounded bg-zinc-100">
 			<div className="flex flex-col mb-2">
 				<div className="flex items-center pb-2 mb-2 border-b-2">
 					<span className="w-24">All Tasks:</span>
@@ -131,7 +131,7 @@ const Tasks: React.FC<Props> = ({ port }) => {
 				{isNewTask && (
 					<button
 						className={classNames(
-							'ml-2 bg-slate-900 text-white rounded-sm p-2',
+							'ml-2 bg-slate-900 text-white rounded p-2',
 							isEmptyEstimate() && 'bg-slate-600'
 						)}
 						onClick={addNewTask}

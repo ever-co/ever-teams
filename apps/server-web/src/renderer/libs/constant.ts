@@ -41,7 +41,7 @@ export const CUSTOM_STYLE: CustomStyle = {
     maxHeight: {
       maxHeight: '680px'
     },
-    boxContent: 'py-5 px-5 content-start  rounded-lg dark:bg-[#25272D] dark:text-white bg-gray-50 shadow-xs'
+    boxContent: 'py-5 px-5 content-start  rounded-lg dark:bg-[#25272D] dark:text-white bg-gray-50 shadow-sm'
   },
   MAC: {
     bgColor: 'bg-[#F2F2F2] dark:bg-[#1e2025]',
@@ -51,6 +51,6 @@ export const CUSTOM_STYLE: CustomStyle = {
     maxHeight: {
 
     },
-    boxContent: 'py-5 px-5 content-start  rounded-3xl dark:bg-[#25272D] dark:text-white bg-gray-50 shadow-xs'
+    boxContent: 'py-5 px-5 content-start  rounded-3xl dark:bg-[#25272D] dark:text-white bg-gray-50 shadow-sm'
   }
 }
