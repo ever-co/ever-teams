@@ -9,6 +9,7 @@ import {
 } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { useFirstLoad } from '../common/use-first-load';
 import { dailyPlanService } from '../../services/client/api';
+import { useTeamTasks } from '../organizations/teams/use-team-tasks';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -140,8 +141,63 @@ export function useDailyPlan(defaultEmployeeId: string | null = null, options?: 
 			const res = await dailyPlanService.addTaskToPlan(data, dailyPlanId);
 			return res;
 		},
-		onSuccess: () => {
-			invalidateDailyPlanData();
+		onSuccess: async (_data, variables) => {
+			// Auto-assign employee to task when adding to daily plan
+			let taskWasUpdated = false;
+
+			try {
+				const taskId = variables.data.taskId;
+
+				// Get the task from React Query cache
+				const tasksData = queryClient.getQueryData<{ items: TTask[]; total: number }>(
+					queryKeys.tasks.byTeam(activeTeam?.id)
+				);
+				const task = tasksData?.items?.find((t) => t.id === taskId);
+
+				if (task && targetEmployeeId) {
+					// Check if employee is already assigned to the task
+					const isAlreadyAssigned = task.members?.some((member) => member.id === targetEmployeeId);
+
+					if (!isAlreadyAssigned) {
+						// Get employee object from activeTeam.members
+						const employee = activeTeam?.members?.find((m) => m.employeeId === targetEmployeeId);
+
+						if (employee && employee.userId) {
+							// Add employee to task members (deduplicate by userId for idempotence)
+							const existingMembers = task.members ?? [];
+							const memberExists = existingMembers.some((m) => m.userId === employee.userId);
+
+							if (!memberExists) {
+								const updatedMembers = [...existingMembers, employee];
+
+								// Update task via useTeamTasks for consistent cache synchronization
+								// This will automatically:
+								// - Update React Query cache
+								// - Sync Jotai teamTasksState
+								// - Invalidate both tasks and daily plans queries (via invalidateTeamTasksData)
+								await updateTaskFromTeamTasks({
+									id: task.id,
+									members: updatedMembers as any // Type assertion needed due to Zod lazy schema
+								});
+
+								taskWasUpdated = true;
+							}
+						}
+					}
+				}
+			} catch (error) {
+				toast.error('Failed to auto-assign employee to task', {
+					description: getErrorMessage(error, 'Failed to auto-assign employee to task')
+				});
+				// Log error but don't block the daily plan update
+				logErrorInDev('Failed to auto-assign employee to task:', error);
+			}
+
+			// Only invalidate if we didn't update the task (to avoid double invalidation)
+			// If taskWasUpdated is true, updateTaskFromTeamTasks already called invalidateTeamTasksData()
+			if (!taskWasUpdated) {
+				invalidateDailyPlanData();
+			}
 		}
 	});
 
@@ -176,16 +232,13 @@ export function useDailyPlan(defaultEmployeeId: string | null = null, options?: 
 	});
 
 	const invalidateDailyPlanData = useCallback(() => {
+		// Invalidate ALL daily plan queries to ensure synchronization across all contexts
+		// This includes myPlans, allPlans, byEmployee, byTask, etc.
+		// Similar to invalidateTeamTasksData() in use-team-tasks.ts
 		queryClient.invalidateQueries({
-			queryKey: queryKeys.dailyPlans.myPlans(activeTeam?.id)
+			queryKey: queryKeys.dailyPlans.all
 		});
-		queryClient.invalidateQueries({
-			queryKey: queryKeys.dailyPlans.allPlans(activeTeam?.id)
-		});
-		queryClient.invalidateQueries({
-			queryKey: queryKeys.dailyPlans.byEmployee(targetEmployeeId, activeTeam?.id)
-		});
-	}, [activeTeam?.id, targetEmployeeId, queryClient]);
+	}, [queryClient]);
 
 	//  TEAM-WIDE atom - Keep for backward compatibility
 	const [dailyPlan, setDailyPlan] = useAtom(dailyPlanListState);

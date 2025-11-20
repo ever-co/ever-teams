@@ -2,7 +2,7 @@
 
 import { isTestDateRange } from '@/core/lib/helpers/index';
 import { DateRange } from 'react-day-picker';
-import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
+import { TDailyPlan, TUser } from '@/core/types/schemas';
 
 /**
  * Utility function to filter daily plans by date range
@@ -27,4 +27,34 @@ export const filterDailyPlan = (date: DateRange, data: TDailyPlan[]) => {
 		const itemDate = new Date(plan.date);
 		return isTestDateRange(itemDate, from, to);
 	});
+};
+
+/**
+ * Utility function to filter daily plan tasks by employee assignment
+ *
+ * This function filters tasks within daily plans to show only tasks where the specified user
+ * is assigned as a member. Plans with no matching tasks are excluded from the result.
+ *
+ * NOTE: Task members are identified by `userId`, not `employeeId`.
+ * This is because task members are associated with user accounts, not employee entities.
+ *
+ * @param plans - The array of daily plans to filter
+ * @param user - The user to filter tasks by (checks if user is in task.members)
+ * @returns Filtered array of daily plans containing only tasks where the user is a member
+ *
+ * @example
+ * ```typescript
+ * const userPlans = filterDailyPlansByEmployee(allPlans, currentUser);
+ * // Returns only plans with tasks assigned to currentUser
+ * ```
+ */
+export const filterDailyPlansByEmployee = (plans: TDailyPlan[], user: TUser | undefined): TDailyPlan[] => {
+	if (!user) return plans;
+
+	return plans
+		.map((plan) => ({
+			...plan,
+			tasks: plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
+		}))
+		.filter((plan) => plan.tasks && plan.tasks.length > 0);
 };

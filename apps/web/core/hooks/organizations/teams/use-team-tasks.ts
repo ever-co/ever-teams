@@ -155,9 +155,8 @@ export function useTeamTasks() {
 
 				return updatedItems ? { items: updatedItems, total: updatedItems.length } : oldTasks;
 			});
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.tasks.all
-			});
+			// Invalidate both tasks and daily plans to ensure UI synchronization
+			invalidateTeamTasksData();
 		}
 	});
 
@@ -181,6 +180,9 @@ export function useTeamTasks() {
 
 	// Invalidation function
 	const invalidateTeamTasksData = useCallback(() => {
+		queryClient.invalidateQueries({
+			queryKey: queryKeys.tasks.all
+		});
 		queryClient.invalidateQueries({
 			queryKey: queryKeys.tasks.byTeam(activeTeam?.id)
 		});
