@@ -88,7 +88,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 
 	const screenOutstanding = {
 		ALL: <OutstandingAll profile={profile} user={user} outstandingPlans={outstandingPlans} />,
-		DATE: <OutstandingFilterDate profile={profile} user={user} outstandingPlans={outstandingPlans} />
+		DATE: <OutstandingFilterDate profile={profile} user={user} outstandingPlans={outstandingPlans} filterByEmployee/>
 	};
 	const tabsScreens = {
 		'Today Tasks': <AllPlans profile={profile} currentTab={currentTab} user={user} employeeId={targetEmployeeId} />,
