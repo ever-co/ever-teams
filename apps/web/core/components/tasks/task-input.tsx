@@ -687,7 +687,7 @@ function TaskCard({
 											forDetails={true}
 											taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-full text-xs"
 											onValueChange={handleLabelsChange}
-											task={datas.inputTask}
+											task={null}
 										/>
 									</div>
 
@@ -708,7 +708,6 @@ function TaskCard({
 												container: 'rounded-xl min-w-fit max-w-[10.625rem]',
 												listCard: 'rounded-xl'
 											}}
-											controlled
 											onChange={handleProjectChange}
 										/>
 									</div>

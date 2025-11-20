@@ -68,7 +68,7 @@ export function TaskUnOrAssignPopover({
 					keepOpen={true}
 					autoAssignTaskAuth={false}
 					createOnEnterClick={true}
-					viewType="one-view"
+					// viewType="one-view"
 					onTaskClick={(task) => onTaskClick && onTaskClick(task, close)}
 					onTaskCreated={(task) => onTaskCreated && onTaskCreated(task, close)}
 					usersTaskCreatedAssignTo={usersTaskCreatedAssignTo}
