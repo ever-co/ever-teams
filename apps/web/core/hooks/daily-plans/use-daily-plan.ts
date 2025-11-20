@@ -26,20 +26,36 @@ import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
+export interface UseDailyPlanOptions {
+	/**
+	 * Controls whether the queries should be enabled.
+	 * Useful for lazy-loading daily plans only when needed (e.g., when accordion is expanded).
+	 * @default true
+	 */
+	enabled?: boolean;
+}
+
 /**
  * NOTE: This hook replaces several legacy Jotai atoms
  * (myDailyPlanListState, profileDailyPlanListState, employeePlansListState, taskPlans).
  * Team-wide plans still use dailyPlanListState; per-employee plans and
  * derived views now rely on React Query so Home modal and Profile "Plans"
  * tab stay in sync for the selected employee
+ *
+ * @param defaultEmployeeId - Optional employee ID to fetch plans for. Defaults to current user's employee ID.
+ * @param options - Optional configuration object
+ * @param options.enabled - Controls whether queries should be enabled. Defaults to true for backward compatibility.
  */
-export function useDailyPlan(defaultEmployeeId: string | null = null) {
+export function useDailyPlan(defaultEmployeeId: string | null = null, options?: UseDailyPlanOptions) {
 	const { data: user } = useUserQuery();
 	const activeTeam = useAtomValue(activeTeamState);
 	const targetEmployeeId = defaultEmployeeId || user?.employee?.id;
 	const [employeeId, setEmployeeId] = useState(targetEmployeeId || '');
 	const queryClient = useQueryClient();
 	const allTeamTasks = useAtomValue(tasksByTeamState);
+
+	// Extract options with defaults
+	const { enabled = true } = options || {};
 
 	// Keep employeeId in sync with targetEmployeeId unless intentionally overridden elsewhere
 	useEffect(() => {
@@ -57,7 +73,7 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 			const res = await dailyPlanService.getDayPlansByEmployee({ employeeId: targetEmployeeId });
 			return res;
 		},
-		enabled: !!targetEmployeeId,
+		enabled: enabled && !!targetEmployeeId,
 		gcTime: 1000 * 60 * 60 // 1 hour
 	});
 
@@ -67,7 +83,7 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 			const res = await dailyPlanService.getMyDailyPlans();
 			return res;
 		},
-		enabled: !!activeTeam?.id,
+		enabled: enabled && !!activeTeam?.id,
 		gcTime: 1000 * 60 * 60
 	});
 
@@ -77,7 +93,7 @@ export function useDailyPlan(defaultEmployeeId: string | null = null) {
 			const res = await dailyPlanService.getAllDayPlans();
 			return res;
 		},
-		enabled: !!activeTeam?.id,
+		enabled: enabled && !!activeTeam?.id,
 		gcTime: 1000 * 60 * 60
 	});
 

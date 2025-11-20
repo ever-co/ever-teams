@@ -123,9 +123,16 @@ export function UserTeamCard({
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id);
 
-	// Get daily plan loading states for proper skeleton display
+	// Memoize accordion state early to use in useDailyPlan options
+	const isAccordionExpanded = useMemo(() => {
+		return userDetailAccordion === memberInfo.memberUser?.id;
+	}, [userDetailAccordion, memberInfo.memberUser?.id]);
+
+	// PERFORMANCE FIX: Only fetch daily plans when accordion is expanded
+	// This prevents unnecessary API calls for every team member card on initial render
 	const { getDayPlansByEmployeeLoading, getMyDailyPlansLoading } = useDailyPlan(
-		memberInfo.isAuthUser ? undefined : memberInfo.member?.employeeId
+		memberInfo.isAuthUser ? undefined : memberInfo.member?.employeeId,
+		{ enabled: isAccordionExpanded } // Only enable queries when accordion is open
 	);
 
 	// Memoize callback to prevent unnecessary re-renders
@@ -214,16 +221,15 @@ export function UserTeamCard({
 
 		return result;
 	}, [memberInfo.memberUser?.id, user?.id, isManagerConnectedUser]);
-	const isUserDetailAccordion = useMemo(() => {
-		return userDetailAccordion === memberInfo.memberUser?.id;
-	}, [userDetailAccordion, memberInfo.memberUser?.id]);
+
+	// Use the memoized accordion state from above
 
 	// Determine if we're loading member data (for skeleton display)
 	const isLoadingMemberData = useMemo(() => {
-		if (!isUserDetailAccordion) return false;
+		if (!isAccordionExpanded) return false;
 
 		return memberInfo.isAuthUser ? getMyDailyPlansLoading : getDayPlansByEmployeeLoading;
-	}, [isUserDetailAccordion, memberInfo.isAuthUser, getMyDailyPlansLoading, getDayPlansByEmployeeLoading]);
+	}, [isAccordionExpanded, memberInfo.isAuthUser, getMyDailyPlansLoading, getDayPlansByEmployeeLoading]);
 
 	const handleActivityClose = useCallback(() => setShowActivity(false), []);
 	return (
@@ -250,7 +256,7 @@ export function UserTeamCard({
 				<div
 					className={cn(
 						'flex relative items-center m-0 transition-all duration-300',
-						isUserDetailAccordion && !showActivity && 'pb-3 border-b'
+						isAccordionExpanded && !showActivity && 'pb-3 border-b'
 					)}
 				>
 					<div className="absolute left-0 cursor-pointer">
@@ -264,7 +270,7 @@ export function UserTeamCard({
 							const shouldShowChevron = !publicTeam && canSeeActivity;
 							return shouldShowChevron ? (
 								<ChevronToggleButton
-									isExpanded={isUserDetailAccordion}
+									isExpanded={isAccordionExpanded}
 									userId={memberInfo.memberUser?.id}
 									onToggle={setUserDetailAccordion}
 									onActivityClose={handleActivityClose}
@@ -343,7 +349,7 @@ export function UserTeamCard({
 					{/* EverCard menu */}
 					<div className="absolute right-2">{menu}</div>
 				</div>
-				{isUserDetailAccordion && canSeeActivity && !showActivity ? (
+				{isAccordionExpanded && canSeeActivity && !showActivity ? (
 					isLoadingMemberData ? (
 						// Show skeleton while loading member data
 						<div className="overflow-y-auto h-96">
@@ -376,7 +382,7 @@ export function UserTeamCard({
 							{activityScreens[activityFilter] ?? null}
 						</div>
 					)
-				) : isUserDetailAccordion ? (
+				) : isAccordionExpanded ? (
 					<div className="flex justify-center items-center w-full h-20">
 						<Loader className="animate-spin" />
 					</div>
