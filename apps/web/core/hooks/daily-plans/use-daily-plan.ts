@@ -8,7 +8,7 @@ import {
 	IRemoveTaskFromManyPlansRequest
 } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { useFirstLoad } from '../common/use-first-load';
-import { dailyPlanService } from '../../services/client/api';
+import { dailyPlanService, taskService } from '../../services/client/api';
 import { useTeamTasks } from '../organizations/teams/use-team-tasks';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
@@ -170,17 +170,20 @@ export function useDailyPlan(defaultEmployeeId: string | null = null, options?: 
 							if (!memberExists) {
 								const updatedMembers = [...existingMembers, employee];
 
-								// Update task via useTeamTasks for consistent cache synchronization
-								// This will automatically:
-								// - Update React Query cache
-								// - Sync Jotai teamTasksState
-								// - Invalidate both tasks and daily plans queries (via invalidateTeamTasksData)
-								await updateTaskFromTeamTasks({
-									id: task.id,
-									members: updatedMembers as any // Type assertion needed due to Zod lazy schema
+								// Update task via taskService and Update React Query cache for cache synchronization (Invalidate both tasks and daily plans)
+								await taskService.updateTask({
+									taskId: task.id,
+									data: {
+										...task,
+										members: updatedMembers as any // Type assertion needed due to Zod lazy schema
+									}
 								});
 
+								toast.success('You have successfully added the task to the daily plan', {
+									description: 'The employee has been automatically assigned to the task'
+								});
 								taskWasUpdated = true;
+								invalidateDailyPlanData();
 							}
 						}
 					}
@@ -232,6 +235,9 @@ export function useDailyPlan(defaultEmployeeId: string | null = null, options?: 
 	});
 
 	const invalidateDailyPlanData = useCallback(() => {
+		queryClient.invalidateQueries({
+			queryKey: queryKeys.tasks.all
+		});
 		// Invalidate ALL daily plan queries to ensure synchronization across all contexts
 		// This includes myPlans, allPlans, byEmployee, byTask, etc.
 		// Similar to invalidateTeamTasksData() in use-team-tasks.ts

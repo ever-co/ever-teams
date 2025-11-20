@@ -17,14 +17,14 @@ import { TDailyPlan, TUser } from '@/core/types/schemas';
  * @param data - The array of daily plans to filter
  * @returns Filtered array of daily plans that fall within the date range
  */
-export const filterDailyPlan = (date: DateRange, data: TDailyPlan[]) => {
-	if (!date || !data.length) return data;
+export const filterDailyPlan = (date?: DateRange, data?: TDailyPlan[]) => {
+	if (!date || !data?.length) return data;
 	const { from, to } = date;
 	if (!from && !to) {
 		return data;
 	}
-	return data.filter((plan) => {
-		const itemDate = new Date(plan.date);
+	return data?.filter((plan) => {
+		const itemDate = new Date(plan?.date);
 		return isTestDateRange(itemDate, from, to);
 	});
 };
