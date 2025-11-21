@@ -497,11 +497,13 @@ export function useTimer() {
 
 		syncTimer();
 
-		if (!timerStatus?.running) {
+		// Use timerStatusRef instead of timerStatus to avoid closure issues
+		// This ensures we check the most current timer state, not the captured one
+		if (!timerStatusRef.current?.running) {
 			return Promise.resolve();
 		}
 
-		return stopTimerMutation.mutateAsync(timerStatus?.lastLog?.source || ETimeLogSource.TEAMS).then(async (res) => {
+		return stopTimerMutation.mutateAsync(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS).then(async (res) => {
 			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
 
 			// Clear active task via API when timer stops
@@ -538,7 +540,7 @@ export function useTimer() {
 			}
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [timerStatus, setTimerStatus, stopTimerMutation, taskId, updateLocalTimerStatus, queryClient, activeTeamId]);
+	}, [timerStatus, setTimerStatus, stopTimerMutation, taskId, updateLocalTimerStatus, queryClient, activeTeamId, timerStatusRef]);
 
 	useEffect(() => {
 		let syncTimerInterval: NodeJS.Timeout;
