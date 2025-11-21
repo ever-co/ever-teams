@@ -634,14 +634,11 @@ export function useTimer() {
 		if (activeTeamId) {
 			lastActiveTeamId.current = activeTeamId;
 			lastActiveTeam.current = activeTeam;
-			lastActiveTask.current = activeTeamTask;
 		}
 	}, [
 		firstLoad,
 		activeTeamId,
 		activeTeam,
-		// Removed activeTeamTask from dependencies because this useEffect should only trigger on team changes,
-		// not task changes. Task changes are handled by the separate useEffect below (line 634-656)
 		stopTimer,
 		timerStatusRef,
 		setTimerStatus,
@@ -649,6 +646,14 @@ export function useTimer() {
 		user,
 		updateOrganizationTeamEmployeeActiveTask
 	]);
+
+	// Track active task changes separately to keep lastActiveTask.current in sync
+	// This ensures that when switching teams, we save the correct active task for the previous team
+	useEffect(() => {
+		if (activeTeamTask) {
+			lastActiveTask.current = activeTeamTask;
+		}
+	}, [activeTeamTask]);
 	// If active task changes then stop the timer
 	useEffect(() => {
 		// FIX: Skip if we're manually updating the active task to prevent race conditions
@@ -669,7 +674,7 @@ export function useTimer() {
 				// This avoids the 406 error when switching tasks quickly via startTimerWithTask
 				// which already calls stopTimer before changing the active task
 				const timeSinceLastStop = Date.now() - lastStopTimerTimestamp.current;
-				if (timeSinceLastStop > 2000) {
+				if (timeSinceLastStop > STOP_TIMER_EFFECT_DEBOUNCE_MS) {
 					stopTimer();
 				}
 			}

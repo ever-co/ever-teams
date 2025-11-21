@@ -89,6 +89,9 @@ export function useTeamTasks() {
 	const [selectedOrganizationTeamId, setSelectedOrganizationTeamId] = useState(activeTeam?.id);
 	const [activeTeamTask, setActiveTeamTask] = useAtom(activeTeamTaskState);
 	const [isUpdatingActiveTask, setIsUpdatingActiveTask] = useState(false);
+
+	// Keep activeTeamTask in sync with a ref to avoid stale closures in setActiveTask
+	const activeTeamTaskRef = useSyncRef(activeTeamTask);
 	const { firstLoad, firstLoadData: firstLoadTasksData } = useFirstLoad();
 
 	// React Query for team tasks
@@ -527,7 +530,8 @@ export function useTeamTasks() {
 					}
 				}
 
-				const previousTask = activeTeamTask;
+				// Use ref to get current activeTeamTask to avoid stale closure
+				const previousTask = activeTeamTaskRef.current;
 				const previousTaskId = getActiveTaskIdCookie();
 				setActiveTaskIdCookie(task?.id || '');
 				setActiveTeamTask(task);
