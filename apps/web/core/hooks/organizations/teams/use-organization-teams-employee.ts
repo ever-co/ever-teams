@@ -97,13 +97,58 @@ export function useOrganizationEmployeeTeams() {
 				data
 			}),
 		mutationKey: queryKeys.organizationTeams.mutations.employee.updateActiveTask(undefined),
+		onMutate: async ({ id, data }) => {
+			// Cancel any outgoing refetches to prevent them from overwriting our optimistic update
+			await queryClient.cancelQueries({ queryKey: queryKeys.organizationTeams.all });
+
+			// Snapshot the previous value for rollback
+			const previousTeams = queryClient.getQueryData(queryKeys.organizationTeams.all);
+
+			// Optimistically update the cache
+			queryClient.setQueriesData({ queryKey: queryKeys.organizationTeams.all }, (old: any) => {
+				if (!old?.data?.items) return old;
+
+				return {
+					...old,
+					data: {
+						...old.data,
+						items: old.data.items.map((team: any) => {
+							if (!team.members) return team;
+
+							return {
+								...team,
+								members: team.members.map((member: any) => {
+									if (member.id === id) {
+										return {
+											...member,
+											activeTaskId: data.activeTaskId ?? member.activeTaskId
+										};
+									}
+									return member;
+								})
+							};
+						})
+					}
+				};
+			});
+
+			// Return context with snapshot for potential rollback
+			return { previousTeams };
+		},
 		onSuccess: async () => {
-			// Invalidate organization teams queries to refresh data
+			// Invalidate with refetchType: 'none' to avoid immediate refetch
+			// The optimistic update already updated the cache
 			await queryClient.invalidateQueries({
-				queryKey: queryKeys.organizationTeams.all
+				queryKey: queryKeys.organizationTeams.all,
+				refetchType: 'none'
 			});
 		},
-		onError: (error) => {
+		onError: (error, _variables, context) => {
+			// Rollback to previous state on error
+			if (context?.previousTeams) {
+				queryClient.setQueryData(queryKeys.organizationTeams.all, context.previousTeams);
+			}
+
 			toast.error('Failed to update employee active task:', {
 				description: getErrorMessage(error, 'Unable to update active task')
 			});
