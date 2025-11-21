@@ -202,7 +202,9 @@ export function useTimer() {
 	const lastActiveTeam = useRef<typeof activeTeam | null>(null);
 	const lastActiveTaskId = useRef<string | null>(null);
 	const lastActiveTask = useRef<TTask | null>(null);
-	const { updateTask, setActiveTask } = useTeamTasks();
+	// Track last stopTimer call to prevent duplicate calls within short time window
+	const lastStopTimerTimestamp = useRef<number>(0);
+	const { updateTask, setActiveTask, isUpdatingActiveTask } = useTeamTasks();
 	const t = useTranslations();
 
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
@@ -359,7 +361,7 @@ export function useTimer() {
 	}, [stopTimerMutation.isPending, setTimerStatusFetching]);
 
 	// Start timer
-	const startTimer = useCallback(async () => {
+	const startTimer = useCallback(async (explicitTask?: TTask) => {
 		// Check if the user is tracking time in another tab or device
 		try {
 			const userData = await refreshUserData();
@@ -375,10 +377,16 @@ export function useTimer() {
 			return;
 		}
 
+		// FIX: Use explicit task if provided to avoid race conditions with taskId.current
+		// When startTimerWithTask calls setActiveTask then startTimer, taskId.current might have changed
+		// due to useEffects or React Query refetches. Using explicitTask ensures we start timer on the correct task.
+		const taskToUse = explicitTask || activeTeamTaskRef.current;
+		const taskIdToUse = taskToUse?.id;
+
 		if (pathname?.startsWith('/task/')) setActiveTask(detailedTask);
-		if (!taskId.current) return;
+		if (!taskIdToUse) return;
 		updateLocalTimerStatus({
-			lastTaskId: taskId.current,
+			lastTaskId: taskIdToUse,
 			runnedDateTime: Date.now(),
 			running: true
 		});
@@ -389,14 +397,14 @@ export function useTimer() {
 
 			// Save active task via API when timer starts
 			// Skip if we're on /task/ page because setActiveTask (line 366) already does it
-			if (activeTeamId && taskId.current && user && !pathname?.startsWith('/task/')) {
+			if (activeTeamId && taskIdToUse && user && !pathname?.startsWith('/task/')) {
 				const currentMember = activeTeam?.members?.find((m) => m.employee?.userId === user.id);
 
 				if (currentMember?.id) {
 					// Use mutation instead of direct service call for better error handling and cache management
 					await updateOrganizationTeamEmployeeActiveTask(currentMember.id, {
 						organizationId: activeTeam?.organizationId,
-						activeTaskId: taskId.current,
+						activeTaskId: taskIdToUse,
 						organizationTeamId: activeTeam?.id,
 						tenantId: activeTeam?.tenantId ?? ''
 					});
@@ -503,6 +511,20 @@ export function useTimer() {
 			return Promise.resolve();
 		}
 
+		// Prevent duplicate stopTimer calls within 500ms
+		// This is the PRIMARY defense against race conditions causing 406 errors
+		// The debounce checks in useEffects are SECONDARY (they prevent useEffect triggers)
+		const timeSinceLastStop = Date.now() - lastStopTimerTimestamp.current;
+		if (timeSinceLastStop < 500) {
+			console.warn(`[stopTimer] Debounced duplicate call (${timeSinceLastStop}ms since last stop)`);
+			return Promise.resolve();
+		}
+
+		// Update timestamp BEFORE calling the API to prevent race conditions
+		// This ensures that if another stopTimer() is called immediately after,
+		// it will be caught by the debounce check above
+		lastStopTimerTimestamp.current = Date.now();
+
 		return stopTimerMutation.mutateAsync(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS).then(async (res) => {
 			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
 
@@ -560,7 +582,12 @@ export function useTimer() {
 			// Stop timer if it's running from TEAMS source
 			if (timerStatusRef.current?.running) {
 				if (timerStatusRef.current.lastLog?.source === ETimeLogSource.TEAMS) {
-					stopTimer();
+					// Prevent duplicate stopTimer calls within 2 seconds
+					// This avoids the 406 error when queries are invalidated and refetched
+					const timeSinceLastStop = Date.now() - lastStopTimerTimestamp.current;
+					if (timeSinceLastStop > 2000) {
+						stopTimer();
+					}
 				}
 			}
 
@@ -612,7 +639,8 @@ export function useTimer() {
 		firstLoad,
 		activeTeamId,
 		activeTeam,
-		activeTeamTask,
+		// Removed activeTeamTask from dependencies because this useEffect should only trigger on team changes,
+		// not task changes. Task changes are handled by the separate useEffect below (line 634-656)
 		stopTimer,
 		timerStatusRef,
 		setTimerStatus,
@@ -622,6 +650,13 @@ export function useTimer() {
 	]);
 	// If active task changes then stop the timer
 	useEffect(() => {
+		// FIX: Skip if we're manually updating the active task to prevent race conditions
+		// When startTimerWithTask calls setActiveTask then startTimer, this useEffect would trigger
+		// and call stopTimer, causing the timer to stop immediately after starting
+		if (isUpdatingActiveTask) {
+			return;
+		}
+
 		const taskId = activeTeamTask?.id;
 		const canStop = lastActiveTaskId.current !== null && taskId !== lastActiveTaskId.current;
 
@@ -629,14 +664,20 @@ export function useTimer() {
 			// If timer is started at some other source keep the timer running...
 			// If timer is started in the browser Stop the timer on Task Change
 			if (timerStatusRef.current.lastLog?.source === ETimeLogSource.TEAMS) {
-				stopTimer();
+				// Prevent duplicate stopTimer calls within 2 seconds
+				// This avoids the 406 error when switching tasks quickly via startTimerWithTask
+				// which already calls stopTimer before changing the active task
+				const timeSinceLastStop = Date.now() - lastStopTimerTimestamp.current;
+				if (timeSinceLastStop > 2000) {
+					stopTimer();
+				}
 			}
 		}
 
 		if (taskId) {
 			lastActiveTaskId.current = taskId;
 		}
-	}, [firstLoad, activeTeamTask?.id, stopTimer, timerStatusRef]);
+	}, [firstLoad, activeTeamTask?.id, stopTimer, timerStatusRef, isUpdatingActiveTask]);
 
 	// Filter timerStatus to only show timer for current team's tasks
 	const filteredTimerStatus = useMemo<ITimerStatus | null>(() => {

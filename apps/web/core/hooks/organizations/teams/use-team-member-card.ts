@@ -2,7 +2,7 @@
 import { setActiveTaskIdCookie, setActiveUserTaskCookie } from '@/core/lib/helpers/index';
 import { activeTeamState, activeTeamTaskState, allTaskStatisticsState } from '@/core/stores';
 import { getPublicState } from '@/core/stores/common/public';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useSyncRef } from '../../common/use-sync-ref';
 import { useOrganizationTeams } from './use-organization-teams';
@@ -44,8 +44,6 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 	const isAuthUser = member?.employee?.userId === authUser?.id;
 	const { isTeamManager, isTeamCreator } = useIsMemberManager(memberUser);
 
-	const memberTaskRef = useRef<Nullable<TTask>>(null);
-
 	const setActiveUserTaskCookieCb = useCallback(
 		(task: TTask | null) => {
 			if (task?.id && authUser?.id) {
@@ -59,7 +57,10 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 		[authUser]
 	);
 
-	memberTaskRef.current = useMemo(() => {
+	// NOTE_FIX: Use direct useMemo value instead of ref to trigger re-renders
+	// When member.activeTaskId changes, we WANT UserTeamCard to re-render
+	// to update TaskInfo with the new active task
+	const memberTask = useMemo(() => {
 		let cTask;
 		let find;
 
@@ -105,7 +106,16 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 		}
 
 		return responseTask;
-	}, [isAuthUser, member, tasks, publicTeam, allTaskStatistics, setActiveUserTaskCookieCb]);
+	}, [
+		isAuthUser,
+		member,
+		member?.activeTaskId, // Force recalculation when activeTaskId changes
+		member?.lastWorkedTask?.id, // Force recalculation when lastWorkedTask changes
+		tasks,
+		publicTeam,
+		allTaskStatistics,
+		setActiveUserTaskCookieCb
+	]);
 
 	/**
 	 * Give the manager role to the member
@@ -248,7 +258,7 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 		assignTaskLoading,
 		unAssignTaskLoading,
 		member,
-		memberTask: memberTaskRef.current,
+		memberTask,
 		isAuthUser,
 		isAuthTeamManager,
 		makeMemberManager,

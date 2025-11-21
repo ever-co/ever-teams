@@ -136,11 +136,13 @@ export function useOrganizationEmployeeTeams() {
 			return { previousTeams };
 		},
 		onSuccess: async () => {
-			// Invalidate with refetchType: 'none' to avoid immediate refetch
-			// The optimistic update already updated the cache
+			// Invalidate with refetchType: 'active' to trigger refetch and update dataUpdatedAt
+			// This ensures Jotai atoms (activeTeamState) are synchronized via the useEffect
+			// in use-organization-teams.ts that depends on organizationTeamsQuery.dataUpdatedAt
+			// Without refetch, dataUpdatedAt doesn't change and Jotai state stays stale
 			await queryClient.invalidateQueries({
 				queryKey: queryKeys.organizationTeams.all,
-				refetchType: 'none'
+				refetchType: 'active'
 			});
 		},
 		onError: (error, _variables, context) => {

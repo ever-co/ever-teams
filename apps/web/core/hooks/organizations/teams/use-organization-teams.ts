@@ -335,7 +335,10 @@ export function useOrganizationTeams() {
 			const newTeam = organizationTeamQuery.data.data;
 
 			// NOTE_FIX: Create a signature based on essential data only
-			const newSignature = `${newTeam.id}:${newTeam.updatedAt ?? ''}:${newTeam.members?.length ?? 0}`;
+			// Include activeTaskId of all members to detect when a member's active task changes
+			// This ensures TaskInfo updates in real-time when timer starts/stops
+			const memberActiveTaskIds = newTeam.members?.map(m => m.activeTaskId || 'null').join(',') || '';
+			const newSignature = `${newTeam.id}:${newTeam.updatedAt ?? ''}:${newTeam.members?.length ?? 0}:${memberActiveTaskIds}`;
 
 			// Check if data has actually changed
 			if (newSignature === lastProcessedTeamSignatureRef.current) {

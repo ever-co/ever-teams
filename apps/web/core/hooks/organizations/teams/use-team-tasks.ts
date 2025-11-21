@@ -549,6 +549,14 @@ export function useTeamTasks() {
 								organizationTeamId: activeTeam?.id,
 								tenantId: activeTeam?.tenantId ?? ''
 							});
+
+							// Keep the flag true for a short delay to allow React Query to refetch and stabilize
+							// This prevents the useConditionalUpdateEffect from overwriting the active task
+							// with stale server data during the refetch window
+							// NOTE: Do NOT invalidate queries here - updateActiveTaskMutation already handles
+							// optimistic updates and invalidation. Adding invalidation here causes CancelledError
+							// because updateActiveTaskMutation calls cancelQueries in onMutate.
+							await new Promise((resolve) => setTimeout(resolve, 1000));
 						} catch (error) {
 							toast.error('Failed to update active task', {
 								description: getErrorMessage(error)
