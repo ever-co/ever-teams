@@ -442,18 +442,20 @@ export function useTimer() {
 		/**
 		 *  Updating the task status to "In Progress" when the timer is started.
 		 */
-		if (activeTeamTaskRef.current && activeTeamTaskRef.current.status !== 'in-progress') {
+		if (taskToUse && taskToUse.status !== 'in-progress') {
 			const selectedStatus = taskStatuses.find((s) => s.name === 'in-progress' && s.value === 'in-progress');
 			const taskStatusId = selectedStatus?.id;
 			updateTask({
-				...activeTeamTaskRef.current,
-				taskStatusId: taskStatusId ?? activeTeamTaskRef.current.taskStatusId,
+				...taskToUse,
+				taskStatusId: taskStatusId ?? taskToUse.taskStatusId,
 				status: ETaskStatusName.IN_PROGRESS
 			});
 		}
 
-		if (activeTeamTaskRef.current) {
-			// Update Current user's active task to sync across multiple devices
+		// Update Current user's active task to sync across multiple devices
+		// Only execute this block on /task/ page to avoid redundancy with the block inside promise.then() (lines 401-413)
+		// On /task/ page, the block inside promise.then() is skipped, so we need this block to update the active task
+		if (taskToUse && pathname?.startsWith('/task/')) {
 			const currentEmployeeDetails = activeTeam?.members?.find(
 				(member) => member.employeeId === user?.employee?.id
 			);
@@ -461,8 +463,8 @@ export function useTimer() {
 				// Fire-and-forget: don't wait for this call to complete
 				// This reduces perceived delay for the user
 				await updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
-					organizationId: activeTeamTaskRef.current.organizationId,
-					activeTaskId: activeTeamTaskRef.current.id,
+					organizationId: taskToUse.organizationId,
+					activeTaskId: taskToUse.id,
 					organizationTeamId: activeTeam?.id,
 					tenantId: activeTeam?.tenantId ?? ''
 				});
