@@ -10,7 +10,7 @@ import { useAtomValue } from 'jotai';
 
 export function useUserSelectedPage(id?: string) {
 	const activeTeam = useAtomValue(activeTeamState);
-	const { activeTeamTask, updateTask } = useTeamTasks();
+	const { activeTeamTask, updateTask, tasks } = useTeamTasks();
 
 	const { user: auth } = useAuthenticateUser();
 
@@ -24,7 +24,14 @@ export function useUserSelectedPage(id?: string) {
 
 	const isAuthUser = auth?.employee?.userId === memberId;
 
-	const activeUserTeamTask = isAuthUser ? activeTeamTask : matchUser?.lastWorkedTask;
+	// NOTE_FIX: Use activeTaskId instead of lastWorkedTask for non-auth users
+	// This ensures the active task is correctly displayed in UserTeamCardActivity
+	// when the user changes their active task
+	const activeUserTeamTask = isAuthUser
+		? activeTeamTask
+		: matchUser?.activeTaskId
+			? tasks.find((task) => task.id === matchUser.activeTaskId) || matchUser?.lastWorkedTask
+			: matchUser?.lastWorkedTask;
 
 	const userProfile = isAuthUser ? auth : matchUser?.employee?.user;
 

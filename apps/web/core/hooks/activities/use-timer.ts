@@ -377,7 +377,7 @@ export function useTimer() {
 			return;
 		}
 
-		// FIX: Use explicit task if provided to avoid race conditions with taskId.current
+		// NOTE_FIX: Use explicit task if provided to avoid race conditions with taskId.current
 		// When startTimerWithTask calls setActiveTask then startTimer, taskId.current might have changed
 		// due to useEffects or React Query refetches. Using explicitTask ensures we start timer on the correct task.
 		const taskToUse = explicitTask || activeTeamTaskRef.current;

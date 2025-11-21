@@ -211,6 +211,8 @@ export const OptimizedTasksTab = memo(({ member }: { member?: any }) => {
 	const { firstFiveTasks, remainingTasks, totalCount } = tasks;
 
 	// Memoized render function for task items to prevent unnecessary re-renders
+	// Include profile?.activeUserTeamTask?.id in dependencies to ensure re-render when active task changes
+	// This prevents virtualized tasks from using stale timer handlers with old activeTeamTask values
 	const renderTaskItem = useCallback(
 		(task: any) => (
 			<LazyTaskCard
@@ -226,7 +228,7 @@ export const OptimizedTasksTab = memo(({ member }: { member?: any }) => {
 				taskContentClassName="!w-72 !max-w-80"
 			/>
 		),
-		[profile?.isAuthUser, profile]
+		[profile?.isAuthUser, profile, profile?.activeUserTeamTask?.id]
 	);
 
 	// Memoized scrolling indicator for virtualization

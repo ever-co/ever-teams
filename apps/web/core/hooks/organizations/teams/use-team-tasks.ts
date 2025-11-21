@@ -687,6 +687,7 @@ export function useTeamTasks() {
 		deleteEmployeeFromTasksLoading: deleteEmployeeFromTasksMutation.isPending,
 		getTaskById,
 		getTasksByIdLoading,
-		detailedTask
+		detailedTask,
+		isUpdatingActiveTask // Export flag to protect against race conditions during task switching
 	};
 }
