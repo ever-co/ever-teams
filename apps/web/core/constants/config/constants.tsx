@@ -533,6 +533,12 @@ export const manualTimeReasons: EManualTimeReasons[] = [
 	EManualTimeReasons.UNPLANNED_WORK,
 	EManualTimeReasons.TESTED_TIMER
 ];
+export const STOP_TIMER_DEBOUNCE_MS = 500;
+export const STOP_TIMER_EFFECT_DEBOUNCE_MS = 2000;
+export const REFRESH_INTERVAL = 5000;
+export const SYNC_TIMER_INTERVAL = 60000; // 1 minute
+
+export const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
 export const statusOptions = [
 	{ value: 'Approved', label: 'Approved' },
@@ -877,7 +883,6 @@ export const InviteStatusDisplayMap = {
 	}
 } as const;
 export const ITEMS_LENGTH_TO_VIRTUALIZED = 8;
-export const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
 export const sizeOption = [
 	{

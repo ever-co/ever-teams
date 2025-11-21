@@ -105,7 +105,7 @@ export function useOrganizationEmployeeTeams() {
 			const previousTeams = queryClient.getQueryData(queryKeys.organizationTeams.all);
 
 			// Optimistically update the cache
-			queryClient.setQueriesData({ queryKey: queryKeys.organizationTeams.all }, (old: any) => {
+			queryClient.setQueryData(queryKeys.organizationTeams.all, (old: any) => {
 				if (!old?.data?.items) return old;
 
 				return {

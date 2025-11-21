@@ -520,7 +520,7 @@ export function useTeamTasks() {
 					const _task = tasksRef.current.find((t) => t.id === $memberActiveTaskId.current);
 
 					if (_task) {
-						updateTask({
+						await updateTask({
 							..._task,
 							members: _task.members?.filter((m) => m.id !== $user.current?.employee?.id)
 						});

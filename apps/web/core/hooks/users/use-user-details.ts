@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useAuthTeamTasks } from '../organizations/teams/use-auth-team-tasks';
 import { useTeamTasks } from '../organizations';
 import { useAuthenticateUser } from '../auth';
@@ -28,11 +28,17 @@ export function useUserDetails(memberId: string) {
 	// NOTE_FIX: Use activeTaskId instead of lastWorkedTask for non-auth users
 	// This ensures the active task is correctly displayed in UserTeamCardActivity
 	// when the user changes their active task
-	const activeUserTeamTask = isAuthUser
-		? activeTeamTask
-		: matchUser?.activeTaskId
-			? tasks.find((task) => task.id === matchUser.activeTaskId) || matchUser?.lastWorkedTask
-			: matchUser?.lastWorkedTask;
+	const activeUserTeamTask = useMemo(() => {
+		if (isAuthUser) {
+			return activeTeamTask;
+		}
+
+		if (matchUser?.activeTaskId) {
+			return tasks.find((task) => task.id === matchUser.activeTaskId) || matchUser?.lastWorkedTask;
+		}
+
+		return matchUser?.lastWorkedTask;
+	}, [isAuthUser, activeTeamTask, matchUser?.activeTaskId, matchUser?.lastWorkedTask, tasks]);
 
 	const userProfile = isAuthUser ? auth : matchUser?.employee?.user;
 

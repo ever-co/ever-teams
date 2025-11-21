@@ -107,7 +107,7 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 
 		return responseTask;
 	}, [
-		isAuthUser,
+		// isAuth derived from member.employee?.userId === authUser?.id
 		member,
 		member?.activeTaskId, // Force recalculation when activeTaskId changes
 		member?.lastWorkedTask?.id, // Force recalculation when lastWorkedTask changes

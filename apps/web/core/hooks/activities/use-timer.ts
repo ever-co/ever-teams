@@ -42,6 +42,7 @@ import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { getLocalTimerStorageKey } from '@/core/lib/helpers/timer';
 import { useDailyPlan } from '../daily-plans/use-daily-plan';
+import { REFRESH_INTERVAL, STOP_TIMER_DEBOUNCE_MS, STOP_TIMER_EFFECT_DEBOUNCE_MS, SYNC_TIMER_INTERVAL } from '@/core/constants/config/constants';
 
 /**
  * ! Don't modify this function unless you know what you're doing
@@ -515,7 +516,7 @@ export function useTimer() {
 		// This is the PRIMARY defense against race conditions causing 406 errors
 		// The debounce checks in useEffects are SECONDARY (they prevent useEffect triggers)
 		const timeSinceLastStop = Date.now() - lastStopTimerTimestamp.current;
-		if (timeSinceLastStop < 500) {
+		if (timeSinceLastStop < STOP_TIMER_DEBOUNCE_MS) {
 			console.warn(`[stopTimer] Debounced duplicate call (${timeSinceLastStop}ms since last stop)`);
 			return Promise.resolve();
 		}
@@ -569,7 +570,7 @@ export function useTimer() {
 		if (timerStatus?.running && firstLoad) {
 			syncTimerInterval = setInterval(() => {
 				syncTimer();
-			}, 60000);
+			}, SYNC_TIMER_INTERVAL);
 		}
 		return () => {
 			if (syncTimerInterval) clearInterval(syncTimerInterval);
@@ -585,7 +586,7 @@ export function useTimer() {
 					// Prevent duplicate stopTimer calls within 2 seconds
 					// This avoids the 406 error when queries are invalidated and refetched
 					const timeSinceLastStop = Date.now() - lastStopTimerTimestamp.current;
-					if (timeSinceLastStop > 2000) {
+					if (timeSinceLastStop > STOP_TIMER_EFFECT_DEBOUNCE_MS) {
 						stopTimer();
 					}
 				}
@@ -807,5 +808,5 @@ export function useSyncTimer() {
 	// Note: This hook is called only once in init-state.tsx, so we have a single polling instance
 	useTimerPolling(timerStatus?.running ?? false);
 
-	useRefreshIntervalV2(timerStatus?.running ? syncTimer : () => void 0, 5000);
+	useRefreshIntervalV2(timerStatus?.running ? syncTimer : () => void 0, REFRESH_INTERVAL);
 }
