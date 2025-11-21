@@ -42,7 +42,6 @@ import { IIssueType } from '@/core/types/interfaces/task/issue-type';
 import { EIssueType, ETaskStatusName, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 type Props = {
 	task?: Nullable<TTask>;
@@ -94,8 +93,6 @@ export function TaskInput(props: Props) {
 		tasks: props.tasks
 	});
 
-	const activeTeam = useAtomValue(activeTeamState);
-	const { data: user } = useUserQuery();
 
 	const onCloseComboboxRef = useCallbackRef(props.onCloseCombobox);
 	const closeable_fcRef = useCallbackRef(props.closeable_fc);
