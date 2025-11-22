@@ -22,6 +22,8 @@ metadata:
     annotations:
         nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
         nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+        nginx.ingress.kubernetes.io/client-header-buffer-size: "16k"
+        nginx.ingress.kubernetes.io/large-client-header-buffers: "4 32k"
 spec:
     ingressClassName: nginx
     rules:

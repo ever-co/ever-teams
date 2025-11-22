@@ -22,6 +22,15 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+    nginx.ingress.kubernetes.io/client-header-buffer-size: "16k"
+    nginx.ingress.kubernetes.io/large-client-header-buffers: "4 32k"
+    # Timeout settings to handle slow auth/token refresh operations
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    # Buffer settings for proxy responses
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
 spec:
   ingressClassName: nginx
   rules:
@@ -59,6 +68,10 @@ spec:
         - name: ever-teams-dev-webapp
           image: registry.digitalocean.com/ever/ever-teams-webapp-dev:latest
           env:
+            # CRITICAL: Required for Next.js standalone mode in Kubernetes
+            # Without this, Next.js binds to pod hostname instead of 0.0.0.0
+            - name: HOSTNAME
+              value: '0.0.0.0'
             - name: NEXT_PUBLIC_DEMO
               value: 'true'
             - name: NEXT_PUBLIC_SENTRY_DSN
@@ -234,3 +247,10 @@ spec:
           ports:
             - containerPort: 3030
               protocol: TCP
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "2000m"
