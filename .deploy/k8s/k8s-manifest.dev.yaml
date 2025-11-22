@@ -68,8 +68,6 @@ spec:
         - name: ever-teams-dev-webapp
           image: registry.digitalocean.com/ever/ever-teams-webapp-dev:latest
           env:
-            # CRITICAL: Required for Next.js standalone mode in Kubernetes
-            # Without this, Next.js binds to pod hostname instead of 0.0.0.0
             - name: HOSTNAME
               value: '0.0.0.0'
             - name: NEXT_PUBLIC_DEMO
