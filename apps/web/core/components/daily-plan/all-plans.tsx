@@ -7,7 +7,7 @@ import { formatDayPlanDate } from '@/core/lib/helpers/index';
 import { handleDragAndDrop } from '@/core/lib/helpers/drag-and-drop';
 import { FilterTabs, useDailyPlan } from '@/core/hooks';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
-import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
+import { filterDailyPlan, filterDailyPlansByEmployee } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { dailyPlanViewHeaderTabs } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
@@ -29,12 +29,14 @@ export function AllPlans({
 	profile,
 	currentTab = 'All Tasks',
 	user,
-	employeeId
+	employeeId,
+	filterByEmployee = false
 }: {
 	profile: any;
 	currentTab?: FilterTabs;
 	user?: TUser;
 	employeeId?: string; // Accept employeeId directly from parent
+	filterByEmployee?: boolean; // Filter tasks by employee (default: false = show all tasks)
 }) {
 	// Filter plans
 	const filteredPlans = useRef<TDailyPlan[]>([]);
@@ -58,20 +60,16 @@ export function AllPlans({
 		// Single call to filterDailyPlan for better performance
 		let filteredData = filterDailyPlan(date as any, filteredPlans.current);
 
-		// Filter tasks for specific user if provided
+		// Filter tasks for specific user if filterByEmployee flag is enabled
 		// NOTE: `user` here is the profile user linked to `targetEmployeeId` (not the auth user).
 		// We intentionally filter by userId because task members are associated with users, not employees.
-		if (user) {
-			filteredData = filteredData
-				.map((plan) => ({
-					...plan,
-					tasks: plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
-				}))
-				.filter((plan) => plan.tasks && plan.tasks.length > 0);
+		// By default (filterByEmployee = false), we show ALL tasks in the daily plan
+		if (filterByEmployee && filteredData) {
+			filteredData = filterDailyPlansByEmployee(filteredData, user);
 		}
 
 		return filteredData;
-	}, [date, todayPlan, sortedPlans, user?.id]);
+	}, [date, todayPlan, sortedPlans, user, filterByEmployee]);
 
 	// Local state for drag-and-drop functionality
 	const [dragPlans, setDragPlans] = useState(plans);
@@ -80,7 +78,7 @@ export function AllPlans({
 	useEffect(() => {
 		setDragPlans(plans);
 	}, [plans]);
-
+	if(!dragPlans) return null;
 	return (
 		<div className="flex flex-col gap-6">
 			{Array.isArray(dragPlans) && dragPlans?.length > 0 ? (
@@ -102,8 +100,8 @@ export function AllPlans({
 								className="dark:border-slate-600 !border-none"
 							>
 								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex items-center justify-between w-full gap-3">
-										<div className="text-lg min-w-max">
+									<div className="flex gap-3 justify-between items-center w-full">
+										<div className="min-w-max text-lg">
 											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 										</div>
 										<HorizontalSeparator />

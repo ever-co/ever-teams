@@ -97,13 +97,60 @@ export function useOrganizationEmployeeTeams() {
 				data
 			}),
 		mutationKey: queryKeys.organizationTeams.mutations.employee.updateActiveTask(undefined),
+		onMutate: async ({ id, data }) => {
+			// Cancel any outgoing refetches to prevent them from overwriting our optimistic update
+			await queryClient.cancelQueries({ queryKey: queryKeys.organizationTeams.all });
+
+			// Snapshot the previous value for rollback
+			const previousTeams = queryClient.getQueryData(queryKeys.organizationTeams.all);
+
+			// Optimistically update the cache
+			queryClient.setQueryData(queryKeys.organizationTeams.all, (old: any) => {
+				if (!old?.data?.items) return old;
+
+				return {
+					...old,
+					data: {
+						...old.data,
+						items: old.data.items.map((team: any) => {
+							if (!team.members) return team;
+
+							return {
+								...team,
+								members: team.members.map((member: any) => {
+									if (member.id === id) {
+										return {
+											...member,
+											activeTaskId: data.activeTaskId ?? member.activeTaskId
+										};
+									}
+									return member;
+								})
+							};
+						})
+					}
+				};
+			});
+
+			// Return context with snapshot for potential rollback
+			return { previousTeams };
+		},
 		onSuccess: async () => {
-			// Invalidate organization teams queries to refresh data
+			// Invalidate with refetchType: 'active' to trigger refetch and update dataUpdatedAt
+			// This ensures Jotai atoms (activeTeamState) are synchronized via the useEffect
+			// in use-organization-teams.ts that depends on organizationTeamsQuery.dataUpdatedAt
+			// Without refetch, dataUpdatedAt doesn't change and Jotai state stays stale
 			await queryClient.invalidateQueries({
-				queryKey: queryKeys.organizationTeams.all
+				queryKey: queryKeys.organizationTeams.all,
+				refetchType: 'active'
 			});
 		},
-		onError: (error) => {
+		onError: (error, _variables, context) => {
+			// Rollback to previous state on error
+			if (context?.previousTeams) {
+				queryClient.setQueryData(queryKeys.organizationTeams.all, context.previousTeams);
+			}
+
 			toast.error('Failed to update employee active task:', {
 				description: getErrorMessage(error, 'Unable to update active task')
 			});

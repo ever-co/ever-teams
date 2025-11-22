@@ -2,8 +2,6 @@
 import {
 	getActiveTeamIdCookie,
 	setActiveProjectIdCookie,
-	setActiveTeamIdCookie,
-	setOrganizationIdCookie
 } from '@/core/lib/helpers/cookies';
 
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
@@ -21,12 +19,10 @@ import {
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
-// import isEqual from 'lodash/isEqual'; // ✅ REMOVED: No longer needed after performance optimization
 import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
 import { useFirstLoad, useSyncRef } from '../../common';
 import { useAuthenticateUser } from '../../auth';
-import { useSettings } from '../../users';
 import { TOrganizationTeamUpdate } from '@/core/types/schemas';
 import { ZodValidationError } from '@/core/types/schemas/utils/validation';
 import { useTeamsState } from './use-teams-state';
@@ -216,7 +212,6 @@ export function useOrganizationTeams() {
 	const [isTeamMember, setIsTeamMember] = useAtom(isTeamMemberState);
 	const { data: user } = useUserQuery();
 	const { refreshUserData, refreshToken } = useAuthenticateUser();
-	const { updateAvatar: updateUserLastTeam } = useSettings();
 	const timerStatus = useAtomValue(timerStatusState);
 	const setIsTrackingEnabledState = useSetAtom(isTrackingEnabledState);
 
@@ -268,27 +263,57 @@ export function useOrganizationTeams() {
 	// ===== SYNCHRONIZATION WITH JOTAI (Backward Compatibility) =====
 
 	// Sync organization teams data with Jotai state
+	// Use a ref to track the last processed signature to avoid infinite loops
+	const lastProcessedTeamsSignatureRef = useRef<string>('');
+
 	useEffect(() => {
 		if (organizationTeamsQuery.data?.data?.items) {
 			const latestTeams = organizationTeamsQuery.data.data.items;
 
-			// Use ref to avoid stale closures and infinite loops
-			// Compare by ID + updatedAt to catch property changes
-			const currentTeams = teamsRef.current;
+			// CRITICAL FIX: Create a signature based on ALL mutable fields
+			// This ensures we detect changes in team properties even when members are undefined
+			// Includes: id, updatedAt, name, settings (shareProfileView, requirePlanToTrack, public),
+			// visual properties (color, emoji, prefix), and members count
 			const latestSignature = latestTeams
-				.map((t) => `${t.id}:${t.updatedAt ?? ''}`)
+				.map((t) =>
+					`${t.id}:${t.updatedAt ?? ''}:${t.name}:${t.shareProfileView ?? ''}:${t.requirePlanToTrack ?? ''}:${t.public ?? ''}:${t.color ?? ''}:${t.emoji ?? ''}:${t.prefix ?? ''}:${t.members?.length ?? 0}`
+				)
 				.sort()
-				.join(',');
-			const currentSignature = currentTeams
-				.map((t) => `${t.id}:${t.updatedAt ?? ''}`)
-				.sort()
-				.join(',');
+				.join('|');
 
-			const shouldUpdate = latestSignature !== currentSignature;
-
-			if (shouldUpdate) {
-				setTeams(latestTeams);
+			// Check if data has actually changed
+			if (latestSignature === lastProcessedTeamsSignatureRef.current) {
+				// Data hasn't actually changed, skip update
+				return;
 			}
+
+			// Update the ref to track this signature
+			lastProcessedTeamsSignatureRef.current = latestSignature;
+
+			const currentTeams = teamsRef.current;
+
+			// CRITICAL FIX: Merge teams intelligently to preserve members
+			const mergedTeams = latestTeams.map((latestTeam) => {
+				const existingTeam = currentTeams.find((t) => t.id === latestTeam.id);
+
+				if (!existingTeam) {
+					// New team, use as-is
+					return latestTeam;
+				}
+
+				// Merge strategy: preserve members if new data has incomplete members
+				// This prevents data loss during polling/refetching when API returns partial data
+				return {
+					...existingTeam,
+					...latestTeam,
+					// Preserve members only if new members is undefined/null (incomplete data)
+					// If members is an array (even empty []), use it (complete data)
+					members: Array.isArray(latestTeam.members) ? latestTeam.members : existingTeam.members || []
+				};
+			});
+
+
+			setTeams(mergedTeams);
 
 			// Handle case where user might be removed from all teams
 			if (latestTeams.length === 0) {
@@ -296,32 +321,49 @@ export function useOrganizationTeams() {
 				setIsTeamMemberJustDeleted(true);
 			}
 		}
-	}, [organizationTeamsQuery.data, setTeams, setIsTeamMember, setIsTeamMemberJustDeleted]); // Using ref to avoid teams dependency
+		// NOTE: Do NOT include organizationTeamsQuery.data in dependencies
+		// It causes infinite loops because React Query returns new references
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [organizationTeamsQuery.dataUpdatedAt, setTeams, setIsTeamMember, setIsTeamMemberJustDeleted]);
 
 	// Sync specific team data with Jotai state
+	// Use a ref to track the last processed team signature to avoid infinite loops
+	const lastProcessedTeamSignatureRef = useRef<string>('');
+
 	useEffect(() => {
 		if (organizationTeamQuery.data?.data) {
 			const newTeam = organizationTeamQuery.data.data;
 
-			// PERFORMANCE FIX: Only update if team data actually changed
-			const currentActiveTeam = activeTeam;
-			if (
-				!currentActiveTeam ||
-				currentActiveTeam.id !== newTeam.id ||
-				currentActiveTeam.updatedAt !== newTeam.updatedAt
-			) {
-				setTeamsUpdate(newTeam);
+			// NOTE_FIX: Create a signature based on essential data only
+			// Include activeTaskId of all members to detect when a member's active task changes
+			// This ensures TaskInfo updates in real-time when timer starts/stops
+			const memberActiveTaskIds = newTeam.members?.map(m => m.activeTaskId || 'null').join(',') || '';
+			const newSignature = `${newTeam.id}:${newTeam.updatedAt ?? ''}:${newTeam.members?.length ?? 0}:${memberActiveTaskIds}`;
 
-				// Set Project Id to cookie
-				if (newTeam && newTeam.projects && newTeam.projects.length) {
-					setActiveProjectIdCookie(newTeam.projects[0].id);
-				}
+			// Check if data has actually changed
+			if (newSignature === lastProcessedTeamSignatureRef.current) {
+				// Data hasn't actually changed, skip update
+				return;
+			}
+
+			// Update the ref to track this signature
+			lastProcessedTeamSignatureRef.current = newSignature;
+
+
+			setTeamsUpdate(newTeam);
+
+			// Set Project Id to cookie
+			if (newTeam && newTeam.projects && newTeam.projects.length) {
+				setActiveProjectIdCookie(newTeam.projects[0].id);
 			}
 		}
-	}, [organizationTeamQuery.data, setTeamsUpdate, activeTeam]);
+		// NOTE: Do NOT include organizationTeamQuery.data in dependencies
+		// It causes infinite loops because React Query returns new references
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [organizationTeamQuery.dataUpdatedAt, setTeamsUpdate, activeTeam]);
 
 	// ===== LEGACY HOOKS FOR MUTATIONS & CREATION (Phase 2 & 3) =====
-	const { createOrganizationTeam, loading: createOTeamLoading } = useCreateOrganizationTeam();
+	const { createOrganizationTeam, loading: createOTeamLoading, setActiveTeam } = useCreateOrganizationTeam();
 	const { updateOrganizationTeam, loading: updateOTeamLoading } = useUpdateOrganizationTeam();
 
 	const isManager = useCallback(() => {
@@ -332,27 +374,6 @@ export function useOrganizationTeams() {
 		});
 		setIsTeamManager(!!isM);
 	}, [user, members]);
-
-	const setActiveTeam = useCallback(
-		(team: (typeof teams)[0]) => {
-			setActiveTeamIdCookie(team?.id);
-			setOrganizationIdCookie(team?.organizationId || '');
-			// This must be called at the end (Update store)
-			setActiveTeamId(team?.id);
-
-			// Set Project Id to cookie
-			// TODO: Make it dynamic when we add Dropdown in Navbar
-			if (team && team?.projects && team.projects.length) {
-				setActiveProjectIdCookie(team.projects[0].id);
-			}
-			window && window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, team.id);
-			// Only update user last team if it's different to avoid unnecessary API calls
-			if (user && user.lastTeamId !== team.id) {
-				updateUserLastTeam({ id: user.id, lastTeamId: team.id });
-			}
-		},
-		[setActiveTeamId, updateUserLastTeam, user]
-	);
 
 	// ===== BACKWARD COMPATIBLE FUNCTIONS =====
 

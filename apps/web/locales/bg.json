@@ -685,7 +685,12 @@
 			"HAVE_PASSWORD": "Имате ли парола?",
 			"LOGIN_WITH_PASSWORD": "Влезте с паролата",
 			"LOGIN_WITH_MAGIC_CODE": "Влезте с магически код",
-			"ERROR_SIGNIN": "Грешка при подписване"
+			"ERROR_SIGNIN": "Грешка при подписване",
+			"DEMO_ACCOUNTS_TITLE": "Автоматично влизане в демо акаунти",
+			"DEMO_ACCOUNTS_SUBTITLE": "Моля, изберете тип акаунт по-долу.",
+			"DEMO_SUPER_ADMIN": "Демо Супер Админ",
+			"DEMO_ADMIN": "Демо Админ",
+			"DEMO_EMPLOYEE": "Демо Служител"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Моля, въведете данните си за вход."

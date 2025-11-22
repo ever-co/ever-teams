@@ -685,7 +685,12 @@
 			"HAVE_PASSWORD": "Wachtwoord hebben?",
 			"LOGIN_WITH_PASSWORD": "Log in met het wachtwoord",
 			"LOGIN_WITH_MAGIC_CODE": "Log in met een magische code",
-			"ERROR_SIGNIN": "Fout bij het ondertekenen"
+			"ERROR_SIGNIN": "Fout bij het ondertekenen",
+			"DEMO_ACCOUNTS_TITLE": "Automatisch inloggen op demo-accounts",
+			"DEMO_ACCOUNTS_SUBTITLE": "Selecteer hieronder het accounttype.",
+			"DEMO_SUPER_ADMIN": "Super Admin Demo",
+			"DEMO_ADMIN": "Admin Demo",
+			"DEMO_EMPLOYEE": "Medewerker Demo"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Voer uw inloggegevens in."

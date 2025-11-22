@@ -8,7 +8,7 @@ import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
 import { useMemo } from 'react';
-import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
+import { filterDailyPlan, filterDailyPlansByEmployee } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { TUser } from '@/core/types/schemas';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
@@ -19,11 +19,13 @@ import { useDailyPlan } from '@/core/hooks';
 export function FutureTasks({
 	profile,
 	user,
-	employeeId
+	employeeId,
+	filterByEmployee = false
 }: {
 	profile: any;
 	user?: TUser;
 	employeeId?: string; // Accept employeeId directly from parent
+	filterByEmployee?: boolean; // Filter tasks by employee (default: false = show all tasks)
 }) {
 	// Use employeeId from props if provided, otherwise calculate from user
 	const targetEmployeeId = employeeId ?? user?.employee?.id ?? user?.employeeId ?? '';
@@ -38,19 +40,16 @@ export function FutureTasks({
 		// First apply date filtering
 		let filteredData = filterDailyPlan(date as any, futurePlans);
 
-		// Then filter tasks for specific user if provided
-		if (user) {
-			filteredData = filteredData
-				.map((plan) => ({
-					...plan,
-					tasks: plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
-				}))
-				.filter((plan) => plan.tasks && plan.tasks.length > 0);
+		// Then filter tasks for specific user if filterByEmployee flag is enabled
+		// By default (filterByEmployee = false), we show ALL tasks in the daily plan
+		if (filterByEmployee && filteredData) {
+			filteredData = filterDailyPlansByEmployee(filteredData, user);
 		}
 
 		return filteredData;
-	}, [date, futurePlans, user?.id]); // Use user.id instead of user object for stable dependency
+	}, [date, futurePlans, user, filterByEmployee]);
 
+	if(!futureDailyPlanTasks) return null;
 	return (
 		<div className="flex flex-col gap-6">
 			{futureDailyPlanTasks?.length > 0 ? (
@@ -64,15 +63,15 @@ export function FutureTasks({
 						className="text-sm"
 						defaultValue={[tomorrowDate.toISOString().split('T')[0]]}
 					>
-						{futureDailyPlanTasks.map((plan) => (
+						{futureDailyPlanTasks?.map((plan) => (
 							<AccordionItem
 								value={plan.date.toString().split('T')[0]}
 								key={plan.id}
 								className="dark:border-slate-600 !border-none"
 							>
 								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex items-center justify-between w-full gap-3">
-										<div className="text-lg min-w-max">
+									<div className="flex gap-3 justify-between items-center w-full">
+										<div className="min-w-max text-lg">
 											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 										</div>
 										<HorizontalSeparator />

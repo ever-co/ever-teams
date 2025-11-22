@@ -95,7 +95,7 @@ export function useAuthenticationPassword() {
 		token: string;
 		selectedTeam: string;
 		defaultTeamId?: IOrganizationTeam['id'];
-		lastTeamId: string;
+		lastTeamId?: string; // Optional: undefined when user has no teams
 	}) => {
 		signInWorkspaceQueryCall(params)
 			.then(() => {
@@ -127,7 +127,9 @@ export function useAuthenticationPassword() {
 			email: formValues.email,
 			token,
 			selectedTeam,
-			lastTeamId: selectedTeam
+			// Only send lastTeamId if selectedTeam is not empty
+			// Empty string causes 400 Bad Request: "lastTeamId must be a UUID"
+			lastTeamId: selectedTeam || undefined
 		});
 	};
 

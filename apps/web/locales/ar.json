@@ -685,7 +685,12 @@
 			"HAVE_PASSWORD": "هل لديك كلمة مرور؟",
 			"LOGIN_WITH_PASSWORD": "تسجيل الدخول باستخدام كلمة المرور",
 			"LOGIN_WITH_MAGIC_CODE": "قم بتسجيل الدخول باستخدام الرمز السحري",
-			"ERROR_SIGNIN": "خطأ في التوقيع"
+			"ERROR_SIGNIN": "خطأ في التوقيع",
+			"DEMO_ACCOUNTS_TITLE": "تسجيل الدخول تلقائيًا إلى حسابات العرض التوضيحي",
+			"DEMO_ACCOUNTS_SUBTITLE": "يرجى تحديد نوع الحساب أدناه.",
+			"DEMO_SUPER_ADMIN": "عرض توضيحي للمسؤول الأعلى",
+			"DEMO_ADMIN": "عرض توضيحي للمسؤول",
+			"DEMO_EMPLOYEE": "عرض توضيحي للموظف"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "يرجى إدخال معلومات تسجيل الدخول الخاصة بك."

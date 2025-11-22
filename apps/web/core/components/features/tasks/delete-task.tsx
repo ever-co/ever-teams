@@ -42,7 +42,7 @@ const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 					leaveFrom="opacity-100"
 					leaveTo="opacity-0"
 				>
-					<div className="fixed inset-0 bg-black bg-opacity-25 blur-xl" />
+					<div className="fixed inset-0 bg-black/25 blur-xl" />
 				</TransitionChild>
 
 				<div className="overflow-y-auto fixed inset-0">

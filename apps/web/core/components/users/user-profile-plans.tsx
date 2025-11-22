@@ -88,7 +88,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 
 	const screenOutstanding = {
 		ALL: <OutstandingAll profile={profile} user={user} outstandingPlans={outstandingPlans} />,
-		DATE: <OutstandingFilterDate profile={profile} user={user} outstandingPlans={outstandingPlans} />
+		DATE: <OutstandingFilterDate profile={profile} user={user} outstandingPlans={outstandingPlans} filterByEmployee/>
 	};
 	const tabsScreens = {
 		'Today Tasks': <AllPlans profile={profile} currentTab={currentTab} user={user} employeeId={targetEmployeeId} />,
@@ -144,22 +144,23 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	// when targetEmployeeId changes (e.g., when viewing different user profiles)
 	const totalTasksDailyPlansMap = useMemo(() => {
 		// Apply date filtering to get the correct counts
-		const filteredFuturePlans = filterDailyPlan(date as any, futurePlans);
-		const filteredPastPlans = filterDailyPlan(date as any, pastPlans);
-		const filteredAllPlans = filterDailyPlan(date as any, sortedPlans);
+		const filteredFuturePlans = filterDailyPlan(date, futurePlans);
+		const filteredPastPlans = filterDailyPlan(date, pastPlans);
+		const filteredAllPlans = filterDailyPlan(date, sortedPlans);
 
 		return {
-			'Today Tasks': getTotalTasks(todayPlan, user),
-			'Future Tasks': getTotalTasks(filteredFuturePlans, user),
-			'Past Tasks': getTotalTasks(filteredPastPlans, user),
-			'All Tasks': getTotalTasks(filteredAllPlans, user),
+			// filterByEmployee = false: show ALL tasks in daily plans (not just assigned to user)
+			'Today Tasks': getTotalTasks(todayPlan, user, false),
+			'Future Tasks': getTotalTasks(filteredFuturePlans, user, false),
+			'Past Tasks': getTotalTasks(filteredPastPlans, user, true),
+			'All Tasks': getTotalTasks(filteredAllPlans, user, true),
+			// For Outstanding, ALWAYS filter by user (same logic as OutstandingAll component)
+			// This ensures the count matches what's actually displayed
 			Outstanding: estimatedTotalTime(
 				outstandingPlans.map((plan) => {
 					const tasks = plan.tasks ?? [];
-					if (user) {
-						return tasks.filter((task) => task.members?.some((member) => member.userId === user.id));
-					}
-					return tasks;
+					// Filter by user if user exists (privacy/security - same as OutstandingAll)
+					return user ? tasks.filter((task) => task.members?.some((member) => member.userId === user.id)) : tasks;
 				})
 			).totalTasks
 		};
@@ -206,7 +207,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 					{shouldShowDailyPlans ? (
 						<div className="space-y-4">
 							{getMyDailyPlansLoading ? (
-								<div className="flex items-center justify-center py-8">
+								<div className="flex justify-center items-center py-8">
 									<ReloadIcon className="w-6 h-6 animate-spin" />
 									<span className="ml-2">{t('common.LOADING')}</span>
 								</div>
@@ -217,7 +218,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 											{Object.keys(tabsScreens).map((filter, i) => (
 												<div
 													key={i}
-													className="flex items-center justify-start gap-4 cursor-pointer"
+													className="flex gap-4 justify-start items-center cursor-pointer"
 												>
 													{i !== 0 && <VerticalSeparator className="border-slate-400" />}
 													<div
@@ -248,7 +249,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 												</div>
 											))}
 										</div>
-										<div className="flex items-center gap-2">
+										<div className="flex gap-2 items-center">
 											{currentTab === 'Today Tasks' && todayPlan[0] && (
 												<>
 													{canSeeActivity ? (
@@ -289,10 +290,10 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 																		}
 																	}}
 																	variant="destructive"
-																	className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
+																	className="flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
 																>
 																	{deleteDailyPlanLoading && (
-																		<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
+																		<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
 																	)}
 																	{t('common.DELETE')}
 																</Button>

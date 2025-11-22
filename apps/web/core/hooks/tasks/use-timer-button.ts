@@ -71,9 +71,10 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 			// 3. The startTimer function properly handles all necessary updates
 			// Therefore, we only call startTimer() to avoid duplicate API calls and race conditions
 
-			// Start timer immediately - no artificial delay needed
-			// The toast feedback is already shown above, so UI is responsive
-			await startTimer();
+			// NOTE_FIX: Pass task explicitly to startTimer to avoid race conditions
+			// Between setActiveTask and startTimer, activeTeamTask might change due to useEffects or React Query refetches
+			// Passing the task explicitly ensures startTimer uses the correct task
+			await startTimer(task);
 
 			window.scrollTo({ top: 0, behavior: 'smooth' });
 			toast.success(t('timer.TIMER_STARTED'), { id: toastId });

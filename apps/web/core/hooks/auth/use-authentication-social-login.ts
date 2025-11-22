@@ -41,7 +41,9 @@ export function useAuthenticationSocialLogin() {
 					email: signinResult.confirmed_mail,
 					token: workspaces[selectedWorkspace].token,
 					defaultTeamId: selectedTeam,
-					lastTeamId: selectedTeam
+					// Only send lastTeamId if selectedTeam is not empty
+					// Empty string causes 400 Bad Request: "lastTeamId must be a UUID"
+					lastTeamId: selectedTeam || undefined
 				})
 				.then(async (result) => {
 					const tenantId = result.user?.tenantId || '';
