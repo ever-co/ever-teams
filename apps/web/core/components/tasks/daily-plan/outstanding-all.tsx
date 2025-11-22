@@ -21,6 +21,9 @@ export function OutstandingAll({ profile, user, outstandingPlans }: OutstandingA
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 
 	// Memoized user filter function for performance
+	// This function ALWAYS filters by user if user exists (privacy/security)
+	// The filterByEmployee flag is ignored in OutstandingAll because this component
+	// is designed to show outstanding tasks for a SPECIFIC user, not the whole team
 	const filterTasksByUser = useCallback(
 		(tasks: TTask[]) => {
 			if (!user?.id) return tasks;
@@ -35,6 +38,8 @@ export function OutstandingAll({ profile, user, outstandingPlans }: OutstandingA
 		// Early return for empty data to avoid unnecessary processing
 		if (!outstandingPlans.length) return [];
 
+		// ALWAYS filter by user if user exists (original behavior before filterByEmployee flag)
+		// This is intentional for privacy/security in the Outstanding view
 		const allTasks = outstandingPlans.flatMap((plan) => {
 			const tasks = plan.tasks ?? [];
 			return user ? filterTasksByUser(tasks) : tasks;
@@ -60,6 +65,7 @@ export function OutstandingAll({ profile, user, outstandingPlans }: OutstandingA
 	}, [uniqueTasks]);
 
 	// Create filtered plans for TaskEstimatedCount to match the displayed tasks
+	// ALWAYS filter by user if user exists (same logic as uniqueTasks)
 	const filteredPlansForCount = useMemo(() => {
 		return outstandingPlans
 			.map((plan) => ({
