@@ -5,7 +5,6 @@ import {
 	useAuthenticateUser,
 	useCallbackRef,
 	useHotkeys,
-	useOrganizationEmployeeTeams,
 	useOutsideClick,
 	useTaskInput
 } from '@/core/hooks';
@@ -17,7 +16,6 @@ import {
 	taskLabelsListState
 } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
-import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
 import { Combobox, Popover, PopoverPanel, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon, PlusIcon, UserGroupIcon } from '@heroicons/react/20/solid';
 import { Button, Divider, SpinnerLoader } from '@/core/components';
@@ -44,7 +42,6 @@ import { IIssueType } from '@/core/types/interfaces/task/issue-type';
 import { EIssueType, ETaskStatusName, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 type Props = {
 	task?: Nullable<TTask>;
@@ -96,10 +93,6 @@ export function TaskInput(props: Props) {
 		tasks: props.tasks
 	});
 
-	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
-
-	const activeTeam = useAtomValue(activeTeamState);
-	const { data: user } = useUserQuery();
 
 	const onCloseComboboxRef = useCallbackRef(props.onCloseCombobox);
 	const closeable_fcRef = useCallbackRef(props.closeable_fc);
@@ -162,40 +155,14 @@ export function TaskInput(props: Props) {
 	const setAuthActiveTask = useCallback(
 		(task: TTask) => {
 			if (datas.setActiveTask) {
+				// NOTE_FIX: datas.setActiveTask already calls updateOrganizationTeamEmployeeActiveTask
+				// which has optimistic updates for React Query. No need to call updateOrganizationTeamEmployee
+				// here as it would be redundant and would overwrite the optimistic update.
 				datas.setActiveTask(task);
-
-				// Update Current user's active task to sync across multiple devices
-				const currentEmployeeDetails = activeTeam?.members?.find(
-					(member) => member.employeeId === user?.employee?.id
-				);
-				if (currentEmployeeDetails && currentEmployeeDetails.id) {
-					try {
-						// Handle the update without blocking the UI
-						// Use currentEmployeeDetails.id (OrganizationTeamEmployee ID), not employeeId
-						updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
-							organizationId: task.organizationId,
-							activeTaskId: task.id,
-							organizationTeamId: activeTeam?.id,
-							tenantId: activeTeam?.tenantId
-						}).catch((error) => {
-							logErrorInDev('Failed to update employee active task', error);
-							toast.error('Failed to update employee active task:', {
-								description: getErrorMessage(error, 'Unable to update active task')
-							});
-							// Don't throw - task is already set locally
-						});
-					} catch (error) {
-						logErrorInDev('Failed to update employee active task', error);
-						toast.error('Failed to update employee active task', {
-							description: getErrorMessage(error, 'Unable to update active task')
-						});
-						// Don't throw - task is already set locally
-					}
-				}
 			}
 			setEditMode(false);
 		},
-		[datas, setEditMode, activeTeam, user, updateOrganizationTeamEmployee]
+		[datas, setEditMode]
 	);
 
 	/**
@@ -395,7 +362,7 @@ export function TaskInput(props: Props) {
 			}}
 			trailingNode={
 				/* Showing the spinner when the task is being updated. */
-				<div className="flex items-center justify-center h-full p-2">
+				<div className="flex justify-center items-center p-2 h-full">
 					{props.task ? (
 						(updateLoading || props.inputLoader) && <SpinnerLoader size={25} />
 					) : (
@@ -650,7 +617,7 @@ function TaskCard({
 									className={'dark:bg-[#1B1D22]'}
 								/>
 
-								<div className="flex justify-start gap-2">
+								<div className="flex gap-2 justify-start">
 									<div ref={statusDropdownRef}>
 										<ActiveTaskStatusDropdown
 											className="min-w-fit lg:max-w-[170px]"
@@ -888,9 +855,9 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 			)}
 		>
 			<Combobox multiple={true}>
-				<div className="relative h-full my-auto">
-					<div className="w-full h-full overflow-hidden text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
-						<Combobox.Button className="flex items-center justify-between h-full min-w-fit max-w-40 hover:transition-all">
+				<div className="relative my-auto h-full">
+					<div className="overflow-hidden w-full h-full text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
+						<Combobox.Button className="flex justify-between items-center h-full min-w-fit max-w-40 hover:transition-all">
 							<div
 								className={cn(
 									'flex gap-1 items-center  !text-default dark:!text-white text-xs',

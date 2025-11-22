@@ -88,6 +88,10 @@ export function useTeamTasks() {
 	const [selectedEmployeeId, setSelectedEmployeeId] = useState(user?.employee?.id);
 	const [selectedOrganizationTeamId, setSelectedOrganizationTeamId] = useState(activeTeam?.id);
 	const [activeTeamTask, setActiveTeamTask] = useAtom(activeTeamTaskState);
+	const [isUpdatingActiveTask, setIsUpdatingActiveTask] = useState(false);
+
+	// Keep activeTeamTask in sync with a ref to avoid stale closures in setActiveTask
+	const activeTeamTaskRef = useSyncRef(activeTeamTask);
 	const { firstLoad, firstLoadData: firstLoadTasksData } = useFirstLoad();
 
 	// React Query for team tasks
@@ -510,51 +514,68 @@ export function useTeamTasks() {
 	 */
 	const setActiveTask = useCallback(
 		async (task: TTask | null) => {
-			/**
-			 * Unassign previous active task
-			 */
-			if ($memberActiveTaskId.current && $user.current) {
-				const _task = tasksRef.current.find((t) => t.id === $memberActiveTaskId.current);
+			// Set flag to prevent race conditions with server sync
+			setIsUpdatingActiveTask(true);
 
-				if (_task) {
-					updateTask({
-						..._task,
-						members: _task.members?.filter((m) => m.id !== $user.current?.employee?.id)
-					});
-				}
-			}
+			try {
+				/**
+				 * Unassign previous active task
+				 */
+				if ($memberActiveTaskId.current && $user.current) {
+					const _task = tasksRef.current.find((t) => t.id === $memberActiveTaskId.current);
 
-			const previousTask = activeTeamTask;
-			const previousTaskId = getActiveTaskIdCookie();
-			setActiveTaskIdCookie(task?.id || '');
-			setActiveTeamTask(task);
-			setActiveUserTaskCookieCb(task);
-
-			if (task) {
-				// Update Current user's active task to sync across multiple devices
-				const currentEmployeeDetails = activeTeam?.members?.find(
-					(member: TOrganizationTeamEmployee) => member.employeeId === authUser.current?.employee?.id
-				);
-
-				if (currentEmployeeDetails && currentEmployeeDetails.id) {
-					try {
-						// Await the active task update to prevent race conditions
-						// Use currentEmployeeDetails.id (OrganizationTeamEmployee ID), not employeeId
-						await updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
-							organizationId: task.organizationId,
-							activeTaskId: task.id,
-							organizationTeamId: activeTeam?.id,
-							tenantId: activeTeam?.tenantId ?? ''
+					if (_task) {
+						await updateTask({
+							..._task,
+							members: _task.members?.filter((m) => m.id !== $user.current?.employee?.id)
 						});
-					} catch (error) {
-						toast.error('Failed to update active task', {
-							description: getErrorMessage(error)
-						});
-						setActiveTaskIdCookie(previousTaskId || '');
-						setActiveTeamTask(previousTask);
-						setActiveUserTaskCookieCb(previousTask);
 					}
 				}
+
+				// Use ref to get current activeTeamTask to avoid stale closure
+				const previousTask = activeTeamTaskRef.current;
+				const previousTaskId = getActiveTaskIdCookie();
+				setActiveTaskIdCookie(task?.id || '');
+				setActiveTeamTask(task);
+				setActiveUserTaskCookieCb(task);
+
+				if (task) {
+					// Update Current user's active task to sync across multiple devices
+					const currentEmployeeDetails = activeTeam?.members?.find(
+						(member: TOrganizationTeamEmployee) => member.employeeId === authUser.current?.employee?.id
+					);
+
+					if (currentEmployeeDetails && currentEmployeeDetails.id) {
+						try {
+							// Await the active task update to prevent race conditions
+							// Use currentEmployeeDetails.id (OrganizationTeamEmployee ID), not employeeId
+							await updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
+								organizationId: task.organizationId,
+								activeTaskId: task.id,
+								organizationTeamId: activeTeam?.id,
+								tenantId: activeTeam?.tenantId ?? ''
+							});
+
+							// Keep the flag true for a short delay to allow React Query to refetch and stabilize
+							// This prevents the useConditionalUpdateEffect from overwriting the active task
+							// with stale server data during the refetch window
+							// NOTE: Do NOT invalidate queries here - updateActiveTaskMutation already handles
+							// optimistic updates and invalidation. Adding invalidation here causes CancelledError
+							// because updateActiveTaskMutation calls cancelQueries in onMutate.
+							await new Promise((resolve) => setTimeout(resolve, 1000));
+						} catch (error) {
+							toast.error('Failed to update active task', {
+								description: getErrorMessage(error)
+							});
+							setActiveTaskIdCookie(previousTaskId || '');
+							setActiveTeamTask(previousTask);
+							setActiveUserTaskCookieCb(previousTask);
+						}
+					}
+				}
+			} finally {
+				// Always clear the flag, even if an error occurred
+				setIsUpdatingActiveTask(false);
 			}
 		},
 		[
@@ -566,7 +587,8 @@ export function useTeamTasks() {
 			$memberActiveTaskId,
 			$user,
 			tasksRef,
-			updateTask
+			updateTask,
+			setIsUpdatingActiveTask
 		]
 	);
 
@@ -589,12 +611,18 @@ export function useTeamTasks() {
 
 	useConditionalUpdateEffect(
 		() => {
+			// Skip synchronization if we're currently updating the active task
+			// This prevents race conditions where server data overwrites local selection
+			if (isUpdatingActiveTask) {
+				return;
+			}
+
 			const memberActiveTask = tasks.find((item) => item.id === memberActiveTaskId);
 			if (memberActiveTask) {
 				setActiveTeamTask(memberActiveTask);
 			}
 		},
-		[activeTeam, tasks, memberActiveTaskId],
+		[activeTeam, tasks, memberActiveTaskId, isUpdatingActiveTask],
 		Boolean(activeTeamTask)
 	);
 
@@ -665,6 +693,7 @@ export function useTeamTasks() {
 		deleteEmployeeFromTasksLoading: deleteEmployeeFromTasksMutation.isPending,
 		getTaskById,
 		getTasksByIdLoading,
-		detailedTask
+		detailedTask,
+		isUpdatingActiveTask // Export flag to protect against race conditions during task switching
 	};
 }
