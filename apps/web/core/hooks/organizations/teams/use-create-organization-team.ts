@@ -1,5 +1,10 @@
 'use client';
-import { setActiveTeamIdCookie, setOrganizationIdCookie } from '@/core/lib/helpers/cookies';
+
+import {
+	setActiveProjectIdCookie,
+	setActiveTeamIdCookie,
+	setOrganizationIdCookie
+} from '@/core/lib/helpers/cookies';
 import { activeTeamIdState, isTeamMemberState, organizationTeamsState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom, useSetAtom } from 'jotai';
@@ -12,6 +17,8 @@ import { ZodValidationError } from '@/core/types/schemas/utils/validation';
 import { queryKeys } from '@/core/query/keys';
 import { toast } from 'sonner';
 import { useCacheInvalidation } from '../../common/use-cache-invalidation';
+import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
+import { useSettings } from '../../users';
 
 /**
  *Creates a custom hook for creating an organization team.
@@ -25,8 +32,34 @@ export function useCreateOrganizationTeam() {
 	const [teams, setTeams] = useAtom(organizationTeamsState);
 	const teamsRef = useSyncRef(teams);
 	const setActiveTeamId = useSetAtom(activeTeamIdState);
-	const { refreshToken, $user } = useAuthenticateUser();
+	const { refreshToken, user } = useAuthenticateUser();
+
 	const [isTeamMember, setIsTeamMember] = useAtom(isTeamMemberState);
+
+	const { updateAvatar: updateUserLastTeam } = useSettings();
+
+	const setActiveTeam = useCallback(
+		(team: (typeof teams)[0]) => {
+			setActiveTeamIdCookie(team?.id);
+			setOrganizationIdCookie(team?.organizationId || '');
+
+			// Set Project Id to cookie
+			// TODO: Make it dynamic when we add Dropdown in Navbar
+			if (team && team?.projects && team.projects.length) {
+				setActiveProjectIdCookie(team.projects[0].id);
+			}
+			window && window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, team.id);
+			// Only update user last team if it's different to avoid unnecessary API calls
+			if (user && user.lastTeamId !== team.id) {
+				updateUserLastTeam({ id: user.id, lastTeamId: team.id });
+			}
+
+			// Set active team ID AFTER teams are updated to ensure proper synchronization
+			// This must be called at the end (Update store)
+			setActiveTeamId(team?.id);
+		},
+		[setActiveTeamId, updateUserLastTeam, user]
+	);
 
 	// Use cache invalidation hook - much cleaner than manual invalidations
 	const { smartInvalidate } = useCacheInvalidation();
@@ -44,9 +77,7 @@ export function useCreateOrganizationTeam() {
 
 				if (created) {
 					// 1. Update cookies first (no re-renders)
-					setActiveTeamIdCookie(created.id);
-					setOrganizationIdCookie(created.organizationId || '');
-
+					setActiveTeam(created);
 					// 2. Update team member status if needed (minimal re-render)
 					if (!isTeamMember) {
 						setIsTeamMember(true);
@@ -62,10 +93,7 @@ export function useCreateOrganizationTeam() {
 					// 4. Update teams list first
 					setTeams(dt);
 
-					// 5. Set active team ID AFTER teams are updated to ensure proper synchronization
-					setActiveTeamId(created.id);
-
-					// 6. Success notification (no cache invalidation needed since we already have fresh data)
+					// 5. Success notification (no cache invalidation needed since we already have fresh data)
 					// Note: Removed queryClient.invalidateQueries to prevent conflicts with manual state updates
 					toast.success('Team created successfully', {
 						description: `Team "${name}" has been created and you are now a member.`
@@ -104,7 +132,7 @@ export function useCreateOrganizationTeam() {
 		(name: string) => {
 			const teams = teamsRef.current;
 			const $name = name.trim();
-			const teamExists = teams.find((t: TOrganizationTeam) => t.name.toLowerCase() === $name.toLowerCase());
+			const teamExists = teams.find((t: TOrganizationTeam) => t?.name?.toLowerCase() === $name?.toLowerCase());
 
 			if (teamExists) {
 				return Promise.reject(new Error('Team with this name already exists'));
@@ -112,18 +140,19 @@ export function useCreateOrganizationTeam() {
 			if ($name.length < 2) {
 				return Promise.reject(new Error('Team name must be at least 2 characters long'));
 			}
-			if (!$user.current) {
+			if (!user) {
 				return Promise.reject(new Error('User authentication required'));
 			}
 
 			// Use React Query mutation with Promise interface preserved
-			return createOrganizationTeamMutation.mutateAsync({ name: $name, user: $user.current });
+			return createOrganizationTeamMutation.mutateAsync({ name: $name, user: user });
 		},
-		[createOrganizationTeamMutation, teamsRef, $user]
+		[createOrganizationTeamMutation, teamsRef, user]
 	);
 
 	return {
 		createOrganizationTeam,
+		setActiveTeam,
 		loading: createOrganizationTeamMutation.isPending // Map to legacy loading interface
 	};
 }

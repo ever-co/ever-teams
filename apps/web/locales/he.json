@@ -685,7 +685,12 @@
 			"HAVE_PASSWORD": "יש לך סיסמא?",
 			"LOGIN_WITH_PASSWORD": "התחבר עם הסיסמה",
 			"LOGIN_WITH_MAGIC_CODE": "היכנס עם קוד קסם",
-			"ERROR_SIGNIN": "שגיאה בחתימה"
+			"ERROR_SIGNIN": "שגיאה בחתימה",
+			"DEMO_ACCOUNTS_TITLE": "התחבר אוטומטית לחשבונות הדגמה",
+			"DEMO_ACCOUNTS_SUBTITLE": "אנא בחר סוג חשבון למטה.",
+			"DEMO_SUPER_ADMIN": "הדגמת מנהל על",
+			"DEMO_ADMIN": "הדגמת מנהל",
+			"DEMO_EMPLOYEE": "הדגמת עובד"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "אנא הזן את פרטי ההתחברות שלך."

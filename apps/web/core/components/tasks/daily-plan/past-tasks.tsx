@@ -7,7 +7,7 @@ import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import { clsxm } from '@/core/lib/utils';
 import TaskBlockCard from '../task-block-card';
-import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
+import { filterDailyPlan, filterDailyPlansByEmployee } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { useMemo } from 'react';
 import { TUser } from '@/core/types/schemas';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
@@ -21,12 +21,14 @@ export function PastTasks({
 	user,
 	profile,
 	currentTab = 'Past Tasks',
-	employeeId: propsEmployeeId
+	employeeId: propsEmployeeId,
+	filterByEmployee = false
 }: {
 	profile: any;
 	currentTab?: FilterTabs;
 	user?: TUser;
 	employeeId?: string; // Accept employeeId directly from parent
+	filterByEmployee?: boolean; // Filter tasks by employee (default: false = show all tasks)
 }) {
 	// Use employeeId from props if provided, otherwise calculate from user
 	const employeeId = propsEmployeeId ?? user?.employee?.id ?? user?.employeeId ?? '';
@@ -43,19 +45,15 @@ export function PastTasks({
 		// First apply date filtering
 		let filteredData = filterDailyPlan(date as any, pastPlans);
 
-		// Then filter tasks for specific user if provided
-		if (user) {
-			filteredData = filteredData
-				.map((plan) => ({
-					...plan,
-					tasks: plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
-				}))
-				.filter((plan) => plan.tasks && plan.tasks.length > 0);
+		// Then filter tasks for specific user if filterByEmployee flag is enabled
+		// By default (filterByEmployee = false), we show ALL tasks in the daily plan
+		if (filterByEmployee && filteredData) {
+			filteredData = filterDailyPlansByEmployee(filteredData, user);
 		}
 
 		return filteredData;
-	}, [date, pastPlans, user?.id]); // Use user.id instead of user object for stable dependency
-
+	}, [date, pastPlans, user, filterByEmployee]);
+	if (!filteredPastPlans) return null;
 	return (
 		<div className="flex flex-col gap-6">
 			{filteredPastPlans?.length > 0 ? (
@@ -76,8 +74,8 @@ export function PastTasks({
 								className="dark:border-slate-600 !border-none"
 							>
 								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex items-center justify-between w-full gap-3">
-										<div className="text-lg min-w-max">
+									<div className="flex gap-3 justify-between items-center w-full">
+										<div className="min-w-max text-lg">
 											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 										</div>
 										<HorizontalSeparator />

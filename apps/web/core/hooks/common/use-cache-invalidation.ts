@@ -43,7 +43,6 @@ const QUERY_GROUPS = {
 		queryKeys.users.invitations.all,
 		queryKeys.users.settings.all,
 		queryKeys.users.employees.all,
-		queryKeys.organizationTeams.all
 	],
 	ALL: [
 		queryKeys.users.all,

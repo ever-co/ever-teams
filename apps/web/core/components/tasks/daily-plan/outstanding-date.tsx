@@ -13,26 +13,25 @@ import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import DailyPlanTasksTableView from './table-view';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { filterDailyPlansByEmployee } from '@/core/hooks/daily-plans/use-filter-date-range';
 
 interface IOutstandingFilterDate {
 	profile: any;
 	user?: TUser;
 	outstandingPlans: TDailyPlan[];
+	filterByEmployee?: boolean; // Filter tasks by employee (default: false = show all tasks)
 }
-export function OutstandingFilterDate({ profile, user, outstandingPlans }: IOutstandingFilterDate) {
+export function OutstandingFilterDate({ profile, user, outstandingPlans, filterByEmployee = false }: IOutstandingFilterDate) {
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 
 	// Performance: useMemo prevents recalculating filtered plans on every render
 	const filteredPlans = useMemo(() => {
-		if (!user) return outstandingPlans;
+		// If filterByEmployee flag is disabled, show all tasks
+		if (!filterByEmployee) return outstandingPlans;
 
-		return outstandingPlans
-			.map((plan) => ({
-				...plan,
-				tasks: plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
-			}))
-			.filter((plan) => plan.tasks && plan.tasks.length > 0);
-	}, [outstandingPlans, user]);
+		// Filter tasks by employee if flag is enabled
+		return filterDailyPlansByEmployee(outstandingPlans, user);
+	}, [outstandingPlans, user, filterByEmployee]);
 
 	// Local state for drag-and-drop functionality (minimal approach)
 	const [plans, setPlans] = useState(filteredPlans);
@@ -107,8 +106,8 @@ export function OutstandingFilterDate({ profile, user, outstandingPlans }: IOuts
 								className="dark:border-slate-600 !border-none"
 							>
 								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex items-center justify-between w-full gap-3">
-										<div className="text-lg min-w-max">
+									<div className="flex gap-3 justify-between items-center w-full">
+										<div className="min-w-max text-lg">
 											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
 										</div>
 										<HorizontalSeparator />

@@ -1,6 +1,6 @@
 'use client';
 
-import { CAPTCHA_TYPE, RECAPTCHA_SITE_KEY } from '@/core/constants/config/constants';
+import { CAPTCHA_TYPE, DEFAULT_APP_PATH, RECAPTCHA_SITE_KEY } from '@/core/constants/config/constants';
 import { IStepProps, useAuthenticationTeam } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { clsxm } from '@/core/lib/utils';
@@ -32,8 +32,9 @@ function AuthTeam() {
 	return (
 		<>
 			<AuthLayout title={t('pages.authTeam.HEADING_TITLE')} description={t('pages.authTeam.HEADING_DESCRIPTION')}>
-				<div className="w-[98%] md:w-[550px] overflow-x-hidden overflow-y-clip">
-					<form onSubmit={handleSubmit} autoComplete="off">
+
+			<div className="w-[98%] md:w-[550px] overflow-x-hidden overflow-y-clip  max-w-[450px] mx-auto">
+					<form onSubmit={handleSubmit} autoComplete="off" className='w-full'>
 						<div
 							className={clsxm(
 								'w-[200%] flex flex-row transition-[transform] duration-500',
@@ -87,8 +88,8 @@ function FillTeamNameForm({
 
 	return (
 		<EverCard className={clsxm('w-full dark:bg-[#25272D]', className)} shadow="custom">
-			<div className="flex flex-col items-center justify-between">
-				<Text.Heading as="h3" className="text-center mb-7">
+			<div className="flex flex-col justify-between items-center">
+				<Text.Heading as="h3" className="mb-7 text-center">
 					{t('pages.authTeam.INPUT_TEAM_NAME')}
 				</Text.Heading>
 
@@ -104,8 +105,8 @@ function FillTeamNameForm({
 					required
 				/>
 
-				<div className="flex items-center justify-between w-full mt-6">
-					<Text.Link href="/auth/passcode" underline variant="primary" className="font-normal">
+				<div className="flex justify-between items-center mt-6 w-full">
+					<Text.Link href={DEFAULT_APP_PATH} underline variant="primary" className="font-normal">
 						{t('pages.auth.LOGIN')}
 					</Text.Link>
 
@@ -174,12 +175,12 @@ function FillUserDataForm({
 	};
 	return (
 		<EverCard className={clsxm('w-full dark:bg-[#25272D]', className)} shadow="bigger">
-			<div className="flex flex-col items-center justify-between h-full">
+			<div className="flex flex-col justify-between items-center h-full">
 				<Text.Heading as="h3" className="mb-10 text-center">
 					{t('pages.authTeam.CREATE_FIRST_TEAM')}
 				</Text.Heading>
 
-				<div className="w-full mb-8">
+				<div className="mb-6 w-full">
 					<InputField
 						placeholder={t('form.NAME_PLACEHOLDER')}
 						name="name"
@@ -204,7 +205,7 @@ function FillUserDataForm({
 					{renderCaptcha()}
 				</div>
 
-				<div className="flex items-center justify-between w-full">
+				<div className="flex justify-between items-center w-full">
 					<BackButton onClick={onPreviousStep} />
 
 					<Button type="submit" disabled={loading}>
@@ -232,7 +233,7 @@ function ReCAPTCHA({ handleOnChange, errors }: { handleOnChange: any; errors: an
 					onErrored={() => setFeedback(t('errors.NETWORK_ISSUE'))}
 				/>
 				{(errors['recaptcha'] || feedback) && (
-					<Text.Error className="self-start justify-self-start">{errors['recaptcha'] || feedback}</Text.Error>
+					<Text.Error className="justify-self-start self-start">{errors['recaptcha'] || feedback}</Text.Error>
 				)}
 			</div>
 		</div>

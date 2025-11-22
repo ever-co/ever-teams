@@ -5,6 +5,7 @@ import enLanguage from '@/locales/en.json';
 import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
 import { EManualTimeReasons } from '@/core/types/generics/enums/timer';
 import { EInviteStatus } from '@/core/types/generics/enums/invite';
+import { Shield, User2, UserCog } from 'lucide-react';
 
 export const BREAKPOINTS = {
 	MOBILE: 768
@@ -87,7 +88,7 @@ export const PERMISSION_ROLES: PermissionMap = {
 	VIEWER: ['SUPER_ADMIN', 'ADMIN', 'VIEWER']
 };
 export const API_BASE_URL = '/api';
-export const DEFAULT_APP_PATH = '/auth/passcode';
+export const DEFAULT_APP_PATH = process.env.NEXT_PUBLIC_DEMO === 'true' ? '/auth/password' : '/auth/passcode';
 export const DEFAULT_MAIN_PATH = '/';
 export const PROTECTED_APP_URL_PATHS: RegExp[] = [
 	/^\/$/,
@@ -134,6 +135,39 @@ export const GAUZY_API_BASE_SERVER_URL = getNextPublicEnv(
 	process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL
 );
 export const IS_DEV_MODE = process.env.NODE_ENV === 'development';
+export const IS_DEMO_MODE = process.env.NEXT_PUBLIC_DEMO === 'true';
+
+/**
+ * Demo account credentials for auto-login feature
+ * Only used when IS_DEMO_MODE is true
+ */
+export const DEMO_ACCOUNTS_CONFIG = IS_DEMO_MODE ? [
+	{
+		type: 'SUPER_ADMIN',
+		email: 'admin@ever.co',
+		password: 'admin',
+		translationKey: 'DEMO_SUPER_ADMIN',
+		role: 'Super Admin',
+		icon:UserCog
+	},
+	{
+		type: 'ADMIN',
+		email: 'local.admin@ever.co',
+		password: 'admin',
+		translationKey: 'DEMO_ADMIN',
+		role: 'Admin',
+		icon:Shield
+	},
+	{
+		type: 'EMPLOYEE',
+		email: 'employee@ever.co',
+		password: '123456',
+		translationKey: 'DEMO_EMPLOYEE',
+		role: 'Employee',
+		icon:User2
+	}
+] :[] as const;
+
 export const ACTIVE_LOCAL_LOG_SYSTEM = getNextPublicEnv(
 	'NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM',
 	process.env.NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM
@@ -499,6 +533,12 @@ export const manualTimeReasons: EManualTimeReasons[] = [
 	EManualTimeReasons.UNPLANNED_WORK,
 	EManualTimeReasons.TESTED_TIMER
 ];
+export const STOP_TIMER_DEBOUNCE_MS = 500; // 0.5 seconds
+export const STOP_TIMER_EFFECT_DEBOUNCE_MS = 2000; // 2 seconds
+export const REFRESH_INTERVAL = 5000; // 5 seconds
+export const SYNC_TIMER_INTERVAL = 60000; // 1 minute
+
+export const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
 export const statusOptions = [
 	{ value: 'Approved', label: 'Approved' },
@@ -843,7 +883,6 @@ export const InviteStatusDisplayMap = {
 	}
 } as const;
 export const ITEMS_LENGTH_TO_VIRTUALIZED = 8;
-export const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
 export const sizeOption = [
 	{

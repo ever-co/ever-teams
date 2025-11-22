@@ -685,7 +685,12 @@
 			"HAVE_PASSWORD": "有密码吗？",
 			"LOGIN_WITH_PASSWORD": "使用密码登录",
 			"LOGIN_WITH_MAGIC_CODE": "使用魔法码登录",
-			"ERROR_SIGNIN": "签署时出错"
+			"ERROR_SIGNIN": "签署时出错",
+			"DEMO_ACCOUNTS_TITLE": "自动登录演示账户",
+			"DEMO_ACCOUNTS_SUBTITLE": "请在下方选择账户类型。",
+			"DEMO_SUPER_ADMIN": "超级管理员演示",
+			"DEMO_ADMIN": "管理员演示",
+			"DEMO_EMPLOYEE": "员工演示"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "请输入您的登录信息。"

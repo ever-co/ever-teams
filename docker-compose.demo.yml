@@ -6,7 +6,7 @@ services:
       GAUZY_API_SERVER_URL: ${GAUZY_API_SERVER_URL:-https://api.ever.team}
       NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${NEXT_PUBLIC_GAUZY_API_SERVER_URL:-https://api.ever.team}
       NODE_ENV: ${NODE_ENV:-development}
-      DEMO: "true"
+      NEXT_PUBLIC_DEMO: "true"
       # App Branding Variables
       APP_NAME: ${APP_NAME:-Ever Teams}
       APP_SIGNATURE: ${APP_SIGNATURE:-Ever Teams}

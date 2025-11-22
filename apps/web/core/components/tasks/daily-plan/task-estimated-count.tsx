@@ -2,6 +2,7 @@ import { secondsToTime } from '@/core/lib/helpers/index';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { useTranslations } from 'next-intl';
 import { VerticalSeparator } from '../../duplicated-components/separator';
+import { filterDailyPlansByEmployee } from '@/core/hooks/daily-plans/use-filter-date-range';
 
 interface ITaskEstimatedCount {
 	outstandingPlans: TDailyPlan[];
@@ -48,18 +49,16 @@ export function estimatedTotalTime(data: any) {
 	return { timesEstimated, totalTasks };
 }
 
-export const getTotalTasks = (plans: TDailyPlan[], user?: TUser): number => {
+export const getTotalTasks = (plans?: TDailyPlan[], user?: TUser, filterByEmployee = false): number => {
 	if (!plans || plans.length === 0) {
 		return 0;
 	}
 
-	const tasksPerPlan = plans.map((plan) => {
-		const filteredTasks = user
-			? plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
-			: plan.tasks;
+	// Filter plans by employee if flag is enabled
+	const filteredPlans = filterByEmployee ? filterDailyPlansByEmployee(plans, user) : plans;
 
-		return filteredTasks?.length || 0;
-	});
+	// Count all tasks in filtered plans
+	const tasksPerPlan = filteredPlans.map((plan) => plan.tasks?.length || 0);
 
 	return tasksPerPlan.reduce((total, taskCount) => total + taskCount, 0);
 };
