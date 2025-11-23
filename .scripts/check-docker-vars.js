@@ -21,7 +21,7 @@ const fileResults = [];
 
 // 2. Check Dockerfile
 console.log('CHECKING DOCKERFILE:');
-const dockerfilePath = path.join(process.cwd(), 'Dockerfile');
+const dockerfilePath = path.join(process.cwd(), '.deploy/web/Dockerfile');
 
 if (checkFileExists(dockerfilePath)) {
 	const content = safeReadFile(dockerfilePath);
@@ -59,14 +59,14 @@ if (checkFileExists(dockerfilePath)) {
 			console.log(
 				`   ✅ All build-time variables present in Dockerfile (${buildTimeVars.length}/${envVars.length} checked)`
 			);
-			fileResults.push({ file: 'Dockerfile', missing: 0, status: 'ok' });
+			fileResults.push({ file: '.deploy/web/Dockerfile', missing: 0, status: 'ok' });
 		} else {
-			console.log(`   ❌ Missing build-time variables in Dockerfile (${missingInDockerfile.length}):`);
+			console.log(`   ❌ Missing build-time variables in .deploy/web/Dockerfile (${missingInDockerfile.length}):`);
 			missingInDockerfile.forEach((varName) => {
 				console.log(`      - ${varName}`);
 			});
 			fileResults.push({
-				file: 'Dockerfile',
+				file: '.deploy/web/Dockerfile',
 				missing: missingInDockerfile.length,
 				status: 'error',
 				vars: missingInDockerfile
