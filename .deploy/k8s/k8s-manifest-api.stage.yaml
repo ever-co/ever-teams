@@ -81,9 +81,9 @@ spec:
                       - name: SENTRY_POSTGRES_TRACKING_ENABLED
                         value: '$SENTRY_POSTGRES_TRACKING_ENABLED'
                       - name: API_BASE_URL
-                        value: 'https://apistage.ever.team'
+                        value: '$API_BASE_URL'
                       - name: CLIENT_BASE_URL
-                        value: 'https://stage.ever.team'
+                        value: '$CLIENT_BASE_URL'
                       - name: DB_URI
                         value: '$DB_URI'
                       - name: DB_HOST

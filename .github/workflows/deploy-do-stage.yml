@@ -151,7 +151,6 @@ jobs:
           NEXT_PUBLIC_SITE_TITLE: '${{ secrets.NEXT_PUBLIC_SITE_TITLE }}'
           NEXT_PUBLIC_SITE_DESCRIPTION: '${{ secrets.NEXT_PUBLIC_SITE_DESCRIPTION }}'
           NEXT_PUBLIC_SITE_KEYWORDS: '${{ secrets.NEXT_PUBLIC_SITE_KEYWORDS }}'
-          NEXT_PUBLIC_WEB_APP_URL: '${{ secrets.NEXT_PUBLIC_WEB_APP_URL }}'
           NEXT_PUBLIC_TWITTER_USERNAME: '${{ secrets.NEXT_PUBLIC_TWITTER_USERNAME }}'
           NEXT_PUBLIC_IMAGES_HOSTS: '${{ secrets.NEXT_PUBLIC_IMAGES_HOSTS }}'
           # Additional Environment Variables
@@ -190,6 +189,7 @@ jobs:
           NEXT_PUBLIC_POSTHOG_HOST: '${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}'
           NEXT_IGNORE_ESLINT_ERROR_ON_BUILD: '${{ secrets.NEXT_IGNORE_ESLINT_ERROR_ON_BUILD }}'
           ANALYZE: '${{ secrets.ANALYZE }}'
+          NEXT_PUBLIC_WEB_APP_URL: '${{ vars.NEXT_PUBLIC_WEB_APP_URL }}'
 
       # we need this step because for now we just use :latest tag
       # note: for production, we will use a different strategy later
