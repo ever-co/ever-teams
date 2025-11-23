@@ -217,7 +217,7 @@ export function CreateDailyPlanFormModal({
 									)}
 
 									{isOpen && (
-										<div className="absolute right-0 w-full p-2 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-5 focus:outline-none">
+										<div className="absolute right-0 w-full p-2 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black/5 z-5 focus:outline-none">
 											<div className="flex flex-col items-center w-full gap-1">
 												<Button
 													disabled={createDailyPlanLoading}

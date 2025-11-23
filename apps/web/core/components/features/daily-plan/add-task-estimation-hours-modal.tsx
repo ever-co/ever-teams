@@ -932,7 +932,7 @@ function TaskCard(props: ITaskCardProps) {
 		<EverCard
 			shadow="custom"
 			className={clsx(
-				'lg:flex  items-center gap-2 justify-between py-3  md:px-4 hidden min-h-[4.5rem] w-full h-[4.5rem] dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative !text-xs cursor-pointer',
+				'lg:flex  items-center gap-2 py-3  md:px-4 hidden min-h-18 w-full h-18 dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative text-xs! cursor-pointer',
 				isTaskRenderedInTodayPlan && isDefaultTask && 'border-primary-light border-[0.15rem]'
 			)}
 		>
@@ -943,12 +943,12 @@ function TaskCard(props: ITaskCardProps) {
 						window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, task.id!);
 					}
 				}}
-				className="min-w-52 flex items-center h-full max-w-[50%] truncate"
+				className="min-w-72 flex items-center h-full max-w-[68%] truncate mr-auto"
 			>
 				<TaskNameInfoDisplay task={task} />
 			</div>
-			<VerticalSeparator />
-			<div className="flex gap-2 justify-end items-center h-full grow">
+			<VerticalSeparator className="mx-6" />
+			<div className="flex gap-3 justify-end items-center h-full w-fit">
 				{viewListMode === 'searched' ? (
 					<Button
 						onClick={handleAddTask}
@@ -961,10 +961,10 @@ function TaskCard(props: ITaskCardProps) {
 					</Button>
 				) : plan ? (
 					<>
-						<div className="flex gap-1 items-center h-full min-w-fit">
+						<div className="flex gap-1 justify-end items-center h-full min-w-48 max-w-fit">
 							{checkPastDate(plan.date) ? (
 								<span
-									className="flex justify-center items-center h-6 truncate min-w-fit max-w-28"
+									className="flex justify-center items-center p-3 h-6 truncate rounded min-w-fit max-w-28"
 									style={{
 										backgroundColor:
 											taskStatuses.find((s) => s.value === task.status)?.color ?? undefined

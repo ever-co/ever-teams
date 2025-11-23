@@ -163,7 +163,7 @@ export function UserTeamBlockHeader() {
 
 							<VerticalSeparator />
 
-							<Button className="py-3.5 px-4 gap-3 rounded-xl outline-none w-44" onClick={openModal}>
+							<Button className="py-3.5 px-4 gap-3 rounded-xl outline-hidden w-44" onClick={openModal}>
 								Invite
 							</Button>
 						</div>

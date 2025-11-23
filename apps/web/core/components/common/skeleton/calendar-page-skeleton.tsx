@@ -44,9 +44,9 @@ export const CalendarPageSkeleton: FC<CalendarPageSkeletonProps> = ({
 						<div className="flex gap-1 justify-center items-center w-max h-10">
 							{/* Tab Buttons Skeleton */}
 							<div className="flex gap-1">
-								<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
-								<div className="w-20 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
-								<div className="w-18 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
+								<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+								<div className="w-20 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+								<div className="w-18 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 							</div>
 						</div>
 					</div>
@@ -64,7 +64,7 @@ export const CalendarPageSkeleton: FC<CalendarPageSkeletonProps> = ({
 								<div className="w-10 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
 
 								{/* Add Time Button */}
-								<div className="w-20 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
+								<div className="w-20 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 							</div>
 						</div>
 
@@ -82,17 +82,17 @@ export const CalendarPageSkeleton: FC<CalendarPageSkeletonProps> = ({
 						<div className="flex justify-between items-center p-4 mb-6 bg-white rounded-lg border border-gray-200 dark:bg-dark--theme-light dark:border-gray-600">
 							{/* Left Navigation */}
 							<div className="flex gap-4 items-center">
-								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
+								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 								<div className="w-32 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
+								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 							</div>
 
 							{/* Right Controls */}
 							<div className="flex gap-2 items-center">
-								<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
-								<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
-								<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
-								<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
+								<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+								<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+								<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+								<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 							</div>
 						</div>
 
@@ -107,7 +107,7 @@ export const CalendarPageSkeleton: FC<CalendarPageSkeletonProps> = ({
 											key={index}
 											className="p-3 text-center border-b border-gray-200 dark:border-gray-600"
 										>
-											<div className="w-8 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mx-auto" />
+											<div className="w-8 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mx-auto" />
 										</div>
 									))}
 								</div>
@@ -120,19 +120,19 @@ export const CalendarPageSkeleton: FC<CalendarPageSkeletonProps> = ({
 											className="p-2 bg-white border border-gray-100 aspect-square dark:border-gray-700 dark:bg-dark--theme-light"
 										>
 											{/* Day Number */}
-											<div className="w-6 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-2" />
+											<div className="w-6 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
 
 											{/* Events (random pattern) */}
 											{index % 4 === 0 && (
 												<div className="space-y-1">
-													<div className="w-full h-4 bg-[#dcfce7] animate-pulse rounded text-xs" />
+													<div className="w-full h-4 bg-[#dcfce7] animate-pulse rounded-sm text-xs" />
 													{index % 8 === 0 && (
-														<div className="w-3/4 h-4 bg-[#ffedd5] animate-pulse rounded text-xs" />
+														<div className="w-3/4 h-4 bg-[#ffedd5] animate-pulse rounded-sm text-xs" />
 													)}
 												</div>
 											)}
 											{index % 6 === 0 && index % 4 !== 0 && (
-												<div className="w-full h-4 bg-[#dbeafe] animate-pulse rounded text-xs" />
+												<div className="w-full h-4 bg-[#dbeafe] animate-pulse rounded-sm text-xs" />
 											)}
 										</div>
 									))}
@@ -143,17 +143,17 @@ export const CalendarPageSkeleton: FC<CalendarPageSkeletonProps> = ({
 							<div className="pl-5 m-5 w-1/5 h-full border-l border-gray-200 dark:border-gray-600">
 								<div className="py-10">
 									{/* Side Panel Header */}
-									<div className="w-full h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-6" />
+									<div className="w-full h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-6" />
 
 									{/* Event List */}
 									<div className="space-y-4">
 										{[...Array(5)].map((_, index) => (
 											<div key={index} className="p-3 bg-gray-50 rounded-lg dark:bg-gray-800">
 												{/* Event Time */}
-												<div className="w-16 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-2" />
+												<div className="w-16 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
 
 												{/* Event Title */}
-												<div className="w-full h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-2" />
+												<div className="w-full h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
 
 												{/* Event Details */}
 												<div className="w-3/4 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
@@ -174,8 +174,8 @@ export const CalendarPageSkeleton: FC<CalendarPageSkeletonProps> = ({
 
 							{/* Right Actions */}
 							<div className="flex gap-2 items-center">
-								<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
-								<div className="w-20 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
+								<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+								<div className="w-20 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 							</div>
 						</div>
 					</div>

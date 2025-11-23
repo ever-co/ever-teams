@@ -250,12 +250,12 @@ export const TeamSettingForm = () => {
 						<div className="">
 							{/* Team Name */}
 							<div className="flex flex-col justify-between items-center w-full sm:gap-12 sm:flex-row">
-								<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400 sm:w-1/5">
+								<Text className="flex-none grow-0 mb-2 text-lg font-normal text-gray-400 sm:w-1/5">
 									{t('pages.settingsTeam.TEAM_NAME')}
 								</Text>
 								<div
 									ref={inputWrapperRef}
-									className="flex flex-row flex-grow-0 justify-between items-center w-full lg:w-4/5"
+									className="flex flex-row grow-0 justify-between items-center w-full lg:w-4/5"
 								>
 									<InputField
 										autoCustomFocus={!disabled}
@@ -321,10 +321,10 @@ export const TeamSettingForm = () => {
 
 							{/* Team Color */}
 							<div className="flex flex-col gap-1 justify-between items-center w-full lg:flex-row lg:gap-12">
-								<Text className="flex-none flex-grow-0 mb-2 w-full text-lg font-normal text-gray-400 lg:w-1/5">
+								<Text className="flex-none grow-0 mb-2 w-full text-lg font-normal text-gray-400 lg:w-1/5">
 									{t('pages.settingsTeam.TEAM_COLOR')}
 								</Text>
-								<div className="flex z-10 flex-row flex-grow-0 justify-between items-center w-full lg:w-4/5">
+								<div className="flex z-10 flex-row grow-0 justify-between items-center w-full lg:w-4/5">
 									<ColorPicker
 										onSave={handleTeamColorUpdate}
 										defaultColor={activeTeam?.color || ''}
@@ -340,10 +340,10 @@ export const TeamSettingForm = () => {
 
 							{/* Emoji */}
 							<div className="flex flex-col gap-1 justify-between items-center w-full lg:flex-row lg:gap-12">
-								<Text className="flex-none flex-grow-0 mb-2 w-full text-lg font-normal text-gray-400 lg:w-1/5">
+								<Text className="flex-none grow-0 mb-2 w-full text-lg font-normal text-gray-400 lg:w-1/5">
 									{t('pages.settingsTeam.EMOJI')}
 								</Text>
-								<div className="flex flex-row items-start lg:items-center justify-between flex-grow-0 w-full max-w-[88vw] lg:w-4/5">
+								<div className="flex flex-row items-start lg:items-center justify-between grow-0 w-full max-w-[88vw] lg:w-4/5">
 									<EmojiPicker
 										onChange={(emoji: string) => {
 											setValue('emoji', emoji);
@@ -359,10 +359,10 @@ export const TeamSettingForm = () => {
 							{/* Team Size */}
 							{
 								<div className="flex flex-col gap-1 justify-between items-center mt-3 w-full lg:flex-row lg:gap-12">
-									<Text className="flex-none flex-grow-0 mb-2 w-full text-lg font-normal text-gray-400 lg:w-1/5">
+									<Text className="flex-none grow-0 mb-2 w-full text-lg font-normal text-gray-400 lg:w-1/5">
 										{t('pages.settingsTeam.TEAM_SIZE')}
 									</Text>
-									<div className="flex flex-row flex-grow-0 justify-between items-center w-full lg:w-4/5">
+									<div className="flex flex-row grow-0 justify-between items-center w-full lg:w-4/5">
 										<TeamSize
 											defaultValue={activeTeam?.teamSize || ''}
 											onChange={(teamSize: string) => {
@@ -378,7 +378,7 @@ export const TeamSettingForm = () => {
 
 							{/* Team Type */}
 							<div className="flex flex-col items-center mt-8 w-full sm:gap-12 sm:flex-row">
-								<Text className="flex-none flex-grow-0 mb-2 w-full text-lg font-normal text-gray-400 sm:w-1/5">
+								<Text className="flex-none grow-0 mb-2 w-full text-lg font-normal text-gray-400 sm:w-1/5">
 									{t('pages.settingsTeam.TEAM_TYPE')}
 								</Text>
 								<div className="flex lg:gap-x-[30px] flex-col sm:flex-row items-center">
@@ -421,7 +421,7 @@ export const TeamSettingForm = () => {
 									)}
 									{getTeamLink() && (
 										<div className="flex flex-col gap-4 items-center sm:flex-row">
-											<div className="flex flex-row flex-grow-0 justify-between items-center mb-0 w-full lg:w-64">
+											<div className="flex flex-row grow-0 justify-between items-center mb-0 w-full lg:w-64">
 												<Tooltip
 													label={getTeamLink()}
 													placement="auto"
@@ -437,7 +437,7 @@ export const TeamSettingForm = () => {
 													/>
 												</Tooltip>
 											</div>
-											<div className="flex flex-row flex-grow-0 justify-between items-center sm:w-1/5">
+											<div className="flex flex-row grow-0 justify-between items-center sm:w-1/5">
 												<Button
 													variant="outline"
 													className="border-2 rounded-xl h-[54px] min-w-[105px] font-[600] text-[14px]"
@@ -462,26 +462,26 @@ export const TeamSettingForm = () => {
 							{isTeamManager ? (
 								<>
 									<div className="flex gap-12 justify-between items-center mt-8 w-full">
-										<Text className="flex-none flex-grow-0 text-lg font-normal text-gray-400 md-2 sm:w-1/5">
+										<Text className="flex-none grow-0 text-lg font-normal text-gray-400 md-2 sm:w-1/5">
 											{t('pages.settingsTeam.TIME_TRACKING')}
 										</Text>
-										<div className="flex flex-row flex-grow-0 justify-between items-center w-4/5">
+										<div className="flex flex-row grow-0 justify-between items-center w-4/5">
 											<TimeTrackingToggle activeManager={activeManager as any} />
 										</div>
 									</div>
 									<div className="flex gap-12 justify-between items-center mt-8 w-full">
-										<Text className="flex-none flex-grow-0 text-lg font-normal text-gray-400 md-2 sm:w-1/5">
+										<Text className="flex-none grow-0 text-lg font-normal text-gray-400 md-2 sm:w-1/5">
 											{t('pages.settingsTeam.SHARE_MEMBERS_PROFILE_VIEWS')}
 										</Text>
-										<div className="flex flex-row flex-grow-0 justify-between items-center w-4/5">
+										<div className="flex flex-row grow-0 justify-between items-center w-4/5">
 											<ShareProfileViewsToggle />
 										</div>
 									</div>
 									<div className="flex gap-12 justify-between items-center mt-8 w-full">
-										<Text className="flex-none flex-grow-0 text-lg font-normal text-gray-400 md-2 sm:w-1/5">
+										<Text className="flex-none grow-0 text-lg font-normal text-gray-400 md-2 sm:w-1/5">
 											{t('pages.settingsTeam.ENFORCE_PLAN')}
 										</Text>
-										<div className="flex flex-row flex-grow-0 justify-between items-center w-4/5">
+										<div className="flex flex-row grow-0 justify-between items-center w-4/5">
 											<RequireDailyPlanToTrack />
 										</div>
 									</div>

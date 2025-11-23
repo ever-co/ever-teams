@@ -43,7 +43,7 @@ export function TaskUnOrAssignPopover({
 			<span
 				onClick={openModal}
 				className={clsxm(
-					'flex items-center mb-1.5 outline-none border-none cursor-pointer rounded-xl',
+					'flex items-center mb-1.5 outline-hidden border-none cursor-pointer rounded-xl',
 					buttonClassName
 				)}
 			>

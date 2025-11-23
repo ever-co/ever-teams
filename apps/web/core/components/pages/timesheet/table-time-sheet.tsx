@@ -189,7 +189,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 														style={{ backgroundColor: statusColor(status).bgOpacity }}
 														type="button"
 														className={clsxm(
-															'flex flex-row-reverse justify-end items-center w-full h-12 rounded-sm gap-x-2 hover:no-underline px-2',
+															'flex flex-row-reverse justify-end items-center w-full h-12 rounded-xs gap-x-2 hover:no-underline px-2',
 															statusColor(status).text
 														)}
 													>
@@ -211,7 +211,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 																</div>
 																<Badge
 																	variant={'outline'}
-																	className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 flex-grow-0"
+																	className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 grow-0"
 																>
 																	<span className="text-[#5f5f61] text-[14px] font-[700px]">
 																		{t('timer.TOTAL_HOURS').split(' ')[0]}:

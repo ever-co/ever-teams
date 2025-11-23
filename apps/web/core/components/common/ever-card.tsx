@@ -12,7 +12,7 @@ export function EverCard({ children, className, shadow, ...rest }: Props) {
 			className={clsxm(
 				'bg-light--theme-light',
 				'dark:bg-dark--theme-light',
-				'rounded-[16px] px-3 py-8 md:px-6',
+				'rounded-[16px] px-3 py-6 md:px-6',
 				shadow === 'bigger' && ['shadow-lg card dark:shadow-none'],
 				className
 			)}

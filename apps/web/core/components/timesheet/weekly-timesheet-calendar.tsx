@@ -99,7 +99,7 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
 			<div className={classNames.header || 'flex items-center justify-between mb-4'}>
 				<button
 					onClick={handlePreviousWeek}
-					className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 dark:bg-primary-light hover:dark:bg-primary-light"
+					className="px-4 py-2 bg-gray-200 rounded-sm hover:bg-gray-300 dark:bg-primary-light hover:dark:bg-primary-light"
 				>
 					{t('common.PREV')}
 				</button>
@@ -110,7 +110,7 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
 				</h2>
 				<button
 					onClick={handleNextWeek}
-					className="px-4 py-2 bg-gray-200 rounded dark:bg-primary-light hover:bg-gray-300 hover:dark:bg-primary-light"
+					className="px-4 py-2 bg-gray-200 rounded-sm dark:bg-primary-light hover:bg-gray-300 hover:dark:bg-primary-light"
 				>
 					{t('common.NEXT')}
 				</button>
@@ -135,7 +135,7 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
 							aria-label={format(date, 'MMMM d, yyyy')}
 							className={cn(
 								classNames.day,
-								'border flex flex-col gap-2 relative shadow-sm rounded min-h-[150px]',
+								'border flex flex-col gap-2 relative shadow-xs rounded-sm min-h-[150px]',
 								{
 									'bg-gray-100 dark:bg-gray-900': date.getMonth() !== currentDate.getMonth()
 								}

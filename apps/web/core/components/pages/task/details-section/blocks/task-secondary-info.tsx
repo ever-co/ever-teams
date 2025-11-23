@@ -108,7 +108,7 @@ const TaskSecondaryInfo = () => {
 					className="lg:min-w-[130px] text-black"
 					forDetails={true}
 					sidebarUI={true}
-					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
+					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				>
 					<Button
 						className="w-full py-1 px-2 text-[0.625rem] mt-3  dark:text-white dark:border-white"
@@ -132,7 +132,7 @@ const TaskSecondaryInfo = () => {
 						className="min-w-fit lg:max-w-[170px] text-black"
 						forDetails={true}
 						sidebarUI={true}
-						taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
+						taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 						defaultValue={task.parentId || ''}
 					/>
 				</TaskRow>
@@ -147,7 +147,7 @@ const TaskSecondaryInfo = () => {
 					className="lg:min-w-[130px] text-black"
 					forDetails={true}
 					sidebarUI={true}
-					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
+					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				>
 					<Button
 						className="px-2 py-1 w-full text-xs dark:text-white dark:border-white"
@@ -165,7 +165,7 @@ const TaskSecondaryInfo = () => {
 					task={task}
 					className="lg:min-w-[130px] text-black lg:mt-0"
 					forDetails={true}
-					taskStatusClassName="text-[0.625rem] h-[2.35rem] min-w-[7.6875rem] rounded 3xl:text-xs"
+					taskStatusClassName="text-[0.625rem] h-[2.35rem] min-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				/>
 			</TaskRow>
 			{tags.length > 0 && (
@@ -195,7 +195,7 @@ const TaskSecondaryInfo = () => {
 					className="lg:min-w-[130px] text-black"
 					forDetails={true}
 					sidebarUI={true}
-					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
+					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				>
 					<Button
 						className="px-2 py-1 w-full text-xs dark:text-white dark:border-white"
@@ -214,7 +214,7 @@ const TaskSecondaryInfo = () => {
 					className="lg:min-w-[130px] text-black"
 					forDetails={true}
 					sidebarUI={true}
-					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
+					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				>
 					<Button
 						className="px-2 py-1 w-full text-xs dark:text-white dark:border-white"
@@ -269,7 +269,7 @@ const EpicParent = ({ task }: { task: TTask }) => {
 			<Tooltip label={`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`} placement="auto">
 				<Link href={`/task/${task?.rootEpic?.id}`} target="_blank">
 					<div className="flex items-center w-32">
-						<div className="bg-[#8154BA] p-1 rounded-sm mr-1">
+						<div className="bg-[#8154BA] p-1 rounded-xs mr-1">
 							<Square4OutlineIcon className="w-full max-w-[10px] text-white" />
 						</div>
 						<div className="overflow-hidden text-xs whitespace-nowrap text-ellipsis">{`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`}</div>
@@ -386,7 +386,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 						<DropdownMenuTrigger className="w-full" asChild>
 							<button
 								className={clsxm(
-									`cursor-pointer outline-none min-w-fit w-full flex dark:text-white
+									`cursor-pointer outline-hidden min-w-fit w-full flex dark:text-white
 										items-center justify-between h-fit p-1
 										border-solid border-color-[#F2F2F2]
 										dark:bg-[#1B1D22] dark:border dark:border-gray-800 gap-[.4rem] rounded-lg`,
@@ -426,7 +426,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 								) : (
 									<ChevronDownIcon
 										className={clsxm(
-											'w-5 h-5 transition duration-150 ease-in-out group-hover:text-opacity-80 text-default dark:text-white'
+											'w-5 h-5 transition duration-150 ease-in-out group-hover:text-default/80 dark:group-hover:text-white/80 text-default dark:text-white'
 										)}
 										aria-hidden="true"
 									/>
@@ -435,7 +435,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 						</DropdownMenuTrigger>
 
 						<DropdownMenuContent
-							className={clsxm('z-[9999] min-w-full outline-none w-max p-0', styles?.listCard)}
+							className={clsxm('z-[9999] min-w-full outline-hidden w-max p-0', styles?.listCard)}
 							style={{
 								maxHeight: 'calc(100vh - 100%)',
 								overflow: 'auto'
@@ -464,7 +464,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 															setSelected(item);
 														}
 													}}
-													className="relative border flex items-center gap-2 p-1.5 rounded-lg outline-none cursor-pointer dark:text-white"
+													className="relative border flex items-center gap-2 p-1.5 rounded-lg outline-hidden cursor-pointer dark:text-white"
 												>
 													{item.imageUrl && (
 														<Image

@@ -133,7 +133,7 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 	};
 
 	return (
-		<div className="p-6 bg-white rounded-lg shadow-sm dark:bg-dark--theme-light">
+		<div className="p-6 bg-white rounded-lg shadow-xs dark:bg-dark--theme-light">
 			<div className="space-y-2">
 				<div className="flex items-center mb-6">
 					<p className="w-40 text-base font-medium text-gray-700 dark:text-gray-300">
@@ -162,7 +162,7 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 						{workDay.enabled && (
 							<button
 								onClick={() => handleAddTimeSlot(dayIndex)}
-								className="ml-auto w-7 h-7 flex items-center justify-center bg-[#D8D0F84D] text-[#3826A6] hover:text-[#3826A6]/80 rounded hover:bg-[#DBD3FA]/20 top-2 right-0 absolute"
+								className="ml-auto w-7 h-7 flex items-center justify-center bg-[#D8D0F84D] text-[#3826A6] hover:text-[#3826A6]/80 rounded-sm hover:bg-[#DBD3FA]/20 top-2 right-0 absolute"
 							>
 								<span className="text-2xl leading-none">+</span>
 							</button>
@@ -211,11 +211,11 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ enabled, onToggle, label })
 	<div className="flex items-center">
 		<button
 			type="button"
-			className={`relative inline-flex h-[32px] w-16 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${enabled ? 'bg-[#DBD3FA] dark:bg-purple-400/30' : 'bg-[#EDEDED] dark:bg-gray-600'}`}
+			className={`relative inline-flex h-[32px] w-16 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${enabled ? 'bg-[#DBD3FA] dark:bg-purple-400/30' : 'bg-[#EDEDED] dark:bg-gray-600'}`}
 			onClick={onToggle}
 		>
 			<span
-				className={`${enabled ? 'bg-[#3826A6] dark:bg-purple-500' : 'bg-white dark:bg-gray-300'} pointer-events-none absolute left-1 top-[0.9px] inline-block h-6 w-6 transform rounded-full shadow-sm ring-0 transition duration-200 ease-in-out ${enabled ? 'translate-x-7' : 'translate-x-0'}`}
+				className={`${enabled ? 'bg-[#3826A6] dark:bg-purple-500' : 'bg-white dark:bg-gray-300'} pointer-events-none absolute left-1 top-[0.9px] inline-block h-6 w-6 transform rounded-full shadow-xs ring-0 transition duration-200 ease-in-out ${enabled ? 'translate-x-7' : 'translate-x-0'}`}
 			/>
 		</button>
 		{label && (

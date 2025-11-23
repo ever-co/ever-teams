@@ -94,7 +94,7 @@ export const KanbanPageSkeleton: FC<KanbanPageSkeletonProps> = ({
 										<div className="w-16 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 										{/* Active tab indicator */}
 										{index === 0 && (
-											<div className="w-full h-1 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mt-2" />
+											<div className="w-full h-1 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mt-2" />
 										)}
 									</div>
 								))}
@@ -123,7 +123,7 @@ export const KanbanPageSkeleton: FC<KanbanPageSkeletonProps> = ({
 
 								{/* Task Properties Dropdown */}
 								<div className="min-w-fit lg:mt-0 input-border rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light flex flex-col justify-center">
-									<div className="w-24 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mx-2" />
+									<div className="w-24 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mx-2" />
 								</div>
 
 								{/* Task Sizes Dropdown */}

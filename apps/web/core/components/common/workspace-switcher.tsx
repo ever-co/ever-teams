@@ -94,7 +94,7 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 						</div>
 						<div className="flex gap-3 items-center p-3 bg-amber-50 rounded-md border border-amber-200 dark:bg-amber-950/20 dark:border-amber-800">
 							<AlertTriangle
-								className="flex-shrink-0 w-4 h-4 text-amber-600 dark:text-amber-400"
+								className="shrink-0 w-4 h-4 text-amber-600 dark:text-amber-400"
 								aria-hidden="true"
 							/>
 							<span className="text-sm text-amber-800 dark:text-amber-200">
@@ -153,13 +153,13 @@ const WorkspaceSkeleton: React.FC = () => {
 			<div className="grid flex-1 space-y-1 text-sm leading-tight text-left" role="presentation">
 				{/* Main title skeleton */}
 				<div
-					className="h-[1.25rem] bg-sidebar-foreground/10 rounded animate-pulse"
+					className="h-[1.25rem] bg-sidebar-foreground/10 rounded-sm animate-pulse"
 					style={{ width: '70%' }}
 					aria-hidden="true"
 				/>
 				{/* Subtitle skeleton */}
 				<div
-					className="h-[0.75rem] bg-sidebar-foreground/10 rounded animate-pulse"
+					className="h-[0.75rem] bg-sidebar-foreground/10 rounded-sm animate-pulse"
 					style={{ width: '40%' }}
 					aria-hidden="true"
 				/>
@@ -373,7 +373,7 @@ export function WorkspacesSwitcher() {
 							</DropdownMenuTrigger>
 						</Tooltip>
 						<DropdownMenuContent
-							className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+							className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-56 rounded-lg"
 							align="start"
 							side={isMobile ? 'bottom' : 'right'}
 							sideOffset={4}
@@ -406,7 +406,7 @@ export function WorkspacesSwitcher() {
 													role="menuitem"
 													aria-label={`Change to the workspace ${workspace.user.tenant.name} with ${teamCount} team${teamCount > 1 ? 's' : ''}`}
 												>
-													<div className="flex justify-center items-center rounded-sm border size-8">
+													<div className="flex items-center justify-center border rounded-xs size-8">
 														{workspace.user.tenant.logo ? (
 															<Avatar className="rounded !size-6">
 																<AvatarImage
@@ -437,7 +437,7 @@ export function WorkspacesSwitcher() {
 							{/* Message if no other workspaces */}
 							{workspaces.length > 0 && availableWorkspaces.length === 0 && (
 								<DropdownMenuItem disabled className="gap-2 p-2 text-muted-foreground">
-									<div className="flex justify-center items-center rounded-sm border size-6">
+									<div className="flex items-center justify-center border rounded-xs size-6">
 										<DefaultWorkspaceIcon className="size-4" />
 									</div>
 									No other workspace available

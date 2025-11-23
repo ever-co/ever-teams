@@ -36,7 +36,7 @@ function TimesheetDetailModal({ closeModal, isOpen, timesheet, timesheetDetailMo
 			closeModal={closeModal}
 			title={title}
 			showCloseIcon
-			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded w-full md:w-40 md:min-w-[35rem]"
+			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-sm w-full md:w-40 md:min-w-[35rem]"
 			titleClass="font-bold flex justify-start w-full text-xl dark:text-white"
 		>
 			<div className="py-4 w-full">
@@ -101,7 +101,7 @@ const MembersWorkedCard = ({ element, t }: { element: ITimeLog[]; t: Translation
 							<AccordionTrigger
 								type="button"
 								className={cn(
-									'flex flex-row-reverse gap-x-2 justify-end items-center px-2 w-full h-12 rounded-sm hover:no-underline'
+									'flex flex-row-reverse gap-x-2 justify-end items-center px-2 w-full h-12 rounded-xs hover:no-underline'
 								)}
 							>
 								<div className="flex justify-between items-center w-full">
@@ -114,7 +114,7 @@ const MembersWorkedCard = ({ element, t }: { element: ITimeLog[]; t: Translation
 									</div>
 									<Badge
 										variant={'outline'}
-										className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 flex-grow-0"
+										className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 grow-0"
 									>
 										<span className="text-[#5f5f61] text-[14px] font-[700px]">
 											{t('timer.TOTAL_HOURS').split(' ')[0]}:
@@ -141,7 +141,7 @@ const MembersWorkedCard = ({ element, t }: { element: ITimeLog[]; t: Translation
 														style={{ backgroundColor: statusColor(status).bgOpacity }}
 														type="button"
 														className={cn(
-															'flex flex-row-reverse justify-end items-center w-full h-12 rounded-sm gap-x-2 hover:no-underline px-2',
+															'flex flex-row-reverse justify-end items-center w-full h-12 rounded-xs gap-x-2 hover:no-underline px-2',
 															statusColor(status).text
 														)}
 													>
@@ -163,7 +163,7 @@ const MembersWorkedCard = ({ element, t }: { element: ITimeLog[]; t: Translation
 																</div>
 																<Badge
 																	variant={'outline'}
-																	className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 flex-grow-0"
+																	className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 grow-0"
 																>
 																	<span className="text-[#5f5f61] text-[14px] font-[700px]">
 																		{t('timer.TOTAL_HOURS').split(' ')[0]}:
@@ -272,7 +272,7 @@ const MenHoursCard = ({ element, t }: MenHoursCardProps) => {
 								}}
 								type="button"
 								className={cn(
-									'flex flex-row-reverse gap-x-2 justify-end items-center px-2 w-full h-12 rounded-sm hover:no-underline'
+									'flex flex-row-reverse gap-x-2 justify-end items-center px-2 w-full h-12 rounded-xs hover:no-underline'
 								)}
 							>
 								<div className="flex justify-between items-center w-full">
@@ -291,7 +291,7 @@ const MenHoursCard = ({ element, t }: MenHoursCardProps) => {
 									</div>
 									<Badge
 										variant={'outline'}
-										className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 flex-grow-0"
+										className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 grow-0"
 									>
 										<span className="text-[#5f5f61] text-[14px] font-[700px]">
 											{t('timer.TOTAL_HOURS').split(' ')[0]}:
@@ -318,7 +318,7 @@ const MenHoursCard = ({ element, t }: MenHoursCardProps) => {
 														style={{ backgroundColor: statusColor(status).bgOpacity }}
 														type="button"
 														className={cn(
-															'flex flex-row-reverse justify-end items-center w-full h-12 rounded-sm gap-x-2 hover:no-underline px-2',
+															'flex flex-row-reverse justify-end items-center w-full h-12 rounded-xs gap-x-2 hover:no-underline px-2',
 															statusColor(status).text
 														)}
 													>
@@ -340,7 +340,7 @@ const MenHoursCard = ({ element, t }: MenHoursCardProps) => {
 																</div>
 																<Badge
 																	variant={'outline'}
-																	className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 flex-grow-0"
+																	className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 grow-0"
 																>
 																	<span className="text-[#5f5f61] text-[14px] font-[700px]">
 																		{t('timer.TOTAL_HOURS').split(' ')[0]}:

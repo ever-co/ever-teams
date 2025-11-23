@@ -131,7 +131,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
 											</span>
 										</span>
 									)}
-									<span className="text-[13px]">
+									<span className="text-xs">
 										<span className="mx-1 text-grey text-normal">#{task.number}</span>
 										{task.title}
 									</span>

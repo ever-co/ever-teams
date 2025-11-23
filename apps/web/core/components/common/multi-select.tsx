@@ -134,7 +134,7 @@ export function MultiSelect<T>({
 									key={itemId(item)}
 									onClick={() => onClick(item)}
 									className={cn(
-										'truncate hover:cursor-pointer hover:bg-slate-50 w-full text-[13px] h-fit max-w-72 rounded-md p-1 px-1.5 dark:text-white dark:hover:bg-primary whitespace-nowrap transition-all duration-300 text-ellipsis overflow-hidden',
+										'truncate hover:cursor-pointer hover:bg-slate-50 w-full text-xs h-fit max-w-72 rounded-md p-1 px-1.5 dark:text-white dark:hover:bg-primary whitespace-nowrap transition-all duration-300 text-ellipsis overflow-hidden',
 										isSelected && 'font-semibold bg-slate-100 dark:bg-primary-light'
 									)}
 								>
@@ -152,7 +152,7 @@ export function MultiSelect<T>({
 						<div
 							key={itemId(item)}
 							className={clsxm(
-								'flex items-center justify-between px-2 py-[0.5px] rounded text-[12px]',
+								'flex items-center justify-between px-2 py-[0.5px] rounded-sm text-[12px]',
 								'dark:text-white',
 								statusColor(itemToString(item))?.bg || 'bg-gray-100 dark:bg-slate-700'
 							)}

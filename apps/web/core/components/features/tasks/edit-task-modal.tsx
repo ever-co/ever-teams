@@ -429,7 +429,7 @@ export const ToggleButton = ({ isActive, onClick, label }: ToggleButtonProps) =>
 		onClick={onClick}
 		aria-pressed={isActive}
 		className={clsxm(
-			'flex gap-x-2 items-center p-2 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 dark:focus:ring-primary-light/50',
+			'flex gap-x-2 items-center p-2 rounded-sm focus:outline-none focus:ring-2 focus:ring-primary/50 dark:focus:ring-primary-light/50',
 			'transition-colors duration-200 ease-in-out'
 		)}
 	>

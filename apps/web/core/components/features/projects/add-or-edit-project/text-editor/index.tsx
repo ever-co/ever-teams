@@ -71,7 +71,7 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextP
 };
 
 const ToolbarButton = ({ onClick, icon }: { onClick: () => void; icon: React.ReactNode }) => (
-	<button className=" hover:bg-primary/5 rounded h-fit px-2 py-1  text-[.5rem] font-light" onClick={onClick}>
+	<button className=" hover:bg-primary/5 rounded-sm h-fit px-2 py-1  text-[.5rem] font-light" onClick={onClick}>
 		{icon}
 	</button>
 );

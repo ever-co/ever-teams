@@ -190,7 +190,7 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 						<button
 							onClick={() => hook.setTab(item.tab)}
 							className={clsxm(
-								'text-sm text-gray-500 font-normal outline-none px-4 relative mt-4 md:mt-0 w-full md:min-w-fit flex flex-col md:flex-row gap-1 items-center',
+								'text-sm text-gray-500 font-normal outline-hidden px-4 relative mt-4 md:mt-0 w-full md:min-w-fit flex flex-col md:flex-row gap-1 items-center',
 								active && ['text-primary dark:text-white']
 							)}
 						>
