@@ -109,9 +109,11 @@ Please refer to our official [Platform Documentation](https://docs.ever.team) (W
   
 _Notes:_ 
 - _You can execute `docker-compose` command with `-d` option to run it in the "detached" mode (allows containers to run in the background, separate from the terminal)._
-- _By default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see more in the section about how to run with a Self-hosted Backend._
+- _By default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in the environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see more in the section about how to run with a Self-hosted Backend._
 
 ### Run with Docker
+
+Docker build definitions are stored under `.deploy/web/` to keep the repository root tidy. Docker Compose files stay at the root, so they are easy to discover and invoke (`docker-compose -f ...`).
 
 #### Build & Run
 
@@ -123,11 +125,11 @@ Run with Public Images:
 _Note: To build such images on each release (push to our master branch), we are using relevant [Github Action](https://github.com/ever-co/ever-teams/blob/develop/.github/workflows/docker-build-publish-prod.yml)._
 
 Build and Run Locally:
-- If you want to build an image locally from our source code (after clone repo locally), please run the following command (from the root of mono-repo): `docker build . -t ever-teams-webapp -f Dockerfile`.
+- If you want to build an image locally from our source code (after cloning the repo locally), please run the following command (from the root of mono-repo): `docker build . -t ever-teams-webapp -f .deploy/web/Dockerfile`.
 - To run the locally built image, please run the following command: `docker run -p 127.0.0.1:3030:3030/tcp ever-teams-webapp`. 
 - Open <http://localhost:3030> in your browser, register a new account, and start using Ever Teams!
 
-_Note: By default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see more in the section about how to run with a Self-hosted Backend._
+_Note: By default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in the environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see more in the section about how to run with a Self-hosted Backend._
 
 #### Images
 
@@ -273,7 +275,7 @@ All other brand and product names are trademarks, registered trademarks, or serv
 ## 💪 Thanks to our Contributors
 
 See our contributors list in [CONTRIBUTORS.md](https://github.com/ever-co/ever-teams/blob/develop/.github/CONTRIBUTORS.md).
-You can also view a full list of our [contributors tracked by Github](https://github.com/ever-co/ever-teams/graphs/contributors).
+You can also view a full list of our [contributors tracked by GitHub](https://github.com/ever-co/ever-teams/graphs/contributors).
 
 <img src="https://contributors-img.web.app/image?repo=ever-co/ever-teams" />
 

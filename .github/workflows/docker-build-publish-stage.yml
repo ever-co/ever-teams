@@ -31,7 +31,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
+          file: ./.deploy/web/Dockerfile
           load: true
           tags: |
             ghcr.io/ever-co/ever-teams-webapp-stage:latest
