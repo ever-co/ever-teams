@@ -20,6 +20,53 @@ import { chunk, range } from '@/core/lib/helpers';
 // Re-export for use in other modules
 export const deleteCookieCrossSite = _deleteCookieCrossSite;
 
+type NextCtx = {
+	req: any;
+	res: any;
+};
+
+/**
+ * Clears all existing chunks for a given cookie name.
+ * This prevents cookie duplication when setting new chunked cookies.
+ *
+ * @param COOKIE_NAME - The base cookie name (e.g., 'auth-token')
+ * @param ctx - Optional Next.js context for server-side cookie operations
+ * @param crossSite - Whether to also delete cross-site cookies (with domain attribute)
+ */
+const clearExistingChunks = (COOKIE_NAME: string, ctx: NextCtx | undefined, crossSite = false) => {
+	// Get the total chunks cookie to know how many chunks exist
+	const totalChunksValue = getCookie(`${COOKIE_NAME}_totalChunks`, ctx);
+
+	if (totalChunksValue) {
+		const totalChunks = parseInt(totalChunksValue as string);
+
+		if (!isNaN(totalChunks) && totalChunks > 0) {
+			// Delete all existing chunk cookies
+			range(totalChunks).forEach((index) => {
+				if (crossSite) {
+					deleteCookieCrossSite(`${COOKIE_NAME}${index}`, ctx ? { req: ctx.req, res: ctx.res } : undefined);
+				} else {
+					deleteCookie(`${COOKIE_NAME}${index}`, ctx ? { req: ctx.req, res: ctx.res } : undefined);
+				}
+			});
+
+			// Delete the totalChunks cookie
+			if (crossSite) {
+				deleteCookieCrossSite(`${COOKIE_NAME}_totalChunks`, ctx ? { req: ctx.req, res: ctx.res } : undefined);
+			} else {
+				deleteCookie(`${COOKIE_NAME}_totalChunks`, ctx ? { req: ctx.req, res: ctx.res } : undefined);
+			}
+		}
+	}
+
+	// Also delete the base cookie in case the previous token was not chunked
+	if (crossSite) {
+		deleteCookieCrossSite(COOKIE_NAME, ctx ? { req: ctx.req, res: ctx.res } : undefined);
+	} else {
+		deleteCookie(COOKIE_NAME, ctx ? { req: ctx.req, res: ctx.res } : undefined);
+	}
+};
+
 export type CookiesDataType = {
 	refresh_token: {
 		token: string;
@@ -35,17 +82,15 @@ export type CookiesDataType = {
 	userId: string;
 };
 
-type NextCtx = {
-	req: any;
-	res: any;
-};
-
 export const setLargeStringInCookies = (
 	COOKIE_NAME: string,
 	largeString: string,
 	ctx: NextCtx | undefined,
 	crossSite = false
 ) => {
+	// Clear any existing chunks before setting new ones to prevent duplication
+	clearExistingChunks(COOKIE_NAME, ctx, crossSite);
+
 	const chunkSize = 4000;
 	const chunks = chunk<string>(Array.from(largeString), chunkSize);
 
@@ -97,8 +142,12 @@ export function setAuthCookies(datas: CookiesDataType, ctx?: NextCtx) {
 	// Handle Large Access Token
 	// Cookie can support upto 4096 characters only!
 	if (access_token.length <= 4096) {
+		// Clear any existing chunks before setting a non-chunked token
+		// This handles the case where the previous token was chunked but the new one fits in a single cookie
+		clearExistingChunks(TOKEN_COOKIE_NAME, ctx, true);
 		setCookie(TOKEN_COOKIE_NAME, access_token, ctx, true); // cross site cookie
 	} else {
+		// setLargeStringInCookies already calls clearExistingChunks internally
 		setLargeStringInCookies(TOKEN_COOKIE_NAME, access_token, ctx, true); // cross site cookie
 	}
 
@@ -179,8 +228,12 @@ export function setAccessTokenCookie(accessToken: string, ctx?: NextCtx) {
 	// Handle Large Access Token
 	// Cookie can support upto 4096 characters only!
 	if (accessToken.length <= 4096) {
+		// Clear any existing chunks before setting a non-chunked token
+		// This handles the case where the previous token was chunked but the new one fits in a single cookie
+		clearExistingChunks(TOKEN_COOKIE_NAME, ctx, true);
 		return setCookie(TOKEN_COOKIE_NAME, accessToken, ctx, true); // cross site cookie
 	} else {
+		// setLargeStringInCookies already calls clearExistingChunks internally
 		return setLargeStringInCookies(TOKEN_COOKIE_NAME, accessToken, ctx, true); // cross site cookie
 	}
 }
