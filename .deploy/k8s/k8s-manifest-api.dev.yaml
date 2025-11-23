@@ -81,9 +81,9 @@ spec:
                       - name: SENTRY_POSTGRES_TRACKING_ENABLED
                         value: '$SENTRY_POSTGRES_TRACKING_ENABLED'
                       - name: API_BASE_URL
-                        value: 'https://apidev.ever.team'
+                        value: '$API_BASE_URL'
                       - name: CLIENT_BASE_URL
-                        value: 'https://demo.ever.team'
+                        value: '$CLIENT_BASE_URL'
                       - name: EXPRESS_SESSION_SECRET
                         value: 'gauzy'
                       - name: JWT_SECRET
