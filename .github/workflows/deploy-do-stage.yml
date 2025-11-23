@@ -190,8 +190,8 @@ jobs:
           NEXT_IGNORE_ESLINT_ERROR_ON_BUILD: '${{ secrets.NEXT_IGNORE_ESLINT_ERROR_ON_BUILD }}'
           ANALYZE: '${{ secrets.ANALYZE }}'
           NEXT_PUBLIC_WEB_APP_URL: '${{ vars.NEXT_PUBLIC_WEB_APP_URL }}'
-          API_BASE_URL: "${{ vars.API_BASE_URL }}"
-          CLIENT_BASE_URL: "${{ vars.CLIENT_BASE_URL }}"
+          API_BASE_URL: '${{ vars.API_BASE_URL }}'
+          CLIENT_BASE_URL: '${{ vars.CLIENT_BASE_URL }}'
 
       # we need this step because for now we just use :latest tag
       # note: for production, we will use a different strategy later
