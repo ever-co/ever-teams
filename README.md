@@ -113,6 +113,8 @@ _Notes:_
 
 ### Run with Docker
 
+Docker build definitions are stored under `.deploy/web/` to keep the repository root tidy. Docker Compose files stay at the root so they are easy to discover and invoke (`docker-compose -f ...`), but if you want to consolidate deployment assets, consider moving them into a `.deploy/compose/` folder grouped by environment (e.g., `.deploy/compose/dev` and `.deploy/compose/prod`).
+
 #### Build & Run
 
 Run with Public Images:
@@ -123,7 +125,7 @@ Run with Public Images:
 _Note: To build such images on each release (push to our master branch), we are using relevant [Github Action](https://github.com/ever-co/ever-teams/blob/develop/.github/workflows/docker-build-publish-prod.yml)._
 
 Build and Run Locally:
-- If you want to build an image locally from our source code (after clone repo locally), please run the following command (from the root of mono-repo): `docker build . -t ever-teams-webapp -f Dockerfile`.
+- If you want to build an image locally from our source code (after clone repo locally), please run the following command (from the root of mono-repo): `docker build . -t ever-teams-webapp -f .deploy/web/Dockerfile`.
 - To run the locally built image, please run the following command: `docker run -p 127.0.0.1:3030:3030/tcp ever-teams-webapp`. 
 - Open <http://localhost:3030> in your browser, register a new account, and start using Ever Teams!
 
