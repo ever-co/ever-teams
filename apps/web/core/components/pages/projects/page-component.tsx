@@ -490,7 +490,7 @@ function PageComponent() {
 																		}))
 																	}
 																	className={cn(
-																		`${active && 'bg-primary/10'} rounded gap-2 group flex w-full items-center px-2 py-2 text-xs`
+																		`${active && 'bg-primary/10'} rounded-sm gap-2 group flex w-full items-center px-2 py-2 text-xs`
 																	)}
 																>
 																	<div className="flex justify-center items-center w-5 h-full">

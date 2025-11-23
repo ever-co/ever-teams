@@ -22,7 +22,7 @@ export function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEna
 			/>
 			<div
 				onClick={() => setShowInput((p) => !p)}
-				className="border dark:border-[#26272C] w-full rounded p-2 md:hidden flex justify-center mt-2"
+				className="border dark:border-[#26272C] w-full rounded-sm p-2 md:hidden flex justify-center mt-2"
 			>
 				<ChevronDown
 					className={clsxm('h-12  transition-all', showInput && 'rotate-180')}

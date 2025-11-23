@@ -50,7 +50,7 @@ const TeamMembersSkeleton = ({ view = IssuesView.CARDS, className, fullWidth = t
 					<div className="flex gap-3 items-center mb-3">
 						<div className="w-10 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
 						<div className="flex-1">
-							<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-2" />
+							<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
 							<div className="w-16 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 						</div>
 					</div>

@@ -85,7 +85,7 @@ export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
 					<PopoverTrigger asChild>
 						<Button
 							variant="ghost"
-							className="p-0 h-auto w-full max-w-[190px] outline-none hover:bg-transparent focus:bg-transparent"
+							className="p-0 h-auto w-full max-w-[190px] outline-hidden hover:bg-transparent focus:bg-transparent"
 						>
 							<DailyPlanDropDownItem
 								label={selectedPlans.length > 0 ? `Items(${selectedPlans.length})` : 'Plans'}

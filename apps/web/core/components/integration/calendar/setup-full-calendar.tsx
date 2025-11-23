@@ -204,7 +204,7 @@ export const CardItems = ({ selectedDate }: { selectedDate: Date }) => {
 export const CardItemsMember = ({ imageUrl, name, time }: { imageUrl?: string; name?: string; time?: string }) => {
 	return (
 		<div className="flex items-center w-full">
-			<div className="flex items-center p-1 space-x-2 w-full rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
+			<div className="flex items-center p-1 space-x-2 w-full rounded-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700">
 				<Image
 					className="flex justify-center items-center p-1 w-8 h-8 text-white rounded-full"
 					src={imageUrl ? imageUrl : ''}

@@ -123,7 +123,7 @@ const CalendarDataView = ({ data }: { data?: GroupedTimesheet[]; t: TranslationH
 													<AccordionTrigger
 														type="button"
 														className={cn(
-															'flex flex-row-reverse justify-end items-center w-full h-[30px] rounded-sm gap-x-2 hover:no-underline px-2',
+															'flex flex-row-reverse justify-end items-center w-full h-[30px] rounded-xs gap-x-2 hover:no-underline px-2',
 															statusColor(status).text
 														)}
 													>
@@ -189,7 +189,7 @@ const CalendarDataView = ({ data }: { data?: GroupedTimesheet[]; t: TranslationH
 																	taskNumberClassName="text-sm"
 																/>
 																<div className="flex items-center justify-between w-full pr-3">
-																	<div className="flex flex-row items-center self-stretch flex-none flex-grow-0 gap-2 py-0">
+																	<div className="flex flex-row items-center self-stretch flex-none grow-0 gap-2 py-0">
 																		{task.project?.imageUrl && (
 																			<ProjectLogo
 																				className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]"
@@ -253,7 +253,7 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
 													<AccordionTrigger
 														type="button"
 														className={cn(
-															'flex flex-row-reverse justify-end items-center w-full !h-[16px] rounded-sm gap-x-2 hover:no-underline',
+															'flex flex-row-reverse justify-end items-center w-full !h-[16px] rounded-xs gap-x-2 hover:no-underline',
 															statusColor(status).text
 														)}
 													>
@@ -266,10 +266,10 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
 																	)}
 																></div>
 																<div className="flex items-center gap-x-1">
-																	<span className="text-base font-normal text-gray-400 uppercase !text-[13px]">
+																	<span className="text-base font-normal text-gray-400 uppercase !text-xs">
 																		{status === 'DENIED' ? 'REJECTED' : status}
 																	</span>
-																	<span className="text-gray-400 text-[13px]">
+																	<span className="text-gray-400 text-xs">
 																		({timesheetRows.length})
 																	</span>
 																</div>
@@ -280,7 +280,7 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
 															</div>
 														</div>
 													</AccordionTrigger>
-													<AccordionContent className="flex flex-col items-start flex-none flex-grow-0 order-1 p-0 overflow-auto gap-y-2">
+													<AccordionContent className="flex flex-col items-start flex-none grow-0 order-1 p-0 overflow-auto gap-y-2">
 														{timesheetRows.map((task) => (
 															<div
 																key={task.id}
@@ -319,7 +319,7 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
 																	taskNumberClassName="text-sm"
 																/>
 																<div className="flex items-center justify-between w-full">
-																	<div className="flex flex-row items-center self-stretch flex-none flex-grow-0 gap-2 py-0">
+																	<div className="flex flex-row items-center self-stretch flex-none grow-0 gap-2 py-0">
 																		{task.project?.imageUrl && (
 																			<ProjectLogo
 																				className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]"

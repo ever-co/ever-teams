@@ -239,7 +239,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 														)}
 														<span
 															className={clsxm(
-																'text-xs bg-gray-200 dark:bg-dark--theme-light text-dark--theme-light dark:text-gray-200 p-2 rounded py-1',
+																'text-xs bg-gray-200 dark:bg-dark--theme-light text-dark--theme-light dark:text-gray-200 p-2 rounded-sm py-1',
 																currentTab == filter && 'dark:bg-gray-600'
 															)}
 														>

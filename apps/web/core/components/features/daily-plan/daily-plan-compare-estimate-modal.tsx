@@ -157,14 +157,14 @@ export function DailyPlanCompareActionButton({
 }) {
 	return (
 		<div className="flex items-center justify-between">
-			<Button onClick={closeModal} variant="outline" className="font-normal rounded-sm text-md h-9">
+			<Button onClick={closeModal} variant="outline" className="font-normal rounded-xs text-md h-9">
 				Cancel
 			</Button>
 			<Button
 				disabled={disabled}
 				loading={loading}
 				onClick={onClick}
-				className="font-normal rounded-sm text-md h-9"
+				className="font-normal rounded-xs text-md h-9"
 			>
 				Start working
 			</Button>

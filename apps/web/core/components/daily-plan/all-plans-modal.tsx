@@ -282,11 +282,11 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 			isOpen={isOpen}
 			customCloseModal={handleCloseModal}
 			closeModal={() => null}
-			className={clsxm('w-[36rem]')}
+			className={clsxm('px-3 py-4 w-full max-w-2xl min-w-xl md:px-6 md:py-5')}
 		>
-			<EverCard className="w-full h-full overflow-hidden" shadow="custom">
-				<div className="flex flex-col w-full gap-3">
-					<div className="relative flex items-center justify-center w-full h-12">
+			<EverCard className="overflow-hidden w-full h-full p-0!" shadow="custom">
+				<div className="flex flex-col gap-3 w-full">
+					<div className="flex relative justify-center items-center w-full h-12">
 						{selectedTab === 'Calendar' && showCustomPlan && (
 							<Tooltip label="Go back to the calendar">
 								<button
@@ -294,7 +294,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 										setShowCustomPlan(false);
 										setShowCalendar(true);
 									}}
-									className="absolute left-0 flex items-center gap-3 -translate-y-1/2 top-1/2"
+									className="flex absolute left-0 top-1/2 gap-3 items-center -translate-y-1/2"
 								>
 									<span className="rotate-180">
 										<ChevronRightIcon className="w-4  h-4 stroke-[#B1AEBC]" />
@@ -308,8 +308,8 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 							{displayPlanTitle(selectedTab, selectedPlan)}
 						</Text.Heading>
 					</div>
-					<div className="flex items-center justify-between w-full h-12">
-						<ul className="flex items-center w-full gap-3">
+					<div className="flex justify-between items-center w-full h-12">
+						<ul className="flex gap-3 items-center w-full">
 							{tabs.map((tab, index) => (
 								<li
 									key={index}
@@ -327,14 +327,14 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 								</li>
 							))}
 						</ul>
-						<div className="flex items-center justify-between h-8 border rounded">
+						<div className="flex justify-between items-center h-8 rounded-sm border">
 							<span
 								onClick={() =>
 									navigationMode === 'DATE'
 										? arrowNavigationHandler(moment(customDate).subtract(1, 'days').toDate())
 										: moveBetweenPlans(false)
 								}
-								className="flex items-center justify-center h-full px-2 rotate-180 cursor-pointer"
+								className="flex justify-center items-center px-2 h-full rotate-180 cursor-pointer"
 							>
 								<ChevronRightIcon className="w-6  h-4 stroke-[#B1AEBC]" />
 							</span>
@@ -345,7 +345,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 										? arrowNavigationHandler(moment(customDate).add(1, 'days').toDate())
 										: moveBetweenPlans(true)
 								}
-								className="flex items-center justify-center h-full px-2 cursor-pointer"
+								className="flex justify-center items-center px-2 h-full cursor-pointer"
 							>
 								<ChevronRightIcon className="w-6  h-4 stroke-[#B1AEBC]" />
 							</span>
@@ -354,11 +354,11 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 
 					<div className="w-full flex flex-col items-center h-[34rem]">
 						{selectedTab === 'Calendar' && showCalendar ? (
-							<div className="flex flex-col items-center justify-between w-full h-full">
+							<div className="flex flex-col justify-between items-center w-full h-full">
 								<div className="w-full grow">
-									<div className="flex flex-col items-center justify-center w-full h-full gap-4">
+									<div className="flex flex-col gap-4 justify-center items-center w-full h-full">
 										<p className="text-sm font-medium">{t('common.plan.CHOOSE_DATE')}</p>
-										<div className="flex items-center justify-center p-3 border rounded-md">
+										<div className="flex justify-center items-center p-3 rounded-md border">
 											<FuturePlansCalendar
 												selectedPlan={customDate}
 												setSelectedPlan={setCustomDate}
@@ -371,7 +371,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 									</div>
 								</div>
 
-								<div className="flex items-center justify-between w-full h-14">
+								<div className="flex justify-between items-center w-full h-14">
 									<Button
 										variant="outline"
 										type="submit"
@@ -423,7 +423,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 										canEdit={canEditPlans}
 									/>
 								) : (
-									<div className="flex items-center justify-center h-full">
+									<div className="flex justify-center items-center h-full">
 										<NoData component={<ValueNoneIcon />} text={t('common.plan.PLAN_NOT_FOUND')} />
 									</div>
 								)}

@@ -201,7 +201,7 @@ export default function ImageOverlapper({
 								return (
 									<li
 										key={member.id}
-										className="rounded-lg border border-transparent cursor-pointer w-100 hover:border-blue-500 hover:border-opacity-50"
+										className="rounded-lg border border-transparent cursor-pointer w-100 hover:border-blue-500/50"
 									>
 										<TeamMember
 											member={member}

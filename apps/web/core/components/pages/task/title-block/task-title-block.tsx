@@ -104,7 +104,7 @@ const TaskTitleBlock = () => {
 	};
 
 	return (
-		<div className="flex flex-col gap-[1.1875rem]" ref={titleContainerRef}>
+		<div className="flex flex-col gap-4.75" ref={titleContainerRef}>
 			{task ? (
 				<div className="flex gap-1">
 					<textarea
@@ -112,7 +112,7 @@ const TaskTitleBlock = () => {
 							'w-full',
 							edit && 'textAreaOutline',
 							'bg-transparent p-1 resize-none text-black dark:text-white not-italic font-medium text-2xl',
-							'items-start outline-1 rounded-[0.1875rem] border-2 border-transparent scrollbar-hide'
+							'items-start rounded-[0.1875rem] border-2 border-transparent scrollbar-hide'
 						)}
 						onChange={handleTaskTitleChange}
 						onKeyDown={saveOnEnter}
@@ -174,7 +174,7 @@ const TaskTitleBlock = () => {
 				<div className="flex flex-row gap-3 justify-start items-center">
 					<div className="flex flex-row gap-2">
 						{/* Task number */}
-						<div className="bg-gray-200 dark:bg-slate-600 rounded text-center flex justify-center items-center h-7 py-1 px-2.5">
+						<div className="bg-gray-200 dark:bg-slate-600 rounded-sm text-center flex justify-center items-center h-7 py-1 px-2.5">
 							<span className="text-xs font-medium text-gray-700 dark:text-gray-200">
 								#{task?.taskNumber}
 							</span>
@@ -318,10 +318,10 @@ const ParentTaskInput = ({ task }: { task: TTask | null }) => {
 
 	return task && task.issueType !== EIssueType.EPIC ? (
 		<>
-			<div className="box-border flex justify-center items-center h-7 text-center bg-transparent rounded cursor-pointer">
+			<div className="box-border flex justify-center items-center h-7 text-center bg-transparent rounded-sm cursor-pointer">
 				<Button
 					variant="outline-danger"
-					className="text-[#f07258] font-medium text-xs py-1 px-2.5 min-w-[4.75rem] outline-none h-7 rounded"
+					className="text-[#f07258] font-medium text-xs py-1 px-2.5 min-w-[4.75rem] outline-hidden h-7 rounded"
 					onClick={modal.openModal}
 				>
 					{task.parentId ? t('common.CHANGE_PARENT') : `+ ${t('common.ADD_PARENT')}`}

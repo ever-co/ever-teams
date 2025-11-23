@@ -34,7 +34,7 @@ export function TaskTimerSectionSkeleton({ isTrackingEnabled }: Readonly<{ isTra
 				<div
 					onClick={() => setShowInput((p) => !p)}
 					className={clsxm(
-						'border dark:border-[#26272C] w-full rounded p-2 flex justify-center items-center',
+						'border dark:border-[#26272C] w-full rounded-sm p-2 flex justify-center items-center',
 						'bg-gray-50 dark:bg-gray-800/30',
 						'hover:bg-gray-100 dark:hover:bg-gray-700/30',
 						'transition-all duration-200 ease-in-out cursor-pointer',

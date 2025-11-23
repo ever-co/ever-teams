@@ -295,7 +295,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 										t={t}
 									/>
 								</div>
-								<div className="flex items-center !h-[2.2rem] w-[700px] bg-white dark:bg-dark--theme-light gap-x-2 px-2 border border-gray-200 dark:border-gray-700 rounded-sm mb-2">
+								<div className="flex items-center !h-[2.2rem] w-[700px] bg-white dark:bg-dark--theme-light gap-x-2 px-2 border border-gray-200 dark:border-gray-700 rounded-xs mb-2">
 									<SearchIcon className="text-[#7E7991]" />
 									<input
 										onChange={(v) => setSearch(v.target.value)}
@@ -304,7 +304,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 										type="search"
 										name="timesheet-search"
 										id="timesheet-search"
-										className="!h-[2.2rem] w-full bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent placeholder-gray-500 placeholder:font-medium shadow-sm outline-none"
+										className="!h-[2.2rem] w-full bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent placeholder-gray-500 placeholder:font-medium shadow-xs outline-none"
 										placeholder={t('common.SEARCH')}
 									/>
 								</div>

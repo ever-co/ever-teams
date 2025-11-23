@@ -104,7 +104,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 			<div className="flex justify-center sm:justify-start">
 				<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
 					{!formOnly && (
-						<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
+						<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
 							{t('pages.settingsTeam.TASK_LABELS')}
 						</Text>
 					)}
@@ -126,7 +126,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 
 						{(isCreating || edit) && (
 							<>
-								<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400">
+								<Text className="flex-none grow-0 mb-2 text-lg font-normal text-gray-400">
 									{isCreating && t('common.NEW')}
 									{edit && t('common.EDIT')} {t('common.LABEL')}
 								</Text>
@@ -186,7 +186,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 
 						{!formOnly && taskLabels?.length > 0 && (
 							<>
-								<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
+								<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
 									{t('pages.settingsTeam.LIST_OF_LABELS')}
 								</Text>
 								<div className="flex flex-wrap gap-3 justify-center w-full sm:justify-start">

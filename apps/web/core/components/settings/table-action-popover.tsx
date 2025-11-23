@@ -205,7 +205,7 @@ const RolePopover = () => {
 					))}
 				</PopoverPanel>
 			</Transition>
-			{/* <Popover.Button className="flex items-center w-auto h-8 outline-none hover:cursor-pointer">
+			{/* <Popover.Button className="flex items-center w-auto h-8 outline-hidden hover:cursor-pointer">
 				<span className="text-[#282048] text-xs font-semibold dark:text-white">
 					Change Role
 				</span>

@@ -31,7 +31,7 @@ export const MemberSetting = () => {
 
 	return (
 		<div className="flex flex-col">
-			<Text className="flex-none flex-grow-0 mt-8 mb-2 w-full text-xl font-normal text-gray-400 md:w-1/5">
+			<Text className="flex-none grow-0 mt-8 mb-2 w-full text-xl font-normal text-gray-400 md:w-1/5">
 				{t('pages.settingsTeam.MEMBER_AND_ROLES')}
 			</Text>
 			<div className="flex justify-between items-center mt-8 w-full">
@@ -65,25 +65,25 @@ export const MemberSetting = () => {
 			<div className="flex flex-col gap-8">
 				<div className="flex gap-12">
 					<div className="flex w-[26.5rem] items-center justify-between gap-[8.1rem]">
-						<Text className="flex-none font-normal text-[#7E7991] flex-grow-0 text-lg md-2 w-auto dark:text-white">
+						<Text className="flex-none font-normal text-[#7E7991] grow-0 text-lg md-2 w-auto dark:text-white">
 							{t('pages.settingsTeam.POSITION_CUSTOM')}
 						</Text>
-						<div className="flex flex-row flex-grow-0 justify-between items-center w-auto">
+						<div className="flex flex-row grow-0 justify-between items-center w-auto">
 							<MemberInfo />
 						</div>
 					</div>
 					<ChooseDropdown setValue={() => console.log('')} />
 				</div>
 				<div className="flex gap-12 justify-between items-center w-full">
-					<Text className="flex-none font-normal text-[#7E7991] flex-grow-0 text-lg md-2 w-1/4 dark:text-white">
+					<Text className="flex-none font-normal text-[#7E7991] grow-0 text-lg md-2 w-1/4 dark:text-white">
 						{t('pages.settingsTeam.HIDE_PERSONAL_MEMBERS_INFOTMATION')}
 					</Text>
-					<div className="flex flex-row flex-grow-0 justify-between items-center w-4/5">
+					<div className="flex flex-row grow-0 justify-between items-center w-4/5">
 						<MemberInfo />
 					</div>
 				</div>
 				<div className="flex gap-12 justify-between items-center w-full">
-					<Text className="flex-none font-normal text-[#7E7991] flex-grow-0 text-lg md-2 w-1/5 dark:text-white">
+					<Text className="flex-none font-normal text-[#7E7991] grow-0 text-lg md-2 w-1/5 dark:text-white">
 						{t('pages.settingsTeam.WORK_SCHEDULE')}
 					</Text>
 				</div>

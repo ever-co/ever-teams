@@ -88,7 +88,7 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 		<div className="w-[800px] pt-12 pr-2 h-96 bg-transparent ">
 			<EverCard shadow="custom">
 				<form onSubmit={handleSubmit(onSubmit)}>
-					<Text className="flex-none flex-grow-0 mb-2 font-normal text-gray-400 text-md">
+					<Text className="flex-none grow-0 mb-2 font-normal text-gray-400 text-md">
 						{createNew ? t('common.NEW') : t('common.EDIT')} {t('common.ISSUE_TYPE')}
 					</Text>
 					<div className="flex gap-x-5 items-center mt-3 w-full">

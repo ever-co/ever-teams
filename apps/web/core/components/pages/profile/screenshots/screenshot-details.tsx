@@ -151,7 +151,7 @@ const ScreenshotDetailsModal = ({
 								)}
 
 								{slot?.timeLogs?.[0]?.version && (
-									<div className="px-3 py-1  text-xs font-medium text-white rounded-sm bg-[#A5A4FF]">
+									<div className="px-3 py-1  text-xs font-medium text-white rounded-xs bg-[#A5A4FF]">
 										{slot?.timeLogs?.[0]?.version}
 									</div>
 								)}
@@ -182,7 +182,7 @@ const ScreenshotDetailsModal = ({
 									<div className="flex gap-2 h-8">
 										<div
 											className={cn(
-												'w-8 overflow-hidden  h-full uppercase  rounded-sm flex items-center justify-center text-[1rem]',
+												'w-8 overflow-hidden  h-full uppercase  rounded-xs flex items-center justify-center text-[1rem]',
 												!project?.imageUrl && 'bg-[#A5A4FF]'
 											)}
 										>

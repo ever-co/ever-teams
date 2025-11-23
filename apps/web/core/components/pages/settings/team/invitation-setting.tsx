@@ -74,7 +74,7 @@ export const InvitationSetting = () => {
 			<div className="flex flex-col gap-8">
 				<div className="flex gap-16 items-center">
 					<div className="flex gap-1 items-start">
-						<Text className="flex-none font-normal text-[#7E7991] dark:text-white flex-grow-0 text-lg md-2">
+						<Text className="flex-none font-normal text-[#7E7991] dark:text-white grow-0 text-lg md-2">
 							{t('pages.settingsTeam.INVITATION_EXPIRATION')}
 						</Text>
 						<SettingGearIcon className="stroke-[#B1AEBC] dark:stroke-white" />
@@ -113,7 +113,7 @@ export const InvitationSetting = () => {
 				</div>
 				<div className="flex items-center">
 					<div className="flex items-start gap-1 w-[16.5rem]">
-						<Text className="flex-none font-normal text-[#7E7991] flex-grow-0 text-lg md-2 dark:text-white">
+						<Text className="flex-none font-normal text-[#7E7991] grow-0 text-lg md-2 dark:text-white">
 							{t('pages.settingsTeam.NOTIFY_IF')}
 						</Text>
 					</div>
@@ -130,7 +130,7 @@ export const InvitationSetting = () => {
 					</div>
 				</div>
 				<div className="flex gap-20 items-start">
-					<Text className="flex-none font-normal text-[#7E7991] flex-grow-0 text-lg md-2 dark:text-white">
+					<Text className="flex-none font-normal text-[#7E7991] grow-0 text-lg md-2 dark:text-white">
 						{t('pages.settingsTeam.TEAM_REQUEST')}
 					</Text>
 					<MemberInfo />
