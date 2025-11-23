@@ -139,9 +139,9 @@ export function TimesheetFilterDate({
 						)}
 					</Button>
 				</PopoverTrigger>
-				<PopoverContent className="flex w-auto p-0 dark:bg-dark--theme-light">
+				<PopoverContent className="flex p-0 w-auto dark:bg-dark--theme-light">
 					{isVisible && (
-						<div className="flex flex-col justify-between gap-2 p-2 translate-x-0">
+						<div className="flex flex-col gap-2 justify-between p-2 translate-x-0">
 							<div className="flex flex-col gap-2">
 								<DatePickerFilter
 									label="From"
@@ -157,7 +157,7 @@ export function TimesheetFilterDate({
 									timesheet={data}
 								/>
 							</div>
-							<div className="flex items-end justify-end w-full">
+							<div className="flex justify-end items-end w-full">
 								<Button
 									variant={'outline'}
 									className={cn(actionButtonClass, 'hover:text-primary')}
@@ -194,14 +194,14 @@ export function TimesheetFilterDate({
 								key={index}
 								variant="outline"
 								className={clsxm(
-									'h-7 group flex items-center justify-between border-none text-[13px] text-gray-700 dark:bg-dark--theme-light hover:bg-primary  hover:text-white hover:dark:bg-primary-light'
+									'flex justify-between items-center h-7 text-xs text-gray-700 border-none group dark:bg-dark--theme-light dark:text-gray-300 hover:bg-primary hover:text-white hover:dark:bg-primary-light'
 								)}
 								onClick={() => {
 									label === t('common.FILTER_CUSTOM_RANGE') && setIsVisible((prev) => !prev);
 									handlePresetClick(label);
 								}}
 							>
-								<div className="flex items-center gap-x-2">
+								<div className="flex gap-x-2 items-center">
 									<ChevronDown />
 									<span> {label}</span>
 								</div>
@@ -357,7 +357,7 @@ export function DatePickerFilter({
 								)}
 								onClick={() => handleSelect(dayDate)}
 							>
-								<div className="relative flex items-center justify-center w-full h-full">
+								<div className="flex relative justify-center items-center w-full h-full">
 									{dayDate.getDate()}
 									{getEntriesForDate(dayDate).length > 0 && (
 										<span className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
@@ -445,7 +445,7 @@ export const FilterCalendar = memo(function FuturePlansCalendar<T extends { date
 			mode="single"
 			buttonVariant={'link'}
 			// @ts-ignore
-			className={'dark:bg-dark--theme-light rounded-lg bg-white dark:text-gray-200'}
+			className={'bg-white rounded-lg dark:bg-dark--theme-light dark:text-gray-200'}
 			buttonClassName={
 				'decoration-transparent flex items-center w-full h-[2.2em] bg-white dark:text-gray-200 dark:bg-dark--theme-light border-gray-300 justify-start text-left font-normal text-black  h-[2.2rem] border dark:border-slate-600 rounded-md'
 			}

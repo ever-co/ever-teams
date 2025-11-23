@@ -266,10 +266,10 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
 																	)}
 																></div>
 																<div className="flex items-center gap-x-1">
-																	<span className="text-base font-normal text-gray-400 uppercase !text-[13px]">
+																	<span className="text-base font-normal text-gray-400 uppercase !text-xs">
 																		{status === 'DENIED' ? 'REJECTED' : status}
 																	</span>
-																	<span className="text-gray-400 text-[13px]">
+																	<span className="text-gray-400 text-xs">
 																		({timesheetRows.length})
 																	</span>
 																</div>

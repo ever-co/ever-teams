@@ -120,7 +120,7 @@ function TimeInfo({
 				>
 					<div className="flex gap-x-4 items-center text-sm font-normal">
 						<span className="text-[#7B8089] text-center capitalize">{t('common.TODAY')}</span>
-						<Text className="text-[13px] text-nowrap whitespace-nowrap">
+						<Text className="text-xs text-nowrap whitespace-nowrap">
 							{daily.h}h : {daily.m}m
 						</Text>
 					</div>
