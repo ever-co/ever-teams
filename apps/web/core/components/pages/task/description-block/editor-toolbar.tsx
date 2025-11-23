@@ -299,11 +299,11 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 					</span>
 				</Button>
 				{/* {showDropdown && (
-					<div className="absolute left-0 z-10 w-40 py-2 bg-white border border-gray-300 rounded shadow top-full dark:bg-dark--theme-light dark:border-gray-700">
+					<div className="absolute left-0 z-10 w-40 py-2 bg-white border border-gray-300 rounded-sm shadow-sm top-full dark:bg-dark--theme-light dark:border-gray-700">
 						{blockOptions.map((option) => (
 							<button
 								key={option.format}
-								className={`flex items-center gap-1 px-2 py-1 w-full focus:outline-none rounded-sm transition duration-300 ${
+								className={`flex items-center gap-1 px-2 py-1 w-full focus:outline-none rounded-xs transition duration-300 ${
 									isBlockActiveMemo && isBlockActiveMemo(option.format)
 										? 'dark:bg-[#6a6a6a] bg-[#ddd]'
 										: 'bg-transparent'

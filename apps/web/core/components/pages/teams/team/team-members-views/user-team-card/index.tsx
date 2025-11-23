@@ -292,7 +292,7 @@ export function UserTeamCard({
 
 						{canSeeActivity ? (
 							<p
-								className="flex relative -left-1 flex-none justify-center items-center w-8 h-8 text-center rounded border cursor-pointer dark:border-gray-800 shrink-0"
+								className="flex relative -left-1 flex-none justify-center items-center w-8 h-8 text-center rounded-sm border cursor-pointer dark:border-gray-800 shrink-0"
 								onClick={() => {
 									showActivityFilter('TICKET', memberInfo.member ?? null);
 									setUserDetailAccordion('');
@@ -336,7 +336,7 @@ export function UserTeamCard({
 						{canSeeActivity ? (
 							<p
 								onClick={() => showActivityFilter('DATE', memberInfo.member ?? null)}
-								className="flex justify-center items-center w-8 h-8 text-center rounded border cursor-pointer dark:border-gray-800"
+								className="flex justify-center items-center w-8 h-8 text-center rounded-sm border cursor-pointer dark:border-gray-800"
 							>
 								{!showActivity ? (
 									<ExpandIcon height={24} width={24} />

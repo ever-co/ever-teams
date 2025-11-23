@@ -103,7 +103,7 @@ export const EmptyState: FC<EmptyStateProps> = ({
 	const variantClasses = {
 		default: 'bg-transparent',
 		subtle: 'bg-muted/50 rounded-lg',
-		card: 'bg-card border rounded-lg shadow-sm'
+		card: 'bg-card border rounded-lg shadow-xs'
 	};
 
 	const imageSize = {

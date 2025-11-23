@@ -91,7 +91,7 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
 				<div className="flex w-full">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] w-full">
-						<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px]">
+						<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px]">
 							{t('pages.settingsTeam.RELATED_ISSUE_TYPE')}
 						</Text>
 
@@ -112,7 +112,7 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 
 							{(createNew || edit) && (
 								<>
-									<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400">
+									<Text className="flex-none grow-0 mb-2 text-lg font-normal text-gray-400">
 										{createNew && 'New'}
 										{edit && 'Edit'} {t('pages.settingsTeam.RELATED_TYPE')}
 									</Text>
@@ -158,7 +158,7 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 
 							{!formOnly && taskRelatedIssueTypes?.length > 0 && (
 								<>
-									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem]">
+									<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem]">
 										{t('pages.settingsTeam.LIST_OF_RELATED_TYPE')}
 									</Text>
 									<div className="flex flex-wrap gap-3 justify-center w-full sm:justify-start">

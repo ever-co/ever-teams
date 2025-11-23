@@ -109,7 +109,7 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 							optionsClassName
 						)}
 					>
-						<div className="flex flex-col justify-center py-2 rounded shadow-md md:px-4 bg-slate-50 card">
+						<div className="flex flex-col justify-center py-2 rounded-sm shadow-md md:px-4 bg-slate-50 card">
 							{/* This should only show when New item needs to be created */}
 							{query && handleAddNew && (
 								<ComboboxOption

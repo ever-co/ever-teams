@@ -82,7 +82,7 @@ export const AllTeamsPageSkeleton: FC<AllTeamsPageSkeletonProps> = ({
 								<div className="flex gap-4 items-center mb-4">
 									<div className="w-12 h-12 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
 									<div className="flex-1">
-										<div className="w-32 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-2" />
+										<div className="w-32 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
 										<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 									</div>
 									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
@@ -122,8 +122,8 @@ export const AllTeamsPageSkeleton: FC<AllTeamsPageSkeletonProps> = ({
 				<div className="mt-4">
 					<div className="p-6 text-center bg-white rounded-xl border border-gray-300 border-dashed dark:bg-dark--theme-light dark:border-gray-600">
 						<div className="w-12 h-12 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full mx-auto mb-4" />
-						<div className="w-32 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mx-auto mb-2" />
-						<div className="w-48 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mx-auto" />
+						<div className="w-32 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mx-auto mb-2" />
+						<div className="w-48 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mx-auto" />
 					</div>
 				</div>
 			</Container>

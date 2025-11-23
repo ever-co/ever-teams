@@ -222,7 +222,7 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 									</li>
 									<li>
 										<ConfirmDropdown
-											className="right-[110%] top-0 border-gray-200 shadow shadow-gray-100 dark:shadow-gray-900 dark:border-gray-800 dark:bg-gray-900"
+											className="right-[110%] top-0 border-gray-200 shadow-sm shadow-gray-100 dark:shadow-gray-900 dark:border-gray-800 dark:bg-gray-900"
 											onConfirm={async () => {
 												try {
 													await removeTeamInvitation(

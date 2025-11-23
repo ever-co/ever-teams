@@ -17,7 +17,7 @@ export function AlertPopup({ children, buttonOpen, open }: React.PropsWithChildr
 	return (
 		<Popover open={open}>
 			<PopoverTrigger asChild>{buttonOpen}</PopoverTrigger>
-			<PopoverContent className="min-w-max bg-light--theme-light dark:bg-dark--theme-light outline-none dark:border-gray-600">
+			<PopoverContent className="min-w-max bg-light--theme-light dark:bg-dark--theme-light outline-hidden dark:border-gray-600">
 				<div className="p-4 space-y-4">
 					<div>
 						<h4 className="text-lg font-semibold">Delete this plan</h4>

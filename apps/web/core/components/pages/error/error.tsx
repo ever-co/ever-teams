@@ -25,7 +25,7 @@ export default function ErrorPageComponent() {
 				</Link>
 			</div>
 
-			<div className="container flex flex-col gap-y-3 p-2 mt-5 max-w-5xl text-center rounded">
+			<div className="container flex flex-col gap-y-3 p-2 mt-5 max-w-5xl text-center rounded-sm">
 				<Link href={DEFAULT_APP_PATH} className="text-2xl font-medium text-center text-red-400">
 					{t('pages.unauthorized.TRY_AGAIN')}
 				</Link>

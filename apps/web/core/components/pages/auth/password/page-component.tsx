@@ -261,7 +261,7 @@ function LoginForm({ form }: { form: TAuthenticationPassword }) {
 					</div>
 
 					{/* Right: Demo Accounts Quick Access - 35% width */}
-					<div className="w-[35%] flex-shrink-0">
+					<div className="w-[35%] shrink-0">
 						<DemoAccountsSection onDemoLogin={handleDemoLogin} />
 					</div>
 				</div>

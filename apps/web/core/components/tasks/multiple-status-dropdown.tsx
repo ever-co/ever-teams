@@ -115,7 +115,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 	const renderItem = (item: T, isSelected: boolean) => {
 		const item_value = item.value || item.name;
 		return (
-			<div className="relative w-full outline-none cursor-pointer">
+			<div className="relative w-full outline-hidden cursor-pointer">
 				<TaskStatus
 					showIcon={showIcon}
 					{...item}

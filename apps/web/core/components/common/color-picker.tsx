@@ -117,7 +117,7 @@ export const ColorPicker = ({
 			{({ open }) => (
 				<>
 					<PopoverButton
-						className={'w-full outline-none mb-[15px]'}
+						className={'w-full outline-hidden mb-[15px]'}
 						ref={buttonRef}
 						disabled={disableButton}
 						onClick={toggleDisabled}

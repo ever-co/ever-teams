@@ -67,7 +67,7 @@ export default function CategorizationForm(props: IStepElementProps) {
 				<div key={item?.id} className="flex gap-2 items-center p-1 px-2 w-full h-full">
 					<span
 						className={cn(
-							'h-4 w-4 rounded border border-primary flex items-center justify-center',
+							'h-4 w-4 rounded-sm border border-primary flex items-center justify-center',
 							selected && 'bg-primary text-primary-foreground dark:text-white'
 						)}
 					>

@@ -64,7 +64,7 @@ const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 								</div>
 								<div className="flex justify-between items-center mt-2 w-full">
 									<button
-										className={`inline-flex justify-center items-center my-4 tracking-wide text-white transition-colors duration-200 transform w-[120px] h-[40px] ${updateLoading ? 'opacity-50' : ''} dark:text-primary bg-primary dark:bg-white rounded-[12px] hover:text-opacity-90 focus:outline-none`}
+										className={`inline-flex justify-center items-center my-4 tracking-wide text-white transition-colors duration-200 transform w-[120px] h-[40px] ${updateLoading ? 'opacity-50' : ''} dark:text-primary bg-primary dark:bg-white rounded-[12px] hover:text-white/90 focus:outline-none`}
 										type="submit"
 										onClick={handleChange}
 									>
@@ -76,7 +76,7 @@ const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 										{t('common.CONFIRM')}
 									</button>
 									<button
-										className={`inline-flex justify-center items-center my-4 tracking-wide text-white bg-gray-600 transition-colors duration-200 transform w-[120px] h-[40px] dark:bg-gray-700 rounded-[12px] hover:text-opacity-90 focus:outline-none`}
+										className={`inline-flex justify-center items-center my-4 tracking-wide text-white bg-gray-600 transition-colors duration-200 transform w-[120px] h-[40px] dark:bg-gray-700 rounded-[12px] hover:text-white/90 focus:outline-none`}
 										type="submit"
 										onClick={closeModal}
 									>

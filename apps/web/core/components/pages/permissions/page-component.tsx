@@ -106,10 +106,10 @@ const Permissions = () => {
 						{selectedRole && (
 							<div className="overflow-y-auto">
 								<div className="flex w-full items-center justify-between gap-[2rem]">
-									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
+									<Text className="flex-none grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
 										{t('pages.settingsTeam.TRACK_TIME')}
 									</Text>
-									<div className="flex flex-row flex-grow-0 justify-between items-center w-full">
+									<div className="flex flex-row grow-0 justify-between items-center w-full">
 										<CommonToggle
 											enabledText="Activated"
 											disabledText="Deactivated"
@@ -121,10 +121,10 @@ const Permissions = () => {
 									</div>
 								</div>
 								<div className="flex w-full items-center justify-between gap-[2rem]">
-									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
+									<Text className="flex-none grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
 										{t('pages.settingsTeam.ESTIMATE_ISSUE')}
 									</Text>
-									<div className="flex flex-row flex-grow-0 justify-between items-center w-full">
+									<div className="flex flex-row grow-0 justify-between items-center w-full">
 										<CommonToggle
 											enabledText="Activated"
 											disabledText="Deactivated"
@@ -141,10 +141,10 @@ const Permissions = () => {
 									</div>
 								</div>
 								<div className="flex w-full items-center justify-between gap-[2rem]">
-									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
+									<Text className="flex-none grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
 										{t('pages.settingsTeam.EPICS_CREATE_CLOSE')}
 									</Text>
-									<div className="flex flex-row flex-grow-0 justify-between items-center w-full">
+									<div className="flex flex-row grow-0 justify-between items-center w-full">
 										<CommonToggle
 											enabledText="Activated"
 											disabledText="Deactivated"
@@ -161,10 +161,10 @@ const Permissions = () => {
 									</div>
 								</div>
 								<div className="flex w-full items-center justify-between gap-[2rem]">
-									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
+									<Text className="flex-none grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
 										{t('pages.settingsTeam.ISSUE_CREATE_CLOSE')}
 									</Text>
-									<div className="flex flex-row flex-grow-0 justify-between items-center w-full">
+									<div className="flex flex-row grow-0 justify-between items-center w-full">
 										<CommonToggle
 											enabledText="Activated"
 											disabledText="Deactivated"
@@ -181,10 +181,10 @@ const Permissions = () => {
 									</div>
 								</div>
 								<div className="flex w-full items-center justify-between gap-[2rem]">
-									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
+									<Text className="flex-none grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
 										{t('pages.settingsTeam.ISSUE_ASSIGN_UNASSIGN')}
 									</Text>
-									<div className="flex flex-row flex-grow-0 justify-between items-center w-full">
+									<div className="flex flex-row grow-0 justify-between items-center w-full">
 										<CommonToggle
 											enabledText="Activated"
 											disabledText="Deactivated"
@@ -201,10 +201,10 @@ const Permissions = () => {
 									</div>
 								</div>
 								<div className="flex w-full items-center justify-between gap-[2rem]">
-									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
+									<Text className="flex-none grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
 										{t('pages.settingsTeam.INVITE_MEMBERS')}
 									</Text>
-									<div className="flex flex-row flex-grow-0 justify-between items-center w-full">
+									<div className="flex flex-row grow-0 justify-between items-center w-full">
 										<CommonToggle
 											enabledText="Activated"
 											disabledText="Deactivated"
@@ -216,10 +216,10 @@ const Permissions = () => {
 									</div>
 								</div>
 								<div className="flex w-full items-center justify-between gap-[2rem]">
-									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
+									<Text className="flex-none grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
 										{t('pages.settingsTeam.REMOVE_MEMBERS')}
 									</Text>
-									<div className="flex flex-row flex-grow-0 justify-between items-center w-full">
+									<div className="flex flex-row grow-0 justify-between items-center w-full">
 										<CommonToggle
 											enabledText="Activated"
 											disabledText="Deactivated"
@@ -236,10 +236,10 @@ const Permissions = () => {
 									</div>
 								</div>
 								<div className="flex w-full items-center justify-between gap-[2rem]">
-									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
+									<Text className="flex-none grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
 										{t('pages.settingsTeam.HANDLE_REQUESTS')}
 									</Text>
-									<div className="flex flex-row flex-grow-0 justify-between items-center w-full">
+									<div className="flex flex-row grow-0 justify-between items-center w-full">
 										<CommonToggle
 											enabledText="Activated"
 											disabledText="Deactivated"
@@ -254,10 +254,10 @@ const Permissions = () => {
 									</div>
 								</div>
 								<div className="flex w-full items-center justify-between gap-[2rem]">
-									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
+									<Text className="flex-none grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
 										{t('pages.settingsTeam.ROLES_POSITIONS_CHANGE')}
 									</Text>
-									<div className="flex flex-row flex-grow-0 justify-between items-center w-full">
+									<div className="flex flex-row grow-0 justify-between items-center w-full">
 										<CommonToggle
 											enabledText="Activated"
 											disabledText="Deactivated"
@@ -269,10 +269,10 @@ const Permissions = () => {
 									</div>
 								</div>
 								<div className="flex w-full items-center justify-between gap-[2rem]">
-									<Text className="flex-none flex-grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
+									<Text className="flex-none grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
 										{t('pages.settingsTeam.VIEW_DETAILS')}
 									</Text>
-									<div className="flex flex-row flex-grow-0 justify-between items-center w-full">
+									<div className="flex flex-row grow-0 justify-between items-center w-full">
 										<CommonToggle
 											enabledText="Activated"
 											disabledText="Deactivated"

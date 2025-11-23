@@ -94,7 +94,7 @@ const Collaborate = () => {
 						isOpen ? closeModal() : openModal();
 					}}
 					className={clsxm(
-						'flex flex-row gap-2 justify-center items-center px-4 py-3 text-xs rounded-lg outline-none h-fit',
+						'flex flex-row gap-2 justify-center items-center px-4 py-3 text-xs rounded-lg outline-hidden h-fit',
 						'text-sm text-white bg-primary dark:bg-primary-light',
 						'disabled:bg-primary-light disabled:opacity-40'
 					)}
@@ -102,7 +102,7 @@ const Collaborate = () => {
 					<UserLinearIcon className="w-4 h-4 text-white" />
 					{t('common.COLLABORATE')}
 				</DialogTrigger>
-				<DialogContent className="gap-0 p-0 outline-none border-[#0000001A] dark:border-[#26272C]">
+				<DialogContent className="gap-0 p-0 outline-hidden border-[#0000001A] dark:border-[#26272C]">
 					<DialogHeader className="px-4 pt-5 pb-4">
 						<DialogTitle>{t('common.COLLABORATE_DIALOG_TITLE')}</DialogTitle>
 						<DialogDescription>{t('common.COLLABORATE_DIALOG_SUB_TITLE')}</DialogDescription>

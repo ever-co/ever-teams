@@ -584,7 +584,7 @@ function ColumnHandlerDropdown(args: {
 			<div>
 				<Menu.Button>
 					<div className="flex gap-2 items-center cursor-pointer">
-						<span className="text-[13px] text-nowrap">{column.name}</span>
+						<span className="text-xs text-nowrap">{column.name}</span>
 						<div className="flex flex-col items-center">
 							<ChevronUp
 								size={15}

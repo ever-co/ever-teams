@@ -32,7 +32,7 @@ export const DefaultIssueTypeForm = () => {
 			<form className="w-full" autoComplete="off">
 				<div className="flex w-full">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] w-full">
-						<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px]">
+						<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px]">
 							{t('pages.settingsTeam.DEFAULT_ISSUE_TYPE')}
 						</Text>
 
@@ -75,7 +75,7 @@ export const DefaultIssueTypeForm = () => {
 											>
 												<Text.Label
 													className={clsxm(
-														'flex-none flex-grow-0 !w-40 max-w-[190px] font-normal',
+														'flex-none grow-0 !w-40 max-w-[190px] font-normal',
 														'capitalize overflow-hidden text-ellipsis whitespace-nowrap w-full',
 														defaultIssueType.color === '' && ['dark:text-[#cdd1d8]'],
 														defaultIssueType.icon && 'max-w-[135px]'

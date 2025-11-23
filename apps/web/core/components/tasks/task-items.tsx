@@ -52,7 +52,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 						<TaskIssueStatus
 							showIssueLabels={false}
 							className={clsxm(
-								' rounded-sm h-auto',
+								' rounded-xs h-auto',
 								task?.issueType === 'Bug'
 									? '!px-[0.3312rem] py-[0.2875rem]'
 									: '!px-[0.375rem] py-[0.375rem]',
