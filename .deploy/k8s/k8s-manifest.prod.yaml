@@ -245,6 +245,18 @@ spec:
           ports:
             - containerPort: 3030
               protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3030
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3030
+            initialDelaySeconds: 5
+            periodSeconds: 10
           resources:
             requests:
               memory: "512Mi"
