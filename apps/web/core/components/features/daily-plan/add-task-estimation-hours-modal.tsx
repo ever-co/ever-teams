@@ -872,10 +872,16 @@ function TaskCard(props: ITaskCardProps) {
 			if (plan && plan.id) {
 				// ⚠️ WORKAROUND: Ever-Gauzy backend has a bug where it searches for the plan with employeeId and organizationId in WHERE clause
 				// This prevents adding tasks to other employees' plans.
+				// Always pass the plan owner employeeId explicitly so manager actions affect the correct employee.
+				if (!plan.employeeId) {
+					throw new Error('Cannot add task to plan without employeeId');
+				}
+
 				await addTaskToPlan(
 					{
 						taskId: task.id,
-						employeeId: employeeId ?? user?.employee?.id,
+						// Use the plan owner, not the current user, to avoid incorrect auto-assignment when managers edit others' plans
+						employeeId: plan.employeeId,
 						organizationId: user?.employee?.organizationId
 					},
 					plan.id
@@ -889,14 +895,14 @@ function TaskCard(props: ITaskCardProps) {
 			} else {
 				const planDate = plan ? plan.date : selectedDate;
 
-				if (planDate) {
+				if (planDate && employeeId) {
 					await createDailyPlan({
 						workTimePlanned: 0,
 						taskId: task.id,
 						date: moment(planDate).format('YYYY-MM-DD'),
 						status: EDailyPlanStatus.OPEN,
 						tenantId: user?.tenantId ?? '',
-						employeeId: employeeId ?? user?.employee?.id,
+						employeeId,
 						organizationId: user?.employee?.organizationId!
 					});
 					toast.success('Daily plan created', {
