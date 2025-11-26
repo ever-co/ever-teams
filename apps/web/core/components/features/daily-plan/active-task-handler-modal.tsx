@@ -35,6 +35,7 @@ export function ActiveTaskHandlerModal({
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const { setActiveTask } = useTeamTasks();
+	// Use default useDailyPlan() so it targets the current user's own plans (todayPlan)
 	const { addTaskToPlan } = useDailyPlan();
 
 	const [selectedOption, setSelectedOption] = useState<number>();
@@ -61,7 +62,16 @@ export function ActiveTaskHandlerModal({
 				action: async () => {
 					try {
 						if (todayPlan && todayPlan.id && activeTeamTask) {
-							await addTaskToPlan({ taskId: activeTeamTask.id }, todayPlan.id);
+							await addTaskToPlan(
+								{
+									// Always use the plan owner for auto-assignment
+									// todayPlan comes from `useTimerView` which uses `useTimer` (current user's myDailyPlans)
+									// so this is effectively a "self-plan" scenario
+									employeeId: todayPlan.employeeId ?? undefined,
+									taskId: activeTeamTask.id
+								},
+								todayPlan.id
+							);
 						}
 
 						activeTeamTask &&
@@ -78,7 +88,14 @@ export function ActiveTaskHandlerModal({
 				action: async () => {
 					try {
 						if (todayPlan && todayPlan.id && activeTeamTask) {
-							await addTaskToPlan({ taskId: activeTeamTask.id }, todayPlan.id);
+							await addTaskToPlan(
+								{
+									// Same rule here: assign the plan owner, not whoever clicked
+									employeeId: todayPlan.employeeId ?? undefined,
+									taskId: activeTeamTask.id
+								},
+								todayPlan.id
+							);
 						}
 						if (defaultPlannedTask) {
 							setActiveTask(defaultPlannedTask);
