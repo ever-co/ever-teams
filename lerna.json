@@ -8,7 +8,7 @@
 		"cacheDir": ".changelog",
 		"labels": {}
 	},
-	"packages": ["libs/*", "apps/web", "apps/server-web", "apps/playground", "packages/*"],
+	"packages": ["libs/*", "apps/web", "apps/server-web", "apps/playground", "apps/mobile", "packages/*"],
 	"stream": true,
 	"npmClientArgs": ["--no-package-lock"]
 }
