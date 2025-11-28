@@ -56,6 +56,13 @@ class AuthService extends APIService {
 				refresh_token
 			});
 
+			// Store the token client-side (the API route returns it in the body)
+			// This is necessary because the API route's Set-Cookie header is lost
+			// when returning NextResponse.json() instead of the modified response object
+			if (result.data?.token) {
+				setAccessTokenCookie(result.data.token);
+			}
+
 			console.log('[AuthService] Token refreshed successfully via API route');
 			return result;
 		} catch (error: any) {
