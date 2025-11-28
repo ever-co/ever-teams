@@ -168,13 +168,29 @@ export function useProactiveTokenRefresh() {
 			// Check if we need to refresh immediately (token expiring within 5 min)
 			if (shouldRefreshToken(accessToken, 300)) {
 				console.log('[ProactiveTokenRefresh] Token needs refresh, doing it now...');
-				await performRefreshIfNeeded();
+				const success = await performRefreshIfNeeded();
+
+				if (!success) {
+					// Refresh failed - performRefreshIfNeeded already handled 401 (logout)
+					// For network errors, schedule a quick retry instead of normal 12h interval
+					// This prevents waiting 12h while token expires in minutes
+					const refreshToken = getRefreshTokenCookie();
+					if (refreshToken) {
+						// Still have refresh token = network error, not 401
+						console.warn('[ProactiveTokenRefresh] Immediate refresh failed, scheduling quick retry in 30s');
+						timeoutRef.current =
+							typeof window !== 'undefined' ? window.setTimeout(scheduleNextRefresh, 30000) : null;
+					}
+					// If no refresh token, handleUnauthorized was called - don't schedule anything
+					return;
+				}
+				// Success - continue to start scheduler with new token
 			} else {
 				const remainingTime = getTokenRemainingTime(accessToken);
 				console.log(`[ProactiveTokenRefresh] Token valid, remaining: ${formatRemainingTime(remainingTime)}`);
 			}
 
-			// Start the recursive scheduler
+			// Start the recursive scheduler (only if refresh succeeded or wasn't needed)
 			scheduleNextRefresh();
 		};
 

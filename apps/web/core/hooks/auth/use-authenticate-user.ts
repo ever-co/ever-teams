@@ -1,6 +1,6 @@
 'use client';
 import { DEFAULT_APP_PATH, LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
-import { getAccessTokenCookie, removeAuthCookies } from '@/core/lib/helpers/cookies';
+import { getAccessTokenCookie, getRefreshTokenCookie, removeAuthCookies } from '@/core/lib/helpers/cookies';
 import { handleUnauthorized, registerRefreshTokenCallback } from '@/core/lib/auth/handle-unauthorized';
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { logDisconnection } from '@/core/lib/auth/disconnect-logger';
@@ -265,12 +265,32 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		}
 
 		if (shouldRefreshToken(accessToken, 300)) {
+			// Token expires within 5 min - refresh immediately before starting scheduler
+			// Using mutate() with callbacks to control scheduler timing (no async/await needed)
+			// NOTE: The mutation's onSuccess/onError already handle core logic (reset failures,
+			// invalidate queries, 401 detection, etc). These callbacks ONLY add scheduling control.
 			console.log('[Auth] Token expired or expiring soon, refreshing immediately...');
-			refreshTokenMutation.mutate();
+			refreshTokenMutation.mutate(undefined, {
+				onSuccess: () => {
+					// Core success logic handled by mutation's onSuccess
+					// Here we ONLY add: start scheduler with the refreshed token
+					scheduleNextRefresh();
+				},
+				onError: () => {
+					// Core error logic handled by mutation's onError (401 → logout, network → counter)
+					// Here we ONLY add: if still logged in (network error), schedule quick retry
+					// Check via refresh token presence - if gone, handleUnauthorized was called
+					if (getRefreshTokenCookie()) {
+						console.warn('[Auth] Immediate refresh failed (network), scheduling retry in 30s');
+						refreshTimeoutRef.current = window?.setTimeout(scheduleNextRefresh, 30000) ?? null;
+					}
+					// If no refresh token → 401 handled, user logged out, no scheduler needed
+				}
+			});
+		} else {
+			// Token is still valid (> 5 min remaining) - start normal scheduler
+			scheduleNextRefresh();
 		}
-
-		// Start the recursive scheduler
-		scheduleNextRefresh();
 
 		// Return cleanup function
 		return () => {
