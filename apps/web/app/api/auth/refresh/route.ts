@@ -37,7 +37,11 @@ export async function POST(req: Request) {
 
 		return NextResponse.json({ user, token: refreshResult.data.token });
 	} catch (error: any) {
-		const statusCode = error?.statusCode || error?.status || 401;
+		// IMPORTANT: Default to 500, NOT 401, for unknown errors.
+		// Why? Errors without a status code are typically network/timeout issues.
+		// Returning 401 would cause the client to treat transient failures as "token invalid → logout",
+		// when the token might actually be fine. 500 signals "try again later" instead.
+		const statusCode = error?.statusCode || error?.status || 500;
 		const message = error?.message || 'Token refresh failed';
 
 		// Log full error details in dev mode for debugging (stack trace, etc.)

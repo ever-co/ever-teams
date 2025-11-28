@@ -133,18 +133,25 @@ export function useProactiveTokenRefresh() {
 				return;
 			}
 
-			// Calculate optimal refresh interval based on CURRENT token
-			const interval = calculateRefreshInterval(currentToken);
-			const remainingTime = getTokenRemainingTime(currentToken);
+			// Calculate optimal refresh interval based on CURRENT token,
+			// but never schedule a check after the token is expected to expire
+			const remainingTimeSeconds = getTokenRemainingTime(currentToken);
+			if (remainingTimeSeconds <= 0) {
+				console.log('[ProactiveTokenRefresh] Token already expired, not scheduling further checks');
+				return;
+			}
+
+			const rawInterval = calculateRefreshInterval(currentToken);
+			const interval = Math.min(rawInterval, remainingTimeSeconds * 1000);
 
 			console.log(
-				`[ProactiveTokenRefresh] Token remaining: ${formatRemainingTime(remainingTime)}, ` +
+				`[ProactiveTokenRefresh] Token remaining: ${formatRemainingTime(remainingTimeSeconds)}, ` +
 					`Next check in: ${formatRemainingTime(interval / 1000)}`
 			);
 
-			timeoutRef.current = timeoutRef.current =
+			timeoutRef.current =
 				typeof window !== 'undefined'
-					? window?.setTimeout(async () => {
+					? window.setTimeout(async () => {
 							console.log('[ProactiveTokenRefresh] Scheduled check triggered...');
 							await performRefreshIfNeeded();
 							// Always reschedule (whether refresh happened or was skipped)

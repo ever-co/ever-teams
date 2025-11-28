@@ -334,8 +334,20 @@ export async function proxy(request: NextRequest) {
 				// Access token is valid - set user header and continue
 				response.headers.set('x-user', JSON.stringify(authResult.data));
 			}
-			// If API fails but token is valid locally, we still proceed
-			// The client will handle any issues
+			// INTENTIONAL: If API fails but token is valid locally, we proceed WITHOUT refresh.
+			// Why? The token passed local validation (signature OK, not expired, decodable).
+			// API failures can be temporary (network issues, server down, 500 errors).
+			//
+			// Previous logic refreshed/redirected on ANY API failure, which caused:
+			// - Users logged out in loops on transient network issues
+			// - Unnecessary token refreshes consuming refresh token attempts
+			//
+			// What happens if the token is actually revoked (401 from API)?
+			// - Request proceeds without x-user header (no SSR user data)
+			// - Client makes API calls with the same token → gets 401
+			// - Client auth hooks (useAuthenticateUser) detect 401 → handleUnauthorized() → logout
+			//
+			// This is GRACEFUL DEGRADATION, not a broken session. The client recovers.
 		} else {
 			// Token is expired locally or invalid - skip API call, go straight to refresh
 			console.log('[Proxy] Token expired locally, skipping API verification, attempting refresh...');
