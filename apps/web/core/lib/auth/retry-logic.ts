@@ -25,6 +25,9 @@ export function isRetryableError(error: unknown): boolean {
 	// Axios error handling
 	if (error && typeof error === 'object' && 'isAxiosError' in error) {
 		const axiosError = error as AxiosError;
+		const status = axiosError.response?.status;
+
+		const isClientError = status && status >= 400 && status < 500;
 
 		// No response = network error (retryable)
 		if (!axiosError.response) {
@@ -42,7 +45,7 @@ export function isRetryableError(error: unknown): boolean {
 		}
 
 		// 4xx client errors are NOT retryable
-		if (axiosError.response.status >= 400 && axiosError.response.status < 500) {
+		if (isClientError) {
 			return false;
 		}
 	}
