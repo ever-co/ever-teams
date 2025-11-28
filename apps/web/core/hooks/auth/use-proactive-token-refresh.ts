@@ -1,85 +1,138 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { getRefreshTokenCookie } from '@/core/lib/helpers/cookies';
+import { getRefreshTokenCookie, getAccessTokenCookie, setAccessTokenCookie } from '@/core/lib/helpers/cookies';
 import { refreshTokenRequest } from '@/core/services/server/requests/auth';
-import { setAccessTokenCookie } from '@/core/lib/helpers/cookies';
+import {
+	shouldRefreshToken,
+	getTokenRemainingTime,
+	formatRemainingTime,
+	calculateRefreshInterval
+} from '@/core/lib/auth/jwt-utils';
+import { handleUnauthorized } from '@/core/lib/auth/handle-unauthorized';
+import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
+import { retryWithBackoff, isUnauthorizedError } from '@/core/lib/auth/retry-logic';
 
 /**
  * Hook for proactive token refresh
- * 
- * This hook implements a workaround for the Ever-Gauzy bug where refresh tokens
- * are not rotated. It proactively refreshes the access token every 12 hours
- * to keep the session alive indefinitely.
- * 
- * BUG CONTEXT:
- * - Ever-Gauzy's getAccessTokenFromRefreshToken() only returns { token }
- * - It doesn't return the new refresh_token
- * - This means refresh tokens are never rotated
- * - After 7 days (JWT_REFRESH_TOKEN_EXPIRATION_TIME), user is disconnected
- * 
- * WORKAROUND:
- * - Refresh the access token every 12 hours
- * - This keeps the refresh_token "alive" even though it's not rotated
- * - User stays logged in indefinitely (as long as they use the app)
- * 
- * TODO: Remove this hook once Ever-Gauzy is fixed
+ *
+ * KEY PRINCIPLE:
+ * - ONLY refresh if token is expired or expiring soon
+ * - NEVER refresh if token is still valid (avoid unnecessary API calls)
+ *
+ * Strategy:
+ * 1. On mount: Check shouldRefreshToken() → only refresh if needed
+ * 2. Set interval to check periodically (12h for 24h token)
+ * 3. At each interval: Check shouldRefreshToken() BEFORE making API call
+ * 4. Use retry logic for network errors, but NOT for 401 errors
+ *
  */
 export function useProactiveTokenRefresh() {
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
 	const isRefreshingRef = useRef(false);
 
 	useEffect(() => {
-		const performRefresh = async () => {
+		/**
+		 * Perform token refresh ONLY if needed
+		 * Returns true if refresh was performed, false if skipped
+		 */
+		const performRefreshIfNeeded = async (): Promise<boolean> => {
 			// Prevent concurrent refresh attempts
 			if (isRefreshingRef.current) {
 				console.log('[ProactiveTokenRefresh] Refresh already in progress, skipping');
-				return;
+				return false;
+			}
+
+			const accessToken = getAccessTokenCookie();
+			const refresh_token = getRefreshTokenCookie();
+
+			if (!refresh_token) {
+				console.log('[ProactiveTokenRefresh] No refresh token available, skipping');
+				return false;
+			}
+
+			// KEY CHECK: Only refresh if token is expiring soon (within 5 min)
+			if (accessToken && !shouldRefreshToken(accessToken, 300)) {
+				const remaining = getTokenRemainingTime(accessToken);
+				console.log(`[ProactiveTokenRefresh] Token still valid (${formatRemainingTime(remaining)} remaining), skipping refresh`);
+				return false;
 			}
 
 			isRefreshingRef.current = true;
 
 			try {
-				const refresh_token = getRefreshTokenCookie();
+				console.log('[ProactiveTokenRefresh] Token expired/expiring, refreshing now...');
 
-				if (!refresh_token) {
-					console.log('[ProactiveTokenRefresh] No refresh token available, skipping');
-					isRefreshingRef.current = false;
-					return;
-				}
-
-				console.log('[ProactiveTokenRefresh] Starting proactive token refresh...');
-
-				const { data } = await refreshTokenRequest(refresh_token);
+				// Use retry logic with exponential backoff for network errors
+				const { data } = await retryWithBackoff(() => refreshTokenRequest(refresh_token), 3, 1000);
 
 				if (!data?.token) {
 					console.error('[ProactiveTokenRefresh] No token received from refresh endpoint');
-					isRefreshingRef.current = false;
-					return;
+					return false;
 				}
 
 				// Update the access token cookie
 				setAccessTokenCookie(data.token);
 
-				console.log('[ProactiveTokenRefresh] ✅ Token refreshed successfully');
-				console.log('[ProactiveTokenRefresh] Next refresh scheduled in 12 hours');
+				// Log success with next check timing
+				const newRemaining = getTokenRemainingTime(data.token);
+				console.log(`[ProactiveTokenRefresh] ✅ Token refreshed! New expiration in ${formatRemainingTime(newRemaining)}`);
+				return true;
 			} catch (error) {
-				console.error('[ProactiveTokenRefresh] ❌ Token refresh failed:', error);
-				// Don't throw - let the user continue, they'll be refreshed on next request
+				// Distinguish between 401 (session invalid) and network errors
+				if (isUnauthorizedError(error)) {
+					console.error('[ProactiveTokenRefresh] ❌ Refresh token rejected (401) - forcing logout');
+					// Refresh token is invalid → force logout immediately
+					// This is critical: don't let the app hang with invalid tokens
+					handleUnauthorized(DisconnectionReason.REFRESH_TOKEN_EXPIRED, {
+						source: 'useProactiveTokenRefresh',
+						error: String(error)
+					});
+				} else {
+					console.error('[ProactiveTokenRefresh] ❌ Token refresh failed (network error):', error);
+					// Network error - will be retried on next interval
+				}
+				return false;
 			} finally {
 				isRefreshingRef.current = false;
 			}
 		};
 
-		// Initial refresh after 1 minute (give app time to load)
-		const initialTimeout = setTimeout(() => {
-			performRefresh();
-		}, 60 * 1000); // 1 minute
+		/**
+		 * Setup the refresh schedule based on token lifetime
+		 */
+		const setupRefreshSchedule = () => {
+			const accessToken = getAccessTokenCookie();
 
-		// Then refresh every 12 hours
-		intervalRef.current = setInterval(() => {
-			performRefresh();
-		}, 12 * 60 * 60 * 1000); // 12 hours
+			if (!accessToken) {
+				console.log('[ProactiveTokenRefresh] No access token, waiting for login');
+				return;
+			}
+
+			// Check if we need to refresh immediately
+			if (shouldRefreshToken(accessToken, 300)) {
+				console.log('[ProactiveTokenRefresh] Token needs refresh, doing it now...');
+				performRefreshIfNeeded();
+			} else {
+				const remainingTime = getTokenRemainingTime(accessToken);
+				console.log(`[ProactiveTokenRefresh] Token valid, remaining: ${formatRemainingTime(remainingTime)}`);
+			}
+
+			// Set up periodic check (at 50% of token lifetime)
+			// The check will ONLY call API if token is actually expiring
+			const interval = calculateRefreshInterval(accessToken);
+			console.log(`[ProactiveTokenRefresh] Setting check interval: ${formatRemainingTime(interval / 1000)}`);
+
+			intervalRef.current = setInterval(() => {
+				console.log('[ProactiveTokenRefresh] Periodic check triggered...');
+				performRefreshIfNeeded(); // Will only refresh if needed
+			}, interval);
+		};
+
+		// Initial setup after a short delay to let app initialize
+		const initialTimeout = setTimeout(() => {
+			setupRefreshSchedule();
+		}, 2000);
 
 		return () => {
 			if (intervalRef.current) {
@@ -89,4 +142,3 @@ export function useProactiveTokenRefresh() {
 		};
 	}, []);
 }
-

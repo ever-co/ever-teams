@@ -10,6 +10,7 @@ import {
 import { cookiesKeys, setAccessTokenCookie } from '@/core/lib/helpers/cookies';
 import { currentAuthenticatedUserRequest, refreshTokenRequest } from '@/core/services/server/requests/auth';
 import { range } from '@/core/lib/helpers';
+import { isTokenExpired, decodeJWT, getTokenRemainingTime, formatRemainingTime } from '@/core/lib/auth/jwt-utils';
 import { NextRequest, NextResponse } from 'next/server';
 
 import createMiddleware from 'next-intl/middleware';
@@ -54,6 +55,17 @@ export async function proxy(request: NextRequest) {
 	let access_token = null;
 
 	const totalChunksCookie = request.cookies.get(`${TOKEN_COOKIE_NAME}_totalChunks`)?.value.trim();
+
+	// DEBUG - À RETIRER APRÈS DIAGNOSTIC
+	console.log('[Proxy] DEBUG cookies received:', {
+		allCookies: request.cookies.getAll().map((c) => ({ name: c.name, hasValue: !!c.value })),
+		totalChunksCookie: request.cookies.get(`${TOKEN_COOKIE_NAME}_totalChunks`)?.value,
+		chunk0: !!request.cookies.get(`${TOKEN_COOKIE_NAME}0`)?.value,
+		chunk1: !!request.cookies.get(`${TOKEN_COOKIE_NAME}1`)?.value,
+		chunk2: !!request.cookies.get(`${TOKEN_COOKIE_NAME}2`)?.value,
+		refreshToken: !!request.cookies.get(REFRESH_TOKEN_COOKIE_NAME)?.value,
+		pathname: new URL(request.url).pathname
+	});
 
 	// Helper function to reconstruct token from chunks with retry logic
 	const reconstructTokenFromChunks = (totalChunks: number, retryCount: number = 0): string | null => {
@@ -114,10 +126,28 @@ export async function proxy(request: NextRequest) {
 	});
 
 	// Helper function to check if error is a token expiration error
+	// Handles multiple error formats:
+	// - serverFetch: { statusCode: 401, message: 'Unauthorized' }
+	// - Axios: { response: { status: 401 } }
+	// - Generic: { status: 401 }
 	const isTokenExpiredError = (error: any): boolean => {
-		const status = error?.response?.status;
-		// 401 = Token invalid or expired
-		return status === 401;
+		// serverFetch format (most common in this codebase)
+		if (error?.statusCode === 401) {
+			return true;
+		}
+		// Axios format
+		if (error?.response?.status === 401) {
+			return true;
+		}
+		// Generic format
+		if (error?.status === 401) {
+			return true;
+		}
+		// Message fallback
+		if (error?.message === 'Unauthorized') {
+			return true;
+		}
+		return false;
 	};
 
 	// Helper function to attempt token refresh and verify
@@ -224,28 +254,28 @@ export async function proxy(request: NextRequest) {
 
 	if (is_auth_path && has_any_token) {
 		// User is authenticated but trying to access auth pages - verify token and redirect
-		console.log('[Proxy] Authenticated user accessing auth page, verifying token...');
+		console.log('[Proxy] Authenticated user accessing auth page, checking token validity...');
 
 		if (access_token) {
-			// Try to verify access token
-			const authResult = await currentAuthenticatedUserRequest({
-				bearer_token: access_token
-			}).catch((error) => {
-				console.error('[Proxy] Token verification failed on auth page:', error?.message || error);
-				return null;
-			});
-
-			if (authResult?.response.ok) {
-				// User is authenticated, redirect to main app
-				console.log('[Proxy] User is authenticated, redirecting from auth page to main app');
+			// OPTIMIZATION: Check token expiration locally FIRST (no API call needed)
+			// This avoids unnecessary API calls when we can determine validity locally
+			if (!isTokenExpired(access_token, 60)) {
+				// Token is valid locally (not expired within 60s buffer)
+				// Redirect immediately without API call
+				const remaining = getTokenRemainingTime(access_token);
+				console.log(
+					`[Proxy] Token valid locally (${formatRemainingTime(remaining)} remaining), redirecting to main app`
+				);
 				return NextResponse.redirect(new URL(DEFAULT_MAIN_PATH, request.url));
 			}
-			// If access token verification fails, continue to refresh attempt below
+
+			// Token is expired or expiring soon - need to refresh
+			console.log('[Proxy] Token expired locally, will attempt refresh...');
 		}
 
 		if (refresh_token) {
 			// Try to refresh token with retry (up to 3 seconds)
-			console.log('[Proxy] Access token invalid, attempting refresh with retry...');
+			console.log('[Proxy] Attempting token refresh with retry...');
 			const refreshResult = await tryRefreshAndVerifyWithRetry();
 			if (refreshResult.success) {
 				// User is authenticated after refresh, redirect to main app
@@ -277,8 +307,11 @@ export async function proxy(request: NextRequest) {
 	// SECTION 2: Handle protected paths - user must be authenticated
 	// Protected paths require valid authentication. We handle three cases:
 	// 1. No tokens at all → redirect to login
-	// 2. Access token exists → verify it, refresh if needed
+	// 2. Access token exists → verify it locally first, then API if needed, refresh if expired
 	// 3. Only refresh token exists → attempt refresh
+	//
+	// OPTIMIZATION: We now check token expiration LOCALLY first using decodeJWT
+	// This avoids unnecessary API calls when the token is clearly valid or expired
 	//
 	// Note: These cases are mutually exclusive (if/else if/else if structure)
 	// so a single request will only execute ONE of these branches.
@@ -288,21 +321,35 @@ export async function proxy(request: NextRequest) {
 		console.log('[Proxy] No auth tokens found on protected path, redirecting to login');
 		return deny_redirect(false);
 	} else if (protected_path && access_token) {
-		// CASE 2: Access token exists - try to authenticate with it
-		const authResult = await currentAuthenticatedUserRequest({
-			bearer_token: access_token
-		}).catch((error) => {
-			console.error('[Proxy] Token verification failed on protected path:', error?.message || error);
-			return null;
-		});
+		// CASE 2: Access token exists - check validity locally first
+		const tokenPayload = decodeJWT(access_token);
+		const isExpiredLocally = isTokenExpired(access_token, 60);
 
-		if (authResult?.response.ok) {
-			// Access token is valid - set user header and continue
-			// We don't return here because we want to allow the request to proceed
-			// with the authenticated user context in the x-user header
-			response.headers.set('x-user', JSON.stringify(authResult.data));
+		if (tokenPayload && !isExpiredLocally) {
+			// Token is valid locally - verify with API to get user data
+			// We still need the API call here to get user data for x-user header
+			const remaining = getTokenRemainingTime(access_token);
+			console.log(
+				`[Proxy] Token valid locally (${formatRemainingTime(remaining)} remaining), verifying with API...`
+			);
+
+			const authResult = await currentAuthenticatedUserRequest({
+				bearer_token: access_token
+			}).catch((error) => {
+				console.error('[Proxy] API verification failed despite valid local token:', error?.message || error);
+				return null;
+			});
+
+			if (authResult?.response.ok) {
+				// Access token is valid - set user header and continue
+				response.headers.set('x-user', JSON.stringify(authResult.data));
+			}
+			// If API fails but token is valid locally, we still proceed
+			// The client will handle any issues
 		} else {
-			// Access token invalid/expired - try to refresh with retry (up to 3 seconds)
+			// Token is expired locally or invalid - skip API call, go straight to refresh
+			console.log('[Proxy] Token expired locally, skipping API verification, attempting refresh...');
+
 			const refreshResult = await tryRefreshAndVerifyWithRetry();
 
 			if (refreshResult.success && refreshResult.userData) {

@@ -171,7 +171,6 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 	 * - For 24h token → refresh every 12h (2 calls/day instead of 144 with 10min interval)
 	 * - Minimum: 10 minutes, Maximum: 12 hours
 	 *
-	 * @see apps/web/ai-guides/token-refresh-system-guide.md Section 5.4
 	 */
 	const timeToTimeRefreshToken = useCallback(() => {
 		window?.clearInterval(intervalRt.current);

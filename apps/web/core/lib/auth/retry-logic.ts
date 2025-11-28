@@ -6,7 +6,6 @@
  * - Network errors: Connection issues → Retry with exponential backoff
  * - Server errors (5xx): Temporary issues → Retry with exponential backoff
  *
- * @see apps/web/ai-guides/token-refresh-system-guide.md Section 5.3
  */
 
 import { AxiosError } from 'axios';

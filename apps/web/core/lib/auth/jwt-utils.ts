@@ -7,12 +7,11 @@
  * - Access Token: 1 day (86400s) - JWT_TOKEN_EXPIRATION_TIME
  * - Refresh Token: 7 days (604800s) - JWT_REFRESH_TOKEN_EXPIRATION_TIME
  *
- * KEY PRINCIPLE (from token-refresh-system-guide.md):
+ * KEY PRINCIPLE:
  * - ALWAYS validate token expiration BEFORE making refresh API calls
  * - Only refresh if token is expired or expiring soon (within buffer)
  * - This avoids unnecessary API calls and reduces server load
  *
- * @see apps/web/ai-guides/token-refresh-system-guide.md
  */
 
 import jwtDecode from 'jwt-decode';
@@ -61,7 +60,7 @@ export function decodeJWT(token: string): JWTPayload | null {
 /**
  * Check if a token NEEDS to be refreshed
  *
- * KEY LOGIC (from token-refresh-system-guide.md):
+ * KEY LOGIC:
  * - Return TRUE only if token is expired or expiring within buffer
  * - Return FALSE if token is still valid (no need to refresh)
  *
