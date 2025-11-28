@@ -154,7 +154,7 @@ export function useProactiveTokenRefresh() {
 		/**
 		 * Initial setup: check if immediate refresh is needed, then start scheduler
 		 */
-		const setupRefreshSchedule = () => {
+		const setupRefreshSchedule = async() => {
 			const accessToken = getAccessTokenCookie();
 
 			if (!accessToken) {
@@ -165,7 +165,7 @@ export function useProactiveTokenRefresh() {
 			// Check if we need to refresh immediately (token expiring within 5 min)
 			if (shouldRefreshToken(accessToken, 300)) {
 				console.log('[ProactiveTokenRefresh] Token needs refresh, doing it now...');
-				performRefreshIfNeeded();
+				await performRefreshIfNeeded();
 			} else {
 				const remainingTime = getTokenRemainingTime(accessToken);
 				console.log(`[ProactiveTokenRefresh] Token valid, remaining: ${formatRemainingTime(remainingTime)}`);

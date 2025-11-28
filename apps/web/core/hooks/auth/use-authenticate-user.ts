@@ -252,7 +252,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 						// Error handling is done in mutation's onError callback
 						// Reschedule after a short delay to allow for retry
 						logErrorInDev('[Auth] Refresh failed in scheduler, will retry in 30 seconds', error);
-						refreshTimeoutRef.current = window?.setTimeout(scheduleNextRefresh, 30000);
+						refreshTimeoutRef.current = window?.setTimeout(scheduleNextRefresh, 30000) ?? null;
 					}
 				}, interval) ?? null;
 		};
