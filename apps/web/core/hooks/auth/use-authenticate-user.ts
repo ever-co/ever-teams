@@ -1,9 +1,11 @@
 'use client';
 import { DEFAULT_APP_PATH, LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
-import { removeAuthCookies } from '@/core/lib/helpers/cookies';
+import { getAccessTokenCookie, removeAuthCookies } from '@/core/lib/helpers/cookies';
 import { handleUnauthorized, registerRefreshTokenCallback } from '@/core/lib/auth/handle-unauthorized';
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { logDisconnection } from '@/core/lib/auth/disconnect-logger';
+import { calculateRefreshInterval, shouldRefreshToken, getTokenRemainingTime, formatRemainingTime } from '@/core/lib/auth/jwt-utils';
+import { isUnauthorizedError } from '@/core/lib/auth/retry-logic';
 import { activeTeamManagersState, activeTeamState, userState } from '@/core/stores';
 import { useCallback, useMemo, useRef, useEffect } from 'react';
 import { useSetAtom, useAtomValue } from 'jotai';
@@ -40,34 +42,43 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		},
 		onSuccess: () => {
 			consecutiveFailures.current = 0;
+			console.log('[Auth] ✅ Token refreshed successfully');
 			queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
 		},
-		onError: (error: any) => {
+		onError: (error: unknown) => {
 			consecutiveFailures.current += 1;
 
-			const isUnauthorized = error?.response?.status === 401 || error?.status === 401;
+			const isUnauthorized = isUnauthorizedError(error);
 
+			// Use the utility function for consistent 401 detection
 			if (isUnauthorized) {
+				console.error('[Auth] ❌ Refresh token rejected (401) - session expired');
 				toast.error('Session expired. Please log in again.');
 				handleUnauthorized(DisconnectionReason.REFRESH_TOKEN_EXPIRED, {
 					status: 401,
-					endpoint: error.config?.url,
-					method: error.config?.method,
-					context: 'useAuthenticateUser -> refreshTokenMutation 1'
+					endpoint: (error as any).config?.url,
+					method: (error as any).config?.method,
+					context: 'useAuthenticateUser -> refreshTokenMutation (401)'
 				});
 				return;
 			}
 
+			// Network or server errors - allow retries
 			if (consecutiveFailures.current >= maxConsecutiveFailures) {
+				console.error(`[Auth] ❌ Refresh failed ${maxConsecutiveFailures} times - logging out`);
 				toast.error('Unable to refresh session. Please log in again.');
 				handleUnauthorized(DisconnectionReason.TEMPORARY_ERROR, {
 					consecutiveFailures: consecutiveFailures.current,
 					maxConsecutiveFailures,
-					error: error?.message,
-					stack: error?.stack,
-					context: 'useAuthenticateUser -> refreshTokenMutation 2'
+					error: (error as Error)?.message,
+					stack: (error as Error)?.stack,
+					context: 'useAuthenticateUser -> refreshTokenMutation (max retries)'
 				});
 			} else {
+				console.warn(
+					`[Auth] ⚠️ Refresh attempt ${consecutiveFailures.current}/${maxConsecutiveFailures} failed:`,
+					error
+				);
 				toast.warning(
 					`Connection issue. Retrying... (${consecutiveFailures.current}/${maxConsecutiveFailures})`
 				);
@@ -146,27 +157,55 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 			email: user?.email
 		});
 
-		window && window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, activeTeam?.id ?? '');
+		window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, activeTeam?.id ?? '');
 		removeAuthCookies();
-		window.clearInterval(intervalRt.current);
+		window?.clearInterval(intervalRt.current);
 		queryClient.clear();
-		window.location.replace(DEFAULT_APP_PATH);
+		window?.location.replace(DEFAULT_APP_PATH);
 	}, [activeTeam?.id, queryClient, user?.id, user?.email]);
 
-	const timeToTimeRefreshToken = useCallback(
-		(interval = 10 * 60 * 1000) => {
-			// 10 minutes (600000ms) - Reduced from 3 minutes to decrease API calls by 70%
-			window.clearInterval(intervalRt.current);
-			intervalRt.current = window.setInterval(() => {
-				refreshTokenMutation.mutate();
-			}, interval);
+	/**
+	 * Start automatic token refresh based on JWT expiration
+	 *
+	 * Strategy: Refresh at 50% of token lifetime (per OAuth 2.0 best practices)
+	 * - For 24h token → refresh every 12h (2 calls/day instead of 144 with 10min interval)
+	 * - Minimum: 10 minutes, Maximum: 12 hours
+	 *
+	 * @see apps/web/ai-guides/token-refresh-system-guide.md Section 5.4
+	 */
+	const timeToTimeRefreshToken = useCallback(() => {
+		window?.clearInterval(intervalRt.current);
 
-			return () => {
-				window.clearInterval(intervalRt.current);
-			};
-		},
-		[refreshTokenMutation]
-	);
+		const accessToken = getAccessTokenCookie();
+		if (!accessToken) {
+			console.warn('[Auth] No access token found, skipping refresh interval setup');
+			return () => {};
+		}
+
+		// Check if token needs refresh (expired or expiring within 5 min)
+		if (shouldRefreshToken(accessToken, 300)) {
+			console.log('[Auth] Token expired or expiring soon, refreshing immediately...');
+			refreshTokenMutation.mutate();
+		}
+
+		// Calculate optimal refresh interval based on token lifetime
+		const interval = calculateRefreshInterval(accessToken);
+		const remainingTime = getTokenRemainingTime(accessToken);
+
+		console.log(
+			`[Auth] Token remaining: ${formatRemainingTime(remainingTime)}, ` +
+				`Refresh interval: ${formatRemainingTime(interval / 1000)}`
+		);
+
+		intervalRt.current = window?.setInterval(() => {
+			console.log('[Auth] Scheduled token refresh triggered');
+			refreshTokenMutation.mutate();
+		}, interval);
+
+		return () => {
+			window?.clearInterval(intervalRt.current);
+		};
+	}, [refreshTokenMutation]);
 
 	const refreshToken = useCallback(async (): Promise<void> => {
 		await refreshTokenMutation.mutateAsync();
