@@ -14,6 +14,7 @@ import { handleUnauthorized } from '@/core/lib/auth/handle-unauthorized';
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { retryWithBackoff, isUnauthorizedError } from '@/core/lib/auth/retry-logic';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
+import { INIT_DELAY_MS } from '@/core/constants/config/constants';
 
 /**
  * Hook for proactive token refresh
@@ -177,10 +178,17 @@ export function useProactiveTokenRefresh() {
 			scheduleNextRefresh();
 		};
 
-		// Initial setup after a short delay to let app initialize
+		// Initial setup after a short delay to let app fully initialize
+		// WHY 2 SECONDS? This hook mounts in app/layout.tsx (root layout), which means:
+		// 1. Cookies may not be fully parsed yet during React hydration
+		// 2. QueryClient and other providers may not be initialized
+		// 3. Other auth hooks (useAuthenticateUser) may not be ready
+		// Without this delay, getAccessTokenCookie() could return undefined
+		// causing unnecessary "no token" logs or race conditions.
+		// 2s is conservative - could be reduced but adds safety margin.
 		const initialTimeout = setTimeout(() => {
 			setupRefreshSchedule();
-		}, 2000);
+		}, INIT_DELAY_MS);
 
 		// Cleanup function
 		return () => {

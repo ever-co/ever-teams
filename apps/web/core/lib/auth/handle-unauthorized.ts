@@ -105,7 +105,7 @@ export async function handleUnauthorized(
 /**
  * Perform the actual logout (clear cookies, cache, redirect)
  */
-async function performLogout(reason: DisconnectionReason, details?: Record<string, any>) {
+async function performLogout(reason: DisconnectionReason, details?: Record<string, unknown>) {
 	if (isRedirecting) return; // Prevent multiple simultaneous redirects
 	isRedirecting = true;
 	// Log the disconnection
@@ -132,7 +132,7 @@ async function performLogout(reason: DisconnectionReason, details?: Record<strin
 			console.warn('[Auth] Failed to clear localStorage:', error);
 		}
 		// 4. Redirect to login page
-		window.location.assign(DEFAULT_APP_PATH);
+		window?.location.assign(DEFAULT_APP_PATH);
 	}
 }
 
