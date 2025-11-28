@@ -4,7 +4,13 @@ import { getAccessTokenCookie, removeAuthCookies } from '@/core/lib/helpers/cook
 import { handleUnauthorized, registerRefreshTokenCallback } from '@/core/lib/auth/handle-unauthorized';
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { logDisconnection } from '@/core/lib/auth/disconnect-logger';
-import { calculateRefreshInterval, shouldRefreshToken, getTokenRemainingTime, formatRemainingTime } from '@/core/lib/auth/jwt-utils';
+import {
+	calculateRefreshInterval,
+	shouldRefreshToken,
+	getTokenRemainingTime,
+	getTokenLifetime,
+	formatRemainingTime
+} from '@/core/lib/auth/jwt-utils';
 import { isUnauthorizedError } from '@/core/lib/auth/retry-logic';
 import { activeTeamManagersState, activeTeamState, userState } from '@/core/stores';
 import { useCallback, useMemo, useRef, useEffect } from 'react';
@@ -19,13 +25,16 @@ import { queryKeys } from '@/core/query/keys';
 import { toast } from 'sonner';
 import { UseAuthenticateUserResult } from '@/core/types/interfaces/user/user';
 import { useUserQuery } from '../queries/user-user.query';
+import { logErrorInDev } from '@/core/lib/helpers/error-message';
 
 export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserResult => {
 	const userDataQuery = useUserQuery();
 	const user = userDataQuery.data;
 	const setUser = useSetAtom(userState);
 	const $user = useRef<TUser | null>(defaultUser || user || null);
-	const intervalRt = useRef(0);
+	// Ref for the recursive setTimeout-based refresh scheduler
+	// Using number type for browser setTimeout (returns number, not NodeJS.Timeout)
+	const refreshTimeoutRef = useRef<number | null>(null);
 	const activeTeam = useAtomValue(activeTeamState);
 	const queryClient = useQueryClient();
 
@@ -52,28 +61,30 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 
 			// Use the utility function for consistent 401 detection
 			if (isUnauthorized) {
-				console.error('[Auth] ❌ Refresh token rejected (401) - session expired');
-				toast.error('Session expired. Please log in again.');
-				handleUnauthorized(DisconnectionReason.REFRESH_TOKEN_EXPIRED, {
+				const details = {
 					status: 401,
 					endpoint: (error as any).config?.url,
 					method: (error as any).config?.method,
 					context: 'useAuthenticateUser -> refreshTokenMutation (401)'
-				});
+				};
+				logErrorInDev('[Auth] ❌ Refresh token rejected (401) - session expired', details);
+				toast.error('Session expired. Please log in again.');
+				handleUnauthorized(DisconnectionReason.REFRESH_TOKEN_EXPIRED, details);
 				return;
 			}
 
 			// Network or server errors - allow retries
 			if (consecutiveFailures.current >= maxConsecutiveFailures) {
-				console.error(`[Auth] ❌ Refresh failed ${maxConsecutiveFailures} times - logging out`);
-				toast.error('Unable to refresh session. Please log in again.');
-				handleUnauthorized(DisconnectionReason.TEMPORARY_ERROR, {
+				const details = {
 					consecutiveFailures: consecutiveFailures.current,
 					maxConsecutiveFailures,
 					error: (error as Error)?.message,
 					stack: (error as Error)?.stack,
 					context: 'useAuthenticateUser -> refreshTokenMutation (max retries)'
-				});
+				};
+				logErrorInDev(`[Auth] ❌ Refresh failed ${maxConsecutiveFailures} times - logging out`, details);
+				toast.error('Unable to refresh session. Please log in again.');
+				handleUnauthorized(DisconnectionReason.TEMPORARY_ERROR, details);
 			} else {
 				console.warn(
 					`[Auth] ⚠️ Refresh attempt ${consecutiveFailures.current}/${maxConsecutiveFailures} failed:`,
@@ -126,7 +137,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 						return retryResult.data;
 					}
 				} catch (refreshError) {
-					console.error('Failed to refresh token:', refreshError);
+					logErrorInDev('Failed to refresh token:', refreshError);
 					throw refreshError;
 				}
 			}
@@ -159,7 +170,11 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 
 		window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, activeTeam?.id ?? '');
 		removeAuthCookies();
-		window?.clearInterval(intervalRt.current);
+		// Clear the refresh timeout scheduler
+		if (refreshTimeoutRef.current) {
+			window?.clearTimeout(refreshTimeoutRef.current);
+			refreshTimeoutRef.current = null;
+		}
 		queryClient.clear();
 		window?.location.replace(DEFAULT_APP_PATH);
 	}, [activeTeam?.id, queryClient, user?.id, user?.email]);
@@ -171,38 +186,98 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 	 * - For 24h token → refresh every 12h (2 calls/day instead of 144 with 10min interval)
 	 * - Minimum: 10 minutes, Maximum: 12 hours
 	 *
+	 * Uses recursive setTimeout instead of setInterval to recalculate
+	 * the refresh interval after each successful refresh (based on new token's expiration)
 	 */
 	const timeToTimeRefreshToken = useCallback(() => {
-		window?.clearInterval(intervalRt.current);
+		// Clear any existing timeout
+		if (refreshTimeoutRef.current) {
+			window?.clearTimeout(refreshTimeoutRef.current);
+			refreshTimeoutRef.current = null;
+		}
 
+		/**
+		 * Schedule the next token refresh based on current token's expiration
+		 * Uses recursive setTimeout to recalculate interval after each refresh
+		 */
+		const scheduleNextRefresh = () => {
+			const currentToken = getAccessTokenCookie();
+			if (!currentToken) {
+				console.warn('[Auth] No access token found, stopping refresh scheduler');
+				return;
+			}
+
+			// Calculate optimal refresh interval based on CURRENT token
+			const interval = calculateRefreshInterval(currentToken);
+			const remainingTime = getTokenRemainingTime(currentToken);
+
+			console.log(
+				`[Auth] Token remaining: ${formatRemainingTime(remainingTime)}, ` +
+					`Next refresh in: ${formatRemainingTime(interval / 1000)}`
+			);
+
+			refreshTimeoutRef.current =
+				window?.setTimeout(async () => {
+					const tokenToCheck = getAccessTokenCookie();
+
+					// Guard: Only refresh if actually needed (token might have been refreshed elsewhere)
+					// Strategy: If token has more than 50% of its lifetime remaining, someone refreshed it
+					// This is consistent with the 50% refresh strategy used in calculateRefreshInterval
+					if (!tokenToCheck) {
+						console.log('[Auth] Token cleared, stopping scheduler');
+						return; // Stop, don't reschedule - user logged out
+					}
+
+					const remainingSeconds = getTokenRemainingTime(tokenToCheck);
+					const lifetimeSeconds = getTokenLifetime(tokenToCheck);
+					// Default to 12h (43200s) if lifetime can't be determined
+					const halfLifeSeconds = lifetimeSeconds ? lifetimeSeconds / 2 : 12 * 60 * 60;
+
+					if (remainingSeconds > halfLifeSeconds) {
+						// Token has more than 50% life remaining - was refreshed elsewhere (e.g., by proxy.ts)
+						console.log(
+							`[Auth] Token refreshed elsewhere (${formatRemainingTime(remainingSeconds)} remaining > 50% lifetime), rescheduling...`
+						);
+						scheduleNextRefresh();
+						return;
+					}
+
+					console.log('[Auth] Scheduled token refresh triggered');
+
+					try {
+						await refreshTokenMutation.mutateAsync();
+						// Success: Schedule next refresh with NEW token's interval
+						scheduleNextRefresh();
+					} catch (error) {
+						// Error handling is done in mutation's onError callback
+						// Reschedule after a short delay to allow for retry
+						logErrorInDev('[Auth] Refresh failed in scheduler, will retry in 30 seconds', error);
+						refreshTimeoutRef.current = window?.setTimeout(scheduleNextRefresh, 30000);
+					}
+				}, interval) ?? null;
+		};
+
+		// Check if immediate refresh is needed before starting scheduler
 		const accessToken = getAccessTokenCookie();
 		if (!accessToken) {
-			console.warn('[Auth] No access token found, skipping refresh interval setup');
+			console.warn('[Auth] No access token found, skipping refresh scheduler setup');
 			return () => {};
 		}
 
-		// Check if token needs refresh (expired or expiring within 5 min)
 		if (shouldRefreshToken(accessToken, 300)) {
 			console.log('[Auth] Token expired or expiring soon, refreshing immediately...');
 			refreshTokenMutation.mutate();
 		}
 
-		// Calculate optimal refresh interval based on token lifetime
-		const interval = calculateRefreshInterval(accessToken);
-		const remainingTime = getTokenRemainingTime(accessToken);
+		// Start the recursive scheduler
+		scheduleNextRefresh();
 
-		console.log(
-			`[Auth] Token remaining: ${formatRemainingTime(remainingTime)}, ` +
-				`Refresh interval: ${formatRemainingTime(interval / 1000)}`
-		);
-
-		intervalRt.current = window?.setInterval(() => {
-			console.log('[Auth] Scheduled token refresh triggered');
-			refreshTokenMutation.mutate();
-		}, interval);
-
+		// Return cleanup function
 		return () => {
-			window?.clearInterval(intervalRt.current);
+			if (refreshTimeoutRef.current) {
+				window?.clearTimeout(refreshTimeoutRef.current);
+				refreshTimeoutRef.current = null;
+			}
 		};
 	}, [refreshTokenMutation]);
 
