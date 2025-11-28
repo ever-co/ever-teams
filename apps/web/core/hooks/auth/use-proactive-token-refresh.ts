@@ -141,20 +141,22 @@ export function useProactiveTokenRefresh() {
 					`Next check in: ${formatRemainingTime(interval / 1000)}`
 			);
 
-			timeoutRef.current =
-				window?.setTimeout(async () => {
-					console.log('[ProactiveTokenRefresh] Scheduled check triggered...');
-					await performRefreshIfNeeded();
-					// Always reschedule (whether refresh happened or was skipped)
-					// The interval will be recalculated based on the current token
-					scheduleNextRefresh();
-				}, interval) ?? null;
+			timeoutRef.current = timeoutRef.current =
+				typeof window !== 'undefined'
+					? window?.setTimeout(async () => {
+							console.log('[ProactiveTokenRefresh] Scheduled check triggered...');
+							await performRefreshIfNeeded();
+							// Always reschedule (whether refresh happened or was skipped)
+							// The interval will be recalculated based on the current token
+							scheduleNextRefresh();
+						}, interval)
+					: null;
 		};
 
 		/**
 		 * Initial setup: check if immediate refresh is needed, then start scheduler
 		 */
-		const setupRefreshSchedule = async() => {
+		const setupRefreshSchedule = async () => {
 			const accessToken = getAccessTokenCookie();
 
 			if (!accessToken) {

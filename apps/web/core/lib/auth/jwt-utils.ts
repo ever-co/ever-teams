@@ -45,7 +45,7 @@ export function decodeJWT(token: string): JWTPayload | null {
 		const payload = jwtDecode<JWTPayload>(token);
 
 		// Validate required fields
-		if (!payload.exp || !payload.iat) {
+		if (typeof payload.exp !== 'number' || typeof payload.iat !== 'number') {
 			console.warn('[JWT] Token missing exp or iat fields');
 			return null;
 		}
