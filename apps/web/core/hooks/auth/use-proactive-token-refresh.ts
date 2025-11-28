@@ -186,7 +186,12 @@ export function useProactiveTokenRefresh() {
 						// Still have refresh token = network error, not 401
 						console.warn('[ProactiveTokenRefresh] Immediate refresh failed, scheduling quick retry in 30s');
 						timeoutRef.current =
-							typeof window !== 'undefined' ? window.setTimeout(scheduleNextRefresh, 30000) : null;
+							typeof window !== 'undefined'
+								? window.setTimeout(async () => {
+										await performRefreshIfNeeded();
+										scheduleNextRefresh();
+									}, 30000)
+								: null;
 					}
 					// If no refresh token, handleUnauthorized was called - don't schedule anything
 					return;
