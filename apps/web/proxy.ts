@@ -56,17 +56,6 @@ export async function proxy(request: NextRequest) {
 
 	const totalChunksCookie = request.cookies.get(`${TOKEN_COOKIE_NAME}_totalChunks`)?.value.trim();
 
-	// DEBUG - À RETIRER APRÈS DIAGNOSTIC
-	console.log('[Proxy] DEBUG cookies received:', {
-		allCookies: request.cookies.getAll().map((c) => ({ name: c.name, hasValue: !!c.value })),
-		totalChunksCookie: request.cookies.get(`${TOKEN_COOKIE_NAME}_totalChunks`)?.value,
-		chunk0: !!request.cookies.get(`${TOKEN_COOKIE_NAME}0`)?.value,
-		chunk1: !!request.cookies.get(`${TOKEN_COOKIE_NAME}1`)?.value,
-		chunk2: !!request.cookies.get(`${TOKEN_COOKIE_NAME}2`)?.value,
-		refreshToken: !!request.cookies.get(REFRESH_TOKEN_COOKIE_NAME)?.value,
-		pathname: new URL(request.url).pathname
-	});
-
 	// Helper function to reconstruct token from chunks with retry logic
 	const reconstructTokenFromChunks = (totalChunks: number, retryCount: number = 0): string | null => {
 		const chunks = range(totalChunks).map((index) => {
