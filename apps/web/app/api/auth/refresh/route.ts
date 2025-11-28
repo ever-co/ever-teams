@@ -1,12 +1,9 @@
-import { setAccessTokenCookie } from '@/core/lib/helpers/cookies';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { hasErrors } from '@/core/lib/helpers/validations';
 import { currentAuthenticatedUserRequest, refreshTokenRequest } from '@/core/services/server/requests/auth';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
-	const res = new NextResponse();
-
 	const body = (await req.json()) as { refresh_token: string } | null;
 	const refresh_token = body?.refresh_token;
 
@@ -33,8 +30,10 @@ export async function POST(req: Request) {
 			bearer_token: refreshResult.data.token
 		});
 
-		setAccessTokenCookie(refreshResult.data.token, { res, req });
-
+		// NOTE: We don't set cookies server-side here because:
+		// 1. NextResponse.json() creates a new response object, losing any headers set on `res`
+		// 2. The client (authService.refreshToken) stores the token from the JSON body
+		// This keeps the responsibility clear: API returns data, client manages cookies.
 		return NextResponse.json({ user, token: refreshResult.data.token });
 	} catch (error: any) {
 		// IMPORTANT: Default to 500, NOT 401, for unknown errors.

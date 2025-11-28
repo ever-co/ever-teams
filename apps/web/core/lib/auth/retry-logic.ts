@@ -29,6 +29,11 @@ export function isRetryableError(error: unknown): boolean {
 
 		const isClientError = status && status >= 400 && status < 500;
 
+		// Canceled requests should NOT be retried (user navigation, AbortController, etc.)
+		if (axiosError.code === 'ERR_CANCELED') {
+			return false;
+		}
+
 		// No response = network error (retryable)
 		if (!axiosError.response) {
 			return true;

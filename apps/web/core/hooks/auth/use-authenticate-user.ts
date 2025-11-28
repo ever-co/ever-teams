@@ -207,12 +207,19 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 				return;
 			}
 
-			// Calculate optimal refresh interval based on CURRENT token
-			const interval = calculateRefreshInterval(currentToken);
-			const remainingTime = getTokenRemainingTime(currentToken);
+			// Calculate optimal refresh interval based on CURRENT token,
+			// but never schedule a refresh after the token is expected to expire
+			const remainingTimeSeconds = getTokenRemainingTime(currentToken);
+			if (remainingTimeSeconds <= 0) {
+				console.log('[Auth] Token already expired, not scheduling further refreshes');
+				return;
+			}
+
+			const rawInterval = calculateRefreshInterval(currentToken);
+			const interval = Math.min(rawInterval, remainingTimeSeconds * 1000);
 
 			console.log(
-				`[Auth] Token remaining: ${formatRemainingTime(remainingTime)}, ` +
+				`[Auth] Token remaining: ${formatRemainingTime(remainingTimeSeconds)}, ` +
 					`Next refresh in: ${formatRemainingTime(interval / 1000)}`
 			);
 
