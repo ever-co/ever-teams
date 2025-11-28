@@ -163,12 +163,12 @@ export async function retryWithBackoff<T>(fn: () => Promise<T>, maxRetries = 3, 
 			}
 
 			// Calculate delay with exponential backoff: 1s, 2s, 4s, 8s...
-			const delay = baseDelayMs * Math.pow(2, attempt);
+			const backDelay = baseDelayMs * Math.pow(2, attempt);
 
-			console.warn(`[Retry] Attempt ${attempt + 1}/${maxRetries} failed, retrying in ${delay}ms...`, error);
+			console.warn(`[Retry] Attempt ${attempt + 1}/${maxRetries} failed, retrying in ${backDelay}ms...`, error);
 
 			// Wait before next attempt
-			await new Promise((resolve) => setTimeout(resolve, delay));
+			await delay(backDelay);
 		}
 	}
 

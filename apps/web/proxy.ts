@@ -14,6 +14,7 @@ import { isTokenExpired, decodeJWT, getTokenRemainingTime, formatRemainingTime }
 import { NextRequest, NextResponse } from 'next/server';
 
 import createMiddleware from 'next-intl/middleware';
+import { delay } from './core/lib/auth/retry-logic';
 
 export const config = {
 	matcher: [
@@ -89,7 +90,7 @@ export async function proxy(request: NextRequest) {
 		if (!access_token && totalChunks > 0) {
 			console.log('[Proxy] Token reconstruction failed, likely race condition during login. Adding delay...');
 			// Small delay to allow cookies to settle
-			await new Promise((resolve) => setTimeout(resolve, 50));
+			await delay(50);
 			access_token = reconstructTokenFromChunks(totalChunks, 1);
 		}
 	}
@@ -225,7 +226,7 @@ export async function proxy(request: NextRequest) {
 			const remainingTime = maxDurationMs - (Date.now() - startTime);
 
 			if (remainingTime > delayMs) {
-				await new Promise((resolve) => setTimeout(resolve, delayMs));
+				await delay(delayMs);
 				retryCount++;
 			} else {
 				break;
