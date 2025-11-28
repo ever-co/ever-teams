@@ -13,20 +13,38 @@ export async function POST(req: Request) {
 		return NextResponse.json(
 			hasErrors({
 				refresh_token: 'The refresh token must be provided on the request body'
-			})
+			}),
+			{ status: 400 }
 		);
 	}
 
-	const { data } = await refreshTokenRequest(refresh_token);
-	if (!data) {
-		return NextResponse.error();
+	try {
+		const refreshResult = await refreshTokenRequest(refresh_token);
+		if (!refreshResult?.data?.token) {
+			console.error('[API /auth/refresh] No token in refresh response');
+			return NextResponse.json(
+				{ message: 'Token refresh failed: No token received', statusCode: 401 },
+				{ status: 401 }
+			);
+		}
+
+		const { data: user } = await currentAuthenticatedUserRequest({
+			bearer_token: refreshResult.data.token
+		});
+
+		setAccessTokenCookie(refreshResult.data.token, { res, req });
+
+		return NextResponse.json({ user, token: refreshResult.data.token });
+	} catch (error: any) {
+		// serverFetch throws { statusCode: 401, message: 'Unauthorized' }
+		const statusCode = error?.statusCode || error?.status || 401;
+		const message = error?.message || 'Token refresh failed';
+
+		console.error('[API /auth/refresh] Refresh failed:', { statusCode, message });
+
+		return NextResponse.json(
+			{ message, statusCode },
+			{ status: statusCode }
+		);
 	}
-
-	const { data: user } = await currentAuthenticatedUserRequest({
-		bearer_token: data.token
-	});
-
-	setAccessTokenCookie(data.token, { res, req });
-
-	return NextResponse.json({ user, token: data.token });
 }
