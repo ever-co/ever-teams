@@ -538,30 +538,49 @@ export function TaskCardMenu({
 	const { toggleFavoriteTask, isFavoriteTask, addTaskToFavoriteLoading, deleteTaskFromFavoritesLoading } =
 		useFavoriteTasks();
 
+	// Get the current logged-in user to check if they are already assigned to the task
+	const { data: user } = useUserQuery();
+
+	// Check if the logged-in user is already assigned to this task
+	// This determines whether to show "Assign Task to Me" or "Unassign Task from Me"
+	const isUserAssignedToTask = useMemo(() => {
+		if (!user?.id || !task?.members) return false;
+		return task.members.some((member) => member.userId === user.id || member.user?.id === user.id);
+	}, [user?.id, task?.members]);
+
+	// Loading state for assignment action
+	const [isAssigning, setIsAssigning] = useState(false);
+
 	const handleAssignment = useCallback(() => {
-		const isAssigning = viewType === 'unassign';
+		// Use dynamic check: if user is already assigned, unassign; otherwise assign
+		const shouldAssign = !isUserAssignedToTask;
 		const taskTitle = task.title || task.taskNumber || 'Task';
 
-		const promise = isAssigning ? memberInfo?.assignTask(task) : memberInfo?.unassignTask(task);
+		setIsAssigning(true);
+
+		const promise = shouldAssign ? memberInfo?.assignTask(task) : memberInfo?.unassignTask(task);
 
 		promise
 			?.then(() => {
-				const message = isAssigning ? t('common.TASK_ASSIGNED_TO_ME') : t('common.TASK_UNASSIGNED_FROM_ME');
+				const message = shouldAssign ? t('common.TASK_ASSIGNED_TO_ME') : t('common.TASK_UNASSIGNED_FROM_ME');
 				toast.success(message, {
 					description: taskTitle,
 					id: `task-assignment-${task.id}`
 				});
 			})
 			.catch((error) => {
-				const errorMessage = isAssigning
+				const errorMessage = shouldAssign
 					? t('common.TASK_ASSIGN_ERROR') || 'Failed to assign task'
 					: t('common.TASK_UNASSIGN_ERROR') || 'Failed to unassign task';
 				toast.error(errorMessage, {
 					description: process.env.NODE_ENV === 'development' ? String(error) : undefined,
 					id: `task-assignment-error-${task.id}`
 				});
+			})
+			.finally(() => {
+				setIsAssigning(false);
 			});
-	}, [memberInfo, task, viewType, t]);
+	}, [memberInfo, task, isUserAssignedToTask, t]);
 
 	const canSeeActivity = useCanSeeActivityScreen();
 
@@ -595,15 +614,18 @@ export function TaskCardMenu({
 		[futurePlans, task.id]
 	);
 
+	// Combine loading states: external loading OR assignment in progress
+	const isMenuLoading = loading || isAssigning;
+
 	return (
 		<>
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<button className="flex items-center border-none outline-none">
-						{!loading && (
+						{!isMenuLoading && (
 							<ThreeCircleOutlineVerticalIcon className="w-6 max-w-[24px] dark:text-[#B1AEBC]" />
 						)}
-						{loading && <SpinnerLoader size={20} />}
+						{isMenuLoading && <SpinnerLoader size={20} />}
 					</button>
 				</DropdownMenuTrigger>
 				<DropdownMenuPortal>
@@ -636,11 +658,16 @@ export function TaskCardMenu({
 						<DropdownMenuItem
 							className="p-0 mb-3 transition-all duration-300 hover:font-semibold hover:!bg-transparent cursor-pointer font-normal"
 							onSelect={handleAssignment}
+							disabled={isAssigning}
 						>
 							<span className={clsxm('w-full whitespace-nowrap')}>
-								{viewType === 'unassign'
-									? t('common.ASSIGN_TASK_TO_ME')
-									: t('common.UNASSIGN_TASK_FROM_ME')}
+								{isAssigning ? (
+									<LoaderCircle size={15} className="animate-spin" />
+								) : isUserAssignedToTask ? (
+									t('common.UNASSIGN_TASK_FROM_ME')
+								) : (
+									t('common.ASSIGN_TASK_TO_ME')
+								)}
 							</span>
 						</DropdownMenuItem>
 
