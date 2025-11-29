@@ -101,6 +101,7 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 
 	const { data: user } = useUserQuery();
 	const activeTeam = useAtomValue(activeTeamState);
+	const canSeeActivity = useCanSeeActivityScreen();
 
 	const isTrackingEnabled = useMemo(
 		() => !!activeTeam?.members?.find((member) => member.employee?.userId === user?.id && member.isTrackingEnabled),
@@ -207,13 +208,15 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 				{viewType === 'unassign' && (
 					<div className="w-[20%] flex justify-around items-center">
 						<UsersTaskAssigned task={task} />
-						<ImageComponent
-							radius={40}
-							images={taskAssignee}
-							item={task}
-							hasActiveMembers={activeMembers}
-							hasInfo={!hasMembers ? 'Assign this task' : 'Assign this task to more people'}
-						/>
+						{canSeeActivity && (
+							<ImageComponent
+								radius={40}
+								images={taskAssignee}
+								item={task}
+								hasActiveMembers={activeMembers}
+								hasInfo={!hasMembers ? 'Assign this task' : 'Assign this task to more people'}
+							/>
+						)}
 					</div>
 				)}
 				<VerticalSeparator />
