@@ -1,12 +1,21 @@
-import { HostKeys, useHotkeys, useModal } from '@/core/hooks';
+import { HostKeys, useHotkeys } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
-import { Modal } from '@/core/components';
 import { PropsWithChildren, useCallback } from 'react';
-import { TaskInput } from '../../tasks/task-input';
-import { useTranslations } from 'next-intl';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useAtom } from 'jotai';
+import { assignTaskModalState } from '@/core/stores/assign-task-modal';
 
+/**
+ * TaskUnOrAssignPopover - Trigger component for the global assign task modal
+ *
+ * This component only renders the trigger button. The actual modal is rendered
+ * globally by GlobalAssignTaskModal to avoid issues with parent Popover components
+ * unmounting and causing the modal to close unexpectedly.
+ *
+ * The modal state is managed via Jotai atom (assignTaskModalState) to survive
+ * component unmounting when used inside HeadlessUI Popover panels.
+ */
 export function TaskUnOrAssignPopover({
 	children,
 	tasks,
@@ -25,60 +34,64 @@ export function TaskUnOrAssignPopover({
 	}[];
 	userProfile?: TOrganizationTeamEmployee;
 }>) {
-	const t = useTranslations();
-	const { isOpen, openModal, closeModal } = useModal();
+	const [modalState, setModalState] = useAtom(assignTaskModalState);
+
+	const openModal = useCallback(() => {
+		setModalState({
+			isOpen: true,
+			tasks: tasks ?? [],
+			userProfile: userProfile ?? null,
+			employeeId: usersTaskCreatedAssignTo?.[0]?.id ?? null,
+			onTaskClick,
+			onTaskCreated
+		});
+	}, [setModalState, tasks, userProfile, usersTaskCreatedAssignTo, onTaskClick, onTaskCreated]);
+
+	const closeModal = useCallback(() => {
+		setModalState((prev) => ({ ...prev, isOpen: false }));
+	}, [setModalState]);
 
 	// Handling Hotkeys
 	const handleAssignTask = useCallback(() => {
-		if (isOpen) {
+		if (modalState.isOpen) {
 			closeModal();
 		} else {
 			openModal();
 		}
-	}, [isOpen, openModal, closeModal]);
+	}, [modalState.isOpen, openModal, closeModal]);
 	useHotkeys(HostKeys.ASSIGN_TASK, handleAssignTask);
 
-	return (
-		<>
-			<span
-				onClick={openModal}
-				className={clsxm(
-					'flex items-center mb-1.5 outline-hidden border-none cursor-pointer rounded-xl',
-					buttonClassName
-				)}
-			>
-				{children}
-			</span>
+	const handleClick = useCallback(
+		(e: React.MouseEvent) => {
+			// Prevent the event from propagating to parent Popover
+			e.stopPropagation();
+			openModal();
+		},
+		[openModal]
+	);
 
-			<Modal
-				isOpen={isOpen}
-				closeModal={closeModal}
-				title={
-					userProfile?.employee?.user?.name
-						? `${t('common.ASSIGN_TASK_TO')} ${userProfile?.employee.user?.name}`
-						: ''
-				}
-				className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-[70vw] h-[70vh] min-h-[640px] justify-start overflow-y-hidden"
-				titleClass="font-normal"
-			>
-				<TaskInput
-					task={null}
-					tasks={tasks}
-					initEditMode={true}
-					keepOpen={true}
-					autoAssignTaskAuth={false}
-					createOnEnterClick={true}
-					// viewType="one-view"
-					onTaskClick={(task) => onTaskClick && onTaskClick(task, close)}
-					onTaskCreated={(task) => onTaskCreated && onTaskCreated(task, close)}
-					usersTaskCreatedAssignTo={usersTaskCreatedAssignTo}
-					cardWithoutShadow
-					fullWidthCombobox
-					fullHeightCombobox
-					autoFocus
-					assignTaskPopup={true}
-				/>
-			</Modal>
-		</>
+	const handleKeyDown = useCallback(
+		(e: React.KeyboardEvent) => {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				e.stopPropagation();
+				openModal();
+			}
+		},
+		[openModal]
+	);
+
+	return (
+		<button
+			type="button"
+			onClick={handleClick}
+			onKeyDown={handleKeyDown}
+			className={clsxm(
+				'flex items-center mb-1.5 outline-hidden border-none cursor-pointer rounded-xl bg-transparent',
+				buttonClassName
+			)}
+		>
+			{children}
+		</button>
 	);
 }
