@@ -22,9 +22,9 @@ export function Header({ user }: { user: TUser | undefined }) {
 							<Image
 								src={user?.imageUrl}
 								alt="User Icon"
-								className="z-20 w-full h-full rounded-full"
-								layout="fill"
-								objectFit="cover"
+								width={137}
+								height={137}
+								className="z-20 object-cover w-full h-full rounded-full"
 							/>
 						)}
 
