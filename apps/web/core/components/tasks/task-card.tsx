@@ -533,6 +533,7 @@ export function TaskCardMenu({
 	plan?: TDailyPlan;
 	planMode?: FilterTabs;
 }) {
+	if (!task) return null;
 	const t = useTranslations();
 	const { closeModal, isOpen, openModal } = useModal();
 	const { toggleFavoriteTask, isFavoriteTask, addTaskToFavoriteLoading, deleteTaskFromFavoritesLoading } =
@@ -544,9 +545,9 @@ export function TaskCardMenu({
 	// Check if the logged-in user is already assigned to this task
 	// This determines whether to show "Assign Task to Me" or "Unassign Task from Me"
 	const isUserAssignedToTask = useMemo(() => {
-		if (!user?.id || !task?.members) return false;
+		if (!user?.id || !task.members) return false;
 		return task.members.some((member) => member.userId === user.id || member.user?.id === user.id);
-	}, [user?.id, task?.members]);
+	}, [user?.id, task.members]);
 
 	// Loading state for assignment action
 	const [isAssigning, setIsAssigning] = useState(false);
