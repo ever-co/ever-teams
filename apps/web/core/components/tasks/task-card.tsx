@@ -335,25 +335,45 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 	);
 });
 
-// Memorize UsersTaskAssigned to prevent unnecessary re-renders
-const UsersTaskAssigned = React.memo(({ task, className }: { task: Nullable<TTask> } & IClassName) => {
-	const t = useTranslations();
-	const members = task?.members || [];
+// Memorize UsersTaskAssigned with custom comparator to detect members changes
+const UsersTaskAssigned = React.memo(
+	({ task, className }: { task: Nullable<TTask> } & IClassName) => {
+		const t = useTranslations();
+		const members = task?.members || [];
 
-	return (
-		<div className={clsxm('flex justify-center items-center', className)}>
-			<div className="flex flex-col items-center justify-center">
-				{members.length > 0 && <span className="mb-1 text-xs text-center">{t('common.ASSIGNED')}</span>}
-				<span className="text-sm font-medium text-center">
-					{members.length > 0
-						? `${members.length} ${t('common.PEOPLE')}`
-						: t('task.tabFilter.NO_TASK_USER_ASSIGNED')}
-				</span>
+		return (
+			<div className={clsxm('flex justify-center items-center', className)}>
+				<div className="flex flex-col items-center justify-center">
+					{members.length > 0 && <span className="mb-1 text-xs text-center">{t('common.ASSIGNED')}</span>}
+					<span className="text-sm font-medium text-center">
+						{members.length > 0
+							? `${members.length} ${t('common.PEOPLE')}`
+							: t('task.tabFilter.NO_TASK_USER_ASSIGNED')}
+					</span>
+				</div>
+				{members.length > 0 && task && <TaskAvatars task={task} limit={3} />}
 			</div>
-			{members.length > 0 && task && <TaskAvatars task={task} limit={3} />}
-		</div>
-	);
-});
+		);
+	},
+	// Custom comparator: re-render when task id or members change
+	(prevProps, nextProps) => {
+		if (prevProps.className !== nextProps.className) return false;
+		if (prevProps.task?.id !== nextProps.task?.id) return false;
+		// Deep compare members array by checking length and member ids
+		const prevMembers = prevProps.task?.members || [];
+		const nextMembers = nextProps.task?.members || [];
+		if (prevMembers.length !== nextMembers.length) return false;
+		const prevMemberIds = prevMembers
+			.map((m) => m.id)
+			.sort()
+			.join(',');
+		const nextMemberIds = nextMembers
+			.map((m) => m.id)
+			.sort()
+			.join(',');
+		return prevMemberIds === nextMemberIds;
+	}
+);
 
 // Memoized TimerButtonCall component
 const TimerButtonCall = React.memo(

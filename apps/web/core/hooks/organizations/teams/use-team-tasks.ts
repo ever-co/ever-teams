@@ -147,6 +147,7 @@ export function useTeamTasks() {
 			return await taskService.updateTask({ taskId, data: taskData });
 		},
 		onSuccess: (updatedTask, { taskId }) => {
+			// Update React Query cache if it exists
 			queryClient.setQueryData(queryKeys.tasks.byTeam(activeTeam?.id), (oldTasks: PaginationResponse<TTask>) => {
 				if (!oldTasks) return oldTasks;
 
@@ -154,11 +155,15 @@ export function useTeamTasks() {
 					task.id === taskId ? { ...task, ...updatedTask } : task
 				);
 
-				// Sync the tasks store
-				setAllTasks(updatedItems);
-
 				return updatedItems ? { items: updatedItems, total: updatedItems.length } : oldTasks;
 			});
+
+			// Always update the Jotai store directly with the updated task
+			// This ensures the UI updates immediately, even if the React Query cache is empty
+			setAllTasks((currentTasks) =>
+				currentTasks.map((task) => (task.id === taskId ? { ...task, ...updatedTask } : task))
+			);
+
 			// Invalidate both tasks and daily plans to ensure UI synchronization
 			invalidateTeamTasksData();
 		}
