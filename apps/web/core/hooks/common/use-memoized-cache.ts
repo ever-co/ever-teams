@@ -151,24 +151,29 @@ export function useTaskFilterCache<T>() {
 				)
 				.join('-');
 
+			// Checksum of ALL task IDs to detect task replacements/reordering
+			// Uses first 8 chars of each ID to keep string manageable (8 chars × N tasks)
+			// This fixes the edge case where middle tasks are replaced with same member sets
+			const idsChecksum = tasks.map((t) => t.id?.slice(0, 8) || '').join('');
+
 			const taskSignature =
 				tasks.length > 0
 					? {
 							length: tasks.length,
-							firstId: tasks[0]?.id,
-							lastId: tasks[tasks.length - 1]?.id,
+							// ID checksum detects any task replacement or reordering
+							idsChecksum,
 							// Total members count - quick check for additions/removals
 							totalMembers: totalMembersAllTasks,
 							// Full member signature - detects ANY change on ANY task (including swaps)
 							membersSignature: allMembersSignature
 						}
-					: { length: 0, totalMembers: 0, membersSignature: '' };
+					: { length: 0, idsChecksum: '', totalMembers: 0, membersSignature: '' };
 
-			// Create cache key that includes member signature length for quick comparison
+			// Create cache key that includes signatures for quick comparison
 			const filterKeys = Object.keys(filters || {})
 				.sort()
 				.join(',');
-			const cacheKey = `task-filter-${taskSignature.length}-${taskSignature.totalMembers}-${taskSignature.membersSignature.length}-${filterKeys}`;
+			const cacheKey = `task-filter-${taskSignature.length}-${taskSignature.idsChecksum.length}-${taskSignature.totalMembers}-${filterKeys}`;
 
 			return cache.memoize(filterFn, [taskSignature, filters, ...additionalDeps], cacheKey);
 		},
