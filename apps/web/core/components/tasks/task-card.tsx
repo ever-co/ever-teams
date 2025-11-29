@@ -109,6 +109,8 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 	);
 	const members = activeTeam?.members || [];
 	const currentMember = members.find((m) => m.employee?.user?.id === profile?.userProfile?.id);
+	// Auth member is the currently logged-in user's team member (for "Assign Task to Me" action)
+	const authMember = members.find((m) => m.employee?.user?.id === user?.id);
 
 	const { hours: h, minutes: m } = secondsToTime((activeTaskTotalStat?.duration || 0) + addSeconds);
 	const totalWork = useMemo(
@@ -145,6 +147,9 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 		[activeAuthTask, dh, dm, isAuthUser, t]
 	);
 	const memberInfo = useTeamMemberCard(currentMember || undefined);
+	// Auth member info is used for "Assign Task to Me" / "Unassign Task from Me" actions
+	// This ensures the logged-in user is assigned, not the visited profile member
+	const authMemberInfo = useTeamMemberCard(authMember || undefined);
 	const taskEdition = useTMCardTaskEdit(task);
 	const activeMembers = useMemo(() => ((task != null && task?.members?.length) || 0) > 0, [task]);
 	const hasMembers = useMemo(() => task?.members && task?.members?.length > 0, [task?.members]);
@@ -253,11 +258,11 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 					</div>
 					{/* TaskCardMenu */}
 					<div className="flex items-end justify-end mt-2 shrink-0 xl:mt-0 text-start">
-						{task && currentMember && (
+						{task && (currentMember || authMember) && (
 							<TaskCardMenu
 								task={task}
 								loading={loading}
-								memberInfo={memberInfo}
+								memberInfo={authMemberInfo}
 								viewType={viewType}
 								profile={profile}
 								plan={plan}
@@ -315,11 +320,11 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 						task={task || null}
 						onChangeLoading={(loadState: boolean) => setLoading(loadState)}
 					/>
-					{task && currentMember && (
+					{task && (currentMember || authMember) && (
 						<TaskCardMenu
 							task={task}
 							loading={loading}
-							memberInfo={memberInfo}
+							memberInfo={authMemberInfo}
 							viewType={viewType}
 							plan={plan}
 						/>
@@ -514,11 +519,28 @@ export function TaskCardMenu({
 		useFavoriteTasks();
 
 	const handleAssignment = useCallback(() => {
-		if (viewType === 'unassign') {
-			memberInfo?.assignTask(task);
-		} else {
-			memberInfo?.unassignTask(task);
-		}
+		const isAssigning = viewType === 'unassign';
+		const taskTitle = task.title || task.taskNumber || 'Task';
+
+		const promise = isAssigning ? memberInfo?.assignTask(task) : memberInfo?.unassignTask(task);
+
+		promise
+			?.then(() => {
+				const message = isAssigning ? t('common.TASK_ASSIGNED_TO_ME') : t('common.TASK_UNASSIGNED_FROM_ME');
+				toast.success(message, {
+					description: taskTitle,
+					id: `task-assignment-${task.id}`
+				});
+			})
+			.catch((error) => {
+				const errorMessage = isAssigning
+					? t('common.TASK_ASSIGN_ERROR') || 'Failed to assign task'
+					: t('common.TASK_UNASSIGN_ERROR') || 'Failed to unassign task';
+				toast.error(errorMessage, {
+					description: process.env.NODE_ENV === 'development' ? String(error) : undefined,
+					id: `task-assignment-error-${task.id}`
+				});
+			});
 	}, [memberInfo, task, viewType, t]);
 
 	const canSeeActivity = useCanSeeActivityScreen();
@@ -596,7 +618,9 @@ export function TaskCardMenu({
 							onSelect={handleAssignment}
 						>
 							<span className={clsxm('w-full whitespace-nowrap')}>
-								{viewType === 'unassign' ? t('common.ASSIGN_TASK') : t('common.UNASSIGN_TASK')}
+								{viewType === 'unassign'
+									? t('common.ASSIGN_TASK_TO_ME')
+									: t('common.UNASSIGN_TASK_FROM_ME')}
 							</span>
 						</DropdownMenuItem>
 
