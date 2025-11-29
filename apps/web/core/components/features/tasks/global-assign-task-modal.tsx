@@ -1,7 +1,7 @@
 'use client';
 
 import { useAtom } from 'jotai';
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { assignTaskModalState } from '@/core/stores/assign-task-modal';
 import { Modal } from '@/core/components';
 import { TaskInput } from '../../tasks/task-input';
@@ -35,29 +35,34 @@ import { useTranslations } from 'next-intl';
  * });
  *
  * // Close modal
- * setAssignTaskModal(prev => ({ ...prev, isOpen: false }));
+ * setAssignTaskModal(prev => ({ ...prev, isOpen: false, onTaskClick: undefined, onTaskCreated: undefined }));
  * ```
  */
 export function GlobalAssignTaskModal() {
 	const [modalState, setModalState] = useAtom(assignTaskModalState);
 	const t = useTranslations();
 
+	const modalStateRef = useRef(modalState);
+	modalStateRef.current = modalState;
+
 	const closeModal = useCallback(() => {
-		setModalState((prev) => ({ ...prev, isOpen: false }));
+		setModalState((prev) => ({ ...prev, isOpen: false, onTaskClick: undefined, onTaskCreated: undefined }));
 	}, [setModalState]);
 
 	const handleTaskClick = useCallback(
 		(task: Parameters<NonNullable<typeof modalState.onTaskClick>>[0]) => {
-			modalState.onTaskClick?.(task, closeModal);
+			const currentOnTaskClick = modalStateRef.current.onTaskClick;
+			currentOnTaskClick?.(task, closeModal);
 		},
-		[modalState.onTaskClick, closeModal]
+		[modalStateRef, closeModal]
 	);
 
 	const handleTaskCreated = useCallback(
 		(task: Parameters<NonNullable<typeof modalState.onTaskCreated>>[0]) => {
-			modalState.onTaskCreated?.(task, closeModal);
+			const currentOnTaskCreated = modalStateRef.current.onTaskCreated;
+			currentOnTaskCreated?.(task, closeModal);
 		},
-		[modalState.onTaskCreated, closeModal]
+		[modalStateRef, closeModal]
 	);
 
 	if (!modalState.isOpen) {
@@ -95,4 +100,3 @@ export function GlobalAssignTaskModal() {
 		</Modal>
 	);
 }
-
