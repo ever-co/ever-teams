@@ -533,7 +533,6 @@ export function TaskCardMenu({
 	plan?: TDailyPlan;
 	planMode?: FilterTabs;
 }) {
-	if (!task) return null;
 	const t = useTranslations();
 	const { closeModal, isOpen, openModal } = useModal();
 	const { toggleFavoriteTask, isFavoriteTask, addTaskToFavoriteLoading, deleteTaskFromFavoritesLoading } =
