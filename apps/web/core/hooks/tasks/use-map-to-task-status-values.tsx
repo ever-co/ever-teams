@@ -24,8 +24,8 @@ export function useMapToTaskStatusValues<T extends Omit<TTaskStatus, 'name'> & {
 							<Image
 								className="object-contain w-5 h-5"
 								src={item.fullIconUrl}
-								height={128}
-								width={128}
+								height={20}
+								width={20}
 								alt={item.name}
 							/>
 						)}
