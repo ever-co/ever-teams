@@ -128,13 +128,49 @@ export default function ImageOverlapper({
 		if (isLoading) return;
 		setIsSubmitting(true);
 
+		// Calculate added and removed members for toast message
+		const originalMemberIds = new Set((item?.members || []).map((m: TEmployee) => m.id));
+		const newMemberIds = new Set(assignedMembers.map((m) => m.id));
+
+		const addedMembers = assignedMembers.filter((m) => !originalMemberIds.has(m.id));
+		const removedMembers = (item?.members || []).filter((m: TEmployee) => !newMemberIds.has(m.id));
+
+		// Helper to format member names with "and X others" for better UX
+		const formatMemberNames = (members: TEmployee[], maxDisplay = 2): string => {
+			const names = members.map((m) => m.fullName || m.user?.name || 'Unknown');
+			if (names.length <= maxDisplay) {
+				return names.join(', ');
+			}
+			const displayed = names.slice(0, maxDisplay).join(', ');
+			const remaining = names.length - maxDisplay;
+			return `${displayed} ${t('common.AND_X_OTHERS', { count: remaining })}`;
+		};
+
 		try {
 			await updateTask({
 				...item,
 				members: assignedMembers
 			});
 
-			toast.success(t('task.toastMessages.TASK_ASSIGNED'));
+			// Build descriptive toast message
+			const messages: string[] = [];
+
+			if (addedMembers.length > 0) {
+				messages.push(`${t('common.ADDED')}: ${formatMemberNames(addedMembers)}`);
+			}
+
+			if (removedMembers.length > 0) {
+				messages.push(`${t('common.REMOVED')}: ${formatMemberNames(removedMembers)}`);
+			}
+
+			if (messages.length === 0) {
+				toast.success(t('task.toastMessages.TASK_ASSIGNED'));
+			} else {
+				toast.success(t('task.toastMessages.TASK_ASSIGNED'), {
+					description: messages.join(' • ')
+				});
+			}
+
 			closeModal();
 		} catch (error) {
 			console.error('Error updating task members:', error);
