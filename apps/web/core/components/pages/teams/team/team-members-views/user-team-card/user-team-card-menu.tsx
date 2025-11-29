@@ -15,6 +15,7 @@ import { Spinner } from '@/core/components/common/spinner';
 import { useFavoriteTasks } from '@/core/hooks/tasks/use-favorites-task';
 import { useSetAtom } from 'jotai';
 import { allPlansModalState } from '@/core/stores/all-plans-modal';
+import { toast } from 'sonner';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;
@@ -250,33 +251,61 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 	);
 }
 
-type IAssignCall = (params: { task?: TTask; closeCombobox1?: () => void; closeCombobox2?: () => void }) => void;
+type IAssignCall = (params: {
+	task?: TTask;
+	closeCombobox1?: () => void;
+	closeCombobox2?: () => void;
+}) => void | Promise<void>;
 
 export function useDropdownAction({ edition, memberInfo }: Pick<Props, 'edition' | 'memberInfo'>) {
+	const t = useTranslations();
+
 	const onAssignTask: IAssignCall = useCallback(
 		async ({ task, closeCombobox1, closeCombobox2 }) => {
 			if (!task) return;
 
-			edition.setLoading(true);
-			await memberInfo.assignTask(task).finally(() => edition.setLoading(false));
+			const memberName = memberInfo.member?.employee?.fullName || memberInfo.member?.employee?.user?.name || '';
 
-			closeCombobox1 && closeCombobox1();
-			closeCombobox2 && closeCombobox2();
+			edition.setLoading(true);
+			try {
+				await memberInfo.assignTask(task);
+				toast.success(t('task.toastMessages.TASK_ASSIGNED'), {
+					description: memberName ? `"${task.title}" → ${memberName}` : `"${task.title}"`,
+					id: 'task-assigned'
+				});
+			} finally {
+				edition.setLoading(false);
+			}
+
+			closeCombobox1?.();
+			closeCombobox2?.();
 		},
-		[edition, memberInfo]
+		[edition, memberInfo, t]
 	);
 
-	const onUnAssignTask: IAssignCall = useCallback(() => {
+	const onUnAssignTask: IAssignCall = useCallback(async () => {
 		if (!memberInfo.memberTask) return;
-		edition.setLoading(true);
 
-		memberInfo.unassignTask(memberInfo.memberTask).finally(() => edition.setLoading(false));
-	}, [memberInfo, edition]);
+		const memberName = memberInfo.member?.employee?.fullName || memberInfo.member?.employee?.user?.name || '';
+
+		edition.setLoading(true);
+		try {
+			await memberInfo.unassignTask(memberInfo.memberTask);
+			toast.success(t('task.toastMessages.TASK_UNASSIGNED'), {
+				description: memberName
+					? `"${memberInfo.memberTask.title}" ← ${memberName}`
+					: `"${memberInfo.memberTask.title}"`,
+				id: 'task-unassigned'
+			});
+		} finally {
+			edition.setLoading(false);
+		}
+	}, [memberInfo, edition, t]);
 
 	const onRemoveMember = useCallback(
 		({ close }: { close?: () => void }) => {
 			memberInfo.removeMemberFromTeam();
-			close && close();
+			close?.();
 		},
 		[memberInfo]
 	);
