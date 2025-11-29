@@ -7,6 +7,7 @@ import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { useModal, useTeamTasks } from '@/core/hooks';
 import { Modal, Divider, SpinnerLoader } from '@/core/components';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import { TaskAssignButton } from '@/core/components/tasks/task-assign-button';
 import { clsxm } from '@/core/lib/utils';
 import TeamMember from '@/core/components/teams/team-member';
@@ -78,7 +79,11 @@ export default function ImageOverlapper({
 	const allMembers = useMemo(() => activeTeam?.members || [], [activeTeam]);
 	const [assignedMembers, setAssignedMembers] = useState<TEmployee[]>([...(item?.members || [])]);
 	const [unassignedMembers, setUnassignedMembers] = useState<TEmployee[]>([]);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 	const { updateTask, updateLoading } = useTeamTasks();
+
+	// Combine local submitting state with React Query mutation pending state
+	const isLoading = isSubmitting || updateLoading;
 
 	const t = useTranslations();
 
@@ -120,18 +125,24 @@ export default function ImageOverlapper({
 	);
 
 	const onConfirm = useCallback(async () => {
-		if (updateLoading) return;
+		if (isLoading) return;
+		setIsSubmitting(true);
+
 		try {
 			await updateTask({
 				...item,
 				members: assignedMembers
 			});
 
+			toast.success(t('task.toastMessages.TASK_ASSIGNED'));
 			closeModal();
 		} catch (error) {
 			console.error('Error updating task members:', error);
+			toast.error(t('task.toastMessages.TASK_ASSIGNMENT_FAILED'));
+		} finally {
+			setIsSubmitting(false);
 		}
-	}, [closeModal, updateTask, item, assignedMembers, updateLoading]);
+	}, [closeModal, updateTask, item, assignedMembers, isLoading, t]);
 
 	const hasMembers = item?.members?.length > 0;
 
@@ -231,12 +242,12 @@ export default function ImageOverlapper({
 								<div className="flex px-4 h-fit">
 									<button
 										className="flex flex-row items-center justify-center h-12 min-w-0 gap-3 px-2 py-2 text-sm text-white w-28 rounded-xl bg-primary dark:bg-primary-light disabled:bg-primary-light disabled:opacity-40"
-										disabled={updateLoading}
+										disabled={isLoading}
 										onClick={() => {
 											onConfirm();
 										}}
 									>
-										{updateLoading ? <SpinnerLoader size={20} /> : <IconsCheck fill="#ffffff" />}
+										{isLoading ? <SpinnerLoader size={20} /> : <IconsCheck fill="#ffffff" />}
 										{t('common.CONFIRM')}
 									</button>
 								</div>
