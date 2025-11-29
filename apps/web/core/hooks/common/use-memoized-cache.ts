@@ -132,12 +132,24 @@ export function useTaskFilterCache<T>() {
 
 	const memoizeTaskFilter = useCallback(
 		<T>(filterFn: () => T, tasks: TTask[], filters: any, additionalDeps: any[] = []): T => {
-			// Create more intelligent cache key that includes member changes
+			// Create intelligent cache key that detects ANY member change on ANY task
 			// This ensures cache invalidation when task members are updated (assign/unassign)
 
-			// Calculate total members across ALL tasks to detect any assignment change
-			// This is O(n) but acceptable since we're only summing array lengths
+			// Calculate total members across ALL tasks
 			const totalMembersAllTasks = tasks.reduce((sum, t) => sum + (t.members?.length || 0), 0);
+
+			// Create a signature of ALL member userIds across ALL tasks
+			// This detects: additions, removals, AND swaps (same count but different members)
+			// Uses first 8 chars of userId to keep string size manageable while maintaining uniqueness
+			const allMembersSignature = tasks
+				.map(
+					(t) =>
+						t.members
+							?.map((m) => (m.userId || m.user?.id || '').slice(0, 8))
+							.sort()
+							.join('') || ''
+				)
+				.join('-');
 
 			const taskSignature =
 				tasks.length > 0
@@ -145,21 +157,18 @@ export function useTaskFilterCache<T>() {
 							length: tasks.length,
 							firstId: tasks[0]?.id,
 							lastId: tasks[tasks.length - 1]?.id,
-							// Include member count for first 10 tasks for more granular cache key
-							memberChecksum: tasks
-								.slice(0, 10)
-								.map((t) => `${t.id}:${t.members?.length || 0}`)
-								.join(','),
-							// Total members across ALL tasks - ensures cache invalidation for any assignment change
-							totalMembers: totalMembersAllTasks
+							// Total members count - quick check for additions/removals
+							totalMembers: totalMembersAllTasks,
+							// Full member signature - detects ANY change on ANY task (including swaps)
+							membersSignature: allMembersSignature
 						}
-					: { length: 0, totalMembers: 0 };
+					: { length: 0, totalMembers: 0, membersSignature: '' };
 
-			// Create efficient cache key that includes member signature
+			// Create cache key that includes member signature length for quick comparison
 			const filterKeys = Object.keys(filters || {})
 				.sort()
 				.join(',');
-			const cacheKey = `task-filter-${taskSignature.length}-${taskSignature.totalMembers}-${filterKeys}-${Object.keys(filters || {}).length}`;
+			const cacheKey = `task-filter-${taskSignature.length}-${taskSignature.totalMembers}-${taskSignature.membersSignature.length}-${filterKeys}`;
 
 			return cache.memoize(filterFn, [taskSignature, filters, ...additionalDeps], cacheKey);
 		},
