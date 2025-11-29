@@ -134,27 +134,32 @@ export function useTaskFilterCache<T>() {
 		<T>(filterFn: () => T, tasks: TTask[], filters: any, additionalDeps: any[] = []): T => {
 			// Create more intelligent cache key that includes member changes
 			// This ensures cache invalidation when task members are updated (assign/unassign)
+
+			// Calculate total members across ALL tasks to detect any assignment change
+			// This is O(n) but acceptable since we're only summing array lengths
+			const totalMembersAllTasks = tasks.reduce((sum, t) => sum + (t.members?.length || 0), 0);
+
 			const taskSignature =
 				tasks.length > 0
 					? {
 							length: tasks.length,
 							firstId: tasks[0]?.id,
 							lastId: tasks[tasks.length - 1]?.id,
-							// Include member count per task to detect assignment changes
+							// Include member count for first 10 tasks for more granular cache key
 							memberChecksum: tasks
 								.slice(0, 10)
 								.map((t) => `${t.id}:${t.members?.length || 0}`)
 								.join(','),
-							// Include total members across sampled tasks for better detection
-							totalMembers: tasks.slice(0, 10).reduce((sum, t) => sum + (t.members?.length || 0), 0)
+							// Total members across ALL tasks - ensures cache invalidation for any assignment change
+							totalMembers: totalMembersAllTasks
 						}
-					: { length: 0 };
+					: { length: 0, totalMembers: 0 };
 
 			// Create efficient cache key that includes member signature
 			const filterKeys = Object.keys(filters || {})
 				.sort()
 				.join(',');
-			const cacheKey = `task-filter-${taskSignature.length}-${taskSignature.totalMembers || 0}-${filterKeys}-${Object.keys(filters || {}).length}`;
+			const cacheKey = `task-filter-${taskSignature.length}-${taskSignature.totalMembers}-${filterKeys}-${Object.keys(filters || {}).length}`;
 
 			return cache.memoize(filterFn, [taskSignature, filters, ...additionalDeps], cacheKey);
 		},

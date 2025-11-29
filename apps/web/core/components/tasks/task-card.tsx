@@ -552,16 +552,22 @@ export function TaskCardMenu({
 	const [isAssigning, setIsAssigning] = useState(false);
 
 	const handleAssignment = useCallback(() => {
+		// Guard clause: if memberInfo is not available, we cannot assign/unassign
+		if (!memberInfo) {
+			console.warn('[TaskCardMenu] memberInfo is undefined, cannot assign/unassign task');
+			return;
+		}
+
 		// Use dynamic check: if user is already assigned, unassign; otherwise assign
 		const shouldAssign = !isUserAssignedToTask;
 		const taskTitle = task.title || task.taskNumber || 'Task';
 
 		setIsAssigning(true);
 
-		const promise = shouldAssign ? memberInfo?.assignTask(task) : memberInfo?.unassignTask(task);
+		const promise = shouldAssign ? memberInfo.assignTask(task) : memberInfo.unassignTask(task);
 
 		promise
-			?.then(() => {
+			.then(() => {
 				const message = shouldAssign ? t('common.TASK_ASSIGNED_TO_ME') : t('common.TASK_UNASSIGNED_FROM_ME');
 				toast.success(message, {
 					description: taskTitle,
