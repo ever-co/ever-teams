@@ -43,9 +43,9 @@ export function ViewProjectInfoModal(props: Readonly<IViewProjectInfoModalProps>
 
 	// Use existing locale keys for billing types
 	const billingLabels: Record<EProjectBilling, string> = {
-		[EProjectBilling.RATE]: 'Rate',
-		[EProjectBilling.FLAT_FEE]: 'Flat Fee',
-		[EProjectBilling.MILESTONES]: 'Milestones'
+		[EProjectBilling.RATE]: t('common.RATE'),
+		[EProjectBilling.FLAT_FEE]: t('common.FLAT_FEE'),
+		[EProjectBilling.MILESTONES]: t('common.MILESTONES')
 	};
 
 	// Use existing locale keys for budget types
@@ -412,7 +412,7 @@ function MemberCard({
 	isManager?: boolean;
 }>) {
 	const t = useTranslations();
-	const name = member.employee?.fullName || 'Unknown';
+	const name = member.employee?.fullName || t('common.UNKNOWN');
 	const imageUrl = member.employee?.user?.imageUrl;
 	const email = member.employee?.user?.email;
 
