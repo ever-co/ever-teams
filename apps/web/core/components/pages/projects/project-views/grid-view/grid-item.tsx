@@ -2,16 +2,15 @@ import { cn } from '@/core/lib/helpers';
 import { Checkbox } from '@/core/components/common/checkbox';
 import Image from 'next/image';
 import { CalendarDays, RotateCcw } from 'lucide-react';
-import { useModal } from '@/core/hooks';
 import { useCallback, useMemo } from 'react';
 import moment from 'moment';
 import AvatarStack from '@/core/components/common/avatar-stack';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { ProjectItemActions, ProjectViewDataType } from '..';
-import { RestoreProjectModal } from '@/core/components/features/projects/restore-project-modal';
 import { useAtomValue } from 'jotai';
 import { taskStatusesState } from '@/core/stores';
+import { useProjectActionModal } from '@/core/hooks/use-project-action-modal';
 
 interface IGridItemProps {
 	data: ProjectViewDataType;
@@ -21,11 +20,7 @@ interface IGridItemProps {
 
 export default function GridItem(props: IGridItemProps) {
 	const { data, isSelected, onSelect } = props;
-	const {
-		openModal: openRestoreProjectModal,
-		closeModal: closeRestoreProjectModal,
-		isOpen: isRestoreProjectModalOpen
-	} = useModal();
+	const { openRestoreModal } = useProjectActionModal();
 
 	const taskStatuses = useAtomValue(taskStatusesState);
 
@@ -104,7 +99,7 @@ export default function GridItem(props: IGridItemProps) {
 						</div>
 						{data?.isArchived ? (
 							<button
-								onClick={openRestoreProjectModal}
+								onClick={() => openRestoreModal(data.project.id)}
 								className="bg-gray-100 hover:bg-gray-200 text-primary gap-1.5 group flex items-center rounded-md px-2 py-1.5 text-xs font-medium transition-colors"
 							>
 								<RotateCcw size={14} />
@@ -202,11 +197,6 @@ export default function GridItem(props: IGridItemProps) {
 					</div>
 				</div>
 			</div>
-			<RestoreProjectModal
-				projectId={data?.project.id}
-				open={isRestoreProjectModalOpen}
-				closeModal={closeRestoreProjectModal}
-			/>
 		</div>
 	);
 }
