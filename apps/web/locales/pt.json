@@ -93,6 +93,8 @@
 		"YES": "Sim",
 		"BASIC": "Básico",
 		"DELETE": "Excluir",
+		"DELETE_SUCCESS": "Excluído com sucesso",
+		"DELETE_ERROR": "Falha ao excluir",
 		"MEET": "Reunião",
 		"BOARD": "Quadro",
 		"SECURITY_CODE": "Código de Segurança",
@@ -639,7 +641,9 @@
 			},
 			"deleteModal": {
 				"title": "Excluir selecionado?",
-				"description": "Você está prestes a excluir permanentemente este projeto. Clique em 'Excluir' para confirmar a ação"
+				"description": "Você está prestes a excluir permanentemente este projeto. Clique em 'Excluir' para confirmar a ação",
+				"successDescription": "O projeto foi excluído com sucesso",
+				"errorDescription": "Falha ao excluir o projeto. Por favor, tente novamente."
 			},
 			"archiveModal": {
 				"title": "Arquivar {projectName}?",

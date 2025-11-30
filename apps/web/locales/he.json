@@ -92,6 +92,8 @@
 		"YES": "כן",
 		"BASIC": "בסיסי",
 		"DELETE": "מחק",
+		"DELETE_SUCCESS": "נמחק בהצלחה",
+		"DELETE_ERROR": "המחיקה נכשלה",
 		"MEET": "פגש",
 		"BOARD": "לוח",
 		"SECURITY_CODE": "קוד אבטחה",
@@ -597,7 +599,9 @@
 			},
 			"deleteModal": {
 				"title": "למחוק את הנבחר?",
-				"description": "אתה עומד למחוק את הפרויקט הזה לצמיתות. לחץ על 'מחק' כדי לאשר את הפעולה"
+				"description": "אתה עומד למחוק את הפרויקט הזה לצמיתות. לחץ על 'מחק' כדי לאשר את הפעולה",
+				"successDescription": "הפרויקט נמחק בהצלחה",
+				"errorDescription": "לא ניתן למחוק את הפרויקט. אנא נסה שוב."
 			},
 			"archiveModal": {
 				"title": "לארכב את {projectName}?",

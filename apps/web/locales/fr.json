@@ -93,6 +93,8 @@
 		"YES": "Oui",
 		"BASIC": "Basique",
 		"DELETE": "Supprimer",
+		"DELETE_SUCCESS": "Supprimé avec succès",
+		"DELETE_ERROR": "Échec de la suppression",
 		"DELETE_ALL_DATA": "Supprimer toutes les données",
 		"DONT_HAVE_ACCOUNT": "Vous n'avez pas de compte ?",
 		"MEET": "Rencontrer",
@@ -639,7 +641,9 @@
 			},
 			"deleteModal": {
 				"title": "Supprimer la sélection?",
-				"description": "Vous êtes sur le point de supprimer définitivement ce projet. Cliquez sur 'Supprimer' pour confirmer l'action"
+				"description": "Vous êtes sur le point de supprimer définitivement ce projet. Cliquez sur 'Supprimer' pour confirmer l'action",
+				"successDescription": "Le projet a été supprimé avec succès",
+				"errorDescription": "Impossible de supprimer le projet. Veuillez réessayer."
 			},
 			"archiveModal": {
 				"title": "Archiver {projectName}?",

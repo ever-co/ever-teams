@@ -113,6 +113,8 @@
 		"YES": "Yes",
 		"BASIC": "Basic",
 		"DELETE": "Delete",
+		"DELETE_SUCCESS": "Deleted successfully",
+		"DELETE_ERROR": "Failed to delete",
 		"MEET": "Meet",
 		"BOARD": "Board",
 		"SECURITY_CODE": "Security Code",
@@ -581,7 +583,9 @@
 			},
 			"deleteModal": {
 				"title": "Delete Selected?",
-				"description": "You are about to permanently delete this project. Click 'Delete' to confirm the action"
+				"description": "You are about to permanently delete this project. Click 'Delete' to confirm the action",
+				"successDescription": "The project has been deleted successfully",
+				"errorDescription": "Failed to delete the project. Please try again."
 			},
 			"archiveModal": {
 				"title": "Archive {projectName}?",

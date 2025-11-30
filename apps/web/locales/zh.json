@@ -88,6 +88,8 @@
 		"YES": "是",
 		"BASIC": "基本",
 		"DELETE": "删除",
+		"DELETE_SUCCESS": "删除成功",
+		"DELETE_ERROR": "删除失败",
 		"MEET": "会议",
 		"BOARD": "看板",
 		"SECURITY_CODE": "安全码",
@@ -594,7 +596,9 @@
 			},
 			"deleteModal": {
 				"title": "删除所选？",
-				"description": "您即将永久删除此项目。单击 '删除' 以确认操作"
+				"description": "您即将永久删除此项目。单击 '删除' 以确认操作",
+				"successDescription": "项目已成功删除",
+				"errorDescription": "删除项目失败。请重试。"
 			},
 			"archiveModal": {
 				"title": "归档 {projectName}?",

@@ -89,6 +89,8 @@
 		"BASIC": "Básico",
 		"REGISTER": "Registrarse",
 		"DELETE": "Eliminar",
+		"DELETE_SUCCESS": "Eliminado con éxito",
+		"DELETE_ERROR": "Error al eliminar",
 		"MEET": "Reunirse",
 		"BOARD": "Tablero",
 		"SECURITY_CODE": "Código de seguridad",
@@ -662,7 +664,9 @@
 			},
 			"deleteModal": {
 				"title": "¿Eliminar seleccionado?",
-				"description": "Está a punto de eliminar permanentemente este proyecto. Haga clic en 'Eliminar' para confirmar la acción"
+				"description": "Está a punto de eliminar permanentemente este proyecto. Haga clic en 'Eliminar' para confirmar la acción",
+				"successDescription": "El proyecto ha sido eliminado con éxito",
+				"errorDescription": "No se pudo eliminar el proyecto. Por favor, inténtelo de nuevo."
 			},
 			"archiveModal": {
 				"title": "¿Archivar {projectName}?",

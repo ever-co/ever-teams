@@ -92,6 +92,8 @@
 		"YES": "Sì",
 		"BASIC": "Base",
 		"DELETE": "Elimina",
+		"DELETE_SUCCESS": "Eliminato con successo",
+		"DELETE_ERROR": "Eliminazione fallita",
 		"MEET": "Incontra",
 		"BOARD": "Bacheca",
 		"SECURITY_CODE": "Codice di sicurezza",
@@ -603,7 +605,9 @@
 			},
 			"deleteModal": {
 				"title": "Eliminare selezionato?",
-				"description": "Stai per eliminare definitivamente questo progetto. Fai clic su 'Elimina' per confermare l'azione"
+				"description": "Stai per eliminare definitivamente questo progetto. Fai clic su 'Elimina' per confermare l'azione",
+				"successDescription": "Il progetto è stato eliminato con successo",
+				"errorDescription": "Impossibile eliminare il progetto. Riprova."
 			},
 			"archiveModal": {
 				"title": "Archivia {projectName}?",

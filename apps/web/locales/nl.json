@@ -92,6 +92,8 @@
 		"YES": "Ja",
 		"BASIC": "Basis",
 		"DELETE": "Verwijderen",
+		"DELETE_SUCCESS": "Succesvol verwijderd",
+		"DELETE_ERROR": "Verwijderen mislukt",
 		"MEET": "Ontmoeten",
 		"BOARD": "Bord",
 		"SECURITY_CODE": "Beveiligingscode",
@@ -635,7 +637,9 @@
 			},
 			"deleteModal": {
 				"title": "Geselecteerde verwijderen?",
-				"description": "U staat op het punt dit project permanent te verwijderen. Klik op 'Verwijderen' om de actie te bevestigen"
+				"description": "U staat op het punt dit project permanent te verwijderen. Klik op 'Verwijderen' om de actie te bevestigen",
+				"successDescription": "Het project is succesvol verwijderd",
+				"errorDescription": "Kan het project niet verwijderen. Probeer het opnieuw."
 			},
 			"archiveModal": {
 				"title": "{projectName} archiveren?",

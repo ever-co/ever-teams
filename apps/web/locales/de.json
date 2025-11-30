@@ -92,6 +92,8 @@
 		"YES": "Ja",
 		"BASIC": "Basis",
 		"DELETE": "Löschen",
+		"DELETE_SUCCESS": "Erfolgreich gelöscht",
+		"DELETE_ERROR": "Löschen fehlgeschlagen",
 		"MEET": "Treffen",
 		"BOARD": "Board",
 		"SECURITY_CODE": "Sicherheitscode",
@@ -638,7 +640,9 @@
 			},
 			"deleteModal": {
 				"title": "Ausgewähltes löschen?",
-				"description": "Sie sind dabei, dieses Projekt dauerhaft zu löschen. Klicken Sie auf 'Löschen', um die Aktion zu bestätigen"
+				"description": "Sie sind dabei, dieses Projekt dauerhaft zu löschen. Klicken Sie auf 'Löschen', um die Aktion zu bestätigen",
+				"successDescription": "Das Projekt wurde erfolgreich gelöscht",
+				"errorDescription": "Das Projekt konnte nicht gelöscht werden. Bitte versuchen Sie es erneut."
 			},
 			"archiveModal": {
 				"title": "{projectName} archivieren?",

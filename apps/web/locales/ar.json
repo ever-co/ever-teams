@@ -71,6 +71,8 @@
 		"YES": "نعم",
 		"BASIC": "أساسي",
 		"DELETE": "حذف",
+		"DELETE_SUCCESS": "تم الحذف بنجاح",
+		"DELETE_ERROR": "فشل في الحذف",
 		"MEET": "اجتماع",
 		"BOARD": "لوحة",
 		"SECURITY_CODE": "رمز الأمان",
@@ -597,7 +599,9 @@
 			},
 			"deleteModal": {
 				"title": "حذف المحدد؟",
-				"description": "أنت على وشك حذف هذا المشروع نهائيًا. اضغط على 'حذف' لتأكيد الإجراء"
+				"description": "أنت على وشك حذف هذا المشروع نهائيًا. اضغط على 'حذف' لتأكيد الإجراء",
+				"successDescription": "تم حذف المشروع بنجاح",
+				"errorDescription": "فشل في حذف المشروع. يرجى المحاولة مرة أخرى."
 			},
 			"archiveModal": {
 				"title": "أرشفة {projectName}؟",
