@@ -25,14 +25,14 @@ const AvatarStack: React.FC<AvatarStackProps> = ({ avatars, maxVisible = 5 }) =>
 		<div className="flex -space-x-3">
 			{avatars.slice(0, maxItemsToShow).map((avatar, index) => (
 				<div key={index} className="relative group">
-					<div className="relative w-8 h-8">
+					<div className="relative w-8 h-8 rounded-full shrink-0 aspect-square">
 						{avatar?.imageUrl ? (
 							<Image
 								src={avatar?.imageUrl}
 								alt={avatar?.name}
 								width={32}
 								height={32}
-								className="object-cover border-2 border-white rounded-full"
+								className="object-cover border-2 border-white rounded-full size-full aspect-square"
 							/>
 						) : (
 							<div

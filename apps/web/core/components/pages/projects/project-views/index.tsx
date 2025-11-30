@@ -31,7 +31,7 @@ export type ProjectViewDataType = {
  * @see {@link file://apps/web/core/components/features/projects/global-project-action-modal.tsx}
  */
 export function ProjectItemActions({ item }: { item: ProjectViewDataType }) {
-	const { openEditModal, openArchiveModal, openDeleteModal } = useProjectActionModal();
+	const { openEditModal, openArchiveModal, openDeleteModal, openViewInfoModal } = useProjectActionModal();
 	const t = useTranslations();
 
 	return (
@@ -55,6 +55,7 @@ export function ProjectItemActions({ item }: { item: ProjectViewDataType }) {
 						<Menu.Item>
 							{({ active }) => (
 								<button
+									onClick={() => openViewInfoModal(item.project.id)}
 									className={`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
 								>
 									<Eye size={15} /> <span>{t('common.VIEW_INFO')}</span>
