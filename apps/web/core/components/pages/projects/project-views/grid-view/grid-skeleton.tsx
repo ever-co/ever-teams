@@ -7,8 +7,8 @@ import { cn } from '@/core/lib/helpers';
  * Project header component with skeleton elements for project icon and name.
  */
 const ProjectHeader: FC = () => (
-	<div className="flex justify-between items-center w-full">
-		<div className="flex gap-2 items-center">
+	<div className="flex items-center justify-between w-full">
+		<div className="flex items-center gap-2">
 			<Skeleton className="w-8 h-8 rounded" />
 			<Skeleton className="w-24 h-4 rounded" />
 		</div>
@@ -20,7 +20,7 @@ const ProjectHeader: FC = () => (
  * Project status component with skeleton elements.
  */
 const ProjectStatus: FC = () => (
-	<div className="flex gap-2 items-center w-full">
+	<div className="flex items-center w-full gap-2">
 		<Skeleton className="w-16 h-5 rounded-full" />
 	</div>
 );
@@ -29,7 +29,7 @@ const ProjectStatus: FC = () => (
  * Project dates component with skeleton elements.
  */
 const ProjectDates: FC = () => (
-	<div className="flex gap-4 items-center w-full">
+	<div className="flex items-center w-full gap-4">
 		<div className="flex flex-col gap-1">
 			<Skeleton className="w-16 h-4 rounded" />
 			<Skeleton className="w-20 h-4 rounded" />
@@ -45,14 +45,14 @@ const ProjectDates: FC = () => (
  * Project team members component with skeleton elements.
  */
 const ProjectTeam: FC = () => (
-	<div className="flex justify-between items-center w-full">
+	<div className="flex items-center justify-between w-full">
 		<div className="flex flex-col gap-1">
 			<Skeleton className="w-16 h-4 rounded" />
 			<div className="flex -space-x-2">
 				{[...Array(2)].map((_, i) => (
 					<Skeleton
 						key={i}
-						className="w-8 h-8 rounded-full border-2 border-white dark:border-dark--theme-light"
+						className="w-8 h-8 border-2 border-white rounded-full dark:border-dark--theme-light"
 					/>
 				))}
 			</div>
@@ -60,13 +60,13 @@ const ProjectTeam: FC = () => (
 		<div className="flex flex-col gap-1">
 			<Skeleton className="w-12 h-4 rounded" />
 			<div className="flex -space-x-2">
-				<Skeleton className="w-8 h-8 rounded-full border-2 border-white dark:border-dark--theme-light" />
+				<Skeleton className="w-8 h-8 border-2 border-white rounded-full dark:border-dark--theme-light" />
 			</div>
 		</div>
 		<div className="flex flex-col gap-1">
 			<Skeleton className="w-16 h-4 rounded" />
 			<div className="flex -space-x-2">
-				<Skeleton className="w-8 h-8 rounded-full border-2 border-white dark:border-dark--theme-light" />
+				<Skeleton className="w-8 h-8 border-2 border-white rounded-full dark:border-dark--theme-light" />
 			</div>
 		</div>
 	</div>
@@ -91,4 +91,8 @@ export const ProjectGridItem: FC = () => (
 /**
  * Projects grid skeleton component that displays multiple loading items.
  */
-export const ProjectsGridSkeleton: FC = () => <GenericCardsGridSkeleton count={12} variant="project" />;
+export const ProjectsGridSkeleton: FC = () => (
+	<div className="w-ful">
+		<GenericCardsGridSkeleton count={12} variant="project" />
+	</div>
+);
