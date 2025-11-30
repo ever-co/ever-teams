@@ -76,6 +76,8 @@ export const ProjectsTable = memo(
 		const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 		const t = useTranslations();
 
+		const { openRestoreModal } = useProjectActionModal();
+
 		const taskStatuses = useAtomValue(taskStatusesState);
 		const statusColorsMap: Map<string | undefined, string | undefined | null> = useMemo(() => {
 			return new Map(taskStatuses.map((status) => [status.name, status.color]));
@@ -139,11 +141,11 @@ export const ProjectsTable = memo(
 				cell: function ({ row }) {
 					return (
 						<div className="">
-							<div className="flex items-center gap-2 font-medium">
+							<div className="flex gap-2 items-center font-medium">
 								<div
 									style={{ backgroundColor: row.original?.project?.color ?? undefined }}
 									className={cn(
-										'flex overflow-hidden justify-center items-center size-9 rounded-full border object-cover shrink-0'
+										'flex object-cover overflow-hidden justify-center items-center rounded-full border size-9 shrink-0'
 									)}
 								>
 									{!row.original?.project?.imageUrl ? (
@@ -416,7 +418,6 @@ export const ProjectsTable = memo(
 			{
 				id: 'restore',
 				cell: function Cell({ row }) {
-					const { openRestoreModal } = useProjectActionModal();
 
 					return (
 						<button
@@ -475,7 +476,7 @@ export const ProjectsTable = memo(
 				{loading ? (
 					<ProjectListSkeleton />
 				) : table?.getRowModel()?.rows.length ? (
-					<div className="border rounded-md">
+					<div className="rounded-md border">
 						<Table>
 							<TableHeader>
 								{table.getHeaderGroups().map((headerGroup) => (
@@ -567,10 +568,10 @@ function ColumnHandlerDropdown(args: {
 	const isSort = column.entity.getIsSorted();
 
 	return (
-		<Menu as="div" className="relative inline-block text-left">
+		<Menu as="div" className="inline-block relative text-left">
 			<div>
 				<Menu.Button>
-					<div className="flex items-center gap-2 cursor-pointer">
+					<div className="flex gap-2 items-center cursor-pointer">
 						<span className="text-xs text-nowrap">{column.name}</span>
 						<div className="flex flex-col items-center">
 							<ChevronUp

@@ -181,12 +181,6 @@ export const deleteProjectResultSchema = z.object({
 	affected: z.number().nullable().optional()
 });
 
-/**
- * Check if a DELETE operation was successful based on DeleteResult
- */
-export const isDeleteProjectSuccessful = (result: TDeleteProjectResult): boolean => {
-	return result.affected !== undefined && result.affected !== null && result.affected > 0;
-};
 
 // Type exports
 
