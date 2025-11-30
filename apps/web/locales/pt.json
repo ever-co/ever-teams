@@ -401,6 +401,8 @@
 		"MEMBERS_COUNT": "Contagem de membros",
 		"REVIEW": "REVISÃO",
 		"ARCHIVE": "Arquivo",
+		"ARCHIVE_SUCCESS": "Arquivado com sucesso",
+		"ARCHIVE_ERROR": "Falha ao arquivar",
 		"ARCHIVE_AT": "Arquivar em",
 		"RESTORE": "Restaurar",
 		"HIDE": "Ocultar",
@@ -641,7 +643,9 @@
 			},
 			"archiveModal": {
 				"title": "Arquivar {projectName}?",
-				"description": "{affectedTasksCount} tarefas serão afetadas ao arquivar {projectName}."
+				"description": "{affectedTasksCount} tarefas serão afetadas ao arquivar {projectName}.",
+				"successDescription": "{projectName} foi arquivado com sucesso",
+				"errorDescription": "Falha ao arquivar o projeto. Por favor, tente novamente."
 			},
 			"restoreModal": {
 				"title": "Restaurar projeto",

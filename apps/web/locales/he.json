@@ -400,6 +400,8 @@
 		"MEMBERS_COUNT": "מספר חברים",
 		"REVIEW": "בְּחִינָה",
 		"ARCHIVE": "ארכיון",
+		"ARCHIVE_SUCCESS": "הועבר לארכיון בהצלחה",
+		"ARCHIVE_ERROR": "נכשל בארכוב",
 		"ARCHIVE_AT": "ארכוב בתאריך",
 		"RESTORE": "שחזר",
 		"HIDE": "הסתר",
@@ -599,7 +601,9 @@
 			},
 			"archiveModal": {
 				"title": "לארכב את {projectName}?",
-				"description": "{affectedTasksCount} משימות יושפעו מארכוב {projectName}."
+				"description": "{affectedTasksCount} משימות יושפעו מארכוב {projectName}.",
+				"successDescription": "{projectName} הועבר לארכיון בהצלחה",
+				"errorDescription": "לא ניתן לארכב את הפרויקט. אנא נסה שוב."
 			},
 			"restoreModal": {
 				"title": "שחזור פרויקט",

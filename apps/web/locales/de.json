@@ -400,6 +400,8 @@
 		"MEMBERS_COUNT": "Mitgliederanzahl",
 		"REVIEW": "ÜBERPRÜFUNG",
 		"ARCHIVE": "Archiv",
+		"ARCHIVE_SUCCESS": "Erfolgreich archiviert",
+		"ARCHIVE_ERROR": "Archivierung fehlgeschlagen",
 		"ARCHIVE_AT": "Archivieren am",
 		"RESTORE": "Wiederherstellen",
 		"HIDE": "Verstecken",
@@ -640,7 +642,9 @@
 			},
 			"archiveModal": {
 				"title": "{projectName} archivieren?",
-				"description": "{affectedTasksCount} Aufgaben werden durch das Archivieren von {projectName} betroffen sein."
+				"description": "{affectedTasksCount} Aufgaben werden durch das Archivieren von {projectName} betroffen sein.",
+				"successDescription": "{projectName} wurde erfolgreich archiviert",
+				"errorDescription": "Das Projekt konnte nicht archiviert werden. Bitte versuchen Sie es erneut."
 			},
 			"restoreModal": {
 				"title": "Projekt wiederherstellen",

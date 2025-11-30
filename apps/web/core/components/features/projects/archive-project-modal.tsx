@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 import { clsxm } from '@/core/lib/utils';
 import moment from 'moment';
+import { toast } from 'sonner';
 import { EverCard } from '../../common/ever-card';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { TOrganizationProject } from '@/core/types/schemas';
@@ -71,24 +72,40 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 				}
 
 				setOrganizationProjects(
-					organizationProjects.map((project) => {
-						if (project.id === projectId) {
+					organizationProjects.map((p) => {
+						if (p.id === projectId) {
 							return res.data as TOrganizationProject;
 						}
-						return project as TOrganizationProject;
+						return p as TOrganizationProject;
 					})
 				);
+
+				// Show success toast
+				toast.success(t('common.ARCHIVE_SUCCESS'), {
+					description: t('pages.projects.archiveModal.successDescription', {
+						projectName: project?.name
+					}),
+					duration: 4000
+				});
 			}
 		} catch (err) {
-			console.error('Failed to delete project', err);
+			console.error('Failed to archive project', err);
+
+			// Show error toast
+			toast.error(t('common.ARCHIVE_ERROR'), {
+				description: t('pages.projects.archiveModal.errorDescription'),
+				duration: 5000
+			});
 		}
 	}, [
 		affectedTasks.length,
 		closeModal,
 		editOrganizationProject,
 		organizationProjects,
+		project?.name,
 		projectId,
 		setOrganizationProjects,
+		t,
 		unlinkAffectedTasks
 	]);
 

@@ -274,6 +274,9 @@ function PageComponent() {
 
 		// First, filter out teams/workspaces that are incorrectly returned as projects
 		const actualProjects = organizationProjects.filter((item) => {
+			// Skip undefined/null items
+			if (!item) return false;
+
 			// A real project should have at least one of these characteristics:
 			const hasProjectStatus =
 				item.status === 'open' || item.status === 'closed' || item.status === 'in-progress';

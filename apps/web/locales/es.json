@@ -400,6 +400,8 @@
 		"MEMBERS_COUNT": "Conteo de miembros",
 		"REVIEW": "REVISIÓN",
 		"ARCHIVE": "Archivo",
+		"ARCHIVE_SUCCESS": "Archivado con éxito",
+		"ARCHIVE_ERROR": "Error al archivar",
 		"ARCHIVE_AT": "Archivar en",
 		"RESTORE": "Restaurar",
 		"HIDE": "Ocultar",
@@ -664,7 +666,9 @@
 			},
 			"archiveModal": {
 				"title": "¿Archivar {projectName}?",
-				"description": "{affectedTasksCount} tareas se verán afectadas al archivar {projectName}."
+				"description": "{affectedTasksCount} tareas se verán afectadas al archivar {projectName}.",
+				"successDescription": "{projectName} ha sido archivado con éxito",
+				"errorDescription": "No se pudo archivar el proyecto. Por favor, inténtelo de nuevo."
 			},
 			"restoreModal": {
 				"title": "Restaurar proyecto",

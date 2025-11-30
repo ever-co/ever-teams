@@ -400,6 +400,8 @@
 		"MEMBERS_COUNT": "Liczba członków",
 		"REVIEW": "PRZEGLĄD",
 		"ARCHIVE": "Archiwum",
+		"ARCHIVE_SUCCESS": "Pomyślnie zarchiwizowano",
+		"ARCHIVE_ERROR": "Nie udało się zarchiwizować",
 		"ARCHIVE_AT": "Archiwizuj o",
 		"RESTORE": "Przywróć",
 		"HIDE": "Ukryj",
@@ -640,7 +642,9 @@
 			},
 			"archiveModal": {
 				"title": "Archiwizować {projectName}?",
-				"description": "{affectedTasksCount} zadań zostanie dotkniętych przez archiwizację {projectName}."
+				"description": "{affectedTasksCount} zadań zostanie dotkniętych przez archiwizację {projectName}.",
+				"successDescription": "{projectName} został pomyślnie zarchiwizowany",
+				"errorDescription": "Nie udało się zarchiwizować projektu. Spróbuj ponownie."
 			},
 			"restoreModal": {
 				"title": "Przywróć projekt",

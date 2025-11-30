@@ -417,7 +417,8 @@
 		"MEMBERS_COUNT": "Members count",
 		"REVIEW": "REVIEW",
 		"ARCHIVE": "Archive",
-
+		"ARCHIVE_SUCCESS": "Archived successfully",
+		"ARCHIVE_ERROR": "Failed to archive",
 		"ARCHIVE_AT": "Archive at",
 		"RESTORE": "Restore",
 		"HIDE": "Hide",
@@ -584,7 +585,9 @@
 			},
 			"archiveModal": {
 				"title": "Archive {projectName}?",
-				"description": "{affectedTasksCount} tasks will be affected by archiving {projectName}."
+				"description": "{affectedTasksCount} tasks will be affected by archiving {projectName}.",
+				"successDescription": "{projectName} has been archived successfully",
+				"errorDescription": "Failed to archive the project. Please try again."
 			},
 			"restoreModal": {
 				"title": "Restore project",

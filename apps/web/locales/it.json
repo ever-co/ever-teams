@@ -400,6 +400,8 @@
 		"MEMBERS_COUNT": "Conteggio dei membri",
 		"REVIEW": "REVISIONE",
 		"ARCHIVE": "Archivio",
+		"ARCHIVE_SUCCESS": "Archiviato con successo",
+		"ARCHIVE_ERROR": "Archiviazione fallita",
 		"ARCHIVE_AT": "Archiviare il",
 		"RESTORE": "Ripristina",
 		"HIDE": "Nascondere",
@@ -605,7 +607,9 @@
 			},
 			"archiveModal": {
 				"title": "Archivia {projectName}?",
-				"description": "{affectedTasksCount} attività saranno influenzate dall'archiviazione di {projectName}."
+				"description": "{affectedTasksCount} attività saranno influenzate dall'archiviazione di {projectName}.",
+				"successDescription": "{projectName} è stato archiviato con successo",
+				"errorDescription": "Impossibile archiviare il progetto. Riprova."
 			},
 			"restoreModal": {
 				"title": "Ripristina progetto",

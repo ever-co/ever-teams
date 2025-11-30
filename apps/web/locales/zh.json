@@ -400,6 +400,8 @@
 		"MEMBERS_COUNT": "成员数",
 		"REVIEW": "审查",
 		"ARCHIVE": "存档",
+		"ARCHIVE_SUCCESS": "归档成功",
+		"ARCHIVE_ERROR": "归档失败",
 		"ARCHIVE_AT": "归档于",
 		"RESTORE": "恢复",
 		"HIDE": "隐藏",
@@ -596,7 +598,9 @@
 			},
 			"archiveModal": {
 				"title": "归档 {projectName}?",
-				"description": "归档 {projectName} 将影响 {affectedTasksCount} 个任务。"
+				"description": "归档 {projectName} 将影响 {affectedTasksCount} 个任务。",
+				"successDescription": "{projectName} 已成功归档",
+				"errorDescription": "归档项目失败。请重试。"
 			},
 			"restoreModal": {
 				"title": "恢复项目",

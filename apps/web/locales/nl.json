@@ -400,6 +400,8 @@
 		"MEMBERS_COUNT": "Aantal leden",
 		"REVIEW": "BEKEKEN",
 		"ARCHIVE": "Archief",
+		"ARCHIVE_SUCCESS": "Succesvol gearchiveerd",
+		"ARCHIVE_ERROR": "Archiveren mislukt",
 		"ARCHIVE_AT": "Archiveren op",
 		"RESTORE": "Herstellen",
 		"HIDE": "Verbergen",
@@ -637,7 +639,9 @@
 			},
 			"archiveModal": {
 				"title": "{projectName} archiveren?",
-				"description": "{affectedTasksCount} taken worden beïnvloed door het archiveren van {projectName}."
+				"description": "{affectedTasksCount} taken worden beïnvloed door het archiveren van {projectName}.",
+				"successDescription": "{projectName} is succesvol gearchiveerd",
+				"errorDescription": "Kan het project niet archiveren. Probeer het opnieuw."
 			},
 			"restoreModal": {
 				"title": "Project herstellen",

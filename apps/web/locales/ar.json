@@ -379,6 +379,8 @@
 		"MEMBERS_COUNT": "عدد الأعضاء",
 		"REVIEW": "مراجعة",
 		"ARCHIVE": "أرشيف",
+		"ARCHIVE_SUCCESS": "تم الأرشفة بنجاح",
+		"ARCHIVE_ERROR": "فشل في الأرشفة",
 		"ARCHIVE_AT": "أرشفة في",
 		"RESTORE": "استعادة",
 		"HIDE": "إخفاء",
@@ -599,7 +601,9 @@
 			},
 			"archiveModal": {
 				"title": "أرشفة {projectName}؟",
-				"description": "سيتم التأثير على {affectedTasksCount} مهام عند أرشفة {projectName}."
+				"description": "سيتم التأثير على {affectedTasksCount} مهام عند أرشفة {projectName}.",
+				"successDescription": "تم أرشفة {projectName} بنجاح",
+				"errorDescription": "فشل في أرشفة المشروع. يرجى المحاولة مرة أخرى."
 			},
 			"restoreModal": {
 				"title": "استعادة المشروع",

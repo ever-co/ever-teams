@@ -400,6 +400,8 @@
 		"MEMBERS_COUNT": "Количество участников",
 		"REVIEW": "ОБЗОР",
 		"ARCHIVE": "Архив",
+		"ARCHIVE_SUCCESS": "Успешно архивировано",
+		"ARCHIVE_ERROR": "Не удалось архивировать",
 		"ARCHIVE_AT": "Архивировать на",
 		"RESTORE": "Восстановить",
 		"HIDE": "Скрыть",
@@ -637,7 +639,9 @@
 			},
 			"archiveModal": {
 				"title": "Архивировать {projectName}?",
-				"description": "Архивация {projectName} затронет {affectedTasksCount} задач."
+				"description": "Архивация {projectName} затронет {affectedTasksCount} задач.",
+				"successDescription": "{projectName} успешно архивирован",
+				"errorDescription": "Не удалось архивировать проект. Пожалуйста, попробуйте ещё раз."
 			},
 			"restoreModal": {
 				"title": "Восстановить проект",

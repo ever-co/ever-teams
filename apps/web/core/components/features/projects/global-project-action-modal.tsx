@@ -7,6 +7,7 @@ import { DeleteProjectConfirmModal } from './delete-project-modal';
 import { EditProjectModal } from './edit-project-modal';
 import { ArchiveProjectModal } from './archive-project-modal';
 import { RestoreProjectModal } from './restore-project-modal';
+import { ViewProjectInfoModal } from './view-project-info-modal';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 
 /**
@@ -43,6 +44,9 @@ export function GlobalProjectActionModal() {
 			)}
 			{modalState.action === 'restore' && (
 				<RestoreProjectModal projectId={modalState.projectId} open={true} closeModal={closeModal} />
+			)}
+			{modalState.action === 'view-info' && (
+				<ViewProjectInfoModal projectId={modalState.projectId} open={true} closeModal={closeModal} />
 			)}
 		</Suspense>
 	);
