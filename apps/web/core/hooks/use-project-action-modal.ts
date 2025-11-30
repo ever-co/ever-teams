@@ -56,6 +56,13 @@ export function useProjectActionModal() {
 		[openModal]
 	);
 
+	const openViewInfoModal = useCallback(
+		(projectId: string) => {
+			openModal('view-info', projectId);
+		},
+		[openModal]
+	);
+
 	const closeModal = useCallback(() => {
 		setModalState({ isOpen: false });
 	}, [setModalState]);
@@ -65,6 +72,7 @@ export function useProjectActionModal() {
 		openArchiveModal,
 		openDeleteModal,
 		openRestoreModal,
+		openViewInfoModal,
 		closeModal
 	};
 }

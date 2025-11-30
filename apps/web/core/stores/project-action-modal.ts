@@ -3,7 +3,7 @@ import { atom } from 'jotai';
 /**
  * Project action types for the global modal
  */
-export type ProjectActionType = 'edit' | 'archive' | 'delete' | 'restore';
+export type ProjectActionType = 'edit' | 'archive' | 'delete' | 'restore' | 'view-info';
 
 /**
  * Discriminated union state for ProjectActionModal

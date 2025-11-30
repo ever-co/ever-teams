@@ -143,7 +143,7 @@ export const ProjectsTable = memo(
 								<div
 									style={{ backgroundColor: row.original?.project?.color ?? undefined }}
 									className={cn(
-										'flex overflow-hidden justify-center items-center w-10 h-10 rounded-xl border'
+										'flex overflow-hidden justify-center items-center size-9 rounded-full border object-cover shrink-0'
 									)}
 								>
 									{!row.original?.project?.imageUrl ? (
@@ -153,7 +153,7 @@ export const ProjectsTable = memo(
 											alt={row.original?.project?.name ?? ''}
 											height={40}
 											width={40}
-											className="w-full h-full"
+											className="flex-none rounded-full min-w-9 aspect-square shrink-0"
 											src={row.original?.project?.imageUrl}
 										/>
 									)}
