@@ -1,6 +1,6 @@
 import { Modal, Text } from '@/core/components';
 import { useMemo } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { organizationProjectsState } from '@/core/stores';
 import { Calendar, ExternalLink, Users, Banknote, Tag, Building2, Archive, CircleDot } from 'lucide-react';
@@ -22,6 +22,7 @@ interface IViewProjectInfoModalProps {
  */
 export function ViewProjectInfoModal(props: Readonly<IViewProjectInfoModalProps>) {
 	const t = useTranslations();
+	const locale = useLocale();
 	const { open, closeModal, projectId } = props;
 	const organizationProjects = useAtomValue(organizationProjectsState);
 
@@ -64,7 +65,7 @@ export function ViewProjectInfoModal(props: Readonly<IViewProjectInfoModalProps>
 			<ScrollArea className="min-h-96">
 				<div className="flex flex-col gap-6 py-4 h-[750px]">
 					{/* ===== HEADER ===== */}
-					<div className="flex gap-5 items-start pb-4 border-b dark:border-gray-700">
+					<div className="flex items-start gap-5 pb-4 border-b dark:border-gray-700">
 						{/* Project Image */}
 						<div
 							className={cn(
@@ -86,8 +87,8 @@ export function ViewProjectInfoModal(props: Readonly<IViewProjectInfoModalProps>
 						</div>
 
 						{/* Project Title & Status */}
-						<div className="flex flex-col flex-1 gap-2 min-w-0">
-							<div className="flex flex-col gap-3 items-start max-w-full">
+						<div className="flex flex-col flex-1 min-w-0 gap-2">
+							<div className="flex flex-col items-start max-w-full gap-3">
 								<Text.Heading
 									as="h2"
 									className="items-start max-w-full text-xl font-semibold truncate text-wrap"
@@ -98,20 +99,20 @@ export function ViewProjectInfoModal(props: Readonly<IViewProjectInfoModalProps>
 							</div>
 
 							{/* Quick Info Row */}
-							<div className="flex flex-wrap gap-4 items-center text-sm text-gray-500 dark:text-gray-400">
+							<div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
 								{project.code && (
 									<span className="font-mono bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded text-xs">
 										{project.code}
 									</span>
 								)}
 								{project.status && (
-									<span className="flex gap-1 items-center">
+									<span className="flex items-center gap-1">
 										<CircleDot size={12} />
 										{project.status}
 									</span>
 								)}
 								{project.membersCount !== undefined && project.membersCount > 0 && (
-									<span className="flex gap-1 items-center">
+									<span className="flex items-center gap-1">
 										<Users size={12} />
 										{project.membersCount} {t('common.MEMBERS').toLowerCase()}
 									</span>
@@ -124,7 +125,7 @@ export function ViewProjectInfoModal(props: Readonly<IViewProjectInfoModalProps>
 									href={project.projectUrl}
 									target="_blank"
 									rel="noopener noreferrer"
-									className="flex gap-1 items-center text-sm text-primary hover:underline w-fit"
+									className="flex items-center gap-1 text-sm text-primary hover:underline w-fit"
 								>
 									<ExternalLink size={14} />
 									{project.projectUrl.length > 50
@@ -162,7 +163,7 @@ export function ViewProjectInfoModal(props: Readonly<IViewProjectInfoModalProps>
 					{/* ===== DESCRIPTION ===== */}
 					{project.description && (
 						<Section title={t('common.DESCRIPTION')}>
-							<div className="p-3 text-sm text-gray-700 whitespace-pre-wrap bg-gray-50 rounded-lg dark:bg-dark--theme dark:text-gray-300">
+							<div className="p-3 text-sm text-gray-700 whitespace-pre-wrap rounded-lg bg-gray-50 dark:bg-dark--theme dark:text-gray-300">
 								{project.description}
 							</div>
 						</Section>
@@ -186,7 +187,7 @@ export function ViewProjectInfoModal(props: Readonly<IViewProjectInfoModalProps>
 										<VerticalSeparator />
 										<InfoItem
 											label={t('pages.projects.financialSettingsForm.formFields.budgetAmount')}
-											value={new Intl.NumberFormat('en-US', {
+											value={new Intl.NumberFormat(locale, {
 												style: project.currency ? 'currency' : 'decimal',
 												currency: project.currency || undefined
 											}).format(project.budget)}
@@ -215,14 +216,14 @@ export function ViewProjectInfoModal(props: Readonly<IViewProjectInfoModalProps>
 						</Section>
 					)}
 
-					<div className="flex flex-wrap gap-6 items-start w-full">
+					<div className="flex flex-wrap items-start w-full gap-6">
 						{/* ===== TAGS & COLOR ===== */}
 						{(tags.length > 0 || project.color) && (
 							<Section
 								title={t('pages.projects.addOrEditModal.steps.categorization')}
 								icon={<Tag size={16} />}
 							>
-								<div className="flex flex-col gap-8 items-start">
+								<div className="flex flex-col items-start gap-8">
 									{tags.length > 0 && (
 										<div className="flex flex-col gap-2">
 											<span className="text-xs font-medium text-gray-500">
@@ -249,9 +250,9 @@ export function ViewProjectInfoModal(props: Readonly<IViewProjectInfoModalProps>
 											<span className="text-xs font-medium text-gray-500">
 												{t('pages.projects.categorizationForm.formFields.colorCode')}
 											</span>
-											<div className="flex gap-2 items-center">
+											<div className="flex items-center gap-2">
 												<span
-													className="w-6 h-6 rounded-md border shadow-sm"
+													className="w-6 h-6 border rounded-md shadow-sm"
 													style={{ backgroundColor: project.color }}
 												/>
 												<span className="font-mono text-sm">{project.color}</span>
@@ -280,7 +281,7 @@ export function ViewProjectInfoModal(props: Readonly<IViewProjectInfoModalProps>
 													className="rounded-full"
 												/>
 											) : (
-												<div className="flex justify-center items-center w-5 h-5 text-xs font-medium rounded-full bg-primary/20 text-primary">
+												<div className="flex items-center justify-center w-5 h-5 text-xs font-medium rounded-full bg-primary/20 text-primary">
 													{team.name?.charAt(0)}
 												</div>
 											)}
@@ -349,7 +350,7 @@ function Section({
 }>) {
 	return (
 		<div className="flex flex-col gap-3">
-			<h3 className="flex gap-2 items-center text-sm font-semibold text-gray-700 dark:text-gray-300">
+			<h3 className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
 				{icon}
 				{title}
 			</h3>
@@ -417,7 +418,7 @@ function MemberCard({
 	const email = member.employee?.user?.email;
 
 	return (
-		<div className="flex gap-3 items-center p-2 bg-gray-50 rounded-lg border dark:bg-gray-800/50 dark:border-gray-700">
+		<div className="flex items-center gap-3 p-2 border rounded-lg bg-gray-50 dark:bg-gray-800/50 dark:border-gray-700">
 			<div
 				className={cn(
 					'w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-sm font-medium shrink-0',

@@ -5,7 +5,7 @@ import { Thumbnail } from './basic-information-form';
 import moment from 'moment';
 
 import { IStepElementProps } from '../container';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useOrganizationProjects } from '@/core/hooks/organizations';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { ERoleName } from '@/core/types/generics/enums/role';
@@ -292,9 +292,10 @@ interface FinancialSettingsProps {
 	budgetCurrency?: string;
 	billingType?: EProjectBilling;
 }
-function FinancialSettings(props: FinancialSettingsProps) {
+function FinancialSettings(props: Readonly<FinancialSettingsProps>) {
 	const { budgetType, budgetAmount, budgetCurrency, billingType } = props;
 	const t = useTranslations();
+	const locale = useLocale();
 
 	const data = [
 		{
@@ -304,7 +305,7 @@ function FinancialSettings(props: FinancialSettingsProps) {
 		{
 			key: t('pages.projects.financialSettingsForm.formFields.budgetAmount'),
 			value: budgetAmount
-				? new Intl.NumberFormat('us-US', {
+				? new Intl.NumberFormat(locale, {
 						useGrouping: true
 					}).format(Number(budgetAmount))
 				: '-'
