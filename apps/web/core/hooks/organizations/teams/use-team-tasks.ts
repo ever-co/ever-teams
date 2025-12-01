@@ -6,7 +6,7 @@ import {
 	setActiveTaskIdCookie,
 	setActiveUserTaskCookie
 } from '@/core/lib/helpers/index';
-import { getErrorMessage } from '@/core/lib/helpers/error-message';
+import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
 import { taskService } from '@/core/services/client/api';
 import {
 	activeTeamState,
@@ -592,7 +592,7 @@ export function useTeamTasks() {
 							await new Promise((resolve) => setTimeout(resolve, 600));
 						}
 					} catch (error) {
-						console.error('[setActiveTask] API call failed:', error);
+						logErrorInDev('[setActiveTask] API call failed:', error);
 						toast.error('Failed to update active task', {
 							description: getErrorMessage(error)
 						});
@@ -627,7 +627,7 @@ export function useTeamTasks() {
 			try {
 				await deleteEmployeeFromTasksMutation.mutateAsync(employeeId);
 			} catch (error) {
-				console.error('Error deleting employee from tasks:', error);
+				logErrorInDev('Error deleting employee from tasks:', error);
 				throw error;
 			}
 		},
