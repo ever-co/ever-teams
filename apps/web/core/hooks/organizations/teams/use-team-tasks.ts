@@ -589,6 +589,8 @@ export function useTeamTasks() {
 								'[setActiveTask] Failed to sync after retries - members may not be loaded',
 								null
 							);
+							// Clear expected ID to allow server sync to resume
+							expectedActiveTaskIdRef.current = null;
 						}
 
 						if (success) {
