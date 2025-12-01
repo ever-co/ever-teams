@@ -61,14 +61,29 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 	// When member.activeTaskId changes, we WANT UserTeamCard to re-render
 	// to update TaskInfo with the new active task
 	const memberTask = useMemo(() => {
-		let cTask;
-		let find;
-
 		if (!member) {
 			return null;
 		}
 
-		// Use member.activeTaskId from API for ALL members (including authenticated user)
+		// For authenticated user, prioritize activeTeamTask (Jotai atom)
+		// because it's updated instantly when changing tasks,
+		// while member.activeTaskId waits for API response/React Query invalidation
+		if (isAuthUser && activeTeamTask) {
+			const responseTask = cloneDeep(activeTeamTask);
+			const taskStatistics = allTaskStatistics.find((statistics) => statistics.id === responseTask.id);
+			responseTask.totalWorkedTime = taskStatistics?.duration || 0;
+
+			// Sync with cookies for backward compatibility
+			setActiveUserTaskCookieCb(responseTask);
+
+			return responseTask;
+		}
+
+		// For other members (or auth user with no activeTeamTask), use existing logic
+		let cTask;
+		let find;
+
+		// Use member.activeTaskId from API for ALL members
 		// This ensures each team has its own active task, not a global cookie
 		let taskId: string | null = null;
 
@@ -93,7 +108,7 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 			find = cTask?.members?.some((m) => m.id === member.employee?.id);
 		}
 
-		// For authenticated user, sync with cookies for backward compatibility
+		// For authenticated user (with no activeTeamTask), sync with cookies for backward compatibility
 		if (isAuthUser && cTask) {
 			setActiveUserTaskCookieCb(cTask);
 		}
@@ -107,7 +122,8 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 
 		return responseTask;
 	}, [
-		// isAuth derived from member.employee?.userId === authUser?.id
+		isAuthUser,
+		activeTeamTask,
 		member,
 		member?.activeTaskId, // Force recalculation when activeTaskId changes
 		member?.lastWorkedTask?.id, // Force recalculation when lastWorkedTask changes
