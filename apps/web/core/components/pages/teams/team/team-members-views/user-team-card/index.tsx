@@ -48,7 +48,10 @@ import { TActivityFilter } from '@/core/types/schemas';
 import { cn } from '@/core/lib/helpers';
 import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { UserTeamActivitySkeleton, UserProfileTaskSkeleton } from '@/core/components/common/skeleton/profile-component-skeletons';
+import {
+	UserTeamActivitySkeleton,
+	UserProfileTaskSkeleton
+} from '@/core/components/common/skeleton/profile-component-skeletons';
 import { uniqueId } from 'lodash';
 
 type IUserTeamCard = {
@@ -102,11 +105,16 @@ export function UserTeamCard({
 	onDragOver = () => null
 }: IUserTeamCard) {
 	const t = useTranslations();
+
+	const { data: user } = useUserQuery();
+
 	// Memoize expensive hook calls
 	const profile = useUserProfilePage();
 	const [userDetailAccordion, setUserDetailAccordion] = useAtom(userAccordion);
 	const hook = useTaskFilter(profile);
 	const memberInfo = useTeamMemberCard(member);
+	// NOTE: memberInfo.memberTask already prioritizes activeTeamTask (Jotai atom) for auth user
+	// This provides instant UI updates when changing tasks (see useTeamMemberCard hook)
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(memberInfo.memberUser);
 	const fullWidth = useAtomValue(fullWidthState);
@@ -119,7 +127,6 @@ export function UserTeamCard({
 	const { addSeconds } = useTaskStatistics(seconds);
 	const [showActivity, setShowActivity] = React.useState<boolean>(false);
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
-	const { data: user } = useUserQuery();
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id);
 
@@ -163,7 +170,7 @@ export function UserTeamCard({
 		);
 
 		totalWork = (
-			<div className={clsxm('flex flex-col gap-1 items-center mr-4 font-normal')}>
+			<div className={clsxm('flex flex-col items-center gap-1 mr-4 font-normal')}>
 				<span className="text-xs text-gray-500">{t('common.TOTAL_TIME')}:</span>
 				<Text className="text-xs">
 					{h}h : {m}m
@@ -281,18 +288,18 @@ export function UserTeamCard({
 					<VerticalSeparator />
 
 					{/* Task information */}
-					<div className="flex justify-between items-start flex-1 md:min-w-[25%] xl:min-w-[30%] !max-w-[250px]">
+					<div className="flex items-start justify-between flex-1 md:min-w-[25%] xl:min-w-[30%] !max-w-[250px]">
 						<TaskInfo
 							edition={taskEdition}
 							memberInfo={memberInfo}
-							className="overflow-y-hidden flex-1 px-2 lg:px-4"
+							className="flex-1 px-2 overflow-y-hidden lg:px-4"
 							publicTeam={publicTeam}
 							tab="default"
 						/>
 
 						{canSeeActivity ? (
 							<p
-								className="flex relative -left-1 flex-none justify-center items-center w-8 h-8 text-center rounded-sm border cursor-pointer dark:border-gray-800 shrink-0"
+								className="relative flex items-center justify-center flex-none w-8 h-8 text-center border rounded-sm cursor-pointer -left-1 dark:border-gray-800 shrink-0"
 								onClick={() => {
 									showActivityFilter('TICKET', memberInfo.member ?? null);
 									setUserDetailAccordion('');
@@ -331,12 +338,12 @@ export function UserTeamCard({
 					<VerticalSeparator />
 
 					{/* TodayWorkedTime */}
-					<div className="flex justify-center items-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 max-w-[13rem]">
+					<div className="flex items-center justify-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 max-w-[13rem]">
 						<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} className="" memberInfo={memberInfo} />
 						{canSeeActivity ? (
 							<p
 								onClick={() => showActivityFilter('DATE', memberInfo.member ?? null)}
-								className="flex justify-center items-center w-8 h-8 text-center rounded-sm border cursor-pointer dark:border-gray-800"
+								className="flex items-center justify-center w-8 h-8 text-center border rounded-sm cursor-pointer dark:border-gray-800"
 							>
 								{!showActivity ? (
 									<ExpandIcon height={24} width={24} />
@@ -359,11 +366,11 @@ export function UserTeamCard({
 						// Show content once loaded
 						<div className="overflow-y-auto h-96">
 							<Container fullWidth={fullWidth} className="px-3 py-5 xl:px-0">
-								<div className={clsxm('flex gap-4 justify-start items-center mt-3')}>
+								<div className={clsxm('flex items-center justify-start gap-4 mt-3')}>
 									{Object.keys(activityScreens).map((filter, i) => (
 										<div
 											key={uniqueId(`${i + 1}`)}
-											className="flex gap-4 justify-start items-center cursor-pointer"
+											className="flex items-center justify-start gap-4 cursor-pointer"
 										>
 											{i !== 0 && <VerticalSeparator />}
 											<div
@@ -383,7 +390,7 @@ export function UserTeamCard({
 						</div>
 					)
 				) : isAccordionExpanded ? (
-					<div className="flex justify-center items-center w-full h-20">
+					<div className="flex items-center justify-center w-full h-20">
 						<Loader className="animate-spin" />
 					</div>
 				) : null}
@@ -401,12 +408,12 @@ export function UserTeamCard({
 					className
 				)}
 			>
-				<div className="flex justify-between items-center mb-4">
+				<div className="flex items-center justify-between mb-4">
 					<UserInfo memberInfo={memberInfo} publicTeam={publicTeam} className="w-9/12" />
 					{totalWork}
 				</div>
 
-				<div className="flex flex-wrap justify-between items-start pb-4 border-b">
+				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
 					<TaskInfo
 						edition={taskEdition}
 						memberInfo={memberInfo}
@@ -416,8 +423,8 @@ export function UserTeamCard({
 					/>
 				</div>
 
-				<div className="flex justify-between mt-4 mb-4 space-x-5">
-					<div className="flex space-x-4">
+				<div className="flex items-center justify-between mt-4 mb-4 space-x-5">
+					<div className="flex items-center space-x-4">
 						<TaskTimes
 							activeAuthTask={true}
 							memberInfo={memberInfo}
