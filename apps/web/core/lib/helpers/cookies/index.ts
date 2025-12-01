@@ -277,11 +277,6 @@ export function getActiveTaskIdCookie(ctx?: NextCtx) {
 }
 
 export function setActiveTaskIdCookie(taskId: string, ctx?: NextCtx) {
-	console.log(
-		'[Cookie] setActiveTaskIdCookie called with:',
-		taskId,
-		new Error().stack?.split('\n').slice(1, 4).join('\n')
-	);
 	return setCookie(ACTIVE_TASK_COOKIE_NAME, taskId, ctx);
 }
 
@@ -302,11 +297,6 @@ export function setNoTeamPopupShowCookie(show: boolean, ctx?: NextCtx) {
 }
 
 export function setActiveUserTaskCookie(data: { taskId: string; userId: string }, ctx?: NextCtx) {
-	console.log(
-		'[Cookie] setActiveUserTaskCookie called with:',
-		data,
-		new Error().stack?.split('\n').slice(1, 4).join('\n')
-	);
 	return setCookie(ACTIVE_USER_TASK_COOKIE_NAME, JSON.stringify(data), ctx);
 }
 
