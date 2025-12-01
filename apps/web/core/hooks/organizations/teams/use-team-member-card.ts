@@ -1,5 +1,4 @@
 'use client';
-import { setActiveTaskIdCookie, setActiveUserTaskCookie } from '@/core/lib/helpers/index';
 import { activeTeamState, activeTeamTaskState, allTaskStatisticsState } from '@/core/stores';
 import { getPublicState } from '@/core/stores/common/public';
 import { useCallback, useMemo, useState } from 'react';
@@ -44,19 +43,6 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 	const isAuthUser = member?.employee?.userId === authUser?.id;
 	const { isTeamManager, isTeamCreator } = useIsMemberManager(memberUser);
 
-	const setActiveUserTaskCookieCb = useCallback(
-		(task: TTask | null) => {
-			if (task?.id && authUser?.id) {
-				setActiveUserTaskCookie({
-					taskId: task.id,
-					userId: authUser.id
-				});
-				setActiveTaskIdCookie(task.id);
-			}
-		},
-		[authUser]
-	);
-
 	// NOTE_FIX: Use direct useMemo value instead of ref to trigger re-renders
 	// When member.activeTaskId changes, we WANT UserTeamCard to re-render
 	// to update TaskInfo with the new active task
@@ -73,8 +59,9 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 			const taskStatistics = allTaskStatistics.find((statistics) => statistics.id === responseTask.id);
 			responseTask.totalWorkedTime = taskStatistics?.duration || 0;
 
-			// Sync with cookies for backward compatibility
-			setActiveUserTaskCookieCb(responseTask);
+			// NOTE: DO NOT set cookies here! This is a useMemo (pure computation).
+			// Cookies are managed by setActiveTask in use-team-tasks.ts
+			// Setting cookies here causes race conditions on page reload.
 
 			return responseTask;
 		}
@@ -108,10 +95,8 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 			find = cTask?.members?.some((m) => m.id === member.employee?.id);
 		}
 
-		// For authenticated user (with no activeTeamTask), sync with cookies for backward compatibility
-		if (isAuthUser && cTask) {
-			setActiveUserTaskCookieCb(cTask);
-		}
+		// NOTE: DO NOT set cookies here! This is a useMemo (pure computation).
+		// Setting cookies in useMemo is an anti-pattern and causes race conditions.
 
 		const responseTask = find ? cloneDeep(cTask) : null;
 
@@ -129,8 +114,7 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 		member?.lastWorkedTask?.id, // Force recalculation when lastWorkedTask changes
 		tasks,
 		publicTeam,
-		allTaskStatistics,
-		setActiveUserTaskCookieCb
+		allTaskStatistics
 	]);
 
 	/**

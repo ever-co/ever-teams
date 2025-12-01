@@ -545,8 +545,23 @@ export function useTeamTasks() {
 						(member: TOrganizationTeamEmployee) => member.employeeId === authUser.current?.employee?.id
 					);
 
+					// DEBUG LOGS - to investigate persistence issue
+					console.log('[setActiveTask] Debug info:', {
+						taskId: task.id,
+						taskTitle: task.title,
+						activeTeamId: activeTeam?.id,
+						activeTeamMembersCount: activeTeam?.members?.length,
+						authUserId: authUser.current?.id,
+						authEmployeeId: authUser.current?.employee?.id,
+						currentEmployeeDetails: currentEmployeeDetails
+							? { id: currentEmployeeDetails.id, employeeId: currentEmployeeDetails.employeeId }
+							: null,
+						cookieTaskId: getActiveTaskIdCookie()
+					});
+
 					if (currentEmployeeDetails && currentEmployeeDetails.id) {
 						try {
+							console.log('[setActiveTask] Calling API to update active task...');
 							// Await the active task update to prevent race conditions
 							// Use currentEmployeeDetails.id (OrganizationTeamEmployee ID), not employeeId
 							await updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
@@ -554,6 +569,13 @@ export function useTeamTasks() {
 								activeTaskId: task.id,
 								organizationTeamId: activeTeam?.id,
 								tenantId: activeTeam?.tenantId ?? ''
+							});
+
+							console.log('[setActiveTask] API call successful!');
+
+							// Show success toast notification
+							toast.success('Active task updated', {
+								description: `"${task.title}" is now your active task`
 							});
 
 							// Keep the flag true for a short delay to allow React Query to refetch and stabilize
@@ -564,6 +586,7 @@ export function useTeamTasks() {
 							// because updateActiveTaskMutation calls cancelQueries in onMutate.
 							await new Promise((resolve) => setTimeout(resolve, 1000));
 						} catch (error) {
+							console.error('[setActiveTask] API call failed:', error);
 							toast.error('Failed to update active task', {
 								description: getErrorMessage(error)
 							});
@@ -571,6 +594,12 @@ export function useTeamTasks() {
 							setActiveTeamTask(previousTask);
 							setActiveUserTaskCookieCb(previousTask);
 						}
+					} else {
+						console.warn('[setActiveTask] Cannot call API - missing currentEmployeeDetails:', {
+							activeTeam: !!activeTeam,
+							members: activeTeam?.members?.length,
+							authEmployeeId: authUser.current?.employee?.id
+						});
 					}
 				}
 			} finally {
@@ -614,11 +643,19 @@ export function useTeamTasks() {
 			// Skip synchronization if we're currently updating the active task
 			// This prevents race conditions where server data overwrites local selection
 			if (isUpdatingActiveTask) {
+				console.log('[Effect 1 - memberActiveTaskId sync] Skipped - isUpdatingActiveTask is true');
 				return;
 			}
 
+			console.log('[Effect 1 - memberActiveTaskId sync] Running:', {
+				memberActiveTaskId,
+				tasksCount: tasks.length,
+				activeTeamId: activeTeam?.id
+			});
+
 			const memberActiveTask = tasks.find((item) => item.id === memberActiveTaskId);
 			if (memberActiveTask) {
+				console.log('[Effect 1] Setting activeTeamTask from memberActiveTaskId:', memberActiveTask.title);
 				setActiveTeamTask(memberActiveTask);
 			}
 		},
@@ -629,6 +666,7 @@ export function useTeamTasks() {
 	// Reload tasks after active team changed
 	useConditionalUpdateEffect(
 		() => {
+			console.log('[Effect 2 - Reload tasks] Running:', { activeTeamId: activeTeam?.id, firstLoad });
 			if (activeTeam?.id && firstLoad) {
 				loadTeamTasksData();
 			}
@@ -640,6 +678,8 @@ export function useTeamTasks() {
 	// Get the active task from cookie and put on global store
 	useConditionalUpdateEffect(
 		() => {
+			console.log('[Effect 3 - Cookie restore] Running:', { firstLoad, tasksCount: tasks.length });
+
 			if (firstLoad) {
 				const active_user_task = getActiveUserTaskCookie();
 				const active_taskid =
@@ -647,7 +687,15 @@ export function useTeamTasks() {
 						? active_user_task?.taskId
 						: getActiveTaskIdCookie() || '';
 
-				setActiveTeamTask(tasks.find((ts) => ts.id === active_taskid) || null);
+				const foundTask = tasks.find((ts) => ts.id === active_taskid);
+				console.log('[Effect 3 - Cookie restore] Cookie data:', {
+					active_user_task,
+					active_taskid,
+					authUserId: authUser.current?.id,
+					foundTask: foundTask ? { id: foundTask.id, title: foundTask.title } : null
+				});
+
+				setActiveTeamTask(foundTask || null);
 			}
 		},
 		[tasks, firstLoad, authUser],
