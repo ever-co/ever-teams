@@ -561,8 +561,10 @@ export function useTeamTasks() {
 					try {
 						let success = false;
 
+						// Use activeTeamRef.current to get fresh values on each retry attempt.
+						// Using activeTeam directly would capture the stale closure value.
 						for (let attempt = 1; attempt <= MAX_RETRIES && !success; attempt++) {
-							const currentEmployeeDetails = activeTeam?.members?.find(
+							const currentEmployeeDetails = activeTeamRef.current?.members?.find(
 								(member: TOrganizationTeamEmployee) =>
 									member.employeeId === authUser.current?.employee?.id
 							);
@@ -571,13 +573,22 @@ export function useTeamTasks() {
 								await updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
 									organizationId: task.organizationId,
 									activeTaskId: task.id,
-									organizationTeamId: activeTeam?.id,
-									tenantId: activeTeam?.tenantId ?? ''
+									organizationTeamId: activeTeamRef.current?.id,
+									tenantId: activeTeamRef.current?.tenantId ?? ''
 								});
 								success = true;
 							} else if (attempt < MAX_RETRIES) {
 								await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
 							}
+						}
+
+						if (!success) {
+							// All retries exhausted - members may not be loaded yet.
+							// Local state (cookies + Jotai) is already persisted, only server sync failed.
+							logErrorInDev(
+								'[setActiveTask] Failed to sync after retries - members may not be loaded',
+								null
+							);
 						}
 
 						if (success) {
@@ -590,6 +601,8 @@ export function useTeamTasks() {
 							// this delay is just an extra safety buffer for edge cases.
 							// NOTE: Do NOT invalidate queries here - updateActiveTaskMutation already handles it.
 							await new Promise((resolve) => setTimeout(resolve, 600));
+							// Clear expectation on success - server will confirm via sync effect
+							expectedActiveTaskIdRef.current = null;
 						}
 					} catch (error) {
 						logErrorInDev('[setActiveTask] API call failed:', error);
