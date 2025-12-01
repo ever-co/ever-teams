@@ -47,6 +47,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { GlobalAllPlansModal } from '../daily-plan';
 import { GlobalAssignTaskModal } from '../features/tasks/global-assign-task-modal';
+import { GlobalProjectActionModal } from '../features/projects/global-project-action-modal';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { data: user } = useUserQuery();
@@ -374,6 +375,10 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			{/* Global AssignTaskModal - rendered once for the entire app */}
 			{/* This fixes the issue where the modal was closing immediately when opened from a Popover */}
 			<GlobalAssignTaskModal />
+
+			{/* Global ProjectActionModal - rendered once for the entire app */}
+			{/* This fixes the "Maximum update depth exceeded" error on /projects page */}
+			<GlobalProjectActionModal />
 		</>
 	);
 }

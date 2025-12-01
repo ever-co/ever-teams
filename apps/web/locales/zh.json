@@ -88,6 +88,8 @@
 		"YES": "是",
 		"BASIC": "基本",
 		"DELETE": "删除",
+		"DELETE_SUCCESS": "删除成功",
+		"DELETE_ERROR": "删除失败",
 		"MEET": "会议",
 		"BOARD": "看板",
 		"SECURITY_CODE": "安全码",
@@ -204,7 +206,11 @@
 		"USER_AVATAR": "用户头像",
 		"CONTACT": "联系",
 		"ENABLED": "使能夠",
-		"DISABLED": "停用",
+		"DISABLED": "已禁用",
+		"UNKNOWN": "未知",
+		"RATE": "费率",
+		"FLAT_FEE": "固定费用",
+		"MILESTONES": "里程碑",
 		"REGISTER": "注册",
 		"THEME": "主题",
 		"TIME_ZONE": "时区",
@@ -400,6 +406,8 @@
 		"MEMBERS_COUNT": "成员数",
 		"REVIEW": "审查",
 		"ARCHIVE": "存档",
+		"ARCHIVE_SUCCESS": "归档成功",
+		"ARCHIVE_ERROR": "归档失败",
 		"ARCHIVE_AT": "归档于",
 		"RESTORE": "恢复",
 		"HIDE": "隐藏",
@@ -592,11 +600,15 @@
 			},
 			"deleteModal": {
 				"title": "删除所选？",
-				"description": "您即将永久删除此项目。单击 '删除' 以确认操作"
+				"description": "您即将永久删除此项目。单击 '删除' 以确认操作",
+				"successDescription": "项目已成功删除",
+				"errorDescription": "删除项目失败。请重试。"
 			},
 			"archiveModal": {
 				"title": "归档 {projectName}?",
-				"description": "归档 {projectName} 将影响 {affectedTasksCount} 个任务。"
+				"description": "归档 {projectName} 将影响 {affectedTasksCount} 个任务。",
+				"successDescription": "{projectName} 已成功归档",
+				"errorDescription": "归档项目失败。请重试。"
 			},
 			"restoreModal": {
 				"title": "恢复项目",

@@ -92,6 +92,8 @@
 		"YES": "Ja",
 		"BASIC": "Basis",
 		"DELETE": "Löschen",
+		"DELETE_SUCCESS": "Erfolgreich gelöscht",
+		"DELETE_ERROR": "Löschen fehlgeschlagen",
 		"MEET": "Treffen",
 		"BOARD": "Board",
 		"SECURITY_CODE": "Sicherheitscode",
@@ -203,7 +205,11 @@
 		"USER_AVATAR": "Benutzeravatar",
 		"CONTACT": "Kontakt",
 		"ENABLED": "aktivieren",
-		"DISABLED": "deaktivieren",
+		"DISABLED": "Deaktiviert",
+		"UNKNOWN": "Unbekannt",
+		"RATE": "Stundensatz",
+		"FLAT_FEE": "Pauschalgebühr",
+		"MILESTONES": "Meilensteine",
 		"THEME": "Thema",
 		"TIME_ZONE": "Zeitzone",
 		"EDIT": "Bearbeiten",
@@ -400,6 +406,8 @@
 		"MEMBERS_COUNT": "Mitgliederanzahl",
 		"REVIEW": "ÜBERPRÜFUNG",
 		"ARCHIVE": "Archiv",
+		"ARCHIVE_SUCCESS": "Erfolgreich archiviert",
+		"ARCHIVE_ERROR": "Archivierung fehlgeschlagen",
 		"ARCHIVE_AT": "Archivieren am",
 		"RESTORE": "Wiederherstellen",
 		"HIDE": "Verstecken",
@@ -636,11 +644,15 @@
 			},
 			"deleteModal": {
 				"title": "Ausgewähltes löschen?",
-				"description": "Sie sind dabei, dieses Projekt dauerhaft zu löschen. Klicken Sie auf 'Löschen', um die Aktion zu bestätigen"
+				"description": "Sie sind dabei, dieses Projekt dauerhaft zu löschen. Klicken Sie auf 'Löschen', um die Aktion zu bestätigen",
+				"successDescription": "Das Projekt wurde erfolgreich gelöscht",
+				"errorDescription": "Das Projekt konnte nicht gelöscht werden. Bitte versuchen Sie es erneut."
 			},
 			"archiveModal": {
 				"title": "{projectName} archivieren?",
-				"description": "{affectedTasksCount} Aufgaben werden durch das Archivieren von {projectName} betroffen sein."
+				"description": "{affectedTasksCount} Aufgaben werden durch das Archivieren von {projectName} betroffen sein.",
+				"successDescription": "{projectName} wurde erfolgreich archiviert",
+				"errorDescription": "Das Projekt konnte nicht archiviert werden. Bitte versuchen Sie es erneut."
 			},
 			"restoreModal": {
 				"title": "Projekt wiederherstellen",

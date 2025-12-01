@@ -159,6 +159,31 @@ export const minimalOrganizationProjectSchema = z
 	})
 	.passthrough();
 
+/**
+ * Schema for validating empty DELETE responses (HTTP 204 No Content)
+ *
+ * When the API returns 204 No Content, the body is empty.
+ * Axios may return: undefined, empty string "", or null
+ *
+ */
+export const deleteProjectNoContentResponseSchema = z.union([z.undefined(), z.literal(''), z.null()]);
+
+/**
+ * Schema for DeleteResult (if API returns 200 with result)
+ *
+ * - raw: Raw SQL result (usually empty array)
+ * - affected: Number of affected rows (null if driver doesn't support it)
+ *
+ * @example { raw: [], affected: 1 } // 1 row deleted
+ */
+export const deleteProjectResultSchema = z.object({
+	raw: z.any(),
+	affected: z.number().nullable().optional()
+});
+
+
+// Type exports
+
 export type TOrganizationProjectSetting = z.infer<typeof organizationProjectSettingSchema>;
 export type TProjectRelation = z.infer<typeof projectRelationSchema>;
 export type TOrganizationProjectRepository = z.infer<typeof organizationProjectRepositorySchema>;
@@ -169,3 +194,5 @@ export type TEditProjectRequest = z.infer<typeof editProjectRequestSchema>;
 export type TGetOrganizationProjectsRequest = z.infer<typeof getOrganizationProjectsRequestSchema>;
 export type TGetOrganizationProjectRequest = z.infer<typeof getOrganizationProjectRequestSchema>;
 export type TMinimalOrganizationProject = z.infer<typeof minimalOrganizationProjectSchema>;
+export type TDeleteProjectNoContentResponse = z.infer<typeof deleteProjectNoContentResponseSchema>;
+export type TDeleteProjectResult = z.infer<typeof deleteProjectResultSchema>;

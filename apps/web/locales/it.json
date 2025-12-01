@@ -92,6 +92,8 @@
 		"YES": "Sì",
 		"BASIC": "Base",
 		"DELETE": "Elimina",
+		"DELETE_SUCCESS": "Eliminato con successo",
+		"DELETE_ERROR": "Eliminazione fallita",
 		"MEET": "Incontra",
 		"BOARD": "Bacheca",
 		"SECURITY_CODE": "Codice di sicurezza",
@@ -203,7 +205,11 @@
 		"USER_AVATAR": "Avatar Utente",
 		"CONTACT": "Contatto",
 		"ENABLED": "Abilitare",
-		"DISABLED": "disattivare",
+		"DISABLED": "Disattivato",
+		"UNKNOWN": "Sconosciuto",
+		"RATE": "Tariffa",
+		"FLAT_FEE": "Tariffa fissa",
+		"MILESTONES": "Traguardi",
 		"THEME": "Tema",
 		"TIME_ZONE": "Fuso Orario",
 		"EDIT": "Modifica",
@@ -400,6 +406,8 @@
 		"MEMBERS_COUNT": "Conteggio dei membri",
 		"REVIEW": "REVISIONE",
 		"ARCHIVE": "Archivio",
+		"ARCHIVE_SUCCESS": "Archiviato con successo",
+		"ARCHIVE_ERROR": "Archiviazione fallita",
 		"ARCHIVE_AT": "Archiviare il",
 		"RESTORE": "Ripristina",
 		"HIDE": "Nascondere",
@@ -601,11 +609,15 @@
 			},
 			"deleteModal": {
 				"title": "Eliminare selezionato?",
-				"description": "Stai per eliminare definitivamente questo progetto. Fai clic su 'Elimina' per confermare l'azione"
+				"description": "Stai per eliminare definitivamente questo progetto. Fai clic su 'Elimina' per confermare l'azione",
+				"successDescription": "Il progetto è stato eliminato con successo",
+				"errorDescription": "Impossibile eliminare il progetto. Riprova."
 			},
 			"archiveModal": {
 				"title": "Archivia {projectName}?",
-				"description": "{affectedTasksCount} attività saranno influenzate dall'archiviazione di {projectName}."
+				"description": "{affectedTasksCount} attività saranno influenzate dall'archiviazione di {projectName}.",
+				"successDescription": "{projectName} è stato archiviato con successo",
+				"errorDescription": "Impossibile archiviare il progetto. Riprova."
 			},
 			"restoreModal": {
 				"title": "Ripristina progetto",

@@ -93,6 +93,8 @@
 		"YES": "Sim",
 		"BASIC": "Básico",
 		"DELETE": "Excluir",
+		"DELETE_SUCCESS": "Excluído com sucesso",
+		"DELETE_ERROR": "Falha ao excluir",
 		"MEET": "Reunião",
 		"BOARD": "Quadro",
 		"SECURITY_CODE": "Código de Segurança",
@@ -204,7 +206,11 @@
 		"USER_AVATAR": "Avatar do Usuário",
 		"CONTACT": "Contato",
 		"ENABLED": "Habilitar",
-		"DISABLED": "Desativar",
+		"DISABLED": "Desativado",
+		"UNKNOWN": "Desconhecido",
+		"RATE": "Taxa",
+		"FLAT_FEE": "Taxa fixa",
+		"MILESTONES": "Marcos",
 		"THEME": "Tema",
 		"TIME_ZONE": "Fuso Horário",
 		"EDIT": "Editar",
@@ -401,6 +407,8 @@
 		"MEMBERS_COUNT": "Contagem de membros",
 		"REVIEW": "REVISÃO",
 		"ARCHIVE": "Arquivo",
+		"ARCHIVE_SUCCESS": "Arquivado com sucesso",
+		"ARCHIVE_ERROR": "Falha ao arquivar",
 		"ARCHIVE_AT": "Arquivar em",
 		"RESTORE": "Restaurar",
 		"HIDE": "Ocultar",
@@ -637,11 +645,15 @@
 			},
 			"deleteModal": {
 				"title": "Excluir selecionado?",
-				"description": "Você está prestes a excluir permanentemente este projeto. Clique em 'Excluir' para confirmar a ação"
+				"description": "Você está prestes a excluir permanentemente este projeto. Clique em 'Excluir' para confirmar a ação",
+				"successDescription": "O projeto foi excluído com sucesso",
+				"errorDescription": "Falha ao excluir o projeto. Por favor, tente novamente."
 			},
 			"archiveModal": {
 				"title": "Arquivar {projectName}?",
-				"description": "{affectedTasksCount} tarefas serão afetadas ao arquivar {projectName}."
+				"description": "{affectedTasksCount} tarefas serão afetadas ao arquivar {projectName}.",
+				"successDescription": "{projectName} foi arquivado com sucesso",
+				"errorDescription": "Falha ao arquivar o projeto. Por favor, tente novamente."
 			},
 			"restoreModal": {
 				"title": "Restaurar projeto",

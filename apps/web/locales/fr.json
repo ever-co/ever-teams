@@ -93,6 +93,8 @@
 		"YES": "Oui",
 		"BASIC": "Basique",
 		"DELETE": "Supprimer",
+		"DELETE_SUCCESS": "Supprimé avec succès",
+		"DELETE_ERROR": "Échec de la suppression",
 		"DELETE_ALL_DATA": "Supprimer toutes les données",
 		"DONT_HAVE_ACCOUNT": "Vous n'avez pas de compte ?",
 		"MEET": "Rencontrer",
@@ -205,7 +207,11 @@
 		"USER_AVATAR": "Avatar utilisateur",
 		"CONTACT": "Contact",
 		"ENABLED": "Activer",
-		"DISABLED": "Désactiver",
+		"DISABLED": "Désactivé",
+		"UNKNOWN": "Inconnu",
+		"RATE": "Taux",
+		"FLAT_FEE": "Forfait",
+		"MILESTONES": "Jalons",
 		"THEME": "Thème",
 		"TIME_ZONE": "Fuseau horaire",
 		"EDIT": "Modifier",
@@ -401,6 +407,8 @@
 		"MEMBERS_COUNT": "Nombre de membres",
 		"REVIEW": "EXAMEN",
 		"ARCHIVE": "Archive",
+		"ARCHIVE_SUCCESS": "Archivé avec succès",
+		"ARCHIVE_ERROR": "Échec de l'archivage",
 		"ARCHIVE_AT": "Archiver le",
 		"RESTORE": "Restaurer",
 		"HIDE": "Cacher",
@@ -637,11 +645,15 @@
 			},
 			"deleteModal": {
 				"title": "Supprimer la sélection?",
-				"description": "Vous êtes sur le point de supprimer définitivement ce projet. Cliquez sur 'Supprimer' pour confirmer l'action"
+				"description": "Vous êtes sur le point de supprimer définitivement ce projet. Cliquez sur 'Supprimer' pour confirmer l'action",
+				"successDescription": "Le projet a été supprimé avec succès",
+				"errorDescription": "Impossible de supprimer le projet. Veuillez réessayer."
 			},
 			"archiveModal": {
 				"title": "Archiver {projectName}?",
-				"description": "{affectedTasksCount} tâches seront affectées par l'archivage de {projectName}."
+				"description": "{affectedTasksCount} tâches seront affectées par l'archivage de {projectName}.",
+				"successDescription": "{projectName} a été archivé avec succès",
+				"errorDescription": "Impossible d'archiver le projet. Veuillez réessayer."
 			},
 			"restoreModal": {
 				"title": "Restaurer le projet",

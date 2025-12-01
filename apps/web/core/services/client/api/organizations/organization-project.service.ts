@@ -10,6 +10,7 @@ import {
 	createProjectRequestSchema,
 	editProjectRequestSchema,
 	organizationProjectSettingSchema,
+	deleteProjectNoContentResponseSchema,
 	ZodValidationError,
 	TOrganizationProject,
 	TCreateProjectRequest,
@@ -268,33 +269,29 @@ class OrganizationProjectService extends APIService {
 	};
 
 	/**
-	 * Delete organization project with validation
+	 * Delete organization project
 	 *
-	 * @param organizationProjectId - Project ID to delete
-	 * @returns Promise<TOrganizationProject> - Validated deleted project data
-	 * @throws ValidationError if response data doesn't match schema
+	 * The Ever-Gauzy API returns HTTP 204 No Content on successful deletion.
+	 * - No body is returned (empty response)
+	 * - tenantId is automatically extracted from JWT token by the backend
+	 * - Permissions required: ALL_ORG_EDIT or ORG_PROJECT_DELETE
+	 *
+	 * @param organizationProjectId - Project ID to delete (UUID)
+	 * @returns Promise<void> - Resolves if deletion successful
+	 * @throws Error - 404 if project not found, 403 if forbidden
+	 *
 	 */
-	deleteOrganizationProject = async (organizationProjectId: string): Promise<TOrganizationProject> => {
+	deleteOrganizationProject = async (organizationProjectId: string): Promise<void> => {
 		try {
-			const response = await this.delete<TOrganizationProject>(
-				`/organization-projects/${organizationProjectId}`,
-				{
-					data: {
-						tenantId: this.tenantId
-					}
-				}
-			);
+			const response = await this.delete(`/organization-projects/${organizationProjectId}`);
 
-			// Validate the response data
-			return validateApiResponse(
-				organizationProjectSchema,
-				response.data,
-				'deleteOrganizationProject API response'
-			);
+			// Validate that the response is empty (204 No Content)
+			// This ensures the API behaves as expected
+			deleteProjectNoContentResponseSchema.parse(response.data);
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(
-					'Organization project deletion validation failed:',
+					'Unexpected response format from DELETE organization project:',
 					{
 						message: error.message,
 						issues: error.issues

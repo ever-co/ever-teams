@@ -71,6 +71,8 @@
 		"YES": "نعم",
 		"BASIC": "أساسي",
 		"DELETE": "حذف",
+		"DELETE_SUCCESS": "تم الحذف بنجاح",
+		"DELETE_ERROR": "فشل في الحذف",
 		"MEET": "اجتماع",
 		"BOARD": "لوحة",
 		"SECURITY_CODE": "رمز الأمان",
@@ -184,7 +186,11 @@
 		"REGISTER": "سجل الآن!",
 		"CONTACT": "جهة الاتصال",
 		"ENABLED": "يُمكَِن",
-		"DISABLED": "إبطال",
+		"DISABLED": "معطل",
+		"UNKNOWN": "غير معروف",
+		"RATE": "معدل",
+		"FLAT_FEE": "رسوم ثابتة",
+		"MILESTONES": "المعالم",
 		"THEME": "الموضوع",
 		"TIME_ZONE": "المنطقة الزمنية",
 		"EDIT": "تعديل",
@@ -379,6 +385,8 @@
 		"MEMBERS_COUNT": "عدد الأعضاء",
 		"REVIEW": "مراجعة",
 		"ARCHIVE": "أرشيف",
+		"ARCHIVE_SUCCESS": "تم الأرشفة بنجاح",
+		"ARCHIVE_ERROR": "فشل في الأرشفة",
 		"ARCHIVE_AT": "أرشفة في",
 		"RESTORE": "استعادة",
 		"HIDE": "إخفاء",
@@ -595,11 +603,15 @@
 			},
 			"deleteModal": {
 				"title": "حذف المحدد؟",
-				"description": "أنت على وشك حذف هذا المشروع نهائيًا. اضغط على 'حذف' لتأكيد الإجراء"
+				"description": "أنت على وشك حذف هذا المشروع نهائيًا. اضغط على 'حذف' لتأكيد الإجراء",
+				"successDescription": "تم حذف المشروع بنجاح",
+				"errorDescription": "فشل في حذف المشروع. يرجى المحاولة مرة أخرى."
 			},
 			"archiveModal": {
 				"title": "أرشفة {projectName}؟",
-				"description": "سيتم التأثير على {affectedTasksCount} مهام عند أرشفة {projectName}."
+				"description": "سيتم التأثير على {affectedTasksCount} مهام عند أرشفة {projectName}.",
+				"successDescription": "تم أرشفة {projectName} بنجاح",
+				"errorDescription": "فشل في أرشفة المشروع. يرجى المحاولة مرة أخرى."
 			},
 			"restoreModal": {
 				"title": "استعادة المشروع",

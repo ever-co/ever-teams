@@ -92,6 +92,8 @@
 		"YES": "Ja",
 		"BASIC": "Basis",
 		"DELETE": "Verwijderen",
+		"DELETE_SUCCESS": "Succesvol verwijderd",
+		"DELETE_ERROR": "Verwijderen mislukt",
 		"MEET": "Ontmoeten",
 		"BOARD": "Bord",
 		"SECURITY_CODE": "Beveiligingscode",
@@ -204,7 +206,11 @@
 		"USER_AVATAR": "Gebruikersavatar",
 		"CONTACT": "Contact",
 		"ENABLED": "Inschakelen",
-		"DISABLED": "Uitzetten",
+		"DISABLED": "Uitgeschakeld",
+		"UNKNOWN": "Onbekend",
+		"RATE": "Tarief",
+		"FLAT_FEE": "Vast bedrag",
+		"MILESTONES": "Mijlpalen",
 		"THEME": "Thema",
 		"TIME_ZONE": "Tijdzone",
 		"EDIT": "Bewerken",
@@ -400,6 +406,8 @@
 		"MEMBERS_COUNT": "Aantal leden",
 		"REVIEW": "BEKEKEN",
 		"ARCHIVE": "Archief",
+		"ARCHIVE_SUCCESS": "Succesvol gearchiveerd",
+		"ARCHIVE_ERROR": "Archiveren mislukt",
 		"ARCHIVE_AT": "Archiveren op",
 		"RESTORE": "Herstellen",
 		"HIDE": "Verbergen",
@@ -633,11 +641,15 @@
 			},
 			"deleteModal": {
 				"title": "Geselecteerde verwijderen?",
-				"description": "U staat op het punt dit project permanent te verwijderen. Klik op 'Verwijderen' om de actie te bevestigen"
+				"description": "U staat op het punt dit project permanent te verwijderen. Klik op 'Verwijderen' om de actie te bevestigen",
+				"successDescription": "Het project is succesvol verwijderd",
+				"errorDescription": "Kan het project niet verwijderen. Probeer het opnieuw."
 			},
 			"archiveModal": {
 				"title": "{projectName} archiveren?",
-				"description": "{affectedTasksCount} taken worden beïnvloed door het archiveren van {projectName}."
+				"description": "{affectedTasksCount} taken worden beïnvloed door het archiveren van {projectName}.",
+				"successDescription": "{projectName} is succesvol gearchiveerd",
+				"errorDescription": "Kan het project niet archiveren. Probeer het opnieuw."
 			},
 			"restoreModal": {
 				"title": "Project herstellen",
