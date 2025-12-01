@@ -19,7 +19,7 @@ import {
 	taskStatusesState
 } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useOrganizationEmployeeTeams } from './use-organization-teams-employee';
 import { useAuthenticateUser } from '../../auth';
@@ -92,6 +92,11 @@ export function useTeamTasks() {
 
 	// Keep activeTeamTask in sync with a ref to avoid stale closures in setActiveTask
 	const activeTeamTaskRef = useSyncRef(activeTeamTask);
+
+	// Track expected task ID to prevent stale server data from overwriting local selection.
+	// When user selects a task, we store its ID here. The sync effect will skip updates
+	// until server data matches this expected ID (confirming our selection was persisted).
+	const expectedActiveTaskIdRef = useRef<string | null>(null);
 	const { firstLoad, firstLoadData: firstLoadTasksData } = useFirstLoad();
 
 	// React Query for team tasks
@@ -535,6 +540,11 @@ export function useTeamTasks() {
 				// Use ref to get current activeTeamTask to avoid stale closure
 				const previousTask = activeTeamTaskRef.current;
 				const previousTaskId = getActiveTaskIdCookie();
+
+				// Set expected task ID BEFORE updating state/cookies.
+				// This prevents the sync effect from overwriting with stale server data.
+				expectedActiveTaskIdRef.current = task?.id || null;
+
 				setActiveTaskIdCookie(task?.id || '');
 				setActiveTeamTask(task);
 				setActiveUserTaskCookieCb(task);
@@ -575,17 +585,19 @@ export function useTeamTasks() {
 								description: `"${task.title}" is now your active task`
 							});
 
-							// Delay to let React Query stabilize before clearing isUpdatingActiveTask.
-							// This prevents useConditionalUpdateEffect from overwriting with stale server data.
+							// Short delay to let React Query stabilize before clearing isUpdatingActiveTask.
+							// The expectedActiveTaskIdRef provides the main protection against stale data,
+							// this delay is just an extra safety buffer for edge cases.
 							// NOTE: Do NOT invalidate queries here - updateActiveTaskMutation already handles it.
-							// Adding invalidation causes CancelledError (cancelQueries in onMutate).
-							await new Promise((resolve) => setTimeout(resolve, 1000));
+							await new Promise((resolve) => setTimeout(resolve, 600));
 						}
 					} catch (error) {
 						console.error('[setActiveTask] API call failed:', error);
 						toast.error('Failed to update active task', {
 							description: getErrorMessage(error)
 						});
+						// Rollback: restore previous state and clear expected ID
+						expectedActiveTaskIdRef.current = previousTaskId || null;
 						setActiveTaskIdCookie(previousTaskId || '');
 						setActiveTeamTask(previousTask);
 						setActiveUserTaskCookieCb(previousTask);
@@ -629,12 +641,24 @@ export function useTeamTasks() {
 
 	useConditionalUpdateEffect(
 		() => {
-			// Skip synchronization if we're currently updating the active task
-			// This prevents race conditions where server data overwrites local selection
+			// Skip if we're currently updating the active task
 			if (isUpdatingActiveTask) {
 				return;
 			}
 
+			// If we have an expected task ID (user just selected a task locally):
+			// - If server data matches → clear expectation, no need to update (already correct)
+			// - If server data differs → skip update (server has stale data, wait for it to sync)
+			if (expectedActiveTaskIdRef.current) {
+				if (memberActiveTaskId === expectedActiveTaskIdRef.current) {
+					// Server confirmed our selection
+					expectedActiveTaskIdRef.current = null;
+				}
+				// Either way, skip - local state is already correct
+				return;
+			}
+
+			// No local expectation - sync from server (multi-device sync or initial load)
 			const memberActiveTask = tasks.find((item) => item.id === memberActiveTaskId);
 			if (memberActiveTask) {
 				setActiveTeamTask(memberActiveTask);
