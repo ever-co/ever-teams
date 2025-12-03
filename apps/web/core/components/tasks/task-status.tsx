@@ -514,7 +514,7 @@ export function TaskStatus({
 	return (
 		<div
 			className={cn(
-				`px-2 py-1 flex items-center text-xs relative text-gray-500 dark:text-white gap-x-1.5 min-w-fit w-fitrounded!`,
+				`px-2 py-1 flex items-center text-xs relative text-gray-500 dark:text-white gap-x-1.5 min-w-fit w-fit rounded!`,
 
 				sidebarUI ? 'text-dark rounded-md font-medium' : 'space-x-0 rounded-xl',
 
@@ -535,7 +535,7 @@ export function TaskStatus({
 		>
 			<div
 				className={cn(
-					'flex overflow-hidden gap-x-0.5 items-center whitespace-nowrap text-ellipsis min-w-12 text-current',
+					'flex overflow-hidden gap-x-0.5 items-center whitespace-nowrap text-ellipsis text-current',
 					'',
 					titleClassName
 				)}
@@ -603,7 +603,8 @@ export function StatusDropdown<T extends TStatusItem>({
 	isEpic = false,
 	onRemoveSelected,
 	isMultiple = true,
-	isLoading = false
+	isLoading = false,
+	titleClassName = ''
 }: PropsWithChildren<{
 	value: T | undefined;
 	values?: NonNullable<T['name']>[];
@@ -629,6 +630,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	onRemoveSelected?: () => null;
 	isMultiple?: boolean;
 	isLoading?: boolean;
+	titleClassName?: string;
 }>) {
 	const processedValues = [...new Set(values)];
 	if (multiple && value) {
@@ -679,7 +681,8 @@ export function StatusDropdown<T extends TStatusItem>({
 			)}
 			titleClassName={cn(
 				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-fit text-ellipsis overflow-hidden'],
-				!value && 'dark:text-white'
+				!value && 'dark:text-white',
+				titleClassName
 			)}
 			isVersion={isVersion}
 			isEpic={isEpic}

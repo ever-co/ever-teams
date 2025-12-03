@@ -262,6 +262,7 @@ export function ActiveTaskIssuesDropdown({ ...props }: IActiveTaskStatuses<'issu
 			disabledReason={item?.name === 'Epic' ? t('pages.taskDetails.TASK_IS_ALREADY_EPIC') : ''}
 			taskStatusClassName={props.taskStatusClassName}
 			isLoading={isLocalLoading}
+			titleClassName={props.titleClassName}
 		/>
 	);
 }

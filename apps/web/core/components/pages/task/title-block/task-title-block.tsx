@@ -188,7 +188,8 @@ const TaskTitleBlock = () => {
 							sidebarUI={true}
 							forParentChildRelationship={true}
 							taskStatusClassName="h-7 text-xs rounded-full border-none bg-red-100 text-red-700 dark:bg-dark--theme-light dark:text-red-400 w-fit"
-							className="h-7"
+							className="h-7 w-fit"
+							titleClassName="min-w-14!"
 						/>
 					</div>
 					<div className="w-px bg-gray-200 h-7 dark:bg-gray-600"></div>
