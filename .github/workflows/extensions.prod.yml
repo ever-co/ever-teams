@@ -17,6 +17,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubicloud-standard-2
+
+    environment: dev
+    
     steps:
       - uses: actions/checkout@v4
 
