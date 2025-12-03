@@ -581,6 +581,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Назначаване на екипи",
+					"noTeamsAvailable": "Няма налични екипи",
+					"teamsHelperText": "Изберете поне един екип за този проект",
 					"assignMembers": "Назначаване на членове и мениджъри",
 					"noMembers": "Няма членове или мениджъри",
 					"addMember": "Добави член",

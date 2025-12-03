@@ -565,6 +565,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Assign Teams",
+					"noTeamsAvailable": "No teams available",
+					"teamsHelperText": "Select at least one team for this project",
 					"assignMembers": "Assign Members & Managers",
 					"noMembers": "No members or managers",
 					"addMember": "Add Member",
@@ -575,6 +578,9 @@
 					"addRelation": "Add Relation",
 					"selectProject": "Select a project...",
 					"selectRelationType": "Choose a relation type..."
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "Please select at least one team"
 				}
 			},
 			"addOrEditModal": {

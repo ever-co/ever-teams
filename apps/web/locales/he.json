@@ -581,6 +581,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "הקצאת צוותים",
+					"noTeamsAvailable": "אין צוותים זמינים",
+					"teamsHelperText": "בחר לפחות צוות אחד לפרויקט זה",
 					"assignMembers": "הקצאת חברים ומנהלים",
 					"noMembers": "אין חברים או מנהלים",
 					"addMember": "הוסף חבר",

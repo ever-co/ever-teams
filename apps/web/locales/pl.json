@@ -622,6 +622,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Przypisz Zespoły",
+					"noTeamsAvailable": "Brak dostępnych zespołów",
+					"teamsHelperText": "Wybierz co najmniej jeden zespół dla tego projektu",
 					"assignMembers": "Przypisz Członków i Menedżerów",
 					"noMembers": "Brak członków lub menedżerów",
 					"addMember": "Dodaj Członka",

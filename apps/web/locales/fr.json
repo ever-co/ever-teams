@@ -623,6 +623,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Assigner des Équipes",
+					"noTeamsAvailable": "Aucune équipe disponible",
+					"teamsHelperText": "Sélectionnez au moins une équipe pour ce projet",
 					"assignMembers": "Assigner des Membres et Gestionnaires",
 					"noMembers": "Aucun membre ou gestionnaire",
 					"addMember": "Ajouter un Membre",
@@ -633,6 +636,9 @@
 					"addRelation": "Ajouter une Relation",
 					"selectProject": "Sélectionner un projet...",
 					"selectRelationType": "Choisir un type de relation..."
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "Veuillez sélectionner au moins une équipe"
 				}
 			},
 			"addOrEditModal": {

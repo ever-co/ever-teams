@@ -619,6 +619,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Назначить команды",
+					"noTeamsAvailable": "Нет доступных команд",
+					"teamsHelperText": "Выберите хотя бы одну команду для этого проекта",
 					"assignMembers": "Назначить участников и менеджеров",
 					"noMembers": "Нет участников или менеджеров",
 					"addMember": "Добавить участника",

@@ -623,6 +623,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Atribuir Equipes",
+					"noTeamsAvailable": "Nenhuma equipe disponível",
+					"teamsHelperText": "Selecione pelo menos uma equipe para este projeto",
 					"assignMembers": "Atribuir Membros e Gerentes",
 					"noMembers": "Sem membros ou gerentes",
 					"addMember": "Adicionar Membro",

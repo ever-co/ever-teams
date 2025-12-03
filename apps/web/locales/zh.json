@@ -578,6 +578,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "分配团队",
+					"noTeamsAvailable": "没有可用的团队",
+					"teamsHelperText": "请为此项目选择至少一个团队",
 					"assignMembers": "分配成员和管理员",
 					"noMembers": "没有成员或管理员",
 					"addMember": "添加成员",

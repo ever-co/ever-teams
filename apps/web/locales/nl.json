@@ -619,6 +619,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Teams toewijzen",
+					"noTeamsAvailable": "Geen teams beschikbaar",
+					"teamsHelperText": "Selecteer minimaal één team voor dit project",
 					"assignMembers": "Leden & Managers toewijzen",
 					"noMembers": "Geen leden of managers",
 					"addMember": "Lid toevoegen",
