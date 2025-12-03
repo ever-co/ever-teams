@@ -19,6 +19,7 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { clsxm } from '@/core/lib/utils';
 import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
+import { isValidProjectForDisplay } from '@/core/lib/helpers/type-guards';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
@@ -312,20 +313,11 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	const { updateTask, updateLoading } = useTeamTasks();
 	const t = useTranslations();
 
-	// Filter to show only valid projects (exclude teams or invalid entries)
+	// Filter to show only valid projects using unified type-guard
+	// This ensures we only show REAL projects (not Teams or other entities)
+	// IMPORTANT: isActive alone is NOT sufficient - we MUST use isProject() type guard
 	const validProjects = useMemo(() => {
-		return organizationProjects.filter((project) => {
-			// Only show projects that are:
-			// 1. Active (not archived)
-			// 2. Have a valid name
-			// 3. Are not explicitly archived
-			return (
-				project?.name &&
-				project?.name?.trim().length > 0 &&
-				project?.isArchived !== true &&
-				project?.isActive === true
-			);
-		});
+		return organizationProjects.filter((project) => isValidProjectForDisplay(project));
 	}, [organizationProjects]);
 
 	const [selected, setSelected] = useState<TOrganizationProject | null>(null);
