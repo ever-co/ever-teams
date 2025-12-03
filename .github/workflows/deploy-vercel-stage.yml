@@ -18,6 +18,8 @@ jobs:
   deploy:
     runs-on: ubicloud-standard-2
 
+    environment: stage
+
     steps:
       - uses: actions/checkout@v4
 

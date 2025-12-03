@@ -1,10 +1,10 @@
-name: Mobile Build DEV
+name: Mobile Build Stage
 on:
   push:
     branches:
-      - develop
+      - main
     paths:
-      - ".github/workflows/mobile.dev.yml"
+      - ".github/workflows/mobile.stage.yml"
       - "apps/mobile/**"
       - "package.json"
       - "yarn.lock"
@@ -17,7 +17,7 @@ jobs:
   deploy:
     runs-on: ubicloud-standard-4
 
-    environment: dev
+    environment: stage
 
     permissions:
       contents: read
