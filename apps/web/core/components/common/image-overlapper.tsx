@@ -7,6 +7,7 @@ import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { useModal, useTeamTasks } from '@/core/hooks';
 import { Modal, Divider, SpinnerLoader } from '@/core/components';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import { TaskAssignButton } from '@/core/components/tasks/task-assign-button';
 import { clsxm } from '@/core/lib/utils';
 import TeamMember from '@/core/components/teams/team-member';
@@ -15,6 +16,13 @@ import { IconsCheck, IconsPersonAddRounded, IconsPersonRounded } from '@/core/co
 import { cn } from '../../lib/helpers';
 import { TaskAvatars } from '../tasks/task-items';
 import { Tooltip } from '../duplicated-components/tooltip';
+import {
+	Tooltip as ShadcnTooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+	TooltipArrow
+} from '@/core/components/common/tooltip';
 import { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 import { useAtomValue } from 'jotai';
 import { activeTeamState } from '@/core/stores';
@@ -71,8 +79,11 @@ export default function ImageOverlapper({
 	const allMembers = useMemo(() => activeTeam?.members || [], [activeTeam]);
 	const [assignedMembers, setAssignedMembers] = useState<TEmployee[]>([...(item?.members || [])]);
 	const [unassignedMembers, setUnassignedMembers] = useState<TEmployee[]>([]);
-	const [showInfo, setShowInfo] = useState<boolean>(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 	const { updateTask, updateLoading } = useTeamTasks();
+
+	// Combine local submitting state with React Query mutation pending state
+	const isLoading = isSubmitting || updateLoading;
 
 	const t = useTranslations();
 
@@ -114,18 +125,60 @@ export default function ImageOverlapper({
 	);
 
 	const onConfirm = useCallback(async () => {
-		if (updateLoading) return;
+		if (isLoading) return;
+		setIsSubmitting(true);
+
+		// Calculate added and removed members for toast message
+		const originalMemberIds = new Set((item?.members || []).map((m: TEmployee) => m.id));
+		const newMemberIds = new Set(assignedMembers.map((m) => m.id));
+
+		const addedMembers = assignedMembers.filter((m) => !originalMemberIds.has(m.id));
+		const removedMembers = (item?.members || []).filter((m: TEmployee) => !newMemberIds.has(m.id));
+
+		// Helper to format member names with "and X others" for better UX
+		const formatMemberNames = (members: TEmployee[], maxDisplay = 2): string => {
+			const names = members.map((m) => m.fullName || m.user?.name || 'Unknown');
+			if (names.length <= maxDisplay) {
+				return names.join(', ');
+			}
+			const displayed = names.slice(0, maxDisplay).join(', ');
+			const remaining = names.length - maxDisplay;
+			return `${displayed} ${t('common.AND_X_OTHERS', { count: remaining })}`;
+		};
+
 		try {
 			await updateTask({
 				...item,
 				members: assignedMembers
 			});
 
+			// Build descriptive toast message
+			const messages: string[] = [];
+
+			if (addedMembers.length > 0) {
+				messages.push(`${t('common.ADDED')}: ${formatMemberNames(addedMembers)}`);
+			}
+
+			if (removedMembers.length > 0) {
+				messages.push(`${t('common.REMOVED')}: ${formatMemberNames(removedMembers)}`);
+			}
+
+			if (messages.length === 0) {
+				toast.success(t('task.toastMessages.TASK_ASSIGNED'));
+			} else {
+				toast.success(t('task.toastMessages.TASK_ASSIGNED'), {
+					description: messages.join(' • ')
+				});
+			}
+
 			closeModal();
 		} catch (error) {
 			console.error('Error updating task members:', error);
+			toast.error(t('task.toastMessages.TASK_ASSIGNMENT_FAILED'));
+		} finally {
+			setIsSubmitting(false);
 		}
-	}, [closeModal, updateTask, item, assignedMembers, updateLoading]);
+	}, [closeModal, updateTask, item, assignedMembers, isLoading, t]);
 
 	const hasMembers = item?.members?.length > 0;
 
@@ -136,14 +189,6 @@ export default function ImageOverlapper({
 	if ((!hasMembers && item) || hasActiveMembers || assignTaskButtonCall) {
 		return (
 			<div className="relative min-w-fit">
-				{hasInfo.length > 0 && showInfo && (
-					<div className="flex w-[200px] justify-center items-center rounded-[3px] text-[12px] absolute left-[-80px] top-[-45px]">
-						<div className="relative bg-black text-white rounded-[3px]">
-							<span className="text-center p-[6px] z-[5]">{hasInfo}</span>
-							<div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0 border-t-[10px] border-t-black border-r-[10px] border-r-transparent border-l-[10px] border-l-transparent"></div>
-						</div>
-					</div>
-				)}
 				{iconType ? (
 					<TaskAssignButton
 						onClick={openModal}
@@ -154,37 +199,50 @@ export default function ImageOverlapper({
 						iconClassName={arrowData?.iconClassName}
 					/>
 				) : (
-					<>
-						{!hasMembers ? (
-							<div
-								className="flex items-center justify-center rounded-full border-2 border-dashed border-[#6b7280] cursor-pointer"
-								style={{ width: diameter, height: diameter }}
-							>
-								<IconsPersonRounded
-									fill={'#6b7280'}
-									className="w-6 h-6 cursor-pointer  stroke-[#c46060]"
-									onClick={openModal}
-									style={{ width: diameter / 2, height: diameter / 2 }}
-									onMouseOver={() => setShowInfo(true)}
-									onMouseOut={() => setShowInfo(false)}
-								/>
-							</div>
-						) : (
-							<div
-								className="flex items-center justify-center rounded-full border-2 border-dashed border-[#6b7280] cursor-pointer"
-								style={{ width: diameter, height: diameter }}
-							>
-								<IconsPersonAddRounded
-									fill={'#6b7280'}
-									className="w-6 h-6 cursor-pointer  stroke-[#c46060]"
-									onClick={openModal}
-									style={{ width: diameter / 2, height: diameter / 2 }}
-									onMouseOver={() => setShowInfo(true)}
-									onMouseOut={() => setShowInfo(false)}
-								/>
-							</div>
-						)}
-					</>
+					<TooltipProvider>
+						<ShadcnTooltip>
+							<TooltipTrigger asChild>
+								{!hasMembers ? (
+									<button
+										type="button"
+										className="flex items-center justify-center rounded-full border-2 border-dashed border-[#6b7280] cursor-pointer bg-transparent"
+										style={{ width: diameter, height: diameter }}
+										onClick={openModal}
+										aria-label="Assign task"
+									>
+										<IconsPersonRounded
+											fill={'#6b7280'}
+											className="w-6 h-6 stroke-[#c46060]"
+											style={{ width: diameter / 2, height: diameter / 2 }}
+										/>
+									</button>
+								) : (
+									<button
+										type="button"
+										className="flex items-center justify-center rounded-full border-2 border-dashed border-[#6b7280] cursor-pointer bg-transparent"
+										style={{ width: diameter, height: diameter }}
+										onClick={openModal}
+										aria-label="Assign task to more people"
+									>
+										<IconsPersonAddRounded
+											fill={'#6b7280'}
+											className="w-6 h-6 stroke-[#c46060]"
+											style={{ width: diameter / 2, height: diameter / 2 }}
+										/>
+									</button>
+								)}
+							</TooltipTrigger>
+							{hasInfo.length > 0 && (
+								<TooltipContent
+									side="top"
+									className="bg-black text-white border border-gray-700 dark:bg-white dark:text-gray-900 dark:border-gray-300 font-medium text-xs px-3 py-1.5 rounded-md shadow-lg"
+								>
+									{hasInfo}
+									<TooltipArrow className="fill-black dark:fill-white" />
+								</TooltipContent>
+							)}
+						</ShadcnTooltip>
+					</TooltipProvider>
 				)}
 
 				<div>
@@ -196,12 +254,12 @@ export default function ImageOverlapper({
 						titleClass="font-normal"
 					>
 						<Divider className="mt-4" />
-						<ul className="overflow-auto p-5 py-6">
+						<ul className="p-5 py-6 overflow-auto">
 							{allMembers?.map((member: TOrganizationTeamEmployee) => {
 								return (
 									<li
 										key={member.id}
-										className="rounded-lg border border-transparent cursor-pointer w-100 hover:border-blue-500/50"
+										className="border border-transparent rounded-lg cursor-pointer w-100 hover:border-blue-500/50"
 									>
 										<TeamMember
 											member={member}
@@ -219,13 +277,13 @@ export default function ImageOverlapper({
 								<TaskAvatars task={{ members: assignedMembers }} limit={3} />
 								<div className="flex px-4 h-fit">
 									<button
-										className="flex flex-row gap-3 justify-center items-center px-2 py-2 w-28 min-w-0 h-12 text-sm text-white rounded-xl bg-primary dark:bg-primary-light disabled:bg-primary-light disabled:opacity-40"
-										disabled={updateLoading}
+										className="flex flex-row items-center justify-center h-12 min-w-0 gap-3 px-2 py-2 text-sm text-white w-28 rounded-xl bg-primary dark:bg-primary-light disabled:bg-primary-light disabled:opacity-40"
+										disabled={isLoading}
 										onClick={() => {
 											onConfirm();
 										}}
 									>
-										{updateLoading ? <SpinnerLoader size={20} /> : <IconsCheck fill="#ffffff" />}
+										{isLoading ? <SpinnerLoader size={20} /> : <IconsCheck fill="#ffffff" />}
 										{t('common.CONFIRM')}
 									</button>
 								</div>
@@ -237,8 +295,8 @@ export default function ImageOverlapper({
 		);
 	}
 	return (
-		<div className="flex relative items-center min-w-fit">
-			<div className="flex relative items-center -space-x-3">
+		<div className="relative flex items-center min-w-fit">
+			<div className="relative flex items-center -space-x-3">
 				{firstArray.map((image, index) => (
 					<Link className="!h-10 !w-10" key={index} href={onRedirect(image)}>
 						<div
@@ -273,7 +331,7 @@ export default function ImageOverlapper({
 					</PopoverTrigger>
 					<PopoverContent className="!py-2 !px-0 bg-white dark:bg-dark--theme input-border">
 						<ScrollArea className="h-40">
-							<div className="flex flex-col gap-y-2 m-2">
+							<div className="flex flex-col m-2 gap-y-2">
 								{secondArray.map((image: ImageOverlapperProps, index: number) => {
 									return (
 										<Link

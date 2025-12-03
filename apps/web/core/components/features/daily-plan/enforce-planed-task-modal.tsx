@@ -40,11 +40,12 @@ export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 	);
 
 	const handleAddTaskToPlan = useCallback(() => {
-		if (user?.employee && task && plan.id) {
+		if (user?.employee && task && plan.id && plan.employeeId) {
 			addTaskToPlan(
 				{
 					taskId: task.id,
-					employeeId: plan.employeeId ?? user.employee.id,
+					// Always assign the plan owner, never fall back to the current user
+					employeeId: plan.employeeId,
 					organizationId: plan.organizationId ?? user.employee.organizationId
 				},
 				plan.id

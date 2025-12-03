@@ -1,0 +1,40 @@
+name: Mobile Build Stage
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/mobile.stage.yml"
+      - "apps/mobile/**"
+      - "package.json"
+      - "yarn.lock"
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubicloud-standard-4
+
+    environment: stage
+
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.19.5"
+          cache: "yarn"
+
+      - name: Install Packages
+        run: |
+          yarn install --frozen-lockfile
+
+      - name: Build Mobile
+        run: |
+          yarn build:mobile

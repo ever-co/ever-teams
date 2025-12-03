@@ -25,17 +25,18 @@ const AvatarStack: React.FC<AvatarStackProps> = ({ avatars, maxVisible = 5 }) =>
 		<div className="flex -space-x-3">
 			{avatars.slice(0, maxItemsToShow).map((avatar, index) => (
 				<div key={index} className="relative group">
-					<div className="relative w-8 h-8">
+					<div className="relative w-8 h-8 rounded-full shrink-0 aspect-square">
 						{avatar?.imageUrl ? (
 							<Image
 								src={avatar?.imageUrl}
 								alt={avatar?.name}
-								layout="fill"
-								className="rounded-full border-2 border-white object-cover"
+								width={32}
+								height={32}
+								className="object-cover border-2 border-white rounded-full size-full aspect-square"
 							/>
 						) : (
 							<div
-								className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-500 text-white font-medium border-2 border-white"
+								className="flex items-center justify-center w-8 h-8 font-medium text-white bg-gray-500 border-2 border-white rounded-full"
 								role="img"
 								aria-label={`Avatar for ${avatar?.name}`}
 							>
@@ -44,13 +45,13 @@ const AvatarStack: React.FC<AvatarStackProps> = ({ avatars, maxVisible = 5 }) =>
 						)}
 					</div>
 					{/* Tooltip */}
-					<div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition bg-gray-800 text-white text-xs rounded-sm px-2 py-1 whitespace-nowrap shadow-lg">
+					<div className="absolute px-2 py-1 text-xs text-white transition transform -translate-x-1/2 bg-gray-800 rounded-sm shadow-lg opacity-0 bottom-12 left-1/2 group-hover:opacity-100 whitespace-nowrap">
 						{avatar?.name}
 					</div>
 				</div>
 			))}
 			{avatars.length > maxItemsToShow && (
-				<div className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-300 border-2 border-white text-xs font-medium">
+				<div className="flex items-center justify-center w-8 h-8 text-xs font-medium bg-gray-300 border-2 border-white rounded-full">
 					+{avatars.length - maxItemsToShow}
 				</div>
 			)}

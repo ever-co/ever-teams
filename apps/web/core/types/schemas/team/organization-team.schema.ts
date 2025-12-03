@@ -187,7 +187,7 @@ export const workspaceTeamSchema = z.object({
 	team_id: z.string(),
 	team_name: z.string(),
 	team_logo: z.string().optional(),
-	team_member_count: z.string(),
+	team_member_count: z.string().or(z.number()),
 	profile_link: z.string(),
 	prefix: z.string().nullable()
 });

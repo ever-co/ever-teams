@@ -1,3 +1,4 @@
+export * from './use-active-team-task';
 export * from './use-auto-assign-task';
 export * from './use-get-tasks-stats-data';
 export * from './use-issue-types';

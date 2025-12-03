@@ -141,32 +141,34 @@ export const IS_DEMO_MODE = process.env.NEXT_PUBLIC_DEMO === 'true';
  * Demo account credentials for auto-login feature
  * Only used when IS_DEMO_MODE is true
  */
-export const DEMO_ACCOUNTS_CONFIG = IS_DEMO_MODE ? [
-	{
-		type: 'SUPER_ADMIN',
-		email: 'admin@ever.co',
-		password: 'admin',
-		translationKey: 'DEMO_SUPER_ADMIN',
-		role: 'Super Admin',
-		icon:UserCog
-	},
-	{
-		type: 'ADMIN',
-		email: 'local.admin@ever.co',
-		password: 'admin',
-		translationKey: 'DEMO_ADMIN',
-		role: 'Admin',
-		icon:Shield
-	},
-	{
-		type: 'EMPLOYEE',
-		email: 'employee@ever.co',
-		password: '123456',
-		translationKey: 'DEMO_EMPLOYEE',
-		role: 'Employee',
-		icon:User2
-	}
-] :[] as const;
+export const DEMO_ACCOUNTS_CONFIG = IS_DEMO_MODE
+	? [
+			{
+				type: 'SUPER_ADMIN',
+				email: 'admin@ever.co',
+				password: 'admin',
+				translationKey: 'DEMO_SUPER_ADMIN',
+				role: 'Super Admin',
+				icon: UserCog
+			},
+			{
+				type: 'ADMIN',
+				email: 'local.admin@ever.co',
+				password: 'admin',
+				translationKey: 'DEMO_ADMIN',
+				role: 'Admin',
+				icon: Shield
+			},
+			{
+				type: 'EMPLOYEE',
+				email: 'employee@ever.co',
+				password: '123456',
+				translationKey: 'DEMO_EMPLOYEE',
+				role: 'Employee',
+				icon: User2
+			}
+		]
+	: ([] as const);
 
 export const ACTIVE_LOCAL_LOG_SYSTEM = getNextPublicEnv(
 	'NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM',
@@ -539,6 +541,8 @@ export const REFRESH_INTERVAL = 5000; // 5 seconds
 export const SYNC_TIMER_INTERVAL = 60000; // 1 minute
 
 export const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
+
+export const INIT_DELAY_MS = 2000;
 
 export const statusOptions = [
 	{ value: 'Approved', label: 'Approved' },
