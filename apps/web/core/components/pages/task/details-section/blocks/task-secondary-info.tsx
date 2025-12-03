@@ -150,7 +150,7 @@ const TaskSecondaryInfo = () => {
 					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				>
 					<Button
-						className="px-2 py-1 w-full text-xs dark:text-white dark:border-white"
+						className="w-full px-2 py-1 text-xs dark:text-white dark:border-white"
 						variant="outline"
 						onClick={openModalEditionHandle('status')}
 					>
@@ -198,7 +198,7 @@ const TaskSecondaryInfo = () => {
 					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				>
 					<Button
-						className="px-2 py-1 w-full text-xs dark:text-white dark:border-white"
+						className="w-full px-2 py-1 text-xs dark:text-white dark:border-white"
 						variant="outline"
 						onClick={openModalEditionHandle('size')}
 					>
@@ -217,7 +217,7 @@ const TaskSecondaryInfo = () => {
 					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				>
 					<Button
-						className="px-2 py-1 w-full text-xs dark:text-white dark:border-white"
+						className="w-full px-2 py-1 text-xs dark:text-white dark:border-white"
 						variant="outline"
 						onClick={openModalEditionHandle('priority')}
 					>
@@ -394,7 +394,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 								)}
 								aria-label={selected ? `Current project: ${selected.name}` : 'Select a project'}
 							>
-								<div className="flex gap-1 items-center w-fit">
+								<div className="flex items-center gap-1 w-fit">
 									{selected?.imageUrl ? (
 										<Image
 											className="w-4 h-4 rounded-full"
@@ -457,11 +457,11 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 												<DropdownMenuItem
 													key={item.id}
 													onSelect={() => {
+														setSelected(item);
 														if (controlled && onChange) {
 															onChange(item);
 														} else {
 															handleUpdateProject(item);
-															setSelected(item);
 														}
 													}}
 													className="relative border flex items-center gap-2 p-1.5 rounded-lg outline-hidden cursor-pointer dark:text-white"
@@ -475,7 +475,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 															className="rounded-full"
 														/>
 													)}
-													<span className="overflow-hidden w-full text-xs truncate max-w-64 text-ellipsis">
+													<span className="w-full overflow-hidden text-xs truncate max-w-64 text-ellipsis">
 														{item.name || 'Project'}
 													</span>
 												</DropdownMenuItem>

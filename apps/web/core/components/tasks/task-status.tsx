@@ -514,9 +514,9 @@ export function TaskStatus({
 	return (
 		<div
 			className={cn(
-				`p-1 flex items-center text-xs relative text-gray-500 dark:text-white gap-x-1.5 min-w-fit w-fit !rounded`,
+				`px-2 py-1 flex items-center text-xs relative text-gray-500 dark:text-white gap-x-1.5 min-w-fit w-fitrounded!`,
 
-				sidebarUI ? 'text-dark rounded-md font-[500]' : 'space-x-0 rounded-xl',
+				sidebarUI ? 'text-dark rounded-md font-medium' : 'space-x-0 rounded-xl',
 
 				issueType === 'issue' && ['text-white'],
 
@@ -535,7 +535,7 @@ export function TaskStatus({
 		>
 			<div
 				className={cn(
-					'flex overflow-hidden gap-x-0.5 items-center whitespace-nowrap text-ellipsis',
+					'flex overflow-hidden gap-x-0.5 items-center whitespace-nowrap text-ellipsis min-w-12 text-current',
 					'',
 					titleClassName
 				)}
@@ -556,7 +556,7 @@ export function TaskStatus({
 
 				{name && (issueType !== 'issue' || showIssueLabels) && (
 					<div
-						className={`overflow-hidden text-xs capitalize text-ellipsis`}
+						className={`overflow-hidden text-xs capitalize text-ellipsis min-w-fit`}
 						title={realName || name}
 						style={
 							isVersion || isEpic
@@ -664,11 +664,11 @@ export function StatusDropdown<T extends TStatusItem>({
 			sidebarUI={sidebarUI}
 			className={cn(
 				`justify-between capitalize whitespace-nowrap overflow-hidden max-w-[90%]`,
-				!forDetails && 'w-full max-w-[190px]',
+				!forDetails && 'w-full max-w-fit',
 				'flex items-center gap-x-1.5',
 				sidebarUI && ['text-xs'],
 				!value && [
-					'!text-dark/40 dark:text-white/70',
+					'text-dark/40! dark:text-white/70',
 					'bg-white dark:bg-[#1B1D22] border border-gray-200 dark:border-[#FFFFFF33]'
 				],
 				value && ['text-black dark:text-black', 'bg-white dark:bg-white border border-gray-200'],
@@ -678,7 +678,7 @@ export function StatusDropdown<T extends TStatusItem>({
 				'h-full transition-colors duration-200'
 			)}
 			titleClassName={cn(
-				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[90%] text-ellipsis overflow-hidden'],
+				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-fit text-ellipsis overflow-hidden'],
 				!value && 'dark:text-white'
 			)}
 			isVersion={isVersion}
@@ -692,7 +692,9 @@ export function StatusDropdown<T extends TStatusItem>({
 					<ChevronDownIcon
 						className={cn(
 							'h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-default/80',
-							(!value || currentValue.bordered) && ['text-dark dark:text-white group-hover:text-dark/80 dark:group-hover:text-white/80'],
+							(!value || currentValue.bordered) && [
+								'text-dark dark:text-white group-hover:text-dark/80 dark:group-hover:text-white/80'
+							],
 							hasBtnIcon && ['whitespace-nowrap w-5 h-5'],
 							isVersion && 'dark:text-white'
 						)}
@@ -742,7 +744,7 @@ export function StatusDropdown<T extends TStatusItem>({
 					const renderItem = (item: T, isSelected: boolean) => {
 						const item_value = item.value || item.name;
 						return (
-							<div className="w-full relative cursor-pointer outline-none">
+							<div className="relative w-full outline-none cursor-pointer">
 								<TaskStatus
 									showIcon={showIcon}
 									{...item}
@@ -766,7 +768,7 @@ export function StatusDropdown<T extends TStatusItem>({
 											}
 											onRemoveSelected?.();
 										}}
-										className="absolute top-1/2 right-1 -translate-y-1/2 h-4 w-4 bg-transparent bg-white dark:bg-black rounded"
+										className="absolute w-4 h-4 -translate-y-1/2 bg-transparent bg-white rounded right-1 top-1/2 dark:bg-black"
 									>
 										<XMarkIcon
 											className="text-dark dark:text-white"
