@@ -155,12 +155,3 @@ export const useActiveTeamTask = (): UseActiveTeamTaskResult => {
 		error: taskQuery.error
 	};
 };
-
-/**
- * @deprecated Use useActiveTeamTask() instead which returns { activeTask, isLoading, isError, error }
- * This is kept for backward compatibility - returns just the task
- */
-export const useActiveTeamTaskLegacy = (): TTask | null => {
-	const { activeTask } = useActiveTeamTask();
-	return activeTask;
-};
