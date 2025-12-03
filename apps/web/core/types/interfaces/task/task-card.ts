@@ -54,6 +54,7 @@ export type TStatusItem = {
 	bordered?: boolean;
 	showIcon?: boolean;
 	className?: string;
+	titleClassName?: string;
 };
 
 export type TStatus<T extends string = string> = {
@@ -94,4 +95,5 @@ export type IActiveTaskStatuses<T extends ITaskStatusField> = TTaskStatusesDropd
 	forParentChildRelationship?: boolean;
 	taskStatusClassName?: string;
 	showIcon?: boolean;
+	titleClassName?: string;
 };
