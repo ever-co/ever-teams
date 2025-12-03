@@ -10,7 +10,8 @@ import { EProjectRelation } from '@/core/types/generics/enums/project';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { TProjectRelation } from '@/core/types/schemas';
 import { useAtomValue } from 'jotai';
-import { organizationProjectsState, organizationTeamsState, rolesState } from '@/core/stores';
+import { activeTeamState, organizationProjectsState, organizationTeamsState, rolesState } from '@/core/stores';
+import { ROLES } from '@/core/constants/config/constants';
 
 export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const { goToNext, goToPrevious, currentData } = props;
@@ -19,13 +20,48 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 	);
 	const [relations, setRelations] = useState<(TProjectRelation & { id: string })[]>([]);
 
+	// Get teams for multi-select
 	const organizationProjects = useAtomValue(organizationProjectsState);
-
 	const teams = useAtomValue(organizationTeamsState);
+	const activeTeam = useAtomValue(activeTeamState);
 
-	const roles = useAtomValue(rolesState);
+	// Selected teams state - initialized with activeTeam or existing teams from edit mode
+	const [selectedTeamIds, setSelectedTeamIds] = useState<string[]>(() => {
+		const existingTeams = getInitialValue(currentData, 'teams', []);
+		if (existingTeams.length > 0) {
+			return existingTeams.map((t: { id: string }) => t.id);
+		}
+		// Default to activeTeam if no teams are set
+		return activeTeam?.id ? [activeTeam.id] : [];
+	});
+
+	// Team selection error state
+	const [teamError, setTeamError] = useState<string | null>(null);
+
+	const rolesFromApi = useAtomValue(rolesState);
 	const relationsData = Object.values(EProjectRelation);
 	const t = useTranslations();
+
+	// Fallback to ROLES constants if API doesn't return roles (non-admin users)
+	const availableRoles = useMemo(() => {
+		// If API returned roles, use them
+		if (rolesFromApi && rolesFromApi.length > 0) {
+			return rolesFromApi
+				.filter((role) => role.name === ERoleName.EMPLOYEE || role.name === ERoleName.MANAGER)
+				.map((role) => ({
+					id: String(role.id),
+					value: role.name
+				}));
+		}
+
+		// Fallback: use ROLES constants with generated IDs
+		return ROLES.filter((role) => role.name === ERoleName.EMPLOYEE || role.name === ERoleName.MANAGER).map(
+			(role) => ({
+				id: `fallback-${role.name}`,
+				value: role.name
+			})
+		);
+	}, [rolesFromApi]);
 
 	// Deduplicated list of all team members to prevent user duplication
 	const allMembers = useMemo(() => {
@@ -72,24 +108,94 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 		setRelations((prev) => prev.filter((el) => el.id !== id));
 	};
 
+	// Toggle team selection
+	const handleToggleTeam = (teamId: string) => {
+		setSelectedTeamIds((prev) => {
+			if (prev.includes(teamId)) {
+				// Remove team
+				return prev.filter((id) => id !== teamId);
+			} else {
+				// Add team
+				return [...prev, teamId];
+			}
+		});
+		// Clear error when user selects a team
+		setTeamError(null);
+	};
+
 	const handleSubmit = (e: FormEvent) => {
 		e.preventDefault();
 
+		// Validate that at least one team is selected
+		if (selectedTeamIds.length === 0) {
+			setTeamError(t('pages.projects.teamAndRelationsForm.errors.atLeastOneTeamRequired'));
+			return;
+		}
+
+		// Map selected team IDs to team objects for the API
+		const selectedTeams = teams?.filter((team) => selectedTeamIds.includes(team.id)) || [];
+
 		goToNext?.({
 			members,
-			relations: relations.filter((el) => el.projectId && el.relationType)
+			relations: relations.filter((el) => el.projectId && el.relationType),
+			teams: selectedTeams
 		});
 	};
 
 	const handlePrevious = useCallback(() => {
+		// Map selected team IDs to team objects
+		const selectedTeams = teams?.filter((team) => selectedTeamIds.includes(team.id)) || [];
+
 		goToPrevious?.({
 			members,
-			relations: relations.filter((el) => el.projectId && el.relationType)
+			relations: relations.filter((el) => el.projectId && el.relationType),
+			teams: selectedTeams
 		});
-	}, [goToPrevious, members, relations]);
+	}, [goToPrevious, members, relations, selectedTeamIds, teams]);
 
 	return (
 		<form onSubmit={handleSubmit} className="pt-4 space-y-5 w-full">
+			{/* Teams Multi-Select Section */}
+			<div className="flex flex-col gap-2 w-full">
+				<label className="text-xs font-medium">
+					{t('pages.projects.teamAndRelationsForm.formFields.assignTeams')}
+					<span className="text-red-500 ml-1">*</span>
+				</label>
+				<div className="flex flex-wrap gap-2 p-3 border rounded-lg min-h-[60px]">
+					{teams?.length ? (
+						teams.map((team) => {
+							const isSelected = selectedTeamIds.includes(team.id);
+							return (
+								<button
+									key={team.id}
+									type="button"
+									onClick={() => handleToggleTeam(team.id)}
+									className={cn(
+										'flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors',
+										isSelected
+											? 'bg-primary text-primary-foreground'
+											: 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700'
+									)}
+								>
+									{team.emoji && <span>{team.emoji}</span>}
+									<span>{team.name}</span>
+									{isSelected && <CheckIcon size={12} />}
+								</button>
+							);
+						})
+					) : (
+						<span className="text-xs text-gray-500">
+							{t('pages.projects.teamAndRelationsForm.formFields.noTeamsAvailable')}
+						</span>
+					)}
+				</div>
+				{teamError && <span className="text-xs text-red-500">{teamError}</span>}
+				<span className="text-xs text-gray-500">
+					{t('pages.projects.teamAndRelationsForm.formFields.teamsHelperText')}
+				</span>
+			</div>
+
+			{/* Members Section */}
 			<div className="flex flex-col gap-2 w-full">
 				<label className="text-xs font-medium">
 					{t('pages.projects.teamAndRelationsForm.formFields.assignMembers')}
@@ -101,17 +207,12 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 								<PairingItem
 									selected={[el.memberId, el.roleId]}
 									keys={allMembers}
-									values={roles
-										?.filter((el) => el.name == ERoleName.EMPLOYEE || el.name == ERoleName.MANAGER)
-										?.map((el) => ({
-											id: String(el.id),
-											value: el.name
-										}))}
+									values={availableRoles}
 									onRemove={handleRemoveMember}
 									key={el.id}
 									id={el.id}
 									keysLabel={t('pages.projects.teamAndRelationsForm.formFields.selectMember')}
-									valuesLabel="Select role..."
+									valuesLabel={t('pages.projects.teamAndRelationsForm.formFields.selectRole')}
 									onKeyChange={(itemId, memberId) =>
 										setMembers((prev) =>
 											prev.map((el) => {
