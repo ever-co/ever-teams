@@ -17,6 +17,8 @@ jobs:
   deploy:
     runs-on: ubicloud-standard-4
 
+    environment: dev
+
     permissions:
       contents: read
 
