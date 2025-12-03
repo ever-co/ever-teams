@@ -93,7 +93,6 @@ export function TaskInput(props: Props) {
 		tasks: props.tasks
 	});
 
-
 	const onCloseComboboxRef = useCallbackRef(props.onCloseCombobox);
 	const closeable_fcRef = useCallbackRef(props.closeable_fc);
 	const $onTaskClick = useCallbackRef(props.onTaskClick);
@@ -671,6 +670,7 @@ function TaskCard({
 
 									<div ref={projectDropdownRef}>
 										<ProjectDropDown
+											controlled={true}
 											styles={{
 												container: 'rounded-xl min-w-fit max-w-[10.625rem]',
 												listCard: 'rounded-xl'

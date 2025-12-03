@@ -151,11 +151,13 @@ export function useOrganizationProjects() {
 	);
 
 	const deleteOrganizationProject = useCallback(
-		async (id: string) => {
+		async (id: string): Promise<boolean> => {
 			try {
-				return await deleteOrganizationProjectMutation.mutateAsync(id);
+				await deleteOrganizationProjectMutation.mutateAsync(id);
+				return true; // Success if no exception thrown (204 No Content)
 			} catch (error) {
-				console.error(error);
+				console.error('Failed to delete project:', error);
+				return false;
 			}
 		},
 		[deleteOrganizationProjectMutation]

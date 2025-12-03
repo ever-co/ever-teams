@@ -113,6 +113,8 @@
 		"YES": "Yes",
 		"BASIC": "Basic",
 		"DELETE": "Delete",
+		"DELETE_SUCCESS": "Deleted successfully",
+		"DELETE_ERROR": "Failed to delete",
 		"MEET": "Meet",
 		"BOARD": "Board",
 		"SECURITY_CODE": "Security Code",
@@ -128,6 +130,12 @@
 		"EDIT_TASK": "Edit Task",
 		"ASSIGN_TASK": "Assign Task",
 		"ASSIGN_TASK_TO": "Assign Task",
+		"ASSIGN_TASK_TO_ME": "Assign Task to Me",
+		"UNASSIGN_TASK_FROM_ME": "Unassign Task from Me",
+		"TASK_ASSIGNED_TO_ME": "Task assigned to you",
+		"TASK_UNASSIGNED_FROM_ME": "Task unassigned from you",
+		"TASK_ASSIGN_ERROR": "Failed to assign task",
+		"TASK_UNASSIGN_ERROR": "Failed to unassign task",
 		"REMOVE_ACCOUNT": "Remove Account",
 		"REMOVE_EVERYWHERE": "Remove From All Teams",
 		"DELETE_ACCOUNT": "Delete This Account",
@@ -138,6 +146,9 @@
 		"TRANSFERT_OWNERSHIP": "Transfer Ownership",
 		"TRANSFERT_OWNERSHIP_TO": "Transfer full ownership of the team to another user",
 		"REMOVE": "Remove",
+		"REMOVED": "Removed",
+		"ADDED": "Added",
+		"AND_X_OTHERS": "and {count} other(s)",
 		"REMOVE_TEAM": "Remove Team",
 		"DISPOSE_TEAM": "Dispose Team",
 		"QUIT_TEAM": "Quit the Team",
@@ -222,6 +233,10 @@
 		"CONTACT": "Contact",
 		"ENABLED": "Enabled",
 		"DISABLED": "Disabled",
+		"UNKNOWN": "Unknown",
+		"RATE": "Rate",
+		"FLAT_FEE": "Flat Fee",
+		"MILESTONES": "Milestones",
 		"THEME": "Theme",
 		"TIME_ZONE": "Timezone",
 		"EDIT": "Edit",
@@ -408,7 +423,8 @@
 		"MEMBERS_COUNT": "Members count",
 		"REVIEW": "REVIEW",
 		"ARCHIVE": "Archive",
-
+		"ARCHIVE_SUCCESS": "Archived successfully",
+		"ARCHIVE_ERROR": "Failed to archive",
 		"ARCHIVE_AT": "Archive at",
 		"RESTORE": "Restore",
 		"HIDE": "Hide",
@@ -571,11 +587,15 @@
 			},
 			"deleteModal": {
 				"title": "Delete Selected?",
-				"description": "You are about to permanently delete this project. Click 'Delete' to confirm the action"
+				"description": "You are about to permanently delete this project. Click 'Delete' to confirm the action",
+				"successDescription": "The project has been deleted successfully",
+				"errorDescription": "Failed to delete the project. Please try again."
 			},
 			"archiveModal": {
 				"title": "Archive {projectName}?",
-				"description": "{affectedTasksCount} tasks will be affected by archiving {projectName}."
+				"description": "{affectedTasksCount} tasks will be affected by archiving {projectName}.",
+				"successDescription": "{projectName} has been archived successfully",
+				"errorDescription": "Failed to archive the project. Please try again."
 			},
 			"restoreModal": {
 				"title": "Restore project",

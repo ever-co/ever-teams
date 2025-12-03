@@ -4,7 +4,7 @@ services:
     image: ever-teams-webapp:latest
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: .deploy/web/Dockerfile
       args:
         GAUZY_API_SERVER_URL: ${GAUZY_API_SERVER_URL:-https://api.ever.team}
         NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${NEXT_PUBLIC_GAUZY_API_SERVER_URL:-https://api.ever.team}

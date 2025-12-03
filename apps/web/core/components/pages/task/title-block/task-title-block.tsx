@@ -106,7 +106,7 @@ const TaskTitleBlock = () => {
 	return (
 		<div className="flex flex-col gap-4.75" ref={titleContainerRef}>
 			{task ? (
-				<div className="flex gap-1">
+				<div className="flex items-start gap-1">
 					<textarea
 						className={clsxm(
 							'w-full',
@@ -122,7 +122,7 @@ const TaskTitleBlock = () => {
 					/>
 
 					{edit ? (
-						<div className="flex flex-col gap-1 justify-start transition-all">
+						<div className="flex flex-col justify-start gap-1 transition-all">
 							<button
 								ref={saveButton}
 								onClick={() => saveTitle(title)}
@@ -139,7 +139,7 @@ const TaskTitleBlock = () => {
 							</button>
 						</div>
 					) : (
-						<div className="flex flex-col gap-2 justify-start items-center">
+						<div className="flex flex-col items-center justify-start gap-2">
 							<button ref={editButton} onClick={() => setEdit(true)}>
 								<Image
 									src="/assets/svg/edit-header-pencil.svg"
@@ -171,10 +171,10 @@ const TaskTitleBlock = () => {
 			)}
 
 			<div className="flex flex-col items-start">
-				<div className="flex flex-row gap-3 justify-start items-center">
+				<div className="flex flex-row items-center justify-start gap-3">
 					<div className="flex flex-row gap-2">
 						{/* Task number */}
-						<div className="bg-gray-200 dark:bg-slate-600 rounded-sm text-center flex justify-center items-center h-7 py-1 px-2.5">
+						<div className="bg-gray-200 dark:bg-slate-600 rounded-sm text-center flex h-7 items-center justify-center py-1 px-2.5">
 							<span className="text-xs font-medium text-gray-700 dark:text-gray-200">
 								#{task?.taskNumber}
 							</span>
@@ -187,14 +187,15 @@ const TaskTitleBlock = () => {
 							showIssueLabels={true}
 							sidebarUI={true}
 							forParentChildRelationship={true}
-							taskStatusClassName="h-7 text-xs rounded-full border-none bg-red-100 text-red-700 dark:bg-dark--theme-light dark:text-red-400"
-							className="h-7"
+							taskStatusClassName="h-7 text-xs rounded-full border-none bg-red-100 text-red-700 dark:bg-dark--theme-light dark:text-red-400 w-fit"
+							className="h-7 w-fit"
+							titleClassName="min-w-14!"
 						/>
 					</div>
-					<div className="w-[1px] h-7 bg-gray-200 dark:bg-gray-600"></div>
+					<div className="w-px bg-gray-200 h-7 dark:bg-gray-600"></div>
 
 					{task?.issueType !== EIssueType.EPIC && task && (
-						<div className="flex gap-3 items-center">
+						<div className="flex items-center gap-3">
 							{/* Current Issue Type is Task|Bug and Parent Issue is Not an Epic */}
 							{(!task?.issueType ||
 								task?.issueType === EIssueType.TASK ||
@@ -219,7 +220,7 @@ const TaskTitleBlock = () => {
 					{task && (
 						<button
 							className={clsxm(
-								'flex justify-center items-center w-7 h-7 rounded-full transition-colors ml-1',
+								'flex items-center justify-center w-7 h-7 rounded-full transition-colors ml-1',
 								addTaskToFavoriteLoading || deleteTaskFromFavoritesLoading
 									? ''
 									: isFavoriteTask(task.id)
@@ -247,7 +248,7 @@ const TaskTitleBlock = () => {
 				</div>
 
 				<CopyTooltip text={task?.taskNumber || ''}>
-					<button className="flex gap-1 items-center text-[#B1AEBC] text-[10px] 3xl:text-xs 3xl:py-2">
+					<button className="flex items-center gap-1 text-[#B1AEBC] text-[10px] 3xl:text-xs 3xl:py-2">
 						<CopyRoundIcon className="text-[#B1AEBC] w-2.5 h-2.5" />
 						{t('pages.settingsTeam.COPY_NUMBER')}
 					</button>
@@ -271,7 +272,7 @@ const ParentTaskBadge = ({ task }: { task: TTask | null }) => {
 						task.parent.issueType === EIssueType.STORY && 'bg-[#54BA951A]',
 						task.parent.issueType === EIssueType.BUG && 'bg-[#C24A4A1A]',
 						(task.parent.issueType === EIssueType.TASK || !task.parent.issueType) && 'bg-[#5483ba]',
-						'rounded-[0.1875rem] text-center !h-7 3xl:h-6 flex justify-center items-center py-0.5 px-2.5'
+						'rounded-[0.1875rem] text-center !h-7 3xl:h-6 flex items-center justify-center py-0.5 px-2.5'
 					)}
 				>
 					<span
@@ -318,7 +319,7 @@ const ParentTaskInput = ({ task }: { task: TTask | null }) => {
 
 	return task && task.issueType !== EIssueType.EPIC ? (
 		<>
-			<div className="box-border flex justify-center items-center h-7 text-center bg-transparent rounded-sm cursor-pointer">
+			<div className="box-border flex items-center justify-center text-center bg-transparent rounded-sm cursor-pointer h-7">
 				<Button
 					variant="outline-danger"
 					className="text-[#f07258] font-medium text-xs py-1 px-2.5 min-w-[4.75rem] outline-hidden h-7 rounded"

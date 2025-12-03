@@ -2,6 +2,7 @@ import { useOrganizationProjects } from '@/core/hooks';
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
+import { toast } from 'sonner';
 import { EverCard } from '../../common/ever-card';
 
 interface IDeleteProjectModalProps {
@@ -32,11 +33,23 @@ export function DeleteProjectConfirmModal(props: IDeleteProjectModalProps) {
 				closeModal();
 
 				setOrganizationProjects((prev) => prev.filter((el) => el.id !== projectId));
+
+				// Show success toast
+				toast.success(t('common.DELETE_SUCCESS'), {
+					description: t('pages.projects.deleteModal.successDescription'),
+					duration: 4000
+				});
 			}
 		} catch (err) {
 			console.error('Failed to delete project', err);
+
+			// Show error toast
+			toast.error(t('common.DELETE_ERROR'), {
+				description: t('pages.projects.deleteModal.errorDescription'),
+				duration: 5000
+			});
 		}
-	}, [closeModal, deleteOrganizationProject, projectId, setOrganizationProjects]);
+	}, [closeModal, deleteOrganizationProject, projectId, setOrganizationProjects, t]);
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>

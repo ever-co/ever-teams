@@ -21,7 +21,13 @@ export function useMapToTaskStatusValues<T extends Omit<TTaskStatus, 'name'> & {
 				icon: (
 					<div className="relative flex items-center">
 						{item.fullIconUrl && (
-							<Image layout="fixed" src={item.fullIconUrl} height="20" width="16" alt={item.name} />
+							<Image
+								className="object-contain w-5 h-5"
+								src={item.fullIconUrl}
+								height={20}
+								width={20}
+								alt={item.name}
+							/>
 						)}
 					</div>
 				)
