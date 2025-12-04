@@ -269,7 +269,13 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 									label: 'view-all-projects'
 								}
 							]
-						: []),
+						: [
+								{
+									title: `${t('pages.projects.accessDenied.viewAllProjects')}`,
+									url: '/projects',
+									label: 'view-all-projects'
+								}
+							]),
 					{
 						title: t('common.ARCHIVE'),
 						url: '/projects?archived=true',
@@ -426,7 +432,9 @@ const FavoriteTaskItem = ({ task }: { task: TTask }) => {
 						// Show task issue and task number
 						<TaskIssueStatus
 							showIssueLabels={false}
-							className={cn('flex gap-1 items-center px-2 mr-1 size-full rounded-full! p-1.5! aspect-square')}
+							className={cn(
+								'flex gap-1 items-center px-2 mr-1 size-full rounded-full! p-1.5! aspect-square'
+							)}
 							task={task}
 						/>
 					)}
