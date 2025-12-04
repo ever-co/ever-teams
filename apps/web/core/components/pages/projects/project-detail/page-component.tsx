@@ -312,7 +312,7 @@ function ProjectDetailContent({
 										<Menu.Items className="absolute z-[999] right-0 mt-2 w-48 origin-top-right rounded-lg bg-white dark:bg-dark-lighter shadow-lg ring-1 ring-black/5 focus:outline-none">
 											<div className="flex flex-col gap-1 p-2">
 												{/* Restore - Only for archived projects */}
-												{isArchived && (
+												{isArchived && (canEdit || canArchive) && (
 													<Menu.Item>
 														{({ active }) => (
 															<button
