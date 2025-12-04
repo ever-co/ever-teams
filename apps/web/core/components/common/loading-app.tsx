@@ -17,18 +17,18 @@ export const LoadingApp: FC<{ className?: string }> = ({ className }) => {
 				{/* Left sidebar structure implementation - Lazy loaded for performance */}
 				<AppSidebarSkeleton />
 				{/* Layout content structure implementation */}
-				<SidebarInset className="relative flex-1 overflow-x-hidden !h-full !w-full">
+				<SidebarInset className="relative flex-1 overflow-x-hidden size-full!">
 					<header
 						className={cn(
-							'flex max-h-fit flex-col flex-1  my-auto inset-x-0 w-full min-h-[80px] top-0 h-fit shrink-0 justify-start gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-20 bg-white dark:bg-dark-high !mx-0 !nav-items--shadow dark:!shadow-none border-b-[0.5px] dark:border-b-[0.125rem] border-gray-200 relative z-50 dark:border-b-[#26272C]',
-							!fullWidth ? 'lg:px-8' : 'px-8'
+							'flex max-h-fit flex-col flex-1  my-auto inset-x-0 w-full min-h-[80px] top-0 h-fit shrink-0 justify-start gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-20 bg-white dark:bg-dark-high mx-0! !nav-items--shadow dark:shadow-none! border-b-[0.5px] dark:border-b-[0.125rem] border-gray-200 relative z-50 dark:border-b-[#26272C]',
+							fullWidth ? 'px-8' : 'lg:px-8'
 						)}
 					>
 						<div
-							role="status"
+							aria-role="status"
 							className={cn(
 								'container flex gap-3 justify-between items-center h-12 animate-pulse mt',
-								!fullWidth ? 'mx-auto x-container' : '!mx-0'
+								fullWidth ? 'mx-0!':'mx-auto x-container'
 							)}
 						>
 							<div className="w-20 h-8 bg-gray-200 rounded-full dark:bg-gray-700 me-3" />

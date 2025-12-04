@@ -241,7 +241,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 											key={project?.name}
 											style={{ backgroundColor: project?.color || undefined }}
 											className={cn(
-												'flex overflow-hidden justify-center items-center size-8 flex-none shrink-0 rounded-full border'
+												'flex overflow-hidden flex-none justify-center items-center rounded-full border size-7 shrink-0'
 											)}
 										>
 											{!project?.imageUrl ? (
@@ -249,8 +249,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 											) : (
 												<Image
 													alt={project?.name ?? ''}
-													height={40}
-													width={40}
+													height={28}
+													width={28}
 													className="w-full h-full"
 													src={project?.imageUrl}
 												/>
@@ -420,13 +420,13 @@ const FavoriteTaskItem = ({ task }: { task: TTask }) => {
 			)}
 			asChild
 		>
-			<span className="flex items-center justify-between w-full min-w-fit">
+			<span className="flex justify-between items-center w-full min-w-fit">
 				<Link href={`/task/${task?.id}`} className="flex items-center">
 					{task && (
 						// Show task issue and task number
 						<TaskIssueStatus
 							showIssueLabels={false}
-							className={cn('flex gap-1 items-center px-2 mr-1 w-full')}
+							className={cn('flex gap-1 items-center px-2 mr-1 size-full rounded-full! p-1.5! aspect-square')}
 							task={task}
 						/>
 					)}
