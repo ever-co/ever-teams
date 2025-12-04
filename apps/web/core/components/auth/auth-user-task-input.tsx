@@ -16,33 +16,37 @@ export function AuthUserTaskInput({ className }: IClassName) {
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
 	return (
-		<div className={clsxm('flex flex-col flex-1 mt-8 lg:mt-0', className)}>
+		<div className={clsxm('flex flex-col flex-1 mt-8 lg:mt-0 gap-4', className)}>
 			<TaskInput
 				fullWidthCombobox={true}
 				createOnEnterClick={true}
 				showTaskNumber={true}
 				autoAssignTaskAuth={isTrackingEnabled}
+				task={activeTeamTask}
 			/>
 			<div className="flex flex-row items-center gap-3 ml-2 lg:gap-4 md:justify-between lg:justify-start">
 				<div className="mb-4 xl:flex lg:mb-0">
 					<span className="pr-2 font-normal text-gray-500">{t('common.ESTIMATE')}:</span>
-					<TaskEstimate />
+					<TaskEstimate _task={activeTeamTask} />
 				</div>
 
 				<div className="justify-end flex-1 hidden gap-2 md:flex md:items-center">
 					<ActiveTaskStatusDropdown
+						task={activeTeamTask}
 						className="w-fit lg:max-w-[190px] dark:text-white dark:border-gray-800"
 						disabled={!activeTeamTask}
 						taskStatusClassName="text-xs py-1.5 w-full dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] overflow-hidden text-ellipsis whitespace-nowrap"
 					/>
 
 					<ActiveTaskPropertiesDropdown
+						task={activeTeamTask}
 						className="w-fit lg:max-w-[190px] dark:text-white dark:border-gray-800"
 						disabled={!activeTeamTask}
 						taskStatusClassName="w-full py-1.5 text-xs dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] overflow-hidden text-ellipsis whitespace-nowrap"
 					/>
 
 					<ActiveTaskSizesDropdown
+						task={activeTeamTask}
 						className="w-fit lg:max-w-[190px] dark:text-white dark:border-gray-800"
 						disabled={!activeTeamTask}
 						taskStatusClassName="w-full py-1.5 text-xs dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] overflow-hidden text-ellipsis whitespace-nowrap"
@@ -60,7 +64,7 @@ export function AuthUserTaskInput({ className }: IClassName) {
 								container: 'rounded-xl grow text-xs !max-w-fit overflow-hidden',
 								listCard: 'rounded-xl'
 							}}
-							task={activeTeamTask!}
+							task={activeTeamTask}
 						/>
 					)}
 				</div>
