@@ -24,7 +24,7 @@ import {
 } from '@/core/components/common/sidebar';
 import Link from 'next/link';
 import { cn } from '@/core/lib/helpers';
-import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
+import { isValidProjectForDisplay, projectBelongsToTeam } from '@/core/lib/helpers/type-guards';
 import { useFavorites, useModal } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { SidebarOptInForm } from './sidebar-opt-in-form';
@@ -64,20 +64,17 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const activeTeam = useAtomValue(activeTeamState);
 
 	// Filter valid projects using unified logic
-	// Filter projects using type-guards helpers:
-	// 1. isValidProjectForDisplay: isActive + !isArchived + hasName
-	// 2. projectHasNoTeams OR projectBelongsToTeam: include newly created projects not yet assigned
+	// Only show projects that belong to the active team
 	const validProjects = useMemo(() => {
 		return organizationProjects.filter((project) => {
 			// Base validation using type-guard helper
 			if (!isValidProjectForDisplay(project)) return false;
 
-			// If no active team, show all valid projects
-			if (!activeTeam) return true;
+			// If no active team, show no projects
+			if (!activeTeam?.id) return false;
 
-			// Filter by active team membership OR projects with no teams assigned
-			// Projects without teams are included (newly created via Quick Create)
-			return projectHasNoTeams(project) || projectBelongsToTeam(project, activeTeam.id);
+			// Only show projects that belong to the active team
+			return projectBelongsToTeam(project, activeTeam.id);
 		});
 	}, [organizationProjects, activeTeam]);
 
