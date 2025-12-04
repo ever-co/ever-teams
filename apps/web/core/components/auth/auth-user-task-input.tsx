@@ -60,7 +60,7 @@ export function AuthUserTaskInput({ className }: IClassName) {
 								container: 'rounded-xl grow text-xs !max-w-fit overflow-hidden',
 								listCard: 'rounded-xl'
 							}}
-							task={activeTeamTask}
+							task={activeTeamTask!}
 						/>
 					)}
 				</div>
