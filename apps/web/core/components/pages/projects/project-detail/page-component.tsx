@@ -75,7 +75,16 @@ export default function ProjectDetailPageComponent() {
 
 	const breadcrumbPath = useMemo(
 		() => [
-			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
+			{
+				title: (() => {
+					try {
+						return JSON.parse(t('pages.home.BREADCRUMB'));
+					} catch {
+						return t('pages.home.BREADCRUMB');
+					}
+				})(),
+				href: '/'
+			},
 			{ title: activeTeam?.name || '', href: '/' },
 			{ title: t('pages.projects.projectTitle.PLURAL'), href: `/${currentLocale}/projects` },
 			{ title: project?.name || t('common.LOADING'), href: '#' }

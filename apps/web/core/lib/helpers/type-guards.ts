@@ -37,7 +37,6 @@ export function isProject(entity: TOrganizationProject | TOrganizationTeam): ent
 		'currency' in entity &&
 		'budgetType' in entity &&
 		'projectUrl' in entity &&
-		'status' in entity &&
 		'teams' in entity
 	);
 }
@@ -115,9 +114,9 @@ export function isValidProjectForDisplay(
 ): project is TOrganizationProject {
 	if (!project) return false;
 
-	// CRITICAL: First verify this is actually a Project, not a Team
+	// First verify this is actually a Project, not a Team
 	// This prevents Teams or other entities from appearing in project lists
-	if (!isProject(project) || isTeam(project)) return false;
+	if (!isProject(project)) return false;
 
 	const hasValidName = Boolean(project.name && project.name.trim().length > 0);
 	const isArchived = project.isArchived === true;

@@ -27,14 +27,14 @@ const GlobalSkeleton: FC<{ className?: string }> = ({ className }) => {
 						)}
 					>
 						<div
-							aria-role="role"
+							role="status"
 							className={cn(
 								'container flex gap-3 justify-between items-center h-12 animate-pulse mt',
-								fullWidth ? 'mx-0!':'mx-auto x-container'
+								fullWidth ? 'mx-0!' : 'mx-auto x-container'
 							)}
 						>
 							<div className="w-20 h-8 bg-gray-200 rounded-full dark:bg-gray-700 me-3" />
-							<div className="flex gap-4 justify-center items-center mt-4">
+							<div className="flex items-center justify-center gap-4 mt-4">
 								<div className="w-20 h-8 bg-gray-200 rounded-full dark:bg-gray-700 me-3" />
 								<div className="w-20 h-8 bg-gray-200 rounded-full dark:bg-gray-700 me-1" />
 								<div className="w-24 h-8 bg-gray-200 rounded-full dark:bg-gray-700" />
@@ -53,31 +53,31 @@ const GlobalSkeleton: FC<{ className?: string }> = ({ className }) => {
 
 					<div className="w-full bg-light--theme-dark dark:bg-dark--theme-light">
 						<Container fullWidth={fullWidth} className="flex justify-between mt-10">
-							<div className="flex gap-2 justify-start">
+							<div className="flex justify-start gap-2">
 								<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
 								<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
 							</div>
-							<div className="flex gap-2 justify-end">
+							<div className="flex justify-end gap-2">
 								<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
 								<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
 							</div>
 						</Container>
 						{/* Task Input Skeleton */}
 						<Container fullWidth={fullWidth} className="pt-12 pb-24">
-							<div className="w-full h-36 bg-white rounded-xl animate-pulse dark:bg-dark-high" />
+							<div className="w-full bg-white h-36 rounded-xl animate-pulse dark:bg-dark-high" />
 						</Container>
-						<div className="flex justify-evenly items-center pb-16 w-full">
+						<div className="flex items-center w-full pb-16 justify-evenly">
 							<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
 							<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
 							<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
 							<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
 						</div>
 					</div>
-					<div className="py-4 w-full">
-						<Container fullWidth={fullWidth} className="flex flex-col gap-6 items-stretch pt-4">
-							<div className="w-full h-36 bg-white rounded-xl animate-pulse dark:bg-dark-high" />
-							<div className="w-full h-36 bg-white rounded-xl animate-pulse dark:bg-dark-high" />
-							<div className="w-full h-36 bg-white rounded-xl animate-pulse dark:bg-dark-high" />
+					<div className="w-full py-4">
+						<Container fullWidth={fullWidth} className="flex flex-col items-stretch gap-6 pt-4">
+							<div className="w-full bg-white h-36 rounded-xl animate-pulse dark:bg-dark-high" />
+							<div className="w-full bg-white h-36 rounded-xl animate-pulse dark:bg-dark-high" />
+							<div className="w-full bg-white h-36 rounded-xl animate-pulse dark:bg-dark-high" />
 						</Container>
 					</div>
 				</SidebarInset>

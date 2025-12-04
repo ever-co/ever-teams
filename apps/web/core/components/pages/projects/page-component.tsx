@@ -1,5 +1,4 @@
 'use client';
-
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { organizationProjectsState } from '@/core/stores';
 import { useLocalStorageState, useModal, useOrganizationProjects } from '@/core/hooks';
@@ -53,8 +52,7 @@ import {
 	LazyProjectsGridView,
 	LazyProjectExportMenu
 } from '@/core/components/optimized-components/projects';
-import { activeTeamState, isTrackingEnabledState, organizationTeamsState } from '@/core/stores';
-import { workspacesState } from '@/core/stores/auth/workspaces';
+import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 
 type TViewMode = 'GRID' | 'LIST';
 

@@ -163,7 +163,7 @@ export const ProjectsTable = memo(
 										/>
 									)}
 								</div>
-								<p className="group-hover:text-primary transition-colors">
+								<p className="transition-colors group-hover:text-primary">
 									{row.original?.project?.name}
 								</p>
 							</Link>
@@ -207,13 +207,14 @@ export const ProjectsTable = memo(
 					return (
 						<div className="flex items-center capitalize">
 							<div
-								className={cn(
-									'px-4 py-1 text-xs rounded',
-									resolvedTheme === 'light'
-										? (statusColorsMap.get(row.original?.status as ETaskStatusName) ??
-												'bg-transparent')
-										: 'bg-[#6A7280]'
-								)}
+								style={{
+									backgroundColor:
+										resolvedTheme === 'light'
+											? (statusColorsMap.get(row.original?.status as ETaskStatusName) ??
+												'transparent')
+											: '#6A7280'
+								}}
+								className="px-4 py-1 text-xs text-white rounded"
 							>
 								{row.original?.status}
 							</div>
