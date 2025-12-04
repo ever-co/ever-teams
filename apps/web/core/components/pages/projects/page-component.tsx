@@ -19,7 +19,7 @@ import {
 	Settings2
 } from 'lucide-react';
 import { cn } from '@/core/lib/helpers';
-import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
+import { isValidProjectForDisplay, projectBelongsToTeam } from '@/core/lib/helpers/type-guards';
 import { Button, Container } from '@/core/components';
 import { DatePickerWithRange } from '@/core/components/common/date-range-select';
 import { DateRange } from 'react-day-picker';
@@ -265,19 +265,15 @@ function PageComponent() {
 	}, [projects, dateRange]);
 
 	const activeTeamProjects = useMemo(() => {
-		// If no active team, return all date-filtered projects
-		if (!activeTeam) {
-			return dateFilteredProjects || [];
+		// If no active team, return no projects
+		if (!activeTeam?.id) {
+			return [];
 		}
 
-		// Filter projects using type-guards helpers:
-		// - projectHasNoTeams: newly created projects not yet assigned to any team
-		// - projectBelongsToTeam: projects assigned to the active team
+		// Only show projects that belong to the active team
 		return (
 			dateFilteredProjects?.filter((el) => {
-				const hasNoTeams = projectHasNoTeams(el);
-				const belongsToTeam = projectBelongsToTeam(el, activeTeam.id);
-				return hasNoTeams || belongsToTeam;
+				return projectBelongsToTeam(el, activeTeam.id);
 			}) || []
 		);
 	}, [activeTeam, dateFilteredProjects]);
@@ -394,7 +390,6 @@ function PageComponent() {
 		const mappedProjects = validProjects.map(mapProjectToViewDataType);
 		setProjects(mappedProjects);
 	}, [organizationProjects, showArchivedProjects]);
-
 
 	// Separate effect for handling member queries (if needed)
 	useEffect(() => {

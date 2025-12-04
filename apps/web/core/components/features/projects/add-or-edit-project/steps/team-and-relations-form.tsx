@@ -1,5 +1,5 @@
 import { Button } from '@/core/components';
-import { CheckIcon, Plus, X } from 'lucide-react';
+import { CheckIcon, Plus, X, LockIcon } from 'lucide-react';
 import { FormEvent, useCallback, useState, useMemo } from 'react';
 import { Identifiable, Select, Thumbnail } from './basic-information-form';
 import { IStepElementProps } from '../container';
@@ -12,6 +12,7 @@ import { TProjectRelation } from '@/core/types/schemas';
 import { useAtomValue } from 'jotai';
 import { activeTeamState, organizationProjectsState, organizationTeamsState, rolesState } from '@/core/stores';
 import { ROLES } from '@/core/constants/config/constants';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const { goToNext, goToPrevious, currentData } = props;
@@ -20,18 +21,42 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 	);
 	const [relations, setRelations] = useState<(TProjectRelation & { id: string })[]>([]);
 
+	// Get user role for permission check
+	const { data: user } = useUserQuery();
+	const isGlobalAdmin = useMemo(() => {
+		const roleName = user?.role?.name as ERoleName | undefined;
+		return roleName === ERoleName.ADMIN || roleName === ERoleName.SUPER_ADMIN;
+	}, [user?.role?.name]);
+
 	// Get teams for multi-select
 	const organizationProjects = useAtomValue(organizationProjectsState);
-	const teams = useAtomValue(organizationTeamsState);
+	const allTeams = useAtomValue(organizationTeamsState);
 	const activeTeam = useAtomValue(activeTeamState);
 
+	// Filter available teams based on user role:
+	// - Admin: Can see all teams
+	// - Manager/Member: Can only see active team
+	const teams = useMemo(() => {
+		if (isGlobalAdmin) {
+			return allTeams;
+		}
+		// Non-admin users can only see the active team
+		return activeTeam ? [activeTeam] : [];
+	}, [isGlobalAdmin, allTeams, activeTeam]);
+
 	// Selected teams state - initialized with activeTeam or existing teams from edit mode
+	// Active team is ALWAYS included and cannot be deselected by non-admins
 	const [selectedTeamIds, setSelectedTeamIds] = useState<string[]>(() => {
 		const existingTeams = getInitialValue(currentData, 'teams', []);
 		if (existingTeams.length > 0) {
-			return existingTeams.map((t: { id: string }) => t.id);
+			const existingIds = existingTeams.map((t: { id: string }) => t.id);
+			// In edit mode, ensure active team is included if not already
+			if (activeTeam?.id && !existingIds.includes(activeTeam.id)) {
+				return [...existingIds, activeTeam.id];
+			}
+			return existingIds;
 		}
-		// Default to activeTeam if no teams are set
+		// Default to activeTeam if no teams are set (MANDATORY)
 		return activeTeam?.id ? [activeTeam.id] : [];
 	});
 
@@ -108,11 +133,34 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 		setRelations((prev) => prev.filter((el) => el.id !== id));
 	};
 
-	// Toggle team selection
+	// Check if a team can be deselected
+	// - Active team cannot be deselected by non-admins
+	// - Admins can deselect active team ONLY if another team is selected
+	const canDeselectTeam = useCallback(
+		(teamId: string) => {
+			// If it's not the active team, it can always be deselected
+			if (teamId !== activeTeam?.id) return true;
+
+			// Active team can only be deselected by admins
+			if (!isGlobalAdmin) return false;
+
+			// Admin can deselect active team only if at least one OTHER team is selected
+			const otherTeamsSelected = selectedTeamIds.filter((id) => id !== activeTeam?.id);
+			return otherTeamsSelected.length > 0;
+		},
+		[activeTeam?.id, isGlobalAdmin, selectedTeamIds]
+	);
+
+	// Toggle team selection with guards
 	const handleToggleTeam = (teamId: string) => {
 		setSelectedTeamIds((prev) => {
 			if (prev.includes(teamId)) {
-				// Remove team
+				// Trying to remove a team
+				// Check if this is allowed
+				if (!canDeselectTeam(teamId)) {
+					// Cannot deselect - return unchanged
+					return prev;
+				}
 				return prev.filter((id) => id !== teamId);
 			} else {
 				// Add team
@@ -154,32 +202,46 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 	}, [goToPrevious, members, relations, selectedTeamIds, teams]);
 
 	return (
-		<form onSubmit={handleSubmit} className="pt-4 space-y-5 w-full">
+		<form onSubmit={handleSubmit} className="w-full pt-4 space-y-5">
 			{/* Teams Multi-Select Section */}
-			<div className="flex flex-col gap-2 w-full">
+			<div className="flex flex-col w-full gap-2">
 				<label className="text-xs font-medium">
 					{t('pages.projects.teamAndRelationsForm.formFields.assignTeams')}
-					<span className="text-red-500 ml-1">*</span>
+					<span className="ml-1 text-red-500">*</span>
 				</label>
 				<div className="flex flex-wrap gap-2 p-3 border rounded-lg min-h-[60px]">
 					{teams?.length ? (
 						teams.map((team) => {
 							const isSelected = selectedTeamIds.includes(team.id);
+							const isActiveTeam = team.id === activeTeam?.id;
+							const isLocked = isActiveTeam && !canDeselectTeam(team.id);
+
 							return (
 								<button
 									key={team.id}
 									type="button"
 									onClick={() => handleToggleTeam(team.id)}
+									disabled={isLocked && isSelected}
 									className={cn(
 										'flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors',
 										isSelected
 											? 'bg-primary text-primary-foreground'
-											: 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700'
+											: 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700',
+										isLocked && isSelected && 'cursor-not-allowed opacity-80'
 									)}
+									title={
+										isLocked
+											? t('pages.projects.teamAndRelationsForm.formFields.activeTeamLocked')
+											: undefined
+									}
 								>
 									{team.emoji && <span>{team.emoji}</span>}
 									<span>{team.name}</span>
-									{isSelected && <CheckIcon size={12} />}
+									{isLocked && isSelected ? (
+										<LockIcon size={12} />
+									) : isSelected ? (
+										<CheckIcon size={12} />
+									) : null}
 								</button>
 							);
 						})
@@ -196,12 +258,12 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 			</div>
 
 			{/* Members Section */}
-			<div className="flex flex-col gap-2 w-full">
+			<div className="flex flex-col w-full gap-2">
 				<label className="text-xs font-medium">
 					{t('pages.projects.teamAndRelationsForm.formFields.assignMembers')}
 				</label>
-				<div className="flex flex-col gap-2 w-full">
-					<div className="flex flex-col gap-1 w-full">
+				<div className="flex flex-col w-full gap-2">
+					<div className="flex flex-col w-full gap-1">
 						{members.length ? (
 							members.map((el) => (
 								<PairingItem
@@ -254,12 +316,12 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 			{
 				// Will be implemented later on the api side (we keep this here)
 			}
-			<div className="hidden flex-col gap-2 w-full">
+			<div className="flex-col hidden w-full gap-2">
 				<label className="text-xs font-medium">
 					{t('pages.projects.teamAndRelationsForm.formFields.relations')}
 				</label>
-				<div className="flex flex-col gap-2 w-full">
-					<div className="flex flex-col gap-1 w-full">
+				<div className="flex flex-col w-full gap-2">
+					<div className="flex flex-col w-full gap-1">
 						{relations.length ? (
 							relations.map((el) => (
 								<PairingItem
@@ -318,7 +380,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 				</div>
 			</div>
 
-			<div className="flex justify-between items-center w-full">
+			<div className="flex items-center justify-between w-full">
 				<Button onClick={handlePrevious} className=" h-[2.5rem]" type="button">
 					{t('common.BACK')}
 				</Button>
@@ -348,7 +410,7 @@ function PairingItem<K extends Identifiable, V extends Identifiable>(props: IPai
 	const [valueId, setValueId] = useState<string | null>(selected[1] || null);
 
 	return (
-		<div className="flex gap-3 items-center w-full">
+		<div className="flex items-center w-full gap-3">
 			<div className="w-full">
 				<Select
 					placeholder={keysLabel}

@@ -20,7 +20,8 @@ import {
 	Archive,
 	Trash,
 	RotateCcw,
-	MoreVertical
+	MoreVertical,
+	ShieldAlert
 } from 'lucide-react';
 import { Menu, Transition } from '@headlessui/react';
 
@@ -39,6 +40,7 @@ import { ProjectDetailSkeleton } from '@/core/components/common/skeleton/project
 import { InfoItem, MemberCard, Section, StatusBadge } from './components';
 import { useProjectPermissions } from '@/core/hooks/projects/use-project-permissions';
 import { useProjectActionModal } from '@/core/hooks/use-project-action-modal';
+import { projectBelongsToTeam } from '@/core/lib/helpers/type-guards';
 
 export default function ProjectDetailPageComponent() {
 	const t = useTranslations();
@@ -87,6 +89,13 @@ export default function ProjectDetailPageComponent() {
 	const teams = useMemo(() => project?.teams || [], [project?.teams]);
 	const tags = useMemo(() => project?.tags || [], [project?.tags]);
 
+	// Check if project belongs to active team
+	// Only projects that explicitly belong to the active team are accessible
+	const projectBelongsToActiveTeam = useMemo(() => {
+		if (!project || !activeTeam?.id) return false;
+		return projectBelongsToTeam(project, activeTeam.id);
+	}, [project, activeTeam?.id]);
+
 	// Billing labels
 	const billingLabels: Record<EProjectBilling, string> = useMemo(
 		() => ({
@@ -121,6 +130,36 @@ export default function ProjectDetailPageComponent() {
 						<Button onClick={handleBack} variant="outline">
 							<ArrowLeftIcon className="w-4 h-4 mr-2" />
 						</Button>
+					</div>
+				</Container>
+			</MainLayout>
+		);
+	}
+
+	// Access denied - Project doesn't belong to active team
+	if (project && !projectBelongsToActiveTeam) {
+		return (
+			<MainLayout showTimer={isTrackingEnabled} className="p-0! pb-1 overflow-hidden! w-full">
+				<Container fullWidth={fullWidth} className="flex flex-col items-center justify-center h-full gap-4 p-8">
+					<div className="text-center">
+						<div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 dark:bg-amber-900/30">
+							<ShieldAlert className="w-8 h-8 text-amber-600 dark:text-amber-400" />
+						</div>
+						<h2 className="mb-2 text-2xl font-semibold text-gray-900 dark:text-white">
+							{t('pages.projects.accessDenied.title')}
+						</h2>
+						<p className="max-w-md mb-6 text-gray-500 dark:text-gray-400">
+							{t('pages.projects.accessDenied.description', { teamName: activeTeam?.name || '' })}
+						</p>
+						<div className="flex items-center justify-center gap-3">
+							<Button onClick={handleBack} variant="outline">
+								<ArrowLeftIcon className="w-4 h-4 mr-2" />
+								{t('common.BACK')}
+							</Button>
+							<Button onClick={() => router.push(`/${currentLocale}/projects`)} variant="default">
+								{t('pages.projects.accessDenied.viewAllProjects')}
+							</Button>
+						</div>
 					</div>
 				</Container>
 			</MainLayout>
