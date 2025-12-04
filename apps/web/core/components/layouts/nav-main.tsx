@@ -205,7 +205,7 @@ export function NavMain({
 																{subItem.icon && (
 																	<div
 																		className={cn(
-																			'w-8 h-8 border rounded-full flex items-center justify-center'
+																			'size-8 border rounded-full flex items-center justify-center shrink-0 flex-none aspect-square'
 																		)}
 																	>
 																		{subItem.icon}

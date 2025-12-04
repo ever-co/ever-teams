@@ -102,7 +102,7 @@ const TaskSecondaryInfo = () => {
 	}, [taskLabels, task?.tags]);
 
 	return (
-		<section className="flex flex-col gap-4 p-[0.9375rem]">
+		<section className="flex flex-col gap-4 p-3.75">
 			{/* Version */}
 			<TaskRow labelTitle={t('pages.taskDetails.VERSION')}>
 				<ActiveTaskVersionDropdown
@@ -361,6 +361,8 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 				if (task) {
 					if (task?.projectId === project.id) return;
 					await updateTask({ ...task, projectId: project.id });
+					// Update local selected state immediately for optimistic UI
+					setSelected(project);
 					toast.success('Task project updated successfully', {
 						description: `Project changed to "${project.name}"`
 					});
@@ -487,10 +489,10 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 															alt={item.name || ''}
 															width={20}
 															height={20}
-															className="rounded-full"
+															className="flex-none rounded-full shrink-0 aspect-square"
 														/>
 													)}
-													<span className="w-full overflow-hidden text-xs truncate max-w-64 text-ellipsis">
+													<span className="w-full overflow-hidden text-xs truncate max-w-32 text-ellipsis">
 														{item.name || 'Project'}
 													</span>
 												</DropdownMenuItem>
