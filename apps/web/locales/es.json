@@ -658,8 +658,17 @@
 					"noRelations": "Sin relaciones",
 					"addRelation": "Agregar Relación",
 					"selectProject": "Seleccionar un proyecto...",
-					"selectRelationType": "Elegir tipo de relación..."
+					"selectRelationType": "Elegir tipo de relación...",
+					"activeTeamLocked": "El equipo actual es obligatorio y no se puede eliminar"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "Por favor seleccione al menos un equipo"
 				}
+			},
+			"accessDenied": {
+				"title": "Acceso Denegado",
+				"description": "Este proyecto no pertenece a su equipo actual ({teamName}). Cambie a un equipo que tenga acceso a este proyecto.",
+				"viewAllProjects": "Ver Todos los Proyectos"
 			},
 			"addOrEditModal": {
 				"steps": {

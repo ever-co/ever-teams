@@ -577,11 +577,17 @@
 					"noRelations": "No relations",
 					"addRelation": "Add Relation",
 					"selectProject": "Select a project...",
-					"selectRelationType": "Choose a relation type..."
+					"selectRelationType": "Choose a relation type...",
+					"activeTeamLocked": "Current team is required and cannot be removed"
 				},
 				"errors": {
 					"atLeastOneTeamRequired": "Please select at least one team"
 				}
+			},
+			"accessDenied": {
+				"title": "Access Denied",
+				"description": "This project does not belong to your current team ({teamName}). Switch to a team that has access to this project.",
+				"viewAllProjects": "View All Projects"
 			},
 			"addOrEditModal": {
 				"steps": {

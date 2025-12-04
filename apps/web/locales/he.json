@@ -593,8 +593,17 @@
 					"noRelations": "אין קשרים",
 					"addRelation": "הוסף קשר",
 					"selectProject": "בחר פרויקט...",
-					"selectRelationType": "בחר סוג קשר..."
+					"selectRelationType": "בחר סוג קשר...",
+					"activeTeamLocked": "הצוות הנוכחי נדרש ולא ניתן להסירו"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "אנא בחר לפחות צוות אחד"
 				}
+			},
+			"accessDenied": {
+				"title": "הגישה נדחתה",
+				"description": "פרויקט זה אינו שייך לצוות הנוכחי שלך ({teamName}). עבור לצוות שיש לו גישה לפרויקט זה.",
+				"viewAllProjects": "צפה בכל הפרויקטים"
 			},
 			"addOrEditModal": {
 				"steps": {

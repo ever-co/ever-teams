@@ -593,8 +593,17 @@
 					"noRelations": "لا توجد علاقات",
 					"addRelation": "إضافة علاقة",
 					"selectProject": "اختر مشروع...",
-					"selectRelationType": "اختر نوع العلاقة..."
+					"selectRelationType": "اختر نوع العلاقة...",
+					"activeTeamLocked": "الفريق الحالي مطلوب ولا يمكن إزالته"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "يرجى اختيار فريق واحد على الأقل"
 				}
+			},
+			"accessDenied": {
+				"title": "تم رفض الوصول",
+				"description": "هذا المشروع لا ينتمي إلى فريقك الحالي ({teamName}). قم بالتبديل إلى فريق لديه حق الوصول إلى هذا المشروع.",
+				"viewAllProjects": "عرض جميع المشاريع"
 			},
 			"addOrEditModal": {
 				"steps": {

@@ -634,8 +634,17 @@
 					"noRelations": "Brak relacji",
 					"addRelation": "Dodaj Relację",
 					"selectProject": "Wybierz projekt...",
-					"selectRelationType": "Wybierz typ relacji..."
+					"selectRelationType": "Wybierz typ relacji...",
+					"activeTeamLocked": "Bieżący zespół jest wymagany i nie można go usunąć"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "Wybierz co najmniej jeden zespół"
 				}
+			},
+			"accessDenied": {
+				"title": "Odmowa Dostępu",
+				"description": "Ten projekt nie należy do Twojego bieżącego zespołu ({teamName}). Przełącz się na zespół, który ma dostęp do tego projektu.",
+				"viewAllProjects": "Zobacz Wszystkie Projekty"
 			},
 			"addOrEditModal": {
 				"steps": {

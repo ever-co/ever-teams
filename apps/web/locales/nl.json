@@ -631,8 +631,17 @@
 					"noRelations": "Geen relaties",
 					"addRelation": "Relatie toevoegen",
 					"selectProject": "Selecteer een project...",
-					"selectRelationType": "Kies een relatietype..."
+					"selectRelationType": "Kies een relatietype...",
+					"activeTeamLocked": "Het huidige team is vereist en kan niet worden verwijderd"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "Selecteer minimaal één team"
 				}
+			},
+			"accessDenied": {
+				"title": "Toegang Geweigerd",
+				"description": "Dit project behoort niet tot uw huidige team ({teamName}). Schakel over naar een team dat toegang heeft tot dit project.",
+				"viewAllProjects": "Bekijk Alle Projecten"
 			},
 			"addOrEditModal": {
 				"steps": {

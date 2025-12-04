@@ -590,8 +590,17 @@
 					"noRelations": "没有关系",
 					"addRelation": "添加关系",
 					"selectProject": "选择项目...",
-					"selectRelationType": "选择关系类型..."
+					"selectRelationType": "选择关系类型...",
+					"activeTeamLocked": "当前团队是必需的，无法移除"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "请选择至少一个团队"
 				}
+			},
+			"accessDenied": {
+				"title": "访问被拒绝",
+				"description": "此项目不属于您当前的团队 ({teamName})。请切换到有权访问此项目的团队。",
+				"viewAllProjects": "查看所有项目"
 			},
 			"addOrEditModal": {
 				"steps": {

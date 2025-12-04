@@ -634,8 +634,17 @@
 					"noRelations": "Keine Beziehungen",
 					"addRelation": "Beziehung hinzufügen",
 					"selectProject": "Projekt auswählen...",
-					"selectRelationType": "Beziehungstyp auswählen..."
+					"selectRelationType": "Beziehungstyp auswählen...",
+					"activeTeamLocked": "Das aktuelle Team ist erforderlich und kann nicht entfernt werden"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "Bitte wählen Sie mindestens ein Team aus"
 				}
+			},
+			"accessDenied": {
+				"title": "Zugriff verweigert",
+				"description": "Dieses Projekt gehört nicht zu Ihrem aktuellen Team ({teamName}). Wechseln Sie zu einem Team, das Zugriff auf dieses Projekt hat.",
+				"viewAllProjects": "Alle Projekte anzeigen"
 			},
 			"addOrEditModal": {
 				"steps": {
