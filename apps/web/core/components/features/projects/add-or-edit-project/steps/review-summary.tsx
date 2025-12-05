@@ -32,23 +32,39 @@ export default function FinalReview(props: IStepElementProps) {
 	const t = useTranslations();
 	const activeTeam = useAtomValue(activeTeamState);
 
-	const roles = useAtomValue(rolesState);
+	const rolesFromApi = useAtomValue(rolesState);
 	const { data: user } = useUserQuery();
 
-	const simpleMemberRole = roles?.find((role) => role.name == ERoleName.EMPLOYEE);
-	const managerRole = roles?.find((role) => role.name == ERoleName.MANAGER);
+	// Get role IDs with fallback to constants if API doesn't return roles
+	const { simpleMemberRoleId, managerRoleId } = useMemo(() => {
+		// Try to get from API first
+		if (rolesFromApi && rolesFromApi.length > 0) {
+			const simpleMemberRole = rolesFromApi.find((role) => role.name === ERoleName.EMPLOYEE);
+			const managerRole = rolesFromApi.find((role) => role.name === ERoleName.MANAGER);
+			return {
+				simpleMemberRoleId: simpleMemberRole?.id ? String(simpleMemberRole.id) : undefined,
+				managerRoleId: managerRole?.id ? String(managerRole.id) : undefined
+			};
+		}
+
+		// Fallback to the same IDs used in team-and-relations-form.tsx
+		return {
+			simpleMemberRoleId: `fallback-${ERoleName.EMPLOYEE}`,
+			managerRoleId: `fallback-${ERoleName.MANAGER}`
+		};
+	}, [rolesFromApi]);
 
 	// Enhanced member assignment with default role logic
 	const processedMembers = useMemo(() => {
 		const members = finalData?.members || [];
-		const hasManagers = members.some((el) => el.roleId == managerRole?.id && el.memberId);
+		const hasManagers = members.some((el) => el.roleId === managerRoleId && el.memberId);
 
 		// If no managers are assigned and current user is available, assign current user as manager
-		if (!hasManagers && user?.employee?.id && simpleMemberRole?.id && managerRole?.id) {
+		if (!hasManagers && user?.employee?.id && simpleMemberRoleId && managerRoleId) {
 			const currentUserMember = {
 				id: crypto.randomUUID(),
 				memberId: user.employee.id,
-				roleId: managerRole.id
+				roleId: managerRoleId
 			};
 
 			// Check if current user is already assigned with a different role
@@ -56,7 +72,7 @@ export default function FinalReview(props: IStepElementProps) {
 			if (existingUserIndex >= 0) {
 				// Update existing assignment to manager role
 				const updatedMembers = [...members];
-				updatedMembers[existingUserIndex] = { ...updatedMembers[existingUserIndex], roleId: managerRole.id };
+				updatedMembers[existingUserIndex] = { ...updatedMembers[existingUserIndex], roleId: managerRoleId };
 				return updatedMembers;
 			} else {
 				// Add current user as manager
@@ -66,12 +82,21 @@ export default function FinalReview(props: IStepElementProps) {
 
 		// Assign default employee role to members without roles
 		return members.map((member) => {
-			if (!member.roleId && member.memberId && simpleMemberRole?.id) {
-				return { ...member, roleId: simpleMemberRole.id };
+			if (!member.roleId && member.memberId && simpleMemberRoleId) {
+				return { ...member, roleId: simpleMemberRoleId };
 			}
 			return member;
 		});
-	}, [finalData?.members, managerRole?.id, simpleMemberRole?.id, user?.employee?.id]);
+	}, [finalData?.members, managerRoleId, simpleMemberRoleId, user?.employee?.id]);
+
+	// Use teams from form data, fallback to activeTeam if none selected
+	const selectedTeams = useMemo(() => {
+		if (finalData?.teams && finalData.teams.length > 0) {
+			return finalData.teams;
+		}
+		// Fallback to activeTeam if no teams were selected in the form
+		return activeTeam ? [activeTeam] : [];
+	}, [finalData?.teams, activeTeam]);
 
 	const newProject: Partial<TCreateProjectRequest> = {
 		name: finalData?.name,
@@ -85,16 +110,15 @@ export default function FinalReview(props: IStepElementProps) {
 		color: finalData?.color ?? '#000',
 		memberIds:
 			processedMembers
-				?.filter((el) => el.roleId == simpleMemberRole?.id && el.memberId)
+				?.filter((el) => el.roleId === simpleMemberRoleId && el.memberId)
 				.map((el) => el.memberId) || [],
 		managerIds:
-			processedMembers?.filter((el) => el.roleId == managerRole?.id && el.memberId).map((el) => el.memberId) ||
-			[],
+			processedMembers?.filter((el) => el.roleId === managerRoleId && el.memberId).map((el) => el.memberId) || [],
 		budget: finalData?.budget,
 		currency: finalData?.currency,
 		budgetType: finalData?.budgetType,
 		billing: finalData?.billing,
-		teams: [...(activeTeam ? [activeTeam] : [])],
+		teams: selectedTeams,
 		status: ETaskStatusName.OPEN,
 		isActive: true,
 		isArchived: false,
@@ -163,15 +187,16 @@ export default function FinalReview(props: IStepElementProps) {
 						projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
 						managerIds={
 							processedMembers
-								?.filter((el) => el.roleId == managerRole?.id && el.memberId)
+								?.filter((el) => el.roleId === managerRoleId && el.memberId)
 								.map((el) => el.memberId) || []
 						}
 						memberIds={
 							processedMembers
-								?.filter((el) => el.roleId == simpleMemberRole?.id && el.memberId)
+								?.filter((el) => el.roleId === simpleMemberRoleId && el.memberId)
 								.map((el) => el.memberId) || []
 						}
 						relations={finalData?.relations}
+						selectedTeams={selectedTeams}
 					/>
 				</div>
 			</div>
@@ -389,10 +414,11 @@ interface ITeamAndRelationsProps {
 	relations?: IProjectRelation[];
 	projectImageUrl?: string;
 	projectTitle?: string;
+	selectedTeams?: { id: string; name: string; emoji?: string | null }[];
 }
 
 function TeamAndRelations(props: ITeamAndRelationsProps) {
-	const { managerIds, memberIds, relations, projectImageUrl, projectTitle } = props;
+	const { managerIds, memberIds, relations, projectImageUrl, projectTitle, selectedTeams } = props;
 	const t = useTranslations();
 
 	const organizationProjects = useAtomValue(organizationProjectsState);
@@ -427,6 +453,27 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 
 	return (
 		<div className="flex flex-col gap-8 w-full">
+			{/* Teams Section */}
+			<div className="flex flex-col gap-2">
+				<p className="text-xs font-medium">{t('pages.projects.teamAndRelationsForm.formFields.assignTeams')}</p>
+				<div className="flex flex-wrap gap-2 items-center w-full">
+					{selectedTeams?.length ? (
+						selectedTeams.map((team) => (
+							<div
+								key={team.id}
+								className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 border border-primary/20"
+							>
+								{team.emoji && <span>{team.emoji}</span>}
+								<span>{team.name}</span>
+							</div>
+						))
+					) : (
+						<span className="text-xs text-gray-500">-</span>
+					)}
+				</div>
+			</div>
+
+			{/* Managers Section */}
 			<div className="flex flex-col gap-2">
 				<p className="text-xs font-medium">{t('common.MANAGERS')}</p>
 				<div className="flex gap-2 items-center w-full wrap">

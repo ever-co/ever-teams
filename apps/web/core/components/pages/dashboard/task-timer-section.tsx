@@ -9,8 +9,8 @@ export function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEna
 		<EverCard
 			shadow="bigger"
 			className={clsxm(
-				'w-full flex lg:flex-row gap-4 lg:gap-4 xl:gap-6 max-w-full flex-col-reverse justify-center md:justify-between items-center py-4 mb-2',
-				'border-[#00000008]  border-[0.125rem] dark:border-[#26272C] dark:shadow-lg dark:bg-[#1B1D22] md:px-4'
+				'w-full flex lg:flex-row gap-4 lg:gap-4 xl:gap-6 max-w-full flex-col-reverse justify-center md:justify-between items-start py-4 mb-2',
+				'border-[#00000008] border-2 dark:border-[#26272C] dark:shadow-lg dark:bg-[#1B1D22] md:px-4'
 			)}
 		>
 			<LazyAuthUserTaskInput

@@ -5,6 +5,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { InputField } from '../../duplicated-components/_input';
 import { EverCard } from '../../common/ever-card';
 import { TOrganizationProject } from '@/core/types/schemas';
+import { useAtomValue } from 'jotai';
+import { activeTeamState, isTeamManagerState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 interface IQuickCreateProjectModalProps {
 	open: boolean;
@@ -13,6 +16,11 @@ interface IQuickCreateProjectModalProps {
 }
 /**
  * A modal that allow to create a new project
+ *
+ * Quick Create automatically:
+ * - Assigns the activeTeam to the project
+ * - Assigns the connected user as a member
+ * - If the user is a manager, also assigns them as manager
  *
  * @param {Object} props - The props Object
  * @param {boolean} props.open - If true open the modal otherwise close the modal
@@ -26,6 +34,11 @@ export function QuickCreateProjectModal(props: IQuickCreateProjectModalProps) {
 	const { createOrganizationProject, createOrganizationProjectLoading } = useOrganizationProjects();
 	const [name, setName] = useState('');
 
+	// Get active team and current user info
+	const activeTeam = useAtomValue(activeTeamState);
+	const isTeamManager = useAtomValue(isTeamManagerState);
+	const { data: user } = useUserQuery();
+
 	// Cleanup
 	useEffect(() => {
 		return () => {
@@ -38,7 +51,22 @@ export function QuickCreateProjectModal(props: IQuickCreateProjectModalProps) {
 			if (name.trim() === '') {
 				return;
 			}
-			const data = await createOrganizationProject({ name });
+
+			// Get the current employee ID
+			const employeeId = user?.employee?.id || user?.employeeId;
+
+			// Build project creation data with auto-assignment
+			const projectData: Parameters<typeof createOrganizationProject>[0] = {
+				name,
+				// Auto-assign to activeTeam if available
+				teams: activeTeam ? [activeTeam] : [],
+				// Auto-assign current user as member if employee ID is available
+				memberIds: employeeId ? [employeeId] : [],
+				// Auto-assign current user as manager if they are a team manager
+				managerIds: isTeamManager && employeeId ? [employeeId] : []
+			};
+
+			const data = await createOrganizationProject(projectData);
 
 			if (data) {
 				onSuccess?.(data);
@@ -48,7 +76,7 @@ export function QuickCreateProjectModal(props: IQuickCreateProjectModalProps) {
 		} catch (error) {
 			console.error(error);
 		}
-	}, [closeModal, createOrganizationProject, name, onSuccess]);
+	}, [closeModal, createOrganizationProject, name, onSuccess, activeTeam, isTeamManager, user]);
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>

@@ -89,7 +89,7 @@ export function ProjectExportMenu(props: IProps) {
 					{isOpen ? (
 						<Suspense fallback={<ExportPDFSkeleton />}>
 							<PDFDownloadLink
-								className="w-full h-full text-left"
+								className="w-full h-full pl-2 text-left"
 								document={<PDFDocument data={pdfData} headers={pdfHeaders} title={pdfTitle} />}
 								fileName={pdfFileName}
 							>

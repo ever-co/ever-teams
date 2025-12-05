@@ -12,11 +12,11 @@ import {
 	flexRender,
 	getCoreRowModel,
 	getFilteredRowModel,
-	getPaginationRowModel,
 	getSortedRowModel,
 	useReactTable
 } from '@tanstack/react-table';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Checkbox } from '@/core/components/common/checkbox';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/common/table';
@@ -141,7 +141,10 @@ export const ProjectsTable = memo(
 				cell: function ({ row }) {
 					return (
 						<div className="">
-							<div className="flex gap-2 items-center font-medium">
+							<Link
+								href={`/projects/${row.original?.project?.id}`}
+								className="flex items-center gap-2 font-medium group"
+							>
 								<div
 									style={{ backgroundColor: row.original?.project?.color ?? undefined }}
 									className={cn(
@@ -160,8 +163,10 @@ export const ProjectsTable = memo(
 										/>
 									)}
 								</div>
-								<p>{row.original?.project?.name}</p>
-							</div>
+								<p className="transition-colors group-hover:text-primary">
+									{row.original?.project?.name}
+								</p>
+							</Link>
 						</div>
 					);
 				}
@@ -204,12 +209,12 @@ export const ProjectsTable = memo(
 							<div
 								style={{
 									backgroundColor:
-										resolvedTheme == 'light'
+										resolvedTheme === 'light'
 											? (statusColorsMap.get(row.original?.status as ETaskStatusName) ??
 												'transparent')
 											: '#6A7280'
 								}}
-								className="px-4 py-1 text-xs rounded"
+								className="px-4 py-1 text-xs text-white rounded"
 							>
 								{row.original?.status}
 							</div>
@@ -418,7 +423,6 @@ export const ProjectsTable = memo(
 			{
 				id: 'restore',
 				cell: function Cell({ row }) {
-
 					return (
 						<button
 							onClick={() => openRestoreModal(row.original?.project?.id)}
@@ -438,7 +442,6 @@ export const ProjectsTable = memo(
 			onSortingChange: setSorting,
 			onColumnFiltersChange: setColumnFilters,
 			getCoreRowModel: getCoreRowModel(),
-			getPaginationRowModel: getPaginationRowModel(),
 			getSortedRowModel: getSortedRowModel(),
 			getFilteredRowModel: getFilteredRowModel(),
 			onColumnVisibilityChange,
@@ -476,7 +479,7 @@ export const ProjectsTable = memo(
 				{loading ? (
 					<ProjectListSkeleton />
 				) : table?.getRowModel()?.rows.length ? (
-					<div className="rounded-md border">
+					<div className="border rounded-md">
 						<Table>
 							<TableHeader>
 								{table.getHeaderGroups().map((headerGroup) => (
@@ -568,10 +571,10 @@ function ColumnHandlerDropdown(args: {
 	const isSort = column.entity.getIsSorted();
 
 	return (
-		<Menu as="div" className="inline-block relative text-left">
+		<Menu as="div" className="relative inline-block text-left">
 			<div>
 				<Menu.Button>
-					<div className="flex gap-2 items-center cursor-pointer">
+					<div className="flex items-center gap-2 cursor-pointer">
 						<span className="text-xs text-nowrap">{column.name}</span>
 						<div className="flex flex-col items-center">
 							<ChevronUp

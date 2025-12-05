@@ -361,7 +361,7 @@ export function TaskInput(props: Props) {
 			}}
 			trailingNode={
 				/* Showing the spinner when the task is being updated. */
-				<div className="flex justify-center items-center p-2 h-full">
+				<div className="flex items-center justify-center h-full p-2">
 					{props.task ? (
 						(updateLoading || props.inputLoader) && <SpinnerLoader size={25} />
 					) : (
@@ -378,7 +378,7 @@ export function TaskInput(props: Props) {
 			leadingNode={
 				// showTaskNumber &&
 				// inputTask &&
-				<div className="flex items-center pl-3 space-x-2" ref={ignoreElementRef}>
+				<div className="flex items-center pl-3 xl:pl-1 gap-x-2" ref={ignoreElementRef}>
 					{!datas.hasCreateForm ? (
 						<ActiveTaskIssuesDropdown
 							key={(inputTask && inputTask.id) || ''}
@@ -390,6 +390,7 @@ export function TaskInput(props: Props) {
 									: '!px-[0.375rem] py-[0.375rem] rounded-sm',
 								'border-none'
 							)}
+							className="p-1.5!"
 						/>
 					) : (
 						<TaskIssuesDropdown
@@ -415,7 +416,7 @@ export function TaskInput(props: Props) {
 	const taskCard = (
 		<TaskCard
 			datas={datas}
-			onItemClick={props.task !== undefined || props.onTaskClick ? onTaskClick : setAuthActiveTask}
+			onItemClick={props.onTaskClick ? onTaskClick : setAuthActiveTask}
 			inputField={viewType === 'one-view' ? inputField : undefined}
 			fullWidth={props.fullWidthCombobox}
 			fullHeight={props.fullHeightCombobox}
@@ -616,7 +617,7 @@ function TaskCard({
 									className={'dark:bg-[#1B1D22]'}
 								/>
 
-								<div className="flex gap-2 justify-start">
+								<div className="flex justify-start gap-2">
 									<div ref={statusDropdownRef}>
 										<ActiveTaskStatusDropdown
 											className="min-w-fit lg:max-w-[170px]"
@@ -855,9 +856,9 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 			)}
 		>
 			<Combobox multiple={true}>
-				<div className="relative my-auto h-full">
-					<div className="overflow-hidden w-full h-full text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
-						<Combobox.Button className="flex justify-between items-center h-full min-w-fit max-w-40 hover:transition-all">
+				<div className="relative h-full my-auto">
+					<div className="w-full h-full overflow-hidden text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
+						<Combobox.Button className="flex items-center justify-between h-full min-w-fit max-w-40 hover:transition-all">
 							<div
 								className={cn(
 									'flex gap-1 items-center  !text-default dark:!text-white text-xs',

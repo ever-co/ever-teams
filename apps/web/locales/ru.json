@@ -619,6 +619,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Назначить команды",
+					"noTeamsAvailable": "Нет доступных команд",
+					"teamsHelperText": "Выберите хотя бы одну команду для этого проекта",
 					"assignMembers": "Назначить участников и менеджеров",
 					"noMembers": "Нет участников или менеджеров",
 					"addMember": "Добавить участника",
@@ -628,8 +631,17 @@
 					"noRelations": "Нет связей",
 					"addRelation": "Добавить связь",
 					"selectProject": "Выберите проект...",
-					"selectRelationType": "Выберите тип связи..."
+					"selectRelationType": "Выберите тип связи...",
+					"activeTeamLocked": "Текущая команда обязательна и не может быть удалена"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "Выберите хотя бы одну команду"
 				}
+			},
+			"accessDenied": {
+				"title": "Доступ запрещён",
+				"description": "Этот проект не принадлежит вашей текущей команде ({teamName}). Переключитесь на команду, у которой есть доступ к этому проекту.",
+				"viewAllProjects": "Просмотреть все проекты"
 			},
 			"addOrEditModal": {
 				"steps": {

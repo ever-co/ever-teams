@@ -170,9 +170,21 @@ class OrganizationProjectService extends APIService {
 	 */
 	getOrganizationProject = async (organizationProjectId: string): Promise<TOrganizationProject> => {
 		try {
-			const response = await this.get<TOrganizationProject>(`/organization-projects/${organizationProjectId}`, {
+			// Include relations to get full project data (members, teams, tags, etc.)
+			const relations = ['organizationContact', 'members.employee.user', 'tags', 'teams'];
+			const obj: Record<string, string> = {
 				tenantId: this.tenantId
+			};
+
+			relations.forEach((relation, i) => {
+				obj[`relations[${i}]`] = relation;
 			});
+
+			const query = qs.stringify(obj);
+
+			const response = await this.get<TOrganizationProject>(
+				`/organization-projects/${organizationProjectId}?${query}`
+			);
 
 			// Validate the response data
 			return validateApiResponse(organizationProjectSchema, response.data, 'getOrganizationProject API response');

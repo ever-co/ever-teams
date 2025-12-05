@@ -101,7 +101,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 	return (
 		<div
 			className={clsxm(
-				'flex space-x-2 lg:flex-col xl:flex-row justify-center items-center p-2 xl:space-y-0 space-y-5 min-w-[260px]',
+				'flex space-x-2 flex-row justify-center items-center p-2 xl:space-y-0 space-y-5 min-w-[260px]',
 				className
 			)}
 		>

@@ -24,6 +24,7 @@ import {
 } from '@/core/components/common/sidebar';
 import Link from 'next/link';
 import { cn } from '@/core/lib/helpers';
+import { isValidProjectForDisplay, projectBelongsToTeam } from '@/core/lib/helpers/type-guards';
 import { useFavorites, useModal } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { SidebarOptInForm } from './sidebar-opt-in-form';
@@ -59,18 +60,28 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { isOpen, closeModal } = useModal();
 	const t = useTranslations();
-	const activeTeam = useAtomValue(activeTeamState);
 	const organizationProjects = useAtomValue(organizationProjectsState);
+	const activeTeam = useAtomValue(activeTeamState);
 
-	const projects = useMemo(
-		() =>
-			activeTeam
-				? organizationProjects
-						?.filter((el) => !el?.isArchived)
-						?.filter((el) => activeTeam?.projects?.map((el) => el.id).includes(el?.id))
-				: [],
-		[activeTeam, organizationProjects]
-	); // Consider projects for the active team
+	// Filter valid projects using unified logic
+	// Only show projects that belong to the active team
+	const validProjects = useMemo(() => {
+		return organizationProjects.filter((project) => {
+			// Base validation using type-guard helper
+			if (!isValidProjectForDisplay(project)) return false;
+
+			// If no active team, show no projects
+			if (!activeTeam?.id) return false;
+
+			// Only show projects that belong to the active team
+			return projectBelongsToTeam(project, activeTeam.id);
+		});
+	}, [organizationProjects, activeTeam]);
+
+	// Limit to 5 projects for sidebar display
+	const MAX_SIDEBAR_PROJECTS = 5;
+	const displayedProjects = useMemo(() => validProjects.slice(0, MAX_SIDEBAR_PROJECTS), [validProjects]);
+	const remainingProjectsCount = validProjects.length - MAX_SIDEBAR_PROJECTS;
 
 	const currentEmployeeFavoritesTasks = useMemo(() => {
 		const taskIds = currentEmployeeFavorites
@@ -214,12 +225,13 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			{
 				title: t('sidebar.PROJECTS'),
 				url: '/projects',
-				selectable: true,
+				selectable: false, // Changed to false - dropdown should open, not redirect
 				icon: FolderKanban,
 				label: 'projects',
 				items: [
-					...(projects
-						? projects.map((project) => {
+					// Display limited projects (max 5)
+					...(displayedProjects
+						? displayedProjects.map((project) => {
 								return {
 									title: project?.name ?? '',
 									label: 'project',
@@ -229,7 +241,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 											key={project?.name}
 											style={{ backgroundColor: project?.color || undefined }}
 											className={cn(
-												'flex overflow-hidden justify-center items-center w-8 h-8 rounded-full border'
+												'flex overflow-hidden flex-none justify-center items-center rounded-full border size-7 shrink-0'
 											)}
 										>
 											{!project?.imageUrl ? (
@@ -237,8 +249,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 											) : (
 												<Image
 													alt={project?.name ?? ''}
-													height={40}
-													width={40}
+													height={28}
+													width={28}
 													className="w-full h-full"
 													src={project?.imageUrl}
 												/>
@@ -248,10 +260,26 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 								};
 							})
 						: []),
+					// Show "View all projects" if there are more projects
+					...(remainingProjectsCount > 0
+						? [
+								{
+									title: `${t('common.VIEW')} (+${remainingProjectsCount})`,
+									url: '/projects',
+									label: 'view-all-projects'
+								}
+							]
+						: [
+								{
+									title: `${t('pages.projects.accessDenied.viewAllProjects')}`,
+									url: '/projects',
+									label: 'view-all-projects'
+								}
+							]),
 					{
-						title: 'Archived projects',
+						title: t('common.ARCHIVE'),
 						url: '/projects?archived=true',
-						label: 'Archived projects'
+						label: 'archived-projects'
 					}
 				]
 			},
@@ -398,13 +426,15 @@ const FavoriteTaskItem = ({ task }: { task: TTask }) => {
 			)}
 			asChild
 		>
-			<span className="flex items-center justify-between w-full min-w-fit">
+			<span className="flex justify-between items-center w-full min-w-fit">
 				<Link href={`/task/${task?.id}`} className="flex items-center">
 					{task && (
 						// Show task issue and task number
 						<TaskIssueStatus
 							showIssueLabels={false}
-							className={cn('flex gap-1 items-center px-2 mr-1 w-full')}
+							className={cn(
+								'flex gap-1 items-center px-2 mr-1 size-full rounded-full! p-1.5! aspect-square'
+							)}
 							task={task}
 						/>
 					)}

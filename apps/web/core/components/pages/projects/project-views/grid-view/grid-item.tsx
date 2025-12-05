@@ -1,6 +1,7 @@
 import { cn } from '@/core/lib/helpers';
 import { Checkbox } from '@/core/components/common/checkbox';
 import Image from 'next/image';
+import Link from 'next/link';
 import { CalendarDays, RotateCcw } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import moment from 'moment';
@@ -76,7 +77,10 @@ export default function GridItem(props: IGridItemProps) {
 				<Checkbox onCheckedChange={handleSelect} checked={isSelected} className="mt-1 shrink-0" />
 				<div className="flex flex-col gap-6 ml-3 h-full grow">
 					<div className="flex justify-between items-center w-full">
-						<div className="flex gap-2 items-start font-medium">
+						<Link
+							href={`/projects/${data?.project?.id}`}
+							className="flex gap-2 items-start font-medium group"
+						>
 							<div
 								style={{ backgroundColor: data?.project?.color ?? undefined }}
 								className={cn(
@@ -95,8 +99,10 @@ export default function GridItem(props: IGridItemProps) {
 									/>
 								)}
 							</div>
-							<p className="text-sm font-semibold">{data?.project?.name}</p>
-						</div>
+							<p className="text-sm font-semibold group-hover:text-primary transition-colors">
+								{data?.project?.name}
+							</p>
+						</Link>
 						{data?.isArchived ? (
 							<button
 								onClick={() => openRestoreModal(data.project.id)}

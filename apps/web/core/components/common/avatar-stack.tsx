@@ -45,7 +45,7 @@ const AvatarStack: React.FC<AvatarStackProps> = ({ avatars, maxVisible = 5 }) =>
 						)}
 					</div>
 					{/* Tooltip */}
-					<div className="absolute px-2 py-1 text-xs text-white transition transform -translate-x-1/2 bg-gray-800 rounded-sm shadow-lg opacity-0 bottom-12 left-1/2 group-hover:opacity-100 whitespace-nowrap">
+					<div className="absolute p-1.5 text-xs text-white transition transform -translate-x-1/2 bg-gray-800 rounded-sm shadow-lg opacity-0 bottom-12 left-1/2 group-hover:opacity-100 whitespace-nowrap">
 						{avatar?.name}
 					</div>
 				</div>
