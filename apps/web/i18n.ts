@@ -1,15 +1,11 @@
-/* eslint-disable no-mixed-spaces-and-tabs */
+import { Locale } from 'next-intl';
 import { getRequestConfig } from 'next-intl/server';
 
-// export default getRequestConfig(async ({ locale }) => ({
-// 	messages: (
-// 		await (locale === 'en'
-// 			? // When using Turbopack, this will enable HMR for `en`
-// 			  import('./messages/en.json')
-// 			: import(`./messages/${locale}.json`))
-// 	).default
-// }));
+export default getRequestConfig(async ({ locale }: { locale?: Locale }) => {
+	const safeLocale = locale ?? 'en'; // <-- Fix typescript + next-intl
 
-export default getRequestConfig(async ({ locale }) => ({
-	messages: (await import(`./locales/${locale}.json`)).default
-}));
+	return {
+		locale: safeLocale,
+		messages: (await import(`../../locales/${safeLocale}.json`)).default
+	};
+});
