@@ -17,8 +17,8 @@
 	},
 	"dependencies": {
 		"@ever-teams/constants": "*",
-		"tsup": "^8.4.0",
-		"typescript": "^5.3.3",
-		"axios": "^1.8.3"
+		"tsup": "^8.5.1",
+		"typescript": "^5.9.3",
+		"axios": "^1.13.2"
 	}
 }

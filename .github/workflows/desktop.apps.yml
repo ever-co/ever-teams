@@ -31,7 +31,7 @@ jobs:
       - name: Install Node.js, NPM and Yarn
         uses: buildjet/setup-node@v4
         with:
-          node-version: "20.19.5"
+          node-version: "24.11.1"
           cache: "yarn"
 
       - name: Change permissions
@@ -47,7 +47,7 @@ jobs:
         run: "sudo npm install -g npm@9"
 
       - name: Install latest node-gyp package
-        run: "sudo npm install --quiet -g node-gyp@10.2.0"
+        run: "sudo npm install --quiet -g node-gyp@12.1.0"
 
       - name: Install Yarn dependencies
         run: "yarn install --network-timeout 1000000 --frozen-lockfile"
@@ -118,7 +118,7 @@ jobs:
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v4
         with:
-          node-version: "20.19.5"
+          node-version: "24.11.1"
           cache: "yarn"
 
       - name: Fix node-gyp and Python
@@ -128,7 +128,7 @@ jobs:
         run: "sudo npm install -g npm@9"
 
       - name: Install latest node-gyp package
-        run: "sudo npm install --quiet -g node-gyp@10.2.0"
+        run: "sudo npm install --quiet -g node-gyp@12.1.0"
 
       - name: Install Yarn dependencies
         run: "yarn install --network-timeout 1000000 --frozen-lockfile"
@@ -199,7 +199,7 @@ jobs:
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v4
         with:
-          node-version: "20.19.5"
+          node-version: "24.11.1"
           cache: "yarn"
 
       - name: Fix node-gyp and Python
@@ -209,7 +209,7 @@ jobs:
         run: "npm install -g npm@9"
 
       - name: Install latest node-gyp package
-        run: "npm install --quiet -g node-gyp@10.2.0"
+        run: "npm install --quiet -g node-gyp@12.1.0"
 
       - name: Install Yarn dependencies
         run: "yarn install --network-timeout 1000000 --frozen-lockfile"

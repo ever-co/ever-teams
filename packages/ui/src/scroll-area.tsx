@@ -1,7 +1,7 @@
 "use client";
 import * as RadixScrollArea from "@radix-ui/react-scroll-area";
 import React, { FC } from "react";
-import { cn } from "../helpers";
+import { cn } from "./lib/utils";
 
 type TScrollAreaProps = {
   type?: "auto" | "always" | "scroll" | "hover";
@@ -29,27 +29,27 @@ export const ScrollArea: FC<TScrollAreaProps> = (props) => {
   return (
     <RadixScrollArea.Root
       type={type}
-      className={cn("group overflow-hidden", className)}
+      className={cn("overflow-hidden group", className)}
       scrollHideDelay={scrollHideDelay}
     >
       <RadixScrollArea.Viewport className="size-full">{children}</RadixScrollArea.Viewport>
       <RadixScrollArea.Scrollbar
         className={cn(
-          "group/track flex touch-none select-none bg-transparent transition-colors duration-150 ease-out",
+          "flex bg-transparent transition-colors duration-150 ease-out select-none group/track touch-none",
           sizeStyles[size]
         )}
         orientation="vertical"
       >
         <RadixScrollArea.Thumb
           className={cn(
-            "relative flex-1 rounded-[10px]  bg-custom-scrollbar-neutral group-hover:bg-custom-scrollbar-hover group-active/track:bg-custom-scrollbar-active",
+            "relative flex-1 rounded-[10px] bg-custom-scrollbar-neutral group-hover:bg-custom-scrollbar-hover group-active/track:bg-custom-scrollbar-active",
             thumbSizeStyles[size]
           )}
         />
       </RadixScrollArea.Scrollbar>
       <RadixScrollArea.Scrollbar
         className={cn(
-          "group/track flex touch-none select-none bg-transparent transition-colors duration-150 ease-out",
+          "flex bg-transparent transition-colors duration-150 ease-out select-none group/track touch-none",
           sizeStyles[size]
         )}
         orientation="horizontal"
