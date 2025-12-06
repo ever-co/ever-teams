@@ -185,10 +185,10 @@
 		"nohoist": []
 	},
 	"resolutions": {
-		"react": "19.2.0",
-		"react-dom": "19.2.0",
-		"@types/react": "19.2.2",
-		"@types/react-dom": "19.2.2",
+		"react": "19.2.1",
+		"react-dom": "19.2.1",
+		"@types/react": "19.2.7",
+		"@types/react-dom": "19.2.3",
 		 "zod": "3.25.76"
 	},
 	"dependencies": {
@@ -196,7 +196,7 @@
 		"dotenv": "^16.4.5",
 		"lexical": "^0.8.0",
 		"react-phone-number-input": "^3.4.12",
-		"sharp": "^0.33.4",
+		"sharp": "^0.34.5",
 		"yargs": "^17.5.0"
 	},
 	"devDependencies": {
@@ -231,7 +231,7 @@
 		"@semantic-release/npm": "^11.0.0",
 		"@types/detox": "^18.1.0",
 		"@types/electron": "^1.6.10",
-		"@types/node": "^20.12.2",
+		"@types/node": "^24.10.1",
 		"@types/yargs": "^17.0.32",
 		"@typescript-eslint/eslint-plugin": "5.60.1",
 		"@typescript-eslint/parser": "5.60.1",
@@ -275,7 +275,7 @@
 			"node-gyp": "$node-gyp"
 		},
 		"iconv": {
-			"node-gyp": "9.3.1"
+			"node-gyp": "^12.1.0"
 		},
 		"twing": {
 			"locutus": "2.0.30"
@@ -284,7 +284,7 @@
 		"vue": ">=3.4.0"
 	},
 	"engines": {
-		"node": ">=20.x.x <=22.x.x",
+		"node": ">=24.x.x",
 		"yarn": ">=1.13.0"
 	},
 	"prettier": {
