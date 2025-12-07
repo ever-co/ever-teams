@@ -11,8 +11,13 @@ import { RECAPTCHA_SITE_KEY } from '@/core/constants/config/constants';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 
+// Step 1: User info (name, email, captcha)
+// Step 2: Choose mode (solo or team)
 const FIRST_STEP = 'STEP1' as const;
 const SECOND_STEP = 'STEP2' as const;
+
+// Start mode: solo (default) or team
+export type TStartMode = 'solo' | 'team';
 
 export interface IStepProps {
 	handleOnChange: any;
@@ -50,33 +55,51 @@ export function useAuthenticationTeam() {
 	initialValues.email = queryEmail;
 
 	const [step, setStep] = useState<typeof FIRST_STEP | typeof SECOND_STEP>(FIRST_STEP);
+	const [startMode, setStartMode] = useState<TStartMode>('solo');
 	const [formValues, setFormValues] = useState<IRegisterDataAPI>(initialValues);
 	const [errors, setErrors] = useState(initialValues);
 	const { queryCall, loading, infiniteLoading } = useQueryCall(authService.registerUserTeam);
 
+	/**
+	 * Generate default team name for solo mode
+	 */
+	const generateDefaultTeamName = useCallback((userName: string): string => {
+		const trimmedName = userName.trim();
+		if (!trimmedName) return 'My Team';
+		return `${trimmedName}'s Team`;
+	}, []);
+
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+
+		// Step 1: Validate user info (name, email, captcha)
 		if (step === FIRST_STEP) {
+			const noRecaptchaArray = ['email', 'name'];
+			const withRecaptchaArray = [...noRecaptchaArray, 'recaptcha'];
+			const validationFields = RECAPTCHA_SITE_KEY ? withRecaptchaArray : noRecaptchaArray;
+
+			const { errors, valid } = authFormValidate(validationFields, formValues);
+			setErrors(errors as any);
+
+			if (valid) {
+				setStep(SECOND_STEP);
+			}
+			return;
+		}
+
+		// Step 2: Validate team name if in team mode, then submit
+		if (startMode === 'team') {
 			const { errors, valid } = authFormValidate(['team'], formValues);
-			setErrors(errors as any);
-			valid && setStep(SECOND_STEP);
-			return;
+			if (!valid) {
+				setErrors(errors as any);
+				return;
+			}
+		} else {
+			// Solo mode: auto-generate team name
+			formValues.team = generateDefaultTeamName(formValues.name);
 		}
 
-		const noRecaptchaArray = ['email', 'name'];
-
-		const withRecaptchaArray = [...noRecaptchaArray, 'recaptcha'];
-
-		const validationFields = RECAPTCHA_SITE_KEY ? withRecaptchaArray : noRecaptchaArray;
-
-		const { errors, valid } = authFormValidate(validationFields, formValues);
-
-		if (!valid) {
-			console.log({ errors });
-			setErrors(errors as any);
-			return;
-		}
-
+		// Final submission
 		formValues['timezone'] = userTimezone();
 		infiniteLoading.current = true;
 
@@ -104,15 +127,23 @@ export function useAuthenticationTeam() {
 		[errors]
 	);
 
+	const handleStartModeChange = useCallback((mode: TStartMode) => {
+		setStartMode(mode);
+		// Clear team name error when switching modes
+		setErrors((prev) => ({ ...prev, team: '' }));
+	}, []);
+
 	return {
 		handleSubmit,
 		handleOnChange,
+		handleStartModeChange,
 		loading,
 		FIRST_STEP,
 		step,
 		SECOND_STEP,
 		setStep,
 		errors,
-		formValues
+		formValues,
+		startMode
 	};
 }
