@@ -99,14 +99,15 @@ export default function ProjectDetailPageComponent() {
 	const tags = useMemo(() => project?.tags || [], [project?.tags]);
 
 	// Check if project is accessible:
-	// 1. Project belongs to the active team, OR
-	// 2. Project is a "Global" project (no teams assigned - accessible to everyone)
+	// - "All Teams" mode (no active team): allow access to ALL projects
+	// - Specific team: allow access to team projects + global projects
 	const projectBelongsToActiveTeam = useMemo(() => {
 		if (!project) return false;
+		// "All Teams" selected (no active team) → allow access to ALL projects
+		if (!activeTeam?.id) return true;
 		// Global projects (no teams assigned) are accessible to everyone
 		if (projectHasNoTeams(project)) return true;
-		// If no active team selected, deny access to team-specific projects
-		if (!activeTeam?.id) return false;
+		// Check if project belongs to the active team
 		return projectBelongsToTeam(project, activeTeam.id);
 	}, [project, activeTeam?.id]);
 

@@ -63,8 +63,9 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const organizationProjects = useAtomValue(organizationProjectsState);
 	const activeTeam = useAtomValue(activeTeamState);
 
-	// Filter valid projects using unified logic
-	// Show projects that belong to the active team OR are "Global" (no team assigned)
+	// Filter projects based on active team context:
+	// - "All Teams" mode (no active team): show ALL projects
+	// - Specific team: show team projects + global projects (no team assigned)
 	const validProjects = useMemo(() => {
 		return organizationProjects.filter((project) => {
 			// Base validation using type-guard helper

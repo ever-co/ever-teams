@@ -329,9 +329,9 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 		return isGlobalAdmin || isTeamManager;
 	}, [user?.role?.name, isTeamManager]);
 
-	// Filter to show only valid projects that belong to the active team OR are "Global" projects
-	// This ensures we only show REAL projects (not Teams or other entities)
-	// AND that belong to the current team OR have no team assigned (Global projects)
+	// Filter valid projects based on active team context:
+	// - "All Teams" mode (no active team): show ALL projects
+	// - Specific team: show team projects + global projects (no team assigned)
 	const validProjects = useMemo(() => {
 		return organizationProjects.filter((project) => {
 			// First check if it's a valid project

@@ -260,15 +260,16 @@ function PageComponent() {
 		});
 	}, [projects, dateRange]);
 
+	// Filter projects based on active team context:
+	// - "All Teams" mode (no active team): show ALL projects
+	// - Specific team: show team projects + global projects (no team assigned)
 	const activeTeamProjects = useMemo(() => {
-		// If no active team, return all date-filtered projects
+		// "All Teams" selected (no active team) → show ALL projects
 		if (!activeTeam?.id) {
 			return dateFilteredProjects || [];
 		}
 
-		// Show projects that either:
-		// 1. Belong to the active team
-		// 2. Have no teams assigned ("Global" projects - accessible to everyone)
+		// Specific team selected → show team projects + global projects
 		return (
 			dateFilteredProjects?.filter((el) => {
 				const belongsToTeam = projectBelongsToTeam(el, activeTeam.id);
