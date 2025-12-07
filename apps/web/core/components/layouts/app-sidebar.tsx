@@ -70,7 +70,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			// Base validation using type-guard helper
 			if (!isValidProjectForDisplay(project)) return false;
 
-			// If no active team, show only global projects (projects without team assignment)
+			// "All Teams" selected (no active team) → show ALL projects (team-specific + global)
 			if (!activeTeam?.id) return true;
 
 			// Show projects that either:
@@ -430,7 +430,7 @@ const FavoriteTaskItem = ({ task }: { task: TTask }) => {
 			)}
 			asChild
 		>
-			<span className="flex items-center justify-between w-full min-w-fit">
+			<span className="flex justify-between items-center w-full min-w-fit">
 				<Link href={`/task/${task?.id}`} className="flex items-center">
 					{task && (
 						// Show task issue and task number

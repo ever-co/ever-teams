@@ -16,7 +16,7 @@ import {
 	userDetailAccordion as userAccordion
 } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
-import { Container,Text } from '@/core/components';
+import { Container, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { TaskEstimateInfo } from './task-estimate';
@@ -36,7 +36,7 @@ import { fullWidthState } from '@/core/stores/common/full-width';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { ScreenshootTab } from '@/core/components/pages/profile/screenshots/screenshoots';
 import { InputField } from '@/core/components/duplicated-components/_input';
-import { LazyUserProfileTask,LazyUserTeamActivity } from '@/core/components/optimized-components';
+import { LazyUserProfileTask, LazyUserTeamActivity } from '@/core/components/optimized-components';
 import { EverCard } from '@/core/components/common/ever-card';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { TaskTimes, TodayWorkedTime } from '@/core/components/tasks/task-times';
@@ -306,7 +306,11 @@ export function UserTeamCard({
 								{!showActivity ? (
 									<ExpandIcon height={24} width={24} />
 								) : (
-									<CollapseUpIcon className="flex-none shrink-0 absolute left-1/2 top-1/2 -translate-x-[35%] -translate-y-[35%]" height={24} width={24} />
+									<CollapseUpIcon
+										className="flex-none shrink-0 absolute left-1/2 top-1/2 -translate-x-[35%] -translate-y-[35%]"
+										height={24}
+										width={24}
+									/>
 								)}
 							</p>
 						) : null}
@@ -346,7 +350,11 @@ export function UserTeamCard({
 								{!showActivity ? (
 									<ExpandIcon height={24} width={24} />
 								) : (
-									<CollapseUpIcon className="flex-none shrink-0 absolute left-1/2 top-1/2 -translate-x-[35%] -translate-y-[35%]" height={24} width={24} />
+									<CollapseUpIcon
+										className="flex-none shrink-0 absolute left-1/2 top-1/2 -translate-x-[35%] -translate-y-[35%]"
+										height={24}
+										width={24}
+									/>
 								)}
 							</p>
 						) : null}

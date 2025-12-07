@@ -336,6 +336,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 		return organizationProjects.filter((project) => {
 			// First check if it's a valid project
 			if (!isValidProjectForDisplay(project)) return false;
+			// "All Teams" selected (no active team) → show ALL projects (team-specific + global)
 			if (!activeTeam?.id) return true;
 			// Show projects that either:
 			// 1. Belong to the active team
