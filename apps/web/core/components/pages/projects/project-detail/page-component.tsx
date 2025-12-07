@@ -40,7 +40,7 @@ import { ProjectDetailSkeleton } from '@/core/components/common/skeleton/project
 import { InfoItem, MemberCard, Section, StatusBadge } from './components';
 import { useProjectPermissions } from '@/core/hooks/projects/use-project-permissions';
 import { useProjectActionModal } from '@/core/hooks/use-project-action-modal';
-import { projectBelongsToTeam } from '@/core/lib/helpers/type-guards';
+import { projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
 
 export default function ProjectDetailPageComponent() {
 	const t = useTranslations();
@@ -98,10 +98,16 @@ export default function ProjectDetailPageComponent() {
 	const teams = useMemo(() => project?.teams || [], [project?.teams]);
 	const tags = useMemo(() => project?.tags || [], [project?.tags]);
 
-	// Check if project belongs to active team
-	// Only projects that explicitly belong to the active team are accessible
+	// Check if project is accessible:
+	// - "All Teams" mode (no active team): allow access to ALL projects
+	// - Specific team: allow access to team projects + global projects
 	const projectBelongsToActiveTeam = useMemo(() => {
-		if (!project || !activeTeam?.id) return false;
+		if (!project) return false;
+		// "All Teams" selected (no active team) → allow access to ALL projects
+		if (!activeTeam?.id) return true;
+		// Global projects (no teams assigned) are accessible to everyone
+		if (projectHasNoTeams(project)) return true;
+		// Check if project belongs to the active team
 		return projectBelongsToTeam(project, activeTeam.id);
 	}, [project, activeTeam?.id]);
 

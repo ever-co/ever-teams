@@ -21,7 +21,7 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { clsxm } from '@/core/lib/utils';
 import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
-import { isValidProjectForDisplay, projectBelongsToTeam } from '@/core/lib/helpers/type-guards';
+import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import Image from 'next/image';
 import {
@@ -329,17 +329,21 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 		return isGlobalAdmin || isTeamManager;
 	}, [user?.role?.name, isTeamManager]);
 
-	// Filter to show only valid projects that belong to the active team
-	// This ensures we only show REAL projects (not Teams or other entities)
-	// AND that belong to the current team
+	// Filter valid projects based on active team context:
+	// - "All Teams" mode (no active team): show ALL projects
+	// - Specific team: show team projects + global projects (no team assigned)
 	const validProjects = useMemo(() => {
 		return organizationProjects.filter((project) => {
 			// First check if it's a valid project
 			if (!isValidProjectForDisplay(project)) return false;
-			// If no active team, show no projects
-			if (!activeTeam?.id) return false;
-			// Only show projects that belong to active team
-			return projectBelongsToTeam(project, activeTeam.id);
+			// "All Teams" selected (no active team) → show ALL projects (team-specific + global)
+			if (!activeTeam?.id) return true;
+			// Show projects that either:
+			// 1. Belong to the active team
+			// 2. Have no teams assigned ("Global" projects - accessible to everyone)
+			const belongsToTeam = projectBelongsToTeam(project, activeTeam.id);
+			const isGlobalProject = projectHasNoTeams(project);
+			return belongsToTeam || isGlobalProject;
 		});
 	}, [organizationProjects, activeTeam?.id]);
 

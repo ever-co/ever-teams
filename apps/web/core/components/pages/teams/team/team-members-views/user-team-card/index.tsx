@@ -16,7 +16,7 @@ import {
 	userDetailAccordion as userAccordion
 } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
-import { Container } from '@/core/components';
+import { Container, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { TaskEstimateInfo } from './task-estimate';
@@ -24,7 +24,6 @@ import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
 import React, { Suspense, useCallback, useMemo, useState } from 'react';
-import { LazyUserTeamActivity } from '@/core/components/optimized-components';
 import { CollapseUpIcon, ExpandIcon } from '@/core/components/svgs/expand';
 import { activityTypeState } from '@/core/stores/timer/activity-type';
 import { SixSquareGridIcon } from 'assets/svg';
@@ -37,11 +36,10 @@ import { fullWidthState } from '@/core/stores/common/full-width';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { ScreenshootTab } from '@/core/components/pages/profile/screenshots/screenshoots';
 import { InputField } from '@/core/components/duplicated-components/_input';
-import { LazyUserProfileTask } from '@/core/components/optimized-components';
+import { LazyUserProfileTask, LazyUserTeamActivity } from '@/core/components/optimized-components';
 import { EverCard } from '@/core/components/common/ever-card';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { TaskTimes, TodayWorkedTime } from '@/core/components/tasks/task-times';
-import { Text } from '@/core/components';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { TTaskStatistics } from '@/core/types/interfaces/task/task';
 import { TActivityFilter } from '@/core/types/schemas';
@@ -170,7 +168,7 @@ export function UserTeamCard({
 		);
 
 		totalWork = (
-			<div className={clsxm('flex flex-col items-center gap-1 mr-4 font-normal')}>
+			<div className={clsxm('flex flex-col gap-1 items-center mr-4 font-normal')}>
 				<span className="text-xs text-gray-500">{t('common.TOTAL_TIME')}:</span>
 				<Text className="text-xs">
 					{h}h : {m}m
@@ -292,14 +290,14 @@ export function UserTeamCard({
 						<TaskInfo
 							edition={taskEdition}
 							memberInfo={memberInfo}
-							className="flex-1 px-2 overflow-y-hidden lg:px-4"
+							className="overflow-y-hidden flex-1 px-2 lg:px-4"
 							publicTeam={publicTeam}
 							tab="default"
 						/>
 
 						{canSeeActivity ? (
 							<p
-								className="relative flex items-center justify-center flex-none w-8 h-8 text-center border rounded-sm cursor-pointer -left-1 dark:border-gray-800 shrink-0"
+								className="flex relative -left-1 flex-none justify-center items-center w-8 h-8 text-center rounded-sm border cursor-pointer dark:border-gray-800 shrink-0"
 								onClick={() => {
 									showActivityFilter('TICKET', memberInfo.member ?? null);
 									setUserDetailAccordion('');
@@ -308,7 +306,11 @@ export function UserTeamCard({
 								{!showActivity ? (
 									<ExpandIcon height={24} width={24} />
 								) : (
-									<CollapseUpIcon className="flex-none shrink-0" height={24} width={24} />
+									<CollapseUpIcon
+										className="flex-none shrink-0 absolute left-1/2 top-1/2 -translate-x-[35%] -translate-y-[35%]"
+										height={24}
+										width={24}
+									/>
 								)}
 							</p>
 						) : null}
@@ -343,12 +345,16 @@ export function UserTeamCard({
 						{canSeeActivity ? (
 							<p
 								onClick={() => showActivityFilter('DATE', memberInfo.member ?? null)}
-								className="flex items-center justify-center w-8 h-8 text-center border rounded-sm cursor-pointer dark:border-gray-800"
+								className="flex relative justify-center items-center w-8 h-8 text-center rounded-sm border cursor-pointer dark:border-gray-800"
 							>
 								{!showActivity ? (
 									<ExpandIcon height={24} width={24} />
 								) : (
-									<CollapseUpIcon height={24} width={24} />
+									<CollapseUpIcon
+										className="flex-none shrink-0 absolute left-1/2 top-1/2 -translate-x-[35%] -translate-y-[35%]"
+										height={24}
+										width={24}
+									/>
 								)}
 							</p>
 						) : null}
@@ -366,11 +372,11 @@ export function UserTeamCard({
 						// Show content once loaded
 						<div className="overflow-y-auto h-96">
 							<Container fullWidth={fullWidth} className="px-3 py-5 xl:px-0">
-								<div className={clsxm('flex items-center justify-start gap-4 mt-3')}>
+								<div className={clsxm('flex gap-4 justify-start items-center mt-3')}>
 									{Object.keys(activityScreens).map((filter, i) => (
 										<div
 											key={uniqueId(`${i + 1}`)}
-											className="flex items-center justify-start gap-4 cursor-pointer"
+											className="flex gap-4 justify-start items-center cursor-pointer"
 										>
 											{i !== 0 && <VerticalSeparator />}
 											<div
@@ -390,7 +396,7 @@ export function UserTeamCard({
 						</div>
 					)
 				) : isAccordionExpanded ? (
-					<div className="flex items-center justify-center w-full h-20">
+					<div className="flex justify-center items-center w-full h-20">
 						<Loader className="animate-spin" />
 					</div>
 				) : null}
@@ -408,12 +414,12 @@ export function UserTeamCard({
 					className
 				)}
 			>
-				<div className="flex items-center justify-between mb-4">
+				<div className="flex justify-between items-center mb-4">
 					<UserInfo memberInfo={memberInfo} publicTeam={publicTeam} className="w-9/12" />
 					{totalWork}
 				</div>
 
-				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
+				<div className="flex flex-wrap justify-between items-start pb-4 border-b">
 					<TaskInfo
 						edition={taskEdition}
 						memberInfo={memberInfo}
@@ -423,7 +429,7 @@ export function UserTeamCard({
 					/>
 				</div>
 
-				<div className="flex items-center justify-between mt-4 mb-4 space-x-5">
+				<div className="flex justify-between items-center mt-4 mb-4 space-x-5">
 					<div className="flex items-center space-x-4">
 						<TaskTimes
 							activeAuthTask={true}

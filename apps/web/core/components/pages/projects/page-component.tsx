@@ -18,7 +18,7 @@ import {
 	Settings2
 } from 'lucide-react';
 import { cn } from '@/core/lib/helpers';
-import { isValidProjectForDisplay, projectBelongsToTeam } from '@/core/lib/helpers/type-guards';
+import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
 import { Button, Container } from '@/core/components';
 import { DatePickerWithRange } from '@/core/components/common/date-range-select';
 import { DateRange } from 'react-day-picker';
@@ -260,16 +260,21 @@ function PageComponent() {
 		});
 	}, [projects, dateRange]);
 
+	// Filter projects based on active team context:
+	// - "All Teams" mode (no active team): show ALL projects
+	// - Specific team: show team projects + global projects (no team assigned)
 	const activeTeamProjects = useMemo(() => {
-		// If no active team, return no projects
+		// "All Teams" selected (no active team) → show ALL projects
 		if (!activeTeam?.id) {
-			return [];
+			return dateFilteredProjects || [];
 		}
 
-		// Only show projects that belong to the active team
+		// Specific team selected → show team projects + global projects
 		return (
 			dateFilteredProjects?.filter((el) => {
-				return projectBelongsToTeam(el, activeTeam.id);
+				const belongsToTeam = projectBelongsToTeam(el, activeTeam.id);
+				const isGlobalProject = projectHasNoTeams(el);
+				return belongsToTeam || isGlobalProject;
 			}) || []
 		);
 	}, [activeTeam, dateFilteredProjects]);
