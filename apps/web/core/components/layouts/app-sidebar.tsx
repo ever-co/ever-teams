@@ -24,7 +24,7 @@ import {
 } from '@/core/components/common/sidebar';
 import Link from 'next/link';
 import { cn } from '@/core/lib/helpers';
-import { isValidProjectForDisplay, projectBelongsToTeam } from '@/core/lib/helpers/type-guards';
+import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
 import { useFavorites, useModal } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { SidebarOptInForm } from './sidebar-opt-in-form';
@@ -64,17 +64,21 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const activeTeam = useAtomValue(activeTeamState);
 
 	// Filter valid projects using unified logic
-	// Only show projects that belong to the active team
+	// Show projects that belong to the active team OR are "Global" (no team assigned)
 	const validProjects = useMemo(() => {
 		return organizationProjects.filter((project) => {
 			// Base validation using type-guard helper
 			if (!isValidProjectForDisplay(project)) return false;
 
-			// If no active team, show no projects
-			if (!activeTeam?.id) return false;
+			// If no active team, show only global projects (projects without team assignment)
+			if (!activeTeam?.id) return projectHasNoTeams(project);
 
-			// Only show projects that belong to the active team
-			return projectBelongsToTeam(project, activeTeam.id);
+			// Show projects that either:
+			// 1. Belong to the active team
+			// 2. Have no teams assigned ("Global" projects - accessible to everyone)
+			const belongsToTeam = projectBelongsToTeam(project, activeTeam.id);
+			const isGlobalProject = projectHasNoTeams(project);
+			return belongsToTeam || isGlobalProject;
 		});
 	}, [organizationProjects, activeTeam]);
 
