@@ -17,7 +17,7 @@ type Props = IClassName & {
 export function TaskInfo({ className, memberInfo, edition, publicTeam, tab, dayPlanTab }: Props) {
 	return (
 		<>
-			{!edition.task && <div className="self-center justify-center w-full text-center">--</div>}
+			{!edition.task && <div className="justify-center self-center w-full text-center">--</div>}
 
 			<div
 				className={clsxm(
@@ -48,7 +48,7 @@ export function TaskInfo({ className, memberInfo, edition, publicTeam, tab, dayP
 					<TaskAllStatusTypes showStatus={true} task={edition.task} tab={tab} dayPlanTab={dayPlanTab} />
 				)}
 			</div>
-			{!edition.task && <div className="self-center justify-center w-full text-center">--</div>}
+			{!edition.task && <div className="justify-center self-center w-full text-center">--</div>}
 		</>
 	);
 }
@@ -87,7 +87,7 @@ function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 			</div>
 
 			{/* Show task input combobox when in edit mode */}
-			<div ref={edition.taskEditIgnoreElement.ignoreElementRef} className={clsxm(!hasEditMode && ['hidden'])}>
+			<div ref={edition.taskEditIgnoreElement.ignoreElementRef} className={clsxm(!hasEditMode && ['hidden'],'w-full')}>
 				{hasEditMode && (
 					<TaskInput
 						task={task}
