@@ -581,6 +581,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Назначаване на екипи",
+					"noTeamsAvailable": "Няма налични екипи",
+					"teamsHelperText": "Изберете поне един екип за този проект",
 					"assignMembers": "Назначаване на членове и мениджъри",
 					"noMembers": "Няма членове или мениджъри",
 					"addMember": "Добави член",
@@ -590,8 +593,17 @@
 					"noRelations": "Няма връзки",
 					"addRelation": "Добави връзка",
 					"selectProject": "Изберете проект...",
-					"selectRelationType": "Изберете тип връзка..."
+					"selectRelationType": "Изберете тип връзка...",
+					"activeTeamLocked": "Текущият екип е задължителен и не може да бъде премахнат"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "Моля, изберете поне един екип"
 				}
+			},
+			"accessDenied": {
+				"title": "Достъпът е отказан",
+				"description": "Този проект не принадлежи на текущия ви екип ({teamName}). Превключете към екип, който има достъп до този проект.",
+				"viewAllProjects": "Преглед на всички проекти"
 			},
 			"addOrEditModal": {
 				"steps": {

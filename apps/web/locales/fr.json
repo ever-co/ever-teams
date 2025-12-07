@@ -623,6 +623,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Assigner des Équipes",
+					"noTeamsAvailable": "Aucune équipe disponible",
+					"teamsHelperText": "Sélectionnez au moins une équipe pour ce projet",
 					"assignMembers": "Assigner des Membres et Gestionnaires",
 					"noMembers": "Aucun membre ou gestionnaire",
 					"addMember": "Ajouter un Membre",
@@ -632,8 +635,17 @@
 					"noRelations": "Aucune relation",
 					"addRelation": "Ajouter une Relation",
 					"selectProject": "Sélectionner un projet...",
-					"selectRelationType": "Choisir un type de relation..."
+					"selectRelationType": "Choisir un type de relation...",
+					"activeTeamLocked": "L'équipe actuelle est requise et ne peut pas être retirée"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "Veuillez sélectionner au moins une équipe"
 				}
+			},
+			"accessDenied": {
+				"title": "Accès Refusé",
+				"description": "Ce projet n'appartient pas à votre équipe actuelle ({teamName}). Changez d'équipe pour accéder à ce projet.",
+				"viewAllProjects": "Voir Tous les Projets"
 			},
 			"addOrEditModal": {
 				"steps": {

@@ -5,6 +5,7 @@ import { useAtomValue } from 'jotai';
 import AddOrEditProjectForm from './add-or-edit-project';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { ITag } from '@/core/types/interfaces/tag/tag';
+import { ROLES } from '@/core/constants/config/constants';
 
 interface IEditProjectModalProps {
 	open: boolean;
@@ -24,9 +25,28 @@ export function EditProjectModal(props: IEditProjectModalProps) {
 	const { open, closeModal, projectId } = props;
 	const organizationProjects = useAtomValue(organizationProjectsState);
 
-	const roles = useAtomValue(rolesState);
-	const simpleMemberRole = roles?.find((role) => role.name == ERoleName.EMPLOYEE);
-	const managerRole = roles?.find((role) => role.name == ERoleName.MANAGER);
+	const rolesFromApi = useAtomValue(rolesState);
+
+	// Get role IDs with fallback to constants if API doesn't return roles
+	const { simpleMemberRoleId, managerRoleId } = useMemo(() => {
+		// Try to get from API first
+		if (rolesFromApi && rolesFromApi.length > 0) {
+			const simpleMemberRole = rolesFromApi.find((role) => role.name === ERoleName.EMPLOYEE);
+			const managerRole = rolesFromApi.find((role) => role.name === ERoleName.MANAGER);
+			return {
+				simpleMemberRoleId: simpleMemberRole?.id ? String(simpleMemberRole.id) : undefined,
+				managerRoleId: managerRole?.id ? String(managerRole.id) : undefined
+			};
+		}
+
+		// Fallback to ROLES constants with generated IDs
+		const simpleMemberRole = ROLES.find((role) => role.name === ERoleName.EMPLOYEE);
+		const managerRole = ROLES.find((role) => role.name === ERoleName.MANAGER);
+		return {
+			simpleMemberRoleId: simpleMemberRole ? `fallback-${simpleMemberRole.name}` : undefined,
+			managerRoleId: managerRole ? `fallback-${managerRole.name}` : undefined
+		};
+	}, [rolesFromApi]);
 
 	const data = useMemo(() => {
 		const project = organizationProjects.find((project) => project.id === projectId);
@@ -38,13 +58,13 @@ export function EditProjectModal(props: IEditProjectModalProps) {
 						project.members?.map((el) => ({
 							id: `${el.id}-${String(el.role)}`,
 							memberId: el.employeeId,
-							roleId: el.isManager ? managerRole?.id : simpleMemberRole?.id
+							roleId: el.isManager ? managerRoleId : simpleMemberRoleId
 						})) || [],
 					tags: project.tags?.map((el: ITag) => el.id),
 					relations: []
 				}
 			: {};
-	}, [managerRole?.id, organizationProjects, projectId, simpleMemberRole?.id]);
+	}, [managerRoleId, organizationProjects, projectId, simpleMemberRoleId]);
 
 	return (
 		<Modal className="w-[50rem]" isOpen={open} closeModal={closeModal} alignCloseIcon>

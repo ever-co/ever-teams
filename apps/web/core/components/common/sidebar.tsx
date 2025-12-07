@@ -142,7 +142,7 @@ const Sidebar = React.forwardRef<
 	if (collapsible === 'none') {
 		return (
 			<div
-				className={cn('flex h-full w-[var(--sidebar-width)] flex-col bg-sidebar text-sidebar-foreground', className)}
+				className={cn('flex flex-col h-full w-[var(--sidebar-width)] bg-sidebar text-sidebar-foreground', className)}
 				ref={ref}
 				{...props}
 			>
@@ -227,7 +227,7 @@ const SidebarTrigger = React.forwardRef<React.ElementRef<typeof Button>, React.C
 				data-sidebar="trigger"
 				variant="ghost"
 				size="icon"
-				className={cn('h-7 w-7', className)}
+				className={cn('w-7 h-7', className)}
 				onClick={(event) => {
 					onClick?.(event);
 					toggleSidebar();
@@ -329,7 +329,7 @@ const SidebarInput = React.forwardRef<React.ElementRef<typeof Input>, React.Comp
 				ref={ref}
 				data-sidebar="input"
 				className={cn(
-					'h-8 w-full bg-background shadow-none focus-visible:ring-2 focus-visible:ring-sidebar-ring',
+					'w-full h-8 shadow-none bg-background focus-visible:ring-2 focus-visible:ring-sidebar-ring',
 					className
 				)}
 				{...props}
@@ -383,7 +383,7 @@ const SidebarGroup = React.forwardRef<HTMLDivElement, React.ComponentProps<'div'
 		<div
 			ref={ref}
 			data-sidebar="group"
-			className={cn('relative flex w-full min-w-0 flex-col p-2', className)}
+			className={cn('flex relative flex-col p-2 w-full min-w-0', className)}
 			{...props}
 		/>
 	);
@@ -440,17 +440,17 @@ const SidebarGroupContent = React.forwardRef<HTMLDivElement, React.ComponentProp
 SidebarGroupContent.displayName = 'SidebarGroupContent';
 
 const SidebarMenu = React.forwardRef<HTMLUListElement, React.ComponentProps<'ul'>>(({ className, ...props }, ref) => (
-	<ul ref={ref} data-sidebar="menu" className={cn('flex w-full min-w-0 flex-col gap-4', className)} {...props} />
+	<ul ref={ref} data-sidebar="menu" className={cn('flex flex-col gap-4 w-full min-w-0', className)} {...props} />
 ));
 SidebarMenu.displayName = 'SidebarMenu';
 
 const SidebarMenuItem = React.forwardRef<HTMLLIElement, React.ComponentProps<'li'>>(({ className, ...props }, ref) => (
-	<li ref={ref} data-sidebar="menu-item" className={cn('group/menu-item relative', className)} {...props} />
+	<li ref={ref} data-sidebar="menu-item" className={cn('relative group/menu-item', className)} {...props} />
 ));
 SidebarMenuItem.displayName = 'SidebarMenuItem';
 
 const sidebarMenuButtonVariants = cva(
-	'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding,color, background, opacity] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
+	'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding,color, background, opacity] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:!size-7 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
 	{
 		variants: {
 			variant: {
@@ -582,7 +582,7 @@ const SidebarMenuSkeleton = React.forwardRef<
 		<div
 			ref={ref}
 			data-sidebar="menu-skeleton"
-			className={cn('rounded-md h-8 flex gap-2 px-2 items-center', className)}
+			className={cn('flex gap-2 items-center px-2 h-8 rounded-md', className)}
 			{...props}
 		>
 			{showIcon && <Skeleton className="rounded-md size-4" data-sidebar="menu-skeleton-icon" />}
