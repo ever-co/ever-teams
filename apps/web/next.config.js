@@ -87,9 +87,6 @@ const sentryConfig = isSentryEnabled && {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	output: ['standalone', 'export'].includes(BUILD_OUTPUT_MODE) ? BUILD_OUTPUT_MODE : undefined,
-	watchOptions: {
-		ignored: ['**/.git/**', '**/.next/**', '**/node_modules/**', '**/public/**', '**/dist/**']
-	},
 	// Next.js 16: Cache Components for explicit caching control
 	// Note: Disabled for now due to incompatibility with route segment config "runtime"
 	// cacheComponents: true,
@@ -135,18 +132,25 @@ const nextConfig = {
 				port: ''
 			}))
 		],
+		// Next.js 16: qualities is REQUIRED - restricts allowed quality values
+		qualities: [25, 50, 75, 100],
 		// Next.js 16: New image optimization defaults
 		minimumCacheTTL: 14400, // 4 hours (changed from 60s in Next.js 16)
 		dangerouslyAllowLocalIP: true, // Allow local IP optimization for development
 		maximumRedirects: 3 // Limit redirects to prevent infinite loops
 	},
 	async rewrites() {
-		return [
-			{
-				source: '/fonts/:path*',
-				destination: '/assets/fonts/:path*'
-			}
-		];
+		// Next.js 16: rewrites should return an object with beforeFiles, afterFiles, and fallback
+		return {
+			beforeFiles: [],
+			afterFiles: [
+				{
+					source: '/fonts/:path*',
+					destination: '/assets/fonts/:path*'
+				}
+			],
+			fallback: []
+		};
 	},
 	env: {
 		APP_NAME: process.env.APP_NAME,
