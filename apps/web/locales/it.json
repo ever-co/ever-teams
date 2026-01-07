@@ -729,8 +729,8 @@
 			"HEADING_DESCRIPTION": "Si prega di inserire le informazioni di accesso."
 		},
 		"authTeam": {
-			"HEADING_TITLE": "Crea un Nuovo Team",
-			"HEADING_DESCRIPTION": "Inserisci i dettagli del tuo team per crearne uno nuovo.",
+			"HEADING_TITLE": "Registrati ora",
+			"HEADING_DESCRIPTION": "Raccontaci di più su di te e (facoltativamente) sul tuo team per registrarti.",
 			"LOADING_TEXT": "Stiamo creando il tuo nuovo spazio di lavoro, attendi...",
 			"LOADING_WORKSPACE": "Stiamo caricando lo spazio di lavoro, attendi...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Reindirizzamento al tuo spazio di lavoro...",
@@ -738,7 +738,15 @@
 			"INPUT_TEAM_NAME": "Inserisci il nome del tuo team",
 			"JOIN_EXISTING_TEAM": "Unisciti a un team esistente?",
 			"CREATE_FIRST_TEAM": "Crea il tuo primo team",
-			"CREATE_TEAM": "Crea il team"
+			"CREATE_TEAM": "Crea il team",
+			"GET_STARTED_TITLE": "Come vorresti iniziare?",
+			"START_SOLO": "Inizia da solo",
+			"START_SOLO_NOTE": "Puoi creare un team e invitare altri in seguito",
+			"CREATE_TEAM_NOW": "Crea un team ora",
+			"CONTINUE": "Continua",
+			"GET_STARTED": "Inizia",
+			"STEP_USER_INFO": "Dicci il tuo nome e la tua email",
+			"STEP_CHOOSE_MODE": "Scegli il tuo percorso"
 		},
 		"settings": {
 			"BREADCRUMB": "[\"Pannello di controllo\", \"Impostazioni\"]",

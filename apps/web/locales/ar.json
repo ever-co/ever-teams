@@ -729,8 +729,8 @@
 			"HEADING_DESCRIPTION": "يرجى إدخال معلومات تسجيل الدخول الخاصة بك."
 		},
 		"authTeam": {
-			"HEADING_TITLE": "إنشاء فريق جديد",
-			"HEADING_DESCRIPTION": "يرجى إدخال تفاصيل فريقك لإنشاء فريق جديد.",
+			"HEADING_TITLE": "سجل الآن",
+			"HEADING_DESCRIPTION": "أخبرنا المزيد عن نفسك و(اختيارياً) فريقك للتسجيل.",
 			"LOADING_TEXT": "نحن الآن ننشئ مساحة عملك الجديدة، انتظر...",
 			"LOADING_WORKSPACE": "نحن نقوم بتحميل مساحة العمل، انتظر...",
 			"REDIRECT_TO_WORSPACE_LOADING": "إعادة التوجيه إلى مساحة العمل الخاصة بك",
@@ -738,7 +738,15 @@
 			"INPUT_TEAM_NAME": "أدخل اسم فريقك",
 			"JOIN_EXISTING_TEAM": "الانضمام إلى فريق موجود؟",
 			"CREATE_FIRST_TEAM": "أنشئ أول فريق لك",
-			"CREATE_TEAM": "إنشاء فريق"
+			"CREATE_TEAM": "إنشاء فريق",
+			"GET_STARTED_TITLE": "كيف تريد أن تبدأ؟",
+			"START_SOLO": "ابدأ بمفردك",
+			"START_SOLO_NOTE": "يمكنك إنشاء فريق ودعوة الآخرين لاحقاً",
+			"CREATE_TEAM_NOW": "إنشاء فريق الآن",
+			"CONTINUE": "متابعة",
+			"GET_STARTED": "ابدأ",
+			"STEP_USER_INFO": "أخبرنا باسمك وبريدك الإلكتروني",
+			"STEP_CHOOSE_MODE": "اختر طريقك"
 		},
 		"settings": {
 			"BREADCRUMB": "[\"لوحة التحكم\", \"الإعدادات\"]",
