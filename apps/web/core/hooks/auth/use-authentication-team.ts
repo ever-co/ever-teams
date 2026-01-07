@@ -94,16 +94,19 @@ export function useAuthenticationTeam() {
 				setErrors(errors as any);
 				return;
 			}
-		} else {
-			// Solo mode: auto-generate team name
-			formValues.team = generateDefaultTeamName(formValues.name);
 		}
 
+		// Build submission data without mutating state
+		const submissionData: IRegisterDataAPI = {
+			...formValues,
+			team: startMode === 'team' ? formValues.team : generateDefaultTeamName(formValues.name),
+			timezone: userTimezone()
+		};
+
 		// Final submission
-		formValues['timezone'] = userTimezone();
 		infiniteLoading.current = true;
 
-		queryCall(formValues)
+		queryCall(submissionData)
 			.then(() => router.push('/'))
 			.catch((err: AxiosError) => {
 				if (err.response?.status === 400) {
