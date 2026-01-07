@@ -646,6 +646,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Asignar Equipos",
+					"noTeamsAvailable": "No hay equipos disponibles",
+					"teamsHelperText": "Seleccione al menos un equipo para este proyecto",
 					"assignMembers": "Asignar Miembros y Gerentes",
 					"noMembers": "Sin miembros o gerentes",
 					"addMember": "Agregar Miembro",
@@ -655,8 +658,17 @@
 					"noRelations": "Sin relaciones",
 					"addRelation": "Agregar Relación",
 					"selectProject": "Seleccionar un proyecto...",
-					"selectRelationType": "Elegir tipo de relación..."
+					"selectRelationType": "Elegir tipo de relación...",
+					"activeTeamLocked": "El equipo actual es obligatorio y no se puede eliminar"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "Por favor seleccione al menos un equipo"
 				}
+			},
+			"accessDenied": {
+				"title": "Acceso Denegado",
+				"description": "Este proyecto no pertenece a su equipo actual ({teamName}). Cambie a un equipo que tenga acceso a este proyecto.",
+				"viewAllProjects": "Ver Todos los Proyectos"
 			},
 			"addOrEditModal": {
 				"steps": {
@@ -717,8 +729,8 @@
 			"HEADING_DESCRIPTION": "Por favor, introduzca su información de registro."
 		},
 		"authTeam": {
-			"HEADING_TITLE": "Crear nuevo equipo",
-			"HEADING_DESCRIPTION": "Por favor ingrese los detalles de su equipo para crear un nuevo equipo.",
+			"HEADING_TITLE": "Regístrate ahora",
+			"HEADING_DESCRIPTION": "Cuéntanos más sobre ti y (opcionalmente) tu equipo para registrarte.",
 			"LOADING_TEXT": "Ahora estamos creando su nuevo lugar de trabajo, espere...",
 			"LOADING_WORKSPACE": "Estamos cargando el espacio de trabajo, espere...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Redirigiendo a tu espacio de trabajo...",
@@ -726,7 +738,15 @@
 			"INPUT_TEAM_NAME": "Ingrese el nombre de su equipo",
 			"JOIN_EXISTING_TEAM": "¿Unirse a un equipo existente?",
 			"CREATE_FIRST_TEAM": "Crea tu primer equipo",
-			"CREATE_TEAM": "Crear equipo"
+			"CREATE_TEAM": "Crear equipo",
+			"GET_STARTED_TITLE": "¿Cómo te gustaría comenzar?",
+			"START_SOLO": "Empezar solo",
+			"START_SOLO_NOTE": "Puedes crear un equipo e invitar a otros más tarde",
+			"CREATE_TEAM_NOW": "Crear un equipo ahora",
+			"CONTINUE": "Continuar",
+			"GET_STARTED": "Comenzar",
+			"STEP_USER_INFO": "Dinos tu nombre y correo electrónico",
+			"STEP_CHOOSE_MODE": "Elige tu camino"
 		},
 		"settings": {
 			"BREADCRUMB": "[\"Tablero\", \"Ajustes\"]",

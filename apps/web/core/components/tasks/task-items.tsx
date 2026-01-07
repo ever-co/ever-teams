@@ -72,7 +72,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 				{task?.title}
 			</div>
 
-			<div className="flex items-center gap-2 pl-2 pr-5">
+			<div className="flex gap-2 items-center pr-5 pl-2">
 				<div onClick={(e) => e.stopPropagation()}>
 					{/* <TaskStatusDropdown
 						defaultValue={task?.status}
@@ -141,7 +141,7 @@ export function TaskAvatars({ task, limit = 2 }: { task: PartialITeamTask; limit
 
 	if (!members?.length) {
 		return (
-			<div className="flex items-center justify-center -space-x-2 avatars min-w-10">
+			<div className="flex justify-center items-center -space-x-2 avatars min-w-10">
 				<ImageComponent radius={30} diameter={30} images={taskAssignee} item={task} />
 			</div>
 		);
@@ -149,7 +149,7 @@ export function TaskAvatars({ task, limit = 2 }: { task: PartialITeamTask; limit
 
 	return (
 		<div
-			className="flex items-center justify-center -space-x-2 avatars min-w-10"
+			className="flex justify-center items-center -space-x-2 avatars min-w-10"
 			onClick={(e) => e.stopPropagation()}
 		>
 			{members?.slice(0, limit).map((member, i) => {
@@ -188,7 +188,7 @@ export function TaskAvatars({ task, limit = 2 }: { task: PartialITeamTask; limit
 			})}
 
 			{members.length > limit && (
-				<Avatar shape="circle" className="flex items-center justify-center border size-8!" size={30}>
+				<Avatar shape="circle" className="flex items-center justify-center border size-7!" size={30}>
 					<span className="text-xs">+{members.length - limit}</span>
 				</Avatar>
 			)}

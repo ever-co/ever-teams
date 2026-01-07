@@ -14,7 +14,7 @@
  *
  */
 
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 export interface JWTPayload {
 	id: string;

@@ -622,6 +622,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Przypisz Zespoły",
+					"noTeamsAvailable": "Brak dostępnych zespołów",
+					"teamsHelperText": "Wybierz co najmniej jeden zespół dla tego projektu",
 					"assignMembers": "Przypisz Członków i Menedżerów",
 					"noMembers": "Brak członków lub menedżerów",
 					"addMember": "Dodaj Członka",
@@ -631,8 +634,17 @@
 					"noRelations": "Brak relacji",
 					"addRelation": "Dodaj Relację",
 					"selectProject": "Wybierz projekt...",
-					"selectRelationType": "Wybierz typ relacji..."
+					"selectRelationType": "Wybierz typ relacji...",
+					"activeTeamLocked": "Bieżący zespół jest wymagany i nie można go usunąć"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "Wybierz co najmniej jeden zespół"
 				}
+			},
+			"accessDenied": {
+				"title": "Odmowa Dostępu",
+				"description": "Ten projekt nie należy do Twojego bieżącego zespołu ({teamName}). Przełącz się na zespół, który ma dostęp do tego projektu.",
+				"viewAllProjects": "Zobacz Wszystkie Projekty"
 			},
 			"addOrEditModal": {
 				"steps": {
@@ -717,8 +729,8 @@
 			"HEADING_DESCRIPTION": "Proszę wprowadzić swoje dane logowania."
 		},
 		"authTeam": {
-			"HEADING_TITLE": "Stwórz Nowy Zespół",
-			"HEADING_DESCRIPTION": "Proszę podać szczegóły swojego zespołu, aby stworzyć nowy zespół.",
+			"HEADING_TITLE": "Zarejestruj się teraz",
+			"HEADING_DESCRIPTION": "Opowiedz nam więcej o sobie i (opcjonalnie) o swoim zespole, aby się zarejestrować.",
 			"LOADING_TEXT": "Teraz tworzymy twoje nowe miejsce pracy, proszę czekać...",
 			"LOADING_WORKSPACE": "Ładujemy przestrzeń roboczą, proszę czekać...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Przekierowywanie do Twojej przestrzeni roboczej...",
@@ -726,7 +738,15 @@
 			"INPUT_TEAM_NAME": "Wprowadź nazwę swojego zespołu",
 			"JOIN_EXISTING_TEAM": "Dołączasz do istniejącego zespołu?",
 			"CREATE_FIRST_TEAM": "Stwórz swój pierwszy zespół",
-			"CREATE_TEAM": "Stwórz zespół"
+			"CREATE_TEAM": "Stwórz zespół",
+			"GET_STARTED_TITLE": "Jak chcesz zacząć?",
+			"START_SOLO": "Zacznij samodzielnie",
+			"START_SOLO_NOTE": "Możesz stworzyć zespół i zaprosić innych później",
+			"CREATE_TEAM_NOW": "Stwórz zespół teraz",
+			"CONTINUE": "Kontynuuj",
+			"GET_STARTED": "Rozpocznij",
+			"STEP_USER_INFO": "Podaj nam swoje imię i e-mail",
+			"STEP_CHOOSE_MODE": "Wybierz swoją ścieżkę"
 		},
 		"settings": {
 			"BREADCRUMB": "[\"Dashboard\", \"Settings\"]",

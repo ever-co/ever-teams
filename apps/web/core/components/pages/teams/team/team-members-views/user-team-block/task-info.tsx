@@ -36,7 +36,7 @@ export function TaskInfo({ className, memberInfo, edition, publicTeam, tab, dayP
 			{edition.task && (
 				<TaskAllStatusTypes showStatus={true} task={edition.task} tab={tab} dayPlanTab={dayPlanTab} />
 			)}
-			{!edition.task && <div className="text-center self-center">--</div>}
+			{!edition.task && <div className="self-center text-center">--</div>}
 		</div>
 	);
 }
@@ -72,7 +72,7 @@ export function TaskBlockInfo({ className, memberInfo, edition, publicTeam, tab,
 					dayPlanTab={dayPlanTab}
 				/>
 			)}
-			{!edition.task && <div className="text-center self-center text-white dark:text-dark">_</div>}
+			{!edition.task && <div className="self-center text-center text-white dark:text-dark">_</div>}
 		</div>
 	);
 }
@@ -111,7 +111,7 @@ function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 			</div>
 
 			{/* Show task input combobox when in edit mode */}
-			<div ref={edition.taskEditIgnoreElement.ignoreElementRef} className={clsxm(!hasEditMode && ['hidden'])}>
+			<div ref={edition.taskEditIgnoreElement.ignoreElementRef} className={clsxm(!hasEditMode && ['hidden'],'w-full')}>
 				{hasEditMode && (
 					<TaskInput
 						task={task}

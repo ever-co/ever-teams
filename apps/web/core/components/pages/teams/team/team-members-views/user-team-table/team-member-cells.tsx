@@ -1,4 +1,4 @@
-import { useTeamMemberCard, useTMCardTaskEdit, useCollaborative } from '@/core/hooks';
+import { useTeamMemberCard, useTMCardTaskEdit, useCollaborative, I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { TaskTimes } from '../../../../../tasks/task-times';
 import get from 'lodash/get';
@@ -9,11 +9,57 @@ import { UserInfo } from '../user-team-card/user-info';
 import { TaskEstimateInfo } from '../user-team-card/task-estimate';
 import { UserTeamCardMenu } from '../user-team-card/user-team-card-menu';
 import { InputField } from '@/core/components/duplicated-components/_input';
+import { createContext, useContext, useMemo, memo } from 'react';
 
-export function TaskCell({ row }: { row: any }) {
-	const member = row.original as any;
+/**
+ * Context to share memberInfo and taskEdition state across all cells in a table row.
+ * This fixes the bug where ActionMenuCell and TaskCell had separate taskEdition instances,
+ * causing "Edit Task" in the menu to not trigger edit mode in the TaskCell.
+ */
+interface TeamMemberRowContextValue {
+	memberInfo: I_TeamMemberCardHook;
+	taskEdition: I_TMCardTaskEditHook;
+}
+
+const TeamMemberRowContext = createContext<TeamMemberRowContextValue | null>(null);
+
+/**
+ * Hook to access the shared row context.
+ * Throws if used outside of TeamMemberRowProvider.
+ */
+function useTeamMemberRowContext(): TeamMemberRowContextValue {
+	const context = useContext(TeamMemberRowContext);
+	if (!context) {
+		throw new Error('useTeamMemberRowContext must be used within TeamMemberRowProvider');
+	}
+	return context;
+}
+
+/**
+ * Provider component that wraps a table row and shares memberInfo/taskEdition.
+ * This ensures all cells in the same row use the same hook instances.
+ */
+const TeamMemberRowProviderInternal = memo(({ member, children }: { member: any; children: React.ReactNode }) => {
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
+
+	const value = useMemo(() => ({ memberInfo, taskEdition }), [memberInfo, taskEdition]);
+
+	return <TeamMemberRowContext.Provider value={value}>{children}</TeamMemberRowContext.Provider>;
+});
+
+TeamMemberRowProviderInternal.displayName = 'TeamMemberRowProviderInternal';
+
+/**
+ * Wrapper component compatible with DataTable's rowWrapper prop.
+ * Receives `data` from DataTable and passes it as `member` to the internal provider.
+ */
+export function TeamMemberRowWrapper({ data, children }: { data: any; children: React.ReactNode }) {
+	return <TeamMemberRowProviderInternal member={data}>{children}</TeamMemberRowProviderInternal>;
+}
+
+export function TaskCell() {
+	const { memberInfo, taskEdition } = useTeamMemberRowContext();
 	const publicTeam = false;
 	const fullWidth = useAtomValue(fullWidthState);
 
@@ -22,7 +68,7 @@ export function TaskCell({ row }: { row: any }) {
 			edition={taskEdition}
 			memberInfo={memberInfo}
 			className={clsxm(
-				'flex-1 flex justify-center items-center px-2',
+				'flex flex-1 justify-center items-center px-2',
 				fullWidth ? 'max-w-[24rem]' : 'max-w-[20rem]'
 			)}
 			publicTeam={publicTeam}
@@ -39,9 +85,8 @@ export function UserInfoCell({ cell }: Readonly<{ cell: any }>) {
 	return <UserInfo memberInfo={memberInfo} className="w-fit" publicTeam={publicTeam} />;
 }
 
-export function WorkedOnTaskCell({ row }: { row: any }) {
-	const member = row.original as any;
-	const memberInfo = useTeamMemberCard(member);
+export function WorkedOnTaskCell() {
+	const { memberInfo } = useTeamMemberRowContext();
 
 	return (
 		<TaskTimes
@@ -54,10 +99,8 @@ export function WorkedOnTaskCell({ row }: { row: any }) {
 	);
 }
 
-export function TaskEstimateInfoCell({ row }: { row: any }) {
-	const member = row.original as any;
-	const memberInfo = useTeamMemberCard(member);
-	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
+export function TaskEstimateInfoCell() {
+	const { memberInfo, taskEdition } = useTeamMemberRowContext();
 
 	return (
 		<TaskEstimateInfo
@@ -72,13 +115,10 @@ export function TaskEstimateInfoCell({ row }: { row: any }) {
 }
 
 export function ActionMenuCell({ cell }: { cell: any }) {
-	const row = get(cell, 'row', {});
-	const member = row.original as any;
+	const { memberInfo, taskEdition } = useTeamMemberRowContext();
 	const active = get(cell, 'column.columnDef.meta.active', false);
-	const memberInfo = useTeamMemberCard(member);
 
 	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(memberInfo.memberUser);
-	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 
 	return (
 		<>
@@ -89,9 +129,9 @@ export function ActionMenuCell({ cell }: { cell: any }) {
 					type="checkbox"
 					checked={user_selected()}
 					className={clsxm(
-						'border-none w-4 h-4 mr-1 accent-primary-light',
+						'mr-1 w-4 h-4 border-none accent-primary-light',
 						'border-2 border-primary-light',
-						'2xl:w-[2rem] w-1/5'
+						'w-1/5 2xl:w-[2rem]'
 					)}
 					noWrapper={true}
 					onChange={onUserSelect}

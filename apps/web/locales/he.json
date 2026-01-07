@@ -581,6 +581,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "הקצאת צוותים",
+					"noTeamsAvailable": "אין צוותים זמינים",
+					"teamsHelperText": "בחר לפחות צוות אחד לפרויקט זה",
 					"assignMembers": "הקצאת חברים ומנהלים",
 					"noMembers": "אין חברים או מנהלים",
 					"addMember": "הוסף חבר",
@@ -590,8 +593,17 @@
 					"noRelations": "אין קשרים",
 					"addRelation": "הוסף קשר",
 					"selectProject": "בחר פרויקט...",
-					"selectRelationType": "בחר סוג קשר..."
+					"selectRelationType": "בחר סוג קשר...",
+					"activeTeamLocked": "הצוות הנוכחי נדרש ולא ניתן להסירו"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "אנא בחר לפחות צוות אחד"
 				}
+			},
+			"accessDenied": {
+				"title": "הגישה נדחתה",
+				"description": "פרויקט זה אינו שייך לצוות הנוכחי שלך ({teamName}). עבור לצוות שיש לו גישה לפרויקט זה.",
+				"viewAllProjects": "צפה בכל הפרויקטים"
 			},
 			"addOrEditModal": {
 				"steps": {
@@ -717,8 +729,8 @@
 			"HEADING_DESCRIPTION": "אנא הזן את פרטי ההתחברות שלך."
 		},
 		"authTeam": {
-			"HEADING_TITLE": "צור צוות חדש",
-			"HEADING_DESCRIPTION": "אנא הכנס את פרטי הצוות שלך כדי ליצור צוות חדש.",
+			"HEADING_TITLE": "הירשם עכשיו",
+			"HEADING_DESCRIPTION": "ספר לנו עוד על עצמך ו(אופציונלי) על הצוות שלך כדי להירשם.",
 			"LOADING_TEXT": "אנחנו עכשיו יוצרים את סביבת העבודה החדשה שלך, רגע קטן...",
 			"LOADING_WORKSPACE": "אנחנו טוענים את סביבת העבודה, רגע קטן...",
 			"REDIRECT_TO_WORSPACE_LOADING": "מכוון מחדש לחלל העבודה שלך",
@@ -726,7 +738,15 @@
 			"INPUT_TEAM_NAME": "הכנס את שם הצוות שלך",
 			"JOIN_EXISTING_TEAM": "מצטרף לצוות קיים?",
 			"CREATE_FIRST_TEAM": "צור את הצוות הראשון שלך",
-			"CREATE_TEAM": "צור צוות"
+			"CREATE_TEAM": "צור צוות",
+			"GET_STARTED_TITLE": "איך תרצה להתחיל?",
+			"START_SOLO": "התחל לבד",
+			"START_SOLO_NOTE": "אתה יכול ליצור צוות ולהזמין אחרים מאוחר יותר",
+			"CREATE_TEAM_NOW": "צור צוות עכשיו",
+			"CONTINUE": "המשך",
+			"GET_STARTED": "התחל",
+			"STEP_USER_INFO": "ספר לנו את השם והאימייל שלך",
+			"STEP_CHOOSE_MODE": "בחר את הדרך שלך"
 		},
 		"settings": {
 			"BREADCRUMB": "[\"לוח מחוונים\", \"הגדרות\"]",

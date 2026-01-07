@@ -578,6 +578,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "分配团队",
+					"noTeamsAvailable": "没有可用的团队",
+					"teamsHelperText": "请为此项目选择至少一个团队",
 					"assignMembers": "分配成员和管理员",
 					"noMembers": "没有成员或管理员",
 					"addMember": "添加成员",
@@ -587,8 +590,17 @@
 					"noRelations": "没有关系",
 					"addRelation": "添加关系",
 					"selectProject": "选择项目...",
-					"selectRelationType": "选择关系类型..."
+					"selectRelationType": "选择关系类型...",
+					"activeTeamLocked": "当前团队是必需的，无法移除"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "请选择至少一个团队"
 				}
+			},
+			"accessDenied": {
+				"title": "访问被拒绝",
+				"description": "此项目不属于您当前的团队 ({teamName})。请切换到有权访问此项目的团队。",
+				"viewAllProjects": "查看所有项目"
 			},
 			"addOrEditModal": {
 				"steps": {
@@ -717,8 +729,8 @@
 			"HEADING_DESCRIPTION": "请输入您的登录信息。"
 		},
 		"authTeam": {
-			"HEADING_TITLE": "创建新团队",
-			"HEADING_DESCRIPTION": "请输入团队信息以创建新团队。",
+			"HEADING_TITLE": "立即注册",
+			"HEADING_DESCRIPTION": "请告诉我们更多关于您的信息,以及(可选)您的团队信息以完成注册。",
 			"LOADING_TEXT": "正在为您创建新的工作区,请稍候......",
 			"LOADING_WORKSPACE": "正在加载工作空间,请稍候......",
 			"REDIRECT_TO_WORSPACE_LOADING": "正在重定向到您的工作空间......",
@@ -726,7 +738,15 @@
 			"INPUT_TEAM_NAME": "输入您的团队名称",
 			"JOIN_EXISTING_TEAM": "加入已有团队?",
 			"CREATE_FIRST_TEAM": "创建您的第一个团队",
-			"CREATE_TEAM": "创建团队"
+			"CREATE_TEAM": "创建团队",
+			"GET_STARTED_TITLE": "您想如何开始?",
+			"START_SOLO": "独自开始",
+			"START_SOLO_NOTE": "您可以稍后创建团队并邀请其他人",
+			"CREATE_TEAM_NOW": "立即创建团队",
+			"CONTINUE": "继续",
+			"GET_STARTED": "开始",
+			"STEP_USER_INFO": "请告诉我们您的姓名和电子邮箱",
+			"STEP_CHOOSE_MODE": "选择您的方式"
 		},
 		"settings": {
 			"BREADCRUMB": "[\"仪表板\", \"设置\"]",

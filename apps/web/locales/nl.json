@@ -619,6 +619,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Teams toewijzen",
+					"noTeamsAvailable": "Geen teams beschikbaar",
+					"teamsHelperText": "Selecteer minimaal één team voor dit project",
 					"assignMembers": "Leden & Managers toewijzen",
 					"noMembers": "Geen leden of managers",
 					"addMember": "Lid toevoegen",
@@ -628,8 +631,17 @@
 					"noRelations": "Geen relaties",
 					"addRelation": "Relatie toevoegen",
 					"selectProject": "Selecteer een project...",
-					"selectRelationType": "Kies een relatietype..."
+					"selectRelationType": "Kies een relatietype...",
+					"activeTeamLocked": "Het huidige team is vereist en kan niet worden verwijderd"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "Selecteer minimaal één team"
 				}
+			},
+			"accessDenied": {
+				"title": "Toegang Geweigerd",
+				"description": "Dit project behoort niet tot uw huidige team ({teamName}). Schakel over naar een team dat toegang heeft tot dit project.",
+				"viewAllProjects": "Bekijk Alle Projecten"
 			},
 			"addOrEditModal": {
 				"steps": {
@@ -717,8 +729,8 @@
 			"HEADING_DESCRIPTION": "Voer uw inloggegevens in."
 		},
 		"authTeam": {
-			"HEADING_TITLE": "Nieuw team maken",
-			"HEADING_DESCRIPTION": "Voer uw teamgegevens in om een nieuw team te maken.",
+			"HEADING_TITLE": "Nu registreren",
+			"HEADING_DESCRIPTION": "Vertel ons meer over uzelf en (optioneel) uw team om te registreren.",
 			"LOADING_TEXT": "We maken nu uw nieuwe werkplek aan, even geduld...",
 			"LOADING_WORKSPACE": "We laden de werkruimte, even geduld...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Doorverwijzen naar uw werkruimte...",
@@ -726,7 +738,15 @@
 			"INPUT_TEAM_NAME": "Voer uw teamnaam in",
 			"JOIN_EXISTING_TEAM": "Bestaand team joinen?",
 			"CREATE_FIRST_TEAM": "Maak uw eerste team",
-			"CREATE_TEAM": "Team maken"
+			"CREATE_TEAM": "Team maken",
+			"GET_STARTED_TITLE": "Hoe wilt u beginnen?",
+			"START_SOLO": "Start alleen",
+			"START_SOLO_NOTE": "U kunt later een team maken en anderen uitnodigen",
+			"CREATE_TEAM_NOW": "Nu een team maken",
+			"CONTINUE": "Doorgaan",
+			"GET_STARTED": "Aan de slag",
+			"STEP_USER_INFO": "Vertel ons uw naam en e-mailadres",
+			"STEP_CHOOSE_MODE": "Kies uw pad"
 		},
 		"settings": {
 			"BREADCRUMB": "[\"Dashboard\", \"Instellingen\"]",

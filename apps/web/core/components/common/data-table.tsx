@@ -30,9 +30,21 @@ interface DataTableProps<TData, TValue> {
 		content: string;
 	};
 	isScrollable?: boolean;
+	/**
+	 * Optional wrapper component for each row's cells.
+	 * Used to provide shared context (e.g., shared hooks state) across cells in the same row.
+	 * Receives the row data and children (the rendered cells).
+	 */
+	rowWrapper?: React.ComponentType<{ data: TData; children: React.ReactNode }>;
 }
 
-function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: Readonly<DataTableProps<TData, TValue>>) {
+function DataTable<TData, TValue>({
+	columns,
+	data,
+	footerRows,
+	isHeader,
+	rowWrapper: RowWrapper
+}: Readonly<DataTableProps<TData, TValue>>) {
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -108,6 +120,23 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: Reado
 				>
 					{table.getRowModel().rows?.length ? (
 						table.getRowModel().rows.map((row, i) => {
+							const cells = row.getVisibleCells().map((cell, index) => {
+								return (
+									<TableCell
+										key={cell.id}
+										style={{
+											textAlign: index === 0 ? 'left' : 'center',
+											width: index === 4 ? '2rem' : '13rem'
+										}}
+										className={clsxm(
+											'my-4 border-r border-b border-[#00000008] border-[0.125rem] dark:border-[#26272C]'
+										)}
+									>
+										{flexRender(cell.column.columnDef.cell, cell.getContext()) as React.ReactNode}
+									</TableCell>
+								);
+							});
+
 							return (
 								<TableRow
 									key={row.id}
@@ -117,28 +146,7 @@ function DataTable<TData, TValue>({ columns, data, footerRows, isHeader }: Reado
 										i == 1 && 'max-w-[615px]'
 									)}
 								>
-									{row.getVisibleCells().map((cell, index) => {
-										return (
-											<TableCell
-												key={cell.id}
-												style={{
-													textAlign: index === 0 ? 'left' : 'center',
-													width: index === 4 ? '2rem' : '13rem'
-												}}
-												// className="!w-36"
-												className={clsxm(
-													'my-4 border-r border-b border-[#00000008] border-[0.125rem] dark:border-[#26272C]'
-												)}
-											>
-												{
-													flexRender(
-														cell.column.columnDef.cell,
-														cell.getContext()
-													) as React.ReactNode
-												}
-											</TableCell>
-										);
-									})}
+									{RowWrapper ? <RowWrapper data={row.original}>{cells}</RowWrapper> : cells}
 								</TableRow>
 							);
 						})

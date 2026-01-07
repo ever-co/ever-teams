@@ -622,6 +622,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Teams zuweisen",
+					"noTeamsAvailable": "Keine Teams verfügbar",
+					"teamsHelperText": "Wählen Sie mindestens ein Team für dieses Projekt",
 					"assignMembers": "Mitglieder & Manager zuweisen",
 					"noMembers": "Keine Mitglieder oder Manager",
 					"addMember": "Mitglied hinzufügen",
@@ -631,8 +634,17 @@
 					"noRelations": "Keine Beziehungen",
 					"addRelation": "Beziehung hinzufügen",
 					"selectProject": "Projekt auswählen...",
-					"selectRelationType": "Beziehungstyp auswählen..."
+					"selectRelationType": "Beziehungstyp auswählen...",
+					"activeTeamLocked": "Das aktuelle Team ist erforderlich und kann nicht entfernt werden"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "Bitte wählen Sie mindestens ein Team aus"
 				}
+			},
+			"accessDenied": {
+				"title": "Zugriff verweigert",
+				"description": "Dieses Projekt gehört nicht zu Ihrem aktuellen Team ({teamName}). Wechseln Sie zu einem Team, das Zugriff auf dieses Projekt hat.",
+				"viewAllProjects": "Alle Projekte anzeigen"
 			},
 			"addOrEditModal": {
 				"steps": {
@@ -717,8 +729,8 @@
 			"HEADING_DESCRIPTION": "Bitte geben Sie Ihre Anmeldedaten ein."
 		},
 		"authTeam": {
-			"HEADING_TITLE": "Neues Team erstellen",
-			"HEADING_DESCRIPTION": "Bitte geben Sie die Details für Ihr neues Team ein, um ein neues Team zu erstellen.",
+			"HEADING_TITLE": "Jetzt registrieren",
+			"HEADING_DESCRIPTION": "Erzählen Sie uns mehr über sich und (optional) Ihr Team, um sich zu registrieren.",
 			"LOADING_TEXT": "Wir erstellen gerade Ihren neuen Arbeitsbereich, bitte warten...",
 			"LOADING_WORKSPACE": "Wir laden den Arbeitsbereich, bitte warten...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Weiterleitung zu Ihrem Arbeitsbereich...",
@@ -726,7 +738,15 @@
 			"INPUT_TEAM_NAME": "Teamnamen eingeben",
 			"JOIN_EXISTING_TEAM": "Einem bestehenden Team beitreten?",
 			"CREATE_FIRST_TEAM": "Ihr erstes Team erstellen",
-			"CREATE_TEAM": "Team erstellen"
+			"CREATE_TEAM": "Team erstellen",
+			"GET_STARTED_TITLE": "Wie möchten Sie beginnen?",
+			"START_SOLO": "Alleine starten",
+			"START_SOLO_NOTE": "Sie können später ein Team erstellen und andere einladen",
+			"CREATE_TEAM_NOW": "Jetzt ein Team erstellen",
+			"CONTINUE": "Weiter",
+			"GET_STARTED": "Loslegen",
+			"STEP_USER_INFO": "Teilen Sie uns Ihren Namen und Ihre E-Mail mit",
+			"STEP_CHOOSE_MODE": "Wählen Sie Ihren Weg"
 		},
 		"settings": {
 			"BREADCRUMB": "[\"Dashboard\", \"Einstellungen\"]",
