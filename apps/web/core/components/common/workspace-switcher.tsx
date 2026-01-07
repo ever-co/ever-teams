@@ -94,7 +94,7 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 						</div>
 						<div className="flex gap-3 items-center p-3 bg-amber-50 rounded-md border border-amber-200 dark:bg-amber-950/20 dark:border-amber-800">
 							<AlertTriangle
-								className="shrink-0 w-4 h-4 text-amber-600 dark:text-amber-400"
+								className="w-4 h-4 text-amber-600 shrink-0 dark:text-amber-400"
 								aria-hidden="true"
 							/>
 							<span className="text-sm text-amber-800 dark:text-amber-200">
@@ -296,7 +296,7 @@ export function WorkspacesSwitcher() {
 				<>
 					<div className="flex justify-center items-center rounded-lg aspect-square size-7 bg-sidebar-primary text-sidebar-primary-foreground">
 						{actualCurrentWorkspace.user.tenant.logo || actualCurrentWorkspace.user.tenant.name ? (
-							<Avatar className="rounded !size-8">
+							<Avatar className="rounded size-8!">
 								<AvatarImage
 									width={24}
 									height={24}
@@ -406,7 +406,7 @@ export function WorkspacesSwitcher() {
 													role="menuitem"
 													aria-label={`Change to the workspace ${workspace.user.tenant.name} with ${teamCount} team${teamCount > 1 ? 's' : ''}`}
 												>
-													<div className="flex items-center justify-center border rounded-xs size-8">
+													<div className="flex justify-center items-center border rounded-xs size-8">
 														{workspace.user.tenant.logo ? (
 															<Avatar className="rounded !size-6">
 																<AvatarImage
@@ -437,7 +437,7 @@ export function WorkspacesSwitcher() {
 							{/* Message if no other workspaces */}
 							{workspaces.length > 0 && availableWorkspaces.length === 0 && (
 								<DropdownMenuItem disabled className="gap-2 p-2 text-muted-foreground">
-									<div className="flex items-center justify-center border rounded-xs size-6">
+									<div className="flex justify-center items-center border rounded-xs size-6">
 										<DefaultWorkspaceIcon className="size-4" />
 									</div>
 									No other workspace available

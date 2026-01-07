@@ -216,14 +216,27 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 	}, [selectedTeams, selectedMembers, selectedManagers, selectedStatus, selectedBudgetType, closeModal, router]);
 
 	const handleClearAllFilters = useCallback(() => {
+		// Clear all local states
 		setSelectedTeams([]);
 		setSelectedMembers([]);
 		setSelectedManagers([]);
 		setSelectedStatus([]);
 		setSelectedBudgetType([]);
-		handleApplyFilters();
+
+		// Clear URL params directly (don't rely on state which hasn't updated yet)
+		const searchParams = new URLSearchParams(window.location.search);
+		searchParams.delete('teams');
+		searchParams.delete('members');
+		searchParams.delete('managers');
+		searchParams.delete('status');
+		searchParams.delete('budgetTypes');
+		// Also clear date range filters
+		searchParams.delete('dateFrom');
+		searchParams.delete('dateTo');
+
+		router.replace(`?${searchParams.toString()}`, { scroll: false });
 		closeModal();
-	}, [closeModal, handleApplyFilters]);
+	}, [closeModal, router]);
 
 	const getSelectedQueries = useCallback(() => {
 		setSelectedTeams(params.get('teams')?.split(',') || []);

@@ -68,7 +68,7 @@ export function ProjectsGridView(props: IProps) {
 				<Paginate
 					total={total}
 					onPageChange={onPageChange}
-					pageCount={1} // Set Static to 1 - It will be calculated dynamically in Paginate component
+					pageCount={Math.ceil(total / itemsPerPage)}
 					itemsPerPage={itemsPerPage}
 					itemOffset={itemOffset}
 					endOffset={endOffset}

@@ -623,6 +623,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Atribuir Equipes",
+					"noTeamsAvailable": "Nenhuma equipe disponível",
+					"teamsHelperText": "Selecione pelo menos uma equipe para este projeto",
 					"assignMembers": "Atribuir Membros e Gerentes",
 					"noMembers": "Sem membros ou gerentes",
 					"addMember": "Adicionar Membro",
@@ -632,8 +635,17 @@
 					"noRelations": "Sem relações",
 					"addRelation": "Adicionar Relação",
 					"selectProject": "Selecionar um projeto...",
-					"selectRelationType": "Escolher tipo de relação..."
+					"selectRelationType": "Escolher tipo de relação...",
+					"activeTeamLocked": "A equipe atual é obrigatória e não pode ser removida"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "Selecione pelo menos uma equipe"
 				}
+			},
+			"accessDenied": {
+				"title": "Acesso Negado",
+				"description": "Este projeto não pertence à sua equipe atual ({teamName}). Mude para uma equipe que tenha acesso a este projeto.",
+				"viewAllProjects": "Ver Todos os Projetos"
 			},
 			"addOrEditModal": {
 				"steps": {
@@ -718,8 +730,8 @@
 			"HEADING_DESCRIPTION": "Por favor digite suas informações de login."
 		},
 		"authTeam": {
-			"HEADING_TITLE": "Criar Nova Equipe",
-			"HEADING_DESCRIPTION": "Por favor, insira os detalhes da sua equipe para criar uma nova equipe.",
+			"HEADING_TITLE": "Cadastre-se agora",
+			"HEADING_DESCRIPTION": "Conte-nos mais sobre você e (opcionalmente) sua equipe para se cadastrar.",
 			"LOADING_TEXT": "Estamos criando o seu novo ambiente de trabalho, aguarde...",
 			"LOADING_WORKSPACE": "Estamos carregando o espaço de trabalho, aguarde...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Redirecionando para o seu espaço de trabalho...",
@@ -727,7 +739,15 @@
 			"INPUT_TEAM_NAME": "Insira o nome da sua equipe",
 			"JOIN_EXISTING_TEAM": "Já faz parte de uma equipe?",
 			"CREATE_FIRST_TEAM": "Crie sua primeira equipe",
-			"CREATE_TEAM": "Criar equipe"
+			"CREATE_TEAM": "Criar equipe",
+			"GET_STARTED_TITLE": "Como você gostaria de começar?",
+			"START_SOLO": "Começar sozinho",
+			"START_SOLO_NOTE": "Você pode criar uma equipe e convidar outros depois",
+			"CREATE_TEAM_NOW": "Criar uma equipe agora",
+			"CONTINUE": "Continuar",
+			"GET_STARTED": "Começar",
+			"STEP_USER_INFO": "Diga-nos seu nome e e-mail",
+			"STEP_CHOOSE_MODE": "Escolha seu caminho"
 		},
 		"settings": {
 			"BREADCRUMB": "[\"Painel de Controle\", \"Configurações\"]",

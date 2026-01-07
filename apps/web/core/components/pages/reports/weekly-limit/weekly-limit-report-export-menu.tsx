@@ -83,7 +83,7 @@ export function WeeklyLimitExportMenu(props: IProps) {
 									className={`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
 								>
 									<PDFDownloadLink
-										className="w-full h-full text-left"
+										className="w-full h-full pl-2 text-left"
 										document={pdfDocument}
 										fileName={`${activeTeam?.name}-weekly-limit-report.pdf`}
 									>

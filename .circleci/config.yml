@@ -31,7 +31,7 @@ aliases:
       sudo apt-get update
       sudo apt install npm
       sudo apt install build-essential
-      sudo npm install --quiet node-gyp@10.2.0 -g
+      sudo npm install --quiet node-gyp@12.1.0 -g
       sudo npm config set python /usr/bin/python
   - &install-yarn
     name: Install Latest Yarn

@@ -1,5 +1,4 @@
 'use client';
-
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { organizationProjectsState } from '@/core/stores';
 import { useLocalStorageState, useModal, useOrganizationProjects } from '@/core/hooks';
@@ -19,10 +18,10 @@ import {
 	Settings2
 } from 'lucide-react';
 import { cn } from '@/core/lib/helpers';
+import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
 import { Button, Container } from '@/core/components';
 import { DatePickerWithRange } from '@/core/components/common/date-range-select';
 import { DateRange } from 'react-day-picker';
-import { endOfMonth, startOfMonth } from 'date-fns';
 import { LAST_SELECTED_PROJECTS_VIEW } from '@/core/constants/config/constants';
 import { useTranslations } from 'next-intl';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
@@ -83,8 +82,26 @@ function PageComponent() {
 	const pathname = usePathname();
 	const showArchivedProjects = Boolean(params.get('archived'));
 
-	// Initialize date range from URL parameters or default to current month
-	const [dateRange, setDateRange] = useState<DateRange>(() => {
+	// Read filters from URL parameters (set by LazyFiltersCardModal)
+	const urlFilters = useMemo(() => {
+		const teamsParam = params.get('teams');
+		const membersParam = params.get('members');
+		const managersParam = params.get('managers');
+		const statusParam = params.get('status');
+		const budgetTypesParam = params.get('budgetTypes');
+
+		return {
+			teams: teamsParam ? teamsParam.split(',').filter(Boolean) : [],
+			members: membersParam ? membersParam.split(',').filter(Boolean) : [],
+			managers: managersParam ? managersParam.split(',').filter(Boolean) : [],
+			status: statusParam ? statusParam.split(',').filter(Boolean) : [],
+			budgetTypes: budgetTypesParam ? budgetTypesParam.split(',').filter(Boolean) : []
+		};
+	}, [params]);
+
+	// Initialize date range from URL parameters only - no default filter
+	// Date filter should only apply when user explicitly selects a date range
+	const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
 		const dateFromParam = params.get('dateFrom');
 		const dateToParam = params.get('dateTo');
 
@@ -95,11 +112,35 @@ function PageComponent() {
 			};
 		}
 
-		return {
-			from: startOfMonth(new Date()),
-			to: endOfMonth(new Date())
-		};
+		return undefined; // No default date filter - show all projects
 	});
+
+	// Sync dateRange state with URL params (for when "Clear All" is clicked in filters modal)
+	useEffect(() => {
+		const dateFromParam = params.get('dateFrom');
+		const dateToParam = params.get('dateTo');
+
+		if (dateFromParam && dateToParam) {
+			setDateRange({
+				from: new Date(dateFromParam),
+				to: new Date(dateToParam)
+			});
+		} else {
+			setDateRange(undefined);
+		}
+	}, [params]);
+
+	// Count active filters (including date range)
+	const activeFiltersCount = useMemo(() => {
+		let count = 0;
+		if (urlFilters.teams.length > 0) count++;
+		if (urlFilters.members.length > 0) count++;
+		if (urlFilters.managers.length > 0) count++;
+		if (urlFilters.status.length > 0) count++;
+		if (urlFilters.budgetTypes.length > 0) count++;
+		if (dateRange?.from && dateRange?.to) count++;
+		return count;
+	}, [urlFilters, dateRange]);
 	const viewItems: { title: string; name: TViewMode; icon: any }[] = useMemo(
 		() => [
 			{
@@ -158,6 +199,7 @@ function PageComponent() {
 			isArchived: project.isArchived,
 			startDate: project.startDate || undefined,
 			endDate: project.endDate || undefined,
+			createdAt: project.createdAt,
 			members: project.members,
 			managers: project.members?.filter((member) => member.isManager) || [],
 			teams: project.teams
@@ -175,82 +217,147 @@ function PageComponent() {
 			return projects;
 		}
 
-		const rangeStart = new Date(dateRange.from!);
-		const rangeEnd = new Date(dateRange.to!);
+		const rangeStart = new Date(dateRange.from);
+		const rangeEnd = new Date(dateRange.to);
+		// Set rangeEnd to end of day for inclusive comparison
+		rangeEnd.setHours(23, 59, 59, 999);
 
 		return projects.filter((project) => {
 			const projectStartDate = project.startDate ? new Date(project.startDate) : null;
 			const projectEndDate = project.endDate ? new Date(project.endDate) : null;
+			const projectCreatedAt = project.createdAt ? new Date(project.createdAt) : null;
 
 			// Check if dates are invalid (1970-01-01 means no real date set)
 			const isStartDateInvalid = projectStartDate && projectStartDate.getFullYear() === 1970;
 			const isEndDateInvalid = projectEndDate && projectEndDate.getFullYear() === 1970;
 
-			// Include project if:
-			// 1. Project has no dates or invalid dates (always visible)
-			// 2. Project dates overlap with the selected range
-			if (!projectStartDate && !projectEndDate) {
-				return true;
-			}
-
-			if (isStartDateInvalid && isEndDateInvalid) {
-				return true;
-			}
-
-			// Only apply date filtering if we have valid dates
+			// Get valid dates (excluding 1970 epoch dates)
 			const validStartDate = projectStartDate && !isStartDateInvalid ? projectStartDate : null;
 			const validEndDate = projectEndDate && !isEndDateInvalid ? projectEndDate : null;
 
-			if (!validStartDate && !validEndDate) {
-				return true;
+			// Case 1: Project has both valid start and end dates - check overlap
+			if (validStartDate && validEndDate) {
+				return validStartDate <= rangeEnd && validEndDate >= rangeStart;
 			}
 
-			// Check if project overlaps with the selected date range using valid dates
-			if (validStartDate && validEndDate) {
-				// Project has both valid start and end dates
-				return (
-					(validStartDate <= rangeEnd && validEndDate >= rangeStart) ||
-					(validStartDate >= rangeStart && validStartDate <= rangeEnd) ||
-					(validEndDate >= rangeStart && validEndDate <= rangeEnd)
-				);
-			} else if (validStartDate) {
-				// Project has only valid start date
+			// Case 2: Project has only valid start date
+			if (validStartDate && !validEndDate) {
 				return validStartDate >= rangeStart && validStartDate <= rangeEnd;
-			} else if (validEndDate) {
-				// Project has only valid end date
+			}
+
+			// Case 3: Project has only valid end date
+			if (!validStartDate && validEndDate) {
 				return validEndDate >= rangeStart && validEndDate <= rangeEnd;
 			}
 
-			return true; // Fallback: include project
+			// Case 4: No valid project dates - fallback to createdAt
+			if (projectCreatedAt) {
+				return projectCreatedAt >= rangeStart && projectCreatedAt <= rangeEnd;
+			}
+
+			// No dates at all - exclude from filtered results when date filter is active
+			return false;
 		});
 	}, [projects, dateRange]);
 
+	// Filter projects based on active team context:
+	// - "All Teams" mode (no active team): show ALL projects
+	// - Specific team: show team projects + global projects (no team assigned)
 	const activeTeamProjects = useMemo(() => {
-		// If no active team, return all date-filtered projects
-		if (!activeTeam) {
+		// "All Teams" selected (no active team) → show ALL projects
+		if (!activeTeam?.id) {
 			return dateFilteredProjects || [];
 		}
 
-		// If active team exists, filter projects that belong to this team OR have no teams assigned
+		// Specific team selected → show team projects + global projects
 		return (
 			dateFilteredProjects?.filter((el) => {
-				const teamIds = el.teams?.map((team) => team.id) || [];
-				const hasNoTeams = teamIds.length === 0;
-				const belongsToActiveTeam = teamIds.includes(activeTeam.id);
-				return hasNoTeams || belongsToActiveTeam;
+				const belongsToTeam = projectBelongsToTeam(el, activeTeam.id);
+				const isGlobalProject = projectHasNoTeams(el);
+				return belongsToTeam || isGlobalProject;
 			}) || []
 		);
 	}, [activeTeam, dateFilteredProjects]);
 
+	// Apply URL filters (from LazyFiltersCardModal) to projects
+	const urlFilteredProjects = useMemo(() => {
+		if (activeTeamProjects?.length === 0) {
+			return [];
+		}
+
+		const { teams, members, managers, status, budgetTypes } = urlFilters;
+
+		// If no filters are active, return all projects
+		if (
+			teams.length === 0 &&
+			members.length === 0 &&
+			managers.length === 0 &&
+			status.length === 0 &&
+			budgetTypes.length === 0
+		) {
+			return activeTeamProjects;
+		}
+
+		return activeTeamProjects?.filter((project) => {
+			// Filter by teams: project must belong to at least one of the selected teams
+			if (teams.length > 0) {
+				const projectTeamIds = project.teams?.map((team) => team?.id).filter(Boolean) || [];
+				const hasMatchingTeam = teams.some((teamId) => projectTeamIds.includes(teamId));
+				if (!hasMatchingTeam) return false;
+			}
+
+			// Filter by members: project must have at least one of the selected members (non-managers)
+			if (members.length > 0) {
+				const projectMemberIds =
+					project.members
+						?.filter((member) => !member?.isManager)
+						?.map((member) => member?.employeeId)
+						.filter(Boolean) || [];
+				const hasMatchingMember = members.some((memberId) => projectMemberIds.includes(memberId));
+				if (!hasMatchingMember) return false;
+			}
+
+			// Filter by managers: project must have at least one of the selected managers
+			if (managers.length > 0) {
+				const projectManagerIds = project.managers?.map((manager) => manager?.employeeId).filter(Boolean) || [];
+				const hasMatchingManager = managers.some((managerId) => projectManagerIds.includes(managerId));
+				if (!hasMatchingManager) return false;
+			}
+
+			// Filter by status: project status must match one of the selected statuses
+			if (status.length > 0) {
+				// Get the original project to access status ID
+				const originalProject = organizationProjects.find((p) => p.id === project.project?.id);
+				// Status in URL is stored as status ID (from taskStatuses)
+				// But project.status is the status name, so we need to match by name or ID
+				const projectStatus = originalProject?.status;
+				if (!projectStatus || !status.includes(projectStatus)) {
+					// Try matching by checking if any status filter matches the project status
+					const hasMatchingStatus = status.some((statusFilter) => projectStatus === statusFilter);
+					if (!hasMatchingStatus) return false;
+				}
+			}
+
+			// Filter by budget types: project budgetType must match one of the selected budget types
+			if (budgetTypes.length > 0) {
+				const originalProject = organizationProjects.find((p) => p.id === project.project?.id);
+				const projectBudgetType = originalProject?.budgetType;
+				if (!projectBudgetType || !budgetTypes.includes(projectBudgetType)) return false;
+			}
+
+			return true;
+		});
+	}, [activeTeamProjects, urlFilters, organizationProjects]);
+
 	const filteredProjects = useMemo(() => {
-		return (
-			(searchTerm
-				? activeTeamProjects.filter((el) =>
-						el.project?.name?.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase())
-					)
-				: activeTeamProjects) || []
-		);
-	}, [activeTeamProjects, searchTerm]);
+		const result = searchTerm
+			? urlFilteredProjects.filter((el) =>
+					el.project?.name?.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase())
+				)
+			: urlFilteredProjects;
+
+		return result || [];
+	}, [urlFilteredProjects, searchTerm]);
 	const [selectedProjects, setSelectedProjects] = useState<Record<string, boolean>>({});
 	const [tableColumnsVisibility, setTableColumnsVisibility] = useState<VisibilityState>({
 		project: true,
@@ -266,45 +373,22 @@ function PageComponent() {
 	});
 
 	// Main effect for filtering projects based on archived status
+	// Uses the same filtering logic as ProjectDropDown for consistency
 	useEffect(() => {
 		if (!organizationProjects || organizationProjects.length === 0) {
 			setProjects([]);
 			return;
 		}
 
-		// First, filter out teams/workspaces that are incorrectly returned as projects
-		const actualProjects = organizationProjects.filter((item) => {
-			// Skip undefined/null items
-			if (!item) return false;
-
-			// A real project should have at least one of these characteristics:
-			const hasProjectStatus =
-				item.status === 'open' || item.status === 'closed' || item.status === 'in-progress';
-			const hasProjectUrl = Boolean(item.projectUrl);
-			const hasDescription = Boolean(item.description);
-			const hasBudget = (item.budget || 0) > 0;
-			const hasBilling = Boolean(item.billing);
-			const hasValidDates = item.startDate && new Date(item.startDate).getFullYear() > 1970;
-
-			// Based on data.json analysis, real projects have:
-			// - status: "open" (primary indicator)
-			// - OR projectUrl (secondary indicator)
-			// - OR description (tertiary indicator)
-			// - OR budget > 0 (quaternary indicator)
-			const isRealProject =
-				hasProjectStatus || hasProjectUrl || hasDescription || hasBudget || hasBilling || hasValidDates;
-
-			return isRealProject;
-		});
-
-		// Then filter projects based on archived status
-		const filteredProjects = actualProjects.filter((project) => {
-			const shouldInclude = showArchivedProjects ? project?.isArchived : !project?.isArchived;
-			return shouldInclude;
-		});
+		// Filter valid projects using isValidProjectForDisplay type-guard
+		// This ensures we only show REAL projects (not Teams or other entities)
+		// IMPORTANT: isActive alone is NOT sufficient - we MUST use isProject() type guard
+		const validProjects = organizationProjects.filter((project) =>
+			isValidProjectForDisplay(project, showArchivedProjects)
+		);
 
 		// Map to view data type
-		const mappedProjects = filteredProjects.map(mapProjectToViewDataType);
+		const mappedProjects = validProjects.map(mapProjectToViewDataType);
 		setProjects(mappedProjects);
 	}, [organizationProjects, showArchivedProjects]);
 
@@ -370,7 +454,7 @@ function PageComponent() {
 	return (
 		<MainLayout
 			showTimer={isTrackingEnabled}
-			className="!p-0 pb-1 !overflow-hidden w-full"
+			className="p-0! pb-1 overflow-hidden! w-full"
 			childrenClassName="w-full h-full"
 			mainHeaderSlot={
 				<Container fullWidth={fullWidth} className="flex flex-col p-4 dark:bg-dark--theme">
@@ -425,7 +509,7 @@ function PageComponent() {
 			<Container fullWidth={fullWidth} className="flex flex-col w-full h-full gap-6 p-4 mt-6 dark:bg-dark--theme">
 				<div className="p-3 space-y-6 border rounded-lg bg-light--theme-light dark:bg-transparent">
 					<div className="flex items-center justify-between font-light rounded">
-						<div className="w-80 flex border dark:border-white   h-[2.2rem] items-center px-4 rounded-lg">
+						<div className="w-80 flex border dark:border-white h-[2.2rem] items-center px-4 rounded-lg">
 							<Search size={15} className="text-slate-300" />{' '}
 							<InputField
 								onChange={(e) => setSearchTerm(e.target.value)}
@@ -447,10 +531,15 @@ function PageComponent() {
 							<Button
 								onClick={openFiltersCardModal}
 								type="button"
-								className=" border-gray-200 !border hover:bg-slate-100 dark:border text-sm min-w-fit text-black h-[2.2rem] font-light hover:dark:bg-transparent"
+								className="relative border-gray-200 !border hover:bg-slate-100 dark:border text-sm min-w-fit text-black h-[2.2rem] font-light hover:dark:bg-transparent"
 								variant="outline"
 							>
 								<ListFilterPlus size={15} /> <span>{t('common.FILTER')}</span>
+								{activeFiltersCount > 0 && (
+									<span className="absolute flex items-center justify-center w-5 h-5 text-xs font-medium text-white rounded-full -top-2 -right-2 bg-primary">
+										{activeFiltersCount}
+									</span>
+								)}
 							</Button>
 							<LazyProjectExportMenu projects={filteredProjects} activeTeam={activeTeam} />
 							{selectedView == 'LIST' && (

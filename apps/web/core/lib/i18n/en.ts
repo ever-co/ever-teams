@@ -200,14 +200,23 @@ export const en = {
 			HEADING_WORKSPACE_LINE2: 'please select one to continue'
 		},
 		authTeam: {
-			HEADING_TITLE: 'Create New Team',
-			HEADING_DESCRIPTION: 'Please enter your team details to create a new team.',
+			HEADING_TITLE: 'Sign Up Now',
+			HEADING_DESCRIPTION: 'Please tell us more about yourself and (optionally) your team to register.',
 			LOADING_TEXT: 'We are now creating your new workplace, hold on...',
 			VERIFY_EMAIL_LOADING_TEXT: 'We are verifying your email, hold on...',
-			INPUT_TEAM_NAME: 'Input your team name',
+			INPUT_TEAM_NAME: 'Enter your team name',
 			JOIN_EXISTING_TEAM: 'Joining existing team?',
 			CREATE_FIRST_TEAM: 'Create your first team',
-			CREATE_TEAM: 'Create team'
+			CREATE_TEAM: 'Create team',
+			// New registration flow
+			GET_STARTED_TITLE: 'How would you like to get started?',
+			START_SOLO: 'Start Solo',
+			START_SOLO_NOTE: 'You can create a team and invite others later',
+			CREATE_TEAM_NOW: 'Create a Team Now',
+			CONTINUE: 'Continue',
+			GET_STARTED: 'Get Started',
+			STEP_USER_INFO: 'Let us know your name and email',
+			STEP_CHOOSE_MODE: 'Choose Your Path'
 		},
 		settings: {
 			BREADCRUMB: [{ title: 'Dashboard', href: '/' }, 'Settings'],
