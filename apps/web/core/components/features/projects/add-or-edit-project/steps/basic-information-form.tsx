@@ -353,7 +353,11 @@ export default function BasicInformationForm(props: IStepElementProps) {
 												onClick={() => {
 													setProjectImageFile(null);
 													setProjectImageUrl(null);
-													errors.delete('projectImage');
+													setErrors((prev) => {
+														const newErrors = new Map(prev);
+														newErrors.delete('projectImage');
+														return newErrors;
+													});
 												}}
 												size={20}
 												className={cn('text-white')}
