@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Editor, createEditor, Descendant } from 'slate';
 import { withHistory } from 'slate-history';
 import { Editable, withReact, Slate } from 'slate-react';
@@ -11,6 +11,10 @@ interface IRichTextProps {
 	onChange?: (value: string) => void;
 }
 
+const countWords = (text: string) => {
+	return text.trim().split(/\s+/).filter((word) => word.length > 0).length;
+};
+
 const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextProps) => {
 	const editor = useMemo(() => withHistory(withReact(createEditor())), []);
 	const [editorValue, setEditorValue] = useState<Descendant[]>(
@@ -19,14 +23,21 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextP
 				[{ type: 'paragraph', children: [{ text: defaultValue }] }]
 			: [{ type: 'paragraph', children: [{ text: '' }] }]
 	);
-	const [wordCount, setWordCount] = useState(0);
+	const [wordCount, setWordCount] = useState(() => (defaultValue ? countWords(defaultValue) : 0));
+	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+	// Cleanup timeout on unmount
+	useEffect(() => {
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+		};
+	}, []);
 
 	const renderElement = useCallback((props: any) => <Element {...props} />, []);
 	const renderLeaf = useCallback((props: any) => <Leaf {...props} />, []);
 
-	const countWords = (text: string) => {
-		return text.trim().split(/\s+/).filter((word) => word.length > 0).length;
-	};
 
 	const toggleMark = (format: string) => {
 		// @ts-ignore
@@ -62,15 +73,18 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextP
 						const text = Editor.string(editor, []);
 						const words = countWords(text);
 
+						// Clear any existing timeout
+						if (timeoutRef.current) {
+							clearTimeout(timeoutRef.current);
+						}
+
 						// Defer state updates to avoid the React warning:
 						// "Cannot update a component while rendering a different component"
 						// This happens when Slate triggers normalization during a render cycle.
-						setTimeout(() => {
+						timeoutRef.current = setTimeout(() => {
 							setWordCount(words);
-							// Only notify parent if within limit
-							if (words <= 5000) {
-								onChange?.(text);
-							}
+							onChange?.(text);
+							timeoutRef.current = null;
 						}, 0);
 					}
 				}}
