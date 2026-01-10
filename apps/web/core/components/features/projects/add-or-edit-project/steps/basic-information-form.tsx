@@ -10,8 +10,7 @@ import { IStepElementProps } from '../container';
 import Image from 'next/image';
 import moment from 'moment';
 import { isValidUrl } from '@/core/lib/utils';
-import { ScrollArea } from '@/core/components/common/scroll-bar';
-import { ScrollBar } from '@/core/components/common/scroll-area';
+import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-area';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks';
 import { useImageAssets } from '@/core/hooks/common/use-image-assets';
@@ -239,170 +238,175 @@ export default function BasicInformationForm(props: IStepElementProps) {
 	};
 
 	return (
-		<form onSubmit={handleSubmit} className="pt-4 space-y-5 w-full">
-			<div className="flex flex-col gap-2 w-full">
-				<label htmlFor="project_title" className="text-xs font-medium">
-					{t('pages.projects.basicInformationForm.formFields.title')}
-				</label>
-				<div className="w-full">
-					<InputField
-						onChange={(el) => setProjectTitle(el.target.value)}
-						required
-						maxLength={100}
-						minLength={3}
-						value={projectTitle}
-						id="project_title"
-						placeholder={t('pages.projects.basicInformationForm.formFields.titlePlaceholder')}
-						className=" text-xs border dark:border-white   h-[2.2rem] px-4 rounded-lg bg-transparent dark:bg-transparent"
-						noWrapper
-					/>
-				</div>
-			</div>
-			<div className="w-full">
-				<RichTextEditor defaultValue={description} onChange={(value) => setDescription(value)} />
-			</div>
-			<div className="flex flex-col w-full">
-				<div className="flex gap-2 w-full">
-					<div className="flex flex-col gap-1 w-full">
-						<label htmlFor="project_start_date" className="text-xs font-medium">
-							{t('common.START_DATE')}
+		<form onSubmit={handleSubmit} className="pt-4 w-full flex flex-col">
+			<ScrollArea className="w-full max-h-[65vh] pr-4">
+				<div className="space-y-5 pb-32">
+					<div className="flex flex-col gap-2 w-full">
+						<label htmlFor="project_title" className="text-xs font-medium">
+							{t('pages.projects.basicInformationForm.formFields.title')}
 						</label>
-						<DatePicker
-							onChange={(date) => {
-								if (date) {
-									setStartDate(date);
-									// Smart logic: adjust End Date if necessary (if no End Date or Start Date >= End Date)
-									if (!endDate || moment(date).isSameOrAfter(endDate)) {
-										// If no End Date or Start Date >= End Date,
-										// set End Date to 1 month after Start Date (typical project duration)
-										const suggestedEndDate = new Date(date);
-										suggestedEndDate.setMonth(suggestedEndDate.getMonth() + 1);
-										setEndDate(suggestedEndDate);
-									}
-								}
-							}}
-							required
-							value={startDate}
-							id="project_start_date"
-							placeholder="Pick a date"
-							isStartDate={true}
-						/>
+						<div className="w-full">
+							<InputField
+								onChange={(el) => setProjectTitle(el.target.value)}
+								required
+								maxLength={100}
+								minLength={3}
+								value={projectTitle}
+								id="project_title"
+								placeholder={t('pages.projects.basicInformationForm.formFields.titlePlaceholder')}
+								className=" text-xs border dark:border-white   h-[2.2rem] px-4 rounded-lg bg-transparent dark:bg-transparent"
+								noWrapper
+							/>
+						</div>
+					</div>
+					<div className="w-full">
+						<RichTextEditor defaultValue={description} onChange={(value) => setDescription(value)} />
+					</div>
+					<div className="flex flex-col w-full">
+						<div className="flex gap-2 w-full">
+							<div className="flex flex-col gap-1 w-full">
+								<label htmlFor="project_start_date" className="text-xs font-medium">
+									{t('common.START_DATE')}
+								</label>
+								<DatePicker
+									onChange={(date) => {
+										if (date) {
+											setStartDate(date);
+											// Smart logic: adjust End Date if necessary (if no End Date or Start Date >= End Date)
+											if (!endDate || moment(date).isSameOrAfter(endDate)) {
+												// If no End Date or Start Date >= End Date,
+												// set End Date to 1 month after Start Date (typical project duration)
+												const suggestedEndDate = new Date(date);
+												suggestedEndDate.setMonth(suggestedEndDate.getMonth() + 1);
+												setEndDate(suggestedEndDate);
+											}
+										}
+									}}
+									required
+									value={startDate}
+									id="project_start_date"
+									placeholder="Pick a date"
+									isStartDate={true}
+								/>
+							</div>
+							<div className="flex flex-col gap-2 w-full">
+								<label htmlFor="project_end_date" className="text-xs font-medium">
+									{t('common.END_DATE')}
+								</label>
+								<DatePicker
+									onChange={(date) => {
+										if (date) {
+											setEndDate(date);
+										}
+									}}
+									required
+									value={endDate}
+									id="project_end_date"
+									placeholder="Pick a date"
+									isStartDate={false}
+									minDate={startDate}
+								/>
+							</div>
+						</div>
+						{errors?.get('dateRange') && (
+							<p className="text-xs font-light text-red-600">{errors.get('dateRange')}</p>
+						)}
 					</div>
 					<div className="flex flex-col gap-2 w-full">
-						<label htmlFor="project_end_date" className="text-xs font-medium">
-							{t('common.END_DATE')}
+						<label htmlFor="website_url" className="text-xs font-medium">
+							{t('pages.projects.basicInformationForm.formFields.websiteUrl')}
 						</label>
-						<DatePicker
-							onChange={(date) => {
-								if (date) {
-									setEndDate(date);
-								}
-							}}
-							required
-							value={endDate}
-							id="project_end_date"
-							placeholder="Pick a date"
-							isStartDate={false}
-							minDate={startDate}
-						/>
+						<div className="w-full">
+							<InputField
+								value={websiteUrl}
+								onChange={(e) => setWebsiteUrl(e.target.value)}
+								type="url"
+								id="website_url"
+								placeholder={t('pages.projects.basicInformationForm.formFields.websiteUrlPlaceholder')}
+								className=" text-xs border dark:border-white   h-[2.2rem] px-4 rounded-lg bg-transparent dark:bg-transparent"
+								noWrapper
+							/>
+						</div>
 					</div>
-				</div>
-				{errors?.get('dateRange') && (
-					<p className="text-xs font-light text-red-600">{errors.get('dateRange')}</p>
-				)}
-			</div>
-			<div className="flex flex-col gap-2 w-full">
-				<label htmlFor="website_url" className="text-xs font-medium">
-					{t('pages.projects.basicInformationForm.formFields.websiteUrl')}
-				</label>
-				<div className="w-full">
-					<InputField
-						value={websiteUrl}
-						onChange={(e) => setWebsiteUrl(e.target.value)}
-						type="url"
-						id="website_url"
-						placeholder={t('pages.projects.basicInformationForm.formFields.websiteUrlPlaceholder')}
-						className=" text-xs border dark:border-white   h-[2.2rem] px-4 rounded-lg bg-transparent dark:bg-transparent"
-						noWrapper
-					/>
-				</div>
-			</div>
 
-			<div className="flex flex-col gap-2 w-full">
-				<span className="text-xs font-medium">
-					{t('pages.projects.basicInformationForm.formFields.projectThumbnail')}
-				</span>
-				<div className="flex flex-col gap-1 w-full">
-					<div className="flex gap-5 items-center w-full">
-						{projectImageUrl && (
-							<div className="overflow-hidden relative w-20 h-20 rounded-lg group">
-								<Image
-									height={50}
-									width={50}
-									className="object-cover overflow-hidden w-full h-full rounded-lg aspect-square"
-									src={projectImageUrl}
-									alt={projectTitle}
-								/>
-								<div
+					<div className="flex flex-col gap-2 w-full">
+						<span className="text-xs font-medium">
+							{t('pages.projects.basicInformationForm.formFields.projectThumbnail')}
+						</span>
+						<div className="flex flex-col gap-1 w-full">
+							<div className="flex gap-5 items-center w-full">
+								{projectImageUrl && (
+									<div className="overflow-hidden relative w-20 h-20 rounded-lg group">
+										<Image
+											height={50}
+											width={50}
+											className="object-cover overflow-hidden w-full h-full rounded-lg aspect-square"
+											src={projectImageUrl}
+											alt={projectTitle}
+										/>
+										<div
+											className={cn(
+												' h-[0%] w-[0%] transition-all group-hover:w-full cursor-pointer group-hover:h-full bg-black/30 flex items-center justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
+											)}
+										>
+											<X
+												onClick={() => {
+													setProjectImageFile(null);
+													setProjectImageUrl(null);
+													errors.delete('projectImage');
+												}}
+												size={20}
+												className={cn('text-white')}
+											/>
+										</div>
+									</div>
+								)}
+
+								<label
+									htmlFor="dropzone-file"
 									className={cn(
-										' h-[0%] w-[0%] transition-all group-hover:w-full cursor-pointer group-hover:h-full bg-black/30 flex items-center justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
+										'flex flex-col justify-center items-center w-full h-20 bg-gray-50 rounded-lg border-2 border-gray-300 border-dashed cursor-pointer grow dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500'
 									)}
 								>
-									<X
-										onClick={() => {
-											setProjectImageFile(null);
-											setProjectImageUrl(null);
-											errors.delete('projectImage');
-										}}
-										size={20}
-										className={cn('text-white')}
+									<div className="flex gap-3 justify-center items-center grow">
+										<svg
+											className="w-6 h-6 text-gray-500 dark:text-gray-400"
+											aria-hidden="true"
+											xmlns="http://www.w3.org/2000/svg"
+											fill="none"
+											viewBox="0 0 20 16"
+										>
+											<path
+												stroke="currentColor"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												strokeWidth="1"
+												d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+											/>
+										</svg>
+										<p className="text-sm text-gray-500 dark:text-gray-400">
+											<span className="text-xs">
+												{t('pages.projects.basicInformationForm.formFields.uploadPhoto')}
+											</span>
+										</p>
+									</div>
+									<input
+										onChange={handleProjectImageFileChange}
+										id="dropzone-file"
+										type="file"
+										className="hidden"
 									/>
-								</div>
+								</label>
 							</div>
-						)}
-
-						<label
-							htmlFor="dropzone-file"
-							className={cn(
-								'flex flex-col justify-center items-center w-full h-20 bg-gray-50 rounded-lg border-2 border-gray-300 border-dashed cursor-pointer grow dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500'
+							{errors?.get('projectImage') && (
+								<p className="text-xs font-light text-red-600">{errors?.get('projectImage')}</p>
 							)}
-						>
-							<div className="flex gap-3 justify-center items-center grow">
-								<svg
-									className="w-6 h-6 text-gray-500 dark:text-gray-400"
-									aria-hidden="true"
-									xmlns="http://www.w3.org/2000/svg"
-									fill="none"
-									viewBox="0 0 20 16"
-								>
-									<path
-										stroke="currentColor"
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										strokeWidth="1"
-										d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-									/>
-								</svg>
-								<p className="text-sm text-gray-500 dark:text-gray-400">
-									<span className="text-xs">
-										{t('pages.projects.basicInformationForm.formFields.uploadPhoto')}
-									</span>
-								</p>
-							</div>
-							<input
-								onChange={handleProjectImageFileChange}
-								id="dropzone-file"
-								type="file"
-								className="hidden"
-							/>
-						</label>
+						</div>
 					</div>
-					{errors?.get('projectImage') && (
-						<p className="text-xs font-light text-red-600">{errors?.get('projectImage')}</p>
-					)}
 				</div>
-			</div>
-			<div className="flex justify-end items-center w-full">
+				<ScrollBar orientation="vertical" />
+			</ScrollArea>
+			<div className="flex justify-end items-center w-full pt-4 border-t">
 				<Button loading={createImageAssetLoading} className=" h-[2.5rem]">
 					{createImageAssetLoading
 						? t('pages.projects.basicInformationForm.common.uploadingImage')
