@@ -139,7 +139,7 @@
 		"react-popper": "^2.3.0",
 		"react-popper-tooltip": "^4.4.2",
 		"react-resizable-panels": "^3.0.6",
-		"react-phone-number-input":"^3.4.14",
+		"react-phone-number-input": "^3.4.14",
 		"react-turnstile": "^1.1.4",
 		"recharts": "^2.15.3",
 		"sharp": "^0.34.5",
