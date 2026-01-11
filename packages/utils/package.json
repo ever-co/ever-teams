@@ -10,6 +10,11 @@
 	"files": [
 		"dist/**"
 	],
+	"scripts": {
+		"build": "tsup ./src/index.ts --format esm,cjs --dts --external react --minify",
+		"lint": "eslint src --ext .ts,.tsx",
+		"lint:errors": "eslint src --ext .ts,.tsx --quiet"
+	},
 	"dependencies": {
 		"clsx": "^2.1.1",
 		"date-fns": "^4.1.0",

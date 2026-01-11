@@ -15,8 +15,8 @@
 		"@tailwindcss/typography": "^0.5.8",
 		"classnames": "^2.5.1",
 		"plasmo": "^0.85.2",
-		"react": "18.2.0",
-		"react-dom": "18.2.0",
+		"react": "^19.2.3",
+		"react-dom": "^19.2.3",
 		"react-timer-hook": "^3.0.5",
 		"tailwindcss": "^3.2.4"
 	},

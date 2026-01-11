@@ -47,7 +47,7 @@
 		"@headlessui/react": "^2.2.9",
 		"@hello-pangea/dnd": "^18.0.1",
 		"@heroicons/react": "^2.2.0",
-		"@hookform/resolvers": "^3.9.1",
+		"@hookform/resolvers": "^5.2.2",
 		"@jitsi/react-sdk": "^1.4.4",
 		"@jitsu/jitsu-react": "^1.10.4",
 		"@livekit/components-react": "^2.9.17",
