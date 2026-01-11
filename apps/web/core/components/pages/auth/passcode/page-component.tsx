@@ -148,7 +148,7 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 
 							<div className="flex gap-2 justify-between items-center w-full text-sm">
 								<span>{t('common.DONT_HAVE_ACCOUNT')}</span>
-								<Link href="/auth/team" className="underline whitespace-nowrap text-primary dark:text-primary-light text-nowrap">
+								<Link href="/auth/signup" className="underline whitespace-nowrap text-primary dark:text-primary-light text-nowrap">
 									<span>{t('common.REGISTER')}</span>
 								</Link>
 							</div>
