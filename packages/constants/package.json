@@ -11,7 +11,9 @@
 		"lint:errors": "eslint src --ext .ts --quiet"
 	},
 	"license": "AGPL-3.0",
-	"dependencies": {},
+	"dependencies": {
+		"@ever-teams/types": "*"
+	},
 	"devDependencies": {
 		"tsup": "^8.5.1",
 		"typescript": "^5.9.3",

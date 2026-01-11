@@ -11,9 +11,7 @@
 		"dev": "tsc --project tsconfig.json --traceResolution --watch",
 		"lint:errors": "eslint src --ext .ts --quiet"
 	},
-	"dependencies": {
-		"@ever-teams/constants": "*"
-	},
+	"dependencies": {},
 	"devDependencies": {
 		"tsup": "^8.5.1",
 		"typescript": "^5.9.3",

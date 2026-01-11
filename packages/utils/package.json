@@ -16,6 +16,8 @@
 		"lint:errors": "eslint src --ext .ts,.tsx --quiet"
 	},
 	"dependencies": {
+		"@ever-teams/constants": "*",
+		"@ever-teams/types": "*",
 		"clsx": "^2.1.1",
 		"date-fns": "^4.1.0",
 		"isomorphic-dompurify": "^2.33.0",
