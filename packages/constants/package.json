@@ -17,6 +17,6 @@
 		"typescript": "^5.9.3",
 		"@ever-teams/eslint-config": "*",
 		"@types/node": "^24.10.1",
-		"@types/react": "^19.2.7"
+		"@types/react": "^19.2.8"
 	}
 }

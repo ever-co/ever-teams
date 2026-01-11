@@ -19,6 +19,17 @@
 	"files": [
 		"dist/**"
 	],
+	"scripts": {
+		"clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
+		"storybook": "storybook dev -p 6006",
+		"build-storybook": "storybook build",
+		"postcss": "npx @tailwindcss/cli src/styles/globals.css -o dist/styles.css --watch",
+		"lint": "eslint src --ext .ts,.tsx",
+		"lint:errors": "eslint src --ext .ts,.tsx --quiet",
+		"type-check": "tsc --noEmit",
+		"build": "npx @tailwindcss/cli -i src/styles/globals.css -o dist/styles.css --minify && rollup -c",
+		"dev": "npx @tailwindcss/cli src/styles/globals.css -o dist/styles.css --watch && rollup -c --watch"
+	},
 	"peerDependencies": {
 		"react": ">=19.2.3",
 		"react-dom": ">=19.2.3"
