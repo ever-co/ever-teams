@@ -14,7 +14,7 @@ import Turnstile from 'react-turnstile';
 import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '@/core/components/duplicated-components/_input';
 
-function AuthTeam() {
+function AuthSignup() {
 	const {
 		handleSubmit,
 		step,
@@ -205,7 +205,7 @@ function ChooseModeForm({
 					{t('pages.authTeam.GET_STARTED_TITLE')}
 				</Text.Heading>
 
-				<div className="mb-6 w-full space-y-4">
+				<div className="mb-6 space-y-4 w-full">
 					{/* Solo Option */}
 					<label
 						className={clsxm(
@@ -221,13 +221,13 @@ function ChooseModeForm({
 							value="solo"
 							checked={startMode === 'solo'}
 							onChange={() => onStartModeChange('solo')}
-							className="mt-1 mr-3 h-4 w-4 text-primary-600 focus:ring-primary-500"
+							className="mt-1 mr-3 w-4 h-4 text-primary-600 focus:ring-primary-500"
 						/>
 						<div className="flex-1">
 							<span className="font-medium text-gray-900 dark:text-white">
 								{t('pages.authTeam.START_SOLO')}
 							</span>
-							<p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+							<p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
 								{t('pages.authTeam.START_SOLO_NOTE')}
 							</p>
 						</div>
@@ -248,7 +248,7 @@ function ChooseModeForm({
 							value="team"
 							checked={startMode === 'team'}
 							onChange={() => onStartModeChange('team')}
-							className="mt-1 mr-3 h-4 w-4 text-primary-600 focus:ring-primary-500"
+							className="mt-1 mr-3 w-4 h-4 text-primary-600 focus:ring-primary-500"
 						/>
 						<div className="flex-1">
 							<span className="font-medium text-gray-900 dark:text-white">
@@ -259,7 +259,7 @@ function ChooseModeForm({
 
 					{/* Team Name Input - only shown when team mode is selected */}
 					{startMode === 'team' && (
-						<div className="mt-4 pl-7">
+						<div className="pl-7 mt-4">
 							<InputField
 								name="team"
 								value={form.team}
@@ -312,4 +312,4 @@ function ReCAPTCHA({ handleOnChange, errors }: { handleOnChange: any; errors: an
 	return content || <></>;
 }
 
-export default AuthTeam;
+export default AuthSignup;
