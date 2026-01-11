@@ -83,7 +83,9 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextP
 						// This happens when Slate triggers normalization during a render cycle.
 						timeoutRef.current = setTimeout(() => {
 							setWordCount(words);
-							onChange?.(text);
+							if (words <= 5000) {
+								onChange?.(text);
+							}
 							timeoutRef.current = null;
 						}, 0);
 					}
