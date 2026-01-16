@@ -269,24 +269,7 @@
 		"yaml": "^2.8.1",
 		"turbo": "^2.5.5"
 	},
-	"overrides": {
-		"react": "19.2.1",
-		"react-dom": "19.2.1",
-		"@types/react": "19.2.7",
-		"@types/react-dom": "19.2.3",
-		"zod": "3.25.76",
-		"prebuild": {
-			"node-gyp": "$node-gyp"
-		},
-		"iconv": {
-			"node-gyp": "^12.1.0"
-		},
-		"twing": {
-			"locutus": "2.0.30"
-		},
-		"@babel/traverse": ">=7.23.2",
-		"vue": ">=3.4.0"
-	},
+
 	"engines": {
 		"node": ">=24.x.x",
 		"yarn": ">=1.13.0"
