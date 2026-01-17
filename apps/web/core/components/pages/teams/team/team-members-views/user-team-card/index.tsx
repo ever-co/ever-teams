@@ -109,7 +109,9 @@ export function UserTeamCard({
 	// Memoize expensive hook calls
 	const profile = useUserProfilePage();
 	const [userDetailAccordion, setUserDetailAccordion] = useAtom(userAccordion);
-	const hook = useTaskFilter(profile);
+	// Use isolated tab state for UserTeamCard to prevent global state leak from profile page
+	// With 'auto' default: shows daily plans if user has them, otherwise shows assigned tasks
+	const hook = useTaskFilter(profile, { persistState: false, defaultTab: 'auto' });
 	const memberInfo = useTeamMemberCard(member);
 	// NOTE: memberInfo.memberTask already prioritizes activeTeamTask (Jotai atom) for auth user
 	// This provides instant UI updates when changing tasks (see useTeamMemberCard hook)
