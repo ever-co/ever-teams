@@ -29,13 +29,28 @@ export function useTeamsState() {
 
 				// Merge strategy: preserve members if new data has incomplete members
 				// This prevents data loss during polling/refetching when API returns partial data
+				// FIX: Also protect against race conditions where API returns empty array
+				// while existing data has valid members
+				const existingHasMembers = existingTeam.members && existingTeam.members.length > 0;
+				const newHasMembers = Array.isArray(team.members) && team.members.length > 0;
+
+				// Preserve members if:
+				// 1. new members is undefined/null (incomplete data), OR
+				// 2. new members is empty BUT existing has members (race condition protection)
+				const shouldPreserveMembers =
+					!Array.isArray(team.members) || (team.members.length === 0 && existingHasMembers);
+
+				// Determine final members to use (avoid nested ternary for readability)
+				let finalMembers = existingTeam.members ?? [];
+				if (!shouldPreserveMembers && newHasMembers && team.members) {
+					finalMembers = team.members;
+				}
+
 				const mergedTeam: TOrganizationTeam = {
 					...existingTeam, // Start with existing data
 					...team, // Override with new data
-					// Preserve members only if new members is undefined/null (incomplete data)
-					// If members is an array (even empty []), use it (complete data)
-					// This protects against race conditions during React Query refetching
-					members: Array.isArray(team.members) ? team.members : existingTeam.members || []
+					// Intelligently preserve members during race conditions
+					members: finalMembers
 				};
 
 				return tms.map((t) => (t.id === team.id ? mergedTeam : t));
