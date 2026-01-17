@@ -91,13 +91,9 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 		// If defaultTab is 'auto', calculate the smart default
 		if (defaultTab === 'auto') {
 			// Check if user has daily plans with tasks
-			const hasDailyPlanTasks =
-				profileDailyPlans?.items && profileDailyPlans.items.some((plan) => plan.tasks && plan.tasks.length > 0);
-			if (hasDailyPlanTasks) {
-				return 'dailyplan';
-			}
-			// Otherwise, show assigned tasks
-			return 'assigned';
+			const hasDailyPlanTasks = profileDailyPlans?.items?.some((plan) => plan.tasks && plan.tasks.length > 0);
+			// Show daily plans if available, otherwise default to assigned tasks
+			return hasDailyPlanTasks ? 'dailyplan' : 'assigned';
 		}
 		return defaultTab;
 	});
@@ -115,13 +111,8 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 	useEffect(() => {
 		if (hasInitializedAutoTab && profileDailyPlans?.items) {
 			const hasDailyPlanTasks = profileDailyPlans.items.some((plan) => plan.tasks && plan.tasks.length > 0);
-			if (hasDailyPlanTasks) {
-				setLocalTab('dailyplan');
-			} else if (profile?.tasksGrouped?.assignedTasks?.length) {
-				setLocalTab('assigned');
-			} else {
-				setLocalTab('assigned');
-			}
+			// Show daily plans if user has them, otherwise default to assigned tasks
+			setLocalTab(hasDailyPlanTasks ? 'dailyplan' : 'assigned');
 		}
 		// Only run when profileDailyPlans changes, not on every render
 		// eslint-disable-next-line react-hooks/exhaustive-deps
