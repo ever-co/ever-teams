@@ -1,14 +1,19 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Editor, createEditor, Descendant } from 'slate';
 import { withHistory } from 'slate-history';
 import { Editable, withReact, Slate } from 'slate-react';
 import { Bold, Italic, Underline, Code } from 'lucide-react';
+import { cn } from '@/core/lib/helpers';
 
 interface IRichTextProps {
 	defaultValue?: string;
 	readonly?: boolean;
 	onChange?: (value: string) => void;
 }
+
+const countWords = (text: string) => {
+	return text.trim().split(/\s+/).filter((word) => word.length > 0).length;
+};
 
 const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextProps) => {
 	const editor = useMemo(() => withHistory(withReact(createEditor())), []);
@@ -18,10 +23,21 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextP
 				[{ type: 'paragraph', children: [{ text: defaultValue }] }]
 			: [{ type: 'paragraph', children: [{ text: '' }] }]
 	);
-	const [editorText, setEditorText] = useState('');
+	const [wordCount, setWordCount] = useState(() => (defaultValue ? countWords(defaultValue) : 0));
+	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+	// Cleanup timeout on unmount
+	useEffect(() => {
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+		};
+	}, []);
 
 	const renderElement = useCallback((props: any) => <Element {...props} />, []);
 	const renderLeaf = useCallback((props: any) => <Leaf {...props} />, []);
+
 
 	const toggleMark = (format: string) => {
 		// @ts-ignore
@@ -49,15 +65,35 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextP
 				value={editorValue}
 				onChange={(value) => {
 					setEditorValue(value);
-					const text = value.map(() => Editor.string(editor, [])).join(' ');
-					setEditorText(text);
-					onChange?.(text);
+
+					// Determine if the change is a content change (AST change) or just selection
+					const isAstChange = editor.operations.some((op) => op.type !== 'set_selection');
+
+					if (isAstChange) {
+						const text = Editor.string(editor, []);
+						const words = countWords(text);
+
+						// Clear any existing timeout
+						if (timeoutRef.current) {
+							clearTimeout(timeoutRef.current);
+						}
+
+						// Defer state updates to avoid the React warning:
+						// "Cannot update a component while rendering a different component"
+						// This happens when Slate triggers normalization during a render cycle.
+						timeoutRef.current = setTimeout(() => {
+							setWordCount(words);
+							if (words <= 5000) {
+								onChange?.(text);
+							}
+							timeoutRef.current = null;
+						}, 0);
+					}
 				}}
 			>
 				{/* @ts-ignore */}
 				<Editable
-					defaultValue={defaultValue}
-					className=" p-2 h-20 outline-none"
+					className="p-2 min-h-[5rem] max-h-[15rem] outline-none overflow-y-auto"
 					placeholder="Insert description here..."
 					renderElement={renderElement}
 					renderLeaf={renderLeaf}
@@ -65,7 +101,9 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextP
 					readOnly={readonly}
 				/>
 			</Slate>
-			<div className="text-right text-gray-500 py-1 px-2 text-xs">{editorText.length}/120</div>
+			<div className={cn('text-right py-1 px-2 text-xs', wordCount > 5000 ? 'text-red-500' : 'text-gray-500')}>
+				{wordCount}/5000 words
+			</div>
 		</div>
 	);
 };
