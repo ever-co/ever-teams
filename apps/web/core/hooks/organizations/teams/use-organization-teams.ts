@@ -26,6 +26,7 @@ import { useAuthenticateUser } from '../../auth';
 import { TOrganizationTeamUpdate } from '@/core/types/schemas';
 import { ZodValidationError } from '@/core/types/schemas/utils/validation';
 import { useTeamsState } from './use-teams-state';
+import { mergePreservingOrder } from '@/core/lib/utils/team-members.utils';
 import { useCreateOrganizationTeam } from './use-create-organization-team';
 import { useUpdateOrganizationTeam } from './use-update-organization-team';
 import { queryKeys } from '@/core/query/keys';
@@ -319,10 +320,12 @@ export function useOrganizationTeams() {
 					!Array.isArray(latestTeam.members) ||
 					(latestTeam.members.length === 0 && existingHasMembers && !latestTeam.updatedAt);
 
-				// Determine final members to use (avoid nested ternary for readability)
+				// Determine final members to use
 				let finalMembers = existingTeam.members ?? [];
 				if (!shouldPreserveMembers && newHasMembers && latestTeam.members) {
-					finalMembers = latestTeam.members;
+					// NOTE: Merge preserving order to prevent visual glitches during role changes
+					// This ensures members stay in their positions while their data is updated
+					finalMembers = mergePreservingOrder(existingTeam.members ?? [], latestTeam.members);
 				}
 
 				return {

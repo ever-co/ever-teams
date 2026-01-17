@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import { useSyncRef } from '../../common';
 import { TOrganizationTeam } from '@/core/types/schemas';
+import { mergePreservingOrder } from '@/core/lib/utils/team-members.utils';
 
 /**
  * It updates the `teams` state with the `members` status from the `team` status API
@@ -40,10 +41,12 @@ export function useTeamsState() {
 				const shouldPreserveMembers =
 					!Array.isArray(team.members) || (team.members.length === 0 && existingHasMembers);
 
-				// Determine final members to use (avoid nested ternary for readability)
+				// Determine final members to use
 				let finalMembers = existingTeam.members ?? [];
 				if (!shouldPreserveMembers && newHasMembers && team.members) {
-					finalMembers = team.members;
+					// NOTE: Merge preserving order to prevent visual glitches during role changes
+					// This ensures members stay in their positions while their data (including roles) is updated
+					finalMembers = mergePreservingOrder(existingTeam.members ?? [], team.members);
 				}
 
 				const mergedTeam: TOrganizationTeam = {
