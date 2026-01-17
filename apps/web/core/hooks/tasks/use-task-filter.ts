@@ -33,8 +33,10 @@ export type UseTaskFilterOptions = {
 	 */
 	persistState?: boolean;
 	/**
-	 * Default tab to use when persistState is false or no localStorage value exists
-	 * Can be 'auto' to automatically select based on daily plans/assigned tasks
+	 * Default tab to use when persistState is false.
+	 * Note: This option is only effective when persistState is false.
+	 * When persistState is true, the tab defaults to 'worked' via localStorage.
+	 * Can be 'auto' to automatically select based on daily plans availability.
 	 */
 	defaultTab?: ITab | 'auto';
 };
@@ -114,9 +116,7 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 			// Show daily plans if user has them, otherwise default to assigned tasks
 			setLocalTab(hasDailyPlanTasks ? 'dailyplan' : 'assigned');
 		}
-		// Only run when profileDailyPlans changes, not on every render
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [hasInitializedAutoTab, profileDailyPlans?.items]);
+	}, [hasInitializedAutoTab, profileDailyPlans?.items, setLocalTab]);
 
 	const [filterType, setFilterType] = useState<FilterType>(undefined);
 
