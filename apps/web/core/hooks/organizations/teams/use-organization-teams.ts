@@ -314,11 +314,12 @@ export function useOrganizationTeams() {
 
 				// Preserve members if:
 				// 1. new members is undefined/null (incomplete data), OR
-				// 2. new members is empty BUT existing has members AND new data has no updatedAt
-				//    (indicates stale/race condition response)
+				// 2. new members is empty BUT existing has members (race condition protection)
+				// NOTE: This may keep stale members if a team legitimately has 0 members,
+				// but this is an acceptable trade-off since teams always have at least a creator
 				const shouldPreserveMembers =
 					!Array.isArray(latestTeam.members) ||
-					(latestTeam.members.length === 0 && existingHasMembers && !latestTeam.updatedAt);
+					(latestTeam.members.length === 0 && existingHasMembers);
 
 				// Determine final members to use
 				let finalMembers = existingTeam.members ?? [];

@@ -38,6 +38,8 @@ export function useTeamsState() {
 				// Preserve members if:
 				// 1. new members is undefined/null (incomplete data), OR
 				// 2. new members is empty BUT existing has members (race condition protection)
+				// NOTE: This may keep stale members if a team legitimately has 0 members,
+				// but this is an acceptable trade-off since teams always have at least a creator
 				const shouldPreserveMembers =
 					!Array.isArray(team.members) || (team.members.length === 0 && existingHasMembers);
 
