@@ -95,7 +95,10 @@ export function useAuthenticationSocialLogin() {
 					setSignInWorkspaceLoading(false);
 					router.push('/');
 				})
-				.catch((err) => console.log(err));
+				.catch((err) => {
+					console.error('Workspace signin error:', err);
+					setSignInWorkspaceLoading(false);
+				});
 		},
 		[router, updateNextAuthSession]
 	);

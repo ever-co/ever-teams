@@ -92,16 +92,20 @@ export function useAuthenticationPasscode() {
 			signInWorkspaceQueryCall(workspaceParams)
 				.then(() => {
 					setAuthenticated(true);
+					// Reset infinite loading before navigation to ensure clean state
+					infiniteWLoading.current = false;
 					router.push('/');
 				})
 				.catch((err: AxiosError) => {
+					// Reset infinite loading on error to stop the loading state
+					infiniteWLoading.current = false;
 					if (err.response?.status === 400) {
 						setErrors((err.response?.data as any)?.errors || {});
 					}
 					inputCodeRef.current?.clear();
 				});
 		},
-		[signInWorkspaceQueryCall, router]
+		[signInWorkspaceQueryCall, router, infiniteWLoading]
 	);
 
 	/**

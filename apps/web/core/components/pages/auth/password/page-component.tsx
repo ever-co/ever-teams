@@ -138,7 +138,7 @@ function LoginFormActions({ form, t, showMagicCodeLink = false }: LoginFormActio
 			{/* Register Link - Better design with justify-between */}
 			<div className="flex gap-3 justify-between items-center mb-3 w-full text-sm">
 				<span>{t('common.DONT_HAVE_ACCOUNT')}</span>
-				<Link href="/auth/team" className="underline whitespace-nowrap text-primary dark:text-primary-light text-nowrap">
+				<Link href="/auth/signup" className="underline whitespace-nowrap text-primary dark:text-primary-light text-nowrap">
 					<span>{t('common.REGISTER')}</span>
 				</Link>
 			</div>
