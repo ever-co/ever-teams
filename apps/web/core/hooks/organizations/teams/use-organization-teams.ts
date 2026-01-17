@@ -273,11 +273,14 @@ export function useOrganizationTeams() {
 			// CRITICAL FIX: Create a signature based on ALL mutable fields
 			// This ensures we detect changes in team properties even when members are undefined
 			// Includes: id, updatedAt, name, settings (shareProfileView, requirePlanToTrack, public),
-			// visual properties (color, emoji, prefix), and members count
+			// visual properties (color, emoji, prefix), members count, AND member roles
+			// NOTE: Including member roles is essential to detect when roles are loaded/changed
 			const latestSignature = latestTeams
-				.map((t) =>
-					`${t.id}:${t.updatedAt ?? ''}:${t.name}:${t.shareProfileView ?? ''}:${t.requirePlanToTrack ?? ''}:${t.public ?? ''}:${t.color ?? ''}:${t.emoji ?? ''}:${t.prefix ?? ''}:${t.members?.length ?? 0}`
-				)
+				.map((t) => {
+					// Include member role information to detect role changes
+					const memberRolesSignature = t.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}`).join(',') || '';
+					return `${t.id}:${t.updatedAt ?? ''}:${t.name}:${t.shareProfileView ?? ''}:${t.requirePlanToTrack ?? ''}:${t.public ?? ''}:${t.color ?? ''}:${t.emoji ?? ''}:${t.prefix ?? ''}:${t.members?.length ?? 0}:${memberRolesSignature}`;
+				})
 				.sort()
 				.join('|');
 
@@ -303,12 +306,29 @@ export function useOrganizationTeams() {
 
 				// Merge strategy: preserve members if new data has incomplete members
 				// This prevents data loss during polling/refetching when API returns partial data
+				// FIX: Also protect against race conditions where API returns empty array
+				// while existing data has valid members (likely a partial/stale response)
+				const existingHasMembers = existingTeam.members && existingTeam.members.length > 0;
+				const newHasMembers = Array.isArray(latestTeam.members) && latestTeam.members.length > 0;
+
+				// Preserve members if:
+				// 1. new members is undefined/null (incomplete data), OR
+				// 2. new members is empty BUT existing has members AND new data has no updatedAt
+				//    (indicates stale/race condition response)
+				const shouldPreserveMembers =
+					!Array.isArray(latestTeam.members) ||
+					(latestTeam.members.length === 0 && existingHasMembers && !latestTeam.updatedAt);
+
+				// Determine final members to use (avoid nested ternary for readability)
+				let finalMembers = existingTeam.members ?? [];
+				if (!shouldPreserveMembers && newHasMembers && latestTeam.members) {
+					finalMembers = latestTeam.members;
+				}
+
 				return {
 					...existingTeam,
 					...latestTeam,
-					// Preserve members only if new members is undefined/null (incomplete data)
-					// If members is an array (even empty []), use it (complete data)
-					members: Array.isArray(latestTeam.members) ? latestTeam.members : existingTeam.members || []
+					members: finalMembers
 				};
 			});
 
@@ -337,8 +357,11 @@ export function useOrganizationTeams() {
 			// NOTE_FIX: Create a signature based on essential data only
 			// Include activeTaskId of all members to detect when a member's active task changes
 			// This ensures TaskInfo updates in real-time when timer starts/stops
-			const memberActiveTaskIds = newTeam.members?.map(m => m.activeTaskId || 'null').join(',') || '';
-			const newSignature = `${newTeam.id}:${newTeam.updatedAt ?? ''}:${newTeam.members?.length ?? 0}:${memberActiveTaskIds}`;
+			// FIX: Also include member roles to detect when roles are loaded/changed
+			// This prevents the bug where members disappear until roles are fully loaded
+			const memberActiveTaskIds = newTeam.members?.map((m) => m.activeTaskId || 'null').join(',') || '';
+			const memberRoles = newTeam.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}`).join(',') || '';
+			const newSignature = `${newTeam.id}:${newTeam.updatedAt ?? ''}:${newTeam.members?.length ?? 0}:${memberActiveTaskIds}:${memberRoles}`;
 
 			// Check if data has actually changed
 			if (newSignature === lastProcessedTeamSignatureRef.current) {
