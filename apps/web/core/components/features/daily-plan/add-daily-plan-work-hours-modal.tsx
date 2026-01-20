@@ -41,7 +41,8 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 
 			// Update the plan work time only if the user changed it
 			if (plan && plan.workTimePlanned !== workTimePlanned) {
-				await updateDailyPlan({ workTimePlanned }, plan.id ?? '');
+				// Server requires employeeId in the payload, to correctly check permissions
+				await updateDailyPlan({ workTimePlanned, employeeId: plan.employeeId || undefined }, plan.id ?? '');
 			}
 
 			startTimer();
