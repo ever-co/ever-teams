@@ -303,10 +303,17 @@ function BasicInformation(props: IBasicInformationProps) {
 				/>
 			</div>
 
-			<div className="flex flex-col gap-2 w-full">
-				<span className="text-xs font-medium">{t('common.DESCRIPTION')}</span>
-				{description ? <p className="p-3 text-xs rounded-lg border min-h-20">{description}</p> : <span>-</span>}
-			</div>
+		<div className="flex flex-col gap-2 w-full">
+			<span className="text-xs font-medium">{t('common.DESCRIPTION')}</span>
+			{description ? (
+				<div
+					className="p-3 text-xs rounded-lg border min-h-20 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-gray-700 [&_code]:px-1 [&_code]:rounded [&_p]:mb-1 [&_p:last-child]:mb-0"
+					dangerouslySetInnerHTML={{ __html: description }}
+				/>
+			) : (
+				<span>-</span>
+			)}
+		</div>
 		</div>
 	);
 }
