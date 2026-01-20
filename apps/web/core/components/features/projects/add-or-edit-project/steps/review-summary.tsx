@@ -4,6 +4,7 @@ import { Calendar, Clipboard } from 'lucide-react';
 import { Thumbnail } from './basic-information-form';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-area';
 import moment from 'moment';
+import { sanitizeHtml } from '@/core/lib/helpers/sanitize-html';
 
 import { IStepElementProps } from '../container';
 import { useLocale, useTranslations } from 'next-intl';
@@ -308,7 +309,7 @@ function BasicInformation(props: IBasicInformationProps) {
 			{description ? (
 				<div
 					className="p-3 text-xs rounded-lg border min-h-20 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-gray-700 [&_code]:px-1 [&_code]:rounded [&_p]:mb-1 [&_p:last-child]:mb-0"
-					dangerouslySetInnerHTML={{ __html: description }}
+					dangerouslySetInnerHTML={{ __html: sanitizeHtml(description) }}
 				/>
 			) : (
 				<span>-</span>

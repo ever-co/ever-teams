@@ -53,7 +53,6 @@ const countWords = (text: string) => {
 	return text.trim().split(/\s+/).filter((word) => word.length > 0).length;
 };
 
-<<<<<<< HEAD
 const RichTextEditor = ({ readonly = false, onChange, defaultValue, onValidityChange }: IRichTextProps) => {
 	const editor = useMemo(() => withHistory(withReact(createEditor())), []);
 	const [editorValue, setEditorValue] = useState<Descendant[]>(
@@ -69,102 +68,6 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue, onValidityCh
 	useEffect(() => {
 		onValidityChange?.(wordCount <= 5000);
 	}, []); // eslint-disable-line react-hooks/exhaustive-deps -- only run on mount
-=======
-// Serialize Slate nodes to HTML
-const serializeToHtml = (nodes: Descendant[]): string => {
-	return nodes.map((node) => serializeNode(node)).join('');
-};
-
-const serializeNode = (node: Descendant): string => {
-	if (Text.isText(node)) {
-		let text = escapeHtml(node.text);
-		if (node.bold) text = `<strong>${text}</strong>`;
-		if (node.italic) text = `<em>${text}</em>`;
-		if (node.underline) text = `<u>${text}</u>`;
-		if (node.code) text = `<code>${text}</code>`;
-		return text;
-	}
-
-	const children = node.children?.map((n: Descendant) => serializeNode(n)).join('') || '';
-	switch (node.type) {
-		case 'paragraph':
-			return `<p>${children}</p>`;
-		default:
-			return children;
-	}
-};
-
-// Deserialize HTML to Slate nodes
-const deserializeFromHtml = (html: string): Descendant[] => {
-	// If it's plain text (no HTML tags), return simple structure
-	if (!html || !html.includes('<')) {
-		return [{ type: 'paragraph', children: [{ text: html || '' }] }];
-	}
-
-	const parser = new DOMParser();
-	const doc = parser.parseFromString(html, 'text/html');
-	const nodes = deserializeElement(doc.body);
-
-	// Ensure we always return valid Slate structure
-	if (nodes.length === 0) {
-		return [{ type: 'paragraph', children: [{ text: '' }] }];
-	}
-
-	return nodes;
-};
-
-const deserializeElement = (el: Node): Descendant[] => {
-	if (el.nodeType === Node.TEXT_NODE) {
-		const text = el.textContent || '';
-		return [{ text }];
-	}
-
-	if (el.nodeType !== Node.ELEMENT_NODE) {
-		return [];
-	}
-
-	const element = el as Element;
-	const children: Descendant[] = Array.from(element.childNodes).flatMap(deserializeElement);
-
-	// Ensure children is never empty for elements that need children
-	const safeChildren: CustomText[] = children.length > 0
-		? children.filter((child): child is CustomText => Text.isText(child)).length > 0
-			? children.filter((child): child is CustomText => Text.isText(child))
-			: [{ text: '' }]
-		: [{ text: '' }];
-
-	switch (element.nodeName) {
-		case 'BODY':
-			// If body only contains text nodes, wrap in paragraph
-			if (children.every((child) => Text.isText(child))) {
-				return [{ type: 'paragraph', children: safeChildren }];
-			}
-			return children;
-		case 'P':
-			return [{ type: 'paragraph', children: safeChildren }];
-		case 'STRONG':
-		case 'B':
-			return children.map((child) => (Text.isText(child) ? { ...child, bold: true } : child));
-		case 'EM':
-		case 'I':
-			return children.map((child) => (Text.isText(child) ? { ...child, italic: true } : child));
-		case 'U':
-			return children.map((child) => (Text.isText(child) ? { ...child, underline: true } : child));
-		case 'CODE':
-			return children.map((child) => (Text.isText(child) ? { ...child, code: true } : child));
-		case 'BR':
-			return [{ text: '\n' }];
-		default:
-			return children;
-	}
-};
-
-const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextProps) => {
-	const editor = useMemo(() => withHistory(withReact(createEditor())), []);
-	const [editorValue, setEditorValue] = useState<Descendant[]>(() => deserializeFromHtml(defaultValue || ''));
-	const [wordCount, setWordCount] = useState(() => (defaultValue ? countWords(defaultValue.replace(/<[^>]*>/g, '')) : 0));
-	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
->>>>>>> 5adf1af28 (fix(projects): resolve WYSIWYG editor formatting buttons focus issue and preserve rich text)
 
 	// Cleanup timeout on unmount
 	useEffect(() => {
@@ -223,15 +126,10 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextP
 						// This happens when Slate triggers normalization during a render cycle.
 						timeoutRef.current = setTimeout(() => {
 							setWordCount(words);
-<<<<<<< HEAD
 							const valid = words <= 5000;
 							onValidityChange?.(valid);
 							if (valid) {
 								onChange?.(text);
-=======
-							if (words <= 5000) {
-								onChange?.(html);
->>>>>>> 5adf1af28 (fix(projects): resolve WYSIWYG editor formatting buttons focus issue and preserve rich text)
 							}
 							timeoutRef.current = null;
 						}, 0);
