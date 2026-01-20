@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Editor, createEditor, Descendant, Text, BaseEditor } from 'slate';
 import { withHistory, HistoryEditor } from 'slate-history';
 import { Editable, withReact, Slate, ReactEditor } from 'slate-react';
@@ -82,6 +82,13 @@ const deserializeFromHtml = (html: string): Descendant[] => {
 		return [{ type: 'paragraph', children: [{ text: html || '' }] }];
 	}
 
+	// Check if DOMParser is available (not available in SSR/Node.js)
+	if (typeof DOMParser === 'undefined') {
+		// Fallback: strip HTML tags and return plain text for SSR
+		const plainText = html.replace(/<[^>]*>/g, '');
+		return [{ type: 'paragraph', children: [{ text: plainText }] }];
+	}
+
 	const parser = new DOMParser();
 	const doc = parser.parseFromString(html, 'text/html');
 	const nodes = deserializeElement(doc.body);
@@ -144,16 +151,6 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextP
 	const editor = useMemo(() => withHistory(withReact(createEditor())), []);
 	const [editorValue, setEditorValue] = useState<Descendant[]>(() => deserializeFromHtml(defaultValue || ''));
 	const [wordCount, setWordCount] = useState(() => (defaultValue ? countWords(defaultValue.replace(/<[^>]*>/g, '')) : 0));
-	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-	// Cleanup timeout on unmount
-	useEffect(() => {
-		return () => {
-			if (timeoutRef.current) {
-				clearTimeout(timeoutRef.current);
-			}
-		};
-	}, []);
 
 	const renderElement = useCallback((props: any) => <Element {...props} />, []);
 	const renderLeaf = useCallback((props: any) => <Leaf {...props} />, []);
@@ -193,21 +190,11 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextP
 						const words = countWords(text);
 						const html = serializeToHtml(value);
 
-						// Clear any existing timeout
-						if (timeoutRef.current) {
-							clearTimeout(timeoutRef.current);
-						}
-
-						// Defer state updates to avoid the React warning:
-						// "Cannot update a component while rendering a different component"
-						// This happens when Slate triggers normalization during a render cycle.
-						timeoutRef.current = setTimeout(() => {
+						// Use queueMicrotask instead of setTimeout for better performance
+						queueMicrotask(() => {
 							setWordCount(words);
-							if (words <= 5000) {
-								onChange?.(html);
-							}
-							timeoutRef.current = null;
-						}, 0);
+							onChange?.(html);
+						});
 					}
 				}}
 			>
