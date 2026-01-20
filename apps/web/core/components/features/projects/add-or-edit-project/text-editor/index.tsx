@@ -1,9 +1,45 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Editor, createEditor, Descendant } from 'slate';
-import { withHistory } from 'slate-history';
-import { Editable, withReact, Slate } from 'slate-react';
+import { Editor, createEditor, Descendant, Text, BaseEditor } from 'slate';
+import { withHistory, HistoryEditor } from 'slate-history';
+import { Editable, withReact, Slate, ReactEditor } from 'slate-react';
 import { Bold, Italic, Underline, Code } from 'lucide-react';
 import { cn } from '@/core/lib/helpers';
+
+// Custom Slate types
+type CustomText = {
+	text: string;
+	bold?: boolean;
+	italic?: boolean;
+	underline?: boolean;
+	code?: boolean;
+};
+
+type ParagraphElement = {
+	type: 'paragraph';
+	children: CustomText[];
+};
+
+type CustomElement = ParagraphElement;
+
+declare module 'slate' {
+	interface CustomTypes {
+		Editor: BaseEditor & ReactEditor & HistoryEditor;
+		Element: CustomElement;
+		Text: CustomText;
+	}
+}
+
+// Simple HTML escape function to prevent XSS
+const escapeHtml = (text: string): string => {
+	const map: Record<string, string> = {
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'"': '&quot;',
+		"'": '&#039;'
+	};
+	return text.replace(/[&<>"']/g, (char) => map[char]);
+};
 
 interface IRichTextProps {
 	defaultValue?: string;
@@ -15,15 +51,99 @@ const countWords = (text: string) => {
 	return text.trim().split(/\s+/).filter((word) => word.length > 0).length;
 };
 
+// Serialize Slate nodes to HTML
+const serializeToHtml = (nodes: Descendant[]): string => {
+	return nodes.map((node) => serializeNode(node)).join('');
+};
+
+const serializeNode = (node: Descendant): string => {
+	if (Text.isText(node)) {
+		let text = escapeHtml(node.text);
+		if (node.bold) text = `<strong>${text}</strong>`;
+		if (node.italic) text = `<em>${text}</em>`;
+		if (node.underline) text = `<u>${text}</u>`;
+		if (node.code) text = `<code>${text}</code>`;
+		return text;
+	}
+
+	const children = node.children?.map((n: Descendant) => serializeNode(n)).join('') || '';
+	switch (node.type) {
+		case 'paragraph':
+			return `<p>${children}</p>`;
+		default:
+			return children;
+	}
+};
+
+// Deserialize HTML to Slate nodes
+const deserializeFromHtml = (html: string): Descendant[] => {
+	// If it's plain text (no HTML tags), return simple structure
+	if (!html || !html.includes('<')) {
+		return [{ type: 'paragraph', children: [{ text: html || '' }] }];
+	}
+
+	const parser = new DOMParser();
+	const doc = parser.parseFromString(html, 'text/html');
+	const nodes = deserializeElement(doc.body);
+
+	// Ensure we always return valid Slate structure
+	if (nodes.length === 0) {
+		return [{ type: 'paragraph', children: [{ text: '' }] }];
+	}
+
+	return nodes;
+};
+
+const deserializeElement = (el: Node): Descendant[] => {
+	if (el.nodeType === Node.TEXT_NODE) {
+		const text = el.textContent || '';
+		return [{ text }];
+	}
+
+	if (el.nodeType !== Node.ELEMENT_NODE) {
+		return [];
+	}
+
+	const element = el as Element;
+	const children: Descendant[] = Array.from(element.childNodes).flatMap(deserializeElement);
+
+	// Ensure children is never empty for elements that need children
+	const safeChildren: CustomText[] = children.length > 0
+		? children.filter((child): child is CustomText => Text.isText(child)).length > 0
+			? children.filter((child): child is CustomText => Text.isText(child))
+			: [{ text: '' }]
+		: [{ text: '' }];
+
+	switch (element.nodeName) {
+		case 'BODY':
+			// If body only contains text nodes, wrap in paragraph
+			if (children.every((child) => Text.isText(child))) {
+				return [{ type: 'paragraph', children: safeChildren }];
+			}
+			return children;
+		case 'P':
+			return [{ type: 'paragraph', children: safeChildren }];
+		case 'STRONG':
+		case 'B':
+			return children.map((child) => (Text.isText(child) ? { ...child, bold: true } : child));
+		case 'EM':
+		case 'I':
+			return children.map((child) => (Text.isText(child) ? { ...child, italic: true } : child));
+		case 'U':
+			return children.map((child) => (Text.isText(child) ? { ...child, underline: true } : child));
+		case 'CODE':
+			return children.map((child) => (Text.isText(child) ? { ...child, code: true } : child));
+		case 'BR':
+			return [{ text: '\n' }];
+		default:
+			return children;
+	}
+};
+
 const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextProps) => {
 	const editor = useMemo(() => withHistory(withReact(createEditor())), []);
-	const [editorValue, setEditorValue] = useState<Descendant[]>(
-		defaultValue
-			? // @ts-ignore
-				[{ type: 'paragraph', children: [{ text: defaultValue }] }]
-			: [{ type: 'paragraph', children: [{ text: '' }] }]
-	);
-	const [wordCount, setWordCount] = useState(() => (defaultValue ? countWords(defaultValue) : 0));
+	const [editorValue, setEditorValue] = useState<Descendant[]>(() => deserializeFromHtml(defaultValue || ''));
+	const [wordCount, setWordCount] = useState(() => (defaultValue ? countWords(defaultValue.replace(/<[^>]*>/g, '')) : 0));
 	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
 	// Cleanup timeout on unmount
@@ -39,9 +159,9 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextP
 	const renderLeaf = useCallback((props: any) => <Leaf {...props} />, []);
 
 
-	const toggleMark = (format: string) => {
-		// @ts-ignore
-		const isActive = Editor.marks(editor)?.[format];
+	const toggleMark = (format: keyof Omit<CustomText, 'text'>) => {
+		const marks = Editor.marks(editor);
+		const isActive = marks ? marks[format] : false;
 		if (isActive) {
 			Editor.removeMark(editor, format);
 		} else {
@@ -59,7 +179,6 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextP
 					<ToolbarButton onClick={() => toggleMark('code')} icon={<Code size={14} />} />
 				</div>
 			)}
-			{/* @ts-ignore */}
 			<Slate
 				editor={editor}
 				value={editorValue}
@@ -72,6 +191,7 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextP
 					if (isAstChange) {
 						const text = Editor.string(editor, []);
 						const words = countWords(text);
+						const html = serializeToHtml(value);
 
 						// Clear any existing timeout
 						if (timeoutRef.current) {
@@ -84,14 +204,13 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextP
 						timeoutRef.current = setTimeout(() => {
 							setWordCount(words);
 							if (words <= 5000) {
-								onChange?.(text);
+								onChange?.(html);
 							}
 							timeoutRef.current = null;
 						}, 0);
 					}
 				}}
 			>
-				{/* @ts-ignore */}
 				<Editable
 					className="p-2 min-h-[5rem] max-h-[15rem] outline-none overflow-y-auto"
 					placeholder="Insert description here..."
@@ -109,7 +228,14 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextP
 };
 
 const ToolbarButton = ({ onClick, icon }: { onClick: () => void; icon: React.ReactNode }) => (
-	<button className=" hover:bg-primary/5 rounded-sm h-fit px-2 py-1  text-[.5rem] font-light" onClick={onClick}>
+	<button
+		type="button"
+		className=" hover:bg-primary/5 rounded-sm h-fit px-2 py-1  text-[.5rem] font-light"
+		onMouseDown={(e) => {
+			e.preventDefault();
+			onClick();
+		}}
+	>
 		{icon}
 	</button>
 );

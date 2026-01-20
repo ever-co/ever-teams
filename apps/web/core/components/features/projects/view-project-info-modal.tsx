@@ -160,14 +160,15 @@ export function ViewProjectInfoModal(props: Readonly<IViewProjectInfoModalProps>
 						</div>
 					</Section>
 
-					{/* ===== DESCRIPTION ===== */}
-					{project.description && (
-						<Section title={t('common.DESCRIPTION')}>
-							<div className="p-3 text-sm text-gray-700 whitespace-pre-wrap rounded-lg bg-gray-50 dark:bg-dark--theme dark:text-gray-300">
-								{project.description}
-							</div>
-						</Section>
-					)}
+				{/* ===== DESCRIPTION ===== */}
+				{project.description && (
+					<Section title={t('common.DESCRIPTION')}>
+						<div
+							className="p-3 text-sm text-gray-700 whitespace-pre-wrap rounded-lg bg-gray-50 dark:bg-dark--theme dark:text-gray-300 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-gray-700 [&_code]:px-1 [&_code]:rounded [&_p]:mb-1 [&_p:last-child]:mb-0"
+							dangerouslySetInnerHTML={{ __html: project.description }}
+						/>
+					</Section>
+				)}
 
 					{/* ===== FINANCIAL SETTINGS ===== */}
 					{(project.budget || project.billing || project.currency) && (
