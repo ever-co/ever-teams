@@ -1,7 +1,7 @@
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { I_UserProfilePage } from '../users';
 import { useDailyPlan, useLocalStorageState, useOutsideClick } from '@/core/hooks';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/constants';
@@ -24,10 +24,30 @@ type ITabs = {
 };
 
 /**
+ * Options for the useTaskFilter hook
+ */
+export type UseTaskFilterOptions = {
+	/**
+	 * If true, uses localStorage to persist tab state (default: true for profile page)
+	 * If false, uses local component state (recommended for UserTeamCard)
+	 */
+	persistState?: boolean;
+	/**
+	 * Default tab to use when persistState is false.
+	 * Note: This option is only effective when persistState is false.
+	 * When persistState is true, the tab defaults to 'worked' via localStorage.
+	 * Can be 'auto' to automatically select based on daily plans availability.
+	 */
+	defaultTab?: ITab | 'auto';
+};
+
+/**
  * It returns an object with the current tab, a function to set the current tab, and an array of tabs
  * @param {I_UserProfilePage} profile - User profile page data containing task groups
+ * @param {UseTaskFilterOptions} options - Optional configuration for state persistence
  */
-export function useTaskFilter(profile: I_UserProfilePage) {
+export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilterOptions = {}) {
+	const { persistState = true, defaultTab = 'worked' } = options;
 	const t = useTranslations();
 	// const defaultValue = useMemo(
 	// 	() => (typeof window !== 'undefined' ? (window.localStorage.getItem('task-tab') as ITab) || null : 'worked'),
@@ -65,8 +85,52 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	);
 	const path = usePathname();
 
-	// const [tab, setTab] = useState<ITab>(defaultValue || 'worked');
-	const [tab, setTab] = useLocalStorageState<ITab>('task-tab', 'worked');
+	// Persisted tab state (for profile page - uses localStorage)
+	const [persistedTab, setPersistedTab] = useLocalStorageState<ITab>('task-tab', 'worked');
+
+	// Local tab state (for UserTeamCard - isolated, no localStorage)
+	const [localTab, setLocalTab] = useState<ITab>(() => {
+		// If defaultTab is 'auto', calculate the smart default
+		if (defaultTab === 'auto') {
+			// Check if user has daily plans with tasks
+			const hasDailyPlanTasks = profileDailyPlans?.items?.some((plan) => plan.tasks && plan.tasks.length > 0);
+			// Show daily plans if available, otherwise default to assigned tasks
+			return hasDailyPlanTasks ? 'dailyplan' : 'assigned';
+		}
+		return defaultTab;
+	});
+
+	// Track if user has manually selected a tab (to avoid overwriting their choice on data refetch)
+	const hasUserSelectedTabRef = useRef(false);
+
+	// Wrapper for setLocalTab that tracks user selection
+	const setLocalTabWithTracking = useCallback((newTab: ITab | ((prev: ITab) => ITab)) => {
+		hasUserSelectedTabRef.current = true;
+		setLocalTab(newTab);
+	}, []);
+
+	// Use persisted or local state based on options
+	const tab = persistState ? persistedTab : localTab;
+	const setTab = persistState ? setPersistedTab : setLocalTabWithTracking;
+
+	// For 'auto' mode: Update tab when daily plans data is loaded (only on initial load)
+	// This handles the case where profileDailyPlans is undefined on initial render
+	const hasInitializedAutoTab = useMemo(() => {
+		return defaultTab === 'auto' && !persistState;
+	}, [defaultTab, persistState]);
+
+	useEffect(() => {
+		// Only auto-select tab if:
+		// 1. We're in 'auto' mode with non-persisted state
+		// 2. User hasn't manually selected a tab yet
+		// 3. Daily plans data is available
+		if (hasInitializedAutoTab && profileDailyPlans?.items && !hasUserSelectedTabRef.current) {
+			const hasDailyPlanTasks = profileDailyPlans.items.some((plan) => plan.tasks && plan.tasks.length > 0);
+			// Show daily plans if user has them, otherwise default to assigned tasks
+			setLocalTab(hasDailyPlanTasks ? 'dailyplan' : 'assigned');
+		}
+	}, [hasInitializedAutoTab, profileDailyPlans?.items, setLocalTab]);
+
 	const [filterType, setFilterType] = useState<FilterType>(undefined);
 
 	const [statusFilter, setStatusFilter] = useState<StatusFilter>({} as StatusFilter);
