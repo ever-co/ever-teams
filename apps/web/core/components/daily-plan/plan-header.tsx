@@ -93,6 +93,7 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 		parseStringInputToHours,
 		plan.workTimePlanned,
 		plan.id,
+		plan.employeeId,
 		updateDailyPlan,
 		updateDailyPlanLoading,
 		setTime,
