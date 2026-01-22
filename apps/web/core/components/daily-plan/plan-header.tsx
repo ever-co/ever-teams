@@ -77,7 +77,8 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 			}
 			setTime(hours);
 
-			await updateDailyPlan({ workTimePlanned: hours }, plan.id ?? '');
+			// Server requires employeeId in the payload, to correctly check permissions
+			await updateDailyPlan({ workTimePlanned: hours, employeeId: plan.employeeId || undefined }, plan.id ?? '');
 
 			setEditTime(false);
 			toast.success('Plan updated successfully');
@@ -92,6 +93,7 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 		parseStringInputToHours,
 		plan.workTimePlanned,
 		plan.id,
+		plan.employeeId,
 		updateDailyPlan,
 		updateDailyPlanLoading,
 		setTime,
