@@ -173,7 +173,8 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 			// Update the plan work time only if the user changed it
 			if (plan && plan.workTimePlanned !== workTimePlanned) {
-				await updateDailyPlan({ workTimePlanned }, plan.id ?? '');
+				// Server requires employeeId in the payload, to correctly check permissions
+				await updateDailyPlan({ workTimePlanned, employeeId: plan.employeeId || undefined }, plan.id ?? '');
 				toast.success('Plan updated successfully', {
 					description: `Work time planned updated to ${workTimePlanned} hours`,
 					duration: 3000
@@ -227,7 +228,8 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 			// Update the plan work time only if the user changed it
 			if (plan && plan.workTimePlanned !== workTimePlanned) {
-				await updateDailyPlan({ workTimePlanned }, plan.id ?? '');
+				// Server requires employeeId in the payload, to correctly check permissions
+				await updateDailyPlan({ workTimePlanned, employeeId: plan.employeeId || undefined }, plan.id ?? '');
 				toast.success('Plan updated successfully', {
 					description: `Work time planned updated to ${workTimePlanned} hours`,
 					duration: 3000

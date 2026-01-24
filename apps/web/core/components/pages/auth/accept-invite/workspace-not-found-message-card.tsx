@@ -20,7 +20,7 @@ export function WorkspaceNotFoundMessageCard() {
 					<Link href={'/'}>{t('pages.invite.acceptInvite.buttons.RETURN_TO_DASHBOARD')}</Link>
 				</Button>
 				<Button>
-					<Link href={'/auth/team'}>{t('pages.invite.acceptInvite.buttons.CREATE_NEW_WORKSPACE')}</Link>
+					<Link href={'/auth/signup'}>{t('pages.invite.acceptInvite.buttons.CREATE_NEW_WORKSPACE')}</Link>
 				</Button>
 			</div>
 		</div>

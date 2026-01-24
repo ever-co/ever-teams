@@ -39,11 +39,23 @@ interface TeamMembersViewProps {
 }
 
 // Utility function for sorting by order (kept local as it's specific to this component)
+// FIX: Added secondary sort by ID to ensure stable ordering when order values are equal or missing
+// This prevents visual glitches during role changes or data refetches
 const sortByOrder = (a: TOrganizationTeamEmployee, b: TOrganizationTeamEmployee): number => {
-	if (a.order && b.order) return b.order - a.order;
-	if (a.order) return -1;
-	if (b.order) return 1;
-	return 0;
+	// Primary sort: by order property (descending - higher order first)
+	if (a.order && b.order) {
+		if (b.order !== a.order) {
+			return b.order - a.order;
+		}
+		// Same order value, fall through to secondary sort
+	} else if (a.order) {
+		return -1;
+	} else if (b.order) {
+		return 1;
+	}
+
+	// Secondary sort: by ID for stable ordering when order is equal or missing
+	return (a.id || '').localeCompare(b.id || '');
 };
 
 // Main component optimized with refactored hooks
