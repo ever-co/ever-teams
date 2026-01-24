@@ -2,7 +2,7 @@
 import { calculateRemainingDays, formatDateString } from '@/core/lib/helpers/index';
 import { useSyncRef, useTeamTasks } from '@/core/hooks';
 import { activeTeamState, detailedTaskState } from '@/core/stores';
-import { clsxm } from '@/core/lib/utils';
+import { clsxm, formatUserFullName } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { TrashIcon } from 'assets/svg';
 import { forwardRef, useCallback, useState } from 'react';
@@ -41,13 +41,10 @@ const TaskMainInfo = () => {
 			</TaskRow>
 			<TaskRow labelIconPath="/assets/svg/profile.svg" labelTitle={t('pages.taskDetails.CREATOR')}>
 				{task?.createdByUser && (
-					<Link
-						title={`${task?.createdByUser?.firstName || ''} ${task?.createdByUser?.lastName || ''}`}
-						href={`/profile/${task.createdByUserId}`}
-					>
+					<Link title={formatUserFullName(task?.createdByUser)} href={`/profile/${task.createdByUserId}`}>
 						<ProfileInfo
 							profilePicSrc={task?.createdByUser?.imageUrl}
-							names={`${task?.createdByUser?.firstName || ''} ${task?.createdByUser?.lastName || ''}`}
+							names={formatUserFullName(task?.createdByUser)}
 						/>
 					</Link>
 				)}

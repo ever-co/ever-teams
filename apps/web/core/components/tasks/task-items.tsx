@@ -1,6 +1,6 @@
 import { imgTitle } from '@/core/lib/helpers/index';
 import { useTeamTasks } from '@/core/hooks';
-import { clsxm, isValidUrl } from '@/core/lib/utils';
+import { clsxm, isValidUrl, formatUserFullName } from '@/core/lib/utils';
 import clsx from 'clsx';
 import { ConfirmDropdown, SpinnerLoader } from '@/core/components';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
@@ -154,7 +154,7 @@ export function TaskAvatars({ task, limit = 2 }: { task: PartialITeamTask; limit
 		>
 			{members?.slice(0, limit).map((member, i) => {
 				const user = member.user;
-				const userName = `${user?.firstName || ''} ${user?.lastName || ''}`;
+				const userName = formatUserFullName(user);
 				const userImageUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl || '';
 				const size = 30;
 

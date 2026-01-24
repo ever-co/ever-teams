@@ -11,11 +11,12 @@ import { ETimerStatus } from '@/core/types/generics/enums/timer';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { useAtomValue } from 'jotai';
 import { timerStatusState } from '@/core/stores';
+import { formatUserFullName } from '@/core/lib/utils';
 
 export function UserProfileDetail({ member }: { member?: TOrganizationTeamEmployee }) {
 	const user = useMemo(() => member?.employee?.user, [member?.employee?.user]);
 
-	const userName = `${user?.firstName || ''} ${user?.lastName || ''}`;
+	const userName = formatUserFullName(user);
 	const imgUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
 	const imageUrl = useMemo(() => imgUrl, [imgUrl]);
 	const size = 100;
