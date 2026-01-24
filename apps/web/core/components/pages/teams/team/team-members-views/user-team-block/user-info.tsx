@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { I_TeamMemberCardHook } from '@/core/hooks';
-import { clsxm, isValidUrl } from '@/core/lib/utils';
+import { clsxm, isValidUrl, formatUserFullName } from '@/core/lib/utils';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import stc from 'string-to-color';
@@ -19,7 +19,7 @@ type Props = {
 
 export function UserBoxInfo({ className, memberInfo, publicTeam = false }: Props) {
 	const { memberUser, member } = memberInfo;
-	const fullname = `${memberUser?.firstName || ''} ${memberUser?.lastName || ''}`;
+	const fullname = formatUserFullName(memberUser);
 
 	const imageUrl = useMemo(() => {
 		return memberUser?.image?.thumbUrl || memberUser?.image?.fullUrl || memberUser?.imageUrl || '';

@@ -3,7 +3,7 @@ import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
 import { imgTitle } from '@/core/lib/helpers/index';
 import { useAuthenticateUser } from '@/core/hooks';
 import { activeTeamState, isTeamMemberState, publicState, timerStatusState } from '@/core/stores';
-import { clsxm, isValidUrl } from '@/core/lib/utils';
+import { clsxm, isValidUrl, formatUserFullName } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { Divider, FullWidthToggler, Text, ThemeToggler } from '@/core/components';
 
@@ -208,10 +208,8 @@ function UserNavMenu() {
 				</Link>
 				<Link href={`/settings/personal`} className="w-full text-center">
 					<Tooltip
-						label={`${user?.firstName || ''} ${user?.lastName || ''}`.trim() || ''}
-						enabled={
-							`${user?.firstName || ''} ${user?.lastName || ''}`.trim().length > CHARACTER_LIMIT_TO_SHOW
-						}
+						label={formatUserFullName(user) || ''}
+						enabled={formatUserFullName(user).length > CHARACTER_LIMIT_TO_SHOW}
 						placement="auto"
 					>
 						<Text.Heading as="h3" className="overflow-hidden whitespace-nowrap text-ellipsis">

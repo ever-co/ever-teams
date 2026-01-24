@@ -15,6 +15,7 @@ import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-repo
 import { Card } from '@/core/components/common/card';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useLocalStorageState, useModal } from '@/core/hooks/common';
+import { formatUserFullName } from '@/core/lib/utils';
 import {
 	ProductivityApplicationTable,
 	ProductivityEmployeeTable,
@@ -115,11 +116,7 @@ function AppUrls() {
 
 		// Get real user information
 		const currentUser = user || null;
-		const userFullName =
-			currentUser?.fullName ||
-			(currentUser?.firstName && currentUser?.lastName
-				? `${currentUser.firstName} ${currentUser.lastName}`
-				: currentUser?.name || 'Unknown User');
+		const userFullName = currentUser?.fullName || formatUserFullName(currentUser) || currentUser?.name || 'Unknown User';
 
 		const userFirstName = currentUser?.firstName || 'Unknown';
 		const userLastName = currentUser?.lastName || 'User';
