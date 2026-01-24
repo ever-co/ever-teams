@@ -45,19 +45,26 @@ export function sanitizeHtml(html: string | null | undefined): string {
 }
 
 /**
- * Recursively sanitizes a DOM node and its children
+ * Recursively sanitizes a DOM node and its children.
+ * Disallowed tags are unwrapped (replaced by their children) to preserve nested allowed formatting.
  */
 function sanitizeNode(node: Node): void {
 	const nodesToRemove: Node[] = [];
+	const children = Array.from(node.childNodes);
 
-	node.childNodes.forEach((child) => {
+	children.forEach((child) => {
 		if (child.nodeType === Node.ELEMENT_NODE) {
 			const element = child as Element;
 			const tagName = element.tagName.toLowerCase();
 
 			if (!ALLOWED_TAGS.has(tagName)) {
-				// Replace disallowed tag with its text content
-				nodesToRemove.push(child);
+				// Unwrap disallowed tag: sanitize its children first, then replace with children
+				sanitizeNode(element);
+				const fragment = document.createDocumentFragment();
+				while (element.firstChild) {
+					fragment.appendChild(element.firstChild);
+				}
+				node.replaceChild(fragment, element);
 			} else {
 				// Remove disallowed attributes
 				Array.from(element.attributes).forEach((attr) => {
@@ -70,20 +77,12 @@ function sanitizeNode(node: Node): void {
 				sanitizeNode(element);
 			}
 		} else if (child.nodeType === Node.COMMENT_NODE) {
-			// Remove comments
 			nodesToRemove.push(child);
 		}
 	});
 
-	// Remove disallowed nodes (replace with their text content)
 	nodesToRemove.forEach((nodeToRemove) => {
-		if (nodeToRemove.nodeType === Node.ELEMENT_NODE) {
-			const textContent = nodeToRemove.textContent || '';
-			const textNode = document.createTextNode(textContent);
-			node.replaceChild(textNode, nodeToRemove);
-		} else {
-			node.removeChild(nodeToRemove);
-		}
+		node.removeChild(nodeToRemove);
 	});
 }
 
