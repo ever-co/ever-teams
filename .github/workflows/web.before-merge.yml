@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on: ubicloud-standard-2
+    runs-on: ubicloud-standard-4
 
     steps:
       - uses: actions/checkout@v4
@@ -31,6 +31,20 @@ jobs:
       - name: Check if skipped
         if: steps.skip_check.outputs.skipped == 'true'
         run: echo "Workflow was skipped" && exit 0
+
+      - name: Free disk space
+        run: |
+            df -h /
+            sudo swapoff -a
+            sudo apt clean
+            docker image ls -aq
+            if [ "$(docker image ls -aq)" ]; then
+              docker rmi $(docker image ls -aq)
+            fi
+            find ~/work/_temp -name "cache.tgz" -exec rm -f {} \;
+            sudo rm -rf "/usr/local/share/boost"
+            sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+            df -h /
 
       - name: Use Node.js
         uses: actions/setup-node@v4
