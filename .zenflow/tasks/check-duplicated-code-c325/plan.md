@@ -63,6 +63,11 @@ Save to `{@artifacts_path}/plan.md`.
 
 ---
 
+
+### [ ] Step: Implementation
+<!-- chat-id: 74578aee-f495-43a3-9919-00ca12754daf -->
+
+Do one iteration of refactoring to remove duplicates according to requirements, tech spec and plan
 ## Implementation Plan
 
 This section replaces the generic "Implementation" step with specific refactoring tasks organized by complexity (simple → moderate → complex).
