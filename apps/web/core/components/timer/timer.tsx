@@ -1,13 +1,18 @@
-import { pad } from '@/core/lib/helpers/index';
+import { Text } from '@/core/components';
 import { HostKeys, useDetectOS, useHotkeys, useTimerView } from '@/core/hooks';
 import { useTimerOptimisticUI } from '@/core/hooks/activities/use-timer-optimistic-ui';
 import { useTodayWorkedTime } from '@/core/hooks/activities/use-today-worked-time';
+import { pad } from '@/core/lib/helpers/index';
 import { clsxm } from '@/core/lib/utils';
-import { Text } from '@/core/components';
+import { Transition } from '@headlessui/react';
 import { useTranslations } from 'next-intl';
 import { TimerButton } from './timer-button';
-import { Transition } from '@headlessui/react';
 
+import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { activeTeamTaskState } from '@/core/stores';
+import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
 import {
 	ArrowUturnUpIcon,
 	ComputerDesktopIcon,
@@ -16,16 +21,12 @@ import {
 	LifebuoyIcon
 } from '@heroicons/react/24/outline';
 import { HotkeysEvent } from 'hotkeys-js';
+import { useAtomValue } from 'jotai';
 import { useCallback, useMemo } from 'react';
 import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
-import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
 import { ProgressBar } from '../duplicated-components/_progress-bar';
-import { Tooltip } from '../duplicated-components/tooltip';
 import { VerticalSeparator } from '../duplicated-components/separator';
-import { IClassName } from '@/core/types/interfaces/common/class-name';
-import { ETimeLogSource } from '@/core/types/generics/enums/timer';
-import { useAtomValue } from 'jotai';
-import { activeTeamState, activeTeamTaskState } from '@/core/stores';
+import { Tooltip } from '../duplicated-components/tooltip';
 
 export function Timer({ className, showTimerButton = true }: IClassName) {
 	const t = useTranslations();
@@ -45,7 +46,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 		stopTimer
 	} = useTimerView();
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 
@@ -229,7 +230,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 export function MinTimerFrame({ className }: IClassName) {
 	const { hours, minutes, seconds, ms_p, timerStatus, disabled, hasPlan, startTimer, stopTimer } = useTimerView();
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 	const t = useTranslations();

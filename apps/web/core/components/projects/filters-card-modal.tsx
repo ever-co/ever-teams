@@ -1,14 +1,15 @@
 import { Button, Modal } from '@/core/components';
-import { ListFilterPlus, X } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { MultiSelectWithSearch } from '../common/multi-select-with-search';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import Image from 'next/image';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { EverCard } from '../common/ever-card';
+import { useOrganisationTeams } from '@/core/hooks/organizations/teams/use-organisation-teams';
+import { organizationProjectsState, taskStatusesState } from '@/core/stores';
 import { EProjectBudgetType } from '@/core/types/generics/enums/project';
 import { useAtomValue } from 'jotai';
-import { organizationProjectsState, organizationTeamsState, taskStatusesState } from '@/core/stores';
+import { ListFilterPlus, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import Image from 'next/image';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { EverCard } from '../common/ever-card';
+import { MultiSelectWithSearch } from '../common/multi-select-with-search';
 
 interface IFiltersCardModalProps {
 	open: boolean;
@@ -23,7 +24,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 	const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
 	const [selectedBudgetType, setSelectedBudgetType] = useState<string[]>([]);
 	const params = useSearchParams();
-	const teams = useAtomValue(organizationTeamsState);
+	const { teams } = useOrganisationTeams();
 
 	const organizationProjects = useAtomValue(organizationProjectsState);
 	const teamMembers = useMemo(

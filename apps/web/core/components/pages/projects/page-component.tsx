@@ -1,10 +1,18 @@
 'use client';
-import { MainLayout } from '@/core/components/layouts/default-layout';
-import { organizationProjectsState } from '@/core/stores';
-import { useLocalStorageState, useModal, useOrganizationProjects } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { useCallback, useEffect, useMemo, useState, Suspense } from 'react';
+import { MainLayout } from '@/core/components/layouts/default-layout';
+import { useLocalStorageState, useModal, useOrganizationProjects } from '@/core/hooks';
+import { organizationProjectsState } from '@/core/stores';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 // dynamic import removed - using optimized components
+import { Button, Container } from '@/core/components';
+import { Checkbox } from '@/core/components/common/checkbox';
+import { DatePickerWithRange } from '@/core/components/common/date-range-select';
+import { LAST_SELECTED_PROJECTS_VIEW } from '@/core/constants/config/constants';
+import { cn } from '@/core/lib/helpers';
+import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
+import { Menu, Transition } from '@headlessui/react';
+import { VisibilityState } from '@tanstack/react-table';
 import {
 	Archive,
 	ArrowLeftIcon,
@@ -17,25 +25,17 @@ import {
 	Search,
 	Settings2
 } from 'lucide-react';
-import { cn } from '@/core/lib/helpers';
-import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
-import { Button, Container } from '@/core/components';
-import { DatePickerWithRange } from '@/core/components/common/date-range-select';
-import { DateRange } from 'react-day-picker';
-import { LAST_SELECTED_PROJECTS_VIEW } from '@/core/constants/config/constants';
 import { useTranslations } from 'next-intl';
-import { useSearchParams, useRouter, usePathname } from 'next/navigation';
-import { VisibilityState } from '@tanstack/react-table';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { DateRange } from 'react-day-picker';
 import { ProjectViewDataType } from './project-views';
-import { Menu, Transition } from '@headlessui/react';
 import { hidableColumnNames } from './project-views/list-view/data-table';
-import { Checkbox } from '@/core/components/common/checkbox';
 
-import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
+import { useAtomValue } from 'jotai';
 import { useParams } from 'next/navigation';
-import { Breadcrumb } from '../../duplicated-components/breadcrumb';
 import { InputField } from '../../duplicated-components/_input';
+import { Breadcrumb } from '../../duplicated-components/breadcrumb';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 
 import { TOrganizationProject } from '@/core/types/schemas';
@@ -44,15 +44,16 @@ import { ModalSkeleton } from '../../common/skeleton/modal-skeleton';
 
 // Import optimized components from centralized location
 import {
-	LazyFiltersCardModal,
-	LazyCreateProjectModal,
 	LazyBulkArchiveProjectsModal,
 	LazyBulkRestoreProjectsModal,
-	LazyProjectsListView,
+	LazyCreateProjectModal,
+	LazyFiltersCardModal,
+	LazyProjectExportMenu,
 	LazyProjectsGridView,
-	LazyProjectExportMenu
+	LazyProjectsListView
 } from '@/core/components/optimized-components/projects';
-import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { isTrackingEnabledState } from '@/core/stores';
 
 type TViewMode = 'GRID' | 'LIST';
 
@@ -65,7 +66,7 @@ function PageComponent() {
 	} = useModal();
 	const { isOpen: isProjectModalOpen, closeModal: closeProjectModal, openModal: openProjectModal } = useModal();
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const [selectedView, setSelectedView] = useLocalStorageState<TViewMode>(LAST_SELECTED_PROJECTS_VIEW, 'LIST');
 	const [projects, setProjects] = useState<ProjectViewDataType[]>([]);

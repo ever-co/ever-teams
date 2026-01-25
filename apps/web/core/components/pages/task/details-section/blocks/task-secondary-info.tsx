@@ -1,29 +1,17 @@
-import { useModal, useTeamTasks } from '@/core/hooks';
-import { activeTeamState, detailedTaskState, isTeamManagerState } from '@/core/stores';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { ERoleName } from '@/core/types/generics/enums/role';
-import { PlusIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
 import { Button, Modal, SpinnerLoader } from '@/core/components';
-import { TaskVersionForm } from '@/core/components/tasks/version-form';
-import { cloneDeep } from 'lodash';
-import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useAtomValue } from 'jotai';
-import TaskRow from '../components/task-row';
-import { useTranslations } from 'next-intl';
-import { toast } from 'sonner';
-import { AddIcon, CircleIcon, Square4OutlineIcon, TrashIcon } from 'assets/svg';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
-import { clsxm } from '@/core/lib/utils';
-import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
-import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
+import { EverCard } from '@/core/components/common/ever-card';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
-import Image from 'next/image';
+import { Tooltip } from '@/core/components/duplicated-components/tooltip';
+import { QuickCreateProjectModal } from '@/core/components/features/projects/quick-create-project-modal';
+import { TaskLabels } from '@/core/components/tasks/task-labels';
+import { TaskPrioritiesForm } from '@/core/components/tasks/task-priorities-form';
+import { TaskSizesForm } from '@/core/components/tasks/task-sizes-form';
 import {
 	ActiveTaskPropertiesDropdown,
 	ActiveTaskSizesDropdown,
@@ -32,18 +20,31 @@ import {
 	EpicPropertiesDropdown as TaskEpicDropdown,
 	TaskStatus
 } from '@/core/components/tasks/task-status';
-import { TaskLabels } from '@/core/components/tasks/task-labels';
 import { TaskStatusesForm } from '@/core/components/tasks/task-statuses-form';
-import { TaskPrioritiesForm } from '@/core/components/tasks/task-priorities-form';
-import { TaskSizesForm } from '@/core/components/tasks/task-sizes-form';
-import { Tooltip } from '@/core/components/duplicated-components/tooltip';
-import { EverCard } from '@/core/components/common/ever-card';
-import { QuickCreateProjectModal } from '@/core/components/features/projects/quick-create-project-modal';
+import { TaskVersionForm } from '@/core/components/tasks/version-form';
+import { useModal, useTeamTasks } from '@/core/hooks';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
+import { cn } from '@/core/lib/helpers';
+import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
+import { clsxm } from '@/core/lib/utils';
+import { detailedTaskState, isTeamManagerState } from '@/core/stores';
+import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
+import { ERoleName } from '@/core/types/generics/enums/role';
 import { EIssueType } from '@/core/types/generics/enums/task';
 import { TOrganizationProject, TTaskVersion } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
-import { cn } from '@/core/lib/helpers';
+import { ChevronDownIcon, PlusIcon } from '@heroicons/react/20/solid';
+import { AddIcon, CircleIcon, Square4OutlineIcon, TrashIcon } from 'assets/svg';
+import { useAtomValue } from 'jotai';
+import { cloneDeep } from 'lodash';
+import { useTranslations } from 'next-intl';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
+import TaskRow from '../components/task-row';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
@@ -311,7 +312,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	const { task, controlled = false, onChange, styles } = props;
 	const { openModal, isOpen, closeModal } = useModal();
 	const organizationProjects = useAtomValue(organizationProjectsState);
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const { updateTask, updateLoading } = useTeamTasks();
 	const t = useTranslations();
 

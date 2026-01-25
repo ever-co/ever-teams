@@ -1,13 +1,14 @@
 'use client';
 
-import { useOrganizationTeams } from '@/core/hooks';
 import { BackButton, Button, Modal, Text } from '@/core/components';
+import { useCreateOrganizationTeam } from '@/core/hooks/organizations/teams/use-create-organization-team';
+import { useOrganisationTeams } from '@/core/hooks/organizations/teams/use-organisation-teams';
+import { timerStatusState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { Dispatch, SetStateAction, useMemo, useState } from 'react';
 import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
-import { organizationTeamsState, timerStatusState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
 
 /**
  * Create team modal
@@ -27,14 +28,14 @@ export function CreateTeamModal({
 	const timerRunningStatus = useMemo(() => {
 		return Boolean(timerStatus?.running);
 	}, [timerStatus]);
-	const teams = useAtomValue(organizationTeamsState);
-	const { createOTeamLoading, createOrganizationTeam } = useOrganizationTeams();
+	const { teams } = useOrganisationTeams();
+	const { createOrganizationTeam, loading: createOTeamLoading } = useCreateOrganizationTeam();
 	const [error, setError] = useState<string | null>(null);
 
 	const [name, setName] = useState('');
 
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-		console.log("Team Submit");
+		console.log('Team Submit');
 		e.preventDefault();
 		setError(null);
 		const form = new FormData(e.currentTarget);

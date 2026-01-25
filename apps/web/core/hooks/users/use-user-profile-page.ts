@@ -1,15 +1,16 @@
 'use client';
-import { activeTeamState, userDetailAccordion } from '@/core/stores';
+import { userDetailAccordion } from '@/core/stores';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
 import { useParams } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
 import { useAuthTeamTasks, useTeamTasks } from '../organizations';
-import { useGetTasksStatsData } from '../tasks';
+import { useCurrentTeam } from '../organizations/teams/use-current-team';
 import { useUserQuery } from '../queries/user-user.query';
+import { useGetTasksStatsData } from '../tasks';
 
 export function useUserProfilePage() {
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const { activeTeamTask, updateTask, tasks } = useTeamTasks();
 	const userMemberId = useAtomValue(userDetailAccordion);
 

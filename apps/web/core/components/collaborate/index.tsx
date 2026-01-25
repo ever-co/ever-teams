@@ -1,7 +1,4 @@
-import { imgTitle } from '@/core/lib/helpers/index';
-import { useCollaborative, useModal } from '@/core/hooks';
-import { TUser } from '@/core/types/schemas';
-import { clsxm, isValidUrl } from '@/core/lib/utils';
+import { Button } from '@/core/components/common/button';
 import {
 	Command,
 	CommandEmpty,
@@ -19,19 +16,21 @@ import {
 	DialogTitle,
 	DialogTrigger
 } from '@/core/components/common/dialog';
+import { ScrollArea } from '@/core/components/common/scroll-bar';
+import { useCollaborative, useModal } from '@/core/hooks';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { imgTitle } from '@/core/lib/helpers/index';
+import { clsxm, isValidUrl } from '@/core/lib/utils';
+import { TUser } from '@/core/types/schemas';
 import { useJitsu } from '@jitsu/jitsu-react';
-import { Button } from '@/core/components/common/button';
+import { BrushSquareIcon, PhoneUpArrowIcon, UserLinearIcon } from 'assets/svg';
 import { Check } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 import stc from 'string-to-color';
-import { useTranslations } from 'next-intl';
-import { BrushSquareIcon, PhoneUpArrowIcon, UserLinearIcon } from 'assets/svg';
-import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { JitsuAnalytics } from '../analytics/jitsu-analytics';
 import { Avatar } from '../duplicated-components/avatar';
-import { activeTeamState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 const Collaborate = () => {
 	const { onMeetClick, onBoardClick, collaborativeMembers, setCollaborativeMembers } = useCollaborative();
@@ -41,7 +40,7 @@ const Collaborate = () => {
 
 	const { data: user } = useUserQuery();
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const members = useMemo(
 		() =>
 			activeTeam?.members && activeTeam?.members.length

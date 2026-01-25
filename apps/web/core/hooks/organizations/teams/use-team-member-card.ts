@@ -1,10 +1,9 @@
 'use client';
-import { activeTeamState, activeTeamTaskState, allTaskStatisticsState } from '@/core/stores';
+import { activeTeamTaskState, allTaskStatisticsState } from '@/core/stores';
 import { getPublicState } from '@/core/stores/common/public';
 import { useCallback, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useSyncRef } from '../../common/use-sync-ref';
-import { useOrganizationTeams } from './use-organization-teams';
 import { useIsMemberManager } from './use-team-member';
 import cloneDeep from 'lodash/cloneDeep';
 import { useTeamTasks } from './use-team-tasks';
@@ -14,6 +13,8 @@ import { Nullable } from '@/core/types/generics/utils';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { ERoleName } from '@/core/types/generics/enums/role';
+import { useUpdateOrganizationTeam } from './use-update-organization-team';
+import { useGetOrganizationTeamQuery } from './use-get-organization-teams-query';
 
 /**
  * It returns a bunch of data about a team member, including whether or not the user is the team
@@ -32,8 +33,10 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
-	const activeTeam = useAtomValue(activeTeamState);
-	const { updateOrganizationTeam, updateOTeamLoading } = useOrganizationTeams();
+	const { data: activeTeamResult } = useGetOrganizationTeamQuery();
+	const activeTeam = useMemo(() => activeTeamResult?.data ?? null, [activeTeamResult]);
+
+	const { updateOrganizationTeam, loading: updateOTeamLoading } = useUpdateOrganizationTeam();
 
 	const activeTeamRef = useSyncRef(activeTeam);
 

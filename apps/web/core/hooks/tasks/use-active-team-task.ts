@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { queryKeys } from '@/core/query/keys';
+import { taskService } from '@/core/services/client/api';
+import { activeTeamTaskState, getPublicState, tasksByTeamState } from '@/core/stores';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useQuery } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { activeTeamState, activeTeamTaskState, getPublicState, tasksByTeamState } from '@/core/stores';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { taskService } from '@/core/services/client/api';
-import { queryKeys } from '@/core/query/keys';
-import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useEffect, useMemo } from 'react';
+import { useCurrentTeam } from '../organizations/teams/use-current-team';
 
 /**
  * Result interface for the useActiveTeamTask hook
@@ -39,7 +40,7 @@ export const useActiveTeamTask = (): UseActiveTeamTaskResult => {
 	// Jotai state - instant updates
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const setActiveTeamTask = useSetAtom(activeTeamTaskState);
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const tasks = useAtomValue(tasksByTeamState);
 	const publicTeam = useAtomValue(getPublicState);
 

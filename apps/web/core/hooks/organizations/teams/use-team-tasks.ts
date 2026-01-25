@@ -1,39 +1,39 @@
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
+import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
 import {
 	getActiveTaskIdCookie,
 	getActiveUserTaskCookie,
 	setActiveTaskIdCookie,
 	setActiveUserTaskCookie
 } from '@/core/lib/helpers/index';
-import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
+import { queryKeys } from '@/core/query/keys';
 import { taskService } from '@/core/services/client/api';
 import {
-	activeTeamState,
 	activeTeamTaskId,
+	activeTeamTaskState,
 	detailedTaskState,
 	memberActiveTaskIdState,
-	activeTeamTaskState,
 	tasksByTeamState,
-	teamTasksState,
-	taskStatusesState
+	taskStatusesState,
+	teamTasksState
 } from '@/core/stores';
-import isEqual from 'lodash/isEqual';
-import { useCallback, useRef, useState } from 'react';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useOrganizationEmployeeTeams } from './use-organization-teams-employee';
-import { useAuthenticateUser } from '../../auth';
-import { useFirstLoad, useConditionalUpdateEffect, useSyncRef, useQueryCall } from '../../common';
+import { EIssueType, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
 import { ETaskStatusName, TEmployee, TOrganizationTeamEmployee, TTag } from '@/core/types/schemas';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
-import { useUserQuery } from '../../queries/user-user.query';
-import { EIssueType, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import isEqual from 'lodash/isEqual';
+import { useCallback, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { useAuthenticateUser } from '../../auth';
+import { useConditionalUpdateEffect, useFirstLoad, useQueryCall, useSyncRef } from '../../common';
+import { useUserQuery } from '../../queries/user-user.query';
+import { useOrganizationEmployeeTeams } from './use-organization-teams-employee';
+import { useCurrentTeam } from './use-current-team';
 
 /**
  * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
@@ -83,7 +83,7 @@ export function useTeamTasks() {
 	const memberActiveTaskId = useAtomValue(memberActiveTaskIdState);
 	const $memberActiveTaskId = useSyncRef(memberActiveTaskId);
 	const taskStatuses = useAtomValue(taskStatusesState);
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const activeTeamRef = useSyncRef(activeTeam);
 	const [selectedEmployeeId, setSelectedEmployeeId] = useState(user?.employee?.id);
 	const [selectedOrganizationTeamId, setSelectedOrganizationTeamId] = useState(activeTeam?.id);

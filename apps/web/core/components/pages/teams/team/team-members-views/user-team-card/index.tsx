@@ -1,56 +1,52 @@
 'use client';
-import { secondsToTime } from '@/core/lib/helpers/index';
+import { FilterTab } from '@/app/[locale]/(main)/profile/[memberId]/page';
+import { Container, Text } from '@/core/components';
+import { EverCard } from '@/core/components/common/ever-card';
+import {
+	UserProfileTaskSkeleton,
+	UserTeamActivitySkeleton
+} from '@/core/components/common/skeleton/profile-component-skeletons';
+import { InputField } from '@/core/components/duplicated-components/_input';
+import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
+import { LazyUserProfileTask, LazyUserTeamActivity } from '@/core/components/optimized-components';
+import { AppsTab } from '@/core/components/pages/profile/apps';
+import { ScreenshootTab } from '@/core/components/pages/profile/screenshots/screenshoots';
+import { VisitedSitesTab } from '@/core/components/pages/profile/visited-sites';
+import { CollapseUpIcon, ExpandIcon } from '@/core/components/svgs/expand';
+import { TaskTimes, TodayWorkedTime } from '@/core/components/tasks/task-times';
+import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
 import {
 	useCollaborative,
+	useDailyPlan,
 	useTMCardTaskEdit,
 	useTaskStatistics,
 	useTeamMemberCard,
-	useUserProfilePage,
-	useDailyPlan
+	useUserProfilePage
 } from '@/core/hooks';
-import { IClassName } from '@/core/types/interfaces/common/class-name';
-import {
-	activeTaskStatisticsState,
-	activeTeamManagersState,
-	timerSecondsState,
-	userDetailAccordion as userAccordion
-} from '@/core/stores';
+import { useActiveTeamManagers } from '@/core/hooks/organizations/teams/use-active-team-managers';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
+import { cn } from '@/core/lib/helpers';
+import { secondsToTime } from '@/core/lib/helpers/index';
 import { clsxm } from '@/core/lib/utils';
-import { Container, Text } from '@/core/components';
-import { useTranslations } from 'next-intl';
+import { activeTaskStatisticsState, timerSecondsState, userDetailAccordion as userAccordion } from '@/core/stores';
+import { fullWidthState } from '@/core/stores/common/full-width';
+import { activityTypeState } from '@/core/stores/timer/activity-type';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
+import { TTaskStatistics } from '@/core/types/interfaces/task/task';
+import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { TActivityFilter } from '@/core/types/schemas';
+import { ChevronDoubleDownIcon } from '@heroicons/react/20/solid';
+import { SixSquareGridIcon } from 'assets/svg';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { uniqueId } from 'lodash';
+import { Loader } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import React, { Suspense, useCallback, useMemo, useState } from 'react';
 import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
-import React, { Suspense, useCallback, useMemo, useState } from 'react';
-import { CollapseUpIcon, ExpandIcon } from '@/core/components/svgs/expand';
-import { activityTypeState } from '@/core/stores/timer/activity-type';
-import { SixSquareGridIcon } from 'assets/svg';
-import { ChevronDoubleDownIcon } from '@heroicons/react/20/solid';
-import { AppsTab } from '@/core/components/pages/profile/apps';
-import { VisitedSitesTab } from '@/core/components/pages/profile/visited-sites';
-import { FilterTab } from '@/app/[locale]/(main)/profile/[memberId]/page';
-import { Loader } from 'lucide-react';
-import { fullWidthState } from '@/core/stores/common/full-width';
-import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
-import { ScreenshootTab } from '@/core/components/pages/profile/screenshots/screenshoots';
-import { InputField } from '@/core/components/duplicated-components/_input';
-import { LazyUserProfileTask, LazyUserTeamActivity } from '@/core/components/optimized-components';
-import { EverCard } from '@/core/components/common/ever-card';
-import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
-import { TaskTimes, TodayWorkedTime } from '@/core/components/tasks/task-times';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
-import { TTaskStatistics } from '@/core/types/interfaces/task/task';
-import { TActivityFilter } from '@/core/types/schemas';
-import { cn } from '@/core/lib/helpers';
-import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import {
-	UserTeamActivitySkeleton,
-	UserProfileTaskSkeleton
-} from '@/core/components/common/skeleton/profile-component-skeletons';
-import { uniqueId } from 'lodash';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -126,7 +122,7 @@ export function UserTeamCard({
 	const activeTaskTotalStat = statActiveTask.total;
 	const { addSeconds } = useTaskStatistics(seconds);
 	const [showActivity, setShowActivity] = React.useState<boolean>(false);
-	const activeTeamManagers = useAtomValue(activeTeamManagersState);
+	const { managers: activeTeamManagers } = useActiveTeamManagers();
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id);
 

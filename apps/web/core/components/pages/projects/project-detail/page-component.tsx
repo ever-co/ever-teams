@@ -1,46 +1,47 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
-import { useTranslations, useLocale } from 'next-intl';
-import { useAtomValue } from 'jotai';
-import Image from 'next/image';
-import moment from 'moment';
-import {
-	ArrowLeftIcon,
-	Calendar,
-	ExternalLink,
-	Users,
-	Banknote,
-	Tag,
-	Building2,
-	CircleDot,
-	Pencil,
-	Archive,
-	Trash,
-	RotateCcw,
-	MoreVertical,
-	ShieldAlert
-} from 'lucide-react';
 import { Menu, Transition } from '@headlessui/react';
+import { useQuery } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
+import {
+	Archive,
+	ArrowLeftIcon,
+	Banknote,
+	Building2,
+	Calendar,
+	CircleDot,
+	ExternalLink,
+	MoreVertical,
+	Pencil,
+	RotateCcw,
+	ShieldAlert,
+	Tag,
+	Trash,
+	Users
+} from 'lucide-react';
+import moment from 'moment';
+import { useLocale, useTranslations } from 'next-intl';
+import Image from 'next/image';
+import { useParams, useRouter } from 'next/navigation';
+import { useCallback, useMemo } from 'react';
 
-import { MainLayout } from '@/core/components/layouts/default-layout';
 import { Container } from '@/core/components';
+import { ProjectDetailSkeleton } from '@/core/components/common/skeleton/projects';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { HorizontalSeparator, VerticalSeparator } from '@/core/components/duplicated-components/separator';
-import { cn } from '@/core/lib/helpers';
-import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
-import { fullWidthState } from '@/core/stores/common/full-width';
-import { organizationProjectService } from '@/core/services/client/api/organizations';
-import { queryKeys } from '@/core/query/keys';
-import { EProjectBilling, EProjectBudgetType } from '@/core/types/generics/enums/project';
-import { Button } from '@/core/components/duplicated-components/_button';
-import { ProjectDetailSkeleton } from '@/core/components/common/skeleton/projects';
-import { InfoItem, MemberCard, Section, StatusBadge } from './components';
+import { MainLayout } from '@/core/components/layouts/default-layout';
 import { useProjectPermissions } from '@/core/hooks/projects/use-project-permissions';
 import { useProjectActionModal } from '@/core/hooks/use-project-action-modal';
+import { cn } from '@/core/lib/helpers';
 import { projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
+import { queryKeys } from '@/core/query/keys';
+import { organizationProjectService } from '@/core/services/client/api/organizations';
+import { isTrackingEnabledState } from '@/core/stores';
+import { fullWidthState } from '@/core/stores/common/full-width';
+import { EProjectBilling, EProjectBudgetType } from '@/core/types/generics/enums/project';
+import { InfoItem, MemberCard, Section, StatusBadge } from './components';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 
 export default function ProjectDetailPageComponent() {
 	const t = useTranslations();
@@ -51,7 +52,7 @@ export default function ProjectDetailPageComponent() {
 	const currentLocale = params?.locale;
 
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const fullWidth = useAtomValue(fullWidthState);
 
 	// Fetch project by ID

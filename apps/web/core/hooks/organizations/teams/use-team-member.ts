@@ -1,13 +1,12 @@
 'use client';
-import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 
-import { activeTeamState } from '@/core/stores';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { TUser } from '@/core/types/schemas';
+import { useCurrentTeam } from './use-current-team';
 
 export function useIsMemberManager(user?: TUser | null) {
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 
 	const activeManager = useMemo(() => {
 		if (!user || !activeTeam?.members) return undefined;

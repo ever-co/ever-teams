@@ -1,15 +1,14 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
-import { useAuthTeamTasks, useTeamTasks } from '../organizations';
-import { useAuthenticateUser } from '../auth';
-import { useGetTasksStatsData } from '../tasks';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { activeTeamState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+import { useCallback, useMemo } from 'react';
+import { useAuthenticateUser } from '../auth';
+import { useAuthTeamTasks, useTeamTasks } from '../organizations';
+import { useCurrentTeam } from '../organizations/teams/use-current-team';
+import { useGetTasksStatsData } from '../tasks';
 
-export function useUserSelectedPage(memberId='') {
-	const activeTeam = useAtomValue(activeTeamState);
+export function useUserSelectedPage(memberId = '') {
+	const activeTeam = useCurrentTeam();
 	const { activeTeamTask, updateTask, tasks } = useTeamTasks();
 
 	const { user: auth } = useAuthenticateUser();

@@ -1,29 +1,30 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { calculateRemainingDays, formatDateString } from '@/core/lib/helpers/index';
 import { useSyncRef, useTeamTasks } from '@/core/hooks';
-import { activeTeamState, detailedTaskState } from '@/core/stores';
+import { calculateRemainingDays, formatDateString } from '@/core/lib/helpers/index';
 import { clsxm } from '@/core/lib/utils';
+import { detailedTaskState } from '@/core/stores';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { TrashIcon } from 'assets/svg';
-import { forwardRef, useCallback, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
+import { forwardRef, useCallback, useState } from 'react';
 import ProfileInfo from '../components/profile-info';
 import TaskRow from '../components/task-row';
 
 import { DatePicker } from '@/core/components/common/date-picker';
-import Link from 'next/link';
-import { useTranslations } from 'next-intl';
-import { PencilSquareIcon } from '@heroicons/react/20/solid';
 import { ActiveTaskIssuesDropdown } from '@/core/components/tasks/task-issue';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { PencilSquareIcon } from '@heroicons/react/20/solid';
+import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 import { useTaskMemberManagement } from '@/core/hooks/tasks/use-task-member-management';
 import { MemberSection } from './member-section';
 
 const TaskMainInfo = () => {
 	const [task] = useAtom(detailedTaskState);
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const t = useTranslations();
 
 	return (

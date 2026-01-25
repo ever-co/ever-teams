@@ -1,27 +1,23 @@
 'use client';
 
-import {
-	fetchingTeamInvitationsState,
-	getTeamInvitationsState,
-	myInvitationsState,
-	teamInvitationsState
-} from '@/core/stores';
+import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
+import { queryKeys } from '@/core/query/keys';
+import { fetchingTeamInvitationsState, myInvitationsState, teamInvitationsState } from '@/core/stores';
+import { EInviteAction } from '@/core/types/generics/enums/invite';
+import { IInviteVerifyCode, InviteUserParams, TeamInvitationsQueryParams } from '@/core/types/interfaces/user/invite';
+import { TAcceptInvitationRequest, TValidateInviteRequest } from '@/core/types/schemas/user/invite.schema';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAtom, useSetAtom } from 'jotai';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useFirstLoad } from '../../common/use-first-load';
+import { toast } from 'sonner';
 import { inviteService } from '../../../services/client/api/organizations/teams/invites';
 import { useAuthenticateUser } from '../../auth';
-import { EInviteAction } from '@/core/types/generics/enums/invite';
-import { toast } from 'sonner';
-import { queryKeys } from '@/core/query/keys';
-import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
-import { IInviteVerifyCode, InviteUserParams, TeamInvitationsQueryParams } from '@/core/types/interfaces/user/invite';
 import { useQueryCall } from '../../common';
-import { TAcceptInvitationRequest, TValidateInviteRequest } from '@/core/types/schemas/user/invite.schema';
-import { useIsMemberManager } from './use-team-member';
+import { useFirstLoad } from '../../common/use-first-load';
 import { useUserQuery } from '../../queries/user-user.query';
-import { useRouter } from 'next/navigation';
+import { useIsMemberManager } from './use-team-member';
+import { useTeamMemberInvitation } from './use-team-member-invitations';
 
 export function useTeamInvitations() {
 	const queryClient = useQueryClient();
@@ -29,7 +25,7 @@ export function useTeamInvitations() {
 
 	const setTeamInvitations = useSetAtom(teamInvitationsState);
 	const [myInvitationsList, setMyInvitationsList] = useAtom(myInvitationsState);
-	const teamInvitations = useAtomValue(getTeamInvitationsState);
+	const teamInvitations = useTeamMemberInvitation();
 	const [fetchingInvitations, setFetchingInvitations] = useAtom(fetchingTeamInvitationsState);
 
 	const activeTeamId = getActiveTeamIdCookie();

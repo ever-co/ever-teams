@@ -1,20 +1,21 @@
 'use client';
 
-import { activeTeamManagersState, rolesState } from '@/core/stores';
-import NotFound from '@/core/components/pages/404';
-import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { CommonToggle, Container, Divider, Text } from '@/core/components';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/common/full-width';
+import NotFound from '@/core/components/pages/404';
 import { useIsMemberManager } from '@/core/hooks/organizations';
-import { useRolePermissions } from '@/core/hooks/roles';
-import { Breadcrumb } from '../../duplicated-components/breadcrumb';
-import { EverCard } from '../../common/ever-card';
-import { TRole } from '@/core/types/schemas';
+import { useActiveTeamManagers } from '@/core/hooks/organizations/teams/use-active-team-managers';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useRolePermissions } from '@/core/hooks/roles';
+import { rolesState } from '@/core/stores';
+import { fullWidthState } from '@/core/stores/common/full-width';
+import { TRole } from '@/core/types/schemas';
+import { useAtomValue } from 'jotai';
+import { useTranslations } from 'next-intl';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { EverCard } from '../../common/ever-card';
+import { Breadcrumb } from '../../duplicated-components/breadcrumb';
 
 const Permissions = () => {
 	// Translations
@@ -28,7 +29,7 @@ const Permissions = () => {
 	const [selectedRole, setSelectedRole] = useState<TRole | null>(null);
 
 	// Hooks with data fetching
-	const activeTeamManagers = useAtomValue(activeTeamManagersState);
+	const { managers: activeTeamManagers } = useActiveTeamManagers();
 	const { rolePermissionsFormated, getRolePermissions, updateRolePermission } = useRolePermissions();
 	const { isTeamManager } = useIsMemberManager(user);
 	const roles = useAtomValue(rolesState);

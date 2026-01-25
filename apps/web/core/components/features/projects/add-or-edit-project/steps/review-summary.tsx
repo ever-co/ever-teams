@@ -1,24 +1,25 @@
 import { Button } from '@/core/components';
-import { Fragment, ReactNode, useCallback, useMemo } from 'react';
 import { Calendar, Clipboard } from 'lucide-react';
-import { Thumbnail } from './basic-information-form';
 import moment from 'moment';
+import { Fragment, ReactNode, useCallback, useMemo } from 'react';
+import { Thumbnail } from './basic-information-form';
 
-import { IStepElementProps } from '../container';
-import { useLocale, useTranslations } from 'next-intl';
-import { useOrganizationProjects } from '@/core/hooks/organizations';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
-import { ERoleName } from '@/core/types/generics/enums/role';
-import { IProjectRelation } from '@/core/types/interfaces/project/organization-project';
-import { ETaskStatusName } from '@/core/types/generics/enums/task';
-import { EProjectBudgetType } from '@/core/types/generics/enums/project';
-import { EProjectBilling } from '@/core/types/generics/enums/project';
-import { TCreateProjectRequest, TTag } from '@/core/types/schemas';
 import { DEFAULT_USER_IMAGE_URL } from '@/core/constants/data/mock-data';
-import { ECurrencies } from '@/core/types/generics/enums/currency';
-import { activeTeamState, organizationProjectsState, organizationTeamsState, rolesState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+import { useOrganizationProjects } from '@/core/hooks/organizations';
+import { useOrganisationTeams } from '@/core/hooks/organizations/teams/use-organisation-teams';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { organizationProjectsState, rolesState } from '@/core/stores';
+import { ECurrencies } from '@/core/types/generics/enums/currency';
+import { EProjectBilling, EProjectBudgetType } from '@/core/types/generics/enums/project';
+import { ERoleName } from '@/core/types/generics/enums/role';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
+import { IProjectRelation } from '@/core/types/interfaces/project/organization-project';
+import { TCreateProjectRequest, TTag } from '@/core/types/schemas';
+import { useAtomValue } from 'jotai';
+import { useLocale, useTranslations } from 'next-intl';
+import { IStepElementProps } from '../container';
 
 export default function FinalReview(props: IStepElementProps) {
 	const { goToPrevious, finish, currentData: finalData, mode } = props;
@@ -30,7 +31,7 @@ export default function FinalReview(props: IStepElementProps) {
 		setOrganizationProjects
 	} = useOrganizationProjects();
 	const t = useTranslations();
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 
 	const rolesFromApi = useAtomValue(rolesState);
 	const { data: user } = useUserQuery();
@@ -423,7 +424,7 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 
 	const organizationProjects = useAtomValue(organizationProjectsState);
 
-	const teams = useAtomValue(organizationTeamsState);
+	const { teams } = useOrganisationTeams();
 
 	// Deduplicated list of all team members to prevent user duplication
 	const allMembers = useMemo(() => {

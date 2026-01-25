@@ -1,28 +1,29 @@
 'use client';
-import { MainLayout } from '@/core/components/layouts/default-layout';
-import { useTranslations } from 'next-intl';
-import { useRouter, useParams } from 'next/navigation';
-import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { Container } from '@/core/components';
-import { cn } from '@/core/lib/helpers';
-import { ArrowLeftIcon } from '@radix-ui/react-icons';
-import { useMemo, useState, useCallback } from 'react';
 import { Card } from '@/core/components/common/card';
-import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
-import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-report-activity';
-import { useTimeActivityStats } from '@/core/hooks/activities/use-time-activity-stats';
+import { TimeActivityPageSkeleton } from '@/core/components/common/skeleton/time-activity-page-skeleton';
 import { ViewOption } from '@/core/components/common/view-select';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
-import { TimeActivityPageSkeleton } from '@/core/components/common/skeleton/time-activity-page-skeleton';
-import { FilterState } from '@/core/types/interfaces/timesheet/time-limit-report';
+import { MainLayout } from '@/core/components/layouts/default-layout';
 import {
-	LazyTimeActivityHeader,
-	LazyCardTimeAndActivity,
 	LazyActivityTable,
+	LazyCardTimeAndActivity,
+	LazyTimeActivityHeader,
 	LazyTimeActivityTable
 } from '@/core/components/optimized-components/reports';
-import { activeTeamState, isTrackingEnabledState, tasksByTeamState, organizationProjectsState } from '@/core/stores';
+import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-report-activity';
+import { useTimeActivityStats } from '@/core/hooks/activities/use-time-activity-stats';
+import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { cn } from '@/core/lib/helpers';
+import { isTrackingEnabledState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
+import { fullWidthState } from '@/core/stores/common/full-width';
+import { FilterState } from '@/core/types/interfaces/timesheet/time-limit-report';
+import { ArrowLeftIcon } from '@radix-ui/react-icons';
+import { useAtomValue } from 'jotai';
+import { useTranslations } from 'next-intl';
+import { useParams, useRouter } from 'next/navigation';
+import { useCallback, useMemo, useState } from 'react';
 
 const STORAGE_KEY = 'ever-teams-activity-view-options';
 
@@ -135,7 +136,7 @@ const TimeActivityComponents = () => {
 
 	const tasks = useAtomValue(tasksByTeamState);
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 
 	const breadcrumbPath = useMemo(
 		() => [

@@ -1,14 +1,15 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useIsMemberManager, useModal, useOrganizationEmployeeTeams, useOrganizationTeams } from '@/core/hooks';
-import { activeTeamManagersState, activeTeamState } from '@/core/stores';
 import { Button, Text } from '@/core/components';
-import { useCallback, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { useAtomValue } from 'jotai';
-import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
-import { RemoveModal } from '@/core/components/settings/remove-modal';
 import { TransferTeamModal } from '@/core/components/features/teams/transfer-team-modal';
+import { RemoveModal } from '@/core/components/settings/remove-modal';
+import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
+import { useIsMemberManager, useModal, useOrganizationEmployeeTeams } from '@/core/hooks';
+import { useActiveTeamManagers } from '@/core/hooks/organizations/teams/use-active-team-managers';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useDeleteOrganizationTeamMutation } from '@/core/hooks/organizations/teams/use-delete-organization-team-mutation';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useTranslations } from 'next-intl';
+import { useCallback, useState } from 'react';
 
 export const DangerZoneTeam = () => {
 	const t = useTranslations();
@@ -16,13 +17,14 @@ export const DangerZoneTeam = () => {
 	const { isOpen: dangerIsOpen, closeModal: dangerCloseModal, openModal: dangerOpenaModal } = useModal();
 	const [removeModalType, setRemoveModalType] = useState<'DISPOSE' | 'QUIT' | null>(null);
 
-	const activeTeam = useAtomValue(activeTeamState);
-	const { deleteOrganizationTeam, deleteOrganizationTeamLoading } = useOrganizationTeams();
+	const activeTeam = useCurrentTeam();
+	const { mutateAsync: deleteOrganizationTeam, isPending: deleteOrganizationTeamLoading } =
+		useDeleteOrganizationTeamMutation();
 	const { deleteOrganizationTeamEmployee, deleteOrganizationEmployeeTeamLoading } = useOrganizationEmployeeTeams();
 	const { data: user } = useUserQuery();
 
 	const { isTeamManager } = useIsMemberManager(user);
-	const activeTeamManagers = useAtomValue(activeTeamManagersState);
+	const { managers: activeTeamManagers } = useActiveTeamManagers();
 
 	const handleDisposeTeam = useCallback(() => {
 		if (activeTeam) {

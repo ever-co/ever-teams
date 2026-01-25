@@ -44,8 +44,9 @@ import {
 	LazyKanbanSearch,
 	LazyInviteFormModal
 } from '@/core/components/optimized-components/kanban';
-import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
+import { isTrackingEnabledState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 
 const Kanban = () => {
 	// Get all required hooks and states
@@ -64,7 +65,7 @@ const Kanban = () => {
 
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
 	const fullWidth = useAtomValue(fullWidthState);

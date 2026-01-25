@@ -1,23 +1,25 @@
-import { useOrganizationTeams } from '@/core/hooks';
-import { activeTeamManagersState, activeTeamState } from '@/core/stores';
 import { BackButton, Button, Modal, Text } from '@/core/components';
-import { useCallback, useState } from 'react';
+import { useActiveTeamManagers } from '@/core/hooks/organizations/teams/use-active-team-managers';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
 import { useTranslations } from 'next-intl';
-import { useAtomValue } from 'jotai';
+import { useCallback, useState } from 'react';
 import { EverCard } from '../../common/ever-card';
 import { TransferTeamDropdown } from '../../teams/transfer-team/transfer-team-dropdown';
-import { IOrganizationTeamEmployee } from '@/core/types/interfaces/team/organization-team-employee';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useEditOrganizationTeamMutation } from '@/core/hooks/organizations/teams/use-edit-organization-team-mutation';
 
 /**
  * Transfer team modal
  */
 export function TransferTeamModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const t = useTranslations();
-	const activeTeamManagers = useAtomValue(activeTeamManagersState);
-	const { editOrganizationTeam, editOrganizationTeamLoading } = useOrganizationTeams();
+	const { managers: activeTeamManagers } = useActiveTeamManagers();
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const { mutateAsync: editOrganizationTeam, isPending: editOrganizationTeamLoading } =
+		useEditOrganizationTeamMutation();
+
+	const activeTeam = useCurrentTeam();
 	const { data: user } = useUserQuery();
 
 	const [selectedMember, setSelectedMember] = useState<IOrganizationTeamEmployee>();

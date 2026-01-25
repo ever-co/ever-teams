@@ -1,24 +1,26 @@
-import { useOrganizationTeams } from '@/core/hooks';
-import { Transition } from '@headlessui/react';
-import UserTeamCardSkeletonCard from '@/core/components/teams/user-team-card-skeleton';
+import { Container } from '@/core/components';
 import InviteUserTeamCardSkeleton from '@/core/components/teams/invite-team-card-skeleton';
 import { UserCard } from '@/core/components/teams/team-page-skeleton';
+import UserTeamCardSkeletonCard from '@/core/components/teams/user-team-card-skeleton';
 import { IssuesView } from '@/core/constants/config/constants';
-import { useAtomValue } from 'jotai';
-import { taskBlockFilterState, blockViewSearchQueryState } from '@/core/stores/tasks/task-filter';
-import { Container } from '@/core/components';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useFuseMemberSearch } from '@/core/hooks/teams/use-fuse-member-search';
+import { useFilteredTeamMembers, useProcessedTeamMembers } from '@/core/hooks/teams/use-processed-team-members';
+import { TeamMemberFilterType } from '@/core/lib/utils/team-members.utils';
 import { fullWidthState } from '@/core/stores/common/full-width';
-import { useMemo, memo } from 'react';
+import { blockViewSearchQueryState, taskBlockFilterState } from '@/core/stores/tasks/task-filter';
+import { TaskCardProps } from '@/core/types/interfaces/task/task-card';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { Transition } from '@headlessui/react';
+import { useAtomValue } from 'jotai';
+import { memo, useMemo } from 'react';
+import TeamMembersBlockView from './team-members-views/team-members-block-view';
 import TeamMembersCardView from './team-members-views/team-members-card-view';
 import TeamMembersTableView from './team-members-views/user-team-table/team-members-table-view';
-import TeamMembersBlockView from './team-members-views/team-members-block-view';
-import { TOrganizationTeamEmployee } from '@/core/types/schemas';
-import { TaskCardProps } from '@/core/types/interfaces/task/task-card';
-import { useProcessedTeamMembers, useFilteredTeamMembers } from '@/core/hooks/teams/use-processed-team-members';
-import { activeTeamState } from '@/core/stores';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { TeamMemberFilterType } from '@/core/lib/utils/team-members.utils';
-import { useFuseMemberSearch } from '@/core/hooks/teams/use-fuse-member-search';
+import {
+	useGetOrganizationTeamQuery,
+	useGetOrganizationTeamsQuery
+} from '@/core/hooks/organizations/teams/use-get-organization-teams-query';
 
 // Types for better performance and security
 
@@ -66,8 +68,10 @@ export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanV
 	const searchQuery = useAtomValue(blockViewSearchQueryState);
 	const fullWidth = useAtomValue(fullWidthState);
 
-	const activeTeam = useAtomValue(activeTeamState);
-	const { getOrganizationTeamsLoading: teamsFetching } = useOrganizationTeams();
+	const { data: activeTeamResult } = useGetOrganizationTeamQuery();
+	const activeTeam = useMemo(() => activeTeamResult?.data ?? null, [activeTeamResult]);
+
+	const { isPending: teamsFetching } = useGetOrganizationTeamsQuery();
 
 	// Use refactored hooks for member processing
 	const processedMembers = useProcessedTeamMembers(activeTeam, user!);

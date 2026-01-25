@@ -1,14 +1,17 @@
+'use client';
+
 import { queryKeys } from '@/core/query/keys';
 import { userService } from '@/core/services/client/api';
 import { useQuery } from '@tanstack/react-query';
 
 import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
-import { useCallback } from 'react';
+
 export const useUserQuery = () => {
-	const checkTokenExist = useCallback((): boolean => {
+	const checkTokenExist = (): boolean => {
 		const token = getAccessTokenCookie();
 		return typeof token === 'string' && token.length > 0;
-	}, [getAccessTokenCookie]);
+	};
+
 	return useQuery({
 		queryKey: queryKeys.users.me,
 		queryFn: async () => {

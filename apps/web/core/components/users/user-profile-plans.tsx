@@ -1,26 +1,30 @@
 'use client';
-import { useAtomValue } from 'jotai';
 import { AlertPopup, Container } from '@/core/components';
-import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
-import { useEffect, useMemo, useState } from 'react';
-import { useCanSeeActivityScreen, useDailyPlan, useTimer, useUserProfilePage } from '@/core/hooks';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
-import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
-import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
+import { Button } from '@/core/components/duplicated-components/_button';
 import {
 	DAILY_PLAN_SUGGESTION_MODAL_DATE,
 	HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL,
 	HAS_VISITED_OUTSTANDING_TASKS
 } from '@/core/constants/config/constants';
-import { TUser } from '@/core/types/schemas';
-import { activeTeamState } from '@/core/stores';
-import { fullWidthState } from '@/core/stores/common/full-width';
+import { useCanSeeActivityScreen, useDailyPlan, useTimer, useUserProfilePage } from '@/core/hooks';
+import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
+import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
+import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { clsxm } from '@/core/lib/utils';
-import { Button } from '@/core/components/duplicated-components/_button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
+import { fullWidthState } from '@/core/stores/common/full-width';
+import { TUser } from '@/core/types/schemas';
 import { ReloadIcon, StarIcon } from '@radix-ui/react-icons';
+import { useAtomValue } from 'jotai';
+import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
+import { useEffect, useMemo, useState } from 'react';
 
+import { AllPlans, EmptyPlans } from '@/core/components/daily-plan';
+import { IconsCalendarMonthOutline } from '@/core/components/icons';
+import moment from 'moment';
+import { usePathname } from 'next/navigation';
+import { VerticalSeparator } from '../duplicated-components/separator';
 import {
 	estimatedTotalTime,
 	getTotalTasks,
@@ -31,11 +35,7 @@ import {
 } from '../tasks/daily-plan';
 import { FutureTasks } from '../tasks/daily-plan/future-tasks';
 import ViewsHeaderTabs from '../tasks/daily-plan/views-header-tabs';
-import moment from 'moment';
-import { usePathname } from 'next/navigation';
-import { IconsCalendarMonthOutline } from '@/core/components/icons';
-import { VerticalSeparator } from '../duplicated-components/separator';
-import { AllPlans, EmptyPlans } from '@/core/components/daily-plan';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
@@ -88,7 +88,9 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 
 	const screenOutstanding = {
 		ALL: <OutstandingAll profile={profile} user={user} outstandingPlans={outstandingPlans} />,
-		DATE: <OutstandingFilterDate profile={profile} user={user} outstandingPlans={outstandingPlans} filterByEmployee/>
+		DATE: (
+			<OutstandingFilterDate profile={profile} user={user} outstandingPlans={outstandingPlans} filterByEmployee />
+		)
 	};
 	const tabsScreens = {
 		'Today Tasks': <AllPlans profile={profile} currentTab={currentTab} user={user} employeeId={targetEmployeeId} />,
@@ -102,7 +104,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	const haveSeenDailyPlanSuggestionModal = window?.localStorage.getItem(HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL);
 	const { hasPlan } = useTimer();
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 	const [popupOpen, setPopupOpen] = useState(false);
 	const canSeeActivity = useCanSeeActivityScreen();
@@ -160,7 +162,9 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 				outstandingPlans.map((plan) => {
 					const tasks = plan.tasks ?? [];
 					// Filter by user if user exists (privacy/security - same as OutstandingAll)
-					return user ? tasks.filter((task) => task.members?.some((member) => member.userId === user.id)) : tasks;
+					return user
+						? tasks.filter((task) => task.members?.some((member) => member.userId === user.id))
+						: tasks;
 				})
 			).totalTasks
 		};

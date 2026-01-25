@@ -6,10 +6,9 @@ import {
 	SelectTrigger,
 	SelectValue
 } from '@/core/components/common/select';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 import { useTranslations } from 'next-intl';
 import { useCallback, useState } from 'react';
-import { activeTeamState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
 
 interface IProps {
 	onChange: (value: string) => void;
@@ -29,7 +28,7 @@ interface IProps {
 export function MembersSelect(props: IProps) {
 	const { onChange } = props;
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const [selected, setSelected] = useState<string>('all');
 	const t = useTranslations();
 	const handleChange = useCallback(

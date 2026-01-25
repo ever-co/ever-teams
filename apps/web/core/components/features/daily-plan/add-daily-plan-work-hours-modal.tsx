@@ -1,14 +1,13 @@
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { useCallback, useMemo, useState } from 'react';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@/core/constants/config/constants';
 import { useDailyPlan, useTimerView } from '@/core/hooks';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { useTranslations } from 'next-intl';
+import { useCallback, useMemo, useState } from 'react';
 import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
-import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
-import { activeTeamState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
 
 interface IAddDailyPlanWorkHoursModalProps {
 	closeModal: () => void;
@@ -23,7 +22,7 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 	const { updateDailyPlan } = useDailyPlan();
 	const { startTimer } = useTimerView();
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const [workTimePlanned, setworkTimePlanned] = useState<number | undefined>(plan.workTimePlanned);
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);

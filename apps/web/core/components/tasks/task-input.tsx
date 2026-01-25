@@ -1,4 +1,7 @@
 'use client';
+import { Button, Divider, SpinnerLoader } from '@/core/components';
+import { LazyRender } from '@/core/components/common/lazy-render';
+import { ProjectDropDown } from '@/core/components/pages/task/details-section/blocks/task-secondary-info';
 import {
 	HostKeys,
 	RTuseTaskInput,
@@ -8,40 +11,32 @@ import {
 	useOutsideClick,
 	useTaskInput
 } from '@/core/hooks';
-import {
-	activeTeamState,
-	activeTeamTaskId,
-	issueTypesListState,
-	timerStatusState,
-	taskLabelsListState
-} from '@/core/stores';
+import { useInfinityScrolling } from '@/core/hooks/common/use-infinity-fetch';
+import { cn } from '@/core/lib/helpers';
 import { clsxm } from '@/core/lib/utils';
+import { activeTeamTaskId, issueTypesListState, taskLabelsListState, timerStatusState } from '@/core/stores';
+import { EIssueType, ETaskPriority, ETaskSize, ETaskStatusName } from '@/core/types/generics/enums/task';
+import { Nullable } from '@/core/types/generics/utils';
+import { IIssueType } from '@/core/types/interfaces/task/issue-type';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Combobox, Popover, PopoverPanel, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon, PlusIcon, UserGroupIcon } from '@heroicons/react/20/solid';
-import { Button, Divider, SpinnerLoader } from '@/core/components';
 import { CircleIcon, CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
-import { JSX, RefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { useTranslations } from 'next-intl';
+import { JSX, PropsWithChildren, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
+import { EverCard } from '../common/ever-card';
+import { InputField } from '../duplicated-components/_input';
+import { OutlineBadge } from '../duplicated-components/badge';
+import { Tooltip } from '../duplicated-components/tooltip';
+import { ObserverComponent } from './observer';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-items';
 import { TaskLabels } from './task-labels';
 import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown, ActiveTaskStatusDropdown } from './task-status';
-import { useTranslations } from 'next-intl';
-import { useInfinityScrolling } from '@/core/hooks/common/use-infinity-fetch';
-import { LazyRender } from '@/core/components/common/lazy-render';
-import { ProjectDropDown } from '@/core/components/pages/task/details-section/blocks/task-secondary-info';
-import { toast } from 'sonner';
-import { cn } from '@/core/lib/helpers';
-import { InputField } from '../duplicated-components/_input';
-import { Tooltip } from '../duplicated-components/tooltip';
-import { EverCard } from '../common/ever-card';
-import { OutlineBadge } from '../duplicated-components/badge';
-import { ObserverComponent } from './observer';
-import { Nullable } from '@/core/types/generics/utils';
-import { IIssueType } from '@/core/types/interfaces/task/issue-type';
-import { EIssueType, ETaskStatusName, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
-import { TOrganizationTeamEmployee } from '@/core/types/schemas';
-import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 
 type Props = {
 	task?: Nullable<TTask>;
@@ -495,7 +490,7 @@ function TaskCard({
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
 	const taskLabelsData = useAtomValue(taskLabelsListState);
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 
 	// Refs for dropdown elements to exclude from outside click detection
 	const statusDropdownRef = useRef<HTMLDivElement>(null);

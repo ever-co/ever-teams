@@ -1,36 +1,38 @@
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useLocalStorageState, useUserProfilePage } from '@/core/hooks';
-import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container } from '@/core/components';
-import { ArrowLeftIcon } from 'assets/svg';
+import { ProfileErrorBoundary } from '@/core/components/common/profile-error-boundary';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout';
+import { useLocalStorageState, useUserProfilePage } from '@/core/hooks';
+import { useProfileValidation } from '@/core/hooks/users/use-profile-validation';
+import { ArrowLeftIcon } from 'assets/svg';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import React, { Suspense, useCallback, useMemo } from 'react';
-import { useTranslations } from 'next-intl';
-import { useProfileValidation } from '@/core/hooks/users/use-profile-validation';
-import { ProfileErrorBoundary } from '@/core/components/common/profile-error-boundary';
 
-import { useAtomValue, useSetAtom } from 'jotai';
-import { fullWidthState } from '@/core/stores/common/full-width';
-import { activityTypeState } from '@/core/stores/timer/activity-type';
-import { cn } from '@/core/lib/helpers';
-import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
-import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
-import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { ProfilePageSkeleton } from '@/core/components/common/skeleton/profile-page-skeleton';
 import { TimerSkeleton } from '@/core/components/common/skeleton/timer-skeleton';
+import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
+import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import {
 	LazyAppsTab,
 	LazyScreenshootTab,
-	LazyUserProfileTask,
-	LazyUserProfileDetail,
-	LazyVisitedSitesTab,
+	LazyTaskFilter,
 	LazyTimer,
-	LazyTaskFilter
+	LazyUserProfileDetail,
+	LazyUserProfileTask,
+	LazyVisitedSitesTab
 } from '@/core/components/optimized-components';
-import { activeTeamManagersState, activeTeamState, isTrackingEnabledState } from '@/core/stores';
+import { useActiveTeamManagers } from '@/core/hooks/organizations/teams/use-active-team-managers';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
+import { cn } from '@/core/lib/helpers';
+import { isTrackingEnabledState } from '@/core/stores';
+import { fullWidthState } from '@/core/stores/common/full-width';
+import { activityTypeState } from '@/core/stores/timer/activity-type';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
@@ -44,11 +46,12 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const profileValidation = useProfileValidation(unwrappedParams.memberId);
 
 	// const { filteredTeams, userManagedTeams } = useOrganizationAndTeamManagers();
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const profileUser = profileValidation.member?.employee?.user ?? null;
 
 	const profile = useUserProfilePage();
-	const activeTeamManagers = useAtomValue(activeTeamManagersState);
+
+	const { managers: activeTeamManagers } = useActiveTeamManagers();
 
 	const fullWidth = useAtomValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useLocalStorageState<FilterTab>('activity-filter', 'Tasks');

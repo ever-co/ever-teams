@@ -1,19 +1,20 @@
-import { pad } from '@/core/lib/helpers/number';
-import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
-import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
-import { useTimer } from '@/core/hooks/activities/use-timer';
 import { ProgressBar } from '@/core/components/common/progress-bar';
-import { PauseIcon } from '@/core/components/svgs/pause-icon';
-import { PlayIcon } from '@/core/components/svgs/play-icon';
 import {
 	AddTasksEstimationHoursModal,
 	EnforcePlanedTaskModal,
 	SuggestDailyPlanModal
 } from '@/core/components/daily-plan';
+import { PauseIcon } from '@/core/components/svgs/pause-icon';
+import { PlayIcon } from '@/core/components/svgs/play-icon';
+import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
+import { useTimer } from '@/core/hooks/activities/use-timer';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
+import { pad } from '@/core/lib/helpers/number';
+import { activeTeamTaskState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
-import { useAtomValue } from 'jotai';
-import { activeTeamState, activeTeamTaskState } from '@/core/stores';
 
 const Timer = () => {
 	const t = useTranslations();
@@ -31,7 +32,7 @@ const Timer = () => {
 
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);

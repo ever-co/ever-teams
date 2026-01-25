@@ -1,15 +1,14 @@
+import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
+import { InvitedCard, InviteUserTeamCard } from '@/core/components/teams/invite/user-invite-card';
 import { useIsMemberManager, useModal, useOrganizationEmployeeTeams } from '@/core/hooks';
+import { useTeamMemberInvitation } from '@/core/hooks/organizations/teams/use-team-member-invitations';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { EInviteStatus } from '@/core/types/generics/enums/invite';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { Transition } from '@headlessui/react';
 import React, { memo, useCallback } from 'react';
 import { InviteUserTeamSkeleton, UserTeamCardSkeleton } from './team-members-header';
 import { UserTeamCard } from './user-team-card';
-import { TOrganizationTeamEmployee } from '@/core/types/schemas';
-import { InvitedCard, InviteUserTeamCard } from '@/core/components/teams/invite/user-invite-card';
-import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
-import { EInviteStatus } from '@/core/types/generics/enums/invite';
-import { useAtomValue } from 'jotai';
-import { getTeamInvitationsState } from '@/core/stores';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 interface Props {
 	teamMembers: TOrganizationTeamEmployee[];
@@ -24,7 +23,7 @@ const TeamMembersCardView: React.FC<Props> = memo(
 
 		const { isTeamManager } = useIsMemberManager(user);
 
-		const teamInvitations = useAtomValue(getTeamInvitationsState);
+		const teamInvitations = useTeamMemberInvitation();
 
 		const { updateOrganizationTeamEmployeeOrderOnList } = useOrganizationEmployeeTeams();
 

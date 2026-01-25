@@ -1,8 +1,3 @@
-import React, { useCallback, useMemo } from 'react';
-import { TranslationHooks, useTranslations } from 'next-intl';
-import { Item, ManageOrMemberComponent, getNestedValue } from '@/core/components/teams/manage-member-component';
-import { useTimelogFilterOptions } from '@/core/hooks';
-import { clsxm } from '@/core/lib/utils';
 import { Modal } from '@/core/components';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import {
@@ -13,16 +8,22 @@ import {
 	SelectTrigger,
 	SelectValue
 } from '@/core/components/common/select';
+import { Item, ManageOrMemberComponent, getNestedValue } from '@/core/components/teams/manage-member-component';
+import { useTimelogFilterOptions } from '@/core/hooks';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 import { toUTC } from '@/core/lib/helpers/index';
+import { clsxm } from '@/core/lib/utils';
+import { organizationProjectsState, tasksByTeamState } from '@/core/stores';
+import { ETimeLogSource, ETimeLogType } from '@/core/types/generics/enums/timer';
 import { PlusIcon, ReloadIcon } from '@radix-ui/react-icons';
+import { useAtomValue } from 'jotai';
+import { TranslationHooks, useTranslations } from 'next-intl';
+import React, { useCallback, useMemo } from 'react';
 import { CustomSelect } from '../../common/multiple-select';
+import { DatePickerFilter } from '../../pages/timesheet/timesheet-filter-date';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { ToggleButton } from '../tasks/edit-task-modal';
-import { DatePickerFilter } from '../../pages/timesheet/timesheet-filter-date';
-import { ETimeLogType, ETimeLogSource } from '@/core/types/generics/enums/timer';
-import { useAtomValue } from 'jotai';
-import { activeTeamState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;
@@ -54,7 +55,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 	const { generateTimeOptions } = useTimelogFilterOptions();
 	const organizationProjects = useAtomValue(organizationProjectsState);
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const { createTimesheet, loadingCreateTimesheet } = useTimesheet({});
 
 	const timeOptions = generateTimeOptions(5);

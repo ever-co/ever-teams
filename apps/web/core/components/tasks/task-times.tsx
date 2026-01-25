@@ -1,18 +1,17 @@
-import { secondsToTime } from '@/core/lib/helpers/index';
-import { I_TeamMemberCardHook } from '@/core/hooks';
-import { IClassName } from '@/core/types/interfaces/common/class-name';
-import { Nullable } from '@/core/types/generics/utils';
-import { IEmployee } from '@/core/types/interfaces/organization/employee';
-import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
+import { I_TeamMemberCardHook } from '@/core/hooks';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { secondsToTime } from '@/core/lib/helpers/index';
+import { clsxm } from '@/core/lib/utils';
+import { Nullable } from '@/core/types/generics/utils';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { Tooltip } from '../duplicated-components/tooltip';
-import { TOrganizationTeamEmployee } from '@/core/types/schemas';
-import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useAtomValue } from 'jotai';
-import { activeTeamState } from '@/core/stores';
-import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
 
 type Props = {
 	task: Nullable<TTask>;
@@ -27,7 +26,7 @@ type Props = {
 export function TaskTimes({ className, task, memberInfo, showDaily = true, showTotal = true, isBlock = false }: Props) {
 	// For public page
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const currentMember = useMemo(
 		() => activeTeam?.members?.find((member) => member.id === memberInfo?.member?.id || memberInfo?.id),
 		[activeTeam?.members, memberInfo?.id, memberInfo?.member?.id]
@@ -216,7 +215,7 @@ function TimeBlockInfo({
 export function TodayWorkedTime({ className, memberInfo }: Omit<Props, 'task' | 'activeAuthTask'>) {
 	// Get current timer seconds
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 
 	const t = useTranslations();
 

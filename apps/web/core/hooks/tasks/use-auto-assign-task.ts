@@ -1,11 +1,12 @@
 'use client';
 
+import { activeTeamTaskState, timerStatusState } from '@/core/stores';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, activeTeamTaskState, timerStatusState } from '@/core/stores';
 import { useCallback, useEffect } from 'react';
 import { useFirstLoad, useSyncRef } from '../common';
 import { useTeamTasks } from '../organizations';
-import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useCurrentTeam } from '../organizations/teams/use-current-team';
 import { useUserQuery } from '../queries/user-user.query';
 
 /**
@@ -13,7 +14,7 @@ import { useUserQuery } from '../queries/user-user.query';
  */
 export function useAutoAssignTask() {
 	const { firstLoad, firstLoadData } = useFirstLoad();
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 
 	const timerStatus = useAtomValue(timerStatusState);
 	const { data: authUser } = useUserQuery();

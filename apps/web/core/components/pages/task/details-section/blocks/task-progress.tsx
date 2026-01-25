@@ -1,23 +1,24 @@
-import { activeTeamState, detailedTaskState } from '@/core/stores';
-import { useAtom, useAtomValue } from 'jotai';
-import TaskRow from '../components/task-row';
+import { TaskProgressBar } from '@/core/components/tasks/task-progress-bar';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { secondsToTime } from '@/core/lib/helpers/index';
+import { detailedTaskState } from '@/core/stores';
+import { ITime } from '@/core/types/interfaces/common/time';
+import { TTaskStatistics } from '@/core/types/interfaces/task/task';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
+import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
+import { useAtom } from 'jotai';
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
-import { secondsToTime } from '@/core/lib/helpers/index';
-import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
-import { useTranslations } from 'next-intl';
-import { TaskProgressBar } from '@/core/components/tasks/task-progress-bar';
-import { TTaskStatistics } from '@/core/types/interfaces/task/task';
-import { ITime } from '@/core/types/interfaces/common/time';
-import { TOrganizationTeamEmployee } from '@/core/types/schemas';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import TaskRow from '../components/task-row';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 
 const TaskProgress = () => {
 	const [task] = useAtom(detailedTaskState);
 	const { data: user } = useUserQuery();
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const t = useTranslations();
 
 	const [userTotalTime, setUserTotalTime] = useState<ITime>({
@@ -184,7 +185,7 @@ export default TaskProgress;
 const IndividualMembersTotalTime = ({ numMembersToShow }: { numMembersToShow: number }) => {
 	const [task] = useAtom(detailedTaskState);
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 
 	const matchingMembers = activeTeam?.members?.filter((member) =>
 		task?.members?.some((taskMember) => taskMember.id === member.employeeId)

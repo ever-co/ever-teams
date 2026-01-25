@@ -1,17 +1,17 @@
-import { DraggableProvided } from '@hello-pangea/dnd';
+import CircularProgress from '@/core/components/svgs/circular-progress';
 import PriorityIcon from '@/core/components/svgs/priority-icon';
 import { useTaskStatistics, useTeamMemberCard, useTimerView } from '@/core/hooks';
-import { ImageOverlapperProps } from '../common/image-overlapper';
-import Link from 'next/link';
-import CircularProgress from '@/core/components/svgs/circular-progress';
 import { secondsToTime } from '@/core/lib/helpers/index';
-import { activeTeamState, activeTeamTaskId, activeTeamTaskState } from '@/core/stores';
-import { useAtom, useAtomValue } from 'jotai';
-import { HorizontalSeparator } from '../duplicated-components/separator';
-import { ITag } from '@/core/types/interfaces/tag/tag';
+import { activeTeamTaskId, activeTeamTaskState } from '@/core/stores';
 import { ETaskPriority } from '@/core/types/generics/enums/task';
-import { TTask } from '@/core/types/schemas/task/task.schema';
+import { ITag } from '@/core/types/interfaces/tag/tag';
 import { TTaskStatistics } from '@/core/types/interfaces/task/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { DraggableProvided } from '@hello-pangea/dnd';
+import { useAtom, useAtomValue } from 'jotai';
+import Link from 'next/link';
+import { ImageOverlapperProps } from '../common/image-overlapper';
+import { HorizontalSeparator } from '../duplicated-components/separator';
 
 import { LazyImageComponent, LazyMenuKanbanCard } from '@/core/components/optimized-components/kanban';
 import {
@@ -20,6 +20,7 @@ import {
 	LazyTaskIssueStatus
 } from '@/core/components/optimized-components/tasks';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 
 function getStyle(provided: DraggableProvided, style: any) {
 	if (!style) {
@@ -133,7 +134,7 @@ type ItemProps = {
  */
 export default function Item(props: ItemProps) {
 	const { item, isDragging, provided, style } = props;
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const { data: user } = useUserQuery();
 	const { getEstimation } = useTaskStatistics(0);
 	const [activeTask, setActiveTask] = useAtom(activeTeamTaskId);

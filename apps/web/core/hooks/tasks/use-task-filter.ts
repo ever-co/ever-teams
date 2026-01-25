@@ -1,16 +1,18 @@
-import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
-import { I_UserProfilePage } from '../users';
-import { useDailyPlan, useLocalStorageState, useOutsideClick } from '@/core/hooks';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { usePathname } from 'next/navigation';
-import { TTask } from '@/core/types/schemas/task/task.schema';
-import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/constants';
-import { estimatedTotalTime, getTotalTasks } from '@/core/components/tasks/daily-plan';
-import intersection from 'lodash/intersection';
 import { ITab } from '@/core/components/pages/profile/task-filters';
-import { timeLogsDailyReportState, activeTeamManagersState, activeTeamState } from '@/core/stores';
+import { estimatedTotalTime, getTotalTasks } from '@/core/components/tasks/daily-plan';
+import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/constants';
+import { useDailyPlan, useLocalStorageState, useOutsideClick } from '@/core/hooks';
+import { timeLogsDailyReportState } from '@/core/stores';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
+import intersection from 'lodash/intersection';
+import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
+import { usePathname } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useActiveTeamManagers } from '../organizations/teams/use-active-team-managers';
+import { useCurrentTeam } from '../organizations/teams/use-current-team';
 import { useUserQuery } from '../queries/user-user.query';
+import { I_UserProfilePage } from '../users';
 
 type IStatusType = 'status' | 'size' | 'priority' | 'label';
 type FilterType = 'status' | 'search' | undefined;
@@ -54,8 +56,8 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 	// 	[]
 	// );
 
-	const activeTeamManagers = useAtomValue(activeTeamManagersState);
-	const activeTeam = useAtomValue(activeTeamState);
+	const { managers: activeTeamManagers } = useActiveTeamManagers();
+	const activeTeam = useCurrentTeam();
 
 	const { data: user } = useUserQuery();
 

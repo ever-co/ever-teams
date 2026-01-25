@@ -1,14 +1,15 @@
+import { estimatedTotalTime } from '@/core/components/tasks/daily-plan';
+import {
+	DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE,
+	DAILY_PLAN_SUGGESTION_MODAL_DATE,
+	TASKS_ESTIMATE_HOURS_MODAL_DATE
+} from '@/core/constants/config/constants';
+import { activeTeamTaskState, timerStatusState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 import { useCallback, useMemo } from 'react';
 import { useModal } from '../common/use-modal';
-import {
-	DAILY_PLAN_SUGGESTION_MODAL_DATE,
-	TASKS_ESTIMATE_HOURS_MODAL_DATE,
-	DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE
-} from '@/core/constants/config/constants';
-import { estimatedTotalTime } from '@/core/components/tasks/daily-plan';
 import { useTimer } from './use-timer';
-import { useAtomValue } from 'jotai';
-import { activeTeamState, activeTeamTaskState, timerStatusState } from '@/core/stores';
+import { useCurrentTeam } from '../organizations/teams/use-current-team';
 
 export function useStartStopTimerHandler() {
 	const {
@@ -39,7 +40,7 @@ export function useStartStopTimerHandler() {
 	const { timerStatusFetching, startTimer, stopTimer, hasPlan, canRunTimer } = useTimer();
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 

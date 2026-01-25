@@ -1,19 +1,20 @@
-import { TTaskStatistics } from '@/core/types/interfaces/task/task';
-import { TaskInput } from './task-input';
-import { useAtom, useAtomValue } from 'jotai';
-import { activeTeamState, activeTeamTaskId, activeTeamTaskState, timerStatusState } from '@/core/stores';
-import Link from 'next/link';
-import { useTaskStatistics, useTeamMemberCard } from '@/core/hooks';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
-import { TaskIssueStatus } from './task-issue';
-import { Priority, setCommentIconColor } from '@/core/components/tasks/kanban-card';
 import CircularProgress from '@/core/components/svgs/circular-progress';
+import { Priority, setCommentIconColor } from '@/core/components/tasks/kanban-card';
+import { useTaskStatistics, useTeamMemberCard } from '@/core/hooks';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { secondsToTime } from '@/core/lib/helpers/index';
+import { activeTeamTaskId, activeTeamTaskState, timerStatusState } from '@/core/stores';
+import { TTaskStatistics } from '@/core/types/interfaces/task/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useAtom, useAtomValue } from 'jotai';
+import Link from 'next/link';
 import React from 'react';
 import { HorizontalSeparator } from '../duplicated-components/separator';
-import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { LazyMenuKanbanCard, LazyTaskAllStatusTypes } from '../optimized-components';
+import { TaskInput } from './task-input';
+import { TaskIssueStatus } from './task-issue';
 
 interface TaskItemProps {
 	task: TTask;
@@ -22,7 +23,7 @@ interface TaskItemProps {
 export default function TaskBlockCard(props: TaskItemProps) {
 	const { task } = props;
 	const [activeTask, setActiveTask] = useAtom(activeTeamTaskId);
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const timerStatus = useAtomValue(timerStatusState);
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);

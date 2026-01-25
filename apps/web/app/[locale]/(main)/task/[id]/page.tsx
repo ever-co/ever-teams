@@ -19,7 +19,8 @@ import Link from 'next/link';
 
 // Import optimized components from centralized location
 import { LazyTaskDetailsComponent } from '@/core/components/optimized-components';
-import { activeTeamState, detailedTaskState, isTrackingEnabledState } from '@/core/stores';
+import { detailedTaskState, isTrackingEnabledState } from '@/core/stores';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 
 const TaskDetails = () => {
 	const profile = useUserProfilePage();
@@ -27,7 +28,7 @@ const TaskDetails = () => {
 	const router = useRouter();
 	const params = useParams();
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const detailedTask = useAtomValue(detailedTaskState);
 	const { getTaskById, getTasksByIdLoading } = useTeamTasks();

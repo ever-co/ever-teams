@@ -1,20 +1,21 @@
 'use client';
-import { issueTypesListState, activeTeamIdState, activeTeamState } from '@/core/stores';
-import { useCallback, useMemo } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useFirstLoad } from '../common/use-first-load';
-import { issueTypeService } from '@/core/services/client/api/tasks/issue-type.service';
-import { IIssueTypesCreate } from '@/core/types/interfaces/task/issue-type';
 import { queryKeys } from '@/core/query/keys';
+import { issueTypeService } from '@/core/services/client/api/tasks/issue-type.service';
+import { activeTeamIdState, issueTypesListState } from '@/core/stores';
+import { IIssueTypesCreate } from '@/core/types/interfaces/task/issue-type';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAtom, useAtomValue } from 'jotai';
+import { useCallback, useMemo } from 'react';
 import { useConditionalUpdateEffect } from '../common';
+import { useFirstLoad } from '../common/use-first-load';
+import { useCurrentTeam } from '../organizations/teams/use-current-team';
 import { useUserQuery } from '../queries/user-user.query';
 
 export function useIssueType() {
 	const activeTeamId = useAtomValue(activeTeamIdState);
 	const { data: authUser } = useUserQuery();
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const queryClient = useQueryClient();
 
 	const [issueTypes, setIssueTypes] = useAtom(issueTypesListState);

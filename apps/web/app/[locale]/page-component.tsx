@@ -1,54 +1,55 @@
 'use client';
 import React, { Suspense, useEffect } from 'react';
 
-import { useDailyPlan, useIsMemberManager, useTeamInvitations } from '@/core/hooks';
-import { clsxm } from '@/core/lib/utils';
-import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container } from '@/core/components';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { IssuesView, LAST_SELECTED_TEAM_MEMBERS_VIEW_MODE } from '@/core/constants/config/constants';
+import { useDailyPlan, useIsMemberManager, useTeamInvitations } from '@/core/hooks';
+import { clsxm } from '@/core/lib/utils';
 import { useTranslations } from 'next-intl';
 
 import { Analytics } from '@vercel/analytics/react';
 
-import 'react-loading-skeleton/dist/skeleton.css';
 import '@/styles/globals.css';
+import 'react-loading-skeleton/dist/skeleton.css';
 
-import { useAtom, useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import HeaderTabs from '@/core/components/common/header-tabs';
+import { fullWidthState } from '@/core/stores/common/full-width';
 import { headerTabs } from '@/core/stores/common/header-tabs';
-import { usePathname } from 'next/navigation';
 import { PeoplesIcon } from 'assets/svg';
+import { useAtom, useAtomValue } from 'jotai';
+import { usePathname } from 'next/navigation';
 // TeamMemberHeader and NoTeam now lazy-loaded below
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 
 // Import skeleton components
-import TeamMembersSkeleton from '@/core/components/common/skeleton/team-members-skeleton';
+import { NoTeamSkeleton } from '@/core/components/common/skeleton/no-team-skeleton';
+import { TaskTimerSectionSkeleton } from '@/core/components/common/skeleton/task-timer-section-skeleton';
 import TeamInvitationsSkeleton from '@/core/components/common/skeleton/team-invitations-skeleton';
+import { TeamMemberHeaderSkeleton } from '@/core/components/common/skeleton/team-member-header-skeleton';
+import TeamMembersSkeleton from '@/core/components/common/skeleton/team-members-skeleton';
 import TeamNotificationsSkeleton from '@/core/components/common/skeleton/team-notifications-skeleton';
 import UnverifiedEmailSkeleton from '@/core/components/common/skeleton/unverified-email-skeleton';
-import { TaskTimerSectionSkeleton } from '@/core/components/common/skeleton/task-timer-section-skeleton';
 import { TaskTimerSection } from '@/core/components/pages/dashboard/task-timer-section';
-import { TeamMemberHeaderSkeleton } from '@/core/components/common/skeleton/team-member-header-skeleton';
-import { NoTeamSkeleton } from '@/core/components/common/skeleton/no-team-skeleton';
 // Import optimized components from centralized location
+import { LazyChatwootWidget, LazyNoTeam, LazyUnverifiedEmail } from '@/core/components/optimized-components/common';
 import {
-	LazyTeamOutstandingNotifications,
-	LazyTeamMembers,
 	LazyTeamInvitations,
-	LazyTeamMemberHeader
+	LazyTeamMemberHeader,
+	LazyTeamMembers,
+	LazyTeamOutstandingNotifications
 } from '@/core/components/optimized-components/teams';
-import { LazyChatwootWidget, LazyUnverifiedEmail, LazyNoTeam } from '@/core/components/optimized-components/common';
-import { activeTeamState, isTeamMemberState, isTrackingEnabledState, myInvitationsState } from '@/core/stores';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { isTeamMemberState, isTrackingEnabledState, myInvitationsState } from '@/core/stores';
 
 function MainPage() {
 	const t = useTranslations();
 
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 
 	const isTeamMember = useAtomValue(isTeamMemberState);
 
@@ -75,7 +76,8 @@ function MainPage() {
 		}
 		const lastTeamMembersViewMode = localStorage?.getItem(LAST_SELECTED_TEAM_MEMBERS_VIEW_MODE);
 		if (lastTeamMembersViewMode && path == '/') {
-			if (Object.values(IssuesView).includes(lastTeamMembersViewMode as IssuesView) &&
+			if (
+				Object.values(IssuesView).includes(lastTeamMembersViewMode as IssuesView) &&
 				lastTeamMembersViewMode != IssuesView.KANBAN
 			) {
 				setView(lastTeamMembersViewMode as IssuesView);

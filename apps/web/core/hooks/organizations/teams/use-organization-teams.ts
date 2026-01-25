@@ -1,14 +1,10 @@
 'use client';
-import {
-	getActiveTeamIdCookie,
-	setActiveProjectIdCookie,
-} from '@/core/lib/helpers/cookies';
+import { setActiveProjectIdCookie } from '@/core/lib/helpers/cookies';
 
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
 import {
 	activeTeamIdState,
-	activeTeamManagersState,
-	activeTeamState,
 	isTeamManagerState,
 	isTeamMemberJustDeletedState,
 	isTeamMemberState,
@@ -16,25 +12,28 @@ import {
 	organizationTeamsState,
 	timerStatusState
 } from '@/core/stores';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
-import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
-import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
-import { useFirstLoad, useSyncRef } from '../../common';
-import { useAuthenticateUser } from '../../auth';
-import { TOrganizationTeamUpdate } from '@/core/types/schemas';
-import { ZodValidationError } from '@/core/types/schemas/utils/validation';
-import { useTeamsState } from './use-teams-state';
-import { mergePreservingOrder } from '@/core/lib/utils/team-members.utils';
+import { useCallback, useEffect, useMemo } from 'react';
+import { useFirstLoad } from '../../common';
+import { useActiveTeamManagers } from './use-active-team-managers';
 import { useCreateOrganizationTeam } from './use-create-organization-team';
+import { useCurrentTeam } from './use-current-team';
+import { useTeamsState } from './use-teams-state';
 import { useUpdateOrganizationTeam } from './use-update-organization-team';
-import { queryKeys } from '@/core/query/keys';
-import { toast } from 'sonner';
+import { useOrganisationTeams } from './use-organisation-teams';
+import { useEditOrganizationTeamMutation } from './use-edit-organization-team-mutation';
+import { useGetOrganizationTeamQuery, useGetOrganizationTeamsQuery } from './use-get-organization-teams-query';
+import { useLoadTeamsData } from './use-load-teams-data';
+import { useDeleteOrganizationTeamMutation } from './use-delete-organization-team-mutation';
+import { useRemoveUserFromAllTeamMutation } from './use-remove-user-from-all-team-mutation';
+import { useSetActiveTeam } from './use-set-active-team';
 
 /**
  * A powerful hook for managing organization teams with complete CRUD operations and state management.
  * This hook centralizes all team-related operations and states in one place.
+ *
+ * Keep for backward compatibility
+ * @deprecated this monolithic hook has been splitted into small hooks `useEditOrganizationTeamMutation()`, `useGetOrganizationTeamsQuery()`, `useGetOrganizationTeamQuery()`, `useGetOrganizationTeamById()`, `useDeleteOrganizationTeamMutation()`, `useLoadTeamsData()`, `useSetActiveTeam()`, `useCurrentTeam()`, `useOrganisationTeams()`, `useRemoveUserFromAllTeamMutation()`,
  *
  * @returns {Object} An object containing the following properties and methods:
  *
@@ -151,68 +150,24 @@ import { toast } from 'sonner';
  * await updateOrganizationTeam(activeTeam, { name: "Updated Name" });
  * ```
  */
-
 export function useOrganizationTeams() {
-	const queryClient = useQueryClient();
-	const [teams, setTeams] = useAtom(organizationTeamsState);
-	const teamsRef = useSyncRef(teams);
+	const [, setTeams] = useAtom(organizationTeamsState);
+	const { teams } = useOrganisationTeams();
 
 	const { setTeamsUpdate } = useTeamsState();
-	const activeTeam = useAtomValue(activeTeamState);
-	const { logOut } = useAuthenticateUser();
+	const activeTeam = useCurrentTeam();
 
-	const deleteOrganizationTeamTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-	const clearDeleteTimeout = useCallback(() => {
-		if (deleteOrganizationTeamTimeoutRef.current) {
-			clearTimeout(deleteOrganizationTeamTimeoutRef.current);
-			deleteOrganizationTeamTimeoutRef.current = null;
-		}
-	}, []);
-	const activeTeamManagers = useAtomValue(activeTeamManagersState);
+	const { managers: activeTeamManagers } = useActiveTeamManagers();
 
 	// ===== React Query mutations for complex operations =====
 	// editOrganizationTeam - React Query implementation
-	const editOrganizationTeamMutation = useMutation({
-		mutationFn: (data: Partial<TOrganizationTeamUpdate>) => {
-			return organizationTeamService.editOrganizationTeam(data);
-		},
-		mutationKey: queryKeys.organizationTeams.mutations.edit(null),
-		onSuccess: (response) => {
-			// Preserve backward compatibility - exact same behavior
-			setTeamsUpdate(response.data);
+	const editOrganizationTeamMutation = useEditOrganizationTeamMutation();
 
-			// Invalidate queries for cache consistency
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.organizationTeams.all
-			});
-		},
-		onError: (error) => {
-			// Enhanced error handling
-			if (error instanceof ZodValidationError) {
-				toast.error('Edit team validation failed:', {
-					description: JSON.stringify({
-						message: error.message,
-						issues: error.issues
-					})
-				});
-				console.error('Edit team validation failed:', {
-					message: error.message,
-					issues: error.issues
-				});
-				return;
-			}
-			toast.error('Edit team validation failed');
-			// Original error will be thrown and handled by calling code
-		}
-	});
-
-	const [activeTeamId, setActiveTeamId] = useAtom(activeTeamIdState);
+	const [activeTeamId] = useAtom(activeTeamIdState);
 	const [isTeamMemberJustDeleted, setIsTeamMemberJustDeleted] = useAtom(isTeamMemberJustDeletedState);
 	const { firstLoadData: firstLoadTeamsData } = useFirstLoad();
-	const [isTeamMember, setIsTeamMember] = useAtom(isTeamMemberState);
+	const [isTeamMember] = useAtom(isTeamMemberState);
 	const { data: user } = useUserQuery();
-	const { refreshUserData, refreshToken } = useAuthenticateUser();
 	const timerStatus = useAtomValue(timerStatusState);
 	const setIsTrackingEnabledState = useSetAtom(isTrackingEnabledState);
 
@@ -233,164 +188,18 @@ export function useOrganizationTeams() {
 	// ===== REACT QUERY - GET OPERATIONS (Phase 1) =====
 
 	// Query for organization teams list
-	const organizationTeamsQuery = useQuery({
-		queryKey: queryKeys.organizationTeams.all,
-		queryFn: async () => {
-			return await organizationTeamService.getOrganizationTeams();
-		},
-		enabled: !!(user?.employee?.organizationId && user?.employee?.tenantId),
-		staleTime: 1000 * 60 * 10, // PERFORMANCE FIX: Increased to 10 minutes to reduce refetching
-		gcTime: 1000 * 60 * 30, // PERFORMANCE FIX: Increased to 30 minutes
-		refetchOnWindowFocus: false, // PERFORMANCE FIX: Disable aggressive refetching
-		refetchOnReconnect: false // PERFORMANCE FIX: Disable aggressive refetching
-	});
+	const organizationTeamsQuery = useGetOrganizationTeamsQuery();
 
 	// Query for specific team details
-	const organizationTeamQuery = useQuery({
-		queryKey: queryKeys.organizationTeams.detail(activeTeamId),
-		queryFn: async () => {
-			if (!activeTeamId) {
-				throw new Error('Team ID is required');
-			}
-			return await organizationTeamService.getOrganizationTeam(activeTeamId);
-		},
-		enabled: !!(activeTeamId && user?.employee?.organizationId && user?.employee?.tenantId),
-		staleTime: 1000 * 60 * 10, // PERFORMANCE FIX: Increased to 10 minutes
-		gcTime: 1000 * 60 * 30, // PERFORMANCE FIX: Increased to 30 minutes
-		refetchOnWindowFocus: false, // PERFORMANCE FIX: Disable aggressive refetching
-		refetchOnReconnect: false // PERFORMANCE FIX: Disable aggressive refetching
-	});
+	const organizationTeamQuery = useGetOrganizationTeamQuery();
 
 	// ===== SYNCHRONIZATION WITH JOTAI (Backward Compatibility) =====
-
-	// Sync organization teams data with Jotai state
-	// Use a ref to track the last processed signature to avoid infinite loops
-	const lastProcessedTeamsSignatureRef = useRef<string>('');
-
-	useEffect(() => {
-		if (organizationTeamsQuery.data?.data?.items) {
-			const latestTeams = organizationTeamsQuery.data.data.items;
-
-			// CRITICAL FIX: Create a signature based on ALL mutable fields
-			// This ensures we detect changes in team properties even when members are undefined
-			// Includes: id, updatedAt, name, settings (shareProfileView, requirePlanToTrack, public),
-			// visual properties (color, emoji, prefix), members count, AND member roles
-			// NOTE: Including member roles is essential to detect when roles are loaded/changed
-			const latestSignature = latestTeams
-				.map((t) => {
-					// Include member role information to detect role changes
-					const memberRolesSignature = t.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}`).join(',') || '';
-					return `${t.id}:${t.updatedAt ?? ''}:${t.name}:${t.shareProfileView ?? ''}:${t.requirePlanToTrack ?? ''}:${t.public ?? ''}:${t.color ?? ''}:${t.emoji ?? ''}:${t.prefix ?? ''}:${t.members?.length ?? 0}:${memberRolesSignature}`;
-				})
-				.sort()
-				.join('|');
-
-			// Check if data has actually changed
-			if (latestSignature === lastProcessedTeamsSignatureRef.current) {
-				// Data hasn't actually changed, skip update
-				return;
-			}
-
-			// Update the ref to track this signature
-			lastProcessedTeamsSignatureRef.current = latestSignature;
-
-			const currentTeams = teamsRef.current;
-
-			// CRITICAL FIX: Merge teams intelligently to preserve members
-			const mergedTeams = latestTeams.map((latestTeam) => {
-				const existingTeam = currentTeams.find((t) => t.id === latestTeam.id);
-
-				if (!existingTeam) {
-					// New team, use as-is
-					return latestTeam;
-				}
-
-				// Merge strategy: preserve members if new data has incomplete members
-				// This prevents data loss during polling/refetching when API returns partial data
-				// FIX: Also protect against race conditions where API returns empty array
-				// while existing data has valid members (likely a partial/stale response)
-				const existingHasMembers = existingTeam.members && existingTeam.members.length > 0;
-				const newHasMembers = Array.isArray(latestTeam.members) && latestTeam.members.length > 0;
-
-				// Preserve members if:
-				// 1. new members is undefined/null (incomplete data), OR
-				// 2. new members is empty BUT existing has members (race condition protection)
-				// NOTE: This may keep stale members if a team legitimately has 0 members,
-				// but this is an acceptable trade-off since teams always have at least a creator
-				const shouldPreserveMembers =
-					!Array.isArray(latestTeam.members) ||
-					(latestTeam.members.length === 0 && existingHasMembers);
-
-				// Determine final members to use
-				let finalMembers = existingTeam.members ?? [];
-				if (!shouldPreserveMembers && newHasMembers && latestTeam.members) {
-					// NOTE: Merge preserving order to prevent visual glitches during role changes
-					// This ensures members stay in their positions while their data is updated
-					finalMembers = mergePreservingOrder(existingTeam.members ?? [], latestTeam.members);
-				}
-
-				return {
-					...existingTeam,
-					...latestTeam,
-					members: finalMembers
-				};
-			});
-
-
-			setTeams(mergedTeams);
-
-			// Handle case where user might be removed from all teams
-			if (latestTeams.length === 0) {
-				setIsTeamMember(false);
-				setIsTeamMemberJustDeleted(true);
-			}
-		}
-		// NOTE: Do NOT include organizationTeamsQuery.data in dependencies
-		// It causes infinite loops because React Query returns new references
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [organizationTeamsQuery.dataUpdatedAt, setTeams, setIsTeamMember, setIsTeamMemberJustDeleted]);
-
-	// Sync specific team data with Jotai state
-	// Use a ref to track the last processed team signature to avoid infinite loops
-	const lastProcessedTeamSignatureRef = useRef<string>('');
-
-	useEffect(() => {
-		if (organizationTeamQuery.data?.data) {
-			const newTeam = organizationTeamQuery.data.data;
-
-			// NOTE_FIX: Create a signature based on essential data only
-			// Include activeTaskId of all members to detect when a member's active task changes
-			// This ensures TaskInfo updates in real-time when timer starts/stops
-			// FIX: Also include member roles to detect when roles are loaded/changed
-			// This prevents the bug where members disappear until roles are fully loaded
-			const memberActiveTaskIds = newTeam.members?.map((m) => m.activeTaskId || 'null').join(',') || '';
-			const memberRoles = newTeam.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}`).join(',') || '';
-			const newSignature = `${newTeam.id}:${newTeam.updatedAt ?? ''}:${newTeam.members?.length ?? 0}:${memberActiveTaskIds}:${memberRoles}`;
-
-			// Check if data has actually changed
-			if (newSignature === lastProcessedTeamSignatureRef.current) {
-				// Data hasn't actually changed, skip update
-				return;
-			}
-
-			// Update the ref to track this signature
-			lastProcessedTeamSignatureRef.current = newSignature;
-
-
-			setTeamsUpdate(newTeam);
-
-			// Set Project Id to cookie
-			if (newTeam && newTeam.projects && newTeam.projects.length) {
-				setActiveProjectIdCookie(newTeam.projects[0].id);
-			}
-		}
-		// NOTE: Do NOT include organizationTeamQuery.data in dependencies
-		// It causes infinite loops because React Query returns new references
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [organizationTeamQuery.dataUpdatedAt, setTeamsUpdate, activeTeam]);
+	// NOTE: SYNCHRONIZATION is done in useGetOrganizationTeamsQuery
+	// NOTE: SYNCHRONIZATION is done in useGetOrganizationTeamQuery
 
 	// ===== LEGACY HOOKS FOR MUTATIONS & CREATION (Phase 2 & 3) =====
-	const { createOrganizationTeam, loading: createOTeamLoading, setActiveTeam } = useCreateOrganizationTeam();
+	const { createOrganizationTeam, loading: createOTeamLoading } = useCreateOrganizationTeam();
+	const setActiveTeam = useSetActiveTeam();
 	const { updateOrganizationTeam, loading: updateOTeamLoading } = useUpdateOrganizationTeam();
 
 	const isManager = useCallback(() => {
@@ -404,164 +213,13 @@ export function useOrganizationTeams() {
 
 	// ===== BACKWARD COMPATIBLE FUNCTIONS =====
 
-	const loadTeamsData = useCallback(async () => {
-		if (!user?.employee?.organizationId || !user?.employee?.tenantId) {
-			return;
-		}
-
-		// TEAM SELECTION PRIORITY LOGIC
-		// 1. Try cookie first (current session)
-		let teamId = getActiveTeamIdCookie();
-
-		// 2. Fallback to localStorage (user's last selected team)
-		if (!teamId && typeof window !== 'undefined') {
-			teamId = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) || '';
-		}
-
-		// 3. Fallback to user's last team from server
-		if (!teamId && user?.lastTeamId) {
-			teamId = user.lastTeamId;
-		}
-
-		setActiveTeamId(teamId);
-
-		try {
-			// Trigger React Query refetch for teams
-			const teamsResult = await queryClient.fetchQuery({
-				queryKey: queryKeys.organizationTeams.all,
-				queryFn: async () => {
-					return await organizationTeamService.getOrganizationTeams();
-				}
-			});
-
-			const latestTeams = teamsResult.data?.items || [];
-
-			if (latestTeams.length === 0) {
-				setIsTeamMember(false);
-				setIsTeamMemberJustDeleted(true);
-			}
-
-			// Handle case where user might be removed from selected team
-			const selectedTeamExists = latestTeams.find((team: any) => team.id === teamId);
-
-			if (!selectedTeamExists && teamId && latestTeams.length) {
-				setIsTeamMemberJustDeleted(true);
-				// Only fallback to first team if the selected team truly doesn't exist
-				setActiveTeam(latestTeams[0]);
-			} else if (!latestTeams.length) {
-				teamId = '';
-			}
-
-			// Fetch specific team details if teamId exists
-			if (teamId) {
-				await queryClient.fetchQuery({
-					queryKey: queryKeys.organizationTeams.detail(teamId),
-					queryFn: async () => {
-						return await organizationTeamService.getOrganizationTeam(teamId);
-					}
-				});
-			}
-
-			return teamsResult;
-		} catch (error) {
-			console.error('Error loading teams data:', error);
-			throw error;
-		}
-	}, [
-		queryClient,
-		user?.employee?.organizationId,
-		user?.employee?.tenantId,
-		setActiveTeamId,
-		setIsTeamMember,
-		setIsTeamMemberJustDeleted,
-		setActiveTeam
-	]);
+	const loadTeamsData = useLoadTeamsData();
 
 	// deleteOrganizationTeam - React Query implementation (after loadTeamsData definition)
-	const deleteOrganizationTeamMutation = useMutation({
-		mutationFn: (id: string) => {
-			return organizationTeamService.deleteOrganizationTeam(id);
-		},
-		mutationKey: queryKeys.organizationTeams.mutations.delete(null),
-		onSuccess: async (response) => {
-			// Preserve critical side-effect - loadTeamsData() for complete refetch
-			toast.success('Team deleted successfully', {
-				description: `Team "${response.data.name}" has been deleted. You will be logged out of the application to choose a new workspace.`
-			});
-
-			// Clear previous timeout if any
-			clearDeleteTimeout();
-
-			// Set a new timeout
-			deleteOrganizationTeamTimeoutRef.current = setTimeout(() => {
-				logOut();
-
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.organizationTeams.all
-				});
-
-				// Clear ref after execution
-				deleteOrganizationTeamTimeoutRef.current = null;
-			}, 3000);
-		},
-		onError: (error) => {
-			// Enhanced error handling
-			if (error instanceof ZodValidationError) {
-				toast.error('Delete team validation failed', {
-					description: JSON.stringify({
-						message: error.message,
-						issues: error.issues
-					})
-				});
-				console.error('Delete team validation failed:', {
-					message: error.message,
-					issues: error.issues
-				});
-				return;
-			}
-			toast.error('Delete team validation failed');
-			// Original error will be thrown and handled by calling code
-		}
-	});
+	const deleteOrganizationTeamMutation = useDeleteOrganizationTeamMutation();
 
 	// removeUserFromAllTeam - React Query implementation (most complex with auth side-effects)
-	const removeUserFromAllTeamMutation = useMutation({
-		mutationFn: (userId: string) => {
-			return organizationTeamService.removeUserFromAllTeams(userId);
-		},
-		mutationKey: queryKeys.organizationTeams.mutations.removeUser(null),
-		onSuccess: async (response) => {
-			// Service returns simple DeleteResponse, no complex validation needed
-			// Just ensure response exists
-
-			// Preserve ALL critical side-effects in exact order
-			// 1. First: Reload teams data
-			await loadTeamsData();
-
-			// 2. Then: Critical auth refresh sequence
-			try {
-				await refreshToken();
-				// 3. Finally: Update user data from API
-				refreshUserData();
-			} catch (error) {
-				toast.error('Failed to refresh token after removing user from team');
-				console.error('Failed to refresh token after removing user from team:', error);
-			}
-
-			// Invalidate queries for cache consistency
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.organizationTeams.all
-			});
-		},
-		onError: (error) => {
-			// Enhanced error handling
-			toast.error('Remove user from all teams failed', {
-				description: error.message
-			});
-			console.error('Remove user from all teams failed:', error);
-			// Original error will be thrown and handled by calling code
-		}
-	});
+	const removeUserFromAllTeamMutation = useRemoveUserFromAllTeamMutation();
 
 	// /**
 	//  * Get active team profile from api
@@ -582,33 +240,6 @@ export function useOrganizationTeams() {
 	// 	user?.employee?.tenantId
 	// ]);
 
-	// editOrganizationTeam - React Query implementation
-	const editOrganizationTeam = useCallback(
-		(data: Partial<TOrganizationTeamUpdate>) => {
-			// Use React Query mutation with Promise interface preserved
-			return editOrganizationTeamMutation.mutateAsync(data);
-		},
-		[editOrganizationTeamMutation]
-	);
-
-	// deleteOrganizationTeam - React Query implementation
-	const deleteOrganizationTeam = useCallback(
-		(id: string) => {
-			// Use React Query mutation with Promise interface preserved
-			return deleteOrganizationTeamMutation.mutateAsync(id);
-		},
-		[deleteOrganizationTeamMutation]
-	);
-
-	// removeUserFromAllTeam - React Query implementation (most complex)
-	const removeUserFromAllTeam = useCallback(
-		(userId: string) => {
-			// Use React Query mutation with Promise interface preserved
-			return removeUserFromAllTeamMutation.mutateAsync(userId);
-		},
-		[removeUserFromAllTeamMutation]
-	);
-
 	useEffect(() => {
 		if (activeTeam?.projects && activeTeam?.projects?.length) {
 			setActiveProjectIdCookie(activeTeam?.projects[0]?.id);
@@ -616,11 +247,7 @@ export function useOrganizationTeams() {
 		setIsTrackingEnabledState(isTrackingEnabled);
 		isManager();
 	}, [activeTeam]);
-	useEffect(() => {
-		return () => {
-			clearDeleteTimeout();
-		};
-	}, [clearDeleteTimeout]);
+
 	const handleFirstLoad = useCallback(async () => {
 		await loadTeamsData();
 
@@ -647,9 +274,7 @@ export function useOrganizationTeams() {
 		createOrganizationTeam,
 		createOTeamLoading,
 		firstLoadTeamsData: handleFirstLoad,
-		editOrganizationTeam,
 		editOrganizationTeamLoading: editOrganizationTeamMutation.isPending, // React Query loading state
-		deleteOrganizationTeam,
 		deleteOrganizationTeamLoading: deleteOrganizationTeamMutation.isPending, // React Query loading state
 		activeTeamManagers,
 		updateOrganizationTeam,
@@ -658,7 +283,6 @@ export function useOrganizationTeams() {
 		isTeamMember,
 		isTeamManager,
 		removeUserFromAllTeamLoading: removeUserFromAllTeamMutation.isPending, // React Query loading state
-		removeUserFromAllTeam,
 		loadingTeam: organizationTeamQuery.isLoading, // React Query loading state
 		isTrackingEnabled,
 		memberActiveTaskId,

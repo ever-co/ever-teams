@@ -1,10 +1,11 @@
 'use client';
-import { organizationTeamsState } from '@/core/stores';
-import { useCallback } from 'react';
-import { useAtom } from 'jotai';
-import { useSyncRef } from '../../common';
-import { TOrganizationTeam } from '@/core/types/schemas';
 import { mergePreservingOrder } from '@/core/lib/utils/team-members.utils';
+import { organizationTeamsState } from '@/core/stores';
+import { TOrganizationTeam } from '@/core/types/schemas';
+import { useAtom } from 'jotai';
+import { useCallback } from 'react';
+import { useSyncRef } from '../../common';
+import { useOrganisationTeams } from './use-organisation-teams';
 
 /**
  * It updates the `teams` state with the `members` status from the `team` status API
@@ -14,7 +15,8 @@ import { mergePreservingOrder } from '@/core/lib/utils/team-members.utils';
  * setTeamUpdate: A function that can be used to update the teams state.
  */
 export function useTeamsState() {
-	const [teams, setTeams] = useAtom(organizationTeamsState);
+	const [, setTeams] = useAtom(organizationTeamsState);
+	const { teams } = useOrganisationTeams();
 	const teamsRef = useSyncRef(teams);
 
 	const setTeamsUpdate = useCallback(
