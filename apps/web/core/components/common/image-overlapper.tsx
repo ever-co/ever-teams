@@ -11,8 +11,9 @@ import {
 import { IconsCheck, IconsPersonAddRounded, IconsPersonRounded } from '@/core/components/icons';
 import { TaskAssignButton } from '@/core/components/tasks/task-assign-button';
 import TeamMember from '@/core/components/teams/team-member';
-import { useModal, useTeamTasks } from '@/core/hooks';
+import { useModal } from '@/core/hooks';
 import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useUpdateTaskMutation } from '@/core/hooks/organizations/teams/use-update-task.mutation';
 import { clsxm } from '@/core/lib/utils';
 import { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 import { TEmployee, TOrganizationTeamEmployee } from '@/core/types/schemas';
@@ -27,6 +28,7 @@ import { toast } from 'sonner';
 import { cn } from '../../lib/helpers';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { TaskAvatars } from '../tasks/task-items';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
 
 export interface ImageOverlapperProps {
 	id: string;
@@ -58,7 +60,7 @@ export default function ImageOverlapper({
 	images: ImageOverlapperProps[];
 	radius?: number;
 	displayImageCount?: number;
-	item?: any;
+	item?: TTask | null;
 	diameter?: number;
 	iconType?: boolean;
 	arrowData?: ArrowDataProps | null;
@@ -79,7 +81,8 @@ export default function ImageOverlapper({
 	const [assignedMembers, setAssignedMembers] = useState<TEmployee[]>([...(item?.members || [])]);
 	const [unassignedMembers, setUnassignedMembers] = useState<TEmployee[]>([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const { updateTask, updateLoading } = useTeamTasks();
+	const { mutateAsync: updateTask, isPending: updateLoading } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 
 	// Combine local submitting state with React Query mutation pending state
 	const isLoading = isSubmitting || updateLoading;
@@ -146,10 +149,11 @@ export default function ImageOverlapper({
 		};
 
 		try {
-			await updateTask({
-				...item,
-				members: assignedMembers
-			});
+			if (item)
+				await updateTask({
+					taskId: item?.id,
+					taskData: { ...item, members: assignedMembers }
+				}).then((task) => setActiveTask(task));
 
 			// Build descriptive toast message
 			const messages: string[] = [];
@@ -179,7 +183,7 @@ export default function ImageOverlapper({
 		}
 	}, [closeModal, updateTask, item, assignedMembers, isLoading, t]);
 
-	const hasMembers = item?.members?.length > 0;
+	const hasMembers = item?.members && item?.members?.length > 0;
 
 	if (imageLength === undefined) {
 		return <Skeleton height={40} width={40} borderRadius={100} className="rounded-full dark:bg-[#353741]" />;

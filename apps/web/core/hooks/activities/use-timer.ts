@@ -13,11 +13,8 @@ import { queryKeys } from '@/core/query/keys';
 import { timerService } from '@/core/services/client/api/timers';
 import {
 	activeTeamIdState,
-	activeTeamTaskState,
-	detailedTaskState,
 	localTimerStatusState,
 	taskStatusesState,
-	teamTasksState,
 	timeCounterIntervalState,
 	timeCounterState,
 	timerSecondsState,
@@ -44,10 +41,15 @@ import { useFirstLoad } from '../common/use-first-load';
 import { useQueryCall } from '../common/use-query';
 import { useSyncRef } from '../common/use-sync-ref';
 import { useDailyPlan } from '../daily-plans/use-daily-plan';
-import { useOrganizationEmployeeTeams, useTeamTasks } from '../organizations';
+import { useOrganizationEmployeeTeams } from '../organizations';
+import { useCurrentActiveTask } from '../organizations/teams/use-current-active-task';
+import { useCurrentTeam } from '../organizations/teams/use-current-team';
+import { useCurrentTeamTasksQuery } from '../organizations/teams/use-get-team-task.query';
+import { useSetActiveTask } from '../organizations/teams/use-set-active-task';
+import { useUpdateTaskMutation } from '../organizations/teams/use-update-task.mutation';
+import { useDetailedTask } from '../tasks/use-detailed-task';
 import { useTaskStatistics } from '../tasks/use-task-statistics';
 import { useTimerPolling } from './use-timer-polling';
-import { useCurrentTeam } from '../organizations/teams/use-current-team';
 
 /**
  * ! Don't modify this function unless you know what you're doing
@@ -186,16 +188,19 @@ export function useTimer() {
 	const pathname = usePathname();
 
 	const activeTeam = useCurrentTeam();
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { task: activeTeamTask } = useCurrentActiveTask();
 
 	const taskStatuses = useAtomValue(taskStatusesState);
-	const detailedTask = useAtomValue(detailedTaskState);
+	const {
+		detailedTaskQuery: { data: detailedTask }
+	} = useDetailedTask();
 	const activeTeamId = useAtomValue(activeTeamIdState);
 
 	// Use useDailyPlan to get the logged-in user's plans (no employeeId = current user)
 	const { myDailyPlans } = useDailyPlan();
 
-	const teamTasks = useAtomValue(teamTasksState);
+	const { data: teamTasksResult } = useCurrentTeamTasksQuery();
+	const teamTasks = useMemo(() => teamTasksResult?.items ?? [], []);
 
 	const [timerStatusFetching, setTimerStatusFetching] = useAtom(timerStatusFetchingState);
 
@@ -210,7 +215,8 @@ export function useTimer() {
 	const lastActiveTask = useRef<TTask | null>(null);
 	// Track last stopTimer call to prevent duplicate calls within short time window
 	const lastStopTimerTimestamp = useRef<number>(0);
-	const { updateTask, setActiveTask, isUpdatingActiveTask } = useTeamTasks();
+	const { mutateAsync: updateTask, isPending: isUpdatingActiveTask } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 	const t = useTranslations();
 
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
@@ -307,7 +313,7 @@ export function useTimer() {
 	// Local time status
 	const { timeCounter, updateLocalTimerStatus, timerSeconds } = useLocalTimeCounter(
 		timerStatus,
-		activeTeamTask,
+		activeTeamTask ?? null,
 		firstLoad,
 		activeTeamId
 	);
@@ -390,7 +396,7 @@ export function useTimer() {
 			const taskToUse = explicitTask || activeTeamTaskRef.current;
 			const taskIdToUse = taskToUse?.id;
 
-			if (pathname?.startsWith('/task/')) setActiveTask(detailedTask);
+			if (pathname?.startsWith('/task/')) setActiveTask(detailedTask ?? null);
 			if (!taskIdToUse) return;
 			updateLocalTimerStatus({
 				lastTaskId: taskIdToUse,
@@ -452,10 +458,13 @@ export function useTimer() {
 				const selectedStatus = taskStatuses.find((s) => s.name === 'in-progress' && s.value === 'in-progress');
 				const taskStatusId = selectedStatus?.id;
 				updateTask({
-					...taskToUse,
-					taskStatusId: taskStatusId ?? taskToUse.taskStatusId,
-					status: ETaskStatusName.IN_PROGRESS
-				});
+					taskId: taskToUse?.id,
+					taskData: {
+						...taskToUse,
+						taskStatusId: taskStatusId ?? taskToUse.taskStatusId,
+						status: ETaskStatusName.IN_PROGRESS
+					}
+				}).then((task) => setActiveTask(task));
 			}
 
 			// Update Current user's active task to sync across multiple devices

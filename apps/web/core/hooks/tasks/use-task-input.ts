@@ -1,14 +1,18 @@
 'use client';
+import { memberActiveTaskIdState, taskStatusesState } from '@/core/stores';
 import { EIssueType, ETaskPriority, ETaskSize, ETaskStatusName } from '@/core/types/generics/enums/task';
-import { activeTeamTaskState, memberActiveTaskIdState, taskStatusesState } from '@/core/stores';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useAtomValue } from 'jotai';
-import { useModal, useSyncRef } from '../common';
-import { useTeamTasks } from '../organizations';
-import { useAuthenticateUser } from '../auth';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTag } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useAtomValue } from 'jotai';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useAuthenticateUser } from '../auth';
+import { useModal, useSyncRef } from '../common';
+import { useCreateTaskMutation } from '../organizations/teams/use-create-task.mutation';
+import { useCurrentActiveTask } from '../organizations/teams/use-current-active-task';
+import { useCurrentTeamTasks } from '../organizations/teams/use-current-team-tasks';
+import { useSetActiveTask } from '../organizations/teams/use-set-active-task';
+import { useUpdateTaskMutation } from '../organizations/teams/use-update-task.mutation';
 
 export const h_filter = (status: ETaskStatusName, filters: 'closed' | 'open') => {
 	switch (filters) {
@@ -39,17 +43,13 @@ export function useTaskInput({
 	const { isOpen: isModalOpen, openModal, closeModal } = useModal();
 	const [closeableTask, setCloseableTaskTask] = useState<TTask | null>(null);
 	const taskStatusList = useAtomValue(taskStatusesState);
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { task: activeTeamTask } = useCurrentActiveTask();
 
-	const {
-		tasks: teamTasks,
-		setActiveTask,
-		createLoading,
-		tasksFetching,
-		updateLoading,
-		createTask,
-		updateTask
-	} = useTeamTasks();
+	const { setActiveTask, isPending: tasksFetching } = useSetActiveTask();
+	const { tasks: teamTasks } = useCurrentTeamTasks();
+	const { mutateAsync: updateTask, isPending: updateLoading } = useUpdateTaskMutation();
+
+	const { mutateAsync: createTask, isPending: createLoading } = useCreateTaskMutation();
 
 	const { user } = useAuthenticateUser();
 	const userRef = useSyncRef(user);
@@ -86,9 +86,9 @@ export function useTaskInput({
 	const handleReopenTask = useCallback(
 		async (concernedTask: TTask) => {
 			return updateTask({
-				...concernedTask,
-				status: ETaskStatusName.OPEN
-			});
+				taskId: concernedTask?.id,
+				taskData: { ...concernedTask, status: ETaskStatusName.OPEN }
+			}).then((task) => setActiveTask(task));
 		},
 		[updateTask]
 	);
@@ -182,10 +182,7 @@ export function useTaskInput({
 		(task: TTask, title: string) => {
 			if (!userRef.current?.isEmailVerified) return;
 
-			return updateTask({
-				...task,
-				title
-			});
+			return updateTask({ taskData: { ...task, title }, taskId: task?.id }).then((task) => setActiveTask(task));
 		},
 		[updateTask, userRef]
 	);

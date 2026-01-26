@@ -3,13 +3,20 @@
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useCallback, useMemo } from 'react';
 import { useAuthenticateUser } from '../auth';
-import { useAuthTeamTasks, useTeamTasks } from '../organizations';
+import { useAuthTeamTasks } from '../organizations';
+import { useCurrentActiveTask } from '../organizations/teams/use-current-active-task';
 import { useCurrentTeam } from '../organizations/teams/use-current-team';
+import { useCurrentTeamTasks } from '../organizations/teams/use-current-team-tasks';
+import { useUpdateTaskMutation } from '../organizations/teams/use-update-task.mutation';
 import { useGetTasksStatsData } from '../tasks';
+import { useSetActiveTask } from '../organizations/teams/use-set-active-task';
 
 export function useUserSelectedPage(memberId = '') {
 	const activeTeam = useCurrentTeam();
-	const { activeTeamTask, updateTask, tasks } = useTeamTasks();
+	const { tasks } = useCurrentTeamTasks();
+	const { task: activeTeamTask } = useCurrentActiveTask();
+	const { mutateAsync: updateTask } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 
 	const { user: auth } = useAuthenticateUser();
 
@@ -52,9 +59,9 @@ export function useUserSelectedPage(memberId = '') {
 			}
 
 			return updateTask({
-				...task,
-				members: [...(task.members || []), matchUser ? matchUser.employee : {}]
-			});
+				taskId: task?.id,
+				taskData: { ...task, members: [...(task.members || []), matchUser ? matchUser.employee : {}] }
+			}).then((task) => setActiveTask(task));
 		},
 		[updateTask, matchUser]
 	);

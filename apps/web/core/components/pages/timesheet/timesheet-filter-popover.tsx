@@ -4,8 +4,9 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useSortedTasksByCreation } from '@/core/hooks/organizations/teams/use-sorted-tasks';
 import { cn } from '@/core/lib/helpers';
-import { organizationProjectsState, tasksByTeamState } from '@/core/stores';
+import { organizationProjectsState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import React from 'react';
@@ -18,7 +19,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 	const activeTeam = useCurrentTeam();
 
 	const organizationProjects = useAtomValue(organizationProjectsState);
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasksByCreation();
 
 	const t = useTranslations();
 	const { setEmployeeState, setProjectState, setStatusState, setTaskState, employee, project, statusState, task } =

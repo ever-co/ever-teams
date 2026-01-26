@@ -1,8 +1,10 @@
-import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@/core/hooks';
-import { useEffect, useState } from 'react';
-import { TaskBlockInfo } from '../../../team/team-members-views/user-team-block/task-info';
+import { useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
+import { useGetTaskByIdQueryLazy } from '@/core/hooks/organizations/teams/use-get-team-task.query';
+import { useDetailedTask } from '@/core/hooks/tasks/use-detailed-task';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useEffect, useState } from 'react';
+import { TaskBlockInfo } from '../../../team/team-members-views/user-team-block/task-info';
 
 export default function UserTeamActiveBlockTaskInfo({
 	member,
@@ -15,14 +17,18 @@ export default function UserTeamActiveBlockTaskInfo({
 	const [activeTask, setActiveTask] = useState<TTask | null | undefined>(null);
 	const taskEdition = useTMCardTaskEdit(activeTask);
 
-	const { getTaskById } = useTeamTasks();
+	const { setDetailedTaskId } = useDetailedTask();
+	const { getTaskById } = useGetTaskByIdQueryLazy();
 
 	useEffect(() => {
 		if (!activeTaskId) {
 			return;
 		}
 		getTaskById(activeTaskId)
-			.then((task) => setActiveTask(task as TTask))
+			.then((task) => {
+				setDetailedTaskId(activeTaskId);
+				setActiveTask(task as TTask);
+			})
 			.catch(console.error);
 	}, [activeTaskId, getTaskById]);
 

@@ -27,7 +27,7 @@ const buildTeamListSignature = (teams: TOrganizationTeam[]) => {
 			const memberRolesSignature = t.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}`).join(',') || '';
 			return `${t.id}:${t.updatedAt ?? ''}:${t.name}:${t.shareProfileView ?? ''}:${t.requirePlanToTrack ?? ''}:${t.public ?? ''}:${t.color ?? ''}:${t.emoji ?? ''}:${t.prefix ?? ''}:${t.members?.length ?? 0}:${memberRolesSignature}`;
 		})
-		.sort()
+		.sort((a, b) => a.localeCompare(b))
 		.join('|');
 };
 

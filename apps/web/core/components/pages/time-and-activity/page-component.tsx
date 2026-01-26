@@ -13,10 +13,11 @@ import {
 } from '@/core/components/optimized-components/reports';
 import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-report-activity';
 import { useTimeActivityStats } from '@/core/hooks/activities/use-time-activity-stats';
-import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
+import { useSortedTasksByCreation } from '@/core/hooks/organizations/teams/use-sorted-tasks';
 import { cn } from '@/core/lib/helpers';
-import { isTrackingEnabledState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
+import { isTrackingEnabledState, organizationProjectsState } from '@/core/stores';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { FilterState } from '@/core/types/interfaces/timesheet/time-limit-report';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
@@ -134,7 +135,7 @@ const TimeActivityComponents = () => {
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const organizationProjects = useAtomValue(organizationProjectsState);
 
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasksByCreation();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const activeTeam = useCurrentTeam();
 

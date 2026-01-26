@@ -1,19 +1,22 @@
-import { IHookModal, useTeamTasks } from '@/core/hooks';
 import { Modal, SpinnerLoader, Text } from '@/core/components';
+import { IHookModal, useTeamTasks } from '@/core/hooks';
+import { useSortedTasksByCreation } from '@/core/hooks/organizations/teams/use-sorted-tasks';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import cloneDeep from 'lodash/cloneDeep';
-import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useCallback, useState } from 'react';
+import { toast } from 'sonner';
 import { EverCard } from '../../common/ever-card';
 import { TaskInput } from '../../tasks/task-input';
-import { TTask } from '@/core/types/schemas/task/task.schema';
-import { toast } from 'sonner';
-import { useAtomValue } from 'jotai';
-import { tasksByTeamState } from '@/core/stores';
+import { useUpdateTaskMutation } from '@/core/hooks/organizations/teams/use-update-task.mutation';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
 function CreateParentTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 	const t = useTranslations();
 
-	const tasks = useAtomValue(tasksByTeamState);
-	const { loadTeamTasksData, updateTask } = useTeamTasks();
+	const tasks = useSortedTasksByCreation();
+	const { loadTeamTasksData } = useTeamTasks();
+	const { mutateAsync: updateTask } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 
 	const [loading, setLoading] = useState(false);
 
@@ -27,11 +30,14 @@ function CreateParentTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 			try {
 				// Update the task with parent assignment
 				await updateTask({
-					...task,
-					parentId: parentTask.id,
-					parent: { ...parentTask, id: parentTask.id },
-					id: task.id
-				});
+					taskId: task.id,
+					taskData: {
+						...task,
+						parentId: parentTask.id,
+						parent: { ...parentTask, id: parentTask.id },
+						id: task.id
+					}
+				}).then((task) => setActiveTask(task));
 				// Show success notification with task titles
 				toast.success(
 					t('common.PARENT_TASK_ASSIGNED_SUCCESS', {

@@ -12,9 +12,11 @@ import {
 	useTaskInput
 } from '@/core/hooks';
 import { useInfinityScrolling } from '@/core/hooks/common/use-infinity-fetch';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
 import { cn } from '@/core/lib/helpers';
 import { clsxm } from '@/core/lib/utils';
-import { activeTeamTaskId, issueTypesListState, taskLabelsListState, timerStatusState } from '@/core/stores';
+import { issueTypesListState, taskLabelsListState, timerStatusState } from '@/core/stores';
 import { EIssueType, ETaskPriority, ETaskSize, ETaskStatusName } from '@/core/types/generics/enums/task';
 import { Nullable } from '@/core/types/generics/utils';
 import { IIssueType } from '@/core/types/interfaces/task/issue-type';
@@ -23,7 +25,7 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Combobox, Popover, PopoverPanel, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon, PlusIcon, UserGroupIcon } from '@heroicons/react/20/solid';
 import { CircleIcon, CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { JSX, PropsWithChildren, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
@@ -36,7 +38,6 @@ import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-items';
 import { TaskLabels } from './task-labels';
 import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown, ActiveTaskStatusDropdown } from './task-status';
-import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 
 type Props = {
 	task?: Nullable<TTask>;
@@ -118,8 +119,7 @@ export function TaskInput(props: Props) {
 		updateTaskTitleHandler,
 		setFilter
 	} = datas;
-	const setActiveTask = useSetAtom(activeTeamTaskId);
-
+	const { setActiveTask } = useSetActiveTask();
 	const inputTaskTitle = useMemo(() => inputTask?.title || '', [inputTask?.title]);
 
 	const [taskName, setTaskName] = useState('');
@@ -148,12 +148,7 @@ export function TaskInput(props: Props) {
 	 */
 	const setAuthActiveTask = useCallback(
 		(task: TTask) => {
-			if (datas.setActiveTask) {
-				// NOTE_FIX: datas.setActiveTask already calls updateOrganizationTeamEmployeeActiveTask
-				// which has optimistic updates for React Query. No need to call updateOrganizationTeamEmployee
-				// here as it would be redundant and would overwrite the optimistic update.
-				datas.setActiveTask(task);
-			}
+			setActiveTask(task);
 			setEditMode(false);
 		},
 		[datas, setEditMode]

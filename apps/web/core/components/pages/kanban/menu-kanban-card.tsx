@@ -1,9 +1,11 @@
 import { SpinnerLoader } from '@/core/components';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { PlanTask } from '@/core/components/tasks/task-card';
-import { useAuthenticateUser, useModal, useTeamMemberCard, useTeamTasks } from '@/core/hooks';
+import { useAuthenticateUser, useModal, useTeamMemberCard } from '@/core/hooks';
+import { useCreateTaskMutation } from '@/core/hooks/organizations/teams/use-create-task.mutation';
 import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
-import { activeTeamTaskId, taskStatusesState } from '@/core/stores';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
+import { taskStatusesState } from '@/core/stores';
 import { EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
 import { EIssueType, ETaskPriority } from '@/core/types/generics/enums/task';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
@@ -11,7 +13,7 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Combobox, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import React, { JSX, useCallback } from 'react';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
@@ -19,8 +21,9 @@ import { CreateDailyPlanFormModal } from '../../features/daily-plan/create-daily
 
 export default function MenuKanbanCard({ item: task, member }: { item: TTask; member: any }) {
 	const t = useTranslations();
-	const setActiveTask = useSetAtom(activeTeamTaskId);
-	const { createTask, createLoading } = useTeamTasks();
+	const { setActiveTask } = useSetActiveTask();
+
+	const { mutateAsync: createTask, isPending: createLoading } = useCreateTaskMutation();
 	const { assignTask, unassignTask, assignTaskLoading, unAssignTaskLoading } = useTeamMemberCard(member);
 	const taskStatuses = useAtomValue(taskStatusesState);
 	const { closeModal, isOpen, openModal } = useModal();
@@ -37,11 +40,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 			closable: true,
 			action: 'edit',
 			active: true,
-			onClick: () => {
-				setActiveTask({
-					id: task.id
-				});
-			}
+			onClick: () => setActiveTask(task)
 		},
 		{
 			name: t('common.ESTIMATE'),

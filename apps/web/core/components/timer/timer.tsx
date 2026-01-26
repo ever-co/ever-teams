@@ -9,8 +9,8 @@ import { useTranslations } from 'next-intl';
 import { TimerButton } from './timer-button';
 
 import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
+import { useCurrentActiveTask } from '@/core/hooks/organizations/teams/use-current-active-task';
 import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
-import { activeTeamTaskState } from '@/core/stores';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import {
@@ -21,7 +21,6 @@ import {
 	LifebuoyIcon
 } from '@heroicons/react/24/outline';
 import { HotkeysEvent } from 'hotkeys-js';
-import { useAtomValue } from 'jotai';
 import { useCallback, useMemo } from 'react';
 import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
 import { ProgressBar } from '../duplicated-components/_progress-bar';
@@ -47,7 +46,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 	} = useTimerView();
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
 	const activeTeam = useCurrentTeam();
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { task: activeTeamTask } = useCurrentActiveTask();
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 
 	// FIX_NOTE: Use team-scoped time instead of global timerStatus.duration
@@ -231,7 +230,7 @@ export function MinTimerFrame({ className }: IClassName) {
 	const { hours, minutes, seconds, ms_p, timerStatus, disabled, hasPlan, startTimer, stopTimer } = useTimerView();
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
 	const activeTeam = useCurrentTeam();
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { task: activeTeamTask } = useCurrentActiveTask();
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 	const t = useTranslations();
 

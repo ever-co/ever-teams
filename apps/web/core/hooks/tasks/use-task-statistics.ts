@@ -2,7 +2,6 @@
 import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
 import {
 	activeTaskStatisticsState,
-	activeTeamTaskState,
 	allTaskStatisticsState,
 	tasksFetchingState,
 	tasksStatisticsState,
@@ -19,6 +18,7 @@ import { useFirstLoad } from '../common/use-first-load';
 import { useSyncRef } from '../common/use-sync-ref';
 import { useCurrentTeam } from '../organizations/teams/use-current-team';
 import { useUserQuery } from '../queries/user-user.query';
+import { useCurrentActiveTask } from '../organizations/teams/use-current-active-task';
 
 export function useTaskStatistics(addSeconds = 0) {
 	const { data: user } = useUserQuery();
@@ -37,7 +37,7 @@ export function useTaskStatistics(addSeconds = 0) {
 
 	// Dep status
 	const timerStatus = useAtomValue(timerStatusState);
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { task: activeTeamTask } = useCurrentActiveTask();
 
 	/**
 	 * Get employee all tasks statistics  (API Call)

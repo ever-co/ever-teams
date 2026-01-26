@@ -1,20 +1,24 @@
 'use client';
-import { activeTeamTaskState, allTaskStatisticsState } from '@/core/stores';
+import { allTaskStatisticsState } from '@/core/stores';
 import { getPublicState } from '@/core/stores/common/public';
-import { useCallback, useMemo, useState } from 'react';
-import { useAtomValue } from 'jotai';
-import { useSyncRef } from '../../common/use-sync-ref';
-import { useIsMemberManager } from './use-team-member';
-import cloneDeep from 'lodash/cloneDeep';
-import { useTeamTasks } from './use-team-tasks';
-import { useAuthenticateUser } from '../../auth';
-import { useOutsideClick } from '../../common';
+import { ERoleName } from '@/core/types/generics/enums/role';
 import { Nullable } from '@/core/types/generics/utils';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { ERoleName } from '@/core/types/generics/enums/role';
-import { useUpdateOrganizationTeam } from './use-update-organization-team';
+import { useAtomValue } from 'jotai';
+import cloneDeep from 'lodash/cloneDeep';
+import { useCallback, useMemo, useState } from 'react';
+import { useAuthenticateUser } from '../../auth';
+import { useOutsideClick } from '../../common';
+import { useSyncRef } from '../../common/use-sync-ref';
+import { useCurrentActiveTask } from './use-current-active-task';
+import { useCurrentTeamTasks } from './use-current-team-tasks';
+import { useDeleteEmployeeFromTasksMutation } from './use-delete-employee-from-tasks.mutation';
 import { useGetOrganizationTeamQuery } from './use-get-organization-teams-query';
+import { useSetActiveTask } from './use-set-active-task';
+import { useIsMemberManager } from './use-team-member';
+import { useUpdateOrganizationTeam } from './use-update-organization-team';
+import { useUpdateTaskMutation } from './use-update-task.mutation';
 
 /**
  * It returns a bunch of data about a team member, including whether or not the user is the team
@@ -23,7 +27,11 @@ import { useGetOrganizationTeamQuery } from './use-get-organization-teams-query'
  * IOrganizationTeamList['members'][number] | undefined
  */
 export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined) {
-	const { updateTask, tasks, setActiveTask, deleteEmployeeFromTasks, unassignAuthActiveTask } = useTeamTasks();
+	const { setActiveTask } = useSetActiveTask();
+	const { tasks } = useCurrentTeamTasks();
+	const { mutateAsync: deleteEmployeeFromTasks } = useDeleteEmployeeFromTasksMutation();
+	const { mutateAsync: updateTask } = useUpdateTaskMutation();
+
 	const [assignTaskLoading, setAssignTaskLoading] = useState(false);
 	const [unAssignTaskLoading, setUnAssignTaskLoading] = useState(false);
 	const publicTeam = useAtomValue(getPublicState);
@@ -31,7 +39,7 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 
 	const { user: authUser, isTeamManager: isAuthTeamManager } = useAuthenticateUser();
 
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { task: activeTeamTask } = useCurrentActiveTask();
 
 	const { data: activeTeamResult } = useGetOrganizationTeamQuery();
 	const activeTeam = useMemo(() => activeTeamResult?.data ?? null, [activeTeamResult]);
@@ -223,8 +231,8 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 			}
 			setAssignTaskLoading(true);
 			return updateTask({
-				...task,
-				members: [...(task.members || []), (member ? member : {}) as any]
+				taskId: task?.id,
+				taskData: { ...task, members: [...(task.members || []), (member ? member : {}) as any] }
 			}).then(() => {
 				if (isAuthUser && !activeTeamTask) {
 					setActiveTask(task);
@@ -243,14 +251,14 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 			setUnAssignTaskLoading(true);
 
 			return updateTask({
-				...task,
-				members: task.members?.filter((m) => m.id !== member.employeeId)
+				taskId: task?.id,
+				taskData: { ...task, members: task.members?.filter((m) => m.id !== member.employeeId) }
 			}).finally(() => {
-				isAuthUser && unassignAuthActiveTask();
+				isAuthUser && setActiveTask(null);
 				setUnAssignTaskLoading(false);
 			});
 		},
-		[updateTask, member, isAuthUser, unassignAuthActiveTask]
+		[updateTask, member, isAuthUser, setActiveTask]
 	);
 
 	return {

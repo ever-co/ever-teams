@@ -38,8 +38,9 @@ import { LazySidebarCommandModal } from '@/core/components/optimized-components/
 import { LazyCreateTeamModal } from '@/core/components/optimized-components/teams';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useSortedTasksByCreation } from '@/core/hooks/organizations/teams/use-sorted-tasks';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { isTeamManagerState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
+import { isTeamManagerState, organizationProjectsState } from '@/core/stores';
 import { currentEmployeeFavoritesState } from '@/core/stores/common/favorites';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -58,7 +59,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const isTeamManager = useAtomValue(isTeamManagerState);
 	const { state } = useSidebar();
 	const currentEmployeeFavorites = useAtomValue(currentEmployeeFavoritesState);
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasksByCreation();
 	const { isOpen, closeModal } = useModal();
 	const t = useTranslations();
 	const organizationProjects = useAtomValue(organizationProjectsState);

@@ -4,8 +4,7 @@ import { MultiSelect } from '@/core/components/common/multi-select';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { statusOptions } from '@/core/constants/config/constants';
 import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
-import { tasksByTeamState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+import { useSortedTasksByCreation } from '@/core/hooks/organizations/teams/use-sorted-tasks';
 interface TimeSheetFilterProps {
 	isOpen: boolean;
 	closeModal: () => void;
@@ -14,7 +13,7 @@ interface TimeSheetFilterProps {
 export function TimeSheetFilter({ closeModal, isOpen }: TimeSheetFilterProps) {
 	const activeTeam = useCurrentTeam();
 
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasksByCreation();
 	// const [taskId, setTaskId] = useState<TTask | TTask[] | null>([]);
 	return (
 		<>

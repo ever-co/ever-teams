@@ -1,9 +1,11 @@
-import { cn } from '@/core/lib/helpers';
-import { useTeamMemberCard, useTeamTasks } from '@/core/hooks';
 import { TaskTimes } from '@/core/components/tasks/task-times';
-import { useEffect, useState } from 'react';
+import { useTeamMemberCard } from '@/core/hooks';
+import { useGetTaskByIdQueryLazy } from '@/core/hooks/organizations/teams/use-get-team-task.query';
+import { useDetailedTask } from '@/core/hooks/tasks/use-detailed-task';
+import { cn } from '@/core/lib/helpers';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useEffect, useState } from 'react';
 
 export default function UserTeamActiveTaskTimes({
 	member,
@@ -14,7 +16,8 @@ export default function UserTeamActiveTaskTimes({
 }) {
 	const memberInfo = useTeamMemberCard(member);
 
-	const { getTaskById } = useTeamTasks();
+	const { setDetailedTaskId } = useDetailedTask();
+	const { getTaskById } = useGetTaskByIdQueryLazy();
 
 	const [activeTask, setActiveTask] = useState<TTask | null | undefined>(null);
 
@@ -23,7 +26,10 @@ export default function UserTeamActiveTaskTimes({
 			return;
 		}
 		getTaskById(member.activeTaskId)
-			.then((response) => setActiveTask(response as TTask))
+			.then((response) => {
+				setDetailedTaskId(member.activeTaskId ?? null);
+				setActiveTask(response as TTask);
+			})
 			.catch((_) => console.log(_));
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps

@@ -3,12 +3,15 @@
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { queryKeys } from '@/core/query/keys';
 import { taskService } from '@/core/services/client/api';
-import { activeTeamTaskState, getPublicState, tasksByTeamState } from '@/core/stores';
+import { getPublicState } from '@/core/stores';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useQuery } from '@tanstack/react-query';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { useEffect, useMemo } from 'react';
+import { useCurrentActiveTask } from '../organizations/teams/use-current-active-task';
 import { useCurrentTeam } from '../organizations/teams/use-current-team';
+import { useSetActiveTask } from '../organizations/teams/use-set-active-task';
+import { useSortedTasksByCreation } from '../organizations/teams/use-sorted-tasks';
 
 /**
  * Result interface for the useActiveTeamTask hook
@@ -38,10 +41,10 @@ export interface UseActiveTeamTaskResult {
  */
 export const useActiveTeamTask = (): UseActiveTeamTaskResult => {
 	// Jotai state - instant updates
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const setActiveTeamTask = useSetAtom(activeTeamTaskState);
+	const { task: activeTeamTask } = useCurrentActiveTask();
+	const { setActiveTask } = useSetActiveTask();
 	const activeTeam = useCurrentTeam();
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasksByCreation();
 	const publicTeam = useAtomValue(getPublicState);
 
 	// User data
@@ -113,10 +116,10 @@ export const useActiveTeamTask = (): UseActiveTeamTaskResult => {
 			// Verify the current user is a member of this task before setting
 			const isMember = fetchedTask.members?.some((m) => m.userId === currentUser?.employee?.userId);
 			if (isMember || publicTeam) {
-				setActiveTeamTask(fetchedTask);
+				setActiveTask(fetchedTask);
 			}
 		}
-	}, [fetchedTask, activeTeamTask, currentUser?.employee?.userId, publicTeam, setActiveTeamTask]);
+	}, [fetchedTask?.id, activeTeamTask?.id, currentUser?.employee?.userId, publicTeam]);
 
 	// Compute the final active task with priority
 	const activeTask = useMemo((): TTask | null => {

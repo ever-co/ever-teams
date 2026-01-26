@@ -1,18 +1,19 @@
+import { Spinner } from '@/core/components/common/spinner';
+import { TimeInput } from '@/core/components/common/time-input';
+import { useOutsideClick } from '@/core/hooks/common';
+import { useCurrentActiveTask } from '@/core/hooks/organizations/teams/use-current-active-task';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
+import { useUpdateTaskMutation } from '@/core/hooks/organizations/teams/use-update-task.mutation';
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { pad } from '@/core/lib/helpers/number';
-import { TimeInput } from '@/core/components/common/time-input';
-import { Spinner } from '@/core/components/common/spinner';
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from 'next-intl';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { useOutsideClick } from '@/core/hooks/common';
-import { useTeamTasks } from '@/core/hooks/organizations';
-import { useAtomValue } from 'jotai';
-import { activeTeamTaskState } from '@/core/stores';
 
 export function EstimateTime() {
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const { updateTask, updateLoading } = useTeamTasks();
+	const { task: activeTeamTask } = useCurrentActiveTask();
+	const { mutateAsync: updateTask, isPending: updateLoading } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 	const [editableMode, setEditableMode] = useState(false);
 	const [value, setValue] = useState({ hours: '', minutes: '' });
 	const editMode = useRef(false);
@@ -113,11 +114,14 @@ export function EstimateTime() {
 		}
 
 		updateTask({
-			...activeTeamTask,
-			estimateHours: hours,
-			estimateMinutes: minutes,
-			estimate: hours * 60 * 60 + minutes * 60 // time seconds
-		});
+			taskId: activeTeamTask?.id,
+			taskData: {
+				...activeTeamTask,
+				estimateHours: hours,
+				estimateMinutes: minutes,
+				estimate: hours * 60 * 60 + minutes * 60 // time seconds
+			}
+		}).then((task) => setActiveTask(task));
 
 		setEditableMode(false);
 	}, [activeTeamTask, updateTask, value]);

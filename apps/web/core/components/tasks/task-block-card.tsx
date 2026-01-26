@@ -2,13 +2,15 @@ import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/i
 import CircularProgress from '@/core/components/svgs/circular-progress';
 import { Priority, setCommentIconColor } from '@/core/components/tasks/kanban-card';
 import { useTaskStatistics, useTeamMemberCard } from '@/core/hooks';
+import { useCurrentActiveTask } from '@/core/hooks/organizations/teams/use-current-active-task';
 import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { secondsToTime } from '@/core/lib/helpers/index';
-import { activeTeamTaskId, activeTeamTaskState, timerStatusState } from '@/core/stores';
+import { activeTeamTaskId, timerStatusState } from '@/core/stores';
 import { TTaskStatistics } from '@/core/types/interfaces/task/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import Link from 'next/link';
 import React from 'react';
 import { HorizontalSeparator } from '../duplicated-components/separator';
@@ -22,11 +24,12 @@ interface TaskItemProps {
 
 export default function TaskBlockCard(props: TaskItemProps) {
 	const { task } = props;
-	const [activeTask, setActiveTask] = useAtom(activeTeamTaskId);
+	const { setActiveTask } = useSetActiveTask();
+	const activeTask = useAtomValue(activeTeamTaskId);
 	const activeTeam = useCurrentTeam();
 	const timerStatus = useAtomValue(timerStatusState);
 
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { task: activeTeamTask } = useCurrentActiveTask();
 
 	const { data: user } = useUserQuery();
 	const { getEstimation } = useTaskStatistics(0);
@@ -112,7 +115,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
 											console.log(e);
 										}}
 										onEnterKey={() => {
-											setActiveTask({ id: '' });
+											setActiveTask(task ?? null);
 										}}
 									/>
 								</div>

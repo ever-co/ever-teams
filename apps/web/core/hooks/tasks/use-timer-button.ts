@@ -1,21 +1,23 @@
 // core/hooks/task-card/useTimerButton.ts
-import { useCallback, useMemo, useState } from 'react';
-import { useStartStopTimerHandler, useTeamTasks, useTimerView } from '@/core/hooks';
+import { useStartStopTimerHandler, useTimerView } from '@/core/hooks';
 import { useTimerOptimisticUI } from '@/core/hooks/activities/use-timer-optimistic-ui';
-import { TOrganizationTeam } from '@/core/types/schemas/team/organization-team.schema';
-import { toast } from 'sonner';
-import { useTranslations } from 'next-intl';
+import { timerStatusState } from '@/core/stores';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { activeTeamTaskState, timerStatusState } from '@/core/stores';
+import { TOrganizationTeam } from '@/core/types/schemas/team/organization-team.schema';
 import { useAtomValue } from 'jotai';
+import { useTranslations } from 'next-intl';
+import { useCallback, useMemo, useState } from 'react';
+import { toast } from 'sonner';
+import { useCurrentActiveTask } from '../organizations/teams/use-current-active-task';
+import { useSetActiveTask } from '../organizations/teams/use-set-active-task';
 
 // Custom hook to extract TimerButtonCall business logic
 export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeTeam: TOrganizationTeam | null }) {
 	const [loading, setLoading] = useState(false);
 	const timerStatus = useAtomValue(timerStatusState);
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { task: activeTeamTask } = useCurrentActiveTask();
 	const { canTrack, disabled, startTimer, stopTimer, hasPlan } = useTimerView();
-	const { setActiveTask } = useTeamTasks();
+	const { setActiveTask } = useSetActiveTask();
 	const t = useTranslations();
 
 	// Use optimistic UI hook for timer button feedback

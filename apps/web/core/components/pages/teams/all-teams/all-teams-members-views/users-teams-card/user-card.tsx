@@ -1,18 +1,20 @@
+import { EverCard } from '@/core/components/common/ever-card';
+import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
+import { useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
+import { useGetTaskByIdQueryLazy } from '@/core/hooks/organizations/teams/use-get-team-task.query';
+import { useDetailedTask } from '@/core/hooks/tasks/use-detailed-task';
 import { clsxm } from '@/core/lib/utils';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Transition } from '@headlessui/react';
 import { SixSquareGridIcon } from 'assets/svg';
+import { useEffect, useState } from 'react';
+import { UserTeamCardMenu } from '../../../team/team-members-views/user-team-card/user-team-card-menu';
 import MemberInfo from './member-infos';
 import UserTeamActiveTaskInfo from './user-team-active-task';
 import UserTeamActiveTaskTimes from './user-team-active-task-times';
 import UserTeamActiveTaskEstimate from './user-team-task-estimate';
 import UserTeamActiveTaskTodayWorked from './user-team-today-worked';
-import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@/core/hooks';
-import { useEffect, useState } from 'react';
-import { UserTeamCardMenu } from '../../../team/team-members-views/user-team-card/user-team-card-menu';
-import { EverCard } from '@/core/components/common/ever-card';
-import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
-import { TOrganizationTeamEmployee } from '@/core/types/schemas';
-import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export default function UserTeamCard({
 	member,
@@ -85,14 +87,18 @@ function UserActiveTaskMenu({ member }: { member: TOrganizationTeamEmployee }) {
 	const [activeTask, setActiveTask] = useState<TTask | null | undefined>(null);
 	const taskEdition = useTMCardTaskEdit(activeTask);
 
-	const { getTaskById } = useTeamTasks();
+	const { setDetailedTaskId } = useDetailedTask();
+	const { getTaskById } = useGetTaskByIdQueryLazy();
 
 	useEffect(() => {
 		if (!member.activeTaskId) {
 			return;
 		}
 		getTaskById(member.activeTaskId)
-			.then((response) => setActiveTask(response as TTask))
+			.then((response) => {
+				setDetailedTaskId(member.activeTaskId ?? null);
+				setActiveTask(response as TTask);
+			})
 			.catch((_) => console.log(_));
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps

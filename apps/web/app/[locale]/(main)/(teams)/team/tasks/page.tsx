@@ -12,8 +12,8 @@ import StatusBadge from '@/core/components/pages/teams/team/tasks/status-badge';
 import { TaskTable } from '@/core/components/pages/teams/team/tasks/task-table';
 import { usePagination } from '@/core/hooks/common/use-pagination';
 import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useSortedTasksByCreation } from '@/core/hooks/organizations/teams/use-sorted-tasks';
 import { cn, getStatusColor } from '@/core/lib/helpers';
-import { tasksByTeamState } from '@/core/stores';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -42,7 +42,7 @@ const TeamTask = () => {
 		[activeTeam?.name, currentLocale, t]
 	);
 
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasksByCreation();
 	const [searchTaskTerm, setSearchTaskTerm] = useState('');
 	const filteredTasks = useMemo(
 		() => tasks.filter((el) => el.title.toLowerCase().includes(searchTaskTerm.toLowerCase())),

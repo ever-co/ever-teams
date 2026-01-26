@@ -4,14 +4,21 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
 import { useParams } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
-import { useAuthTeamTasks, useTeamTasks } from '../organizations';
+import { useAuthTeamTasks } from '../organizations';
+import { useCurrentActiveTask } from '../organizations/teams/use-current-active-task';
 import { useCurrentTeam } from '../organizations/teams/use-current-team';
+import { useCurrentTeamTasks } from '../organizations/teams/use-current-team-tasks';
+import { useUpdateTaskMutation } from '../organizations/teams/use-update-task.mutation';
 import { useUserQuery } from '../queries/user-user.query';
 import { useGetTasksStatsData } from '../tasks';
+import { useSetActiveTask } from '../organizations/teams/use-set-active-task';
 
 export function useUserProfilePage() {
 	const activeTeam = useCurrentTeam();
-	const { activeTeamTask, updateTask, tasks } = useTeamTasks();
+	const { task: activeTeamTask } = useCurrentActiveTask();
+	const { mutateAsync: updateTask } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
+	const { tasks } = useCurrentTeamTasks();
 	const userMemberId = useAtomValue(userDetailAccordion);
 
 	const { data: auth } = useUserQuery();
@@ -62,9 +69,9 @@ export function useUserProfilePage() {
 			}
 
 			return updateTask({
-				...task,
-				members: [...(task.members || []), matchUser ? matchUser.employee : {}]
-			});
+				taskId: task?.id,
+				taskData: { ...task, members: [...(task.members || []), matchUser ? matchUser.employee : {}] }
+			}).then((task) => setActiveTask(task));
 		},
 		[updateTask, matchUser]
 	);

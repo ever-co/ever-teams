@@ -8,11 +8,10 @@ import { PauseIcon } from '@/core/components/svgs/pause-icon';
 import { PlayIcon } from '@/core/components/svgs/play-icon';
 import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
 import { useTimer } from '@/core/hooks/activities/use-timer';
+import { useCurrentActiveTask } from '@/core/hooks/organizations/teams/use-current-active-task';
 import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
 import { pad } from '@/core/lib/helpers/number';
-import { activeTeamTaskState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 
@@ -33,7 +32,7 @@ const Timer = () => {
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
 
 	const activeTeam = useCurrentTeam();
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { task: activeTeamTask } = useCurrentActiveTask();
 
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 

@@ -1,19 +1,21 @@
 'use client';
+import { useStatusValue, useSyncRef } from '@/core/hooks';
+import { taskUpdateQueue } from '@/core/lib/utils/task.utils';
+import { taskLabelsListState, taskStatusesState } from '@/core/stores';
+import {
+	clearOptimisticValueAtom,
+	getOptimisticValueAtom,
+	setOptimisticValueAtom
+} from '@/core/stores/tasks/task-optimistic-updates';
+import { ITag } from '@/core/types/interfaces/tag/tag';
+import { IActiveTaskStatuses, TStatus } from '@/core/types/interfaces/task/task-card';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
-import { useStatusValue, useSyncRef, useTeamTasks } from '@/core/hooks';
-import { ITag } from '@/core/types/interfaces/tag/tag';
-import { TStatus, IActiveTaskStatuses } from '@/core/types/interfaces/task/task-card';
-import { taskUpdateQueue } from '@/core/lib/utils/task.utils';
-import { useCallback, useState, useEffect } from 'react';
-import { toast } from 'sonner';
 import { useAtomValue, useSetAtom } from 'jotai';
-import {
-	setOptimisticValueAtom,
-	clearOptimisticValueAtom,
-	getOptimisticValueAtom
-} from '@/core/stores/tasks/task-optimistic-updates';
-import { activeTeamTaskState, taskLabelsListState, taskStatusesState } from '@/core/stores';
+import { useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { useCurrentActiveTask } from '../organizations/teams/use-current-active-task';
+import { useHandleStatusUpdate } from '../organizations/teams/use-handle-status-update';
 
 /**
  * Hook for managing loading states in task dropdown components
@@ -74,8 +76,8 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 	status: TStatus<ITaskStatusStack[T]>,
 	field: T
 ) {
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const { handleStatusUpdate } = useTeamTasks();
+	const { task: activeTeamTask } = useCurrentActiveTask();
+	const { handleStatusUpdate } = useHandleStatusUpdate();
 	const taskLabels = useAtomValue(taskLabelsListState);
 
 	const taskStatuses = useAtomValue(taskStatusesState);

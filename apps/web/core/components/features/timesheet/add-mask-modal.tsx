@@ -12,9 +12,10 @@ import { Item, ManageOrMemberComponent, getNestedValue } from '@/core/components
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useSortedTasksByCreation } from '@/core/hooks/organizations/teams/use-sorted-tasks';
 import { toUTC } from '@/core/lib/helpers/index';
 import { clsxm } from '@/core/lib/utils';
-import { organizationProjectsState, tasksByTeamState } from '@/core/stores';
+import { organizationProjectsState } from '@/core/stores';
 import { ETimeLogSource, ETimeLogType } from '@/core/types/generics/enums/timer';
 import { PlusIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { useAtomValue } from 'jotai';
@@ -51,7 +52,7 @@ interface FormState {
 }
 
 export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasksByCreation();
 	const { generateTimeOptions } = useTimelogFilterOptions();
 	const organizationProjects = useAtomValue(organizationProjectsState);
 

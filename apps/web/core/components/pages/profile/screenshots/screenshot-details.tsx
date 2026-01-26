@@ -1,16 +1,17 @@
 'use client';
 import { Modal } from '@/core/components';
-import ScreenshotItem from './screenshot-item';
-import { useTranslations } from 'next-intl';
-import React, { useCallback, useEffect, useState } from 'react';
-import { useTeamTasks } from '@/core/hooks';
-import Image from 'next/image';
-import { cn } from '@/core/lib/helpers';
 import { ProgressBar } from '@/core/components/duplicated-components/_progress-bar';
+import { useGetTaskByIdQueryLazy } from '@/core/hooks/organizations/teams/use-get-team-task.query';
+import { useDetailedTask } from '@/core/hooks/tasks/use-detailed-task';
+import { cn } from '@/core/lib/helpers';
+import { organizationProjectsState } from '@/core/stores';
 import { TOrganizationProject, TTimeSlot } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
-import { organizationProjectsState } from '@/core/stores';
+import { useTranslations } from 'next-intl';
+import Image from 'next/image';
+import React, { useCallback, useEffect, useState } from 'react';
+import ScreenshotItem from './screenshot-item';
 
 const ScreenshotDetailsModal = ({
 	open,
@@ -44,7 +45,8 @@ const ScreenshotDetailsModal = ({
 	const [task, setTask] = useState<TTask | null>(null);
 	const organizationProjects = useAtomValue(organizationProjectsState);
 
-	const { getTaskById } = useTeamTasks();
+	const { setDetailedTaskId } = useDetailedTask();
+	const { getTaskById } = useGetTaskByIdQueryLazy();
 
 	const getProject = useCallback(
 		async (projectId: string) => {
@@ -61,6 +63,8 @@ const ScreenshotDetailsModal = ({
 		async (taskId: string) => {
 			const task = await getTaskById(taskId);
 			task && setTask(task as TTask);
+			// switch current focused task
+			setDetailedTaskId(taskId);
 		},
 		[getTaskById]
 	);

@@ -1,22 +1,22 @@
-import { imgTitle } from '@/core/lib/helpers/index';
-import { useTeamTasks } from '@/core/hooks';
-import { clsxm, isValidUrl } from '@/core/lib/utils';
-import clsx from 'clsx';
 import { ConfirmDropdown, SpinnerLoader } from '@/core/components';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
+import { useHandleStatusUpdate } from '@/core/hooks/organizations/teams/use-handle-status-update';
+import { imgTitle } from '@/core/lib/helpers/index';
+import { clsxm, isValidUrl } from '@/core/lib/utils';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import { CrossIcon, RefreshIcon } from 'assets/svg';
+import clsx from 'clsx';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useCallback } from 'react';
 import stc from 'string-to-color';
+import { Avatar } from '../duplicated-components/avatar';
+import { Tooltip } from '../duplicated-components/tooltip';
 import { TaskIssueStatus } from './task-issue';
 import { TaskPriorityStatus } from './task-status';
 import { TaskStatusModal } from './task-status-modal';
-import { useTranslations } from 'next-intl';
-import { Tooltip } from '../duplicated-components/tooltip';
-import { Avatar } from '../duplicated-components/avatar';
-import { IClassName } from '@/core/types/interfaces/common/class-name';
-import { ETaskStatusName } from '@/core/types/generics/enums/task';
-import { TTask } from '@/core/types/schemas/task/task.schema';
 
 type Props = {
 	task?: TTask;
@@ -25,7 +25,8 @@ type Props = {
 } & IClassName;
 
 export function TaskItem({ task, selected, onClick, className }: Props) {
-	const { handleStatusUpdate, updateLoading } = useTeamTasks();
+	const { handleStatusUpdate, isPending: updateLoading } = useHandleStatusUpdate();
+
 	const t = useTranslations();
 
 	const handleChange = useCallback(
@@ -142,7 +143,7 @@ export function TaskAvatars({ task, limit = 2 }: { task: PartialITeamTask; limit
 	if (!members?.length) {
 		return (
 			<div className="flex justify-center items-center -space-x-2 avatars min-w-10">
-				<ImageComponent radius={30} diameter={30} images={taskAssignee} item={task} />
+				<ImageComponent radius={30} diameter={30} images={taskAssignee} item={task as TTask} />
 			</div>
 		);
 	}

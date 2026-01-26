@@ -1,13 +1,15 @@
 'use client';
 
-import { activeTeamTaskState, timerStatusState } from '@/core/stores';
+import { timerStatusState } from '@/core/stores';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
 import { useCallback, useEffect } from 'react';
-import { useFirstLoad, useSyncRef } from '../common';
-import { useTeamTasks } from '../organizations';
+import { useFirstLoad } from '../common';
+import { useCurrentActiveTask } from '../organizations/teams/use-current-active-task';
 import { useCurrentTeam } from '../organizations/teams/use-current-team';
+import { useUpdateTaskMutation } from '../organizations/teams/use-update-task.mutation';
 import { useUserQuery } from '../queries/user-user.query';
+import { useSetActiveTask } from '../organizations/teams/use-set-active-task';
 
 /**
  * Auto assign task to auth user when start tracking time
@@ -18,11 +20,10 @@ export function useAutoAssignTask() {
 
 	const timerStatus = useAtomValue(timerStatusState);
 	const { data: authUser } = useUserQuery();
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { task: activeTeamTask } = useCurrentActiveTask();
 
-	const { updateTask, updateLoading } = useTeamTasks();
-
-	const updateLoadingRef = useSyncRef(updateLoading);
+	const { mutateAsync: updateTask, isPending: updateLoading } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 
 	/**
 	 * Assign task to the member
@@ -32,14 +33,14 @@ export function useAutoAssignTask() {
 			const exists = task.members?.some((t) => t.id === employeeId);
 			const newMember = activeTeam?.members?.find((m) => m.employeeId === employeeId);
 
-			if (exists || updateLoadingRef.current) return;
+			if (exists || updateLoading) return;
 
 			return updateTask({
-				...task,
-				members: [...(task.members || []), newMember ? newMember.employee : {}]
-			});
+				taskId: task?.id,
+				taskData: { ...task, members: [...(task.members || []), newMember ? newMember.employee : {}] }
+			}).then((task) => setActiveTask(task));
 		},
-		[updateTask, updateLoadingRef, activeTeam]
+		[updateTask, updateLoading, activeTeam]
 	);
 
 	useEffect(() => {

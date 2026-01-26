@@ -10,18 +10,18 @@ import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 're
 import { DatePicker } from '@/core/components/common/date-picker';
 import { manualTimeReasons } from '@/core/constants/config/constants';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
+import { useCurrentActiveTask } from '@/core/hooks/organizations/teams/use-current-active-task';
 import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useOrganisationTeams } from '@/core/hooks/organizations/teams/use-organisation-teams';
+import { useSortedTasksByCreation } from '@/core/hooks/organizations/teams/use-sorted-tasks';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { clsxm } from '@/core/lib/utils';
-import { activeTeamTaskState, tasksByTeamState } from '@/core/stores';
 import { IAddManualTimeRequest } from '@/core/types/interfaces/timer/time-slot/time-slot';
 import { TOrganizationTeam } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useAtomValue } from 'jotai';
 import { CustomSelect } from '../../common/multiple-select';
 import { getNestedValue, Item, ManageOrMemberComponent } from '../../teams/manage-member-component';
-import { useOrganisationTeams } from '@/core/hooks/organizations/teams/use-organisation-teams';
 
 /**
  * Interface for the properties of the `AddManualTimeModal` component.
@@ -55,8 +55,9 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const [taskId, setTaskId] = useState<string>('');
 	const [timeDifference, setTimeDifference] = useState<string>('');
 
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const tasks = useAtomValue(tasksByTeamState);
+	const { task: activeTeamTask } = useCurrentActiveTask();
+
+	const tasks = useSortedTasksByCreation();
 	const activeTeam = useCurrentTeam();
 	const { teams } = useOrganisationTeams();
 	const { data: user } = useUserQuery();
@@ -234,7 +235,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				return [];
 			}
 
-			const validTasks = tasks.filter(isValidTask);
+			const validTasks = tasks.filter((task) => isValidTask(task));
 			const teamFilteredTasks = validTasks.filter((task) => filterByTeam(task, teamId));
 
 			const finalFilteredTasks = isTeamManager

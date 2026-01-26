@@ -1,97 +1,144 @@
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
-import {
-	getActiveTaskIdCookie,
-	getActiveUserTaskCookie,
-	setActiveTaskIdCookie,
-	setActiveUserTaskCookie
-} from '@/core/lib/helpers/index';
-import { queryKeys } from '@/core/query/keys';
-import { taskService } from '@/core/services/client/api';
-import {
-	activeTeamTaskId,
-	activeTeamTaskState,
-	detailedTaskState,
-	memberActiveTaskIdState,
-	tasksByTeamState,
-	taskStatusesState,
-	teamTasksState
-} from '@/core/stores';
+import { logErrorInDev } from '@/core/lib/helpers/error-message';
+import { getActiveTaskIdCookie, getActiveUserTaskCookie } from '@/core/lib/helpers/index';
+import { memberActiveTaskIdState, taskStatusesState, teamTasksState } from '@/core/stores';
 import { EIssueType, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
-import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
-import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
-import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
-import { ETaskStatusName, TEmployee, TOrganizationTeamEmployee, TTag } from '@/core/types/schemas';
+import { ETaskStatusName, TEmployee, TTag } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import isEqual from 'lodash/isEqual';
 import { useCallback, useRef, useState } from 'react';
-import { toast } from 'sonner';
 import { useAuthenticateUser } from '../../auth';
-import { useConditionalUpdateEffect, useFirstLoad, useQueryCall, useSyncRef } from '../../common';
+import { useConditionalUpdateEffect, useFirstLoad, useSyncRef } from '../../common';
 import { useUserQuery } from '../../queries/user-user.query';
-import { useOrganizationEmployeeTeams } from './use-organization-teams-employee';
+import { useDetailedTask } from '../../tasks/use-detailed-task';
+import { useCreateTaskMutation } from './use-create-task.mutation';
+import { useCurrentActiveTask } from './use-current-active-task';
 import { useCurrentTeam } from './use-current-team';
+import { useDeleteEmployeeFromTasksMutation } from './use-delete-employee-from-tasks.mutation';
+import { useDeleteTaskMutation } from './use-delete-task.mutation';
+import { useGetTasksByEmployeeIdQueryLazy } from './use-get-task-by-employee-id.query';
+import { useCurrentTeamTasksQuery, useGetTaskByIdQueryLazy } from './use-get-team-task.query';
+import { useHandleStatusUpdate } from './use-handle-status-update';
+import { useSetActiveTask } from './use-set-active-task';
+import { useSortedTasksByCreation } from './use-sorted-tasks';
+import { useUpdateTaskMutation } from './use-update-task.mutation';
 
 /**
- * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
+ * @deprecated This monolithic hook has been split into atomic, focused hooks.
+ * Each specialized hook provides better separation of concerns, optimized re-renders,
+ * and proper TanStack Query cache synchronization.
  *
- * @returns {Object} An object containing various functions and state related to team tasks.
- * @property {TTask[]} tasks - The list of team tasks.
- * @property {boolean} loading - Indicates whether the tasks are currently being loaded.
- * @property {boolean} tasksFetching - Indicates whether the tasks are currently being fetched.
- * @property {(task: TTask) => Promise<any>} deleteTask - A function to delete a task.
- * @property {boolean} deleteLoading - Indicates whether a task is currently being deleted.
- * @property {(taskData: { taskName: string; issueType?: string; status?: string; taskStatusId: string; priority?: string; size?: string; tags?: ITaskLabelsItemList[]; description?: string | null; }, members?: { id: string }[]) => Promise<any>} createTask - A function to create a new task.
- * @property {boolean} createLoading - Indicates whether a task is currently being created.
- * @property {(task: Partial<TTask> & { id: string }) => Promise<any>} updateTask - A function to update an existing task.
- * @property {boolean} updateLoading - Indicates whether a task is currently being updated.
- * @property {(task: TTask | null) => void} setActiveTask - A function to set the active task.
- * @property {TTask | null} activeTeamTask - The currently active team task.
- * @property {any} firstLoadTasksData - Data related to the first load of tasks.
- * @property {(newTitle: string, task?: TTask | null, loader?: boolean) => Promise<any>} updateTitle - A function to update the title of a task.
- * @property {(newDescription: string, task?: TTask | null, loader?: boolean) => Promise<any>} updateDescription - A function to update the description of a task.
- * @property {(publicity: boolean, task?: TTask | null, loader?: boolean) => Promise<any>} updatePublicity - A function to update the publicity of a task.
- * @property {<T extends ITaskStatusField>(status: ITaskStatusStack[T], field: T, taskStatusId: TTask['taskStatusId'], task?: TTask | null, loader?: boolean) => Promise<any>} handleStatusUpdate - A function to update the status of a task.
- * @property {(employeeId: string, organizationTeamId: string) => void} getTasksByEmployeeId - A function to fetch tasks by employee ID.
- * @property {boolean} getTasksByEmployeeIdLoading - Indicates whether tasks are currently being fetched by employee ID.
- * @property {TTask['organizationId']} activeTeamId - The ID of the active team.
- * @property {() => void} unassignAuthActiveTask - A function to unassign the active task of the authenticated user.
- * @property {(tasks: TTask[]) => void} setAllTasks - A function to set all the tasks.
- * @property {(deepCheck?: boolean) => Promise<any>} loadTeamTasksData - A function to load the team tasks data.
- * @property {(employeeId: string, organizationTeamId: string) => void} deleteEmployeeFromTasks - A function to delete an employee from tasks.
- * @property {boolean} deleteEmployeeFromTasksLoading - Indicates whether an employee is currently being deleted from tasks.
- * @property {(taskId: string) => Promise<any>} getTaskById - A function to fetch a task by its ID.
- * @property {boolean} getTasksByIdLoading - Indicates whether a task is currently being fetched by its ID.
- * @property {TTask | null} detailedTask - The detailed task.
+ * Keep for backward compatibility
+ *
+ * ## Migration Guide
+ *
+ * ### Task Queries (Read Operations)
+ * | Before (useTeamTasks) | After (New Hook) |
+ * |-----------------------|------------------|
+ * | `tasks` | `useCurrentTeamTasksQuery()` → `data.items` |
+ * | `loading` | `useCurrentTeamTasksQuery()` → `isLoading` |
+ * | `getTaskById()` | `useGetTaskByIdQueryLazy()` → `getTaskById()` |
+ * | `getTasksByIdLoading` | `useGetTaskByIdQueryLazy()` → `isPending` |
+ * | `getTasksByEmployeeId()` | `useGetTasksByEmployeeIdQuery()` |
+ * | `getTasksByEmployeeIdLoading` | `useGetTasksByEmployeeIdQuery()` → `isLoading` |
+ * | `detailedTask` | `useDetailedTask()` → `detailedTaskQuery.data` |
+ * | `loadTeamTasksData()` | `useCurrentTeamTasksQuery()` → `refetch()` |
+ *
+ * ### Task Mutations (Write Operations)
+ * | Before (useTeamTasks) | After (New Hook) |
+ * |-----------------------|------------------|
+ * | `createTask()` | `useCreateTaskMutation()` → `mutateAsync()` |
+ * | `createLoading` | `useCreateTaskMutation()` → `isPending` |
+ * | `updateTask()` | `useUpdateTaskMutation()` → `mutateAsync()` |
+ * | `updateLoading` | `useUpdateTaskMutation()` → `isPending` |
+ * | `updateTitle()` | `useUpdateTaskMutation()` → `mutateAsync({ title })` |
+ * | `updateDescription()` | `useUpdateTaskMutation()` → `mutateAsync({ description })` |
+ * | `updatePublicity()` | `useUpdateTaskMutation()` → `mutateAsync({ public })` |
+ * | `deleteTask()` | `useDeleteTaskMutation()` → `mutateAsync()` |
+ * | `deleteLoading` | `useDeleteTaskMutation()` → `isPending` |
+ * | `handleStatusUpdate()` | `useHandleStatusUpdate()` → `handleStatusUpdate()` |
+ * | `deleteEmployeeFromTasks()` | `useDeleteEmployeeFromTasksMutation()` → `mutateAsync()` |
+ * | `deleteEmployeeFromTasksLoading` | `useDeleteEmployeeFromTasksMutation()` → `isPending` |
+ *
+ * ### Active Task Management
+ * | Before (useTeamTasks) | After (New Hook) |
+ * |-----------------------|------------------|
+ * | `activeTeamTask` | `useCurrentActiveTask()` → `task` |
+ * | `setActiveTask()` | `useSetActiveTask()` → `setActiveTask()` |
+ * | `isUpdatingActiveTask` | `useSetActiveTask()` → `isPending` |
+ * | `unassignAuthActiveTask()` | `useSetActiveTask()` → `setActiveTask(null)` |
+ *
+ * ### Team & Utility
+ * | Before (useTeamTasks) | After (New Hook) |
+ * |-----------------------|------------------|
+ * | `activeTeam` | `useCurrentTeam()` |
+ * | `activeTeamId` | `useCurrentTeam()` → `id` |
+ * | `tasks` (sorted) | `useSortedTasksByCreation()` |
+ * | `setAllTasks()` | Direct Jotai: `useSetAtom(teamTasksState)` |
+ *
+ * ## Examples
+ *
+ * ### Before (Monolithic)
+ * ```typescript
+ * const {
+ *   tasks,
+ *   loading,
+ *   createTask,
+ *   createLoading,
+ *   activeTeamTask,
+ *   setActiveTask
+ * } = useTeamTasks();
+ * ```
+ *
+ * ### After (Atomic Hooks)
+ * ```typescript
+ * // Only subscribe to what you need - better performance!
+ * const { data: tasksResult, isLoading } = useCurrentTeamTasksQuery();
+ * const tasks = tasksResult?.items ?? [];
+ *
+ * const { mutateAsync: createTask, isPending: createLoading } = useCreateTaskMutation();
+ *
+ * const { task: activeTeamTask } = useCurrentActiveTask();
+ * const { setActiveTask } = useSetActiveTask();
+ * ```
+ *
+ * @see useCurrentTeamTasksQuery - Fetch team tasks with TanStack Query
+ * @see useGetTaskByIdQueryLazy - Lazy fetch single task by ID
+ * @see useGetTasksByEmployeeIdQuery - Fetch tasks assigned to employee
+ * @see useDetailedTask - Manage task detail panel state and data
+ * @see useCreateTaskMutation - Create new tasks
+ * @see useUpdateTaskMutation - Update existing tasks
+ * @see useDeleteTaskMutation - Delete tasks
+ * @see useHandleStatusUpdate - Update task status fields
+ * @see useDeleteEmployeeFromTasksMutation - Remove employee from all tasks
+ * @see useCurrentActiveTask - Get current user's active task
+ * @see useSetActiveTask - Set/unset active task
+ * @see useCurrentTeam - Get current active team
+ * @see useSortedTasksByCreation - Get tasks sorted by creation date
  */
-
 export function useTeamTasks() {
-	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
-	const { user, $user } = useAuthenticateUser();
-	const queryClient = useQueryClient();
+	const { user } = useAuthenticateUser();
+	/** Change active task */
+	const { setActiveTask, isPending: isUpdatingActiveTask } = useSetActiveTask();
 
 	const setAllTasks = useSetAtom(teamTasksState);
-	const tasks = useAtomValue(tasksByTeamState);
-	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
+	const tasks = useSortedTasksByCreation();
+	const {
+		detailedTaskQuery: { data: detailedTask },
+		setDetailedTaskId
+	} = useDetailedTask();
 	const tasksRef = useSyncRef(tasks);
 	const { data: userData } = useUserQuery();
 	const authUser = useSyncRef(userData);
-	const setActive = useSetAtom(activeTeamTaskId);
 	const memberActiveTaskId = useAtomValue(memberActiveTaskIdState);
-	const $memberActiveTaskId = useSyncRef(memberActiveTaskId);
 	const taskStatuses = useAtomValue(taskStatusesState);
 	const activeTeam = useCurrentTeam();
 	const activeTeamRef = useSyncRef(activeTeam);
-	const [selectedEmployeeId, setSelectedEmployeeId] = useState(user?.employee?.id);
-	const [selectedOrganizationTeamId, setSelectedOrganizationTeamId] = useState(activeTeam?.id);
-	const [activeTeamTask, setActiveTeamTask] = useAtom(activeTeamTaskState);
-	const [isUpdatingActiveTask, setIsUpdatingActiveTask] = useState(false);
-
-	// Keep activeTeamTask in sync with a ref to avoid stale closures in setActiveTask
-	const activeTeamTaskRef = useSyncRef(activeTeamTask);
+	const [, setSelectedEmployeeId] = useState(user?.employee?.id);
+	const [, setSelectedOrganizationTeamId] = useState(activeTeam?.id);
+	const { task: activeTeamTask } = useCurrentActiveTask();
 
 	// Track expected task ID to prevent stale server data from overwriting local selection.
 	// When user selects a task, we store its ID here. The sync effect will skip updates
@@ -99,108 +146,38 @@ export function useTeamTasks() {
 	const expectedActiveTaskIdRef = useRef<string | null>(null);
 	const { firstLoad, firstLoadData: firstLoadTasksData } = useFirstLoad();
 
-	// React Query for team tasks
-	const teamTasksQuery = useQuery({
-		queryKey: queryKeys.tasks.byTeam(activeTeam?.id),
-		queryFn: async () => {
-			if (!activeTeam?.id) {
-				throw new Error('Required parameters missing');
-			}
-			const projectId = activeTeam?.projects && activeTeam?.projects.length > 0 ? activeTeam.projects[0].id : '';
-			return await taskService.getTasks({ projectId });
-		},
-		enabled: !!activeTeam?.id,
-		gcTime: 1000 * 60 * 60
-	});
+	/**
+	 * React Query for team tasks
+	 * Keep for backward compatibility
+	 * @deprecated use `useCurrentTeamTasksQuery()` hook, that is in sync with tanstack
+	 */
+	const teamTasksQuery = useCurrentTeamTasksQuery();
 
-	const { queryCall: getTaskByIdQuery, loading: getTasksByIdLoading } = useQueryCall(async (taskId: string) =>
-		queryClient.fetchQuery({
-			queryKey: queryKeys.tasks.detail(taskId),
-			queryFn: async () => {
-				if (!taskId) {
-					throw new Error('Task ID is required');
-				}
-				return await taskService.getTaskById(taskId);
-			}
-		})
-	);
+	const { getTaskById: getTaskByIdQuery, isPending: getTasksByIdLoading } = useGetTaskByIdQueryLazy();
 
-	const getTasksByEmployeeIdQuery = useQuery({
-		queryKey: queryKeys.tasks.byEmployee(selectedEmployeeId, selectedOrganizationTeamId),
-		queryFn: async () => {
-			if (!activeTeam?.id) {
-				throw new Error('Required parameters missing');
-			}
-			return await taskService.getTasksByEmployeeId({ employeeId: selectedEmployeeId! });
-		},
-		enabled: !!selectedEmployeeId && !!activeTeam?.id && !!selectedOrganizationTeamId,
-		gcTime: 1000 * 60 * 60
-	});
+	/**
+	 * Keep for backward compatibility
+	 * @deprecated use `useGetTasksByEmployeeIdQueryLazy()` hook, that is in sync with tanstack
+	 */
+	const { getTasksByEmployeeIdQuery, isLoading: getTasksByEmployeeIdLoading } = useGetTasksByEmployeeIdQueryLazy();
 
 	// Mutations
-	const createTaskMutation = useMutation({
-		mutationFn: async (taskData: Parameters<typeof taskService.createTask>[0]) => {
-			return await taskService.createTask(taskData);
-		},
-		onSuccess: () => {
-			invalidateTeamTasksData();
-		}
-	});
+	const createTaskMutation = useCreateTaskMutation();
 
-	const updateTaskMutation = useMutation({
-		mutationFn: async ({ taskId, taskData }: { taskId: string; taskData: Partial<TTask> }) => {
-			return await taskService.updateTask({ taskId, data: taskData });
-		},
-		onSuccess: (updatedTask, { taskId }) => {
-			queryClient.setQueryData(queryKeys.tasks.byTeam(activeTeam?.id), (oldTasks: PaginationResponse<TTask>) => {
-				if (!oldTasks) return oldTasks;
+	const updateTaskMutation = useUpdateTaskMutation();
 
-				const updatedItems = oldTasks?.items?.map((task) =>
-					task.id === taskId ? { ...task, ...updatedTask } : task
-				);
+	const deleteTaskMutation = useDeleteTaskMutation();
 
-				// Sync the tasks store
-				setAllTasks(updatedItems);
+	const deleteEmployeeFromTasksMutation = useDeleteEmployeeFromTasksMutation();
 
-				return updatedItems ? { items: updatedItems, total: updatedItems.length } : oldTasks;
-			});
-			// Invalidate both tasks and daily plans to ensure UI synchronization
-			invalidateTeamTasksData();
-		}
-	});
-
-	const deleteTaskMutation = useMutation({
-		mutationFn: async (taskId: string) => {
-			return await taskService.deleteTask(taskId);
-		},
-		onSuccess: () => {
-			invalidateTeamTasksData();
-		}
-	});
-
-	const deleteEmployeeFromTasksMutation = useMutation({
-		mutationFn: async (employeeId: string) => {
-			return await taskService.deleteEmployeeFromTasks(employeeId);
-		},
-		onSuccess: () => {
-			invalidateTeamTasksData();
-		}
-	});
-
-	// Invalidation function
-	const invalidateTeamTasksData = useCallback(() => {
-		queryClient.invalidateQueries({
-			queryKey: queryKeys.tasks.all
-		});
-		queryClient.invalidateQueries({
-			queryKey: queryKeys.tasks.byTeam(activeTeam?.id)
-		});
-		queryClient.invalidateQueries({
-			queryKey: queryKeys.dailyPlans.all
-		});
-	}, [activeTeam?.id, queryClient]);
-
-	// Deep update function
+	/**
+	 * Deep update function
+	 * Keep for backward compatibility
+	 * @deprecated use `useCurrentTeamTasksQuery()` hooks that is in sync with tanstack !
+	 *
+	 * @example
+	 * const { data: tasks } = useCurrentTeamTasksQuery();
+	 */
 	const deepCheckAndUpdateTasks = useCallback(
 		(responseTasks: TTask[], deepCheck?: boolean) => {
 			if (responseTasks && responseTasks.length) {
@@ -236,26 +213,37 @@ export function useTeamTasks() {
 		[activeTeamRef, setAllTasks, tasksRef]
 	);
 
+	/**
+	 * Keep for backward compatibility
+	 * @deprecated use `useGetTaskByIdQueryLazy()` hooks that is in sync with tanstack !
+	 *
+	 * @example
+	 * const { getTaskById } = useGetTaskByIdQueryLazy();
+	 */
 	const getTaskById = useCallback(
 		async (taskId: string) => {
 			tasksRef.current.forEach((task) => {
 				if (task.id === taskId) {
-					setDetailedTask(task);
+					setDetailedTaskId(task?.id);
 				}
 			});
 
 			try {
 				const res = await getTaskByIdQuery(taskId);
-				setDetailedTask(res || null);
+				setDetailedTaskId(res?.id || null);
 				return res;
 			} catch (error) {
 				console.error('Error fetching task by ID:', error);
 				return null;
 			}
 		},
-		[setDetailedTask, tasksRef]
+		[setDetailedTaskId, tasksRef]
 	);
 
+	/**
+	 * Keep for backward compatibility
+	 * @deprecated use `useGetTasksByEmployeeIdQueryLazy()` hook, that is in sync with tanstack
+	 */
 	const getTasksByEmployeeId = useCallback(
 		async (employeeId: string, organizationTeamId: string) => {
 			try {
@@ -266,8 +254,8 @@ export function useTeamTasks() {
 				setSelectedEmployeeId(employeeId);
 				setSelectedOrganizationTeamId(organizationTeamId);
 
-				const res = await getTasksByEmployeeIdQuery.refetch();
-				return res.data;
+				const res = await getTasksByEmployeeIdQuery(employeeId);
+				return res;
 			} catch (error) {
 				console.error('Error fetching tasks by employee ID:', error);
 				return [];
@@ -296,23 +284,10 @@ export function useTeamTasks() {
 		[teamTasksQuery, deepCheckAndUpdateTasks, user, activeTeamRef]
 	);
 
-	const setActiveUserTaskCookieCb = useCallback(
-		(task: TTask | null) => {
-			if (task?.id && authUser.current?.id) {
-				setActiveUserTaskCookie({
-					taskId: task?.id,
-					userId: authUser.current?.id
-				});
-			} else {
-				setActiveUserTaskCookie({
-					taskId: '',
-					userId: ''
-				});
-			}
-		},
-		[authUser]
-	);
-
+	/**
+	 * Keep for backward compatibility
+	 * @deprecated use `useDeleteTaskMutation()` hooks that is in sync with tanstack !
+	 */
 	const deleteTask = useCallback(
 		async (task: (typeof tasks)[0]) => {
 			try {
@@ -325,6 +300,10 @@ export function useTeamTasks() {
 		[deleteTaskMutation, setAllTasks]
 	);
 
+	/**
+	 * Keep for backward compatibility
+	 * @deprecated use `useCreateTaskMutation()` hooks that is in sync with tanstack !
+	 */
 	const createTask = useCallback(
 		async ({
 			title,
@@ -373,6 +352,10 @@ export function useTeamTasks() {
 		[createTaskMutation, deepCheckAndUpdateTasks, taskStatuses]
 	);
 
+	/**
+	 * Keep for backward compatibility
+	 * @deprecated use `useUpdateTaskMutation()` hooks that is in sync with tanstack !
+	 */
 	const updateTask = useCallback(
 		async (task: Partial<TTask> & { id: string }) => {
 			try {
@@ -380,9 +363,7 @@ export function useTeamTasks() {
 					taskId: task.id,
 					taskData: task
 				});
-				setActive({
-					id: ''
-				});
+				setActiveTask(res);
 
 				if (detailedTask) {
 					await getTaskById(task.id);
@@ -394,9 +375,13 @@ export function useTeamTasks() {
 				throw error;
 			}
 		},
-		[updateTaskMutation, setActive, deepCheckAndUpdateTasks, detailedTask, getTaskById]
+		[updateTaskMutation, setActiveTask, deepCheckAndUpdateTasks, detailedTask, getTaskById]
 	);
 
+	/**
+	 * Keep for backward compatibility
+	 * @deprecated use `useUpdateTaskMutation()` or `useDetailedTask()` hooks that is in sync with tanstack !
+	 */
 	const updateTitle = useCallback(
 		async ({
 			newTitle,
@@ -414,16 +399,20 @@ export function useTeamTasks() {
 					...task,
 					title: newTitle
 				});
-				if (isDetailedTask) {
-					setDetailedTask(res);
-				}
+				if (isDetailedTask) setDetailedTaskId(res?.id);
+
 				return res;
 			}
 			return Promise.resolve();
 		},
-		[updateTask, setDetailedTask]
+		[updateTask, setDetailedTaskId]
 	);
 
+	/**
+	 * Keep for backward compatibility
+	 * @deprecated use `useUpdateTaskMutation()` or `useDetailedTask()` hooks that is in sync with tanstack !
+	 *
+	 */
 	const updateDescription = useCallback(
 		async ({
 			newDescription,
@@ -442,15 +431,19 @@ export function useTeamTasks() {
 					description: newDescription
 				});
 				if (isDetailedTask) {
-					setDetailedTask(res);
+					setDetailedTaskId(res?.id);
 				}
 				return res;
 			}
 			return Promise.resolve();
 		},
-		[updateTask, setDetailedTask]
+		[updateTask, setDetailedTaskId]
 	);
 
+	/**
+	 * Keep for backward compatibility
+	 * @deprecated use `useUpdateTaskMutation()` or `useDetailedTask()` hooks that is in sync with tanstack !
+	 */
 	const updatePublicity = useCallback(
 		async ({
 			publicity,
@@ -469,174 +462,25 @@ export function useTeamTasks() {
 					public: publicity
 				});
 				if (isDetailedTask) {
-					setDetailedTask({
-						...detailedTask,
-						public: res.public
-					} as TTask);
+					setDetailedTaskId(task?.id);
 				}
 				return res;
 			}
 			return Promise.resolve();
 		},
-		[updateTask, setDetailedTask]
-	);
-
-	const handleStatusUpdate = useCallback(
-		<T extends ITaskStatusField>(
-			status: ITaskStatusStack[T],
-			field: T,
-			taskStatusId: TTask['taskStatusId'],
-			task?: TTask | null,
-			loader?: boolean
-		) => {
-			if (task && status !== (task as any)[field]) {
-				if (field === 'status' && status === 'closed') {
-					const active_user_task = getActiveUserTaskCookie();
-					if (active_user_task?.taskId === task.id) {
-						setActiveUserTaskCookie({
-							taskId: '',
-							userId: ''
-						});
-					}
-					const active_task_id = getActiveTaskIdCookie();
-					if (active_task_id === task.id) {
-						setActiveTaskIdCookie('');
-					}
-				}
-
-				return updateTask({
-					...task,
-					taskStatusId: taskStatusId ?? task.taskStatusId,
-					[field]: status
-				});
-			}
-		},
-		[updateTask]
+		[updateTask, setDetailedTaskId]
 	);
 
 	/**
-	 * Change active task
+	 * Keep for backward compatibility
+	 * @deprecated use `useHandleStatusUpdate()` hooks that is in sync with tanstack !
 	 */
-	const setActiveTask = useCallback(
-		async (task: TTask | null) => {
-			// Set flag to prevent race conditions with server sync
-			setIsUpdatingActiveTask(true);
+	const { handleStatusUpdate } = useHandleStatusUpdate();
 
-			try {
-				/**
-				 * Unassign previous active task
-				 */
-				if ($memberActiveTaskId.current && $user.current) {
-					const _task = tasksRef.current.find((t) => t.id === $memberActiveTaskId.current);
-
-					if (_task) {
-						await updateTask({
-							..._task,
-							members: _task.members?.filter((m) => m.id !== $user.current?.employee?.id)
-						});
-					}
-				}
-
-				// Use ref to get current activeTeamTask to avoid stale closure
-				const previousTask = activeTeamTaskRef.current;
-				const previousTaskId = getActiveTaskIdCookie();
-
-				// Set expected task ID BEFORE updating state/cookies.
-				// This prevents the sync effect from overwriting with stale server data.
-				expectedActiveTaskIdRef.current = task?.id || null;
-
-				setActiveTaskIdCookie(task?.id || '');
-				setActiveTeamTask(task);
-				setActiveUserTaskCookieCb(task);
-
-				if (task) {
-					/**
-					 * Sync active task to server for multi-device support.
-					 * Cookies are already set above, so local persistence works even if API fails.
-					 * Retry up to 3 times because activeTeam.members may not be loaded yet on first render.
-					 */
-					const MAX_RETRIES = 3;
-					const RETRY_DELAY_MS = 500;
-
-					try {
-						let success = false;
-
-						// Use activeTeamRef.current to get fresh values on each retry attempt.
-						// Using activeTeam directly would capture the stale closure value.
-						for (let attempt = 1; attempt <= MAX_RETRIES && !success; attempt++) {
-							const currentEmployeeDetails = activeTeamRef.current?.members?.find(
-								(member: TOrganizationTeamEmployee) =>
-									member.employeeId === authUser.current?.employee?.id
-							);
-
-							if (currentEmployeeDetails?.id) {
-								await updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
-									organizationId: task.organizationId,
-									activeTaskId: task.id,
-									organizationTeamId: activeTeamRef.current?.id,
-									tenantId: activeTeamRef.current?.tenantId ?? ''
-								});
-								success = true;
-							} else if (attempt < MAX_RETRIES) {
-								await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
-							}
-						}
-
-						if (!success) {
-							// All retries exhausted - members may not be loaded yet.
-							// Local state (cookies + Jotai) is already persisted, only server sync failed.
-							logErrorInDev(
-								'[setActiveTask] Failed to sync after retries - members may not be loaded',
-								null
-							);
-							// Clear expected ID to allow server sync to resume
-							expectedActiveTaskIdRef.current = null;
-						}
-
-						if (success) {
-							toast.success('Active task updated', {
-								description: `"${task.title}" is now your active task`
-							});
-
-							// Short delay to let React Query stabilize before clearing isUpdatingActiveTask.
-							// The expectedActiveTaskIdRef provides the main protection against stale data,
-							// this delay is just an extra safety buffer for edge cases.
-							// NOTE: Do NOT invalidate queries here - updateActiveTaskMutation already handles it.
-							await new Promise((resolve) => setTimeout(resolve, 600));
-							// Clear expectation on success - server will confirm via sync effect
-							expectedActiveTaskIdRef.current = null;
-						}
-					} catch (error) {
-						logErrorInDev('[setActiveTask] API call failed:', error);
-						toast.error('Failed to update active task', {
-							description: getErrorMessage(error)
-						});
-						// Rollback: restore previous state and clear expected ID
-						expectedActiveTaskIdRef.current = previousTaskId || null;
-						setActiveTaskIdCookie(previousTaskId || '');
-						setActiveTeamTask(previousTask);
-						setActiveUserTaskCookieCb(previousTask);
-					}
-				}
-			} finally {
-				// Always clear the flag, even if an error occurred
-				setIsUpdatingActiveTask(false);
-			}
-		},
-		[
-			setActiveTeamTask,
-			setActiveUserTaskCookieCb,
-			updateOrganizationTeamEmployeeActiveTask,
-			activeTeam,
-			authUser,
-			$memberActiveTaskId,
-			$user,
-			tasksRef,
-			updateTask,
-			setIsUpdatingActiveTask
-		]
-	);
-
+	/**
+	 * Keep for backward compatibility
+	 * @deprecated use `useDeleteEmployeeFromTasksMutation()` hooks that is in sync with tanstack !
+	 */
 	const deleteEmployeeFromTasks = useCallback(
 		async (employeeId: string) => {
 			try {
@@ -649,10 +493,17 @@ export function useTeamTasks() {
 		[deleteEmployeeFromTasksMutation]
 	);
 
+	/**
+	 * Keep for backward compatibility
+	 * @deprecated use null with `useSetActiveTask()` hooks that is in sync with tanstack !
+	 *
+	 * @example
+	 * const { setActiveTask } = useSetActiveTask();
+	 * setActiveTask(null);
+	 */
 	const unassignAuthActiveTask = useCallback(() => {
-		setActiveTaskIdCookie('');
-		setActiveTeamTask(null);
-	}, [setActiveTeamTask]);
+		setActiveTask(null);
+	}, [setActiveTask]);
 
 	useConditionalUpdateEffect(
 		() => {
@@ -676,7 +527,7 @@ export function useTeamTasks() {
 			// No local expectation - sync from server (multi-device sync or initial load)
 			const memberActiveTask = tasks.find((item) => item.id === memberActiveTaskId);
 			if (memberActiveTask) {
-				setActiveTeamTask(memberActiveTask);
+				setActiveTask(memberActiveTask);
 			}
 		},
 		[activeTeam, tasks, memberActiveTaskId, isUpdatingActiveTask],
@@ -704,7 +555,7 @@ export function useTeamTasks() {
 						? active_user_task?.taskId
 						: getActiveTaskIdCookie() || '';
 
-				setActiveTeamTask(tasks.find((ts) => ts.id === active_taskid) || null);
+				setActiveTask(tasks.find((ts) => ts.id === active_taskid) || null);
 			}
 		},
 		[tasks, firstLoad, authUser],
@@ -740,7 +591,7 @@ export function useTeamTasks() {
 		updatePublicity,
 		handleStatusUpdate,
 		getTasksByEmployeeId,
-		getTasksByEmployeeIdLoading: getTasksByEmployeeIdQuery.isLoading,
+		getTasksByEmployeeIdLoading,
 		activeTeam,
 		activeTeamId: activeTeam?.id,
 		unassignAuthActiveTask,

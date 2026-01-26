@@ -1,11 +1,9 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useSyncRef, useTeamTasks } from '@/core/hooks';
+import { useSyncRef } from '@/core/hooks';
 import { calculateRemainingDays, formatDateString } from '@/core/lib/helpers/index';
 import { clsxm } from '@/core/lib/utils';
-import { detailedTaskState } from '@/core/stores';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { TrashIcon } from 'assets/svg';
-import { useAtom, useAtomValue } from 'jotai';
 import { forwardRef, useCallback, useState } from 'react';
 import ProfileInfo from '../components/profile-info';
 import TaskRow from '../components/task-row';
@@ -19,11 +17,16 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useUpdateTaskMutation } from '@/core/hooks/organizations/teams/use-update-task.mutation';
+import { useDetailedTask } from '@/core/hooks/tasks/use-detailed-task';
 import { useTaskMemberManagement } from '@/core/hooks/tasks/use-task-member-management';
 import { MemberSection } from './member-section';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
 
 const TaskMainInfo = () => {
-	const [task] = useAtom(detailedTaskState);
+	const {
+		detailedTaskQuery: { data: task }
+	} = useDetailedTask();
 	const activeTeam = useCurrentTeam();
 	const t = useTranslations();
 
@@ -63,7 +66,7 @@ const TaskMainInfo = () => {
 							</Link>
 						))}
 
-					<ManageMembersPopover memberList={activeTeam?.members || []} task={task} />
+					<ManageMembersPopover memberList={activeTeam?.members || []} task={task ?? null} />
 				</div>
 			</TaskRow>
 
@@ -79,8 +82,11 @@ const DateCustomInput = forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
 DateCustomInput.displayName = 'DateCustomInput';
 
 function DueDates() {
-	const { updateTask } = useTeamTasks();
-	const task = useAtomValue(detailedTaskState);
+	const { mutateAsync: updateTask } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
+	const {
+		detailedTaskQuery: { data: task }
+	} = useDetailedTask();
 	const t = useTranslations();
 	const [startDate, setStartDate] = useState<Date | null>(null);
 	const [dueDate, setDueDate] = useState<Date | null>(null);
@@ -103,7 +109,9 @@ function DueDates() {
 			}
 
 			if (task) {
-				updateTask({ ...task, [date]: null });
+				updateTask({ taskData: { ...task, [date]: null }, taskId: task?.id }).then((task) =>
+					setActiveTask(task)
+				);
 			}
 		},
 		[$startDate, $dueDate, task, updateTask]
@@ -139,7 +147,9 @@ function DueDates() {
 							setStartDate(date);
 
 							if (task) {
-								updateTask({ ...task, startDate: date });
+								updateTask({ taskData: { ...task, startDate: date }, taskId: task?.id }).then((task) =>
+									setActiveTask(task)
+								);
 							}
 						}
 					}}
@@ -191,7 +201,7 @@ function DueDates() {
 						) {
 							setDueDate(date);
 							if (task) {
-								updateTask({ ...task, dueDate: date });
+								updateTask({ taskId: task?.id, taskData: { ...task, dueDate: date } });
 							}
 						}
 					}}

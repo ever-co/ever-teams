@@ -1,25 +1,24 @@
-import Toolbar from './editor-toolbar';
-import {
-	TextEditorService,
-	withHtml,
-	withChecklists,
-	isValidSlateObject,
-	isMarkdown,
-	markdownToHtml
-} from '../../../../lib/helpers/text-editor-service';
+import { useDetailedTask } from '@/core/hooks/tasks/use-detailed-task';
 import isHotkey from 'is-hotkey';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { Editor, createEditor, Element as SlateElement, Descendant, Transforms, Range } from 'slate';
+import { createEditor, Descendant, Editor, Range, Element as SlateElement, Transforms } from 'slate';
 import { withHistory } from 'slate-history';
-import { Editable, withReact, Slate } from 'slate-react';
-import EditorFooter from './editor-footer';
-import { useAtom } from 'jotai';
-import { detailedTaskState } from '@/core/stores';
+import { Editable, Slate, withReact } from 'slate-react';
 import { htmlToSlate } from 'slate-serializers';
-import { isHtml } from '../../../../lib/helpers/text-editor-service';
-import LinkElement from './editor-components/link-element';
 import { configHtmlToSlate } from '../../../../lib/helpers/text-editor-serializer-configurations';
+import {
+	isHtml,
+	isMarkdown,
+	isValidSlateObject,
+	markdownToHtml,
+	TextEditorService,
+	withChecklists,
+	withHtml
+} from '../../../../lib/helpers/text-editor-service';
 import CheckListElement from './editor-components/check-list-element';
+import LinkElement from './editor-components/link-element';
+import EditorFooter from './editor-footer';
+import Toolbar from './editor-toolbar';
 
 const HOTKEYS: { [key: string]: string } = {
 	'mod+b': 'bold',
@@ -38,7 +37,9 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 	const renderElement = useCallback((props: any) => <Element {...props} />, []);
 	const renderLeaf = useCallback((props: any) => <Leaf {...props} />, []);
 	const editor = useMemo(() => withChecklists(withHtml(withHistory(withReact(createEditor())))), []);
-	const [task] = useAtom(detailedTaskState);
+	const {
+		detailedTaskQuery: { data: task }
+	} = useDetailedTask();
 	const [isUpdated, setIsUpdated] = useState<boolean>(false);
 	const [editorValue, setEditorValue] = useState<any>();
 	const editorRef = useRef<HTMLDivElement>(null);

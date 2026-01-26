@@ -1,26 +1,28 @@
 'use client';
 
-import { useTeamTasks, useUserProfilePage } from '@/core/hooks';
-import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Button, Container } from '@/core/components';
-import { ArrowLeftIcon } from 'assets/svg';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { MainLayout } from '@/core/components/layouts/default-layout';
-import { useRouter, useParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useUserProfilePage } from '@/core/hooks';
+import { ArrowLeftIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 
-import { fullWidthState } from '@/core/stores/common/full-width';
-import { useAtomValue } from 'jotai';
-import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { TaskDetailsPageSkeleton } from '@/core/components/common/skeleton/task-details-page-skeleton';
-import { DocumentMagnifyingGlassIcon } from '@heroicons/react/20/solid';
+import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { clsxm } from '@/core/lib/utils';
+import { fullWidthState } from '@/core/stores/common/full-width';
+import { DocumentMagnifyingGlassIcon } from '@heroicons/react/20/solid';
+import { useAtomValue } from 'jotai';
 import Link from 'next/link';
 
 // Import optimized components from centralized location
 import { LazyTaskDetailsComponent } from '@/core/components/optimized-components';
-import { detailedTaskState, isTrackingEnabledState } from '@/core/stores';
 import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useGetTaskByIdQueryLazy } from '@/core/hooks/organizations/teams/use-get-team-task.query';
+import { useDetailedTask } from '@/core/hooks/tasks/use-detailed-task';
+import { isTrackingEnabledState } from '@/core/stores';
 
 const TaskDetails = () => {
 	const profile = useUserProfilePage();
@@ -30,8 +32,12 @@ const TaskDetails = () => {
 
 	const activeTeam = useCurrentTeam();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
-	const detailedTask = useAtomValue(detailedTaskState);
-	const { getTaskById, getTasksByIdLoading } = useTeamTasks();
+	const {
+		detailedTaskQuery: { data: detailedTask },
+		setDetailedTaskId
+	} = useDetailedTask();
+	const { getTaskById, isPending: getTasksByIdLoading } = useGetTaskByIdQueryLazy();
+
 	const fullWidth = useAtomValue(fullWidthState);
 
 	// State to track if we've already tried to load the task
@@ -56,7 +62,7 @@ const TaskDetails = () => {
 			(!detailedTask || (detailedTask && detailedTask.id !== id)) &&
 			!getTasksByIdLoading
 		) {
-			getTaskById(id as string);
+			getTaskById(id as string).then((task) => setDetailedTaskId(task?.id));
 			setHasAttemptedLoad(true);
 		}
 	}, [getTaskById, router, detailedTask, getTasksByIdLoading, id]);

@@ -1,15 +1,19 @@
 import { queryKeys } from '@/core/query/keys';
 import { taskEstimationsService } from '@/core/services/client/api/tasks/task-estimations.service';
+import { TCreateTaskEstimation, TTaskEstimation } from '@/core/types/schemas/task/task-estimation.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useConditionalUpdateEffect } from '../common';
-import { detailedTaskState } from '@/core/stores';
-import { useAtom } from 'jotai';
-import { TCreateTaskEstimation, TTaskEstimation } from '@/core/types/schemas/task/task-estimation.schema';
+import { useDetailedTask } from './use-detailed-task';
+
 export function useTaskEstimations() {
 	const queryClient = useQueryClient();
-	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
+	const {
+		detailedTaskQuery: { data: detailedTask },
+		detailedTaskId,
+		setDetailedTaskId
+	} = useDetailedTask();
 
 	const detailedTaskQueryData = queryClient.getQueryData(queryKeys.tasks.detail(detailedTask?.id)) as TTask;
 
@@ -78,13 +82,18 @@ export function useTaskEstimations() {
 		}
 	});
 
+	/**
+	 * Will never be executed,
+	 * because detailedTaskQueryData?.id and detailedTaskId will always be the same
+	 * but keep for backward compatibility
+	 */
 	useConditionalUpdateEffect(
 		() => {
-			if (detailedTaskQueryData) {
-				setDetailedTask(detailedTaskQueryData);
+			if (detailedTaskQueryData && detailedTaskQueryData?.id != detailedTaskId) {
+				setDetailedTaskId(detailedTaskQueryData?.id);
 			}
 		},
-		[detailedTaskQueryData],
+		[detailedTaskQueryData, detailedTaskId, setDetailedTaskId],
 		Boolean(detailedTaskQueryData)
 	);
 

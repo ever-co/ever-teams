@@ -19,13 +19,14 @@ import {
 	useTaskStatistics,
 	useTeamMemberCard
 } from '@/core/hooks';
+import { useCurrentActiveTask } from '@/core/hooks/organizations/teams/use-current-active-task';
 import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useFavoriteTasks } from '@/core/hooks/tasks/use-favorites-task';
 import { useTimerButtonLogic } from '@/core/hooks/tasks/use-timer-button';
 import { secondsToTime, tomorrowDate } from '@/core/lib/helpers/index';
 import { clsxm } from '@/core/lib/utils';
-import { activeTeamTaskState, timerSecondsState } from '@/core/stores';
+import { timerSecondsState } from '@/core/stores';
 import { Nullable, SetAtom } from '@/core/types/generics';
 import { EDailyPlanMode, EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
@@ -388,7 +389,7 @@ const TimerButtonCall = React.memo(
 		activeTeam: TOrganizationTeam | null;
 		className?: string;
 	}) => {
-		const activeTeamTask = useAtomValue(activeTeamTaskState);
+		const { task: activeTeamTask } = useCurrentActiveTask();
 
 		const {
 			loading,

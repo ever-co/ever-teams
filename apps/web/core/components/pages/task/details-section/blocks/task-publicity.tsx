@@ -1,23 +1,31 @@
-import { useTeamTasks } from '@/core/hooks';
-import { detailedTaskState } from '@/core/stores';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
+import { useUpdateTaskMutation } from '@/core/hooks/organizations/teams/use-update-task.mutation';
+import { useDetailedTask } from '@/core/hooks/tasks/use-detailed-task';
 import { clsxm } from '@/core/lib/utils';
-import { debounce } from 'lodash';
-import { useCallback, useEffect, useState } from 'react';
-import { useAtomValue } from 'jotai';
-import { useTranslations } from 'next-intl';
 import { GlobeIcon, LockIcon } from 'assets/svg';
+import { debounce } from 'lodash';
+import { useTranslations } from 'next-intl';
+import { useCallback, useEffect, useState } from 'react';
 
 const TaskPublicity = () => {
-	const task = useAtomValue(detailedTaskState);
+	const {
+		detailedTaskQuery: { data: task },
+		detailedTaskId
+	} = useDetailedTask();
+
 	const t = useTranslations();
 	const [isTaskPublic, setIsTaskPublic] = useState<boolean | undefined | null>(task?.public);
-	const { updatePublicity } = useTeamTasks();
+	const { mutateAsync: updatePublicity } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 
 	const handlePublicity = useCallback(
 		(value: boolean) => {
 			setIsTaskPublic(value);
 			const debounceUpdatePublicity = debounce((value) => {
-				updatePublicity({ publicity: value, task, loader: true, isDetailedTask: true });
+				if (!task?.id || !detailedTaskId) return setIsTaskPublic(task?.public);
+				updatePublicity({ taskId: task?.id, taskData: { ...task, public: value } })
+					.then((task) => setActiveTask(task))
+					.then(() => setIsTaskPublic(value));
 			}, 500);
 			debounceUpdatePublicity(value);
 		},

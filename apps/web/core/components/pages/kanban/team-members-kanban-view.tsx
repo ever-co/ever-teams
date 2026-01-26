@@ -89,7 +89,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		};
 
 		// update task status on the server
-		updateTaskStatus(updateTaskStatusData);
+		updateTaskStatus({ taskData: updateTaskStatusData, taskId: updateTaskStatusData?.id });
 
 		// insert into next
 		nextTaskStatus.splice(destinationIndex, 0, updateTaskStatusData);

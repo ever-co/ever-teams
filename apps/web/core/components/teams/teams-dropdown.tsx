@@ -13,17 +13,18 @@ import { AllTeamItem, TeamItem, mapTeamItems } from './team-item';
 // Import optimized components from centralized location
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 import { LazyCreateTeamModal } from '@/core/components/optimized-components/teams';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { cn } from '@/core/lib/helpers';
-import { detailedTaskState, timerStatusState } from '@/core/stores';
-import { useAtom, useAtomValue } from 'jotai';
-import { usePathname, useRouter } from 'next/navigation';
-import { Suspense } from 'react';
 import {
 	useGetOrganizationTeamQuery,
 	useGetOrganizationTeamsQuery
 } from '@/core/hooks/organizations/teams/use-get-organization-teams-query';
 import { useSetActiveTeam } from '@/core/hooks/organizations/teams/use-set-active-team';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useDetailedTask } from '@/core/hooks/tasks/use-detailed-task';
+import { cn } from '@/core/lib/helpers';
+import { timerStatusState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
+import { usePathname, useRouter } from 'next/navigation';
+import { Suspense } from 'react';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { data: user } = useUserQuery();
@@ -43,7 +44,10 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const timerRunningStatus = useMemo(() => {
 		return Boolean(timerStatus?.running);
 	}, [timerStatus]);
-	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
+	const {
+		detailedTaskQuery: { data: detailedTask },
+		setDetailedTaskId
+	} = useDetailedTask();
 	const path = usePathname();
 	const router = useRouter();
 
@@ -77,7 +81,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 					 */
 					const taskBelongsToNewTeam = item.data.tasks?.some((task) => task.id === detailedTask?.id);
 					if (!taskBelongsToNewTeam) {
-						setDetailedTask(null);
+						setDetailedTaskId(null);
 						router.push('/');
 					}
 				}
@@ -96,7 +100,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				}
 			}
 		},
-		[setActiveTeam, t, setDetailedTask, path, router, timerRunningStatus] // Updated dependencies for timer protection
+		[setActiveTeam, t, setDetailedTaskId, path, router, timerRunningStatus] // Updated dependencies for timer protection
 	);
 
 	useEffect(() => {

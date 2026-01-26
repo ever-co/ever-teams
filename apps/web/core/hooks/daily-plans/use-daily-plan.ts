@@ -2,7 +2,7 @@
 
 import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
 import { queryKeys } from '@/core/query/keys';
-import { dailyPlanListState, tasksByTeamState } from '@/core/stores';
+import { dailyPlanListState } from '@/core/stores';
 import {
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlansRequest
@@ -16,14 +16,15 @@ import {
 } from '@/core/types/schemas/task/daily-plan.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { dailyPlanService, taskService } from '../../services/client/api';
 import { useConditionalUpdateEffect, useQueryCall } from '../common';
 import { useFirstLoad } from '../common/use-first-load';
-import { useUserQuery } from '../queries/user-user.query';
 import { useCurrentTeam } from '../organizations/teams/use-current-team';
+import { useSortedTasksByCreation } from '../organizations/teams/use-sorted-tasks';
+import { useUserQuery } from '../queries/user-user.query';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
@@ -53,7 +54,7 @@ export function useDailyPlan(defaultEmployeeId: string | null = null, options?: 
 	const targetEmployeeId = defaultEmployeeId || user?.employee?.id;
 	const [employeeId, setEmployeeId] = useState(targetEmployeeId || '');
 	const queryClient = useQueryClient();
-	const allTeamTasks = useAtomValue(tasksByTeamState);
+	const allTeamTasks = useSortedTasksByCreation();
 
 	// Extract options with defaults
 	const { enabled = true } = options || {};

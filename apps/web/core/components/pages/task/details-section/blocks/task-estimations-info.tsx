@@ -5,8 +5,9 @@ import {
 } from '@/core/components/features/projects/add-or-edit-project/steps/basic-information-form';
 import { TaskEstimate } from '@/core/components/tasks/task-estimate';
 import { TaskMemberEstimate } from '@/core/components/tasks/task-member-estimate';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useDetailedTask } from '@/core/hooks/tasks/use-detailed-task';
 import { cn } from '@/core/lib/helpers';
-import { detailedTaskState } from '@/core/stores';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TCreateTaskEstimation } from '@/core/types/schemas/task/task-estimation.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -20,16 +21,16 @@ import {
 	Transition
 } from '@headlessui/react';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
-import { useAtom } from 'jotai';
 import { CheckIcon, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React, { useCallback, useMemo, useState } from 'react';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
 import TaskRow from '../components/task-row';
-import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 
 const TaskEstimationsInfo = () => {
-	const [task] = useAtom(detailedTaskState);
+	const {
+		detailedTaskQuery: { data: task }
+	} = useDetailedTask();
 	const t = useTranslations();
 	const activeTeam = useCurrentTeam();
 
