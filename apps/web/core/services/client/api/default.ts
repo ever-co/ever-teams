@@ -11,9 +11,8 @@ import axios, { AxiosResponse } from 'axios';
 export async function getDefaultAPI(): Promise<AxiosResponse> {
 	// Create a clean axios instance without interceptors for health checks
 	const cleanAxios = axios.create({
-		timeout: 10000, // 10 second timeout for health checks
+		timeout: 30000, // 30 second timeout for health checks
 		headers: {
-			'Content-Type': 'application/json',
 			Accept: 'application/json'
 		}
 	});

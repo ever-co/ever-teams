@@ -2,7 +2,9 @@ import { Button } from '@/core/components';
 import { Fragment, ReactNode, useCallback, useMemo } from 'react';
 import { Calendar, Clipboard } from 'lucide-react';
 import { Thumbnail } from './basic-information-form';
+import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-area';
 import moment from 'moment';
+import { sanitizeHtml } from '@/core/lib/helpers/sanitize-html';
 
 import { IStepElementProps } from '../container';
 import { useLocale, useTranslations } from 'next-intl';
@@ -104,8 +106,8 @@ export default function FinalReview(props: IStepElementProps) {
 		endDate: finalData?.endDate,
 		projectUrl: finalData?.projectUrl,
 		description: finalData?.description,
-		imageUrl: finalData?.projectImage?.fullUrl ?? undefined,
-		imageId: finalData?.projectImage?.id,
+		imageUrl: finalData?.projectImage?.fullUrl ?? finalData?.imageUrl ?? undefined,
+		imageId: finalData?.projectImage?.id ?? finalData?.imageId,
 		tags: finalData?.tags,
 		color: finalData?.color ?? '#000',
 		memberIds:
@@ -119,11 +121,11 @@ export default function FinalReview(props: IStepElementProps) {
 		budgetType: finalData?.budgetType,
 		billing: finalData?.billing,
 		teams: selectedTeams,
-		status: ETaskStatusName.OPEN,
-		isActive: true,
-		isArchived: false,
-		isTasksAutoSync: true,
-		isTasksAutoSyncOnLabel: true
+		status: (finalData?.status as ETaskStatusName) ?? ETaskStatusName.OPEN,
+		isActive: finalData?.isActive ?? true,
+		isArchived: finalData?.isArchived ?? false,
+		isTasksAutoSync: finalData?.isTasksAutoSync ?? true,
+		isTasksAutoSyncOnLabel: finalData?.isTasksAutoSyncOnLabel ?? true
 	};
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -163,44 +165,47 @@ export default function FinalReview(props: IStepElementProps) {
 	}, [finalData, goToPrevious]);
 
 	return (
-		<form onSubmit={handleSubmit} className="pt-4 space-y-5 w-full">
-			<div className="flex flex-col gap-6 w-full">
-				<h2 className="text-xl font-medium">{t('common.REVIEW')}</h2>
-				<div className="flex flex-col gap-8 w-full">
-					<BasicInformation
-						projectTitle={finalData?.name ?? '-'}
-						startDate={moment(finalData?.startDate).format('D.MM.YYYY')}
-						endDate={moment(finalData?.endDate).format('D.MM.YYYY')}
-						websiteUrl={finalData?.projectUrl ?? undefined}
-						projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
-						description={finalData?.description ?? undefined}
-					/>
-					<FinancialSettings
-						budgetAmount={finalData?.budget}
-						billingType={finalData?.billing as EProjectBilling}
-						budgetCurrency={finalData?.currency as ECurrencies}
-						budgetType={finalData?.budgetType}
-					/>
-					<Categorization tags={finalData?.tags} colorCode={finalData?.color} />
-					<TeamAndRelations
-						projectTitle={finalData?.name}
-						projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
-						managerIds={
-							processedMembers
-								?.filter((el) => el.roleId === managerRoleId && el.memberId)
-								.map((el) => el.memberId) || []
-						}
-						memberIds={
-							processedMembers
-								?.filter((el) => el.roleId === simpleMemberRoleId && el.memberId)
-								.map((el) => el.memberId) || []
-						}
-						relations={finalData?.relations}
-						selectedTeams={selectedTeams}
-					/>
+		<form onSubmit={handleSubmit} className="pt-4 w-full flex flex-col">
+			<ScrollArea className="w-full max-h-[65vh] pr-4">
+				<div className="flex flex-col gap-6 w-full pb-32">
+					<h2 className="text-xl font-medium">{t('common.REVIEW')}</h2>
+					<div className="flex flex-col gap-8 w-full">
+						<BasicInformation
+							projectTitle={finalData?.name ?? '-'}
+							startDate={moment(finalData?.startDate).format('D.MM.YYYY')}
+							endDate={moment(finalData?.endDate).format('D.MM.YYYY')}
+							websiteUrl={finalData?.projectUrl ?? undefined}
+							projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
+							description={finalData?.description ?? undefined}
+						/>
+						<FinancialSettings
+							budgetAmount={finalData?.budget}
+							billingType={finalData?.billing as EProjectBilling}
+							budgetCurrency={finalData?.currency as ECurrencies}
+							budgetType={finalData?.budgetType}
+						/>
+						<Categorization tags={finalData?.tags} colorCode={finalData?.color} />
+						<TeamAndRelations
+							projectTitle={finalData?.name}
+							projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
+							managerIds={
+								processedMembers
+									?.filter((el) => el.roleId === managerRoleId && el.memberId)
+									.map((el) => el.memberId) || []
+							}
+							memberIds={
+								processedMembers
+									?.filter((el) => el.roleId === simpleMemberRoleId && el.memberId)
+									.map((el) => el.memberId) || []
+							}
+							relations={finalData?.relations}
+							selectedTeams={selectedTeams}
+						/>
+					</div>
 				</div>
-			</div>
-			<div className="flex justify-between items-center w-full">
+				<ScrollBar orientation="vertical" />
+			</ScrollArea>
+			<div className="flex justify-between items-center w-full pt-4 border-t">
 				<Button
 					disabled={createOrganizationProjectLoading || editOrganizationProjectLoading}
 					onClick={handlePrevious}
@@ -299,10 +304,17 @@ function BasicInformation(props: IBasicInformationProps) {
 				/>
 			</div>
 
-			<div className="flex flex-col gap-2 w-full">
-				<span className="text-xs font-medium">{t('common.DESCRIPTION')}</span>
-				{description ? <p className="p-3 text-xs rounded-lg border min-h-20">{description}</p> : <span>-</span>}
-			</div>
+		<div className="flex flex-col gap-2 w-full">
+			<span className="text-xs font-medium">{t('common.DESCRIPTION')}</span>
+			{description ? (
+				<div
+					className="p-3 text-xs rounded-lg border min-h-20 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-gray-700 [&_code]:px-1 [&_code]:rounded [&_p]:mb-1 [&_p:last-child]:mb-0"
+					dangerouslySetInnerHTML={{ __html: sanitizeHtml(description) }}
+				/>
+			) : (
+				<span>-</span>
+			)}
+		</div>
 		</div>
 	);
 }

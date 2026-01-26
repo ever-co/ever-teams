@@ -30,6 +30,7 @@ import { Container } from '@/core/components';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { HorizontalSeparator, VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { cn } from '@/core/lib/helpers';
+import { sanitizeHtml } from '@/core/lib/helpers/sanitize-html';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { organizationProjectService } from '@/core/services/client/api/organizations';
@@ -438,9 +439,10 @@ function ProjectDetailContent({
 
 						{/* Description preview */}
 						{project.description && (
-							<p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-								{project.description}
-							</p>
+							<div
+								className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-gray-700 [&_code]:px-1 [&_code]:rounded [&_p]:inline"
+								dangerouslySetInnerHTML={{ __html: sanitizeHtml(project.description) }}
+							/>
 						)}
 					</div>
 				</div>
@@ -480,9 +482,10 @@ function ProjectDetailContent({
 				{/* ===== DESCRIPTION ===== */}
 				{project.description && (
 					<Section title={t('common.DESCRIPTION')}>
-						<div className="p-4 text-sm leading-relaxed text-gray-700 whitespace-pre-wrap rounded-lg bg-gray-50 dark:bg-dark--theme dark:text-gray-300">
-							{project.description}
-						</div>
+						<div
+							className="p-4 text-sm leading-relaxed text-gray-700 whitespace-pre-wrap rounded-lg bg-gray-50 dark:bg-dark--theme dark:text-gray-300 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-gray-700 [&_code]:px-1 [&_code]:rounded [&_p]:mb-1 [&_p:last-child]:mb-0"
+							dangerouslySetInnerHTML={{ __html: sanitizeHtml(project.description) }}
+						/>
 					</Section>
 				)}
 
