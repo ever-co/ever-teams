@@ -1,3 +1,5 @@
+import { setStartOfDay, setEndOfDay } from './date.utils';
+
 /**
  * Formats a duration in seconds into a human-readable string (HH:mm)
  * @param seconds Duration in seconds
@@ -18,11 +20,11 @@ export function formatDuration(seconds: number): string {
 export function getWeekRange(date: Date): { start: Date; end: Date } {
 	const start = new Date(date);
 	start.setDate(start.getDate() - start.getDay() + (start.getDay() === 0 ? -6 : 1)); // Start on Monday
-	start.setHours(0, 0, 0, 0);
+	setStartOfDay(start);
 
 	const end = new Date(start);
 	end.setDate(end.getDate() + 6);
-	end.setHours(23, 59, 59, 999);
+	setEndOfDay(end);
 
 	return { start, end };
 }

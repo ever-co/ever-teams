@@ -13,6 +13,7 @@ import { EverCard } from '../../common/ever-card';
 import { useAtomValue } from 'jotai';
 import { activeTeamState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { getTodayString } from '@/core/lib/utils';
 
 interface ISuggestDailyPlanModalProps {
 	closeModal: () => void;
@@ -33,7 +34,7 @@ export function SuggestDailyPlanModal(props: ISuggestDailyPlanModalProps) {
 	const path = usePathname();
 	const t = useTranslations();
 
-	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
+	const currentDate = useMemo(() => getTodayString(), []);
 
 	const handleCloseModal = useCallback(() => {
 		if (!requirePlan || (requirePlan && hasPlan)) {

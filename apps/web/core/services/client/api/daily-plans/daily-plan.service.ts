@@ -8,7 +8,6 @@ import {
 	createDailyPlanSchema,
 	updateDailyPlanSchema,
 	dailyPlanTasksUpdateSchema,
-	ZodValidationError,
 	TDailyPlan,
 	TCreateDailyPlan,
 	TUpdateDailyPlan,
@@ -34,39 +33,25 @@ class DailyPlanService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getAllDayPlans = async (): Promise<PaginationResponse<TDailyPlan>> => {
-		try {
-			const relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user'];
+		const relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user'];
 
-			const obj = {
-				'where[organizationId]': this.organizationId,
-				'where[tenantId]': this.tenantId,
-				'where[organizationTeamId]': this.activeTeamId
-			} as Record<string, string>;
+		const obj = {
+			'where[organizationId]': this.organizationId,
+			'where[tenantId]': this.tenantId,
+			'where[organizationTeamId]': this.activeTeamId
+		} as Record<string, string>;
 
-			relations.forEach((relation, i) => {
-				obj[`relations[${i}]`] = relation;
-			});
+		relations.forEach((relation, i) => {
+			obj[`relations[${i}]`] = relation;
+		});
 
-			const query = qs.stringify(obj);
-			const response = await this.get<PaginationResponse<TDailyPlan>>(`/daily-plan?${query}`, {
-				tenantId: this.tenantId
-			});
+		const query = qs.stringify(obj);
 
-			// Validate the response data using zod validation with auto-normalization
-			return zodStrictPaginationResponseValidate(dailyPlanSchema, response.data, 'getAllDayPlans API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Daily plan validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'DailyPlanService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithPaginationValidation(
+			() => this.get<PaginationResponse<TDailyPlan>>(`/daily-plan?${query}`, { tenantId: this.tenantId }),
+			(data) => zodStrictPaginationResponseValidate(dailyPlanSchema, data, 'getAllDayPlans API response'),
+			{ method: 'getAllDayPlans', service: 'DailyPlanService' }
+		);
 	};
 
 	/**
@@ -76,39 +61,25 @@ class DailyPlanService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getMyDailyPlans = async (): Promise<PaginationResponse<TDailyPlan>> => {
-		try {
-			const relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user'];
+		const relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user'];
 
-			const obj = {
-				'where[organizationId]': this.organizationId,
-				'where[tenantId]': this.tenantId,
-				'where[organizationTeamId]': this.activeTeamId
-			} as Record<string, string>;
+		const obj = {
+			'where[organizationId]': this.organizationId,
+			'where[tenantId]': this.tenantId,
+			'where[organizationTeamId]': this.activeTeamId
+		} as Record<string, string>;
 
-			relations.forEach((relation, i) => {
-				obj[`relations[${i}]`] = relation;
-			});
+		relations.forEach((relation, i) => {
+			obj[`relations[${i}]`] = relation;
+		});
 
-			const query = qs.stringify(obj);
-			const response = await this.get<PaginationResponse<TDailyPlan>>(`/daily-plan/me?${query}`, {
-				tenantId: this.tenantId
-			});
+		const query = qs.stringify(obj);
 
-			// Validate the response data using zod validation with auto-normalization
-			return zodStrictPaginationResponseValidate(dailyPlanSchema, response.data, 'getMyDailyPlans API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'My daily plans validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'DailyPlanService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithPaginationValidation(
+			() => this.get<PaginationResponse<TDailyPlan>>(`/daily-plan/me?${query}`, { tenantId: this.tenantId }),
+			(data) => zodStrictPaginationResponseValidate(dailyPlanSchema, data, 'getMyDailyPlans API response'),
+			{ method: 'getMyDailyPlans', service: 'DailyPlanService' }
+		);
 	};
 
 	/**
@@ -119,44 +90,25 @@ class DailyPlanService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getDayPlansByEmployee = async ({ employeeId }: { employeeId: string }): Promise<PaginationResponse<TDailyPlan>> => {
-		try {
-			const relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user'];
+		const relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user'];
 
-			const obj = {
-				'where[organizationId]': this.organizationId,
-				'where[tenantId]': this.tenantId,
-				'where[organizationTeamId]': this.activeTeamId
-			} as Record<string, string>;
+		const obj = {
+			'where[organizationId]': this.organizationId,
+			'where[tenantId]': this.tenantId,
+			'where[organizationTeamId]': this.activeTeamId
+		} as Record<string, string>;
 
-			relations.forEach((relation, i) => {
-				obj[`relations[${i}]`] = relation;
-			});
+		relations.forEach((relation, i) => {
+			obj[`relations[${i}]`] = relation;
+		});
 
-			const query = qs.stringify(obj);
-			const response = await this.get<PaginationResponse<TDailyPlan>>(
-				`/daily-plan/employee/${employeeId}?${query}`,
-				{ tenantId: this.tenantId }
-			);
+		const query = qs.stringify(obj);
 
-			// Validate the response data using zod validation with auto-normalization
-			return zodStrictPaginationResponseValidate(
-				dailyPlanSchema,
-				response.data,
-				'getDayPlansByEmployee API response'
-			);
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Daily plans by employee validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'DailyPlanService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithPaginationValidation(
+			() => this.get<PaginationResponse<TDailyPlan>>(`/daily-plan/employee/${employeeId}?${query}`, { tenantId: this.tenantId }),
+			(data) => zodStrictPaginationResponseValidate(dailyPlanSchema, data, 'getDayPlansByEmployee API response'),
+			{ method: 'getDayPlansByEmployee', service: 'DailyPlanService', employeeId }
+		);
 	};
 
 	/**
@@ -167,33 +119,19 @@ class DailyPlanService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getPlansByTask = async ({ taskId }: { taskId: string }): Promise<PaginationResponse<TDailyPlan>> => {
-		try {
-			const obj = {
-				'where[organizationId]': this.organizationId,
-				'where[tenantId]': this.tenantId,
-				'where[organizationTeamId]': this.activeTeamId
-			} as Record<string, string>;
+		const obj = {
+			'where[organizationId]': this.organizationId,
+			'where[tenantId]': this.tenantId,
+			'where[organizationTeamId]': this.activeTeamId
+		} as Record<string, string>;
 
-			const query = qs.stringify(obj);
-			const response = await this.get<PaginationResponse<TDailyPlan>>(`/daily-plan/task/${taskId}?${query}`, {
-				tenantId: this.tenantId
-			});
+		const query = qs.stringify(obj);
 
-			// Validate the response data using zod validation with auto-normalization
-			return zodStrictPaginationResponseValidate(dailyPlanSchema, response.data, 'getPlansByTask API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Daily plans by task validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'DailyPlanService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithPaginationValidation(
+			() => this.get<PaginationResponse<TDailyPlan>>(`/daily-plan/task/${taskId}?${query}`, { tenantId: this.tenantId }),
+			(data) => zodStrictPaginationResponseValidate(dailyPlanSchema, data, 'getPlansByTask API response'),
+			{ method: 'getPlansByTask', service: 'DailyPlanService', taskId }
+		);
 	};
 
 	/**
@@ -204,26 +142,11 @@ class DailyPlanService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getPlanById = async (planId: string): Promise<TDailyPlan> => {
-		try {
-			const response = await this.get<TDailyPlan>(`/daily-plan/${planId}`, {
-				tenantId: this.tenantId
-			});
-
-			// Validate the response data using zod validation with auto-normalization
-			return zodStrictApiResponseValidate(dailyPlanSchema, response.data, 'getPlanById API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Daily plan by id validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'DailyPlanService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.get<TDailyPlan>(`/daily-plan/${planId}`, { tenantId: this.tenantId }),
+			(data) => zodStrictApiResponseValidate(dailyPlanSchema, data, 'getPlanById API response'),
+			{ method: 'getPlanById', service: 'DailyPlanService', planId }
+		);
 	};
 
 	/**
@@ -234,33 +157,17 @@ class DailyPlanService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	createDailyPlan = async (data: TCreateDailyPlan): Promise<TDailyPlan> => {
-		try {
-			// Validate input data before sending
-			const validatedInput = zodStrictApiResponseValidate(
-				createDailyPlanSchema, // Allow partial data for creation
-				data,
-				'createDailyPlan input data'
-			);
+		const validatedInput = zodStrictApiResponseValidate(
+			createDailyPlanSchema,
+			data,
+			'createDailyPlan input data'
+		);
 
-			const response = await this.post<TDailyPlan>('/daily-plan', validatedInput as Record<string, any>, {
-				tenantId: this.tenantId
-			});
-
-			// Validate the response data
-			return zodStrictApiResponseValidate(dailyPlanSchema, response.data, 'createDailyPlan API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Daily plan creation validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'DailyPlanService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.post<TDailyPlan>('/daily-plan', validatedInput as Record<string, any>, { tenantId: this.tenantId }),
+			(data) => zodStrictApiResponseValidate(dailyPlanSchema, data, 'createDailyPlan API response'),
+			{ method: 'createDailyPlan', service: 'DailyPlanService' }
+		);
 	};
 
 	/**
@@ -272,35 +179,17 @@ class DailyPlanService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	updateDailyPlan = async (data: TUpdateDailyPlan, planId: string): Promise<TDailyPlan> => {
-		try {
-			// Validate input data before sending
-			const validatedInput = zodStrictApiResponseValidate(
-				updateDailyPlanSchema,
-				data,
-				'updateDailyPlan input data'
-			);
+		const validatedInput = zodStrictApiResponseValidate(
+			updateDailyPlanSchema,
+			data,
+			'updateDailyPlan input data'
+		);
 
-			const response = await this.put<TDailyPlan>(
-				`/daily-plan/${planId}`,
-				validatedInput as Record<string, any>,
-				{}
-			);
-
-			// Validate the response data
-			return zodStrictApiResponseValidate(dailyPlanSchema, response.data, 'updateDailyPlan API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Daily plan update validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'DailyPlanService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.put<TDailyPlan>(`/daily-plan/${planId}`, validatedInput as Record<string, any>, {}),
+			(data) => zodStrictApiResponseValidate(dailyPlanSchema, data, 'updateDailyPlan API response'),
+			{ method: 'updateDailyPlan', service: 'DailyPlanService', planId }
+		);
 	};
 
 	/**
@@ -312,36 +201,17 @@ class DailyPlanService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	addTaskToPlan = async (data: TDailyPlanTasksUpdate, planId: string): Promise<TDailyPlan> => {
-		try {
-			// Validate input data before sending
-			// Only use this.organizationId as fallback if not provided in data
-			const validatedInput = zodStrictApiResponseValidate(
-				dailyPlanTasksUpdateSchema,
-				{ organizationId: this.organizationId, ...data },
-				'addTaskToPlan input data'
-			);
+		const validatedInput = zodStrictApiResponseValidate(
+			dailyPlanTasksUpdateSchema,
+			{ organizationId: this.organizationId, ...data },
+			'addTaskToPlan input data'
+		);
 
-			const response = await this.post<TDailyPlan>(
-				`/daily-plan/${planId}/task`,
-				validatedInput as Record<string, any>,
-				{ tenantId: this.tenantId }
-			);
-
-			// Validate the response data
-			return zodStrictApiResponseValidate(dailyPlanSchema, response.data, 'addTaskToPlan API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Add task to plan validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'DailyPlanService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.post<TDailyPlan>(`/daily-plan/${planId}/task`, validatedInput as Record<string, any>, { tenantId: this.tenantId }),
+			(data) => zodStrictApiResponseValidate(dailyPlanSchema, data, 'addTaskToPlan API response'),
+			{ method: 'addTaskToPlan', service: 'DailyPlanService', planId }
+		);
 	};
 
 	/**
@@ -353,34 +223,17 @@ class DailyPlanService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	removeTaskFromPlan = async (data: TRemoveTaskFromPlansRequest, planId: string): Promise<TDailyPlan> => {
-		try {
-			// Validate input data before sending
-			// Only use this.organizationId as fallback if not provided in data
-			const validatedInput = zodStrictApiResponseValidate(
-				dailyPlanTasksUpdateSchema, // or create a dedicated removal schema
-				{ organizationId: this.organizationId, ...data },
-				'removeManyTaskFromPlans input data'
-			);
+		const validatedInput = zodStrictApiResponseValidate(
+			dailyPlanTasksUpdateSchema,
+			{ organizationId: this.organizationId, ...data },
+			'removeManyTaskFromPlans input data'
+		);
 
-			const response = await this.put<TDailyPlan>(`/daily-plan/${planId}/task`, validatedInput, {
-				tenantId: this.tenantId
-			});
-
-			// Validate the response data
-			return zodStrictApiResponseValidate(dailyPlanSchema, response.data, 'removeTaskFromPlan API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Remove task from plan validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'DailyPlanService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.put<TDailyPlan>(`/daily-plan/${planId}/task`, validatedInput, { tenantId: this.tenantId }),
+			(data) => zodStrictApiResponseValidate(dailyPlanSchema, data, 'removeTaskFromPlan API response'),
+			{ method: 'removeTaskFromPlan', service: 'DailyPlanService', planId }
+		);
 	};
 
 	/**
@@ -397,42 +250,23 @@ class DailyPlanService extends APIService {
 		taskId: string;
 		data: TRemoveTaskFromPlansRequest;
 	}): Promise<TDailyPlan[]> => {
-		try {
-			// Validate input data before sending
-			// Only use this.organizationId as fallback if not provided in data
-			const validatedInput = zodStrictApiResponseValidate(
-				dailyPlanTasksUpdateSchema, // or create a dedicated removal schema
-				{ organizationId: this.organizationId, ...data },
-				'removeManyTaskFromPlans input data'
-			);
+		const validatedInput = zodStrictApiResponseValidate(
+			dailyPlanTasksUpdateSchema,
+			{ organizationId: this.organizationId, ...data },
+			'removeManyTaskFromPlans input data'
+		);
 
-			const response = await this.put<TDailyPlan[]>(`/daily-plan/${taskId}/remove`, validatedInput, {
-				tenantId: this.tenantId
-			});
-
-			// Validate the response data (array of daily plans)
-			const validatedPlans = response.data.map((plan, index) =>
+		return this.executeWithValidation(
+			() => this.put<TDailyPlan[]>(`/daily-plan/${taskId}/remove`, validatedInput, { tenantId: this.tenantId }),
+			(data) => data.map((plan: any, index: number) =>
 				zodStrictApiResponseValidate(
 					dailyPlanSchema,
 					plan,
 					`removeManyTaskFromPlans API response item ${index}`
 				)
-			);
-
-			return validatedPlans;
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Remove many tasks from plans validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'DailyPlanService'
-				);
-			}
-			throw error;
-		}
+			),
+			{ method: 'removeManyTaskFromPlans', service: 'DailyPlanService', taskId }
+		);
 	};
 
 	/**
@@ -443,25 +277,8 @@ class DailyPlanService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	deleteDailyPlan = async (planId: string): Promise<DeleteResponse> => {
-		try {
-			const response = await this.delete<DeleteResponse>(`/daily-plan/${planId}`);
-
-			// For delete operations, we typically just return the response as-is
-			// since DeleteResponse is a simple interface
-			return response.data;
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Daily plan deletion validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'DailyPlanService'
-				);
-			}
-			throw error;
-		}
+		const response = await this.delete<DeleteResponse>(`/daily-plan/${planId}`);
+		return response.data;
 	};
 }
 

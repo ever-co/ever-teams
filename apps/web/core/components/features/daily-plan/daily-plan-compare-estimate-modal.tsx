@@ -3,7 +3,7 @@ import { Modal, Text, Button } from '@/core/components';
 import { useState } from 'react';
 import Separator from '@/core/components/common/separator';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
-import { clsxm } from '@/core/lib/utils';
+import { clsxm, getTodayString } from '@/core/lib/utils';
 import { useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@/core/hooks';
 import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { dailyPlanCompareEstimated } from '@/core/lib/helpers/daily-plan-estimated';
@@ -51,7 +51,7 @@ export function DailyPlanCompareEstimatedModal({
 		if (!updateDailyPlanLoading) {
 			startTimer();
 			closeModal();
-			window.localStorage.setItem(DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE, new Date().toISOString().split('T')[0]);
+			window.localStorage.setItem(DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE, getTodayString());
 		}
 	};
 

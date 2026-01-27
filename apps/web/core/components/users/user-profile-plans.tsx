@@ -18,7 +18,7 @@ import {
 import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { activeTeamState } from '@/core/stores';
 import { fullWidthState } from '@/core/stores/common/full-width';
-import { clsxm } from '@/core/lib/utils';
+import { clsxm, getTodayString } from '@/core/lib/utils';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
 import { ReloadIcon, StarIcon } from '@radix-ui/react-icons';
@@ -154,15 +154,20 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 
 	// Set the tab plan tab to outstanding if user has no daily plan and there are outstanding tasks (on first load)
 	useEffect(() => {
+<<<<<<< HEAD
 		if (dailyPlanSuggestionModalDate != new Date().toISOString().split('T')[0] && path.split('/')[1] == 'profile') {
 			if (estimatedTotalTime(employeeOutstandingPlans).totalTasks) {
+=======
+		if (dailyPlanSuggestionModalDate != getTodayString() && path.split('/')[1] == 'profile') {
+			if (estimatedTotalTime(outstandingPlans).totalTasks) {
+>>>>>>> f8af22bd5 (refactor: iterations 3 and 4)
 				setCurrentTab('Outstanding');
 			}
-			if (haveSeenDailyPlanSuggestionModal == new Date().toISOString().split('T')[0]) {
+			if (haveSeenDailyPlanSuggestionModal == getTodayString()) {
 				if (!requirePlan || (requirePlan && hasPlan)) {
 					window.localStorage.setItem(
 						DAILY_PLAN_SUGGESTION_MODAL_DATE,
-						new Date().toISOString().split('T')[0]
+						getTodayString()
 					);
 				}
 			}
@@ -176,7 +181,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		if (currentTab !== 'Outstanding') return;
 
 		try {
-			const today = new Date(moment().format('YYYY-MM-DD')).toISOString().split('T')[0];
+			const today = getTodayString();
 			const lastVisited = window?.localStorage.getItem(HAS_VISITED_OUTSTANDING_TASKS);
 			if (lastVisited !== today) {
 				window.localStorage.setItem(HAS_VISITED_OUTSTANDING_TASKS, today);

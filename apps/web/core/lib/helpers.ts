@@ -70,8 +70,8 @@ export function checkPastDate(dateToBeChecked?: Date | string): boolean {
 		const todayDate = new Date(new Date().toUTCString());
 		const date = new Date(new Date(dateToBeChecked).toUTCString());
 
-		date.setHours(0, 0, 0, 0);
-		todayDate.setHours(0, 0, 0, 0);
+		setStartOfDay(date);
+		setStartOfDay(todayDate);
 
 		return todayDate > date;
 	} else {

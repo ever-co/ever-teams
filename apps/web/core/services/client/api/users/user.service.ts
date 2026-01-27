@@ -6,51 +6,24 @@ import {
 	validateApiResponse,
 	deleteResponseSchema,
 	userSchema,
-	ZodValidationError,
 	TDeleteResponse
 } from '@/core/types/schemas';
 
 class UserService extends APIService {
 	deleteUser = async (userId: string): Promise<TDeleteResponse> => {
-		try {
-			const response = await this.delete<TDeleteResponse>(`/user/${userId}`);
-
-			// Validate API response using utility function
-			return validateApiResponse(deleteResponseSchema, response.data, 'deleteUser API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'User deletion validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'UserService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.delete<TDeleteResponse>(`/user/${userId}`),
+			(data) => validateApiResponse(deleteResponseSchema, data, 'deleteUser API response'),
+			{ method: 'deleteUser', service: 'UserService', userId }
+		);
 	};
 
 	resetUser = async (): Promise<TDeleteResponse> => {
-		try {
-			const response = await this.delete<TDeleteResponse>(`/user/reset`);
-
-			// Validate API response using utility function
-			return validateApiResponse(deleteResponseSchema, response.data, 'resetUser API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'User reset validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'UserService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.delete<TDeleteResponse>(`/user/reset`),
+			(data) => validateApiResponse(deleteResponseSchema, data, 'resetUser API response'),
+			{ method: 'resetUser', service: 'UserService' }
+		);
 	};
 
 	/**
@@ -59,34 +32,20 @@ class UserService extends APIService {
 	 * @returns A Promise resolving to the validated TUser object.
 	 */
 	getAuthenticatedUserData = async (): Promise<TUser> => {
-		try {
-			// Define the relations to be included in the request
-			const relations = ['role', 'tenant'];
+		// Define the relations to be included in the request
+		const relations = ['role', 'tenant'];
 
-			// Construct the query string with 'qs', including the includeEmployee parameter
-			const query = qs.stringify({
-				relations: relations,
-				includeEmployee: true // Append includeEmployee parameter set to true
-			});
+		// Construct the query string with 'qs', including the includeEmployee parameter
+		const query = qs.stringify({
+			relations: relations,
+			includeEmployee: true // Append includeEmployee parameter set to true
+		});
 
-			// Execute the GET request to fetch the user data
-			const response = await this.get<TUser>(`/user/me?${query}`);
-
-			// Validate API response using utility function
-			return validateApiResponse(userSchema, response.data, 'getAuthenticatedUserData API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Get authenticated user data validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'UserService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.get<TUser>(`/user/me?${query}`),
+			(data) => validateApiResponse(userSchema, data, 'getAuthenticatedUserData API response'),
+			{ method: 'getAuthenticatedUserData', service: 'UserService' }
+		);
 	};
 
 	savePersonalSettings = async ({ userId, data }: { userId: string; data: any }) => {
@@ -95,24 +54,11 @@ class UserService extends APIService {
 
 	// update/delete profile avatar for user setting
 	updateUserAvatar = async ({ userId, body }: { userId: string; body: Partial<TUser> }): Promise<TUser> => {
-		try {
-			const response = await this.put<TUser>(`/user/${userId}`, body);
-
-			// Validate API response using utility function
-			return validateApiResponse(userSchema, response.data, 'updateUserAvatar API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Update user avatar validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'UserService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.put<TUser>(`/user/${userId}`, body),
+			(data) => validateApiResponse(userSchema, data, 'updateUserAvatar API response'),
+			{ method: 'updateUserAvatar', service: 'UserService', userId }
+		);
 	};
 }
 

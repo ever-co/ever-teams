@@ -24,6 +24,7 @@ import {
 } from '@/core/components/common/sidebar';
 import Link from 'next/link';
 import { cn } from '@/core/lib/helpers';
+import { sortByStringProperty } from '@/core/lib/utils';
 import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
 import { useFavorites, useModal } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
@@ -194,7 +195,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				items:
 					currentEmployeeFavoritesTasks && currentEmployeeFavoritesTasks.length > 0
 						? currentEmployeeFavoritesTasks
-								.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()))
+								.sort(sortByStringProperty('title', 'asc', { caseInsensitive: true }))
 								.map((task) => ({
 									title: task?.title,
 									url: '#',

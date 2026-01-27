@@ -1,6 +1,7 @@
 import { clsxm } from '@/core/lib/utils';
 import { checkPastDate, cn } from '@/core/lib/helpers';
 import { DatePicker } from '@/core/components/common/date-picker';
+import { sortByDateProperty, getDateString } from '@/core/lib/utils';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { CalendarIcon } from '@radix-ui/react-icons';
@@ -424,14 +425,8 @@ export const FilterCalendar = memo(function FuturePlansCalendar<T extends { date
 	startYear,
 	endYear
 }: ICalendarProps<T>) {
-	const sortedPlansByDateDesc = useMemo(
-		() =>
-			[...plans].sort((plan1, plan2) =>
-				new Date(plan1.date).getTime() < new Date(plan2.date).getTime() ? 1 : -1
-			),
-		[plans]
-	);
-	const createDateKey = (date: string | Date) => moment(date.toString().split('T')[0]).toISOString().split('T')[0];
+	const sortedPlansByDateDesc = useMemo(() => [...plans].sort(sortByDateProperty('date', 'desc')), [plans]);
+	const createDateKey = (date: string | Date) => getDateString(date);
 	const isDateAvailableForPlanning = useCallback(
 		(dateToCheck: Date) => {
 			const dateKey = createDateKey(dateToCheck);

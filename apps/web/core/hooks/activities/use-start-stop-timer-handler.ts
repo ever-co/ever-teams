@@ -9,6 +9,7 @@ import { estimatedTotalTime } from '@/core/components/tasks/daily-plan';
 import { useTimer } from './use-timer';
 import { useAtomValue } from 'jotai';
 import { activeTeamState, activeTeamTaskState, timerStatusState } from '@/core/stores';
+import { getTodayString } from '@/core/lib/utils';
 
 export function useStartStopTimerHandler() {
 	const {
@@ -68,7 +69,7 @@ export function useStartStopTimerHandler() {
 	};
 
 	const startStopTimerHandler = useCallback(() => {
-		const currentDate = new Date().toISOString().split('T')[0];
+		const currentDate = getTodayString();
 		const dailyPlanSuggestionModalDate = window && window?.localStorage.getItem(DAILY_PLAN_SUGGESTION_MODAL_DATE);
 		const tasksEstimateHoursModalDate = window && window?.localStorage.getItem(TASKS_ESTIMATE_HOURS_MODAL_DATE);
 		const dailyPlanEstimateHoursModalDate =
