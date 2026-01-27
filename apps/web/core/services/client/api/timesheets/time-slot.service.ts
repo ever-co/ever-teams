@@ -3,7 +3,6 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '../../api.service';
 import {
 	validateApiResponse,
-	ZodValidationError,
 	TDeleteTimeSlotsRequest,
 	TDeleteTimeSlotsResponse,
 	deleteTimeSlotsResponseSchema
@@ -18,35 +17,20 @@ class TimeSlotService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	deleteTimeSlots = async (params: TDeleteTimeSlotsRequest): Promise<TDeleteTimeSlotsResponse> => {
-		try {
-			// Build query parameters according to API documentation
-			const queryParams = {
-				tenantId: this.tenantId,
-				organizationId: this.organizationId,
-				ids: params.ids,
-				forceDelete: params.forceDelete ?? false
-			};
-			const query = qs.stringify(queryParams, { arrayFormat: 'indices' });
+		const queryParams = {
+			tenantId: this.tenantId,
+			organizationId: this.organizationId,
+			ids: params.ids,
+			forceDelete: params.forceDelete ?? false
+		};
+		const query = qs.stringify(queryParams, { arrayFormat: 'indices' });
+		const endpoint = `/timesheet/time-slot?${query}`;
 
-			const endpoint = `/timesheet/time-slot?${query}`;
-
-			const response = await this.delete<TDeleteTimeSlotsResponse>(endpoint);
-
-			// Validate the response data using Zod schema
-			return validateApiResponse(deleteTimeSlotsResponseSchema, response.data, 'deleteTimeSlots API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Time slots deletion validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TimeSlotService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.delete<TDeleteTimeSlotsResponse>(endpoint),
+			(data) => validateApiResponse(deleteTimeSlotsResponseSchema, data, 'deleteTimeSlots API response'),
+			{ method: 'deleteTimeSlots', service: 'TimeSlotService', ids: params.ids }
+		);
 	};
 }
 

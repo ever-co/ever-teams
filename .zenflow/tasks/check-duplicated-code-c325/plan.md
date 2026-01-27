@@ -257,11 +257,12 @@ This section replaces the generic "Implementation" step with specific refactorin
 3. Extract to base `APIService` class with generic helpers
 4. Create `executeWithValidation<T>()` and `executeWithPaginationValidation<T>()` methods
 
-**Actual Results (Session 3)**:
+**Actual Results (Sessions 3-4)**:
 - ✅ Created 2 generic helper methods in `APIService` base class (lines 767-826):
   - `executeWithValidation<T>()` - Eliminates repetitive try-catch blocks for API responses
   - `executeWithPaginationValidation<T>()` - Specialized version for paginated responses
-- ✅ Refactored **3 service files**:
+
+**Session 3 - 3 service files refactored:**
   1. **`user.service.ts`** - 4 methods refactored:
      - `deleteUser()` - 19 lines → 6 lines
      - `resetUser()` - 19 lines → 6 lines
@@ -293,8 +294,48 @@ This section replaces the generic "Implementation" step with specific refactorin
      - `getTasksByEmployeeId()` - 32 lines → 16 lines
      - Removed unused `ZodValidationError` import
 
-- ✅ **Total methods refactored**: 22 methods across 3 files
-- ✅ **Lines eliminated**: ~280+ lines of boilerplate
+**Session 4 - 9 additional service files refactored:**
+  4. **`organization.service.ts`** - 1 method refactored:
+     - `getOrganizationById()` - 20 lines → 6 lines
+     - Removed unused `ZodValidationError` import
+  
+  5. **`currency.service.ts`** - 1 method refactored:
+     - `getCurrencies()` - 34 lines → 14 lines
+     - Removed unused `ZodValidationError` import
+
+  6. **`language.service.ts`** - 1 method refactored:
+     - `getLanguages()` - 29 lines → 12 lines
+     - Removed unused `ZodValidationError` import
+
+  7. **`time-slot.service.ts`** - 1 method refactored:
+     - `deleteTimeSlots()` - 32 lines → 16 lines
+     - Removed unused `ZodValidationError` import
+
+  8. **`image-assets.service.ts`** - 1 method refactored:
+     - `uploadImageAsset()` - 29 lines → 17 lines
+     - Removed unused `ZodValidationError` import
+
+  9. **`email-verification.service.ts`** - 1 method refactored:
+     - `verifyUserEmailByToken()` - 38 lines → 16 lines
+     - Removed unused `ZodValidationError` import
+
+  10. **`email-reset.service.ts`** - 2 methods refactored:
+      - `resetEmail()` - 19 lines → 6 lines
+      - `verifyChangeEmail()` - 23 lines → 6 lines
+      - Removed unused `ZodValidationError` import
+
+  11. **`integration-tenant.service.ts`** - 1 method refactored:
+      - `getIntegrationTenant()` - 19 lines → 8 lines
+      - Removed unused `ZodValidationError` import
+
+  12. **`statistic.service.ts`** - 2 methods refactored:
+      - `getTimeSlotsStatistics()` - 36 lines → 27 lines
+      - `getStatisticsForTasks()` - 18 lines → 7 lines
+      - Removed unused `ZodValidationError` import
+
+- ✅ **Total service files refactored**: 12 files
+- ✅ **Total methods refactored**: 33 methods
+- ✅ **Lines eliminated**: ~450+ lines of boilerplate error handling
 - ✅ **Pattern eliminated**: Try-catch blocks with ZodValidationError handling
 
 **Key Improvements**:
@@ -304,25 +345,38 @@ This section replaces the generic "Implementation" step with specific refactorin
 4. **Array Support**: Validation function can map over arrays for array responses
 5. **Clean Code**: Service methods now focus on business logic, not error handling
 
-**Remaining Work**:
-- 🔄 Continue refactoring remaining 10+ service files with similar patterns:
-  - `image-assets.service.ts`
-  - `currency.service.ts`
-  - `language.service.ts`
-  - `statistic.service.ts`
-  - `organization.service.ts`
-  - `email-reset.service.ts`
-  - `email-verification.service.ts`
-  - `time-slot.service.ts`
-  - `integration-tenant.service.ts`
+**Remaining Work (Optional)**:
+- 🔄 Additional 20+ service files still contain `ZodValidationError` patterns that could be refactored:
+  - `activity.service.ts`
+  - `favorite.service.ts`
+  - `tag.service.ts`
   - `integration.service.ts`
+  - `organization-project.service.ts`
+  - `role.service.ts`
+  - `github.service.ts`
+  - `role-permission.service.ts`
+  - `public-organization-team.service.ts`
+  - `task-estimations.service.ts`
+  - `task-priority.service.ts`
+  - `employee.service.ts`
+  - `time-log.service.ts`
+  - `task-size.service.ts`
+  - `task-status.service.ts`
+  - `request-to-join-team.service.ts`
+  - `team-employee.service.ts`
+  - `task-version.service.ts`
+  - `team.service.ts`
+  - `invite.service.ts`
+- Note: Core patterns established, remaining refactoring can be done incrementally as files are modified
 
 **Verification**:
 - [ ] `yarn lint` passes
 - [ ] TypeScript shows no errors
 - [ ] API calls still work correctly
 
-**Commit**: `refactor(services): extract repeated API service patterns`
+**Commits**: 
+- Session 3: `refactor: iterations 3 and 4 (partial)`
+- Session 4: `refactor: complete iteration 4 api service patterns`
 
 ---
 

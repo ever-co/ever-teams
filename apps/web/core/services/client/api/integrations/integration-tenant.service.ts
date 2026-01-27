@@ -5,7 +5,6 @@ import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/comm
 import {
 	validatePaginationResponse,
 	integrationTenantListSchema,
-	ZodValidationError,
 	TIntegrationTenantList
 } from '@/core/types/schemas';
 
@@ -21,24 +20,11 @@ class IntegrationTenantService extends APIService {
 			? `/integration-tenant?${query}`
 			: `/integration-tenant/remember/state?name=${name}`;
 
-		try {
-			const response = await this.get<PaginationResponse<TIntegrationTenantList>>(endpoint);
-
-			// Validate the response data using Zod schema
-			return validatePaginationResponse(
-				integrationTenantListSchema,
-				response.data,
-				'getIntegrationTenant API response'
-			);
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('Integration tenant validation failed:', {
-					message: error.message,
-					issues: error.issues
-				});
-			}
-			throw error;
-		}
+		return this.executeWithPaginationValidation(
+			() => this.get<PaginationResponse<TIntegrationTenantList>>(endpoint),
+			(data) => validatePaginationResponse(integrationTenantListSchema, data, 'getIntegrationTenant API response'),
+			{ method: 'getIntegrationTenant', service: 'IntegrationTenantService', name }
+		);
 	};
 
 	deleteIntegrationTenant = async (integrationId: string) => {

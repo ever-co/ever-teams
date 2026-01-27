@@ -1,7 +1,7 @@
 import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { validateApiResponse, imageAssetSchema, ZodValidationError } from '@/core/types/schemas';
+import { validateApiResponse, imageAssetSchema } from '@/core/types/schemas';
 import { TImageAsset } from '@/core/types/schemas/common/image-asset.schema';
 
 /**
@@ -26,30 +26,16 @@ class ImageAssetsService extends APIService {
 		formData.append('tenantId', this.tenantId);
 		formData.append('organizationId', this.organizationId);
 
-		const response = await this.post<TImageAsset>(`/image-assets/upload/${folder}`, formData, {
-			headers: {
-				'tenant-id': this.tenantId,
-				Authorization: `Bearer ${bearer_token}`
-			}
-		});
-
-		try {
-			// Validate the response data using Zod schema
-			return validateApiResponse(imageAssetSchema, response.data, 'uploadImageAsset API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Image asset validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'ImageAssetsService'
-				);
-				this.logger.debug('Actual API response data:', response.data, 'ImageAssetsService');
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.post<TImageAsset>(`/image-assets/upload/${folder}`, formData, {
+				headers: {
+					'tenant-id': this.tenantId,
+					Authorization: `Bearer ${bearer_token}`
+				}
+			}),
+			(data) => validateApiResponse(imageAssetSchema, data, 'uploadImageAsset API response'),
+			{ method: 'uploadImageAsset', service: 'ImageAssetsService', folder }
+		);
 	};
 }
 
