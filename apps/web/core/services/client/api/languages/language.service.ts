@@ -4,7 +4,6 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import {
 	validatePaginationResponse,
 	languageItemListSchema,
-	ZodValidationError,
 	TLanguageItemList
 } from '@/core/types/schemas';
 
@@ -24,22 +23,12 @@ class LanguageService extends APIService {
 	 */
 	getLanguages = async (is_system: boolean): Promise<PaginationResponse<TLanguageItemList>> => {
 		const endpoint = `/languages?is_system=${is_system}`;
-		const response = await this.get<PaginationResponse<TLanguageItemList>>(endpoint);
 
-		try {
-			// Validate the response data using Zod schema
-			return validatePaginationResponse(languageItemListSchema, response.data, 'getLanguages API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('Language validation failed:',
-					{
-						message: error.message,
-						issues: error.issues,
-						data:response.data
-					},'LanguageService');
-			}
-			throw error;
-		}
+		return this.executeWithPaginationValidation(
+			() => this.get<PaginationResponse<TLanguageItemList>>(endpoint),
+			(data) => validatePaginationResponse(languageItemListSchema, data, 'getLanguages API response'),
+			{ method: 'getLanguages', service: 'LanguageService', is_system }
+		);
 	};
 }
 
