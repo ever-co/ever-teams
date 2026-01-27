@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/core/lib/helpers';
 import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
+import { getDateString, setEndOfDay } from '@/core/lib/utils';
 import { Button, Container } from '@/core/components';
 import { DatePickerWithRange } from '@/core/components/common/date-range-select';
 import { DateRange } from 'react-day-picker';
@@ -174,8 +175,8 @@ function PageComponent() {
 			const newParams = new URLSearchParams(params.toString());
 
 			if (newDateRange.from && newDateRange.to) {
-				newParams.set('dateFrom', newDateRange.from.toISOString().split('T')[0]);
-				newParams.set('dateTo', newDateRange.to.toISOString().split('T')[0]);
+				newParams.set('dateFrom', getDateString(newDateRange.from));
+				newParams.set('dateTo', getDateString(newDateRange.to));
 			} else {
 				newParams.delete('dateFrom');
 				newParams.delete('dateTo');
@@ -220,7 +221,7 @@ function PageComponent() {
 		const rangeStart = new Date(dateRange.from);
 		const rangeEnd = new Date(dateRange.to);
 		// Set rangeEnd to end of day for inclusive comparison
-		rangeEnd.setHours(23, 59, 59, 999);
+		setEndOfDay(rangeEnd);
 
 		return projects.filter((project) => {
 			const projectStartDate = project.startDate ? new Date(project.startDate) : null;

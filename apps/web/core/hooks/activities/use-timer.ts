@@ -2,6 +2,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { convertMsToTime, secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
+import { isToday } from '@/core/lib/utils';
 import {
 	localTimerStatusState,
 	timeCounterIntervalState,
@@ -264,10 +265,7 @@ export function useTimer() {
 
 	// Find if the connected user has a today plan. Help to know if he can track time when require daily plan is set to true
 	const hasPlan = myDailyPlans?.items.find(
-		(plan: TDailyPlan) =>
-			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]) &&
-			plan.tasks &&
-			plan.tasks?.length > 0
+		(plan: TDailyPlan) => isToday(plan.date) && plan.tasks && plan.tasks?.length > 0
 	);
 
 	const tomorrow = moment().add(1, 'days');

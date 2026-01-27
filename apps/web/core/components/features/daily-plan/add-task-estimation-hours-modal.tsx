@@ -9,7 +9,7 @@ import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { TaskEstimate } from '../../tasks/task-estimate';
 import clsx from 'clsx';
 import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
-import { clsxm } from '@/core/lib/utils';
+import { clsxm, getTodayString } from '@/core/lib/utils';
 import { formatIntegerToHour, formatTimeString } from '@/core/lib/helpers/index';
 import { ActiveTaskHandlerModal } from './active-task-handler-modal';
 import { TaskDetailsModal } from '../../tasks/task-details-modal';
@@ -103,7 +103,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const { setActiveTask } = useTeamTasks();
 	const [showSearchInput, setShowSearchInput] = useState(false);
 	const [workTimePlanned, setWorkTimePlanned] = useState<number>(plan?.workTimePlanned ?? 0);
-	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
+	const currentDate = useMemo(() => getTodayString(), []);
 	// Calculate total estimation time using global tasks to ensure updates when estimates change
 	const tasksEstimationTimes = useMemo(() => {
 		if (!plan?.tasks || !globalTasks) return 0;

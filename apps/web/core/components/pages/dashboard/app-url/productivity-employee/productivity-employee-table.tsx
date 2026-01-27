@@ -10,7 +10,7 @@ import { useTranslations } from 'next-intl';
 import { usePagination } from '@/core/hooks/common/use-pagination';
 import { Paginate } from '@/core/components/duplicated-components/_pagination';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
-import { formatUserFullName } from '@/core/lib/utils';
+import { formatUserFullName, getTodayString } from '@/core/lib/utils';
 
 // Constants
 const TABLE_HEADERS = ['Date', 'Project', 'Activity', 'Time Spent', 'Percent used'] as const;
@@ -321,7 +321,7 @@ export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoadin
 	}
 
 	if (!data.length) {
-		const selectedDate = new Date().toISOString().split('T')[0];
+		const selectedDate = getTodayString();
 		return <EmptyState selectedDate={selectedDate} t={t} />;
 	}
 

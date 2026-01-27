@@ -5,7 +5,7 @@ import { FilterTabs } from '@/core/types/interfaces/task/task-card';
 import { LazyTaskCard } from '@/core/components/optimized-components';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
-import { clsxm } from '@/core/lib/utils';
+import { clsxm, getDateString } from '@/core/lib/utils';
 import TaskBlockCard from '../task-block-card';
 import { filterDailyPlan, filterDailyPlansByEmployee } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { useMemo } from 'react';
@@ -65,7 +65,7 @@ export function PastTasks({
 					<Accordion
 						type="multiple"
 						className="text-sm"
-						defaultValue={[yesterdayDate.toISOString().split('T')[0]]}
+						defaultValue={[getDateString(yesterdayDate)]}
 					>
 						{filteredPastPlans?.map((plan) => (
 							<AccordionItem

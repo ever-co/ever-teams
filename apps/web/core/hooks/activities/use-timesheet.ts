@@ -2,6 +2,7 @@ import { useAtom } from 'jotai';
 import { timesheetRapportState } from '@/core/stores/timer/time-logs';
 import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import moment from 'moment';
+import { getDateString, getTodayString } from '@/core/lib/utils';
 import { useTimelogFilterOptions } from './use-timelog-filter-options';
 import axios from 'axios';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
@@ -86,7 +87,7 @@ const groupByDate = (items: ITimeLog[]): GroupedTimesheet[] => {
 		const groupedByDate = timesheetLogs.reduce(
 			(acc, item) => {
 				try {
-					const date = new Date(String(item.timesheet?.createdAt)).toISOString().split('T')[0];
+					const date = getDateString(String(item.timesheet?.createdAt));
 					if (!acc[date]) acc[date] = [];
 					acc[date].push(item);
 				} catch (error) {
@@ -111,7 +112,7 @@ const groupByDate = (items: ITimeLog[]): GroupedTimesheet[] => {
 
 	// Fallback: if no results but we have items, create a simple grouping
 	if (sortedResult.length === 0 && items.length > 0) {
-		const today = new Date().toISOString().split('T')[0];
+		const today = getTodayString();
 		return [
 			{
 				date: today,

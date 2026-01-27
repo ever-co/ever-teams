@@ -15,6 +15,7 @@ import { useAuthenticateUser } from '../auth';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { queryKeys } from '@/core/query/keys';
 import { ITimeLogReportDailyChartProps } from '@/core/types/interfaces/activity/activity-report';
+import { getDateString } from '@/core/lib/utils';
 
 export interface UseReportActivityProps
 	extends Omit<ITimeLogReportDailyChartProps, 'logType' | 'activityLevel' | 'start' | 'end' | 'groupBy'> {
@@ -50,8 +51,8 @@ const defaultProps: Required<
 		| 'teamIds'
 	>
 > = {
-	startDate: firstDayOfMonth.toISOString().split('T')[0],
-	endDate: lastDayOfMonth.toISOString().split('T')[0],
+	startDate: getDateString(firstDayOfMonth),
+	endDate: getDateString(lastDayOfMonth),
 	groupBy: 'date',
 	activityLevel: {
 		start: 0,
@@ -256,8 +257,8 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 	// Update handlers with React Query invalidation
 	const updateDateRange = useCallback((startDate: Date, endDate: Date) => {
 		const newFilters = {
-			startDate: startDate.toISOString().split('T')[0],
-			endDate: endDate.toISOString().split('T')[0]
+			startDate: getDateString(startDate),
+			endDate: getDateString(endDate)
 		};
 		setCurrentFilters((prev) => ({ ...prev, ...newFilters }));
 	}, []);
