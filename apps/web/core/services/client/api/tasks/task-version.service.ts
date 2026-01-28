@@ -9,7 +9,6 @@ import {
 	validateApiResponse,
 	taskVersionCreateSchema,
 	taskVersionUpdateSchema,
-	ZodValidationError,
 	TTaskVersion,
 	TTaskVersionCreate,
 	TTaskVersionUpdate,
@@ -32,29 +31,13 @@ class TaskVersionService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	createTaskVersion = async (data: TTaskVersionCreate): Promise<TTaskVersion> => {
-		try {
-			// Validate input data before sending
-			const validatedInput = validateApiResponse(taskVersionCreateSchema, data, 'createTaskVersion input data');
+		const validatedInput = validateApiResponse(taskVersionCreateSchema, data, 'createTaskVersion input data');
 
-			const response = await this.post<TTaskVersion>(`/task-versions`, validatedInput, {
-				tenantId: this.tenantId
-			});
-
-			// Validate the response data
-			return validateApiResponse(taskVersionSchema, response.data, 'createTaskVersion API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task version creation validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TaskVersionService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.post<TTaskVersion>(`/task-versions`, validatedInput, { tenantId: this.tenantId }),
+			(responseData) => validateApiResponse(taskVersionSchema, responseData, 'createTaskVersion API response'),
+			{ method: 'createTaskVersion', service: 'TaskVersionService' }
+		);
 	};
 
 	/**
@@ -65,29 +48,13 @@ class TaskVersionService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	updateTaskVersion = async ({ taskVersionId, data }: { taskVersionId: string; data: TTaskVersionUpdate }) => {
-		try {
-			// Validate input data before sending
-			const validatedInput = validateApiResponse(taskVersionUpdateSchema, data, 'updateTaskVersion input data');
+		const validatedInput = validateApiResponse(taskVersionUpdateSchema, data, 'updateTaskVersion input data');
 
-			const response = await this.put(`/task-versions/${taskVersionId}`, validatedInput, {
-				tenantId: this.tenantId
-			});
-
-			// Validate the response data
-			return validateApiResponse(updateTaskVersionResultSchema, response.data, 'updateTaskVersion API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task version update validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TaskVersionService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.put(`/task-versions/${taskVersionId}`, validatedInput, { tenantId: this.tenantId }),
+			(responseData) => validateApiResponse(updateTaskVersionResultSchema, responseData, 'updateTaskVersion API response'),
+			{ method: 'updateTaskVersion', service: 'TaskVersionService', taskVersionId }
+		);
 	};
 
 	/**
@@ -97,24 +64,11 @@ class TaskVersionService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	deleteTaskVersion = async (taskVersionId: string) => {
-		try {
-			const response = await this.delete(`/task-versions/${taskVersionId}`, { tenantId: this.tenantId });
-
-			// Validate the response data
-			return validateApiResponse(deleteTaskVersionResultSchema, response.data, 'deleteTaskVersion API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task version deletion validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TaskVersionService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.delete(`/task-versions/${taskVersionId}`, { tenantId: this.tenantId }),
+			(data) => validateApiResponse(deleteTaskVersionResultSchema, data, 'deleteTaskVersion API response'),
+			{ method: 'deleteTaskVersion', service: 'TaskVersionService', taskVersionId }
+		);
 	};
 
 	/**
@@ -124,27 +78,14 @@ class TaskVersionService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getTaskVersions = async (): Promise<PaginationResponse<TTaskVersion>> => {
-		try {
-			const query = qs.stringify(this.activeTeamBasedQueries);
-			const endpoint = `/task-versions?${query}`;
+		const query = qs.stringify(this.activeTeamBasedQueries);
+		const endpoint = `/task-versions?${query}`;
 
-			const response = await this.get<PaginationResponse<TTaskVersion>>(endpoint, { tenantId: this.tenantId });
-
-			// Validate the response data using Zod schema
-			return validatePaginationResponse(taskVersionSchema, response.data, 'getTaskVersions API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task version validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TaskVersionService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithPaginationValidation(
+			() => this.get<PaginationResponse<TTaskVersion>>(endpoint, { tenantId: this.tenantId }),
+			(data) => validatePaginationResponse(taskVersionSchema, data, 'getTaskVersions API response'),
+			{ method: 'getTaskVersions', service: 'TaskVersionService' }
+		);
 	};
 }
 

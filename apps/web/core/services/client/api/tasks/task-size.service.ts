@@ -6,7 +6,6 @@ import {
 	validatePaginationResponse,
 	taskSizeSchema,
 	validateApiResponse,
-	ZodValidationError,
 	TTaskSize
 } from '@/core/types/schemas';
 
@@ -25,26 +24,11 @@ class TaskSizeService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	createTaskSize = async (data: ITaskSizesCreate): Promise<TTaskSize> => {
-		try {
-			const response = await this.post<TTaskSize>('/task-sizes', data, {
-				tenantId: this.tenantId
-			});
-
-			// Validate the response data
-			return validateApiResponse(taskSizeSchema, response.data, 'createTaskSize API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task size creation validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TaskSizeService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.post<TTaskSize>('/task-sizes', data, { tenantId: this.tenantId }),
+			(responseData) => validateApiResponse(taskSizeSchema, responseData, 'createTaskSize API response'),
+			{ method: 'createTaskSize', service: 'TaskSizeService' }
+		);
 	};
 
 	/**
@@ -56,26 +40,11 @@ class TaskSizeService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	editTaskSize = async ({ taskSizeId, data }: { taskSizeId: string; data: ITaskSizesCreate }) => {
-		try {
-			const response = await this.put<TTaskSize>(`/task-sizes/${taskSizeId}`, data, {
-				tenantId: this.tenantId
-			});
-
-			// Validate the response data
-			return validateApiResponse(taskSizeSchema, response.data, 'editTaskSize API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task size update validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TaskSizeService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.put<TTaskSize>(`/task-sizes/${taskSizeId}`, data, { tenantId: this.tenantId }),
+			(responseData) => validateApiResponse(taskSizeSchema, responseData, 'editTaskSize API response'),
+			{ method: 'editTaskSize', service: 'TaskSizeService', taskSizeId }
+		);
 	};
 
 	/**
@@ -86,23 +55,7 @@ class TaskSizeService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	deleteTaskSize = async (taskSizeId: string) => {
-		try {
-			const response = await this.delete(`/task-sizes/${taskSizeId}`);
-
-			return response;
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task size deletion validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TaskSizeService'
-				);
-			}
-			throw error;
-		}
+		return await this.delete(`/task-sizes/${taskSizeId}`);
 	};
 
 	/**
@@ -112,25 +65,13 @@ class TaskSizeService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getTaskSizes = async (): Promise<PaginationResponse<TTaskSize>> => {
-		try {
-			const endpoint = `/task-sizes?tenantId=${this.tenantId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`;
-			const response = await this.get<PaginationResponse<TTaskSize>>(endpoint);
-
-			// Validate the response data using Zod schema
-			return validatePaginationResponse(taskSizeSchema, response.data, 'getTaskSizes API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task size validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TaskSizeService'
-				);
-			}
-			throw error;
-		}
+		const endpoint = `/task-sizes?tenantId=${this.tenantId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`;
+		
+		return this.executeWithPaginationValidation(
+			() => this.get<PaginationResponse<TTaskSize>>(endpoint),
+			(data) => validatePaginationResponse(taskSizeSchema, data, 'getTaskSizes API response'),
+			{ method: 'getTaskSizes', service: 'TaskSizeService' }
+		);
 	};
 }
 

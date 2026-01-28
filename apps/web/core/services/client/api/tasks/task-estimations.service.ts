@@ -1,6 +1,6 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '../../api.service';
-import { validateApiResponse, ZodValidationError } from '@/core/types/schemas';
+import { validateApiResponse } from '@/core/types/schemas';
 import {
 	createTaskEstimationSchema,
 	taskEstimationsSchema,
@@ -16,53 +16,23 @@ import {
  */
 class TaskEstimationsService extends APIService {
 	addTaskEstimation = async (data: TCreateTaskEstimation) => {
-		try {
-			validateApiResponse(createTaskEstimationSchema, data, 'addTaskEstimation input data');
+		const validatedInput = validateApiResponse(createTaskEstimationSchema, data, 'addTaskEstimation input data');
 
-			const response = await this.post<TTaskEstimation>('/task-estimation', data, {
-				tenantId: this.tenantId
-			});
-
-			// Validate the response data
-			return validateApiResponse(taskEstimationsSchema, response.data, 'addTaskEstimation API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Estimation creation validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TaskEstimationsService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.post<TTaskEstimation>('/task-estimation', validatedInput, { tenantId: this.tenantId }),
+			(responseData) => validateApiResponse(taskEstimationsSchema, responseData, 'addTaskEstimation API response'),
+			{ method: 'addTaskEstimation', service: 'TaskEstimationsService' }
+		);
 	};
 
 	editTaskEstimation = async (data: TTaskEstimation) => {
-		try {
-			validateApiResponse(taskEstimationsSchema, data, 'editTaskEstimation input data');
+		const validatedInput = validateApiResponse(taskEstimationsSchema, data, 'editTaskEstimation input data');
 
-			const response = await this.put<TTaskEstimation>(`/task-estimation/${data.id}`, data, {
-				tenantId: this.tenantId
-			});
-
-			// Validate the response data
-			return validateApiResponse(taskEstimationsSchema, response.data, 'editTaskEstimation API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Estimation update validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TaskEstimationsService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.put<TTaskEstimation>(`/task-estimation/${data.id}`, validatedInput, { tenantId: this.tenantId }),
+			(responseData) => validateApiResponse(taskEstimationsSchema, responseData, 'editTaskEstimation API response'),
+			{ method: 'editTaskEstimation', service: 'TaskEstimationsService', estimationId: data.id }
+		);
 	};
 
 	deleteTaskEstimation = async (estimationId: string) => {

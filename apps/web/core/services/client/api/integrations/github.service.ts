@@ -7,7 +7,6 @@ import {
 	githubRepositoriesSchema,
 	minimalGithubMetadataSchema,
 	minimalGithubRepositoriesSchema,
-	ZodValidationError,
 	TGithubMetadata,
 	TMinimalGithubMetadata,
 	TMinimalGithubRepositories,
@@ -37,38 +36,30 @@ class GithubService extends APIService {
 			? `/integration/github/${integrationId}/metadata?${query}`
 			: `/integration/github/metadata?integrationId=${integrationId}`;
 
-		try {
-			const response = await this.get<TGithubMetadata | TMinimalGithubMetadata>(endpoint);
-
-			// Validate the response data using Zod schema with fallback
-			try {
-				return validateApiResponse(
-					githubMetadataSchema,
-					response.data,
-					'getGithubIntegrationMetadata API response'
-				);
-			} catch (validationError) {
-				// Fallback to minimal schema if full validation fails
-				this.logger.debug(
-					'Full GitHub metadata validation failed, trying minimal schema',
-					response.data,
-					'GithubService'
-				);
-				return validateApiResponse(
-					minimalGithubMetadataSchema,
-					response.data,
-					'getGithubIntegrationMetadata minimal API response'
-				);
-			}
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('GitHub metadata validation failed:', {
-					message: error.message,
-					issues: error.issues
-				});
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.get<TGithubMetadata | TMinimalGithubMetadata>(endpoint),
+			(data) => {
+				try {
+					return validateApiResponse(
+						githubMetadataSchema,
+						data,
+						'getGithubIntegrationMetadata API response'
+					);
+				} catch (validationError) {
+					this.logger.debug(
+						'Full GitHub metadata validation failed, trying minimal schema',
+						data,
+						'GithubService'
+					);
+					return validateApiResponse(
+						minimalGithubMetadataSchema,
+						data,
+						'getGithubIntegrationMetadata minimal API response'
+					);
+				}
+			},
+			{ method: 'getGithubIntegrationMetadata', service: 'GithubService', integrationId }
+		);
 	};
 
 	getGithubIntegrationRepositories = async ({
@@ -85,38 +76,30 @@ class GithubService extends APIService {
 			? `/integration/github/${integrationId}/repositories?${query}`
 			: `/integration/github/repositories?integrationId=${integrationId}`;
 
-		try {
-			const response = await this.get<any>(endpoint);
-
-			// Validate the response data using Zod schema with fallback
-			try {
-				return validateApiResponse(
-					githubRepositoriesSchema,
-					response.data,
-					'getGithubIntegrationRepositories API response'
-				);
-			} catch (validationError) {
-				// Fallback to minimal schema if full validation fails
-				this.logger.debug(
-					'Full GitHub repositories validation failed, trying minimal schema',
-					response.data,
-					'GithubService'
-				);
-				return validateApiResponse(
-					minimalGithubRepositoriesSchema,
-					response.data,
-					'getGithubIntegrationRepositories minimal API response'
-				);
-			}
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('GitHub repositories validation failed:', {
-					message: error.message,
-					issues: error.issues
-				});
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.get<any>(endpoint),
+			(data) => {
+				try {
+					return validateApiResponse(
+						githubRepositoriesSchema,
+						data,
+						'getGithubIntegrationRepositories API response'
+					);
+				} catch (validationError) {
+					this.logger.debug(
+						'Full GitHub repositories validation failed, trying minimal schema',
+						data,
+						'GithubService'
+					);
+					return validateApiResponse(
+						minimalGithubRepositoriesSchema,
+						data,
+						'getGithubIntegrationRepositories minimal API response'
+					);
+				}
+			},
+			{ method: 'getGithubIntegrationRepositories', service: 'GithubService', integrationId }
+		);
 	};
 
 	syncGitHubRepository = async (body: any) => {

@@ -9,7 +9,6 @@ import {
 	favoriteSchema,
 	validateApiResponse,
 	favoriteCreateSchema,
-	ZodValidationError,
 	TFavorite
 } from '@/core/types/schemas';
 
@@ -28,37 +27,23 @@ class FavoriteService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	createFavorite = async (body: IFavoriteCreateRequest): Promise<TFavorite> => {
-		try {
-			const data = {
-				...body,
-				organizationId: this.organizationId,
-				tenantId: this.tenantId
-			};
+		const data = {
+			...body,
+			organizationId: this.organizationId,
+			tenantId: this.tenantId
+		};
 
-			// Validate input data before sending
-			const validatedInput = validateApiResponse(
-				favoriteCreateSchema.partial(), // Allow partial data for creation
-				data,
-				'createFavorite input data'
-			);
+		const validatedInput = validateApiResponse(
+			favoriteCreateSchema.partial(),
+			data,
+			'createFavorite input data'
+		);
 
-			const response = await this.post<TFavorite>('/favorite', validatedInput, { tenantId: this.tenantId });
-
-			// Validate the response data
-			return validateApiResponse(favoriteSchema, response.data, 'createFavorite API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Favorite creation validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'FavoriteService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.post<TFavorite>('/favorite', validatedInput, { tenantId: this.tenantId }),
+			(responseData) => validateApiResponse(favoriteSchema, responseData, 'createFavorite API response'),
+			{ method: 'createFavorite', service: 'FavoriteService' }
+		);
 	};
 
 	/**
@@ -69,33 +54,20 @@ class FavoriteService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getFavoritesByEmployee = async ({ employeeId }: { employeeId: ID }): Promise<PaginationResponse<TFavorite>> => {
-		try {
-			const obj = {
-				'where[employeeId]': employeeId,
-				'where[organizationId]': this.organizationId,
-				'where[tenantId]': this.tenantId
-			} as Record<string, string>;
+		const obj = {
+			'where[employeeId]': employeeId,
+			'where[organizationId]': this.organizationId,
+			'where[tenantId]': this.tenantId
+		} as Record<string, string>;
 
-			const query = qs.stringify(obj);
-			const endpoint = `/favorite/employee?${query}`;
+		const query = qs.stringify(obj);
+		const endpoint = `/favorite/employee?${query}`;
 
-			const response = await this.get<PaginationResponse<TFavorite>>(endpoint, { tenantId: this.tenantId });
-
-			// Validate the response data using Zod schema
-			return validatePaginationResponse(favoriteSchema, response.data, 'getFavoritesByEmployee API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Favorite retrieval validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'FavoriteService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithPaginationValidation(
+			() => this.get<PaginationResponse<TFavorite>>(endpoint, { tenantId: this.tenantId }),
+			(data) => validatePaginationResponse(favoriteSchema, data, 'getFavoritesByEmployee API response'),
+			{ method: 'getFavoritesByEmployee', service: 'FavoriteService', employeeId }
+		);
 	};
 
 	/**
@@ -106,27 +78,8 @@ class FavoriteService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	deleteFavorite = async (favoriteId: string): Promise<DeleteResponse> => {
-		try {
-			const endpoint = `/favorite/${favoriteId}`;
-
-			const response = await this.delete<DeleteResponse>(endpoint);
-
-			// For delete operations, we typically just return the response as-is
-			// since DeleteResponse is a simple interface with success/message fields
-			return response.data;
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Favorite deletion validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'FavoriteService'
-				);
-			}
-			throw error;
-		}
+		const response = await this.delete<DeleteResponse>(`/favorite/${favoriteId}`);
+		return response.data;
 	};
 }
 

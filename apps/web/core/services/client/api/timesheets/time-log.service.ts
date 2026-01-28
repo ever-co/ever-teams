@@ -23,7 +23,6 @@ import { formatStartAndEndDateRange } from '@/core/lib/helpers/format-date-range
 import {
 	validateApiResponse,
 	timeLimitReportListSchema,
-	ZodValidationError,
 	TGetTimeLimitReport,
 	TTimeLimitReportList
 } from '@/core/types/schemas';
@@ -36,24 +35,11 @@ class TimeLogService extends APIService {
 			organizationId: this.organizationId
 		});
 
-		try {
-			const response = await this.get<TTimeLimitReportList[]>(`/timesheet/time-log/time-limit?${query}`);
-
-			// Validate the response data using Zod schema
-			return validateApiResponse(
-				timeLimitReportListSchema.array(),
-				response.data,
-				'getTimeLimitsReport API response'
-			);
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('Time limits report validation failed:', {
-					message: error.message,
-					issues: error.issues
-				});
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.get<TTimeLimitReportList[]>(`/timesheet/time-log/time-limit?${query}`),
+			(data) => validateApiResponse(timeLimitReportListSchema.array(), data, 'getTimeLimitsReport API response'),
+			{ method: 'getTimeLimitsReport', service: 'TimeLogService', params }
+		);
 	};
 
 	/**
@@ -64,76 +50,50 @@ class TimeLogService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getTimerLogsDailyReport = async (params: TGetTimerLogsDailyReportRequest): Promise<TTimeLogReportDaily[]> => {
-		try {
-			const queryParams = {
-				'activityLevel[start]': '0',
-				'activityLevel[end]': '100',
-				tenantId: this.tenantId,
-				organizationId: this.organizationId,
-				timeZone: params.timeZone || getDefaultTimezone(),
-				...params
-			};
+		const queryParams = {
+			'activityLevel[start]': '0',
+			'activityLevel[end]': '100',
+			tenantId: this.tenantId,
+			organizationId: this.organizationId,
+			timeZone: params.timeZone || getDefaultTimezone(),
+			...params
+		};
 
-			const query = qs.stringify(queryParams);
+		const query = qs.stringify(queryParams);
 
-			const response = await this.get<TTimeLogReportDaily[]>(`/timesheet/time-log/report/daily?${query}`);
-
-			// Validate the response data using Zod schema
-			if (Array.isArray(response.data)) {
-				const validatedReports = response.data.map((report, index) =>
-					validateApiResponse(
-						timeLogReportDailySchema,
-						report,
-						`getTimerLogsDailyReport API response item ${index}`
-					)
-				);
-				return validatedReports;
-			}
-
-			// If response.data is not an array, return empty array
-			return [];
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Timer logs daily report validation failed:',
-					{
-						message: error.message,
-						issues: error.issues,
-						tenantId: this.tenantId,
-						organizationId: this.organizationId,
-						employeeIds: params.employeeIds
-					},
-					'TimeLogService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.get<TTimeLogReportDaily[]>(`/timesheet/time-log/report/daily?${query}`),
+			(data) => {
+				if (Array.isArray(data)) {
+					return data.map((report, index) =>
+						validateApiResponse(
+							timeLogReportDailySchema,
+							report,
+							`getTimerLogsDailyReport API response item ${index}`
+						)
+					);
+				}
+				return [];
+			},
+			{ method: 'getTimerLogsDailyReport', service: 'TimeLogService', employeeIds: params.employeeIds }
+		);
 	};
 
 	addManualTime = async (request: TAddManualTimeRequest): Promise<TTimeLog> => {
-		try {
-			const { startedAt, stoppedAt, ...rest } = request;
-			const data = {
-				...rest,
-				tenantId: this.tenantId,
-				organizationId: this.organizationId,
-				startedAt: startedAt.toISOString(),
-				stoppedAt: stoppedAt.toISOString()
-			};
+		const { startedAt, stoppedAt, ...rest } = request;
+		const data = {
+			...rest,
+			tenantId: this.tenantId,
+			organizationId: this.organizationId,
+			startedAt: startedAt.toISOString(),
+			stoppedAt: stoppedAt.toISOString()
+		};
 
-			const response = await this.post<TTimeLog>('/timesheet/time-log', data);
-
-			// Validate the response data using Zod schema
-			return validateApiResponse(timeLogSchema, response.data, 'addManualTime API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('Add manual time validation failed:', {
-					message: error.message,
-					issues: error.issues
-				});
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.post<TTimeLog>('/timesheet/time-log', data),
+			(responseData) => validateApiResponse(timeLogSchema, responseData, 'addManualTime API response'),
+			{ method: 'addManualTime', service: 'TimeLogService' }
+		);
 	};
 
 	getTimeLogs = async ({

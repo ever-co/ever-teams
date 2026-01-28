@@ -11,7 +11,6 @@ import {
 	editProjectRequestSchema,
 	organizationProjectSettingSchema,
 	deleteProjectNoContentResponseSchema,
-	ZodValidationError,
 	TOrganizationProject,
 	TCreateProjectRequest,
 	TEditProjectRequest,
@@ -40,34 +39,19 @@ class OrganizationProjectService extends APIService {
 		organizationProjectId: string;
 		data: any;
 	}) => {
-		try {
-			const response = await this.put<TOrganizationProjectSetting>(
+		return this.executeWithValidation(
+			() => this.put<TOrganizationProjectSetting>(
 				`/organization-projects/setting/${organizationProjectId}`,
 				data,
-				{
-					tenantId: this.tenantId
-				}
-			);
-
-			// Validate the response data
-			return validateApiResponse(
+				{ tenantId: this.tenantId }
+			),
+			(responseData) => validateApiResponse(
 				organizationProjectSettingSchema,
-				response.data,
+				responseData,
 				'editOrganizationProjectSetting API response'
-			);
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Organization project setting validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'OrganizationProjectService'
-				);
-			}
-			throw error;
-		}
+			),
+			{ method: 'editOrganizationProjectSetting', service: 'OrganizationProjectService', organizationProjectId }
+		);
 	};
 
 	/**
@@ -78,35 +62,21 @@ class OrganizationProjectService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	createOrganizationProject = async (data: Partial<TCreateProjectRequest>): Promise<TOrganizationProject> => {
-		try {
-			// Validate input data before sending
-			const validatedInput = validateApiResponse(
-				createProjectRequestSchema.partial(), // Allow partial data for creation
-				data,
-				'createOrganizationProject input data'
-			);
+		const validatedInput = validateApiResponse(
+			createProjectRequestSchema.partial(),
+			data,
+			'createOrganizationProject input data'
+		);
 
-			const response = await this.post<TOrganizationProject>(`/organization-projects`, validatedInput);
-
-			// Validate the response data
-			return validateApiResponse(
+		return this.executeWithValidation(
+			() => this.post<TOrganizationProject>(`/organization-projects`, validatedInput),
+			(responseData) => validateApiResponse(
 				organizationProjectSchema,
-				response.data,
+				responseData,
 				'createOrganizationProject API response'
-			);
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Organization project creation validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'OrganizationProjectService'
-				);
-			}
-			throw error;
-		}
+			),
+			{ method: 'createOrganizationProject', service: 'OrganizationProjectService' }
+		);
 	};
 
 	/**
@@ -124,41 +94,25 @@ class OrganizationProjectService extends APIService {
 		organizationProjectId: string;
 		data: TEditProjectRequest;
 	}): Promise<TOrganizationProject> => {
-		try {
-			// Validate input data before sending
-			const validatedInput = validateApiResponse(
-				editProjectRequestSchema,
-				data,
-				'editOrganizationProject input data'
-			);
+		const validatedInput = validateApiResponse(
+			editProjectRequestSchema,
+			data,
+			'editOrganizationProject input data'
+		);
 
-			const response = await this.put<TOrganizationProject>(
+		return this.executeWithValidation(
+			() => this.put<TOrganizationProject>(
 				`/organization-projects/${organizationProjectId}`,
 				validatedInput,
-				{
-					tenantId: this.tenantId
-				}
-			);
-
-			// Validate the response data
-			return validateApiResponse(
+				{ tenantId: this.tenantId }
+			),
+			(responseData) => validateApiResponse(
 				organizationProjectSchema,
-				response.data,
+				responseData,
 				'editOrganizationProject API response'
-			);
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Organization project edit validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'OrganizationProjectService'
-				);
-			}
-			throw error;
-		}
+			),
+			{ method: 'editOrganizationProject', service: 'OrganizationProjectService', organizationProjectId }
+		);
 	};
 
 	/**
@@ -169,38 +123,22 @@ class OrganizationProjectService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getOrganizationProject = async (organizationProjectId: string): Promise<TOrganizationProject> => {
-		try {
-			// Include relations to get full project data (members, teams, tags, etc.)
-			const relations = ['organizationContact', 'members.employee.user', 'tags', 'teams'];
-			const obj: Record<string, string> = {
-				tenantId: this.tenantId
-			};
+		const relations = ['organizationContact', 'members.employee.user', 'tags', 'teams'];
+		const obj: Record<string, string> = {
+			tenantId: this.tenantId
+		};
 
-			relations.forEach((relation, i) => {
-				obj[`relations[${i}]`] = relation;
-			});
+		relations.forEach((relation, i) => {
+			obj[`relations[${i}]`] = relation;
+		});
 
-			const query = qs.stringify(obj);
+		const query = qs.stringify(obj);
 
-			const response = await this.get<TOrganizationProject>(
-				`/organization-projects/${organizationProjectId}?${query}`
-			);
-
-			// Validate the response data
-			return validateApiResponse(organizationProjectSchema, response.data, 'getOrganizationProject API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Organization project get validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'OrganizationProjectService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.get<TOrganizationProject>(`/organization-projects/${organizationProjectId}?${query}`),
+			(data) => validateApiResponse(organizationProjectSchema, data, 'getOrganizationProject API response'),
+			{ method: 'getOrganizationProject', service: 'OrganizationProjectService', organizationProjectId }
+		);
 	};
 
 	/**
@@ -221,63 +159,46 @@ class OrganizationProjectService extends APIService {
 		skip?: number;
 		take?: number;
 	} = {}): Promise<PaginationResponse<TOrganizationProject>> => {
-		try {
-			const obj = {
-				'where[organizationId]': this.organizationId,
-				'where[tenantId]': this.tenantId,
-				'join[alias]': 'organization_project',
-				'join[leftJoin][tags]': 'organization_project.tags'
-			} as Record<string, string>;
+		const obj = {
+			'where[organizationId]': this.organizationId,
+			'where[tenantId]': this.tenantId,
+			'join[alias]': 'organization_project',
+			'join[leftJoin][tags]': 'organization_project.tags'
+		} as Record<string, string>;
 
-			// Relations matching the provided URL structure
-			const relations = ['organizationContact', 'members.employee.user', 'tags', 'teams'];
+		const relations = ['organizationContact', 'members.employee.user', 'tags', 'teams'];
 
-			relations.forEach((relation, i) => {
-				obj[`relations[${i}]`] = relation;
-			});
+		relations.forEach((relation, i) => {
+			obj[`relations[${i}]`] = relation;
+		});
 
-			// Add skip and take if provided
-			if (skip !== undefined) {
-				obj['skip'] = skip.toString();
-			}
-			if (take !== undefined) {
-				obj['take'] = take.toString();
-			}
-
-			// Add other queries
-			if (queries) {
-				Object.entries(queries).forEach(([key, value]) => {
-					obj[key] = value;
-				});
-			}
-
-			const query = qs.stringify(obj);
-
-			const response = await this.get<PaginationResponse<TOrganizationProject>>(
-				`/organization-projects?${query}`,
-				{
-					tenantId: this.tenantId
-				}
-			);
-			// Validate the response data using Zod schema
-			return validatePaginationResponse(
-				organizationProjectSchema,
-				response.data,
-				'getOrganizationProjects API response'
-			);
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Organization projects validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'OrganizationProjectService'
-				);
-			}
-			throw error;
+		if (skip !== undefined) {
+			obj['skip'] = skip.toString();
 		}
+		if (take !== undefined) {
+			obj['take'] = take.toString();
+		}
+
+		if (queries) {
+			Object.entries(queries).forEach(([key, value]) => {
+				obj[key] = value;
+			});
+		}
+
+		const query = qs.stringify(obj);
+
+		return this.executeWithPaginationValidation(
+			() => this.get<PaginationResponse<TOrganizationProject>>(
+				`/organization-projects?${query}`,
+				{ tenantId: this.tenantId }
+			),
+			(data) => validatePaginationResponse(
+				organizationProjectSchema,
+				data,
+				'getOrganizationProjects API response'
+			),
+			{ method: 'getOrganizationProjects', service: 'OrganizationProjectService' }
+		);
 	};
 
 	/**
@@ -294,25 +215,8 @@ class OrganizationProjectService extends APIService {
 	 *
 	 */
 	deleteOrganizationProject = async (organizationProjectId: string): Promise<void> => {
-		try {
-			const response = await this.delete(`/organization-projects/${organizationProjectId}`);
-
-			// Validate that the response is empty (204 No Content)
-			// This ensures the API behaves as expected
-			deleteProjectNoContentResponseSchema.parse(response.data);
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Unexpected response format from DELETE organization project:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'OrganizationProjectService'
-				);
-			}
-			throw error;
-		}
+		const response = await this.delete(`/organization-projects/${organizationProjectId}`);
+		deleteProjectNoContentResponseSchema.parse(response.data);
 	};
 }
 
