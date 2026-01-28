@@ -5,7 +5,6 @@ import {
 	validatePaginationResponse,
 	taskPrioritySchema,
 	validateApiResponse,
-	ZodValidationError,
 	TTaskPriority,
 	TTaskPriorityCreate
 } from '@/core/types/schemas';
@@ -25,26 +24,11 @@ class TaskPriorityService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	createTaskPriority = async (data: TTaskPriorityCreate): Promise<TTaskPriority> => {
-		try {
-			const response = await this.post<TTaskPriority>('/task-priorities', data, {
-				tenantId: this.tenantId
-			});
-
-			// Validate the response data
-			return validateApiResponse(taskPrioritySchema, response.data, 'createTaskPriority API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task priority creation validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TaskPriorityService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.post<TTaskPriority>('/task-priorities', data, { tenantId: this.tenantId }),
+			(responseData) => validateApiResponse(taskPrioritySchema, responseData, 'createTaskPriority API response'),
+			{ method: 'createTaskPriority', service: 'TaskPriorityService' }
+		);
 	};
 
 	/**
@@ -56,26 +40,11 @@ class TaskPriorityService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	editTaskPriority = async ({ taskPriorityId, data }: { taskPriorityId: string; data: TTaskPriorityCreate }) => {
-		try {
-			const response = await this.put<TTaskPriority>(`/task-priorities/${taskPriorityId}`, data, {
-				tenantId: this.tenantId
-			});
-
-			// Validate the response data
-			return validateApiResponse(taskPrioritySchema, response.data, 'editTaskPriority API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task priority update validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TaskPriorityService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.put<TTaskPriority>(`/task-priorities/${taskPriorityId}`, data, { tenantId: this.tenantId }),
+			(responseData) => validateApiResponse(taskPrioritySchema, responseData, 'editTaskPriority API response'),
+			{ method: 'editTaskPriority', service: 'TaskPriorityService', taskPriorityId }
+		);
 	};
 
 	/**
@@ -86,21 +55,7 @@ class TaskPriorityService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	deleteTaskPriority = async (taskPriorityId: string) => {
-		try {
-			return await this.delete<TTaskPriority>(`/task-priorities/${taskPriorityId}`);
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task priority deletion validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TaskPriorityService'
-				);
-			}
-			throw error;
-		}
+		return await this.delete<TTaskPriority>(`/task-priorities/${taskPriorityId}`);
 	};
 
 	/**
@@ -110,26 +65,13 @@ class TaskPriorityService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getTaskPrioritiesList = async (): Promise<PaginationResponse<TTaskPriority>> => {
-		try {
-			const endpoint = `/task-priorities?tenantId=${this.tenantId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`;
+		const endpoint = `/task-priorities?tenantId=${this.tenantId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`;
 
-			const response = await this.get<PaginationResponse<TTaskPriority>>(endpoint, { tenantId: this.tenantId });
-
-			// Validate the response data using Zod schema
-			return validatePaginationResponse(taskPrioritySchema, response.data, 'getTaskPrioritiesList API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task priorities list validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TaskPriorityService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithPaginationValidation(
+			() => this.get<PaginationResponse<TTaskPriority>>(endpoint, { tenantId: this.tenantId }),
+			(data) => validatePaginationResponse(taskPrioritySchema, data, 'getTaskPrioritiesList API response'),
+			{ method: 'getTaskPrioritiesList', service: 'TaskPriorityService' }
+		);
 	};
 }
 

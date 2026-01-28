@@ -9,6 +9,7 @@ import { InputField } from '../../duplicated-components/_input';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { activeTeamState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
+import { getTodayString } from '@/core/lib/utils';
 
 interface IAddDailyPlanWorkHoursModalProps {
 	closeModal: () => void;
@@ -25,7 +26,7 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const [workTimePlanned, setworkTimePlanned] = useState<number | undefined>(plan.workTimePlanned);
-	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
+	const currentDate = useMemo(() => getTodayString(), []);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 	const hasWorkHours = useMemo(() => plan.workTimePlanned && plan.workTimePlanned > 0, [plan.workTimePlanned]);
 	const [loading, setLoading] = useState(false);

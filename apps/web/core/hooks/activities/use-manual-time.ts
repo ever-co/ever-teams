@@ -7,6 +7,7 @@ import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { TAddManualTimeRequest, TTimeLog } from '@/core/types/schemas';
 import { queryKeys } from '@/core/query/keys';
 import { toast } from 'sonner';
+import { formatUserFullName } from '@/core/lib/utils';
 
 export function useManualTime() {
 	const { user } = useAuthenticateUser();
@@ -31,7 +32,7 @@ export function useManualTime() {
 			const endTimeStr = endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
 			toast.success('Time added successfully', {
-				description: `Time added successfully for ${user?.firstName} ${user?.lastName} on ${dateStr} from ${startTimeStr} to ${endTimeStr}`
+				description: `Time added successfully for ${formatUserFullName(user)} on ${dateStr} from ${startTimeStr} to ${endTimeStr}`
 			});
 		},
 		onError: (error) => {

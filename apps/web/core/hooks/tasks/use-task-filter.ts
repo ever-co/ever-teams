@@ -11,6 +11,7 @@ import { ITab } from '@/core/components/pages/profile/task-filters';
 import { timeLogsDailyReportState, activeTeamManagersState, activeTeamState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 import { useUserQuery } from '../queries/user-user.query';
+import { getTodayString } from '@/core/lib/utils';
 
 type IStatusType = 'status' | 'size' | 'priority' | 'label';
 type FilterType = 'status' | 'search' | undefined;
@@ -256,7 +257,7 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 
 	// Set the tab to assigned if user has not planned tasks (if outstanding is empty) (on first load)
 	useEffect(() => {
-		if (dailyPlanSuggestionModalDate != new Date().toISOString().split('T')[0] && path.split('/')[1] == 'profile') {
+		if (dailyPlanSuggestionModalDate != getTodayString() && path.split('/')[1] == 'profile') {
 			if (estimatedTotalTime(outstandingPlans).totalTasks) {
 				setTab('dailyplan');
 			} else {

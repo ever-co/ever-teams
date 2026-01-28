@@ -4,7 +4,7 @@ import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { createTaskSchema, taskSchema, TCreateTask, TTask } from '@/core/types/schemas/task/task.schema';
-import { TEmployee, ZodValidationError } from '@/core/types/schemas';
+import { TEmployee } from '@/core/types/schemas';
 import { zodStrictApiResponseValidate, zodStrictPaginationResponseValidate } from '@/core/lib/validation/zod-validators';
 
 /**
@@ -49,29 +49,14 @@ class TaskService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getTaskById = async (taskId: string): Promise<TTask> => {
-		try {
-			const query = qs.stringify({ ...this.baseQueries, includeRootEpic: 'true' });
+		const query = qs.stringify({ ...this.baseQueries, includeRootEpic: 'true' });
+		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/tasks/${taskId}?${query}` : `/tasks/${taskId}`;
 
-			const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/tasks/${taskId}?${query}` : `/tasks/${taskId}`;
-
-			const response = await this.get<TTask>(endpoint);
-
-			// Validate the response data using zod validation with enum normalization
-			return zodStrictApiResponseValidate(taskSchema, response.data, 'getTaskById API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task by ID validation failed:',
-					{
-						message: error.message,
-						issues: error.issues,
-						taskId
-					},
-					'TaskService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.get<TTask>(endpoint),
+			(data) => zodStrictApiResponseValidate(taskSchema, data, 'getTaskById API response'),
+			{ method: 'getTaskById', service: 'TaskService', taskId }
+		);
 	};
 
 	/**
@@ -82,35 +67,18 @@ class TaskService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getTasks = async ({ projectId }: { projectId: string }): Promise<PaginationResponse<TTask>> => {
-		try {
-			const query = qs.stringify({
-				...this.baseQueries,
-				'where[projectId]': projectId,
-				'where[teams][0]': this.activeTeamId
-			});
-			const endpoint = `/tasks/team?${query}`;
+		const query = qs.stringify({
+			...this.baseQueries,
+			'where[projectId]': projectId,
+			'where[teams][0]': this.activeTeamId
+		});
+		const endpoint = `/tasks/team?${query}`;
 
-			const response = await this.get<PaginationResponse<TTask>>(endpoint, { tenantId: this.tenantId });
-
-			// Validate the response data using zod validation with enum normalization
-			return zodStrictPaginationResponseValidate(taskSchema, response.data, 'getTasks API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Tasks validation failed:',
-					{
-						message: error.message,
-						issues: error.issues,
-						organizationId: this.organizationId,
-						tenantId: this.tenantId,
-						projectId,
-						activeTeamId: this.activeTeamId
-					},
-					'TaskService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithPaginationValidation(
+			() => this.get<PaginationResponse<TTask>>(endpoint, { tenantId: this.tenantId }),
+			(data) => zodStrictPaginationResponseValidate(taskSchema, data, 'getTasks API response'),
+			{ method: 'getTasks', service: 'TaskService', projectId, activeTeamId: this.activeTeamId }
+		);
 	};
 
 	/**
@@ -120,26 +88,8 @@ class TaskService extends APIService {
 	 * @returns {Promise<DeleteResponse>} - Delete operation response
 	 */
 	deleteTask = async (taskId: string): Promise<DeleteResponse> => {
-		try {
-			const response = await this.delete<DeleteResponse>(`/tasks/${taskId}`);
-
-			// Note: Delete operations typically return a simple response, not the deleted entity
-			// So we don't validate against task schema here
-			return response.data;
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task deletion validation failed:',
-					{
-						message: error.message,
-						issues: error.issues,
-						taskId
-					},
-					'TaskService'
-				);
-			}
-			throw error;
-		}
+		const response = await this.delete<DeleteResponse>(`/tasks/${taskId}`);
+		return response.data;
 	};
 
 	/**
@@ -208,48 +158,35 @@ class TaskService extends APIService {
 	 */
 
 	updateTask = async ({ taskId, data }: { taskId: string; data: Partial<TTask> }): Promise<TTask> => {
-		try {
-			// Normalize member structures to prevent FK constraint violations
-			const cleanedData: Partial<TTask> = { ...data };
+		const cleanedData: Partial<TTask> = { ...data };
 
-			if ('members' in data) {
-				cleanedData.members = this.normalizeTaskMembers(data.members ?? []);
-			}
-
-			// Validate input data before sending (partial validation) Now safe to validate since we normalized the member structures
-			const validatedInput = zodStrictApiResponseValidate(
-				taskSchema.partial(),
-				cleanedData,
-				'updateTask input data'
-			) as Partial<TTask>;
-			if (GAUZY_API_BASE_SERVER_URL.value) {
-				const nBody = { ...validatedInput };
-				delete nBody.selectedTeam;
-				delete nBody.rootEpic;
-
-				const response = await this.put<TTask>(`/tasks/${taskId}`, nBody);
-
-				return zodStrictApiResponseValidate(taskSchema, response.data, 'updateTask API response');
-			}
-
-			const response = await this.put<TTask>(`/tasks/${taskId}`, validatedInput);
-
-			// Validate the response data
-			return zodStrictApiResponseValidate(taskSchema, response.data, 'updateTask API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task update validation failed:',
-					{
-						message: error.message,
-						issues: error.issues,
-						taskId
-					},
-					'TaskService'
-				);
-			}
-			throw error;
+		if ('members' in data) {
+			cleanedData.members = this.normalizeTaskMembers(data.members ?? []);
 		}
+
+		const validatedInput = zodStrictApiResponseValidate(
+			taskSchema.partial(),
+			cleanedData,
+			'updateTask input data'
+		) as Partial<TTask>;
+
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			const nBody = { ...validatedInput };
+			delete nBody.selectedTeam;
+			delete nBody.rootEpic;
+
+			return this.executeWithValidation(
+				() => this.put<TTask>(`/tasks/${taskId}`, nBody),
+				(data) => zodStrictApiResponseValidate(taskSchema, data, 'updateTask API response'),
+				{ method: 'updateTask', service: 'TaskService', taskId }
+			);
+		}
+
+		return this.executeWithValidation(
+			() => this.put<TTask>(`/tasks/${taskId}`, validatedInput),
+			(data) => zodStrictApiResponseValidate(taskSchema, data, 'updateTask API response'),
+			{ method: 'updateTask', service: 'TaskService', taskId }
+		);
 	};
 
 	/**
@@ -260,60 +197,46 @@ class TaskService extends APIService {
 	 * @throws ValidationError if input or response data doesn't match schema
 	 */
 	createTask = async (body: Partial<TCreateTask> & { title: string }): Promise<PaginationResponse<TTask>> => {
-		try {
-			if (GAUZY_API_BASE_SERVER_URL.value) {
-				const organizationId = this.organizationId;
-				const teamId = this.activeTeamId;
-				const tenantId = this.tenantId;
-				const projectId = getActiveProjectIdCookie();
-				const title = body.title.trim() || '';
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			const organizationId = this.organizationId;
+			const teamId = this.activeTeamId;
+			const tenantId = this.tenantId;
+			const projectId = getActiveProjectIdCookie();
+			const title = body.title.trim() || '';
 
-				const datas: TCreateTask = {
-					description: '',
-					teams: [
-						{
-							id: teamId
-						}
-					],
-					tags: [],
-					organizationId,
-					tenantId,
-					projectId,
-					estimate: 0,
-					...body,
-					title // this must be called after ...body
-				};
-
-				// Validate input data before sending
-				const validatedInput = zodStrictApiResponseValidate(
-					createTaskSchema,
-					datas,
-					'createTask input data'
-				) as TCreateTask;
-
-				await this.post('/tasks', validatedInput, { tenantId });
-
-				return this.getTasks({ projectId });
-			}
-
-			const api = await getFallbackAPI();
-			const response = await api.post<PaginationResponse<TTask>>('/tasks/team', body);
-
-			// Validate the response data
-			return zodStrictPaginationResponseValidate(taskSchema, response.data, 'createTask API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task creation validation failed:',
+			const datas: TCreateTask = {
+				description: '',
+				teams: [
 					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TaskService'
-				);
-			}
-			throw error;
+						id: teamId
+					}
+				],
+				tags: [],
+				organizationId,
+				tenantId,
+				projectId,
+				estimate: 0,
+				...body,
+				title
+			};
+
+			const validatedInput = zodStrictApiResponseValidate(
+				createTaskSchema,
+				datas,
+				'createTask input data'
+			) as TCreateTask;
+
+			await this.post('/tasks', validatedInput, { tenantId });
+
+			return this.getTasks({ projectId });
 		}
+
+		const api = await getFallbackAPI();
+		return this.executeWithPaginationValidation(
+			() => api.post<PaginationResponse<TTask>>('/tasks/team', body),
+			(data) => zodStrictPaginationResponseValidate(taskSchema, data, 'createTask API response'),
+			{ method: 'createTask', service: 'TaskService' }
+		);
 	};
 
 	/**
@@ -323,26 +246,10 @@ class TaskService extends APIService {
 	 * @returns {Promise<DeleteResponse>} - Delete operation response
 	 */
 	deleteEmployeeFromTasks = async (employeeId: string): Promise<DeleteResponse> => {
-		try {
-			const response = await this.delete<DeleteResponse>(
-				`/tasks/employee/${employeeId}?organizationTeamId=${this.activeTeamId}`
-			);
-			return response.data;
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Delete employee from tasks validation failed:',
-					{
-						message: error.message,
-						issues: error.issues,
-						employeeId,
-						activeTeamId: this.activeTeamId
-					},
-					'TaskService'
-				);
-			}
-			throw error;
-		}
+		const response = await this.delete<DeleteResponse>(
+			`/tasks/employee/${employeeId}?organizationTeamId=${this.activeTeamId}`
+		);
+		return response.data;
 	};
 
 	/**
@@ -353,37 +260,20 @@ class TaskService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getTasksByEmployeeId = async ({ employeeId }: { employeeId: string }): Promise<TTask[]> => {
-		try {
-			const organizationId = this.organizationId;
-			const tenantId = this.tenantId;
-			const obj = {
-				'where[tenantId]': tenantId,
-				'where[organizationId]': organizationId,
-				'teams[0]': this.activeTeamId
-			} as Record<string, string>;
-			const query = qs.stringify(obj);
+		const obj = {
+			'where[tenantId]': this.tenantId,
+			'where[organizationId]': this.organizationId,
+			'teams[0]': this.activeTeamId
+		} as Record<string, string>;
+		const query = qs.stringify(obj);
 
-			const response = await this.get<TTask[]>(`/tasks/employee/${employeeId}?${query}`);
-
-			// Validate the response data using zod validation with enum normalization
-			return response.data.map((task) =>
+		return this.executeWithValidation(
+			() => this.get<TTask[]>(`/tasks/employee/${employeeId}?${query}`),
+			(data) => data.map((task: any) =>
 				zodStrictApiResponseValidate(taskSchema, task, 'getTasksByEmployeeId API response')
-			);
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Tasks by employee ID validation failed:',
-					{
-						message: error.message,
-						issues: error.issues,
-						employeeId,
-						activeTeamId: this.activeTeamId
-					},
-					'TaskService'
-				);
-			}
-			throw error;
-		}
+			),
+			{ method: 'getTasksByEmployeeId', service: 'TaskService', employeeId, activeTeamId: this.activeTeamId }
+		);
 	};
 }
 

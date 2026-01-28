@@ -6,7 +6,7 @@ import { LazyTaskCard } from '@/core/components/optimized-components';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import TaskBlockCard from '../task-block-card';
-import { clsxm } from '@/core/lib/utils';
+import { clsxm, getDateString } from '@/core/lib/utils';
 import { useMemo } from 'react';
 import { filterDailyPlan, filterDailyPlansByEmployee } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { TUser } from '@/core/types/schemas';
@@ -61,7 +61,7 @@ export function FutureTasks({
 					<Accordion
 						type="multiple"
 						className="text-sm"
-						defaultValue={[tomorrowDate.toISOString().split('T')[0]]}
+						defaultValue={[getDateString(tomorrowDate)]}
 					>
 						{futureDailyPlanTasks?.map((plan) => (
 							<AccordionItem

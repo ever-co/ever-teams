@@ -7,7 +7,6 @@ import { ITimesheetCountsStatistics } from '@/core/types/interfaces/timesheet/ti
 import {
 	validateApiResponse,
 	timerSlotDataRequestSchema,
-	ZodValidationError,
 	TGetTimeSlotsStatisticsRequest,
 	TTimerSlotDataRequest
 } from '@/core/types/schemas';
@@ -15,61 +14,43 @@ import { taskStatisticsSchema, TTaskStatistics } from '@/core/types/schemas/acti
 
 class StatisticsService extends APIService {
 	getTimeSlotsStatistics = async (params: TGetTimeSlotsStatisticsRequest): Promise<TTimerSlotDataRequest[]> => {
-		try {
-			const queryParams = {
-				tenantId: this.tenantId,
-				organizationId: this.organizationId,
-				employeeId: params.employeeId,
-				todayEnd: params.todayEnd.toISOString(),
-				todayStart: params.todayStart.toISOString(),
-				relations: ['timeSlots.timeLogs.projectId', 'timeSlots.timeLogs.taskId']
-			} satisfies Record<string, string | string[] | number>;
+		const queryParams = {
+			tenantId: this.tenantId,
+			organizationId: this.organizationId,
+			employeeId: params.employeeId,
+			todayEnd: params.todayEnd.toISOString(),
+			todayStart: params.todayStart.toISOString(),
+			relations: ['timeSlots.timeLogs.projectId', 'timeSlots.timeLogs.taskId']
+		} satisfies Record<string, string | string[] | number>;
 
-			const query = qs.stringify(queryParams, { arrayFormat: 'indices' });
+		const query = qs.stringify(queryParams, { arrayFormat: 'indices' });
 
-			const endpoint = GAUZY_API_BASE_SERVER_URL.value
-				? `/timesheet/statistics/time-slots?${query}`
-				: `/timer/slots?${query}`;
+		const endpoint = GAUZY_API_BASE_SERVER_URL.value
+			? `/timesheet/statistics/time-slots?${query}`
+			: `/timer/slots?${query}`;
 
-			const response = await this.get<TTimerSlotDataRequest | TTimerSlotDataRequest[]>(endpoint);
-
-			// Validate the response data
-			const responseData = Array.isArray(response.data) ? response.data : [response.data];
-
-			return validateApiResponse(
-				timerSlotDataRequestSchema.array(),
-				responseData,
-				'getTimeSlotsStatistics API response'
-			);
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('Time slots statistics request validation failed:', {
-					message: error.message,
-					issues: error.issues
-				});
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.get<TTimerSlotDataRequest | TTimerSlotDataRequest[]>(endpoint),
+			(data) => {
+				const responseData = Array.isArray(data) ? data : [data];
+				return validateApiResponse(
+					timerSlotDataRequestSchema.array(),
+					responseData,
+					'getTimeSlotsStatistics API response'
+				);
+			},
+			{ method: 'getTimeSlotsStatistics', service: 'StatisticsService', employeeId: params.employeeId }
+		);
 	};
 
 	getStatisticsForTasks = async (queries: Record<string, string | string[] | number>) => {
-		try {
-			const query = qs.stringify(queries, { arrayFormat: 'indices' });
+		const query = qs.stringify(queries, { arrayFormat: 'indices' });
 
-			const response = await this.post<TTaskStatistics>(`/timesheet/statistics/tasks?${query}`, {
-				tenantId: this.tenantId
-			});
-
-			return validateApiResponse(taskStatisticsSchema, response.data, 'getStatisticsForTasks API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('Tasks statistics validation failed:', {
-					message: error.message,
-					issues: error.issues
-				});
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.post<TTaskStatistics>(`/timesheet/statistics/tasks?${query}`, { tenantId: this.tenantId }),
+			(data) => validateApiResponse(taskStatisticsSchema, data, 'getStatisticsForTasks API response'),
+			{ method: 'getStatisticsForTasks', service: 'StatisticsService' }
+		);
 	};
 
 	tasksTimesheetStatistics = async ({ employeeId }: { employeeId?: string }) => {

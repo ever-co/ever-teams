@@ -16,6 +16,7 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useAtomValue } from 'jotai';
 import { activeTeamTaskState } from '@/core/stores';
+import { formatUserFullName } from '@/core/lib/utils';
 
 export type MembersCard_EditableValues = {
 	memberName: string;
@@ -42,7 +43,7 @@ const Card = ({ member }: { member: TOrganizationTeamEmployee }) => {
 	const [estimateEditMode, setEstimateEditMode] = useState(false);
 
 	const [formValues, setFormValues] = useState<MemberCardEditableValues>({
-		memberName: `${iuser?.firstName} ${iuser?.lastName || ''}`,
+		memberName: formatUserFullName(iuser),
 		memberTask: '',
 		estimateHours: 0,
 		estimateMinutes: 0

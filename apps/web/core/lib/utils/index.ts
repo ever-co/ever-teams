@@ -4,3 +4,6 @@ export * from './scroll-to-element';
 export * from './queue';
 export * from './wait';
 export * from './http';
+export * from './user.utils';
+export * from './array.utils';
+export * from './date.utils';

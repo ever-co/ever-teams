@@ -2,6 +2,8 @@
  * Utility functions for exporting data in various formats
  */
 
+import { getDateString } from './date.utils';
+
 export interface ExportUtilsOptions {
 	includeHeaders?: boolean;
 	includeFilters?: boolean;
@@ -33,10 +35,10 @@ export function generateExportFilename(
 	startDate?: Date,
 	endDate?: Date
 ): string {
-	const timestamp = new Date().toISOString().split('T')[0];
+	const timestamp = getDateString();
 	const dateRange =
 		startDate && endDate
-			? `${startDate.toISOString().split('T')[0]}-${endDate.toISOString().split('T')[0]}`
+			? `${getDateString(startDate)}-${getDateString(endDate)}`
 			: timestamp;
 
 	return `${baseName}-${dateRange}.${getFileExtension(format)}`;

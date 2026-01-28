@@ -10,7 +10,7 @@ import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import { filterDailyPlan, filterDailyPlansByEmployee } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { dailyPlanViewHeaderTabs } from '@/core/stores';
-import { clsxm } from '@/core/lib/utils';
+import { clsxm, getTodayString, getDateString } from '@/core/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import TaskBlockCard from '@/core/components/tasks/task-block-card';
 import { LazyTaskCard } from '@/core/components/optimized-components';
@@ -89,8 +89,8 @@ export function AllPlans({
 						className="text-sm"
 						defaultValue={
 							currentTab === 'Today Tasks'
-								? [new Date().toISOString().split('T')[0]]
-								: [dragPlans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])[0]]
+								? [getTodayString()]
+								: [dragPlans?.map((plan) => getDateString(plan.date))[0]]
 						}
 					>
 						{dragPlans.map((plan) => (

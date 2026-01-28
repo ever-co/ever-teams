@@ -7,7 +7,6 @@ import {
 	tagSchema,
 	validateApiResponse,
 	tagCreateSchema,
-	ZodValidationError,
 	TTag
 } from '@/core/types/schemas';
 
@@ -25,30 +24,18 @@ class TagService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getTags = async (): Promise<PaginationResponse<TTag>> => {
-		try {
-			const obj = {
-				'where[organizationId]': this.organizationId,
-				'where[tenantId]': this.tenantId
-			} as Record<string, string>;
+		const obj = {
+			'where[organizationId]': this.organizationId,
+			'where[tenantId]': this.tenantId
+		} as Record<string, string>;
 
-			const query = qs.stringify(obj);
-			const response = await this.get<PaginationResponse<TTag>>(`/tags?${query}`);
+		const query = qs.stringify(obj);
 
-			// Validate the response data using Zod schema
-			return validatePaginationResponse(tagSchema, response.data, 'getTags API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Tag validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TagService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithPaginationValidation(
+			() => this.get<PaginationResponse<TTag>>(`/tags?${query}`),
+			(data) => validatePaginationResponse(tagSchema, data, 'getTags API response'),
+			{ method: 'getTags', service: 'TagService' }
+		);
 	};
 
 	/**
@@ -59,31 +46,17 @@ class TagService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	createTag = async (data: Omit<TTag, 'id'>): Promise<TTag> => {
-		try {
-			// Validate input data before sending
-			const validatedInput = validateApiResponse(
-				tagCreateSchema.partial(), // Allow partial data for creation
-				data,
-				'createTag input data'
-			);
+		const validatedInput = validateApiResponse(
+			tagCreateSchema.partial(),
+			data,
+			'createTag input data'
+		);
 
-			const response = await this.post<TTag>('/tags', validatedInput);
-
-			// Validate the response data
-			return validateApiResponse(tagSchema, response.data, 'createTag API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Tag creation validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TagService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.post<TTag>('/tags', validatedInput),
+			(responseData) => validateApiResponse(tagSchema, responseData, 'createTag API response'),
+			{ method: 'createTag', service: 'TagService' }
+		);
 	};
 
 	/**
@@ -94,24 +67,11 @@ class TagService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	deleteTag = async (id: string): Promise<TTag> => {
-		try {
-			const response = await this.delete<TTag>(`/tags/${id}`);
-
-			// Validate the response data
-			return validateApiResponse(tagSchema, response.data, 'deleteTag API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Tag deletion validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TagService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.delete<TTag>(`/tags/${id}`),
+			(data) => validateApiResponse(tagSchema, data, 'deleteTag API response'),
+			{ method: 'deleteTag', service: 'TagService', tagId: id }
+		);
 	};
 
 	/**
@@ -122,27 +82,13 @@ class TagService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	updateTag = async (data: TTag): Promise<TTag> => {
-		try {
-			// Validate input data before sending
-			const validatedInput = validateApiResponse(tagSchema, data, 'updateTag input data');
+		const validatedInput = validateApiResponse(tagSchema, data, 'updateTag input data');
 
-			const response = await this.put<TTag>(`/tags/${data.id}`, validatedInput);
-
-			// Validate the response data
-			return validateApiResponse(tagSchema, response.data, 'updateTag API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Tag update validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TagService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.put<TTag>(`/tags/${data.id}`, validatedInput),
+			(responseData) => validateApiResponse(tagSchema, responseData, 'updateTag API response'),
+			{ method: 'updateTag', service: 'TagService', tagId: data.id }
+		);
 	};
 
 	/**
@@ -152,30 +98,18 @@ class TagService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getTagsByOrganization = async (): Promise<PaginationResponse<TTag>> => {
-		try {
-			const obj = {
-				'where[organizationId]': this.organizationId,
-				'where[tenantId]': this.tenantId
-			} as Record<string, string>;
+		const obj = {
+			'where[organizationId]': this.organizationId,
+			'where[tenantId]': this.tenantId
+		} as Record<string, string>;
 
-			const query = qs.stringify(obj);
-			const response = await this.get<PaginationResponse<TTag>>(`/tags?${query}`);
+		const query = qs.stringify(obj);
 
-			// Validate the response data
-			return validatePaginationResponse(tagSchema, response.data, 'getTagsByOrganization API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Tags by organization validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TagService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithPaginationValidation(
+			() => this.get<PaginationResponse<TTag>>(`/tags?${query}`),
+			(data) => validatePaginationResponse(tagSchema, data, 'getTagsByOrganization API response'),
+			{ method: 'getTagsByOrganization', service: 'TagService' }
+		);
 	};
 }
 

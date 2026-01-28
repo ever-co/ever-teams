@@ -1,5 +1,6 @@
 import { IActivityReportGroupByDate } from '@/core/types/interfaces/activity/activity-report';
 import { DailyReportData, DateGroup, ProjectGroups } from '@/core/types/interfaces/activity/productivity-project';
+import { getDateString } from '../utils';
 
 export const groupActivitiesByProjectAndDate = (data: IActivityReportGroupByDate[]): ProjectGroups => {
 	const reportData: DailyReportData[] = data as any;
@@ -23,7 +24,7 @@ export const groupActivitiesByProjectAndDate = (data: IActivityReportGroupByDate
 				return;
 			}
 
-			const date = new Date(dateGroup.date).toISOString().split('T')[0];
+			const date = getDateString(dateGroup.date);
 
 			dateGroup.employees.forEach((employeeData) => {
 				if (!employeeData?.employee || !employeeData.activity) {

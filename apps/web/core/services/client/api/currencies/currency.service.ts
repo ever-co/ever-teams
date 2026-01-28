@@ -5,7 +5,6 @@ import { PaginationResponse } from '@/core/types/interfaces/common/data-response
 import {
 	validatePaginationResponse,
 	currencyListSchema,
-	ZodValidationError,
 	TCurrencyList
 } from '@/core/types/schemas';
 
@@ -29,25 +28,12 @@ class CurrencyService extends APIService {
 		} as Record<string, string>;
 
 		const query = qs.stringify(obj);
-		const response = await this.get<PaginationResponse<TCurrencyList>>(`/currency?${query}`);
 
-		try {
-			// Validate the response data using Zod schema
-			return validatePaginationResponse(currencyListSchema, response.data, 'getCurrencies API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Currency validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'CurrencyService'
-				);
-				this.logger.debug('Actual API response data:', response.data, 'CurrencyService');
-			}
-			throw error;
-		}
+		return this.executeWithPaginationValidation(
+			() => this.get<PaginationResponse<TCurrencyList>>(`/currency?${query}`),
+			(data) => validatePaginationResponse(currencyListSchema, data, 'getCurrencies API response'),
+			{ method: 'getCurrencies', service: 'CurrencyService' }
+		);
 	};
 }
 

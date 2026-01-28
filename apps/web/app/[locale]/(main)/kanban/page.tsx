@@ -15,6 +15,7 @@ import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { cn } from '@/core/lib/helpers';
+import { setStartOfDay } from '@/core/lib/utils';
 import { useKanban } from '@/core/hooks/tasks/use-kanban';
 import { taskIssues } from '@/core/components/tasks/task-issue';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
@@ -123,7 +124,7 @@ const Kanban = () => {
 		if (!data) return {};
 
 		const today = new Date();
-		today.setHours(0, 0, 0, 0);
+		setStartOfDay(today);
 
 		const yesterday = new Date(today);
 		yesterday.setDate(yesterday.getDate() - 1);
@@ -139,10 +140,10 @@ const Kanban = () => {
 
 				const taskDate = new Date(task.createdAt);
 				const localTaskDate = new Date(taskDate.getTime() - taskDate.getTimezoneOffset() * 60000);
-				localTaskDate.setHours(0, 0, 0, 0);
+				setStartOfDay(localTaskDate);
 
 				const compareDate = new Date(date.getTime());
-				compareDate.setHours(0, 0, 0, 0);
+				setStartOfDay(compareDate);
 
 				return localTaskDate.toDateString() === compareDate.toDateString();
 			});

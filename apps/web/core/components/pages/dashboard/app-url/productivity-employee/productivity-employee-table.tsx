@@ -10,6 +10,7 @@ import { useTranslations } from 'next-intl';
 import { usePagination } from '@/core/hooks/common/use-pagination';
 import { Paginate } from '@/core/components/duplicated-components/_pagination';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
+import { formatUserFullName, getTodayString } from '@/core/lib/utils';
 
 // Constants
 const TABLE_HEADERS = ['Date', 'Project', 'Activity', 'Time Spent', 'Percent used'] as const;
@@ -278,10 +279,7 @@ export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoadin
 					employeeMap.set(employee.id, {
 						employee: {
 							...employee,
-							fullName:
-								employee.fullName ||
-								`${employee.user?.firstName || ''} ${employee.user?.lastName || ''}`.trim() ||
-								'Unknown'
+							fullName: employee.fullName || formatUserFullName(employee.user) || 'Unknown'
 						},
 						dateGroups: new Map()
 					});
@@ -323,7 +321,7 @@ export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoadin
 	}
 
 	if (!data.length) {
-		const selectedDate = new Date().toISOString().split('T')[0];
+		const selectedDate = getTodayString();
 		return <EmptyState selectedDate={selectedDate} t={t} />;
 	}
 

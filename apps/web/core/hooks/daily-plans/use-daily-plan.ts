@@ -23,6 +23,7 @@ import { useConditionalUpdateEffect, useQueryCall } from '../common';
 import { useUserQuery } from '../queries/user-user.query';
 import { toast } from 'sonner';
 import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
+import { sortByDateProperty, getEndOfDay, getStartOfDay, isToday } from '@/core/lib/utils';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
@@ -418,16 +419,13 @@ export function useDailyPlan(defaultEmployeeId: string | null = null, options?: 
 	// NOTE: Replacement for ascSortedPlansState atom; keeps plans sorted
 	// by date ascending for future/past calculations.
 	const ascSortedPlans = useMemo(() => {
-		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].sort(
-			(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-		);
+		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].sort(sortByDateProperty('date', 'asc'));
 	}, [profileDailyPlans]);
 
 	const futurePlans = useMemo(() => {
 		return ascSortedPlans?.filter((plan) => {
 			const planDate = new Date(plan.date);
-			const today = new Date();
-			today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
+			const today = getEndOfDay();
 			// NOTE_FIX: Use > instead of >= to exclude today's plans from future plans
 			// Future plans should only include dates AFTER today, not today itself
 			return planDate.getTime() > today.getTime();
@@ -438,7 +436,7 @@ export function useDailyPlan(defaultEmployeeId: string | null = null, options?: 
 	// by date descending for past calculations.
 	const descSortedPlans = useMemo(() => {
 		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].sort(
-			(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+			sortByDateProperty('date', 'desc')
 		);
 	}, [profileDailyPlans]);
 
@@ -447,8 +445,7 @@ export function useDailyPlan(defaultEmployeeId: string | null = null, options?: 
 	const pastPlans = useMemo(() => {
 		return descSortedPlans?.filter((plan) => {
 			const planDate = new Date(plan.date);
-			const today = new Date();
-			today.setHours(0, 0, 0, 0); // Set today time to exclude timestamps in comparization
+			const today = getStartOfDay();
 			return planDate.getTime() < today.getTime();
 		});
 	}, [descSortedPlans]);
@@ -457,9 +454,7 @@ export function useDailyPlan(defaultEmployeeId: string | null = null, options?: 
 		// NOTE: Replacement for todayPlanState atom.
 		// We keep the same ISO-date prefix logic so counters/charts using
 		// "today" are not affected by this refactor.
-		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].filter((plan) =>
-			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])
-		);
+		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].filter((plan) => isToday(plan.date));
 	}, [profileDailyPlans]);
 
 	// NOTE: Replacement for todayTasksState atom; derived locally from todayPlan.
@@ -482,15 +477,14 @@ export function useDailyPlan(defaultEmployeeId: string | null = null, options?: 
 		// PART 1: Past plans with incomplete tasks not in today/future
 		const pastPlansWithIncompleteTasks = [...(profileDailyPlans.items ? profileDailyPlans.items : [])]
 			// Exclude today plans
-			.filter((plan) => !plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]))
+			.filter((plan) => !isToday(plan.date))
 			// Exclude future plans (keep only past plans)
 			.filter((plan) => {
 				const planDate = new Date(plan.date);
-				const today = new Date();
-				today.setHours(23, 59, 59, 0);
+				const today = getEndOfDay();
 				return planDate.getTime() <= today.getTime();
 			})
-			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+			.sort(sortByDateProperty('date', 'asc'))
 			.map((plan) => ({
 				...plan,
 				// Include only non-completed tasks
@@ -550,9 +544,7 @@ export function useDailyPlan(defaultEmployeeId: string | null = null, options?: 
 	// NOTE: Replacement for sortedPlansState atom; generic sorted list
 	// used by multiple views (tabs, filters, etc.).
 	const sortedPlans = useMemo(() => {
-		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].sort(
-			(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-		);
+		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].sort(sortByDateProperty('date', 'asc'));
 	}, [profileDailyPlans]);
 
 	const handleFirstLoad = useCallback(async () => {

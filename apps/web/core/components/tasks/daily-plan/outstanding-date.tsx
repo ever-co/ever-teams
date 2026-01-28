@@ -4,7 +4,7 @@ import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
 
 import { LazyTaskCard } from '@/core/components/optimized-components';
 import TaskBlockCard from '../task-block-card';
-import { clsxm } from '@/core/lib/utils';
+import { clsxm, getDateString } from '@/core/lib/utils';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
@@ -97,7 +97,7 @@ export function OutstandingFilterDate({ profile, user, outstandingPlans, filterB
 						type="multiple"
 						className="text-sm"
 						// Fix: only open first accordion (was opening ALL) for consistent performance with other tabs
-						defaultValue={plans?.length > 0 ? [new Date(plans[0].date).toISOString().split('T')[0]] : []}
+						defaultValue={plans?.length > 0 ? [getDateString(plans[0].date)] : []}
 					>
 						{plans?.map((plan) => (
 							<AccordionItem

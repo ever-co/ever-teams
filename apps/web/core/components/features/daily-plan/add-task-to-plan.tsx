@@ -13,6 +13,7 @@ import {
 import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { formatDayPlanDate, tomorrowDate } from '@/core/lib/helpers/index';
 import { Modal, Text } from '@/core/components';
+import { sortByDateProperty, getStartOfDay } from '@/core/lib/utils';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { CalendarIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
@@ -191,11 +192,10 @@ function PlansList({
 						{plans
 							.filter((plan) => {
 								const planDate = new Date(plan?.date);
-								const today = new Date();
-								today.setHours(0, 0, 0, 0); // Set today time to exclude timestamps in comparization
+								const today = getStartOfDay();
 								return planDate.getTime() > today.getTime();
 							})
-							.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+							.sort(sortByDateProperty('date', 'asc'))
 							.map((plan) => (
 								<CommandItem
 									key={plan?.id}

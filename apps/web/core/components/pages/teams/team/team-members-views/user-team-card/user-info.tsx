@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { I_TeamMemberCardHook } from '@/core/hooks';
-import { clsxm, isValidUrl } from '@/core/lib/utils';
+import { clsxm, isValidUrl, formatUserFullName } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import Link from 'next/link';
 import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
@@ -24,7 +24,7 @@ type Props = {
 
 export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 	const { memberUser, member } = memberInfo;
-	const fullname = `${memberUser?.firstName || ''} ${memberUser?.lastName || ''}`;
+	const fullname = formatUserFullName(memberUser);
 
 	const { isTeamCreator, isTeamManager } = useIsMemberManager(memberUser);
 

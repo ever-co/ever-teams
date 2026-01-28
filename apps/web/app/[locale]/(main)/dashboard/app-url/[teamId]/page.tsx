@@ -15,6 +15,7 @@ import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-repo
 import { Card } from '@/core/components/common/card';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useLocalStorageState, useModal } from '@/core/hooks/common';
+import { formatUserFullName, getDateString } from '@/core/lib/utils';
 import {
 	ProductivityApplicationTable,
 	ProductivityEmployeeTable,
@@ -84,7 +85,7 @@ function AppUrls() {
 		const daysInMonth = new Date(year, month + 1, 0).getDate();
 
 		return Array.from({ length: daysInMonth }, (_, i) => ({
-			date: new Date(year, month, i + 1).toISOString().split('T')[0],
+			date: getDateString(new Date(year, month, i + 1)),
 			productive: Math.floor(Math.random() * 50) + 25,
 			neutral: Math.floor(Math.random() * 40) + 20,
 			unproductive: Math.floor(Math.random() * 35) + 15
@@ -115,11 +116,7 @@ function AppUrls() {
 
 		// Get real user information
 		const currentUser = user || null;
-		const userFullName =
-			currentUser?.fullName ||
-			(currentUser?.firstName && currentUser?.lastName
-				? `${currentUser.firstName} ${currentUser.lastName}`
-				: currentUser?.name || 'Unknown User');
+		const userFullName = currentUser?.fullName || formatUserFullName(currentUser) || currentUser?.name || 'Unknown User';
 
 		const userFirstName = currentUser?.firstName || 'Unknown';
 		const userLastName = currentUser?.lastName || 'User';

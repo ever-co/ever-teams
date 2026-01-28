@@ -1,5 +1,6 @@
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { convertHourToSeconds } from './date-and-time';
+import { isToday } from '@/core/lib/utils';
 
 export interface IDailyPlanCompareEstimated {
 	difference: boolean;
@@ -9,7 +10,7 @@ export interface IDailyPlanCompareEstimated {
 }
 
 export const dailyPlanCompareEstimated = (plans: TDailyPlan[]): IDailyPlanCompareEstimated => {
-	const plan = plans.find((plan) => plan.date?.toString()?.startsWith(new Date().toISOString().split('T')[0]));
+	const plan = plans.find((plan) => isToday(plan.date));
 
 	if (!plan) {
 		return {

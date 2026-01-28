@@ -4,50 +4,27 @@ import {
 	validateApiResponse,
 	integrationTypeListSchema,
 	integrationListSchema,
-	ZodValidationError,
 	TIntegrationTypeList,
 	TIntegrationList
 } from '@/core/types/schemas';
 
 class IntegrationService extends APIService {
 	getIntegration = async (integrationTypeId: string, searchQuery = ''): Promise<TIntegrationList[]> => {
-		try {
-			const response = await this.get<TIntegrationList[]>(
+		return this.executeWithValidation(
+			() => this.get<TIntegrationList[]>(
 				`/integration?integrationTypeId=${integrationTypeId}&searchQuery=${searchQuery}`
-			);
-
-			// Validate the response data using Zod schema
-			return validateApiResponse(integrationListSchema.array(), response.data, 'getIntegration API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('Integration validation failed:', {
-					message: error.message,
-					issues: error.issues
-				});
-			}
-			throw error;
-		}
+			),
+			(data) => validateApiResponse(integrationListSchema.array(), data, 'getIntegration API response'),
+			{ method: 'getIntegration', service: 'IntegrationService', integrationTypeId }
+		);
 	};
 
 	getIntegrationTypes = async (): Promise<TIntegrationTypeList[]> => {
-		try {
-			const response = await this.get<TIntegrationTypeList[]>(`/integration/types`);
-
-			// Validate the response data using Zod schema
-			return validateApiResponse(
-				integrationTypeListSchema.array(),
-				response.data,
-				'getIntegrationTypes API response'
-			);
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('Integration types validation failed:', {
-					message: error.message,
-					issues: error.issues
-				});
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.get<TIntegrationTypeList[]>(`/integration/types`),
+			(data) => validateApiResponse(integrationTypeListSchema.array(), data, 'getIntegrationTypes API response'),
+			{ method: 'getIntegrationTypes', service: 'IntegrationService' }
+		);
 	};
 }
 

@@ -1,6 +1,6 @@
 import { Modal, NoData, SpinnerLoader } from '@/core/components';
 import { Dispatch, memo, SetStateAction, useCallback, useMemo, useRef, useState } from 'react';
-import { clsxm } from '@/core/lib/utils';
+import { clsxm, sortByDateProperty, getDateString, getStartOfDay } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { ChevronRightIcon } from 'assets/svg';
 import { AddTasksEstimationHoursModal } from '../features/daily-plan/add-task-estimation-hours-modal';
@@ -43,7 +43,7 @@ type TNavigationMode = 'DATE' | 'PLAN';
 export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) {
 	// Utility function for checking if two dates are the same
 	const isSameDate = useCallback((date1: Date | number | string, date2: Date | number | string) => {
-		return moment(date1).toISOString().split('T')[0] === moment(date2).toISOString().split('T')[0];
+		return getDateString(moment(date1).toDate()) === getDateString(moment(date2).toDate());
 	}, []);
 
 	const { isOpen, closeModal, employeeId } = props;
@@ -56,10 +56,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	const t = useTranslations();
 	const [navigationMode, setNavigationMode] = useState<TNavigationMode>('PLAN');
 	const sortedPlans = useMemo(
-		() =>
-			[...(profileDailyPlans?.items || [])].sort((plan1, plan2) =>
-				new Date(plan1.date).getTime() > new Date(plan2.date).getTime() ? 1 : -1
-			),
+		() => [...(profileDailyPlans?.items || [])].sort(sortByDateProperty('date', 'asc')),
 		[profileDailyPlans?.items]
 	);
 	const currentPlanIndex = useMemo(
@@ -97,7 +94,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 		() =>
 			customDate &&
 			profileDailyPlans?.items?.find((plan: TDailyPlan) => {
-				return isSameDate(plan.date.toString().split('T')[0], customDate.setHours(0, 0, 0, 0));
+				return isSameDate(plan.date.toString().split('T')[0], getStartOfDay(customDate));
 			}),
 		[customDate, profileDailyPlans?.items, isSameDate]
 	);
@@ -206,7 +203,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	const arrowNavigationHandler = useCallback(
 		async (date: Date) => {
 			const existPlan = profileDailyPlans?.items?.find((plan: TDailyPlan) => {
-				return isSameDate(plan.date.toString().split('T')[0], date.setHours(0, 0, 0, 0));
+				return isSameDate(plan.date.toString().split('T')[0], getStartOfDay(date));
 			});
 
 			setCustomDate(date);
@@ -469,13 +466,7 @@ const FuturePlansCalendar = memo(function FuturePlansCalendar(props: ICalendarPr
 	const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const clickCountRef = useRef<number>(0);
 
-	const sortedPlans = useMemo(
-		() =>
-			[...plans].sort((plan1, plan2) =>
-				new Date(plan1.date).getTime() < new Date(plan2.date).getTime() ? 1 : -1
-			),
-		[plans]
-	);
+	const sortedPlans = useMemo(() => [...plans].sort(sortByDateProperty('date', 'desc')), [plans]);
 
 	/**
 	 * A helper function that checks if a given date has not a plan
@@ -488,10 +479,10 @@ const FuturePlansCalendar = memo(function FuturePlansCalendar(props: ICalendarPr
 		(dateToCheck: Date) => {
 			return !plans
 				.map((plan) => {
-					return moment(plan.date.toString().split('T')[0]).toISOString().split('T')[0];
+					return getDateString(plan.date);
 				})
 				.some((date) => {
-					return date === moment(dateToCheck).toISOString().split('T')[0];
+					return date === getDateString(dateToCheck);
 				});
 		},
 		[plans]

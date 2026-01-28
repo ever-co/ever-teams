@@ -8,6 +8,7 @@ import {
 } from '@/core/lib/helpers/index';
 import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
 import { taskService } from '@/core/services/client/api';
+import { sortByStringProperty } from '@/core/lib/utils';
 import {
 	activeTeamState,
 	activeTeamTaskId,
@@ -222,9 +223,9 @@ export function useTeamTasks() {
 							return tm.id === activeTeamRef.current?.id;
 						});
 					})
-					.sort((a, b) => a.title.localeCompare(b.title));
+					.sort(sortByStringProperty('title', 'asc'));
 
-				const activeTeamTasks = tasksRef.current.slice().sort((a, b) => a.title.localeCompare(b.title));
+				const activeTeamTasks = tasksRef.current.slice().sort(sortByStringProperty('title', 'asc'));
 
 				if (!isEqual(latestActiveTeamTasks, activeTeamTasks)) {
 					setAllTasks(responseTasks);

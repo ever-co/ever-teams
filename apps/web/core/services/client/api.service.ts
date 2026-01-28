@@ -741,4 +741,87 @@ export class APIService {
 			this.cancelSources.delete(requestId);
 		}
 	}
+
+	/**
+	 * Execute an API call with automatic Zod validation and error logging
+	 * 
+	 * Eliminates the need for repetitive try-catch blocks and validation code in service methods.
+	 * Automatically logs ZodValidationError instances with structured context.
+	 * 
+	 * @template T - The expected validated data type
+	 * @param apiCall - Function that performs the API call and returns an AxiosResponse
+	 * @param validationFn - Function that validates the response data using Zod
+	 * @param errorContext - Context information for error logging (method name, additional data)
+	 * @returns Promise resolving to validated data
+	 * @throws Re-throws all errors after logging validation failures
+	 * 
+	 * @example
+	 * ```typescript
+	 * return this.executeWithValidation(
+	 *   () => this.get<TTask>(`/tasks/${taskId}`),
+	 *   (data) => zodStrictApiResponseValidate(taskSchema, data, 'getTaskById'),
+	 *   { method: 'getTaskById', service: 'TaskService', taskId }
+	 * );
+	 * ```
+	 */
+	protected async executeWithValidation<T>(
+		apiCall: () => Promise<AxiosResponse<any>>,
+		validationFn: (data: any) => T,
+		errorContext: {
+			method: string;
+			service: string;
+			[key: string]: any;
+		}
+	): Promise<T> {
+		try {
+			const response = await apiCall();
+			return validationFn(response.data);
+		} catch (error) {
+			if (error instanceof (await import('@/core/types/schemas')).ZodValidationError) {
+				const { method, service, ...additionalContext } = errorContext;
+				this.logger.error(
+					`${method} validation failed:`,
+					{
+						message: error.message,
+						issues: error.issues,
+						...additionalContext
+					},
+					service
+				);
+			}
+			throw error;
+		}
+	}
+
+	/**
+	 * Execute an API call with automatic Zod pagination validation and error logging
+	 * 
+	 * Specialized version of executeWithValidation for paginated responses.
+	 * 
+	 * @template T - The expected validated item type
+	 * @param apiCall - Function that performs the API call
+	 * @param validationFn - Function that validates the paginated response
+	 * @param errorContext - Context information for error logging
+	 * @returns Promise resolving to validated pagination response
+	 * 
+	 * @example
+	 * ```typescript
+	 * return this.executeWithPaginationValidation(
+	 *   () => this.get<PaginationResponse<TTask>>(`/tasks?${query}`),
+	 *   (data) => zodStrictPaginationResponseValidate(taskSchema, data, 'getAllTasks'),
+	 *   { method: 'getAllTasks', service: 'TaskService' }
+	 * );
+	 * ```
+	 */
+	protected async executeWithPaginationValidation<T>(
+		apiCall: () => Promise<AxiosResponse<any>>,
+		validationFn: (data: any) => T,
+		errorContext: {
+			method: string;
+			service: string;
+			[key: string]: any;
+		}
+	): Promise<T> {
+		return this.executeWithValidation(apiCall, validationFn, errorContext);
+	}
 }
