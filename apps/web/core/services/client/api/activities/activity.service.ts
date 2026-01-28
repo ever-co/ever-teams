@@ -3,7 +3,7 @@ import { APIService } from '../../api.service';
 import qs from 'qs';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import { IActivitiesReportRequest, IActivityReport } from '@/core/types/interfaces/activity/activity-report';
-import { validateApiResponse, ZodValidationError } from '@/core/types/schemas';
+import { validateApiResponse } from '@/core/types/schemas';
 import { activitySchema, TActivity } from '@/core/types/schemas/activities/activity.schema';
 
 class ActivityService extends APIService {
@@ -16,54 +16,37 @@ class ActivityService extends APIService {
 		taskId?: string;
 		unitOfTime?: 'day';
 	} = {}): Promise<TActivity[]> => {
-		try {
-			const params: {
-				tenantId: string;
-				organizationId: string;
-				defaultRange?: string;
-				'taskIds[0]'?: string;
-				unitOfTime?: 'day';
-			} = {
-				'taskIds[0]': taskId,
-				tenantId: this.tenantId,
-				organizationId: this.organizationId,
-				defaultRange,
-				unitOfTime
-			};
-			const query = qs.stringify(params);
+		const params: {
+			tenantId: string;
+			organizationId: string;
+			defaultRange?: string;
+			'taskIds[0]'?: string;
+			unitOfTime?: 'day';
+		} = {
+			'taskIds[0]': taskId,
+			tenantId: this.tenantId,
+			organizationId: this.organizationId,
+			defaultRange,
+			unitOfTime
+		};
+		const query = qs.stringify(params);
 
-			const endpoint = GAUZY_API_BASE_SERVER_URL.value
-				? `/timesheet/activity?${query}`
-				: `/timer/timesheet?${query}`;
+		const endpoint = GAUZY_API_BASE_SERVER_URL.value
+			? `/timesheet/activity?${query}`
+			: `/timer/timesheet?${query}`;
 
-			const response = await this.get<TActivity[]>(endpoint);
-
-			// Validate each activity in the response array
-			if (Array.isArray(response.data)) {
-				const validatedActivities = response.data.map((activity, index) =>
-					validateApiResponse(activitySchema, activity, `getActivities API response item ${index}`)
-				);
-				return validatedActivities;
-			}
-
-			// If response.data is not an array, return empty array
-			return [];
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Get activities validation failed:',
-					{
-						message: error.message,
-						issues: error.issues,
-						taskId,
-						tenantId: this.tenantId,
-						organizationId: this.organizationId
-					},
-					'ActivityService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.get<TActivity[]>(endpoint),
+			(data) => {
+				if (Array.isArray(data)) {
+					return data.map((activity, index) =>
+						validateApiResponse(activitySchema, activity, `getActivities API response item ${index}`)
+					);
+				}
+				return [];
+			},
+			{ method: 'getActivities', service: 'ActivityService', taskId }
+		);
 	};
 
 	/**
@@ -80,58 +63,41 @@ class ActivityService extends APIService {
 		type?: string;
 		title?: string;
 	}): Promise<TActivity[]> => {
-		try {
-			const queryParams: {
-				tenantId: string;
-				organizationId: string;
-				'employeeIds[0]': string;
-				startDate: string;
-				endDate: string;
-				'types[0]'?: string;
-				'title[0]'?: string;
-			} = {
-				tenantId: this.tenantId,
-				organizationId: this.organizationId,
-				'employeeIds[0]': params.employeeId,
-				startDate: params.todayStart.toISOString(),
-				endDate: params.todayEnd.toISOString()
-			};
-			if (params.type) queryParams['types[0]'] = params.type;
-			if (params.title) queryParams['title[0]'] = params.title;
-			const query = qs.stringify(queryParams, { encode: false });
+		const queryParams: {
+			tenantId: string;
+			organizationId: string;
+			'employeeIds[0]': string;
+			startDate: string;
+			endDate: string;
+			'types[0]'?: string;
+			'title[0]'?: string;
+		} = {
+			tenantId: this.tenantId,
+			organizationId: this.organizationId,
+			'employeeIds[0]': params.employeeId,
+			startDate: params.todayStart.toISOString(),
+			endDate: params.todayEnd.toISOString()
+		};
+		if (params.type) queryParams['types[0]'] = params.type;
+		if (params.title) queryParams['title[0]'] = params.title;
+		const query = qs.stringify(queryParams, { encode: false });
 
-			const endpoint = GAUZY_API_BASE_SERVER_URL.value
-				? `/timesheet/activity/daily?${query}`
-				: `/timer/daily?${query}`;
+		const endpoint = GAUZY_API_BASE_SERVER_URL.value
+			? `/timesheet/activity/daily?${query}`
+			: `/timer/daily?${query}`;
 
-			const response = await this.get<TActivity[]>(endpoint);
-
-			// Validate the response data using Zod schema
-			if (Array.isArray(response.data)) {
-				const validatedActivities = response.data.map((activity, index) =>
-					validateApiResponse(activitySchema, activity, `getDailyActivities API response item ${index}`)
-				);
-				return validatedActivities;
-			}
-
-			// If response.data is not an array, return empty array
-			return [];
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Daily activities validation failed:',
-					{
-						message: error.message,
-						issues: error.issues,
-						employeeId: params.employeeId,
-						tenantId: this.tenantId,
-						organizationId: this.organizationId
-					},
-					'ActivityService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.get<TActivity[]>(endpoint),
+			(data) => {
+				if (Array.isArray(data)) {
+					return data.map((activity, index) =>
+						validateApiResponse(activitySchema, activity, `getDailyActivities API response item ${index}`)
+					);
+				}
+				return [];
+			},
+			{ method: 'getDailyActivities', service: 'ActivityService', employeeId: params.employeeId }
+		);
 	};
 
 	/**

@@ -10,7 +10,6 @@ import {
 	validateApiResponse,
 	taskStatusCreateSchema,
 	taskStatusOrderSchema,
-	ZodValidationError,
 	TTaskStatus,
 	TTaskStatusOrderAPIResponse,
 	taskStatusOrderAPIResponseSchema,
@@ -33,33 +32,17 @@ class TaskStatusService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	createTaskStatus = async (data: ITaskStatusCreate): Promise<TTaskStatus> => {
-		try {
-			// Validate input data before sending
-			const validatedInput = validateApiResponse(
-				taskStatusCreateSchema.partial(), // Allow partial data for creation
-				data,
-				'createTaskStatus input data'
-			);
+		const validatedInput = validateApiResponse(
+			taskStatusCreateSchema.partial(),
+			data,
+			'createTaskStatus input data'
+		);
 
-			const response = await this.post<TTaskStatus>('/task-statuses', validatedInput, {
-				tenantId: this.tenantId
-			});
-
-			// Validate the response data
-			return validateApiResponse(taskStatusSchema, response.data, 'createTaskStatus API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task status creation validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TaskStatusService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.post<TTaskStatus>('/task-statuses', validatedInput, { tenantId: this.tenantId }),
+			(responseData) => validateApiResponse(taskStatusSchema, responseData, 'createTaskStatus API response'),
+			{ method: 'createTaskStatus', service: 'TaskStatusService' }
+		);
 	};
 
 	/**
@@ -77,37 +60,17 @@ class TaskStatusService extends APIService {
 		taskStatusId: string;
 		data: ITaskStatusCreate;
 	}): Promise<TTaskStatusUpdateResponse> => {
-		try {
-			// Validate input data before sending
-			const validatedInput = validateApiResponse(
-				taskStatusCreateSchema.partial(), // Allow partial data for updates
-				data,
-				'editTaskStatus input data'
-			);
+		const validatedInput = validateApiResponse(
+			taskStatusCreateSchema.partial(),
+			data,
+			'editTaskStatus input data'
+		);
 
-			const response = await this.put<TTaskStatusUpdateResponse>(
-				`/task-statuses/${taskStatusId}`,
-				validatedInput,
-				{
-					tenantId: this.tenantId
-				}
-			);
-
-			// Validate the response data using the update response schema
-			return validateApiResponse(taskStatusUpdateResponseSchema, response.data, 'editTaskStatus API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task status edit validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TaskStatusService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.put<TTaskStatusUpdateResponse>(`/task-statuses/${taskStatusId}`, validatedInput, { tenantId: this.tenantId }),
+			(responseData) => validateApiResponse(taskStatusUpdateResponseSchema, responseData, 'editTaskStatus API response'),
+			{ method: 'editTaskStatus', service: 'TaskStatusService', taskStatusId }
+		);
 	};
 
 	/**
@@ -118,35 +81,13 @@ class TaskStatusService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	editTaskStatusOrder = async (data: ITaskStatusOrder): Promise<TTaskStatusOrderAPIResponse> => {
-		try {
-			// Validate input data before sending
-			const validatedInput = validateApiResponse(taskStatusOrderSchema, data, 'editTaskStatusOrder input data');
+		const validatedInput = validateApiResponse(taskStatusOrderSchema, data, 'editTaskStatusOrder input data');
 
-			const response = await this.patch<TTaskStatusOrderAPIResponse>(`/task-statuses/reorder`, validatedInput, {
-				tenantId: this.tenantId,
-				method: 'PATCH'
-			});
-
-			// Note: The response is validated against the full API response schema
-			// which includes the complete task status order response structure
-			return validateApiResponse(
-				taskStatusOrderAPIResponseSchema,
-				response.data,
-				'editTaskStatusOrder API response'
-			);
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task status order edit validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TaskStatusService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.patch<TTaskStatusOrderAPIResponse>(`/task-statuses/reorder`, validatedInput, { tenantId: this.tenantId, method: 'PATCH' }),
+			(responseData) => validateApiResponse(taskStatusOrderAPIResponseSchema, responseData, 'editTaskStatusOrder API response'),
+			{ method: 'editTaskStatusOrder', service: 'TaskStatusService' }
+		);
 	};
 	/**
 	 * Delete a task status with validation
@@ -156,24 +97,11 @@ class TaskStatusService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	deleteTaskStatus = async (taskStatusId: string): Promise<TTaskStatus> => {
-		try {
-			const response = await this.delete<TTaskStatus>(`/task-statuses/${taskStatusId}`);
-
-			// Validate the response data
-			return validateApiResponse(taskStatusSchema, response.data, 'deleteTaskStatus API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task status deletion validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TaskStatusService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.delete<TTaskStatus>(`/task-statuses/${taskStatusId}`),
+			(data) => validateApiResponse(taskStatusSchema, data, 'deleteTaskStatus API response'),
+			{ method: 'deleteTaskStatus', service: 'TaskStatusService', taskStatusId }
+		);
 	};
 
 	/**
@@ -183,32 +111,19 @@ class TaskStatusService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getTaskStatuses = async (): Promise<PaginationResponse<TTaskStatus>> => {
-		try {
-			const query = qs.stringify({
-				tenantId: this.tenantId,
-				organizationId: this.organizationId,
-				organizationTeamId: this.activeTeamId
-			});
+		const query = qs.stringify({
+			tenantId: this.tenantId,
+			organizationId: this.organizationId,
+			organizationTeamId: this.activeTeamId
+		});
 
-			const endpoint = `/task-statuses?${query}`;
+		const endpoint = `/task-statuses?${query}`;
 
-			const response = await this.get<PaginationResponse<TTaskStatus>>(endpoint, { tenantId: this.tenantId });
-
-			// Validate the response data using Zod schema
-			return validatePaginationResponse(taskStatusSchema, response.data, 'getTaskStatuses API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Task statuses validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'TaskStatusService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithPaginationValidation(
+			() => this.get<PaginationResponse<TTaskStatus>>(endpoint, { tenantId: this.tenantId }),
+			(data) => validatePaginationResponse(taskStatusSchema, data, 'getTaskStatuses API response'),
+			{ method: 'getTaskStatuses', service: 'TaskStatusService' }
+		);
 	};
 }
 
