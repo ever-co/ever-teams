@@ -1,11 +1,12 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useModal, useOrganizationTeams, useUser } from '@/core/hooks';
+import { useModal, useUser } from '@/core/hooks';
 import { Button, Text } from '@/core/components';
 import Image from 'next/image';
 import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { RemoveModal } from '../../../settings/remove-modal';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useRemoveUserFromAllTeamMutation } from '@/core/hooks/organizations/teams/use-remove-user-from-all-team-mutation';
 type RemoveModalType = 'REMOVE' | 'DELETE' | 'DELETE_ALL' | string;
 type ActionFunction = () => void;
 
@@ -17,7 +18,9 @@ export const DangerZone = () => {
 	const { deleteUser, deleteUserLoading } = useUser();
 	const { data: user } = useUserQuery();
 
-	const { removeUserFromAllTeam, removeUserFromAllTeamLoading } = useOrganizationTeams();
+	const { mutateAsync: removeUserFromAllTeam, isPending: removeUserFromAllTeamLoading } =
+		useRemoveUserFromAllTeamMutation();
+
 	const handleRemoveUser = useCallback(() => {
 		if (user) {
 			return removeUserFromAllTeam(user.id);

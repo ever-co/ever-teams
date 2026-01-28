@@ -1,44 +1,45 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
-import { imgTitle } from '@/core/lib/helpers/index';
-import { useAuthenticateUser } from '@/core/hooks';
-import { activeTeamState, isTeamMemberState, publicState, timerStatusState } from '@/core/stores';
-import { clsxm, isValidUrl } from '@/core/lib/utils';
-import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { Divider, FullWidthToggler, Text, ThemeToggler } from '@/core/components';
+import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
+import { useAuthenticateUser } from '@/core/hooks';
+import { imgTitle } from '@/core/lib/helpers/index';
+import { clsxm, isValidUrl } from '@/core/lib/utils';
+import { isTeamMemberState, publicState, timerStatusState } from '@/core/stores';
+import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 
+import Collaborate from '@/core/components/collaborate';
+import { KeyboardShortcuts } from '@/core/components/common/keyboard-shortcuts';
+import { LanguageDropDownWithFlags } from '@/core/components/common/language-dropdown-flags';
+import ThemesPopup from '@/core/components/common/themes-popup';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { signOutFunction } from '@/core/lib/helpers/social-logins';
+import { ETimerStatus } from '@/core/types/generics/enums/timer';
+import { ThemeInterface } from '@/core/types/interfaces/common/theme';
+import gauzyDark from '@/public/assets/themeImages/gauzyDark.png';
+import gauzyLight from '@/public/assets/themeImages/gauzyLight.png';
 import {
+	BriefCaseIcon,
 	DevicesIcon,
+	FullWidthIcon,
 	LogoutRoundIcon,
 	MoonLightOutlineIcon as MoonIcon,
 	PeoplesIcon,
-	BriefCaseIcon,
-	SettingOutlineIcon,
-	FullWidthIcon
+	SettingOutlineIcon
 } from 'assets/svg';
-import ThemesPopup from '@/core/components/common/themes-popup';
+import { useAtomValue } from 'jotai';
+import { ChevronDown, Globe2Icon } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
-import { useMemo } from 'react';
-import { useAtomValue } from 'jotai';
-import stc from 'string-to-color';
-import gauzyDark from '@/public/assets/themeImages/gauzyDark.png';
-import gauzyLight from '@/public/assets/themeImages/gauzyLight.png';
-import { TimerStatus, getTimerStatusValue } from '../timer/timer-status';
-import Collaborate from '@/core/components/collaborate';
-import { TeamsDropDown } from '../teams/teams-dropdown';
-import { KeyboardShortcuts } from '@/core/components/common/keyboard-shortcuts';
 import { usePathname } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { ChevronDown, Globe2Icon } from 'lucide-react';
-import { LanguageDropDownWithFlags } from '@/core/components/common/language-dropdown-flags';
-import { signOutFunction } from '@/core/lib/helpers/social-logins';
-import { Avatar } from '../duplicated-components/avatar';
+import { useMemo } from 'react';
+import stc from 'string-to-color';
 import { EverCard } from '../common/ever-card';
+import { Avatar } from '../duplicated-components/avatar';
 import { Tooltip } from '../duplicated-components/tooltip';
-import { ETimerStatus } from '@/core/types/generics/enums/timer';
-import { ThemeInterface } from '@/core/types/interfaces/common/theme';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { TeamsDropDown } from '../teams/teams-dropdown';
+import { TimerStatus, getTimerStatusValue } from '../timer/timer-status';
 
 export function UserNavAvatar() {
 	const { data: user } = useUserQuery();
@@ -46,7 +47,7 @@ export function UserNavAvatar() {
 	const name = user?.name || user?.firstName || user?.lastName || user?.username || '';
 	const timerStatus = useAtomValue(timerStatusState);
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const publicTeam = useAtomValue(publicState);
 	const members = activeTeam?.members || [];
 	const currentMember = members.find((m) => {
@@ -140,7 +141,7 @@ function UserNavMenu() {
 	const name = user?.name || user?.firstName || user?.lastName || user?.username;
 	const timerStatus = useAtomValue(timerStatusState);
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const isTeamMember = useAtomValue(isTeamMemberState);
 
 	const publicTeam = useAtomValue(publicState);

@@ -1,15 +1,15 @@
 import { Modal, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
+import { DEFAULT_PLANNED_TASK_ID } from '@/core/constants/config/constants';
+import { useDailyPlan, useTimerView } from '@/core/hooks';
+import { useCurrentActiveTask } from '@/core/hooks/organizations/teams/use-current-active-task';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
 import { clsxm } from '@/core/lib/utils';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { RadioGroup } from '@headlessui/react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
-import { useDailyPlan, useTeamTasks, useTimerView } from '@/core/hooks';
-import { RadioGroup } from '@headlessui/react';
-import { DEFAULT_PLANNED_TASK_ID } from '@/core/constants/config/constants';
 import { EverCard } from '../../common/ever-card';
-import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useAtomValue } from 'jotai';
-import { activeTeamTaskState } from '@/core/stores';
 
 /**
  * A Modal that suggests the user to change the active task to a task from the today's plan.
@@ -33,8 +33,9 @@ export function ActiveTaskHandlerModal({
 	const t = useTranslations();
 	const { startTimer, hasPlan: todayPlan } = useTimerView();
 
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const { setActiveTask } = useTeamTasks();
+	const { task: activeTeamTask } = useCurrentActiveTask();
+
+	const { setActiveTask } = useSetActiveTask();
 	// Use default useDailyPlan() so it targets the current user's own plans (todayPlan)
 	const { addTaskToPlan } = useDailyPlan();
 
@@ -52,7 +53,7 @@ export function ActiveTaskHandlerModal({
 				description: 'Change to planned default task',
 				action: async () => {
 					if (defaultPlannedTask) {
-						setActiveTask(defaultPlannedTask);
+						await setActiveTask(defaultPlannedTask);
 					}
 				}
 			},

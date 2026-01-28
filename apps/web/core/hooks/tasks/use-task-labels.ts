@@ -1,27 +1,28 @@
 'use client';
-import { taskLabelsListState, activeTeamIdState, activeTeamState } from '@/core/stores';
-import { useCallback, useMemo, useOptimistic, startTransition } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useFirstLoad } from '../common/use-first-load';
 import {
 	generateDefaultColor,
 	getActiveTeamIdCookie,
 	getOrganizationIdCookie,
 	getTenantIdCookie
 } from '@/core/lib/helpers/index';
-import { taskLabelService } from '@/core/services/client/api/tasks/task-label.service';
-import { ITagCreate } from '@/core/types/interfaces/tag/tag';
-import { queryKeys } from '@/core/query/keys';
-import { useConditionalUpdateEffect } from '../common';
-import { useUserQuery } from '../queries/user-user.query';
 import { mergeTaskLabelData } from '@/core/lib/helpers/task';
+import { queryKeys } from '@/core/query/keys';
+import { taskLabelService } from '@/core/services/client/api/tasks/task-label.service';
+import { activeTeamIdState, taskLabelsListState } from '@/core/stores';
+import { ITagCreate } from '@/core/types/interfaces/tag/tag';
 import { OptimisticAction, TTag } from '@/core/types/schemas';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAtom, useAtomValue } from 'jotai';
+import { startTransition, useCallback, useMemo, useOptimistic } from 'react';
+import { useConditionalUpdateEffect } from '../common';
+import { useFirstLoad } from '../common/use-first-load';
+import { useCurrentTeam } from '../organizations/teams/use-current-team';
+import { useUserQuery } from '../queries/user-user.query';
 
 export function useTaskLabels() {
 	const activeTeamId = useAtomValue(activeTeamIdState);
 	const { data: authUser } = useUserQuery();
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 
 	const queryClient = useQueryClient();
 

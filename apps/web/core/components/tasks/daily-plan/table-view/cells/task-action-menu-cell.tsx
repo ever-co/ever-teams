@@ -1,17 +1,16 @@
-import { CellContext } from '@tanstack/react-table';
-import { ActiveTaskStatusDropdown } from '../../../task-status';
-import { useMemo, useState } from 'react';
 import { I_UserProfilePage, useTeamMemberCard } from '@/core/hooks';
-import { get } from 'lodash';
-import { TaskCardMenu } from '../../../task-card';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useAtomValue } from 'jotai';
-import { activeTeamState } from '@/core/stores';
+import { CellContext } from '@tanstack/react-table';
+import { get } from 'lodash';
+import { useMemo, useState } from 'react';
+import { TaskCardMenu } from '../../../task-card';
+import { ActiveTaskStatusDropdown } from '../../../task-status';
 
 export default function TaskActionMenuCell(props: CellContext<TTask, unknown>) {
 	const [loading, setLoading] = useState(false);
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const members = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
 	const profile = get(props.column, 'columnDef.meta.profile') as unknown as I_UserProfilePage;
 	const plan = get(props.column, 'columnDef.meta.plan');

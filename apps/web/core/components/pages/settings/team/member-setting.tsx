@@ -1,19 +1,18 @@
-import { useModal } from '@/core/hooks';
 import { Button, NoData, Text } from '@/core/components';
-import { SearchNormalIcon } from 'assets/svg';
-import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
-import { ChangeEvent, useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { MemberTable } from '../../../teams/member-table';
 import { InputField } from '@/core/components/duplicated-components/_input';
-import { activeTeamState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
+import { useModal } from '@/core/hooks';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { SearchNormalIcon } from 'assets/svg';
+import { useTranslations } from 'next-intl';
+import { ChangeEvent, useMemo, useState } from 'react';
+import { MemberTable } from '../../../teams/member-table';
 
 export const MemberSetting = () => {
 	const t = useTranslations();
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const [filterString, setFilterString] = useState<string>('');
 
 	const { data: user } = useUserQuery();

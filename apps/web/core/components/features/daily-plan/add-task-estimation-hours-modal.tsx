@@ -1,36 +1,41 @@
-import { TASKS_ESTIMATE_HOURS_MODAL_DATE, DEFAULT_PLANNED_TASK_ID } from '@/core/constants/config/constants';
-import { useMemo, useCallback, useState, useEffect, useRef, Dispatch, SetStateAction } from 'react';
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { useTranslations } from 'next-intl';
-import { useDailyPlan, useModal, useTeamTasks, useTimerView } from '@/core/hooks';
-import { toast } from 'sonner';
-import { TaskNameInfoDisplay } from '../../tasks/task-displays';
-import { TaskEstimate } from '../../tasks/task-estimate';
-import clsx from 'clsx';
-import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
-import { clsxm } from '@/core/lib/utils';
-import { formatIntegerToHour, formatTimeString } from '@/core/lib/helpers/index';
-import { ActiveTaskHandlerModal } from './active-task-handler-modal';
-import { TaskDetailsModal } from '../../tasks/task-details-modal';
-import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
-import { Cross2Icon } from '@radix-ui/react-icons';
-import { checkPastDate } from '@/core/lib/helpers';
-import moment from 'moment';
 import { IconsErrorWarningFill } from '@/core/components/icons';
-import { InputField } from '../../duplicated-components/_input';
-import { Tooltip } from '../../duplicated-components/tooltip';
-import { EverCard } from '../../common/ever-card';
-import { VerticalSeparator } from '../../duplicated-components/separator';
-import { UnplanActiveTaskModal } from './unplan-active-task-modal';
+import { DEFAULT_PLANNED_TASK_ID, TASKS_ESTIMATE_HOURS_MODAL_DATE } from '@/core/constants/config/constants';
+import { useDailyPlan, useModal, useTimerView } from '@/core/hooks';
+import { useCreateTaskMutation } from '@/core/hooks/organizations/teams/use-create-task.mutation';
+import { useCurrentActiveTask } from '@/core/hooks/organizations/teams/use-current-active-task';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
+import { useSortedTasksByCreation } from '@/core/hooks/organizations/teams/use-sorted-tasks';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useDetailedTask } from '@/core/hooks/tasks/use-detailed-task';
+import { checkPastDate } from '@/core/lib/helpers';
+import { formatIntegerToHour, formatTimeString } from '@/core/lib/helpers/index';
+import { clsxm } from '@/core/lib/utils';
+import { taskStatusesState, timerStatusState } from '@/core/stores';
 import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
+import { EIssueType } from '@/core/types/generics/enums/task';
 import { ID } from '@/core/types/interfaces/common/base-interfaces';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
+import { Cross2Icon } from '@radix-ui/react-icons';
+import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
+import clsx from 'clsx';
 import { useAtomValue } from 'jotai';
-import { activeTeamTaskState, tasksByTeamState, taskStatusesState, timerStatusState } from '@/core/stores';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { EIssueType } from '@/core/types/generics/enums/task';
+import moment from 'moment';
+import { useTranslations } from 'next-intl';
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
+import { EverCard } from '../../common/ever-card';
+import { InputField } from '../../duplicated-components/_input';
+import { VerticalSeparator } from '../../duplicated-components/separator';
+import { Tooltip } from '../../duplicated-components/tooltip';
+import { TaskDetailsModal } from '../../tasks/task-details-modal';
+import { TaskNameInfoDisplay } from '../../tasks/task-displays';
+import { TaskEstimate } from '../../tasks/task-estimate';
+import { ActiveTaskHandlerModal } from './active-task-handler-modal';
+import { UnplanActiveTaskModal } from './unplan-active-task-modal';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.
@@ -95,12 +100,12 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		return plan?.tasks || propsTasks;
 	}, [plan?.tasks, propsTasks]);
 
-	const globalTasks = useAtomValue(tasksByTeamState);
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const globalTasks = useSortedTasksByCreation();
+	const { task: activeTeamTask } = useCurrentActiveTask();
 	const timerStatus = useAtomValue(timerStatusState);
 
 	const { startTimer } = useTimerView();
-	const { setActiveTask } = useTeamTasks();
+	const { setActiveTask } = useSetActiveTask();
 	const [showSearchInput, setShowSearchInput] = useState(false);
 	const [workTimePlanned, setWorkTimePlanned] = useState<number>(plan?.workTimePlanned ?? 0);
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
@@ -666,12 +671,11 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 		canEdit = true
 	} = props;
 
-	const teamTasks = useAtomValue(tasksByTeamState);
-	const { createTask } = useTeamTasks();
+	const teamTasks = useSortedTasksByCreation();
+	const { mutateAsync: createTask, isPending: createTaskLoading } = useCreateTaskMutation();
 	const taskStatuses = useAtomValue(taskStatusesState);
 	const [taskName, setTaskName] = useState('');
 	const [tasks, setTasks] = useState<TTask[]>([]);
-	const [createTaskLoading, setCreateTaskLoading] = useState(false);
 	const [isSearchInputFocused, setIsSearchInputFocused] = useState(false);
 	const t = useTranslations();
 
@@ -704,7 +708,6 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 
 	const handleCreateTask = useCallback(async () => {
 		try {
-			setCreateTaskLoading(true);
 			if (taskName.trim().length < 5) return;
 			await createTask({
 				title: taskName.trim(),
@@ -719,8 +722,6 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 		} catch (error) {
 			console.log(error);
 			toast.error('Failed to create task. Please try again.');
-		} finally {
-			setCreateTaskLoading(false);
 		}
 	}, [createTask, taskName, taskStatuses]);
 
@@ -833,7 +834,7 @@ function TaskCard(props: ITaskCardProps) {
 		employeeId,
 		canEdit = true
 	} = props;
-	const { getTaskById } = useTeamTasks();
+	const { setDetailedTaskId } = useDetailedTask();
 	const { addTaskToPlan, createDailyPlan } = useDailyPlan(employeeId);
 	const { data: user } = useUserQuery();
 	const [addToPlanLoading, setAddToPlanLoading] = useState(false);
@@ -854,13 +855,13 @@ function TaskCard(props: ITaskCardProps) {
 
 	const handleOpenTaskDetailsModal = useCallback(() => {
 		// Update the detailed task state
-		getTaskById(task.id!);
+		setDetailedTaskId(task.id!);
 		openTaskDetailsModal();
-	}, [getTaskById, openTaskDetailsModal, task.id]);
+	}, [setDetailedTaskId, openTaskDetailsModal, task.id]);
 
 	const t = useTranslations();
 
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { task: activeTeamTask } = useCurrentActiveTask();
 
 	/**
 	 * The function that adds the task to the selected plan
@@ -1044,7 +1045,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 	const { data: user } = useUserQuery();
 	const { futurePlans, todayPlan, removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan(employeeId);
 
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { task: activeTeamTask } = useCurrentActiveTask();
 
 	const timerStatus = useAtomValue(timerStatusState);
 	const otherPlanIds = useMemo(
@@ -1252,7 +1253,8 @@ function UnplanTask(props: IUnplanTaskProps) {
 	const { data: user } = useUserQuery();
 	const { todayPlan, removeManyTaskPlans, removeManyTaskFromPlanLoading } = useDailyPlan(employeeId);
 
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { task: activeTeamTask } = useCurrentActiveTask();
+
 	const { timerStatus } = useTimerView();
 	const isActiveTaskPlannedToday = useMemo(
 		() => todayPlan[0].tasks?.find((task) => task.id === activeTeamTask?.id),

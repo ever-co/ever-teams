@@ -1,12 +1,13 @@
-import { useCallbackRef, useTeamTasks } from '@/core/hooks';
-import { detailedTaskState } from '@/core/stores';
 import { Button } from '@/core/components';
+import { useCallbackRef } from '@/core/hooks';
+import { useUpdateTaskMutation } from '@/core/hooks/organizations/teams/use-update-task.mutation';
+import { useDetailedTask } from '@/core/hooks/tasks/use-detailed-task';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useCallback, useEffect } from 'react';
-import { useAtomValue } from 'jotai';
 import { slateToHtml } from 'slate-serializers';
 import { configSlateToHtml } from '../../../../lib/helpers/text-editor-serializer-configurations';
-import { useTranslations } from 'next-intl';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
 
 interface IDFooterProps {
 	isUpdated: boolean;
@@ -18,12 +19,21 @@ interface IDFooterProps {
 
 const EditorFooter = ({ isUpdated, setIsUpdated, editorValue, editorRef, clearUnsavedValues }: IDFooterProps) => {
 	const $setIsUpdated = useCallbackRef(setIsUpdated);
-	const task = useAtomValue(detailedTaskState);
-	const { updateDescription } = useTeamTasks();
 	const t = useTranslations();
+
+	const {
+		detailedTaskQuery: { data: task },
+		detailedTaskId
+	} = useDetailedTask();
+	const { mutateAsync: updateDescription } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 	const saveDescription = useCallback(
-		(newDescription: string) => {
-			updateDescription({ newDescription, task, loader: true, isDetailedTask: true });
+		async (newDescription: string) => {
+			if (!task?.id || !detailedTaskId) return;
+			await updateDescription({
+				taskId: task?.id,
+				taskData: { ...task, description: newDescription }
+			}).then((task) => setActiveTask(task));
 		},
 		[task, updateDescription]
 	);

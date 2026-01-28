@@ -1,17 +1,17 @@
-import { useDailyPlan } from '@/core/hooks';
-import { activeTeamState, tasksByTeamState } from '@/core/stores';
-import { useMemo } from 'react';
-import { useAtomValue } from 'jotai';
 import { getTotalTasks } from '@/core/components/tasks/daily-plan';
+import { useDailyPlan } from '@/core/hooks';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { TUser } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useMemo } from 'react';
+import { useCurrentTeam } from './use-current-team';
+import { useSortedTasksByCreation } from './use-sorted-tasks';
 
 export function useAuthTeamTasks(user: TUser | undefined) {
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasksByCreation();
 	const { data: authenticatedUser } = useUserQuery();
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	// Use provided user or fallback to authenticated user
 	const targetUser = user || authenticatedUser;
 	const currentMember = activeTeam?.members?.find((member) => member.employee?.userId === targetUser?.id);

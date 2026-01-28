@@ -1,27 +1,27 @@
 import { Button } from '@/core/components';
-import { useModal, useUserProfilePage } from '@/core/hooks';
-import { taskBlockFilterState, blockViewSearchQueryState } from '@/core/stores/tasks/task-filter';
-import { useAtom, useAtomValue } from 'jotai';
-import { useTranslations } from 'next-intl';
-import { useMemo, useEffect } from 'react';
-import { activeTeamState } from '@/core/stores';
-import { clsxm } from '@/core/lib/utils';
-import {
-	SearchNormalIcon,
-	TimerPlayIcon,
-	CheckCircleTickIcon,
-	CrossCircleIcon,
-	StopCircleIcon,
-	PauseIcon
-} from 'assets/svg';
-import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
-import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
-import { TaskNameFilter } from '@/core/components/pages/profile/task-filters';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
+import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
+import { TaskNameFilter } from '@/core/components/pages/profile/task-filters';
+import { useModal, useUserProfilePage } from '@/core/hooks';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { useProcessedTeamMembers } from '@/core/hooks/teams/use-processed-team-members';
 import { useTeamMemberFilterStatsForUI } from '@/core/hooks/teams/use-team-member-filter-stats';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { clsxm } from '@/core/lib/utils';
 import { TeamMemberFilterType } from '@/core/lib/utils/team-members.utils';
+import { blockViewSearchQueryState, taskBlockFilterState } from '@/core/stores/tasks/task-filter';
+import {
+	CheckCircleTickIcon,
+	CrossCircleIcon,
+	PauseIcon,
+	SearchNormalIcon,
+	StopCircleIcon,
+	TimerPlayIcon
+} from 'assets/svg';
+import { useAtom } from 'jotai';
+import { useTranslations } from 'next-intl';
+import { useEffect, useMemo } from 'react';
 
 // Interface for filter stats (kept for UI compatibility)
 interface IFilter {
@@ -73,7 +73,7 @@ const statusButtons = (
 export function UserTeamBlockHeader() {
 	const t = useTranslations();
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const { data: user } = useUserQuery();
 	const { openModal, isOpen, closeModal } = useModal();
 	const [activeFilter, setActiveFilter] = useAtom<TeamMemberFilterType>(taskBlockFilterState);

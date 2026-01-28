@@ -1,33 +1,34 @@
-import { useCallback, useMemo, useState } from 'react';
+import { Divider, Modal, SpinnerLoader } from '@/core/components';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
-import Image from 'next/image';
-import Link from 'next/link';
-import Skeleton from 'react-loading-skeleton';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
-import { useModal, useTeamTasks } from '@/core/hooks';
-import { Modal, Divider, SpinnerLoader } from '@/core/components';
-import { useTranslations } from 'next-intl';
-import { toast } from 'sonner';
-import { TaskAssignButton } from '@/core/components/tasks/task-assign-button';
-import { clsxm } from '@/core/lib/utils';
-import TeamMember from '@/core/components/teams/team-member';
-import { Url } from 'next/dist/shared/lib/router/router';
-import { IconsCheck, IconsPersonAddRounded, IconsPersonRounded } from '@/core/components/icons';
-import { cn } from '../../lib/helpers';
-import { TaskAvatars } from '../tasks/task-items';
-import { Tooltip } from '../duplicated-components/tooltip';
 import {
 	Tooltip as ShadcnTooltip,
+	TooltipArrow,
 	TooltipContent,
 	TooltipProvider,
-	TooltipTrigger,
-	TooltipArrow
+	TooltipTrigger
 } from '@/core/components/common/tooltip';
+import { IconsCheck, IconsPersonAddRounded, IconsPersonRounded } from '@/core/components/icons';
+import { TaskAssignButton } from '@/core/components/tasks/task-assign-button';
+import TeamMember from '@/core/components/teams/team-member';
+import { useModal } from '@/core/hooks';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useUpdateTaskMutation } from '@/core/hooks/organizations/teams/use-update-task.mutation';
+import { clsxm } from '@/core/lib/utils';
 import { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
-import { useAtomValue } from 'jotai';
-import { activeTeamState } from '@/core/stores';
 import { TEmployee, TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useTranslations } from 'next-intl';
+import { Url } from 'next/dist/shared/lib/router/router';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useCallback, useMemo, useState } from 'react';
+import Skeleton from 'react-loading-skeleton';
+import { toast } from 'sonner';
+import { cn } from '../../lib/helpers';
+import { Tooltip } from '../duplicated-components/tooltip';
+import { TaskAvatars } from '../tasks/task-items';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
 
 export interface ImageOverlapperProps {
 	id: string;
@@ -59,7 +60,7 @@ export default function ImageOverlapper({
 	images: ImageOverlapperProps[];
 	radius?: number;
 	displayImageCount?: number;
-	item?: any;
+	item?: TTask | null;
 	diameter?: number;
 	iconType?: boolean;
 	arrowData?: ArrowDataProps | null;
@@ -75,12 +76,13 @@ export default function ImageOverlapper({
 	const imageLength = images?.length;
 	const { isOpen, openModal, closeModal } = useModal();
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const allMembers = useMemo(() => activeTeam?.members || [], [activeTeam]);
 	const [assignedMembers, setAssignedMembers] = useState<TEmployee[]>([...(item?.members || [])]);
 	const [unassignedMembers, setUnassignedMembers] = useState<TEmployee[]>([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const { updateTask, updateLoading } = useTeamTasks();
+	const { mutateAsync: updateTask, isPending: updateLoading } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 
 	// Combine local submitting state with React Query mutation pending state
 	const isLoading = isSubmitting || updateLoading;
@@ -147,10 +149,11 @@ export default function ImageOverlapper({
 		};
 
 		try {
-			await updateTask({
-				...item,
-				members: assignedMembers
-			});
+			if (item)
+				await updateTask({
+					taskId: item?.id,
+					taskData: { ...item, members: assignedMembers }
+				}).then((task) => setActiveTask(task));
 
 			// Build descriptive toast message
 			const messages: string[] = [];
@@ -180,7 +183,7 @@ export default function ImageOverlapper({
 		}
 	}, [closeModal, updateTask, item, assignedMembers, isLoading, t]);
 
-	const hasMembers = item?.members?.length > 0;
+	const hasMembers = item?.members && item?.members?.length > 0;
 
 	if (imageLength === undefined) {
 		return <Skeleton height={40} width={40} borderRadius={100} className="rounded-full dark:bg-[#353741]" />;

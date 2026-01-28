@@ -1,8 +1,7 @@
-import { useMemo } from 'react';
-import { useAtomValue } from 'jotai';
-import { activeTeamState } from '@/core/stores';
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
+import { useMemo } from 'react';
+import { useCurrentTeam } from '../organizations/teams/use-current-team';
 import { useUserQuery } from '../queries/user-user.query';
 
 /**
@@ -22,7 +21,7 @@ import { useUserQuery } from '../queries/user-user.query';
  * @returns Object with hours, minutes, seconds, and total seconds worked today
  */
 export function useTodayWorkedTime(memberInfo?: { member?: { id?: string }; id?: string }) {
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const { data: user } = useUserQuery();
 
 	// Find the current member in the active team

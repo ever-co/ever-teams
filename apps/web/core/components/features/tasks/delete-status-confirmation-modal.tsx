@@ -1,12 +1,13 @@
-import { useTaskStatus, useTeamTasks } from '@/core/hooks';
 import { Button, Modal, Text } from '@/core/components';
+import { useTaskStatus } from '@/core/hooks';
+import { useSortedTasksByCreation } from '@/core/hooks/organizations/teams/use-sorted-tasks';
+import { useUpdateTaskMutation } from '@/core/hooks/organizations/teams/use-update-task.mutation';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
+import { TTaskStatus } from '@/core/types/schemas';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 import { EverCard } from '../../common/ever-card';
-import { ETaskStatusName } from '@/core/types/generics/enums/task';
-import { TTaskStatus } from '@/core/types/schemas';
-import { useAtomValue } from 'jotai';
-import { tasksByTeamState } from '@/core/stores';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
 
 interface DeleteTaskStatusModalProps {
 	open: boolean;
@@ -31,8 +32,9 @@ export function DeleteTaskStatusConfirmationModal(props: DeleteTaskStatusModalPr
 	const { deleteTaskStatus, deleteTaskStatusLoading, setTaskStatuses } = useTaskStatus();
 	const t = useTranslations();
 
-	const tasks = useAtomValue(tasksByTeamState);
-	const { updateTask } = useTeamTasks();
+	const tasks = useSortedTasksByCreation();
+	const { mutateAsync: updateTask } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 
 	// Filter tasks that are using the current status
 	const tasksUsingStatus = useMemo(() => tasks.filter((task) => task.status === status.name), [tasks, status.name]);
@@ -52,7 +54,9 @@ export function DeleteTaskStatusConfirmationModal(props: DeleteTaskStatusModalPr
 		try {
 			// Update each task that uses the current status
 			const updatePromises = tasksUsingStatus.map((task) =>
-				updateTask({ ...task, status: ETaskStatusName.OPEN })
+				updateTask({ taskId: task?.id, taskData: { ...task, status: ETaskStatusName.OPEN } }).then((task) =>
+					setActiveTask(task)
+				)
 			);
 
 			await Promise.all(updatePromises);

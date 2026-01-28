@@ -1,38 +1,42 @@
-import { useIsMemberManager, useOrganizationTeams } from '@/core/hooks';
-import { ERoleName } from '@/core/types/generics/enums/role';
-import { activeTeamState } from '@/core/stores';
 import { Button, ColorPicker, Text } from '@/core/components';
 import { EmojiPicker } from '@/core/components/common/emoji-picker';
 import TimeTrackingToggle, { RequireDailyPlanToTrack, ShareProfileViewsToggle } from '@/core/components/common/switch';
-import debounce from 'lodash/debounce';
-import isEqual from 'lodash/isEqual';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useTranslations } from 'next-intl';
-import { useAtom } from 'jotai';
-import { useParams } from 'next/navigation';
-import { CheckSquareOutlineIcon, EditPenUnderlineIcon } from 'assets/svg';
-import TeamSize from '@/core/components/teams/team-size-popover';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
-import { toast } from 'sonner';
-import { TOrganizationTeam, TOrganizationTeamUpdate } from '@/core/types/schemas';
+import TeamSize from '@/core/components/teams/team-size-popover';
+import { useIsMemberManager } from '@/core/hooks';
+import { useEditOrganizationTeamMutation } from '@/core/hooks/organizations/teams/use-edit-organization-team-mutation';
+import {
+	useGetOrganizationTeamQuery,
+	useGetOrganizationTeamsQuery
+} from '@/core/hooks/organizations/teams/use-get-organization-teams-query';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { activeTeamState, organizationTeamsState } from '@/core/stores';
+import { ERoleName } from '@/core/types/generics/enums/role';
+import { TOrganizationTeam, TOrganizationTeamUpdate } from '@/core/types/schemas';
+import { CheckSquareOutlineIcon, EditPenUnderlineIcon } from 'assets/svg';
+import { useAtom, useSetAtom } from 'jotai';
+import debounce from 'lodash/debounce';
+import isEqual from 'lodash/isEqual';
 import { LoaderCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 export const TeamSettingForm = () => {
 	const { data: user } = useUserQuery();
 	const { register, setValue, handleSubmit, getValues, trigger } = useForm();
 	const t = useTranslations();
 
+	const { isLoading: loading } = useGetOrganizationTeamsQuery();
+	const { isLoading: loadingTeam } = useGetOrganizationTeamQuery();
+	const { mutateAsync: editOrganizationTeam, isPending: editOrganizationTeamLoading } =
+		useEditOrganizationTeamMutation();
+
 	const [activeTeam, setActiveTeam] = useAtom(activeTeamState);
-	const {
-		editOrganizationTeam,
-		getOrganizationTeamsLoading: loading,
-		loadingTeam,
-		setTeams,
-		editOrganizationTeamLoading
-	} = useOrganizationTeams();
+	const setTeams = useSetAtom(organizationTeamsState);
 	const { isTeamManager, activeManager } = useIsMemberManager(user);
 	const [copied, setCopied] = useState<boolean>(false);
 	const [disabled, setDisabled] = useState<boolean>(true);

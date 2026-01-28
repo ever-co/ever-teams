@@ -1,31 +1,33 @@
 'use client';
 import { DEFAULT_APP_PATH, LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
-import { getAccessTokenCookie, getRefreshTokenCookie, removeAuthCookies } from '@/core/lib/helpers/cookies';
-import { handleUnauthorized, registerRefreshTokenCallback } from '@/core/lib/auth/handle-unauthorized';
-import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { logDisconnection } from '@/core/lib/auth/disconnect-logger';
+import { handleUnauthorized, registerRefreshTokenCallback } from '@/core/lib/auth/handle-unauthorized';
 import {
 	calculateRefreshInterval,
-	shouldRefreshToken,
-	getTokenRemainingTime,
+	formatRemainingTime,
 	getTokenLifetime,
-	formatRemainingTime
+	getTokenRemainingTime,
+	shouldRefreshToken
 } from '@/core/lib/auth/jwt-utils';
 import { isUnauthorizedError } from '@/core/lib/auth/retry-logic';
-import { activeTeamManagersState, activeTeamState, userState } from '@/core/stores';
-import { useCallback, useMemo, useRef, useEffect } from 'react';
-import { useSetAtom, useAtomValue } from 'jotai';
+import { getAccessTokenCookie, getRefreshTokenCookie, removeAuthCookies } from '@/core/lib/helpers/cookies';
+import { userState } from '@/core/stores';
+import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSetAtom } from 'jotai';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
-import { authService } from '@/core/services/client/api/auth/auth.service';
-import { useIsMemberManager } from '../organizations';
-import { useUserProfilePage } from '../users';
-import { TUser } from '@/core/types/schemas';
-import { queryKeys } from '@/core/query/keys';
-import { toast } from 'sonner';
-import { UseAuthenticateUserResult } from '@/core/types/interfaces/user/user';
-import { useUserQuery } from '../queries/user-user.query';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
+import { queryKeys } from '@/core/query/keys';
+import { authService } from '@/core/services/client/api/auth/auth.service';
+import { UseAuthenticateUserResult } from '@/core/types/interfaces/user/user';
+import { TUser } from '@/core/types/schemas';
+import { toast } from 'sonner';
+import { useIsMemberManager } from '../organizations';
+import { useActiveTeamManagers } from '../organizations/teams/use-active-team-managers';
+import { useCurrentTeam } from '../organizations/teams/use-current-team';
+import { useUserQuery } from '../queries/user-user.query';
+import { useUserProfilePage } from '../users';
 
 export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserResult => {
 	const userDataQuery = useUserQuery();
@@ -35,7 +37,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 	// Ref for the recursive setTimeout-based refresh scheduler
 	// Using number type for browser setTimeout (returns number, not NodeJS.Timeout)
 	const refreshTimeoutRef = useRef<number | null>(null);
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const queryClient = useQueryClient();
 
 	// Track consecutive refresh failures for smarter error handling
@@ -337,7 +339,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 
 export const useCanSeeActivityScreen = () => {
 	const { data: user } = useUserQuery();
-	const activeTeamManagers = useAtomValue(activeTeamManagersState);
+	const { managers: activeTeamManagers } = useActiveTeamManagers();
 
 	const profile = useUserProfilePage();
 

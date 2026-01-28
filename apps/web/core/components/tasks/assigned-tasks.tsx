@@ -1,14 +1,15 @@
-import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { RawStatusDropdown } from '@/core/components/tasks/status-dropdown';
+import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 
+import { useCurrentActiveTask } from '@/core/hooks/organizations/teams/use-current-active-task';
 import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
-import { activeTaskStatisticsState, activeTeamTaskState, timerSecondsState } from '@/core/stores';
+import { activeTaskStatisticsState, timerSecondsState } from '@/core/stores';
+import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import { PlayIcon } from '@heroicons/react/20/solid';
-import { useRef } from 'react';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
-import { TTask } from '@/core/types/schemas/task/task.schema';
-import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
+import { useRef } from 'react';
 
 interface ITaskDetailCard {
 	now?: boolean;
@@ -24,7 +25,7 @@ const AssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 	const statActiveTask = useAtomValue(activeTaskStatisticsState);
 	const activeTaskTotalStat = statActiveTask.total;
 
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { task: activeTeamTask } = useCurrentActiveTask();
 	const { getTaskStat, activeTaskEstimation } = useTaskStatistics(timerReconds);
 
 	if (activeTeamTask?.id === task?.id) {

@@ -5,7 +5,10 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { createTaskSchema, taskSchema, TCreateTask, TTask } from '@/core/types/schemas/task/task.schema';
 import { TEmployee, ZodValidationError } from '@/core/types/schemas';
-import { zodStrictApiResponseValidate, zodStrictPaginationResponseValidate } from '@/core/lib/validation/zod-validators';
+import {
+	zodStrictApiResponseValidate,
+	zodStrictPaginationResponseValidate
+} from '@/core/lib/validation/zod-validators';
 
 /**
  * Enhanced Task Service with Zod validation
@@ -81,12 +84,18 @@ class TaskService extends APIService {
 	 * @returns {Promise<PaginationResponse<TTask>>} - Validated paginated tasks data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getTasks = async ({ projectId }: { projectId: string }): Promise<PaginationResponse<TTask>> => {
+	getTasks = async ({
+		projectId,
+		activeTeamId
+	}: {
+		projectId?: string;
+		activeTeamId?: string;
+	}): Promise<PaginationResponse<TTask>> => {
 		try {
 			const query = qs.stringify({
 				...this.baseQueries,
-				'where[projectId]': projectId,
-				'where[teams][0]': this.activeTeamId
+				...(projectId && { 'where[projectId]': projectId }),
+				'where[teams][0]': activeTeamId ?? this.activeTeamId
 			});
 			const endpoint = `/tasks/team?${query}`;
 

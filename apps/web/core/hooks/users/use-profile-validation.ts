@@ -1,13 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useAtomValue } from 'jotai';
-import { useRouter, usePathname } from 'next/navigation';
-import { toast } from 'sonner';
-import { useTranslations } from 'next-intl';
-import { activeTeamState } from '@/core/stores';
-import { useUserQuery } from '../queries/user-user.query';
 import { TOrganizationTeam } from '@/core/types/schemas/team/organization-team.schema';
+import { useTranslations } from 'next-intl';
+import { usePathname, useRouter } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
+import { useUserQuery } from '../queries/user-user.query';
+import { useCurrentTeam } from '../organizations/teams/use-current-team';
 
 export type ProfileValidationState = 'loading' | 'valid' | 'not-found' | 'timeout' | 'unauthorized';
 
@@ -26,7 +25,7 @@ export interface ProfileValidationResult {
  */
 export function useProfileValidation(memberId: string | null) {
 	const { data: user } = useUserQuery();
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const router = useRouter();
 	const pathname = usePathname();
 	const t = useTranslations();

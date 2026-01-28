@@ -1,9 +1,11 @@
+import { useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
+import { useGetTaskByIdQueryLazy } from '@/core/hooks/organizations/teams/use-get-team-task.query';
+import { useDetailedTask } from '@/core/hooks/tasks/use-detailed-task';
 import { cn } from '@/core/lib/helpers';
-import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@/core/hooks';
-import { useEffect, useState } from 'react';
-import { TaskInfo } from '../../../team/team-members-views/user-team-card/task-info';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useEffect, useState } from 'react';
+import { TaskInfo } from '../../../team/team-members-views/user-team-card/task-info';
 
 export default function UserTeamActiveTaskInfo({
 	member,
@@ -13,12 +15,16 @@ export default function UserTeamActiveTaskInfo({
 	const [activeTask, setActiveTask] = useState<TTask | null | undefined>(null);
 	const taskEdition = useTMCardTaskEdit(activeTask);
 
-	const { getTaskById } = useTeamTasks();
+	const { setDetailedTaskId } = useDetailedTask();
+	const { getTaskById } = useGetTaskByIdQueryLazy();
 
 	useEffect(() => {
 		if (member.activeTaskId) {
 			getTaskById(member.activeTaskId)
-				.then((response) => setActiveTask(response as TTask))
+				.then((response) => {
+					setDetailedTaskId(member.activeTaskId ?? null);
+					setActiveTask(response as TTask);
+				})
 				.catch((_) => console.log(_));
 		}
 

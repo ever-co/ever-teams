@@ -1,21 +1,22 @@
 'use client';
-import { taskStatusesState, activeTeamState, activeTeamIdState } from '@/core/stores';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useFirstLoad } from '../common/use-first-load';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
+import { queryKeys } from '@/core/query/keys';
 import { taskStatusService } from '@/core/services/client/api/tasks/task-status.service';
-import { useCallbackRef, useConditionalUpdateEffect, useSyncRef } from '../common';
+import { activeTeamIdState, taskStatusesState } from '@/core/stores';
 import { TStatus, TStatusItem } from '@/core/types/interfaces/task/task-card';
 import { ITaskStatusCreate } from '@/core/types/interfaces/task/task-status/task-status';
-import { queryKeys } from '@/core/query/keys';
-import { ITaskStatusOrder } from '@/core/types/interfaces/task/task-status/task-status-order';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
+import { ITaskStatusOrder } from '@/core/types/interfaces/task/task-status/task-status-order';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
-import { useMapToTaskStatusValues } from './use-map-to-task-status-values';
-import { useUserQuery } from '../queries/user-user.query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAtom, useAtomValue } from 'jotai';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import { useCallbackRef, useConditionalUpdateEffect, useSyncRef } from '../common';
+import { useFirstLoad } from '../common/use-first-load';
+import { useCurrentTeam } from '../organizations/teams/use-current-team';
+import { useUserQuery } from '../queries/user-user.query';
+import { useMapToTaskStatusValues } from './use-map-to-task-status-values';
 
 export function useTaskStatus() {
 	const activeTeamId = useAtomValue(activeTeamIdState);
@@ -23,7 +24,7 @@ export function useTaskStatus() {
 	const { firstLoadData: firstLoadTaskStatusesData } = useFirstLoad();
 	const { data: user } = useUserQuery();
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const queryClient = useQueryClient();
 
 	const teamId = activeTeam?.id || getActiveTeamIdCookie() || activeTeamId;

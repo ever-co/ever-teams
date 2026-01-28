@@ -1,18 +1,23 @@
 import InviteCard from '@/core/components/teams/invite/invite-card';
 import { InvitedCard } from '@/core/components/teams/invite/invited-card';
 import UsersCard from '@/core/components/teams/members-card/members-card';
-import { useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks/auth';
-import { useOrganizationTeams } from '@/core/hooks/organizations';
-import { activeTeamState, getTeamInvitationsState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+import {
+	useGetOrganizationTeamQuery,
+	useGetOrganizationTeamsQuery
+} from '@/core/hooks/organizations/teams/use-get-organization-teams-query';
+import { useTeamMemberInvitation } from '@/core/hooks/organizations/teams/use-team-member-invitations';
+import { useTranslations } from 'next-intl';
+import { useMemo } from 'react';
 
 export const TeamMemberSection = () => {
 	const { isTeamManager, user } = useAuthenticateUser();
 
-	const activeTeam = useAtomValue(activeTeamState);
-	const { getOrganizationTeamsLoading } = useOrganizationTeams();
-	const teamInvitations = useAtomValue(getTeamInvitationsState);
+	const { data: activeTeamResult } = useGetOrganizationTeamQuery();
+	const activeTeam = useMemo(() => activeTeamResult?.data ?? null, [activeTeamResult?.data]);
+
+	const { isPending: getOrganizationTeamsLoading } = useGetOrganizationTeamsQuery();
+	const teamInvitations = useTeamMemberInvitation();
 	const members = activeTeam?.members || [];
 	// const style = { width: `${100 / members.length}%` };
 

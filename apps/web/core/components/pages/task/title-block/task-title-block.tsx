@@ -1,27 +1,34 @@
-import { useModal, useTeamTasks } from '@/core/hooks';
-import { detailedTaskState } from '@/core/stores';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/core/components/common/hover-card';
 import { Button, CopyTooltip } from '@/core/components';
-import Image from 'next/image';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/core/components/common/hover-card';
+import { useModal } from '@/core/hooks';
 import { CheckSimpleIcon, CopyRoundIcon } from 'assets/svg';
+import Image from 'next/image';
 
+import { ActiveTaskIssuesDropdown } from '@/core/components/tasks/task-issue';
+import { useUpdateTaskMutation } from '@/core/hooks/organizations/teams/use-update-task.mutation';
+import { useDetailedTask } from '@/core/hooks/tasks/use-detailed-task';
+import { useFavoriteTasks } from '@/core/hooks/tasks/use-favorites-task';
+import { clsxm } from '@/core/lib/utils';
+import { EIssueType } from '@/core/types/generics/enums/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { XMarkIcon } from '@heroicons/react/20/solid';
+import { Heart, LoaderCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { useAtom } from 'jotai';
+import { toast } from 'sonner';
 import CreateParentTask from '../parent-task';
 import TitleLoader from './title-loader';
-import { useTranslations } from 'next-intl';
-import { XMarkIcon } from '@heroicons/react/20/solid';
-import { clsxm } from '@/core/lib/utils';
-import { Heart, LoaderCircle } from 'lucide-react';
-import { ActiveTaskIssuesDropdown } from '@/core/components/tasks/task-issue';
-import { EIssueType } from '@/core/types/generics/enums/task';
-import { toast } from 'sonner';
-import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useFavoriteTasks } from '@/core/hooks/tasks/use-favorites-task';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
 
 const TaskTitleBlock = () => {
-	const { updateTitle, updateLoading } = useTeamTasks();
+	const {
+		detailedTaskQuery: { data: task },
+		detailedTaskId
+	} = useDetailedTask();
+
+	const { mutateAsync: updateTitle, isPending: updateLoading } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 	const t = useTranslations();
 	const { toggleFavoriteTask, isFavoriteTask, addTaskToFavoriteLoading, deleteTaskFromFavoritesLoading } =
 		useFavoriteTasks();
@@ -35,7 +42,6 @@ const TaskTitleBlock = () => {
 
 	//States
 	const [edit, setEdit] = useState<boolean>(false);
-	const [task] = useAtom(detailedTaskState);
 	const [title, setTitle] = useState<string>('');
 
 	//Hooks and functions
@@ -62,7 +68,11 @@ const TaskTitleBlock = () => {
 				return;
 			}
 
-			updateTitle({ newTitle, task, loader: true, isDetailedTask: true });
+			if (!task?.id || !detailedTaskId) return;
+			updateTitle({ taskId: task?.id, taskData: { ...task, title: newTitle } }).then((task) =>
+				setActiveTask(task)
+			);
+
 			setEdit(false);
 		},
 		[task, updateTitle, t]

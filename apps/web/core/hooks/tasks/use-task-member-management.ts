@@ -1,11 +1,12 @@
 'use client';
 
-import { useCallback, useMemo, useState, useOptimistic, startTransition } from 'react';
-import { useTranslations } from 'next-intl';
-import { toast } from 'sonner';
-import { useTeamTasks } from '@/core/hooks/organizations/teams/use-team-tasks';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useTranslations } from 'next-intl';
+import { startTransition, useCallback, useMemo, useOptimistic, useState } from 'react';
+import { toast } from 'sonner';
+import { useUpdateTaskMutation } from '../organizations/teams/use-update-task.mutation';
+import { useSetActiveTask } from '../organizations/teams/use-set-active-task';
 
 // Types for optimistic actions
 type TaskMember = NonNullable<TTask['members']>[number];
@@ -22,7 +23,8 @@ type LoadingStates = Record<string, 'assign' | 'unassign' | null>;
  * Provides a clean API for assigning/unassigning members with immediate UI feedback
  */
 export function useTaskMemberManagement(task: TTask | null, memberList: TOrganizationTeamEmployee[]) {
-	const { updateTask } = useTeamTasks();
+	const { mutateAsync: updateTask } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 	const t = useTranslations();
 
 	// Optimistic state for immediate UI updates
@@ -74,10 +76,9 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 					new Map([...(task.members ?? []), newMember].map((m) => [m.userId, m])).values()
 				);
 
-				await updateTask({
-					...task,
-					members: updatedMembers
-				});
+				await updateTask({ taskId: task?.id, taskData: { ...task, members: updatedMembers } }).then((task) =>
+					setActiveTask(task)
+				);
 
 				// Success toast
 				toast.success(t('task.toastMessages.TASK_ASSIGNED'), {
@@ -124,10 +125,9 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 				// Ensure updatedMembers is always an array, never undefined
 				const updatedMembers = (task.members ?? []).filter((m) => m.id !== member.employeeId);
 
-				await updateTask({
-					...task,
-					members: updatedMembers
-				});
+				await updateTask({ taskId: task?.id, taskData: { ...task, members: updatedMembers } }).then((task) =>
+					setActiveTask(task)
+				);
 
 				// Success toast
 				toast.success(t('task.toastMessages.TASK_UNASSIGNED'), {

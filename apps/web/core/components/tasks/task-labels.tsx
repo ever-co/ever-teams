@@ -1,19 +1,21 @@
 'use client';
 
-import { useModal, useSyncRef, useTeamTasks } from '@/core/hooks';
 import { Button, Modal } from '@/core/components';
 import { TaskLabelsDropdown } from '@/core/components/tasks/task-status';
-import { debounce, isEqual } from 'lodash';
-import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
-import { toast } from 'sonner';
-import { AddIcon } from 'assets/svg';
-import { TaskLabelForm } from './task-labels-form';
-import { EverCard } from '../common/ever-card';
+import { useModal, useSyncRef } from '@/core/hooks';
+import { useUpdateTaskMutation } from '@/core/hooks/organizations/teams/use-update-task.mutation';
+import { taskUpdateQueue } from '@/core/lib/utils/task.utils';
+import { taskLabelsListState } from '@/core/stores';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { taskLabelsListState } from '@/core/stores';
+import { AddIcon } from 'assets/svg';
 import { useAtomValue } from 'jotai';
-import { taskUpdateQueue } from '@/core/lib/utils/task.utils';
+import { debounce, isEqual } from 'lodash';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
+import { EverCard } from '../common/ever-card';
+import { TaskLabelForm } from './task-labels-form';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
 
 type Props = {
 	task: Nullable<TTask>;
@@ -24,7 +26,8 @@ type Props = {
 };
 export function TaskLabels({ task, className, forDetails, taskStatusClassName, onValueChange }: Props) {
 	const $task = useSyncRef(task);
-	const { updateTask } = useTeamTasks();
+	const { mutateAsync: updateTask } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 	const taskLabels = useAtomValue(taskLabelsListState);
 	const modal = useModal();
 	const latestLabels = useRef<string[]>([]);
@@ -50,10 +53,15 @@ export function TaskLabels({ task, className, forDetails, taskStatusClassName, o
 
 			taskUpdateQueue.task(
 				(task, taskLabels, values) => {
+					if (!task?.current) return;
 					return updateTask({
-						...task.current!,
-						tags: taskLabels.filter((tag) => (tag.name ? values?.includes(tag.name) : false)) as any
+						taskId: task?.current.id,
+						taskData: {
+							...task.current!,
+							tags: taskLabels.filter((tag) => (tag.name ? values?.includes(tag.name) : false)) as any
+						}
 					})
+						.then((task) => setActiveTask(task))
 						.then(() => {
 							// Success - keep optimistic value and show success toast
 							toast.success('Task labels updated successfully');

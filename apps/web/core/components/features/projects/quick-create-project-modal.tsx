@@ -1,13 +1,14 @@
-import { useOrganizationProjects } from '@/core/hooks';
 import { Button, Modal, Text } from '@/core/components';
-import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useState } from 'react';
-import { InputField } from '../../duplicated-components/_input';
-import { EverCard } from '../../common/ever-card';
+import { useOrganizationProjects } from '@/core/hooks';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { isTeamManagerState } from '@/core/stores';
 import { TOrganizationProject } from '@/core/types/schemas';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, isTeamManagerState } from '@/core/stores';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useTranslations } from 'next-intl';
+import { useCallback, useEffect, useState } from 'react';
+import { EverCard } from '../../common/ever-card';
+import { InputField } from '../../duplicated-components/_input';
 
 interface IQuickCreateProjectModalProps {
 	open: boolean;
@@ -35,7 +36,7 @@ export function QuickCreateProjectModal(props: IQuickCreateProjectModalProps) {
 	const [name, setName] = useState('');
 
 	// Get active team and current user info
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const isTeamManager = useAtomValue(isTeamManagerState);
 	const { data: user } = useUserQuery();
 

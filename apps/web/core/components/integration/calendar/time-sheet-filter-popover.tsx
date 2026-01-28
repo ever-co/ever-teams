@@ -1,19 +1,19 @@
-import { Button } from '@/core/components/duplicated-components/_button';
 import { Modal } from '@/core/components';
-import { statusOptions } from '@/core/constants/config/constants';
-import { MultiSelect } from '@/core/components/common/multi-select';
 import { Input } from '@/core/components/common/input';
-import { activeTeamState, tasksByTeamState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+import { MultiSelect } from '@/core/components/common/multi-select';
+import { Button } from '@/core/components/duplicated-components/_button';
+import { statusOptions } from '@/core/constants/config/constants';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useSortedTasksByCreation } from '@/core/hooks/organizations/teams/use-sorted-tasks';
 interface TimeSheetFilterProps {
 	isOpen: boolean;
 	closeModal: () => void;
 }
 
 export function TimeSheetFilter({ closeModal, isOpen }: TimeSheetFilterProps) {
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasksByCreation();
 	// const [taskId, setTaskId] = useState<TTask | TTask[] | null>([]);
 	return (
 		<>

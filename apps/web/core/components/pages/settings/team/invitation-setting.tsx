@@ -1,19 +1,18 @@
-import { useModal, useRequestToJoinTeam } from '@/core/hooks';
 import { Button, NoData } from '@/core/components';
-import { SearchNormalIcon } from 'assets/svg';
-import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
-import { ChangeEvent, useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { InvitationTable } from '../../../teams/invite/invitation-table';
 import { InputField } from '@/core/components/duplicated-components/_input';
-import { getTeamInvitationsState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
+import { useModal, useRequestToJoinTeam } from '@/core/hooks';
+import { useTeamMemberInvitation } from '@/core/hooks/organizations/teams/use-team-member-invitations';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { SearchNormalIcon } from 'assets/svg';
+import { useTranslations } from 'next-intl';
+import { ChangeEvent, useEffect, useState } from 'react';
+import { InvitationTable } from '../../../teams/invite/invitation-table';
 
 export const InvitationSetting = () => {
 	const t = useTranslations();
 
-	const teamInvitations = useAtomValue(getTeamInvitationsState);
+	const teamInvitations = useTeamMemberInvitation();
 	const { getRequestToJoin, requestToJoin } = useRequestToJoinTeam();
 
 	const { data: user } = useUserQuery();

@@ -1,23 +1,22 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useModal, useRefetchData, useTaskStatus } from '@/core/hooks';
-import { tasksByTeamState } from '@/core/stores';
-import { clsxm } from '@/core/lib/utils';
-import { Spinner } from '@/core/components/common/spinner';
-import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, ColorPicker, Modal, Text } from '@/core/components';
+import { Spinner } from '@/core/components/common/spinner';
+import { DeleteTaskStatusConfirmationModal } from '@/core/components/features/tasks/delete-status-confirmation-modal';
+import SortTasksStatusSettings from '@/core/components/pages/kanban/sort-tasks-status-settings';
+import { useModal, useRefetchData, useTaskStatus } from '@/core/hooks';
+import { useSortedTasksByCreation } from '@/core/hooks/organizations/teams/use-sorted-tasks';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { clsxm } from '@/core/lib/utils';
+import { TTaskStatus } from '@/core/types/schemas';
+import { PlusIcon } from '@heroicons/react/20/solid';
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useTranslations } from 'next-intl';
-import { useAtomValue } from 'jotai';
+import { InputField } from '../duplicated-components/_input';
 import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
-import SortTasksStatusSettings from '@/core/components/pages/kanban/sort-tasks-status-settings';
-import { DeleteTaskStatusConfirmationModal } from '@/core/components/features/tasks/delete-status-confirmation-modal';
 import { StandardTaskStatusDropDown } from './task-status';
-import { InputField } from '../duplicated-components/_input';
-import { TTaskStatus } from '@/core/types/schemas';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -140,7 +139,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 		openModal: openDeleteConfirmationModal
 	} = useModal();
 	const [statusToDelete, setStatusToDelete] = useState<TTaskStatus | null>(null);
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasksByCreation();
 
 	/**
 	 * Get Icon by status name

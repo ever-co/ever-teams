@@ -1,12 +1,13 @@
 import { kanbanBoardState } from '@/core/stores/integrations/kanban';
-import { useTaskStatus } from '../tasks/use-task-status';
-import { useAtom } from 'jotai';
-import { useEffect, useState, useMemo, useCallback, useOptimistic, startTransition } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { useTeamTasks } from '../organizations';
 import { TStatusItem } from '@/core/types/interfaces/task/task-card';
 import { TTaskStatus } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useAtom } from 'jotai';
+import { useSearchParams } from 'next/navigation';
+import { startTransition, useCallback, useEffect, useMemo, useOptimistic, useState } from 'react';
+import { useCurrentTeamTasks } from '../organizations/teams/use-current-team-tasks';
+import { useUpdateTaskMutation } from '../organizations/teams/use-update-task.mutation';
+import { useTaskStatus } from '../tasks/use-task-status';
 
 export interface IKanban {
 	[key: string]: TTask[];
@@ -25,7 +26,8 @@ export function useKanban() {
 	});
 	const [kanbanBoard, setKanbanBoard] = useAtom(kanbanBoardState);
 	const taskStatusHook = useTaskStatus();
-	const { tasks: newTask, tasksFetching, updateTask } = useTeamTasks();
+	const { tasks: newTask, isLoading: tasksFetching } = useCurrentTeamTasks();
+	const { mutateAsync: updateTask } = useUpdateTaskMutation();
 	const [priority, setPriority] = useState<string[]>([]);
 	const [sizes, setSizes] = useState<string[]>([]);
 	const employee = useSearchParams().get('employee');

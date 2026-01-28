@@ -1,19 +1,23 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
-import { useAuthTeamTasks } from '../organizations/teams/use-auth-team-tasks';
-import { useTeamTasks } from '../organizations';
-import { useAuthenticateUser } from '../auth';
-import { useGetTasksStatsData } from '../tasks';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { activeTeamState, activeTeamTaskState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+import { useCallback, useMemo } from 'react';
+import { useAuthenticateUser } from '../auth';
+import { useAuthTeamTasks } from '../organizations/teams/use-auth-team-tasks';
+import { useCurrentActiveTask } from '../organizations/teams/use-current-active-task';
+import { useCurrentTeam } from '../organizations/teams/use-current-team';
+import { useCurrentTeamTasks } from '../organizations/teams/use-current-team-tasks';
+import { useUpdateTaskMutation } from '../organizations/teams/use-update-task.mutation';
+import { useGetTasksStatsData } from '../tasks';
+import { useSetActiveTask } from '../organizations/teams/use-set-active-task';
 
 export function useUserDetails(memberId: string) {
-	const activeTeam = useAtomValue(activeTeamState);
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const activeTeam = useCurrentTeam();
+	const { task: activeTeamTask } = useCurrentActiveTask();
 
-	const { updateTask, tasks } = useTeamTasks();
+	const { tasks } = useCurrentTeamTasks();
+	const { mutateAsync: updateTask } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 
 	const { user: auth } = useAuthenticateUser();
 
@@ -56,9 +60,9 @@ export function useUserDetails(memberId: string) {
 			}
 
 			return updateTask({
-				...task,
-				members: [...(task.members || []), matchUser ? matchUser.employee : {}]
-			});
+				taskId: task?.id,
+				taskData: { ...task, members: [...(task.members || []), matchUser ? matchUser.employee : {}] }
+			}).then((task) => setActiveTask(task));
 		},
 		[updateTask, matchUser]
 	);

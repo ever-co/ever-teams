@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
 import { useDailyPlan } from '@/core/hooks';
-import { detailedTaskState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
-import TaskRow from '../components/task-row';
+import { useDetailedTask } from '@/core/hooks/tasks/use-detailed-task';
 import { formatDayPlanDate } from '@/core/lib/helpers/index';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
+import { useEffect, useState } from 'react';
+import TaskRow from '../components/task-row';
 
 export function TaskPlans() {
-	const task = useAtomValue(detailedTaskState);
+	const {
+		detailedTaskQuery: { data: task }
+	} = useDetailedTask();
 
 	// Use local state instead of global atom to prevent data conflicts
 	const [taskPlanList, setTaskPlanList] = useState<TDailyPlan[]>([]);

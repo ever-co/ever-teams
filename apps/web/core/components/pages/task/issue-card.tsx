@@ -1,21 +1,19 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
+import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { IHookModal, useModal, useQueryCall, useTeamTasks } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
-import { Modal, SpinnerLoader, Text } from '@/core/components';
-import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
-import { useCallback, useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { AddIcon } from 'assets/svg';
 import { taskLinkedIssueService } from '@/core/services/client/api/tasks/task-linked-issue.service';
-import { EverCard } from '../../common/ever-card';
-import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
-import { TaskInput } from '../../tasks/task-input';
 import { EIssueType, ERelatedIssuesRelation } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { FC } from 'react';
+import { AddIcon, ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
+import { useTranslations } from 'next-intl';
+import { FC, useCallback, useMemo, useState } from 'react';
+import { EverCard } from '../../common/ever-card';
+import { TaskInput } from '../../tasks/task-input';
+import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
 
-import { useAtomValue, useSetAtom } from 'jotai';
-import { detailedTaskState, tasksByTeamState } from '@/core/stores';
+import { useSortedTasksByCreation } from '@/core/hooks/organizations/teams/use-sorted-tasks';
+import { useDetailedTask } from '@/core/hooks/tasks/use-detailed-task';
 export const RelatedIssueCard: FC<{ task: TTask }> = ({ task }) => {
 	const t = useTranslations();
 	const modal = useModal();
@@ -97,10 +95,11 @@ export const RelatedIssueCard: FC<{ task: TTask }> = ({ task }) => {
 function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 	const t = useTranslations();
 
-	const tasks = useAtomValue(tasksByTeamState);
-	const detailedTask = useAtomValue(detailedTaskState);
+	const tasks = useSortedTasksByCreation();
 	const { loadTeamTasksData } = useTeamTasks();
-	const setDetailedTask = useSetAtom(detailedTaskState);
+	const {
+		detailedTaskQuery: { data: detailedTask, refetch: reloadTask }
+	} = useDetailedTask();
 	const { queryCall } = useQueryCall(taskLinkedIssueService.createTaskLinkedIssue);
 	const [loading, setLoading] = useState(false);
 
@@ -117,20 +116,8 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 				organizationId: task.organizationId,
 				action: ERelatedIssuesRelation.RELATES_TO
 			})
-				.then((res) => {
-					if (task.id === detailedTask?.id) {
-						(async () => {
-							const newLinkedIssue = {
-								...res.data,
-								taskFrom: childTask,
-								taskTo: parentTask
-							};
-							setDetailedTask({
-								...detailedTask,
-								linkedIssues: [...(detailedTask?.linkedIssues || []), newLinkedIssue as any]
-							});
-						})();
-					}
+				.then(() => {
+					if (task.id === detailedTask?.id) reloadTask();
 				})
 				.catch(console.error);
 

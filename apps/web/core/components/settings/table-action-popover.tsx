@@ -1,16 +1,16 @@
-import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
-import { useTranslations } from 'next-intl';
-import { ConfirmationModal } from './confirmation-modal';
-import { ThreeCircleOutlineHorizontalIcon } from 'assets/svg';
-import { useEmployeeUpdate, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks/organizations';
 import { useModal } from '@/core/hooks/common';
+import { useEmployeeUpdate, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks/organizations';
+import { useActiveTeamManagers } from '@/core/hooks/organizations/teams/use-active-team-managers';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { rolesState } from '@/core/stores';
-import { useDropdownAction } from '../pages/teams/team/team-members-views/user-team-card/user-team-card-menu';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
+import { ThreeCircleOutlineHorizontalIcon } from 'assets/svg';
 import { useAtomValue } from 'jotai';
-import { activeTeamManagersState } from '@/core/stores';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useTranslations } from 'next-intl';
+import { useDropdownAction } from '../pages/teams/team/team-members-views/user-team-card/user-team-card-menu';
+import { ConfirmationModal } from './confirmation-modal';
 
 type Props = {
 	member: TOrganizationTeamEmployee;
@@ -25,7 +25,7 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 	// const [isOpen, setIsOpen] = useState(false);
 	const t = useTranslations();
 	const { data: user } = useUserQuery();
-	const activeTeamManagers = useAtomValue(activeTeamManagersState);
+	const { managers: activeTeamManagers } = useActiveTeamManagers();
 
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);

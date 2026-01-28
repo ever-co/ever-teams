@@ -1,18 +1,17 @@
 import { Modal, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { useCallback, useMemo } from 'react';
 import {
 	DAILY_PLAN_SUGGESTION_MODAL_DATE,
 	HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL
 } from '@/core/constants/config/constants';
+import { useTimer } from '@/core/hooks';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { useTimer } from '@/core/hooks';
 import { usePathname } from 'next/navigation';
+import { useCallback, useMemo } from 'react';
 import { EverCard } from '../../common/ever-card';
-import { useAtomValue } from 'jotai';
-import { activeTeamState } from '@/core/stores';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 interface ISuggestDailyPlanModalProps {
 	closeModal: () => void;
@@ -23,7 +22,7 @@ export function SuggestDailyPlanModal(props: ISuggestDailyPlanModalProps) {
 	const { isOpen, closeModal } = props;
 	const { hasPlan } = useTimer();
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const { data: user } = useUserQuery();
 	const name = useMemo(
 		() => user?.name || user?.firstName || user?.lastName || user?.username || '',

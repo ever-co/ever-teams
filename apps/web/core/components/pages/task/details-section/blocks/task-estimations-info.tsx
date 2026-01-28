@@ -1,4 +1,16 @@
-import { activeTeamState, detailedTaskState } from '@/core/stores';
+import { Card } from '@/core/components/duplicated-components/card';
+import {
+	Select,
+	Thumbnail
+} from '@/core/components/features/projects/add-or-edit-project/steps/basic-information-form';
+import { TaskEstimate } from '@/core/components/tasks/task-estimate';
+import { TaskMemberEstimate } from '@/core/components/tasks/task-member-estimate';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useDetailedTask } from '@/core/hooks/tasks/use-detailed-task';
+import { cn } from '@/core/lib/helpers';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TCreateTaskEstimation } from '@/core/types/schemas/task/task-estimation.schema';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import {
 	Disclosure,
 	DisclosureButton,
@@ -9,28 +21,18 @@ import {
 	Transition
 } from '@headlessui/react';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
-import { useAtom, useAtomValue } from 'jotai';
+import { CheckIcon, Plus } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import React, { useCallback, useMemo, useState } from 'react';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
 import TaskRow from '../components/task-row';
-import React, { useCallback, useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { TaskEstimate } from '@/core/components/tasks/task-estimate';
-import { CheckIcon, Plus } from 'lucide-react';
-import {
-	Select,
-	Thumbnail
-} from '@/core/components/features/projects/add-or-edit-project/steps/basic-information-form';
-import { cn } from '@/core/lib/helpers';
-import { TOrganizationTeamEmployee } from '@/core/types/schemas';
-import { Card } from '@/core/components/duplicated-components/card';
-import { TaskMemberEstimate } from '@/core/components/tasks/task-member-estimate';
-import { TCreateTaskEstimation } from '@/core/types/schemas/task/task-estimation.schema';
-import { TTask } from '@/core/types/schemas/task/task.schema';
 
 const TaskEstimationsInfo = () => {
-	const [task] = useAtom(detailedTaskState);
+	const {
+		detailedTaskQuery: { data: task }
+	} = useDetailedTask();
 	const t = useTranslations();
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 
 	const teamMembers = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
 
@@ -124,7 +126,7 @@ export default TaskEstimationsInfo;
 
 function AddNewMemberEstimation({ task, onSuccess }: { task: TTask; onSuccess?: () => void }) {
 	const [selectedMember, setSelectedMember] = useState<TOrganizationTeamEmployee | null>(null);
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const teamMembers = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
 	const taskEstimation = useMemo<TCreateTaskEstimation>(
 		() => ({

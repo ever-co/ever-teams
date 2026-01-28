@@ -1,18 +1,20 @@
 import { Button } from '@/core/components';
-import { CheckIcon, Plus, X, LockIcon } from 'lucide-react';
-import { FormEvent, useCallback, useState, useMemo } from 'react';
-import { Identifiable, Select, Thumbnail } from './basic-information-form';
-import { IStepElementProps } from '../container';
+import { ROLES } from '@/core/constants/config/constants';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { cn } from '@/core/lib/helpers';
-import { useTranslations } from 'next-intl';
 import { getInitialValue } from '@/core/lib/helpers/create-project';
+import { organizationProjectsState, rolesState } from '@/core/stores';
 import { EProjectRelation } from '@/core/types/generics/enums/project';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { TProjectRelation } from '@/core/types/schemas';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, organizationProjectsState, organizationTeamsState, rolesState } from '@/core/stores';
-import { ROLES } from '@/core/constants/config/constants';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { CheckIcon, LockIcon, Plus, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { FormEvent, useCallback, useMemo, useState } from 'react';
+import { IStepElementProps } from '../container';
+import { Identifiable, Select, Thumbnail } from './basic-information-form';
+import { useOrganisationTeams } from '@/core/hooks/organizations/teams/use-organisation-teams';
 
 export default function TeamAndRelationsForm(props: IStepElementProps) {
 	const { goToNext, goToPrevious, currentData } = props;
@@ -30,8 +32,8 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 
 	// Get teams for multi-select
 	const organizationProjects = useAtomValue(organizationProjectsState);
-	const allTeams = useAtomValue(organizationTeamsState);
-	const activeTeam = useAtomValue(activeTeamState);
+	const { teams: allTeams } = useOrganisationTeams();
+	const activeTeam = useCurrentTeam();
 
 	// Filter available teams based on user role:
 	// - Admin: Can see all teams

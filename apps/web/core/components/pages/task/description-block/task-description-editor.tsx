@@ -1,25 +1,24 @@
-import Toolbar from './editor-toolbar';
-import {
-	TextEditorService,
-	withHtml,
-	withChecklists,
-	isValidSlateObject,
-	isMarkdown,
-	markdownToHtml
-} from '../../../../lib/helpers/text-editor-service';
+import { useDetailedTask } from '@/core/hooks/tasks/use-detailed-task';
 import isHotkey from 'is-hotkey';
-import { useCallback, useMemo, useRef, useState } from 'react';
-import { Editor, createEditor, Element as SlateElement, Descendant, Transforms, Range } from 'slate';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createEditor, Descendant, Editor, Range, Element as SlateElement, Transforms } from 'slate';
 import { withHistory } from 'slate-history';
-import { Editable, withReact, Slate } from 'slate-react';
-import EditorFooter from './editor-footer';
-import { useAtom } from 'jotai';
-import { detailedTaskState } from '@/core/stores';
+import { Editable, Slate, withReact } from 'slate-react';
 import { htmlToSlate } from 'slate-serializers';
-import { isHtml } from '../../../../lib/helpers/text-editor-service';
-import LinkElement from './editor-components/link-element';
 import { configHtmlToSlate } from '../../../../lib/helpers/text-editor-serializer-configurations';
+import {
+	isHtml,
+	isMarkdown,
+	isValidSlateObject,
+	markdownToHtml,
+	TextEditorService,
+	withChecklists,
+	withHtml
+} from '../../../../lib/helpers/text-editor-service';
 import CheckListElement from './editor-components/check-list-element';
+import LinkElement from './editor-components/link-element';
+import EditorFooter from './editor-footer';
+import Toolbar from './editor-toolbar';
 
 const HOTKEYS: { [key: string]: string } = {
 	'mod+b': 'bold',
@@ -38,42 +37,37 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 	const renderElement = useCallback((props: any) => <Element {...props} />, []);
 	const renderLeaf = useCallback((props: any) => <Leaf {...props} />, []);
 	const editor = useMemo(() => withChecklists(withHtml(withHistory(withReact(createEditor())))), []);
-	const [task] = useAtom(detailedTaskState);
+	const {
+		detailedTaskQuery: { data: task }
+	} = useDetailedTask();
 	const [isUpdated, setIsUpdated] = useState<boolean>(false);
-	const [editorValue, setEditorValue] = useState<any>();
+	/**
+	 * Editor value state - initialized with initialValue
+	 * Using a function initializer to ensure it's never undefined
+	 */
+	const [editorValue, setEditorValue] = useState<Descendant[]>(() => DEFAULT_SLATE_VALUE);
 	const editorRef = useRef<HTMLDivElement>(null);
 
+	/**
+	 * Compute initial Slate value from task description
+	 * This is memoized and only recalculates when task.id changes
+	 */
 	const initialValue = useMemo((): Descendant[] => {
-		let value;
-		if (task && task.description) {
-			if (isHtml(task.description)) {
-				// when value is an HTML
-				value = htmlToSlate(task.description, configHtmlToSlate);
-			} else if (isValidSlateObject(task.description)) {
-				//when value is Slate Object
-				value = JSON.parse(task.description) as Descendant[];
-			} else if (isMarkdown(task.description)) {
-				// when value is Markdown - convert to HTML first, then to Slate
-				const htmlFromMarkdown = markdownToHtml(task.description);
-				value = htmlToSlate(htmlFromMarkdown, configHtmlToSlate);
-			} else {
-				// Default case when the task.description is plain text
-				value = [
-					{
-						//@ts-ignore
-						type: 'paragraph',
-						children: [{ text: task.description as string }]
-					}
-				];
-			}
-		} else {
-			value = [{ type: 'paragraph', children: [{ text: '' }] }];
-		}
-		setEditorValue(value);
-		return value;
-	}, [task]);
+		return parseDescriptionToSlate(task?.description);
+	}, [task?.id]); // Only depend on task.id to avoid unnecessary recalculations
 
-	const clearUnsavedValues = () => {
+	/**
+	 * Sync editorValue when task changes (new task loaded)
+	 * This handles the case when React Query delivers cached data immediately
+	 */
+	useEffect(() => {
+		if (task?.id) {
+			const newValue = parseDescriptionToSlate(task.description);
+			setEditorValue(newValue);
+		}
+	}, [task?.id, task?.description]);
+
+	const clearUnsavedValues = useCallback(() => {
 		// Delete all entries leaving 1 empty node
 		Transforms.delete(editor, {
 			at: {
@@ -91,17 +85,20 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 		Transforms.insertNodes(editor, initialValue);
 
 		setIsUpdated(false);
-	};
+	}, [editor, initialValue]);
 
-	const selectEmoji = (emoji: { native: string }) => {
-		const { selection } = editor;
-		if (selection) {
-			const [start] = Editor.edges(editor, selection);
-			Transforms.insertText(editor, emoji.native, { at: start });
-			Transforms.collapse(editor, { edge: 'end' });
-		}
-		setIsUpdated(false);
-	};
+	const selectEmoji = useCallback(
+		(emoji: { native: string }) => {
+			const { selection } = editor;
+			if (selection) {
+				const [start] = Editor.edges(editor, selection);
+				Transforms.insertText(editor, emoji.native, { at: start });
+				Transforms.collapse(editor, { edge: 'end' });
+			}
+			setIsUpdated(true); // Fixed: should be true when emoji is added
+		},
+		[editor]
+	);
 
 	// Handle paste events to automatically convert markdown
 	const handlePaste = useCallback(
@@ -270,6 +267,17 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 		return false;
 	}, []);
 
+	// Don't render Slate until we have a valid value
+	// This prevents the "undefined value" error (from State initialValue)
+	if (!task) {
+		return (
+			<div className="flex flex-col prose dark:prose-invert" ref={editorRef}>
+				{/* TODO: Add a loading skeleton here */}
+				<div className="h-64 animate-pulse bg-gray-100 dark:bg-gray-800 rounded" />
+			</div>
+		);
+	}
+
 	return (
 		<div className="flex flex-col prose dark:prose-invert" ref={editorRef}>
 			{task && (
@@ -427,6 +435,54 @@ const Leaf = ({ attributes, children, leaf }: any) => {
 	}
 
 	return <span {...attributes}>{children}</span>;
+};
+
+/**
+ * Default empty Slate value - used as fallback to prevent undefined errors
+ */
+const DEFAULT_SLATE_VALUE: Descendant[] = [
+	{
+		// @ts-ignore - Slate type issue
+		type: 'paragraph',
+		children: [{ text: '' }]
+	}
+];
+
+/**
+ * Parse task description into Slate-compatible Descendant array
+ *
+ * @param description - Raw task description (HTML, Markdown, Slate JSON, or plain text)
+ * @returns Descendant[] - Slate-compatible value
+ */
+const parseDescriptionToSlate = (description: string | undefined | null): Descendant[] => {
+	if (!description) {
+		return DEFAULT_SLATE_VALUE;
+	}
+
+	// When value is HTML
+	if (isHtml(description)) {
+		return htmlToSlate(description, configHtmlToSlate);
+	}
+
+	// When value is already a Slate Object (JSON string)
+	if (isValidSlateObject(description)) {
+		return JSON.parse(description) as Descendant[];
+	}
+
+	// When value is Markdown - convert to HTML first, then to Slate
+	if (isMarkdown(description)) {
+		const htmlFromMarkdown = markdownToHtml(description);
+		return htmlToSlate(htmlFromMarkdown, configHtmlToSlate);
+	}
+
+	// Default case: plain text
+	return [
+		{
+			// @ts-ignore - Slate type issue
+			type: 'paragraph',
+			children: [{ text: description }]
+		}
+	];
 };
 
 export default RichTextEditor;

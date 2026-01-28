@@ -1,22 +1,23 @@
 import { Spinner } from '@/core/components/common/spinner';
+import { useCurrentActiveTask } from '@/core/hooks/organizations/teams/use-current-active-task';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
+import { useUpdateTaskMutation } from '@/core/hooks/organizations/teams/use-update-task.mutation';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
-import { useTeamTasks } from '@/core/hooks/organizations';
 import { IInviteProps } from '../teams/invite-modal';
-import { ETaskStatusName } from '@/core/types/generics/enums/task';
-import { useAtomValue } from 'jotai';
-import { activeTeamTaskState } from '@/core/stores';
 
 const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const { updateTask, updateLoading, setActiveTask } = useTeamTasks();
+	const { task: activeTeamTask } = useCurrentActiveTask();
+	const { mutateAsync: updateTask, isPending: updateLoading } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 	const t = useTranslations();
 	const handleChange = useCallback(async () => {
 		if (task) {
 			await updateTask({
-				...task,
-				status: ETaskStatusName.CLOSED
+				taskData: { ...task, status: ETaskStatusName.CLOSED },
+				taskId: task?.id
 			});
 		}
 		closeModal();

@@ -1,17 +1,18 @@
 'use client';
 
-import { useCallback } from 'react';
 import { TeamItem } from '@/core/components/teams/team-item';
 import { useTranslations } from 'next-intl';
-import { useOrganizationTeams } from './use-organization-teams';
-import { useTimer } from '../../activities';
+import { useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
-import { useAtomValue } from 'jotai';
-import { activeTeamState } from '@/core/stores';
+import { useTimer } from '../../activities';
+import { useSetActiveTeam } from './use-set-active-team';
+import { useGetOrganizationTeamQuery } from './use-get-organization-teams-query';
 
 export const useActiveTeam = () => {
-	const activeTeam = useAtomValue(activeTeamState);
-	const { setActiveTeam } = useOrganizationTeams();
+	const { data: activeTeamResult } = useGetOrganizationTeamQuery();
+	const activeTeam = useMemo(() => activeTeamResult?.data ?? null, [activeTeamResult]);
+
+	const setActiveTeam = useSetActiveTeam();
 	const { timerStatus, stopTimer } = useTimer();
 	const t = useTranslations();
 	const onChangeActiveTeam = useCallback(

@@ -1,17 +1,20 @@
 'use client';
 
 import { pad, secondsToTime } from '@/core/lib/helpers/index';
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { useTeamTasks } from '../organizations';
-import { useOutsideClick } from '../common';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useAtomValue } from 'jotai';
-import { activeTeamTaskState } from '@/core/stores';
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { useOutsideClick } from '../common';
+import { useCurrentActiveTask } from '../organizations/teams/use-current-active-task';
+import { useCurrentTeam } from '../organizations/teams/use-current-team';
+import { useUpdateTaskMutation } from '../organizations/teams/use-update-task.mutation';
+import { useSetActiveTask } from '../organizations/teams/use-set-active-task';
 
 export function useTaskEstimation(task?: Nullable<TTask>, useActiveTeamTaskByDefault = true) {
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const { updateTask, updateLoading, activeTeamId } = useTeamTasks();
+	const { task: activeTeamTask } = useCurrentActiveTask();
+	const activeTeam = useCurrentTeam();
+	const { mutateAsync: updateTask, isPending: updateLoading } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 	const [editableMode, setEditableMode] = useState(false);
 	const [value, setValue] = useState({ hours: '', minutes: '' });
 	const editMode = useRef(false);
@@ -97,9 +100,9 @@ export function useTaskEstimation(task?: Nullable<TTask>, useActiveTeamTaskByDef
 
 	useEffect(() => {
 		editMode.current = false;
-	}, [$task, activeTeamId]);
+	}, [$task, activeTeam?.id]);
 
-	const handleSubmit = useCallback(() => {
+	const handleSubmit = useCallback(async () => {
 		if (!$task) return;
 
 		const hours = +value['hours'];
@@ -114,12 +117,15 @@ export function useTaskEstimation(task?: Nullable<TTask>, useActiveTeamTaskByDef
 			return;
 		}
 
-		updateTask({
-			...$task,
-			estimateHours: hours,
-			estimateMinutes: minutes,
-			estimate: hours * 60 * 60 + minutes * 60 // time seconds
-		});
+		await updateTask({
+			taskId: $task?.id,
+			taskData: {
+				...$task,
+				estimateHours: hours,
+				estimateMinutes: minutes,
+				estimate: hours * 60 * 60 + minutes * 60 // time seconds
+			}
+		}).then((task) => setActiveTask(task));
 
 		setEditableMode(false);
 	}, [$task, updateTask, value]);

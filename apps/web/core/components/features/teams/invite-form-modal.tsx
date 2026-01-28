@@ -1,35 +1,37 @@
 'use client';
 
+import { BackButton, Button, Modal, Text } from '@/core/components';
+import { EverCard } from '@/core/components/common/ever-card';
+import { useTeamInvitations } from '@/core/hooks/organizations';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useTeamMemberInvitation } from '@/core/hooks/organizations/teams/use-team-member-invitations';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { rolesState, workingEmployeesState } from '@/core/stores';
+import { ERoleName } from '@/core/types/generics/enums/role';
 import { AxiosError } from 'axios';
 import { isEmail, isNotEmpty } from 'class-validator';
-import { BackButton, Button, Modal, Text } from '@/core/components';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
-import { InviteEmailDropdown } from '../../teams/invite/invite-email-dropdown';
-import { useTeamInvitations } from '@/core/hooks/organizations';
-import { EverCard } from '@/core/components/common/ever-card';
-import { InputField } from '../../duplicated-components/_input';
-import { IInviteEmail } from '../../teams/invite/invite-email-item';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../../common/select';
-import { useAtomValue } from 'jotai';
-import { activeTeamState, getTeamInvitationsState, rolesState, workingEmployeesState } from '@/core/stores';
-import { ERoleName } from '@/core/types/generics/enums/role';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { InputField } from '../../duplicated-components/_input';
+import { InviteEmailDropdown } from '../../teams/invite/invite-email-dropdown';
+import { IInviteEmail } from '../../teams/invite/invite-email-item';
 
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const { data: user } = useUserQuery();
 	const roles = useAtomValue(rolesState);
 	const t = useTranslations();
 
-	const teamInvitations = useAtomValue(getTeamInvitationsState);
+	const teamInvitations = useTeamMemberInvitation();
 	const { inviteUser, inviteLoading, resendTeamInvitation, resendInviteLoading } = useTeamInvitations();
 
 	const [errors, setErrors] = useState<{ email?: string; name?: string; role?: string }>({});
 	const [selectedEmail, setSelectedEmail] = useState<IInviteEmail>();
 	const workingEmployees = useAtomValue(workingEmployeesState);
 	const [currentOrgEmails, setCurrentOrgEmails] = useState<IInviteEmail[]>([]);
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const nameInputRef = useRef<HTMLInputElement>(null);
 	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const isLoading = inviteLoading || resendInviteLoading;

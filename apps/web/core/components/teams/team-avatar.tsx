@@ -1,26 +1,25 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { imgTitle } from '@/core/lib/helpers/index';
-import { useAuthenticateUser } from '@/core/hooks';
-import { clsxm } from '@/core/lib/utils';
 import { Button } from '@/core/components';
+import { useAuthenticateUser } from '@/core/hooks';
+import { useImageAssets } from '@/core/hooks/common/use-image-assets';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useUpdateOrganizationTeam } from '@/core/hooks/organizations/teams/use-update-organization-team';
+import { imgTitle } from '@/core/lib/helpers/index';
+import { clsxm } from '@/core/lib/utils';
+import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import Image from 'next/image';
 import { readableColor } from 'polished';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useTranslations } from 'next-intl';
 import stc from 'string-to-color';
-import { useImageAssets } from '@/core/hooks/common/use-image-assets';
 import { Avatar } from '../duplicated-components/avatar';
-import { useAtomValue } from 'jotai';
-import { activeTeamState } from '@/core/stores';
-import { useUpdateOrganizationTeam } from '@/core/hooks/organizations/teams/use-update-organization-team';
 
 export const TeamAvatar = ({ disabled, bgColor }: { disabled: boolean; bgColor?: string | null }) => {
 	const t = useTranslations();
 	const { register } = useForm();
 	const [avatarBtn, setAvatarBtn] = useState(false);
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const { updateOrganizationTeam } = useUpdateOrganizationTeam();
 	const { createImageAssets } = useImageAssets();
 	const { user } = useAuthenticateUser();

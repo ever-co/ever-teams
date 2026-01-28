@@ -1,21 +1,30 @@
+import { useCreateOrganizationTeam } from '@/core/hooks/organizations/teams/use-create-organization-team';
+import {
+	useGetOrganizationTeamQuery,
+	useGetOrganizationTeamsQuery
+} from '@/core/hooks/organizations/teams/use-get-organization-teams-query';
+import { useSetActiveTeam } from '@/core/hooks/organizations/teams/use-set-active-team';
 import { imgTitle } from '@/core/lib/helpers/img-title';
+import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { PlusIcon } from '@heroicons/react/24/solid';
-import { useState } from 'react';
-import { Spinner } from '../common/spinner';
 import { useTranslations } from 'next-intl';
-import { useOrganizationTeams } from '@/core/hooks/organizations';
-import { clsxm } from '@/core/lib/utils';
-import { activeTeamState, organizationTeamsState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+import { useMemo, useState } from 'react';
+import { Spinner } from '../common/spinner';
+
 export const TeamsDropDown = () => {
 	const [edit, setEdit] = useState<boolean>(false);
 
-	const activeTeam = useAtomValue(activeTeamState);
-	const teams = useAtomValue(organizationTeamsState);
-	const { setActiveTeam, getOrganizationTeamsLoading } = useOrganizationTeams();
+	const { data: activeTeamResult } = useGetOrganizationTeamQuery();
+	const activeTeam = useMemo(() => activeTeamResult?.data ?? null, [activeTeamResult]);
+
+	const { data: teamsResult, isPending: getOrganizationTeamsLoading } = useGetOrganizationTeamsQuery();
+	const teams = useMemo(() => teamsResult?.data?.items ?? [], [teamsResult]);
+
+	const setActiveTeam = useSetActiveTeam();
+
 	const t = useTranslations();
 	return (
 		<div className="w-[290px] max-w-sm">
@@ -117,7 +126,8 @@ export const TeamsDropDown = () => {
 };
 
 function CreateNewTeam({ setEdit }: { setEdit: (value: React.SetStateAction<boolean>) => void }) {
-	const { createOTeamLoading, createOrganizationTeam } = useOrganizationTeams();
+	const { createOrganizationTeam, loading: createOTeamLoading } = useCreateOrganizationTeam();
+
 	const [error, setError] = useState<string | null>(null);
 	const t = useTranslations();
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

@@ -1,15 +1,14 @@
 'use client';
-import { useModal } from '@/core/hooks';
-import { clsxm } from '@/core/lib/utils';
+import { NoTeamIcon } from '@/assets/svg';
 import { Button, Text } from '@/core/components';
-import React, { PropsWithChildren } from 'react';
+import { useModal } from '@/core/hooks';
+import { useOrganisationTeams } from '@/core/hooks/organizations/teams/use-organisation-teams';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { clsxm } from '@/core/lib/utils';
 import { useTranslations } from 'next-intl';
+import React, { PropsWithChildren } from 'react';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { CreateTeamModal } from '../features/teams/create-team-modal';
-import { organizationTeamsState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { NoTeamIcon } from '@/assets/svg';
 
 type Props = PropsWithChildren & React.ComponentPropsWithRef<'div'>;
 const NoTeam = ({ className, ...rest }: Props) => {
@@ -17,7 +16,7 @@ const NoTeam = ({ className, ...rest }: Props) => {
 	const { isOpen, closeModal, openModal } = useModal();
 	const { data: user } = useUserQuery();
 
-	const teams = useAtomValue(organizationTeamsState);
+	const { teams } = useOrganisationTeams();
 
 	React.useEffect(() => {
 		closeModal();

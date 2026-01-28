@@ -25,7 +25,8 @@ import {
 	LazySetupTimeSheet,
 	LazyAddManualTimeModal
 } from '@/core/components/optimized-components/calendar';
-import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
+import { isTrackingEnabledState } from '@/core/stores';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 
 const CalendarPage = () => {
 	const t = useTranslations();
@@ -33,7 +34,7 @@ const CalendarPage = () => {
 
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const [calendarTimeSheet, setCalendarTimeSheet] = useLocalStorageState<timesheetCalendar>(
 		'calendar-timesheet',
 		'Calendar'

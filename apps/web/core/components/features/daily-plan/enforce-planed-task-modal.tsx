@@ -1,12 +1,11 @@
-import { useAuthenticateUser, useDailyPlan, useTimer } from '@/core/hooks';
 import { Button, Modal, Text } from '@/core/components';
+import { useAuthenticateUser, useDailyPlan, useTimer } from '@/core/hooks';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useTranslations } from 'next-intl';
 import { ReactNode, useCallback, useMemo } from 'react';
 import { EverCard } from '../../common/ever-card';
-import { TTask } from '@/core/types/schemas/task/task.schema';
-import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
-import { useAtomValue } from 'jotai';
-import { activeTeamState } from '@/core/stores';
 
 interface IEnforcePlannedTaskModalProps {
 	open: boolean;
@@ -26,7 +25,7 @@ export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 
 	const { hasPlan } = useTimer();
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 

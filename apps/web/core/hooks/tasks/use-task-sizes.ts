@@ -1,21 +1,22 @@
 'use client';
-import { activeTeamIdState, activeTeamState } from '@/core/stores';
-import { taskSizesListState } from '@/core/stores/tasks/task-sizes';
-import { useCallback } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useFirstLoad } from '../common/use-first-load';
-import { taskSizeService } from '@/core/services/client/api/tasks/task-size.service';
-import { ITaskSizesCreate } from '@/core/types/interfaces/task/task-size';
 import { queryKeys } from '@/core/query/keys';
+import { taskSizeService } from '@/core/services/client/api/tasks/task-size.service';
+import { activeTeamIdState } from '@/core/stores';
+import { taskSizesListState } from '@/core/stores/tasks/task-sizes';
+import { ITaskSizesCreate } from '@/core/types/interfaces/task/task-size';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAtom, useAtomValue } from 'jotai';
+import { useCallback } from 'react';
 import { useConditionalUpdateEffect } from '../common';
+import { useFirstLoad } from '../common/use-first-load';
+import { useCurrentTeam } from '../organizations/teams/use-current-team';
 
 export function useTaskSizes() {
 	const activeTeamId = useAtomValue(activeTeamIdState);
 	const [taskSizes, setTaskSizes] = useAtom(taskSizesListState);
 	const { firstLoadData: firstLoadTaskSizesData } = useFirstLoad();
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const queryClient = useQueryClient();
 
 	const teamId = activeTeam?.id || activeTeamId;

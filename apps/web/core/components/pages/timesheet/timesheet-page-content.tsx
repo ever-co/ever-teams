@@ -11,6 +11,17 @@ import { useLocalStorageState, useModal } from '@/core/hooks';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { useAtomValue } from 'jotai';
 
+import { TimesheetDetailModalSkeleton } from '@/core/components/common/skeleton/timesheet-skeletons';
+import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
+import { IconsSearch } from '@/core/components/icons';
+import {
+	LazyCalendarView,
+	LazyTimesheetCard,
+	LazyTimesheetDetailModal,
+	LazyTimesheetFilter,
+	LazyTimesheetPagination,
+	LazyTimesheetView
+} from '@/core/components/optimized-components/calendar';
 import {
 	CalendarViewIcon,
 	ListViewIcon,
@@ -19,27 +30,16 @@ import {
 	PendingTaskIcon,
 	SelectedTimesheet
 } from '@/core/components/timesheet';
-import { ArrowLeftIcon } from 'assets/svg';
-import type { IconBaseProps } from 'react-icons';
-import { TimesheetDetailModalSkeleton } from '@/core/components/common/skeleton/timesheet-skeletons';
-import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
-import { IconsSearch } from '@/core/components/icons';
 import { ViewToggleButton } from '@/core/components/timesheet/timesheet-toggle-view';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { useTimesheetFilters } from '@/core/hooks/activities/use-timesheet-filters';
 import { useTimesheetPagination } from '@/core/hooks/activities/use-timesheet-pagination';
 import { useTimesheetViewData } from '@/core/hooks/activities/use-timesheet-view-data';
-import { differenceBetweenHours, getGreeting, secondsToTime } from '@/core/lib/helpers/index';
-import { activeTeamState } from '@/core/stores';
-import {
-	LazyCalendarView,
-	LazyTimesheetView,
-	LazyTimesheetDetailModal,
-	LazyTimesheetFilter,
-	LazyTimesheetCard,
-	LazyTimesheetPagination
-} from '@/core/components/optimized-components/calendar';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { differenceBetweenHours, getGreeting, secondsToTime } from '@/core/lib/helpers/index';
+import { ArrowLeftIcon } from 'assets/svg';
+import type { IconBaseProps } from 'react-icons';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
 export type TimesheetDetailMode = 'Pending' | 'MenHours' | 'MemberWork';
@@ -56,7 +56,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 		return [10, 20, 30, 50];
 	};
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 
 	const isTrackingEnabled = !!activeTeam?.members?.find(
 		(member) => member.employee?.userId === user?.id && member.isTrackingEnabled

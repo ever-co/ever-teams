@@ -1,25 +1,27 @@
 import '@/styles/style.css';
 
-import { format } from 'date-fns';
 import { Button, Modal } from '@/core/components';
 import { cn } from '@/core/lib/helpers';
+import { format } from 'date-fns';
 import { CalendarDays, Clock7 } from 'lucide-react';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { DatePicker } from '@/core/components/common/date-picker';
 import { manualTimeReasons } from '@/core/constants/config/constants';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
+import { useCurrentActiveTask } from '@/core/hooks/organizations/teams/use-current-active-task';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useOrganisationTeams } from '@/core/hooks/organizations/teams/use-organisation-teams';
+import { useSortedTasksByCreation } from '@/core/hooks/organizations/teams/use-sorted-tasks';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { clsxm } from '@/core/lib/utils';
-import { DatePicker } from '@/core/components/common/date-picker';
-import { getNestedValue, Item, ManageOrMemberComponent } from '../../teams/manage-member-component';
-import { CustomSelect } from '../../common/multiple-select';
 import { IAddManualTimeRequest } from '@/core/types/interfaces/timer/time-slot/time-slot';
 import { TOrganizationTeam } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { useAtomValue } from 'jotai';
-import { activeTeamState, activeTeamTaskState, organizationTeamsState, tasksByTeamState } from '@/core/stores';
+import { CustomSelect } from '../../common/multiple-select';
+import { getNestedValue, Item, ManageOrMemberComponent } from '../../teams/manage-member-component';
 
 /**
  * Interface for the properties of the `AddManualTimeModal` component.
@@ -53,10 +55,11 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const [taskId, setTaskId] = useState<string>('');
 	const [timeDifference, setTimeDifference] = useState<string>('');
 
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const tasks = useAtomValue(tasksByTeamState);
-	const activeTeam = useAtomValue(activeTeamState);
-	const teams = useAtomValue(organizationTeamsState);
+	const { task: activeTeamTask } = useCurrentActiveTask();
+
+	const tasks = useSortedTasksByCreation();
+	const activeTeam = useCurrentTeam();
+	const { teams } = useOrganisationTeams();
 	const { data: user } = useUserQuery();
 	const { isTeamManager } = useIsMemberManager(user);
 
@@ -232,7 +235,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				return [];
 			}
 
-			const validTasks = tasks.filter(isValidTask);
+			const validTasks = tasks.filter((task) => isValidTask(task));
 			const teamFilteredTasks = validTasks.filter((task) => filterByTeam(task, teamId));
 
 			const finalFilteredTasks = isTeamManager

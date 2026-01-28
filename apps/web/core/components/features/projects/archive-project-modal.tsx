@@ -1,16 +1,19 @@
-import { useOrganizationProjects, useTeamTasks } from '@/core/hooks';
-import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import { Button, Modal, Text } from '@/core/components';
+import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
+import { useOrganizationProjects } from '@/core/hooks';
+import { useUpdateTaskMutation } from '@/core/hooks/organizations/teams/use-update-task.mutation';
+import { clsxm } from '@/core/lib/utils';
+import { organizationProjectsState } from '@/core/stores';
+import { TOrganizationProject } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useAtomValue } from 'jotai';
+import moment from 'moment';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
-import { clsxm } from '@/core/lib/utils';
-import moment from 'moment';
 import { toast } from 'sonner';
 import { EverCard } from '../../common/ever-card';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
-import { TOrganizationProject } from '@/core/types/schemas';
-import { useAtomValue } from 'jotai';
-import { organizationProjectsState } from '@/core/stores';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
 
 interface IArchiveProjectModalProps {
 	open: boolean;
@@ -35,19 +38,22 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 	const { setOrganizationProjects, editOrganizationProject, editOrganizationProjectLoading } =
 		useOrganizationProjects();
 
-	const { updateTask } = useTeamTasks();
+	const { mutateAsync: updateTask } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 	const project = useMemo(
 		() => organizationProjects.find((project) => project.id === projectId),
 		[organizationProjects, projectId]
 	);
-	const affectedTasks = useMemo(() => project?.tasks ?? [], [project]);
+	const affectedTasks: TTask[] = useMemo(() => project?.tasks ?? [], [project]);
 
 	const unlinkAffectedTasks = useCallback(async () => {
 		try {
 			if (affectedTasks.length) {
 				await Promise.all(
 					affectedTasks.map(async (task) => {
-						await updateTask({ ...task, projectId: undefined });
+						await updateTask({ taskId: task?.id, taskData: { ...task, projectId: undefined } }).then(
+							(task) => setActiveTask(task)
+						);
 					})
 				);
 			}

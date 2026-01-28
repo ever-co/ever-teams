@@ -1,29 +1,29 @@
 'use client';
 import { Container } from '@/core/components';
-import { MainLayout } from '@/core/components/layouts/default-layout';
-import { useParams } from 'next/navigation';
-import { useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/common/full-width';
-import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { getCoreRowModel, getFilteredRowModel, useReactTable, VisibilityState } from '@tanstack/react-table';
-import { cn, getStatusColor } from '@/core/lib/helpers';
 import { Input } from '@/core/components/common/input';
-import { Check, Search, Settings2 } from 'lucide-react';
-import { usePagination } from '@/core/hooks/common/use-pagination';
-import { Menu, Transition } from '@headlessui/react';
+import { Button } from '@/core/components/duplicated-components/_button';
+import { Paginate } from '@/core/components/duplicated-components/_pagination';
+import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
+import { MainLayout } from '@/core/components/layouts/default-layout';
+import { TeamTasksPageSkeleton } from '@/core/components/layouts/skeletons/team-tasks-page-skeleton';
 import { columns, hidableColumnNames } from '@/core/components/pages/teams/team/tasks/columns';
 import StatusBadge from '@/core/components/pages/teams/team/tasks/status-badge';
 import { TaskTable } from '@/core/components/pages/teams/team/tasks/task-table';
-import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
-import { Paginate } from '@/core/components/duplicated-components/_pagination';
-import { Button } from '@/core/components/duplicated-components/_button';
+import { usePagination } from '@/core/hooks/common/use-pagination';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useSortedTasksByCreation } from '@/core/hooks/organizations/teams/use-sorted-tasks';
+import { cn, getStatusColor } from '@/core/lib/helpers';
+import { fullWidthState } from '@/core/stores/common/full-width';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
-import { ColumnDef } from '@tanstack/react-table';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { TeamTasksPageSkeleton } from '@/core/components/layouts/skeletons/team-tasks-page-skeleton';
-import { activeTeamState, tasksByTeamState } from '@/core/stores';
+import { Menu, Transition } from '@headlessui/react';
+import { ColumnDef, getCoreRowModel, getFilteredRowModel, useReactTable, VisibilityState } from '@tanstack/react-table';
+import { useAtomValue } from 'jotai';
+import { Check, Search, Settings2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useParams } from 'next/navigation';
+import { useMemo, useState } from 'react';
 
 const TeamTask = () => {
 	const t = useTranslations();
@@ -31,7 +31,8 @@ const TeamTask = () => {
 	const fullWidth = useAtomValue(fullWidthState);
 	const currentLocale = params ? params.locale : null;
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
+
 	const breadcrumbPath = useMemo(
 		() => [
 			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
@@ -41,7 +42,7 @@ const TeamTask = () => {
 		[activeTeam?.name, currentLocale, t]
 	);
 
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasksByCreation();
 	const [searchTaskTerm, setSearchTaskTerm] = useState('');
 	const filteredTasks = useMemo(
 		() => tasks.filter((el) => el.title.toLowerCase().includes(searchTaskTerm.toLowerCase())),

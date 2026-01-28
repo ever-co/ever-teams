@@ -1,9 +1,8 @@
 import { TaskEstimateInfo } from '@/core/components/pages/teams/team/team-members-views/user-team-card/task-estimate';
 import { I_UserProfilePage, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
-import { activeTeamState } from '@/core/stores';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { CellContext } from '@tanstack/react-table';
-import { useAtomValue } from 'jotai';
 import { get } from 'lodash';
 import { useMemo } from 'react';
 
@@ -11,7 +10,7 @@ export default function DailyPlanTaskEstimationCell(props: CellContext<TTask, un
 	const plan = get(props.column, 'columnDef.meta.plan');
 	const profile = get(props.column, 'columnDef.meta.profile') as unknown as I_UserProfilePage;
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const members = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
 	const currentMember = useMemo(
 		() =>

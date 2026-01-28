@@ -1,25 +1,24 @@
-import { Button } from '@/core/components/duplicated-components/_button';
 import {
 	DropdownMenu,
-	DropdownMenuTrigger,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuSeparator
+	DropdownMenuSeparator,
+	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { useAuthenticateUser, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
-import { FC, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { FC, useCallback } from 'react';
 
-import { toast } from 'sonner';
-import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Spinner } from '@/core/components/common/spinner';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 import { useFavoriteTasks } from '@/core/hooks/tasks/use-favorites-task';
-import { activeTeamState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { toast } from 'sonner';
 
 const DropdownMenuTask: FC<{ task: TTask }> = ({ task }) => {
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const router = useRouter();
 	const { user } = useAuthenticateUser();
 	const isAssigned = task?.members?.some((m) => m?.user?.id === user?.id);

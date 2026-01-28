@@ -1,23 +1,25 @@
-import React from 'react';
-import { Button } from '@/core/components/duplicated-components/_button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { SettingFilterIcon } from '@/assets/svg';
-import { useTranslations } from 'next-intl';
+import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useSortedTasksByCreation } from '@/core/hooks/organizations/teams/use-sorted-tasks';
 import { cn } from '@/core/lib/helpers';
-import { statusTable } from '../../timesheet/timesheet-action';
-import { MultiSelect } from '../../common/multi-select';
+import { organizationProjectsState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
+import { useTranslations } from 'next-intl';
+import React from 'react';
+import { MultiSelect } from '../../common/multi-select';
+import { statusTable } from '../../timesheet/timesheet-action';
 
 export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover() {
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 
 	const organizationProjects = useAtomValue(organizationProjectsState);
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasksByCreation();
 
 	const t = useTranslations();
 	const { setEmployeeState, setProjectState, setStatusState, setTaskState, employee, project, statusState, task } =

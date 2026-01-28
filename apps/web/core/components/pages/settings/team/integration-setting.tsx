@@ -1,22 +1,20 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { GitHubLogoIcon } from '@radix-ui/react-icons';
-import { useTranslations } from 'next-intl';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
-import { useGitHubIntegration, useIntegrationTenant, useIntegrationTypes } from '@/core/hooks';
-import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
-import { GITHUB_APP_NAME } from '@/core/constants/config/constants';
-import { useOrganizationProjects } from '@/core/hooks';
-import { TrashIcon } from 'assets/svg';
 import { Button } from '@/core/components';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
+import { InputField } from '@/core/components/duplicated-components/_input';
+import { GITHUB_APP_NAME } from '@/core/constants/config/constants';
+import { useGitHubIntegration, useIntegrationTenant, useIntegrationTypes, useOrganizationProjects } from '@/core/hooks';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 import { getActiveProjectIdCookie } from '@/core/lib/helpers/index';
 import { Switch } from '@headlessui/react';
+import { GitHubLogoIcon } from '@radix-ui/react-icons';
+import { TrashIcon } from 'assets/svg';
 import debounce from 'lodash/debounce';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import qs from 'qs';
-import { InputField } from '@/core/components/duplicated-components/_input';
-import { useAtomValue } from 'jotai';
-import { activeTeamState } from '@/core/stores';
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 export const IntegrationSetting = () => {
 	const t = useTranslations();
@@ -39,7 +37,7 @@ export const IntegrationSetting = () => {
 
 	const url = `https://github.com/apps/${GITHUB_APP_NAME.value}/installations/new?${queries.toString()}`;
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 
 	const [selectedRepo, setSelectedRepo] = useState<string | undefined>(undefined);
 

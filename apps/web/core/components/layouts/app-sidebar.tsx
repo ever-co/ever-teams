@@ -1,54 +1,56 @@
-import * as React from 'react';
 import {
+	AudioWaveform,
+	Command,
+	FolderKanban,
+	GalleryVerticalEnd,
+	LoaderCircle,
 	MonitorSmartphone,
 	SquareActivity,
-	X,
-	Command,
-	AudioWaveform,
-	GalleryVerticalEnd,
-	FolderKanban,
-	LoaderCircle
+	X
 } from 'lucide-react';
 import Image from 'next/image';
+import * as React from 'react';
 
 import {
 	Sidebar,
 	SidebarContent,
-	SidebarHeader,
-	SidebarRail,
-	SidebarTrigger,
-	useSidebar,
-	SidebarMenuSubButton,
 	SidebarFooter,
-	SidebarSeparator
+	SidebarHeader,
+	SidebarMenuSubButton,
+	SidebarRail,
+	SidebarSeparator,
+	SidebarTrigger,
+	useSidebar
 } from '@/core/components/common/sidebar';
-import Link from 'next/link';
+import { useFavorites, useModal } from '@/core/hooks';
 import { cn } from '@/core/lib/helpers';
 import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
-import { useFavorites, useModal } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
-import { SidebarOptInForm } from './sidebar-opt-in-form';
+import Link from 'next/link';
 import { useMemo } from 'react';
+import { WorkspacesSwitcher } from '../common/workspace-switcher';
 import { DashboardIcon, FavoriteIcon, HomeIcon, InboxIcon, SidebarTaskIcon } from '../icons';
 import { TaskIssueStatus } from '../tasks/task-issue';
-import { WorkspacesSwitcher } from '../common/workspace-switcher';
+import { SidebarOptInForm } from './sidebar-opt-in-form';
 // Import optimized components from centralized location
+import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 import { LazySidebarCommandModal } from '@/core/components/optimized-components/common';
 import { LazyCreateTeamModal } from '@/core/components/optimized-components/teams';
-import { NavHome } from '../nav-home';
-import { NavMain } from './nav-main';
-import { Suspense } from 'react';
-import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
+import { APP_NAME } from '@/core/constants/config/constants';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useSortedTasksByCreation } from '@/core/hooks/organizations/teams/use-sorted-tasks';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { isTeamManagerState, organizationProjectsState } from '@/core/stores';
+import { currentEmployeeFavoritesState } from '@/core/stores/common/favorites';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
-import { currentEmployeeFavoritesState } from '@/core/stores/common/favorites';
-import { activeTeamState, isTeamManagerState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { APP_NAME } from '@/core/constants/config/constants';
+import { Suspense } from 'react';
 import { GlobalAllPlansModal } from '../daily-plan';
-import { GlobalAssignTaskModal } from '../features/tasks/global-assign-task-modal';
 import { GlobalProjectActionModal } from '../features/projects/global-project-action-modal';
+import { GlobalAssignTaskModal } from '../features/tasks/global-assign-task-modal';
+import { NavHome } from '../nav-home';
+import { NavMain } from './nav-main';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { data: user } = useUserQuery();
@@ -57,11 +59,11 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const isTeamManager = useAtomValue(isTeamManagerState);
 	const { state } = useSidebar();
 	const currentEmployeeFavorites = useAtomValue(currentEmployeeFavoritesState);
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasksByCreation();
 	const { isOpen, closeModal } = useModal();
 	const t = useTranslations();
 	const organizationProjects = useAtomValue(organizationProjectsState);
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 
 	// Filter projects based on active team context:
 	// - "All Teams" mode (no active team): show ALL projects

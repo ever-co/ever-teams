@@ -1,14 +1,15 @@
-import { secondsToTime } from '@/core/lib/helpers/date-and-time';
-import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
-import { activeTaskStatisticsState, activeTeamTaskState, timerSecondsState } from '@/core/stores';
-import { RawStatusDropdown } from '@/core/components/tasks/status-dropdown';
 import { ProgressBar } from '@/core/components/common/progress-bar';
 import Separator from '@/core/components/common/separator';
+import { RawStatusDropdown } from '@/core/components/tasks/status-dropdown';
+import { useCurrentActiveTask } from '@/core/hooks/organizations/teams/use-current-active-task';
+import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
+import { secondsToTime } from '@/core/lib/helpers/date-and-time';
+import { activeTaskStatisticsState, timerSecondsState } from '@/core/stores';
+import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useRef } from 'react';
-import { useAtomValue } from 'jotai';
-import { TTask } from '@/core/types/schemas/task/task.schema';
-import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
 
 interface ITaskDetailCard {
 	now?: boolean;
@@ -22,7 +23,7 @@ const TaskDetailCard = ({ now = false, task }: ITaskDetailCard) => {
 
 	let taskStat: TTaskStatistic | null | undefined = null;
 
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { task: activeTeamTask } = useCurrentActiveTask();
 
 	const statActiveTask = useAtomValue(activeTaskStatisticsState);
 

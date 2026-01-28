@@ -1,36 +1,37 @@
 'use client';
+import { ReportsPageSkeleton } from '@/core/components/common/skeleton/reports-page-skeleton';
+import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { MainLayout } from '@/core/components/layouts/default-layout';
-import { useEffect, useMemo, useState } from 'react';
-import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
-import { useTimeLimits } from '@/core/hooks/activities/use-time-limits';
-import { DateRange } from 'react-day-picker';
-import { endOfMonth, startOfMonth } from 'date-fns';
-import moment from 'moment';
-import { usePagination } from '@/core/hooks/common/use-pagination';
-import { getUserOrganizationsRequest } from '@/core/services/server/requests';
-import { useTranslations } from 'next-intl';
+import { TGroupByOption } from '@/core/components/pages/reports/weekly-limit/group-by-select';
 import { groupDataByEmployee } from '@/core/components/pages/reports/weekly-limit/time-report-table';
-import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
+import { useTimeLimits } from '@/core/hooks/activities/use-time-limits';
+import { usePagination } from '@/core/hooks/common/use-pagination';
+import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
+import { getUserOrganizationsRequest } from '@/core/services/server/requests';
 import { IOrganization } from '@/core/types/interfaces/organization/organization';
 import { TTimeLimitReportList } from '@/core/types/schemas';
-import { TGroupByOption } from '@/core/components/pages/reports/weekly-limit/group-by-select';
-import { ReportsPageSkeleton } from '@/core/components/common/skeleton/reports-page-skeleton';
+import { endOfMonth, startOfMonth } from 'date-fns';
+import moment from 'moment';
+import { useTranslations } from 'next-intl';
+import { useEffect, useMemo, useState } from 'react';
+import { DateRange } from 'react-day-picker';
 // Skeletons are now handled by optimized components
 
 // Import optimized components from centralized location
 import {
-	LazyGroupBySelect,
-	LazyWeeklyLimitExportMenu,
-	LazyTimeReportTable,
 	LazyDatePickerWithRange,
+	LazyGroupBySelect,
 	LazyMembersSelect,
+	LazyPaginate,
+	LazyTimeReportTable,
 	LazyTimeReportTableByMember,
-	LazyPaginate
+	LazyWeeklyLimitExportMenu
 } from '@/core/components/optimized-components/reports';
-import { activeTeamState, isTrackingEnabledState, myPermissionsState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { isTrackingEnabledState, myPermissionsState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 
 function WeeklyLimitReport() {
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
@@ -58,7 +59,7 @@ function WeeklyLimitReport() {
 			},
 		[organization]
 	);
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const [member, setMember] = useState<string>('all');
 	const [dateRange, setDateRange] = useState<DateRange>({
 		from: startOfMonth(new Date()),

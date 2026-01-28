@@ -1,21 +1,22 @@
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import Separator from '@/core/components/common/separator';
 import DropdownUser from '@/core/components/teams/members-card/users-card-menu';
+import { useOutsideClick } from '@/core/hooks/common';
+import { useIsMemberManager } from '@/core/hooks/organizations';
+import { useCurrentActiveTask } from '@/core/hooks/organizations/teams/use-current-active-task';
+import { useUpdateTaskMutation } from '@/core/hooks/organizations/teams/use-update-task.mutation';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { mergeRefs } from '@/core/lib/helpers/merge-refs';
-import Separator from '@/core/components/common/separator';
-import { WorkedOnTask } from './worked-on-task';
-import { Worked24Hours } from './worked-24-hours';
-import { MemberInfo } from './member-info';
-import { TaskInfo } from './task-info';
-import { EstimateTimeInfo } from './estimate-time-info';
-import { useIsMemberManager, useTeamTasks } from '@/core/hooks/organizations';
-import { useOutsideClick } from '@/core/hooks/common';
 import { MemberCardEditableValues } from '@/core/types/interfaces/organization/employee';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { useAtomValue } from 'jotai';
-import { activeTeamTaskState } from '@/core/stores';
+import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { EstimateTimeInfo } from './estimate-time-info';
+import { MemberInfo } from './member-info';
+import { TaskInfo } from './task-info';
+import { Worked24Hours } from './worked-24-hours';
+import { WorkedOnTask } from './worked-on-task';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
 
 export type MembersCard_EditableValues = {
 	memberName: string;
@@ -28,8 +29,9 @@ const Card = ({ member }: { member: TOrganizationTeamEmployee }) => {
 	const { data: user } = useUserQuery();
 
 	const { isTeamManager } = useIsMemberManager(user);
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const { updateTask, updateLoading } = useTeamTasks();
+	const { task: activeTeamTask } = useCurrentActiveTask();
+	const { mutateAsync: updateTask, isPending: updateLoading } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 	const isAuthUser = member.employee?.userId === user?.id;
 	const isManager = isAuthUser && isTeamManager;
 	const iuser = member.employee?.user;
@@ -50,7 +52,7 @@ const Card = ({ member }: { member: TOrganizationTeamEmployee }) => {
 
 	useEffect(() => {
 		if (isAuthUser) {
-			setMemberTask(activeTeamTask);
+			setMemberTask(activeTeamTask ?? null);
 		}
 	}, [activeTeamTask, isAuthUser]);
 
@@ -105,9 +107,9 @@ const Card = ({ member }: { member: TOrganizationTeamEmployee }) => {
 	const handleTaskEdit = async () => {
 		if (memberTask && memberTask.title !== formValues.memberTask) {
 			await updateTask({
-				...memberTask,
-				title: formValues.memberTask
-			});
+				taskId: memberTask?.id,
+				taskData: { ...memberTask, title: formValues.memberTask }
+			}).then((task) => setActiveTask(task));
 		}
 		setTaskEditMode(false);
 	};
@@ -137,11 +139,14 @@ const Card = ({ member }: { member: TOrganizationTeamEmployee }) => {
 		blurEstimationFields();
 
 		await updateTask({
-			...memberTask,
-			estimateHours: hours,
-			estimateMinutes: minutes,
-			estimate: hours * 60 * 60 + minutes * 60 // time seconds
-		});
+			taskId: memberTask?.id,
+			taskData: {
+				...memberTask,
+				estimateHours: hours,
+				estimateMinutes: minutes,
+				estimate: hours * 60 * 60 + minutes * 60 // time seconds
+			}
+		}).then((task) => setActiveTask(task));
 
 		setEstimateEditMode(false);
 	}, [memberTask, formValues, updateTask, blurEstimationFields]);

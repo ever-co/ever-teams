@@ -1,5 +1,14 @@
 'use client';
-import { secondsToTime, tomorrowDate } from '@/core/lib/helpers/index';
+import { SpinnerLoader, Text } from '@/core/components';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuPortal,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger
+} from '@/core/components/common/dropdown-menu';
+import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
 import {
 	I_TeamMemberCardHook,
 	I_UserProfilePage,
@@ -10,52 +19,45 @@ import {
 	useTaskStatistics,
 	useTeamMemberCard
 } from '@/core/hooks';
+import { useCurrentActiveTask } from '@/core/hooks/organizations/teams/use-current-active-task';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
-import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
+import { useFavoriteTasks } from '@/core/hooks/tasks/use-favorites-task';
+import { useTimerButtonLogic } from '@/core/hooks/tasks/use-timer-button';
+import { secondsToTime, tomorrowDate } from '@/core/lib/helpers/index';
+import { clsxm } from '@/core/lib/utils';
+import { timerSecondsState } from '@/core/stores';
+import { Nullable, SetAtom } from '@/core/types/generics';
+import { EDailyPlanMode, EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
+import { IClassName } from '@/core/types/interfaces/common/class-name';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import {
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlansRequest
 } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { activeTeamState, activeTeamTaskState, timerSecondsState } from '@/core/stores';
-import { clsxm } from '@/core/lib/utils';
-import {
-	DropdownMenu,
-	DropdownMenuTrigger,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuPortal
-} from '@/core/components/common/dropdown-menu';
-import { SpinnerLoader, Text } from '@/core/components';
+import { TDailyPlan, TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { ReloadIcon } from '@radix-ui/react-icons';
+import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
+import { SetStateAction, useAtomValue } from 'jotai';
+import { LoaderCircle } from 'lucide-react';
+import moment from 'moment';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import React, { useCallback, useMemo, useState, useTransition } from 'react';
-import { SetStateAction, useAtomValue } from 'jotai';
+import { toast } from 'sonner';
+import { EverCard } from '../common/ever-card';
+import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
+import { VerticalSeparator } from '../duplicated-components/separator';
+import { AddTaskToPlan } from '../features/daily-plan/add-task-to-plan';
+import { CreateDailyPlanFormModal } from '../features/daily-plan/create-daily-plan-form-modal';
+import { TaskEstimateInfo } from '../pages/teams/team/team-members-views/user-team-card/task-estimate';
 import { TimerButton } from '../timer/timer-button';
 import { TaskAllStatusTypes } from './task-all-status-type';
 import { TaskNameInfoDisplay } from './task-displays';
 import { TaskAvatars } from './task-items';
 import { ActiveTaskStatusDropdown } from './task-status';
 import { TaskTimes } from './task-times';
-import { useTranslations } from 'next-intl';
-import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
-import { CreateDailyPlanFormModal } from '../features/daily-plan/create-daily-plan-form-modal';
-import { ReloadIcon } from '@radix-ui/react-icons';
-import moment from 'moment';
-import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
-import { Nullable, SetAtom } from '@/core/types/generics';
-import { TaskEstimateInfo } from '../pages/teams/team/team-members-views/user-team-card/task-estimate';
-import { EverCard } from '../common/ever-card';
-import { VerticalSeparator } from '../duplicated-components/separator';
-import { AddTaskToPlan } from '../features/daily-plan/add-task-to-plan';
-import { IEmployee } from '@/core/types/interfaces/organization/employee';
-import { IClassName } from '@/core/types/interfaces/common/class-name';
-import { toast } from 'sonner';
-import { TDailyPlan, TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
-import { useTimerButtonLogic } from '@/core/hooks/tasks/use-timer-button';
-import { TTask } from '@/core/types/schemas/task/task.schema';
-import { LoaderCircle } from 'lucide-react';
-import { useFavoriteTasks } from '@/core/hooks/tasks/use-favorites-task';
 
 type Props = {
 	active?: boolean;
@@ -100,7 +102,7 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 	);
 
 	const { data: user } = useUserQuery();
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const canSeeActivity = useCanSeeActivityScreen();
 
 	const isTrackingEnabled = useMemo(
@@ -387,7 +389,7 @@ const TimerButtonCall = React.memo(
 		activeTeam: TOrganizationTeam | null;
 		className?: string;
 	}) => {
-		const activeTeamTask = useAtomValue(activeTeamTaskState);
+		const { task: activeTeamTask } = useCurrentActiveTask();
 
 		const {
 			loading,

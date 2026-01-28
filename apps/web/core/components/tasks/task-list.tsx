@@ -10,6 +10,7 @@ import TaskFilter from './task-filter';
 import { TaskItem } from './task-item';
 import { useTranslations } from 'next-intl';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
 
 export function CreateTaskOption({ onClick, loading }: { onClick: () => void; loading?: boolean }) {
 	const t = useTranslations();
@@ -31,7 +32,6 @@ export function CreateTaskOption({ onClick, loading }: { onClick: () => void; lo
 export function TasksList({ onClickTask }: { onClickTask?: (task: TTask) => void }) {
 	const {
 		inputTask,
-		setActiveTask,
 		editMode,
 		setEditMode,
 		setQuery,
@@ -51,6 +51,7 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: TTask) => void
 		closeModal,
 		closeableTask
 	} = useTaskInput();
+	const { setActiveTask } = useSetActiveTask();
 	const t = useTranslations();
 	const [combxShow, setCombxShow] = useState<true | undefined>(undefined);
 

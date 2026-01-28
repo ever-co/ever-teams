@@ -2,6 +2,10 @@ import { atom } from 'jotai';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
 
+/**
+ * Keep for backward compatibility
+ * @deprecated use `useOrganisationTeams()` hook. That is in sync with tanstack-query !
+ */
 export const organizationTeamsState = atom<TOrganizationTeam[]>([]);
 
 export const activeTeamIdState = atom<string | null>(null);
@@ -17,6 +21,10 @@ export const isTeamJustDeletedState = atom<boolean>(false);
 export const isOTRefreshingState = atom<boolean>(false);
 export const OTRefreshIntervalState = atom<number>();
 
+/**
+ * Keep for backward compatibility
+ * @deprecated use `useCurrentTeam()` hook. That is in sync with tanstack-query !
+ */
 export const activeTeamState = atom<
 	TOrganizationTeam | null,
 	[((prev: TOrganizationTeam) => TOrganizationTeam) | TOrganizationTeam],
@@ -59,6 +67,10 @@ export const memberActiveTaskIdState = atom<string | null>(null);
 
 export const publicActiveTeamState = atom<TOrganizationTeam | undefined>(undefined);
 
+/**
+ * Keep for backward compatibility
+ * @deprecate use `useActiveTeamManagers()` hook. That is in sync with tanstack-query !
+ */
 export const activeTeamManagersState = atom<TOrganizationTeamEmployee[]>((get) => {
 	const activeTeam = get(activeTeamState);
 	const members = activeTeam?.members;

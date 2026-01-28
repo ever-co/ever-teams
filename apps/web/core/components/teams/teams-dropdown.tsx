@@ -1,33 +1,41 @@
 'use client';
 
-import { useModal, useOrganizationTeams } from '@/core/hooks';
+import { Button, Dropdown } from '@/core/components';
+import { useModal } from '@/core/hooks';
+import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { useProfileValidation } from '@/core/hooks/users/use-profile-validation';
 import { PlusIcon } from '@heroicons/react/24/solid';
-import { Button, Dropdown } from '@/core/components';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { AllTeamItem, TeamItem, mapTeamItems } from './team-item';
 import { useTranslations } from 'next-intl';
-import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
-import React from 'react';
-import { Tooltip } from '../duplicated-components/tooltip';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import { Tooltip } from '../duplicated-components/tooltip';
+import { AllTeamItem, TeamItem, mapTeamItems } from './team-item';
 // Import optimized components from centralized location
-import { LazyCreateTeamModal } from '@/core/components/optimized-components/teams';
-import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
+import { LazyCreateTeamModal } from '@/core/components/optimized-components/teams';
+import {
+	useGetOrganizationTeamQuery,
+	useGetOrganizationTeamsQuery
+} from '@/core/hooks/organizations/teams/use-get-organization-teams-query';
+import { useSetActiveTeam } from '@/core/hooks/organizations/teams/use-set-active-team';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { activeTeamState, detailedTaskState, organizationTeamsState, timerStatusState } from '@/core/stores';
-import { useAtomValue, useAtom } from 'jotai';
-import { usePathname, useRouter } from 'next/navigation';
+import { useDetailedTask } from '@/core/hooks/tasks/use-detailed-task';
 import { cn } from '@/core/lib/helpers';
+import { timerStatusState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
+import { usePathname, useRouter } from 'next/navigation';
+import { Suspense } from 'react';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { data: user } = useUserQuery();
 
-	const activeTeam = useAtomValue(activeTeamState);
-	const teams = useAtomValue(organizationTeamsState);
+	const { data: activeTeamResult } = useGetOrganizationTeamQuery();
+	const activeTeam = useMemo(() => activeTeamResult?.data ?? null, [activeTeamResult]);
 
-	const { setActiveTeam } = useOrganizationTeams();
+	const { data: teamsResult } = useGetOrganizationTeamsQuery();
+	const teams = useMemo(() => teamsResult?.data?.items ?? [], [teamsResult]);
+
+	const setActiveTeam = useSetActiveTeam();
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const timerStatus = useAtomValue(timerStatusState);
 	const t = useTranslations();
@@ -36,7 +44,10 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const timerRunningStatus = useMemo(() => {
 		return Boolean(timerStatus?.running);
 	}, [timerStatus]);
-	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
+	const {
+		detailedTaskQuery: { data: detailedTask },
+		setDetailedTaskId
+	} = useDetailedTask();
 	const path = usePathname();
 	const router = useRouter();
 
@@ -70,7 +81,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 					 */
 					const taskBelongsToNewTeam = item.data.tasks?.some((task) => task.id === detailedTask?.id);
 					if (!taskBelongsToNewTeam) {
-						setDetailedTask(null);
+						setDetailedTaskId(null);
 						router.push('/');
 					}
 				}
@@ -89,7 +100,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				}
 			}
 		},
-		[setActiveTeam, t, setDetailedTask, path, router, timerRunningStatus] // Updated dependencies for timer protection
+		[setActiveTeam, t, setDetailedTaskId, path, router, timerRunningStatus] // Updated dependencies for timer protection
 	);
 
 	useEffect(() => {

@@ -1,25 +1,26 @@
+import { useCurrentActiveTask } from '@/core/hooks/organizations/teams/use-current-active-task';
+import { useUpdateTaskMutation } from '@/core/hooks/organizations/teams/use-update-task.mutation';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Combobox, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { Spinner } from '../common/spinner';
 import { StatusIcon, statusIcons } from './status-icons';
-import { useTranslations } from 'next-intl';
-import { useTeamTasks } from '@/core/hooks/organizations';
-import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useAtomValue } from 'jotai';
-import { activeTeamTaskState } from '@/core/stores';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
 
 const statusKeys = Object.keys(statusIcons) as ETaskStatusName[];
 
 const StatusDropdown = () => {
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { task: activeTeamTask } = useCurrentActiveTask();
 
-	return <RawStatusDropdown task={activeTeamTask} />;
+	return <RawStatusDropdown task={activeTeamTask ?? null} />;
 };
 
 export function RawStatusDropdown({ task }: { task: TTask | null }) {
-	const { updateTask, updateLoading } = useTeamTasks();
+	const { mutateAsync: updateTask, isPending: updateLoading } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 	const t = useTranslations();
 	const [selected, setSelected] = useState<ETaskStatusName | null>(task?.status || null);
 
@@ -40,10 +41,13 @@ export function RawStatusDropdown({ task }: { task: TTask | null }) {
 
 			if (task && status !== task.status) {
 				updateTask({
-					...task,
-					taskStatusId: task.taskStatusId,
-					status: status
-				});
+					taskId: task?.id,
+					taskData: {
+						...task,
+						taskStatusId: task.taskStatusId,
+						status: status
+					}
+				}).then((task) => setActiveTask(task));
 			}
 		},
 		[task, updateTask]

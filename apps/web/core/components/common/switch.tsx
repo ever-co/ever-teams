@@ -1,13 +1,13 @@
-import { Switch } from '@headlessui/react';
-import { useCallback, useEffect, useState } from 'react';
-import { Text } from './typography';
-import { useTranslations } from 'next-intl';
 import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/constants';
-import { useOrganizationEmployeeTeams, useOrganizationTeams } from '../../hooks/organizations';
-import { IEmployee } from '@/core/types/interfaces/organization/employee';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 import { ERoleName } from '@/core/types/generics/enums/role';
-import { useAtomValue } from 'jotai';
-import { activeTeamState } from '@/core/stores';
+import { IEmployee } from '@/core/types/interfaces/organization/employee';
+import { Switch } from '@headlessui/react';
+import { useTranslations } from 'next-intl';
+import { useCallback, useEffect, useState } from 'react';
+import { useOrganizationEmployeeTeams } from '../../hooks/organizations';
+import { Text } from './typography';
+import { useEditOrganizationTeamMutation } from '@/core/hooks/organizations/teams/use-edit-organization-team-mutation';
 
 export default function TimeTrackingToggle({ activeManager }: { activeManager: IEmployee | undefined }) {
 	const t = useTranslations();
@@ -15,7 +15,7 @@ export default function TimeTrackingToggle({ activeManager }: { activeManager: I
 
 	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 
 	const handleChange = useCallback(() => {
 		if (activeManager && activeTeam) {
@@ -57,13 +57,13 @@ export default function TimeTrackingToggle({ activeManager }: { activeManager: I
 export function ShareProfileViewsToggle() {
 	const t = useTranslations();
 
-	const activeTeam = useAtomValue(activeTeamState);
-	const { editOrganizationTeam } = useOrganizationTeams();
+	const activeTeam = useCurrentTeam();
+	const editOrganizationTeam = useEditOrganizationTeamMutation();
 	const [enabled, setEnabled] = useState<boolean | undefined>(activeTeam?.shareProfileView);
 
 	const handleChange = useCallback(async () => {
 		if (activeTeam && typeof enabled != 'undefined') {
-			await editOrganizationTeam({
+			await editOrganizationTeam.mutateAsync({
 				...activeTeam,
 				shareProfileView: !enabled,
 				memberIds: activeTeam.members
@@ -112,13 +112,13 @@ export function ShareProfileViewsToggle() {
 
 export function RequireDailyPlanToTrack() {
 	const t = useTranslations();
-	const activeTeam = useAtomValue(activeTeamState);
-	const { editOrganizationTeam } = useOrganizationTeams();
+	const activeTeam = useCurrentTeam();
+	const editOrganizationTeam = useEditOrganizationTeamMutation();
 	const [enabled, setEnabled] = useState<boolean | undefined>(activeTeam?.requirePlanToTrack);
 
 	const handleChange = useCallback(async () => {
 		if (activeTeam && typeof enabled != 'undefined') {
-			await editOrganizationTeam({
+			await editOrganizationTeam.mutateAsync({
 				...activeTeam,
 				requirePlanToTrack: !enabled,
 				memberIds: activeTeam.members

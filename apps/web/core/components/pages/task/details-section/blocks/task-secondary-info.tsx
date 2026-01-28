@@ -1,29 +1,17 @@
-import { useModal, useTeamTasks } from '@/core/hooks';
-import { activeTeamState, detailedTaskState, isTeamManagerState } from '@/core/stores';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { ERoleName } from '@/core/types/generics/enums/role';
-import { PlusIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
 import { Button, Modal, SpinnerLoader } from '@/core/components';
-import { TaskVersionForm } from '@/core/components/tasks/version-form';
-import { cloneDeep } from 'lodash';
-import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useAtomValue } from 'jotai';
-import TaskRow from '../components/task-row';
-import { useTranslations } from 'next-intl';
-import { toast } from 'sonner';
-import { AddIcon, CircleIcon, Square4OutlineIcon, TrashIcon } from 'assets/svg';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
-import { clsxm } from '@/core/lib/utils';
-import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
-import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
+import { EverCard } from '@/core/components/common/ever-card';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
-import Image from 'next/image';
+import { Tooltip } from '@/core/components/duplicated-components/tooltip';
+import { QuickCreateProjectModal } from '@/core/components/features/projects/quick-create-project-modal';
+import { TaskLabels } from '@/core/components/tasks/task-labels';
+import { TaskPrioritiesForm } from '@/core/components/tasks/task-priorities-form';
+import { TaskSizesForm } from '@/core/components/tasks/task-sizes-form';
 import {
 	ActiveTaskPropertiesDropdown,
 	ActiveTaskSizesDropdown,
@@ -32,26 +20,46 @@ import {
 	EpicPropertiesDropdown as TaskEpicDropdown,
 	TaskStatus
 } from '@/core/components/tasks/task-status';
-import { TaskLabels } from '@/core/components/tasks/task-labels';
 import { TaskStatusesForm } from '@/core/components/tasks/task-statuses-form';
-import { TaskPrioritiesForm } from '@/core/components/tasks/task-priorities-form';
-import { TaskSizesForm } from '@/core/components/tasks/task-sizes-form';
-import { Tooltip } from '@/core/components/duplicated-components/tooltip';
-import { EverCard } from '@/core/components/common/ever-card';
-import { QuickCreateProjectModal } from '@/core/components/features/projects/quick-create-project-modal';
+import { TaskVersionForm } from '@/core/components/tasks/version-form';
+import { useModal } from '@/core/hooks';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useHandleStatusUpdate } from '@/core/hooks/organizations/teams/use-handle-status-update';
+import { useUpdateTaskMutation } from '@/core/hooks/organizations/teams/use-update-task.mutation';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useDetailedTask } from '@/core/hooks/tasks/use-detailed-task';
+import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
+import { cn } from '@/core/lib/helpers';
+import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
+import { clsxm } from '@/core/lib/utils';
+import { isTeamManagerState } from '@/core/stores';
+import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
+import { ERoleName } from '@/core/types/generics/enums/role';
 import { EIssueType } from '@/core/types/generics/enums/task';
 import { TOrganizationProject, TTaskVersion } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
-import { cn } from '@/core/lib/helpers';
+import { ChevronDownIcon, PlusIcon } from '@heroicons/react/20/solid';
+import { AddIcon, CircleIcon, Square4OutlineIcon, TrashIcon } from 'assets/svg';
+import { useAtomValue } from 'jotai';
+import { cloneDeep } from 'lodash';
+import { useTranslations } from 'next-intl';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
+import TaskRow from '../components/task-row';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
 const TaskSecondaryInfo = () => {
-	const task = useAtomValue(detailedTaskState);
-	const { updateTask } = useTeamTasks();
+	const {
+		detailedTaskQuery: { data: task }
+	} = useDetailedTask();
+	const { mutateAsync: updateTask } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 
-	const { handleStatusUpdate } = useTeamTasks();
+	const { handleStatusUpdate } = useHandleStatusUpdate();
 
 	const t = useTranslations();
 
@@ -84,7 +92,7 @@ const TaskSecondaryInfo = () => {
 				...childTask,
 				parentId: parentTask.id ? parentTask.id : null,
 				parent: parentTask.id ? { ...parentTask, id: parentTask.id } : null
-			} as any);
+			} as any).then((task) => setActiveTask(task));
 		},
 		[task, updateTask]
 	);
@@ -311,8 +319,9 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	const { task, controlled = false, onChange, styles } = props;
 	const { openModal, isOpen, closeModal } = useModal();
 	const organizationProjects = useAtomValue(organizationProjectsState);
-	const activeTeam = useAtomValue(activeTeamState);
-	const { updateTask, updateLoading } = useTeamTasks();
+	const activeTeam = useCurrentTeam();
+	const { mutateAsync: updateTask, isPending: updateLoading } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 	const t = useTranslations();
 
 	// Get current user and manager status
@@ -364,7 +373,9 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 			try {
 				if (task) {
 					if (task?.projectId === project.id) return;
-					await updateTask({ ...task, projectId: project.id });
+					await updateTask({ taskId: task?.id, taskData: { ...task, projectId: project.id } }).then((task) =>
+						setActiveTask(task)
+					);
 					// Update local selected state immediately for optimistic UI
 					setSelected(project);
 					toast.success('Task project updated successfully', {
@@ -386,7 +397,9 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 		try {
 			if (task) {
 				if (!task?.projectId) return;
-				await updateTask({ ...task, projectId: null });
+				await updateTask({ taskData: { ...task, projectId: null }, taskId: task?.id }).then((task) =>
+					setActiveTask(task)
+				);
 				setSelected(null);
 			}
 		} catch (error) {

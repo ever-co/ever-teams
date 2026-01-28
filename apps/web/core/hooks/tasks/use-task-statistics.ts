@@ -1,24 +1,24 @@
 'use client';
+import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
 import {
 	activeTaskStatisticsState,
-	activeTeamState,
-	activeTeamTaskState,
 	allTaskStatisticsState,
 	tasksFetchingState,
 	tasksStatisticsState,
 	timerStatusState
 } from '@/core/stores';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useFirstLoad } from '../common/use-first-load';
-import debounce from 'lodash/debounce';
-import { useSyncRef } from '../common/use-sync-ref';
-import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
-import { useRefreshIntervalV2 } from '../common';
 import { Nullable } from '@/core/types/generics/utils';
-import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useUserQuery } from '../queries/user-user.query';
 import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import debounce from 'lodash/debounce';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useRefreshIntervalV2 } from '../common';
+import { useFirstLoad } from '../common/use-first-load';
+import { useSyncRef } from '../common/use-sync-ref';
+import { useCurrentTeam } from '../organizations/teams/use-current-team';
+import { useUserQuery } from '../queries/user-user.query';
+import { useCurrentActiveTask } from '../organizations/teams/use-current-active-task';
 
 export function useTaskStatistics(addSeconds = 0) {
 	const { data: user } = useUserQuery();
@@ -29,7 +29,7 @@ export function useTaskStatistics(addSeconds = 0) {
 
 	const { firstLoad, firstLoadData: firstLoadtasksStatisticsData } = useFirstLoad();
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 
 	// Refs
 	const initialLoad = useRef(false);
@@ -37,7 +37,7 @@ export function useTaskStatistics(addSeconds = 0) {
 
 	// Dep status
 	const timerStatus = useAtomValue(timerStatusState);
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { task: activeTeamTask } = useCurrentActiveTask();
 
 	/**
 	 * Get employee all tasks statistics  (API Call)
@@ -208,7 +208,12 @@ export function useTaskStatistics(addSeconds = 0) {
 
 		// Add local timer seconds (addSeconds) to the total worked time
 		// This ensures the progress bar updates in real-time as the timer runs locally
-		const estimation = getEstimation(null, activeTeamTask, totalWorkedTasksTimer + addSeconds, activeTeamTask?.estimate || 0);
+		const estimation = getEstimation(
+			null,
+			activeTeamTask,
+			totalWorkedTasksTimer + addSeconds,
+			activeTeamTask?.estimate || 0
+		);
 		return estimation;
 	}, [activeTeam?.members, activeTeamTask, getEstimation, addSeconds]);
 

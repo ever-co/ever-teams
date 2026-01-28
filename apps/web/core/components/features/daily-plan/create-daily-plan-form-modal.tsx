@@ -1,12 +1,5 @@
-import { Dispatch, memo, SetStateAction, useCallback, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useDailyPlan } from '@/core/hooks';
 import { Modal, Text } from '@/core/components';
-import { imgTitle, tomorrowDate, yesterdayDate } from '@/core/lib/helpers/index';
-import { ReloadIcon } from '@radix-ui/react-icons';
-import moment from 'moment';
 import { Calendar } from '@/core/components/common/calendar';
-import { Button } from '@/core/components/duplicated-components/_button';
 import {
 	Command,
 	CommandEmpty,
@@ -16,19 +9,26 @@ import {
 	CommandList
 } from '@/core/components/common/command';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
-import { clsxm, isValidUrl } from '@/core/lib/utils';
-import stc from 'string-to-color';
-import { Check, ChevronDown } from 'lucide-react';
-import { cn } from '@/core/lib/helpers';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { LAST_OPTION__CREATE_DAILY_PLAN_MODAL } from '@/core/constants/config/constants';
+import { useDailyPlan } from '@/core/hooks';
+import { useActiveTeamManagers } from '@/core/hooks/organizations/teams/use-active-team-managers';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { cn } from '@/core/lib/helpers';
+import { imgTitle, tomorrowDate, yesterdayDate } from '@/core/lib/helpers/index';
+import { clsxm, isValidUrl } from '@/core/lib/utils';
+import { EDailyPlanMode, EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
+import { TDailyPlan, TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { ReloadIcon } from '@radix-ui/react-icons';
+import { Check, ChevronDown } from 'lucide-react';
+import moment from 'moment';
 import { useTranslations } from 'next-intl';
+import { Dispatch, memo, SetStateAction, useCallback, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import stc from 'string-to-color';
 import { EverCard } from '../../common/ever-card';
 import { Avatar } from '../../duplicated-components/avatar';
-import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
-import { TDailyPlan, TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { useAtomValue } from 'jotai';
-import { activeTeamManagersState, activeTeamState } from '@/core/stores';
 
 export function CreateDailyPlanFormModal({
 	open,
@@ -48,9 +48,9 @@ export function CreateDailyPlanFormModal({
 	const { handleSubmit, reset } = useForm();
 	const { data: user } = useUserQuery();
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 
-	const activeTeamManagers = useAtomValue(activeTeamManagersState);
+	const { managers: activeTeamManagers } = useActiveTeamManagers();
 
 	// Use useDailyPlan with employeeId to get the correct employee's plans
 	const { profileDailyPlans, createDailyPlan, createDailyPlanLoading } = useDailyPlan(employeeId ?? null);

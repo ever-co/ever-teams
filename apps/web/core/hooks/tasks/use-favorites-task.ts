@@ -1,10 +1,9 @@
-import { useAtomValue } from 'jotai';
-import { tasksByTeamState } from '@/core/stores/teams/team-tasks';
-import { useCallback, useMemo } from 'react';
-import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useFavorites } from '../favorites';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { IFavoriteCreateRequest } from '@/core/types/interfaces/common/favorite';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useCallback, useMemo } from 'react';
+import { useFavorites } from '../favorites';
+import { useSortedTasksByCreation } from '../organizations/teams/use-sorted-tasks';
 import { useUserQuery } from '../queries/user-user.query';
 
 /**
@@ -19,7 +18,7 @@ import { useUserQuery } from '../queries/user-user.query';
  */
 
 export const useFavoriteTasks = () => {
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasksByCreation();
 	const { data: user } = useUserQuery();
 
 	const { currentEmployeeFavorites, createFavorite, deleteFavorite, createFavoriteLoading, deleteFavoriteLoading } =

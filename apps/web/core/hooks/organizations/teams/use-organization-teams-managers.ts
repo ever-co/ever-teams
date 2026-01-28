@@ -1,8 +1,8 @@
-import { useAtomValue } from 'jotai';
 import { filterValue } from '@/core/stores/teams/all-teams';
+import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
-import { useOrganizationTeams } from './use-organization-teams';
 import { useAuthenticateUser } from '../../auth';
+import { useGetOrganizationTeamsQuery } from './use-get-organization-teams-query';
 /**
  * Provides a hook that returns the teams managed by the authenticated user, along with the ability to filter those teams based on the timer status of their members.
  *
@@ -12,7 +12,10 @@ import { useAuthenticateUser } from '../../auth';
  */
 export function useOrganizationAndTeamManagers() {
 	const { user } = useAuthenticateUser();
-	const { teams } = useOrganizationTeams();
+
+	const { data: teamsResult } = useGetOrganizationTeamsQuery();
+	const teams = useMemo(() => teamsResult?.data?.items ?? [], [teamsResult]);
+
 	const { value: filtered } = useAtomValue(filterValue);
 
 	/**

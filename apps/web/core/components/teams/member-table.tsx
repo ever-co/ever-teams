@@ -1,40 +1,43 @@
+import { Text } from '@/core/components';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/common/table';
 import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
-import { imgTitle } from '@/core/lib/helpers/index';
 import { useSettings, useSyncRef } from '@/core/hooks';
 import { usePagination } from '@/core/hooks/common/use-pagination';
-import { activeTeamIdState, activeTeamState, organizationTeamsState } from '@/core/stores';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { useUpdateOrganizationTeam } from '@/core/hooks/organizations/teams/use-update-organization-team';
+import { imgTitle } from '@/core/lib/helpers/index';
 import { clsxm } from '@/core/lib/utils';
-import { Text } from '@/core/components';
+import { activeTeamIdState, organizationTeamsState } from '@/core/stores';
+import { ERoleName } from '@/core/types/generics/enums/role';
+import { TOrganizationTeamEmployee, TRole } from '@/core/types/schemas';
+import { useAtom, useAtomValue } from 'jotai';
 import cloneDeep from 'lodash/cloneDeep';
 import moment from 'moment';
-import { ChangeEvent, KeyboardEvent, useCallback, useRef } from 'react';
 import { useTranslations } from 'next-intl';
-import { useAtom, useAtomValue } from 'jotai';
+import { ChangeEvent, KeyboardEvent, useCallback, useRef } from 'react';
 import stc from 'string-to-color';
-import { MemberTableStatus } from './member-table-status';
-import { TableActionPopover } from '../settings/table-action-popover';
-import { EditUserRoleDropdown } from '../features/roles/edit-role-dropdown';
-import { Avatar } from '../duplicated-components/avatar';
 import { InputField } from '../duplicated-components/_input';
-import { Tooltip } from '../duplicated-components/tooltip';
 import { Paginate } from '../duplicated-components/_pagination';
-import { TOrganizationTeamEmployee, TRole } from '@/core/types/schemas';
-import { useUpdateOrganizationTeam } from '@/core/hooks/organizations/teams/use-update-organization-team';
-import { ERoleName } from '@/core/types/generics/enums/role';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/core/components/common/table';
+import { Avatar } from '../duplicated-components/avatar';
+import { Tooltip } from '../duplicated-components/tooltip';
+import { EditUserRoleDropdown } from '../features/roles/edit-role-dropdown';
+import { TableActionPopover } from '../settings/table-action-popover';
+import { MemberTableStatus } from './member-table-status';
+import { useOrganisationTeams } from '@/core/hooks/organizations/teams/use-organisation-teams';
 
 export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] }) => {
 	const t = useTranslations();
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems, pageCount } =
 		usePagination<TOrganizationTeamEmployee>({ items: members, defaultItemsPerPage: 5 });
 	const { updateAvatar } = useSettings();
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const { updateOrganizationTeam } = useUpdateOrganizationTeam();
 
 	const activeTeamRef = useSyncRef(activeTeam);
 
 	const activeTeamId = useAtomValue(activeTeamIdState);
-	const [organizationTeams, setOrganizationTeams] = useAtom(organizationTeamsState);
+	const [, setOrganizationTeams] = useAtom(organizationTeamsState);
+	const { teams: organizationTeams } = useOrganisationTeams();
 	const editMemberRef = useRef<TOrganizationTeamEmployee | null>(null);
 
 	const updateTeamMember = useCallback(

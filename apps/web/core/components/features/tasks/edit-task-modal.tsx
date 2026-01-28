@@ -1,22 +1,23 @@
 import { Modal, statusColor } from '@/core/components';
-import { DatePickerFilter } from '../../pages/timesheet/timesheet-filter-date';
-import { FormEvent, useCallback, useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { clsxm } from '@/core/lib/utils';
-import { Item, ManageOrMemberComponent, getNestedValue } from '@/core/components/teams/manage-member-component';
-import { statusTable } from '../../timesheet/timesheet-action';
-import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
-import { differenceBetweenHours, formatTimeFromDate, secondsToTime, toDate } from '@/core/lib/helpers/index';
-import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
 import { ToastAction } from '@/core/components/common/toast';
+import { Item, ManageOrMemberComponent, getNestedValue } from '@/core/components/teams/manage-member-component';
+import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { differenceBetweenHours, formatTimeFromDate, secondsToTime, toDate } from '@/core/lib/helpers/index';
+import { clsxm } from '@/core/lib/utils';
+import { organizationProjectsState } from '@/core/stores';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { addMinutes, format, parseISO } from 'date-fns';
-import { Clock7 } from 'lucide-react';
-import { CustomSelect } from '../../common/multiple-select';
-import { TaskNameInfoDisplay } from '../../tasks/task-displays';
-import { toast } from 'sonner';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, organizationProjectsState } from '@/core/stores';
+import { Clock7 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { FormEvent, useCallback, useMemo, useState } from 'react';
+import { toast } from 'sonner';
+import { CustomSelect } from '../../common/multiple-select';
+import { DatePickerFilter } from '../../pages/timesheet/timesheet-filter-date';
+import { TaskNameInfoDisplay } from '../../tasks/task-displays';
+import { statusTable } from '../../timesheet/timesheet-action';
 
 export interface IEditTaskModalProps {
 	isOpen: boolean;
@@ -26,7 +27,7 @@ export interface IEditTaskModalProps {
 export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskModalProps) {
 	const organizationProjects = useAtomValue(organizationProjectsState);
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const t = useTranslations();
 	const { updateTimesheet, loadingUpdateTimesheet } = useTimesheet({});
 	const initialTimeRange = {

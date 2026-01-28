@@ -1,18 +1,17 @@
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { IHookModal, useModal, useTeamTasks } from '@/core/hooks';
-import { useCallback, useState } from 'react';
+import { useSortedTasksByCreation } from '@/core/hooks/organizations/teams/use-sorted-tasks';
 import { clsxm } from '@/core/lib/utils';
-import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
-import { AddIcon } from 'assets/svg';
-import { EverCard } from '../../common/ever-card';
-import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
-import { TaskInput } from '../../tasks/task-input';
 import { EIssueType } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { FC } from 'react';
+import { AddIcon, ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
-import { tasksByTeamState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+import { FC, useCallback, useState } from 'react';
+import { EverCard } from '../../common/ever-card';
+import { TaskInput } from '../../tasks/task-input';
+import { TaskLinkedIssue } from '../../tasks/task-linked-issue';
+import { useUpdateTaskMutation } from '@/core/hooks/organizations/teams/use-update-task.mutation';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
 
 export const ChildIssueCard: FC<{ task: TTask }> = ({ task }) => {
 	const t = useTranslations();
@@ -59,9 +58,11 @@ export const ChildIssueCard: FC<{ task: TTask }> = ({ task }) => {
 
 function CreateChildTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 	const t = useTranslations();
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasksByCreation();
 
-	const { updateTask, loadTeamTasksData } = useTeamTasks();
+	const { loadTeamTasksData } = useTeamTasks();
+	const { mutateAsync: updateTask } = useUpdateTaskMutation();
+	const { setActiveTask } = useSetActiveTask();
 
 	const [loading, setLoading] = useState(false);
 
@@ -78,7 +79,9 @@ function CreateChildTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 				parent: { ...task, id: task.id }
 			};
 
-			await updateTask({ ...taskUpdate });
+			await updateTask({ taskData: { ...taskUpdate }, taskId: taskUpdate?.id }).then((task) =>
+				setActiveTask(task)
+			);
 
 			loadTeamTasksData(false).finally(() => {
 				setLoading(false);

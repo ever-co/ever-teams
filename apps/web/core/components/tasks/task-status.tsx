@@ -1,34 +1,35 @@
 'use client';
 /* eslint-disable no-mixed-spaces-and-tabs */
+import { Nullable } from '@/core/types/generics/utils';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
-import { Nullable } from '@/core/types/generics/utils';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
-import { PropsWithChildren, useMemo } from 'react';
+import { SpinnerLoader } from '@/core/components/common/loader';
 import { useStatusValue, useTaskStatusValue } from '@/core/hooks';
-import { XMarkIcon } from '@heroicons/react/24/outline';
-import { readableColor } from 'polished';
-import { useTheme } from 'next-themes';
-import { Square4OutlineIcon, CircleIcon } from 'assets/svg';
-import { getTextColor } from '@/core/lib/helpers/index';
-import { Tooltip } from '../duplicated-components/tooltip';
-import { CustomListboxDropdown } from './custom-dropdown';
-import { capitalize } from 'lodash';
+import { useSortedTasksByCreation } from '@/core/hooks/organizations/teams/use-sorted-tasks';
+import { useActiveTaskStatus } from '@/core/hooks/tasks/use-active-task-status';
+import { useMapToTaskStatusValues } from '@/core/hooks/tasks/use-map-to-task-status-values';
+import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
+import { useTaskPrioritiesValue } from '@/core/hooks/tasks/use-task-priorities-value';
+import { useTaskVersionsValue } from '@/core/hooks/tasks/use-task-versions-value';
 import { cn } from '@/core/lib/helpers';
+import { getTextColor } from '@/core/lib/helpers/index';
+import { taskSizesListState } from '@/core/stores';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
+import { IActiveTaskStatuses, TStatusItem, TTaskStatusesDropdown } from '@/core/types/interfaces/task/task-card';
 import { TTaskStatus } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { TStatusItem, TTaskStatusesDropdown, IActiveTaskStatuses } from '@/core/types/interfaces/task/task-card';
-import { MultipleStatusDropdown } from './multiple-status-dropdown';
-import { useTaskVersionsValue } from '@/core/hooks/tasks/use-task-versions-value';
-import { SpinnerLoader } from '@/core/components/common/loader';
-import { useTaskPrioritiesValue } from '@/core/hooks/tasks/use-task-priorities-value';
-import { useMapToTaskStatusValues } from '@/core/hooks/tasks/use-map-to-task-status-values';
-import { useActiveTaskStatus } from '@/core/hooks/tasks/use-active-task-status';
-import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
+import { XMarkIcon } from '@heroicons/react/24/outline';
+import { CircleIcon, Square4OutlineIcon } from 'assets/svg';
 import { useAtomValue } from 'jotai';
-import { tasksByTeamState, taskSizesListState } from '@/core/stores';
+import { capitalize } from 'lodash';
+import { useTheme } from 'next-themes';
+import { readableColor } from 'polished';
+import { PropsWithChildren, useMemo } from 'react';
+import { Tooltip } from '../duplicated-components/tooltip';
+import { CustomListboxDropdown } from './custom-dropdown';
+import { MultipleStatusDropdown } from './multiple-status-dropdown';
 
 /**
  * Task status dropwdown
@@ -237,7 +238,7 @@ export function EpicPropertiesDropdown({
 	children,
 	taskStatusClassName
 }: TTaskStatusesDropdown<'epic'>) {
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasksByCreation();
 	const status = useMemo(() => {
 		const temp: any = {};
 		tasks.forEach((task) => {

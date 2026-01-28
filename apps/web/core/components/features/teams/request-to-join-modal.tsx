@@ -1,18 +1,17 @@
 'use client';
 
-import { useAuthenticationPasscode, useRequestToJoinTeam } from '@/core/hooks';
-import { clsxm } from '@/core/lib/utils';
 import { Button, Modal, SpinnerLoader, Text } from '@/core/components';
-import { useCallback, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { ArrowLeftIcon } from 'assets/svg';
 import { AuthCodeInputField } from '@/core/components/auth/auth-code-input';
 import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '@/core/components/duplicated-components/_input';
-import { PositionDropDown } from '../../layouts/default-layout/header/position-dropdown';
+import { useAuthenticationPasscode, useRequestToJoinTeam } from '@/core/hooks';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { clsxm } from '@/core/lib/utils';
 import { TJoinTeamRequest } from '@/core/types/schemas';
-import { useAtomValue } from 'jotai';
-import { activeTeamState } from '@/core/stores';
+import { ArrowLeftIcon } from 'assets/svg';
+import { useTranslations } from 'next-intl';
+import { useCallback, useState } from 'react';
+import { PositionDropDown } from '../../layouts/default-layout/header/position-dropdown';
 
 export const RequestToJoinModal = ({ open, closeModal }: { open: boolean; closeModal: () => void }) => {
 	const [currentTab, setCurrentTab] = useState<'ALREADY_MEMBER' | 'BECOME_MEMBER'>('ALREADY_MEMBER');
@@ -155,7 +154,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 	const t = useTranslations();
 	const { formValues, setFormValues, errors, setErrors, sendCodeLoading, inputCodeRef } = useAuthenticationPasscode();
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const {
 		requestToJoinTeam,
 		validateRequestToJoinTeam,

@@ -1,16 +1,15 @@
-import { CellContext } from '@tanstack/react-table';
-import { TaskTimes } from '../../../task-times';
 import { I_UserProfilePage, useTeamMemberCard } from '@/core/hooks';
+import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { CellContext } from '@tanstack/react-table';
 import get from 'lodash/get';
 import { useMemo } from 'react';
-import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useAtomValue } from 'jotai';
-import { activeTeamState } from '@/core/stores';
+import { TaskTimes } from '../../../task-times';
 
 export default function DailyPlanTaskTimesCell(props: CellContext<TTask, unknown>) {
 	const profile = get(props.column, 'columnDef.meta.profile') as unknown as I_UserProfilePage;
 
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useCurrentTeam();
 	const members = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
 	const currentMember = useMemo(
 		() =>
