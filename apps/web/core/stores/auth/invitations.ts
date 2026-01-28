@@ -8,7 +8,7 @@ export const myInvitationsState = atom<TInvite[]>([]);
 
 /**
  * Keep for backward compatibility
- * @deprecated use `useTeamMemberInvitation()` hooks, that is partialy in sync with tanstack
+ * @deprecated use `useTeamMemberInvitation()` hooks, that is partially in sync with tanstack
  */
 export const getTeamInvitationsState = atom<TInvite[]>((get) => {
 	const invitations = get(teamInvitationsState);

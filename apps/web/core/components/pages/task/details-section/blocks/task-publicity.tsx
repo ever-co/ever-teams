@@ -25,7 +25,8 @@ const TaskPublicity = () => {
 				if (!task?.id || !detailedTaskId) return setIsTaskPublic(task?.public);
 				updatePublicity({ taskId: task?.id, taskData: { ...task, public: value } })
 					.then((task) => setActiveTask(task))
-					.then(() => setIsTaskPublic(value));
+					.then(() => setIsTaskPublic(value))
+					.catch(() => setIsTaskPublic(task?.public));
 			}, 500);
 			debounceUpdatePublicity(value);
 		},

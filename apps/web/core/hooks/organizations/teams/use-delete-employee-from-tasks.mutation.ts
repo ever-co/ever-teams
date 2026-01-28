@@ -4,9 +4,23 @@ import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 
 /**
  * Mutation hook for removing an employee from all assigned tasks.
- * Useful when unassigning or offboarding an employee.
  *
- * @returns TanStack mutation object with deleteEmployeeFromTasks mutationFn
+ * @description
+ * Useful when unassigning an employee.
+ * Automatically invalidates team tasks cache on success.
+ *
+ * @example
+ * ```tsx
+ * const { mutate: removeEmployee } = useDeleteEmployeeFromTasksMutation();
+ *
+ * const handleUnassigning = (employeeId: string) => {
+ *   removeEmployee(employeeId);
+ * };
+ * ```
+ *
+ * @see {@link useInvalidateTeamTasks} - Cache invalidation utility
+ *
+ * @returns TanStack mutation object
  */
 export const useDeleteEmployeeFromTasksMutation = () => {
 	const invalidateTeamTasksData = useInvalidateTeamTasks();

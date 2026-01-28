@@ -7,6 +7,32 @@ import { toast } from 'sonner';
 import { useAuthenticateUser } from '../../auth';
 import { useLoadTeamsData } from './use-load-teams-data';
 
+/**
+ * Mutation hook to remove a user from ALL organization teams.
+ *
+ * @description
+ * Removes the specified user from every team in the organization.
+ * Handles critical auth side-effects in specific order:
+ * 1. Reload teams data
+ * 2. Refresh auth token (permissions changed)
+ * 3. Update user data from API
+ *
+ * @example
+ * ```tsx
+ * const { mutate: removeUserFromAll, isPending } = useRemoveUserFromAllTeamMutation();
+ *
+ * const handleRemoveCompletely = (userId: string) => {
+ *   removeUserFromAll(userId, {
+ *     onSuccess: () => console.log('User removed from all teams'),
+ *   });
+ * };
+ * ```
+ *
+ * @see {@link useLoadTeamsData} - Reloads teams after removal
+ * @see {@link useAuthenticateUser} - Handles auth refresh sequence
+ *
+ * @returns TanStack mutation object with `mutate(userId: string)`
+ */
 export const useRemoveUserFromAllTeamMutation = () => {
 	const queryClient = useQueryClient();
 	const { refreshUserData, refreshToken } = useAuthenticateUser();

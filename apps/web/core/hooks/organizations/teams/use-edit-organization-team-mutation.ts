@@ -10,6 +10,29 @@ import { useSetAtom } from 'jotai';
 import { toast } from 'sonner';
 import { useGetOrganizationTeamById } from './use-get-organization-teams-query';
 
+/**
+ * Mutation hook for editing an organization team.
+ *
+ * @description
+ * Updates team data via API, refreshes Jotai state with full team details,
+ * and invalidates React Query cache. Handles Zod validation errors with toast notifications.
+ *
+ * @example
+ * ```tsx
+ * const { mutate: editTeam, isPending } = useEditOrganizationTeamMutation();
+ *
+ * const handleSubmit = (data: Partial<TOrganizationTeamUpdate>) => {
+ *   editTeam(data, {
+ *     onSuccess: () => toast.success('Team updated!')
+ *   });
+ * };
+ * ```
+ *
+ * @see {@link useGetOrganizationTeamById} - Fetches updated team details
+ * @see {@link organizationTeamsState} - Jotai state updated on success
+ *
+ * @returns TanStack mutation object
+ */
 export const useEditOrganizationTeamMutation = () => {
 	const queryClient = useQueryClient();
 	const setTeams = useSetAtom(organizationTeamsState);

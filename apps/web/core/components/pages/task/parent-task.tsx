@@ -71,7 +71,7 @@ function CreateParentTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 				setLoading(false);
 			}
 		},
-		[task, loadTeamTasksData, modal, updateTask, t]
+		[task, loadTeamTasksData, modal, updateTask, t, setActiveTask]
 	);
 
 	const filteredTasks = tasks.filter((t) => t.id !== task.id);

@@ -15,6 +15,17 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 
+/**
+ * Builds a unique signature string from a list of teams.
+ *
+ * @description
+ * Creates a deterministic signature based on all mutable team fields
+ * to detect changes even when members are undefined.
+ * Includes: id, updatedAt, name, settings, visual properties, members count, and member roles.
+ *
+ * @param teams - Array of organization teams
+ * @returns Sorted, pipe-separated signature string
+ */
 const buildTeamListSignature = (teams: TOrganizationTeam[]) => {
 	// CRITICAL FIX: Create a signature based on ALL mutable fields
 	// This ensures we detect changes in team properties even when members are undefined
@@ -30,7 +41,24 @@ const buildTeamListSignature = (teams: TOrganizationTeam[]) => {
 		.sort((a, b) => a.localeCompare(b))
 		.join('|');
 };
-
+/**
+ * Query hook for fetching all organization teams.
+ *
+ * @description
+ * Fetches teams list and syncs with Jotai state for backward compatibility.
+ * Handles edge case where user is removed from all teams.
+ *
+ * @example
+ * ```tsx
+ * const { data, isLoading } = useGetOrganizationTeamsQuery();
+ * const teams = data?.data?.items ?? [];
+ * ```
+ *
+ * @see {@link organizationTeamsState} - Jotai state synced on success
+ * @see {@link useGetOrganizationTeamQuery} - Fetch single team details
+ *
+ * @returns TanStack query object with teams data
+ */
 export const useGetOrganizationTeamsQuery = () => {
 	const { data: user } = useUserQuery();
 
@@ -75,6 +103,24 @@ export const useGetOrganizationTeamsQuery = () => {
 	return teamsQuery;
 };
 
+/**
+ * Query hook for fetching the currently active organization team.
+ *
+ * @description
+ * Fetches team details based on `activeTeamIdState` and syncs with Jotai.
+ * Also sets the active project cookie if the team has projects.
+ *
+ * @example
+ * ```tsx
+ * const { data, isLoading } = useGetOrganizationTeamQuery();
+ * const activeTeam = data?.data;
+ * ```
+ *
+ * @see {@link activeTeamIdState} - Determines which team to fetch
+ * @see {@link useCurrentTeam} - Simplified accessor for active team
+ *
+ * @returns TanStack query object with active team data
+ */
 export const useGetOrganizationTeamQuery = () => {
 	const { data: user } = useUserQuery();
 
@@ -128,6 +174,27 @@ export const useGetOrganizationTeamQuery = () => {
 	return teamQuery;
 };
 
+/**
+ * Returns an imperative function to fetch a team by ID.
+ *
+ * @description
+ * Uses `queryClient.fetchQuery` for on-demand fetching with caching.
+ * Useful for mutations that need fresh team data after updates.
+ *
+ * @example
+ * ```tsx
+ * const getTeamById = useGetOrganizationTeamById();
+ *
+ * const handleUpdate = async (teamId: string) => {
+ *   const { data } = await getTeamById(teamId);
+ *   console.log(data.name);
+ * };
+ * ```
+ *
+ * @see {@link useEditOrganizationTeamMutation} - Uses this for post-edit refresh
+ *
+ * @returns Async function `(teamId: string) => Promise<TOrganizationTeam>`
+ */
 export const useGetOrganizationTeamById = () => {
 	const queryClient = useQueryClient();
 

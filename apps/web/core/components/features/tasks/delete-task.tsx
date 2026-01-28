@@ -18,7 +18,7 @@ const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 			await updateTask({
 				taskData: { ...task, status: ETaskStatusName.CLOSED },
 				taskId: task?.id
-			}).then((task) => setActiveTask(task));
+			});
 		}
 		closeModal();
 		if (activeTeamTask?.id === task?.id) {

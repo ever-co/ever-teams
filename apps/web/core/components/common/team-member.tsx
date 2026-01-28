@@ -14,7 +14,7 @@ export const TeamMemberSection = () => {
 	const { isTeamManager, user } = useAuthenticateUser();
 
 	const { data: activeTeamResult } = useGetOrganizationTeamQuery();
-	const activeTeam = useMemo(() => activeTeamResult?.data ?? null, []);
+	const activeTeam = useMemo(() => activeTeamResult?.data ?? null, [activeTeamResult?.data]);
 
 	const { isPending: getOrganizationTeamsLoading } = useGetOrganizationTeamsQuery();
 	const teamInvitations = useTeamMemberInvitation();

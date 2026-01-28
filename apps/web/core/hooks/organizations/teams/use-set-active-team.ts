@@ -9,6 +9,35 @@ import { useCallback } from 'react';
 import { useAuthenticateUser } from '../../auth';
 import { useSettings } from '../../users';
 
+/**
+ * Returns a function to set the active team with full persistence.
+ *
+ * @description
+ * Sets the active team and persists to multiple layers:
+ * - Cookies (teamId, organizationId, projectId)
+ * - localStorage (for cross-tab persistence)
+ * - Server (user's lastTeamId via API)
+ * - Jotai state (for immediate UI reactivity)
+ *
+ * Order of operations is important: state update happens LAST
+ * to ensure all persistence layers are synchronized first.
+ *
+ * @example
+ * ```tsx
+ * const setActiveTeam = useSetActiveTeam();
+ *
+ * const handleTeamSwitch = (team: TOrganizationTeam) => {
+ *   setActiveTeam(team);
+ *   router.push('/dashboard');
+ * };
+ * ```
+ *
+ * @see {@link activeTeamIdState} - Jotai state updated by this hook
+ * @see {@link useCurrentTeam} - Get the currently active team
+ * @see {@link useLoadTeamsData} - Initial team loading logic
+ *
+ * @returns Callback function `(team: TOrganizationTeam) => void`
+ */
 export const useSetActiveTeam = () => {
 	const { user } = useAuthenticateUser();
 	const setActiveTeamId = useSetAtom(activeTeamIdState);

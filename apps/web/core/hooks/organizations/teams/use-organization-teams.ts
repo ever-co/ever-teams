@@ -29,126 +29,136 @@ import { useRemoveUserFromAllTeamMutation } from './use-remove-user-from-all-tea
 import { useSetActiveTeam } from './use-set-active-team';
 
 /**
- * A powerful hook for managing organization teams with complete CRUD operations and state management.
- * This hook centralizes all team-related operations and states in one place.
+ * @deprecated **DEPRECATED** - This monolithic hook has been split into focused, atomic hooks.
  *
- * Keep for backward compatibility
- * @deprecated this monolithic hook has been splitted into small hooks `useEditOrganizationTeamMutation()`, `useGetOrganizationTeamsQuery()`, `useGetOrganizationTeamQuery()`, `useGetOrganizationTeamById()`, `useDeleteOrganizationTeamMutation()`, `useLoadTeamsData()`, `useSetActiveTeam()`, `useCurrentTeam()`, `useOrganisationTeams()`, `useRemoveUserFromAllTeamMutation()`,
+ * This hook is maintained for backward compatibility only. Please migrate to the new hooks
+ * for better performance, smaller bundle sizes, and more predictable re-renders.
  *
- * @returns {Object} An object containing the following properties and methods:
+ * ## Migration Guide
  *
- * @property {() => Promise<void>} loadTeamsData
- * Function that fetches and synchronizes the latest teams data. It handles:
- * - Loading the initial teams data
- * - Updating the active team
- * - Managing team cookies
- * - Syncing with local storage
+ * ### Queries (Read Operations)
+ * | Before (deprecated) | After (recommended) |
+ * |---------------------|---------------------|
+ * | `const { teams } = useOrganizationTeams()` | `const { teams } = useOrganisationTeams()` |
+ * | `const { activeTeam } = useOrganizationTeams()` | `const activeTeam = useCurrentTeam()` |
+ * | `const { activeTeamManagers } = useOrganizationTeams()` | `const managers = useActiveTeamManagers()` |
+ * | `const { getOrganizationTeamsLoading } = useOrganizationTeams()` | `const { isLoading } = useGetOrganizationTeamsQuery()` |
+ * | `const { loadingTeam } = useOrganizationTeams()` | `const { isLoading } = useGetOrganizationTeamQuery()` |
  *
- * @property {boolean} loading
- * Global loading state for team operations
+ * ### Mutations (Write Operations)
+ * | Before (deprecated) | After (recommended) |
+ * |---------------------|---------------------|
+ * | `const { createOrganizationTeam } = useOrganizationTeams()` | `const { createOrganizationTeam } = useCreateOrganizationTeam()` |
+ * | `const { updateOrganizationTeam } = useOrganizationTeams()` | `const { updateOrganizationTeam } = useUpdateOrganizationTeam()` |
+ * | `const { editOrganizationTeamLoading } = useOrganizationTeams()` | `const { isPending } = useEditOrganizationTeamMutation()` |
+ * | `const { deleteOrganizationTeamLoading } = useOrganizationTeams()` | `const { isPending, mutateAsync } = useDeleteOrganizationTeamMutation()` |
+ * | `const { removeUserFromAllTeamLoading } = useOrganizationTeams()` | `const { isPending, mutateAsync } = useRemoveUserFromAllTeamMutation()` |
  *
- * @property {IOrganizationTeamList[]} teams
- * Array containing all teams in the organization. Each team includes:
- * - Team details (id, name, etc.)
- * - Member information
- * - Projects associated
- * - Roles and permissions
+ * ### Actions & Utilities
+ * | Before (deprecated) | After (recommended) |
+ * |---------------------|---------------------|
+ * | `const { setActiveTeam } = useOrganizationTeams()` | `const setActiveTeam = useSetActiveTeam()` |
+ * | `const { loadTeamsData } = useOrganizationTeams()` | `const loadTeamsData = useLoadTeamsData()` |
+ * | `const { firstLoadTeamsData } = useOrganizationTeams()` | `const loadTeamsData = useLoadTeamsData()` combined with `useFirstLoad()` |
+ * | `const { setTeams } = useOrganizationTeams()` | `const { setTeams } = useTeamsState()` |
  *
- * @property {boolean} teamsFetching
- * Specific loading state for team fetching operations
+ * ### State & Computed Values
+ * | Before (deprecated) | After (recommended) |
+ * |---------------------|---------------------|
+ * | `const { isTeamMember } = useOrganizationTeams()` | `const isTeamMember = useAtomValue(isTeamMemberState)` |
+ * | `const { isTeamManager } = useOrganizationTeams()` | `const isTeamManager = useAtomValue(isTeamManagerState)` |
+ * | `const { isTrackingEnabled } = useOrganizationTeams()` | `const isTrackingEnabled = useAtomValue(isTrackingEnabledState)` |
+ * | `const { memberActiveTaskId } = useOrganizationTeams()` | Compute locally or create dedicated hook |
+ * | `const { isTeamMemberJustDeleted } = useOrganizationTeams()` | `const [value, setValue] = useAtom(isTeamMemberJustDeletedState)` |
  *
- * @property {IOrganizationTeamList} activeTeam
- * Currently selected team with all its details
+ * ## Usage Examples
  *
- * @property {(team: IOrganizationTeamList) => void} setActiveTeam
- * Sets the active team and handles:
- * - Cookie updates
- * - Local storage sync
- * - Organization ID updates
- * - Project ID updates
+ * ### Before (deprecated pattern)
+ * ```tsx
+ * function MyComponent() {
+ *   const {
+ *     teams,
+ *     activeTeam,
+ *     setActiveTeam,
+ *     createOrganizationTeam,
+ *     deleteOrganizationTeamLoading
+ *   } = useOrganizationTeams();
  *
- * @property {(name: string) => Promise<any>} createOrganizationTeam
- * Creates a new team with validation:
- * - Checks for duplicate names
- * - Validates name length
- * - Updates necessary cookies
- * - Refreshes authentication token
+ *   // All properties trigger re-renders even if unused
+ * }
+ * ```
  *
- * @property {boolean} createOTeamLoading
- * Loading state for team creation
+ * ### After (recommended pattern)
+ * ```tsx
+ * function MyComponent() {
+ *   // Only subscribe to what you need - optimized re-renders!
+ *   const { teams } = useOrganisationTeams();
+ *   const activeTeam = useCurrentTeam();
+ *   const setActiveTeam = useSetActiveTeam();
+ *   const { createOrganizationTeam } = useCreateOrganizationTeam();
+ *   const { isPending: isDeleting } = useDeleteOrganizationTeamMutation();
+ * }
+ * ```
  *
- * @property {any} firstLoadTeamsData
- * Initial data loaded when the hook is first initialized
+ * ### Query with React Query benefits
+ * ```tsx
+ * function TeamsListComponent() {
+ *   const { isLoading, isError, error, refetch } = useGetOrganizationTeamsQuery();
+ *   const { teams } = useOrganisationTeams();
  *
- * @property {(data: IOrganizationTeamUpdate) => Promise<any>} editOrganizationTeam
- * Updates existing team information with full validation
+ *   if (isLoading) return <Spinner />;
+ *   if (isError) return <Error message={error.message} onRetry={refetch} />;
  *
- * @property {boolean} editOrganizationTeamLoading
- * Loading state for team editing operations
+ *   return <TeamsList teams={teams} />;
+ * }
+ * ```
  *
- * @property {(id: string) => Promise<any>} deleteOrganizationTeam
- * Deletes a team and handles cleanup operations
+ * ### Mutation with proper error handling
+ * ```tsx
+ * function DeleteTeamButton({ teamId }: { teamId: string }) {
+ *   const { mutateAsync, isPending, isError } = useDeleteOrganizationTeamMutation();
  *
- * @property {boolean} deleteOrganizationTeamLoading
- * Loading state for team deletion
+ *   const handleDelete = async () => {
+ *     try {
+ *       await mutateAsync(teamId);
+ *       toast.success('Team deleted successfully');
+ *     } catch (error) {
+ *       toast.error('Failed to delete team');
+ *     }
+ *   };
  *
- * @property {ITeamManager[]} activeTeamManagers
- * List of managers for the active team with their roles and permissions
+ *   return (
+ *     <Button onClick={handleDelete} disabled={isPending}>
+ *       {isPending ? 'Deleting...' : 'Delete Team'}
+ *     </Button>
+ *   );
+ * }
+ * ```
  *
- * @property {(team: IOrganizationTeamList, data?: Partial<IOrganizationTeamUpdate>) => void} updateOrganizationTeam
- * Updates team details with partial data support
+ * @see {@link useOrganisationTeams} - Access organization teams list (synced with React Query)
+ * @see {@link useCurrentTeam} - Access currently active team (synced with React Query)
+ * @see {@link useActiveTeamManagers} - Access managers of the active team
+ * @see {@link useGetOrganizationTeamsQuery} - React Query hook for fetching teams list
+ * @see {@link useGetOrganizationTeamQuery} - React Query hook for fetching single team details
+ * @see {@link useCreateOrganizationTeam} - Hook for creating a new team
+ * @see {@link useUpdateOrganizationTeam} - Hook for updating team details
+ * @see {@link useEditOrganizationTeamMutation} - React Query mutation for editing team
+ * @see {@link useDeleteOrganizationTeamMutation} - React Query mutation for deleting team
+ * @see {@link useRemoveUserFromAllTeamMutation} - React Query mutation for removing user from all teams
+ * @see {@link useSetActiveTeam} - Hook for setting the active team
+ * @see {@link useLoadTeamsData} - Hook for loading/refreshing teams data
+ * @see {@link useTeamsState} - Hook for direct teams state manipulation
  *
- * @property {boolean} updateOTeamLoading
- * Loading state for team updates
- *
- * @property {(teams: IOrganizationTeamList[]) => void} setTeams
- * Updates the entire teams list with proper state management
- *
- * @property {boolean} isTeamMember
- * Indicates if current user is a team member
- *
- * @property {boolean} removeUserFromAllTeamLoading
- * Loading state for user removal operations
- *
- * @property {(userId: string) => Promise<any>} removeUserFromAllTeam
- * Removes user from all teams with proper cleanup:
- * - Updates user permissions
- * - Refreshes authentication
- * - Updates team states
- *
- * @property {boolean} loadingTeam
- * Loading state for single team operations
- *
- * @property {boolean} isTrackingEnabled
- * Indicates if time tracking is enabled for current user
- *
- * @property {string | null} memberActiveTaskId
- * ID of current user's active task, null if no active task
- *
- * @property {boolean} isTeamMemberJustDeleted
- * Flag indicating recent member deletion
- *
- * @property {boolean}  isTeamManager
- * If the active user is a team manager
- *
- * @property {(value: boolean) => void} setIsTeamMemberJustDeleted
- * Updates the member deletion state
+ * @returns {Object} Legacy object containing all team-related properties and methods
  *
  * @example
- * ```typescript
- * const {
- *   teams,
- *   activeTeam,
- *   createOrganizationTeam,
- *   updateOrganizationTeam
- * } = useOrganizationTeams();
+ * // ⚠️ Deprecated usage - avoid in new code
+ * const { teams, activeTeam, setActiveTeam } = useOrganizationTeams();
  *
- * // Create new team
- * await createOrganizationTeam("New Team Name");
- *
- * // Update team
- * await updateOrganizationTeam(activeTeam, { name: "Updated Name" });
- * ```
+ * // ✅ Recommended - use individual hooks
+ * const { teams } = useOrganisationTeams();
+ * const activeTeam = useCurrentTeam();
+ * const setActiveTeam = useSetActiveTeam();
  */
 export function useOrganizationTeams() {
 	const [, setTeams] = useAtom(organizationTeamsState);

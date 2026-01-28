@@ -11,6 +11,32 @@ import { useSetAtom } from 'jotai';
 import { useCallback } from 'react';
 import { useSetActiveTeam } from './use-set-active-team';
 
+/**
+ * Returns an imperative function to load and initialize teams data.
+ *
+ * @description
+ * Handles the full team selection priority logic on app initialization:
+ * 1. Cookie (current session)
+ * 2. localStorage (user's last selected team)
+ * 3. User's `lastTeamId` from server
+ *
+ * Also handles edge cases where user was removed from their selected team.
+ *
+ * @example
+ * ```tsx
+ * const loadTeamsData = useLoadTeamsData();
+ *
+ * useEffect(() => {
+ *   loadTeamsData().then(() => console.log('Teams loaded'));
+ * }, [loadTeamsData]);
+ * ```
+ *
+ * @see {@link useSetActiveTeam} - Sets the active team with persistence
+ * @see {@link activeTeamIdState} - Jotai state for active team ID
+ * @see {@link isTeamMemberJustDeletedState} - Flags when user lost team access
+ *
+ * @returns Async function `() => Promise<TeamsResult | undefined>`
+ */
 export const useLoadTeamsData = () => {
 	const { data: user } = useUserQuery();
 	const setActiveTeamId = useSetAtom(activeTeamIdState);

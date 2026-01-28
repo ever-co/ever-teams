@@ -35,7 +35,6 @@ export function CreateTeamModal({
 	const [name, setName] = useState('');
 
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-		console.log('Team Submit');
 		e.preventDefault();
 		setError(null);
 		const form = new FormData(e.currentTarget);
