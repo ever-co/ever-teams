@@ -13,6 +13,7 @@ import { timeLogsDailyReportState, activeTeamManagersState, activeTeamState } fr
 import { useAtomValue } from 'jotai';
 import { useUserQuery } from '../queries/user-user.query';
 import { getTodayString } from '@/core/lib/utils';
+import { hasItems, includesIgnoreCase } from '@/core/lib/utils/collection.utils';
 
 type IStatusType = 'status' | 'size' | 'priority' | 'label';
 type FilterType = 'status' | 'search' | undefined;
@@ -184,7 +185,7 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 			setFilterType(undefined);
 		} else if (filterType === 'status') {
 			const hasStatus = (Object.keys(statusFilter) as IStatusType[]).some((skey) => {
-				return statusFilter[skey] && statusFilter[skey].length > 0;
+				return hasItems(statusFilter[skey]);
 			});
 			!hasStatus && setFilterType(undefined);
 		}
@@ -300,18 +301,18 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 	}, [statusFilter]);
 
 	const $tasks = useMemo(() => {
-		const n = taskName.trim().toLowerCase();
+		const n = taskName.trim();
 		const statusFilters = appliedStatusFilter;
 
 		return tasks
 			.filter((task) => {
-				return n ? task.title.toLowerCase().includes(n) : true;
+				return n ? includesIgnoreCase(task.title, n) : true;
 			})
 			.filter((task) => {
 				const keys = Object.keys(statusFilters) as IStatusType[];
 
 				return keys
-					.filter((k) => statusFilters[k].length > 0)
+					.filter((k) => hasItems(statusFilters[k]))
 					.every((k) => {
 						return k === 'label'
 							? intersection(

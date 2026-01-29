@@ -13,6 +13,7 @@ import {
 	validateExportFeasibility,
 	ExportPerformanceMonitor
 } from '@/core/lib/config/export-config';
+import { hasItems } from '@/core/lib/utils/collection.utils';
 
 /**
  * Daily Activity Report type supporting both data structures:
@@ -75,7 +76,7 @@ export function useTimeActivityExport({
 
 	// Filter data based on user permissions
 	const exportableData = useMemo(() => {
-		if (!rapportDailyActivity || rapportDailyActivity.length === 0) {
+		if (!hasItems(rapportDailyActivity)) {
 			return [];
 		}
 
@@ -177,7 +178,7 @@ export function useTimeActivityExport({
 							employeeLog.employee?.fullName || employeeLog.employee?.user?.name || 'Unknown Member';
 
 						// If there are tasks, process them
-						if (employeeLog.tasks && employeeLog.tasks.length > 0) {
+						if (hasItems(employeeLog.tasks)) {
 							employeeLog.tasks.forEach((taskLog: any) => {
 								const taskTitle = taskLog.task?.title || 'No Task';
 								const duration = taskLog.duration || 0;

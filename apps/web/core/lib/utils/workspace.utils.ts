@@ -1,4 +1,5 @@
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
+import { hasItems, isEmpty, hasId } from './collection.utils';
 
 /**
  * Check if a workspace has at least one team
@@ -7,7 +8,7 @@ import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth
  */
 export function hasTeams(workspace: ISigninEmailConfirmWorkspaces | null | undefined): boolean {
 	if (!workspace) return false;
-	return Array.isArray(workspace.current_teams) && workspace.current_teams.length > 0;
+	return hasItems(workspace.current_teams);
 }
 
 /**
@@ -28,7 +29,7 @@ export function getTeamCount(workspace: ISigninEmailConfirmWorkspaces | null | u
 export function filterWorkspacesWithTeams(
 	workspaces: ISigninEmailConfirmWorkspaces[]
 ): ISigninEmailConfirmWorkspaces[] {
-	if (!workspaces || workspaces.length === 0) return [];
+	if (isEmpty(workspaces)) return [];
 	return workspaces.filter((workspace) => hasTeams(workspace));
 }
 
@@ -38,7 +39,7 @@ export function filterWorkspacesWithTeams(
  * @returns true if all workspaces have no teams, false otherwise
  */
 export function areAllWorkspacesEmpty(workspaces: ISigninEmailConfirmWorkspaces[]): boolean {
-	if (!workspaces || workspaces.length === 0) return true;
+	if (isEmpty(workspaces)) return true;
 	return workspaces.every((workspace) => !hasTeams(workspace));
 }
 
@@ -60,11 +61,10 @@ export function getFirstTeamId(workspace: ISigninEmailConfirmWorkspaces | null |
  */
 export function findWorkspaceIndexByTeamId(workspaces: ISigninEmailConfirmWorkspaces[], teamId: string): number {
 	// Defensive checks: if workspaces is null/undefined/empty or teamId is falsy, return -1
-	if (!workspaces || workspaces.length === 0) return -1;
-	if (!teamId) return -1;
+	if (isEmpty(workspaces) || !teamId) return -1;
 
 	return workspaces.findIndex((workspace) =>
-		hasTeams(workspace) ? workspace.current_teams.some((team) => team.team_id === teamId) : false
+		hasTeams(workspace) ? hasId(workspace.current_teams, teamId, 'team_id') : false
 	);
 }
 
@@ -76,5 +76,5 @@ export function findWorkspaceIndexByTeamId(workspaces: ISigninEmailConfirmWorksp
  */
 export function workspaceHasTeam(workspace: ISigninEmailConfirmWorkspaces | null | undefined, teamId: string): boolean {
 	if (!workspace || !hasTeams(workspace) || !teamId) return false;
-	return workspace.current_teams.some((team) => team.team_id === teamId);
+	return hasId(workspace.current_teams, teamId, 'team_id');
 }

@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { GroupedTimesheet } from './use-timesheet';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { getDateString } from '@/core/lib/utils';
+import { hasItems } from '@/core/lib/utils/collection.utils';
 
 type ViewMode = 'ListView' | 'CalendarView';
 type GroupByDays = 'Daily' | 'Weekly' | 'Monthly';
@@ -27,7 +28,7 @@ export const useTimesheetViewData = ({
 		let result = shouldUsePaginatedGroups ? paginatedGroups : filterDataTimesheet;
 
 		// Fallback: if result is empty but we have filterDataTimesheet, use it
-		if ((!result || result.length === 0) && filterDataTimesheet && filterDataTimesheet.length > 0) {
+		if (!hasItems(result) && hasItems(filterDataTimesheet)) {
 			result = filterDataTimesheet;
 		}
 

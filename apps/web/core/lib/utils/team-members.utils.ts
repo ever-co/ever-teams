@@ -1,5 +1,6 @@
 import { TOrganizationTeamEmployee, TOrganizationTeam, TUser } from '@/core/types/schemas';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
+import { hasItems } from './collection.utils';
 
 // Constants for team member utilities
 export const TEAM_MEMBER_CONSTANTS = {
@@ -153,7 +154,7 @@ export const ensureCurrentUserFirst = (
 	members: TOrganizationTeamEmployee[],
 	currentUserId?: string
 ): TOrganizationTeamEmployee[] => {
-	if (!currentUserId || members.length === 0) return members;
+	if (!currentUserId || !hasItems(members)) return members;
 
 	const currentUserIndex = members.findIndex((m) => m.employee?.user?.id === currentUserId);
 

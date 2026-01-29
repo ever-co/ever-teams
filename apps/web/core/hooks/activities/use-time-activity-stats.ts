@@ -3,6 +3,7 @@ import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { ITimesheetCountsStatistics } from '@/core/types/interfaces/timesheet/timesheet';
 import { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 import { useAuthenticateUser } from '../auth';
+import { hasItems } from '@/core/lib/utils/collection.utils';
 
 export interface TimeActivityStats {
 	totalHours: string;
@@ -49,7 +50,7 @@ export function useTimeActivityStats({
 
 	// Memoize earnings calculation with optimized logic
 	const totalEarnings = useMemo(() => {
-		if (!rapportDailyActivity || rapportDailyActivity.length === 0) {
+		if (!hasItems(rapportDailyActivity)) {
 			return '0.00 USD';
 		}
 

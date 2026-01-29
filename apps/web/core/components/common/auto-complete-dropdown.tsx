@@ -5,6 +5,7 @@ import { Transition, Combobox, ComboboxOption, ComboboxOptions, ComboboxInput } 
 import { clsxm } from '@/core/lib/utils';
 import { Text } from './typography';
 import { IInviteEmail } from '../teams/invite/invite-email-item';
+import { includesIgnoreCase } from '@/core/lib/utils/collection.utils';
 
 type DropdownItem<D = { [x: string]: any }> = {
 	key: React.Key;
@@ -54,7 +55,7 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 
 	if (query !== '') {
 		filteredItem = items.filter((item) => {
-			return `${item?.data?.title || ''}`.toLowerCase().includes(query.toLowerCase());
+			return includesIgnoreCase(`${item?.data?.title || ''}`, query);
 		});
 	}
 

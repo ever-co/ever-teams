@@ -3,6 +3,7 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import { Check, ChevronDown, Search } from 'lucide-react';
 import { ChangeEvent, useCallback, useEffect, useState, useMemo, memo } from 'react';
 import { ScrollArea, ScrollBar } from './scroll-bar';
+import { includesIgnoreCase } from '@/core/lib/utils/collection.utils';
 
 interface IProps<TItem> {
 	placeholder: string;
@@ -34,7 +35,7 @@ function MultiSelectWithSearchComponent<T extends { value: string | number; id: 
 	);
 
 	const filteredOptions = useMemo(
-		() => options?.filter((option) => String(option.value).toLowerCase().includes(searchTerm.toLowerCase())),
+		() => options?.filter((option) => includesIgnoreCase(String(option.value), searchTerm)),
 		[options, searchTerm]
 	);
 

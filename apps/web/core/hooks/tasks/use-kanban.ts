@@ -7,6 +7,7 @@ import { useUpdateTask, useTeamTasksQuery } from '../organizations';
 import { TStatusItem } from '@/core/types/interfaces/task/task-card';
 import { TTaskStatus } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { hasItems, includesIgnoreCase } from '@/core/lib/utils/collection.utils';
 
 export interface IKanban {
 	[key: string]: TTask[];
@@ -62,14 +63,14 @@ export function useKanban() {
 	// Memoized filter functions for better performance
 	const filterBySearch = useCallback(
 		(task: TTask) => {
-			return task.title.toLowerCase().includes(searchTasks.toLowerCase());
+			return includesIgnoreCase(task.title, searchTasks);
 		},
 		[searchTasks]
 	);
 
 	const filterByPriority = useCallback(
 		(task: TTask) => {
-			return priority.length ? priority.includes(task.priority as string) : true;
+			return hasItems(priority) ? priority.includes(task.priority as string) : true;
 		},
 		[priority]
 	);
@@ -83,21 +84,21 @@ export function useKanban() {
 
 	const filterBySize = useCallback(
 		(task: TTask) => {
-			return sizes.length ? sizes.includes(task.size as string) : true;
+			return hasItems(sizes) ? sizes.includes(task.size as string) : true;
 		},
 		[sizes]
 	);
 
 	const filterByLabels = useCallback(
 		(task: TTask) => {
-			return labels.length ? labels.some((label) => task.tags?.some((tag) => tag.name === label)) : true;
+			return hasItems(labels) ? labels.some((label) => task.tags?.some((tag) => tag.name === label)) : true;
 		},
 		[labels]
 	);
 
 	const filterByEpics = useCallback(
 		(task: TTask) => {
-			return epics.length ? epics.includes(task.id) : true;
+			return hasItems(epics) ? epics.includes(task.id) : true;
 		},
 		[epics]
 	);
@@ -171,7 +172,7 @@ export function useKanban() {
 				return taskStatus.name === column;
 			});
 
-			if (!columnData.length) {
+			if (!hasItems(columnData)) {
 				console.warn(`Column "${column}" not found in task statuses`);
 				return;
 			}

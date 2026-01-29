@@ -5,6 +5,7 @@ import PhoneInput, { Country } from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import { PHONE_REGEX } from '@/core/lib/helpers/index';
 import en from 'react-phone-number-input/locale/en.json';
+import { includesIgnoreCase } from '@/core/lib/utils/collection.utils';
 
 type Option = {
 	value: Country;
@@ -59,7 +60,7 @@ const CustomCountrySelect = ({
 		const filtered = options.filter((option: Option) => {
 			const countryName = en[option.value as keyof typeof en];
 			const searchableName = countryName || option.value;
-			return String(searchableName).toLowerCase().includes(searchValue.toLowerCase());
+			return includesIgnoreCase(String(searchableName), searchValue);
 		});
 
 		setFilteredOptions(filtered);

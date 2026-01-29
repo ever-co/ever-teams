@@ -11,6 +11,7 @@ import { useAuthenticateUser } from '@/core/hooks/auth';
 import { FilterState } from '@/core/types/interfaces/timesheet/time-limit-report';
 import { isProject } from '@/core/lib/helpers/type-guards';
 import { ensureArray, getLocalStorageItem, setLocalStorageItem } from '@/core/lib/utils/storage.utils';
+import { hasItems } from '@/core/lib/utils/collection.utils';
 
 interface TimeActivityHeaderProps {
 	userManagedTeams?: TOrganizationTeam[];
