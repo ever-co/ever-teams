@@ -8,28 +8,8 @@ import { IUseDailyPlanOptions } from './use-daily-plan-options';
 import { DAILY_PLAN_QUERY_GC_TIME } from './constants';
 
 /**
- * Hook to fetch all daily plans for the current team.
- *
- * This hook retrieves team-wide daily plans, useful for:
- * - Admin views showing all team members' plans
- * - Team dashboard with aggregated plan data
- * - Reports and analytics
- *
- * @param options - Configuration options for the query
- * @returns React Query result with all team daily plans
- *
- * @example
- * ```tsx
- * // Basic usage
- * const { data, isLoading, error } = useAllDailyPlansQuery();
- *
- * // With conditional fetching
- * const { data } = useAllDailyPlansQuery({ enabled: isAdmin });
- *
- * // Accessing the plans
- * const plans = data?.items ?? [];
- * const totalCount = data?.total ?? 0;
- * ```
+ * Fetches all daily plans for the current team.
+ * Useful for manager views or team-wide dashboards.
  */
 export function useAllDailyPlansQuery(options: IUseDailyPlanOptions = {}) {
 	const { enabled = true } = options;

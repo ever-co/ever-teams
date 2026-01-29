@@ -3,6 +3,11 @@ import { TUpdateDailyPlan } from '@/core/types/schemas';
 import { useMutation } from '@tanstack/react-query';
 import { useInvalidateDailyPlanData } from '../use-invalidate-daily-plan-data';
 
+/**
+ * Mutation to update an existing daily plan.
+ * Fetches current `employeeId` from server if not provided in payload.
+ * Invalidates daily plan cache on success.
+ */
 export const useUpdateDailyPlanMutation = () => {
 	const invalidateDailyPlanData = useInvalidateDailyPlanData();
 

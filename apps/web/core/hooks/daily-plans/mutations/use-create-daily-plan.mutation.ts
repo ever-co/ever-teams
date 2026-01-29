@@ -5,6 +5,10 @@ import { useInvalidateDailyPlanData } from '../use-invalidate-daily-plan-data';
 import { toast } from 'sonner';
 import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
 
+/**
+ * Mutation to create a new daily plan.
+ * Shows error toast on failure. Invalidates daily plan cache on success.
+ */
 export const useCreateDailyPlanMutation = () => {
 	const invalidateDailyPlanData = useInvalidateDailyPlanData();
 

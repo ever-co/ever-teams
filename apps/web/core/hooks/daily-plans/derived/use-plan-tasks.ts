@@ -2,18 +2,32 @@ import { useMemo } from 'react';
 import { IUseDailyPlanOptions } from '../queries';
 import { useFuturePlans, useTodayPlan } from './use-filtered-plans';
 
+/**
+ * Returns all tasks from today's daily plans.
+ * Replaces legacy `todayTasksState` atom.
+ *
+ * @param employeeId - Employee ID (optional, defaults to current user)
+ * @param options - Query options ({ enabled })
+ */
 export const useTodayTasks = (employeeId?: string, options: IUseDailyPlanOptions = {}) => {
 	const { enabled = true } = options;
 	const todayPlan = useTodayPlan(employeeId, { enabled });
 
 	// NOTE: Replacement for todayTasksState atom; derived locally from todayPlan.
 	const todayTasks = useMemo(() => {
-		return todayPlan.flatMap((plan) => plan.tasks ?? []);
+		return todayPlan?.flatMap((plan) => plan.tasks ?? []) ?? [];
 	}, [todayPlan]);
 
 	return todayTasks;
 };
 
+/**
+ * Returns all tasks from future daily plans.
+ * Replaces legacy `futureTasksState` atom.
+ *
+ * @param employeeId - Employee ID (optional, defaults to current user)
+ * @param options - Query options ({ enabled })
+ */
 export const useFutureTasks = (employeeId?: string, options: IUseDailyPlanOptions = {}) => {
 	const { enabled = true } = options;
 	const futurePlans = useFuturePlans(employeeId, { enabled });
@@ -21,7 +35,7 @@ export const useFutureTasks = (employeeId?: string, options: IUseDailyPlanOption
 	// NOTE: Replacement for futureTasksState atom; keeps future task list
 	// local to this hook instead of global Jotai.
 	const futureTasks = useMemo(() => {
-		return futurePlans.flatMap((plan) => plan.tasks ?? []);
+		return futurePlans?.flatMap((plan) => plan.tasks ?? []) ?? [];
 	}, [futurePlans]);
 
 	return futureTasks;

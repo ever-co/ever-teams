@@ -8,28 +8,8 @@ import { IUseDailyPlanOptions } from './use-daily-plan-options';
 import { DAILY_PLAN_QUERY_GC_TIME } from './constants';
 
 /**
- * Hook to fetch daily plans for the currently authenticated user.
- *
- * This hook is the primary way to get the logged-in user's plans.
- * Use this for:
- * - Personal dashboard
- * - "My Plans" views
- * - Home modal daily plan section
- *
- * @returns React Query result with current user's daily plans
- *
- * @example
- * ```tsx
- * // Basic usage
- * const { data, isLoading } = useMyDailyPlansQuery();
- *
- * // With lazy loading (e.g., accordion)
- * const [isExpanded, setIsExpanded] = useState(false);
- * const { data } = useMyDailyPlansQuery({ enabled: isExpanded });
- *
- * // Access plans
- * const myPlans = data?.items ?? [];
- * ```
+ * Fetches daily plans for the currently authenticated user.
+ * Primary hook for personal dashboards and "My Plans" views.
  */
 export function useMyDailyPlansQuery(options: IUseDailyPlanOptions = {}) {
 	const { enabled = true } = options;

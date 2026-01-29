@@ -3,9 +3,13 @@
 import { queryKeys } from '@/core/query/keys';
 import { dailyPlanService } from '@/core/services/client/api';
 import { useQueryClient } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { DAILY_PLAN_QUERY_GC_TIME } from './constants';
 
+/**
+ * Lazy query to fetch daily plans containing a specific task.
+ * Fetches on-demand via `getPlansByTaskId()`.
+ */
 export const usePlansByTaskLazyQuery = () => {
 	// utility for lazy query
 	const queryClient = useQueryClient();
@@ -21,18 +25,21 @@ export const usePlansByTaskLazyQuery = () => {
 		[state?.status, state?.fetchStatus]
 	);
 
-	const getPlansByTaskId = (taskId: string) => {
-		return queryClient.fetchQuery({
-			queryKey: queryKeys.dailyPlans.byTask(taskId),
-			queryFn: async ({ queryKey }) => {
-				setQueryKey(queryKey);
-				if (!taskId) throw new Error('Required parameters missing');
-				const res = await dailyPlanService.getPlansByTask({ taskId });
-				return res;
-			},
-			gcTime: DAILY_PLAN_QUERY_GC_TIME
-		});
-	};
+	const getPlansByTaskId = useCallback(
+		(taskId: string) => {
+			return queryClient.fetchQuery({
+				queryKey: queryKeys.dailyPlans.byTask(taskId),
+				queryFn: async ({ queryKey }) => {
+					setQueryKey(queryKey);
+					if (!taskId) throw new Error('Required parameters missing');
+					const res = await dailyPlanService.getPlansByTask({ taskId });
+					return res;
+				},
+				gcTime: DAILY_PLAN_QUERY_GC_TIME
+			});
+		},
+		[queryClient]
+	);
 
 	return { getPlansByTaskId, ...state, ...status };
 };

@@ -1,18 +1,31 @@
 import { useMemo } from 'react';
 import { IUseDailyPlanOptions } from '../queries';
 import { useProfileDailyPlans } from './use-profile-daily-plans';
-import { useTodayTasks } from './use-plan-tasks';
+import { useFutureTasks, useTodayTasks } from './use-plan-tasks';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useSortedTasksByCreation } from '../../organizations/teams/use-sorted-tasks';
 import { useCurrentTeam } from '../../organizations/teams/use-current-team';
 import { TDailyPlan } from '@/core/types/schemas';
 
+/** ID for the virtual plan containing unplanned tasks (client-side only) */
+const VIRTUAL_UNPLANNED_TASKS_ID = 'outstanding-no-plan';
+
+/**
+ * Returns "outstanding" plans requiring attention:
+ * 1. Past plans with incomplete tasks not yet rescheduled
+ * 2. Unplanned tasks with time tracked or estimates (as a virtual plan)
+ *
+ * Replaces legacy `outstandingPlansState` atom.
+ *
+ * @param employeeId - Employee ID to filter plans (required for accurate unplanned tasks detection)
+ * @param options - Query options ({ enabled })
+ */
 export const useOutstandingPlans = (employeeId?: string, options: IUseDailyPlanOptions = {}) => {
 	const { enabled = true } = options;
 	const activeTeam = useCurrentTeam();
 	const profileDailyPlans = useProfileDailyPlans(employeeId, { enabled });
 	const todayTasks = useTodayTasks();
-	const futureTasks = useTodayTasks();
+	const futureTasks = useFutureTasks();
 	const allTeamTasks = useSortedTasksByCreation();
 
 	// NOTE: Replacement for futureTasksState atom; keeps future task list
@@ -71,7 +84,7 @@ export const useOutstandingPlans = (employeeId?: string, options: IUseDailyPlanO
 			tasksNotInAnyPlan.length > 0
 				? [
 						{
-							id: 'outstanding-no-plan',
+							id: VIRTUAL_UNPLANNED_TASKS_ID,
 							date: new Date().toISOString(),
 							tasks: tasksNotInAnyPlan,
 							workTimePlanned: 0,

@@ -8,6 +8,11 @@ import { toast } from 'sonner';
 import { useCurrentTeam } from '../../organizations/teams/use-current-team';
 import { useInvalidateDailyPlanData } from '../use-invalidate-daily-plan-data';
 
+/**
+ * Mutation to add a task to a daily plan.
+ * Auto-assigns the employee to the task if not already assigned.
+ * Invalidates daily plan cache on success.
+ */
 export const useAddTaskToPlanMutation = () => {
 	const activeTeam = useCurrentTeam();
 	const invalidateDailyPlanData = useInvalidateDailyPlanData();

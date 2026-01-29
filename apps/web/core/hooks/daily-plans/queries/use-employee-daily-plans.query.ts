@@ -10,29 +10,11 @@ import { IUseDailyPlanOptions } from './use-daily-plan-options';
 import { DAILY_PLAN_QUERY_GC_TIME } from './constants';
 
 /**
- * Hook to fetch daily plans for a specific employee.
+ * Fetches daily plans for a specific employee.
+ * Falls back to current user if no employeeId provided.
  *
- * Use this hook when viewing another team member's plans,
- * such as on their profile page or in a manager's view.
- *
- * @param options - Configuration options including employeeId
- * @returns React Query result with the employee's daily plans
- *
- * @example
- * ```tsx
- * // On a profile page
- * const { employeeId } = useParams();
- * const { data, isLoading } = useEmployeeDailyPlansQuery({ employeeId });
- *
- * // Conditional fetching
- * const { data } = useEmployeeDailyPlansQuery({
- *   employeeId: selectedEmployee?.id,
- *   enabled: !!selectedEmployee
- * });
- *
- * // Access plans
- * const employeePlans = data?.items ?? [];
- * ```
+ * @param employeeId - Target employee ID (optional, defaults to current user)
+ * @param options - Query options ({ enabled })
  */
 export const useEmployeeDailyPlansQuery = (employeeId?: string, options: IUseDailyPlanOptions = {}) => {
 	const { enabled = true } = options;
@@ -69,6 +51,10 @@ export const useEmployeeDailyPlansQuery = (employeeId?: string, options: IUseDai
 	});
 };
 
+/**
+ * Lazy version of useEmployeeDailyPlansQuery.
+ * Fetches on-demand via `getPlanByEmployeeId()` instead of automatically.
+ */
 export const useEmployeeDailyPlansQueryLazy = () => {
 	// Get current team context
 	const activeTeam = useCurrentTeam();
