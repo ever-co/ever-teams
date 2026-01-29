@@ -1,30 +1,42 @@
 'use client';
 
-import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
 import { queryKeys } from '@/core/query/keys';
 import { dailyPlanListState } from '@/core/stores';
 import {
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlansRequest
 } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import {
-	TCreateDailyPlan,
-	TDailyPlan,
-	TDailyPlanTasksUpdate,
-	TRemoveTaskFromPlansRequest,
-	TUpdateDailyPlan
-} from '@/core/types/schemas/task/daily-plan.schema';
-import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { TCreateDailyPlan, TUpdateDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { toast } from 'sonner';
-import { dailyPlanService, taskService } from '../../services/client/api';
-import { useConditionalUpdateEffect, useQueryCall } from '../common';
+import { useCallback, useEffect, useState } from 'react';
+import { dailyPlanService } from '../../services/client/api';
+import { useConditionalUpdateEffect } from '../common';
 import { useFirstLoad } from '../common/use-first-load';
 import { useCurrentTeam } from '../organizations/teams/use-current-team';
-import { useSortedTasksByCreation } from '../organizations/teams/use-sorted-tasks';
 import { useUserQuery } from '../queries/user-user.query';
+import {
+	useFuturePlans,
+	useOutstandingPlans,
+	usePastPlans,
+	useProfileDailyPlans,
+	useSortedPlan,
+	useTodayPlan
+} from './derived';
+import {
+	useAddTaskToPlanMutation,
+	useCreateDailyPlanMutation,
+	useDeleteDailyPlanMutation,
+	useRemoveTaskFromManyPlansMutation,
+	useRemoveTaskFromPlanMutation,
+	useUpdateDailyPlanMutation
+} from './mutations';
+import {
+	useAllDailyPlansQuery,
+	useEmployeeDailyPlansQuery,
+	useMyDailyPlansQuery,
+	usePlansByTaskLazyQuery
+} from './queries';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
@@ -54,7 +66,6 @@ export function useDailyPlan(defaultEmployeeId: string | null = null, options?: 
 	const targetEmployeeId = defaultEmployeeId || user?.employee?.id;
 	const [employeeId, setEmployeeId] = useState(targetEmployeeId || '');
 	const queryClient = useQueryClient();
-	const allTeamTasks = useSortedTasksByCreation();
 
 	// Extract options with defaults
 	const { enabled = true } = options || {};
@@ -66,186 +77,26 @@ export function useDailyPlan(defaultEmployeeId: string | null = null, options?: 
 		}
 	}, [targetEmployeeId, employeeId]);
 	// Queries
-	const getDayPlansByEmployeeQuery = useQuery({
-		queryKey: queryKeys.dailyPlans.byEmployee(targetEmployeeId, activeTeam?.id),
-		queryFn: async () => {
-			if (!targetEmployeeId) {
-				throw new Error('Employee ID is required to fetch daily plans');
-			}
-			const res = await dailyPlanService.getDayPlansByEmployee({ employeeId: targetEmployeeId });
-			return res;
-		},
-		enabled: enabled && !!targetEmployeeId,
-		gcTime: 1000 * 60 * 60 // 1 hour
-	});
+	const getDayPlansByEmployeeQuery = useEmployeeDailyPlansQuery(targetEmployeeId, { enabled });
 
-	const getMyDailyPlansQuery = useQuery({
-		queryKey: queryKeys.dailyPlans.myPlans(activeTeam?.id),
-		queryFn: async () => {
-			const res = await dailyPlanService.getMyDailyPlans();
-			return res;
-		},
-		enabled: enabled && !!activeTeam?.id,
-		gcTime: 1000 * 60 * 60
-	});
+	const getMyDailyPlansQuery = useMyDailyPlansQuery({ enabled });
 
-	const getAllDayPlansQuery = useQuery({
-		queryKey: queryKeys.dailyPlans.allPlans(activeTeam?.id),
-		queryFn: async () => {
-			const res = await dailyPlanService.getAllDayPlans();
-			return res;
-		},
-		enabled: enabled && !!activeTeam?.id,
-		gcTime: 1000 * 60 * 60
-	});
+	const getAllDayPlansQuery = useAllDailyPlansQuery({ enabled });
 
-	const { loading: getPlansByTaskQueryLoading, queryCall: getPlansByTaskQuery } = useQueryCall((taskId: string) =>
-		queryClient.fetchQuery({
-			queryKey: queryKeys.dailyPlans.byTask(taskId),
-			queryFn: async () => {
-				const res = await dailyPlanService.getPlansByTask({ taskId });
-				return res;
-			},
-			gcTime: 1000 * 60 * 60
-		})
-	);
+	const { isLoading: getPlansByTaskQueryLoading, getPlansByTaskId: getPlansByTaskQuery } = usePlansByTaskLazyQuery();
 
 	// Mutations
-	const createDailyplanMutation = useMutation({
-		mutationFn: async (data: TCreateDailyPlan) => {
-			const res = await dailyPlanService.createDailyPlan(data);
-			return res;
-		},
-		onSuccess: () => {
-			invalidateDailyPlanData();
-		},
-		onError: (error) => {
-			toast.error('Failed to create daily plan', {
-				description: getErrorMessage(error, 'Failed to create daily plan')
-			});
-			logErrorInDev('Failed to create daily plan', error);
-		}
-	});
+	const createDailyplanMutation = useCreateDailyPlanMutation();
 
-	const updateDailyPlanMutation = useMutation({
-		mutationFn: async ({ dailyPlanId, data }: { dailyPlanId: string; data: TUpdateDailyPlan }) => {
-			// The server requires `employeeId` in all update requests.
-			// This value may represent either:
-			// - the current owner of the plan, or
-			// - a new owner, if the plan is being reassigned.
-			let employeeId = data?.employeeId;
-			if (!employeeId) {
-				// If `employeeId` is not provided in the payload, we fetch the existing plan
-				// to retrieve its current owner before sending the update request.
-				const plan = await dailyPlanService.getPlanById(dailyPlanId);
-				if (!plan.employeeId) throw new Error('Assign this plan to an employee before any update');
-				employeeId = plan.employeeId;
-			}
-			const res = await dailyPlanService.updateDailyPlan({ ...data, employeeId }, dailyPlanId);
-			return res;
-		},
-		onSuccess: (data) => {
-			invalidateDailyPlanData();
-		}
-	});
+	const updateDailyPlanMutation = useUpdateDailyPlanMutation();
 
-	const addTaskToPlanMutation = useMutation({
-		mutationFn: async ({ dailyPlanId, data }: { dailyPlanId: string; data: TDailyPlanTasksUpdate }) => {
-			const res = await dailyPlanService.addTaskToPlan(data, dailyPlanId);
-			return res;
-		},
-		onSuccess: async (_data, variables) => {
-			try {
-				const taskId = variables.data.taskId;
-				// Use employeeId from the request data to ensure we assign the correct employee
-				// when adding tasks to other employees' plans
-				const requestEmployeeId = variables.data.employeeId;
+	const addTaskToPlanMutation = useAddTaskToPlanMutation();
 
-				// Get the task from React Query cache
-				const tasksData = queryClient.getQueryData<{ items: TTask[]; total: number }>(
-					queryKeys.tasks.byTeam(activeTeam?.id)
-				);
+	const removeTaskFromPlanMutation = useRemoveTaskFromPlanMutation();
 
-				const task = tasksData?.items?.find((t) => t.id === taskId);
+	const removeTaskPlansMutation = useRemoveTaskFromManyPlansMutation();
 
-				if (task && requestEmployeeId) {
-					// Check if employee is already assigned to the task
-					const isAlreadyAssigned = task.members?.some((member) => member.id === requestEmployeeId);
-
-					if (!isAlreadyAssigned) {
-						// Get employee object from activeTeam.members
-						const employee = activeTeam?.members?.find((m) => m.employeeId === requestEmployeeId);
-						if (employee && employee.employeeId) {
-							// Add employee to task members (deduplicate by userId for idempotence)
-							const existingMembers = task.members ?? [];
-							const memberExists = existingMembers.some((m) => m.userId === employee.user?.id);
-
-							if (!memberExists) {
-								const updatedMembers = [...existingMembers, employee];
-								// Update task via taskService (will trigger invalidation)
-								await taskService.updateTask({
-									taskId: task.id,
-									data: { ...task, members: updatedMembers as any } // Type assertion needed due to Zod lazy schema
-								});
-								toast.success('Employee assigned to task');
-							}
-						}
-					}
-				}
-			} catch (error) {
-				// Log error but don't block the daily plan update
-				toast.error('Failed to auto-assign employee to task', {
-					description: getErrorMessage(error, 'Failed to auto-assign employee to task')
-				});
-				logErrorInDev('Failed to auto-assign employee to task:', error);
-			}
-
-			invalidateDailyPlanData();
-		}
-	});
-
-	const removeTaskFromPlanMutation = useMutation({
-		mutationFn: async ({ dailyPlanId, data }: { dailyPlanId: string; data: TRemoveTaskFromPlansRequest }) => {
-			const res = await dailyPlanService.removeTaskFromPlan(data, dailyPlanId);
-			return res;
-		},
-		onSuccess: (data) => {
-			invalidateDailyPlanData();
-		}
-	});
-
-	const removeTaskPlansMutation = useMutation({
-		mutationFn: async ({ taskId, data }: { taskId: string; data: TRemoveTaskFromPlansRequest }) => {
-			const res = await dailyPlanService.removeManyTaskFromPlans({ taskId, data });
-			return res;
-		},
-		onSuccess: (data) => {
-			invalidateDailyPlanData();
-		}
-	});
-
-	const deleteDailyPlanMutation = useMutation({
-		mutationFn: async (dailyPlanId: string) => {
-			const res = await dailyPlanService.deleteDailyPlan(dailyPlanId);
-			return res;
-		},
-		onSuccess: (data) => {
-			invalidateDailyPlanData();
-		}
-	});
-
-	const invalidateDailyPlanData = useCallback(() => {
-		// Invalidate ALL task queries to ensure synchronization across all contexts
-		// Invalidate ALL daily plan queries to ensure synchronization across all contexts
-		// This includes myPlans, allPlans, byEmployee, byTask, etc.
-		// Similar to invalidateTeamTasksData() in use-team-tasks.ts
-		queryClient.invalidateQueries({
-			queryKey: queryKeys.tasks.all
-		});
-		queryClient.invalidateQueries({
-			queryKey: queryKeys.dailyPlans.all
-		});
-	}, [queryClient]);
+	const deleteDailyPlanMutation = useDeleteDailyPlanMutation();
 
 	//  TEAM-WIDE atom - Keep for backward compatibility
 	const [dailyPlan, setDailyPlan] = useAtom(dailyPlanListState);
@@ -265,13 +116,7 @@ export function useDailyPlan(defaultEmployeeId: string | null = null, options?: 
 	//  NOTE: Calculate profileDailyPlans from React Query.
 	//  Per-employee plans are no longer stored in global atoms; they are derived
 	//  from queries to keep views in sync (Home modal, Profile tab, etc.).
-	const profileDailyPlans = useMemo(() => {
-		const isViewingOtherEmployee = targetEmployeeId && targetEmployeeId !== user?.employee?.id;
-
-		return isViewingOtherEmployee
-			? getDayPlansByEmployeeQuery.data || { items: [], total: 0 }
-			: getMyDailyPlansQuery.data || { items: [], total: 0 };
-	}, [targetEmployeeId, user?.employee?.id, getDayPlansByEmployeeQuery.data, getMyDailyPlansQuery.data]);
+	const profileDailyPlans = useProfileDailyPlans(targetEmployeeId, { enabled });
 
 	// All day plans
 	const getAllDayPlans = useCallback(async () => {
@@ -417,145 +262,21 @@ export function useDailyPlan(defaultEmployeeId: string | null = null, options?: 
 		[deleteDailyPlanMutation]
 	);
 
-	// NOTE: Replacement for ascSortedPlansState atom; keeps plans sorted
-	// by date ascending for future/past calculations.
-	const ascSortedPlans = useMemo(() => {
-		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].sort(
-			(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-		);
-	}, [profileDailyPlans]);
-
-	const futurePlans = useMemo(() => {
-		return ascSortedPlans?.filter((plan) => {
-			const planDate = new Date(plan.date);
-			const today = new Date();
-			today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparization
-			// NOTE_FIX: Use > instead of >= to exclude today's plans from future plans
-			// Future plans should only include dates AFTER today, not today itself
-			return planDate.getTime() > today.getTime();
-		});
-	}, [ascSortedPlans]);
-
-	// NOTE: Replacement for descSortedPlansState atom; keeps plans sorted
-	// by date descending for past calculations.
-	const descSortedPlans = useMemo(() => {
-		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].sort(
-			(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-		);
-	}, [profileDailyPlans]);
+	const futurePlans = useFuturePlans(targetEmployeeId, { enabled });
 
 	// NOTE: Replacement for pastPlansState atom; exposes strictly past plans
 	// for Outstanding and history-related views.
-	const pastPlans = useMemo(() => {
-		return descSortedPlans?.filter((plan) => {
-			const planDate = new Date(plan.date);
-			const today = new Date();
-			today.setHours(0, 0, 0, 0); // Set today time to exclude timestamps in comparization
-			return planDate.getTime() < today.getTime();
-		});
-	}, [descSortedPlans]);
+	const pastPlans = usePastPlans(targetEmployeeId, { enabled });
 
-	const todayPlan = useMemo(() => {
-		// NOTE: Replacement for todayPlanState atom.
-		// We keep the same ISO-date prefix logic so counters/charts using
-		// "today" are not affected by this refactor.
-		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].filter((plan) =>
-			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])
-		);
-	}, [profileDailyPlans]);
-
-	// NOTE: Replacement for todayTasksState atom; derived locally from todayPlan.
-	const todayTasks = useMemo(() => {
-		return todayPlan.flatMap((plan) => plan.tasks ?? []);
-	}, [todayPlan]);
-
-	// NOTE: Replacement for futureTasksState atom; keeps future task list
-	// local to this hook instead of global Jotai.
-	const futureTasks = useMemo(() => {
-		return futurePlans.flatMap((plan) => plan.tasks ?? []);
-	}, [futurePlans]);
+	const todayPlan = useTodayPlan(targetEmployeeId, { enabled });
 
 	// NOTE: Replacement for outstandingPlansState atom; keeps "outstanding"
 	// logic close to daily-plan queries instead of global Jotai stores.
-	const outstandingPlans = useMemo(() => {
-		// Build a Set of task IDs from today/future to avoid repeated linear searches (O(1) lookup instead of O(n²))
-		const usedIds = new Set<string>([...todayTasks, ...futureTasks].map((t: TTask) => t.id));
-
-		// PART 1: Past plans with incomplete tasks not in today/future
-		const pastPlansWithIncompleteTasks = [...(profileDailyPlans.items ? profileDailyPlans.items : [])]
-			// Exclude today plans
-			.filter((plan) => !plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]))
-			// Exclude future plans (keep only past plans)
-			.filter((plan) => {
-				const planDate = new Date(plan.date);
-				const today = new Date();
-				today.setHours(23, 59, 59, 0);
-				return planDate.getTime() <= today.getTime();
-			})
-			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-			.map((plan) => ({
-				...plan,
-				// Include only non-completed tasks
-				tasks: plan.tasks?.filter((task) => task.status !== 'completed')
-			}))
-			.map((plan) => ({
-				...plan,
-				// Include only tasks not added yet to today/future plans
-				tasks: plan.tasks?.filter((_task) => !usedIds.has(_task.id))
-			}))
-			.filter((plan) => plan.tasks?.length && plan.tasks.length > 0);
-
-		// PART 2: Tasks assigned to member that are NOT in ANY plan
-		// Build a Set of ALL task IDs that are in ANY plan (today, future, past)
-		const allPlannedTaskIds = new Set<string>(
-			profileDailyPlans.items?.flatMap((plan) => plan.tasks?.map((t) => t.id) ?? []) ?? []
-		);
-
-		// Filter tasks assigned to the target employee that are NOT in any plan
-		const tasksNotInAnyPlan = allTeamTasks.filter((task) => {
-			// Must be assigned to the target employee (match by employeeId, not current user)
-			const isAssignedToTargetEmployee =
-				!!targetEmployeeId && task.members?.some((member) => member.id === targetEmployeeId);
-			// Must NOT be in any plan
-			const isNotInAnyPlan = !allPlannedTaskIds.has(task.id);
-			// Must have time tracked OR estimation set
-			const hasTimeOrEstimate =
-				(task.totalWorkedTime && task.totalWorkedTime > 0) || (task.estimate && task.estimate > 0);
-
-			return isAssignedToTargetEmployee && isNotInAnyPlan && hasTimeOrEstimate;
-		});
-
-		// Create a virtual plan for tasks not in any plan (if any exist)
-		const virtualPlanForUnplannedTasks: TDailyPlan[] =
-			tasksNotInAnyPlan.length > 0
-				? [
-						{
-							id: 'outstanding-no-plan',
-							date: new Date().toISOString(),
-							tasks: tasksNotInAnyPlan,
-							workTimePlanned: 0,
-							status: 'open',
-							tenantId: activeTeam?.tenantId ?? null,
-							organizationId: activeTeam?.organizationId ?? null,
-							employeeId: targetEmployeeId ?? null,
-							employee: null,
-							organizationTeamId: activeTeam?.id ?? null,
-							organizationTeam: null
-						}
-					]
-				: [];
-
-		// Combine past plans with incomplete tasks + virtual plan for unplanned tasks
-		return [...pastPlansWithIncompleteTasks, ...virtualPlanForUnplannedTasks];
-	}, [profileDailyPlans, todayTasks, futureTasks, allTeamTasks, activeTeam, targetEmployeeId]);
+	const outstandingPlans = useOutstandingPlans(targetEmployeeId, { enabled });
 
 	// NOTE: Replacement for sortedPlansState atom; generic sorted list
 	// used by multiple views (tabs, filters, etc.).
-	const sortedPlans = useMemo(() => {
-		return [...(profileDailyPlans.items ? profileDailyPlans.items : [])].sort(
-			(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-		);
-	}, [profileDailyPlans]);
+	const sortedPlans = useSortedPlan(targetEmployeeId, { enabled });
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadAllDayPlans();
