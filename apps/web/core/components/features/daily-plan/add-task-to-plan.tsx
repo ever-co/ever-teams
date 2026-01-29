@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
-import { useDailyPlan } from '@/core/hooks';
+import { useAuthenticateUser } from '@/core/hooks';
 import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
 import {
 	Command,
@@ -24,6 +24,9 @@ import { InputField } from '../../duplicated-components/_input';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
+import { useAddTaskToPlanMutation, useCreateDailyPlanMutation } from '@/core/hooks/daily-plans/mutations';
+import { useProfileDailyPlans } from '@/core/hooks/daily-plans/derived';
+import { useEmployeeDailyPlansQueryLazy } from '@/core/hooks/daily-plans/queries';
 export function AddTaskToPlan({
 	open,
 	closeModal,
@@ -35,9 +38,11 @@ export function AddTaskToPlan({
 	task: TTask;
 	employee?: IEmployee;
 }) {
-	// Use useDailyPlan with employee?.id to get the correct employee's plans
-	const { profileDailyPlans, createDailyPlan, addTaskToPlan, getEmployeeDayPlans, addTaskToPlanLoading } =
-		useDailyPlan(employee?.id ?? null);
+	const { getPlanByEmployeeId } = useEmployeeDailyPlansQueryLazy();
+	const { user } = useAuthenticateUser();
+	const profileDailyPlans = useProfileDailyPlans(employee?.id ?? undefined);
+	const { mutateAsync: createDailyPlan } = useCreateDailyPlanMutation();
+	const { mutateAsync: addTaskToPlan, isPending: addTaskToPlanLoading } = useAddTaskToPlanMutation();
 	const [selectedPlan, setSelectedPlan] = useState<TDailyPlan | null>(null);
 	const [newPlan, setNewPlan] = useState<boolean>(false);
 	const [date, setDate] = useState<Date>(new Date());
@@ -48,28 +53,29 @@ export function AddTaskToPlan({
 	}, []);
 
 	const onSubmit = useCallback(async () => {
-		newPlan
-			? createDailyPlan({
-					workTimePlanned: workTimePlanned,
+		if (newPlan && user?.tenantId)
+			await createDailyPlan({
+				workTimePlanned: workTimePlanned,
+				taskId: task.id,
+				date: moment(date).format('YYYY-MM-DD'),
+				status: EDailyPlanStatus.OPEN,
+				tenantId: employee?.tenantId,
+				employeeId: employee?.employeeId,
+				organizationId: employee?.organizationId
+			}).then(() => {
+				closeModal();
+			});
+		else if (!newPlan)
+			await addTaskToPlan({
+				dailyPlanId: selectedPlan?.id ?? '',
+				data: {
 					taskId: task.id,
-					date: moment(date).format('YYYY-MM-DD'),
-					status: EDailyPlanStatus.OPEN,
-					tenantId: employee?.tenantId,
 					employeeId: employee?.employeeId,
 					organizationId: employee?.organizationId
-				}).then(() => {
-					closeModal();
-				})
-			: addTaskToPlan(
-					{
-						taskId: task.id,
-						employeeId: employee?.employeeId,
-						organizationId: employee?.organizationId
-					},
-					selectedPlan?.id ?? ''
-				).then(() => {
-					closeModal();
-				});
+				}
+			}).then(() => {
+				closeModal();
+			});
 	}, [
 		addTaskToPlan,
 		closeModal,
@@ -87,8 +93,8 @@ export function AddTaskToPlan({
 	]);
 
 	useEffect(() => {
-		getEmployeeDayPlans(employee?.employeeId ?? '');
-	}, [employee?.employeeId, getEmployeeDayPlans]);
+		if (employee?.employeeId) getPlanByEmployeeId(employee?.employeeId ?? '');
+	}, [employee?.employeeId, getPlanByEmployeeId]);
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} className="w-[98%] md:w-[530px] relative">

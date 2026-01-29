@@ -17,7 +17,6 @@ import { TaskTimes, TodayWorkedTime } from '@/core/components/tasks/task-times';
 import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
 import {
 	useCollaborative,
-	useDailyPlan,
 	useTMCardTaskEdit,
 	useTaskStatistics,
 	useTeamMemberCard,
@@ -47,6 +46,7 @@ import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
+import { useEmployeeDailyPlansQuery, useMyDailyPlansQuery } from '@/core/hooks/daily-plans/queries';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -126,16 +126,18 @@ export function UserTeamCard({
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id);
 
-	// Memoize accordion state early to use in useDailyPlan options
+	// Memoize accordion state early to use in useMyDailyPlansQuery & useEmployeeDailyPlansQuery options
 	const isAccordionExpanded = useMemo(() => {
 		return userDetailAccordion === memberInfo.memberUser?.id;
 	}, [userDetailAccordion, memberInfo.memberUser?.id]);
 
 	// PERFORMANCE FIX: Only fetch daily plans when accordion is expanded
 	// This prevents unnecessary API calls for every team member card on initial render
-	const { getDayPlansByEmployeeLoading, getMyDailyPlansLoading } = useDailyPlan(
-		memberInfo.isAuthUser ? undefined : memberInfo.member?.employeeId,
-		{ enabled: isAccordionExpanded } // Only enable queries when accordion is open
+	// Only enable queries when accordion is open
+	const { isPending: getMyDailyPlansLoading } = useMyDailyPlansQuery({ enabled: isAccordionExpanded });
+	const { isPending: getDayPlansByEmployeeLoading } = useEmployeeDailyPlansQuery(
+		memberInfo.isAuthUser ? undefined : (memberInfo.member?.employeeId ?? undefined),
+		{ enabled: isAccordionExpanded }
 	);
 
 	// Memoize callback to prevent unnecessary re-renders

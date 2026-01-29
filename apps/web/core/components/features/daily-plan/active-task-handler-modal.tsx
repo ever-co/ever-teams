@@ -1,7 +1,7 @@
 import { Modal, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { DEFAULT_PLANNED_TASK_ID } from '@/core/constants/config/constants';
-import { useDailyPlan, useTimerView } from '@/core/hooks';
+import { useTimerView } from '@/core/hooks';
 import { useCurrentActiveTask } from '@/core/hooks/organizations/teams/use-current-active-task';
 import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
 import { clsxm } from '@/core/lib/utils';
@@ -10,6 +10,7 @@ import { RadioGroup } from '@headlessui/react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 import { EverCard } from '../../common/ever-card';
+import { useAddTaskToPlanMutation } from '@/core/hooks/daily-plans/mutations';
 
 /**
  * A Modal that suggests the user to change the active task to a task from the today's plan.
@@ -36,8 +37,7 @@ export function ActiveTaskHandlerModal({
 	const { task: activeTeamTask } = useCurrentActiveTask();
 
 	const { setActiveTask } = useSetActiveTask();
-	// Use default useDailyPlan() so it targets the current user's own plans (todayPlan)
-	const { addTaskToPlan } = useDailyPlan();
+	const { mutateAsync: addTaskToPlan } = useAddTaskToPlanMutation();
 
 	const [selectedOption, setSelectedOption] = useState<number>();
 
@@ -63,16 +63,16 @@ export function ActiveTaskHandlerModal({
 				action: async () => {
 					try {
 						if (todayPlan && todayPlan.id && activeTeamTask) {
-							await addTaskToPlan(
-								{
+							await addTaskToPlan({
+								data: {
 									// Always use the plan owner for auto-assignment
 									// todayPlan comes from `useTimerView` which uses `useTimer` (current user's myDailyPlans)
 									// so this is effectively a "self-plan" scenario
 									employeeId: todayPlan.employeeId ?? undefined,
 									taskId: activeTeamTask.id
 								},
-								todayPlan.id
-							);
+								dailyPlanId: todayPlan.id
+							});
 						}
 
 						activeTeamTask &&
@@ -89,14 +89,14 @@ export function ActiveTaskHandlerModal({
 				action: async () => {
 					try {
 						if (todayPlan && todayPlan.id && activeTeamTask) {
-							await addTaskToPlan(
-								{
+							await addTaskToPlan({
+								dailyPlanId: todayPlan.id,
+								data: {
 									// Same rule here: assign the plan owner, not whoever clicked
 									employeeId: todayPlan.employeeId ?? undefined,
 									taskId: activeTeamTask.id
-								},
-								todayPlan.id
-							);
+								}
+							});
 						}
 						if (defaultPlannedTask) {
 							setActiveTask(defaultPlannedTask);

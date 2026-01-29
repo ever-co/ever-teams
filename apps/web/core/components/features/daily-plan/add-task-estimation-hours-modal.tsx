@@ -2,7 +2,7 @@ import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { IconsErrorWarningFill } from '@/core/components/icons';
 import { DEFAULT_PLANNED_TASK_ID, TASKS_ESTIMATE_HOURS_MODAL_DATE } from '@/core/constants/config/constants';
-import { useDailyPlan, useModal, useTimerView } from '@/core/hooks';
+import { useModal, useTimerView } from '@/core/hooks';
 import { useCreateTaskMutation } from '@/core/hooks/organizations/teams/use-create-task.mutation';
 import { useCurrentActiveTask } from '@/core/hooks/organizations/teams/use-current-active-task';
 import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-set-active-task';
@@ -36,6 +36,14 @@ import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { TaskEstimate } from '../../tasks/task-estimate';
 import { ActiveTaskHandlerModal } from './active-task-handler-modal';
 import { UnplanActiveTaskModal } from './unplan-active-task-modal';
+import {
+	useAddTaskToPlanMutation,
+	useCreateDailyPlanMutation,
+	useRemoveTaskFromManyPlansMutation,
+	useRemoveTaskFromPlanMutation,
+	useUpdateDailyPlanMutation
+} from '@/core/hooks/daily-plans/mutations';
+import { useFuturePlans, useProfileDailyPlans, useTodayPlan } from '@/core/hooks/daily-plans/derived';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.
@@ -80,10 +88,11 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 	const t = useTranslations();
 
-	// Use useDailyPlan with employeeId to get the correct employee's plans.
+	// Use useProfileDailyPlans with employeeId to get the correct employee's plans.
 	// NOTE: This replaces profileDailyPlanListState/myDailyPlanListState atoms
 	// so AllPlans modal and Profile "Plans" tab stay in sync
-	const { profileDailyPlans, updateDailyPlan } = useDailyPlan(employeeId);
+	const profileDailyPlans = useProfileDailyPlans(employeeId ?? undefined);
+	const { mutateAsync: updateDailyPlan } = useUpdateDailyPlanMutation();
 
 	// Get the updated plan from the hook instead of relying only on props
 	const plan = useMemo(() => {
@@ -179,7 +188,10 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			// Update the plan work time only if the user changed it
 			if (plan && plan.workTimePlanned !== workTimePlanned) {
 				// Server requires employeeId in the payload, to correctly check permissions
-				await updateDailyPlan({ workTimePlanned, employeeId: plan.employeeId || undefined }, plan.id ?? '');
+				await updateDailyPlan({
+					dailyPlanId: plan.id ?? '',
+					data: { workTimePlanned, employeeId: plan.employeeId || undefined }
+				});
 				toast.success('Plan updated successfully', {
 					description: `Work time planned updated to ${workTimePlanned} hours`,
 					duration: 3000
@@ -234,7 +246,10 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			// Update the plan work time only if the user changed it
 			if (plan && plan.workTimePlanned !== workTimePlanned) {
 				// Server requires employeeId in the payload, to correctly check permissions
-				await updateDailyPlan({ workTimePlanned, employeeId: plan.employeeId || undefined }, plan.id ?? '');
+				await updateDailyPlan({
+					data: { workTimePlanned, employeeId: plan.employeeId || undefined },
+					dailyPlanId: plan.id ?? ''
+				});
 				toast.success('Plan updated successfully', {
 					description: `Work time planned updated to ${workTimePlanned} hours`,
 					duration: 3000
@@ -835,7 +850,8 @@ function TaskCard(props: ITaskCardProps) {
 		canEdit = true
 	} = props;
 	const { setDetailedTaskId } = useDetailedTask();
-	const { addTaskToPlan, createDailyPlan } = useDailyPlan(employeeId);
+	const { mutateAsync: createDailyPlan } = useCreateDailyPlanMutation();
+	const { mutateAsync: addTaskToPlan } = useAddTaskToPlanMutation();
 	const { data: user } = useUserQuery();
 	const [addToPlanLoading, setAddToPlanLoading] = useState(false);
 
@@ -880,15 +896,15 @@ function TaskCard(props: ITaskCardProps) {
 					throw new Error('Cannot add task to plan without employeeId');
 				}
 
-				await addTaskToPlan(
-					{
+				await addTaskToPlan({
+					dailyPlanId: plan.id,
+					data: {
 						taskId: task.id,
 						// Use the plan owner, not the current user, to avoid incorrect auto-assignment when managers edit others' plans
 						employeeId: plan.employeeId,
 						organizationId: user?.employee?.organizationId
-					},
-					plan.id
-				);
+					}
+				});
 				toast.success('Task added to plan', {
 					description: `"${task.title}" has been added to your daily plan`,
 					duration: 3000
@@ -898,7 +914,7 @@ function TaskCard(props: ITaskCardProps) {
 			} else {
 				const planDate = plan ? plan.date : selectedDate;
 
-				if (planDate && employeeId) {
+				if (planDate && employeeId && user?.tenantId) {
 					await createDailyPlan({
 						workTimePlanned: 0,
 						taskId: task.id,
@@ -1043,7 +1059,9 @@ interface ITaskCardActionsProps {
 function TaskCardActions(props: ITaskCardActionsProps) {
 	const { task, selectedPlan, openTaskDetailsModal, openUnplanActiveTaskModal, employeeId, canEdit = true } = props;
 	const { data: user } = useUserQuery();
-	const { futurePlans, todayPlan, removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan(employeeId);
+	const futurePlans = useFuturePlans(employeeId ?? undefined);
+	const todayPlan = useTodayPlan(employeeId ?? undefined);
+	const { mutateAsync: removeTaskFromPlan, isPending: removeTaskFromPlanLoading } = useRemoveTaskFromPlanMutation();
 
 	const { task: activeTeamTask } = useCurrentActiveTask();
 
@@ -1079,14 +1097,15 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 						openUnplanActiveTaskModal();
 					} else {
 						if (selectedPlan?.id) {
-							await removeTaskFromPlan(
-								{
+							await removeTaskFromPlan({
+								dailyPlanId: selectedPlan?.id,
+								data: {
+									// @ts-ignore : check api payload !!
 									taskId: task.id,
 									employeeId: employeeId ?? user?.employee?.id,
 									organizationId: user?.employee?.organizationId
-								},
-								selectedPlan?.id
-							);
+								}
+							});
 							toast.success('Task removed from plan', {
 								description: `"${task.title}" has been removed from your daily plan`,
 								duration: 3000
@@ -1094,14 +1113,15 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 						}
 					}
 				} else if (selectedPlan?.id) {
-					await removeTaskFromPlan(
-						{
+					await removeTaskFromPlan({
+						dailyPlanId: selectedPlan?.id,
+						data: {
+							// @ts-ignore : check api payload !!
 							taskId: task.id,
 							employeeId: employeeId ?? user?.employee?.id,
 							organizationId: user?.employee?.organizationId
-						},
-						selectedPlan?.id
-					);
+						}
+					});
 					toast.success('Task removed from plan', {
 						description: `"${task.title}" has been removed from your daily plan`,
 						duration: 3000
@@ -1251,7 +1271,9 @@ function UnplanTask(props: IUnplanTaskProps) {
 		canEdit = true
 	} = props;
 	const { data: user } = useUserQuery();
-	const { todayPlan, removeManyTaskPlans, removeManyTaskFromPlanLoading } = useDailyPlan(employeeId);
+	const todayPlan = useTodayPlan(employeeId ?? undefined);
+	const { mutateAsync: removeManyTaskPlans, isPending: removeManyTaskFromPlanLoading } =
+		useRemoveTaskFromManyPlansMutation();
 
 	const { task: activeTeamTask } = useCurrentActiveTask();
 
@@ -1277,28 +1299,28 @@ function UnplanTask(props: IUnplanTaskProps) {
 						openUnplanActiveTaskModal();
 						// TODO: Unplan from all plans after clicks 'YES'
 					} else {
-						await removeManyTaskPlans(
-							{
+						await removeManyTaskPlans({
+							data: {
 								plansIds: planIds,
 								employeeId: employeeId ?? user?.employee?.id,
 								organizationId: user?.employee?.organizationId
 							},
-							taskId!
-						);
+							taskId: taskId!
+						});
 						toast.success('Task removed from all plans', {
 							description: 'Task has been removed from all daily plans',
 							duration: 3000
 						});
 					}
 				} else {
-					await removeManyTaskPlans(
-						{
+					await removeManyTaskPlans({
+						data: {
 							plansIds: planIds,
 							employeeId: employeeId ?? user?.employee?.id,
 							organizationId: user?.employee?.organizationId
 						},
-						taskId
-					);
+						taskId: taskId
+					});
 					toast.success('Task removed from all plans', {
 						description: 'Task has been removed from all daily plans',
 						duration: 3000

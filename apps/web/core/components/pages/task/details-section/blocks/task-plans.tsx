@@ -1,9 +1,9 @@
-import { useDailyPlan } from '@/core/hooks';
 import { useDetailedTask } from '@/core/hooks/tasks/use-detailed-task';
 import { formatDayPlanDate } from '@/core/lib/helpers/index';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { useEffect, useState } from 'react';
 import TaskRow from '../components/task-row';
+import { usePlansByTaskLazyQuery } from '@/core/hooks/daily-plans/queries';
 
 export function TaskPlans() {
 	const {
@@ -12,7 +12,7 @@ export function TaskPlans() {
 
 	// Use local state instead of global atom to prevent data conflicts
 	const [taskPlanList, setTaskPlanList] = useState<TDailyPlan[]>([]);
-	const { getPlansByTask } = useDailyPlan();
+	const { getPlansByTaskId: getPlansByTask } = usePlansByTaskLazyQuery();
 
 	useEffect(() => {
 		if (task?.id) {

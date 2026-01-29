@@ -13,7 +13,6 @@ import {
 	I_TeamMemberCardHook,
 	I_UserProfilePage,
 	useCanSeeActivityScreen,
-	useDailyPlan,
 	useModal,
 	useTMCardTaskEdit,
 	useTaskStatistics,
@@ -58,6 +57,12 @@ import { TaskNameInfoDisplay } from './task-displays';
 import { TaskAvatars } from './task-items';
 import { ActiveTaskStatusDropdown } from './task-status';
 import { TaskTimes } from './task-times';
+import { useFuturePlans, useTodayPlan } from '@/core/hooks/daily-plans/derived';
+import {
+	useCreateDailyPlanMutation,
+	useRemoveTaskFromManyPlansMutation,
+	useRemoveTaskFromPlanMutation
+} from '@/core/hooks/daily-plans/mutations';
 
 type Props = {
 	active?: boolean;
@@ -592,7 +597,8 @@ export function TaskCardMenu({
 
 	const canSeeActivity = useCanSeeActivityScreen();
 
-	const { todayPlan, futurePlans } = useDailyPlan();
+	const todayPlan = useTodayPlan();
+	const futurePlans = useFuturePlans();
 
 	const taskPlannedToday = useMemo(
 		() => todayPlan[todayPlan.length - 1]?.tasks?.find((planTask) => planTask.id === task.id),
@@ -795,7 +801,7 @@ export function PlanTask({
 	const t = useTranslations();
 	const [isPending, startTransition] = useTransition();
 
-	const { createDailyPlan, createDailyPlanLoading } = useDailyPlan();
+	const { mutateAsync: createDailyPlan, isPending: createDailyPlanLoading } = useCreateDailyPlanMutation();
 	const { data: user } = useUserQuery();
 
 	const handleOpenModal = async () => {
@@ -806,6 +812,7 @@ export function PlanTask({
 			} else if (planMode === 'today') {
 				startTransition(async () => {
 					try {
+						if (!user?.tenantId) throw new Error('Workspace should be defined');
 						await createDailyPlan({
 							workTimePlanned: 0,
 							taskId,
@@ -912,13 +919,13 @@ export function RemoveTaskFromPlan({
 	plan?: TDailyPlan;
 }) {
 	const t = useTranslations();
-	const { removeTaskFromPlan } = useDailyPlan(member?.employeeId);
+	const { mutateAsync: removeTaskFromPlan } = useRemoveTaskFromPlanMutation();
 	const data: IDailyPlanTasksUpdate = {
 		taskId: task.id,
 		employeeId: member?.employeeId ?? undefined
 	};
 	const onClick = () => {
-		removeTaskFromPlan(data, plan?.id ?? '');
+		removeTaskFromPlan({ dailyPlanId: plan?.id ?? '', data });
 	};
 	return (
 		<span
@@ -935,13 +942,13 @@ export function RemoveTaskFromPlan({
 
 export function RemoveManyTaskFromPlan({ task, member }: { task: TTask; member?: TOrganizationTeamEmployee }) {
 	// const t = useTranslations();
-	const { removeManyTaskPlans } = useDailyPlan();
+	const { mutateAsync: removeManyTaskPlans } = useRemoveTaskFromManyPlansMutation();
 	const data: IRemoveTaskFromManyPlansRequest = {
 		plansIds: [],
 		employeeId: member?.employeeId ?? ''
 	};
 	const onClick = () => {
-		removeManyTaskPlans(data, task.id ?? '');
+		removeManyTaskPlans({ data, taskId: task.id ?? '' });
 	};
 	return (
 		<span

@@ -1,23 +1,24 @@
 'use client';
-import { useAtomValue } from 'jotai';
-import { useEffect, useRef, useState, useMemo } from 'react';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
+import { useAtomValue } from 'jotai';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { formatDayPlanDate } from '@/core/lib/helpers/index';
-import { handleDragAndDrop } from '@/core/lib/helpers/drag-and-drop';
-import { FilterTabs, useDailyPlan } from '@/core/hooks';
-import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
-import { filterDailyPlan, filterDailyPlansByEmployee } from '@/core/hooks/daily-plans/use-filter-date-range';
-import { TDailyPlan, TUser } from '@/core/types/schemas';
-import { dailyPlanViewHeaderTabs } from '@/core/stores';
-import { clsxm } from '@/core/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
-import TaskBlockCard from '@/core/components/tasks/task-block-card';
+import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
 import { LazyTaskCard } from '@/core/components/optimized-components';
 import DailyPlanTasksTableView from '@/core/components/tasks/daily-plan/table-view';
-import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
-import { PlanHeader } from './plan-header';
+import TaskBlockCard from '@/core/components/tasks/task-block-card';
+import { FilterTabs } from '@/core/hooks';
+import { useSortedPlan, useTodayPlan } from '@/core/hooks/daily-plans/derived';
+import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
+import { filterDailyPlan, filterDailyPlansByEmployee } from '@/core/hooks/daily-plans/use-filter-date-range';
+import { handleDragAndDrop } from '@/core/lib/helpers/drag-and-drop';
+import { formatDayPlanDate } from '@/core/lib/helpers/index';
+import { clsxm } from '@/core/lib/utils';
+import { dailyPlanViewHeaderTabs } from '@/core/stores';
+import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { EmptyPlans } from './empty-plans';
+import { PlanHeader } from './plan-header';
 
 /**
  *
@@ -42,8 +43,9 @@ export function AllPlans({
 	const filteredPlans = useRef<TDailyPlan[]>([]);
 
 	// Use employeeId from props if provided, otherwise calculate from user
-	const targetEmployeeId = employeeId ?? user?.employee?.id ?? user?.employeeId ?? '';
-	const { sortedPlans, todayPlan } = useDailyPlan(targetEmployeeId);
+	const targetEmployeeId: string = employeeId ?? user?.employee?.id ?? user?.employeeId ?? '';
+	const sortedPlans = useSortedPlan(targetEmployeeId);
+	const todayPlan = useTodayPlan(targetEmployeeId);
 
 	const { date } = useDateRange(currentTab);
 
@@ -78,7 +80,7 @@ export function AllPlans({
 	useEffect(() => {
 		setDragPlans(plans);
 	}, [plans]);
-	if(!dragPlans) return null;
+	if (!dragPlans) return null;
 	return (
 		<div className="flex flex-col gap-6">
 			{Array.isArray(dragPlans) && dragPlans?.length > 0 ? (

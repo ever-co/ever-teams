@@ -1,13 +1,14 @@
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@/core/constants/config/constants';
-import { useDailyPlan, useTimerView } from '@/core/hooks';
+import { useTimerView } from '@/core/hooks';
 import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
+import { useUpdateDailyPlanMutation } from '@/core/hooks/daily-plans/mutations';
 
 interface IAddDailyPlanWorkHoursModalProps {
 	closeModal: () => void;
@@ -19,7 +20,7 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 	const { closeModal, isOpen, plan } = props;
 
 	const t = useTranslations();
-	const { updateDailyPlan } = useDailyPlan();
+	const { mutateAsync: updateDailyPlan } = useUpdateDailyPlanMutation();
 	const { startTimer } = useTimerView();
 
 	const activeTeam = useCurrentTeam();
@@ -41,7 +42,10 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 			// Update the plan work time only if the user changed it
 			if (plan && plan.workTimePlanned !== workTimePlanned) {
 				// Server requires employeeId in the payload, to correctly check permissions
-				await updateDailyPlan({ workTimePlanned, employeeId: plan.employeeId || undefined }, plan.id ?? '');
+				await updateDailyPlan({
+					data: { workTimePlanned, employeeId: plan.employeeId || undefined },
+					dailyPlanId: plan.id ?? ''
+				});
 			}
 
 			startTimer();

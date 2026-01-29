@@ -1,11 +1,12 @@
 import { Button, Modal, Text } from '@/core/components';
-import { useAuthenticateUser, useDailyPlan, useTimer } from '@/core/hooks';
+import { useAuthenticateUser, useTimer } from '@/core/hooks';
 import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useTranslations } from 'next-intl';
 import { ReactNode, useCallback, useMemo } from 'react';
 import { EverCard } from '../../common/ever-card';
+import { useAddTaskToPlanMutation } from '@/core/hooks/daily-plans/mutations';
 
 interface IEnforcePlannedTaskModalProps {
 	open: boolean;
@@ -19,7 +20,7 @@ interface IEnforcePlannedTaskModalProps {
 
 export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 	const { closeModal, task, open, plan, content, onOK, openDailyPlanModal } = props;
-	const { addTaskToPlan, addTaskToPlanLoading } = useDailyPlan();
+	const { mutateAsync: addTaskToPlan, isPending: addTaskToPlanLoading } = useAddTaskToPlanMutation();
 	const { user } = useAuthenticateUser();
 	const t = useTranslations();
 
@@ -40,15 +41,15 @@ export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 
 	const handleAddTaskToPlan = useCallback(() => {
 		if (user?.employee && task && plan.id && plan.employeeId) {
-			addTaskToPlan(
-				{
+			addTaskToPlan({
+				data: {
 					taskId: task.id,
 					// Always assign the plan owner, never fall back to the current user
 					employeeId: plan.employeeId,
 					organizationId: plan.organizationId ?? user.employee.organizationId
 				},
-				plan.id
-			).then(() => {
+				dailyPlanId: plan.id
+			}).then(() => {
 				closeModal();
 				if (requirePlan) {
 					if (hasWorkedHours && areAllTasksEstimated && task.estimate) {

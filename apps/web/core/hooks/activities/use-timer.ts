@@ -40,7 +40,6 @@ import { useRefreshIntervalV2 } from '../common';
 import { useFirstLoad } from '../common/use-first-load';
 import { useQueryCall } from '../common/use-query';
 import { useSyncRef } from '../common/use-sync-ref';
-import { useDailyPlan } from '../daily-plans/use-daily-plan';
 import { useOrganizationEmployeeTeams } from '../organizations';
 import { useCurrentActiveTask } from '../organizations/teams/use-current-active-task';
 import { useCurrentTeam } from '../organizations/teams/use-current-team';
@@ -50,6 +49,7 @@ import { useUpdateTaskMutation } from '../organizations/teams/use-update-task.mu
 import { useDetailedTask } from '../tasks/use-detailed-task';
 import { useTaskStatistics } from '../tasks/use-task-statistics';
 import { useTimerPolling } from './use-timer-polling';
+import { useProfileDailyPlans } from '../daily-plans/derived';
 
 /**
  * ! Don't modify this function unless you know what you're doing
@@ -197,7 +197,7 @@ export function useTimer() {
 	const activeTeamId = useAtomValue(activeTeamIdState);
 
 	// Use useDailyPlan to get the logged-in user's plans (no employeeId = current user)
-	const { myDailyPlans } = useDailyPlan();
+	const myDailyPlans = useProfileDailyPlans();
 
 	const { data: teamTasksResult } = useCurrentTeamTasksQuery();
 	const teamTasks = useMemo(() => teamTasksResult?.items ?? [], []);

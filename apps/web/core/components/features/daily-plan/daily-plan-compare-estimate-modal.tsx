@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Separator from '@/core/components/common/separator';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { clsxm } from '@/core/lib/utils';
-import { useDailyPlan, useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@/core/hooks';
+import { useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@/core/hooks';
 import { dailyPlanCompareEstimated } from '@/core/lib/helpers/daily-plan-estimated';
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@/core/constants/config/constants';
@@ -15,6 +15,7 @@ import { TimePicker, TimePickerValue } from '../../duplicated-components/time-pi
 import { EverCard } from '../../common/ever-card';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
+import { useUpdateDailyPlanMutation } from '@/core/hooks/daily-plans/mutations';
 
 export interface IDailyPlanCompareEstimated {
 	difference?: boolean;
@@ -34,7 +35,8 @@ export function DailyPlanCompareEstimatedModal({
 	profile: any;
 }) {
 	const { difference, workTimePlanned, estimated, plan } = dailyPlanCompareEstimated(todayPlan);
-	const { updateDailyPlan, updateDailyPlanLoading } = useDailyPlan();
+
+	const { mutateAsync: updateDailyPlan, isPending: updateDailyPlanLoading } = useUpdateDailyPlanMutation();
 	const { hours: dh, minutes: dm } = secondsToTime(workTimePlanned || 0);
 	const { startTimer } = useTimer();
 	const hour = dh.toString()?.padStart(2, '0');
@@ -45,8 +47,8 @@ export function DailyPlanCompareEstimatedModal({
 		minute: '--'
 	});
 
-	const onClick = () => {
-		updateDailyPlan({ workTimePlanned: parseInt(times.hours) }, plan?.id ?? '');
+	const onClick = async () => {
+		await updateDailyPlan({ data: { workTimePlanned: parseInt(times.hours) }, dailyPlanId: plan?.id ?? '' });
 		if (!updateDailyPlanLoading) {
 			startTimer();
 			closeModal();

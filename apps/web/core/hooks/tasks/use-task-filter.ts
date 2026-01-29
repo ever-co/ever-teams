@@ -1,7 +1,7 @@
 import { ITab } from '@/core/components/pages/profile/task-filters';
 import { estimatedTotalTime, getTotalTasks } from '@/core/components/tasks/daily-plan';
 import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/constants';
-import { useDailyPlan, useLocalStorageState, useOutsideClick } from '@/core/hooks';
+import { useLocalStorageState, useOutsideClick } from '@/core/hooks';
 import { timeLogsDailyReportState } from '@/core/stores';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
@@ -13,6 +13,7 @@ import { useActiveTeamManagers } from '../organizations/teams/use-active-team-ma
 import { useCurrentTeam } from '../organizations/teams/use-current-team';
 import { useUserQuery } from '../queries/user-user.query';
 import { I_UserProfilePage } from '../users';
+import { useOutstandingPlans, useProfileDailyPlans, useTodayPlan } from '../daily-plans/derived';
 
 type IStatusType = 'status' | 'size' | 'priority' | 'label';
 type FilterType = 'status' | 'search' | undefined;
@@ -75,7 +76,10 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 		profile?.member?.employee?.id
 	]);
 
-	const { todayPlan, outstandingPlans, profileDailyPlans } = useDailyPlan(targetEmployeeId);
+	const todayPlan = useTodayPlan(targetEmployeeId ?? undefined);
+	const outstandingPlans = useOutstandingPlans(targetEmployeeId ?? undefined);
+	const profileDailyPlans = useProfileDailyPlans(targetEmployeeId ?? undefined);
+
 	const timeLogsDailyReport = useAtomValue(timeLogsDailyReportState);
 	const isManagerConnectedUser = useMemo(
 		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id),

@@ -1,11 +1,11 @@
 import { getTotalTasks } from '@/core/components/tasks/daily-plan';
-import { useDailyPlan } from '@/core/hooks';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { TUser } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useMemo } from 'react';
 import { useCurrentTeam } from './use-current-team';
 import { useSortedTasksByCreation } from './use-sorted-tasks';
+import { useFuturePlans, useTodayPlan } from '../../daily-plans/derived';
 
 export function useAuthTeamTasks(user: TUser | undefined) {
 	const tasks = useSortedTasksByCreation();
@@ -16,7 +16,8 @@ export function useAuthTeamTasks(user: TUser | undefined) {
 	const targetUser = user || authenticatedUser;
 	const currentMember = activeTeam?.members?.find((member) => member.employee?.userId === targetUser?.id);
 	const employeeId = targetUser?.employee?.id ?? targetUser?.employeeId ?? currentMember?.employee?.id ?? '';
-	const { futurePlans, todayPlan } = useDailyPlan(employeeId);
+	const futurePlans = useFuturePlans(employeeId ?? undefined);
+	const todayPlan = useTodayPlan(employeeId ?? undefined);
 
 	const assignedTasks = useMemo(() => {
 		if (!targetUser) return [];

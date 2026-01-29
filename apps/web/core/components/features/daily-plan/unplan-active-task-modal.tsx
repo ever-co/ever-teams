@@ -1,4 +1,4 @@
-import { useDailyPlan, useTimerView } from '@/core/hooks';
+import { useTimerView } from '@/core/hooks';
 import { Button, Modal, Text } from '@/core/components';
 import { useCallback } from 'react';
 import { EverCard } from '../../common/ever-card';
@@ -6,6 +6,7 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { useAtomValue } from 'jotai';
 import { timerStatusState } from '@/core/stores';
+import { useRemoveTaskFromPlanMutation } from '@/core/hooks/daily-plans/mutations';
 
 interface UnplanActiveTaskModalProps {
 	open: boolean;
@@ -29,7 +30,7 @@ export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 	const { closeModal, task, open, plan } = props;
 	const timerStatus = useAtomValue(timerStatusState);
 
-	const { removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan();
+	const { mutateAsync: removeTaskFromPlan, isPending: removeTaskFromPlanLoading } = useRemoveTaskFromPlanMutation();
 	const { stopTimer } = useTimerView();
 
 	const handleCloseModal = useCallback(() => {
@@ -42,14 +43,15 @@ export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 		// other employees' plans as well
 		try {
 			if (plan.id) {
-				await removeTaskFromPlan(
-					{
+				await removeTaskFromPlan({
+					data: {
+						// @ts-ignore
 						taskId: task.id,
 						employeeId: plan.employeeId ?? undefined,
 						organizationId: plan.organizationId
 					},
-					plan.id
-				);
+					dailyPlanId: plan.id
+				});
 			}
 		} catch (error) {
 			console.log(error);

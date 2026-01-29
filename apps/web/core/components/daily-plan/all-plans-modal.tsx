@@ -1,25 +1,25 @@
-import { Modal, NoData, SpinnerLoader } from '@/core/components';
-import { Dispatch, memo, SetStateAction, useCallback, useMemo, useRef, useState } from 'react';
-import { clsxm } from '@/core/lib/utils';
-import { Text } from '@/core/components';
-import { ChevronRightIcon } from 'assets/svg';
-import { AddTasksEstimationHoursModal } from '../features/daily-plan/add-task-estimation-hours-modal';
-import { useDailyPlan } from '@/core/hooks';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
-import { Button } from '@/core/components/duplicated-components/_button';
+import { Modal, NoData, SpinnerLoader, Text } from '@/core/components';
 import { Calendar } from '@/core/components/common/calendar';
-import moment from 'moment';
-import { ValueNoneIcon } from '@radix-ui/react-icons';
+import { Button } from '@/core/components/duplicated-components/_button';
+import { usePastPlans, useProfileDailyPlans } from '@/core/hooks/daily-plans/derived';
+import { useCreateDailyPlanMutation } from '@/core/hooks/daily-plans/mutations';
+import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { checkPastDate } from '@/core/lib/helpers';
-import { useTranslations } from 'next-intl';
-import { ActiveModifiers } from 'react-day-picker';
-import { EverCard } from '../common/ever-card';
-import { Tooltip } from '../duplicated-components/tooltip';
-import { VerticalSeparator } from '../duplicated-components/separator';
+import { clsxm } from '@/core/lib/utils';
 import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
+import { ValueNoneIcon } from '@radix-ui/react-icons';
+import { ChevronRightIcon } from 'assets/svg';
+import moment from 'moment';
+import { useTranslations } from 'next-intl';
+import { Dispatch, memo, SetStateAction, useCallback, useMemo, useRef, useState } from 'react';
+import { ActiveModifiers } from 'react-day-picker';
+import { EverCard } from '../common/ever-card';
+import { VerticalSeparator } from '../duplicated-components/separator';
+import { Tooltip } from '../duplicated-components/tooltip';
+import { AddTasksEstimationHoursModal } from '../features/daily-plan/add-task-estimation-hours-modal';
 
 interface IAllPlansModal {
 	closeModal: () => void;
@@ -51,8 +51,10 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	const [showCustomPlan, setShowCustomPlan] = useState(false);
 	const [customDate, setCustomDate] = useState<Date>(moment().toDate());
 
-	//  Use useDailyPlan with employeeId to get the correct employee's plans
-	const { profileDailyPlans, pastPlans, createDailyPlan, createDailyPlanLoading } = useDailyPlan(employeeId);
+	const profileDailyPlans = useProfileDailyPlans(employeeId ?? undefined);
+	const pastPlans = usePastPlans(employeeId ?? undefined);
+	const { mutateAsync: createDailyPlan, isPending: createDailyPlanLoading } = useCreateDailyPlanMutation();
+
 	const t = useTranslations();
 	const [navigationMode, setNavigationMode] = useState<TNavigationMode>('PLAN');
 	const sortedPlans = useMemo(

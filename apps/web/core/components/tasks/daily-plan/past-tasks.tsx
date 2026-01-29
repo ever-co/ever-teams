@@ -15,7 +15,7 @@ import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
-import { useDailyPlan } from '@/core/hooks';
+import { usePastPlans } from '@/core/hooks/daily-plans/derived';
 
 export function PastTasks({
 	user,
@@ -33,7 +33,7 @@ export function PastTasks({
 	// Use employeeId from props if provided, otherwise calculate from user
 	const employeeId = propsEmployeeId ?? user?.employee?.id ?? user?.employeeId ?? '';
 
-	const { pastPlans } = useDailyPlan(employeeId);
+	const pastPlans = usePastPlans(employeeId ?? undefined);
 
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 	// Use a safe default instead of direct localStorage access

@@ -7,7 +7,7 @@ import {
 	HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL,
 	HAS_VISITED_OUTSTANDING_TASKS
 } from '@/core/constants/config/constants';
-import { useCanSeeActivityScreen, useDailyPlan, useTimer, useUserProfilePage } from '@/core/hooks';
+import { useCanSeeActivityScreen, useTimer, useUserProfilePage } from '@/core/hooks';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
@@ -36,6 +36,16 @@ import {
 import { FutureTasks } from '../tasks/daily-plan/future-tasks';
 import ViewsHeaderTabs from '../tasks/daily-plan/views-header-tabs';
 import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
+import {
+	useFuturePlans,
+	useOutstandingPlans,
+	usePastPlans,
+	useProfileDailyPlans,
+	useSortedPlan,
+	useTodayPlan
+} from '@/core/hooks/daily-plans/derived';
+import { useDeleteDailyPlanMutation } from '@/core/hooks/daily-plans/mutations';
+import { useMyDailyPlansQuery } from '@/core/hooks/daily-plans/queries';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
@@ -53,7 +63,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	const profile = useUserProfilePage();
 	const { data: authUser } = useUserQuery();
 
-	const targetEmployeeId = useMemo(() => {
+	const targetEmployeeId: string = useMemo(() => {
 		// PRIORITY 1: Use employeeId from props if provided (from UserTeamCard)
 		if (propsEmployeeId) {
 			return propsEmployeeId;
@@ -70,17 +80,15 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		return employeeId;
 	}, [profile.isAuthUser, authUser, user, propsEmployeeId]);
 
-	const {
-		futurePlans,
-		pastPlans,
-		todayPlan,
-		outstandingPlans,
-		sortedPlans,
-		profileDailyPlans,
-		deleteDailyPlan,
-		deleteDailyPlanLoading,
-		getMyDailyPlansLoading
-	} = useDailyPlan(targetEmployeeId);
+	const futurePlans = useFuturePlans(targetEmployeeId);
+	const pastPlans = usePastPlans(targetEmployeeId);
+	const todayPlan = useTodayPlan(targetEmployeeId);
+	const outstandingPlans = useOutstandingPlans(targetEmployeeId);
+	const sortedPlans = useSortedPlan(targetEmployeeId);
+	const profileDailyPlans = useProfileDailyPlans(targetEmployeeId);
+	const { mutateAsync: deleteDailyPlan, isPending: deleteDailyPlanLoading } = useDeleteDailyPlanMutation();
+	const { isPending: getMyDailyPlansLoading } = useMyDailyPlansQuery();
+
 	const fullWidth = useAtomValue(fullWidthState);
 	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'DATE');
 	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');

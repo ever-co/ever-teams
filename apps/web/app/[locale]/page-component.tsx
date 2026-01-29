@@ -5,7 +5,7 @@ import { Container } from '@/core/components';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { IssuesView, LAST_SELECTED_TEAM_MEMBERS_VIEW_MODE } from '@/core/constants/config/constants';
-import { useDailyPlan, useIsMemberManager, useTeamInvitations } from '@/core/hooks';
+import { useIsMemberManager, useTeamInvitations } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { useTranslations } from 'next-intl';
 
@@ -40,6 +40,8 @@ import {
 	LazyTeamMembers,
 	LazyTeamOutstandingNotifications
 } from '@/core/components/optimized-components/teams';
+import { useOutstandingPlans } from '@/core/hooks/daily-plans/derived';
+import { useAllDailyPlansQuery } from '@/core/hooks/daily-plans/queries';
 import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { isTeamMemberState, isTrackingEnabledState, myInvitationsState } from '@/core/stores';
@@ -54,8 +56,9 @@ function MainPage() {
 	const isTeamMember = useAtomValue(isTeamMemberState);
 
 	const { data: user } = useUserQuery();
-	const employeeId = user?.employee?.id ?? user?.employeeId ?? '';
-	const { dailyPlan, outstandingPlans } = useDailyPlan(employeeId);
+	const employeeId: string = user?.employee?.id ?? user?.employeeId ?? '';
+	const outstandingPlans = useOutstandingPlans(employeeId);
+	const { data: dailyPlan } = useAllDailyPlansQuery();
 
 	const { isTeamManager } = useIsMemberManager(user);
 
@@ -137,7 +140,7 @@ function MainPage() {
 											<Suspense fallback={<TeamNotificationsSkeleton />}>
 												<LazyTeamOutstandingNotifications
 													outstandingPlans={outstandingPlans}
-													dailyPlan={dailyPlan}
+													dailyPlan={dailyPlan ?? { items: [] }}
 													isTeamManager={isTeamManager}
 													user={user!}
 												/>

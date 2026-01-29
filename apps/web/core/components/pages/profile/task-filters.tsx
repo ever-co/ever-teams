@@ -21,7 +21,6 @@ import { TaskDatePickerWithRange } from '../../tasks/task-date-range';
 import { DateRange } from 'react-day-picker';
 import '@/styles/style.css';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
-import { useDailyPlan } from '@/core/hooks';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { Tooltip } from '../../duplicated-components/tooltip';
 import { InputField } from '../../duplicated-components/_input';
@@ -29,6 +28,7 @@ import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { TaskSizesDropdown } from '../../tasks/task-sizes-dropdown';
 import { LazyAddManualTimeModal } from '@/core/components/optimized-components';
 import { Suspense } from 'react';
+import { useFuturePlans, usePastPlans, useSortedPlan } from '@/core/hooks/daily-plans/derived';
 export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan' | 'stats';
 
 export type I_TaskFilter = ReturnType<typeof useTaskFilter>;
@@ -228,8 +228,9 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 	// Use useLocalStorageState for consistent state management
 	const [dailyPlanTab] = useLocalStorageState<string>('daily-plan-tab', 'Future Tasks');
 
-	// Get plans data from useDailyPlan instead of useDateRange to avoid global atom conflicts
-	const { sortedPlans, futurePlans, pastPlans } = useDailyPlan(employeeId);
+	const sortedPlans = useSortedPlan(employeeId ?? undefined);
+	const futurePlans = useFuturePlans(employeeId ?? undefined);
+	const pastPlans = usePastPlans(employeeId ?? undefined);
 	const { date, setDate } = useDateRange(dailyPlanTab);
 
 	// Map tab names to their corresponding plan data

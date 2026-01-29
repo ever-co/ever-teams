@@ -11,7 +11,6 @@ import {
 import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { LAST_OPTION__CREATE_DAILY_PLAN_MODAL } from '@/core/constants/config/constants';
-import { useDailyPlan } from '@/core/hooks';
 import { useActiveTeamManagers } from '@/core/hooks/organizations/teams/use-active-team-managers';
 import { useCurrentTeam } from '@/core/hooks/organizations/teams/use-current-team';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
@@ -29,6 +28,8 @@ import { useForm } from 'react-hook-form';
 import stc from 'string-to-color';
 import { EverCard } from '../../common/ever-card';
 import { Avatar } from '../../duplicated-components/avatar';
+import { useCreateDailyPlanMutation } from '@/core/hooks/daily-plans/mutations';
+import { useProfileDailyPlans } from '@/core/hooks/daily-plans/derived';
 
 export function CreateDailyPlanFormModal({
 	open,
@@ -52,8 +53,10 @@ export function CreateDailyPlanFormModal({
 
 	const { managers: activeTeamManagers } = useActiveTeamManagers();
 
-	// Use useDailyPlan with employeeId to get the correct employee's plans
-	const { profileDailyPlans, createDailyPlan, createDailyPlanLoading } = useDailyPlan(employeeId ?? null);
+	// Use useProfileDailyPlans with employeeId to get the correct employee's plans
+	const profileDailyPlans = useProfileDailyPlans(employeeId ?? undefined);
+	const { mutateAsync: createDailyPlan, isPending: createDailyPlanLoading } = useCreateDailyPlanMutation();
+
 	const latestOption: 'Select' | 'Select & Close' | null = window.localStorage.getItem(
 		LAST_OPTION__CREATE_DAILY_PLAN_MODAL
 	) as 'Select' | 'Select & Close';
@@ -104,24 +107,25 @@ export function CreateDailyPlanFormModal({
 	const onSubmit = useCallback(
 		async (values: any) => {
 			const toDay = new Date();
-			createDailyPlan({
-				workTimePlanned: parseInt(values.workTimePlanned) || 0,
-				taskId,
-				date: String(
-					planMode == 'today'
-						? toDay
-						: planMode == 'tomorrow'
-							? tomorrowDate
-							: new Date(moment(date).format('YYYY-MM-DD'))
-				),
-				status: EDailyPlanStatus.OPEN,
-				tenantId: user?.tenantId ?? '',
-				employeeId: employeeId ?? selectedEmployee?.employeeId ?? undefined,
-				organizationId: user?.employee?.organizationId
-			}).then(() => {
-				reset();
-				setIsOpen(false);
-			});
+			if (user?.tenantId)
+				createDailyPlan({
+					workTimePlanned: parseInt(values.workTimePlanned) || 0,
+					taskId,
+					date: String(
+						planMode == 'today'
+							? toDay
+							: planMode == 'tomorrow'
+								? tomorrowDate
+								: new Date(moment(date).format('YYYY-MM-DD'))
+					),
+					status: EDailyPlanStatus.OPEN,
+					tenantId: user?.tenantId ?? '',
+					employeeId: employeeId ?? selectedEmployee?.employeeId ?? undefined,
+					organizationId: user?.employee?.organizationId
+				}).then(() => {
+					reset();
+					setIsOpen(false);
+				});
 		},
 		[
 			createDailyPlan,

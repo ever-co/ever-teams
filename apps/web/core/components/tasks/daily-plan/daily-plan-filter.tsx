@@ -1,5 +1,4 @@
 import { formatDayPlanDate } from '@/core/lib/helpers/index';
-import { useDailyPlan } from '@/core/hooks';
 import { cn } from '@/core/lib/helpers';
 import { CircleIcon } from 'assets/svg';
 import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
@@ -8,6 +7,7 @@ import { Tooltip } from '../../duplicated-components/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '../../common/popover';
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '../../common/command';
 import { Button } from '../../common/button';
+import { useEmployeeDailyPlansQuery, useEmployeeDailyPlansQueryLazy } from '@/core/hooks/daily-plans/queries';
 
 export function DailyPlanDropDownItem({
 	children,
@@ -49,16 +49,18 @@ export function DailyPlanDropDownItem({
 export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
 	const [selectedPlans, setSelectedPlans] = useState<string[]>([]);
 
-	// Get employee plans from React Query (not global atom)
-	const { employeePlans, getEmployeeDayPlans } = useDailyPlan(employeeId);
+	const { data: employeePlansResult } = useEmployeeDailyPlansQuery(employeeId);
+	const { getPlanByEmployeeId } = useEmployeeDailyPlansQueryLazy();
 	const [open, setOpen] = useState(false);
+
+	const employeePlans = useMemo(() => employeePlansResult?.items ?? [], []);
 
 	// Load employee plans on mount
 	useEffect(() => {
 		if (selectedPlans.length === 0) {
-			getEmployeeDayPlans(employeeId);
+			getPlanByEmployeeId(employeeId);
 		}
-	}, [selectedPlans, getEmployeeDayPlans, employeeId]);
+	}, [selectedPlans, getPlanByEmployeeId, employeeId]);
 
 	// Filter plans locally without modifying global atoms.
 	// NOTE: This prevents data conflicts when multiple components view different employees.
