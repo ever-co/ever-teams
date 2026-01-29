@@ -11,7 +11,6 @@ import {
 	validatePaginationResponse,
 	organizationTeamSchema,
 	organizationTeamCreateSchema,
-	ZodValidationError,
 	TOrganizationTeam,
 	TOrganizationTeamCreate,
 	TTeamRequestParams,
@@ -43,7 +42,7 @@ class OrganizationTeamService extends APIService {
 			'where[organizationId]': this.organizationId,
 			'where[tenantId]': this.tenantId,
 			source: ETimeLogSource.TEAMS,
-			withLastWorkedTask: 'true', // Corrected the typo here
+			withLastWorkedTask: 'true',
 			relations
 		};
 
@@ -52,33 +51,11 @@ class OrganizationTeamService extends APIService {
 
 		const endpoint = `/organization-team?${query}`;
 
-		try {
-			const response = await this.get<PaginationResponse<TOrganizationTeam>>(endpoint, {
-				tenantId: this.tenantId
-			});
-
-			// Validate paginated response data and return the original response structure
-			const validatedData = validatePaginationResponse(
-				organizationTeamSchema,
-				response.data,
-				'getOrganizationTeams API response'
-			);
-
-			// Return response with validated data
-			return {
-				...response,
-				data: validatedData
-			};
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('Organization teams validation failed:', {
-					message: error.message,
-					issues: error.issues,
-					context: 'getOrganizationTeams'
-				});
-			}
-			throw error;
-		}
+		return this.executeWithPaginationValidation(
+			() => this.get<PaginationResponse<TOrganizationTeam>>(endpoint, { tenantId: this.tenantId }),
+			(data) => validatePaginationResponse(organizationTeamSchema, data, 'getOrganizationTeams API response'),
+			{ method: 'getOrganizationTeams', service: 'OrganizationTeamService' }
+		);
 	};
 
 	createOrganizationTeamGauzy = async ({
@@ -88,7 +65,6 @@ class OrganizationTeamService extends APIService {
 		data: TOrganizationTeamCreate;
 		bearer_token: string;
 	}) => {
-		// Validate input data before sending to API
 		const validatedInput = validateApiResponse(
 			organizationTeamCreateSchema,
 			data,
@@ -103,34 +79,14 @@ class OrganizationTeamService extends APIService {
 
 		validatedInput.projects = [project.data as TOrganizationProject];
 
-		try {
-			const response = await this.post<TOrganizationTeam>('/organization-team', validatedInput, {
+		return this.executeWithValidation(
+			() => this.post<TOrganizationTeam>('/organization-team', validatedInput, {
 				tenantId: validatedInput.tenantId,
 				headers: { Authorization: `Bearer ${bearer_token}` }
-			});
-
-			// Validate single organization team response data
-			const validatedData = validateApiResponse(
-				organizationTeamCreateResponseSchema,
-				response.data,
-				'createOrganizationTeamGauzy API response'
-			);
-
-			// Return response with validated data
-			return {
-				...response,
-				data: validatedData
-			};
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('Create organization team Gauzy validation failed:', {
-					message: error.message,
-					issues: error.issues,
-					context: 'createOrganizationTeamGauzy'
-				});
-			}
-			throw error;
-		}
+			}),
+			(responseData) => validateApiResponse(organizationTeamCreateResponseSchema, responseData, 'createOrganizationTeamGauzy API response'),
+			{ method: 'createOrganizationTeamGauzy', service: 'OrganizationTeamService' }
+		);
 	};
 
 	createOrganizationTeam = async (name: string, user: TUser) => {
@@ -156,31 +112,12 @@ class OrganizationTeamService extends APIService {
 		}
 
 		const api = await getFallbackAPI();
-		const response = await api.post<PaginationResponse<TOrganizationTeam>>('/organization-team', { name });
 
-		try {
-			// Validate fallback API response data
-			const validatedData = validatePaginationResponse(
-				organizationTeamSchema,
-				response.data,
-				'createOrganizationTeam fallback API response'
-			);
-
-			// Return response with validated data
-			return {
-				...response,
-				data: validatedData
-			};
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('Create organization team fallback validation failed:', {
-					message: error.message,
-					issues: error.issues,
-					context: 'createOrganizationTeam fallback'
-				});
-			}
-			throw error;
-		}
+		return this.executeWithPaginationValidation(
+			async () => api.post<PaginationResponse<TOrganizationTeam>>('/organization-team', { name }),
+			(data) => validatePaginationResponse(organizationTeamSchema, data, 'createOrganizationTeam fallback API response'),
+			{ method: 'createOrganizationTeam', service: 'OrganizationTeamService' }
+		);
 	};
 
 	/**
@@ -204,7 +141,7 @@ class OrganizationTeamService extends APIService {
 		const queryParams = {
 			organizationId: this.organizationId,
 			tenantId: this.tenantId,
-			withLastWorkedTask: 'true', // Corrected the typo here
+			withLastWorkedTask: 'true',
 			startDate: moment().startOf('day').toISOString(),
 			endDate: moment().endOf('day').toISOString(),
 			includeOrganizationTeamId: 'false',
@@ -217,169 +154,65 @@ class OrganizationTeamService extends APIService {
 		// Construct the endpoint URL
 		const endpoint = `/organization-team/${teamId}?${queryString}`;
 
-		try {
-			// Fetch and return the team details
-			const response = await this.get<TOrganizationTeam>(endpoint);
-
-			// Validate single organization team response data
-			const validatedData = validateApiResponse(
-				organizationTeamSchema,
-				response.data,
-				'getOrganizationTeam API response'
-			);
-
-			// Return response with validated data
-			return {
-				...response,
-				data: validatedData
-			};
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('Get organization team validation failed:', {
-					message: error.message,
-					issues: error.issues,
-					context: 'getOrganizationTeam',
-					teamId,
-					organizationId: this.organizationId
-				});
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.get<TOrganizationTeam>(endpoint),
+			(data) => validateApiResponse(organizationTeamSchema, data, 'getOrganizationTeam API response'),
+			{ method: 'getOrganizationTeam', service: 'OrganizationTeamService', teamId, organizationId: this.organizationId }
+		);
 	};
 
 	editOrganizationTeam = async (data: Partial<TOrganizationTeamUpdate>) => {
-		// Validate input data before sending to API
 		const validatedInput = validateApiResponse(
 			organizationTeamUpdateSchema.partial(),
 			data,
 			'editOrganizationTeam input data'
 		) as Partial<TOrganizationTeamUpdate>;
 
-		try {
-			let response = await this.put<TOrganizationTeam>(`/organization-team/${validatedInput.id}`, validatedInput);
-
-			if (GAUZY_API_BASE_SERVER_URL.value) {
-				response = await this.getOrganizationTeam(validatedInput.id!);
-			} else {
-				// Validate the response data for non-Gauzy API
-				const validatedData = validateApiResponse(
-					organizationTeamSchema,
-					response.data,
-					'editOrganizationTeam API response'
-				);
-
-				// Return response with validated data
-				response = {
-					...response,
-					data: validatedData
-				};
-			}
-
-			return response;
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('Edit organization team validation failed:', {
-					message: error.message,
-					issues: error.issues,
-					context: 'editOrganizationTeam',
-					teamId: validatedInput.id
-				});
-			}
-			throw error;
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			await this.put<TOrganizationTeam>(`/organization-team/${validatedInput.id}`, validatedInput);
+			return this.getOrganizationTeam(validatedInput.id!);
 		}
+
+		return this.executeWithValidation(
+			() => this.put<TOrganizationTeam>(`/organization-team/${validatedInput.id}`, validatedInput),
+			(responseData) => validateApiResponse(organizationTeamSchema, responseData, 'editOrganizationTeam API response'),
+			{ method: 'editOrganizationTeam', service: 'OrganizationTeamService', teamId: validatedInput.id }
+		);
 	};
 
 	updateOrganizationTeam = async (teamId: string, data: Partial<TOrganizationTeamUpdate>) => {
-		// Validate input data before sending to API
 		const validatedInput = validateApiResponse(
 			organizationTeamUpdateSchema.partial(),
 			data,
 			'updateOrganizationTeam input data'
 		) as Partial<TOrganizationTeam>;
 
-		try {
-			let response = await this.put<TOrganizationTeam>(`/organization-team/${teamId}`, validatedInput);
-
-			if (GAUZY_API_BASE_SERVER_URL.value) {
-				response = await this.getOrganizationTeam(teamId);
-			} else {
-				// Validate the response data for non-Gauzy API
-				const validatedData = validateApiResponse(
-					organizationTeamUpdateSchema,
-					response.data,
-					'updateOrganizationTeam API response'
-				);
-
-				// Return response with validated data
-				response = {
-					...response,
-					data: validatedData as TOrganizationTeam
-				};
-			}
-
-			return response;
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('Update organization team validation failed:', {
-					message: error.message,
-					issues: error.issues,
-					context: 'updateOrganizationTeam',
-					teamId
-				});
-			}
-			throw error;
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			await this.put<TOrganizationTeam>(`/organization-team/${teamId}`, validatedInput);
+			return this.getOrganizationTeam(teamId);
 		}
+
+		return this.executeWithValidation(
+			() => this.put<TOrganizationTeam>(`/organization-team/${teamId}`, validatedInput),
+			(responseData) => validateApiResponse(organizationTeamUpdateSchema, responseData, 'updateOrganizationTeam API response') as TOrganizationTeam,
+			{ method: 'updateOrganizationTeam', service: 'OrganizationTeamService', teamId }
+		);
 	};
 
 	deleteOrganizationTeam = async (id: string) => {
-		// Validate input ID before sending to API
 		if (!id || typeof id !== 'string' || id.trim().length === 0) {
 			throw new Error('Valid team ID is required for deletion');
 		}
 
-		try {
-			const response = await this.delete<TOrganizationTeam>(
-				`/organization-team/${id}?organizationId=${this.organizationId}`
-			);
-
-			// Validate delete response data
-			const validatedData = validateApiResponse(
-				organizationTeamSchema,
-				response.data,
-				'deleteOrganizationTeam API response'
-			);
-
-			// Return response with validated data
-			return {
-				...response,
-				data: validatedData
-			};
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('Delete organization team validation failed:', {
-					message: error.message,
-					issues: error.issues,
-					context: 'deleteOrganizationTeam',
-					teamId: id
-				});
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.delete<TOrganizationTeam>(`/organization-team/${id}?organizationId=${this.organizationId}`),
+			(data) => validateApiResponse(organizationTeamSchema, data, 'deleteOrganizationTeam API response'),
+			{ method: 'deleteOrganizationTeam', service: 'OrganizationTeamService', teamId: id }
+		);
 	};
 
 	removeUserFromAllTeams = async (userId: string) => {
-		try {
-			const response = await this.delete<DeleteResponse>(`/organization-team/teams/${userId}`);
-
-			// Note: DeleteResponse doesn't need Zod validation as it's a simple response type
-			return response;
-		} catch (error) {
-			this.logger.error('Remove user from all teams failed:', {
-				context: 'removeUserFromAllTeams',
-				userId
-			});
-			throw error;
-		}
+		return this.delete<DeleteResponse>(`/organization-team/teams/${userId}`);
 	};
 
 	/**
@@ -405,16 +238,15 @@ class OrganizationTeamService extends APIService {
 			'where[organizationId]': params.organizationId,
 			'where[tenantId]': params.tenantId,
 			source: ETimeLogSource.TEAMS,
-			withLastWorkedTask: 'true', // Corrected the typo here
+			withLastWorkedTask: 'true',
 			...Object.fromEntries(relations.map((relation, index) => [`relations[${index}]`, relation]))
 		};
 
 		// Serialize search queries into a query string
 		const queryString = qs.stringify(queryParams, { arrayFormat: 'brackets' });
 
-		try {
-			// Construct and execute the request
-			const response = await this.get<PaginationResponse<TOrganizationTeam>>(
+		return this.executeWithPaginationValidation(
+			() => this.get<PaginationResponse<TOrganizationTeam>>(
 				`/organization-team?${queryString}`,
 				{
 					tenantId: params.tenantId,
@@ -422,31 +254,10 @@ class OrganizationTeamService extends APIService {
 						Authorization: `Bearer ${bearer_token}`
 					}
 				}
-			);
-
-			// Validate paginated response data
-			const validatedData = validatePaginationResponse(
-				organizationTeamSchema,
-				response.data,
-				'getAllOrganizationTeam API response'
-			);
-
-			// Return response with validated data
-			return {
-				...response,
-				data: validatedData
-			};
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('Get all organization teams validation failed:', {
-					message: error.message,
-					issues: error.issues,
-					context: 'getAllOrganizationTeam',
-					params
-				});
-			}
-			throw error;
-		}
+			),
+			(data) => validatePaginationResponse(organizationTeamSchema, data, 'getAllOrganizationTeam API response'),
+			{ method: 'getAllOrganizationTeam', service: 'OrganizationTeamService', params }
+		);
 	};
 }
 

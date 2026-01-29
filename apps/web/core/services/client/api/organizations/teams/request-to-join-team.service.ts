@@ -18,8 +18,7 @@ import {
 	TValidateResponse,
 	TResendCodeResponse,
 	TGetRequestToJoinResponse,
-	TAcceptRejectResponse,
-	ZodValidationError
+	TAcceptRejectResponse
 } from '@/core/types/schemas';
 
 class RequestToJoinTeamService extends APIService {
@@ -28,29 +27,19 @@ class RequestToJoinTeamService extends APIService {
 	 * @returns Validated paginated request to join team entries
 	 */
 	getRequestToJoin = async (): Promise<TGetRequestToJoinResponse> => {
-		try {
-			const organizationId = this.organizationId;
-			const tenantId = this.tenantId;
+		const organizationId = this.organizationId;
+		const tenantId = this.tenantId;
 
-			const query = qs.stringify({
-				'where[organizationId]': organizationId,
-				'where[tenantId]': tenantId
-			});
+		const query = qs.stringify({
+			'where[organizationId]': organizationId,
+			'where[tenantId]': tenantId
+		});
 
-			const response = await this.get<TGetRequestToJoinResponse>(`/organization-team-join?${query}`);
-
-			// Validate pagination response with Zod
-			return validatePaginationResponse(joinTeamResponseSchema, response.data, 'getRequestToJoin API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('Request to join validation failed:', {
-					message: error.message,
-					issues: error.issues,
-					context: 'getRequestToJoin'
-				});
-			}
-			throw error;
-		}
+		return this.executeWithPaginationValidation(
+			() => this.get<TGetRequestToJoinResponse>(`/organization-team-join?${query}`),
+			(data) => validatePaginationResponse(joinTeamResponseSchema, data, 'getRequestToJoin API response'),
+			{ method: 'getRequestToJoin', service: 'RequestToJoinTeamService' }
+		);
 	};
 
 	/**
@@ -59,25 +48,13 @@ class RequestToJoinTeamService extends APIService {
 	 * @returns Validated join team response
 	 */
 	requestToJoin = async (data: TJoinTeamRequest): Promise<TJoinTeamResponse> => {
-		try {
-			// Validate input data
-			const validatedData = joinTeamRequestSchema.parse(data);
+		const validatedData = joinTeamRequestSchema.parse(data);
 
-			const endpoint = '/organization-team-join';
-			const response = await this.post<TJoinTeamResponse>(endpoint, validatedData);
-
-			// Validate API response
-			return validateApiResponse(joinTeamResponseSchema, response.data, 'requestToJoin API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('Request to join validation failed:', {
-					message: error.message,
-					issues: error.issues,
-					context: 'requestToJoin'
-				});
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.post<TJoinTeamResponse>('/organization-team-join', validatedData),
+			(responseData) => validateApiResponse(joinTeamResponseSchema, responseData, 'requestToJoin API response'),
+			{ method: 'requestToJoin', service: 'RequestToJoinTeamService' }
+		);
 	};
 
 	/**
@@ -86,24 +63,13 @@ class RequestToJoinTeamService extends APIService {
 	 * @returns Validated response
 	 */
 	validateRequestToJoin = async (data: TValidateRequestToJoinTeam): Promise<TValidateResponse> => {
-		try {
-			// Validate input data
-			const validatedData = validateRequestToJoinTeamSchema.parse(data);
+		const validatedData = validateRequestToJoinTeamSchema.parse(data);
 
-			const response = await this.post<TValidateResponse>('/organization-team-join/validate', validatedData);
-
-			// Validate API response
-			return validateApiResponse(validateResponseSchema, response.data, 'validateRequestToJoin API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('Validate request to join validation failed:', {
-					message: error.message,
-					issues: error.issues,
-					context: 'validateRequestToJoin'
-				});
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.post<TValidateResponse>('/organization-team-join/validate', validatedData),
+			(responseData) => validateApiResponse(validateResponseSchema, responseData, 'validateRequestToJoin API response'),
+			{ method: 'validateRequestToJoin', service: 'RequestToJoinTeamService' }
+		);
 	};
 
 	/**
@@ -112,24 +78,13 @@ class RequestToJoinTeamService extends APIService {
 	 * @returns Validated resend code response
 	 */
 	resendCodeRequestToJoin = async (data: TJoinTeamRequest): Promise<TResendCodeResponse> => {
-		try {
-			// Validate input data
-			const validatedData = joinTeamRequestSchema.parse(data);
+		const validatedData = joinTeamRequestSchema.parse(data);
 
-			const response = await this.post<TResendCodeResponse>('/organization-team-join/resend-code', validatedData);
-
-			// Validate API response
-			return validateApiResponse(resendCodeResponseSchema, response.data, 'resendCodeRequestToJoin API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('Resend code validation failed:', {
-					message: error.message,
-					issues: error.issues,
-					context: 'resendCodeRequestToJoin'
-				});
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.post<TResendCodeResponse>('/organization-team-join/resend-code', validatedData),
+			(responseData) => validateApiResponse(resendCodeResponseSchema, responseData, 'resendCodeRequestToJoin API response'),
+			{ method: 'resendCodeRequestToJoin', service: 'RequestToJoinTeamService' }
+		);
 	};
 
 	/**
@@ -145,30 +100,13 @@ class RequestToJoinTeamService extends APIService {
 		id: string;
 		action: ERequestStatus;
 	}): Promise<TAcceptRejectResponse> => {
-		try {
-			// Validate input parameters
-			const validatedParams = acceptRejectParamsSchema.parse({ id, action });
+		const validatedParams = acceptRejectParamsSchema.parse({ id, action });
 
-			const response = await this.put<TAcceptRejectResponse>(
-				`/organization-team-join/${validatedParams.id}/${validatedParams.action}`
-			);
-
-			// Validate API response
-			return validatePaginationResponse(
-				joinTeamResponseSchema,
-				response.data,
-				'acceptRejectRequestToJoin API response'
-			);
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error('Accept/Reject request validation failed:', {
-					message: error.message,
-					issues: error.issues,
-					context: 'acceptRejectRequestToJoin'
-				});
-			}
-			throw error;
-		}
+		return this.executeWithPaginationValidation(
+			() => this.put<TAcceptRejectResponse>(`/organization-team-join/${validatedParams.id}/${validatedParams.action}`),
+			(data) => validatePaginationResponse(joinTeamResponseSchema, data, 'acceptRejectRequestToJoin API response'),
+			{ method: 'acceptRejectRequestToJoin', service: 'RequestToJoinTeamService', id, action }
+		);
 	};
 }
 

@@ -7,7 +7,6 @@ import {
 	validatePaginationResponse,
 	validateApiResponse,
 	organizationTeamEmployeeSchema,
-	ZodValidationError,
 	TOrganizationTeamEmployee,
 	TUpdateEmployee
 } from '@/core/types/schemas';
@@ -20,46 +19,27 @@ class EmployeeService extends APIService {
 	 * @returns Paginated list of employees
 	 */
 	getWorkingEmployees = async (organizationTeamId?: string): Promise<PaginationResponse<TOrganizationTeamEmployee>> => {
-		try {
-			const params: Record<string, any> = {
-				organizationId: this.organizationId,
-				tenantId: this.tenantId,
-				'relations[0]': 'user'
-			};
+		const params: Record<string, any> = {
+			organizationId: this.organizationId,
+			tenantId: this.tenantId,
+			'relations[0]': 'user'
+		};
 
-			// Filter by team if provided (correct parameter name: organizationTeamId, NOT teamId)
-			if (organizationTeamId) {
-				params.organizationTeamId = organizationTeamId;
-			}
-
-			const query = qs.stringify(params);
-
-			// Use /employee/members instead of /employee/pagination
-			const endpoint = `/employee/members?${query}`;
-
-			const response = await this.get<PaginationResponse<TOrganizationTeamEmployee>>(endpoint, {
-				tenantId: this.tenantId
-			});
-
-			// Validate the response data using Zod schema
-			return validatePaginationResponse(
-				organizationTeamEmployeeSchema,
-				response.data,
-				'getWorkingEmployees API response'
-			);
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Working employees validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'EmployeeService'
-				);
-			}
-			throw error;
+		// Filter by team if provided (correct parameter name: organizationTeamId, NOT teamId)
+		if (organizationTeamId) {
+			params.organizationTeamId = organizationTeamId;
 		}
+
+		const query = qs.stringify(params);
+
+		// Use /employee/members instead of /employee/pagination
+		const endpoint = `/employee/members?${query}`;
+
+		return this.executeWithPaginationValidation(
+			() => this.get<PaginationResponse<TOrganizationTeamEmployee>>(endpoint, { tenantId: this.tenantId }),
+			(data) => validatePaginationResponse(organizationTeamEmployeeSchema, data, 'getWorkingEmployees API response'),
+			{ method: 'getWorkingEmployees', service: 'EmployeeService', organizationTeamId }
+		);
 	};
 
 	updateEmployee = async ({
@@ -69,24 +49,11 @@ class EmployeeService extends APIService {
 		id: string;
 		data: TUpdateEmployee;
 	}): Promise<TOrganizationTeamEmployee> => {
-		try {
-			const response = await this.put<TOrganizationTeamEmployee>(`/employee/${id}`, data);
-
-			// Validate the response data using Zod schema
-			return validateApiResponse(organizationTeamEmployeeSchema, response.data, 'updateEmployee API response');
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Employee update validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'EmployeeService'
-				);
-			}
-			throw error;
-		}
+		return this.executeWithValidation(
+			() => this.put<TOrganizationTeamEmployee>(`/employee/${id}`, data),
+			(responseData) => validateApiResponse(organizationTeamEmployeeSchema, responseData, 'updateEmployee API response'),
+			{ method: 'updateEmployee', service: 'EmployeeService', employeeId: id }
+		);
 	};
 
 	createEmployeeFromUser = async ({
@@ -96,31 +63,14 @@ class EmployeeService extends APIService {
 		data: ICreateEmployee;
 		bearer_token: string;
 	}): Promise<TOrganizationTeamEmployee> => {
-		try {
-			const response = await this.post<TOrganizationTeamEmployee>('/employee', data, {
+		return this.executeWithValidation(
+			() => this.post<TOrganizationTeamEmployee>('/employee', data, {
 				tenantId: data.tenantId,
 				headers: { Authorization: `Bearer ${bearer_token}` }
-			});
-
-			// Validate the response data using Zod schema
-			return validateApiResponse(
-				organizationTeamEmployeeSchema,
-				response.data,
-				'createEmployeeFromUser API response'
-			);
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Employee creation validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'EmployeeService'
-				);
-			}
-			throw error;
-		}
+			}),
+			(responseData) => validateApiResponse(organizationTeamEmployeeSchema, responseData, 'createEmployeeFromUser API response'),
+			{ method: 'createEmployeeFromUser', service: 'EmployeeService' }
+		);
 	};
 }
 
