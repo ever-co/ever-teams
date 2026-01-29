@@ -2,6 +2,7 @@
 
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { DottedLanguageObjectStringPaths } from 'next-intl';
+import { ensureArray } from '@/core/lib/utils/storage.utils';
 
 const styles = StyleSheet.create({
 	page: { padding: 20 },
@@ -60,9 +61,9 @@ export const PDFDocument = ({
 		archivedAt: item.archivedAt || '-',
 		startDate: item.startDate || '-',
 		endDate: item.endDate || '-',
-		members: Array.isArray(item.members) ? item.members : [],
-		managers: Array.isArray(item.managers) ? item.managers : [],
-		teams: Array.isArray(item.teams) ? item.teams : []
+		members: ensureArray(item.members),
+		managers: ensureArray(item.managers),
+		teams: ensureArray(item.teams)
 	}));
 
 	const sanitizedTitle = title || 'Projects Report';

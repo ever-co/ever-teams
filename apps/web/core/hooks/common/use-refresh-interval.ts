@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useCallbackRef } from './use-callback-ref';
 import { useAtom } from 'jotai';
 import { dataSyncModeState, isDataSyncState } from '@/core/stores/common/data-sync';
+import { getLocalStorageItem } from '@/core/lib/utils/storage.utils';
 
 export function useRefreshInterval(callback: any, delay: number, ...params: any[]) {
 	// Remember the latest callback.
@@ -39,14 +40,9 @@ export function useRefreshIntervalV2(callback: any, delay: number, ...params: an
 
 	//  get Sync Mode from Local Storage
 	useEffect(() => {
-		try {
-			if (typeof window !== 'undefined') {
-				setDataSync(JSON.parse(window.localStorage.getItem('conf-is-data-sync') || 'true'));
-				setDataSyncMode((window.localStorage.getItem('conf-data-sync-mode') as ESyncMode) ?? 'PULL');
-			}
-		} catch (error) {
-			console.log(error);
-		}
+		setDataSync(getLocalStorageItem('conf-is-data-sync', true));
+		const syncMode = getLocalStorageItem<ESyncMode | null>('conf-data-sync-mode', null);
+		setDataSyncMode(syncMode ?? 'PULL');
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 

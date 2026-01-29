@@ -1,5 +1,6 @@
 import { exportToBackend } from '@/core/lib/helpers/export-to-backend';
 import { queryKeys } from '@/core/query/keys';
+import { getLocalStorageItem, setLocalStorageItem } from '@/core/lib/utils/storage.utils';
 import { ExcalidrawElement } from '@excalidraw/excalidraw/dist/types/excalidraw/element/types';
 import { AppState, BinaryFiles } from '@excalidraw/excalidraw/dist/types/excalidraw/types';
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/dist/types/excalidraw/types';
@@ -17,9 +18,8 @@ export const useBoard = () => {
 			return;
 		}
 
-		const elements = JSON.parse(window.localStorage.getItem('board-elements') || '[]');
-
-		const files = JSON.parse(window.localStorage.getItem('board-files') || '[]');
+		const elements = getLocalStorageItem<ExcalidrawElement[]>('board-elements', []);
+		const files = getLocalStorageItem<BinaryFiles>('board-files', {});
 
 		Promise.resolve().then(() => {
 			excalidrawAPI.addFiles(Object.values(files));
@@ -35,9 +35,8 @@ export const useBoard = () => {
 	const saveChanges = useCallback((elements: readonly ExcalidrawElement[], _: AppState, files: BinaryFiles) => {
 		if (!loaded.current) return;
 
-		window.localStorage.setItem('board-elements', JSON.stringify(elements));
-
-		window.localStorage.setItem('board-files', JSON.stringify(files));
+		setLocalStorageItem('board-elements', elements);
+		setLocalStorageItem('board-files', files);
 	}, []);
 
 	const onLiveCollaborationQuery = useCallback(

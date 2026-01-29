@@ -16,6 +16,7 @@ import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { queryKeys } from '@/core/query/keys';
 import { ITimeLogReportDailyChartProps } from '@/core/types/interfaces/activity/activity-report';
 import { getDateString } from '@/core/lib/utils';
+import { ensureArray } from '@/core/lib/utils/storage.utils';
 
 export interface UseReportActivityProps
 	extends Omit<ITimeLogReportDailyChartProps, 'logType' | 'activityLevel' | 'start' | 'end' | 'groupBy'> {
@@ -322,7 +323,7 @@ export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-
 		rapportChartActivity: chartActivityQuery.data?.data || [],
 		rapportDailyActivity: dailyReportQuery.data?.data || [],
 		statisticsCounts: statisticsQuery.data?.data || null,
-		activityReport: Array.isArray(activityReportQuery.data?.data) ? activityReportQuery.data.data : [],
+		activityReport: ensureArray(activityReportQuery.data?.data),
 
 		// Update handlers
 		updateDateRange,

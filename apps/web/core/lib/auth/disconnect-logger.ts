@@ -1,6 +1,7 @@
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { sendLogToAPI } from '@/core/services/logs/logger-client';
 import { LogLevel } from '@/core/types/generics';
+import { getLocalStorageItem, setLocalStorageItem } from '@/core/lib/utils/storage.utils';
 
 /**
  * Interface for disconnect log entries
@@ -51,7 +52,7 @@ export async function logDisconnection(reason: DisconnectionReason, details?: Re
 	// Also log to localStorage for debugging (optional)
 	try {
 		if (typeof globalThis.window !== 'undefined' && globalThis.window.localStorage) {
-			const logs = JSON.parse(localStorage.getItem('disconnect_logs') || '[]');
+			const logs = getLocalStorageItem<DisconnectLogEntry[]>('disconnect_logs', []);
 			logs.push(logEntry);
 
 			// Keep only last 50 logs
@@ -59,7 +60,7 @@ export async function logDisconnection(reason: DisconnectionReason, details?: Re
 				logs.shift();
 			}
 
-			localStorage.setItem('disconnect_logs', JSON.stringify(logs));
+			setLocalStorageItem('disconnect_logs', logs);
 		}
 	} catch (error) {
 		console.warn('[DisconnectLogger] Failed to save log to localStorage:', error);

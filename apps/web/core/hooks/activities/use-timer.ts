@@ -3,6 +3,7 @@
 import { convertMsToTime, secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
 import { isToday } from '@/core/lib/utils';
+import { getLocalStorageItem } from '@/core/lib/utils/storage.utils';
 import {
 	localTimerStatusState,
 	timeCounterIntervalState,
@@ -95,13 +96,7 @@ function useLocalTimeCounter(
 	);
 
 	const getLocalCounterStatus = useCallback(() => {
-		let data: ILocalTimerStatus | null = null;
-		try {
-			data = JSON.parse(localStorage.getItem(getLocalTimerStorageKey(activeTeamId)) || 'null');
-		} catch (error) {
-			console.log(error);
-		}
-		return data;
+		return getLocalStorageItem<ILocalTimerStatus | null>(getLocalTimerStorageKey(activeTeamId), null);
 	}, [activeTeamId]);
 
 	// Update local time status (storage and store) only when global timerStatus changes

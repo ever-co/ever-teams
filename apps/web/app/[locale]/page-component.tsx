@@ -4,6 +4,7 @@ import React, { Suspense, useEffect } from 'react';
 import { useIsMemberManager, useTeamInvitations } from '@/core/hooks';
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { clsxm } from '@/core/lib/utils';
+import { getLocalStorageItem } from '@/core/lib/utils/storage.utils';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container } from '@/core/components';
 import { MainLayout } from '@/core/components/layouts/default-layout';
@@ -87,8 +88,7 @@ function MainPage() {
 	}, [path, setView]);
 
 	React.useEffect(() => {
-		window && window?.localStorage.getItem('conf-fullWidth-mode');
-		setFullWidth(JSON.parse(window?.localStorage.getItem('conf-fullWidth-mode') || 'true'));
+		setFullWidth(getLocalStorageItem('conf-fullWidth-mode', true));
 	}, [setFullWidth]);
 
 	return (

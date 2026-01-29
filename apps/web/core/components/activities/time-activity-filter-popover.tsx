@@ -10,6 +10,7 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { FilterState } from '@/core/types/interfaces/timesheet/time-limit-report';
 import { isProject } from '@/core/lib/helpers/type-guards';
+import { ensureArray, getLocalStorageItem, setLocalStorageItem } from '@/core/lib/utils/storage.utils';
 
 interface TimeActivityHeaderProps {
 	userManagedTeams?: TOrganizationTeam[];
@@ -22,28 +23,19 @@ interface TimeActivityHeaderProps {
 const STORAGE_KEY = 'ever-teams-activity-filters';
 
 const loadFilterState = (): FilterState => {
-	if (typeof window === 'undefined') {
-		return { teams: [], members: [], projects: [], tasks: [] };
-	}
-
-	try {
-		const savedState = localStorage.getItem(STORAGE_KEY);
-		if (!savedState) return { teams: [], members: [], projects: [], tasks: [] };
-
-		const parsedState = JSON.parse(savedState);
-		return {
-			teams: Array.isArray(parsedState.teams) ? parsedState.teams : [],
-			members: Array.isArray(parsedState.members) ? parsedState.members : [],
-			projects: Array.isArray(parsedState.projects) ? parsedState.projects : [],
-			tasks: Array.isArray(parsedState.tasks) ? parsedState.tasks : []
-		};
-	} catch {
-		return { teams: [], members: [], projects: [], tasks: [] };
-	}
+	const defaultState = { teams: [], members: [], projects: [], tasks: [] };
+	const savedState = getLocalStorageItem<Partial<FilterState>>(STORAGE_KEY, defaultState);
+	
+	return {
+		teams: ensureArray(savedState.teams),
+		members: ensureArray(savedState.members),
+		projects: ensureArray(savedState.projects),
+		tasks: ensureArray(savedState.tasks)
+	};
 };
 
 const saveFilterState = (state: FilterState) => {
-	localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+	setLocalStorageItem(STORAGE_KEY, state);
 };
 
 export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterPopover({

@@ -6,6 +6,7 @@ import { PDFDocument } from '@/core/components/pages/projects/export-formats/pdf
 import { ProjectViewDataType } from './project-views';
 import moment from 'moment';
 import { TOrganizationTeam } from '@/core/types/schemas';
+import { ensureArray } from '@/core/lib/utils/storage.utils';
 import { useState, Suspense } from 'react';
 import { ExportPDFSkeleton } from '@/core/components/common/skeleton/export-pdf-skeleton';
 import {
@@ -35,13 +36,9 @@ export function ProjectExportMenu(props: IProps) {
 				archivedAt: el?.archivedAt ? moment(el.archivedAt).format('YYYY-MM-DD') : '-',
 				startDate: el?.startDate ? moment(el.startDate).format('YYYY-MM-DD') : '-',
 				endDate: el?.endDate ? moment(el.endDate).format('YYYY-MM-DD') : '-',
-				members: Array.isArray(el?.members)
-					? el.members.map((member) => member?.employee?.fullName || '').filter(Boolean)
-					: [],
-				managers: Array.isArray(el?.managers)
-					? el.managers.map((manager) => manager?.employee?.fullName || '').filter(Boolean)
-					: [],
-				teams: Array.isArray(el?.teams) ? el.teams.map((team) => team?.name || '').filter(Boolean) : []
+				members: ensureArray(el?.members).map((member) => member?.employee?.fullName || '').filter(Boolean),
+				managers: ensureArray(el?.managers).map((manager) => manager?.employee?.fullName || '').filter(Boolean),
+				teams: ensureArray(el?.teams).map((team) => team?.name || '').filter(Boolean)
 			};
 		} catch (error) {
 			console.error('Error processing project data for PDF:', error);

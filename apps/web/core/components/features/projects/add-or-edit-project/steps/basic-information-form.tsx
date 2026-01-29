@@ -10,6 +10,7 @@ import { IStepElementProps } from '../container';
 import Image from 'next/image';
 import moment from 'moment';
 import { isValidUrl } from '@/core/lib/utils';
+import { ensureArray } from '@/core/lib/utils/storage.utils';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-area';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks';
@@ -409,13 +410,13 @@ export default function BasicInformationForm(props: IStepElementProps) {
 											</span>
 										</p>
 									</div>
-								<input
-									onChange={handleProjectImageFileChange}
-									id="dropzone-file"
-									type="file"
-									accept="image/jpeg,image/png"
-									className="hidden"
-								/>
+									<input
+										onChange={handleProjectImageFileChange}
+										id="dropzone-file"
+										type="file"
+										accept="image/jpeg,image/png"
+										className="hidden"
+									/>
 								</label>
 							</div>
 							{errors?.get('projectImage') && (
@@ -711,7 +712,7 @@ function SelectComponent<T extends Identifiable, IsMulti extends boolean = false
 	const handleItemSelect = useCallback(
 		(item: T) => {
 			if (isMulti) {
-				const newSelected = Array.isArray(selected) ? [...selected] : [];
+				const newSelected = [...ensureArray(selected)];
 				const index = newSelected.indexOf(item.id);
 				if (index === -1) {
 					newSelected.push(item.id);
