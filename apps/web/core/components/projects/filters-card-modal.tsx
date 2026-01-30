@@ -9,6 +9,7 @@ import { EverCard } from '../common/ever-card';
 import { EProjectBudgetType } from '@/core/types/generics/enums/project';
 import { useAtomValue } from 'jotai';
 import { organizationProjectsState, organizationTeamsState, taskStatusesState } from '@/core/stores';
+import { extractIds } from '@/core/lib/utils/mapping.utils';
 
 interface IFiltersCardModalProps {
 	open: boolean;
@@ -111,7 +112,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 	);
 
 	const handleTeamChange = useCallback((data: Array<{ id: string; value: string }>) => {
-		setSelectedTeams(data.map((team) => team.id));
+		setSelectedTeams(extractIds(data));
 	}, []);
 
 	// Memoize derived data for statuses
@@ -136,7 +137,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 	);
 
 	const handleStatusChange = useCallback((data: Array<{ id: string; value: string }>) => {
-		setSelectedStatus(data.map((status) => status.id));
+		setSelectedStatus(extractIds(data));
 	}, []);
 
 	// Memoize derived data for managers
@@ -159,7 +160,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 	);
 
 	const handleManagerChange = useCallback((data: Array<{ id: string; value: string }>) => {
-		setSelectedManagers(data.map((manager) => manager.id));
+		setSelectedManagers(extractIds(data));
 	}, []);
 
 	// Memoize derived data for members
@@ -175,7 +176,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 	);
 
 	const handleMemberChange = useCallback((data: Array<{ id: string; value: string }>) => {
-		setSelectedMembers(data.map((member) => member.id));
+		setSelectedMembers(extractIds(data));
 	}, []);
 
 	// Memoize derived data for budget types
@@ -191,7 +192,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 	);
 
 	const handleBudgetTypeChange = useCallback((data: Array<{ id: string; value: string }>) => {
-		setSelectedBudgetType(data.map((budgetType) => budgetType.id));
+		setSelectedBudgetType(extractIds(data));
 	}, []);
 
 	const handleApplyFilters = useCallback(() => {

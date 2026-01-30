@@ -10,6 +10,7 @@ import { statusTable } from '../../timesheet/timesheet-action';
 import { MultiSelect } from '../../common/multi-select';
 import { useAtomValue } from 'jotai';
 import { activeTeamState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
+import { createIdSet, createPropertySet } from '@/core/lib/utils/mapping.utils';
 
 export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover() {
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
@@ -56,13 +57,13 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 	}
 
 	// Memoize filter criteria maps for O(1) lookup
-	const employeeMap = React.useMemo(() => new Set(employee?.map((emp) => emp.employeeId)), [employee]);
+	const employeeMap = React.useMemo(() => createIdSet(employee, 'employeeId'), [employee]);
 
-	const projectMap = React.useMemo(() => new Set(project?.map((proj) => proj.id)), [project]);
+	const projectMap = React.useMemo(() => createIdSet(project), [project]);
 
-	const taskMap = React.useMemo(() => new Set(task?.map((t) => t.id)), [task]);
+	const taskMap = React.useMemo(() => createIdSet(task), [task]);
 
-	const statusMap = React.useMemo(() => new Set(statusState?.map((status) => status.label)), [statusState]);
+	const statusMap = React.useMemo(() => createPropertySet(statusState, 'label'), [statusState]);
 
 	const getFilteredResults = React.useCallback(
 		(data: TaskData[] | null | undefined): TaskData[] => {

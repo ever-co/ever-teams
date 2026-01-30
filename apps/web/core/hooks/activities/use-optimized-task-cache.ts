@@ -1,6 +1,7 @@
 import { useMemo, useRef, useCallback } from 'react';
 
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { createIdSet } from '@/core/lib/utils/mapping.utils';
 interface TaskCacheEntry {
 	tasks: TTask[];
 	firstFiveTasks: TTask[];
@@ -38,7 +39,7 @@ export const useOptimizedTaskCache = ({
 	// Generate cache key based on unique task IDs, activeTaskId, and tabKey
 	const cacheKey = useMemo(() => {
 		// Create unique task IDs to avoid cache key collisions from duplicates
-		const uniqueTaskIds = Array.from(new Set(tasks.map((t) => t.id)))
+		const uniqueTaskIds = Array.from(createIdSet(tasks))
 			.sort()
 			.join(',');
 		return `${tabKey}-${uniqueTaskIds}-${activeTaskId || 'none'}-${tasks.length}`;
@@ -91,8 +92,8 @@ export const useOptimizedTaskCache = ({
 
 		// Debug: Verify no duplicates in development
 		if (process.env.NODE_ENV === 'development') {
-			const firstIds = new Set(firstFiveTasks.map((t) => t.id));
-			const remainingIds = new Set(remainingTasks.map((t) => t.id));
+			const firstIds = createIdSet(firstFiveTasks);
+			const remainingIds = createIdSet(remainingTasks);
 			const intersection = [...firstIds].filter((id) => remainingIds.has(id));
 
 			if (intersection.length > 0) {

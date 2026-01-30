@@ -24,6 +24,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TeamTasksPageSkeleton } from '@/core/components/layouts/skeletons/team-tasks-page-skeleton';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
+import { createPropertySet } from '@/core/lib/utils/mapping.utils';
 
 const TeamTask = () => {
 	const t = useTranslations();
@@ -90,7 +91,7 @@ const TeamTask = () => {
 							<nav className="flex flex-wrap gap-3.5 items-center self-stretch my-auto text-sm font-medium min-w-[240px] text-indigo-950 max-md:max-w-full">
 								<div className="flex gap-2.5 justify-center items-center self-stretch my-auto font-medium text-slate-800">
 									<div className="flex gap-1 items-start self-stretch my-auto">
-										{Array.from(new Set(currentItems.map((status) => status.status))).map(
+										{Array.from(createPropertySet(currentItems, 'status')).map(
 											(taskStatus, index) => (
 												<StatusBadge
 													key={index}

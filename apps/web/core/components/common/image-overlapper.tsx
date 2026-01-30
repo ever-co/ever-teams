@@ -28,6 +28,7 @@ import { useAtomValue } from 'jotai';
 import { activeTeamState } from '@/core/stores';
 import { TEmployee, TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { createIdSet } from '@/core/lib/utils/mapping.utils';
 
 export interface ImageOverlapperProps {
 	id: string;
@@ -129,8 +130,8 @@ export default function ImageOverlapper({
 		setIsSubmitting(true);
 
 		// Calculate added and removed members for toast message
-		const originalMemberIds = new Set((item?.members || []).map((m: TEmployee) => m.id));
-		const newMemberIds = new Set(assignedMembers.map((m) => m.id));
+		const originalMemberIds = createIdSet(item?.members || []);
+		const newMemberIds = createIdSet(assignedMembers);
 
 		const addedMembers = assignedMembers.filter((m) => !originalMemberIds.has(m.id));
 		const removedMembers = (item?.members || []).filter((m: TEmployee) => !newMemberIds.has(m.id));

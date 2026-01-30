@@ -16,6 +16,7 @@ import {
 } from '@/core/lib/helpers/notifications';
 import { NOTIFICATION_KEYS } from '@/core/constants/config/notification';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { createIdSet } from '@/core/lib/utils/mapping.utils';
 
 export function TeamOutstandingNotifications({
 	outstandingPlans,
@@ -53,7 +54,7 @@ const UserOutstandingNotification = memo(function UserOutstandingNotification({
 
 	const { validTasks, outStandingTasksCount } = useMemo(() => {
 		const validTasks = outstandingPlans.flatMap((plan) => plan.tasks || []).filter((t) => t?.id);
-		const uniqueIds = new Set(validTasks.map((t) => t.id));
+		const uniqueIds = createIdSet(validTasks);
 		return {
 			validTasks: validTasks as Partial<TTask>[],
 			outStandingTasksCount: uniqueIds.size

@@ -23,6 +23,7 @@ import {
 	LazyTimeActivityTable
 } from '@/core/components/optimized-components/reports';
 import { activeTeamState, isTrackingEnabledState, tasksByTeamState, organizationProjectsState } from '@/core/stores';
+import { extractIds, extractProperty } from '@/core/lib/utils/mapping.utils';
 
 const STORAGE_KEY = 'ever-teams-activity-view-options';
 
@@ -66,10 +67,10 @@ const TimeActivityComponents = () => {
 			// Convert filter state to the format expected by useReportActivity
 			const filterParams = {
 				// Extract IDs from the filter objects
-				teamIds: filters.teams.map((team) => team.id),
+				teamIds: extractIds(filters.teams),
 				employeeIds: filters.members.map((member) => member.employee?.id || member.id).filter(Boolean),
-				projectIds: filters.projects.map((project) => project.id),
-				taskIds: filters.tasks.map((task) => task.id)
+				projectIds: extractIds(filters.projects),
+				taskIds: extractIds(filters.tasks)
 			};
 
 			// Update the report activity filters

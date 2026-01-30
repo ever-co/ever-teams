@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { useUpdateTask } from '@/core/hooks/organizations/teams/use-update-task';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { createPropertySet } from '@/core/lib/utils/mapping.utils';
 
 // Types for optimistic actions
 type TaskMember = NonNullable<TTask['members']>[number];
@@ -158,7 +159,7 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 		if (!memberList.length) return { assignedMembers: [], unassignedMembers: [] };
 
 		// Use Set for O(1) lookup performance
-		const assignedUserIds = new Set(optimisticMembers.map((m) => m.userId));
+		const assignedUserIds = createPropertySet(optimisticMembers, 'userId');
 
 		const assigned: TOrganizationTeamEmployee[] = [];
 		const unassigned: TOrganizationTeamEmployee[] = [];

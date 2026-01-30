@@ -1,6 +1,7 @@
 import { TOrganizationTeamEmployee, TOrganizationTeam, TUser } from '@/core/types/schemas';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
 import { hasItems } from './collection.utils';
+import { createMapByKey, createIdSet } from './mapping.utils';
 
 // Constants for team member utilities
 export const TEAM_MEMBER_CONSTANTS = {
@@ -203,7 +204,7 @@ export const mergePreservingOrder = (
 	newMembers: TOrganizationTeamEmployee[]
 ): TOrganizationTeamEmployee[] => {
 	// Create a map of new members for quick lookup
-	const newMembersMap = new Map(newMembers.map((m) => [m.id, m]));
+	const newMembersMap = createMapByKey(newMembers, 'id');
 
 	// Update existing members preserving their order, but only keep those still in new list
 	const updatedExisting = existingMembers
@@ -214,7 +215,7 @@ export const mergePreservingOrder = (
 		})) as TOrganizationTeamEmployee[];
 
 	// Find truly new members that weren't in the existing list
-	const existingMemberIds = new Set(existingMembers.map((m) => m.id));
+	const existingMemberIds = createIdSet(existingMembers);
 	const trulyNewMembers = newMembers.filter((m) => !existingMemberIds.has(m.id));
 
 	// Return existing members (updated) + new members at the end
