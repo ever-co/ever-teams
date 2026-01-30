@@ -3,6 +3,8 @@ import { IRegisterDataAPI } from '@/core/types/interfaces/auth/auth';
 import { I_SMTPRequest } from '@/core/types/interfaces/auth/custom-smtp';
 import { PHONE_REGEX, URL_REGEX } from './regex';
 import { isEmail } from 'class-validator';
+import { isString } from '@/core/lib/utils/type-guards.utils';
+import { isEmptyObject, objectKeys } from '@/core/lib/utils/object.utils';
 
 type Err = { [x in keyof IRegisterDataAPI]: string | undefined };
 
@@ -43,7 +45,7 @@ export const authFormValidate = (keys: (keyof IRegisterDataAPI)[], values: IRegi
 		}
 	});
 	return {
-		valid: Object.keys(err).length === 0,
+		valid: isEmptyObject(err),
 		errors: err
 	};
 };
@@ -57,7 +59,7 @@ export function validateForm<T extends Ks>(keys: (keyof T)[], data: T) {
 
 	keys.forEach((key) => {
 		const value = data[key];
-		data[key] = typeof value === 'string' ? (value.trim() as any) : value;
+		data[key] = isString(value) ? (value.trim() as any) : value;
 		switch (key) {
 			case 'email':
 				if (value && !isEmail(value)) {
@@ -83,7 +85,7 @@ export function validateForm<T extends Ks>(keys: (keyof T)[], data: T) {
 
 	return {
 		errors,
-		isValid: Object.keys(errors).length === 0
+		isValid: isEmptyObject(errors)
 	};
 }
 
@@ -92,7 +94,7 @@ export function validSMTPConfig() {
 
 	console.log(`SMTP Config: ${JSON.stringify(SMTPConfig)}`);
 
-	const keys = Object.keys(SMTPConfig) as (keyof I_SMTPRequest)[];
+	const keys = objectKeys(SMTPConfig) as (keyof I_SMTPRequest)[];
 
 	if (keys.some((key) => SMTPConfig[key] === null || SMTPConfig[key] === undefined)) {
 		return null;

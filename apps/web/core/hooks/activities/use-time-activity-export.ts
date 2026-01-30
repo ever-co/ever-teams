@@ -14,6 +14,8 @@ import {
 	ExportPerformanceMonitor
 } from '@/core/lib/config/export-config';
 import { hasItems } from '@/core/lib/utils/collection.utils';
+import { secondsToHours } from '@/core/lib/utils/time-conversion.utils';
+import { formatFixed } from '@/core/lib/utils/number.utils';
 
 /**
  * Daily Activity Report type supporting both data structures:
@@ -142,14 +144,14 @@ export function useTimeActivityExport({
 						projectData.tasks?.forEach((taskData: any) => {
 							const taskTitle = taskData.title || 'No Task';
 							const duration = taskData.duration || 0;
-							const hours = Math.floor(duration / 3600);
+							const hours = Math.floor(secondsToHours(duration));
 							const minutes = Math.floor((duration % 3600) / 60);
 							const trackedHours = `${hours}h ${minutes}m`;
 
 							// Calculate earnings
 							const hourlyRate = employeeData?.employee?.billRateValue || 0;
-							const totalHours = duration / 3600;
-							const earnings = `$${(totalHours * hourlyRate).toFixed(2)}`;
+							const totalHours = secondsToHours(duration);
+							const earnings = `$${formatFixed(totalHours * hourlyRate)}`;
 
 							// Activity level
 							const activityLevel = `${employeeData?.activity || 0}%`;
@@ -182,14 +184,14 @@ export function useTimeActivityExport({
 							employeeLog.tasks.forEach((taskLog: any) => {
 								const taskTitle = taskLog.task?.title || 'No Task';
 								const duration = taskLog.duration || 0;
-								const hours = Math.floor(duration / 3600);
+								const hours = Math.floor(secondsToHours(duration));
 								const minutes = Math.floor((duration % 3600) / 60);
 								const trackedHours = `${hours}h ${minutes}m`;
 
 								// Calculate earnings
 								const hourlyRate = employeeLog.employee?.billRateValue || 0;
-								const totalHours = duration / 3600;
-								const earnings = `$${(totalHours * hourlyRate).toFixed(2)}`;
+								const totalHours = secondsToHours(duration);
+								const earnings = `$${formatFixed(totalHours * hourlyRate)}`;
 
 								// Activity level
 								const activityLevel = `${employeeLog.activity || 0}%`;
@@ -209,14 +211,14 @@ export function useTimeActivityExport({
 						} else {
 							// No specific tasks, create one entry for the employee's total time
 							const duration = employeeLog.sum || 0;
-							const hours = Math.floor(duration / 3600);
+							const hours = Math.floor(secondsToHours(duration));
 							const minutes = Math.floor((duration % 3600) / 60);
 							const trackedHours = `${hours}h ${minutes}m`;
 
 							// Calculate earnings
 							const hourlyRate = employeeLog.employee?.billRateValue || 0;
-							const totalHours = duration / 3600;
-							const earnings = `$${(totalHours * hourlyRate).toFixed(2)}`;
+							const totalHours = secondsToHours(duration);
+							const earnings = `$${formatFixed(totalHours * hourlyRate)}`;
 
 							// Get actual activity level from data or use 0 as fallback
 							const activityLevel = `${employeeLog.activity || 0}%`;

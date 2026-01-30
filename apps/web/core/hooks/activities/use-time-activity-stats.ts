@@ -4,6 +4,8 @@ import { ITimesheetCountsStatistics } from '@/core/types/interfaces/timesheet/ti
 import { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 import { useAuthenticateUser } from '../auth';
 import { hasItems } from '@/core/lib/utils/collection.utils';
+import { secondsToHours } from '@/core/lib/utils/time-conversion.utils';
+import { formatFixed } from '@/core/lib/utils/number.utils';
 
 export interface TimeActivityStats {
 	totalHours: string;
@@ -79,14 +81,14 @@ export function useTimeActivityStats({
 						}
 
 						// Calculate earnings: duration (in seconds) * hourly rate
-						const durationHours = (employeeLog.sum || 0) / 3600;
+						const durationHours = secondsToHours(employeeLog.sum || 0);
 						totalEarningsValue += durationHours * billRate;
 					}
 				}
 			}
 		}
 
-		return `${totalEarningsValue.toFixed(2)} ${primaryCurrency}`;
+		return `${formatFixed(totalEarningsValue)} ${primaryCurrency}`;
 	}, [rapportDailyActivity, isManage, userEmployeeId]);
 
 	// Combine all memoized values

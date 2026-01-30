@@ -17,6 +17,7 @@ import { useConditionalUpdateEffect } from '../common';
 import { useUserQuery } from '../queries/user-user.query';
 import { mergeTaskLabelData } from '@/core/lib/helpers/task';
 import { OptimisticAction, TTag } from '@/core/types/schemas';
+import { objectKeys } from '@/core/lib/utils/object.utils';
 
 export function useTaskLabels() {
 	const activeTeamId = useAtomValue(activeTeamIdState);
@@ -175,7 +176,7 @@ export function useTaskLabels() {
 			}
 
 			// Check if there are actual changes to prevent unnecessary updates
-			const hasChanges = Object.keys(inputData).some((key) => {
+			const hasChanges = objectKeys(inputData).some((key) => {
 				const newValue = inputData[key as keyof ITagCreate];
 				const existingValue = existingLabel[key as keyof typeof existingLabel];
 				return newValue !== existingValue;

@@ -14,6 +14,7 @@ import { IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/times
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { useConditionalUpdateEffect } from '../common/use-has-mounted';
+import { forEachValue, objectEntries } from '@/core/lib/utils/object.utils';
 
 interface TimesheetParams {
 	startDate?: Date | string;
@@ -83,7 +84,7 @@ const groupByDate = (items: ITimeLog[]): GroupedTimesheet[] => {
 
 	// Then, for each timesheet group, group by date and merge all results
 	const result: GroupedTimesheet[] = [];
-	Object.values(groupedByTimesheet).forEach((timesheetLogs) => {
+	forEachValue(groupedByTimesheet, (timesheetLogs) => {
 		const groupedByDate = timesheetLogs.reduce(
 			(acc, item) => {
 				try {
@@ -102,7 +103,7 @@ const groupByDate = (items: ITimeLog[]): GroupedTimesheet[] => {
 		);
 
 		// Convert grouped dates to array format and add to results
-		Object.entries(groupedByDate).forEach(([date, tasks]) => {
+		objectEntries(groupedByDate).forEach(([date, tasks]) => {
 			result.push({ date, tasks });
 		});
 	});

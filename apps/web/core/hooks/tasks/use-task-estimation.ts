@@ -8,6 +8,7 @@ import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
 import { activeTeamTaskState } from '@/core/stores';
+import { hoursToSeconds, minutesToSeconds } from '@/core/lib/utils/time-conversion.utils';
 
 export function useTaskEstimation(task?: Nullable<TTask>, useActiveTeamTaskByDefault = true) {
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
@@ -119,7 +120,7 @@ export function useTaskEstimation(task?: Nullable<TTask>, useActiveTeamTaskByDef
 			...$task,
 			estimateHours: hours,
 			estimateMinutes: minutes,
-			estimate: hours * 60 * 60 + minutes * 60 // time seconds
+			estimate: hoursToSeconds(hours) + minutesToSeconds(minutes)
 		});
 
 		setEditableMode(false);

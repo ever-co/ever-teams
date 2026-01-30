@@ -16,6 +16,8 @@ import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-
 import { useMapToTaskStatusValues } from './use-map-to-task-status-values';
 import { useUserQuery } from '../queries/user-user.query';
 import { toast } from 'sonner';
+import { objectKeys } from '@/core/lib/utils/object.utils';
+import { isString } from '@/core/lib/utils/type-guards.utils';
 
 export function useTaskStatus() {
 	const activeTeamId = useAtomValue(activeTeamIdState);
@@ -178,7 +180,7 @@ export function useStatusValue<T extends ITaskStatusField>({
 	const multipleRef = useSyncRef(multiple);
 
 	const items = useMemo(() => {
-		return Object.keys(statusItems).map((key) => {
+		return objectKeys(statusItems).map((key) => {
 			const value = statusItems[key as ITaskStatusStack[T]];
 			if (!value.value) {
 				value.value = key;
@@ -217,14 +219,13 @@ export function useStatusValue<T extends ITaskStatusField>({
 		(value: ITaskStatusStack[T]) => {
 			if (multipleRef.current) {
 				const prevValues = valuesRef.current;
-				const newValues =
-					typeof value === 'string'
-						? prevValues.includes(value)
-							? prevValues.filter((v) => v !== value)
-							: [...prevValues, value]
-						: Array.isArray(value)
-							? value
-							: [value];
+				const newValues = isString(value)
+					? prevValues.includes(value)
+						? prevValues.filter((v) => v !== value)
+						: [...prevValues, value]
+					: Array.isArray(value)
+						? value
+						: [value];
 				setValues(newValues);
 				onValueChangeRef?.current?.(value, newValues);
 			} else {

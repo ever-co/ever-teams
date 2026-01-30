@@ -3,6 +3,7 @@ import moment from 'moment';
 import { twMerge } from 'tailwind-merge';
 import React, { JSX, ReactNode } from 'react';
 import { ETaskStatusName } from '../types/generics/enums/task';
+import { isString, isUndefined } from './utils/type-guards.utils';
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
@@ -14,7 +15,7 @@ export function range(start: number, end?: number, step = 1): number[] {
 		throw new Error('Step cannot be zero.');
 	}
 
-	if (end === undefined) {
+	if (isUndefined(end)) {
 		end = start;
 		start = 0;
 	}
@@ -44,7 +45,7 @@ export function chunk<T>(array: T[], size: number): T[][] {
 }
 
 export const shortenLink = (value: any): string => {
-	if (typeof value !== 'string' || value.length <= 19) {
+	if (!isString(value) || value.length <= 19) {
 		return value;
 	}
 	const start = value.substring(0, window.location.origin.length);

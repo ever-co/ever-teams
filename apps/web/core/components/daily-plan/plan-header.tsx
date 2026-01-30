@@ -13,6 +13,8 @@ import { useDeleteDailyPlan } from '@/core/hooks/daily-plans/use-delete-daily-pl
 import { TDailyPlan } from '@/core/types/schemas';
 import { clsxm } from '@/core/lib/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
+import { secondsToHours } from '@/core/lib/utils/time-conversion.utils';
+import { formatFixed } from '@/core/lib/utils/number.utils';
 
 import { VerticalSeparator } from '../duplicated-components/separator';
 import { ProgressBar } from '../duplicated-components/_progress-bar';
@@ -59,7 +61,7 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 	const totalTasks = useMemo(() => plan.tasks?.length || 0, [plan.tasks]);
 
 	// Completion percent
-	const completionPercent = totalTasks > 0 ? ((completedTasks * 100) / totalTasks).toFixed(0) : '0.0';
+	const completionPercent = totalTasks > 0 ? formatFixed((completedTasks * 100) / totalTasks, 0) : '0.0';
 
 	// Smart layout: use justify-between only when delete button is present
 	const shouldShowDeleteButton = planMode === 'Future Tasks' && canSeeActivity;
@@ -163,7 +165,7 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 
 			<div className="flex gap-2 items-center">
 				<span className="font-medium">{t('dailyPlan.ESTIMATED_TIME')} : </span>
-				<span className="font-semibold">{formatIntegerToHour(estimatedTime / 3600)}</span>
+				<span className="font-semibold">{formatIntegerToHour(secondsToHours(estimatedTime))}</span>
 			</div>
 
 			{/* Conditional content based on planMode */}
@@ -173,7 +175,7 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 					{/* Total worked time for the plan */}
 					<div className="flex gap-2 items-center">
 						<span className="font-medium">{t('dailyPlan.TOTAL_TIME_WORKED')} : </span>
-						<span className="font-semibold">{formatIntegerToHour(totalWorkedTime / 3600)}</span>
+						<span className="font-semibold">{formatIntegerToHour(secondsToHours(totalWorkedTime))}</span>
 					</div>
 
 					<VerticalSeparator />

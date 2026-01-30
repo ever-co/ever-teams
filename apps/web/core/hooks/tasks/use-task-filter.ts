@@ -14,6 +14,7 @@ import { useAtomValue } from 'jotai';
 import { useUserQuery } from '../queries/user-user.query';
 import { getTodayString } from '@/core/lib/utils';
 import { hasItems, includesIgnoreCase } from '@/core/lib/utils/collection.utils';
+import { objectKeys } from '@/core/lib/utils/object.utils';
 
 type IStatusType = 'status' | 'size' | 'priority' | 'label';
 type FilterType = 'status' | 'search' | undefined;
@@ -184,7 +185,7 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 		if (filterType === 'search' && taskName.trim().length === 0) {
 			setFilterType(undefined);
 		} else if (filterType === 'status') {
-			const hasStatus = (Object.keys(statusFilter) as IStatusType[]).some((skey) => {
+			const hasStatus = (objectKeys(statusFilter) as IStatusType[]).some((skey) => {
 				return hasItems(statusFilter[skey]);
 			});
 			!hasStatus && setFilterType(undefined);
@@ -309,7 +310,7 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 				return n ? includesIgnoreCase(task.title, n) : true;
 			})
 			.filter((task) => {
-				const keys = Object.keys(statusFilters) as IStatusType[];
+				const keys = objectKeys(statusFilters) as IStatusType[];
 
 				return keys
 					.filter((k) => hasItems(statusFilters[k]))

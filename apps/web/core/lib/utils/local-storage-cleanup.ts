@@ -1,5 +1,7 @@
 'use client';
 
+import { isString } from './type-guards.utils';
+
 /**
  * Utility to clean up corrupted localStorage data
  * This should be called on app initialization to fix legacy data issues
@@ -17,7 +19,7 @@ export const safeGetLocalStorage = <T>(key: string, defaultValue: T): T => {
 
 		// Handle legacy string values
 		if (
-			typeof defaultValue === 'string' &&
+			isString(defaultValue) &&
 			!item.startsWith('"') &&
 			!item.startsWith('{') &&
 			!item.startsWith('[')

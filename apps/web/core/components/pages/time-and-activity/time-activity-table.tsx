@@ -7,6 +7,8 @@ import { Column, TimeActivityTableAdapter } from './time-activity-table-adapter'
 import ProgressBar from '../../duplicated-components/progress-bar';
 import { useTranslations } from 'next-intl';
 import { TEmployee } from '@/core/types/schemas';
+import { secondsToHours } from '@/core/lib/utils/time-conversion.utils';
+import { formatFixed } from '@/core/lib/utils/number.utils';
 interface TimeEntry {
 	member: {
 		name: string;
@@ -161,7 +163,7 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 						dayAcc +
 						projectLog.employeeLogs.reduce((empAcc, employeeLog) => {
 							const billRate = employeeLog.employee.billRateValue || 0;
-							const durationHours = employeeLog.sum / 3600; // Convert seconds to hours
+							const durationHours = secondsToHours(employeeLog.sum);
 							return empAcc + durationHours * billRate;
 						}, 0)
 					);
@@ -202,9 +204,9 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 	const calculateEarnings = useCallback((employeeLog: RawEmployeeLog): string => {
 		const billRate = employeeLog?.employee?.billRateValue || 0;
 		const currency = employeeLog?.employee.billRateCurrency || 'USD';
-		const durationHours = employeeLog?.sum / 3600; // Convert seconds to hours
+		const durationHours = secondsToHours(employeeLog?.sum);
 		const earnings = durationHours * billRate;
-		return `${earnings.toFixed(2)} ${currency}`;
+		return `${formatFixed(earnings)} ${currency}`;
 	}, []);
 
 	// Memoize formatted data to prevent unnecessary recalculations
@@ -246,7 +248,7 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 					{ label: t('timeActivity.HOURS_LABEL'), value: `${formatDuration(week.totalSum)}h` },
 					{
 						label: t('timeActivity.EARNINGS_LABEL'),
-						value: `${week.totalEarnings.toFixed(2)} ${primaryCurrency}`
+						value: `${formatFixed(week.totalEarnings)} ${primaryCurrency}`
 					},
 					{
 						label: t('timeActivity.AVERAGE_ACTIVITY_LABEL'),

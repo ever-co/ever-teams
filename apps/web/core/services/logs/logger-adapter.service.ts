@@ -2,6 +2,8 @@ import { AxiosError, AxiosRequestConfig, AxiosResponse, AxiosResponseHeaders, Ra
 
 import { Logger } from './logger.service';
 import { HttpLoggerConfig, LogLevel } from '@/core/types/generics';
+import { isString, isObject } from '@/core/lib/utils/type-guards.utils';
+import { forEachKey } from '@/core/lib/utils/object.utils';
 
 export class HttpLoggerAdapter {
 	private logger: Logger;
@@ -104,7 +106,7 @@ export class HttpLoggerAdapter {
 		const logData = shouldLogData
 			? {
 					headers: sanitizedHeaders,
-					...(params && typeof params === 'object' ? { params } : {}),
+					...(params && isObject(params) ? { params } : {}),
 					data: this.truncateData(data),
 					...(status !== undefined && { statusCode: status })
 				}
@@ -259,7 +261,7 @@ export class HttpLoggerAdapter {
 		this.config.sensitiveHeaders.forEach((header) => {
 			const headerLower = header.toLowerCase();
 
-			Object.keys(sanitized).forEach((key) => {
+			forEachKey(sanitized, (key) => {
 				if (key.toLowerCase() === headerLower) {
 					sanitized[key] = '[REDACTED]';
 				}
@@ -278,7 +280,7 @@ export class HttpLoggerAdapter {
 		const MAX_STRING_LENGTH = 1000; // Limit to 1000 characters
 
 		try {
-			if (typeof data === 'string') {
+			if (isString(data)) {
 				return data.length > MAX_STRING_LENGTH
 					? `${data.substring(0, MAX_STRING_LENGTH)}... [TRUNCATED, ${data.length} chars total]`
 					: data;

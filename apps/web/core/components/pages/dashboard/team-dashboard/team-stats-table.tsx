@@ -19,6 +19,7 @@ import { Skeleton } from '@/core/components/common/skeleton';
 import { Card } from '@/core/components/common/card';
 import { ITimerEmployeeLog, ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 import { Paginate } from '@/core/components/duplicated-components/_pagination';
+import { secondsToHours } from '@/core/lib/utils/time-conversion.utils';
 
 const getProgressColor = (activityLevel: number) => {
 	if (isNaN(activityLevel) || activityLevel < 0) return 'bg-gray-300';
@@ -29,7 +30,7 @@ const getProgressColor = (activityLevel: number) => {
 };
 
 const formatDuration = (duration: number) => {
-	const hours = Math.floor(duration / 3600);
+	const hours = Math.floor(secondsToHours(duration));
 	const minutes = Math.floor((duration % 3600) / 60);
 	const seconds = duration % 60;
 

@@ -4,6 +4,7 @@ import { useTimeSlots } from '@/core/hooks/activities/use-time-slots';
 import { useTranslations } from 'next-intl';
 import { ActivityFilters } from '@/core/constants/config/constants';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/core/components/common/tabs';
+import { formatFixed } from '@/core/lib/utils/number.utils';
 import {
 	LazyOptimizedTasksTab,
 	LazyOptimizedAppsTab,
@@ -39,7 +40,7 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 						<div className="shadow basis-1/4 min-w-56 max-w-80 rounded-md p-4 h-32 bg-light--theme-light dark:bg-[#26272C]">
 							<span>{t('timer.TIME_ACTIVITY')}</span>
 							<h2 className="my-3 text-3xl font-bold">
-								{activityPercent ? activityPercent.toFixed(2) : '00'} %
+								{activityPercent ? formatFixed(activityPercent) : '00'} %
 							</h2>
 							<ProgressBar width={'80%'} progress={`${activityPercent}%`} className="my-2" />
 						</div>

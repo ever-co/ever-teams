@@ -2,6 +2,7 @@ import { AxiosError } from 'axios';
 
 import { extractHttpCode } from '@/core/lib/utils';
 import { ApiErrorResponse } from '@/core/types/generics';
+import { objectValues } from '@/core/lib/utils/object.utils';
 
 type AxiosErrorInfo = {
 	label: string;
@@ -211,7 +212,7 @@ export class ApiErrorService extends Error {
 
 		let statusCode = errorFrom.status ?? response?.status ?? extractStatus;
 		const info =
-			Object.values(AxiosErrorDetails).find((value) => value.httpCode === errorStatus) ||
+			objectValues(AxiosErrorDetails).find((value) => value.httpCode === errorStatus) ||
 			AxiosErrorDetails[errorCode!];
 		if (info) {
 			errorMessage = `Error (${info.label}) – ${info.description} (HTTP ${info.httpCode || 'unknown'})`;
