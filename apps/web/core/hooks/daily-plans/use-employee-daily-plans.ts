@@ -123,11 +123,11 @@ export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEm
 					return null;
 				}
 			} catch (error) {
-				toast.error('Error when fetching day plans for employee: ${newEmployeeId || internalEmployeeId}', {
+				toast.error(`Error when fetching day plans for employee: ${newEmployeeId || internalEmployeeId}`, {
 					description: getErrorMessage(error, 'Unable to fetch day plans')
 				});
 				logErrorInDev(
-					'Error when fetching day plans for employee: ${newEmployeeId || internalEmployeeId}',
+					`Error when fetching day plans for employee: ${newEmployeeId || internalEmployeeId}`,
 					error
 				);
 				return null; // Return null on error to maintain consistent return type
