@@ -1066,13 +1066,14 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 		[employeeFuturePlans, selectedPlan?.id, task.id, employeeTodayPlan]
 	);
 
-	const isTodayPLan = useMemo(
-		() =>
-			selectedPlan?.date &&
-			new Date(selectedPlan.date).toLocaleDateString('en') ==
-				new Date(employeeTodayPlan[0]?.date).toLocaleDateString('en'),
-		[selectedPlan?.date, employeeTodayPlan]
-	);
+	const isTodayPLan = useMemo(() => {
+		const planDate = selectedPlan?.date;
+		const todayPlanDate = employeeTodayPlan?.[0]?.date;
+
+		if (!planDate || !todayPlanDate) return false;
+
+		return new Date(planDate).toLocaleDateString('en') == new Date(todayPlanDate).toLocaleDateString('en');
+	}, [selectedPlan?.date, employeeTodayPlan]);
 
 	/**
 	 * Unplan selected task
