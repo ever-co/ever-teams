@@ -93,7 +93,7 @@ export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEm
 			try {
 				const targetEmployeeId = newEmployeeId || employeeId;
 
-				if (targetEmployeeId && typeof targetEmployeeId === 'string') {
+				if (targetEmployeeId) {
 					// Update the employeeId state to trigger query refetch
 					if (newEmployeeId) {
 						setInternalEmployeeId(newEmployeeId);

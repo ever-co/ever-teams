@@ -345,6 +345,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 				if (task.estimate !== null && task.estimate && task.estimate > 0) {
 					if (isOpen) {
 						setDefaultTask(task);
+						// scan-ignore: sensitive-storage // Task ID is not sensitive data
 						window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, task.id!);
 					}
 				}
@@ -352,6 +353,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		} else {
 			if (isOpen && activeTeamTask) {
 				setDefaultTask(activeTeamTask);
+				// scan-ignore: sensitive-storage // Task ID is not sensitive data
 				window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, activeTeamTask.id!);
 			}
 		}
