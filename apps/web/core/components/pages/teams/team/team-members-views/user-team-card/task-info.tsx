@@ -1,4 +1,5 @@
-import { FilterTabs, I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@/core/hooks';
+import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@/core/hooks';
+import { FilterTabs } from '@/core/types/daily-plan-types';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { clsxm } from '@/core/lib/utils';
 import { useRouter } from 'next/navigation';
@@ -87,7 +88,10 @@ function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 			</div>
 
 			{/* Show task input combobox when in edit mode */}
-			<div ref={edition.taskEditIgnoreElement.ignoreElementRef} className={clsxm(!hasEditMode && ['hidden'],'w-full')}>
+			<div
+				ref={edition.taskEditIgnoreElement.ignoreElementRef}
+				className={clsxm(!hasEditMode && ['hidden'], 'w-full')}
+			>
 				{hasEditMode && (
 					<TaskInput
 						task={task}

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
-import { useDailyPlanQuery } from '@/core/hooks/daily-plans/use-daily-plan-query';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
 import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
@@ -38,7 +38,7 @@ export function AddTaskToPlan({
 	employee?: IEmployee;
 }) {
 	// Use specialized hooks with employee?.id to get the correct employee's plans
-	const { profileDailyPlans, getEmployeeDayPlans } = useDailyPlanQuery(employee?.id ?? null);
+	const { employeeDailyPlans, getEmployeeDailyPlans } = useEmployeeDailyPlans(employee?.id ?? null);
 	const { createDailyPlan } = useCreateDailyPlan();
 	const { addTaskToPlan, addTaskToPlanLoading } = useUpdateDailyPlan();
 	const [selectedPlan, setSelectedPlan] = useState<TDailyPlan | null>(null);
@@ -90,8 +90,8 @@ export function AddTaskToPlan({
 	]);
 
 	useEffect(() => {
-		getEmployeeDayPlans(employee?.employeeId ?? '');
-	}, [employee?.employeeId, getEmployeeDayPlans]);
+		getEmployeeDailyPlans();
+	}, [employee?.employeeId, getEmployeeDailyPlans]);
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} className="w-[98%] md:w-[530px] relative">
@@ -149,7 +149,7 @@ export function AddTaskToPlan({
 					) : (
 						<PlansList
 							handlePlanClik={handlePlanClick}
-							plans={profileDailyPlans.items}
+							plans={employeeDailyPlans.items}
 							selectedPlan={selectedPlan}
 						/>
 					)}

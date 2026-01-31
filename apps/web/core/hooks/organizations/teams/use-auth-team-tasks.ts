@@ -1,4 +1,4 @@
-import { useDailyPlanQuery } from '@/core/hooks/daily-plans/use-daily-plan-query';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
@@ -16,7 +16,7 @@ export function useAuthTeamTasks(user: TUser | undefined) {
 	const targetUser = user || authenticatedUser;
 	const currentMember = activeTeam?.members?.find((member) => member.employee?.userId === targetUser?.id);
 	const employeeId = targetUser?.employee?.id ?? targetUser?.employeeId ?? currentMember?.employee?.id ?? '';
-	const { futurePlans, todayPlan } = useDailyPlanQuery(employeeId);
+	const { employeeFuturePlans, employeeTodayPlan } = useEmployeeDailyPlans(employeeId);
 
 	const assignedTasks = useMemo(() => {
 		if (!targetUser) return [];
@@ -37,14 +37,14 @@ export function useAuthTeamTasks(user: TUser | undefined) {
 		if (!targetUser || !employeeId) return 0;
 
 		// Pass targetUser to getTotalTasks for proper filtering
-		const todayTasksCount = getTotalTasks(todayPlan, targetUser);
-		const futureTasksCount = getTotalTasks(futurePlans, targetUser);
+		const todayTasksCount = getTotalTasks(employeeTodayPlan, targetUser);
+		const futureTasksCount = getTotalTasks(employeeFuturePlans, targetUser);
 
 		// NOTE_FIX: "planned" should only include tasks in daily plans (today + future)
 		// Outstanding tasks are NOT planned by definition - they are tasks without plans
 		// or tasks in past plans that are incomplete
 		return todayTasksCount + futureTasksCount;
-	}, [futurePlans, todayPlan, targetUser, employeeId]);
+	}, [employeeFuturePlans, employeeTodayPlan, targetUser, employeeId]);
 
 	const totalTodayTasks = useMemo(
 		() =>

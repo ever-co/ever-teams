@@ -41,7 +41,7 @@ import { queryKeys } from '@/core/query/keys';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { getLocalTimerStorageKey } from '@/core/lib/helpers/timer';
-import { useDailyPlanQuery } from '../daily-plans/use-daily-plan-query';
+import { useMyDailyPlans } from '../daily-plans/use-my-daily-plans';
 import {
 	REFRESH_INTERVAL,
 	STOP_TIMER_DEBOUNCE_MS,
@@ -192,8 +192,8 @@ export function useTimer() {
 	const detailedTask = useAtomValue(detailedTaskState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
 
-	// Use useDailyPlanQuery to get the logged-in user's plans (no employeeId = current user)
-	const { myDailyPlans } = useDailyPlanQuery();
+	// Use useMyDailyPlans to get the logged-in user's plans (optimized for current user)
+	const { myDailyPlans } = useMyDailyPlans();
 
 	const teamTasks = useAtomValue(teamTasksState);
 

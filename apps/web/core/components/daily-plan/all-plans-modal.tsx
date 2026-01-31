@@ -4,7 +4,7 @@ import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { ChevronRightIcon } from 'assets/svg';
 import { AddTasksEstimationHoursModal } from '../features/daily-plan/add-task-estimation-hours-modal';
-import { useDailyPlanQuery } from '@/core/hooks/daily-plans/use-daily-plan-query';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
@@ -53,28 +53,28 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	const [customDate, setCustomDate] = useState<Date>(moment().toDate());
 
 	//  Use specialized hooks with employeeId to get the correct employee's plans
-	const { profileDailyPlans, pastPlans } = useDailyPlanQuery(employeeId);
+	const { employeeDailyPlans, employeePastPlans } = useEmployeeDailyPlans(employeeId ?? null);
 	const { createDailyPlan, createDailyPlanLoading } = useCreateDailyPlan();
 	const t = useTranslations();
 	const [navigationMode, setNavigationMode] = useState<TNavigationMode>('PLAN');
 	const sortedPlans = useMemo(
 		() =>
-			[...(profileDailyPlans?.items || [])].sort((plan1, plan2) =>
+			[...(employeeDailyPlans?.items || [])].sort((plan1, plan2) =>
 				new Date(plan1.date).getTime() > new Date(plan2.date).getTime() ? 1 : -1
 			),
-		[profileDailyPlans?.items]
+		[employeeDailyPlans?.items]
 	);
 	const currentPlanIndex = useMemo(
 		() => sortedPlans.findIndex((plan) => isSameDate(plan.date, moment(customDate).toDate())),
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[customDate, profileDailyPlans?.items]
+		[customDate, employeeDailyPlans?.items]
 	);
 	const nextPlan = useMemo(
 		() =>
-			currentPlanIndex >= 0 && currentPlanIndex < profileDailyPlans?.items?.length - 1
+			currentPlanIndex >= 0 && currentPlanIndex < employeeDailyPlans?.items?.length - 1
 				? sortedPlans[currentPlanIndex + 1]
 				: null,
-		[currentPlanIndex, profileDailyPlans?.items?.length, sortedPlans]
+		[currentPlanIndex, employeeDailyPlans?.items?.length, sortedPlans]
 	);
 	const previousPlan = useMemo(
 		() => (currentPlanIndex > 0 ? sortedPlans[currentPlanIndex - 1] : null),
@@ -83,25 +83,25 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 
 	// Memoize today, tomorrow, and future plans
 	const todayPlan = useMemo(
-		() => profileDailyPlans?.items?.find((plan: TDailyPlan) => isSameDate(plan.date, moment().toDate())),
-		[isSameDate, profileDailyPlans?.items]
+		() => employeeDailyPlans?.items?.find((plan: TDailyPlan) => isSameDate(plan.date, moment().toDate())),
+		[isSameDate, employeeDailyPlans?.items]
 	);
 
 	const tomorrowPlan = useMemo(
 		() =>
-			profileDailyPlans?.items?.find((plan: TDailyPlan) =>
+			employeeDailyPlans?.items?.find((plan: TDailyPlan) =>
 				isSameDate(plan.date, moment().add(1, 'days').toDate())
 			),
-		[isSameDate, profileDailyPlans?.items]
+		[isSameDate, employeeDailyPlans?.items]
 	);
 
 	const selectedPlan = useMemo(
 		() =>
 			customDate &&
-			profileDailyPlans?.items?.find((plan: TDailyPlan) => {
+			employeeDailyPlans?.items?.find((plan: TDailyPlan) => {
 				return isSameDate(plan.date.toString().split('T')[0], customDate.setHours(0, 0, 0, 0));
 			}),
-		[customDate, profileDailyPlans?.items, isSameDate]
+		[customDate, employeeDailyPlans?.items, isSameDate]
 	);
 
 	// Handle modal close
@@ -207,7 +207,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	// Handle narrow navigation
 	const arrowNavigationHandler = useCallback(
 		async (date: Date) => {
-			const existPlan = profileDailyPlans?.items?.find((plan: TDailyPlan) => {
+			const existPlan = employeeDailyPlans?.items?.find((plan: TDailyPlan) => {
 				return isSameDate(plan.date.toString().split('T')[0], date.setHours(0, 0, 0, 0));
 			});
 
@@ -231,7 +231,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 				}
 			}
 		},
-		[isSameDate, profileDailyPlans?.items, navigationMode, selectedPlan]
+		[isSameDate, employeeDailyPlans?.items, navigationMode, selectedPlan]
 	);
 
 	// Handle navigation  between plans
@@ -364,8 +364,8 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 											<FuturePlansCalendar
 												selectedPlan={customDate}
 												setSelectedPlan={setCustomDate}
-												plans={profileDailyPlans?.items}
-												pastPlans={pastPlans}
+												plans={employeeDailyPlans?.items}
+												pastPlans={employeePastPlans}
 												handleCalendarSelect={handleCalendarSelect}
 												createEmptyPlan={createEmptyPlan}
 											/>

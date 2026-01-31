@@ -21,7 +21,7 @@ import { TaskDatePickerWithRange } from '../../tasks/task-date-range';
 import { DateRange } from 'react-day-picker';
 import '@/styles/style.css';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
-import { useDailyPlanQuery } from '@/core/hooks/daily-plans/use-daily-plan-query';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { Tooltip } from '../../duplicated-components/tooltip';
 import { InputField } from '../../duplicated-components/_input';
@@ -228,19 +228,19 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 	// Use useLocalStorageState for consistent state management
 	const [dailyPlanTab] = useLocalStorageState<string>('daily-plan-tab', 'Future Tasks');
 
-	// Get plans data from useDailyPlanQuery instead of useDateRange to avoid global atom conflicts
-	const { sortedPlans, futurePlans, pastPlans } = useDailyPlanQuery(employeeId);
+	// Get plans data from useEmployeeDailyPlans instead of useDateRange to avoid global atom conflicts
+	const { employeeSortedPlans, employeeFuturePlans, employeePastPlans } = useEmployeeDailyPlans(employeeId);
 	const { date, setDate } = useDateRange(dailyPlanTab);
 
 	// Map tab names to their corresponding plan data
-	const mapFilter: Record<string, typeof futurePlans> = {
-		'Future Tasks': futurePlans,
-		'Past Tasks': pastPlans,
-		'All Tasks': sortedPlans
+	const mapFilter: Record<string, typeof employeeFuturePlans> = {
+		'Future Tasks': employeeFuturePlans,
+		'Past Tasks': employeePastPlans,
+		'All Tasks': employeeSortedPlans
 	};
 
 	// Determine which plan data to use based on the current tab
-	const planData = mapFilter[dailyPlanTab] ?? sortedPlans;
+	const planData = mapFilter[dailyPlanTab] ?? employeeSortedPlans;
 
 	return (
 		<div className="flex flex-col items-center pt-2 mt-4 space-x-2 md:justify-between md:flex-row">

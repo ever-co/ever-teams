@@ -5,7 +5,9 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 
 import { formatIntegerToHour, hoursToHMM, parseStringInputToHours } from '@/core/lib/helpers/index';
-import { FilterTabs, useAuthenticateUser, useCanSeeActivityScreen } from '@/core/hooks';
+import { useAuthenticateUser, useCanSeeActivityScreen } from '@/core/hooks';
+
+import { FilterTabs } from '@/core/types/daily-plan-types';
 import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { useDeleteDailyPlan } from '@/core/hooks/daily-plans/use-delete-daily-plan';
 import { TDailyPlan } from '@/core/types/schemas';

@@ -9,7 +9,7 @@ import {
 	useTaskStatistics,
 	useTeamMemberCard
 } from '@/core/hooks';
-import { useDailyPlanQuery } from '@/core/hooks/daily-plans/use-daily-plan-query';
+import { useMyDailyPlans } from '@/core/hooks/daily-plans/use-my-daily-plans';
 import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
 import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
@@ -190,7 +190,7 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 					{/* Task information */}
 					<TaskInfo
 						task={task}
-						className="w-full px-4"
+						className="px-4 w-full"
 						taskBadgeClassName={clsxm(taskBadgeClassName)}
 						taskTitleClassName={clsxm(taskTitleClassName)}
 						dayPlanTab={planMode}
@@ -249,9 +249,9 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 				</div>
 				<VerticalSeparator />
 
-				<div className="flex items-center justify-center w-1/5 h-full min-w-fit xl:justify-between lg:px-3 2xl:max-w-52 3xl:max-w-72">
+				<div className="flex justify-center items-center w-1/5 h-full min-w-fit xl:justify-between lg:px-3 2xl:max-w-52 3xl:max-w-72">
 					{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
-					<div className="flex items-center justify-center">
+					<div className="flex justify-center items-center">
 						<ActiveTaskStatusDropdown
 							task={task}
 							onChangeLoading={(load: boolean) => setLoading(load)}
@@ -259,7 +259,7 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 						/>
 					</div>
 					{/* TaskCardMenu */}
-					<div className="flex items-end justify-end mt-2 shrink-0 xl:mt-0 text-start">
+					<div className="flex justify-end items-end mt-2 shrink-0 xl:mt-0 text-start">
 						{task && (currentMember || authMember) && (
 							<TaskCardMenu
 								task={task}
@@ -290,8 +290,8 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 						<TimerButtonCall activeTeam={activeTeam} currentMember={currentMember} task={task} />
 					)} */}
 				</div>
-				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
-					<TaskInfo task={task} className="w-full px-4 mb-4" tab={viewType} dayPlanTab={planMode} />{' '}
+				<div className="flex flex-wrap justify-between items-start pb-4 border-b">
+					<TaskInfo task={task} className="px-4 mb-4 w-full" tab={viewType} dayPlanTab={planMode} />{' '}
 					{viewType === 'default' && (
 						<>
 							<div className="flex items-end py-4 mx-auto space-x-2">
@@ -308,10 +308,10 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 
 				{viewType === 'unassign' && (
 					<>
-						<UsersTaskAssigned className="w-full px-3 py-4 mx-auto" task={task} />
+						<UsersTaskAssigned className="px-3 py-4 mx-auto w-full" task={task} />
 					</>
 				)}
-				<div className="flex items-center justify-between mt-4 mb-4 space-x-5">
+				<div className="flex justify-between items-center mt-4 mb-4 space-x-5">
 					<div className="flex space-x-4">
 						{todayWork}
 						{isTrackingEnabled && isAuthUser && task && (
@@ -345,7 +345,7 @@ const UsersTaskAssigned = React.memo(
 
 		return (
 			<div className={clsxm('flex justify-center items-center', className)}>
-				<div className="flex flex-col items-center justify-center">
+				<div className="flex flex-col justify-center items-center">
 					{members.length > 0 && <span className="mb-1 text-xs text-center">{t('common.ASSIGNED')}</span>}
 					<span className="text-sm font-medium text-center">
 						{members.length > 0
@@ -489,7 +489,7 @@ export const TaskInfo = React.memo(
 				{/* task */}
 				{!task && <div className="self-center py-1 text-center">--</div>}
 				{task && (
-					<div className="w-full h-10 overflow-hidden">
+					<div className="overflow-hidden w-full h-10">
 						<div className={clsxm('flex flex-col justify-start items-start h-full')}>
 							<div
 								className={clsxm(
@@ -592,14 +592,14 @@ export function TaskCardMenu({
 
 	const canSeeActivity = useCanSeeActivityScreen();
 
-	const { todayPlan, futurePlans } = useDailyPlanQuery();
+	const { myTodayPlan, myFuturePlans } = useMyDailyPlans();
 
 	const taskPlannedToday = useMemo(
-		() => todayPlan[todayPlan.length - 1]?.tasks?.find((planTask) => planTask.id === task.id),
-		[task.id, todayPlan]
+		() => myTodayPlan[myTodayPlan.length - 1]?.tasks?.find((planTask) => planTask.id === task.id),
+		[task.id, myTodayPlan]
 	);
 
-	const allPlans = [...todayPlan, ...futurePlans];
+	const allPlans = [...myTodayPlan, ...myFuturePlans];
 	const isTaskPlannedMultipleTimes =
 		allPlans.reduce((count, plan) => {
 			if (plan?.tasks) {
@@ -611,7 +611,7 @@ export function TaskCardMenu({
 
 	const taskPlannedTomorrow = useMemo(
 		() =>
-			futurePlans
+			myFuturePlans
 				.filter((_plan) =>
 					moment(_plan.date)
 						.format('YYYY-MM-DD')
@@ -619,7 +619,7 @@ export function TaskCardMenu({
 						?.startsWith(moment()?.add(1, 'day').format('YYYY-MM-DD'))
 				)[0]
 				?.tasks?.find((planTask) => planTask.id === task.id),
-		[futurePlans, task.id]
+		[myFuturePlans, task.id]
 	);
 
 	// Combine loading states: external loading OR assignment in progress
@@ -867,7 +867,7 @@ export function PlanTask({
 				{planMode === 'today' && !taskPlannedToday && (
 					<span className="">
 						{isPending || createDailyPlanLoading ? (
-							<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
+							<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
 						) : (
 							t('dailyPlan.PLAN_FOR_TODAY')
 						)}
@@ -876,7 +876,7 @@ export function PlanTask({
 				{planMode === 'tomorrow' && !taskPlannedForTomorrow && (
 					<span>
 						{isPending || createDailyPlanLoading ? (
-							<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
+							<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
 						) : (
 							t('dailyPlan.PLAN_FOR_TOMORROW')
 						)}
