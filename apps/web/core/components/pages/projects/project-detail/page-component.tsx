@@ -440,7 +440,7 @@ function ProjectDetailContent({
 						{/* Description preview */}
 						{project.description && (
 							<div
-								className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-gray-700 [&_code]:px-1 [&_code]:rounded [&_p]:inline"
+								className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-gray-700 [&_code]:px-1 [&_code]:rounded [&_p]:inline [&_p:not(:last-child)]:after:content-['_·_']"
 								dangerouslySetInnerHTML={{ __html: sanitizeHtml(project.description) }}
 							/>
 						)}
