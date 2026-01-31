@@ -2,7 +2,8 @@ import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useCallback, useMemo, useState } from 'react';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@/core/constants/config/constants';
-import { useDailyPlan, useTimerView } from '@/core/hooks';
+import { useTimerView } from '@/core/hooks';
+import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { useTranslations } from 'next-intl';
 import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
@@ -20,7 +21,7 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 	const { closeModal, isOpen, plan } = props;
 
 	const t = useTranslations();
-	const { updateDailyPlan } = useDailyPlan();
+	const { updateDailyPlan } = useUpdateDailyPlan();
 	const { startTimer } = useTimerView();
 
 	const activeTeam = useAtomValue(activeTeamState);

@@ -1,6 +1,7 @@
 import { Dispatch, memo, SetStateAction, useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useDailyPlan } from '@/core/hooks';
+import { useDailyPlanQuery } from '@/core/hooks/daily-plans/use-daily-plan-query';
+import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
 import { Modal, Text } from '@/core/components';
 import { imgTitle, tomorrowDate, yesterdayDate } from '@/core/lib/helpers/index';
 import { ReloadIcon } from '@radix-ui/react-icons';
@@ -52,8 +53,9 @@ export function CreateDailyPlanFormModal({
 
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 
-	// Use useDailyPlan with employeeId to get the correct employee's plans
-	const { profileDailyPlans, createDailyPlan, createDailyPlanLoading } = useDailyPlan(employeeId ?? null);
+	// Use specialized hooks with employeeId to get the correct employee's plans
+	const { profileDailyPlans } = useDailyPlanQuery(employeeId ?? null);
+	const { createDailyPlan, createDailyPlanLoading } = useCreateDailyPlan();
 	const latestOption: 'Select' | 'Select & Close' | null = window.localStorage.getItem(
 		LAST_OPTION__CREATE_DAILY_PLAN_MODAL
 	) as 'Select' | 'Select & Close';

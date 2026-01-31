@@ -1,5 +1,5 @@
 import { formatDayPlanDate } from '@/core/lib/helpers/index';
-import { useDailyPlan } from '@/core/hooks';
+import { useDailyPlanQuery } from '@/core/hooks/daily-plans/use-daily-plan-query';
 import { cn } from '@/core/lib/helpers';
 import { CircleIcon } from 'assets/svg';
 import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
@@ -50,7 +50,7 @@ export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
 	const [selectedPlans, setSelectedPlans] = useState<string[]>([]);
 
 	// Get employee plans from React Query (not global atom)
-	const { employeePlans, getEmployeeDayPlans } = useDailyPlan(employeeId);
+	const { employeePlans, getEmployeeDayPlans } = useDailyPlanQuery(employeeId);
 	const [open, setOpen] = useState(false);
 
 	// Load employee plans on mount

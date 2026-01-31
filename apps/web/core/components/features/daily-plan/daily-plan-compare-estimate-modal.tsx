@@ -4,7 +4,8 @@ import { useState } from 'react';
 import Separator from '@/core/components/common/separator';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { clsxm } from '@/core/lib/utils';
-import { useDailyPlan, useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@/core/hooks';
+import { useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@/core/hooks';
+import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { dailyPlanCompareEstimated } from '@/core/lib/helpers/daily-plan-estimated';
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@/core/constants/config/constants';
@@ -34,7 +35,7 @@ export function DailyPlanCompareEstimatedModal({
 	profile: any;
 }) {
 	const { difference, workTimePlanned, estimated, plan } = dailyPlanCompareEstimated(todayPlan);
-	const { updateDailyPlan, updateDailyPlanLoading } = useDailyPlan();
+	const { updateDailyPlan, updateDailyPlanLoading } = useUpdateDailyPlan();
 	const { hours: dh, minutes: dm } = secondsToTime(workTimePlanned || 0);
 	const { startTimer } = useTimer();
 	const hour = dh.toString()?.padStart(2, '0');

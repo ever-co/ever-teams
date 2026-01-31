@@ -4,12 +4,14 @@ import {
 	I_TeamMemberCardHook,
 	I_UserProfilePage,
 	useCanSeeActivityScreen,
-	useDailyPlan,
 	useModal,
 	useTMCardTaskEdit,
 	useTaskStatistics,
 	useTeamMemberCard
 } from '@/core/hooks';
+import { useDailyPlanQuery } from '@/core/hooks/daily-plans/use-daily-plan-query';
+import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
+import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
 import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
@@ -590,7 +592,7 @@ export function TaskCardMenu({
 
 	const canSeeActivity = useCanSeeActivityScreen();
 
-	const { todayPlan, futurePlans } = useDailyPlan();
+	const { todayPlan, futurePlans } = useDailyPlanQuery();
 
 	const taskPlannedToday = useMemo(
 		() => todayPlan[todayPlan.length - 1]?.tasks?.find((planTask) => planTask.id === task.id),
@@ -793,7 +795,7 @@ export function PlanTask({
 	const t = useTranslations();
 	const [isPending, startTransition] = useTransition();
 
-	const { createDailyPlan, createDailyPlanLoading } = useDailyPlan();
+	const { createDailyPlan, createDailyPlanLoading } = useCreateDailyPlan();
 	const { data: user } = useUserQuery();
 
 	const handleOpenModal = async () => {
@@ -910,7 +912,7 @@ export function RemoveTaskFromPlan({
 	plan?: TDailyPlan;
 }) {
 	const t = useTranslations();
-	const { removeTaskFromPlan } = useDailyPlan(member?.employeeId);
+	const { removeTaskFromPlan } = useUpdateDailyPlan();
 	const data: IDailyPlanTasksUpdate = {
 		taskId: task.id,
 		employeeId: member?.employeeId ?? undefined
@@ -933,7 +935,7 @@ export function RemoveTaskFromPlan({
 
 export function RemoveManyTaskFromPlan({ task, member }: { task: TTask; member?: TOrganizationTeamEmployee }) {
 	// const t = useTranslations();
-	const { removeManyTaskPlans } = useDailyPlan();
+	const { removeManyTaskPlans } = useUpdateDailyPlan();
 	const data: IRemoveTaskFromManyPlansRequest = {
 		plansIds: [],
 		employeeId: member?.employeeId ?? ''

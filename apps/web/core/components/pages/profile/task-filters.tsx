@@ -21,7 +21,7 @@ import { TaskDatePickerWithRange } from '../../tasks/task-date-range';
 import { DateRange } from 'react-day-picker';
 import '@/styles/style.css';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
-import { useDailyPlan } from '@/core/hooks';
+import { useDailyPlanQuery } from '@/core/hooks/daily-plans/use-daily-plan-query';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { Tooltip } from '../../duplicated-components/tooltip';
 import { InputField } from '../../duplicated-components/_input';
@@ -228,8 +228,8 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 	// Use useLocalStorageState for consistent state management
 	const [dailyPlanTab] = useLocalStorageState<string>('daily-plan-tab', 'Future Tasks');
 
-	// Get plans data from useDailyPlan instead of useDateRange to avoid global atom conflicts
-	const { sortedPlans, futurePlans, pastPlans } = useDailyPlan(employeeId);
+	// Get plans data from useDailyPlanQuery instead of useDateRange to avoid global atom conflicts
+	const { sortedPlans, futurePlans, pastPlans } = useDailyPlanQuery(employeeId);
 	const { date, setDate } = useDateRange(dailyPlanTab);
 
 	// Map tab names to their corresponding plan data

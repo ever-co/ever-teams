@@ -5,9 +5,9 @@ import {
 	useTMCardTaskEdit,
 	useTaskStatistics,
 	useTeamMemberCard,
-	useUserProfilePage,
-	useDailyPlan
+	useUserProfilePage
 } from '@/core/hooks';
+import { useDailyPlanQuery } from '@/core/hooks/daily-plans/use-daily-plan-query';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import {
 	activeTaskStatisticsState,
@@ -137,7 +137,7 @@ export function UserTeamCard({
 
 	// PERFORMANCE FIX: Only fetch daily plans when accordion is expanded
 	// This prevents unnecessary API calls for every team member card on initial render
-	const { getDayPlansByEmployeeLoading, getMyDailyPlansLoading } = useDailyPlan(
+	const { getDayPlansByEmployeeLoading, getMyDailyPlansLoading } = useDailyPlanQuery(
 		memberInfo.isAuthUser ? undefined : memberInfo.member?.employeeId,
 		{ enabled: isAccordionExpanded } // Only enable queries when accordion is open
 	);

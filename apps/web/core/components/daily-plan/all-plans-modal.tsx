@@ -4,7 +4,8 @@ import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { ChevronRightIcon } from 'assets/svg';
 import { AddTasksEstimationHoursModal } from '../features/daily-plan/add-task-estimation-hours-modal';
-import { useDailyPlan } from '@/core/hooks';
+import { useDailyPlanQuery } from '@/core/hooks/daily-plans/use-daily-plan-query';
+import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -51,8 +52,9 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	const [showCustomPlan, setShowCustomPlan] = useState(false);
 	const [customDate, setCustomDate] = useState<Date>(moment().toDate());
 
-	//  Use useDailyPlan with employeeId to get the correct employee's plans
-	const { profileDailyPlans, pastPlans, createDailyPlan, createDailyPlanLoading } = useDailyPlan(employeeId);
+	//  Use specialized hooks with employeeId to get the correct employee's plans
+	const { profileDailyPlans, pastPlans } = useDailyPlanQuery(employeeId);
+	const { createDailyPlan, createDailyPlanLoading } = useCreateDailyPlan();
 	const t = useTranslations();
 	const [navigationMode, setNavigationMode] = useState<TNavigationMode>('PLAN');
 	const sortedPlans = useMemo(

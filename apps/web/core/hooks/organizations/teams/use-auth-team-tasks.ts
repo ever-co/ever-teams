@@ -1,4 +1,4 @@
-import { useDailyPlan } from '@/core/hooks';
+import { useDailyPlanQuery } from '@/core/hooks/daily-plans/use-daily-plan-query';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
@@ -16,7 +16,7 @@ export function useAuthTeamTasks(user: TUser | undefined) {
 	const targetUser = user || authenticatedUser;
 	const currentMember = activeTeam?.members?.find((member) => member.employee?.userId === targetUser?.id);
 	const employeeId = targetUser?.employee?.id ?? targetUser?.employeeId ?? currentMember?.employee?.id ?? '';
-	const { futurePlans, todayPlan } = useDailyPlan(employeeId);
+	const { futurePlans, todayPlan } = useDailyPlanQuery(employeeId);
 
 	const assignedTasks = useMemo(() => {
 		if (!targetUser) return [];

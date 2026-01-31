@@ -5,7 +5,8 @@ import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStat
 
 import { formatDayPlanDate } from '@/core/lib/helpers/index';
 import { handleDragAndDrop } from '@/core/lib/helpers/drag-and-drop';
-import { FilterTabs, useDailyPlan } from '@/core/hooks';
+import { FilterTabs } from '@/core/hooks';
+import { useDailyPlanQuery } from '@/core/hooks/daily-plans/use-daily-plan-query';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import { filterDailyPlan, filterDailyPlansByEmployee } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
@@ -43,7 +44,7 @@ export function AllPlans({
 
 	// Use employeeId from props if provided, otherwise calculate from user
 	const targetEmployeeId = employeeId ?? user?.employee?.id ?? user?.employeeId ?? '';
-	const { sortedPlans, todayPlan } = useDailyPlan(targetEmployeeId);
+	const { sortedPlans, todayPlan } = useDailyPlanQuery(targetEmployeeId);
 
 	const { date } = useDateRange(currentTab);
 
@@ -78,7 +79,7 @@ export function AllPlans({
 	useEffect(() => {
 		setDragPlans(plans);
 	}, [plans]);
-	if(!dragPlans) return null;
+	if (!dragPlans) return null;
 	return (
 		<div className="flex flex-col gap-6">
 			{Array.isArray(dragPlans) && dragPlans?.length > 0 ? (

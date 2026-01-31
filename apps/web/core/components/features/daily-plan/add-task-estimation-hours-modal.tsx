@@ -3,7 +3,10 @@ import { useMemo, useCallback, useState, useEffect, useRef, Dispatch, SetStateAc
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useTranslations } from 'next-intl';
-import { useDailyPlan, useModal, useTeamTasks, useTimerView } from '@/core/hooks';
+import { useModal, useTeamTasks, useTimerView } from '@/core/hooks';
+import { useDailyPlanQuery } from '@/core/hooks/daily-plans/use-daily-plan-query';
+import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
+import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
 import { toast } from 'sonner';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { TaskEstimate } from '../../tasks/task-estimate';
@@ -75,10 +78,11 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 	const t = useTranslations();
 
-	// Use useDailyPlan with employeeId to get the correct employee's plans.
+	// Use specialized hooks with employeeId to get the correct employee's plans.
 	// NOTE: This replaces profileDailyPlanListState/myDailyPlanListState atoms
 	// so AllPlans modal and Profile "Plans" tab stay in sync
-	const { profileDailyPlans, updateDailyPlan } = useDailyPlan(employeeId);
+	const { profileDailyPlans } = useDailyPlanQuery(employeeId);
+	const { updateDailyPlan } = useUpdateDailyPlan();
 
 	// Get the updated plan from the hook instead of relying only on props
 	const plan = useMemo(() => {
@@ -834,7 +838,8 @@ function TaskCard(props: ITaskCardProps) {
 		canEdit = true
 	} = props;
 	const { getTaskById } = useTeamTasks();
-	const { addTaskToPlan, createDailyPlan } = useDailyPlan(employeeId);
+	const { addTaskToPlan } = useUpdateDailyPlan();
+	const { createDailyPlan } = useCreateDailyPlan();
 	const { data: user } = useUserQuery();
 	const [addToPlanLoading, setAddToPlanLoading] = useState(false);
 
@@ -1042,7 +1047,8 @@ interface ITaskCardActionsProps {
 function TaskCardActions(props: ITaskCardActionsProps) {
 	const { task, selectedPlan, openTaskDetailsModal, openUnplanActiveTaskModal, employeeId, canEdit = true } = props;
 	const { data: user } = useUserQuery();
-	const { futurePlans, todayPlan, removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan(employeeId);
+	const { futurePlans, todayPlan } = useDailyPlanQuery(employeeId);
+	const { removeTaskFromPlan, removeTaskFromPlanLoading } = useUpdateDailyPlan();
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
@@ -1250,7 +1256,8 @@ function UnplanTask(props: IUnplanTaskProps) {
 		canEdit = true
 	} = props;
 	const { data: user } = useUserQuery();
-	const { todayPlan, removeManyTaskPlans, removeManyTaskFromPlanLoading } = useDailyPlan(employeeId);
+	const { todayPlan } = useDailyPlanQuery(employeeId);
+	const { removeManyTaskPlans, removeManyTaskFromPlanLoading } = useUpdateDailyPlan();
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const { timerStatus } = useTimerView();

@@ -3,7 +3,8 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { clsxm } from '@/core/lib/utils';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
-import { useDailyPlan, useTeamTasks, useTimerView } from '@/core/hooks';
+import { useTeamTasks, useTimerView } from '@/core/hooks';
+import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { RadioGroup } from '@headlessui/react';
 import { DEFAULT_PLANNED_TASK_ID } from '@/core/constants/config/constants';
 import { EverCard } from '../../common/ever-card';
@@ -35,8 +36,8 @@ export function ActiveTaskHandlerModal({
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const { setActiveTask } = useTeamTasks();
-	// Use default useDailyPlan() so it targets the current user's own plans (todayPlan)
-	const { addTaskToPlan } = useDailyPlan();
+	// Use useUpdateDailyPlan for adding tasks to the current user's own plans
+	const { addTaskToPlan } = useUpdateDailyPlan();
 
 	const [selectedOption, setSelectedOption] = useState<number>();
 

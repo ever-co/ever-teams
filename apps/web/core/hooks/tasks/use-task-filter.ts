@@ -1,6 +1,7 @@
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { I_UserProfilePage } from '../users';
-import { useDailyPlan, useLocalStorageState, useOutsideClick } from '@/core/hooks';
+import { useLocalStorageState, useOutsideClick } from '@/core/hooks';
+import { useDailyPlanQuery } from '@/core/hooks/daily-plans/use-daily-plan-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -73,7 +74,7 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 		profile?.member?.employee?.id
 	]);
 
-	const { todayPlan, outstandingPlans, profileDailyPlans } = useDailyPlan(targetEmployeeId);
+	const { todayPlan, outstandingPlans, profileDailyPlans } = useDailyPlanQuery(targetEmployeeId);
 	const timeLogsDailyReport = useAtomValue(timeLogsDailyReportState);
 	const isManagerConnectedUser = useMemo(
 		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id),

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useDailyPlan } from '@/core/hooks';
+import { useDailyPlanQuery } from '@/core/hooks/daily-plans/use-daily-plan-query';
 import { detailedTaskState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 import TaskRow from '../components/task-row';
@@ -11,7 +11,7 @@ export function TaskPlans() {
 
 	// Use local state instead of global atom to prevent data conflicts
 	const [taskPlanList, setTaskPlanList] = useState<TDailyPlan[]>([]);
-	const { getPlansByTask } = useDailyPlan();
+	const { getPlansByTask } = useDailyPlanQuery();
 
 	useEffect(() => {
 		if (task?.id) {

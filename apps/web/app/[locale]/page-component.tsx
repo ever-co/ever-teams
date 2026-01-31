@@ -1,7 +1,8 @@
 'use client';
 import React, { Suspense, useEffect } from 'react';
 
-import { useDailyPlan, useIsMemberManager, useTeamInvitations } from '@/core/hooks';
+import { useIsMemberManager, useTeamInvitations } from '@/core/hooks';
+import { useDailyPlanQuery } from '@/core/hooks/daily-plans/use-daily-plan-query';
 import { clsxm } from '@/core/lib/utils';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container } from '@/core/components';
@@ -54,7 +55,7 @@ function MainPage() {
 
 	const { data: user } = useUserQuery();
 	const employeeId = user?.employee?.id ?? user?.employeeId ?? '';
-	const { dailyPlan, outstandingPlans } = useDailyPlan(employeeId);
+	const { dailyPlan, outstandingPlans } = useDailyPlanQuery(employeeId);
 
 	const { isTeamManager } = useIsMemberManager(user);
 
@@ -75,7 +76,8 @@ function MainPage() {
 		}
 		const lastTeamMembersViewMode = localStorage?.getItem(LAST_SELECTED_TEAM_MEMBERS_VIEW_MODE);
 		if (lastTeamMembersViewMode && path == '/') {
-			if (Object.values(IssuesView).includes(lastTeamMembersViewMode as IssuesView) &&
+			if (
+				Object.values(IssuesView).includes(lastTeamMembersViewMode as IssuesView) &&
 				lastTeamMembersViewMode != IssuesView.KANBAN
 			) {
 				setView(lastTeamMembersViewMode as IssuesView);

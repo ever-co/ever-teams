@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
-import { useDailyPlan } from '@/core/hooks';
+import { useDailyPlanQuery } from '@/core/hooks/daily-plans/use-daily-plan-query';
+import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
+import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
 import {
 	Command,
@@ -35,9 +37,10 @@ export function AddTaskToPlan({
 	task: TTask;
 	employee?: IEmployee;
 }) {
-	// Use useDailyPlan with employee?.id to get the correct employee's plans
-	const { profileDailyPlans, createDailyPlan, addTaskToPlan, getEmployeeDayPlans, addTaskToPlanLoading } =
-		useDailyPlan(employee?.id ?? null);
+	// Use specialized hooks with employee?.id to get the correct employee's plans
+	const { profileDailyPlans, getEmployeeDayPlans } = useDailyPlanQuery(employee?.id ?? null);
+	const { createDailyPlan } = useCreateDailyPlan();
+	const { addTaskToPlan, addTaskToPlanLoading } = useUpdateDailyPlan();
 	const [selectedPlan, setSelectedPlan] = useState<TDailyPlan | null>(null);
 	const [newPlan, setNewPlan] = useState<boolean>(false);
 	const [date, setDate] = useState<Date>(new Date());

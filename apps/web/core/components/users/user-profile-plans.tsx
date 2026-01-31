@@ -3,7 +3,9 @@ import { useAtomValue } from 'jotai';
 import { AlertPopup, Container } from '@/core/components';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
-import { useCanSeeActivityScreen, useDailyPlan, useTimer, useUserProfilePage } from '@/core/hooks';
+import { useCanSeeActivityScreen, useTimer, useUserProfilePage } from '@/core/hooks';
+import { useDailyPlanQuery } from '@/core/hooks/daily-plans/use-daily-plan-query';
+import { useDeleteDailyPlan } from '@/core/hooks/daily-plans/use-delete-daily-plan';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
@@ -77,10 +79,9 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		outstandingPlans,
 		sortedPlans,
 		profileDailyPlans,
-		deleteDailyPlan,
-		deleteDailyPlanLoading,
 		getMyDailyPlansLoading
-	} = useDailyPlan(targetEmployeeId);
+	} = useDailyPlanQuery(targetEmployeeId);
+	const { deleteDailyPlan, deleteDailyPlanLoading } = useDeleteDailyPlan();
 	const fullWidth = useAtomValue(fullWidthState);
 	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'DATE');
 	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');
@@ -88,7 +89,9 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 
 	const screenOutstanding = {
 		ALL: <OutstandingAll profile={profile} user={user} outstandingPlans={outstandingPlans} />,
-		DATE: <OutstandingFilterDate profile={profile} user={user} outstandingPlans={outstandingPlans} filterByEmployee/>
+		DATE: (
+			<OutstandingFilterDate profile={profile} user={user} outstandingPlans={outstandingPlans} filterByEmployee />
+		)
 	};
 	const tabsScreens = {
 		'Today Tasks': <AllPlans profile={profile} currentTab={currentTab} user={user} employeeId={targetEmployeeId} />,
@@ -160,7 +163,9 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 				outstandingPlans.map((plan) => {
 					const tasks = plan.tasks ?? [];
 					// Filter by user if user exists (privacy/security - same as OutstandingAll)
-					return user ? tasks.filter((task) => task.members?.some((member) => member.userId === user.id)) : tasks;
+					return user
+						? tasks.filter((task) => task.members?.some((member) => member.userId === user.id))
+						: tasks;
 				})
 			).totalTasks
 		};

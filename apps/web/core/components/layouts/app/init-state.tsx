@@ -8,7 +8,7 @@ import { useEffect, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { useTimer, useSyncTimer } from '@/core/hooks/activities';
 import { useLanguageSettings, useRefreshIntervalV2, useOTRefreshInterval, useCallbackRef } from '@/core/hooks/common';
-import { useDailyPlan } from '@/core/hooks/daily-plans';
+import { useDailyPlanQuery } from '@/core/hooks/daily-plans/use-daily-plan-query';
 import {
 	useOrganizationTeams,
 	useTeamTasks,
@@ -72,7 +72,7 @@ function InitState() {
 	const { firstLoadIssueTypeData } = useIssueType();
 	const { firstLoadTaskRelatedIssueTypeData, loadTaskRelatedIssueTypeData } = useTaskRelatedIssueType();
 
-	const { firstLoadDailyPlanData, loadAllDayPlans, loadMyDailyPlans, loadEmployeeDayPlans } = useDailyPlan();
+	const { firstLoadDailyPlanData, loadAllDayPlans, loadMyDailyPlans, loadEmployeeDayPlans } = useDailyPlanQuery();
 
 	const { firstLoadDataEmployee } = useEmployee();
 
