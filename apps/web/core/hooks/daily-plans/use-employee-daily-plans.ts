@@ -64,16 +64,18 @@ export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEm
 
 	// ==================== QUERY ====================
 
+	// ==================== QUERY ====================
+
 	const getDayPlansByEmployeeQuery = useQuery({
-		queryKey: queryKeys.dailyPlans.byEmployee(employeeId, activeTeam?.id),
+		queryKey: queryKeys.dailyPlans.byEmployee(internalEmployeeId, activeTeam?.id),
 		queryFn: async () => {
-			if (!employeeId) {
+			if (!internalEmployeeId) {
 				throw new Error('Employee ID is required to fetch daily plans');
 			}
-			const res = await dailyPlanService.getDayPlansByEmployee({ employeeId });
+			const res = await dailyPlanService.getDayPlansByEmployee({ employeeId: internalEmployeeId });
 			return res;
 		},
-		enabled: enabled && !!employeeId,
+		enabled: enabled && !!internalEmployeeId,
 		gcTime: 1000 * 60 * 60 // 1 hour
 	});
 
@@ -82,7 +84,7 @@ export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEm
 	const calculations = useDailyPlanCalculations(
 		getDayPlansByEmployeeQuery.data,
 		allTeamTasks,
-		employeeId,
+		internalEmployeeId,
 		activeTeam
 	);
 

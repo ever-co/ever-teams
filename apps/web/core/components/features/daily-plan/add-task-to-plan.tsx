@@ -91,7 +91,7 @@ export function AddTaskToPlan({
 
 	useEffect(() => {
 		getEmployeeDailyPlans();
-	}, [employee?.employeeId, getEmployeeDailyPlans]);
+	}, [employee?.id, getEmployeeDailyPlans]);
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} className="w-[98%] md:w-[530px] relative">
