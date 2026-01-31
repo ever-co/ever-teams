@@ -53,9 +53,21 @@ export function CreateDailyPlanFormModal({
 
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 
+	const isManagerConnectedUser = useMemo(
+		() => activeTeamManagers.find((member) => member.employee?.user?.id === user?.id),
+		[activeTeamManagers, user?.id]
+	);
+
+	const [date, setDate] = useState<Date>(new Date(tomorrowDate));
+	const [selectedEmployee, setSelectedEmployee] = useState<TOrganizationTeamEmployee | undefined>(
+		isManagerConnectedUser
+	);
+	const [isOpen, setIsOpen] = useState(false);
+
 	// Use specialized hooks with employeeId to get the correct employee's plans
 	// Use useEmployeeDailyPlans to check for duplicates
-	const { employeeDailyPlans } = useEmployeeDailyPlans(employeeId ?? null);
+	// NOTE: Include selectedEmployee?.employeeId to ensure we check plans for the dynamically selected user (e.g. by manager)
+	const { employeeDailyPlans } = useEmployeeDailyPlans(employeeId ?? selectedEmployee?.employeeId ?? null);
 	const { createDailyPlan, createDailyPlanLoading } = useCreateDailyPlan();
 	const latestOption: 'Select' | 'Select & Close' | null = window.localStorage.getItem(
 		LAST_OPTION__CREATE_DAILY_PLAN_MODAL
@@ -72,17 +84,6 @@ export function CreateDailyPlanFormModal({
 				.map((plan: TDailyPlan) => new Date(plan.date)),
 		[employeeDailyPlans.items, taskId]
 	);
-
-	const isManagerConnectedUser = useMemo(
-		() => activeTeamManagers.find((member) => member.employee?.user?.id === user?.id),
-		[activeTeamManagers, user?.id]
-	);
-
-	const [date, setDate] = useState<Date>(new Date(tomorrowDate));
-	const [selectedEmployee, setSelectedEmployee] = useState<TOrganizationTeamEmployee | undefined>(
-		isManagerConnectedUser
-	);
-	const [isOpen, setIsOpen] = useState(false);
 
 	const handleMemberClick = useCallback((member: TOrganizationTeamEmployee) => {
 		setSelectedEmployee(member);

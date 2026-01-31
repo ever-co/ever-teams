@@ -468,11 +468,16 @@ export function useTimer() {
 				if (currentEmployeeDetails && currentEmployeeDetails.id) {
 					// Fire-and-forget: don't wait for this call to complete
 					// This reduces perceived delay for the user
-					await updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
+					updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
 						organizationId: taskToUse.organizationId,
 						activeTaskId: taskToUse.id,
 						organizationTeamId: activeTeam?.id,
 						tenantId: activeTeam?.tenantId ?? ''
+					}).catch((error) => {
+						toast.error('[Timer] Failed to update active task (fire-and-forget)', {
+							description: getErrorMessage(error, 'Unable to save active task')
+						});
+						logErrorInDev('[Timer] Failed to update active task (fire-and-forget):', error);
 					});
 				}
 			}
@@ -494,6 +499,7 @@ export function useTimer() {
 			setTimerStatus,
 			taskStatuses,
 			updateTask,
+			activeTeam?.organizationId,
 			activeTeam?.members,
 			activeTeam?.id,
 			activeTeam?.tenantId,
@@ -574,7 +580,6 @@ export function useTimer() {
 					});
 				}
 			});
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		timerStatus,
 		setTimerStatus,
@@ -583,7 +588,10 @@ export function useTimer() {
 		updateLocalTimerStatus,
 		queryClient,
 		activeTeamId,
-		timerStatusRef
+		timerStatusRef,
+		user,
+		activeTeam,
+		updateOrganizationTeamEmployeeActiveTask
 	]);
 
 	useEffect(() => {

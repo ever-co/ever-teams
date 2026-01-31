@@ -42,6 +42,11 @@ export function useCreateDailyPlan() {
 		async (data: TCreateDailyPlan) => {
 			if (user?.tenantId) {
 				return await createDailyplanMutation.mutateAsync({ ...data, organizationTeamId: activeTeam?.id });
+			} else {
+				toast.warning('Cannot create daily plan: Missing tenantId', {
+					description: 'Missing tenantId'
+				});
+				return Promise.reject(new Error('Missing tenantId'));
 			}
 		},
 		[createDailyplanMutation, user?.tenantId, activeTeam?.id]

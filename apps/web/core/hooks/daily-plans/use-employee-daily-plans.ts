@@ -7,6 +7,8 @@ import { dailyPlanService } from '../../services/client/api';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { useDailyPlanCalculations } from './use-daily-plan-calculations';
+import { toast } from 'sonner';
+import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
 
 export interface UseEmployeeDailyPlansOptions {
 	/**
@@ -93,15 +95,18 @@ export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEm
 	const getEmployeeDailyPlans = useCallback(
 		async (newEmployeeId?: string) => {
 			try {
-				const targetEmployeeId = newEmployeeId || employeeId;
+				// Use internalEmployeeId as fallback to ensure we're refreshing the CURRENTLY viewed employee
+				// unless a new ID is explicitly provided
+				const targetEmployeeId = newEmployeeId || internalEmployeeId;
 
 				if (targetEmployeeId) {
 					// Update the employeeId state to trigger query refetch
-					if (newEmployeeId) {
+					if (newEmployeeId && newEmployeeId !== internalEmployeeId) {
 						setInternalEmployeeId(newEmployeeId);
 					}
 
 					// Wait for the query to refetch with the new employeeId
+					// Note: If newEmployeeId is NOT provided, we just want to refresh data for current internalEmployeeId
 					const res = await queryClient.fetchQuery({
 						queryKey: queryKeys.dailyPlans.byEmployee(targetEmployeeId, activeTeam?.id),
 						queryFn: async () => {
@@ -114,22 +119,29 @@ export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEm
 
 					return res;
 				} else {
-					throw new Error('Employee ID should be a string');
+					toast.warning('getEmployeeDailyPlans: No employee ID provided or available in state');
+					return null;
 				}
 			} catch (error) {
-				console.error(`Error when fetching day plans for employee: ${newEmployeeId || employeeId}`, error);
+				toast.error('Error when fetching day plans for employee: ${newEmployeeId || internalEmployeeId}', {
+					description: getErrorMessage(error, 'Unable to fetch day plans')
+				});
+				logErrorInDev(
+					'Error when fetching day plans for employee: ${newEmployeeId || internalEmployeeId}',
+					error
+				);
 				return null; // Return null on error to maintain consistent return type
 			}
 		},
-		[queryClient, activeTeam?.id, employeeId]
+		[queryClient, activeTeam?.id, internalEmployeeId]
 	);
 
 	const loadEmployeeDailyPlans = useCallback(async () => {
-		if (employeeId) {
-			await getEmployeeDailyPlans(employeeId);
+		if (internalEmployeeId) {
+			await getEmployeeDailyPlans(internalEmployeeId);
 			// Data is automatically available via React Query cache
 		}
-	}, [getEmployeeDailyPlans, employeeId]);
+	}, [getEmployeeDailyPlans, internalEmployeeId]);
 
 	return {
 		// Raw data

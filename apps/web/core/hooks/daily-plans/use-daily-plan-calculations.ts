@@ -55,9 +55,13 @@ export function useDailyPlanCalculations(
 
 	// Today's plan (plans for current date)
 	const todayPlan = useMemo(() => {
-		return [...(dailyPlans?.items ?? [])].filter((plan) =>
-			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0])
-		);
+		return [...(dailyPlans?.items ?? [])].filter((plan) => {
+			if (!plan.date) return false;
+			// Use local date comparison instead of UTC (toISOString) to avoid timezone drift
+			const planDate = new Date(plan.date);
+			const today = new Date();
+			return planDate.toLocaleDateString('en') === today.toLocaleDateString('en');
+		});
 	}, [dailyPlans]);
 
 	// Today's tasks (all tasks from today's plan)
