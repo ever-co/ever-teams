@@ -100,7 +100,7 @@ export function useDeleteOrganizationTeam() {
 			try {
 				await refreshToken();
 				// 3. Finally: Update user data from API
-				refreshUserData();
+				await refreshUserData();
 			} catch (error) {
 				toast.error('Failed to refresh token after removing user from team');
 				console.error('Failed to refresh token after removing user from team:', error);

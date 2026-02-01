@@ -52,6 +52,7 @@ export function useOrganizationTeamsQuery() {
 	const { updateAvatar: updateUserLastTeam } = useSettings();
 
 	const [activeTeamId, setActiveTeamId] = useAtom(activeTeamIdState);
+	const activeTeamIdRef = useSyncRef(activeTeamId);
 	const [isTeamMemberJustDeleted, setIsTeamMemberJustDeleted] = useAtom(isTeamMemberJustDeletedState);
 	const { firstLoadData: firstLoadTeamsDataInternal } = useFirstLoad();
 	const setIsTeamMember = useSetAtom(isTeamMemberState);
@@ -281,9 +282,12 @@ export function useOrganizationTeamsQuery() {
 	const handleFirstLoad = useCallback(async () => {
 		await loadTeamsData();
 
-		if (activeTeamId) {
+		// Use ref to get current activeTeamId after async operation
+		// This prevents stale closure issues
+		const currentTeamId = activeTeamIdRef.current;
+		if (currentTeamId) {
 			try {
-				const res = await organizationTeamService.getOrganizationTeam(activeTeamId);
+				const res = await organizationTeamService.getOrganizationTeam(currentTeamId);
 				if (res) {
 					setTeamsUpdate(res.data);
 				}
@@ -293,7 +297,7 @@ export function useOrganizationTeamsQuery() {
 		}
 
 		firstLoadTeamsDataInternal();
-	}, [activeTeamId, firstLoadTeamsDataInternal, loadTeamsData, setTeamsUpdate]);
+	}, [activeTeamIdRef, firstLoadTeamsDataInternal, loadTeamsData, setTeamsUpdate]);
 
 	return {
 		// Query states
