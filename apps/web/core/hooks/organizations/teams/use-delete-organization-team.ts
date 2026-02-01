@@ -92,27 +92,31 @@ export function useDeleteOrganizationTeam() {
 		},
 		mutationKey: queryKeys.organizationTeams.mutations.removeUser(null),
 		onSuccess: async () => {
-			// Preserve ALL critical side-effects in exact order
-			// NOTE: If loadTeamsData() fails, we intentionally skip auth refresh and cache invalidation
-			// because the user's team data would be in an inconsistent state. The mutation's onError
-			// handler will catch this and notify the user.
-			// 1. First: Reload teams data
-			await loadTeamsData();
+			// 1. Reload teams data - abort auth refresh if this fails
+			// NOTE: React Query's onError only catches mutationFn errors, NOT onSuccess errors
+			// So we must handle loadTeamsData() errors explicitly to prevent unhandled promise rejection
+			try {
+				await loadTeamsData();
+			} catch (error) {
+				console.error('Failed to reload teams after removing user from team:', error);
+				toast.error('Failed to reload teams data. Please refresh the page.');
+				// Intentionally skip auth refresh due to data inconsistency
+				return;
+			}
 
-			// 2. Then: Critical auth refresh sequence
+			// 2. Critical auth refresh sequence (only runs if loadTeamsData succeeds)
 			try {
 				await refreshToken();
-				// 3. Finally: Update user data from API
 				await refreshUserData();
 			} catch (error) {
 				toast.error('Failed to refresh token after removing user from team');
 				console.error('Failed to refresh token after removing user from team:', error);
+			} finally {
+				// 3. Always invalidate for cache consistency
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.organizationTeams.all
+				});
 			}
-
-			// Invalidate queries for cache consistency
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.organizationTeams.all
-			});
 		},
 		onError: (error) => {
 			toast.error('Remove user from all teams failed', {
