@@ -40,7 +40,6 @@ import { TOrganizationTeam } from '@/core/types/schemas';
  * - `firstLoadTeamsData` - First load handler with team selection logic
  * - `teams` - Array of organization teams (from Jotai)
  * - `activeTeam` - Currently active team (from Jotai)
- * - `setActiveTeam` - Function to set active team
  */
 export function useOrganizationTeamsQuery() {
 	const queryClient = useQueryClient();
@@ -63,7 +62,7 @@ export function useOrganizationTeamsQuery() {
 
 	const setActiveTeam = useCallback(
 		(team: TOrganizationTeam) => {
-			// CRITICAL: Reset both tasks array AND active task state when switching teams
+			// NOTE: Reset both tasks array AND active task state when switching teams
 			// This prevents stale data from previous team persisting during the transition
 			// New tasks will be loaded by the effect that watches activeTeam?.id
 			setTeamTasks([]);
@@ -247,6 +246,9 @@ export function useOrganizationTeamsQuery() {
 			if (!selectedTeamExists && teamId && latestTeams.length) {
 				setIsTeamMemberJustDeleted(true);
 				setActiveTeam(latestTeams[0]);
+				// NOTE: Update local teamId to match the new active team
+				// This prevents fetching details for the removed team
+				teamId = latestTeams[0].id;
 			} else if (!latestTeams.length) {
 				teamId = '';
 			}

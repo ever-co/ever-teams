@@ -44,7 +44,7 @@ export function useCreateOrganizationTeam() {
 
 	const setActiveTeam = useCallback(
 		(team: (typeof teams)[0]) => {
-			// CRITICAL: Reset both tasks array AND active task state when switching teams
+			// NOTE: Reset both tasks array AND active task state when switching teams
 			// This prevents stale data from previous team persisting during the transition
 			// New tasks will be loaded by the effect that watches activeTeam?.id
 			setTeamTasks([]);
