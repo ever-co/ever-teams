@@ -286,18 +286,18 @@ export function useOrganizationTeamsQuery() {
 		// This prevents stale closure issues
 		const currentTeamId = activeTeamIdRef.current;
 		if (currentTeamId) {
-			try {
-				const res = await organizationTeamService.getOrganizationTeam(currentTeamId);
-				if (res) {
-					setTeamsUpdate(res.data);
-				}
-			} catch (error) {
-				console.error('Error loading team details:', error);
+			// NOTE: loadTeamsData already fetches team details via queryClient.fetchQuery
+			// We use getQueryData to retrieve from cache instead of making a redundant API call
+			const cachedTeamData = queryClient.getQueryData<{
+				data: TOrganizationTeam;
+			}>(queryKeys.organizationTeams.detail(currentTeamId));
+			if (cachedTeamData) {
+				setTeamsUpdate(cachedTeamData.data);
 			}
 		}
 
 		firstLoadTeamsDataInternal();
-	}, [activeTeamIdRef, firstLoadTeamsDataInternal, loadTeamsData, setTeamsUpdate]);
+	}, [activeTeamIdRef, firstLoadTeamsDataInternal, loadTeamsData, queryClient, setTeamsUpdate]);
 
 	return {
 		// Query states

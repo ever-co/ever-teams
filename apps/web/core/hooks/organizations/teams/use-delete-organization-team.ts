@@ -93,6 +93,9 @@ export function useDeleteOrganizationTeam() {
 		mutationKey: queryKeys.organizationTeams.mutations.removeUser(null),
 		onSuccess: async () => {
 			// Preserve ALL critical side-effects in exact order
+			// NOTE: If loadTeamsData() fails, we intentionally skip auth refresh and cache invalidation
+			// because the user's team data would be in an inconsistent state. The mutation's onError
+			// handler will catch this and notify the user.
 			// 1. First: Reload teams data
 			await loadTeamsData();
 
