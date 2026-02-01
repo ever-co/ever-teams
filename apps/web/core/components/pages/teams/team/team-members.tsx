@@ -1,4 +1,4 @@
-import { useOrganizationTeams } from '@/core/hooks';
+import { useOrganizationTeamsQuery } from '@/core/hooks';
 import { Transition } from '@headlessui/react';
 import UserTeamCardSkeletonCard from '@/core/components/teams/user-team-card-skeleton';
 import InviteUserTeamCardSkeleton from '@/core/components/teams/invite-team-card-skeleton';
@@ -67,7 +67,7 @@ export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanV
 	const fullWidth = useAtomValue(fullWidthState);
 
 	const activeTeam = useAtomValue(activeTeamState);
-	const { getOrganizationTeamsLoading: teamsFetching } = useOrganizationTeams();
+	const { getOrganizationTeamsLoading: teamsFetching } = useOrganizationTeamsQuery();
 
 	// Use refactored hooks for member processing
 	const processedMembers = useProcessedTeamMembers(activeTeam, user!);

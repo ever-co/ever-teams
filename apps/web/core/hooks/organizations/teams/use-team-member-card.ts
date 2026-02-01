@@ -4,7 +4,7 @@ import { getPublicState } from '@/core/stores/common/public';
 import { useCallback, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useSyncRef } from '../../common/use-sync-ref';
-import { useOrganizationTeams } from './use-organization-teams';
+import { useUpdateOrganizationTeam } from './use-update-organization-team';
 import { useIsMemberManager } from './use-team-member';
 import cloneDeep from 'lodash/cloneDeep';
 import { useTeamTasks } from './use-team-tasks';
@@ -33,7 +33,7 @@ export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined)
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
 	const activeTeam = useAtomValue(activeTeamState);
-	const { updateOrganizationTeam, updateOTeamLoading } = useOrganizationTeams();
+	const { updateOrganizationTeam, loading: updateOTeamLoading } = useUpdateOrganizationTeam();
 
 	const activeTeamRef = useSyncRef(activeTeam);
 

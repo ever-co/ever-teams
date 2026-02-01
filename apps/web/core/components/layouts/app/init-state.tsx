@@ -11,7 +11,7 @@ import { useLanguageSettings, useRefreshIntervalV2, useOTRefreshInterval, useCal
 import { useMyDailyPlans } from '@/core/hooks/daily-plans/use-my-daily-plans';
 import { useTeamDailyPlans } from '@/core/hooks/daily-plans/use-team-daily-plans';
 import {
-	useOrganizationTeams,
+	useOrganizationTeamsQuery,
 	useTeamTasks,
 	useTeamInvitations,
 	useOrganizationProjects,
@@ -44,7 +44,7 @@ export function AppState() {
 
 function InitState() {
 	const publicTeam = useAtomValue(publicState);
-	const { loadTeamsData, firstLoadTeamsData } = useOrganizationTeams();
+	const { loadTeamsData, firstLoadTeamsData } = useOrganizationTeamsQuery();
 	const { firstLoadTasksData, loadTeamTasksData } = useTeamTasks();
 	const { firstLoadTeamInvitationsData, myInvitations } = useTeamInvitations();
 	const { getTimerStatus, firstLoadTimerData } = useTimer();

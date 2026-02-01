@@ -3,7 +3,7 @@
 import { useCallback } from 'react';
 import { TeamItem } from '@/core/components/teams/team-item';
 import { useTranslations } from 'next-intl';
-import { useOrganizationTeams } from './use-organization-teams';
+import { useCreateOrganizationTeam } from './use-create-organization-team';
 import { useTimer } from '../../activities';
 import { toast } from 'sonner';
 import { useAtomValue } from 'jotai';
@@ -11,7 +11,7 @@ import { activeTeamState } from '@/core/stores';
 
 export const useActiveTeam = () => {
 	const activeTeam = useAtomValue(activeTeamState);
-	const { setActiveTeam } = useOrganizationTeams();
+	const { setActiveTeam } = useCreateOrganizationTeam();
 	const { timerStatus, stopTimer } = useTimer();
 	const t = useTranslations();
 	const onChangeActiveTeam = useCallback(

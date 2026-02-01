@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useIsMemberManager, useModal, useOrganizationEmployeeTeams, useOrganizationTeams } from '@/core/hooks';
+import { useIsMemberManager, useModal, useOrganizationEmployeeTeams, useDeleteOrganizationTeam } from '@/core/hooks';
 import { activeTeamManagersState, activeTeamState } from '@/core/stores';
 import { Button, Text } from '@/core/components';
 import { useCallback, useState } from 'react';
@@ -17,7 +17,7 @@ export const DangerZoneTeam = () => {
 	const [removeModalType, setRemoveModalType] = useState<'DISPOSE' | 'QUIT' | null>(null);
 
 	const activeTeam = useAtomValue(activeTeamState);
-	const { deleteOrganizationTeam, deleteOrganizationTeamLoading } = useOrganizationTeams();
+	const { deleteOrganizationTeam, deleteOrganizationTeamLoading } = useDeleteOrganizationTeam();
 	const { deleteOrganizationTeamEmployee, deleteOrganizationEmployeeTeamLoading } = useOrganizationEmployeeTeams();
 	const { data: user } = useUserQuery();
 
