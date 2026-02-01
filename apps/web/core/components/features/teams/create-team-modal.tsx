@@ -8,6 +8,7 @@ import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
 import { organizationTeamsState, timerStatusState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
+import { normalizeString } from '@/core/lib/utils/string.utils';
 
 /**
  * Create team modal
@@ -49,7 +50,7 @@ export function CreateTeamModal({
 
 	const disabled = useMemo(() => {
 		return (
-			createOTeamLoading || teams.some((t) => t.name?.trim().toLowerCase().includes(name.toLowerCase().trim()))
+			createOTeamLoading || teams.some((t) => normalizeString(t.name).includes(normalizeString(name)))
 		);
 	}, [createOTeamLoading, name, teams]);
 

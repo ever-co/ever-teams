@@ -188,7 +188,7 @@ export function useStatusValue<T extends ITaskStatusField>({
 			return {
 				...value,
 				name: key,
-				displayName: key.split('-').join(' ')
+				displayName: kebabToSpaces(key)
 			} as Required<TStatusItem>;
 		});
 	}, [statusItems]);

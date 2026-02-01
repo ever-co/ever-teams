@@ -1,4 +1,5 @@
 import { IActivityReportGroupByDate } from '@/core/types/interfaces/activity/activity-report';
+import { normalizeString } from './string.utils';
 
 export interface TableColumn {
 	key: string;
@@ -46,8 +47,8 @@ export const createStringCompare =
 		if (b == null) return 1;
 
 		// Convert to strings and normalize
-		const strA = String(a).toLowerCase().trim();
-		const strB = String(b).toLowerCase().trim();
+		const strA = normalizeString(String(a));
+		const strB = normalizeString(String(b));
 
 		return strA.localeCompare(strB, undefined, { numeric: true, sensitivity: 'base' });
 	};

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { IUserProfile } from '../../../screens/authenticated/profile-screen/logics/use-profile-screen-logic';
 import { ITeamTask } from '../../interfaces/ITask';
+import { normalizeString } from '@/core/lib/utils/string.utils';
 
 type ITab = 'worked' | 'assigned' | 'unassigned';
 type ITabs = {
@@ -104,7 +105,7 @@ export function useTaskFilter(profile: IUserProfile) {
 	}, [statusFilter]);
 
 	const $tasks = useMemo(() => {
-		const n = taskName.trim().toLowerCase();
+		const n = normalizeString(taskName);
 		const statusFilters = appliedStatusFilter;
 
 		return tasks

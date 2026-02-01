@@ -11,7 +11,13 @@ import Image from 'next/image';
 import moment from 'moment';
 import { isValidUrl } from '@/core/lib/utils';
 import { ensureArray } from '@/core/lib/utils/storage.utils';
+<<<<<<< HEAD
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-area';
+=======
+import { normalizeString } from '@/core/lib/utils/string.utils';
+import { ScrollArea } from '@/core/components/common/scroll-bar';
+import { ScrollBar } from '@/core/components/common/scroll-area';
+>>>>>>> 306023531 (feat: continue)
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks';
 import { useImageAssets } from '@/core/hooks/common/use-image-assets';
@@ -662,7 +668,7 @@ function SelectComponent<T extends Identifiable, IsMulti extends boolean = false
 			return options || [];
 		}
 
-		const searchTermLower = debouncedSearchTerm.toLowerCase().trim();
+		const searchTermLower = normalizeString(debouncedSearchTerm);
 
 		// Performance optimization: pre-split search term once
 		const searchWords = searchTermLower.split(/\s+/).filter((word) => word.length > 0);
