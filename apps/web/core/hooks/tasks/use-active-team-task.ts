@@ -8,6 +8,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { taskService } from '@/core/services/client/api';
 import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { isTaskInTeam } from '@/core/lib/utils/task.utils';
 
 /**
  * Result interface for the useActiveTeamTask hook
@@ -52,8 +53,8 @@ export const useActiveTeamTask = (): UseActiveTeamTaskResult => {
 
 	// Determine the task ID to use (following priority order)
 	const taskIdToFetch = useMemo(() => {
-		// Priority 1: If we already have activeTeamTask, no need to fetch
-		if (activeTeamTask?.id) {
+		// Priority 1: If we already have activeTeamTask AND it belongs to current team, no need to fetch
+		if (activeTeamTask?.id && isTaskInTeam(activeTeamTask, activeTeam?.id)) {
 			return null;
 		}
 
@@ -68,7 +69,7 @@ export const useActiveTeamTask = (): UseActiveTeamTaskResult => {
 		}
 
 		return null;
-	}, [activeTeamTask?.id, currentUser?.activeTaskId, currentUser?.lastWorkedTask?.id]);
+	}, [activeTeamTask, activeTeam?.id, currentUser?.activeTaskId, currentUser?.lastWorkedTask?.id]);
 
 	// Try to find the task in local cache first
 	const taskFromCache = useMemo(() => {
@@ -77,6 +78,11 @@ export const useActiveTeamTask = (): UseActiveTeamTaskResult => {
 		// Search in local tasks list
 		const foundTask = tasks.find((t) => t.id === taskIdToFetch);
 		if (foundTask) {
+			// CRITICAL: Verify the task belongs to the current active team
+			if (!isTaskInTeam(foundTask, activeTeam?.id)) {
+				return null; // Task doesn't belong to this team
+			}
+
 			// Verify the current user is a member of this task (unless public team)
 			if (publicTeam) return foundTask;
 			const isMember = foundTask.members?.some((m) => m.userId === currentUser?.employee?.userId);
@@ -84,7 +90,7 @@ export const useActiveTeamTask = (): UseActiveTeamTaskResult => {
 		}
 
 		return null;
-	}, [taskIdToFetch, tasks, publicTeam, currentUser?.employee?.userId]);
+	}, [taskIdToFetch, tasks, activeTeam?.id, publicTeam, currentUser?.employee?.userId]);
 
 	// Determine if we need to fetch from API
 	// Only fetch if we have a task ID but couldn't find it in cache
@@ -108,42 +114,43 @@ export const useActiveTeamTask = (): UseActiveTeamTaskResult => {
 	// Sync fetched task to Jotai state for instant updates across components
 	const fetchedTask = taskQuery.data;
 	useEffect(() => {
-		if (fetchedTask && !activeTeamTask) {
+		// CRITICAL: Only sync if task belongs to current team to prevent stale data
+		if (fetchedTask && !activeTeamTask && isTaskInTeam(fetchedTask, activeTeam?.id)) {
 			// Verify the current user is a member of this task before setting
 			const isMember = fetchedTask.members?.some((m) => m.userId === currentUser?.employee?.userId);
 			if (isMember || publicTeam) {
 				setActiveTeamTask(fetchedTask);
 			}
 		}
-	}, [fetchedTask, activeTeamTask, currentUser?.employee?.userId, publicTeam, setActiveTeamTask]);
+	}, [fetchedTask, activeTeamTask, activeTeam?.id, currentUser?.employee?.userId, publicTeam, setActiveTeamTask]);
 
 	// Compute the final active task with priority
 	const activeTask = useMemo((): TTask | null => {
-		// Priority 1: Jotai atom (instant updates)
-		if (activeTeamTask) {
+		// Priority 1: Jotai atom (instant updates) - but ONLY if it belongs to current team
+		if (activeTeamTask && isTaskInTeam(activeTeamTask, activeTeam?.id)) {
 			return activeTeamTask;
 		}
 
-		// Priority 2-4: Task from local cache
+		// Priority 2-4: Task from local cache (already validated for team membership)
 		if (taskFromCache) {
 			return taskFromCache;
 		}
 
-		// Priority 5: Task from API (if available)
-		if (fetchedTask) {
+		// Priority 5: Task from API (if available and belongs to this team)
+		if (fetchedTask && isTaskInTeam(fetchedTask, activeTeam?.id)) {
 			const isMember = fetchedTask.members?.some((m) => m.userId === currentUser?.employee?.userId);
 			if (isMember || publicTeam) {
 				return fetchedTask;
 			}
 		}
 
-		// Public team fallback: find any task for display
+		// Public team fallback: find any task for display (already filtered by team)
 		if (publicTeam && tasks.length > 0) {
 			return tasks[0];
 		}
 
 		return null;
-	}, [activeTeamTask, taskFromCache, fetchedTask, currentUser?.employee?.userId, publicTeam, tasks]);
+	}, [activeTeamTask, activeTeam?.id, taskFromCache, fetchedTask, currentUser?.employee?.userId, publicTeam, tasks]);
 
 	// Compute loading state
 	const isLoading = userLoading || (shouldFetchFromApi && taskQuery.isPending);
