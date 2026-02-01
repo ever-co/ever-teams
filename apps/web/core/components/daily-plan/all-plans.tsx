@@ -81,7 +81,11 @@ export function AllPlans({
 		}
 
 		return filteredData;
+<<<<<<< HEAD
 	}, [date, employeeTodayPlan, employeeSortedPlans, user, filterByEmployee, filteredTaskIds]);
+=======
+	}, [date, employeeTodayPlan, employeeSortedPlans, user, filterByEmployee]);
+>>>>>>> 2e0199144 (ETP-222: task web refactor use daily plan separate read operations from cud operations (#4243))
 
 	// Local state for drag-and-drop functionality
 	const [dragPlans, setDragPlans] = useState(plans);

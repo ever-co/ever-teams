@@ -52,6 +52,7 @@ export function FutureTasks({
 			filteredData = filterDailyPlansByEmployee(filteredData, user);
 		}
 
+<<<<<<< HEAD
 		if (filteredTaskIds && filteredData) {
 			filteredData = filterDailyPlansByTasks(filteredData, filteredTaskIds);
 		}
@@ -59,6 +60,11 @@ export function FutureTasks({
 		return filteredData;
 	}, [date, employeeFuturePlans, user, filterByEmployee, filteredTaskIds]);
 
+=======
+		return filteredData;
+	}, [date, employeeFuturePlans, user, filterByEmployee]);
+
+>>>>>>> 2e0199144 (ETP-222: task web refactor use daily plan separate read operations from cud operations (#4243))
 	if (!futureDailyPlanTasks) return null;
 	return (
 		<div className="flex flex-col gap-6">
