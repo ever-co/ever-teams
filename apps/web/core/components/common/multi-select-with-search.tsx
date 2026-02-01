@@ -35,7 +35,7 @@ function MultiSelectWithSearchComponent<T extends { value: string | number; id: 
 	);
 
 	const filteredOptions = useMemo(
-		() => options?.filter((option) => includesIgnoreCase(String(option.value), searchTerm)),
+		() => options?.filter((option) => !searchTerm || includesIgnoreCase(String(option.value), searchTerm)),
 		[options, searchTerm]
 	);
 
