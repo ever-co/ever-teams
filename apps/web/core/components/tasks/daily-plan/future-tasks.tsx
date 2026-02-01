@@ -14,7 +14,7 @@ import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
-import { useDailyPlan } from '@/core/hooks';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 
 export function FutureTasks({
 	profile,
@@ -29,7 +29,7 @@ export function FutureTasks({
 }) {
 	// Use employeeId from props if provided, otherwise calculate from user
 	const targetEmployeeId = employeeId ?? user?.employee?.id ?? user?.employeeId ?? '';
-	const { futurePlans } = useDailyPlan(targetEmployeeId);
+	const { employeeFuturePlans } = useEmployeeDailyPlans(targetEmployeeId);
 	// Use a safe default instead of direct localStorage access
 	const { date } = useDateRange('Future Tasks');
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
@@ -38,7 +38,7 @@ export function FutureTasks({
 	// The previous useEffect was modifying futureDailyPlanTasks while depending on futurePlans, causing infinite loop
 	const futureDailyPlanTasks = useMemo(() => {
 		// First apply date filtering
-		let filteredData = filterDailyPlan(date as any, futurePlans);
+		let filteredData = filterDailyPlan(date as any, employeeFuturePlans);
 
 		// Then filter tasks for specific user if filterByEmployee flag is enabled
 		// By default (filterByEmployee = false), we show ALL tasks in the daily plan
@@ -47,9 +47,9 @@ export function FutureTasks({
 		}
 
 		return filteredData;
-	}, [date, futurePlans, user, filterByEmployee]);
+	}, [date, employeeFuturePlans, user, filterByEmployee]);
 
-	if(!futureDailyPlanTasks) return null;
+	if (!futureDailyPlanTasks) return null;
 	return (
 		<div className="flex flex-col gap-6">
 			{futureDailyPlanTasks?.length > 0 ? (

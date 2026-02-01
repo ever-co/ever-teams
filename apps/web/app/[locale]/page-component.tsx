@@ -1,7 +1,8 @@
 'use client';
 import React, { Suspense, useEffect } from 'react';
 
-import { useDailyPlan, useIsMemberManager, useTeamInvitations } from '@/core/hooks';
+import { useIsMemberManager, useTeamInvitations } from '@/core/hooks';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { clsxm } from '@/core/lib/utils';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container } from '@/core/components';
@@ -54,7 +55,7 @@ function MainPage() {
 
 	const { data: user } = useUserQuery();
 	const employeeId = user?.employee?.id ?? user?.employeeId ?? '';
-	const { dailyPlan, outstandingPlans } = useDailyPlan(employeeId);
+	const { employeeOutstandingPlans, employeeSortedPlans } = useEmployeeDailyPlans(employeeId);
 
 	const { isTeamManager } = useIsMemberManager(user);
 
@@ -75,7 +76,8 @@ function MainPage() {
 		}
 		const lastTeamMembersViewMode = localStorage?.getItem(LAST_SELECTED_TEAM_MEMBERS_VIEW_MODE);
 		if (lastTeamMembersViewMode && path == '/') {
-			if (Object.values(IssuesView).includes(lastTeamMembersViewMode as IssuesView) &&
+			if (
+				Object.values(IssuesView).includes(lastTeamMembersViewMode as IssuesView) &&
 				lastTeamMembersViewMode != IssuesView.KANBAN
 			) {
 				setView(lastTeamMembersViewMode as IssuesView);
@@ -130,12 +132,14 @@ function MainPage() {
 											</Suspense>
 										)}
 										{/* TeamOutstandingNotifications - Only render when there are outstanding plans or manager notifications */}
-										{((outstandingPlans && outstandingPlans.length > 0) ||
-											(dailyPlan?.items && dailyPlan.items.length > 0 && isTeamManager)) && (
+										{((employeeOutstandingPlans && employeeOutstandingPlans.length > 0) ||
+											(employeeSortedPlans &&
+												employeeSortedPlans.length > 0 &&
+												isTeamManager)) && (
 											<Suspense fallback={<TeamNotificationsSkeleton />}>
 												<LazyTeamOutstandingNotifications
-													outstandingPlans={outstandingPlans}
-													dailyPlan={dailyPlan}
+													outstandingPlans={employeeOutstandingPlans}
+													dailyPlan={{ items: employeeSortedPlans }}
 													isTeamManager={isTeamManager}
 													user={user!}
 												/>

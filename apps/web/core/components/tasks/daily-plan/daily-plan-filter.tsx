@@ -1,5 +1,5 @@
 import { formatDayPlanDate } from '@/core/lib/helpers/index';
-import { useDailyPlan } from '@/core/hooks';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { cn } from '@/core/lib/helpers';
 import { CircleIcon } from 'assets/svg';
 import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
@@ -50,23 +50,23 @@ export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
 	const [selectedPlans, setSelectedPlans] = useState<string[]>([]);
 
 	// Get employee plans from React Query (not global atom)
-	const { employeePlans, getEmployeeDayPlans } = useDailyPlan(employeeId);
+	const { employeeDailyPlans, getEmployeeDailyPlans } = useEmployeeDailyPlans(employeeId);
 	const [open, setOpen] = useState(false);
 
 	// Load employee plans on mount
 	useEffect(() => {
 		if (selectedPlans.length === 0) {
-			getEmployeeDayPlans(employeeId);
+			getEmployeeDailyPlans(employeeId);
 		}
-	}, [selectedPlans, getEmployeeDayPlans, employeeId]);
+	}, [selectedPlans, getEmployeeDailyPlans, employeeId]);
 
 	// Filter plans locally without modifying global atoms.
 	// NOTE: This prevents data conflicts when multiple components view different employees.
 	const filteredPlans = useMemo(() => {
 		return selectedPlans.length > 0
-			? employeePlans.filter((plan) => selectedPlans.includes(plan.date.toString()))
-			: employeePlans;
-	}, [employeePlans, selectedPlans]);
+			? employeeDailyPlans.items.filter((plan) => selectedPlans.includes(plan.date.toString()))
+			: employeeDailyPlans.items;
+	}, [employeeDailyPlans.items, selectedPlans]);
 
 	const togglePlanSelection = (planDate: string) => {
 		setSelectedPlans((current) => {

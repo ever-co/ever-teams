@@ -5,9 +5,9 @@ import {
 	useTMCardTaskEdit,
 	useTaskStatistics,
 	useTeamMemberCard,
-	useUserProfilePage,
-	useDailyPlan
+	useUserProfilePage
 } from '@/core/hooks';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import {
 	activeTaskStatisticsState,
@@ -130,15 +130,18 @@ export function UserTeamCard({
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id);
 
-	// Memoize accordion state early to use in useDailyPlan options
+	// Memoize accordion state early to use in daily plan options
 	const isAccordionExpanded = useMemo(() => {
 		return userDetailAccordion === memberInfo.memberUser?.id;
 	}, [userDetailAccordion, memberInfo.memberUser?.id]);
 
 	// PERFORMANCE FIX: Only fetch daily plans when accordion is expanded
 	// This prevents unnecessary API calls for every team member card on initial render
-	const { getDayPlansByEmployeeLoading, getMyDailyPlansLoading } = useDailyPlan(
-		memberInfo.isAuthUser ? undefined : memberInfo.member?.employeeId,
+	// PERFORMANCE FIX: Only fetch daily plans when accordion is expanded
+	// This prevents unnecessary API calls for every team member card on initial render
+	const targetEmployeeId = memberInfo.isAuthUser ? user?.employee?.id : memberInfo.member?.employeeId;
+	const { isLoading: isLoadingDailyPlans, isFetching: isFetchingDailyPlans } = useEmployeeDailyPlans(
+		targetEmployeeId ?? null,
 		{ enabled: isAccordionExpanded } // Only enable queries when accordion is open
 	);
 
@@ -235,8 +238,8 @@ export function UserTeamCard({
 	const isLoadingMemberData = useMemo(() => {
 		if (!isAccordionExpanded) return false;
 
-		return memberInfo.isAuthUser ? getMyDailyPlansLoading : getDayPlansByEmployeeLoading;
-	}, [isAccordionExpanded, memberInfo.isAuthUser, getMyDailyPlansLoading, getDayPlansByEmployeeLoading]);
+		return isLoadingDailyPlans || isFetchingDailyPlans;
+	}, [isAccordionExpanded, isLoadingDailyPlans, isFetchingDailyPlans]);
 
 	const handleActivityClose = useCallback(() => setShowActivity(false), []);
 	return (

@@ -5,7 +5,11 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 
 import { formatIntegerToHour, hoursToHMM, parseStringInputToHours } from '@/core/lib/helpers/index';
-import { FilterTabs, useAuthenticateUser, useDailyPlan, useCanSeeActivityScreen } from '@/core/hooks';
+import { useAuthenticateUser, useCanSeeActivityScreen } from '@/core/hooks';
+
+import { FilterTabs } from '@/core/types/daily-plan-types';
+import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
+import { useDeleteDailyPlan } from '@/core/hooks/daily-plans/use-delete-daily-plan';
 import { TDailyPlan } from '@/core/types/schemas';
 import { clsxm } from '@/core/lib/utils';
 import { ReloadIcon } from '@radix-ui/react-icons';
@@ -23,7 +27,8 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 	const [time, setTime] = useState<number>(plan.workTimePlanned || 0);
 	const [inputValue, setInputValue] = useState<string>(hoursToHMM(plan.workTimePlanned || 0));
 	const [popupOpen, setPopupOpen] = useState(false);
-	const { updateDailyPlan, updateDailyPlanLoading, deleteDailyPlan, deleteDailyPlanLoading } = useDailyPlan();
+	const { updateDailyPlan, updateDailyPlanLoading } = useUpdateDailyPlan();
+	const { deleteDailyPlan, deleteDailyPlanLoading } = useDeleteDailyPlan();
 	const { isTeamManager } = useAuthenticateUser();
 	const canSeeActivity = useCanSeeActivityScreen();
 	const t = useTranslations();

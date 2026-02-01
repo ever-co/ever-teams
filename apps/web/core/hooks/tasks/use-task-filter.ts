@@ -1,6 +1,7 @@
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { I_UserProfilePage } from '../users';
-import { useDailyPlan, useLocalStorageState, useOutsideClick } from '@/core/hooks';
+import { useLocalStorageState, useOutsideClick } from '@/core/hooks';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -73,7 +74,7 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 		profile?.member?.employee?.id
 	]);
 
-	const { todayPlan, outstandingPlans, profileDailyPlans } = useDailyPlan(targetEmployeeId);
+	const { employeeTodayPlan, employeeOutstandingPlans, employeeDailyPlans } = useEmployeeDailyPlans(targetEmployeeId);
 	const timeLogsDailyReport = useAtomValue(timeLogsDailyReportState);
 	const isManagerConnectedUser = useMemo(
 		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id),
@@ -93,7 +94,7 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 		// If defaultTab is 'auto', calculate the smart default
 		if (defaultTab === 'auto') {
 			// Check if user has daily plans with tasks
-			const hasDailyPlanTasks = profileDailyPlans?.items?.some((plan) => plan.tasks && plan.tasks.length > 0);
+			const hasDailyPlanTasks = employeeDailyPlans?.items?.some((plan) => plan.tasks && plan.tasks.length > 0);
 			// Show daily plans if available, otherwise default to assigned tasks
 			return hasDailyPlanTasks ? 'dailyplan' : 'assigned';
 		}
@@ -124,12 +125,12 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 		// 1. We're in 'auto' mode with non-persisted state
 		// 2. User hasn't manually selected a tab yet
 		// 3. Daily plans data is available
-		if (hasInitializedAutoTab && profileDailyPlans?.items && !hasUserSelectedTabRef.current) {
-			const hasDailyPlanTasks = profileDailyPlans.items.some((plan) => plan.tasks && plan.tasks.length > 0);
+		if (hasInitializedAutoTab && employeeDailyPlans?.items && !hasUserSelectedTabRef.current) {
+			const hasDailyPlanTasks = employeeDailyPlans.items.some((plan) => plan.tasks && plan.tasks.length > 0);
 			// Show daily plans if user has them, otherwise default to assigned tasks
 			setLocalTab(hasDailyPlanTasks ? 'dailyplan' : 'assigned');
 		}
-	}, [hasInitializedAutoTab, profileDailyPlans?.items, setLocalTab]);
+	}, [hasInitializedAutoTab, employeeDailyPlans?.items, setLocalTab]);
 
 	const [filterType, setFilterType] = useState<FilterType>(undefined);
 
@@ -164,13 +165,13 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 			// Changed from empty array [] to extract tasks from daily plans
 			// Extract all tasks from all daily plans and flatten into single array
 			// flatMap: [plan1.tasks, plan2.tasks, ...] → [task1, task2, task3, ...]
-			dailyplan: profileDailyPlans?.items?.flatMap((plan) => plan.tasks || []) || []
+			dailyplan: employeeDailyPlans?.items?.flatMap((plan) => plan.tasks || []) || []
 		}),
 		[
 			profile?.tasksGrouped?.assignedTasks,
 			profile?.tasksGrouped?.unassignedTasks,
 			profile?.tasksGrouped?.workedTasks,
-			profileDailyPlans?.items // Added dependency for daily plans reactivity
+			employeeDailyPlans?.items // Added dependency for daily plans reactivity
 		]
 	);
 
@@ -257,10 +258,10 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 	// Set the tab to assigned if user has not planned tasks (if outstanding is empty) (on first load)
 	useEffect(() => {
 		if (dailyPlanSuggestionModalDate != new Date().toISOString().split('T')[0] && path.split('/')[1] == 'profile') {
-			if (estimatedTotalTime(outstandingPlans).totalTasks) {
+			if (estimatedTotalTime(employeeOutstandingPlans).totalTasks) {
 				setTab('dailyplan');
 			} else {
-				if (!getTotalTasks(todayPlan)) {
+				if (!getTotalTasks(employeeTodayPlan)) {
 					if (profile?.tasksGrouped?.assignedTasks?.length) {
 						setTab('assigned');
 					} else {
@@ -331,6 +332,6 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 		applyStatusFilter: applyStatusFilter,
 		tasksGrouped: profile?.tasksGrouped,
 		outclickFilterCard,
-		profileDailyPlans
+		profileDailyPlans: employeeDailyPlans
 	};
 }

@@ -15,7 +15,7 @@ import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
-import { useDailyPlan } from '@/core/hooks';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 
 export function PastTasks({
 	user,
@@ -33,7 +33,7 @@ export function PastTasks({
 	// Use employeeId from props if provided, otherwise calculate from user
 	const employeeId = propsEmployeeId ?? user?.employee?.id ?? user?.employeeId ?? '';
 
-	const { pastPlans } = useDailyPlan(employeeId);
+	const { employeePastPlans } = useEmployeeDailyPlans(employeeId);
 
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 	// Use a safe default instead of direct localStorage access
@@ -43,7 +43,7 @@ export function PastTasks({
 	// The previous useEffect was modifying pastPlans while depending on pastPlans, causing infinite loop
 	const filteredPastPlans = useMemo(() => {
 		// First apply date filtering
-		let filteredData = filterDailyPlan(date as any, pastPlans);
+		let filteredData = filterDailyPlan(date as any, employeePastPlans);
 
 		// Then filter tasks for specific user if filterByEmployee flag is enabled
 		// By default (filterByEmployee = false), we show ALL tasks in the daily plan
@@ -52,7 +52,7 @@ export function PastTasks({
 		}
 
 		return filteredData;
-	}, [date, pastPlans, user, filterByEmployee]);
+	}, [date, employeePastPlans, user, filterByEmployee]);
 	if (!filteredPastPlans) return null;
 	return (
 		<div className="flex flex-col gap-6">

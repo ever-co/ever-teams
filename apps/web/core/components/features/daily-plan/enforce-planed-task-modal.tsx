@@ -1,4 +1,5 @@
-import { useAuthenticateUser, useDailyPlan, useTimer } from '@/core/hooks';
+import { useAuthenticateUser, useTimer } from '@/core/hooks';
+import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { ReactNode, useCallback, useMemo } from 'react';
@@ -20,7 +21,7 @@ interface IEnforcePlannedTaskModalProps {
 
 export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 	const { closeModal, task, open, plan, content, onOK, openDailyPlanModal } = props;
-	const { addTaskToPlan, addTaskToPlanLoading } = useDailyPlan();
+	const { addTaskToPlan, addTaskToPlanLoading } = useUpdateDailyPlan();
 	const { user } = useAuthenticateUser();
 	const t = useTranslations();
 

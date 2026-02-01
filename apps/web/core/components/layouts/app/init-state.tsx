@@ -8,7 +8,8 @@ import { useEffect, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { useTimer, useSyncTimer } from '@/core/hooks/activities';
 import { useLanguageSettings, useRefreshIntervalV2, useOTRefreshInterval, useCallbackRef } from '@/core/hooks/common';
-import { useDailyPlan } from '@/core/hooks/daily-plans';
+import { useMyDailyPlans } from '@/core/hooks/daily-plans/use-my-daily-plans';
+import { useTeamDailyPlans } from '@/core/hooks/daily-plans/use-team-daily-plans';
 import {
 	useOrganizationTeams,
 	useTeamTasks,
@@ -72,7 +73,14 @@ function InitState() {
 	const { firstLoadIssueTypeData } = useIssueType();
 	const { firstLoadTaskRelatedIssueTypeData, loadTaskRelatedIssueTypeData } = useTaskRelatedIssueType();
 
-	const { firstLoadDailyPlanData, loadAllDayPlans, loadMyDailyPlans, loadEmployeeDayPlans } = useDailyPlan();
+	// Use specialized hooks for daily plans initialization
+	const { firstLoadMyDailyPlans, loadMyDailyPlans } = useMyDailyPlans();
+	const { firstLoadTeamDailyPlans, loadAllDayPlans } = useTeamDailyPlans();
+
+	// Combine first load functions
+	const firstLoadDailyPlanData = async () => {
+		await Promise.all([firstLoadMyDailyPlans(), firstLoadTeamDailyPlans()]);
+	};
 
 	const { firstLoadDataEmployee } = useEmployee();
 
@@ -189,7 +197,6 @@ function InitState() {
 
 			useRefreshIntervalV2(loadAllDayPlans, five_minutes, true);
 			useRefreshIntervalV2(loadMyDailyPlans, five_minutes, true);
-			useRefreshIntervalV2(loadEmployeeDayPlans, five_minutes, true);
 
 			return <></>;
 		};
