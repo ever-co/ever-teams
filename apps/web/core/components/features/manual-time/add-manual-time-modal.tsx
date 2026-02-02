@@ -19,7 +19,8 @@ import { TOrganizationTeam } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, activeTeamTaskState, organizationTeamsState, tasksByTeamState } from '@/core/stores';
+import { activeTeamState, activeTeamTaskState, organizationTeamsState } from '@/core/stores';
+import { useSortedTasks } from '@/core/hooks';
 
 /**
  * Interface for the properties of the `AddManualTimeModal` component.
@@ -54,7 +55,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const [timeDifference, setTimeDifference] = useState<string>('');
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasks();
 	const activeTeam = useAtomValue(activeTeamState);
 	const teams = useAtomValue(organizationTeamsState);
 	const { data: user } = useUserQuery();

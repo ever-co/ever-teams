@@ -6,7 +6,7 @@ import { Nullable } from '@/core/types/generics/utils';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
 import { PropsWithChildren, useMemo } from 'react';
-import { useStatusValue, useTaskStatusValue } from '@/core/hooks';
+import { useSortedTasks, useStatusValue, useTaskStatusValue } from '@/core/hooks';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { readableColor } from 'polished';
 import { useTheme } from 'next-themes';
@@ -28,7 +28,7 @@ import { useMapToTaskStatusValues } from '@/core/hooks/tasks/use-map-to-task-sta
 import { useActiveTaskStatus } from '@/core/hooks/tasks/use-active-task-status';
 import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
 import { useAtomValue } from 'jotai';
-import { tasksByTeamState, taskSizesListState } from '@/core/stores';
+import { taskSizesListState } from '@/core/stores';
 
 /**
  * Task status dropwdown
@@ -237,7 +237,7 @@ export function EpicPropertiesDropdown({
 	children,
 	taskStatusClassName
 }: TTaskStatusesDropdown<'epic'>) {
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasks();
 	const status = useMemo(() => {
 		const temp: any = {};
 		tasks.forEach((task) => {

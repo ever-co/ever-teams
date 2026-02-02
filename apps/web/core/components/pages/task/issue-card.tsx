@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { IHookModal, useModal, useQueryCall, useTeamTasks } from '@/core/hooks';
+import { IHookModal, useModal, useQueryCall, useSortedTasks, useTeamTasks } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
@@ -15,7 +15,7 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { FC } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { detailedTaskState, tasksByTeamState } from '@/core/stores';
+import { detailedTaskState } from '@/core/stores';
 export const RelatedIssueCard: FC<{ task: TTask }> = ({ task }) => {
 	const t = useTranslations();
 	const modal = useModal();
@@ -97,7 +97,7 @@ export const RelatedIssueCard: FC<{ task: TTask }> = ({ task }) => {
 function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 	const t = useTranslations();
 
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasks();
 	const detailedTask = useAtomValue(detailedTaskState);
 	const { loadTeamTasksData } = useTeamTasks();
 	const setDetailedTask = useSetAtom(detailedTaskState);

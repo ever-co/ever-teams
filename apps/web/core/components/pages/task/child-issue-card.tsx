@@ -1,5 +1,5 @@
 import { Modal, SpinnerLoader, Text } from '@/core/components';
-import { IHookModal, useModal, useTeamTasks } from '@/core/hooks';
+import { IHookModal, useModal, useSortedTasks, useTeamTasks } from '@/core/hooks';
 import { useCallback, useState } from 'react';
 import { clsxm } from '@/core/lib/utils';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
@@ -11,8 +11,6 @@ import { EIssueType } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { FC } from 'react';
 import { useTranslations } from 'next-intl';
-import { tasksByTeamState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
 
 export const ChildIssueCard: FC<{ task: TTask }> = ({ task }) => {
 	const t = useTranslations();
@@ -59,7 +57,7 @@ export const ChildIssueCard: FC<{ task: TTask }> = ({ task }) => {
 
 function CreateChildTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 	const t = useTranslations();
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasks();
 
 	const { updateTask, loadTeamTasksData } = useTeamTasks();
 

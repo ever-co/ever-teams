@@ -3,11 +3,12 @@
 import { useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { activeTeamState, activeTeamTaskState, getPublicState, tasksByTeamState } from '@/core/stores';
+import { activeTeamState, activeTeamTaskState, getPublicState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { taskService } from '@/core/services/client/api';
 import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useSortedTasks } from './derived/use-current-team-tasks';
 
 /**
  * Result interface for the useActiveTeamTask hook
@@ -40,7 +41,7 @@ export const useActiveTeamTask = (): UseActiveTeamTaskResult => {
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const setActiveTeamTask = useSetAtom(activeTeamTaskState);
 	const activeTeam = useAtomValue(activeTeamState);
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasks();
 	const publicTeam = useAtomValue(getPublicState);
 
 	// User data

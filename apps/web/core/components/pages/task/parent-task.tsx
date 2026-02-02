@@ -1,4 +1,4 @@
-import { IHookModal, useTeamTasks } from '@/core/hooks';
+import { IHookModal, useSortedTasks, useTeamTasks } from '@/core/hooks';
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import cloneDeep from 'lodash/cloneDeep';
 import { useCallback, useState } from 'react';
@@ -7,12 +7,10 @@ import { EverCard } from '../../common/ever-card';
 import { TaskInput } from '../../tasks/task-input';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { toast } from 'sonner';
-import { useAtomValue } from 'jotai';
-import { tasksByTeamState } from '@/core/stores';
 function CreateParentTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 	const t = useTranslations();
 
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasks();
 	const { loadTeamTasksData, updateTask } = useTeamTasks();
 
 	const [loading, setLoading] = useState(false);

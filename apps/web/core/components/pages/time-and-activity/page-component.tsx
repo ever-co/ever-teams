@@ -22,7 +22,8 @@ import {
 	LazyActivityTable,
 	LazyTimeActivityTable
 } from '@/core/components/optimized-components/reports';
-import { activeTeamState, isTrackingEnabledState, tasksByTeamState, organizationProjectsState } from '@/core/stores';
+import { activeTeamState, isTrackingEnabledState, organizationProjectsState } from '@/core/stores';
+import { useSortedTasks } from '@/core/hooks';
 
 const STORAGE_KEY = 'ever-teams-activity-view-options';
 
@@ -133,7 +134,7 @@ const TimeActivityComponents = () => {
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const organizationProjects = useAtomValue(organizationProjectsState);
 
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasks();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const activeTeam = useAtomValue(activeTeamState);
 

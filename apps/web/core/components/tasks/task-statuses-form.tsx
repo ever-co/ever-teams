@@ -1,6 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useModal, useRefetchData, useTaskStatus } from '@/core/hooks';
-import { tasksByTeamState } from '@/core/stores';
+import { useModal, useRefetchData, useSortedTasks, useTaskStatus } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -8,7 +7,6 @@ import { Button, ColorPicker, Modal, Text } from '@/core/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
-import { useAtomValue } from 'jotai';
 import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
@@ -140,7 +138,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 		openModal: openDeleteConfirmationModal
 	} = useModal();
 	const [statusToDelete, setStatusToDelete] = useState<TTaskStatus | null>(null);
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasks();
 
 	/**
 	 * Get Icon by status name

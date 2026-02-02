@@ -13,8 +13,7 @@ import {
 	activeTeamIdState,
 	activeTeamTaskState,
 	detailedTaskState,
-	activeTeamState,
-	teamTasksState
+	activeTeamState
 } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -48,6 +47,7 @@ import {
 	STOP_TIMER_EFFECT_DEBOUNCE_MS,
 	SYNC_TIMER_INTERVAL
 } from '@/core/constants/config/constants';
+import { useCurrentTeamTasks } from '../tasks';
 
 /**
  * ! Don't modify this function unless you know what you're doing
@@ -195,7 +195,7 @@ export function useTimer() {
 	// Use useMyDailyPlans to get the logged-in user's plans (optimized for current user)
 	const { myDailyPlans } = useMyDailyPlans();
 
-	const teamTasks = useAtomValue(teamTasksState);
+	const { items: teamTasks } = useCurrentTeamTasks();
 
 	const [timerStatusFetching, setTimerStatusFetching] = useAtom(timerStatusFetchingState);
 

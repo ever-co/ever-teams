@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { TranslationHooks, useTranslations } from 'next-intl';
 import { Item, ManageOrMemberComponent, getNestedValue } from '@/core/components/teams/manage-member-component';
-import { useTimelogFilterOptions } from '@/core/hooks';
+import { useSortedTasks, useTimelogFilterOptions } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { Modal } from '@/core/components';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
@@ -22,7 +22,7 @@ import { ToggleButton } from '../tasks/edit-task-modal';
 import { DatePickerFilter } from '../../pages/timesheet/timesheet-filter-date';
 import { ETimeLogType, ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
+import { activeTeamState, organizationProjectsState } from '@/core/stores';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;
@@ -50,7 +50,7 @@ interface FormState {
 }
 
 export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasks();
 	const { generateTimeOptions } = useTimelogFilterOptions();
 	const organizationProjects = useAtomValue(organizationProjectsState);
 

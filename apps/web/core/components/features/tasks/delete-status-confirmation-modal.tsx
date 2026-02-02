@@ -1,12 +1,10 @@
-import { useTaskStatus, useTeamTasks } from '@/core/hooks';
+import { useSortedTasks, useTaskStatus, useTeamTasks } from '@/core/hooks';
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 import { EverCard } from '../../common/ever-card';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { TTaskStatus } from '@/core/types/schemas';
-import { useAtomValue } from 'jotai';
-import { tasksByTeamState } from '@/core/stores';
 
 interface DeleteTaskStatusModalProps {
 	open: boolean;
@@ -31,7 +29,7 @@ export function DeleteTaskStatusConfirmationModal(props: DeleteTaskStatusModalPr
 	const { deleteTaskStatus, deleteTaskStatusLoading, setTaskStatuses } = useTaskStatus();
 	const t = useTranslations();
 
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasks();
 	const { updateTask } = useTeamTasks();
 
 	// Filter tasks that are using the current status

@@ -3,7 +3,7 @@ import { useMemo, useCallback, useState, useEffect, useRef, Dispatch, SetStateAc
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useTranslations } from 'next-intl';
-import { useModal, useTeamTasks, useTimerView } from '@/core/hooks';
+import { useModal, useSortedTasks, useTeamTasks, useTimerView } from '@/core/hooks';
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
@@ -31,7 +31,7 @@ import { ID } from '@/core/types/interfaces/common/base-interfaces';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
-import { activeTeamTaskState, tasksByTeamState, taskStatusesState, timerStatusState } from '@/core/stores';
+import { activeTeamTaskState, taskStatusesState, timerStatusState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { EIssueType } from '@/core/types/generics/enums/task';
 
@@ -99,7 +99,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		return plan?.tasks || propsTasks;
 	}, [plan?.tasks, propsTasks]);
 
-	const globalTasks = useAtomValue(tasksByTeamState);
+	const globalTasks = useSortedTasks();
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const timerStatus = useAtomValue(timerStatusState);
 	const { startTimer } = useTimerView();
@@ -672,7 +672,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 		canEdit = true
 	} = props;
 
-	const teamTasks = useAtomValue(tasksByTeamState);
+	const teamTasks = useSortedTasks();
 	const { createTask } = useTeamTasks();
 	const taskStatuses = useAtomValue(taskStatusesState);
 	const [taskName, setTaskName] = useState('');

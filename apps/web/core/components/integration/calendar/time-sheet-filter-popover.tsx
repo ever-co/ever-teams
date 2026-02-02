@@ -3,8 +3,9 @@ import { Modal } from '@/core/components';
 import { statusOptions } from '@/core/constants/config/constants';
 import { MultiSelect } from '@/core/components/common/multi-select';
 import { Input } from '@/core/components/common/input';
-import { activeTeamState, tasksByTeamState } from '@/core/stores';
+import { activeTeamState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
+import { useSortedTasks } from '@/core/hooks';
 interface TimeSheetFilterProps {
 	isOpen: boolean;
 	closeModal: () => void;
@@ -13,7 +14,7 @@ interface TimeSheetFilterProps {
 export function TimeSheetFilter({ closeModal, isOpen }: TimeSheetFilterProps) {
 	const activeTeam = useAtomValue(activeTeamState);
 
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasks();
 	// const [taskId, setTaskId] = useState<TTask | TTask[] | null>([]);
 	return (
 		<>

@@ -2,12 +2,13 @@
 
 import { useAtomValue } from 'jotai';
 import { useCallback } from 'react';
-import { activeTeamState, tasksByTeamState } from '@/core/stores';
+import { activeTeamState } from '@/core/stores';
 import { dailyPlanService } from '../../services/client/api';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { useUserQuery } from '../queries/user-user.query';
 import { useDailyPlanCalculations } from './use-daily-plan-calculations';
+import { useSortedTasks } from '../tasks';
 
 export interface UseMyDailyPlansOptions {
 	/**
@@ -46,7 +47,7 @@ export interface UseMyDailyPlansOptions {
 export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
 	const { data: user } = useUserQuery();
 	const activeTeam = useAtomValue(activeTeamState);
-	const allTeamTasks = useAtomValue(tasksByTeamState);
+	const allTeamTasks = useSortedTasks();
 
 	// Extract options with defaults
 	const { enabled = true } = options || {};

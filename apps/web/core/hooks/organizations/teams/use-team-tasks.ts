@@ -14,7 +14,6 @@ import {
 	detailedTaskState,
 	memberActiveTaskIdState,
 	activeTeamTaskState,
-	tasksByTeamState,
 	teamTasksState,
 	taskStatusesState
 } from '@/core/stores';
@@ -34,6 +33,7 @@ import { PaginationResponse } from '@/core/types/interfaces/common/data-response
 import { useUserQuery } from '../../queries/user-user.query';
 import { EIssueType, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
 import { toast } from 'sonner';
+import { useSortedTasks } from '../../tasks';
 
 /**
  * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
@@ -74,7 +74,7 @@ export function useTeamTasks() {
 	const queryClient = useQueryClient();
 
 	const setAllTasks = useSetAtom(teamTasksState);
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasks();
 	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
 	const tasksRef = useSyncRef(tasks);
 	const { data: userData } = useUserQuery();

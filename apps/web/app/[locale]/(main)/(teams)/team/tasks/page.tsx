@@ -23,7 +23,8 @@ import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { ColumnDef } from '@tanstack/react-table';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TeamTasksPageSkeleton } from '@/core/components/layouts/skeletons/team-tasks-page-skeleton';
-import { activeTeamState, tasksByTeamState } from '@/core/stores';
+import { activeTeamState } from '@/core/stores';
+import { useSortedTasks } from '@/core/hooks';
 
 const TeamTask = () => {
 	const t = useTranslations();
@@ -41,7 +42,7 @@ const TeamTask = () => {
 		[activeTeam?.name, currentLocale, t]
 	);
 
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasks();
 	const [searchTaskTerm, setSearchTaskTerm] = useState('');
 	const filteredTasks = useMemo(
 		() => tasks.filter((el) => el.title.toLowerCase().includes(searchTaskTerm.toLowerCase())),

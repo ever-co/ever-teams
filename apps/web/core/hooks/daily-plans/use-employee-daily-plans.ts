@@ -2,13 +2,14 @@
 
 import { useAtomValue } from 'jotai';
 import { useCallback, useEffect, useState } from 'react';
-import { activeTeamState, tasksByTeamState } from '@/core/stores';
+import { activeTeamState } from '@/core/stores';
 import { dailyPlanService } from '../../services/client/api';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { useDailyPlanCalculations } from './use-daily-plan-calculations';
 import { toast } from 'sonner';
 import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
+import { useSortedTasks } from '../tasks';
 
 export interface UseEmployeeDailyPlansOptions {
 	/**
@@ -50,7 +51,7 @@ export interface UseEmployeeDailyPlansOptions {
  */
 export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEmployeeDailyPlansOptions) {
 	const activeTeam = useAtomValue(activeTeamState);
-	const allTeamTasks = useAtomValue(tasksByTeamState);
+	const allTeamTasks = useSortedTasks();
 	const queryClient = useQueryClient();
 	const [internalEmployeeId, setInternalEmployeeId] = useState(employeeId || '');
 

@@ -1,14 +1,15 @@
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
-import { activeTeamState, tasksByTeamState } from '@/core/stores';
+import { activeTeamState } from '@/core/stores';
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { getTotalTasks } from '@/core/components/tasks/daily-plan';
 import { TUser } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useSortedTasks } from '../../tasks';
 
 export function useAuthTeamTasks(user: TUser | undefined) {
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasks();
 	const { data: authenticatedUser } = useUserQuery();
 
 	const activeTeam = useAtomValue(activeTeamState);

@@ -1,6 +1,6 @@
 import { getActiveTaskIdCookie, setActiveTaskIdCookie, setActiveUserTaskCookie } from '@/core/lib/helpers/cookies';
 import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
-import { activeTeamState, activeTeamTaskState, memberActiveTaskIdState, tasksByTeamState } from '@/core/stores';
+import { activeTeamState, activeTeamTaskState, memberActiveTaskIdState } from '@/core/stores';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtom, useAtomValue } from 'jotai';
@@ -10,10 +10,11 @@ import { useAuthenticateUser } from '../../auth';
 import { useConditionalUpdateEffect, useSyncRef } from '../../common';
 import { useOrganizationEmployeeTeams } from '../../organizations';
 import { useUpdateTaskMutation } from '../mutations/use-update-task.mutation';
+import { useSortedTasks } from '../derived/use-current-team-tasks';
 
 export const useSetActiveTask = () => {
 	const { mutateAsync: updateTask } = useUpdateTaskMutation();
-	const tasks = useAtomValue(tasksByTeamState);
+	const tasks = useSortedTasks();
 	const tasksRef = useSyncRef(tasks);
 
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();

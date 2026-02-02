@@ -13,3 +13,14 @@ export * from './use-task-sizes';
 export * from './use-task-statistics';
 export * from './use-task-status';
 export * from './use-task-version';
+
+export * from './derived/use-current-team-tasks';
+
+export * from './mutations/use-create-task.mutation';
+export * from './mutations/use-delete-employee-from-task.mutation';
+export * from './mutations/use-delete-task.mutation';
+export * from './mutations/use-update-task.mutation';
+
+export * from './queries/use-get-tasks-by-employee.query';
+export * from './queries/use-get-tasks-by-id.query';
+export * from './queries/use-get-tasks-by-team.query';
