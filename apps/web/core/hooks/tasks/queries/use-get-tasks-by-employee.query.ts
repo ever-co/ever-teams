@@ -7,6 +7,13 @@ import { TASK_QUERY_GC_TIME_HOUR } from '../constants/TASK_QUERY_GC_TIME';
 import { taskService } from '@/core/services/client/api';
 import { useLazyQueryState } from '../utils/use-lazy-query';
 
+/**
+ * Fetches all tasks assigned to a specific employee within a team.
+ *
+ * @param employeeId - Employee ID (optional, disables query if undefined)
+ * @param organizationTeamId - Team ID (optional, falls back to active team)
+ * @returns Query result with employee's tasks
+ */
 export const useGetTaskByEmployeeQuery = (employeeId: string) => {
 	const activeTeam = useAtomValue(activeTeamState);
 	const _teamId = useMemo(() => activeTeam?.id, [activeTeam?.id]);
@@ -24,6 +31,13 @@ export const useGetTaskByEmployeeQuery = (employeeId: string) => {
 	return query;
 };
 
+/**
+ * Lazy version - fetches employee tasks only when triggered.
+ *
+ * @param employeeId - Employee ID
+ * @param organizationTeamId - Team ID
+ * @returns Query result with manual refetch control
+ */
 export const useGetTaskByEmployeeLazyQuery = () => {
 	const activeTeam = useAtomValue(activeTeamState);
 

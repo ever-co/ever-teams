@@ -7,6 +7,12 @@ import { activeTeamState, teamTasksState } from '@/core/stores';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
+/**
+ * Updates an existing task by ID.
+ * Invalidates team tasks cache on success.
+ *
+ * @returns Mutation object with mutateAsync({ taskId, taskData })
+ */
 export const useUpdateTaskMutation = () => {
 	const invalidateTeamTasksData = useInvalidateTeamTasksData();
 	const queryClient = useQueryClient();

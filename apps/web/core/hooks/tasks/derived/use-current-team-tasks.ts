@@ -3,6 +3,11 @@ import { useGetCurrentTeamTasksQuery } from '../queries/use-get-tasks-by-team.qu
 import moment from 'moment';
 
 const defaultValue = { items: [], total: 0 };
+/**
+ * Returns current team tasks from global Jotai store.
+ *
+ * @returns {{ tasks: TTask[] }}
+ */
 export const useCurrentTeamTasks = () => {
 	const { data: tasksResponse = defaultValue } = useGetCurrentTeamTasksQuery();
 
@@ -12,7 +17,11 @@ export const useCurrentTeamTasks = () => {
 type SortableTaskField = 'createdAt' | 'updatedAt' | 'dueDate';
 type SortOrder = 'asc' | 'desc';
 
-// tasksByTeamState
+/**
+ * Returns tasks sorted alphabetically by title.
+ *
+ * @returns {{ sortedTasks: TTask[] }}
+ */
 export const useSortedTasks = (field: SortableTaskField = 'createdAt', order: SortOrder = 'desc') => {
 	const { items: tasks } = useCurrentTeamTasks();
 

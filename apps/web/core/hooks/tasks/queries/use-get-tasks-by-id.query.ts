@@ -4,6 +4,12 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { TASK_QUERY_GC_TIME_HOUR } from '../constants/TASK_QUERY_GC_TIME';
 import { useLazyQueryState } from '../utils/use-lazy-query';
 
+/**
+ * Fetches a single task by its ID.
+ *
+ * @param taskId - The task ID to fetch
+ * @returns Query result with task data
+ */
 export const useGetTaskByIdQuery = (taskId: string) => {
 	const query = useQuery({
 		queryKey: queryKeys.tasks.detail(taskId),
@@ -17,6 +23,10 @@ export const useGetTaskByIdQuery = (taskId: string) => {
 	return query;
 };
 
+/**
+ * Lazy version - provides getTaskById() function for imperative fetching.
+ * Ideal for fetching task details on user interaction.
+ */
 export const useGetTaskByIdLazyQuery = () => {
 	// utility for lazy query
 	const { setQueryKey, ...status } = useLazyQueryState<ReturnType<typeof queryKeys.tasks.detail>>();

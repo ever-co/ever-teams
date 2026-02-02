@@ -12,6 +12,15 @@ import { useOrganizationEmployeeTeams } from '../../organizations';
 import { useUpdateTaskMutation } from '../mutations/use-update-task.mutation';
 import { useSortedTasks } from '../derived/use-current-team-tasks';
 
+/**
+ * Manages active task selection with cookie persistence.
+ * Handles optimistic updates and race condition protection.
+ *
+ * @returns {{
+ *   setActiveTask: (task: TTask) => Promise<TTask>,
+ *   isUpdatingActiveTask: boolean
+ * }}
+ */
 export const useSetActiveTask = () => {
 	const { mutateAsync: updateTask } = useUpdateTaskMutation();
 	const tasks = useSortedTasks();

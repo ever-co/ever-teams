@@ -7,6 +7,12 @@ import { useMemo } from 'react';
 import { TASK_QUERY_GC_TIME_HOUR } from '../constants/TASK_QUERY_GC_TIME';
 import { useLazyQueryState } from '../utils/use-lazy-query';
 
+/**
+ * Fetches all tasks for the current active team.
+ * Automatically refetches when team changes.
+ *
+ * @returns Query result with team tasks array
+ */
 export const useGetCurrentTeamTasksQuery = () => {
 	const activeTeam = useAtomValue(activeTeamState);
 	const _projectId = useMemo(
@@ -30,6 +36,12 @@ export const useGetCurrentTeamTasksQuery = () => {
 	return getTaskByTeamIdQuery;
 };
 
+/**
+ * Lazy version - only fetches when manually triggered via refetch().
+ * Useful for on-demand data loading.
+ *
+ * @returns Query result with manual refetch control
+ */
 export const useGetCurrentTeamTasksLazyQuery = () => {
 	const activeTeam = useAtomValue(activeTeamState);
 	const projectId = useMemo(
