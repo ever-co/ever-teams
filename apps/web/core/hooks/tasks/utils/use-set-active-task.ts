@@ -205,5 +205,5 @@ export const useSetActiveTask = () => {
 		Boolean(activeTeamTask)
 	);
 
-	return { setActiveTask };
+	return { setActiveTask, isUpdatingActiveTask };
 };

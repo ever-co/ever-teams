@@ -6,34 +6,37 @@ import {
 	setActiveTaskIdCookie,
 	setActiveUserTaskCookie
 } from '@/core/lib/helpers/index';
-import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
-import { taskService } from '@/core/services/client/api';
+import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import {
 	activeTeamState,
 	activeTeamTaskId,
 	detailedTaskState,
-	memberActiveTaskIdState,
 	activeTeamTaskState,
 	teamTasksState,
 	taskStatusesState
 } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useOrganizationEmployeeTeams } from './use-organization-teams-employee';
 import { useAuthenticateUser } from '../../auth';
-import { useFirstLoad, useConditionalUpdateEffect, useSyncRef, useQueryCall } from '../../common';
+import { useFirstLoad, useConditionalUpdateEffect, useSyncRef } from '../../common';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
-import { ETaskStatusName, TEmployee, TOrganizationTeamEmployee, TTag } from '@/core/types/schemas';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '@/core/query/keys';
+import { ETaskStatusName, TEmployee, TTag } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { useUserQuery } from '../../queries/user-user.query';
 import { EIssueType, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
-import { toast } from 'sonner';
-import { useSortedTasks } from '../../tasks';
+import {
+	useCreateTaskMutation,
+	useDeleteEmployeeFromTaskMutation,
+	useDeleteTaskMutation,
+	useGetCurrentTeamTasksQuery,
+	useGetTaskByEmployeeQuery,
+	useGetTaskByIdLazyQuery,
+	useSortedTasks,
+	useUpdateTaskMutation
+} from '../../tasks';
+import { useSetActiveTask } from '../../tasks/utils/use-set-active-task';
 
 /**
  * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
@@ -69,9 +72,7 @@ import { useSortedTasks } from '../../tasks';
  */
 
 export function useTeamTasks() {
-	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
-	const { user, $user } = useAuthenticateUser();
-	const queryClient = useQueryClient();
+	const { user } = useAuthenticateUser();
 
 	const setAllTasks = useSetAtom(teamTasksState);
 	const tasks = useSortedTasks();
@@ -80,125 +81,30 @@ export function useTeamTasks() {
 	const { data: userData } = useUserQuery();
 	const authUser = useSyncRef(userData);
 	const setActive = useSetAtom(activeTeamTaskId);
-	const memberActiveTaskId = useAtomValue(memberActiveTaskIdState);
-	const $memberActiveTaskId = useSyncRef(memberActiveTaskId);
 	const taskStatuses = useAtomValue(taskStatusesState);
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamRef = useSyncRef(activeTeam);
 	const [selectedEmployeeId, setSelectedEmployeeId] = useState(user?.employee?.id);
-	const [selectedOrganizationTeamId, setSelectedOrganizationTeamId] = useState(activeTeam?.id);
+	const [, setSelectedOrganizationTeamId] = useState(activeTeam?.id);
 	const [activeTeamTask, setActiveTeamTask] = useAtom(activeTeamTaskState);
-	const [isUpdatingActiveTask, setIsUpdatingActiveTask] = useState(false);
 
-	// Keep activeTeamTask in sync with a ref to avoid stale closures in setActiveTask
-	const activeTeamTaskRef = useSyncRef(activeTeamTask);
-
-	// Track expected task ID to prevent stale server data from overwriting local selection.
-	// When user selects a task, we store its ID here. The sync effect will skip updates
-	// until server data matches this expected ID (confirming our selection was persisted).
-	const expectedActiveTaskIdRef = useRef<string | null>(null);
 	const { firstLoad, firstLoadData: firstLoadTasksData } = useFirstLoad();
 
 	// React Query for team tasks
-	const teamTasksQuery = useQuery({
-		queryKey: queryKeys.tasks.byTeam(activeTeam?.id),
-		queryFn: async () => {
-			if (!activeTeam?.id) {
-				throw new Error('Required parameters missing');
-			}
-			const projectId = activeTeam?.projects && activeTeam?.projects.length > 0 ? activeTeam.projects[0].id : '';
-			return await taskService.getTasks({ projectId });
-		},
-		enabled: !!activeTeam?.id,
-		gcTime: 1000 * 60 * 60
-	});
+	const teamTasksQuery = useGetCurrentTeamTasksQuery();
 
-	const { queryCall: getTaskByIdQuery, loading: getTasksByIdLoading } = useQueryCall(async (taskId: string) =>
-		queryClient.fetchQuery({
-			queryKey: queryKeys.tasks.detail(taskId),
-			queryFn: async () => {
-				if (!taskId) {
-					throw new Error('Task ID is required');
-				}
-				return await taskService.getTaskById(taskId);
-			}
-		})
-	);
+	const { getTaskById: getTaskByIdQuery, isPending: getTasksByIdLoading } = useGetTaskByIdLazyQuery();
 
-	const getTasksByEmployeeIdQuery = useQuery({
-		queryKey: queryKeys.tasks.byEmployee(selectedEmployeeId, selectedOrganizationTeamId),
-		queryFn: async () => {
-			if (!activeTeam?.id) {
-				throw new Error('Required parameters missing');
-			}
-			return await taskService.getTasksByEmployeeId({ employeeId: selectedEmployeeId! });
-		},
-		enabled: !!selectedEmployeeId && !!activeTeam?.id && !!selectedOrganizationTeamId,
-		gcTime: 1000 * 60 * 60
-	});
+	const getTasksByEmployeeIdQuery = useGetTaskByEmployeeQuery(selectedEmployeeId);
 
 	// Mutations
-	const createTaskMutation = useMutation({
-		mutationFn: async (taskData: Parameters<typeof taskService.createTask>[0]) => {
-			return await taskService.createTask(taskData);
-		},
-		onSuccess: () => {
-			invalidateTeamTasksData();
-		}
-	});
+	const createTaskMutation = useCreateTaskMutation();
 
-	const updateTaskMutation = useMutation({
-		mutationFn: async ({ taskId, taskData }: { taskId: string; taskData: Partial<TTask> }) => {
-			return await taskService.updateTask({ taskId, data: taskData });
-		},
-		onSuccess: (updatedTask, { taskId }) => {
-			queryClient.setQueryData(queryKeys.tasks.byTeam(activeTeam?.id), (oldTasks: PaginationResponse<TTask>) => {
-				if (!oldTasks) return oldTasks;
+	const updateTaskMutation = useUpdateTaskMutation();
 
-				const updatedItems = oldTasks?.items?.map((task) =>
-					task.id === taskId ? { ...task, ...updatedTask } : task
-				);
+	const deleteTaskMutation = useDeleteTaskMutation();
 
-				// Sync the tasks store
-				setAllTasks(updatedItems);
-
-				return updatedItems ? { items: updatedItems, total: updatedItems.length } : oldTasks;
-			});
-			// Invalidate both tasks and daily plans to ensure UI synchronization
-			invalidateTeamTasksData();
-		}
-	});
-
-	const deleteTaskMutation = useMutation({
-		mutationFn: async (taskId: string) => {
-			return await taskService.deleteTask(taskId);
-		},
-		onSuccess: () => {
-			invalidateTeamTasksData();
-		}
-	});
-
-	const deleteEmployeeFromTasksMutation = useMutation({
-		mutationFn: async (employeeId: string) => {
-			return await taskService.deleteEmployeeFromTasks(employeeId);
-		},
-		onSuccess: () => {
-			invalidateTeamTasksData();
-		}
-	});
-
-	// Invalidation function
-	const invalidateTeamTasksData = useCallback(() => {
-		queryClient.invalidateQueries({
-			queryKey: queryKeys.tasks.all
-		});
-		queryClient.invalidateQueries({
-			queryKey: queryKeys.tasks.byTeam(activeTeam?.id)
-		});
-		queryClient.invalidateQueries({
-			queryKey: queryKeys.dailyPlans.all
-		});
-	}, [activeTeam?.id, queryClient]);
+	const deleteEmployeeFromTasksMutation = useDeleteEmployeeFromTaskMutation();
 
 	// Deep update function
 	const deepCheckAndUpdateTasks = useCallback(
@@ -294,23 +200,6 @@ export function useTeamTasks() {
 			}
 		},
 		[teamTasksQuery, deepCheckAndUpdateTasks, user, activeTeamRef]
-	);
-
-	const setActiveUserTaskCookieCb = useCallback(
-		(task: TTask | null) => {
-			if (task?.id && authUser.current?.id) {
-				setActiveUserTaskCookie({
-					taskId: task?.id,
-					userId: authUser.current?.id
-				});
-			} else {
-				setActiveUserTaskCookie({
-					taskId: '',
-					userId: ''
-				});
-			}
-		},
-		[authUser]
 	);
 
 	const deleteTask = useCallback(
@@ -517,125 +406,7 @@ export function useTeamTasks() {
 	/**
 	 * Change active task
 	 */
-	const setActiveTask = useCallback(
-		async (task: TTask | null) => {
-			// Set flag to prevent race conditions with server sync
-			setIsUpdatingActiveTask(true);
-
-			try {
-				/**
-				 * Unassign previous active task
-				 */
-				if ($memberActiveTaskId.current && $user.current) {
-					const _task = tasksRef.current.find((t) => t.id === $memberActiveTaskId.current);
-
-					if (_task) {
-						await updateTask({
-							..._task,
-							members: _task.members?.filter((m) => m.id !== $user.current?.employee?.id)
-						});
-					}
-				}
-
-				// Use ref to get current activeTeamTask to avoid stale closure
-				const previousTask = activeTeamTaskRef.current;
-				const previousTaskId = getActiveTaskIdCookie();
-
-				// Set expected task ID BEFORE updating state/cookies.
-				// This prevents the sync effect from overwriting with stale server data.
-				expectedActiveTaskIdRef.current = task?.id || null;
-
-				setActiveTaskIdCookie(task?.id || '');
-				setActiveTeamTask(task);
-				setActiveUserTaskCookieCb(task);
-
-				if (task) {
-					/**
-					 * Sync active task to server for multi-device support.
-					 * Cookies are already set above, so local persistence works even if API fails.
-					 * Retry up to 3 times because activeTeam.members may not be loaded yet on first render.
-					 */
-					const MAX_RETRIES = 3;
-					const RETRY_DELAY_MS = 500;
-
-					try {
-						let success = false;
-
-						// Use activeTeamRef.current to get fresh values on each retry attempt.
-						// Using activeTeam directly would capture the stale closure value.
-						for (let attempt = 1; attempt <= MAX_RETRIES && !success; attempt++) {
-							const currentEmployeeDetails = activeTeamRef.current?.members?.find(
-								(member: TOrganizationTeamEmployee) =>
-									member.employeeId === authUser.current?.employee?.id
-							);
-
-							if (currentEmployeeDetails?.id) {
-								await updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
-									organizationId: task.organizationId,
-									activeTaskId: task.id,
-									organizationTeamId: activeTeamRef.current?.id,
-									tenantId: activeTeamRef.current?.tenantId ?? ''
-								});
-								success = true;
-							} else if (attempt < MAX_RETRIES) {
-								await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
-							}
-						}
-
-						if (!success) {
-							// All retries exhausted - members may not be loaded yet.
-							// Local state (cookies + Jotai) is already persisted, only server sync failed.
-							logErrorInDev(
-								'[setActiveTask] Failed to sync after retries - members may not be loaded',
-								null
-							);
-							// Clear expected ID to allow server sync to resume
-							expectedActiveTaskIdRef.current = null;
-						}
-
-						if (success) {
-							toast.success('Active task updated', {
-								description: `"${task.title}" is now your active task`
-							});
-
-							// Short delay to let React Query stabilize before clearing isUpdatingActiveTask.
-							// The expectedActiveTaskIdRef provides the main protection against stale data,
-							// this delay is just an extra safety buffer for edge cases.
-							// NOTE: Do NOT invalidate queries here - updateActiveTaskMutation already handles it.
-							await new Promise((resolve) => setTimeout(resolve, 600));
-							// Clear expectation on success - server will confirm via sync effect
-							expectedActiveTaskIdRef.current = null;
-						}
-					} catch (error) {
-						logErrorInDev('[setActiveTask] API call failed:', error);
-						toast.error('Failed to update active task', {
-							description: getErrorMessage(error)
-						});
-						// Rollback: restore previous state and clear expected ID
-						expectedActiveTaskIdRef.current = previousTaskId || null;
-						setActiveTaskIdCookie(previousTaskId || '');
-						setActiveTeamTask(previousTask);
-						setActiveUserTaskCookieCb(previousTask);
-					}
-				}
-			} finally {
-				// Always clear the flag, even if an error occurred
-				setIsUpdatingActiveTask(false);
-			}
-		},
-		[
-			setActiveTeamTask,
-			setActiveUserTaskCookieCb,
-			updateOrganizationTeamEmployeeActiveTask,
-			activeTeam,
-			authUser,
-			$memberActiveTaskId,
-			$user,
-			tasksRef,
-			updateTask,
-			setIsUpdatingActiveTask
-		]
-	);
+	const { setActiveTask, isUpdatingActiveTask } = useSetActiveTask();
 
 	const deleteEmployeeFromTasks = useCallback(
 		async (employeeId: string) => {
@@ -653,35 +424,6 @@ export function useTeamTasks() {
 		setActiveTaskIdCookie('');
 		setActiveTeamTask(null);
 	}, [setActiveTeamTask]);
-
-	useConditionalUpdateEffect(
-		() => {
-			// Skip if we're currently updating the active task
-			if (isUpdatingActiveTask) {
-				return;
-			}
-
-			// If we have an expected task ID (user just selected a task locally):
-			// - If server data matches → clear expectation, no need to update (already correct)
-			// - If server data differs → skip update (server has stale data, wait for it to sync)
-			if (expectedActiveTaskIdRef.current) {
-				if (memberActiveTaskId === expectedActiveTaskIdRef.current) {
-					// Server confirmed our selection
-					expectedActiveTaskIdRef.current = null;
-				}
-				// Either way, skip - local state is already correct
-				return;
-			}
-
-			// No local expectation - sync from server (multi-device sync or initial load)
-			const memberActiveTask = tasks.find((item) => item.id === memberActiveTaskId);
-			if (memberActiveTask) {
-				setActiveTeamTask(memberActiveTask);
-			}
-		},
-		[activeTeam, tasks, memberActiveTaskId, isUpdatingActiveTask],
-		Boolean(activeTeamTask)
-	);
 
 	// Reload tasks after active team changed
 	useConditionalUpdateEffect(
@@ -712,15 +454,6 @@ export function useTeamTasks() {
 	);
 
 	// Sync React Query data with Jotai state
-	useConditionalUpdateEffect(
-		() => {
-			if (teamTasksQuery.data?.items) {
-				deepCheckAndUpdateTasks(teamTasksQuery.data.items, true);
-			}
-		},
-		[teamTasksQuery.data?.items],
-		Boolean(tasks?.length)
-	);
 
 	return {
 		tasks,
