@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useOrganizationTeams } from './use-organization-teams';
+import { useOrganizationTeamsQuery } from './use-organization-teams-query';
 import { organizationTeamEmployeeService } from '@/core/services/client/api/organizations/teams';
 import { queryKeys } from '@/core/query/keys';
 import { toast } from 'sonner';
@@ -8,7 +8,7 @@ import { TOrganizationTeamEmployee, TOrganizationTeamEmployeeUpdate } from '@/co
 import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
 
 export function useOrganizationEmployeeTeams() {
-	const { loadTeamsData } = useOrganizationTeams();
+	const { loadTeamsData } = useOrganizationTeamsQuery();
 	const queryClient = useQueryClient();
 
 	// React Query mutation for delete organization employee team

@@ -1,6 +1,6 @@
 'use client';
 
-import { useOrganizationTeams } from '@/core/hooks';
+import { useCreateOrganizationTeam } from '@/core/hooks';
 import { BackButton, Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { Dispatch, SetStateAction, useMemo, useState } from 'react';
@@ -28,13 +28,13 @@ export function CreateTeamModal({
 		return Boolean(timerStatus?.running);
 	}, [timerStatus]);
 	const teams = useAtomValue(organizationTeamsState);
-	const { createOTeamLoading, createOrganizationTeam } = useOrganizationTeams();
+	const { loading: createOTeamLoading, createOrganizationTeam } = useCreateOrganizationTeam();
 	const [error, setError] = useState<string | null>(null);
 
 	const [name, setName] = useState('');
 
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-		console.log("Team Submit");
+		console.log('Team Submit');
 		e.preventDefault();
 		setError(null);
 		const form = new FormData(e.currentTarget);

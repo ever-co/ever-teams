@@ -6,6 +6,7 @@ import {
 	setActiveTaskIdCookie,
 	setActiveUserTaskCookie
 } from '@/core/lib/helpers/index';
+import { getValidActiveTask } from '@/core/lib/utils/task.utils';
 import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
 import { taskService } from '@/core/services/client/api';
 import {
@@ -674,13 +675,17 @@ export function useTeamTasks() {
 			}
 
 			// No local expectation - sync from server (multi-device sync or initial load)
-			const memberActiveTask = tasks.find((item) => item.id === memberActiveTaskId);
+			// Validate: ensure the task belongs to the current active team
+			const memberActiveTask = getValidActiveTask(tasks, memberActiveTaskId, activeTeam?.id);
 			if (memberActiveTask) {
 				setActiveTeamTask(memberActiveTask);
+			} else if (memberActiveTaskId && activeTeam?.id) {
+				// Task ID exists but doesn't belong to this team - clear it
+				setActiveTeamTask(null);
 			}
 		},
 		[activeTeam, tasks, memberActiveTaskId, isUpdatingActiveTask],
-		Boolean(activeTeamTask)
+		true // Allow effect to run even when activeTeamTask is null to enable restoration
 	);
 
 	// Reload tasks after active team changed
@@ -704,10 +709,12 @@ export function useTeamTasks() {
 						? active_user_task?.taskId
 						: getActiveTaskIdCookie() || '';
 
-				setActiveTeamTask(tasks.find((ts) => ts.id === active_taskid) || null);
+				// Validate: ensure the task from cookie belongs to the current active team
+				const validTask = getValidActiveTask(tasks, active_taskid, activeTeam?.id);
+				setActiveTeamTask(validTask);
 			}
 		},
-		[tasks, firstLoad, authUser],
+		[tasks, firstLoad, authUser, activeTeam?.id],
 		Boolean(activeTeamTask)
 	);
 
