@@ -1,5 +1,5 @@
 import { cn } from '@/core/lib/helpers';
-import { useState, ReactNode } from 'react';
+import { useState, ReactNode, useCallback } from 'react';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -40,28 +40,31 @@ export function CustomListboxDropdown<T>({
 }) {
 	const [open, setOpen] = useState(false);
 
-	const handleSelect = (itemValue: T) => {
-		if (!onChange) return;
-		if (isMultiple && multiple) {
-			const stringItemValue = String(itemValue);
-			const isAlreadySelected = values.some((v) => String(v) === stringItemValue);
-			if (isAlreadySelected) {
-				const newValues = values.filter((v) => String(v) !== stringItemValue);
-				onChange(newValues);
-			} else {
-				const stringValues = values.map((v) => String(v));
-
-				if (!stringValues.includes(stringItemValue)) {
-					onChange([...values, itemValue]);
+	const handleSelect = useCallback(
+		(itemValue: T) => {
+			if (!onChange) return;
+			if (isMultiple && multiple) {
+				const stringItemValue = String(itemValue);
+				const isAlreadySelected = values.some((v) => String(v) === stringItemValue);
+				if (isAlreadySelected) {
+					const newValues = values.filter((v) => String(v) !== stringItemValue);
+					onChange(newValues);
 				} else {
-					console.log('Value already selected, ignored:', stringItemValue);
+					const stringValues = values.map((v) => String(v));
+
+					if (!stringValues.includes(stringItemValue)) {
+						onChange([...values, itemValue]);
+					} else {
+						console.log('Value already selected, ignored:', stringItemValue);
+					}
 				}
+			} else {
+				onChange(itemValue);
+				setOpen(false);
 			}
-		} else {
-			onChange(itemValue);
-			setOpen(false);
-		}
-	};
+		},
+		[isMultiple, multiple, values, onChange, setOpen]
+	);
 
 	return (
 		<div className={cn('relative', className)}>
