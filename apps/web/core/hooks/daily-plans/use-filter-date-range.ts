@@ -58,3 +58,32 @@ export const filterDailyPlansByEmployee = (plans: TDailyPlan[], user: TUser | un
 		}))
 		.filter((plan) => plan.tasks && plan.tasks.length > 0);
 };
+
+/**
+ * Filters daily plans to retain only tasks matching the provided task IDs.
+ *
+ * Performs two-level filtering:
+ * 1. Removes non-matching tasks from each plan
+ * 2. Excludes plans with no remaining tasks
+ *
+ * Uses a Set for O(1) lookup performance.
+ *
+ * @param plans - The daily plans to filter
+ * @param taskIds - Task IDs to retain
+ * @returns Filtered plans containing only matching tasks
+ *
+ * @example
+ * filterDailyPlansByTasks(
+ *   [{ id: 'plan-1', tasks: [{ id: 'task-1' }, { id: 'task-2' }] }],
+ *   ['task-1']
+ * );
+ * // Returns: [{ id: 'plan-1', tasks: [{ id: 'task-1' }] }]
+ */
+export const filterDailyPlansByTasks = (plans: TDailyPlan[], taskIds: string[]): TDailyPlan[] => {
+	// Create a Set for efficient O(1) lookup performance
+	const taskIdSet = new Set(taskIds);
+
+	return plans
+		.map((plan) => ({ ...plan, tasks: plan.tasks?.filter((task) => taskIdSet.has(task?.id)) }))
+		.filter((plan) => plan?.tasks?.length);
+};

@@ -11,13 +11,15 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { handleDragAndDropDailyOutstandingAll } from '@/core/lib/helpers/index';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { filterDailyPlansByTasks } from '@/core/hooks';
 
 interface OutstandingAllProps {
 	profile: any;
 	user?: TUser;
 	outstandingPlans: TDailyPlan[];
+	filteredTaskIds?: string[]; // Filter plans by taskIds (default undefined = show all)
 }
-export function OutstandingAll({ profile, user, outstandingPlans }: OutstandingAllProps) {
+export function OutstandingAll({ profile, user, outstandingPlans, filteredTaskIds }: OutstandingAllProps) {
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 
 	// Memoized user filter function for performance
@@ -67,7 +69,13 @@ export function OutstandingAll({ profile, user, outstandingPlans }: OutstandingA
 	// Create filtered plans for TaskEstimatedCount to match the displayed tasks
 	// ALWAYS filter by user if user exists (same logic as uniqueTasks)
 	const filteredPlansForCount = useMemo(() => {
-		return outstandingPlans
+		let filteredData = outstandingPlans;
+
+		if (filteredTaskIds && filteredData) {
+			filteredData = filterDailyPlansByTasks(filteredData, filteredTaskIds);
+		}
+
+		return filteredData
 			.map((plan) => ({
 				...plan,
 				tasks: user ? filterTasksByUser(plan.tasks ?? []) : plan.tasks

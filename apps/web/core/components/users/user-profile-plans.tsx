@@ -2,7 +2,7 @@
 import { useAtomValue } from 'jotai';
 import { AlertPopup, Container } from '@/core/components';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useCanSeeActivityScreen, useTimer, useUserProfilePage } from '@/core/hooks';
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { useDeleteDailyPlan } from '@/core/hooks/daily-plans/use-delete-daily-plan';
@@ -15,7 +15,7 @@ import {
 	HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL,
 	HAS_VISITED_OUTSTANDING_TASKS
 } from '@/core/constants/config/constants';
-import { TUser } from '@/core/types/schemas';
+import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { activeTeamState } from '@/core/stores';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { clsxm } from '@/core/lib/utils';
@@ -38,6 +38,8 @@ import { usePathname } from 'next/navigation';
 import { IconsCalendarMonthOutline } from '@/core/components/icons';
 import { VerticalSeparator } from '../duplicated-components/separator';
 import { AllPlans, EmptyPlans } from '@/core/components/daily-plan';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { filterDailyPlansByTasks } from '@/core/hooks';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
@@ -45,12 +47,15 @@ type FilterOutstanding = 'ALL' | 'DATE';
 interface IUserProfilePlansProps {
 	user?: TUser;
 	employeeId?: string; // Accept employeeId directly from parent
+	filteredTasks?: TTask[];
 }
 
 export function UserProfilePlans(props: IUserProfilePlansProps) {
 	const t = useTranslations();
 
-	const { user, employeeId: propsEmployeeId } = props;
+	const { user, employeeId: propsEmployeeId, filteredTasks } = props;
+
+	const filteredTaskIds = useMemo(() => filteredTasks?.map((task) => task.id), [filteredTasks]);
 
 	const profile = useUserProfilePage();
 	const { data: authUser } = useUserQuery();
@@ -87,22 +92,54 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');
 	const { setDate, date } = useDateRange(currentTab);
 
+	const filterPlanAndTask = useCallback(
+		(plans: TDailyPlan[]) => (filteredTaskIds ? filterDailyPlansByTasks(plans, filteredTaskIds) : plans),
+		[filteredTaskIds]
+	);
+
 	const screenOutstanding = {
-		ALL: <OutstandingAll profile={profile} user={user} outstandingPlans={employeeOutstandingPlans} />,
+		ALL: (
+			<OutstandingAll
+				profile={profile}
+				user={user}
+				outstandingPlans={employeeOutstandingPlans}
+				filteredTaskIds={filteredTaskIds}
+			/>
+		),
 		DATE: (
 			<OutstandingFilterDate
 				profile={profile}
 				user={user}
 				outstandingPlans={employeeOutstandingPlans}
 				filterByEmployee
+				filteredTaskIds={filteredTaskIds}
 			/>
 		)
 	};
 	const tabsScreens = {
-		'Today Tasks': <AllPlans profile={profile} currentTab={currentTab} user={user} employeeId={targetEmployeeId} />,
-		'Future Tasks': <FutureTasks profile={profile} user={user} employeeId={targetEmployeeId} />,
-		'Past Tasks': <PastTasks profile={profile} user={user} employeeId={targetEmployeeId} />,
-		'All Tasks': <AllPlans profile={profile} user={user} employeeId={targetEmployeeId} />,
+		'Today Tasks': (
+			<AllPlans
+				profile={profile}
+				currentTab={currentTab}
+				user={user}
+				filteredTaskIds={filteredTaskIds}
+				employeeId={targetEmployeeId}
+			/>
+		),
+		'Future Tasks': (
+			<FutureTasks
+				profile={profile}
+				user={user}
+				filteredTaskIds={filteredTaskIds}
+				employeeId={targetEmployeeId}
+			/>
+		),
+		'Past Tasks': (
+			<PastTasks profile={profile} user={user} filteredTaskIds={filteredTaskIds} employeeId={targetEmployeeId} />
+		),
+		'All Tasks': (
+			<AllPlans profile={profile} user={user} filteredTaskIds={filteredTaskIds} employeeId={targetEmployeeId} />
+		),
 		Outstanding: <Outstanding filter={screenOutstanding[currentOutstanding]} />
 	};
 	const dailyPlanSuggestionModalDate = window && window?.localStorage.getItem(DAILY_PLAN_SUGGESTION_MODAL_DATE);
@@ -152,9 +189,9 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	// when targetEmployeeId changes (e.g., when viewing different user profiles)
 	const totalTasksDailyPlansMap = useMemo(() => {
 		// Apply date filtering to get the correct counts
-		const filteredFuturePlans = filterDailyPlan(date, employeeFuturePlans);
-		const filteredPastPlans = filterDailyPlan(date, employeePastPlans);
-		const filteredAllPlans = filterDailyPlan(date, employeeSortedPlans);
+		const filteredFuturePlans = filterDailyPlan(date, filterPlanAndTask(employeeFuturePlans));
+		const filteredPastPlans = filterDailyPlan(date, filterPlanAndTask(employeePastPlans));
+		const filteredAllPlans = filterDailyPlan(date, filterPlanAndTask(employeeSortedPlans));
 
 		return {
 			// filterByEmployee = false: show ALL tasks in daily plans (not just assigned to user)
@@ -165,7 +202,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 			// For Outstanding, ALWAYS filter by user (same logic as OutstandingAll component)
 			// This ensures the count matches what's actually displayed
 			Outstanding: estimatedTotalTime(
-				employeeOutstandingPlans.map((plan) => {
+				filterPlanAndTask(employeeOutstandingPlans).map((plan) => {
 					const tasks = plan.tasks ?? [];
 					// Filter by user if user exists (privacy/security - same as OutstandingAll)
 					return user
@@ -178,6 +215,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		employeeTodayPlan,
 		employeeFuturePlans,
 		employeePastPlans,
+		filterPlanAndTask,
 		employeeSortedPlans,
 		employeeOutstandingPlans,
 		user,
