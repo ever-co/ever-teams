@@ -2,11 +2,11 @@
 
 import { memo } from 'react';
 import { clsxm } from '@/core/lib/utils';
-import { getUserDisplayName } from '@/core/lib/helpers';
 import { SpinnerLoader } from '@/core/components/common/loader';
 import { TrashIcon } from 'assets/svg';
 import ProfileInfo from '../components/profile-info';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { getUserDisplayName } from '@/core/lib/helpers/strings';
 
 interface MemberListItemProps {
 	member: TOrganizationTeamEmployee;
