@@ -1,6 +1,11 @@
 'use client';
 
-import { getActiveUserTaskCookie, setActiveTaskIdCookie, setActiveUserTaskCookie } from '@/core/lib/helpers/index';
+import {
+	getActiveTaskIdCookie,
+	getActiveUserTaskCookie,
+	setActiveTaskIdCookie,
+	setActiveUserTaskCookie
+} from '@/core/lib/helpers/index';
 import { taskService } from '@/core/services/client/api';
 import { activeTeamState, activeTeamTaskId, detailedTaskState, teamTasksState } from '@/core/stores';
 import { useCallback } from 'react';
@@ -187,7 +192,7 @@ export function useUpdateTask() {
 							userId: ''
 						});
 					}
-					const active_task_id = globalThis?.localStorage?.getItem('active-task-id') || '';
+					const active_task_id = getActiveTaskIdCookie() ?? '';
 					if (active_task_id === task.id) {
 						setActiveTaskIdCookie('');
 					}
