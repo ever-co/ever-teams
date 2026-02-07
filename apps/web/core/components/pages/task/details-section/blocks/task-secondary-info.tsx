@@ -1,4 +1,4 @@
-import { useModal, useTeamTasks } from '@/core/hooks';
+import { useModal, useUpdateTask } from '@/core/hooks';
 import { activeTeamState, detailedTaskState, isTeamManagerState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { ERoleName } from '@/core/types/generics/enums/role';
@@ -49,9 +49,7 @@ type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
 const TaskSecondaryInfo = () => {
 	const task = useAtomValue(detailedTaskState);
-	const { updateTask } = useTeamTasks();
-
-	const { handleStatusUpdate } = useTeamTasks();
+	const { updateTask, handleStatusUpdate } = useUpdateTask();
 
 	const t = useTranslations();
 
@@ -312,7 +310,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	const { openModal, isOpen, closeModal } = useModal();
 	const organizationProjects = useAtomValue(organizationProjectsState);
 	const activeTeam = useAtomValue(activeTeamState);
-	const { updateTask, updateLoading } = useTeamTasks();
+	const { updateTask, updateLoading } = useUpdateTask();
 	const t = useTranslations();
 
 	// Get current user and manager status

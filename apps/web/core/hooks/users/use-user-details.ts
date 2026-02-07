@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from 'react';
 import { useAuthTeamTasks } from '../organizations/teams/use-auth-team-tasks';
-import { useTeamTasks } from '../organizations';
+import { useUpdateTask, useTeamTasksQuery } from '../organizations';
 import { useAuthenticateUser } from '../auth';
 import { useGetTasksStatsData } from '../tasks';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -13,7 +13,8 @@ export function useUserDetails(memberId: string) {
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
-	const { updateTask, tasks } = useTeamTasks();
+	const { updateTask } = useUpdateTask();
+	const { tasks } = useTeamTasksQuery();
 
 	const { user: auth } = useAuthenticateUser();
 

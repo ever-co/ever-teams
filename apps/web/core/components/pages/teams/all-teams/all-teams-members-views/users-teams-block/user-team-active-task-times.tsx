@@ -1,4 +1,4 @@
-import { useTeamMemberCard, useTeamTasks } from '@/core/hooks';
+import { useTeamMemberCard, useTaskQueries } from '@/core/hooks';
 import { TaskTimes } from '@/core/components/tasks/task-times';
 import { useEffect, useState } from 'react';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
@@ -13,7 +13,7 @@ export default function UserTeamActiveTaskTimesBlock({
 }) {
 	const memberInfo = useTeamMemberCard(member);
 
-	const { getTaskById } = useTeamTasks();
+	const { getTaskById } = useTaskQueries();
 
 	const [activeTask, setActiveTask] = useState<TTask | null | undefined>(null);
 

@@ -7,7 +7,10 @@ import { useSyncRef } from '../../common/use-sync-ref';
 import { useUpdateOrganizationTeam } from './use-update-organization-team';
 import { useIsMemberManager } from './use-team-member';
 import cloneDeep from 'lodash/cloneDeep';
-import { useTeamTasks } from './use-team-tasks';
+import { useDeleteTask } from './use-delete-task';
+import { useUpdateTask } from './use-update-task';
+import { useTeamTasksQuery } from './use-team-tasks-query';
+import { useTeamTasksState } from './use-team-tasks-state';
 import { useAuthenticateUser } from '../../auth';
 import { useOutsideClick } from '../../common';
 import { Nullable } from '@/core/types/generics/utils';
@@ -22,7 +25,10 @@ import { ERoleName } from '@/core/types/generics/enums/role';
  * IOrganizationTeamList['members'][number] | undefined
  */
 export function useTeamMemberCard(member: TOrganizationTeamEmployee | undefined) {
-	const { updateTask, tasks, setActiveTask, deleteEmployeeFromTasks, unassignAuthActiveTask } = useTeamTasks();
+	const { deleteEmployeeFromTasks, unassignAuthActiveTask } = useDeleteTask();
+	const { updateTask } = useUpdateTask();
+	const { tasks } = useTeamTasksQuery();
+	const { setActiveTask } = useTeamTasksState();
 	const [assignTaskLoading, setAssignTaskLoading] = useState(false);
 	const [unAssignTaskLoading, setUnAssignTaskLoading] = useState(false);
 	const publicTeam = useAtomValue(getPublicState);

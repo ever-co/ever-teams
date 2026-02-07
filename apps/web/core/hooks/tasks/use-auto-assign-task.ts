@@ -4,7 +4,7 @@ import { useAtomValue } from 'jotai';
 import { activeTeamState, activeTeamTaskState, timerStatusState } from '@/core/stores';
 import { useCallback, useEffect } from 'react';
 import { useFirstLoad, useSyncRef } from '../common';
-import { useTeamTasks } from '../organizations';
+import { useUpdateTask } from '../organizations';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '../queries/user-user.query';
 
@@ -19,7 +19,7 @@ export function useAutoAssignTask() {
 	const { data: authUser } = useUserQuery();
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
-	const { updateTask, updateLoading } = useTeamTasks();
+	const { updateTask, updateLoading } = useUpdateTask();
 
 	const updateLoadingRef = useSyncRef(updateLoading);
 

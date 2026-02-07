@@ -1,4 +1,4 @@
-import { useCallbackRef, useTeamTasks } from '@/core/hooks';
+import { useCallbackRef, useUpdateTask } from '@/core/hooks';
 import { detailedTaskState } from '@/core/stores';
 import { Button } from '@/core/components';
 import Image from 'next/image';
@@ -19,7 +19,7 @@ interface IDFooterProps {
 const EditorFooter = ({ isUpdated, setIsUpdated, editorValue, editorRef, clearUnsavedValues }: IDFooterProps) => {
 	const $setIsUpdated = useCallbackRef(setIsUpdated);
 	const task = useAtomValue(detailedTaskState);
-	const { updateDescription } = useTeamTasks();
+	const { updateDescription } = useUpdateTask();
 	const t = useTranslations();
 	const saveDescription = useCallback(
 		(newDescription: string) => {

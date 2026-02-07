@@ -12,7 +12,7 @@ import { useMyDailyPlans } from '@/core/hooks/daily-plans/use-my-daily-plans';
 import { useTeamDailyPlans } from '@/core/hooks/daily-plans/use-team-daily-plans';
 import {
 	useOrganizationTeamsQuery,
-	useTeamTasks,
+	useTeamTasksQuery,
 	useTeamInvitations,
 	useOrganizationProjects,
 	useEmployee
@@ -45,7 +45,7 @@ export function AppState() {
 function InitState() {
 	const publicTeam = useAtomValue(publicState);
 	const { loadTeamsData, firstLoadTeamsData } = useOrganizationTeamsQuery();
-	const { firstLoadTasksData, loadTeamTasksData } = useTeamTasks();
+	const { firstLoadTasksData, loadTeamTasksData } = useTeamTasksQuery();
 	const { firstLoadTeamInvitationsData, myInvitations } = useTeamInvitations();
 	const { getTimerStatus, firstLoadTimerData } = useTimer();
 	const { firstLoadtasksStatisticsData } = useTaskStatistics();

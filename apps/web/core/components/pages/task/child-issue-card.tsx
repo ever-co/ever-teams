@@ -1,5 +1,5 @@
 import { Modal, SpinnerLoader, Text } from '@/core/components';
-import { IHookModal, useModal, useTeamTasks } from '@/core/hooks';
+import { IHookModal, useModal, useUpdateTask, useTeamTasksQuery } from '@/core/hooks';
 import { useCallback, useState } from 'react';
 import { clsxm } from '@/core/lib/utils';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
@@ -61,7 +61,8 @@ function CreateChildTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 	const t = useTranslations();
 	const tasks = useAtomValue(tasksByTeamState);
 
-	const { updateTask, loadTeamTasksData } = useTeamTasks();
+	const { updateTask } = useUpdateTask();
+	const { loadTeamTasksData } = useTeamTasksQuery();
 
 	const [loading, setLoading] = useState(false);
 

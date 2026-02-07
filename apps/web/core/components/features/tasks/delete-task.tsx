@@ -2,7 +2,7 @@ import { Spinner } from '@/core/components/common/spinner';
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
-import { useTeamTasks } from '@/core/hooks/organizations';
+import { useUpdateTask, useTeamTasksState } from '@/core/hooks/organizations';
 import { IInviteProps } from '../teams/invite-modal';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { useAtomValue } from 'jotai';
@@ -10,7 +10,8 @@ import { activeTeamTaskState } from '@/core/stores';
 
 const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const { updateTask, updateLoading, setActiveTask } = useTeamTasks();
+	const { updateTask, updateLoading } = useUpdateTask();
+	const { setActiveTask } = useTeamTasksState();
 	const t = useTranslations();
 	const handleChange = useCallback(async () => {
 		if (task) {

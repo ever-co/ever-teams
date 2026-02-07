@@ -1,7 +1,7 @@
 'use client';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
-import { useStatusValue, useSyncRef, useTeamTasks } from '@/core/hooks';
+import { useStatusValue, useSyncRef, useUpdateTask } from '@/core/hooks';
 import { ITag } from '@/core/types/interfaces/tag/tag';
 import { TStatus, IActiveTaskStatuses } from '@/core/types/interfaces/task/task-card';
 import { taskUpdateQueue } from '@/core/lib/utils/task.utils';
@@ -75,7 +75,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 	field: T
 ) {
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const { handleStatusUpdate } = useTeamTasks();
+	const { handleStatusUpdate } = useUpdateTask();
 	const taskLabels = useAtomValue(taskLabelsListState);
 
 	const taskStatuses = useAtomValue(taskStatusesState);

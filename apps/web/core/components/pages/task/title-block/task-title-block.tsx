@@ -1,4 +1,4 @@
-import { useModal, useTeamTasks } from '@/core/hooks';
+import { useModal, useUpdateTask } from '@/core/hooks';
 import { detailedTaskState } from '@/core/stores';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/core/components/common/hover-card';
 import { Button, CopyTooltip } from '@/core/components';
@@ -21,7 +21,7 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useFavoriteTasks } from '@/core/hooks/tasks/use-favorites-task';
 
 const TaskTitleBlock = () => {
-	const { updateTitle, updateLoading } = useTeamTasks();
+	const { updateTitle, updateLoading } = useUpdateTask();
 	const t = useTranslations();
 	const { toggleFavoriteTask, isFavoriteTask, addTaskToFavoriteLoading, deleteTaskFromFavoritesLoading } =
 		useFavoriteTasks();

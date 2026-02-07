@@ -1,4 +1,4 @@
-import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@/core/hooks';
+import { useTeamMemberCard, useTaskQueries, useTMCardTaskEdit } from '@/core/hooks';
 import { useEffect, useState } from 'react';
 import { TaskEstimateInfo } from '../../../team/team-members-views/user-team-card/task-estimate';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
@@ -15,7 +15,7 @@ export default function UserTeamActiveTaskEstimateBlock({
 	const [activeTask, setActiveTask] = useState<TTask | null | undefined>(null);
 	const taskEdition = useTMCardTaskEdit(activeTask);
 
-	const { getTaskById } = useTeamTasks();
+	const { getTaskById } = useTaskQueries();
 
 	useEffect(() => {
 		if (!activeTaskId) {

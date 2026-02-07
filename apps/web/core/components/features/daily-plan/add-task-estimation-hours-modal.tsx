@@ -3,7 +3,10 @@ import { useMemo, useCallback, useState, useEffect, useRef, Dispatch, SetStateAc
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useTranslations } from 'next-intl';
-import { useModal, useTeamTasks, useTimerView } from '@/core/hooks';
+import { useModal, useTimerView } from '@/core/hooks';
+import { useTeamTasksState } from '@/core/hooks/organizations/teams/use-team-tasks-state';
+import { useCreateTask } from '@/core/hooks/organizations/teams/use-create-task';
+import { useTaskQueries } from '@/core/hooks/organizations/teams/use-task-queries';
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
@@ -104,7 +107,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const timerStatus = useAtomValue(timerStatusState);
 	const { startTimer } = useTimerView();
 
-	const { setActiveTask } = useTeamTasks();
+	const { setActiveTask } = useTeamTasksState();
 	const [showSearchInput, setShowSearchInput] = useState(false);
 	const [workTimePlanned, setWorkTimePlanned] = useState<number>(plan?.workTimePlanned ?? 0);
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
@@ -673,7 +676,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 	} = props;
 
 	const teamTasks = useAtomValue(tasksByTeamState);
-	const { createTask } = useTeamTasks();
+	const { createTask } = useCreateTask();
 	const taskStatuses = useAtomValue(taskStatusesState);
 	const [taskName, setTaskName] = useState('');
 	const [tasks, setTasks] = useState<TTask[]>([]);
@@ -839,7 +842,7 @@ function TaskCard(props: ITaskCardProps) {
 		employeeId,
 		canEdit = true
 	} = props;
-	const { getTaskById } = useTeamTasks();
+	const { getTaskById } = useTaskQueries();
 	const { addTaskToPlan } = useUpdateDailyPlan();
 	const { createDailyPlan } = useCreateDailyPlan();
 	const { data: user } = useUserQuery();

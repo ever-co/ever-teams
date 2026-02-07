@@ -8,7 +8,7 @@ import { Worked24Hours } from './worked-24-hours';
 import { MemberInfo } from './member-info';
 import { TaskInfo } from './task-info';
 import { EstimateTimeInfo } from './estimate-time-info';
-import { useIsMemberManager, useTeamTasks } from '@/core/hooks/organizations';
+import { useIsMemberManager, useUpdateTask } from '@/core/hooks/organizations';
 import { useOutsideClick } from '@/core/hooks/common';
 import { MemberCardEditableValues } from '@/core/types/interfaces/organization/employee';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
@@ -29,7 +29,7 @@ const Card = ({ member }: { member: TOrganizationTeamEmployee }) => {
 
 	const { isTeamManager } = useIsMemberManager(user);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const { updateTask, updateLoading } = useTeamTasks();
+	const { updateTask, updateLoading } = useUpdateTask();
 	const isAuthUser = member.employee?.userId === user?.id;
 	const isManager = isAuthUser && isTeamManager;
 	const iuser = member.employee?.user;
