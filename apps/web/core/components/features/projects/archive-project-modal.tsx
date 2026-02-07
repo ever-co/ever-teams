@@ -1,4 +1,4 @@
-import { useOrganizationProjects, useTeamTasks } from '@/core/hooks';
+import { useOrganizationProjects, useUpdateTask } from '@/core/hooks';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
@@ -35,7 +35,7 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 	const { setOrganizationProjects, editOrganizationProject, editOrganizationProjectLoading } =
 		useOrganizationProjects();
 
-	const { updateTask } = useTeamTasks();
+	const { updateTask } = useUpdateTask();
 	const project = useMemo(
 		() => organizationProjects.find((project) => project.id === projectId),
 		[organizationProjects, projectId]
