@@ -86,8 +86,6 @@ export function useTeamTasksQuery() {
 					return task;
 				}) || [];
 
-			if (!processedTasks.length) return;
-
 			/**
 			 * When deepCheck enabled,
 			 * then update the tasks store only when active-team tasks have an update

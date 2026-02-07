@@ -53,31 +53,49 @@ export function useUpdateTask() {
 		mutationFn: async ({ taskId, taskData }: { taskId: string; taskData: Partial<TTask> }) => {
 			return await taskService.updateTask({ taskId, data: taskData });
 		},
-		onSuccess: (updatedTask, { taskId }) => {
-			queryClient.setQueryData(queryKeys.tasks.byTeam(activeTeam?.id), (oldTasks: PaginationResponse<TTask>) => {
-				if (!oldTasks) return oldTasks;
+		onMutate: async ({ taskId, taskData }) => {
+			// Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+			await queryClient.cancelQueries({ queryKey: queryKeys.tasks.byTeam(activeTeam?.id) });
 
-				const updatedItems = oldTasks?.items?.map((task) =>
-					task.id === taskId ? { ...task, ...updatedTask } : task
-				);
-
-				return updatedItems ? { items: updatedItems, total: updatedItems.length } : oldTasks;
-			});
-
-			// Sync the tasks store outside the updater
-			const currentTasks = queryClient.getQueryData<PaginationResponse<TTask>>(
+			// Snapshot the previous value
+			const previousTasks = queryClient.getQueryData<PaginationResponse<TTask>>(
 				queryKeys.tasks.byTeam(activeTeam?.id)
 			);
-			if (currentTasks?.items) {
-				setAllTasks(currentTasks.items);
+
+			// Optimistically update to the new value
+			if (previousTasks?.items) {
+				const optimisticTasksItems = previousTasks.items.map((task) =>
+					task.id === taskId ? { ...task, ...taskData } : task
+				);
+
+				const optimisticData = { ...previousTasks, items: optimisticTasksItems };
+
+				// 1. Update React Query Cache
+				queryClient.setQueryData(queryKeys.tasks.byTeam(activeTeam?.id), optimisticData);
+
+				// 2. Update Jotai State immediately (for instant UI feedback)
+				setAllTasks(optimisticTasksItems as TTask[]);
+
+				// 3. Update Detailed Task State if applicable
+				if (detailedTask?.id === taskId) {
+					setDetailedTask({ ...detailedTask, ...taskData } as TTask);
+				}
 			}
 
-			// Update detailed task state if this task is currently viewed
-			if (detailedTask?.id === taskId) {
-				setDetailedTask({ ...detailedTask, ...updatedTask });
-			}
+			return { previousTasks };
+		},
+		onError: (_err, _newTodo, context) => {
+			// Rollback to the previous value
+			if (context?.previousTasks) {
+				queryClient.setQueryData(queryKeys.tasks.byTeam(activeTeam?.id), context.previousTasks);
 
-			// Invalidate for cache consistency
+				if (context.previousTasks.items) {
+					setAllTasks(context.previousTasks.items);
+				}
+			}
+		},
+		onSettled: (data, error, { taskId }) => {
+			// Always refetch after error or success to ensure server consistency
 			invalidateTeamTasksData(taskId);
 		}
 	});
