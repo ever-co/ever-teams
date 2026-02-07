@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { calculateRemainingDays, formatDateString } from '@/core/lib/helpers/index';
-import { useSyncRef, useTeamTasks } from '@/core/hooks';
+import { calculateRemainingDays, formatDateString, getUserDisplayName } from '@/core/lib/helpers/index';
+import { useSyncRef, useUpdateTask } from '@/core/hooks';
 import { activeTeamState, detailedTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
@@ -56,11 +56,14 @@ const TaskMainInfo = () => {
 				<div className="flex flex-col gap-3">
 					{task?.members
 						?.filter((m) => m?.userId !== task?.createdByUserId)
-						?.map((member: any) => (
-							<Link key={member.id} title={member.fullName} href={`/profile/${member.userId}`}>
-								<ProfileInfo names={member.fullName} profilePicSrc={member.user?.imageUrl} />
-							</Link>
-						))}
+						?.map((member: any) => {
+							const memberName = getUserDisplayName(member);
+							return (
+								<Link key={member.id} title={memberName} href={`/profile/${member.userId}`}>
+									<ProfileInfo names={memberName} profilePicSrc={member.user?.imageUrl} />
+								</Link>
+							);
+						})}
 
 					<ManageMembersPopover memberList={activeTeam?.members || []} task={task} />
 				</div>
@@ -78,7 +81,7 @@ const DateCustomInput = forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
 DateCustomInput.displayName = 'DateCustomInput';
 
 function DueDates() {
-	const { updateTask } = useTeamTasks();
+	const { updateTask } = useUpdateTask();
 	const task = useAtomValue(detailedTaskState);
 	const t = useTranslations();
 	const [startDate, setStartDate] = useState<Date | null>(null);
@@ -148,7 +151,7 @@ function DueDates() {
 				/>
 				{task?.startDate ? (
 					<span
-						className="flex flex-row items-center justify-center text-xs border-0 cursor-pointer"
+						className="flex flex-row justify-center items-center text-xs border-0 cursor-pointer"
 						onClick={() => {
 							handleResetDate('startDate');
 						}}
@@ -198,7 +201,7 @@ function DueDates() {
 				/>
 				{task?.dueDate ? (
 					<span
-						className="flex flex-row items-center justify-center text-xs border-0 cursor-pointer"
+						className="flex flex-row justify-center items-center text-xs border-0 cursor-pointer"
 						onClick={() => {
 							handleResetDate('dueDate');
 						}}
@@ -302,7 +305,7 @@ const ManageMembersPopover: React.FC<ManageMembersPopoverProps> = ({ memberList,
 					</Transition>
 
 					<PopoverButton className="flex items-center w-auto h-8 outline-hidden hover:cursor-pointer">
-						<div className="flex items-center justify-center w-full px-2 py-0 text-black border border-gray-200 rounded-full cursor-pointer dark:text-white">
+						<div className="flex justify-center items-center px-2 py-0 w-full text-black rounded-full border border-gray-200 cursor-pointer dark:text-white">
 							<p className="font-semibold text-[0.625rem] leading-none m-[6px]">
 								{t('pages.settingsTeam.MANAGE_ASSIGNEES')}
 							</p>
