@@ -97,10 +97,15 @@ export function useTeamTasksState() {
 					const _task = tasksRef.current.find((t) => t.id === $memberActiveTaskId.current);
 
 					if (_task) {
-						await updateTask({
-							..._task,
-							members: _task.members?.filter((m) => m.id !== $user.current?.employee?.id)
-						});
+						try {
+							await updateTask({
+								..._task,
+								members: _task.members?.filter((m) => m.id !== $user.current?.employee?.id)
+							});
+						} catch (error) {
+							logErrorInDev('[setActiveTask] Failed to unassign previous task', error);
+							// Continue execution - do not block switching to new task
+						}
 					}
 				}
 

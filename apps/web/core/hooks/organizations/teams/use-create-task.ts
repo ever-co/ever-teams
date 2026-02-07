@@ -66,7 +66,7 @@ export function useCreateTask() {
 				const res = await createTaskMutation.mutateAsync({
 					title,
 					issueType,
-					status,
+					status: status ?? taskStatuses?.[0]?.name,
 					priority,
 					size,
 					tags,
