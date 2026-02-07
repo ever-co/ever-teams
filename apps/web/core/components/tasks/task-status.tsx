@@ -487,7 +487,7 @@ export function TaskStatus({
 	showIssueLabels,
 	bordered,
 	titleClassName,
-	cheched = false,
+	checked = false,
 	showIcon = true,
 	sidebarUI = false,
 	realName,
@@ -501,7 +501,7 @@ export function TaskStatus({
 			showIssueLabels?: boolean;
 			forDetails?: boolean;
 			titleClassName?: string;
-			cheched?: boolean;
+			checked?: boolean;
 			sidebarUI?: boolean;
 			value?: string;
 			isVersion?: boolean;
@@ -540,7 +540,7 @@ export function TaskStatus({
 					titleClassName
 				)}
 			>
-				{cheched ? (
+				{checked ? (
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						viewBox="0 0 24 24"
