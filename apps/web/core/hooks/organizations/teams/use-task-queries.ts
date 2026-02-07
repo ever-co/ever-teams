@@ -92,17 +92,22 @@ export function useTaskQueries() {
 					throw new Error('Required parameters missing : employeeId or organizationTeamId');
 				}
 
+				// Updates state for UI but fetches data independently
 				setSelectedEmployeeId(employeeId);
 				setSelectedOrganizationTeamId(organizationTeamId);
 
-				const res = await getTasksByEmployeeIdQuery.refetch();
-				return res.data;
+				return await queryClient.fetchQuery({
+					queryKey: queryKeys.tasks.byEmployee(employeeId, organizationTeamId),
+					queryFn: async () => {
+						return await taskService.getTasksByEmployeeId({ employeeId });
+					}
+				});
 			} catch (error) {
 				console.error('Error fetching tasks by employee ID:', error);
 				return [];
 			}
 		},
-		[getTasksByEmployeeIdQuery]
+		[queryClient]
 	);
 
 	return {

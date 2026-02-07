@@ -155,7 +155,12 @@ export function useTeamTasksState() {
 								'[setActiveTask] Failed to sync after retries - members may not be loaded',
 								null
 							);
-							expectedActiveTaskIdRef.current = null;
+
+							// Rollback on retry exhaustion
+							expectedActiveTaskIdRef.current = previousTaskId || null;
+							setActiveTaskIdCookie(previousTaskId || '');
+							setActiveTeamTask(previousTask);
+							setActiveUserTaskCookieCb(previousTask);
 						}
 
 						if (success) {
@@ -172,6 +177,7 @@ export function useTeamTasksState() {
 						toast.error('Failed to update active task', {
 							description: getErrorMessage(error)
 						});
+
 						// Rollback: restore previous state
 						expectedActiveTaskIdRef.current = previousTaskId || null;
 						setActiveTaskIdCookie(previousTaskId || '');

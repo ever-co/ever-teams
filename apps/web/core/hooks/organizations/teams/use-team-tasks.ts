@@ -157,6 +157,7 @@ export function useTeamTasks() {
 		gcTime: 1000 * 60 * 60
 	});
 
+	const { invalidateTeamTasksData } = useInvalidateTeamTasks();
 	// Mutations
 	const createTaskMutation = useMutation({
 		mutationFn: async (taskData: Parameters<typeof taskService.createTask>[0]) => {
@@ -206,8 +207,6 @@ export function useTeamTasks() {
 			invalidateTeamTasksData();
 		}
 	});
-
-	const { invalidateTeamTasksData } = useInvalidateTeamTasks();
 
 	// Deep update function
 	const deepCheckAndUpdateTasks = useCallback(

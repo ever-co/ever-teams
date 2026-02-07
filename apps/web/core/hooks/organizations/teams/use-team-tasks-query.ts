@@ -75,20 +75,25 @@ export function useTeamTasksQuery() {
 	// Deep update function for React Query → Jotai sync
 	const deepCheckAndUpdateTasks = useCallback(
 		(responseTasks: TTask[], deepCheck?: boolean) => {
-			if (responseTasks && responseTasks.length) {
-				responseTasks.forEach((task) => {
+			// Map to new objects if modification is needed to avoid mutating cache
+			const processedTasks =
+				responseTasks?.map((task) => {
 					if (task.tags && task.tags?.length) {
-						task.label = task.tags[0].name;
+						const _task = { ...task };
+						_task.label = task.tags[0].name;
+						return _task;
 					}
-				});
-			}
+					return task;
+				}) || [];
+
+			if (!processedTasks.length) return;
 
 			/**
 			 * When deepCheck enabled,
 			 * then update the tasks store only when active-team tasks have an update
 			 */
 			if (deepCheck) {
-				const latestActiveTeamTasks = responseTasks
+				const latestActiveTeamTasks = processedTasks
 					.filter((task) => {
 						return task.teams?.some((tm) => {
 							return tm.id === activeTeamRef.current?.id;
@@ -99,10 +104,10 @@ export function useTeamTasksQuery() {
 				const activeTeamTasks = tasksRef.current.slice().sort((a, b) => a.title.localeCompare(b.title));
 
 				if (!isEqual(latestActiveTeamTasks, activeTeamTasks)) {
-					setAllTasks(responseTasks);
+					setAllTasks(processedTasks);
 				}
 			} else {
-				setAllTasks(responseTasks);
+				setAllTasks(processedTasks);
 			}
 		},
 		[activeTeamRef, setAllTasks, tasksRef]
