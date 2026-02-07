@@ -3,7 +3,7 @@ import { Modal } from '@/core/components';
 import ScreenshotItem from './screenshot-item';
 import { useTranslations } from 'next-intl';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useTeamTasks } from '@/core/hooks';
+import { useTaskQueries } from '@/core/hooks';
 import Image from 'next/image';
 import { cn } from '@/core/lib/helpers';
 import { ProgressBar } from '@/core/components/duplicated-components/_progress-bar';
@@ -44,7 +44,7 @@ const ScreenshotDetailsModal = ({
 	const [task, setTask] = useState<TTask | null>(null);
 	const organizationProjects = useAtomValue(organizationProjectsState);
 
-	const { getTaskById } = useTeamTasks();
+	const { getTaskById } = useTaskQueries();
 
 	const getProject = useCallback(
 		async (projectId: string) => {

@@ -1,4 +1,4 @@
-import { useAuthenticateUser, useModal, useTeamMemberCard, useTeamTasks } from '@/core/hooks';
+import { useAuthenticateUser, useModal, useTeamMemberCard, useCreateTask } from '@/core/hooks';
 import { activeTeamState, activeTeamTaskId, taskStatusesState } from '@/core/stores';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
@@ -19,7 +19,7 @@ import { CreateDailyPlanFormModal } from '../../features/daily-plan/create-daily
 export default function MenuKanbanCard({ item: task, member }: { item: TTask; member: any }) {
 	const t = useTranslations();
 	const setActiveTask = useSetAtom(activeTeamTaskId);
-	const { createTask, createLoading } = useTeamTasks();
+	const { createTask, createLoading } = useCreateTask();
 	const { assignTask, unassignTask, assignTaskLoading, unAssignTaskLoading } = useTeamMemberCard(member);
 	const taskStatuses = useAtomValue(taskStatusesState);
 	const { closeModal, isOpen, openModal } = useModal();
