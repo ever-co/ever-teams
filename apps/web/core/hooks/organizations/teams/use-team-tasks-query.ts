@@ -125,7 +125,7 @@ export function useTeamTasksQuery() {
 				return null;
 			}
 		},
-		[teamTasksQuery, deepCheckAndUpdateTasks, user, activeTeamRef]
+		[teamTasksQuery.isLoading, teamTasksQuery.refetch, deepCheckAndUpdateTasks, user, activeTeamRef]
 	);
 
 	const { invalidateTeamTasksData } = useInvalidateTeamTasks();

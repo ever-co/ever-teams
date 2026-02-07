@@ -17,6 +17,7 @@ import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
+import { useTaskQueries } from './use-task-queries';
 
 /**
  * Hook for updating team tasks (UPDATE operations only).
@@ -45,6 +46,8 @@ export function useUpdateTask() {
 
 	const { invalidateTeamTasksData } = useInvalidateTeamTasks();
 
+	const { getTaskById } = useTaskQueries();
+
 	// Update mutation
 	const updateTaskMutation = useMutation({
 		mutationFn: async ({ taskId, taskData }: { taskId: string; taskData: Partial<TTask> }) => {
@@ -58,11 +61,16 @@ export function useUpdateTask() {
 					task.id === taskId ? { ...task, ...updatedTask } : task
 				);
 
-				// Sync the tasks store
-				setAllTasks(updatedItems);
-
 				return updatedItems ? { items: updatedItems, total: updatedItems.length } : oldTasks;
 			});
+
+			// Sync the tasks store outside the updater
+			const currentTasks = queryClient.getQueryData<PaginationResponse<TTask>>(
+				queryKeys.tasks.byTeam(activeTeam?.id)
+			);
+			if (currentTasks?.items) {
+				setAllTasks(currentTasks.items);
+			}
 
 			// Update detailed task state if this task is currently viewed
 			if (detailedTask?.id === taskId) {
@@ -81,9 +89,16 @@ export function useUpdateTask() {
 					taskId: task.id,
 					taskData: task
 				});
+
 				setActive({
 					id: ''
 				});
+
+				// Legacy behavior restoration: Refetch detailed task to ensure server-side computed fields (like logs, computed dates) are fresh.
+				// Added safety check: only refetch if we are actually viewing THIS task (prevents legacy "hijack" bug).
+				if (detailedTask?.id === task.id) {
+					await getTaskById(task.id);
+				}
 
 				return res;
 			} catch (error) {
@@ -91,7 +106,7 @@ export function useUpdateTask() {
 				throw error;
 			}
 		},
-		[updateTaskMutation, setActive]
+		[updateTaskMutation, setActive, detailedTask, getTaskById]
 	);
 
 	const updateTitle = useCallback(
@@ -111,7 +126,7 @@ export function useUpdateTask() {
 					title: newTitle
 				});
 				if (isDetailedTask) {
-					setDetailedTask(res);
+					setDetailedTask((current) => (current ? { ...current, ...res } : current));
 				}
 				return res;
 			}
@@ -137,7 +152,7 @@ export function useUpdateTask() {
 					description: newDescription
 				});
 				if (isDetailedTask) {
-					setDetailedTask(res);
+					setDetailedTask((current) => (current ? { ...current, ...res } : current));
 				}
 				return res;
 			}
@@ -163,16 +178,20 @@ export function useUpdateTask() {
 					public: publicity
 				});
 				if (isDetailedTask) {
-					setDetailedTask({
-						...detailedTask,
-						public: res.public
-					} as TTask);
+					setDetailedTask((current) =>
+						current
+							? ({
+									...current,
+									public: res.public
+								} as TTask)
+							: current
+					);
 				}
 				return res;
 			}
 			return undefined;
 		},
-		[updateTask, setDetailedTask, detailedTask]
+		[updateTask, setDetailedTask]
 	);
 
 	const handleStatusUpdate = useCallback(

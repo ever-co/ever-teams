@@ -22,7 +22,8 @@ export default function UserTeamActiveTaskTimes({
 		if (!member.activeTaskId) {
 			return;
 		}
-		getTaskById(member.activeTaskId)
+		// Pass false to prevent updating global state (which causes race conditions in lists)
+		getTaskById(member.activeTaskId, false)
 			.then((response) => setActiveTask(response as TTask))
 			.catch((_) => console.log(_));
 

@@ -61,17 +61,21 @@ export function useTaskQueries() {
 	});
 
 	const getTaskById = useCallback(
-		async (taskId: string) => {
+		async (taskId: string, updateState = true) => {
 			// First check local tasks
-			tasksRef.current.forEach((task) => {
-				if (task.id === taskId) {
-					setDetailedTask(task);
-				}
-			});
+			if (updateState) {
+				tasksRef.current.forEach((task) => {
+					if (task.id === taskId) {
+						setDetailedTask(task);
+					}
+				});
+			}
 
 			try {
 				const res = await getTaskByIdQuery(taskId);
-				setDetailedTask(res || null);
+				if (updateState) {
+					setDetailedTask(res || null);
+				}
 				return res;
 			} catch (error) {
 				console.error('Error fetching task by ID:', error);
