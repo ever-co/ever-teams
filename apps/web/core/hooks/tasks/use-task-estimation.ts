@@ -2,7 +2,7 @@
 
 import { pad, secondsToTime } from '@/core/lib/helpers/index';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { useTeamTasks } from '../organizations';
+import { useUpdateTask, useTeamTasksQuery } from '../organizations';
 import { useOutsideClick } from '../common';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -11,7 +11,8 @@ import { activeTeamTaskState } from '@/core/stores';
 
 export function useTaskEstimation(task?: Nullable<TTask>, useActiveTeamTaskByDefault = true) {
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const { updateTask, updateLoading, activeTeamId } = useTeamTasks();
+	const { updateTask, updateLoading } = useUpdateTask();
+	const { activeTeamId } = useTeamTasksQuery();
 	const [editableMode, setEditableMode] = useState(false);
 	const [value, setValue] = useState({ hours: '', minutes: '' });
 	const editMode = useRef(false);

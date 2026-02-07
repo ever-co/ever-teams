@@ -26,7 +26,7 @@ import isEqual from 'lodash/isEqual';
 import moment from 'moment';
 import { usePathname } from 'next/navigation';
 import { timerService } from '@/core/services/client/api/timers';
-import { useOrganizationEmployeeTeams, useTeamTasks } from '../organizations';
+import { useOrganizationEmployeeTeams, useUpdateTask, useTeamTasksState } from '../organizations';
 import { useAuthenticateUser } from '../auth';
 import { useRefreshIntervalV2 } from '../common';
 import { useTimerPolling } from './use-timer-polling';
@@ -210,7 +210,8 @@ export function useTimer() {
 	const lastActiveTask = useRef<TTask | null>(null);
 	// Track last stopTimer call to prevent duplicate calls within short time window
 	const lastStopTimerTimestamp = useRef<number>(0);
-	const { updateTask, setActiveTask, isUpdatingActiveTask } = useTeamTasks();
+	const { updateTask } = useUpdateTask();
+	const { setActiveTask, isUpdatingActiveTask } = useTeamTasksState();
 	const t = useTranslations();
 
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();

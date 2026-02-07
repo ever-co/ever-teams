@@ -4,7 +4,7 @@ import { activeTeamTaskState, memberActiveTaskIdState, taskStatusesState } from 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useModal, useSyncRef } from '../common';
-import { useTeamTasks } from '../organizations';
+import { useTeamTasksQuery, useTeamTasksState, useCreateTask, useUpdateTask } from '../organizations';
 import { useAuthenticateUser } from '../auth';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTag } from '@/core/types/schemas';
@@ -41,15 +41,10 @@ export function useTaskInput({
 	const taskStatusList = useAtomValue(taskStatusesState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
-	const {
-		tasks: teamTasks,
-		setActiveTask,
-		createLoading,
-		tasksFetching,
-		updateLoading,
-		createTask,
-		updateTask
-	} = useTeamTasks();
+	const { tasks: teamTasks, tasksFetching } = useTeamTasksQuery();
+	const { setActiveTask } = useTeamTasksState();
+	const { createTask, createLoading } = useCreateTask();
+	const { updateTask, updateLoading } = useUpdateTask();
 
 	const { user } = useAuthenticateUser();
 	const userRef = useSyncRef(user);
