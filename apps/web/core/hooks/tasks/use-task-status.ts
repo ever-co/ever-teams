@@ -193,6 +193,7 @@ export function useStatusValue<T extends ITaskStatusField>({
 
 	const [value, setValue] = useState<ITaskStatusStack[T] | undefined>($value);
 	const [values, setValues] = useState<ITaskStatusStack[T][]>(defaultValues);
+	const valuesRef = useSyncRef(values);
 	// Use external value ($value) for immediate UI updates, fallback to internal state (value)
 	const effectiveValue = $value !== undefined ? $value : value;
 	const item: TStatusItem | undefined = useMemo(
@@ -215,22 +216,20 @@ export function useStatusValue<T extends ITaskStatusField>({
 	const onChange = useCallback(
 		(value: ITaskStatusStack[T]) => {
 			if (multipleRef.current) {
-				setValues((prevValues) => {
-					const newValues =
-						typeof value === 'string'
-							? prevValues.includes(value)
-								? prevValues.filter((v) => v !== value)
-								: [...prevValues, value]
-							: Array.isArray(value)
-								? value
-								: [value];
-
-					onValueChangeRef.current?.(value, newValues);
-					return newValues;
-				});
+				const prevValues = valuesRef.current;
+				const newValues =
+					typeof value === 'string'
+						? prevValues.includes(value)
+							? prevValues.filter((v) => v !== value)
+							: [...prevValues, value]
+						: Array.isArray(value)
+							? value
+							: [value];
+				setValues(newValues);
+				onValueChangeRef?.current?.(value, newValues);
 			} else {
 				setValue(value);
-				onValueChangeRef.current?.(value, [value]);
+				onValueChangeRef?.current?.(value, [value]);
 			}
 		},
 		[onValueChangeRef, multipleRef]

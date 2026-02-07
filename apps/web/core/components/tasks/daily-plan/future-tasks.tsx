@@ -8,7 +8,11 @@ import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
 import { useMemo } from 'react';
-import { filterDailyPlan, filterDailyPlansByEmployee } from '@/core/hooks/daily-plans/use-filter-date-range';
+import {
+	filterDailyPlan,
+	filterDailyPlansByEmployee,
+	filterDailyPlansByTasks
+} from '@/core/hooks/daily-plans/use-filter-date-range';
 import { TUser } from '@/core/types/schemas';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
@@ -20,12 +24,14 @@ export function FutureTasks({
 	profile,
 	user,
 	employeeId,
-	filterByEmployee = false
+	filterByEmployee = false,
+	filteredTaskIds
 }: {
 	profile: any;
 	user?: TUser;
 	employeeId?: string; // Accept employeeId directly from parent
 	filterByEmployee?: boolean; // Filter tasks by employee (default: false = show all tasks)
+	filteredTaskIds?: string[]; // Filter plans by taskIds (default undefined = show all)
 }) {
 	// Use employeeId from props if provided, otherwise calculate from user
 	const targetEmployeeId = employeeId ?? user?.employee?.id ?? user?.employeeId ?? '';
@@ -46,8 +52,12 @@ export function FutureTasks({
 			filteredData = filterDailyPlansByEmployee(filteredData, user);
 		}
 
+		if (filteredTaskIds && filteredData) {
+			filteredData = filterDailyPlansByTasks(filteredData, filteredTaskIds);
+		}
+
 		return filteredData;
-	}, [date, employeeFuturePlans, user, filterByEmployee]);
+	}, [date, employeeFuturePlans, user, filterByEmployee, filteredTaskIds]);
 
 	if (!futureDailyPlanTasks) return null;
 	return (

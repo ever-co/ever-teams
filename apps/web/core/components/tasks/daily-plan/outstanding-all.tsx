@@ -11,13 +11,15 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { handleDragAndDropDailyOutstandingAll } from '@/core/lib/helpers/index';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { filterDailyPlansByTasks } from '@/core/hooks';
 
 interface OutstandingAllProps {
 	profile: any;
 	user?: TUser;
 	outstandingPlans: TDailyPlan[];
+	filteredTaskIds?: string[]; // Filter plans by taskIds (default undefined = show all)
 }
-export function OutstandingAll({ profile, user, outstandingPlans }: OutstandingAllProps) {
+export function OutstandingAll({ profile, user, outstandingPlans, filteredTaskIds }: OutstandingAllProps) {
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 
 	// Memoized user filter function for performance
@@ -32,17 +34,31 @@ export function OutstandingAll({ profile, user, outstandingPlans }: OutstandingA
 		[user?.id]
 	);
 
+	// Create filtered plans for TaskEstimatedCount to match the displayed tasks
+	// ALWAYS filter by user if user exists (same logic as uniqueTasks)
+	const filteredPlans = useMemo(() => {
+		let filteredData = outstandingPlans;
+
+		if (filteredTaskIds && filteredData) {
+			filteredData = filterDailyPlansByTasks(filteredData, filteredTaskIds);
+		}
+
+		return filteredData
+			.map((plan) => ({
+				...plan,
+				tasks: user ? filterTasksByUser(plan.tasks ?? []) : plan.tasks
+			}))
+			.filter((plan) => plan.tasks && plan.tasks.length > 0);
+	}, [outstandingPlans, filterTasksByUser, user, filteredTaskIds]);
+
 	// Memoized task deduplication to prevent unnecessary recalculations
 	// This fixes the bug where duplicate tasks caused count/display mismatch
 	const uniqueTasks = useMemo(() => {
 		// Early return for empty data to avoid unnecessary processing
-		if (!outstandingPlans.length) return [];
+		if (!filteredPlans.length) return [];
 
-		// ALWAYS filter by user if user exists (original behavior before filterByEmployee flag)
-		// This is intentional for privacy/security in the Outstanding view
-		const allTasks = outstandingPlans.flatMap((plan) => {
-			const tasks = plan.tasks ?? [];
-			return user ? filterTasksByUser(tasks) : tasks;
+		const allTasks = filteredPlans.flatMap((plan) => {
+			return plan.tasks ?? [];
 		});
 
 		// Use Map for deduplication by task ID to handle large datasets efficiently
@@ -54,7 +70,7 @@ export function OutstandingAll({ profile, user, outstandingPlans }: OutstandingA
 		});
 
 		return Array.from(taskMap.values());
-	}, [outstandingPlans, filterTasksByUser]);
+	}, [filteredPlans, filterTasksByUser]);
 
 	// State for drag & drop functionality only
 	const [dragTasks, setDragTasks] = useState<TTask[]>(uniqueTasks);
@@ -64,20 +80,9 @@ export function OutstandingAll({ profile, user, outstandingPlans }: OutstandingA
 		setDragTasks(uniqueTasks);
 	}, [uniqueTasks]);
 
-	// Create filtered plans for TaskEstimatedCount to match the displayed tasks
-	// ALWAYS filter by user if user exists (same logic as uniqueTasks)
-	const filteredPlansForCount = useMemo(() => {
-		return outstandingPlans
-			.map((plan) => ({
-				...plan,
-				tasks: user ? filterTasksByUser(plan.tasks ?? []) : plan.tasks
-			}))
-			.filter((plan) => plan.tasks && plan.tasks.length > 0);
-	}, [outstandingPlans, filterTasksByUser, user]);
-
 	return (
 		<div className="flex flex-col gap-6">
-			<TaskEstimatedCount outstandingPlans={filteredPlansForCount} />
+			<TaskEstimatedCount outstandingPlans={filteredPlans} />
 
 			{uniqueTasks.length > 0 ? (
 				<>

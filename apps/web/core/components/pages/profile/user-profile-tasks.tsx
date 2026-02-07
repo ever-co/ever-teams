@@ -176,7 +176,9 @@ export const UserProfileTask = memo(
 						<LazyActivityCalendar />
 					</Suspense>
 				)}
-				{tabFiltered.tab === 'dailyplan' && <UserProfilePlans user={user} employeeId={employeeId} />}
+				{tabFiltered.tab === 'dailyplan' && (
+					<UserProfilePlans filteredTasks={otherTasks} user={user} employeeId={employeeId} />
+				)}
 
 				{tabFiltered.tab === 'worked' && otherTasks.length > 0 && (
 					<div className="flex items-center my-6 space-x-2">
