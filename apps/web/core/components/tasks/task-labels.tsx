@@ -1,6 +1,6 @@
 'use client';
 
-import { useModal, useSyncRef, useTeamTasks } from '@/core/hooks';
+import { useModal, useSyncRef, useUpdateTask } from '@/core/hooks';
 import { Button, Modal } from '@/core/components';
 import { TaskLabelsDropdown } from '@/core/components/tasks/task-status';
 import { debounce, isEqual } from 'lodash';
@@ -24,7 +24,7 @@ type Props = {
 };
 export function TaskLabels({ task, className, forDetails, taskStatusClassName, onValueChange }: Props) {
 	const $task = useSyncRef(task);
-	const { updateTask } = useTeamTasks();
+	const { updateTask } = useUpdateTask();
 	const taskLabels = useAtomValue(taskLabelsListState);
 	const modal = useModal();
 	const latestLabels = useRef<string[]>([]);

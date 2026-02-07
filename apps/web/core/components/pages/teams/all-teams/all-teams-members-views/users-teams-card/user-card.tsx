@@ -6,7 +6,7 @@ import UserTeamActiveTaskInfo from './user-team-active-task';
 import UserTeamActiveTaskTimes from './user-team-active-task-times';
 import UserTeamActiveTaskEstimate from './user-team-task-estimate';
 import UserTeamActiveTaskTodayWorked from './user-team-today-worked';
-import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@/core/hooks';
+import { useTeamMemberCard, useTaskQueries, useTMCardTaskEdit } from '@/core/hooks';
 import { useEffect, useState } from 'react';
 import { UserTeamCardMenu } from '../../../team/team-members-views/user-team-card/user-team-card-menu';
 import { EverCard } from '@/core/components/common/ever-card';
@@ -85,7 +85,7 @@ function UserActiveTaskMenu({ member }: { member: TOrganizationTeamEmployee }) {
 	const [activeTask, setActiveTask] = useState<TTask | null | undefined>(null);
 	const taskEdition = useTMCardTaskEdit(activeTask);
 
-	const { getTaskById } = useTeamTasks();
+	const { getTaskById } = useTaskQueries();
 
 	useEffect(() => {
 		if (!member.activeTaskId) {

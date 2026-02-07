@@ -6,13 +6,13 @@ import { CheckIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from 'next-intl';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useOutsideClick } from '@/core/hooks/common';
-import { useTeamTasks } from '@/core/hooks/organizations';
+import { useUpdateTask } from '@/core/hooks/organizations';
 import { useAtomValue } from 'jotai';
 import { activeTeamTaskState } from '@/core/stores';
 
 export function EstimateTime() {
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const { updateTask, updateLoading } = useTeamTasks();
+	const { updateTask, updateLoading } = useUpdateTask();
 	const [editableMode, setEditableMode] = useState(false);
 	const [value, setValue] = useState({ hours: '', minutes: '' });
 	const editMode = useRef(false);
