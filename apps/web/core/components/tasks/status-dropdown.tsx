@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Spinner } from '../common/spinner';
 import { StatusIcon, statusIcons } from './status-icons';
 import { useTranslations } from 'next-intl';
-import { useTeamTasks } from '@/core/hooks/organizations';
+import { useUpdateTask } from '@/core/hooks/organizations';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
 import { activeTeamTaskState } from '@/core/stores';
@@ -19,7 +19,7 @@ const StatusDropdown = () => {
 };
 
 export function RawStatusDropdown({ task }: { task: TTask | null }) {
-	const { updateTask, updateLoading } = useTeamTasks();
+	const { updateTask, updateLoading } = useUpdateTask();
 	const t = useTranslations();
 	const [selected, setSelected] = useState<ETaskStatusName | null>(task?.status || null);
 
