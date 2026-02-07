@@ -34,41 +34,9 @@ export function OutstandingAll({ profile, user, outstandingPlans, filteredTaskId
 		[user?.id]
 	);
 
-	// Memoized task deduplication to prevent unnecessary recalculations
-	// This fixes the bug where duplicate tasks caused count/display mismatch
-	const uniqueTasks = useMemo(() => {
-		// Early return for empty data to avoid unnecessary processing
-		if (!outstandingPlans.length) return [];
-
-		// ALWAYS filter by user if user exists (original behavior before filterByEmployee flag)
-		// This is intentional for privacy/security in the Outstanding view
-		const allTasks = outstandingPlans.flatMap((plan) => {
-			const tasks = plan.tasks ?? [];
-			return user ? filterTasksByUser(tasks) : tasks;
-		});
-
-		// Use Map for deduplication by task ID to handle large datasets efficiently
-		const taskMap = new Map<string, TTask>();
-		allTasks.forEach((task) => {
-			if (task?.id && !taskMap.has(task.id)) {
-				taskMap.set(task.id, task);
-			}
-		});
-
-		return Array.from(taskMap.values());
-	}, [outstandingPlans, filterTasksByUser]);
-
-	// State for drag & drop functionality only
-	const [dragTasks, setDragTasks] = useState<TTask[]>(uniqueTasks);
-
-	// Sync drag state only when source data changes
-	useEffect(() => {
-		setDragTasks(uniqueTasks);
-	}, [uniqueTasks]);
-
 	// Create filtered plans for TaskEstimatedCount to match the displayed tasks
 	// ALWAYS filter by user if user exists (same logic as uniqueTasks)
-	const filteredPlansForCount = useMemo(() => {
+	const filteredPlans = useMemo(() => {
 		let filteredData = outstandingPlans;
 
 		if (filteredTaskIds && filteredData) {
@@ -81,11 +49,40 @@ export function OutstandingAll({ profile, user, outstandingPlans, filteredTaskId
 				tasks: user ? filterTasksByUser(plan.tasks ?? []) : plan.tasks
 			}))
 			.filter((plan) => plan.tasks && plan.tasks.length > 0);
-	}, [outstandingPlans, filterTasksByUser, user]);
+	}, [outstandingPlans, filterTasksByUser, user, filteredTaskIds]);
+
+	// Memoized task deduplication to prevent unnecessary recalculations
+	// This fixes the bug where duplicate tasks caused count/display mismatch
+	const uniqueTasks = useMemo(() => {
+		// Early return for empty data to avoid unnecessary processing
+		if (!filteredPlans.length) return [];
+
+		const allTasks = filteredPlans.flatMap((plan) => {
+			return plan.tasks ?? [];
+		});
+
+		// Use Map for deduplication by task ID to handle large datasets efficiently
+		const taskMap = new Map<string, TTask>();
+		allTasks.forEach((task) => {
+			if (task?.id && !taskMap.has(task.id)) {
+				taskMap.set(task.id, task);
+			}
+		});
+
+		return Array.from(taskMap.values());
+	}, [filteredPlans, filterTasksByUser]);
+
+	// State for drag & drop functionality only
+	const [dragTasks, setDragTasks] = useState<TTask[]>(uniqueTasks);
+
+	// Sync drag state only when source data changes
+	useEffect(() => {
+		setDragTasks(uniqueTasks);
+	}, [uniqueTasks]);
 
 	return (
 		<div className="flex flex-col gap-6">
-			<TaskEstimatedCount outstandingPlans={filteredPlansForCount} />
+			<TaskEstimatedCount outstandingPlans={filteredPlans} />
 
 			{uniqueTasks.length > 0 ? (
 				<>
