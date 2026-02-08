@@ -266,13 +266,13 @@ function SelectComponent<T extends Identifiable, IsMulti extends boolean = false
 										{renderItem ? (
 											renderItem(
 												item,
-												isMulti ? (selected as string[]).includes(item.id) : selected === item.id,
+												isMulti ? (selected as string[]).includes(item?.id) : selected === item?.id,
 												false
 											)
 										) : isMulti ? (
 											<>
 												<Checkbox
-													checked={(selected as string[]).includes(item.id)}
+													checked={(selected as string[]).includes(item?.id)}
 													className="w-4 h-4 dark:border-white/20"
 												/>
 												<span className="capitalize dark:text-white">{item?.value ?? '-'}</span>
