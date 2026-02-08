@@ -409,12 +409,13 @@ export default function BasicInformationForm(props: IStepElementProps) {
 											</span>
 										</p>
 									</div>
-									<input
-										onChange={handleProjectImageFileChange}
-										id="dropzone-file"
-										type="file"
-										className="hidden"
-									/>
+								<input
+									onChange={handleProjectImageFileChange}
+									id="dropzone-file"
+									type="file"
+									accept="image/jpeg,image/png"
+									className="hidden"
+								/>
 								</label>
 							</div>
 							{errors?.get('projectImage') && (

@@ -124,8 +124,18 @@ export default function FinalReview(props: IStepElementProps) {
 		status: (finalData?.status as ETaskStatusName) ?? ETaskStatusName.OPEN,
 		isActive: finalData?.isActive ?? true,
 		isArchived: finalData?.isArchived ?? false,
-		isTasksAutoSync: finalData?.isTasksAutoSync ?? true,
-		isTasksAutoSyncOnLabel: finalData?.isTasksAutoSyncOnLabel ?? true
+		// In create mode default to true; in edit mode only include when explicitly set to preserve API values
+		...(mode === 'create'
+			? {
+					isTasksAutoSync: finalData?.isTasksAutoSync ?? true,
+					isTasksAutoSyncOnLabel: finalData?.isTasksAutoSyncOnLabel ?? true
+				}
+			: {
+					...(finalData?.isTasksAutoSync !== undefined && { isTasksAutoSync: finalData.isTasksAutoSync }),
+					...(finalData?.isTasksAutoSyncOnLabel !== undefined && {
+						isTasksAutoSyncOnLabel: finalData.isTasksAutoSyncOnLabel
+					})
+				})
 	};
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

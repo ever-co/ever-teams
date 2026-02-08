@@ -1,6 +1,16 @@
 /**
  * HTML Sanitizer for rich text content
  * Provides XSS protection by allowing only safe HTML tags and attributes
+ *
+ * Expected behavior (specification for tests / audits):
+ * - Event handlers: onclick, onload, onerror, onmouseover, etc. are stripped (only "class" is in ALLOWED_ATTRIBUTES).
+ * - javascript: and data: URLs: removed by tag allowlist; <a>, <img>, <iframe> etc. are not allowed and are unwrapped (content kept, tag and attributes removed).
+ * - Dangerous tags: <script>, <iframe>, <object>, <embed>, etc. are removed (unwrapped); nested or obfuscated (e.g. <ScRiPt>) are normalized to lowercase and stripped.
+ * - Nested exploits: allowed tags (p, strong, span, …) keep only the class attribute; malicious attributes (onclick, style, href, …) are removed.
+ * - Inline style: style attribute is not in ALLOWED_ATTRIBUTES and is removed.
+ * - Class attribute: allowlisted and preserved; attribute values are not validated (no allowlist of class names).
+ * - SSR path: when DOMParser is undefined (Node/SSR), sanitizeHtml falls back to escapeHtml(html), escaping & < > " ' so behavior is consistent and safe across environments.
+ * - Comments: HTML comments are removed.
  */
 
 // Allowlist of safe tags for rich text content
