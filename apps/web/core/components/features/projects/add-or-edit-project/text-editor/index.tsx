@@ -2,8 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Editor, createEditor, Descendant } from 'slate';
 import { withHistory } from 'slate-history';
 import { Editable, withReact, Slate } from 'slate-react';
+import { htmlToSlate } from 'slate-serializers';
 import { Bold, Italic, Underline, Code } from 'lucide-react';
 import { cn } from '@/core/lib/helpers';
+import { isHtml } from '@/core/lib/helpers/text-editor-service';
+import { configHtmlToSlate } from '@/core/lib/helpers/text-editor-serializer-configurations';
 
 interface IRichTextProps {
 	defaultValue?: string;
@@ -17,15 +20,34 @@ const countWords = (text: string) => {
 	return text.trim().split(/\s+/).filter((word) => word.length > 0).length;
 };
 
+const EMPTY_PARAGRAPH: Descendant[] = [{ type: 'paragraph', children: [{ text: '' }] }] as unknown as Descendant[];
+
+const slateValueToText = (nodes: Descendant[]): string => {
+	return nodes
+		.map((n) => {
+			if (n && typeof n === 'object' && 'text' in n) return (n as { text: string }).text;
+			if (n && typeof n === 'object' && 'children' in n) return slateValueToText((n as { children: Descendant[] }).children);
+			return '';
+		})
+		.join('');
+};
+
+const getInitialEditorValue = (defaultValue: string | undefined): Descendant[] => {
+	if (!defaultValue?.trim()) return EMPTY_PARAGRAPH;
+	if (isHtml(defaultValue)) {
+		const slateNodes = htmlToSlate(defaultValue, configHtmlToSlate) as unknown as Descendant[];
+		return Array.isArray(slateNodes) && slateNodes.length > 0 ? slateNodes : EMPTY_PARAGRAPH;
+	}
+	return [{ type: 'paragraph', children: [{ text: defaultValue }] }] as unknown as Descendant[];
+};
+
 const RichTextEditor = ({ readonly = false, onChange, defaultValue, onValidityChange }: IRichTextProps) => {
 	const editor = useMemo(() => withHistory(withReact(createEditor())), []);
-	const [editorValue, setEditorValue] = useState<Descendant[]>(
-		defaultValue
-			? // @ts-ignore
-				[{ type: 'paragraph', children: [{ text: defaultValue }] }]
-			: [{ type: 'paragraph', children: [{ text: '' }] }]
+	const initialValue = useMemo(() => getInitialEditorValue(defaultValue), [defaultValue]);
+	const [editorValue, setEditorValue] = useState<Descendant[]>(initialValue);
+	const [wordCount, setWordCount] = useState(() =>
+		defaultValue ? countWords(isHtml(defaultValue) ? slateValueToText(initialValue) : defaultValue) : 0
 	);
-	const [wordCount, setWordCount] = useState(() => (defaultValue ? countWords(defaultValue) : 0));
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	// Notify parent of initial validity on mount
@@ -66,7 +88,6 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue, onValidityCh
 					<ToolbarButton onClick={() => toggleMark('code')} icon={<Code size={14} />} />
 				</div>
 			)}
-			{/* @ts-ignore */}
 			<Slate
 				editor={editor}
 				value={editorValue}
@@ -100,7 +121,6 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue, onValidityCh
 					}
 				}}
 			>
-				{/* @ts-ignore */}
 				<Editable
 					className="p-2 min-h-[5rem] max-h-[15rem] outline-none overflow-y-auto"
 					placeholder="Insert description here..."
@@ -118,7 +138,14 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue, onValidityCh
 };
 
 const ToolbarButton = ({ onClick, icon }: { onClick: () => void; icon: React.ReactNode }) => (
-	<button className=" hover:bg-primary/5 rounded-sm h-fit px-2 py-1  text-[.5rem] font-light" onClick={onClick}>
+	<button
+		type="button"
+		className=" hover:bg-primary/5 rounded-sm h-fit px-2 py-1  text-[.5rem] font-light"
+		onMouseDown={(e) => {
+			e.preventDefault();
+			onClick();
+		}}
+	>
 		{icon}
 	</button>
 );

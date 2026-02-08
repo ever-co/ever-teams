@@ -10,7 +10,6 @@ import { useTranslations } from 'next-intl';
 import {
 	AlignQuoteIcon,
 	CodeIcon as CodeBlockIcon,
-	ExternalLinkIcon,
 	LinkRoundIcon,
 	AlignCenterIcon,
 	AlignLeftIcon,
@@ -56,29 +55,6 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 	const inputRef = useRef<any>(null);
 	const dropdownRef = useRef<any>(null);
 	const emojiRef = useRef<any>(null);
-
-	// const handleLinkIconClick = () => {
-	// 	const selection = editor.selection;
-	// 	if (selection) {
-	// 		const domSelection = window.getSelection();
-	// 		const editorContainer = document.getElementById('editor-container');
-	// 		if (
-	// 			domSelection &&
-	// 			domSelection.rangeCount > 0 &&
-	// 			editorContainer &&
-	// 			editorContainer.contains(domSelection.anchorNode) &&
-	// 			editorContainer.contains(domSelection.focusNode)
-	// 		) {
-	// 			const range = domSelection.getRangeAt(0);
-	// 			const rect = range.getBoundingClientRect();
-	// 			setLinkPopupPosition({
-	// 				left: rect.left + window.pageXOffset,
-	// 				top: rect.bottom + window.pageYOffset,
-	// 			});
-	// 		}
-	// 	}
-	// 	setShowLinkPopup(true);
-	// };
 
 	useEffect(() => {
 		if (showLinkPopup) {
@@ -354,35 +330,13 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 						onChange={(e) => setLink(e.target.value)}
 						value={link}
 						ref={inputRef}
+						onKeyDown={handleInsertLinkOnEnter}
 					/>
 					<Button onClick={handleInsertLink} variant="ghost" className="h-10 min-w-0">
 						<LinkRoundIcon className="h-5 w-5" />
 					</Button>
 				</PopoverContent>
 			</Popover>
-			{showLinkPopup && ( // this block of code is not working because onclick function is commented out
-				<div
-					onKeyDown={handleInsertLinkOnEnter}
-					ref={popupRef}
-					className="absolute flex items-center bg-white dark:bg-dark--theme-light p-2 gap-1 rounded-md border border-gray-300 dark:border-[#7B8089] z-10"
-					style={{
-						left: linkPopupPosition.left,
-						top: linkPopupPosition.top + 3
-					}}
-				>
-					<ExternalLinkIcon className="h-4 w-4" />
-					<input
-						type="text"
-						className="outline-none font-[500] text-xs text-[#5000B9] dark:text-primary-light border-r dark:bg-dark--theme-light pr-2"
-						onChange={(e) => setLink(e.target.value)}
-						value={'new'}
-						ref={inputRef}
-					/>
-					<button className="ml-0 bg-transparent border-none hover:cursor-pointer" onClick={handleInsertLink}>
-						<LinkRoundIcon className="h-5 w-5" />
-					</button>
-				</div>
-			)}
 			<button
 				onClick={() => {
 					handleCopy(editor), copyPopupHandler();
