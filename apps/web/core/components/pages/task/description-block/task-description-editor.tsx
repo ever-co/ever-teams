@@ -63,10 +63,10 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 						type: 'paragraph',
 						children: [{ text: task.description as string }]
 					}
-				] as Descendant[];
+				] as unknown as Descendant[];
 			}
 		} else {
-			value = [{ type: 'paragraph', children: [{ text: '' }] }] as Descendant[];
+			value = [{ type: 'paragraph', children: [{ text: '' }] }] as unknown as Descendant[];
 		}
 		setEditorValue(value);
 		return value;
