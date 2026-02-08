@@ -23,8 +23,9 @@ const countWords = (text: string) => {
 const createEmptyParagraph = (): Descendant[] =>
 	[{ type: 'paragraph', children: [{ text: '' }] }] as unknown as Descendant[];
 
-// Element types whose children are block-level siblings (need newline between items)
-const BLOCK_CONTAINER_TYPES = new Set(['ul', 'ol', 'li', 'blockquote']);
+// Element types whose children are block-level siblings (need newline between items).
+// Excludes 'li': list items may have inline text children, joining with '\n' would corrupt output.
+const BLOCK_CONTAINER_TYPES = new Set(['ul', 'ol', 'blockquote']);
 
 const slateValueToText = (nodes: Descendant[], isBlockLevel = true): string => {
 	const separator = isBlockLevel ? '\n' : '';
