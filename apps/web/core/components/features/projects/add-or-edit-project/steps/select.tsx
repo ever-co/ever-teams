@@ -1,5 +1,6 @@
 import { CSSProperties, useCallback, useEffect, useMemo, useState, memo, useRef } from 'react';
 import { ChevronDown, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/core/components/common/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
@@ -54,6 +55,7 @@ interface ISelectProps<IItem extends Identifiable, IsMulti extends boolean> {
  * @returns Optimized Select component maintaining 100% API compatibility
  */
 function SelectComponent<T extends Identifiable, IsMulti extends boolean = false>(props: ISelectProps<T, IsMulti>) {
+	const t = useTranslations('pages.projects.basicInformationForm.common');
 	const {
 		options,
 		placeholder,
@@ -229,7 +231,7 @@ function SelectComponent<T extends Identifiable, IsMulti extends boolean = false
 					<Command className="w-full dark:bg-dark--theme-light" shouldFilter={false}>
 						{searchEnabled && (
 							<CommandInput
-								placeholder={items?.length == 0 ? 'Type new ...' : 'Search ...'}
+								placeholder={items?.length == 0 ? t('typeNew') : t('search')}
 								value={searchTerm}
 								onValueChange={handleSearchTermChange}
 								className="h-9 text-sm dark:bg-dark--theme-light dark:text-white dark:placeholder:text-gray-500"
@@ -245,7 +247,7 @@ function SelectComponent<T extends Identifiable, IsMulti extends boolean = false
 									className="w-full h-9 text-sm dark:border-white/20 dark:text-white hover:dark:bg-dark--theme"
 								>
 									{createLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-									Add new
+									{t('addNew')}
 								</Button>
 							)}
 						</CommandEmpty>
@@ -262,11 +264,15 @@ function SelectComponent<T extends Identifiable, IsMulti extends boolean = false
 										)}
 									>
 										{renderItem ? (
-											renderItem(item, selected ? selected.includes(item.id) : false, false)
+											renderItem(
+												item,
+												isMulti ? (selected as string[]).includes(item.id) : selected === item.id,
+												false
+											)
 										) : isMulti ? (
 											<>
 												<Checkbox
-													checked={selected?.includes(item.id)}
+													checked={(selected as string[]).includes(item.id)}
 													className="w-4 h-4 dark:border-white/20"
 												/>
 												<span className="capitalize dark:text-white">{item?.value ?? '-'}</span>
@@ -276,7 +282,7 @@ function SelectComponent<T extends Identifiable, IsMulti extends boolean = false
 										)}
 									</CommandItem>
 								))}
-								<ScrollBar className="-pl-7 dark:bg-dark--theme" />
+								<ScrollBar className="-ml-7 dark:bg-dark--theme" />
 							</ScrollArea>
 						</CommandGroup>
 					</Command>
