@@ -22,6 +22,9 @@ import { activeTeamState, organizationProjectsState, organizationTeamsState, rol
 import { useAtomValue } from 'jotai';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
+const formatDate = (value: string | Date | undefined): string =>
+	value ? moment(value).format('D.MM.YYYY') : '-';
+
 export default function FinalReview(props: IStepElementProps) {
 	const { goToPrevious, finish, currentData: finalData, mode } = props;
 	const {
@@ -182,8 +185,8 @@ export default function FinalReview(props: IStepElementProps) {
 					<div className="flex flex-col gap-8 w-full">
 						<BasicInformation
 							projectTitle={finalData?.name ?? '-'}
-							startDate={moment(finalData?.startDate).format('D.MM.YYYY')}
-							endDate={moment(finalData?.endDate).format('D.MM.YYYY')}
+							startDate={formatDate(finalData?.startDate)}
+							endDate={formatDate(finalData?.endDate)}
 							websiteUrl={finalData?.projectUrl ?? undefined}
 							projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
 							description={finalData?.description ?? undefined}

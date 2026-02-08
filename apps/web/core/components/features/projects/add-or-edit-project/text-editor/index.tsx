@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Editor, createEditor, Descendant, BaseEditor, Text } from 'slate';
+import { Editor, createEditor, Descendant, BaseEditor, Text, Transforms } from 'slate';
 import { withHistory, HistoryEditor } from 'slate-history';
 import { Editable, withReact, Slate, ReactEditor } from 'slate-react';
 import { htmlToSlate, slateToHtml } from 'slate-serializers';
@@ -134,14 +134,15 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue, onValidityCh
 
 	// Sync editorValue and wordCount when defaultValue/initialValue changes (e.g. switching project)
 	useEffect(() => {
+		Transforms.deselect(editor);
 		setEditorValue(initialValue);
 		const count = defaultValue
 			? countWords(isHtml(defaultValue) ? slateValueToText(initialValue) : defaultValue)
 			: 0;
 		setWordCount(count);
 		onValidityChange?.(count <= 5000);
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- only sync when default/initial value changes
-	}, [defaultValue, initialValue]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- only sync when default/initial value changes, not onValidityChange
+	}, [defaultValue, initialValue, editor]);
 
 	// Notify parent of initial validity on mount
 	useEffect(() => {
@@ -191,7 +192,7 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue, onValidityCh
 					const isAstChange = editor.operations.some((op) => op.type !== 'set_selection');
 
 					if (isAstChange) {
-						const text = Editor.string(editor, []);
+						const text = slateValueToText(value);
 						const words = countWords(text);
 						const html = slateToHtml(value, configSlateToHtml);
 
