@@ -1,13 +1,13 @@
-import { Editor, BaseEditor, Transforms, Element as SlateElement, Path, Range, Point } from 'slate';
+import { Editor, Transforms, Element as SlateElement, Path, Range, Point } from 'slate';
 import { ReactEditor } from 'slate-react';
 import { jsx } from 'slate-hyperscript';
 import { marked } from 'marked';
 
 export class TextEditorService {
 	static toggleMark(
-		editor: BaseEditor,
+		editor: Editor,
 		format: string,
-		isMarkActive: (editor: BaseEditor, format: string) => boolean
+		isMarkActive: (editor: Editor, format: string) => boolean
 	) {
 		const isActive = isMarkActive(editor, format);
 
@@ -19,7 +19,7 @@ export class TextEditorService {
 	}
 
 	static toggleBlock(
-		editor: BaseEditor,
+		editor: Editor,
 		format: string,
 		isBlockActive: (editor: any, format: any, blockType?: string) => boolean,
 		LIST_TYPES: string[],
@@ -54,7 +54,7 @@ export class TextEditorService {
 		Transforms.setNodes<SlateElement>(editor, newProperties);
 
 		if (!isActive && isList) {
-			const block = { type: format, children: [] };
+			const block = { type: format, children: [] } as unknown as SlateElement;
 			Transforms.wrapNodes(editor, block);
 		}
 	}
@@ -221,7 +221,7 @@ export const withHtml = (editor: ReactEditor): ReactEditor => {
 		if (html) {
 			const parsed = new DOMParser().parseFromString(html, 'text/html');
 			const fragment = deserialize(parsed.body);
-			Transforms.insertFragment(editor, fragment);
+			Transforms.insertFragment(editor as any, fragment);
 			return;
 		}
 
@@ -269,10 +269,10 @@ export const insertLink = (editor: any, url: string | null) => {
 			});
 		} else if (Range.isCollapsed(selection)) {
 			// Insert the new link in our last known locatio
-			Transforms.insertNodes(editor, link, { select: true });
+			Transforms.insertNodes(editor, link as any, { select: true });
 		} else {
 			// Wrap the currently selected range of text into a Link
-			Transforms.wrapNodes(editor, link, { split: true });
+			Transforms.wrapNodes(editor, link as any, { split: true });
 			Transforms.collapse(editor, { edge: 'end' });
 		}
 	} else {
@@ -283,7 +283,7 @@ export const insertLink = (editor: any, url: string | null) => {
 	}
 };
 
-export const removeLink = (editor: BaseEditor, opts = {}) => {
+export const removeLink = (editor: Editor, opts = {}) => {
 	Transforms.unwrapNodes(editor, {
 		...opts,
 		match: (n) =>

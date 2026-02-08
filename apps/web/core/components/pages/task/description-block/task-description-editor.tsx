@@ -44,30 +44,29 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 	const editorRef = useRef<HTMLDivElement>(null);
 
 	const initialValue = useMemo((): Descendant[] => {
-		let value;
+		let value: Descendant[];
 		if (task && task.description) {
 			if (isHtml(task.description)) {
 				// when value is an HTML
-				value = htmlToSlate(task.description, configHtmlToSlate);
+				value = htmlToSlate(task.description, configHtmlToSlate) as unknown as Descendant[];
 			} else if (isValidSlateObject(task.description)) {
 				//when value is Slate Object
 				value = JSON.parse(task.description) as Descendant[];
 			} else if (isMarkdown(task.description)) {
 				// when value is Markdown - convert to HTML first, then to Slate
 				const htmlFromMarkdown = markdownToHtml(task.description);
-				value = htmlToSlate(htmlFromMarkdown, configHtmlToSlate);
+				value = htmlToSlate(htmlFromMarkdown, configHtmlToSlate) as unknown as Descendant[];
 			} else {
 				// Default case when the task.description is plain text
 				value = [
 					{
-						//@ts-ignore
 						type: 'paragraph',
 						children: [{ text: task.description as string }]
 					}
-				];
+				] as Descendant[];
 			}
 		} else {
-			value = [{ type: 'paragraph', children: [{ text: '' }] }];
+			value = [{ type: 'paragraph', children: [{ text: '' }] }] as Descendant[];
 		}
 		setEditorValue(value);
 		return value;
@@ -113,7 +112,7 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 			if (pastedText && isMarkdown(pastedText)) {
 				// Convert markdown to HTML, then to Slate format
 				const htmlFromMarkdown = markdownToHtml(pastedText);
-				const slateNodes = htmlToSlate(htmlFromMarkdown, configHtmlToSlate);
+				const slateNodes = htmlToSlate(htmlFromMarkdown, configHtmlToSlate) as unknown as Descendant[];
 
 				// Insert the converted nodes at current selection
 				const { selection } = editor;

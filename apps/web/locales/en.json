@@ -533,7 +533,8 @@
 					"endDateRequired": "End date is required",
 					"endDateAfterStart": "End date must be after start date",
 					"invalidUrl": "Please enter a valid URL",
-					"uploadError": "Something went wrong while uploading the project image, please try again!"
+					"uploadError": "Something went wrong while uploading the project image, please try again!",
+					"descriptionWordLimit": "Description must be 5000 words or less."
 				},
 				"common": {
 					"search": "Search ...",
