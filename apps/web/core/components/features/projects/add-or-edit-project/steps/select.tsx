@@ -55,7 +55,7 @@ interface ISelectProps<IItem extends Identifiable, IsMulti extends boolean> {
  * @returns Optimized Select component maintaining 100% API compatibility
  */
 function SelectComponent<T extends Identifiable, IsMulti extends boolean = false>(props: ISelectProps<T, IsMulti>) {
-	const t = useTranslations('pages.projects.basicInformationForm.common');
+	const t = useTranslations();
 	const {
 		options,
 		placeholder,
@@ -231,7 +231,7 @@ function SelectComponent<T extends Identifiable, IsMulti extends boolean = false
 					<Command className="w-full dark:bg-dark--theme-light" shouldFilter={false}>
 						{searchEnabled && (
 							<CommandInput
-								placeholder={items?.length == 0 ? t('typeNew') : t('search')}
+								placeholder={items?.length == 0 ? t('pages.projects.basicInformationForm.common.typeNew') : t('pages.projects.basicInformationForm.common.search')}
 								value={searchTerm}
 								onValueChange={handleSearchTermChange}
 								className="h-9 text-sm dark:bg-dark--theme-light dark:text-white dark:placeholder:text-gray-500"
@@ -247,7 +247,7 @@ function SelectComponent<T extends Identifiable, IsMulti extends boolean = false
 									className="w-full h-9 text-sm dark:border-white/20 dark:text-white hover:dark:bg-dark--theme"
 								>
 									{createLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-									{t('addNew')}
+									{t('pages.projects.basicInformationForm.common.addNew')}
 								</Button>
 							)}
 						</CommandEmpty>
