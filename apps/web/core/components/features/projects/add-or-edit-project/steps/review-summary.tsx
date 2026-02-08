@@ -172,8 +172,8 @@ export default function FinalReview(props: IStepElementProps) {
 					<div className="flex flex-col gap-8 w-full">
 						<BasicInformation
 							projectTitle={finalData?.name ?? '-'}
-							startDate={moment(finalData?.startDate).format('D.MM.YYYY')}
-							endDate={moment(finalData?.endDate).format('D.MM.YYYY')}
+							startDate={finalData?.startDate ? moment(finalData.startDate).format('D.MM.YYYY') : '-'}
+							endDate={finalData?.endDate ? moment(finalData.endDate).format('D.MM.YYYY') : '-'}
 							websiteUrl={finalData?.projectUrl ?? undefined}
 							projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
 							description={finalData?.description ?? undefined}

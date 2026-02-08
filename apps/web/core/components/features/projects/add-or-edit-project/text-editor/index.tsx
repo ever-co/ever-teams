@@ -20,7 +20,8 @@ const countWords = (text: string) => {
 	return text.trim().split(/\s+/).filter((word) => word.length > 0).length;
 };
 
-const EMPTY_PARAGRAPH: Descendant[] = [{ type: 'paragraph', children: [{ text: '' }] }] as unknown as Descendant[];
+const createEmptyParagraph = (): Descendant[] =>
+	[{ type: 'paragraph', children: [{ text: '' }] }] as unknown as Descendant[];
 
 const slateValueToText = (nodes: Descendant[], isTopLevel = true): string => {
 	const separator = isTopLevel ? '\n' : '';
@@ -35,10 +36,10 @@ const slateValueToText = (nodes: Descendant[], isTopLevel = true): string => {
 };
 
 const getInitialEditorValue = (defaultValue: string | undefined): Descendant[] => {
-	if (!defaultValue?.trim()) return EMPTY_PARAGRAPH;
+	if (!defaultValue?.trim()) return createEmptyParagraph();
 	if (isHtml(defaultValue)) {
 		const slateNodes = htmlToSlate(defaultValue, configHtmlToSlate) as unknown as Descendant[];
-		return Array.isArray(slateNodes) && slateNodes.length > 0 ? slateNodes : EMPTY_PARAGRAPH;
+		return Array.isArray(slateNodes) && slateNodes.length > 0 ? slateNodes : createEmptyParagraph();
 	}
 	return [{ type: 'paragraph', children: [{ text: defaultValue }] }] as unknown as Descendant[];
 };
@@ -100,7 +101,7 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue, onValidityCh
 					const isAstChange = editor.operations.some((op) => op.type !== 'set_selection');
 
 					if (isAstChange) {
-						const text = Editor.string(editor, []);
+						const text = slateValueToText(value);
 						const words = countWords(text);
 
 						// Clear any existing timeout
