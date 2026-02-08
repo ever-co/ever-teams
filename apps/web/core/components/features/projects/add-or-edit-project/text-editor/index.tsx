@@ -1,39 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Editor, createEditor, Descendant, BaseEditor, Text, Transforms } from 'slate';
-import { withHistory, HistoryEditor } from 'slate-history';
-import { Editable, withReact, Slate, ReactEditor } from 'slate-react';
+import { Editor, createEditor, Descendant } from 'slate';
+import { withHistory } from 'slate-history';
+import { Editable, withReact, Slate } from 'slate-react';
 import { htmlToSlate, slateToHtml } from 'slate-serializers';
 import { Bold, Italic, Underline, Code } from 'lucide-react';
 import { cn } from '@/core/lib/helpers';
-import {
-	configHtmlToSlate,
-	configSlateToHtml
-} from '@/core/lib/helpers/text-editor-serializer-configurations';
 import { isHtml } from '@/core/lib/helpers/text-editor-service';
-
-// Custom Slate types
-type CustomText = {
-	text: string;
-	bold?: boolean;
-	italic?: boolean;
-	underline?: boolean;
-	code?: boolean;
-};
-
-type ParagraphElement = {
-	type: 'paragraph';
-	children: CustomText[];
-};
-
-type CustomElement = ParagraphElement;
-
-declare module 'slate' {
-	interface CustomTypes {
-		Editor: BaseEditor & ReactEditor & HistoryEditor;
-		Element: CustomElement;
-		Text: CustomText;
-	}
-}
+import { configHtmlToSlate, configSlateToHtml } from '@/core/lib/helpers/text-editor-serializer-configurations';
 
 interface IRichTextProps {
 	defaultValue?: string;
@@ -47,80 +20,35 @@ const countWords = (text: string) => {
 	return text.trim().split(/\s+/).filter((word) => word.length > 0).length;
 };
 
-/** Keep only marks supported by this editor (bold, italic, underline, code). */
-const stripMarks = (n: { text: string; [k: string]: unknown }): CustomText => ({
-	text: n.text ?? '',
-	...(n.bold ? { bold: true } : {}),
-	...(n.italic ? { italic: true } : {}),
-	...(n.underline ? { underline: true } : {}),
-	...(n.code ? { code: true } : {})
-});
+const createEmptyParagraph = (): Descendant[] =>
+	[{ type: 'paragraph', children: [{ text: '' }] }] as unknown as Descendant[];
 
-/** Flatten nested elements into a single list of text nodes with marks. */
-const collectTextNodes = (nodes: unknown[]): CustomText[] => {
-	const out: CustomText[] = [];
-	for (const node of nodes) {
-		if (node && typeof node === 'object' && 'text' in node) {
-			out.push(stripMarks(node as { text: string; [k: string]: unknown }));
-			continue;
-		}
-		if (node && typeof node === 'object' && 'children' in node && Array.isArray((node as { children: unknown[] }).children)) {
-			out.push(...collectTextNodes((node as { children: unknown[] }).children));
-		}
-	}
-	return out;
-};
+// Element types whose children are block-level siblings (need newline between items).
+// Excludes 'li': list items may have inline text children, joining with '\n' would corrupt output.
+const BLOCK_CONTAINER_TYPES = new Set(['ul', 'ol', 'blockquote']);
 
-/** Normalize htmlToSlate output to our schema: type 'paragraph' and supported marks only. */
-const normalizeToSimpleSchema = (nodes: unknown[]): Descendant[] => {
-	const result: Descendant[] = [];
-	for (const node of nodes) {
-		if (!node || typeof node !== 'object') continue;
-		if ('text' in node) {
-			result.push({
-				type: 'paragraph',
-				children: [stripMarks(node as { text: string; [k: string]: unknown })]
-			});
-			continue;
-		}
-		const el = node as { type?: string; children?: unknown[] };
-		if (el.type === 'p' && Array.isArray(el.children)) {
-			const children = collectTextNodes(el.children);
-			result.push({
-				type: 'paragraph',
-				children: children.length ? children : [{ text: '' }]
-			});
-			continue;
-		}
-		if (el.type && Array.isArray(el.children)) {
-			result.push(...normalizeToSimpleSchema(el.children));
-		}
-	}
-	return result.length ? result : [{ type: 'paragraph', children: [{ text: '' }] }];
-};
-
-/** Extract plain text from Slate value for word count. Joins block text with space so word boundaries between paragraphs are preserved; joins inline text nodes with no separator so partially formatted words count as one. */
-const slateValueToText = (nodes: Descendant[]): string => {
-	const parts = nodes.flatMap((n) => {
-		if (Text.isText(n)) return n.text;
-		if (n && typeof n === 'object' && 'children' in n) return slateValueToText((n as { children: Descendant[] }).children);
-		return '';
-	});
-	const isBlockLevel = nodes.length > 0 && !Text.isText(nodes[0]);
-	return parts.join(isBlockLevel ? ' ' : '');
+const slateValueToText = (nodes: Descendant[], isBlockLevel = true): string => {
+	const separator = isBlockLevel ? '\n' : '';
+	return nodes
+		.map((n) => {
+			if (n && typeof n === 'object' && 'text' in n) return (n as { text: string }).text;
+			if (n && typeof n === 'object' && 'children' in n) {
+				const element = n as { type?: string; children: Descendant[] };
+				const childIsBlockLevel = !!element.type && BLOCK_CONTAINER_TYPES.has(element.type);
+				return slateValueToText(element.children, childIsBlockLevel);
+			}
+			return '';
+		})
+		.join(separator);
 };
 
 const getInitialEditorValue = (defaultValue: string | undefined): Descendant[] => {
-	if (!defaultValue) return [{ type: 'paragraph', children: [{ text: '' }] }];
+	if (!defaultValue?.trim()) return createEmptyParagraph();
 	if (isHtml(defaultValue)) {
-		try {
-			const slateNodes = htmlToSlate(defaultValue, configHtmlToSlate) as unknown[];
-			return normalizeToSimpleSchema(Array.isArray(slateNodes) ? slateNodes : [slateNodes]);
-		} catch {
-			return [{ type: 'paragraph', children: [{ text: defaultValue }] }];
-		}
+		const slateNodes = htmlToSlate(defaultValue, configHtmlToSlate) as unknown as Descendant[];
+		return Array.isArray(slateNodes) && slateNodes.length > 0 ? slateNodes : createEmptyParagraph();
 	}
-	return [{ type: 'paragraph', children: [{ text: String(defaultValue) }] }];
+	return [{ type: 'paragraph', children: [{ text: defaultValue }] }] as unknown as Descendant[];
 };
 
 const RichTextEditor = ({ readonly = false, onChange, defaultValue, onValidityChange }: IRichTextProps) => {
@@ -131,18 +59,6 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue, onValidityCh
 		defaultValue ? countWords(isHtml(defaultValue) ? slateValueToText(initialValue) : defaultValue) : 0
 	);
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-	// Sync editorValue and wordCount when defaultValue/initialValue changes (e.g. switching project)
-	useEffect(() => {
-		Transforms.deselect(editor);
-		setEditorValue(initialValue);
-		const count = defaultValue
-			? countWords(isHtml(defaultValue) ? slateValueToText(initialValue) : defaultValue)
-			: 0;
-		setWordCount(count);
-		onValidityChange?.(count <= 5000);
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- only sync when default/initial value changes, not onValidityChange
-	}, [defaultValue, initialValue, editor]);
 
 	// Notify parent of initial validity on mount
 	useEffect(() => {
@@ -162,9 +78,9 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue, onValidityCh
 	const renderLeaf = useCallback((props: any) => <Leaf {...props} />, []);
 
 
-	const toggleMark = (format: keyof Omit<CustomText, 'text'>) => {
-		const marks = Editor.marks(editor);
-		const isActive = marks ? marks[format] : false;
+	const toggleMark = (format: string) => {
+		// @ts-ignore
+		const isActive = Editor.marks(editor)?.[format];
 		if (isActive) {
 			Editor.removeMark(editor, format);
 		} else {
@@ -192,9 +108,8 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue, onValidityCh
 					const isAstChange = editor.operations.some((op) => op.type !== 'set_selection');
 
 					if (isAstChange) {
-						// Use slateValueToText (not Editor.string) so inline text nodes are joined without spaces; otherwise partially formatted words count as multiple words.
-						const text = slateValueToText(value);
-						const words = countWords(text);
+						const plainText = slateValueToText(value);
+						const words = countWords(plainText);
 						const html = slateToHtml(value, configSlateToHtml);
 
 						// Clear any existing timeout
@@ -209,9 +124,8 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue, onValidityCh
 							setWordCount(words);
 							const valid = words <= 5000;
 							onValidityChange?.(valid);
-							if (valid) {
-								onChange?.(html);
-							}
+							// Always call onChange with HTML to preserve bold/italic/underline - parent decides whether to block submission based on validity
+							onChange?.(html);
 							timeoutRef.current = null;
 						}, 0);
 					}

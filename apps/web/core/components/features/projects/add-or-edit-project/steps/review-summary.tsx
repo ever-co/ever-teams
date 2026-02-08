@@ -3,7 +3,7 @@ import { Fragment, ReactNode, useCallback, useMemo } from 'react';
 import { Calendar, Clipboard } from 'lucide-react';
 import { Thumbnail } from './basic-information-form';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-area';
-import moment from 'moment';
+import { format } from 'date-fns';
 import { sanitizeHtml } from '@/core/lib/helpers/sanitize-html';
 
 import { IStepElementProps } from '../container';
@@ -22,8 +22,14 @@ import { activeTeamState, organizationProjectsState, organizationTeamsState, rol
 import { useAtomValue } from 'jotai';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
-const formatDate = (value: string | Date | undefined): string =>
-	value ? moment(value).format('D.MM.YYYY') : '-';
+function safeFormatDate(date: string | Date | null | undefined, fmt = 'd.MM.yyyy'): string {
+	if (!date) return '-';
+	try {
+		return format(new Date(date), fmt);
+	} catch {
+		return '-';
+	}
+}
 
 export default function FinalReview(props: IStepElementProps) {
 	const { goToPrevious, finish, currentData: finalData, mode } = props;
@@ -127,18 +133,8 @@ export default function FinalReview(props: IStepElementProps) {
 		status: (finalData?.status as ETaskStatusName) ?? ETaskStatusName.OPEN,
 		isActive: finalData?.isActive ?? true,
 		isArchived: finalData?.isArchived ?? false,
-		// In create mode default to true; in edit mode only include when explicitly set to preserve API values
-		...(mode === 'create'
-			? {
-					isTasksAutoSync: finalData?.isTasksAutoSync ?? true,
-					isTasksAutoSyncOnLabel: finalData?.isTasksAutoSyncOnLabel ?? true
-				}
-			: {
-					...(finalData?.isTasksAutoSync !== undefined && { isTasksAutoSync: finalData.isTasksAutoSync }),
-					...(finalData?.isTasksAutoSyncOnLabel !== undefined && {
-						isTasksAutoSyncOnLabel: finalData.isTasksAutoSyncOnLabel
-					})
-				})
+		isTasksAutoSync: finalData?.isTasksAutoSync ?? true,
+		isTasksAutoSyncOnLabel: finalData?.isTasksAutoSyncOnLabel ?? true
 	};
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -185,8 +181,8 @@ export default function FinalReview(props: IStepElementProps) {
 					<div className="flex flex-col gap-8 w-full">
 						<BasicInformation
 							projectTitle={finalData?.name ?? '-'}
-							startDate={formatDate(finalData?.startDate)}
-							endDate={formatDate(finalData?.endDate)}
+							startDate={safeFormatDate(finalData?.startDate)}
+							endDate={safeFormatDate(finalData?.endDate)}
 							websiteUrl={finalData?.projectUrl ?? undefined}
 							projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
 							description={finalData?.description ?? undefined}

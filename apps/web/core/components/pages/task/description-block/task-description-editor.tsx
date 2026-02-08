@@ -7,7 +7,6 @@ import {
 	isMarkdown,
 	markdownToHtml
 } from '../../../../lib/helpers/text-editor-service';
-import isHotkey from 'is-hotkey';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Editor, createEditor, Element as SlateElement, Descendant, Transforms, Range } from 'slate';
 import { withHistory } from 'slate-history';
@@ -21,12 +20,14 @@ import LinkElement from './editor-components/link-element';
 import { configHtmlToSlate } from '../../../../lib/helpers/text-editor-serializer-configurations';
 import CheckListElement from './editor-components/check-list-element';
 
-const HOTKEYS: { [key: string]: string } = {
-	'mod+b': 'bold',
-	'mod+i': 'italic',
-	'mod+u': 'underline',
-	'mod+`': 'code'
-};
+const isModKey = (e: React.KeyboardEvent) => e.metaKey || e.ctrlKey;
+
+const HOTKEYS: { key: string; mark: string }[] = [
+	{ key: 'b', mark: 'bold' },
+	{ key: 'i', mark: 'italic' },
+	{ key: 'u', mark: 'underline' },
+	{ key: '`', mark: 'code' }
+];
 
 interface IRichTextProps {
 	defaultValue?: string;
@@ -63,10 +64,10 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 						type: 'paragraph',
 						children: [{ text: task.description as string }]
 					}
-				] as Descendant[];
+				] as unknown as Descendant[];
 			}
 		} else {
-			value = [{ type: 'paragraph', children: [{ text: '' }] }] as Descendant[];
+			value = [{ type: 'paragraph', children: [{ text: '' }] }] as unknown as Descendant[];
 		}
 		setEditorValue(value);
 		return value;
@@ -135,11 +136,10 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 	// Handle real-time markdown parsing while typing
 	const handleKeyDown = useCallback(
 		(event: React.KeyboardEvent) => {
-			// Handle hotkeys first
-			for (const hotkey in HOTKEYS) {
-				if (isHotkey(hotkey, event as any)) {
+			// Handle hotkeys first (mod+b, mod+i, mod+u, mod+`)
+			for (const { key, mark } of HOTKEYS) {
+				if (isModKey(event) && event.key.toLowerCase() === key) {
 					event.preventDefault();
-					const mark = HOTKEYS[hotkey];
 					TextEditorService.toggleMark(editor, mark, isMarkActive);
 					return;
 				}
