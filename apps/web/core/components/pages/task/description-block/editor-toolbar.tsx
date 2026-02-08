@@ -10,7 +10,6 @@ import { useTranslations } from 'next-intl';
 import {
 	AlignQuoteIcon,
 	CodeIcon as CodeBlockIcon,
-	ExternalLinkIcon,
 	LinkRoundIcon,
 	AlignCenterIcon,
 	AlignLeftIcon,
@@ -331,6 +330,7 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 						onChange={(e) => setLink(e.target.value)}
 						value={link}
 						ref={inputRef}
+						onKeyDown={handleInsertLinkOnEnter}
 					/>
 					<Button onClick={handleInsertLink} variant="ghost" className="h-10 min-w-0">
 						<LinkRoundIcon className="h-5 w-5" />
