@@ -99,15 +99,15 @@ const normalizeToSimpleSchema = (nodes: unknown[]): Descendant[] => {
 	return result.length ? result : [{ type: 'paragraph', children: [{ text: '' }] }];
 };
 
-/** Extract plain text from Slate value for word count. Joins block text with space so word boundaries between paragraphs are preserved. */
+/** Extract plain text from Slate value for word count. Joins block text with space so word boundaries between paragraphs are preserved; joins inline text nodes with no separator so partially formatted words count as one. */
 const slateValueToText = (nodes: Descendant[]): string => {
-	return nodes
-		.flatMap((n) => {
-			if (Text.isText(n)) return n.text;
-			if (n && typeof n === 'object' && 'children' in n) return slateValueToText((n as { children: Descendant[] }).children);
-			return '';
-		})
-		.join(' ');
+	const parts = nodes.flatMap((n) => {
+		if (Text.isText(n)) return n.text;
+		if (n && typeof n === 'object' && 'children' in n) return slateValueToText((n as { children: Descendant[] }).children);
+		return '';
+	});
+	const isBlockLevel = nodes.length > 0 && !Text.isText(nodes[0]);
+	return parts.join(isBlockLevel ? ' ' : '');
 };
 
 const getInitialEditorValue = (defaultValue: string | undefined): Descendant[] => {
