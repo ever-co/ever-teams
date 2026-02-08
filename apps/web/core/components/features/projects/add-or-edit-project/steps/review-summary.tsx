@@ -7,15 +7,6 @@ import { format } from 'date-fns';
 import { sanitizeHtml } from '@/core/lib/helpers/sanitize-html';
 
 import { IStepElementProps } from '../container';
-
-function safeFormatDate(date: string | Date | null | undefined, fmt = 'd.MM.yyyy'): string {
-	if (!date) return '-';
-	try {
-		return format(new Date(date), fmt);
-	} catch {
-		return '-';
-	}
-}
 import { useLocale, useTranslations } from 'next-intl';
 import { useOrganizationProjects } from '@/core/hooks/organizations';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
@@ -30,6 +21,15 @@ import { ECurrencies } from '@/core/types/generics/enums/currency';
 import { activeTeamState, organizationProjectsState, organizationTeamsState, rolesState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+
+function safeFormatDate(date: string | Date | null | undefined, fmt = 'd.MM.yyyy'): string {
+	if (!date) return '-';
+	try {
+		return format(new Date(date), fmt);
+	} catch {
+		return '-';
+	}
+}
 
 export default function FinalReview(props: IStepElementProps) {
 	const { goToPrevious, finish, currentData: finalData, mode } = props;
