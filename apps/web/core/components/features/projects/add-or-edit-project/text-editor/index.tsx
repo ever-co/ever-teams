@@ -9,13 +9,15 @@ interface IRichTextProps {
 	defaultValue?: string;
 	readonly?: boolean;
 	onChange?: (value: string) => void;
+	/** Called when the word count validity changes (true = within limit, false = over 5000 words) */
+	onValidityChange?: (valid: boolean) => void;
 }
 
 const countWords = (text: string) => {
 	return text.trim().split(/\s+/).filter((word) => word.length > 0).length;
 };
 
-const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextProps) => {
+const RichTextEditor = ({ readonly = false, onChange, defaultValue, onValidityChange }: IRichTextProps) => {
 	const editor = useMemo(() => withHistory(withReact(createEditor())), []);
 	const [editorValue, setEditorValue] = useState<Descendant[]>(
 		defaultValue
@@ -24,7 +26,12 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextP
 			: [{ type: 'paragraph', children: [{ text: '' }] }]
 	);
 	const [wordCount, setWordCount] = useState(() => (defaultValue ? countWords(defaultValue) : 0));
-	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	// Notify parent of initial validity on mount
+	useEffect(() => {
+		onValidityChange?.(wordCount <= 5000);
+	}, []); // eslint-disable-line react-hooks/exhaustive-deps -- only run on mount
 
 	// Cleanup timeout on unmount
 	useEffect(() => {
@@ -83,7 +90,9 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextP
 						// This happens when Slate triggers normalization during a render cycle.
 						timeoutRef.current = setTimeout(() => {
 							setWordCount(words);
-							if (words <= 5000) {
+							const valid = words <= 5000;
+							onValidityChange?.(valid);
+							if (valid) {
 								onChange?.(text);
 							}
 							timeoutRef.current = null;

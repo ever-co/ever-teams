@@ -37,7 +37,7 @@ const Button = ({ children, loading, className, ...props }: ButtonProps) => {
 	);
 };
 
-type BasicInfoErrorKeys = 'dateRange' | 'websiteUrl' | 'projectTitle' | 'projectImage';
+type BasicInfoErrorKeys = 'dateRange' | 'websiteUrl' | 'projectTitle' | 'projectImage' | 'description';
 
 export default function BasicInformationForm(props: IStepElementProps) {
 	const { goToNext, currentData, mode } = props;
@@ -48,6 +48,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 	const [projectImageFile, setProjectImageFile] = useState<File | null>(null);
 	const [websiteUrl, setWebsiteUrl] = useState<string>(() => getInitialValue(currentData, 'projectUrl', ''));
 	const [errors, setErrors] = useState<Map<BasicInfoErrorKeys, string>>(new Map());
+	const [descriptionValid, setDescriptionValid] = useState(true);
 	const t = useTranslations();
 	const { createImageAssets, loading: createImageAssetLoading } = useImageAssets();
 	const { user } = useAuthenticateUser();
@@ -182,6 +183,13 @@ export default function BasicInformationForm(props: IStepElementProps) {
 			newErrors
 		);
 
+		// Validate description word limit
+		if (!descriptionValid) {
+			newErrors.set('description', t('pages.projects.basicInformationForm.errors.descriptionWordLimit'));
+		} else {
+			newErrors.delete('description');
+		}
+
 		setErrors(newErrors);
 		return newErrors;
 	};
@@ -259,8 +267,15 @@ export default function BasicInformationForm(props: IStepElementProps) {
 							/>
 						</div>
 					</div>
-					<div className="w-full">
-						<RichTextEditor defaultValue={description} onChange={(value) => setDescription(value)} />
+					<div className="w-full flex flex-col gap-1">
+						<RichTextEditor
+							defaultValue={description}
+							onChange={(value) => setDescription(value)}
+							onValidityChange={setDescriptionValid}
+						/>
+						{errors?.get('description') && (
+							<p className="text-xs font-light text-red-600">{errors.get('description')}</p>
+						)}
 					</div>
 					<div className="flex flex-col w-full">
 						<div className="flex gap-2 w-full">

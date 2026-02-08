@@ -590,7 +590,8 @@
 					"endDateRequired": "Data zakończenia jest wymagana.",
 					"endDateAfterStart": "Data zakończenia musi być po dacie rozpoczęcia.",
 					"invalidUrl": "Proszę podać prawidłowy URL.",
-					"uploadError": "Wystąpił błąd podczas przesyłania obrazu projektu, spróbuj ponownie!"
+					"uploadError": "Wystąpił błąd podczas przesyłania obrazu projektu, spróbuj ponownie!",
+					"descriptionWordLimit": "Opis musi zawierać 5000 słów lub mniej."
 				},
 				"common": {
 					"search": "Szukaj ...",

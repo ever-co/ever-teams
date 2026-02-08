@@ -555,7 +555,8 @@
 					"endDateRequired": "La data di fine è obbligatoria.",
 					"endDateAfterStart": "La data di fine deve essere successiva alla data di inizio.",
 					"invalidUrl": "Inserisci un URL valido.",
-					"uploadError": "Si è verificato un errore durante il caricamento dell'immagine del progetto, riprova!"
+					"uploadError": "Si è verificato un errore durante il caricamento dell'immagine del progetto, riprova!",
+					"descriptionWordLimit": "La descrizione deve contenere 5000 parole o meno."
 				},
 				"common": {
 					"search": "Cerca ...",

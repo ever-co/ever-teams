@@ -587,7 +587,8 @@
 					"endDateRequired": "Einddatum is verplicht.",
 					"endDateAfterStart": "Einddatum moet na startdatum liggen.",
 					"invalidUrl": "Voer een geldige URL in.",
-					"uploadError": "Er is iets misgegaan bij het uploaden van de projectafbeelding, probeer het opnieuw!"
+					"uploadError": "Er is iets misgegaan bij het uploaden van de projectafbeelding, probeer het opnieuw!",
+					"descriptionWordLimit": "De beschrijving mag maximaal 5000 woorden bevatten."
 				},
 				"common": {
 					"search": "Zoeken ...",
