@@ -45,10 +45,6 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 	const [showLinkPopup, setShowLinkPopup] = useState(false);
 	const [link, setLink] = useState('');
 	const [copied, setCopied] = useState(false);
-	const [linkPopupPosition] = useState({
-		left: 0,
-		top: 0
-	});
 	const [showDropdown, setShowDropdown] = useState(false);
 	const [showEmoji, setShowEmoji] = useState(false);
 	const popupRef = useRef<any>(null);
