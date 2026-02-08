@@ -22,9 +22,6 @@ import { activeTeamState, organizationProjectsState, organizationTeamsState, rol
 import { useAtomValue } from 'jotai';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
-const formatDate = (value: string | Date | undefined): string =>
-	value ? moment(value).format('D.MM.YYYY') : '-';
-
 export default function FinalReview(props: IStepElementProps) {
 	const { goToPrevious, finish, currentData: finalData, mode } = props;
 	const {

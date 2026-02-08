@@ -22,14 +22,16 @@ const countWords = (text: string) => {
 
 const EMPTY_PARAGRAPH: Descendant[] = [{ type: 'paragraph', children: [{ text: '' }] }] as unknown as Descendant[];
 
-const slateValueToText = (nodes: Descendant[]): string => {
+const slateValueToText = (nodes: Descendant[], isTopLevel = true): string => {
+	const separator = isTopLevel ? '\n' : '';
 	return nodes
 		.map((n) => {
 			if (n && typeof n === 'object' && 'text' in n) return (n as { text: string }).text;
-			if (n && typeof n === 'object' && 'children' in n) return slateValueToText((n as { children: Descendant[] }).children);
+			if (n && typeof n === 'object' && 'children' in n)
+				return slateValueToText((n as { children: Descendant[] }).children, false);
 			return '';
 		})
-		.join('');
+		.join(separator);
 };
 
 const getInitialEditorValue = (defaultValue: string | undefined): Descendant[] => {
