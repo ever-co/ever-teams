@@ -23,13 +23,19 @@ const countWords = (text: string) => {
 const createEmptyParagraph = (): Descendant[] =>
 	[{ type: 'paragraph', children: [{ text: '' }] }] as unknown as Descendant[];
 
-const slateValueToText = (nodes: Descendant[], isTopLevel = true): string => {
-	const separator = isTopLevel ? '\n' : '';
+// Element types whose children are block-level siblings (need newline between items)
+const BLOCK_CONTAINER_TYPES = new Set(['ul', 'ol', 'li', 'blockquote']);
+
+const slateValueToText = (nodes: Descendant[], isBlockLevel = true): string => {
+	const separator = isBlockLevel ? '\n' : '';
 	return nodes
 		.map((n) => {
 			if (n && typeof n === 'object' && 'text' in n) return (n as { text: string }).text;
-			if (n && typeof n === 'object' && 'children' in n)
-				return slateValueToText((n as { children: Descendant[] }).children, false);
+			if (n && typeof n === 'object' && 'children' in n) {
+				const element = n as { type?: string; children: Descendant[] };
+				const childIsBlockLevel = !!element.type && BLOCK_CONTAINER_TYPES.has(element.type);
+				return slateValueToText(element.children, childIsBlockLevel);
+			}
 			return '';
 		})
 		.join(separator);
