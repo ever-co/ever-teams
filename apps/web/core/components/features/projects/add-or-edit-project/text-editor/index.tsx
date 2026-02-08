@@ -99,7 +99,7 @@ const normalizeToSimpleSchema = (nodes: unknown[]): Descendant[] => {
 	return result.length ? result : [{ type: 'paragraph', children: [{ text: '' }] }];
 };
 
-/** Extract plain text from Slate value for word count. */
+/** Extract plain text from Slate value for word count. Joins block text with space so word boundaries between paragraphs are preserved. */
 const slateValueToText = (nodes: Descendant[]): string => {
 	return nodes
 		.flatMap((n) => {
@@ -107,7 +107,7 @@ const slateValueToText = (nodes: Descendant[]): string => {
 			if (n && typeof n === 'object' && 'children' in n) return slateValueToText((n as { children: Descendant[] }).children);
 			return '';
 		})
-		.join('');
+		.join(' ');
 };
 
 const getInitialEditorValue = (defaultValue: string | undefined): Descendant[] => {
@@ -131,6 +131,17 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue, onValidityCh
 		defaultValue ? countWords(isHtml(defaultValue) ? slateValueToText(initialValue) : defaultValue) : 0
 	);
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	// Sync editorValue and wordCount when defaultValue/initialValue changes (e.g. switching project)
+	useEffect(() => {
+		setEditorValue(initialValue);
+		const count = defaultValue
+			? countWords(isHtml(defaultValue) ? slateValueToText(initialValue) : defaultValue)
+			: 0;
+		setWordCount(count);
+		onValidityChange?.(count <= 5000);
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- only sync when default/initial value changes
+	}, [defaultValue, initialValue]);
 
 	// Notify parent of initial validity on mount
 	useEffect(() => {
