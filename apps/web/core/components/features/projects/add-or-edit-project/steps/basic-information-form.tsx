@@ -4,11 +4,10 @@ import RichTextEditor from '../text-editor';
 // import { Calendar } from '@/core/components/ui/calendar';
 import { cn } from '@/core/lib/helpers';
 import { CalendarIcon, X, Loader2 } from 'lucide-react';
-import { format } from 'date-fns';
+import { differenceInDays, format, isAfter, isEqual } from 'date-fns';
 import { CSSProperties, FormEvent, useCallback, useEffect, useMemo, useState, memo, useRef } from 'react';
 import { IStepElementProps } from '../container';
 import Image from 'next/image';
-import moment from 'moment';
 import { isValidUrl } from '@/core/lib/utils';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-area';
 import { useTranslations } from 'next-intl';
@@ -158,7 +157,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 				(value) => (!value ? t('pages.projects.basicInformationForm.errors.endDateRequired') : null),
 				(value) => {
 					if (!value || !startDate) return null;
-					const daysDifference = moment(value).diff(moment(startDate), 'days');
+					const daysDifference = differenceInDays(new Date(value), new Date(startDate));
 					if (daysDifference <= 0) {
 						return t('pages.projects.basicInformationForm.errors.endDateAfterStart');
 					}
@@ -288,7 +287,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 										if (date) {
 											setStartDate(date);
 											// Smart logic: adjust End Date if necessary (if no End Date or Start Date >= End Date)
-											if (!endDate || moment(date).isSameOrAfter(endDate)) {
+											if (!endDate || isAfter(date, endDate) || isEqual(date, endDate)) {
 												// If no End Date or Start Date >= End Date,
 												// set End Date to 1 month after Start Date (typical project duration)
 												const suggestedEndDate = new Date(date);

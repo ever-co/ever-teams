@@ -3,7 +3,7 @@ import { Fragment, ReactNode, useCallback, useMemo } from 'react';
 import { Calendar, Clipboard } from 'lucide-react';
 import { Thumbnail } from './basic-information-form';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-area';
-import moment from 'moment';
+import { format } from 'date-fns';
 import { sanitizeHtml } from '@/core/lib/helpers/sanitize-html';
 
 import { IStepElementProps } from '../container';
@@ -172,8 +172,8 @@ export default function FinalReview(props: IStepElementProps) {
 					<div className="flex flex-col gap-8 w-full">
 						<BasicInformation
 							projectTitle={finalData?.name ?? '-'}
-							startDate={finalData?.startDate ? moment(finalData.startDate).format('D.MM.YYYY') : '-'}
-							endDate={finalData?.endDate ? moment(finalData.endDate).format('D.MM.YYYY') : '-'}
+							startDate={finalData?.startDate ? format(new Date(finalData.startDate), 'd.MM.yyyy') : '-'}
+							endDate={finalData?.endDate ? format(new Date(finalData.endDate), 'd.MM.yyyy') : '-'}
 							websiteUrl={finalData?.projectUrl ?? undefined}
 							projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
 							description={finalData?.description ?? undefined}

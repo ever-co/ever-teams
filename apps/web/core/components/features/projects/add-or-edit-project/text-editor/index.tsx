@@ -2,11 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Editor, createEditor, Descendant } from 'slate';
 import { withHistory } from 'slate-history';
 import { Editable, withReact, Slate } from 'slate-react';
-import { htmlToSlate } from 'slate-serializers';
+import { htmlToSlate, slateToHtml } from 'slate-serializers';
 import { Bold, Italic, Underline, Code } from 'lucide-react';
 import { cn } from '@/core/lib/helpers';
 import { isHtml } from '@/core/lib/helpers/text-editor-service';
-import { configHtmlToSlate } from '@/core/lib/helpers/text-editor-serializer-configurations';
+import { configHtmlToSlate, configSlateToHtml } from '@/core/lib/helpers/text-editor-serializer-configurations';
 
 interface IRichTextProps {
 	defaultValue?: string;
@@ -108,8 +108,9 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue, onValidityCh
 					const isAstChange = editor.operations.some((op) => op.type !== 'set_selection');
 
 					if (isAstChange) {
-						const text = slateValueToText(value);
-						const words = countWords(text);
+						const plainText = slateValueToText(value);
+						const words = countWords(plainText);
+						const html = slateToHtml(value, configSlateToHtml);
 
 						// Clear any existing timeout
 						if (timeoutRef.current) {
@@ -123,9 +124,8 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue, onValidityCh
 							setWordCount(words);
 							const valid = words <= 5000;
 							onValidityChange?.(valid);
-							if (valid) {
-								onChange?.(text);
-							}
+							// Always call onChange with HTML to preserve bold/italic/underline - parent decides whether to block submission based on validity
+							onChange?.(html);
 							timeoutRef.current = null;
 						}, 0);
 					}
