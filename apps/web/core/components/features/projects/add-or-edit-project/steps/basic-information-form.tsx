@@ -412,6 +412,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 										onChange={handleProjectImageFileChange}
 										id="dropzone-file"
 										type="file"
+										accept="image/jpeg,image/png"
 										className="hidden"
 									/>
 								</label>

@@ -7,6 +7,15 @@ import { format } from 'date-fns';
 import { sanitizeHtml } from '@/core/lib/helpers/sanitize-html';
 
 import { IStepElementProps } from '../container';
+
+function safeFormatDate(date: string | Date | null | undefined, fmt = 'd.MM.yyyy'): string {
+	if (!date) return '-';
+	try {
+		return format(new Date(date), fmt);
+	} catch {
+		return '-';
+	}
+}
 import { useLocale, useTranslations } from 'next-intl';
 import { useOrganizationProjects } from '@/core/hooks/organizations';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
@@ -172,8 +181,8 @@ export default function FinalReview(props: IStepElementProps) {
 					<div className="flex flex-col gap-8 w-full">
 						<BasicInformation
 							projectTitle={finalData?.name ?? '-'}
-							startDate={finalData?.startDate ? format(new Date(finalData.startDate), 'd.MM.yyyy') : '-'}
-							endDate={finalData?.endDate ? format(new Date(finalData.endDate), 'd.MM.yyyy') : '-'}
+							startDate={safeFormatDate(finalData?.startDate)}
+							endDate={safeFormatDate(finalData?.endDate)}
 							websiteUrl={finalData?.projectUrl ?? undefined}
 							projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
 							description={finalData?.description ?? undefined}
