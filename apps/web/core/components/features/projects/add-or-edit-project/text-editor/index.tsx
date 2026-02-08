@@ -192,6 +192,7 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue, onValidityCh
 					const isAstChange = editor.operations.some((op) => op.type !== 'set_selection');
 
 					if (isAstChange) {
+						// Use slateValueToText (not Editor.string) so inline text nodes are joined without spaces; otherwise partially formatted words count as multiple words.
 						const text = slateValueToText(value);
 						const words = countWords(text);
 						const html = slateToHtml(value, configSlateToHtml);
