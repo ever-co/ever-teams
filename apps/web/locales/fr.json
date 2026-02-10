@@ -756,11 +756,14 @@
 		"settings": {
 			"BREADCRUMB": "[\"Tableau de bord\", \"Paramètres\"]",
 			"DANDER_ZONE": "Zone de danger",
+			"working_hours": "Working hours",
 			"HEADING_DESCRIPTION": "Paramétrez et gérez votre tableau de bord personnel ici",
 			"ARE_YOU_SURE_TO_DELETE_USER": "Êtes-vous sûr de vouloir supprimer cet utilisateur ?"
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "Paramètres généraux",
+			"goToTeamSettings": "Aller aux paramètres d'équipe",
+			"WORKING_HOURS": "Working hours",
 			"emailNotValid": "Veuillez fournir une adresse e-mail valide",
 			"phoneNotValid": "Veuillez fournir un numéro de téléphone valide",
 			"WORK_SCHEDULE": "Calendrier de travail",

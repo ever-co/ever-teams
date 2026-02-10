@@ -182,7 +182,6 @@
 		"CREATE_TASK": "Create New Task",
 		"REMOVE_FAVORITE_TASK": "Remove Task from Favorites",
 		"ADD_FAVORITE_TASK": "Add Task to Favorites",
-		"NO_PROJECT": "No Project",
 		"NO_FAVORITE_TASK": "No Favorite Tasks Yet",
 		"LINK_TASK": "Select Related Issue",
 		"LINK": "Link",
@@ -417,7 +416,6 @@
 		"HOURS": "Hours",
 		"START_DATE": "Start Date",
 		"END_DATE": "End Date",
-		"MEMBERS": "Members",
 		"MANAGERS": "Managers",
 		"NOT_HOURS_WORKED": "Not hours worked",
 		"MEMBERS_COUNT": "Members count",
@@ -755,11 +753,14 @@
 		"settings": {
 			"BREADCRUMB": "[\"Dashboard\", \"Settings\"]",
 			"DANDER_ZONE": "Danger Zone",
+			"working_hours": "Working hours",
 			"HEADING_DESCRIPTION": "Setting dan manage your dashboard here",
 			"ARE_YOU_SURE_TO_DELETE_USER": "Are you sure you want to delete this user?"
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "General Settings",
+			"goToTeamSettings": "Go to Team settings",
+			"WORKING_HOURS": "Working hours",
 			"emailNotValid": "Please provide a valid Email",
 			"phoneNotValid": "Please provide a valid Phone Number",
 			"WORK_SCHEDULE": "Work Schedule",

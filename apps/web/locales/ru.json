@@ -752,11 +752,14 @@
 		"settings": {
 			"BREADCRUMB": "[\"Панель управления\", \"Настройки\"]",
 			"DANDER_ZONE": "Опасная зона",
+			"working_hours": "Working hours",
 			"HEADING_DESCRIPTION": "Настройки и управление вашей персональной панелью управления здесь",
 			"ARE_YOU_SURE_TO_DELETE_USER": "Вы уверены, что хотите удалить этого пользователя?"
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "Configurações Gerais",
+			"goToTeamSettings": "Go to Team settings",
+			"WORKING_HOURS": "Working hours",
 			"emailNotValid": "Пожалуйста, укажите действительный адрес электронной почты",
 			"phoneNotValid": "Пожалуйста, укажите действительный номер телефона",
 			"WORK_SCHEDULE": "График работы",

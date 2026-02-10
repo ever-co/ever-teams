@@ -753,11 +753,15 @@
 		"settings": {
 			"BREADCRUMB": "[\"Painel de Controle\", \"Configurações\"]",
 			"DANDER_ZONE": "Zona de Perigo",
+			"working_hours": "Working hours",
 			"HEADING_DESCRIPTION": "Configurar e gerenciar seu painel pessoal aqui",
 			"ARE_YOU_SURE_TO_DELETE_USER": "Tem certeza de que deseja excluir este usuário?"
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "Configurações Gerais",
+			"goToTeamSettings": "Go to Team settings",
+			"WORKING_HOURS": "Horário de trabalho",
+			"goToTeamSettings": "Ir para configurações da equipe",
 			"emailNotValid": "Por favor, forneça um e-mail válido",
 			"phoneNotValid": "Por favor, forneça um número de telefone válido",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "Você está prestes a excluir sua conta e todos os seus dados?",

@@ -10,13 +10,13 @@ export const useLeftSettingData = () => {
 			managerOnly: false
 		},
 		{
-			title: 'Working hours',
+			title: t('pages.settingsPersonal.WORKING_HOURS'),
 			color: '#7E7991',
 			href: '#working-hours',
 			managerOnly: true
 		},
 		{
-			title: 'Data Synchronization',
+			title: t('pages.settingsPersonal.DATA_SYNCHRONIZATION'),
 			color: '#7E7991',
 			href: '#sync-zone',
 			managerOnly: true

@@ -752,11 +752,14 @@
 		"settings": {
 			"BREADCRUMB": "[\"仪表板\", \"设置\"]",
 			"DANDER_ZONE": "危险区域",
+			"working_hours": "Working hours",
 			"HEADING_DESCRIPTION": "在此设置和管理您的个人仪表板",
 			"ARE_YOU_SURE_TO_DELETE_USER": "您确定要删除此用户吗?"
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "常规设置",
+			"goToTeamSettings": "Go to Team settings",
+			"WORKING_HOURS": "Working hours",
 			"emailNotValid": "请输入有效的电子邮箱",
 			"phoneNotValid": "请输入有效的手机号码",
 			"WORK_SCHEDULE": "工作时间表",

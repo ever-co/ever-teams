@@ -752,11 +752,14 @@
 		"settings": {
 			"BREADCRUMB": "[\"לוח מחוונים\", \"הגדרות\"]",
 			"DANDER_ZONE": "אזור סיכון",
+			"working_hours": "Working hours",
 			"HEADING_DESCRIPTION": "הגדר ונהל את לוח הבקרה האישי שלך כאן",
 			"ARE_YOU_SURE_TO_DELETE_USER": "האם אתה בטוח שברצונך למחוק משתמש זה?"
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "הגדרות כלליות",
+			"goToTeamSettings": "Go to Team settings",
+			"WORKING_HOURS": "Working hours",
 			"emailNotValid": "אנא ספק כתובת אימייל חוקית",
 			"phoneNotValid": "אנא ספק מספר טלפון חוקי",
 			"WORK_SCHEDULE": "לוח זמנים",

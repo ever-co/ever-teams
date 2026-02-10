@@ -27,7 +27,7 @@ const Personal = () => {
 		<div className="overflow-auto pb-16">
 			<Link href={'/settings/team'} className="w-full">
 				<button className="p-4 mt-2 w-full rounded-xl border lg:hidden hover:bg-white border-dark text-dark">
-					Go to Team settings
+					{t('pages.settingsPersonal.goToTeamSettings')}
 				</button>
 			</Link>
 			<InteractionObserverVisible id="general" setActiveSection={setActivePersonalTab}>
@@ -47,7 +47,7 @@ const Personal = () => {
 			</InteractionObserverVisible>
 
 			<InteractionObserverVisible id="working-hours" setActiveSection={setActivePersonalTab}>
-				<Accordian title="Working hours" className="p-4 mt-4 dark:bg-dark--theme" id="working-hours">
+				<Accordian title={t('pages.settingsPersonal.WORKING_HOURS')} className="p-4 mt-4 dark:bg-dark--theme" id="working-hours">
 					<Suspense fallback={<WorkingHoursSkeleton />}>
 						<LazyWorkingHours />
 					</Suspense>

@@ -752,11 +752,14 @@
 		"settings": {
 			"BREADCRUMB": "[\"Dashboard\", \"Settings\"]",
 			"DANDER_ZONE": "Strefa Zagrożenia",
+			"working_hours": "Working hours",
 			"HEADING_DESCRIPTION": "Ustawienia i zarządzanie Twoim osobistym panelem tutaj",
 			"ARE_YOU_SURE_TO_DELETE_USER": "Czy na pewno chcesz usunąć tego użytkownika?"
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "Ustawienia Ogólne",
+			"goToTeamSettings": "Go to Team settings",
+			"WORKING_HOURS": "Working hours",
 			"emailNotValid": "Proszę podać poprawny adres e-mail",
 			"phoneNotValid": "Proszę podać poprawny numer telefonu",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "Zamierzasz usunąć swoje konto i wszystkie swoje dane?",

@@ -752,11 +752,14 @@
 		"settings": {
 			"BREADCRUMB": "[\"Dashboard\", \"Instellingen\"]",
 			"DANDER_ZONE": "Gevaarlijke zone",
+			"working_hours": "Working hours",
 			"HEADING_DESCRIPTION": "Stel hier uw persoonlijke dashboard in",
 			"ARE_YOU_SURE_TO_DELETE_USER": "Weet u zeker dat u deze gebruiker wilt verwijderen?"
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "Algemene instellingen",
+			"goToTeamSettings": "Go to Team settings",
+			"WORKING_HOURS": "Working hours",
 			"emailNotValid": "Voer een geldig e-mailadres in",
 			"phoneNotValid": "Voer een geldig telefoonnummer in",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "U staat op het punt uw account en al uw gegevens te verwijderen?",
