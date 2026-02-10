@@ -752,14 +752,14 @@
 		"settings": {
 			"BREADCRUMB": "[\"Tablero\", \"Ajustes\"]",
 			"DANDER_ZONE": "Zona de peligro",
-			"working_hours": "Working hours",
+			"working_hours": "Horario de trabajo",
 			"HEADING_DESCRIPTION": "Configurar y administrar su tablero personal aquí",
 			"ARE_YOU_SURE_TO_DELETE_USER": "¿Estás seguro de que deseas eliminar este usuario?"
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "Ajustes generales",
-			"goToTeamSettings": "Go to Team settings",
-			"WORKING_HOURS": "Working hours",
+			"goToTeamSettings": "Ir a ajustes del equipo",
+			"WORKING_HOURS": "Horario de trabajo",
 			"emailNotValid": "Por favor provea un Email válido",
 			"phoneNotValid": "Por favor provea un Número de Teléfono válido",
 			"WORK_SCHEDULE": "Horario de trabajo",

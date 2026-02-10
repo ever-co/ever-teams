@@ -752,15 +752,14 @@
 		"settings": {
 			"BREADCRUMB": "[\"Pannello di controllo\", \"Impostazioni\"]",
 			"DANDER_ZONE": "Zona Pericolosa",
-			"working_hours": "Working hours",
+			"working_hours": "Orario di lavoro",
 			"HEADING_DESCRIPTION": "Impostazione e gestione del tuo dashboard personale qui",
 			"ARE_YOU_SURE_TO_DELETE_USER": "Sei sicuro di voler eliminare questo utente?"
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "Impostazioni Generali",
-			"goToTeamSettings": "Go to Team settings",
-			"WORKING_HOURS": "Orario di lavoro",
 			"goToTeamSettings": "Vai alle impostazioni del team",
+			"WORKING_HOURS": "Orario di lavoro",
 			"emailNotValid": "Fornisci un indirizzo email valido",
 			"phoneNotValid": "Fornisci un numero di telefono valido",
 			"WORK_SCHEDULE": "Orario di Lavoro",
