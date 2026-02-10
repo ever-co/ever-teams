@@ -8,17 +8,28 @@ interface isProps {
 	className: string;
 	wrapperClassName?: string;
 	textClassName?: string;
+	defaultOpen?: boolean;
+	onHeaderClick?: () => void;
 }
-export const SidebarAccordian = ({ children, title, className, wrapperClassName, textClassName }: isProps) => {
+export const SidebarAccordian = ({
+	children,
+	title,
+	className,
+	wrapperClassName,
+	textClassName,
+	defaultOpen = true,
+	onHeaderClick
+}: isProps) => {
 	return (
 		<div className="w-full ">
 			<div
 				className={`rounded-2xl bg-[transparent]  ${className} shadow-[0px_14px_34px_rgba(0,0,0,0.05)] dark:bg-dark--theme `}
 			>
-				<Disclosure defaultOpen>
+				<Disclosure defaultOpen={defaultOpen}>
 					{({ open }) => (
 						<div>
 							<Disclosure.Button
+								onClick={() => onHeaderClick?.()}
 								className={`flex w-full justify-between rounded-lg px-4 py-2 text-left font-medium items-center ${wrapperClassName} pt-[0.15rem] pb-0 ${open ? 'text-[#3826a6] border-l-solid border-l-primary bg-[#E9E5F9] dark:bg-[#6755C9]' : 'border-l-transparent'}`}
 							>
 								<Text

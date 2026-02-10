@@ -6,27 +6,38 @@ export const useLeftSettingData = () => {
 		{
 			title: t('pages.settingsTeam.GENERAL'),
 			color: '#7E7991',
-			href: '#general'
+			href: '#general',
+			managerOnly: false
 		},
 		{
 			title: 'Working hours',
 			color: '#7E7991',
 			href: '#working-hours',
+			managerOnly: true
+		},
+		{
+			title: 'Data Synchronization',
+			color: '#7E7991',
+			href: '#sync-zone',
+			managerOnly: true
 		},
 		// {
 		// 	title: t('pages.settingsPersonal.WORK_SCHEDULE'),
 		// 	color: '#7E7991',
 		// 	href: '#work-schedule',
+		// 	managerOnly: true
 		// },
 		// {
 		// 	title: t('pages.settingsPersonal.SUBSCRIPTION'),
 		// 	color: '#7E7991',
 		// 	href: '#subscription',
+		// 	managerOnly: true
 		// },
 		{
 			title: t('pages.settings.DANDER_ZONE'),
 			color: '#DE5536',
-			href: '#danger-zone'
+			href: '#danger-zone',
+			managerOnly: false
 		}
 	];
 
@@ -61,30 +72,30 @@ export const useLeftSettingData = () => {
 			href: '#issues-settings',
 			managerOnly: false
 		},
-		{
-			title: t('pages.settingsTeam.TASK_STATUSES'),
-			color: '#7E7991',
-			href: '#statuses',
-			managerOnly: false
-		},
-		{
-			title: t('pages.settingsTeam.PRIORITIES_HEADING'),
-			color: '#7E7991',
-			href: '#priorities',
-			managerOnly: false
-		},
-		{
-			title: t('pages.settingsTeam.SIZES_HEADING'),
-			color: '#7E7991',
-			href: '#sizes',
-			managerOnly: false
-		},
-		{
-			title: t('common.LABELS'),
-			color: '#7E7991',
-			href: '#labels',
-			managerOnly: false
-		},
+		// {
+		// 	title: t('pages.settingsTeam.TASK_STATUSES'),
+		// 	color: '#7E7991',
+		// 	href: '#statuses',
+		// 	managerOnly: false
+		// },
+		// {
+		// 	title: t('pages.settingsTeam.PRIORITIES_HEADING'),
+		// 	color: '#7E7991',
+		// 	href: '#priorities',
+		// 	managerOnly: false
+		// },
+		// {
+		// 	title: t('pages.settingsTeam.SIZES_HEADING'),
+		// 	color: '#7E7991',
+		// 	href: '#sizes',
+		// 	managerOnly: false
+		// },
+		// {
+		// 	title: t('common.LABELS'),
+		// 	color: '#7E7991',
+		// 	href: '#labels',
+		// 	managerOnly: false
+		// },
 		// {
 		// 	title: t('pages.settingsTeam.RELATED_ISSUE_TYPE'),
 		// 	color: '#7E7991',
