@@ -22,6 +22,7 @@ export const refresh = async (refresh_token: string) => {
 	return {
 		status: 200,
 		user: user,
-		access_token: data.token
+		access_token: data.token,
+		refresh_token: data.refresh_token
 	};
 };
