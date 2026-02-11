@@ -60,7 +60,7 @@ class RegisterService extends APIService {
 	};
 
 	refreshToken = async (refresh_token: string) => {
-		return this.post<{ token: string }>('/auth/refresh-token', {
+		return this.post<{ token: string; refresh_token: string }>('/auth/refresh-token', {
 			refresh_token
 		}).then(({ data }) => data);
 	};
@@ -143,7 +143,7 @@ class RegisterService extends APIService {
 		setAuthCookies({
 			access_token: auth_token,
 			refresh_token: {
-				token: loginRes.refresh_token
+				token: refreshTokenRes.refresh_token || loginRes.refresh_token // Use new refresh token if provided
 			},
 			timezone: body['timezone'],
 			teamId: team.id ?? '',
