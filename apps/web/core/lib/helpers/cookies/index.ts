@@ -224,6 +224,10 @@ export function getRefreshTokenCookie(ctx?: NextCtx) {
 	return getCookie(REFRESH_TOKEN_COOKIE_NAME, ctx) as string;
 }
 
+export function setRefreshTokenCookie(refreshToken: string, ctx?: NextCtx) {
+	return setCookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, ctx);
+}
+
 export function setAccessTokenCookie(accessToken: string, ctx?: NextCtx) {
 	// Handle Large Access Token
 	// Cookie can support upto 4096 characters only!

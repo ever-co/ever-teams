@@ -1,5 +1,5 @@
 import { APIService, getFallbackAPI } from '../../api.service';
-import { getRefreshTokenCookie, setAccessTokenCookie } from '@/core/lib/helpers/cookies';
+import { getRefreshTokenCookie, setAccessTokenCookie, setRefreshTokenCookie } from '@/core/lib/helpers/cookies';
 import {
 	APP_LOGO_URL,
 	APP_NAME,
@@ -35,7 +35,7 @@ class AuthService extends APIService {
 		try {
 			if (GAUZY_API_BASE_SERVER_URL.value) {
 				console.log('[AuthService] Using direct Gauzy API for token refresh');
-				const { data } = await this.post<{ token: string }>('/auth/refresh-token', {
+				const { data } = await this.post<{ token: string; refresh_token: string }>('/auth/refresh-token', {
 					refresh_token
 				});
 
@@ -43,7 +43,15 @@ class AuthService extends APIService {
 					throw new Error('No token received from refresh endpoint');
 				}
 
+				// Update both access token and refresh token
 				setAccessTokenCookie(data.token);
+
+				// Update refresh token if a new one is provided (token rotation)
+				if (data.refresh_token) {
+					setRefreshTokenCookie(data.refresh_token);
+					console.log('[AuthService] Refresh token rotated successfully');
+				}
+
 				console.log('[AuthService] Token refreshed successfully via direct API');
 
 				// Get fresh user data with the new token
@@ -56,11 +64,17 @@ class AuthService extends APIService {
 				refresh_token
 			});
 
-			// Store the token client-side (the API route returns it in the body)
+			// Store the tokens client-side (the API route returns them in the body)
 			// This is necessary because the API route's Set-Cookie header is lost
 			// when returning NextResponse.json() instead of the modified response object
 			if (result.data?.token) {
 				setAccessTokenCookie(result.data.token);
+			}
+
+			// Update refresh token if a new one is provided (token rotation)
+			if (result.data?.refresh_token) {
+				setRefreshTokenCookie(result.data.refresh_token);
+				console.log('[AuthService] Refresh token rotated successfully via API route');
 			}
 
 			console.log('[AuthService] Token refreshed successfully via API route');

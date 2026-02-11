@@ -34,7 +34,13 @@ export async function POST(req: Request) {
 		// 1. NextResponse.json() creates a new response object, losing any headers set on `res`
 		// 2. The client (authService.refreshToken) stores the token from the JSON body
 		// This keeps the responsibility clear: API returns data, client manages cookies.
-		return NextResponse.json({ user, token: refreshResult.data.token });
+
+		// Return both token and refresh_token (if provided by backend for token rotation)
+		return NextResponse.json({
+			user,
+			token: refreshResult.data.token,
+			refresh_token: refreshResult.data.refresh_token // Include new refresh token if provided
+		});
 	} catch (error: any) {
 		// IMPORTANT: Default to 500, NOT 401, for unknown errors.
 		// Why? Errors without a status code are typically network/timeout issues.
