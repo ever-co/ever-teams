@@ -1,6 +1,8 @@
 'use client';
 
-import { useModal, useTeamInvitations } from '@/core/hooks';
+import { useModal } from '@/core/hooks';
+import { useRespondToInvitation } from '@/core/hooks/invitations/use-respond-to-invitation';
+import { useMyInvitationsQuery } from '@/core/hooks/invitations/use-my-invitations-query';
 import { clsxm } from '@/core/lib/utils';
 import { Button, Modal, Text } from '@/core/components';
 import { CrossCircleIcon as CloseCircleIcon } from 'assets/svg';
@@ -21,7 +23,8 @@ interface IProps {
 export function TeamInvitations(props: IProps) {
 	const { className, myInvitationsList, myInvitations } = props;
 	const t = useTranslations();
-	const { removeMyInvitation, acceptRejectMyInvitation, acceptRejectMyInvitationsLoading } = useTeamInvitations();
+	const { acceptOrRejectInvitation, acceptOrRejectLoading } = useRespondToInvitation();
+	const { removeMyInvitation } = useMyInvitationsQuery();
 	const { isOpen, closeModal, openModal } = useModal();
 	const [action, setAction] = useState<EInviteAction>();
 	const [actionInvitationId, setActionInvitationId] = useState<string>();
@@ -42,9 +45,9 @@ export function TeamInvitations(props: IProps) {
 
 	const handleAcceptReject = useCallback(async () => {
 		if (actionInvitationId && action) {
-			return acceptRejectMyInvitation(actionInvitationId, action);
+			return acceptOrRejectInvitation(actionInvitationId, action);
 		}
-	}, [action, actionInvitationId, acceptRejectMyInvitation]);
+	}, [action, actionInvitationId, acceptOrRejectInvitation]);
 	const handleOpenModal = (invitationid: string, action: EInviteAction) => {
 		setAction(action);
 		setActionInvitationId(invitationid);
@@ -118,7 +121,7 @@ export function TeamInvitations(props: IProps) {
 				open={isOpen}
 				close={closeModal}
 				onAction={handleAcceptReject}
-				loading={acceptRejectMyInvitationsLoading}
+				loading={acceptOrRejectLoading}
 				title={
 					action === EInviteAction.ACCEPTED
 						? t('pages.home.CONFIRM_ACCEPT_INVITATION')
