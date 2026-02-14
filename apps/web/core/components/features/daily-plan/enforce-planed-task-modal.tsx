@@ -1,4 +1,5 @@
-import { useAuthenticateUser, useTimer } from '@/core/hooks';
+import { useAuthenticateUser } from '@/core/hooks';
+import { useTimerPlanStatus } from '@/core/hooks/timer';
 import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
@@ -25,7 +26,7 @@ export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 	const { user } = useAuthenticateUser();
 	const t = useTranslations();
 
-	const { hasPlan } = useTimer();
+	const { hasPlan } = useTimerPlanStatus();
 
 	const activeTeam = useAtomValue(activeTeamState);
 

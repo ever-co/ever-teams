@@ -5,7 +5,9 @@
 	"$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
 	"words": [
 		"Buildx",
+		"desync",
 		"setuid",
+		"Desync",
 		"pulumi",
 		"cimg",
 		"ubicloud",

@@ -1,4 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
+
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 /**
  * Hook for managing optimistic UI state for timer buttons
@@ -16,8 +18,8 @@ export function useTimerOptimisticUI({
 	onStop,
 	onStart
 }: {
-	onStop?: () => Promise<void>;
-	onStart?: () => Promise<void>;
+	onStop?: () => void | Promise<void>;
+	onStart?: (explicitTask?: TTask) => void | Promise<void>;
 }) {
 	// Optimistic UI state: null means use real state, true/false means use optimistic state
 	const [optimisticRunning, setOptimisticRunning] = useState<boolean | null>(null);
@@ -57,25 +59,28 @@ export function useTimerOptimisticUI({
 	 * - Reset optimistic state when done
 	 * - Propagates errors to caller so they can handle start failures
 	 */
-	const handleStart = useCallback(async () => {
-		if (!onStart) return;
+	const handleStart = useCallback(
+		async (explicitTask?: TTask) => {
+			if (!onStart) return;
 
-		// Optimistic UI: immediately show button as running
-		setOptimisticRunning(true);
+			// Optimistic UI: immediately show button as running
+			setOptimisticRunning(true);
 
-		try {
-			await onStart();
-		} catch (error) {
-			// Reset optimistic state before propagating error
-			setOptimisticRunning(null);
-			// Propagate error to caller so they can handle start failures
-			console.error('Failed to start timer:', error);
-			throw error;
-		} finally {
-			// Always reset optimistic state when done
-			setOptimisticRunning(null);
-		}
-	}, [onStart]);
+			try {
+				await onStart(explicitTask);
+			} catch (error) {
+				// Reset optimistic state before propagating error
+				setOptimisticRunning(null);
+				// Propagate error to caller so they can handle start failures
+				console.error('Failed to start timer:', error);
+				throw error;
+			} finally {
+				// Always reset optimistic state when done
+				setOptimisticRunning(null);
+			}
+		},
+		[onStart]
+	);
 
 	/**
 	 * Reset optimistic state to use real state

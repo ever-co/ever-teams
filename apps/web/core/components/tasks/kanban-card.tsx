@@ -1,25 +1,27 @@
-import { DraggableProvided } from '@hello-pangea/dnd';
+import { useAtom, useAtomValue } from 'jotai';
+import Link from 'next/link';
+
+import {
+    LazyImageComponent, LazyMenuKanbanCard
+} from '@/core/components/optimized-components/kanban';
+import {
+    LazyTaskAllStatusTypes, LazyTaskInput, LazyTaskIssueStatus
+} from '@/core/components/optimized-components/tasks';
+import CircularProgress from '@/core/components/svgs/circular-progress';
 import PriorityIcon from '@/core/components/svgs/priority-icon';
 import { useTaskStatistics, useTeamMemberCard, useTimerView } from '@/core/hooks';
-import { ImageOverlapperProps } from '../common/image-overlapper';
-import Link from 'next/link';
-import CircularProgress from '@/core/components/svgs/circular-progress';
-import { secondsToTime } from '@/core/lib/helpers/index';
-import { activeTeamState, activeTeamTaskId, activeTeamTaskState } from '@/core/stores';
-import { useAtom, useAtomValue } from 'jotai';
-import { HorizontalSeparator } from '../duplicated-components/separator';
-import { ITag } from '@/core/types/interfaces/tag/tag';
-import { ETaskPriority } from '@/core/types/generics/enums/task';
-import { TTask } from '@/core/types/schemas/task/task.schema';
-import { TTaskStatistics } from '@/core/types/interfaces/task/task';
-
-import { LazyImageComponent, LazyMenuKanbanCard } from '@/core/components/optimized-components/kanban';
-import {
-	LazyTaskAllStatusTypes,
-	LazyTaskInput,
-	LazyTaskIssueStatus
-} from '@/core/components/optimized-components/tasks';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { secondsToTime } from '@/core/lib/helpers/index';
+import { getTaskTotalWorkedDuration } from '@/core/lib/utils/task.utils';
+import { activeTeamState, activeTeamTaskId, activeTeamTaskState } from '@/core/stores';
+import { ETaskPriority } from '@/core/types/generics/enums/task';
+import { ITag } from '@/core/types/interfaces/tag/tag';
+import { TTaskStatistics } from '@/core/types/interfaces/task/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { DraggableProvided } from '@hello-pangea/dnd';
+
+import { ImageOverlapperProps } from '../common/image-overlapper';
+import { HorizontalSeparator } from '../duplicated-components/separator';
 
 function getStyle(provided: DraggableProvided, style: any) {
 	if (!style) {
@@ -76,7 +78,7 @@ function TagCard({ title, backgroundColor, color }: { title: string; backgroundC
 export function TagList({ tags }: { tags: ITag[] }) {
 	return (
 		<>
-			<div className="flex flex-wrap gap-1 items-center">
+			<div className="flex flex-wrap items-center gap-1">
 				{tags.map((tag: ITag, index: number) => {
 					return <TagCard key={index} title={tag.name} backgroundColor={tag.color} color={'#FFFFFF'} />;
 				})}
@@ -97,7 +99,7 @@ export function Priority({ level }: { level: ETaskPriority | string }) {
 				style={{
 					marginTop: -4.5 * levelIntoNumber
 				}}
-				className="flex relative flex-col"
+				className="relative flex flex-col"
 			>
 				{numberArray.map((item: any, index: number) => {
 					return (
@@ -142,13 +144,7 @@ export default function Item(props: ItemProps) {
 
 	const members = activeTeam?.members || [];
 	const currentUser = members.find((m) => m.employee?.userId === user?.id);
-	let totalWorkedTasksTimer = 0;
-	activeTeam?.members?.forEach((member) => {
-		const totalWorkedTasks = member?.totalWorkedTasks?.find((i: TTask) => i.id === item?.id) || null;
-		if (totalWorkedTasks) {
-			totalWorkedTasksTimer += totalWorkedTasks.duration || 0;
-		}
-	});
+	const totalWorkedTasksTimer = getTaskTotalWorkedDuration(activeTeam?.members, item.id);
 
 	const memberInfo = useTeamMemberCard(currentUser);
 
@@ -205,7 +201,7 @@ export default function Item(props: ItemProps) {
 						<LazyMenuKanbanCard member={currentMember} item={props.item} />
 					</span>
 				</div>
-				<div className="flex justify-between my-3 w-full">
+				<div className="flex justify-between w-full my-3">
 					<div className="flex items-center w-64">
 						{activeTask?.id == item.id ? (
 							<>
@@ -229,7 +225,7 @@ export default function Item(props: ItemProps) {
 							</>
 						) : (
 							<Link href={`/task/${item.id}`}>
-								<div className="overflow-hidden relative w-64">
+								<div className="relative w-64 overflow-hidden">
 									{item.issueType && (
 										<span className="inline-block w-6 h-5">
 											<span className="absolute top-1">
@@ -257,17 +253,17 @@ export default function Item(props: ItemProps) {
 				<div className="my-2">
 					<HorizontalSeparator />
 				</div>
-				<div className="flex justify-between items-center w-full h-10">
+				<div className="flex items-center justify-between w-full h-10">
 					<div>
 						{item.id === activeTeamTask?.id && timerStatus?.running ? (
-							<div className="flex gap-2 items-center">
+							<div className="flex items-center gap-2">
 								<small className="text-xs text-grey text-normal">Live:</small>
 								<p className="text-[#219653] font-medium text-sm">
 									{h}h : {m}m : {s}s
 								</p>
 							</div>
 						) : (
-							<div className="flex gap-2 items-center">
+							<div className="flex items-center gap-2">
 								<small className="text-xs text-grey text-normal">Worked:</small>
 								<p className="text-sm font-medium text-black dark:text-white">
 									{h}h : {m}m

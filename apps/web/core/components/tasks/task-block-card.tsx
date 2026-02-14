@@ -1,19 +1,24 @@
-import { TTaskStatistics } from '@/core/types/interfaces/task/task';
-import { TaskInput } from './task-input';
 import { useAtom, useAtomValue } from 'jotai';
-import { activeTeamState, activeTeamTaskId, activeTeamTaskState, timerStatusState } from '@/core/stores';
 import Link from 'next/link';
-import { useTaskStatistics, useTeamMemberCard } from '@/core/hooks';
-import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
-import { TaskIssueStatus } from './task-issue';
-import { Priority, setCommentIconColor } from '@/core/components/tasks/kanban-card';
-import CircularProgress from '@/core/components/svgs/circular-progress';
-import { secondsToTime } from '@/core/lib/helpers/index';
 import React from 'react';
-import { HorizontalSeparator } from '../duplicated-components/separator';
-import { TTask } from '@/core/types/schemas/task/task.schema';
+
+import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
+import CircularProgress from '@/core/components/svgs/circular-progress';
+import { Priority, setCommentIconColor } from '@/core/components/tasks/kanban-card';
+import { useTaskStatistics, useTeamMemberCard } from '@/core/hooks';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { secondsToTime } from '@/core/lib/helpers/index';
+import { getTaskTotalWorkedDuration } from '@/core/lib/utils/task.utils';
+import {
+    activeTeamState, activeTeamTaskId, activeTeamTaskState, timerStatusState
+} from '@/core/stores';
+import { TTaskStatistics } from '@/core/types/interfaces/task/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+
+import { HorizontalSeparator } from '../duplicated-components/separator';
 import { LazyMenuKanbanCard, LazyTaskAllStatusTypes } from '../optimized-components';
+import { TaskInput } from './task-input';
+import { TaskIssueStatus } from './task-issue';
 
 interface TaskItemProps {
 	task: TTask;
@@ -32,13 +37,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
 	const members = activeTeam?.members || [];
 	const currentUser = members.find((m) => m.employee?.userId === user?.id);
 
-	let totalWorkedTasksTimer = 0;
-	activeTeam?.members?.forEach((member) => {
-		const totalWorkedTasks = member?.totalWorkedTasks?.find((i: TTask) => i.id === task?.id) || null;
-		if (totalWorkedTasks) {
-			totalWorkedTasksTimer += totalWorkedTasks.duration || 0;
-		}
-	});
+	const totalWorkedTasksTimer = getTaskTotalWorkedDuration(activeTeam?.members, task.id);
 
 	const memberInfo = useTeamMemberCard(currentUser);
 
@@ -94,7 +93,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
 						<LazyMenuKanbanCard member={currentMember} item={task} />
 					</span>
 				</div>
-				<div className="flex justify-between my-3 w-full">
+				<div className="flex justify-between w-full my-3">
 					<div className="flex items-center w-64">
 						{activeTask?.id == task.id ? (
 							<>
@@ -148,17 +147,17 @@ export default function TaskBlockCard(props: TaskItemProps) {
 				<div className="my-2">
 					<HorizontalSeparator />
 				</div>
-				<div className="flex justify-between items-center w-full h-10">
+				<div className="flex items-center justify-between w-full h-10">
 					<div>
 						{activeTaskStatus ? (
-							<div className="flex gap-2 items-center">
+							<div className="flex items-center gap-2">
 								<small className="text-xs text-grey text-normal">Live:</small>
 								<p className="text-[#219653] font-medium text-sm">
 									{h}h : {m}m : {s}s
 								</p>
 							</div>
 						) : (
-							<div className="flex gap-2 items-center">
+							<div className="flex items-center gap-2">
 								<small className="text-xs text-grey text-normal">Worked:</small>
 								<p className="text-sm font-medium text-black whitespace-nowrap text-nowrap min-w-20 dark:text-white">
 									{h}h : {m}m : {s}s
