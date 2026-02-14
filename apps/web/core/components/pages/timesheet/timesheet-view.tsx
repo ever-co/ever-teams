@@ -1,4 +1,4 @@
-import { GroupedTimesheet } from '@/core/hooks/activities/use-timesheet';
+import type { GroupedTimesheet } from '@/core/lib/helpers/timesheet-grouping';
 import { TUser } from '@/core/types/schemas';
 import { DataTableTimeSheet } from '@/core/components/integration/calendar';
 import { useTranslations } from 'next-intl';

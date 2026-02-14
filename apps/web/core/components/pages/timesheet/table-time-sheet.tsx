@@ -26,7 +26,10 @@ import {
 } from '@/core/components/timesheet';
 import { useTranslations } from 'next-intl';
 import { formatDate } from '@/core/lib/helpers/index';
-import { GroupedTimesheet, useTimesheet } from '@/core/hooks/activities/use-timesheet';
+import type { GroupedTimesheet } from '@/core/lib/helpers/timesheet-grouping';
+import { getStatusTimesheet, groupedByTimesheetIds } from '@/core/lib/helpers/timesheet-grouping';
+import { useDeleteTimesheet } from '@/core/hooks/timesheet/use-delete-timesheet';
+import { useUpdateTimesheet } from '@/core/hooks/timesheet/use-update-timesheet';
 import {
 	DisplayTimeForTimesheet,
 	TaskNameInfoDisplay,
@@ -69,13 +72,8 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 		closeModal: closeAlertConfirmation
 	} = alertConfirmationModal;
 
-	const {
-		deleteTaskTimesheet,
-		loadingDeleteTimesheet,
-		getStatusTimesheet,
-		updateTimesheetStatus,
-		groupedByTimesheetIds
-	} = useTimesheet({});
+	const { deleteTaskTimesheet, loadingDeleteTimesheet } = useDeleteTimesheet();
+	const { updateTimesheetStatus } = useUpdateTimesheet();
 	const {
 		timesheetGroupByDays,
 		handleSelectRowByStatusAndDate,
@@ -408,7 +406,7 @@ const TaskActionMenu = ({
 }) => {
 	const { isOpen: isEditTask, openModal: isOpenModalEditTask, closeModal: isCloseModalEditTask } = useModal();
 	const { isOpen: isOpenAlert, openModal: openAlertConfirmation, closeModal: closeAlertConfirmation } = useModal();
-	const { deleteTaskTimesheet, loadingDeleteTimesheet } = useTimesheet({});
+	const { deleteTaskTimesheet, loadingDeleteTimesheet } = useDeleteTimesheet();
 	const canEdit = isManage || user?.id === dataTimesheet.employee?.user.id;
 
 	const t = useTranslations();
@@ -473,7 +471,7 @@ const TaskActionMenu = ({
 
 export const StatusTask = ({ timesheet }: { timesheet: ITimeLog }) => {
 	const t = useTranslations();
-	const { updateTimesheetStatus, updateTimesheet } = useTimesheet({});
+	const { updateTimesheetStatus, updateTimesheet } = useUpdateTimesheet();
 	const handleUpdateTimesheet = async (isBillable: boolean) => {
 		await updateTimesheet({
 			id: timesheet.timesheetId,

@@ -6,7 +6,7 @@ import { Button, statusColor } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { ReactNode } from 'react';
 import { EmployeeAvatar } from '../../timesheet/compact-timesheet-component';
-import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
+import { getStatusTimesheet, groupByDate } from '@/core/lib/helpers/timesheet-grouping';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { cn } from '@/core/lib/helpers';
@@ -85,7 +85,7 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
 }
 
 export const TimesheetCardDetail = ({ data }: { data?: Record<ETimesheetStatus, ITimeLog[]> }) => {
-	const { getStatusTimesheet, groupByDate } = useTimesheet({});
+	// getStatusTimesheet & groupByDate imported as pure functions from timesheet-grouping
 	const { timesheetGroupByDays } = useTimelogFilterOptions();
 	const timesheetGroupByDate = groupByDate(data?.PENDING || []);
 	const t = useTranslations();
