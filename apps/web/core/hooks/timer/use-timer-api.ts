@@ -432,8 +432,6 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 			return Promise.resolve();
 		}
 
-		syncTimer();
-
 		// Prevent duplicate stopTimer calls within 500ms
 		// PRIMARY defense against race conditions causing 406 errors
 		const timeSinceLastStop = Date.now() - lastStopTimerTimestamp.current;
@@ -444,6 +442,10 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 
 		// Update timestamp BEFORE calling the API to prevent race conditions
 		lastStopTimerTimestamp.current = Date.now();
+
+		// Sync the last few seconds of work before stopping
+		// Placed after debounce check to avoid wasteful duplicate sync calls
+		syncTimer();
 
 		return stopTimerMutation
 			.mutateAsync(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS)

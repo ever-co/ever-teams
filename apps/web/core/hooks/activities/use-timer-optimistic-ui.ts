@@ -1,4 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
+
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 /**
  * Hook for managing optimistic UI state for timer buttons
@@ -16,8 +18,8 @@ export function useTimerOptimisticUI({
 	onStop,
 	onStart
 }: {
-	onStop?: () => void | Promise<any>;
-	onStart?: (explicitTask?: any) => void | Promise<any>;
+	onStop?: () => void | Promise<void>;
+	onStart?: (explicitTask?: TTask) => void | Promise<void>;
 }) {
 	// Optimistic UI state: null means use real state, true/false means use optimistic state
 	const [optimisticRunning, setOptimisticRunning] = useState<boolean | null>(null);
