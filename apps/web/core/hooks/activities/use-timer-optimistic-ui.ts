@@ -59,25 +59,28 @@ export function useTimerOptimisticUI({
 	 * - Reset optimistic state when done
 	 * - Propagates errors to caller so they can handle start failures
 	 */
-	const handleStart = useCallback(async () => {
-		if (!onStart) return;
+	const handleStart = useCallback(
+		async (explicitTask?: TTask) => {
+			if (!onStart) return;
 
-		// Optimistic UI: immediately show button as running
-		setOptimisticRunning(true);
+			// Optimistic UI: immediately show button as running
+			setOptimisticRunning(true);
 
-		try {
-			await onStart();
-		} catch (error) {
-			// Reset optimistic state before propagating error
-			setOptimisticRunning(null);
-			// Propagate error to caller so they can handle start failures
-			console.error('Failed to start timer:', error);
-			throw error;
-		} finally {
-			// Always reset optimistic state when done
-			setOptimisticRunning(null);
-		}
-	}, [onStart]);
+			try {
+				await onStart(explicitTask);
+			} catch (error) {
+				// Reset optimistic state before propagating error
+				setOptimisticRunning(null);
+				// Propagate error to caller so they can handle start failures
+				console.error('Failed to start timer:', error);
+				throw error;
+			} finally {
+				// Always reset optimistic state when done
+				setOptimisticRunning(null);
+			}
+		},
+		[onStart]
+	);
 
 	/**
 	 * Reset optimistic state to use real state

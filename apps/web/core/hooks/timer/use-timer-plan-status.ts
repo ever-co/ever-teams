@@ -57,7 +57,7 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 		() =>
 			myDailyPlans?.items.find(
 				(plan: TDailyPlan) =>
-					plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]) &&
+					moment(plan.date).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD') &&
 					plan.tasks &&
 					plan.tasks?.length > 0
 			),

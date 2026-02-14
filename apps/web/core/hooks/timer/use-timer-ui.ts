@@ -131,6 +131,10 @@ export function useTimerUi({ firstLoad, activeTeamTask }: UseTimerUiParams): Use
 		} else {
 			setTimeCounter(0);
 		}
+
+		return () => {
+			window.clearInterval(timeCounterIntervalRef.current);
+		};
 	}, [localTimerStatus, firstLoad, setTimeCounter, setTimeCounterInterval, timeCounterIntervalRef]);
 
 	// ==================== RETURN ====================

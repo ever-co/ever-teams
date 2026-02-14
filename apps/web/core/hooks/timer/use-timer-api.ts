@@ -174,35 +174,50 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 
 	// ==================== DERIVED STATE ====================
 
-	const hasPlan = myDailyPlans?.items.find(
-		(plan: TDailyPlan) =>
-			plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]) &&
-			plan.tasks &&
-			plan.tasks?.length > 0
+	const hasPlan = useMemo(
+		() =>
+			myDailyPlans?.items.find(
+				(plan: TDailyPlan) =>
+					moment(plan.date).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD') &&
+					plan.tasks &&
+					plan.tasks?.length > 0
+			),
+		[myDailyPlans?.items]
 	);
 
-	const tomorrow = moment().add(1, 'days');
-	const hasPlanForTomorrow = myDailyPlans?.items.find(
-		(plan: TDailyPlan) => moment(plan.date).format('YYYY-MM-DD') === tomorrow.format('YYYY-MM-DD')
-	);
+	const hasPlanForTomorrow = useMemo(() => {
+		const tomorrow = moment().add(1, 'days');
+		return myDailyPlans?.items.find(
+			(plan: TDailyPlan) => moment(plan.date).format('YYYY-MM-DD') === tomorrow.format('YYYY-MM-DD')
+		);
+	}, [myDailyPlans?.items]);
 
 	const requirePlan = activeTeam?.requirePlanToTrack;
 
-	let canTrack = true;
-	if (requirePlan) {
-		if (!hasPlan) canTrack = false;
-	}
+	const canTrack = useMemo(() => {
+		if (requirePlan && !hasPlan) return false;
+		return true;
+	}, [requirePlan, hasPlan]);
 
-	const isPlanVerified = requirePlan
-		? hasPlan &&
-			hasPlan?.workTimePlanned > 0 &&
-			!!hasPlan?.tasks?.every((task) => task.estimate && task.estimate > 0)
-		: true;
+	const isPlanVerified = useMemo(
+		() =>
+			requirePlan
+				? hasPlan &&
+					hasPlan?.workTimePlanned > 0 &&
+					!!hasPlan?.tasks?.every((task) => task.estimate && task.estimate > 0)
+				: true,
+		[requirePlan, hasPlan]
+	);
 
-	const canRunTimer = !!(
-		user?.isEmailVerified &&
-		((!!activeTeamTask && activeTeamTask.status !== 'closed') ||
-			timerStatusRef.current?.lastLog?.source !== ETimeLogSource.TEAMS)
+	const canRunTimer = useMemo(
+		() =>
+			!!(
+				user?.isEmailVerified &&
+				((!!activeTeamTask && activeTeamTask.status !== 'closed') ||
+					timerStatusRef.current?.lastLog?.source !== ETimeLogSource.TEAMS)
+			),
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[user?.isEmailVerified, activeTeamTask]
 	);
 
 	// ==================== CALLBACKS ====================
@@ -317,16 +332,25 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 
 				// Save active task via API when timer starts
 				// Skip if we're on /task/ page because setActiveTask already does it
+				// Wrapped in its own try/catch so a failure here doesn't propagate
+				// to the outer .catch() that resets the timer state
 				if (activeTeamId && taskIdToUse && user && !pathname?.startsWith('/task/')) {
-					const currentMember = activeTeam?.members?.find((m) => m.employee?.userId === user.id);
+					try {
+						const currentMember = activeTeam?.members?.find((m) => m.employee?.userId === user.id);
 
-					if (currentMember?.id) {
-						await updateOrganizationTeamEmployeeActiveTask(currentMember.id, {
-							organizationId: activeTeam?.organizationId,
-							activeTaskId: taskIdToUse,
-							organizationTeamId: activeTeam?.id,
-							tenantId: activeTeam?.tenantId ?? ''
+						if (currentMember?.id) {
+							await updateOrganizationTeamEmployeeActiveTask(currentMember.id, {
+								organizationId: activeTeam?.organizationId,
+								activeTaskId: taskIdToUse,
+								organizationTeamId: activeTeam?.id,
+								tenantId: activeTeam?.tenantId ?? ''
+							});
+						}
+					} catch (error) {
+						toast.error('[Timer] Failed to update active task', {
+							description: getErrorMessage(error, 'Unable to save active task')
 						});
+						logErrorInDev('[Timer] Failed to update active task:', error);
 					}
 				}
 
@@ -341,8 +365,6 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 				queryClient.invalidateQueries({
 					queryKey: queryKeys.organizationTeams.all
 				});
-
-				return;
 			});
 
 			promise.catch(() => {

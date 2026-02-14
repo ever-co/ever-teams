@@ -86,7 +86,7 @@ export function useTimerStorage({ firstLoad, activeTeamId }: UseTimerStoragePara
 		try {
 			data = JSON.parse(localStorage.getItem(getLocalTimerStorageKey(activeTeamId)) || 'null');
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 		return data;
 	}, [activeTeamId]);
