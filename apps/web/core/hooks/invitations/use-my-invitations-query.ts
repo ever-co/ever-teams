@@ -69,11 +69,12 @@ export function useMyInvitationsQuery() {
 			queryClient.setQueryData<PaginationResponse<TInvite>>(
 				queryKeys.users.invitations.my(user?.tenantId || ''),
 				(old) => {
-					if (!old) return old;
+					if (!old?.items) return old;
+					const filtered = old.items.filter((invitation) => invitation.id !== id);
 					return {
 						...old,
-						items: old.items.filter((invitation) => invitation.id !== id),
-						total: old.total - 1
+						items: filtered,
+						total: old.total - (old.items.length - filtered.length)
 					};
 				}
 			);
