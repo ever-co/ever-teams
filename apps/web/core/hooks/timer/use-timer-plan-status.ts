@@ -1,15 +1,16 @@
 'use client';
 
-import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import moment from 'moment';
+import { useMemo } from 'react';
 
 import { activeTeamState, activeTeamTaskState, timerStatusState } from '@/core/stores';
-import { useMyDailyPlans } from '../daily-plans/use-my-daily-plans';
-import { useAuthenticateUser } from '../auth';
-import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
+
+import { useAuthenticateUser } from '../auth';
 import { useSyncRef } from '../common/use-sync-ref';
+import { useMyDailyPlans } from '../daily-plans/use-my-daily-plans';
 
 // ==================== TYPES ====================
 
@@ -94,7 +95,8 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 				((!!activeTeamTask && activeTeamTask.status !== 'closed') ||
 					timerStatusRef.current?.lastLog?.source !== ETimeLogSource.TEAMS)
 			),
-		[user?.isEmailVerified, activeTeamTask, timerStatusRef]
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[user?.isEmailVerified, activeTeamTask]
 	);
 
 	// ==================== RETURN ====================
@@ -107,4 +109,3 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 		canRunTimer
 	};
 }
-

@@ -1,12 +1,14 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
-import { localTimerStatusState, timerStatusState } from '@/core/stores';
-import { useSyncRef } from '../common/use-sync-ref';
-import { getLocalTimerStorageKey } from '@/core/lib/helpers/timer';
-import { ILocalTimerStatus } from '@/core/types/interfaces/timer/timer-status';
 import moment from 'moment';
+import { useCallback, useEffect } from 'react';
+
+import { getLocalTimerStorageKey } from '@/core/lib/helpers/timer';
+import { localTimerStatusState, timerStatusState } from '@/core/stores';
+import { ILocalTimerStatus } from '@/core/types/interfaces/timer/timer-status';
+
+import { useSyncRef } from '../common/use-sync-ref';
 
 // ==================== TYPES ====================
 
@@ -55,7 +57,11 @@ export function useTimerStorage({ firstLoad, activeTeamId }: UseTimerStoragePara
 	 */
 	const updateLocalStorage = useCallback(
 		(status: ILocalTimerStatus) => {
-			localStorage.setItem(getLocalTimerStorageKey(activeTeamId), JSON.stringify(status));
+			try {
+				localStorage.setItem(getLocalTimerStorageKey(activeTeamId), JSON.stringify(status));
+			} catch (error) {
+				console.error('Failed to persist timer status to localStorage:', error);
+			}
 		},
 		[activeTeamId]
 	);
@@ -132,4 +138,3 @@ export function useTimerStorage({ firstLoad, activeTeamId }: UseTimerStoragePara
 		getLocalCounterStatus
 	};
 }
-

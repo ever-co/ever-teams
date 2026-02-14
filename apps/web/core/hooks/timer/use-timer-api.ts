@@ -1,43 +1,36 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
-import { usePathname } from 'next/navigation';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { useTranslations } from 'next-intl';
 import isEqual from 'lodash/isEqual';
+import moment from 'moment';
+import { useTranslations } from 'next-intl';
+import { usePathname } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { toast } from 'sonner';
 
 import {
-	timerStatusState,
-	timerStatusFetchingState,
-	taskStatusesState,
-	activeTeamIdState,
-	activeTeamTaskState,
-	detailedTaskState,
-	activeTeamState,
-	teamTasksState
-} from '@/core/stores';
-import { timerService } from '@/core/services/client/api/timers';
-import { queryKeys } from '@/core/query/keys';
+    STOP_TIMER_DEBOUNCE_MS, STOP_TIMER_EFFECT_DEBOUNCE_MS, SYNC_TIMER_INTERVAL
+} from '@/core/constants/config/constants';
 import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
+import { queryKeys } from '@/core/query/keys';
+import { timerService } from '@/core/services/client/api/timers';
+import {
+    activeTeamIdState, activeTeamState, activeTeamTaskState, detailedTaskState, taskStatusesState,
+    teamTasksState, timerStatusFetchingState, timerStatusState
+} from '@/core/stores';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
+import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
+import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { TUser } from '@/core/types/schemas/user/user.schema';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+import { useAuthenticateUser } from '../auth';
 import { useQueryCall } from '../common/use-query';
 import { useSyncRef } from '../common/use-sync-ref';
-import { useOrganizationEmployeeTeams, useUpdateTask, useTeamTasksState } from '../organizations';
-import { useAuthenticateUser } from '../auth';
 import { useMyDailyPlans } from '../daily-plans/use-my-daily-plans';
-import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
-import { ETimeLogSource } from '@/core/types/generics/enums/timer';
-import { ETaskStatusName } from '@/core/types/generics/enums/task';
-import { TTask } from '@/core/types/schemas/task/task.schema';
-import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
-import { TUser } from '@/core/types/schemas/user/user.schema';
-import {
-	STOP_TIMER_DEBOUNCE_MS,
-	STOP_TIMER_EFFECT_DEBOUNCE_MS,
-	SYNC_TIMER_INTERVAL
-} from '@/core/constants/config/constants';
-import moment from 'moment';
+import { useOrganizationEmployeeTeams, useTeamTasksState, useUpdateTask } from '../organizations';
 
 // ==================== TYPES ====================
 
@@ -145,7 +138,6 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 			queryFn: () => timerService.getTimerStatus()
 		})
 	);
-
 
 	const startTimerMutation = useMutation({
 		mutationFn: timerService.startTimer
@@ -258,7 +250,6 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 			});
 	}, [syncTimerMutation, timerStatus]);
 
-
 	// ==================== START TIMER ====================
 
 	const startTimer = useCallback(
@@ -363,10 +354,11 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 					});
 				}
 			});
-
 			// Updating the task status to "In Progress" when the timer is started
-			if (taskToUse && taskToUse.status !== 'in-progress') {
-				const selectedStatus = taskStatuses.find((s) => s.name === 'in-progress' && s.value === 'in-progress');
+			if (taskToUse && taskToUse.status !== ETaskStatusName.IN_PROGRESS) {
+				const selectedStatus = taskStatuses.find(
+					(s) => s.name === ETaskStatusName.IN_PROGRESS && s.value === ETaskStatusName.IN_PROGRESS
+				);
 				const taskStatusId = selectedStatus?.id;
 				updateTask({
 					...taskToUse,
@@ -435,12 +427,12 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 			running: false
 		});
 
-		syncTimer();
-
 		// Use timerStatusRef instead of timerStatus to avoid closure issues
 		if (!timerStatusRef.current?.running) {
 			return Promise.resolve();
 		}
+
+		syncTimer();
 
 		// Prevent duplicate stopTimer calls within 500ms
 		// PRIMARY defense against race conditions causing 406 errors
@@ -500,7 +492,8 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 		timerStatusRef,
 		user,
 		activeTeam,
-		updateOrganizationTeamEmployeeActiveTask
+		updateOrganizationTeamEmployeeActiveTask,
+		syncTimer
 	]);
 
 	// ==================== SIDE EFFECTS ====================

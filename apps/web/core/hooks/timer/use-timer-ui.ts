@@ -1,17 +1,16 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
-import {
-	localTimerStatusState,
-	timerStatusState,
-	timeCounterIntervalState,
-	timeCounterState,
-	timerSecondsState
-} from '@/core/stores';
-import { useSyncRef } from '../common/use-sync-ref';
+import { useEffect, useMemo, useRef } from 'react';
+
 import { convertMsToTime, secondsToTime } from '@/core/lib/helpers/date-and-time';
+import {
+    localTimerStatusState, timeCounterIntervalState, timeCounterState, timerSecondsState,
+    timerStatusState
+} from '@/core/stores';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+
+import { useSyncRef } from '../common/use-sync-ref';
 
 // ==================== TYPES ====================
 
@@ -87,7 +86,6 @@ export function useTimerUi({ firstLoad, activeTeamTask }: UseTimerUiParams): Use
 		}
 		return timerSecondsRef.current;
 	}, [seconds, firstLoad, timerStatusRef]);
-
 	// Reset timerSeconds when active task changes
 	useEffect(() => {
 		if (firstLoad) {
@@ -162,4 +160,3 @@ export function useLiveTimerStatus() {
 		timerStatus
 	};
 }
-
