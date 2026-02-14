@@ -13,7 +13,7 @@ import {
 	SelectTrigger,
 	SelectValue
 } from '@/core/components/common/select';
-import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
+import { useCreateTimesheet } from '@/core/hooks/timesheet/use-create-timesheet';
 import { toUTC } from '@/core/lib/helpers/index';
 import { PlusIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { CustomSelect } from '../../common/multiple-select';
@@ -55,7 +55,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 	const organizationProjects = useAtomValue(organizationProjectsState);
 
 	const activeTeam = useAtomValue(activeTeamState);
-	const { createTimesheet, loadingCreateTimesheet } = useTimesheet({});
+	const { createTimesheet, loadingCreateTimesheet } = useCreateTimesheet();
 
 	const timeOptions = generateTimeOptions(5);
 	const t = useTranslations();
