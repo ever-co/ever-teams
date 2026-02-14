@@ -3,10 +3,12 @@
 import { myInvitationsState } from '@/core/stores';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { inviteService } from '../../services/client/api/organizations/teams/invites';
 import { queryKeys } from '@/core/query/keys';
 import { useUserQuery } from '../queries/user-user.query';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import { TInvite } from '@/core/types/schemas';
 
 /**
  * Hook for reading the current user's invitations.
@@ -17,6 +19,7 @@ import { useUserQuery } from '../queries/user-user.query';
  * @returns Object containing user invitations data, loading states, and refetch callback
  */
 export function useMyInvitationsQuery() {
+	const queryClient = useQueryClient();
 	const setMyInvitations = useSetAtom(myInvitationsState);
 	const myInvitationsAtom = useAtomValue(myInvitationsState);
 
@@ -59,9 +62,23 @@ export function useMyInvitationsQuery() {
 
 	const removeMyInvitation = useCallback(
 		(id: string) => {
+			// Update Jotai atom (backward compat for legacy consumers)
 			setMyInvitations((prev) => prev.filter((invitation) => invitation.id !== id));
+
+			// Update React Query cache so hydrated `myInvitations` reflects the removal immediately
+			queryClient.setQueryData<PaginationResponse<TInvite>>(
+				queryKeys.users.invitations.my(user?.tenantId || ''),
+				(old) => {
+					if (!old) return old;
+					return {
+						...old,
+						items: old.items.filter((invitation) => invitation.id !== id),
+						total: old.total - 1
+					};
+				}
+			);
 		},
-		[setMyInvitations]
+		[setMyInvitations, queryClient, user?.tenantId]
 	);
 
 	// ===== REFETCH CALLBACK =====
