@@ -1,4 +1,5 @@
-import { useTeamInvitations } from '@/core/hooks/organizations/teams/use-team-invitations';
+import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invitations-query';
+import { useSendTeamInvitation } from '@/core/hooks/invitations/use-send-team-invitation';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { Spinner } from '@/core/components/common/spinner';
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
@@ -35,8 +36,8 @@ const InviteModal = ({ isOpen, closeModal }: IInviteProps) => {
 		...initialValues,
 		roleId: defaultSelectedRole?.id
 	});
-	const { inviteUser, inviteLoading, teamInvitations, resendTeamInvitation, resendInviteLoading } =
-		useTeamInvitations();
+	const { teamInvitations } = useTeamInvitationsQuery();
+	const { inviteUser, inviteLoading, resendTeamInvitation, resendInviteLoading } = useSendTeamInvitation();
 
 	const isAdmin = user?.role?.name && [ERoleName.ADMIN, ERoleName.SUPER_ADMIN].includes(user?.role.name as ERoleName);
 	const allowedRoles = new Set([ERoleName.ADMIN, ERoleName.EMPLOYEE, ERoleName.MANAGER]);
