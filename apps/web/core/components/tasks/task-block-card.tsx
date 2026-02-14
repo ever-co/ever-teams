@@ -14,6 +14,7 @@ import { HorizontalSeparator } from '../duplicated-components/separator';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { LazyMenuKanbanCard, LazyTaskAllStatusTypes } from '../optimized-components';
+import { getTaskTotalWorkedDuration } from '@/core/lib/utils/task.utils';
 
 interface TaskItemProps {
 	task: TTask;
@@ -32,13 +33,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
 	const members = activeTeam?.members || [];
 	const currentUser = members.find((m) => m.employee?.userId === user?.id);
 
-	let totalWorkedTasksTimer = 0;
-	activeTeam?.members?.forEach((member) => {
-		const totalWorkedTasks = member?.totalWorkedTasks?.find((i: TTask) => i.id === task?.id) || null;
-		if (totalWorkedTasks) {
-			totalWorkedTasksTimer += totalWorkedTasks.duration || 0;
-		}
-	});
+	const totalWorkedTasksTimer = getTaskTotalWorkedDuration(activeTeam?.members, task?.id);
 
 	const memberInfo = useTeamMemberCard(currentUser);
 

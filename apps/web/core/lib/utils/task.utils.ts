@@ -1,7 +1,46 @@
 import { Queue } from '.';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 export const taskUpdateQueue = new Queue(1);
+
+/**
+ * Get the total worked duration for a specific task from team member statistics.
+ *
+ * ⚠️ BACKEND WORKAROUND (ever-gauzy):
+ * `StatisticService.getTasks()` in `statistic.service.ts` returns the task's TOTAL duration
+ * across all employees in each member's `totalWorkedTasks`, instead of the per-employee
+ * individual contribution. This means every member holds the same aggregated value.
+ *
+ * To avoid inflating the progress (N members × same total = N× the real value),
+ * we use the first match instead of summing across members.
+ *
+ * See: `packages/core/src/lib/time-tracking/statistic/statistic.service.ts` → `getTasks()`
+ * Called from: `organization-team.service.ts` → `syncLastWorkedTask()`
+ *
+ * TODO: Remove this workaround once the backend returns per-employee durations.
+ *
+ * @param members - The team members array (from activeTeam.members)
+ * @param taskId - The task ID to look up
+ * @returns The total worked duration in seconds for the task (0 if not found)
+ */
+export function getTaskTotalWorkedDuration(
+	members: TOrganizationTeamEmployee[] | null | undefined,
+	taskId: string | null | undefined
+): number {
+	if (!members?.length || !taskId) {
+		return 0;
+	}
+
+	for (const member of members) {
+		const taskStat = member?.totalWorkedTasks?.find((item: TTask) => item.id === taskId);
+		if (taskStat?.duration) {
+			return taskStat.duration;
+		}
+	}
+
+	return 0;
+}
 
 /**
  * Check if a task belongs to a specific team.

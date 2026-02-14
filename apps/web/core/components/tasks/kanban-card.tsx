@@ -12,6 +12,7 @@ import { ITag } from '@/core/types/interfaces/tag/tag';
 import { ETaskPriority } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TTaskStatistics } from '@/core/types/interfaces/task/task';
+import { getTaskTotalWorkedDuration } from '@/core/lib/utils/task.utils';
 
 import { LazyImageComponent, LazyMenuKanbanCard } from '@/core/components/optimized-components/kanban';
 import {
@@ -142,13 +143,7 @@ export default function Item(props: ItemProps) {
 
 	const members = activeTeam?.members || [];
 	const currentUser = members.find((m) => m.employee?.userId === user?.id);
-	let totalWorkedTasksTimer = 0;
-	activeTeam?.members?.forEach((member) => {
-		const totalWorkedTasks = member?.totalWorkedTasks?.find((i: TTask) => i.id === item?.id) || null;
-		if (totalWorkedTasks) {
-			totalWorkedTasksTimer += totalWorkedTasks.duration || 0;
-		}
-	});
+	const totalWorkedTasksTimer = getTaskTotalWorkedDuration(activeTeam?.members, item?.id);
 
 	const memberInfo = useTeamMemberCard(currentUser);
 

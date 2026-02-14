@@ -5,6 +5,7 @@ import { useAtomValue } from 'jotai';
 import RadialProgress from '@/core/components/common/radial-progress';
 import { ProgressBar } from '../duplicated-components/_progress-bar';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { getTaskTotalWorkedDuration } from '@/core/lib/utils/task.utils';
 
 export function TaskProgressBar({
 	isAuthUser,
@@ -29,13 +30,7 @@ export function TaskProgressBar({
 	// const currentMember = activeTeam?.members.find(
 	// 	(member) => member.id === memberInfo?.member?.id
 	// );
-	let totalWorkedTasksTimer = 0;
-	activeTeam?.members?.forEach((member) => {
-		const totalWorkedTasks = member?.totalWorkedTasks?.find((item: TTask) => item.id === task?.id) || null;
-		if (totalWorkedTasks) {
-			totalWorkedTasksTimer += totalWorkedTasks.duration || 0;
-		}
-	});
+	const totalWorkedTasksTimer = getTaskTotalWorkedDuration(activeTeam?.members, task?.id);
 
 	// Add local timer seconds to total worked time for real-time progress updates
 	// Only add seconds if this is the authenticated user's active task
