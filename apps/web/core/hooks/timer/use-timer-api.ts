@@ -267,8 +267,38 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 			try {
 				const userData = await refreshUserData();
 				if (userData?.employee.isTrackingTime) {
-					toast.info(t('timer.ALREADY_TRACKING_MESSAGE'));
-					return;
+					// Cross-check with timer status to detect desync
+					// (employee.isTrackingTime stuck at true while timer is actually stopped)
+					const timerRunning = timerStatusRef.current?.running;
+
+					if (timerRunning) {
+						// Timer is genuinely running — block as expected
+						toast.info(t('timer.ALREADY_TRACKING_MESSAGE'));
+						return;
+					}
+
+					// Desync detected: isTrackingTime=true but timer not running
+					// Force a stop call to reset the employee flag on the server
+					logErrorInDev(
+						'startTimer',
+						'Desync detected: employee.isTrackingTime=true but timer not running. Auto-healing...'
+					);
+					try {
+						await timerService.stopTimer({
+							source: timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS
+						});
+						// Refresh user data to confirm the flag was reset
+						const refreshed = await refreshUserData();
+						if (refreshed?.employee.isTrackingTime) {
+							// Flag still stuck after stop — cannot auto-heal, block with toast
+							toast.info(t('timer.ALREADY_TRACKING_MESSAGE'));
+							return;
+						}
+						// Flag reset successfully — continue with start
+					} catch (healError) {
+						logErrorInDev('[startTimer] Auto-heal stop failed:', healError);
+						// Still allow start attempt — the server start endpoint may handle it
+					}
 				}
 			} catch (error) {
 				toast.error('Failed to verify tracking status', {
