@@ -16,8 +16,8 @@ export function useTimerOptimisticUI({
 	onStop,
 	onStart
 }: {
-	onStop?: () => Promise<void>;
-	onStart?: () => Promise<void>;
+	onStop?: () => void | Promise<any>;
+	onStart?: (explicitTask?: any) => void | Promise<any>;
 }) {
 	// Optimistic UI state: null means use real state, true/false means use optimistic state
 	const [optimisticRunning, setOptimisticRunning] = useState<boolean | null>(null);

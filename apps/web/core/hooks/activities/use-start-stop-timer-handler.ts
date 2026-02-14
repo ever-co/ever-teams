@@ -6,7 +6,7 @@ import {
 	DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE
 } from '@/core/constants/config/constants';
 import { estimatedTotalTime } from '@/core/components/tasks/daily-plan';
-import { useTimer } from './use-timer';
+import { useTimerActions } from '../timer';
 import { useAtomValue } from 'jotai';
 import { activeTeamState, activeTeamTaskState, timerStatusState } from '@/core/stores';
 
@@ -36,7 +36,7 @@ export function useStartStopTimerHandler() {
 	} = useModal();
 	const timerStatus = useAtomValue(timerStatusState);
 
-	const { timerStatusFetching, startTimer, stopTimer, hasPlan, canRunTimer } = useTimer();
+	const { timerStatusFetching, startTimer, stopTimer, hasPlan, canRunTimer } = useTimerActions();
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const activeTeam = useAtomValue(activeTeamState);
