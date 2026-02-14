@@ -13,10 +13,11 @@ import { useTeamDailyPlans } from '@/core/hooks/daily-plans/use-team-daily-plans
 import {
 	useOrganizationTeamsQuery,
 	useTeamTasksQuery,
-	useTeamInvitations,
 	useOrganizationProjects,
 	useEmployee
 } from '@/core/hooks/organizations';
+import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invitations-query';
+import { useMyInvitationsQuery } from '@/core/hooks/invitations/use-my-invitations-query';
 import { useWorkspaces, useCurrentOrg, useAuthenticateUser } from '@/core/hooks/auth';
 import { useRolePermissions, useRoles } from '@/core/hooks/roles';
 import {
@@ -46,7 +47,8 @@ function InitState() {
 	const publicTeam = useAtomValue(publicState);
 	const { loadTeamsData, firstLoadTeamsData } = useOrganizationTeamsQuery();
 	const { firstLoadTasksData, loadTeamTasksData } = useTeamTasksQuery();
-	const { firstLoadTeamInvitationsData, myInvitations } = useTeamInvitations();
+	const { firstLoadTeamInvitationsData } = useTeamInvitationsQuery();
+	const { refetchMyInvitations } = useMyInvitationsQuery();
 	const { getTimerStatus, firstLoadTimerData } = useTimer();
 	const { firstLoadtasksStatisticsData } = useTaskStatistics();
 	const { loadLanguagesData, firstLoadLanguagesData } = useLanguageSettings();
@@ -186,7 +188,7 @@ function InitState() {
 			// 	true /* used as getTimerStatus deepCheck param */
 			// );
 
-			useRefreshIntervalV2(myInvitations, 60 * 1000, true /* used as loadTeamTasksData deepCheck param */);
+			useRefreshIntervalV2(refetchMyInvitations, 60 * 1000, true /* used as refetchMyInvitations deepCheck param */);
 
 			useRefreshIntervalV2(loadTaskStatusesData, five_minutes, true);
 			useRefreshIntervalV2(loadTaskPriorities, five_minutes, true);

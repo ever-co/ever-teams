@@ -4,6 +4,7 @@ export * from './auth';
 export * from './daily-plans';
 export * from './favorites';
 export * from './integrations';
+export * from './invitations';
 export * from './organizations';
 export * from './roles';
 export * from './tags';
