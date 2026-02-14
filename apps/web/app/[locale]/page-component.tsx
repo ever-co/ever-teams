@@ -1,7 +1,8 @@
 'use client';
 import React, { Suspense, useEffect } from 'react';
 
-import { useIsMemberManager, useTeamInvitations } from '@/core/hooks';
+import { useIsMemberManager } from '@/core/hooks';
+import { useMyInvitationsQuery } from '@/core/hooks/invitations/use-my-invitations-query';
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { clsxm } from '@/core/lib/utils';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
@@ -41,7 +42,7 @@ import {
 	LazyTeamMemberHeader
 } from '@/core/components/optimized-components/teams';
 import { LazyChatwootWidget, LazyUnverifiedEmail, LazyNoTeam } from '@/core/components/optimized-components/common';
-import { activeTeamState, isTeamMemberState, isTrackingEnabledState, myInvitationsState } from '@/core/stores';
+import { activeTeamState, isTeamMemberState, isTrackingEnabledState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 function MainPage() {
@@ -59,8 +60,7 @@ function MainPage() {
 
 	const { isTeamManager } = useIsMemberManager(user);
 
-	const myInvitationsList = useAtomValue(myInvitationsState);
-	const { myInvitations } = useTeamInvitations();
+	const { myInvitations: myInvitationsList, refetchMyInvitations } = useMyInvitationsQuery();
 	const [fullWidth, setFullWidth] = useAtom(fullWidthState);
 	const [view, setView] = useAtom(headerTabs);
 	const path = usePathname();
@@ -127,7 +127,7 @@ function MainPage() {
 												<LazyTeamInvitations
 													className="!m-0"
 													myInvitationsList={myInvitationsList}
-													myInvitations={myInvitations}
+													myInvitations={refetchMyInvitations}
 												/>
 											</Suspense>
 										)}
