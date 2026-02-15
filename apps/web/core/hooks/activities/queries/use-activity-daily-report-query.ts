@@ -33,15 +33,13 @@ export interface UseActivityDailyReportQueryOptions {
  */
 export function useActivityDailyReportQuery({ mergedProps, enabled = true }: UseActivityDailyReportQueryOptions) {
 	const query = useQuery({
-		queryKey: [
-			queryKeys.activities.daily({
-				tenantId: mergedProps?.tenantId,
-				organizationId: mergedProps?.organizationId,
-				startDate: mergedProps?.startDate,
-				endDate: mergedProps?.endDate,
-				groupBy: mergedProps?.groupBy
-			})
-		],
+		queryKey: queryKeys.activities.daily({
+			tenantId: mergedProps?.tenantId,
+			organizationId: mergedProps?.organizationId,
+			startDate: mergedProps?.startDate,
+			endDate: mergedProps?.endDate,
+			groupBy: mergedProps?.groupBy
+		}),
 		queryFn: () => timeLogService.getTimeLogReportDaily(mergedProps!),
 		enabled: enabled && !!mergedProps,
 		staleTime: 1000 * 60 * 10,

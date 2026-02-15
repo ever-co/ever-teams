@@ -34,14 +34,12 @@ export interface UseActivityStatisticsQueryOptions {
  */
 export function useActivityStatisticsQuery({ mergedProps, enabled = true }: UseActivityStatisticsQueryOptions) {
 	const query = useQuery({
-		queryKey: [
-			queryKeys.activities.statisticsCounts({
-				tenantId: mergedProps?.tenantId,
-				organizationId: mergedProps?.organizationId,
-				startDate: mergedProps?.startDate,
-				endDate: mergedProps?.endDate
-			})
-		],
+		queryKey: queryKeys.activities.statisticsCounts({
+			tenantId: mergedProps?.tenantId,
+			organizationId: mergedProps?.organizationId,
+			startDate: mergedProps?.startDate,
+			endDate: mergedProps?.endDate
+		}),
 		queryFn: () =>
 			statisticsService.getTimesheetStatisticsCounts({
 				...mergedProps!,

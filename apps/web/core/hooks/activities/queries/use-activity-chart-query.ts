@@ -33,15 +33,13 @@ export interface UseActivityChartQueryOptions {
  */
 export function useActivityChartQuery({ mergedProps, enabled = true }: UseActivityChartQueryOptions) {
 	const query = useQuery({
-		queryKey: [
-			queryKeys.activities.dailyChart({
-				tenantId: mergedProps?.tenantId,
-				organizationId: mergedProps?.organizationId,
-				startDate: mergedProps?.startDate,
-				endDate: mergedProps?.endDate,
-				groupBy: mergedProps?.groupBy
-			})
-		],
+		queryKey: queryKeys.activities.dailyChart({
+			tenantId: mergedProps?.tenantId,
+			organizationId: mergedProps?.organizationId,
+			startDate: mergedProps?.startDate,
+			endDate: mergedProps?.endDate,
+			groupBy: mergedProps?.groupBy
+		}),
 		queryFn: () => timeLogService.getTimeLogReportDailyChart(mergedProps!),
 		enabled: enabled && !!mergedProps,
 		staleTime: 1000 * 60 * 10,

@@ -33,15 +33,13 @@ export interface UseActivityReportListQueryOptions {
  */
 export function useActivityReportListQuery({ mergedProps, enabled = true }: UseActivityReportListQueryOptions) {
 	const query = useQuery({
-		queryKey: [
-			queryKeys.activities.activityReport({
-				tenantId: mergedProps?.tenantId,
-				organizationId: mergedProps?.organizationId,
-				startDate: mergedProps?.startDate,
-				endDate: mergedProps?.endDate,
-				groupBy: mergedProps?.groupBy
-			})
-		],
+		queryKey: queryKeys.activities.activityReport({
+			tenantId: mergedProps?.tenantId,
+			organizationId: mergedProps?.organizationId,
+			startDate: mergedProps?.startDate,
+			endDate: mergedProps?.endDate,
+			groupBy: mergedProps?.groupBy
+		}),
 		queryFn: () => activityService.getActivitiesReport(mergedProps!),
 		enabled: enabled && !!mergedProps,
 		staleTime: 1000 * 60 * 10,

@@ -41,12 +41,13 @@ const formatLocalDate = (date: Date): string => {
 // ==================== DEFAULTS ====================
 
 /** Default date range: last 7 days (today inclusive).
+ *  today − 6 = 7 inclusive days (e.g. Feb 9 → Feb 15).
  *  Keeps the initial API payload light — users can still widen the range
  *  via the date-picker in the UI.
  */
 const now = new Date();
 const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
 
 const defaultProps: Required<
 	Pick<
@@ -133,7 +134,7 @@ export function useActivityFilters() {
 			endDate: (currentFilters.endDate || defaultProps.endDate) as string,
 			groupBy: (currentFilters.groupBy || defaultProps.groupBy) as string,
 			projectIds: (currentFilters.projectIds || defaultProps.projectIds) as string[],
-			employeeIds: isManage ? employeeIds : [user?.employee?.id],
+			employeeIds,
 			teamIds: teamIds,
 			activityLevel: {
 				start: currentFilters.activityLevel?.start ?? defaultProps.activityLevel.start,
