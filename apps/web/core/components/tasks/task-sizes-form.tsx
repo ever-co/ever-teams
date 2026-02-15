@@ -1,7 +1,10 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useRefetchData } from '@/core/hooks';
-import { useTaskSizes } from '@/core/hooks/tasks/use-task-sizes';
-import { taskSizesListState } from '@/core/stores';
+import { useTaskSizesQuery } from '@/core/hooks/tasks/use-task-sizes-query';
+import { useCreateTaskSize } from '@/core/hooks/tasks/use-create-task-size';
+import { useEditTaskSize } from '@/core/hooks/tasks/use-edit-task-size';
+import { useDeleteTaskSize } from '@/core/hooks/tasks/use-delete-task-size';
+
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
@@ -10,7 +13,7 @@ import { Button, ColorPicker, Text } from '@/core/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
-import { useAtomValue } from 'jotai';
+
 import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
@@ -25,7 +28,10 @@ type StatusForm = {
 export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const { data: user } = useUserQuery();
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
-	const taskSizes = useAtomValue(taskSizesListState);
+	const { taskSizes, loading } = useTaskSizesQuery();
+	const { createTaskSize, createTaskSizeLoading } = useCreateTaskSize();
+	const { editTaskSize, editTaskSizeLoading } = useEditTaskSize();
+	const { deleteTaskSize } = useDeleteTaskSize();
 
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<TTaskSize | null>(null);
@@ -50,9 +56,6 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', ['urgent', 'high', 'medium', 'low']);
 
 	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
-
-	const { loading, createTaskSize, deleteTaskSize, editTaskSize, createTaskSizeLoading, editTaskSizeLoading } =
-		useTaskSizes();
 	const { refetch } = useRefetchData();
 
 	useEffect(() => {

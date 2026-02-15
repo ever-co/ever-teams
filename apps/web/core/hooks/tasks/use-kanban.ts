@@ -1,5 +1,6 @@
 import { kanbanBoardState } from '@/core/stores/integrations/kanban';
-import { useTaskStatus } from '../tasks/use-task-status';
+import { useTaskStatusesQuery } from '../tasks/use-task-statuses-query';
+import { useEditTaskStatus } from '../tasks/use-edit-task-status';
 import { useAtom } from 'jotai';
 import { useEffect, useState, useMemo, useCallback, useOptimistic, startTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -24,7 +25,8 @@ export function useKanban() {
 		value: ''
 	});
 	const [kanbanBoard, setKanbanBoard] = useAtom(kanbanBoardState);
-	const taskStatusHook = useTaskStatus();
+	const { taskStatuses, getTaskStatusesLoading, setTaskStatuses } = useTaskStatusesQuery();
+	const { editTaskStatus } = useEditTaskStatus();
 	const { updateTask } = useUpdateTask();
 	const { tasks: newTask, tasksFetching } = useTeamTasksQuery();
 	const [priority, setPriority] = useState<string[]>([]);
@@ -50,14 +52,14 @@ export function useKanban() {
 
 	// Memoized task statuses with optimistic updates applied for performance
 	const optimisticTaskStatuses = useMemo(() => {
-		return taskStatusHook.taskStatuses.map((status) => {
+		return taskStatuses.map((status) => {
 			const optimisticState = optimisticColumnStates[status.id];
 			if (optimisticState) {
 				return { ...status, ...optimisticState };
 			}
 			return status;
 		});
-	}, [taskStatusHook.taskStatuses, optimisticColumnStates]);
+	}, [taskStatuses, optimisticColumnStates]);
 
 	// Memoized filter functions for better performance
 	const filterBySearch = useCallback(
@@ -114,7 +116,7 @@ export function useKanban() {
 
 	// Memoized filtered tasks to prevent unnecessary recalculations
 	const filteredTasks = useMemo(() => {
-		if (taskStatusHook.getTaskStatusesLoading || tasksFetching) {
+		if (getTaskStatusesLoading || tasksFetching) {
 			return [];
 		}
 
@@ -135,12 +137,12 @@ export function useKanban() {
 		filterByLabels,
 		filterByEpics,
 		filterByEmployee,
-		taskStatusHook.getTaskStatusesLoading,
+		getTaskStatusesLoading,
 		tasksFetching
 	]);
 
 	useEffect(() => {
-		if (!taskStatusHook.getTaskStatusesLoading && !tasksFetching) {
+		if (!getTaskStatusesLoading && !tasksFetching) {
 			setLoading(true);
 			let kanban = {};
 			const getTasksByStatus = (status: string | undefined) => {
@@ -150,7 +152,7 @@ export function useKanban() {
 			};
 
 			// Use the base taskStatuses for kanban board construction to avoid infinite loops
-			taskStatusHook.taskStatuses.map((taskStatus: TTaskStatus) => {
+			taskStatuses.map((taskStatus: TTaskStatus) => {
 				kanban = {
 					...kanban,
 					[taskStatus.name ? taskStatus.name : '']: getTasksByStatus(taskStatus.id)
@@ -160,14 +162,14 @@ export function useKanban() {
 			setLoading(false);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [taskStatusHook.getTaskStatusesLoading, tasksFetching, filteredTasks, taskStatusHook.taskStatuses]);
+	}, [getTaskStatusesLoading, tasksFetching, filteredTasks, taskStatuses]);
 
 	/**
 	 * collapse or show kanban column with optimistic updates
 	 */
 	const toggleColumn = useCallback(
 		async (column: string, status: boolean) => {
-			const columnData = taskStatusHook.taskStatuses.filter((taskStatus: TTaskStatus) => {
+			const columnData = taskStatuses.filter((taskStatus: TTaskStatus) => {
 				return taskStatus.name === column;
 			});
 
@@ -191,13 +193,13 @@ export function useKanban() {
 			// Perform the actual API call in a transition to avoid blocking UI
 			startTransition(async () => {
 				try {
-					const updateResult = await taskStatusHook.editTaskStatus(columnId, {
+					const updateResult = await editTaskStatus(columnId, {
 						isCollapsed: status
 					});
 
 					if (updateResult && updateResult.affected > 0) {
 						// Update the actual state - the optimistic state will automatically sync
-						taskStatusHook.setTaskStatuses((prev) => {
+						setTaskStatuses((prev) => {
 							return prev.map((taskStatus) => {
 								if (taskStatus.id === columnId) {
 									return { ...taskStatus, isCollapsed: status };
@@ -227,7 +229,7 @@ export function useKanban() {
 				}
 			});
 		},
-		[setOptimisticColumnStates, taskStatusHook]
+		[setOptimisticColumnStates, taskStatuses, editTaskStatus, setTaskStatuses]
 	);
 
 	const isColumnCollapse = useCallback(
@@ -249,7 +251,7 @@ export function useKanban() {
 
 	const reorderStatus = useCallback(
 		async (itemStatus: string, index: number) => {
-			const status = taskStatusHook.taskStatuses?.find((status: TTaskStatus) => {
+			const status = taskStatuses?.find((status: TTaskStatus) => {
 				return status.id === itemStatus;
 			});
 
@@ -268,13 +270,13 @@ export function useKanban() {
 				// Perform the actual API call in a transition
 				startTransition(async () => {
 					try {
-						const updateResult = await taskStatusHook.editTaskStatus(status.id, {
+						const updateResult = await editTaskStatus(status.id, {
 							order: index
 						});
 
 						if (updateResult && updateResult.affected > 0) {
 							// Update the actual state - the optimistic state will automatically sync
-							taskStatusHook.setTaskStatuses((prev) => {
+							setTaskStatuses((prev) => {
 								return prev.map((el) => {
 									if (el.id === status.id) {
 										return { ...el, order: index };
@@ -305,7 +307,7 @@ export function useKanban() {
 				});
 			}
 		},
-		[setOptimisticColumnStates, taskStatusHook]
+		[setOptimisticColumnStates, taskStatuses, editTaskStatus, setTaskStatuses]
 	);
 	const addNewTask = (task: TTask, status: string) => {
 		const updatedBoard = {

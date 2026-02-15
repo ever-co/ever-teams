@@ -1,10 +1,6 @@
 import {
 	publicActiveTeamState,
 	activeTeamState,
-	taskLabelsListState,
-	taskPrioritiesListState,
-	taskSizesListState,
-	taskStatusesState,
 	teamTasksState,
 	organizationTeamsState
 } from '@/core/stores';
@@ -23,11 +19,6 @@ export function usePublicOrganizationTeams() {
 	const [teams, setTeams] = useAtom(organizationTeamsState);
 	const { getOrganizationTeamsLoading } = useOrganizationTeamsQuery();
 	const setAllTasks = useSetAtom(teamTasksState);
-	const setTaskStatuses = useSetAtom(taskStatusesState);
-	const setTaskSizes = useSetAtom(taskSizesListState);
-
-	const setTaskPriorities = useSetAtom(taskPrioritiesListState);
-	const setTaskLabels = useSetAtom(taskLabelsListState);
 
 	const [publicTeam, setPublicTeam] = useAtom(publicActiveTeamState);
 
@@ -121,12 +112,20 @@ export function usePublicOrganizationTeams() {
 				return;
 			}
 
-			setTaskStatuses(publicTeamMiscData?.statuses || []);
-			setTaskSizes(publicTeamMiscData?.sizes || []);
-			setTaskPriorities(publicTeamMiscData?.priorities || []);
-			setTaskLabels(publicTeamMiscData?.labels || []);
+			queryClient.setQueryData(queryKeys.taskStatuses.byTeam(memoizedMiscTeamId!), {
+				items: publicTeamMiscData?.statuses || []
+			});
+			queryClient.setQueryData(queryKeys.taskSizes.byTeam(memoizedMiscTeamId!), {
+				items: publicTeamMiscData?.sizes || []
+			});
+			queryClient.setQueryData(queryKeys.taskPriorities.byTeam(memoizedMiscTeamId!), {
+				items: publicTeamMiscData?.priorities || []
+			});
+			queryClient.setQueryData(queryKeys.taskLabels.byTeam(memoizedMiscTeamId!), {
+				items: publicTeamMiscData?.labels || []
+			});
 		}
-	}, [publicTeamMiscData, setTaskStatuses, setTaskSizes, setTaskPriorities, setTaskLabels, setTeams]);
+	}, [publicTeamMiscData, queryClient, memoizedMiscTeamId, setTeams]);
 
 	const loadPublicTeamData = useCallback(
 		(profileLink: string, teamId: string) => {

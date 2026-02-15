@@ -15,7 +15,7 @@ import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message
 import { queryKeys } from '@/core/query/keys';
 import { timerService } from '@/core/services/client/api/timers';
 import {
-    activeTeamIdState, activeTeamState, activeTeamTaskState, detailedTaskState, taskStatusesState,
+    activeTeamIdState, activeTeamState, activeTeamTaskState, detailedTaskState,
     teamTasksState, timerStatusFetchingState, timerStatusState
 } from '@/core/stores';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
@@ -31,6 +31,7 @@ import { useQueryCall } from '../common/use-query';
 import { useSyncRef } from '../common/use-sync-ref';
 import { useMyDailyPlans } from '../daily-plans/use-my-daily-plans';
 import { useOrganizationEmployeeTeams, useTeamTasksState, useUpdateTask } from '../organizations';
+import { useTaskStatusesQuery } from '../tasks/use-task-statuses-query';
 
 // ==================== TYPES ====================
 
@@ -103,7 +104,7 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const taskStatuses = useAtomValue(taskStatusesState);
+	const { taskStatuses } = useTaskStatusesQuery();
 	const detailedTask = useAtomValue(detailedTaskState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
 	const teamTasks = useAtomValue(teamTasksState);

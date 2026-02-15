@@ -34,8 +34,7 @@ import { Menu, Transition } from '@headlessui/react';
 import { ProjectListSkeleton } from './list-skeleton';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
-import { useAtomValue } from 'jotai';
-import { taskStatusesState } from '@/core/stores';
+import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
 import { useProjectActionModal } from '@/core/hooks/use-project-action-modal';
 
 // Columns that can be hidden in the project table
@@ -78,7 +77,7 @@ export const ProjectsTable = memo(
 
 		const { openRestoreModal } = useProjectActionModal();
 
-		const taskStatuses = useAtomValue(taskStatusesState);
+		const { taskStatuses } = useTaskStatusesQuery();
 		const statusColorsMap: Map<string | undefined, string | undefined | null> = useMemo(() => {
 			return new Map(taskStatuses.map((status) => [status.name, status.color]));
 		}, [taskStatuses]);

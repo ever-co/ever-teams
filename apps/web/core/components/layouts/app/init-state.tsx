@@ -23,14 +23,14 @@ import { useRolePermissions, useRoles } from '@/core/hooks/roles';
 import {
 	useTaskStatistics,
 	useAutoAssignTask,
-	useTaskStatus,
 	useTaskVersion,
-	useTaskPriorities,
-	useTaskSizes,
-	useTaskLabels,
-	useIssueType,
 	useTaskRelatedIssueType
 } from '@/core/hooks/tasks';
+import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
+import { useTaskSizesQuery } from '@/core/hooks/tasks/use-task-sizes-query';
+import { useTaskPrioritiesQuery } from '@/core/hooks/tasks/use-task-priorities-query';
+import { useTaskLabelsQuery } from '@/core/hooks/tasks/use-task-labels-query';
+import { useIssueTypesQuery } from '@/core/hooks/tasks/use-issue-types-query';
 import { useTimeLogs } from '@/core/hooks/activities/time-logs/use-time-logs';
 import { useGetCurrentOrganization } from '@/core/hooks/auth/use-current-organization';
 import { useCurrencies } from '@/core/hooks/common/use-currencies';
@@ -55,7 +55,7 @@ function InitState() {
 	const { firstLoadOrganizationProjectsData } = useOrganizationProjectsQuery();
 	const { firstLoadData: firstLoadAutoAssignTask } = useAutoAssignTask();
 	const { firstLoadRolesData } = useRoles();
-	const { firstLoadTaskStatusesData, loadTaskStatuses: loadTaskStatusesData } = useTaskStatus();
+	const { firstLoadTaskStatusesData, loadTaskStatuses: loadTaskStatusesData } = useTaskStatusesQuery();
 	const { firstLoadMyRolePermissionsData } = useRolePermissions();
 	const { firstLoadCurrenciesData } = useCurrencies();
 
@@ -69,10 +69,10 @@ function InitState() {
 	const { validateCurrentOrgAccess, handleOrgBranching } = useCurrentOrg();
 
 	const { firstLoadTaskVersionData, loadTaskVersionData } = useTaskVersion();
-	const { firstLoadTaskPrioritiesData, loadTaskPriorities } = useTaskPriorities();
-	const { firstLoadTaskSizesData, loadTaskSizes } = useTaskSizes();
-	const { firstLoadTaskLabelsData, loadTaskLabels } = useTaskLabels();
-	const { firstLoadIssueTypeData } = useIssueType();
+	const { firstLoadTaskPrioritiesData, loadTaskPriorities } = useTaskPrioritiesQuery();
+	const { firstLoadTaskSizesData, loadTaskSizes } = useTaskSizesQuery();
+	const { firstLoadTaskLabelsData, loadTaskLabels } = useTaskLabelsQuery();
+	const { firstLoadIssueTypeData } = useIssueTypesQuery();
 	const { firstLoadTaskRelatedIssueTypeData, loadTaskRelatedIssueTypeData } = useTaskRelatedIssueType();
 
 	// Use specialized hooks for daily plans initialization

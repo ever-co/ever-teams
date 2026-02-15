@@ -1,5 +1,6 @@
 import { getOrganizationIdCookie } from '@/core/lib/helpers/index';
-import { useTaskStatus } from '@/core/hooks';
+import { useReorderTaskStatus } from '@/core/hooks/tasks/use-reorder-task-status';
+import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Spinner } from '@/core/components/common/spinner';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
@@ -16,7 +17,8 @@ const SortTasksStatusSettings = ({ arr, onClose }: { arr: TTaskStatus[]; onClose
 	const organizationId = getOrganizationIdCookie();
 
 	const t = useTranslations();
-	const { reOrderTaskStatus, setTaskStatuses, reOrderTaskStatusLoading } = useTaskStatus();
+	const { reOrderTaskStatus, reOrderTaskStatusLoading } = useReorderTaskStatus();
+	const { setTaskStatuses } = useTaskStatusesQuery();
 	const onDragEnd = (result: DropResult) => {
 		if (!result.destination) return; // dropped outside the list
 		const newItems = Array.from(items);

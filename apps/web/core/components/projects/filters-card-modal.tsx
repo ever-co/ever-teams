@@ -8,8 +8,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { EverCard } from '../common/ever-card';
 import { EProjectBudgetType } from '@/core/types/generics/enums/project';
 import { useAtomValue } from 'jotai';
-import { organizationTeamsState, taskStatusesState } from '@/core/stores';
+import { organizationTeamsState } from '@/core/stores';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
+import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
 
 interface IFiltersCardModalProps {
 	open: boolean;
@@ -48,7 +49,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 		[t]
 	);
 
-	const taskStatuses = useAtomValue(taskStatusesState);
+	const { taskStatuses } = useTaskStatusesQuery();
 	const router = useRouter();
 	const statusColorsMap: Map<string | undefined, string | undefined | null> = useMemo(() => {
 		return new Map(taskStatuses.map((status) => [status.name, status.color]));
