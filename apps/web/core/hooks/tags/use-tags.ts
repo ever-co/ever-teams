@@ -1,49 +1,37 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { tagService } from '@/core/services/client/api';
-import { queryKeys } from '@/core/query/keys';
-import { useCallback, useMemo } from 'react';
+import { useTagsQuery } from './use-tags-query';
+import { useCreateTag } from './use-create-tag';
+import { useUpdateTag } from './use-update-tag';
+import { useDeleteTag } from './use-delete-tag';
+import { useInvalidateTags } from './use-invalidate-tags';
 
+/**
+ * @deprecated This hook re-exports from specialized hooks for backward compatibility.
+ * For new code, prefer using the specific hooks directly:
+ * - `useTagsQuery` for read operations
+ * - `useCreateTag` for tag creation
+ * - `useUpdateTag` for tag updates
+ * - `useDeleteTag` for tag deletion
+ * - `useInvalidateTags` for shared cache invalidation
+ */
 export const useTags = () => {
-	const queryClient = useQueryClient();
-
-	const tagsQuery = useQuery({
-		queryKey: queryKeys.tags.all,
-		queryFn: tagService.getTags
-	});
-
-	const tags = useMemo(() => tagsQuery.data?.items ?? [], [tagsQuery.data?.items]);
-
-	const invalidateTagsData = useCallback(
-		() => queryClient.invalidateQueries({ queryKey: queryKeys.tags.all }),
-		[queryClient]
-	);
-	const createTagMutation = useMutation({
-		mutationFn: tagService.createTag,
-		onSuccess: invalidateTagsData
-	});
-
-	const updateTagMutation = useMutation({
-		mutationFn: tagService.updateTag,
-		onSuccess: invalidateTagsData
-	});
-
-	const deleteTagMutation = useMutation({
-		mutationFn: tagService.deleteTag,
-		onSuccess: invalidateTagsData
-	});
+	const queryData = useTagsQuery();
+	const createData = useCreateTag();
+	const updateData = useUpdateTag();
+	const deleteData = useDeleteTag();
+	const { invalidateTagsData } = useInvalidateTags();
 
 	return {
-		tags,
-		loading: tagsQuery.isLoading,
+		tags: queryData.tags,
+		loading: queryData.loading,
 		getTags: invalidateTagsData,
 
-		createTag: createTagMutation.mutate,
-		createTagLoading: createTagMutation.isPending,
+		createTag: createData.createTag,
+		createTagLoading: createData.createTagLoading,
 
-		updateTag: updateTagMutation.mutate,
-		updateTagLoading: updateTagMutation.isPending,
+		updateTag: updateData.updateTag,
+		updateTagLoading: updateData.updateTagLoading,
 
-		deleteTag: deleteTagMutation.mutate,
-		deleteTagLoading: deleteTagMutation.isPending
+		deleteTag: deleteData.deleteTag,
+		deleteTagLoading: deleteData.deleteTagLoading
 	};
 };

@@ -1,95 +1,36 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useFirstLoad } from '../common/use-first-load';
-import { getActiveTeamIdCookie } from '@/core/lib/helpers/index';
-import { taskVersionService } from '@/core/services/client/api/tasks/task-version.service';
-import { queryKeys } from '@/core/query/keys';
-import { TTaskVersionCreate, TTaskVersionUpdate } from '@/core/types/schemas';
-import { toast } from 'sonner';
+import { useTaskVersionsQuery } from './use-task-versions-query';
+import { useCreateTaskVersion } from './use-create-task-version';
+import { useEditTaskVersion } from './use-edit-task-version';
+import { useDeleteTaskVersion } from './use-delete-task-version';
 
+/**
+ * @deprecated This hook re-exports from specialized hooks for backward compatibility.
+ * For new code, prefer using the specific hooks directly:
+ * - `useTaskVersionsQuery` for read operations
+ * - `useCreateTaskVersion` for task version creation
+ * - `useEditTaskVersion` for task version edits
+ * - `useDeleteTaskVersion` for task version deletion
+ * - `useInvalidateTaskVersions` for shared cache invalidation
+ */
 export function useTaskVersion() {
-	const activeTeamId = getActiveTeamIdCookie();
-	const queryClient = useQueryClient();
-
-	const { firstLoadData: firstLoadTaskVersionData } = useFirstLoad();
-
-	// useQuery for fetching task versions
-	const taskVersionsQuery = useQuery({
-		queryKey: queryKeys.taskVersions.byTeam(activeTeamId),
-		queryFn: async () => taskVersionService.getTaskVersions()
-	});
-
-	/**
-	 * Mutations
-	 */
-
-	const createTaskVersionMutation = useMutation({
-		mutationFn: (data: TTaskVersionCreate) => {
-			return taskVersionService.createTaskVersion(data);
-		},
-		onSuccess: () => {
-			toast.success('Task version created successfully');
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskVersions.byTeam(activeTeamId)
-			});
-		},
-		onError: (error) => {
-			console.error('Error creating task version:', error);
-		}
-	});
-
-	const deleteTaskVersionMutation = useMutation({
-		mutationFn: (id: string) => {
-			return taskVersionService.deleteTaskVersion(id);
-		},
-		onSuccess: () => {
-			toast.success('Task version deleted successfully');
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskVersions.byTeam(activeTeamId)
-			});
-		},
-		onError: (error) => {
-			console.error('Error deleting task version:', error);
-		}
-	});
-
-	const editTaskVersionMutation = useMutation({
-		mutationFn: ({ id, data }: { id: string; data: TTaskVersionUpdate }) => {
-			return taskVersionService.updateTaskVersion({ taskVersionId: id, data });
-		},
-		onSuccess: () => {
-			toast.success('Task version updated successfully');
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.taskVersions.byTeam(activeTeamId)
-			});
-		},
-		onError: (error) => {
-			console.error('Error editing task version:', error);
-		}
-	});
-
-	const taskVersions = useMemo(
-		() => taskVersionsQuery.data?.items ?? [],
-		[taskVersionsQuery.data?.items]
-	);
-
-	const loadTaskVersionData = useCallback(() => {
-		return taskVersionsQuery.data;
-	}, [taskVersionsQuery.data]);
+	const queryData = useTaskVersionsQuery();
+	const createData = useCreateTaskVersion();
+	const editData = useEditTaskVersion();
+	const deleteData = useDeleteTaskVersion();
 
 	return {
-		loading: taskVersionsQuery.isLoading,
-		taskVersions,
-		taskVersionFetching: taskVersionsQuery.isPending,
-		firstLoadTaskVersionData,
-		createTaskVersion: createTaskVersionMutation.mutateAsync,
-		createTaskVersionLoading: createTaskVersionMutation.isPending,
-		deleteTaskVersionLoading: deleteTaskVersionMutation.isPending,
-		deleteTaskVersion: deleteTaskVersionMutation.mutateAsync,
-		editTaskVersionLoading: editTaskVersionMutation.isPending,
-		editTaskVersion: (id: string, data: TTaskVersionUpdate) => editTaskVersionMutation.mutateAsync({ id, data }),
-		loadTaskVersionData
+		loading: queryData.loading,
+		taskVersions: queryData.taskVersions,
+		taskVersionFetching: queryData.taskVersionFetching,
+		firstLoadTaskVersionData: queryData.firstLoadTaskVersionData,
+		createTaskVersion: createData.createTaskVersion,
+		createTaskVersionLoading: createData.createTaskVersionLoading,
+		deleteTaskVersion: deleteData.deleteTaskVersion,
+		deleteTaskVersionLoading: deleteData.deleteTaskVersionLoading,
+		editTaskVersion: editData.editTaskVersion,
+		editTaskVersionLoading: editData.editTaskVersionLoading,
+		loadTaskVersionData: queryData.loadTaskVersionData
 	};
 }

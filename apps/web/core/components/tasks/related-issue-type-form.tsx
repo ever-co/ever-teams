@@ -3,7 +3,11 @@ import { Button, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { StatusesListCard } from '../settings/list-card';
 
-import { useRefetchData, useTaskRelatedIssueType } from '@/core/hooks';
+import { useRefetchData } from '@/core/hooks';
+import { useTaskRelatedIssueTypesQuery } from '@/core/hooks/tasks/use-task-related-issue-types-query';
+import { useCreateTaskRelatedIssueType } from '@/core/hooks/tasks/use-create-task-related-issue-type';
+import { useEditTaskRelatedIssueType } from '@/core/hooks/tasks/use-edit-task-related-issue-type';
+import { useDeleteTaskRelatedIssueType } from '@/core/hooks/tasks/use-delete-task-related-issue-type';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { useCallback, useEffect, useState } from 'react';
@@ -20,15 +24,10 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<ITaskRelatedIssueType | null>(null);
 
-	const {
-		taskRelatedIssueTypes,
-		loading,
-		createTaskRelatedIssueType,
-		deleteTaskRelatedIssueType,
-		editTaskRelatedIssueType,
-		createTaskRelatedIssueTypeLoading,
-		editTaskRelatedIssueTypeLoading
-	} = useTaskRelatedIssueType();
+	const { taskRelatedIssueTypes, loading } = useTaskRelatedIssueTypesQuery();
+	const { createTaskRelatedIssueType, createTaskRelatedIssueTypeLoading } = useCreateTaskRelatedIssueType();
+	const { editTaskRelatedIssueType, editTaskRelatedIssueTypeLoading } = useEditTaskRelatedIssueType();
+	const { deleteTaskRelatedIssueType } = useDeleteTaskRelatedIssueType();
 	const { refetch } = useRefetchData();
 
 	useEffect(() => {

@@ -1,16 +1,16 @@
 import { useCallback } from 'react';
 import { useTaskPrioritiesQuery } from '../tasks/use-task-priorities-query';
-import { useTaskRelatedIssueType } from '../tasks/use-task-related-issue-type';
+import { useTaskRelatedIssueTypesQuery } from '../tasks/use-task-related-issue-types-query';
 import { useTaskSizesQuery } from '../tasks/use-task-sizes-query';
 import { useTaskStatusesQuery } from '../tasks/use-task-statuses-query';
-import { useTaskVersion } from '../tasks/use-task-version';
+import { useTaskVersionsQuery } from '../tasks/use-task-versions-query';
 
 export function useRefetchData() {
 	const { loadTaskStatuses } = useTaskStatusesQuery();
-	const { loadTaskVersionData } = useTaskVersion();
+	const { loadTaskVersionData } = useTaskVersionsQuery();
 	const { loadTaskPriorities } = useTaskPrioritiesQuery();
 	const { loadTaskSizes } = useTaskSizesQuery();
-	const { loadTaskRelatedIssueTypeData } = useTaskRelatedIssueType();
+	const { loadTaskRelatedIssueTypeData } = useTaskRelatedIssueTypesQuery();
 
 	const refetch = useCallback(() => {
 		loadTaskStatuses();

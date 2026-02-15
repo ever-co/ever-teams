@@ -22,15 +22,15 @@ import { useWorkspaces, useCurrentOrg, useAuthenticateUser } from '@/core/hooks/
 import { useRolePermissions, useRoles } from '@/core/hooks/roles';
 import {
 	useTaskStatistics,
-	useAutoAssignTask,
-	useTaskVersion,
-	useTaskRelatedIssueType
+	useAutoAssignTask
 } from '@/core/hooks/tasks';
+import { useTaskVersionsQuery } from '@/core/hooks/tasks/use-task-versions-query';
 import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
 import { useTaskSizesQuery } from '@/core/hooks/tasks/use-task-sizes-query';
 import { useTaskPrioritiesQuery } from '@/core/hooks/tasks/use-task-priorities-query';
 import { useTaskLabelsQuery } from '@/core/hooks/tasks/use-task-labels-query';
 import { useIssueTypesQuery } from '@/core/hooks/tasks/use-issue-types-query';
+import { useTaskRelatedIssueTypesQuery } from '@/core/hooks/tasks/use-task-related-issue-types-query';
 import { useTimeLogs } from '@/core/hooks/activities/time-logs/use-time-logs';
 import { useGetCurrentOrganization } from '@/core/hooks/auth/use-current-organization';
 import { useCurrencies } from '@/core/hooks/common/use-currencies';
@@ -68,12 +68,12 @@ function InitState() {
 	// Current organization management and validation
 	const { validateCurrentOrgAccess, handleOrgBranching } = useCurrentOrg();
 
-	const { firstLoadTaskVersionData, loadTaskVersionData } = useTaskVersion();
+	const { firstLoadTaskVersionData, loadTaskVersionData } = useTaskVersionsQuery();
 	const { firstLoadTaskPrioritiesData, loadTaskPriorities } = useTaskPrioritiesQuery();
 	const { firstLoadTaskSizesData, loadTaskSizes } = useTaskSizesQuery();
 	const { firstLoadTaskLabelsData, loadTaskLabels } = useTaskLabelsQuery();
 	const { firstLoadIssueTypeData } = useIssueTypesQuery();
-	const { firstLoadTaskRelatedIssueTypeData, loadTaskRelatedIssueTypeData } = useTaskRelatedIssueType();
+	const { firstLoadTaskRelatedIssueTypeData, loadTaskRelatedIssueTypeData } = useTaskRelatedIssueTypesQuery();
 
 	// Use specialized hooks for daily plans initialization
 	const { firstLoadMyDailyPlans, loadMyDailyPlans } = useMyDailyPlans();

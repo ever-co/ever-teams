@@ -1,4 +1,5 @@
-import { useModal, useRequestToJoinTeam } from '@/core/hooks';
+import { useModal } from '@/core/hooks';
+import { useRequestToJoinQuery } from '@/core/hooks/organizations/teams/use-request-to-join-query';
 import { Button, NoData } from '@/core/components';
 import { SearchNormalIcon } from 'assets/svg';
 import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
@@ -14,7 +15,7 @@ export const InvitationSetting = () => {
 	const t = useTranslations();
 
 	const teamInvitations = useAtomValue(getTeamInvitationsState);
-	const { getRequestToJoin, requestToJoin } = useRequestToJoinTeam();
+	const { getRequestToJoin, requestToJoin } = useRequestToJoinQuery();
 
 	const { data: user } = useUserQuery();
 	const { openModal, isOpen, closeModal } = useModal();
