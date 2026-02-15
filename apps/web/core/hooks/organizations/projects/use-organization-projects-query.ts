@@ -74,11 +74,11 @@ export function useOrganizationProjectsQuery() {
 			if (!user) return;
 			if (organizationProjects?.length) return;
 
-			return await organizationProjectsQuery.refetch();
+			return await organizationProjectsQuery?.refetch();
 		} catch (error) {
 			console.error('Failed to load organization projects', error);
 		}
-	}, [user, organizationProjects, organizationProjectsQuery.refetch]);
+	}, [user, organizationProjects, organizationProjectsQuery?.refetch]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadOrganizationProjects();
@@ -86,7 +86,7 @@ export function useOrganizationProjectsQuery() {
 
 	return {
 		organizationProjects,
-		getOrganizationProjectsLoading: organizationProjectsQuery.isLoading,
+		getOrganizationProjectsLoading: organizationProjectsQuery?.isLoading,
 		getOrganizationProject,
 		firstLoadOrganizationProjectsData: handleFirstLoad,
 		setSearchQueries,

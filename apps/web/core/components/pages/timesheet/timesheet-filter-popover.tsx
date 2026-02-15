@@ -169,7 +169,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								</label>
 								<MultiSelect
 									localStorageKey="timesheet-select-filter-projects"
-									items={organizationProjects ?? []}
+									items={organizationProjects}
 									itemToString={(project) =>
 										(organizationProjects && project ? project.name : '') || ''
 									}
