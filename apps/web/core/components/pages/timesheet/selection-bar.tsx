@@ -3,6 +3,8 @@ import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
+import { useUpdateTimesheet } from '@/core/hooks/timesheet/use-update-timesheet';
+import { useDeleteTimesheet } from '@/core/hooks/timesheet/use-delete-timesheet';
 
 type ActionButtonProps = {
 	label: string;
@@ -43,9 +45,9 @@ export const SelectionBar = ({
 				fullWidth && 'x-container'
 			)}
 		>
-			<div className="flex items-center justify-start gap-x-4">
+			<div className="flex gap-x-4 justify-start items-center">
 				<div className="flex items-center justify-center gap-x-2 text-[#282048] dark:text-[#7a62d8]">
-					<div className="bg-primary dark:bg-primary-light text-white rounded-full h-7 w-7 flex items-center justify-center font-bold">
+					<div className="flex justify-center items-center w-7 h-7 font-bold text-white rounded-full bg-primary dark:bg-primary-light">
 						<span>{selectedCount}</span>
 					</div>
 					<span>selected</span>
@@ -67,8 +69,6 @@ export const SelectionBar = ({
 
 interface SelectedTimesheetProps {
 	selectTimesheetId: ITimeLog[];
-	updateTimesheetStatus: ({ status, ids }: { status: ETimesheetStatus; ids: string[] | string }) => Promise<void>;
-	deleteTaskTimesheet: ({ logIds }: { logIds: string[] }) => Promise<void>;
 	setSelectTimesheetId: React.Dispatch<React.SetStateAction<ITimeLog[]>>;
 	fullWidth: boolean;
 }
@@ -78,58 +78,60 @@ interface SelectedTimesheetProps {
  *
  * A component that renders a selection bar to handle tasks in the timesheet.
  * It provides buttons to approve, reject, delete and clear the selected tasks.
+ * Mutations (approve/reject/delete) are handled internally via dedicated hooks.
  *
  * @param selectTimesheetId - The selected timesheet logs.
- * @param updateTimesheetStatus - A function to update the status of the selected timesheet logs.
- * @param deleteTaskTimesheet - A function to delete the selected timesheet logs.
  * @param setSelectTimesheetId - A function to set the selected timesheet logs.
  * @param fullWidth - A boolean to indicate if the component should be rendered in full width.
  * @returns {React.ReactElement} - The rendered timesheet component.
  */
 export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({
 	selectTimesheetId,
-	updateTimesheetStatus,
-	deleteTaskTimesheet,
 	setSelectTimesheetId,
 	fullWidth
 }) => {
+	const { updateTimesheetStatus } = useUpdateTimesheet();
+	const { deleteTaskTimesheet } = useDeleteTimesheet();
+
+	const getSelectedIds = useCallback(
+		() => selectTimesheetId.map((select) => select.timesheet?.id || '').filter((id) => id !== undefined),
+		[selectTimesheetId]
+	);
+
 	const handleApprove = useCallback(async () => {
 		try {
-			updateTimesheetStatus({
+			await updateTimesheetStatus({
 				status: ETimesheetStatus.APPROVED,
-				ids: selectTimesheetId.map((select) => select.timesheet?.id || '').filter((id) => id !== undefined)
-			}).then(() => {
-				setSelectTimesheetId([]);
+				ids: getSelectedIds()
 			});
+			setSelectTimesheetId([]);
 		} catch (error) {
 			console.error(error);
 		}
-	}, [selectTimesheetId, updateTimesheetStatus]);
+	}, [getSelectedIds, updateTimesheetStatus, setSelectTimesheetId]);
 
 	const handleReject = useCallback(async () => {
 		try {
-			updateTimesheetStatus({
+			await updateTimesheetStatus({
 				status: ETimesheetStatus.DENIED,
-				ids: selectTimesheetId.map((select) => select.timesheet?.id || '').filter((id) => id !== undefined)
-			}).then(() => {
-				setSelectTimesheetId([]);
+				ids: getSelectedIds()
 			});
+			setSelectTimesheetId([]);
 		} catch (error) {
 			console.error(error);
 		}
-	}, [selectTimesheetId, updateTimesheetStatus]);
+	}, [getSelectedIds, updateTimesheetStatus, setSelectTimesheetId]);
 
 	const handleDelete = useCallback(async () => {
 		try {
-			deleteTaskTimesheet({
-				logIds: selectTimesheetId?.map((select) => select.timesheet?.id || '').filter((id) => id !== undefined)
-			}).then(() => {
-				setSelectTimesheetId([]);
+			await deleteTaskTimesheet({
+				logIds: getSelectedIds()
 			});
+			setSelectTimesheetId([]);
 		} catch (error) {
 			console.error(error);
 		}
-	}, [selectTimesheetId, deleteTaskTimesheet, setSelectTimesheetId]);
+	}, [getSelectedIds, deleteTaskTimesheet, setSelectTimesheetId]);
 
 	return (
 		<SelectionBar

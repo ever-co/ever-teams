@@ -25,7 +25,7 @@ import { TimesheetDetailModalSkeleton } from '@/core/components/common/skeleton/
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { IconsSearch } from '@/core/components/icons';
 import { ViewToggleButton } from '@/core/components/timesheet/timesheet-toggle-view';
-import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
+import { useTimesheetQuery } from '@/core/hooks/timesheet/use-timesheet-query';
 import { useTimesheetFilters } from '@/core/hooks/activities/use-timesheet-filters';
 import { useTimesheetPagination } from '@/core/hooks/activities/use-timesheet-pagination';
 import { useTimesheetViewData } from '@/core/hooks/activities/use-timesheet-view-data';
@@ -129,22 +129,19 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 	);
 
 	const {
-		timesheet: filterDataTimesheet,
+		timesheetElementGroup: filterDataTimesheet,
 		statusTimesheet,
 		loadingTimesheet,
 		isManage,
 		timesheetGroupByDays,
 		selectTimesheetId,
-		setSelectTimesheetId,
-		updateTimesheetStatus,
-		deleteTaskTimesheet
-	} = useTimesheet({
+		setSelectTimesheetId
+	} = useTimesheetQuery({
 		startDate: timesheetDateRange.startDate,
 		endDate: timesheetDateRange.endDate,
 		timesheetViewMode: timesheetNavigator,
 		inputSearch: search
 	});
-
 	const {
 		paginatedGroups,
 		currentPage,
@@ -349,11 +346,9 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 								/>
 								{selectTimesheetId.length > 0 && (
 									<SelectedTimesheet
-										deleteTaskTimesheet={deleteTaskTimesheet}
 										fullWidth={fullWidth}
 										selectTimesheetId={selectTimesheetId}
 										setSelectTimesheetId={setSelectTimesheetId}
-										updateTimesheetStatus={updateTimesheetStatus}
 									/>
 								)}
 							</>

@@ -4,7 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/commo
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
 import { useTimelogFilterOptions } from '@/core/hooks';
-import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
+import { useTimesheetQuery } from '@/core/hooks/timesheet/use-timesheet-query';
 import { cn } from '@/core/lib/helpers';
 import { statusTable } from '../../timesheet/timesheet-action';
 import { MultiSelect } from '../../common/multi-select';
@@ -22,7 +22,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 	const t = useTranslations();
 	const { setEmployeeState, setProjectState, setStatusState, setTaskState, employee, project, statusState, task } =
 		useTimelogFilterOptions();
-	const { timesheet, statusTimesheet, isManage } = useTimesheet({});
+	const { timesheetElementGroup: timesheet, statusTimesheet, isManage } = useTimesheetQuery({});
 
 	React.useEffect(() => {
 		if (shouldRemoveItems) {

@@ -96,21 +96,11 @@ export function useOrganizationTeams() {
 
 	// ==================== SIDE EFFECTS ====================
 
-	const isManager = useCallback(() => {
-		const $u = user;
-		const isM = members.find((member) => {
-			const isUser = member.employee?.userId === $u?.id;
-			return isUser && member.role && member.role.name === 'MANAGER';
-		});
-		setIsTeamManager(!!isM);
-	}, [user, members, setIsTeamManager]);
-
 	useEffect(() => {
 		if (activeTeam?.projects && activeTeam?.projects?.length) {
 			setActiveProjectIdCookie(activeTeam?.projects[0]?.id);
 		}
 		setIsTrackingEnabledState(isTrackingEnabled);
-		isManager();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeTeam]);
 

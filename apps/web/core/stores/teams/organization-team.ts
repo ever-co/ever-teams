@@ -65,6 +65,7 @@ export const activeTeamManagersState = atom<TOrganizationTeamEmployee[]>((get) =
 	return (
 		members?.filter(
 			(member) =>
+				member?.isManager === true ||
 				member?.role?.name === ERoleName.MANAGER ||
 				member?.role?.name === ERoleName.SUPER_ADMIN ||
 				member?.role?.name === ERoleName.ADMIN

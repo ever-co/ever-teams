@@ -2,7 +2,7 @@ import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { format, addDays, startOfWeek, endOfWeek, eachDayOfInterval, Locale } from 'date-fns';
 import { enGB } from 'date-fns/locale';
 import { cn } from '@/core/lib/helpers';
-import { GroupedTimesheet } from '@/core/hooks/activities/use-timesheet';
+import type { GroupedTimesheet } from '@/core/lib/helpers/timesheet-grouping';
 import { formatDate } from '@/core/lib/helpers/index';
 import { TranslationHooks } from 'next-intl';
 import { TotalDurationByDate } from '../tasks/task-displays';

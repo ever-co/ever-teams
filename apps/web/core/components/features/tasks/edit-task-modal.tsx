@@ -7,7 +7,7 @@ import { Item, ManageOrMemberComponent, getNestedValue } from '@/core/components
 import { statusTable } from '../../timesheet/timesheet-action';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { differenceBetweenHours, formatTimeFromDate, secondsToTime, toDate } from '@/core/lib/helpers/index';
-import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
+import { useUpdateTimesheet } from '@/core/hooks/timesheet/use-update-timesheet';
 import { ToastAction } from '@/core/components/common/toast';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { addMinutes, format, parseISO } from 'date-fns';
@@ -28,7 +28,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const t = useTranslations();
-	const { updateTimesheet, loadingUpdateTimesheet } = useTimesheet({});
+	const { updateTimesheet, loadingUpdateTimesheet } = useUpdateTimesheet();
 	const initialTimeRange = {
 		startTime: formatTimeFromDate(dataTimesheet.startedAt),
 		endTime: formatTimeFromDate(dataTimesheet.stoppedAt)
