@@ -1,4 +1,6 @@
-import { useOrganizationProjects, useUpdateTask } from '@/core/hooks';
+import { useUpdateTask } from '@/core/hooks';
+import { useEditOrganizationProject } from '@/core/hooks/organizations/projects/use-edit-organization-project';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
@@ -32,8 +34,8 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 	const { open, closeModal, projectId } = props;
 
 	const organizationProjects = useAtomValue(organizationProjectsState);
-	const { setOrganizationProjects, editOrganizationProject, editOrganizationProjectLoading } =
-		useOrganizationProjects();
+	const { setOrganizationProjects } = useOrganizationProjectsQuery();
+	const { editOrganizationProject, editOrganizationProjectLoading } = useEditOrganizationProject();
 
 	const { updateTask } = useUpdateTask();
 	const project = useMemo(

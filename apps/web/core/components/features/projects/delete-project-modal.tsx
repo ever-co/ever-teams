@@ -1,4 +1,5 @@
-import { useOrganizationProjects } from '@/core/hooks';
+import { useDeleteOrganizationProject } from '@/core/hooks/organizations/projects/use-delete-organization-project';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
@@ -22,8 +23,8 @@ interface IDeleteProjectModalProps {
 export function DeleteProjectConfirmModal(props: IDeleteProjectModalProps) {
 	const t = useTranslations();
 	const { open, closeModal, projectId } = props;
-	const { deleteOrganizationProject, deleteOrganizationProjectLoading, setOrganizationProjects } =
-		useOrganizationProjects();
+	const { deleteOrganizationProject, deleteOrganizationProjectLoading } = useDeleteOrganizationProject();
+	const { setOrganizationProjects } = useOrganizationProjectsQuery();
 
 	const handleDelete = useCallback(async () => {
 		try {

@@ -13,7 +13,7 @@ import { useTeamDailyPlans } from '@/core/hooks/daily-plans/use-team-daily-plans
 import {
 	useOrganizationTeamsQuery,
 	useTeamTasksQuery,
-	useOrganizationProjects,
+	useOrganizationProjectsQuery,
 	useEmployee
 } from '@/core/hooks/organizations';
 import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invitations-query';
@@ -52,7 +52,7 @@ function InitState() {
 	const { getTimerStatus, firstLoadTimerData } = useTimer();
 	const { firstLoadtasksStatisticsData } = useTaskStatistics();
 	const { loadLanguagesData, firstLoadLanguagesData } = useLanguageSettings();
-	const { firstLoadOrganizationProjectsData } = useOrganizationProjects();
+	const { firstLoadOrganizationProjectsData } = useOrganizationProjectsQuery();
 	const { firstLoadData: firstLoadAutoAssignTask } = useAutoAssignTask();
 	const { firstLoadRolesData } = useRoles();
 	const { firstLoadTaskStatusesData, loadTaskStatuses: loadTaskStatusesData } = useTaskStatus();

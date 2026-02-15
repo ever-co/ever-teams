@@ -1,4 +1,5 @@
-import { useOrganizationProjects } from '@/core/hooks';
+import { useEditOrganizationProject } from '@/core/hooks/organizations/projects/use-edit-organization-project';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { useAtomValue } from 'jotai';
 import { Button, Modal, Text } from '@/core/components';
 import { RotateCcw } from 'lucide-react';
@@ -27,7 +28,8 @@ export function BulkRestoreProjectsModal(props: IBulkRestoreProjectModalProps) {
 	const { open, closeModal, projectIds = [] } = props;
 	const organizationProjects = useAtomValue(organizationProjectsState);
 
-	const { editOrganizationProject, setOrganizationProjects, getOrganizationProjects } = useOrganizationProjects();
+	const { setOrganizationProjects, getOrganizationProjects } = useOrganizationProjectsQuery();
+	const { editOrganizationProject } = useEditOrganizationProject();
 	const [isLoading, setIsLoading] = useState(false);
 
 	const projects = useMemo(

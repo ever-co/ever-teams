@@ -8,7 +8,9 @@ import { sanitizeHtml } from '@/core/lib/helpers/sanitize-html';
 
 import { IStepElementProps } from '../container';
 import { useLocale, useTranslations } from 'next-intl';
-import { useOrganizationProjects } from '@/core/hooks/organizations';
+import { useCreateOrganizationProject } from '@/core/hooks/organizations/projects/use-create-organization-project';
+import { useEditOrganizationProject } from '@/core/hooks/organizations/projects/use-edit-organization-project';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { IProjectRelation } from '@/core/types/interfaces/project/organization-project';
@@ -33,13 +35,9 @@ function safeFormatDate(date: string | Date | null | undefined, fmt = 'd.MM.yyyy
 
 export default function FinalReview(props: IStepElementProps) {
 	const { goToPrevious, finish, currentData: finalData, mode } = props;
-	const {
-		createOrganizationProject,
-		createOrganizationProjectLoading,
-		editOrganizationProject,
-		editOrganizationProjectLoading,
-		setOrganizationProjects
-	} = useOrganizationProjects();
+	const { createOrganizationProject, createOrganizationProjectLoading } = useCreateOrganizationProject();
+	const { editOrganizationProject, editOrganizationProjectLoading } = useEditOrganizationProject();
+	const { setOrganizationProjects } = useOrganizationProjectsQuery();
 	const t = useTranslations();
 	const activeTeam = useAtomValue(activeTeamState);
 

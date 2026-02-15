@@ -1,4 +1,5 @@
-import { useOrganizationProjects } from '@/core/hooks';
+import { useEditOrganizationProject } from '@/core/hooks/organizations/projects/use-edit-organization-project';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { Button, Modal, Text } from '@/core/components';
 import { RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -27,8 +28,8 @@ export function RestoreProjectModal(props: IRestoreProjectModalProps) {
 	const { open, closeModal, projectId } = props;
 	const organizationProjects = useAtomValue(organizationProjectsState);
 
-	const { editOrganizationProject, editOrganizationProjectLoading, setOrganizationProjects } =
-		useOrganizationProjects();
+	const { setOrganizationProjects } = useOrganizationProjectsQuery();
+	const { editOrganizationProject, editOrganizationProjectLoading } = useEditOrganizationProject();
 	const project = useMemo(
 		() => organizationProjects.find((project) => project.id === projectId),
 		[organizationProjects, projectId]

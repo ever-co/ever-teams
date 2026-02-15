@@ -1,4 +1,4 @@
-import { useOrganizationProjects } from '@/core/hooks';
+import { useCreateOrganizationProject } from '@/core/hooks/organizations/projects/use-create-organization-project';
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
@@ -31,7 +31,7 @@ interface IQuickCreateProjectModalProps {
 export function QuickCreateProjectModal(props: IQuickCreateProjectModalProps) {
 	const t = useTranslations();
 	const { open, closeModal, onSuccess } = props;
-	const { createOrganizationProject, createOrganizationProjectLoading } = useOrganizationProjects();
+	const { createOrganizationProject, createOrganizationProjectLoading } = useCreateOrganizationProject();
 	const [name, setName] = useState('');
 
 	// Get active team and current user info

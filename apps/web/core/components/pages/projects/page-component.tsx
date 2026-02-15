@@ -1,7 +1,8 @@
 'use client';
 import { MainLayout } from '@/core/components/layouts/default-layout';
 import { organizationProjectsState } from '@/core/stores';
-import { useLocalStorageState, useModal, useOrganizationProjects } from '@/core/hooks';
+import { useLocalStorageState, useModal } from '@/core/hooks';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { useCallback, useEffect, useMemo, useState, Suspense } from 'react';
 // dynamic import removed - using optimized components
@@ -75,7 +76,7 @@ function PageComponent() {
 	const currentLocale = paramsUrl?.locale;
 	const organizationProjects = useAtomValue(organizationProjectsState);
 
-	const { getOrganizationProjectsLoading, setSearchQueries } = useOrganizationProjects();
+	const { getOrganizationProjectsLoading, setSearchQueries } = useOrganizationProjectsQuery();
 	const [searchTerm, setSearchTerm] = useState('');
 	const params = useSearchParams();
 	const router = useRouter();
