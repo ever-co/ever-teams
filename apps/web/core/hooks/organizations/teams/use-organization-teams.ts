@@ -22,7 +22,7 @@ import {
 	organizationTeamsState,
 	timerStatusState
 } from '@/core/stores';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 // Import specialized hooks
@@ -47,7 +47,7 @@ export function useOrganizationTeams() {
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 	const timerStatus = useAtomValue(timerStatusState);
 	const [isTeamMember] = useAtom(isTeamMemberState);
-	const [isTeamManager, setIsTeamManager] = useAtom(isTeamManagerState);
+	const [isTeamManager] = useAtom(isTeamManagerState);
 	const setIsTrackingEnabledState = useSetAtom(isTrackingEnabledState);
 
 	// ==================== SPECIALIZED HOOKS ====================
