@@ -2,10 +2,11 @@
 
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { useAuthenticateUser } from '@/core/hooks';
-import { activeTeamState, fetchingTeamInvitationsState, isTeamMemberState, teamInvitationsState } from '@/core/stores';
+import { activeTeamState, isTeamMemberState } from '@/core/stores';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invitations-query';
 import { Accordian } from '@/core/components/common/accordian';
 import { activeSettingTeamTab } from '@/core/stores/common/setting';
 import { InteractionObserverVisible } from '@/core/components/pages/settings/interaction-observer';
@@ -35,12 +36,11 @@ const Team = () => {
 	const t = useTranslations();
 
 	const setActiveTeam = useSetAtom(activeSettingTeamTab);
-	const [isFetchingTeamInvitations] = useAtom(fetchingTeamInvitationsState);
+	const { teamInvitations, fetchingInvitations: isFetchingTeamInvitations } = useTeamInvitationsQuery();
 	const { user, isTeamManager } = useAuthenticateUser();
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const isTeamMember = useAtomValue(isTeamMemberState);
-	const teamInvitations = useAtomValue(teamInvitationsState);
 
 	if (!user) {
 		return (

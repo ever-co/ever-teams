@@ -7,14 +7,13 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { InvitationTable } from '../../../teams/invite/invitation-table';
 import { InputField } from '@/core/components/duplicated-components/_input';
-import { getTeamInvitationsState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invitations-query';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 export const InvitationSetting = () => {
 	const t = useTranslations();
 
-	const teamInvitations = useAtomValue(getTeamInvitationsState);
+	const { teamInvitations } = useTeamInvitationsQuery();
 	const { getRequestToJoin, requestToJoin } = useRequestToJoinQuery();
 
 	const { data: user } = useUserQuery();

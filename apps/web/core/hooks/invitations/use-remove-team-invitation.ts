@@ -1,8 +1,6 @@
 'use client';
 
-import { teamInvitationsState } from '@/core/stores';
 import { useCallback } from 'react';
-import { useSetAtom } from 'jotai';
 import { useMutation } from '@tanstack/react-query';
 import { inviteService } from '../../services/client/api/organizations/teams/invites';
 import { toast } from 'sonner';
@@ -18,7 +16,6 @@ import { useInvitationInvalidation } from './use-invitation-invalidation';
  * @returns Object containing remove mutation function and its loading state
  */
 export function useRemoveTeamInvitation() {
-	const setTeamInvitations = useSetAtom(teamInvitationsState);
 	const { invalidateTeamInvitations } = useInvitationInvalidation();
 
 	const activeTeamId = getActiveTeamIdCookie();
@@ -35,14 +32,14 @@ export function useRemoveTeamInvitation() {
 				teamId: activeTeamId
 			});
 		},
-		onSuccess: (result, { email }) => {
-			if (email) {
+		onSettled: (_result, _error, { email }) => {
+			if (email && !_error) {
 				toast.success('Invitation removed', {
 					description: `Invitation removed for ${email}`,
 					duration: 5000
 				});
 			}
-			setTeamInvitations(result.items || []);
+			// Invalidate cache — React Query will refetch the latest data
 			invalidateTeamInvitations();
 		}
 	});
