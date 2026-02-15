@@ -4,12 +4,10 @@ import { useTranslations } from 'next-intl';
 import { StatusesListCard } from '../settings/list-card';
 
 import { useRefetchData, useTaskRelatedIssueType } from '@/core/hooks';
-import { taskRelatedIssueTypeListState } from '@/core/stores';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useAtomValue } from 'jotai';
 import { InputField } from '../duplicated-components/_input';
 import { ITaskRelatedIssueType } from '@/core/types/interfaces/task/related-issue-type';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
@@ -22,8 +20,8 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<ITaskRelatedIssueType | null>(null);
 
-	const taskRelatedIssueTypes = useAtomValue(taskRelatedIssueTypeListState);
 	const {
+		taskRelatedIssueTypes,
 		loading,
 		createTaskRelatedIssueType,
 		deleteTaskRelatedIssueType,

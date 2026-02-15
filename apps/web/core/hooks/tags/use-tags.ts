@@ -1,19 +1,18 @@
-import { useAtom } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { tagsState } from '@/core/stores/tags/tags';
 import { tagService } from '@/core/services/client/api';
 import { queryKeys } from '@/core/query/keys';
-import { useConditionalUpdateEffect } from '../common';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 export const useTags = () => {
-	const [tags, setTags] = useAtom(tagsState);
 	const queryClient = useQueryClient();
 
 	const tagsQuery = useQuery({
 		queryKey: queryKeys.tags.all,
 		queryFn: tagService.getTags
 	});
+
+	const tags = useMemo(() => tagsQuery.data?.items ?? [], [tagsQuery.data?.items]);
+
 	const invalidateTagsData = useCallback(
 		() => queryClient.invalidateQueries({ queryKey: queryKeys.tags.all }),
 		[queryClient]
@@ -32,16 +31,6 @@ export const useTags = () => {
 		mutationFn: tagService.deleteTag,
 		onSuccess: invalidateTagsData
 	});
-
-	useConditionalUpdateEffect(
-		() => {
-			if (tagsQuery.data) {
-				setTags(tagsQuery.data.items);
-			}
-		},
-		[tagsQuery.data],
-		Boolean(tags?.length)
-	);
 
 	return {
 		tags,

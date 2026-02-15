@@ -1,14 +1,13 @@
 'use client';
-import { activeTeamState, taskRelatedIssueTypeListState, activeTeamIdState } from '@/core/stores';
+import { activeTeamState, activeTeamIdState } from '@/core/stores';
 import { useCallback, useMemo } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFirstLoad } from '../common/use-first-load';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
 import { taskRelatedIssueTypeService } from '@/core/services/client/api/tasks/task-related-issue-type.service';
 import { ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces/task/related-issue-type';
 import { queryKeys } from '@/core/query/keys';
-import { useConditionalUpdateEffect } from '../common';
 import { useUserQuery } from '../queries/user-user.query';
 
 export function useTaskRelatedIssueType() {
@@ -17,7 +16,6 @@ export function useTaskRelatedIssueType() {
 	const activeTeam = useAtomValue(activeTeamState);
 	const queryClient = useQueryClient();
 
-	const [taskRelatedIssueType, setTaskRelatedIssueType] = useAtom(taskRelatedIssueTypeListState);
 	const { firstLoadData: firstLoadTaskRelatedIssueTypeData } = useFirstLoad();
 
 	const organizationId = useMemo(() => authUser?.employee?.organizationId || getOrganizationIdCookie(), [authUser]);
@@ -69,14 +67,9 @@ export function useTaskRelatedIssueType() {
 		onSuccess: invalidateTaskRelatedIssueTypeData
 	});
 
-	useConditionalUpdateEffect(
-		() => {
-			if (taskRelatedIssueTypesQuery.data) {
-				setTaskRelatedIssueType(taskRelatedIssueTypesQuery.data.items);
-			}
-		},
-		[taskRelatedIssueTypesQuery.data],
-		Boolean(taskRelatedIssueType?.length)
+	const taskRelatedIssueType = useMemo(
+		() => taskRelatedIssueTypesQuery.data?.items ?? [],
+		[taskRelatedIssueTypesQuery.data?.items]
 	);
 
 	const loadTaskRelatedIssueTypeData = useCallback(async () => {
@@ -101,7 +94,6 @@ export function useTaskRelatedIssueType() {
 		deleteTaskRelatedIssueType: deleteTaskRelatedIssueTypeMutation.mutateAsync,
 		editTaskRelatedIssueTypeLoading: editTaskRelatedIssueTypeMutation.isPending,
 		editTaskRelatedIssueType,
-		setTaskRelatedIssueType,
 		loadTaskRelatedIssueTypeData
 	};
 }

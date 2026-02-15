@@ -1,6 +1,4 @@
-import { requestToJoinState } from '@/core/stores';
-import { useCallback, useMemo, useEffect } from 'react';
-import { useAtom } from 'jotai';
+import { useCallback, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { requestToJoinTeamService } from '@/core/services/client/api/organizations/teams';
@@ -11,7 +9,6 @@ import { TJoinTeamRequest, TValidateRequestToJoinTeam } from '@/core/types/schem
 import { toast } from 'sonner';
 
 export const useRequestToJoinTeam = () => {
-	const [requestToJoin, setRequestToJoin] = useAtom(requestToJoinState);
 	const queryClient = useQueryClient();
 
 	// React Query for GET operation
@@ -25,12 +22,10 @@ export const useRequestToJoinTeam = () => {
 		retry: 2
 	});
 
-	//Synchronize React Query data with Jotai state
-	useEffect(() => {
-		if (requestToJoinQuery.data?.items) {
-			setRequestToJoin(requestToJoinQuery.data.items);
-		}
-	}, [requestToJoinQuery.data?.items, setRequestToJoin]);
+	const requestToJoin = useMemo(
+		() => requestToJoinQuery.data?.items ?? [],
+		[requestToJoinQuery.data?.items]
+	);
 
 	// React Query mutations
 	const requestToJoinMutation = useMutation({
@@ -97,23 +92,9 @@ export const useRequestToJoinTeam = () => {
 
 	// Backward compatible wrapper functions
 	const getRequestToJoin = useCallback(async () => {
-		try {
-			// Check if data is fresh, use cache if available
-			if (requestToJoinQuery.data && !requestToJoinQuery.isStale) {
-				return { data: requestToJoinQuery.data };
-			}
-
-			// Refetch if stale or missing
-			const result = await requestToJoinQuery.refetch();
-			return { data: result.data };
-		} catch (error) {
-			// Fallback to cached data if available
-			if (requestToJoinQuery.data) {
-				return { data: requestToJoinQuery.data };
-			}
-			throw error;
-		}
-	}, [requestToJoinQuery]);
+		const result = await requestToJoinQuery.refetch();
+		return { data: result.data };
+	}, [requestToJoinQuery.refetch]);
 
 	const requestToJoinTeam = useCallback(
 		async (data: TJoinTeamRequest) => {

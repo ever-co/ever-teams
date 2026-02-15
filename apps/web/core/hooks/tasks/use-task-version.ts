@@ -1,15 +1,11 @@
 'use client';
 
-/* eslint-disable react-hooks/exhaustive-deps */
-import { taskVersionsState } from '@/core/stores';
-import { useCallback } from 'react';
-import { useAtom } from 'jotai';
+import { useCallback, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useFirstLoad } from '../common/use-first-load';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/index';
 import { taskVersionService } from '@/core/services/client/api/tasks/task-version.service';
 import { queryKeys } from '@/core/query/keys';
-import { useConditionalUpdateEffect } from '../common';
 import { TTaskVersionCreate, TTaskVersionUpdate } from '@/core/types/schemas';
 import { toast } from 'sonner';
 
@@ -17,7 +13,6 @@ export function useTaskVersion() {
 	const activeTeamId = getActiveTeamIdCookie();
 	const queryClient = useQueryClient();
 
-	const [taskVersions, setTaskVersions] = useAtom(taskVersionsState);
 	const { firstLoadData: firstLoadTaskVersionData } = useFirstLoad();
 
 	// useQuery for fetching task versions
@@ -75,14 +70,9 @@ export function useTaskVersion() {
 		}
 	});
 
-	useConditionalUpdateEffect(
-		() => {
-			if (taskVersionsQuery.data?.items) {
-				setTaskVersions(taskVersionsQuery.data.items);
-			}
-		},
-		[taskVersionsQuery.data],
-		Boolean(taskVersions?.length)
+	const taskVersions = useMemo(
+		() => taskVersionsQuery.data?.items ?? [],
+		[taskVersionsQuery.data?.items]
 	);
 
 	const loadTaskVersionData = useCallback(() => {
@@ -100,7 +90,6 @@ export function useTaskVersion() {
 		deleteTaskVersion: deleteTaskVersionMutation.mutateAsync,
 		editTaskVersionLoading: editTaskVersionMutation.isPending,
 		editTaskVersion: (id: string, data: TTaskVersionUpdate) => editTaskVersionMutation.mutateAsync({ id, data }),
-		setTaskVersion: setTaskVersions,
 		loadTaskVersionData
 	};
 }
