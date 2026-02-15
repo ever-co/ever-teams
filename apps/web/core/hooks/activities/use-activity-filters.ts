@@ -40,16 +40,7 @@ const formatLocalDate = (date: Date): string => {
 
 // ==================== DEFAULTS ====================
 
-/** Default date range: last 7 days (today inclusive).
- *  today − 6 = 7 inclusive days (e.g. Feb 9 → Feb 15).
- *  Keeps the initial API payload light — users can still widen the range
- *  via the date-picker in the UI.
- */
-const now = new Date();
-const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
-
-const defaultProps: Required<
+type DefaultProps = Required<
 	Pick<
 		UseReportActivityProps,
 		| 'startDate'
@@ -63,21 +54,33 @@ const defaultProps: Required<
 		| 'projectIds'
 		| 'teamIds'
 	>
-> = {
-	startDate: formatLocalDate(sevenDaysAgo),
-	endDate: formatLocalDate(today),
-	groupBy: 'date',
-	activityLevel: {
+>;
+
+/** Build default filter props with a **fresh** date range (last 7 inclusive days).
+ *  Called at hook-instantiation time so the range stays accurate even in
+ *  long-lived SPA sessions that span midnight.
+ */
+function getDefaultProps(): DefaultProps {
+	const now = new Date();
+	const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+	const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+
+	return {
+		startDate: formatLocalDate(sevenDaysAgo),
+		endDate: formatLocalDate(today),
+		groupBy: 'date',
+		activityLevel: {
+			start: 0,
+			end: 100
+		},
+		logType: [ETimeLogType.TRACKED],
 		start: 0,
-		end: 100
-	},
-	logType: [ETimeLogType.TRACKED],
-	start: 0,
-	end: 100,
-	employeeIds: [],
-	projectIds: [],
-	teamIds: []
-};
+		end: 100,
+		employeeIds: [],
+		projectIds: [],
+		teamIds: []
+	};
+}
 
 // ==================== HOOK ====================
 
@@ -100,8 +103,8 @@ export function useActivityFilters() {
 	const { allteamsState, alluserState, isUserAllowedToAccess } = useTimelogFilterOptions();
 	const isManage = useMemo(() => user && isUserAllowedToAccess(user), [user, isUserAllowedToAccess]);
 
-	// State management
-	const [currentFilters, setCurrentFilters] = useState<Partial<UseReportActivityProps>>(defaultProps);
+	// State management — lazy initializer so dates are fresh at mount time
+	const [currentFilters, setCurrentFilters] = useState<Partial<UseReportActivityProps>>(getDefaultProps);
 
 	// Memoized employee and team IDs
 	const employeeIds = useMemo(
@@ -116,32 +119,34 @@ export function useActivityFilters() {
 
 	const teamIds = useMemo(() => allteamsState?.map(({ id }) => id).filter(Boolean) || [], [allteamsState]);
 
-	// Props merging logic
+	// Props merging logic — getDefaultProps() called here so fallback dates stay fresh
 	const mergedProps = useMemo(() => {
 		if (!user?.employee?.organizationId) {
 			return null;
 		}
 
+		const defaults = getDefaultProps();
+
 		return {
-			...defaultProps,
+			...defaults,
 			...currentFilters,
 			organizationId: user.employee.organizationId,
 			teamId: currentFilters.teamId,
 			userId: currentFilters.userId,
 			tenantId: user.tenantId ?? '',
-			logType: (currentFilters.logType || defaultProps.logType) as ETimeLogType[],
-			startDate: (currentFilters.startDate || defaultProps.startDate) as string,
-			endDate: (currentFilters.endDate || defaultProps.endDate) as string,
-			groupBy: (currentFilters.groupBy || defaultProps.groupBy) as string,
-			projectIds: (currentFilters.projectIds || defaultProps.projectIds) as string[],
+			logType: (currentFilters.logType || defaults.logType) as ETimeLogType[],
+			startDate: (currentFilters.startDate || defaults.startDate) as string,
+			endDate: (currentFilters.endDate || defaults.endDate) as string,
+			groupBy: (currentFilters.groupBy || defaults.groupBy) as string,
+			projectIds: (currentFilters.projectIds || defaults.projectIds) as string[],
 			employeeIds,
 			teamIds: teamIds,
 			activityLevel: {
-				start: currentFilters.activityLevel?.start ?? defaultProps.activityLevel.start,
-				end: currentFilters.activityLevel?.end ?? defaultProps.activityLevel.end
+				start: currentFilters.activityLevel?.start ?? defaults.activityLevel.start,
+				end: currentFilters.activityLevel?.end ?? defaults.activityLevel.end
 			},
-			start: currentFilters.start ?? defaultProps.start,
-			end: currentFilters.end ?? defaultProps.end
+			start: currentFilters.start ?? defaults.start,
+			end: currentFilters.end ?? defaults.end
 		} as Required<UseReportActivityProps>;
 	}, [user?.employee?.organizationId, user?.employee?.id, user?.tenantId, currentFilters, isManage, employeeIds, teamIds]);
 
