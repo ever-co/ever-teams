@@ -10,7 +10,8 @@ import { EProjectRelation } from '@/core/types/generics/enums/project';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { TProjectRelation } from '@/core/types/schemas';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, organizationTeamsState, rolesState } from '@/core/stores';
+import { activeTeamState, organizationTeamsState } from '@/core/stores';
+import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { ROLES } from '@/core/constants/config/constants';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
@@ -64,7 +65,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 	// Team selection error state
 	const [teamError, setTeamError] = useState<string | null>(null);
 
-	const rolesFromApi = useAtomValue(rolesState);
+	const { roles: rolesFromApi } = useRolesQuery();
 	const relationsData = Object.values(EProjectRelation);
 	const t = useTranslations();
 

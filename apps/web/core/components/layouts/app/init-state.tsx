@@ -19,7 +19,8 @@ import {
 import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invitations-query';
 import { useMyInvitationsQuery } from '@/core/hooks/invitations/use-my-invitations-query';
 import { useWorkspaces, useCurrentOrg, useAuthenticateUser } from '@/core/hooks/auth';
-import { useRolePermissions, useRoles } from '@/core/hooks/roles';
+import { useInvalidateRoles } from '@/core/hooks/roles/use-invalidate-roles';
+import { useInvalidateRolePermissions } from '@/core/hooks/roles/use-invalidate-role-permissions';
 import {
 	useTaskStatistics,
 	useAutoAssignTask
@@ -54,9 +55,9 @@ function InitState() {
 	const { loadLanguagesData, firstLoadLanguagesData } = useLanguageSettings();
 	const { firstLoadOrganizationProjectsData } = useOrganizationProjectsQuery();
 	const { firstLoadData: firstLoadAutoAssignTask } = useAutoAssignTask();
-	const { firstLoadRolesData } = useRoles();
+	const { invalidateRoles: firstLoadRolesData } = useInvalidateRoles();
 	const { firstLoadTaskStatusesData, loadTaskStatuses: loadTaskStatusesData } = useTaskStatusesQuery();
-	const { firstLoadMyRolePermissionsData } = useRolePermissions();
+	const { invalidateMyRolePermissions: firstLoadMyRolePermissionsData } = useInvalidateRolePermissions();
 	const { firstLoadCurrenciesData } = useCurrencies();
 
 	// Start automatic token refresh

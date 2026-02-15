@@ -20,8 +20,9 @@ import { EProjectBilling } from '@/core/types/generics/enums/project';
 import { TCreateProjectRequest, TTag } from '@/core/types/schemas';
 import { DEFAULT_USER_IMAGE_URL } from '@/core/constants/data/mock-data';
 import { ECurrencies } from '@/core/types/generics/enums/currency';
-import { activeTeamState, organizationTeamsState, rolesState } from '@/core/stores';
+import { activeTeamState, organizationTeamsState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
+import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 function safeFormatDate(date: string | Date | null | undefined, fmt = 'd.MM.yyyy'): string {
@@ -41,7 +42,7 @@ export default function FinalReview(props: IStepElementProps) {
 	const t = useTranslations();
 	const activeTeam = useAtomValue(activeTeamState);
 
-	const rolesFromApi = useAtomValue(rolesState);
+	const { roles: rolesFromApi } = useRolesQuery();
 	const { data: user } = useUserQuery();
 
 	// Get role IDs with fallback to constants if API doesn't return roles
