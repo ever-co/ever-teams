@@ -1,8 +1,7 @@
 import { Modal, Text } from '@/core/components';
 import { useMemo } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useAtomValue } from 'jotai';
-import { organizationProjectsState } from '@/core/stores';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { Calendar, ExternalLink, Users, Banknote, Tag, Building2, Archive, CircleDot } from 'lucide-react';
 import moment from 'moment';
 import Image from 'next/image';
@@ -25,7 +24,7 @@ export function ViewProjectInfoModal(props: Readonly<IViewProjectInfoModalProps>
 	const t = useTranslations();
 	const locale = useLocale();
 	const { open, closeModal, projectId } = props;
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects } = useOrganizationProjectsQuery();
 
 	const project = useMemo(
 		() => organizationProjects.find((p) => p.id === projectId),

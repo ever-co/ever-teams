@@ -35,7 +35,7 @@ export function useOrganizationProjectsPagination() {
 
 	// Enhanced query with pagination
 	const organizationProjectsWithPagination = useQuery({
-		queryKey: [queryKeys.organizationProjects.all, 'pagination', paginationParams],
+		queryKey: [...queryKeys.organizationProjects.all, 'pagination', paginationParams],
 		queryFn: () =>
 			organizationProjectService.getOrganizationProjects({
 				skip: paginationParams.skip,

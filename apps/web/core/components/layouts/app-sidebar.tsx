@@ -43,7 +43,8 @@ import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
 import { currentEmployeeFavoritesState } from '@/core/stores/common/favorites';
-import { activeTeamState, isTeamManagerState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
+import { activeTeamState, isTeamManagerState, tasksByTeamState } from '@/core/stores';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { GlobalAllPlansModal } from '../daily-plan';
@@ -60,7 +61,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { isOpen, closeModal } = useModal();
 	const t = useTranslations();
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects } = useOrganizationProjectsQuery();
 	const activeTeam = useAtomValue(activeTeamState);
 
 	// Filter projects based on active team context:

@@ -10,7 +10,8 @@ import { EProjectRelation } from '@/core/types/generics/enums/project';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { TProjectRelation } from '@/core/types/schemas';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, organizationProjectsState, organizationTeamsState, rolesState } from '@/core/stores';
+import { activeTeamState, organizationTeamsState, rolesState } from '@/core/stores';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { ROLES } from '@/core/constants/config/constants';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
@@ -29,7 +30,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 	}, [user?.role?.name]);
 
 	// Get teams for multi-select
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects } = useOrganizationProjectsQuery();
 	const allTeams = useAtomValue(organizationTeamsState);
 	const activeTeam = useAtomValue(activeTeamState);
 

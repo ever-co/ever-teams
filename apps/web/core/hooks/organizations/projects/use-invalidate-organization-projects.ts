@@ -22,9 +22,9 @@ export function useInvalidateOrganizationProjects() {
 	const invalidateOrganizationProjectsData = useCallback(
 		() =>
 			queryClient.invalidateQueries({
-				queryKey: queryKeys.organizationProjects.byOrganization(organizationId, tenantId)
+				queryKey: queryKeys.organizationProjects.all
 			}),
-		[queryClient, organizationId, tenantId]
+		[queryClient]
 	);
 
 	return {

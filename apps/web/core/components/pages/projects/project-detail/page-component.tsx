@@ -62,7 +62,7 @@ export default function ProjectDetailPageComponent() {
 		isError,
 		error
 	} = useQuery({
-		queryKey: [queryKeys.organizationProjects.all, projectId],
+		queryKey: queryKeys.organizationProjects.detail(projectId),
 		queryFn: () =>
 			projectId
 				? organizationProjectService.getOrganizationProject(projectId)
@@ -627,8 +627,8 @@ function ProjectDetailContent({
 										{t('common.MANAGERS')} ({managers.length})
 									</span>
 									<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-										{managers.map((member) => (
-											<MemberCard key={member.id || Math.random()} member={member} isManager />
+										{managers.map((member, index) => (
+											<MemberCard key={member.id ?? `manager-${index}`} member={member} isManager />
 										))}
 									</div>
 								</div>
@@ -641,8 +641,8 @@ function ProjectDetailContent({
 										{t('common.MEMBERS')} ({members.length})
 									</span>
 									<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-										{members.map((member) => (
-											<MemberCard key={member.id || Math.random()} member={member} />
+										{members.map((member, index) => (
+											<MemberCard key={member.id ?? `member-${index}`} member={member} />
 										))}
 									</div>
 								</div>

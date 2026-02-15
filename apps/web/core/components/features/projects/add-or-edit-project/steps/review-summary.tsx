@@ -20,7 +20,7 @@ import { EProjectBilling } from '@/core/types/generics/enums/project';
 import { TCreateProjectRequest, TTag } from '@/core/types/schemas';
 import { DEFAULT_USER_IMAGE_URL } from '@/core/constants/data/mock-data';
 import { ECurrencies } from '@/core/types/generics/enums/currency';
-import { activeTeamState, organizationProjectsState, organizationTeamsState, rolesState } from '@/core/stores';
+import { activeTeamState, organizationTeamsState, rolesState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
@@ -37,7 +37,7 @@ export default function FinalReview(props: IStepElementProps) {
 	const { goToPrevious, finish, currentData: finalData, mode } = props;
 	const { createOrganizationProject, createOrganizationProjectLoading } = useCreateOrganizationProject();
 	const { editOrganizationProject, editOrganizationProjectLoading } = useEditOrganizationProject();
-	const { setOrganizationProjects } = useOrganizationProjectsQuery();
+
 	const t = useTranslations();
 	const activeTeam = useAtomValue(activeTeamState);
 
@@ -154,14 +154,6 @@ export default function FinalReview(props: IStepElementProps) {
 			});
 
 			if (project) {
-				setOrganizationProjects((prev) =>
-					prev.map((el) => {
-						if (el.id === finalData.id) {
-							return project;
-						}
-						return el;
-					})
-				);
 				finish?.(project);
 			}
 		}
@@ -172,9 +164,9 @@ export default function FinalReview(props: IStepElementProps) {
 	}, [finalData, goToPrevious]);
 
 	return (
-		<form onSubmit={handleSubmit} className="pt-4 w-full flex flex-col">
+		<form onSubmit={handleSubmit} className="flex flex-col pt-4 w-full">
 			<ScrollArea className="w-full max-h-[65vh] pr-4">
-				<div className="flex flex-col gap-6 w-full pb-32">
+				<div className="flex flex-col gap-6 pb-32 w-full">
 					<h2 className="text-xl font-medium">{t('common.REVIEW')}</h2>
 					<div className="flex flex-col gap-8 w-full">
 						<BasicInformation
@@ -212,7 +204,7 @@ export default function FinalReview(props: IStepElementProps) {
 				</div>
 				<ScrollBar orientation="vertical" />
 			</ScrollArea>
-			<div className="flex justify-between items-center w-full pt-4 border-t">
+			<div className="flex justify-between items-center pt-4 w-full border-t">
 				<Button
 					disabled={createOrganizationProjectLoading || editOrganizationProjectLoading}
 					onClick={handlePrevious}
@@ -440,7 +432,7 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 	const { managerIds, memberIds, relations, projectImageUrl, projectTitle, selectedTeams } = props;
 	const t = useTranslations();
 
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects: organizationProjectsList } = useOrganizationProjectsQuery();
 
 	const teams = useAtomValue(organizationTeamsState);
 
@@ -549,7 +541,7 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 				<div className="flex flex-col gap-2 w-full">
 					{relations?.length ? (
 						relations?.map((relation) => {
-							const project = organizationProjects?.find((el) => el.id === relation.projectId);
+							const project = organizationProjectsList?.find((el) => el.id === relation.projectId);
 							return (
 								<div key={project?.id} className="flex gap-3 items-center">
 									<Item name={projectTitle ?? '-'} imgUrl={projectImageUrl} />

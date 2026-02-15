@@ -1,12 +1,10 @@
 import { useEditOrganizationProject } from '@/core/hooks/organizations/projects/use-edit-organization-project';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
-import { useAtomValue } from 'jotai';
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 import moment from 'moment';
 import { EverCard } from '@/core/components/common/ever-card';
-import { organizationProjectsState } from '@/core/stores';
 
 interface IBulkArchiveProjectModalProps {
 	open: boolean;
@@ -26,9 +24,7 @@ interface IBulkArchiveProjectModalProps {
 export function BulkArchiveProjectsModal(props: IBulkArchiveProjectModalProps) {
 	const t = useTranslations();
 	const { open, closeModal, projectIds = [] } = props;
-	const organizationProjects = useAtomValue(organizationProjectsState);
-
-	const { setOrganizationProjects, getOrganizationProjects } = useOrganizationProjectsQuery();
+	const { organizationProjects } = useOrganizationProjectsQuery();
 	const { editOrganizationProject } = useEditOrganizationProject();
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -42,7 +38,7 @@ export function BulkArchiveProjectsModal(props: IBulkArchiveProjectModalProps) {
 		try {
 			setIsLoading(true);
 
-			const res = await Promise.all(
+			await Promise.all(
 				projectIds.map(async (projectId) => {
 					return await editOrganizationProject(projectId, {
 						isArchived: true,
@@ -52,20 +48,13 @@ export function BulkArchiveProjectsModal(props: IBulkArchiveProjectModalProps) {
 				})
 			);
 
-			if (res) {
-				const updatedProjects = await getOrganizationProjects();
-
-				if (updatedProjects?.items) {
-					closeModal();
-					setOrganizationProjects(updatedProjects?.items);
-				}
-			}
+			closeModal();
 		} catch (error) {
 			console.error('Failed to archive projects', error);
 		} finally {
 			setIsLoading(false);
 		}
-	}, [closeModal, editOrganizationProject, getOrganizationProjects, projectIds, setOrganizationProjects]);
+	}, [closeModal, editOrganizationProject, projectIds]);
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>

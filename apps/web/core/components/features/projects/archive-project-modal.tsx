@@ -10,9 +10,7 @@ import moment from 'moment';
 import { toast } from 'sonner';
 import { EverCard } from '../../common/ever-card';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
-import { TOrganizationProject } from '@/core/types/schemas';
-import { useAtomValue } from 'jotai';
-import { organizationProjectsState } from '@/core/stores';
+
 
 interface IArchiveProjectModalProps {
 	open: boolean;
@@ -33,8 +31,7 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 	const t = useTranslations();
 	const { open, closeModal, projectId } = props;
 
-	const organizationProjects = useAtomValue(organizationProjectsState);
-	const { setOrganizationProjects } = useOrganizationProjectsQuery();
+	const { organizationProjects } = useOrganizationProjectsQuery();
 	const { editOrganizationProject, editOrganizationProjectLoading } = useEditOrganizationProject();
 
 	const { updateTask } = useUpdateTask();
@@ -73,15 +70,6 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 					unlinkAffectedTasks();
 				}
 
-				setOrganizationProjects(
-					organizationProjects.map((p) => {
-						if (p.id === projectId) {
-							return res.data as TOrganizationProject;
-						}
-						return p as TOrganizationProject;
-					})
-				);
-
 				// Show success toast
 				toast.success(t('common.ARCHIVE_SUCCESS'), {
 					description: t('pages.projects.archiveModal.successDescription', {
@@ -103,10 +91,8 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 		affectedTasks.length,
 		closeModal,
 		editOrganizationProject,
-		organizationProjects,
 		project?.name,
 		projectId,
-		setOrganizationProjects,
 		t,
 		unlinkAffectedTasks
 	]);

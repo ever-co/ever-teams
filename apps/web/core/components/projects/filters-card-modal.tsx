@@ -8,7 +8,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { EverCard } from '../common/ever-card';
 import { EProjectBudgetType } from '@/core/types/generics/enums/project';
 import { useAtomValue } from 'jotai';
-import { organizationProjectsState, organizationTeamsState, taskStatusesState } from '@/core/stores';
+import { organizationTeamsState, taskStatusesState } from '@/core/stores';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 
 interface IFiltersCardModalProps {
 	open: boolean;
@@ -25,7 +26,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 	const params = useSearchParams();
 	const teams = useAtomValue(organizationTeamsState);
 
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects } = useOrganizationProjectsQuery();
 	const teamMembers = useMemo(
 		() => organizationProjects?.flatMap((project) => project.members ?? []),
 		[organizationProjects]

@@ -1,5 +1,5 @@
 import { useDeleteOrganizationProject } from '@/core/hooks/organizations/projects/use-delete-organization-project';
-import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
+
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
@@ -24,7 +24,6 @@ export function DeleteProjectConfirmModal(props: IDeleteProjectModalProps) {
 	const t = useTranslations();
 	const { open, closeModal, projectId } = props;
 	const { deleteOrganizationProject, deleteOrganizationProjectLoading } = useDeleteOrganizationProject();
-	const { setOrganizationProjects } = useOrganizationProjectsQuery();
 
 	const handleDelete = useCallback(async () => {
 		try {
@@ -32,8 +31,6 @@ export function DeleteProjectConfirmModal(props: IDeleteProjectModalProps) {
 
 			if (res) {
 				closeModal();
-
-				setOrganizationProjects((prev) => prev.filter((el) => el.id !== projectId));
 
 				// Show success toast
 				toast.success(t('common.DELETE_SUCCESS'), {
@@ -50,7 +47,7 @@ export function DeleteProjectConfirmModal(props: IDeleteProjectModalProps) {
 				duration: 5000
 			});
 		}
-	}, [closeModal, deleteOrganizationProject, projectId, setOrganizationProjects, t]);
+	}, [closeModal, deleteOrganizationProject, projectId, t]);
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>

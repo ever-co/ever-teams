@@ -9,14 +9,15 @@ import { cn } from '@/core/lib/helpers';
 import { statusTable } from '../../timesheet/timesheet-action';
 import { MultiSelect } from '../../common/multi-select';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
+import { activeTeamState, tasksByTeamState } from '@/core/stores';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 
 export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover() {
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
 
 	const activeTeam = useAtomValue(activeTeamState);
 
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects } = useOrganizationProjectsQuery();
 	const tasks = useAtomValue(tasksByTeamState);
 
 	const t = useTranslations();
