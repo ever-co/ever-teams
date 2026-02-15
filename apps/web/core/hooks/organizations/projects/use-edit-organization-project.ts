@@ -19,13 +19,16 @@ export function useEditOrganizationProject() {
 	const { invalidateOrganizationProjectsData, tenantId } = useInvalidateOrganizationProjects();
 
 	// Edit project mutation
+	// Uses onSettled (not onSuccess) to always invalidate cache even on timeout.
+	// A backend timeout (ECONNABORTED) does NOT mean the edit failed — the data may be saved.
 	const editOrganizationProjectMutation = useMutation({
 		mutationFn: ({ projectId, data }: { projectId: string; data: TEditProjectRequest }) =>
 			organizationProjectService.editOrganizationProject({ organizationProjectId: projectId, data }),
-		onSuccess: invalidateOrganizationProjectsData
+		onSettled: invalidateOrganizationProjectsData
 	});
 
 	// Edit project setting mutation
+	// Same rationale: always invalidate cache regardless of client-side timeout.
 	const editOrganizationProjectSettingMutation = useMutation({
 		mutationFn: ({ projectId, data }: { projectId: string; data: any }) => {
 			if (!tenantId) {
@@ -36,7 +39,7 @@ export function useEditOrganizationProject() {
 				data
 			});
 		},
-		onSuccess: invalidateOrganizationProjectsData
+		onSettled: invalidateOrganizationProjectsData
 	});
 
 	// Callback wrappers for backward compatibility
