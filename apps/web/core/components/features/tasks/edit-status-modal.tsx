@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useTaskStatus } from '@/core/hooks';
+import { useEditTaskStatus } from '@/core/hooks/tasks/use-edit-task-status';
+import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
 import { Button, Text, ColorPicker } from '@/core/components';
 import { useForm } from 'react-hook-form';
 import { generateIconList, IIcon } from '@/core/components/settings/icon-items';
@@ -16,7 +17,8 @@ type EditSet = {
 	icon: string;
 };
 const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose: any; setColumn: any }) => {
-	const { editTaskStatus, editTaskStatusLoading, setTaskStatuses } = useTaskStatus();
+	const { editTaskStatus, editTaskStatusLoading } = useEditTaskStatus();
+	const { setTaskStatuses } = useTaskStatusesQuery();
 	const [createNew] = useState(status);
 	const t = useTranslations();
 	const { register, handleSubmit, setValue, getValues } = useForm({

@@ -13,7 +13,9 @@ import {
 	clearOptimisticValueAtom,
 	getOptimisticValueAtom
 } from '@/core/stores/tasks/task-optimistic-updates';
-import { activeTeamTaskState, taskLabelsListState, taskStatusesState } from '@/core/stores';
+import { activeTeamTaskState } from '@/core/stores';
+import { useTaskLabelsQuery } from './use-task-labels-query';
+import { useTaskStatusesQuery } from './use-task-statuses-query';
 
 /**
  * Hook for managing loading states in task dropdown components
@@ -76,9 +78,8 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 ) {
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const { handleStatusUpdate } = useUpdateTask();
-	const taskLabels = useAtomValue(taskLabelsListState);
-
-	const taskStatuses = useAtomValue(taskStatusesState);
+	const { taskLabels } = useTaskLabelsQuery();
+	const { taskStatuses } = useTaskStatusesQuery();
 
 	// Global optimistic state for synchronization between instances
 	const setOptimisticValue = useSetAtom(setOptimisticValueAtom);

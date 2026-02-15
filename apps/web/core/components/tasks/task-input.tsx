@@ -6,14 +6,14 @@ import {
 	useCallbackRef,
 	useHotkeys,
 	useOutsideClick,
-	useTaskInput
+	useTaskInput,
 } from '@/core/hooks';
+import { useTaskLabelsQuery } from '@/core/hooks/tasks/use-task-labels-query';
+import { useIssueTypesQuery } from '@/core/hooks/tasks/use-issue-types-query';
 import {
 	activeTeamState,
 	activeTeamTaskId,
-	issueTypesListState,
-	timerStatusState,
-	taskLabelsListState
+	timerStatusState
 } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Combobox, Popover, PopoverPanel, Transition } from '@headlessui/react';
@@ -82,7 +82,7 @@ type Props = {
 export function TaskInput(props: Props) {
 	const t = useTranslations();
 
-	const issueTypes = useAtomValue(issueTypesListState);
+	const { issueTypes } = useIssueTypesQuery();
 	const defaultIssueType: IIssueType | undefined = issueTypes.find((issue) => issue.isDefault);
 
 	const { viewType = 'input-trigger', showTaskNumber = false, showCombobox = true } = props;
@@ -361,7 +361,7 @@ export function TaskInput(props: Props) {
 			}}
 			trailingNode={
 				/* Showing the spinner when the task is being updated. */
-				<div className="flex items-center justify-center h-full p-2">
+				<div className="flex justify-center items-center p-2 h-full">
 					{props.task ? (
 						(updateLoading || props.inputLoader) && <SpinnerLoader size={25} />
 					) : (
@@ -378,7 +378,7 @@ export function TaskInput(props: Props) {
 			leadingNode={
 				// showTaskNumber &&
 				// inputTask &&
-				<div className="flex items-center pl-3 xl:pl-1 gap-x-2" ref={ignoreElementRef}>
+				<div className="flex gap-x-2 items-center pl-3 xl:pl-1" ref={ignoreElementRef}>
 					{!datas.hasCreateForm ? (
 						<ActiveTaskIssuesDropdown
 							key={(inputTask && inputTask.id) || ''}
@@ -493,7 +493,7 @@ function TaskCard({
 }) {
 	const t = useTranslations();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
-	const taskLabelsData = useAtomValue(taskLabelsListState);
+	const { taskLabels: taskLabelsData } = useTaskLabelsQuery();
 
 	const activeTeam = useAtomValue(activeTeamState);
 
@@ -617,7 +617,7 @@ function TaskCard({
 									className={'dark:bg-[#1B1D22]'}
 								/>
 
-								<div className="flex justify-start gap-2">
+								<div className="flex gap-2 justify-start">
 									<div ref={statusDropdownRef}>
 										<ActiveTaskStatusDropdown
 											className="min-w-fit lg:max-w-[170px]"
@@ -856,9 +856,9 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 			)}
 		>
 			<Combobox multiple={true}>
-				<div className="relative h-full my-auto">
-					<div className="w-full h-full overflow-hidden text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
-						<Combobox.Button className="flex items-center justify-between h-full min-w-fit max-w-40 hover:transition-all">
+				<div className="relative my-auto h-full">
+					<div className="overflow-hidden w-full h-full text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
+						<Combobox.Button className="flex justify-between items-center h-full min-w-fit max-w-40 hover:transition-all">
 							<div
 								className={cn(
 									'flex gap-1 items-center  !text-default dark:!text-white text-xs',

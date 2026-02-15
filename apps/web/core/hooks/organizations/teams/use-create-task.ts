@@ -1,15 +1,14 @@
 'use client';
 
 import { taskService } from '@/core/services/client/api';
-import { taskStatusesState } from '@/core/stores';
 import { useCallback } from 'react';
-import { useAtomValue } from 'jotai';
 import { useMutation } from '@tanstack/react-query';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 
 import { TEmployee, TTag } from '@/core/types/schemas';
 import { EIssueType, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
 import { ETaskStatusName } from '@/core/types/schemas';
+import { useTaskStatusesQuery } from '../../tasks/use-task-statuses-query';
 
 /**
  * Hook for creating team tasks (CREATE operations only).
@@ -24,7 +23,7 @@ import { ETaskStatusName } from '@/core/types/schemas';
  * - `createLoading` - Mutation pending state
  */
 export function useCreateTask() {
-	const taskStatuses = useAtomValue(taskStatusesState);
+	const { taskStatuses } = useTaskStatusesQuery();
 
 	const { invalidateTeamTasksData } = useInvalidateTeamTasks();
 

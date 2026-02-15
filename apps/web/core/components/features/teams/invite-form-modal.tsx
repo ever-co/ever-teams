@@ -13,16 +13,18 @@ import { IInviteEmail } from '../../teams/invite/invite-email-item';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../../common/select';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, getTeamInvitationsState, rolesState, workingEmployeesState } from '@/core/stores';
+import { activeTeamState, workingEmployeesState } from '@/core/stores';
+import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
+import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invitations-query';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const { data: user } = useUserQuery();
-	const roles = useAtomValue(rolesState);
+	const { roles } = useRolesQuery();
 	const t = useTranslations();
 
-	const teamInvitations = useAtomValue(getTeamInvitationsState);
+	const { teamInvitations } = useTeamInvitationsQuery();
 	const { inviteUser, inviteLoading, resendTeamInvitation, resendInviteLoading } = useSendTeamInvitation();
 
 	const [errors, setErrors] = useState<{ email?: string; name?: string; role?: string }>({});

@@ -16,8 +16,7 @@ import {
 	memberActiveTaskIdState,
 	activeTeamTaskState,
 	tasksByTeamState,
-	teamTasksState,
-	taskStatusesState
+	teamTasksState
 } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
 import { useCallback, useRef, useState } from 'react';
@@ -35,6 +34,7 @@ import { PaginationResponse } from '@/core/types/interfaces/common/data-response
 import { useUserQuery } from '../../queries/user-user.query';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 import { EIssueType, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
+import { useTaskStatusesQuery } from '../../tasks/use-task-statuses-query';
 import { toast } from 'sonner';
 
 /**
@@ -102,7 +102,7 @@ export function useTeamTasks() {
 	const setActive = useSetAtom(activeTeamTaskId);
 	const memberActiveTaskId = useAtomValue(memberActiveTaskIdState);
 	const $memberActiveTaskId = useSyncRef(memberActiveTaskId);
-	const taskStatuses = useAtomValue(taskStatusesState);
+	const { taskStatuses } = useTaskStatusesQuery();
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamRef = useSyncRef(activeTeam);
 	const [selectedEmployeeId, setSelectedEmployeeId] = useState(user?.employee?.id);

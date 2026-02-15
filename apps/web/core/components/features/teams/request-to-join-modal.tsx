@@ -1,6 +1,9 @@
 'use client';
 
-import { useAuthenticationPasscode, useRequestToJoinTeam } from '@/core/hooks';
+import { useAuthenticationPasscode } from '@/core/hooks';
+import { useRequestToJoinMutation } from '@/core/hooks/organizations/teams/use-request-to-join-mutation';
+import { useValidateRequestToJoin } from '@/core/hooks/organizations/teams/use-validate-request-to-join';
+import { useResendCodeRequestToJoin } from '@/core/hooks/organizations/teams/use-resend-code-request-to-join';
 import { clsxm } from '@/core/lib/utils';
 import { Button, Modal, SpinnerLoader, Text } from '@/core/components';
 import { useCallback, useState } from 'react';
@@ -156,14 +159,9 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 	const { formValues, setFormValues, errors, setErrors, sendCodeLoading, inputCodeRef } = useAuthenticationPasscode();
 
 	const activeTeam = useAtomValue(activeTeamState);
-	const {
-		requestToJoinTeam,
-		validateRequestToJoinTeam,
-		resendCodeRequestToJoinTeam,
-		requestToJoinLoading,
-		resendCodeRequestToJoinLoading,
-		validateRequestToJoinLoading
-	} = useRequestToJoinTeam();
+	const { requestToJoinTeam, requestToJoinLoading } = useRequestToJoinMutation();
+	const { validateRequestToJoinTeam, validateRequestToJoinLoading } = useValidateRequestToJoin();
+	const { resendCodeRequestToJoinTeam, resendCodeRequestToJoinLoading } = useResendCodeRequestToJoin();
 	const [message, setMessage] = useState<string>('');
 
 	const handleSubmitRequest = useCallback(

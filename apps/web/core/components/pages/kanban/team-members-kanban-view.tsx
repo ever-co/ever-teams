@@ -13,8 +13,7 @@ import { cn } from '@/core/lib/helpers';
 import { IKanban, useKanban } from '@/core/hooks/tasks/use-kanban';
 import { TTaskStatus } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { taskStatusesState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
 
 export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: IKanban; isLoading: boolean }) => {
 	const {
@@ -39,7 +38,7 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		})
 	);
 	const containerRef = useRef<HTMLDivElement>(null);
-	const taskStatuses = useAtomValue(taskStatusesState);
+	const { taskStatuses } = useTaskStatusesQuery();
 
 	const reorderTask = (list: TTask[], startIndex: number, endIndex: number) => {
 		const tasks = Array.from(list);

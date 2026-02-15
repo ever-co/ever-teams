@@ -34,9 +34,10 @@ import { ID } from '@/core/types/interfaces/common/base-interfaces';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
-import { activeTeamTaskState, tasksByTeamState, taskStatusesState, timerStatusState } from '@/core/stores';
+import { activeTeamTaskState, tasksByTeamState, timerStatusState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { EIssueType } from '@/core/types/generics/enums/task';
+import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.
@@ -677,7 +678,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 
 	const teamTasks = useAtomValue(tasksByTeamState);
 	const { createTask } = useCreateTask();
-	const taskStatuses = useAtomValue(taskStatusesState);
+	const { taskStatuses } = useTaskStatusesQuery();
 	const [taskName, setTaskName] = useState('');
 	const [tasks, setTasks] = useState<TTask[]>([]);
 	const [createTaskLoading, setCreateTaskLoading] = useState(false);
@@ -848,7 +849,7 @@ function TaskCard(props: ITaskCardProps) {
 	const { data: user } = useUserQuery();
 	const [addToPlanLoading, setAddToPlanLoading] = useState(false);
 
-	const taskStatuses = useAtomValue(taskStatusesState);
+	const { taskStatuses } = useTaskStatusesQuery();
 	const isTaskRenderedInTodayPlan =
 		plan && new Date(Date.now()).toLocaleDateString('en') == new Date(plan.date).toLocaleDateString('en');
 	const {

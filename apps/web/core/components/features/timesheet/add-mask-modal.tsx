@@ -22,7 +22,8 @@ import { ToggleButton } from '../tasks/edit-task-modal';
 import { DatePickerFilter } from '../../pages/timesheet/timesheet-filter-date';
 import { ETimeLogType, ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
+import { activeTeamState, tasksByTeamState } from '@/core/stores';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;
@@ -52,7 +53,7 @@ interface FormState {
 export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { generateTimeOptions } = useTimelogFilterOptions();
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects } = useOrganizationProjectsQuery();
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const { createTimesheet, loadingCreateTimesheet } = useCreateTimesheet();

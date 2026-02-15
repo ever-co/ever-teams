@@ -1,8 +1,6 @@
 'use client';
 
-import { fetchingTeamInvitationsState, getTeamInvitationsState, teamInvitationsState } from '@/core/stores';
-import { useEffect, useMemo } from 'react';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useFirstLoad } from '../common/use-first-load';
 import { inviteService } from '../../services/client/api/organizations/teams/invites';
@@ -22,12 +20,8 @@ import { useUserQuery } from '../queries/user-user.query';
  * @returns Object containing team invitations data, loading states, and firstLoad callback
  */
 export function useTeamInvitationsQuery() {
-	const setTeamInvitations = useSetAtom(teamInvitationsState);
-	const teamInvitations = useAtomValue(getTeamInvitationsState);
-	const [fetchingInvitations, setFetchingInvitations] = useAtom(fetchingTeamInvitationsState);
-
 	const activeTeamId = getActiveTeamIdCookie();
-	const { firstLoad, firstLoadData: firstLoadTeamInvitationsData } = useFirstLoad();
+	const { firstLoadData: firstLoadTeamInvitationsData } = useFirstLoad();
 
 	const { data: user } = useUserQuery();
 	const { isTeamManager } = useIsMemberManager(user);
@@ -63,34 +57,19 @@ export function useTeamInvitationsQuery() {
 		enabled: !!(activeTeamId && isTeamManager && user?.tenantId)
 	});
 
-	// ===== JOTAI SYNCHRONIZATION =====
-
-	useEffect(() => {
-		if (teamInvitationsSuccess && teamInvitationsData?.items) {
-			setTeamInvitations(teamInvitationsData.items);
-		}
-	}, [teamInvitationsSuccess, teamInvitationsData?.items, setTeamInvitations]);
-
-	useEffect(() => {
-		if (firstLoad) {
-			setFetchingInvitations(teamInvitationsLoading);
-		}
-	}, [teamInvitationsLoading, firstLoad, setFetchingInvitations]);
-
 	// ===== HYDRATED DATA =====
 
-	const hydratedInvitations = useMemo(() => {
-		return teamInvitationsSuccess && teamInvitationsData?.items
-			? (teamInvitationsData?.items ?? teamInvitations)
-			: [];
-	}, [teamInvitationsData?.items, teamInvitationsSuccess, teamInvitations]);
+	const teamInvitations = useMemo(
+		() => (teamInvitationsSuccess ? (teamInvitationsData?.items ?? []) : []),
+		[teamInvitationsData?.items, teamInvitationsSuccess]
+	);
 
 	// ===== RETURN =====
 
 	return {
-		teamInvitations: hydratedInvitations,
+		teamInvitations,
 		firstLoadTeamInvitationsData,
-		fetchingInvitations,
+		fetchingInvitations: teamInvitationsLoading,
 		isLoading: teamInvitationsLoading,
 		isSuccess: teamInvitationsSuccess
 	};

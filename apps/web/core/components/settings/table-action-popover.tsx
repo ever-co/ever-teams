@@ -4,12 +4,12 @@ import { ConfirmationModal } from './confirmation-modal';
 import { ThreeCircleOutlineHorizontalIcon } from 'assets/svg';
 import { useEmployeeUpdate, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks/organizations';
 import { useModal } from '@/core/hooks/common';
-import { rolesState } from '@/core/stores';
 import { useDropdownAction } from '../pages/teams/team/team-members-views/user-team-card/user-team-card-menu';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { useAtomValue } from 'jotai';
 import { activeTeamManagersState } from '@/core/stores';
+import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 type Props = {
@@ -181,7 +181,7 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 };
 
 const RolePopover = () => {
-	const roles = useAtomValue(rolesState);
+	const { roles } = useRolesQuery();
 
 	return (
 		<Popover className="relative w-full no-underline border-none">

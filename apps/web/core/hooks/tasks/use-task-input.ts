@@ -1,6 +1,6 @@
 'use client';
 import { EIssueType, ETaskPriority, ETaskSize, ETaskStatusName } from '@/core/types/generics/enums/task';
-import { activeTeamTaskState, memberActiveTaskIdState, taskStatusesState } from '@/core/stores';
+import { activeTeamTaskState, memberActiveTaskIdState } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useModal, useSyncRef } from '../common';
@@ -8,6 +8,7 @@ import { useTeamTasksQuery, useTeamTasksState, useCreateTask, useUpdateTask } fr
 import { useAuthenticateUser } from '../auth';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTag } from '@/core/types/schemas';
+import { useTaskStatusesQuery } from './use-task-statuses-query';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export const h_filter = (status: ETaskStatusName, filters: 'closed' | 'open') => {
@@ -38,7 +39,7 @@ export function useTaskInput({
 } = {}) {
 	const { isOpen: isModalOpen, openModal, closeModal } = useModal();
 	const [closeableTask, setCloseableTaskTask] = useState<TTask | null>(null);
-	const taskStatusList = useAtomValue(taskStatusesState);
+	const { taskStatuses: taskStatusList } = useTaskStatusesQuery();
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
 	const { tasks: teamTasks, tasksFetching } = useTeamTasksQuery();

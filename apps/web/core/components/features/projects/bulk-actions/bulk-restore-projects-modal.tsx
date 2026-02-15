@@ -1,11 +1,10 @@
-import { useOrganizationProjects } from '@/core/hooks';
-import { useAtomValue } from 'jotai';
+import { useEditOrganizationProject } from '@/core/hooks/organizations/projects/use-edit-organization-project';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { Button, Modal, Text } from '@/core/components';
 import { RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 import { EverCard } from '@/core/components/common/ever-card';
-import { organizationProjectsState } from '@/core/stores';
 
 interface IBulkRestoreProjectModalProps {
 	open: boolean;
@@ -25,9 +24,8 @@ interface IBulkRestoreProjectModalProps {
 export function BulkRestoreProjectsModal(props: IBulkRestoreProjectModalProps) {
 	const t = useTranslations();
 	const { open, closeModal, projectIds = [] } = props;
-	const organizationProjects = useAtomValue(organizationProjectsState);
-
-	const { editOrganizationProject, setOrganizationProjects, getOrganizationProjects } = useOrganizationProjects();
+	const { organizationProjects } = useOrganizationProjectsQuery();
+	const { editOrganizationProject } = useEditOrganizationProject();
 	const [isLoading, setIsLoading] = useState(false);
 
 	const projects = useMemo(
@@ -40,7 +38,7 @@ export function BulkRestoreProjectsModal(props: IBulkRestoreProjectModalProps) {
 		try {
 			setIsLoading(true);
 
-			const res = await Promise.all(
+			await Promise.all(
 				projectIds.map(async (projectId) => {
 					return await editOrganizationProject(projectId, {
 						isArchived: false,
@@ -50,20 +48,13 @@ export function BulkRestoreProjectsModal(props: IBulkRestoreProjectModalProps) {
 				})
 			);
 
-			if (res) {
-				const updatedProjects = await getOrganizationProjects();
-
-				if (updatedProjects?.items) {
-					closeModal();
-					setOrganizationProjects(updatedProjects?.items);
-				}
-			}
+			closeModal();
 		} catch (error) {
 			console.error('Failed to restore projects', error);
 		} finally {
 			setIsLoading(false);
 		}
-	}, [closeModal, editOrganizationProject, getOrganizationProjects, projectIds, setOrganizationProjects]);
+	}, [closeModal, editOrganizationProject, projectIds]);
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>

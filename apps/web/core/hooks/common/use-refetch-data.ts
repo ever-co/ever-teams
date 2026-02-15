@@ -1,16 +1,16 @@
 import { useCallback } from 'react';
-import { useTaskPriorities } from '../tasks/use-task-priorities';
-import { useTaskRelatedIssueType } from '../tasks/use-task-related-issue-type';
-import { useTaskSizes } from '../tasks/use-task-sizes';
-import { useTaskStatus } from '../tasks/use-task-status';
-import { useTaskVersion } from '../tasks/use-task-version';
+import { useTaskPrioritiesQuery } from '../tasks/use-task-priorities-query';
+import { useTaskRelatedIssueTypesQuery } from '../tasks/use-task-related-issue-types-query';
+import { useTaskSizesQuery } from '../tasks/use-task-sizes-query';
+import { useTaskStatusesQuery } from '../tasks/use-task-statuses-query';
+import { useTaskVersionsQuery } from '../tasks/use-task-versions-query';
 
 export function useRefetchData() {
-	const { loadTaskStatuses } = useTaskStatus();
-	const { loadTaskVersionData } = useTaskVersion();
-	const { loadTaskPriorities } = useTaskPriorities();
-	const { loadTaskSizes } = useTaskSizes();
-	const { loadTaskRelatedIssueTypeData } = useTaskRelatedIssueType();
+	const { loadTaskStatuses } = useTaskStatusesQuery();
+	const { loadTaskVersionData } = useTaskVersionsQuery();
+	const { loadTaskPriorities } = useTaskPrioritiesQuery();
+	const { loadTaskSizes } = useTaskSizesQuery();
+	const { loadTaskRelatedIssueTypeData } = useTaskRelatedIssueTypesQuery();
 
 	const refetch = useCallback(() => {
 		loadTaskStatuses();

@@ -1,14 +1,16 @@
 'use client';
 
-import { myInvitationsState } from '@/core/stores';
 import { useCallback } from 'react';
-import { useSetAtom } from 'jotai';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { inviteService } from '../../services/client/api/organizations/teams/invites';
 import { useAuthenticateUser } from '../auth';
 import { EInviteAction } from '@/core/types/generics/enums/invite';
 import { useRouter } from 'next/navigation';
 import { useInvitationInvalidation } from './use-invitation-invalidation';
+import { queryKeys } from '@/core/query/keys';
+import { useUserQuery } from '../queries/user-user.query';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import { TInvite } from '@/core/types/schemas';
 
 /**
  * Hook for responding to invitations (accept or reject).
@@ -16,15 +18,16 @@ import { useInvitationInvalidation } from './use-invitation-invalidation';
  *
  * Side effects are centralized here:
  * - On accept: refreshToken + router.refresh (session update)
- * - On reject: optimistic Jotai update + cross-cache invalidation
+ * - On reject: optimistic React Query cache update + cross-cache invalidation
  *
  * @returns Object containing respond mutation function and its loading state
  */
 export function useRespondToInvitation() {
 	const router = useRouter();
-	const setMyInvitations = useSetAtom(myInvitationsState);
+	const queryClient = useQueryClient();
 	const { refreshToken } = useAuthenticateUser();
 	const { invalidateTeamInvitations, invalidateMyInvitations } = useInvitationInvalidation();
+	const { data: user } = useUserQuery();
 
 	// ===== ACCEPT / REJECT =====
 
@@ -43,8 +46,15 @@ export function useRespondToInvitation() {
 				return res;
 			}
 
-			// Optimistic update for rejection
-			setMyInvitations((prev) => prev.filter((invitation) => invitation.id !== id));
+			// Optimistic update for rejection — update React Query cache directly
+			queryClient.setQueryData<PaginationResponse<TInvite>>(
+				queryKeys.users.invitations.my(user?.tenantId || ''),
+				(old) => {
+					if (!old?.items) return old;
+					const filtered = old.items.filter((invitation) => invitation.id !== id);
+					return { ...old, items: filtered, total: filtered.length };
+				}
+			);
 
 			// Cross-invalidate both caches
 			invalidateTeamInvitations();

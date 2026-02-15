@@ -1,8 +1,6 @@
 'use client';
 
-import { myInvitationsState } from '@/core/stores';
-import { useCallback, useEffect, useMemo } from 'react';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { inviteService } from '../../services/client/api/organizations/teams/invites';
 import { queryKeys } from '@/core/query/keys';
@@ -20,8 +18,6 @@ import { TInvite } from '@/core/types/schemas';
  */
 export function useMyInvitationsQuery() {
 	const queryClient = useQueryClient();
-	const setMyInvitations = useSetAtom(myInvitationsState);
-	const myInvitationsAtom = useAtomValue(myInvitationsState);
 
 	const { data: user } = useUserQuery();
 
@@ -42,30 +38,18 @@ export function useMyInvitationsQuery() {
 		gcTime: 5 * 60 * 1000 // 5 minutes — keeps data in cache after unmount
 	});
 
-	// ===== JOTAI SYNCHRONIZATION =====
-
-	useEffect(() => {
-		if (myInvitationsSuccess && myInvitationsData?.items) {
-			setMyInvitations(myInvitationsData.items);
-		}
-	}, [myInvitationsSuccess, myInvitationsData?.items, setMyInvitations]);
-
 	// ===== HYDRATED DATA =====
 
-	const myInvitations = useMemo(() => {
-		return myInvitationsSuccess && myInvitationsData?.items
-			? (myInvitationsData?.items ?? myInvitationsAtom)
-			: [];
-	}, [myInvitationsData?.items, myInvitationsSuccess, myInvitationsAtom]);
+	const myInvitations = useMemo(
+		() => (myInvitationsSuccess ? (myInvitationsData?.items ?? []) : []),
+		[myInvitationsData?.items, myInvitationsSuccess]
+	);
 
 	// ===== LOCAL STATE OPERATIONS =====
 
 	const removeMyInvitation = useCallback(
 		(id: string) => {
-			// Update Jotai atom (backward compat for legacy consumers)
-			setMyInvitations((prev) => prev.filter((invitation) => invitation.id !== id));
-
-			// Update React Query cache so hydrated `myInvitations` reflects the removal immediately
+			// Optimistic update: remove from React Query cache immediately
 			queryClient.setQueryData<PaginationResponse<TInvite>>(
 				queryKeys.users.invitations.my(user?.tenantId || ''),
 				(old) => {
@@ -79,7 +63,7 @@ export function useMyInvitationsQuery() {
 				}
 			);
 		},
-		[setMyInvitations, queryClient, user?.tenantId]
+		[queryClient, user?.tenantId]
 	);
 
 	// ===== REFETCH CALLBACK =====

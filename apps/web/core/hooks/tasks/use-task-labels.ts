@@ -1,134 +1,43 @@
 'use client';
-import { taskLabelsListState, activeTeamIdState, activeTeamState } from '@/core/stores';
-import { useCallback, useMemo, useOptimistic, startTransition } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useFirstLoad } from '../common/use-first-load';
-import {
-	generateDefaultColor,
-	getActiveTeamIdCookie,
-	getOrganizationIdCookie,
-	getTenantIdCookie
-} from '@/core/lib/helpers/index';
-import { taskLabelService } from '@/core/services/client/api/tasks/task-label.service';
+
+import { useCallback, startTransition } from 'react';
+import { generateDefaultColor } from '@/core/lib/helpers/index';
 import { ITagCreate } from '@/core/types/interfaces/tag/tag';
-import { queryKeys } from '@/core/query/keys';
-import { useConditionalUpdateEffect } from '../common';
-import { useUserQuery } from '../queries/user-user.query';
 import { mergeTaskLabelData } from '@/core/lib/helpers/task';
-import { OptimisticAction, TTag } from '@/core/types/schemas';
+import { TTag } from '@/core/types/schemas';
+import { useTaskLabelsQuery } from './use-task-labels-query';
+import { useCreateTaskLabel } from './use-create-task-label';
+import { useEditTaskLabel } from './use-edit-task-label';
+import { useDeleteTaskLabel } from './use-delete-task-label';
+import { useInvalidateTaskLabels } from './use-invalidate-task-labels';
 
+/**
+ * @deprecated This hook re-exports from specialized hooks for backward compatibility.
+ * For new code, prefer using the specific hooks directly:
+ * - `useTaskLabelsQuery` for read operations (list, loading, optimistic labels)
+ * - `useCreateTaskLabel` for task label creation (raw mutation)
+ * - `useEditTaskLabel` for task label edits (raw mutation)
+ * - `useDeleteTaskLabel` for task label deletion (raw mutation)
+ * - `useInvalidateTaskLabels` for shared cache invalidation
+ *
+ * This wrapper adds optimistic UI wrappers around the raw mutations.
+ */
 export function useTaskLabels() {
-	const activeTeamId = useAtomValue(activeTeamIdState);
-	const { data: authUser } = useUserQuery();
-	const activeTeam = useAtomValue(activeTeamState);
+	const { organizationId, tenantId, teamId } = useInvalidateTaskLabels();
+	const queryData = useTaskLabelsQuery();
+	const createData = useCreateTaskLabel();
+	const editData = useEditTaskLabel();
+	const deleteData = useDeleteTaskLabel();
 
-	const queryClient = useQueryClient();
+	const { addOptimisticLabel, baseLabels } = queryData;
 
-	const [taskLabels, setTaskLabels] = useAtom(taskLabelsListState);
-	const { firstLoadData: firstLoadTaskLabelsData } = useFirstLoad();
-
-	const organizationId = useMemo(() => authUser?.employee?.organizationId || getOrganizationIdCookie(), [authUser]);
-	const tenantId = useMemo(() => authUser?.employee?.tenantId || getTenantIdCookie(), [authUser]);
-	const teamId = useMemo(() => activeTeam?.id || getActiveTeamIdCookie() || activeTeamId, [activeTeam, activeTeamId]);
-
-	// Stable base data for optimistic UI (avoid circular dependencies)
-	const baseLabels = useMemo(() => taskLabels || [], [taskLabels]);
-
-	// Optimistic UI state for task labels with proper typing
-	const [optimisticLabels, addOptimisticLabel] = useOptimistic<TTag[], OptimisticAction>(
-		baseLabels as TTag[],
-		(state, action) => {
-			switch (action.type) {
-				case 'add':
-					return [action.label, ...state];
-				case 'update':
-					return state.map((label) => (label.id === action.label.id ? action.label : label));
-				case 'delete':
-					return state.filter((label) => label.id !== action.id);
-				default:
-					return state;
-			}
-		}
-	);
-
-	// useQuery for fetching task labels
-	const taskLabelsQuery = useQuery({
-		queryKey: queryKeys.taskLabels.byTeam(teamId),
-		queryFn: async () => {
-			const isEnabled = !!tenantId && !!organizationId && !!teamId;
-			if (!isEnabled) {
-				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
-			}
-			const res = await taskLabelService.getTaskLabelsList();
-			return res.data;
-		},
-		enabled: !!tenantId && !!organizationId && !!teamId
-	});
-	const invalidateTaskLabelsData = useCallback(
-		() => queryClient.invalidateQueries({ queryKey: queryKeys.taskLabels.byTeam(teamId) }),
-		[queryClient, teamId]
-	);
-	// Smart mutations with optimistic UI
-	const createTaskLabelMutation = useMutation({
-		mutationFn: (data: ITagCreate) => {
-			const isEnabled = !!tenantId && !!teamId;
-			if (!isEnabled) {
-				throw new Error('Required parameters missing: tenantId, teamId is required');
-			}
-			// Use intelligent data merging
-			const cleanData = mergeTaskLabelData(data, undefined, organizationId, tenantId, teamId);
-			return taskLabelService.createTaskLabels(cleanData);
-		},
-		onSuccess: invalidateTaskLabelsData
-	});
-
-	const updateTaskLabelMutation = useMutation({
-		mutationFn: ({ id, data, existingLabel }: { id: string; data: Partial<ITagCreate>; existingLabel?: TTag }) => {
-			const isEnabled = !!tenantId && !!teamId;
-			if (!isEnabled) {
-				throw new Error('Required parameters missing: tenantId, teamId is required');
-			}
-			// Use intelligent data merging with existing label fallbacks
-			const cleanData = mergeTaskLabelData(data, existingLabel, organizationId, tenantId, teamId);
-			return taskLabelService.editTaskLabels({ tagId: id, data: cleanData });
-		},
-		onSuccess: invalidateTaskLabelsData
-	});
-
-	const deleteTaskLabelMutation = useMutation({
-		mutationFn: (id: string) => taskLabelService.deleteTaskLabels(id),
-		onSuccess: invalidateTaskLabelsData
-	});
-
-	useConditionalUpdateEffect(
-		() => {
-			if (taskLabelsQuery.data) {
-				setTaskLabels(taskLabelsQuery.data.items);
-			}
-		},
-		[taskLabelsQuery.data],
-		Boolean(taskLabels?.length)
-	);
-
-	const loadTaskLabels = useCallback(async () => {
-		return taskLabelsQuery.data;
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [authUser, activeTeamId]);
-
-	const handleFirstLoad = useCallback(async () => {
-		await loadTaskLabels();
-		firstLoadTaskLabelsData();
-	}, [firstLoadTaskLabelsData, loadTaskLabels]);
 	// Smart wrapper functions with optimistic UI
 	const createTaskLabelsWithOptimistic = useCallback(
 		async (inputData: Partial<ITagCreate>) => {
-			// Validate input to prevent unnecessary operations
 			if (!inputData.name?.trim()) {
 				throw new Error('Label name is required');
 			}
 
-			// Generate optimistic label with proper typing
 			const optimisticLabel: TTag = {
 				id: `temp-${Date.now()}`,
 				...mergeTaskLabelData(inputData, undefined, organizationId, tenantId, teamId),
@@ -137,7 +46,6 @@ export function useTaskLabels() {
 				isSystem: false
 			} as TTag;
 
-			// Add optimistic update with guard
 			let optimisticAdded = false;
 			try {
 				startTransition(() => {
@@ -145,36 +53,32 @@ export function useTaskLabels() {
 					optimisticAdded = true;
 				});
 
-				const result = await createTaskLabelMutation.mutateAsync(inputData as ITagCreate);
+				const result = await createData.createTaskLabels(inputData as ITagCreate);
 				return result;
 			} catch (error) {
-				// Revert optimistic update on error only if it was added
 				if (optimisticAdded) {
 					try {
 						startTransition(() => {
 							addOptimisticLabel({ type: 'delete', id: optimisticLabel.id });
 						});
 					} catch (revertError) {
-						// Log revert failure but don't block the original error
 						console.warn('Failed to revert optimistic update:', revertError);
 					}
 				}
 				throw error;
 			}
 		},
-		[createTaskLabelMutation, organizationId, tenantId, teamId, addOptimisticLabel]
+		[createData, organizationId, tenantId, teamId, addOptimisticLabel]
 	);
 
 	const editTaskLabelsWithOptimistic = useCallback(
 		async (id: string, inputData: Partial<ITagCreate>) => {
-			// Use baseLabels instead of taskLabels to avoid circular dependency
 			const existingLabel = baseLabels?.find((label) => label.id === id);
 
 			if (!existingLabel) {
 				throw new Error(`Label with id ${id} not found`);
 			}
 
-			// Check if there are actual changes to prevent unnecessary updates
 			const hasChanges = Object.keys(inputData).some((key) => {
 				const newValue = inputData[key as keyof ITagCreate];
 				const existingValue = existingLabel[key as keyof typeof existingLabel];
@@ -182,17 +86,15 @@ export function useTaskLabels() {
 			});
 
 			if (!hasChanges) {
-				return existingLabel; // No changes, return existing
+				return existingLabel;
 			}
 
-			// Generate optimistic updated label
 			const optimisticLabel = {
 				...existingLabel,
 				...mergeTaskLabelData(inputData, existingLabel, organizationId, tenantId, teamId),
 				updatedAt: new Date()
 			} as any;
 
-			// Add optimistic update with guard
 			let optimisticUpdated = false;
 			try {
 				startTransition(() => {
@@ -200,14 +102,13 @@ export function useTaskLabels() {
 					optimisticUpdated = true;
 				});
 
-				const result = await updateTaskLabelMutation.mutateAsync({
+				const result = await editData.editTaskLabels({
 					id,
 					data: inputData,
 					existingLabel: existingLabel as any
 				});
 				return result;
 			} catch (error) {
-				// Revert optimistic update on error only if it was updated
 				if (optimisticUpdated) {
 					startTransition(() => {
 						addOptimisticLabel({ type: 'update', label: existingLabel });
@@ -216,19 +117,17 @@ export function useTaskLabels() {
 				throw error;
 			}
 		},
-		[updateTaskLabelMutation, baseLabels, organizationId, tenantId, teamId, addOptimisticLabel]
+		[editData, baseLabels, organizationId, tenantId, teamId, addOptimisticLabel]
 	);
 
 	const deleteTaskLabelsWithOptimistic = useCallback(
 		async (id: string) => {
-			// Use baseLabels instead of taskLabels to avoid circular dependency
 			const existingLabel = baseLabels?.find((label) => label.id === id);
 
 			if (!existingLabel) {
 				throw new Error(`Label with id ${id} not found`);
 			}
 
-			// Add optimistic delete with guard
 			let optimisticDeleted = false;
 			try {
 				startTransition(() => {
@@ -236,10 +135,9 @@ export function useTaskLabels() {
 					optimisticDeleted = true;
 				});
 
-				const result = await deleteTaskLabelMutation.mutateAsync(id);
+				const result = await deleteData.deleteTaskLabels(id);
 				return result;
 			} catch (error) {
-				// Revert optimistic update on error only if it was deleted
 				if (optimisticDeleted) {
 					startTransition(() => {
 						addOptimisticLabel({ type: 'add', label: existingLabel });
@@ -248,14 +146,14 @@ export function useTaskLabels() {
 				throw error;
 			}
 		},
-		[deleteTaskLabelMutation, baseLabels, addOptimisticLabel]
+		[deleteData, baseLabels, addOptimisticLabel]
 	);
 
 	return {
-		loading: taskLabelsQuery.isLoading,
-		taskLabels: optimisticLabels, // Return optimistic labels for UI
-		actualTaskLabels: taskLabels, // Provide access to actual data if needed
-		firstLoadTaskLabelsData: handleFirstLoad,
+		loading: queryData.loading,
+		taskLabels: queryData.taskLabels, // Optimistic labels for UI
+		actualTaskLabels: queryData.actualTaskLabels,
+		firstLoadTaskLabelsData: queryData.firstLoadTaskLabelsData,
 
 		// Smart functions with optimistic UI
 		createTaskLabels: createTaskLabelsWithOptimistic,
@@ -263,13 +161,12 @@ export function useTaskLabels() {
 		deleteTaskLabels: deleteTaskLabelsWithOptimistic,
 
 		// Loading states
-		createTaskLabelsLoading: createTaskLabelMutation.isPending,
-		editTaskLabelsLoading: updateTaskLabelMutation.isPending,
-		deleteTaskLabelsLoading: deleteTaskLabelMutation.isPending,
+		createTaskLabelsLoading: createData.createTaskLabelsLoading,
+		editTaskLabelsLoading: editData.editTaskLabelsLoading,
+		deleteTaskLabelsLoading: deleteData.deleteTaskLabelsLoading,
 
-		// Legacy support (deprecated - use smart functions above)
-		setTaskLabels,
-		loadTaskLabels,
+		// Legacy support
+		loadTaskLabels: queryData.loadTaskLabels,
 
 		// Utility functions
 		generateDefaultColor,

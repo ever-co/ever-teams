@@ -1,6 +1,9 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useTaskLabels } from '@/core/hooks';
-import { taskLabelsListState } from '@/core/stores';
+import { useTaskLabelsQuery } from '@/core/hooks/tasks/use-task-labels-query';
+import { useCreateTaskLabel } from '@/core/hooks/tasks/use-create-task-label';
+import { useEditTaskLabel } from '@/core/hooks/tasks/use-edit-task-label';
+import { useDeleteTaskLabel } from '@/core/hooks/tasks/use-delete-task-label';
+
 import { clsxm } from '@/core/lib/utils';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { Spinner } from '@/core/components/common/spinner';
@@ -9,7 +12,7 @@ import { Button, ColorPicker, Text } from '@/core/components';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
-import { useAtomValue } from 'jotai';
+
 import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
@@ -28,7 +31,10 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const [isCreating, setIsCreating] = useState(formOnly);
 	const t = useTranslations();
 	const initialRender = useRef(true);
-	const taskLabels = useAtomValue(taskLabelsListState);
+	const { taskLabels, loading } = useTaskLabelsQuery();
+	const { createTaskLabels, createTaskLabelsLoading } = useCreateTaskLabel();
+	const { editTaskLabels, editTaskLabelsLoading } = useEditTaskLabel();
+	const { deleteTaskLabels } = useDeleteTaskLabel();
 
 	const formValues = watch();
 
@@ -43,15 +49,6 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', ['x-large']);
 	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', ['urgent', 'high', 'medium', 'low']);
 	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
-
-	const {
-		loading,
-		deleteTaskLabels,
-		createTaskLabels,
-		editTaskLabels,
-		createTaskLabelsLoading,
-		editTaskLabelsLoading
-	} = useTaskLabels();
 
 	useEffect(() => {
 		if (initialRender.current) {
@@ -88,10 +85,13 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 				onCreated?.();
 				reset();
 			} else if (edit) {
-				await editTaskLabels(edit.id, {
-					name: values.name,
-					color: values.color,
-					icon: values.icon
+				await editTaskLabels({
+					id: edit.id,
+					data: {
+						name: values.name,
+						color: values.color,
+						icon: values.icon
+					}
 				});
 				setEdit(null);
 			}

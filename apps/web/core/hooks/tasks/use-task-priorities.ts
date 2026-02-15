@@ -1,112 +1,40 @@
 'use client';
-import { taskPrioritiesListState, activeTeamIdState, activeTeamState } from '@/core/stores';
-import { useCallback, useMemo } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useFirstLoad } from '../common/use-first-load';
-import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
-import { taskPriorityService } from '@/core/services/client/api/tasks/task-priority.service';
-import { ITaskPrioritiesCreate } from '@/core/types/interfaces/task/task-priority';
-import { queryKeys } from '@/core/query/keys';
-import { useConditionalUpdateEffect } from '../common';
-import { useUserQuery } from '../queries/user-user.query';
 
+import { useTaskPrioritiesQuery } from './use-task-priorities-query';
+import { useCreateTaskPriority } from './use-create-task-priority';
+import { useEditTaskPriority } from './use-edit-task-priority';
+import { useDeleteTaskPriority } from './use-delete-task-priority';
+
+/**
+ * @deprecated This hook re-exports from specialized hooks for backward compatibility.
+ * For new code, prefer using the specific hooks directly:
+ * - `useTaskPrioritiesQuery` for read operations (list, loading, setTaskPriorities)
+ * - `useCreateTaskPriority` for task priority creation
+ * - `useEditTaskPriority` for task priority edits
+ * - `useDeleteTaskPriority` for task priority deletion
+ * - `useInvalidateTaskPriorities` for shared cache invalidation
+ */
 export function useTaskPriorities() {
-	const activeTeamId = useAtomValue(activeTeamIdState);
-	const { data: authUser } = useUserQuery();
-	const activeTeam = useAtomValue(activeTeamState);
-	const queryClient = useQueryClient();
+	const queryData = useTaskPrioritiesQuery();
+	const createData = useCreateTaskPriority();
+	const editData = useEditTaskPriority();
+	const deleteData = useDeleteTaskPriority();
 
-	const [taskPriorities, setTaskPriorities] = useAtom(taskPrioritiesListState);
-	const { firstLoadData: firstLoadTaskPrioritiesData } = useFirstLoad();
-
-	const organizationId = useMemo(() => authUser?.employee?.organizationId || getOrganizationIdCookie(), [authUser]);
-	const tenantId = useMemo(() => authUser?.employee?.tenantId || getTenantIdCookie(), [authUser]);
-	const teamId = useMemo(() => activeTeam?.id || getActiveTeamIdCookie() || activeTeamId, [activeTeam, activeTeamId]);
-	const isEnabled = useMemo(() => !!tenantId && !!organizationId && !!teamId, [tenantId, organizationId, teamId]);
-	// useQuery for fetching task priorities
-	const taskPrioritiesQuery = useQuery({
-		queryKey: queryKeys.taskPriorities.byTeam(teamId),
-		queryFn: async () => {
-			if (!isEnabled) {
-				throw new Error('Required parameters missing: tenantId, organizationId, and teamId are required');
-			}
-
-			return await taskPriorityService.getTaskPrioritiesList();
-		},
-		enabled: isEnabled
-	});
-
-	const invalidateTaskPrioritiesData = useCallback(
-		() => queryClient.invalidateQueries({ queryKey: queryKeys.taskPriorities.byTeam(teamId) }),
-		[queryClient, teamId]
-	);
-
-	// Mutations
-	const createTaskPriorityMutation = useMutation({
-		mutationFn: (data: ITaskPrioritiesCreate) => {
-			const isEnabled = !!tenantId && !!teamId;
-			if (!isEnabled) {
-				throw new Error('Required parameters missing: tenantId, teamId is required');
-			}
-			const requestData = { ...data, organizationTeamId: teamId };
-			return taskPriorityService.createTaskPriority(requestData);
-		},
-		onSuccess: invalidateTaskPrioritiesData
-	});
-
-	const updateTaskPriorityMutation = useMutation({
-		mutationFn: ({ id, data }: { id: string; data: ITaskPrioritiesCreate }) => {
-			const isEnabled = !!tenantId && !!teamId;
-			if (!isEnabled) {
-				throw new Error('Required parameters missing: tenantId, teamId is required');
-			}
-			return taskPriorityService.editTaskPriority({ taskPriorityId: id, data });
-		},
-		onSuccess: invalidateTaskPrioritiesData
-	});
-
-	const deleteTaskPriorityMutation = useMutation({
-		mutationFn: (id: string) => taskPriorityService.deleteTaskPriority(id),
-		onSuccess: invalidateTaskPrioritiesData
-	});
-
-	useConditionalUpdateEffect(
-		() => {
-			if (taskPrioritiesQuery.data) {
-				setTaskPriorities(taskPrioritiesQuery.data.items);
-			}
-		},
-		[taskPrioritiesQuery.data],
-		Boolean(taskPriorities?.length)
-	);
-
-	const loadTaskPriorities = useCallback(async () => {
-		return taskPrioritiesQuery.data;
-	}, [taskPrioritiesQuery.data]);
-
-	const handleFirstLoad = useCallback(async () => {
-		await loadTaskPriorities();
-		firstLoadTaskPrioritiesData();
-	}, [firstLoadTaskPrioritiesData, loadTaskPriorities]);
-	const editTaskPriorities = useCallback(
-		(id: string, data: ITaskPrioritiesCreate) => updateTaskPriorityMutation.mutateAsync({ id, data }),
-		[updateTaskPriorityMutation]
-	);
 	return {
-		// useQuery-based methods (recommended)
-		taskPriorities: taskPriorities,
+		// Query data
+		taskPriorities: queryData.taskPriorities,
+		loading: queryData.loading,
+		getTaskPrioritiesLoading: queryData.getTaskPrioritiesLoading,
+		setTaskPriorities: queryData.setTaskPriorities,
+		loadTaskPriorities: queryData.loadTaskPriorities,
+		firstLoadTaskPrioritiesData: queryData.firstLoadTaskPrioritiesData,
 
-		// Legacy methods (for backward compatibility)
-		loading: taskPrioritiesQuery.isLoading,
-		firstLoadTaskPrioritiesData: handleFirstLoad,
-		createTaskPriorities: createTaskPriorityMutation.mutateAsync,
-		createTaskPrioritiesLoading: createTaskPriorityMutation.isPending,
-		deleteTaskPrioritiesLoading: deleteTaskPriorityMutation.isPending,
-		deleteTaskPriorities: deleteTaskPriorityMutation.mutateAsync,
-		editTaskPriorities,
-		editTaskPrioritiesLoading: updateTaskPriorityMutation.isPending,
-		setTaskPriorities,
-		loadTaskPriorities
+		// Mutations
+		createTaskPriorities: createData.createTaskPriorities,
+		createTaskPrioritiesLoading: createData.createTaskPrioritiesLoading,
+		editTaskPriorities: editData.editTaskPriorities,
+		editTaskPrioritiesLoading: editData.editTaskPrioritiesLoading,
+		deleteTaskPriorities: deleteData.deleteTaskPriorities,
+		deleteTaskPrioritiesLoading: deleteData.deleteTaskPrioritiesLoading
 	};
 }

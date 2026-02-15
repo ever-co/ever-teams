@@ -9,8 +9,7 @@ import { cn } from '@/core/lib/helpers';
 import { ProgressBar } from '@/core/components/duplicated-components/_progress-bar';
 import { TOrganizationProject, TTimeSlot } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useAtomValue } from 'jotai';
-import { organizationProjectsState } from '@/core/stores';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 
 const ScreenshotDetailsModal = ({
 	open,
@@ -42,7 +41,7 @@ const ScreenshotDetailsModal = ({
 
 	const [project, setProject] = useState<TOrganizationProject | null>(null);
 	const [task, setTask] = useState<TTask | null>(null);
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects } = useOrganizationProjectsQuery();
 
 	const { getTaskById } = useTaskQueries();
 

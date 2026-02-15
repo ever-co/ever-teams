@@ -20,7 +20,7 @@ import {
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
 import { clsxm } from '@/core/lib/utils';
-import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import Image from 'next/image';
@@ -308,7 +308,7 @@ export default TaskSecondaryInfo;
 export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	const { task, controlled = false, onChange, styles } = props;
 	const { openModal, isOpen, closeModal } = useModal();
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects } = useOrganizationProjectsQuery();
 	const activeTeam = useAtomValue(activeTeamState);
 	const { updateTask, updateLoading } = useUpdateTask();
 	const t = useTranslations();

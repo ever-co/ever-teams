@@ -16,7 +16,8 @@ import { CustomSelect } from '../../common/multiple-select';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { toast } from 'sonner';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, organizationProjectsState } from '@/core/stores';
+import { activeTeamState } from '@/core/stores';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 
 export interface IEditTaskModalProps {
 	isOpen: boolean;
@@ -24,7 +25,7 @@ export interface IEditTaskModalProps {
 	dataTimesheet: ITimeLog;
 }
 export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskModalProps) {
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects } = useOrganizationProjectsQuery();
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const t = useTranslations();

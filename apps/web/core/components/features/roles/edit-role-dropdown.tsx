@@ -3,8 +3,7 @@ import { clsxm } from '@/core/lib/utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { mapRoleItems, RoleItem } from '@/core/components/roles/role-item';
 import { TOrganizationTeamEmployee, TRole } from '@/core/types/schemas';
-import { useAtomValue } from 'jotai';
-import { rolesState } from '@/core/stores';
+import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
 
 export const EditUserRoleDropdown = ({
 	member,
@@ -13,7 +12,7 @@ export const EditUserRoleDropdown = ({
 	member: TOrganizationTeamEmployee;
 	handleRoleChange: (newRole: TRole) => void;
 }) => {
-	const roles = useAtomValue(rolesState);
+	const { roles } = useRolesQuery();
 
 	const items = useMemo(
 		() => mapRoleItems(roles?.filter((role) => ['MANAGER', 'EMPLOYEE'].includes(role.name)) || []),

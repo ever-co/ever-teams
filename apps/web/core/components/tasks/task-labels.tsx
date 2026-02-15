@@ -1,6 +1,7 @@
 'use client';
 
 import { useModal, useSyncRef, useUpdateTask } from '@/core/hooks';
+import { useTaskLabelsQuery } from '@/core/hooks/tasks/use-task-labels-query';
 import { Button, Modal } from '@/core/components';
 import { TaskLabelsDropdown } from '@/core/components/tasks/task-status';
 import { debounce, isEqual } from 'lodash';
@@ -11,8 +12,7 @@ import { TaskLabelForm } from './task-labels-form';
 import { EverCard } from '../common/ever-card';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { taskLabelsListState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+
 import { taskUpdateQueue } from '@/core/lib/utils/task.utils';
 
 type Props = {
@@ -25,7 +25,7 @@ type Props = {
 export function TaskLabels({ task, className, forDetails, taskStatusClassName, onValueChange }: Props) {
 	const $task = useSyncRef(task);
 	const { updateTask } = useUpdateTask();
-	const taskLabels = useAtomValue(taskLabelsListState);
+	const { taskLabels } = useTaskLabelsQuery();
 	const modal = useModal();
 	const latestLabels = useRef<string[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
