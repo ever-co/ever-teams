@@ -11,7 +11,10 @@ import { cn } from '@/core/lib/helpers';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { useReportActivity } from '@/core/hooks/activities/use-report-activity';
+import { useActivityFilters } from '@/core/hooks/activities/use-activity-filters';
+import { useActivityChartQuery } from '@/core/hooks/activities/queries/use-activity-chart-query';
+import { useActivityDailyReportQuery } from '@/core/hooks/activities/queries/use-activity-daily-report-query';
+import { useActivityStatisticsQuery } from '@/core/hooks/activities/queries/use-activity-statistics-query';
 import { useTranslations } from 'next-intl';
 
 import { TeamStatsTableSkeleton } from '@/core/components/common/skeleton/team-stats-table-skeleton';
@@ -35,18 +38,11 @@ function TeamDashboard() {
 	const paramsUrl = useParams<{ locale: string }>();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
-	const {
-		rapportChartActivity,
-		rapportDailyActivity,
-		statisticsCounts,
-		updateDateRange,
-		loading,
-		isManage,
-		currentFilters,
-		fetchReportActivity,
-		fetchDailyReport,
-		fetchStatisticsCounts
-	} = useReportActivity({ types: 'TEAM-DASHBOARD' });
+	const { mergedProps, enabled, currentFilters, updateDateRange, isManage } = useActivityFilters();
+	const { rapportChartActivity, refetchChartActivity } = useActivityChartQuery({ mergedProps, enabled });
+	const { rapportDailyActivity, refetchDailyReport, isLoading: isDailyLoading } = useActivityDailyReportQuery({ mergedProps, enabled });
+	const { statisticsCounts, refetchStatisticsCounts, isLoading: isStatsLoading } = useActivityStatisticsQuery({ mergedProps, enabled });
+	const loading = isDailyLoading || isStatsLoading;
 
 	const currentLocale = paramsUrl?.locale;
 
@@ -63,10 +59,10 @@ function TeamDashboard() {
 	// Handle filter application - triggers data refetch
 	const handleFiltersApply = useCallback(() => {
 		// Refetch all dashboard data with current filter state
-		fetchReportActivity();
-		fetchDailyReport();
-		fetchStatisticsCounts();
-	}, [fetchReportActivity, fetchDailyReport, fetchStatisticsCounts]);
+		refetchChartActivity();
+		refetchDailyReport();
+		refetchStatisticsCounts();
+	}, [refetchChartActivity, refetchDailyReport, refetchStatisticsCounts]);
 
 	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
 	if (loading && (!rapportDailyActivity || rapportDailyActivity.length === 0)) {

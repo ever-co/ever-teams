@@ -78,7 +78,14 @@ function TimeActivityHeader({
 				<GroupBySelectTimeActivity onGroupByChange={props.onGroupByChange} groupByType={props.groupByType} />
 				<TimeActivityFilterPopover {...props} />
 				<ViewSelect viewOptions={currentViewOptions} onChange={handleViewOptionsChange} />
-				<DateRangePickerTimeActivity onDateRangeChange={handleDateRangeChange} />
+				<DateRangePickerTimeActivity
+					onDateRangeChange={handleDateRangeChange}
+					initialRange={
+						props.startDate && props.endDate
+							? { from: props.startDate, to: props.endDate }
+							: undefined
+					}
+				/>
 				<TimeActivityExportMenu
 					rapportDailyActivity={props.rapportDailyActivity}
 					isManage={props.isManage}

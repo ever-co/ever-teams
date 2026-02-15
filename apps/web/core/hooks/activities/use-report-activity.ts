@@ -1,342 +1,92 @@
-import { useCallback, useEffect, useState, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useAtom } from 'jotai';
-import {
-	activityReportState,
-	timeLogsRapportChartState,
-	timeLogsRapportDailyState,
-	timesheetStatisticsCountsState
-} from '@/core/stores';
-import { useTimelogFilterOptions } from './use-timelog-filter-options';
-import { activityService } from '@/core/services/client/api/activities';
-import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
-import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
-import { useAuthenticateUser } from '../auth';
-import { ETimeLogType } from '@/core/types/generics/enums/timer';
-import { queryKeys } from '@/core/query/keys';
-import { ITimeLogReportDailyChartProps } from '@/core/types/interfaces/activity/activity-report';
+import { useMemo } from 'react';
+import { useActivityFilters } from './use-activity-filters';
+import { useActivityChartQuery } from './queries/use-activity-chart-query';
+import { useActivityDailyReportQuery } from './queries/use-activity-daily-report-query';
+import { useActivityStatisticsQuery } from './queries/use-activity-statistics-query';
+import { useActivityReportListQuery } from './queries/use-activity-report-list-query';
 
-export interface UseReportActivityProps
-	extends Omit<ITimeLogReportDailyChartProps, 'logType' | 'activityLevel' | 'start' | 'end' | 'groupBy'> {
-	logType?: ETimeLogType[];
-	activityLevel: {
-		start: number;
-		end: number;
-	};
-	start?: number;
-	end?: number;
-	projectIds?: string[];
-	employeeIds?: string[];
-	teamIds?: string[];
-	groupBy?: string;
-}
+// Re-export types for backward compatibility
+export type { UseReportActivityProps, GroupByType } from './use-activity-filters';
 
-const now = new Date();
-const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-const defaultProps: Required<
-	Pick<
-		UseReportActivityProps,
-		| 'startDate'
-		| 'endDate'
-		| 'groupBy'
-		| 'activityLevel'
-		| 'logType'
-		| 'start'
-		| 'end'
-		| 'employeeIds'
-		| 'projectIds'
-		| 'teamIds'
-	>
-> = {
-	startDate: firstDayOfMonth.toISOString().split('T')[0],
-	endDate: lastDayOfMonth.toISOString().split('T')[0],
-	groupBy: 'date',
-	activityLevel: {
-		start: 0,
-		end: 100
-	},
-	logType: [ETimeLogType.TRACKED],
-	start: 0,
-	end: 100,
-	employeeIds: [],
-	projectIds: [],
-	teamIds: []
-};
-
-export type GroupByType = 'date' | 'project' | 'employee' | 'application' | 'daily' | 'weekly' | 'member';
-
+/**
+ * @deprecated Use the granular hooks directly instead:
+ * - `useActivityFilters()` for filter state, auth context, and merged props
+ * - `useActivityChartQuery()` for chart data
+ * - `useActivityDailyReportQuery()` for daily report data
+ * - `useActivityStatisticsQuery()` for statistics counts
+ * - `useActivityReportListQuery()` for activity report (Apps & URLs)
+ *
+ * This wrapper composes the new hooks to maintain backward compatibility.
+ * It will be removed in a future release.
+ */
 export function useReportActivity({ types }: { types?: 'TEAM-DASHBOARD' | 'APPS-URLS' | 'TIME-AND-ACTIVITY' }) {
-	// User and authentication
-	const { user } = useAuthenticateUser();
-	const { allteamsState, alluserState, isUserAllowedToAccess } = useTimelogFilterOptions();
-	const isManage = useMemo(() => user && isUserAllowedToAccess(user), [user, isUserAllowedToAccess]);
-
-	// State management - For compatibility
-	const [currentFilters, setCurrentFilters] = useState<Partial<UseReportActivityProps>>(defaultProps);
-	const [, setRapportChartActivity] = useAtom(timeLogsRapportChartState);
-	const [, setRapportDailyActivity] = useAtom(timeLogsRapportDailyState);
-	const [, setStatisticsCounts] = useAtom(timesheetStatisticsCountsState);
-	const [, setActivityReport] = useAtom(activityReportState);
-
-	// Memoized employee and team IDs
-	const employeeIds = useMemo(
-		() =>
-			isManage
-				? alluserState?.map(({ employee }) => employee?.id).filter(Boolean)
-				: user?.employee?.id
-					? [user.employee.id]
-					: [],
-		[isManage, alluserState, user?.employee?.id]
-	);
-
-	const teamIds = useMemo(() => allteamsState?.map(({ id }) => id).filter(Boolean) || [], [allteamsState]);
-
-	// Props merging logic
-	const getMergedProps = useMemo(() => {
-		if (!user?.employee?.organizationId) {
-			return null;
-		}
-
-		return (customProps?: Partial<UseReportActivityProps>) => {
-			const merged = {
-				...defaultProps,
-				...currentFilters,
-				...(customProps || {}),
-				organizationId: user?.employee?.organizationId,
-				teamId: customProps?.teamId || currentFilters.teamId,
-				userId: customProps?.userId || currentFilters.userId,
-				tenantId: user?.tenantId ?? '',
-				logType: (customProps?.logType || currentFilters.logType || defaultProps.logType) as ETimeLogType[],
-				startDate: (customProps?.startDate || currentFilters.startDate || defaultProps.startDate) as string,
-				endDate: (customProps?.endDate || currentFilters.endDate || defaultProps.endDate) as string,
-				groupBy: (customProps?.groupBy || currentFilters.groupBy || defaultProps.groupBy) as string,
-				projectIds: (customProps?.projectIds ||
-					currentFilters.projectIds ||
-					defaultProps.projectIds) as string[],
-				employeeIds: isManage ? employeeIds : [user?.employee?.id],
-				teamIds: teamIds,
-				activityLevel: {
-					start:
-						customProps?.activityLevel?.start ??
-						currentFilters.activityLevel?.start ??
-						defaultProps.activityLevel.start,
-					end:
-						customProps?.activityLevel?.end ??
-						currentFilters.activityLevel?.end ??
-						defaultProps.activityLevel.end
-				},
-				start: customProps?.start ?? currentFilters.start ?? defaultProps.start,
-				end: customProps?.end ?? currentFilters.end ?? defaultProps.end
-			};
-			return merged as Required<UseReportActivityProps>;
-		};
-	}, [
-		user?.employee?.organizationId,
-		user?.employee?.id,
-		user?.tenantId,
-		currentFilters,
+	const {
 		isManage,
-		employeeIds,
-		teamIds
-	]);
+		mergedProps,
+		enabled,
+		currentFilters,
+		updateDateRange,
+		handleGroupByChange,
+		updateFilters
+	} = useActivityFilters();
 
-	// True MIGRATION REACT QUERY - Using useQuery (for compatibility)
-	const mergedProps = getMergedProps?.() || null;
-	const enabled = !!user && !!mergedProps;
+	const isNotAppsUrls = types !== 'APPS-URLS';
+	const isAppsUrls = types === 'APPS-URLS';
 
-	// Chart Activity Query
-	const chartActivityQuery = useQuery({
-		queryKey: [
-			queryKeys.activities.dailyChart({
-				tenantId: user?.tenantId,
-				organizationId: user?.employee?.organizationId,
-				...currentFilters
-			})
-		],
-		queryFn: () => timeLogService.getTimeLogReportDailyChart(mergedProps!),
-		enabled: enabled && types !== 'APPS-URLS',
-		staleTime: 1000 * 60 * 10,
-		gcTime: 1000 * 60 * 30,
-		retry: 3,
-		retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)
-	});
+	const {
+		rapportChartActivity,
+		refetchChartActivity,
+		query: chartActivityQuery
+	} = useActivityChartQuery({ mergedProps, enabled: enabled && isNotAppsUrls });
 
-	// Daily Report Query
-	const dailyReportQuery = useQuery({
-		queryKey: [
-			queryKeys.activities.daily({
-				tenantId: user?.tenantId,
-				organizationId: user?.employee?.organizationId,
-				...currentFilters
-			})
-		],
-		queryFn: () => timeLogService.getTimeLogReportDaily(mergedProps!),
-		enabled: enabled && types !== 'APPS-URLS',
-		staleTime: 1000 * 60 * 10,
-		gcTime: 1000 * 60 * 30,
-		retry: 3
-	});
+	const {
+		rapportDailyActivity,
+		refetchDailyReport,
+		query: dailyReportQuery
+	} = useActivityDailyReportQuery({ mergedProps, enabled: enabled && isNotAppsUrls });
 
-	// Statistics Query
-	const statisticsQuery = useQuery({
-		queryKey: [
-			queryKeys.activities.statisticsCounts({
-				tenantId: user?.tenantId,
-				organizationId: user?.employee?.organizationId,
-				...currentFilters
-			})
-		],
-		queryFn: () =>
-			statisticsService.getTimesheetStatisticsCounts({
-				...mergedProps!,
-				logType: [ETimeLogType.TRACKED]
-			}),
-		enabled: enabled && types !== 'APPS-URLS',
-		staleTime: 1000 * 60 * 10,
-		gcTime: 1000 * 60 * 30,
-		retry: 3
-	});
+	const {
+		statisticsCounts,
+		refetchStatisticsCounts,
+		query: statisticsQuery
+	} = useActivityStatisticsQuery({ mergedProps, enabled: enabled && isNotAppsUrls });
 
-	// Activity Report Query
-	const activityReportQuery = useQuery({
-		queryKey: [
-			queryKeys.activities.activityReport({
-				tenantId: user?.tenantId,
-				organizationId: user?.employee?.organizationId,
-				...currentFilters
-			})
-		],
-		queryFn: () => activityService.getActivitiesReport(mergedProps!),
-		enabled: enabled && types === 'APPS-URLS',
-		staleTime: 1000 * 60 * 10,
-		gcTime: 1000 * 60 * 30,
-		retry: 3
-	});
-	// Sync React Query data with Jotai atoms (for compatibility)
-	useEffect(() => {
-		if (chartActivityQuery.data?.data) {
-			setRapportChartActivity(chartActivityQuery.data.data);
-		}
-	}, [chartActivityQuery.data, setRapportChartActivity]);
-
-	useEffect(() => {
-		if (dailyReportQuery.data?.data) {
-			setRapportDailyActivity(dailyReportQuery.data.data);
-		}
-	}, [dailyReportQuery.data, setRapportDailyActivity]);
-
-	useEffect(() => {
-		if (statisticsQuery.data?.data) {
-			setStatisticsCounts(statisticsQuery.data.data);
-		}
-	}, [statisticsQuery.data, setStatisticsCounts]);
-
-	useEffect(() => {
-		if (activityReportQuery.data?.data) {
-			setActivityReport(activityReportQuery.data.data);
-		}
-	}, [activityReportQuery.data, setActivityReport]);
+	const {
+		activityReport,
+		refetchActivityReport,
+		query: activityReportQuery
+	} = useActivityReportListQuery({ mergedProps, enabled: enabled && isAppsUrls });
 
 	// Combined loading state
 	const loading = useMemo(() => {
-		if (types === 'APPS-URLS') {
+		if (isAppsUrls) {
 			return activityReportQuery.isLoading;
 		}
 		return chartActivityQuery.isLoading || dailyReportQuery.isLoading || statisticsQuery.isLoading;
-	}, [
-		types,
-		chartActivityQuery.isLoading,
-		dailyReportQuery.isLoading,
-		statisticsQuery.isLoading,
-		activityReportQuery.isLoading
-	]);
-
-	// Update handlers with React Query invalidation
-	const updateDateRange = useCallback((startDate: Date, endDate: Date) => {
-		const newFilters = {
-			startDate: startDate.toISOString().split('T')[0],
-			endDate: endDate.toISOString().split('T')[0]
-		};
-		setCurrentFilters((prev) => ({ ...prev, ...newFilters }));
-	}, []);
-
-	const handleGroupByChange = useCallback((groupByType: GroupByType) => {
-		const options = {
-			groupBy: groupByType === 'application' ? 'date' : groupByType
-		};
-		setCurrentFilters((prev) => ({ ...prev, ...options }));
-	}, []);
-
-	const updateFilters = useCallback((newFilters: Partial<UseReportActivityProps>) => {
-		setCurrentFilters((prev) => ({ ...prev, ...newFilters }));
-	}, []);
-
-	// Refetch functions for compatibility
-	const fetchReportActivity = useCallback(
-		async (customProps?: Partial<UseReportActivityProps>) => {
-			if (customProps) {
-				setCurrentFilters((prev) => ({ ...prev, ...customProps }));
-			}
-			return chartActivityQuery.refetch();
-		},
-		[chartActivityQuery]
-	);
-
-	const fetchDailyReport = useCallback(
-		async (customProps?: Partial<UseReportActivityProps>) => {
-			if (customProps) {
-				setCurrentFilters((prev) => ({ ...prev, ...customProps }));
-			}
-			return dailyReportQuery.refetch();
-		},
-		[dailyReportQuery]
-	);
-
-	const fetchActivityReport = useCallback(
-		async (customProps?: Partial<UseReportActivityProps>) => {
-			if (customProps) {
-				setCurrentFilters((prev) => ({ ...prev, ...customProps }));
-			}
-			return activityReportQuery.refetch();
-		},
-		[activityReportQuery]
-	);
-
-	const fetchStatisticsCounts = useCallback(
-		async (customProps?: Partial<UseReportActivityProps>) => {
-			if (customProps) {
-				setCurrentFilters((prev) => ({ ...prev, ...customProps }));
-			}
-			return statisticsQuery.refetch();
-		},
-		[statisticsQuery]
-	);
+	}, [isAppsUrls, chartActivityQuery.isLoading, dailyReportQuery.isLoading, statisticsQuery.isLoading, activityReportQuery.isLoading]);
 
 	return {
 		// Loading states
 		loading,
-		// Data states - Direct access to React Query data
-		rapportChartActivity: chartActivityQuery.data?.data || [],
-		rapportDailyActivity: dailyReportQuery.data?.data || [],
-		statisticsCounts: statisticsQuery.data?.data || null,
-		activityReport: Array.isArray(activityReportQuery.data?.data) ? activityReportQuery.data.data : [],
+		// Data states
+		rapportChartActivity,
+		rapportDailyActivity,
+		statisticsCounts,
+		activityReport,
 
 		// Update handlers
 		updateDateRange,
 		updateFilters,
 		handleGroupByChange,
-		fetchActivityReport,
 
-		// Refetch functions for compatibility
-		fetchReportActivity,
-		fetchDailyReport,
-		fetchStatisticsCounts,
+		// Refetch functions
+		fetchReportActivity: refetchChartActivity,
+		fetchActivityReport: refetchActivityReport,
+		fetchDailyReport: refetchDailyReport,
+		fetchStatisticsCounts: refetchStatisticsCounts,
 
 		// Other states
 		currentFilters,
-		setStatisticsCounts,
 		isManage,
 
 		// React Query states for debug/monitoring
