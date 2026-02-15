@@ -1,6 +1,6 @@
 'use client';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { activeTeamState, isTeamManagerState } from '@/core/stores';
 import { ERoleName } from '@/core/types/generics/enums/role';
@@ -9,7 +9,6 @@ import { TUser } from '@/core/types/schemas';
 export function useIsMemberManager(user?: TUser | null) {
 	const activeTeam = useAtomValue(activeTeamState);
 
-	const members = useMemo(() => activeTeam?.members || [], [activeTeam?.members]);
 	const activeManager = useMemo(() => {
 		if (!user || !activeTeam?.members) return undefined;
 
@@ -36,25 +35,14 @@ export function useIsMemberManager(user?: TUser | null) {
 
 	// Sync isTeamManagerState atom for global consumers (sidebar, project modal, task info)
 	const setIsTeamManager = useSetAtom(isTeamManagerState);
-
-	const isManager = useCallback(() => {
-		const $u = user;
-		const isM = members.find((member) => {
-			const isUser = member.employee?.userId === $u?.id;
-			return isUser && (member.isManager === true || (member.role && member.role.name === 'MANAGER'));
-		});
-		setIsTeamManager(!!isM);
-	}, [user, members, setIsTeamManager]);
 	useEffect(() => {
 		setIsTeamManager(isTeamManager);
-		isManager()
 	}, [isTeamManager, setIsTeamManager]);
 
 	return {
 		isTeamManager,
 		isTeamCreator,
 		activeTeam,
-		activeManager,
-		isManager
+		activeManager
 	};
 }

@@ -94,7 +94,7 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({
 	const { deleteTaskTimesheet } = useDeleteTimesheet();
 
 	const getSelectedIds = useCallback(
-		() => selectTimesheetId.map((select) => select.timesheet?.id || '').filter((id) => id !== undefined),
+		() => selectTimesheetId.map((select) => select.timesheet?.id).filter((id): id is string => Boolean(id)),
 		[selectTimesheetId]
 	);
 
