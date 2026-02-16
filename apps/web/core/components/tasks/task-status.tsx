@@ -236,7 +236,8 @@ export function EpicPropertiesDropdown({
 	multiple,
 	sidebarUI = false,
 	children,
-	taskStatusClassName
+	taskStatusClassName,
+	defaultValues
 }: TTaskStatusesDropdown<'epic'>) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const status = useMemo(() => {
@@ -261,11 +262,12 @@ export function EpicPropertiesDropdown({
 		status,
 		value: defaultValue,
 		onValueChange,
-		multiple
+		multiple,
+		defaultValues
 	});
 
 	return (
-		<StatusDropdown
+		<MultipleStatusDropdown
 			sidebarUI={sidebarUI}
 			forDetails={forDetails}
 			className={className}
@@ -273,14 +275,12 @@ export function EpicPropertiesDropdown({
 			value={item}
 			defaultItem={!item ? 'epic' : undefined}
 			onChange={onChange}
-			multiple={multiple}
 			values={values}
-			showButtonOnly
 			taskStatusClassName={taskStatusClassName}
-			isEpic
+			isVersion={false}
 		>
 			{children}
-		</StatusDropdown>
+		</MultipleStatusDropdown>
 	);
 }
 
@@ -319,7 +319,7 @@ export function TaskPropertiesDropdown({
 			items={items}
 			value={item}
 			defaultItem={!item ? 'priority' : undefined}
-			onChange={onChange as any}
+			onChange={onChange}
 			multiple={multiple}
 			isMultiple={isMultiple}
 			values={values as any}
@@ -759,7 +759,7 @@ export function StatusDropdown<T extends TStatusItem>({
 			};
 
 			return (
-				<div className="relative w-full outline-none cursor-pointer">
+				<div className="relative w-full cursor-pointer outline-none">
 					<TaskStatus
 						showIcon={showIcon}
 						{...item}
@@ -776,7 +776,7 @@ export function StatusDropdown<T extends TStatusItem>({
 					{isSelected && issueType !== 'issue' && (
 						<button
 							onClick={handleRemove}
-							className="absolute w-4 h-4 -translate-y-1/2 bg-transparent bg-white rounded right-1 top-1/2 dark:bg-black"
+							className="absolute right-1 top-1/2 w-4 h-4 bg-transparent bg-white rounded -translate-y-1/2 dark:bg-black"
 						>
 							<XMarkIcon
 								className="text-dark dark:text-white"

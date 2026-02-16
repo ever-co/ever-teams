@@ -1,4 +1,5 @@
 import { ETaskPriority, ETaskSize, ETaskStatusName, EIssueType } from '../../generics/enums/task';
+import { TTask } from '../../schemas/task/task.schema';
 import { IBasePerTenantAndOrganizationEntityModel, ID, ITaggable } from '../common/base-interfaces';
 import { IEmployee } from '../organization/employee';
 import { IRelationalOrganizationProject } from '../project/organization-project';
@@ -8,6 +9,7 @@ import { ITaskLinkedIssue } from './task-linked-issue';
 import { ITaskPriority } from './task-priority';
 import { ITaskSize } from './task-size';
 import { ITaskStatus } from './task-status/task-status';
+import { TTaskStatus } from '../../schemas';
 
 export interface IBaseTaskProperties extends IBasePerTenantAndOrganizationEntityModel {
 	title: string;
@@ -83,4 +85,46 @@ export interface ICreateTask {
 	organizationId: string;
 	tenantId: string;
 	projectId?: string | null;
+}
+
+/** Filter criteria passed to applyAllFilters */
+export interface KanbanFilterCriteria {
+	search: string;
+	priority: string[];
+	issueValue: string | undefined;
+	sizes: string[];
+	labels: string[];
+	epics: string[];
+	employee: string | null;
+}
+
+/**
+ * Props for KanbanView — all data & operations received from parent.
+ * No internal hook calls → pure prop-driven component.
+ */
+export interface KanbanViewProps {
+	/** Board data: tasks grouped by status column name */
+	kanbanBoardTasks: IKanban;
+	/** Whether board data is still loading */
+	isLoading: boolean;
+	/** Task status columns with optimistic state applied */
+	kanbanColumns: TTaskStatus[];
+	/** All task statuses (for status ID lookup during drag/drop) */
+	taskStatuses: TTaskStatus[];
+	/** Setter to update the board after drag/drop operations */
+	updateKanbanBoard: (board: IKanban | ((prev: IKanban) => IKanban)) => void;
+	/** API call to update a task's status on the server */
+	updateTaskStatus: (task: TTask) => void;
+	/** Check if a column is collapsed */
+	isColumnCollapse: (column: string) => boolean | undefined;
+	/** API call to reorder a column */
+	reorderStatus: (itemStatus: string, index: number) => Promise<void>;
+	/** Add a new task to the board */
+	addNewTask: (task: TTask, status: string) => void;
+	/** Toggle column collapse/expand */
+	toggleColumn: (column: string, status: boolean) => Promise<void>;
+}
+
+export interface IKanban {
+	[key: string]: TTask[];
 }
