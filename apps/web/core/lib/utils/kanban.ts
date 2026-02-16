@@ -1,7 +1,3 @@
-
-// ==================== PURE FILTER FUNCTIONS ====================
-// These are pure functions (no hooks, no side effects) for testability and reusability.
-
 import { IKanban, KanbanFilterCriteria } from "@/core/types/interfaces/task/task";
 import { TTaskStatus } from "@/core/types/schemas";
 import { TTask } from "@/core/types/schemas/task/task.schema";

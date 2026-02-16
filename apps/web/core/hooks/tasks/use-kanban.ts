@@ -28,8 +28,6 @@ export function useKanban() {
 	const { updateTask } = useUpdateTask();
 	const { tasks: newTask } = useTeamTasksQuery();
 
-	// ==================== FILTERING (delegated) ====================
-	// IMPORTANT: Only use `getTaskStatusesLoading` (React Query's `isLoading` = isPending && isFetching).
 	// This is true ONLY on the initial load when no cached data exists, and stays false during
 	// background refetches. Using `tasksFetching` (isFetching) here would cause the board to
 	// flash empty on every refetch because isFetching goes true→false→true→false during
@@ -48,7 +46,6 @@ export function useKanban() {
 		setEpics
 	} = useKanbanFilters(newTask, isDataLoading);
 
-	// ==================== BOARD CONSTRUCTION (derived state) ====================
 
 	// Computed board: the "source of truth" derived from filtered tasks + statuses.
 	// useMemo → synchronous, no intermediate empty-render, no race condition.
@@ -72,7 +69,6 @@ export function useKanban() {
 	// The board to render: use drag/drop override if active, otherwise computed board.
 	const kanbanBoard = dragDropOverride ?? computedBoard;
 
-	// ==================== OPTIMISTIC COLUMN STATE ====================
 
 	// Optimistic state for column collapse/expand operations only
 	const [optimisticColumnStates, setOptimisticColumnStates] = useOptimistic(
