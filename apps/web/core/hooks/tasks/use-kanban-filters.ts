@@ -7,7 +7,6 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { applyAllFilters } from '@/core/lib/utils';
 import { DEFAULT_ISSUES_STATE } from '@/core/constants/config/constants';
 
-// ==================== HOOK ====================
 
 /**
  * Hook that manages kanban filter state and applies filters to tasks.
@@ -22,7 +21,6 @@ import { DEFAULT_ISSUES_STATE } from '@/core/constants/config/constants';
  * @returns Filtered tasks and all filter state setters
  */
 export function useKanbanFilters(tasks: TTask[], isDataLoading: boolean) {
-	// ==================== FILTER STATE ====================
 	const [searchTasks, setSearchTasks] = useState('');
 	const [labels, setLabels] = useState<string[]>([]);
 	const [epics, setEpics] = useState<string[]>([]);
@@ -31,13 +29,11 @@ export function useKanbanFilters(tasks: TTask[], isDataLoading: boolean) {
 	const [sizes, setSizes] = useState<string[]>([]);
 	const employee = useSearchParams().get('employee');
 
-	// ==================== STABLE SETTER REFERENCES ====================
 	// React setState is already stable, but we wrap setIssues for type safety
 	const handleSetIssues = useCallback((updater: TStatusItem | ((prev: TStatusItem) => TStatusItem)) => {
 		setIssues(updater);
 	}, []);
 
-	// ==================== FILTERED TASKS ====================
 	const filteredTasks = useMemo(() => {
 		if (isDataLoading) {
 			return [];
