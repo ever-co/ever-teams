@@ -48,7 +48,8 @@ import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 const Kanban = () => {
-	// Get all required hooks and states
+	// Get all required hooks and states — single instance for the entire Kanban page.
+	// Board operations are passed down to KanbanView via props (no duplicate hook instance).
 	const {
 		data,
 		setSearchTasks,
@@ -59,8 +60,19 @@ const Kanban = () => {
 		setLabels,
 		setEpics,
 		setIssues,
-		issues
+		issues,
+		columns,
+		taskStatuses,
+		updateKanbanBoard,
+		updateTaskStatus,
+		isColumnCollapse,
+		reorderStatus,
+		addNewTask,
+		toggleColumn
 	} = useKanban();
+
+	// TODO: Remove debug logs after fixing kanban
+	console.log('[KANBAN] isLoading:', isLoading, 'data keys:', Object.keys(data ?? {}), 'data values count:', Object.values(data ?? {}).map((v: any) => v?.length));
 
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
@@ -172,6 +184,9 @@ const Kanban = () => {
 		return board;
 	}, [data, activeTab]);
 
+	// TODO: Remove debug log after fixing kanban
+	console.log('[KANBAN] activeTab:', activeTab, 'filteredBoard values count:', Object.values(filteredBoard).map((v: any) => v?.length));
+
 	useEffect(() => {
 		const lastPath = breadcrumbPath.slice(-1)[0];
 		if (employee) {
@@ -241,7 +256,7 @@ const Kanban = () => {
 
 									<button
 										onClick={openModal}
-										className="p-2 rounded-full relative z-10 border-2 border-[#0000001a] dark:border-white"
+										className="p-2 rounded-full relative z-50 border-2 border-[#0000001a] dark:border-white bg-white dark:bg-black"
 									>
 										<AddIcon className="w-6 h-6 text-foreground" />
 									</button>
@@ -374,9 +389,20 @@ const Kanban = () => {
 
 				{activeTab && (
 					<div className="overflow-x-hidden px-0 mx-0 w-full">
-						{Object.keys(filteredBoard).length > 0 ? (
+						{Object.keys(data).length > 0 ? (
 							<div className="w-full h-full">
-								<LazyKanbanView isLoading={isLoading} kanbanBoardTasks={filteredBoard} />
+								<LazyKanbanView
+									isLoading={isLoading}
+									kanbanBoardTasks={data}
+									kanbanColumns={columns}
+									taskStatuses={taskStatuses}
+									updateKanbanBoard={updateKanbanBoard}
+									updateTaskStatus={updateTaskStatus}
+									isColumnCollapse={isColumnCollapse}
+									reorderStatus={reorderStatus}
+									addNewTask={addNewTask}
+									toggleColumn={toggleColumn}
+								/>
 							</div>
 						) : (
 							<div className="flex flex-col flex-1 w-full h-full">

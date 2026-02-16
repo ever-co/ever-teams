@@ -6,6 +6,7 @@ import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag
 import { EManualTimeReasons } from '@/core/types/generics/enums/timer';
 import { EInviteStatus } from '@/core/types/generics/enums/invite';
 import { Shield, User2, UserCog } from 'lucide-react';
+import { TStatusItem } from '@/core/types/interfaces/task/task-card';
 
 export const BREAKPOINTS = {
 	MOBILE: 768
@@ -905,3 +906,14 @@ export const sizeOption = [
 		name: '100+'
 	}
 ];
+
+/**
+ * Default state for the issues filter.
+ * Extracted as a constant to avoid recreating the object on every render.
+ */
+export const DEFAULT_ISSUES_STATE: TStatusItem = {
+	name: 'Issues',
+	icon: null,
+	bgColor: '',
+	value: ''
+};

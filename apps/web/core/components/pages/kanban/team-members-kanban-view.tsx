@@ -10,22 +10,23 @@ import {
 } from '@hello-pangea/dnd';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-area';
 import { cn } from '@/core/lib/helpers';
-import { IKanban, useKanban } from '@/core/hooks/tasks/use-kanban';
+import { IKanban } from '@/core/hooks/tasks/use-kanban';
 import { TTaskStatus } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
 
-export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: IKanban; isLoading: boolean }) => {
-	const {
-		data: items,
-		columns: kanbanColumns,
-		updateKanbanBoard,
-		updateTaskStatus,
-		isColumnCollapse,
-		reorderStatus,
-		addNewTask,
-		toggleColumn // Extract toggleColumn to pass to child components
-	} = useKanban();
+export const KanbanView = ({
+	kanbanBoardTasks,
+	isLoading,
+	kanbanColumns,
+	taskStatuses,
+	updateKanbanBoard,
+	updateTaskStatus,
+	isColumnCollapse,
+	reorderStatus,
+	addNewTask,
+	toggleColumn
+}: KanbanViewProps) => {
+	const items = kanbanBoardTasks;
 	const [columns, setColumn] = useState<any[]>(
 		Object.keys(kanbanBoardTasks).map((key) => {
 			const columnInfo = kanbanColumns.find((item) => item.name === key);
@@ -38,7 +39,6 @@ export const KanbanView = ({ kanbanBoardTasks, isLoading }: { kanbanBoardTasks: 
 		})
 	);
 	const containerRef = useRef<HTMLDivElement>(null);
-	const { taskStatuses } = useTaskStatusesQuery();
 
 	const reorderTask = (list: TTask[], startIndex: number, endIndex: number) => {
 		const tasks = Array.from(list);

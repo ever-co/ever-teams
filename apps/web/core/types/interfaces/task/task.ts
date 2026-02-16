@@ -84,3 +84,14 @@ export interface ICreateTask {
 	tenantId: string;
 	projectId?: string | null;
 }
+
+/** Filter criteria passed to applyAllFilters */
+export interface KanbanFilterCriteria {
+	search: string;
+	priority: string[];
+	issueValue: string | undefined;
+	sizes: string[];
+	labels: string[];
+	epics: string[];
+	employee: string | null;
+}

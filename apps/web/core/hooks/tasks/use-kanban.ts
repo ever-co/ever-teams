@@ -1,37 +1,91 @@
-import { kanbanBoardState } from '@/core/stores/integrations/kanban';
 import { useTaskStatusesQuery } from '../tasks/use-task-statuses-query';
 import { useEditTaskStatus } from '../tasks/use-edit-task-status';
-import { useAtom } from 'jotai';
 import { useEffect, useState, useMemo, useCallback, useOptimistic, startTransition } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { useUpdateTask, useTeamTasksQuery } from '../organizations';
-import { TStatusItem } from '@/core/types/interfaces/task/task-card';
 import { TTaskStatus } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useKanbanFilters } from './use-kanban-filters';
 
 export interface IKanban {
 	[key: string]: TTask[];
 }
 
+/**
+ * Builds a kanban board by grouping tasks by their status.
+ * Pure function — no side effects, easily testable.
+ */
+function buildKanbanBoard(filteredTasks: TTask[], taskStatuses: TTaskStatus[]): IKanban {
+	const board: IKanban = {};
+	for (const status of taskStatuses) {
+		const key = status.name ?? '';
+		board[key] = filteredTasks.filter((task) => task.taskStatusId === status.id);
+	}
+	return board;
+}
+
+/**
+ * Main Kanban board hook.
+ *
+ * Responsibilities:
+ * - Board construction (grouping filtered tasks by status into columns via useMemo)
+ * - Local board state for drag/drop mutations (useState, synced from computed board)
+ * - Column management with optimistic updates (collapse/expand, reorder)
+ * - Task status updates (drag & drop between columns)
+ * - Adding new tasks to the board
+ *
+ * Filtering logic is delegated to `useKanbanFilters`.
+ * No global state (Jotai atom removed) — board state is local to the hook instance.
+ */
 export function useKanban() {
-	const [loading, setLoading] = useState<boolean>(true);
-	const [searchTasks, setSearchTasks] = useState('');
-	const [labels, setLabels] = useState<string[]>([]);
-	const [epics, setEpics] = useState<string[]>([]);
-	const [issues, setIssues] = useState<TStatusItem>({
-		name: 'Issues',
-		icon: null,
-		bgColor: '',
-		value: ''
-	});
-	const [kanbanBoard, setKanbanBoard] = useAtom(kanbanBoardState);
 	const { taskStatuses, getTaskStatusesLoading, setTaskStatuses } = useTaskStatusesQuery();
 	const { editTaskStatus } = useEditTaskStatus();
 	const { updateTask } = useUpdateTask();
-	const { tasks: newTask, tasksFetching } = useTeamTasksQuery();
-	const [priority, setPriority] = useState<string[]>([]);
-	const [sizes, setSizes] = useState<string[]>([]);
-	const employee = useSearchParams().get('employee');
+	const { tasks: newTask } = useTeamTasksQuery();
+
+	// ==================== FILTERING (delegated) ====================
+	// IMPORTANT: Only use `getTaskStatusesLoading` (React Query's `isLoading` = isPending && isFetching).
+	// This is true ONLY on the initial load when no cached data exists, and stays false during
+	// background refetches. Using `tasksFetching` (isFetching) here would cause the board to
+	// flash empty on every refetch because isFetching goes true→false→true→false during
+	// the loadTeamTasksData() → refetch() cycle, while Jotai sync is still pending.
+	const isDataLoading = getTaskStatusesLoading;
+	const {
+		filteredTasks,
+		searchTasks,
+		issues,
+		setSearchTasks,
+		setPriority,
+		setLabels,
+		setSizes,
+		setIssues,
+		setEpics
+	} = useKanbanFilters(newTask, isDataLoading);
+
+	// ==================== BOARD CONSTRUCTION (derived state) ====================
+
+	// Computed board: the "source of truth" derived from filtered tasks + statuses.
+	// useMemo → synchronous, no intermediate empty-render, no race condition.
+	const computedBoard = useMemo<IKanban>(() => {
+		if (isDataLoading) return {};
+		return buildKanbanBoard(filteredTasks, taskStatuses);
+	}, [filteredTasks, taskStatuses, isDataLoading]);
+
+	// Drag/drop override: only set when user performs a drag/drop operation.
+	// null = use computedBoard (server truth), non-null = use optimistic drag/drop state.
+	// This avoids the useState+useEffect sync pattern that caused a one-render delay
+	// where data={} was returned before the useEffect could sync.
+	const [dragDropOverride, setDragDropOverride] = useState<IKanban | null>(null);
+
+	// Reset drag/drop override when server data changes (new computedBoard).
+	// After server confirms the drag/drop, computedBoard updates → override clears.
+	useEffect(() => {
+		setDragDropOverride(null);
+	}, [computedBoard]);
+
+	// The board to render: use drag/drop override if active, otherwise computed board.
+	const kanbanBoard = dragDropOverride ?? computedBoard;
+
+	// ==================== OPTIMISTIC COLUMN STATE ====================
 
 	// Optimistic state for column collapse/expand operations only
 	const [optimisticColumnStates, setOptimisticColumnStates] = useOptimistic(
@@ -60,109 +114,6 @@ export function useKanban() {
 			return status;
 		});
 	}, [taskStatuses, optimisticColumnStates]);
-
-	// Memoized filter functions for better performance
-	const filterBySearch = useCallback(
-		(task: TTask) => {
-			return task.title.toLowerCase().includes(searchTasks.toLowerCase());
-		},
-		[searchTasks]
-	);
-
-	const filterByPriority = useCallback(
-		(task: TTask) => {
-			return priority.length ? priority.includes(task.priority as string) : true;
-		},
-		[priority]
-	);
-
-	const filterByIssue = useCallback(
-		(task: TTask) => {
-			return issues.value ? task.issueType === issues.value : true;
-		},
-		[issues.value]
-	);
-
-	const filterBySize = useCallback(
-		(task: TTask) => {
-			return sizes.length ? sizes.includes(task.size as string) : true;
-		},
-		[sizes]
-	);
-
-	const filterByLabels = useCallback(
-		(task: TTask) => {
-			return labels.length ? labels.some((label) => task.tags?.some((tag) => tag.name === label)) : true;
-		},
-		[labels]
-	);
-
-	const filterByEpics = useCallback(
-		(task: TTask) => {
-			return epics.length ? epics.includes(task.id) : true;
-		},
-		[epics]
-	);
-
-	const filterByEmployee = useCallback(
-		(task: TTask) => {
-			if (employee) {
-				return task.members?.map((el) => el.fullName).includes(employee as string);
-			}
-			return true;
-		},
-		[employee]
-	);
-
-	// Memoized filtered tasks to prevent unnecessary recalculations
-	const filteredTasks = useMemo(() => {
-		if (getTaskStatusesLoading || tasksFetching) {
-			return [];
-		}
-
-		return newTask
-			.filter(filterBySearch)
-			.filter(filterByPriority)
-			.filter(filterByIssue)
-			.filter(filterBySize)
-			.filter(filterByLabels)
-			.filter(filterByEpics)
-			.filter(filterByEmployee);
-	}, [
-		newTask,
-		filterBySearch,
-		filterByPriority,
-		filterByIssue,
-		filterBySize,
-		filterByLabels,
-		filterByEpics,
-		filterByEmployee,
-		getTaskStatusesLoading,
-		tasksFetching
-	]);
-
-	useEffect(() => {
-		if (!getTaskStatusesLoading && !tasksFetching) {
-			setLoading(true);
-			let kanban = {};
-			const getTasksByStatus = (status: string | undefined) => {
-				return filteredTasks.filter((task: TTask) => {
-					return task.taskStatusId === status;
-				});
-			};
-
-			// Use the base taskStatuses for kanban board construction to avoid infinite loops
-			taskStatuses.map((taskStatus: TTaskStatus) => {
-				kanban = {
-					...kanban,
-					[taskStatus.name ? taskStatus.name : '']: getTasksByStatus(taskStatus.id)
-				};
-			});
-			setKanbanBoard(kanban);
-			setLoading(false);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [getTaskStatusesLoading, tasksFetching, filteredTasks, taskStatuses]);
 
 	/**
 	 * collapse or show kanban column with optimistic updates
@@ -309,17 +260,33 @@ export function useKanban() {
 		},
 		[setOptimisticColumnStates, taskStatuses, editTaskStatus, setTaskStatuses]
 	);
-	const addNewTask = (task: TTask, status: string) => {
-		const updatedBoard = {
-			...kanbanBoard,
-			[status]: [...kanbanBoard[status], task]
-		};
-		setKanbanBoard(() => updatedBoard);
-	};
+	// Wrapper for drag/drop board updates — sets the override so the UI
+	// reflects the optimistic state until server data catches up.
+	const updateKanbanBoard = useCallback(
+		(updater: IKanban | ((prev: IKanban) => IKanban)) => {
+			setDragDropOverride((prev) => {
+				const current = prev ?? computedBoard;
+				return typeof updater === 'function' ? updater(current) : updater;
+			});
+		},
+		[computedBoard]
+	);
+
+	const addNewTask = useCallback(
+		(task: TTask, status: string) => {
+			updateKanbanBoard((prev) => ({
+				...prev,
+				[status]: [...(prev[status] ?? []), task]
+			}));
+		},
+		[updateKanbanBoard]
+	);
+
 	return {
 		data: kanbanBoard as IKanban,
-		isLoading: loading,
+		isLoading: isDataLoading,
 		columns: optimisticTaskStatuses, // Use memoized optimistic state for instant UI updates
+		taskStatuses, // Raw statuses for status ID lookup (e.g., drag/drop status resolution)
 		searchTasks,
 		issues,
 		setPriority,
@@ -327,7 +294,7 @@ export function useKanban() {
 		setSizes,
 		setIssues,
 		setEpics,
-		updateKanbanBoard: setKanbanBoard,
+		updateKanbanBoard,
 		updateTaskStatus: updateTask,
 		toggleColumn,
 		isColumnCollapse,
