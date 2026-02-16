@@ -10,9 +10,9 @@ import {
 } from '@hello-pangea/dnd';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-area';
 import { cn } from '@/core/lib/helpers';
-import { IKanban } from '@/core/hooks/tasks/use-kanban';
 import { TTaskStatus } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { IKanban, KanbanViewProps } from '@/core/types/interfaces/task/task';
 
 export const KanbanView = ({
 	kanbanBoardTasks,

@@ -60,6 +60,7 @@ const Kanban = () => {
 		setLabels,
 		setEpics,
 		setIssues,
+		epics,
 		issues,
 		columns,
 		taskStatuses,
@@ -71,9 +72,6 @@ const Kanban = () => {
 		toggleColumn
 	} = useKanban();
 
-	// TODO: Remove debug logs after fixing kanban
-	console.log('[KANBAN] isLoading:', isLoading, 'data keys:', Object.keys(data ?? {}), 'data values count:', Object.values(data ?? {}).map((v: any) => v?.length));
-
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
 	const activeTeam = useAtomValue(activeTeamState);
@@ -81,7 +79,7 @@ const Kanban = () => {
 	const params = useParams<{ locale: string }>();
 	const fullWidth = useAtomValue(fullWidthState);
 	const currentLocale = params ? params.locale : null;
-	const [activeTab, setActiveTab] = useState(KanbanTabs.TODAY);
+	const [activeTab, setActiveTab] = useState(KanbanTabs.ALL);
 	const employee = useSearchParams().get('employee');
 	const { data: user } = useUserQuery();
 	const { openModal, isOpen, closeModal } = useModal();
@@ -116,6 +114,7 @@ const Kanban = () => {
 	// Memoize tabs to prevent recreation on each render
 	const tabs = useMemo(
 		() => [
+			{ name: t('common.FILTER_ALL'), value: KanbanTabs.ALL },
 			{ name: t('common.TODAY'), value: KanbanTabs.TODAY },
 			{ name: t('common.YESTERDAY'), value: KanbanTabs.YESTERDAY },
 			{ name: t('common.TOMORROW'), value: KanbanTabs.TOMORROW }
@@ -175,6 +174,7 @@ const Kanban = () => {
 				case KanbanTabs.TOMORROW:
 					filteredStatusTasks = filterByDate(tasks as TTask[], tomorrow);
 					break;
+				case KanbanTabs.ALL:
 				default:
 					filteredStatusTasks = tasks;
 			}
@@ -183,9 +183,6 @@ const Kanban = () => {
 
 		return board;
 	}, [data, activeTab]);
-
-	// TODO: Remove debug log after fixing kanban
-	console.log('[KANBAN] activeTab:', activeTab, 'filteredBoard values count:', Object.values(filteredBoard).map((v: any) => v?.length));
 
 	useEffect(() => {
 		const lastPath = breadcrumbPath.slice(-1)[0];
@@ -262,52 +259,61 @@ const Kanban = () => {
 									</button>
 								</div>
 							</div>
-							<div className="flex flex-col-reverse justify-between items-center pt-6 -mb-1 bg-white xl:flex-row dark:bg-dark-high">
-								<div className="flex flex-row">
+							<div className="flex flex-col gap-4 justify-between items-start pt-6 mb-4 bg-white xl:flex-row xl:items-center dark:bg-dark-high">
+								<div className="flex flex-row overflow-x-auto no-scrollbar w-full xl:w-auto border-b border-gray-100 dark:border-[#26272C]">
 									{tabs.map((tab) => (
 										<div
 											key={tab.name}
 											onClick={() => setActiveTab(tab.value)}
-											className={`cursor-pointer pt-2 px-5 pb-[30px] text-base font-semibold ${
+											className={cn(
+												'cursor-pointer px-4 pb-3 text-sm font-medium transition-all duration-200 whitespace-nowrap relative',
 												activeTab === tab.value
-													? 'border-b-[#3826A6] text-[#3826A6] dark:text-white dark:border-b-white'
-													: 'border-b-white dark:border-b-[#191A20] dark:text-white text-[#282048]'
-											}`}
-											style={{
-												borderBottomWidth: '3px',
-												borderBottomStyle: 'solid'
-											}}
+													? 'text-[#3826A6] dark:text-white'
+													: 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+											)}
 										>
 											{tab.name}
+											{activeTab === tab.value && (
+												<div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#3826A6] dark:bg-white rounded-t-full" />
+											)}
 										</div>
 									))}
 								</div>
-								<div className="flex gap-5 mt-4 max-h-10 lg:mt-0 min-h-8">
+
+								<div className="flex flex-wrap gap-2 items-center w-full xl:w-auto">
 									<LazyEpicPropertiesDropdown
 										onValueChange={(_, values) => setEpics(values || [])}
-										className="min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full"
+										className="h-8 min-w-fit input-border flex items-center justify-center rounded-lg bg-white dark:bg-dark--theme-light px-2.5 text-sm"
 										multiple
+										taskStatusClassName="!text-sm"
+										defaultValues={epics}
 									/>
-									<div className="relative z-10 flex items-center justify-center min-w-28 max-w-fit  lg:mt-0 input-border flex-col bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-4 max-h-full rounded-[8px]">
-										<div className="absolute inset-0 flex items-center w-full h-full gap-0.5">
+
+									<div className="flex relative z-10 justify-center items-center px-3 h-8 bg-white rounded-lg transition-colors min-w-fit input-border dark:bg-dark--theme-light hover:border-gray-300 dark:hover:border-gray-600">
+										<div className="flex gap-2 items-center">
 											{!issues?.value && (
 												<svg
 													xmlns="http://www.w3.org/2000/svg"
 													fill="none"
 													stroke="currentColor"
-													viewBox="0 0 17 18"
-													className="ml-2 w-4 h-4"
+													viewBox="0 0 24 24"
+													className="w-4 h-4 text-gray-500 dark:text-gray-400"
 												>
-													<path d="M8.5 16.5c4.125 0 7.5-3.375 7.5-7.5s-3.375-7.5-7.5-7.5S1 4.875 1 9s3.375 7.5 7.5 7.5Z" />
+													<path
+														strokeLinecap="round"
+														strokeLinejoin="round"
+														strokeWidth={2}
+														d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+													/>
 												</svg>
 											)}
 
 											<LazyStatusDropdown
-												taskStatusClassName="w-40 h-10 !bg-transparent"
+												taskStatusClassName="!bg-transparent !p-0 !text-sm"
 												showIssueLabels
 												className={cn(
-													'h-fit w-fit !border-none !bg-transparent dark:!text-white ',
-													issues?.value ? 'ml-2' : 'ml-0'
+													'!border-none !bg-transparent dark:!text-white !p-0 !h-auto',
+													issues?.value ? '' : ''
 												)}
 												items={items}
 												value={issues}
@@ -316,68 +322,69 @@ const Kanban = () => {
 												}
 												issueType="issue"
 											/>
-											<div className="flex items-center gap-1.5">
-												{issues?.value && (
-													<button
-														onClick={() =>
-															setIssues((prev: TStatusItem) => ({
-																...prev,
-																name: 'Issues',
-																icon: null,
-																bgColor: '',
-																value: ''
-															}))
-														}
-														className="flex items-center justify-center w-5 h-5 p-0.5 rounded-md cursor-pointer hover:bg-gray-100  dark:hover:bg-gray-900 dark:hover:text-white"
-													>
-														<XMarkIcon className="w-4 h-4 dark:text-white" />
-													</button>
-												)}
 
-												{!issues?.value && (
-													<svg
-														xmlns="http://www.w3.org/2000/svg"
-														viewBox="0 0 20 20"
-														fill="currentColor"
-														aria-hidden="true"
-														data-slot="icon"
-														className="w-5 h-5 text-default dark:text-white"
-													>
-														<path
-															fillRule="evenodd"
-															d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
-															clipRule="evenodd"
-														/>
-													</svg>
-												)}
-											</div>
+											{issues?.value ? (
+												<button
+													onClick={() =>
+														setIssues((prev: TStatusItem) => ({
+															...prev,
+															name: 'Issues',
+															icon: null,
+															bgColor: '',
+															value: ''
+														}))
+													}
+													className="flex justify-center items-center ml-1 w-5 h-5 rounded transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+												>
+													<XMarkIcon className="w-3.5 h-3.5 text-gray-500 dark:text-gray-300" />
+												</button>
+											) : (
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													viewBox="0 0 20 20"
+													fill="currentColor"
+													className="ml-1 w-4 h-4 text-gray-400 dark:text-gray-500"
+												>
+													<path
+														fillRule="evenodd"
+														d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+														clipRule="evenodd"
+													/>
+												</svg>
+											)}
 										</div>
 									</div>
 
 									<LazyTaskLabelsDropdown
 										onValueChange={(_, values: any) => setLabels(values || [])}
-										className="relative min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl text-gray-900 dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full"
-										dropdownContentClassName="top-10"
+										className="h-8 relative min-w-fit input-border flex flex-col justify-center rounded-lg bg-white dark:bg-dark--theme-light px-2.5 text-sm"
+										dropdownContentClassName="top-9"
 										multiple
+										taskStatusClassName="!text-sm"
 									/>
 
 									<LazyTaskPropertiesDropdown
 										isMultiple={false}
 										onValueChange={(_, values: any) => setPriority(values || [])}
-										className="min-w-fit lg:mt-0 input-border rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light flex flex-col justify-center"
+										className="h-8 min-w-fit input-border rounded-lg bg-white dark:bg-dark--theme-light flex flex-col justify-center px-2.5 text-sm"
 										multiple
+										taskStatusClassName="!text-sm"
 									/>
 
 									<LazyTaskSizesDropdown
 										onValueChange={(_, values: any) => setSizes(values || [])}
-										className="relative min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full"
+										className="h-8 relative min-w-fit input-border flex flex-col justify-center rounded-lg bg-white dark:bg-dark--theme-light px-2.5 text-sm"
 										multiple
+										taskStatusClassName="!text-sm"
 									/>
-									<Separator
-										className="inline-block mt-1 shrink-0 min-h-10 h-full w-0.5"
-										orientation="vertical"
+
+									<div className="mx-1 w-px h-6 bg-gray-200 dark:bg-gray-700" />
+
+									<LazyKanbanSearch
+										setSearchTasks={setSearchTasks}
+										searchTasks={searchTasks}
+										className="mb-0!"
 									/>
-									<LazyKanbanSearch setSearchTasks={setSearchTasks} searchTasks={searchTasks} />
 								</div>
 							</div>
 							{/* <div className="w-full h-20 bg-red-500/50"></div> */}
@@ -389,11 +396,11 @@ const Kanban = () => {
 
 				{activeTab && (
 					<div className="overflow-x-hidden px-0 mx-0 w-full">
-						{Object.keys(data).length > 0 ? (
+						{Object.keys(filteredBoard).length > 0 ? (
 							<div className="w-full h-full">
 								<LazyKanbanView
 									isLoading={isLoading}
-									kanbanBoardTasks={data}
+									kanbanBoardTasks={filteredBoard}
 									kanbanColumns={columns}
 									taskStatuses={taskStatuses}
 									updateKanbanBoard={updateKanbanBoard}

@@ -5,23 +5,9 @@ import { useUpdateTask, useTeamTasksQuery } from '../organizations';
 import { TTaskStatus } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useKanbanFilters } from './use-kanban-filters';
+import { IKanban } from '@/core/types/interfaces/task/task';
+import { buildKanbanBoard } from '@/core/lib/utils';
 
-export interface IKanban {
-	[key: string]: TTask[];
-}
-
-/**
- * Builds a kanban board by grouping tasks by their status.
- * Pure function — no side effects, easily testable.
- */
-function buildKanbanBoard(filteredTasks: TTask[], taskStatuses: TTaskStatus[]): IKanban {
-	const board: IKanban = {};
-	for (const status of taskStatuses) {
-		const key = status.name ?? '';
-		board[key] = filteredTasks.filter((task) => task.taskStatusId === status.id);
-	}
-	return board;
-}
 
 /**
  * Main Kanban board hook.
@@ -53,6 +39,7 @@ export function useKanban() {
 		filteredTasks,
 		searchTasks,
 		issues,
+		epics,
 		setSearchTasks,
 		setPriority,
 		setLabels,
@@ -289,6 +276,7 @@ export function useKanban() {
 		taskStatuses, // Raw statuses for status ID lookup (e.g., drag/drop status resolution)
 		searchTasks,
 		issues,
+		epics,
 		setPriority,
 		setLabels,
 		setSizes,

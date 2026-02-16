@@ -236,7 +236,8 @@ export function EpicPropertiesDropdown({
 	multiple,
 	sidebarUI = false,
 	children,
-	taskStatusClassName
+	taskStatusClassName,
+	defaultValues
 }: TTaskStatusesDropdown<'epic'>) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const status = useMemo(() => {
@@ -261,26 +262,25 @@ export function EpicPropertiesDropdown({
 		status,
 		value: defaultValue,
 		onValueChange,
-		multiple
+		multiple,
+		defaultValues
 	});
 
 	return (
-		<StatusDropdown
+		<MultipleStatusDropdown
 			sidebarUI={sidebarUI}
 			forDetails={forDetails}
 			className={className}
 			items={items}
 			value={item}
 			defaultItem={!item ? 'epic' : undefined}
-			onChange={onChange}
-			multiple={multiple}
+			onChange={onChange as any}
 			values={values}
-			showButtonOnly
 			taskStatusClassName={taskStatusClassName}
-			isEpic
+			isVersion={false}
 		>
 			{children}
-		</StatusDropdown>
+		</MultipleStatusDropdown>
 	);
 }
 

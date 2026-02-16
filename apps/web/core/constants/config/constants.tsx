@@ -392,6 +392,7 @@ export enum ActivityFilters {
 }
 
 export enum KanbanTabs {
+	ALL = 'ALL',
 	TODAY = 'TODAY',
 	YESTERDAY = 'YESTERDAY',
 	TOMORROW = 'TOMORROW'

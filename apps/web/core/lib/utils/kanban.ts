@@ -2,7 +2,8 @@
 // ==================== PURE FILTER FUNCTIONS ====================
 // These are pure functions (no hooks, no side effects) for testability and reusability.
 
-import { KanbanFilterCriteria } from "@/core/types/interfaces/task/task";
+import { IKanban, KanbanFilterCriteria } from "@/core/types/interfaces/task/task";
+import { TTaskStatus } from "@/core/types/schemas";
 import { TTask } from "@/core/types/schemas/task/task.schema";
 
 export const matchesSearch = (task: TTask, search: string): boolean =>
@@ -44,4 +45,17 @@ export function applyAllFilters(tasks: TTask[], criteria: KanbanFilterCriteria):
 			matchesEpics(task, epics) &&
 			matchesEmployee(task, employee)
 	);
+}
+
+/**
+ * Builds a kanban board by grouping tasks by their status.
+ * Pure function — no side effects, easily testable.
+ */
+export function buildKanbanBoard(filteredTasks: TTask[], taskStatuses: TTaskStatus[]): IKanban {
+	const board: IKanban = {};
+	for (const status of taskStatuses) {
+		const key = status.name ?? '';
+		board[key] = filteredTasks.filter((task) => task.taskStatusId === status.id);
+	}
+	return board;
 }

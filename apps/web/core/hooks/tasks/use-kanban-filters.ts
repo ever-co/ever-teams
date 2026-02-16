@@ -43,7 +43,15 @@ export function useKanbanFilters(tasks: TTask[], isDataLoading: boolean) {
 			return [];
 		}
 
-		return applyAllFilters(tasks, { search: searchTasks, priority, issueValue: issues.value, sizes, labels, epics, employee });
+		return applyAllFilters(tasks, {
+			search: searchTasks,
+			priority,
+			issueValue: issues.value,
+			sizes,
+			labels,
+			epics,
+			employee
+		});
 	}, [tasks, isDataLoading, searchTasks, priority, issues.value, sizes, labels, epics, employee]);
 
 	return {
@@ -51,6 +59,7 @@ export function useKanbanFilters(tasks: TTask[], isDataLoading: boolean) {
 		// Filter state (read)
 		searchTasks,
 		issues,
+		epics,
 		// Filter state (write)
 		setSearchTasks,
 		setPriority,
@@ -63,4 +72,3 @@ export function useKanbanFilters(tasks: TTask[], isDataLoading: boolean) {
 
 /** Return type of useKanbanFilters for external typing */
 export type TKanbanFilters = ReturnType<typeof useKanbanFilters>;
-
