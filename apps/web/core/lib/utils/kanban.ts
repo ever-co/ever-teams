@@ -2,25 +2,25 @@ import { IKanban, KanbanFilterCriteria } from "@/core/types/interfaces/task/task
 import { TTaskStatus } from "@/core/types/schemas";
 import { TTask } from "@/core/types/schemas/task/task.schema";
 
-export const matchesSearch = (task: TTask, search: string): boolean =>
+const matchesSearch = (task: TTask, search: string): boolean =>
 	task.title.toLowerCase().includes(search.toLowerCase());
 
-export const matchesPriority = (task: TTask, priority: string[]): boolean =>
+const matchesPriority = (task: TTask, priority: string[]): boolean =>
 	priority.length === 0 || priority.includes(task.priority as string);
 
-export const matchesIssue = (task: TTask, issueValue: string | undefined): boolean =>
+const matchesIssue = (task: TTask, issueValue: string | undefined): boolean =>
 	!issueValue || task.issueType === issueValue;
 
-export const matchesSize = (task: TTask, sizes: string[]): boolean =>
+const matchesSize = (task: TTask, sizes: string[]): boolean =>
 	sizes.length === 0 || sizes.includes(task.size as string);
 
-export const matchesLabels = (task: TTask, labels: string[]): boolean =>
+const matchesLabels = (task: TTask, labels: string[]): boolean =>
 	labels.length === 0 || labels.some((label) => task.tags?.some((tag) => tag.name === label));
 
-export const matchesEpics = (task: TTask, epics: string[]): boolean =>
+const matchesEpics = (task: TTask, epics: string[]): boolean =>
 	epics.length === 0 || epics.includes(task.id);
 
-export const matchesEmployee = (task: TTask, employee: string | null): boolean =>
+const matchesEmployee = (task: TTask, employee: string | null): boolean =>
 	!employee || (task.members?.map((el) => el.fullName).includes(employee) ?? false);
 
 
