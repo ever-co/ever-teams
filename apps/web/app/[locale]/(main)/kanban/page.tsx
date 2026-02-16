@@ -312,8 +312,7 @@ const Kanban = () => {
 												taskStatusClassName="!bg-transparent !p-0 !text-sm"
 												showIssueLabels
 												className={cn(
-													'!border-none !bg-transparent dark:!text-white !p-0 !h-auto',
-													issues?.value ? '' : ''
+													'border-none! bg-transparent! dark:text-white! p-0! h-auto!'
 												)}
 												items={items}
 												value={issues}
