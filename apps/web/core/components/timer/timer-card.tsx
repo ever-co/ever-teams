@@ -24,12 +24,13 @@ const Timer = () => {
 		canRunTimer,
 		hasPlan,
 		timerSeconds,
-		startTimer
+		startTimer,
+		stopTimer
 	} = useTimer();
 
 	const { activeTaskEstimation } = useTaskStatistics(timerSeconds);
 
-	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
+	const { modals, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
