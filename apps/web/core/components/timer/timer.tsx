@@ -44,7 +44,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 		startTimer,
 		stopTimer
 	} = useTimerView();
-	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
+	const { modals, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
@@ -228,7 +228,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 
 export function MinTimerFrame({ className }: IClassName) {
 	const { hours, minutes, seconds, ms_p, timerStatus, disabled, hasPlan, startTimer, stopTimer } = useTimerView();
-	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
+	const { modals, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);

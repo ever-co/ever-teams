@@ -85,7 +85,7 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 		}
 	}, [task, timerStatus?.running, setActiveTask, activeTeam, startTimer, handleStop, t]);
 
-	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
+	const { modals, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
 
 	return {
 		loading,

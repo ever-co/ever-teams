@@ -7,6 +7,9 @@ import { useMemo } from 'react';
 import { activeTeamState, activeTeamTaskState, timerStatusState } from '@/core/stores';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
+import { TOrganizationTeam } from '@/core/types/schemas';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 
 import { useAuthenticateUser } from '../auth';
 import { useSyncRef } from '../common/use-sync-ref';
@@ -25,9 +28,14 @@ export interface UseTimerPlanStatusReturn {
 	isPlanVerified: boolean | undefined;
 	/** Whether the timer can run (email verified + valid task) */
 	canRunTimer: boolean;
+	/** The active team (shared atom — avoids duplicate subscriptions in consumers) */
+	activeTeam: TOrganizationTeam | null;
+	/** The active team task (shared atom — avoids duplicate subscriptions in consumers) */
+	activeTeamTask: TTask | null;
+	/** The timer status (shared atom — avoids duplicate subscriptions in consumers) */
+	timerStatus: ITimerStatus | null;
 }
 
-// ==================== HOOK ====================
 
 /**
  * Lightweight read-only hook for plan-related timer state.
@@ -106,6 +114,9 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 		hasPlanForTomorrow,
 		canTrack,
 		isPlanVerified,
-		canRunTimer
+		canRunTimer,
+		activeTeam,
+		activeTeamTask,
+		timerStatus
 	};
 }

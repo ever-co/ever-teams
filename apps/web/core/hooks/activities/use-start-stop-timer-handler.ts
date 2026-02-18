@@ -6,11 +6,38 @@ import {
 	DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE
 } from '@/core/constants/config/constants';
 import { estimatedTotalTime } from '@/core/components/tasks/daily-plan';
-import { useTimerActions } from '../timer';
+import { useTimerPlanStatus } from '../timer';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, activeTeamTaskState, timerStatusState } from '@/core/stores';
+import { timerStatusFetchingState } from '@/core/stores';
+import { getTimerAction, hasSeenModalToday, type TimerPolicyState } from '@/core/lib/helpers/timer-policy';
 
-export function useStartStopTimerHandler() {
+export interface UseStartStopTimerHandlerParams {
+	/** Start the timer — injected from the caller's existing timer hook (useTimerView, useTimer, etc.) */
+	startTimer: () => void | Promise<any>;
+	/** Stop the timer — injected from the caller's existing timer hook (useTimerView, useTimer, etc.) */
+	stopTimer: () => void | Promise<any>;
+}
+
+/**
+ * Timer start/stop handler hook — "The Executor".
+ *
+ * Manages modal state and delegates the start/stop decision to a pure policy function.
+ * The policy determines WHAT action to take; this hook executes it.
+ *
+ * **Performance: "Pay only for what you use"**
+ * - Uses `useTimerPlanStatus` (read-only atoms) instead of `useTimerActions` (full API layer)
+ * - Reads `timerStatusFetchingState` directly from the shared Jotai atom
+ * - Receives `startTimer`/`stopTimer` via dependency injection from the caller
+ * - This avoids duplicating the entire `useTimerApi` instance that the caller already has
+ *
+ * @param params.startTimer — Injected from the caller's timer hook
+ * @param params.stopTimer  — Injected from the caller's timer hook
+ *
+ * @see getTimerAction — Pure decision tree (core/lib/helpers/timer-policy.ts)
+ * @see useTimerPlanStatus — Lightweight read-only plan state (core/hooks/timer)
+ */
+export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStopTimerHandlerParams) {
+
 	const {
 		isOpen: isEnforceTaskModalOpen,
 		closeModal: enforceTaskCloseModal,
@@ -34,26 +61,24 @@ export function useStartStopTimerHandler() {
 		closeModal: suggestDailyPlanCloseModal,
 		openModal: openSuggestDailyPlanModal
 	} = useModal();
-	const timerStatus = useAtomValue(timerStatusState);
 
-	const { timerStatusFetching, startTimer, stopTimer, hasPlan, canRunTimer } = useTimerActions();
+	const timerStatusFetching = useAtomValue(timerStatusFetchingState);
+	const { hasPlan, canRunTimer, activeTeam, activeTeamTask, timerStatus } = useTimerPlanStatus();
 
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const activeTeam = useAtomValue(activeTeamState);
-
-	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
+	const requirePlan = useMemo(() => !!activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 
 	const hasWorkedHours = useMemo(
-		() => hasPlan?.workTimePlanned && hasPlan?.workTimePlanned > 0,
+		() => !!(hasPlan?.workTimePlanned && hasPlan.workTimePlanned > 0),
 		[hasPlan?.workTimePlanned]
 	);
+
 	const areAllTasksEstimated = useMemo(
-		() => hasPlan?.tasks?.every((el) => typeof el?.estimate === 'number' && el?.estimate > 0),
+		() => !!hasPlan?.tasks?.every((el) => typeof el?.estimate === 'number' && el.estimate > 0),
 		[hasPlan?.tasks]
 	);
 
-	const isActiveTaskPlaned = useMemo(
-		() => hasPlan?.tasks?.some((task) => task.id === activeTeamTask?.id),
+	const isActiveTaskPlanned = useMemo(
+		() => !!hasPlan?.tasks?.some((task) => task.id === activeTeamTask?.id),
 		[activeTeamTask?.id, hasPlan?.tasks]
 	);
 
@@ -62,116 +87,67 @@ export function useStartStopTimerHandler() {
 		[hasPlan]
 	);
 
-	const enforceTaskSoftCloseModal = () => {
+	const enforceTaskSoftCloseModal = useCallback(() => {
 		_enforceTaskSoftCloseModal();
 		openAddTasksEstimationHoursModal();
-	};
+	}, [_enforceTaskSoftCloseModal, openAddTasksEstimationHoursModal]);
+
+	const modalDispatch = useMemo(
+		() =>
+			({
+				ENFORCE_PLAN: openEnforcePlannedTaskModal,
+				ENFORCE_PLAN_SOFT: openEnforcePlannedTaskSoftModal,
+				SUGGEST_DAILY_PLAN: openSuggestDailyPlanModal,
+				TASKS_ESTIMATION_HOURS: openAddTasksEstimationHoursModal
+			}) as const,
+		[
+			openEnforcePlannedTaskModal,
+			openEnforcePlannedTaskSoftModal,
+			openSuggestDailyPlanModal,
+			openAddTasksEstimationHoursModal
+		]
+	);
 
 	const startStopTimerHandler = useCallback(() => {
 		const currentDate = new Date().toISOString().split('T')[0];
-		const dailyPlanSuggestionModalDate = window && window?.localStorage.getItem(DAILY_PLAN_SUGGESTION_MODAL_DATE);
-		const tasksEstimateHoursModalDate = window && window?.localStorage.getItem(TASKS_ESTIMATE_HOURS_MODAL_DATE);
-		const dailyPlanEstimateHoursModalDate =
-			window && window?.localStorage.getItem(DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE);
 
-		/**
-		 * Check if the active task is planned
-		 * If not, ask the user to add it to the today plan
-		 */
-		const handleCheckSelectedTaskOnTodayPlan = () => {
-			if (hasPlan) {
-				if (isActiveTaskPlaned) {
-					if (tasksEstimateHoursModalDate != currentDate) {
-						openAddTasksEstimationHoursModal();
-					} else {
-						startTimerOrAskEstimate();
-					}
-				} else {
-					openEnforcePlannedTaskSoftModal();
-				}
-			} else {
-				startTimerOrAskEstimate();
-			}
+		const policyState: TimerPolicyState = {
+			isTimerStatusFetching: timerStatusFetching,
+			canRunTimer,
+			isTimerRunning: !!timerStatus?.running,
+			requirePlan,
+			hasPlan: !!hasPlan,
+			isActiveTaskPlanned,
+			areAllTasksEstimated,
+			hasWorkedHours,
+			estimationTimeDifference: Math.abs(Number(hasPlan?.workTimePlanned ?? 0) - tasksEstimationTimes),
+			hasSeenSuggestionModalToday: hasSeenModalToday(DAILY_PLAN_SUGGESTION_MODAL_DATE, currentDate),
+			hasSeenEstimateHoursModalToday: hasSeenModalToday(TASKS_ESTIMATE_HOURS_MODAL_DATE, currentDate),
+			hasSeenPlanEstimateHoursModalToday: hasSeenModalToday(DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE, currentDate)
 		};
 
-		/**
-		 * Handle missing estimation hours for tasks
-		 */
-		const handleMissingTasksEstimationHours = () => {
-			if (hasPlan) {
-				if (tasksEstimateHoursModalDate != currentDate) {
-					handleCheckSelectedTaskOnTodayPlan();
-				} else if (areAllTasksEstimated) {
-					startTimerOrAskEstimate();
-				} else {
-					if (tasksEstimateHoursModalDate != currentDate) {
-						openAddTasksEstimationHoursModal();
-					} else {
-						startTimerOrAskEstimate();
-					}
-				}
-			} else {
-				startTimerOrAskEstimate();
-			}
-		};
+		const action = getTimerAction(policyState);
 
-		/**
-		 * Check if there is warning for 'enforce' mode. If not,
-		 * start tracking
-		 */
-		const startTimerOrAskEstimate = () => {
-			if (
-				requirePlan &&
-				(!areAllTasksEstimated ||
-					!hasWorkedHours ||
-					Math.abs(Number(hasPlan?.workTimePlanned) - tasksEstimationTimes) > 1)
-			) {
-				openAddTasksEstimationHoursModal();
-			} else {
+		switch (action.type) {
+			case 'NOOP':
+				return;
+			case 'STOP_TIMER':
+				stopTimer();
+				return;
+			case 'START_TIMER':
 				startTimer();
-			}
-		};
-
-		/**
-		 * Handler function to start or stop the timer based on various conditions.
-		 * Shows appropriate modals and starts or stops the timer as needed.
-		 */
-		if (timerStatusFetching || !canRunTimer) return;
-		if (timerStatus?.running) {
-			stopTimer();
-		} else if (requirePlan && hasPlan && !isActiveTaskPlaned) {
-			openEnforcePlannedTaskModal();
-		} else {
-			if (
-				dailyPlanSuggestionModalDate == currentDate &&
-				tasksEstimateHoursModalDate == currentDate &&
-				dailyPlanEstimateHoursModalDate == currentDate
-			) {
-				startTimerOrAskEstimate();
-			} else {
-				if (dailyPlanSuggestionModalDate != currentDate) {
-					if (!hasPlan) {
-						openSuggestDailyPlanModal();
-					} else {
-						handleMissingTasksEstimationHours();
-					}
-				} else if (tasksEstimateHoursModalDate != currentDate) {
-					handleMissingTasksEstimationHours();
-				} else {
-					startTimerOrAskEstimate();
-				}
-			}
+				return;
+			case 'SHOW_MODAL':
+				modalDispatch[action.modal]();
+				return;
 		}
 	}, [
 		areAllTasksEstimated,
 		canRunTimer,
 		hasPlan,
 		hasWorkedHours,
-		isActiveTaskPlaned,
-		openAddTasksEstimationHoursModal,
-		openEnforcePlannedTaskModal,
-		openEnforcePlannedTaskSoftModal,
-		openSuggestDailyPlanModal,
+		isActiveTaskPlanned,
+		modalDispatch,
 		requirePlan,
 		startTimer,
 		stopTimer,
