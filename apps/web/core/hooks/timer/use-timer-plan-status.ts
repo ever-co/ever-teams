@@ -27,7 +27,6 @@ export interface UseTimerPlanStatusReturn {
 	canRunTimer: boolean;
 }
 
-// ==================== HOOK ====================
 
 /**
  * Lightweight read-only hook for plan-related timer state.
