@@ -8,9 +8,8 @@ import {
 import { estimatedTotalTime } from '@/core/components/tasks/daily-plan';
 import { useTimerPlanStatus } from '../timer';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, activeTeamTaskState, timerStatusFetchingState, timerStatusState } from '@/core/stores';
+import { timerStatusFetchingState } from '@/core/stores';
 import { getTimerAction, hasSeenModalToday, type TimerPolicyState } from '@/core/lib/helpers/timer-policy';
-
 
 export interface UseStartStopTimerHandlerParams {
 	/** Start the timer — injected from the caller's existing timer hook (useTimerView, useTimer, etc.) */
@@ -18,9 +17,6 @@ export interface UseStartStopTimerHandlerParams {
 	/** Stop the timer — injected from the caller's existing timer hook (useTimerView, useTimer, etc.) */
 	stopTimer: () => void | Promise<any>;
 }
-
-
-
 
 /**
  * Timer start/stop handler hook — "The Executor".
@@ -66,12 +62,8 @@ export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStop
 		openModal: openSuggestDailyPlanModal
 	} = useModal();
 
-	const timerStatus = useAtomValue(timerStatusState);
 	const timerStatusFetching = useAtomValue(timerStatusFetchingState);
-	const { hasPlan, canRunTimer } = useTimerPlanStatus();
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const activeTeam = useAtomValue(activeTeamState);
-
+	const { hasPlan, canRunTimer, activeTeam, activeTeamTask, timerStatus } = useTimerPlanStatus();
 
 	const requirePlan = useMemo(() => !!activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 
@@ -95,12 +87,10 @@ export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStop
 		[hasPlan]
 	);
 
-
 	const enforceTaskSoftCloseModal = useCallback(() => {
 		_enforceTaskSoftCloseModal();
 		openAddTasksEstimationHoursModal();
 	}, [_enforceTaskSoftCloseModal, openAddTasksEstimationHoursModal]);
-
 
 	const modalDispatch = useMemo(
 		() =>
@@ -117,7 +107,6 @@ export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStop
 			openAddTasksEstimationHoursModal
 		]
 	);
-
 
 	const startStopTimerHandler = useCallback(() => {
 		const currentDate = new Date().toISOString().split('T')[0];
@@ -166,7 +155,6 @@ export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStop
 		timerStatus?.running,
 		timerStatusFetching
 	]);
-
 
 	return {
 		modals: {

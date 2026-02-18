@@ -129,10 +129,6 @@ function resolveEstimationFlow(state: TimerPolicyState): TimerAction {
 		return { type: 'SHOW_MODAL', modal: 'ENFORCE_PLAN_SOFT' };
 	}
 
-	if (state.areAllTasksEstimated) {
-		return resolveStartOrEstimate(state);
-	}
-
 	return resolveStartOrEstimate(state);
 }
 
