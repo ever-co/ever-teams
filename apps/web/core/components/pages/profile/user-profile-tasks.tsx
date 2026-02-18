@@ -2,10 +2,9 @@ import { I_UserProfilePage, useLiveTimerStatus } from '@/core/hooks';
 import { Divider, Text } from '@/core/components';
 import { I_TaskFilter } from './task-filters';
 import { useTranslations } from 'next-intl';
-import { memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { ComponentProps, memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { cn } from '@/core/lib/helpers';
 import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
-import { useScrollPagination } from '@/core/hooks/common/use-pagination';
 import { useTaskFilterCache } from '@/core/hooks/common/use-memoized-cache';
 import { useEnhancedVirtualization } from '@/core/hooks/common/use-tanstack-virtual';
 import { UserProfilePlans } from '@/core/components/users/user-profile-plans';
@@ -14,6 +13,8 @@ import { TUser } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { LazyActivityCalendar, LazyTaskCard } from '@/core/components/optimized-components';
 import { ActivityCalendarSkeleton } from '../../common/skeleton/activity-calendar-skeleton';
+import { useWindowVirtualizer } from '@tanstack/react-virtual';
+import { TaskCardSkeleton } from '../../common/skeleton/profile-component-skeletons';
 
 type Props = {
 	tabFiltered: I_TaskFilter;
@@ -30,8 +31,6 @@ type Props = {
  */
 export const UserProfileTask = memo(
 	({ profile, paginateTasks, tabFiltered, useVirtualization = false, user, employeeId }: Props) => {
-		const [scrollableContainer, setScrollableContainer] = useState<HTMLDivElement | null>(null);
-
 		const t = useTranslations();
 		// Get current timer seconds
 		const { time, timerStatus } = useLiveTimerStatus();
@@ -86,51 +85,6 @@ export const UserProfileTask = memo(
 			deferredProfile.member?.running,
 			deferredProfile.activeUserTeamTask?.id
 		]);
-
-		const { slicedItems: rawSlicedItems } = useScrollPagination({
-			enabled: !!paginateTasks && !useVirtualization,
-			items: otherTasks,
-			scrollableElement: scrollableContainer,
-			defaultItemsPerPage: 20
-		});
-
-		// FIXED Additional deduplication at slicedItems level to prevent duplicate keys
-		// This ensures no duplicate tasks reach the rendering phase
-		const slicedItems = useMemo(() => {
-			return rawSlicedItems.reduce(
-				(acc, task) => {
-					if (!acc.find((t) => t.id === task.id)) {
-						acc.push(task);
-					}
-					return acc;
-				},
-				[] as typeof rawSlicedItems
-			);
-		}, [rawSlicedItems]);
-
-		// Optimized scroll container setup with useCallback
-		const setupScrollContainer = useCallback(() => {
-			const scrollable = document.querySelector<HTMLDivElement>('div.custom-scrollbar');
-			if (scrollable && scrollable !== scrollableContainer) {
-				setScrollableContainer(scrollable);
-			}
-		}, [scrollableContainer]);
-
-		useEffect(() => {
-			setupScrollContainer();
-
-			// Setup ResizeObserver for dynamic container detection
-			const resizeObserver = new ResizeObserver(() => {
-				setupScrollContainer();
-			});
-
-			const targetElement = document.body;
-			resizeObserver.observe(targetElement);
-
-			return () => {
-				resizeObserver.disconnect();
-			};
-		}, [setupScrollContainer]);
 
 		return (
 			<div className="flex flex-col w-full h-full mt-5">
@@ -197,12 +151,43 @@ export const UserProfileTask = memo(
 							profile={profile}
 						/>
 					) : (
-						<TaskList slicedItems={slicedItems as TTask[]} tabFiltered={tabFiltered} profile={profile} />
+						<TaskList slicedItems={otherTasks as TTask[]} tabFiltered={tabFiltered} profile={profile} />
 					))}
 			</div>
 		);
 	}
 );
+/**
+ * Deferred TaskCard — shows a skeleton on FIRST frame,
+ * then swaps to the real card on the NEXT frame.
+ *
+ * Why? Because the virtualizer mounts new items during scroll.
+ * If TaskCard is heavy (50-100ms), the user sees a freeze.
+ * With this wrapper, they see a skeleton instantly → no freeze.
+ */
+const DeferredTaskCard = memo((props: ComponentProps<typeof LazyTaskCard>) => {
+	const [isReady, setIsReady] = useState(false);
+
+	useEffect(() => {
+		// ⭐ Schedule the real render for the NEXT animation frame
+		//    This lets the browser paint the placeholder FIRST
+		const frameId = requestAnimationFrame(() => {
+			setIsReady(true);
+		});
+
+		return () => cancelAnimationFrame(frameId);
+	}, []);
+
+	if (!isReady) {
+		return (
+			<div className="min-h-28">
+				<TaskCardSkeleton />
+			</div>
+		);
+	}
+
+	return <LazyTaskCard {...props} />;
+});
 
 // Optimized TaskList component to prevent unnecessary re-renders
 const TaskList = memo(
@@ -215,10 +200,39 @@ const TaskList = memo(
 		tabFiltered: I_TaskFilter;
 		profile: I_UserProfilePage;
 	}) => {
+		// Track the offset element height dynamically
+		const [scrollMargin, setScrollMargin] = useState(0);
+
 		// Memoize computed values to prevent recalculation
 		const viewType = useMemo(() => (tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'), [tabFiltered.tab]);
 
 		const isAuthUser = useMemo(() => profile.isAuthUser, [profile.isAuthUser]);
+
+		const LIST_GAP = 16;
+		// Virtualizer with options
+		const virtualiser = useWindowVirtualizer({
+			count: slicedItems?.length ?? 0,
+			estimateSize: () => 175 + LIST_GAP,
+			overscan: 4,
+			scrollMargin
+		});
+
+		useEffect(() => {
+			const offsetEl = document.querySelector<HTMLElement>('[data-layout="main-scroll-offset"]');
+			if (!offsetEl) return;
+
+			const observer = new ResizeObserver((entries) => {
+				for (const entry of entries) {
+					setScrollMargin(entry.contentRect.height);
+				}
+			});
+
+			// Set initial value
+			setScrollMargin(offsetEl.getBoundingClientRect().height);
+			observer.observe(offsetEl);
+
+			return () => observer.disconnect();
+		}, []);
 
 		// Memoize the task badge class calculation
 		const getTaskBadgeClassName = useCallback(
@@ -252,20 +266,42 @@ const TaskList = memo(
 		}
 
 		return (
-			<ul className="flex flex-col gap-4">
-				{slicedItems.map((task) => (
-					<li key={task.id}>
-						<LazyTaskCard
-							task={task}
-							isAuthUser={isAuthUser}
-							activeAuthTask={false}
-							viewType={viewType}
-							profile={profile}
-							taskBadgeClassName={getTaskBadgeClassName(task.issueType || '')}
-							taskTitleClassName="mt-[0.0625rem]"
-						/>
-					</li>
-				))}
+			<ul
+				style={{
+					height: `${virtualiser.getTotalSize()}px`,
+					width: '100%',
+					position: 'relative'
+				}}
+			>
+				{virtualiser.getVirtualItems().map((virtualItem) => {
+					const task = slicedItems[virtualItem.index];
+					return (
+						<li
+							key={virtualItem.key}
+							data-index={virtualItem.index}
+							ref={virtualiser.measureElement}
+							style={{
+								position: 'absolute',
+								top: 0,
+								left: 0,
+								width: '100%',
+								transform: `translateY(${virtualItem.start - scrollMargin}px)`,
+								boxSizing: 'border-box',
+								paddingBottom: `${LIST_GAP}px`
+							}}
+						>
+							<DeferredTaskCard
+								task={task}
+								isAuthUser={isAuthUser}
+								activeAuthTask={false}
+								viewType={viewType}
+								profile={profile}
+								taskBadgeClassName={getTaskBadgeClassName(task.issueType || '')}
+								taskTitleClassName="mt-[0.0625rem]"
+							/>
+						</li>
+					);
+				})}
 			</ul>
 		);
 	}
