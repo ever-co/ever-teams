@@ -60,6 +60,8 @@ import {
 	DropdownMenuSeparator
 } from '@/core/components/common/dropdown-menu';
 import { CaretDownIcon, CaretUpIcon } from '@radix-ui/react-icons';
+import { ETimeFrequency } from '@/core/types/generics/enums/date';
+import moment from 'moment';
 
 export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; user?: TUser | null }) {
 	const accordionRef = React.useRef(null);
@@ -154,6 +156,11 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 			/>
 			<div className="rounded-md">
 				{data?.map((plan, index) => {
+					console.log(plan.date);
+					const groupTitle =
+						timesheetGroupByDays === ETimeFrequency.MONTHLY
+							? moment(plan.date).format('MMM YYYY')
+							: formatDate(plan.date);
 					return (
 						<div key={index}>
 							<div
@@ -165,7 +172,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 							>
 								<div className="flex gap-x-3">
 									{timesheetGroupByDays === 'Weekly' && <span>Week {index + 1}</span>}
-									<span>{formatDate(plan.date)}</span>
+									<span>{groupTitle}</span>
 								</div>
 								<TotalDurationByDate timesheetLog={plan.tasks} createdAt={formatDate(plan.date)} />
 							</div>
