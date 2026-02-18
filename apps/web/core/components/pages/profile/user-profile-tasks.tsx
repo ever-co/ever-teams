@@ -169,7 +169,7 @@ const DeferredTaskCard = memo((props: ComponentProps<typeof LazyTaskCard>) => {
 	const [isReady, setIsReady] = useState(false);
 
 	useEffect(() => {
-		// ⭐ Schedule the real render for the NEXT animation frame
+		// Schedule the real render for the NEXT animation frame
 		//    This lets the browser paint the placeholder FIRST
 		const frameId = requestAnimationFrame(() => {
 			setIsReady(true);
