@@ -271,7 +271,7 @@ const TaskList = memo(
 				<ul className="flex flex-col gap-4">
 					{items?.map((task) => {
 						return (
-							<li key={task?.id}>
+							<li key={task.id}>
 								<LazyTaskCard
 									task={task}
 									isAuthUser={isAuthUser}
