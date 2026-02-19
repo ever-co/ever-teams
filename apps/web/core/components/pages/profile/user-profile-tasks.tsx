@@ -266,6 +266,27 @@ const TaskList = memo(
 			return <EmptyPlans planMode={planMode} />;
 		}
 
+		if (!enableVirtualization) {
+			return (
+				<ul className="flex flex-col gap-4">
+					{items?.map((task) => {
+						return (
+							<li>
+								<LazyTaskCard
+									task={task}
+									isAuthUser={isAuthUser}
+									activeAuthTask={false}
+									viewType={viewType}
+									profile={profile}
+									taskBadgeClassName={getTaskBadgeClassName(task.issueType || '')}
+									taskTitleClassName="mt-[0.0625rem]"
+								/>
+							</li>
+						);
+					})}
+				</ul>
+			);
+		}
 		return (
 			<ul
 				style={{
