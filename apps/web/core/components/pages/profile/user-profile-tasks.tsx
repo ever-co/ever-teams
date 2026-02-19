@@ -6,7 +6,6 @@ import { ComponentProps, memo, Suspense, useCallback, useEffect, useMemo, useSta
 import { cn } from '@/core/lib/helpers';
 import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
 import { useTaskFilterCache } from '@/core/hooks/common/use-memoized-cache';
-import { useEnhancedVirtualization } from '@/core/hooks/common/use-tanstack-virtual';
 import { UserProfilePlans } from '@/core/components/users/user-profile-plans';
 import { EmptyPlans } from '@/core/components/daily-plan';
 import { TUser } from '@/core/types/schemas';
@@ -143,16 +142,14 @@ export const UserProfileTask = memo(
 					</div>
 				)}
 
-				{tabFiltered.tab !== 'dailyplan' &&
-					(useVirtualization && otherTasks.length > ITEMS_LENGTH_TO_VIRTUALIZED ? (
-						<TanStackVirtualizedTaskList
-							tasks={otherTasks as TTask[]}
-							tabFiltered={tabFiltered}
-							profile={profile}
-						/>
-					) : (
-						<TaskList slicedItems={otherTasks as TTask[]} tabFiltered={tabFiltered} profile={profile} />
-					))}
+				{tabFiltered.tab !== 'dailyplan' && (
+					<TaskList
+						enableVirtualization={useVirtualization || otherTasks.length > ITEMS_LENGTH_TO_VIRTUALIZED}
+						items={otherTasks as TTask[]}
+						tabFiltered={tabFiltered}
+						profile={profile}
+					/>
+				)}
 			</div>
 		);
 	}
@@ -188,17 +185,21 @@ const DeferredTaskCard = memo((props: ComponentProps<typeof LazyTaskCard>) => {
 
 	return <LazyTaskCard {...props} />;
 });
+DeferredTaskCard.displayName = 'DeferredTaskCard';
 
+const LIST_GAP = 16;
 // Optimized TaskList component to prevent unnecessary re-renders
 const TaskList = memo(
 	({
-		slicedItems,
+		items,
 		tabFiltered,
-		profile
+		profile,
+		enableVirtualization
 	}: {
-		slicedItems: TTask[];
+		items: TTask[];
 		tabFiltered: I_TaskFilter;
 		profile: I_UserProfilePage;
+		enableVirtualization?: boolean;
 	}) => {
 		// Track the offset element height dynamically
 		const [scrollMargin, setScrollMargin] = useState(0);
@@ -208,13 +209,13 @@ const TaskList = memo(
 
 		const isAuthUser = useMemo(() => profile.isAuthUser, [profile.isAuthUser]);
 
-		const LIST_GAP = 16;
 		// Virtualizer with options
 		const virtualiser = useWindowVirtualizer({
-			count: slicedItems?.length ?? 0,
-			estimateSize: () => 175 + LIST_GAP,
+			count: items?.length ?? 0,
+			estimateSize: () => 112 + LIST_GAP,
 			overscan: 4,
-			scrollMargin
+			scrollMargin,
+			enabled: enableVirtualization
 		});
 
 		useEffect(() => {
@@ -249,7 +250,7 @@ const TaskList = memo(
 			tabFiltered.tab === 'worked' &&
 			(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && profile.activeUserTeamTask));
 
-		if (slicedItems.length === 0) {
+		if (items.length === 0) {
 			// Only show EmptyPlans for task-related tabs, not for dailyplan or stats
 			if (tabFiltered.tab === 'stats' || tabFiltered.tab === 'dailyplan') {
 				return null;
@@ -274,7 +275,7 @@ const TaskList = memo(
 				}}
 			>
 				{virtualiser.getVirtualItems().map((virtualItem) => {
-					const task = slicedItems[virtualItem.index];
+					const task = items[virtualItem.index];
 					return (
 						<li
 							key={virtualItem.key}
@@ -308,111 +309,3 @@ const TaskList = memo(
 );
 
 TaskList.displayName = 'TaskList';
-
-// TanStack Virtualized TaskList for large datasets
-const TanStackVirtualizedTaskList = memo(
-	({ tasks, tabFiltered, profile }: { tasks: TTask[]; tabFiltered: I_TaskFilter; profile: I_UserProfilePage }) => {
-		const containerHeight = 600; // Adjust based on your layout
-		const itemHeight = 120; // Approximate height of each TaskCard
-
-		const virtualizationResult = useEnhancedVirtualization(tasks, {
-			containerHeight,
-			itemHeight,
-			enabled: true,
-			useWindow: false, // Simplified: always use container virtualization for consistency
-			cacheSize: 50,
-			overscanMultiplier: 2
-		});
-
-		// Memoize computed values
-		const viewType = useMemo(() => (tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'), [tabFiltered.tab]);
-
-		const isAuthUser = useMemo(() => profile.isAuthUser, [profile.isAuthUser]);
-		const getTaskBadgeClassName = useCallback(
-			(issueType: string) =>
-				cn(
-					issueType === 'Bug' ? '!px-[0.3312rem] py-[0.2875rem]' : '!px-[0.375rem] py-[0.375rem]',
-					'rounded-sm'
-				),
-			[]
-		);
-
-		// Extract repeated JSX into a separate function to adhere to DRY principle
-		const renderVirtualItem = useCallback(
-			(virtualItem: any) => (
-				<div
-					key={virtualItem.key}
-					style={{
-						position: 'absolute',
-						top: 0,
-						left: 0,
-						width: '100%',
-						height: `${virtualItem.size}px`,
-						transform: `translateY(${virtualItem.start}px)`
-					}}
-				>
-					<div className="px-1 pb-4">
-						<LazyTaskCard
-							task={virtualItem.item}
-							isAuthUser={isAuthUser}
-							activeAuthTask={false}
-							viewType={viewType}
-							profile={profile}
-							taskBadgeClassName={getTaskBadgeClassName(virtualItem.item.issueType || '')}
-							taskTitleClassName="mt-[0.0625rem]"
-						/>
-					</div>
-				</div>
-			),
-			[isAuthUser, viewType, profile, getTaskBadgeClassName]
-		);
-
-		const { virtualItems, isScrolling } = virtualizationResult;
-
-		// Simplified: always use container virtualization since useWindow is false
-		const parentRef = 'parentRef' in virtualizationResult ? virtualizationResult.parentRef : null;
-		const containerStyle =
-			'containerStyle' in virtualizationResult
-				? virtualizationResult.containerStyle
-				: { height: containerHeight, overflow: 'auto' as const };
-		const innerStyle =
-			'innerStyle' in virtualizationResult
-				? virtualizationResult.innerStyle
-				: { height: virtualizationResult.totalSize, width: '100%', position: 'relative' as const };
-
-		// Handle empty state
-		if (tasks.length === 0) {
-			// Only show EmptyPlans for task-related tabs, not for dailyplan or stats
-			if (tabFiltered.tab === 'stats' || tabFiltered.tab === 'dailyplan') {
-				return null;
-			}
-
-			// Don't show EmptyPlans if there's an active task displayed above
-			const hasActiveTask =
-				tabFiltered.tab === 'worked' &&
-				(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && profile.activeUserTeamTask));
-
-			if (hasActiveTask) {
-				return null; // Active task is already shown, no need for empty state
-			}
-
-			// Show appropriate empty state based on tab
-			const planMode = tabFiltered.tab === 'worked' ? 'Today Tasks' : 'All Tasks';
-			return <EmptyPlans planMode={planMode} />;
-		}
-
-		// Simplified container virtualization rendering
-		return (
-			<div style={containerStyle} ref={parentRef} className="custom-scrollbar">
-				<div style={innerStyle}>{virtualItems.map(renderVirtualItem)}</div>
-				{isScrolling && (
-					<div className="absolute top-2 right-2 px-2 py-1 text-xs text-white rounded-sm bg-black/50">
-						Scrolling...
-					</div>
-				)}
-			</div>
-		);
-	}
-);
-
-TanStackVirtualizedTaskList.displayName = 'TanStackVirtualizedTaskList';
