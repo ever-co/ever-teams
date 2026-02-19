@@ -214,6 +214,7 @@ export function MainLayout({
 								>
 									{headerHeight && (
 										<div
+											data-layout="main-scroll-offset"
 											className="w-full"
 											style={{
 												height: `${headerHeight + (mainHeaderSlot ? -30 : 0)}px`
