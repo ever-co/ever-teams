@@ -156,7 +156,6 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 			/>
 			<div className="rounded-md">
 				{data?.map((plan, index) => {
-					console.log(plan.date);
 					const groupTitle =
 						timesheetGroupByDays === ETimeFrequency.MONTHLY
 							? moment(plan.date).format('MMM YYYY')

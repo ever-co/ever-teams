@@ -367,10 +367,10 @@ class TimeLogService extends APIService {
 	}
 
 	private dateToStartOfDay(dateInput: Date | string) {
-		const endOfDay = new Date(dateInput);
-		endOfDay.setUTCHours(0, 0, 0, 0);
+		const startOfDay = new Date(dateInput);
+		startOfDay.setUTCHours(0, 0, 0, 0);
 
-		return endOfDay;
+		return startOfDay;
 	}
 }
 
