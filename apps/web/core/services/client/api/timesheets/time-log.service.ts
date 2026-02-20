@@ -30,11 +30,15 @@ import {
 
 class TimeLogService extends APIService {
 	getTimeLimitsReport = async (params: TGetTimeLimitReport): Promise<TTimeLimitReportList[]> => {
-		const query = qs.stringify({
-			...params,
-			tenantId: this.tenantId,
-			organizationId: this.organizationId
-		});
+		const convertedParams = { ...params, tenantId: this.tenantId, organizationId: this.organizationId };
+		if (params.endDate) {
+			convertedParams.endDate = this.dateToEndOfDay(params.endDate);
+		}
+		if (params.startDate) {
+			convertedParams.startDate = this.dateToStartOfDay(params.startDate);
+		}
+
+		const query = qs.stringify(convertedParams);
 
 		try {
 			const response = await this.get<TTimeLimitReportList[]>(`/timesheet/time-log/time-limit?${query}`);
@@ -64,17 +68,22 @@ class TimeLogService extends APIService {
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getTimerLogsDailyReport = async (params: TGetTimerLogsDailyReportRequest): Promise<TTimeLogReportDaily[]> => {
+		const convertedParams = {
+			...params,
+			tenantId: this.tenantId,
+			organizationId: this.organizationId,
+			'activityLevel[start]': '0',
+			'activityLevel[end]': '100',
+			timeZone: params.timeZone || getDefaultTimezone()
+		};
+		if (params.endDate) {
+			convertedParams.endDate = this.dateToEndOfDay(params.endDate);
+		}
+		if (params.startDate) {
+			convertedParams.startDate = this.dateToStartOfDay(params.startDate);
+		}
 		try {
-			const queryParams = {
-				'activityLevel[start]': '0',
-				'activityLevel[end]': '100',
-				tenantId: this.tenantId,
-				organizationId: this.organizationId,
-				timeZone: params.timeZone || getDefaultTimezone(),
-				...params
-			};
-
-			const query = qs.stringify(queryParams);
+			const query = qs.stringify(convertedParams);
 
 			const response = await this.get<TTimeLogReportDaily[]>(`/timesheet/time-log/report/daily?${query}`);
 
@@ -349,6 +358,20 @@ class TimeLogService extends APIService {
 			tenantId: this.tenantId
 		});
 	};
+
+	private dateToEndOfDay(dateInput: Date | string) {
+		const endOfDay = new Date(dateInput);
+		endOfDay.setUTCHours(23, 59, 59, 999);
+
+		return endOfDay;
+	}
+
+	private dateToStartOfDay(dateInput: Date | string) {
+		const startOfDay = new Date(dateInput);
+		startOfDay.setUTCHours(0, 0, 0, 0);
+
+		return startOfDay;
+	}
 }
 
 export const timeLogService = new TimeLogService(GAUZY_API_BASE_SERVER_URL.value);
