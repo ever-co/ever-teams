@@ -1,5 +1,5 @@
 import { TaskEstimateInfo } from '@/core/components/pages/teams/team/team-members-views/user-team-card/task-estimate';
-import { I_UserProfilePage, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
+import { I_UserProfilePage, useMemberIdentity, useMemberActiveTask, useTMCardTaskEdit } from '@/core/hooks';
 import { activeTeamState } from '@/core/stores';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { CellContext } from '@tanstack/react-table';
@@ -20,7 +20,15 @@ export default function DailyPlanTaskEstimationCell(props: CellContext<TTask, un
 			}),
 		[members, profile?.userProfile?.id]
 	);
-	const memberInfo = useTeamMemberCard(currentMember || undefined);
+
+	// Only identity + memberTask needed — TaskEstimateInfo consumes memberTask, isAuthUser, isAuthTeamManager
+	const member = currentMember || undefined;
+	const identity = useMemberIdentity(member);
+	const memberTask = useMemberActiveTask(member);
+	const memberInfo = useMemo(
+		() => ({ memberTask, isAuthUser: identity.isAuthUser, isAuthTeamManager: identity.isAuthTeamManager }),
+		[memberTask, identity.isAuthUser, identity.isAuthTeamManager]
+	);
 	const taskEdition = useTMCardTaskEdit(props.row.original);
 
 	return <TaskEstimateInfo plan={plan} memberInfo={memberInfo} edition={taskEdition} activeAuthTask={true} />;

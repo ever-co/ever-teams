@@ -1,6 +1,6 @@
 import { CellContext } from '@tanstack/react-table';
 import { TaskTimes } from '../../../task-times';
-import { I_UserProfilePage, useTeamMemberCard } from '@/core/hooks';
+import { I_UserProfilePage, useMemberIdentity } from '@/core/hooks';
 import get from 'lodash/get';
 import { useMemo } from 'react';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -19,7 +19,7 @@ export default function DailyPlanTaskTimesCell(props: CellContext<TTask, unknown
 			}),
 		[members, profile?.userProfile?.id]
 	);
-	const memberInfo = useTeamMemberCard(currentMember || undefined);
+	const memberInfo = useMemberIdentity(currentMember || undefined);
 
 	return (
 		<TaskTimes
