@@ -1,13 +1,16 @@
 'use client';
 import { secondsToTime, tomorrowDate } from '@/core/lib/helpers/index';
 import {
-	I_TeamMemberCardHook,
 	I_UserProfilePage,
+	I_TeamMemberMutationsHook,
 	useCanSeeActivityScreen,
 	useModal,
 	useTMCardTaskEdit,
 	useTaskStatistics,
-	useTeamMemberCard
+	useMemberIdentity,
+	useMemberActiveTask,
+	useTeamMemberMutations,
+	useTeamMemberRoleActions
 } from '@/core/hooks';
 import { useMyDailyPlans } from '@/core/hooks/daily-plans/use-my-daily-plans';
 import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
@@ -148,10 +151,18 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 			),
 		[activeAuthTask, dh, dm, isAuthUser, t]
 	);
-	const memberInfo = useTeamMemberCard(currentMember || undefined);
-	// Auth member info is used for "Assign Task to Me" / "Unassign Task from Me" actions
-	// This ensures the logged-in user is assigned, not the visited profile member
-	const authMemberInfo = useTeamMemberCard(authMember || undefined);
+	// Granular hooks for currentMember — "pay only for what you use"
+	const identity = useMemberIdentity(currentMember || undefined);
+	const memberTask = useMemberActiveTask(currentMember || undefined);
+	const mutations = useTeamMemberMutations(currentMember || undefined);
+	const roleActions = useTeamMemberRoleActions(currentMember || undefined);
+
+	// Compose memberInfo — still needed by TaskTimes (not yet migrated to lightweight type)
+	const memberInfo = { ...identity, memberTask, ...mutations, ...roleActions };
+
+	// Auth member: only mutations needed for "Assign Task to Me" / "Unassign Task from Me"
+	const authMutations = useTeamMemberMutations(authMember || undefined);
+
 	const taskEdition = useTMCardTaskEdit(task);
 	const activeMembers = useMemo(() => ((task != null && task?.members?.length) || 0) > 0, [task]);
 	const hasMembers = useMemo(() => task?.members && task?.members?.length > 0, [task?.members]);
@@ -264,7 +275,7 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 							<TaskCardMenu
 								task={task}
 								loading={loading}
-								memberInfo={authMemberInfo}
+								mutations={authMutations}
 								viewType={viewType}
 								profile={profile}
 								plan={plan}
@@ -326,7 +337,7 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 						<TaskCardMenu
 							task={task}
 							loading={loading}
-							memberInfo={authMemberInfo}
+							mutations={authMutations}
 							viewType={viewType}
 							plan={plan}
 						/>
@@ -521,7 +532,7 @@ export const TaskInfo = React.memo(
 export function TaskCardMenu({
 	task,
 	loading,
-	memberInfo,
+	mutations,
 	viewType,
 	profile,
 	plan,
@@ -529,7 +540,7 @@ export function TaskCardMenu({
 }: {
 	task: TTask;
 	loading?: boolean;
-	memberInfo?: I_TeamMemberCardHook;
+	mutations?: I_TeamMemberMutationsHook;
 	viewType: 'default' | 'unassign' | 'dailyplan';
 	profile?: I_UserProfilePage;
 	plan?: TDailyPlan;
@@ -554,9 +565,9 @@ export function TaskCardMenu({
 	const [isAssigning, setIsAssigning] = useState(false);
 
 	const handleAssignment = useCallback(() => {
-		// Guard clause: if memberInfo is not available, we cannot assign/unassign
-		if (!memberInfo) {
-			console.warn('[TaskCardMenu] memberInfo is undefined, cannot assign/unassign task');
+		// Guard clause: if mutations is not available, we cannot assign/unassign
+		if (!mutations) {
+			console.warn('[TaskCardMenu] mutations is undefined, cannot assign/unassign task');
 			return;
 		}
 
@@ -566,7 +577,7 @@ export function TaskCardMenu({
 
 		setIsAssigning(true);
 
-		const promise = shouldAssign ? memberInfo.assignTask(task) : memberInfo.unassignTask(task);
+		const promise = shouldAssign ? mutations.assignTask(task) : mutations.unassignTask(task);
 
 		promise
 			.then(() => {
@@ -588,7 +599,7 @@ export function TaskCardMenu({
 			.finally(() => {
 				setIsAssigning(false);
 			});
-	}, [memberInfo, task, isUserAssignedToTask, t]);
+	}, [mutations, task, isUserAssignedToTask, t]);
 
 	const canSeeActivity = useCanSeeActivityScreen();
 

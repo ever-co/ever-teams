@@ -1,4 +1,4 @@
-import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@/core/hooks';
+import { I_TMCardTaskEditHook } from '@/core/hooks';
 import { FilterTabs } from '@/core/types/daily-plan-types';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { clsxm } from '@/core/lib/utils';
@@ -9,13 +9,12 @@ import { TaskAllStatusTypes } from '@/core/components/tasks/task-all-status-type
 
 type Props = IClassName & {
 	edition: I_TMCardTaskEditHook;
-	memberInfo: I_TeamMemberCardHook;
 	publicTeam?: boolean;
 	dayPlanTab?: FilterTabs;
 	tab?: 'default' | 'unassign' | 'dailyplan';
 };
 
-export function TaskInfo({ className, memberInfo, edition, publicTeam, tab, dayPlanTab }: Props) {
+export function TaskInfo({ className, edition, publicTeam, tab, dayPlanTab }: Props) {
 	return (
 		<>
 			{!edition.task && <div className="justify-center self-center w-full text-center">--</div>}
@@ -36,7 +35,6 @@ export function TaskInfo({ className, memberInfo, edition, publicTeam, tab, dayP
 				>
 					{edition.task && (
 						<TaskDetailAndEdition
-							memberInfo={memberInfo}
 							edition={edition}
 							publicTeam={publicTeam}
 							tab={tab}

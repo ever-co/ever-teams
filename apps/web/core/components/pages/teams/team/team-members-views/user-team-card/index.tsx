@@ -4,7 +4,10 @@ import {
 	useCollaborative,
 	useTMCardTaskEdit,
 	useTaskStatistics,
-	useTeamMemberCard,
+	useMemberIdentity,
+	useMemberActiveTask,
+	useTeamMemberMutations,
+	useTeamMemberRoleActions,
 	useUserProfilePage
 } from '@/core/hooks';
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
@@ -112,11 +115,20 @@ export function UserTeamCard({
 	// Use isolated tab state for UserTeamCard to prevent global state leak from profile page
 	// With 'auto' default: shows daily plans if user has them, otherwise shows assigned tasks
 	const hook = useTaskFilter(profile, { persistState: false, defaultTab: 'auto' });
-	const memberInfo = useTeamMemberCard(member);
-	// NOTE: memberInfo.memberTask already prioritizes activeTeamTask (Jotai atom) for auth user
-	// This provides instant UI updates when changing tasks (see useTeamMemberCard hook)
-	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
-	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(memberInfo.memberUser);
+	// Granular hooks — "pay only for what you use"
+	const identity = useMemberIdentity(member);
+	const memberTask = useMemberActiveTask(member);
+	const mutations = useTeamMemberMutations(member);
+	const roleActions = useTeamMemberRoleActions(member);
+
+	// Lightweight composition — only what TaskEstimateInfo actually consumes
+	const memberInfo = useMemo(
+		() => ({ memberTask, isAuthUser: identity.isAuthUser, isAuthTeamManager: identity.isAuthTeamManager }),
+		[memberTask, identity.isAuthUser, identity.isAuthTeamManager]
+	);
+
+	const taskEdition = useTMCardTaskEdit(memberTask);
+	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(identity.memberUser);
 	const fullWidth = useAtomValue(fullWidthState);
 
 	const seconds = useAtomValue(timerSecondsState);
@@ -132,14 +144,14 @@ export function UserTeamCard({
 
 	// Memoize accordion state early to use in daily plan options
 	const isAccordionExpanded = useMemo(() => {
-		return userDetailAccordion === memberInfo.memberUser?.id;
-	}, [userDetailAccordion, memberInfo.memberUser?.id]);
+		return userDetailAccordion === identity.memberUser?.id;
+	}, [userDetailAccordion, identity.memberUser?.id]);
 
 	// PERFORMANCE FIX: Only fetch daily plans when accordion is expanded
 	// This prevents unnecessary API calls for every team member card on initial render
 	// PERFORMANCE FIX: Only fetch daily plans when accordion is expanded
 	// This prevents unnecessary API calls for every team member card on initial render
-	const targetEmployeeId = memberInfo.isAuthUser ? user?.employee?.id : memberInfo.member?.employeeId;
+	const targetEmployeeId = identity.isAuthUser ? user?.employee?.id : identity.member?.employeeId;
 	const { isLoading: isLoadingDailyPlans, isFetching: isFetchingDailyPlans } = useEmployeeDailyPlans(
 		targetEmployeeId ?? null,
 		{ enabled: isAccordionExpanded } // Only enable queries when accordion is open
@@ -160,7 +172,7 @@ export function UserTeamCard({
 	);
 
 	let totalWork = <></>;
-	if (memberInfo.isAuthUser) {
+	if (identity.isAuthUser) {
 		const { hours: h, minutes: m } = secondsToTime(
 			((member?.totalTodayTasks &&
 				member?.totalTodayTasks.reduce(
@@ -184,7 +196,15 @@ export function UserTeamCard({
 
 	const menu = (
 		<>
-			{(!collaborativeSelect || active) && <UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />}
+			{(!collaborativeSelect || active) && (
+				<UserTeamCardMenu
+					identity={identity}
+					memberTask={memberTask}
+					mutations={mutations}
+					roleActions={roleActions}
+					edition={taskEdition}
+				/>
+			)}
 
 			{collaborativeSelect && !active && (
 				<InputField
@@ -225,12 +245,12 @@ export function UserTeamCard({
 	const canSeeActivity = useMemo(() => {
 		// Correct logic for team-members context
 		// In team-members view, we compare memberUserId with connectedUserId, not profile
-		const isOwnCard = memberInfo.memberUser?.id === user?.id;
+		const isOwnCard = identity.memberUser?.id === user?.id;
 		const isManager = isManagerConnectedUser !== -1;
 		const result = isOwnCard || isManager;
 
 		return result;
-	}, [memberInfo.memberUser?.id, user?.id, isManagerConnectedUser]);
+	}, [identity.memberUser?.id, user?.id, isManagerConnectedUser]);
 
 	// Use the memoized accordion state from above
 
@@ -275,13 +295,13 @@ export function UserTeamCard({
 
 					{/* Show user name, email and image */}
 					<div className="relative">
-						<UserInfo memberInfo={memberInfo} className="min-w-64 max-w-72" publicTeam={publicTeam} />
+						<UserInfo memberInfo={identity} className="min-w-64 max-w-72" publicTeam={publicTeam} />
 						{(() => {
 							const shouldShowChevron = !publicTeam && canSeeActivity;
 							return shouldShowChevron ? (
 								<ChevronToggleButton
 									isExpanded={isAccordionExpanded}
-									userId={memberInfo.memberUser?.id}
+									userId={identity.memberUser?.id}
 									onToggle={setUserDetailAccordion}
 									onActivityClose={handleActivityClose}
 								/>
@@ -294,7 +314,6 @@ export function UserTeamCard({
 					<div className="flex items-start justify-between flex-1 md:min-w-[25%] xl:min-w-[30%] !max-w-[250px]">
 						<TaskInfo
 							edition={taskEdition}
-							memberInfo={memberInfo}
 							className="overflow-y-hidden flex-1 px-2 lg:px-4"
 							publicTeam={publicTeam}
 							tab="default"
@@ -304,7 +323,7 @@ export function UserTeamCard({
 							<p
 								className="flex relative -left-1 flex-none justify-center items-center w-8 h-8 text-center rounded-sm border cursor-pointer dark:border-gray-800 shrink-0"
 								onClick={() => {
-									showActivityFilter('TICKET', memberInfo.member ?? null);
+									showActivityFilter('TICKET', identity.member ?? null);
 									setUserDetailAccordion('');
 								}}
 							>
@@ -325,9 +344,9 @@ export function UserTeamCard({
 					{/* TaskTimes */}
 					<TaskTimes
 						activeAuthTask={true}
-						memberInfo={memberInfo}
-						task={memberInfo.memberTask}
-						isAuthUser={memberInfo.isAuthUser}
+						memberInfo={identity}
+						task={memberTask}
+						isAuthUser={identity.isAuthUser}
 						className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
 					/>
 					<VerticalSeparator />
@@ -346,10 +365,10 @@ export function UserTeamCard({
 
 					{/* TodayWorkedTime */}
 					<div className="flex items-center justify-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 max-w-[13rem]">
-						<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} className="" memberInfo={memberInfo} />
+						<TodayWorkedTime isAuthUser={identity.isAuthUser} className="" memberInfo={identity} />
 						{canSeeActivity ? (
 							<p
-								onClick={() => showActivityFilter('DATE', memberInfo.member ?? null)}
+								onClick={() => showActivityFilter('DATE', identity.member ?? null)}
 								className="flex relative justify-center items-center w-8 h-8 text-center rounded-sm border cursor-pointer dark:border-gray-800"
 							>
 								{!showActivity ? (
@@ -420,14 +439,13 @@ export function UserTeamCard({
 				)}
 			>
 				<div className="flex justify-between items-center mb-4">
-					<UserInfo memberInfo={memberInfo} publicTeam={publicTeam} className="w-9/12" />
+					<UserInfo memberInfo={identity} publicTeam={publicTeam} className="w-9/12" />
 					{totalWork}
 				</div>
 
 				<div className="flex flex-wrap justify-between items-start pb-4 border-b">
 					<TaskInfo
 						edition={taskEdition}
-						memberInfo={memberInfo}
 						className="px-4"
 						publicTeam={publicTeam}
 						tab="default"
@@ -438,9 +456,9 @@ export function UserTeamCard({
 					<div className="flex items-center space-x-4">
 						<TaskTimes
 							activeAuthTask={true}
-							memberInfo={memberInfo}
-							task={memberInfo.memberTask}
-							isAuthUser={memberInfo.isAuthUser}
+							memberInfo={identity}
+							task={memberTask}
+							isAuthUser={identity.isAuthUser}
 						/>
 					</div>
 
