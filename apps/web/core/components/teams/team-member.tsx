@@ -1,4 +1,4 @@
-import { useTeamMemberCard } from '@/core/hooks';
+import { useMemberIdentity } from '@/core/hooks';
 import { useCallback } from 'react';
 import { IconsCheck } from '@/core/components/icons';
 import { UserInfo } from '../pages/teams/team/team-members-views/user-team-card/user-info';
@@ -13,7 +13,7 @@ export default function TeamMember({
 	onClick: (member: TEmployee) => void;
 	assigned: boolean;
 }) {
-	const memberInfo = useTeamMemberCard(member);
+	const memberInfo = useMemberIdentity(member);
 
 	const toggleMember = useCallback(() => {
 		onClick(member.employee);

@@ -1,7 +1,7 @@
 'use client';
 
 import { mergeRefs, secondsToTime } from '@/core/lib/helpers/index';
-import { I_TMCardTaskEditHook, I_TeamMemberCardHook, useAuthenticateUser } from '@/core/hooks';
+import { I_TMCardTaskEditHook, useAuthenticateUser } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { clsxm } from '@/core/lib/utils';
 import { SpinnerLoader, Text } from '@/core/components';
@@ -12,9 +12,20 @@ import { checkPastDate } from '@/core/lib/helpers';
 import { TaskEstimate } from '@/core/components/tasks/task-estimate';
 import { TaskProgressBar } from '@/core/components/tasks/task-progress-bar';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+
+/**
+ * Lightweight type — only the properties actually consumed by TaskEstimateInfo / TaskEstimateInput.
+ * Accepts I_TeamMemberCardHook (superset) transparently thanks to structural typing.
+ */
+type TaskEstimateMemberInfo = {
+	memberTask: TTask | null;
+	isAuthUser: boolean;
+	isAuthTeamManager: boolean;
+};
 
 type Props = IClassName & {
-	memberInfo: I_TeamMemberCardHook;
+	memberInfo: TaskEstimateMemberInfo;
 	edition: I_TMCardTaskEditHook;
 	activeAuthTask: boolean;
 	showTime?: boolean;
@@ -70,7 +81,6 @@ export function TaskEstimateInfo({
 					task={rest.edition.task || rest.memberInfo.memberTask}
 					isAuthUser={rest.memberInfo.isAuthUser}
 					activeAuthTask={activeAuthTask}
-					memberInfo={rest.memberInfo}
 					radial={radial}
 				/>
 			</div>

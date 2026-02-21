@@ -5,7 +5,7 @@ import React from 'react';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
 import CircularProgress from '@/core/components/svgs/circular-progress';
 import { Priority, setCommentIconColor } from '@/core/components/tasks/kanban-card';
-import { useTaskStatistics, useTeamMemberCard } from '@/core/hooks';
+import { useTaskStatistics } from '@/core/hooks';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { getTaskTotalWorkedDuration } from '@/core/lib/utils/task.utils';
@@ -39,8 +39,6 @@ export default function TaskBlockCard(props: TaskItemProps) {
 
 	const totalWorkedTasksTimer = getTaskTotalWorkedDuration(activeTeam?.members, task.id);
 
-	const memberInfo = useTeamMemberCard(currentUser);
-
 	const taskAssignee: ImageOverlapperProps[] =
 		task.members?.map((member: any) => {
 			return {
@@ -52,7 +50,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
 
 	const progress = getEstimation(null, task, totalWorkedTasksTimer || 1, task.estimate || 0);
 
-	const currentMember = activeTeam?.members?.find((member) => member.id === memberInfo.member?.id || task?.id);
+	const currentMember = activeTeam?.members?.find((member) => member.id === currentUser?.id || task?.id);
 
 	const {
 		hours: h,
