@@ -58,7 +58,7 @@ export default function UserTeamBlockCard({ member }: { member: any }) {
 						<div key={member.employeeId}>
 							<>
 								<div className="my-3 font-semibold">{team.team.name}</div>
-								<UserTeamActiveBlockTaskInfo member={member} activeTaskId={team.activeTaskId || ''} />
+								<UserTeamActiveBlockTaskInfo activeTaskId={team.activeTaskId || ''} />
 
 								<HorizontalSeparator />
 								<div className="flex justify-between items-center py-2 w-full">

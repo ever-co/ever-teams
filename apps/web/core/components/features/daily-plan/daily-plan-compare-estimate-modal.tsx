@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Separator from '@/core/components/common/separator';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { clsxm } from '@/core/lib/utils';
-import { useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
+import { useMemberIdentity, useMemberActiveTask, useTMCardTaskEdit } from '@/core/hooks';
 import { useTimerActions } from '@/core/hooks/timer';
 import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { dailyPlanCompareEstimated } from '@/core/lib/helpers/daily-plan-estimated';
@@ -118,7 +118,11 @@ export function DailyPlanTask({ task, profile }: { task?: TTask; profile: any })
 		return member?.employee?.user?.id === profile?.userProfile?.id;
 	});
 
-	const memberInfo = useTeamMemberCard(member);
+	// Only identity + memberTask needed — TaskEstimateInput consumes memberTask, isAuthUser, isAuthTeamManager
+	const identity = useMemberIdentity(member);
+	const memberTask = useMemberActiveTask(member);
+	const memberInfo = { memberTask, isAuthUser: identity.isAuthUser, isAuthTeamManager: identity.isAuthTeamManager };
+
 	return (
 		<div className="flex items-center justify-between w-full h-16 px-1 font-normal bg-white border rounded-lg dark:bg-dark--theme-light dark:border-gray-700 drop-shadow">
 			<div className="flex items-center w-full space-x-1">

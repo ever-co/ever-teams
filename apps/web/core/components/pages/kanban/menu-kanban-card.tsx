@@ -1,4 +1,4 @@
-import { useAuthenticateUser, useModal, useTeamMemberCard, useCreateTask } from '@/core/hooks';
+import { useAuthenticateUser, useModal, useTeamMemberMutations, useCreateTask } from '@/core/hooks';
 import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
 import { activeTeamState, activeTeamTaskId } from '@/core/stores';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
@@ -21,7 +21,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 	const t = useTranslations();
 	const setActiveTask = useSetAtom(activeTeamTaskId);
 	const { createTask, createLoading } = useCreateTask();
-	const { assignTask, unassignTask, assignTaskLoading, unAssignTaskLoading } = useTeamMemberCard(member);
+	const { assignTask, unassignTask, assignTaskLoading, unAssignTaskLoading } = useTeamMemberMutations(member);
 	const { taskStatuses } = useTaskStatusesQuery();
 	const { closeModal, isOpen, openModal } = useModal();
 	const authUser = useAuthenticateUser();
@@ -312,7 +312,7 @@ interface ITeamMemberOptionProps {
 }
 
 function TeamMemberOption({ isAssignee, member, task }: ITeamMemberOptionProps): React.ReactElement {
-	const { assignTask, unassignTask, assignTaskLoading, unAssignTaskLoading } = useTeamMemberCard(member);
+	const { assignTask, unassignTask, assignTaskLoading, unAssignTaskLoading } = useTeamMemberMutations(member);
 
 	const handleAssignTask = useCallback(() => {
 		if (isAssignee) {
