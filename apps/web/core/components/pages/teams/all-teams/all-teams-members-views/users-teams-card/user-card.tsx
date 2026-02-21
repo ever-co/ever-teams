@@ -6,7 +6,14 @@ import UserTeamActiveTaskInfo from './user-team-active-task';
 import UserTeamActiveTaskTimes from './user-team-active-task-times';
 import UserTeamActiveTaskEstimate from './user-team-task-estimate';
 import UserTeamActiveTaskTodayWorked from './user-team-today-worked';
-import { useTeamMemberCard, useTaskQueries, useTMCardTaskEdit } from '@/core/hooks';
+import {
+	useMemberIdentity,
+	useMemberActiveTask,
+	useTeamMemberMutations,
+	useTeamMemberRoleActions,
+	useTaskQueries,
+	useTMCardTaskEdit
+} from '@/core/hooks';
 import { useEffect, useState } from 'react';
 import { UserTeamCardMenu } from '../../../team/team-members-views/user-team-card/user-team-card-menu';
 import { EverCard } from '@/core/components/common/ever-card';
@@ -81,7 +88,12 @@ export default function UserTeamCard({
 }
 
 function UserActiveTaskMenu({ member }: { member: TOrganizationTeamEmployee }) {
-	const memberInfo = useTeamMemberCard(member);
+	// Granular hooks — "pay only for what you use"
+	const identity = useMemberIdentity(member);
+	const memberTask = useMemberActiveTask(member);
+	const mutations = useTeamMemberMutations(member);
+	const roleActions = useTeamMemberRoleActions(member);
+
 	const [activeTask, setActiveTask] = useState<TTask | null | undefined>(null);
 	const taskEdition = useTMCardTaskEdit(activeTask);
 
@@ -99,7 +111,13 @@ function UserActiveTaskMenu({ member }: { member: TOrganizationTeamEmployee }) {
 	}, []);
 	return (
 		<>
-			<UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />
+			<UserTeamCardMenu
+				identity={identity}
+				memberTask={memberTask}
+				mutations={mutations}
+				roleActions={roleActions}
+				edition={taskEdition}
+			/>
 		</>
 	);
 }

@@ -1,5 +1,5 @@
 import { secondsToTime } from '@/core/lib/helpers/index';
-import { useTaskStatistics, useTeamMemberCard } from '@/core/hooks';
+import { useTaskStatistics, useMemberIdentity } from '@/core/hooks';
 import { activeTaskStatisticsState, timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
@@ -9,7 +9,7 @@ import { TTaskStatistics } from '@/core/types/interfaces/task/task';
 
 export function BlockCardMemberTodayWorked({ member }: { member: any }) {
 	const t = useTranslations();
-	const memberInfo = useTeamMemberCard(member);
+	const { isAuthUser } = useMemberIdentity(member);
 
 	const seconds = useAtomValue(timerSecondsState);
 	const statActiveTask = useAtomValue(activeTaskStatisticsState);
@@ -29,7 +29,7 @@ export function BlockCardMemberTodayWorked({ member }: { member: any }) {
 	return (
 		<div className={clsxm('flex flex-col justify-center items-center mr-4 space-x-2 font-normal')}>
 			<span className="text-xs text-center text-gray-500 capitalize">{t('common.TOTAL_WORKED_TODAY')}</span>
-			<Text className="text-sm">{memberInfo.isAuthUser ? `${h}h : ${m}m` : `0h : 0m`}</Text>
+			<Text className="text-sm">{isAuthUser ? `${h}h : ${m}m` : `0h : 0m`}</Text>
 		</div>
 	);
 }

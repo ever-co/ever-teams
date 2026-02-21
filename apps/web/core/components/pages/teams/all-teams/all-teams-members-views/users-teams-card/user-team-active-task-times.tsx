@@ -1,5 +1,5 @@
 import { cn } from '@/core/lib/helpers';
-import { useTeamMemberCard, useTaskQueries } from '@/core/hooks';
+import { useMemberIdentity, useTaskQueries } from '@/core/hooks';
 import { TaskTimes } from '@/core/components/tasks/task-times';
 import { useEffect, useState } from 'react';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
@@ -12,7 +12,7 @@ export default function UserTeamActiveTaskTimes({
 	member: TOrganizationTeamEmployee;
 	className?: string;
 }) {
-	const memberInfo = useTeamMemberCard(member);
+	const memberInfo = useMemberIdentity(member);
 
 	const { getTaskById } = useTaskQueries();
 
