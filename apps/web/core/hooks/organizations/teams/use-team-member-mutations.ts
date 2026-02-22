@@ -31,7 +31,7 @@ export function useTeamMemberMutations(member: TOrganizationTeamEmployee | undef
 	const [assignTaskLoading, setAssignTaskLoading] = useState(false);
 	const [unAssignTaskLoading, setUnAssignTaskLoading] = useState(false);
 
-	const isAuthUser = member?.employee?.userId === authUser?.id;
+	const isAuthUser = !!member?.employee?.userId && member.employee.userId === authUser?.id;
 	const memberUser = member?.employee?.user;
 
 	/**
@@ -58,12 +58,15 @@ export function useTeamMemberMutations(member: TOrganizationTeamEmployee | undef
 			return updateTask({
 				...task,
 				members: [...(task.members || []), (member ? member : {}) as any]
-			}).then(() => {
-				if (isAuthUser && !activeTeamTask) {
-					setActiveTask(task);
-				}
-				setAssignTaskLoading(false);
-			});
+			})
+				.then(() => {
+					if (isAuthUser && !activeTeamTask) {
+						setActiveTask(task);
+					}
+				})
+				.finally(() => {
+					setAssignTaskLoading(false);
+				});
 		},
 		[updateTask, member, isAuthUser, setActiveTask, activeTeamTask]
 	);
@@ -82,10 +85,15 @@ export function useTeamMemberMutations(member: TOrganizationTeamEmployee | undef
 			return updateTask({
 				...task,
 				members: task.members?.filter((m) => m.id !== member.employeeId)
-			}).finally(() => {
-				isAuthUser && unassignAuthActiveTask();
-				setUnAssignTaskLoading(false);
-			});
+			})
+				.then(() => {
+					if (isAuthUser) {
+						unassignAuthActiveTask();
+					}
+				})
+				.finally(() => {
+					setUnAssignTaskLoading(false);
+				});
 		},
 		[updateTask, member, isAuthUser, unassignAuthActiveTask]
 	);

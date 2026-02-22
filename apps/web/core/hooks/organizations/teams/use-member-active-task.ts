@@ -32,7 +32,7 @@ export function useMemberActiveTask(member: TOrganizationTeamEmployee | undefine
 	const allTaskStatistics = useAtomValue(allTaskStatisticsState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
-	const isAuthUser = member?.employee?.userId === authUser?.id;
+	const isAuthUser = !!member?.employee?.userId && member.employee.userId === authUser?.id;
 
 	const memberTask = useMemo(() => {
 		if (!member) {
@@ -73,7 +73,9 @@ export function useMemberActiveTask(member: TOrganizationTeamEmployee | undefine
 		// Support for public teams: if publicTeam is true, allow any task to be displayed
 		// Public teams are read-only and accessible without authentication via /team/[teamId]/[profileLink]
 		if (taskId || publicTeam) {
-			cTask = tasks.find((t) => t.id === taskId || publicTeam);
+			cTask = taskId
+				? tasks.find((t) => t.id === taskId)
+				: tasks[0]; // publicTeam without taskId: show first available task
 			find = publicTeam ? cTask : cTask?.members?.some((m) => m.id === member.employee?.id);
 		}
 

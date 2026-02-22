@@ -21,7 +21,7 @@ export function useMemberIdentity(member: TOrganizationTeamEmployee | undefined)
 	const activeTeam = useAtomValue(activeTeamState);
 
 	const memberUser: TUser | undefined = member?.employee?.user;
-	const isAuthUser = member?.employee?.userId === authUser?.id;
+	const isAuthUser = !!member?.employee?.userId && member.employee.userId === authUser?.id;
 
 	const { isTeamManager, isTeamCreator } = useIsMemberManager(memberUser);
 

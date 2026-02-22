@@ -42,8 +42,8 @@ export function useTeamMemberRoleActions(member: TOrganizationTeamEmployee | und
 		for (const m of team.members || []) {
 			if (m.employee?.id && m.role?.name === ERoleName.MANAGER) {
 				managerIdSet.add(m.employee.id);
-			} else {
-				memberIdSet.add(m.employee?.id);
+			} else if (m.employee?.id) {
+				memberIdSet.add(m.employee.id);
 			}
 		}
 
@@ -70,8 +70,8 @@ export function useTeamMemberRoleActions(member: TOrganizationTeamEmployee | und
 		for (const m of team.members || []) {
 			if (m.employee?.id && m.employee.id !== employeeId && m.role?.name === ERoleName.MANAGER) {
 				managerIdSet.add(m.employee.id);
-			} else {
-				memberIdSet.add(m.employee?.id);
+			} else if (m.employee?.id) {
+				memberIdSet.add(m.employee.id);
 			}
 		}
 
@@ -102,7 +102,7 @@ export function useTeamMemberRoleActions(member: TOrganizationTeamEmployee | und
 			}
 		}
 
-		deleteEmployeeFromTasks(employeeId);
+		deleteEmployeeFromTasks(employeeId).catch(console.error);
 		updateOrganizationTeam(team, {
 			memberIds: Array.from(memberIdSet),
 			managerIds: Array.from(managerIdSet)

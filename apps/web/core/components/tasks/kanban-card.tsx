@@ -156,7 +156,7 @@ export default function Item(props: ItemProps) {
 		}) || [];
 
 	const progress = getEstimation(null, item, totalWorkedTasksTimer || 1, item.estimate || 0);
-	const currentMember = activeTeam?.members?.find((member) => member.id === currentUser?.id || item?.id);
+	const currentMember = activeTeam?.members?.find((member) => member.id === currentUser?.id);
 
 	const {
 		hours: h,

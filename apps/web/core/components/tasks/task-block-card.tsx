@@ -50,7 +50,7 @@ export default function TaskBlockCard(props: TaskItemProps) {
 
 	const progress = getEstimation(null, task, totalWorkedTasksTimer || 1, task.estimate || 0);
 
-	const currentMember = activeTeam?.members?.find((member) => member.id === currentUser?.id || task?.id);
+	const currentMember = activeTeam?.members?.find((member) => member.id === currentUser?.id);
 
 	const {
 		hours: h,
