@@ -1,4 +1,4 @@
-import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@/core/hooks';
+import { I_TMCardTaskEditHook } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -10,20 +10,18 @@ import { IClassName } from '@/core/types/interfaces/common/class-name';
 
 type Props = IClassName & {
 	edition: I_TMCardTaskEditHook;
-	memberInfo: I_TeamMemberCardHook;
 	publicTeam?: boolean;
 	tab?: 'default' | 'unassign' | 'dailyplan';
 	dayPlanTab?: FilterTabs;
 };
 
-export function TaskInfo({ className, memberInfo, edition, publicTeam, tab, dayPlanTab }: Props) {
+export function TaskInfo({ className, edition, publicTeam, tab, dayPlanTab }: Props) {
 	return (
 		<div className={clsxm('h-full flex flex-col items-start justify-between gap-[1.0625rem]', className)}>
 			{/* task */}
 			<div className={clsxm('w-full h-10', edition.editMode ? [''] : ['overflow-hidden'])}>
 				{edition.task && (
 					<TaskDetailAndEdition
-						memberInfo={memberInfo}
 						edition={edition}
 						publicTeam={publicTeam}
 						tab={tab}
@@ -41,7 +39,7 @@ export function TaskInfo({ className, memberInfo, edition, publicTeam, tab, dayP
 	);
 }
 
-export function TaskBlockInfo({ className, memberInfo, edition, publicTeam, tab, dayPlanTab }: Props) {
+export function TaskBlockInfo({ className, edition, publicTeam, tab, dayPlanTab }: Props) {
 	const t = useTranslations();
 	return (
 		<div className={clsxm('h-full flex flex-col items-start justify-between gap-[1.0625rem]', className)}>
@@ -49,7 +47,6 @@ export function TaskBlockInfo({ className, memberInfo, edition, publicTeam, tab,
 			<div className={clsxm('w-full h-12', edition.editMode ? [''] : ['overflow-hidden'])}>
 				{edition.task && (
 					<TaskDetailAndEdition
-						memberInfo={memberInfo}
 						edition={edition}
 						publicTeam={publicTeam}
 						tab={tab}

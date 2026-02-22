@@ -1,4 +1,4 @@
-import { I_TeamMemberCardHook, useTaskStatistics } from '@/core/hooks';
+import { useTaskStatistics } from '@/core/hooks';
 import { Nullable } from '@/core/types/generics/utils';
 import { activeTeamState, timerSecondsState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
@@ -13,13 +13,11 @@ export function TaskProgressBar({
 	activeAuthTask,
 	showPercents,
 	radial
-}: // memberInfo,
-{
+}: {
 	isAuthUser: boolean | undefined;
 	task: Nullable<TTask>;
 	activeAuthTask: boolean;
 	showPercents?: boolean;
-	memberInfo?: I_TeamMemberCardHook;
 	radial?: boolean;
 }) {
 	const seconds = useAtomValue(timerSecondsState);

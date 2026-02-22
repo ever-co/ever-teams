@@ -2,7 +2,14 @@ import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/re
 import { useTranslations } from 'next-intl';
 import { ConfirmationModal } from './confirmation-modal';
 import { ThreeCircleOutlineHorizontalIcon } from 'assets/svg';
-import { useEmployeeUpdate, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks/organizations';
+import {
+	useEmployeeUpdate,
+	useMemberIdentity,
+	useMemberActiveTask,
+	useTeamMemberMutations,
+	useTeamMemberRoleActions,
+	useTMCardTaskEdit
+} from '@/core/hooks/organizations';
 import { useModal } from '@/core/hooks/common';
 import { useDropdownAction } from '../pages/teams/team/team-members-views/user-team-card/user-team-card-menu';
 import { ERoleName } from '@/core/types/generics/enums/role';
@@ -27,17 +34,25 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 	const { data: user } = useUserQuery();
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 
-	const memberInfo = useTeamMemberCard(member);
-	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
+	// Granular hooks — "pay only for what you use"
+	const identity = useMemberIdentity(member);
+	const memberTask = useMemberActiveTask(member);
+	const mutations = useTeamMemberMutations(member);
+	const roleActions = useTeamMemberRoleActions(member);
+
+	const taskEdition = useTMCardTaskEdit(memberTask);
 	const { onRemoveMember } = useDropdownAction({
 		edition: taskEdition,
-		memberInfo
+		identity,
+		memberTask,
+		mutations,
+		roleActions
 	});
 	const { isLoading, updateEmployee } = useEmployeeUpdate();
 
 	const { isOpen, openModal, closeModal } = useModal();
 
-	const isCurrentUser = user?.employee?.id === memberInfo.member?.employeeId;
+	const isCurrentUser = user?.employee?.id === identity.member?.employeeId;
 	const isManager = activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id);
 	// const handleClick = () => {
 	// 	setIsOpen(!isOpen);

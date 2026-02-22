@@ -1,5 +1,5 @@
 import { cn } from '@/core/lib/helpers';
-import { useTeamMemberCard, useTaskQueries, useTMCardTaskEdit } from '@/core/hooks';
+import { useTaskQueries, useTMCardTaskEdit } from '@/core/hooks';
 import { useEffect, useState } from 'react';
 import { TaskInfo } from '../../../team/team-members-views/user-team-card/task-info';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
@@ -9,7 +9,6 @@ export default function UserTeamActiveTaskInfo({
 	member,
 	className
 }: Readonly<{ member: TOrganizationTeamEmployee; className?: string }>) {
-	const memberInfo = useTeamMemberCard(member);
 	const [activeTask, setActiveTask] = useState<TTask | null | undefined>(null);
 	const taskEdition = useTMCardTaskEdit(activeTask);
 
@@ -30,7 +29,6 @@ export default function UserTeamActiveTaskInfo({
 			{activeTask?.id ? (
 				<TaskInfo
 					edition={{ ...taskEdition, task: activeTask }}
-					memberInfo={memberInfo}
 					className={cn('overflow-y-hidden flex-1 px-2 w-full lg:px-4 max-w-fit', className)}
 					publicTeam={false}
 					tab="default"
