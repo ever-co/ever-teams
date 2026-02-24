@@ -226,7 +226,7 @@ const TaskList = memo(
 
 		// Virtualizer with options
 		const virtualiser = useWindowVirtualizer({
-			count: items?.length ?? 0,
+			count: items.length,
 			estimateSize: () => 112 + LIST_GAP,
 			overscan: 4,
 			scrollMargin,
@@ -265,7 +265,7 @@ const TaskList = memo(
 			tabFiltered.tab === 'worked' &&
 			(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && profile.activeUserTeamTask));
 
-		if (items.length === 0) {
+		if (!items || items.length === 0) {
 			// Only show EmptyPlans for task-related tabs, not for dailyplan or stats
 			if (tabFiltered.tab === 'stats' || tabFiltered.tab === 'dailyplan') {
 				return null;
@@ -284,7 +284,7 @@ const TaskList = memo(
 		if (!enableVirtualization) {
 			return (
 				<ul className="flex flex-col gap-4">
-					{items?.map((task) => {
+					{items.map((task) => {
 						return (
 							<li key={task.id}>
 								<LazyTaskCard
