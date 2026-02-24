@@ -29,7 +29,7 @@ type Props = {
  * @returns A component that displays a user's profile page.
  */
 export const UserProfileTask = memo(
-	({ profile, paginateTasks, tabFiltered, useVirtualization = false, user, employeeId }: Props) => {
+	({ profile, tabFiltered, useVirtualization = false, user, employeeId }: Props) => {
 		const t = useTranslations();
 		// Get current timer seconds
 		const { time, timerStatus } = useLiveTimerStatus();
@@ -86,12 +86,12 @@ export const UserProfileTask = memo(
 		]);
 
 		return (
-			<div className="flex flex-col w-full h-full mt-5">
+			<div className="flex flex-col mt-5 w-full h-full">
 				{tabFiltered.tab === 'worked' &&
 					(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && timerStatus?.running)) &&
 					otherTasks.length > 0 && (
 						/* Displaying the current time. */
-						<div className="flex items-center mb-3 gap-x-2 w-fit">
+						<div className="flex gap-x-2 items-center mb-3 w-fit">
 							<Text className="font-normal">{t('common.NOW')}</Text>
 							<Divider className="flex-1" />
 							<div className="flex items-center space-x-4">
@@ -155,25 +155,40 @@ export const UserProfileTask = memo(
 	}
 );
 /**
+ * Cache to track which tasks have already been rendered.
+ * Prevents showing skeleton for tasks that were already displayed.
+ */
+const renderedTasksCache = new Set<string>();
+
+/**
  * Deferred TaskCard — shows a skeleton on FIRST frame,
  * then swaps to the real card on the NEXT frame.
  *
  * Why? Because the virtualizer mounts new items during scroll.
  * If TaskCard is heavy (50-100ms), the user sees a freeze.
  * With this wrapper, they see a skeleton instantly → no freeze.
+ *
+ * Cache optimization: Once a task has been rendered, it won't show
+ * the skeleton again when scrolling back to it. This prevents flickering.
  */
 const DeferredTaskCard = memo((props: ComponentProps<typeof LazyTaskCard>) => {
-	const [isReady, setIsReady] = useState(false);
+	const taskId = props.task?.id;
+	const wasRendered = taskId ? renderedTasksCache.has(taskId) : false;
+	const [isReady, setIsReady] = useState(wasRendered);
 
 	useEffect(() => {
+		// Skip animation frame if task was already rendered or task is null
+		if (wasRendered || !taskId) return;
+
 		// Schedule the real render for the NEXT animation frame
 		//    This lets the browser paint the placeholder FIRST
 		const frameId = requestAnimationFrame(() => {
 			setIsReady(true);
+			renderedTasksCache.add(taskId);
 		});
 
 		return () => cancelAnimationFrame(frameId);
-	}, []);
+	}, [taskId, wasRendered]);
 
 	if (!isReady) {
 		return (
