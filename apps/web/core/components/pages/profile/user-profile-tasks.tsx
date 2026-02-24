@@ -224,9 +224,9 @@ const TaskList = memo(
 
 		const isAuthUser = useMemo(() => profile.isAuthUser, [profile.isAuthUser]);
 
-		// Virtualizer with options
+		// Virtualizer with options - use 0 if items is null
 		const virtualiser = useWindowVirtualizer({
-			count: items.length,
+			count: items?.length ?? 0,
 			estimateSize: () => 112 + LIST_GAP,
 			overscan: 4,
 			scrollMargin,
@@ -260,7 +260,7 @@ const TaskList = memo(
 			[]
 		);
 
-		// Logical inconsistency - Don't show EmptyPlans if there's an active task being displayed
+		// Early return if items is null/undefined or empty
 		const hasActiveTask =
 			tabFiltered.tab === 'worked' &&
 			(profile.member?.employee?.isTrackingTime || (profile.isAuthUser && profile.activeUserTeamTask));
