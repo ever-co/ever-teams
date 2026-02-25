@@ -62,6 +62,7 @@ import {
 import { CaretDownIcon, CaretUpIcon } from '@radix-ui/react-icons';
 import { ETimeFrequency } from '@/core/types/generics/enums/date';
 import moment from 'moment';
+import { updateTimeLogMutation } from '@/core/hooks/timesheet/use-update-time-log';
 
 export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; user?: TUser | null }) {
 	const accordionRef = React.useRef(null);
@@ -328,7 +329,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 																	}
 																/>
 																<TaskActionMenu
-																	dataTimesheet={task}
+																	timeLog={task}
 																	isManage={isManage}
 																	user={user}
 																/>
@@ -402,22 +403,22 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
 }
 
 const TaskActionMenu = ({
-	dataTimesheet,
+	timeLog,
 	isManage,
 	user
 }: {
-	dataTimesheet: ITimeLog;
+	timeLog: ITimeLog;
 	isManage?: boolean | null;
 	user?: TUser | null;
 }) => {
 	const { isOpen: isEditTask, openModal: isOpenModalEditTask, closeModal: isCloseModalEditTask } = useModal();
 	const { isOpen: isOpenAlert, openModal: openAlertConfirmation, closeModal: closeAlertConfirmation } = useModal();
 	const { deleteTaskTimesheet, loadingDeleteTimesheet } = useDeleteTimesheet();
-	const canEdit = isManage || user?.id === dataTimesheet.employee?.user.id;
+	const canEdit = isManage || user?.id === timeLog.employee?.user.id;
 
 	const t = useTranslations();
-	const handleDeleteTask = () => {
-		deleteTaskTimesheet({ logIds: [dataTimesheet.id] })
+	const handleDeleteTimeLog = async () => {
+		await deleteTaskTimesheet({ logIds: [timeLog.id] })
 			.then(() => {
 				toast({
 					title: 'Deletion Confirmed',
@@ -443,11 +444,11 @@ const TaskActionMenu = ({
 				description={t('common.IRREVERSIBLE_ACTION_WARNING')}
 				close={closeAlertConfirmation}
 				loading={loadingDeleteTimesheet}
-				onAction={handleDeleteTask}
+				onAction={handleDeleteTimeLog}
 				open={isOpenAlert}
 				title={t('common.DELETE_CONFIRMATION')}
 			/>
-			<EditTaskModal closeModal={isCloseModalEditTask} isOpen={isEditTask} dataTimesheet={dataTimesheet} />
+			<EditTaskModal closeModal={isCloseModalEditTask} isOpen={isEditTask} dataTimesheet={timeLog} />
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<Button variant="ghost" className="w-8 h-8 p-0 text-sm sm:text-base">
@@ -462,7 +463,7 @@ const TaskActionMenu = ({
 						</DropdownMenuItem>
 					)}
 					<DropdownMenuSeparator />
-					<StatusTask timesheet={dataTimesheet} />
+					<StatusTask timeLog={timeLog} />
 					<DropdownMenuItem
 						onClick={openAlertConfirmation}
 						className="text-red-600 hover:!text-red-600 cursor-pointer"
@@ -475,25 +476,23 @@ const TaskActionMenu = ({
 	);
 };
 
-export const StatusTask = ({ timesheet }: { timesheet: ITimeLog }) => {
+export const StatusTask = ({ timeLog }: { timeLog: ITimeLog }) => {
 	const t = useTranslations();
-	const { updateTimesheetStatus, updateTimesheet } = useUpdateTimesheet();
-	const handleUpdateTimesheet = async (isBillable: boolean) => {
-		await updateTimesheet({
-			id: timesheet.timesheetId,
-			isBillable: isBillable,
-			employeeId: timesheet.employeeId,
-			logType: timesheet.logType,
-			source: timesheet.source,
-			stoppedAt: timesheet.stoppedAt,
-			startedAt: timesheet.startedAt,
-			tenantId: timesheet.tenantId,
-			organizationId: timesheet.organizationId,
-			description: timesheet.description,
-			projectId: timesheet.projectId,
-			reason: timesheet.reason
-		});
-	};
+
+	const { mutateAsync: updateTimelog } = updateTimeLogMutation();
+	const updateTimelogBillableStatus = React.useCallback(
+		async (isBillable: boolean) => {
+			await updateTimelog({
+				timeLogId: timeLog.id,
+				startedAt: timeLog.startedAt,
+				stoppedAt: timeLog.stoppedAt,
+				isBillable
+			});
+		},
+		[updateTimelog, timeLog.id, timeLog.startedAt, timeLog.stoppedAt]
+	);
+
+	const { updateTimesheetStatus } = useUpdateTimesheet();
 
 	return (
 		<>
@@ -509,7 +508,7 @@ export const StatusTask = ({ timesheet }: { timesheet: ITimeLog }) => {
 									try {
 										await updateTimesheetStatus({
 											status: status.label as ETimesheetStatus,
-											ids: [timesheet.timesheet?.id ?? '']
+											ids: [timeLog.timesheet?.id ?? '']
 										});
 									} catch (error) {
 										console.error('Failed to update timesheet status:');
@@ -536,7 +535,7 @@ export const StatusTask = ({ timesheet }: { timesheet: ITimeLog }) => {
 					<DropdownMenuSubContent>
 						<DropdownMenuItem
 							onClick={async () => {
-								await handleUpdateTimesheet(true);
+								await updateTimelogBillableStatus(true);
 							}}
 							textValue={'Yes'}
 							className="cursor-pointer"
@@ -547,7 +546,7 @@ export const StatusTask = ({ timesheet }: { timesheet: ITimeLog }) => {
 						</DropdownMenuItem>
 						<DropdownMenuItem
 							onClick={async () => {
-								await handleUpdateTimesheet(false);
+								await updateTimelogBillableStatus(false);
 							}}
 							textValue={'No'}
 							className="cursor-pointer"
