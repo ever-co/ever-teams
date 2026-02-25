@@ -423,16 +423,15 @@ const TaskActionMenu = ({
 			.then(() => {
 				toast({
 					title: 'Deletion Confirmed',
-					description: 'The timesheet has been successfully deleted.',
+					description: 'The time-log has been successfully deleted.',
 					variant: 'default',
-					className: 'bg-red-50 text-red-600 border-red-500',
-					action: <ToastAction altText="Restore timesheet">Undo</ToastAction>
+					className: 'bg-red-50 text-red-600 border-red-500'
 				});
 			})
 			.catch((error) => {
 				toast({
 					title: 'Error during deletion',
-					description: `An error occurred: ${error}.The timesheet could not be deleted.`,
+					description: `An error occurred: ${error}.The time-log could not be deleted.`,
 					variant: 'destructive',
 					className: 'bg-red-50 text-red-600 border-red-500'
 				});
