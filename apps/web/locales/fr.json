@@ -756,7 +756,6 @@
 		"settings": {
 			"BREADCRUMB": "[\"Tableau de bord\", \"Paramètres\"]",
 			"DANDER_ZONE": "Zone de danger",
-			"working_hours": "Heures de travail",
 			"HEADING_DESCRIPTION": "Paramétrez et gérez votre tableau de bord personnel ici",
 			"ARE_YOU_SURE_TO_DELETE_USER": "Êtes-vous sûr de vouloir supprimer cet utilisateur ?"
 		},

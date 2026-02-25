@@ -46,8 +46,8 @@
 		"NEUTRAL": "Neutral",
 		"UNPRODUCTIVE": "Unproductive",
 		"ACTIVITIES": "activities",
-		"MEMBERS": "members",
-		"NO_PROJECT": "No project",
+		"MEMBERS": "Members",
+		"NO_PROJECT": "No Project",
 		"DURATION": "Duration",
 		"PROGRESS": "Progress",
 		"EMPLOYEE": "Employee",
@@ -753,7 +753,6 @@
 		"settings": {
 			"BREADCRUMB": "[\"Dashboard\", \"Settings\"]",
 			"DANDER_ZONE": "Danger Zone",
-			"working_hours": "Working hours",
 			"HEADING_DESCRIPTION": "Setting dan manage your dashboard here",
 			"ARE_YOU_SURE_TO_DELETE_USER": "Are you sure you want to delete this user?"
 		},

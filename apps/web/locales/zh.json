@@ -752,7 +752,6 @@
 		"settings": {
 			"BREADCRUMB": "[\"仪表板\", \"设置\"]",
 			"DANDER_ZONE": "危险区域",
-			"working_hours": "工作时间",
 			"HEADING_DESCRIPTION": "在此设置和管理您的个人仪表板",
 			"ARE_YOU_SURE_TO_DELETE_USER": "您确定要删除此用户吗?"
 		},

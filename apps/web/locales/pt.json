@@ -753,7 +753,6 @@
 		"settings": {
 			"BREADCRUMB": "[\"Painel de Controle\", \"Configurações\"]",
 			"DANDER_ZONE": "Zona de Perigo",
-			"working_hours": "Horário de trabalho",
 			"HEADING_DESCRIPTION": "Configurar e gerenciar seu painel pessoal aqui",
 			"ARE_YOU_SURE_TO_DELETE_USER": "Tem certeza de que deseja excluir este usuário?"
 		},

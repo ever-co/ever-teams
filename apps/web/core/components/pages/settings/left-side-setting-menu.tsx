@@ -79,8 +79,7 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 			>
 				<div>
 					<SidebarAccordian
-						key={`personal-${openSection}`}
-						defaultOpen={openSection === 'personal'}
+						open={openSection === 'personal'}
 						onHeaderClick={() => setOpenSection('personal')}
 						title={
 							<>
@@ -105,6 +104,7 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
                 `}
 					>
 						<div className="flex flex-col">
+							{/* TODO: filter by managerOnly when role-based sidebar is implemented */}
 							{PersonalAccordianData.map((ad, index) => {
 								const isActive = '#' + activePersonalMenu === ad.href;
 								return (
@@ -127,8 +127,7 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 					</SidebarAccordian>
 
 					<SidebarAccordian
-						key={`team-${openSection}`}
-						defaultOpen={openSection === 'team'}
+						open={openSection === 'team'}
 						onHeaderClick={() => setOpenSection('team')}
 						title={
 							<>

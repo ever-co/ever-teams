@@ -752,7 +752,6 @@
 		"settings": {
 			"BREADCRUMB": "[\"Dashboard\", \"Settings\"]",
 			"DANDER_ZONE": "Strefa Zagrożenia",
-			"working_hours": "Godziny pracy",
 			"HEADING_DESCRIPTION": "Ustawienia i zarządzanie Twoim osobistym panelem tutaj",
 			"ARE_YOU_SURE_TO_DELETE_USER": "Czy na pewno chcesz usunąć tego użytkownika?"
 		},
