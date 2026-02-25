@@ -40,6 +40,7 @@ import { TUser } from '@/core/types/schemas';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { toast } from '@/core/hooks/common/use-toast';
+import { toast as sonnerToast } from 'sonner';
 import { ToastAction } from '@/core/components/common/toast';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { Button } from '@/core/components/common/button';
@@ -493,6 +494,22 @@ export const StatusTask = ({ timeLog }: { timeLog: ITimeLog }) => {
 	);
 
 	const { updateTimesheetStatus } = useUpdateTimesheet();
+	const handleStatusChange = async (status: ETimesheetStatus, ids: string[]) => {
+		await updateTimesheetStatus({
+			status,
+			ids
+		})
+			.then(() => {
+				sonnerToast.success('Modification Confirmed', {
+					description: 'The status of timesheet has been successfully modified.'
+				});
+			})
+			.catch(() => {
+				sonnerToast.error('Error during modification', {
+					description: 'Failed to modify timesheet status. Please try again.'
+				});
+			});
+	};
 
 	const { myPermissions } = useMyRolePermissionsQuery();
 	const canUpdateTimeSheetStatus = React.useMemo(
@@ -510,16 +527,11 @@ export const StatusTask = ({ timeLog }: { timeLog: ITimeLog }) => {
 						<DropdownMenuSubContent>
 							{statusTable?.map((status, index) => (
 								<DropdownMenuItem
-									onClick={async () => {
-										try {
-											await updateTimesheetStatus({
-												status: status.label as ETimesheetStatus,
-												ids: [timeLog.timesheet?.id ?? '']
-											});
-										} catch (error) {
-											console.error('Failed to update timesheet status:');
-										}
-									}}
+									onClick={() =>
+										handleStatusChange(status.label as ETimesheetStatus, [
+											timeLog.timesheet?.id ?? ''
+										])
+									}
 									key={index}
 									textValue={status.label}
 									className="cursor-pointer"

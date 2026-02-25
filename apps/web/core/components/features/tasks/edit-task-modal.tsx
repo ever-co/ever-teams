@@ -146,8 +146,7 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 			updateTimeLog(updatePayload)
 				.then(() => {
 					toast.success('Modification Confirmed', {
-						description: 'The time log has been successfully modified.',
-						action: <ToastAction altText="Undo changes">Undo</ToastAction>
+						description: 'The time log has been successfully modified.'
 					});
 					closeModal();
 				})
