@@ -9,7 +9,7 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { SelectContent } from '@/core/components/common/select';
 import { ConfirmStatusChange, statusOptions } from '../../integration/calendar';
-import { useModal, useTimelogFilterOptions } from '@/core/hooks';
+import { useModal, useMyRolePermissionsQuery, useTimelogFilterOptions } from '@/core/hooks';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { clsxm } from '@/core/lib/utils';
 import { AlertConfirmationModal, statusColor } from '@/core/components';
@@ -62,7 +62,7 @@ import {
 import { CaretDownIcon, CaretUpIcon } from '@radix-ui/react-icons';
 import { ETimeFrequency } from '@/core/types/generics/enums/date';
 import moment from 'moment';
-import { updateTimeLogMutation } from '@/core/hooks/timesheet/use-update-time-log';
+import { useUpdateTimeLogMutation } from '@/core/hooks/timesheet/use-update-time-log';
 
 export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; user?: TUser | null }) {
 	const accordionRef = React.useRef(null);
@@ -448,7 +448,7 @@ const TaskActionMenu = ({
 				open={isOpenAlert}
 				title={t('common.DELETE_CONFIRMATION')}
 			/>
-			<EditTaskModal closeModal={isCloseModalEditTask} isOpen={isEditTask} dataTimesheet={timeLog} />
+			<EditTaskModal closeModal={isCloseModalEditTask} isOpen={isEditTask} timeLogData={timeLog} />
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<Button variant="ghost" className="w-8 h-8 p-0 text-sm sm:text-base">
@@ -479,7 +479,7 @@ const TaskActionMenu = ({
 export const StatusTask = ({ timeLog }: { timeLog: ITimeLog }) => {
 	const t = useTranslations();
 
-	const { mutateAsync: updateTimelog } = updateTimeLogMutation();
+	const { mutateAsync: updateTimelog } = useUpdateTimeLogMutation();
 	const updateTimelogBillableStatus = React.useCallback(
 		async (isBillable: boolean) => {
 			await updateTimelog({
@@ -494,39 +494,48 @@ export const StatusTask = ({ timeLog }: { timeLog: ITimeLog }) => {
 
 	const { updateTimesheetStatus } = useUpdateTimesheet();
 
+	const { myPermissions } = useMyRolePermissionsQuery();
+	const canUpdateTimeSheetStatus = React.useMemo(
+		() => (myPermissions ?? []).includes('CAN_APPROVE_TIMESHEET'),
+		[myPermissions]
+	);
 	return (
 		<>
-			<DropdownMenuSub>
-				<DropdownMenuSubTrigger>
-					<span>{t('common.CHANGE_STATUS')}</span>
-				</DropdownMenuSubTrigger>
-				<DropdownMenuPortal>
-					<DropdownMenuSubContent>
-						{statusTable?.map((status, index) => (
-							<DropdownMenuItem
-								onClick={async () => {
-									try {
-										await updateTimesheetStatus({
-											status: status.label as ETimesheetStatus,
-											ids: [timeLog.timesheet?.id ?? '']
-										});
-									} catch (error) {
-										console.error('Failed to update timesheet status:');
-									}
-								}}
-								key={index}
-								textValue={status.label}
-								className="cursor-pointer"
-							>
-								<div className="flex items-center gap-3">
-									<div className={clsxm('h-2 w-2 rounded-full', statusColor(status.label).bg)}></div>
-									<span>{status.label}</span>
-								</div>
-							</DropdownMenuItem>
-						))}
-					</DropdownMenuSubContent>
-				</DropdownMenuPortal>
-			</DropdownMenuSub>
+			{canUpdateTimeSheetStatus ? (
+				<DropdownMenuSub>
+					<DropdownMenuSubTrigger>
+						<span>{t('common.CHANGE_STATUS')}</span>
+					</DropdownMenuSubTrigger>
+					<DropdownMenuPortal>
+						<DropdownMenuSubContent>
+							{statusTable?.map((status, index) => (
+								<DropdownMenuItem
+									onClick={async () => {
+										try {
+											await updateTimesheetStatus({
+												status: status.label as ETimesheetStatus,
+												ids: [timeLog.timesheet?.id ?? '']
+											});
+										} catch (error) {
+											console.error('Failed to update timesheet status:');
+										}
+									}}
+									key={index}
+									textValue={status.label}
+									className="cursor-pointer"
+								>
+									<div className="flex items-center gap-3">
+										<div
+											className={clsxm('h-2 w-2 rounded-full', statusColor(status.label).bg)}
+										></div>
+										<span>{status.label}</span>
+									</div>
+								</DropdownMenuItem>
+							))}
+						</DropdownMenuSubContent>
+					</DropdownMenuPortal>
+				</DropdownMenuSub>
+			) : null}
 			<DropdownMenuSub>
 				<DropdownMenuSubTrigger>
 					<span>{t('pages.timesheet.BILLABLE.BILLABLE')}</span>

@@ -3,7 +3,7 @@ import { ITimeLogUpdatePayload } from '@/core/types/interfaces/timesheet/time-lo
 import { useMutation } from '@tanstack/react-query';
 import { useTimesheetInvalidation } from './use-timesheet-invalidation';
 
-export const updateTimeLogMutation = () => {
+export const useUpdateTimeLogMutation = () => {
 	const { invalidateTimesheetData } = useTimesheetInvalidation();
 
 	const mutation = useMutation({

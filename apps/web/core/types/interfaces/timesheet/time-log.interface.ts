@@ -3,5 +3,7 @@ export interface ITimeLogUpdatePayload {
 	startedAt?: Date;
 	stoppedAt?: Date;
 	employeeId?: string;
+	projectId?: string;
+	description?: string;
 	isBillable?: boolean;
 }
