@@ -7,8 +7,6 @@ import { Item, ManageOrMemberComponent, getNestedValue } from '@/core/components
 import { statusTable } from '../../timesheet/timesheet-action';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { differenceBetweenHours, formatTimeFromDate, secondsToTime, toDate } from '@/core/lib/helpers/index';
-import { useUpdateTimesheet } from '@/core/hooks/timesheet/use-update-timesheet';
-import { ToastAction } from '@/core/components/common/toast';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { addMinutes, format, parseISO } from 'date-fns';
 import { Clock7 } from 'lucide-react';
@@ -32,8 +30,7 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const t = useTranslations();
-	const { updateTimesheet, loadingUpdateTimesheet } = useUpdateTimesheet();
-	const { mutateAsync: updateTimeLog } = useUpdateTimeLogMutation();
+	const { mutateAsync: updateTimeLog, isPending: isUpdateTimeLogLoading } = useUpdateTimeLogMutation();
 	const initialTimeRange = {
 		startTime: formatTimeFromDate(timeLogData.startedAt),
 		endTime: formatTimeFromDate(timeLogData.stoppedAt)
@@ -171,7 +168,6 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 			timesheetData.employeeId,
 			timesheetData.notes,
 			timesheetData.projectId,
-			updateTimesheet,
 			closeModal
 		]
 	);
@@ -387,14 +383,14 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 								{t('common.CANCEL')}
 							</button>
 							<button
-								disabled={loadingUpdateTimesheet}
+								disabled={isUpdateTimeLogLoading}
 								type="submit"
 								className={clsxm(
 									'bg-primary dark:bg-primary-light h-[2.3rem] w-[5.5rem] justify-center font-normal flex items-center text-white px-2 rounded-lg'
 								)}
 							>
-								{loadingUpdateTimesheet && <ReloadIcon className="mr-2 w-4 h-4 animate-spin" />}
-								{loadingUpdateTimesheet ? 'Processing...' : t('common.SAVE')}
+								{isUpdateTimeLogLoading && <ReloadIcon className="mr-2 w-4 h-4 animate-spin" />}
+								{isUpdateTimeLogLoading ? 'Processing...' : t('common.SAVE')}
 							</button>
 						</div>
 					</div>

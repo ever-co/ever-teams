@@ -39,9 +39,7 @@ import {
 import { TUser } from '@/core/types/schemas';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
-import { toast } from '@/core/hooks/common/use-toast';
 import { toast as sonnerToast } from 'sonner';
-import { ToastAction } from '@/core/components/common/toast';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { Button } from '@/core/components/common/button';
 import { Checkbox } from '@/core/components/common/checkbox';
@@ -421,19 +419,13 @@ const TaskActionMenu = ({
 	const handleDeleteTimeLog = async () => {
 		await deleteTaskTimesheet({ logIds: [timeLog.id] })
 			.then(() => {
-				toast({
-					title: 'Deletion Confirmed',
-					description: 'The time-log has been successfully deleted.',
-					variant: 'default',
-					className: 'bg-red-50 text-red-600 border-red-500'
+				sonnerToast.info('Deletion Confirmed', {
+					description: 'The time-log has been successfully deleted.'
 				});
 			})
 			.catch((error) => {
-				toast({
-					title: 'Error during deletion',
-					description: `An error occurred: ${error}.The time-log could not be deleted.`,
-					variant: 'destructive',
-					className: 'bg-red-50 text-red-600 border-red-500'
+				sonnerToast.error('Error during deletion', {
+					description: `An error occurred: ${error}.The time-log could not be deleted.`
 				});
 			});
 	};
@@ -487,7 +479,17 @@ export const StatusTask = ({ timeLog }: { timeLog: ITimeLog }) => {
 				startedAt: timeLog.startedAt,
 				stoppedAt: timeLog.stoppedAt,
 				isBillable
-			});
+			})
+				.then(() => {
+					sonnerToast.success('Modification Confirmed', {
+						description: 'The billable state has been successfully modified.'
+					});
+				})
+				.catch(() => {
+					sonnerToast.error('Error during modification', {
+						description: 'Failed to modify billable state. Please try again.'
+					});
+				});
 		},
 		[updateTimelog, timeLog.id, timeLog.startedAt, timeLog.stoppedAt]
 	);
@@ -527,9 +529,7 @@ export const StatusTask = ({ timeLog }: { timeLog: ITimeLog }) => {
 							{statusTable?.map((status, index) => (
 								<DropdownMenuItem
 									onClick={() =>
-										handleStatusChange(status.label as ETimesheetStatus, [
-											timeLog.timesheet?.id ?? ''
-										])
+										handleStatusChange(status.label as ETimesheetStatus, [timeLog.timesheetId!])
 									}
 									key={index}
 									textValue={status.label}

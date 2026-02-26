@@ -248,7 +248,7 @@ class TimeLogService extends APIService {
 		const { timeLogId, ...data } = payload;
 
 		try {
-			return this.put<ITimeLog>(
+			return await this.put<ITimeLog>(
 				`/timesheet/time-log/${timeLogId}`,
 				{ ...data, organizationId: this.organizationId },
 				{ tenantId: this.tenantId }
