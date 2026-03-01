@@ -33,7 +33,7 @@ jobs:
 
       - name: Install Packages
         run: |
-          yarn install --frozen-lockfile
+          yarn install --network-timeout 1000000 --frozen-lockfile
 
       - name: Build Mobile
         run: |
