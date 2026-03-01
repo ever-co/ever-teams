@@ -44,7 +44,7 @@
   "dependencies": {
     "electron-debug": "^3.2.0",
     "electron-log": "^4.4.8",
-    "electron-updater": "^6.1.4",
+    "electron-updater": "^6.1.7",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-router-dom": "^6.16.0",
@@ -60,8 +60,8 @@
     "sharp": "^0.34.5"
   },
   "devDependencies": {
-    "electron": "35.7.5",
-    "electron-builder": "^26.0.12",
+    "electron": "^38.1.2",
+    "electron-builder": "26.0.3",
     "@electron/notarize": "^2.1.0",
     "@electron/rebuild": "^3.3.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.11",
@@ -179,88 +179,106 @@
   },
   "build": {
     "appId": "com.ever.everteamswebserver",
-    "artifactName": "${name}-${version}.${ext}",
+    "artifactName": "${name}-${arch}-${version}.${ext}",
     "productName": "Ever Teams Web Server",
     "copyright": "Copyright © 2024-Present. Ever Co. LTD",
+    "afterSign": ".erb/scripts/notarize.js",
+    "dmg": {
+      "sign": false,
+      "artifactName": "${name}-${arch}-${version}.${ext}"
+    },
     "asar": true,
+    "npmRebuild": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
       "dist",
       "node_modules",
       "package.json"
     ],
-    "afterSign": ".erb/scripts/notarize.js",
+    "directories": {
+      "app": "release/app",
+      "buildResources": "assets",
+      "output": "release/build"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "repo": "ever-teams-web-server",
+        "releaseType": "release"
+      },
+      {
+        "provider": "spaces",
+        "name": "ever",
+        "region": "sfo3",
+        "path": "/ever-teams-web-server",
+        "acl": "public-read"
+      }
+    ],
     "mac": {
       "category": "public.app-category.developer-tools",
-      "target": [
-        "zip",
-        "dmg"
-      ],
+      "icon": "icon.icns",
+      "target": {
+        "target": "default",
+        "arch": [
+          "x64",
+          "arm64"
+        ]
+      },
       "asarUnpack": "**/*.node",
-      "artifactName": "${name}-${version}.${ext}",
-      "type": "distribution",
+      "artifactName": "${name}-${arch}-${version}.${ext}",
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "assets/entitlements.mac.plist",
-      "entitlementsInherit": "assets/entitlements.mac.plist"
-    },
-    "dmg": {
-      "icon": "icon.icns",
-      "sign": false,
-      "contents": [
-        {
-          "x": 130,
-          "y": 220
-        },
-        {
-          "x": 410,
-          "y": 220,
-          "type": "link",
-          "path": "/Applications"
-        }
-      ]
+      "entitlementsInherit": "assets/entitlements.mac.plist",
+      "extendInfo": {
+        "NSAppleEventsUsageDescription": "This app requires access to script browser applications to detect the current URL when triggering instant lookup.",
+        "NSCameraUsageDescription": "Please allow access to the device camera to capture images and videos.",
+        "NSMicrophoneUsageDescription": "Please allow access to the device's microphone to capture audio and voice recordings.",
+        "NSScreenCaptureUsageDescription": "Please allow access to the device's screen to capture screenshots and videos."
+      }
     },
     "win": {
+      "target": "nsis",
       "icon": "icon.ico",
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
       "verifyUpdateCodeSignature": false,
       "requestedExecutionLevel": "requireAdministrator"
     },
     "linux": {
       "icon": "linux",
       "target": [
-        "AppImage",
         "deb",
-        "tar.gz"
+        "snap",
+        "tar.gz",
+        "rpm",
+        "AppImage"
       ],
       "executableName": "ever-teams-web-server",
-      "artifactName": "${name}-${version}.${ext}",
+      "artifactName": "${name}-${arch}-${version}.${ext}",
       "synopsis": "Server",
       "category": "Development"
     },
-    "directories": {
-      "app": "release/app",
-      "buildResources": "assets",
-      "output": "release/build"
+    "rpm": {
+      "fpm": [
+        "--rpm-rpmbuild-define",
+        "_build_id_links none"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "installerIcon": "icon.ico",
+      "artifactName": "${name}-${arch}-${version}.${ext}",
+      "deleteAppDataOnUninstall": true,
+      "menuCategory": true
     },
     "extraResources": [
       "./assets/**",
       "./release/app/dist/standalone/**",
       "./src/locales"
-    ],
-    "publish": [
-      {
-        "provider": "github",
-        "repo": "ever-teams",
-        "releaseType": "release"
-      }
     ]
   },
   "electronmon": {
