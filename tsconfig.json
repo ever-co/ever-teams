@@ -33,7 +33,7 @@
 		"allowSyntheticDefaultImports": true,
 		"noUnusedLocals": false,
 		"noImplicitAny": false,
-		"esModuleInterop": false
+		"esModuleInterop": true
 	},
 	"exclude": [
 		"coverage/**/*",
