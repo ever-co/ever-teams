@@ -112,9 +112,14 @@
 		"prepare:config:server-web": "cross-env NODE_ENV=production yarn config:server-web && yarn pack:server-web && yarn generate:icons:server-web",
 		"build:web-server:linux:release": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=12288 yarn build:server-web && yarn pack:server-web:linux",
 		"build:web-server:linux:release:gh": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=30000 yarn build:server-web && yarn pack:server-web:linux",
+		"build:web-server:linux:release:gh:x64": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=30000 yarn build:server-web && yarn pack:server-web:linux:x64",
+		"build:web-server:linux:release:gh:arm64": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=30000 yarn build:server-web && yarn pack:server-web:linux:arm64",
 		"build:web-server:mac:release": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=12288 yarn build:server-web && yarn pack:server-web:mac",
 		"build:web-server:windows:release": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=12288 yarn build:server-web && yarn pack:server-web:win",
-		"build:web-server:windows:release:gh": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=30000 yarn build:server-web && yarn pack:server-web:win"
+		"build:web-server:windows:release:gh": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=30000 yarn build:server-web && yarn pack:server-web:win",
+		"build:web-server:windows:release:gh:x64": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=30000 yarn build:server-web && yarn pack:server-web:win:x64",
+		"build:web-server:windows:release:gh:arm64": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=30000 yarn build:server-web && yarn pack:server-web:win:arm64",
+		"postinstall.manual": "yarn postinstall.electron"
 	},
 	"config": {
 		"commitizen": {
