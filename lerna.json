@@ -1,14 +1,11 @@
 {
-	"lerna": "3.22.1",
 	"npmClient": "yarn",
 	"version": "independent",
-	"concurrency": 8,
 	"changelog": {
 		"repo": "ever-co/ever-teams",
 		"cacheDir": ".changelog",
 		"labels": {}
 	},
-	"stream": true,
 	"useNx": true,
 	"packages": ["libs/*", "apps/web", "apps/server-web", "apps/playground", "packages/*"],
 	"command": {
