@@ -8,7 +8,14 @@
 		"cacheDir": ".changelog",
 		"labels": {}
 	},
-	"packages": ["libs/*", "apps/web", "apps/server-web", "apps/playground", "packages/*"],
 	"stream": true,
+	"useNx": true,
+	"packages": ["libs/*", "apps/web", "apps/server-web", "apps/playground", "packages/*"],
+	"command": {
+		"exec": {},
+		"clean": {
+			"yes": true
+		}
+	},
 	"npmClientArgs": ["--no-package-lock"]
 }
