@@ -69,10 +69,12 @@ jobs:
         run: 'sudo npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^22.5.2'
 
       - name: Configure Registry
-        if: secrets.VERDACCIO_TOKEN != ''
+        shell: bash
         run: |
-          echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
-          echo "registry=https://packages.ever.co/" >> .npmrc
+          if [ -n "${{ secrets.VERDACCIO_TOKEN }}" ]; then
+            echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
+            echo "registry=https://packages.ever.co/" >> .npmrc
+          fi
 
       - name: Install Yarn dependencies
         run: 'yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts'
@@ -199,10 +201,12 @@ jobs:
         run: 'sudo npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^22.5.2'
 
       - name: Configure Registry
-        if: secrets.VERDACCIO_TOKEN != ''
+        shell: bash
         run: |
-          echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
-          echo "registry=https://packages.ever.co/" >> .npmrc
+          if [ -n "${{ secrets.VERDACCIO_TOKEN }}" ]; then
+            echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
+            echo "registry=https://packages.ever.co/" >> .npmrc
+          fi
 
       - name: Install Yarn dependencies
         run: 'yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts'
@@ -316,10 +320,12 @@ jobs:
         run: 'sudo npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^22.5.2'
 
       - name: Configure Registry
-        if: secrets.VERDACCIO_TOKEN != ''
+        shell: bash
         run: |
-          echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
-          echo "registry=https://packages.ever.co/" >> .npmrc
+          if [ -n "${{ secrets.VERDACCIO_TOKEN }}" ]; then
+            echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
+            echo "registry=https://packages.ever.co/" >> .npmrc
+          fi
 
       - name: Install Yarn dependencies
         run: 'yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts'
@@ -463,10 +469,12 @@ jobs:
           "PYTHON=$py"            | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Configure Registry
-        if: secrets.VERDACCIO_TOKEN != ''
+        shell: bash
         run: |
-          echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
-          echo "registry=https://packages.ever.co/" >> .npmrc
+          if [ -n "${{ secrets.VERDACCIO_TOKEN }}" ]; then
+            echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
+            echo "registry=https://packages.ever.co/" >> .npmrc
+          fi
 
       - name: Install Yarn dependencies
         run: 'yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts'
@@ -658,10 +666,12 @@ jobs:
           "PYTHON=$py"            | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Configure Registry
-        if: secrets.VERDACCIO_TOKEN != ''
+        shell: bash
         run: |
-          echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
-          echo "registry=https://packages.ever.co/" >> .npmrc
+          if [ -n "${{ secrets.VERDACCIO_TOKEN }}" ]; then
+            echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
+            echo "registry=https://packages.ever.co/" >> .npmrc
+          fi
 
       - name: Install Yarn dependencies
         run: 'yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts'
