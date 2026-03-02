@@ -21,6 +21,9 @@ metadata:
     namespace: default
     annotations:
         nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
+        nginx.ingress.kubernetes.io/proxy-body-size: "20m"
+        nginx.ingress.kubernetes.io/client-header-buffer-size: "16k"
+        nginx.ingress.kubernetes.io/large-client-header-buffers: "4 32k"
 spec:
     ingressClassName: nginx
     rules:
@@ -78,9 +81,9 @@ spec:
                       - name: SENTRY_POSTGRES_TRACKING_ENABLED
                         value: '$SENTRY_POSTGRES_TRACKING_ENABLED'
                       - name: API_BASE_URL
-                        value: 'https://apidev.ever.team'
+                        value: '$API_BASE_URL'
                       - name: CLIENT_BASE_URL
-                        value: 'https://demo.ever.team'
+                        value: '$CLIENT_BASE_URL'
                       - name: EXPRESS_SESSION_SECRET
                         value: 'gauzy'
                       - name: JWT_SECRET

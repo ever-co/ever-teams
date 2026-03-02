@@ -1,6 +1,379 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 18px;
+  @media (width >= --theme(--breakpoint-xss)) {
+    max-width: none;
+  }
+  @media (width >= 1400px) {
+    max-width: 1400px;
+  }
+}
+
+@theme {
+  --font-sans: var(--font-geist-sans);
+
+  --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
+  --background-image-gradient-conic: conic-gradient(
+    from 180deg at 50% 50%,
+    var(--tw-gradient-stops)
+  );
+  --background-image-main-gradient: linear-gradient(
+    127deg,
+    #3826a6 9.29%,
+    #a11db1 79.28%
+  );
+  --background-image-white-gradient: linear-gradient(
+    90deg,
+    #fff 0%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0.3) 100%
+  );
+  --background-image-black-linear: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  --background-image-cover-blur: linear-gradient(
+    180deg,
+    rgba(36, 22, 49, 0) 0%,
+    #0b0710 95%
+  );
+
+  --shadow-black-default:
+    0px -5px 10px 0px rgba(233, 223, 255, 0.3),
+    0px -2px 40px 0px rgba(187, 155, 255, 0.15);
+  --shadow-cover-img:
+    0px -2px 10px 0px rgba(233, 223, 255, 0.3),
+    0px -2px 40px 0px rgba(187, 155, 255, 0.15),
+    0px 0.5px 0px 0px rgba(255, 255, 255, 0.5) inset;
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-color-1: hsl(var(--color-1));
+  --color-color-2: hsl(var(--color-2));
+  --color-color-3: hsl(var(--color-3));
+  --color-color-4: hsl(var(--color-4));
+  --color-color-5: hsl(var(--color-5));
+
+  --color-sidebar: hsl(var(--sidebar-background));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  --border-width-0: 0;
+  --border-width-2: 2px;
+  --border-width-3: 3px;
+  --border-width-4: 4px;
+  --border-width-5: 5px;
+  --border-width-6: 6px;
+  --border-width-7: 7px;
+  --border-width-8: 8px;
+  --border-width: 1px;
+  --border-width-2_5: 2.5px;
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --animate-meteor: meteor 5s linear infinite;
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-fade-in-down: fade-in-down 0.5s ease-out;
+  --animate-border-beam: border-beam calc(var(--duration) * 1s) infinite linear;
+  --animate-shimmer: shimmer 8s infinite;
+  --animate-orbit: orbit calc(var(--duration) * 1s) linear infinite;
+  --animate-gradient: gradient 8s linear infinite;
+  --animate-background-position-spin: background-position-spin 3000ms infinite
+    alternate;
+  --animate-pulse-scale: pulseScale 1.5s ease-in-out infinite alternate;
+  --animate-shimmer-slide: shimmer-slide var(--speed) ease-in-out infinite
+    alternate;
+  --animate-spin-around: spin-around calc(var(--speed) * 2) infinite linear;
+  --animate-marquee: marquee var(--duration) linear infinite;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+  --animate-grid: grid 25s linear infinite;
+
+  --breakpoint-sm: 425px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+  --breakpoint-xss: 320px;
+  --breakpoint-xs: 375px;
+
+  @keyframes fade-in-down {
+    0% {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+  @keyframes border-beam {
+    100% {
+      offset-distance: 100%;
+    }
+  }
+  @keyframes shine-pulse {
+    0% {
+      background-position: 0% 0%;
+    }
+    50% {
+      background-position: 100% 100%;
+    }
+    to {
+      background-position: 0% 0%;
+    }
+  }
+  @keyframes background-position-spin {
+    0% {
+      background-position: top center;
+    }
+    100% {
+      background-position: bottom center;
+    }
+  }
+  @keyframes shimmer {
+    0%,
+    90%,
+    100% {
+      background-position: calc(-100% - var(--shimmer-width)) 0;
+    }
+    30%,
+    60% {
+      background-position: calc(100% + var(--shimmer-width)) 0;
+    }
+  }
+  @keyframes gradient {
+    to {
+      background-position: var(--bg-size) 0;
+    }
+  }
+  @keyframes pulseScale {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.5;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 1;
+    }
+  }
+  @keyframes spin-around {
+    0% {
+      transform: translateZ(0) rotate(0);
+    }
+    15%,
+    35% {
+      transform: translateZ(0) rotate(90deg);
+    }
+    65%,
+    85% {
+      transform: translateZ(0) rotate(270deg);
+    }
+    100% {
+      transform: translateZ(0) rotate(360deg);
+    }
+  }
+  @keyframes shimmer-slide {
+    to {
+      transform: translate(calc(100cqw - 100%), 0);
+    }
+  }
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+  @keyframes marquee-vertical {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(calc(-100% - var(--gap)));
+    }
+  }
+  @keyframes grid {
+    0% {
+      transform: translateY(-50%);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+  @keyframes orbit {
+    0% {
+      transform: rotate(calc(var(--angle) * 1deg))
+        translateY(calc(var(--radius) * 1px)) rotate(calc(var(--angle) * -1deg));
+    }
+    100% {
+      transform: rotate(calc(var(--angle) * 1deg + 360deg))
+        translateY(calc(var(--radius) * 1px))
+        rotate(calc((var(--angle) * -1deg) - 360deg));
+    }
+  }
+  @keyframes aurora-border {
+    0%,
+    100% {
+      border-radius: 37% 29% 27% 27% / 28% 25% 41% 37%;
+    }
+    25% {
+      border-radius: 47% 29% 39% 49% / 61% 19% 66% 26%;
+    }
+    50% {
+      border-radius: 57% 23% 47% 72% / 63% 17% 66% 33%;
+    }
+    75% {
+      border-radius: 28% 49% 29% 100% / 93% 20% 64% 25%;
+    }
+  }
+  @keyframes aurora-1 {
+    0%,
+    100% {
+      top: 0;
+      right: 0;
+    }
+    50% {
+      top: 50%;
+      right: 25%;
+    }
+    75% {
+      top: 25%;
+      right: 50%;
+    }
+  }
+  @keyframes aurora-2 {
+    0%,
+    100% {
+      top: 0;
+      left: 0;
+    }
+    60% {
+      top: 75%;
+      left: 25%;
+    }
+    85% {
+      top: 50%;
+      left: 50%;
+    }
+  }
+  @keyframes aurora-3 {
+    0%,
+    100% {
+      bottom: 0;
+      left: 0;
+    }
+    40% {
+      bottom: 50%;
+      left: 25%;
+    }
+    65% {
+      bottom: 25%;
+      left: 50%;
+    }
+  }
+  @keyframes aurora-4 {
+    0%,
+    100% {
+      bottom: 0;
+      right: 0;
+    }
+    50% {
+      bottom: 25%;
+      right: 40%;
+    }
+    90% {
+      bottom: 50%;
+      right: 25%;
+    }
+  }
+  @keyframes meteor {
+    0% {
+      transform: rotate(215deg) translateX(0);
+      opacity: 1;
+    }
+    70% {
+      opacity: 1;
+    }
+    100% {
+      transform: rotate(215deg) translateX(-500px);
+      opacity: 0;
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
 
 @layer base {
 	:root {
@@ -71,46 +444,50 @@
 		--sidebar-ring: 217.2 91.2% 59.8%;
 	}
 }
-@media (prefers-color-scheme: dark) {
-	:root {
-		--foreground-rgb: 255, 255, 255;
-		--background-start-rgb: 0, 0, 0;
-		--background-end-rgb: 0, 0, 0;
-	}
-}
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-	font-family:
-		var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-		"Segoe UI Symbol", "Noto Color Emoji";
-}
-.item-gradient-animate {
-	background: linear-gradient(-45deg, #ee7752, #e73c7e, #ee2d30, #ecb09c);
-	background-size: 400% 400%;
-	animation: gradient 1.15s ease infinite;
-	background-clip: text;
-	color: transparent;
-}
-html,
-body {
-	overflow-x: hidden;
-	scroll-behavior: smooth;
-	font-family:
-		var(--font-geist-sans), Inter, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-		"Segoe UI Symbol", "Noto Color Emoji";
-}
-/* Remove arrows from number inputs */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-	-webkit-appearance: none;
-	margin: 0;
-}
-input[type="number"] {
-	-moz-appearance: textfield;
+@layer utilities {
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --foreground-rgb: 255, 255, 255;
+      --background-start-rgb: 0, 0, 0;
+      --background-end-rgb: 0, 0, 0;
+    }
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family:
+      var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
+      'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+      'Noto Color Emoji';
+  }
+  .item-gradient-animate {
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #ee2d30, #ecb09c);
+    background-size: 400% 400%;
+    animation: gradient 1.15s ease infinite;
+    background-clip: text;
+    color: transparent;
+  }
+  html,
+  body {
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    font-family:
+      var(--font-geist-sans), Inter, ui-sans-serif, system-ui, sans-serif,
+      'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+      'Noto Color Emoji';
+  }
+  /* Remove arrows from number inputs */
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
 }
 
 @layer base {

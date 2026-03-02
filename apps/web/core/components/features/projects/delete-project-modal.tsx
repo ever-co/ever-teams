@@ -1,7 +1,9 @@
-import { useOrganizationProjects } from '@/core/hooks';
+import { useDeleteOrganizationProject } from '@/core/hooks/organizations/projects/use-delete-organization-project';
+
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
+import { toast } from 'sonner';
 import { EverCard } from '../../common/ever-card';
 
 interface IDeleteProjectModalProps {
@@ -21,8 +23,7 @@ interface IDeleteProjectModalProps {
 export function DeleteProjectConfirmModal(props: IDeleteProjectModalProps) {
 	const t = useTranslations();
 	const { open, closeModal, projectId } = props;
-	const { deleteOrganizationProject, deleteOrganizationProjectLoading, setOrganizationProjects } =
-		useOrganizationProjects();
+	const { deleteOrganizationProject, deleteOrganizationProjectLoading } = useDeleteOrganizationProject();
 
 	const handleDelete = useCallback(async () => {
 		try {
@@ -31,12 +32,22 @@ export function DeleteProjectConfirmModal(props: IDeleteProjectModalProps) {
 			if (res) {
 				closeModal();
 
-				setOrganizationProjects((prev) => prev.filter((el) => el.id !== projectId));
+				// Show success toast
+				toast.success(t('common.DELETE_SUCCESS'), {
+					description: t('pages.projects.deleteModal.successDescription'),
+					duration: 4000
+				});
 			}
 		} catch (err) {
 			console.error('Failed to delete project', err);
+
+			// Show error toast
+			toast.error(t('common.DELETE_ERROR'), {
+				description: t('pages.projects.deleteModal.errorDescription'),
+				duration: 5000
+			});
 		}
-	}, [closeModal, deleteOrganizationProject, projectId, setOrganizationProjects]);
+	}, [closeModal, deleteOrganizationProject, projectId, t]);
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>

@@ -92,6 +92,8 @@
 		"YES": "Ja",
 		"BASIC": "Basis",
 		"DELETE": "Verwijderen",
+		"DELETE_SUCCESS": "Succesvol verwijderd",
+		"DELETE_ERROR": "Verwijderen mislukt",
 		"MEET": "Ontmoeten",
 		"BOARD": "Bord",
 		"SECURITY_CODE": "Beveiligingscode",
@@ -101,6 +103,12 @@
 		"EDIT_TASK": "Taak bewerken",
 		"ASSIGN_TASK": "Taak toewijzen",
 		"ASSIGN_TASK_TO": "Taak toewijzen",
+		"ASSIGN_TASK_TO_ME": "Wijs taak aan mij toe",
+		"UNASSIGN_TASK_FROM_ME": "Verwijder mij van de taak",
+		"TASK_ASSIGNED_TO_ME": "Taak aan u toegewezen",
+		"TASK_UNASSIGNED_FROM_ME": "Taak van u verwijderd",
+		"TASK_ASSIGN_ERROR": "Taak toewijzen mislukt",
+		"TASK_UNASSIGN_ERROR": "Taak verwijderen mislukt",
 		"REMOVE_ACCOUNT": "Account verwijderen",
 		"DELETE_ALL_DATA": "Alle gegevens verwijderen",
 		"DONT_HAVE_ACCOUNT": "Heb je geen account?",
@@ -112,6 +120,9 @@
 		"TRANSFERT_OWNERSHIP": "Eigendom overdragen",
 		"TRANSFERT_OWNERSHIP_TO": "Volledige eigendom van team overdragen aan andere gebruiker",
 		"REMOVE": "Verwijderen",
+		"REMOVED": "Verwijderd",
+		"ADDED": "Toegevoegd",
+		"AND_X_OTHERS": "en {count} anderen",
 		"REMOVE_TEAM": "Team verwijderen",
 		"DISPOSE_TEAM": "Team opheffen",
 		"QUIT_TEAM": "Team verlaten",
@@ -195,7 +206,11 @@
 		"USER_AVATAR": "Gebruikersavatar",
 		"CONTACT": "Contact",
 		"ENABLED": "Inschakelen",
-		"DISABLED": "Uitzetten",
+		"DISABLED": "Uitgeschakeld",
+		"UNKNOWN": "Onbekend",
+		"RATE": "Tarief",
+		"FLAT_FEE": "Vast bedrag",
+		"MILESTONES": "Mijlpalen",
 		"THEME": "Thema",
 		"TIME_ZONE": "Tijdzone",
 		"EDIT": "Bewerken",
@@ -236,7 +251,17 @@
 		"FULL_WIDTH": "Volledige breedte",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Stop de timer voordat u de taak wijzigt",
 		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Stop de timer voordat u van team wisselt",
+		"WORKSPACE_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Stop de timer voordat u van werkruimte wisselt",
 		"CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Stop de timer voordat u nieuwe items aanmaakt",
+		"WORKSPACE_SWITCH_CONFIRM_TITLE": "Werkruimte wisselen?",
+		"WORKSPACE_SWITCH_CONFIRM_DESCRIPTION": "U staat op het punt om van werkruimte te wisselen van \"{currentWorkspace}\" naar \"{targetWorkspace}\".",
+		"WORKSPACE_SWITCH_CONFIRM_WARNING": "Deze actie zal de applicatie opnieuw laden om alle gegevens te synchroniseren.",
+		"WORKSPACE_SWITCH_CANCEL_ARIA": "Werkruimte wissel annuleren",
+		"WORKSPACE_SWITCH_CONFIRM_ARIA": "Wissel naar {workspace} bevestigen",
+		"WORKSPACE_SWITCH_CHANGING": "Wisselen...",
+		"WORKSPACE_SWITCH_CONFIRM_BUTTON": "Wissel bevestigen",
+		"CURRENT_WORKSPACE": "huidige werkruimte",
+		"TARGET_WORKSPACE": "doel werkruimte",
 		"COLLABORATE_DIALOG_TITLE": "Samenwerking starten",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Nodig teamleden uit en begin samen te werken",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Vergadering of bord samenwerking starten",
@@ -381,6 +406,8 @@
 		"MEMBERS_COUNT": "Aantal leden",
 		"REVIEW": "BEKEKEN",
 		"ARCHIVE": "Archief",
+		"ARCHIVE_SUCCESS": "Succesvol gearchiveerd",
+		"ARCHIVE_ERROR": "Archiveren mislukt",
 		"ARCHIVE_AT": "Archiveren op",
 		"RESTORE": "Herstellen",
 		"HIDE": "Verbergen",
@@ -560,7 +587,8 @@
 					"endDateRequired": "Einddatum is verplicht.",
 					"endDateAfterStart": "Einddatum moet na startdatum liggen.",
 					"invalidUrl": "Voer een geldige URL in.",
-					"uploadError": "Er is iets misgegaan bij het uploaden van de projectafbeelding, probeer het opnieuw!"
+					"uploadError": "Er is iets misgegaan bij het uploaden van de projectafbeelding, probeer het opnieuw!",
+					"descriptionWordLimit": "De beschrijving mag maximaal 5000 woorden bevatten."
 				},
 				"common": {
 					"search": "Zoeken ...",
@@ -592,6 +620,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Teams toewijzen",
+					"noTeamsAvailable": "Geen teams beschikbaar",
+					"teamsHelperText": "Selecteer minimaal één team voor dit project",
 					"assignMembers": "Leden & Managers toewijzen",
 					"noMembers": "Geen leden of managers",
 					"addMember": "Lid toevoegen",
@@ -601,8 +632,17 @@
 					"noRelations": "Geen relaties",
 					"addRelation": "Relatie toevoegen",
 					"selectProject": "Selecteer een project...",
-					"selectRelationType": "Kies een relatietype..."
+					"selectRelationType": "Kies een relatietype...",
+					"activeTeamLocked": "Het huidige team is vereist en kan niet worden verwijderd"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "Selecteer minimaal één team"
 				}
+			},
+			"accessDenied": {
+				"title": "Toegang Geweigerd",
+				"description": "Dit project behoort niet tot uw huidige team ({teamName}). Schakel over naar een team dat toegang heeft tot dit project.",
+				"viewAllProjects": "Bekijk Alle Projecten"
 			},
 			"addOrEditModal": {
 				"steps": {
@@ -614,11 +654,15 @@
 			},
 			"deleteModal": {
 				"title": "Geselecteerde verwijderen?",
-				"description": "U staat op het punt dit project permanent te verwijderen. Klik op 'Verwijderen' om de actie te bevestigen"
+				"description": "U staat op het punt dit project permanent te verwijderen. Klik op 'Verwijderen' om de actie te bevestigen",
+				"successDescription": "Het project is succesvol verwijderd",
+				"errorDescription": "Kan het project niet verwijderen. Probeer het opnieuw."
 			},
 			"archiveModal": {
 				"title": "{projectName} archiveren?",
-				"description": "{affectedTasksCount} taken worden beïnvloed door het archiveren van {projectName}."
+				"description": "{affectedTasksCount} taken worden beïnvloed door het archiveren van {projectName}.",
+				"successDescription": "{projectName} is succesvol gearchiveerd",
+				"errorDescription": "Kan het project niet archiveren. Probeer het opnieuw."
 			},
 			"restoreModal": {
 				"title": "Project herstellen",
@@ -675,14 +719,19 @@
 			"HAVE_PASSWORD": "Wachtwoord hebben?",
 			"LOGIN_WITH_PASSWORD": "Log in met het wachtwoord",
 			"LOGIN_WITH_MAGIC_CODE": "Log in met een magische code",
-			"ERROR_SIGNIN": "Fout bij het ondertekenen"
+			"ERROR_SIGNIN": "Fout bij het ondertekenen",
+			"DEMO_ACCOUNTS_TITLE": "Automatisch inloggen op demo-accounts",
+			"DEMO_ACCOUNTS_SUBTITLE": "Selecteer hieronder het accounttype.",
+			"DEMO_SUPER_ADMIN": "Super Admin Demo",
+			"DEMO_ADMIN": "Admin Demo",
+			"DEMO_EMPLOYEE": "Medewerker Demo"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Voer uw inloggegevens in."
 		},
 		"authTeam": {
-			"HEADING_TITLE": "Nieuw team maken",
-			"HEADING_DESCRIPTION": "Voer uw teamgegevens in om een nieuw team te maken.",
+			"HEADING_TITLE": "Nu registreren",
+			"HEADING_DESCRIPTION": "Vertel ons meer over uzelf en (optioneel) uw team om te registreren.",
 			"LOADING_TEXT": "We maken nu uw nieuwe werkplek aan, even geduld...",
 			"LOADING_WORKSPACE": "We laden de werkruimte, even geduld...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Doorverwijzen naar uw werkruimte...",
@@ -690,7 +739,15 @@
 			"INPUT_TEAM_NAME": "Voer uw teamnaam in",
 			"JOIN_EXISTING_TEAM": "Bestaand team joinen?",
 			"CREATE_FIRST_TEAM": "Maak uw eerste team",
-			"CREATE_TEAM": "Team maken"
+			"CREATE_TEAM": "Team maken",
+			"GET_STARTED_TITLE": "Hoe wilt u beginnen?",
+			"START_SOLO": "Start alleen",
+			"START_SOLO_NOTE": "U kunt later een team maken en anderen uitnodigen",
+			"CREATE_TEAM_NOW": "Nu een team maken",
+			"CONTINUE": "Doorgaan",
+			"GET_STARTED": "Aan de slag",
+			"STEP_USER_INFO": "Vertel ons uw naam en e-mailadres",
+			"STEP_CHOOSE_MODE": "Kies uw pad"
 		},
 		"settings": {
 			"BREADCRUMB": "[\"Dashboard\", \"Instellingen\"]",

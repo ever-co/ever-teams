@@ -1,4 +1,4 @@
-import { useOrganizationTeams } from '@/core/hooks';
+import { useEditOrganizationTeam } from '@/core/hooks';
 import { activeTeamManagersState, activeTeamState } from '@/core/stores';
 import { BackButton, Button, Modal, Text } from '@/core/components';
 import { useCallback, useState } from 'react';
@@ -15,7 +15,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 export function TransferTeamModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const t = useTranslations();
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
-	const { editOrganizationTeam, editOrganizationTeamLoading } = useOrganizationTeams();
+	const { editOrganizationTeam, editOrganizationTeamLoading } = useEditOrganizationTeam();
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const { data: user } = useUserQuery();

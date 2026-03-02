@@ -6,5 +6,6 @@ export * from '../features/daily-plan/suggest-daily-plan-modal';
 export * from '../features/daily-plan/add-task-estimation-hours-modal';
 export * from './all-plans';
 export * from './all-plans-modal';
+export * from './global-all-plans-modal';
 export * from './empty-plans';
 export * from './plan-header';

@@ -20,7 +20,7 @@ const CardTimeAndActivity: React.FC<StatisticCardProps> = ({
 	isLoading = false
 }) => {
 	return (
-		<div className="p-6 bg-white rounded-xl shadow-sm dark:bg-dark--theme-light">
+		<div className="p-6 bg-white rounded-xl shadow-xs dark:bg-dark--theme-light">
 			<div className="flex flex-col">
 				<span className="mb-2 text-sm text-gray-500">{title}</span>
 				<div className="flex items-start">

@@ -67,7 +67,7 @@ function TimesheetPagination({
 								value={pageSize?.toString()}
 								onValueChange={(value) => onPageSizeChange?.(Number(value))}
 							>
-								<SelectTrigger className="w-[80px] border border-gray-200 dark:border-gray-800 shadow-sm rounded-[6px] dark:bg-dark--theme-light bg-white">
+								<SelectTrigger className="w-[80px] border border-gray-200 dark:border-gray-800 shadow-xs rounded-[6px] dark:bg-dark--theme-light bg-white">
 									<SelectValue placeholder="Page size" />
 								</SelectTrigger>
 								<SelectContent className="bg-white dark:bg-dark--theme-light">
@@ -84,7 +84,7 @@ function TimesheetPagination({
 						</div>
 						<PaginationItem>
 							<button
-								className="box-border flex flex-row justify-center items-center p-2 gap-2 w-8 h-8 bg-white dark:bg-dark--theme-light border border-gray-200 dark:border-gray-800 shadow-sm rounded-[6px]"
+								className="box-border flex flex-row justify-center items-center p-2 gap-2 w-8 h-8 bg-white dark:bg-dark--theme-light border border-gray-200 dark:border-gray-800 shadow-xs rounded-[6px]"
 								onClick={previousPage}
 								disabled={currentPage === 1}
 							>
@@ -94,10 +94,10 @@ function TimesheetPagination({
 						{getPageNumbers().map((pageNumber, index) => (
 							<PaginationItem key={index}>
 								{pageNumber === '...' ? (
-									<PaginationEllipsis className="box-border cursor-pointer flex flex-row justify-center items-center p-2 gap-2 w-8 h-8 dark:bg-dark--theme-light border border-gray-200 dark:border-gray-800  shadow-sm rounded-[6px]" />
+									<PaginationEllipsis className="box-border cursor-pointer flex flex-row justify-center items-center p-2 gap-2 w-8 h-8 dark:bg-dark--theme-light border border-gray-200 dark:border-gray-800  shadow-xs rounded-[6px]" />
 								) : (
 									<PaginationLink
-										className="box-border cursor-pointer flex flex-row justify-center items-center p-2 gap-2 w-8 h-8 dark:bg-dark--theme-light border border-gray-200 dark:border-gray-800 shadow-sm rounded-[6px]"
+										className="box-border cursor-pointer flex flex-row justify-center items-center p-2 gap-2 w-8 h-8 dark:bg-dark--theme-light border border-gray-200 dark:border-gray-800 shadow-xs rounded-[6px]"
 										isActive={currentPage === pageNumber}
 										onClick={() => goToPage(pageNumber as number)}
 									>
@@ -109,7 +109,7 @@ function TimesheetPagination({
 						<PaginationItem>
 							<button
 								disabled={currentPage === totalPages}
-								className="box-border flex flex-row justify-center items-center p-2 gap-2 w-8 h-8 dark:bg-dark--theme-light border border-gray-200 dark:border-gray-800 shadow-sm rounded-[6px]"
+								className="box-border flex flex-row justify-center items-center p-2 gap-2 w-8 h-8 dark:bg-dark--theme-light border border-gray-200 dark:border-gray-800 shadow-xs rounded-[6px]"
 								onClick={nextPage}
 							>
 								<IconsDoubleArrowRounded className="h-5 w-5 dark:text-gray-500" />

@@ -90,7 +90,7 @@ const TaskPropertiesSkeleton: FC = () => {
 	return (
 		<div className="bg-white dark:bg-dark--theme-light rounded-xl border border-[#00000014] dark:border-[#26272C] p-4">
 			{/* Header */}
-			<div className="w-32 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-4" />
+			<div className="w-32 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-4" />
 
 			{/* Properties list */}
 			<div className="space-y-4">
@@ -139,7 +139,7 @@ export const TaskDetailsCompactSkeleton: FC = () => {
 	return (
 		<div className="flex flex-col w-full min-h-screen animate-pulse">
 			{/* Header skeleton */}
-			<div className="h-16 bg-[#F0F0F0] dark:bg-[#353741] rounded mb-4" />
+			<div className="h-16 bg-[#F0F0F0] dark:bg-[#353741] rounded-sm mb-4" />
 
 			{/* Content skeleton */}
 			<div className="flex gap-4">

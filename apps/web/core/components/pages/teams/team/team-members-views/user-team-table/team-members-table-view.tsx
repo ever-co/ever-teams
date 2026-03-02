@@ -6,7 +6,14 @@ import { useAuthenticateUser, useModal } from '@/core/hooks';
 import { InviteUserTeamCard } from '../../../../../teams/invite/user-invite-card';
 import { InviteFormModal } from '../../../../../features/teams/invite-form-modal';
 import { useTranslations } from 'next-intl';
-import { ActionMenuCell, TaskCell, TaskEstimateInfoCell, UserInfoCell, WorkedOnTaskCell } from './team-member-cells';
+import {
+	ActionMenuCell,
+	TaskCell,
+	TaskEstimateInfoCell,
+	UserInfoCell,
+	WorkedOnTaskCell,
+	TeamMemberRowWrapper
+} from './team-member-cells';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { memo } from 'react';
 
@@ -84,6 +91,7 @@ const TeamMembersTableView = memo(
 						heading: t('common.NO_TEAM_MEMBERS_FOUND'),
 						content: t('common.NO_TEAM_MEMBERS_FOUND_MESSAGE')
 					}}
+					rowWrapper={TeamMemberRowWrapper}
 				/>
 				<Invite />
 			</>

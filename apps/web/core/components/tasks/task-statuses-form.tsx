@@ -1,5 +1,9 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useModal, useRefetchData, useTaskStatus } from '@/core/hooks';
+import { useModal, useRefetchData } from '@/core/hooks';
+import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
+import { useCreateTaskStatus } from '@/core/hooks/tasks/use-create-task-status';
+import { useEditTaskStatus } from '@/core/hooks/tasks/use-edit-task-status';
+import { useDeleteTaskStatus } from '@/core/hooks/tasks/use-delete-task-status';
 import { tasksByTeamState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
@@ -55,16 +59,10 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 		[]
 	);
 
-	const {
-		getTaskStatusesLoading,
-		taskStatuses,
-		createTaskStatus,
-		deleteTaskStatus,
-		editTaskStatus,
-		createTaskStatusLoading,
-		editTaskStatusLoading,
-		setTaskStatuses
-	} = useTaskStatus();
+	const { getTaskStatusesLoading, taskStatuses, setTaskStatuses } = useTaskStatusesQuery();
+	const { createTaskStatus, createTaskStatusLoading } = useCreateTaskStatus();
+	const { editTaskStatus, editTaskStatusLoading } = useEditTaskStatus();
+	const { deleteTaskStatus } = useDeleteTaskStatus();
 	const { refetch } = useRefetchData();
 
 	useEffect(() => {
@@ -197,7 +195,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 				<div className="flex">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
 						{!formOnly && (
-							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
+							<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
 								{t('pages.settingsTeam.TASK_STATUSES')}
 							</Text>
 						)}
@@ -223,7 +221,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 							</div>
 							{(createNew || edit) && (
 								<>
-									<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400">
+									<Text className="flex-none grow-0 mb-2 text-lg font-normal text-gray-400">
 										{createNew && t('common.NEW')}
 										{edit && t('common.EDIT')} {t('common.STATUSES')}
 									</Text>
@@ -297,7 +295,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 
 							{!formOnly && taskStatuses.length > 0 && (
 								<>
-									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
+									<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
 										{t('pages.settingsTeam.LIST_OF_STATUSES')}
 									</Text>
 									<div className="flex flex-wrap gap-3 justify-center w-full sm:justify-start">

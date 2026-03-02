@@ -80,7 +80,7 @@ function OptionPopover({ setEdit, setEstimateEdit, children }: PropsWithChildren
 		<Popover className="relative no-underline border-none">
 			{() => (
 				<>
-					<PopoverButton className="no-underline border-none outline-none active:border-none">
+					<PopoverButton className="no-underline border-none outline-hidden active:border-none">
 						<EllipsisVerticalIcon
 							className="h-7 w-7 text-gray-300 dark:text-[#616164] cursor-pointer no-underline"
 							aria-hidden="true"
@@ -96,7 +96,7 @@ function OptionPopover({ setEdit, setEstimateEdit, children }: PropsWithChildren
 						leaveTo="opacity-0 translate-y-1"
 					>
 						<PopoverPanel className="absolute left-1/2 z-10 mt-3 w-[150px] max-w-sm -translate-x-1/2 transform px-4 sm:px-0 lg:max-w-3xl drop-shadow-[0px_3px_15px_#3E1DAD1A]">
-							<div className="bg-white shadow dark:bg-[#18181B] rounded-[10px] text-[14px] font-light">
+							<div className="bg-white shadow-sm dark:bg-[#18181B] rounded-[10px] text-[14px] font-light">
 								{options.map((option) =>
 									!option.extramenu ? (
 										<React.Fragment key={option.name}>
@@ -182,7 +182,7 @@ const UserCardMenu = ({ setEstimateEdit, setEdit }: IDropdownUserProps & { membe
 				<div className="mx-9">
 					<Combobox>
 						<div className="relative mt-1">
-							<div className="relative w-full cursor-default overflow-hidden rounded-lg  bg-[#EEEFF5] dark:bg-[#1B1B1E] text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm ">
+							<div className="relative w-full cursor-default overflow-hidden rounded-lg  bg-[#EEEFF5] dark:bg-[#1B1B1E] text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm ">
 								<ComboboxInput
 									key={`${editMode}`}
 									className="h-[60px] bg-[#EEEFF5] dark:bg-[#202023] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] py-[18px] shadow-inner"
@@ -213,7 +213,7 @@ const UserCardMenu = ({ setEstimateEdit, setEdit }: IDropdownUserProps & { membe
 									setFilter('open');
 								}}
 							>
-								<ComboboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+								<ComboboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
 									{hasCreateForm && (
 										<CreateTaskOption
 											onClick={() => handleTaskCreation({ autoActiveTask: false })}

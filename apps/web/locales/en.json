@@ -113,6 +113,8 @@
 		"YES": "Yes",
 		"BASIC": "Basic",
 		"DELETE": "Delete",
+		"DELETE_SUCCESS": "Deleted successfully",
+		"DELETE_ERROR": "Failed to delete",
 		"MEET": "Meet",
 		"BOARD": "Board",
 		"SECURITY_CODE": "Security Code",
@@ -128,6 +130,12 @@
 		"EDIT_TASK": "Edit Task",
 		"ASSIGN_TASK": "Assign Task",
 		"ASSIGN_TASK_TO": "Assign Task",
+		"ASSIGN_TASK_TO_ME": "Assign Task to Me",
+		"UNASSIGN_TASK_FROM_ME": "Unassign Task from Me",
+		"TASK_ASSIGNED_TO_ME": "Task assigned to you",
+		"TASK_UNASSIGNED_FROM_ME": "Task unassigned from you",
+		"TASK_ASSIGN_ERROR": "Failed to assign task",
+		"TASK_UNASSIGN_ERROR": "Failed to unassign task",
 		"REMOVE_ACCOUNT": "Remove Account",
 		"REMOVE_EVERYWHERE": "Remove From All Teams",
 		"DELETE_ACCOUNT": "Delete This Account",
@@ -138,6 +146,9 @@
 		"TRANSFERT_OWNERSHIP": "Transfer Ownership",
 		"TRANSFERT_OWNERSHIP_TO": "Transfer full ownership of the team to another user",
 		"REMOVE": "Remove",
+		"REMOVED": "Removed",
+		"ADDED": "Added",
+		"AND_X_OTHERS": "and {count} other(s)",
 		"REMOVE_TEAM": "Remove Team",
 		"DISPOSE_TEAM": "Dispose Team",
 		"QUIT_TEAM": "Quit the Team",
@@ -222,6 +233,10 @@
 		"CONTACT": "Contact",
 		"ENABLED": "Enabled",
 		"DISABLED": "Disabled",
+		"UNKNOWN": "Unknown",
+		"RATE": "Rate",
+		"FLAT_FEE": "Flat Fee",
+		"MILESTONES": "Milestones",
 		"THEME": "Theme",
 		"TIME_ZONE": "Timezone",
 		"EDIT": "Edit",
@@ -264,7 +279,17 @@
 		"FULL_WIDTH": "Full width",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Please stop the Timer before changing the Task",
 		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Please stop the Timer before changing the Team",
+		"WORKSPACE_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Please stop the Timer before changing the Workspace",
 		"CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Please stop the Timer before creating new items",
+		"WORKSPACE_SWITCH_CONFIRM_TITLE": "Change workspace?",
+		"WORKSPACE_SWITCH_CONFIRM_DESCRIPTION": "You are about to switch workspaces from \"{currentWorkspace}\" to \"{targetWorkspace}\".",
+		"WORKSPACE_SWITCH_CONFIRM_WARNING": "This action will reload the application to synchronize all data.",
+		"WORKSPACE_SWITCH_CANCEL_ARIA": "Cancel the workspace change",
+		"WORKSPACE_SWITCH_CONFIRM_ARIA": "Confirm the change to {workspace}",
+		"WORKSPACE_SWITCH_CHANGING": "Changing...",
+		"WORKSPACE_SWITCH_CONFIRM_BUTTON": "Confirm the change",
+		"CURRENT_WORKSPACE": "current workspace",
+		"TARGET_WORKSPACE": "target workspace",
 		"COLLABORATE_DIALOG_TITLE": "Start Collaboration",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Invite member(s) and start collaborating",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Start Meeting or Board Collaboration",
@@ -398,7 +423,8 @@
 		"MEMBERS_COUNT": "Members count",
 		"REVIEW": "REVIEW",
 		"ARCHIVE": "Archive",
-
+		"ARCHIVE_SUCCESS": "Archived successfully",
+		"ARCHIVE_ERROR": "Failed to archive",
 		"ARCHIVE_AT": "Archive at",
 		"RESTORE": "Restore",
 		"HIDE": "Hide",
@@ -507,7 +533,8 @@
 					"endDateRequired": "End date is required",
 					"endDateAfterStart": "End date must be after start date",
 					"invalidUrl": "Please enter a valid URL",
-					"uploadError": "Something went wrong while uploading the project image, please try again!"
+					"uploadError": "Something went wrong while uploading the project image, please try again!",
+					"descriptionWordLimit": "Description must be 5000 words or less."
 				},
 				"common": {
 					"search": "Search ...",
@@ -539,6 +566,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Assign Teams",
+					"noTeamsAvailable": "No teams available",
+					"teamsHelperText": "Select at least one team for this project",
 					"assignMembers": "Assign Members & Managers",
 					"noMembers": "No members or managers",
 					"addMember": "Add Member",
@@ -548,8 +578,17 @@
 					"noRelations": "No relations",
 					"addRelation": "Add Relation",
 					"selectProject": "Select a project...",
-					"selectRelationType": "Choose a relation type..."
+					"selectRelationType": "Choose a relation type...",
+					"activeTeamLocked": "Current team is required and cannot be removed"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "Please select at least one team"
 				}
+			},
+			"accessDenied": {
+				"title": "Access Denied",
+				"description": "This project does not belong to your current team ({teamName}). Switch to a team that has access to this project.",
+				"viewAllProjects": "View All Projects"
 			},
 			"addOrEditModal": {
 				"steps": {
@@ -561,11 +600,15 @@
 			},
 			"deleteModal": {
 				"title": "Delete Selected?",
-				"description": "You are about to permanently delete this project. Click 'Delete' to confirm the action"
+				"description": "You are about to permanently delete this project. Click 'Delete' to confirm the action",
+				"successDescription": "The project has been deleted successfully",
+				"errorDescription": "Failed to delete the project. Please try again."
 			},
 			"archiveModal": {
 				"title": "Archive {projectName}?",
-				"description": "{affectedTasksCount} tasks will be affected by archiving {projectName}."
+				"description": "{affectedTasksCount} tasks will be affected by archiving {projectName}.",
+				"successDescription": "{projectName} has been archived successfully",
+				"errorDescription": "Failed to archive the project. Please try again."
 			},
 			"restoreModal": {
 				"title": "Restore project",
@@ -679,22 +722,35 @@
 			"HAVE_PASSWORD": "Have Password?",
 			"LOGIN_WITH_PASSWORD": "Login with the Password",
 			"LOGIN_WITH_MAGIC_CODE": "Log in with a magic code",
-			"ERROR_SIGNIN": "Error on signing"
+			"ERROR_SIGNIN": "Error on signing",
+			"DEMO_ACCOUNTS_TITLE": "Login Automatically into Demo accounts",
+			"DEMO_ACCOUNTS_SUBTITLE": "Please select account type below.",
+			"DEMO_SUPER_ADMIN": "Super Admin Demo",
+			"DEMO_ADMIN": "Admin Demo",
+			"DEMO_EMPLOYEE": "Employee Demo"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Please enter your login information."
 		},
 		"authTeam": {
-			"HEADING_TITLE": "Create New Team",
-			"HEADING_DESCRIPTION": "Please enter your team details to create a new team.",
+			"HEADING_TITLE": "Sign Up Now",
+			"HEADING_DESCRIPTION": "Please tell us more about yourself and (optionally) your team to register.",
 			"LOADING_TEXT": "We are now creating your new workplace, hold on...",
 			"LOADING_WORKSPACE": "We are loading the workspace, hold on...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Redirecting to your workspace...",
 			"VERIFY_EMAIL_LOADING_TEXT": "We are verifying your email, hold on...",
-			"INPUT_TEAM_NAME": "Input your team name",
+			"INPUT_TEAM_NAME": "Enter your team name",
 			"JOIN_EXISTING_TEAM": "Joining existing team?",
 			"CREATE_FIRST_TEAM": "Create your first team",
-			"CREATE_TEAM": "Create team"
+			"CREATE_TEAM": "Create team",
+			"GET_STARTED_TITLE": "How would you like to get started?",
+			"START_SOLO": "Start Solo",
+			"START_SOLO_NOTE": "You can create a team and invite others later",
+			"CREATE_TEAM_NOW": "Create a Team Now",
+			"CONTINUE": "Continue",
+			"GET_STARTED": "Get Started",
+			"STEP_USER_INFO": "Let us know your name and email",
+			"STEP_CHOOSE_MODE": "Choose Your Path"
 		},
 		"settings": {
 			"BREADCRUMB": "[\"Dashboard\", \"Settings\"]",

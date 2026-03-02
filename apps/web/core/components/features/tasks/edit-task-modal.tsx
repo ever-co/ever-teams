@@ -7,7 +7,7 @@ import { Item, ManageOrMemberComponent, getNestedValue } from '@/core/components
 import { statusTable } from '../../timesheet/timesheet-action';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { differenceBetweenHours, formatTimeFromDate, secondsToTime, toDate } from '@/core/lib/helpers/index';
-import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
+import { useUpdateTimesheet } from '@/core/hooks/timesheet/use-update-timesheet';
 import { ToastAction } from '@/core/components/common/toast';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { addMinutes, format, parseISO } from 'date-fns';
@@ -16,7 +16,8 @@ import { CustomSelect } from '../../common/multiple-select';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { toast } from 'sonner';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, organizationProjectsState } from '@/core/stores';
+import { activeTeamState } from '@/core/stores';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 
 export interface IEditTaskModalProps {
 	isOpen: boolean;
@@ -24,11 +25,11 @@ export interface IEditTaskModalProps {
 	dataTimesheet: ITimeLog;
 }
 export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskModalProps) {
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects } = useOrganizationProjectsQuery();
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const t = useTranslations();
-	const { updateTimesheet, loadingUpdateTimesheet } = useTimesheet({});
+	const { updateTimesheet, loadingUpdateTimesheet } = useUpdateTimesheet();
 	const initialTimeRange = {
 		startTime: formatTimeFromDate(dataTimesheet.startedAt),
 		endTime: formatTimeFromDate(dataTimesheet.stoppedAt)
@@ -429,7 +430,7 @@ export const ToggleButton = ({ isActive, onClick, label }: ToggleButtonProps) =>
 		onClick={onClick}
 		aria-pressed={isActive}
 		className={clsxm(
-			'flex gap-x-2 items-center p-2 rounded focus:outline-none focus:ring-2 focus:ring-primary/50 dark:focus:ring-primary-light/50',
+			'flex gap-x-2 items-center p-2 rounded-sm focus:outline-none focus:ring-2 focus:ring-primary/50 dark:focus:ring-primary-light/50',
 			'transition-colors duration-200 ease-in-out'
 		)}
 	>

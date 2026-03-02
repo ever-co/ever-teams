@@ -56,7 +56,7 @@ export const StatusesListCard = ({
 				>
 					<Text.Label
 						className={clsxm(
-							'flex-none flex-grow-0 !w-40 max-w-[190px] font-normal',
+							'flex-none grow-0 !w-40 max-w-[190px] font-normal',
 							'capitalize overflow-hidden text-ellipsis whitespace-nowrap w-full',
 							bgColor === '' && ['dark:text-[#cdd1d8]'],
 							statusIcon && 'max-w-[135px]'

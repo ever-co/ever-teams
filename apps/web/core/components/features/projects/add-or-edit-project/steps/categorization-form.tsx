@@ -7,14 +7,16 @@ import { Select } from './basic-information-form';
 import { CheckIcon } from 'lucide-react';
 import { IStepElementProps } from '../container';
 import { useTranslations } from 'next-intl';
-import { useTags } from '@/core/hooks/tags';
+import { useTagsQuery } from '@/core/hooks/tags/use-tags-query';
+import { useCreateTag } from '@/core/hooks/tags/use-create-tag';
 import { getInitialValue } from '@/core/lib/helpers/create-project';
 
 export default function CategorizationForm(props: IStepElementProps) {
 	const { goToNext, goToPrevious, currentData } = props;
 	const [tags, setTags] = useState<string[]>(() => getInitialValue(currentData, 'tags', []));
 	const [colorCode, setColorCode] = useState<string>(() => getInitialValue(currentData, 'color', '#000'));
-	const { tags: tagData, createTag, createTagLoading } = useTags();
+	const { tags: tagData } = useTagsQuery();
+	const { createTag, createTagLoading } = useCreateTag();
 	const t = useTranslations();
 
 	// Memoized callbacks to prevent unnecessary re-renders of the Select component
@@ -67,7 +69,7 @@ export default function CategorizationForm(props: IStepElementProps) {
 				<div key={item?.id} className="flex gap-2 items-center p-1 px-2 w-full h-full">
 					<span
 						className={cn(
-							'h-4 w-4 rounded border border-primary flex items-center justify-center',
+							'h-4 w-4 rounded-sm border border-primary flex items-center justify-center',
 							selected && 'bg-primary text-primary-foreground dark:text-white'
 						)}
 					>

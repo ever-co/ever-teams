@@ -1,6 +1,6 @@
 // core/hooks/task-card/useTimerButton.ts
 import { useCallback, useMemo, useState } from 'react';
-import { useStartStopTimerHandler, useTeamTasks, useTimerView } from '@/core/hooks';
+import { useStartStopTimerHandler, useTeamTasksState, useTimerView } from '@/core/hooks';
 import { useTimerOptimisticUI } from '@/core/hooks/activities/use-timer-optimistic-ui';
 import { TOrganizationTeam } from '@/core/types/schemas/team/organization-team.schema';
 import { toast } from 'sonner';
@@ -15,7 +15,7 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 	const timerStatus = useAtomValue(timerStatusState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const { canTrack, disabled, startTimer, stopTimer, hasPlan } = useTimerView();
-	const { setActiveTask } = useTeamTasks();
+	const { setActiveTask } = useTeamTasksState();
 	const t = useTranslations();
 
 	// Use optimistic UI hook for timer button feedback
@@ -71,9 +71,10 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 			// 3. The startTimer function properly handles all necessary updates
 			// Therefore, we only call startTimer() to avoid duplicate API calls and race conditions
 
-			// Start timer immediately - no artificial delay needed
-			// The toast feedback is already shown above, so UI is responsive
-			await startTimer();
+			// NOTE_FIX: Pass task explicitly to startTimer to avoid race conditions
+			// Between setActiveTask and startTimer, activeTeamTask might change due to useEffects or React Query refetches
+			// Passing the task explicitly ensures startTimer uses the correct task
+			await startTimer(task);
 
 			window.scrollTo({ top: 0, behavior: 'smooth' });
 			toast.success(t('timer.TIMER_STARTED'), { id: toastId });
@@ -84,7 +85,7 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 		}
 	}, [task, timerStatus?.running, setActiveTask, activeTeam, startTimer, handleStop, t]);
 
-	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
+	const { modals, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
 
 	return {
 		loading,

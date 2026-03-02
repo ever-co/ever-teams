@@ -93,7 +93,7 @@ export function SelectItems<T>({
 							<li
 								onClick={() => onClick(item)}
 								key={key}
-								className="truncate hover:cursor-pointer hover:bg-slate-50 w-full text-[13px] hover:rounded-lg p-1 hover:font-normal dark:text-white dark:hover:bg-primary whitespace-nowrap text-ellipsis overflow-hidden"
+								className="truncate hover:cursor-pointer hover:bg-slate-50 w-full text-xs hover:rounded-lg p-1 hover:font-normal dark:text-white dark:hover:bg-primary whitespace-nowrap text-ellipsis overflow-hidden"
 							>
 								{itemToString(item)}
 							</li>

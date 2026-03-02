@@ -60,7 +60,7 @@ export const InvitationSettingSkeleton: FC<SettingsSkeletonProps> = ({ className
 			{/* Invitation Form */}
 			<div className="flex gap-4 items-end">
 				<div className="flex-1">
-					<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-2" />
+					<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
 					<div className="w-full h-12 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
 				</div>
 				<div className="w-24 h-12 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg" />
@@ -170,7 +170,7 @@ export const IntegrationSettingSkeleton: FC<SettingsSkeletonProps> = ({ classNam
 
 					{/* Description */}
 					<div className="mb-4">
-						<div className="w-full h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-2" />
+						<div className="w-full h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
 						<div className="w-3/4 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 					</div>
 
@@ -250,7 +250,7 @@ export const DangerZoneTeamSkeleton: FC<SettingsSkeletonProps> = ({ className })
 		<div className={cn('flex flex-col gap-6', className)}>
 			{/* Warning Message */}
 			<div className="p-4 bg-red-50 rounded-lg border border-red-200 dark:bg-red-900/20 dark:border-red-800">
-				<div className="w-full h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-2" />
+				<div className="w-full h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
 				<div className="w-3/4 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 			</div>
 

@@ -1,12 +1,10 @@
-import { useOrganizationProjects } from '@/core/hooks';
+import { useEditOrganizationProject } from '@/core/hooks/organizations/projects/use-edit-organization-project';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { Button, Modal, Text } from '@/core/components';
 import { RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
 import { EverCard } from '../../common/ever-card';
-import { TOrganizationProject } from '@/core/types/schemas';
-import { useAtomValue } from 'jotai';
-import { organizationProjectsState } from '@/core/stores';
 
 interface IRestoreProjectModalProps {
 	open: boolean;
@@ -25,10 +23,8 @@ interface IRestoreProjectModalProps {
 export function RestoreProjectModal(props: IRestoreProjectModalProps) {
 	const t = useTranslations();
 	const { open, closeModal, projectId } = props;
-	const organizationProjects = useAtomValue(organizationProjectsState);
-
-	const { editOrganizationProject, editOrganizationProjectLoading, setOrganizationProjects } =
-		useOrganizationProjects();
+	const { organizationProjects } = useOrganizationProjectsQuery();
+	const { editOrganizationProject, editOrganizationProjectLoading } = useEditOrganizationProject();
 	const project = useMemo(
 		() => organizationProjects.find((project) => project.id === projectId),
 		[organizationProjects, projectId]
@@ -44,20 +40,11 @@ export function RestoreProjectModal(props: IRestoreProjectModalProps) {
 
 			if (res) {
 				closeModal();
-
-				setOrganizationProjects(
-					organizationProjects.map((project) => {
-						if (project.id === projectId) {
-							return res.data as TOrganizationProject;
-						}
-						return project;
-					})
-				);
 			}
 		} catch (err) {
 			console.error('Failed to restore project', err);
 		}
-	}, [closeModal, editOrganizationProject, organizationProjects, projectId, setOrganizationProjects]);
+	}, [closeModal, editOrganizationProject, projectId]);
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>

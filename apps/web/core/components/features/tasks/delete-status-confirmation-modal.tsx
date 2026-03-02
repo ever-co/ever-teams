@@ -1,4 +1,6 @@
-import { useTaskStatus, useTeamTasks } from '@/core/hooks';
+import { useUpdateTask } from '@/core/hooks';
+import { useDeleteTaskStatus } from '@/core/hooks/tasks/use-delete-task-status';
+import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
@@ -28,11 +30,12 @@ interface DeleteTaskStatusModalProps {
  */
 export function DeleteTaskStatusConfirmationModal(props: DeleteTaskStatusModalProps) {
 	const { closeModal, open, status, onCancel } = props;
-	const { deleteTaskStatus, deleteTaskStatusLoading, setTaskStatuses } = useTaskStatus();
+	const { deleteTaskStatus, deleteTaskStatusLoading } = useDeleteTaskStatus();
+	const { setTaskStatuses } = useTaskStatusesQuery();
 	const t = useTranslations();
 
 	const tasks = useAtomValue(tasksByTeamState);
-	const { updateTask } = useTeamTasks();
+	const { updateTask } = useUpdateTask();
 
 	// Filter tasks that are using the current status
 	const tasksUsingStatus = useMemo(() => tasks.filter((task) => task.status === status.name), [tasks, status.name]);

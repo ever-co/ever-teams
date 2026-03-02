@@ -9,6 +9,7 @@ import { TEmployee, TOrganizationProject, TOrganizationTeam, TOrganizationTeamEm
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { FilterState } from '@/core/types/interfaces/timesheet/time-limit-report';
+import { isProject } from '@/core/lib/helpers/type-guards';
 
 interface TimeActivityHeaderProps {
 	userManagedTeams?: TOrganizationTeam[];
@@ -82,8 +83,12 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 	const [selectedTasks, setSelectedTasks] = React.useState(initialState.tasks);
 
 	// Filter to show only valid projects with proper access control
+	// isActive alone is NOT sufficient - we MUST use isProject() type guard
 	const validProjects = React.useMemo(() => {
 		return (projects || []).filter((project) => {
+			// First verify this is actually a Project, not a Team
+			if (!isProject(project)) return false;
+
 			// Basic validation: valid name and status
 			const isValidProject =
 				project?.name &&
@@ -176,11 +181,10 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 			<div
 				onClick={onClick}
 				className={`flex flex-col p-2 hover:cursor-pointer hover:bg-slate-50 dark:hover:bg-primary rounded-lg transition-colors ${
-					isSelected ? 'font-medium bg-slate-100 dark:bg-primary-light' : ''
-				}`}
+					isSelected ? 'font-medium bg-slate-100 dark:bg-primary-light' : ''}`}
 			>
 				{taskNumber && (
-					<div className="flex items-center gap-2">
+					<div className="flex gap-2 items-center">
 						<span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
 							{taskNumber}
 						</span>
@@ -253,7 +257,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 								<span
 									role="status"
 									aria-label={`${totalFilteredItems} items filtered`}
-									className="ml-1 rounded-full bg-primary dark:bg-primary-light min-h-[1.75rem] min-w-[1.75rem] flex items-center justify-center text-white text-center text-[12px] font-medium shadow-sm transition-all"
+									className="ml-1 rounded-full bg-primary dark:bg-primary-light min-h-[1.75rem] min-w-[1.75rem] flex items-center justify-center text-white text-center text-[12px] font-medium shadow-xs transition-all"
 								>
 									{totalFilteredItems > 100 ? '100+' : totalFilteredItems}
 								</span>
@@ -269,8 +273,8 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 						</div>
 						<div className="grid gap-5">
 							<div className="">
-								<div className="flex justify-between w-full mb-1 text-sm text-gray-600">
-									<div className="flex items-center gap-2">
+								<div className="flex justify-between mb-1 w-full text-sm text-gray-600">
+									<div className="flex gap-2 items-center">
 										<span className="text-[12px]">{t('common.TEAM')}</span>
 										{selectedTeams.length > 0 && (
 											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
@@ -299,8 +303,8 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 								/>
 							</div>
 							<div className="">
-								<div className="flex justify-between w-full mb-1 text-sm text-gray-600">
-									<div className="flex items-center gap-2">
+								<div className="flex justify-between mb-1 w-full text-sm text-gray-600">
+									<div className="flex gap-2 items-center">
 										<span className="text-[12px]">{t('common.MEMBER')}</span>
 										{selectedMembers.length > 0 && (
 											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
@@ -331,8 +335,8 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 								/>
 							</div>
 							<div className="">
-								<div className="flex justify-between w-full mb-1 text-sm text-gray-600">
-									<div className="flex items-center gap-2">
+								<div className="flex justify-between mb-1 w-full text-sm text-gray-600">
+									<div className="flex gap-2 items-center">
 										<span className="text-[12px]">{t('sidebar.PROJECTS')}</span>
 										{selectedProjects.length > 0 && (
 											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
@@ -361,8 +365,8 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 								/>
 							</div>
 							<div className="">
-								<div className="flex justify-between w-full mb-1 text-sm text-gray-600">
-									<div className="flex items-center gap-2">
+								<div className="flex justify-between mb-1 w-full text-sm text-gray-600">
+									<div className="flex gap-2 items-center">
 										<span className="text-[12px]">{t('hotkeys.TASK')}</span>
 										{selectedTasks.length > 0 && (
 											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
@@ -392,18 +396,18 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									popoverClassName="max-h-[300px] overflow-y-auto"
 								/>
 							</div>
-							<div className="flex items-center justify-end w-full gap-x-4">
+							<div className="flex gap-x-4 justify-end items-center w-full">
 								<Button
 									onClick={clearAllFilters}
 									variant={'outline'}
-									className="flex items-center justify-center h-10 text-sm transition-colors rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+									className="flex justify-center items-center h-10 text-sm rounded-lg transition-colors dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
 									disabled={!totalFilteredItems}
 								>
 									<span className="text-sm">{t('common.CLEAR_FILTER')}</span>
 								</Button>
 								<Button
 									onClick={applyFilters}
-									className="flex items-center justify-center h-10 text-sm transition-opacity rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300 hover:opacity-90"
+									className="flex justify-center items-center h-10 text-sm rounded-lg transition-opacity bg-primary dark:bg-primary-light dark:text-gray-300 hover:opacity-90"
 								>
 									<span className="text-sm">{t('common.APPLY_FILTER')}</span>
 								</Button>

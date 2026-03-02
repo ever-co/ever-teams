@@ -6,7 +6,7 @@ import { PlusIcon } from '@heroicons/react/24/solid';
 import { useState } from 'react';
 import { Spinner } from '../common/spinner';
 import { useTranslations } from 'next-intl';
-import { useOrganizationTeams } from '@/core/hooks/organizations';
+import { useOrganizationTeamsQuery, useCreateOrganizationTeam } from '@/core/hooks/organizations';
 import { clsxm } from '@/core/lib/utils';
 import { activeTeamState, organizationTeamsState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
@@ -15,7 +15,8 @@ export const TeamsDropDown = () => {
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const teams = useAtomValue(organizationTeamsState);
-	const { setActiveTeam, getOrganizationTeamsLoading } = useOrganizationTeams();
+	const { getOrganizationTeamsLoading } = useOrganizationTeamsQuery();
+	const { setActiveTeam } = useCreateOrganizationTeam();
 	const t = useTranslations();
 	return (
 		<div className="w-[290px] max-w-sm">
@@ -24,8 +25,8 @@ export const TeamsDropDown = () => {
 					<>
 						<PopoverButton
 							className={`w-[290px] h-12
-                ${open ? '' : 'text-opacity-90'}
-                group inline-flex items-center rounded-[12px] bg-[#E8EBF8] dark:bg-[#18181B] px-3 py-2 text-base font-medium text-white hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75`}
+                ${open ? '' : 'text-white/90'}
+                group inline-flex items-center rounded-[12px] bg-[#E8EBF8] dark:bg-[#18181B] px-3 py-2 text-base font-medium text-white hover:text-white/100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-white/75`}
 						>
 							<div className="flex justify-between items-center w-full">
 								<div className="flex justify-center items-center space-x-4">
@@ -42,8 +43,8 @@ export const TeamsDropDown = () => {
 								) : (
 									<ChevronDownIcon
 										className={clsxm(
-											open ? '' : 'text-opacity-70',
-											'ml-2 w-5 h-5 transition duration-150 ease-in-out text-primary dark:text-white group-hover:text-opacity-80'
+											open ? '' : 'text-primary/70 dark:text-white/70',
+											'ml-2 w-5 h-5 transition duration-150 ease-in-out text-primary dark:text-white group-hover:text-primary/80 dark:group-hover:text-white/80'
 										)}
 										aria-hidden="true"
 									/>
@@ -60,7 +61,7 @@ export const TeamsDropDown = () => {
 							leaveTo="opacity-0 translate-y-1"
 						>
 							<PopoverPanel className="absolute left-1/2 z-10 mt-3 w-[290px] max-w-sm -translate-x-1/2 transform px-4 sm:px-0 lg:max-w-3xl">
-								<div className="overflow-hidden rounded-lg ring-1 ring-black ring-opacity-5 shadow-lg">
+								<div className="overflow-hidden rounded-lg ring-1 ring-black/5 shadow-lg">
 									<div className="relative grid gap-[8px] bg-[#FFFFFF] dark:bg-[#18181B] px-3 py-4 lg:grid-cols-1 w-full">
 										{teams.map((item) => {
 											const color = '#F5F6FB';
@@ -117,7 +118,7 @@ export const TeamsDropDown = () => {
 };
 
 function CreateNewTeam({ setEdit }: { setEdit: (value: React.SetStateAction<boolean>) => void }) {
-	const { createOTeamLoading, createOrganizationTeam } = useOrganizationTeams();
+	const { loading: createOTeamLoading, createOrganizationTeam } = useCreateOrganizationTeam();
 	const [error, setError] = useState<string | null>(null);
 	const t = useTranslations();
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -136,7 +137,7 @@ function CreateNewTeam({ setEdit }: { setEdit: (value: React.SetStateAction<bool
 	};
 
 	return (
-		<div className="bg-white dark:bg-[#202023] p-4 border-t border-[#9490A0] border-opacity-10 ">
+		<div className="bg-white dark:bg-[#202023] p-4 border-t border-[#9490A0]/10 ">
 			<form onSubmit={handleSubmit} className="relative text-gray-600 focus-within:text-gray-400">
 				<input
 					autoFocus

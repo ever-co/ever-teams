@@ -92,6 +92,8 @@
 		"YES": "Да",
 		"BASIC": "Основной",
 		"DELETE": "Удалить",
+		"DELETE_SUCCESS": "Успешно удалено",
+		"DELETE_ERROR": "Не удалось удалить",
 		"MEET": "Встреча",
 		"BOARD": "Доска",
 		"SECURITY_CODE": "Код безопасности",
@@ -101,6 +103,12 @@
 		"EDIT_TASK": "Редактировать задачу",
 		"ASSIGN_TASK": "Назначить задачу",
 		"ASSIGN_TASK_TO": "Назначить задачу",
+		"ASSIGN_TASK_TO_ME": "Назначить задачу мне",
+		"UNASSIGN_TASK_FROM_ME": "Снять меня с задачи",
+		"TASK_ASSIGNED_TO_ME": "Задача назначена вам",
+		"TASK_UNASSIGNED_FROM_ME": "Задача снята с вас",
+		"TASK_ASSIGN_ERROR": "Не удалось назначить задачу",
+		"TASK_UNASSIGN_ERROR": "Не удалось снять задачу",
 		"REMOVE_ACCOUNT": "Удалить аккаунт",
 		"REMOVE_EVERYWHERE": "Удалить везде",
 		"DELETE_ALL_DATA": "Удалить все данные",
@@ -111,6 +119,9 @@
 		"TRANSFERT_OWNERSHIP": "Передать владение",
 		"TRANSFERT_OWNERSHIP_TO": "Передача полного владения командой другому пользователю",
 		"REMOVE": "Удалить",
+		"REMOVED": "Удалён",
+		"ADDED": "Добавлен",
+		"AND_X_OTHERS": "и ещё {count}",
 		"REMOVE_TEAM": "Удалить команду",
 		"DISPOSE_TEAM": "Утилизировать команду",
 		"QUIT_TEAM": "Покинуть команду",
@@ -194,7 +205,11 @@
 		"USER_AVATAR": "Аватар пользователя",
 		"CONTACT": "Контакт",
 		"ENABLED": "Давать возможность",
-		"DISABLED": "Запрещать",
+		"DISABLED": "Отключено",
+		"UNKNOWN": "Неизвестно",
+		"RATE": "Ставка",
+		"FLAT_FEE": "Фиксированная плата",
+		"MILESTONES": "Этапы",
 		"THEME": "Тема",
 		"TIME_ZONE": "Часовой пояс",
 		"EDIT": "Редактировать",
@@ -237,7 +252,17 @@
 		"FULL_WIDTH": "Полная ширина",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Пожалуйста, остановите таймер перед изменением задачи",
 		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Пожалуйста, остановите таймер перед сменой команды",
+		"WORKSPACE_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Пожалуйста, остановите таймер перед сменой рабочего пространства",
 		"CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Пожалуйста, остановите таймер перед созданием новых элементов",
+		"WORKSPACE_SWITCH_CONFIRM_TITLE": "Сменить рабочее пространство?",
+		"WORKSPACE_SWITCH_CONFIRM_DESCRIPTION": "Вы собираетесь сменить рабочее пространство с \"{currentWorkspace}\" на \"{targetWorkspace}\".",
+		"WORKSPACE_SWITCH_CONFIRM_WARNING": "Это действие перезагрузит приложение для синхронизации всех данных.",
+		"WORKSPACE_SWITCH_CANCEL_ARIA": "Отменить смену рабочего пространства",
+		"WORKSPACE_SWITCH_CONFIRM_ARIA": "Подтвердить смену на {workspace}",
+		"WORKSPACE_SWITCH_CHANGING": "Смена...",
+		"WORKSPACE_SWITCH_CONFIRM_BUTTON": "Подтвердить смену",
+		"CURRENT_WORKSPACE": "текущее рабочее пространство",
+		"TARGET_WORKSPACE": "целевое рабочее пространство",
 		"COLLABORATE_DIALOG_TITLE": "Начать сотрудничество",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Пригласите участников и начните сотрудничество",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Начать совещание или совместную работу на доске",
@@ -381,6 +406,8 @@
 		"MEMBERS_COUNT": "Количество участников",
 		"REVIEW": "ОБЗОР",
 		"ARCHIVE": "Архив",
+		"ARCHIVE_SUCCESS": "Успешно архивировано",
+		"ARCHIVE_ERROR": "Не удалось архивировать",
 		"ARCHIVE_AT": "Архивировать на",
 		"RESTORE": "Восстановить",
 		"HIDE": "Скрыть",
@@ -560,7 +587,8 @@
 					"endDateRequired": "Дата окончания обязательна.",
 					"endDateAfterStart": "Дата окончания должна быть после даты начала.",
 					"invalidUrl": "Пожалуйста, введите действительный URL.",
-					"uploadError": "Произошла ошибка при загрузке изображения проекта, попробуйте снова!"
+					"uploadError": "Произошла ошибка при загрузке изображения проекта, попробуйте снова!",
+					"descriptionWordLimit": "Описание должно содержать не более 5000 слов."
 				},
 				"common": {
 					"search": "Поиск ...",
@@ -592,6 +620,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Назначить команды",
+					"noTeamsAvailable": "Нет доступных команд",
+					"teamsHelperText": "Выберите хотя бы одну команду для этого проекта",
 					"assignMembers": "Назначить участников и менеджеров",
 					"noMembers": "Нет участников или менеджеров",
 					"addMember": "Добавить участника",
@@ -601,8 +632,17 @@
 					"noRelations": "Нет связей",
 					"addRelation": "Добавить связь",
 					"selectProject": "Выберите проект...",
-					"selectRelationType": "Выберите тип связи..."
+					"selectRelationType": "Выберите тип связи...",
+					"activeTeamLocked": "Текущая команда обязательна и не может быть удалена"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "Выберите хотя бы одну команду"
 				}
+			},
+			"accessDenied": {
+				"title": "Доступ запрещён",
+				"description": "Этот проект не принадлежит вашей текущей команде ({teamName}). Переключитесь на команду, у которой есть доступ к этому проекту.",
+				"viewAllProjects": "Просмотреть все проекты"
 			},
 			"addOrEditModal": {
 				"steps": {
@@ -614,11 +654,15 @@
 			},
 			"deleteModal": {
 				"title": "Удалить выбранное?",
-				"description": "Вы собираетесь навсегда удалить этот проект. Нажмите 'Удалить', чтобы подтвердить действие"
+				"description": "Вы собираетесь навсегда удалить этот проект. Нажмите 'Удалить', чтобы подтвердить действие",
+				"successDescription": "Проект успешно удалён",
+				"errorDescription": "Не удалось удалить проект. Пожалуйста, попробуйте ещё раз."
 			},
 			"archiveModal": {
 				"title": "Архивировать {projectName}?",
-				"description": "Архивация {projectName} затронет {affectedTasksCount} задач."
+				"description": "Архивация {projectName} затронет {affectedTasksCount} задач.",
+				"successDescription": "{projectName} успешно архивирован",
+				"errorDescription": "Не удалось архивировать проект. Пожалуйста, попробуйте ещё раз."
 			},
 			"restoreModal": {
 				"title": "Восстановить проект",
@@ -675,14 +719,19 @@
 			"HAVE_PASSWORD": "Есть пароль?",
 			"LOGIN_WITH_PASSWORD": "Войти с паролем",
 			"LOGIN_WITH_MAGIC_CODE": "Войдите с помощью магического кода",
-			"ERROR_SIGNIN": "Ошибка при подписании"
+			"ERROR_SIGNIN": "Ошибка при подписании",
+			"DEMO_ACCOUNTS_TITLE": "Автоматический вход в демо-аккаунты",
+			"DEMO_ACCOUNTS_SUBTITLE": "Пожалуйста, выберите тип аккаунта ниже.",
+			"DEMO_SUPER_ADMIN": "Демо Супер Админ",
+			"DEMO_ADMIN": "Демо Админ",
+			"DEMO_EMPLOYEE": "Демо Сотрудник"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Пожалуйста введите ваш логин."
 		},
 		"authTeam": {
-			"HEADING_TITLE": "Создать новую команду",
-			"HEADING_DESCRIPTION": "Введите данные вашей команды, чтобы создать новую команду.",
+			"HEADING_TITLE": "Зарегистрируйтесь",
+			"HEADING_DESCRIPTION": "Расскажите нам больше о себе и (по желанию) о вашей команде для регистрации.",
 			"LOADING_TEXT": "Мы сейчас создаем ваше новое рабочее место, подождите...",
 			"LOADING_WORKSPACE": "Мы загружаем рабочее пространство, подождите...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Перенаправление на ваше рабочее пространство...",
@@ -690,7 +739,15 @@
 			"INPUT_TEAM_NAME": "Введите название вашей команды",
 			"JOIN_EXISTING_TEAM": "Присоединиться к существующей команде?",
 			"CREATE_FIRST_TEAM": "Создайте свою первую команду",
-			"CREATE_TEAM": "Создать команду"
+			"CREATE_TEAM": "Создать команду",
+			"GET_STARTED_TITLE": "Как вы хотите начать?",
+			"START_SOLO": "Начать самостоятельно",
+			"START_SOLO_NOTE": "Вы можете создать команду и пригласить других позже",
+			"CREATE_TEAM_NOW": "Создать команду сейчас",
+			"CONTINUE": "Продолжить",
+			"GET_STARTED": "Начать",
+			"STEP_USER_INFO": "Укажите ваше имя и email",
+			"STEP_CHOOSE_MODE": "Выберите ваш путь"
 		},
 		"settings": {
 			"BREADCRUMB": "[\"Панель управления\", \"Настройки\"]",

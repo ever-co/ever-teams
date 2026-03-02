@@ -58,7 +58,7 @@ const baseTaskSchema = z
 		startDate: z.coerce.date().optional().nullable(),
 		resolvedAt: z.coerce.date().optional().nullable(),
 		dueDate: z.coerce.date().optional().nullable(),
-		estimate: z.number().optional(),
+		estimate: z.number().nullable().optional(),
 		isDraft: z.boolean().optional(),
 		isScreeningTask: z.boolean().optional(),
 		version: z.string().optional().nullable(),

@@ -35,7 +35,7 @@ export function ProfileTabs({ tab, setTab }: { tab: IProfileTabs; setTab: Dispat
 				<div className="relative z-10 h-full mr-4">
 					<StatusDropdown />
 				</div>
-				<button className="rounded-[7px] hover:bg-opacity-80 w-[140px] text-md h-[36px] bg-primary text-white dark:bg-[#1B1B1E] dark:text-[#ACB3BB] dark:border-white dark:hover:text-white">
+				<button className="rounded-[7px] hover:bg-primary/80 dark:hover:bg-[#1B1B1E]/80 w-[140px] text-md h-[36px] bg-primary text-white dark:bg-[#1B1B1E] dark:text-[#ACB3BB] dark:border-white dark:hover:text-white">
 					{t('task.taskLabel.BUTTON_LABEL')}
 				</button>
 			</div>

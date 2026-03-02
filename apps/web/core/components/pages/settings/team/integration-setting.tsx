@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useGitHubIntegration, useIntegrationTenant, useIntegrationTypes } from '@/core/hooks';
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { GITHUB_APP_NAME } from '@/core/constants/config/constants';
-import { useOrganizationProjects } from '@/core/hooks';
+import { useEditOrganizationProject } from '@/core/hooks/organizations/projects/use-edit-organization-project';
 import { TrashIcon } from 'assets/svg';
 import { Button } from '@/core/components';
 import { getActiveProjectIdCookie } from '@/core/lib/helpers/index';
@@ -65,7 +65,7 @@ export const IntegrationSetting = () => {
 		metaData
 	} = useGitHubIntegration();
 
-	const { editOrganizationProjectSetting, editOrganizationProject } = useOrganizationProjects();
+	const { editOrganizationProjectSetting, editOrganizationProject } = useEditOrganizationProject();
 
 	const {
 		getIntegrationTenant,
@@ -239,7 +239,7 @@ export const IntegrationSetting = () => {
 										setIsTasksAutoSync(!isTasksAutoSync);
 									}}
 									className={`${isTasksAutoSync ? 'bg-[#DBD3FA]' : 'bg-[#80808061]'}
-          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75`}
+          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-white/75`}
 								>
 									<span className="sr-only">Use setting</span>
 									<span
@@ -268,7 +268,7 @@ export const IntegrationSetting = () => {
 										setIsTasksAutoSyncOnLabel(!isTasksAutoSyncOnLabel);
 									}}
 									className={`${isTasksAutoSyncOnLabel ? 'bg-[#DBD3FA]' : 'bg-[#80808061]'}
-          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75`}
+          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-white/75`}
 								>
 									<span className="sr-only">Use setting</span>
 									<span

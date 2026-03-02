@@ -1,7 +1,11 @@
 import { Button, Text } from '@/core/components';
 import { StatusesListCard } from '../settings/list-card';
 
-import { useCallbackRef, useTaskVersion } from '@/core/hooks';
+import { useCallbackRef } from '@/core/hooks';
+import { useTaskVersionsQuery } from '@/core/hooks/tasks/use-task-versions-query';
+import { useCreateTaskVersion } from '@/core/hooks/tasks/use-create-task-version';
+import { useEditTaskVersion } from '@/core/hooks/tasks/use-edit-task-version';
+import { useDeleteTaskVersion } from '@/core/hooks/tasks/use-delete-task-version';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { useCallback, useEffect, useState } from 'react';
@@ -32,15 +36,10 @@ export const TaskVersionForm = ({ formOnly = false, onCreated, onVersionCreated 
 	const $onVersionCreated = useCallbackRef(onVersionCreated);
 	const organizationId = getOrganizationIdCookie();
 
-	const {
-		loading,
-		taskVersions,
-		createTaskVersion,
-		deleteTaskVersion,
-		editTaskVersion,
-		createTaskVersionLoading,
-		editTaskVersionLoading
-	} = useTaskVersion();
+	const { loading, taskVersions } = useTaskVersionsQuery();
+	const { createTaskVersion, createTaskVersionLoading } = useCreateTaskVersion();
+	const { editTaskVersion, editTaskVersionLoading } = useEditTaskVersion();
+	const { deleteTaskVersion } = useDeleteTaskVersion();
 	const { refetch } = useRefetchData();
 
 	useEffect(() => {
@@ -109,7 +108,7 @@ export const TaskVersionForm = ({ formOnly = false, onCreated, onVersionCreated 
 				<div className="flex flex-row w-full">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] w-full">
 						{!formOnly && (
-							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-full  md:w-[200px]">
+							<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-2 w-full  md:w-[200px]">
 								{t('pages.settingsTeam.VERSIONS')}
 							</Text>
 						)}
@@ -131,7 +130,7 @@ export const TaskVersionForm = ({ formOnly = false, onCreated, onVersionCreated 
 
 							{(createNew || edit) && (
 								<>
-									<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400">
+									<Text className="flex-none grow-0 mb-2 text-lg font-normal text-gray-400">
 										{createNew && 'New'}
 										{edit && t('common.EDIT')} {t('common.VERSION')}
 									</Text>
@@ -178,7 +177,7 @@ export const TaskVersionForm = ({ formOnly = false, onCreated, onVersionCreated 
 
 							{!formOnly && taskVersions?.length > 0 && (
 								<>
-									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
+									<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
 										{t('pages.settingsTeam.LIST_OF_VERSONS')}
 									</Text>
 									<div className="flex flex-wrap gap-3 justify-center w-full sm:justify-start">

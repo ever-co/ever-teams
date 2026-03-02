@@ -2,11 +2,15 @@ import { Button } from '@/core/components';
 import { Fragment, ReactNode, useCallback, useMemo } from 'react';
 import { Calendar, Clipboard } from 'lucide-react';
 import { Thumbnail } from './basic-information-form';
-import moment from 'moment';
+import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-area';
+import { format } from 'date-fns';
+import { sanitizeHtml } from '@/core/lib/helpers/sanitize-html';
 
 import { IStepElementProps } from '../container';
-import { useTranslations } from 'next-intl';
-import { useOrganizationProjects } from '@/core/hooks/organizations';
+import { useLocale, useTranslations } from 'next-intl';
+import { useCreateOrganizationProject } from '@/core/hooks/organizations/projects/use-create-organization-project';
+import { useEditOrganizationProject } from '@/core/hooks/organizations/projects/use-edit-organization-project';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { IProjectRelation } from '@/core/types/interfaces/project/organization-project';
@@ -16,39 +20,61 @@ import { EProjectBilling } from '@/core/types/generics/enums/project';
 import { TCreateProjectRequest, TTag } from '@/core/types/schemas';
 import { DEFAULT_USER_IMAGE_URL } from '@/core/constants/data/mock-data';
 import { ECurrencies } from '@/core/types/generics/enums/currency';
-import { activeTeamState, organizationProjectsState, organizationTeamsState, rolesState } from '@/core/stores';
+import { activeTeamState, organizationTeamsState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
+import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+
+function safeFormatDate(date: string | Date | null | undefined, fmt = 'd.MM.yyyy'): string {
+	if (!date) return '-';
+	try {
+		return format(new Date(date), fmt);
+	} catch {
+		return '-';
+	}
+}
 
 export default function FinalReview(props: IStepElementProps) {
 	const { goToPrevious, finish, currentData: finalData, mode } = props;
-	const {
-		createOrganizationProject,
-		createOrganizationProjectLoading,
-		editOrganizationProject,
-		editOrganizationProjectLoading,
-		setOrganizationProjects
-	} = useOrganizationProjects();
+	const { createOrganizationProject, createOrganizationProjectLoading } = useCreateOrganizationProject();
+	const { editOrganizationProject, editOrganizationProjectLoading } = useEditOrganizationProject();
+
 	const t = useTranslations();
 	const activeTeam = useAtomValue(activeTeamState);
 
-	const roles = useAtomValue(rolesState);
+	const { roles: rolesFromApi } = useRolesQuery();
 	const { data: user } = useUserQuery();
 
-	const simpleMemberRole = roles?.find((role) => role.name == ERoleName.EMPLOYEE);
-	const managerRole = roles?.find((role) => role.name == ERoleName.MANAGER);
+	// Get role IDs with fallback to constants if API doesn't return roles
+	const { simpleMemberRoleId, managerRoleId } = useMemo(() => {
+		// Try to get from API first
+		if (rolesFromApi && rolesFromApi.length > 0) {
+			const simpleMemberRole = rolesFromApi.find((role) => role.name === ERoleName.EMPLOYEE);
+			const managerRole = rolesFromApi.find((role) => role.name === ERoleName.MANAGER);
+			return {
+				simpleMemberRoleId: simpleMemberRole?.id ? String(simpleMemberRole.id) : undefined,
+				managerRoleId: managerRole?.id ? String(managerRole.id) : undefined
+			};
+		}
+
+		// Fallback to the same IDs used in team-and-relations-form.tsx
+		return {
+			simpleMemberRoleId: `fallback-${ERoleName.EMPLOYEE}`,
+			managerRoleId: `fallback-${ERoleName.MANAGER}`
+		};
+	}, [rolesFromApi]);
 
 	// Enhanced member assignment with default role logic
 	const processedMembers = useMemo(() => {
 		const members = finalData?.members || [];
-		const hasManagers = members.some((el) => el.roleId == managerRole?.id && el.memberId);
+		const hasManagers = members.some((el) => el.roleId === managerRoleId && el.memberId);
 
 		// If no managers are assigned and current user is available, assign current user as manager
-		if (!hasManagers && user?.employee?.id && simpleMemberRole?.id && managerRole?.id) {
+		if (!hasManagers && user?.employee?.id && simpleMemberRoleId && managerRoleId) {
 			const currentUserMember = {
 				id: crypto.randomUUID(),
 				memberId: user.employee.id,
-				roleId: managerRole.id
+				roleId: managerRoleId
 			};
 
 			// Check if current user is already assigned with a different role
@@ -56,7 +82,7 @@ export default function FinalReview(props: IStepElementProps) {
 			if (existingUserIndex >= 0) {
 				// Update existing assignment to manager role
 				const updatedMembers = [...members];
-				updatedMembers[existingUserIndex] = { ...updatedMembers[existingUserIndex], roleId: managerRole.id };
+				updatedMembers[existingUserIndex] = { ...updatedMembers[existingUserIndex], roleId: managerRoleId };
 				return updatedMembers;
 			} else {
 				// Add current user as manager
@@ -66,12 +92,21 @@ export default function FinalReview(props: IStepElementProps) {
 
 		// Assign default employee role to members without roles
 		return members.map((member) => {
-			if (!member.roleId && member.memberId && simpleMemberRole?.id) {
-				return { ...member, roleId: simpleMemberRole.id };
+			if (!member.roleId && member.memberId && simpleMemberRoleId) {
+				return { ...member, roleId: simpleMemberRoleId };
 			}
 			return member;
 		});
-	}, [finalData?.members, managerRole?.id, simpleMemberRole?.id, user?.employee?.id]);
+	}, [finalData?.members, managerRoleId, simpleMemberRoleId, user?.employee?.id]);
+
+	// Use teams from form data, fallback to activeTeam if none selected
+	const selectedTeams = useMemo(() => {
+		if (finalData?.teams && finalData.teams.length > 0) {
+			return finalData.teams;
+		}
+		// Fallback to activeTeam if no teams were selected in the form
+		return activeTeam ? [activeTeam] : [];
+	}, [finalData?.teams, activeTeam]);
 
 	const newProject: Partial<TCreateProjectRequest> = {
 		name: finalData?.name,
@@ -79,27 +114,26 @@ export default function FinalReview(props: IStepElementProps) {
 		endDate: finalData?.endDate,
 		projectUrl: finalData?.projectUrl,
 		description: finalData?.description,
-		imageUrl: finalData?.projectImage?.fullUrl ?? undefined,
-		imageId: finalData?.projectImage?.id,
+		imageUrl: finalData?.projectImage?.fullUrl ?? finalData?.imageUrl ?? undefined,
+		imageId: finalData?.projectImage?.id ?? finalData?.imageId,
 		tags: finalData?.tags,
 		color: finalData?.color ?? '#000',
 		memberIds:
 			processedMembers
-				?.filter((el) => el.roleId == simpleMemberRole?.id && el.memberId)
+				?.filter((el) => el.roleId === simpleMemberRoleId && el.memberId)
 				.map((el) => el.memberId) || [],
 		managerIds:
-			processedMembers?.filter((el) => el.roleId == managerRole?.id && el.memberId).map((el) => el.memberId) ||
-			[],
+			processedMembers?.filter((el) => el.roleId === managerRoleId && el.memberId).map((el) => el.memberId) || [],
 		budget: finalData?.budget,
 		currency: finalData?.currency,
 		budgetType: finalData?.budgetType,
 		billing: finalData?.billing,
-		teams: [...(activeTeam ? [activeTeam] : [])],
-		status: ETaskStatusName.OPEN,
-		isActive: true,
-		isArchived: false,
-		isTasksAutoSync: true,
-		isTasksAutoSyncOnLabel: true
+		teams: selectedTeams,
+		status: (finalData?.status as ETaskStatusName) ?? ETaskStatusName.OPEN,
+		isActive: finalData?.isActive ?? true,
+		isArchived: finalData?.isArchived ?? false,
+		isTasksAutoSync: finalData?.isTasksAutoSync ?? true,
+		isTasksAutoSyncOnLabel: finalData?.isTasksAutoSyncOnLabel ?? true
 	};
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -121,14 +155,6 @@ export default function FinalReview(props: IStepElementProps) {
 			});
 
 			if (project) {
-				setOrganizationProjects((prev) =>
-					prev.map((el) => {
-						if (el.id === finalData.id) {
-							return project;
-						}
-						return el;
-					})
-				);
 				finish?.(project);
 			}
 		}
@@ -139,43 +165,47 @@ export default function FinalReview(props: IStepElementProps) {
 	}, [finalData, goToPrevious]);
 
 	return (
-		<form onSubmit={handleSubmit} className="pt-4 space-y-5 w-full">
-			<div className="flex flex-col gap-6 w-full">
-				<h2 className="text-xl font-medium">{t('common.REVIEW')}</h2>
-				<div className="flex flex-col gap-8 w-full">
-					<BasicInformation
-						projectTitle={finalData?.name ?? '-'}
-						startDate={moment(finalData?.startDate).format('D.MM.YYYY')}
-						endDate={moment(finalData?.endDate).format('D.MM.YYYY')}
-						websiteUrl={finalData?.projectUrl ?? undefined}
-						projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
-						description={finalData?.description ?? undefined}
-					/>
-					<FinancialSettings
-						budgetAmount={finalData?.budget}
-						billingType={finalData?.billing as EProjectBilling}
-						budgetCurrency={finalData?.currency as ECurrencies}
-						budgetType={finalData?.budgetType}
-					/>
-					<Categorization tags={finalData?.tags} colorCode={finalData?.color} />
-					<TeamAndRelations
-						projectTitle={finalData?.name}
-						projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
-						managerIds={
-							processedMembers
-								?.filter((el) => el.roleId == managerRole?.id && el.memberId)
-								.map((el) => el.memberId) || []
-						}
-						memberIds={
-							processedMembers
-								?.filter((el) => el.roleId == simpleMemberRole?.id && el.memberId)
-								.map((el) => el.memberId) || []
-						}
-						relations={finalData?.relations}
-					/>
+		<form onSubmit={handleSubmit} className="flex flex-col pt-4 w-full">
+			<ScrollArea className="w-full max-h-[65vh] pr-4">
+				<div className="flex flex-col gap-6 pb-32 w-full">
+					<h2 className="text-xl font-medium">{t('common.REVIEW')}</h2>
+					<div className="flex flex-col gap-8 w-full">
+						<BasicInformation
+							projectTitle={finalData?.name ?? '-'}
+							startDate={safeFormatDate(finalData?.startDate)}
+							endDate={safeFormatDate(finalData?.endDate)}
+							websiteUrl={finalData?.projectUrl ?? undefined}
+							projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
+							description={finalData?.description ?? undefined}
+						/>
+						<FinancialSettings
+							budgetAmount={finalData?.budget}
+							billingType={finalData?.billing as EProjectBilling}
+							budgetCurrency={finalData?.currency as ECurrencies}
+							budgetType={finalData?.budgetType}
+						/>
+						<Categorization tags={finalData?.tags} colorCode={finalData?.color} />
+						<TeamAndRelations
+							projectTitle={finalData?.name}
+							projectImageUrl={finalData?.projectImage?.fullUrl ?? undefined}
+							managerIds={
+								processedMembers
+									?.filter((el) => el.roleId === managerRoleId && el.memberId)
+									.map((el) => el.memberId) || []
+							}
+							memberIds={
+								processedMembers
+									?.filter((el) => el.roleId === simpleMemberRoleId && el.memberId)
+									.map((el) => el.memberId) || []
+							}
+							relations={finalData?.relations}
+							selectedTeams={selectedTeams}
+						/>
+					</div>
 				</div>
-			</div>
-			<div className="flex justify-between items-center w-full">
+				<ScrollBar orientation="vertical" />
+			</ScrollArea>
+			<div className="flex justify-between items-center pt-4 w-full border-t">
 				<Button
 					disabled={createOrganizationProjectLoading || editOrganizationProjectLoading}
 					onClick={handlePrevious}
@@ -276,7 +306,14 @@ function BasicInformation(props: IBasicInformationProps) {
 
 			<div className="flex flex-col gap-2 w-full">
 				<span className="text-xs font-medium">{t('common.DESCRIPTION')}</span>
-				{description ? <p className="p-3 text-xs rounded-lg border min-h-20">{description}</p> : <span>-</span>}
+				{description ? (
+					<div
+						className="p-3 text-xs rounded-lg border min-h-20 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-gray-700 [&_code]:px-1 [&_code]:rounded [&_p]:mb-1 [&_p:last-child]:mb-0"
+						dangerouslySetInnerHTML={{ __html: sanitizeHtml(description) }}
+					/>
+				) : (
+					<span>-</span>
+				)}
 			</div>
 		</div>
 	);
@@ -292,9 +329,10 @@ interface FinancialSettingsProps {
 	budgetCurrency?: string;
 	billingType?: EProjectBilling;
 }
-function FinancialSettings(props: FinancialSettingsProps) {
+function FinancialSettings(props: Readonly<FinancialSettingsProps>) {
 	const { budgetType, budgetAmount, budgetCurrency, billingType } = props;
 	const t = useTranslations();
+	const locale = useLocale();
 
 	const data = [
 		{
@@ -304,7 +342,7 @@ function FinancialSettings(props: FinancialSettingsProps) {
 		{
 			key: t('pages.projects.financialSettingsForm.formFields.budgetAmount'),
 			value: budgetAmount
-				? new Intl.NumberFormat('us-US', {
+				? new Intl.NumberFormat(locale, {
 						useGrouping: true
 					}).format(Number(budgetAmount))
 				: '-'
@@ -388,13 +426,14 @@ interface ITeamAndRelationsProps {
 	relations?: IProjectRelation[];
 	projectImageUrl?: string;
 	projectTitle?: string;
+	selectedTeams?: { id: string; name: string; emoji?: string | null }[];
 }
 
 function TeamAndRelations(props: ITeamAndRelationsProps) {
-	const { managerIds, memberIds, relations, projectImageUrl, projectTitle } = props;
+	const { managerIds, memberIds, relations, projectImageUrl, projectTitle, selectedTeams } = props;
 	const t = useTranslations();
 
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects: organizationProjectsList } = useOrganizationProjectsQuery();
 
 	const teams = useAtomValue(organizationTeamsState);
 
@@ -426,6 +465,27 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 
 	return (
 		<div className="flex flex-col gap-8 w-full">
+			{/* Teams Section */}
+			<div className="flex flex-col gap-2">
+				<p className="text-xs font-medium">{t('pages.projects.teamAndRelationsForm.formFields.assignTeams')}</p>
+				<div className="flex flex-wrap gap-2 items-center w-full">
+					{selectedTeams?.length ? (
+						selectedTeams.map((team) => (
+							<div
+								key={team.id}
+								className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 border border-primary/20"
+							>
+								{team.emoji && <span>{team.emoji}</span>}
+								<span>{team.name}</span>
+							</div>
+						))
+					) : (
+						<span className="text-xs text-gray-500">-</span>
+					)}
+				</div>
+			</div>
+
+			{/* Managers Section */}
 			<div className="flex flex-col gap-2">
 				<p className="text-xs font-medium">{t('common.MANAGERS')}</p>
 				<div className="flex gap-2 items-center w-full wrap">
@@ -482,7 +542,7 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 				<div className="flex flex-col gap-2 w-full">
 					{relations?.length ? (
 						relations?.map((relation) => {
-							const project = organizationProjects?.find((el) => el.id === relation.projectId);
+							const project = organizationProjectsList?.find((el) => el.id === relation.projectId);
 							return (
 								<div key={project?.id} className="flex gap-3 items-center">
 									<Item name={projectTitle ?? '-'} imgUrl={projectImageUrl} />

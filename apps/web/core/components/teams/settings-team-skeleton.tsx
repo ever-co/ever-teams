@@ -33,7 +33,7 @@ const SettingsTeamSkeleton = () => {
 											<div className="flex items-center justify-between w-full gap-12 mt-8">
 												<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
 
-												<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
+												<div className="flex flex-row items-center justify-between grow-0 w-4/5">
 													<InputField type="text" className="" />
 												</div>
 											</div>
@@ -82,7 +82,7 @@ const SettingsTeamSkeleton = () => {
 											<div className="flex items-center justify-between w-full gap-12 mt-20">
 												<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
 
-												<div className="flex flex-row items-center justify-between flex-grow-0 w-1/2">
+												<div className="flex flex-row items-center justify-between grow-0 w-1/2">
 													<InputField type="text" className="" />
 												</div>
 												<div className="flex items-center justify-between gap-12">
@@ -91,7 +91,7 @@ const SettingsTeamSkeleton = () => {
 												</div>
 											</div>
 											<div className="flex flex-col float-right mr-8">
-												<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-[1rem] w-full mt-[2.4rem]">
+												<Text className="flex-none grow-0 text-md text-gray-400 font-medium mb-[1rem] w-full mt-[2.4rem]">
 													<Skeleton
 														width={200}
 														borderRadius={20}

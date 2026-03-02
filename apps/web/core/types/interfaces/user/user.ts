@@ -75,5 +75,6 @@ export interface UseAuthenticateUserResult {
 	timeToTimeRefreshToken: (interval?: number) => () => void;
 	refreshToken: () => Promise<void>;
 	userDataQuery: UseQueryResult<TUser, Error>;
-	refreshTokenMutation: UseMutationResult<unknown, Error, void, unknown>;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	refreshTokenMutation: UseMutationResult<any, unknown, void, unknown>;
 }

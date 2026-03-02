@@ -3,13 +3,16 @@ import { useState, useEffect, useRef } from 'react';
 import { SearchNormalIcon } from 'assets/svg';
 import { useTranslations } from 'next-intl';
 import { InputField } from '../../duplicated-components/_input';
+import { cn } from '@/core/lib/helpers';
 
 const KanbanSearch = ({
 	setSearchTasks,
-	searchTasks
+	searchTasks,
+	className
 }: {
 	setSearchTasks: (value: string) => void;
 	searchTasks: string;
+	className?: string;
 }) => {
 	const [isExpanded, setIsExpanded] = useState(false);
 	const searchRef: any = useRef(null);
@@ -41,10 +44,18 @@ const KanbanSearch = ({
 				value={searchTasks}
 				onChange={({ target }) => setSearchTasks(target.value)}
 				placeholder={t('common.SEARCH')}
-				className={`mb-0 h-10 transition-all ${isExpanded ? 'w-64' : 'w-44'} !bg-transparent`}
+				className={cn(
+					`mb-0 h-8 text-sm transition-all bg-transparent! border-none focus:ring-0`,
+					isExpanded ? 'w-64' : 'w-44'
+				)}
+				wrapperClassName={className}
 				leadingNode={
-					<Button variant="ghost" className="p-0 m-0 ml-[0.9rem] min-w-0 absolute right-3" type="submit">
-						<SearchNormalIcon className="w-4 h-4" />
+					<Button
+						variant="ghost"
+						className="p-0 m-0 ml-[0.9rem] min-w-0 absolute right-3 h-8 w-8 flex items-center justify-center"
+						type="submit"
+					>
+						<SearchNormalIcon className="w-3.5 h-3.5" />
 					</Button>
 				}
 			/>

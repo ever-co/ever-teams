@@ -8,34 +8,24 @@ import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
 import { DragDropContext, Draggable, Droppable, DroppableProvided } from '@hello-pangea/dnd';
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { TUser } from '@/core/types/schemas';
+import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { handleDragAndDropDailyOutstandingAll } from '@/core/lib/helpers/index';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useDailyPlan } from '@/core/hooks';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { filterDailyPlansByTasks } from '@/core/hooks';
 
-interface OutstandingAll {
+interface OutstandingAllProps {
 	profile: any;
 	user?: TUser;
+	outstandingPlans: TDailyPlan[];
+	filteredTaskIds?: string[]; // Filter plans by taskIds (default undefined = show all)
 }
-export function OutstandingAll({ profile, user }: OutstandingAll) {
-	// Use contextual employee ID selection based on profile context
-	// Following the pattern from user-employee-id-management.md guide
-	const { data: authUser } = useUserQuery();
-	const employeeId = useMemo(() => {
-		if (profile.isAuthUser) {
-			// For authenticated user: use their own employee ID
-			return authUser?.employee?.id ?? authUser?.employeeId ?? '';
-		} else {
-			// For another user's profile: use the passed user's employee ID
-			return user?.employee?.id ?? user?.employeeId ?? '';
-		}
-	}, [profile.isAuthUser, authUser?.employee?.id, authUser?.employeeId, user?.employee?.id, user?.employeeId]);
-
-	const outstandingPlans = useDailyPlan(employeeId).outstandingPlans;
+export function OutstandingAll({ profile, user, outstandingPlans, filteredTaskIds }: OutstandingAllProps) {
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 
 	// Memoized user filter function for performance
+	// This function ALWAYS filters by user if user exists (privacy/security)
+	// The filterByEmployee flag is ignored in OutstandingAll because this component
+	// is designed to show outstanding tasks for a SPECIFIC user, not the whole team
 	const filterTasksByUser = useCallback(
 		(tasks: TTask[]) => {
 			if (!user?.id) return tasks;
@@ -44,15 +34,31 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 		[user?.id]
 	);
 
+	// Create filtered plans for TaskEstimatedCount to match the displayed tasks
+	// ALWAYS filter by user if user exists (same logic as uniqueTasks)
+	const filteredPlans = useMemo(() => {
+		let filteredData = outstandingPlans;
+
+		if (filteredTaskIds && filteredData) {
+			filteredData = filterDailyPlansByTasks(filteredData, filteredTaskIds);
+		}
+
+		return filteredData
+			.map((plan) => ({
+				...plan,
+				tasks: user ? filterTasksByUser(plan.tasks ?? []) : plan.tasks
+			}))
+			.filter((plan) => plan.tasks && plan.tasks.length > 0);
+	}, [outstandingPlans, filterTasksByUser, user, filteredTaskIds]);
+
 	// Memoized task deduplication to prevent unnecessary recalculations
 	// This fixes the bug where duplicate tasks caused count/display mismatch
 	const uniqueTasks = useMemo(() => {
 		// Early return for empty data to avoid unnecessary processing
-		if (!outstandingPlans.length) return [];
+		if (!filteredPlans.length) return [];
 
-		const allTasks = outstandingPlans.flatMap((plan) => {
-			const tasks = plan.tasks ?? [];
-			return user ? filterTasksByUser(tasks) : tasks;
+		const allTasks = filteredPlans.flatMap((plan) => {
+			return plan.tasks ?? [];
 		});
 
 		// Use Map for deduplication by task ID to handle large datasets efficiently
@@ -64,7 +70,7 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 		});
 
 		return Array.from(taskMap.values());
-	}, [outstandingPlans, filterTasksByUser]);
+	}, [filteredPlans, filterTasksByUser]);
 
 	// State for drag & drop functionality only
 	const [dragTasks, setDragTasks] = useState<TTask[]>(uniqueTasks);
@@ -74,19 +80,9 @@ export function OutstandingAll({ profile, user }: OutstandingAll) {
 		setDragTasks(uniqueTasks);
 	}, [uniqueTasks]);
 
-	// Create filtered plans for TaskEstimatedCount to match the displayed tasks
-	const filteredPlansForCount = useMemo(() => {
-		return outstandingPlans
-			.map((plan) => ({
-				...plan,
-				tasks: user ? filterTasksByUser(plan.tasks ?? []) : plan.tasks
-			}))
-			.filter((plan) => plan.tasks && plan.tasks.length > 0);
-	}, [outstandingPlans, filterTasksByUser, user]);
-
 	return (
 		<div className="flex flex-col gap-6">
-			<TaskEstimatedCount outstandingPlans={filteredPlansForCount} />
+			<TaskEstimatedCount outstandingPlans={filteredPlans} />
 
 			{uniqueTasks.length > 0 ? (
 				<>

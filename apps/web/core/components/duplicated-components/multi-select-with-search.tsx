@@ -81,7 +81,7 @@ export function MultiSelectWithSearch<T extends { value: string | number; id: st
 										onClick={() => handleSelect(option)}
 										key={option.id}
 										className={cn(
-											'w-full  cursor-pointer flex gap-2  px-4 py-2 rounded-sm text-sm',
+											'w-full  cursor-pointer flex gap-2  px-4 py-2 rounded-xs text-sm',
 											isSelected ? 'bg-primary text-white' : 'hover:bg-primary/10'
 										)}
 									>

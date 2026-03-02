@@ -1,17 +1,16 @@
 import { cn } from '@/core/lib/helpers';
 import { Checkbox } from '@/core/components/common/checkbox';
 import Image from 'next/image';
+import Link from 'next/link';
 import { CalendarDays, RotateCcw } from 'lucide-react';
-import { useModal } from '@/core/hooks';
 import { useCallback, useMemo } from 'react';
 import moment from 'moment';
 import AvatarStack from '@/core/components/common/avatar-stack';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { ProjectItemActions, ProjectViewDataType } from '..';
-import { RestoreProjectModal } from '@/core/components/features/projects/restore-project-modal';
-import { useAtomValue } from 'jotai';
-import { taskStatusesState } from '@/core/stores';
+import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
+import { useProjectActionModal } from '@/core/hooks/use-project-action-modal';
 
 interface IGridItemProps {
 	data: ProjectViewDataType;
@@ -21,13 +20,9 @@ interface IGridItemProps {
 
 export default function GridItem(props: IGridItemProps) {
 	const { data, isSelected, onSelect } = props;
-	const {
-		openModal: openRestoreProjectModal,
-		closeModal: closeRestoreProjectModal,
-		isOpen: isRestoreProjectModalOpen
-	} = useModal();
+	const { openRestoreModal } = useProjectActionModal();
 
-	const taskStatuses = useAtomValue(taskStatusesState);
+	const { taskStatuses } = useTaskStatusesQuery();
 
 	const statusColorsMap: Map<string | undefined, string | undefined | null> = useMemo(() => {
 		return new Map(taskStatuses.map((status) => [status.name, status.color]));
@@ -81,7 +76,10 @@ export default function GridItem(props: IGridItemProps) {
 				<Checkbox onCheckedChange={handleSelect} checked={isSelected} className="mt-1 shrink-0" />
 				<div className="flex flex-col gap-6 ml-3 h-full grow">
 					<div className="flex justify-between items-center w-full">
-						<div className="flex gap-2 items-start font-medium">
+						<Link
+							href={`/projects/${data?.project?.id}`}
+							className="flex gap-2 items-start font-medium group"
+						>
 							<div
 								style={{ backgroundColor: data?.project?.color ?? undefined }}
 								className={cn(
@@ -100,11 +98,13 @@ export default function GridItem(props: IGridItemProps) {
 									/>
 								)}
 							</div>
-							<p className="text-sm font-semibold">{data?.project?.name}</p>
-						</div>
+							<p className="text-sm font-semibold group-hover:text-primary transition-colors">
+								{data?.project?.name}
+							</p>
+						</Link>
 						{data?.isArchived ? (
 							<button
-								onClick={openRestoreProjectModal}
+								onClick={() => openRestoreModal(data.project.id)}
 								className="bg-gray-100 hover:bg-gray-200 text-primary gap-1.5 group flex items-center rounded-md px-2 py-1.5 text-xs font-medium transition-colors"
 							>
 								<RotateCcw size={14} />
@@ -202,11 +202,6 @@ export default function GridItem(props: IGridItemProps) {
 					</div>
 				</div>
 			</div>
-			<RestoreProjectModal
-				projectId={data?.project.id}
-				open={isRestoreProjectModalOpen}
-				closeModal={closeRestoreProjectModal}
-			/>
 		</div>
 	);
 }

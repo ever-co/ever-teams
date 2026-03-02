@@ -5,8 +5,9 @@ import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-
 import { Nullable } from '@/core/types/generics/utils';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
-import { PropsWithChildren, useMemo } from 'react';
+import { PropsWithChildren, useCallback, useMemo } from 'react';
 import { useStatusValue, useTaskStatusValue } from '@/core/hooks';
+import { useTaskSizesQuery } from '@/core/hooks/tasks/use-task-sizes-query';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { readableColor } from 'polished';
 import { useTheme } from 'next-themes';
@@ -28,7 +29,7 @@ import { useMapToTaskStatusValues } from '@/core/hooks/tasks/use-map-to-task-sta
 import { useActiveTaskStatus } from '@/core/hooks/tasks/use-active-task-status';
 import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
 import { useAtomValue } from 'jotai';
-import { tasksByTeamState, taskSizesListState } from '@/core/stores';
+import { tasksByTeamState } from '@/core/stores';
 
 /**
  * Task status dropwdown
@@ -235,7 +236,8 @@ export function EpicPropertiesDropdown({
 	multiple,
 	sidebarUI = false,
 	children,
-	taskStatusClassName
+	taskStatusClassName,
+	defaultValues
 }: TTaskStatusesDropdown<'epic'>) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const status = useMemo(() => {
@@ -247,7 +249,7 @@ export function EpicPropertiesDropdown({
 					name: `#${task.taskNumber} ${task.title}`,
 					value: task.id,
 					icon: (
-						<div className="bg-[#8154BA] p-1 rounded-sm mr-1">
+						<div className="bg-[#8154BA] p-1 rounded-xs mr-1">
 							<Square4OutlineIcon className="w-full mn-w-2 min-h-2 aspect-square max-w-[10px] text-white" />
 						</div>
 					)
@@ -260,11 +262,12 @@ export function EpicPropertiesDropdown({
 		status,
 		value: defaultValue,
 		onValueChange,
-		multiple
+		multiple,
+		defaultValues
 	});
 
 	return (
-		<StatusDropdown
+		<MultipleStatusDropdown
 			sidebarUI={sidebarUI}
 			forDetails={forDetails}
 			className={className}
@@ -272,14 +275,12 @@ export function EpicPropertiesDropdown({
 			value={item}
 			defaultItem={!item ? 'epic' : undefined}
 			onChange={onChange}
-			multiple={multiple}
 			values={values}
-			showButtonOnly
 			taskStatusClassName={taskStatusClassName}
-			isEpic
+			isVersion={false}
 		>
 			{children}
-		</StatusDropdown>
+		</MultipleStatusDropdown>
 	);
 }
 
@@ -318,7 +319,7 @@ export function TaskPropertiesDropdown({
 			items={items}
 			value={item}
 			defaultItem={!item ? 'priority' : undefined}
-			onChange={onChange as any}
+			onChange={onChange}
 			multiple={multiple}
 			isMultiple={isMultiple}
 			values={values as any}
@@ -378,7 +379,7 @@ export function TaskPriorityStatus({
 }
 
 export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
-	const taskSizes = useAtomValue(taskSizesListState);
+	const { taskSizes } = useTaskSizesQuery();
 	const taskSizesValue = useMapToTaskStatusValues(taskSizes as TTaskStatus[], false);
 
 	const { item, items, onChange, field, isLocalLoading } = useActiveTaskStatus(props, taskSizesValue, 'size');
@@ -487,7 +488,7 @@ export function TaskStatus({
 	showIssueLabels,
 	bordered,
 	titleClassName,
-	cheched = false,
+	checked = false,
 	showIcon = true,
 	sidebarUI = false,
 	realName,
@@ -501,7 +502,7 @@ export function TaskStatus({
 			showIssueLabels?: boolean;
 			forDetails?: boolean;
 			titleClassName?: string;
-			cheched?: boolean;
+			checked?: boolean;
 			sidebarUI?: boolean;
 			value?: string;
 			isVersion?: boolean;
@@ -514,9 +515,9 @@ export function TaskStatus({
 	return (
 		<div
 			className={cn(
-				`p-1 flex items-center text-xs relative text-gray-500 dark:text-white gap-x-1.5 min-w-fit w-fit !rounded`,
+				`px-2 py-1 flex items-center text-xs relative text-gray-500 dark:text-white gap-x-1.5 min-w-fit w-fit rounded!`,
 
-				sidebarUI ? 'text-dark rounded-md font-[500]' : 'space-x-0 rounded-xl',
+				sidebarUI ? 'text-dark rounded-md font-medium' : 'space-x-0 rounded-xl',
 
 				issueType === 'issue' && ['text-white'],
 
@@ -535,12 +536,12 @@ export function TaskStatus({
 		>
 			<div
 				className={cn(
-					'flex overflow-hidden gap-x-0.5 items-center whitespace-nowrap text-ellipsis',
+					'flex overflow-hidden gap-x-0.5 items-center whitespace-nowrap text-ellipsis text-current',
 					'',
 					titleClassName
 				)}
 			>
-				{cheched ? (
+				{checked ? (
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						viewBox="0 0 24 24"
@@ -556,7 +557,7 @@ export function TaskStatus({
 
 				{name && (issueType !== 'issue' || showIssueLabels) && (
 					<div
-						className={`overflow-hidden text-xs capitalize text-ellipsis`}
+						className={`overflow-hidden text-xs capitalize text-ellipsis min-w-fit`}
 						title={realName || name}
 						style={
 							isVersion || isEpic
@@ -603,7 +604,8 @@ export function StatusDropdown<T extends TStatusItem>({
 	isEpic = false,
 	onRemoveSelected,
 	isMultiple = true,
-	isLoading = false
+	isLoading = false,
+	titleClassName = ''
 }: PropsWithChildren<{
 	value: T | undefined;
 	values?: NonNullable<T['name']>[];
@@ -629,25 +631,31 @@ export function StatusDropdown<T extends TStatusItem>({
 	onRemoveSelected?: () => null;
 	isMultiple?: boolean;
 	isLoading?: boolean;
+	titleClassName?: string;
 }>) {
-	const processedValues = [...new Set(values)];
-	if (multiple && value) {
-		const valueToAdd = value.value || value.name;
-		if (valueToAdd && !processedValues.some((v) => v === valueToAdd)) {
-			processedValues.push(valueToAdd);
+	const processedValues = useMemo(() => {
+		const processedValues = [...new Set(values)];
+		if (multiple && value) {
+			const valueToAdd = value.value || value.name;
+			if (valueToAdd && !processedValues.some((v) => v === valueToAdd)) {
+				processedValues.push(valueToAdd);
+			}
 		}
-	}
+		return processedValues;
+	}, [values, multiple, value]);
 
-	values = processedValues;
-	const defaultValue: TStatusItem = {
-		bgColor: undefined,
-		icon: (
-			<span>
-				<CircleIcon className="w-4 h-4" />
-			</span>
-		),
-		name: defaultItem
-	};
+	const defaultValue: TStatusItem = useMemo(
+		() => ({
+			bgColor: undefined,
+			icon: (
+				<span>
+					<CircleIcon className="w-4 h-4" />
+				</span>
+			),
+			name: defaultItem
+		}),
+		[defaultItem]
+	);
 
 	const currentValue = value || defaultValue;
 	const hasBtnIcon = issueType === 'status' && !showButtonOnly;
@@ -664,11 +672,11 @@ export function StatusDropdown<T extends TStatusItem>({
 			sidebarUI={sidebarUI}
 			className={cn(
 				`justify-between capitalize whitespace-nowrap overflow-hidden max-w-[90%]`,
-				!forDetails && 'w-full max-w-[190px]',
+				!forDetails && 'w-full max-w-fit',
 				'flex items-center gap-x-1.5',
 				sidebarUI && ['text-xs'],
 				!value && [
-					'!text-dark/40 dark:text-white/70',
+					'text-dark/40! dark:text-white/70',
 					'bg-white dark:bg-[#1B1D22] border border-gray-200 dark:border-[#FFFFFF33]'
 				],
 				value && ['text-black dark:text-black', 'bg-white dark:bg-white border border-gray-200'],
@@ -678,8 +686,9 @@ export function StatusDropdown<T extends TStatusItem>({
 				'h-full transition-colors duration-200'
 			)}
 			titleClassName={cn(
-				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[90%] text-ellipsis overflow-hidden'],
-				!value && 'dark:text-white'
+				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-fit text-ellipsis overflow-hidden'],
+				!value && 'dark:text-white',
+				titleClassName
 			)}
 			isVersion={isVersion}
 			isEpic={isEpic}
@@ -691,8 +700,10 @@ export function StatusDropdown<T extends TStatusItem>({
 				!showButtonOnly && (
 					<ChevronDownIcon
 						className={cn(
-							'h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
-							(!value || currentValue.bordered) && ['text-dark dark:text-white'],
+							'h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-default/80',
+							(!value || currentValue.bordered) && [
+								'text-dark dark:text-white group-hover:text-dark/80 dark:group-hover:text-white/80'
+							],
 							hasBtnIcon && ['whitespace-nowrap w-5 h-5'],
 							isVersion && 'dark:text-white'
 						)}
@@ -703,97 +714,131 @@ export function StatusDropdown<T extends TStatusItem>({
 		</TaskStatus>
 	);
 
+	const triggerContent = !multiple ? (
+		<Tooltip
+			enabled={hasBtnIcon && (value?.name || '').length > 10}
+			label={capitalize(value?.name) || ''}
+			className="h-full"
+		>
+			{button}
+		</Tooltip>
+	) : (
+		<TaskStatus
+			{...defaultValue}
+			active={true}
+			forDetails={forDetails}
+			sidebarUI={sidebarUI}
+			className={cn(
+				'justify-between w-full capitalize h-full',
+				sidebarUI && ['text-xs'],
+				'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
+				forDetails && 'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
+				taskStatusClassName
+			)}
+			name={
+				processedValues.length > 0
+					? `Item${processedValues.length === 1 ? '' : 's'} (${processedValues.length})`
+					: defaultValue.name
+			}
+			isEpic={isEpic}
+		>
+			<ChevronDownIcon className={cn('w-5 h-5 text-default dark:text-white')} />
+		</TaskStatus>
+	);
+
+	const renderItem = useCallback(
+		(item: T, isSelected: boolean) => {
+			const itemValue = item.value || item.name;
+			const handleRemove = (e: React.MouseEvent) => {
+				e.stopPropagation();
+				if (onChange && multiple && itemValue) {
+					const newValues = processedValues.filter((v) => v !== itemValue);
+					onChange(newValues.join(','));
+				}
+				onRemoveSelected?.();
+			};
+
+			return (
+				<div className="relative w-full cursor-pointer outline-none">
+					<TaskStatus
+						showIcon={showIcon}
+						{...item}
+						checked={isSelected}
+						className={cn(
+							'!w-full',
+							issueType === 'issue' && ['rounded-md px-2 text-white'],
+							sidebarUI && 'rounded-[8px]',
+							bordered && 'input-border',
+							(isVersion || isEpic) && 'dark:text-white',
+							item.className
+						)}
+					/>
+					{isSelected && issueType !== 'issue' && (
+						<button
+							onClick={handleRemove}
+							className="absolute right-1 top-1/2 w-4 h-4 bg-transparent bg-white rounded -translate-y-1/2 dark:bg-black"
+						>
+							<XMarkIcon
+								className="text-dark dark:text-white"
+								height={16}
+								width={16}
+								aria-hidden="true"
+							/>
+						</button>
+					)}
+				</div>
+			);
+		},
+		[
+			showIcon,
+			issueType,
+			sidebarUI,
+			bordered,
+			isVersion,
+			isEpic,
+			onChange,
+			multiple,
+			processedValues,
+			onRemoveSelected
+		]
+	);
+	const handleChange = useCallback(
+		(selectedValue: any) => {
+			if (!onChange) return;
+
+			if (multiple) {
+				const valueArray = Array.isArray(selectedValue) ? selectedValue : [selectedValue];
+				const uniqueValues = [...new Set(valueArray)];
+				onChange(uniqueValues.join(','));
+			} else {
+				onChange(selectedValue);
+			}
+		},
+		[onChange, multiple]
+	);
+
 	const dropdown = (
 		<div className={cn('relative', className)}>
 			<Tooltip className="h-full" label={disabledReason} enabled={!enabled} placement="auto">
-				{(() => {
-					const triggerContent = !multiple ? (
-						<Tooltip
-							enabled={hasBtnIcon && (value?.name || '').length > 10}
-							label={capitalize(value?.name) || ''}
-							className="h-full"
-						>
-							{button}
-						</Tooltip>
-					) : (
-						<TaskStatus
-							{...defaultValue}
-							active={true}
-							forDetails={forDetails}
-							sidebarUI={sidebarUI}
-							className={cn(
-								'justify-between w-full capitalize h-full',
-								sidebarUI && ['text-xs'],
-								'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
-								forDetails && 'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
-								taskStatusClassName
-							)}
-							name={
-								values.length > 0
-									? `Item${values.length === 1 ? '' : 's'} (${values.length})`
-									: defaultValue.name
-							}
-							isEpic={isEpic}
-						>
-							<ChevronDownIcon className={cn('w-5 h-5 text-default dark:text-white')} />
-						</TaskStatus>
-					);
-
-					const renderItem = (item: T, isSelected: boolean) => {
-						const item_value = item.value || item.name;
-						return (
-							<div className="w-full relative cursor-pointer outline-none">
-								<TaskStatus
-									showIcon={showIcon}
-									{...item}
-									checked={isSelected}
-									className={cn(
-										'!w-full',
-										issueType === 'issue' && ['rounded-md px-2 text-white'],
-										sidebarUI && 'rounded-[8px]',
-										bordered && 'input-border',
-										(isVersion || isEpic) && 'dark:text-white',
-										item.className
-									)}
-								/>
-								{isSelected && issueType !== 'issue' && (
-									<button
-										onClick={(e) => {
-											e.stopPropagation();
-											if (onChange && multiple && item_value) {
-												const newValues = values.filter((v) => v !== item_value);
-												onChange(newValues.join(','));
-											}
-											onRemoveSelected?.();
-										}}
-										className="absolute top-1/2 right-1 -translate-y-1/2 h-4 w-4 bg-transparent bg-white dark:bg-black rounded"
-									>
-										<XMarkIcon
-											className="text-dark dark:text-white"
-											height={16}
-											width={16}
-											aria-hidden="true"
-										/>
-									</button>
-								)}
-							</div>
-						);
-					};
-
-					const handleChange = (selectedValue: any) => {
-						if (!onChange) return;
-
-						if (multiple) {
-							const valueArray = Array.isArray(selectedValue) ? selectedValue : [selectedValue];
-							const uniqueValues = [...new Set(valueArray)];
-							onChange(uniqueValues.join(','));
-						} else {
-							onChange(selectedValue);
-						}
-					};
-
-					if (showButtonOnly) {
-						return (
+				{showButtonOnly ? (
+					<div
+						className={cn(!forDetails && 'w-full max-w-[170px]', 'cursor-pointer outline-none')}
+						style={{
+							width: largerWidth ? '160px' : ''
+						}}
+					>
+						{triggerContent}
+					</div>
+				) : (
+					<CustomListboxDropdown
+						children={children}
+						isMultiple={isMultiple}
+						value={value?.value || value?.name}
+						values={processedValues}
+						onChange={handleChange}
+						disabled={disabled}
+						enabled={enabled}
+						trigger={
 							<div
 								className={cn(!forDetails && 'w-full max-w-[170px]', 'cursor-pointer outline-none')}
 								style={{
@@ -802,35 +847,13 @@ export function StatusDropdown<T extends TStatusItem>({
 							>
 								{triggerContent}
 							</div>
-						);
-					}
-
-					return (
-						<CustomListboxDropdown
-							children={children}
-							isMultiple={isMultiple}
-							value={value?.value || value?.name}
-							values={values}
-							onChange={handleChange}
-							disabled={disabled}
-							enabled={enabled}
-							trigger={
-								<div
-									className={cn(!forDetails && 'w-full max-w-[170px]', 'cursor-pointer outline-none')}
-									style={{
-										width: largerWidth ? '160px' : ''
-									}}
-								>
-									{triggerContent}
-								</div>
-							}
-							items={items}
-							renderItem={renderItem as any}
-							multiple={multiple}
-							dropdownClassName="max-h-[320px] overflow-auto scrollbar-hide !border-b-0 dark:bg-[#1B1D22]"
-						/>
-					);
-				})()}
+						}
+						items={items}
+						renderItem={renderItem as any}
+						multiple={multiple}
+						dropdownClassName="max-h-[320px] overflow-auto scrollbar-hide !border-b-0 dark:bg-[#1B1D22]"
+					/>
+				)}
 			</Tooltip>
 		</div>
 	);

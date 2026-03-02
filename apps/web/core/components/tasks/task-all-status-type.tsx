@@ -11,13 +11,13 @@ import { CalendarIcon } from '@radix-ui/react-icons';
 import { FilterTabs } from '../users/user-profile-plans';
 import ProjectIcon from '@/core/components/svgs/project-icon';
 import { useAtomValue } from 'jotai';
-import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useTaskPrioritiesValue } from '@/core/hooks/tasks/use-task-priorities-value';
 import { useTaskSizesValue } from '@/core/hooks/tasks/use-task-sizes-value';
 import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
 import { dailyPlanListState } from '@/core/stores';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 
 export function TaskAllStatusTypes({
 	task,
@@ -38,7 +38,7 @@ export function TaskAllStatusTypes({
 	const taskSizes = useTaskSizesValue();
 	const taskLabels = useTaskLabelsValue();
 	const taskStatus = useTaskStatusValue();
-	const projects = useAtomValue(organizationProjectsState);
+	const { organizationProjects: projects } = useOrganizationProjectsQuery();
 	const taskProject = useMemo(
 		() => (task ? projects.find((project) => project.tasks?.some((el: TTask) => el.id === task.id)) : null),
 		[projects, task]
@@ -78,7 +78,7 @@ export function TaskAllStatusTypes({
 					{showStatus && task?.status && taskStatus[task?.status] && (
 						<TaskStatus
 							{...taskStatus[task?.status]}
-							className="!rounded-[0.625rem]"
+							className="rounded-[0.625rem]!"
 							active={!!task?.status}
 							name={task?.status?.split('-').join(' ') || 'Status'}
 							titleClassName={'text-[0.625rem] font-[500]'}

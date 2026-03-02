@@ -93,6 +93,8 @@
 		"BASIC": "Podstawowy",
 		"DELETE_ALL_DATA": "Usuń wszystkie dane",
 		"DELETE": "Usuń",
+		"DELETE_SUCCESS": "Pomyślnie usunięto",
+		"DELETE_ERROR": "Nie udało się usunąć",
 		"MEET": "Spotkaj się",
 		"BOARD": "Tablica",
 		"SECURITY_CODE": "Kod bezpieczeństwa",
@@ -102,6 +104,12 @@
 		"EDIT_TASK": "Edytuj zadanie",
 		"ASSIGN_TASK": "Przypisz zadanie",
 		"ASSIGN_TASK_TO": "Przypisz zadanie do",
+		"ASSIGN_TASK_TO_ME": "Przypisz zadanie do mnie",
+		"UNASSIGN_TASK_FROM_ME": "Usuń mnie z zadania",
+		"TASK_ASSIGNED_TO_ME": "Zadanie przypisane do Ciebie",
+		"TASK_UNASSIGNED_FROM_ME": "Zadanie usunięte z Ciebie",
+		"TASK_ASSIGN_ERROR": "Nie udało się przypisać zadania",
+		"TASK_UNASSIGN_ERROR": "Nie udało się usunąć zadania",
 		"REMOVE_ACCOUNT": "Usuń konto",
 		"REMOVE_EVERYWHERE": "Usuń ze wszystkich zespołów",
 		"DELETE_ACCOUNT": "Usuń to konto",
@@ -111,6 +119,9 @@
 		"TRANSFERT_OWNERSHIP": "Przenieś własność",
 		"TRANSFERT_OWNERSHIP_TO": "Przenieś pełną własność zespołu do innego użytkownika",
 		"REMOVE": "Usuń",
+		"REMOVED": "Usunięto",
+		"ADDED": "Dodano",
+		"AND_X_OTHERS": "i {count} innych",
 		"REMOVE_TEAM": "Usuń zespół",
 		"DISPOSE_TEAM": "Rozwiąż zespół",
 		"QUIT_TEAM": "Opuść zespół",
@@ -194,7 +205,11 @@
 		"USER_AVATAR": "Awatar użytkownika",
 		"CONTACT": "Kontakt",
 		"ENABLED": "Włączać",
-		"DISABLED": "Wyłączyć",
+		"DISABLED": "Wyłączony",
+		"UNKNOWN": "Nieznany",
+		"RATE": "Stawka",
+		"FLAT_FEE": "Opłata stała",
+		"MILESTONES": "Kamienie milowe",
 		"THEME": "Motyw",
 		"TIME_ZONE": "Strefa Czasowa",
 		"EDIT": "Edytuj",
@@ -237,7 +252,17 @@
 		"FULL_WIDTH": "Pełna szerokość",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Proszę zatrzymać Timer przed zmianą Zadania",
 		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Proszę zatrzymać Timer przed zmianą Zespołu",
+		"WORKSPACE_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Proszę zatrzymać Timer przed zmianą Przestrzeni Roboczej",
 		"CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Proszę zatrzymać Timer przed tworzeniem nowych elementów",
+		"WORKSPACE_SWITCH_CONFIRM_TITLE": "Zmienić przestrzeń roboczą?",
+		"WORKSPACE_SWITCH_CONFIRM_DESCRIPTION": "Zamierzasz zmienić przestrzeń roboczą z \"{currentWorkspace}\" na \"{targetWorkspace}\".",
+		"WORKSPACE_SWITCH_CONFIRM_WARNING": "Ta akcja przeładuje aplikację, aby zsynchronizować wszystkie dane.",
+		"WORKSPACE_SWITCH_CANCEL_ARIA": "Anuluj zmianę przestrzeni roboczej",
+		"WORKSPACE_SWITCH_CONFIRM_ARIA": "Potwierdź zmianę na {workspace}",
+		"WORKSPACE_SWITCH_CHANGING": "Zmiana...",
+		"WORKSPACE_SWITCH_CONFIRM_BUTTON": "Potwierdź zmianę",
+		"CURRENT_WORKSPACE": "bieżąca przestrzeń robocza",
+		"TARGET_WORKSPACE": "docelowa przestrzeń robocza",
 		"COLLABORATE_DIALOG_TITLE": "Rozpocznij Współpracę",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Zaproś członka(-ów) i rozpocznij współpracę",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Rozpocznij Spotkanie lub Współpracę na Tablicy",
@@ -381,6 +406,8 @@
 		"MEMBERS_COUNT": "Liczba członków",
 		"REVIEW": "PRZEGLĄD",
 		"ARCHIVE": "Archiwum",
+		"ARCHIVE_SUCCESS": "Pomyślnie zarchiwizowano",
+		"ARCHIVE_ERROR": "Nie udało się zarchiwizować",
 		"ARCHIVE_AT": "Archiwizuj o",
 		"RESTORE": "Przywróć",
 		"HIDE": "Ukryj",
@@ -563,7 +590,8 @@
 					"endDateRequired": "Data zakończenia jest wymagana.",
 					"endDateAfterStart": "Data zakończenia musi być po dacie rozpoczęcia.",
 					"invalidUrl": "Proszę podać prawidłowy URL.",
-					"uploadError": "Wystąpił błąd podczas przesyłania obrazu projektu, spróbuj ponownie!"
+					"uploadError": "Wystąpił błąd podczas przesyłania obrazu projektu, spróbuj ponownie!",
+					"descriptionWordLimit": "Opis musi zawierać 5000 słów lub mniej."
 				},
 				"common": {
 					"search": "Szukaj ...",
@@ -595,6 +623,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Przypisz Zespoły",
+					"noTeamsAvailable": "Brak dostępnych zespołów",
+					"teamsHelperText": "Wybierz co najmniej jeden zespół dla tego projektu",
 					"assignMembers": "Przypisz Członków i Menedżerów",
 					"noMembers": "Brak członków lub menedżerów",
 					"addMember": "Dodaj Członka",
@@ -604,8 +635,17 @@
 					"noRelations": "Brak relacji",
 					"addRelation": "Dodaj Relację",
 					"selectProject": "Wybierz projekt...",
-					"selectRelationType": "Wybierz typ relacji..."
+					"selectRelationType": "Wybierz typ relacji...",
+					"activeTeamLocked": "Bieżący zespół jest wymagany i nie można go usunąć"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "Wybierz co najmniej jeden zespół"
 				}
+			},
+			"accessDenied": {
+				"title": "Odmowa Dostępu",
+				"description": "Ten projekt nie należy do Twojego bieżącego zespołu ({teamName}). Przełącz się na zespół, który ma dostęp do tego projektu.",
+				"viewAllProjects": "Zobacz Wszystkie Projekty"
 			},
 			"addOrEditModal": {
 				"steps": {
@@ -617,11 +657,15 @@
 			},
 			"deleteModal": {
 				"title": "Usunąć wybrane?",
-				"description": "Zamierzasz trwale usunąć ten projekt. Kliknij 'Usuń', aby potwierdzić akcję"
+				"description": "Zamierzasz trwale usunąć ten projekt. Kliknij 'Usuń', aby potwierdzić akcję",
+				"successDescription": "Projekt został pomyślnie usunięty",
+				"errorDescription": "Nie udało się usunąć projektu. Spróbuj ponownie."
 			},
 			"archiveModal": {
 				"title": "Archiwizować {projectName}?",
-				"description": "{affectedTasksCount} zadań zostanie dotkniętych przez archiwizację {projectName}."
+				"description": "{affectedTasksCount} zadań zostanie dotkniętych przez archiwizację {projectName}.",
+				"successDescription": "{projectName} został pomyślnie zarchiwizowany",
+				"errorDescription": "Nie udało się zarchiwizować projektu. Spróbuj ponownie."
 			},
 			"restoreModal": {
 				"title": "Przywróć projekt",
@@ -675,14 +719,19 @@
 			"HAVE_PASSWORD": "Masz hasło?",
 			"LOGIN_WITH_PASSWORD": "Zaloguj się za pomocą hasła",
 			"LOGIN_WITH_MAGIC_CODE": "Zaloguj się za pomocą magicznego kodu",
-			"ERROR_SIGNIN": "Błąd przy podpisywaniu"
+			"ERROR_SIGNIN": "Błąd przy podpisywaniu",
+			"DEMO_ACCOUNTS_TITLE": "Automatyczne logowanie do kont demonstracyjnych",
+			"DEMO_ACCOUNTS_SUBTITLE": "Wybierz typ konta poniżej.",
+			"DEMO_SUPER_ADMIN": "Demo Super Admin",
+			"DEMO_ADMIN": "Demo Admin",
+			"DEMO_EMPLOYEE": "Demo Pracownik"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Proszę wprowadzić swoje dane logowania."
 		},
 		"authTeam": {
-			"HEADING_TITLE": "Stwórz Nowy Zespół",
-			"HEADING_DESCRIPTION": "Proszę podać szczegóły swojego zespołu, aby stworzyć nowy zespół.",
+			"HEADING_TITLE": "Zarejestruj się teraz",
+			"HEADING_DESCRIPTION": "Opowiedz nam więcej o sobie i (opcjonalnie) o swoim zespole, aby się zarejestrować.",
 			"LOADING_TEXT": "Teraz tworzymy twoje nowe miejsce pracy, proszę czekać...",
 			"LOADING_WORKSPACE": "Ładujemy przestrzeń roboczą, proszę czekać...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Przekierowywanie do Twojej przestrzeni roboczej...",
@@ -690,7 +739,15 @@
 			"INPUT_TEAM_NAME": "Wprowadź nazwę swojego zespołu",
 			"JOIN_EXISTING_TEAM": "Dołączasz do istniejącego zespołu?",
 			"CREATE_FIRST_TEAM": "Stwórz swój pierwszy zespół",
-			"CREATE_TEAM": "Stwórz zespół"
+			"CREATE_TEAM": "Stwórz zespół",
+			"GET_STARTED_TITLE": "Jak chcesz zacząć?",
+			"START_SOLO": "Zacznij samodzielnie",
+			"START_SOLO_NOTE": "Możesz stworzyć zespół i zaprosić innych później",
+			"CREATE_TEAM_NOW": "Stwórz zespół teraz",
+			"CONTINUE": "Kontynuuj",
+			"GET_STARTED": "Rozpocznij",
+			"STEP_USER_INFO": "Podaj nam swoje imię i e-mail",
+			"STEP_CHOOSE_MODE": "Wybierz swoją ścieżkę"
 		},
 		"settings": {
 			"BREADCRUMB": "[\"Dashboard\", \"Settings\"]",

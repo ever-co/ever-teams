@@ -92,6 +92,8 @@
 		"YES": "כן",
 		"BASIC": "בסיסי",
 		"DELETE": "מחק",
+		"DELETE_SUCCESS": "נמחק בהצלחה",
+		"DELETE_ERROR": "המחיקה נכשלה",
 		"MEET": "פגש",
 		"BOARD": "לוח",
 		"SECURITY_CODE": "קוד אבטחה",
@@ -101,6 +103,12 @@
 		"EDIT_TASK": "ערוך משימה",
 		"ASSIGN_TASK": "הקצה משימה",
 		"ASSIGN_TASK_TO": "הקצה משימה ל-",
+		"ASSIGN_TASK_TO_ME": "הקצה לי את המשימה",
+		"UNASSIGN_TASK_FROM_ME": "בטל הקצאתי מהמשימה",
+		"TASK_ASSIGNED_TO_ME": "המשימה הוקצתה לך",
+		"TASK_UNASSIGNED_FROM_ME": "המשימה בוטלה ממך",
+		"TASK_ASSIGN_ERROR": "הקצאת המשימה נכשלה",
+		"TASK_UNASSIGN_ERROR": "ביטול הקצאת המשימה נכשל",
 		"REMOVE_ACCOUNT": "הסר חשבון",
 		"REMOVE_EVERYWHERE": "הסר בכל מקום",
 		"DELETE_ACCOUNT": "מחק חשבון זה",
@@ -110,6 +118,9 @@
 		"TRANSFERT_OWNERSHIP": "העבר בעלות",
 		"TRANSFERT_OWNERSHIP_TO": "העבר בעלות מלאה של הצוות למשתמש אחר",
 		"REMOVE": "הסר",
+		"REMOVED": "הוסר",
+		"ADDED": "נוסף",
+		"AND_X_OTHERS": "ו-{count} נוספים",
 		"REMOVE_TEAM": "הסר צוות",
 		"DISPOSE_TEAM": "בטל צוות",
 		"QUIT_TEAM": "עזוב את הצוות",
@@ -193,7 +204,11 @@
 		"USER_AVATAR": "אווטר משתמש",
 		"CONTACT": "איש קשר",
 		"ENABLED": "לְאַפשֵׁר",
-		"DISABLED": "השבת",
+		"DISABLED": "מושבת",
+		"UNKNOWN": "לא ידוע",
+		"RATE": "תעריף",
+		"FLAT_FEE": "עמלה קבועה",
+		"MILESTONES": "אבני דרך",
 		"DONT_HAVE_ACCOUNT": "אין לך חשבון?",
 		"DELETE_ALL_DATA": "מחק את כל הנתונים",
 		"REGISTER": "הרשם עכשיו!",
@@ -237,7 +252,17 @@
 		"FULL_WIDTH": "רוחב מלא",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "אנא עצור את הטיימר לפני שינוי המשימה",
 		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "אנא עצור את הטיימר לפני החלפת הצוות",
+		"WORKSPACE_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "אנא עצור את הטיימר לפני החלפת סביבת העבודה",
 		"CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "אנא עצור את הטיימר לפני יצירת פריטים חדשים",
+		"WORKSPACE_SWITCH_CONFIRM_TITLE": "להחליף סביבת עבודה?",
+		"WORKSPACE_SWITCH_CONFIRM_DESCRIPTION": "אתה עומד להחליף סביבת עבודה מ-\"{currentWorkspace}\" ל-\"{targetWorkspace}\".",
+		"WORKSPACE_SWITCH_CONFIRM_WARNING": "פעולה זו תטען מחדש את האפליקציה כדי לסנכרן את כל הנתונים.",
+		"WORKSPACE_SWITCH_CANCEL_ARIA": "ביטול החלפת סביבת העבודה",
+		"WORKSPACE_SWITCH_CONFIRM_ARIA": "אישור ההחלפה ל-{workspace}",
+		"WORKSPACE_SWITCH_CHANGING": "מחליף...",
+		"WORKSPACE_SWITCH_CONFIRM_BUTTON": "אישור ההחלפה",
+		"CURRENT_WORKSPACE": "סביבת עבודה נוכחית",
+		"TARGET_WORKSPACE": "סביבת עבודה יעד",
 		"COLLABORATE_DIALOG_TITLE": "התחל שיתוף פעולה",
 		"COLLABORATE_DIALOG_SUB_TITLE": "הזמן חבר/ים והתחל לשתף פעולה",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "התחל פגישה או שיתוף פעולה בלוח",
@@ -381,6 +406,8 @@
 		"MEMBERS_COUNT": "מספר חברים",
 		"REVIEW": "בְּחִינָה",
 		"ARCHIVE": "ארכיון",
+		"ARCHIVE_SUCCESS": "הועבר לארכיון בהצלחה",
+		"ARCHIVE_ERROR": "נכשל בארכוב",
 		"ARCHIVE_AT": "ארכוב בתאריך",
 		"RESTORE": "שחזר",
 		"HIDE": "הסתר",
@@ -522,7 +549,8 @@
 					"endDateRequired": "תאריך סיום נדרש.",
 					"endDateAfterStart": "תאריך הסיום חייב להיות אחרי תאריך ההתחלה.",
 					"invalidUrl": "אנא הזן כתובת אתר חוקית.",
-					"uploadError": "משהו השתבש בעת העלאת תמונת הפרויקט, אנא נסה שוב!"
+					"uploadError": "משהו השתבש בעת העלאת תמונת הפרויקט, אנא נסה שוב!",
+					"descriptionWordLimit": "התיאור חייב להכיל 5000 מילים או פחות."
 				},
 				"common": {
 					"search": "חפש ...",
@@ -554,6 +582,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "הקצאת צוותים",
+					"noTeamsAvailable": "אין צוותים זמינים",
+					"teamsHelperText": "בחר לפחות צוות אחד לפרויקט זה",
 					"assignMembers": "הקצאת חברים ומנהלים",
 					"noMembers": "אין חברים או מנהלים",
 					"addMember": "הוסף חבר",
@@ -563,8 +594,17 @@
 					"noRelations": "אין קשרים",
 					"addRelation": "הוסף קשר",
 					"selectProject": "בחר פרויקט...",
-					"selectRelationType": "בחר סוג קשר..."
+					"selectRelationType": "בחר סוג קשר...",
+					"activeTeamLocked": "הצוות הנוכחי נדרש ולא ניתן להסירו"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "אנא בחר לפחות צוות אחד"
 				}
+			},
+			"accessDenied": {
+				"title": "הגישה נדחתה",
+				"description": "פרויקט זה אינו שייך לצוות הנוכחי שלך ({teamName}). עבור לצוות שיש לו גישה לפרויקט זה.",
+				"viewAllProjects": "צפה בכל הפרויקטים"
 			},
 			"addOrEditModal": {
 				"steps": {
@@ -576,11 +616,15 @@
 			},
 			"deleteModal": {
 				"title": "למחוק את הנבחר?",
-				"description": "אתה עומד למחוק את הפרויקט הזה לצמיתות. לחץ על 'מחק' כדי לאשר את הפעולה"
+				"description": "אתה עומד למחוק את הפרויקט הזה לצמיתות. לחץ על 'מחק' כדי לאשר את הפעולה",
+				"successDescription": "הפרויקט נמחק בהצלחה",
+				"errorDescription": "לא ניתן למחוק את הפרויקט. אנא נסה שוב."
 			},
 			"archiveModal": {
 				"title": "לארכב את {projectName}?",
-				"description": "{affectedTasksCount} משימות יושפעו מארכוב {projectName}."
+				"description": "{affectedTasksCount} משימות יושפעו מארכוב {projectName}.",
+				"successDescription": "{projectName} הועבר לארכיון בהצלחה",
+				"errorDescription": "לא ניתן לארכב את הפרויקט. אנא נסה שוב."
 			},
 			"restoreModal": {
 				"title": "שחזור פרויקט",
@@ -675,14 +719,19 @@
 			"HAVE_PASSWORD": "יש לך סיסמא?",
 			"LOGIN_WITH_PASSWORD": "התחבר עם הסיסמה",
 			"LOGIN_WITH_MAGIC_CODE": "היכנס עם קוד קסם",
-			"ERROR_SIGNIN": "שגיאה בחתימה"
+			"ERROR_SIGNIN": "שגיאה בחתימה",
+			"DEMO_ACCOUNTS_TITLE": "התחבר אוטומטית לחשבונות הדגמה",
+			"DEMO_ACCOUNTS_SUBTITLE": "אנא בחר סוג חשבון למטה.",
+			"DEMO_SUPER_ADMIN": "הדגמת מנהל על",
+			"DEMO_ADMIN": "הדגמת מנהל",
+			"DEMO_EMPLOYEE": "הדגמת עובד"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "אנא הזן את פרטי ההתחברות שלך."
 		},
 		"authTeam": {
-			"HEADING_TITLE": "צור צוות חדש",
-			"HEADING_DESCRIPTION": "אנא הכנס את פרטי הצוות שלך כדי ליצור צוות חדש.",
+			"HEADING_TITLE": "הירשם עכשיו",
+			"HEADING_DESCRIPTION": "ספר לנו עוד על עצמך ו(אופציונלי) על הצוות שלך כדי להירשם.",
 			"LOADING_TEXT": "אנחנו עכשיו יוצרים את סביבת העבודה החדשה שלך, רגע קטן...",
 			"LOADING_WORKSPACE": "אנחנו טוענים את סביבת העבודה, רגע קטן...",
 			"REDIRECT_TO_WORSPACE_LOADING": "מכוון מחדש לחלל העבודה שלך",
@@ -690,7 +739,15 @@
 			"INPUT_TEAM_NAME": "הכנס את שם הצוות שלך",
 			"JOIN_EXISTING_TEAM": "מצטרף לצוות קיים?",
 			"CREATE_FIRST_TEAM": "צור את הצוות הראשון שלך",
-			"CREATE_TEAM": "צור צוות"
+			"CREATE_TEAM": "צור צוות",
+			"GET_STARTED_TITLE": "איך תרצה להתחיל?",
+			"START_SOLO": "התחל לבד",
+			"START_SOLO_NOTE": "אתה יכול ליצור צוות ולהזמין אחרים מאוחר יותר",
+			"CREATE_TEAM_NOW": "צור צוות עכשיו",
+			"CONTINUE": "המשך",
+			"GET_STARTED": "התחל",
+			"STEP_USER_INFO": "ספר לנו את השם והאימייל שלך",
+			"STEP_CHOOSE_MODE": "בחר את הדרך שלך"
 		},
 		"settings": {
 			"BREADCRUMB": "[\"לוח מחוונים\", \"הגדרות\"]",

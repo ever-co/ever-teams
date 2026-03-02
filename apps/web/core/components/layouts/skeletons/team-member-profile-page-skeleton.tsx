@@ -51,15 +51,15 @@ export const TeamMemberProfilePageSkeleton: FC<TeamMemberProfilePageSkeletonProp
 						{/* Right side - Stats */}
 						<div className="flex gap-6 items-center">
 							<div className="text-center">
-								<div className="w-8 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mx-auto mb-1" />
+								<div className="w-8 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mx-auto mb-1" />
 								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 							</div>
 							<div className="text-center">
-								<div className="w-8 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mx-auto mb-1" />
+								<div className="w-8 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mx-auto mb-1" />
 								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 							</div>
 							<div className="text-center">
-								<div className="w-8 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mx-auto mb-1" />
+								<div className="w-8 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mx-auto mb-1" />
 								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 							</div>
 						</div>
@@ -83,8 +83,8 @@ export const TeamMemberProfilePageSkeleton: FC<TeamMemberProfilePageSkeletonProp
 									<div className="flex gap-4 items-center mb-4">
 										<div className="w-14 h-14 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
 										<div className="flex-1">
-											<div className="w-36 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-2" />
-											<div className="w-28 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-1" />
+											<div className="w-36 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
+											<div className="w-28 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-1" />
 											<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 										</div>
 										<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />

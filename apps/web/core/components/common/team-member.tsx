@@ -3,16 +3,17 @@ import { InvitedCard } from '@/core/components/teams/invite/invited-card';
 import UsersCard from '@/core/components/teams/members-card/members-card';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks/auth';
-import { useOrganizationTeams } from '@/core/hooks/organizations';
-import { activeTeamState, getTeamInvitationsState } from '@/core/stores';
+import { useOrganizationTeamsQuery } from '@/core/hooks/organizations';
+import { activeTeamState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
+import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invitations-query';
 
 export const TeamMemberSection = () => {
 	const { isTeamManager, user } = useAuthenticateUser();
 
 	const activeTeam = useAtomValue(activeTeamState);
-	const { getOrganizationTeamsLoading } = useOrganizationTeams();
-	const teamInvitations = useAtomValue(getTeamInvitationsState);
+	const { getOrganizationTeamsLoading } = useOrganizationTeamsQuery();
+	const { teamInvitations } = useTeamInvitationsQuery();
 	const members = activeTeam?.members || [];
 	// const style = { width: `${100 / members.length}%` };
 
@@ -60,7 +61,7 @@ export const TeamMemberSection = () => {
 							<li
 								key={i}
 								role="status"
-								className="p-4 mt-3 rounded-xl border divide-y divide-gray-200 shadow animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
+								className="p-4 mt-3 rounded-xl border divide-y divide-gray-200 shadow-sm animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
 							>
 								<div className="flex justify-between items-center">
 									<div className="flex items-center space-x-3">
@@ -82,7 +83,7 @@ export const TeamMemberSection = () => {
 				{$teamsFetching && (
 					<li
 						role="status"
-						className="p-4 mt-3 rounded-xl border divide-y divide-gray-200 shadow animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
+						className="p-4 mt-3 rounded-xl border divide-y divide-gray-200 shadow-sm animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
 					>
 						<div className="flex justify-between items-center">
 							<div className="flex items-center space-x-3">

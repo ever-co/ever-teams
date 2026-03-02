@@ -8,6 +8,7 @@ import { ScreenshotPerHourTeam } from '../pages/profile/screenshots/screenshoots
 import { ScreenshootSkeleton } from '../pages/profile/screenshots/screenshoots-per-hour-skeleton';
 import VisitedItem from '../pages/profile/visited-Item';
 import { VisitedItemSkeleton } from '../pages/profile/visited-item-skeleton';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 /**
  * Optimized Screenshots Tab Component
@@ -209,10 +210,12 @@ OptimizedVisitedSitesTab.displayName = 'OptimizedVisitedSitesTab';
 export const OptimizedTasksTab = memo(({ member }: { member?: any }) => {
 	const { tasks, profile, canSeeActivity } = useOptimizedActivityTabs({ member });
 	const { firstFiveTasks, remainingTasks, totalCount } = tasks;
-
+	const activeTaskId = profile?.activeUserTeamTask?.id
 	// Memoized render function for task items to prevent unnecessary re-renders
+	// Include profile?.activeUserTeamTask?.id in dependencies to ensure re-render when active task changes
+	// This prevents virtualized tasks from using stale timer handlers with old activeTeamTask values
 	const renderTaskItem = useCallback(
-		(task: any) => (
+		(task: TTask) => (
 			<LazyTaskCard
 				task={task}
 				isAuthUser={profile?.isAuthUser}
@@ -226,7 +229,7 @@ export const OptimizedTasksTab = memo(({ member }: { member?: any }) => {
 				taskContentClassName="!w-72 !max-w-80"
 			/>
 		),
-		[profile?.isAuthUser, profile]
+		[profile?.isAuthUser, profile, activeTaskId]
 	);
 
 	// Memoized scrolling indicator for virtualization

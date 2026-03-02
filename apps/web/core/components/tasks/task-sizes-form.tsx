@@ -1,7 +1,10 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useRefetchData } from '@/core/hooks';
-import { useTaskSizes } from '@/core/hooks/tasks/use-task-sizes';
-import { taskSizesListState } from '@/core/stores';
+import { useTaskSizesQuery } from '@/core/hooks/tasks/use-task-sizes-query';
+import { useCreateTaskSize } from '@/core/hooks/tasks/use-create-task-size';
+import { useEditTaskSize } from '@/core/hooks/tasks/use-edit-task-size';
+import { useDeleteTaskSize } from '@/core/hooks/tasks/use-delete-task-size';
+
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
@@ -10,7 +13,7 @@ import { Button, ColorPicker, Text } from '@/core/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
-import { useAtomValue } from 'jotai';
+
 import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
@@ -25,7 +28,10 @@ type StatusForm = {
 export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const { data: user } = useUserQuery();
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
-	const taskSizes = useAtomValue(taskSizesListState);
+	const { taskSizes, loading } = useTaskSizesQuery();
+	const { createTaskSize, createTaskSizeLoading } = useCreateTaskSize();
+	const { editTaskSize, editTaskSizeLoading } = useEditTaskSize();
+	const { deleteTaskSize } = useDeleteTaskSize();
 
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<TTaskSize | null>(null);
@@ -50,9 +56,6 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', ['urgent', 'high', 'medium', 'low']);
 
 	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
-
-	const { loading, createTaskSize, deleteTaskSize, editTaskSize, createTaskSizeLoading, editTaskSizeLoading } =
-		useTaskSizes();
 	const { refetch } = useRefetchData();
 
 	useEffect(() => {
@@ -119,7 +122,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 				<div className="flex">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
 						{!formOnly && (
-							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
+							<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
 								{t('pages.settingsTeam.TASK_SIZES')}
 							</Text>
 						)}
@@ -141,7 +144,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 
 							{(createNew || edit) && (
 								<>
-									<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400">
+									<Text className="flex-none grow-0 mb-2 text-lg font-normal text-gray-400">
 										{createNew && t('common.NEW')}
 										{edit && t('common.EDIT')} {t('pages.settingsTeam.SIZES_HEADING')}
 									</Text>
@@ -203,7 +206,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 
 							{!formOnly && taskSizes?.length > 0 && (
 								<>
-									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
+									<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
 										{t('pages.settingsTeam.LIST_OF_SIZES')}
 									</Text>
 									<div className="flex flex-wrap gap-3 justify-center w-full sm:justify-start">

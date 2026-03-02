@@ -84,13 +84,13 @@ Ever® Teams™ Platform (<https://app.ever.team>) is built on top of our Busine
 -   [shadcn/ui](https://ui.shadcn.com), [Radix](https://www.radix-ui.com) and [HeadlessUI](https://headlessui.com) - UI Component Libraries
 -   [DigitalOcean](https://www.digitalocean.com) and [Vercel](https://vercel.com) - Hosting
 
-#### See also README.md and CREDITS.md files in relevant folders for lists of libraries and software included in the Platform, information about licenses, and other details
+#### See also README.md and [CREDITS.md](CREDITS.md) files in relevant folders for lists of libraries and software included in the Platform, information about licenses, and other details
 
 ## 📄 Documentation
 
 Please refer to our official [Platform Documentation](https://docs.ever.team) (WIP) and to our [Wiki](https://github.com/ever-co/ever-teams/wiki) (WIP).
 
-## 🚀 Getting Starting
+## 🚀 Getting Started
 
 ### Super Quick Start
 
@@ -109,9 +109,11 @@ Please refer to our official [Platform Documentation](https://docs.ever.team) (W
   
 _Notes:_ 
 - _You can execute `docker-compose` command with `-d` option to run it in the "detached" mode (allows containers to run in the background, separate from the terminal)._
-- _By default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see more in the section about how to run with a Self-hosted Backend._
+- _By default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in the environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see more in the [Run with a Self-hosted Backend](#run-with-a-self-hosted-backend) section._
 
 ### Run with Docker
+
+Docker build definitions are stored under `.deploy/web/` to keep the repository root tidy. Docker Compose files stay at the root, so they are easy to discover and invoke (`docker-compose -f ...`).
 
 #### Build & Run
 
@@ -123,11 +125,11 @@ Run with Public Images:
 _Note: To build such images on each release (push to our master branch), we are using relevant [Github Action](https://github.com/ever-co/ever-teams/blob/develop/.github/workflows/docker-build-publish-prod.yml)._
 
 Build and Run Locally:
-- If you want to build an image locally from our source code (after clone repo locally), please run the following command (from the root of mono-repo): `docker build . -t ever-teams-webapp -f Dockerfile`.
+- If you want to build an image locally from our source code (after cloning the repo locally), please run the following command (from the root of mono-repo): `docker build . -t ever-teams-webapp -f .deploy/web/Dockerfile`.
 - To run the locally built image, please run the following command: `docker run -p 127.0.0.1:3030:3030/tcp ever-teams-webapp`. 
 - Open <http://localhost:3030> in your browser, register a new account, and start using Ever Teams!
 
-_Note: By default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see more in the section about how to run with a Self-hosted Backend._
+_Note: By default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in the environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see more in the [Run with a Self-hosted Backend](#run-with-a-self-hosted-backend) section._
 
 #### Images
 
@@ -140,19 +142,19 @@ We have Ever Teams Docker images published into:
 1. Clone this repo
 2. Run `yarn install`
 3. Run `yarn build:web && yarn start:web` OR `yarn start:web:dev`
-4. Open in <http://localhost:3030> in your Browser
+4. Open <http://localhost:3030> in your browser
 
 _Notes:_
-- _by default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see below how to run with a Self-hosted Backend._
+- _By default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see the [Run with a Self-hosted Backend](#run-with-a-self-hosted-backend) section below._
 
 ### Run with a Self-hosted Backend
 
-1. Download and run the Ever Gauzy Server setup (<https://gauzy.co/downloads>) or run the server manually (see <https://github.com/ever-co/ever-gauzy/tree/develop/apps/server>). You can also run only Ever Gauzy APIs (manually), see <https://github.com/ever-co/ever-gauzy/tree/develop/apps/api>. For getting starting instructions, it's best to check the Ever Gauzy [README](https://github.com/ever-co/ever-gauzy/blob/develop/README.md) file.
+1. Download and run the Ever Gauzy Server setup (<https://gauzy.co/downloads>) or run the server manually (see <https://github.com/ever-co/ever-gauzy/tree/develop/apps/server>). You can also run only Ever Gauzy APIs (manually), see <https://github.com/ever-co/ever-gauzy/tree/develop/apps/api>. For getting started instructions, it's best to check the Ever Gauzy [README](https://github.com/ever-co/ever-gauzy/blob/develop/README.md) file.
 2. Clone this repo
 3. After you get the API or Server running, make sure you set the environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL` in Ever Teams .env file (see <https://github.com/ever-co/ever-teams/blob/develop/apps/web/.env.sample>). For example, you can set those env vars to <http://localhost:3000> if Gauzy APIs run on that host & port.
 4. Run `yarn install`
 5. Run `yarn build:web && yarn start:web` OR `yarn start:web:dev`
-6. Open in <http://localhost:3030> in your Browser
+6. Open <http://localhost:3030> in your browser
 
 #### Notes
 
@@ -210,12 +212,12 @@ Please see our [Wiki](https://github.com/ever-co/ever-teams/wiki/Deploy-to-Digit
 
 ## 📄 Content
 
--   `/apps/web` - NextJs-based (React) Web App at <https://app.ever.team> (deployed from `main` branch)
--   `/apps/mobile` - Expo (ReactNative) powered mobile app
--   `/apps/desktop` - Electron-based Desktop Application (customized build from [Ever Gauzy Desktop Timer App](https://github.com/ever-co/ever-gauzy/tree/develop/apps/desktop-timer))
--   `/apps/extensions` - Browser Extensions (powered by <https://github.com/PlasmoHQ/plasmo>)
--   `/apps/server-api` - Ever Teams API Server (customized build from [Ever Gauzy API Server](https://github.com/ever-co/ever-gauzy/tree/develop/apps/server-api))
--   `/apps/server-web` - Electron-based Ever Teams Web Server that serves Ever Teams NextJs frontend (wraps `apps/web` folder)
+-   [`/apps/web`](apps/web) - NextJs-based (React) Web App at <https://app.ever.team> (deployed from `main` branch)
+-   [`/apps/mobile`](apps/mobile) - Expo (ReactNative) powered mobile app
+-   [`/apps/desktop`](apps/desktop) - Electron-based Desktop Application (customized build from [Ever Gauzy Desktop Timer App](https://github.com/ever-co/ever-gauzy/tree/develop/apps/desktop-timer))
+-   [`/apps/extensions`](apps/extensions) - Browser Extensions (powered by <https://github.com/PlasmoHQ/plasmo>)
+-   [`/apps/server-api`](apps/server-api) - Ever Teams API Server (customized build from [Ever Gauzy API Server](https://github.com/ever-co/ever-gauzy/tree/develop/apps/server-api))
+-   [`/apps/server-web`](apps/server-web) - Electron-based Ever Teams Web Server that serves Ever Teams NextJs frontend (wraps [`apps/web`](apps/web) folder)
 
 ## 💌 Contact Us
 
@@ -268,12 +270,12 @@ All other brand and product names are trademarks, registered trademarks, or serv
 
 -   Please give us a :star: on Github, it **helps**!
 -   You are more than welcome to submit feature requests in the [separate repo](https://github.com/ever-co/feature-requests/issues)
--   Pull requests are always welcome! Please base pull requests against the _develop_ branch and follow the [contributing guide](.github/CONTRIBUTING.md).
+-   Pull requests are always welcome! Please base pull requests against the _develop_ branch and follow the [contributing guide](.github/CONTRIBUTING.MD).
 
 ## 💪 Thanks to our Contributors
 
 See our contributors list in [CONTRIBUTORS.md](https://github.com/ever-co/ever-teams/blob/develop/.github/CONTRIBUTORS.md).
-You can also view a full list of our [contributors tracked by Github](https://github.com/ever-co/ever-teams/graphs/contributors).
+You can also view a full list of our [contributors tracked by GitHub](https://github.com/ever-co/ever-teams/graphs/contributors).
 
 <img src="https://contributors-img.web.app/image?repo=ever-co/ever-teams" />
 

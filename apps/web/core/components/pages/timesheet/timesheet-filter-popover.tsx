@@ -4,25 +4,26 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/commo
 import { SettingFilterIcon } from '@/assets/svg';
 import { useTranslations } from 'next-intl';
 import { useTimelogFilterOptions } from '@/core/hooks';
-import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
+import { useTimesheetQuery } from '@/core/hooks/timesheet/use-timesheet-query';
 import { cn } from '@/core/lib/helpers';
 import { statusTable } from '../../timesheet/timesheet-action';
 import { MultiSelect } from '../../common/multi-select';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
+import { activeTeamState, tasksByTeamState } from '@/core/stores';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 
 export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover() {
 	const [shouldRemoveItems, setShouldRemoveItems] = React.useState(false);
 
 	const activeTeam = useAtomValue(activeTeamState);
 
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects } = useOrganizationProjectsQuery();
 	const tasks = useAtomValue(tasksByTeamState);
 
 	const t = useTranslations();
 	const { setEmployeeState, setProjectState, setStatusState, setTaskState, employee, project, statusState, task } =
 		useTimelogFilterOptions();
-	const { timesheet, statusTimesheet, isManage } = useTimesheet({});
+	const { timesheetElementGroup: timesheet, statusTimesheet, isManage } = useTimesheetQuery({});
 
 	React.useEffect(() => {
 		if (shouldRemoveItems) {
@@ -168,7 +169,7 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 								</label>
 								<MultiSelect
 									localStorageKey="timesheet-select-filter-projects"
-									items={organizationProjects ?? []}
+									items={organizationProjects}
 									itemToString={(project) =>
 										(organizationProjects && project ? project.name : '') || ''
 									}

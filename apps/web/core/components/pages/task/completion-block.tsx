@@ -104,7 +104,7 @@ const CompletionBlock = () => {
 							>
 								{t('common.CANCEL')}
 							</button>
-							<button className="px-4 py-1 m-2 font-medium text-white transition-all bg-green-500 rounded hover:bg-green-600">
+							<button className="px-4 py-1 m-2 font-medium text-white transition-all bg-green-500 rounded-sm hover:bg-green-600">
 								{t('common.SAVE')}
 							</button>
 						</div>

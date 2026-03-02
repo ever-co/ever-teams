@@ -7,8 +7,7 @@ import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { InvitedCard, InviteUserTeamCard } from '@/core/components/teams/invite/user-invite-card';
 import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
 import { EInviteStatus } from '@/core/types/generics/enums/invite';
-import { useAtomValue } from 'jotai';
-import { getTeamInvitationsState } from '@/core/stores';
+import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invitations-query';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 interface Props {
@@ -24,7 +23,7 @@ const TeamMembersCardView: React.FC<Props> = memo(
 
 		const { isTeamManager } = useIsMemberManager(user);
 
-		const teamInvitations = useAtomValue(getTeamInvitationsState);
+		const { teamInvitations } = useTeamInvitationsQuery();
 
 		const { updateOrganizationTeamEmployeeOrderOnList } = useOrganizationEmployeeTeams();
 

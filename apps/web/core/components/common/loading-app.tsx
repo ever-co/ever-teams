@@ -17,22 +17,22 @@ export const LoadingApp: FC<{ className?: string }> = ({ className }) => {
 				{/* Left sidebar structure implementation - Lazy loaded for performance */}
 				<AppSidebarSkeleton />
 				{/* Layout content structure implementation */}
-				<SidebarInset className="relative flex-1 overflow-x-hidden !h-full !w-full">
+				<SidebarInset className="relative flex-1 overflow-x-hidden size-full!">
 					<header
 						className={cn(
-							'flex max-h-fit flex-col flex-1  my-auto inset-x-0 w-full min-h-[80px] top-0 h-fit shrink-0 justify-start gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-20 bg-white dark:bg-dark-high !mx-0 !nav-items--shadow dark:!shadow-none border-b-[0.5px] dark:border-b-[0.125rem] border-gray-200 relative z-50 dark:border-b-[#26272C]',
-							!fullWidth ? 'lg:px-8' : 'px-8'
+							'flex max-h-fit flex-col flex-1  my-auto inset-x-0 w-full min-h-20 top-0 h-fit shrink-0 justify-start gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-20 bg-white dark:bg-dark-high mx-0! !nav-items--shadow dark:shadow-none! border-b-[0.5px] dark:border-b-2 border-gray-200 relative z-50 dark:border-b-[#26272C]',
+							fullWidth ? 'px-8' : 'lg:px-8'
 						)}
 					>
 						<div
 							role="status"
 							className={cn(
 								'container flex gap-3 justify-between items-center h-12 animate-pulse mt',
-								!fullWidth ? 'mx-auto x-container' : '!mx-0'
+								fullWidth ? 'mx-0!' : 'mx-auto x-container'
 							)}
 						>
 							<div className="w-20 h-8 bg-gray-200 rounded-full dark:bg-gray-700 me-3" />
-							<div className="flex gap-4 justify-center items-center mt-4">
+							<div className="flex items-center justify-center gap-4 mt-4">
 								<div className="w-20 h-8 bg-gray-200 rounded-full dark:bg-gray-700 me-3" />
 								<div className="w-20 h-8 bg-gray-200 rounded-full dark:bg-gray-700 me-1" />
 								<div className="w-24 h-8 bg-gray-200 rounded-full dark:bg-gray-700" />
@@ -51,31 +51,31 @@ export const LoadingApp: FC<{ className?: string }> = ({ className }) => {
 
 					<div className="w-full bg-light--theme-dark dark:bg-dark--theme-light">
 						<Container fullWidth={fullWidth} className="flex justify-between mt-10">
-							<div className="flex gap-2 justify-start">
+							<div className="flex justify-start gap-2">
 								<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
 								<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
 							</div>
-							<div className="flex gap-2 justify-end">
+							<div className="flex justify-end gap-2">
 								<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
 								<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
 							</div>
 						</Container>
 						{/* Task Input Skeleton */}
 						<Container fullWidth={fullWidth} className="pt-12 pb-24">
-							<div className="w-full h-36 bg-white rounded-xl animate-pulse dark:bg-dark-high" />
+							<div className="w-full bg-white h-36 rounded-xl animate-pulse dark:bg-dark-high" />
 						</Container>
-						<div className="flex justify-evenly items-center pb-16 w-full">
+						<div className="flex items-center w-full pb-16 justify-evenly">
 							<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
 							<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
 							<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
 							<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
 						</div>
 					</div>
-					<div className="py-4 w-full">
-						<Container fullWidth={fullWidth} className="flex flex-col gap-6 items-stretch pt-4">
-							<div className="w-full h-36 bg-white rounded-xl animate-pulse dark:bg-dark-high" />
-							<div className="w-full h-36 bg-white rounded-xl animate-pulse dark:bg-dark-high" />
-							<div className="w-full h-36 bg-white rounded-xl animate-pulse dark:bg-dark-high" />
+					<div className="w-full py-4">
+						<Container fullWidth={fullWidth} className="flex flex-col items-stretch gap-6 pt-4">
+							<div className="w-full bg-white h-36 rounded-xl animate-pulse dark:bg-dark-high" />
+							<div className="w-full bg-white h-36 rounded-xl animate-pulse dark:bg-dark-high" />
+							<div className="w-full bg-white h-36 rounded-xl animate-pulse dark:bg-dark-high" />
 						</Container>
 					</div>
 				</SidebarInset>

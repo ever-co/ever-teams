@@ -24,7 +24,9 @@ import {
 } from '@/core/components/common/sidebar';
 import Link from 'next/link';
 import { cn } from '@/core/lib/helpers';
-import { useFavorites, useModal } from '@/core/hooks';
+import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
+import { useModal } from '@/core/hooks';
+import { useDeleteFavorite } from '@/core/hooks/favorites/use-delete-favorite';
 import { useTranslations } from 'next-intl';
 import { SidebarOptInForm } from './sidebar-opt-in-form';
 import { useMemo } from 'react';
@@ -41,10 +43,14 @@ import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton'
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
-import { currentEmployeeFavoritesState } from '@/core/stores/common/favorites';
-import { activeTeamState, isTeamManagerState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
+import { useFavoritesQuery } from '@/core/hooks/favorites/use-favorites-query';
+import { activeTeamState, isTeamManagerState, tasksByTeamState } from '@/core/stores';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { APP_NAME } from '@/core/constants/config/constants';
+import { GlobalAllPlansModal } from '../daily-plan';
+import { GlobalAssignTaskModal } from '../features/tasks/global-assign-task-modal';
+import { GlobalProjectActionModal } from '../features/projects/global-project-action-modal';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { data: user } = useUserQuery();
@@ -52,22 +58,37 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 
 	const isTeamManager = useAtomValue(isTeamManagerState);
 	const { state } = useSidebar();
-	const currentEmployeeFavorites = useAtomValue(currentEmployeeFavoritesState);
+	const { currentEmployeeFavorites } = useFavoritesQuery();
 	const tasks = useAtomValue(tasksByTeamState);
 	const { isOpen, closeModal } = useModal();
 	const t = useTranslations();
+	const { organizationProjects } = useOrganizationProjectsQuery();
 	const activeTeam = useAtomValue(activeTeamState);
-	const organizationProjects = useAtomValue(organizationProjectsState);
 
-	const projects = useMemo(
-		() =>
-			activeTeam
-				? organizationProjects
-						?.filter((el) => !el?.isArchived)
-						?.filter((el) => activeTeam?.projects?.map((el) => el.id).includes(el?.id))
-				: [],
-		[activeTeam, organizationProjects]
-	); // Consider projects for the active team
+	// Filter projects based on active team context:
+	// - "All Teams" mode (no active team): show ALL projects
+	// - Specific team: show team projects + global projects (no team assigned)
+	const validProjects = useMemo(() => {
+		return organizationProjects.filter((project) => {
+			// Base validation using type-guard helper
+			if (!isValidProjectForDisplay(project)) return false;
+
+			// "All Teams" selected (no active team) → show ALL projects (team-specific + global)
+			if (!activeTeam?.id) return true;
+
+			// Show projects that either:
+			// 1. Belong to the active team
+			// 2. Have no teams assigned ("Global" projects - accessible to everyone)
+			const belongsToTeam = projectBelongsToTeam(project, activeTeam.id);
+			const isGlobalProject = projectHasNoTeams(project);
+			return belongsToTeam || isGlobalProject;
+		});
+	}, [organizationProjects, activeTeam]);
+
+	// Limit to 5 projects for sidebar display
+	const MAX_SIDEBAR_PROJECTS = 5;
+	const displayedProjects = useMemo(() => validProjects.slice(0, MAX_SIDEBAR_PROJECTS), [validProjects]);
+	const remainingProjectsCount = validProjects.length - MAX_SIDEBAR_PROJECTS;
 
 	const currentEmployeeFavoritesTasks = useMemo(() => {
 		const taskIds = currentEmployeeFavorites
@@ -211,12 +232,13 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			{
 				title: t('sidebar.PROJECTS'),
 				url: '/projects',
-				selectable: true,
+				selectable: false, // Changed to false - dropdown should open, not redirect
 				icon: FolderKanban,
 				label: 'projects',
 				items: [
-					...(projects
-						? projects.map((project) => {
+					// Display limited projects (max 5)
+					...(displayedProjects
+						? displayedProjects.map((project) => {
 								return {
 									title: project?.name ?? '',
 									label: 'project',
@@ -226,7 +248,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 											key={project?.name}
 											style={{ backgroundColor: project?.color || undefined }}
 											className={cn(
-												'flex overflow-hidden justify-center items-center w-8 h-8 rounded-full border'
+												'flex overflow-hidden flex-none justify-center items-center rounded-full border size-7 shrink-0'
 											)}
 										>
 											{!project?.imageUrl ? (
@@ -234,8 +256,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 											) : (
 												<Image
 													alt={project?.name ?? ''}
-													height={40}
-													width={40}
+													height={28}
+													width={28}
 													className="w-full h-full"
 													src={project?.imageUrl}
 												/>
@@ -245,10 +267,26 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 								};
 							})
 						: []),
+					// Show "View all projects" if there are more projects
+					...(remainingProjectsCount > 0
+						? [
+								{
+									title: `${t('common.VIEW')} (+${remainingProjectsCount})`,
+									url: '/projects',
+									label: 'view-all-projects'
+								}
+							]
+						: [
+								{
+									title: `${t('pages.projects.accessDenied.viewAllProjects')}`,
+									url: '/projects',
+									label: 'view-all-projects'
+								}
+							]),
 					{
-						title: 'Archived projects',
+						title: t('common.ARCHIVE'),
 						url: '/projects?archived=true',
-						label: 'Archived projects'
+						label: 'archived-projects'
 					}
 				]
 			},
@@ -326,14 +364,14 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	return (
 		<>
 			<Sidebar
-				className={cn('z-[1000]', state === 'collapsed' ? 'items-center' : '')}
+				className={cn('z-1000', state === 'collapsed' ? 'items-center' : '')}
 				collapsible="icon"
 				{...props}
 			>
 				<SidebarTrigger
 					className={cn(
 						state === 'collapsed' ? 'right-[-20%]' : ' right-[-5%]',
-						'absolute  top-[8%] size-7 !bg-[#1C75FD] flex items-center justify-center !rounded-full transition-all duration-300 filter drop-shadow-[0px_0px_6px_rgba(28,117,253,0.30)] z-[55]'
+						'absolute  top-[8%] size-7 bg-[#1C75FD]! flex items-center justify-center rounded-full! transition-all duration-300 filter drop-shadow-[0px_0px_6px_rgba(28,117,253,0.30)] z-55'
 					)}
 				/>
 				<SidebarHeader className={cn(state === 'collapsed' ? 'items-center' : '')}>
@@ -365,6 +403,17 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 					<LazyCreateTeamModal open={isOpen} closeModal={closeModal} />
 				</Suspense>
 			)}
+
+			{/* Global AllPlansModal - rendered once for the entire app */}
+			<GlobalAllPlansModal />
+
+			{/* Global AssignTaskModal - rendered once for the entire app */}
+			{/* This fixes the issue where the modal was closing immediately when opened from a Popover */}
+			<GlobalAssignTaskModal />
+
+			{/* Global ProjectActionModal - rendered once for the entire app */}
+			{/* This fixes the "Maximum update depth exceeded" error on /projects page */}
+			<GlobalProjectActionModal />
 		</>
 	);
 }
@@ -374,7 +423,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
  */
 
 const FavoriteTaskItem = ({ task }: { task: TTask }) => {
-	const { deleteFavorite, deleteFavoriteLoading } = useFavorites();
+	const { deleteFavorite, deleteFavoriteLoading } = useDeleteFavorite();
 
 	return (
 		<SidebarMenuSubButton
@@ -390,7 +439,9 @@ const FavoriteTaskItem = ({ task }: { task: TTask }) => {
 						// Show task issue and task number
 						<TaskIssueStatus
 							showIssueLabels={false}
-							className={cn('flex gap-1 items-center px-2 mr-1 w-full')}
+							className={cn(
+								'flex gap-1 items-center px-2 mr-1 size-full rounded-full! p-1.5! aspect-square'
+							)}
 							task={task}
 						/>
 					)}

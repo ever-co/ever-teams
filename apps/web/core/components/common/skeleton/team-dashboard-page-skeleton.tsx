@@ -14,10 +14,10 @@ interface TeamDashboardPageSkeletonProps {
  * Integrates seamlessly with MainLayout structure without swallowing it up
  * Matches exact layout: mainHeaderSlot (3 sections: breadcrumb + header + stats/chart) + main content (table)
  */
-export const TeamDashboardPageSkeleton: FC<TeamDashboardPageSkeletonProps> = ({ 
-	className, 
-	showTimer = false, 
-	fullWidth = false 
+export const TeamDashboardPageSkeleton: FC<TeamDashboardPageSkeletonProps> = ({
+	className,
+	showTimer = false,
+	fullWidth = false
 }) => {
 	return (
 		<MainLayout
@@ -61,7 +61,7 @@ export const TeamDashboardPageSkeleton: FC<TeamDashboardPageSkeletonProps> = ({
 								{[...Array(5)].map((_, index) => (
 									<div key={index} className="p-6 bg-white dark:bg-dark--theme-light rounded-lg border border-gray-200 dark:border-gray-600">
 										<div className="flex flex-col">
-											<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-2" />
+											<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
 											<div className="mt-2 h-9">
 												<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 											</div>
@@ -132,16 +132,16 @@ export const TeamDashboardPageSkeleton: FC<TeamDashboardPageSkeletonProps> = ({
 							{/* Left Info */}
 							<div className="flex items-center gap-2">
 								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-								<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
+								<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 								<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
 							</div>
-							
+
 							{/* Right Navigation */}
 							<div className="flex items-center gap-2">
-								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
-								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
-								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
-								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded border border-gray-200 dark:border-gray-600" />
+								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 							</div>
 						</div>
 					</div>

@@ -1,5 +1,10 @@
 import { mergeRefs } from '@/core/lib/helpers/index';
-import { I_TeamMemberCardHook, I_TMCardTaskEditHook, useModal } from '@/core/hooks';
+import {
+	I_TMCardTaskEditHook,
+	I_MemberIdentityHook,
+	I_TeamMemberMutationsHook,
+	I_TeamMemberRoleActionsHook
+} from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
@@ -8,15 +13,20 @@ import { TaskUnOrAssignPopover } from '@/core/components/features/tasks/task-ass
 import { useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
-import { AllPlansModal } from '@/core/components/daily-plan/all-plans-modal';
 import { EverCard } from '@/core/components/common/ever-card';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Spinner } from '@/core/components/common/spinner';
 import { useFavoriteTasks } from '@/core/hooks/tasks/use-favorites-task';
+import { useSetAtom } from 'jotai';
+import { allPlansModalState } from '@/core/stores/all-plans-modal';
+import { toast } from 'sonner';
 
 type Props = IClassName & {
-	memberInfo: I_TeamMemberCardHook;
+	identity: I_MemberIdentityHook;
+	memberTask: TTask | null;
+	mutations: I_TeamMemberMutationsHook;
+	roleActions: I_TeamMemberRoleActionsHook;
 	edition: I_TMCardTaskEditHook;
 };
 
@@ -24,17 +34,28 @@ export function UserTeamCardMenu(props: Props) {
 	return <DropdownMenu {...props} />;
 }
 
-function DropdownMenu({ edition, memberInfo }: Props) {
+function DropdownMenu({ edition, identity, memberTask, mutations, roleActions }: Props) {
 	const { onAssignTask, onUnAssignTask, onRemoveMember } = useDropdownAction({
 		edition,
-		memberInfo
+		identity,
+		memberTask,
+		mutations,
+		roleActions
 	});
 	const { toggleFavoriteTask, isFavoriteTask, addTaskToFavoriteLoading, deleteTaskFromFavoritesLoading } =
 		useFavoriteTasks();
 	const t = useTranslations();
-	const loading = edition.loading || memberInfo.updateOTeamLoading;
+	const loading = edition.loading || roleActions.updateOTeamLoading;
 
-	const { isOpen: isAllPlansModalOpen, closeModal: closeAllPlansModal, openModal: openAllPlansModal } = useModal();
+	// Use global modal state instead of local state
+	const setAllPlansModal = useSetAtom(allPlansModalState);
+
+	const openAllPlansModal = useCallback(() => {
+		setAllPlansModal({
+			isOpen: true,
+			employeeId: identity.member?.employeeId ?? null
+		});
+	}, [setAllPlansModal, identity.member?.employeeId]);
 
 	const allMenuItems = useMemo(
 		() => [
@@ -44,7 +65,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 				onClick: () => {
 					edition.task && edition.setEditMode(true);
 				},
-				active: (memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task
+				active: (identity.isAuthTeamManager || identity.isAuthUser) && edition.task
 			},
 			{
 				name: edition.task ? (
@@ -62,7 +83,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 				onClick: () => {
 					edition.task && toggleFavoriteTask(edition.task);
 				},
-				active: (memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task
+				active: (identity.isAuthTeamManager || identity.isAuthUser) && edition.task
 			},
 			{
 				name: t('common.ESTIMATE'),
@@ -70,7 +91,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 				onClick: () => {
 					edition.task && edition.setEstimateEditMode(true);
 				},
-				active: (memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task
+				active: (identity.isAuthTeamManager || identity.isAuthUser) && edition.task
 			},
 			{
 				name: t('common.ASSIGN_TASK'),
@@ -78,7 +99,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 				onClick: onAssignTask,
 
 				active:
-					(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && memberInfo.memberUnassignTasks.length > 0
+					(identity.isAuthTeamManager || identity.isAuthUser) && mutations.memberUnassignTasks.length > 0
 			},
 			{
 				name: t('common.UNASSIGN_TASK'),
@@ -86,24 +107,24 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 				closable: true,
 				onClick: onUnAssignTask,
 
-				active: (memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && !!memberInfo.memberTask
+				active: (identity.isAuthTeamManager || identity.isAuthUser) && !!memberTask
 			},
 			{
-				name: memberInfo.isTeamManager ? t('common.UNMAKE_A_MANAGER') : t('common.MAKE_A_MANAGER'),
-				// MAke or unmake member a manager
-				onClick: memberInfo.isTeamManager ? memberInfo.unMakeMemberManager : memberInfo.makeMemberManager,
-				active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser && !memberInfo.isTeamCreator,
+				name: identity.isTeamManager ? t('common.UNMAKE_A_MANAGER') : t('common.MAKE_A_MANAGER'),
+				// Make or unmake member a manager
+				onClick: identity.isTeamManager ? roleActions.unMakeMemberManager : roleActions.makeMemberManager,
+				active: identity.isAuthTeamManager && !identity.isAuthUser && !identity.isTeamCreator,
 				closable: true
 			},
 			{
 				name: t('common.REMOVE'),
 				type: 'danger',
 				action: 'remove',
-				active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser && !memberInfo.isTeamCreator,
+				active: identity.isAuthTeamManager && !identity.isAuthUser && !identity.isTeamCreator,
 				onClick: onRemoveMember
 			}
 		],
-		[t, memberInfo, edition, isFavoriteTask]
+		[t, identity, memberTask, mutations, roleActions, edition, isFavoriteTask, onAssignTask, onUnAssignTask, onRemoveMember]
 	);
 
 	// Filter menu items to show only active ones
@@ -122,7 +143,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 					<PopoverButton
 						disabled={menu.length === 0}
 						className={clsxm(
-							'flex items-center outline-none border-none',
+							'flex items-center outline-hidden border-none',
 							menu.length === 0 && ['opacity-50 hidden']
 						)}
 					>
@@ -171,7 +192,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 													{assignAction && (
 														// Show only for item with combobox menu
 														<TaskUnOrAssignPopover
-															tasks={memberInfo.memberUnassignTasks}
+															tasks={mutations.memberUnassignTasks}
 															onTaskClick={(task, closeCmbx) => {
 																// Can close all open combobox
 																item.onClick &&
@@ -181,10 +202,10 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 																		closeCombobox2: close
 																	});
 															}}
-															userProfile={memberInfo.member}
+															userProfile={identity.member}
 															usersTaskCreatedAssignTo={
-																memberInfo.member?.employeeId
-																	? [{ id: memberInfo.member?.employeeId }]
+																identity.member?.employeeId
+																	? [{ id: identity.member?.employeeId }]
 																	: undefined
 															}
 														>
@@ -236,40 +257,74 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 					</PopoverPanel>
 				</Transition>
 			</Popover>
-			<AllPlansModal isOpen={isAllPlansModalOpen} closeModal={closeAllPlansModal} />
+			{/* AllPlansModal is now rendered globally in app-sidebar.tsx */}
 		</>
 	);
 }
 
-type IAssignCall = (params: { task?: TTask; closeCombobox1?: () => void; closeCombobox2?: () => void }) => void;
+type IAssignCall = (params: {
+	task?: TTask;
+	closeCombobox1?: () => void;
+	closeCombobox2?: () => void;
+}) => void | Promise<void>;
 
-export function useDropdownAction({ edition, memberInfo }: Pick<Props, 'edition' | 'memberInfo'>) {
+export function useDropdownAction({
+	edition,
+	identity,
+	memberTask,
+	mutations,
+	roleActions
+}: Pick<Props, 'edition' | 'identity' | 'memberTask' | 'mutations' | 'roleActions'>) {
+	const t = useTranslations();
+
 	const onAssignTask: IAssignCall = useCallback(
 		async ({ task, closeCombobox1, closeCombobox2 }) => {
 			if (!task) return;
 
-			edition.setLoading(true);
-			await memberInfo.assignTask(task).finally(() => edition.setLoading(false));
+			const memberName = identity.member?.employee?.fullName || identity.member?.employee?.user?.name || '';
 
-			closeCombobox1 && closeCombobox1();
-			closeCombobox2 && closeCombobox2();
+			edition.setLoading(true);
+			try {
+				await mutations.assignTask(task);
+				toast.success(t('task.toastMessages.TASK_ASSIGNED'), {
+					description: memberName ? `"${task.title}" → ${memberName}` : `"${task.title}"`,
+					id: 'task-assigned'
+				});
+			} finally {
+				edition.setLoading(false);
+			}
+
+			closeCombobox1?.();
+			closeCombobox2?.();
 		},
-		[edition, memberInfo]
+		[edition, identity.member, mutations.assignTask, t]
 	);
 
-	const onUnAssignTask: IAssignCall = useCallback(() => {
-		if (!memberInfo.memberTask) return;
-		edition.setLoading(true);
+	const onUnAssignTask: IAssignCall = useCallback(async () => {
+		if (!memberTask) return;
 
-		memberInfo.unassignTask(memberInfo.memberTask).finally(() => edition.setLoading(false));
-	}, [memberInfo, edition]);
+		const memberName = identity.member?.employee?.fullName || identity.member?.employee?.user?.name || '';
+
+		edition.setLoading(true);
+		try {
+			await mutations.unassignTask(memberTask);
+			toast.success(t('task.toastMessages.TASK_UNASSIGNED'), {
+				description: memberName
+					? `"${memberTask.title}" ← ${memberName}`
+					: `"${memberTask.title}"`,
+				id: 'task-unassigned'
+			});
+		} finally {
+			edition.setLoading(false);
+		}
+	}, [memberTask, identity.member, mutations.unassignTask, edition, t]);
 
 	const onRemoveMember = useCallback(
 		({ close }: { close?: () => void }) => {
-			memberInfo.removeMemberFromTeam();
-			close && close();
+			roleActions.removeMemberFromTeam();
+			close?.();
 		},
-		[memberInfo]
+		[roleActions.removeMemberFromTeam]
 	);
 
 	return {

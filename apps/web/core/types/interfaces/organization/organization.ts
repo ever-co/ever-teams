@@ -94,7 +94,7 @@ export interface IOrganizationTimerSetting {
 	allowScreenshotCapture?: boolean;
 	randomScreenshot?: boolean;
 	trackOnSleep?: boolean;
-	screenshotFrequency?: number;
+	screenshotFrequency?: number | string | null;
 	enforced?: boolean;
 	standardWorkHoursPerDay?: number;
 }

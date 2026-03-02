@@ -6,9 +6,8 @@ import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
 import { ChangeEvent, Dispatch, KeyboardEvent, SetStateAction, useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ChevronDownIcon } from 'assets/svg';
-import { useRoles } from '@/core/hooks/roles';
-import { useAtomValue } from 'jotai';
-import { rolesState } from '@/core/stores';
+import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
+import { useRolesMutations } from '@/core/hooks/roles/use-roles-mutations';
 import { PermissonItem } from './permission-item';
 import { EverCard } from '../common/ever-card';
 import { InputField } from '../duplicated-components/_input';
@@ -21,8 +20,8 @@ export const PermissionDropDown = ({
 	selectedRole: TRole | null;
 	setSelectedRole: Dispatch<SetStateAction<TRole | null>>;
 }) => {
-	const roles = useAtomValue(rolesState);
-	const { createRole, createRoleLoading, deleteRole, updateRole } = useRoles();
+	const { roles } = useRolesQuery();
+	const { createRole, createRoleLoading, deleteRole, updateRole } = useRolesMutations();
 	const [filterValue, setFilterValue] = useState<string>('');
 
 	const [editRole, setEditRole] = useState<TRole | null>(null);
@@ -98,7 +97,7 @@ export const PermissionDropDown = ({
 	return (
 		<>
 			<Popover className="relative bg-light--theme-light dark:bg-dark--theme-light">
-				<PopoverButton className="md:min-w-[10.75rem] flex justify-between items-center px-4 py-3 text-sm border text-[#B1AEBC] outline-none rounded-xl bg-light--theme-light dark:bg-dark--theme-light">
+				<PopoverButton className="md:min-w-[10.75rem] flex justify-between items-center px-4 py-3 text-sm border text-[#B1AEBC] outline-hidden rounded-xl bg-light--theme-light dark:bg-dark--theme-light">
 					{selectedRole ? selectedRole.name : t('pages.permissions.SELECT_ROLES')}
 					<ChevronDownIcon />
 				</PopoverButton>

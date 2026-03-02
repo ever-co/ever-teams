@@ -79,7 +79,7 @@ export const PaginationItemsDropdown = ({ onChange, totalItems, itemsPerPage }: 
 				/>
 			</PopoverTrigger>
 
-			<PopoverContent className="w-36 p-2 bg-light--theme-light shadow dark:bg-dark--theme-light">
+			<PopoverContent className="w-36 p-2 bg-light--theme-light shadow-sm dark:bg-dark--theme-light">
 				{paginationOptions.map((item) => (
 					<div
 						key={item}

@@ -1,4 +1,4 @@
-import { IHookModal, useTeamTasks } from '@/core/hooks';
+import { IHookModal, useUpdateTask, useTeamTasksQuery } from '@/core/hooks';
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import cloneDeep from 'lodash/cloneDeep';
 import { useCallback, useState } from 'react';
@@ -13,7 +13,8 @@ function CreateParentTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 	const t = useTranslations();
 
 	const tasks = useAtomValue(tasksByTeamState);
-	const { loadTeamTasksData, updateTask } = useTeamTasks();
+	const { loadTeamTasksData } = useTeamTasksQuery();
+	const { updateTask } = useUpdateTask();
 
 	const [loading, setLoading] = useState(false);
 

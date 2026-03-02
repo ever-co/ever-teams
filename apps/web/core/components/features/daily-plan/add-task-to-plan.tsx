@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
-import { useDailyPlan } from '@/core/hooks';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
+import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
+import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
 import {
 	Command,
@@ -24,8 +26,6 @@ import { InputField } from '../../duplicated-components/_input';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
-import { useAtomValue } from 'jotai';
-import { profileDailyPlanListState } from '@/core/stores';
 export function AddTaskToPlan({
 	open,
 	closeModal,
@@ -37,8 +37,10 @@ export function AddTaskToPlan({
 	task: TTask;
 	employee?: IEmployee;
 }) {
-	const profileDailyPlans = useAtomValue(profileDailyPlanListState);
-	const { createDailyPlan, addTaskToPlan, getEmployeeDayPlans, addTaskToPlanLoading } = useDailyPlan();
+	// Use specialized hooks with employee?.id to get the correct employee's plans
+	const { employeeDailyPlans, getEmployeeDailyPlans } = useEmployeeDailyPlans(employee?.id ?? null);
+	const { createDailyPlan } = useCreateDailyPlan();
+	const { addTaskToPlan, addTaskToPlanLoading } = useUpdateDailyPlan();
 	const [selectedPlan, setSelectedPlan] = useState<TDailyPlan | null>(null);
 	const [newPlan, setNewPlan] = useState<boolean>(false);
 	const [date, setDate] = useState<Date>(new Date());
@@ -61,11 +63,16 @@ export function AddTaskToPlan({
 				}).then(() => {
 					closeModal();
 				})
-			: addTaskToPlan({ employeeId: employee?.employeeId ?? '', taskId: task.id }, selectedPlan?.id ?? '').then(
-					() => {
-						closeModal();
-					}
-				);
+			: addTaskToPlan(
+					{
+						taskId: task.id,
+						employeeId: employee?.employeeId,
+						organizationId: employee?.organizationId
+					},
+					selectedPlan?.id ?? ''
+				).then(() => {
+					closeModal();
+				});
 	}, [
 		addTaskToPlan,
 		closeModal,
@@ -76,13 +83,15 @@ export function AddTaskToPlan({
 		employee?.tenantId,
 		newPlan,
 		selectedPlan?.id,
+		selectedPlan?.employeeId,
+		selectedPlan?.organizationId,
 		task.id,
 		workTimePlanned
 	]);
 
 	useEffect(() => {
-		getEmployeeDayPlans(employee?.employeeId ?? '');
-	}, [employee?.employeeId, getEmployeeDayPlans]);
+		getEmployeeDailyPlans();
+	}, [employee?.id, getEmployeeDailyPlans]);
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} className="w-[98%] md:w-[530px] relative">
@@ -140,7 +149,7 @@ export function AddTaskToPlan({
 					) : (
 						<PlansList
 							handlePlanClik={handlePlanClick}
-							plans={profileDailyPlans.items}
+							plans={employeeDailyPlans.items}
 							selectedPlan={selectedPlan}
 						/>
 					)}

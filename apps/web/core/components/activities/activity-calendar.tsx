@@ -141,7 +141,7 @@ function ActivityLegend({ selectedYear, setSelectedYear }: ActivityLegendProps) 
 	);
 
 	return (
-		<div className="flex flex-col gap-4 justify-between p-3 bg-white rounded-lg shadow-sm sm:flex-row sm:items-center dark:bg-dark--theme-light">
+		<div className="flex flex-col gap-4 justify-between p-3 bg-white rounded-lg shadow-xs sm:flex-row sm:items-center dark:bg-dark--theme-light">
 			<div className="flex flex-wrap gap-3 items-center">
 				<h3 className="text-base font-semibold whitespace-nowrap">{t('common.LEGEND')}</h3>
 				{legendItems.map(({ color, label }, index) => (

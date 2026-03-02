@@ -24,7 +24,7 @@ const UnverifiedEmailSkeleton = ({ className }: { className?: string }) => {
 			</div>
 
 			{/* Close button */}
-			<div className="w-5 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded ml-2" />
+			<div className="w-5 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm ml-2" />
 		</EverCard>
 	);
 };

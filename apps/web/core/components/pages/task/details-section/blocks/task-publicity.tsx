@@ -1,4 +1,4 @@
-import { useTeamTasks } from '@/core/hooks';
+import { useUpdateTask } from '@/core/hooks';
 import { detailedTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { debounce } from 'lodash';
@@ -11,7 +11,7 @@ const TaskPublicity = () => {
 	const task = useAtomValue(detailedTaskState);
 	const t = useTranslations();
 	const [isTaskPublic, setIsTaskPublic] = useState<boolean | undefined | null>(task?.public);
-	const { updatePublicity } = useTeamTasks();
+	const { updatePublicity } = useUpdateTask();
 
 	const handlePublicity = useCallback(
 		(value: boolean) => {

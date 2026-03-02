@@ -1,6 +1,7 @@
 import { Dispatch, memo, SetStateAction, useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useDailyPlan } from '@/core/hooks';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
+import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
 import { Modal, Text } from '@/core/components';
 import { imgTitle, tomorrowDate, yesterdayDate } from '@/core/lib/helpers/index';
 import { ReloadIcon } from '@radix-ui/react-icons';
@@ -28,7 +29,7 @@ import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/generics/enums/da
 import { TDailyPlan, TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useAtomValue } from 'jotai';
-import { activeTeamManagersState, activeTeamState, profileDailyPlanListState } from '@/core/stores';
+import { activeTeamManagersState, activeTeamState } from '@/core/stores';
 
 export function CreateDailyPlanFormModal({
 	open,
@@ -51,23 +52,6 @@ export function CreateDailyPlanFormModal({
 	const activeTeam = useAtomValue(activeTeamState);
 
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
-	const profileDailyPlans = useAtomValue(profileDailyPlanListState);
-	const { createDailyPlan, createDailyPlanLoading } = useDailyPlan();
-	const latestOption: 'Select' | 'Select & Close' | null = window.localStorage.getItem(
-		LAST_OPTION__CREATE_DAILY_PLAN_MODAL
-	) as 'Select' | 'Select & Close';
-	const t = useTranslations();
-	const existingPlanDates = useMemo(
-		() => profileDailyPlans?.items?.map((plan: TDailyPlan) => new Date(plan.date)),
-		[profileDailyPlans.items]
-	);
-	const existingTaskPlanDates = useMemo(
-		() =>
-			profileDailyPlans?.items
-				?.filter((plan: TDailyPlan) => plan.tasks?.some((task) => task.id === taskId))
-				.map((plan: TDailyPlan) => new Date(plan.date)),
-		[profileDailyPlans.items, taskId]
-	);
 
 	const isManagerConnectedUser = useMemo(
 		() => activeTeamManagers.find((member) => member.employee?.user?.id === user?.id),
@@ -79,6 +63,27 @@ export function CreateDailyPlanFormModal({
 		isManagerConnectedUser
 	);
 	const [isOpen, setIsOpen] = useState(false);
+
+	// Use specialized hooks with employeeId to get the correct employee's plans
+	// Use useEmployeeDailyPlans to check for duplicates
+	// NOTE: Include selectedEmployee?.employeeId to ensure we check plans for the dynamically selected user (e.g. by manager)
+	const { employeeDailyPlans } = useEmployeeDailyPlans(employeeId ?? selectedEmployee?.employeeId ?? null);
+	const { createDailyPlan, createDailyPlanLoading } = useCreateDailyPlan();
+	const latestOption: 'Select' | 'Select & Close' | null = window.localStorage.getItem(
+		LAST_OPTION__CREATE_DAILY_PLAN_MODAL
+	) as 'Select' | 'Select & Close';
+	const t = useTranslations();
+	const existingPlanDates = useMemo(
+		() => employeeDailyPlans?.items?.map((plan: TDailyPlan) => new Date(plan.date)),
+		[employeeDailyPlans.items]
+	);
+	const existingTaskPlanDates = useMemo(
+		() =>
+			employeeDailyPlans?.items
+				?.filter((plan: TDailyPlan) => plan.tasks?.some((task) => task.id === taskId))
+				.map((plan: TDailyPlan) => new Date(plan.date)),
+		[employeeDailyPlans.items, taskId]
+	);
 
 	const handleMemberClick = useCallback((member: TOrganizationTeamEmployee) => {
 		setSelectedEmployee(member);
@@ -216,7 +221,7 @@ export function CreateDailyPlanFormModal({
 									)}
 
 									{isOpen && (
-										<div className="absolute right-0 p-2 mt-2 w-full bg-white rounded-md divide-y divide-gray-100 ring-1 ring-black ring-opacity-5 shadow-lg origin-top-right z-5 focus:outline-none">
+										<div className="absolute right-0 p-2 mt-2 w-full bg-white rounded-md divide-y divide-gray-100 ring-1 shadow-lg origin-top-right ring-black/5 z-5 focus:outline-none">
 											<div className="flex flex-col gap-1 items-center w-full">
 												<Button
 													disabled={createDailyPlanLoading}

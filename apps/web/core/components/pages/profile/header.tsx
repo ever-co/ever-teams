@@ -22,13 +22,13 @@ export function Header({ user }: { user: TUser | undefined }) {
 							<Image
 								src={user?.imageUrl}
 								alt="User Icon"
-								className="z-20 w-full h-full rounded-full"
-								layout="fill"
-								objectFit="cover"
+								width={137}
+								height={137}
+								className="z-20 object-cover w-full h-full rounded-full"
 							/>
 						)}
 
-						<div className="absolute inset-0 z-10 w-full h-full shadow animate-pulse dark:divide-gray-700 dark:border-gray-700">
+						<div className="absolute inset-0 z-10 w-full h-full shadow-sm animate-pulse dark:divide-gray-700 dark:border-gray-700">
 							<div className="w-full h-full rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
 						</div>
 

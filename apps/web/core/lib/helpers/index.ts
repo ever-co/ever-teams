@@ -10,3 +10,5 @@ export * from './colors';
 export * from './strings';
 export * from './plan-day-badge';
 export * from './drag-and-drop';
+export * from './type-guards';
+export * from './sanitize-html';

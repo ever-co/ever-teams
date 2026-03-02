@@ -16,7 +16,7 @@ export function SortPopover({ label, sortKey, currentConfig, onSort }: SortPopov
 
 	return (
 		<div className="flex gap-2 items-center">
-			<span className="text-[13px] whitespace-nowrap">{label}</span>
+			<span className="text-xs whitespace-nowrap">{label}</span>
 			<Popover>
 				<PopoverTrigger asChild>
 					<Button

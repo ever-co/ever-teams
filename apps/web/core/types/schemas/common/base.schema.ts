@@ -76,5 +76,6 @@ export const managerAssignableSchema = z.object({
 // Relational employee schema
 export const relationalEmployeeSchema = z.object({
 	employeeId: z.string().optional().nullable(), // Restored .nullable() - API can return null
-	employee: z.any().optional().nullable() // Will be properly typed when employee schema is created
+	employee: z.any().optional().nullable(), // Will be properly typed when employee schema is created,
+	organizationTeamId: z.string().optional().nullable() // NOTE: (added for filtering by team)
 });

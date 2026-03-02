@@ -1,27 +1,82 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Editor, createEditor, Descendant } from 'slate';
 import { withHistory } from 'slate-history';
 import { Editable, withReact, Slate } from 'slate-react';
+import { htmlToSlate, slateToHtml } from 'slate-serializers';
 import { Bold, Italic, Underline, Code } from 'lucide-react';
+import { cn } from '@/core/lib/helpers';
+import { isHtml } from '@/core/lib/helpers/text-editor-service';
+import { configHtmlToSlate, configSlateToHtml } from '@/core/lib/helpers/text-editor-serializer-configurations';
 
 interface IRichTextProps {
 	defaultValue?: string;
 	readonly?: boolean;
 	onChange?: (value: string) => void;
+	/** Called when the word count validity changes (true = within limit, false = over 5000 words) */
+	onValidityChange?: (valid: boolean) => void;
 }
 
-const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextProps) => {
+const countWords = (text: string) => {
+	return text.trim().split(/\s+/).filter((word) => word.length > 0).length;
+};
+
+const createEmptyParagraph = (): Descendant[] =>
+	[{ type: 'paragraph', children: [{ text: '' }] }] as unknown as Descendant[];
+
+// Element types whose children are block-level siblings (need newline between items).
+// Excludes 'li': list items may have inline text children, joining with '\n' would corrupt output.
+const BLOCK_CONTAINER_TYPES = new Set(['ul', 'ol', 'blockquote']);
+
+const slateValueToText = (nodes: Descendant[], isBlockLevel = true): string => {
+	const separator = isBlockLevel ? '\n' : '';
+	return nodes
+		.map((n) => {
+			if (n && typeof n === 'object' && 'text' in n) return (n as { text: string }).text;
+			if (n && typeof n === 'object' && 'children' in n) {
+				const element = n as { type?: string; children: Descendant[] };
+				const childIsBlockLevel = !!element.type && BLOCK_CONTAINER_TYPES.has(element.type);
+				return slateValueToText(element.children, childIsBlockLevel);
+			}
+			return '';
+		})
+		.join(separator);
+};
+
+const getInitialEditorValue = (defaultValue: string | undefined): Descendant[] => {
+	if (!defaultValue?.trim()) return createEmptyParagraph();
+	if (isHtml(defaultValue)) {
+		const slateNodes = htmlToSlate(defaultValue, configHtmlToSlate) as unknown as Descendant[];
+		return Array.isArray(slateNodes) && slateNodes.length > 0 ? slateNodes : createEmptyParagraph();
+	}
+	return [{ type: 'paragraph', children: [{ text: defaultValue }] }] as unknown as Descendant[];
+};
+
+const RichTextEditor = ({ readonly = false, onChange, defaultValue, onValidityChange }: IRichTextProps) => {
 	const editor = useMemo(() => withHistory(withReact(createEditor())), []);
-	const [editorValue, setEditorValue] = useState<Descendant[]>(
-		defaultValue
-			? // @ts-ignore
-				[{ type: 'paragraph', children: [{ text: defaultValue }] }]
-			: [{ type: 'paragraph', children: [{ text: '' }] }]
+	const initialValue = useMemo(() => getInitialEditorValue(defaultValue), [defaultValue]);
+	const [editorValue, setEditorValue] = useState<Descendant[]>(initialValue);
+	const [wordCount, setWordCount] = useState(() =>
+		defaultValue ? countWords(isHtml(defaultValue) ? slateValueToText(initialValue) : defaultValue) : 0
 	);
-	const [editorText, setEditorText] = useState('');
+	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	// Notify parent of initial validity on mount
+	useEffect(() => {
+		onValidityChange?.(wordCount <= 5000);
+	}, []); // eslint-disable-line react-hooks/exhaustive-deps -- only run on mount
+
+	// Cleanup timeout on unmount
+	useEffect(() => {
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+		};
+	}, []);
 
 	const renderElement = useCallback((props: any) => <Element {...props} />, []);
 	const renderLeaf = useCallback((props: any) => <Leaf {...props} />, []);
+
 
 	const toggleMark = (format: string) => {
 		// @ts-ignore
@@ -43,21 +98,41 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextP
 					<ToolbarButton onClick={() => toggleMark('code')} icon={<Code size={14} />} />
 				</div>
 			)}
-			{/* @ts-ignore */}
 			<Slate
 				editor={editor}
 				value={editorValue}
 				onChange={(value) => {
 					setEditorValue(value);
-					const text = value.map(() => Editor.string(editor, [])).join(' ');
-					setEditorText(text);
-					onChange?.(text);
+
+					// Determine if the change is a content change (AST change) or just selection
+					const isAstChange = editor.operations.some((op) => op.type !== 'set_selection');
+
+					if (isAstChange) {
+						const plainText = slateValueToText(value);
+						const words = countWords(plainText);
+						const html = slateToHtml(value, configSlateToHtml);
+
+						// Clear any existing timeout
+						if (timeoutRef.current) {
+							clearTimeout(timeoutRef.current);
+						}
+
+						// Defer state updates to avoid the React warning:
+						// "Cannot update a component while rendering a different component"
+						// This happens when Slate triggers normalization during a render cycle.
+						timeoutRef.current = setTimeout(() => {
+							setWordCount(words);
+							const valid = words <= 5000;
+							onValidityChange?.(valid);
+							// Always call onChange with HTML to preserve bold/italic/underline - parent decides whether to block submission based on validity
+							onChange?.(html);
+							timeoutRef.current = null;
+						}, 0);
+					}
 				}}
 			>
-				{/* @ts-ignore */}
 				<Editable
-					defaultValue={defaultValue}
-					className=" p-2 h-20 outline-none"
+					className="p-2 min-h-[5rem] max-h-[15rem] outline-none overflow-y-auto"
 					placeholder="Insert description here..."
 					renderElement={renderElement}
 					renderLeaf={renderLeaf}
@@ -65,13 +140,22 @@ const RichTextEditor = ({ readonly = false, onChange, defaultValue }: IRichTextP
 					readOnly={readonly}
 				/>
 			</Slate>
-			<div className="text-right text-gray-500 py-1 px-2 text-xs">{editorText.length}/120</div>
+			<div className={cn('text-right py-1 px-2 text-xs', wordCount > 5000 ? 'text-red-500' : 'text-gray-500')}>
+				{wordCount}/5000 words
+			</div>
 		</div>
 	);
 };
 
 const ToolbarButton = ({ onClick, icon }: { onClick: () => void; icon: React.ReactNode }) => (
-	<button className=" hover:bg-primary/5 rounded h-fit px-2 py-1  text-[.5rem] font-light" onClick={onClick}>
+	<button
+		type="button"
+		className=" hover:bg-primary/5 rounded-sm h-fit px-2 py-1  text-[.5rem] font-light"
+		onMouseDown={(e) => {
+			e.preventDefault();
+			onClick();
+		}}
+	>
 		{icon}
 	</button>
 );

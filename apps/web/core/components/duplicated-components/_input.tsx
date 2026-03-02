@@ -125,7 +125,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 					'bg-light--theme-light dark:bg-dark--theme-light dark:text-white',
 					noWrapper && ['input-border'],
 					'py-2 px-4 rounded-[10px]',
-					'text-sm outline-none ',
+					'text-sm outline-hidden ',
 					'h-11 w-full',
 					className
 				)}

@@ -1,4 +1,5 @@
-import { useDailyPlan, useTimerView } from '@/core/hooks';
+import { useTimerView } from '@/core/hooks';
+import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { Button, Modal, Text } from '@/core/components';
 import { useCallback } from 'react';
 import { EverCard } from '../../common/ever-card';
@@ -6,7 +7,6 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { useAtomValue } from 'jotai';
 import { timerStatusState } from '@/core/stores';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 interface UnplanActiveTaskModalProps {
 	open: boolean;
@@ -28,10 +28,9 @@ interface UnplanActiveTaskModalProps {
  */
 export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 	const { closeModal, task, open, plan } = props;
-	const { data: user } = useUserQuery();
 	const timerStatus = useAtomValue(timerStatusState);
 
-	const { removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan();
+	const { removeTaskFromPlan, removeTaskFromPlanLoading } = useUpdateDailyPlan();
 	const { stopTimer } = useTimerView();
 
 	const handleCloseModal = useCallback(() => {
@@ -39,12 +38,24 @@ export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 	}, [closeModal]);
 
 	const handleUnplanTask = useCallback(async () => {
+		// NOTE: Use plan.employeeId/organizationId instead of inferring from the
+		// authenticated user so unplan respects backend filters and works for
+		// other employees' plans as well
 		try {
-			plan.id && (await removeTaskFromPlan({ taskId: task.id, employeeId: user?.employee?.id }, plan.id));
+			if (plan.id) {
+				await removeTaskFromPlan(
+					{
+						taskId: task.id,
+						employeeId: plan.employeeId ?? undefined,
+						organizationId: plan.organizationId
+					},
+					plan.id
+				);
+			}
 		} catch (error) {
 			console.log(error);
 		}
-	}, [plan.id, removeTaskFromPlan, task.id, user?.employee?.id]);
+	}, [plan.employeeId, plan.id, plan.organizationId, removeTaskFromPlan, task.id]);
 
 	// The function that will be called when the user clicks on 'YES' button
 	const onYes = useCallback(async () => {
@@ -58,11 +69,11 @@ export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 	return (
 		<Modal isOpen={open} closeModal={closeModal} className="w-[98%] md:w-[530px] relative" showCloseIcon={false}>
 			<EverCard className="w-full" shadow="custom">
-				<div className="flex flex-col gap-6 justify-between w-full">
+				<div className="flex flex-col justify-between w-full gap-6">
 					<Text.Heading as="h5" className="mb-3 text-center">
 						You are about to unplan the current active task, please confirm the action
 					</Text.Heading>
-					<div className="flex justify-evenly items-center w-full">
+					<div className="flex items-center w-full justify-evenly">
 						<Button
 							disabled={removeTaskFromPlanLoading}
 							variant="outline"

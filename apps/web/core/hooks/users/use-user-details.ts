@@ -1,8 +1,8 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useAuthTeamTasks } from '../organizations/teams/use-auth-team-tasks';
-import { useTeamTasks } from '../organizations';
+import { useUpdateTask, useTeamTasksQuery } from '../organizations';
 import { useAuthenticateUser } from '../auth';
 import { useGetTasksStatsData } from '../tasks';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -13,7 +13,8 @@ export function useUserDetails(memberId: string) {
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
-	const { updateTask } = useTeamTasks();
+	const { updateTask } = useUpdateTask();
+	const { tasks } = useTeamTasksQuery();
 
 	const { user: auth } = useAuthenticateUser();
 
@@ -25,7 +26,20 @@ export function useUserDetails(memberId: string) {
 
 	const isAuthUser = auth?.employee?.userId === memberId;
 
-	const activeUserTeamTask = isAuthUser ? activeTeamTask : matchUser?.lastWorkedTask;
+	// NOTE_FIX: Use activeTaskId instead of lastWorkedTask for non-auth users
+	// This ensures the active task is correctly displayed in UserTeamCardActivity
+	// when the user changes their active task
+	const activeUserTeamTask = useMemo(() => {
+		if (isAuthUser) {
+			return activeTeamTask;
+		}
+
+		if (matchUser?.activeTaskId) {
+			return tasks.find((task) => task.id === matchUser.activeTaskId) || matchUser?.lastWorkedTask;
+		}
+
+		return matchUser?.lastWorkedTask;
+	}, [isAuthUser, activeTeamTask, matchUser?.activeTaskId, matchUser?.lastWorkedTask, tasks]);
 
 	const userProfile = isAuthUser ? auth : matchUser?.employee?.user;
 

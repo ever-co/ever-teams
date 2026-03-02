@@ -1,11 +1,11 @@
-import { useTeamInvitations } from '@/core/hooks';
+import { useSendTeamInvitation } from '@/core/hooks/invitations/use-send-team-invitation';
+import { useRemoveTeamInvitation } from '@/core/hooks/invitations/use-remove-team-invitation';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
-import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
+import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon, MailIcon } from 'assets/svg';
 import { Button, ConfirmDropdown, SpinnerLoader, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
-import { MailIcon } from 'assets/svg';
 import { toast } from 'sonner';
 import { TimerStatus } from '@/core/components/timer/timer-status';
 import { EverCard } from '@/core/components/common/ever-card';
@@ -61,7 +61,7 @@ export function InvitedCard({ invitation, className }: Props) {
 					</div>
 
 					<div className="w-1/2 lg:w-64">
-						<div className="flex items-center gap-2">
+						<div className="flex gap-2 items-center">
 							<Text.Heading
 								className="overflow-hidden text-ellipsis whitespace-nowrap lg:max-w-[15ch] xl:max-w-[17ch] 2xl:max-w-full"
 								as="h3"
@@ -170,8 +170,8 @@ export function InvitedCard({ invitation, className }: Props) {
 
 export function RemoveUserInviteMenu({ invitation }: Props) {
 	const t = useTranslations();
-	const { removeInviteLoading, removeTeamInvitation, resendTeamInvitation, resendInviteLoading } =
-		useTeamInvitations();
+	const { resendTeamInvitation, resendInviteLoading } = useSendTeamInvitation();
+	const { removeTeamInvitation, removeInviteLoading } = useRemoveTeamInvitation();
 
 	const loading = removeInviteLoading || resendInviteLoading;
 
@@ -222,7 +222,7 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 									</li>
 									<li>
 										<ConfirmDropdown
-											className="right-[110%] top-0 border-gray-200 shadow shadow-gray-100 dark:shadow-gray-900 dark:border-gray-800 dark:bg-gray-900"
+											className="right-[110%] top-0 border-gray-200 shadow-sm shadow-gray-100 dark:shadow-gray-900 dark:border-gray-800 dark:bg-gray-900"
 											onConfirm={async () => {
 												try {
 													await removeTeamInvitation(

@@ -4,7 +4,7 @@ import { basePerTenantAndOrganizationEntitySchema } from '../common/tenant-organ
 
 export const taskEstimationsSchema = z
 	.object({
-		estimate: z.number().min(0),
+		estimate: z.number().min(0).nullable(),
 		employeeId: uuIdSchema,
 		taskId: uuIdSchema
 	})

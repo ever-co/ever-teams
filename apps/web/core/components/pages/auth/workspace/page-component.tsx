@@ -4,7 +4,7 @@ import { clsxm } from '@/core/lib/utils';
 import { AuthLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { WorkSpaceComponent } from '../passcode/page-component';
 import { useAuthenticationSocialLogin } from '@/core/hooks/auth/use-authentication-social-login';
 import Cookies from 'js-cookie';
@@ -15,7 +15,8 @@ import {
 	USER_SAW_OUTSTANDING_NOTIFICATION
 } from '@/core/constants/config/constants';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
-import { hasTeams, getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
+import { getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
+import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
 
 export default function SocialLoginChooseWorspace() {
 	const t = useTranslations();
@@ -66,18 +67,9 @@ function WorkSpaceScreen() {
 		loadOAuthSession();
 	}, [session]);
 
-	// Memoize workspace analysis to avoid recalculations
-	const workspaceAnalysis = useMemo(() => {
-		const firstWorkspace = workspaces[0];
-		const firstWorkspaceHasTeams = hasTeams(firstWorkspace);
-		const firstWorkspaceTeamCount = firstWorkspaceHasTeams ? firstWorkspace.current_teams.length : 0;
-
-		return {
-			firstWorkspace,
-			firstWorkspaceHasTeams,
-			firstWorkspaceTeamCount
-		};
-	}, [workspaces]);
+	// Analyze workspace structure to determine if we should show workspace selection
+	// Using centralized hook to avoid code duplication across auth components
+	const workspaceAnalysis = useWorkspaceAnalysis(workspaces);
 
 	useEffect(() => {
 		// Auto-select first workspace if only one exists
@@ -101,14 +93,22 @@ function WorkSpaceScreen() {
 
 			// Find workspace containing the last selected team
 			const lastSelectedWorkspaceIndex = findWorkspaceIndexByTeamId(workspaces, lastSelectedTeam);
-			const workspaceIndex = lastSelectedWorkspaceIndex >= 0 ? lastSelectedWorkspaceIndex : 0;
 
-			setSelectedTeam(lastSelectedTeam);
-			setSelectedWorkspace(workspaceIndex);
+			// Only set selectedTeam if the team actually exists in current_teams
+			if (lastSelectedWorkspaceIndex >= 0) {
+				setSelectedTeam(lastSelectedTeam);
+				setSelectedWorkspace(lastSelectedWorkspaceIndex);
+			} else {
+				// Team doesn't exist (user was removed from team)
+				// Set workspace to first one but leave selectedTeam empty
+				// This prevents 401 errors when trying to sign in with a non-existent team
+				setSelectedWorkspace(0);
+				setSelectedTeam('');
+			}
 		}
 
-		// Auto-submit if only one workspace with 0 or 1 team
-		if (workspaces.length === 1 && firstWorkspaceTeamCount <= 1) {
+		// Only auto-submit if shouldAutoSubmit is true (1 workspace with exactly 1 team)
+		if (workspaceAnalysis.shouldAutoSubmit) {
 			setTimeout(() => {
 				document.getElementById('continue-to-workspace')?.click();
 			}, 100);

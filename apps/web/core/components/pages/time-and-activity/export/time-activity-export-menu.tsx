@@ -338,7 +338,7 @@ export function TimeActivityExportMenu({
 					<DropdownMenuItem className="cursor-pointer">
 						<Suspense fallback={<ExportPDFSkeleton />}>
 							<PDFDownloadLink
-								className="w-full h-full text-left"
+								className="w-full h-full pl-2 text-left"
 								document={pdfDocument}
 								fileName={pdfFileName}
 								download={true}

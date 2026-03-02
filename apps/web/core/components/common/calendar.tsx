@@ -38,7 +38,7 @@ const CustomSelectItem = React.forwardRef<
 	<SelectPrimitive.Item
 		ref={ref}
 		className={cn(
-			'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 px-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+			'relative flex w-full cursor-default select-none items-center rounded-xs py-1.5 px-2 text-sm outline-hidden focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
 			className
 		)}
 		{...props}
@@ -91,11 +91,11 @@ function CustomCaption({ displayMonth, onMonthChange }: CustomCaptionProps) {
 	};
 
 	return (
-		<div className="flex items-center justify-between py-1">
-			<div className="flex items-center justify-between w-full gap-1">
+		<div className="flex justify-between items-center py-1">
+			<div className="flex gap-1 justify-between items-center w-full">
 				<div className="relative z-[999]">
 					<Select value={MONTHS[displayMonth.getMonth()]} onValueChange={handleMonthChange}>
-						<SelectTrigger className="h-8 px-2 text-sm font-medium text-gray-700 transition bg-transparent border-none hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-0 dark:text-gray-300">
+						<SelectTrigger className="px-2 h-8 text-sm font-medium text-gray-700 bg-transparent border-none transition hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-0 dark:text-gray-300">
 							<SelectValue placeholder="Month" />
 						</SelectTrigger>
 						<SelectContent
@@ -108,7 +108,7 @@ function CustomCaption({ displayMonth, onMonthChange }: CustomCaptionProps) {
 									key={month}
 									value={month}
 									className={cn(
-										'text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition dark:text-gray-300',
+										'text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm transition dark:text-gray-300',
 										displayMonth.getMonth() === index ? 'bg-gray-100 dark:bg-gray-700' : ''
 									)}
 								>
@@ -120,7 +120,7 @@ function CustomCaption({ displayMonth, onMonthChange }: CustomCaptionProps) {
 				</div>
 				<div className="relative z-[999]">
 					<Select value={displayMonth.getFullYear().toString()} onValueChange={handleYearChange}>
-						<SelectTrigger className="h-8 px-2 text-sm font-medium text-gray-700 transition bg-transparent border-none hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-0 dark:text-gray-300">
+						<SelectTrigger className="px-2 h-8 text-sm font-medium text-gray-700 bg-transparent border-none transition hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-0 dark:text-gray-300">
 							<SelectValue placeholder="Year" />
 						</SelectTrigger>
 						<SelectContent
@@ -133,7 +133,7 @@ function CustomCaption({ displayMonth, onMonthChange }: CustomCaptionProps) {
 									key={year}
 									value={year.toString()}
 									className={cn(
-										'text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition dark:text-gray-300',
+										'text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm transition dark:text-gray-300',
 										displayMonth.getFullYear() === year ? 'bg-gray-100 dark:bg-gray-700' : ''
 									)}
 								>
@@ -164,7 +164,7 @@ function Calendar({
 			weekStartsOn={1} // Start week on Monday
 			showOutsideDays={showOutsideDays}
 			captionLayout={captionLayout}
-			className={cn('p-4 rounded-lg   bg-white dark:bg-dark--theme-light', className)}
+			className={cn('p-4 bg-white rounded-lg dark:bg-dark--theme-light', className)}
 			classNames={{
 				months: 'flex gap-4',
 				month: 'space-y-4',
@@ -194,17 +194,17 @@ function Calendar({
 					'focus:bg-indigo-700 dark:focus:bg-indigo-600 focus:text-white'
 				),
 				day_today: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-900 dark:text-indigo-100 font-medium',
-				day_outside: 'text-gray-300 dark:text-gray-600 opacity-50',
-				day_disabled: 'text-gray-300 dark:text-gray-600 opacity-50',
+				day_outside: 'text-gray-300 dark:text-gray-400 opacity-50',
+				day_disabled: 'text-gray-300 dark:text-gray-300 opacity-50',
 				day_hidden: 'invisible',
 				...classNames
 			}}
 			components={{
 				IconLeft: ({ className, ...props }) => (
-					<ChevronLeft className={cn('h-4 w-4 text-gray-600 dark:text-gray-400', className)} {...props} />
+					<ChevronLeft className={cn('w-4 h-4 text-gray-600 dark:text-gray-400', className)} {...props} />
 				),
 				IconRight: ({ className, ...props }) => (
-					<ChevronRight className={cn('h-4 w-4 text-gray-600 dark:text-gray-400', className)} {...props} />
+					<ChevronRight className={cn('w-4 h-4 text-gray-600 dark:text-gray-400', className)} {...props} />
 				),
 				Caption: (props) => <CustomCaption {...props} onMonthChange={onMonthChange} />
 			}}

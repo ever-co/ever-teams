@@ -4,9 +4,13 @@ import {
 	useCollaborative,
 	useTMCardTaskEdit,
 	useTaskStatistics,
-	useTeamMemberCard,
+	useMemberIdentity,
+	useMemberActiveTask,
+	useTeamMemberMutations,
+	useTeamMemberRoleActions,
 	useUserProfilePage
 } from '@/core/hooks';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import {
 	activeTaskStatisticsState,
@@ -15,7 +19,7 @@ import {
 	userDetailAccordion as userAccordion
 } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
-import { Container } from '@/core/components';
+import { Container, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { TaskEstimateInfo } from './task-estimate';
@@ -23,7 +27,6 @@ import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
 import React, { Suspense, useCallback, useMemo, useState } from 'react';
-import { LazyUserTeamActivity } from '@/core/components/optimized-components';
 import { CollapseUpIcon, ExpandIcon } from '@/core/components/svgs/expand';
 import { activityTypeState } from '@/core/stores/timer/activity-type';
 import { SixSquareGridIcon } from 'assets/svg';
@@ -36,18 +39,20 @@ import { fullWidthState } from '@/core/stores/common/full-width';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { ScreenshootTab } from '@/core/components/pages/profile/screenshots/screenshoots';
 import { InputField } from '@/core/components/duplicated-components/_input';
-import { LazyUserProfileTask } from '@/core/components/optimized-components';
+import { LazyUserProfileTask, LazyUserTeamActivity } from '@/core/components/optimized-components';
 import { EverCard } from '@/core/components/common/ever-card';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { TaskTimes, TodayWorkedTime } from '@/core/components/tasks/task-times';
-import { Text } from '@/core/components';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { TTaskStatistics } from '@/core/types/interfaces/task/task';
 import { TActivityFilter } from '@/core/types/schemas';
 import { cn } from '@/core/lib/helpers';
 import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { UserTeamActivitySkeleton } from '@/core/components/common/skeleton/profile-component-skeletons';
+import {
+	UserTeamActivitySkeleton,
+	UserProfileTaskSkeleton
+} from '@/core/components/common/skeleton/profile-component-skeletons';
 import { uniqueId } from 'lodash';
 
 type IUserTeamCard = {
@@ -101,13 +106,29 @@ export function UserTeamCard({
 	onDragOver = () => null
 }: IUserTeamCard) {
 	const t = useTranslations();
+
+	const { data: user } = useUserQuery();
+
 	// Memoize expensive hook calls
 	const profile = useUserProfilePage();
 	const [userDetailAccordion, setUserDetailAccordion] = useAtom(userAccordion);
-	const hook = useTaskFilter(profile);
-	const memberInfo = useTeamMemberCard(member);
-	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
-	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(memberInfo.memberUser);
+	// Use isolated tab state for UserTeamCard to prevent global state leak from profile page
+	// With 'auto' default: shows daily plans if user has them, otherwise shows assigned tasks
+	const hook = useTaskFilter(profile, { persistState: false, defaultTab: 'auto' });
+	// Granular hooks — "pay only for what you use"
+	const identity = useMemberIdentity(member);
+	const memberTask = useMemberActiveTask(member);
+	const mutations = useTeamMemberMutations(member);
+	const roleActions = useTeamMemberRoleActions(member);
+
+	// Lightweight composition — only what TaskEstimateInfo actually consumes
+	const memberInfo = useMemo(
+		() => ({ memberTask, isAuthUser: identity.isAuthUser, isAuthTeamManager: identity.isAuthTeamManager }),
+		[memberTask, identity.isAuthUser, identity.isAuthTeamManager]
+	);
+
+	const taskEdition = useTMCardTaskEdit(memberTask);
+	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(identity.memberUser);
 	const fullWidth = useAtomValue(fullWidthState);
 
 	const seconds = useAtomValue(timerSecondsState);
@@ -118,9 +139,23 @@ export function UserTeamCard({
 	const { addSeconds } = useTaskStatistics(seconds);
 	const [showActivity, setShowActivity] = React.useState<boolean>(false);
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
-	const { data: user } = useUserQuery();
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id);
+
+	// Memoize accordion state early to use in daily plan options
+	const isAccordionExpanded = useMemo(() => {
+		return userDetailAccordion === identity.memberUser?.id;
+	}, [userDetailAccordion, identity.memberUser?.id]);
+
+	// PERFORMANCE FIX: Only fetch daily plans when accordion is expanded
+	// This prevents unnecessary API calls for every team member card on initial render
+	// PERFORMANCE FIX: Only fetch daily plans when accordion is expanded
+	// This prevents unnecessary API calls for every team member card on initial render
+	const targetEmployeeId = identity.isAuthUser ? user?.employee?.id : identity.member?.employeeId;
+	const { isLoading: isLoadingDailyPlans, isFetching: isFetchingDailyPlans } = useEmployeeDailyPlans(
+		targetEmployeeId ?? null,
+		{ enabled: isAccordionExpanded } // Only enable queries when accordion is open
+	);
 
 	// Memoize callback to prevent unnecessary re-renders
 	const showActivityFilter = useCallback(
@@ -137,7 +172,7 @@ export function UserTeamCard({
 	);
 
 	let totalWork = <></>;
-	if (memberInfo.isAuthUser) {
+	if (identity.isAuthUser) {
 		const { hours: h, minutes: m } = secondsToTime(
 			((member?.totalTodayTasks &&
 				member?.totalTodayTasks.reduce(
@@ -161,7 +196,15 @@ export function UserTeamCard({
 
 	const menu = (
 		<>
-			{(!collaborativeSelect || active) && <UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />}
+			{(!collaborativeSelect || active) && (
+				<UserTeamCardMenu
+					identity={identity}
+					memberTask={memberTask}
+					mutations={mutations}
+					roleActions={roleActions}
+					edition={taskEdition}
+				/>
+			)}
 
 			{collaborativeSelect && !active && (
 				<InputField
@@ -176,23 +219,23 @@ export function UserTeamCard({
 	);
 	const [activityFilter, setActivity] = useState<FilterTab>('Tasks');
 
-	const activityScreens = useMemo(
-		() => ({
+	const activityScreens = useMemo(() => {
+		return {
 			Tasks: (
 				<LazyUserProfileTask
 					profile={profile}
 					tabFiltered={hook}
 					user={member?.employee?.user}
+					employeeId={member?.employeeId}
 					paginateTasks={true}
-					useVirtualization={hook.tasksFiltered?.length > ITEMS_LENGTH_TO_VIRTUALIZED} // Only virtualize for large lists
+					useVirtualization={hook.tasksFiltered?.length > ITEMS_LENGTH_TO_VIRTUALIZED}
 				/>
 			),
 			Screenshots: <ScreenshootTab />,
 			Apps: <AppsTab />,
 			'Visited Sites': <VisitedSitesTab />
-		}),
-		[profile, hook, member?.employee?.user]
-	);
+		};
+	}, [profile, hook, member?.employee?.user, member?.employeeId]);
 	const changeActivityFilter = useCallback(
 		(filter: FilterTab) => {
 			setActivity(filter);
@@ -202,15 +245,22 @@ export function UserTeamCard({
 	const canSeeActivity = useMemo(() => {
 		// Correct logic for team-members context
 		// In team-members view, we compare memberUserId with connectedUserId, not profile
-		const isOwnCard = memberInfo.memberUser?.id === user?.id;
+		const isOwnCard = identity.memberUser?.id === user?.id;
 		const isManager = isManagerConnectedUser !== -1;
 		const result = isOwnCard || isManager;
 
 		return result;
-	}, [memberInfo.memberUser?.id, user?.id, isManagerConnectedUser]);
-	const isUserDetailAccordion = useMemo(() => {
-		return userDetailAccordion == memberInfo.memberUser?.id;
-	}, [userDetailAccordion, memberInfo.memberUser?.id]);
+	}, [identity.memberUser?.id, user?.id, isManagerConnectedUser]);
+
+	// Use the memoized accordion state from above
+
+	// Determine if we're loading member data (for skeleton display)
+	const isLoadingMemberData = useMemo(() => {
+		if (!isAccordionExpanded) return false;
+
+		return isLoadingDailyPlans || isFetchingDailyPlans;
+	}, [isAccordionExpanded, isLoadingDailyPlans, isFetchingDailyPlans]);
+
 	const handleActivityClose = useCallback(() => setShowActivity(false), []);
 	return (
 		<div
@@ -236,7 +286,7 @@ export function UserTeamCard({
 				<div
 					className={cn(
 						'flex relative items-center m-0 transition-all duration-300',
-						isUserDetailAccordion && !showActivity && 'pb-3 border-b'
+						isAccordionExpanded && !showActivity && 'pb-3 border-b'
 					)}
 				>
 					<div className="absolute left-0 cursor-pointer">
@@ -245,13 +295,13 @@ export function UserTeamCard({
 
 					{/* Show user name, email and image */}
 					<div className="relative">
-						<UserInfo memberInfo={memberInfo} className="min-w-64 max-w-72" publicTeam={publicTeam} />
+						<UserInfo memberInfo={identity} className="min-w-64 max-w-72" publicTeam={publicTeam} />
 						{(() => {
 							const shouldShowChevron = !publicTeam && canSeeActivity;
 							return shouldShowChevron ? (
 								<ChevronToggleButton
-									isExpanded={isUserDetailAccordion}
-									userId={memberInfo.memberUser?.id}
+									isExpanded={isAccordionExpanded}
+									userId={identity.memberUser?.id}
 									onToggle={setUserDetailAccordion}
 									onActivityClose={handleActivityClose}
 								/>
@@ -261,10 +311,9 @@ export function UserTeamCard({
 					<VerticalSeparator />
 
 					{/* Task information */}
-					<div className="flex justify-between items-start flex-1 md:min-w-[25%] xl:min-w-[30%] !max-w-[250px]">
+					<div className="flex items-start justify-between flex-1 md:min-w-[25%] xl:min-w-[30%] !max-w-[250px]">
 						<TaskInfo
 							edition={taskEdition}
-							memberInfo={memberInfo}
 							className="overflow-y-hidden flex-1 px-2 lg:px-4"
 							publicTeam={publicTeam}
 							tab="default"
@@ -272,16 +321,20 @@ export function UserTeamCard({
 
 						{canSeeActivity ? (
 							<p
-								className="flex relative -left-1 flex-none justify-center items-center w-8 h-8 text-center rounded border cursor-pointer dark:border-gray-800 shrink-0"
+								className="flex relative -left-1 flex-none justify-center items-center w-8 h-8 text-center rounded-sm border cursor-pointer dark:border-gray-800 shrink-0"
 								onClick={() => {
-									showActivityFilter('TICKET', memberInfo.member ?? null);
+									showActivityFilter('TICKET', identity.member ?? null);
 									setUserDetailAccordion('');
 								}}
 							>
 								{!showActivity ? (
 									<ExpandIcon height={24} width={24} />
 								) : (
-									<CollapseUpIcon className="flex-none shrink-0" height={24} width={24} />
+									<CollapseUpIcon
+										className="flex-none shrink-0 absolute left-1/2 top-1/2 -translate-x-[35%] -translate-y-[35%]"
+										height={24}
+										width={24}
+									/>
 								)}
 							</p>
 						) : null}
@@ -291,9 +344,9 @@ export function UserTeamCard({
 					{/* TaskTimes */}
 					<TaskTimes
 						activeAuthTask={true}
-						memberInfo={memberInfo}
-						task={memberInfo.memberTask}
-						isAuthUser={memberInfo.isAuthUser}
+						memberInfo={identity}
+						task={memberTask}
+						isAuthUser={identity.isAuthUser}
 						className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
 					/>
 					<VerticalSeparator />
@@ -311,17 +364,21 @@ export function UserTeamCard({
 					<VerticalSeparator />
 
 					{/* TodayWorkedTime */}
-					<div className="flex justify-center items-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 max-w-[13rem]">
-						<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} className="" memberInfo={memberInfo} />
+					<div className="flex items-center justify-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 max-w-[13rem]">
+						<TodayWorkedTime isAuthUser={identity.isAuthUser} className="" memberInfo={identity} />
 						{canSeeActivity ? (
 							<p
-								onClick={() => showActivityFilter('DATE', memberInfo.member ?? null)}
-								className="flex justify-center items-center w-8 h-8 text-center rounded border cursor-pointer dark:border-gray-800"
+								onClick={() => showActivityFilter('DATE', identity.member ?? null)}
+								className="flex relative justify-center items-center w-8 h-8 text-center rounded-sm border cursor-pointer dark:border-gray-800"
 							>
 								{!showActivity ? (
 									<ExpandIcon height={24} width={24} />
 								) : (
-									<CollapseUpIcon height={24} width={24} />
+									<CollapseUpIcon
+										className="flex-none shrink-0 absolute left-1/2 top-1/2 -translate-x-[35%] -translate-y-[35%]"
+										height={24}
+										width={24}
+									/>
 								)}
 							</p>
 						) : null}
@@ -329,13 +386,22 @@ export function UserTeamCard({
 					{/* EverCard menu */}
 					<div className="absolute right-2">{menu}</div>
 				</div>
-				{isUserDetailAccordion && memberInfo.memberUser.id == profile?.userProfile?.id && !showActivity ? (
-					<div className="overflow-y-auto h-96">
-						{canSeeActivity && (
+				{isAccordionExpanded && canSeeActivity && !showActivity ? (
+					isLoadingMemberData ? (
+						// Show skeleton while loading member data
+						<div className="overflow-y-auto h-96">
+							<UserProfileTaskSkeleton />
+						</div>
+					) : (
+						// Show content once loaded
+						<div className="overflow-y-auto h-96">
 							<Container fullWidth={fullWidth} className="px-3 py-5 xl:px-0">
 								<div className={clsxm('flex gap-4 justify-start items-center mt-3')}>
 									{Object.keys(activityScreens).map((filter, i) => (
-										<div key={uniqueId(`${i + 1}`)} className="flex gap-4 justify-start items-center cursor-pointer">
+										<div
+											key={uniqueId(`${i + 1}`)}
+											className="flex gap-4 justify-start items-center cursor-pointer"
+										>
 											{i !== 0 && <VerticalSeparator />}
 											<div
 												className={clsxm(
@@ -350,10 +416,10 @@ export function UserTeamCard({
 									))}
 								</div>
 							</Container>
-						)}
-						{activityScreens[activityFilter] ?? null}
-					</div>
-				) : isUserDetailAccordion ? (
+							{activityScreens[activityFilter] ?? null}
+						</div>
+					)
+				) : isAccordionExpanded ? (
 					<div className="flex justify-center items-center w-full h-20">
 						<Loader className="animate-spin" />
 					</div>
@@ -373,27 +439,26 @@ export function UserTeamCard({
 				)}
 			>
 				<div className="flex justify-between items-center mb-4">
-					<UserInfo memberInfo={memberInfo} publicTeam={publicTeam} className="w-9/12" />
+					<UserInfo memberInfo={identity} publicTeam={publicTeam} className="w-9/12" />
 					{totalWork}
 				</div>
 
 				<div className="flex flex-wrap justify-between items-start pb-4 border-b">
 					<TaskInfo
 						edition={taskEdition}
-						memberInfo={memberInfo}
 						className="px-4"
 						publicTeam={publicTeam}
 						tab="default"
 					/>
 				</div>
 
-				<div className="flex justify-between mt-4 mb-4 space-x-5">
-					<div className="flex space-x-4">
+				<div className="flex justify-between items-center mt-4 mb-4 space-x-5">
+					<div className="flex items-center space-x-4">
 						<TaskTimes
 							activeAuthTask={true}
-							memberInfo={memberInfo}
-							task={memberInfo.memberTask}
-							isAuthUser={memberInfo.isAuthUser}
+							memberInfo={identity}
+							task={memberTask}
+							isAuthUser={identity.isAuthUser}
 						/>
 					</div>
 

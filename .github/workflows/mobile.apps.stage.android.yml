@@ -17,7 +17,7 @@ jobs:
   deploy:
     runs-on: ubicloud-standard-8
 
-    environment: prod
+    environment: stage
 
     permissions:
       contents: read
@@ -33,9 +33,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '20.19.0'
+          node-version: '24.14.0'
           cache: 'yarn'
 
       - name: Setup EAS
@@ -60,9 +60,19 @@ jobs:
           sed -i 's|SENTRY_ORG_PLACEHOLDER|${{ secrets.SENTRY_ORG }}|g' ./apps/mobile/eas.json
           sed -i 's|SENTRY_PROJECT_PLACEHOLDER|${{ secrets.EXPO_SENTRY_PROJECT }}|g' ./apps/mobile/eas.json
 
+      - name: Configure Registry
+        shell: bash
+        run: |
+          if [ -n "${{ secrets.VERDACCIO_TOKEN }}" ]; then
+            echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
+            echo "registry=https://packages.ever.co/" >> .npmrc
+          fi
+
       - name: Install Packages
         run: |
-          yarn install --frozen-lockfile
+          yarn install --network-timeout 1000000 --frozen-lockfile
+        env:
+          NODE_OPTIONS: '--dns-result-order=ipv4first'
 
       - name: Build Mobile
         run: |

@@ -31,8 +31,8 @@ export const AccordionContentSkeleton = ({ type = 'form', className = '' }: Acco
 	const renderDangerSkeleton = () => (
 		<div className="space-y-6">
 			<div className="p-4 border border-red-200 dark:border-red-800 rounded-lg">
-				<div className="w-40 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-2" />
-				<div className="w-64 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-4" />
+				<div className="w-40 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
+				<div className="w-64 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-4" />
 				<div className="w-24 h-8 bg-red-100 dark:bg-red-900 animate-pulse rounded" />
 			</div>
 		</div>

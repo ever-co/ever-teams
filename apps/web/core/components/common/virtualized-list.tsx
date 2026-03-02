@@ -370,12 +370,12 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 				<div style={{ height: totalSize, position: 'relative' }}>
 					{virtualItems.map((virtualItem, index) => renderVirtualizedItem(virtualItem, index))}
 					{isScrolling && scrollingIndicator && (
-						<div className="fixed top-2 right-2 z-50 px-2 py-1 text-xs text-white rounded bg-black/50">
+						<div className="fixed top-2 right-2 z-50 px-2 py-1 text-xs text-white rounded-sm bg-black/50">
 							{scrollingIndicator}
 						</div>
 					)}
 					{isScrolling && !scrollingIndicator && (
-						<div className="fixed top-2 right-2 z-50 px-2 py-1 text-xs text-white rounded bg-black/50">
+						<div className="fixed top-2 right-2 z-50 px-2 py-1 text-xs text-white rounded-sm bg-black/50">
 							Scrolling {scrollDirection}...
 						</div>
 					)}
@@ -444,12 +444,12 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 
 				{/* Enhanced scroll indicator */}
 				{isScrolling && scrollingIndicator && (
-					<div className="absolute top-2 right-2 z-10 px-2 py-1 text-xs text-white rounded bg-black/50">
+					<div className="absolute top-2 right-2 z-10 px-2 py-1 text-xs text-white rounded-sm bg-black/50">
 						{scrollingIndicator}
 					</div>
 				)}
 				{isScrolling && !scrollingIndicator && (
-					<div className="absolute top-2 right-2 z-10 px-2 py-1 text-xs text-white rounded bg-black/50">
+					<div className="absolute top-2 right-2 z-10 px-2 py-1 text-xs text-white rounded-sm bg-black/50">
 						<div className="flex gap-2 items-center">
 							<div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
 							<span>Scrolling {scrollDirection}...</span>
@@ -459,7 +459,7 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 
 				{/* Cache performance indicator (dev mode) */}
 				{useSmoothVirtualization && process.env.NODE_ENV === 'development' && (
-					<div className="absolute right-2 bottom-2 z-10 px-2 py-1 text-xs text-white rounded bg-green-600/80">
+					<div className="absolute right-2 bottom-2 z-10 px-2 py-1 text-xs text-white rounded-sm bg-green-600/80">
 						Cache: {cache.getCacheStats().size}/{cache.getCacheStats().maxSize}
 						{virtualPageSize < items.length && (
 							<div className="mt-1">
@@ -471,7 +471,7 @@ export const VirtualizedList = memo(<T extends { id: string }>(props: Virtualize
 
 				{/* Virtual pagination indicator for large datasets */}
 				{virtualPageSize < items.length && (
-					<div className="absolute bottom-2 left-2 z-10 px-2 py-1 text-xs text-white rounded bg-blue-600/80">
+					<div className="absolute bottom-2 left-2 z-10 px-2 py-1 text-xs text-white rounded-sm bg-blue-600/80">
 						Showing {virtualizedItems.length.toLocaleString()} of {items.length.toLocaleString()} items
 					</div>
 				)}

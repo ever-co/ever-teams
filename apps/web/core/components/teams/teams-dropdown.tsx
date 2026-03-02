@@ -1,6 +1,6 @@
 'use client';
 
-import { useModal, useOrganizationTeams } from '@/core/hooks';
+import { useModal, useCreateOrganizationTeam } from '@/core/hooks';
 import { useProfileValidation } from '@/core/hooks/users/use-profile-validation';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { Button, Dropdown } from '@/core/components';
@@ -27,7 +27,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const activeTeam = useAtomValue(activeTeamState);
 	const teams = useAtomValue(organizationTeamsState);
 
-	const { setActiveTeam } = useOrganizationTeams();
+	const { setActiveTeam } = useCreateOrganizationTeam();
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const timerStatus = useAtomValue(timerStatusState);
 	const t = useTranslations();
@@ -156,7 +156,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 					)}
 					optionsClassName="min-w-fit md:max-w-[223px] outline-none"
 					buttonClassName={cn(
-						'py-0 font-medium outline-none dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C] cursor-pointer',
+						'py-0 font-medium outline-hidden dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C] cursor-pointer',
 						items.length === 0 && ['py-2'],
 						timerRunningStatus && '!cursor-not-allowed opacity-50'
 					)}

@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { IHookModal, useModal, useQueryCall, useTeamTasks } from '@/core/hooks';
+import { IHookModal, useModal, useQueryCall, useTeamTasksQuery } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
@@ -53,7 +53,7 @@ export const RelatedIssueCard: FC<{ task: TTask }> = ({ task }) => {
 					{/* <Dropdown
 						className="min-w-[150px] max-w-sm z-10 dark:bg-dark--theme-light"
 						// buttonClassName={clsxm(
-						// 	'py-0 font-medium h-[45px] w-[145px] z-10 outline-none dark:bg-dark--theme-light'
+						// 	'py-0 font-medium h-[45px] w-[145px] z-10 outline-hidden dark:bg-dark--theme-light'
 						// )}
 						value={actionType}
 						onChange={onChange}
@@ -99,7 +99,7 @@ function CreateLinkedTask({ modal, task }: { modal: IHookModal; task: TTask }) {
 
 	const tasks = useAtomValue(tasksByTeamState);
 	const detailedTask = useAtomValue(detailedTaskState);
-	const { loadTeamTasksData } = useTeamTasks();
+	const { loadTeamTasksData } = useTeamTasksQuery();
 	const setDetailedTask = useSetAtom(detailedTaskState);
 	const { queryCall } = useQueryCall(taskLinkedIssueService.createTaskLinkedIssue);
 	const [loading, setLoading] = useState(false);

@@ -28,7 +28,7 @@ export const RichTextEditorSkeleton: FC<RichTextEditorSkeletonProps> = ({ classN
 				))}
 
 				{/* Emoji button */}
-				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded ml-auto" />
+				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm ml-auto" />
 			</div>
 
 			{/* Divider */}
@@ -82,7 +82,7 @@ export const TaskActivitySkeleton: FC<{ className?: string }> = ({ className }) 
 						className="shadow-lg rounded-lg p-4 bg-light dark:bg-dark border border-[#00000014] dark:border-[#26272C]"
 					>
 						{/* Date header */}
-						<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-3" />
+						<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-3" />
 
 						{/* Activity entries */}
 						{[...Array(2)].map((_, j) => (
@@ -115,7 +115,7 @@ export const DetailsAsideSkeleton: FC<{ className?: string }> = ({ className }) 
 			)}
 		>
 			{/* Header */}
-			<div className="w-32 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded mb-4" />
+			<div className="w-32 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-4" />
 
 			{/* Sections with dividers */}
 			{[...Array(5)].map((_, i) => (

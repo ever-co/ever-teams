@@ -57,7 +57,7 @@ export default function ViewSelect({ viewOptions, onChange }: ViewSelectProps) {
 						key={option.id}
 						role="menuitem"
 						tabIndex={0}
-						className="flex items-center p-2 space-x-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20"
+						className="flex items-center p-2 space-x-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20"
 						data-state={option.checked ? 'checked' : 'unchecked'}
 						onClick={() => handleCheckChange(option.id)}
 						onKeyDown={(e) => e.key === 'Enter' && handleCheckChange(option.id)}

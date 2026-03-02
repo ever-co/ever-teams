@@ -16,7 +16,7 @@ export const organizationTimerSettingSchema = z.object({
 	allowScreenshotCapture: z.boolean().optional(),
 	randomScreenshot: z.boolean().optional(),
 	trackOnSleep: z.boolean().optional(),
-	screenshotFrequency: z.string().optional(),
+	screenshotFrequency: z.string().or(z.number()).nullable().optional(),
 	enforced: z.boolean().optional(),
 	standardWorkHoursPerDay: z.number().optional()
 });
@@ -106,7 +106,7 @@ export const organizationSchema = z
 	.passthrough();
 
 // Custom fields object schema
-export const customFieldsObjectSchema = z.record(z.any());
+export const customFieldsObjectSchema = z.record(z.string(), z.any());
 
 // Organization create schema
 export const organizationCreateSchema = z.object({

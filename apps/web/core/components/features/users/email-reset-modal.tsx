@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { AuthCodeInputField } from '../../auth/auth-code-input';
+import { AUTH_CODE_LENGTH } from '@/core/constants/config/constants';
 import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
 
@@ -113,7 +114,7 @@ export function EmailResetModal({ open, closeModal, email }: { open: boolean; cl
 							<div className="w-full mt-5">
 								<AuthCodeInputField
 									allowedCharacters="alphanumeric"
-									length={6}
+									length={AUTH_CODE_LENGTH}
 									containerClassName="mt-[21px] w-full flex justify-between"
 									inputClassName="w-[40px] xs:w-[50px]"
 									onChange={(code) => {
@@ -158,7 +159,7 @@ export function EmailResetModal({ open, closeModal, email }: { open: boolean; cl
 
 								<Button
 									type="submit"
-									disabled={code.length < 6 || verifyChangeEmailRequestLoading}
+									disabled={code.length < AUTH_CODE_LENGTH || verifyChangeEmailRequestLoading}
 									loading={verifyChangeEmailRequestLoading}
 									className={
 										'font-medium border border-primary disabled:border-0 md:min-w-[180px] rounded-xl'

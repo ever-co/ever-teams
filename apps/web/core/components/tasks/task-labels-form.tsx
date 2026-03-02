@@ -1,6 +1,9 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useTaskLabels } from '@/core/hooks';
-import { taskLabelsListState } from '@/core/stores';
+import { useTaskLabelsQuery } from '@/core/hooks/tasks/use-task-labels-query';
+import { useCreateTaskLabel } from '@/core/hooks/tasks/use-create-task-label';
+import { useEditTaskLabel } from '@/core/hooks/tasks/use-edit-task-label';
+import { useDeleteTaskLabel } from '@/core/hooks/tasks/use-delete-task-label';
+
 import { clsxm } from '@/core/lib/utils';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { Spinner } from '@/core/components/common/spinner';
@@ -9,7 +12,7 @@ import { Button, ColorPicker, Text } from '@/core/components';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
-import { useAtomValue } from 'jotai';
+
 import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
@@ -28,7 +31,10 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const [isCreating, setIsCreating] = useState(formOnly);
 	const t = useTranslations();
 	const initialRender = useRef(true);
-	const taskLabels = useAtomValue(taskLabelsListState);
+	const { taskLabels, loading } = useTaskLabelsQuery();
+	const { createTaskLabels, createTaskLabelsLoading } = useCreateTaskLabel();
+	const { editTaskLabels, editTaskLabelsLoading } = useEditTaskLabel();
+	const { deleteTaskLabels } = useDeleteTaskLabel();
 
 	const formValues = watch();
 
@@ -43,15 +49,6 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', ['x-large']);
 	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', ['urgent', 'high', 'medium', 'low']);
 	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
-
-	const {
-		loading,
-		deleteTaskLabels,
-		createTaskLabels,
-		editTaskLabels,
-		createTaskLabelsLoading,
-		editTaskLabelsLoading
-	} = useTaskLabels();
 
 	useEffect(() => {
 		if (initialRender.current) {
@@ -88,10 +85,13 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 				onCreated?.();
 				reset();
 			} else if (edit) {
-				await editTaskLabels(edit.id, {
-					name: values.name,
-					color: values.color,
-					icon: values.icon
+				await editTaskLabels({
+					id: edit.id,
+					data: {
+						name: values.name,
+						color: values.color,
+						icon: values.icon
+					}
 				});
 				setEdit(null);
 			}
@@ -104,7 +104,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 			<div className="flex justify-center sm:justify-start">
 				<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
 					{!formOnly && (
-						<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
+						<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
 							{t('pages.settingsTeam.TASK_LABELS')}
 						</Text>
 					)}
@@ -126,7 +126,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 
 						{(isCreating || edit) && (
 							<>
-								<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400">
+								<Text className="flex-none grow-0 mb-2 text-lg font-normal text-gray-400">
 									{isCreating && t('common.NEW')}
 									{edit && t('common.EDIT')} {t('common.LABEL')}
 								</Text>
@@ -186,7 +186,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 
 						{!formOnly && taskLabels?.length > 0 && (
 							<>
-								<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
+								<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
 									{t('pages.settingsTeam.LIST_OF_LABELS')}
 								</Text>
 								<div className="flex flex-wrap gap-3 justify-center w-full sm:justify-start">

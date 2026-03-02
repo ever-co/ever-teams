@@ -27,7 +27,7 @@ services:
         # Build configuration
         build:
             context: .
-            dockerfile: Dockerfile.dev
+            dockerfile: .deploy/web/Dockerfile.dev
 
         # Environment variables for development
         environment:

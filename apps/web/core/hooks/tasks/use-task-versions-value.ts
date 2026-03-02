@@ -1,9 +1,8 @@
 import { useMapToTaskStatusValues } from './use-map-to-task-status-values';
-import { taskVersionsState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+import { useTaskVersionsQuery } from './use-task-versions-query';
 
 export function useTaskVersionsValue() {
-	const taskVersions = useAtomValue(taskVersionsState);
+	const { taskVersions } = useTaskVersionsQuery();
 
 	return useMapToTaskStatusValues(taskVersions, false);
 }

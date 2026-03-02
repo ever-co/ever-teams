@@ -1,9 +1,15 @@
-import { TASKS_ESTIMATE_HOURS_MODAL_DATE } from '@/core/constants/config/constants';
+import { TASKS_ESTIMATE_HOURS_MODAL_DATE, DEFAULT_PLANNED_TASK_ID } from '@/core/constants/config/constants';
 import { useMemo, useCallback, useState, useEffect, useRef, Dispatch, SetStateAction } from 'react';
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useTranslations } from 'next-intl';
-import { useDailyPlan, useModal, useTeamTasks, useTimerView } from '@/core/hooks';
+import { useModal, useTimerView } from '@/core/hooks';
+import { useTeamTasksState } from '@/core/hooks/organizations/teams/use-team-tasks-state';
+import { useCreateTask } from '@/core/hooks/organizations/teams/use-create-task';
+import { useTaskQueries } from '@/core/hooks/organizations/teams/use-task-queries';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
+import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
+import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
 import { toast } from 'sonner';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { TaskEstimate } from '../../tasks/task-estimate';
@@ -11,7 +17,6 @@ import clsx from 'clsx';
 import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { clsxm } from '@/core/lib/utils';
 import { formatIntegerToHour, formatTimeString } from '@/core/lib/helpers/index';
-import { DEFAULT_PLANNED_TASK_ID } from '@/core/constants/config/constants';
 import { ActiveTaskHandlerModal } from './active-task-handler-modal';
 import { TaskDetailsModal } from '../../tasks/task-details-modal';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
@@ -29,16 +34,10 @@ import { ID } from '@/core/types/interfaces/common/base-interfaces';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
-import {
-	activeTeamTaskState,
-	tasksByTeamState,
-	taskStatusesState,
-	timerStatusState,
-	profileDailyPlanListState,
-	myDailyPlanListState
-} from '@/core/stores';
+import { activeTeamTaskState, tasksByTeamState, timerStatusState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { EIssueType } from '@/core/types/generics/enums/task';
+import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.
@@ -60,10 +59,21 @@ interface IAddTasksEstimationHoursModalProps {
 	tasks: TTask[];
 	isRenderedInSoftFlow?: boolean;
 	selectedDate?: Date;
+	employeeId?: string | null; // Optional employeeId to view plans for a specific employee
+	canEdit?: boolean;
 }
 
 export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModalProps) {
-	const { isOpen, closeModal, plan: propsPlan, tasks: propsTasks, isRenderedInSoftFlow = true, selectedDate } = props;
+	const {
+		isOpen,
+		closeModal,
+		plan: propsPlan,
+		tasks: propsTasks,
+		isRenderedInSoftFlow = true,
+		selectedDate,
+		employeeId,
+		canEdit = true
+	} = props;
 	const {
 		isOpen: isActiveTaskHandlerModalOpen,
 		closeModal: closeActiveTaskHandlerModal,
@@ -71,20 +81,22 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	} = useModal();
 
 	const t = useTranslations();
-	const profileDailyPlans = useAtomValue(profileDailyPlanListState);
-	const myDailyPlans = useAtomValue(myDailyPlanListState);
 
-	const { updateDailyPlan } = useDailyPlan();
+	// Use specialized hooks with employeeId to get the correct employee's plans.
+	// NOTE: This replaces profileDailyPlanListState/myDailyPlanListState atoms
+	// so AllPlans modal and Profile "Plans" tab stay in sync
+	const { employeeDailyPlans } = useEmployeeDailyPlans(employeeId ?? null);
+	const { updateDailyPlan } = useUpdateDailyPlan();
 
 	// Get the updated plan from the hook instead of relying only on props
 	const plan = useMemo(() => {
 		if (propsPlan?.id) {
 			// Find the updated plan from the hook's state
-			const updatedPlan = profileDailyPlans.items?.find((p) => p.id === propsPlan.id);
+			const updatedPlan = employeeDailyPlans.items?.find((p) => p.id === propsPlan.id);
 			return updatedPlan || propsPlan;
 		}
 		return propsPlan;
-	}, [propsPlan, profileDailyPlans.items]);
+	}, [propsPlan, employeeDailyPlans.items]);
 
 	// Use the updated plan's tasks if available, otherwise fall back to props
 	const tasks = useMemo(() => {
@@ -94,9 +106,9 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const globalTasks = useAtomValue(tasksByTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const timerStatus = useAtomValue(timerStatusState);
-
 	const { startTimer } = useTimerView();
-	const { setActiveTask } = useTeamTasks();
+
+	const { setActiveTask } = useTeamTasksState();
 	const [showSearchInput, setShowSearchInput] = useState(false);
 	const [workTimePlanned, setWorkTimePlanned] = useState<number>(plan?.workTimePlanned ?? 0);
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
@@ -169,7 +181,8 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 			// Update the plan work time only if the user changed it
 			if (plan && plan.workTimePlanned !== workTimePlanned) {
-				await updateDailyPlan({ workTimePlanned }, plan.id ?? '');
+				// Server requires employeeId in the payload, to correctly check permissions
+				await updateDailyPlan({ workTimePlanned, employeeId: plan.employeeId || undefined }, plan.id ?? '');
 				toast.success('Plan updated successfully', {
 					description: `Work time planned updated to ${workTimePlanned} hours`,
 					duration: 3000
@@ -223,7 +236,8 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 			// Update the plan work time only if the user changed it
 			if (plan && plan.workTimePlanned !== workTimePlanned) {
-				await updateDailyPlan({ workTimePlanned }, plan.id ?? '');
+				// Server requires employeeId in the payload, to correctly check permissions
+				await updateDailyPlan({ workTimePlanned, employeeId: plan.employeeId || undefined }, plan.id ?? '');
 				toast.success('Plan updated successfully', {
 					description: `Work time planned updated to ${workTimePlanned} hours`,
 					duration: 3000
@@ -301,7 +315,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [workTimePlanned, tasksEstimationTimes, plan?.tasks, myDailyPlans]);
+	}, [workTimePlanned, tasksEstimationTimes, plan?.tasks, employeeDailyPlans]);
 
 	// Put tasks without estimates at the top of the list
 	const sortedTasks = useMemo(
@@ -335,6 +349,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 				if (task.estimate !== null && task.estimate && task.estimate > 0) {
 					if (isOpen) {
 						setDefaultTask(task);
+						// scan-ignore: sensitive-storage // Task ID is not sensitive data
 						window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, task.id!);
 					}
 				}
@@ -342,6 +357,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		} else {
 			if (isOpen && activeTeamTask) {
 				setDefaultTask(activeTeamTask);
+				// scan-ignore: sensitive-storage // Task ID is not sensitive data
 				window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, activeTeamTask.id!);
 			}
 		}
@@ -404,14 +420,14 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 	// TODO: Add onclick handler
 	const TimeSheetsButton = (
-		<Button className="w-full px-5 py-3 font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600">
+		<Button className="px-5 py-3 w-full font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600">
 			{t('common.timesheets.PLURAL')}
 		</Button>
 	);
 
 	const content = (
 		<div className="flex flex-col justify-between w-full">
-			<div className="flex flex-col w-full gap-4">
+			<div className="flex flex-col gap-4 w-full">
 				{isRenderedInSoftFlow && (
 					<Text.Heading as="h3" className="mb-3 text-center">
 						{t('timer.todayPlanSettings.TITLE')}
@@ -425,6 +441,8 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 						setShowSearchInput={setShowSearchInput}
 						selectedPlan={plan}
 						selectedDate={selectedDate}
+						employeeId={employeeId}
+						canEdit={canEdit}
 					/>
 				) : plan || selectedDate ? (
 					<div
@@ -433,7 +451,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							checkPastDate(plan?.date ?? selectedDate) && 'flex items-center justify-between gap-2'
 						)}
 					>
-						<div className="flex flex-col w-full gap-2">
+						<div className="flex flex-col gap-2 w-full">
 							{checkPastDate(plan?.date ?? selectedDate) ? (
 								<span className="text-sm">{t('dailyPlan.PLANNED_TIME')}</span>
 							) : (
@@ -444,7 +462,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							)}
 							<div className="w-full flex gap-3 h-[3rem]">
 								{checkPastDate(plan?.date ?? selectedDate) ? (
-									<div className="flex items-center w-full h-full gap-3 px-3 border rounded-lg">
+									<div className="flex gap-3 items-center px-3 w-full h-full rounded-lg border">
 										{formatTimeString(formatIntegerToHour(tasksEstimationTimes))}
 									</div>
 								) : (
@@ -454,6 +472,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 										className="h-full"
 										wrapperClassName=" h-full"
 										onChange={(e) => {
+											if (!canEdit) return;
 											!isNaN(parseInt(e.target.value))
 												? setWorkTimePlanned(parseInt(e.target.value))
 												: setWorkTimePlanned(0);
@@ -484,16 +503,17 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 										defaultValue={
 											plan && plan.workTimePlanned ? parseInt(plan.workTimePlanned.toString()) : 0
 										}
-										readOnly={checkPastDate(plan?.date ?? selectedDate)}
+										readOnly={checkPastDate(plan?.date ?? selectedDate) || !canEdit}
 									/>
 								)}
 
 								{!checkPastDate(plan?.date ?? selectedDate) && (
 									<button
 										onClick={() => {
+											if (!canEdit) return;
 											setShowSearchInput(true);
 										}}
-										className="flex items-center justify-center w-10 h-full border rounded-lg shrink-0"
+										className="flex justify-center items-center w-10 h-full rounded-lg border shrink-0"
 									>
 										<AddIcon className="w-4 h-4 text-dark dark:text-white" />
 									</button>
@@ -501,7 +521,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 							</div>
 						</div>
 						{checkPastDate(plan?.date ?? selectedDate) && (
-							<div className="flex flex-col w-full gap-2">
+							<div className="flex flex-col gap-2 w-full">
 								<span className="text-sm">{t('common.plan.TRACKED_TIME')}</span>
 								<div className="w-full border rounded-lg px-3 items-center flex gap-3 h-[3rem]">
 									{formatTimeString(formatIntegerToHour(totalWorkedTime ?? 0))}
@@ -516,12 +536,12 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 						<div className="flex flex-col gap-3 text-sm">
 							<div className="flex flex-col gap-3 text-sm">
 								<div className="flex flex-col gap-2 text-sm">
-									<div className="flex items-center justify-between w-full gap-2">
-										<div className="flex items-center justify-center gap-1">
+									<div className="flex gap-2 justify-between items-center w-full">
+										<div className="flex gap-1 justify-center items-center">
 											<span>{t('task.TITLE_PLURAL')}</span>
 											{!checkPastDate(plan.date) && <span className="text-red-600">*</span>}
 										</div>
-										<div className="flex items-center justify-center gap-1">
+										<div className="flex gap-1 justify-center items-center">
 											{checkPastDate(plan.date) ? (
 												<>
 													<span>{t('dailyPlan.ESTIMATED')} :</span>
@@ -540,7 +560,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 										</div>
 									</div>
 									<div className="w-full h-full">
-										<ul className="flex flex-col gap-2 overflow-y-auto h-80">
+										<ul className="flex overflow-y-auto flex-col gap-2 h-80">
 											{sortedTasks.map((task, index) => (
 												<TaskCard
 													plan={plan}
@@ -553,7 +573,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 										</ul>
 									</div>
 								</div>
-								<div className="flex items-center h-6 gap-2 text-sm text-red-500">
+								<div className="flex gap-2 items-center h-6 text-sm text-red-500">
 									{!checkPastDate(plan.date) && warning && (
 										<>
 											<IconsErrorWarningFill className="text-[14px]" />
@@ -563,12 +583,12 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 								</div>
 							</div>
 						</div>
-						<div className="flex items-center justify-between">
+						<div className="flex justify-between items-center">
 							<Button
 								disabled={loading}
 								variant="outline"
 								type="submit"
-								className="w-40 px-5 py-3 font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+								className="px-5 py-3 w-40 font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
 								onClick={isRenderedInSoftFlow ? closeModalAndSubmit : handleCloseModal}
 							>
 								{isRenderedInSoftFlow ? t('common.SKIP_ADD_LATER') : t('common.CANCEL')}
@@ -629,6 +649,8 @@ interface ISearchTaskInputProps {
 	setDefaultTask: Dispatch<SetStateAction<TTask | null>>;
 	defaultTask: TTask | null;
 	selectedDate?: Date;
+	employeeId?: string | null;
+	canEdit?: boolean;
 }
 
 /**
@@ -644,11 +666,19 @@ interface ISearchTaskInputProps {
  * @returns The Search input component
  */
 export function SearchTaskInput(props: ISearchTaskInputProps) {
-	const { selectedPlan, setShowSearchInput, defaultTask, setDefaultTask, selectedDate } = props;
+	const {
+		selectedPlan,
+		setShowSearchInput,
+		defaultTask,
+		setDefaultTask,
+		selectedDate,
+		employeeId,
+		canEdit = true
+	} = props;
 
 	const teamTasks = useAtomValue(tasksByTeamState);
-	const { createTask } = useTeamTasks();
-	const taskStatuses = useAtomValue(taskStatusesState);
+	const { createTask } = useCreateTask();
+	const { taskStatuses } = useTaskStatusesQuery();
 	const [taskName, setTaskName] = useState('');
 	const [tasks, setTasks] = useState<TTask[]>([]);
 	const [createTaskLoading, setCreateTaskLoading] = useState(false);
@@ -713,7 +743,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 
 	return (
 		<Popover className={clsxm('relative z-20 w-full')}>
-			<div className="flex flex-col items-start w-full gap-2">
+			<div className="flex flex-col gap-2 items-start w-full">
 				<span className="text-sm">Select or create task for the plan</span>
 				<div className="w-full flex gap-3 h-[3rem]">
 					<PopoverButton
@@ -737,7 +767,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 						onClick={() => {
 							setShowSearchInput(false);
 						}}
-						className="flex items-center justify-center w-10 h-full border rounded-lg shrink-0"
+						className="flex justify-center items-center w-10 h-full rounded-lg border shrink-0"
 					>
 						<Tooltip label={t('common.CLOSE')}>
 							<Cross2Icon className="text-xl cursor-pointer" />
@@ -760,6 +790,8 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 										isDefaultTask={task.id == defaultTask?.id}
 										selectedDate={selectedDate}
 										onTaskAdded={() => setShowSearchInput(false)}
+										employeeId={employeeId}
+										canEdit={canEdit}
 									/>
 								</li>
 							))}
@@ -795,16 +827,29 @@ interface ITaskCardProps {
 	viewListMode?: 'planned' | 'searched';
 	selectedDate?: Date;
 	onTaskAdded?: () => void; // Callback to close search input after adding task
+	employeeId?: string | null;
+	canEdit?: boolean;
 }
 
 function TaskCard(props: ITaskCardProps) {
-	const { task, plan, viewListMode = 'planned', isDefaultTask, setDefaultTask, selectedDate, onTaskAdded } = props;
-	const { getTaskById } = useTeamTasks();
-	const { addTaskToPlan, createDailyPlan } = useDailyPlan();
+	const {
+		task,
+		plan,
+		viewListMode = 'planned',
+		isDefaultTask,
+		setDefaultTask,
+		selectedDate,
+		onTaskAdded,
+		employeeId,
+		canEdit = true
+	} = props;
+	const { getTaskById } = useTaskQueries();
+	const { addTaskToPlan } = useUpdateDailyPlan();
+	const { createDailyPlan } = useCreateDailyPlan();
 	const { data: user } = useUserQuery();
 	const [addToPlanLoading, setAddToPlanLoading] = useState(false);
 
-	const taskStatuses = useAtomValue(taskStatusesState);
+	const { taskStatuses } = useTaskStatusesQuery();
 	const isTaskRenderedInTodayPlan =
 		plan && new Date(Date.now()).toLocaleDateString('en') == new Date(plan.date).toLocaleDateString('en');
 	const {
@@ -832,11 +877,28 @@ function TaskCard(props: ITaskCardProps) {
 	 * The function that adds the task to the selected plan
 	 */
 	const handleAddTask = useCallback(async () => {
+		if (!canEdit) return;
+
 		try {
 			setAddToPlanLoading(true);
 
 			if (plan && plan.id) {
-				await addTaskToPlan({ taskId: task.id }, plan.id);
+				// ⚠️ WORKAROUND: Ever-Gauzy backend has a bug where it searches for the plan with employeeId and organizationId in WHERE clause
+				// This prevents adding tasks to other employees' plans.
+				// Always pass the plan owner employeeId explicitly so manager actions affect the correct employee.
+				if (!plan.employeeId) {
+					throw new Error('Cannot add task to plan without employeeId');
+				}
+
+				await addTaskToPlan(
+					{
+						taskId: task.id,
+						// Use the plan owner, not the current user, to avoid incorrect auto-assignment when managers edit others' plans
+						employeeId: plan.employeeId,
+						organizationId: user?.employee?.organizationId
+					},
+					plan.id
+				);
 				toast.success('Task added to plan', {
 					description: `"${task.title}" has been added to your daily plan`,
 					duration: 3000
@@ -846,14 +908,14 @@ function TaskCard(props: ITaskCardProps) {
 			} else {
 				const planDate = plan ? plan.date : selectedDate;
 
-				if (planDate) {
+				if (planDate && employeeId) {
 					await createDailyPlan({
 						workTimePlanned: 0,
 						taskId: task.id,
 						date: moment(planDate).format('YYYY-MM-DD'),
 						status: EDailyPlanStatus.OPEN,
 						tenantId: user?.tenantId ?? '',
-						employeeId: user?.employee?.id,
+						employeeId,
 						organizationId: user?.employee?.organizationId!
 					});
 					toast.success('Daily plan created', {
@@ -873,6 +935,8 @@ function TaskCard(props: ITaskCardProps) {
 	}, [
 		addTaskToPlan,
 		createDailyPlan,
+		canEdit,
+		employeeId,
 		plan,
 		selectedDate,
 		task.id,
@@ -887,7 +951,7 @@ function TaskCard(props: ITaskCardProps) {
 		<EverCard
 			shadow="custom"
 			className={clsx(
-				'lg:flex  items-center gap-2 justify-between py-3  md:px-4 hidden min-h-[4.5rem] w-full h-[4.5rem] dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative !text-xs cursor-pointer',
+				'lg:flex  items-center gap-2 py-3  md:px-4 hidden min-h-18 w-full h-18 dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative text-xs! cursor-pointer',
 				isTaskRenderedInTodayPlan && isDefaultTask && 'border-primary-light border-[0.15rem]'
 			)}
 		>
@@ -898,22 +962,28 @@ function TaskCard(props: ITaskCardProps) {
 						window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, task.id!);
 					}
 				}}
-				className="min-w-52 flex items-center h-full max-w-[50%] truncate"
+				className="min-w-72 flex items-center h-full max-w-[68%] truncate mr-auto"
 			>
 				<TaskNameInfoDisplay task={task} />
 			</div>
-			<VerticalSeparator />
-			<div className="flex items-center justify-end h-full gap-2 grow">
+			<VerticalSeparator className="mx-6" />
+			<div className="flex gap-3 justify-end items-center h-full w-fit">
 				{viewListMode === 'searched' ? (
-					<Button onClick={handleAddTask} variant="outline" className="mon-h-12" type="button">
+					<Button
+						onClick={handleAddTask}
+						variant="outline"
+						className="mon-h-12"
+						type="button"
+						disabled={!canEdit}
+					>
 						{addToPlanLoading ? <SpinnerLoader variant="dark" size={20} /> : 'Add'}
 					</Button>
 				) : plan ? (
 					<>
-						<div className="flex items-center h-full gap-1 min-w-fit">
+						<div className="flex gap-1 justify-end items-center h-full min-w-48 max-w-fit">
 							{checkPastDate(plan.date) ? (
 								<span
-									className="flex items-center justify-center h-6 truncate min-w-fit max-w-28"
+									className="flex justify-center items-center p-3 h-6 truncate rounded min-w-fit max-w-28"
 									style={{
 										backgroundColor:
 											taskStatuses.find((s) => s.value === task.status)?.color ?? undefined
@@ -927,12 +997,14 @@ function TaskCard(props: ITaskCardProps) {
 
 							<TaskEstimate showEditAndSaveButton={!checkPastDate(plan.date)} _task={task} />
 						</div>
-						<span className="flex items-center justify-center w-4 h-full">
+						<span className="flex justify-center items-center w-4 h-full">
 							<TaskCardActions
 								openTaskDetailsModal={handleOpenTaskDetailsModal}
 								openUnplanActiveTaskModal={openUnplanActiveTaskModal}
 								selectedPlan={plan}
 								task={task}
+								employeeId={employeeId}
+								canEdit={canEdit}
 							/>
 						</span>
 					</>
@@ -962,6 +1034,8 @@ interface ITaskCardActionsProps {
 	selectedPlan: TDailyPlan;
 	openTaskDetailsModal: () => void;
 	openUnplanActiveTaskModal: () => void;
+	employeeId?: string | null;
+	canEdit?: boolean;
 }
 
 /**
@@ -977,34 +1051,43 @@ interface ITaskCardActionsProps {
  */
 
 function TaskCardActions(props: ITaskCardActionsProps) {
-	const { task, selectedPlan, openTaskDetailsModal, openUnplanActiveTaskModal } = props;
+	const { task, selectedPlan, openTaskDetailsModal, openUnplanActiveTaskModal, employeeId, canEdit = true } = props;
 	const { data: user } = useUserQuery();
-	const { futurePlans, todayPlan, removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan();
-
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	// Use useEmployeeDailyPlans consistent with other components
+	const { employeeFuturePlans, employeeTodayPlan } = useEmployeeDailyPlans(employeeId ?? null);
+	const { removeTaskFromPlan, removeTaskFromPlanLoading } = useUpdateDailyPlan();
 
 	const timerStatus = useAtomValue(timerStatusState);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+
 	const otherPlanIds = useMemo(
 		() =>
-			[...futurePlans, ...todayPlan]
+			[...employeeFuturePlans, ...employeeTodayPlan]
 				// Remove selected plan
-				.filter((plan) => plan.id! !== selectedPlan.id)
+				.filter((plan) => plan.id! !== selectedPlan?.id)
 				.filter((plan) => plan.tasks && plan.tasks.find((_task) => _task.id == task.id))
 				.map((plan) => plan.id!),
-		[futurePlans, selectedPlan.id, task.id, todayPlan]
+		[employeeFuturePlans, selectedPlan?.id, task.id, employeeTodayPlan]
 	);
-	const isTodayPLan = useMemo(
-		() =>
-			new Date(selectedPlan?.date).toLocaleDateString('en') ==
-			new Date(todayPlan[0]?.date).toLocaleDateString('en'),
-		[selectedPlan.date, todayPlan]
-	);
+
+	const isTodayPLan = useMemo(() => {
+		const planDate = selectedPlan?.date;
+		const todayPlanDate = employeeTodayPlan?.[0]?.date;
+
+		if (!planDate || !todayPlanDate) return false;
+
+		return new Date(planDate).toLocaleDateString('en') == new Date(todayPlanDate).toLocaleDateString('en');
+	}, [selectedPlan?.date, employeeTodayPlan]);
 
 	/**
 	 * Unplan selected task
 	 */
 	const unplanSelectedDate = useCallback(
 		async (closePopover: () => void) => {
+			if (!canEdit) {
+				closePopover();
+				return;
+			}
 			try {
 				if (task.id == activeTeamTask?.id) {
 					if (timerStatus?.running && isTodayPLan) {
@@ -1012,7 +1095,11 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 					} else {
 						if (selectedPlan?.id) {
 							await removeTaskFromPlan(
-								{ taskId: task.id, employeeId: user?.employee?.id },
+								{
+									taskId: task.id,
+									employeeId: employeeId ?? user?.employee?.id,
+									organizationId: user?.employee?.organizationId
+								},
 								selectedPlan?.id
 							);
 							toast.success('Task removed from plan', {
@@ -1021,14 +1108,19 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 							});
 						}
 					}
-				} else {
-					if (selectedPlan?.id) {
-						await removeTaskFromPlan({ taskId: task.id, employeeId: user?.employee?.id }, selectedPlan?.id);
-						toast.success('Task removed from plan', {
-							description: `"${task.title}" has been removed from your daily plan`,
-							duration: 3000
-						});
-					}
+				} else if (selectedPlan?.id) {
+					await removeTaskFromPlan(
+						{
+							taskId: task.id,
+							employeeId: employeeId ?? user?.employee?.id,
+							organizationId: user?.employee?.organizationId
+						},
+						selectedPlan?.id
+					);
+					toast.success('Task removed from plan', {
+						description: `"${task.title}" has been removed from your daily plan`,
+						duration: 3000
+					});
 				}
 
 				closePopover();
@@ -1039,20 +1131,23 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 		},
 		[
 			activeTeamTask?.id,
+			canEdit,
+			employeeId,
 			isTodayPLan,
 			openUnplanActiveTaskModal,
 			removeTaskFromPlan,
-			selectedPlan.id,
+			selectedPlan?.id,
 			task.id,
 			task.title,
 			timerStatus?.running,
-			user?.employee?.id
+			user?.employee?.id,
+			user?.employee?.organizationId
 		]
 	);
 
 	return (
 		<Popover>
-			<PopoverButton className="flex items-center justify-center w-4 h-full border-none outline-none">
+			<PopoverButton className="flex justify-center items-center w-4 h-full border-none outline-none">
 				<ThreeCircleOutlineVerticalIcon className="  dark:text-[#B1AEBC]" />
 			</PopoverButton>
 
@@ -1070,28 +1165,30 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 					{({ close }) => {
 						return (
 							<EverCard shadow="custom" className="shadow-xl card  !p-3 !rounded-lg !border-2">
-								<ul className="flex flex-col justify-end gap-3">
+								<ul className="flex flex-col gap-3 justify-end">
 									<li
 										onClick={openTaskDetailsModal}
 										className={clsxm('hover:font-semibold hover:transition-all')}
 									>
 										View
 									</li>
-									{checkPastDate(selectedPlan.date) ? null : (
+									{checkPastDate(selectedPlan?.date) ? null : (
 										<>
 											<li className={clsxm('hover:font-semibold hover:transition-all')}>Edit</li>
 
-											{selectedPlan.id && (
+											{selectedPlan?.id && (
 												<li>
 													{otherPlanIds.length ? (
 														<UnplanTask
 															taskId={task.id}
-															selectedPlanId={selectedPlan.id}
-															planIds={[selectedPlan.id, ...otherPlanIds]}
+															selectedPlanId={selectedPlan?.id}
+															planIds={[selectedPlan?.id, ...otherPlanIds]}
 															closeActionPopover={close}
 															openUnplanActiveTaskModal={openUnplanActiveTaskModal}
 															unplanSelectedDate={unplanSelectedDate}
 															unPlanSelectedDateLoading={removeTaskFromPlanLoading}
+															employeeId={employeeId}
+															canEdit={canEdit}
 														/>
 													) : (
 														<span
@@ -1137,6 +1234,8 @@ interface IUnplanTaskProps {
 	unplanSelectedDate: (closePopover: () => void) => Promise<void>;
 	unPlanSelectedDateLoading: boolean;
 	openUnplanActiveTaskModal: () => void;
+	employeeId?: string | null;
+	canEdit?: boolean;
 }
 
 /**
@@ -1162,18 +1261,21 @@ function UnplanTask(props: IUnplanTaskProps) {
 		closeActionPopover,
 		unplanSelectedDate,
 		openUnplanActiveTaskModal,
-		unPlanSelectedDateLoading
+		unPlanSelectedDateLoading,
+		employeeId,
+		canEdit = true
 	} = props;
 	const { data: user } = useUserQuery();
-	const { todayPlan } = useDailyPlan();
-
-	const { removeManyTaskPlans, removeManyTaskFromPlanLoading } = useDailyPlan();
+	// Use useEmployeeDailyPlans consistent with other components
+	const { employeeTodayPlan } = useEmployeeDailyPlans(employeeId ?? null);
+	const { removeManyTaskPlans, removeManyTaskFromPlanLoading } = useUpdateDailyPlan();
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const { timerStatus } = useTimerView();
+
 	const isActiveTaskPlannedToday = useMemo(
-		() => todayPlan[0].tasks?.find((task) => task.id === activeTeamTask?.id),
-		[activeTeamTask?.id, todayPlan]
+		() => employeeTodayPlan[0]?.tasks?.find((task) => task.id === activeTeamTask?.id),
+		[activeTeamTask?.id, employeeTodayPlan]
 	);
 
 	/**
@@ -1181,6 +1283,10 @@ function UnplanTask(props: IUnplanTaskProps) {
 	 */
 	const unplanAll = useCallback(
 		async (closePopover: () => void) => {
+			if (!canEdit) {
+				closePopover();
+				return;
+			}
 			try {
 				// First, check if the user wants to unplan the active task
 				if (taskId == activeTeamTask?.id) {
@@ -1188,14 +1294,28 @@ function UnplanTask(props: IUnplanTaskProps) {
 						openUnplanActiveTaskModal();
 						// TODO: Unplan from all plans after clicks 'YES'
 					} else {
-						await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee?.id }, taskId!);
+						await removeManyTaskPlans(
+							{
+								plansIds: planIds,
+								employeeId: employeeId ?? user?.employee?.id,
+								organizationId: user?.employee?.organizationId
+							},
+							taskId!
+						);
 						toast.success('Task removed from all plans', {
 							description: 'Task has been removed from all daily plans',
 							duration: 3000
 						});
 					}
 				} else {
-					await removeManyTaskPlans({ plansIds: planIds, employeeId: user?.employee?.id }, taskId);
+					await removeManyTaskPlans(
+						{
+							plansIds: planIds,
+							employeeId: employeeId ?? user?.employee?.id,
+							organizationId: user?.employee?.organizationId
+						},
+						taskId
+					);
 					toast.success('Task removed from all plans', {
 						description: 'Task has been removed from all daily plans',
 						duration: 3000
@@ -1212,14 +1332,17 @@ function UnplanTask(props: IUnplanTaskProps) {
 		},
 		[
 			activeTeamTask?.id,
+			canEdit,
 			closeActionPopover,
+			employeeId,
 			isActiveTaskPlannedToday,
 			openUnplanActiveTaskModal,
 			planIds,
 			removeManyTaskPlans,
 			taskId,
 			timerStatus?.running,
-			user?.employee?.id
+			user?.employee?.id,
+			user?.employee?.organizationId
 		]
 	);
 
@@ -1246,7 +1369,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 								shadow="custom"
 								className=" shadow-xl card  min-w-max w-[11rem] flex flex-col justify-end !p-0 !rounded-lg !border-2"
 							>
-								<ul className="flex flex-col justify-end w-full gap-3 p-3 border">
+								<ul className="flex flex-col gap-3 justify-end p-3 w-full border">
 									<li
 										onClick={() => unplanSelectedDate(close)}
 										className={clsxm(

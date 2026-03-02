@@ -1,4 +1,6 @@
 import dynamic from 'next/dynamic';
+import { ProjectListSkeleton } from '../pages/projects/project-views/list-view/list-skeleton';
+import { ProjectsGridSkeleton } from '../pages/projects/project-views/grid-view/grid-skeleton';
 
 // Project Modals
 export const LazyFiltersCardModal = dynamic(
@@ -43,11 +45,7 @@ export const LazyProjectsListView = dynamic(
 	() => import('../pages/projects/project-views/list-view').then((mod) => ({ default: mod.ProjectsListView })),
 	{
 		ssr: false,
-		loading: () => (
-			<div className="w-full h-64 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg flex items-center justify-center">
-				<div className="text-gray-500">Loading Projects List...</div>
-			</div>
-		)
+		loading: () => <ProjectListSkeleton />
 	}
 );
 
@@ -55,11 +53,7 @@ export const LazyProjectsGridView = dynamic(
 	() => import('../pages/projects/project-views/grid-view').then((mod) => ({ default: mod.ProjectsGridView })),
 	{
 		ssr: false,
-		loading: () => (
-			<div className="w-full h-64 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg flex items-center justify-center">
-				<div className="text-gray-500">Loading Projects Grid...</div>
-			</div>
-		)
+		loading: () => <ProjectsGridSkeleton />
 	}
 );
 

@@ -90,26 +90,33 @@ export function useAuthenticationPassword() {
 			});
 	};
 
-	const signInToWorkspaceRequest = (params: {
-		email: string;
-		token: string;
-		selectedTeam: string;
-		defaultTeamId?: IOrganizationTeam['id'];
-		lastTeamId: string;
-	}) => {
-		signInWorkspaceQueryCall(params)
-			.then(() => {
-				setAuthenticated(true);
-				router.push('/');
-			})
-			.catch((err: AxiosError) => {
-				if (err.response?.status === 400) {
-					setErrors((err.response?.data as any)?.errors || {});
-				}
+	const signInToWorkspaceRequest = useCallback(
+		(params: {
+			email: string;
+			token: string;
+			selectedTeam: string;
+			defaultTeamId?: IOrganizationTeam['id'];
+			lastTeamId?: string; // Optional: undefined when user has no teams
+		}) => {
+			signInWorkspaceQueryCall(params)
+				.then(() => {
+					setAuthenticated(true);
+					// Reset infinite loading before navigation to ensure clean state
+					infiniteLoading.current = false;
+					router.push('/');
+				})
+				.catch((err: AxiosError) => {
+					// Reset infinite loading on error to stop the loading state
+					infiniteLoading.current = false;
+					if (err.response?.status === 400) {
+						setErrors((err.response?.data as any)?.errors || {});
+					}
 
-				inputCodeRef.current?.clear();
-			});
-	};
+					inputCodeRef.current?.clear();
+				});
+		},
+		[signInWorkspaceQueryCall, router, infiniteLoading]
+	);
 
 	const handleWorkspaceSubmit = (e: any, token: string, selectedTeam: string) => {
 		e.preventDefault();
@@ -127,7 +134,9 @@ export function useAuthenticationPassword() {
 			email: formValues.email,
 			token,
 			selectedTeam,
-			lastTeamId: selectedTeam
+			// Only send lastTeamId if selectedTeam is not empty
+			// Empty string causes 400 Bad Request: "lastTeamId must be a UUID"
+			lastTeamId: selectedTeam || undefined
 		});
 	};
 

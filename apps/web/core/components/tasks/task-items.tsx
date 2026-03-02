@@ -1,5 +1,5 @@
 import { imgTitle } from '@/core/lib/helpers/index';
-import { useTeamTasks } from '@/core/hooks';
+import { useUpdateTask } from '@/core/hooks';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import clsx from 'clsx';
 import { ConfirmDropdown, SpinnerLoader } from '@/core/components';
@@ -25,7 +25,7 @@ type Props = {
 } & IClassName;
 
 export function TaskItem({ task, selected, onClick, className }: Props) {
-	const { handleStatusUpdate, updateLoading } = useTeamTasks();
+	const { handleStatusUpdate, updateLoading } = useUpdateTask();
 	const t = useTranslations();
 
 	const handleChange = useCallback(
@@ -52,7 +52,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 						<TaskIssueStatus
 							showIssueLabels={false}
 							className={clsxm(
-								' rounded-sm h-auto',
+								' rounded-xs h-auto',
 								task?.issueType === 'Bug'
 									? '!px-[0.3312rem] py-[0.2875rem]'
 									: '!px-[0.375rem] py-[0.375rem]',
@@ -188,7 +188,7 @@ export function TaskAvatars({ task, limit = 2 }: { task: PartialITeamTask; limit
 			})}
 
 			{members.length > limit && (
-				<Avatar shape="circle" className="flex justify-center items-center border" size={25}>
+				<Avatar shape="circle" className="flex items-center justify-center border size-7!" size={30}>
 					<span className="text-xs">+{members.length - limit}</span>
 				</Avatar>
 			)}

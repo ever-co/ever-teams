@@ -13,17 +13,36 @@ export function createEmployeeFromUser(data: ICreateEmployee, bearer_token: stri
 	});
 }
 
-export function getOrganizationEmployees(bearer_token: string, tenantId: string, organizationId: string) {
-	const params = {
-		'where[tenantId]': tenantId,
-		'where[organizationId]': organizationId,
+/**
+ * Get organization employees using /employee/members endpoint
+ * Migrated from /employee/pagination to /employee/members for better security reasons
+ * @param bearer_token - Auth token
+ * @param tenantId - Tenant UUID
+ * @param organizationId - Organization UUID
+ * @param organizationTeamId - Optional team UUID to filter by specific team
+ * @returns Paginated list of employees
+ */
+export function getOrganizationEmployees(
+	bearer_token: string,
+	tenantId: string,
+	organizationId: string,
+	organizationTeamId?: string
+) {
+	const params: Record<string, any> = {
+		organizationId: organizationId,
+		tenantId: tenantId,
 		'relations[0]': 'user'
 	};
+
+	// Filter by team if provided (correct parameter name: organizationTeamId, NOT teamId)
+	if (organizationTeamId) {
+		params.organizationTeamId = organizationTeamId;
+	}
 
 	const query = qs.stringify(params);
 
 	return serverFetch<PaginationResponse<IEmployee>>({
-		path: `/employee/pagination?${query}`,
+		path: `/employee/members?${query}`,
 		method: 'GET',
 		bearer_token,
 		tenantId

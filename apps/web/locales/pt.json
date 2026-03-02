@@ -93,6 +93,8 @@
 		"YES": "Sim",
 		"BASIC": "Básico",
 		"DELETE": "Excluir",
+		"DELETE_SUCCESS": "Excluído com sucesso",
+		"DELETE_ERROR": "Falha ao excluir",
 		"MEET": "Reunião",
 		"BOARD": "Quadro",
 		"SECURITY_CODE": "Código de Segurança",
@@ -102,6 +104,12 @@
 		"EDIT_TASK": "Editar Tarefa",
 		"ASSIGN_TASK": "Atribuir Tarefa",
 		"ASSIGN_TASK_TO": "Atribuir Tarefa a",
+		"ASSIGN_TASK_TO_ME": "Atribuir tarefa a mim",
+		"UNASSIGN_TASK_FROM_ME": "Remover-me da tarefa",
+		"TASK_ASSIGNED_TO_ME": "Tarefa atribuída a você",
+		"TASK_UNASSIGNED_FROM_ME": "Tarefa removida de você",
+		"TASK_ASSIGN_ERROR": "Falha ao atribuir tarefa",
+		"TASK_UNASSIGN_ERROR": "Falha ao remover tarefa",
 		"REMOVE_ACCOUNT": "Remover Conta",
 		"REMOVE_EVERYWHERE": "Remover de Todas as Equipes",
 		"DELETE_ALL_DATA": "Excluir Todos os Dados",
@@ -112,6 +120,9 @@
 		"TRANSFERT_OWNERSHIP": "Transferir Propriedade",
 		"TRANSFERT_OWNERSHIP_TO": "Transferir a propriedade completa da equipe para outro usuário",
 		"REMOVE": "Remover",
+		"REMOVED": "Removido",
+		"ADDED": "Adicionado",
+		"AND_X_OTHERS": "e mais {count}",
 		"REMOVE_TEAM": "Remover Equipe",
 		"DISPOSE_TEAM": "Dispor da Equipe",
 		"QUIT_TEAM": "Sair da Equipe",
@@ -195,7 +206,11 @@
 		"USER_AVATAR": "Avatar do Usuário",
 		"CONTACT": "Contato",
 		"ENABLED": "Habilitar",
-		"DISABLED": "Desativar",
+		"DISABLED": "Desativado",
+		"UNKNOWN": "Desconhecido",
+		"RATE": "Taxa",
+		"FLAT_FEE": "Taxa fixa",
+		"MILESTONES": "Marcos",
 		"THEME": "Tema",
 		"TIME_ZONE": "Fuso Horário",
 		"EDIT": "Editar",
@@ -238,7 +253,17 @@
 		"FULL_WIDTH": "Largura total",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Por favor, pare o cronômetro antes de mudar a Tarefa",
 		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Por favor, pare o cronômetro antes de mudar de Equipe",
+		"WORKSPACE_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Por favor, pare o cronômetro antes de mudar de Espaço de Trabalho",
 		"CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Por favor, pare o cronômetro antes de criar novos itens",
+		"WORKSPACE_SWITCH_CONFIRM_TITLE": "Mudar de espaço de trabalho?",
+		"WORKSPACE_SWITCH_CONFIRM_DESCRIPTION": "Você está prestes a mudar de espaço de trabalho de \"{currentWorkspace}\" para \"{targetWorkspace}\".",
+		"WORKSPACE_SWITCH_CONFIRM_WARNING": "Esta ação recarregará o aplicativo para sincronizar todos os dados.",
+		"WORKSPACE_SWITCH_CANCEL_ARIA": "Cancelar a mudança de espaço de trabalho",
+		"WORKSPACE_SWITCH_CONFIRM_ARIA": "Confirmar a mudança para {workspace}",
+		"WORKSPACE_SWITCH_CHANGING": "Mudando...",
+		"WORKSPACE_SWITCH_CONFIRM_BUTTON": "Confirmar a mudança",
+		"CURRENT_WORKSPACE": "espaço de trabalho atual",
+		"TARGET_WORKSPACE": "espaço de trabalho de destino",
 		"COLLABORATE_DIALOG_TITLE": "Iniciar Colaboração",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Convide membro(s) e comece a colaborar",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Iniciar Reunião ou Colaboração de Quadro",
@@ -382,6 +407,8 @@
 		"MEMBERS_COUNT": "Contagem de membros",
 		"REVIEW": "REVISÃO",
 		"ARCHIVE": "Arquivo",
+		"ARCHIVE_SUCCESS": "Arquivado com sucesso",
+		"ARCHIVE_ERROR": "Falha ao arquivar",
 		"ARCHIVE_AT": "Arquivar em",
 		"RESTORE": "Restaurar",
 		"HIDE": "Ocultar",
@@ -564,7 +591,8 @@
 					"endDateRequired": "A data de término é obrigatória.",
 					"endDateAfterStart": "A data de término deve ser posterior à data de início.",
 					"invalidUrl": "Por favor, insira um URL válido.",
-					"uploadError": "Algo deu errado ao enviar a imagem do projeto, tente novamente!"
+					"uploadError": "Algo deu errado ao enviar a imagem do projeto, tente novamente!",
+					"descriptionWordLimit": "A descrição deve ter 5000 palavras ou menos."
 				},
 				"common": {
 					"search": "Buscar ...",
@@ -596,6 +624,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Atribuir Equipes",
+					"noTeamsAvailable": "Nenhuma equipe disponível",
+					"teamsHelperText": "Selecione pelo menos uma equipe para este projeto",
 					"assignMembers": "Atribuir Membros e Gerentes",
 					"noMembers": "Sem membros ou gerentes",
 					"addMember": "Adicionar Membro",
@@ -605,8 +636,17 @@
 					"noRelations": "Sem relações",
 					"addRelation": "Adicionar Relação",
 					"selectProject": "Selecionar um projeto...",
-					"selectRelationType": "Escolher tipo de relação..."
+					"selectRelationType": "Escolher tipo de relação...",
+					"activeTeamLocked": "A equipe atual é obrigatória e não pode ser removida"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "Selecione pelo menos uma equipe"
 				}
+			},
+			"accessDenied": {
+				"title": "Acesso Negado",
+				"description": "Este projeto não pertence à sua equipe atual ({teamName}). Mude para uma equipe que tenha acesso a este projeto.",
+				"viewAllProjects": "Ver Todos os Projetos"
 			},
 			"addOrEditModal": {
 				"steps": {
@@ -618,11 +658,15 @@
 			},
 			"deleteModal": {
 				"title": "Excluir selecionado?",
-				"description": "Você está prestes a excluir permanentemente este projeto. Clique em 'Excluir' para confirmar a ação"
+				"description": "Você está prestes a excluir permanentemente este projeto. Clique em 'Excluir' para confirmar a ação",
+				"successDescription": "O projeto foi excluído com sucesso",
+				"errorDescription": "Falha ao excluir o projeto. Por favor, tente novamente."
 			},
 			"archiveModal": {
 				"title": "Arquivar {projectName}?",
-				"description": "{affectedTasksCount} tarefas serão afetadas ao arquivar {projectName}."
+				"description": "{affectedTasksCount} tarefas serão afetadas ao arquivar {projectName}.",
+				"successDescription": "{projectName} foi arquivado com sucesso",
+				"errorDescription": "Falha ao arquivar o projeto. Por favor, tente novamente."
 			},
 			"restoreModal": {
 				"title": "Restaurar projeto",
@@ -676,14 +720,19 @@
 			"HAVE_PASSWORD": "Tem senha?",
 			"LOGIN_WITH_PASSWORD": "Faça login com a senha",
 			"LOGIN_WITH_MAGIC_CODE": "Faça login com um código mágico",
-			"ERROR_SIGNIN": "Erro ao assinar"
+			"ERROR_SIGNIN": "Erro ao assinar",
+			"DEMO_ACCOUNTS_TITLE": "Login automático em contas de demonstração",
+			"DEMO_ACCOUNTS_SUBTITLE": "Por favor, selecione o tipo de conta abaixo.",
+			"DEMO_SUPER_ADMIN": "Demo Super Admin",
+			"DEMO_ADMIN": "Demo Admin",
+			"DEMO_EMPLOYEE": "Demo Funcionário"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Por favor digite suas informações de login."
 		},
 		"authTeam": {
-			"HEADING_TITLE": "Criar Nova Equipe",
-			"HEADING_DESCRIPTION": "Por favor, insira os detalhes da sua equipe para criar uma nova equipe.",
+			"HEADING_TITLE": "Cadastre-se agora",
+			"HEADING_DESCRIPTION": "Conte-nos mais sobre você e (opcionalmente) sua equipe para se cadastrar.",
 			"LOADING_TEXT": "Estamos criando o seu novo ambiente de trabalho, aguarde...",
 			"LOADING_WORKSPACE": "Estamos carregando o espaço de trabalho, aguarde...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Redirecionando para o seu espaço de trabalho...",
@@ -691,7 +740,15 @@
 			"INPUT_TEAM_NAME": "Insira o nome da sua equipe",
 			"JOIN_EXISTING_TEAM": "Já faz parte de uma equipe?",
 			"CREATE_FIRST_TEAM": "Crie sua primeira equipe",
-			"CREATE_TEAM": "Criar equipe"
+			"CREATE_TEAM": "Criar equipe",
+			"GET_STARTED_TITLE": "Como você gostaria de começar?",
+			"START_SOLO": "Começar sozinho",
+			"START_SOLO_NOTE": "Você pode criar uma equipe e convidar outros depois",
+			"CREATE_TEAM_NOW": "Criar uma equipe agora",
+			"CONTINUE": "Continuar",
+			"GET_STARTED": "Começar",
+			"STEP_USER_INFO": "Diga-nos seu nome e e-mail",
+			"STEP_CHOOSE_MODE": "Escolha seu caminho"
 		},
 		"settings": {
 			"BREADCRUMB": "[\"Painel de Controle\", \"Configurações\"]",

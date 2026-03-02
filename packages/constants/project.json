@@ -1,0 +1,13 @@
+{
+	"name": "constants",
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "packages/constants/src",
+	"projectType": "library",
+	"tags": [],
+	"implicitDependencies": ["types"],
+	"targets": {
+		"build": {
+			"dependsOn": ["^build"]
+		}
+	}
+}

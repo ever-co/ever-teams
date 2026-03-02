@@ -1,4 +1,5 @@
-import { useModal, useRequestToJoinTeam } from '@/core/hooks';
+import { useModal } from '@/core/hooks';
+import { useRequestToJoinQuery } from '@/core/hooks/organizations/teams/use-request-to-join-query';
 import { Button, NoData } from '@/core/components';
 import { SearchNormalIcon } from 'assets/svg';
 import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
@@ -6,15 +7,14 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { InvitationTable } from '../../../teams/invite/invitation-table';
 import { InputField } from '@/core/components/duplicated-components/_input';
-import { getTeamInvitationsState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invitations-query';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 export const InvitationSetting = () => {
 	const t = useTranslations();
 
-	const teamInvitations = useAtomValue(getTeamInvitationsState);
-	const { getRequestToJoin, requestToJoin } = useRequestToJoinTeam();
+	const { teamInvitations } = useTeamInvitationsQuery();
+	const { getRequestToJoin, requestToJoin } = useRequestToJoinQuery();
 
 	const { data: user } = useUserQuery();
 	const { openModal, isOpen, closeModal } = useModal();
@@ -74,7 +74,7 @@ export const InvitationSetting = () => {
 			<div className="flex flex-col gap-8">
 				<div className="flex gap-16 items-center">
 					<div className="flex gap-1 items-start">
-						<Text className="flex-none font-normal text-[#7E7991] dark:text-white flex-grow-0 text-lg md-2">
+						<Text className="flex-none font-normal text-[#7E7991] dark:text-white grow-0 text-lg md-2">
 							{t('pages.settingsTeam.INVITATION_EXPIRATION')}
 						</Text>
 						<SettingGearIcon className="stroke-[#B1AEBC] dark:stroke-white" />
@@ -113,7 +113,7 @@ export const InvitationSetting = () => {
 				</div>
 				<div className="flex items-center">
 					<div className="flex items-start gap-1 w-[16.5rem]">
-						<Text className="flex-none font-normal text-[#7E7991] flex-grow-0 text-lg md-2 dark:text-white">
+						<Text className="flex-none font-normal text-[#7E7991] grow-0 text-lg md-2 dark:text-white">
 							{t('pages.settingsTeam.NOTIFY_IF')}
 						</Text>
 					</div>
@@ -130,7 +130,7 @@ export const InvitationSetting = () => {
 					</div>
 				</div>
 				<div className="flex gap-20 items-start">
-					<Text className="flex-none font-normal text-[#7E7991] flex-grow-0 text-lg md-2 dark:text-white">
+					<Text className="flex-none font-normal text-[#7E7991] grow-0 text-lg md-2 dark:text-white">
 						{t('pages.settingsTeam.TEAM_REQUEST')}
 					</Text>
 					<MemberInfo />

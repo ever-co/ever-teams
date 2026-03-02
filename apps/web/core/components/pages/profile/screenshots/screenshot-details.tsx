@@ -3,14 +3,13 @@ import { Modal } from '@/core/components';
 import ScreenshotItem from './screenshot-item';
 import { useTranslations } from 'next-intl';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useTeamTasks } from '@/core/hooks';
+import { useTaskQueries } from '@/core/hooks';
 import Image from 'next/image';
 import { cn } from '@/core/lib/helpers';
 import { ProgressBar } from '@/core/components/duplicated-components/_progress-bar';
 import { TOrganizationProject, TTimeSlot } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useAtomValue } from 'jotai';
-import { organizationProjectsState } from '@/core/stores';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 
 const ScreenshotDetailsModal = ({
 	open,
@@ -42,9 +41,9 @@ const ScreenshotDetailsModal = ({
 
 	const [project, setProject] = useState<TOrganizationProject | null>(null);
 	const [task, setTask] = useState<TTask | null>(null);
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects } = useOrganizationProjectsQuery();
 
-	const { getTaskById } = useTeamTasks();
+	const { getTaskById } = useTaskQueries();
 
 	const getProject = useCallback(
 		async (projectId: string) => {
@@ -151,7 +150,7 @@ const ScreenshotDetailsModal = ({
 								)}
 
 								{slot?.timeLogs?.[0]?.version && (
-									<div className="px-3 py-1  text-xs font-medium text-white rounded-sm bg-[#A5A4FF]">
+									<div className="px-3 py-1  text-xs font-medium text-white rounded-xs bg-[#A5A4FF]">
 										{slot?.timeLogs?.[0]?.version}
 									</div>
 								)}
@@ -182,7 +181,7 @@ const ScreenshotDetailsModal = ({
 									<div className="flex gap-2 h-8">
 										<div
 											className={cn(
-												'w-8 overflow-hidden  h-full uppercase  rounded-sm flex items-center justify-center text-[1rem]',
+												'w-8 overflow-hidden  h-full uppercase  rounded-xs flex items-center justify-center text-[1rem]',
 												!project?.imageUrl && 'bg-[#A5A4FF]'
 											)}
 										>

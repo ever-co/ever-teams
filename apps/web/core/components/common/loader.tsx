@@ -60,7 +60,7 @@ export function BackdropLoader({
 		<div
 			className={clsxm(
 				'fixed inset-0 z-[1000]',
-				'backdrop-brightness-90 backdrop-blur-sm',
+				'backdrop-brightness-90 backdrop-blur-xs',
 				'flex justify-center items-center',
 				[show ? [fadeIn ? ['fade-in'] : ['opacity-100'], 'h-full w-full'] : ['fade-out h-0 w-0']]
 			)}

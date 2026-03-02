@@ -121,7 +121,7 @@ export const ActivityModal = ({ employeeLog, isOpen, closeModal }: ActivityModal
 							onClick={() => setActiveTab(tab)}
 							className={`flex-1 px-4 py-2 rounded-md transition-all duration-200 text-nowrap ${
 								activeTab === tab
-									? 'bg-white shadow-sm dark:bg-dark--theme-light text-primary dark:text-primary-light font-normal'
+									? 'bg-white shadow-xs dark:bg-dark--theme-light text-primary dark:text-primary-light font-normal'
 									: 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
 							}`}
 						>

@@ -40,7 +40,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 }: PropsWithChildren<{
 	value: T | undefined;
 	values?: NonNullable<T['name']>[];
-	onChange?(value: string[]): void;
+	onChange?(value: string|string[]): void;
 	items: T[];
 	className?: string;
 	dropdownContentClassName?: string;
@@ -115,7 +115,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 	const renderItem = (item: T, isSelected: boolean) => {
 		const item_value = item.value || item.name;
 		return (
-			<div className="relative w-full outline-none cursor-pointer">
+			<div className="relative w-full cursor-pointer outline-hidden">
 				<TaskStatus
 					showIcon={showIcon}
 					{...item}
@@ -140,7 +140,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 
 							onRemoveSelected?.();
 						}}
-						className="absolute top-1/2 -translate-y-1/2 right-1 h-4 w-4 bg-transparent"
+						className="absolute right-1 top-1/2 w-4 h-4 bg-transparent -translate-y-1/2"
 					>
 						<XMarkIcon className="text-dark" height={16} width={16} aria-hidden="true" />
 					</button>

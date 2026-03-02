@@ -3,6 +3,7 @@ import { DEFAULT_APP_PATH } from '@/core/constants/config/constants';
 import { globalQueryClient } from '@/core/query/config';
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { logDisconnection } from '@/core/lib/auth/disconnect-logger';
+import { isUnauthorizedError, isRetryableError } from '@/core/lib/auth/retry-logic';
 
 let isHandling401 = false;
 let isRedirecting = false;
@@ -10,7 +11,7 @@ let isRedirecting = false;
 // Stack of callbacks to attempt token refresh when 401 occurs
 // Using a Set to maintain multiple callbacks from different hook instances
 // This prevents the race condition where unmounting one component clears the callback for others
-let refreshTokenCallbacks: Set<() => Promise<any>> = new Set();
+const refreshTokenCallbacks: Set<() => Promise<unknown>> = new Set();
 
 /**
  * Register a callback to attempt token refresh when 401 occurs
@@ -22,7 +23,7 @@ let refreshTokenCallbacks: Set<() => Promise<any>> = new Set();
  * @param callback - The refresh callback function
  * @returns A function to unregister this specific callback
  */
-export function registerRefreshTokenCallback(callback: () => Promise<any>) {
+export function registerRefreshTokenCallback(callback: () => Promise<unknown>) {
 	refreshTokenCallbacks.add(callback);
 
 	// Return an unregister function that removes THIS specific callback
@@ -34,19 +35,20 @@ export function registerRefreshTokenCallback(callback: () => Promise<any>) {
 /**
  * Centralized handler for 401 Unauthorized errors
  *
- * NEW STRATEGY (no timeout):
- * 1. If 401 + callback registered → Try refresh immediately
- * 2. If refresh succeeds → Do nothing (user stays logged in)
- * 3. If refresh fails → Disconnect user
- *
- * This prevents the race condition where timeout redirects user even if refresh succeeds.
+ * STRATEGY:
+ * 1. Prevent multiple simultaneous handlers (avoid race conditions)
+ * 2. If 401 + callback registered → Try refresh immediately
+ * 3. Distinguish between 401 (token invalid) and network errors
+ * 4. If refresh succeeds → User stays logged in
+ * 5. If refresh fails with 401 → Disconnect user
+ * 6. If refresh fails with network error → Log but don't disconnect immediately
  *
  * @param reason - The reason for the unauthorized error (default: UNAUTHORIZED_401)
  * @param details - Additional details about the error
  */
 export async function handleUnauthorized(
 	reason: DisconnectionReason = DisconnectionReason.UNAUTHORIZED_401,
-	details?: Record<string, any>
+	details?: Record<string, unknown>
 ) {
 	// Prevent multiple simultaneous 401 handlers
 	if (isHandling401 || isRedirecting) {
@@ -71,8 +73,19 @@ export async function handleUnauthorized(
 					// Success! User stays logged in, no redirect
 					return;
 				} catch (error) {
-					console.log('[Auth] ⚠️ Token refresh attempt failed, trying next callback:', error);
-					// Continue to next callback
+					// Distinguish between 401 and network errors
+					if (isUnauthorizedError(error)) {
+						console.log('[Auth] ⚠️ Token refresh returned 401 (refresh token invalid)');
+						// Don't try more callbacks - the refresh token itself is invalid
+						break;
+					} else if (isRetryableError(error)) {
+						console.log('[Auth] ⚠️ Token refresh failed (network error), trying next callback:', error);
+						// Network error - try next callback
+						continue;
+					} else {
+						console.log('[Auth] ⚠️ Token refresh failed (unknown error):', error);
+						continue;
+					}
 				}
 			}
 
@@ -92,7 +105,7 @@ export async function handleUnauthorized(
 /**
  * Perform the actual logout (clear cookies, cache, redirect)
  */
-async function performLogout(reason: DisconnectionReason, details?: Record<string, any>) {
+async function performLogout(reason: DisconnectionReason, details?: Record<string, unknown>) {
 	if (isRedirecting) return; // Prevent multiple simultaneous redirects
 	isRedirecting = true;
 	// Log the disconnection
@@ -119,7 +132,7 @@ async function performLogout(reason: DisconnectionReason, details?: Record<strin
 			console.warn('[Auth] Failed to clear localStorage:', error);
 		}
 		// 4. Redirect to login page
-		window.location.assign(DEFAULT_APP_PATH);
+		window?.location.assign(DEFAULT_APP_PATH);
 	}
 }
 

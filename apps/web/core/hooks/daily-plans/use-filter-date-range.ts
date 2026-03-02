@@ -1,99 +1,89 @@
 'use client';
 
 import { isTestDateRange } from '@/core/lib/helpers/index';
-import {
-	dateRangeAllPlanState,
-	dateRangeFuturePlanState,
-	dateRangePastPlanState,
-	filteredAllPlanDataState,
-	filteredFuturePlanDataState,
-	filteredPastPlanDataState,
-	originalAllPlanState,
-	originalFuturePlanState,
-	originalPastPlanDataState
-} from '@/core/stores';
-import { useEffect, useMemo } from 'react';
 import { DateRange } from 'react-day-picker';
-import { useAtom, useAtomValue } from 'jotai';
-import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
+import { TDailyPlan, TUser } from '@/core/types/schemas';
+
 /**
- *custom filter the data with date range
+ * Utility function to filter daily plans by date range
  *
- * @export
- * @param {TDailyPlan[]} itemsDailyPlan
- * @param {('future' | 'past' | 'all')} [typeItems]
- * @return {*}
+ * Migrated from global Jotai atoms to a pure utility function.
+ * NOTE: Replacement for filteredPastPlanDataState / filteredFuturePlanDataState
+ * / filteredAllPlanDataState atoms; callers now pass their own data to avoid
+ * cross-screen coupling and hidden side effects.
+ * This function is used by multiple components to filter plans based on date ranges.
+ *
+ * @param date - The date range to filter by (from/to)
+ * @param data - The array of daily plans to filter
+ * @returns Filtered array of daily plans that fall within the date range
  */
-export function useFilterDateRange(itemsDailyPlan: TDailyPlan[], typeItems?: 'future' | 'past' | 'all') {
-	const [dateAllPlan, setDateAllPlan] = useAtom(dateRangeAllPlanState);
-	const [datePastPlan, setDatePastPlan] = useAtom(dateRangePastPlanState);
-	const [dateFuture, setDateFuture] = useAtom(dateRangeFuturePlanState);
-
-	const [originalAllPlanData, setOriginalAllPlanState] = useAtom(originalAllPlanState);
-	const [originalPastPlanData, setOriginalPastPlanData] = useAtom(originalPastPlanDataState);
-	const [originalFuturePlanData, setOriginalFuturePlanData] = useAtom(originalFuturePlanState);
-
-	const filteredAllPlanData = useAtomValue(filteredAllPlanDataState);
-	const filteredPastPlanData = useAtomValue(filteredPastPlanDataState);
-	const filteredFuturePlanData = useAtomValue(filteredFuturePlanDataState);
-
-	// useEffect(() => {
-	//     if (!itemsDailyPlan) return;
-
-	//     if (typeItems === 'future') {
-	//         setOriginalFuturePlanData(itemsDailyPlan);
-	//     } else if (typeItems === 'past') {
-	//         setOriginalPastPlanData(itemsDailyPlan);
-	//     } else if (typeItems === 'all') {
-	//         setOriginalAllPlanState(itemsDailyPlan);
-	//     }
-	// }, [itemsDailyPlan, dateFuture, datePastPlan, dateAllPlan, typeItems, setOriginalAllPlanState, setOriginalFuturePlanData, setOriginalAllPlanState]);
-	const updateOriginalPlanData = useMemo(
-		() => (data: TDailyPlan[]) => {
-			switch (typeItems) {
-				case 'future':
-					setOriginalFuturePlanData(data);
-					break;
-				case 'past':
-					setOriginalPastPlanData(data);
-					break;
-				case 'all':
-					setOriginalAllPlanState(data);
-					break;
-				default:
-					break;
-			}
-		},
-		[typeItems, setOriginalAllPlanState, setOriginalFuturePlanData, setOriginalPastPlanData]
-	);
-
-	useEffect(() => {
-		if (!itemsDailyPlan) return;
-		updateOriginalPlanData(itemsDailyPlan);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [updateOriginalPlanData, dateAllPlan, datePastPlan, dateFuture, setDateAllPlan, setDatePastPlan, setDateFuture]);
-
-	return {
-		filteredAllPlanData,
-		filteredPastPlanData,
-		filteredFuturePlanData,
-		originalAllPlanData,
-		originalFuturePlanData,
-		originalPastPlanData,
-		setDateAllPlan,
-		setDateFuture,
-		setDatePastPlan
-	};
-}
-
-export const filterDailyPlan = (date: DateRange, data: TDailyPlan[]) => {
-	if (!date || !data.length) return data;
+export const filterDailyPlan = (date?: DateRange, data?: TDailyPlan[]) => {
+	if (!date || !data?.length) return data;
 	const { from, to } = date;
 	if (!from && !to) {
 		return data;
 	}
-	return data.filter((plan) => {
-		const itemDate = new Date(plan.date);
+	return data?.filter((plan) => {
+		const itemDate = new Date(plan?.date);
 		return isTestDateRange(itemDate, from, to);
 	});
+};
+
+/**
+ * Utility function to filter daily plan tasks by employee assignment
+ *
+ * This function filters tasks within daily plans to show only tasks where the specified user
+ * is assigned as a member. Plans with no matching tasks are excluded from the result.
+ *
+ * NOTE: Task members are identified by `userId`, not `employeeId`.
+ * This is because task members are associated with user accounts, not employee entities.
+ *
+ * @param plans - The array of daily plans to filter
+ * @param user - The user to filter tasks by (checks if user is in task.members)
+ * @returns Filtered array of daily plans containing only tasks where the user is a member
+ *
+ * @example
+ * ```typescript
+ * const userPlans = filterDailyPlansByEmployee(allPlans, currentUser);
+ * // Returns only plans with tasks assigned to currentUser
+ * ```
+ */
+export const filterDailyPlansByEmployee = (plans: TDailyPlan[], user: TUser | undefined): TDailyPlan[] => {
+	if (!user) return plans;
+
+	return plans
+		.map((plan) => ({
+			...plan,
+			tasks: plan.tasks?.filter((task) => task.members?.some((member) => member.userId === user.id))
+		}))
+		.filter((plan) => plan.tasks && plan.tasks.length > 0);
+};
+
+/**
+ * Filters daily plans to retain only tasks matching the provided task IDs.
+ *
+ * Performs two-level filtering:
+ * 1. Removes non-matching tasks from each plan
+ * 2. Excludes plans with no remaining tasks
+ *
+ * Uses a Set for O(1) lookup performance.
+ *
+ * @param plans - The daily plans to filter
+ * @param taskIds - Task IDs to retain
+ * @returns Filtered plans containing only matching tasks
+ *
+ * @example
+ * filterDailyPlansByTasks(
+ *   [{ id: 'plan-1', tasks: [{ id: 'task-1' }, { id: 'task-2' }] }],
+ *   ['task-1']
+ * );
+ * // Returns: [{ id: 'plan-1', tasks: [{ id: 'task-1' }] }]
+ */
+export const filterDailyPlansByTasks = (plans: TDailyPlan[], taskIds: string[]): TDailyPlan[] => {
+	// Create a Set for efficient O(1) lookup performance
+	const taskIdSet = new Set(taskIds);
+
+	return plans
+		.map((plan) => ({ ...plan, tasks: plan.tasks?.filter((task) => taskIdSet.has(task?.id)) }))
+		.filter((plan) => plan?.tasks?.length);
 };

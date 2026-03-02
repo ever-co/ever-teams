@@ -8,7 +8,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { EverCard } from '../common/ever-card';
 import { EProjectBudgetType } from '@/core/types/generics/enums/project';
 import { useAtomValue } from 'jotai';
-import { organizationProjectsState, organizationTeamsState, taskStatusesState } from '@/core/stores';
+import { organizationTeamsState } from '@/core/stores';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
+import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
 
 interface IFiltersCardModalProps {
 	open: boolean;
@@ -25,7 +27,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 	const params = useSearchParams();
 	const teams = useAtomValue(organizationTeamsState);
 
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects } = useOrganizationProjectsQuery();
 	const teamMembers = useMemo(
 		() => organizationProjects?.flatMap((project) => project.members ?? []),
 		[organizationProjects]
@@ -47,7 +49,7 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 		[t]
 	);
 
-	const taskStatuses = useAtomValue(taskStatusesState);
+	const { taskStatuses } = useTaskStatusesQuery();
 	const router = useRouter();
 	const statusColorsMap: Map<string | undefined, string | undefined | null> = useMemo(() => {
 		return new Map(taskStatuses.map((status) => [status.name, status.color]));
@@ -216,14 +218,27 @@ export default function FiltersCardModal({ open, closeModal }: IFiltersCardModal
 	}, [selectedTeams, selectedMembers, selectedManagers, selectedStatus, selectedBudgetType, closeModal, router]);
 
 	const handleClearAllFilters = useCallback(() => {
+		// Clear all local states
 		setSelectedTeams([]);
 		setSelectedMembers([]);
 		setSelectedManagers([]);
 		setSelectedStatus([]);
 		setSelectedBudgetType([]);
-		handleApplyFilters();
+
+		// Clear URL params directly (don't rely on state which hasn't updated yet)
+		const searchParams = new URLSearchParams(window.location.search);
+		searchParams.delete('teams');
+		searchParams.delete('members');
+		searchParams.delete('managers');
+		searchParams.delete('status');
+		searchParams.delete('budgetTypes');
+		// Also clear date range filters
+		searchParams.delete('dateFrom');
+		searchParams.delete('dateTo');
+
+		router.replace(`?${searchParams.toString()}`, { scroll: false });
 		closeModal();
-	}, [closeModal, handleApplyFilters]);
+	}, [closeModal, router]);
 
 	const getSelectedQueries = useCallback(() => {
 		setSelectedTeams(params.get('teams')?.split(',') || []);

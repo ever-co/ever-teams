@@ -28,7 +28,7 @@ export function DatePickerWithRange({
 	defaultValue,
 	className
 }: {
-	defaultValue: DateRange;
+	defaultValue?: DateRange;
 	onChange: (dateRange: DateRange) => void;
 	className?: string;
 }) {

@@ -1,6 +1,8 @@
-import { useModal, useTeamTasks } from '@/core/hooks';
-import { detailedTaskState } from '@/core/stores';
-import { PlusIcon } from '@heroicons/react/20/solid';
+import { useModal, useUpdateTask } from '@/core/hooks';
+import { activeTeamState, detailedTaskState, isTeamManagerState } from '@/core/stores';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { ERoleName } from '@/core/types/generics/enums/role';
+import { PlusIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
 import { Button, Modal, SpinnerLoader } from '@/core/components';
 import { TaskVersionForm } from '@/core/components/tasks/version-form';
 import { cloneDeep } from 'lodash';
@@ -18,9 +20,9 @@ import {
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
 import { clsxm } from '@/core/lib/utils';
-import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
+import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
-import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 import {
 	ActiveTaskPropertiesDropdown,
@@ -47,9 +49,7 @@ type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
 const TaskSecondaryInfo = () => {
 	const task = useAtomValue(detailedTaskState);
-	const { updateTask } = useTeamTasks();
-
-	const { handleStatusUpdate } = useTeamTasks();
+	const { updateTask, handleStatusUpdate } = useUpdateTask();
 
 	const t = useTranslations();
 
@@ -100,7 +100,7 @@ const TaskSecondaryInfo = () => {
 	}, [taskLabels, task?.tags]);
 
 	return (
-		<section className="flex flex-col gap-4 p-[0.9375rem]">
+		<section className="flex flex-col gap-4 p-3.75">
 			{/* Version */}
 			<TaskRow labelTitle={t('pages.taskDetails.VERSION')}>
 				<ActiveTaskVersionDropdown
@@ -108,10 +108,10 @@ const TaskSecondaryInfo = () => {
 					className="lg:min-w-[130px] text-black"
 					forDetails={true}
 					sidebarUI={true}
-					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
+					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				>
 					<Button
-						className="w-full py-1 px-2 text-[0.625rem] mt-3  dark:text-white dark:border-white"
+						className="w-full px-2 py-1 mt-3 text-[0.625rem] dark:text-white dark:border-white"
 						variant="outline"
 						onClick={openModalEditionHandle('version')}
 					>
@@ -132,7 +132,7 @@ const TaskSecondaryInfo = () => {
 						className="min-w-fit lg:max-w-[170px] text-black"
 						forDetails={true}
 						sidebarUI={true}
-						taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
+						taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 						defaultValue={task.parentId || ''}
 					/>
 				</TaskRow>
@@ -147,10 +147,10 @@ const TaskSecondaryInfo = () => {
 					className="lg:min-w-[130px] text-black"
 					forDetails={true}
 					sidebarUI={true}
-					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
+					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				>
 					<Button
-						className="px-2 py-1 w-full text-xs dark:text-white dark:border-white"
+						className="w-full px-2 py-1 text-xs dark:text-white dark:border-white"
 						variant="outline"
 						onClick={openModalEditionHandle('status')}
 					>
@@ -165,7 +165,7 @@ const TaskSecondaryInfo = () => {
 					task={task}
 					className="lg:min-w-[130px] text-black lg:mt-0"
 					forDetails={true}
-					taskStatusClassName="text-[0.625rem] h-[2.35rem] min-w-[7.6875rem] rounded 3xl:text-xs"
+					taskStatusClassName="text-[0.625rem] h-[2.35rem] min-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				/>
 			</TaskRow>
 			{tags.length > 0 && (
@@ -195,10 +195,10 @@ const TaskSecondaryInfo = () => {
 					className="lg:min-w-[130px] text-black"
 					forDetails={true}
 					sidebarUI={true}
-					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
+					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				>
 					<Button
-						className="px-2 py-1 w-full text-xs dark:text-white dark:border-white"
+						className="w-full px-2 py-1 text-xs dark:text-white dark:border-white"
 						variant="outline"
 						onClick={openModalEditionHandle('size')}
 					>
@@ -214,10 +214,10 @@ const TaskSecondaryInfo = () => {
 					className="lg:min-w-[130px] text-black"
 					forDetails={true}
 					sidebarUI={true}
-					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded 3xl:text-xs"
+					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				>
 					<Button
-						className="px-2 py-1 w-full text-xs dark:text-white dark:border-white"
+						className="w-full px-2 py-1 text-xs dark:text-white dark:border-white"
 						variant="outline"
 						onClick={openModalEditionHandle('priority')}
 					>
@@ -269,7 +269,7 @@ const EpicParent = ({ task }: { task: TTask }) => {
 			<Tooltip label={`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`} placement="auto">
 				<Link href={`/task/${task?.rootEpic?.id}`} target="_blank">
 					<div className="flex items-center w-32">
-						<div className="bg-[#8154BA] p-1 rounded-sm mr-1">
+						<div className="bg-[#8154BA] p-1 rounded-xs mr-1">
 							<Square4OutlineIcon className="w-full max-w-[10px] text-white" />
 						</div>
 						<div className="overflow-hidden text-xs whitespace-nowrap text-ellipsis">{`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`}</div>
@@ -308,25 +308,42 @@ export default TaskSecondaryInfo;
 export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	const { task, controlled = false, onChange, styles } = props;
 	const { openModal, isOpen, closeModal } = useModal();
-	const organizationProjects = useAtomValue(organizationProjectsState);
-	const { updateTask, updateLoading } = useTeamTasks();
+	const { organizationProjects } = useOrganizationProjectsQuery();
+	const activeTeam = useAtomValue(activeTeamState);
+	const { updateTask, updateLoading } = useUpdateTask();
 	const t = useTranslations();
 
-	// Filter to show only valid projects (exclude teams or invalid entries)
+	// Get current user and manager status
+	const { data: user } = useUserQuery();
+	const isTeamManager = useAtomValue(isTeamManagerState);
+
+	// Check if user can create projects (admin or manager)
+	const canCreateProject = useMemo(() => {
+		// Check if user has global admin role
+		const userRole = user?.role?.name;
+		const isGlobalAdmin = userRole === ERoleName.ADMIN || userRole === ERoleName.SUPER_ADMIN;
+
+		// User can create project if they are a global admin or team manager
+		return isGlobalAdmin || isTeamManager;
+	}, [user?.role?.name, isTeamManager]);
+
+	// Filter valid projects based on active team context:
+	// - "All Teams" mode (no active team): show ALL projects
+	// - Specific team: show team projects + global projects (no team assigned)
 	const validProjects = useMemo(() => {
 		return organizationProjects.filter((project) => {
-			// Only show projects that are:
-			// 1. Active (not archived)
-			// 2. Have a valid name
-			// 3. Are not explicitly archived
-			return (
-				project?.name &&
-				project?.name?.trim().length > 0 &&
-				project?.isArchived !== true &&
-				project?.isActive === true
-			);
+			// First check if it's a valid project
+			if (!isValidProjectForDisplay(project)) return false;
+			// "All Teams" selected (no active team) → show ALL projects (team-specific + global)
+			if (!activeTeam?.id) return true;
+			// Show projects that either:
+			// 1. Belong to the active team
+			// 2. Have no teams assigned ("Global" projects - accessible to everyone)
+			const belongsToTeam = projectBelongsToTeam(project, activeTeam.id);
+			const isGlobalProject = projectHasNoTeams(project);
+			return belongsToTeam || isGlobalProject;
 		});
-	}, [organizationProjects]);
+	}, [organizationProjects, activeTeam?.id]);
 
 	const [selected, setSelected] = useState<TOrganizationProject | null>(null);
 
@@ -346,6 +363,8 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 				if (task) {
 					if (task?.projectId === project.id) return;
 					await updateTask({ ...task, projectId: project.id });
+					// Update local selected state immediately for optimistic UI
+					setSelected(project);
 					toast.success('Task project updated successfully', {
 						description: `Project changed to "${project.name}"`
 					});
@@ -377,7 +396,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 		<>
 			<div
 				className={clsxm(
-					'relative text-xs font-medium border text-[0.625rem] w-fit h-fit max-w-[10rem] min-w-[6rem] !rounded-[8px]',
+					'relative text-xs font-medium border text-[0.625rem] w-fit h-fit max-w-32 min-w-24 rounded-[8px]!',
 					styles?.container
 				)}
 			>
@@ -386,7 +405,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 						<DropdownMenuTrigger className="w-full" asChild>
 							<button
 								className={clsxm(
-									`cursor-pointer outline-none min-w-fit w-full flex dark:text-white
+									`cursor-pointer outline-hidden min-w-fit w-full flex dark:text-white
 										items-center justify-between h-fit p-1
 										border-solid border-color-[#F2F2F2]
 										dark:bg-[#1B1D22] dark:border dark:border-gray-800 gap-[.4rem] rounded-lg`,
@@ -394,7 +413,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 								)}
 								aria-label={selected ? `Current project: ${selected.name}` : 'Select a project'}
 							>
-								<div className="flex gap-1 items-center w-fit">
+								<div className="flex items-center gap-1 w-fit">
 									{selected?.imageUrl ? (
 										<Image
 											className="w-4 h-4 rounded-full"
@@ -426,7 +445,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 								) : (
 									<ChevronDownIcon
 										className={clsxm(
-											'w-5 h-5 transition duration-150 ease-in-out group-hover:text-opacity-80 text-default dark:text-white'
+											'w-5 h-5 transition duration-150 ease-in-out group-hover:text-default/80 dark:group-hover:text-white/80 text-default dark:text-white'
 										)}
 										aria-hidden="true"
 									/>
@@ -435,7 +454,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 						</DropdownMenuTrigger>
 
 						<DropdownMenuContent
-							className={clsxm('z-[9999] min-w-full outline-none w-max p-0', styles?.listCard)}
+							className={clsxm('z-9999 min-w-full outline-hidden w-max p-0', styles?.listCard)}
 							style={{
 								maxHeight: 'calc(100vh - 100%)',
 								overflow: 'auto'
@@ -446,25 +465,25 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 							<EverCard
 								shadow="bigger"
 								className={clsxm(
-									'p-0 md:p-4 shadow-xl card dark:shadow-lg card-white dark:bg-[#1c1f26] dark:border dark:border-transparent flex flex-col gap-2.5 min-h-[6rem]  h-[13rem]  max-h-[13rem] overflow-x-auto rounded-none overflow-hidden',
+									'p-0 md:p-4 shadow-xl card dark:shadow-lg card-white dark:bg-[#1c1f26] dark:border dark:border-transparent flex flex-col gap-2.5 min-h-24  h-52  max-h-52 overflow-x-auto rounded-none overflow-hidden',
 									styles?.listCard
 								)}
 							>
-								<ScrollArea className="w-full !h-full ">
-									<div className="flex flex-col gap-2.5 h-[11rem]  w-full">
+								<ScrollArea className="w-full h-full! ">
+									<div className="flex flex-col gap-2.5 h-44  w-full">
 										{validProjects?.map((item) => {
 											return (
 												<DropdownMenuItem
 													key={item.id}
 													onSelect={() => {
+														setSelected(item);
 														if (controlled && onChange) {
 															onChange(item);
 														} else {
 															handleUpdateProject(item);
-															setSelected(item);
 														}
 													}}
-													className="relative border flex items-center gap-2 p-1.5 rounded-lg outline-none cursor-pointer dark:text-white"
+													className="relative border flex items-center gap-2 p-1.5 rounded-lg outline-hidden cursor-pointer dark:text-white"
 												>
 													{item.imageUrl && (
 														<Image
@@ -472,10 +491,10 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 															alt={item.name || ''}
 															width={20}
 															height={20}
-															className="rounded-full"
+															className="flex-none rounded-full shrink-0 aspect-square"
 														/>
 													)}
-													<span className="overflow-hidden w-full text-xs truncate max-w-64 text-ellipsis">
+													<span className="w-full overflow-hidden text-xs truncate max-w-32 text-ellipsis">
 														{item.name || 'Project'}
 													</span>
 												</DropdownMenuItem>
@@ -484,21 +503,24 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 										<div className="mt-auto">
 											{!controlled && (
 												<Button
-													className=" px-2 py-1 w-full !justify-start !gap-2  !min-w-min h-[2rem] rounded-lg text-xs dark:text-white dark:border-gray-800"
+													className=" px-2 py-1 w-full justify-start! gap-2!  min-w-min! h-8 rounded-lg text-xs dark:text-white dark:border-gray-800"
 													variant="outline"
 													onClick={handleRemoveProject}
 												>
 													<TrashIcon className="w-5" /> {t('common.REMOVE')}
 												</Button>
 											)}
-											<Button
-												className=" px-2 py-1 mt-2 w-full !justify-start !min-w-min h-[2rem] rounded-lg text-xs dark:text-white dark:border-white"
-												variant="outline"
-												onClick={openModal}
-											>
-												<AddIcon className="w-3 h-3 text-dark dark:text-white" />{' '}
-												<span className="truncate">{t('common.CREATE_NEW')}</span>
-											</Button>
+											{/* Only show create button for admins and managers */}
+											{canCreateProject && (
+												<Button
+													className=" px-2 py-1 mt-2 w-full justify-start! min-w-min! h-8 rounded-lg text-xs dark:text-white dark:border-white"
+													variant="outline"
+													onClick={openModal}
+												>
+													<AddIcon className="w-3 h-3 text-dark dark:text-white" />{' '}
+													<span className="truncate">{t('common.CREATE_NEW')}</span>
+												</Button>
+											)}
 										</div>
 									</div>
 									<ScrollBar className="-pr-60" />

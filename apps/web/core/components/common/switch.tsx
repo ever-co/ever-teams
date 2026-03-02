@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Text } from './typography';
 import { useTranslations } from 'next-intl';
 import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/constants';
-import { useOrganizationEmployeeTeams, useOrganizationTeams } from '../../hooks/organizations';
+import { useOrganizationEmployeeTeams, useEditOrganizationTeam } from '../../hooks/organizations';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { useAtomValue } from 'jotai';
@@ -40,7 +40,7 @@ export default function TimeTrackingToggle({ activeManager }: { activeManager: I
 					handleChange();
 				}}
 				className={`${enabled ? 'bg-[#DBD3FA]' : 'bg-[#80808061]'}
-          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75`}
+          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-white/75`}
 			>
 				<span className="sr-only">{t('common.USE_SETTING')}</span>
 				<span
@@ -58,7 +58,7 @@ export function ShareProfileViewsToggle() {
 	const t = useTranslations();
 
 	const activeTeam = useAtomValue(activeTeamState);
-	const { editOrganizationTeam } = useOrganizationTeams();
+	const { editOrganizationTeam } = useEditOrganizationTeam();
 	const [enabled, setEnabled] = useState<boolean | undefined>(activeTeam?.shareProfileView);
 
 	const handleChange = useCallback(async () => {
@@ -96,7 +96,7 @@ export function ShareProfileViewsToggle() {
 					handleChange();
 				}}
 				className={`${enabled ? 'bg-[#DBD3FA]' : 'bg-[#80808061]'}
-          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75`}
+          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-white/75`}
 			>
 				<span className="sr-only">{t('common.USE_SETTING')}</span>
 				<span
@@ -113,7 +113,7 @@ export function ShareProfileViewsToggle() {
 export function RequireDailyPlanToTrack() {
 	const t = useTranslations();
 	const activeTeam = useAtomValue(activeTeamState);
-	const { editOrganizationTeam } = useOrganizationTeams();
+	const { editOrganizationTeam } = useEditOrganizationTeam();
 	const [enabled, setEnabled] = useState<boolean | undefined>(activeTeam?.requirePlanToTrack);
 
 	const handleChange = useCallback(async () => {
@@ -154,7 +154,7 @@ export function RequireDailyPlanToTrack() {
 					handleChange();
 				}}
 				className={`${enabled ? 'bg-[#DBD3FA]' : 'bg-[#80808061]'}
-          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75`}
+          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-white/75`}
 			>
 				<span className="sr-only">{t('common.USE_SETTING')}</span>
 				<span

@@ -92,6 +92,8 @@
 		"YES": "Ja",
 		"BASIC": "Basis",
 		"DELETE": "Löschen",
+		"DELETE_SUCCESS": "Erfolgreich gelöscht",
+		"DELETE_ERROR": "Löschen fehlgeschlagen",
 		"MEET": "Treffen",
 		"BOARD": "Board",
 		"SECURITY_CODE": "Sicherheitscode",
@@ -101,6 +103,12 @@
 		"EDIT_TASK": "Aufgabe bearbeiten",
 		"ASSIGN_TASK": "Aufgabe zuweisen",
 		"ASSIGN_TASK_TO": "Aufgabe zuweisen an",
+		"ASSIGN_TASK_TO_ME": "Mir die Aufgabe zuweisen",
+		"UNASSIGN_TASK_FROM_ME": "Mich von der Aufgabe entfernen",
+		"TASK_ASSIGNED_TO_ME": "Aufgabe wurde Ihnen zugewiesen",
+		"TASK_UNASSIGNED_FROM_ME": "Aufgabe wurde von Ihnen entfernt",
+		"TASK_ASSIGN_ERROR": "Aufgabe konnte nicht zugewiesen werden",
+		"TASK_UNASSIGN_ERROR": "Aufgabe konnte nicht entfernt werden",
 		"REMOVE_ACCOUNT": "Konto entfernen",
 		"REMOVE_EVERYWHERE": "Überall entfernen",
 		"DELETE_ACCOUNT": "Dieses Konto löschen",
@@ -111,6 +119,9 @@
 		"TRANSFERT_OWNERSHIP": "Eigentümerschaft übertragen",
 		"TRANSFERT_OWNERSHIP_TO": "Vollständige Eigentümerschaft des Teams auf einen anderen Benutzer übertragen",
 		"REMOVE": "Entfernen",
+		"REMOVED": "Entfernt",
+		"ADDED": "Hinzugefügt",
+		"AND_X_OTHERS": "und {count} weitere",
 		"REMOVE_TEAM": "Team entfernen",
 		"DISPOSE_TEAM": "Team auflösen",
 		"QUIT_TEAM": "Team verlassen",
@@ -194,7 +205,11 @@
 		"USER_AVATAR": "Benutzeravatar",
 		"CONTACT": "Kontakt",
 		"ENABLED": "aktivieren",
-		"DISABLED": "deaktivieren",
+		"DISABLED": "Deaktiviert",
+		"UNKNOWN": "Unbekannt",
+		"RATE": "Stundensatz",
+		"FLAT_FEE": "Pauschalgebühr",
+		"MILESTONES": "Meilensteine",
 		"THEME": "Thema",
 		"TIME_ZONE": "Zeitzone",
 		"EDIT": "Bearbeiten",
@@ -237,7 +252,17 @@
 		"FULL_WIDTH": "Volle Breite",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Bitte stoppen Sie den Timer, bevor Sie die Aufgabe ändern",
 		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Bitte stoppen Sie den Timer, bevor Sie das Team wechseln",
+		"WORKSPACE_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Bitte stoppen Sie den Timer, bevor Sie den Arbeitsbereich wechseln",
 		"CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Bitte stoppen Sie den Timer, bevor Sie neue Elemente erstellen",
+		"WORKSPACE_SWITCH_CONFIRM_TITLE": "Arbeitsbereich wechseln?",
+		"WORKSPACE_SWITCH_CONFIRM_DESCRIPTION": "Sie sind dabei, den Arbeitsbereich von \"{currentWorkspace}\" zu \"{targetWorkspace}\" zu wechseln.",
+		"WORKSPACE_SWITCH_CONFIRM_WARNING": "Diese Aktion lädt die Anwendung neu, um alle Daten zu synchronisieren.",
+		"WORKSPACE_SWITCH_CANCEL_ARIA": "Arbeitsbereichwechsel abbrechen",
+		"WORKSPACE_SWITCH_CONFIRM_ARIA": "Wechsel zu {workspace} bestätigen",
+		"WORKSPACE_SWITCH_CHANGING": "Wechseln...",
+		"WORKSPACE_SWITCH_CONFIRM_BUTTON": "Wechsel bestätigen",
+		"CURRENT_WORKSPACE": "aktueller Arbeitsbereich",
+		"TARGET_WORKSPACE": "Ziel-Arbeitsbereich",
 		"COLLABORATE_DIALOG_TITLE": "Zusammenarbeit beginnen",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Mitglied(er) einladen und zusammenarbeiten",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Meeting oder Board Zusammenarbeit starten",
@@ -381,6 +406,8 @@
 		"MEMBERS_COUNT": "Mitgliederanzahl",
 		"REVIEW": "ÜBERPRÜFUNG",
 		"ARCHIVE": "Archiv",
+		"ARCHIVE_SUCCESS": "Erfolgreich archiviert",
+		"ARCHIVE_ERROR": "Archivierung fehlgeschlagen",
 		"ARCHIVE_AT": "Archivieren am",
 		"RESTORE": "Wiederherstellen",
 		"HIDE": "Verstecken",
@@ -563,7 +590,8 @@
 					"endDateRequired": "Enddatum ist erforderlich.",
 					"endDateAfterStart": "Das Enddatum muss nach dem Startdatum liegen.",
 					"invalidUrl": "Bitte geben Sie eine gültige URL ein.",
-					"uploadError": "Beim Hochladen des Projektbildes ist ein Fehler aufgetreten, bitte versuche es erneut!"
+					"uploadError": "Beim Hochladen des Projektbildes ist ein Fehler aufgetreten, bitte versuche es erneut!",
+					"descriptionWordLimit": "Die Beschreibung darf maximal 5000 Wörter enthalten."
 				},
 				"common": {
 					"search": "Suchen ...",
@@ -595,6 +623,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Teams zuweisen",
+					"noTeamsAvailable": "Keine Teams verfügbar",
+					"teamsHelperText": "Wählen Sie mindestens ein Team für dieses Projekt",
 					"assignMembers": "Mitglieder & Manager zuweisen",
 					"noMembers": "Keine Mitglieder oder Manager",
 					"addMember": "Mitglied hinzufügen",
@@ -604,8 +635,17 @@
 					"noRelations": "Keine Beziehungen",
 					"addRelation": "Beziehung hinzufügen",
 					"selectProject": "Projekt auswählen...",
-					"selectRelationType": "Beziehungstyp auswählen..."
+					"selectRelationType": "Beziehungstyp auswählen...",
+					"activeTeamLocked": "Das aktuelle Team ist erforderlich und kann nicht entfernt werden"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "Bitte wählen Sie mindestens ein Team aus"
 				}
+			},
+			"accessDenied": {
+				"title": "Zugriff verweigert",
+				"description": "Dieses Projekt gehört nicht zu Ihrem aktuellen Team ({teamName}). Wechseln Sie zu einem Team, das Zugriff auf dieses Projekt hat.",
+				"viewAllProjects": "Alle Projekte anzeigen"
 			},
 			"addOrEditModal": {
 				"steps": {
@@ -617,11 +657,15 @@
 			},
 			"deleteModal": {
 				"title": "Ausgewähltes löschen?",
-				"description": "Sie sind dabei, dieses Projekt dauerhaft zu löschen. Klicken Sie auf 'Löschen', um die Aktion zu bestätigen"
+				"description": "Sie sind dabei, dieses Projekt dauerhaft zu löschen. Klicken Sie auf 'Löschen', um die Aktion zu bestätigen",
+				"successDescription": "Das Projekt wurde erfolgreich gelöscht",
+				"errorDescription": "Das Projekt konnte nicht gelöscht werden. Bitte versuchen Sie es erneut."
 			},
 			"archiveModal": {
 				"title": "{projectName} archivieren?",
-				"description": "{affectedTasksCount} Aufgaben werden durch das Archivieren von {projectName} betroffen sein."
+				"description": "{affectedTasksCount} Aufgaben werden durch das Archivieren von {projectName} betroffen sein.",
+				"successDescription": "{projectName} wurde erfolgreich archiviert",
+				"errorDescription": "Das Projekt konnte nicht archiviert werden. Bitte versuchen Sie es erneut."
 			},
 			"restoreModal": {
 				"title": "Projekt wiederherstellen",
@@ -675,14 +719,19 @@
 			"HAVE_PASSWORD": "Haben Sie ein Passwort?",
 			"LOGIN_WITH_PASSWORD": "Melden Sie sich mit dem Passwort an",
 			"LOGIN_WITH_MAGIC_CODE": "Melden Sie sich mit einem magischen Code an",
-			"ERROR_SIGNIN": "Fehler beim Signieren"
+			"ERROR_SIGNIN": "Fehler beim Signieren",
+			"DEMO_ACCOUNTS_TITLE": "Automatisch bei Demo-Konten anmelden",
+			"DEMO_ACCOUNTS_SUBTITLE": "Bitte wählen Sie unten den Kontotyp aus.",
+			"DEMO_SUPER_ADMIN": "Super Admin Demo",
+			"DEMO_ADMIN": "Admin Demo",
+			"DEMO_EMPLOYEE": "Mitarbeiter Demo"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Bitte geben Sie Ihre Anmeldedaten ein."
 		},
 		"authTeam": {
-			"HEADING_TITLE": "Neues Team erstellen",
-			"HEADING_DESCRIPTION": "Bitte geben Sie die Details für Ihr neues Team ein, um ein neues Team zu erstellen.",
+			"HEADING_TITLE": "Jetzt registrieren",
+			"HEADING_DESCRIPTION": "Erzählen Sie uns mehr über sich und (optional) Ihr Team, um sich zu registrieren.",
 			"LOADING_TEXT": "Wir erstellen gerade Ihren neuen Arbeitsbereich, bitte warten...",
 			"LOADING_WORKSPACE": "Wir laden den Arbeitsbereich, bitte warten...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Weiterleitung zu Ihrem Arbeitsbereich...",
@@ -690,7 +739,15 @@
 			"INPUT_TEAM_NAME": "Teamnamen eingeben",
 			"JOIN_EXISTING_TEAM": "Einem bestehenden Team beitreten?",
 			"CREATE_FIRST_TEAM": "Ihr erstes Team erstellen",
-			"CREATE_TEAM": "Team erstellen"
+			"CREATE_TEAM": "Team erstellen",
+			"GET_STARTED_TITLE": "Wie möchten Sie beginnen?",
+			"START_SOLO": "Alleine starten",
+			"START_SOLO_NOTE": "Sie können später ein Team erstellen und andere einladen",
+			"CREATE_TEAM_NOW": "Jetzt ein Team erstellen",
+			"CONTINUE": "Weiter",
+			"GET_STARTED": "Loslegen",
+			"STEP_USER_INFO": "Teilen Sie uns Ihren Namen und Ihre E-Mail mit",
+			"STEP_CHOOSE_MODE": "Wählen Sie Ihren Weg"
 		},
 		"settings": {
 			"BREADCRUMB": "[\"Dashboard\", \"Einstellungen\"]",

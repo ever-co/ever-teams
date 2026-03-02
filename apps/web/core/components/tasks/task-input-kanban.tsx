@@ -7,9 +7,12 @@ import {
 	useHotkeys,
 	useOutsideClick,
 	useTaskInput,
-	useTaskStatus
 } from '@/core/hooks';
-import { taskLabelsListState, taskPrioritiesListState, taskSizesListState, timerStatusState } from '@/core/stores';
+import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
+import { useTaskSizesQuery } from '@/core/hooks/tasks/use-task-sizes-query';
+import { useTaskPrioritiesQuery } from '@/core/hooks/tasks/use-task-priorities-query';
+import { useTaskLabelsQuery } from '@/core/hooks/tasks/use-task-labels-query';
+import { timerStatusState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, SpinnerLoader } from '@/core/components';
@@ -367,10 +370,10 @@ function TaskCard({
 	const timerRunningStatus = useMemo(() => {
 		return Boolean(timerStatus?.running);
 	}, [timerStatus]);
-	const { loadTaskStatuses } = useTaskStatus();
-	const taskPriorities = useAtomValue(taskPrioritiesListState);
-	const taskSizes = useAtomValue(taskSizesListState);
-	const taskLabels = useAtomValue(taskLabelsListState);
+	const { loadTaskStatuses } = useTaskStatusesQuery();
+	const { taskPriorities } = useTaskPrioritiesQuery();
+	const { taskSizes } = useTaskSizesQuery();
+	const { taskLabels } = useTaskLabelsQuery();
 	const [taskPriority, setTaskPriority] = useState<ETaskPriority | undefined>(
 		activeTaskPriority?.current as ETaskPriority | undefined
 	);

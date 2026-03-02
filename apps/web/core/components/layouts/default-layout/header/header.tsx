@@ -13,7 +13,7 @@ import Profile from './profile';
 export const Header = () => {
 	return (
 		<header className="fixed z-50 w-full">
-			<nav className="bg-white py-2 dark:bg-[#202023] shadow-sm">
+			<nav className="bg-white py-2 dark:bg-[#202023] shadow-xs">
 				<div className="flex flex-wrap items-center justify-between x-container-fluid">
 					<div className="flex items-center justify-center">
 						<MainLogo />

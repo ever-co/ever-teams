@@ -91,4 +91,8 @@ export const ProjectGridItem: FC = () => (
 /**
  * Projects grid skeleton component that displays multiple loading items.
  */
-export const ProjectsGridSkeleton: FC = () => <GenericCardsGridSkeleton count={12} variant="project" />;
+export const ProjectsGridSkeleton: FC = () => (
+	<div className="w-full">
+		<GenericCardsGridSkeleton count={12} variant="project" />
+	</div>
+);

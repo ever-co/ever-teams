@@ -1,5 +1,5 @@
-import { useTeamMemberCard, useTeamTasks, useTMCardTaskEdit } from '@/core/hooks';
-import { useEffect, useState } from 'react';
+import { useMemberIdentity, useMemberActiveTask, useTaskQueries, useTMCardTaskEdit } from '@/core/hooks';
+import { useEffect, useMemo, useState } from 'react';
 import { TaskEstimateInfo } from '../../../team/team-members-views/user-team-card/task-estimate';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -11,11 +11,17 @@ export default function UserTeamActiveTaskEstimateBlock({
 	member: TOrganizationTeamEmployee;
 	activeTaskId: string;
 }) {
-	const memberInfo = useTeamMemberCard(member);
+	// Only identity + memberTask needed — TaskEstimateInfo consumes memberTask, isAuthUser, isAuthTeamManager
+	const identity = useMemberIdentity(member);
+	const memberTask = useMemberActiveTask(member);
+	const memberInfo = useMemo(
+		() => ({ memberTask, isAuthUser: identity.isAuthUser, isAuthTeamManager: identity.isAuthTeamManager }),
+		[memberTask, identity.isAuthUser, identity.isAuthTeamManager]
+	);
 	const [activeTask, setActiveTask] = useState<TTask | null | undefined>(null);
 	const taskEdition = useTMCardTaskEdit(activeTask);
 
-	const { getTaskById } = useTeamTasks();
+	const { getTaskById } = useTaskQueries();
 
 	useEffect(() => {
 		if (!activeTaskId) {

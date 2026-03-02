@@ -6,7 +6,7 @@ import { Button, statusColor } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { ReactNode } from 'react';
 import { EmployeeAvatar } from '../../timesheet/compact-timesheet-component';
-import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
+import { getStatusTimesheet, groupByDate } from '@/core/lib/helpers/timesheet-grouping';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { cn } from '@/core/lib/helpers';
@@ -39,7 +39,7 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
 		<EverCard
 			aria-label={`Timesheet card for ${title}`}
 			shadow="custom"
-			className="flex w-full gap-2 !p-5 border border-gray-200 rounded-md shadow min-h-40 h-fit dark:border-gray-600 shadow-gray-100 dark:shadow-transparent"
+			className="flex w-full gap-2 !p-5 border border-gray-200 rounded-md shadow-sm min-h-40 h-fit dark:border-gray-600 shadow-gray-100 dark:shadow-transparent"
 		>
 			<div className="flex flex-col w-full gap-2 ">
 				<div className="flex flex-col items-start justify-start gap-1">
@@ -85,7 +85,7 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
 }
 
 export const TimesheetCardDetail = ({ data }: { data?: Record<ETimesheetStatus, ITimeLog[]> }) => {
-	const { getStatusTimesheet, groupByDate } = useTimesheet({});
+	// getStatusTimesheet & groupByDate imported as pure functions from timesheet-grouping
 	const { timesheetGroupByDays } = useTimelogFilterOptions();
 	const timesheetGroupByDate = groupByDate(data?.PENDING || []);
 	const t = useTranslations();
@@ -121,7 +121,7 @@ export const TimesheetCardDetail = ({ data }: { data?: Record<ETimesheetStatus, 
 												style={{ backgroundColor: statusColor(status).bgOpacity }}
 												type="button"
 												className={cn(
-													'flex flex-row-reverse justify-end items-center w-full h-12 rounded-sm gap-x-2 hover:no-underline px-2',
+													'flex flex-row-reverse justify-end items-center w-full h-12 rounded-xs gap-x-2 hover:no-underline px-2',
 													statusColor(status).text
 												)}
 											>
@@ -140,7 +140,7 @@ export const TimesheetCardDetail = ({ data }: { data?: Record<ETimesheetStatus, 
 														</div>
 														<Badge
 															variant={'outline'}
-															className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 flex-grow-0"
+															className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 grow-0"
 														>
 															<span className="text-[#5f5f61]">
 																{t('timer.TOTAL_HOURS').split(' ')[0]}

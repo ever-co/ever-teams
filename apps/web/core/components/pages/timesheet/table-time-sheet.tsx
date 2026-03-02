@@ -26,7 +26,10 @@ import {
 } from '@/core/components/timesheet';
 import { useTranslations } from 'next-intl';
 import { formatDate } from '@/core/lib/helpers/index';
-import { GroupedTimesheet, useTimesheet } from '@/core/hooks/activities/use-timesheet';
+import type { GroupedTimesheet } from '@/core/lib/helpers/timesheet-grouping';
+import { getStatusTimesheet, groupedByTimesheetIds } from '@/core/lib/helpers/timesheet-grouping';
+import { useDeleteTimesheet } from '@/core/hooks/timesheet/use-delete-timesheet';
+import { useUpdateTimesheet } from '@/core/hooks/timesheet/use-update-timesheet';
 import {
 	DisplayTimeForTimesheet,
 	TaskNameInfoDisplay,
@@ -57,6 +60,8 @@ import {
 	DropdownMenuSeparator
 } from '@/core/components/common/dropdown-menu';
 import { CaretDownIcon, CaretUpIcon } from '@radix-ui/react-icons';
+import { ETimeFrequency } from '@/core/types/generics/enums/date';
+import moment from 'moment';
 
 export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; user?: TUser | null }) {
 	const accordionRef = React.useRef(null);
@@ -69,13 +74,8 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 		closeModal: closeAlertConfirmation
 	} = alertConfirmationModal;
 
-	const {
-		deleteTaskTimesheet,
-		loadingDeleteTimesheet,
-		getStatusTimesheet,
-		updateTimesheetStatus,
-		groupedByTimesheetIds
-	} = useTimesheet({});
+	const { deleteTaskTimesheet, loadingDeleteTimesheet } = useDeleteTimesheet();
+	const { updateTimesheetStatus } = useUpdateTimesheet();
 	const {
 		timesheetGroupByDays,
 		handleSelectRowByStatusAndDate,
@@ -156,6 +156,10 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 			/>
 			<div className="rounded-md">
 				{data?.map((plan, index) => {
+					const groupTitle =
+						timesheetGroupByDays === ETimeFrequency.MONTHLY
+							? moment(plan.date).format('MMM YYYY')
+							: formatDate(plan.date);
 					return (
 						<div key={index}>
 							<div
@@ -167,7 +171,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 							>
 								<div className="flex gap-x-3">
 									{timesheetGroupByDays === 'Weekly' && <span>Week {index + 1}</span>}
-									<span>{formatDate(plan.date)}</span>
+									<span>{groupTitle}</span>
 								</div>
 								<TotalDurationByDate timesheetLog={plan.tasks} createdAt={formatDate(plan.date)} />
 							</div>
@@ -189,7 +193,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 														style={{ backgroundColor: statusColor(status).bgOpacity }}
 														type="button"
 														className={clsxm(
-															'flex flex-row-reverse justify-end items-center w-full h-12 rounded-sm gap-x-2 hover:no-underline px-2',
+															'flex flex-row-reverse justify-end items-center w-full h-12 rounded-xs gap-x-2 hover:no-underline px-2',
 															statusColor(status).text
 														)}
 													>
@@ -211,7 +215,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 																</div>
 																<Badge
 																	variant={'outline'}
-																	className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 flex-grow-0"
+																	className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 grow-0"
 																>
 																	<span className="text-[#5f5f61] text-[14px] font-[700px]">
 																		{t('timer.TOTAL_HOURS').split(' ')[0]}:
@@ -408,7 +412,7 @@ const TaskActionMenu = ({
 }) => {
 	const { isOpen: isEditTask, openModal: isOpenModalEditTask, closeModal: isCloseModalEditTask } = useModal();
 	const { isOpen: isOpenAlert, openModal: openAlertConfirmation, closeModal: closeAlertConfirmation } = useModal();
-	const { deleteTaskTimesheet, loadingDeleteTimesheet } = useTimesheet({});
+	const { deleteTaskTimesheet, loadingDeleteTimesheet } = useDeleteTimesheet();
 	const canEdit = isManage || user?.id === dataTimesheet.employee?.user.id;
 
 	const t = useTranslations();
@@ -473,7 +477,7 @@ const TaskActionMenu = ({
 
 export const StatusTask = ({ timesheet }: { timesheet: ITimeLog }) => {
 	const t = useTranslations();
-	const { updateTimesheetStatus, updateTimesheet } = useTimesheet({});
+	const { updateTimesheetStatus, updateTimesheet } = useUpdateTimesheet();
 	const handleUpdateTimesheet = async (isBillable: boolean) => {
 		await updateTimesheet({
 			id: timesheet.timesheetId,

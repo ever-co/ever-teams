@@ -12,18 +12,17 @@ import {
 	flexRender,
 	getCoreRowModel,
 	getFilteredRowModel,
-	getPaginationRowModel,
 	getSortedRowModel,
 	useReactTable
 } from '@tanstack/react-table';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Checkbox } from '@/core/components/common/checkbox';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/common/table';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
-import { useModal } from '@/core/hooks';
 import { memo, useEffect, useMemo } from 'react';
 import moment from 'moment';
 import { ChevronDown, ChevronUp, EyeOff, MoveDown, MoveUp, RotateCcw } from 'lucide-react';
@@ -34,10 +33,9 @@ import { ProjectItemActions, ProjectViewDataType } from '..';
 import { Menu, Transition } from '@headlessui/react';
 import { ProjectListSkeleton } from './list-skeleton';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
-import { RestoreProjectModal } from '@/core/components/features/projects/restore-project-modal';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
-import { useAtomValue } from 'jotai';
-import { taskStatusesState } from '@/core/stores';
+import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
+import { useProjectActionModal } from '@/core/hooks/use-project-action-modal';
 
 // Columns that can be hidden in the project table
 export const hidableColumnNames = ['archivedAt', 'endDate', 'managers', 'members', 'teams'];
@@ -77,7 +75,9 @@ export const ProjectsTable = memo(
 		const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 		const t = useTranslations();
 
-		const taskStatuses = useAtomValue(taskStatusesState);
+		const { openRestoreModal } = useProjectActionModal();
+
+		const { taskStatuses } = useTaskStatusesQuery();
 		const statusColorsMap: Map<string | undefined, string | undefined | null> = useMemo(() => {
 			return new Map(taskStatuses.map((status) => [status.name, status.color]));
 		}, [taskStatuses]);
@@ -140,11 +140,14 @@ export const ProjectsTable = memo(
 				cell: function ({ row }) {
 					return (
 						<div className="">
-							<div className="flex gap-2 items-center font-medium">
+							<Link
+								href={`/projects/${row.original?.project?.id}`}
+								className="flex items-center gap-2 font-medium group"
+							>
 								<div
 									style={{ backgroundColor: row.original?.project?.color ?? undefined }}
 									className={cn(
-										'flex overflow-hidden justify-center items-center w-10 h-10 rounded-xl border'
+										'flex object-cover overflow-hidden justify-center items-center rounded-full border size-9 shrink-0'
 									)}
 								>
 									{!row.original?.project?.imageUrl ? (
@@ -154,13 +157,15 @@ export const ProjectsTable = memo(
 											alt={row.original?.project?.name ?? ''}
 											height={40}
 											width={40}
-											className="w-full h-full"
+											className="flex-none rounded-full min-w-9 aspect-square shrink-0"
 											src={row.original?.project?.imageUrl}
 										/>
 									)}
 								</div>
-								<p>{row.original?.project?.name}</p>
-							</div>
+								<p className="transition-colors group-hover:text-primary">
+									{row.original?.project?.name}
+								</p>
+							</Link>
 						</div>
 					);
 				}
@@ -203,12 +208,12 @@ export const ProjectsTable = memo(
 							<div
 								style={{
 									backgroundColor:
-										resolvedTheme == 'light'
+										resolvedTheme === 'light'
 											? (statusColorsMap.get(row.original?.status as ETaskStatusName) ??
 												'transparent')
 											: '#6A7280'
 								}}
-								className="px-4 py-1 text-xs rounded"
+								className="px-4 py-1 text-xs text-white rounded"
 							>
 								{row.original?.status}
 							</div>
@@ -417,27 +422,13 @@ export const ProjectsTable = memo(
 			{
 				id: 'restore',
 				cell: function Cell({ row }) {
-					const {
-						openModal: openRestoreProjectModal,
-						closeModal: closeRestoreProjectModal,
-						isOpen: isRestoreProjectModalOpen
-					} = useModal();
-
 					return (
-						<>
-							<button
-								onClick={openRestoreProjectModal}
-								className={` bg-[#E2E8F0] text-[#3E1DAD] gap-2 group flex items-center rounded-md px-2 py-2 text-xs`}
-							>
-								<RotateCcw size={15} /> <span>{t('common.RESTORE')}</span>
-							</button>
-
-							<RestoreProjectModal
-								projectId={row.original?.project?.id}
-								open={isRestoreProjectModalOpen}
-								closeModal={closeRestoreProjectModal}
-							/>
-						</>
+						<button
+							onClick={() => openRestoreModal(row.original?.project?.id)}
+							className={` bg-[#E2E8F0] text-[#3E1DAD] gap-2 group flex items-center rounded-md px-2 py-2 text-xs`}
+						>
+							<RotateCcw size={15} /> <span>{t('common.RESTORE')}</span>
+						</button>
 					);
 				},
 				enableHiding: false
@@ -450,7 +441,6 @@ export const ProjectsTable = memo(
 			onSortingChange: setSorting,
 			onColumnFiltersChange: setColumnFilters,
 			getCoreRowModel: getCoreRowModel(),
-			getPaginationRowModel: getPaginationRowModel(),
 			getSortedRowModel: getSortedRowModel(),
 			getFilteredRowModel: getFilteredRowModel(),
 			onColumnVisibilityChange,
@@ -488,7 +478,7 @@ export const ProjectsTable = memo(
 				{loading ? (
 					<ProjectListSkeleton />
 				) : table?.getRowModel()?.rows.length ? (
-					<div className="rounded-md border">
+					<div className="border rounded-md">
 						<Table>
 							<TableHeader>
 								{table.getHeaderGroups().map((headerGroup) => (
@@ -580,11 +570,11 @@ function ColumnHandlerDropdown(args: {
 	const isSort = column.entity.getIsSorted();
 
 	return (
-		<Menu as="div" className="inline-block relative text-left">
+		<Menu as="div" className="relative inline-block text-left">
 			<div>
 				<Menu.Button>
-					<div className="flex gap-2 items-center cursor-pointer">
-						<span className="text-[13px] text-nowrap">{column.name}</span>
+					<div className="flex items-center gap-2 cursor-pointer">
+						<span className="text-xs text-nowrap">{column.name}</span>
 						<div className="flex flex-col items-center">
 							<ChevronUp
 								size={15}

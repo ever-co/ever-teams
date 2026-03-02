@@ -1,8 +1,7 @@
 import { useMapToTaskStatusValues } from './use-map-to-task-status-values';
-import { taskSizesListState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+import { useTaskSizesQuery } from './use-task-sizes-query';
 
 export function useTaskSizesValue() {
-	const taskSizes = useAtomValue(taskSizesListState);
+	const { taskSizes } = useTaskSizesQuery();
 	return useMapToTaskStatusValues(taskSizes, false);
 }

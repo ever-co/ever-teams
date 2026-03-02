@@ -1,4 +1,3 @@
-import { COOKIE_DOMAINS } from '@/core/constants/config/constants';
 import { deleteCookie as _deleteCookie, getCookie as _getCookie, setCookie as _setCookie } from 'cookies-next';
 
 type DeleteCookieOptions = Parameters<typeof _deleteCookie>[1];
@@ -6,12 +5,12 @@ type DeleteCookieOptions = Parameters<typeof _deleteCookie>[1];
 export const deleteCookie: typeof _deleteCookie = (key, options) => {
 	_deleteCookie(key, options);
 
-	COOKIE_DOMAINS.value.forEach((domain) => {
-		_deleteCookie(key, {
-			domain,
-			...options
-		});
-	});
+	// Backward cleanup: remove any domain-based copies from older sessions
+	// by retrying with explicit domain values when provided via options.
+	const domain = (options as any)?.domain;
+	if (domain) {
+		_deleteCookie(key, { ...options, domain });
+	}
 };
 
 /**
@@ -26,13 +25,6 @@ export const deleteCookieCrossSite = (key: string, options?: DeleteCookieOptions
 	};
 
 	_deleteCookie(key, crossSiteOptions);
-
-	COOKIE_DOMAINS.value.forEach((domain) => {
-		_deleteCookie(key, {
-			domain,
-			...crossSiteOptions
-		});
-	});
 };
 
 export const getCookie: typeof _getCookie = (key, options) => {
@@ -41,14 +33,7 @@ export const getCookie: typeof _getCookie = (key, options) => {
 
 type SetCookie = (...params: [...Parameters<typeof _setCookie>, ...[crossSite?: boolean]]) => void;
 
-export const setCookie: SetCookie = (key, data, options, crossSite) => {
+export const setCookie: SetCookie = (key, data, options, _crossSite) => {
+	// Intentionally ignore crossSite/domain fan-out; set only for the current request/host.
 	_setCookie(key, data, options);
-
-	crossSite &&
-		COOKIE_DOMAINS.value.forEach((domain) => {
-			_setCookie(key, data, {
-				domain,
-				...options
-			});
-		});
 };

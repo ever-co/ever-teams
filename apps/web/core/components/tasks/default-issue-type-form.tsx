@@ -2,7 +2,8 @@
 import { SpinnerLoader, Text } from '@/core/components';
 
 import { useTranslations } from 'next-intl';
-import { useIssueType } from '@/core/hooks';
+import { useIssueTypesQuery } from '@/core/hooks/tasks/use-issue-types-query';
+import { useEditIssueType } from '@/core/hooks/tasks/use-edit-issue-type';
 import { getTextColor } from '@/core/lib/helpers/index';
 import { StatusesListCard } from '../settings/list-card';
 import { EditPenUnderlineIcon } from 'assets/svg';
@@ -16,14 +17,13 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { IIssueType } from '@/core/types/interfaces/task/issue-type';
-import { issueTypesListState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+
 
 export const DefaultIssueTypeForm = () => {
 	const t = useTranslations();
-	const issueTypes = useAtomValue(issueTypesListState);
 
-	const { editIssueType, editIssueTypeLoading } = useIssueType();
+	const { issueTypes } = useIssueTypesQuery();
+	const { editIssueType, editIssueTypeLoading } = useEditIssueType();
 	const defaultIssueType: IIssueType | undefined = issueTypes.find((issue) => issue.isDefault);
 	const textColor = defaultIssueType?.color ? getTextColor(defaultIssueType.color) : '#cdd1d8';
 
@@ -32,7 +32,7 @@ export const DefaultIssueTypeForm = () => {
 			<form className="w-full" autoComplete="off">
 				<div className="flex w-full">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] w-full">
-						<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px]">
+						<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px]">
 							{t('pages.settingsTeam.DEFAULT_ISSUE_TYPE')}
 						</Text>
 
@@ -75,7 +75,7 @@ export const DefaultIssueTypeForm = () => {
 											>
 												<Text.Label
 													className={clsxm(
-														'flex-none flex-grow-0 !w-40 max-w-[190px] font-normal',
+														'flex-none grow-0 !w-40 max-w-[190px] font-normal',
 														'capitalize overflow-hidden text-ellipsis whitespace-nowrap w-full',
 														defaultIssueType.color === '' && ['dark:text-[#cdd1d8]'],
 														defaultIssueType.icon && 'max-w-[135px]'

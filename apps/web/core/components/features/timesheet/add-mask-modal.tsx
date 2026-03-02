@@ -13,7 +13,7 @@ import {
 	SelectTrigger,
 	SelectValue
 } from '@/core/components/common/select';
-import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
+import { useCreateTimesheet } from '@/core/hooks/timesheet/use-create-timesheet';
 import { toUTC } from '@/core/lib/helpers/index';
 import { PlusIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { CustomSelect } from '../../common/multiple-select';
@@ -22,7 +22,8 @@ import { ToggleButton } from '../tasks/edit-task-modal';
 import { DatePickerFilter } from '../../pages/timesheet/timesheet-filter-date';
 import { ETimeLogType, ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
+import { activeTeamState, tasksByTeamState } from '@/core/stores';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;
@@ -52,10 +53,10 @@ interface FormState {
 export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { generateTimeOptions } = useTimelogFilterOptions();
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects } = useOrganizationProjectsQuery();
 
 	const activeTeam = useAtomValue(activeTeamState);
-	const { createTimesheet, loadingCreateTimesheet } = useTimesheet({});
+	const { createTimesheet, loadingCreateTimesheet } = useCreateTimesheet();
 
 	const timeOptions = generateTimeOptions(5);
 	const t = useTranslations();
@@ -335,7 +336,7 @@ interface ShiftTimingSelectProps {
 }
 
 const ShiftTimingSelect = ({ label, timeOptions, placeholder, className, onChange, value }: ShiftTimingSelectProps) => (
-	<div className="flex gap-2 items-center w-full rounded border border-gray-200 dark:border-gray-700">
+	<div className="flex gap-2 items-center w-full rounded-sm border border-gray-200 dark:border-gray-700">
 		<button
 			className={clsxm(
 				'flex items-center px-2 py-2 font-medium text-center border-r hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none',
@@ -475,7 +476,7 @@ const OptimizedAccordion = ({
 				);
 			})}
 			<button onClick={handleAddShift} className="flex gap-2 justify-start items-center cursor-pointer">
-				<div className="bg-[#3826A6] dark:bg-primary-light p-[0.5] rounded text-white">
+				<div className="bg-[#3826A6] dark:bg-primary-light p-[0.5] rounded-sm text-white">
 					<PlusIcon />
 				</div>
 				<span className="text-[#3826A6] dark:text-primary-light hover:underline">

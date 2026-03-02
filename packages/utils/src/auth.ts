@@ -1,7 +1,5 @@
 import { AUTHENTICATION_ERROR_MESSAGES, PASSWORD_CRITERIA, PASSWORD_MINIMUM_LENGTH } from '@ever-teams/constants';
-import { AuthErrorAlertType, AuthErrorDetails } from '@ever-teams/types';
-import { AuthErrorCode } from '@ever-teams/types';
-import { PasswordValidationResult } from '@ever-teams/types';
+import { AuthErrorAlertType, AuthErrorDetails, AuthErrorCode, PasswordValidationResult, PasswordValidationCriterion } from '@ever-teams/types';
 import zxcvbn from 'zxcvbn';
 
 /* -------------------------------------------------------------------------- */
@@ -12,7 +10,7 @@ import zxcvbn from 'zxcvbn';
  * Check if a password satisfies all the defined password criteria.
  */
 export const isPasswordCompliant = (password: string): boolean =>
-	PASSWORD_CRITERIA.every((criterion) => criterion.regex.test(password));
+	PASSWORD_CRITERIA.every((criterion: PasswordValidationCriterion) => criterion.regex.test(password));
 
 /**
  * Evaluate the strength of a password based on entropy and criteria.
@@ -26,7 +24,7 @@ export const evaluatePasswordStrength = (password: string): PasswordValidationRe
 		return PasswordValidationResult.LENGTH_TOO_SHORT;
 	}
 
-	const criteriaMet = PASSWORD_CRITERIA.every((criterion) => criterion.regex.test(password));
+	const criteriaMet = PASSWORD_CRITERIA.every((criterion: PasswordValidationCriterion) => criterion.regex.test(password));
 	const entropyScore = zxcvbn(password).score;
 
 	if (!criteriaMet || entropyScore <= 2) {

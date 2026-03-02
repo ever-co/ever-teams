@@ -1,37 +1,27 @@
+import {
+    AlignCenterIcon, AlignFullIcon, AlignLeftIcon, AlignQuoteIcon, AlignRightIcon,
+    BTextIcon as BoldIcon, CheckSquareRoundIcon as CheckBoxIcon, ChevronDownIcon,
+    CodeIcon as CodeBlockIcon, CopyRoundIcon as CopyIconRounded, H1TextIcon as HeaderOneIcon,
+    H2TextIcon as HeaderTwoIcon, ItalicTextIcon as ItalicIcon, LinkRoundIcon,
+    ThreeDotLineIcon as UnorderedListIcon, ThreeNumberLineIcon as OrderedListIcon,
+    UnderlineTextIcon as UnderlineIcon
+} from 'assets/svg';
+import { useTranslations } from 'next-intl';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import BlockButton from './editor-components/block-button';
-import MarkButton from './editor-components/mark-button';
-import { insertLink } from '../../../../lib/helpers/text-editor-service';
-import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
-import { Button } from '@/core/components';
 import { Element, Node } from 'slate';
 import { useSlateStatic } from 'slate-react';
-import { useTranslations } from 'next-intl';
-import {
-	AlignQuoteIcon,
-	CodeIcon as CodeBlockIcon,
-	ExternalLinkIcon,
-	LinkRoundIcon,
-	AlignCenterIcon,
-	AlignLeftIcon,
-	AlignRightIcon,
-	H1TextIcon as HeaderOneIcon,
-	H2TextIcon as HeaderTwoIcon,
-	ThreeNumberLineIcon as OrderedListIcon,
-	ThreeDotLineIcon as UnorderedListIcon,
-	UnderlineTextIcon as UnderlineIcon,
-	ItalicTextIcon as ItalicIcon,
-	BTextIcon as BoldIcon,
-	CheckSquareRoundIcon as CheckBoxIcon,
-	CopyRoundIcon as CopyIconRounded,
-	AlignFullIcon,
-	ChevronDownIcon
-} from 'assets/svg';
+
+import { Button } from '@/core/components';
+import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
+import { InputField } from '@/core/components/duplicated-components/_input';
+import { IconsCloseRounded, IconsEmojiEmotions } from '@/core/components/icons';
 import { clsxm } from '@/core/lib/utils';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
-import { IconsCloseRounded, IconsEmojiEmotions } from '@/core/components/icons';
-import { InputField } from '@/core/components/duplicated-components/_input';
+
+import { insertLink } from '../../../../lib/helpers/text-editor-service';
+import BlockButton from './editor-components/block-button';
+import MarkButton from './editor-components/mark-button';
 
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;
@@ -46,39 +36,13 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 	const [showLinkPopup, setShowLinkPopup] = useState(false);
 	const [link, setLink] = useState('');
 	const [copied, setCopied] = useState(false);
-	const [linkPopupPosition] = useState({
-		left: 0,
-		top: 0
-	});
+
 	const [showDropdown, setShowDropdown] = useState(false);
 	const [showEmoji, setShowEmoji] = useState(false);
 	const popupRef = useRef<any>(null);
 	const inputRef = useRef<any>(null);
 	const dropdownRef = useRef<any>(null);
 	const emojiRef = useRef<any>(null);
-
-	// const handleLinkIconClick = () => {
-	// 	const selection = editor.selection;
-	// 	if (selection) {
-	// 		const domSelection = window.getSelection();
-	// 		const editorContainer = document.getElementById('editor-container');
-	// 		if (
-	// 			domSelection &&
-	// 			domSelection.rangeCount > 0 &&
-	// 			editorContainer &&
-	// 			editorContainer.contains(domSelection.anchorNode) &&
-	// 			editorContainer.contains(domSelection.focusNode)
-	// 		) {
-	// 			const range = domSelection.getRangeAt(0);
-	// 			const rect = range.getBoundingClientRect();
-	// 			setLinkPopupPosition({
-	// 				left: rect.left + window.pageXOffset,
-	// 				top: rect.bottom + window.pageYOffset,
-	// 			});
-	// 		}
-	// 	}
-	// 	setShowLinkPopup(true);
-	// };
 
 	useEffect(() => {
 		if (showLinkPopup) {
@@ -190,7 +154,7 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 	// }, [editor, isBlockActive]);
 
 	return (
-		<div className="flex flex-row items-center justify-end gap-1 mt-8 relative">
+		<div className="relative flex flex-row items-center justify-end gap-1 mt-8">
 			<p className="flex-1 text-lg font-[500] dark:text-white my-1 hidden md:block">
 				{t('pages.taskDetails.DESCRIPTION')}
 			</p>
@@ -271,11 +235,11 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 
 			<IconsEmojiEmotions onMouseOver={() => setShowEmoji(true)} className={clsxm('mr-3')} />
 			{showEmoji && (
-				<div className="absolute  right-4 z-50 top-12" ref={emojiRef}>
+				<div className="absolute z-50 right-4 top-12" ref={emojiRef}>
 					<div className="relative h-[20px] w-full">
 						<IconsCloseRounded
 							onClick={() => setShowEmoji(false)}
-							className="absolute right-5 cursor-pointer size-14"
+							className="absolute cursor-pointer right-5 size-14"
 						/>
 					</div>
 					<Picker
@@ -299,11 +263,11 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 					</span>
 				</Button>
 				{/* {showDropdown && (
-					<div className="absolute left-0 z-10 w-40 py-2 bg-white border border-gray-300 rounded shadow top-full dark:bg-dark--theme-light dark:border-gray-700">
+					<div className="absolute left-0 z-10 w-40 py-2 bg-white border border-gray-300 rounded-sm shadow-sm top-full dark:bg-dark--theme-light dark:border-gray-700">
 						{blockOptions.map((option) => (
 							<button
 								key={option.format}
-								className={`flex items-center gap-1 px-2 py-1 w-full focus:outline-none rounded-sm transition duration-300 ${
+								className={`flex items-center gap-1 px-2 py-1 w-full focus:outline-none rounded-xs transition duration-300 ${
 									isBlockActiveMemo && isBlockActiveMemo(option.format)
 										? 'dark:bg-[#6a6a6a] bg-[#ddd]'
 										: 'bg-transparent'
@@ -344,7 +308,7 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 			</button> */}
 			<Popover>
 				<PopoverTrigger asChild>
-					<LinkRoundIcon className="h-5 w-5" />
+					<LinkRoundIcon className="w-5 h-5" />
 				</PopoverTrigger>
 				<PopoverContent className="flex flex-row items-center">
 					<InputField
@@ -354,38 +318,16 @@ const Toolbar = ({ isMarkActive, isBlockActive, selectEmoji, showEmojiIcon }: IT
 						onChange={(e) => setLink(e.target.value)}
 						value={link}
 						ref={inputRef}
+						onKeyDown={handleInsertLinkOnEnter}
 					/>
 					<Button onClick={handleInsertLink} variant="ghost" className="h-10 min-w-0">
-						<LinkRoundIcon className="h-5 w-5" />
+						<LinkRoundIcon className="w-5 h-5" />
 					</Button>
 				</PopoverContent>
 			</Popover>
-			{showLinkPopup && ( // this block of code is not working because onclick function is commented out
-				<div
-					onKeyDown={handleInsertLinkOnEnter}
-					ref={popupRef}
-					className="absolute flex items-center bg-white dark:bg-dark--theme-light p-2 gap-1 rounded-md border border-gray-300 dark:border-[#7B8089] z-10"
-					style={{
-						left: linkPopupPosition.left,
-						top: linkPopupPosition.top + 3
-					}}
-				>
-					<ExternalLinkIcon className="h-4 w-4" />
-					<input
-						type="text"
-						className="outline-none font-[500] text-xs text-[#5000B9] dark:text-primary-light border-r dark:bg-dark--theme-light pr-2"
-						onChange={(e) => setLink(e.target.value)}
-						value={'new'}
-						ref={inputRef}
-					/>
-					<button className="ml-0 bg-transparent border-none hover:cursor-pointer" onClick={handleInsertLink}>
-						<LinkRoundIcon className="h-5 w-5" />
-					</button>
-				</div>
-			)}
 			<button
 				onClick={() => {
-					handleCopy(editor), copyPopupHandler();
+					(handleCopy(editor), copyPopupHandler());
 				}}
 				className={`${!copied && 'active:transform active:scale-95'} relative`}
 				disabled={copied}

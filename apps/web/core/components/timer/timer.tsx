@@ -44,7 +44,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 		startTimer,
 		stopTimer
 	} = useTimerView();
-	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
+	const { modals, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
@@ -101,7 +101,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 	return (
 		<div
 			className={clsxm(
-				'flex space-x-2 lg:flex-col xl:flex-row justify-center items-center p-2 xl:space-y-0 space-y-5 min-w-[260px]',
+				'flex space-x-2 flex-row justify-center items-center p-2 xl:space-y-0 space-y-5 min-w-[260px]',
 				className
 			)}
 		>
@@ -228,7 +228,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 
 export function MinTimerFrame({ className }: IClassName) {
 	const { hours, minutes, seconds, ms_p, timerStatus, disabled, hasPlan, startTimer, stopTimer } = useTimerView();
-	const { modals, startStopTimerHandler } = useStartStopTimerHandler();
+	const { modals, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);

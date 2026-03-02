@@ -71,6 +71,8 @@
 		"YES": "نعم",
 		"BASIC": "أساسي",
 		"DELETE": "حذف",
+		"DELETE_SUCCESS": "تم الحذف بنجاح",
+		"DELETE_ERROR": "فشل في الحذف",
 		"MEET": "اجتماع",
 		"BOARD": "لوحة",
 		"SECURITY_CODE": "رمز الأمان",
@@ -80,6 +82,12 @@
 		"EDIT_TASK": "تعديل المهمة",
 		"ASSIGN_TASK": "تعيين مهمة",
 		"ASSIGN_TASK_TO": "تعيين المهمة إلى",
+		"ASSIGN_TASK_TO_ME": "تعيين المهمة لي",
+		"UNASSIGN_TASK_FROM_ME": "إلغاء تعييني من المهمة",
+		"TASK_ASSIGNED_TO_ME": "تم تعيين المهمة لك",
+		"TASK_UNASSIGNED_FROM_ME": "تم إلغاء تعيينك من المهمة",
+		"TASK_ASSIGN_ERROR": "فشل في تعيين المهمة",
+		"TASK_UNASSIGN_ERROR": "فشل في إلغاء تعيين المهمة",
 		"REMOVE_ACCOUNT": "إزالة الحساب",
 		"REMOVE_EVERYWHERE": "إزالة من كل مكان",
 		"DELETE_ACCOUNT": "حذف هذا الحساب",
@@ -90,6 +98,9 @@
 		"TRANSFERT_OWNERSHIP": "نقل الملكية",
 		"TRANSFERT_OWNERSHIP_TO": "نقل الملكية الكاملة للفريق إلى مستخدم آخر",
 		"REMOVE": "إزالة",
+		"REMOVED": "تمت إزالته",
+		"ADDED": "تمت إضافته",
+		"AND_X_OTHERS": "و {count} آخرين",
 		"REMOVE_TEAM": "إزالة الفريق",
 		"DISPOSE_TEAM": "التخلص من الفريق",
 		"QUIT_TEAM": "مغادرة الفريق",
@@ -175,7 +186,11 @@
 		"REGISTER": "سجل الآن!",
 		"CONTACT": "جهة الاتصال",
 		"ENABLED": "يُمكَِن",
-		"DISABLED": "إبطال",
+		"DISABLED": "معطل",
+		"UNKNOWN": "غير معروف",
+		"RATE": "معدل",
+		"FLAT_FEE": "رسوم ثابتة",
+		"MILESTONES": "المعالم",
 		"THEME": "الموضوع",
 		"TIME_ZONE": "المنطقة الزمنية",
 		"EDIT": "تعديل",
@@ -216,7 +231,17 @@
 		"FULL_WIDTH": "العرض الكاملh",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "يرجى إيقاف المؤقت قبل تغيير المهمة",
 		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "يرجى إيقاف المؤقت قبل تغيير الفريق",
+		"WORKSPACE_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "يرجى إيقاف المؤقت قبل تغيير مساحة العمل",
 		"CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "يرجى إيقاف المؤقت قبل إنشاء عناصر جديدة",
+		"WORKSPACE_SWITCH_CONFIRM_TITLE": "تغيير مساحة العمل؟",
+		"WORKSPACE_SWITCH_CONFIRM_DESCRIPTION": "أنت على وشك تبديل مساحات العمل من \"{currentWorkspace}\" إلى \"{targetWorkspace}\".",
+		"WORKSPACE_SWITCH_CONFIRM_WARNING": "سيؤدي هذا الإجراء إلى إعادة تحميل التطبيق لمزامنة جميع البيانات.",
+		"WORKSPACE_SWITCH_CANCEL_ARIA": "إلغاء تغيير مساحة العمل",
+		"WORKSPACE_SWITCH_CONFIRM_ARIA": "تأكيد التغيير إلى {workspace}",
+		"WORKSPACE_SWITCH_CHANGING": "جاري التغيير...",
+		"WORKSPACE_SWITCH_CONFIRM_BUTTON": "تأكيد التغيير",
+		"CURRENT_WORKSPACE": "مساحة العمل الحالية",
+		"TARGET_WORKSPACE": "مساحة العمل المستهدفة",
 		"COLLABORATE_DIALOG_TITLE": "بدء التعاون",
 		"COLLABORATE_DIALOG_SUB_TITLE": "ادعُ عضوًا (أعضاء) وابدأ التعاون",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "بدء اجتماع أو تعاون لوحة",
@@ -360,6 +385,8 @@
 		"MEMBERS_COUNT": "عدد الأعضاء",
 		"REVIEW": "مراجعة",
 		"ARCHIVE": "أرشيف",
+		"ARCHIVE_SUCCESS": "تم الأرشفة بنجاح",
+		"ARCHIVE_ERROR": "فشل في الأرشفة",
 		"ARCHIVE_AT": "أرشفة في",
 		"RESTORE": "استعادة",
 		"HIDE": "إخفاء",
@@ -522,7 +549,8 @@
 					"endDateRequired": "تاريخ الانتهاء مطلوب.",
 					"endDateAfterStart": "يجب أن يكون تاريخ الانتهاء بعد تاريخ البدء.",
 					"invalidUrl": "يرجى إدخال رابط صالح.",
-					"uploadError": "حدث خطأ أثناء تحميل صورة المشروع، يرجى المحاولة مرة أخرى!"
+					"uploadError": "حدث خطأ أثناء تحميل صورة المشروع، يرجى المحاولة مرة أخرى!",
+					"descriptionWordLimit": "يجب أن يكون الوصف 5000 كلمة أو أقل."
 				},
 				"common": {
 					"search": "بحث ...",
@@ -554,6 +582,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "تعيين الفرق",
+					"noTeamsAvailable": "لا توجد فرق متاحة",
+					"teamsHelperText": "اختر فريقًا واحدًا على الأقل لهذا المشروع",
 					"assignMembers": "تعيين الأعضاء والمديرين",
 					"noMembers": "لا يوجد أعضاء أو مديرين",
 					"addMember": "إضافة عضو",
@@ -563,8 +594,17 @@
 					"noRelations": "لا توجد علاقات",
 					"addRelation": "إضافة علاقة",
 					"selectProject": "اختر مشروع...",
-					"selectRelationType": "اختر نوع العلاقة..."
+					"selectRelationType": "اختر نوع العلاقة...",
+					"activeTeamLocked": "الفريق الحالي مطلوب ولا يمكن إزالته"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "يرجى اختيار فريق واحد على الأقل"
 				}
+			},
+			"accessDenied": {
+				"title": "تم رفض الوصول",
+				"description": "هذا المشروع لا ينتمي إلى فريقك الحالي ({teamName}). قم بالتبديل إلى فريق لديه حق الوصول إلى هذا المشروع.",
+				"viewAllProjects": "عرض جميع المشاريع"
 			},
 			"addOrEditModal": {
 				"steps": {
@@ -576,11 +616,15 @@
 			},
 			"deleteModal": {
 				"title": "حذف المحدد؟",
-				"description": "أنت على وشك حذف هذا المشروع نهائيًا. اضغط على 'حذف' لتأكيد الإجراء"
+				"description": "أنت على وشك حذف هذا المشروع نهائيًا. اضغط على 'حذف' لتأكيد الإجراء",
+				"successDescription": "تم حذف المشروع بنجاح",
+				"errorDescription": "فشل في حذف المشروع. يرجى المحاولة مرة أخرى."
 			},
 			"archiveModal": {
 				"title": "أرشفة {projectName}؟",
-				"description": "سيتم التأثير على {affectedTasksCount} مهام عند أرشفة {projectName}."
+				"description": "سيتم التأثير على {affectedTasksCount} مهام عند أرشفة {projectName}.",
+				"successDescription": "تم أرشفة {projectName} بنجاح",
+				"errorDescription": "فشل في أرشفة المشروع. يرجى المحاولة مرة أخرى."
 			},
 			"restoreModal": {
 				"title": "استعادة المشروع",
@@ -675,14 +719,19 @@
 			"HAVE_PASSWORD": "هل لديك كلمة مرور؟",
 			"LOGIN_WITH_PASSWORD": "تسجيل الدخول باستخدام كلمة المرور",
 			"LOGIN_WITH_MAGIC_CODE": "قم بتسجيل الدخول باستخدام الرمز السحري",
-			"ERROR_SIGNIN": "خطأ في التوقيع"
+			"ERROR_SIGNIN": "خطأ في التوقيع",
+			"DEMO_ACCOUNTS_TITLE": "تسجيل الدخول تلقائيًا إلى حسابات العرض التوضيحي",
+			"DEMO_ACCOUNTS_SUBTITLE": "يرجى تحديد نوع الحساب أدناه.",
+			"DEMO_SUPER_ADMIN": "عرض توضيحي للمسؤول الأعلى",
+			"DEMO_ADMIN": "عرض توضيحي للمسؤول",
+			"DEMO_EMPLOYEE": "عرض توضيحي للموظف"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "يرجى إدخال معلومات تسجيل الدخول الخاصة بك."
 		},
 		"authTeam": {
-			"HEADING_TITLE": "إنشاء فريق جديد",
-			"HEADING_DESCRIPTION": "يرجى إدخال تفاصيل فريقك لإنشاء فريق جديد.",
+			"HEADING_TITLE": "سجل الآن",
+			"HEADING_DESCRIPTION": "أخبرنا المزيد عن نفسك و(اختيارياً) فريقك للتسجيل.",
 			"LOADING_TEXT": "نحن الآن ننشئ مساحة عملك الجديدة، انتظر...",
 			"LOADING_WORKSPACE": "نحن نقوم بتحميل مساحة العمل، انتظر...",
 			"REDIRECT_TO_WORSPACE_LOADING": "إعادة التوجيه إلى مساحة العمل الخاصة بك",
@@ -690,7 +739,15 @@
 			"INPUT_TEAM_NAME": "أدخل اسم فريقك",
 			"JOIN_EXISTING_TEAM": "الانضمام إلى فريق موجود؟",
 			"CREATE_FIRST_TEAM": "أنشئ أول فريق لك",
-			"CREATE_TEAM": "إنشاء فريق"
+			"CREATE_TEAM": "إنشاء فريق",
+			"GET_STARTED_TITLE": "كيف تريد أن تبدأ؟",
+			"START_SOLO": "ابدأ بمفردك",
+			"START_SOLO_NOTE": "يمكنك إنشاء فريق ودعوة الآخرين لاحقاً",
+			"CREATE_TEAM_NOW": "إنشاء فريق الآن",
+			"CONTINUE": "متابعة",
+			"GET_STARTED": "ابدأ",
+			"STEP_USER_INFO": "أخبرنا باسمك وبريدك الإلكتروني",
+			"STEP_CHOOSE_MODE": "اختر طريقك"
 		},
 		"settings": {
 			"BREADCRUMB": "[\"لوحة التحكم\", \"الإعدادات\"]",

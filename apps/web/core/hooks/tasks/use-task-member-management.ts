@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState, useOptimistic, startTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { useTeamTasks } from '@/core/hooks/organizations/teams/use-team-tasks';
+import { useUpdateTask } from '@/core/hooks/organizations/teams/use-update-task';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
@@ -22,7 +22,7 @@ type LoadingStates = Record<string, 'assign' | 'unassign' | null>;
  * Provides a clean API for assigning/unassigning members with immediate UI feedback
  */
 export function useTaskMemberManagement(task: TTask | null, memberList: TOrganizationTeamEmployee[]) {
-	const { updateTask } = useTeamTasks();
+	const { updateTask } = useUpdateTask();
 	const t = useTranslations();
 
 	// Optimistic state for immediate UI updates

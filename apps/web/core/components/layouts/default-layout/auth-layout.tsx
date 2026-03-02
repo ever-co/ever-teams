@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { PropsWithChildren, ReactNode } from 'react';
 
-import { APP_NAME, MAIN_PICTURE, MAIN_PICTURE_DARK } from '@/core/constants/config/constants';
+import { APP_NAME, MAIN_PICTURE, MAIN_PICTURE_DARK, IS_DEMO_MODE } from '@/core/constants/config/constants';
 import { clsxm } from '@/core/lib/utils';
 
 import { Footer } from './footer';
@@ -20,9 +20,9 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 	const t = useTranslations();
 
 	return (
-		<>
-			<div className="flex flex-row">
-				{/* Bg Cover side */}
+		<div className="flex flex-row">
+			{/* Bg Cover side - Hide in demo mode to give more space to login form */}
+			{!IS_DEMO_MODE && (
 				<div
 					className={clsxm(
 						'hidden overflow-hidden fixed w-1/2 h-full min-h-screen lg:flex lg:flex-col lg:justify-between bg-primary dark:bg-primary-xlight'
@@ -56,14 +56,12 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 									>
 										<Image
 											src={image}
-											layout="responsive"
-											objectFit="fill"
 											priority
-											width={2880}
-											height={2840}
+											width={1920}
+											height={1440}
 											alt={t('TITLE', { appName: APP_NAME })}
 											className={
-												'rounded-3xl origin-top-left scale-[0.95] 2xl:scale-[0.85] bg-transparent'
+												'rounded-3xl origin-top-left scale-[0.95] 2xl:scale-[0.85] bg-transparent w-full h-full object-fill'
 											}
 										/>
 									</div>
@@ -85,40 +83,38 @@ export function AuthLayout({ children, title, description, isAuthPage = true }: 
 						</Text.Label>
 					</div>
 				</div>
+			)}
 
+			<div
+				className={clsxm(
+					'w-full h-screen min-h-[500px]',
+					!IS_DEMO_MODE && 'lg:w-1/2',
+					'flex flex-col justify-between items-center ml-auto'
+				)}
+			>
 				<div
-					className={clsxm(
-						'w-full h-screen lg:w-1/2 min-h-[500px]',
-						'flex flex-col justify-between items-center ml-auto'
-					)}
+					className={cn(isAuthPage && 'flex flex-col items-center gap-10 justify-center', 'w-full flex-grow')}
 				>
-					<div
-						className={cn(
-							isAuthPage && 'flex flex-col items-center gap-10 justify-center',
-							'w-full flex-grow'
-						)}
-					>
-						{isAuthPage && (
-							<div className="flex flex-col items-center justify-center w-11/12 gap-1">
-								{title && (
-									<Text.Heading as="h1" className="text-center">
-										{title}
-									</Text.Heading>
-								)}
-								{description &&
-									(typeof description === 'string' ? (
-										<p className="text-sm text-center text-gray-400 md:text-lg">{description}</p>
-									) : (
-										description
-									))}
-							</div>
-						)}
+					{isAuthPage && (
+						<div className="flex flex-col items-center justify-center w-11/12 gap-1">
+							{title && (
+								<Text.Heading as="h1" className="text-center">
+									{title}
+								</Text.Heading>
+							)}
+							{description &&
+								(typeof description === 'string' ? (
+									<p className="text-sm text-center text-gray-400 md:text-lg">{description}</p>
+								) : (
+									description
+								))}
+						</div>
+					)}
 
-						{children}
-					</div>
-					<Footer className="md:flex-col h-[4.5rem] flex-shrink border xl:flex-row" />
+					{children}
 				</div>
+				<Footer className="md:flex-col h-[4.5rem] flex-shrink border xl:flex-row" />
 			</div>
-		</>
+		</div>
 	);
 }

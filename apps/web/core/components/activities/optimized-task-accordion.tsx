@@ -120,7 +120,7 @@ export const OptimizedTaskAccordion = memo<OptimizedTaskAccordionProps>(
 				{/* Accordion for organized task display */}
 				<Accordion
 					type="multiple"
-					className="text-sm space-y-4"
+					className="space-y-4 text-sm"
 					defaultValue={defaultAccordionValues}
 					onValueChange={handleAccordionChange}
 				>
@@ -128,10 +128,10 @@ export const OptimizedTaskAccordion = memo<OptimizedTaskAccordionProps>(
 					{firstFiveTasks.length > 0 && (
 						<AccordionItem
 							value={firstTasksAccordionValue}
-							className="border border-gray-200 dark:border-gray-700 rounded-lg"
+							className="rounded-lg border border-gray-200 dark:border-gray-700"
 						>
 							<AccordionTrigger className="px-4 py-3 hover:no-underline">
-								<div className="flex items-center justify-between w-full">
+								<div className="flex justify-between items-center w-full">
 									<Text className="font-medium text-left">
 										{t('common.RECENT_TASKS')} ({firstFiveTasks.length})
 									</Text>
@@ -145,10 +145,10 @@ export const OptimizedTaskAccordion = memo<OptimizedTaskAccordionProps>(
 					{remainingTasks.length > 0 && (
 						<AccordionItem
 							value={remainingTasksAccordionValue}
-							className="border border-gray-200 dark:border-gray-700 rounded-lg"
+							className="rounded-lg border border-gray-200 dark:border-gray-700"
 						>
 							<AccordionTrigger className="px-4 py-3 hover:no-underline">
-								<div className="flex items-center justify-between w-full">
+								<div className="flex justify-between items-center w-full">
 									<Text className="font-medium text-left">
 										{t('common.OLDER_TASKS')} ({remainingTasks.length})
 									</Text>

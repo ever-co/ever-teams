@@ -2,7 +2,7 @@ import { Spinner } from '@/core/components/common/spinner';
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
-import { useTeamTasks } from '@/core/hooks/organizations';
+import { useUpdateTask, useTeamTasksState } from '@/core/hooks/organizations';
 import { IInviteProps } from '../teams/invite-modal';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { useAtomValue } from 'jotai';
@@ -10,7 +10,8 @@ import { activeTeamTaskState } from '@/core/stores';
 
 const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const { updateTask, updateLoading, setActiveTask } = useTeamTasks();
+	const { updateTask, updateLoading } = useUpdateTask();
+	const { setActiveTask } = useTeamTasksState();
 	const t = useTranslations();
 	const handleChange = useCallback(async () => {
 		if (task) {
@@ -42,7 +43,7 @@ const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 					leaveFrom="opacity-100"
 					leaveTo="opacity-0"
 				>
-					<div className="fixed inset-0 bg-black bg-opacity-25 blur-xl" />
+					<div className="fixed inset-0 bg-black/25 blur-xl" />
 				</TransitionChild>
 
 				<div className="overflow-y-auto fixed inset-0">
@@ -64,7 +65,7 @@ const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 								</div>
 								<div className="flex justify-between items-center mt-2 w-full">
 									<button
-										className={`inline-flex justify-center items-center my-4 tracking-wide text-white transition-colors duration-200 transform w-[120px] h-[40px] ${updateLoading ? 'opacity-50' : ''} dark:text-primary bg-primary dark:bg-white rounded-[12px] hover:text-opacity-90 focus:outline-none`}
+										className={`inline-flex justify-center items-center my-4 tracking-wide text-white transition-colors duration-200 transform w-[120px] h-[40px] ${updateLoading ? 'opacity-50' : ''} dark:text-primary bg-primary dark:bg-white rounded-[12px] hover:text-white/90 focus:outline-none`}
 										type="submit"
 										onClick={handleChange}
 									>
@@ -76,7 +77,7 @@ const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 										{t('common.CONFIRM')}
 									</button>
 									<button
-										className={`inline-flex justify-center items-center my-4 tracking-wide text-white bg-gray-600 transition-colors duration-200 transform w-[120px] h-[40px] dark:bg-gray-700 rounded-[12px] hover:text-opacity-90 focus:outline-none`}
+										className={`inline-flex justify-center items-center my-4 tracking-wide text-white bg-gray-600 transition-colors duration-200 transform w-[120px] h-[40px] dark:bg-gray-700 rounded-[12px] hover:text-white/90 focus:outline-none`}
 										type="submit"
 										onClick={closeModal}
 									>

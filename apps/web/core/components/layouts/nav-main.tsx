@@ -200,12 +200,12 @@ export function NavMain({
 														>
 															<Link
 																href={subItem.url}
-																className="flex items-center w-full h-full gap-2"
+																className="flex gap-2 items-center w-full h-full"
 															>
 																{subItem.icon && (
 																	<div
 																		className={cn(
-																			'w-8 h-8 border rounded-full flex items-center justify-center'
+																			'flex flex-none justify-center items-center rounded-full border size-7 shrink-0 aspect-square'
 																		)}
 																	>
 																		{subItem.icon}

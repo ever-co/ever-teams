@@ -132,25 +132,48 @@ export function useTaskFilterCache<T>() {
 
 	const memoizeTaskFilter = useCallback(
 		<T>(filterFn: () => T, tasks: TTask[], filters: any, additionalDeps: any[] = []): T => {
-			// Create more intelligent cache key
+			// Create intelligent cache key that detects ANY member change on ANY task
+			// This ensures cache invalidation when task members are updated (assign/unassign)
+
+			// Calculate total members across ALL tasks
+			const totalMembersAllTasks = tasks.reduce((sum, t) => sum + (t.members?.length || 0), 0);
+
+			// Create a signature of ALL member userIds across ALL tasks
+			// This detects: additions, removals, AND swaps (same count but different members)
+			// Uses first 8 chars of userId to keep string size manageable while maintaining uniqueness
+			const allMembersSignature = tasks
+				.map(
+					(t) =>
+						t.members
+							?.map((m) => (m.userId || m.user?.id || '').slice(0, 8))
+							.sort()
+							.join('') || ''
+				)
+				.join('-');
+
+			// Checksum of ALL task IDs to detect task replacements/reordering
+			// Uses first 8 chars of each ID to keep string manageable (8 chars × N tasks)
+			// This fixes the edge case where middle tasks are replaced with same member sets
+			const idsChecksum = tasks.map((t) => t.id?.slice(0, 8) || '').join('');
+
 			const taskSignature =
 				tasks.length > 0
 					? {
 							length: tasks.length,
-							firstId: tasks[0]?.id,
-							lastId: tasks[tasks.length - 1]?.id,
-							checksum: tasks
-								.slice(0, 5)
-								.map((t) => t.id)
-								.join(',') // Sample checksum
+							// ID checksum detects any task replacement or reordering
+							idsChecksum,
+							// Total members count - quick check for additions/removals
+							totalMembers: totalMembersAllTasks,
+							// Full member signature - detects ANY change on ANY task (including swaps)
+							membersSignature: allMembersSignature
 						}
-					: { length: 0 };
+					: { length: 0, idsChecksum: '', totalMembers: 0, membersSignature: '' };
 
-			// Create efficient cache key without expensive JSON.stringify
+			// Create cache key that includes signatures for quick comparison
 			const filterKeys = Object.keys(filters || {})
 				.sort()
 				.join(',');
-			const cacheKey = `task-filter-${taskSignature.length}-${filterKeys}-${Object.keys(filters || {}).length}`;
+			const cacheKey = `task-filter-${taskSignature.length}-${taskSignature.idsChecksum.length}-${taskSignature.totalMembers}-${filterKeys}`;
 
 			return cache.memoize(filterFn, [taskSignature, filters, ...additionalDeps], cacheKey);
 		},

@@ -1,4 +1,5 @@
 import { useModal } from '@/core/hooks';
+import { useIssueTypesQuery } from '@/core/hooks/tasks/use-issue-types-query';
 import { clsxm } from '@/core/lib/utils';
 import { BackButton, Button, Modal, Text } from '@/core/components';
 import { NoteIcon, BugIcon, Square4StackIcon, Square4OutlineIcon } from 'assets/svg';
@@ -12,8 +13,7 @@ import { Nullable } from '@/core/types/generics/utils';
 import { EIssueType } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Select } from '../features/projects/add-or-edit-project/steps/basic-information-form';
-import { useAtomValue } from 'jotai';
-import { issueTypesListState } from '@/core/stores';
+
 import Image from 'next/image';
 import {
 	IActiveTaskStatuses,
@@ -25,7 +25,7 @@ import { useActiveTaskStatus } from '@/core/hooks/tasks/use-active-task-status';
 import { StatusDropdown, TaskStatus } from './task-status';
 import { toast } from 'sonner';
 
-const defaultTaskClasses = 'w-full min-w-[10px] flex-none aspect-square max-w-[12px] text-white';
+const defaultTaskClasses = 'w-full min-w-3 flex-none aspect-square max-w-4 text-white';
 export const taskIssues: TStatus<EIssueType> = {
 	Bug: {
 		icon: <BugIcon className={cn(defaultTaskClasses)} />,
@@ -70,7 +70,7 @@ export function TaskIssuesDropdown({
 	taskStatusClassName?: string;
 }) {
 	const { isOpen, closeModal } = useModal();
-	const taskIssues = useAtomValue(issueTypesListState);
+	const { issueTypes: taskIssues } = useIssueTypesQuery();
 	const [taskIssueType, setTaskIssueType] = useState(defaultValue ?? null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [previousValue, setPreviousValue] = useState<EIssueType | null>(defaultValue ?? null);
@@ -262,6 +262,7 @@ export function ActiveTaskIssuesDropdown({ ...props }: IActiveTaskStatuses<'issu
 			disabledReason={item?.name === 'Epic' ? t('pages.taskDetails.TASK_IS_ALREADY_EPIC') : ''}
 			taskStatusClassName={props.taskStatusClassName}
 			isLoading={isLocalLoading}
+			titleClassName={props.titleClassName}
 		/>
 	);
 }

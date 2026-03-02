@@ -93,6 +93,8 @@
 		"YES": "Oui",
 		"BASIC": "Basique",
 		"DELETE": "Supprimer",
+		"DELETE_SUCCESS": "Supprimé avec succès",
+		"DELETE_ERROR": "Échec de la suppression",
 		"DELETE_ALL_DATA": "Supprimer toutes les données",
 		"DONT_HAVE_ACCOUNT": "Vous n'avez pas de compte ?",
 		"MEET": "Rencontrer",
@@ -104,6 +106,12 @@
 		"EDIT_TASK": "Modifier la tâche",
 		"ASSIGN_TASK": "Assigner la tâche",
 		"ASSIGN_TASK_TO": "Assigner la tâche",
+		"ASSIGN_TASK_TO_ME": "M'assigner la tâche",
+		"UNASSIGN_TASK_FROM_ME": "Me désassigner de la tâche",
+		"TASK_ASSIGNED_TO_ME": "Tâche assignée à vous",
+		"TASK_UNASSIGNED_FROM_ME": "Tâche désassignée de vous",
+		"TASK_ASSIGN_ERROR": "Échec de l'assignation de la tâche",
+		"TASK_UNASSIGN_ERROR": "Échec de la désassignation de la tâche",
 		"REMOVE_ACCOUNT": "Supprimer le compte",
 		"REMOVE_EVERYWHERE": "Supprimer partout",
 		"DELETE_ACCOUNT": "Supprimer ce compte",
@@ -113,6 +121,9 @@
 		"TRANSFERT_OWNERSHIP": "Transférer la propriété",
 		"TRANSFERT_OWNERSHIP_TO": "Transférer la propriété complète de l'équipe à un autre utilisateur",
 		"REMOVE": "Supprimer",
+		"REMOVED": "Retiré",
+		"ADDED": "Ajouté",
+		"AND_X_OTHERS": "et {count} autre(s)",
 		"REMOVE_TEAM": "Supprimer l'équipe",
 		"DISPOSE_TEAM": "Disposer de l'équipe",
 		"QUIT_TEAM": "Quitter l'équipe",
@@ -196,7 +207,11 @@
 		"USER_AVATAR": "Avatar utilisateur",
 		"CONTACT": "Contact",
 		"ENABLED": "Activer",
-		"DISABLED": "Désactiver",
+		"DISABLED": "Désactivé",
+		"UNKNOWN": "Inconnu",
+		"RATE": "Taux",
+		"FLAT_FEE": "Forfait",
+		"MILESTONES": "Jalons",
 		"THEME": "Thème",
 		"TIME_ZONE": "Fuseau horaire",
 		"EDIT": "Modifier",
@@ -237,7 +252,17 @@
 		"FULL_WIDTH": "Pleine largeur",
 		"TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Veuillez arrêter la minuterie avant de modifier la tâche",
 		"TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Veuillez arrêter la minuterie avant de changer d'équipe",
+		"WORKSPACE_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Veuillez arrêter la minuterie avant de changer d'espace de travail",
 		"CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING": "Veuillez arrêter la minuterie avant de créer de nouveaux éléments",
+		"WORKSPACE_SWITCH_CONFIRM_TITLE": "Changer d'espace de travail ?",
+		"WORKSPACE_SWITCH_CONFIRM_DESCRIPTION": "Vous êtes sur le point de changer d'espace de travail de \"{currentWorkspace}\" vers \"{targetWorkspace}\".",
+		"WORKSPACE_SWITCH_CONFIRM_WARNING": "Cette action rechargera l'application pour synchroniser toutes les données.",
+		"WORKSPACE_SWITCH_CANCEL_ARIA": "Annuler le changement d'espace de travail",
+		"WORKSPACE_SWITCH_CONFIRM_ARIA": "Confirmer le changement vers {workspace}",
+		"WORKSPACE_SWITCH_CHANGING": "Changement en cours...",
+		"WORKSPACE_SWITCH_CONFIRM_BUTTON": "Confirmer le changement",
+		"CURRENT_WORKSPACE": "espace de travail actuel",
+		"TARGET_WORKSPACE": "espace de travail cible",
 		"REGISTER": "S'inscrire",
 		"COLLABORATE_DIALOG_TITLE": "Démarrer la collaboration",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Inviter des membres et commencer la collaboration",
@@ -382,6 +407,8 @@
 		"MEMBERS_COUNT": "Nombre de membres",
 		"REVIEW": "EXAMEN",
 		"ARCHIVE": "Archive",
+		"ARCHIVE_SUCCESS": "Archivé avec succès",
+		"ARCHIVE_ERROR": "Échec de l'archivage",
 		"ARCHIVE_AT": "Archiver le",
 		"RESTORE": "Restaurer",
 		"HIDE": "Cacher",
@@ -564,7 +591,8 @@
 					"endDateRequired": "La date de fin est obligatoire.",
 					"endDateAfterStart": "La date de fin doit être après la date de début.",
 					"invalidUrl": "Veuillez entrer une URL valide.",
-					"uploadError": "Une erreur s'est produite lors du téléchargement de l'image du projet, veuillez réessayer!"
+					"uploadError": "Une erreur s'est produite lors du téléchargement de l'image du projet, veuillez réessayer!",
+					"descriptionWordLimit": "La description doit contenir 5000 mots ou moins."
 				},
 				"common": {
 					"search": "Recherche ...",
@@ -596,6 +624,9 @@
 			},
 			"teamAndRelationsForm": {
 				"formFields": {
+					"assignTeams": "Assigner des Équipes",
+					"noTeamsAvailable": "Aucune équipe disponible",
+					"teamsHelperText": "Sélectionnez au moins une équipe pour ce projet",
 					"assignMembers": "Assigner des Membres et Gestionnaires",
 					"noMembers": "Aucun membre ou gestionnaire",
 					"addMember": "Ajouter un Membre",
@@ -605,8 +636,17 @@
 					"noRelations": "Aucune relation",
 					"addRelation": "Ajouter une Relation",
 					"selectProject": "Sélectionner un projet...",
-					"selectRelationType": "Choisir un type de relation..."
+					"selectRelationType": "Choisir un type de relation...",
+					"activeTeamLocked": "L'équipe actuelle est requise et ne peut pas être retirée"
+				},
+				"errors": {
+					"atLeastOneTeamRequired": "Veuillez sélectionner au moins une équipe"
 				}
+			},
+			"accessDenied": {
+				"title": "Accès Refusé",
+				"description": "Ce projet n'appartient pas à votre équipe actuelle ({teamName}). Changez d'équipe pour accéder à ce projet.",
+				"viewAllProjects": "Voir Tous les Projets"
 			},
 			"addOrEditModal": {
 				"steps": {
@@ -618,11 +658,15 @@
 			},
 			"deleteModal": {
 				"title": "Supprimer la sélection?",
-				"description": "Vous êtes sur le point de supprimer définitivement ce projet. Cliquez sur 'Supprimer' pour confirmer l'action"
+				"description": "Vous êtes sur le point de supprimer définitivement ce projet. Cliquez sur 'Supprimer' pour confirmer l'action",
+				"successDescription": "Le projet a été supprimé avec succès",
+				"errorDescription": "Impossible de supprimer le projet. Veuillez réessayer."
 			},
 			"archiveModal": {
 				"title": "Archiver {projectName}?",
-				"description": "{affectedTasksCount} tâches seront affectées par l'archivage de {projectName}."
+				"description": "{affectedTasksCount} tâches seront affectées par l'archivage de {projectName}.",
+				"successDescription": "{projectName} a été archivé avec succès",
+				"errorDescription": "Impossible d'archiver le projet. Veuillez réessayer."
 			},
 			"restoreModal": {
 				"title": "Restaurer le projet",
@@ -679,14 +723,19 @@
 			"HAVE_PASSWORD": "Vous avez un mot de passe ?",
 			"LOGIN_WITH_PASSWORD": "Connectez-vous avec le mot de passe",
 			"LOGIN_WITH_MAGIC_CODE": "Connectez-vous avec un code magique",
-			"ERROR_SIGNIN": "Erreur lors de la connexion"
+			"ERROR_SIGNIN": "Erreur lors de la connexion",
+			"DEMO_ACCOUNTS_TITLE": "Connexion automatique aux comptes de démonstration",
+			"DEMO_ACCOUNTS_SUBTITLE": "Veuillez sélectionner le type de compte ci-dessous.",
+			"DEMO_SUPER_ADMIN": "Démo Super Admin",
+			"DEMO_ADMIN": "Démo Admin",
+			"DEMO_EMPLOYEE": "Démo Employé"
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "S'il vous plaît entrer vos informations de connexion."
 		},
 		"authTeam": {
-			"HEADING_TITLE": "Créer une nouvelle équipe",
-			"HEADING_DESCRIPTION": "Veuillez entrer les détails de votre équipe pour créer une nouvelle équipe.",
+			"HEADING_TITLE": "Inscrivez-vous maintenant",
+			"HEADING_DESCRIPTION": "Dites-nous en plus sur vous et (facultativement) votre équipe pour vous inscrire.",
 			"LOADING_TEXT": "Nous créons maintenant votre nouvel espace de travail, patientez...",
 			"LOADING_WORKSPACE": "Nous chargeons l'espace de travail, patientez...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Redirection vers votre espace de travail...",
@@ -694,7 +743,15 @@
 			"INPUT_TEAM_NAME": "Saisissez le nom de votre équipe",
 			"JOIN_EXISTING_TEAM": "Rejoindre une équipe existante ?",
 			"CREATE_FIRST_TEAM": "Créer votre première équipe",
-			"CREATE_TEAM": "Créer une équipe"
+			"CREATE_TEAM": "Créer une équipe",
+			"GET_STARTED_TITLE": "Comment souhaitez-vous commencer ?",
+			"START_SOLO": "Commencer seul",
+			"START_SOLO_NOTE": "Vous pouvez créer une équipe et inviter d'autres personnes plus tard",
+			"CREATE_TEAM_NOW": "Créer une équipe maintenant",
+			"CONTINUE": "Continuer",
+			"GET_STARTED": "Commencer",
+			"STEP_USER_INFO": "Indiquez-nous votre nom et votre e-mail",
+			"STEP_CHOOSE_MODE": "Choisissez votre voie"
 		},
 		"settings": {
 			"BREADCRUMB": "[\"Tableau de bord\", \"Paramètres\"]",

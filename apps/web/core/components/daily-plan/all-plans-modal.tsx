@@ -4,8 +4,10 @@ import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { ChevronRightIcon } from 'assets/svg';
 import { AddTasksEstimationHoursModal } from '../features/daily-plan/add-task-estimation-hours-modal';
-import { useDailyPlan } from '@/core/hooks';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
+import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Calendar } from '@/core/components/common/calendar';
 import moment from 'moment';
@@ -17,13 +19,13 @@ import { EverCard } from '../common/ever-card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { VerticalSeparator } from '../duplicated-components/separator';
 import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
+import { ERoleName } from '@/core/types/generics/enums/role';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
-import { myDailyPlanListState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
 
 interface IAllPlansModal {
 	closeModal: () => void;
 	isOpen: boolean;
+	employeeId?: string | null; //  Optional employeeId to view plans for a specific employee
 }
 
 type TCalendarTab = 'Today' | 'Tomorrow' | 'Calendar';
@@ -45,33 +47,34 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 		return moment(date1).toISOString().split('T')[0] === moment(date2).toISOString().split('T')[0];
 	}, []);
 
-	const { isOpen, closeModal } = props;
+	const { isOpen, closeModal, employeeId } = props;
 	const [showCalendar, setShowCalendar] = useState(false);
 	const [showCustomPlan, setShowCustomPlan] = useState(false);
 	const [customDate, setCustomDate] = useState<Date>(moment().toDate());
-	const myDailyPlans = useAtomValue(myDailyPlanListState);
 
-	const { pastPlans } = useDailyPlan();
+	//  Use specialized hooks with employeeId to get the correct employee's plans
+	const { employeeDailyPlans, employeePastPlans } = useEmployeeDailyPlans(employeeId ?? null);
+	const { createDailyPlan, createDailyPlanLoading } = useCreateDailyPlan();
 	const t = useTranslations();
 	const [navigationMode, setNavigationMode] = useState<TNavigationMode>('PLAN');
 	const sortedPlans = useMemo(
 		() =>
-			[...(myDailyPlans?.items || [])].sort((plan1, plan2) =>
+			[...(employeeDailyPlans?.items || [])].sort((plan1, plan2) =>
 				new Date(plan1.date).getTime() > new Date(plan2.date).getTime() ? 1 : -1
 			),
-		[myDailyPlans?.items]
+		[employeeDailyPlans?.items]
 	);
 	const currentPlanIndex = useMemo(
 		() => sortedPlans.findIndex((plan) => isSameDate(plan.date, moment(customDate).toDate())),
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[customDate, myDailyPlans?.items]
+		[customDate, employeeDailyPlans?.items]
 	);
 	const nextPlan = useMemo(
 		() =>
-			currentPlanIndex >= 0 && currentPlanIndex < myDailyPlans?.items?.length - 1
+			currentPlanIndex >= 0 && currentPlanIndex < employeeDailyPlans?.items?.length - 1
 				? sortedPlans[currentPlanIndex + 1]
 				: null,
-		[currentPlanIndex, myDailyPlans?.items?.length, sortedPlans]
+		[currentPlanIndex, employeeDailyPlans?.items?.length, sortedPlans]
 	);
 	const previousPlan = useMemo(
 		() => (currentPlanIndex > 0 ? sortedPlans[currentPlanIndex - 1] : null),
@@ -80,22 +83,25 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 
 	// Memoize today, tomorrow, and future plans
 	const todayPlan = useMemo(
-		() => myDailyPlans?.items?.find((plan: TDailyPlan) => isSameDate(plan.date, moment().toDate())),
-		[isSameDate, myDailyPlans?.items]
+		() => employeeDailyPlans?.items?.find((plan: TDailyPlan) => isSameDate(plan.date, moment().toDate())),
+		[isSameDate, employeeDailyPlans?.items]
 	);
 
 	const tomorrowPlan = useMemo(
-		() => myDailyPlans?.items?.find((plan: TDailyPlan) => isSameDate(plan.date, moment().add(1, 'days').toDate())),
-		[isSameDate, myDailyPlans?.items]
+		() =>
+			employeeDailyPlans?.items?.find((plan: TDailyPlan) =>
+				isSameDate(plan.date, moment().add(1, 'days').toDate())
+			),
+		[isSameDate, employeeDailyPlans?.items]
 	);
 
 	const selectedPlan = useMemo(
 		() =>
 			customDate &&
-			myDailyPlans?.items?.find((plan: TDailyPlan) => {
+			employeeDailyPlans?.items?.find((plan: TDailyPlan) => {
 				return isSameDate(plan.date.toString().split('T')[0], customDate.setHours(0, 0, 0, 0));
 			}),
-		[customDate, myDailyPlans?.items, isSameDate]
+		[customDate, employeeDailyPlans?.items, isSameDate]
 	);
 
 	// Handle modal close
@@ -142,7 +148,16 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	}, [selectedTab, todayPlan, tomorrowPlan, selectedPlan]);
 
 	const { data: user } = useUserQuery();
-	const { createDailyPlan, createDailyPlanLoading } = useDailyPlan();
+	const { isTeamManager } = useIsMemberManager(user);
+
+	const targetEmployeeId = employeeId ?? user?.employee?.id ?? null;
+	const isSelf = !targetEmployeeId || targetEmployeeId === user?.employee?.id;
+
+	const isAdmin = user?.role?.name
+		? [ERoleName.ADMIN, ERoleName.SUPER_ADMIN].includes(user.role.name as ERoleName)
+		: false;
+
+	const canEditPlans = isSelf || isTeamManager || isAdmin;
 
 	// Set the related tab for today and tomorrow dates
 	const handleCalendarSelect = useCallback(() => {
@@ -163,13 +178,15 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	}, [customDate, isSameDate]);
 
 	const createEmptyPlan = useCallback(async () => {
+		if (!canEditPlans) return;
+
 		try {
 			await createDailyPlan({
 				workTimePlanned: 0,
 				date: moment(customDate).format('YYYY-MM-DD'),
 				status: EDailyPlanStatus.OPEN,
 				tenantId: user?.tenantId ?? '',
-				employeeId: user?.employee?.id,
+				employeeId: targetEmployeeId ?? undefined,
 				organizationId: user?.employee?.organizationId!
 			});
 
@@ -178,10 +195,11 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 			console.log(error);
 		}
 	}, [
+		canEditPlans,
 		createDailyPlan,
 		customDate,
 		handleCalendarSelect,
-		user?.employee?.id,
+		targetEmployeeId,
 		user?.employee?.organizationId,
 		user?.tenantId
 	]);
@@ -189,7 +207,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	// Handle narrow navigation
 	const arrowNavigationHandler = useCallback(
 		async (date: Date) => {
-			const existPlan = myDailyPlans?.items?.find((plan: TDailyPlan) => {
+			const existPlan = employeeDailyPlans?.items?.find((plan: TDailyPlan) => {
 				return isSameDate(plan.date.toString().split('T')[0], date.setHours(0, 0, 0, 0));
 			});
 
@@ -213,7 +231,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 				}
 			}
 		},
-		[isSameDate, myDailyPlans?.items, navigationMode, selectedPlan]
+		[isSameDate, employeeDailyPlans?.items, navigationMode, selectedPlan]
 	);
 
 	// Handle navigation  between plans
@@ -266,9 +284,9 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 			isOpen={isOpen}
 			customCloseModal={handleCloseModal}
 			closeModal={() => null}
-			className={clsxm('w-[36rem]')}
+			className={clsxm('px-3 py-4 w-full max-w-2xl min-w-xl md:px-6 md:py-5')}
 		>
-			<EverCard className="overflow-hidden w-full h-full" shadow="custom">
+			<EverCard className="overflow-hidden w-full h-full p-0!" shadow="custom">
 				<div className="flex flex-col gap-3 w-full">
 					<div className="flex relative justify-center items-center w-full h-12">
 						{selectedTab === 'Calendar' && showCustomPlan && (
@@ -311,7 +329,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 								</li>
 							))}
 						</ul>
-						<div className="flex justify-between items-center h-8 rounded border">
+						<div className="flex justify-between items-center h-8 rounded-sm border">
 							<span
 								onClick={() =>
 									navigationMode === 'DATE'
@@ -346,8 +364,8 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 											<FuturePlansCalendar
 												selectedPlan={customDate}
 												setSelectedPlan={setCustomDate}
-												plans={myDailyPlans?.items}
-												pastPlans={pastPlans}
+												plans={employeeDailyPlans?.items}
+												pastPlans={employeePastPlans}
 												handleCalendarSelect={handleCalendarSelect}
 												createEmptyPlan={createEmptyPlan}
 											/>
@@ -365,7 +383,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 										{t('common.CANCEL')}
 									</Button>
 									<Button
-										disabled={!customDate || createDailyPlanLoading}
+										disabled={!customDate || createDailyPlanLoading || !canEditPlans}
 										variant="default"
 										type="submit"
 										className={clsxm(
@@ -393,6 +411,8 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 										isOpen={isOpen}
 										closeModal={handleCloseModal}
 										selectedDate={customDate}
+										employeeId={employeeId}
+										canEdit={canEditPlans}
 									/>
 								) : customDate ? (
 									<AddTasksEstimationHoursModal
@@ -401,6 +421,8 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 										isOpen={isOpen}
 										closeModal={handleCloseModal}
 										selectedDate={customDate}
+										employeeId={employeeId}
+										canEdit={canEditPlans}
 									/>
 								) : (
 									<div className="flex justify-center items-center h-full">

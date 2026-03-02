@@ -83,12 +83,12 @@ const CalendarPage = () => {
 				)}
 				<div className="fixed top-20 flex flex-col border-b-[1px] dark:border-gray-800 z-10 mx-0 w-full bg-white dark:bg-dark-high shadow-lg shadow-gray-100 dark:shadow-gray-700 ">
 					<Container fullWidth={fullWidth}>
-						<div className="flex flex-row items-start justify-between mt-12 bg-white dark:bg-dark-high">
-							<div className="flex items-center justify-center h-10 gap-8">
+						<div className="flex flex-row justify-between items-start mt-12 bg-white dark:bg-dark-high">
+							<div className="flex gap-8 justify-center items-center h-10">
 								<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 								<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 							</div>
-							<div className="flex items-center justify-center h-10 gap-1 w-max">
+							<div className="flex gap-1 justify-center items-center w-max h-10">
 								<HeaderTabs kanban={true} linkAll={true} />
 							</div>
 						</div>

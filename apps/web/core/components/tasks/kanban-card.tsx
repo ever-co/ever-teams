@@ -1,25 +1,27 @@
-import { DraggableProvided } from '@hello-pangea/dnd';
-import PriorityIcon from '@/core/components/svgs/priority-icon';
-import { useTaskStatistics, useTeamMemberCard, useTimerView } from '@/core/hooks';
-import { ImageOverlapperProps } from '../common/image-overlapper';
-import Link from 'next/link';
-import CircularProgress from '@/core/components/svgs/circular-progress';
-import { secondsToTime } from '@/core/lib/helpers/index';
-import { activeTeamState, activeTeamTaskId, activeTeamTaskState } from '@/core/stores';
 import { useAtom, useAtomValue } from 'jotai';
-import { HorizontalSeparator } from '../duplicated-components/separator';
-import { ITag } from '@/core/types/interfaces/tag/tag';
-import { ETaskPriority } from '@/core/types/generics/enums/task';
-import { TTask } from '@/core/types/schemas/task/task.schema';
-import { TTaskStatistics } from '@/core/types/interfaces/task/task';
+import Link from 'next/link';
 
-import { LazyImageComponent, LazyMenuKanbanCard } from '@/core/components/optimized-components/kanban';
 import {
-	LazyTaskAllStatusTypes,
-	LazyTaskInput,
-	LazyTaskIssueStatus
+    LazyImageComponent, LazyMenuKanbanCard
+} from '@/core/components/optimized-components/kanban';
+import {
+    LazyTaskAllStatusTypes, LazyTaskInput, LazyTaskIssueStatus
 } from '@/core/components/optimized-components/tasks';
+import CircularProgress from '@/core/components/svgs/circular-progress';
+import PriorityIcon from '@/core/components/svgs/priority-icon';
+import { useTaskStatistics, useTimerView } from '@/core/hooks';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { secondsToTime } from '@/core/lib/helpers/index';
+import { getTaskTotalWorkedDuration } from '@/core/lib/utils/task.utils';
+import { activeTeamState, activeTeamTaskId, activeTeamTaskState } from '@/core/stores';
+import { ETaskPriority } from '@/core/types/generics/enums/task';
+import { ITag } from '@/core/types/interfaces/tag/tag';
+import { TTaskStatistics } from '@/core/types/interfaces/task/task';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { DraggableProvided } from '@hello-pangea/dnd';
+
+import { ImageOverlapperProps } from '../common/image-overlapper';
+import { HorizontalSeparator } from '../duplicated-components/separator';
 
 function getStyle(provided: DraggableProvided, style: any) {
 	if (!style) {
@@ -142,15 +144,7 @@ export default function Item(props: ItemProps) {
 
 	const members = activeTeam?.members || [];
 	const currentUser = members.find((m) => m.employee?.userId === user?.id);
-	let totalWorkedTasksTimer = 0;
-	activeTeam?.members?.forEach((member) => {
-		const totalWorkedTasks = member?.totalWorkedTasks?.find((i: TTask) => i.id === item?.id) || null;
-		if (totalWorkedTasks) {
-			totalWorkedTasksTimer += totalWorkedTasks.duration || 0;
-		}
-	});
-
-	const memberInfo = useTeamMemberCard(currentUser);
+	const totalWorkedTasksTimer = getTaskTotalWorkedDuration(activeTeam?.members, item.id);
 
 	const taskAssignee: ImageOverlapperProps[] =
 		item.members?.map((member: any) => {
@@ -162,7 +156,7 @@ export default function Item(props: ItemProps) {
 		}) || [];
 
 	const progress = getEstimation(null, item, totalWorkedTasksTimer || 1, item.estimate || 0);
-	const currentMember = activeTeam?.members?.find((member) => member.id === memberInfo.member?.id || item?.id);
+	const currentMember = activeTeam?.members?.find((member) => member.id === currentUser?.id);
 
 	const {
 		hours: h,

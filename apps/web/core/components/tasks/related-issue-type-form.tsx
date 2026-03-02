@@ -3,13 +3,15 @@ import { Button, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { StatusesListCard } from '../settings/list-card';
 
-import { useRefetchData, useTaskRelatedIssueType } from '@/core/hooks';
-import { taskRelatedIssueTypeListState } from '@/core/stores';
+import { useRefetchData } from '@/core/hooks';
+import { useTaskRelatedIssueTypesQuery } from '@/core/hooks/tasks/use-task-related-issue-types-query';
+import { useCreateTaskRelatedIssueType } from '@/core/hooks/tasks/use-create-task-related-issue-type';
+import { useEditTaskRelatedIssueType } from '@/core/hooks/tasks/use-edit-task-related-issue-type';
+import { useDeleteTaskRelatedIssueType } from '@/core/hooks/tasks/use-delete-task-related-issue-type';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useAtomValue } from 'jotai';
 import { InputField } from '../duplicated-components/_input';
 import { ITaskRelatedIssueType } from '@/core/types/interfaces/task/related-issue-type';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
@@ -22,15 +24,10 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<ITaskRelatedIssueType | null>(null);
 
-	const taskRelatedIssueTypes = useAtomValue(taskRelatedIssueTypeListState);
-	const {
-		loading,
-		createTaskRelatedIssueType,
-		deleteTaskRelatedIssueType,
-		editTaskRelatedIssueType,
-		createTaskRelatedIssueTypeLoading,
-		editTaskRelatedIssueTypeLoading
-	} = useTaskRelatedIssueType();
+	const { taskRelatedIssueTypes, loading } = useTaskRelatedIssueTypesQuery();
+	const { createTaskRelatedIssueType, createTaskRelatedIssueTypeLoading } = useCreateTaskRelatedIssueType();
+	const { editTaskRelatedIssueType, editTaskRelatedIssueTypeLoading } = useEditTaskRelatedIssueType();
+	const { deleteTaskRelatedIssueType } = useDeleteTaskRelatedIssueType();
 	const { refetch } = useRefetchData();
 
 	useEffect(() => {
@@ -91,7 +88,7 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
 				<div className="flex w-full">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] w-full">
-						<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px]">
+						<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px]">
 							{t('pages.settingsTeam.RELATED_ISSUE_TYPE')}
 						</Text>
 
@@ -112,7 +109,7 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 
 							{(createNew || edit) && (
 								<>
-									<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400">
+									<Text className="flex-none grow-0 mb-2 text-lg font-normal text-gray-400">
 										{createNew && 'New'}
 										{edit && 'Edit'} {t('pages.settingsTeam.RELATED_TYPE')}
 									</Text>
@@ -158,7 +155,7 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 
 							{!formOnly && taskRelatedIssueTypes?.length > 0 && (
 								<>
-									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem]">
+									<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem]">
 										{t('pages.settingsTeam.LIST_OF_RELATED_TYPE')}
 									</Text>
 									<div className="flex flex-wrap gap-3 justify-center w-full sm:justify-start">

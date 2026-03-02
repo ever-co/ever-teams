@@ -86,7 +86,7 @@ export function ExportMenu({
 					{showModal && (
 						<Suspense fallback={<ExportPDFSkeleton />}>
 							<PDFDownloadLink
-								className="w-full h-full text-left"
+								className="w-full h-full pl-2 text-left"
 								document={pdfDocument}
 								fileName={fileName}
 								download={true}

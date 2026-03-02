@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { DEFAULT_APP_PATH } from '@/core/constants/config/constants';
 
 export default function Welcome() {
 	const { data: session, update }: any = useSession();
@@ -33,7 +34,7 @@ export default function Welcome() {
 			}
 		};
 		loadOAuthSession();
-		router.replace('/auth/passcode');
+		router.replace(DEFAULT_APP_PATH);
 	}, [router, session, update]);
 
 	return <BackdropLoader show={true} title={t('pages.authTeam.LOADING_TEXT')} />;

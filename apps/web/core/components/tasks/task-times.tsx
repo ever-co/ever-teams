@@ -1,8 +1,6 @@
 import { secondsToTime } from '@/core/lib/helpers/index';
-import { I_TeamMemberCardHook } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { Nullable } from '@/core/types/generics/utils';
-import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
@@ -14,11 +12,20 @@ import { useAtomValue } from 'jotai';
 import { activeTeamState } from '@/core/stores';
 import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
 
+/**
+ * Lightweight type for TaskTimes/TodayWorkedTime — only needs member.id to find currentMember in activeTeam.
+ * Accepts I_MemberIdentityHook or any object with { member?: { id } } thanks to structural typing.
+ */
+type TaskTimesMemberInfo = {
+	member?: TOrganizationTeamEmployee | null;
+	id?: string; // Legacy fallback for IEmployee-shaped objects
+};
+
 type Props = {
 	task: Nullable<TTask>;
 	isAuthUser: boolean;
 	activeAuthTask: boolean;
-	memberInfo?: I_TeamMemberCardHook | IEmployee | any;
+	memberInfo?: TaskTimesMemberInfo;
 	showDaily?: boolean;
 	showTotal?: boolean;
 	isBlock?: boolean;
@@ -120,7 +127,7 @@ function TimeInfo({
 				>
 					<div className="flex gap-x-4 items-center text-sm font-normal">
 						<span className="text-[#7B8089] text-center capitalize">{t('common.TODAY')}</span>
-						<Text className="text-[13px] text-nowrap whitespace-nowrap">
+						<Text className="text-xs text-nowrap whitespace-nowrap">
 							{daily.h}h : {daily.m}m
 						</Text>
 					</div>
