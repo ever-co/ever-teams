@@ -66,6 +66,7 @@ jobs:
         run: 'sudo npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^22.5.2'
 
       - name: Configure Registry
+        if: secrets.VERDACCIO_TOKEN != ''
         run: |
           echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
           echo "registry=https://packages.ever.co/" >> .npmrc
@@ -195,6 +196,7 @@ jobs:
         run: 'sudo npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^22.5.2'
 
       - name: Configure Registry
+        if: secrets.VERDACCIO_TOKEN != ''
         run: |
           echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
           echo "registry=https://packages.ever.co/" >> .npmrc
@@ -311,6 +313,7 @@ jobs:
         run: 'sudo npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^22.5.2'
 
       - name: Configure Registry
+        if: secrets.VERDACCIO_TOKEN != ''
         run: |
           echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
           echo "registry=https://packages.ever.co/" >> .npmrc
@@ -458,6 +461,7 @@ jobs:
           "PYTHON=$py"            | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Configure Registry
+        if: secrets.VERDACCIO_TOKEN != ''
         run: |
           echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
           echo "registry=https://packages.ever.co/" >> .npmrc
@@ -653,6 +657,7 @@ jobs:
           "PYTHON=$py"            | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Configure Registry
+        if: secrets.VERDACCIO_TOKEN != ''
         run: |
           echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
           echo "registry=https://packages.ever.co/" >> .npmrc

@@ -62,7 +62,8 @@ defaults: &defaults
     # Disable Angular CLI analytics
     NG_CLI_ANALYTICS: false
 
-# ----------------------------------------------------------------------------
+jobs:
+  # ----------------------------------------------------------------------------
   # Build Monorepo Root (Bootstrap/Install verification)
   # ----------------------------------------------------------------------------
   build-monorepo-root:

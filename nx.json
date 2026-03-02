@@ -30,7 +30,13 @@
 		"production": [
 			"default",
 			"!{projectRoot}/**/*.spec.ts",
-			"!{projectRoot}/**/*.test.ts"
+			"!{projectRoot}/**/*.spec.tsx",
+			"!{projectRoot}/**/*.test.ts",
+			"!{projectRoot}/**/*.test.tsx",
+			"!{projectRoot}/**/*.spec.js",
+			"!{projectRoot}/**/*.spec.jsx",
+			"!{projectRoot}/**/*.test.js",
+			"!{projectRoot}/**/*.test.jsx"
 		]
 	},
 	"generators": {

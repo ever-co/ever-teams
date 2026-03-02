@@ -61,6 +61,7 @@ jobs:
           sed -i 's|SENTRY_PROJECT_PLACEHOLDER|${{ secrets.EXPO_SENTRY_PROJECT }}|g' ./apps/mobile/eas.json
 
       - name: Configure Registry
+        if: secrets.VERDACCIO_TOKEN != ''
         run: |
           echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
           echo "registry=https://packages.ever.co/" >> .npmrc

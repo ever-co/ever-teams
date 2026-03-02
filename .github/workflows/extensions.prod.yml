@@ -30,6 +30,7 @@ jobs:
           cache: "yarn"
 
       - name: Configure Registry
+        if: secrets.VERDACCIO_TOKEN != ''
         run: |
           echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
           echo "registry=https://packages.ever.co/" >> .npmrc
