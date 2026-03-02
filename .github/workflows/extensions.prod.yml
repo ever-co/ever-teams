@@ -29,6 +29,11 @@ jobs:
           node-version: "24.14.0"
           cache: "yarn"
 
+      - name: Configure Registry
+        run: |
+          echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
+          echo "registry=https://packages.ever.co/" >> .npmrc
+
       - name: Install Packages
         run: |
           cd apps/extensions && yarn install --network-timeout 1000000 --frozen-lockfile

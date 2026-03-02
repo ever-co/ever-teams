@@ -60,6 +60,11 @@ jobs:
           sed -i 's|SENTRY_ORG_PLACEHOLDER|${{ secrets.SENTRY_ORG }}|g' ./apps/mobile/eas.json
           sed -i 's|SENTRY_PROJECT_PLACEHOLDER|${{ secrets.EXPO_SENTRY_PROJECT }}|g' ./apps/mobile/eas.json
 
+      - name: Configure Registry
+        run: |
+          echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
+          echo "registry=https://packages.ever.co/" >> .npmrc
+
       - name: Install Packages
         run: |
           yarn install --network-timeout 1000000 --frozen-lockfile

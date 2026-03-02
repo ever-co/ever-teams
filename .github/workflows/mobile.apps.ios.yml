@@ -63,6 +63,11 @@ jobs:
         run: |
           echo "${{ secrets.APPSTORE_API_PRIVATE_KEY }}" > ./apps/mobile/AuthKey_R9QZ5LP8NK.p8
 
+      - name: Configure Registry
+        run: |
+          echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
+          echo "registry=https://packages.ever.co/" >> .npmrc
+
       - name: Install Packages
         run: |
           yarn install --network-timeout 1000000 --frozen-lockfile
