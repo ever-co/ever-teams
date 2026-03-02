@@ -9,8 +9,7 @@ import AvatarStack from '@/core/components/common/avatar-stack';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { ProjectItemActions, ProjectViewDataType } from '..';
-import { useAtomValue } from 'jotai';
-import { taskStatusesState } from '@/core/stores';
+import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
 import { useProjectActionModal } from '@/core/hooks/use-project-action-modal';
 
 interface IGridItemProps {
@@ -23,7 +22,7 @@ export default function GridItem(props: IGridItemProps) {
 	const { data, isSelected, onSelect } = props;
 	const { openRestoreModal } = useProjectActionModal();
 
-	const taskStatuses = useAtomValue(taskStatusesState);
+	const { taskStatuses } = useTaskStatusesQuery();
 
 	const statusColorsMap: Map<string | undefined, string | undefined | null> = useMemo(() => {
 		return new Map(taskStatuses.map((status) => [status.name, status.color]));

@@ -1,3 +1,5 @@
+export * from './use-activity-filters';
+export * from './queries';
 export * from './use-manual-time';
 export * from './use-report-activity';
 export * from './use-start-stop-timer-handler';

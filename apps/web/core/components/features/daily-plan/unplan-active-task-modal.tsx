@@ -1,4 +1,5 @@
-import { useDailyPlan, useTimerView } from '@/core/hooks';
+import { useTimerView } from '@/core/hooks';
+import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { Button, Modal, Text } from '@/core/components';
 import { useCallback } from 'react';
 import { EverCard } from '../../common/ever-card';
@@ -29,7 +30,7 @@ export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 	const { closeModal, task, open, plan } = props;
 	const timerStatus = useAtomValue(timerStatusState);
 
-	const { removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan();
+	const { removeTaskFromPlan, removeTaskFromPlanLoading } = useUpdateDailyPlan();
 	const { stopTimer } = useTimerView();
 
 	const handleCloseModal = useCallback(() => {

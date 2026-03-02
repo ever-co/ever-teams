@@ -6,7 +6,7 @@ import { PlusIcon } from '@heroicons/react/24/solid';
 import { useState } from 'react';
 import { Spinner } from '../common/spinner';
 import { useTranslations } from 'next-intl';
-import { useOrganizationTeams } from '@/core/hooks/organizations';
+import { useOrganizationTeamsQuery, useCreateOrganizationTeam } from '@/core/hooks/organizations';
 import { clsxm } from '@/core/lib/utils';
 import { activeTeamState, organizationTeamsState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
@@ -15,7 +15,8 @@ export const TeamsDropDown = () => {
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const teams = useAtomValue(organizationTeamsState);
-	const { setActiveTeam, getOrganizationTeamsLoading } = useOrganizationTeams();
+	const { getOrganizationTeamsLoading } = useOrganizationTeamsQuery();
+	const { setActiveTeam } = useCreateOrganizationTeam();
 	const t = useTranslations();
 	return (
 		<div className="w-[290px] max-w-sm">
@@ -117,7 +118,7 @@ export const TeamsDropDown = () => {
 };
 
 function CreateNewTeam({ setEdit }: { setEdit: (value: React.SetStateAction<boolean>) => void }) {
-	const { createOTeamLoading, createOrganizationTeam } = useOrganizationTeams();
+	const { loading: createOTeamLoading, createOrganizationTeam } = useCreateOrganizationTeam();
 	const [error, setError] = useState<string | null>(null);
 	const t = useTranslations();
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

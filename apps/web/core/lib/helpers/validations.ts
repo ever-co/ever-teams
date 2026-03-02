@@ -1,4 +1,4 @@
-import { RECAPTCHA_SITE_KEY, smtpConfiguration } from '@/core/constants/config/constants';
+import { AUTH_CODE_LENGTH, RECAPTCHA_SITE_KEY, smtpConfiguration } from '@/core/constants/config/constants';
 import { IRegisterDataAPI } from '@/core/types/interfaces/auth/auth';
 import { I_SMTPRequest } from '@/core/types/interfaces/auth/custom-smtp';
 import { PHONE_REGEX, URL_REGEX } from './regex';
@@ -36,8 +36,8 @@ export const authFormValidate = (keys: (keyof IRegisterDataAPI)[], values: IRegi
 				}
 				break;
 			case 'code':
-				if (values['code'].trim().length < 6) {
-					err['code'] = 'Your invitation code must contain 6 digits';
+				if (values['code'].trim().length < AUTH_CODE_LENGTH) {
+					err['code'] = `Your invitation code must contain ${AUTH_CODE_LENGTH} characters`;
 				}
 				break;
 		}

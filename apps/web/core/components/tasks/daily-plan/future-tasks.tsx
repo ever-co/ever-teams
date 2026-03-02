@@ -8,28 +8,34 @@ import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
 import { useMemo } from 'react';
-import { filterDailyPlan, filterDailyPlansByEmployee } from '@/core/hooks/daily-plans/use-filter-date-range';
+import {
+	filterDailyPlan,
+	filterDailyPlansByEmployee,
+	filterDailyPlansByTasks
+} from '@/core/hooks/daily-plans/use-filter-date-range';
 import { TUser } from '@/core/types/schemas';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
-import { useDailyPlan } from '@/core/hooks';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 
 export function FutureTasks({
 	profile,
 	user,
 	employeeId,
-	filterByEmployee = false
+	filterByEmployee = false,
+	filteredTaskIds
 }: {
 	profile: any;
 	user?: TUser;
 	employeeId?: string; // Accept employeeId directly from parent
 	filterByEmployee?: boolean; // Filter tasks by employee (default: false = show all tasks)
+	filteredTaskIds?: string[]; // Filter plans by taskIds (default undefined = show all)
 }) {
 	// Use employeeId from props if provided, otherwise calculate from user
 	const targetEmployeeId = employeeId ?? user?.employee?.id ?? user?.employeeId ?? '';
-	const { futurePlans } = useDailyPlan(targetEmployeeId);
+	const { employeeFuturePlans } = useEmployeeDailyPlans(targetEmployeeId);
 	// Use a safe default instead of direct localStorage access
 	const { date } = useDateRange('Future Tasks');
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
@@ -38,7 +44,7 @@ export function FutureTasks({
 	// The previous useEffect was modifying futureDailyPlanTasks while depending on futurePlans, causing infinite loop
 	const futureDailyPlanTasks = useMemo(() => {
 		// First apply date filtering
-		let filteredData = filterDailyPlan(date as any, futurePlans);
+		let filteredData = filterDailyPlan(date as any, employeeFuturePlans);
 
 		// Then filter tasks for specific user if filterByEmployee flag is enabled
 		// By default (filterByEmployee = false), we show ALL tasks in the daily plan
@@ -46,10 +52,14 @@ export function FutureTasks({
 			filteredData = filterDailyPlansByEmployee(filteredData, user);
 		}
 
-		return filteredData;
-	}, [date, futurePlans, user, filterByEmployee]);
+		if (filteredTaskIds && filteredData) {
+			filteredData = filterDailyPlansByTasks(filteredData, filteredTaskIds);
+		}
 
-	if(!futureDailyPlanTasks) return null;
+		return filteredData;
+	}, [date, employeeFuturePlans, user, filterByEmployee, filteredTaskIds]);
+
+	if (!futureDailyPlanTasks) return null;
 	return (
 		<div className="flex flex-col gap-6">
 			{futureDailyPlanTasks?.length > 0 ? (

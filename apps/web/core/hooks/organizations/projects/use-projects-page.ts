@@ -1,24 +1,31 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useOrganizationProjects } from './use-organization-projects';
+import { useOrganizationProjectsPagination } from './use-organization-projects-pagination';
+import { useOrganizationProjectsQuery } from './use-organization-projects-query';
+import { useCreateOrganizationProject } from './use-create-organization-project';
+import { useEditOrganizationProject } from './use-edit-organization-project';
+import { useDeleteOrganizationProject } from './use-delete-organization-project';
 import { DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
 
 /**
- * Specialized hook for the projects page with enhanced filtering and pagination
- * This hook wraps useOrganizationProjects and provides page-specific functionality
+ * Specialized hook for the projects page with enhanced filtering and pagination.
+ * Composes granular hooks for optimal performance and bundle size.
  */
 export function useProjectsPage() {
 	const {
-		organizationProjectsWithPagination,
 		paginationParams,
 		updatePaginationParams,
 		resetPagination,
 		loadNextPage,
 		loadPreviousPage,
 		getOrganizationProjectsWithPaginationLoading,
-		organizationProjectsWithPaginationData,
-		...otherHookData
-	} = useOrganizationProjects();
+		organizationProjectsWithPaginationData
+	} = useOrganizationProjectsPagination();
+
+	const queryData = useOrganizationProjectsQuery();
+	const createData = useCreateOrganizationProject();
+	const editData = useEditOrganizationProject();
+	const deleteData = useDeleteOrganizationProject();
 
 	// Page-specific state
 	const [searchTerm, setSearchTerm] = useState('');
@@ -166,7 +173,10 @@ export function useProjectsPage() {
 		applyFilters,
 		debouncedApplyFilters,
 
-		// Original hook data for backward compatibility
-		...otherHookData
+		// Granular hook data
+		...queryData,
+		...createData,
+		...editData,
+		...deleteData
 	};
 }

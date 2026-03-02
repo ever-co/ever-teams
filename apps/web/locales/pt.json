@@ -591,7 +591,8 @@
 					"endDateRequired": "A data de término é obrigatória.",
 					"endDateAfterStart": "A data de término deve ser posterior à data de início.",
 					"invalidUrl": "Por favor, insira um URL válido.",
-					"uploadError": "Algo deu errado ao enviar a imagem do projeto, tente novamente!"
+					"uploadError": "Algo deu errado ao enviar a imagem do projeto, tente novamente!",
+					"descriptionWordLimit": "A descrição deve ter 5000 palavras ou menos."
 				},
 				"common": {
 					"search": "Buscar ...",

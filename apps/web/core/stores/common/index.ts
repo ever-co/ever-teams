@@ -5,5 +5,4 @@ export * from './setting';
 export * from './header-tabs';
 export * from './public';
 export * from './menu';
-export * from './request-to-join';
 export * from './timezones';

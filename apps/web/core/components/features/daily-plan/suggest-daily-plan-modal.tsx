@@ -7,7 +7,7 @@ import {
 } from '@/core/constants/config/constants';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { useTimer } from '@/core/hooks';
+import { useTimerPlanStatus } from '@/core/hooks/timer';
 import { usePathname } from 'next/navigation';
 import { EverCard } from '../../common/ever-card';
 import { useAtomValue } from 'jotai';
@@ -21,7 +21,7 @@ interface ISuggestDailyPlanModalProps {
 
 export function SuggestDailyPlanModal(props: ISuggestDailyPlanModalProps) {
 	const { isOpen, closeModal } = props;
-	const { hasPlan } = useTimer();
+	const { hasPlan } = useTimerPlanStatus();
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const { data: user } = useUserQuery();

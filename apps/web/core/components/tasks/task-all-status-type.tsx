@@ -11,13 +11,13 @@ import { CalendarIcon } from '@radix-ui/react-icons';
 import { FilterTabs } from '../users/user-profile-plans';
 import ProjectIcon from '@/core/components/svgs/project-icon';
 import { useAtomValue } from 'jotai';
-import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useTaskPrioritiesValue } from '@/core/hooks/tasks/use-task-priorities-value';
 import { useTaskSizesValue } from '@/core/hooks/tasks/use-task-sizes-value';
 import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
 import { dailyPlanListState } from '@/core/stores';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 
 export function TaskAllStatusTypes({
 	task,
@@ -38,7 +38,7 @@ export function TaskAllStatusTypes({
 	const taskSizes = useTaskSizesValue();
 	const taskLabels = useTaskLabelsValue();
 	const taskStatus = useTaskStatusValue();
-	const projects = useAtomValue(organizationProjectsState);
+	const { organizationProjects: projects } = useOrganizationProjectsQuery();
 	const taskProject = useMemo(
 		() => (task ? projects.find((project) => project.tasks?.some((el: TTask) => el.id === task.id)) : null),
 		[projects, task]
@@ -72,8 +72,8 @@ export function TaskAllStatusTypes({
 	const taskId = task ? planBadgeContPast(dailyPlan.items, task.id) : '';
 
 	return (
-		<div className="relative flex flex-col justify-center w-full h-full">
-			<div ref={viewportRef} className="relative w-full overflow-hidden">
+		<div className="flex relative flex-col justify-center w-full h-full">
+			<div ref={viewportRef} className="overflow-hidden relative w-full">
 				<div className={clsxm('flex justify-start items-center space-x-2 h-6', className)}>
 					{showStatus && task?.status && taskStatus[task?.status] && (
 						<TaskStatus
@@ -103,7 +103,7 @@ export function TaskAllStatusTypes({
 						/>
 					)}
 					{taskProject && (
-						<div className="flex items-center justify-center h-full gap-1 px-2 bg-slate-200">
+						<div className="flex gap-1 justify-center items-center px-2 h-full bg-slate-200">
 							<ProjectIcon /> <span className="text-xs truncate">{taskProject.name}</span>
 						</div>
 					)}

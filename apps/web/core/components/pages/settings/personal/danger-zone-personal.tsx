@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useModal, useOrganizationTeams, useUser } from '@/core/hooks';
+import { useModal, useDeleteOrganizationTeam, useUser } from '@/core/hooks';
 import { Button, Text } from '@/core/components';
 import Image from 'next/image';
 import { useCallback, useState } from 'react';
@@ -17,7 +17,7 @@ export const DangerZone = () => {
 	const { deleteUser, deleteUserLoading } = useUser();
 	const { data: user } = useUserQuery();
 
-	const { removeUserFromAllTeam, removeUserFromAllTeamLoading } = useOrganizationTeams();
+	const { removeUserFromAllTeam, removeUserFromAllTeamLoading } = useDeleteOrganizationTeam();
 	const handleRemoveUser = useCallback(() => {
 		if (user) {
 			return removeUserFromAllTeam(user.id);

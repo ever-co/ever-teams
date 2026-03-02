@@ -1,6 +1,6 @@
 import { EInvitationState, TInvitationState } from '@/core/types/schemas/user/invite.schema';
 import { useCallback, useState } from 'react';
-import { useTeamInvitations } from '../organizations';
+import { useInviteValidation } from '../invitations/use-invite-validation';
 import { userOrganizationService } from '@/core/services/client/api/users/user-organization.service';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams/team.service';
 import { CookiesDataType, setAuthCookies } from '@/core/lib/helpers/cookies';
@@ -11,7 +11,7 @@ export function useAcceptInvite() {
 		data: null,
 		error: null
 	});
-	const { acceptInvitationLoading, acceptInvitationMutation, validateInviteByCode } = useTeamInvitations();
+	const { acceptInvitationLoading, acceptInvitationMutation, validateInviteByCode } = useInviteValidation();
 
 	const handleAcceptInvitation = useCallback(
 		async ({

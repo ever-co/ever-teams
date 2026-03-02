@@ -1,7 +1,9 @@
 'use client';
 import React, { Suspense, useEffect } from 'react';
 
-import { useDailyPlan, useIsMemberManager, useTeamInvitations } from '@/core/hooks';
+import { useIsMemberManager } from '@/core/hooks';
+import { useMyInvitationsQuery } from '@/core/hooks/invitations/use-my-invitations-query';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { clsxm } from '@/core/lib/utils';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container } from '@/core/components';
@@ -40,7 +42,7 @@ import {
 	LazyTeamMemberHeader
 } from '@/core/components/optimized-components/teams';
 import { LazyChatwootWidget, LazyUnverifiedEmail, LazyNoTeam } from '@/core/components/optimized-components/common';
-import { activeTeamState, isTeamMemberState, isTrackingEnabledState, myInvitationsState } from '@/core/stores';
+import { activeTeamState, isTeamMemberState, isTrackingEnabledState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 function MainPage() {
@@ -54,12 +56,11 @@ function MainPage() {
 
 	const { data: user } = useUserQuery();
 	const employeeId = user?.employee?.id ?? user?.employeeId ?? '';
-	const { dailyPlan, outstandingPlans } = useDailyPlan(employeeId);
+	const { employeeOutstandingPlans, employeeSortedPlans } = useEmployeeDailyPlans(employeeId);
 
 	const { isTeamManager } = useIsMemberManager(user);
 
-	const myInvitationsList = useAtomValue(myInvitationsState);
-	const { myInvitations } = useTeamInvitations();
+	const { myInvitations: myInvitationsList, refetchMyInvitations } = useMyInvitationsQuery();
 	const [fullWidth, setFullWidth] = useAtom(fullWidthState);
 	const [view, setView] = useAtom(headerTabs);
 	const path = usePathname();
@@ -75,7 +76,8 @@ function MainPage() {
 		}
 		const lastTeamMembersViewMode = localStorage?.getItem(LAST_SELECTED_TEAM_MEMBERS_VIEW_MODE);
 		if (lastTeamMembersViewMode && path == '/') {
-			if (Object.values(IssuesView).includes(lastTeamMembersViewMode as IssuesView) &&
+			if (
+				Object.values(IssuesView).includes(lastTeamMembersViewMode as IssuesView) &&
 				lastTeamMembersViewMode != IssuesView.KANBAN
 			) {
 				setView(lastTeamMembersViewMode as IssuesView);
@@ -125,17 +127,19 @@ function MainPage() {
 												<LazyTeamInvitations
 													className="!m-0"
 													myInvitationsList={myInvitationsList}
-													myInvitations={myInvitations}
+													myInvitations={refetchMyInvitations}
 												/>
 											</Suspense>
 										)}
 										{/* TeamOutstandingNotifications - Only render when there are outstanding plans or manager notifications */}
-										{((outstandingPlans && outstandingPlans.length > 0) ||
-											(dailyPlan?.items && dailyPlan.items.length > 0 && isTeamManager)) && (
+										{((employeeOutstandingPlans && employeeOutstandingPlans.length > 0) ||
+											(employeeSortedPlans &&
+												employeeSortedPlans.length > 0 &&
+												isTeamManager)) && (
 											<Suspense fallback={<TeamNotificationsSkeleton />}>
 												<LazyTeamOutstandingNotifications
-													outstandingPlans={outstandingPlans}
-													dailyPlan={dailyPlan}
+													outstandingPlans={employeeOutstandingPlans}
+													dailyPlan={{ items: employeeSortedPlans }}
 													isTeamManager={isTeamManager}
 													user={user!}
 												/>

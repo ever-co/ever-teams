@@ -1,156 +1,52 @@
 'use client';
-import { taskStatusesState, activeTeamState, activeTeamIdState } from '@/core/stores';
+
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useFirstLoad } from '../common/use-first-load';
-import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
-import { taskStatusService } from '@/core/services/client/api/tasks/task-status.service';
-import { useCallbackRef, useConditionalUpdateEffect, useSyncRef } from '../common';
+import { useCallbackRef, useSyncRef } from '../common';
 import { TStatus, TStatusItem } from '@/core/types/interfaces/task/task-card';
-import { ITaskStatusCreate } from '@/core/types/interfaces/task/task-status/task-status';
-import { queryKeys } from '@/core/query/keys';
-import { ITaskStatusOrder } from '@/core/types/interfaces/task/task-status/task-status-order';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
 import { useMapToTaskStatusValues } from './use-map-to-task-status-values';
-import { useUserQuery } from '../queries/user-user.query';
-import { toast } from 'sonner';
+import { useTaskStatusesQuery } from './use-task-statuses-query';
+import { useCreateTaskStatus } from './use-create-task-status';
+import { useEditTaskStatus } from './use-edit-task-status';
+import { useDeleteTaskStatus } from './use-delete-task-status';
+import { useReorderTaskStatus } from './use-reorder-task-status';
 
+/**
+ * @deprecated This hook re-exports from specialized hooks for backward compatibility.
+ * For new code, prefer using the specific hooks directly:
+ * - `useTaskStatusesQuery` for read operations (list, loading, setTaskStatuses)
+ * - `useCreateTaskStatus` for task status creation
+ * - `useEditTaskStatus` for task status edits
+ * - `useDeleteTaskStatus` for task status deletion
+ * - `useReorderTaskStatus` for task status reordering
+ * - `useInvalidateTaskStatuses` for shared cache invalidation
+ */
 export function useTaskStatus() {
-	const activeTeamId = useAtomValue(activeTeamIdState);
-	const [taskStatuses, setTaskStatuses] = useAtom(taskStatusesState);
-	const { firstLoadData: firstLoadTaskStatusesData } = useFirstLoad();
-	const { data: user } = useUserQuery();
-
-	const activeTeam = useAtomValue(activeTeamState);
-	const queryClient = useQueryClient();
-
-	const teamId = activeTeam?.id || getActiveTeamIdCookie() || activeTeamId;
-	const organizationId = user?.employee?.organizationId || getOrganizationIdCookie();
-	const tenantId = user?.employee?.tenantId || getTenantIdCookie();
-
-	// useQuery for fetching task statuses
-	const taskStatusesQuery = useQuery({
-		queryKey: queryKeys.taskStatuses.byTeam(teamId),
-		queryFn: () => {
-			if (!organizationId || !teamId || !tenantId) {
-				throw new Error('Required parameters missing: organizationId, teamId, and tenantId are required');
-			}
-			return taskStatusService.getTaskStatuses();
-		},
-		enabled: Boolean(organizationId) && Boolean(teamId) && Boolean(tenantId)
-	});
-
-	// Mutations using useQuery pattern
-	const createTaskStatusMutation = useMutation({
-		mutationFn: (data: ITaskStatusCreate) => {
-			if (!tenantId || !teamId) {
-				throw new Error('Required parameters missing: tenantId, teamId is required');
-			}
-			const requestData = { ...data, organizationTeamId: teamId };
-			return taskStatusService.createTaskStatus(requestData);
-		},
-		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskStatuses.byTeam(teamId)
-				});
-		}
-	});
-
-	const updateTaskStatusMutation = useMutation({
-		mutationFn: ({ id, data }: { id: string; data: ITaskStatusCreate }) => {
-			if (!tenantId || !teamId) {
-				throw new Error('Required parameters missing: tenantId, teamId is required');
-			}
-			return taskStatusService.editTaskStatus({ taskStatusId: id, data });
-		},
-		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskStatuses.byTeam(teamId)
-				});
-		}
-	});
-
-	const deleteTaskStatusMutation = useMutation({
-		mutationFn: (id: string) => taskStatusService.deleteTaskStatus(id),
-		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskStatuses.byTeam(teamId)
-				});
-		}
-	});
-
-	const reorderTaskStatusMutation = useMutation({
-		mutationFn: (data: ITaskStatusOrder) => {
-			if (!tenantId) {
-				throw new Error('Required parameters missing: tenantId is required');
-			}
-			return taskStatusService.editTaskStatusOrder(data);
-		},
-		onSuccess: () => {
-			teamId &&
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.taskStatuses.byTeam(teamId)
-				});
-
-			toast.success('Task statuses reordered successfully');
-		},
-		onError: (error) => {
-			toast.error('Failed to reorder task statuses', {
-				description: error.message
-			});
-		}
-	});
-
-	/**
-	 * This helper function prevents:
-	 *
-	 * - Setting state unnecessarily on mount.
-	 */
-	useConditionalUpdateEffect(
-		() => {
-			if (taskStatusesQuery.data) {
-				setTaskStatuses(taskStatusesQuery.data.items);
-			}
-		},
-		[taskStatusesQuery.data],
-		Boolean(taskStatuses?.length)
-	);
-
-	const loadTaskStatuses = useCallback(async () => {
-		try {
-			const res = taskStatusesQuery.data;
-			return res;
-		} catch (error) {
-			console.error('Failed to load task statuses:', error);
-		}
-	}, [taskStatusesQuery.data]);
-
-	const handleFirstLoad = useCallback(() => {
-		loadTaskStatuses();
-		firstLoadTaskStatusesData();
-	}, [firstLoadTaskStatusesData, loadTaskStatuses]);
+	const queryData = useTaskStatusesQuery();
+	const createData = useCreateTaskStatus();
+	const editData = useEditTaskStatus();
+	const deleteData = useDeleteTaskStatus();
+	const reorderData = useReorderTaskStatus();
 
 	return {
-		taskStatuses: taskStatuses, // Use the atom state which gets updated by onSuccess
-		loading: taskStatusesQuery.isLoading,
+		// Query data
+		taskStatuses: queryData.taskStatuses,
+		loading: queryData.loading,
+		getTaskStatusesLoading: queryData.getTaskStatusesLoading,
+		setTaskStatuses: queryData.setTaskStatuses,
+		loadTaskStatuses: queryData.loadTaskStatuses,
+		firstLoadTaskStatusesData: queryData.firstLoadTaskStatusesData,
 
-		getTaskStatusesLoading: taskStatusesQuery.isLoading,
-		createTaskStatus: createTaskStatusMutation.mutateAsync,
-		createTaskStatusLoading: createTaskStatusMutation.isPending,
-		deleteTaskStatus: deleteTaskStatusMutation.mutateAsync,
-		deleteTaskStatusLoading: deleteTaskStatusMutation.isPending,
-		editTaskStatus: (id: string, data: ITaskStatusCreate) => updateTaskStatusMutation.mutateAsync({ id, data }),
-		editTaskStatusLoading: updateTaskStatusMutation.isPending,
-		reOrderTaskStatus: reorderTaskStatusMutation.mutateAsync,
-		reOrderTaskStatusLoading: reorderTaskStatusMutation.isPending,
-		setTaskStatuses,
-		firstLoadTaskStatusesData: handleFirstLoad,
-		loadTaskStatuses
+		// Mutations
+		createTaskStatus: createData.createTaskStatus,
+		createTaskStatusLoading: createData.createTaskStatusLoading,
+		editTaskStatus: editData.editTaskStatus,
+		editTaskStatusLoading: editData.editTaskStatusLoading,
+		deleteTaskStatus: deleteData.deleteTaskStatus,
+		deleteTaskStatusLoading: deleteData.deleteTaskStatusLoading,
+		reOrderTaskStatus: reorderData.reOrderTaskStatus,
+		reOrderTaskStatusLoading: reorderData.reOrderTaskStatusLoading
 	};
 }
 
@@ -193,6 +89,7 @@ export function useStatusValue<T extends ITaskStatusField>({
 
 	const [value, setValue] = useState<ITaskStatusStack[T] | undefined>($value);
 	const [values, setValues] = useState<ITaskStatusStack[T][]>(defaultValues);
+	const valuesRef = useSyncRef(values);
 	// Use external value ($value) for immediate UI updates, fallback to internal state (value)
 	const effectiveValue = $value !== undefined ? $value : value;
 	const item: TStatusItem | undefined = useMemo(
@@ -215,22 +112,20 @@ export function useStatusValue<T extends ITaskStatusField>({
 	const onChange = useCallback(
 		(value: ITaskStatusStack[T]) => {
 			if (multipleRef.current) {
-				setValues((prevValues) => {
-					const newValues =
-						typeof value === 'string'
-							? prevValues.includes(value)
-								? prevValues.filter((v) => v !== value)
-								: [...prevValues, value]
-							: Array.isArray(value)
-								? value
-								: [value];
-
-					onValueChangeRef.current?.(value, newValues);
-					return newValues;
-				});
+				const prevValues = valuesRef.current;
+				const newValues =
+					typeof value === 'string'
+						? prevValues.includes(value)
+							? prevValues.filter((v) => v !== value)
+							: [...prevValues, value]
+						: Array.isArray(value)
+							? value
+							: [value];
+				setValues(newValues);
+				onValueChangeRef?.current?.(value, newValues);
 			} else {
 				setValue(value);
-				onValueChangeRef.current?.(value, [value]);
+				onValueChangeRef?.current?.(value, [value]);
 			}
 		},
 		[onValueChangeRef, multipleRef]
@@ -247,6 +142,6 @@ export function useStatusValue<T extends ITaskStatusField>({
 //! =============== Task Status ================= //
 
 export function useTaskStatusValue() {
-	const { taskStatuses } = useTaskStatus();
+	const { taskStatuses } = useTaskStatusesQuery();
 	return useMapToTaskStatusValues(taskStatuses);
 }

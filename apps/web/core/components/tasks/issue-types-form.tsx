@@ -1,13 +1,15 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useIssueType } from '@/core/hooks';
-import { issueTypesListState } from '@/core/stores';
+import { useIssueTypesQuery } from '@/core/hooks/tasks/use-issue-types-query';
+import { useCreateIssueType } from '@/core/hooks/tasks/use-create-issue-type';
+import { useEditIssueType } from '@/core/hooks/tasks/use-edit-issue-type';
+import { useDeleteIssueType } from '@/core/hooks/tasks/use-delete-issue-type';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Button, ColorPicker, Text } from '@/core/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
-import { useAtomValue } from 'jotai';
+
 import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
@@ -22,7 +24,10 @@ export const IssueTypesForm = () => {
 	const [createNew, setCreateNew] = useState(false);
 	const [edit, setEdit] = useState<IIssueType | null>(null);
 
-	const issueTypes = useAtomValue(issueTypesListState);
+	const { issueTypes, loading } = useIssueTypesQuery();
+	const { createIssueType, createIssueTypeLoading } = useCreateIssueType();
+	const { editIssueType, editIssueTypeLoading } = useEditIssueType();
+	const { deleteIssueType } = useDeleteIssueType();
 
 	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
 		'open',
@@ -36,9 +41,6 @@ export const IssueTypesForm = () => {
 	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', ['urgent', 'high', 'medium', 'low']);
 
 	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
-
-	const { loading, createIssueType, deleteIssueType, editIssueType, createIssueTypeLoading, editIssueTypeLoading } =
-		useIssueType();
 
 	useEffect(() => {
 		if (!edit) {
@@ -117,7 +119,7 @@ export const IssueTypesForm = () => {
 
 							{(createNew || edit) && (
 								<>
-									<Text className="flex-none grow-0 mb-2 font-normal text-gray-400 text-md">
+									<Text className="flex-none mb-2 font-normal text-gray-400 grow-0 text-md">
 										{createNew && t('common.NEW')}
 										{edit && t('common.EDIT')} {t('common.ISSUE_TYPE')}
 									</Text>

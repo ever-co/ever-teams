@@ -502,6 +502,9 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								ariaLabel="task"
 								className="w-full text-sm border-gray-300 dark:border-slate-600 dark:text-white"
 								options={team ? selectedTeamTasks : activeTeamTasks}
+								renderOption={(task: TTask) => {
+									return task?.title ?? task?.label ?? '(no-title)';
+								}}
 								onChange={(value) => {
 									// CustomSelect returns the ID directly when valueKey="id"
 									if (process.env.NODE_ENV === 'development') {

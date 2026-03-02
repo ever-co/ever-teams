@@ -3,16 +3,17 @@ import { InvitedCard } from '@/core/components/teams/invite/invited-card';
 import UsersCard from '@/core/components/teams/members-card/members-card';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks/auth';
-import { useOrganizationTeams } from '@/core/hooks/organizations';
-import { activeTeamState, getTeamInvitationsState } from '@/core/stores';
+import { useOrganizationTeamsQuery } from '@/core/hooks/organizations';
+import { activeTeamState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
+import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invitations-query';
 
 export const TeamMemberSection = () => {
 	const { isTeamManager, user } = useAuthenticateUser();
 
 	const activeTeam = useAtomValue(activeTeamState);
-	const { getOrganizationTeamsLoading } = useOrganizationTeams();
-	const teamInvitations = useAtomValue(getTeamInvitationsState);
+	const { getOrganizationTeamsLoading } = useOrganizationTeamsQuery();
+	const { teamInvitations } = useTeamInvitationsQuery();
 	const members = activeTeam?.members || [];
 	// const style = { width: `${100 / members.length}%` };
 

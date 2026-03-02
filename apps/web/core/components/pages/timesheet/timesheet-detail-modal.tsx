@@ -5,7 +5,7 @@ import { TimesheetCardDetail } from './timesheet-card';
 import { TranslationHooks, useTranslations } from 'next-intl';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { cn } from '@/core/lib/helpers';
-import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
+import { getStatusTimesheet } from '@/core/lib/helpers/timesheet-grouping';
 import { Badge } from '@/core/components/common/badge';
 import { EmployeeAvatar, ProjectLogo } from '../../timesheet/compact-timesheet-component';
 import { groupBy } from '@/core/lib/helpers/array-data';
@@ -77,7 +77,7 @@ const MembersWorkedCard = ({ element, t }: { element: ITimeLog[]; t: Translation
 		.map(([employeeId, element]) => ({ employeeId, element }))
 		.sort((a, b) => b.employeeId.localeCompare(a.employeeId));
 
-	const { getStatusTimesheet } = useTimesheet({});
+	// getStatusTimesheet imported as a pure function from timesheet-grouping
 
 	if (memberWorkItems.length === 0) {
 		return (
@@ -245,7 +245,7 @@ const MenHoursCard = ({ element, t }: MenHoursCardProps) => {
 		.map(([status, element]) => ({ status, element }))
 		.sort((a, b) => b.status.localeCompare(a.status));
 
-	const { getStatusTimesheet } = useTimesheet({});
+	// getStatusTimesheet imported as a pure function from timesheet-grouping
 
 	if (menHoursItems.length === 0) {
 		return (

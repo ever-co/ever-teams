@@ -6,24 +6,26 @@ import { BackButton, Button, Modal, Text } from '@/core/components';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { InviteEmailDropdown } from '../../teams/invite/invite-email-dropdown';
-import { useTeamInvitations } from '@/core/hooks/organizations';
+import { useSendTeamInvitation } from '@/core/hooks/invitations/use-send-team-invitation';
 import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
 import { IInviteEmail } from '../../teams/invite/invite-email-item';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../../common/select';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, getTeamInvitationsState, rolesState, workingEmployeesState } from '@/core/stores';
+import { activeTeamState, workingEmployeesState } from '@/core/stores';
+import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
+import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invitations-query';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const { data: user } = useUserQuery();
-	const roles = useAtomValue(rolesState);
+	const { roles } = useRolesQuery();
 	const t = useTranslations();
 
-	const teamInvitations = useAtomValue(getTeamInvitationsState);
-	const { inviteUser, inviteLoading, resendTeamInvitation, resendInviteLoading } = useTeamInvitations();
+	const { teamInvitations } = useTeamInvitationsQuery();
+	const { inviteUser, inviteLoading, resendTeamInvitation, resendInviteLoading } = useSendTeamInvitation();
 
 	const [errors, setErrors] = useState<{ email?: string; name?: string; role?: string }>({});
 	const [selectedEmail, setSelectedEmail] = useState<IInviteEmail>();

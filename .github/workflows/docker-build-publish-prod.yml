@@ -18,6 +18,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Free disk space
+        run: |
+            df -h /
+            sudo swapoff -a
+            sudo apt clean
+            docker image ls -aq
+            if [ "$(docker image ls -aq)" ]; then
+              docker rmi $(docker image ls -aq)
+            fi
+            find ~/work/_temp -name "cache.tgz" -exec rm -f {} \;
+            sudo rm -rf "/usr/local/share/boost"
+            sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+            df -h /
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -28,7 +42,7 @@ jobs:
         run: echo "NEXT_PUBLIC_GAUZY_API_SERVER_URL=${{ secrets.NEXT_PUBLIC_GAUZY_API_SERVER_URL }}"
 
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./.deploy/web/Dockerfile
@@ -95,12 +109,12 @@ jobs:
         run: |
           docker push ghcr.io/ever-co/ever-teams-webapp:latest
 
-      - name: Login to CW Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ secrets.CW_DOCKER_REGISTRY }}
-          username: ${{ secrets.CW_DOCKER_USER }}
-          password: ${{ secrets.CW_DOCKER_USER_PASSWORD }}
+    #  - name: Login to CW Container Registry
+    #    uses: docker/login-action@v3
+    #    with:
+    #      registry: ${{ secrets.CW_DOCKER_REGISTRY }}
+    #      username: ${{ secrets.CW_DOCKER_USER }}
+    #      password: ${{ secrets.CW_DOCKER_USER_PASSWORD }}
 
     #  - name: Push to CW Registry
     #    run: |

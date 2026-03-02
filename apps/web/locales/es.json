@@ -614,7 +614,8 @@
 					"endDateRequired": "Se requiere la fecha de finalización.",
 					"endDateAfterStart": "La fecha de finalización debe ser posterior a la de inicio.",
 					"invalidUrl": "Por favor ingrese una URL válida.",
-					"uploadError": "Algo salió mal al subir la imagen del proyecto, ¡inténtalo de nuevo!"
+					"uploadError": "Algo salió mal al subir la imagen del proyecto, ¡inténtalo de nuevo!",
+					"descriptionWordLimit": "La descripción debe tener 5000 palabras o menos."
 				},
 				"common": {
 					"search": "Buscar ...",

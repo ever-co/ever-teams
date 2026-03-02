@@ -1,15 +1,20 @@
 'use client';
 import { secondsToTime, tomorrowDate } from '@/core/lib/helpers/index';
 import {
-	I_TeamMemberCardHook,
 	I_UserProfilePage,
+	I_TeamMemberMutationsHook,
 	useCanSeeActivityScreen,
-	useDailyPlan,
 	useModal,
 	useTMCardTaskEdit,
 	useTaskStatistics,
-	useTeamMemberCard
+	useMemberIdentity,
+	useMemberActiveTask,
+	useTeamMemberMutations,
+	useTeamMemberRoleActions
 } from '@/core/hooks';
+import { useMyDailyPlans } from '@/core/hooks/daily-plans/use-my-daily-plans';
+import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
+import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
 import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
@@ -146,10 +151,18 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 			),
 		[activeAuthTask, dh, dm, isAuthUser, t]
 	);
-	const memberInfo = useTeamMemberCard(currentMember || undefined);
-	// Auth member info is used for "Assign Task to Me" / "Unassign Task from Me" actions
-	// This ensures the logged-in user is assigned, not the visited profile member
-	const authMemberInfo = useTeamMemberCard(authMember || undefined);
+	// Granular hooks for currentMember — "pay only for what you use"
+	const identity = useMemberIdentity(currentMember || undefined);
+	const memberTask = useMemberActiveTask(currentMember || undefined);
+	const mutations = useTeamMemberMutations(currentMember || undefined);
+	const roleActions = useTeamMemberRoleActions(currentMember || undefined);
+
+	// Compose memberInfo — still needed by TaskTimes (not yet migrated to lightweight type)
+	const memberInfo = { ...identity, memberTask, ...mutations, ...roleActions };
+
+	// Auth member: only mutations needed for "Assign Task to Me" / "Unassign Task from Me"
+	const authMutations = useTeamMemberMutations(authMember || undefined);
+
 	const taskEdition = useTMCardTaskEdit(task);
 	const activeMembers = useMemo(() => ((task != null && task?.members?.length) || 0) > 0, [task]);
 	const hasMembers = useMemo(() => task?.members && task?.members?.length > 0, [task?.members]);
@@ -188,7 +201,7 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 					{/* Task information */}
 					<TaskInfo
 						task={task}
-						className="w-full px-4"
+						className="px-4 w-full"
 						taskBadgeClassName={clsxm(taskBadgeClassName)}
 						taskTitleClassName={clsxm(taskTitleClassName)}
 						dayPlanTab={planMode}
@@ -247,9 +260,9 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 				</div>
 				<VerticalSeparator />
 
-				<div className="flex items-center justify-center w-1/5 h-full min-w-fit xl:justify-between lg:px-3 2xl:max-w-52 3xl:max-w-72">
+				<div className="flex justify-center items-center w-1/5 h-full min-w-fit xl:justify-between lg:px-3 2xl:max-w-52 3xl:max-w-72">
 					{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
-					<div className="flex items-center justify-center">
+					<div className="flex justify-center items-center">
 						<ActiveTaskStatusDropdown
 							task={task}
 							onChangeLoading={(load: boolean) => setLoading(load)}
@@ -257,12 +270,12 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 						/>
 					</div>
 					{/* TaskCardMenu */}
-					<div className="flex items-end justify-end mt-2 shrink-0 xl:mt-0 text-start">
+					<div className="flex justify-end items-end mt-2 shrink-0 xl:mt-0 text-start">
 						{task && (currentMember || authMember) && (
 							<TaskCardMenu
 								task={task}
 								loading={loading}
-								memberInfo={authMemberInfo}
+								mutations={authMutations}
 								viewType={viewType}
 								profile={profile}
 								plan={plan}
@@ -288,8 +301,8 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 						<TimerButtonCall activeTeam={activeTeam} currentMember={currentMember} task={task} />
 					)} */}
 				</div>
-				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
-					<TaskInfo task={task} className="w-full px-4 mb-4" tab={viewType} dayPlanTab={planMode} />{' '}
+				<div className="flex flex-wrap justify-between items-start pb-4 border-b">
+					<TaskInfo task={task} className="px-4 mb-4 w-full" tab={viewType} dayPlanTab={planMode} />{' '}
 					{viewType === 'default' && (
 						<>
 							<div className="flex items-end py-4 mx-auto space-x-2">
@@ -306,10 +319,10 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 
 				{viewType === 'unassign' && (
 					<>
-						<UsersTaskAssigned className="w-full px-3 py-4 mx-auto" task={task} />
+						<UsersTaskAssigned className="px-3 py-4 mx-auto w-full" task={task} />
 					</>
 				)}
-				<div className="flex items-center justify-between mt-4 mb-4 space-x-5">
+				<div className="flex justify-between items-center mt-4 mb-4 space-x-5">
 					<div className="flex space-x-4">
 						{todayWork}
 						{isTrackingEnabled && isAuthUser && task && (
@@ -324,7 +337,7 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 						<TaskCardMenu
 							task={task}
 							loading={loading}
-							memberInfo={authMemberInfo}
+							mutations={authMutations}
 							viewType={viewType}
 							plan={plan}
 						/>
@@ -343,7 +356,7 @@ const UsersTaskAssigned = React.memo(
 
 		return (
 			<div className={clsxm('flex justify-center items-center', className)}>
-				<div className="flex flex-col items-center justify-center">
+				<div className="flex flex-col justify-center items-center">
 					{members.length > 0 && <span className="mb-1 text-xs text-center">{t('common.ASSIGNED')}</span>}
 					<span className="text-sm font-medium text-center">
 						{members.length > 0
@@ -487,7 +500,7 @@ export const TaskInfo = React.memo(
 				{/* task */}
 				{!task && <div className="self-center py-1 text-center">--</div>}
 				{task && (
-					<div className="w-full h-10 overflow-hidden">
+					<div className="overflow-hidden w-full h-10">
 						<div className={clsxm('flex flex-col justify-start items-start h-full')}>
 							<div
 								className={clsxm(
@@ -519,7 +532,7 @@ export const TaskInfo = React.memo(
 export function TaskCardMenu({
 	task,
 	loading,
-	memberInfo,
+	mutations,
 	viewType,
 	profile,
 	plan,
@@ -527,7 +540,7 @@ export function TaskCardMenu({
 }: {
 	task: TTask;
 	loading?: boolean;
-	memberInfo?: I_TeamMemberCardHook;
+	mutations?: I_TeamMemberMutationsHook;
 	viewType: 'default' | 'unassign' | 'dailyplan';
 	profile?: I_UserProfilePage;
 	plan?: TDailyPlan;
@@ -552,9 +565,9 @@ export function TaskCardMenu({
 	const [isAssigning, setIsAssigning] = useState(false);
 
 	const handleAssignment = useCallback(() => {
-		// Guard clause: if memberInfo is not available, we cannot assign/unassign
-		if (!memberInfo) {
-			console.warn('[TaskCardMenu] memberInfo is undefined, cannot assign/unassign task');
+		// Guard clause: if mutations is not available, we cannot assign/unassign
+		if (!mutations) {
+			console.warn('[TaskCardMenu] mutations is undefined, cannot assign/unassign task');
 			return;
 		}
 
@@ -564,7 +577,7 @@ export function TaskCardMenu({
 
 		setIsAssigning(true);
 
-		const promise = shouldAssign ? memberInfo.assignTask(task) : memberInfo.unassignTask(task);
+		const promise = shouldAssign ? mutations.assignTask(task) : mutations.unassignTask(task);
 
 		promise
 			.then(() => {
@@ -586,18 +599,18 @@ export function TaskCardMenu({
 			.finally(() => {
 				setIsAssigning(false);
 			});
-	}, [memberInfo, task, isUserAssignedToTask, t]);
+	}, [mutations, task, isUserAssignedToTask, t]);
 
 	const canSeeActivity = useCanSeeActivityScreen();
 
-	const { todayPlan, futurePlans } = useDailyPlan();
+	const { myTodayPlan, myFuturePlans } = useMyDailyPlans();
 
 	const taskPlannedToday = useMemo(
-		() => todayPlan[todayPlan.length - 1]?.tasks?.find((planTask) => planTask.id === task.id),
-		[task.id, todayPlan]
+		() => myTodayPlan[myTodayPlan.length - 1]?.tasks?.find((planTask) => planTask.id === task.id),
+		[task.id, myTodayPlan]
 	);
 
-	const allPlans = [...todayPlan, ...futurePlans];
+	const allPlans = [...myTodayPlan, ...myFuturePlans];
 	const isTaskPlannedMultipleTimes =
 		allPlans.reduce((count, plan) => {
 			if (plan?.tasks) {
@@ -609,7 +622,7 @@ export function TaskCardMenu({
 
 	const taskPlannedTomorrow = useMemo(
 		() =>
-			futurePlans
+			myFuturePlans
 				.filter((_plan) =>
 					moment(_plan.date)
 						.format('YYYY-MM-DD')
@@ -617,7 +630,7 @@ export function TaskCardMenu({
 						?.startsWith(moment()?.add(1, 'day').format('YYYY-MM-DD'))
 				)[0]
 				?.tasks?.find((planTask) => planTask.id === task.id),
-		[futurePlans, task.id]
+		[myFuturePlans, task.id]
 	);
 
 	// Combine loading states: external loading OR assignment in progress
@@ -793,7 +806,7 @@ export function PlanTask({
 	const t = useTranslations();
 	const [isPending, startTransition] = useTransition();
 
-	const { createDailyPlan, createDailyPlanLoading } = useDailyPlan();
+	const { createDailyPlan, createDailyPlanLoading } = useCreateDailyPlan();
 	const { data: user } = useUserQuery();
 
 	const handleOpenModal = async () => {
@@ -865,7 +878,7 @@ export function PlanTask({
 				{planMode === 'today' && !taskPlannedToday && (
 					<span className="">
 						{isPending || createDailyPlanLoading ? (
-							<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
+							<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
 						) : (
 							t('dailyPlan.PLAN_FOR_TODAY')
 						)}
@@ -874,7 +887,7 @@ export function PlanTask({
 				{planMode === 'tomorrow' && !taskPlannedForTomorrow && (
 					<span>
 						{isPending || createDailyPlanLoading ? (
-							<ReloadIcon className="w-4 h-4 mr-2 animate-spin" />
+							<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
 						) : (
 							t('dailyPlan.PLAN_FOR_TOMORROW')
 						)}
@@ -910,7 +923,7 @@ export function RemoveTaskFromPlan({
 	plan?: TDailyPlan;
 }) {
 	const t = useTranslations();
-	const { removeTaskFromPlan } = useDailyPlan(member?.employeeId);
+	const { removeTaskFromPlan } = useUpdateDailyPlan();
 	const data: IDailyPlanTasksUpdate = {
 		taskId: task.id,
 		employeeId: member?.employeeId ?? undefined
@@ -933,7 +946,7 @@ export function RemoveTaskFromPlan({
 
 export function RemoveManyTaskFromPlan({ task, member }: { task: TTask; member?: TOrganizationTeamEmployee }) {
 	// const t = useTranslations();
-	const { removeManyTaskPlans } = useDailyPlan();
+	const { removeManyTaskPlans } = useUpdateDailyPlan();
 	const data: IRemoveTaskFromManyPlansRequest = {
 		plansIds: [],
 		employeeId: member?.employeeId ?? ''

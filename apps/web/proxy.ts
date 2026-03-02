@@ -7,7 +7,7 @@ import {
 	REFRESH_TOKEN_COOKIE_NAME,
 	TOKEN_COOKIE_NAME
 } from '@/core/constants/config/constants';
-import { cookiesKeys, setAccessTokenCookie } from '@/core/lib/helpers/cookies';
+import { cookiesKeys, setAccessTokenCookie, setRefreshTokenCookie } from '@/core/lib/helpers/cookies';
 import { currentAuthenticatedUserRequest, refreshTokenRequest } from '@/core/services/server/requests/auth';
 import { range } from '@/core/lib/helpers';
 import { isTokenExpired, decodeJWT, getTokenRemainingTime, formatRemainingTime } from '@/core/lib/auth/jwt-utils';
@@ -162,6 +162,13 @@ export async function proxy(request: NextRequest) {
 
 			// Update cookie with new token
 			setAccessTokenCookie(refreshRes.data.token, { res: response, req: request });
+
+			// Update refresh token if a new one is provided (token rotation)
+			if (refreshRes.data.refresh_token) {
+				setRefreshTokenCookie(refreshRes.data.refresh_token, { res: response, req: request });
+				console.log('[Proxy] Refresh token rotated successfully');
+			}
+
 			console.log('[Proxy] Access token cookie updated with new token');
 
 			// Verify the new token works

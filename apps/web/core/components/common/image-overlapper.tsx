@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Skeleton from 'react-loading-skeleton';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
-import { useModal, useTeamTasks } from '@/core/hooks';
+import { useModal, useUpdateTask } from '@/core/hooks';
 import { Modal, Divider, SpinnerLoader } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -80,7 +80,7 @@ export default function ImageOverlapper({
 	const [assignedMembers, setAssignedMembers] = useState<TEmployee[]>([...(item?.members || [])]);
 	const [unassignedMembers, setUnassignedMembers] = useState<TEmployee[]>([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const { updateTask, updateLoading } = useTeamTasks();
+	const { updateTask, updateLoading } = useUpdateTask();
 
 	// Combine local submitting state with React Query mutation pending state
 	const isLoading = isSubmitting || updateLoading;

@@ -1,7 +1,7 @@
 import { Modal } from '@/core/components';
 import { useMemo } from 'react';
-import { organizationProjectsState, rolesState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import AddOrEditProjectForm from './add-or-edit-project';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { ITag } from '@/core/types/interfaces/tag/tag';
@@ -23,9 +23,9 @@ interface IEditProjectModalProps {
  */
 export function EditProjectModal(props: IEditProjectModalProps) {
 	const { open, closeModal, projectId } = props;
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects } = useOrganizationProjectsQuery();
 
-	const rolesFromApi = useAtomValue(rolesState);
+	const { roles: rolesFromApi } = useRolesQuery();
 
 	// Get role IDs with fallback to constants if API doesn't return roles
 	const { simpleMemberRoleId, managerRoleId } = useMemo(() => {

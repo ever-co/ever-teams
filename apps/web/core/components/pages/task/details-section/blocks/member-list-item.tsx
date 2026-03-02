@@ -6,6 +6,7 @@ import { SpinnerLoader } from '@/core/components/common/loader';
 import { TrashIcon } from 'assets/svg';
 import ProfileInfo from '../components/profile-info';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { getUserDisplayName } from '@/core/lib/helpers/strings';
 
 interface MemberListItemProps {
 	member: TOrganizationTeamEmployee;
@@ -40,7 +41,7 @@ export const MemberListItem = memo<MemberListItemProps>(
 				)}
 				onClick={handleClick}
 			>
-				<ProfileInfo profilePicSrc={member.employee?.user?.imageUrl} names={member.employee?.fullName} />
+				<ProfileInfo profilePicSrc={member.employee?.user?.imageUrl} names={getUserDisplayName(member)} />
 
 				{/* Loading indicator or action icon */}
 				{isCurrentlyLoading ? (

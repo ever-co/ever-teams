@@ -1,4 +1,15 @@
-import { useTeamMemberCard, useTMCardTaskEdit, useCollaborative, I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@/core/hooks';
+import {
+	useTMCardTaskEdit,
+	useCollaborative,
+	useMemberIdentity,
+	useMemberActiveTask,
+	useTeamMemberMutations,
+	useTeamMemberRoleActions,
+	I_MemberIdentityHook,
+	I_TeamMemberMutationsHook,
+	I_TeamMemberRoleActionsHook,
+	I_TMCardTaskEditHook
+} from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { TaskTimes } from '../../../../../tasks/task-times';
 import get from 'lodash/get';
@@ -10,14 +21,18 @@ import { TaskEstimateInfo } from '../user-team-card/task-estimate';
 import { UserTeamCardMenu } from '../user-team-card/user-team-card-menu';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { createContext, useContext, useMemo, memo } from 'react';
+import { TTask } from '@/core/types/schemas/task/task.schema';
 
 /**
- * Context to share memberInfo and taskEdition state across all cells in a table row.
+ * Context to share granular hook results and taskEdition state across all cells in a table row.
  * This fixes the bug where ActionMenuCell and TaskCell had separate taskEdition instances,
  * causing "Edit Task" in the menu to not trigger edit mode in the TaskCell.
  */
 interface TeamMemberRowContextValue {
-	memberInfo: I_TeamMemberCardHook;
+	identity: I_MemberIdentityHook;
+	memberTask: TTask | null;
+	mutations: I_TeamMemberMutationsHook;
+	roleActions: I_TeamMemberRoleActionsHook;
 	taskEdition: I_TMCardTaskEditHook;
 }
 
@@ -36,14 +51,21 @@ function useTeamMemberRowContext(): TeamMemberRowContextValue {
 }
 
 /**
- * Provider component that wraps a table row and shares memberInfo/taskEdition.
+ * Provider component that wraps a table row and shares granular hooks/taskEdition.
  * This ensures all cells in the same row use the same hook instances.
  */
 const TeamMemberRowProviderInternal = memo(({ member, children }: { member: any; children: React.ReactNode }) => {
-	const memberInfo = useTeamMemberCard(member);
-	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
+	// Granular hooks — "pay only for what you use"
+	const identity = useMemberIdentity(member);
+	const memberTask = useMemberActiveTask(member);
+	const mutations = useTeamMemberMutations(member);
+	const roleActions = useTeamMemberRoleActions(member);
+	const taskEdition = useTMCardTaskEdit(memberTask);
 
-	const value = useMemo(() => ({ memberInfo, taskEdition }), [memberInfo, taskEdition]);
+	const value = useMemo(
+		() => ({ identity, memberTask, mutations, roleActions, taskEdition }),
+		[identity, memberTask, mutations, roleActions, taskEdition]
+	);
 
 	return <TeamMemberRowContext.Provider value={value}>{children}</TeamMemberRowContext.Provider>;
 });
@@ -59,14 +81,13 @@ export function TeamMemberRowWrapper({ data, children }: { data: any; children: 
 }
 
 export function TaskCell() {
-	const { memberInfo, taskEdition } = useTeamMemberRowContext();
+	const { taskEdition } = useTeamMemberRowContext();
 	const publicTeam = false;
 	const fullWidth = useAtomValue(fullWidthState);
 
 	return (
 		<TaskInfo
 			edition={taskEdition}
-			memberInfo={memberInfo}
 			className={clsxm(
 				'flex flex-1 justify-center items-center px-2',
 				fullWidth ? 'max-w-[24rem]' : 'max-w-[20rem]'
@@ -80,27 +101,33 @@ export function UserInfoCell({ cell }: Readonly<{ cell: any }>) {
 	const row = get(cell, 'row', {});
 	const member = row.original as any;
 	const publicTeam = get(cell, 'column.columnDef.meta.publicTeam', false);
-	const memberInfo = useTeamMemberCard(member);
+	const memberInfo = useMemberIdentity(member);
 
 	return <UserInfo memberInfo={memberInfo} className="w-fit" publicTeam={publicTeam} />;
 }
 
 export function WorkedOnTaskCell() {
-	const { memberInfo } = useTeamMemberRowContext();
+	const { identity, memberTask } = useTeamMemberRowContext();
 
 	return (
 		<TaskTimes
 			activeAuthTask={true}
-			memberInfo={memberInfo}
-			task={memberInfo.memberTask}
-			isAuthUser={memberInfo.isAuthUser}
+			memberInfo={identity}
+			task={memberTask}
+			isAuthUser={identity.isAuthUser}
 			className={clsxm('flex flex-col justify-center items-center mx-auto')}
 		/>
 	);
 }
 
 export function TaskEstimateInfoCell() {
-	const { memberInfo, taskEdition } = useTeamMemberRowContext();
+	const { identity, memberTask, taskEdition } = useTeamMemberRowContext();
+
+	// Lightweight memberInfo — TaskEstimateInfo only needs memberTask, isAuthUser, isAuthTeamManager
+	const memberInfo = useMemo(
+		() => ({ memberTask, isAuthUser: identity.isAuthUser, isAuthTeamManager: identity.isAuthTeamManager }),
+		[memberTask, identity.isAuthUser, identity.isAuthTeamManager]
+	);
 
 	return (
 		<TaskEstimateInfo
@@ -115,14 +142,22 @@ export function TaskEstimateInfoCell() {
 }
 
 export function ActionMenuCell({ cell }: { cell: any }) {
-	const { memberInfo, taskEdition } = useTeamMemberRowContext();
+	const { identity, memberTask, mutations, roleActions, taskEdition } = useTeamMemberRowContext();
 	const active = get(cell, 'column.columnDef.meta.active', false);
 
-	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(memberInfo.memberUser);
+	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(identity.memberUser);
 
 	return (
 		<>
-			{(!collaborativeSelect || active) && <UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />}
+			{(!collaborativeSelect || active) && (
+				<UserTeamCardMenu
+					identity={identity}
+					memberTask={memberTask}
+					mutations={mutations}
+					roleActions={roleActions}
+					edition={taskEdition}
+				/>
+			)}
 
 			{collaborativeSelect && !active && (
 				<InputField

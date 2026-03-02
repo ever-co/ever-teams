@@ -1,7 +1,7 @@
 'use client';
 import { MainLayout } from '@/core/components/layouts/default-layout';
-import { organizationProjectsState } from '@/core/stores';
-import { useLocalStorageState, useModal, useOrganizationProjects } from '@/core/hooks';
+import { useLocalStorageState, useModal } from '@/core/hooks';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { useCallback, useEffect, useMemo, useState, Suspense } from 'react';
 // dynamic import removed - using optimized components
@@ -73,9 +73,7 @@ function PageComponent() {
 	const fullWidth = useAtomValue(fullWidthState);
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
-	const organizationProjects = useAtomValue(organizationProjectsState);
-
-	const { getOrganizationProjectsLoading, setSearchQueries } = useOrganizationProjects();
+	const { organizationProjects, getOrganizationProjectsLoading, setSearchQueries } = useOrganizationProjectsQuery();
 	const [searchTerm, setSearchTerm] = useState('');
 	const params = useSearchParams();
 	const router = useRouter();
@@ -459,18 +457,18 @@ function PageComponent() {
 			mainHeaderSlot={
 				<Container fullWidth={fullWidth} className="flex flex-col p-4 dark:bg-dark--theme">
 					<div className="flex items-center w-full">
-						<button onClick={handleBack} className="p-1 transition-colors rounded-full hover:bg-gray-100">
+						<button onClick={handleBack} className="p-1 rounded-full transition-colors hover:bg-gray-100">
 							<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 						</button>
 						<Breadcrumb paths={breadcrumbPath} className="text-sm" />
 					</div>
-					<div className="flex flex-col items-start justify-between gap-3">
-						<div className="flex items-center justify-center h-10 gap-8">
+					<div className="flex flex-col gap-3 justify-between items-start">
+						<div className="flex gap-8 justify-center items-center h-10">
 							<h3 className="text-3xl font-medium">{t('pages.projects.projectTitle.PLURAL')}</h3>
 						</div>
-						<div className="flex items-center justify-between w-full h-14">
+						<div className="flex justify-between items-center w-full h-14">
 							<div className="w-[20rem] h-full flex items-end justify-center">
-								<ul className="relative flex w-full text-lg justify-evenly">
+								<ul className="flex relative justify-evenly w-full text-lg">
 									{viewItems.map((item, index) => (
 										<li
 											onClick={() => {
@@ -506,9 +504,9 @@ function PageComponent() {
 				</Container>
 			}
 		>
-			<Container fullWidth={fullWidth} className="flex flex-col w-full h-full gap-6 p-4 mt-6 dark:bg-dark--theme">
-				<div className="p-3 space-y-6 border rounded-lg bg-light--theme-light dark:bg-transparent">
-					<div className="flex items-center justify-between font-light rounded">
+			<Container fullWidth={fullWidth} className="flex flex-col gap-6 p-4 mt-6 w-full h-full dark:bg-dark--theme">
+				<div className="p-3 space-y-6 rounded-lg border bg-light--theme-light dark:bg-transparent">
+					<div className="flex justify-between items-center font-light rounded">
 						<div className="w-80 flex border dark:border-white h-[2.2rem] items-center px-4 rounded-lg">
 							<Search size={15} className="text-slate-300" />{' '}
 							<InputField
@@ -536,14 +534,14 @@ function PageComponent() {
 							>
 								<ListFilterPlus size={15} /> <span>{t('common.FILTER')}</span>
 								{activeFiltersCount > 0 && (
-									<span className="absolute flex items-center justify-center w-5 h-5 text-xs font-medium text-white rounded-full -top-2 -right-2 bg-primary">
+									<span className="flex absolute -top-2 -right-2 justify-center items-center w-5 h-5 text-xs font-medium text-white rounded-full bg-primary">
 										{activeFiltersCount}
 									</span>
 								)}
 							</Button>
 							<LazyProjectExportMenu projects={filteredProjects} activeTeam={activeTeam} />
 							{selectedView == 'LIST' && (
-								<Menu as="div" className="relative inline-block text-left">
+								<Menu as="div" className="inline-block relative text-left">
 									<div>
 										<Menu.Button>
 											<Button
@@ -585,7 +583,7 @@ function PageComponent() {
 																		`${active && 'bg-primary/10'} rounded-sm gap-2 group flex w-full items-center px-2 py-2 text-xs`
 																	)}
 																>
-																	<div className="flex items-center justify-center w-5 h-full">
+																	<div className="flex justify-center items-center w-5 h-full">
 																		{isVisible && <Check size={12} />}
 																	</div>
 																	<span className="capitalize">{column}</span>
@@ -620,7 +618,7 @@ function PageComponent() {
 									: 'hidden'
 							)}
 						>
-							<div className="flex items-center h-full gap-2">
+							<div className="flex gap-2 items-center h-full">
 								{selectedView == 'GRID' && (
 									<Checkbox
 										checked={

@@ -1,6 +1,6 @@
 'use client';
 
-import { useModal, useOrganizationTeams } from '@/core/hooks';
+import { useModal, useCreateOrganizationTeam } from '@/core/hooks';
 import { useProfileValidation } from '@/core/hooks/users/use-profile-validation';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { Button, Dropdown } from '@/core/components';
@@ -27,7 +27,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const activeTeam = useAtomValue(activeTeamState);
 	const teams = useAtomValue(organizationTeamsState);
 
-	const { setActiveTeam } = useOrganizationTeams();
+	const { setActiveTeam } = useCreateOrganizationTeam();
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const timerStatus = useAtomValue(timerStatusState);
 	const t = useTranslations();

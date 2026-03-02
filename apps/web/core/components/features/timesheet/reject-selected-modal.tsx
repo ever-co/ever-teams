@@ -1,4 +1,4 @@
-import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
+import { useUpdateTimesheet } from '@/core/hooks/timesheet/use-update-timesheet';
 import { clsxm } from '@/core/lib/utils';
 import { Modal } from '@/core/components';
 import { ReloadIcon } from '@radix-ui/react-icons';
@@ -35,7 +35,7 @@ export function RejectSelectedModal({
 }: IRejectSelectedModalProps) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [reason, setReason] = useState('');
-	const { updateTimesheetStatus, loadingUpdateTimesheetStatus, setSelectTimesheetId } = useTimesheet({});
+	const { updateTimesheetStatus, loadingUpdateTimesheetStatus } = useUpdateTimesheet();
 
 	const t = useTranslations();
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -47,7 +47,6 @@ export function RejectSelectedModal({
 				ids: selectTimesheetId || []
 			})
 				.then(() => {
-					setSelectTimesheetId([]);
 					closeModal();
 				})
 				.catch((error) => console.error(error));
@@ -88,7 +87,7 @@ export function RejectSelectedModal({
 					<div className="text-sm text-right text-gray-500">
 						{reason.length}/{maxReasonLength}
 					</div>
-					<div className="flex items-center justify-end gap-x-4">
+					<div className="flex gap-x-4 justify-end items-center">
 						<button
 							onClick={closeModal}
 							type="button"
@@ -111,7 +110,7 @@ export function RejectSelectedModal({
 								'disabled:opacity-50 disabled:cursor-not-allowed'
 							)}
 						>
-							{loadingUpdateTimesheetStatus && <ReloadIcon className="w-4 h-4 mr-2 animate-spin" />}
+							{loadingUpdateTimesheetStatus && <ReloadIcon className="mr-2 w-4 h-4 animate-spin" />}
 							{isSubmitting ? 'Rejecting...' : 'Reject Entry'}
 						</button>
 					</div>

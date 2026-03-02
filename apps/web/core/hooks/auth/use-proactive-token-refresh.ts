@@ -1,7 +1,12 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { getRefreshTokenCookie, getAccessTokenCookie, setAccessTokenCookie } from '@/core/lib/helpers/cookies';
+import {
+	getRefreshTokenCookie,
+	getAccessTokenCookie,
+	setAccessTokenCookie,
+	setRefreshTokenCookie
+} from '@/core/lib/helpers/cookies';
 import { refreshTokenRequest } from '@/core/services/server/requests/auth';
 import {
 	shouldRefreshToken,
@@ -94,6 +99,12 @@ export function useProactiveTokenRefresh() {
 
 				// Update the access token cookie
 				setAccessTokenCookie(data.token);
+
+				// Update refresh token if a new one is provided (token rotation)
+				if (data.refresh_token) {
+					setRefreshTokenCookie(data.refresh_token);
+					console.log('[ProactiveTokenRefresh] Refresh token rotated successfully');
+				}
 
 				// Log success with next check timing
 				const newRemaining = getTokenRemainingTime(data.token);

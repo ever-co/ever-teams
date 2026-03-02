@@ -3,7 +3,13 @@ import { useMemo, useCallback, useState, useEffect, useRef, Dispatch, SetStateAc
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useTranslations } from 'next-intl';
-import { useDailyPlan, useModal, useTeamTasks, useTimerView } from '@/core/hooks';
+import { useModal, useTimerView } from '@/core/hooks';
+import { useTeamTasksState } from '@/core/hooks/organizations/teams/use-team-tasks-state';
+import { useCreateTask } from '@/core/hooks/organizations/teams/use-create-task';
+import { useTaskQueries } from '@/core/hooks/organizations/teams/use-task-queries';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
+import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
+import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
 import { toast } from 'sonner';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { TaskEstimate } from '../../tasks/task-estimate';
@@ -28,9 +34,10 @@ import { ID } from '@/core/types/interfaces/common/base-interfaces';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
-import { activeTeamTaskState, tasksByTeamState, taskStatusesState, timerStatusState } from '@/core/stores';
+import { activeTeamTaskState, tasksByTeamState, timerStatusState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { EIssueType } from '@/core/types/generics/enums/task';
+import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
 
 /**
  * A modal that allows user to add task estimation / planned work time, etc.
@@ -75,20 +82,21 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 	const t = useTranslations();
 
-	// Use useDailyPlan with employeeId to get the correct employee's plans.
+	// Use specialized hooks with employeeId to get the correct employee's plans.
 	// NOTE: This replaces profileDailyPlanListState/myDailyPlanListState atoms
 	// so AllPlans modal and Profile "Plans" tab stay in sync
-	const { profileDailyPlans, updateDailyPlan } = useDailyPlan(employeeId);
+	const { employeeDailyPlans } = useEmployeeDailyPlans(employeeId ?? null);
+	const { updateDailyPlan } = useUpdateDailyPlan();
 
 	// Get the updated plan from the hook instead of relying only on props
 	const plan = useMemo(() => {
 		if (propsPlan?.id) {
 			// Find the updated plan from the hook's state
-			const updatedPlan = profileDailyPlans.items?.find((p) => p.id === propsPlan.id);
+			const updatedPlan = employeeDailyPlans.items?.find((p) => p.id === propsPlan.id);
 			return updatedPlan || propsPlan;
 		}
 		return propsPlan;
-	}, [propsPlan, profileDailyPlans.items]);
+	}, [propsPlan, employeeDailyPlans.items]);
 
 	// Use the updated plan's tasks if available, otherwise fall back to props
 	const tasks = useMemo(() => {
@@ -98,9 +106,9 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const globalTasks = useAtomValue(tasksByTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const timerStatus = useAtomValue(timerStatusState);
-
 	const { startTimer } = useTimerView();
-	const { setActiveTask } = useTeamTasks();
+
+	const { setActiveTask } = useTeamTasksState();
 	const [showSearchInput, setShowSearchInput] = useState(false);
 	const [workTimePlanned, setWorkTimePlanned] = useState<number>(plan?.workTimePlanned ?? 0);
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
@@ -173,7 +181,8 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 			// Update the plan work time only if the user changed it
 			if (plan && plan.workTimePlanned !== workTimePlanned) {
-				await updateDailyPlan({ workTimePlanned }, plan.id ?? '');
+				// Server requires employeeId in the payload, to correctly check permissions
+				await updateDailyPlan({ workTimePlanned, employeeId: plan.employeeId || undefined }, plan.id ?? '');
 				toast.success('Plan updated successfully', {
 					description: `Work time planned updated to ${workTimePlanned} hours`,
 					duration: 3000
@@ -227,7 +236,8 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 			// Update the plan work time only if the user changed it
 			if (plan && plan.workTimePlanned !== workTimePlanned) {
-				await updateDailyPlan({ workTimePlanned }, plan.id ?? '');
+				// Server requires employeeId in the payload, to correctly check permissions
+				await updateDailyPlan({ workTimePlanned, employeeId: plan.employeeId || undefined }, plan.id ?? '');
 				toast.success('Plan updated successfully', {
 					description: `Work time planned updated to ${workTimePlanned} hours`,
 					duration: 3000
@@ -305,7 +315,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [workTimePlanned, tasksEstimationTimes, plan?.tasks, profileDailyPlans]);
+	}, [workTimePlanned, tasksEstimationTimes, plan?.tasks, employeeDailyPlans]);
 
 	// Put tasks without estimates at the top of the list
 	const sortedTasks = useMemo(
@@ -339,6 +349,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 				if (task.estimate !== null && task.estimate && task.estimate > 0) {
 					if (isOpen) {
 						setDefaultTask(task);
+						// scan-ignore: sensitive-storage // Task ID is not sensitive data
 						window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, task.id!);
 					}
 				}
@@ -346,6 +357,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		} else {
 			if (isOpen && activeTeamTask) {
 				setDefaultTask(activeTeamTask);
+				// scan-ignore: sensitive-storage // Task ID is not sensitive data
 				window && window.localStorage.setItem(DEFAULT_PLANNED_TASK_ID, activeTeamTask.id!);
 			}
 		}
@@ -665,8 +677,8 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 	} = props;
 
 	const teamTasks = useAtomValue(tasksByTeamState);
-	const { createTask } = useTeamTasks();
-	const taskStatuses = useAtomValue(taskStatusesState);
+	const { createTask } = useCreateTask();
+	const { taskStatuses } = useTaskStatusesQuery();
 	const [taskName, setTaskName] = useState('');
 	const [tasks, setTasks] = useState<TTask[]>([]);
 	const [createTaskLoading, setCreateTaskLoading] = useState(false);
@@ -831,12 +843,13 @@ function TaskCard(props: ITaskCardProps) {
 		employeeId,
 		canEdit = true
 	} = props;
-	const { getTaskById } = useTeamTasks();
-	const { addTaskToPlan, createDailyPlan } = useDailyPlan(employeeId);
+	const { getTaskById } = useTaskQueries();
+	const { addTaskToPlan } = useUpdateDailyPlan();
+	const { createDailyPlan } = useCreateDailyPlan();
 	const { data: user } = useUserQuery();
 	const [addToPlanLoading, setAddToPlanLoading] = useState(false);
 
-	const taskStatuses = useAtomValue(taskStatusesState);
+	const { taskStatuses } = useTaskStatusesQuery();
 	const isTaskRenderedInTodayPlan =
 		plan && new Date(Date.now()).toLocaleDateString('en') == new Date(plan.date).toLocaleDateString('en');
 	const {
@@ -1040,26 +1053,31 @@ interface ITaskCardActionsProps {
 function TaskCardActions(props: ITaskCardActionsProps) {
 	const { task, selectedPlan, openTaskDetailsModal, openUnplanActiveTaskModal, employeeId, canEdit = true } = props;
 	const { data: user } = useUserQuery();
-	const { futurePlans, todayPlan, removeTaskFromPlan, removeTaskFromPlanLoading } = useDailyPlan(employeeId);
-
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	// Use useEmployeeDailyPlans consistent with other components
+	const { employeeFuturePlans, employeeTodayPlan } = useEmployeeDailyPlans(employeeId ?? null);
+	const { removeTaskFromPlan, removeTaskFromPlanLoading } = useUpdateDailyPlan();
 
 	const timerStatus = useAtomValue(timerStatusState);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+
 	const otherPlanIds = useMemo(
 		() =>
-			[...futurePlans, ...todayPlan]
+			[...employeeFuturePlans, ...employeeTodayPlan]
 				// Remove selected plan
 				.filter((plan) => plan.id! !== selectedPlan?.id)
 				.filter((plan) => plan.tasks && plan.tasks.find((_task) => _task.id == task.id))
 				.map((plan) => plan.id!),
-		[futurePlans, selectedPlan?.id, task.id, todayPlan]
+		[employeeFuturePlans, selectedPlan?.id, task.id, employeeTodayPlan]
 	);
-	const isTodayPLan = useMemo(
-		() =>
-			new Date(selectedPlan?.date).toLocaleDateString('en') ==
-			new Date(todayPlan[0]?.date).toLocaleDateString('en'),
-		[selectedPlan?.date, todayPlan]
-	);
+
+	const isTodayPLan = useMemo(() => {
+		const planDate = selectedPlan?.date;
+		const todayPlanDate = employeeTodayPlan?.[0]?.date;
+
+		if (!planDate || !todayPlanDate) return false;
+
+		return new Date(planDate).toLocaleDateString('en') == new Date(todayPlanDate).toLocaleDateString('en');
+	}, [selectedPlan?.date, employeeTodayPlan]);
 
 	/**
 	 * Unplan selected task
@@ -1248,13 +1266,16 @@ function UnplanTask(props: IUnplanTaskProps) {
 		canEdit = true
 	} = props;
 	const { data: user } = useUserQuery();
-	const { todayPlan, removeManyTaskPlans, removeManyTaskFromPlanLoading } = useDailyPlan(employeeId);
+	// Use useEmployeeDailyPlans consistent with other components
+	const { employeeTodayPlan } = useEmployeeDailyPlans(employeeId ?? null);
+	const { removeManyTaskPlans, removeManyTaskFromPlanLoading } = useUpdateDailyPlan();
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const { timerStatus } = useTimerView();
+
 	const isActiveTaskPlannedToday = useMemo(
-		() => todayPlan[0].tasks?.find((task) => task.id === activeTeamTask?.id),
-		[activeTeamTask?.id, todayPlan]
+		() => employeeTodayPlan[0]?.tasks?.find((task) => task.id === activeTeamTask?.id),
+		[activeTeamTask?.id, employeeTodayPlan]
 	);
 
 	/**

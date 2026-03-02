@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on: ubicloud-standard-2
+    runs-on: ubicloud-standard-4
 
     steps:
       - uses: actions/checkout@v4
@@ -32,15 +32,39 @@ jobs:
         if: steps.skip_check.outputs.skipped == 'true'
         run: echo "Workflow was skipped" && exit 0
 
+      - name: Free disk space
+        run: |
+            df -h /
+            sudo swapoff -a
+            sudo apt clean
+            docker image ls -aq
+            if [ "$(docker image ls -aq)" ]; then
+              docker rmi $(docker image ls -aq)
+            fi
+            find ~/work/_temp -name "cache.tgz" -exec rm -f {} \;
+            sudo rm -rf "/usr/local/share/boost"
+            sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+            df -h /
+
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: "24.11.1"
+          node-version: "24.14.0"
           cache: "yarn"
+
+      - name: Configure Registry
+        shell: bash
+        run: |
+          if [ -n "${{ secrets.VERDACCIO_TOKEN }}" ]; then
+            echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
+            echo "registry=https://packages.ever.co/" >> .npmrc
+          fi
 
       - name: Install Packages
         run: |
-          yarn install --frozen-lockfile
+          yarn install --network-timeout 1000000 --frozen-lockfile
+        env:
+          NODE_OPTIONS: '--dns-result-order=ipv4first'
 
       - name: Build Web
 

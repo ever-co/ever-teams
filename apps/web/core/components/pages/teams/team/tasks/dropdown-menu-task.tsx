@@ -6,7 +6,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuSeparator
 } from '@/core/components/common/dropdown-menu';
-import { useAuthenticateUser, useTeamMemberCard, useTMCardTaskEdit } from '@/core/hooks';
+import { useAuthenticateUser, useTeamMemberMutations, useTMCardTaskEdit } from '@/core/hooks';
 import { useTranslations } from 'next-intl';
 import { FC, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
@@ -24,7 +24,7 @@ const DropdownMenuTask: FC<{ task: TTask }> = ({ task }) => {
 	const { user } = useAuthenticateUser();
 	const isAssigned = task?.members?.some((m) => m?.user?.id === user?.id);
 	const member = activeTeam?.members?.find((m) => m?.employee?.user?.id === user?.id);
-	const memberInfo = useTeamMemberCard(member);
+	const { assignTask, unassignTask } = useTeamMemberMutations(member);
 	const taskEdition = useTMCardTaskEdit(task);
 	const { toggleFavoriteTask, isFavoriteTask, addTaskToFavoriteLoading, deleteTaskFromFavoritesLoading } =
 		useFavoriteTasks();
@@ -32,17 +32,17 @@ const DropdownMenuTask: FC<{ task: TTask }> = ({ task }) => {
 
 	const handleAssignment = useCallback(async () => {
 		if (isAssigned) {
-			await memberInfo.unassignTask(task);
+			await unassignTask(task);
 			toast.success(t('task.toastMessages.TASK_UNASSIGNED'), {
 				id: 'task-unassigned'
 			});
 		} else {
-			await memberInfo.assignTask(task);
+			await assignTask(task);
 			toast.success(t('task.toastMessages.TASK_ASSIGNED'), {
 				id: 'task-assigned'
 			});
 		}
-	}, [isAssigned, memberInfo, task]);
+	}, [isAssigned, assignTask, unassignTask, task]);
 
 	return (
 		<DropdownMenu>

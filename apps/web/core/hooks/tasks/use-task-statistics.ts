@@ -19,6 +19,7 @@ import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '../queries/user-user.query';
 import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
+import { getTaskTotalWorkedDuration } from '@/core/lib/utils/task.utils';
 
 export function useTaskStatistics(addSeconds = 0) {
 	const { data: user } = useUserQuery();
@@ -172,12 +173,13 @@ export function useTaskStatistics(addSeconds = 0) {
 	}, [firstLoad, activeTeamTask?.id, setStatActiveTask]);
 
 	/**
-	 * Get task estimation in
+	 * Get task estimation percentage.
 	 *
-	 * @param timeSheet
-	 * @param _task
-	 * @param addSeconds
-	 * @returns
+	 * @param timeSheet - Optional timesheet stat (used for daily estimation fallback)
+	 * @param _task - The task to estimate progress for
+	 * @param addSeconds - Total worked seconds (callers provide totalWorkedTasksTimer + localTimerSeconds)
+	 * @param estimate - Override for the task estimate (in seconds)
+	 * @returns Progress percentage (0-100)
 	 */
 	const getEstimation = useCallback(
 		(timeSheet: Nullable<TTaskStatistic>, _task: Nullable<TTask>, addSeconds: number, estimate = 0) => {
@@ -188,27 +190,23 @@ export function useTaskStatistics(addSeconds = 0) {
 				return 0;
 			}
 
-			return Math.min(
-				Math.floor((((_task?.totalWorkedTime || timeSheet?.duration || 0) + addSeconds) * 100) / totalEstimate),
-				100
-			);
+			// Use timeSheet?.duration as base only when provided (daily estimation).
+			// Do NOT add _task?.totalWorkedTime — callers already include total worked time in addSeconds,
+			// which would cause double-counting and inflate the progress bar.
+			const baseWorkedTime = timeSheet?.duration || 0;
+
+			return Math.min(Math.floor(((baseWorkedTime + addSeconds) * 100) / totalEstimate), 100);
 		},
 		[]
 	);
 
 	const activeTaskEstimation = useMemo(() => {
-		let totalWorkedTasksTimer = 0;
-		activeTeam?.members?.forEach((member: any) => {
-			const totalWorkedTasks =
-				member?.totalWorkedTasks?.find((item: TTask) => item.id === activeTeamTask?.id) || null;
-			if (totalWorkedTasks) {
-				totalWorkedTasksTimer += totalWorkedTasks?.duration || 0;
-			}
-		});
+		const totalWorkedTasksTimer = getTaskTotalWorkedDuration(activeTeam?.members, activeTeamTask?.id);
 
 		// Add local timer seconds (addSeconds) to the total worked time
 		// This ensures the progress bar updates in real-time as the timer runs locally
 		const estimation = getEstimation(null, activeTeamTask, totalWorkedTasksTimer + addSeconds, activeTeamTask?.estimate || 0);
+
 		return estimation;
 	}, [activeTeam?.members, activeTeamTask, getEstimation, addSeconds]);
 

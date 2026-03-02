@@ -13,25 +13,39 @@ import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import DailyPlanTasksTableView from './table-view';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { filterDailyPlansByEmployee } from '@/core/hooks/daily-plans/use-filter-date-range';
+import { filterDailyPlansByEmployee, filterDailyPlansByTasks } from '@/core/hooks/daily-plans/use-filter-date-range';
 
 interface IOutstandingFilterDate {
 	profile: any;
 	user?: TUser;
 	outstandingPlans: TDailyPlan[];
 	filterByEmployee?: boolean; // Filter tasks by employee (default: false = show all tasks)
+	filteredTaskIds?: string[]; // Filter plans by taskIds (default undefined = show all)
 }
-export function OutstandingFilterDate({ profile, user, outstandingPlans, filterByEmployee = false }: IOutstandingFilterDate) {
+export function OutstandingFilterDate({
+	profile,
+	user,
+	outstandingPlans,
+	filterByEmployee = false,
+	filteredTaskIds
+}: IOutstandingFilterDate) {
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 
 	// Performance: useMemo prevents recalculating filtered plans on every render
 	const filteredPlans = useMemo(() => {
-		// If filterByEmployee flag is disabled, show all tasks
-		if (!filterByEmployee) return outstandingPlans;
+		let filteredData = outstandingPlans;
 
-		// Filter tasks by employee if flag is enabled
-		return filterDailyPlansByEmployee(outstandingPlans, user);
-	}, [outstandingPlans, user, filterByEmployee]);
+		if (filterByEmployee) {
+			// Filter tasks by employee if flag is enabled
+			filteredData = filterDailyPlansByEmployee(outstandingPlans, user);
+		}
+
+		if (filteredTaskIds && filteredData) {
+			filteredData = filterDailyPlansByTasks(filteredData, filteredTaskIds);
+		}
+
+		return filteredData;
+	}, [outstandingPlans, user, filterByEmployee, filteredTaskIds]);
 
 	// Local state for drag-and-drop functionality (minimal approach)
 	const [plans, setPlans] = useState(filteredPlans);

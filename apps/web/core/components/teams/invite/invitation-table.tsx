@@ -1,5 +1,5 @@
 import { imgTitle } from '@/core/lib/helpers/index';
-import { useRequestToJoinTeam } from '@/core/hooks';
+import { useAcceptRejectRequestToJoin } from '@/core/hooks/organizations/teams/use-accept-reject-request-to-join';
 import { usePagination } from '@/core/hooks/common/use-pagination';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
@@ -18,7 +18,7 @@ export const InvitationTable = ({ invitations }: { invitations: (TInvite | IJoin
 		TInvite | IJoinTeamResponse
 	>({ items: invitations });
 	const t = useTranslations();
-	const { acceptRejectRequestToJoin } = useRequestToJoinTeam();
+	const { acceptRejectRequestToJoin } = useAcceptRejectRequestToJoin();
 
 	return (
 		<div>

@@ -1,7 +1,6 @@
 import { useStatusValue } from '@/core/hooks';
+import { useTaskSizesQuery } from '@/core/hooks/tasks/use-task-sizes-query';
 import { useMapToTaskStatusValues } from '@/core/hooks/tasks/use-map-to-task-status-values';
-import { taskSizesListState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
 import { TTaskStatusesDropdown } from '@/core/types/interfaces/task/task-card';
 import { TTaskStatus } from '@/core/types/schemas';
 import { StatusDropdown } from './task-status';
@@ -21,7 +20,7 @@ export function TaskSizesDropdown({
 	children,
 	isMultiple = false
 }: TTaskStatusesDropdown<'size'>) {
-	const taskSizes = useAtomValue(taskSizesListState);
+	const { taskSizes } = useTaskSizesQuery();
 	const taskSizesValue = useMapToTaskStatusValues(taskSizes as TTaskStatus[], false);
 
 	const { item, items, onChange, values } = useStatusValue<'size'>({

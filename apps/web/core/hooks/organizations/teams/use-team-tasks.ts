@@ -6,6 +6,7 @@ import {
 	setActiveTaskIdCookie,
 	setActiveUserTaskCookie
 } from '@/core/lib/helpers/index';
+import { getValidActiveTask } from '@/core/lib/utils/task.utils';
 import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
 import { taskService } from '@/core/services/client/api';
 import {
@@ -15,8 +16,7 @@ import {
 	memberActiveTaskIdState,
 	activeTeamTaskState,
 	tasksByTeamState,
-	teamTasksState,
-	taskStatusesState
+	teamTasksState
 } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
 import { useCallback, useRef, useState } from 'react';
@@ -32,11 +32,31 @@ import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { useUserQuery } from '../../queries/user-user.query';
+import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 import { EIssueType, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
+import { useTaskStatusesQuery } from '../../tasks/use-task-statuses-query';
 import { toast } from 'sonner';
 
 /**
  * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
+ *
+ * @deprecated **ETP-171**: This monolithic hook is deprecated. Use specialized hooks instead:
+ *
+ * - **Read operations**: `useTeamTasksQuery()` - tasks, loading, activeTeamTask, loadTeamTasksData
+ * - **Create operations**: `useCreateTask()` - createTask, createLoading
+ * - **Update operations**: `useUpdateTask()` - updateTask, updateLoading, updateTitle, updateDescription, handleStatusUpdate
+ * - **Delete operations**: `useDeleteTask()` - deleteTask, deleteLoading, deleteEmployeeFromTasks
+ * - **Single task queries**: `useTaskQueries()` - getTaskById, getTasksByEmployeeId, detailedTask
+ * - **State management**: `useTeamTasksState()` - setActiveTask, setAllTasks, isUpdatingActiveTask
+ *
+ * **Migration example**:
+ * ```typescript
+ * // Before (executes 764 lines of code)
+ * const { updateTask, updateLoading } = useTeamTasks();
+ *
+ * // After (executes ~200 lines of code)
+ * const { updateTask, updateLoading } = useUpdateTask();
+ * ```
  *
  * @returns {Object} An object containing various functions and state related to team tasks.
  * @property {TTask[]} tasks - The list of team tasks.
@@ -82,7 +102,7 @@ export function useTeamTasks() {
 	const setActive = useSetAtom(activeTeamTaskId);
 	const memberActiveTaskId = useAtomValue(memberActiveTaskIdState);
 	const $memberActiveTaskId = useSyncRef(memberActiveTaskId);
-	const taskStatuses = useAtomValue(taskStatusesState);
+	const { taskStatuses } = useTaskStatusesQuery();
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamRef = useSyncRef(activeTeam);
 	const [selectedEmployeeId, setSelectedEmployeeId] = useState(user?.employee?.id);
@@ -137,6 +157,7 @@ export function useTeamTasks() {
 		gcTime: 1000 * 60 * 60
 	});
 
+	const { invalidateTeamTasksData } = useInvalidateTeamTasks();
 	// Mutations
 	const createTaskMutation = useMutation({
 		mutationFn: async (taskData: Parameters<typeof taskService.createTask>[0]) => {
@@ -186,19 +207,6 @@ export function useTeamTasks() {
 			invalidateTeamTasksData();
 		}
 	});
-
-	// Invalidation function
-	const invalidateTeamTasksData = useCallback(() => {
-		queryClient.invalidateQueries({
-			queryKey: queryKeys.tasks.all
-		});
-		queryClient.invalidateQueries({
-			queryKey: queryKeys.tasks.byTeam(activeTeam?.id)
-		});
-		queryClient.invalidateQueries({
-			queryKey: queryKeys.dailyPlans.all
-		});
-	}, [activeTeam?.id, queryClient]);
 
 	// Deep update function
 	const deepCheckAndUpdateTasks = useCallback(
@@ -674,13 +682,17 @@ export function useTeamTasks() {
 			}
 
 			// No local expectation - sync from server (multi-device sync or initial load)
-			const memberActiveTask = tasks.find((item) => item.id === memberActiveTaskId);
+			// Validate: ensure the task belongs to the current active team
+			const memberActiveTask = getValidActiveTask(tasks, memberActiveTaskId, activeTeam?.id);
 			if (memberActiveTask) {
 				setActiveTeamTask(memberActiveTask);
+			} else if (memberActiveTaskId && activeTeam?.id) {
+				// Task ID exists but doesn't belong to this team - clear it
+				setActiveTeamTask(null);
 			}
 		},
 		[activeTeam, tasks, memberActiveTaskId, isUpdatingActiveTask],
-		Boolean(activeTeamTask)
+		true // Allow effect to run even when activeTeamTask is null to enable restoration
 	);
 
 	// Reload tasks after active team changed
@@ -704,10 +716,12 @@ export function useTeamTasks() {
 						? active_user_task?.taskId
 						: getActiveTaskIdCookie() || '';
 
-				setActiveTeamTask(tasks.find((ts) => ts.id === active_taskid) || null);
+				// Validate: ensure the task from cookie belongs to the current active team
+				const validTask = getValidActiveTask(tasks, active_taskid, activeTeam?.id);
+				setActiveTeamTask(validTask);
 			}
 		},
-		[tasks, firstLoad, authUser],
+		[tasks, firstLoad, authUser, activeTeam?.id],
 		Boolean(activeTeamTask)
 	);
 

@@ -590,7 +590,8 @@
 					"endDateRequired": "Enddatum ist erforderlich.",
 					"endDateAfterStart": "Das Enddatum muss nach dem Startdatum liegen.",
 					"invalidUrl": "Bitte geben Sie eine gültige URL ein.",
-					"uploadError": "Beim Hochladen des Projektbildes ist ein Fehler aufgetreten, bitte versuche es erneut!"
+					"uploadError": "Beim Hochladen des Projektbildes ist ein Fehler aufgetreten, bitte versuche es erneut!",
+					"descriptionWordLimit": "Die Beschreibung darf maximal 5000 Wörter enthalten."
 				},
 				"common": {
 					"search": "Suchen ...",

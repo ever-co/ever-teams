@@ -1,5 +1,5 @@
 import { cn } from '@/core/lib/helpers';
-import { useTeamMemberCard, useTeamTasks } from '@/core/hooks';
+import { useMemberIdentity, useTaskQueries } from '@/core/hooks';
 import { TaskTimes } from '@/core/components/tasks/task-times';
 import { useEffect, useState } from 'react';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
@@ -12,9 +12,9 @@ export default function UserTeamActiveTaskTimes({
 	member: TOrganizationTeamEmployee;
 	className?: string;
 }) {
-	const memberInfo = useTeamMemberCard(member);
+	const memberInfo = useMemberIdentity(member);
 
-	const { getTaskById } = useTeamTasks();
+	const { getTaskById } = useTaskQueries();
 
 	const [activeTask, setActiveTask] = useState<TTask | null | undefined>(null);
 
@@ -22,7 +22,8 @@ export default function UserTeamActiveTaskTimes({
 		if (!member.activeTaskId) {
 			return;
 		}
-		getTaskById(member.activeTaskId)
+		// Pass false to prevent updating global state (which causes race conditions in lists)
+		getTaskById(member.activeTaskId, false)
 			.then((response) => setActiveTask(response as TTask))
 			.catch((_) => console.log(_));
 

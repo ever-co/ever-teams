@@ -1,8 +1,8 @@
 'use client';
-import { useAtomValue } from 'jotai';
-import { useMemo } from 'react';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useEffect, useMemo } from 'react';
 
-import { activeTeamState } from '@/core/stores';
+import { activeTeamState, isTeamManagerState } from '@/core/stores';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { TUser } from '@/core/types/schemas';
 
@@ -17,7 +17,10 @@ export function useIsMemberManager(user?: TUser | null) {
 			const roleName = member.role?.name;
 			return (
 				isUser &&
-				(roleName === ERoleName.MANAGER || roleName === ERoleName.SUPER_ADMIN || roleName === ERoleName.ADMIN)
+				(member.isManager === true ||
+					roleName === ERoleName.MANAGER ||
+					roleName === ERoleName.SUPER_ADMIN ||
+					roleName === ERoleName.ADMIN)
 			);
 		});
 	}, [user?.id, activeTeam?.members]);
@@ -29,6 +32,13 @@ export function useIsMemberManager(user?: TUser | null) {
 
 	// Team creator should automatically be considered a manager (business logic fix)
 	const isTeamManager = !!activeManager || isTeamCreator;
+
+	// Sync isTeamManagerState atom for global consumers (sidebar, project modal, task info)
+	const setIsTeamManager = useSetAtom(isTeamManagerState);
+	useEffect(() => {
+		setIsTeamManager(isTeamManager);
+	}, [isTeamManager, setIsTeamManager]);
+
 	return {
 		isTeamManager,
 		isTeamCreator,

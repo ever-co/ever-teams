@@ -6,6 +6,7 @@ import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag
 import { EManualTimeReasons } from '@/core/types/generics/enums/timer';
 import { EInviteStatus } from '@/core/types/generics/enums/invite';
 import { Shield, User2, UserCog } from 'lucide-react';
+import { TStatusItem } from '@/core/types/interfaces/task/task-card';
 
 export const BREAKPOINTS = {
 	MOBILE: 768
@@ -291,6 +292,12 @@ export const MAIN_PICTURE_DARK = process.env.MAIN_PICTURE_DARK || '/assets/cover
 
 export const CHARACTER_LIMIT_TO_SHOW = 20;
 
+/**
+ * Length of the passwordless / magic authentication code.
+ * Update this single value when the backend code length changes.
+ */
+export const AUTH_CODE_LENGTH = 8;
+
 export const smtpConfiguration: () => I_SMTPRequest = () => ({
 	fromAddress: SMTP_FROM_ADDRESS,
 	host: SMTP_HOST,
@@ -391,6 +398,7 @@ export enum ActivityFilters {
 }
 
 export enum KanbanTabs {
+	ALL = 'ALL',
 	TODAY = 'TODAY',
 	YESTERDAY = 'YESTERDAY',
 	TOMORROW = 'TOMORROW'
@@ -905,3 +913,14 @@ export const sizeOption = [
 		name: '100+'
 	}
 ];
+
+/**
+ * Default state for the issues filter.
+ * Extracted as a constant to avoid recreating the object on every render.
+ */
+export const DEFAULT_ISSUES_STATE: TStatusItem = {
+	name: 'Issues',
+	icon: null,
+	bgColor: '',
+	value: ''
+};

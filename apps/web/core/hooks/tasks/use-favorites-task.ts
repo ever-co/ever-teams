@@ -2,7 +2,9 @@ import { useAtomValue } from 'jotai';
 import { tasksByTeamState } from '@/core/stores/teams/team-tasks';
 import { useCallback, useMemo } from 'react';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useFavorites } from '../favorites';
+import { useFavoritesQuery } from '../favorites/use-favorites-query';
+import { useCreateFavorite } from '../favorites/use-create-favorite';
+import { useDeleteFavorite } from '../favorites/use-delete-favorite';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { IFavoriteCreateRequest } from '@/core/types/interfaces/common/favorite';
 import { useUserQuery } from '../queries/user-user.query';
@@ -22,8 +24,9 @@ export const useFavoriteTasks = () => {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { data: user } = useUserQuery();
 
-	const { currentEmployeeFavorites, createFavorite, deleteFavorite, createFavoriteLoading, deleteFavoriteLoading } =
-		useFavorites();
+	const { currentEmployeeFavorites } = useFavoritesQuery();
+	const { createFavorite, createFavoriteLoading } = useCreateFavorite();
+	const { deleteFavorite, deleteFavoriteLoading } = useDeleteFavorite();
 
 	const toggleFavoriteTask = useCallback(
 		async (task: TTask) => {

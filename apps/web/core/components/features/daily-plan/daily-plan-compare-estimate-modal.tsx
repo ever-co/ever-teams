@@ -1,10 +1,12 @@
 'use client';
 import { Modal, Text, Button } from '@/core/components';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Separator from '@/core/components/common/separator';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { clsxm } from '@/core/lib/utils';
-import { useDailyPlan, useTeamMemberCard, useTimer, useTMCardTaskEdit } from '@/core/hooks';
+import { useMemberIdentity, useMemberActiveTask, useTMCardTaskEdit } from '@/core/hooks';
+import { useTimerActions } from '@/core/hooks/timer';
+import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { dailyPlanCompareEstimated } from '@/core/lib/helpers/daily-plan-estimated';
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@/core/constants/config/constants';
@@ -34,9 +36,9 @@ export function DailyPlanCompareEstimatedModal({
 	profile: any;
 }) {
 	const { difference, workTimePlanned, estimated, plan } = dailyPlanCompareEstimated(todayPlan);
-	const { updateDailyPlan, updateDailyPlanLoading } = useDailyPlan();
+	const { updateDailyPlan, updateDailyPlanLoading } = useUpdateDailyPlan();
 	const { hours: dh, minutes: dm } = secondsToTime(workTimePlanned || 0);
-	const { startTimer } = useTimer();
+	const { startTimer } = useTimerActions();
 	const hour = dh.toString()?.padStart(2, '0');
 	const minute = dm.toString()?.padStart(2, '0');
 	const [times, setTimes] = useState<TimePickerValue>({
@@ -58,10 +60,10 @@ export function DailyPlanCompareEstimatedModal({
 		<Modal isOpen={open} closeModal={closeModal}>
 			<div className="w-[98%] md:w-[550px] relative">
 				<EverCard className="w-full h-[620px] flex flex-col justify-start bg-gray-50" shadow="custom">
-					<div className="flex flex-col items-center justify-between">
+					<div className="flex flex-col justify-between items-center">
 						<DailyPlanCompareHeader />
 					</div>
-					<div className="flex flex-col items-start justify-start w-full px-2">
+					<div className="flex flex-col justify-start items-start px-2 w-full">
 						<TimePicker
 							defaultValue={{
 								hours: hour,
@@ -73,7 +75,7 @@ export function DailyPlanCompareEstimatedModal({
 						<DailyPlanWorkTimeInput />
 					</div>
 
-					<ScrollArea className="flex flex-col w-full h-full p-2">
+					<ScrollArea className="flex flex-col p-2 w-full h-full">
 						{todayPlan.map((plan, i) => {
 							return (
 								<div key={i}>
@@ -116,10 +118,17 @@ export function DailyPlanTask({ task, profile }: { task?: TTask; profile: any })
 		return member?.employee?.user?.id === profile?.userProfile?.id;
 	});
 
-	const memberInfo = useTeamMemberCard(member);
+	// Only identity + memberTask needed — TaskEstimateInput consumes memberTask, isAuthUser, isAuthTeamManager
+	const identity = useMemberIdentity(member);
+	const memberTask = useMemberActiveTask(member);
+	const memberInfo = useMemo(
+		() => ({ memberTask, isAuthUser: identity.isAuthUser, isAuthTeamManager: identity.isAuthTeamManager }),
+		[memberTask, identity.isAuthUser, identity.isAuthTeamManager]
+	);
+
 	return (
-		<div className="flex items-center justify-between w-full h-16 px-1 font-normal bg-white border rounded-lg dark:bg-dark--theme-light dark:border-gray-700 drop-shadow">
-			<div className="flex items-center w-full space-x-1">
+		<div className="flex justify-between items-center px-1 w-full h-16 font-normal bg-white rounded-lg border drop-shadow dark:bg-dark--theme-light dark:border-gray-700">
+			<div className="flex items-center space-x-1 w-full">
 				<TaskNameInfoDisplay
 					task={task}
 					className={clsxm('text-2xl')}
@@ -156,15 +165,15 @@ export function DailyPlanCompareActionButton({
 	disabled: boolean;
 }) {
 	return (
-		<div className="flex items-center justify-between">
-			<Button onClick={closeModal} variant="outline" className="font-normal rounded-xs text-md h-9">
+		<div className="flex justify-between items-center">
+			<Button onClick={closeModal} variant="outline" className="h-9 font-normal rounded-xs text-md">
 				Cancel
 			</Button>
 			<Button
 				disabled={disabled}
 				loading={loading}
 				onClick={onClick}
-				className="font-normal rounded-xs text-md h-9"
+				className="h-9 font-normal rounded-xs text-md"
 			>
 				Start working
 			</Button>
@@ -180,7 +189,7 @@ export function DailyPlanCompareHeader() {
 					TODAY&apos;S PLAN
 				</Text.Heading>
 			</div>
-			<div className="flex items-center justify-start w-full px-2 mb-3">
+			<div className="flex justify-start items-center px-2 mb-3 w-full">
 				<div className="flex items-center space-x-1">
 					<Text.Heading as="h4" className="mb-3 text-center text-gray-500 text-[12px]">
 						Add planned working hours
@@ -197,7 +206,7 @@ export function DailyPlanCompareHeader() {
 export function DailyPlanWorkTimeInput() {
 	return (
 		<>
-			<div className="flex items-center w-auto space-x-1">
+			<div className="flex items-center space-x-1 w-auto">
 				<Text.Heading as="h4" className=" text-center text-gray-500 text-[12px]">
 					Tasks with no time estimations
 				</Text.Heading>

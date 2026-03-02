@@ -1,4 +1,6 @@
-import { GroupedTimesheet, useTimesheet } from '@/core/hooks/activities/use-timesheet';
+import type { GroupedTimesheet } from '@/core/lib/helpers/timesheet-grouping';
+import { getStatusTimesheet, groupedByTimesheetIds } from '@/core/lib/helpers/timesheet-grouping';
+import { useTimesheetQuery } from '@/core/hooks/timesheet/use-timesheet-query';
 import { statusColor } from '@/core/components';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { TranslationHooks, useTranslations } from 'next-intl';
@@ -80,7 +82,7 @@ export function CalendarView({ data, loading }: { data?: GroupedTimesheet[]; loa
 	);
 }
 const CalendarDataView = ({ data }: { data?: GroupedTimesheet[]; t: TranslationHooks }) => {
-	const { getStatusTimesheet, handleSelectRowTimesheet, selectTimesheetId, groupedByTimesheetIds } = useTimesheet({});
+	const { handleSelectRowTimesheet, selectTimesheetId } = useTimesheetQuery({});
 
 	return (
 		<div className="w-full dark:bg-dark--theme">
@@ -226,7 +228,7 @@ const CalendarDataView = ({ data }: { data?: GroupedTimesheet[]; t: TranslationH
 };
 
 const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCalendarDataViewProps) => {
-	const { getStatusTimesheet, handleSelectRowTimesheet, selectTimesheetId, groupedByTimesheetIds } = useTimesheet({});
+	const { handleSelectRowTimesheet, selectTimesheetId } = useTimesheetQuery({});
 
 	return (
 		<CalendarComponent

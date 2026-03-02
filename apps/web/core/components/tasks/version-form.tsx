@@ -1,7 +1,11 @@
 import { Button, Text } from '@/core/components';
 import { StatusesListCard } from '../settings/list-card';
 
-import { useCallbackRef, useTaskVersion } from '@/core/hooks';
+import { useCallbackRef } from '@/core/hooks';
+import { useTaskVersionsQuery } from '@/core/hooks/tasks/use-task-versions-query';
+import { useCreateTaskVersion } from '@/core/hooks/tasks/use-create-task-version';
+import { useEditTaskVersion } from '@/core/hooks/tasks/use-edit-task-version';
+import { useDeleteTaskVersion } from '@/core/hooks/tasks/use-delete-task-version';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { useCallback, useEffect, useState } from 'react';
@@ -32,15 +36,10 @@ export const TaskVersionForm = ({ formOnly = false, onCreated, onVersionCreated 
 	const $onVersionCreated = useCallbackRef(onVersionCreated);
 	const organizationId = getOrganizationIdCookie();
 
-	const {
-		loading,
-		taskVersions,
-		createTaskVersion,
-		deleteTaskVersion,
-		editTaskVersion,
-		createTaskVersionLoading,
-		editTaskVersionLoading
-	} = useTaskVersion();
+	const { loading, taskVersions } = useTaskVersionsQuery();
+	const { createTaskVersion, createTaskVersionLoading } = useCreateTaskVersion();
+	const { editTaskVersion, editTaskVersionLoading } = useEditTaskVersion();
+	const { deleteTaskVersion } = useDeleteTaskVersion();
 	const { refetch } = useRefetchData();
 
 	useEffect(() => {
