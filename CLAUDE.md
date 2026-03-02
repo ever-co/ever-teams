@@ -147,14 +147,14 @@ apps/web/
 
 ### Shared Packages (`packages/`)
 
-| Package | Purpose |
-|---------|---------|
+| Package                 | Purpose                            |
+| ----------------------- | ---------------------------------- |
 | `@ever-teams/constants` | Shared constants and configuration |
-| `@ever-teams/types` | TypeScript type definitions |
-| `@ever-teams/services` | Shared API service utilities |
-| `@ever-teams/hooks` | Shared React hooks |
-| `@ever-teams/utils` | Shared utility functions |
-| `@ever-teams/ui` | Shared UI components (Radix-based) |
+| `@ever-teams/types`     | TypeScript type definitions        |
+| `@ever-teams/services`  | Shared API service utilities       |
+| `@ever-teams/hooks`     | Shared React hooks                 |
+| `@ever-teams/utils`     | Shared utility functions           |
+| `@ever-teams/ui`        | Shared UI components (Radix-based) |
 
 ### When Adding Features
 
@@ -164,6 +164,41 @@ apps/web/
 - Follow existing patterns for API calls (see `core/services/`).
 - Reuse existing hooks and services instead of duplicating logic.
 
+## Authentication
+
+The app supports **magic code** (passwordless), **password**, **social/OAuth**, and **forgot/reset password** auth flows. All auth is powered by the [Gauzy API](https://github.com/ever-co/ever-gauzy).
+
+### Key Auth Files
+
+| File                                             | Purpose                                    |
+| ------------------------------------------------ | ------------------------------------------ |
+| `core/services/client/api/auth/auth.service.ts`  | All auth API calls (`authService`)         |
+| `core/hooks/auth/use-authentication-passcode.ts` | Magic code auth hook                       |
+| `core/hooks/auth/use-authentication-password.ts` | Password auth hook                         |
+| `core/components/pages/auth/passcode/`           | Magic code login UI                        |
+| `core/components/pages/auth/password/`           | Password login UI                          |
+| `core/components/pages/auth/forgot-password/`    | Forgot password UI                         |
+| `core/components/pages/auth/reset-password/`     | Reset password UI                          |
+| `core/constants/config/constants.tsx`            | `AUTH_CODE_LENGTH` = 8 (magic code length) |
+
+### Auth Routes
+
+`/auth/passcode` (default login), `/auth/password`, `/auth/signup`, `/auth/forgot-password`, `/auth/reset-password`, `/auth/accept-invite`
+
+### Gauzy API Auth Endpoints (called directly, not through Next.js proxy)
+
+| Endpoint                           | Purpose                      |
+| ---------------------------------- | ---------------------------- |
+| `POST /auth/signin.email`          | Send magic code              |
+| `POST /auth/signin.email/confirm`  | Confirm magic code           |
+| `POST /auth/signin.email.password` | Password sign-in             |
+| `POST /auth/request-password`      | Request password reset email |
+| `POST /auth/reset-password`        | Reset password with token    |
+| `POST /auth/signin.workspace`      | Sign into workspace          |
+| `POST /auth/refresh-token`         | Refresh JWT tokens           |
+
+> **Full docs**: <https://docs.ever.team/docs/features/authentication>
+
 ## 7. Coding Style & Conventions
 
 - Use **TypeScript** everywhere; avoid plain `.js` files.
@@ -172,8 +207,8 @@ apps/web/
 - Validate input with **Zod** where appropriate; see schemas in `core/types/schemas/`.
 - For forms, prefer `react-hook-form` + Zod; follow patterns in existing auth forms.
 - For API routes:
-  - Put shared logic in `core/services/`.
-  - Keep handlers thin: validate → call service → return response.
+    - Put shared logic in `core/services/`.
+    - Keep handlers thin: validate → call service → return response.
 - Keep i18n-friendly: use `next-intl` messages, avoid hard-coded strings.
 
 ### Commit Convention
@@ -190,20 +225,20 @@ Use [Conventional Commits](https://www.conventionalcommits.org/):
 
 ## 8. Tech Stack Reference
 
-| Category | Technology |
-|----------|------------|
-| Framework | Next.js 16 (App Router) |
-| Language | TypeScript |
-| Styling | Tailwind CSS 4 |
-| UI Components | Radix UI, shadcn/ui patterns |
-| State Management | Jotai |
-| Data Fetching | TanStack Query (React Query) |
-| Forms | React Hook Form + Zod |
-| i18n | next-intl |
-| Auth | NextAuth.js v5 (beta) |
-| Monitoring | Sentry |
-| Build | Turbo + Nx |
-| Icons | Lucide React, Heroicons, React Icons |
+| Category         | Technology                           |
+| ---------------- | ------------------------------------ |
+| Framework        | Next.js 16 (App Router)              |
+| Language         | TypeScript                           |
+| Styling          | Tailwind CSS 4                       |
+| UI Components    | Radix UI, shadcn/ui patterns         |
+| State Management | Jotai                                |
+| Data Fetching    | TanStack Query (React Query)         |
+| Forms            | React Hook Form + Zod                |
+| i18n             | next-intl                            |
+| Auth             | NextAuth.js v5 (beta)                |
+| Monitoring       | Sentry                               |
+| Build            | Turbo + Nx                           |
+| Icons            | Lucide React, Heroicons, React Icons |
 
 ## 9. Safe Command & Editing Guidelines
 

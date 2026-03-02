@@ -39,10 +39,10 @@ function TeamDashboard() {
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
 	const { mergedProps, enabled, currentFilters, updateDateRange, isManage } = useActivityFilters();
-	const { rapportChartActivity, refetchChartActivity } = useActivityChartQuery({ mergedProps, enabled });
+	const { rapportChartActivity, refetchChartActivity, isLoading: isChartLoading } = useActivityChartQuery({ mergedProps, enabled });
 	const { rapportDailyActivity, refetchDailyReport, isLoading: isDailyLoading } = useActivityDailyReportQuery({ mergedProps, enabled });
 	const { statisticsCounts, refetchStatisticsCounts, isLoading: isStatsLoading } = useActivityStatisticsQuery({ mergedProps, enabled });
-	const loading = isDailyLoading || isStatsLoading;
+	const loading = isChartLoading || isDailyLoading || isStatsLoading;
 
 	const currentLocale = paramsUrl?.locale;
 

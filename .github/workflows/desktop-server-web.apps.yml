@@ -356,6 +356,14 @@ jobs:
         shell: bash
         run: mkdir -p dist/packages
 
+      - name: Configure Code Signing
+        run: |
+          if [ -n "$CSC_LINK_VALUE" ]; then
+            echo "CSC_LINK=$CSC_LINK_VALUE" >> $GITHUB_ENV
+          fi
+        env:
+          CSC_LINK_VALUE: ${{ secrets.CSC_LINK_BASE64 }}
+
       - name: Build Web Server App
         run: "yarn build:web-server:mac:release"
         env:
@@ -395,8 +403,8 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_APP_PASSWORD: ${{ secrets.APPLE_ID_APP_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          CSC_LINK: ${{ secrets.CSC_LINK_BASE64 }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
           APPLE_API_KEY: /tmp/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}

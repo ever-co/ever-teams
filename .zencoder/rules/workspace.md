@@ -14,6 +14,7 @@ Comprehensive workspace rules and project instructions for Zencoder when working
 **Ever Teams** is an Open Work and Project Management Platform built as a highly modular **monorepo** with multiple applications and shared packages:
 
 ### Applications
+
 - **Web App** (`apps/web`) - Next.js 16 App Router, Tailwind CSS 4, main application
 - **Mobile App** (`apps/mobile`) - React Native 0.79.2 + Expo 53, cross-platform
 - **Desktop App** (`apps/server-web`) - Electron 35.7.5 wrapper with React 19
@@ -21,6 +22,7 @@ Comprehensive workspace rules and project instructions for Zencoder when working
 - **Playground** (`apps/playground`) - Next.js 16 component development sandbox
 
 ### Shared Packages (`packages/`)
+
 - `@ever-teams/ui` - Radix UI-based component library with Storybook
 - `@ever-teams/services` - API client services (Axios-based)
 - `@ever-teams/hooks` - Shared React hooks
@@ -34,26 +36,28 @@ Comprehensive workspace rules and project instructions for Zencoder when working
 
 ## Quick Reference
 
-| What | Command | Notes |
-|------|---------|-------|
-| Install | `yarn install` | From repo root |
-| Dev Server | `yarn dev:web` | http://localhost:3030 |
-| Build | `yarn build:web` | Production build |
-| Lint | `yarn lint` | Check all packages |
-| Lint Fix | `yarn lint-fix` | Auto-fix issues |
-| Format | `yarn format` | Prettier formatting |
+| What       | Command          | Notes                 |
+| ---------- | ---------------- | --------------------- |
+| Install    | `yarn install`   | From repo root        |
+| Dev Server | `yarn dev:web`   | http://localhost:3030 |
+| Build      | `yarn build:web` | Production build      |
+| Lint       | `yarn lint`      | Check all packages    |
+| Lint Fix   | `yarn lint-fix`  | Auto-fix issues       |
+| Format     | `yarn format`    | Prettier formatting   |
 
 ---
 
 ## Runtime Environment
 
 ### Requirements
+
 - **Node.js**: `>= 24.x.x` (see `.nvmrc` and `.node-version`)
 - **Package Manager**: Yarn 1.x (lockfile: `yarn.lock`)
 - **Build Orchestration**: Turbo + Nx for efficient monorepo management
 - **Working Directory**: Always run commands from **repository root**
 
 ### Key Configuration Files
+
 - `turbo.json` - Turbo build pipeline configuration
 - `nx.json` - Nx workspace configuration
 - `lerna.json` - Lerna monorepo management
@@ -67,20 +71,24 @@ Comprehensive workspace rules and project instructions for Zencoder when working
 Since this project has minimal test infrastructure, use these as the primary "test suite":
 
 ### Always Run
+
 ```bash
 yarn lint              # ESLint check (primary verification)
 ```
 
 ### For Significant Changes
+
 ```bash
 yarn build:web         # Verify production build succeeds
 ```
 
 ### Quick Type Check
+
 - Monitor TypeScript errors in your IDE/editor
 - No need to run `tsc --noEmit` separately if IDE shows no errors
 
 ### Before Committing
+
 ```bash
 yarn lint-fix          # Auto-fix lint issues
 yarn format            # Format code with Prettier
@@ -136,14 +144,14 @@ yarn build             # Build all packages via Turbo
 ### Other Applications
 
 ```bash
-# Mobile development
-yarn dev:mobile
+# Mobile development (Expo)
+cd apps/mobile && yarn start
 
 # Desktop development
 yarn dev:server-web
 
 # Browser extension development
-yarn plasmo dev
+cd apps/extensions && yarn plasmo dev
 
 # Playground development
 yarn dev:playground
@@ -186,6 +194,7 @@ NEXT_PUBLIC_POSTHOG_KEY=...
 ```
 
 ### Important Notes
+
 - **Assume** `.env.local` exists in `apps/web/` and is correctly configured
 - **Never** create, modify, or print environment secrets without explicit user request
 - **Never** log or expose secrets (API keys, auth tokens, etc.)
@@ -238,33 +247,36 @@ apps/web/
 
 ### Where to Put Code
 
-| Type | Location | Example |
-|------|----------|---------|
-| Business Logic | `apps/web/core/services/` | API calls, data transformations |
-| Custom Hooks | `apps/web/core/hooks/` | Reusable React hooks |
-| State Management | `apps/web/core/stores/` | Jotai atoms |
-| UI Components | `apps/web/core/components/` | React components (feature-organized) |
-| Types/Interfaces | `apps/web/core/types/` | TypeScript definitions |
-| Validation | `apps/web/core/types/schemas/` | Zod schemas |
-| Utilities | `apps/web/core/lib/` | Helper functions |
-| API Routes | `apps/web/app/api/` | Next.js API handlers |
-| Pages | `apps/web/app/[locale]/` | Next.js App Router pages |
+| Type             | Location                       | Example                              |
+| ---------------- | ------------------------------ | ------------------------------------ |
+| Business Logic   | `apps/web/core/services/`      | API calls, data transformations      |
+| Custom Hooks     | `apps/web/core/hooks/`         | Reusable React hooks                 |
+| State Management | `apps/web/core/stores/`        | Jotai atoms                          |
+| UI Components    | `apps/web/core/components/`    | React components (feature-organized) |
+| Types/Interfaces | `apps/web/core/types/`         | TypeScript definitions               |
+| Validation       | `apps/web/core/types/schemas/` | Zod schemas                          |
+| Utilities        | `apps/web/core/lib/`           | Helper functions                     |
+| API Routes       | `apps/web/app/api/`            | Next.js API handlers                 |
+| Pages            | `apps/web/app/[locale]/`       | Next.js App Router pages             |
 
 ### Architecture Guidelines
 
 **Component Organization**:
+
 - Keep components **feature-organized** rather than type-organized
 - Business logic belongs in `core/services/**` or `core/hooks/**`
 - Components should be mostly **presentational** and handle wiring/data-fetching
 - Use Jotai atoms (`core/stores/**`) for global state management
 
 **Service Layer**:
+
 - API calls abstracted in `core/services/**`
 - Follow existing patterns for service implementation
 - Server-side services in `core/services/server/`
 - Client-side services in `core/services/client/`
 
 **State Management**:
+
 - Use **Jotai** for global state (atoms in `core/stores/**`)
 - Use **TanStack Query** for server state (data fetching/caching)
 - Local component state with `useState` for UI-only state
@@ -274,31 +286,35 @@ apps/web/
 ## Coding Standards (Quick Reference)
 
 ### TypeScript
+
 - Use TypeScript everywhere; **no plain `.js` files**
 - Define types/interfaces for all data structures
 - Use Zod schemas for runtime validation
 - Export types alongside implementations
 
 ### Formatting (Prettier)
+
 ```json
 {
-  "printWidth": 120,
-  "singleQuote": true,
-  "semi": true,
-  "useTabs": true,
-  "tabWidth": 4,
-  "arrowParens": "always",
-  "trailingComma": "none"
+	"printWidth": 120,
+	"singleQuote": true,
+	"semi": true,
+	"useTabs": true,
+	"tabWidth": 4,
+	"arrowParens": "always",
+	"trailingComma": "none"
 }
 ```
 
 ### React Patterns
+
 - **Functional components** with hooks (no class components)
 - **async/await** over raw Promises
 - **React Hook Form + Zod** for forms
 - **next-intl** for all user-facing text (no hard-coded strings)
 
 ### Import Order
+
 ```typescript
 // 1. External dependencies
 import { useState } from 'react';
@@ -336,6 +352,7 @@ yarn upgrade               # Upgrade dependencies
 ```
 
 **Also require confirmation for**:
+
 - Modifying `.env` files or secrets
 - Running scripts that affect external services/databases
 - Installing global tools
@@ -347,26 +364,26 @@ yarn upgrade               # Upgrade dependencies
 
 ## Tech Stack Reference
 
-| Category | Technology | Version | Notes |
-|----------|------------|---------|-------|
-| **Framework** | Next.js | 16 (App Router) | SSR, RSC, API routes |
-| **Language** | TypeScript | 5.9+ | Strict mode enabled |
-| **Styling** | Tailwind CSS | 4 | With Tailwind 4 features |
-| **UI Components** | Radix UI | Latest | Unstyled, accessible primitives |
-| **State (Global)** | Jotai | 2.15+ | Atomic state management |
-| **State (Server)** | TanStack Query | 5.90+ | Data fetching/caching |
-| **Forms** | React Hook Form | 7.68+ | With Zod validation |
-| **Validation** | Zod | 3.25+ | Runtime type validation |
-| **i18n** | next-intl | 4.5+ | Internationalization |
-| **Auth** | NextAuth.js | v5 (beta) | Authentication |
-| **Monitoring** | Sentry | 10.29+ | Error tracking |
-| **Build** | Turbo | Latest | Monorepo build system |
-| **Workspace** | Nx | Latest | Monorepo management |
-| **Icons** | Lucide React | Latest | Primary icon library |
-| **Charts** | Recharts | 2.15+ | Data visualization |
-| **Mobile** | React Native | 0.79.2 | With Expo 53 |
-| **Desktop** | Electron | 35.7.5 | Desktop wrapper |
-| **Extension** | Plasmo | 0.85.2 | Browser extension framework |
+| Category           | Technology      | Version         | Notes                           |
+| ------------------ | --------------- | --------------- | ------------------------------- |
+| **Framework**      | Next.js         | 16 (App Router) | SSR, RSC, API routes            |
+| **Language**       | TypeScript      | 5.9+            | Strict mode enabled             |
+| **Styling**        | Tailwind CSS    | 4               | With Tailwind 4 features        |
+| **UI Components**  | Radix UI        | Latest          | Unstyled, accessible primitives |
+| **State (Global)** | Jotai           | 2.15+           | Atomic state management         |
+| **State (Server)** | TanStack Query  | 5.90+           | Data fetching/caching           |
+| **Forms**          | React Hook Form | 7.68+           | With Zod validation             |
+| **Validation**     | Zod             | 3.25+           | Runtime type validation         |
+| **i18n**           | next-intl       | 4.5+            | Internationalization            |
+| **Auth**           | NextAuth.js     | v5 (beta)       | Authentication                  |
+| **Monitoring**     | Sentry          | 10.29+          | Error tracking                  |
+| **Build**          | Turbo           | Latest          | Monorepo build system           |
+| **Workspace**      | Nx              | Latest          | Monorepo management             |
+| **Icons**          | Lucide React    | Latest          | Primary icon library            |
+| **Charts**         | Recharts        | 2.15+           | Data visualization              |
+| **Mobile**         | React Native    | 0.79.2          | With Expo 53                    |
+| **Desktop**        | Electron        | 38.1.2          | Desktop wrapper                 |
+| **Extension**      | Plasmo          | 0.90.5          | Browser extension framework     |
 
 ---
 
@@ -396,11 +413,13 @@ ever-teams/
 ## Dependency Management
 
 ### Before Adding Dependencies
+
 1. **Check if it already exists** in the project
 2. **Search for similar functionality** in existing packages
 3. **Ask user for approval** before running `yarn add`
 
 ### Building Shared Packages
+
 If you modify a shared package, rebuild it before testing in apps:
 
 ```bash
@@ -419,6 +438,7 @@ yarn build:constants      # After modifying @ever-teams/constants
 **Critical Rule**: Never use hard-coded strings in UI components.
 
 ### Correct Usage
+
 ```typescript
 import { useTranslations } from 'next-intl';
 
@@ -429,6 +449,7 @@ export function WelcomeHeader() {
 ```
 
 ### Incorrect Usage ❌
+
 ```typescript
 export function WelcomeHeader() {
   return <h1>Welcome</h1>;  // ❌ Hard-coded string
@@ -444,11 +465,13 @@ Translation files are in `apps/web/locales/{locale}/*.json`.
 This project uses **Conventional Commits** enforced by Commitlint.
 
 ### Format
+
 ```
 <type>(<scope>): <subject>
 ```
 
 ### Valid Types
+
 - `feat` - New feature
 - `fix` - Bug fix
 - `docs` - Documentation
@@ -461,6 +484,7 @@ This project uses **Conventional Commits** enforced by Commitlint.
 - `chore` - Maintenance
 
 ### Examples
+
 ```
 feat(web): add task filtering by priority
 fix(mobile): resolve crash on task creation
@@ -473,6 +497,7 @@ docs(readme): update installation steps
 ## Zencoder Workflow
 
 ### Standard Task Flow
+
 1. **Understand**: Clarify requirements and constraints
 2. **Search**: Use Grep/Glob to find relevant files
 3. **Read**: Review context before modifying
@@ -482,6 +507,7 @@ docs(readme): update installation steps
 7. **Report**: Summarize changes clearly
 
 ### Tool Usage Best Practices
+
 - **Batch reads**: Read multiple related files in parallel when possible
 - **Minimal edits**: Change only what's necessary
 - **Match style**: Preserve existing formatting and patterns
@@ -492,6 +518,7 @@ docs(readme): update installation steps
 ## Common Pitfalls to Avoid
 
 ❌ **Don't**:
+
 - Add dependencies without checking if they already exist
 - Use hard-coded strings instead of i18n
 - Put business logic in React components
@@ -501,6 +528,7 @@ docs(readme): update installation steps
 - Print or log environment secrets
 
 ✅ **Do**:
+
 - Reuse existing services, hooks, and components
 - Use Zod for validation
 - Keep components presentational
@@ -544,11 +572,13 @@ docs(readme): update installation steps
 ## Documentation & Resources
 
 ### Project Documentation
+
 - **Live Docs**: https://docs.ever.team/docs/introduction
 - **Docs Repository**: https://github.com/ever-co/ever-teams-docs/tree/develop/website/docs
 - **GitHub Repository**: https://github.com/ever-co/ever-teams
 
 ### Related Configuration Files
+
 - **`.zencoder/rules/repo.md`** - Repository structure overview (auto-generated)
 - **`.zencoder/rules/coding-standards.md`** - Detailed coding standards
 - **`CLAUDE.md`** - Claude-specific instructions
@@ -557,6 +587,7 @@ docs(readme): update installation steps
 - **`README.md`** - High-level project overview
 
 ### When to Consult Docs
+
 - Before making large architectural changes
 - When adding new features or integrations
 - When modifying build or deployment configurations

@@ -29,7 +29,7 @@ jobs:
             fi
             find ~/work/_temp -name "cache.tgz" -exec rm -f {} \;
             sudo rm -rf "/usr/local/share/boost"
-            sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+            if [ -n "$AGENT_TOOLSDIRECTORY" ]; then sudo rm -rf "$AGENT_TOOLSDIRECTORY"; fi
             df -h /
 
       - name: Set up QEMU
