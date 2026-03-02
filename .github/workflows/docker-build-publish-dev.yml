@@ -29,7 +29,7 @@ jobs:
             fi
             find ~/work/_temp -name "cache.tgz" -exec rm -f {} \;
             sudo rm -rf "/usr/local/share/boost"
-            sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+            if [ -n "$AGENT_TOOLSDIRECTORY" ]; then sudo rm -rf "$AGENT_TOOLSDIRECTORY"; fi
             df -h /
 
       - name: Set up QEMU
@@ -56,6 +56,7 @@ jobs:
           cache-to: type=inline
           build-args: |
             NODE_ENV=development
+            VERDACCIO_TOKEN=${{ secrets.VERDACCIO_TOKEN }}
             NEXT_PUBLIC_DEMO=true
             API_BASE_URL=${{ vars.API_BASE_URL }}
             CLIENT_BASE_URL=${{ vars.CLIENT_BASE_URL }}
