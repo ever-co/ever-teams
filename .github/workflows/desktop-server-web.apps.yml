@@ -67,6 +67,8 @@ jobs:
 
       - name: Install Yarn dependencies
         run: 'yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts'
+        env:
+          NODE_OPTIONS: '--dns-result-order=ipv4first'
 
       - name: Run Postinstall Manually
         run: 'yarn postinstall.manual'
@@ -189,6 +191,8 @@ jobs:
 
       - name: Install Yarn dependencies
         run: 'yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts'
+        env:
+          NODE_OPTIONS: '--dns-result-order=ipv4first'
 
       - name: Run Postinstall Manually
         run: 'yarn postinstall.manual'
@@ -298,6 +302,8 @@ jobs:
 
       - name: Install Yarn dependencies
         run: 'yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts'
+        env:
+          NODE_OPTIONS: '--dns-result-order=ipv4first'
 
       - name: Run Postinstall Manually
         run: 'yarn postinstall.manual'
@@ -438,6 +444,8 @@ jobs:
 
       - name: Install Yarn dependencies
         run: 'yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts'
+        env:
+          NODE_OPTIONS: '--dns-result-order=ipv4first'
 
       - name: Run Postinstall Manually
         run: 'yarn postinstall.manual'
@@ -626,6 +634,8 @@ jobs:
 
       - name: Install Yarn dependencies
         run: 'yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts'
+        env:
+          NODE_OPTIONS: '--dns-result-order=ipv4first'
 
       - name: Run Postinstall Manually
         run: 'yarn postinstall.manual'
