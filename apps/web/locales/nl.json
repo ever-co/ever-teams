@@ -704,7 +704,8 @@
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "U wordt gevraagd een team aan te maken na het inloggen.",
 			"NO_TEAMS_BADGE": "Geen teams",
 			"TEAM_COUNT_SINGULAR": "team",
-			"TEAM_COUNT_PLURAL": "teams"
+			"TEAM_COUNT_PLURAL": "teams",
+			"FORGOT_PASSWORD": "Forgot Password?"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Bestaand team joinen",
@@ -728,6 +729,33 @@
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Voer uw inloggegevens in."
+		},
+		"authForgotPassword": {
+			"HEADING_TITLE": "Forgot Password",
+			"HEADING_DESCRIPTION": "Enter your email to receive reset instructions",
+			"FORM_DESCRIPTION": "Enter the email address associated with your account and we'll send you a link to reset your password.",
+			"SEND_RESET_LINK": "Send Reset Link",
+			"SUCCESS_TITLE": "Check Your Email",
+			"SUCCESS_MESSAGE": "Password reset instructions have been sent to your email address. Please check your inbox and follow the link to reset your password.",
+			"ERROR_MESSAGE": "Something went wrong. Please try again.",
+			"BACK_TO_LOGIN": "Back to Login"
+		},
+		"authResetPassword": {
+			"HEADING_TITLE": "Reset Password",
+			"HEADING_DESCRIPTION": "Enter your new password",
+			"FORM_DESCRIPTION": "Please enter a new password for your account.",
+			"NEW_PASSWORD": "New Password",
+			"CONFIRM_PASSWORD": "Confirm Password",
+			"RESET_PASSWORD": "Reset Password",
+			"SUCCESS_TITLE": "Password Updated",
+			"SUCCESS_MESSAGE": "Your password has been successfully updated. You can now log in with your new password.",
+			"ERROR_MESSAGE": "Password reset failed. The link may have expired. Please request a new one.",
+			"PASSWORDS_DONT_MATCH": "Passwords don't match",
+			"PASSWORD_TOO_SHORT": "Password must be at least 6 characters",
+			"INVALID_LINK_TITLE": "Invalid Reset Link",
+			"TOKEN_EXPIRED": "This reset link is invalid or has expired. Please request a new password reset.",
+			"REQUEST_NEW_LINK": "Request a New Reset Link",
+			"GO_TO_LOGIN": "Go to Login"
 		},
 		"authTeam": {
 			"HEADING_TITLE": "Nu registreren",
@@ -1152,7 +1180,8 @@
 		"CHANGE_AVATAR": "Avatar wijzigen",
 		"SELECT_TEAM_SIZE": "Selecteer teamgrootte",
 		"INVALID_ALLOWED_CHARACTER": "Ongeldige waarde voor allowedCharacters. Gebruik alpha, numeriek of alfanumeriek",
-		"AGREE_TO": "Akkoord met"
+		"AGREE_TO": "Akkoord met",
+		"EMAIL_REQUIRED": "Email address is required"
 	},
 	"layout": {
 		"footer": {

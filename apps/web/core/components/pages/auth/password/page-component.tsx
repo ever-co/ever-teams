@@ -136,10 +136,18 @@ function LoginFormActions({ form, t, showMagicCodeLink = false }: LoginFormActio
 	return (
 		<div className="flex flex-col gap-2 items-center w-full">
 			{/* Register Link - Better design with justify-between */}
-			<div className="flex gap-3 justify-between items-center mb-3 w-full text-sm">
+			<div className="flex gap-3 justify-between items-center mb-1 w-full text-sm">
 				<span>{t('common.DONT_HAVE_ACCOUNT')}</span>
 				<Link href="/auth/signup" className="underline whitespace-nowrap text-primary dark:text-primary-light text-nowrap">
 					<span>{t('common.REGISTER')}</span>
+				</Link>
+			</div>
+
+			{/* Forgot Password Link */}
+			<div className="flex gap-3 justify-between items-center mb-3 w-full text-sm">
+				<span>{t('pages.authLogin.HAVE_PASSWORD')}</span>
+				<Link href="/auth/forgot-password" className="underline whitespace-nowrap text-primary dark:text-primary-light text-nowrap">
+					<span>{t('pages.auth.FORGOT_PASSWORD')}</span>
 				</Link>
 			</div>
 

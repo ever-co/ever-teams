@@ -29,23 +29,25 @@ Detailed coding standards for maintaining consistency and quality across the Eve
 ### Type Definitions
 
 **Prefer interfaces for object shapes**:
+
 ```typescript
 // ✅ Good
 interface User {
-  id: string;
-  name: string;
-  email: string;
+	id: string;
+	name: string;
+	email: string;
 }
 
 // ❌ Avoid for object shapes
 type User = {
-  id: string;
-  name: string;
-  email: string;
+	id: string;
+	name: string;
+	email: string;
 };
 ```
 
 **Use types for unions, intersections, and utility types**:
+
 ```typescript
 // ✅ Good
 type Status = 'pending' | 'active' | 'completed';
@@ -56,70 +58,65 @@ type PartialUser = Partial<User>;
 ### Type Safety
 
 **Avoid `any`** – Use `unknown` or proper types:
+
 ```typescript
 // ❌ Bad
 function processData(data: any) {
-  return data.value;
+	return data.value;
 }
 
 // ✅ Good
 function processData(data: unknown) {
-  if (isValidData(data)) {
-    return data.value;
-  }
-  throw new Error('Invalid data');
+	if (isValidData(data)) {
+		return data.value;
+	}
+	throw new Error('Invalid data');
 }
 
 // ✅ Better
 function processData(data: DataType) {
-  return data.value;
+	return data.value;
 }
 ```
 
 **Use type guards**:
+
 ```typescript
 function isUser(obj: unknown): obj is User {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'id' in obj &&
-    'name' in obj &&
-    'email' in obj
-  );
+	return typeof obj === 'object' && obj !== null && 'id' in obj && 'name' in obj && 'email' in obj;
 }
 ```
 
 ### Generics
 
 **Use meaningful generic names**:
+
 ```typescript
 // ❌ Bad
 function mapItems<T, U>(items: T[], fn: (item: T) => U): U[] {
-  return items.map(fn);
+	return items.map(fn);
 }
 
 // ✅ Good
-function mapItems<TInput, TOutput>(
-  items: TInput[],
-  transform: (item: TInput) => TOutput
-): TOutput[] {
-  return items.map(transform);
+function mapItems<TInput, TOutput>(items: TInput[], transform: (item: TInput) => TOutput): TOutput[] {
+	return items.map(transform);
 }
 ```
 
 ### Enums vs Union Types
 
 **Prefer union types over enums** (smaller bundle size):
+
 ```typescript
 // ✅ Preferred
 type TaskStatus = 'todo' | 'in_progress' | 'done' | 'archived';
 
 // ⚠️ Use only when you need reverse mapping
 enum TaskPriority {
-  Low = 0,
-  Medium = 1,
-  High = 2,
-  Critical = 3
+	Low = 0,
+	Medium = 1,
+	High = 2,
+	Critical = 3
 }
 ```
 
@@ -130,6 +127,7 @@ enum TaskPriority {
 ### Component Structure
 
 **Standard component template**:
+
 ```typescript
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -165,38 +163,42 @@ export function TaskCard({ task, onUpdate, className }: TaskCardProps) {
 ### Props Patterns
 
 **Destructure props in function signature**:
+
 ```typescript
 // ✅ Good
 export function UserProfile({ user, onEdit }: UserProfileProps) {
-  // ...
+	// ...
 }
 
 // ❌ Avoid
 export function UserProfile(props: UserProfileProps) {
-  const { user, onEdit } = props;
-  // ...
+	const { user, onEdit } = props;
+	// ...
 }
 ```
 
 **Use optional props with `?`**:
+
 ```typescript
 interface ComponentProps {
-  required: string;
-  optional?: number;
-  callback?: () => void;
+	required: string;
+	optional?: number;
+	callback?: () => void;
 }
 ```
 
 **Use default values in destructuring**:
+
 ```typescript
 export function Pagination({ page = 1, size = 10, onPageChange }: PaginationProps) {
-  // ...
+	// ...
 }
 ```
 
 ### Component Composition
 
 **Break down large components**:
+
 ```typescript
 // ❌ Bad - Single large component (300+ lines)
 export function TaskManagement() {
@@ -218,6 +220,7 @@ export function TaskManagement() {
 ### Conditional Rendering
 
 **Use explicit conditions**:
+
 ```typescript
 // ✅ Good
 {isLoading && <Spinner />}
@@ -236,6 +239,7 @@ export function TaskManagement() {
 ### Local State (useState)
 
 **Use for UI-only state**:
+
 ```typescript
 // ✅ Good - UI state
 const [isOpen, setIsOpen] = useState(false);
@@ -248,6 +252,7 @@ const [users, setUsers] = useState<User[]>([]);
 ### Global State (Jotai)
 
 **Create atoms in `core/stores/`**:
+
 ```typescript
 // core/stores/auth.ts
 import { atom } from 'jotai';
@@ -258,46 +263,48 @@ export const isAuthenticatedAtom = atom((get) => get(currentUserAtom) !== null);
 ```
 
 **Use atoms in components**:
+
 ```typescript
 import { useAtom, useAtomValue } from 'jotai';
 import { currentUserAtom, isAuthenticatedAtom } from '@/core/stores/auth';
 
 export function UserMenu() {
-  const [user, setUser] = useAtom(currentUserAtom);
-  const isAuthenticated = useAtomValue(isAuthenticatedAtom);
-  
-  // ...
+	const [user, setUser] = useAtom(currentUserAtom);
+	const isAuthenticated = useAtomValue(isAuthenticatedAtom);
+
+	// ...
 }
 ```
 
 ### Server State (TanStack Query)
 
 **Define queries in custom hooks**:
+
 ```typescript
 // core/hooks/useTaskData.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { taskService } from '@/core/services/task.service';
 
 export function useTaskData(taskId: string) {
-  const queryClient = useQueryClient();
+	const queryClient = useQueryClient();
 
-  const { data: task, isLoading } = useQuery({
-    queryKey: ['task', taskId],
-    queryFn: () => taskService.getTask(taskId)
-  });
+	const { data: task, isLoading } = useQuery({
+		queryKey: ['task', taskId],
+		queryFn: () => taskService.getTask(taskId)
+	});
 
-  const updateMutation = useMutation({
-    mutationFn: taskService.updateTask,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['task', taskId] });
-    }
-  });
+	const updateMutation = useMutation({
+		mutationFn: taskService.updateTask,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['task', taskId] });
+		}
+	});
 
-  return {
-    task,
-    isLoading,
-    updateTask: updateMutation.mutate
-  };
+	return {
+		task,
+		isLoading,
+		updateTask: updateMutation.mutateAsync
+	};
 }
 ```
 
@@ -308,6 +315,7 @@ export function useTaskData(taskId: string) {
 ### Service Structure
 
 **Organize services by domain**:
+
 ```
 core/services/
 ├── client/
@@ -322,56 +330,56 @@ core/services/
 ### Service Implementation
 
 **Standard service pattern**:
+
 ```typescript
 // core/services/client/task.service.ts
 import { apiClient } from '@ever-teams/services';
 import type { Task, CreateTaskDto, UpdateTaskDto } from '@/core/types';
 
 export const taskService = {
-  async getTasks(): Promise<Task[]> {
-    const { data } = await apiClient.get<Task[]>('/tasks');
-    return data;
-  },
+	async getTasks(): Promise<Task[]> {
+		const { data } = await apiClient.get<Task[]>('/tasks');
+		return data;
+	},
 
-  async getTask(id: string): Promise<Task> {
-    const { data } = await apiClient.get<Task>(`/tasks/${id}`);
-    return data;
-  },
+	async getTask(id: string): Promise<Task> {
+		const { data } = await apiClient.get<Task>(`/tasks/${id}`);
+		return data;
+	},
 
-  async createTask(dto: CreateTaskDto): Promise<Task> {
-    const { data } = await apiClient.post<Task>('/tasks', dto);
-    return data;
-  },
+	async createTask(dto: CreateTaskDto): Promise<Task> {
+		const { data } = await apiClient.post<Task>('/tasks', dto);
+		return data;
+	},
 
-  async updateTask(id: string, dto: UpdateTaskDto): Promise<Task> {
-    const { data } = await apiClient.patch<Task>(`/tasks/${id}`, dto);
-    return data;
-  },
+	async updateTask(id: string, dto: UpdateTaskDto): Promise<Task> {
+		const { data } = await apiClient.patch<Task>(`/tasks/${id}`, dto);
+		return data;
+	},
 
-  async deleteTask(id: string): Promise<void> {
-    await apiClient.delete(`/tasks/${id}`);
-  }
+	async deleteTask(id: string): Promise<void> {
+		await apiClient.delete(`/tasks/${id}`);
+	}
 };
 ```
 
 ### API Error Handling
 
 **Use consistent error handling**:
+
 ```typescript
 import { AxiosError } from 'axios';
 
-export async function handleApiCall<T>(
-  apiCall: () => Promise<T>
-): Promise<{ data?: T; error?: string }> {
-  try {
-    const data = await apiCall();
-    return { data };
-  } catch (error) {
-    if (error instanceof AxiosError) {
-      return { error: error.response?.data?.message || error.message };
-    }
-    return { error: 'An unexpected error occurred' };
-  }
+export async function handleApiCall<T>(apiCall: () => Promise<T>): Promise<{ data?: T; error?: string }> {
+	try {
+		const data = await apiCall();
+		return { data };
+	} catch (error) {
+		if (error instanceof AxiosError) {
+			return { error: error.response?.data?.message || error.message };
+		}
+		return { error: 'An unexpected error occurred' };
+	}
 }
 ```
 
@@ -382,22 +390,24 @@ export async function handleApiCall<T>(
 ### React Hook Form + Zod
 
 **Define schema in `core/types/schemas/`**:
+
 ```typescript
 // core/types/schemas/task.schema.ts
 import { z } from 'zod';
 
 export const createTaskSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(100),
-  description: z.string().optional(),
-  priority: z.enum(['low', 'medium', 'high', 'critical']),
-  dueDate: z.date().optional(),
-  assigneeId: z.string().uuid()
+	title: z.string().min(1, 'Title is required').max(100),
+	description: z.string().optional(),
+	priority: z.enum(['low', 'medium', 'high', 'critical']),
+	dueDate: z.date().optional(),
+	assigneeId: z.string().uuid()
 });
 
 export type CreateTaskFormData = z.infer<typeof createTaskSchema>;
 ```
 
 **Use in component**:
+
 ```typescript
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -420,7 +430,7 @@ export function CreateTaskForm() {
     <form onSubmit={handleSubmit(onSubmit)}>
       <input {...register('title')} />
       {errors.title && <span>{errors.title.message}</span>}
-      
+
       <button type="submit" disabled={isSubmitting}>
         Create Task
       </button>
@@ -436,29 +446,30 @@ export function CreateTaskForm() {
 ### Tailwind CSS Usage
 
 **Use Tailwind utility classes**:
+
 ```tsx
 // ✅ Good
 <div className="flex items-center gap-4 rounded-lg bg-white p-4 shadow-sm">
-  <Avatar src={user.avatar} />
-  <span className="text-sm font-medium text-gray-900">{user.name}</span>
+	<Avatar src={user.avatar} />
+	<span className="text-sm font-medium text-gray-900">{user.name}</span>
 </div>
 ```
 
 **Extract repeated patterns to components**:
+
 ```tsx
 // ❌ Bad - Repeated classes everywhere
-<button className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
-  Submit
-</button>
+<button className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">Submit</button>;
 
 // ✅ Good - Component abstraction
 import { Button } from '@ever-teams/ui';
-<Button variant="primary">Submit</Button>
+<Button variant="primary">Submit</Button>;
 ```
 
 ### Class Composition
 
 **Use `clsx` or `cn` for conditional classes**:
+
 ```typescript
 import { clsx } from 'clsx';
 
@@ -473,10 +484,9 @@ import { clsx } from 'clsx';
 ### Responsive Design
 
 **Mobile-first approach**:
+
 ```tsx
-<div className="w-full md:w-1/2 lg:w-1/3">
-  {/* Stacks on mobile, 2-col on tablet, 3-col on desktop */}
-</div>
+<div className="w-full md:w-1/2 lg:w-1/3">{/* Stacks on mobile, 2-col on tablet, 3-col on desktop */}</div>
 ```
 
 ---
@@ -486,6 +496,7 @@ import { clsx } from 'clsx';
 ### Error Boundaries
 
 **Wrap components with error boundaries**:
+
 ```typescript
 import { ErrorBoundary } from 'react-error-boundary';
 
@@ -500,17 +511,18 @@ import { ErrorBoundary } from 'react-error-boundary';
 ### Async Error Handling
 
 **Use try-catch with user feedback**:
+
 ```typescript
 import { toast } from 'sonner';
 
 async function handleDelete(id: string) {
-  try {
-    await taskService.deleteTask(id);
-    toast.success('Task deleted successfully');
-  } catch (error) {
-    console.error('Failed to delete task:', error);
-    toast.error('Failed to delete task. Please try again.');
-  }
+	try {
+		await taskService.deleteTask(id);
+		toast.success('Task deleted successfully');
+	} catch (error) {
+		console.error('Failed to delete task:', error);
+		toast.error('Failed to delete task. Please try again.');
+	}
 }
 ```
 
@@ -521,13 +533,15 @@ async function handleDelete(id: string) {
 ### Memoization
 
 **Use `useMemo` for expensive computations**:
+
 ```typescript
 const sortedTasks = useMemo(() => {
-  return tasks.sort((a, b) => b.priority - a.priority);
+	return [...tasks].sort((a, b) => b.priority - a.priority);
 }, [tasks]);
 ```
 
 **Use `useCallback` for callback props**:
+
 ```typescript
 const handleTaskUpdate = useCallback((task: Task) => {
   updateTask(task);
@@ -537,17 +551,22 @@ const handleTaskUpdate = useCallback((task: Task) => {
 ```
 
 **Use `React.memo` selectively**:
+
 ```typescript
-export const TaskCard = React.memo(function TaskCard({ task }: TaskCardProps) {
-  // Component that re-renders only when task changes
-}, (prevProps, nextProps) => {
-  return prevProps.task.id === nextProps.task.id;
-});
+export const TaskCard = React.memo(
+	function TaskCard({ task }: TaskCardProps) {
+		// Component that re-renders only when task changes
+	},
+	(prevProps, nextProps) => {
+		return prevProps.task.id === nextProps.task.id;
+	}
+);
 ```
 
 ### Code Splitting
 
 **Use dynamic imports for large components**:
+
 ```typescript
 import dynamic from 'next/dynamic';
 
@@ -564,6 +583,7 @@ const HeavyChart = dynamic(() => import('@/components/HeavyChart'), {
 ### XSS Prevention
 
 **Never use `dangerouslySetInnerHTML` unless absolutely necessary**:
+
 ```tsx
 // ❌ Dangerous
 <div dangerouslySetInnerHTML={{ __html: userInput }} />
@@ -579,6 +599,7 @@ import DOMPurify from 'dompurify';
 ### Authentication
 
 **Check auth status before rendering sensitive data**:
+
 ```typescript
 import { useAtomValue } from 'jotai';
 import { isAuthenticatedAtom } from '@/core/stores/auth';
@@ -597,6 +618,7 @@ export function ProtectedComponent() {
 ### API Security
 
 **Never expose secrets in client code**:
+
 ```typescript
 // ❌ Bad
 const API_KEY = 'sk-1234567890';
@@ -615,14 +637,15 @@ const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 ### Component Testing
 
 **Test user interactions, not implementation details**:
+
 ```typescript
 // ✅ Good - Test behavior
 it('should submit form when user clicks submit', async () => {
   render(<CreateTaskForm />);
-  
+
   await userEvent.type(screen.getByLabelText('Title'), 'New Task');
   await userEvent.click(screen.getByRole('button', { name: /submit/i }));
-  
+
   expect(screen.getByText('Task created successfully')).toBeInTheDocument();
 });
 
@@ -636,14 +659,15 @@ it('should call handleSubmit when form is submitted', () => {
 ### Service Testing
 
 **Mock API calls**:
+
 ```typescript
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 
 const server = setupServer(
-  rest.get('/api/tasks', (req, res, ctx) => {
-    return res(ctx.json([{ id: '1', title: 'Task 1' }]));
-  })
+	rest.get('/api/tasks', (req, res, ctx) => {
+		return res(ctx.json([{ id: '1', title: 'Task 1' }]));
+	})
 );
 
 beforeAll(() => server.listen());
@@ -656,6 +680,7 @@ afterAll(() => server.close());
 ## File Naming Conventions
 
 ### Files
+
 - **Components**: PascalCase - `TaskCard.tsx`
 - **Hooks**: camelCase with `use` prefix - `useTaskData.ts`
 - **Services**: camelCase with `.service` suffix - `task.service.ts`
@@ -664,6 +689,7 @@ afterAll(() => server.close());
 - **Constants**: UPPER_SNAKE_CASE or camelCase - `API_ENDPOINTS.ts`
 
 ### Folders
+
 - **Lowercase with hyphens**: `task-management/`
 - **Or camelCase**: `taskManagement/`
 - **Be consistent** within the same directory level
@@ -686,6 +712,7 @@ afterAll(() => server.close());
 ---
 
 For related documentation:
+
 - **ZENCODER.md** - Comprehensive project instructions
 - **workspace.md** - Workspace-specific rules
 - **repo.md** - Repository structure overview

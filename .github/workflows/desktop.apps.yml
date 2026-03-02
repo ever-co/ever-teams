@@ -60,7 +60,7 @@ jobs:
         uses: samuelmeuli/action-snapcraft@v2
 
       - name: Fix node-gyp and Python
-        run: python3 -m pip install packaging setuptools
+        run: python3 -m pip install --break-system-packages packaging setuptools || python3 -m pip install packaging setuptools
 
       - name: Install latest version of NPM
         run: 'sudo npm install -g npm@11.6.2'
@@ -192,7 +192,7 @@ jobs:
         run: 'sudo snap install multipass'
 
       - name: Fix node-gyp and Python
-        run: python3 -m pip install packaging setuptools
+        run: python3 -m pip install --break-system-packages packaging setuptools || python3 -m pip install packaging setuptools
 
       - name: Install latest version of NPM
         run: 'sudo npm install -g npm@11.6.2'
