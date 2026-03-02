@@ -1,16 +1,43 @@
 {
 	"$schema": "./node_modules/nx/schemas/nx-schema.json",
-	"affected": {
-		"defaultBase": "master"
-	},
-	"tasksRunnerOptions": {
-		"default": {
-			"runner": "nx-cloud",
-			"options": {
-				"cacheableOperations": ["build", "lint", "test", "e2e"],
-				"accessToken": "OGJkNTc3NTQtMmY0OC00NDBjLThlNTgtYTA4M2RkZTYzNDEzfHJlYWQtd3JpdGU="
+	"parallel": 8,
+	"namedInputs": {
+		"default": [
+			"{projectRoot}/**/*",
+			"sharedGlobals",
+			"{workspaceRoot}/nx.json",
+			"{workspaceRoot}/tsconfig.base.json"
+		],
+		"sharedGlobals": [
+			"{workspaceRoot}/package.json",
+			"{workspaceRoot}/tsconfig.json",
+			"{workspaceRoot}/.eslintrc.json",
+			"{workspaceRoot}/.env",
+			"{workspaceRoot}/.env.local",
+			{
+				"runtime": "node -p process.platform"
+			},
+			{
+				"runtime": "node -p process.arch"
+			},
+			{
+				"runtime": "node -p process.versions.node"
+			},
+			{
+				"env": "NODE_ENV"
 			}
-		}
+		],
+		"production": [
+			"default",
+			"!{projectRoot}/**/*.spec.ts",
+			"!{projectRoot}/**/*.spec.tsx",
+			"!{projectRoot}/**/*.test.ts",
+			"!{projectRoot}/**/*.test.tsx",
+			"!{projectRoot}/**/*.spec.js",
+			"!{projectRoot}/**/*.spec.jsx",
+			"!{projectRoot}/**/*.test.js",
+			"!{projectRoot}/**/*.test.jsx"
+		]
 	},
 	"generators": {
 		"@nx/react": {
@@ -37,27 +64,37 @@
 	"defaultProject": "web",
 	"targetDefaults": {
 		"build": {
+			"cache": true,
 			"dependsOn": ["^build"],
 			"inputs": ["production", "^production"]
 		},
-		"test": {
-			"inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"]
-		},
 		"lint": {
+			"cache": true
+		},
+		"test": {
+			"cache": true
+		},
+		"e2e": {
+			"cache": true
+		},
+		"@nx/eslint:lint": {
+			"cache": true,
 			"inputs": ["default", "{workspaceRoot}/.eslintrc.json", "{workspaceRoot}/.eslintignore"]
+		},
+		"@nx/jest:jest": {
+			"cache": true,
+			"inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"],
+			"options": {
+				"passWithNoTests": true
+			}
+		},
+		"@nx/next:build": {
+			"cache": true,
+			"dependsOn": ["^build"],
+			"inputs": ["production", "^production"]
 		}
 	},
-	"namedInputs": {
-		"default": ["{projectRoot}/**/*", "sharedGlobals"],
-		"production": [
-			"default",
-			"!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
-			"!{projectRoot}/tsconfig.spec.json",
-			"!{projectRoot}/jest.config.[jt]s",
-			"!{projectRoot}/src/test-setup.[jt]s",
-			"!{projectRoot}/test-setup.[jt]s",
-			"!{projectRoot}/.eslintrc.json"
-		],
-		"sharedGlobals": []
-	}
+	"useInferencePlugins": false,
+	"useDaemon": true,
+	"defaultBase": "master"
 }

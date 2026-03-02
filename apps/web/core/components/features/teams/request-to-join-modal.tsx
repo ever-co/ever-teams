@@ -10,6 +10,7 @@ import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ArrowLeftIcon } from 'assets/svg';
 import { AuthCodeInputField } from '@/core/components/auth/auth-code-input';
+import { AUTH_CODE_LENGTH } from '@/core/constants/config/constants';
 import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { PositionDropDown } from '../../layouts/default-layout/header/position-dropdown';
@@ -94,7 +95,7 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 							<p className="text-xs text-left text-gray-500">{t('pages.auth.INPUT_INVITE_CODE')}</p>
 							<AuthCodeInputField
 								allowedCharacters="alphanumeric"
-								length={6}
+								length={AUTH_CODE_LENGTH}
 								ref={inputCodeRef}
 								containerClassName="mt-[21px] w-full flex justify-between"
 								inputClassName="w-[40px] xs:w-[50px]"
@@ -140,7 +141,7 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 								'font-normal rounded-xl border border-primary disabled:border-0 md:min-w-[180px]'
 							}
 							loading={loading}
-							disabled={loading || formValues.code.length !== 6}
+							disabled={loading || formValues.code.length !== AUTH_CODE_LENGTH}
 						>
 							{t('pages.auth.JOIN')}
 						</Button>
@@ -269,7 +270,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 								<p className="text-xs text-left text-gray-500">{t('pages.auth.INPUT_INVITE_CODE')}</p>
 								<AuthCodeInputField
 									allowedCharacters="alphanumeric"
-									length={6}
+									length={AUTH_CODE_LENGTH}
 									ref={inputCodeRef}
 									containerClassName="mt-[21px] w-full flex justify-between"
 									inputClassName="w-[40px] xs:w-[50px]"
@@ -322,7 +323,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 							disabled={
 								requestToJoinLoading ||
 								validateRequestToJoinLoading ||
-								(joinButtonAction === 'CONFIRM' && formValues.code.length !== 6)
+								(joinButtonAction === 'CONFIRM' && formValues.code.length !== AUTH_CODE_LENGTH)
 							}
 						>
 							{joinButtonAction === 'JOIN' ? t('common.JOIN_REQUEST') : t('common.CONFIRM')}

@@ -13,7 +13,7 @@ export const organizationProjectSettingSchema = z
 		updatedAt: z.coerce.date().optional(),
 		tenantId: z.string().nullable().optional(),
 		organizationId: z.string().nullable().optional(),
-		customFields: z.record(z.any()).optional(),
+		customFields: z.record(z.string(), z.any()).optional(),
 		isTasksAutoSync: z.boolean().optional(),
 		isTasksAutoSyncOnLabel: z.boolean().optional(),
 		syncTag: z.string().optional().nullable()
@@ -139,7 +139,7 @@ export const editProjectRequestSchema = createProjectRequestSchema.partial().pas
 
 export const getOrganizationProjectsRequestSchema = z
 	.object({
-		queries: z.record(z.string()).optional()
+		queries: z.record(z.string(), z.string()).optional()
 	})
 	.passthrough();
 

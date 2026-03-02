@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
 import { AuthCodeInputField } from '../../auth/auth-code-input';
+import { AUTH_CODE_LENGTH } from '@/core/constants/config/constants';
 
 /**
  * Join team modal
@@ -51,7 +52,7 @@ export function JoinTeamModal({ open, closeModal }: { open: boolean; closeModal:
 
 							<AuthCodeInputField
 								allowedCharacters="alphanumeric"
-								length={6}
+								length={AUTH_CODE_LENGTH}
 								ref={inputCodeRef}
 								containerClassName="mt-[21px] w-full flex justify-between"
 								inputClassName="w-[40px] xs:w-[50px]"

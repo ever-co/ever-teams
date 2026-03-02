@@ -42,7 +42,7 @@ jobs:
         run: echo "NEXT_PUBLIC_GAUZY_API_SERVER_URL=${{ secrets.NEXT_PUBLIC_GAUZY_API_SERVER_URL }}"
 
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./.deploy/web/Dockerfile

@@ -2,6 +2,7 @@
 
 import { Button, Text } from '@/core/components';
 import { AuthCodeInputField } from '@/core/components/auth/auth-code-input';
+import { AUTH_CODE_LENGTH } from '@/core/constants/config/constants';
 import { EverCard } from '@/core/components/common/ever-card';
 import { AuthLayout } from '@/core/components/layouts/default-layout';
 
@@ -23,7 +24,7 @@ const AuthPasscode = () => {
 						<div className="w-full mt-5">
 							<AuthCodeInputField
 								allowedCharacters="alphanumeric"
-								length={6}
+								length={AUTH_CODE_LENGTH}
 								containerClassName="mt-[21px] w-full flex justify-between"
 								inputClassName="w-[40px] xs:w-[50px]"
 								onChange={(code) => {

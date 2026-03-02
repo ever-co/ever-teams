@@ -1,0 +1,9 @@
+{
+	"name": "ts-config",
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "packages/ts-config",
+	"projectType": "library",
+	"tags": [],
+	"implicitDependencies": [],
+	"targets": {}
+}

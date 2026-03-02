@@ -1,5 +1,6 @@
 import { useTranslations } from 'next-intl';
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import { AUTH_CODE_LENGTH } from '@/core/constants/config/constants';
 
 const allowedCharactersValues = ['alpha', 'numeric', 'alphanumeric'] as const;
 
@@ -65,7 +66,7 @@ const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
 			disabled,
 			inputClassName,
 			isPassword = false,
-			length = 6,
+			length = AUTH_CODE_LENGTH,
 			placeholder,
 			onChange
 		},

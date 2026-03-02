@@ -6,6 +6,7 @@ import React, { MutableRefObject, forwardRef, useState, useEffect, useImperative
 import { useTranslations } from 'next-intl';
 import { useCallbackRef } from '@/core/hooks';
 import { InputField } from '../duplicated-components/_input';
+import { AUTH_CODE_LENGTH } from '@/core/constants/config/constants';
 
 const allowedCharactersValues = ['alpha', 'numeric', 'alphanumeric'] as const;
 
@@ -77,7 +78,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 			disabled,
 			inputClassName,
 			isPassword = false,
-			length = 6,
+			length = AUTH_CODE_LENGTH,
 			placeholder,
 			onChange,
 			defaultValue,
