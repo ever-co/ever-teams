@@ -8,7 +8,6 @@ import { AuthLayout } from '@/core/components/layouts/default-layout';
 import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { authService } from '@/core/services/client/api/auth/auth.service';
-import { APP_NAME } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
 import { ArrowLeft, CheckCircle2, Mail } from 'lucide-react';
 
