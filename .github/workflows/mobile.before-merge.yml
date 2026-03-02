@@ -43,6 +43,8 @@ jobs:
       - name: Install Packages
         run: |
           yarn install --network-timeout 1000000 --frozen-lockfile
+        env:
+          NODE_OPTIONS: '--dns-result-order=ipv4first'
 
       - name: Build Mobile
         run: |
