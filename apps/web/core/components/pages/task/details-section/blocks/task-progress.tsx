@@ -44,7 +44,6 @@ const TaskProgress = () => {
 		return m.employee?.user?.id === user?.id;
 	});
 
-	// const memberInfo = useTeamMemberCard(currentUser);
 
 	const userTotalTimeOnTask = useCallback((): void => {
 		const totalOnTaskInSeconds: number =

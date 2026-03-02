@@ -10,7 +10,9 @@ import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useMemo, useState, useCallback } from 'react';
 import { Card } from '@/core/components/common/card';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
-import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-report-activity';
+import { type GroupByType, useActivityFilters } from '@/core/hooks/activities/use-activity-filters';
+import { useActivityDailyReportQuery } from '@/core/hooks/activities/queries/use-activity-daily-report-query';
+import { useActivityStatisticsQuery } from '@/core/hooks/activities/queries/use-activity-statistics-query';
 import { useTimeActivityStats } from '@/core/hooks/activities/use-time-activity-stats';
 import { ViewOption } from '@/core/components/common/view-select';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
@@ -22,7 +24,8 @@ import {
 	LazyActivityTable,
 	LazyTimeActivityTable
 } from '@/core/components/optimized-components/reports';
-import { activeTeamState, isTrackingEnabledState, tasksByTeamState, organizationProjectsState } from '@/core/stores';
+import { activeTeamState, isTrackingEnabledState, tasksByTeamState } from '@/core/stores';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 
 const STORAGE_KEY = 'ever-teams-activity-view-options';
 
@@ -36,17 +39,10 @@ const getDefaultViewOptions = (t: any): ViewOption[] => [
 ];
 
 const TimeActivityComponents = () => {
-	const {
-		rapportDailyActivity,
-		updateDateRange,
-		loading,
-		statisticsCounts,
-		isManage,
-		updateFilters,
-		currentFilters
-	} = useReportActivity({
-		types: 'TEAM-DASHBOARD'
-	});
+	const { mergedProps, enabled, currentFilters, updateDateRange, updateFilters, isManage } = useActivityFilters();
+	const { rapportDailyActivity, isLoading: isDailyLoading } = useActivityDailyReportQuery({ mergedProps, enabled });
+	const { statisticsCounts, isLoading: isStatsLoading } = useActivityStatisticsQuery({ mergedProps, enabled });
+	const loading = isDailyLoading || isStatsLoading;
 	const [groupByType, setGroupByType] = useState<GroupByType>('daily');
 	const [dateRange, setDateRange] = useState<{ startDate?: Date; endDate?: Date }>(() => {
 		// Initialize with current filter dates if available
@@ -131,7 +127,7 @@ const TimeActivityComponents = () => {
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects } = useOrganizationProjectsQuery();
 
 	const tasks = useAtomValue(tasksByTeamState);
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);

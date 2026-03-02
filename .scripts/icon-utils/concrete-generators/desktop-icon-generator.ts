@@ -5,7 +5,7 @@ import { IconGenerator } from '../interfaces/icon-generator';
 import { IDesktopIconGenerator } from '../interfaces/i-desktop-icon-generator';
 import { IconFactory } from '../icon-factory';
 import { env } from '../../env';
-import * as PngIco from 'png-to-ico';
+import PngIco from 'png-to-ico';
 import { DesktopEnvironmentManager } from '../../electron-desktop-environment/desktop-environment-manager';
 
 export class DesktopIconGenerator

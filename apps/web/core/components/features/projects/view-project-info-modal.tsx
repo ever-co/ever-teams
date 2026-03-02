@@ -1,12 +1,12 @@
 import { Modal, Text } from '@/core/components';
 import { useMemo } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useAtomValue } from 'jotai';
-import { organizationProjectsState } from '@/core/stores';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { Calendar, ExternalLink, Users, Banknote, Tag, Building2, Archive, CircleDot } from 'lucide-react';
 import moment from 'moment';
 import Image from 'next/image';
 import { cn } from '@/core/lib/helpers';
+import { sanitizeHtml } from '@/core/lib/helpers/sanitize-html';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { EProjectBilling, EProjectBudgetType } from '@/core/types/generics/enums/project';
@@ -24,7 +24,7 @@ export function ViewProjectInfoModal(props: Readonly<IViewProjectInfoModalProps>
 	const t = useTranslations();
 	const locale = useLocale();
 	const { open, closeModal, projectId } = props;
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects } = useOrganizationProjectsQuery();
 
 	const project = useMemo(
 		() => organizationProjects.find((p) => p.id === projectId),
@@ -160,14 +160,15 @@ export function ViewProjectInfoModal(props: Readonly<IViewProjectInfoModalProps>
 						</div>
 					</Section>
 
-					{/* ===== DESCRIPTION ===== */}
-					{project.description && (
-						<Section title={t('common.DESCRIPTION')}>
-							<div className="p-3 text-sm text-gray-700 whitespace-pre-wrap rounded-lg bg-gray-50 dark:bg-dark--theme dark:text-gray-300">
-								{project.description}
-							</div>
-						</Section>
-					)}
+				{/* ===== DESCRIPTION ===== */}
+				{project.description && (
+					<Section title={t('common.DESCRIPTION')}>
+						<div
+							className="p-3 text-sm text-gray-700 whitespace-pre-wrap rounded-lg bg-gray-50 dark:bg-dark--theme dark:text-gray-300 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-gray-700 [&_code]:px-1 [&_code]:rounded [&_p]:mb-1 [&_p:last-child]:mb-0"
+							dangerouslySetInnerHTML={{ __html: sanitizeHtml(project.description) }}
+						/>
+					</Section>
+				)}
 
 					{/* ===== FINANCIAL SETTINGS ===== */}
 					{(project.budget || project.billing || project.currency) && (

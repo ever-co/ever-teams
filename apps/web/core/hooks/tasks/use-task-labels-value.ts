@@ -1,8 +1,7 @@
 import { useMapToTaskStatusValues } from './use-map-to-task-status-values';
-import { taskLabelsListState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+import { useTaskLabelsQuery } from './use-task-labels-query';
 
 export function useTaskLabelsValue() {
-	const taskLabels = useAtomValue(taskLabelsListState);
+	const { taskLabels } = useTaskLabelsQuery();
 	return useMapToTaskStatusValues(taskLabels as any[], false);
 }

@@ -1,4 +1,5 @@
 import { useModal } from '@/core/hooks';
+import { useIssueTypesQuery } from '@/core/hooks/tasks/use-issue-types-query';
 import { clsxm } from '@/core/lib/utils';
 import { BackButton, Button, Modal, Text } from '@/core/components';
 import { NoteIcon, BugIcon, Square4StackIcon, Square4OutlineIcon } from 'assets/svg';
@@ -12,8 +13,7 @@ import { Nullable } from '@/core/types/generics/utils';
 import { EIssueType } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Select } from '../features/projects/add-or-edit-project/steps/basic-information-form';
-import { useAtomValue } from 'jotai';
-import { issueTypesListState } from '@/core/stores';
+
 import Image from 'next/image';
 import {
 	IActiveTaskStatuses,
@@ -70,7 +70,7 @@ export function TaskIssuesDropdown({
 	taskStatusClassName?: string;
 }) {
 	const { isOpen, closeModal } = useModal();
-	const taskIssues = useAtomValue(issueTypesListState);
+	const { issueTypes: taskIssues } = useIssueTypesQuery();
 	const [taskIssueType, setTaskIssueType] = useState(defaultValue ?? null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [previousValue, setPreviousValue] = useState<EIssueType | null>(defaultValue ?? null);
@@ -86,7 +86,7 @@ export function TaskIssuesDropdown({
 		(item: (typeof taskIssuesOptions)[number]) => (
 			<div
 				style={{ backgroundColor: item.color ?? undefined }}
-				className="flex items-center w-full gap-2 px-2 py-1 rounded-md"
+				className="flex gap-2 items-center px-2 py-1 w-full rounded-md"
 			>
 				<div className="w-[1rem] flex items-center justify-center h-[1rem] p-[.02rem] rounded">
 					{item.fullIconUrl && (
@@ -108,7 +108,7 @@ export function TaskIssuesDropdown({
 	const renderValue = useCallback((value: string | null) => {
 		const item = taskIssuesOptions.find((el) => el.name == value);
 		return value ? (
-			<div className="flex items-center gap-2">
+			<div className="flex gap-2 items-center">
 				<div
 					style={{
 						backgroundColor: item?.color ?? undefined
@@ -130,7 +130,7 @@ export function TaskIssuesDropdown({
 			</div>
 		) : (
 			<div className="w-[1.5rem] border flex items-center justify-center h-[1.5rem] p-[.3rem] rounded-lg">
-				<div className="w-full h-full border rounded-full border-black/40"></div>
+				<div className="w-full h-full rounded-full border border-black/40"></div>
 			</div>
 		);
 	}, []);
@@ -191,8 +191,8 @@ export function TaskIssuesDropdown({
 
 				{/* Loading indicator */}
 				{isLoading && (
-					<div className="absolute transform -translate-y-1/2 right-2 top-1/2">
-						<div className="w-4 h-4 border-b-2 rounded-full animate-spin border-primary"></div>
+					<div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+						<div className="w-4 h-4 rounded-full border-b-2 animate-spin border-primary"></div>
 					</div>
 				)}
 			</div>
@@ -303,12 +303,12 @@ export function CreateTaskIssueModal({ open, closeModal }: { open: boolean; clos
 		<Modal isOpen={open} closeModal={closeModal}>
 			<form className="w-[98%] md:w-[430px]" autoComplete="off" onSubmit={handleSubmit}>
 				<EverCard className="w-full" shadow="custom">
-					<div className="flex flex-col items-center justify-between">
+					<div className="flex flex-col justify-between items-center">
 						<Text.Heading as="h3" className="text-center">
 							{t('common.CREATE_ISSUE')}
 						</Text.Heading>
 
-						<div className="w-full mt-5">
+						<div className="mt-5 w-full">
 							<InputField
 								name="name"
 								autoCustomFocus
@@ -317,7 +317,7 @@ export function CreateTaskIssueModal({ open, closeModal }: { open: boolean; clos
 							/>
 						</div>
 
-						<div className="flex items-center justify-between w-full mt-3">
+						<div className="flex justify-between items-center mt-3 w-full">
 							<BackButton onClick={closeModal} />
 							<Button type="submit">{t('common.CREATE')}</Button>
 						</div>

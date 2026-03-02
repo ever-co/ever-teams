@@ -2,7 +2,8 @@
 import { SpinnerLoader, Text } from '@/core/components';
 
 import { useTranslations } from 'next-intl';
-import { useIssueType } from '@/core/hooks';
+import { useIssueTypesQuery } from '@/core/hooks/tasks/use-issue-types-query';
+import { useEditIssueType } from '@/core/hooks/tasks/use-edit-issue-type';
 import { getTextColor } from '@/core/lib/helpers/index';
 import { StatusesListCard } from '../settings/list-card';
 import { EditPenUnderlineIcon } from 'assets/svg';
@@ -16,14 +17,13 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { IIssueType } from '@/core/types/interfaces/task/issue-type';
-import { issueTypesListState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+
 
 export const DefaultIssueTypeForm = () => {
 	const t = useTranslations();
-	const issueTypes = useAtomValue(issueTypesListState);
 
-	const { editIssueType, editIssueTypeLoading } = useIssueType();
+	const { issueTypes } = useIssueTypesQuery();
+	const { editIssueType, editIssueTypeLoading } = useEditIssueType();
 	const defaultIssueType: IIssueType | undefined = issueTypes.find((issue) => issue.isDefault);
 	const textColor = defaultIssueType?.color ? getTextColor(defaultIssueType.color) : '#cdd1d8';
 

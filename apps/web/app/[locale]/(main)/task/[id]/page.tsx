@@ -1,6 +1,6 @@
 'use client';
 
-import { useTeamTasks, useUserProfilePage } from '@/core/hooks';
+import { useTaskQueries, useUserProfilePage } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Button, Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
@@ -30,7 +30,7 @@ const TaskDetails = () => {
 	const activeTeam = useAtomValue(activeTeamState);
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const detailedTask = useAtomValue(detailedTaskState);
-	const { getTaskById, getTasksByIdLoading } = useTeamTasks();
+	const { getTaskById, getTasksByIdLoading } = useTaskQueries();
 	const fullWidth = useAtomValue(fullWidthState);
 
 	// State to track if we've already tried to load the task

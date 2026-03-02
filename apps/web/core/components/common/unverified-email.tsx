@@ -10,6 +10,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { emailVerificationService } from '@/core/services/client/api/users/emails/email-verification.service';
 import { AuthCodeInputField } from '../auth/auth-code-input';
+import { AUTH_CODE_LENGTH } from '@/core/constants/config/constants';
 import { EverCard } from '../common/ever-card';
 import { useRouter } from 'next/navigation';
 
@@ -121,7 +122,7 @@ export function ConfirmUserModal({
 	const handleVerifyEmail = useCallback(
 		(e: React.MouseEvent<HTMLFormElement, MouseEvent>) => {
 			e.preventDefault();
-			if (code.length < 6 || !user) return;
+			if (code.length < AUTH_CODE_LENGTH || !user) return;
 
 			queryCall({ code, email: user.email || '' }).finally(() => {
 				router.refresh();
@@ -142,7 +143,7 @@ export function ConfirmUserModal({
 						<div className="mt-5 w-full">
 							<AuthCodeInputField
 								allowedCharacters="alphanumeric"
-								length={6}
+								length={AUTH_CODE_LENGTH}
 								containerClassName="mt-[21px] w-full flex justify-between"
 								inputClassName="w-[40px] xs:w-[50px]"
 								onChange={(code) => {
@@ -173,7 +174,7 @@ export function ConfirmUserModal({
 								)}
 							</div>
 
-							<Button disabled={code.length < 6 || loading} type="submit" loading={loading}>
+							<Button disabled={code.length < AUTH_CODE_LENGTH || loading} type="submit" loading={loading}>
 								{t('common.CONFIRM')}
 							</Button>
 						</div>

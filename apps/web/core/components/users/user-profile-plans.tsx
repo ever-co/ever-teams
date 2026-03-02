@@ -2,8 +2,11 @@
 import { useAtomValue } from 'jotai';
 import { AlertPopup, Container } from '@/core/components';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
-import { useEffect, useMemo, useState } from 'react';
-import { useCanSeeActivityScreen, useDailyPlan, useTimer, useUserProfilePage } from '@/core/hooks';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCanSeeActivityScreen, useUserProfilePage } from '@/core/hooks';
+import { useTimerPlanStatus } from '@/core/hooks/timer';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
+import { useDeleteDailyPlan } from '@/core/hooks/daily-plans/use-delete-daily-plan';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
@@ -13,7 +16,7 @@ import {
 	HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL,
 	HAS_VISITED_OUTSTANDING_TASKS
 } from '@/core/constants/config/constants';
-import { TUser } from '@/core/types/schemas';
+import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { activeTeamState } from '@/core/stores';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { clsxm } from '@/core/lib/utils';
@@ -36,6 +39,8 @@ import { usePathname } from 'next/navigation';
 import { IconsCalendarMonthOutline } from '@/core/components/icons';
 import { VerticalSeparator } from '../duplicated-components/separator';
 import { AllPlans, EmptyPlans } from '@/core/components/daily-plan';
+import { TTask } from '@/core/types/schemas/task/task.schema';
+import { filterDailyPlansByTasks } from '@/core/hooks';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
@@ -43,12 +48,15 @@ type FilterOutstanding = 'ALL' | 'DATE';
 interface IUserProfilePlansProps {
 	user?: TUser;
 	employeeId?: string; // Accept employeeId directly from parent
+	filteredTasks?: TTask[];
 }
 
 export function UserProfilePlans(props: IUserProfilePlansProps) {
 	const t = useTranslations();
 
-	const { user, employeeId: propsEmployeeId } = props;
+	const { user, employeeId: propsEmployeeId, filteredTasks } = props;
+
+	const filteredTaskIds = useMemo(() => filteredTasks?.map((task) => task.id), [filteredTasks]);
 
 	const profile = useUserProfilePage();
 	const { data: authUser } = useUserQuery();
@@ -71,36 +79,74 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	}, [profile.isAuthUser, authUser, user, propsEmployeeId]);
 
 	const {
-		futurePlans,
-		pastPlans,
-		todayPlan,
-		outstandingPlans,
-		sortedPlans,
-		profileDailyPlans,
-		deleteDailyPlan,
-		deleteDailyPlanLoading,
-		getMyDailyPlansLoading
-	} = useDailyPlan(targetEmployeeId);
+		employeeFuturePlans,
+		employeePastPlans,
+		employeeTodayPlan,
+		employeeOutstandingPlans,
+		employeeSortedPlans,
+		employeeDailyPlans,
+		isLoading
+	} = useEmployeeDailyPlans(targetEmployeeId);
+	const { deleteDailyPlan, deleteDailyPlanLoading } = useDeleteDailyPlan();
 	const fullWidth = useAtomValue(fullWidthState);
 	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'DATE');
 	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');
 	const { setDate, date } = useDateRange(currentTab);
 
+	const filterPlanAndTask = useCallback(
+		(plans: TDailyPlan[]) => (filteredTaskIds ? filterDailyPlansByTasks(plans, filteredTaskIds) : plans),
+		[filteredTaskIds]
+	);
+
 	const screenOutstanding = {
-		ALL: <OutstandingAll profile={profile} user={user} outstandingPlans={outstandingPlans} />,
-		DATE: <OutstandingFilterDate profile={profile} user={user} outstandingPlans={outstandingPlans} filterByEmployee/>
+		ALL: (
+			<OutstandingAll
+				profile={profile}
+				user={user}
+				outstandingPlans={employeeOutstandingPlans}
+				filteredTaskIds={filteredTaskIds}
+			/>
+		),
+		DATE: (
+			<OutstandingFilterDate
+				profile={profile}
+				user={user}
+				outstandingPlans={employeeOutstandingPlans}
+				filterByEmployee
+				filteredTaskIds={filteredTaskIds}
+			/>
+		)
 	};
 	const tabsScreens = {
-		'Today Tasks': <AllPlans profile={profile} currentTab={currentTab} user={user} employeeId={targetEmployeeId} />,
-		'Future Tasks': <FutureTasks profile={profile} user={user} employeeId={targetEmployeeId} />,
-		'Past Tasks': <PastTasks profile={profile} user={user} employeeId={targetEmployeeId} />,
-		'All Tasks': <AllPlans profile={profile} user={user} employeeId={targetEmployeeId} />,
+		'Today Tasks': (
+			<AllPlans
+				profile={profile}
+				currentTab={currentTab}
+				user={user}
+				filteredTaskIds={filteredTaskIds}
+				employeeId={targetEmployeeId}
+			/>
+		),
+		'Future Tasks': (
+			<FutureTasks
+				profile={profile}
+				user={user}
+				filteredTaskIds={filteredTaskIds}
+				employeeId={targetEmployeeId}
+			/>
+		),
+		'Past Tasks': (
+			<PastTasks profile={profile} user={user} filteredTaskIds={filteredTaskIds} employeeId={targetEmployeeId} />
+		),
+		'All Tasks': (
+			<AllPlans profile={profile} user={user} filteredTaskIds={filteredTaskIds} employeeId={targetEmployeeId} />
+		),
 		Outstanding: <Outstanding filter={screenOutstanding[currentOutstanding]} />
 	};
 	const dailyPlanSuggestionModalDate = window && window?.localStorage.getItem(DAILY_PLAN_SUGGESTION_MODAL_DATE);
 	const path = usePathname();
 	const haveSeenDailyPlanSuggestionModal = window?.localStorage.getItem(HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL);
-	const { hasPlan } = useTimer();
+	const { hasPlan } = useTimerPlanStatus();
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
@@ -110,7 +156,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	// Set the tab plan tab to outstanding if user has no daily plan and there are outstanding tasks (on first load)
 	useEffect(() => {
 		if (dailyPlanSuggestionModalDate != new Date().toISOString().split('T')[0] && path.split('/')[1] == 'profile') {
-			if (estimatedTotalTime(outstandingPlans).totalTasks) {
+			if (estimatedTotalTime(employeeOutstandingPlans).totalTasks) {
 				setCurrentTab('Outstanding');
 			}
 			if (haveSeenDailyPlanSuggestionModal == new Date().toISOString().split('T')[0]) {
@@ -140,31 +186,42 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 			console.error('Error updating outstanding tasks visit date:', error);
 		}
 	}, [currentTab]);
-	// Use data directly from useDailyPlan instead of local states to prevent stale data
+	// Use data directly from useEmployeeDailyPlans instead of local states to prevent stale data
 	// when targetEmployeeId changes (e.g., when viewing different user profiles)
 	const totalTasksDailyPlansMap = useMemo(() => {
 		// Apply date filtering to get the correct counts
-		const filteredFuturePlans = filterDailyPlan(date, futurePlans);
-		const filteredPastPlans = filterDailyPlan(date, pastPlans);
-		const filteredAllPlans = filterDailyPlan(date, sortedPlans);
+		const filteredFuturePlans = filterDailyPlan(date, filterPlanAndTask(employeeFuturePlans));
+		const filteredPastPlans = filterDailyPlan(date, filterPlanAndTask(employeePastPlans));
+		const filteredAllPlans = filterDailyPlan(date, filterPlanAndTask(employeeSortedPlans));
 
 		return {
 			// filterByEmployee = false: show ALL tasks in daily plans (not just assigned to user)
-			'Today Tasks': getTotalTasks(todayPlan, user, false),
+			'Today Tasks': getTotalTasks(employeeTodayPlan, user, false),
 			'Future Tasks': getTotalTasks(filteredFuturePlans, user, false),
 			'Past Tasks': getTotalTasks(filteredPastPlans, user, true),
 			'All Tasks': getTotalTasks(filteredAllPlans, user, true),
 			// For Outstanding, ALWAYS filter by user (same logic as OutstandingAll component)
 			// This ensures the count matches what's actually displayed
 			Outstanding: estimatedTotalTime(
-				outstandingPlans.map((plan) => {
+				filterPlanAndTask(employeeOutstandingPlans).map((plan) => {
 					const tasks = plan.tasks ?? [];
 					// Filter by user if user exists (privacy/security - same as OutstandingAll)
-					return user ? tasks.filter((task) => task.members?.some((member) => member.userId === user.id)) : tasks;
+					return user
+						? tasks.filter((task) => task.members?.some((member) => member.userId === user.id))
+						: tasks;
 				})
 			).totalTasks
 		};
-	}, [todayPlan, futurePlans, pastPlans, sortedPlans, outstandingPlans, user, date]);
+	}, [
+		employeeTodayPlan,
+		employeeFuturePlans,
+		employeePastPlans,
+		filterPlanAndTask,
+		employeeSortedPlans,
+		employeeOutstandingPlans,
+		user,
+		date
+	]);
 	/*
 	 * DAILY PLANS DISPLAY LOGIC FIX
 	 *
@@ -182,11 +239,11 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	 */
 
 	const shouldShowDailyPlans = useMemo(() => {
-		if (getMyDailyPlansLoading) {
+		if (isLoading) {
 			return true;
 		}
-		return profileDailyPlans?.items?.length > 0;
-	}, [profileDailyPlans?.items?.length, getMyDailyPlansLoading]);
+		return employeeDailyPlans?.items?.length > 0;
+	}, [employeeDailyPlans?.items?.length, isLoading]);
 
 	return (
 		<div ref={profile.loadTaskStatsIObserverRef}>
@@ -206,7 +263,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 					 */}
 					{shouldShowDailyPlans ? (
 						<div className="space-y-4">
-							{getMyDailyPlansLoading ? (
+							{isLoading ? (
 								<div className="flex justify-center items-center py-8">
 									<ReloadIcon className="w-6 h-6 animate-spin" />
 									<span className="ml-2">{t('common.LOADING')}</span>
@@ -250,7 +307,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 											))}
 										</div>
 										<div className="flex gap-2 items-center">
-											{currentTab === 'Today Tasks' && todayPlan[0] && (
+											{currentTab === 'Today Tasks' && employeeTodayPlan[0] && (
 												<>
 													{canSeeActivity ? (
 														<div className="flex justify-end">
@@ -279,9 +336,9 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 																					DAILY_PLAN_SUGGESTION_MODAL_DATE
 																				);
 																			}
-																			todayPlan[0].id &&
+																			employeeTodayPlan[0].id &&
 																				(await deleteDailyPlan(
-																					todayPlan[0].id
+																					employeeTodayPlan[0].id
 																				));
 																		} catch (error) {
 																			console.error(error);

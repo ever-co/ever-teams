@@ -1,4 +1,5 @@
-import { useTeamInvitations } from '@/core/hooks/organizations/teams/use-team-invitations';
+import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invitations-query';
+import { useSendTeamInvitation } from '@/core/hooks/invitations/use-send-team-invitation';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { Spinner } from '@/core/components/common/spinner';
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
@@ -12,8 +13,7 @@ import { TInvite } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../../common/select';
 import { ERoleName } from '@/core/types/generics/enums/role';
-import { useAtomValue } from 'jotai';
-import { rolesState } from '@/core/stores';
+import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
 
 const initialValues: Pick<TInvite, 'email' | 'fullName' | 'roleId'> = {
 	email: '',
@@ -29,14 +29,14 @@ export interface IInviteProps {
 }
 const InviteModal = ({ isOpen, closeModal }: IInviteProps) => {
 	const { data: user } = useUserQuery();
-	const roles = useAtomValue(rolesState);
+	const { roles } = useRolesQuery();
 	const defaultSelectedRole = useMemo(() => roles.find((role) => role.name === ERoleName.EMPLOYEE), [roles]);
 	const [formData, setFormData] = useState<Pick<TInvite, 'email' | 'fullName' | 'roleId'>>({
 		...initialValues,
 		roleId: defaultSelectedRole?.id
 	});
-	const { inviteUser, inviteLoading, teamInvitations, resendTeamInvitation, resendInviteLoading } =
-		useTeamInvitations();
+	const { teamInvitations } = useTeamInvitationsQuery();
+	const { inviteUser, inviteLoading, resendTeamInvitation, resendInviteLoading } = useSendTeamInvitation();
 
 	const isAdmin = user?.role?.name && [ERoleName.ADMIN, ERoleName.SUPER_ADMIN].includes(user?.role.name as ERoleName);
 	const allowedRoles = new Set([ERoleName.ADMIN, ERoleName.EMPLOYEE, ERoleName.MANAGER]);
@@ -107,7 +107,7 @@ const InviteModal = ({ isOpen, closeModal }: IInviteProps) => {
 	return (
 		<Transition appear show={isOpen} as="div">
 			<Dialog as="div" className="relative z-50" onClose={closeModal}>
-				<div className="fixed inset-0 backdrop-blur-xs backdrop-brightness-50" aria-hidden="true" />
+				<div className="fixed inset-0 backdrop-brightness-50 backdrop-blur-xs" aria-hidden="true" />
 				<TransitionChild
 					as="div"
 					enter="ease-out duration-300"
@@ -117,7 +117,7 @@ const InviteModal = ({ isOpen, closeModal }: IInviteProps) => {
 					leaveFrom="opacity-100"
 					leaveTo="opacity-0"
 				>
-					<div className="fixed inset-0 bg-black/25 blur-xl" />
+					<div className="fixed inset-0 blur-xl bg-black/25" />
 				</TransitionChild>
 
 				<div className="overflow-y-auto fixed inset-0">

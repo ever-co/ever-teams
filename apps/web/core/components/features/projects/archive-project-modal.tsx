@@ -1,4 +1,6 @@
-import { useOrganizationProjects, useTeamTasks } from '@/core/hooks';
+import { useUpdateTask } from '@/core/hooks';
+import { useEditOrganizationProject } from '@/core/hooks/organizations/projects/use-edit-organization-project';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
@@ -8,9 +10,7 @@ import moment from 'moment';
 import { toast } from 'sonner';
 import { EverCard } from '../../common/ever-card';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
-import { TOrganizationProject } from '@/core/types/schemas';
-import { useAtomValue } from 'jotai';
-import { organizationProjectsState } from '@/core/stores';
+
 
 interface IArchiveProjectModalProps {
 	open: boolean;
@@ -31,11 +31,10 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 	const t = useTranslations();
 	const { open, closeModal, projectId } = props;
 
-	const organizationProjects = useAtomValue(organizationProjectsState);
-	const { setOrganizationProjects, editOrganizationProject, editOrganizationProjectLoading } =
-		useOrganizationProjects();
+	const { organizationProjects } = useOrganizationProjectsQuery();
+	const { editOrganizationProject, editOrganizationProjectLoading } = useEditOrganizationProject();
 
-	const { updateTask } = useTeamTasks();
+	const { updateTask } = useUpdateTask();
 	const project = useMemo(
 		() => organizationProjects.find((project) => project.id === projectId),
 		[organizationProjects, projectId]
@@ -71,15 +70,6 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 					unlinkAffectedTasks();
 				}
 
-				setOrganizationProjects(
-					organizationProjects.map((p) => {
-						if (p.id === projectId) {
-							return res.data as TOrganizationProject;
-						}
-						return p as TOrganizationProject;
-					})
-				);
-
 				// Show success toast
 				toast.success(t('common.ARCHIVE_SUCCESS'), {
 					description: t('pages.projects.archiveModal.successDescription', {
@@ -101,10 +91,8 @@ export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
 		affectedTasks.length,
 		closeModal,
 		editOrganizationProject,
-		organizationProjects,
 		project?.name,
 		projectId,
-		setOrganizationProjects,
 		t,
 		unlinkAffectedTasks
 	]);

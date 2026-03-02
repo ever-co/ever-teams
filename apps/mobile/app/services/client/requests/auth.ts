@@ -82,7 +82,7 @@ export const currentAuthenticatedUserRequest = ({ bearer_token, relations = ['ro
 };
 
 export const refreshTokenRequest = (refresh_token: string) => {
-	return serverFetch<{ token: string }>({
+	return serverFetch<{ token: string, refresh_token: string }>({
 		path: '/auth/refresh-token',
 		method: 'POST',
 		body: {

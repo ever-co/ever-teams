@@ -1,4 +1,4 @@
-import { useModal, useTeamTasks } from '@/core/hooks';
+import { useModal, useUpdateTask } from '@/core/hooks';
 import { activeTeamState, detailedTaskState, isTeamManagerState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { ERoleName } from '@/core/types/generics/enums/role';
@@ -20,7 +20,7 @@ import {
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
 import { clsxm } from '@/core/lib/utils';
-import { organizationProjectsState } from '@/core/stores/projects/organization-projects';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import Image from 'next/image';
@@ -49,9 +49,7 @@ type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
 const TaskSecondaryInfo = () => {
 	const task = useAtomValue(detailedTaskState);
-	const { updateTask } = useTeamTasks();
-
-	const { handleStatusUpdate } = useTeamTasks();
+	const { updateTask, handleStatusUpdate } = useUpdateTask();
 
 	const t = useTranslations();
 
@@ -310,9 +308,9 @@ export default TaskSecondaryInfo;
 export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	const { task, controlled = false, onChange, styles } = props;
 	const { openModal, isOpen, closeModal } = useModal();
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects } = useOrganizationProjectsQuery();
 	const activeTeam = useAtomValue(activeTeamState);
-	const { updateTask, updateLoading } = useTeamTasks();
+	const { updateTask, updateLoading } = useUpdateTask();
 	const t = useTranslations();
 
 	// Get current user and manager status

@@ -1,7 +1,7 @@
 import { CellContext } from '@tanstack/react-table';
 import { ActiveTaskStatusDropdown } from '../../../task-status';
 import { useMemo, useState } from 'react';
-import { I_UserProfilePage, useTeamMemberCard } from '@/core/hooks';
+import { I_UserProfilePage, useTeamMemberMutations } from '@/core/hooks';
 import { get } from 'lodash';
 import { TaskCardMenu } from '../../../task-card';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -23,7 +23,8 @@ export default function TaskActionMenuCell(props: CellContext<TTask, unknown>) {
 			}),
 		[members, profile?.userProfile?.id]
 	);
-	const memberInfo = useTeamMemberCard(currentMember || undefined);
+	// Only mutations needed — TaskCardMenu uses assignTask/unassignTask only
+	const mutations = useTeamMemberMutations(currentMember || undefined);
 
 	return (
 		<div className="flex justify-center items-center w-1/5 h-full xl:justify-between lg:px-3 2xl:w-52 3xl:w-80">
@@ -41,7 +42,7 @@ export default function TaskActionMenuCell(props: CellContext<TTask, unknown>) {
 					<TaskCardMenu
 						task={props.row.original}
 						loading={loading}
-						memberInfo={memberInfo}
+						mutations={mutations}
 						viewType={'default'}
 						profile={profile}
 						plan={plan}

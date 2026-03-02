@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { I_TeamMemberCardHook } from '@/core/hooks';
+import { I_MemberIdentityHook } from '@/core/hooks';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import Link from 'next/link';
@@ -18,7 +18,7 @@ import { ManagerIcon, CreatorIcon } from '@/core/components/icons/icons';
 import { timerStatusState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 type Props = {
-	memberInfo: I_TeamMemberCardHook;
+	memberInfo: I_MemberIdentityHook;
 	publicTeam?: boolean;
 } & IClassName;
 

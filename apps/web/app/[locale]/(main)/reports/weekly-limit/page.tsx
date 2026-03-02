@@ -28,7 +28,8 @@ import {
 	LazyTimeReportTableByMember,
 	LazyPaginate
 } from '@/core/components/optimized-components/reports';
-import { activeTeamState, isTrackingEnabledState, myPermissionsState } from '@/core/stores';
+import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
+import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { useAtomValue } from 'jotai';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
@@ -41,7 +42,7 @@ function WeeklyLimitReport() {
 	const tenantId = getTenantIdCookie();
 	const [groupBy, setGroupBy] = useState<TGroupByOption[]>(['date']);
 	const t = useTranslations();
-	const myPermissions = useAtomValue(myPermissionsState);
+	const { myPermissions } = useMyRolePermissionsQuery();
 	const breadcrumbPath = useMemo(
 		() => [
 			{ title: t('common.REPORTS'), href: '/' },

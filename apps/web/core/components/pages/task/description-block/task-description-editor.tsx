@@ -7,7 +7,6 @@ import {
 	isMarkdown,
 	markdownToHtml
 } from '../../../../lib/helpers/text-editor-service';
-import isHotkey from 'is-hotkey';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Editor, createEditor, Element as SlateElement, Descendant, Transforms, Range } from 'slate';
 import { withHistory } from 'slate-history';
@@ -21,12 +20,14 @@ import LinkElement from './editor-components/link-element';
 import { configHtmlToSlate } from '../../../../lib/helpers/text-editor-serializer-configurations';
 import CheckListElement from './editor-components/check-list-element';
 
-const HOTKEYS: { [key: string]: string } = {
-	'mod+b': 'bold',
-	'mod+i': 'italic',
-	'mod+u': 'underline',
-	'mod+`': 'code'
-};
+const isModKey = (e: React.KeyboardEvent) => e.metaKey || e.ctrlKey;
+
+const HOTKEYS: { key: string; mark: string }[] = [
+	{ key: 'b', mark: 'bold' },
+	{ key: 'i', mark: 'italic' },
+	{ key: 'u', mark: 'underline' },
+	{ key: '`', mark: 'code' }
+];
 
 interface IRichTextProps {
 	defaultValue?: string;
@@ -44,30 +45,29 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 	const editorRef = useRef<HTMLDivElement>(null);
 
 	const initialValue = useMemo((): Descendant[] => {
-		let value;
+		let value: Descendant[];
 		if (task && task.description) {
 			if (isHtml(task.description)) {
 				// when value is an HTML
-				value = htmlToSlate(task.description, configHtmlToSlate);
+				value = htmlToSlate(task.description, configHtmlToSlate) as unknown as Descendant[];
 			} else if (isValidSlateObject(task.description)) {
 				//when value is Slate Object
 				value = JSON.parse(task.description) as Descendant[];
 			} else if (isMarkdown(task.description)) {
 				// when value is Markdown - convert to HTML first, then to Slate
 				const htmlFromMarkdown = markdownToHtml(task.description);
-				value = htmlToSlate(htmlFromMarkdown, configHtmlToSlate);
+				value = htmlToSlate(htmlFromMarkdown, configHtmlToSlate) as unknown as Descendant[];
 			} else {
 				// Default case when the task.description is plain text
 				value = [
 					{
-						//@ts-ignore
 						type: 'paragraph',
 						children: [{ text: task.description as string }]
 					}
-				];
+				] as unknown as Descendant[];
 			}
 		} else {
-			value = [{ type: 'paragraph', children: [{ text: '' }] }];
+			value = [{ type: 'paragraph', children: [{ text: '' }] }] as unknown as Descendant[];
 		}
 		setEditorValue(value);
 		return value;
@@ -113,7 +113,7 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 			if (pastedText && isMarkdown(pastedText)) {
 				// Convert markdown to HTML, then to Slate format
 				const htmlFromMarkdown = markdownToHtml(pastedText);
-				const slateNodes = htmlToSlate(htmlFromMarkdown, configHtmlToSlate);
+				const slateNodes = htmlToSlate(htmlFromMarkdown, configHtmlToSlate) as unknown as Descendant[];
 
 				// Insert the converted nodes at current selection
 				const { selection } = editor;
@@ -136,11 +136,10 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 	// Handle real-time markdown parsing while typing
 	const handleKeyDown = useCallback(
 		(event: React.KeyboardEvent) => {
-			// Handle hotkeys first
-			for (const hotkey in HOTKEYS) {
-				if (isHotkey(hotkey, event as any)) {
+			// Handle hotkeys first (mod+b, mod+i, mod+u, mod+`)
+			for (const { key, mark } of HOTKEYS) {
+				if (isModKey(event) && event.key.toLowerCase() === key) {
 					event.preventDefault();
-					const mark = HOTKEYS[hotkey];
 					TextEditorService.toggleMark(editor, mark, isMarkActive);
 					return;
 				}

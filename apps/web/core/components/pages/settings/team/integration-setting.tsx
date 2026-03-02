@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useGitHubIntegration, useIntegrationTenant, useIntegrationTypes } from '@/core/hooks';
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { GITHUB_APP_NAME } from '@/core/constants/config/constants';
-import { useOrganizationProjects } from '@/core/hooks';
+import { useEditOrganizationProject } from '@/core/hooks/organizations/projects/use-edit-organization-project';
 import { TrashIcon } from 'assets/svg';
 import { Button } from '@/core/components';
 import { getActiveProjectIdCookie } from '@/core/lib/helpers/index';
@@ -65,7 +65,7 @@ export const IntegrationSetting = () => {
 		metaData
 	} = useGitHubIntegration();
 
-	const { editOrganizationProjectSetting, editOrganizationProject } = useOrganizationProjects();
+	const { editOrganizationProjectSetting, editOrganizationProject } = useEditOrganizationProject();
 
 	const {
 		getIntegrationTenant,

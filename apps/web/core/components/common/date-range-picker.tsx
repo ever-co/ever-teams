@@ -31,11 +31,18 @@ interface DateRangePickerProps {
 	className?: string;
 	onDateRangeChange?: (range: DateRange | undefined) => void;
 	data?: ITimeLogGroupedDailyReport[];
+	/** Optional initial date range. When provided the picker starts with this
+	 *  range instead of the hardcoded "full current month" fallback.
+	 *  This keeps the UI in sync with the data-layer defaults from useActivityFilters. */
+	initialRange?: DateRange;
 }
 
-export function DateRangePicker({ className, onDateRangeChange, data }: DateRangePickerProps) {
+export function DateRangePicker({ className, onDateRangeChange, data, initialRange }: DateRangePickerProps) {
 	const t = useTranslations();
 	const [dateRange, setDateRange] = React.useState<DateRange | undefined>(() => {
+		if (initialRange?.from && initialRange?.to) {
+			return initialRange;
+		}
 		const today = new Date();
 		return {
 			from: startOfMonth(today),

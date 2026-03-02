@@ -197,6 +197,36 @@ class DailyPlanService extends APIService {
 	};
 
 	/**
+	 * Get daily plan by its ID with validation
+	 *
+	 * @param planId - The target plan's ID
+	 * @returns Promise<TDailyPlan> - Validated daily plan data
+	 * @throws ValidationError if response data doesn't match schema
+	 */
+	getPlanById = async (planId: string): Promise<TDailyPlan> => {
+		try {
+			const response = await this.get<TDailyPlan>(`/daily-plan/${planId}`, {
+				tenantId: this.tenantId
+			});
+
+			// Validate the response data using zod validation with auto-normalization
+			return zodStrictApiResponseValidate(dailyPlanSchema, response.data, 'getPlanById API response');
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error(
+					'Daily plan by id validation failed:',
+					{
+						message: error.message,
+						issues: error.issues
+					},
+					'DailyPlanService'
+				);
+			}
+			throw error;
+		}
+	};
+
+	/**
 	 * Create a new daily plan with validation
 	 *
 	 * @param data - Daily plan data without ID

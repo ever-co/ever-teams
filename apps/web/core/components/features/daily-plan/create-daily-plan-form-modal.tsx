@@ -1,6 +1,7 @@
 import { Dispatch, memo, SetStateAction, useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useDailyPlan } from '@/core/hooks';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
+import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
 import { Modal, Text } from '@/core/components';
 import { imgTitle, tomorrowDate, yesterdayDate } from '@/core/lib/helpers/index';
 import { ReloadIcon } from '@radix-ui/react-icons';
@@ -52,24 +53,6 @@ export function CreateDailyPlanFormModal({
 
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 
-	// Use useDailyPlan with employeeId to get the correct employee's plans
-	const { profileDailyPlans, createDailyPlan, createDailyPlanLoading } = useDailyPlan(employeeId ?? null);
-	const latestOption: 'Select' | 'Select & Close' | null = window.localStorage.getItem(
-		LAST_OPTION__CREATE_DAILY_PLAN_MODAL
-	) as 'Select' | 'Select & Close';
-	const t = useTranslations();
-	const existingPlanDates = useMemo(
-		() => profileDailyPlans?.items?.map((plan: TDailyPlan) => new Date(plan.date)),
-		[profileDailyPlans.items]
-	);
-	const existingTaskPlanDates = useMemo(
-		() =>
-			profileDailyPlans?.items
-				?.filter((plan: TDailyPlan) => plan.tasks?.some((task) => task.id === taskId))
-				.map((plan: TDailyPlan) => new Date(plan.date)),
-		[profileDailyPlans.items, taskId]
-	);
-
 	const isManagerConnectedUser = useMemo(
 		() => activeTeamManagers.find((member) => member.employee?.user?.id === user?.id),
 		[activeTeamManagers, user?.id]
@@ -80,6 +63,27 @@ export function CreateDailyPlanFormModal({
 		isManagerConnectedUser
 	);
 	const [isOpen, setIsOpen] = useState(false);
+
+	// Use specialized hooks with employeeId to get the correct employee's plans
+	// Use useEmployeeDailyPlans to check for duplicates
+	// NOTE: Include selectedEmployee?.employeeId to ensure we check plans for the dynamically selected user (e.g. by manager)
+	const { employeeDailyPlans } = useEmployeeDailyPlans(employeeId ?? selectedEmployee?.employeeId ?? null);
+	const { createDailyPlan, createDailyPlanLoading } = useCreateDailyPlan();
+	const latestOption: 'Select' | 'Select & Close' | null = window.localStorage.getItem(
+		LAST_OPTION__CREATE_DAILY_PLAN_MODAL
+	) as 'Select' | 'Select & Close';
+	const t = useTranslations();
+	const existingPlanDates = useMemo(
+		() => employeeDailyPlans?.items?.map((plan: TDailyPlan) => new Date(plan.date)),
+		[employeeDailyPlans.items]
+	);
+	const existingTaskPlanDates = useMemo(
+		() =>
+			employeeDailyPlans?.items
+				?.filter((plan: TDailyPlan) => plan.tasks?.some((task) => task.id === taskId))
+				.map((plan: TDailyPlan) => new Date(plan.date)),
+		[employeeDailyPlans.items, taskId]
+	);
 
 	const handleMemberClick = useCallback((member: TOrganizationTeamEmployee) => {
 		setSelectedEmployee(member);
@@ -146,7 +150,7 @@ export function CreateDailyPlanFormModal({
 		<Modal isOpen={open} closeModal={handleCloseModal}>
 			<form className="w-[98%] md:w-[430px] relative" autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
 				<EverCard className="w-full" shadow="custom">
-					<div className="flex flex-col items-center justify-between">
+					<div className="flex flex-col justify-between items-center">
 						{/* Form header */}
 						<div className="mb-3">
 							<Text.Heading as="h3" className="text-start">
@@ -155,7 +159,7 @@ export function CreateDailyPlanFormModal({
 						</div>
 
 						{/* Form Fields */}
-						<div className="flex flex-col w-full gap-6">
+						<div className="flex flex-col gap-6 w-full">
 							{chooseMember && isManagerConnectedUser && (
 								<MembersList
 									activeTeam={activeTeam}
@@ -178,7 +182,7 @@ export function CreateDailyPlanFormModal({
 								<Button
 									variant="outline"
 									type="button"
-									className="py-4 font-light rounded-md px-7 w-36"
+									className="px-7 py-4 w-36 font-light rounded-md"
 									onClick={() => closeModal()}
 								>
 									{t('common.CANCEL')}
@@ -189,21 +193,21 @@ export function CreateDailyPlanFormModal({
 									)}
 								>
 									{createDailyPlanLoading ? (
-										<div className="flex items-center justify-center w-full h-full">
+										<div className="flex justify-center items-center w-full h-full">
 											<ReloadIcon className="w-4 h-4 text-white animate-spin" />
 										</div>
 									) : (
-										<div className="flex items-center justify-between w-full h-full overflow-hidden">
+										<div className="flex overflow-hidden justify-between items-center w-full h-full">
 											<Button
 												onClick={lastSelectedOption}
-												className="flex items-center justify-center w-full h-full text-sm font-light text-white"
+												className="flex justify-center items-center w-full h-full text-sm font-light text-white"
 											>
 												{latestOption ?? 'Select & close'}
 											</Button>
 
 											<div
 												onClick={() => setIsOpen(!isOpen)}
-												className="flex items-center justify-center w-8 h-full text-white border-l"
+												className="flex justify-center items-center w-8 h-full text-white border-l"
 											>
 												<ChevronDown
 													size={10}
@@ -217,8 +221,8 @@ export function CreateDailyPlanFormModal({
 									)}
 
 									{isOpen && (
-										<div className="absolute right-0 w-full p-2 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black/5 z-5 focus:outline-none">
-											<div className="flex flex-col items-center w-full gap-1">
+										<div className="absolute right-0 p-2 mt-2 w-full bg-white rounded-md divide-y divide-gray-100 ring-1 shadow-lg origin-top-right ring-black/5 z-5 focus:outline-none">
+											<div className="flex flex-col gap-1 items-center w-full">
 												<Button
 													disabled={createDailyPlanLoading}
 													onClick={handleSelect}
@@ -351,7 +355,7 @@ function MembersList({
 									<p className="text-xs text-muted-foreground">{member?.employee?.user?.email}</p>
 								</div>
 								{selectedMember?.id == member?.id && (
-									<Check className="flex w-5 h-5 ml-auto text-primary dark:text-white" />
+									<Check className="flex ml-auto w-5 h-5 text-primary dark:text-white" />
 								)}
 							</CommandItem>
 						))}

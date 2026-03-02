@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useAuthenticateUser } from '@/core/hooks';
-import { useOrganizationTeams } from '@/core/hooks/organizations';
+import { useOrganizationTeamsQuery } from '@/core/hooks/organizations';
 import GlobalSkeleton from '../common/global-skeleton';
 import { useRouter } from 'next/navigation';
 
@@ -14,7 +14,7 @@ type Props = {
 export default function MustBeAManager({ children, redirectTo = '/', useRedirect = true }: Props) {
 	// All hooks must be called before any conditional returns
 	const { userLoading: isUserLoading, isTeamManager } = useAuthenticateUser();
-	const { getOrganizationTeamsLoading: isTeamsLoading } = useOrganizationTeams();
+	const { getOrganizationTeamsLoading: isTeamsLoading } = useOrganizationTeamsQuery();
 	const router = useRouter();
 	const [checked, setChecked] = useState(false);
 	const [isRedirecting, setIsRedirecting] = useState(false);

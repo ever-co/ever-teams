@@ -1,10 +1,6 @@
 import {
 	publicActiveTeamState,
 	activeTeamState,
-	taskLabelsListState,
-	taskPrioritiesListState,
-	taskSizesListState,
-	taskStatusesState,
 	teamTasksState,
 	organizationTeamsState
 } from '@/core/stores';
@@ -12,7 +8,7 @@ import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useOrganizationTeams } from './use-organization-teams';
+import { useOrganizationTeamsQuery } from './use-organization-teams-query';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { publicOrganizationTeamService } from '@/core/services/client/api/organizations';
@@ -21,13 +17,8 @@ export function usePublicOrganizationTeams() {
 	const activeTeam = useAtomValue(activeTeamState);
 
 	const [teams, setTeams] = useAtom(organizationTeamsState);
-	const { getOrganizationTeamsLoading } = useOrganizationTeams();
+	const { getOrganizationTeamsLoading } = useOrganizationTeamsQuery();
 	const setAllTasks = useSetAtom(teamTasksState);
-	const setTaskStatuses = useSetAtom(taskStatusesState);
-	const setTaskSizes = useSetAtom(taskSizesListState);
-
-	const setTaskPriorities = useSetAtom(taskPrioritiesListState);
-	const setTaskLabels = useSetAtom(taskLabelsListState);
 
 	const [publicTeam, setPublicTeam] = useAtom(publicActiveTeamState);
 
@@ -121,12 +112,20 @@ export function usePublicOrganizationTeams() {
 				return;
 			}
 
-			setTaskStatuses(publicTeamMiscData?.statuses || []);
-			setTaskSizes(publicTeamMiscData?.sizes || []);
-			setTaskPriorities(publicTeamMiscData?.priorities || []);
-			setTaskLabels(publicTeamMiscData?.labels || []);
+			queryClient.setQueryData(queryKeys.taskStatuses.byTeam(memoizedMiscTeamId!), {
+				items: publicTeamMiscData?.statuses || []
+			});
+			queryClient.setQueryData(queryKeys.taskSizes.byTeam(memoizedMiscTeamId!), {
+				items: publicTeamMiscData?.sizes || []
+			});
+			queryClient.setQueryData(queryKeys.taskPriorities.byTeam(memoizedMiscTeamId!), {
+				items: publicTeamMiscData?.priorities || []
+			});
+			queryClient.setQueryData(queryKeys.taskLabels.byTeam(memoizedMiscTeamId!), {
+				items: publicTeamMiscData?.labels || []
+			});
 		}
-	}, [publicTeamMiscData, setTaskStatuses, setTaskSizes, setTaskPriorities, setTaskLabels, setTeams]);
+	}, [publicTeamMiscData, queryClient, memoizedMiscTeamId, setTeams]);
 
 	const loadPublicTeamData = useCallback(
 		(profileLink: string, teamId: string) => {

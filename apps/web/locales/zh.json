@@ -546,7 +546,8 @@
 					"endDateRequired": "结束日期是必需的。",
 					"endDateAfterStart": "结束日期必须在开始日期之后。",
 					"invalidUrl": "请输入有效的URL。",
-					"uploadError": "上传项目图片时出错，请重试！"
+					"uploadError": "上传项目图片时出错，请重试！",
+					"descriptionWordLimit": "描述不能超过5000字。"
 				},
 				"common": {
 					"search": "搜索 ...",

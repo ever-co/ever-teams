@@ -13,7 +13,7 @@ import {
 	SelectTrigger,
 	SelectValue
 } from '@/core/components/common/select';
-import { useTimesheet } from '@/core/hooks/activities/use-timesheet';
+import { useCreateTimesheet } from '@/core/hooks/timesheet/use-create-timesheet';
 import { toUTC } from '@/core/lib/helpers/index';
 import { PlusIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { CustomSelect } from '../../common/multiple-select';
@@ -22,7 +22,8 @@ import { ToggleButton } from '../tasks/edit-task-modal';
 import { DatePickerFilter } from '../../pages/timesheet/timesheet-filter-date';
 import { ETimeLogType, ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, organizationProjectsState, tasksByTeamState } from '@/core/stores';
+import { activeTeamState, tasksByTeamState } from '@/core/stores';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;
@@ -52,10 +53,10 @@ interface FormState {
 export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { generateTimeOptions } = useTimelogFilterOptions();
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects } = useOrganizationProjectsQuery();
 
 	const activeTeam = useAtomValue(activeTeamState);
-	const { createTimesheet, loadingCreateTimesheet } = useTimesheet({});
+	const { createTimesheet, loadingCreateTimesheet } = useCreateTimesheet();
 
 	const timeOptions = generateTimeOptions(5);
 	const t = useTranslations();

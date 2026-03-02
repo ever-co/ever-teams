@@ -3,14 +3,13 @@ import { Modal } from '@/core/components';
 import ScreenshotItem from './screenshot-item';
 import { useTranslations } from 'next-intl';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useTeamTasks } from '@/core/hooks';
+import { useTaskQueries } from '@/core/hooks';
 import Image from 'next/image';
 import { cn } from '@/core/lib/helpers';
 import { ProgressBar } from '@/core/components/duplicated-components/_progress-bar';
 import { TOrganizationProject, TTimeSlot } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useAtomValue } from 'jotai';
-import { organizationProjectsState } from '@/core/stores';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 
 const ScreenshotDetailsModal = ({
 	open,
@@ -42,9 +41,9 @@ const ScreenshotDetailsModal = ({
 
 	const [project, setProject] = useState<TOrganizationProject | null>(null);
 	const [task, setTask] = useState<TTask | null>(null);
-	const organizationProjects = useAtomValue(organizationProjectsState);
+	const { organizationProjects } = useOrganizationProjectsQuery();
 
-	const { getTaskById } = useTeamTasks();
+	const { getTaskById } = useTaskQueries();
 
 	const getProject = useCallback(
 		async (projectId: string) => {

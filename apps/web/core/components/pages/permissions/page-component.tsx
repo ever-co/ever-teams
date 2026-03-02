@@ -1,16 +1,18 @@
 'use client';
 
-import { activeTeamManagersState, rolesState } from '@/core/stores';
+import { activeTeamManagersState } from '@/core/stores';
+import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
 import NotFound from '@/core/components/pages/404';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { CommonToggle, Container, Divider, Text } from '@/core/components';
 import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { useIsMemberManager } from '@/core/hooks/organizations';
-import { useRolePermissions } from '@/core/hooks/roles';
+import { useRolePermissionsQuery } from '@/core/hooks/roles/use-role-permissions-query';
+import { useUpdateRolePermission } from '@/core/hooks/roles/use-update-role-permission';
 import { Breadcrumb } from '../../duplicated-components/breadcrumb';
 import { EverCard } from '../../common/ever-card';
 import { TRole } from '@/core/types/schemas';
@@ -29,42 +31,29 @@ const Permissions = () => {
 
 	// Hooks with data fetching
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
-	const { rolePermissionsFormated, getRolePermissions, updateRolePermission } = useRolePermissions();
+	const selectedRoleId = selectedRole?.id;
+	const { rolePermissionsFormated } = useRolePermissionsQuery(selectedRoleId);
+	const { updateRolePermission } = useUpdateRolePermission(selectedRoleId);
 	const { isTeamManager } = useIsMemberManager(user);
-	const roles = useAtomValue(rolesState);
+	const { roles } = useRolesQuery();
 
 	// Memoized values
 	const canAccessPermissions = useMemo(() => {
 		return !(activeTeamManagers && activeTeamManagers.length && !isTeamManager);
 	}, [activeTeamManagers, isTeamManager]);
 
-	const selectedRoleId = useMemo(() => selectedRole?.id, [selectedRole]);
-
-	// Effects
-	useEffect(() => {
-		if (selectedRoleId) {
-			getRolePermissions(selectedRoleId);
-		}
-	}, [selectedRoleId, getRolePermissions]);
-
 	// Callbacks
 	const handleToggleRolePermission = useCallback(
-		async (name: string) => {
-			try {
-				const permission = rolePermissionsFormated[name];
-				if (!permission || !selectedRoleId) return;
+		(name: string) => {
+			const permission = rolePermissionsFormated[name];
+			if (!permission || !selectedRoleId) return;
 
-				await updateRolePermission({
-					...permission,
-					enabled: !permission.enabled
-				});
-
-				getRolePermissions(selectedRoleId);
-			} catch (error) {
-				console.error('Failed to toggle role permission:', error);
-			}
+			updateRolePermission({
+				...permission,
+				enabled: !permission.enabled
+			});
 		},
-		[rolePermissionsFormated, selectedRoleId, getRolePermissions, updateRolePermission]
+		[rolePermissionsFormated, selectedRoleId, updateRolePermission]
 	);
 
 	if (!canAccessPermissions) {

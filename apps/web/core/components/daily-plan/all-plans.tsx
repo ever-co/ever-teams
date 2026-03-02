@@ -5,9 +5,15 @@ import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStat
 
 import { formatDayPlanDate } from '@/core/lib/helpers/index';
 import { handleDragAndDrop } from '@/core/lib/helpers/drag-and-drop';
-import { FilterTabs, useDailyPlan } from '@/core/hooks';
+
+import { FilterTabs } from '@/core/types/daily-plan-types';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
-import { filterDailyPlan, filterDailyPlansByEmployee } from '@/core/hooks/daily-plans/use-filter-date-range';
+import {
+	filterDailyPlan,
+	filterDailyPlansByEmployee,
+	filterDailyPlansByTasks
+} from '@/core/hooks/daily-plans/use-filter-date-range';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { dailyPlanViewHeaderTabs } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
@@ -30,27 +36,29 @@ export function AllPlans({
 	currentTab = 'All Tasks',
 	user,
 	employeeId,
-	filterByEmployee = false
+	filterByEmployee = false,
+	filteredTaskIds
 }: {
 	profile: any;
 	currentTab?: FilterTabs;
 	user?: TUser;
 	employeeId?: string; // Accept employeeId directly from parent
 	filterByEmployee?: boolean; // Filter tasks by employee (default: false = show all tasks)
+	filteredTaskIds?: string[]; // Filter plans by taskIds (default undefined = show all)
 }) {
 	// Filter plans
 	const filteredPlans = useRef<TDailyPlan[]>([]);
 
 	// Use employeeId from props if provided, otherwise calculate from user
 	const targetEmployeeId = employeeId ?? user?.employee?.id ?? user?.employeeId ?? '';
-	const { sortedPlans, todayPlan } = useDailyPlan(targetEmployeeId);
+	const { employeeSortedPlans, employeeTodayPlan } = useEmployeeDailyPlans(targetEmployeeId);
 
 	const { date } = useDateRange(currentTab);
 
 	if (currentTab === 'Today Tasks') {
-		filteredPlans.current = todayPlan;
+		filteredPlans.current = employeeTodayPlan;
 	} else {
-		filteredPlans.current = sortedPlans;
+		filteredPlans.current = employeeSortedPlans;
 	}
 
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
@@ -68,8 +76,12 @@ export function AllPlans({
 			filteredData = filterDailyPlansByEmployee(filteredData, user);
 		}
 
+		if (filteredTaskIds && filteredData) {
+			filteredData = filterDailyPlansByTasks(filteredData, filteredTaskIds);
+		}
+
 		return filteredData;
-	}, [date, todayPlan, sortedPlans, user, filterByEmployee]);
+	}, [date, employeeTodayPlan, employeeSortedPlans, user, filterByEmployee, filteredTaskIds]);
 
 	// Local state for drag-and-drop functionality
 	const [dragPlans, setDragPlans] = useState(plans);
@@ -78,7 +90,7 @@ export function AllPlans({
 	useEffect(() => {
 		setDragPlans(plans);
 	}, [plans]);
-	if(!dragPlans) return null;
+	if (!dragPlans) return null;
 	return (
 		<div className="flex flex-col gap-6">
 			{Array.isArray(dragPlans) && dragPlans?.length > 0 ? (

@@ -1,11 +1,13 @@
 'use client';
 
+import { setActiveProjectIdCookie, setActiveTeamIdCookie, setOrganizationIdCookie } from '@/core/lib/helpers/cookies';
 import {
-	setActiveProjectIdCookie,
-	setActiveTeamIdCookie,
-	setOrganizationIdCookie
-} from '@/core/lib/helpers/cookies';
-import { activeTeamIdState, isTeamMemberState, organizationTeamsState } from '@/core/stores';
+	activeTeamIdState,
+	activeTeamTaskState,
+	isTeamMemberState,
+	organizationTeamsState,
+	teamTasksState
+} from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom, useSetAtom } from 'jotai';
 import { useMutation } from '@tanstack/react-query';
@@ -35,11 +37,19 @@ export function useCreateOrganizationTeam() {
 	const { refreshToken, user } = useAuthenticateUser();
 
 	const [isTeamMember, setIsTeamMember] = useAtom(isTeamMemberState);
+	const setActiveTeamTask = useSetAtom(activeTeamTaskState);
+	const setTeamTasks = useSetAtom(teamTasksState);
 
 	const { updateAvatar: updateUserLastTeam } = useSettings();
 
 	const setActiveTeam = useCallback(
 		(team: (typeof teams)[0]) => {
+			// NOTE: Reset both tasks array AND active task state when switching teams
+			// This prevents stale data from previous team persisting during the transition
+			// New tasks will be loaded by the effect that watches activeTeam?.id
+			setTeamTasks([]);
+			setActiveTeamTask(null);
+
 			setActiveTeamIdCookie(team?.id);
 			setOrganizationIdCookie(team?.organizationId || '');
 
@@ -48,7 +58,7 @@ export function useCreateOrganizationTeam() {
 			if (team && team?.projects && team.projects.length) {
 				setActiveProjectIdCookie(team.projects[0].id);
 			}
-			window && window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, team.id);
+			globalThis.window && globalThis.window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, team.id);
 			// Only update user last team if it's different to avoid unnecessary API calls
 			if (user && user.lastTeamId !== team.id) {
 				updateUserLastTeam({ id: user.id, lastTeamId: team.id });
@@ -58,7 +68,7 @@ export function useCreateOrganizationTeam() {
 			// This must be called at the end (Update store)
 			setActiveTeamId(team?.id);
 		},
-		[setActiveTeamId, updateUserLastTeam, user]
+		[setActiveTeamId, setActiveTeamTask, setTeamTasks, updateUserLastTeam, user]
 	);
 
 	// Use cache invalidation hook - much cleaner than manual invalidations

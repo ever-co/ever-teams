@@ -1,5 +1,9 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useModal, useRefetchData, useTaskStatus } from '@/core/hooks';
+import { useModal, useRefetchData } from '@/core/hooks';
+import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
+import { useCreateTaskStatus } from '@/core/hooks/tasks/use-create-task-status';
+import { useEditTaskStatus } from '@/core/hooks/tasks/use-edit-task-status';
+import { useDeleteTaskStatus } from '@/core/hooks/tasks/use-delete-task-status';
 import { tasksByTeamState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
@@ -55,16 +59,10 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 		[]
 	);
 
-	const {
-		getTaskStatusesLoading,
-		taskStatuses,
-		createTaskStatus,
-		deleteTaskStatus,
-		editTaskStatus,
-		createTaskStatusLoading,
-		editTaskStatusLoading,
-		setTaskStatuses
-	} = useTaskStatus();
+	const { getTaskStatusesLoading, taskStatuses, setTaskStatuses } = useTaskStatusesQuery();
+	const { createTaskStatus, createTaskStatusLoading } = useCreateTaskStatus();
+	const { editTaskStatus, editTaskStatusLoading } = useEditTaskStatus();
+	const { deleteTaskStatus } = useDeleteTaskStatus();
 	const { refetch } = useRefetchData();
 
 	useEffect(() => {

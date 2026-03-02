@@ -1,5 +1,5 @@
 import { imgTitle } from '@/core/lib/helpers/index';
-import { useTeamTasks } from '@/core/hooks';
+import { useUpdateTask } from '@/core/hooks';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import clsx from 'clsx';
 import { ConfirmDropdown, SpinnerLoader } from '@/core/components';
@@ -25,7 +25,7 @@ type Props = {
 } & IClassName;
 
 export function TaskItem({ task, selected, onClick, className }: Props) {
-	const { handleStatusUpdate, updateLoading } = useTeamTasks();
+	const { handleStatusUpdate, updateLoading } = useUpdateTask();
 	const t = useTranslations();
 
 	const handleChange = useCallback(

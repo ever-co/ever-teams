@@ -98,6 +98,8 @@ export const createCompleteTeamMembersList = (
 /**
  * Sorts team members by work status priority
  * Centralizes the sorting logic for consistency
+ * NOTE: Added secondary sort by ID to ensure stable ordering when priorities are equal
+ * This prevents visual glitches when members have the same timer status
  */
 export const sortByWorkStatus = (a: TOrganizationTeamEmployee, b: TOrganizationTeamEmployee): number => {
 	const priorityA =
@@ -108,7 +110,15 @@ export const sortByWorkStatus = (a: TOrganizationTeamEmployee, b: TOrganizationT
 		TEAM_MEMBER_CONSTANTS.TIMER_STATUS_PRIORITY[
 			b.timerStatus as keyof typeof TEAM_MEMBER_CONSTANTS.TIMER_STATUS_PRIORITY
 		] ?? 0;
-	return priorityB - priorityA;
+
+	// Primary sort: by timer status priority (descending - higher priority first)
+	if (priorityB !== priorityA) {
+		return priorityB - priorityA;
+	}
+
+	// Secondary sort: by ID for stable ordering when priorities are equal
+	// This prevents visual glitches during role changes or data refetches
+	return (a.id || '').localeCompare(b.id || '');
 };
 
 /**
@@ -176,4 +186,36 @@ export const filterAndPositionTeamMembers = (
 
 	// Ensure current user is always first in filtered results
 	return ensureCurrentUserFirst(filteredMembers, currentUserId);
+};
+
+/**
+ * Merges new members data with existing members while preserving their order.
+ * This prevents visual glitches when API returns members in a different order
+ * (e.g., during role changes where the API may reorder the response).
+ *
+ * @param existingMembers - Current members in the UI (order to preserve)
+ * @param newMembers - New members data from API (data to use)
+ * @returns Merged members array with preserved order and updated data
+ */
+export const mergePreservingOrder = (
+	existingMembers: TOrganizationTeamEmployee[],
+	newMembers: TOrganizationTeamEmployee[]
+): TOrganizationTeamEmployee[] => {
+	// Create a map of new members for quick lookup
+	const newMembersMap = new Map(newMembers.map((m) => [m.id, m]));
+
+	// Update existing members preserving their order, but only keep those still in new list
+	const updatedExisting = existingMembers
+		.filter((m) => newMembersMap.has(m.id)) // Only keep members that still exist
+		.map((m) => ({
+			...m,
+			...newMembersMap.get(m.id) // Update with new data (including role changes)
+		})) as TOrganizationTeamEmployee[];
+
+	// Find truly new members that weren't in the existing list
+	const existingMemberIds = new Set(existingMembers.map((m) => m.id));
+	const trulyNewMembers = newMembers.filter((m) => !existingMemberIds.has(m.id));
+
+	// Return existing members (updated) + new members at the end
+	return [...updatedExisting, ...trulyNewMembers];
 };

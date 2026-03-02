@@ -11,7 +11,8 @@ import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useRouter } from 'next/navigation';
 import { Container } from '@/core/components';
 
-import { GroupByType, useReportActivity } from '@/core/hooks/activities/use-report-activity';
+import { type GroupByType, useActivityFilters } from '@/core/hooks/activities/use-activity-filters';
+import { useActivityReportListQuery } from '@/core/hooks/activities/queries/use-activity-report-list-query';
 import { Card } from '@/core/components/common/card';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useLocalStorageState, useModal } from '@/core/hooks/common';
@@ -56,16 +57,8 @@ function AppUrls() {
 	const { closeModal, isOpen, openModal } = useModal();
 	const { user } = useAuthenticateUser();
 
-	const {
-		activityReport,
-		handleGroupByChange,
-		updateDateRange,
-		updateFilters,
-		currentFilters,
-		isManage,
-		loading,
-		fetchActivityReport
-	} = useReportActivity({ types: 'APPS-URLS' });
+	const { mergedProps, enabled, currentFilters, updateDateRange, updateFilters, handleGroupByChange, isManage } = useActivityFilters();
+	const { activityReport, isLoading: loading, refetchActivityReport } = useActivityReportListQuery({ mergedProps, enabled });
 
 	const handleGroupTypeChange = (type: GroupByType) => {
 		setGroupByType(type);
@@ -75,8 +68,8 @@ function AppUrls() {
 	// Handle filter application - triggers data refetch
 	const handleFiltersApply = useCallback(() => {
 		// Refetch activity report data with current filter state
-		fetchActivityReport();
-	}, [fetchActivityReport]);
+		refetchActivityReport();
+	}, [refetchActivityReport]);
 
 	const generateMonthData = (date: Date): ProductivityData[] => {
 		const year = date.getFullYear();

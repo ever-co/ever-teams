@@ -1,6 +1,6 @@
-import { useIsMemberManager, useOrganizationTeams } from '@/core/hooks';
+import { useIsMemberManager, useOrganizationTeamsQuery, useEditOrganizationTeam } from '@/core/hooks';
 import { ERoleName } from '@/core/types/generics/enums/role';
-import { activeTeamState } from '@/core/stores';
+import { activeTeamState, organizationTeamsState } from '@/core/stores';
 import { Button, ColorPicker, Text } from '@/core/components';
 import { EmojiPicker } from '@/core/components/common/emoji-picker';
 import TimeTrackingToggle, { RequireDailyPlanToTrack, ShareProfileViewsToggle } from '@/core/components/common/switch';
@@ -9,7 +9,7 @@ import isEqual from 'lodash/isEqual';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { useParams } from 'next/navigation';
 import { CheckSquareOutlineIcon, EditPenUnderlineIcon } from 'assets/svg';
 import TeamSize from '@/core/components/teams/team-size-popover';
@@ -26,13 +26,9 @@ export const TeamSettingForm = () => {
 	const t = useTranslations();
 
 	const [activeTeam, setActiveTeam] = useAtom(activeTeamState);
-	const {
-		editOrganizationTeam,
-		getOrganizationTeamsLoading: loading,
-		loadingTeam,
-		setTeams,
-		editOrganizationTeamLoading
-	} = useOrganizationTeams();
+	const setTeams = useSetAtom(organizationTeamsState);
+	const { getOrganizationTeamsLoading: loading, loadingTeam } = useOrganizationTeamsQuery();
+	const { editOrganizationTeam, editOrganizationTeamLoading } = useEditOrganizationTeam();
 	const { isTeamManager, activeManager } = useIsMemberManager(user);
 	const [copied, setCopied] = useState<boolean>(false);
 	const [disabled, setDisabled] = useState<boolean>(true);

@@ -7,7 +7,11 @@ import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import { clsxm } from '@/core/lib/utils';
 import TaskBlockCard from '../task-block-card';
-import { filterDailyPlan, filterDailyPlansByEmployee } from '@/core/hooks/daily-plans/use-filter-date-range';
+import {
+	filterDailyPlan,
+	filterDailyPlansByEmployee,
+	filterDailyPlansByTasks
+} from '@/core/hooks/daily-plans/use-filter-date-range';
 import { useMemo } from 'react';
 import { TUser } from '@/core/types/schemas';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
@@ -15,25 +19,27 @@ import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
-import { useDailyPlan } from '@/core/hooks';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 
 export function PastTasks({
 	user,
 	profile,
 	currentTab = 'Past Tasks',
 	employeeId: propsEmployeeId,
-	filterByEmployee = false
+	filterByEmployee = false,
+	filteredTaskIds
 }: {
 	profile: any;
 	currentTab?: FilterTabs;
 	user?: TUser;
 	employeeId?: string; // Accept employeeId directly from parent
 	filterByEmployee?: boolean; // Filter tasks by employee (default: false = show all tasks)
+	filteredTaskIds?: string[]; // Filter plans by taskIds (default undefined = show all)
 }) {
 	// Use employeeId from props if provided, otherwise calculate from user
 	const employeeId = propsEmployeeId ?? user?.employee?.id ?? user?.employeeId ?? '';
 
-	const { pastPlans } = useDailyPlan(employeeId);
+	const { employeePastPlans } = useEmployeeDailyPlans(employeeId);
 
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 	// Use a safe default instead of direct localStorage access
@@ -43,16 +49,19 @@ export function PastTasks({
 	// The previous useEffect was modifying pastPlans while depending on pastPlans, causing infinite loop
 	const filteredPastPlans = useMemo(() => {
 		// First apply date filtering
-		let filteredData = filterDailyPlan(date as any, pastPlans);
+		let filteredData = filterDailyPlan(date as any, employeePastPlans);
 
 		// Then filter tasks for specific user if filterByEmployee flag is enabled
 		// By default (filterByEmployee = false), we show ALL tasks in the daily plan
 		if (filterByEmployee && filteredData) {
 			filteredData = filterDailyPlansByEmployee(filteredData, user);
 		}
+		if (filteredTaskIds && filteredData) {
+			filteredData = filterDailyPlansByTasks(filteredData, filteredTaskIds);
+		}
 
 		return filteredData;
-	}, [date, pastPlans, user, filterByEmployee]);
+	}, [date, employeePastPlans, user, filterByEmployee, filteredTaskIds]);
 	if (!filteredPastPlans) return null;
 	return (
 		<div className="flex flex-col gap-6">

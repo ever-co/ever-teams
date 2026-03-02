@@ -1,7 +1,7 @@
 'use client';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
-import { useStatusValue, useSyncRef, useTeamTasks } from '@/core/hooks';
+import { useStatusValue, useSyncRef, useUpdateTask } from '@/core/hooks';
 import { ITag } from '@/core/types/interfaces/tag/tag';
 import { TStatus, IActiveTaskStatuses } from '@/core/types/interfaces/task/task-card';
 import { taskUpdateQueue } from '@/core/lib/utils/task.utils';
@@ -13,7 +13,9 @@ import {
 	clearOptimisticValueAtom,
 	getOptimisticValueAtom
 } from '@/core/stores/tasks/task-optimistic-updates';
-import { activeTeamTaskState, taskLabelsListState, taskStatusesState } from '@/core/stores';
+import { activeTeamTaskState } from '@/core/stores';
+import { useTaskLabelsQuery } from './use-task-labels-query';
+import { useTaskStatusesQuery } from './use-task-statuses-query';
 
 /**
  * Hook for managing loading states in task dropdown components
@@ -75,10 +77,9 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 	field: T
 ) {
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const { handleStatusUpdate } = useTeamTasks();
-	const taskLabels = useAtomValue(taskLabelsListState);
-
-	const taskStatuses = useAtomValue(taskStatusesState);
+	const { handleStatusUpdate } = useUpdateTask();
+	const { taskLabels } = useTaskLabelsQuery();
+	const { taskStatuses } = useTaskStatusesQuery();
 
 	// Global optimistic state for synchronization between instances
 	const setOptimisticValue = useSetAtom(setOptimisticValueAtom);
