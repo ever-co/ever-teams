@@ -28,16 +28,21 @@ html.dark {
   html {
     font-family: 'Poppins', sans-serif;
   }
+
   * {
     @apply bg-transparent;
     /* @apply rounded-3xl !important; */
   }
 
   body {
+    font-family:
+      var(--font-sans), 'Plus-Jakarta-Sans-VariableFont_wght', 'Inter', 'Geist Sans', ui-sans-serif, system-ui,
+      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji' !important;
     font-style: normal;
-    font-weight: 300;
-    font-size: 16px;
-    line-height: 160%;
+    font-weight: 400;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     overflow: hidden;
     @apply text-default dark:text-white;
   }
@@ -112,6 +117,7 @@ html.dark {
 }
 
 @layer components {
+
   /* Colors custom */
   .bg-gray-lighter {
     @apply bg-[#F2F2F2] dark:bg-dark--theme-light;
@@ -476,15 +482,19 @@ html.dark {
 
 .drag-region {
   -webkit-app-region: drag;
-  height: 40px; /* Adjust height as needed */
+  height: 40px;
+  /* Adjust height as needed */
   cursor: pointer;
   background: transparent;
 }
+
 .drag-region-windows {
   -webkit-app-region: drag;
-  height: 30px; /* Adjust height as needed */
+  height: 30px;
+  /* Adjust height as needed */
   cursor: pointer;
 }
+
 .drag-region::hover {
   cursor: pointer;
 }
@@ -495,5 +505,5 @@ html.dark {
 
 
 .no-drag {
-    -webkit-app-region: no-drag;
-  }
+  -webkit-app-region: no-drag;
+}

@@ -842,6 +842,9 @@ ipcMain.on(IPC_TYPES.CONTROL_BUTTON, (_, arg) => {
     case 'minimize':
       handleMinimizeButton(arg.windowTypes);
       break;
+    case 'open-setting':
+      eventEmitter.emit(EventLists.gotoSetting);
+      break;
     default:
       break;
   }

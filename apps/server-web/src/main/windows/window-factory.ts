@@ -48,10 +48,6 @@ export default class WindowsFactory {
         if (process.platform === 'darwin') {
           windowOptions = {
             ...windowOptions,
-            transparent: true,
-            roundedCorners: true,
-            hasShadow: true,
-            frame: false,
           }
         } else {
             windowOptions.titleBarStyle = 'hidden';
