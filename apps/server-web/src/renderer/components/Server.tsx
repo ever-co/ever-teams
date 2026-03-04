@@ -18,7 +18,10 @@ export const ServerComponent = (props: IServerComponent) => {
   };
   return (
     <>
-      <div className="relative overflow-y-auto overflow-x-hidden flex-grow left-8 w-11/12" style={{minHeight: '700px'}}>
+      <div
+        className="relative overflow-y-auto overflow-x-hidden flex-grow left-8 w-11/12"
+        style={{ minHeight: '700px' }}
+      >
         <form method="post" onSubmit={saveSetting}>
           <div className="rounded-3xl shadow-inner bg-gray-50 dark:bg-[#25272D] px-16 py-10 mt-5 dark:border-gray-600">
             <div className="flex items-center">
@@ -26,7 +29,7 @@ export const ServerComponent = (props: IServerComponent) => {
                 <div className="md:flex md:items-center mb-5 w-full">
                   <div className="md:w-1/3">
                     <label
-                      className="block text-gray-500 font-bold md:text-left mb-1 md:mb-0 pr-4"
+                      className="block text-gray-600 dark:text-gray-300 font-bold md:text-left mb-1 md:mb-0 pr-4"
                       htmlFor="inline-full-name"
                     >
                       {t('FORM.LABELS.SERVER_CONFIG')}
@@ -36,7 +39,7 @@ export const ServerComponent = (props: IServerComponent) => {
                 <div className="md:flex md:items-center mb-3 w-full">
                   <div className="md:w-1/3">
                     <label
-                      className="block text-gray-400 md:text-left mb-1 md:mb-0 pr-4"
+                      className="block text-gray-400 dark:text-gray-500 md:text-left mb-1 md:mb-0 pr-4"
                       htmlFor="inline-full-name"
                     >
                       {t('FORM.FIELDS.PORT')}
@@ -44,7 +47,7 @@ export const ServerComponent = (props: IServerComponent) => {
                   </div>
                   <div className="md:w-2/3">
                     <input
-                      className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                      className="bg-gray-200 dark:bg-dark--theme-light appearance-none border-2 border-gray-200 dark:border-gray-600 rounded w-full py-2 px-4 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:bg-white dark:focus:bg-dark--theme-light focus:border-blue-500"
                       id="PORT"
                       type="text"
                       placeholder="Port"
@@ -56,7 +59,7 @@ export const ServerComponent = (props: IServerComponent) => {
                 <div className="md:flex md:items-center mb-3 w-full">
                   <div className="md:w-1/3">
                     <label
-                      className="block text-gray-400 md:text-left mb-1 md:mb-0 pr-4"
+                      className="block text-gray-400 dark:text-gray-500 md:text-left mb-1 md:mb-0 pr-4"
                       htmlFor="inline-full-name"
                     >
                       {t('FORM.FIELDS.GAUZY_API_SERVER_URL')}
@@ -64,7 +67,7 @@ export const ServerComponent = (props: IServerComponent) => {
                   </div>
                   <div className="md:w-2/3">
                     <input
-                      className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                      className="bg-gray-200 dark:bg-dark--theme-light appearance-none border-2 border-gray-200 dark:border-gray-600 rounded w-full py-2 px-4 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:bg-white dark:focus:bg-dark--theme-light focus:border-blue-500"
                       id="GAUZY_API_SERVER_URL"
                       type="text"
                       placeholder="http://localhost:3000"
@@ -76,7 +79,7 @@ export const ServerComponent = (props: IServerComponent) => {
                 <div className="md:flex md:items-center mb-3 w-full">
                   <div className="md:w-1/3">
                     <label
-                      className="block text-gray-400 md:text-left mb-1 md:mb-0 pr-4"
+                      className="block text-gray-400 dark:text-gray-500 md:text-left mb-1 md:mb-0 pr-4"
                       htmlFor="inline-full-name"
                     >
                       {t('FORM.FIELDS.NEXT_PUBLIC_GAUZY_API_SERVER_URL')}
@@ -84,7 +87,7 @@ export const ServerComponent = (props: IServerComponent) => {
                   </div>
                   <div className="md:w-2/3">
                     <input
-                      className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                      className="bg-gray-200 dark:bg-dark--theme-light appearance-none border-2 border-gray-200 dark:border-gray-600 rounded w-full py-2 px-4 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:bg-white dark:focus:bg-dark--theme-light focus:border-blue-500"
                       id="NEXT_PUBLIC_GAUZY_API_SERVER_URL"
                       type="text"
                       placeholder="http://localhost:3000"
@@ -97,7 +100,7 @@ export const ServerComponent = (props: IServerComponent) => {
             </div>
           </div>
           <button
-            className="ml-2 mt-10 block rounded-lg border-4 border-transparent bg-violet-800 px-6 py-2 text-center text-base font-medium text-gray-200 outline-8"
+            className="ml-2 mt-10 block rounded-lg border-4 border-transparent bg-violet-800 dark:bg-primary px-6 py-2 text-center text-base font-medium text-gray-200 dark:text-white outline-8"
             type="submit"
           >
             {t('FORM.BUTTON.SAVE_SETTING')}

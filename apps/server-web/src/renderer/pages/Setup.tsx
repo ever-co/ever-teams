@@ -28,10 +28,7 @@ const SetupPage = () => {
 
   return (
     <>
-      {platform === 'darwin' && (
-        <WindowControl windowTypes={WindowTypes.SETUP_WINDOW} />
-      )}
-      <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 text-white px-4">
+      <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-[#25272D] text-white px-4">
         <div className="flex w-full justify-center mb-8 mt-8">
           <div className="flex items-center">
             <div

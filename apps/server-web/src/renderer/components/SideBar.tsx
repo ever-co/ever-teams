@@ -4,9 +4,7 @@ import { ISidebarComponent } from '../libs/interfaces';
 import { ThemeToggler } from './Toggler';
 import LanguageSelector from './LanguageSelector';
 import Container from './container';
-import WindowControl from './window-control';
 import { useEffect, useState } from 'react';
-import { WindowTypes } from '../../main/helpers/constant';
 import { IDevices } from '../../main/helpers/interfaces';
 
 export function SideBar({
@@ -26,9 +24,6 @@ export function SideBar({
   }, [])
   return (
     <>
-      {platform === 'darwin' && (
-        <WindowControl windowTypes={WindowTypes.SETTING_WINDOW}/>
-      )}
     <Container>
       <div className="fixed flex flex-col top-0 left-0 h-full w-1/4 dark:bg-[#2b2b2f] bg-gray-200 rounded-3xl">
         <div className="overflow-y-auto overflow-x-hidden flex-grow rounded-3xl content-start">

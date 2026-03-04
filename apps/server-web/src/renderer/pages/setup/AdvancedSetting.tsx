@@ -5,6 +5,9 @@ import { SettingPageTypeMessage } from '../../libs/constant';
 import { config } from '../../../configs/config';
 import { get } from '../../libs/utils/api';
 import { ToastComponent } from '../../components/Toast';
+import CheckBadgeIcon from '@heroicons/react/20/solid/CheckBadgeIcon';
+import ArrowUturnUpIcon from '@heroicons/react/20/solid/ArrowUturnUpIcon';
+import ArrowLeftIcon from '@heroicons/react/20/solid/ArrowLeftIcon';
 type Props = {
   back: () => void;
 };
@@ -148,7 +151,7 @@ const AdvancedSetting = (props: Props) => {
           </div>
         </div>
         {/* Buttons */}
-        <div className="flex justify-between items-center w-full mx-auto mt-auto mb-8 mt-16">
+        <div className="flex justify-between items-center w-full mx-auto mb-8 mt-[97px]">
           <button
             type="button"
             onClick={() => {
@@ -156,7 +159,7 @@ const AdvancedSetting = (props: Props) => {
             }}
             className="flex items-center bg-gray-800 text-white py-3 px-6 rounded-full hover:bg-gray-700"
           >
-            <span className="mr-2">←</span> BACK
+            <ArrowLeftIcon className="h-6 w-6 mr-2" /> BACK
           </button>
           <div className="flex">
             <button
@@ -170,9 +173,9 @@ const AdvancedSetting = (props: Props) => {
               {loading ? (
                 <div className="w-5 h-5 border-4 border-blue-500 border-dotted rounded-full animate-spin"></div>
               ) : (
-                <span className="mr-2">✔</span>
+                <CheckBadgeIcon className="h-6 w-6 mr-2" />
               )}
-              Check
+              Check Connectivity
             </button>
             <button
               name="save_setting"
@@ -182,9 +185,9 @@ const AdvancedSetting = (props: Props) => {
               {loading ? (
                 <div className="w-5 h-5 border-4 border-blue-500 border-dotted rounded-full animate-spin"></div>
               ) : (
-                <span className="mr-2">💾</span>
+                <ArrowUturnUpIcon className="h-6 w-6 mr-2"/>
               )}
-              Save
+              Continue
             </button>
           </div>
         </div>

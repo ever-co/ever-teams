@@ -53,9 +53,6 @@ const AboutPage = () => {
   });
   return (
     <>
-      {platform === 'darwin' && (
-        <WindowControl windowTypes={WindowTypes.ABOUT_WINDOW}/>
-      )}
       <Container>
         <div className="w-full text-white rounded-lg shadow-md p-6">
           <div className="text-center content-start">
