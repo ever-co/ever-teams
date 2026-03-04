@@ -1,6 +1,6 @@
 'use client';
 import { Container } from '@/core/components';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 import { useParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -77,7 +77,7 @@ const TeamTask = () => {
 	}
 
 	return (
-		<MainLayout
+		<PageLayout
 			mainHeaderSlot={
 				<Container fullWidth={fullWidth} className="mt-5">
 					<Breadcrumb paths={breadcrumbPath} className="mb-5 text-sm" />
@@ -223,7 +223,7 @@ const TeamTask = () => {
 					/>
 				)}
 			</div>
-		</MainLayout>
+		</PageLayout>
 	);
 };
 
