@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { Container } from '@/core/components';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 import { cn } from '@/core/lib/helpers';
 
 interface TeamDashboardPageSkeletonProps {
@@ -11,7 +11,7 @@ interface TeamDashboardPageSkeletonProps {
 
 /**
  * Complete page-level skeleton for Team Dashboard page
- * Integrates seamlessly with MainLayout structure without swallowing it up
+ * Integrates seamlessly with PageLayout structure without swallowing it up
  * Matches exact layout: mainHeaderSlot (3 sections: breadcrumb + header + stats/chart) + main content (table)
  */
 export const TeamDashboardPageSkeleton: FC<TeamDashboardPageSkeletonProps> = ({
@@ -20,7 +20,7 @@ export const TeamDashboardPageSkeleton: FC<TeamDashboardPageSkeletonProps> = ({
 	fullWidth = false
 }) => {
 	return (
-		<MainLayout
+		<PageLayout
 			className="items-start pb-1 !overflow-hidden w-full"
 			childrenClassName="w-full"
 			showTimer={showTimer}
@@ -147,7 +147,7 @@ export const TeamDashboardPageSkeleton: FC<TeamDashboardPageSkeletonProps> = ({
 					</div>
 				</div>
 			</Container>
-		</MainLayout>
+		</PageLayout>
 	);
 };
 

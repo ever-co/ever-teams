@@ -1,5 +1,5 @@
 import Skeleton from 'react-loading-skeleton';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 import { Container, Divider } from '@/core/components';
 import TaskCardSkeleton from './task-card-skeleton';
 
@@ -9,7 +9,7 @@ const TaskPageSkeleton = () => {
 	});
 
 	return (
-		<MainLayout>
+		<PageLayout>
 			<div className="pt-16 pb-4 -mt-8 bg-white dark:bg-dark--theme">
 				<Container>
 					<Skeleton height={20} width={180} borderRadius={10} className="dark:bg-[#272930]" />
@@ -141,7 +141,7 @@ const TaskPageSkeleton = () => {
 					{taskCards}
 				</div>
 			</Container>
-		</MainLayout>
+		</PageLayout>
 	);
 };
 

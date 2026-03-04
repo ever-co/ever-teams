@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { Container } from '@/core/components';
-import { MainLayout, MainHeader } from '@/core/components/layouts/default-layout';
+import { PageLayout, MainHeader } from '@/core/components/layouts/default-layout';
 
 interface TeamMemberProfilePageSkeletonProps {
 	className?: string;
@@ -10,7 +10,7 @@ interface TeamMemberProfilePageSkeletonProps {
 
 /**
  * Complete page-level skeleton for Team Member Profile page
- * Integrates seamlessly with MainLayout structure without swallowing it up
+ * Integrates seamlessly with PageLayout structure without swallowing it up
  * Matches exact layout: MainHeader (3 sections: breadcrumb + unverified email + user team card header) + main content (team members view)
  */
 export const TeamMemberProfilePageSkeleton: FC<TeamMemberProfilePageSkeletonProps> = ({
@@ -19,7 +19,7 @@ export const TeamMemberProfilePageSkeleton: FC<TeamMemberProfilePageSkeletonProp
 	publicTeam = false
 }) => {
 	return (
-		<MainLayout publicTeam={publicTeam}>
+		<PageLayout publicTeam={publicTeam}>
 			{/* SKELETON: MainHeader with 3 sections */}
 			<MainHeader fullWidth={fullWidth}>
 				{/* SKELETON: Section 1 - Breadcrumb */}
@@ -126,7 +126,7 @@ export const TeamMemberProfilePageSkeleton: FC<TeamMemberProfilePageSkeletonProp
 					</div>
 				</div>
 			</Container>
-		</MainLayout>
+		</PageLayout>
 	);
 };
 
