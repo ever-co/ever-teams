@@ -64,11 +64,10 @@ const AdvancedSetting = (props: Props) => {
     <>
       <div className="text-center mt-8 mb-12 text-gray-700 dark:text-gray-200">
         <h1 className="text-2xl font-bold mb-2">
-          Are you ready for some advanced settings?
+          Configure Ever Teams Web Server?
         </h1>
         <p className="text-gray-500 dark:text-gray-400">
-          This is the final step where you can get to the nitty-gritty of your
-          Gauzy Platform.
+          This is the final step where you can configure Ever Teams Web Server.
         </p>
       </div>
 

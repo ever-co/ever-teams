@@ -39,7 +39,7 @@ export const ServerComponent = (props: IServerComponent) => {
                 <div className="md:flex md:items-center mb-3 w-full">
                   <div className="md:w-1/3">
                     <label
-                      className="block text-gray-400 dark:text-gray-500 md:text-left mb-1 md:mb-0 pr-4"
+                      className="block text-gray-600 dark:text-gray-200 md:text-left mb-1 md:mb-0 pr-4"
                       htmlFor="inline-full-name"
                     >
                       {t('FORM.FIELDS.PORT')}
@@ -47,7 +47,7 @@ export const ServerComponent = (props: IServerComponent) => {
                   </div>
                   <div className="md:w-2/3">
                     <input
-                      className="bg-gray-200 dark:bg-dark--theme-light appearance-none border-2 border-gray-200 dark:border-gray-600 rounded w-full py-2 px-4 text-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:bg-white dark:focus:bg-dark--theme-light focus:border-blue-500"
+                      className="bg-gray-200 dark:bg-dark--theme-light appearance-none border-2 border-gray-200 dark:border-gray-600 rounded w-full py-2 px-4 text-gray-600 dark:text-gray-200 leading-tight focus:outline-none focus:bg-white dark:focus:bg-dark--theme-light focus:border-blue-500"
                       id="PORT"
                       type="text"
                       placeholder="Port"
@@ -59,7 +59,7 @@ export const ServerComponent = (props: IServerComponent) => {
                 <div className="md:flex md:items-center mb-3 w-full">
                   <div className="md:w-1/3">
                     <label
-                      className="block text-gray-400 dark:text-gray-500 md:text-left mb-1 md:mb-0 pr-4"
+                      className="block text-gray-600 dark:text-gray-200 md:text-left mb-1 md:mb-0 pr-4"
                       htmlFor="inline-full-name"
                     >
                       {t('FORM.FIELDS.GAUZY_API_SERVER_URL')}
@@ -79,7 +79,7 @@ export const ServerComponent = (props: IServerComponent) => {
                 <div className="md:flex md:items-center mb-3 w-full">
                   <div className="md:w-1/3">
                     <label
-                      className="block text-gray-400 dark:text-gray-500 md:text-left mb-1 md:mb-0 pr-4"
+                      className="block text-gray-600 dark:text-gray-200 md:text-left mb-1 md:mb-0 pr-4"
                       htmlFor="inline-full-name"
                     >
                       {t('FORM.FIELDS.NEXT_PUBLIC_GAUZY_API_SERVER_URL')}
