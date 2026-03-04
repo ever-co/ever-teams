@@ -784,7 +784,9 @@
 			"ARE_YOU_SURE_TO_DELETE_USER": "Вы уверены, что хотите удалить этого пользователя?"
 		},
 		"settingsPersonal": {
-			"HEADING_TITLE": "Configurações Gerais",
+			"HEADING_TITLE": "Общие настройки",
+			"goToTeamSettings": "Перейти к настройкам команды",
+			"WORKING_HOURS": "Рабочие часы",
 			"emailNotValid": "Пожалуйста, укажите действительный адрес электронной почты",
 			"phoneNotValid": "Пожалуйста, укажите действительный номер телефона",
 			"WORK_SCHEDULE": "График работы",

@@ -785,6 +785,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "Ustawienia Ogólne",
+			"goToTeamSettings": "Przejdź do ustawień zespołu",
+			"WORKING_HOURS": "Godziny pracy",
 			"emailNotValid": "Proszę podać poprawny adres e-mail",
 			"phoneNotValid": "Proszę podać poprawny numer telefonu",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "Zamierzasz usunąć swoje konto i wszystkie swoje dane?",

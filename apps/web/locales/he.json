@@ -785,6 +785,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "הגדרות כלליות",
+			"goToTeamSettings": "עבור להגדרות הצוות",
+			"WORKING_HOURS": "שעות עבודה",
 			"emailNotValid": "אנא ספק כתובת אימייל חוקית",
 			"phoneNotValid": "אנא ספק מספר טלפון חוקי",
 			"WORK_SCHEDULE": "לוח זמנים",

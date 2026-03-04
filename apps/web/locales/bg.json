@@ -785,6 +785,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "Основни настройки",
+			"goToTeamSettings": "Отидете към настройките на отбора",
+			"WORKING_HOURS": "Работно време",
 			"emailNotValid": "Моля, въведете валиден имейл",
 			"phoneNotValid": "Моля, въведете валиден телефонен номер",
 			"WORK_SCHEDULE": "Работен график",

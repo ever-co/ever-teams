@@ -785,6 +785,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "常规设置",
+			"goToTeamSettings": "前往团队设置",
+			"WORKING_HOURS": "工作时间",
 			"emailNotValid": "请输入有效的电子邮箱",
 			"phoneNotValid": "请输入有效的手机号码",
 			"WORK_SCHEDULE": "工作时间表",

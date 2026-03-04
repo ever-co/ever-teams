@@ -1,6 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useIsMemberManager, useLeftSettingData } from '@/core/hooks';
-import { scrollToElement } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import { SidebarAccordian } from '@/core/components/layouts/sidebar-accordian';
 import { PeoplesIcon, UserOutlineIcon } from 'assets/svg';
@@ -13,39 +12,39 @@ import { clsxm } from '@/core/lib/utils';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import { activeSettingTeamTab } from '@/core/stores/common/setting';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { activeSettingPersonalTab } from '@/core/stores/common/setting';
 
 export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 	const t = useTranslations();
 	const activeTeamMenu = useAtomValue(activeSettingTeamTab);
+	const activePersonalMenu = useAtomValue(activeSettingPersonalTab);
 	const { PersonalAccordianData, TeamAccordianData } = useLeftSettingData();
 	const pathname = usePathname();
 	const params = useParams();
 	const locale = useMemo(() => {
 		return params?.locale || '';
 	}, [params]);
-	const [activePage, setActivePage] = useState('');
+	const [openSection, setOpenSection] = useState<'personal' | 'team'>('personal');
 
 	const { data: user } = useUserQuery();
 	const { isTeamManager } = useIsMemberManager(user);
 
 	useEffect(() => {
-		if (pathname) {
-			setActivePage(pathname);
-		}
+		setOpenSection(pathname?.endsWith('/settings/team') ? 'team' : 'personal');
 	}, [pathname]);
 
 	useEffect(() => {
-		const url = new URL(window.location.origin + pathname);
-		window.setTimeout(() => {
-			if (!url.hash) return;
+		const hash = typeof window !== 'undefined' ? window.location.hash : '';
+		if (!hash) return;
 
-			const targetElement = document.querySelector(url.hash);
+		const timer = window.setTimeout(() => {
+			const targetElement = document.querySelector(hash);
 			if (targetElement) {
-				const rect = targetElement.getBoundingClientRect();
-				scrollToElement(rect, 100);
+				targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
 			}
 		}, 100);
 
+		return () => clearTimeout(timer);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [pathname]);
 
@@ -60,12 +59,14 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 			const targetElement = document.querySelector(url.hash);
 			if (targetElement) {
 				e.preventDefault();
-				const rect = targetElement.getBoundingClientRect();
-				scrollToElement(rect, 100);
+				targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
 			}
 		},
 		[pathname]
 	);
+
+	const isPersonalPage = pathname?.endsWith('/settings/personal') ?? false;
+	const isTeamPage = pathname?.endsWith('/settings/team') ?? false;
 
 	return (
 		<div className={clsxm('', className)}>
@@ -78,9 +79,11 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 			>
 				<div>
 					<SidebarAccordian
+						open={openSection === 'personal'}
+						onHeaderClick={() => setOpenSection('personal')}
 						title={
 							<>
-								{activePage === '/settings/personal' ? (
+								{isPersonalPage ? (
 									<UserOutlineIcon
 										className="w-6 h-6 fill-primary dark:fill-white strock-primary"
 										fill="white"
@@ -93,23 +96,17 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 						}
 						className="bg-transparent"
 						textClassName={`
-						${
-							activePage === '/settings/personal'
-								? `text-[#3826a6] font-semibold`
-								: 'border-l-transparent font-normal dark:text-[#7E7991]'
-						}
+						${isPersonalPage ? `text-[#3826a6] font-semibold` : 'border-l-transparent font-normal dark:text-[#7E7991]'}
 						`}
 						wrapperClassName={`w-full border-t-0 border-r-0 border-b-0 rounded-none
                 font-normal text-[#7e7991] justify-start  pt-[24px] pb-[24px] pl-[24px]
-				border-l-[5px] ${
-					activePage === '/settings/personal'
-						? 'text-[#3826a6] border-l-solid border-l-primary bg-[#E9E5F9] dark:bg-[#6755C9]'
-						: 'border-l-transparent'
-				}
+				border-l-[5px] ${isPersonalPage ? 'text-[#3826a6] border-l-solid border-l-primary bg-[#E9E5F9] dark:bg-[#6755C9]' : 'border-l-transparent'}
                 `}
 					>
 						<div className="flex flex-col">
+							{/* TODO: filter by managerOnly when role-based sidebar is implemented */}
 							{PersonalAccordianData.map((ad, index) => {
+								const isActive = '#' + activePersonalMenu === ad.href;
 								return (
 									<Link
 										onClick={onLinkClick}
@@ -117,7 +114,7 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 										key={index}
 									>
 										<Text
-											className={`text-[${ad.color}] text-lg font-normal flex items-center p-4 pr-1 pl-5`}
+											className={`text-[${ad.color}] text-lg flex items-center p-4 pr-1 pl-5 ${isActive ? 'font-semibold' : 'font-normal'}`}
 											key={index}
 											style={{ color: ad.color }}
 										>
@@ -130,9 +127,11 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 					</SidebarAccordian>
 
 					<SidebarAccordian
+						open={openSection === 'team'}
+						onHeaderClick={() => setOpenSection('team')}
 						title={
 							<>
-								{activePage === '/settings/team' ? (
+								{isTeamPage ? (
 									<PeoplesIcon className="w-6 h-6 dark:fill-white" fill="#3826A6" />
 								) : (
 									<PeoplesIcon className="w-6 h-6 text-[#7E7991]" />
@@ -141,18 +140,10 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 							</>
 						}
 						className="bg-[transparent]"
-						textClassName={`${
-							activePage === '/settings/team'
-								? ' text-[#3826a6] text-primary font-semibold'
-								: ' border-l-transparent font-normal dark:text-[#7E7991]'
-						}`}
+						textClassName={`${isTeamPage ? ' text-[#3826a6] text-primary font-semibold' : ' border-l-transparent font-normal dark:text-[#7E7991]'}`}
 						wrapperClassName={`w-full border-t-0 border-r-0 border-b-0 rounded-none
 						font-normal text-[#7e7991] justify-start text-sm pt-[24px] pb-[24px] pl-[24px]
-	border-l-[5px] ${
-		activePage === '/settings/team'
-			? ' text-[#3826a6] border-l-solid border-l-primary bg-primary/5 text-primary dark:bg-[#6755C9]'
-			: ' border-l-transparent'
-	}
+	border-l-[5px] ${isTeamPage ? ' text-[#3826a6] border-l-solid border-l-primary bg-primary/5 text-primary dark:bg-[#6755C9]' : ' border-l-transparent'}
 						`}
 					>
 						<div className="flex flex-col">

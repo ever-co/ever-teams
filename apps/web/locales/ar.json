@@ -785,6 +785,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "الإعدادات العامة",
+			"goToTeamSettings": "انتقل إلى إعدادات الفريق",
+			"WORKING_HOURS": "ساعات العمل",
 			"emailNotValid": "يرجى تقديم بريد إلكتروني صالح",
 			"phoneNotValid": "يرجى تقديم رقم هاتف صالح",
 			"WORK_SCHEDULE": "جدول العمل",

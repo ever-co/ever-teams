@@ -785,6 +785,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "Allgemeine Einstellungen",
+			"goToTeamSettings": "Go to Team settings",
+			"WORKING_HOURS": "Working hours",
 			"emailNotValid": "Bitte geben Sie eine gültige E-Mail-Adresse an",
 			"phoneNotValid": "Bitte geben Sie eine gültige Telefonnummer an",
 			"WORK_SCHEDULE": "Arbeitszeitplan",

@@ -785,6 +785,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "Paramètres généraux",
+			"goToTeamSettings": "Aller aux paramètres d'équipe",
+			"WORKING_HOURS": "Heures de travail",
 			"emailNotValid": "Veuillez fournir une adresse e-mail valide",
 			"phoneNotValid": "Veuillez fournir un numéro de téléphone valide",
 			"WORK_SCHEDULE": "Calendrier de travail",

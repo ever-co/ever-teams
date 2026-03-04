@@ -785,6 +785,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "Algemene instellingen",
+			"goToTeamSettings": "Ga naar teaminstellingen",
+			"WORKING_HOURS": "Werktijden",
 			"emailNotValid": "Voer een geldig e-mailadres in",
 			"phoneNotValid": "Voer een geldig telefoonnummer in",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "U staat op het punt uw account en al uw gegevens te verwijderen?",

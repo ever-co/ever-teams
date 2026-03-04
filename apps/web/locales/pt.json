@@ -785,6 +785,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "Configurações Gerais",
+			"goToTeamSettings": "Ir para configurações da equipe",
+			"WORKING_HOURS": "Horário de trabalho",
 			"emailNotValid": "Por favor, forneça um e-mail válido",
 			"phoneNotValid": "Por favor, forneça um número de telefone válido",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "Você está prestes a excluir sua conta e todos os seus dados?",
