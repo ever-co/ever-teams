@@ -27,11 +27,40 @@ html.dark {
 @layer base {
   html {
     font-family: 'Poppins', sans-serif;
+    scrollbar-width: thin; /* Makes it thinner than native */
+    scrollbar-color: #888888 transparent; /* thumb color | track color */
   }
 
   * {
     @apply bg-transparent;
     /* @apply rounded-3xl !important; */
+  }
+
+  /* The overall width/height of the scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;  /* Vertical scrollbar width */
+    height: 8px; /* Horizontal scrollbar height */
+  }
+
+  /* The "track" (the background area the scrollbar moves in) */
+  ::-webkit-scrollbar-track {
+    background: transparent; /* Or a light gray like #f1f1f1 */
+    border-radius: 10px;
+  }
+
+  /* The "thumb" (the draggable part) */
+  ::-webkit-scrollbar-thumb {
+    background: #888888;
+    border-radius: 10px; /* Gives it smooth, rounded edges */
+    border: 2px solid transparent; /* Optional: creates padding inside the track */
+    background-clip: content-box; /* Makes the border act like padding */
+  }
+
+  /* The thumb when you hover over it */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555555;
+    border: 2px solid transparent;
+    background-clip: content-box;
   }
 
   body {
