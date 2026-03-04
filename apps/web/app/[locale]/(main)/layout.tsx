@@ -1,11 +1,12 @@
 'use client';
 import { AppState } from '@/core/components/layouts/app/init-state';
+import { LayoutShell } from '@/core/components/layouts/default-layout/layout-shell';
 
-export default function MainLayout({ children }: { children: React.ReactNode }) {
+export default function MainGroupLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<>
 			<AppState />
-			{children}
+			<LayoutShell>{children}</LayoutShell>
 		</>
 	);
 }
