@@ -39,6 +39,7 @@ import { debounce } from 'lodash';
 import WindowFactory from './windows/window-factory';
 import { setupTitlebar } from 'custom-electron-titlebar/main';
 import { config } from '../configs/config';
+import { ProxyConfig } from './helpers/services/server-proxy';
 
 console.log = Log.log;
 Object.assign(console, Log.functions);
@@ -326,6 +327,13 @@ const runServer = async () => {
   console.log('Run the Server...');
   try {
     const envVal: ServerConfig | undefined = getEnvApi();
+    const sslOption: ProxyConfig = {
+      nextPort: 3037,
+      port: Number(envVal?.PORT || 0),
+      sslSecret: envVal?.sslSecret || '',
+      sslKey: envVal?.sslKey || '',
+      host: '0.0.0.0'
+    }
     const folderPath = getWebDirPath();
     await clearDesktopConfig(folderPath);
 
@@ -342,6 +350,9 @@ const runServer = async () => {
           'sharp',
         ),
         AUTH_SECRET: config.AUTH_SECRET,
+        ...sslOption,
+        useSsl: envVal?.useSsl,
+        PORT: envVal?.useSsl ? sslOption.nextPort : envVal?.PORT
       },
       undefined,
       signal,

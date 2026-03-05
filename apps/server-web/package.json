@@ -58,7 +58,8 @@
         "classnames": "^2.5.1",
         "fast-glob": "^3.3.2",
         "sharp": "^0.34.5",
-        "@heroicons/react": "^2.2.0"
+        "@heroicons/react": "^2.2.0",
+        "http-proxy": "^1.18.1"
     },
     "devDependencies": {
         "electron": "^38.1.2",
@@ -74,6 +75,7 @@
         "@types/webpack-bundle-analyzer": "^4.6.0",
         "@typescript-eslint/eslint-plugin": "^8.48.1",
         "@typescript-eslint/parser": "^8.48.1",
+        "@types/http-proxy": "^1.17.17",
         "browserslist-config-erb": "^0.0.3",
         "chalk": "^4.1.2",
         "concurrently": "^8.2.1",

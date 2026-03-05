@@ -1,0 +1,108 @@
+import { createServer } from 'https';
+import * as http from 'node:http';
+import * as net from 'node:net';
+import httpProxy from 'http-proxy';
+import fs from 'node:fs';
+
+type HttpProxyServer = ReturnType<typeof httpProxy.createProxyServer>;
+type HttpsServer = ReturnType<typeof createServer>;
+
+export interface ProxyConfig {
+  port: number;
+  host: string;
+  sslKey: string;
+  sslSecret: string;
+  nextPort: number;
+}
+
+export class ServerProxy {
+  static instance: ServerProxy;
+  private port: number;
+  private host: string;
+  private sslKey: string;
+  private sslSecret: string;
+  private nextPort: number;
+  private proxy: HttpProxyServer | null;
+  private httpsServer: HttpsServer | null;
+
+  constructor({ port, host, sslKey, sslSecret, nextPort }: ProxyConfig) {
+    this.sslSecret = sslSecret;
+    this.sslKey = sslKey;
+    this.port = port;
+    this.host = host;
+    this.nextPort = nextPort;
+    this.proxy = null;
+    this.httpsServer = null;
+  }
+
+  public static getInstance(proxyConfig: ProxyConfig) {
+    if (!ServerProxy.instance) {
+      ServerProxy.instance = new ServerProxy(proxyConfig);
+    }
+    return ServerProxy.instance;
+  }
+
+  public createServerProxy() {
+    const keepAliveAgent = new http.Agent({
+      keepAlive: true,
+      maxSockets: 100, // Allow up to 100 simultaneous open pipes
+      keepAliveMsecs: 1000,
+    });
+    this.proxy = httpProxy.createProxyServer<
+      http.IncomingMessage,
+      http.ServerResponse
+    >({
+      target: `http://127.0.0.1:${this.nextPort}`,
+      ws: true,
+      xfwd: true,
+      agent: false
+    });
+    const errorCallback: (
+      err: Error,
+      req: http.IncomingMessage,
+      res: http.ServerResponse | net.Socket,
+      target?: string,
+    ) => void = (error, req, res) => {
+      console.log('Proxy server error', error);
+    };
+    this.proxy.on('error', errorCallback as never);
+
+    const httpsOptions = {
+      key: fs.readFileSync(this.sslKey),
+      cert: fs.readFileSync(this.sslSecret),
+    };
+
+    this.httpsServer = createServer(httpsOptions, (req, res) => {
+      req.headers['x-forwarded-proto'] = 'https';
+
+      // 2. Tell Next.js to use the IP address the user actually typed in
+      if (req.headers.host) {
+        req.headers['x-forwarded-host'] = req.headers.host;
+      }
+      req.headers['connection'] = 'close';
+      this.proxy?.web(req, res);
+    });
+
+
+    this.httpsServer.keepAliveTimeout = 60000;
+    this.httpsServer.on('upgrade', (req, socket, head) => {
+      req.headers['x-forwarded-proto'] = 'https';
+
+      // 2. Tell Next.js to use the IP address the user actually typed in
+      if (req.headers.host) {
+        req.headers['x-forwarded-host'] = req.headers.host;
+      }
+      req.headers['connection'] = 'close';
+      this.proxy?.ws(req, socket, head);
+    });
+
+    this.httpsServer.listen(this.port, '0.0.0.0', () => {
+      console.log(`> App exposed securely on https://0.0.0.0:${this.port}`);
+    });
+  }
+
+  stopServer() {
+    this.httpsServer?.close();
+    this.proxy?.close();
+  }
+}

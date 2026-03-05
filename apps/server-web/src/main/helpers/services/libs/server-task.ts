@@ -4,6 +4,7 @@ import { ServerConfig } from './server-config';
 import EventEmitter from 'events';
 import { EventLists, LOG_TYPES } from '../../constant';
 // import { Timeout } from '../../decorators';
+import { ServerProxy, ProxyConfig } from '../server-proxy';
 
 export abstract class ServerTask {
 	private processPath: string;
@@ -20,6 +21,7 @@ export abstract class ServerTask {
 	protected signal: AbortSignal;
 	private criticalMessageError = ['[CRITICAL::ERROR]', 'EADDRINUSE'];
 	public eventEmitter: EventEmitter;
+  private serverProxy: ServerProxy | null;
 
 	protected constructor(
 		processPath: string,
@@ -40,6 +42,8 @@ export abstract class ServerTask {
 		this.signal = signal;
 		this.isRunning = false;
 		this.eventEmitter = eventEmitter;
+    this.serverProxy = null;
+
 
 		this.loggerObserver = new Observer((msg: string) => {
 			console.log('Sending log_state:', msg);
@@ -69,12 +73,15 @@ export abstract class ServerTask {
 	  }
 
 	protected async runTask(signal: AbortSignal): Promise<void> {
-		console.log('Run Server Task');
+		console.log('Run Server Task', this.args);
 		return new Promise<void>((resolve, reject) => {
 			try {
 				console.log('creating process with processPath:', this.processPath, 'args:', JSON.stringify(this.args));
 
 				const service = ChildProcessFactory.createProcess(this.processPath, this.args, signal);
+        if (this.args.useSsl) {
+          this.startProxyServer(this.args as ProxyConfig);
+        }
 
 				this.loggerObserver.notify(`Service created ${service.pid}`)
 
@@ -120,6 +127,17 @@ export abstract class ServerTask {
 		});
 	}
 
+  private startProxyServer(proxyConfig: ProxyConfig) {
+    this.serverProxy = ServerProxy.getInstance(proxyConfig);
+    this.serverProxy.createServerProxy();
+  }
+
+  private stopProxyServer() {
+    if (this.serverProxy) {
+      this.serverProxy.stopServer();
+    }
+  }
+
 	public kill(callHandleError = true): void {
 		console.log('Kill Server Task');
 		try {
@@ -155,6 +173,7 @@ export abstract class ServerTask {
 
 	public stop(): void {
 		console.log('Stop Server Task');
+    this.stopProxyServer();
 		this.kill();
 	}
 
