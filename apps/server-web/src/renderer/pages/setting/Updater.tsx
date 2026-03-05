@@ -1,16 +1,16 @@
 import { useTranslation } from 'react-i18next';
 import * as Switch from '@radix-ui/react-switch';
-import { SelectComponent } from './Select';
+import { SelectComponent } from '../../components/Select';
 import { useEffect, useState } from 'react';
-import { ToastComponent } from './Toast';
-import { SettingPageTypeMessage } from '../../main/helpers/constant';
-import { DefaultRangeUpdateTimes } from '../libs/constant';
-import { IPC_TYPES, LOG_TYPES } from '../../main/helpers/constant';
+import { ToastComponent } from '../../components/Toast';
+import { SettingPageTypeMessage } from '../../../main/helpers/constant';
+import { DefaultRangeUpdateTimes } from '../../libs/constant';
+import { IPC_TYPES, LOG_TYPES } from '../../../main/helpers/constant';
 import {
   IProgressComponent,
   IRangeUpdates,
   IUpdaterComponent,
-} from '../libs/interfaces';
+} from '../../libs/interfaces';
 
 const ProgressComponent = (props: IProgressComponent) => {
   const { t } = useTranslation();

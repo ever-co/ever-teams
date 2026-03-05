@@ -44,7 +44,7 @@ const AboutPage = () => {
   return (
     <>
       <Container>
-        <div className="w-full text-white rounded-lg shadow-md pl-6 pr-6 mt-[28px]">
+        <div className="w-full text-white rounded-lg shadow-md pl-6 pr-6 h-[96vh]">
           <div className="text-center content-start">
             <div className="flex justify-center items-center mb-4">
               <EverTeamsLogo />

@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef  } from 'react';
 import { ServerPageTypeMessage } from '../../main/helpers/constant';
 import { IPC_TYPES, LOG_TYPES } from '../../main/helpers/constant';
-import { useTranslation } from 'react-i18next';
 import Container from '../components/container';
-import { SideBarx } from '../components/SideBarx';
+import { SideBar } from '../components/SideBar';
 
 export function ServerPage() {
   const logRef = useRef<HTMLDivElement>(null);
@@ -15,7 +14,6 @@ export function ServerPage() {
     }[]
   >([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const { t } = useTranslation();
 
 
   useEffect(() => {
@@ -75,7 +73,7 @@ export function ServerPage() {
   return (
     <>
       <Container>
-        <SideBarx>
+        <SideBar>
           {/* logs page */}
           <div className="max-w-5xl mx-auto bg-gray-50 dark:bg-[#25272D] p-6 font-sans text-gray-800 dark:text-gray-200">
 
@@ -146,7 +144,7 @@ export function ServerPage() {
               </ul>
             </div>
           </div>
-        </SideBarx>
+        </SideBar>
         <div></div>
       </Container>
     </>

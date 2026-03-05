@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IServerSetting, IServerComponent } from '../libs/interfaces';
+import { IServerSetting, IServerComponent } from '../../libs/interfaces';
 
 export const ServerComponent = (props: IServerComponent) => {
   const { t } = useTranslation();

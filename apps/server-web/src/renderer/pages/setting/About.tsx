@@ -1,10 +1,10 @@
-import { EverTeamsLogo } from './svgs';
-import { IAbout } from '../libs/interfaces';
+import { EverTeamsLogo } from '../../components/svgs';
+import { IAbout } from '../../libs/interfaces';
 import {
   APP_LINK,
   IPC_TYPES,
   SettingPageTypeMessage,
-} from '../../main/helpers/constant';
+} from '../../../main/helpers/constant';
 import { Link } from 'react-router-dom';
 
 export const AboutComponent = (props: IAbout) => {

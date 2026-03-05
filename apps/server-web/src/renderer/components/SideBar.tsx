@@ -1,64 +1,84 @@
-import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { ISidebarComponent } from '../libs/interfaces';
-import { ThemeToggler } from './Toggler';
-import LanguageSelector from './LanguageSelector';
-import Container from './container';
-import { useEffect, useState } from 'react';
-import { IDevices } from '../../main/helpers/interfaces';
+import DocumentMagnifyingGlassIcon from "@heroicons/react/20/solid/DocumentMagnifyingGlassIcon";
+import CogIcon from "@heroicons/react/20/solid/CogIcon";
+import { Link } from "react-router-dom";
+import { IPC_TYPES } from "../../main/helpers/constant";
+import { JSX, useState } from "react";
+import { EverTeamsLogo } from "./svgs";
 
-export function SideBar({
-  children,
-  menus,
-  menuChange,
-  lang,
-}: ISidebarComponent) {
-  const [platform, setPlatform] = useState<IDevices>('win32');
-  const { t } = useTranslation();
-  const getPlatform = async () => {
-    const devicePlatform = await window.electron.ipcRenderer.invoke('get-platform');
-    setPlatform(devicePlatform);
+interface SideBarProps {
+  children: JSX.Element[] | JSX.Element
+}
+
+export function SideBar({ children }: SideBarProps) {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+
+  const openSetting = () => {
+    window.electron.ipcRenderer.sendMessage(IPC_TYPES.CONTROL_BUTTON, {
+      type: 'open-setting',
+    });
   }
-  useEffect(() => {
-    getPlatform();
-  }, [])
-  return (
-    <>
-    <Container>
-      <div className="fixed flex flex-col top-0 left-0 h-full w-1/4 dark:bg-[#2b2b2f] bg-gray-200 rounded-3xl">
-        <div className="overflow-y-auto overflow-x-hidden flex-grow rounded-3xl content-start">
-          <ul className="flex flex-col py-4 space-y-1">
-            {menus.length > 0 &&
-              menus.map((menu) => (
-                <li key={menu.key}>
-                  <Link
-                    to=""
-                    className={`relative flex flex-row items-center h-11 focus:outline-none  text-gray-600 dark:text-white  ${!menu.isActive ? 'hover:dark:bg-[#1f2025] hover:bg-stone-100 border-indigo-500' : 'bg-stone-100 dark:bg-[#1f2025]'} text-gray-800 border-l-4 border-transparent ${!menu.isActive ? 'hover:border-indigo-500' : ''} pr-6 rounded-l-lg`}
-                    onClick={() => {
-                      menuChange(menu.key);
-                    }}
-                  >
-                    <span className="inline-flex justify-center items-center ml-4"></span>
-                    <span className="ml-2 text-sm tracking-wide truncate">
-                      {t(`MENU.${menu.displayName}`)}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-          </ul>
-        </div>
-        <div className="flex items-center justify-center py-6 px-2">
-          <div className="flex flex-col w-6/8 mr-5">
-            <LanguageSelector lang={lang} />
-          </div>
 
-          <div className="flex flex-col w-2/8">
-            <ThemeToggler />
-          </div>
+  return (
+    <div className="flex h-[97vh] w-full bg-gray-50 dark:bg-[#25272D] font-sans">
+
+      <aside
+        className={`dark:bg-[#2b2b2f] bg-gray-200 flex flex-col shadow-xl transition-all duration-300 relative rounded-r-xl text-gray-600 dark:text-white ${isOpen ? 'w-48' : 'w-12'
+          }`}
+      >
+
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="absolute -right-3 top-6 bg-indigo-600 text-white p-1.5 rounded-full hover:bg-indigo-700 transition-colors z-10 focus:outline-none shadow-md"
+        >
+          <svg
+            className={`w-4 h-4 transition-transform duration-300 ${isOpen ? '' : 'rotate-180'
+              }`}
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+        </button>
+
+        <div className="h-16 flex items-center px-4 border-gray-800">
+          <span
+            className={`text-white text-xl font-bold tracking-wider whitespace-nowrap overflow-hidden transition-all duration-300 ${isOpen ? 'ml-4 opacity-100 w-auto' : 'ml-0 opacity-0 w-0'
+              }`}
+          >
+            <EverTeamsLogo />
+          </span>
         </div>
-      </div>
-      <div className="flex flex-col relative left-64 w-3/4 content-start">{children}</div>
-    </Container>
-    </>
-  );
+
+        <nav className="flex-1 py-4 space-y-2 overflow-y-auto overflow-x-hidden">
+          <Link to="/history-console" className="flex items-center px-3 py-3 text-gray-600 dark:text-white bg-gray-50 dark:bg-[#25272D] rounded-lg transition-colors" title="Dashboard">
+            <DocumentMagnifyingGlassIcon className="w-4 h-4 flex-shrink-0" />
+            <span
+              className={`whitespace-nowrap overflow-hidden transition-all duration-300 ${isOpen ? 'ml-4 opacity-100 w-auto' : 'ml-0 opacity-0 w-0'
+                }`}
+            >
+              Logs
+            </span>
+          </Link>
+        </nav>
+
+        <div className="border-gray-800">
+          <button
+            onClick={() => openSetting()}
+            className="flex items-center px-3 py-3 text-gray-400 rounded-lg hover:bg-gray-800 transition-colors w-full"
+            title="Settings"
+          >
+            <CogIcon className="w-6 h-6 text-gray-400 flex-shrink-0" />
+
+          </button>
+        </div>
+      </aside>
+
+      <main className="flex-1 overflow-y-hidden">
+        <div className="max-w-5xl mx-auto">
+          {children}
+        </div>
+      </main>
+
+    </div>
+  )
 }
