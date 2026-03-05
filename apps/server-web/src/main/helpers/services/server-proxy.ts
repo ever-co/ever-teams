@@ -40,7 +40,7 @@ export class ServerProxy {
     return ServerProxy.instance;
   }
 
-  public createserverproxy() {
+  public createServerProxy() {
     if (!fs.existsSync(this.sslKey) || !fs.existsSync(this.sslSecret)) {
       return;
     }
