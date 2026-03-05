@@ -34,13 +34,24 @@ export class ServerProxy {
   }
 
   public static getInstance(proxyConfig: ProxyConfig) {
-    if (!ServerProxy.instance) {
+    if (
+      !ServerProxy.instance ||
+      ServerProxy.instance.port !== proxyConfig.port ||
+      ServerProxy.instance.sslKey !== proxyConfig.sslKey ||
+      ServerProxy.instance.sslSecret !== proxyConfig.sslSecret ||
+      ServerProxy.instance.nextPort !== proxyConfig.nextPort
+    ) {
+      ServerProxy.instance?.stopServer();
       ServerProxy.instance = new ServerProxy(proxyConfig);
     }
     return ServerProxy.instance;
   }
 
   public createServerProxy() {
+    if (this.httpsServer?.listening) {
+      return;
+    }
+
     if (!fs.existsSync(this.sslKey) || !fs.existsSync(this.sslSecret)) {
       return;
     }
@@ -102,7 +113,15 @@ export class ServerProxy {
   }
 
   stopServer() {
-    this.httpsServer?.close();
-    this.proxy?.close();
+    if (this.httpsServer) {
+      this.httpsServer.close();
+      this.httpsServer.removeAllListeners();
+      this.httpsServer = null;
+    }
+    if (this.proxy) {
+      this.proxy.close();
+      this.proxy.removeAllListeners();
+      this.proxy = null;
+    }
   }
 }

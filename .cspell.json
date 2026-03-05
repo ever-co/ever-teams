@@ -686,7 +686,8 @@
 		"signup",
 		"xfwd",
 		"Segoe",
-		"NEXTAUTH"
+		"NEXTAUTH",
+		"Roboto"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
