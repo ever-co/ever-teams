@@ -598,7 +598,7 @@ const onInitApplication = () => {
 
   eventEmitter.on(EventLists.OPEN_WINDOW, handleOpenWindow);
 
-  eventEmitter.on(EventLists.SERVER_WINDOW, async () => {
+  eventEmitter.on(EventLists.SERVER_WINDOW, async (data: { startServer?: boolean }) => {
     if (!logWindow) {
       initTrayMenu();
       logWindow = await createWindow(WindowTypes.LOG_WINDOW);
@@ -620,6 +620,9 @@ const onInitApplication = () => {
         });
       }, 100);
     });
+    if (!isServerRun && data?.startServer) {
+      eventEmitter.emit(EventLists.webServerStart);
+    }
   });
 
   eventEmitter.on(EventLists.OPEN_WEB, () => {
@@ -705,7 +708,7 @@ const initTrayMenu = () => {
   const storeConfig: WebServer = LocalStore.getStore('config');
   onInitApplication();
   if (storeConfig?.general?.setup) {
-    eventEmitter.emit(EventLists.SERVER_WINDOW);
+    eventEmitter.emit(EventLists.SERVER_WINDOW, { startServer: true });
   } else {
     if (!setupWindow) {
       setupWindow = await createWindow(WindowTypes.SETUP_WINDOW);

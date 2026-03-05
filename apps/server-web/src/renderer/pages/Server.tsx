@@ -1,15 +1,11 @@
-import { useState, useEffect, useRef, ReactNode } from 'react';
+import { useState, useEffect, useRef  } from 'react';
 import { ServerPageTypeMessage } from '../../main/helpers/constant';
 import { IPC_TYPES, LOG_TYPES } from '../../main/helpers/constant';
 import { useTranslation } from 'react-i18next';
 import Container from '../components/container';
-import { CUSTOM_STYLE } from '../libs/constant';
-import { IDevices } from '../../main/helpers/interfaces';
 import { SideBarx } from '../components/SideBarx';
 
 export function ServerPage() {
-  const [customStyle, setCustomStyle] = useState(CUSTOM_STYLE.WINDOWS);
-  const [platform, setPlatform] = useState<IDevices>('win32');
   const logRef = useRef<HTMLDivElement>(null);
   const [isRun, setIsRun] = useState<boolean>(false);
   const [logs, setLogs] = useState<
@@ -20,20 +16,9 @@ export function ServerPage() {
   >([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { t } = useTranslation();
-  const [logOpen, setLogOpen] = useState<boolean>(false);
 
-  const getCustomStyle = async () => {
-    const platform = await window.electron.ipcRenderer.invoke('get-platform');
-    setPlatform(platform);
-    if (platform === 'darwin') {
-      setCustomStyle(CUSTOM_STYLE.MAC);
-    } else {
-      setCustomStyle(CUSTOM_STYLE.WINDOWS); // windows or linux
-    }
-  }
 
   useEffect(() => {
-    getCustomStyle()
     window.electron.ipcRenderer.removeEventListener(IPC_TYPES.SERVER_PAGE);
     window.electron.ipcRenderer.on(IPC_TYPES.SERVER_PAGE, (arg: any) => {
       switch (arg.type) {
@@ -60,7 +45,6 @@ export function ServerPage() {
         case ServerPageTypeMessage.SERVER_STATUS:
           if (arg.data.isRun) {
             setIsRun(true);
-            setLogOpen(true);
           } else {
             setIsRun(false);
           }
