@@ -78,18 +78,10 @@ export abstract class ServerTask {
       try {
         console.log('creating process with processPath:', this.processPath, 'args:', JSON.stringify(this.args));
         const runtimeEnv = { ...this.args };
-        if (runtimeEnv.useSsl) {
-          const publicUrl = `https://192.168.0.1:${runtimeEnv.port}`;
-          runtimeEnv['NEXT_PUBLIC_APP_URL'] = publicUrl;
-          runtimeEnv['NEXTAUTH_URL'] = publicUrl;
-          runtimeEnv['NEXT_PUBLIC_WEB_APP_URL'] = publicUrl;
-          // Also tell Next.js to listen on all interfaces
-          runtimeEnv['HOSTNAME'] = '0.0.0.0';
-        }
 
-        const service = ChildProcessFactory.createProcess(this.processPath, this.args, signal);
-        if (this.args.useSsl) {
-          this.startProxyServer(this.args as ProxyConfig);
+        const service = ChildProcessFactory.createProcess(this.processPath, runtimeEnv, signal);
+        if (runtimeEnv.useSsl) {
+          this.startProxyServer(runtimeEnv as ProxyConfig);
         }
 
         this.loggerObserver.notify(`Service created ${service.pid}`)

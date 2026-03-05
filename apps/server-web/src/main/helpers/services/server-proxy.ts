@@ -18,18 +18,16 @@ export interface ProxyConfig {
 export class ServerProxy {
   static instance: ServerProxy;
   private port: number;
-  private host: string;
   private sslKey: string;
   private sslSecret: string;
   private nextPort: number;
   private proxy: HttpProxyServer | null;
   private httpsServer: HttpsServer | null;
 
-  constructor({ port, host, sslKey, sslSecret, nextPort }: ProxyConfig) {
+  constructor({ port, sslKey, sslSecret, nextPort }: ProxyConfig) {
     this.sslSecret = sslSecret;
     this.sslKey = sslKey;
     this.port = port;
-    this.host = host;
     this.nextPort = nextPort;
     this.proxy = null;
     this.httpsServer = null;
@@ -42,7 +40,10 @@ export class ServerProxy {
     return ServerProxy.instance;
   }
 
-  public createServerProxy() {
+  public createserverproxy() {
+    if (!fs.existsSync(this.sslKey) || !fs.existsSync(this.sslSecret)) {
+      return;
+    }
     const keepAliveAgent = new http.Agent({
       keepAlive: true,
       maxSockets: 100, // Allow up to 100 simultaneous open pipes
@@ -62,7 +63,7 @@ export class ServerProxy {
       req: http.IncomingMessage,
       res: http.ServerResponse | net.Socket,
       target?: string,
-    ) => void = (error, req, res) => {
+    ) => void = (error) => {
       console.log('Proxy server error', error);
     };
     this.proxy.on('error', errorCallback as never);
