@@ -1,9 +1,9 @@
-import DocumentMagnifyingGlassIcon from "@heroicons/react/20/solid/DocumentMagnifyingGlassIcon";
-import CogIcon from "@heroicons/react/20/solid/CogIcon";
-import { Link } from "react-router-dom";
-import { IPC_TYPES } from "../../main/helpers/constant";
-import { JSX, useState } from "react";
-import { EverTeamsLogo } from "./svgs";
+import DocumentMagnifyingGlassIcon from '@heroicons/react/20/solid/DocumentMagnifyingGlassIcon';
+import CogIcon from '@heroicons/react/20/solid/CogIcon';
+import { Link } from 'react-router-dom';
+import { IPC_TYPES } from '../../main/helpers/constant';
+import { JSX, useState } from 'react';
+import { EverTeamsLogo } from './svgs';
 
 interface SideBarProps {
   children: JSX.Element[] | JSX.Element

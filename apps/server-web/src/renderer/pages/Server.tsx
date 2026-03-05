@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef  } from 'react';
-import { ServerPageTypeMessage } from '../../main/helpers/constant';
-import { IPC_TYPES, LOG_TYPES } from '../../main/helpers/constant';
+import { IPC_TYPES, LOG_TYPES, ServerPageTypeMessage } from '../../main/helpers/constant';
 import Container from '../components/container';
 import { SideBar } from '../components/SideBar';
 
@@ -11,6 +10,7 @@ export function ServerPage() {
     {
       message: string;
       type: 'error-log' | 'log';
+      time?: string
     }[]
   >([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -26,6 +26,7 @@ export function ServerPage() {
             {
               message: arg.msg,
               type: 'log',
+              time: new Date().toLocaleTimeString()
             },
           ]);
           scrollToLast();
@@ -36,6 +37,7 @@ export function ServerPage() {
             {
               message: arg.msg,
               type: 'error-log',
+              time: new Date().toLocaleTimeString()
             },
           ]);
           scrollToLast();
@@ -81,7 +83,7 @@ export function ServerPage() {
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Server Logs</h1>
                 <p className="text-sm text-gray-500 flex items-center mt-1">
-                  Status: <span className={`flex w-2 h-2 bg-${isRun ? 'green' : 'red'}-500 rounded-full mx-2 animate-pulse`}></span> {isRun ? 'Running' : 'Stopped'}
+                  Status: <span className={`flex w-2 h-2 ${isRun ? 'bg-green-500' : 'bg-red-500'} rounded-full mx-2 animate-pulse`}></span> {isRun ? 'Running' : 'Stopped'}
                 </p>
               </div>
 
@@ -92,7 +94,7 @@ export function ServerPage() {
                     className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium shadow-sm"
                     disabled={loading}
                   >
-                    <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd"></path></svg>
+                    <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clipRule="evenodd"></path></svg>
                     Stop Server
                   </button>
                 )}
@@ -102,7 +104,7 @@ export function ServerPage() {
                     className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium shadow-sm"
                     disabled={loading}
                   >
-                    <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                    <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd"></path></svg>
                     Start Server
                   </button>
                 )}
@@ -112,10 +114,10 @@ export function ServerPage() {
             <div className="bg-gray-200 dark:bg-[#25272D] border border-gray-200 dark:border-gray-600 rounded-xl overflow-y-auto max-h-[80vh]">
               <ul className="font-mono text-sm">
                 {
-                  logs && logs.length > 0 && logs.map((log) => (
-                    <li className="flex flex-col sm:flex-row gap-2 sm:gap-6 p-4 transition-colors">
+                  logs && logs.length > 0 && logs.map((log, idx) => (
+                    <li key={idx} className="flex flex-col sm:flex-row gap-2 sm:gap-6 p-4 transition-colors">
                       <div className="flex-shrink-0 text-gray-400 w-28 whitespace-nowrap">
-                        {new Date().toLocaleTimeString()}
+                        {log.time}
                       </div>
                       <div className="flex-shrink-0 w-20">
                         <span className={`${log.type === 'error-log' ? 'text-red-600' : 'text-blue-600'} font-bold px-2 py-0.5 rounded text-xs`}>{log.type === 'error-log' ? 'Error' : 'Info'}</span>

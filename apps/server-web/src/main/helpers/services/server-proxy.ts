@@ -55,7 +55,7 @@ export class ServerProxy {
       target: `http://127.0.0.1:${this.nextPort}`,
       ws: true,
       xfwd: true,
-      agent: false
+      agent: keepAliveAgent
     });
     const errorCallback: (
       err: Error,
@@ -79,12 +79,12 @@ export class ServerProxy {
       if (req.headers.host) {
         req.headers['x-forwarded-host'] = req.headers.host;
       }
-      req.headers['connection'] = 'close';
       this.proxy?.web(req, res);
     });
 
 
     this.httpsServer.keepAliveTimeout = 60000;
+    this.httpsServer.headersTimeout = 65000;
     this.httpsServer.on('upgrade', (req, socket, head) => {
       req.headers['x-forwarded-proto'] = 'https';
 
@@ -92,7 +92,6 @@ export class ServerProxy {
       if (req.headers.host) {
         req.headers['x-forwarded-host'] = req.headers.host;
       }
-      req.headers['connection'] = 'close';
       this.proxy?.ws(req, socket, head);
     });
 
