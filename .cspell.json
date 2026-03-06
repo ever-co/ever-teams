@@ -683,7 +683,11 @@
 		"Złoty",
 		"zxcvbn",
 		"passwordless",
-		"signup"
+		"signup",
+		"xfwd",
+		"Segoe",
+		"NEXTAUTH",
+		"Roboto"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

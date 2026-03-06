@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { SettingPageTypeMessage } from '../../main/helpers/constant';
 import {
-  SideBar,
-  Popup,
-  ServerComponent,
-  UpdaterComponent,
-  AboutComponent,
+  Popup
 } from '../components';
+import { SideBar } from './setting/SideBar';
+import { ServerComponent } from './setting/Server';
+import { UpdaterComponent } from './setting/Updater';
+import { AboutComponent } from './setting/About';
 import {
   IUpdaterStates,
   IUpdateSetting,

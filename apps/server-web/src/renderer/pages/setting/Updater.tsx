@@ -1,16 +1,16 @@
 import { useTranslation } from 'react-i18next';
 import * as Switch from '@radix-ui/react-switch';
-import { SelectComponent } from './Select';
+import { SelectComponent } from '../../components/Select';
 import { useEffect, useState } from 'react';
-import { ToastComponent } from './Toast';
-import { SettingPageTypeMessage } from '../../main/helpers/constant';
-import { DefaultRangeUpdateTimes } from '../libs/constant';
-import { IPC_TYPES, LOG_TYPES } from '../../main/helpers/constant';
+import { ToastComponent } from '../../components/Toast';
+import { SettingPageTypeMessage } from '../../../main/helpers/constant';
+import { DefaultRangeUpdateTimes } from '../../libs/constant';
+import { IPC_TYPES, LOG_TYPES } from '../../../main/helpers/constant';
 import {
   IProgressComponent,
   IRangeUpdates,
   IUpdaterComponent,
-} from '../libs/interfaces';
+} from '../../libs/interfaces';
 
 const ProgressComponent = (props: IProgressComponent) => {
   const { t } = useTranslation();
@@ -99,15 +99,15 @@ export const UpdaterComponent = (props: IUpdaterComponent) => {
   return (
     <div className="relative overflow-y-auto overflow-x-hidden flex-grow left-8 w-11/12 min-h-full" style={{minHeight: '700px'}}>
       <div>
-        <span className="font-bold text-lg">{t('MENU.UPDATER')}</span>
+        <span className="font-bold text-lg text-gray-600 dark:text-gray-200">{t('MENU.UPDATER')}</span>
       </div>
       <div>
-        <span className="font-bold text-base text-gray-500">
+        <span className="font-bold text-base text-gray-600 dark:text-gray-200">
           {t('FORM.LABELS.AUTO_UPDATE_TITLE')}
         </span>
       </div>
       <div className="mt-2">
-        <span className="font-normal f-4 text-gray-500">
+        <span className="font-normal f-4 text-gray-600 dark:text-gray-200">
           {t('FORM.LABELS.AUTO_UPDATE_SUBTITLE')}
         </span>
       </div>
