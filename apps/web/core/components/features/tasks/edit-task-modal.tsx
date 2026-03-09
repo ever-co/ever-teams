@@ -20,11 +20,12 @@ import { useUpdateTimeLogMutation } from '@/core/hooks/timesheet/use-update-time
 import { ITimeLogUpdatePayload } from '@/core/types/interfaces/timesheet/time-log.interface';
 import { useMyRolePermissionsQuery } from '@/core/hooks';
 
-export interface IEditTaskModalProps {
+interface IEditTaskModalProps {
 	isOpen: boolean;
 	closeModal: () => void;
 	timeLogData: ITimeLog;
 }
+
 export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModalProps) {
 	const { organizationProjects } = useOrganizationProjectsQuery();
 
