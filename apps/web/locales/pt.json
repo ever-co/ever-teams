@@ -974,7 +974,7 @@
 		},
 		"timeLog": {
 			"DELETE_SUCCESS": "O registro de tempo foi excluído com sucesso.",
-			"DELETE_ERROR": "Ocorreu um erro: {error}. O registro de tempo não pôde ser excluído.",
+			"DELETE_ERROR": "Ocorreu um erro. O registro de tempo não pôde ser excluído.",
 			"MODIFY_SUCCESS": "O registro de tempo foi modificado com sucesso.",
 			"MODIFY_ERROR": "Falha ao modificar o registro de tempo. Tente novamente."
 		}

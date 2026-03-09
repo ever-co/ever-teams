@@ -423,9 +423,9 @@ const TaskActionMenu = ({
 					description: t('pages.timeLog.DELETE_SUCCESS')
 				});
 			})
-			.catch((error) => {
+			.catch(() => {
 				sonnerToast.error('Error during deletion', {
-					description: t('pages.timeLog.DELETE_ERROR', { error })
+					description: t('pages.timeLog.DELETE_ERROR')
 				});
 			});
 	};

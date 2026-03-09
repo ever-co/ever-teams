@@ -976,7 +976,7 @@
 		},
 		"timeLog": {
 			"DELETE_SUCCESS": "Le journal de temps a été supprimé avec succès.",
-			"DELETE_ERROR": "Une erreur est survenue : {error}. Le journal de temps n'a pas pu être supprimé.",
+			"DELETE_ERROR": "Une erreur est survenue. Le journal de temps n'a pas pu être supprimé.",
 			"MODIFY_SUCCESS": "Le journal de temps a été modifié avec succès.",
 			"MODIFY_ERROR": "Échec de la modification du journal de temps. Veuillez réessayer."
 		}

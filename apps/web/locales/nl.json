@@ -973,7 +973,7 @@
 		},
 		"timeLog": {
 			"DELETE_SUCCESS": "Het tijdlogboek is succesvol verwijderd.",
-			"DELETE_ERROR": "Er is een fout opgetreden: {error}. Het tijdlogboek kon niet worden verwijderd.",
+			"DELETE_ERROR": "Er is een fout opgetreden. Het tijdlogboek kon niet worden verwijderd.",
 			"MODIFY_SUCCESS": "Het tijdlogboek is succesvol gewijzigd.",
 			"MODIFY_ERROR": "Het tijdlogboek kon niet worden gewijzigd. Probeer het opnieuw."
 		}
