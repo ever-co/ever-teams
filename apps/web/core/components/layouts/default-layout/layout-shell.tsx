@@ -8,6 +8,7 @@ import AppContainer from './app-container';
 import { LayoutShellContext } from './layout-shell-context';
 import { publicState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
+import { ChatPanelLayout } from '@/core/components/features/chat-panel/components/chat-panel-layout';
 
 /**
  * LayoutShell — Persistent layout wrapper that survives page navigations.
@@ -39,11 +40,10 @@ export function LayoutShell({ children }: PropsWithChildren) {
 
 					{/* Content area — children will be PageLayout from each page */}
 					<SidebarInset className="relative flex-1 overflow-x-hidden !h-full !w-full">
-						{children}
+						<ChatPanelLayout>{children}</ChatPanelLayout>
 					</SidebarInset>
 				</SidebarProvider>
 			</AppContainer>
 		</LayoutShellContext.Provider>
 	);
 }
-
