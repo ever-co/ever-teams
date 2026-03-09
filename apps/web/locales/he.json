@@ -704,7 +704,8 @@
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "תתבקש ליצור צוות לאחר ההתחברות.",
 			"NO_TEAMS_BADGE": "אין צוותים",
 			"TEAM_COUNT_SINGULAR": "צוות",
-			"TEAM_COUNT_PLURAL": "צוותים"
+			"TEAM_COUNT_PLURAL": "צוותים",
+			"FORGOT_PASSWORD": "Forgot Password?"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "הצטרף לצוות קיים",
@@ -728,6 +729,33 @@
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "אנא הזן את פרטי ההתחברות שלך."
+		},
+		"authForgotPassword": {
+			"HEADING_TITLE": "Forgot Password",
+			"HEADING_DESCRIPTION": "Enter your email to receive reset instructions",
+			"FORM_DESCRIPTION": "Enter the email address associated with your account and we'll send you a link to reset your password.",
+			"SEND_RESET_LINK": "Send Reset Link",
+			"SUCCESS_TITLE": "Check Your Email",
+			"SUCCESS_MESSAGE": "Password reset instructions have been sent to your email address. Please check your inbox and follow the link to reset your password.",
+			"ERROR_MESSAGE": "Something went wrong. Please try again.",
+			"BACK_TO_LOGIN": "Back to Login"
+		},
+		"authResetPassword": {
+			"HEADING_TITLE": "Reset Password",
+			"HEADING_DESCRIPTION": "Enter your new password",
+			"FORM_DESCRIPTION": "Please enter a new password for your account.",
+			"NEW_PASSWORD": "New Password",
+			"CONFIRM_PASSWORD": "Confirm Password",
+			"RESET_PASSWORD": "Reset Password",
+			"SUCCESS_TITLE": "Password Updated",
+			"SUCCESS_MESSAGE": "Your password has been successfully updated. You can now log in with your new password.",
+			"ERROR_MESSAGE": "Password reset failed. The link may have expired. Please request a new one.",
+			"PASSWORDS_DONT_MATCH": "Passwords don't match",
+			"PASSWORD_TOO_SHORT": "Password must be at least 6 characters",
+			"INVALID_LINK_TITLE": "Invalid Reset Link",
+			"TOKEN_EXPIRED": "This reset link is invalid or has expired. Please request a new password reset.",
+			"REQUEST_NEW_LINK": "Request a New Reset Link",
+			"GO_TO_LOGIN": "Go to Login"
 		},
 		"authTeam": {
 			"HEADING_TITLE": "הירשם עכשיו",
@@ -757,6 +785,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "הגדרות כלליות",
+			"goToTeamSettings": "עבור להגדרות הצוות",
+			"WORKING_HOURS": "שעות עבודה",
 			"emailNotValid": "אנא ספק כתובת אימייל חוקית",
 			"phoneNotValid": "אנא ספק מספר טלפון חוקי",
 			"WORK_SCHEDULE": "לוח זמנים",
@@ -1158,7 +1188,8 @@
 		"CHANGE_AVATAR": "שנה אווטר",
 		"SELECT_TEAM_SIZE": "בחר גודל צוות",
 		"INVALID_ALLOWED_CHARACTER": "ערך לא חוקי עבור allowedCharacters. השתמש ב- alpha, numeric, או alphanumeric",
-		"AGREE_TO": "מסכים ל"
+		"AGREE_TO": "מסכים ל",
+		"EMAIL_REQUIRED": "Email address is required"
 	},
 	"layout": {
 		"footer": {

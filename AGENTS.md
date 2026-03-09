@@ -25,14 +25,14 @@ Ever Teams is an **Open Work and Project Management Platform** built as a monore
 
 ### Primary Commands (Web App)
 
-| Command | Description |
-|---------|-------------|
-| `yarn dev:web` | Start the dev server at `http://localhost:3030` |
-| `yarn build:web` | Production build for the web app |
-| `yarn start:web` | Serve the production build |
-| `yarn lint` | Run ESLint across all packages (via Lerna) |
-| `yarn lint-fix` | Auto-fix ESLint issues in `apps/web` |
-| `yarn format` | Format code with Prettier (via Nx) |
+| Command          | Description                                     |
+| ---------------- | ----------------------------------------------- |
+| `yarn dev:web`   | Start the dev server at `http://localhost:3030` |
+| `yarn build:web` | Production build for the web app                |
+| `yarn start:web` | Serve the production build                      |
+| `yarn lint`      | Run ESLint across all packages (via Lerna)      |
+| `yarn lint-fix`  | Auto-fix ESLint issues in `apps/web`            |
+| `yarn format`    | Format code with Prettier (via Nx)              |
 
 ### Package-Specific Builds
 
@@ -95,6 +95,47 @@ apps/web/
 - Follow existing patterns for API calls (see `core/services/`).
 - Prefer **TypeScript** for all code.
 
+## Authentication
+
+The app supports **magic code** (passwordless), **password**, **social/OAuth**, and **forgot/reset password** auth flows. All auth is powered by the [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) backend.
+
+### Key Auth Files
+
+| File                                             | Purpose                                   |
+| ------------------------------------------------ | ----------------------------------------- |
+| `core/services/client/api/auth/auth.service.ts`  | All auth API calls (`authService`)        |
+| `core/hooks/auth/use-authentication-passcode.ts` | Magic code auth hook                      |
+| `core/hooks/auth/use-authentication-password.ts` | Password auth hook                        |
+| `core/components/pages/auth/passcode/`           | Magic code login UI                       |
+| `core/components/pages/auth/password/`           | Password login UI                         |
+| `core/components/pages/auth/forgot-password/`    | Forgot password UI                        |
+| `core/components/pages/auth/reset-password/`     | Reset password UI                         |
+| `core/constants/config/constants.tsx`            | `AUTH_CODE_LENGTH` (magic code = 8 chars) |
+
+### Auth Routes
+
+| Route                   | Purpose                            |
+| ----------------------- | ---------------------------------- |
+| `/auth/passcode`        | Magic code login (default)         |
+| `/auth/password`        | Password login                     |
+| `/auth/signup`          | Registration                       |
+| `/auth/forgot-password` | Request password reset             |
+| `/auth/reset-password`  | Set new password (from email link) |
+
+### Auth API Endpoints (Gauzy API, called directly)
+
+| Endpoint                      | Method | Purpose                      |
+| ----------------------------- | ------ | ---------------------------- |
+| `/auth/signin.email`          | POST   | Send magic code              |
+| `/auth/signin.email/confirm`  | POST   | Confirm magic code           |
+| `/auth/signin.email.password` | POST   | Password sign-in             |
+| `/auth/request-password`      | POST   | Request password reset email |
+| `/auth/reset-password`        | POST   | Reset password with token    |
+| `/auth/signin.workspace`      | POST   | Sign into workspace          |
+| `/auth/refresh-token`         | POST   | Refresh JWT tokens           |
+
+> **Full auth documentation**: <https://docs.ever.team/docs/features/authentication>
+
 ## Safety & Side Effects
 
 ### Avoid by Default (ask the user first)
@@ -114,19 +155,19 @@ apps/web/
 
 ## Tech Stack Reference
 
-| Category | Technology |
-|----------|------------|
-| Framework | Next.js 16 (App Router) |
-| Language | TypeScript |
-| Styling | Tailwind CSS 4 |
-| UI Components | Radix UI, shadcn/ui patterns |
-| State Management | Jotai |
-| Data Fetching | TanStack Query (React Query) |
-| Forms | React Hook Form + Zod |
-| i18n | next-intl |
-| Auth | NextAuth.js v5 (beta) |
-| Monitoring | Sentry |
-| Icons | Lucide React, Heroicons, React Icons |
+| Category         | Technology                           |
+| ---------------- | ------------------------------------ |
+| Framework        | Next.js 16 (App Router)              |
+| Language         | TypeScript                           |
+| Styling          | Tailwind CSS 4                       |
+| UI Components    | Radix UI, shadcn/ui patterns         |
+| State Management | Jotai                                |
+| Data Fetching    | TanStack Query (React Query)         |
+| Forms            | React Hook Form + Zod                |
+| i18n             | next-intl                            |
+| Auth             | NextAuth.js v5 (beta)                |
+| Monitoring       | Sentry                               |
+| Icons            | Lucide React, Heroicons, React Icons |
 
 ## Commit Convention
 

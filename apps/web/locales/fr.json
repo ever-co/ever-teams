@@ -554,10 +554,7 @@
 			"TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION": "Le titre de la tâche ne peut pas dépasser 255 caractères.",
 			"TASK_IS_ALREADY_EPIC": "Le type de tâche épique ne peut pas être modifié.",
 			"TASK_HAS_PARENT": "Le type de tâche ne peut pas être modifié car la tâche a déjà un parent.",
-			"PROJECT": "Projet",
-			"PARENT_TASK_ASSIGNED_SUCCESS": "La tâche parente \"{parentTitle}\" a été assignée avec succès à \"{childTitle}\"",
-			"PARENT_TASK_ASSIGNMENT_FAILED": "Échec de l'assignation de la tâche parente",
-			"PARENT_TASK_ASSIGNMENT_ERROR": "Une erreur s'est produite lors de l'assignation de la tâche parente. Veuillez réessayer."
+			"PROJECT": "Projet"
 		},
 		"projects": {
 			"projectTitle": {
@@ -707,7 +704,8 @@
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Vous serez invité à créer une équipe après la connexion.",
 			"NO_TEAMS_BADGE": "Aucune équipe",
 			"TEAM_COUNT_SINGULAR": "équipe",
-			"TEAM_COUNT_PLURAL": "équipes"
+			"TEAM_COUNT_PLURAL": "équipes",
+			"FORGOT_PASSWORD": "Forgot Password?"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Rejoindre une équipe existante",
@@ -731,6 +729,33 @@
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "S'il vous plaît entrer vos informations de connexion."
+		},
+		"authForgotPassword": {
+			"HEADING_TITLE": "Forgot Password",
+			"HEADING_DESCRIPTION": "Enter your email to receive reset instructions",
+			"FORM_DESCRIPTION": "Enter the email address associated with your account and we'll send you a link to reset your password.",
+			"SEND_RESET_LINK": "Send Reset Link",
+			"SUCCESS_TITLE": "Check Your Email",
+			"SUCCESS_MESSAGE": "Password reset instructions have been sent to your email address. Please check your inbox and follow the link to reset your password.",
+			"ERROR_MESSAGE": "Something went wrong. Please try again.",
+			"BACK_TO_LOGIN": "Back to Login"
+		},
+		"authResetPassword": {
+			"HEADING_TITLE": "Reset Password",
+			"HEADING_DESCRIPTION": "Enter your new password",
+			"FORM_DESCRIPTION": "Please enter a new password for your account.",
+			"NEW_PASSWORD": "New Password",
+			"CONFIRM_PASSWORD": "Confirm Password",
+			"RESET_PASSWORD": "Reset Password",
+			"SUCCESS_TITLE": "Password Updated",
+			"SUCCESS_MESSAGE": "Your password has been successfully updated. You can now log in with your new password.",
+			"ERROR_MESSAGE": "Password reset failed. The link may have expired. Please request a new one.",
+			"PASSWORDS_DONT_MATCH": "Passwords don't match",
+			"PASSWORD_TOO_SHORT": "Password must be at least 6 characters",
+			"INVALID_LINK_TITLE": "Invalid Reset Link",
+			"TOKEN_EXPIRED": "This reset link is invalid or has expired. Please request a new password reset.",
+			"REQUEST_NEW_LINK": "Request a New Reset Link",
+			"GO_TO_LOGIN": "Go to Login"
 		},
 		"authTeam": {
 			"HEADING_TITLE": "Inscrivez-vous maintenant",
@@ -760,6 +785,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "Paramètres généraux",
+			"goToTeamSettings": "Aller aux paramètres d'équipe",
+			"WORKING_HOURS": "Heures de travail",
 			"emailNotValid": "Veuillez fournir une adresse e-mail valide",
 			"phoneNotValid": "Veuillez fournir un numéro de téléphone valide",
 			"WORK_SCHEDULE": "Calendrier de travail",
@@ -1161,7 +1188,8 @@
 		"CHANGE_AVATAR": "Changer d'avatar",
 		"SELECT_TEAM_SIZE": "Sélectionnez la taille de l'équipe",
 		"INVALID_ALLOWED_CHARACTER": "Valeur non valide pour allowedCharacters. Utilisez alpha, numérique, ou alphanumérique",
-		"AGREE_TO": "J'accepte"
+		"AGREE_TO": "J'accepte",
+		"EMAIL_REQUIRED": "Email address is required"
 	},
 	"layout": {
 		"footer": {

@@ -29,7 +29,7 @@
 # ==============================================================================
 
 # Node.js version (same as production for consistency)
-ARG NODE_VERSION=24.11.1
+ARG NODE_VERSION=24.14.0
 
 # ==============================================================================
 # SINGLE STAGE: DEVELOPMENT
@@ -103,11 +103,22 @@ COPY packages/utils/package.json ./packages/utils/
 # - CYPRESS_INSTALL_BINARY: Skip Cypress binary download (large file)
 # - PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: Skip Playwright browsers download
 
+# Private registry token (optional — set via build-arg to access packages.ever.co)
+ARG VERDACCIO_TOKEN
+
 ENV SENTRYCLI_SKIP_DOWNLOAD=1 \
 	CYPRESS_INSTALL_BINARY=0 \
 	PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
+# Configure private registry if token is provided
+RUN if [ -n "$VERDACCIO_TOKEN" ]; then \
+	echo "//packages.ever.co/:_authToken=${VERDACCIO_TOKEN}" >> .npmrc; \
+	fi
+
 RUN yarn install --frozen-lockfile --non-interactive --network-timeout 600000
+
+# Clean up .npmrc to avoid leaking token
+RUN rm -f .npmrc
 
 # ==============================================================================
 # STEP 5: COPY SOURCE CODE

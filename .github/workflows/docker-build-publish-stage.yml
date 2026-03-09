@@ -29,7 +29,7 @@ jobs:
             fi
             find ~/work/_temp -name "cache.tgz" -exec rm -f {} \;
             sudo rm -rf "/usr/local/share/boost"
-            sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+            if [ -n "$AGENT_TOOLSDIRECTORY" ]; then sudo rm -rf "$AGENT_TOOLSDIRECTORY"; fi
             df -h /
 
       - name: Set up QEMU
@@ -42,7 +42,7 @@ jobs:
         run: echo "NEXT_PUBLIC_GAUZY_API_SERVER_URL=${{ secrets.NEXT_PUBLIC_GAUZY_API_SERVER_URL }}"
 
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./.deploy/web/Dockerfile
@@ -56,6 +56,7 @@ jobs:
           cache-to: type=inline
           build-args: |
             NODE_ENV=production
+            VERDACCIO_TOKEN=${{ secrets.VERDACCIO_TOKEN }}
             NEXT_PUBLIC_DEMO=false
             API_BASE_URL=${{ vars.API_BASE_URL }}
             CLIENT_BASE_URL=${{ vars.CLIENT_BASE_URL }}

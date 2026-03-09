@@ -292,6 +292,12 @@ export const MAIN_PICTURE_DARK = process.env.MAIN_PICTURE_DARK || '/assets/cover
 
 export const CHARACTER_LIMIT_TO_SHOW = 20;
 
+/**
+ * Length of the passwordless / magic authentication code.
+ * Update this single value when the backend code length changes.
+ */
+export const AUTH_CODE_LENGTH = 8;
+
 export const smtpConfiguration: () => I_SMTPRequest = () => ({
 	fromAddress: SMTP_FROM_ADDRESS,
 	host: SMTP_HOST,

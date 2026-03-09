@@ -2,7 +2,7 @@
 
 # Ever Teams Platform
 
-ARG NODE_VERSION=24.11.1
+ARG NODE_VERSION=24.14.0
 ARG NEXT_IGNORE_ESLINT_ERROR_ON_BUILD=true
 ARG RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED=false
 ARG IS_DESKTOP_APP=false
@@ -126,6 +126,9 @@ RUN apt-get update -qq && \
 # Install Yarn
 RUN npm install -g yarn --force
 
+# Private registry token (optional — set via build-arg to access packages.ever.co)
+ARG VERDACCIO_TOKEN
+
 # --- STEP 1: Copy only lockfiles and manifests for dependency resolution ---
 COPY package.json yarn.lock ./
 
@@ -142,8 +145,16 @@ COPY apps/web/package.json ./apps/web/package.json
 # Set working directory to the web app
 WORKDIR /app/apps/web
 
+# Configure private registry if token is provided
+RUN if [ -n "$VERDACCIO_TOKEN" ]; then \
+	echo "//packages.ever.co/:_authToken=${VERDACCIO_TOKEN}" >> /app/.npmrc; \
+	fi
+
 # --- STEP 2: Install deps in deterministic and cacheable way ---
-RUN yarn install --frozen-lockfile --non-interactive --ignore-scripts
+RUN yarn install --network-timeout 1000000 --frozen-lockfile --non-interactive --ignore-scripts
+
+# Clean up .npmrc to avoid leaking token into subsequent layers
+RUN rm -f /app/.npmrc
 
 # --- STEP 3: Copy the rest of the repo for build ---
 WORKDIR /app
@@ -352,7 +363,7 @@ RUN yarn run build:web
 
 # --- STEP 5: Remove dev dependencies and clean cache --- Remove dev dependencies (to reduce final image size)
 WORKDIR /app/apps/web
-RUN yarn install --prod --ignore-scripts
+RUN yarn install --network-timeout 1000000 --prod --ignore-scripts
 RUN yarn cache clean
 
 # ------------------------------------------------------------------------------

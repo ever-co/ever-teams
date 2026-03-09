@@ -90,7 +90,7 @@ function WeeklyLimitReport() {
 				setOrganization(org.data.items[0].organization);
 			});
 		}
-	}, [organizationId, tenantId, user?.id, accessToken]);
+	}, [organizationId, tenantId, user?.id, accessToken, myPermissions]);
 
 	// Get Time limits data
 	useEffect(() => {

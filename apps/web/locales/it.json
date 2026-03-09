@@ -704,7 +704,8 @@
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Ti verrà chiesto di creare un team dopo l'accesso.",
 			"NO_TEAMS_BADGE": "Nessun team",
 			"TEAM_COUNT_SINGULAR": "team",
-			"TEAM_COUNT_PLURAL": "team"
+			"TEAM_COUNT_PLURAL": "team",
+			"FORGOT_PASSWORD": "Forgot Password?"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Unisciti a un Team esistente",
@@ -728,6 +729,33 @@
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "Si prega di inserire le informazioni di accesso."
+		},
+		"authForgotPassword": {
+			"HEADING_TITLE": "Forgot Password",
+			"HEADING_DESCRIPTION": "Enter your email to receive reset instructions",
+			"FORM_DESCRIPTION": "Enter the email address associated with your account and we'll send you a link to reset your password.",
+			"SEND_RESET_LINK": "Send Reset Link",
+			"SUCCESS_TITLE": "Check Your Email",
+			"SUCCESS_MESSAGE": "Password reset instructions have been sent to your email address. Please check your inbox and follow the link to reset your password.",
+			"ERROR_MESSAGE": "Something went wrong. Please try again.",
+			"BACK_TO_LOGIN": "Back to Login"
+		},
+		"authResetPassword": {
+			"HEADING_TITLE": "Reset Password",
+			"HEADING_DESCRIPTION": "Enter your new password",
+			"FORM_DESCRIPTION": "Please enter a new password for your account.",
+			"NEW_PASSWORD": "New Password",
+			"CONFIRM_PASSWORD": "Confirm Password",
+			"RESET_PASSWORD": "Reset Password",
+			"SUCCESS_TITLE": "Password Updated",
+			"SUCCESS_MESSAGE": "Your password has been successfully updated. You can now log in with your new password.",
+			"ERROR_MESSAGE": "Password reset failed. The link may have expired. Please request a new one.",
+			"PASSWORDS_DONT_MATCH": "Passwords don't match",
+			"PASSWORD_TOO_SHORT": "Password must be at least 6 characters",
+			"INVALID_LINK_TITLE": "Invalid Reset Link",
+			"TOKEN_EXPIRED": "This reset link is invalid or has expired. Please request a new password reset.",
+			"REQUEST_NEW_LINK": "Request a New Reset Link",
+			"GO_TO_LOGIN": "Go to Login"
 		},
 		"authTeam": {
 			"HEADING_TITLE": "Registrati ora",
@@ -757,6 +785,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "Impostazioni Generali",
+			"goToTeamSettings": "Vai alle impostazioni del team",
+			"WORKING_HOURS": "Orario di lavoro",
 			"emailNotValid": "Fornisci un indirizzo email valido",
 			"phoneNotValid": "Fornisci un numero di telefono valido",
 			"WORK_SCHEDULE": "Orario di Lavoro",
@@ -1158,7 +1188,8 @@
 		"CHANGE_AVATAR": "Cambia Avatar",
 		"SELECT_TEAM_SIZE": "Seleziona la Dimensione del Team",
 		"INVALID_ALLOWED_CHARACTER": "Valore non valido per allowedCharacters. Utilizza caratteri alfabetici, numerici o alfanumerici",
-		"AGREE_TO": "Accetto"
+		"AGREE_TO": "Accetto",
+		"EMAIL_REQUIRED": "Email address is required"
 	},
 	"layout": {
 		"footer": {

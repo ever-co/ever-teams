@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ILanguages, IGeneralSetting } from '../libs/interfaces';
+import { ILanguages, IGeneralSetting } from '../../libs/interfaces';
 
 export function GeneralComponent(props: IGeneralSetting) {
   const language: ILanguages = props.langs.find(

@@ -39,6 +39,7 @@ import { debounce } from 'lodash';
 import WindowFactory from './windows/window-factory';
 import { setupTitlebar } from 'custom-electron-titlebar/main';
 import { config } from '../configs/config';
+import { ProxyConfig } from './helpers/services/server-proxy';
 
 console.log = Log.log;
 Object.assign(console, Log.functions);
@@ -326,6 +327,13 @@ const runServer = async () => {
   console.log('Run the Server...');
   try {
     const envVal: ServerConfig | undefined = getEnvApi();
+    const sslOption: ProxyConfig = {
+      nextPort: 3037,
+      port: Number(envVal?.PORT || 0),
+      sslSecret: envVal?.sslSecret || '',
+      sslKey: envVal?.sslKey || '',
+      host: '0.0.0.0'
+    }
     const folderPath = getWebDirPath();
     await clearDesktopConfig(folderPath);
 
@@ -342,6 +350,9 @@ const runServer = async () => {
           'sharp',
         ),
         AUTH_SECRET: config.AUTH_SECRET,
+        ...sslOption,
+        useSsl: envVal?.useSsl,
+        PORT: envVal?.useSsl ? sslOption.nextPort : envVal?.PORT
       },
       undefined,
       signal,
@@ -598,7 +609,7 @@ const onInitApplication = () => {
 
   eventEmitter.on(EventLists.OPEN_WINDOW, handleOpenWindow);
 
-  eventEmitter.on(EventLists.SERVER_WINDOW, async () => {
+  eventEmitter.on(EventLists.SERVER_WINDOW, async (data: { startServer?: boolean }) => {
     if (!logWindow) {
       initTrayMenu();
       logWindow = await createWindow(WindowTypes.LOG_WINDOW);
@@ -620,6 +631,9 @@ const onInitApplication = () => {
         });
       }, 100);
     });
+    if (!isServerRun && data?.startServer) {
+      eventEmitter.emit(EventLists.webServerStart);
+    }
   });
 
   eventEmitter.on(EventLists.OPEN_WEB, () => {
@@ -705,7 +719,7 @@ const initTrayMenu = () => {
   const storeConfig: WebServer = LocalStore.getStore('config');
   onInitApplication();
   if (storeConfig?.general?.setup) {
-    eventEmitter.emit(EventLists.SERVER_WINDOW);
+    eventEmitter.emit(EventLists.SERVER_WINDOW, { startServer: true });
   } else {
     if (!setupWindow) {
       setupWindow = await createWindow(WindowTypes.SETUP_WINDOW);
@@ -841,6 +855,9 @@ ipcMain.on(IPC_TYPES.CONTROL_BUTTON, (_, arg) => {
       break;
     case 'minimize':
       handleMinimizeButton(arg.windowTypes);
+      break;
+    case 'open-setting':
+      eventEmitter.emit(EventLists.gotoSetting);
       break;
     default:
       break;

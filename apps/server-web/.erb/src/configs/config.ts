@@ -1,0 +1,23 @@
+export const config = {
+	production: false,
+	I18N_FILES_URL: '',
+	COMPANY_SITE_LINK: 'https://ever.team/',
+	COMPANY_GITHUB_LINK: 'https://github.com/ever-co/ever-teams',
+	NAME: 'ever-teams-server-web',
+	DESCRIPTION: 'Ever Teams Server Web',
+	APP_ID: 'com.ever.teams.serverweb',
+	REPO_NAME: 'ever-teams-web-server',
+	REPO_OWNER: 'ever-co',
+	WELCOME_TITLE: 'Welcome to Ever Teams Web Server',
+	WELCOME_CONTENT: 'Ever Teams Web Server is a web application that allows you to manage your teams and projects.',
+	PLATFORM_LOGO: 'https://app.ever.team/assets/ever-teams.png',
+	GAUZY_DESKTOP_LOGO_512X512: 'assets/icons/desktop_logo_512x512.png',
+	DESKTOP_WEB_SERVER_APP_DEFAULT_API_URL: 'http://localhost:3000',
+	DESKTOP_WEB_SERVER_APP_DEFAULT_PORT: '3333',
+	GAUZY_API_SERVER_URL: 'http://localhost:3000',
+	NEXT_PUBLIC_GAUZY_API_SERVER_URL: 'http://localhost:3000',
+	DESKTOP_WEB_SERVER_HOSTNAME: '0.0.0.0',
+	TERM_OF_SERVICE: 'https://ever.team/tos',
+	PRIVACY_POLICY: 'https://ever.team/privacy',
+	AUTH_SECRET: 'development_auth_secret'
+};

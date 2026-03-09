@@ -34,6 +34,7 @@ import {
 import { cn } from '@/core/lib/helpers';
 import { ChevronDown } from 'lucide-react';
 import { AuthCodeInputField } from '@/core/components/auth/auth-code-input';
+import { AUTH_CODE_LENGTH } from '@/core/constants/config/constants';
 import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { Avatar } from '@/core/components/duplicated-components/avatar';
@@ -240,7 +241,7 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 							inputReference={inputsRef}
 							key={form.authScreen.screen}
 							allowedCharacters="alphanumeric"
-							length={6}
+							length={AUTH_CODE_LENGTH}
 							ref={form.inputCodeRef}
 							containerClassName="mt-[21px] w-full flex justify-between dark:bg-[#25272D]"
 							inputClassName="w-[40px] xs:w-[50px] pl-[21px] dark:bg-[#25272D]"
