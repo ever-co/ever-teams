@@ -39,10 +39,15 @@
   "FORM": {
     "FIELDS": {
       "PORT": "ПРИСТАНИЩЕ",
+      "HOST": "Хост",
       "GAUZY_API_SERVER_URL": "Gauzy API сървър Url",
       "NEXT_PUBLIC_GAUZY_API_SERVER_URL": "Публичен Gauzy API сървър Url",
       "LANGUAGES": "Езици",
-      "OPTIONS": "Настроики"
+      "OPTIONS": "Настроики",
+      "USE_SSL": "Използвай SSL",
+      "SSL_KEY_FILE": "SSL ключов файл",
+      "SSL_CERT_FILE": "SSL сертификатен файл",
+      "BROWSE": "Преглед"
     },
     "BUTTON": {
       "SAVE_SETTING": "Запазване на настройката",

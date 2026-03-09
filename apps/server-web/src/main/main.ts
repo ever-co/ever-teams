@@ -332,7 +332,7 @@ const runServer = async () => {
       port: Number(envVal?.PORT || 0),
       sslSecret: envVal?.sslSecret || '',
       sslKey: envVal?.sslKey || '',
-      host: '0.0.0.0'
+      host: envVal?.DESKTOP_WEB_SERVER_HOSTNAME || '0.0.0.0'
     }
     const folderPath = getWebDirPath();
     await clearDesktopConfig(folderPath);
@@ -881,6 +881,14 @@ ipcMain.handle('get-platform', () => {
 ipcMain.handle('get-app-icon', () => {
   const nativeIcon = nativeImage.createFromPath(getAssetPath('icons/icon.png'));
   return nativeIcon;
+});
+
+ipcMain.handle('open-file-dialog', async (_, options: Electron.OpenDialogOptions = {}) => {
+  const result = await dialog.showOpenDialog({
+    properties: ['openFile'],
+    ...options,
+  });
+  return result;
 });
 
 const createIntervalAutoUpdate = () => {

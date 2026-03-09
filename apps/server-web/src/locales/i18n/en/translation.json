@@ -39,10 +39,15 @@
   "FORM": {
     "FIELDS": {
       "PORT": "PORT",
+      "HOST": "Host",
       "GAUZY_API_SERVER_URL": "Gauzy API Server Url",
       "NEXT_PUBLIC_GAUZY_API_SERVER_URL": "Public Gauzy API Server Url",
       "LANGUAGES": "Languages",
-      "OPTIONS": "Options"
+      "OPTIONS": "Options",
+      "USE_SSL": "Use SSL",
+      "SSL_KEY_FILE": "SSL Key File",
+      "SSL_CERT_FILE": "SSL Certificate File",
+      "BROWSE": "Browse"
     },
     "BUTTON": {
       "SAVE_SETTING": "Save Setting",

@@ -21,16 +21,18 @@ export class ServerProxy {
   private sslKey: string;
   private sslSecret: string;
   private nextPort: number;
+  private host: string;
   private proxy: HttpProxyServer | null;
   private httpsServer: HttpsServer | null;
 
-  constructor({ port, sslKey, sslSecret, nextPort }: ProxyConfig) {
+  constructor({ port, sslKey, sslSecret, nextPort, host }: ProxyConfig) {
     this.sslSecret = sslSecret;
     this.sslKey = sslKey;
     this.port = port;
     this.nextPort = nextPort;
     this.proxy = null;
     this.httpsServer = null;
+    this.host = host;
   }
 
   public static getInstance(proxyConfig: ProxyConfig) {
@@ -67,6 +69,7 @@ export class ServerProxy {
       target: `http://127.0.0.1:${this.nextPort}`,
       ws: true,
       xfwd: true,
+      changeOrigin: true,
       agent: keepAliveAgent
     });
     const errorCallback: (
@@ -107,8 +110,8 @@ export class ServerProxy {
       this.proxy?.ws(req, socket, head);
     });
 
-    this.httpsServer.listen(this.port, '0.0.0.0', () => {
-      console.log(`> App exposed securely on https://0.0.0.0:${this.port}`);
+    this.httpsServer.listen(this.port, this.host, () => {
+      console.log(`> App exposed securely on https://${this.host}:${this.port}`);
     });
   }
 
