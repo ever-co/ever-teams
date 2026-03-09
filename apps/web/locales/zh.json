@@ -972,10 +972,10 @@
 			"REJECTED": "拒绝"
 		},
 		"timeLog": {
-			"DELETE_SUCCESS": "时间日志已成功删除。",
-			"DELETE_ERROR": "发生错误。无法删除时间日志。",
-			"MODIFY_SUCCESS": "时间日志已成功修改。",
-			"MODIFY_ERROR": "修改时间日志失败。请重试。"
+			"DELETE_SUCCESS": "时间记录已成功删除。",
+			"DELETE_ERROR": "发生错误。无法删除时间记录。",
+			"MODIFY_SUCCESS": "时间记录已成功修改。",
+			"MODIFY_ERROR": "修改时间记录失败。请重试。"
 		}
 	},
 	"timer": {
