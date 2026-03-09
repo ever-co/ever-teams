@@ -976,14 +976,6 @@
 			"DELETE_ERROR": "حدث خطأ. تعذر حذف سجل الوقت.",
 			"MODIFY_SUCCESS": "تم تعديل سجل الوقت بنجاح.",
 			"MODIFY_ERROR": "فشل تعديل سجل الوقت. يرجى المحاولة مرة أخرى."
-		},
-		"addOrEditModal": {
-			"steps": {
-				"createProject": "إنشاء مشروع",
-				"financialSettings": "الإعدادات المالية",
-				"categorization": "التصنيف",
-				"teamAndRelations": "الفريق والعلاقات"
-			}
 		}
 	},
 	"timer": {
