@@ -58,7 +58,6 @@
 		"WEEKLY": "Weekly",
 		"ITEMS_SELECTED": "{count} item(s) selected",
 		"SELECT_ITEMS": "Select items",
-
 		"COLLAPSE_COLUMN": "Collapse Column",
 		"EXPAND_COLUMN": "Expand Column",
 		"EDIT_STATUS": "Edit Status",
@@ -973,6 +972,12 @@
 			"IN_REVIEW": "In review",
 			"DRAFT": "Draft",
 			"REJECTED": "Rejected"
+		},
+		"timeLog": {
+			"DELETE_SUCCESS": "The time-log has been successfully deleted.",
+			"DELETE_ERROR": "An error occurred: {error}. The time-log could not be deleted.",
+			"MODIFY_SUCCESS": "The time log has been successfully modified.",
+			"MODIFY_ERROR": "Failed to modify time log. Please try again."
 		}
 	},
 	"timer": {

@@ -420,12 +420,12 @@ const TaskActionMenu = ({
 		await deleteTaskTimesheet({ logIds: [timeLog.id] })
 			.then(() => {
 				sonnerToast.info('Deletion Confirmed', {
-					description: 'The time-log has been successfully deleted.'
+					description: t('pages.timeLog.DELETE_SUCCESS')
 				});
 			})
 			.catch((error) => {
 				sonnerToast.error('Error during deletion', {
-					description: `An error occurred: ${error}.The time-log could not be deleted.`
+					description: t('pages.timeLog.DELETE_ERROR', { error })
 				});
 			});
 	};

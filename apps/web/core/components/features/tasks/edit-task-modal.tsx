@@ -144,13 +144,13 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 			updateTimeLog(updatePayload)
 				.then(() => {
 					toast.success('Modification Confirmed', {
-						description: 'The time log has been successfully modified.'
+						description: t('pages.timeLog.DELETE_SUCCESS')
 					});
 					closeModal();
 				})
 				.catch((error) => {
 					toast.error('Error during modification', {
-						description: 'Failed to modify time log. Please try again.'
+						description: t('pages.timeLog.DELETE_ERROR')
 					});
 					if (!error) {
 						closeModal();

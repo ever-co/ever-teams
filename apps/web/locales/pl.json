@@ -970,6 +970,12 @@
 			"IN_REVIEW": "W trakcie przeglądu",
 			"DRAFT": "Szkic",
 			"REJECTED": "Odrzucone"
+		},
+		"timeLog": {
+			"DELETE_SUCCESS": "Wpis czasu został pomyślnie usunięty.",
+			"DELETE_ERROR": "Wystąpił błąd: {error}. Wpis czasu nie mógł zostać usunięty.",
+			"MODIFY_SUCCESS": "Wpis czasu został pomyślnie zmodyfikowany.",
+			"MODIFY_ERROR": "Nie udało się zmodyfikować wpisu czasu. Spróbuj ponownie."
 		}
 	},
 	"timer": {

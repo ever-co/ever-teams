@@ -970,6 +970,12 @@
 			"IN_REVIEW": "In revisione",
 			"DRAFT": "Bozza",
 			"REJECTED": "Respinto"
+		},
+		"timeLog": {
+			"DELETE_SUCCESS": "Il registro del tempo è stato eliminato con successo.",
+			"DELETE_ERROR": "Si è verificato un errore: {error}. Il registro del tempo non è stato eliminato.",
+			"MODIFY_SUCCESS": "Il registro del tempo è stato modificato con successo.",
+			"MODIFY_ERROR": "Impossibile modificare il registro del tempo. Riprova."
 		}
 	},
 	"timer": {
