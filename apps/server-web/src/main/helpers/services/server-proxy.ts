@@ -21,16 +21,18 @@ export class ServerProxy {
   private sslKey: string;
   private sslSecret: string;
   private nextPort: number;
+  private host: string;
   private proxy: HttpProxyServer | null;
   private httpsServer: HttpsServer | null;
 
-  constructor({ port, sslKey, sslSecret, nextPort }: ProxyConfig) {
+  constructor({ port, sslKey, sslSecret, nextPort, host }: ProxyConfig) {
     this.sslSecret = sslSecret;
     this.sslKey = sslKey;
     this.port = port;
     this.nextPort = nextPort;
     this.proxy = null;
     this.httpsServer = null;
+    this.host = host;
   }
 
   public static getInstance(proxyConfig: ProxyConfig) {
@@ -39,7 +41,8 @@ export class ServerProxy {
       ServerProxy.instance.port !== proxyConfig.port ||
       ServerProxy.instance.sslKey !== proxyConfig.sslKey ||
       ServerProxy.instance.sslSecret !== proxyConfig.sslSecret ||
-      ServerProxy.instance.nextPort !== proxyConfig.nextPort
+      ServerProxy.instance.nextPort !== proxyConfig.nextPort ||
+      ServerProxy.instance.host !== proxyConfig.host
     ) {
       ServerProxy.instance?.stopServer();
       ServerProxy.instance = new ServerProxy(proxyConfig);
@@ -64,9 +67,10 @@ export class ServerProxy {
       http.IncomingMessage,
       http.ServerResponse
     >({
-      target: `http://127.0.0.1:${this.nextPort}`,
+      target: `http://${this.host}:${this.nextPort}`,
       ws: true,
       xfwd: true,
+      changeOrigin: true,
       agent: keepAliveAgent
     });
     const errorCallback: (
@@ -107,8 +111,8 @@ export class ServerProxy {
       this.proxy?.ws(req, socket, head);
     });
 
-    this.httpsServer.listen(this.port, '0.0.0.0', () => {
-      console.log(`> App exposed securely on https://0.0.0.0:${this.port}`);
+    this.httpsServer.listen(Number(this.port), this.host, () => {
+      console.log(`> App exposed securely on https://${this.host}:${this.port}`);
     });
   }
 

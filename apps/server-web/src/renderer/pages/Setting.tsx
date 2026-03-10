@@ -240,6 +240,10 @@ export function Setting() {
             GAUZY_API_SERVER_URL: arg.data.server.GAUZY_API_SERVER_URL,
             NEXT_PUBLIC_GAUZY_API_SERVER_URL:
               arg.data.server.NEXT_PUBLIC_GAUZY_API_SERVER_URL,
+            useSsl: arg.data.server.useSsl,
+            sslKey: arg.data.server.sslKey,
+            sslSecret: arg.data.server.sslSecret,
+            DESKTOP_WEB_SERVER_HOSTNAME: arg.data.server.DESKTOP_WEB_SERVER_HOSTNAME,
           });
           setLng(arg.data.general.lang);
           setUpdateSetting({

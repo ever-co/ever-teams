@@ -22,6 +22,7 @@ import {
   WindowTypes,
   APP_LINK,
   WINDOW_EVENTS,
+  DEFAULT_NEXT_PORT
 } from './helpers/constant';
 import Updater from './updater';
 import i18nextMainBackend from '../configs/i18n.mainconfig';
@@ -236,12 +237,12 @@ const devServerPath = path.join(
 );
 const serverPath = isPack
   ? path.join(
-      process.resourcesPath,
-      'release',
-      'app',
-      'dist',
-      resourcesFiles.webServer,
-    )
+    process.resourcesPath,
+    'release',
+    'app',
+    'dist',
+    resourcesFiles.webServer,
+  )
   : devServerPath;
 
 if (process.env.NODE_ENV === 'production') {
@@ -328,11 +329,11 @@ const runServer = async () => {
   try {
     const envVal: ServerConfig | undefined = getEnvApi();
     const sslOption: ProxyConfig = {
-      nextPort: 3037,
+      nextPort: DEFAULT_NEXT_PORT,
       port: Number(envVal?.PORT || 0),
       sslSecret: envVal?.sslSecret || '',
       sslKey: envVal?.sslKey || '',
-      host: '0.0.0.0'
+      host: envVal?.DESKTOP_WEB_SERVER_HOSTNAME || '0.0.0.0'
     }
     const folderPath = getWebDirPath();
     await clearDesktopConfig(folderPath);
@@ -343,6 +344,7 @@ const runServer = async () => {
       {
         ...(envVal || {}),
         IS_DESKTOP_APP: true,
+        HOSTNAME: envVal?.DESKTOP_WEB_SERVER_HOSTNAME || '0.0.0.0',
         NEXT_SHARP_PATH: path.join(
           process.resourcesPath,
           'app.asar',
@@ -881,6 +883,14 @@ ipcMain.handle('get-platform', () => {
 ipcMain.handle('get-app-icon', () => {
   const nativeIcon = nativeImage.createFromPath(getAssetPath('icons/icon.png'));
   return nativeIcon;
+});
+
+ipcMain.handle('open-file-dialog', async (_, options: Electron.OpenDialogOptions = {}) => {
+  const result = await dialog.showOpenDialog({
+    properties: ['openFile'],
+    ...options,
+  });
+  return result;
 });
 
 const createIntervalAutoUpdate = () => {

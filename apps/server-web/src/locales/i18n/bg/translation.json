@@ -37,12 +37,29 @@
     "APP_EDIT": "Редактиране"
   },
   "FORM": {
+    "SECTIONS": {
+      "SERVER_ADDRESS": "Адрес на сървъра",
+      "API_CONFIGURATION": "API конфигурация",
+      "SECURITY": "Сигурност"
+    },
+    "DESCRIPTIONS": {
+      "SSL": "Пуснете приложението по HTTPS, използвайки собствени сертификати"
+    },
+    "ARIA": {
+      "BROWSE_SSL_KEY": "Прегледайте SSL ключов файл",
+      "BROWSE_SSL_CERT": "Прегледайте SSL сертификатен файл"
+    },
     "FIELDS": {
       "PORT": "ПРИСТАНИЩЕ",
+      "HOST": "Хост",
       "GAUZY_API_SERVER_URL": "Gauzy API сървър Url",
       "NEXT_PUBLIC_GAUZY_API_SERVER_URL": "Публичен Gauzy API сървър Url",
       "LANGUAGES": "Езици",
-      "OPTIONS": "Настроики"
+      "OPTIONS": "Настроики",
+      "USE_SSL": "Използвай SSL",
+      "SSL_KEY_FILE": "SSL ключов файл",
+      "SSL_CERT_FILE": "SSL сертификатен файл",
+      "BROWSE": "Преглед"
     },
     "BUTTON": {
       "SAVE_SETTING": "Запазване на настройката",
@@ -55,7 +72,10 @@
       "CLOSE": "Близо",
       "START": "Започнете",
       "STOP": "Спри се",
-      "LETS_GO": "Да започваме"
+      "LETS_GO": "Да започваме",
+      "BACK": "Назад",
+      "CHECK_CONNECTIVITY": "Проверка на свързаността",
+      "CONTINUE": "Продължи"
     },
     "LABELS": {
       "CHECKING": "Проверка",
@@ -76,7 +96,9 @@
       "AUTO_UPDATE_TOGGLE": "Автоматична актуализация",
       "CHECK_UPDATE_TITLE": "Проверете и актуализирайте версията на приложението си",
       "CHECK_UPDATE_SUBTITLE": "Налична е нова актуализация! Моля, щракнете върху бутона Изтегляне сега по-долу.",
-      "LANGUAGES": "Езици"
+      "LANGUAGES": "Езици",
+      "SETUP_TITLE": "Конфигуриране на Ever Teams уеб сървър",
+      "SETUP_SUBTITLE": "Настройте адреса на сървъра, API крайните точки и по желание SSL."
     }
   },
   "MESSAGE": {
