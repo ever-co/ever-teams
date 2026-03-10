@@ -5,6 +5,8 @@ import { SettingPageTypeMessage } from '../../libs/constant';
 import { config } from '../../../configs/config';
 import { get } from '../../libs/utils/api';
 import { ToastComponent } from '../../components/Toast';
+import { useServerSetting } from '../../hooks/useServerSetting';
+import { serverFormStyles } from '../../libs/utils/server-form-styles';
 import CheckBadgeIcon from '@heroicons/react/20/solid/CheckBadgeIcon';
 import ArrowUturnUpIcon from '@heroicons/react/20/solid/ArrowUturnUpIcon';
 import ArrowLeftIcon from '@heroicons/react/20/solid/ArrowLeftIcon';
@@ -19,7 +21,7 @@ type Props = {
 
 const AdvancedSetting = (props: Props) => {
   const { t } = useTranslation();
-  const [serverSetting, setServerSetting] = useState<IServerSetting>({
+  const initialSetting: IServerSetting = {
     PORT: Number(config.DESKTOP_WEB_SERVER_APP_DEFAULT_PORT || 3001),
     GAUZY_API_SERVER_URL:
       config.GAUZY_API_SERVER_URL || 'http://localhost:3000',
@@ -30,13 +32,16 @@ const AdvancedSetting = (props: Props) => {
     useSsl: false,
     sslKey: '',
     sslSecret: '',
-  });
+  };
+  const { serverSetting, handleChange, handleToggleSsl, browseFile } = useServerSetting(initialSetting);
 
   const [errorConnection, setErrorConnection] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [toastShow, setToastShow] = useState<boolean>(false);
 
-  const saveSetting = (e: any) => {
+  const { input: inputClass, label: labelClass, sectionHeading: sectionHeadingClass, sectionCard: sectionCardClass } = serverFormStyles;
+
+  const saveSetting = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     window.electron.ipcRenderer.sendMessage('setting-page', {
@@ -61,54 +66,16 @@ const AdvancedSetting = (props: Props) => {
     }
   };
 
-  const handleChange = (event: any) => {
-    const { id, value } = event.target;
-    setServerSetting((prevData: any) => ({ ...prevData, [id]: value }));
-  };
-
-  const handleSslToggle = () => {
-    setServerSetting((prevData) => ({
-      ...prevData,
-      useSsl: !prevData.useSsl,
-      sslKey: !prevData.useSsl ? prevData.sslKey : '',
-      sslSecret: !prevData.useSsl ? prevData.sslSecret : '',
-    }));
-  };
-
-  const browseFile = async (field: 'sslKey' | 'sslSecret') => {
-    const result = await window.electron.ipcRenderer.invoke('open-file-dialog', {
-      filters: [
-        { name: 'PEM Files', extensions: ['pem', 'crt', 'key', 'cert'] },
-        { name: 'All Files', extensions: ['*'] },
-      ],
-    });
-    if (result && !result.canceled && result.filePaths.length > 0) {
-      setServerSetting((prevData) => ({ ...prevData, [field]: result.filePaths[0] }));
-    }
-  };
-
-  const inputClass =
-    'w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 py-2 px-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:border-transparent transition-[border-color,box-shadow] duration-150';
-
-  const labelClass =
-    'block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1';
-
-  const sectionHeadingClass =
-    'flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-3';
-
-  const sectionCardClass =
-    'rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 p-4 mb-3';
-
   return (
     <>
       <div className="flex flex-col h-screen overflow-hidden">
         {/* Header */}
         <div className="shrink-0 text-center pt-5 pb-3 px-6">
           <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-0.5">
-            Configure Ever Teams Web Server
+            {t('FORM.LABELS.SETUP_TITLE')}
           </h1>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            Set up the server address, API endpoints, and optional SSL.
+            {t('FORM.LABELS.SETUP_SUBTITLE')}
           </p>
         </div>
 
@@ -124,7 +91,7 @@ const AdvancedSetting = (props: Props) => {
             <div className={sectionCardClass}>
               <p className={sectionHeadingClass}>
                 <ServerIcon className="h-3.5 w-3.5" aria-hidden="true" />
-                Server Address
+                {t('FORM.SECTIONS.SERVER_ADDRESS')}
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -166,7 +133,7 @@ const AdvancedSetting = (props: Props) => {
             <div className={sectionCardClass}>
               <p className={sectionHeadingClass}>
                 <LinkIcon className="h-3.5 w-3.5" aria-hidden="true" />
-                API Configuration
+                {t('FORM.SECTIONS.API_CONFIGURATION')}
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -208,7 +175,7 @@ const AdvancedSetting = (props: Props) => {
             <div className={sectionCardClass}>
               <p className={sectionHeadingClass}>
                 <ShieldCheckIcon className="h-3.5 w-3.5" aria-hidden="true" />
-                Security
+                {t('FORM.SECTIONS.SECURITY')}
               </p>
 
               {/* SSL Toggle row */}
@@ -218,12 +185,12 @@ const AdvancedSetting = (props: Props) => {
                     {t('FORM.FIELDS.USE_SSL')}
                   </p>
                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                    Serve the app over HTTPS using your own certificates
+                    {t('FORM.DESCRIPTIONS.SSL')}
                   </p>
                 </div>
                 <button
                   type="button"
-                  onClick={handleSslToggle}
+                  onClick={handleToggleSsl}
                   aria-label={t('FORM.FIELDS.USE_SSL')}
                   aria-checked={serverSetting.useSsl}
                   role="switch"
@@ -265,7 +232,7 @@ const AdvancedSetting = (props: Props) => {
                       <button
                         type="button"
                         onClick={() => browseFile('sslKey')}
-                        aria-label={`${t('FORM.FIELDS.BROWSE')} SSL key file`}
+                        aria-label={t('FORM.ARIA.BROWSE_SSL_KEY')}
                         className="flex items-center gap-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2.5 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 transition-colors duration-150 shrink-0"
                       >
                         <FolderOpenIcon className="h-3.5 w-3.5" aria-hidden="true" />
@@ -293,7 +260,7 @@ const AdvancedSetting = (props: Props) => {
                       <button
                         type="button"
                         onClick={() => browseFile('sslSecret')}
-                        aria-label={`${t('FORM.FIELDS.BROWSE')} SSL certificate file`}
+                        aria-label={t('FORM.ARIA.BROWSE_SSL_CERT')}
                         className="flex items-center gap-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2.5 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 transition-colors duration-150 shrink-0"
                       >
                         <FolderOpenIcon className="h-3.5 w-3.5" aria-hidden="true" />
@@ -314,7 +281,7 @@ const AdvancedSetting = (props: Props) => {
               className="flex items-center gap-2 rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 transition-colors duration-150"
             >
               <ArrowLeftIcon className="h-4 w-4" aria-hidden="true" />
-              Back
+              {t('FORM.BUTTON.BACK')}
             </button>
 
             <div className="flex items-center gap-3">
@@ -329,7 +296,7 @@ const AdvancedSetting = (props: Props) => {
                 ) : (
                   <CheckBadgeIcon className="h-4 w-4" aria-hidden="true" />
                 )}
-                Check Connectivity
+                {t('FORM.BUTTON.CHECK_CONNECTIVITY')}
               </button>
 
               <button
@@ -343,7 +310,7 @@ const AdvancedSetting = (props: Props) => {
                 ) : (
                   <ArrowUturnUpIcon className="h-4 w-4" aria-hidden="true" />
                 )}
-                Continue
+                {t('FORM.BUTTON.CONTINUE')}
               </button>
             </div>
           </div>

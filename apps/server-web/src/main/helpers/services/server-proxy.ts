@@ -41,7 +41,8 @@ export class ServerProxy {
       ServerProxy.instance.port !== proxyConfig.port ||
       ServerProxy.instance.sslKey !== proxyConfig.sslKey ||
       ServerProxy.instance.sslSecret !== proxyConfig.sslSecret ||
-      ServerProxy.instance.nextPort !== proxyConfig.nextPort
+      ServerProxy.instance.nextPort !== proxyConfig.nextPort ||
+      ServerProxy.instance.host !== proxyConfig.host
     ) {
       ServerProxy.instance?.stopServer();
       ServerProxy.instance = new ServerProxy(proxyConfig);
@@ -110,7 +111,7 @@ export class ServerProxy {
       this.proxy?.ws(req, socket, head);
     });
 
-    this.httpsServer.listen(this.port, this.host, () => {
+    this.httpsServer.listen(Number(this.port), this.host, () => {
       console.log(`> App exposed securely on https://${this.host}:${this.port}`);
     });
   }

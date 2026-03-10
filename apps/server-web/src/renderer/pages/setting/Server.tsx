@@ -1,6 +1,7 @@
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IServerSetting, IServerComponent } from '../../libs/interfaces';
+import { IServerComponent } from '../../libs/interfaces';
+import { useServerSetting } from '../../hooks/useServerSetting';
+import { serverFormStyles } from '../../libs/utils/server-form-styles';
 import FolderOpenIcon from '@heroicons/react/20/solid/FolderOpenIcon';
 import ShieldCheckIcon from '@heroicons/react/20/solid/ShieldCheckIcon';
 import ServerIcon from '@heroicons/react/20/solid/ServerIcon';
@@ -8,52 +9,14 @@ import LinkIcon from '@heroicons/react/20/solid/LinkIcon';
 
 export const ServerComponent = (props: IServerComponent) => {
   const { t } = useTranslation();
-  const [serverSetting, setServerSetting] = useState<IServerSetting>(
-    props.serverSetting,
-  );
+  const { serverSetting, handleChange, handleToggleSsl, browseFile } = useServerSetting(props.serverSetting);
 
-  const saveSetting = (e: any) => {
+  const saveSetting = (e: React.FormEvent) => {
     e.preventDefault();
     props.saveSetting(serverSetting);
   };
 
-  const handleChange = (event: any) => {
-    const { id, value } = event.target;
-    setServerSetting((prevData: any) => ({ ...prevData, [id]: value }));
-  };
-
-  const handleToggleSsl = () => {
-    setServerSetting((prevData: any) => ({
-      ...prevData,
-      useSsl: !prevData.useSsl,
-      sslKey: !prevData.useSsl ? prevData.sslKey : '',
-      sslSecret: !prevData.useSsl ? prevData.sslSecret : '',
-    }));
-  };
-
-  const browseFile = async (field: 'sslKey' | 'sslSecret') => {
-    const result = await window.electron.ipcRenderer.invoke('open-file-dialog', {
-      filters: [
-        { name: 'PEM Files', extensions: ['pem', 'crt', 'key', 'cert'] },
-        { name: 'All Files', extensions: ['*'] },
-      ],
-    });
-    if (result && !result.canceled && result.filePaths.length > 0) {
-      setServerSetting((prevData: any) => ({ ...prevData, [field]: result.filePaths[0] }));
-    }
-  };
-
-  const inputClass =
-    'w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 py-2 px-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:border-transparent transition-[border-color,box-shadow] duration-150';
-
-  const labelClass =
-    'block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1';
-
-  const sectionHeadingClass =
-    'flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-3';
-
-  const sectionCardClass =
-    'rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 p-4 mb-3';
+  const { input: inputClass, label: labelClass, sectionHeading: sectionHeadingClass, sectionCard: sectionCardClass } = serverFormStyles;
 
   return (
     <>
@@ -69,7 +32,7 @@ export const ServerComponent = (props: IServerComponent) => {
             <div className={sectionCardClass}>
               <p className={sectionHeadingClass}>
                 <ServerIcon className="h-3.5 w-3.5" aria-hidden="true" />
-                Server Address
+                {t('FORM.SECTIONS.SERVER_ADDRESS', { defaultValue: 'Server Address' })}
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -111,7 +74,7 @@ export const ServerComponent = (props: IServerComponent) => {
             <div className={sectionCardClass}>
               <p className={sectionHeadingClass}>
                 <LinkIcon className="h-3.5 w-3.5" aria-hidden="true" />
-                API Configuration
+                {t('FORM.SECTIONS.API_CONFIGURATION', { defaultValue: 'API Configuration' })}
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -153,7 +116,7 @@ export const ServerComponent = (props: IServerComponent) => {
             <div className={sectionCardClass}>
               <p className={sectionHeadingClass}>
                 <ShieldCheckIcon className="h-3.5 w-3.5" aria-hidden="true" />
-                Security
+                {t('FORM.SECTIONS.SECURITY', { defaultValue: 'Security' })}
               </p>
 
               {/* SSL Toggle */}
@@ -163,7 +126,7 @@ export const ServerComponent = (props: IServerComponent) => {
                     {t('FORM.FIELDS.USE_SSL')}
                   </p>
                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                    Serve the app over HTTPS using your own certificates
+                    {t('FORM.DESCRIPTIONS.SSL', { defaultValue: 'Serve the app over HTTPS using your own certificates' })}
                   </p>
                 </div>
                 <button
@@ -210,7 +173,7 @@ export const ServerComponent = (props: IServerComponent) => {
                       <button
                         type="button"
                         onClick={() => browseFile('sslKey')}
-                        aria-label={`${t('FORM.FIELDS.BROWSE')} SSL key file`}
+                        aria-label={t('FORM.ARIA.BROWSE_SSL_KEY', { defaultValue: `${t('FORM.FIELDS.BROWSE')} SSL key file` })}
                         className="flex items-center gap-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2.5 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 transition-colors duration-150 shrink-0"
                       >
                         <FolderOpenIcon className="h-3.5 w-3.5" aria-hidden="true" />
@@ -238,7 +201,7 @@ export const ServerComponent = (props: IServerComponent) => {
                       <button
                         type="button"
                         onClick={() => browseFile('sslSecret')}
-                        aria-label={`${t('FORM.FIELDS.BROWSE')} SSL certificate file`}
+                        aria-label={t('FORM.ARIA.BROWSE_SSL_CERT', { defaultValue: `${t('FORM.FIELDS.BROWSE')} SSL certificate file` })}
                         className="flex items-center gap-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2.5 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 transition-colors duration-150 shrink-0"
                       >
                         <FolderOpenIcon className="h-3.5 w-3.5" aria-hidden="true" />
