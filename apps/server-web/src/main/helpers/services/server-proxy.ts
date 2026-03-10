@@ -67,7 +67,7 @@ export class ServerProxy {
       http.IncomingMessage,
       http.ServerResponse
     >({
-      target: `http://127.0.0.1:${this.nextPort}`,
+      target: `http://${this.host}:${this.nextPort}`,
       ws: true,
       xfwd: true,
       changeOrigin: true,
