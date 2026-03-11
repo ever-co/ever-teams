@@ -6,6 +6,7 @@ import type { PropsWithChildren } from 'react';
 import { CHAT_PANEL_CONSTRAINTS } from '../constants/chat-panel-constraints.constant';
 import { ChatPanelContext } from '../contexts/chat-panel.context';
 import { useChatPanel } from '../hooks/use-chat-panel';
+import { ChatView } from './chat-view';
 
 export function ChatPanelLayout({ children }: PropsWithChildren) {
 	const chatPanel = useChatPanel();
@@ -36,8 +37,8 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 						onResize={chatPanel.handleResize}
 						className={cn('bg-muted/30 border-r', 'z-60 relative overflow-hidden')}
 					>
-						<div ref={chatPanel.chatPanelDomRef} className="flex h-full flex-col p-4 bg-dark">
-							<p className="text-sm font-semibold">Chat</p>
+						<div ref={chatPanel.chatPanelDomRef} className="flex h-full flex-col">
+							<ChatView />
 						</div>
 					</ResizablePanel>
 
