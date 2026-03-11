@@ -14,7 +14,7 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 		// Provide chat controls to the entire subtree (children included)
 		<ChatPanelContext.Provider value={chatPanel}>
 			<div
-				className="relative flex h-full w-full"
+				className="flex h-full w-full overflow-hidden"
 				style={
 					{
 						'--chat-panel-width': `${chatPanel.sizePixels}px`
@@ -34,7 +34,7 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 						onCollapse={chatPanel.closePanel}
 						onExpand={chatPanel.openPanel}
 						onResize={chatPanel.handleResize}
-						className={cn('bg-muted/30 border-r', 'z-60 relative')}
+						className={cn('bg-muted/30 border-r', 'z-60 relative overflow-hidden')}
 					>
 						<div ref={chatPanel.chatPanelDomRef} className="flex h-full flex-col p-4 bg-dark">
 							<p className="text-sm font-semibold">Chat</p>
@@ -42,16 +42,16 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 					</ResizablePanel>
 
 					{/* ── HANDLE ──────────────────────────────────────────────── */}
-					<ResizableHandle withHandle className="z-100 relative" />
+					<ResizableHandle withHandle className="z-1020 relative" />
 
 					{/* ── PANEL 2 : Page Content ───────────────────────────────── */}
 					<ResizablePanel
 						order={2}
 						defaultSize={100 - CHAT_PANEL_CONSTRAINTS.defaultSize}
 						minSize={50}
-						className="overflow-auto"
+						className="relative"
 					>
-						{children}
+						<div className="absolute inset-0 overflow-y-auto">{children}</div>
 					</ResizablePanel>
 				</ResizablePanelGroup>
 			</div>

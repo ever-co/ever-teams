@@ -39,7 +39,7 @@ export function LayoutShell({ children }: PropsWithChildren) {
 					</Suspense>
 
 					{/* Content area — children will be PageLayout from each page */}
-					<SidebarInset className="relative flex-1 overflow-x-hidden !h-full !w-full">
+					<SidebarInset className="h-dvh! min-h-0! overflow-hidden!">
 						<ChatPanelLayout>{children}</ChatPanelLayout>
 					</SidebarInset>
 				</SidebarProvider>

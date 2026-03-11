@@ -1,7 +1,7 @@
 'use client';
 
 import { useAtom } from 'jotai';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ImperativePanelHandle } from 'react-resizable-panels';
 import { chatPanelOpenAtom } from '../atoms/chat-panel-open.atom';
 import { CHAT_PANEL_CONSTRAINTS } from '../constants/chat-panel-constraints.constant';
@@ -17,11 +17,9 @@ export function useChatPanel() {
 	const panelRef = useRef<ImperativePanelHandle>(null);
 
 	const [isOpen, setIsOpen] = useAtom(chatPanelOpenAtom);
-	const [sizePercent, setSizePercent] = useState<number>(0);
 	const [sizePixels, setSizePixels] = useState<number>(0);
 
 	const openPanel = useCallback(() => {
-		console.log(panelRef.current);
 		panelRef.current?.expand();
 		setIsOpen(true);
 		setSizePixels(CHAT_PANEL_CONSTRAINTS.defaultSize);
@@ -43,13 +41,15 @@ export function useChatPanel() {
 		}
 	}, [isOpen, openPanel, closePanel]);
 
-	const handleResize = useCallback((percentage: number) => {
-		setSizePercent(percentage);
-
+	const handleResize = useCallback(() => {
 		if (chatPanelDomRef.current) {
 			const { width } = chatPanelDomRef.current.getBoundingClientRect();
 			setSizePixels(width);
 		}
+	}, []);
+
+	useEffect(() => {
+		handleResize();
 	}, []);
 
 	return {
@@ -59,7 +59,6 @@ export function useChatPanel() {
 		openPanel,
 		closePanel,
 		chatPanelDomRef,
-		sizePercent,
 		sizePixels,
 		setSizePixels,
 		handleResize
