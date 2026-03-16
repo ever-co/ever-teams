@@ -66,8 +66,9 @@ export function ChatView({ pageContext }: ChatViewProps) {
 	);
 
 	const handleClearChat = useCallback(() => {
+		stop();
 		setMessages([]);
-	}, [setMessages]);
+	}, [setMessages, stop]);
 
 	const scrollToBottom = useCallback(() => {
 		const viewport = document.getElementById('chat-scroll-viewport');

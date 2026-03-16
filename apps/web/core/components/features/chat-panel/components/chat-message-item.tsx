@@ -5,6 +5,7 @@ import { Bot, User } from 'lucide-react';
 import { cn } from '@/core/lib/helpers';
 import { marked } from 'marked';
 import type { Message } from '@ai-sdk/react';
+import { sanitizeHtml } from '@/core/lib/helpers/sanitize-html';
 
 // Configure marked for safe rendering
 marked.setOptions({
@@ -21,7 +22,7 @@ export const ChatMessageItem = memo(function ChatMessageItem({ message }: ChatMe
 
 	const htmlContent = useMemo(() => {
 		if (isUser) return null;
-		return marked.parse(message.content) as string;
+		return sanitizeHtml(marked.parse(message.content) as string);
 	}, [message.content, isUser]);
 
 	return (

@@ -19,7 +19,6 @@ export async function POST(req: Request) {
 	const openai = createOpenAI({
 		apiKey,
 		...(provider === 'custom' && baseURL ? { baseURL } : {}),
-		...(provider === 'openai' ? {} : {}),
 		...(provider === 'groq' ? { baseURL: 'https://api.groq.com/openai/v1' } : {}),
 		...(provider === 'together' ? { baseURL: 'https://api.together.xyz/v1' } : {})
 	});

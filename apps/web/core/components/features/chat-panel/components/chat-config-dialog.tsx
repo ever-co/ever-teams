@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
 	Dialog,
 	DialogContent,
@@ -32,6 +32,7 @@ const PROVIDERS = [
 	{ value: 'together' as const, label: 'Together AI', defaultModel: 'meta-llama/Llama-3.3-70B-Instruct-Turbo' },
 	{ value: 'custom' as const, label: 'Custom (OpenAI-compatible)', defaultModel: '' }
 ];
+const PROVIDERS_INDEX = new Map(PROVIDERS.map((provider) => [provider.value, provider]));
 
 export function ChatConfigDialog({ open, onOpenChange, config, onSave }: ChatConfigDialogProps) {
 	const [apiKey, setApiKey] = useState(config?.apiKey ?? '');
@@ -52,10 +53,19 @@ export function ChatConfigDialog({ open, onOpenChange, config, onSave }: ChatCon
 		onSave({
 			apiKey: apiKey.trim(),
 			provider,
-			model: model.trim() || 'gpt-4o-mini',
+			model: model.trim() || PROVIDERS_INDEX.get(provider)?.defaultModel || 'gpt-4o-mini',
 			...(provider === 'custom' && baseURL.trim() ? { baseURL: baseURL.trim() } : {})
 		});
 	};
+
+	useEffect(() => {
+		if (open) {
+			setApiKey(config?.apiKey ?? '');
+			setProvider(config?.provider ?? 'openai');
+			setModel(config?.model ?? PROVIDERS_INDEX.get(config?.provider ?? 'openai')?.defaultModel ?? 'gpt-4o-mini');
+			setBaseURL(config?.baseURL ?? '');
+		}
+	}, [open, config]);
 
 	const canSave = apiKey.trim().length > 0;
 
@@ -92,8 +102,11 @@ export function ChatConfigDialog({ open, onOpenChange, config, onSave }: ChatCon
 
 					{/* API Key */}
 					<div className="flex flex-col gap-1.5">
-						<label className="text-sm font-medium text-foreground">API Key</label>
+						<label className="text-sm font-medium text-foreground" htmlFor="ai-config-api-key">
+							API Key
+						</label>
 						<Input
+							id="ai-config-api-key"
 							type="password"
 							value={apiKey}
 							onChange={(e) => setApiKey(e.target.value)}
@@ -105,8 +118,11 @@ export function ChatConfigDialog({ open, onOpenChange, config, onSave }: ChatCon
 
 					{/* Model */}
 					<div className="flex flex-col gap-1.5">
-						<label className="text-sm font-medium text-foreground">Model</label>
+						<label className="text-sm font-medium text-foreground" htmlFor="ai-config-model">
+							Model
+						</label>
 						<Input
+							id="ai-config-model"
 							type="text"
 							value={model}
 							onChange={(e) => setModel(e.target.value)}
@@ -117,7 +133,9 @@ export function ChatConfigDialog({ open, onOpenChange, config, onSave }: ChatCon
 					{/* Custom Base URL */}
 					{provider === 'custom' && (
 						<div className="flex flex-col gap-1.5">
-							<label className="text-sm font-medium text-foreground">Base URL</label>
+							<label className="text-sm font-medium text-foreground" htmlFor="ai-config-base-url">
+								Base URL
+							</label>
 							<Input
 								type="url"
 								value={baseURL}
