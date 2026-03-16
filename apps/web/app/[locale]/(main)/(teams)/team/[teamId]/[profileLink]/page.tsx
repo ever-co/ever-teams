@@ -60,6 +60,7 @@ const Team = () => {
 
 	useEffect(() => {
 		loadData();
+		return () => setPublic(false);
 	}, [loadData]);
 
 	useEffect(() => {

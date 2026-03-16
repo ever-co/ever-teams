@@ -124,7 +124,7 @@ export function PageLayout({
 				<GlobalHeader
 					ref={headerRef}
 					fullWidth={fullWidth}
-					showTimer={shouldRenderTimer && activeTimer}
+					showTimer={(shouldRenderTimer && activeTimer) || showTimer}
 					publicTeam={publicTeam || false}
 					notFound={notFound || false}
 					mainHeaderSlot={mainHeaderSlot}
@@ -176,4 +176,3 @@ export function PageLayout({
 		</>
 	);
 }
-
