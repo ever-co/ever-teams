@@ -39,8 +39,6 @@ export function ChatView({ pageContext }: ChatViewProps) {
 		const stored = getStoredConfig();
 		if (stored) {
 			setConfig(stored);
-		} else {
-			setConfigOpen(true);
 		}
 	}, []);
 
@@ -87,7 +85,7 @@ export function ChatView({ pageContext }: ChatViewProps) {
 	const isConfigured = !!config?.apiKey;
 
 	return (
-		<div className="flex h-full flex-col">
+		<div className="flex h-full flex-col dark:bg-dark-high">
 			{/* Header */}
 			<div className="flex items-center justify-between border-b border-border px-3 py-2">
 				<div className="flex items-center gap-2">
@@ -100,7 +98,7 @@ export function ChatView({ pageContext }: ChatViewProps) {
 							type="button"
 							onClick={handleClearChat}
 							className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-							title="Effacer la conversation"
+							title="Clear conversation"
 						>
 							<Trash2 className="h-3.5 w-3.5" />
 						</button>
@@ -128,11 +126,11 @@ export function ChatView({ pageContext }: ChatViewProps) {
 								<Bot className="h-6 w-6 text-muted-foreground" />
 							</div>
 							<div>
-								<p className="text-sm font-medium text-foreground">Assistant Ever Teams</p>
+								<p className="text-sm font-medium text-foreground">Ever Teams Assistant</p>
 								<p className="mt-1 text-xs text-muted-foreground">
 									{isConfigured
-										? 'Posez une question pour commencer.'
-										: 'Configurez votre clé API pour commencer.'}
+										? 'Ask a question to get started.'
+										: 'Configure your API key to get started.'}
 								</p>
 							</div>
 							{!isConfigured && (
@@ -141,7 +139,7 @@ export function ChatView({ pageContext }: ChatViewProps) {
 									onClick={() => setConfigOpen(true)}
 									className="mt-2 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 dark:bg-primary-light dark:hover:bg-primary-light/90"
 								>
-									Configurer
+									Configure
 								</button>
 							)}
 						</div>
@@ -161,7 +159,7 @@ export function ChatView({ pageContext }: ChatViewProps) {
 							)}
 							{error && (
 								<div className="mx-3 rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-									{error.message || 'Une erreur est survenue. Vérifiez votre configuration.'}
+									{error.message || 'An error occurred. Please check your configuration.'}
 								</div>
 							)}
 						</div>
@@ -196,7 +194,7 @@ export function ChatView({ pageContext }: ChatViewProps) {
 								}
 							}
 						}}
-						placeholder={isConfigured ? 'Votre message...' : 'Configurez votre clé API...'}
+						placeholder={isConfigured ? 'Your message...' : 'Configure your API key...'}
 						disabled={!isConfigured}
 						rows={1}
 						className={cn(
@@ -219,7 +217,7 @@ export function ChatView({ pageContext }: ChatViewProps) {
 							type="button"
 							onClick={stop}
 							className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-destructive text-destructive-foreground transition-colors hover:bg-destructive/90"
-							title="Arrêter"
+							title="Stop"
 						>
 							<Square className="h-3.5 w-3.5" />
 						</button>
@@ -233,7 +231,7 @@ export function ChatView({ pageContext }: ChatViewProps) {
 								'dark:bg-primary-light dark:hover:bg-primary-light/90',
 								'disabled:cursor-not-allowed disabled:opacity-50'
 							)}
-							title="Envoyer"
+							title="Send"
 						>
 							<Send className="h-3.5 w-3.5" />
 						</button>

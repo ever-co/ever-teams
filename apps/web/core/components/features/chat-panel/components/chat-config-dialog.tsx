@@ -61,18 +61,16 @@ export function ChatConfigDialog({ open, onOpenChange, config, onSave }: ChatCon
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="sm:max-w-md">
+			<DialogContent className="sm:max-w-md z-1100">
 				<DialogHeader>
-					<DialogTitle>Configuration du Chat AI</DialogTitle>
-					<DialogDescription>
-						Configurez votre fournisseur d&apos;IA et votre clé API pour utiliser le chat.
-					</DialogDescription>
+					<DialogTitle>AI Chat Configuration</DialogTitle>
+					<DialogDescription>Configure your AI provider and your API Key to use AI.</DialogDescription>
 				</DialogHeader>
 
 				<div className="flex flex-col gap-4 py-2">
 					{/* Provider Selection */}
 					<div className="flex flex-col gap-1.5">
-						<label className="text-sm font-medium text-foreground">Fournisseur</label>
+						<label className="text-sm font-medium text-foreground">Provider</label>
 						<div className="grid grid-cols-2 gap-2">
 							{PROVIDERS.map((p) => (
 								<button
@@ -94,7 +92,7 @@ export function ChatConfigDialog({ open, onOpenChange, config, onSave }: ChatCon
 
 					{/* API Key */}
 					<div className="flex flex-col gap-1.5">
-						<label className="text-sm font-medium text-foreground">Clé API</label>
+						<label className="text-sm font-medium text-foreground">API Key</label>
 						<Input
 							type="password"
 							value={apiKey}
@@ -102,14 +100,12 @@ export function ChatConfigDialog({ open, onOpenChange, config, onSave }: ChatCon
 							placeholder="sk-..."
 							autoComplete="off"
 						/>
-						<p className="text-xs text-muted-foreground">
-							Votre clé est stockée localement dans votre navigateur.
-						</p>
+						<p className="text-xs text-muted-foreground">Your key is stored locally...</p>
 					</div>
 
 					{/* Model */}
 					<div className="flex flex-col gap-1.5">
-						<label className="text-sm font-medium text-foreground">Modèle</label>
+						<label className="text-sm font-medium text-foreground">Model</label>
 						<Input
 							type="text"
 							value={model}
@@ -138,7 +134,7 @@ export function ChatConfigDialog({ open, onOpenChange, config, onSave }: ChatCon
 						onClick={() => onOpenChange(false)}
 						className="rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
 					>
-						Annuler
+						Cancel
 					</button>
 					<button
 						type="button"
@@ -151,7 +147,7 @@ export function ChatConfigDialog({ open, onOpenChange, config, onSave }: ChatCon
 							'disabled:cursor-not-allowed disabled:opacity-50'
 						)}
 					>
-						Sauvegarder
+						Save
 					</button>
 				</DialogFooter>
 			</DialogContent>
