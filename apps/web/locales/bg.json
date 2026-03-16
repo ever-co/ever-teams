@@ -1250,5 +1250,19 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Сигурни ли сте, че искате да изтриете този времеви интервал?"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "Конфигурация на AI чат",
+		"DIALOG_DESCRIPTION": "Конфигурирайте вашия AI доставчик и API ключ, за да активирате чат асистента.",
+		"PROVIDER_LABEL": "Доставчик",
+		"API_KEY_LABEL": "API ключ",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "Вашият ключ се съхранява локално и никога не се изпраща на нашите сървъри.",
+		"MODEL_LABEL": "Модел",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "Базов URL адрес",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "Отказ",
+		"SAVE": "Запазване"
 	}
 }

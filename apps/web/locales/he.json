@@ -1250,5 +1250,19 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "האם אתה בטוח שברצונך למחוק את פרק הזמן הזה?"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "הגדרות צ'אט AI",
+		"DIALOG_DESCRIPTION": "הגדר את ספק ה-AI ומפתח ה-API שלך כדי להפעיל את עוזר הצ'אט.",
+		"PROVIDER_LABEL": "ספק",
+		"API_KEY_LABEL": "מפתח API",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "המפתח שלך מאוחסן מקומית ולעולם אינו נשלח לשרתים שלנו.",
+		"MODEL_LABEL": "מודל",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "כתובת URL בסיסית",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "ביטול",
+		"SAVE": "שמירה"
 	}
 }

@@ -1250,5 +1250,19 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Weet u zeker dat u dit tijdslot wilt verwijderen?"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "AI Chat configuratie",
+		"DIALOG_DESCRIPTION": "Configureer uw AI-provider en API-sleutel om de chatassistent te activeren.",
+		"PROVIDER_LABEL": "Provider",
+		"API_KEY_LABEL": "API-sleutel",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "Uw sleutel wordt lokaal opgeslagen en wordt nooit naar onze servers verzonden.",
+		"MODEL_LABEL": "Model",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "Basis-URL",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "Annuleren",
+		"SAVE": "Opslaan"
 	}
 }

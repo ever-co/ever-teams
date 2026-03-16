@@ -1250,5 +1250,19 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Tem certeza de que deseja excluir este intervalo de tempo?"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "Configuração do Chat IA",
+		"DIALOG_DESCRIPTION": "Configure seu provedor de IA e chave API para ativar o assistente de chat.",
+		"PROVIDER_LABEL": "Provedor",
+		"API_KEY_LABEL": "Chave API",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "Sua chave é armazenada localmente e nunca é enviada aos nossos servidores.",
+		"MODEL_LABEL": "Modelo",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "URL base",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "Cancelar",
+		"SAVE": "Salvar"
 	}
 }

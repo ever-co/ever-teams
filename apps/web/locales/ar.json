@@ -1250,5 +1250,19 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "هل أنت متأكد أنك تريد حذف فترة الوقت هذه؟"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "إعدادات محادثة الذكاء الاصطناعي",
+		"DIALOG_DESCRIPTION": "قم بتهيئة مزود الذكاء الاصطناعي ومفتاح API لتفعيل مساعد المحادثة.",
+		"PROVIDER_LABEL": "المزود",
+		"API_KEY_LABEL": "مفتاح API",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "يتم تخزين مفتاحك محليًا ولا يتم إرساله أبدًا إلى خوادمنا.",
+		"MODEL_LABEL": "النموذج",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "عنوان URL الأساسي",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "إلغاء",
+		"SAVE": "حفظ"
 	}
 }

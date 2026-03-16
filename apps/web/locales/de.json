@@ -1250,5 +1250,19 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Möchten Sie diesen Zeitraum wirklich löschen?"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "AI-Chat-Konfiguration",
+		"DIALOG_DESCRIPTION": "Konfigurieren Sie Ihren KI-Anbieter und API-Schlüssel, um den Chat-Assistenten zu aktivieren.",
+		"PROVIDER_LABEL": "Anbieter",
+		"API_KEY_LABEL": "API-Schlüssel",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "Ihr Schlüssel wird lokal gespeichert und niemals an unsere Server gesendet.",
+		"MODEL_LABEL": "Modell",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "Basis-URL",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "Abbrechen",
+		"SAVE": "Speichern"
 	}
 }

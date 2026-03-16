@@ -11,6 +11,7 @@ import {
 } from '@/core/components/common/dialog';
 import { Input } from '@/core/components/common/input';
 import { cn } from '@/core/lib/helpers';
+import { useTranslations } from 'next-intl';
 
 export interface ChatConfig {
 	apiKey: string;
@@ -39,6 +40,7 @@ export function ChatConfigDialog({ open, onOpenChange, config, onSave }: ChatCon
 	const [provider, setProvider] = useState<ChatConfig['provider']>(config?.provider ?? 'openai');
 	const [model, setModel] = useState(config?.model ?? 'gpt-4o-mini');
 	const [baseURL, setBaseURL] = useState(config?.baseURL ?? '');
+	const t = useTranslations();
 
 	const handleProviderChange = (newProvider: ChatConfig['provider']) => {
 		setProvider(newProvider);
@@ -73,15 +75,21 @@ export function ChatConfigDialog({ open, onOpenChange, config, onSave }: ChatCon
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-md z-[1100]">
 				<DialogHeader>
-					<DialogTitle>AI Chat Configuration</DialogTitle>
-					<DialogDescription>Configure your AI provider and your API Key to use AI.</DialogDescription>
+					<DialogTitle>{t('chatConfig.DIALOG_TITLE')}</DialogTitle>
+					<DialogDescription>{t('chatConfig.DIALOG_DESCRIPTION')}</DialogDescription>
 				</DialogHeader>
 
 				<div className="flex flex-col gap-4 py-2">
 					{/* Provider Selection */}
 					<div className="flex flex-col gap-1.5">
-						<label className="text-sm font-medium text-foreground">Provider</label>
-						<div className="grid grid-cols-2 gap-2">
+						<label className="text-sm font-medium text-foreground" id="provider-group-label">
+							{t('chatConfig.PROVIDER_LABEL')}
+						</label>
+						<div
+							role="radiogroup"
+							aria-labelledby="provider-group-label"
+							className="grid grid-cols-2 gap-2"
+						>
 							{PROVIDERS.map((p) => (
 								<button
 									key={p.value}
@@ -93,6 +101,8 @@ export function ChatConfigDialog({ open, onOpenChange, config, onSave }: ChatCon
 											? 'border-primary bg-primary/10 text-primary dark:border-primary-light dark:bg-primary-light/10 dark:text-primary-light'
 											: 'border-border bg-background text-muted-foreground hover:bg-muted'
 									)}
+									role="radio"
+									aria-checked={provider === p.value}
 								>
 									{p.label}
 								</button>
@@ -103,30 +113,30 @@ export function ChatConfigDialog({ open, onOpenChange, config, onSave }: ChatCon
 					{/* API Key */}
 					<div className="flex flex-col gap-1.5">
 						<label className="text-sm font-medium text-foreground" htmlFor="ai-config-api-key">
-							API Key
+							{t('chatConfig.API_KEY_LABEL')}
 						</label>
 						<Input
 							id="ai-config-api-key"
 							type="password"
 							value={apiKey}
 							onChange={(e) => setApiKey(e.target.value)}
-							placeholder="sk-..."
+							placeholder={t('chatConfig.API_KEY_PLACEHOLDER')}
 							autoComplete="off"
 						/>
-						<p className="text-xs text-muted-foreground">Your key is stored locally...</p>
+						<p className="text-xs text-muted-foreground">{t('chatConfig.API_KEY_HINT')}</p>
 					</div>
 
 					{/* Model */}
 					<div className="flex flex-col gap-1.5">
 						<label className="text-sm font-medium text-foreground" htmlFor="ai-config-model">
-							Model
+							{t('chatConfig.MODEL_LABEL')}
 						</label>
 						<Input
 							id="ai-config-model"
 							type="text"
 							value={model}
 							onChange={(e) => setModel(e.target.value)}
-							placeholder="gpt-4o-mini"
+							placeholder={t('chatConfig.MODEL_PLACEHOLDER')}
 						/>
 					</div>
 
@@ -134,13 +144,13 @@ export function ChatConfigDialog({ open, onOpenChange, config, onSave }: ChatCon
 					{provider === 'custom' && (
 						<div className="flex flex-col gap-1.5">
 							<label className="text-sm font-medium text-foreground" htmlFor="ai-config-base-url">
-								Base URL
+								{t('chatConfig.BASE_URL_LABEL')}
 							</label>
 							<Input
 								type="url"
 								value={baseURL}
 								onChange={(e) => setBaseURL(e.target.value)}
-								placeholder="https://api.example.com/v1"
+								placeholder={t('chatConfig.BASE_URL_PLACEHOLDER')}
 							/>
 						</div>
 					)}
@@ -152,7 +162,7 @@ export function ChatConfigDialog({ open, onOpenChange, config, onSave }: ChatCon
 						onClick={() => onOpenChange(false)}
 						className="rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
 					>
-						Cancel
+						{t('chatConfig.CANCEL')}
 					</button>
 					<button
 						type="button"
@@ -165,7 +175,7 @@ export function ChatConfigDialog({ open, onOpenChange, config, onSave }: ChatCon
 							'disabled:cursor-not-allowed disabled:opacity-50'
 						)}
 					>
-						Save
+						{t('chatConfig.SAVE')}
 					</button>
 				</DialogFooter>
 			</DialogContent>

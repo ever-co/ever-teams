@@ -1250,5 +1250,19 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Êtes-vous sûr de vouloir supprimer ce créneau horaire ?"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "Configuration du Chat IA",
+		"DIALOG_DESCRIPTION": "Configurez votre fournisseur IA et votre clé API pour activer l'assistant.",
+		"PROVIDER_LABEL": "Fournisseur",
+		"API_KEY_LABEL": "Clé API",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "Votre clé est stockée localement et n'est jamais envoyée à nos serveurs.",
+		"MODEL_LABEL": "Modèle",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "URL de base",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "Annuler",
+		"SAVE": "Enregistrer"
 	}
 }
