@@ -71,7 +71,7 @@ export function ChatConfigDialog({ open, onOpenChange, config, onSave }: ChatCon
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="sm:max-w-md z-1100">
+			<DialogContent className="sm:max-w-md z-[1100]">
 				<DialogHeader>
 					<DialogTitle>AI Chat Configuration</DialogTitle>
 					<DialogDescription>Configure your AI provider and your API Key to use AI.</DialogDescription>

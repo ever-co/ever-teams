@@ -188,7 +188,9 @@ export function ChatView({ pageContext }: ChatViewProps) {
 						value={input}
 						onChange={handleInputChange}
 						onKeyDown={(e) => {
-							if (e.key === 'Enter' && !e.shiftKey) {
+							if (isLoading) {
+								e.preventDefault();
+							} else if (e.key === 'Enter' && !e.shiftKey) {
 								e.preventDefault();
 								if (input.trim() && isConfigured) {
 									handleSubmit(e as unknown as React.FormEvent);

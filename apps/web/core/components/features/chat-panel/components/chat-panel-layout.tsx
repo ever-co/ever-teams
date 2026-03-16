@@ -41,7 +41,7 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 				</ResizablePanel>
 
 				{/* ── HANDLE ──────────────────────────────────────────────── */}
-				<ResizableHandle withHandle className="z-1020 relative" />
+				<ResizableHandle withHandle className="z-[1020] relative" />
 
 				{/* ── PANEL 2 : Page Content ───────────────────────────────── */}
 				<ResizablePanel
