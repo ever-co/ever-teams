@@ -129,7 +129,7 @@ function LoginFormFields({
 				{form.errors?.password && <Text.Error className="text-xs">{form.errors.password}</Text.Error>}
 			</div>
 
-			{form.errors.loginFailed && <Text.Error className="text-xs">{form.errors.loginFailed}</Text.Error>}
+			{form.errors?.loginFailed && <Text.Error className="text-xs">{form.errors.loginFailed}</Text.Error>}
 		</div>
 	);
 }
