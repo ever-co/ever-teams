@@ -3,11 +3,13 @@ import { IconsBrandGoogleSolid, IconsFacebook, IconsGithubFilled, IconsTwitterFi
 import { signInFunction } from '../../lib/helpers/social-logins';
 import { IS_DEMO_MODE } from '@/core/constants/config/constants';
 import { Button } from '../common/button';
+import { useTranslations } from 'next-intl';
 
 const SOCIAL_BUTTON_CLASS =
 	'cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-sm shadow-black/10 border border-transparent bg-card ring-1 ring-foreground/10 duration-200 hover:bg-muted/50 dark:ring-foreground/15 dark:hover:bg-muted/50 h-9 px-4 py-2 w-full text-foreground';
 
 export default function SocialLogins() {
+	const t = useTranslations();
 	const providerIcons: Record<string, { icon: React.ReactNode; label: string }> = {
 		facebook: {
 			icon: <IconsFacebook aria-hidden="true" className="size-4" />,
@@ -41,7 +43,7 @@ export default function SocialLogins() {
 			<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
 				<div className="bg-border border-card h-0.5 border-b" />
 				<div className="text-xs text-center uppercase text-muted-foreground">
-					or continue with
+					{t('pages.auth.OR_CONTINUE_WITH')}
 				</div>
 				<div className="bg-border border-card h-0.5 border-b" />
 			</div>

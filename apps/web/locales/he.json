@@ -706,9 +706,10 @@
 			"NO_TEAMS_BADGE": "אין צוותים",
 			"TEAM_COUNT_SINGULAR": "צוות",
 			"TEAM_COUNT_PLURAL": "צוותים",
-			"FORGOT_PASSWORD": "?שכחת סיסמה",
+			"FORGOT_PASSWORD": "שכחת סיסמה?",
 			"TERMS_OF_SERVICE": "תנאי שימוש",
-			"PRIVACY_POLICY": "מדיניות פרטיות"
+			"PRIVACY_POLICY": "מדיניות פרטיות",
+			"OR_CONTINUE_WITH": "או המשך עם"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "הצטרף לצוות קיים",

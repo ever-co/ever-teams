@@ -708,7 +708,8 @@
 			"TEAM_COUNT_PLURAL": "فرق",
 			"FORGOT_PASSWORD": "هل نسيت كلمة المرور؟",
 			"TERMS_OF_SERVICE": "شروط الخدمة",
-			"PRIVACY_POLICY": "سياسة الخصوصية"
+			"PRIVACY_POLICY": "سياسة الخصوصية",
+			"OR_CONTINUE_WITH": "أو تابع باستخدام"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "الانضمام إلى فريق موجود",

@@ -709,7 +709,8 @@
 			"TEAM_COUNT_PLURAL": "teams",
 			"FORGOT_PASSWORD": "Forgot Password?",
 			"TERMS_OF_SERVICE": "Terms of Service",
-			"PRIVACY_POLICY": "Privacy Policy"
+			"PRIVACY_POLICY": "Privacy Policy",
+			"OR_CONTINUE_WITH": "or continue with"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Join existing Team",

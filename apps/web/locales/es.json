@@ -585,7 +585,8 @@
 			"TEAM_COUNT_PLURAL": "equipos",
 			"FORGOT_PASSWORD": "¿Olvidaste tu contraseña?",
 			"TERMS_OF_SERVICE": "Términos de servicio",
-			"PRIVACY_POLICY": "Política de privacidad"
+			"PRIVACY_POLICY": "Política de privacidad",
+			"OR_CONTINUE_WITH": "o continuar con"
 		},
 		"projects": {
 			"projectTitle": {

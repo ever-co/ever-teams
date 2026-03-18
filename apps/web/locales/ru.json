@@ -708,7 +708,8 @@
 			"TEAM_COUNT_PLURAL": "команды",
 			"FORGOT_PASSWORD": "Забыли пароль?",
 			"TERMS_OF_SERVICE": "Условия использования",
-			"PRIVACY_POLICY": "Политика конфиденциальности"
+			"PRIVACY_POLICY": "Политика конфиденциальности",
+			"OR_CONTINUE_WITH": "или продолжить через"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Присоединиться к существующей команде",

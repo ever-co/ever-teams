@@ -708,7 +708,8 @@
 			"TEAM_COUNT_PLURAL": "отбора",
 			"FORGOT_PASSWORD": "Забравена парола?",
 			"TERMS_OF_SERVICE": "Условия за ползване",
-			"PRIVACY_POLICY": "Политика за поверителност"
+			"PRIVACY_POLICY": "Политика за поверителност",
+			"OR_CONTINUE_WITH": "или продължете с"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Присъединяване към съществуващ отбор",

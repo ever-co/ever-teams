@@ -708,7 +708,8 @@
 			"TEAM_COUNT_PLURAL": "équipes",
 			"FORGOT_PASSWORD": "Mot de passe oublié ?",
 			"TERMS_OF_SERVICE": "Conditions d'utilisation",
-			"PRIVACY_POLICY": "Politique de confidentialité"
+			"PRIVACY_POLICY": "Politique de confidentialité",
+			"OR_CONTINUE_WITH": "ou continuer avec"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Rejoindre une équipe existante",

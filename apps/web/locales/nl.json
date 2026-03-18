@@ -708,7 +708,8 @@
 			"TEAM_COUNT_PLURAL": "teams",
 			"FORGOT_PASSWORD": "Wachtwoord vergeten?",
 			"TERMS_OF_SERVICE": "Servicevoorwaarden",
-			"PRIVACY_POLICY": "Privacybeleid"
+			"PRIVACY_POLICY": "Privacybeleid",
+			"OR_CONTINUE_WITH": "of ga verder met"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Bestaand team joinen",

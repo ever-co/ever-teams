@@ -708,7 +708,8 @@
 			"TEAM_COUNT_PLURAL": "团队",
 			"FORGOT_PASSWORD": "忘记密码？",
 			"TERMS_OF_SERVICE": "服务条款",
-			"PRIVACY_POLICY": "隐私政策"
+			"PRIVACY_POLICY": "隐私政策",
+			"OR_CONTINUE_WITH": "或继续使用"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "加入已有团队",
