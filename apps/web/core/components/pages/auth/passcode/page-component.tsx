@@ -529,9 +529,9 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 				<div className="overflow-y-auto relative w-full h-64">
 					<div className="flex flex-col gap-y-4">
 						{workspacesWithTeamsStatus.map(
-							({ workspace: worksace, originalIndex, hasTeams: workspaceHasTeams, teamCount }, index) => {
+							({ workspace: workspace, originalIndex, hasTeams: workspaceHasTeams, teamCount }, index) => {
 								const isEmpty = !workspaceHasTeams;
-								const workspaceName = worksace.user.tenant?.name || worksace.user.name || 'Workspace';
+								const workspaceName = workspace.user.tenant?.name || workspace.user.name || 'Workspace';
 
 								return (
 									<div
@@ -611,11 +611,11 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 														props.setSelectedWorkspace(originalIndex);
 														// Only auto-select first team if workspace has teams
 														if (workspaceHasTeams && props.selectedTeam) {
-															const teamIds = worksace.current_teams.map(
+															const teamIds = workspace.current_teams.map(
 																(team) => team.team_id
 															);
 															if (!teamIds.includes(props.selectedTeam)) {
-																const firstTeamId = getFirstTeamId(worksace);
+																const firstTeamId = getFirstTeamId(workspace);
 																if (firstTeamId) {
 																	props.setSelectedTeam(firstTeamId);
 																}
@@ -635,7 +635,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 											></span>
 											{/* <div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div> */}
 											<div className="flex flex-col gap-4 px-5 py-1.5">
-												{worksace.current_teams
+												{workspace.current_teams
 													?.filter((team) => team && team.team_name)
 													.map((team) => (
 														<div
