@@ -79,6 +79,7 @@
 		"CONFIRM": "تأكيد",
 		"YOUR_EMAIL": "بريدك الإلكتروني",
 		"CONTINUE": "متابعة",
+		"AND": "و",
 		"EDIT_TASK": "تعديل المهمة",
 		"ASSIGN_TASK": "تعيين مهمة",
 		"ASSIGN_TASK_TO": "تعيين المهمة إلى",
@@ -705,7 +706,9 @@
 			"NO_TEAMS_BADGE": "لا توجد فرق",
 			"TEAM_COUNT_SINGULAR": "فريق",
 			"TEAM_COUNT_PLURAL": "فرق",
-			"FORGOT_PASSWORD": "Forgot Password?"
+			"FORGOT_PASSWORD": "هل نسيت كلمة المرور؟",
+			"TERMS_OF_SERVICE": "شروط الخدمة",
+			"PRIVACY_POLICY": "سياسة الخصوصية"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "الانضمام إلى فريق موجود",

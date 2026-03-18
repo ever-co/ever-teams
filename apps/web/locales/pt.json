@@ -100,6 +100,7 @@
 		"CONFIRM": "Confirmar",
 		"YOUR_EMAIL": "seu e-mail",
 		"CONTINUE": "Continuar",
+		"AND": "e",
 		"EDIT_TASK": "Editar Tarefa",
 		"ASSIGN_TASK": "Atribuir Tarefa",
 		"ASSIGN_TASK_TO": "Atribuir Tarefa a",
@@ -705,7 +706,9 @@
 			"NO_TEAMS_BADGE": "Sem equipes",
 			"TEAM_COUNT_SINGULAR": "equipe",
 			"TEAM_COUNT_PLURAL": "equipes",
-			"FORGOT_PASSWORD": "Forgot Password?"
+			"FORGOT_PASSWORD": "Esqueceu a senha?",
+			"TERMS_OF_SERVICE": "Termos de serviço",
+			"PRIVACY_POLICY": "Política de privacidade"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Participar de uma Equipe Existente",

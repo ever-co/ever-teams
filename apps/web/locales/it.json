@@ -100,6 +100,7 @@
 		"CONFIRM": "Conferma",
 		"YOUR_EMAIL": "la tua email",
 		"CONTINUE": "Continua",
+		"AND": "e",
 		"EDIT_TASK": "Modifica attività",
 		"ASSIGN_TASK": "Assegna attività",
 		"ASSIGN_TASK_TO": "Assegna attività",
@@ -705,7 +706,9 @@
 			"NO_TEAMS_BADGE": "Nessun team",
 			"TEAM_COUNT_SINGULAR": "team",
 			"TEAM_COUNT_PLURAL": "team",
-			"FORGOT_PASSWORD": "Forgot Password?"
+			"FORGOT_PASSWORD": "Password dimenticata?",
+			"TERMS_OF_SERVICE": "Termini di servizio",
+			"PRIVACY_POLICY": "Informativa sulla privacy"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Unisciti a un Team esistente",

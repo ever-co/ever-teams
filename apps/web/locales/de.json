@@ -100,6 +100,7 @@
 		"CONFIRM": "Bestätigen",
 		"YOUR_EMAIL": "deine E-Mail",
 		"CONTINUE": "Weiter",
+		"AND": "und",
 		"EDIT_TASK": "Aufgabe bearbeiten",
 		"ASSIGN_TASK": "Aufgabe zuweisen",
 		"ASSIGN_TASK_TO": "Aufgabe zuweisen an",
@@ -705,7 +706,9 @@
 			"NO_TEAMS_BADGE": "Keine Teams",
 			"TEAM_COUNT_SINGULAR": "Team",
 			"TEAM_COUNT_PLURAL": "Teams",
-			"FORGOT_PASSWORD": "Forgot Password?"
+			"FORGOT_PASSWORD": "Passwort vergessen?",
+			"TERMS_OF_SERVICE": "Nutzungsbedingungen",
+			"PRIVACY_POLICY": "Datenschutzrichtlinie"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Bestehendem Team beitreten",
