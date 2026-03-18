@@ -7,6 +7,7 @@ import { ArrowLeftIcon } from 'assets/svg';
 type Props = {
 	variant?:
 		| 'primary'
+		| 'secondary'
 		| 'outline'
 		| 'outline-dark'
 		| 'outline-danger'
