@@ -1257,7 +1257,7 @@
 		"PROVIDER_LABEL": "Provedor",
 		"API_KEY_LABEL": "Chave API",
 		"API_KEY_PLACEHOLDER": "sk-...",
-		"API_KEY_HINT": "Sua chave é armazenada localmente e enviada ao endpoint /api/chat para processar suas mensagens.",
+		"API_KEY_HINT": "Sua chave é armazenada localmente e enviada à API de chat somente quando você usa o assistente.",
 		"MODEL_LABEL": "Modelo",
 		"MODEL_PLACEHOLDER": "gpt-4o-mini",
 		"BASE_URL_LABEL": "URL base",

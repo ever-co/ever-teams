@@ -1257,7 +1257,7 @@
 		"PROVIDER_LABEL": "Provider",
 		"API_KEY_LABEL": "API-sleutel",
 		"API_KEY_PLACEHOLDER": "sk-...",
-		"API_KEY_HINT": "Uw sleutel wordt lokaal opgeslagen en wordt nooit naar onze servers verzonden.",
+		"API_KEY_HINT": "Uw sleutel wordt lokaal opgeslagen en alleen naar de chat-API verzonden wanneer u de assistent gebruikt.",
 		"MODEL_LABEL": "Model",
 		"MODEL_PLACEHOLDER": "gpt-4o-mini",
 		"BASE_URL_LABEL": "Basis-URL",

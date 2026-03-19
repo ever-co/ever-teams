@@ -1257,7 +1257,7 @@
 		"PROVIDER_LABEL": "المزود",
 		"API_KEY_LABEL": "مفتاح API",
 		"API_KEY_PLACEHOLDER": "sk-...",
-		"API_KEY_HINT": "يتم تخزين مفتاحك محليًا ويُرسل فقط مع طلبات الدردشة التي تُجريها.",
+		"API_KEY_HINT": "يتم تخزين مفتاحك محليًا ويُرسل إلى واجهة برمجة الدردشة فقط عند استخدام المساعد.",
 		"MODEL_LABEL": "النموذج",
 		"MODEL_PLACEHOLDER": "gpt-4o-mini",
 		"BASE_URL_LABEL": "عنوان URL الأساسي",

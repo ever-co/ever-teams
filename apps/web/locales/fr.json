@@ -1257,7 +1257,7 @@
 		"PROVIDER_LABEL": "Fournisseur",
 		"API_KEY_LABEL": "Clé API",
 		"API_KEY_PLACEHOLDER": "sk-...",
-		"API_KEY_HINT": "Votre clé est stockée localement et n'est jamais envoyée à nos serveurs.",
+		"API_KEY_HINT": "Votre clé est stockée localement et envoyée à l'API de chat uniquement lorsque vous utilisez l'assistant.",
 		"MODEL_LABEL": "Modèle",
 		"MODEL_PLACEHOLDER": "gpt-4o-mini",
 		"BASE_URL_LABEL": "URL de base",

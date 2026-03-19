@@ -1257,7 +1257,7 @@
 		"PROVIDER_LABEL": "ספק",
 		"API_KEY_LABEL": "מפתח API",
 		"API_KEY_PLACEHOLDER": "sk-...",
-		"API_KEY_HINT": "המפתח שלך מאוחסן מקומית ונשלח רק עם בקשות הצ'אט שתבחר לשלוח.",
+		"API_KEY_HINT": "המפתח שלך מאוחסן מקומית ונשלח ל-API של הצ'אט רק כאשר אתה משתמש בעוזר.",
 		"MODEL_LABEL": "מודל",
 		"MODEL_PLACEHOLDER": "gpt-4o-mini",
 		"BASE_URL_LABEL": "כתובת URL בסיסית",

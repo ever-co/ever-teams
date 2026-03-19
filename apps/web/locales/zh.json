@@ -1257,7 +1257,7 @@
 		"PROVIDER_LABEL": "提供商",
 		"API_KEY_LABEL": "API 密钥",
 		"API_KEY_PLACEHOLDER": "sk-...",
-		"API_KEY_HINT": "您的密钥存储在本地，绝不会发送到我们的服务器。",
+		"API_KEY_HINT": "您的密钥存储在本地，仅在您使用助手时发送到聊天 API。",
 		"MODEL_LABEL": "模型",
 		"MODEL_PLACEHOLDER": "gpt-4o-mini",
 		"BASE_URL_LABEL": "基础 URL",

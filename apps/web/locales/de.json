@@ -1257,7 +1257,7 @@
 		"PROVIDER_LABEL": "Anbieter",
 		"API_KEY_LABEL": "API-Schlüssel",
 		"API_KEY_PLACEHOLDER": "sk-...",
-		"API_KEY_HINT": "Ihr Schlüssel wird lokal gespeichert und bei Chat-Anfragen über unsere API an den konfigurierten KI-Anbieter weitergeleitet.",
+		"API_KEY_HINT": "Ihr Schlüssel wird lokal gespeichert und nur bei Nutzung des Assistenten an die Chat-API gesendet.",
 		"MODEL_LABEL": "Modell",
 		"MODEL_PLACEHOLDER": "gpt-4o-mini",
 		"BASE_URL_LABEL": "Basis-URL",
