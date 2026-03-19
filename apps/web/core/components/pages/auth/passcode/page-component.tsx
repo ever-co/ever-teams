@@ -529,7 +529,10 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 				<div className="overflow-y-auto relative w-full h-64">
 					<div className="flex flex-col gap-y-4">
 						{workspacesWithTeamsStatus.map(
-							({ workspace: workspace, originalIndex, hasTeams: workspaceHasTeams, teamCount }, index) => {
+							(
+								{ workspace: workspace, originalIndex, hasTeams: workspaceHasTeams, teamCount },
+								index
+							) => {
 								const isEmpty = !workspaceHasTeams;
 								const workspaceName = workspace.user.tenant?.name || workspace.user.name || 'Workspace';
 
@@ -649,7 +652,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 																	backgroundColor={`${stc(team.team_name)}80`}
 																/>
 																<div className="flex justify-between">
-																	<span className="overflow-hidden whitespace-nowrap max-w-56 text-ellipsis">
+																	<span className="overflow-hidden whitespace-nowrap max-w-48 text-ellipsis">
 																		{team.team_name}
 																	</span>
 																	<span>({team.team_member_count})</span>
