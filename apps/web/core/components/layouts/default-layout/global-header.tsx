@@ -24,7 +24,7 @@ const GlobalHeader = forwardRef(
 			<div
 				ref={ref as LegacyRef<HTMLDivElement>}
 				className={cn(
-					'fixed flex flex-col top-0 left-0 right-0 z-50 bg-white border-b min-h-fit shrink-0 h-max bg-background  lg:pl-[var(--global-header-offset)]'
+					'fixed flex flex-col top-0 left-0 right-0 z-50 bg-white border-b min-h-fit shrink-0 h-max bg-background  md:pl-[var(--global-header-offset)]'
 				)}
 				style={
 					{

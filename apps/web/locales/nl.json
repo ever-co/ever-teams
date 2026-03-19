@@ -1264,5 +1264,19 @@
 		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
 		"CANCEL": "Annuleren",
 		"SAVE": "Opslaan"
+	},
+	"chatView": {
+		"HEADER_TITLE": "AI Chat",
+		"CLEAR_CONVERSATION": "Gesprek wissen",
+		"CONFIGURATION": "Configuratie",
+		"ASSISTANT_NAME": "Ever Teams Assistent",
+		"EMPTY_CONFIGURED": "Stel een vraag om te beginnen.",
+		"EMPTY_NOT_CONFIGURED": "Configureer uw API-sleutel om te beginnen.",
+		"CONFIGURE_BUTTON": "Configureren",
+		"ERROR_FALLBACK": "Er is een fout opgetreden. Controleer uw configuratie.",
+		"INPUT_PLACEHOLDER_READY": "Uw bericht...",
+		"INPUT_PLACEHOLDER_NO_KEY": "Configureer uw API-sleutel...",
+		"STOP": "Stoppen",
+		"SEND": "Verzenden"
 	}
 }

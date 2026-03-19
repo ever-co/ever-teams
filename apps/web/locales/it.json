@@ -1257,12 +1257,26 @@
 		"PROVIDER_LABEL": "Provider",
 		"API_KEY_LABEL": "Chiave API",
 		"API_KEY_PLACEHOLDER": "sk-...",
-		"API_KEY_HINT": "La tua chiave è memorizzata localmente e non viene mai inviata ai nostri server.",
+		"API_KEY_HINT": "La tua chiave è memorizzata localmente e viene inviata con le richieste di chat per contattare il provider IA selezionato.",
 		"MODEL_LABEL": "Modello",
 		"MODEL_PLACEHOLDER": "gpt-4o-mini",
 		"BASE_URL_LABEL": "URL di base",
 		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
 		"CANCEL": "Annulla",
 		"SAVE": "Salva"
+	},
+	"chatView": {
+		"HEADER_TITLE": "Chat IA",
+		"CLEAR_CONVERSATION": "Cancella conversazione",
+		"CONFIGURATION": "Configurazione",
+		"ASSISTANT_NAME": "Assistente Ever Teams",
+		"EMPTY_CONFIGURED": "Fai una domanda per iniziare.",
+		"EMPTY_NOT_CONFIGURED": "Configura la tua chiave API per iniziare.",
+		"CONFIGURE_BUTTON": "Configura",
+		"ERROR_FALLBACK": "Si è verificato un errore. Controlla la tua configurazione.",
+		"INPUT_PLACEHOLDER_READY": "Il tuo messaggio...",
+		"INPUT_PLACEHOLDER_NO_KEY": "Configura la tua chiave API...",
+		"STOP": "Ferma",
+		"SEND": "Invia"
 	}
 }

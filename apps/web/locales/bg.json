@@ -1264,5 +1264,19 @@
 		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
 		"CANCEL": "Отказ",
 		"SAVE": "Запазване"
+	},
+	"chatView": {
+		"HEADER_TITLE": "AI Чат",
+		"CLEAR_CONVERSATION": "Изчисти разговора",
+		"CONFIGURATION": "Конфигурация",
+		"ASSISTANT_NAME": "Асистент Ever Teams",
+		"EMPTY_CONFIGURED": "Задайте въпрос, за да започнете.",
+		"EMPTY_NOT_CONFIGURED": "Конфигурирайте вашия API ключ, за да започнете.",
+		"CONFIGURE_BUTTON": "Конфигуриране",
+		"ERROR_FALLBACK": "Възникна грешка. Моля, проверете конфигурацията си.",
+		"INPUT_PLACEHOLDER_READY": "Вашето съобщение...",
+		"INPUT_PLACEHOLDER_NO_KEY": "Конфигурирайте вашия API ключ...",
+		"STOP": "Спри",
+		"SEND": "Изпрати"
 	}
 }

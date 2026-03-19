@@ -1264,5 +1264,19 @@
 		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
 		"CANCEL": "取消",
 		"SAVE": "保存"
+	},
+	"chatView": {
+		"HEADER_TITLE": "AI 聊天",
+		"CLEAR_CONVERSATION": "清除对话",
+		"CONFIGURATION": "配置",
+		"ASSISTANT_NAME": "Ever Teams 助手",
+		"EMPTY_CONFIGURED": "提出问题以开始。",
+		"EMPTY_NOT_CONFIGURED": "配置您的 API 密钥以开始。",
+		"CONFIGURE_BUTTON": "配置",
+		"ERROR_FALLBACK": "发生错误。请检查您的配置。",
+		"INPUT_PLACEHOLDER_READY": "您的消息...",
+		"INPUT_PLACEHOLDER_NO_KEY": "配置您的 API 密钥...",
+		"STOP": "停止",
+		"SEND": "发送"
 	}
 }

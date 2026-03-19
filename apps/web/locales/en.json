@@ -1257,12 +1257,26 @@
 		"PROVIDER_LABEL": "Provider",
 		"API_KEY_LABEL": "API Key",
 		"API_KEY_PLACEHOLDER": "sk-...",
-		"API_KEY_HINT": "Your key is stored locally and never sent to our servers.",
+		"API_KEY_HINT": "Your key is stored locally and sent to the chat API only when you use the assistant.",
 		"MODEL_LABEL": "Model",
 		"MODEL_PLACEHOLDER": "gpt-4o-mini",
 		"BASE_URL_LABEL": "Base URL",
 		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
 		"CANCEL": "Cancel",
 		"SAVE": "Save"
+	},
+	"chatView": {
+		"HEADER_TITLE": "Chat AI",
+		"CLEAR_CONVERSATION": "Clear conversation",
+		"CONFIGURATION": "Configuration",
+		"ASSISTANT_NAME": "Ever Teams Assistant",
+		"EMPTY_CONFIGURED": "Ask a question to get started.",
+		"EMPTY_NOT_CONFIGURED": "Configure your API key to get started.",
+		"CONFIGURE_BUTTON": "Configure",
+		"ERROR_FALLBACK": "An error occurred. Please check your configuration.",
+		"INPUT_PLACEHOLDER_READY": "Your message...",
+		"INPUT_PLACEHOLDER_NO_KEY": "Configure your API key...",
+		"STOP": "Stop",
+		"SEND": "Send"
 	}
 }

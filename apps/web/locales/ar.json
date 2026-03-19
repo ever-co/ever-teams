@@ -1257,12 +1257,26 @@
 		"PROVIDER_LABEL": "المزود",
 		"API_KEY_LABEL": "مفتاح API",
 		"API_KEY_PLACEHOLDER": "sk-...",
-		"API_KEY_HINT": "يتم تخزين مفتاحك محليًا ولا يتم إرساله أبدًا إلى خوادمنا.",
+		"API_KEY_HINT": "يتم تخزين مفتاحك محليًا ويُرسل فقط مع طلبات الدردشة التي تُجريها.",
 		"MODEL_LABEL": "النموذج",
 		"MODEL_PLACEHOLDER": "gpt-4o-mini",
 		"BASE_URL_LABEL": "عنوان URL الأساسي",
 		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
 		"CANCEL": "إلغاء",
 		"SAVE": "حفظ"
+	},
+	"chatView": {
+		"HEADER_TITLE": "محادثة الذكاء الاصطناعي",
+		"CLEAR_CONVERSATION": "مسح المحادثة",
+		"CONFIGURATION": "الإعدادات",
+		"ASSISTANT_NAME": "مساعد Ever Teams",
+		"EMPTY_CONFIGURED": "اطرح سؤالاً للبدء.",
+		"EMPTY_NOT_CONFIGURED": "قم بتهيئة مفتاح API للبدء.",
+		"CONFIGURE_BUTTON": "تهيئة",
+		"ERROR_FALLBACK": "حدث خطأ. يرجى التحقق من الإعدادات.",
+		"INPUT_PLACEHOLDER_READY": "رسالتك...",
+		"INPUT_PLACEHOLDER_NO_KEY": "قم بتهيئة مفتاح API...",
+		"STOP": "إيقاف",
+		"SEND": "إرسال"
 	}
 }

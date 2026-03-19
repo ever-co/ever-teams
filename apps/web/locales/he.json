@@ -1257,12 +1257,26 @@
 		"PROVIDER_LABEL": "ספק",
 		"API_KEY_LABEL": "מפתח API",
 		"API_KEY_PLACEHOLDER": "sk-...",
-		"API_KEY_HINT": "המפתח שלך מאוחסן מקומית ולעולם אינו נשלח לשרתים שלנו.",
+		"API_KEY_HINT": "המפתח שלך מאוחסן מקומית ונשלח רק עם בקשות הצ'אט שתבחר לשלוח.",
 		"MODEL_LABEL": "מודל",
 		"MODEL_PLACEHOLDER": "gpt-4o-mini",
 		"BASE_URL_LABEL": "כתובת URL בסיסית",
 		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
 		"CANCEL": "ביטול",
 		"SAVE": "שמירה"
+	},
+	"chatView": {
+		"HEADER_TITLE": "צ'אט AI",
+		"CLEAR_CONVERSATION": "נקה שיחה",
+		"CONFIGURATION": "הגדרות",
+		"ASSISTANT_NAME": "עוזר Ever Teams",
+		"EMPTY_CONFIGURED": "שאל שאלה כדי להתחיל.",
+		"EMPTY_NOT_CONFIGURED": "הגדר את מפתח ה-API שלך כדי להתחיל.",
+		"CONFIGURE_BUTTON": "הגדרה",
+		"ERROR_FALLBACK": "אירעה שגיאה. אנא בדוק את ההגדרות שלך.",
+		"INPUT_PLACEHOLDER_READY": "ההודעה שלך...",
+		"INPUT_PLACEHOLDER_NO_KEY": "הגדר את מפתח ה-API שלך...",
+		"STOP": "עצור",
+		"SEND": "שלח"
 	}
 }

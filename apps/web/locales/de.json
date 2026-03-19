@@ -1257,12 +1257,26 @@
 		"PROVIDER_LABEL": "Anbieter",
 		"API_KEY_LABEL": "API-Schlüssel",
 		"API_KEY_PLACEHOLDER": "sk-...",
-		"API_KEY_HINT": "Ihr Schlüssel wird lokal gespeichert und niemals an unsere Server gesendet.",
+		"API_KEY_HINT": "Ihr Schlüssel wird lokal gespeichert und bei Chat-Anfragen über unsere API an den konfigurierten KI-Anbieter weitergeleitet.",
 		"MODEL_LABEL": "Modell",
 		"MODEL_PLACEHOLDER": "gpt-4o-mini",
 		"BASE_URL_LABEL": "Basis-URL",
 		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
 		"CANCEL": "Abbrechen",
 		"SAVE": "Speichern"
+	},
+	"chatView": {
+		"HEADER_TITLE": "AI-Chat",
+		"CLEAR_CONVERSATION": "Gespräch löschen",
+		"CONFIGURATION": "Konfiguration",
+		"ASSISTANT_NAME": "Ever Teams Assistent",
+		"EMPTY_CONFIGURED": "Stellen Sie eine Frage, um zu beginnen.",
+		"EMPTY_NOT_CONFIGURED": "Konfigurieren Sie Ihren API-Schlüssel, um zu beginnen.",
+		"CONFIGURE_BUTTON": "Konfigurieren",
+		"ERROR_FALLBACK": "Ein Fehler ist aufgetreten. Bitte überprüfen Sie Ihre Konfiguration.",
+		"INPUT_PLACEHOLDER_READY": "Ihre Nachricht...",
+		"INPUT_PLACEHOLDER_NO_KEY": "Konfigurieren Sie Ihren API-Schlüssel...",
+		"STOP": "Stoppen",
+		"SEND": "Senden"
 	}
 }

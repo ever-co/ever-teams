@@ -7,6 +7,7 @@ import { cn } from '@/core/lib/helpers';
 import { ScrollArea } from '@/core/components/common/scroll-area';
 import { ChatConfigDialog, type ChatConfig } from './chat-config-dialog';
 import { ChatMessageItem } from './chat-message-item';
+import { useTranslations } from 'next-intl';
 
 const CHAT_CONFIG_KEY = 'ever-teams-chat-config';
 
@@ -30,6 +31,8 @@ function storeConfig(config: ChatConfig) {
 }
 
 export function ChatView({ pageContext }: ChatViewProps) {
+	const t = useTranslations();
+
 	const [config, setConfig] = useState<ChatConfig | null>(null);
 	const [configOpen, setConfigOpen] = useState(false);
 	const [mounted, setMounted] = useState(false);
@@ -91,7 +94,7 @@ export function ChatView({ pageContext }: ChatViewProps) {
 			<div className="flex items-center justify-between border-b border-border px-3 py-2">
 				<div className="flex items-center gap-2">
 					<Bot className="h-4 w-4 text-primary dark:text-primary-light" />
-					<span className="text-sm font-semibold text-foreground">Chat AI</span>
+					<span className="text-sm font-semibold text-foreground">{t('chatView.HEADER_TITLE')}</span>
 				</div>
 				<div className="flex items-center gap-1">
 					{messages.length > 0 && (
@@ -99,7 +102,7 @@ export function ChatView({ pageContext }: ChatViewProps) {
 							type="button"
 							onClick={handleClearChat}
 							className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-							title="Clear conversation"
+							title={t('chatView.CLEAR_CONVERSATION')}
 						>
 							<Trash2 className="h-3.5 w-3.5" />
 						</button>
@@ -111,7 +114,7 @@ export function ChatView({ pageContext }: ChatViewProps) {
 							'rounded-md p-1.5 transition-colors hover:bg-muted hover:text-foreground',
 							isConfigured ? 'text-muted-foreground' : 'text-destructive'
 						)}
-						title="Configuration"
+						title={t('chatView.CONFIGURATION')}
 					>
 						<Settings className="h-3.5 w-3.5" />
 					</button>
@@ -127,11 +130,9 @@ export function ChatView({ pageContext }: ChatViewProps) {
 								<Bot className="h-6 w-6 text-muted-foreground" />
 							</div>
 							<div>
-								<p className="text-sm font-medium text-foreground">Ever Teams Assistant</p>
+								<p className="text-sm font-medium text-foreground">{t('chatView.ASSISTANT_NAME')}</p>
 								<p className="mt-1 text-xs text-muted-foreground">
-									{isConfigured
-										? 'Ask a question to get started.'
-										: 'Configure your API key to get started.'}
+									{isConfigured ? t('chatView.EMPTY_CONFIGURED') : t('chatView.EMPTY_NOT_CONFIGURED')}
 								</p>
 							</div>
 							{!isConfigured && (
@@ -140,7 +141,7 @@ export function ChatView({ pageContext }: ChatViewProps) {
 									onClick={() => setConfigOpen(true)}
 									className="mt-2 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 dark:bg-primary-light dark:hover:bg-primary-light/90"
 								>
-									Configure
+									{t('chatView.CONFIGURE_BUTTON')}
 								</button>
 							)}
 						</div>
@@ -160,7 +161,7 @@ export function ChatView({ pageContext }: ChatViewProps) {
 							)}
 							{error && (
 								<div className="mx-3 rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-									{error.message || 'An error occurred. Please check your configuration.'}
+									{error.message || t('chatView.ERROR_FALLBACK')}
 								</div>
 							)}
 						</div>
@@ -188,16 +189,18 @@ export function ChatView({ pageContext }: ChatViewProps) {
 						value={input}
 						onChange={handleInputChange}
 						onKeyDown={(e) => {
-							if (isLoading) {
-								e.preventDefault();
-							} else if (e.key === 'Enter' && !e.shiftKey) {
+							if (e.key === 'Enter' && !e.shiftKey && !isLoading) {
 								e.preventDefault();
 								if (input.trim() && isConfigured) {
 									handleSubmit(e as unknown as React.FormEvent);
 								}
 							}
 						}}
-						placeholder={isConfigured ? 'Your message...' : 'Configure your API key...'}
+						placeholder={
+							isConfigured
+								? t('chatView.INPUT_PLACEHOLDER_READY')
+								: t('chatView.INPUT_PLACEHOLDER_NO_KEY')
+						}
 						disabled={!isConfigured}
 						rows={1}
 						className={cn(

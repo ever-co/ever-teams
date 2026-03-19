@@ -1264,5 +1264,19 @@
 		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
 		"CANCEL": "Annuler",
 		"SAVE": "Enregistrer"
+	},
+	"chatView": {
+		"HEADER_TITLE": "Chat IA",
+		"CLEAR_CONVERSATION": "Effacer la conversation",
+		"CONFIGURATION": "Configuration",
+		"ASSISTANT_NAME": "Assistant Ever Teams",
+		"EMPTY_CONFIGURED": "Posez une question pour commencer.",
+		"EMPTY_NOT_CONFIGURED": "Configurez votre clé API pour commencer.",
+		"CONFIGURE_BUTTON": "Configurer",
+		"ERROR_FALLBACK": "Une erreur est survenue. Veuillez vérifier votre configuration.",
+		"INPUT_PLACEHOLDER_READY": "Votre message...",
+		"INPUT_PLACEHOLDER_NO_KEY": "Configurez votre clé API...",
+		"STOP": "Arrêter",
+		"SEND": "Envoyer"
 	}
 }
