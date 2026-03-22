@@ -1,5 +1,5 @@
 'use client';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 import { useLocalStorageState, useModal } from '@/core/hooks';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
@@ -450,7 +450,7 @@ function PageComponent() {
 	} = useModal();
 
 	return (
-		<MainLayout
+		<PageLayout
 			showTimer={isTrackingEnabled}
 			className="p-0! pb-1 overflow-hidden! w-full"
 			childrenClassName="w-full h-full"
@@ -718,7 +718,7 @@ function PageComponent() {
 					</Suspense>
 				)}
 			</Container>
-		</MainLayout>
+		</PageLayout>
 	);
 }
 

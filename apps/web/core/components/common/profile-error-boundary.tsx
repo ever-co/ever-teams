@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Button, Text } from '@/core/components';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 import { ProfileValidationResult } from '@/core/hooks/users/use-profile-validation';
 import { useRouter } from 'next/navigation';
 interface ProfileErrorBoundaryProps {
@@ -36,7 +36,7 @@ export const ProfileErrorBoundary: React.FC<ProfileErrorBoundaryProps> = ({
 	}
 
 	return (
-		<MainLayout>
+		<PageLayout>
 			<div
 				ref={loadTaskStatsIObserverRef}
 				className="absolute top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2"
@@ -69,6 +69,6 @@ export const ProfileErrorBoundary: React.FC<ProfileErrorBoundaryProps> = ({
 					)}
 				</div>
 			</div>
-		</MainLayout>
+		</PageLayout>
 	);
 };

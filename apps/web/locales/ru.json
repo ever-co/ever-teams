@@ -1254,5 +1254,33 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Вы уверены, что хотите удалить этот временной интервал?"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "Настройка AI-чата",
+		"DIALOG_DESCRIPTION": "Настройте поставщика ИИ и ключ API для активации чат-ассистента.",
+		"PROVIDER_LABEL": "Поставщик",
+		"API_KEY_LABEL": "Ключ API",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "Ваш ключ хранится локально и отправляется в API чата только при использовании ассистента.",
+		"MODEL_LABEL": "Модель",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "Базовый URL",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "Отмена",
+		"SAVE": "Сохранить"
+	},
+	"chatView": {
+		"HEADER_TITLE": "AI Чат",
+		"CLEAR_CONVERSATION": "Очистить разговор",
+		"CONFIGURATION": "Настройки",
+		"ASSISTANT_NAME": "Ассистент Ever Teams",
+		"EMPTY_CONFIGURED": "Задайте вопрос, чтобы начать.",
+		"EMPTY_NOT_CONFIGURED": "Настройте ключ API, чтобы начать.",
+		"CONFIGURE_BUTTON": "Настроить",
+		"ERROR_FALLBACK": "Произошла ошибка. Проверьте свою конфигурацию.",
+		"INPUT_PLACEHOLDER_READY": "Ваше сообщение...",
+		"INPUT_PLACEHOLDER_NO_KEY": "Настройте ключ API...",
+		"STOP": "Остановить",
+		"SEND": "Отправить"
 	}
 }

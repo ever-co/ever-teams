@@ -1254,5 +1254,33 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Êtes-vous sûr de vouloir supprimer ce créneau horaire ?"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "Configuration du Chat IA",
+		"DIALOG_DESCRIPTION": "Configurez votre fournisseur IA et votre clé API pour activer l'assistant.",
+		"PROVIDER_LABEL": "Fournisseur",
+		"API_KEY_LABEL": "Clé API",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "Votre clé est stockée localement et envoyée à l'API de chat uniquement lorsque vous utilisez l'assistant.",
+		"MODEL_LABEL": "Modèle",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "URL de base",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "Annuler",
+		"SAVE": "Enregistrer"
+	},
+	"chatView": {
+		"HEADER_TITLE": "Chat IA",
+		"CLEAR_CONVERSATION": "Effacer la conversation",
+		"CONFIGURATION": "Configuration",
+		"ASSISTANT_NAME": "Assistant Ever Teams",
+		"EMPTY_CONFIGURED": "Posez une question pour commencer.",
+		"EMPTY_NOT_CONFIGURED": "Configurez votre clé API pour commencer.",
+		"CONFIGURE_BUTTON": "Configurer",
+		"ERROR_FALLBACK": "Une erreur est survenue. Veuillez vérifier votre configuration.",
+		"INPUT_PLACEHOLDER_READY": "Votre message...",
+		"INPUT_PLACEHOLDER_NO_KEY": "Configurez votre clé API...",
+		"STOP": "Arrêter",
+		"SEND": "Envoyer"
 	}
 }

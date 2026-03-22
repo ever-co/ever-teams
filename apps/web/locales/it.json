@@ -1254,5 +1254,33 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Sei sicuro di voler eliminare questa fascia oraria?"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "Configurazione Chat IA",
+		"DIALOG_DESCRIPTION": "Configura il tuo provider IA e la chiave API per attivare l'assistente chat.",
+		"PROVIDER_LABEL": "Provider",
+		"API_KEY_LABEL": "Chiave API",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "La tua chiave è memorizzata localmente e inviata all'API di chat solo quando usi l'assistente.",
+		"MODEL_LABEL": "Modello",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "URL di base",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "Annulla",
+		"SAVE": "Salva"
+	},
+	"chatView": {
+		"HEADER_TITLE": "Chat IA",
+		"CLEAR_CONVERSATION": "Cancella conversazione",
+		"CONFIGURATION": "Configurazione",
+		"ASSISTANT_NAME": "Assistente Ever Teams",
+		"EMPTY_CONFIGURED": "Fai una domanda per iniziare.",
+		"EMPTY_NOT_CONFIGURED": "Configura la tua chiave API per iniziare.",
+		"CONFIGURE_BUTTON": "Configura",
+		"ERROR_FALLBACK": "Si è verificato un errore. Controlla la tua configurazione.",
+		"INPUT_PLACEHOLDER_READY": "Il tuo messaggio...",
+		"INPUT_PLACEHOLDER_NO_KEY": "Configura la tua chiave API...",
+		"STOP": "Ferma",
+		"SEND": "Invia"
 	}
 }

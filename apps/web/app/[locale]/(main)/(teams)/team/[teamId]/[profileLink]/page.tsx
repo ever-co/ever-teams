@@ -3,7 +3,7 @@ import { getActiveUserIdCookie } from '@/core/lib/helpers/index';
 
 import { publicState } from '@/core/stores/common/public';
 import { Container } from '@/core/components';
-import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout';
+import { MainHeader, PageLayout } from '@/core/components/layouts/default-layout';
 import { useRouter, useParams, notFound } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
@@ -60,6 +60,7 @@ const Team = () => {
 
 	useEffect(() => {
 		loadData();
+		return () => setPublic(false);
 	}, [loadData]);
 
 	useEffect(() => {
@@ -78,7 +79,7 @@ const Team = () => {
 	}
 
 	return (
-		<MainLayout publicTeam={publicTeam}>
+		<PageLayout publicTeam={publicTeam}>
 			<MainHeader fullWidth={fullWidth}>
 				<Breadcrumb paths={breadcrumb} className="text-sm" />
 
@@ -103,7 +104,7 @@ const Team = () => {
 
 				{/* <TeamMembers publicTeam={publicTeam} /> */}
 			</Container>
-		</MainLayout>
+		</PageLayout>
 	);
 };
 

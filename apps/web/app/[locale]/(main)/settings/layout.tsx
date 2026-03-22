@@ -3,7 +3,7 @@ import { fullWidthState } from '@/core/stores/common/full-width';
 import SettingsPageSkeleton from '@/core/components/common/skeleton/settings-page-skeleton';
 import { Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useAtomValue } from 'jotai';
@@ -37,7 +37,7 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
 	}
 
 	return (
-		<MainLayout
+		<PageLayout
 			showTimer={isTrackingEnabled}
 			className="overflow-hidden items-start pb-1 w-full"
 			childrenClassName="h-[calc(100vh-_300px)] overflow-hidden w-full !min-h-fit"
@@ -62,7 +62,7 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
 					<div className="h-[calc(100svh-_291px)] mt-3 px-5 overflow-y-auto w-full">{children}</div>
 				</div>
 			</Container>
-		</MainLayout>
+		</PageLayout>
 	);
 };
 
