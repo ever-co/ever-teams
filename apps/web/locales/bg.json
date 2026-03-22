@@ -100,6 +100,7 @@
 		"CONFIRM": "Потвърди",
 		"YOUR_EMAIL": "вашият имейл",
 		"CONTINUE": "Продължи",
+		"AND": "и",
 		"EDIT_TASK": "Редактиране на задача",
 		"ASSIGN_TASK": "Възлагане на задача",
 		"ASSIGN_TASK_TO": "Възлагане на задача",
@@ -705,7 +706,10 @@
 			"NO_TEAMS_BADGE": "Няма отбори",
 			"TEAM_COUNT_SINGULAR": "отбор",
 			"TEAM_COUNT_PLURAL": "отбора",
-			"FORGOT_PASSWORD": "Forgot Password?"
+			"FORGOT_PASSWORD": "Забравена парола?",
+			"TERMS_OF_SERVICE": "Условия за ползване",
+			"PRIVACY_POLICY": "Политика за поверителност",
+			"OR_CONTINUE_WITH": "или продължете с"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Присъединяване към съществуващ отбор",

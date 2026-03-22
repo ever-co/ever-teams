@@ -100,6 +100,7 @@
 		"CONFIRM": "Bevestigen",
 		"YOUR_EMAIL": "jouw e-mailadres",
 		"CONTINUE": "Doorgaan",
+		"AND": "en",
 		"EDIT_TASK": "Taak bewerken",
 		"ASSIGN_TASK": "Taak toewijzen",
 		"ASSIGN_TASK_TO": "Taak toewijzen",
@@ -705,7 +706,10 @@
 			"NO_TEAMS_BADGE": "Geen teams",
 			"TEAM_COUNT_SINGULAR": "team",
 			"TEAM_COUNT_PLURAL": "teams",
-			"FORGOT_PASSWORD": "Forgot Password?"
+			"FORGOT_PASSWORD": "Wachtwoord vergeten?",
+			"TERMS_OF_SERVICE": "Servicevoorwaarden",
+			"PRIVACY_POLICY": "Privacybeleid",
+			"OR_CONTINUE_WITH": "of ga verder met"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Bestaand team joinen",

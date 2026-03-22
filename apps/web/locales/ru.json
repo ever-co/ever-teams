@@ -100,6 +100,7 @@
 		"CONFIRM": "Подтвердить",
 		"YOUR_EMAIL": "ваш электронный адрес",
 		"CONTINUE": "Продолжить",
+		"AND": "и",
 		"EDIT_TASK": "Редактировать задачу",
 		"ASSIGN_TASK": "Назначить задачу",
 		"ASSIGN_TASK_TO": "Назначить задачу",
@@ -705,7 +706,10 @@
 			"NO_TEAMS_BADGE": "Нет команд",
 			"TEAM_COUNT_SINGULAR": "команда",
 			"TEAM_COUNT_PLURAL": "команды",
-			"FORGOT_PASSWORD": "Forgot Password?"
+			"FORGOT_PASSWORD": "Забыли пароль?",
+			"TERMS_OF_SERVICE": "Условия использования",
+			"PRIVACY_POLICY": "Политика конфиденциальности",
+			"OR_CONTINUE_WITH": "или продолжить через"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Присоединиться к существующей команде",

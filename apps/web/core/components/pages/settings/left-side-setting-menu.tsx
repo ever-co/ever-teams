@@ -100,7 +100,7 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 						`}
 						wrapperClassName={`w-full border-t-0 border-r-0 border-b-0 rounded-none
                 font-normal text-[#7e7991] justify-start  pt-[24px] pb-[24px] pl-[24px]
-				border-l-[5px] ${isPersonalPage ? 'text-[#3826a6] border-l-solid border-l-primary bg-[#E9E5F9] dark:bg-[#6755C9]' : 'border-l-transparent'}
+				border-l-[5px] ${isPersonalPage ? 'text-[#3826a6] border-l-solid border-l-primary bg-[#E9E5F9] dark:bg-primary' : 'border-l-transparent'}
                 `}
 					>
 						<div className="flex flex-col">
@@ -143,7 +143,7 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 						textClassName={`${isTeamPage ? ' text-[#3826a6] text-primary font-semibold' : ' border-l-transparent font-normal dark:text-[#7E7991]'}`}
 						wrapperClassName={`w-full border-t-0 border-r-0 border-b-0 rounded-none
 						font-normal text-[#7e7991] justify-start text-sm pt-[24px] pb-[24px] pl-[24px]
-	border-l-[5px] ${isTeamPage ? ' text-[#3826a6] border-l-solid border-l-primary bg-primary/5 text-primary dark:bg-[#6755C9]' : ' border-l-transparent'}
+	border-l-[5px] ${isTeamPage ? ' text-[#3826a6] border-l-solid border-l-primary bg-primary/5 text-primary dark:bg-primary' : ' border-l-transparent'}
 						`}
 					>
 						<div className="flex flex-col">

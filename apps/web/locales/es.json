@@ -97,6 +97,7 @@
 		"CONFIRM": "Confirmar",
 		"YOUR_EMAIL": "tu email",
 		"CONTINUE": "Continuar",
+		"AND": "y",
 		"EDIT_TASK": "Editar tarea",
 		"ASSIGN_TASK": "Asignar tarea",
 		"ASSIGN_TASK_TO": "Asignar tarea a",
@@ -582,7 +583,10 @@
 			"NO_TEAMS_BADGE": "Sin equipos",
 			"TEAM_COUNT_SINGULAR": "equipo",
 			"TEAM_COUNT_PLURAL": "equipos",
-			"FORGOT_PASSWORD": "Forgot Password?"
+			"FORGOT_PASSWORD": "¿Olvidaste tu contraseña?",
+			"TERMS_OF_SERVICE": "Términos de servicio",
+			"PRIVACY_POLICY": "Política de privacidad",
+			"OR_CONTINUE_WITH": "o continuar con"
 		},
 		"projects": {
 			"projectTitle": {

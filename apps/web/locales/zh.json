@@ -96,6 +96,7 @@
 		"CONFIRM": "确认",
 		"YOUR_EMAIL": "您的电子邮件",
 		"CONTINUE": "继续",
+		"AND": "和",
 		"EDIT_TASK": "编辑任务",
 		"ASSIGN_TASK": "分配任务",
 		"ASSIGN_TASK_TO": "分配任务给",
@@ -705,7 +706,10 @@
 			"NO_TEAMS_BADGE": "无团队",
 			"TEAM_COUNT_SINGULAR": "团队",
 			"TEAM_COUNT_PLURAL": "团队",
-			"FORGOT_PASSWORD": "Forgot Password?"
+			"FORGOT_PASSWORD": "忘记密码？",
+			"TERMS_OF_SERVICE": "服务条款",
+			"PRIVACY_POLICY": "隐私政策",
+			"OR_CONTINUE_WITH": "或继续使用"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "加入已有团队",

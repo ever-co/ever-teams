@@ -127,6 +127,7 @@
 		"APPLY_FILTERS": "Apply Filters",
 		"YOUR_EMAIL": "your email",
 		"CONTINUE": "Continue",
+		"AND": "and",
 		"EDIT_TASK": "Edit Task",
 		"ASSIGN_TASK": "Assign Task",
 		"ASSIGN_TASK_TO": "Assign Task",
@@ -706,7 +707,10 @@
 			"NO_TEAMS_BADGE": "No teams",
 			"TEAM_COUNT_SINGULAR": "team",
 			"TEAM_COUNT_PLURAL": "teams",
-			"FORGOT_PASSWORD": "Forgot Password?"
+			"FORGOT_PASSWORD": "Forgot Password?",
+			"TERMS_OF_SERVICE": "Terms of Service",
+			"PRIVACY_POLICY": "Privacy Policy",
+			"OR_CONTINUE_WITH": "or continue with"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Join existing Team",
