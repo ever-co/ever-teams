@@ -1005,7 +1005,15 @@
 			"DELETE_SUCCESS": "Le journal de temps a été supprimé avec succès.",
 			"DELETE_ERROR": "Une erreur est survenue. Le journal de temps n'a pas pu être supprimé.",
 			"MODIFY_SUCCESS": "Le journal de temps a été modifié avec succès.",
-			"MODIFY_ERROR": "Échec de la modification du journal de temps. Veuillez réessayer."
+			"MODIFY_ERROR": "Échec de la modification du journal de temps. Veuillez réessayer.",
+			"DELETION_CONFIRMED": "Suppression confirmée",
+			"DELETION_ERROR_TITLE": "Erreur lors de la suppression",
+			"MODIFICATION_CONFIRMED": "Modification confirmée",
+			"MODIFICATION_ERROR_TITLE": "Erreur lors de la modification",
+			"BILLABLE_MODIFY_SUCCESS": "L'état facturable a été modifié avec succès.",
+			"BILLABLE_MODIFY_ERROR": "Échec de la modification de l'état facturable. Veuillez réessayer.",
+			"STATUS_MODIFY_SUCCESS": "Le statut de la feuille de temps a été modifié avec succès.",
+			"STATUS_MODIFY_ERROR": "Échec de la modification du statut de la feuille de temps. Veuillez réessayer."
 		}
 	},
 	"timer": {

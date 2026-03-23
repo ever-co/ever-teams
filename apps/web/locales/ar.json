@@ -1005,7 +1005,15 @@
 			"DELETE_SUCCESS": "تم حذف سجل الوقت بنجاح.",
 			"DELETE_ERROR": "حدث خطأ. تعذر حذف سجل الوقت.",
 			"MODIFY_SUCCESS": "تم تعديل سجل الوقت بنجاح.",
-			"MODIFY_ERROR": "فشل تعديل سجل الوقت. يرجى المحاولة مرة أخرى."
+			"MODIFY_ERROR": "فشل تعديل سجل الوقت. يرجى المحاولة مرة أخرى.",
+			"DELETION_CONFIRMED": "تم تأكيد الحذف",
+			"DELETION_ERROR_TITLE": "خطأ أثناء الحذف",
+			"MODIFICATION_CONFIRMED": "تم تأكيد التعديل",
+			"MODIFICATION_ERROR_TITLE": "خطأ أثناء التعديل",
+			"BILLABLE_MODIFY_SUCCESS": "تم تعديل حالة الفوترة بنجاح.",
+			"BILLABLE_MODIFY_ERROR": "فشل تعديل حالة الفوترة. يرجى المحاولة مرة أخرى.",
+			"STATUS_MODIFY_SUCCESS": "تم تعديل حالة جدول الدوام بنجاح.",
+			"STATUS_MODIFY_ERROR": "فشل تعديل حالة جدول الدوام. يرجى المحاولة مرة أخرى."
 		}
 	},
 	"timer": {

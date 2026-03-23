@@ -61,7 +61,7 @@ import {
 import { CaretDownIcon, CaretUpIcon } from '@radix-ui/react-icons';
 import { ETimeFrequency } from '@/core/types/generics/enums/date';
 import moment from 'moment';
-import { useUpdateTimeLogMutation } from '@/core/hooks/timesheet/use-update-time-log';
+import { useUpdateTimeLogMutation } from '@/core/hooks/timesheet';
 
 export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; user?: TUser | null }) {
 	const accordionRef = React.useRef(null);
@@ -419,12 +419,12 @@ const TaskActionMenu = ({
 	const handleDeleteTimeLog = async () => {
 		await deleteTaskTimesheet({ logIds: [timeLog.id] })
 			.then(() => {
-				sonnerToast.info('Deletion Confirmed', {
+				sonnerToast.info(t('pages.timeLog.DELETION_CONFIRMED'), {
 					description: t('pages.timeLog.DELETE_SUCCESS')
 				});
 			})
 			.catch(() => {
-				sonnerToast.error('Error during deletion', {
+				sonnerToast.error(t('pages.timeLog.DELETION_ERROR_TITLE'), {
 					description: t('pages.timeLog.DELETE_ERROR')
 				});
 			});
@@ -478,20 +478,21 @@ export const StatusTask = ({ timeLog }: { timeLog: ITimeLog }) => {
 				timeLogId: timeLog.id,
 				startedAt: timeLog.startedAt,
 				stoppedAt: timeLog.stoppedAt,
+				employeeId: timeLog.employeeId,
 				isBillable
 			})
 				.then(() => {
-					sonnerToast.success('Modification Confirmed', {
-						description: 'The billable state has been successfully modified.'
+					sonnerToast.success(t('pages.timeLog.MODIFICATION_CONFIRMED'), {
+						description: t('pages.timeLog.BILLABLE_MODIFY_SUCCESS')
 					});
 				})
 				.catch(() => {
-					sonnerToast.error('Error during modification', {
-						description: 'Failed to modify billable state. Please try again.'
+					sonnerToast.error(t('pages.timeLog.MODIFICATION_ERROR_TITLE'), {
+						description: t('pages.timeLog.BILLABLE_MODIFY_ERROR')
 					});
 				});
 		},
-		[updateTimelog, timeLog.id, timeLog.startedAt, timeLog.stoppedAt]
+		[updateTimelog, timeLog.id, timeLog.startedAt, timeLog.stoppedAt, t]
 	);
 
 	const { updateTimesheetStatus } = useUpdateTimesheet();
@@ -501,13 +502,13 @@ export const StatusTask = ({ timeLog }: { timeLog: ITimeLog }) => {
 			ids
 		})
 			.then(() => {
-				sonnerToast.success('Modification Confirmed', {
-					description: 'The status of timesheet has been successfully modified.'
+				sonnerToast.success(t('pages.timeLog.MODIFICATION_CONFIRMED'), {
+					description: t('pages.timeLog.STATUS_MODIFY_SUCCESS')
 				});
 			})
 			.catch(() => {
-				sonnerToast.error('Error during modification', {
-					description: 'Failed to modify timesheet status. Please try again.'
+				sonnerToast.error(t('pages.timeLog.MODIFICATION_ERROR_TITLE'), {
+					description: t('pages.timeLog.STATUS_MODIFY_ERROR')
 				});
 			});
 	};
@@ -528,9 +529,10 @@ export const StatusTask = ({ timeLog }: { timeLog: ITimeLog }) => {
 						<DropdownMenuSubContent>
 							{statusTable?.map((status, index) => (
 								<DropdownMenuItem
-									onClick={() =>
-										handleStatusChange(status.label as ETimesheetStatus, [timeLog.timesheetId!])
-									}
+									onClick={() => {
+										if (!timeLog.timesheetId) return;
+										handleStatusChange(status.label as ETimesheetStatus, [timeLog.timesheetId!]);
+									}}
 									key={index}
 									textValue={status.label}
 									className="cursor-pointer"

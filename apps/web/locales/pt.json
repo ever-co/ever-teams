@@ -1005,7 +1005,15 @@
 			"DELETE_SUCCESS": "O registro de tempo foi excluído com sucesso.",
 			"DELETE_ERROR": "Ocorreu um erro. O registro de tempo não pôde ser excluído.",
 			"MODIFY_SUCCESS": "O registro de tempo foi modificado com sucesso.",
-			"MODIFY_ERROR": "Falha ao modificar o registro de tempo. Tente novamente."
+			"MODIFY_ERROR": "Falha ao modificar o registro de tempo. Tente novamente.",
+			"DELETION_CONFIRMED": "Exclusão confirmada",
+			"DELETION_ERROR_TITLE": "Erro durante a exclusão",
+			"MODIFICATION_CONFIRMED": "Modificação confirmada",
+			"MODIFICATION_ERROR_TITLE": "Erro durante a modificação",
+			"BILLABLE_MODIFY_SUCCESS": "O estado faturável foi modificado com sucesso.",
+			"BILLABLE_MODIFY_ERROR": "Falha ao modificar o estado faturável. Tente novamente.",
+			"STATUS_MODIFY_SUCCESS": "O status da folha de ponto foi modificado com sucesso.",
+			"STATUS_MODIFY_ERROR": "Falha ao modificar o status da folha de ponto. Tente novamente."
 		}
 	},
 	"timer": {

@@ -1005,7 +1005,15 @@
 			"DELETE_SUCCESS": "Wpis czasu został pomyślnie usunięty.",
 			"DELETE_ERROR": "Wystąpił błąd. Wpis czasu nie mógł zostać usunięty.",
 			"MODIFY_SUCCESS": "Wpis czasu został pomyślnie zmodyfikowany.",
-			"MODIFY_ERROR": "Nie udało się zmodyfikować wpisu czasu. Spróbuj ponownie."
+			"MODIFY_ERROR": "Nie udało się zmodyfikować wpisu czasu. Spróbuj ponownie.",
+			"DELETION_CONFIRMED": "Usunięcie potwierdzone",
+			"DELETION_ERROR_TITLE": "Błąd podczas usuwania",
+			"MODIFICATION_CONFIRMED": "Modyfikacja potwierdzona",
+			"MODIFICATION_ERROR_TITLE": "Błąd podczas modyfikacji",
+			"BILLABLE_MODIFY_SUCCESS": "Stan rozliczeniowy został pomyślnie zmieniony.",
+			"BILLABLE_MODIFY_ERROR": "Nie udało się zmienić stanu rozliczeniowego. Spróbuj ponownie.",
+			"STATUS_MODIFY_SUCCESS": "Status karty czasu pracy został pomyślnie zmieniony.",
+			"STATUS_MODIFY_ERROR": "Nie udało się zmienić statusu karty czasu pracy. Spróbuj ponownie."
 		}
 	},
 	"timer": {

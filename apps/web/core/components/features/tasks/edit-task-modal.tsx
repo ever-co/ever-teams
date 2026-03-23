@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 import { useAtomValue } from 'jotai';
 import { activeTeamState } from '@/core/stores';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
-import { useUpdateTimeLogMutation } from '@/core/hooks/timesheet/use-update-time-log';
+import { useUpdateTimeLogMutation } from '@/core/hooks/timesheet';
 import { ITimeLogUpdatePayload } from '@/core/types/interfaces/timesheet/time-log.interface';
 import { useMyRolePermissionsQuery } from '@/core/hooks';
 
@@ -143,13 +143,13 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 			};
 			updateTimeLog(updatePayload)
 				.then(() => {
-					toast.success('Modification Confirmed', {
+					toast.success(t('pages.timeLog.MODIFICATION_CONFIRMED'), {
 						description: t('pages.timeLog.MODIFY_SUCCESS')
 					});
 					closeModal();
 				})
 				.catch((error) => {
-					toast.error('Error during modification', {
+					toast.error(t('pages.timeLog.MODIFICATION_ERROR_TITLE'), {
 						description: t('pages.timeLog.MODIFY_ERROR')
 					});
 					if (!error) {
@@ -169,7 +169,9 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 			timesheetData.employeeId,
 			timesheetData.notes,
 			timesheetData.projectId,
-			closeModal
+			closeModal,
+			updateTimeLog,
+			t
 		]
 	);
 
