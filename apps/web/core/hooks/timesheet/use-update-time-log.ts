@@ -1,3 +1,5 @@
+'use client';
+
 import { timeLogService } from '@/core/services/client/api';
 import { ITimeLogUpdatePayload } from '@/core/types/interfaces/timesheet/time-log.interface';
 import { useMutation } from '@tanstack/react-query';

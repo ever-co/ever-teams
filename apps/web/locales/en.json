@@ -1002,8 +1002,8 @@
 			"REJECTED": "Rejected"
 		},
 		"timeLog": {
-			"DELETE_SUCCESS": "The time-log has been successfully deleted.",
-			"DELETE_ERROR": "An error occurred. The time-log could not be deleted.",
+			"DELETE_SUCCESS": "The time log has been successfully deleted.",
+			"DELETE_ERROR": "An error occurred. The time log could not be deleted.",
 			"MODIFY_SUCCESS": "The time log has been successfully modified.",
 			"MODIFY_ERROR": "Failed to modify time log. Please try again.",
 			"DELETION_CONFIRMED": "Deletion Confirmed",

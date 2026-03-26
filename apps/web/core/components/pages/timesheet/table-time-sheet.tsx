@@ -492,7 +492,7 @@ export const StatusTask = ({ timeLog }: { timeLog: ITimeLog }) => {
 					});
 				});
 		},
-		[updateTimelog, timeLog.id, timeLog.startedAt, timeLog.stoppedAt, t]
+		[updateTimelog, timeLog.id, timeLog.startedAt, timeLog.stoppedAt, timeLog.employeeId, t]
 	);
 
 	const { updateTimesheetStatus } = useUpdateTimesheet();

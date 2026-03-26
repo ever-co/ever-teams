@@ -254,7 +254,7 @@ class TimeLogService extends APIService {
 				{ tenantId: this.tenantId }
 			);
 		} catch (error) {
-			throw new Error('Failed to update time-log');
+			throw new Error('Failed to update time-log', { cause: error });
 		}
 	};
 
