@@ -1004,6 +1004,20 @@
 			"IN_REVIEW": "En revisión",
 			"DRAFT": "Borrador",
 			"REJECTED": "Rechazado"
+		},
+		"timeLog": {
+			"DELETE_SUCCESS": "El registro de tiempo se ha eliminado correctamente.",
+			"DELETE_ERROR": "Se produjo un error. No se pudo eliminar el registro de tiempo.",
+			"MODIFY_SUCCESS": "El registro de tiempo se ha modificado correctamente.",
+			"MODIFY_ERROR": "No se pudo modificar el registro de tiempo. Inténtelo de nuevo.",
+			"DELETION_CONFIRMED": "Eliminación confirmada",
+			"DELETION_ERROR_TITLE": "Error durante la eliminación",
+			"MODIFICATION_CONFIRMED": "Modificación confirmada",
+			"MODIFICATION_ERROR_TITLE": "Error durante la modificación",
+			"BILLABLE_MODIFY_SUCCESS": "El estado facturable se ha modificado correctamente.",
+			"BILLABLE_MODIFY_ERROR": "No se pudo modificar el estado facturable. Inténtelo de nuevo.",
+			"STATUS_MODIFY_SUCCESS": "El estado de la hoja de tiempo se ha modificado correctamente.",
+			"STATUS_MODIFY_ERROR": "No se pudo modificar el estado de la hoja de tiempo. Inténtelo de nuevo."
 		}
 	},
 	"timer": {

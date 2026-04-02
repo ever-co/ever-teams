@@ -1004,6 +1004,20 @@
 			"IN_REVIEW": "审核中",
 			"DRAFT": "草稿",
 			"REJECTED": "拒绝"
+		},
+		"timeLog": {
+			"DELETE_SUCCESS": "时间记录已成功删除。",
+			"DELETE_ERROR": "发生错误。无法删除时间记录。",
+			"MODIFY_SUCCESS": "时间记录已成功修改。",
+			"MODIFY_ERROR": "修改时间记录失败。请重试。",
+			"DELETION_CONFIRMED": "删除已确认",
+			"DELETION_ERROR_TITLE": "删除时出错",
+			"MODIFICATION_CONFIRMED": "修改已确认",
+			"MODIFICATION_ERROR_TITLE": "修改时出错",
+			"BILLABLE_MODIFY_SUCCESS": "计费状态已成功修改。",
+			"BILLABLE_MODIFY_ERROR": "修改计费状态失败。请重试。",
+			"STATUS_MODIFY_SUCCESS": "工时表状态已成功修改。",
+			"STATUS_MODIFY_ERROR": "修改工时表状态失败。请重试。"
 		}
 	},
 	"timer": {

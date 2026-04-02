@@ -1004,6 +1004,20 @@
 			"IN_REVIEW": "בבדיקה",
 			"DRAFT": "טיוטה",
 			"REJECTED": "נדחה"
+		},
+		"timeLog": {
+			"DELETE_SUCCESS": "יומן הזמן נמחק בהצלחה.",
+			"DELETE_ERROR": "אירעה שגיאה. לא ניתן היה למחוק את יומן הזמן.",
+			"MODIFY_SUCCESS": "יומן הזמן עודכן בהצלחה.",
+			"MODIFY_ERROR": "עדכון יומן הזמן נכשל. אנא נסה שוב.",
+			"DELETION_CONFIRMED": "המחיקה אושרה",
+			"DELETION_ERROR_TITLE": "שגיאה במהלך המחיקה",
+			"MODIFICATION_CONFIRMED": "השינוי אושר",
+			"MODIFICATION_ERROR_TITLE": "שגיאה במהלך השינוי",
+			"BILLABLE_MODIFY_SUCCESS": "מצב החיוב שונה בהצלחה.",
+			"BILLABLE_MODIFY_ERROR": "שינוי מצב החיוב נכשל. אנא נסה שוב.",
+			"STATUS_MODIFY_SUCCESS": "סטטוס גיליון הנוכחות שונה בהצלחה.",
+			"STATUS_MODIFY_ERROR": "שינוי סטטוס גיליון הנוכחות נכשל. אנא נסה שוב."
 		}
 	},
 	"timer": {

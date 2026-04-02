@@ -1004,6 +1004,20 @@
 			"IN_REVIEW": "In review",
 			"DRAFT": "Draft",
 			"REJECTED": "Rejected"
+		},
+		"timeLog": {
+			"DELETE_SUCCESS": "The time log has been successfully deleted.",
+			"DELETE_ERROR": "An error occurred. The time log could not be deleted.",
+			"MODIFY_SUCCESS": "The time log has been successfully modified.",
+			"MODIFY_ERROR": "Failed to modify time log. Please try again.",
+			"DELETION_CONFIRMED": "Deletion Confirmed",
+			"DELETION_ERROR_TITLE": "Error during deletion",
+			"MODIFICATION_CONFIRMED": "Modification Confirmed",
+			"MODIFICATION_ERROR_TITLE": "Error during modification",
+			"BILLABLE_MODIFY_SUCCESS": "The billable state has been successfully modified.",
+			"BILLABLE_MODIFY_ERROR": "Failed to modify billable state. Please try again.",
+			"STATUS_MODIFY_SUCCESS": "The timesheet status has been successfully modified.",
+			"STATUS_MODIFY_ERROR": "Failed to modify timesheet status. Please try again."
 		}
 	},
 	"timer": {

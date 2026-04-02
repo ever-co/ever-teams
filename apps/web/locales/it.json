@@ -1004,6 +1004,20 @@
 			"IN_REVIEW": "In revisione",
 			"DRAFT": "Bozza",
 			"REJECTED": "Respinto"
+		},
+		"timeLog": {
+			"DELETE_SUCCESS": "Il registro del tempo è stato eliminato con successo.",
+			"DELETE_ERROR": "Si è verificato un errore. Il registro del tempo non è stato eliminato.",
+			"MODIFY_SUCCESS": "Il registro del tempo è stato modificato con successo.",
+			"MODIFY_ERROR": "Impossibile modificare il registro del tempo. Riprova.",
+			"DELETION_CONFIRMED": "Eliminazione confermata",
+			"DELETION_ERROR_TITLE": "Errore durante l'eliminazione",
+			"MODIFICATION_CONFIRMED": "Modifica confermata",
+			"MODIFICATION_ERROR_TITLE": "Errore durante la modifica",
+			"BILLABLE_MODIFY_SUCCESS": "Lo stato fatturabile è stato modificato con successo.",
+			"BILLABLE_MODIFY_ERROR": "Impossibile modificare lo stato fatturabile. Riprova.",
+			"STATUS_MODIFY_SUCCESS": "Lo stato del foglio presenze è stato modificato con successo.",
+			"STATUS_MODIFY_ERROR": "Impossibile modificare lo stato del foglio presenze. Riprova."
 		}
 	},
 	"timer": {

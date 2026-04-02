@@ -1004,6 +1004,20 @@
 			"IN_REVIEW": "In Überprüfung",
 			"DRAFT": "Entwurf",
 			"REJECTED": "Abgelehnt"
+		},
+		"timeLog": {
+			"DELETE_SUCCESS": "Der Zeiteintrag wurde erfolgreich gelöscht.",
+			"DELETE_ERROR": "Ein Fehler ist aufgetreten. Der Zeiteintrag konnte nicht gelöscht werden.",
+			"MODIFY_SUCCESS": "Der Zeiteintrag wurde erfolgreich geändert.",
+			"MODIFY_ERROR": "Der Zeiteintrag konnte nicht geändert werden. Bitte versuchen Sie es erneut.",
+			"DELETION_CONFIRMED": "Löschung bestätigt",
+			"DELETION_ERROR_TITLE": "Fehler beim Löschen",
+			"MODIFICATION_CONFIRMED": "Änderung bestätigt",
+			"MODIFICATION_ERROR_TITLE": "Fehler bei der Änderung",
+			"BILLABLE_MODIFY_SUCCESS": "Der Abrechnungsstatus wurde erfolgreich geändert.",
+			"BILLABLE_MODIFY_ERROR": "Der Abrechnungsstatus konnte nicht geändert werden. Bitte versuchen Sie es erneut.",
+			"STATUS_MODIFY_SUCCESS": "Der Status der Zeiterfassung wurde erfolgreich geändert.",
+			"STATUS_MODIFY_ERROR": "Der Status der Zeiterfassung konnte nicht geändert werden. Bitte versuchen Sie es erneut."
 		}
 	},
 	"timer": {

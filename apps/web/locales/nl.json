@@ -1004,6 +1004,20 @@
 			"IN_REVIEW": "In beoordeling",
 			"DRAFT": "Concept",
 			"REJECTED": "Afgewezen"
+		},
+		"timeLog": {
+			"DELETE_SUCCESS": "Het tijdlogboek is succesvol verwijderd.",
+			"DELETE_ERROR": "Er is een fout opgetreden. Het tijdlogboek kon niet worden verwijderd.",
+			"MODIFY_SUCCESS": "Het tijdlogboek is succesvol gewijzigd.",
+			"MODIFY_ERROR": "Het tijdlogboek kon niet worden gewijzigd. Probeer het opnieuw.",
+			"DELETION_CONFIRMED": "Verwijdering bevestigd",
+			"DELETION_ERROR_TITLE": "Fout bij het verwijderen",
+			"MODIFICATION_CONFIRMED": "Wijziging bevestigd",
+			"MODIFICATION_ERROR_TITLE": "Fout bij het wijzigen",
+			"BILLABLE_MODIFY_SUCCESS": "De factureerbare status is succesvol gewijzigd.",
+			"BILLABLE_MODIFY_ERROR": "De factureerbare status kon niet worden gewijzigd. Probeer het opnieuw.",
+			"STATUS_MODIFY_SUCCESS": "De status van de urenstaat is succesvol gewijzigd.",
+			"STATUS_MODIFY_ERROR": "De status van de urenstaat kon niet worden gewijzigd. Probeer het opnieuw."
 		}
 	},
 	"timer": {
