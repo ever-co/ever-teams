@@ -18464,9 +18464,9 @@ electron@*:
     extract-zip "^2.0.1"
 
 electron@^38.1.2:
-  version "38.8.4"
-  resolved "https://registry.npmjs.org/electron/-/electron-38.8.4.tgz#276390ed571b6bea2ffa2bee3e91f94096c0596a"
-  integrity sha512-vYZ2SH2OhzkCmkbRaijtZLIEJRMnLUL2KQmcAM/7kamf4++3AKSNCBjE1epmQnYFY1M4oKjOUcS3G02ayxR5Bw==
+  version "38.8.6"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-38.8.6.tgz#887cd895eb66fd33c978f7225f83f29bdca72d0a"
+  integrity sha512-lyBhcVi9QYAZL6FO6r5twAWAjWnYomo3iVDvrb5SJZlq928BGemHOKG0tPIq41NOLaCu9f3XdEEjMkjQPjprRg==
   dependencies:
     "@electron/get" "^2.0.0"
     "@types/node" "^22.7.7"
