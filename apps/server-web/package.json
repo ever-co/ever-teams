@@ -62,7 +62,7 @@
         "http-proxy": "^1.18.1"
     },
     "devDependencies": {
-        "electron": "^38.1.2",
+        "electron": "^39.8.5",
         "electron-builder": "^26.8.1",
         "@electron/notarize": "^2.1.0",
         "@electron/rebuild": "^3.3.0",
