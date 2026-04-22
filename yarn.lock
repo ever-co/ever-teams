@@ -21689,9 +21689,9 @@ i18next-electron-fs-backend@^3.0.1:
     lodash.merge "^4.6.2"
 
 i18next-fs-backend@^2.1.1, i18next-fs-backend@^2.3.1:
-  version "2.6.1"
-  resolved "https://registry.npmjs.org/i18next-fs-backend/-/i18next-fs-backend-2.6.1.tgz#bb352278136f47599783308df29f0a1b6a0d08b6"
-  integrity sha512-eYWTX7QT7kJ0sZyCPK6x1q+R63zvNKv2D6UdbMf15A8vNb2ZLyw4NNNZxPFwXlIv/U+oUtg8SakW6ZgJZcoqHQ==
+  version "2.6.4"
+  resolved "https://registry.yarnpkg.com/i18next-fs-backend/-/i18next-fs-backend-2.6.4.tgz#563fc7eb740e2b9edc3e544c2b171c9afb0e0ea4"
+  integrity sha512-lzbUnowXYd5RFO8flpQhd9khYWNgrzwtxHw1kktJCiTRBaAEiLB2t9EPSXRj8qlC7WcEgFDIsmBUixyludcznw==
 
 i18next-http-backend@^2.2.0:
   version "2.7.3"
