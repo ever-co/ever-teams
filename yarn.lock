@@ -21761,9 +21761,9 @@ icss-utils@^5.0.0, icss-utils@^5.1.0:
   integrity sha512-soFhflCVWLfRNOPU3iv5Z9VUdT44xFRbzjLsEzSr5AQmgqPMTHdU3PMT1Cf1ssx8fLNJDA1juftYl+PUcv3MqA==
 
 icu-minify@^4.8.3:
-  version "4.8.3"
-  resolved "https://registry.npmjs.org/icu-minify/-/icu-minify-4.8.3.tgz#167aef48e0ef32b5b569a51587ece400cab3d884"
-  integrity sha512-65Av7FLosNk7bPbmQx5z5XG2Y3T2GFppcjiXh4z1idHeVgQxlDpAmkGoYI0eFzAvrOnjpWTL5FmPDhsdfRMPEA==
+  version "4.11.0"
+  resolved "https://registry.yarnpkg.com/icu-minify/-/icu-minify-4.11.0.tgz#28d4eaa7fa19f8dc1ba6974dcd7f98d1aeadee34"
+  integrity sha512-XRvblCwLqWXio5ZLcmDqXvJv7alSACK6UjXuuMOdQWB//d25AQX6xlVlI1FEbc3Q6iPLXXo6HaVLn8LcAFhn1Q==
   dependencies:
     "@formatjs/icu-messageformat-parser" "^3.4.0"
 
