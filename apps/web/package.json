@@ -61,7 +61,7 @@
 		"@opentelemetry/auto-instrumentations-node": "^0.67.2",
 		"@opentelemetry/exporter-trace-otlp-http": "^0.208.0",
 		"@opentelemetry/resources": "^2.2.0",
-		"@opentelemetry/sdk-node": "^0.208.0",
+		"@opentelemetry/sdk-node": "^0.217.0",
 		"@opentelemetry/semantic-conventions": "^1.38.0",
 		"@popperjs/core": "^2.11.8",
 		"@radix-ui/react-accordion": "^1.2.12",
