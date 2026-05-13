@@ -124,7 +124,7 @@ const TeamSize = ({
 							<PopoverPanel
 								ref={panelRef}
 								anchor="bottom end"
-								className="mt-5 bg-light--theme-light dark:bg-dark--theme-light border p-3 rounded-xl shadow-xlcard flex flex-col gap-3"
+								className="z-50 mt-5 bg-light--theme-light dark:bg-dark--theme-light border p-3 rounded-xl shadow-xlcard flex flex-col gap-3"
 							>
 								<div className="text-lg text-[#7E7991] dark:text-gray-400 font-[500]">
 									{t('form.SELECT_TEAM_SIZE')}
