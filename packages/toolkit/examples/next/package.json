@@ -1,0 +1,41 @@
+{
+  "name": "@ever-teams/example-nextjs",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@ever-teams/atoms": "*",
+    "@ever-teams/tracking": "*",
+    "@ever-teams/toolkit-ui": "*",
+    "next": "^16.1.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-error-boundary": "^5.0.0",
+    "clarity-decode": "0.8.19",
+    "clarity-visualize": "0.8.19",
+    "pako": "^2.1.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/node": "^20",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@types/pako": "^2.0.3",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.0",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "tailwindcss-animate": "^1.0.7",
+    "typescript": "^5",
+    "lucide-react": "^0.394.0"
+  },
+  "resolutions": {
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3"
+  }
+}

@@ -1,0 +1,35 @@
+{
+	"name": "@ever-teams/toolkit-types",
+	"version": "0.1.10",
+	"license": "MIT",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.es.js"
+		},
+		"./lib/*": "./dist/lib/*"
+	},
+	"type": "module",
+	"scripts": {
+		"prepare": "tsc",
+		"build": "rollup -c"
+	},
+	"packageManager": "yarn@1.22.19",
+	"devDependencies": {
+		"@ever-teams/ts-config": "*",
+		"@rollup/plugin-commonjs": "^28.0.1",
+		"@rollup/plugin-node-resolve": "^15.3.0",
+		"@rollup/plugin-typescript": "^12.1.1",
+		"@rollup/plugin-terser": "^0.4.4",
+		"rollup": "^4.59.0",
+		"typescript": "^5.6.3"
+	},
+	"main": "dist/index.es.js",
+	"types": "dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"publishConfig": {
+		"access": "restricted"
+	}
+}

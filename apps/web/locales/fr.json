@@ -102,6 +102,7 @@
 		"CONFIRM": "Confirmer",
 		"YOUR_EMAIL": "votre email",
 		"CONTINUE": "Continuer",
+		"AND": "et",
 		"EDIT_TASK": "Modifier la tâche",
 		"ASSIGN_TASK": "Assigner la tâche",
 		"ASSIGN_TASK_TO": "Assigner la tâche",
@@ -705,7 +706,10 @@
 			"NO_TEAMS_BADGE": "Aucune équipe",
 			"TEAM_COUNT_SINGULAR": "équipe",
 			"TEAM_COUNT_PLURAL": "équipes",
-			"FORGOT_PASSWORD": "Forgot Password?"
+			"FORGOT_PASSWORD": "Mot de passe oublié ?",
+			"TERMS_OF_SERVICE": "Conditions d'utilisation",
+			"PRIVACY_POLICY": "Politique de confidentialité",
+			"OR_CONTINUE_WITH": "ou continuer avec"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Rejoindre une équipe existante",
@@ -785,6 +789,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "Paramètres généraux",
+			"goToTeamSettings": "Aller aux paramètres d'équipe",
+			"WORKING_HOURS": "Heures de travail",
 			"emailNotValid": "Veuillez fournir une adresse e-mail valide",
 			"phoneNotValid": "Veuillez fournir un numéro de téléphone valide",
 			"WORK_SCHEDULE": "Calendrier de travail",
@@ -998,6 +1004,20 @@
 			"IN_REVIEW": "En cours d'examen",
 			"DRAFT": "Brouillon",
 			"REJECTED": "Rejeté"
+		},
+		"timeLog": {
+			"DELETE_SUCCESS": "Le journal de temps a été supprimé avec succès.",
+			"DELETE_ERROR": "Une erreur est survenue. Le journal de temps n'a pas pu être supprimé.",
+			"MODIFY_SUCCESS": "Le journal de temps a été modifié avec succès.",
+			"MODIFY_ERROR": "Échec de la modification du journal de temps. Veuillez réessayer.",
+			"DELETION_CONFIRMED": "Suppression confirmée",
+			"DELETION_ERROR_TITLE": "Erreur lors de la suppression",
+			"MODIFICATION_CONFIRMED": "Modification confirmée",
+			"MODIFICATION_ERROR_TITLE": "Erreur lors de la modification",
+			"BILLABLE_MODIFY_SUCCESS": "L'état facturable a été modifié avec succès.",
+			"BILLABLE_MODIFY_ERROR": "Échec de la modification de l'état facturable. Veuillez réessayer.",
+			"STATUS_MODIFY_SUCCESS": "Le statut de la feuille de temps a été modifié avec succès.",
+			"STATUS_MODIFY_ERROR": "Échec de la modification du statut de la feuille de temps. Veuillez réessayer."
 		}
 	},
 	"timer": {
@@ -1248,5 +1268,33 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Êtes-vous sûr de vouloir supprimer ce créneau horaire ?"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "Configuration du Chat IA",
+		"DIALOG_DESCRIPTION": "Configurez votre fournisseur IA et votre clé API pour activer l'assistant.",
+		"PROVIDER_LABEL": "Fournisseur",
+		"API_KEY_LABEL": "Clé API",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "Votre clé est stockée localement et envoyée à l'API de chat uniquement lorsque vous utilisez l'assistant.",
+		"MODEL_LABEL": "Modèle",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "URL de base",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "Annuler",
+		"SAVE": "Enregistrer"
+	},
+	"chatView": {
+		"HEADER_TITLE": "Chat IA",
+		"CLEAR_CONVERSATION": "Effacer la conversation",
+		"CONFIGURATION": "Configuration",
+		"ASSISTANT_NAME": "Assistant Ever Teams",
+		"EMPTY_CONFIGURED": "Posez une question pour commencer.",
+		"EMPTY_NOT_CONFIGURED": "Configurez votre clé API pour commencer.",
+		"CONFIGURE_BUTTON": "Configurer",
+		"ERROR_FALLBACK": "Une erreur est survenue. Veuillez vérifier votre configuration.",
+		"INPUT_PLACEHOLDER_READY": "Votre message...",
+		"INPUT_PLACEHOLDER_NO_KEY": "Configurez votre clé API...",
+		"STOP": "Arrêter",
+		"SEND": "Envoyer"
 	}
 }

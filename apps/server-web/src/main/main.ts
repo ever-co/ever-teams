@@ -22,6 +22,7 @@ import {
   WindowTypes,
   APP_LINK,
   WINDOW_EVENTS,
+  DEFAULT_NEXT_PORT
 } from './helpers/constant';
 import Updater from './updater';
 import i18nextMainBackend from '../configs/i18n.mainconfig';
@@ -39,6 +40,7 @@ import { debounce } from 'lodash';
 import WindowFactory from './windows/window-factory';
 import { setupTitlebar } from 'custom-electron-titlebar/main';
 import { config } from '../configs/config';
+import { ProxyConfig } from './helpers/services/server-proxy';
 
 console.log = Log.log;
 Object.assign(console, Log.functions);
@@ -235,12 +237,12 @@ const devServerPath = path.join(
 );
 const serverPath = isPack
   ? path.join(
-      process.resourcesPath,
-      'release',
-      'app',
-      'dist',
-      resourcesFiles.webServer,
-    )
+    process.resourcesPath,
+    'release',
+    'app',
+    'dist',
+    resourcesFiles.webServer,
+  )
   : devServerPath;
 
 if (process.env.NODE_ENV === 'production') {
@@ -326,6 +328,13 @@ const runServer = async () => {
   console.log('Run the Server...');
   try {
     const envVal: ServerConfig | undefined = getEnvApi();
+    const sslOption: ProxyConfig = {
+      nextPort: DEFAULT_NEXT_PORT,
+      port: Number(envVal?.PORT || 0),
+      sslSecret: envVal?.sslSecret || '',
+      sslKey: envVal?.sslKey || '',
+      host: envVal?.DESKTOP_WEB_SERVER_HOSTNAME || '0.0.0.0'
+    }
     const folderPath = getWebDirPath();
     await clearDesktopConfig(folderPath);
 
@@ -335,6 +344,7 @@ const runServer = async () => {
       {
         ...(envVal || {}),
         IS_DESKTOP_APP: true,
+        HOSTNAME: envVal?.DESKTOP_WEB_SERVER_HOSTNAME || '0.0.0.0',
         NEXT_SHARP_PATH: path.join(
           process.resourcesPath,
           'app.asar',
@@ -342,6 +352,9 @@ const runServer = async () => {
           'sharp',
         ),
         AUTH_SECRET: config.AUTH_SECRET,
+        ...sslOption,
+        useSsl: envVal?.useSsl,
+        PORT: envVal?.useSsl ? sslOption.nextPort : envVal?.PORT
       },
       undefined,
       signal,
@@ -598,7 +611,7 @@ const onInitApplication = () => {
 
   eventEmitter.on(EventLists.OPEN_WINDOW, handleOpenWindow);
 
-  eventEmitter.on(EventLists.SERVER_WINDOW, async () => {
+  eventEmitter.on(EventLists.SERVER_WINDOW, async (data: { startServer?: boolean }) => {
     if (!logWindow) {
       initTrayMenu();
       logWindow = await createWindow(WindowTypes.LOG_WINDOW);
@@ -620,6 +633,9 @@ const onInitApplication = () => {
         });
       }, 100);
     });
+    if (!isServerRun && data?.startServer) {
+      eventEmitter.emit(EventLists.webServerStart);
+    }
   });
 
   eventEmitter.on(EventLists.OPEN_WEB, () => {
@@ -705,7 +721,7 @@ const initTrayMenu = () => {
   const storeConfig: WebServer = LocalStore.getStore('config');
   onInitApplication();
   if (storeConfig?.general?.setup) {
-    eventEmitter.emit(EventLists.SERVER_WINDOW);
+    eventEmitter.emit(EventLists.SERVER_WINDOW, { startServer: true });
   } else {
     if (!setupWindow) {
       setupWindow = await createWindow(WindowTypes.SETUP_WINDOW);
@@ -842,6 +858,9 @@ ipcMain.on(IPC_TYPES.CONTROL_BUTTON, (_, arg) => {
     case 'minimize':
       handleMinimizeButton(arg.windowTypes);
       break;
+    case 'open-setting':
+      eventEmitter.emit(EventLists.gotoSetting);
+      break;
     default:
       break;
   }
@@ -864,6 +883,14 @@ ipcMain.handle('get-platform', () => {
 ipcMain.handle('get-app-icon', () => {
   const nativeIcon = nativeImage.createFromPath(getAssetPath('icons/icon.png'));
   return nativeIcon;
+});
+
+ipcMain.handle('open-file-dialog', async (_, options: Electron.OpenDialogOptions = {}) => {
+  const result = await dialog.showOpenDialog({
+    properties: ['openFile'],
+    ...options,
+  });
+  return result;
 });
 
 const createIntervalAutoUpdate = () => {

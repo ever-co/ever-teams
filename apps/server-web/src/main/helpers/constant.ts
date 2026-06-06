@@ -114,3 +114,5 @@ export const WINDOW_EVENTS: {
 } = {
   CLOSE: 'close'
 }
+
+export const DEFAULT_NEXT_PORT = 3037;

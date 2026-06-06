@@ -141,7 +141,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				plan: 'Startup'
 			},
 			{
-				name: 'Ever Cloc',
+				name: 'Ever Teams',
 				logo: GalleryVerticalEnd,
 				plan: 'Free'
 			},
@@ -371,7 +371,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				<SidebarTrigger
 					className={cn(
 						state === 'collapsed' ? 'right-[-20%]' : ' right-[-5%]',
-						'absolute  top-[8%] size-7 bg-[#1C75FD]! flex items-center justify-center rounded-full! transition-all duration-300 filter drop-shadow-[0px_0px_6px_rgba(28,117,253,0.30)] z-55'
+						'absolute  top-[8%] size-7 bg-[#1C75FD]! flex items-center justify-center rounded-full! transition-all duration-300 filter drop-shadow-[0px_0px_6px_rgba(28,117,253,0.30)] z-[1030]'
 					)}
 				/>
 				<SidebarHeader className={cn(state === 'collapsed' ? 'items-center' : '')}>

@@ -101,6 +101,7 @@
 		"CONFIRM": "Potwierdź",
 		"YOUR_EMAIL": "Twój adres e-mail",
 		"CONTINUE": "Kontynuuj",
+		"AND": "i",
 		"EDIT_TASK": "Edytuj zadanie",
 		"ASSIGN_TASK": "Przypisz zadanie",
 		"ASSIGN_TASK_TO": "Przypisz zadanie do",
@@ -705,7 +706,10 @@
 			"NO_TEAMS_BADGE": "Brak zespołów",
 			"TEAM_COUNT_SINGULAR": "zespół",
 			"TEAM_COUNT_PLURAL": "zespoły",
-			"FORGOT_PASSWORD": "Forgot Password?"
+			"FORGOT_PASSWORD": "Zapomniałeś hasła?",
+			"TERMS_OF_SERVICE": "Regulamin",
+			"PRIVACY_POLICY": "Polityka prywatności",
+			"OR_CONTINUE_WITH": "lub kontynuuj przez"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Dołącz do istniejącego zespołu",
@@ -785,6 +789,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "Ustawienia Ogólne",
+			"goToTeamSettings": "Przejdź do ustawień zespołu",
+			"WORKING_HOURS": "Godziny pracy",
 			"emailNotValid": "Proszę podać poprawny adres e-mail",
 			"phoneNotValid": "Proszę podać poprawny numer telefonu",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "Zamierzasz usunąć swoje konto i wszystkie swoje dane?",
@@ -998,6 +1004,20 @@
 			"IN_REVIEW": "W trakcie przeglądu",
 			"DRAFT": "Szkic",
 			"REJECTED": "Odrzucone"
+		},
+		"timeLog": {
+			"DELETE_SUCCESS": "Wpis czasu został pomyślnie usunięty.",
+			"DELETE_ERROR": "Wystąpił błąd. Wpis czasu nie mógł zostać usunięty.",
+			"MODIFY_SUCCESS": "Wpis czasu został pomyślnie zmodyfikowany.",
+			"MODIFY_ERROR": "Nie udało się zmodyfikować wpisu czasu. Spróbuj ponownie.",
+			"DELETION_CONFIRMED": "Usunięcie potwierdzone",
+			"DELETION_ERROR_TITLE": "Błąd podczas usuwania",
+			"MODIFICATION_CONFIRMED": "Modyfikacja potwierdzona",
+			"MODIFICATION_ERROR_TITLE": "Błąd podczas modyfikacji",
+			"BILLABLE_MODIFY_SUCCESS": "Stan rozliczeniowy został pomyślnie zmieniony.",
+			"BILLABLE_MODIFY_ERROR": "Nie udało się zmienić stanu rozliczeniowego. Spróbuj ponownie.",
+			"STATUS_MODIFY_SUCCESS": "Status karty czasu pracy został pomyślnie zmieniony.",
+			"STATUS_MODIFY_ERROR": "Nie udało się zmienić statusu karty czasu pracy. Spróbuj ponownie."
 		}
 	},
 	"timer": {
@@ -1248,5 +1268,33 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Czy na pewno chcesz usunąć ten przedział czasowy?"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "Konfiguracja czatu AI",
+		"DIALOG_DESCRIPTION": "Skonfiguruj dostawcę AI i klucz API, aby włączyć asystenta czatu.",
+		"PROVIDER_LABEL": "Dostawca",
+		"API_KEY_LABEL": "Klucz API",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "Twój klucz jest przechowywany lokalnie i wysyłany do API czatu tylko wtedy, gdy korzystasz z asystenta.",
+		"MODEL_LABEL": "Model",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "Bazowy URL",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "Anuluj",
+		"SAVE": "Zapisz"
+	},
+	"chatView": {
+		"HEADER_TITLE": "Czat AI",
+		"CLEAR_CONVERSATION": "Wyczyść rozmowę",
+		"CONFIGURATION": "Konfiguracja",
+		"ASSISTANT_NAME": "Asystent Ever Teams",
+		"EMPTY_CONFIGURED": "Zadaj pytanie, aby rozpocząć.",
+		"EMPTY_NOT_CONFIGURED": "Skonfiguruj klucz API, aby rozpocząć.",
+		"CONFIGURE_BUTTON": "Konfiguruj",
+		"ERROR_FALLBACK": "Wystąpił błąd. Sprawdź swoją konfigurację.",
+		"INPUT_PLACEHOLDER_READY": "Twoja wiadomość...",
+		"INPUT_PLACEHOLDER_NO_KEY": "Skonfiguruj klucz API...",
+		"STOP": "Zatrzymaj",
+		"SEND": "Wyślij"
 	}
 }

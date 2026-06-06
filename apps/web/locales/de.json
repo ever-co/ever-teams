@@ -100,6 +100,7 @@
 		"CONFIRM": "Bestätigen",
 		"YOUR_EMAIL": "deine E-Mail",
 		"CONTINUE": "Weiter",
+		"AND": "und",
 		"EDIT_TASK": "Aufgabe bearbeiten",
 		"ASSIGN_TASK": "Aufgabe zuweisen",
 		"ASSIGN_TASK_TO": "Aufgabe zuweisen an",
@@ -705,7 +706,10 @@
 			"NO_TEAMS_BADGE": "Keine Teams",
 			"TEAM_COUNT_SINGULAR": "Team",
 			"TEAM_COUNT_PLURAL": "Teams",
-			"FORGOT_PASSWORD": "Forgot Password?"
+			"FORGOT_PASSWORD": "Passwort vergessen?",
+			"TERMS_OF_SERVICE": "Nutzungsbedingungen",
+			"PRIVACY_POLICY": "Datenschutzrichtlinie",
+			"OR_CONTINUE_WITH": "oder weiter mit"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Bestehendem Team beitreten",
@@ -785,6 +789,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "Allgemeine Einstellungen",
+			"goToTeamSettings": "Go to Team settings",
+			"WORKING_HOURS": "Working hours",
 			"emailNotValid": "Bitte geben Sie eine gültige E-Mail-Adresse an",
 			"phoneNotValid": "Bitte geben Sie eine gültige Telefonnummer an",
 			"WORK_SCHEDULE": "Arbeitszeitplan",
@@ -998,6 +1004,20 @@
 			"IN_REVIEW": "In Überprüfung",
 			"DRAFT": "Entwurf",
 			"REJECTED": "Abgelehnt"
+		},
+		"timeLog": {
+			"DELETE_SUCCESS": "Der Zeiteintrag wurde erfolgreich gelöscht.",
+			"DELETE_ERROR": "Ein Fehler ist aufgetreten. Der Zeiteintrag konnte nicht gelöscht werden.",
+			"MODIFY_SUCCESS": "Der Zeiteintrag wurde erfolgreich geändert.",
+			"MODIFY_ERROR": "Der Zeiteintrag konnte nicht geändert werden. Bitte versuchen Sie es erneut.",
+			"DELETION_CONFIRMED": "Löschung bestätigt",
+			"DELETION_ERROR_TITLE": "Fehler beim Löschen",
+			"MODIFICATION_CONFIRMED": "Änderung bestätigt",
+			"MODIFICATION_ERROR_TITLE": "Fehler bei der Änderung",
+			"BILLABLE_MODIFY_SUCCESS": "Der Abrechnungsstatus wurde erfolgreich geändert.",
+			"BILLABLE_MODIFY_ERROR": "Der Abrechnungsstatus konnte nicht geändert werden. Bitte versuchen Sie es erneut.",
+			"STATUS_MODIFY_SUCCESS": "Der Status der Zeiterfassung wurde erfolgreich geändert.",
+			"STATUS_MODIFY_ERROR": "Der Status der Zeiterfassung konnte nicht geändert werden. Bitte versuchen Sie es erneut."
 		}
 	},
 	"timer": {
@@ -1248,5 +1268,33 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Möchten Sie diesen Zeitraum wirklich löschen?"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "AI-Chat-Konfiguration",
+		"DIALOG_DESCRIPTION": "Konfigurieren Sie Ihren KI-Anbieter und API-Schlüssel, um den Chat-Assistenten zu aktivieren.",
+		"PROVIDER_LABEL": "Anbieter",
+		"API_KEY_LABEL": "API-Schlüssel",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "Ihr Schlüssel wird lokal gespeichert und nur bei Nutzung des Assistenten an die Chat-API gesendet.",
+		"MODEL_LABEL": "Modell",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "Basis-URL",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "Abbrechen",
+		"SAVE": "Speichern"
+	},
+	"chatView": {
+		"HEADER_TITLE": "AI-Chat",
+		"CLEAR_CONVERSATION": "Gespräch löschen",
+		"CONFIGURATION": "Konfiguration",
+		"ASSISTANT_NAME": "Ever Teams Assistent",
+		"EMPTY_CONFIGURED": "Stellen Sie eine Frage, um zu beginnen.",
+		"EMPTY_NOT_CONFIGURED": "Konfigurieren Sie Ihren API-Schlüssel, um zu beginnen.",
+		"CONFIGURE_BUTTON": "Konfigurieren",
+		"ERROR_FALLBACK": "Ein Fehler ist aufgetreten. Bitte überprüfen Sie Ihre Konfiguration.",
+		"INPUT_PLACEHOLDER_READY": "Ihre Nachricht...",
+		"INPUT_PLACEHOLDER_NO_KEY": "Konfigurieren Sie Ihren API-Schlüssel...",
+		"STOP": "Stoppen",
+		"SEND": "Senden"
 	}
 }

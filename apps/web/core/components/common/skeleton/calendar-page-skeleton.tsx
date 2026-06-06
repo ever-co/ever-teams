@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { Container } from '@/core/components';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 
 interface CalendarPageSkeletonProps {
 	className?: string;
@@ -10,7 +10,7 @@ interface CalendarPageSkeletonProps {
 
 /**
  * Complete page-level skeleton for Calendar page
- * Integrates seamlessly with MainLayout structure without swallowing it up
+ * Integrates seamlessly with PageLayout structure without swallowing it up
  * Matches exact layout: fixed header (breadcrumb + tabs + calendar controls) + main content (FullCalendar)
  */
 export const CalendarPageSkeleton: FC<CalendarPageSkeletonProps> = ({
@@ -19,7 +19,7 @@ export const CalendarPageSkeleton: FC<CalendarPageSkeletonProps> = ({
 	fullWidth = false
 }) => {
 	return (
-		<MainLayout showTimer={showTimer} footerClassName="hidden" className="h-full shadow-xl">
+		<PageLayout showTimer={showTimer} footerClassName="hidden" className="h-full shadow-xl">
 			{/* SKELETON: Fixed Header Section */}
 			<div className="fixed top-20 flex flex-col border-b-[1px] dark:border-gray-800 z-10 mx-0 w-full bg-white dark:bg-dark-high shadow-lg shadow-gray-100 dark:shadow-gray-700">
 				<Container fullWidth={fullWidth}>
@@ -181,7 +181,7 @@ export const CalendarPageSkeleton: FC<CalendarPageSkeletonProps> = ({
 					</div>
 				</Container>
 			</div>
-		</MainLayout>
+		</PageLayout>
 	);
 };
 

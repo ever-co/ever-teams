@@ -81,22 +81,22 @@ import Config from '../../../config';
 
 ## Example Configuration
 
-For Ever Cloc branding, set these environment variables:
+For Ever Teams branding, set these environment variables:
 
 ```bash
 # App Branding
-APP_NAME="Ever Cloc"
+APP_NAME="Ever Teams"
 COMPANY_NAME="Ever Co. LTD"
-APP_LOGO_URL="https://app.cloc.ai/assets/ever-cloc.png"
-APP_WEBSITE_URL="https://cloc.ai/"
-APP_EMAIL_CONFIRMATION_URL="https://app.cloc.ai/#/auth/confirm-email"
+APP_LOGO_URL="https://app.ever.team/assets/ever-teams.png"
+APP_WEBSITE_URL="https://ever.team/"
+APP_EMAIL_CONFIRMATION_URL="https://app.ever.team/#/auth/confirm-email"
 
 # Expo Configuration
-EXPO_PROJECT_NAME="Ever Cloc Mobile"
-EXPO_PROJECT_SLUG="ever-cloc-mobile"
+EXPO_PROJECT_NAME="Ever Teams Mobile"
+EXPO_PROJECT_SLUG="ever-teams-mobile"
 EXPO_PROJECT_OWNER="everco"
-EXPO_PROJECT_PACKAGE_NAME="co.ever.cloc"
-EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER="co.ever.cloc"
+EXPO_PROJECT_PACKAGE_NAME="co.ever.teams"
+EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER="co.ever.teams"
 ```
 
 ## Assets

@@ -20,7 +20,6 @@ import {
 } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
-import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { Eye, EyeOff } from 'lucide-react';
 import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
@@ -35,9 +34,11 @@ export default function AuthPassword() {
 		<AuthLayout
 			title={t('pages.authLogin.HEADING_TITLE', { appName: APP_NAME })}
 			description={t('pages.authPassword.HEADING_DESCRIPTION')}
+			headerLinkText={t('common.REGISTER')}
+			headerLinkHref="/auth/signup"
 		>
-			<div className={cn("w-full md:min-w-[26rem] md:w-fit max-w-[450px] overflow-x-hidden overflow-y-clip", IS_DEMO_MODE && '!min-w-fit')}>
-				<div className={cn('flex flex-row w-full duration-500 transition-[transform]')}>
+			<div className="overflow-x-hidden w-full p-1.5">
+				<div className="w-full duration-500 transition-[transform] mb-3">
 					{form.authScreen.screen === 'login' && <LoginForm form={form} />}
 
 					{form.authScreen.screen === 'workspace' && <WorkSpaceScreen form={form} className="w-full" />}
@@ -67,6 +68,9 @@ interface LoginFormFieldsProps {
 	required?: boolean;
 }
 
+const INPUT_CLASS =
+	'dark:bg-foreground/5 ring-foreground/10 placeholder:text-muted-foreground/75 selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border border-transparent bg-white px-3 py-1 text-base shadow-sm outline-none ring-1 transition-[color,box-shadow] md:text-sm focus-visible:border-foreground/35 focus-visible:ring-ring/25 dark:focus-visible:border-foreground/25 focus-visible:ring-[3px]';
+
 function LoginFormFields({
 	form,
 	showPassword,
@@ -75,44 +79,58 @@ function LoginFormFields({
 	required = false
 }: LoginFormFieldsProps) {
 	return (
-		<>
-			<InputField
-				name="email"
-				type="email"
-				placeholder={t('form.EMAIL_PLACEHOLDER')}
-				value={form.formValues.email}
-				errors={form.errors}
-				onChange={form.handleChange}
-				autoComplete="off"
-				wrapperClassName="dark:bg-[#25272D]"
-				className="dark:bg-[#25272D]"
-				required={required}
-			/>
+		<div className="space-y-4">
+			<div className="space-y-2.5">
+				<label data-slot="label" className="block text-sm font-medium leading-none select-none" htmlFor="pw-email">
+					{t('form.EMAIL_PLACEHOLDER')}
+				</label>
+				<InputField
+					id="pw-email"
+					name="email"
+					type="email"
+					placeholder={t('form.EMAIL_PLACEHOLDER')}
+					value={form.formValues.email}
+					errors={form.errors}
+					onChange={form.handleChange}
+					autoComplete="off"
+					noWrapper
+					className={INPUT_CLASS}
+					required={required}
+				/>
+				{form.errors?.email && <Text.Error className="text-xs">{form.errors.email}</Text.Error>}
+			</div>
 
-			<InputField
-				type={showPassword ? 'text' : 'password'}
-				name="password"
-				placeholder={t('form.PASSWORD_PLACEHOLDER')}
-				className="dark:bg-[#25272D]"
-				wrapperClassName="mb-5 dark:bg-[#25272D]"
-				value={form.formValues.password}
-				errors={form.errors}
-				onChange={form.handleChange}
-				autoComplete="off"
-				required={required}
-				trailingNode={
+			<div className="space-y-2.5">
+				<label data-slot="label" className="block text-sm font-medium leading-none select-none" htmlFor="pw-password">
+					{t('form.PASSWORD_PLACEHOLDER')}
+				</label>
+				<div className="relative">
+					<InputField
+						id="pw-password"
+						type={showPassword ? 'text' : 'password'}
+						name="password"
+						placeholder={t('form.PASSWORD_PLACEHOLDER')}
+						value={form.formValues.password}
+						errors={form.errors}
+						onChange={form.handleChange}
+						autoComplete="off"
+						noWrapper
+						className={cn(INPUT_CLASS, 'pr-10')}
+						required={required}
+					/>
 					<button
 						type="button"
-						className="px-4 text-xs font-normal text-gray-500 dark:text-gray-400"
+						className="absolute right-3 top-1/2 transition-colors -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
 						onClick={togglePasswordVisibility}
 					>
-						{showPassword ? <Eye size={15} className="font-light" /> : <EyeOff size={15} className="font-light" />}
+						{showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
 					</button>
-				}
-			/>
+				</div>
+				{form.errors?.password && <Text.Error className="text-xs">{form.errors.password}</Text.Error>}
+			</div>
 
-			<Text.Error className="justify-self-start self-start">{form.errors.loginFailed}</Text.Error>
-		</>
+			{form.errors?.loginFailed && <Text.Error className="text-xs">{form.errors.loginFailed}</Text.Error>}
+		</div>
 	);
 }
 
@@ -134,38 +152,36 @@ interface LoginFormActionsProps {
 
 function LoginFormActions({ form, t, showMagicCodeLink = false }: LoginFormActionsProps) {
 	return (
-		<div className="flex flex-col gap-2 items-center w-full">
-			{/* Register Link - Better design with justify-between */}
-			<div className="flex gap-3 justify-between items-center mb-1 w-full text-sm">
-				<span>{t('common.DONT_HAVE_ACCOUNT')}</span>
-				<Link href="/auth/signup" className="underline whitespace-nowrap text-primary dark:text-primary-light text-nowrap">
-					<span>{t('common.REGISTER')}</span>
-				</Link>
-			</div>
-
-			{/* Forgot Password Link */}
-			<div className="flex gap-3 justify-between items-center mb-3 w-full text-sm">
-				<span>{t('pages.authLogin.HAVE_PASSWORD')}</span>
-				<Link href="/auth/forgot-password" className="underline whitespace-nowrap text-primary dark:text-primary-light text-nowrap">
-					<span>{t('pages.auth.FORGOT_PASSWORD')}</span>
-				</Link>
-			</div>
-
-			{/* Continue Button - Full width for better UX */}
-			<Button type="submit" loading={form.signInLoading} disabled={form.signInLoading} className="w-full">
+		<>
+			{/* Continue Button — template exact classes */}
+			<Button
+				type="submit"
+				loading={form.signInLoading}
+				disabled={form.signInLoading}
+				className="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-md border-[0.5px] border-white/10 shadow-black/15 [&_svg]:drop-shadow-sm bg-primary ring-1 ring-(--ring-color) [--ring-color:color-mix(in_oklab,black_15%,var(--color-primary))] dark:border-transparent dark:[--ring-color:color-mix(in_oklab,white_15%,var(--color-primary))] text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2 w-full"
+			>
 				{t('common.CONTINUE')}
 			</Button>
 
-			{/* Magic Code Link - Only shown in NORMAL mode */}
-			{showMagicCodeLink && (
-				<div className="flex gap-2 justify-start items-center mb-2 w-full text-sm">
-					<Link href={DEFAULT_APP_PATH} className="text-sm font-medium underline text-primary dark:text-primary-light">
-						{t('pages.authLogin.LOGIN_WITH_MAGIC_CODE')}.
+			{/* Links — after button, template mt-10 */}
+			<div className="mt-3 space-y-2 text-sm text-muted-foreground">
+				<div className="flex gap-2 justify-between items-center">
+					<span>{t('pages.authLogin.HAVE_PASSWORD')}</span>
+					<Link href="/auth/forgot-password" className="font-medium text-primary hover:underline">
+						{t('pages.auth.FORGOT_PASSWORD')}
 					</Link>
 				</div>
-			)}
 
-		</div>
+				{/* Magic Code Link - Only shown in NORMAL mode */}
+				{showMagicCodeLink && (
+					<div className="text-center">
+						<Link href={DEFAULT_APP_PATH} className="font-medium text-primary hover:underline">
+							{t('pages.authLogin.LOGIN_WITH_MAGIC_CODE')}
+						</Link>
+					</div>
+				)}
+			</div>
+		</>
 	);
 }
 
@@ -231,77 +247,51 @@ function LoginForm({ form }: { form: TAuthenticationPassword }) {
 	);
 
 	return (
-		<div className="flex flex-col gap-4 w-full rounded-2xl">
+		<div className="w-full">
 			{/* Demo Mode: Two-column layout */}
 			{IS_DEMO_MODE ? (
-				<div className="flex flex-row gap-3 justify-start items-start p-3 w-fit">
-					{/* Left: Login Form with Dropdown - 65% width */}
-					<div className="w-[65%] flex flex-col gap-4">
-						<EverCard
-							className={cn('w-full dark:bg-[#25272D] bg-[#ffffff] min-w-[360px] min-h-[388px]')}
-							shadow="bigger"
-						>
-							<form onSubmit={form.handleSubmit} className="flex flex-col justify-between items-center">
-								<div className="flex gap-3 justify-between items-start mb-3 w-full">
-									<Text.Heading as="h3" className="mb-6 text-left">
-										{t('pages.authLogin.LOGIN_WITH_PASSWORD')}
-									</Text.Heading>
-
-									{/* Demo Credentials Dropdown - Above form fields */}
-									<DemoCredentialsDropdown
-										onCredentialSelect={handleCredentialSelect}
-										className="px-3 w-fit text-nowrap min-w-36"
-									/>
-								</div>
-								<div className="mb-6 w-full">
-									<LoginFormFields
-										form={form}
-										showPassword={showPassword}
-										togglePasswordVisibility={togglePasswordVisibility}
-										t={t}
-										required={true}
-									/>
-								</div>
-
-								<LoginFormActions form={form} t={t} showMagicCodeLink={false} />
-							</form>
-						</EverCard>
+				<div className="flex flex-row gap-6 justify-start items-start">
+					{/* Left: Login Form with Dropdown */}
+					<div className="flex-1 min-w-0">
+						<form onSubmit={form.handleSubmit} className="space-y-6">
+							<div className="flex gap-3 justify-between items-start">
+								<DemoCredentialsDropdown
+									onCredentialSelect={handleCredentialSelect}
+									className="px-3 w-fit text-nowrap min-w-36"
+								/>
+							</div>
+							<LoginFormFields
+								form={form}
+								showPassword={showPassword}
+								togglePasswordVisibility={togglePasswordVisibility}
+								t={t}
+								required={true}
+							/>
+							<LoginFormActions form={form} t={t} showMagicCodeLink={false} />
+						</form>
 					</div>
 
-					{/* Right: Demo Accounts Quick Access - 35% width */}
+					{/* Right: Demo Accounts Quick Access */}
 					<div className="w-[35%] shrink-0">
 						<DemoAccountsSection onDemoLogin={handleDemoLogin} />
 					</div>
 				</div>
 			) : (
 				/* Normal Mode: Single column layout */
-				<>
-					<EverCard
-						className={cn('w-full dark:bg-[#25272D] bg-[#ffffff] min-w-[360px] min-h-[388px]')}
-						shadow="bigger"
-					>
-						<form onSubmit={form.handleSubmit} className="flex flex-col justify-between items-center">
-							<Text.Heading as="h3" className="mb-10 text-center">
-								{t('pages.authLogin.LOGIN_WITH_PASSWORD')}
-							</Text.Heading>
-							<div className="mb-6 w-full">
-								<LoginFormFields
-									form={form}
-									showPassword={showPassword}
-									togglePasswordVisibility={togglePasswordVisibility}
-									t={t}
-									required={false}
-								/>
-							</div>
+				<div className="space-y-6">
+					<form onSubmit={form.handleSubmit} className="space-y-6">
+						<LoginFormFields
+							form={form}
+							showPassword={showPassword}
+							togglePasswordVisibility={togglePasswordVisibility}
+							t={t}
+							required={false}
+						/>
+						<LoginFormActions form={form} t={t} showMagicCodeLink={true} />
+					</form>
 
-							<LoginFormActions form={form} t={t} showMagicCodeLink={true} />
-						</form>
-					</EverCard>
-
-					<div className="bg-[#f2f2f2] dark:bg-transparent">
-						<SocialLogins />
-					</div>
-				</>
+					<SocialLogins />
+				</div>
 			)}
 		</div>
 	);

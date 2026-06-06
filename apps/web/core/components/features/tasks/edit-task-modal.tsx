@@ -1,4 +1,4 @@
-import { Modal, statusColor } from '@/core/components';
+import { Modal } from '@/core/components';
 import { DatePickerFilter } from '../../pages/timesheet/timesheet-filter-date';
 import { FormEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -7,8 +7,6 @@ import { Item, ManageOrMemberComponent, getNestedValue } from '@/core/components
 import { statusTable } from '../../timesheet/timesheet-action';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { differenceBetweenHours, formatTimeFromDate, secondsToTime, toDate } from '@/core/lib/helpers/index';
-import { useUpdateTimesheet } from '@/core/hooks/timesheet/use-update-timesheet';
-import { ToastAction } from '@/core/components/common/toast';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { addMinutes, format, parseISO } from 'date-fns';
 import { Clock7 } from 'lucide-react';
@@ -18,29 +16,39 @@ import { toast } from 'sonner';
 import { useAtomValue } from 'jotai';
 import { activeTeamState } from '@/core/stores';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
+import { useUpdateTimeLogMutation } from '@/core/hooks/timesheet';
+import { ITimeLogUpdatePayload } from '@/core/types/interfaces/timesheet/time-log.interface';
+import { useMyRolePermissionsQuery } from '@/core/hooks';
 
-export interface IEditTaskModalProps {
+interface IEditTaskModalProps {
 	isOpen: boolean;
 	closeModal: () => void;
-	dataTimesheet: ITimeLog;
+	timeLogData: ITimeLog;
 }
-export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskModalProps) {
+
+export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModalProps) {
 	const { organizationProjects } = useOrganizationProjectsQuery();
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const t = useTranslations();
-	const { updateTimesheet, loadingUpdateTimesheet } = useUpdateTimesheet();
+	const { mutateAsync: updateTimeLog, isPending: isUpdateTimeLogLoading } = useUpdateTimeLogMutation();
 	const initialTimeRange = {
-		startTime: formatTimeFromDate(dataTimesheet.startedAt),
-		endTime: formatTimeFromDate(dataTimesheet.stoppedAt)
+		startTime: formatTimeFromDate(timeLogData.startedAt),
+		endTime: formatTimeFromDate(timeLogData.stoppedAt)
 	};
 
+	const { myPermissions } = useMyRolePermissionsQuery();
+	const canUpdateTimeSheetStatus = useMemo(
+		() => (myPermissions ?? []).includes('CAN_APPROVE_TIMESHEET'),
+		[myPermissions]
+	);
+
 	const [dateRange, setDateRange] = useState<{ date: Date | null }>({
-		date: dataTimesheet.timesheet?.startedAt ? new Date(dataTimesheet.timesheet.startedAt) : new Date()
+		date: timeLogData.timesheet?.startedAt ? new Date(timeLogData.timesheet.startedAt) : new Date()
 	});
 	const seconds =
-		dataTimesheet.startedAt && dataTimesheet.stoppedAt
-			? differenceBetweenHours(toDate(dataTimesheet.startedAt), toDate(dataTimesheet.stoppedAt))
+		timeLogData.startedAt && timeLogData.stoppedAt
+			? differenceBetweenHours(toDate(timeLogData.startedAt), toDate(timeLogData.stoppedAt))
 			: 0;
 	const { hours, minutes } = secondsToTime(seconds);
 
@@ -58,10 +66,10 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 		}));
 	};
 	const [timesheetData, setTimesheetData] = useState({
-		isBillable: dataTimesheet.isBillable ?? true,
-		projectId: dataTimesheet.project?.id || '',
-		notes: dataTimesheet.description || '',
-		employeeId: dataTimesheet.employeeId || ''
+		isBillable: timeLogData.isBillable ?? true,
+		projectId: timeLogData.project?.id || '',
+		notes: timeLogData.description || '',
+		employeeId: timeLogData.employeeId || ''
 	});
 	const memberItemsLists = useMemo(
 		() => ({
@@ -83,9 +91,9 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 	}, []);
 	const selectedValues = useMemo(
 		() => ({
-			Project: dataTimesheet.project || null
+			Project: timeLogData.project || null
 		}),
-		[dataTimesheet.project]
+		[timeLogData.project]
 	);
 	const handleChange = useCallback((field: string, selectedItem: Item | null) => {
 		if (!selectedItem) return;
@@ -124,33 +132,25 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 					...timeRange.endTime.split(':').map(Number)
 				)
 			);
-
-			const payload = {
-				id: dataTimesheet.id,
+			const updatePayload: ITimeLogUpdatePayload = {
+				timeLogId: timeLogData.id,
 				isBillable: timesheetData.isBillable,
 				employeeId: timesheetData.employeeId,
-				logType: dataTimesheet.logType,
-				source: dataTimesheet.source,
-				startedAt,
-				stoppedAt,
-				tenantId: dataTimesheet.tenantId,
-				organizationId: dataTimesheet.organizationId,
 				description: timesheetData.notes,
 				projectId: timesheetData.projectId,
-				organizationTeamId: dataTimesheet.organizationTeamId || undefined,
-				organizationContactId: dataTimesheet.organizationContactId || undefined
+				startedAt,
+				stoppedAt
 			};
-			updateTimesheet({ ...payload })
+			updateTimeLog(updatePayload)
 				.then(() => {
-					toast.success('Modification Confirmed', {
-						description: 'The timesheet has been successfully modified.',
-						action: <ToastAction altText="Undo changes">Undo</ToastAction>
+					toast.success(t('pages.timeLog.MODIFICATION_CONFIRMED'), {
+						description: t('pages.timeLog.MODIFY_SUCCESS')
 					});
 					closeModal();
 				})
 				.catch((error) => {
-					toast.error('Error during modification', {
-						description: 'Failed to modify timesheet. Please try again.'
+					toast.error(t('pages.timeLog.MODIFICATION_ERROR_TITLE'), {
+						description: t('pages.timeLog.MODIFY_ERROR')
 					});
 					if (!error) {
 						closeModal();
@@ -161,19 +161,17 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 			timeRange.startTime,
 			timeRange.endTime,
 			dateRange.date,
-			dataTimesheet.id,
-			dataTimesheet.logType,
-			dataTimesheet.source,
-			dataTimesheet.tenantId,
-			dataTimesheet.organizationId,
-			dataTimesheet.organizationTeamId,
-			dataTimesheet.organizationContactId,
+			timeLogData.id,
+			timeLogData.logType,
+			timeLogData.source,
+			timeLogData.tenantId,
 			timesheetData.isBillable,
 			timesheetData.employeeId,
 			timesheetData.notes,
 			timesheetData.projectId,
-			updateTimesheet,
-			closeModal
+			closeModal,
+			updateTimeLog,
+			t
 		]
 	);
 
@@ -215,14 +213,14 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 			closeModal={closeModal}
 			isOpen={isOpen}
 			showCloseIcon
-			title={t('common.EDIT_TASK')}
+			title={t('common.TIME_LOG')}
 			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[32rem] justify-start h-[auto]"
 			titleClass="font-bold flex justify-start w-full"
 		>
 			<form onSubmit={handleUpdateSubmit} className="flex flex-col w-full">
 				<div className="flex flex-col border-b border-b-slate-100 dark:border-b-gray-700">
 					<TaskNameInfoDisplay
-						task={dataTimesheet.task}
+						task={timeLogData.task}
 						className={clsxm(
 							'rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem] shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
 						)}
@@ -234,8 +232,8 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 					<div className="flex gap-x-1 items-center">
 						<span className="text-gray-400">for</span>
 						<CustomSelect
-							defaultValue={dataTimesheet.employee?.fullName}
-							placeholder={dataTimesheet.employee?.fullName}
+							defaultValue={timeLogData.employee?.fullName}
+							placeholder={timeLogData.employee?.fullName}
 							valueKey="employeeId"
 							className="border border-transparent hover:border-transparent dark:hover:border-transparent"
 							options={activeTeam?.members || []}
@@ -243,16 +241,7 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 							onChange={(value) => {
 								setTimesheetData({ ...timesheetData, employeeId: value });
 							}}
-							renderOption={(option) => (
-								<div className="flex gap-x-2 items-center">
-									<img
-										className="w-6 h-6 rounded-full"
-										src={option.employee.user.imageUrl}
-										alt={option.employee.fullName}
-									/>
-									<span>{option.employee.fullName}</span>
-								</div>
-							)}
+							renderOption={(option) => option.employee.fullName}
 						/>
 					</div>
 				</div>
@@ -377,18 +366,14 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 					<div className="w-full border-t border-t-gray-200 dark:border-t-gray-700"></div>
 					<div className="!flex items-center justify-between gap-2 w-full">
 						<div className="flex flex-col justify-center items-start">
-							<CustomSelect
-								defaultValue={dataTimesheet.timesheet?.status ?? ''}
-								ariaLabel={dataTimesheet.timesheet?.status ?? ''}
-								className="ring-offset-sidebar-primary-foreground w-[150px]"
-								options={statusTable?.flatMap((status) => status.label)}
-								renderOption={(option) => (
-									<div className="flex gap-x-2 items-center cursor-pointer">
-										<div className={clsxm('p-2 rounded-full', statusColor(option).bg)}></div>
-										<span className={clsxm('ml-1', statusColor(option).text)}>{option}</span>
-									</div>
-								)}
-							/>
+							{canUpdateTimeSheetStatus ? (
+								<CustomSelect
+									defaultValue={timeLogData.timesheet?.status ?? ''}
+									ariaLabel={timeLogData.timesheet?.status ?? ''}
+									className="ring-offset-sidebar-primary-foreground w-[150px]"
+									options={statusTable?.flatMap((status) => status.label)}
+								/>
+							) : null}
 						</div>
 						<div className="flex gap-x-2 justify-end items-center w-full">
 							<button
@@ -401,14 +386,14 @@ export function EditTaskModal({ isOpen, closeModal, dataTimesheet }: IEditTaskMo
 								{t('common.CANCEL')}
 							</button>
 							<button
-								disabled={loadingUpdateTimesheet}
+								disabled={isUpdateTimeLogLoading}
 								type="submit"
 								className={clsxm(
 									'bg-primary dark:bg-primary-light h-[2.3rem] w-[5.5rem] justify-center font-normal flex items-center text-white px-2 rounded-lg'
 								)}
 							>
-								{loadingUpdateTimesheet && <ReloadIcon className="mr-2 w-4 h-4 animate-spin" />}
-								{loadingUpdateTimesheet ? 'Processing...' : t('common.SAVE')}
+								{isUpdateTimeLogLoading && <ReloadIcon className="mr-2 w-4 h-4 animate-spin" />}
+								{isUpdateTimeLogLoading ? 'Processing...' : t('common.SAVE')}
 							</button>
 						</div>
 					</div>

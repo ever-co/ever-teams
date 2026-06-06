@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ever-Teams Project</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: transparent;
+            padding: 16px;
+        }
+
+        .project-container {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #e0e0e0;
+            padding: 24px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .project-header {
+            margin-bottom: 20px;
+        }
+
+        .project-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #3826A6 0%, #A11DB1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .project-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .project-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .project-stat {
+            background: linear-gradient(135deg, rgba(56, 38, 166, 0.05) 0%, rgba(161, 29, 177, 0.05) 100%);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(161, 29, 177, 0.2);
+        }
+
+        .project-stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #3826A6 0%, #A11DB1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+        }
+
+        .project-stat-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #999;
+        }
+
+        .project-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .project-detail {
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .project-detail-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #999;
+            margin-bottom: 6px;
+        }
+
+        .project-detail-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+        }
+
+        .project-team {
+            margin-top: 24px;
+        }
+
+        .project-team-title {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #999;
+            margin-bottom: 12px;
+        }
+
+        .project-team-members {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .project-team-member {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .project-status-bar {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .project-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .project-status.active {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .project-status.completed {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .project-status.on-hold {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .project-dates {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .project-progress {
+            margin-top: 16px;
+        }
+
+        .project-progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .project-progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .project-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3826A6 0%, #A11DB1 100%);
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 640px) {
+            .project-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .project-details {
+                grid-template-columns: 1fr;
+            }
+
+            .project-status-bar {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="project-container" id="projectCard">
+        <!-- Content will be injected by JavaScript -->
+    </div>
+
+    <script>
+        (function() {
+            const data = window.__WIDGET_DATA__ || {};
+
+            function formatDate(isoString) {
+                if (!isoString) return 'N/A';
+                const date = new Date(isoString);
+                return date.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+            }
+
+            function formatDuration(seconds) {
+                if (!seconds && seconds !== 0) return '0h';
+                const hours = Math.floor(seconds / 3600);
+                return `${hours}h`;
+            }
+
+            function formatCurrency(amount, currency = 'USD') {
+                if (!amount && amount !== 0) return 'N/A';
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: currency
+                }).format(amount);
+            }
+
+            function getStatusClass(status) {
+                const statusLower = (status || '').toLowerCase();
+                if (statusLower.includes('active') || statusLower.includes('progress')) return 'active';
+                if (statusLower.includes('complete')) return 'completed';
+                if (statusLower.includes('hold')) return 'on-hold';
+                return 'active';
+            }
+
+            function renderProject(projectData) {
+                const container = document.getElementById('projectCard');
+
+                if (!projectData || Object.keys(projectData).length === 0) {
+                    container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">No project data</div>';
+                    return;
+                }
+
+                const name = projectData.name || 'Unnamed Project';
+                const description = projectData.description || '';
+                const status = projectData.status || 'Active';
+                const totalHours = projectData.totalHours || projectData.stats?.totalHours || 0;
+                const totalTasks = projectData.totalTasks || projectData.stats?.totalTasks || 0;
+                const completedTasks = projectData.completedTasks || projectData.stats?.completedTasks || 0;
+                const teamSize = projectData.teamSize || projectData.members?.length || 0;
+                const budget = projectData.budget;
+                const spent = projectData.spent;
+                const startDate = projectData.startDate;
+                const endDate = projectData.endDate;
+                const members = projectData.members || [];
+                const client = projectData.organizationContact?.name || projectData.clientName;
+                const progress = projectData.progress || (totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0);
+
+                let html = `
+                    <div class="project-header">
+                        <div class="project-name">${name}</div>
+                        ${description ? `<div class="project-description">${description}</div>` : ''}
+                    </div>
+
+                    <div class="project-stats">
+                        <div class="project-stat">
+                            <div class="project-stat-value">${formatDuration(totalHours * 3600)}</div>
+                            <div class="project-stat-label">Total Hours</div>
+                        </div>
+                        <div class="project-stat">
+                            <div class="project-stat-value">${totalTasks}</div>
+                            <div class="project-stat-label">Total Tasks</div>
+                        </div>
+                        <div class="project-stat">
+                            <div class="project-stat-value">${teamSize}</div>
+                            <div class="project-stat-label">Team Members</div>
+                        </div>
+                        <div class="project-stat">
+                            <div class="project-stat-value">${progress}%</div>
+                            <div class="project-stat-label">Complete</div>
+                        </div>
+                    </div>
+                `;
+
+                const hasDetails = budget || client || startDate;
+                if (hasDetails) {
+                    html += '<div class="project-details">';
+
+                    if (budget) {
+                        html += `
+                            <div class="project-detail">
+                                <div class="project-detail-label">Budget</div>
+                                <div class="project-detail-value">${formatCurrency(budget)}</div>
+                            </div>
+                        `;
+                    }
+
+                    if (spent !== undefined && spent !== null) {
+                        html += `
+                            <div class="project-detail">
+                                <div class="project-detail-label">Spent</div>
+                                <div class="project-detail-value">${formatCurrency(spent)}</div>
+                            </div>
+                        `;
+                    }
+
+                    if (client) {
+                        html += `
+                            <div class="project-detail">
+                                <div class="project-detail-label">Client</div>
+                                <div class="project-detail-value">${client}</div>
+                            </div>
+                        `;
+                    }
+
+                    if (startDate) {
+                        html += `
+                            <div class="project-detail">
+                                <div class="project-detail-label">Start Date</div>
+                                <div class="project-detail-value">${formatDate(startDate)}</div>
+                            </div>
+                        `;
+                    }
+
+                    html += '</div>';
+                }
+
+                if (members.length > 0) {
+                    html += `
+                        <div class="project-team">
+                            <div class="project-team-title">Team Members</div>
+                            <div class="project-team-members">
+                    `;
+
+                    members.forEach(member => {
+                        const memberName = typeof member === 'string' ? member : (member.fullName || member.user?.name || 'Unknown');
+                        html += `<span class="project-team-member">${memberName}</span>`;
+                    });
+
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (progress > 0) {
+                    html += `
+                        <div class="project-progress">
+                            <div class="project-progress-label">
+                                <span>Progress</span>
+                                <span>${progress}%</span>
+                            </div>
+                            <div class="project-progress-bar">
+                                <div class="project-progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div class="project-status-bar">
+                        <span class="project-status ${getStatusClass(status)}">${status}</span>
+                        ${startDate || endDate ? `
+                            <span class="project-dates">
+                                ${startDate ? formatDate(startDate) : ''}
+                                ${endDate ? `- ${formatDate(endDate)}` : ''}
+                            </span>
+                        ` : ''}
+                    </div>
+                `;
+
+                container.innerHTML = html;
+            }
+
+            renderProject(data);
+
+            window.addEventListener('message', function(event) {
+                if (event.data && event.data.type === 'project-update') {
+                    renderProject(event.data.payload);
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

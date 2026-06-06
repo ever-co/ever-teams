@@ -100,6 +100,7 @@
 		"CONFIRM": "Confirmar",
 		"YOUR_EMAIL": "seu e-mail",
 		"CONTINUE": "Continuar",
+		"AND": "e",
 		"EDIT_TASK": "Editar Tarefa",
 		"ASSIGN_TASK": "Atribuir Tarefa",
 		"ASSIGN_TASK_TO": "Atribuir Tarefa a",
@@ -705,7 +706,10 @@
 			"NO_TEAMS_BADGE": "Sem equipes",
 			"TEAM_COUNT_SINGULAR": "equipe",
 			"TEAM_COUNT_PLURAL": "equipes",
-			"FORGOT_PASSWORD": "Forgot Password?"
+			"FORGOT_PASSWORD": "Esqueceu a senha?",
+			"TERMS_OF_SERVICE": "Termos de serviço",
+			"PRIVACY_POLICY": "Política de privacidade",
+			"OR_CONTINUE_WITH": "ou continue com"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Participar de uma Equipe Existente",
@@ -785,6 +789,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "Configurações Gerais",
+			"goToTeamSettings": "Ir para configurações da equipe",
+			"WORKING_HOURS": "Horário de trabalho",
 			"emailNotValid": "Por favor, forneça um e-mail válido",
 			"phoneNotValid": "Por favor, forneça um número de telefone válido",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "Você está prestes a excluir sua conta e todos os seus dados?",
@@ -998,6 +1004,20 @@
 			"IN_REVIEW": "Em revisão",
 			"DRAFT": "Rascunho",
 			"REJECTED": "Rejeitado"
+		},
+		"timeLog": {
+			"DELETE_SUCCESS": "O registro de tempo foi excluído com sucesso.",
+			"DELETE_ERROR": "Ocorreu um erro. O registro de tempo não pôde ser excluído.",
+			"MODIFY_SUCCESS": "O registro de tempo foi modificado com sucesso.",
+			"MODIFY_ERROR": "Falha ao modificar o registro de tempo. Tente novamente.",
+			"DELETION_CONFIRMED": "Exclusão confirmada",
+			"DELETION_ERROR_TITLE": "Erro durante a exclusão",
+			"MODIFICATION_CONFIRMED": "Modificação confirmada",
+			"MODIFICATION_ERROR_TITLE": "Erro durante a modificação",
+			"BILLABLE_MODIFY_SUCCESS": "O estado faturável foi modificado com sucesso.",
+			"BILLABLE_MODIFY_ERROR": "Falha ao modificar o estado faturável. Tente novamente.",
+			"STATUS_MODIFY_SUCCESS": "O status da folha de ponto foi modificado com sucesso.",
+			"STATUS_MODIFY_ERROR": "Falha ao modificar o status da folha de ponto. Tente novamente."
 		}
 	},
 	"timer": {
@@ -1248,5 +1268,33 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Tem certeza de que deseja excluir este intervalo de tempo?"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "Configuração do Chat IA",
+		"DIALOG_DESCRIPTION": "Configure seu provedor de IA e chave API para ativar o assistente de chat.",
+		"PROVIDER_LABEL": "Provedor",
+		"API_KEY_LABEL": "Chave API",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "Sua chave é armazenada localmente e enviada à API de chat somente quando você usa o assistente.",
+		"MODEL_LABEL": "Modelo",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "URL base",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "Cancelar",
+		"SAVE": "Salvar"
+	},
+	"chatView": {
+		"HEADER_TITLE": "Chat IA",
+		"CLEAR_CONVERSATION": "Limpar conversa",
+		"CONFIGURATION": "Configuração",
+		"ASSISTANT_NAME": "Assistente Ever Teams",
+		"EMPTY_CONFIGURED": "Faça uma pergunta para começar.",
+		"EMPTY_NOT_CONFIGURED": "Configure sua chave API para começar.",
+		"CONFIGURE_BUTTON": "Configurar",
+		"ERROR_FALLBACK": "Ocorreu um erro. Verifique sua configuração.",
+		"INPUT_PLACEHOLDER_READY": "Sua mensagem...",
+		"INPUT_PLACEHOLDER_NO_KEY": "Configure sua chave API...",
+		"STOP": "Parar",
+		"SEND": "Enviar"
 	}
 }

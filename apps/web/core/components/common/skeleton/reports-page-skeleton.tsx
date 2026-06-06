@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 
 interface ReportsPageSkeletonProps {
 	className?: string;
@@ -9,7 +9,7 @@ interface ReportsPageSkeletonProps {
 
 /**
  * Complete page-level skeleton for Reports (Weekly Limit) page
- * Integrates seamlessly with MainLayout structure without swallowing it up
+ * Integrates seamlessly with PageLayout structure without swallowing it up
  * Matches exact layout: mainHeaderSlot (2 sections: breadcrumb + title/filters) + main content (tables + pagination)
  */
 export const ReportsPageSkeleton: FC<ReportsPageSkeletonProps> = ({
@@ -18,7 +18,7 @@ export const ReportsPageSkeleton: FC<ReportsPageSkeletonProps> = ({
 	fullWidth = false
 }) => {
 	return (
-		<MainLayout
+		<PageLayout
 			showTimer={showTimer}
 			className="!p-0 pb-1 !overflow-hidden w-full"
 			childrenClassName="w-full h-full"
@@ -145,7 +145,7 @@ export const ReportsPageSkeleton: FC<ReportsPageSkeletonProps> = ({
 					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 				</div>
 			</div>
-		</MainLayout>
+		</PageLayout>
 	);
 };
 

@@ -7,7 +7,7 @@ import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-dai
 import { clsxm } from '@/core/lib/utils';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container } from '@/core/components';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 import { IssuesView, LAST_SELECTED_TEAM_MEMBERS_VIEW_MODE } from '@/core/constants/config/constants';
 import { useTranslations } from 'next-intl';
 
@@ -95,7 +95,7 @@ function MainPage() {
 		<>
 			<div className="flex flex-col justify-between h-full min-h-screen">
 				{/* <div className="flex-grow"> */}
-				<MainLayout
+				<PageLayout
 					className="h-full"
 					mainHeaderSlot={
 						<div className="bg-white dark:bg-dark-high">
@@ -179,7 +179,7 @@ function MainPage() {
 							)}
 						</Container>
 					</div>
-				</MainLayout>
+				</PageLayout>
 			</div>
 			<Analytics />
 		</>
