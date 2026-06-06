@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ever-Teams Time Entry</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: transparent;
+            padding: 16px;
+        }
+
+        .entry-container {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #e0e0e0;
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .entry-project-info {
+            flex: 1;
+        }
+
+        .entry-project-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 4px;
+        }
+
+        .entry-task-name {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .entry-duration-badge {
+            background: linear-gradient(135deg, #3826A6 0%, #A11DB1 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .entry-description {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .entry-time-range {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 16px;
+            background: linear-gradient(135deg, rgba(56, 38, 166, 0.05) 0%, rgba(161, 29, 177, 0.05) 100%);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .entry-time-point {
+            text-align: center;
+        }
+
+        .entry-time-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        .entry-time-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+        }
+
+        .entry-time-separator {
+            font-size: 24px;
+            color: #A11DB1;
+            font-weight: 300;
+        }
+
+        .entry-metadata {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .entry-meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .entry-meta-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #999;
+        }
+
+        .entry-meta-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #000;
+        }
+
+        .entry-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .entry-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, rgba(56, 38, 166, 0.1) 0%, rgba(161, 29, 177, 0.1) 100%);
+            border: 1px solid #A11DB1;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #3826A6;
+        }
+
+        .entry-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .entry-status-badges {
+            display: flex;
+            gap: 8px;
+        }
+
+        .entry-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .entry-badge.billable {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .entry-badge.approved {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .entry-date {
+            font-size: 12px;
+            color: #999;
+        }
+
+        @media (max-width: 480px) {
+            .entry-container {
+                border-radius: 12px;
+                padding: 16px;
+            }
+
+            .entry-metadata {
+                grid-template-columns: 1fr;
+            }
+
+            .entry-header {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .entry-duration-badge {
+                align-self: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="entry-container" id="timeEntryCard">
+        <!-- Content will be injected by JavaScript -->
+    </div>
+
+    <script>
+        (function() {
+            const data = window.__WIDGET_DATA__ || {};
+
+            function formatDuration(seconds) {
+                if (!seconds && seconds !== 0) return '0h 0m';
+
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+
+                if (hours > 0) {
+                    return `${hours}h ${minutes}m`;
+                }
+                return `${minutes}m`;
+            }
+
+            function formatTime(isoString) {
+                if (!isoString) return 'N/A';
+                const date = new Date(isoString);
+                return date.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+            }
+
+            function formatDate(isoString) {
+                if (!isoString) return 'N/A';
+                const date = new Date(isoString);
+                const now = new Date();
+                const isToday = date.toDateString() === now.toDateString();
+
+                if (isToday) {
+                    return 'Today';
+                }
+
+                const yesterday = new Date(now);
+                yesterday.setDate(yesterday.getDate() - 1);
+                const isYesterday = date.toDateString() === yesterday.toDateString();
+
+                if (isYesterday) {
+                    return 'Yesterday';
+                }
+
+                return date.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+                });
+            }
+
+            function renderTimeEntry(entryData) {
+                const container = document.getElementById('timeEntryCard');
+
+                if (!entryData || Object.keys(entryData).length === 0) {
+                    container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">No time entry data</div>';
+                    return;
+                }
+
+                const projectName = entryData.projectName || entryData.project?.name || 'No Project';
+                const taskName = entryData.taskName || entryData.task?.title || null;
+                const description = entryData.description || '';
+                const duration = entryData.duration || entryData.totalSeconds || 0;
+                const startTime = entryData.startTime || entryData.startedAt;
+                const endTime = entryData.endTime || entryData.stoppedAt;
+                const isBillable = entryData.isBillable !== undefined ? entryData.isBillable : true;
+                const isApproved = entryData.isApproved || false;
+                const clientName = entryData.organizationContactName || entryData.organizationContact?.name || null;
+                const employeeName = entryData.employeeName || entryData.employee?.fullName || null;
+                const tags = entryData.tags || [];
+
+                let html = `
+                    <div class="entry-header">
+                        <div class="entry-project-info">
+                            <div class="entry-project-name">${projectName}</div>
+                            ${taskName ? `<div class="entry-task-name">${taskName}</div>` : ''}
+                        </div>
+                        <div class="entry-duration-badge">${formatDuration(duration)}</div>
+                    </div>
+                `;
+
+                if (description) {
+                    html += `
+                        <div class="entry-description">${description}</div>
+                    `;
+                }
+
+                html += `
+                    <div class="entry-time-range">
+                        <div class="entry-time-point">
+                            <div class="entry-time-label">Start</div>
+                            <div class="entry-time-value">${formatTime(startTime)}</div>
+                        </div>
+                        <div class="entry-time-separator">→</div>
+                        <div class="entry-time-point">
+                            <div class="entry-time-label">End</div>
+                            <div class="entry-time-value">${formatTime(endTime)}</div>
+                        </div>
+                    </div>
+                `;
+
+                const hasMetadata = clientName || employeeName;
+                if (hasMetadata) {
+                    html += '<div class="entry-metadata">';
+
+                    if (clientName) {
+                        html += `
+                            <div class="entry-meta-item">
+                                <div class="entry-meta-label">Client</div>
+                                <div class="entry-meta-value">${clientName}</div>
+                            </div>
+                        `;
+                    }
+
+                    if (employeeName) {
+                        html += `
+                            <div class="entry-meta-item">
+                                <div class="entry-meta-label">Employee</div>
+                                <div class="entry-meta-value">${employeeName}</div>
+                            </div>
+                        `;
+                    }
+
+                    html += '</div>';
+                }
+
+                if (tags.length > 0) {
+                    html += '<div class="entry-tags">';
+                    tags.forEach(tag => {
+                        const tagName = typeof tag === 'string' ? tag : tag.name;
+                        html += `<span class="entry-tag">${tagName}</span>`;
+                    });
+                    html += '</div>';
+                }
+
+                html += `
+                    <div class="entry-footer">
+                        <div class="entry-status-badges">
+                            ${isBillable ? '<span class="entry-badge billable">💰 Billable</span>' : ''}
+                            ${isApproved ? '<span class="entry-badge approved">✓ Approved</span>' : ''}
+                        </div>
+                        <div class="entry-date">${formatDate(startTime)}</div>
+                    </div>
+                `;
+
+                container.innerHTML = html;
+            }
+
+            renderTimeEntry(data);
+
+            window.addEventListener('message', function(event) {
+                if (event.data && event.data.type === 'time-entry-update') {
+                    renderTimeEntry(event.data.payload);
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

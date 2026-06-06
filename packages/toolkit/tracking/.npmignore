@@ -1,0 +1,17 @@
+# Visual Studio Code temporary files
+.vscode/
+
+# npm packages
+node_modules
+
+# npm logs
+npm-debug.log*
+
+# yarn uses its own yarn.lock file
+yarn.lock
+
+# yarn logs
+yarn-error.log
+
+# chrome debug
+debug.log

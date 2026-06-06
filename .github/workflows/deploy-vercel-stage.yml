@@ -45,6 +45,8 @@ jobs:
 
       - name: Build Web
         run: |
+          export SHARP_IGNORE_GLOBAL_LIBVIPS=1
+          export SHARP_FORCE_GLOBAL_LIBVIPS=false
           yarn build:web
 
       - name: Install Vercel CLI

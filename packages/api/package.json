@@ -1,0 +1,36 @@
+{
+	"name": "@ever-teams/api",
+	"version": "0.1.9",
+	"main": "dist/index.es.js",
+	"types": "dist/index.d.ts",
+	"type": "module",
+	"license": "MIT",
+	"files": [
+		"dist"
+	],
+	"publishConfig": {
+		"access": "restricted"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.es.js"
+		}
+	},
+	"scripts": {
+		"build": " rollup -c"
+	},
+	"dependencies": {
+		"@ever-teams/toolkit-types": "*",
+		"@ever-teams/types": "*"
+	},
+	"devDependencies": {
+		"@ever-teams/ts-config": "*",
+		"@rollup/plugin-commonjs": "^28.0.1",
+		"@rollup/plugin-node-resolve": "^15.3.0",
+		"@rollup/plugin-terser": "^0.4.4",
+		"@rollup/plugin-typescript": "^12.1.1",
+		"rollup": "^4.59.0",
+		"typescript": "^5.6.3"
+	}
+}

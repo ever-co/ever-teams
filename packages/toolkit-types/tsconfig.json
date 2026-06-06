@@ -1,0 +1,20 @@
+{
+	"extends": "@ever-teams/ts-config/base.json",
+	"compilerOptions": {
+		"plugins": [{ "name": "next" }],
+		"outDir": "dist",
+		"rootDir": "./src",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"target": "es6",
+		"jsx": "react-jsx",
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"declarationDir": "dist",
+        "skipLibCheck": true,
+		"types":[],
+		"strict": true
+	},
+	"include": ["src/**/*.ts", "src/**/*.tsx", "src/lib/**/*.ts", "src/lib/**/*.tsx"],
+	"exclude": ["node_modules", ".turbo"]
+}

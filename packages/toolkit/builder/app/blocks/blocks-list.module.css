@@ -1,0 +1,238 @@
+.container {
+    width: 100%;
+    background: #18181b;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.tableContainer {
+    overflow-x: auto;
+    margin-top: 1rem;
+    border: 1px solid #27272a;
+    border-radius: 12px;
+    background: #18181b;
+}
+
+.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 800px;
+    background: #18181b;
+    color: #fff;
+}
+
+.table th,
+.table td {
+    padding: 1rem 1.25rem;
+    text-align: left;
+    border-bottom: 1px solid #27272a;
+}
+
+.table th {
+    background: #232329;
+    font-weight: 600;
+    color: #fafafa;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.table th:hover,
+.table th:focus {
+    background: #26262e;
+    color: #fff;
+}
+
+.table tr:last-child td {
+    border-bottom: none;
+}
+
+.table tr:hover {
+    background: #232329;
+}
+
+/* Checkbox styling for dark mode */
+.table input[type='checkbox'] {
+    accent-color: #52525b;
+    background: #232329;
+    border: 1px solid #3f3f46;
+}
+
+.table input[type='checkbox']:focus,
+.table input[type='checkbox']:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px #2563eb33;
+}
+
+.table button {
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+.button {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.editButton {
+    background: #3b82f6;
+    color: white;
+}
+
+.editButton:hover {
+    background: #2563eb;
+}
+
+.deleteButton {
+    background: #ef4444;
+    color: white;
+}
+
+.deleteButton:hover {
+    background: #dc2626;
+}
+
+.retryButton {
+    background: #ef4444;
+    color: white;
+}
+
+.retryButton:hover {
+    background: #dc2626;
+}
+
+.sortIcon {
+    margin-left: 8px;
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    vertical-align: middle;
+    filter: drop-shadow(0 1px 2px #000a);
+}
+
+.sortIcon.asc {
+    border-bottom: 10px solid #fff;
+}
+
+.sortIcon.desc {
+    border-top: 10px solid #fff;
+}
+
+.emptyState,
+.errorState,
+.loadingState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    text-align: center;
+}
+
+.emptyState h3,
+.errorState h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.dark .emptyState h3,
+.dark .errorState h3 {
+    color: #e5e7eb;
+}
+
+.emptyState p,
+.errorState p {
+    color: #6b7280;
+    margin-bottom: 16px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f4f6;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .tableContainer {
+        margin: 1rem -1rem;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.75rem 0.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .table th,
+    .table td {
+        padding: 8px 12px;
+    }
+
+    .actions {
+        flex-direction: column;
+        gap: 4px;
+    }
+}
+
+.addButton {
+    background: #3b82f6;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 0.6rem 1.4rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px 0 #1e293b33;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.addButton:hover,
+.addButton:focus {
+    background: #2563eb;
+    box-shadow: 0 4px 16px 0 #1e293b55;
+}
+
+.addButton:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px #2563eb55;
+}

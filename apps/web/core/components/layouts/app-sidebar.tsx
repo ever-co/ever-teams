@@ -141,7 +141,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				plan: 'Startup'
 			},
 			{
-				name: 'Ever Cloc',
+				name: 'Ever Teams',
 				logo: GalleryVerticalEnd,
 				plan: 'Free'
 			},

@@ -1,0 +1,154 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+    name: ever-teams-prod-chatgpt-lb
+spec:
+    type: ClusterIP
+    selector:
+        app: ever-teams-prod-chatgpt
+    ports:
+        - name: http
+          protocol: TCP
+          port: 80
+          targetPort: 3004
+
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+    name: ever-teams-prod-chatgpt-ingress
+    annotations:
+        nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
+        nginx.ingress.kubernetes.io/proxy-body-size: '20m'
+        nginx.ingress.kubernetes.io/proxy-read-timeout: '300'
+        nginx.ingress.kubernetes.io/proxy-send-timeout: '300'
+        nginx.ingress.kubernetes.io/rate-limit: '100'
+spec:
+    ingressClassName: nginx
+    rules:
+        - host: chatgpt.ever.team
+          http:
+              paths:
+                  - path: /
+                    pathType: Prefix
+                    backend:
+                        service:
+                            name: ever-teams-prod-chatgpt-lb
+                            port:
+                                number: 80
+    tls:
+        - hosts:
+              - chatgpt.ever.team
+          secretName: api.ever.co-tls
+
+---
+kind: HorizontalPodAutoscaler
+apiVersion: autoscaling/v2
+metadata:
+    name: ever-teams-prod-chatgpt-hpa
+spec:
+    scaleTargetRef:
+        apiVersion: apps/v1
+        kind: Deployment
+        name: ever-teams-prod-chatgpt
+    minReplicas: 3
+    maxReplicas: 10
+    metrics:
+        - type: Resource
+          resource:
+              name: cpu
+              target:
+                  type: Utilization
+                  averageUtilization: 70
+        - type: Resource
+          resource:
+              name: memory
+              target:
+                  type: Utilization
+                  averageUtilization: 80
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+    name: ever-teams-prod-chatgpt
+spec:
+    replicas: 3
+    selector:
+        matchLabels:
+            app: ever-teams-prod-chatgpt
+    template:
+        metadata:
+            labels:
+                app: ever-teams-prod-chatgpt
+        spec:
+            containers:
+                - name: ever-teams-prod-chatgpt
+                  image: registry.digitalocean.com/ever/ever-teams-chatgpt-prod:latest
+                  imagePullPolicy: Always
+                  env:
+                      - name: NODE_ENV
+                        value: 'production'
+                      - name: CHATGPT_APP_PORT
+                        value: '3004'
+                      - name: CHATGPT_APP_HOST
+                        value: '0.0.0.0'
+                      - name: MCP_SERVER_URL
+                        value: '$MCP_SERVER_URL'
+                      - name: OAUTH_SERVER_URL
+                        value: '$OAUTH_SERVER_URL'
+                      - name: CHATGPT_APP_ID
+                        value: '$CHATGPT_APP_ID'
+                      - name: CHATGPT_APP_SECRET
+                        value: '$CHATGPT_APP_SECRET'
+                      - name: ALLOWED_ORIGINS
+                        value: '$ALLOWED_ORIGINS'
+                      - name: LOG_LEVEL
+                        value: '$LOG_LEVEL'
+                      - name: SESSION_SECRET
+                        value: '$SESSION_SECRET'
+                      - name: CLOUD_PROVIDER
+                        value: '$CLOUD_PROVIDER'
+                      - name: SENTRY_DSN
+                        value: '$SENTRY_DSN'
+                      - name: SENTRY_ENVIRONMENT
+                        value: 'production'
+                  ports:
+                      - containerPort: 3004
+                        protocol: TCP
+                  livenessProbe:
+                      httpGet:
+                          path: /health
+                          port: 3004
+                      initialDelaySeconds: 30
+                      periodSeconds: 10
+                      timeoutSeconds: 5
+                      failureThreshold: 3
+                  readinessProbe:
+                      httpGet:
+                          path: /health
+                          port: 3004
+                      initialDelaySeconds: 10
+                      periodSeconds: 5
+                      timeoutSeconds: 3
+                      failureThreshold: 3
+                  resources:
+                      requests:
+                          cpu: '100m'
+                          memory: '256Mi'
+                      limits:
+                          memory: '1Gi'
+                          cpu: '1000m'
+            affinity:
+                podAntiAffinity:
+                    preferredDuringSchedulingIgnoredDuringExecution:
+                        - weight: 100
+                          podAffinityTerm:
+                              labelSelector:
+                                  matchExpressions:
+                                      - key: app
+                                        operator: In
+                                        values:
+                                            - ever-teams-prod-chatgpt
+                              topologyKey: kubernetes.io/hostname

@@ -19,7 +19,7 @@
 	},
 	"scripts": {
 		"dev": "yarn node env.js && yarn next dev -p 3030",
-		"build": "yarn next build",
+		"build": "cross-env SHARP_IGNORE_GLOBAL_LIBVIPS=1 SHARP_FORCE_GLOBAL_LIBVIPS=false yarn next build",
 		"start": "yarn node env.js && yarn next start -p 3030",
 		"lint": "eslint . --max-warnings=0",
 		"format": "prettier --ignore-path .gitignore \"./**/*.+(ts|js|tsx)\" --write",

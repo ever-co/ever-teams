@@ -1,0 +1,160 @@
+name: Release Ever Teams SDK to npm
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Version and SDK Publish with Changesets
+    runs-on: ubicloud-standard-2
+
+    permissions:
+      contents: write # for changelog/version PRs
+      packages: write
+      id-token: write # for trusted publishing (future use)
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Use GH_BRANCH_TOKEN to allow pushing to protected branches
+          token: ${{ secrets.GH_BRANCH_TOKEN || secrets.GITHUB_TOKEN }}
+          # Fetch full history for changesets
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+          always-auth: true
+
+      - name: Verify NPM Token
+        run: |
+          if [ -z "${{ secrets.NPM_TOKEN }}" ]; then
+            echo "❌ NPM_TOKEN secret is not set"
+            echo "Please configure a granular NPM access token in GitHub secrets"
+            exit 1
+          fi
+          echo "✅ NPM_TOKEN secret is configured"
+
+      - name: Configure NPM Authentication
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+          echo "@ever-teams:registry=https://registry.npmjs.org/" >> ~/.npmrc
+          echo "@ever-teams:registry=https://registry.npmjs.org/" >> ~/.npmrc
+          echo "✅ NPM authentication configured"
+
+      - name: Install dependencies (Yarn)
+        run: yarn install --frozen-lockfile
+
+      - name: Build SDK packages
+        run: |
+          echo "Building atoms package..."
+          yarn build:atoms
+          echo "Building tracking package..."
+          yarn build:tracking
+          echo "Building types package..."
+          yarn build:types
+          echo "Building API package..."
+          yarn build:api
+          echo "Building Toolkit UI package..."
+          yarn build:toolkit-ui
+          echo "✅ All SDK packages built successfully"
+
+      - name: Auto-generate changesets for changed SDK packages
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
+        run: |
+          echo "🔍 Detecting changed SDK packages..."
+
+          # Define publishable SDK packages and their paths
+          declare -A SDK_PACKAGES=(
+            ["packages/toolkit/atoms"]="@ever-teams/atoms"
+            ["packages/toolkit/tracking"]="@ever-teams/tracking"
+            ["packages/api"]="@ever-teams/api"
+            ["packages/toolkit-types"]="@ever-teams/toolkit-types"
+            ["packages/toolkit-ui"]="@ever-teams/toolkit-ui"
+          )
+
+          CHANGED_PACKAGES=()
+
+          # Determine the diff range to cover all commits in this push
+          if [ -z "$BEFORE_SHA" ] || [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            # Fallback for first push or workflow_dispatch
+            DIFF_RANGE="HEAD~1..HEAD"
+          else
+            DIFF_RANGE="${BEFORE_SHA}..${AFTER_SHA}"
+          fi
+          echo "📏 Diff range: $DIFF_RANGE"
+
+          # Check each SDK package for changes across the full push range
+          for pkg_path in "${!SDK_PACKAGES[@]}"; do
+            pkg_name="${SDK_PACKAGES[$pkg_path]}"
+            if git diff --quiet "$DIFF_RANGE" -- "$pkg_path" 2>/dev/null; then
+              echo "  ⏭️  No changes in $pkg_name ($pkg_path)"
+            else
+              echo "  ✅ Changes detected in $pkg_name ($pkg_path)"
+              CHANGED_PACKAGES+=("$pkg_name")
+            fi
+          done
+
+          # Check if any existing manual changesets already exist
+          EXISTING_CHANGESETS=$(find .changeset -name "*.md" ! -name "README.md" 2>/dev/null | wc -l)
+
+          if [ ${#CHANGED_PACKAGES[@]} -eq 0 ] && [ "$EXISTING_CHANGESETS" -eq 0 ]; then
+            echo "ℹ️  No SDK package changes detected and no manual changesets found. Skipping."
+            exit 0
+          fi
+
+          # Generate a changeset file for changed packages (if any)
+          if [ ${#CHANGED_PACKAGES[@]} -gt 0 ]; then
+            CHANGESET_ID="auto-$(date +%s)-$(echo $RANDOM | md5sum | head -c 8)"
+            CHANGESET_FILE=".changeset/${CHANGESET_ID}.md"
+
+            echo "📝 Creating changeset: $CHANGESET_FILE"
+
+            # Build the changeset frontmatter
+            {
+              echo "---"
+              for pkg in "${CHANGED_PACKAGES[@]}"; do
+                echo "\"${pkg}\": patch"
+              done
+              echo "---"
+              echo ""
+              echo "Auto-generated patch version bump for SDK changes"
+            } > "$CHANGESET_FILE"
+
+            echo ""
+            echo "📄 Generated changeset contents:"
+            cat "$CHANGESET_FILE"
+          fi
+
+          echo ""
+          echo "🎉 Changeset generation complete!"
+
+      - name: Version bump via changesets
+        run: |
+          yarn version-packages
+
+      - name: Commit and push version bumps
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "ci: sdk version bump via changeset [skip ci]" || echo "No changes to commit"
+          git push
+
+      - name: Publish changed packages using Changesets
+        uses: changesets/action@v1
+        with:
+          publish: yarn publish-packages
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

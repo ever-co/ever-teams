@@ -17,6 +17,7 @@
 	},
 	"dependencies": {
 		"@ever-teams/constants": "*",
+		"@ever-teams/toolkit-types": "*",
 		"@ever-teams/types": "*",
 		"clsx": "^2.1.1",
 		"date-fns": "^4.1.0",
