@@ -1,0 +1,22 @@
+{
+	"extends": "@ever-teams/ts-config/react-library.json",
+	"exclude": ["dist", "build", "node_modules", "tailwind.config.js"],
+	"include": ["src/**/*.ts", "src/**/*.tsx"],
+	"compilerOptions": {
+		"strictNullChecks": true,
+		"strict": true,
+		"baseUrl": "./",
+		"paths": {
+			"@components/*": ["src/lib/components/*"],
+			"@hooks/*": ["src/lib/hooks/*"],
+			"@libs/*": ["src/lib/libs/*"],
+			"@lib/*": ["src/lib/*"],
+			"@utils/*": ["src/lib/utils/*"],
+		},
+        "skipLibCheck": true,
+		"types":[],
+		"outDir": "dist",
+		"rootDir": "./src",
+		"importHelpers": false
+	}
+}

@@ -1,0 +1,113 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+    name: ever-teams-stage-chatgpt-lb
+spec:
+    type: ClusterIP
+    selector:
+        app: ever-teams-stage-chatgpt
+    ports:
+        - name: http
+          protocol: TCP
+          port: 80
+          targetPort: 3004
+
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+    name: ever-teams-stage-chatgpt-ingress
+    annotations:
+        nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
+        nginx.ingress.kubernetes.io/proxy-body-size: '20m'
+        nginx.ingress.kubernetes.io/proxy-read-timeout: '300'
+        nginx.ingress.kubernetes.io/proxy-send-timeout: '300'
+spec:
+    ingressClassName: nginx
+    rules:
+        - host: chatgptstage.ever.team
+          http:
+              paths:
+                  - path: /
+                    pathType: Prefix
+                    backend:
+                        service:
+                            name: ever-teams-stage-chatgpt-lb
+                            port:
+                                number: 80
+    tls:
+        - hosts:
+              - chatgptstage.ever.team
+          secretName: api.ever.co-tls
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+    name: ever-teams-stage-chatgpt
+spec:
+    replicas: 2
+    selector:
+        matchLabels:
+            app: ever-teams-stage-chatgpt
+    template:
+        metadata:
+            labels:
+                app: ever-teams-stage-chatgpt
+        spec:
+            containers:
+                - name: ever-teams-stage-chatgpt
+                  image: registry.digitalocean.com/ever/ever-teams-chatgpt-stage:latest
+                  imagePullPolicy: Always
+                  env:
+                      - name: NODE_ENV
+                        value: 'staging'
+                      - name: CHATGPT_APP_PORT
+                        value: '3004'
+                      - name: CHATGPT_APP_HOST
+                        value: '0.0.0.0'
+                      - name: MCP_SERVER_URL
+                        value: '$MCP_SERVER_URL'
+                      - name: OAUTH_SERVER_URL
+                        value: '$OAUTH_SERVER_URL'
+                      - name: CHATGPT_APP_ID
+                        value: '$CHATGPT_APP_ID'
+                      - name: CHATGPT_APP_SECRET
+                        value: '$CHATGPT_APP_SECRET'
+                      - name: ALLOWED_ORIGINS
+                        value: '$ALLOWED_ORIGINS'
+                      - name: LOG_LEVEL
+                        value: '$LOG_LEVEL'
+                      - name: SESSION_SECRET
+                        value: '$SESSION_SECRET'
+                      - name: CLOUD_PROVIDER
+                        value: '$CLOUD_PROVIDER'
+                      - name: SENTRY_DSN
+                        value: '$SENTRY_DSN'
+                  ports:
+                      - containerPort: 3004
+                        protocol: TCP
+                  livenessProbe:
+                      httpGet:
+                          path: /health
+                          port: 3004
+                      initialDelaySeconds: 30
+                      periodSeconds: 10
+                      timeoutSeconds: 5
+                      failureThreshold: 3
+                  readinessProbe:
+                      httpGet:
+                          path: /health
+                          port: 3004
+                      initialDelaySeconds: 10
+                      periodSeconds: 5
+                      timeoutSeconds: 3
+                      failureThreshold: 3
+                  resources:
+                      requests:
+                          cpu: '50m'
+                          memory: '192Mi'
+                      limits:
+                          memory: '1Gi'
+                          cpu: '1000m'

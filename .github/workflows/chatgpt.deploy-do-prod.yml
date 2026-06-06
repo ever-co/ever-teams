@@ -1,0 +1,114 @@
+name: Deploy ChatGPT App to DigitalOcean Prod
+
+on:
+  workflow_run:
+    workflows: ['Build and Publish ChatGPT App Docker Images Prod']
+    branches: [master, main]
+    types:
+      - completed
+
+jobs:
+  deploy-chatgpt-prod:
+    runs-on: ubicloud-standard-2
+
+    environment: prod
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Log in to DigitalOcean Container Registry with short-lived credentials
+        run: doctl registry login --expiry-seconds 600
+
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 k8s-gauzy
+
+      - name: Generate TLS Secrets for ChatGPT App Ingress
+        run: |
+          rm -f ${HOME}/ingress.chatgpt.crt ${HOME}/ingress.chatgpt.key
+          echo '${{ secrets.INGRESS_CERT }}' | base64 --decode > ${HOME}/ingress.chatgpt.crt
+          echo '${{ secrets.INGRESS_CERT_KEY }}' | base64 --decode > ${HOME}/ingress.chatgpt.key
+          kubectl create secret tls api.ever.co-tls --save-config --dry-run=client --cert=${HOME}/ingress.chatgpt.crt --key=${HOME}/ingress.chatgpt.key -o yaml | kubectl --context do-sfo2-k8s-gauzy apply -f -
+
+      - name: Validate required secrets
+        run: |
+          echo "==> Validating secrets for ChatGPT App PRODUCTION environment..."
+          missing_critical=()
+
+          # Critical secrets (deployment will fail without these)
+          critical_secrets=(
+            "MCP_SERVER_URL"
+            "OAUTH_SERVER_URL"
+            "CHATGPT_APP_ID"
+            "CHATGPT_APP_SECRET"
+            "SESSION_SECRET"
+          )
+
+          # Check critical secrets
+          for secret in "${critical_secrets[@]}"; do
+            if [ -z "${!secret}" ]; then
+              missing_critical+=("$secret")
+            fi
+          done
+
+          # Fail if critical secrets are missing
+          if [ ${#missing_critical[@]} -gt 0 ]; then
+            echo "❌ Missing critical secrets for ChatGPT App PRODUCTION deployment:"
+            printf '   - %s\n' "${missing_critical[@]}"
+            echo ""
+            echo "Please configure these critical secrets in GitHub repository settings."
+            exit 1
+          fi
+
+          # Validate SESSION_SECRET is not default
+          if [ "$SESSION_SECRET" = "your-secure-session-secret-change-in-production" ]; then
+            echo "❌ SESSION_SECRET must not use the default value in production"
+            exit 1
+          fi
+
+          echo "✅ All critical secrets validated successfully for ChatGPT App PRODUCTION"
+        env:
+          # Pass secrets for validation
+          MCP_SERVER_URL: '${{ vars.MCP_SERVER_URL }}'
+          OAUTH_SERVER_URL: '${{ vars.OAUTH_SERVER_URL }}'
+          CHATGPT_APP_ID: '${{ secrets.CHATGPT_APP_ID }}'
+          CHATGPT_APP_SECRET: '${{ secrets.CHATGPT_APP_SECRET }}'
+          SESSION_SECRET: '${{ secrets.SESSION_SECRET }}'
+          SENTRY_DSN: '${{ secrets.SENTRY_DSN }}'
+
+      - name: Apply k8s manifests changes in DigitalOcean k8s cluster (if any)
+        run: |
+          envsubst < $GITHUB_WORKSPACE/.deploy/k8s/k8s-manifest-chatgpt.prod.yaml | kubectl --context do-sfo2-k8s-gauzy apply -f -
+        env:
+          # Environment configuration
+          CLOUD_PROVIDER: 'DO'
+          # ChatGPT App Configuration
+          MCP_SERVER_URL: '${{ vars.MCP_SERVER_URL }}'
+          OAUTH_SERVER_URL: '${{ vars.OAUTH_SERVER_URL }}'
+          CHATGPT_APP_ID: '${{ secrets.CHATGPT_APP_ID }}'
+          CHATGPT_APP_SECRET: '${{ secrets.CHATGPT_APP_SECRET }}'
+          ALLOWED_ORIGINS: '${{ secrets.ALLOWED_ORIGINS }}'
+          LOG_LEVEL: '${{ secrets.LOG_LEVEL }}'
+          SESSION_SECRET: '${{ secrets.SESSION_SECRET }}'
+          # Monitoring
+          SENTRY_DSN: '${{ secrets.SENTRY_DSN }}'
+
+      - name: Restart Pods to pick up :latest tag version
+        run: |
+          kubectl --context do-sfo2-k8s-gauzy rollout restart deployment/ever-teams-prod-chatgpt
+
+      - name: Wait for rollout to complete
+        run: |
+          kubectl --context do-sfo2-k8s-gauzy rollout status deployment/ever-teams-prod-chatgpt --timeout=5m
+
+      - name: Verify deployment
+        run: |
+          echo "==> Verifying deployment health..."
+          kubectl --context do-sfo2-k8s-gauzy get pods -l app=ever-teams-prod-chatgpt
+          kubectl --context do-sfo2-k8s-gauzy get svc ever-teams-prod-chatgpt-lb
+          kubectl --context do-sfo2-k8s-gauzy get ingress ever-teams-prod-chatgpt-ingress

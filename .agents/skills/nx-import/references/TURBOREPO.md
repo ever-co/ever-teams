@@ -8,10 +8,10 @@
 
 Turborepo monorepos ship with internal workspace packages that share configuration:
 
-- **`@repo/typescript-config`** (or similar) — tsconfig files (`base.json`, `nextjs.json`, `react-library.json`, etc.)
+- **`@repo/ts-config`** (or similar) — tsconfig files (`base.json`, `nextjs.json`, `react-library.json`, etc.)
 - **`@repo/eslint-config`** (or similar) — ESLint config files and all ESLint plugin dependencies
 
-These are not code libraries. They distribute config via Node module resolution (e.g., `"extends": "@repo/typescript-config/nextjs.json"`). This is the **default** Turborepo pattern — expect it in virtually every Turborepo import. Package names vary — check `package.json` files to identify the actual names.
+These are not code libraries. They distribute config via Node module resolution (e.g., `"extends": "@repo/ts-config/nextjs.json"`). This is the **default** Turborepo pattern — expect it in virtually every Turborepo import. Package names vary — check `package.json` files to identify the actual names.
 
 ## Check for Root Config Files First
 
@@ -29,7 +29,7 @@ The config package contains a hierarchy of tsconfig files. Each project extends 
 1. **Read the config package** — trace the full inheritance chain (e.g., `nextjs.json` extends `base.json`).
 2. **Update root `tsconfig.base.json`** — absorb `compilerOptions` from the base config. Add Nx `paths` for cross-project imports (Turborepo doesn't use path aliases, Nx relies on them).
 3. **Update each project's `tsconfig.json`**:
-    - Change `"extends"` from `"@repo/typescript-config/<variant>.json"` to the relative path to root `tsconfig.base.json`.
+    - Change `"extends"` from `"@repo/ts-config/<variant>.json"` to the relative path to root `tsconfig.base.json`.
     - Inline variant-specific overrides from the intermediate config (e.g., Next.js: `"module": "ESNext"`, `"moduleResolution": "Bundler"`, `"jsx": "preserve"`, `"noEmit": true`; React library: `"jsx": "react-jsx"`).
     - Preserve project-specific settings (`outDir`, `include`, `exclude`, etc.).
 4. **Delete the config package** and remove it from all `devDependencies`.
