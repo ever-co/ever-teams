@@ -14,12 +14,6 @@
 			"import": "./dist/index.es.js"
 		}
 	},
-	"dependencies": {
-		"@ever-teams/api": "*",
-		"@ever-teams/toolkit-types": "*",
-		"@ever-teams/toolkit-ui": "*",
-		"@ever-teams/types": "*"
-	},
 	"peerDependencies": {
 		"@emotion/react": ">=11.13.5",
 		"next-themes": ">=0.4.4",
@@ -33,6 +27,10 @@
 		"theme-ui": "^0.16.2"
 	},
 	"devDependencies": {
+		"@ever-teams/api": "*",
+		"@ever-teams/toolkit-types": "*",
+		"@ever-teams/toolkit-ui": "*",
+		"@ever-teams/types": "*",
 		"@ever-teams/eslint-config": "*",
 		"@ever-teams/tailwind-config": "*",
 		"@ever-teams/ts-config": "*",
@@ -80,12 +78,6 @@
 	],
 	"packageManager": "yarn@1.22.19",
 	"publishConfig": {
-		"access": "restricted"
-	},
-	"workspaces": [
-		"apps/*",
-		"packages/*",
-		"packages/toolkit/*",
-		"packages/toolkit/examples/*"
-	]
+		"access": "public"
+	}
 }

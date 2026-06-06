@@ -40,6 +40,6 @@
 		"dist"
 	],
 	"publishConfig": {
-		"access": "restricted"
+		"access": "public"
 	}
 }

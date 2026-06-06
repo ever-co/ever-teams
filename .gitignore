@@ -83,6 +83,11 @@ Thumbs.db
 /packages/**/.cache
 /packages/**/dist
 
+# Build caches / incremental build info (machine-specific, must never be committed)
+**/.rollup.cache
+*.tsbuildinfo
+.turbo
+
 # Local Netlify folder
 .netlify
 

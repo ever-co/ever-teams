@@ -9,7 +9,7 @@
 		"dist"
 	],
 	"publishConfig": {
-		"access": "restricted"
+		"access": "public"
 	},
 	"exports": {
 		".": {
@@ -20,11 +20,9 @@
 	"scripts": {
 		"build": " rollup -c"
 	},
-	"dependencies": {
-		"@ever-teams/toolkit-types": "*",
-		"@ever-teams/types": "*"
-	},
 	"devDependencies": {
+		"@ever-teams/toolkit-types": "*",
+		"@ever-teams/types": "*",
 		"@ever-teams/ts-config": "*",
 		"@rollup/plugin-commonjs": "^28.0.1",
 		"@rollup/plugin-node-resolve": "^15.3.0",

@@ -27,7 +27,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: '24.14.0'
           registry-url: 'https://registry.npmjs.org'
           always-auth: true
 
@@ -46,7 +46,6 @@ jobs:
           echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
           echo "@ever-teams:registry=https://registry.npmjs.org/" >> ~/.npmrc
-          echo "@ever-teams:registry=https://registry.npmjs.org/" >> ~/.npmrc
           echo "✅ NPM authentication configured"
 
       - name: Install dependencies (Yarn)
@@ -54,17 +53,19 @@ jobs:
 
       - name: Build SDK packages
         run: |
-          echo "Building atoms package..."
-          yarn build:atoms
-          echo "Building tracking package..."
-          yarn build:tracking
-          echo "Building types package..."
-          yarn build:types
+          # Build the publishable packages (the private @ever-teams/types is bundled
+          # from source by the others, so it is intentionally not built/published here).
+          echo "Building toolkit-types package..."
+          yarn build:toolkit-types
           echo "Building API package..."
           yarn build:api
           echo "Building Toolkit UI package..."
           yarn build:toolkit-ui
-          echo "✅ All SDK packages built successfully"
+          echo "Building atoms package..."
+          yarn build:atoms
+          echo "Building tracking package..."
+          yarn build:tracking
+          echo "✅ All publishable SDK packages built successfully"
 
       - name: Auto-generate changesets for changed SDK packages
         env:
