@@ -100,6 +100,7 @@
 		"CONFIRM": "Conferma",
 		"YOUR_EMAIL": "la tua email",
 		"CONTINUE": "Continua",
+		"AND": "e",
 		"EDIT_TASK": "Modifica attività",
 		"ASSIGN_TASK": "Assegna attività",
 		"ASSIGN_TASK_TO": "Assegna attività",
@@ -705,7 +706,10 @@
 			"NO_TEAMS_BADGE": "Nessun team",
 			"TEAM_COUNT_SINGULAR": "team",
 			"TEAM_COUNT_PLURAL": "team",
-			"FORGOT_PASSWORD": "Forgot Password?"
+			"FORGOT_PASSWORD": "Password dimenticata?",
+			"TERMS_OF_SERVICE": "Termini di servizio",
+			"PRIVACY_POLICY": "Informativa sulla privacy",
+			"OR_CONTINUE_WITH": "o continua con"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Unisciti a un Team esistente",
@@ -785,6 +789,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "Impostazioni Generali",
+			"goToTeamSettings": "Vai alle impostazioni del team",
+			"WORKING_HOURS": "Orario di lavoro",
 			"emailNotValid": "Fornisci un indirizzo email valido",
 			"phoneNotValid": "Fornisci un numero di telefono valido",
 			"WORK_SCHEDULE": "Orario di Lavoro",
@@ -998,6 +1004,20 @@
 			"IN_REVIEW": "In revisione",
 			"DRAFT": "Bozza",
 			"REJECTED": "Respinto"
+		},
+		"timeLog": {
+			"DELETE_SUCCESS": "Il registro del tempo è stato eliminato con successo.",
+			"DELETE_ERROR": "Si è verificato un errore. Il registro del tempo non è stato eliminato.",
+			"MODIFY_SUCCESS": "Il registro del tempo è stato modificato con successo.",
+			"MODIFY_ERROR": "Impossibile modificare il registro del tempo. Riprova.",
+			"DELETION_CONFIRMED": "Eliminazione confermata",
+			"DELETION_ERROR_TITLE": "Errore durante l'eliminazione",
+			"MODIFICATION_CONFIRMED": "Modifica confermata",
+			"MODIFICATION_ERROR_TITLE": "Errore durante la modifica",
+			"BILLABLE_MODIFY_SUCCESS": "Lo stato fatturabile è stato modificato con successo.",
+			"BILLABLE_MODIFY_ERROR": "Impossibile modificare lo stato fatturabile. Riprova.",
+			"STATUS_MODIFY_SUCCESS": "Lo stato del foglio presenze è stato modificato con successo.",
+			"STATUS_MODIFY_ERROR": "Impossibile modificare lo stato del foglio presenze. Riprova."
 		}
 	},
 	"timer": {
@@ -1248,5 +1268,33 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Sei sicuro di voler eliminare questa fascia oraria?"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "Configurazione Chat IA",
+		"DIALOG_DESCRIPTION": "Configura il tuo provider IA e la chiave API per attivare l'assistente chat.",
+		"PROVIDER_LABEL": "Provider",
+		"API_KEY_LABEL": "Chiave API",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "La tua chiave è memorizzata localmente e inviata all'API di chat solo quando usi l'assistente.",
+		"MODEL_LABEL": "Modello",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "URL di base",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "Annulla",
+		"SAVE": "Salva"
+	},
+	"chatView": {
+		"HEADER_TITLE": "Chat IA",
+		"CLEAR_CONVERSATION": "Cancella conversazione",
+		"CONFIGURATION": "Configurazione",
+		"ASSISTANT_NAME": "Assistente Ever Teams",
+		"EMPTY_CONFIGURED": "Fai una domanda per iniziare.",
+		"EMPTY_NOT_CONFIGURED": "Configura la tua chiave API per iniziare.",
+		"CONFIGURE_BUTTON": "Configura",
+		"ERROR_FALLBACK": "Si è verificato un errore. Controlla la tua configurazione.",
+		"INPUT_PLACEHOLDER_READY": "Il tuo messaggio...",
+		"INPUT_PLACEHOLDER_NO_KEY": "Configura la tua chiave API...",
+		"STOP": "Ferma",
+		"SEND": "Invia"
 	}
 }

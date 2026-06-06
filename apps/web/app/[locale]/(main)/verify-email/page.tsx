@@ -2,7 +2,7 @@
 
 import { useEmailVerifyToken } from '@/core/hooks';
 import { BackdropLoader } from '@/core/components';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 
 import { useTranslations } from 'next-intl';
 
@@ -11,9 +11,9 @@ const VerifyEmail = () => {
 	const t = useTranslations();
 
 	return (
-		<MainLayout>
+		<PageLayout>
 			<BackdropLoader show={loading} title={t('pages.authTeam.VERIFY_EMAIL_LOADING_TEXT')} />
-		</MainLayout>
+		</PageLayout>
 	);
 };
 

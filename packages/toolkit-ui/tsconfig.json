@@ -1,0 +1,12 @@
+{
+	"extends": "@ever-teams/ts-config/react-library.json",
+	"exclude": ["dist", "build", "node_modules", "tailwind.config.js"],
+	"include": ["src/**/*.ts", "src/**/*.tsx", "src/lib/**/*.ts", "src/lib/**/*.tsx"],
+	"compilerOptions": {
+		"paths": {
+			"@/*": ["./src/*"]
+		},
+		"outDir": "dist",
+		"rootDir": "./src"
+	}
+}

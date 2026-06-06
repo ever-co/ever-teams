@@ -96,6 +96,7 @@
 		"CONFIRM": "确认",
 		"YOUR_EMAIL": "您的电子邮件",
 		"CONTINUE": "继续",
+		"AND": "和",
 		"EDIT_TASK": "编辑任务",
 		"ASSIGN_TASK": "分配任务",
 		"ASSIGN_TASK_TO": "分配任务给",
@@ -705,7 +706,10 @@
 			"NO_TEAMS_BADGE": "无团队",
 			"TEAM_COUNT_SINGULAR": "团队",
 			"TEAM_COUNT_PLURAL": "团队",
-			"FORGOT_PASSWORD": "Forgot Password?"
+			"FORGOT_PASSWORD": "忘记密码？",
+			"TERMS_OF_SERVICE": "服务条款",
+			"PRIVACY_POLICY": "隐私政策",
+			"OR_CONTINUE_WITH": "或继续使用"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "加入已有团队",
@@ -785,6 +789,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "常规设置",
+			"goToTeamSettings": "前往团队设置",
+			"WORKING_HOURS": "工作时间",
 			"emailNotValid": "请输入有效的电子邮箱",
 			"phoneNotValid": "请输入有效的手机号码",
 			"WORK_SCHEDULE": "工作时间表",
@@ -998,6 +1004,20 @@
 			"IN_REVIEW": "审核中",
 			"DRAFT": "草稿",
 			"REJECTED": "拒绝"
+		},
+		"timeLog": {
+			"DELETE_SUCCESS": "时间记录已成功删除。",
+			"DELETE_ERROR": "发生错误。无法删除时间记录。",
+			"MODIFY_SUCCESS": "时间记录已成功修改。",
+			"MODIFY_ERROR": "修改时间记录失败。请重试。",
+			"DELETION_CONFIRMED": "删除已确认",
+			"DELETION_ERROR_TITLE": "删除时出错",
+			"MODIFICATION_CONFIRMED": "修改已确认",
+			"MODIFICATION_ERROR_TITLE": "修改时出错",
+			"BILLABLE_MODIFY_SUCCESS": "计费状态已成功修改。",
+			"BILLABLE_MODIFY_ERROR": "修改计费状态失败。请重试。",
+			"STATUS_MODIFY_SUCCESS": "工时表状态已成功修改。",
+			"STATUS_MODIFY_ERROR": "修改工时表状态失败。请重试。"
 		}
 	},
 	"timer": {
@@ -1248,5 +1268,33 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "您确定要删除此时间段吗？"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "AI 聊天配置",
+		"DIALOG_DESCRIPTION": "配置您的 AI 提供商和 API 密钥以启用聊天助手。",
+		"PROVIDER_LABEL": "提供商",
+		"API_KEY_LABEL": "API 密钥",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "您的密钥存储在本地，仅在您使用助手时发送到聊天 API。",
+		"MODEL_LABEL": "模型",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "基础 URL",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "取消",
+		"SAVE": "保存"
+	},
+	"chatView": {
+		"HEADER_TITLE": "AI 聊天",
+		"CLEAR_CONVERSATION": "清除对话",
+		"CONFIGURATION": "配置",
+		"ASSISTANT_NAME": "Ever Teams 助手",
+		"EMPTY_CONFIGURED": "提出问题以开始。",
+		"EMPTY_NOT_CONFIGURED": "配置您的 API 密钥以开始。",
+		"CONFIGURE_BUTTON": "配置",
+		"ERROR_FALLBACK": "发生错误。请检查您的配置。",
+		"INPUT_PLACEHOLDER_READY": "您的消息...",
+		"INPUT_PLACEHOLDER_NO_KEY": "配置您的 API 密钥...",
+		"STOP": "停止",
+		"SEND": "发送"
 	}
 }

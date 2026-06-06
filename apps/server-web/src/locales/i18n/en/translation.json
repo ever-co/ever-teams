@@ -37,12 +37,29 @@
     "APP_EDIT": "Edit"
   },
   "FORM": {
+    "SECTIONS": {
+      "SERVER_ADDRESS": "Server Address",
+      "API_CONFIGURATION": "API Configuration",
+      "SECURITY": "Security"
+    },
+    "DESCRIPTIONS": {
+      "SSL": "Serve the app over HTTPS using your own certificates"
+    },
+    "ARIA": {
+      "BROWSE_SSL_KEY": "Browse SSL key file",
+      "BROWSE_SSL_CERT": "Browse SSL certificate file"
+    },
     "FIELDS": {
       "PORT": "PORT",
+      "HOST": "Host",
       "GAUZY_API_SERVER_URL": "Gauzy API Server Url",
       "NEXT_PUBLIC_GAUZY_API_SERVER_URL": "Public Gauzy API Server Url",
       "LANGUAGES": "Languages",
-      "OPTIONS": "Options"
+      "OPTIONS": "Options",
+      "USE_SSL": "Use SSL",
+      "SSL_KEY_FILE": "SSL Key File",
+      "SSL_CERT_FILE": "SSL Certificate File",
+      "BROWSE": "Browse"
     },
     "BUTTON": {
       "SAVE_SETTING": "Save Setting",
@@ -55,7 +72,10 @@
       "CLOSE": "Close",
       "START": "Start",
       "STOP": "Stop",
-      "LETS_GO": "Let's Go"
+      "LETS_GO": "Let's Go",
+      "BACK": "Back",
+      "CHECK_CONNECTIVITY": "Check Connectivity",
+      "CONTINUE": "Continue"
     },
     "LABELS": {
       "CHECKING": "Checking",
@@ -76,7 +96,9 @@
       "AUTO_UPDATE_TOGGLE": "Automatic Update",
       "CHECK_UPDATE_TITLE": "Check & Update your app version",
       "CHECK_UPDATE_SUBTITLE": "New Update is available! Please click button Download Now below.",
-      "LANGUAGES": "Languages"
+      "LANGUAGES": "Languages",
+      "SETUP_TITLE": "Configure Ever Teams Web Server",
+      "SETUP_SUBTITLE": "Set up the server address, API endpoints, and optional SSL."
     }
   },
   "MESSAGE": {

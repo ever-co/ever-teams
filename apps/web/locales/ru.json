@@ -100,6 +100,7 @@
 		"CONFIRM": "Подтвердить",
 		"YOUR_EMAIL": "ваш электронный адрес",
 		"CONTINUE": "Продолжить",
+		"AND": "и",
 		"EDIT_TASK": "Редактировать задачу",
 		"ASSIGN_TASK": "Назначить задачу",
 		"ASSIGN_TASK_TO": "Назначить задачу",
@@ -705,7 +706,10 @@
 			"NO_TEAMS_BADGE": "Нет команд",
 			"TEAM_COUNT_SINGULAR": "команда",
 			"TEAM_COUNT_PLURAL": "команды",
-			"FORGOT_PASSWORD": "Forgot Password?"
+			"FORGOT_PASSWORD": "Забыли пароль?",
+			"TERMS_OF_SERVICE": "Условия использования",
+			"PRIVACY_POLICY": "Политика конфиденциальности",
+			"OR_CONTINUE_WITH": "или продолжить через"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Присоединиться к существующей команде",
@@ -784,7 +788,9 @@
 			"ARE_YOU_SURE_TO_DELETE_USER": "Вы уверены, что хотите удалить этого пользователя?"
 		},
 		"settingsPersonal": {
-			"HEADING_TITLE": "Configurações Gerais",
+			"HEADING_TITLE": "Общие настройки",
+			"goToTeamSettings": "Перейти к настройкам команды",
+			"WORKING_HOURS": "Рабочие часы",
 			"emailNotValid": "Пожалуйста, укажите действительный адрес электронной почты",
 			"phoneNotValid": "Пожалуйста, укажите действительный номер телефона",
 			"WORK_SCHEDULE": "График работы",
@@ -998,6 +1004,20 @@
 			"IN_REVIEW": "На рассмотрении",
 			"DRAFT": "Черновик",
 			"REJECTED": "Отклонено"
+		},
+		"timeLog": {
+			"DELETE_SUCCESS": "Запись времени была успешно удалена.",
+			"DELETE_ERROR": "Произошла ошибка. Запись времени не удалось удалить.",
+			"MODIFY_SUCCESS": "Запись времени была успешно изменена.",
+			"MODIFY_ERROR": "Не удалось изменить запись времени. Пожалуйста, попробуйте снова.",
+			"DELETION_CONFIRMED": "Удаление подтверждено",
+			"DELETION_ERROR_TITLE": "Ошибка при удалении",
+			"MODIFICATION_CONFIRMED": "Изменение подтверждено",
+			"MODIFICATION_ERROR_TITLE": "Ошибка при изменении",
+			"BILLABLE_MODIFY_SUCCESS": "Статус оплаты был успешно изменён.",
+			"BILLABLE_MODIFY_ERROR": "Не удалось изменить статус оплаты. Пожалуйста, попробуйте снова.",
+			"STATUS_MODIFY_SUCCESS": "Статус табеля был успешно изменён.",
+			"STATUS_MODIFY_ERROR": "Не удалось изменить статус табеля. Пожалуйста, попробуйте снова."
 		}
 	},
 	"timer": {
@@ -1248,5 +1268,33 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Вы уверены, что хотите удалить этот временной интервал?"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "Настройка AI-чата",
+		"DIALOG_DESCRIPTION": "Настройте поставщика ИИ и ключ API для активации чат-ассистента.",
+		"PROVIDER_LABEL": "Поставщик",
+		"API_KEY_LABEL": "Ключ API",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "Ваш ключ хранится локально и отправляется в API чата только при использовании ассистента.",
+		"MODEL_LABEL": "Модель",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "Базовый URL",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "Отмена",
+		"SAVE": "Сохранить"
+	},
+	"chatView": {
+		"HEADER_TITLE": "AI Чат",
+		"CLEAR_CONVERSATION": "Очистить разговор",
+		"CONFIGURATION": "Настройки",
+		"ASSISTANT_NAME": "Ассистент Ever Teams",
+		"EMPTY_CONFIGURED": "Задайте вопрос, чтобы начать.",
+		"EMPTY_NOT_CONFIGURED": "Настройте ключ API, чтобы начать.",
+		"CONFIGURE_BUTTON": "Настроить",
+		"ERROR_FALLBACK": "Произошла ошибка. Проверьте свою конфигурацию.",
+		"INPUT_PLACEHOLDER_READY": "Ваше сообщение...",
+		"INPUT_PLACEHOLDER_NO_KEY": "Настройте ключ API...",
+		"STOP": "Остановить",
+		"SEND": "Отправить"
 	}
 }

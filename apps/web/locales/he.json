@@ -100,6 +100,7 @@
 		"CONFIRM": "אשר",
 		"YOUR_EMAIL": "האימייל שלך",
 		"CONTINUE": "המשך",
+		"AND": "ו",
 		"EDIT_TASK": "ערוך משימה",
 		"ASSIGN_TASK": "הקצה משימה",
 		"ASSIGN_TASK_TO": "הקצה משימה ל-",
@@ -705,7 +706,10 @@
 			"NO_TEAMS_BADGE": "אין צוותים",
 			"TEAM_COUNT_SINGULAR": "צוות",
 			"TEAM_COUNT_PLURAL": "צוותים",
-			"FORGOT_PASSWORD": "Forgot Password?"
+			"FORGOT_PASSWORD": "שכחת סיסמה?",
+			"TERMS_OF_SERVICE": "תנאי שימוש",
+			"PRIVACY_POLICY": "מדיניות פרטיות",
+			"OR_CONTINUE_WITH": "או המשך עם"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "הצטרף לצוות קיים",
@@ -785,6 +789,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "הגדרות כלליות",
+			"goToTeamSettings": "עבור להגדרות הצוות",
+			"WORKING_HOURS": "שעות עבודה",
 			"emailNotValid": "אנא ספק כתובת אימייל חוקית",
 			"phoneNotValid": "אנא ספק מספר טלפון חוקי",
 			"WORK_SCHEDULE": "לוח זמנים",
@@ -998,6 +1004,20 @@
 			"IN_REVIEW": "בבדיקה",
 			"DRAFT": "טיוטה",
 			"REJECTED": "נדחה"
+		},
+		"timeLog": {
+			"DELETE_SUCCESS": "יומן הזמן נמחק בהצלחה.",
+			"DELETE_ERROR": "אירעה שגיאה. לא ניתן היה למחוק את יומן הזמן.",
+			"MODIFY_SUCCESS": "יומן הזמן עודכן בהצלחה.",
+			"MODIFY_ERROR": "עדכון יומן הזמן נכשל. אנא נסה שוב.",
+			"DELETION_CONFIRMED": "המחיקה אושרה",
+			"DELETION_ERROR_TITLE": "שגיאה במהלך המחיקה",
+			"MODIFICATION_CONFIRMED": "השינוי אושר",
+			"MODIFICATION_ERROR_TITLE": "שגיאה במהלך השינוי",
+			"BILLABLE_MODIFY_SUCCESS": "מצב החיוב שונה בהצלחה.",
+			"BILLABLE_MODIFY_ERROR": "שינוי מצב החיוב נכשל. אנא נסה שוב.",
+			"STATUS_MODIFY_SUCCESS": "סטטוס גיליון הנוכחות שונה בהצלחה.",
+			"STATUS_MODIFY_ERROR": "שינוי סטטוס גיליון הנוכחות נכשל. אנא נסה שוב."
 		}
 	},
 	"timer": {
@@ -1248,5 +1268,33 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "האם אתה בטוח שברצונך למחוק את פרק הזמן הזה?"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "הגדרות צ'אט AI",
+		"DIALOG_DESCRIPTION": "הגדר את ספק ה-AI ומפתח ה-API שלך כדי להפעיל את עוזר הצ'אט.",
+		"PROVIDER_LABEL": "ספק",
+		"API_KEY_LABEL": "מפתח API",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "המפתח שלך מאוחסן מקומית ונשלח ל-API של הצ'אט רק כאשר אתה משתמש בעוזר.",
+		"MODEL_LABEL": "מודל",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "כתובת URL בסיסית",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "ביטול",
+		"SAVE": "שמירה"
+	},
+	"chatView": {
+		"HEADER_TITLE": "צ'אט AI",
+		"CLEAR_CONVERSATION": "נקה שיחה",
+		"CONFIGURATION": "הגדרות",
+		"ASSISTANT_NAME": "עוזר Ever Teams",
+		"EMPTY_CONFIGURED": "שאל שאלה כדי להתחיל.",
+		"EMPTY_NOT_CONFIGURED": "הגדר את מפתח ה-API שלך כדי להתחיל.",
+		"CONFIGURE_BUTTON": "הגדרה",
+		"ERROR_FALLBACK": "אירעה שגיאה. אנא בדוק את ההגדרות שלך.",
+		"INPUT_PLACEHOLDER_READY": "ההודעה שלך...",
+		"INPUT_PLACEHOLDER_NO_KEY": "הגדר את מפתח ה-API שלך...",
+		"STOP": "עצור",
+		"SEND": "שלח"
 	}
 }

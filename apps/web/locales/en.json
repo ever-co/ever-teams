@@ -46,8 +46,8 @@
 		"NEUTRAL": "Neutral",
 		"UNPRODUCTIVE": "Unproductive",
 		"ACTIVITIES": "activities",
-		"MEMBERS": "members",
-		"NO_PROJECT": "No project",
+		"MEMBERS": "Members",
+		"NO_PROJECT": "No Project",
 		"DURATION": "Duration",
 		"PROGRESS": "Progress",
 		"EMPLOYEE": "Employee",
@@ -58,7 +58,6 @@
 		"WEEKLY": "Weekly",
 		"ITEMS_SELECTED": "{count} item(s) selected",
 		"SELECT_ITEMS": "Select items",
-
 		"COLLAPSE_COLUMN": "Collapse Column",
 		"EXPAND_COLUMN": "Expand Column",
 		"EDIT_STATUS": "Edit Status",
@@ -127,6 +126,7 @@
 		"APPLY_FILTERS": "Apply Filters",
 		"YOUR_EMAIL": "your email",
 		"CONTINUE": "Continue",
+		"AND": "and",
 		"EDIT_TASK": "Edit Task",
 		"ASSIGN_TASK": "Assign Task",
 		"ASSIGN_TASK_TO": "Assign Task",
@@ -182,7 +182,6 @@
 		"CREATE_TASK": "Create New Task",
 		"REMOVE_FAVORITE_TASK": "Remove Task from Favorites",
 		"ADD_FAVORITE_TASK": "Add Task to Favorites",
-		"NO_PROJECT": "No Project",
 		"NO_FAVORITE_TASK": "No Favorite Tasks Yet",
 		"LINK_TASK": "Select Related Issue",
 		"LINK": "Link",
@@ -417,7 +416,6 @@
 		"HOURS": "Hours",
 		"START_DATE": "Start Date",
 		"END_DATE": "End Date",
-		"MEMBERS": "Members",
 		"MANAGERS": "Managers",
 		"NOT_HOURS_WORKED": "Not hours worked",
 		"MEMBERS_COUNT": "Members count",
@@ -708,7 +706,10 @@
 			"NO_TEAMS_BADGE": "No teams",
 			"TEAM_COUNT_SINGULAR": "team",
 			"TEAM_COUNT_PLURAL": "teams",
-			"FORGOT_PASSWORD": "Forgot Password?"
+			"FORGOT_PASSWORD": "Forgot Password?",
+			"TERMS_OF_SERVICE": "Terms of Service",
+			"PRIVACY_POLICY": "Privacy Policy",
+			"OR_CONTINUE_WITH": "or continue with"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Join existing Team",
@@ -788,6 +789,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "General Settings",
+			"goToTeamSettings": "Go to Team settings",
+			"WORKING_HOURS": "Working hours",
 			"emailNotValid": "Please provide a valid Email",
 			"phoneNotValid": "Please provide a valid Phone Number",
 			"WORK_SCHEDULE": "Work Schedule",
@@ -1001,6 +1004,20 @@
 			"IN_REVIEW": "In review",
 			"DRAFT": "Draft",
 			"REJECTED": "Rejected"
+		},
+		"timeLog": {
+			"DELETE_SUCCESS": "The time log has been successfully deleted.",
+			"DELETE_ERROR": "An error occurred. The time log could not be deleted.",
+			"MODIFY_SUCCESS": "The time log has been successfully modified.",
+			"MODIFY_ERROR": "Failed to modify time log. Please try again.",
+			"DELETION_CONFIRMED": "Deletion Confirmed",
+			"DELETION_ERROR_TITLE": "Error during deletion",
+			"MODIFICATION_CONFIRMED": "Modification Confirmed",
+			"MODIFICATION_ERROR_TITLE": "Error during modification",
+			"BILLABLE_MODIFY_SUCCESS": "The billable state has been successfully modified.",
+			"BILLABLE_MODIFY_ERROR": "Failed to modify billable state. Please try again.",
+			"STATUS_MODIFY_SUCCESS": "The timesheet status has been successfully modified.",
+			"STATUS_MODIFY_ERROR": "Failed to modify timesheet status. Please try again."
 		}
 	},
 	"timer": {
@@ -1251,5 +1268,33 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Are you sure you want to delete this time slot?"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "AI Chat Configuration",
+		"DIALOG_DESCRIPTION": "Configure your AI provider and API key to enable the chat assistant.",
+		"PROVIDER_LABEL": "Provider",
+		"API_KEY_LABEL": "API Key",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "Your key is stored locally and sent to the chat API only when you use the assistant.",
+		"MODEL_LABEL": "Model",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "Base URL",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "Cancel",
+		"SAVE": "Save"
+	},
+	"chatView": {
+		"HEADER_TITLE": "Chat AI",
+		"CLEAR_CONVERSATION": "Clear conversation",
+		"CONFIGURATION": "Configuration",
+		"ASSISTANT_NAME": "Ever Teams Assistant",
+		"EMPTY_CONFIGURED": "Ask a question to get started.",
+		"EMPTY_NOT_CONFIGURED": "Configure your API key to get started.",
+		"CONFIGURE_BUTTON": "Configure",
+		"ERROR_FALLBACK": "An error occurred. Please check your configuration.",
+		"INPUT_PLACEHOLDER_READY": "Your message...",
+		"INPUT_PLACEHOLDER_NO_KEY": "Configure your API key...",
+		"STOP": "Stop",
+		"SEND": "Send"
 	}
 }

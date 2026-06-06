@@ -79,6 +79,7 @@
 		"CONFIRM": "تأكيد",
 		"YOUR_EMAIL": "بريدك الإلكتروني",
 		"CONTINUE": "متابعة",
+		"AND": "و",
 		"EDIT_TASK": "تعديل المهمة",
 		"ASSIGN_TASK": "تعيين مهمة",
 		"ASSIGN_TASK_TO": "تعيين المهمة إلى",
@@ -705,7 +706,10 @@
 			"NO_TEAMS_BADGE": "لا توجد فرق",
 			"TEAM_COUNT_SINGULAR": "فريق",
 			"TEAM_COUNT_PLURAL": "فرق",
-			"FORGOT_PASSWORD": "Forgot Password?"
+			"FORGOT_PASSWORD": "هل نسيت كلمة المرور؟",
+			"TERMS_OF_SERVICE": "شروط الخدمة",
+			"PRIVACY_POLICY": "سياسة الخصوصية",
+			"OR_CONTINUE_WITH": "أو تابع باستخدام"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "الانضمام إلى فريق موجود",
@@ -785,6 +789,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "الإعدادات العامة",
+			"goToTeamSettings": "انتقل إلى إعدادات الفريق",
+			"WORKING_HOURS": "ساعات العمل",
 			"emailNotValid": "يرجى تقديم بريد إلكتروني صالح",
 			"phoneNotValid": "يرجى تقديم رقم هاتف صالح",
 			"WORK_SCHEDULE": "جدول العمل",
@@ -998,6 +1004,20 @@
 			"IN_REVIEW": "قيد المراجعة",
 			"DRAFT": "مسودة",
 			"REJECTED": "مرفوض"
+		},
+		"timeLog": {
+			"DELETE_SUCCESS": "تم حذف سجل الوقت بنجاح.",
+			"DELETE_ERROR": "حدث خطأ. تعذر حذف سجل الوقت.",
+			"MODIFY_SUCCESS": "تم تعديل سجل الوقت بنجاح.",
+			"MODIFY_ERROR": "فشل تعديل سجل الوقت. يرجى المحاولة مرة أخرى.",
+			"DELETION_CONFIRMED": "تم تأكيد الحذف",
+			"DELETION_ERROR_TITLE": "خطأ أثناء الحذف",
+			"MODIFICATION_CONFIRMED": "تم تأكيد التعديل",
+			"MODIFICATION_ERROR_TITLE": "خطأ أثناء التعديل",
+			"BILLABLE_MODIFY_SUCCESS": "تم تعديل حالة الفوترة بنجاح.",
+			"BILLABLE_MODIFY_ERROR": "فشل تعديل حالة الفوترة. يرجى المحاولة مرة أخرى.",
+			"STATUS_MODIFY_SUCCESS": "تم تعديل حالة جدول الدوام بنجاح.",
+			"STATUS_MODIFY_ERROR": "فشل تعديل حالة جدول الدوام. يرجى المحاولة مرة أخرى."
 		}
 	},
 	"timer": {
@@ -1248,5 +1268,33 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "هل أنت متأكد أنك تريد حذف فترة الوقت هذه؟"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "إعدادات محادثة الذكاء الاصطناعي",
+		"DIALOG_DESCRIPTION": "قم بتهيئة مزود الذكاء الاصطناعي ومفتاح API لتفعيل مساعد المحادثة.",
+		"PROVIDER_LABEL": "المزود",
+		"API_KEY_LABEL": "مفتاح API",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "يتم تخزين مفتاحك محليًا ويُرسل إلى واجهة برمجة الدردشة فقط عند استخدام المساعد.",
+		"MODEL_LABEL": "النموذج",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "عنوان URL الأساسي",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "إلغاء",
+		"SAVE": "حفظ"
+	},
+	"chatView": {
+		"HEADER_TITLE": "محادثة الذكاء الاصطناعي",
+		"CLEAR_CONVERSATION": "مسح المحادثة",
+		"CONFIGURATION": "الإعدادات",
+		"ASSISTANT_NAME": "مساعد Ever Teams",
+		"EMPTY_CONFIGURED": "اطرح سؤالاً للبدء.",
+		"EMPTY_NOT_CONFIGURED": "قم بتهيئة مفتاح API للبدء.",
+		"CONFIGURE_BUTTON": "تهيئة",
+		"ERROR_FALLBACK": "حدث خطأ. يرجى التحقق من الإعدادات.",
+		"INPUT_PLACEHOLDER_READY": "رسالتك...",
+		"INPUT_PLACEHOLDER_NO_KEY": "قم بتهيئة مفتاح API...",
+		"STOP": "إيقاف",
+		"SEND": "إرسال"
 	}
 }

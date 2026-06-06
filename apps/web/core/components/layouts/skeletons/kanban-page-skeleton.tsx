@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { Container } from '@/core/components';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 import { KanbanColumnLoadingSkeleton } from '../../common/skeleton/kanban-column-loading-skeleton';
 
 interface KanbanPageSkeletonProps {
@@ -11,7 +11,7 @@ interface KanbanPageSkeletonProps {
 
 /**
  * Complete page-level skeleton for Kanban page
- * Integrates seamlessly with MainLayout structure without swallowing it up
+ * Integrates seamlessly with PageLayout structure without swallowing it up
  * Matches exact layout: mainHeaderSlot (3 sections: breadcrumb + title/actions + tabs/filters) + main content (kanban board)
  */
 export const KanbanPageSkeleton: FC<KanbanPageSkeletonProps> = ({
@@ -20,7 +20,7 @@ export const KanbanPageSkeleton: FC<KanbanPageSkeletonProps> = ({
 	showTimer = false
 }) => {
 	return (
-		<MainLayout
+		<PageLayout
 			title="Kanban Board"
 			showTimer={showTimer}
 			footerClassName="pr-20"
@@ -167,7 +167,7 @@ export const KanbanPageSkeleton: FC<KanbanPageSkeletonProps> = ({
 					</div>
 				</div>
 			</div>
-		</MainLayout>
+		</PageLayout>
 	);
 };
 

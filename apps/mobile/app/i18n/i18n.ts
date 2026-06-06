@@ -25,7 +25,8 @@ const setLanguage = async () => {
 	const locale = await AsyncStorage.getItem('Language');
 
 	if (!locale) {
-		const deviceLocale = Localization.locale;
+		const locales = Localization?.getLocales?.();
+		const deviceLocale = locales?.[0]?.languageTag ?? 'en';
 		AsyncStorage.setItem('Language', deviceLocale);
 		i18n.locale = deviceLocale;
 	} else {
@@ -36,9 +37,10 @@ const setLanguage = async () => {
 setLanguage();
 
 // handle RTL languages
-export const isRTL = Localization.isRTL;
-I18nManager.allowRTL(isRTL);
-I18nManager.forceRTL(isRTL);
+const locales = Localization?.getLocales?.();
+export const isRTL = locales?.[0]?.textDirection === 'rtl';
+I18nManager?.allowRTL(isRTL);
+I18nManager?.forceRTL(isRTL);
 
 /**
  * Builds up valid keypaths for translations.

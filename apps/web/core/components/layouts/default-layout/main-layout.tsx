@@ -15,6 +15,7 @@ import AppContainer from './app-container';
 import GlobalHeader from './global-header';
 import MainSidebarTrigger from './main-sidebar-trigger';
 import GlobalFooter from './global-footer';
+import { useIsInsideLayoutShell } from './layout-shell-context';
 
 // Import optimized components from centralized location
 import { LazyAppSidebar } from '@/core/components/optimized-components/common';
@@ -121,6 +122,9 @@ export function MainLayout({
 	mainHeaderSlotClassName = '',
 	footerClassName = ''
 }: Props) {
+	// Check if we're inside LayoutShell (transition mechanism)
+	const isInsideShell = useIsInsideLayoutShell();
+
 	// Global state for full-width mode
 	const fullWidth = useAtomValue(fullWidthState);
 
@@ -166,6 +170,78 @@ export function MainLayout({
 		setShouldRenderTimer(true);
 	}, [path, headerHeight, mainHeaderSlot]);
 
+	// Page-specific content (header, resizable panels, footer)
+	// Shared between both modes (inside shell and standalone)
+	const pageContent = (
+		<>
+			<ResizablePanelGroup direction="vertical" className="min-h-full">
+				<GlobalHeader
+					ref={headerRef}
+					fullWidth={fullWidth}
+					showTimer={shouldRenderTimer && activeTimer}
+					publicTeam={publicTeam || false}
+					notFound={notFound || false}
+					mainHeaderSlot={mainHeaderSlot}
+					mainHeaderSlotClassName={mainHeaderSlotClassName}
+				/>
+
+				<ResizableHandle withHandle />
+				{/* </Container> */}
+				<ResizablePanel
+					defaultSize={75}
+					className="!overflow-y-auto custom-scrollbar w-full min-h-svh h-full"
+					style={{
+						flexGrow: 0,
+						flexShrink: 0,
+						flexBasis: 'auto',
+						minHeight: '90svh'
+					}}
+				>
+					<div className={cn('flex-1 p-4 w-full h-full', className)}>
+						<MainSidebarTrigger />
+						{/* Warning: this is to remove the unwanted double scroll on the Dashboard */}
+						<div
+							className={cn(
+								'overflow-x-hidden flex-1 w-full h-full min-h-[calc(100vh_-_240px)]',
+								childrenClassName
+							)}
+							style={{
+								/*
+						marginTop: `${headerRef?.current?.offsetHeight ? headerRef.current.offsetHeight : 95}px`,*/
+								marginBottom: `${isFooterFixed ? footerHeight : 0}px`
+							}}
+						>
+							{headerHeight && (
+								<div
+									data-layout="main-scroll-offset"
+									className="w-full"
+									style={{
+										height: `${headerHeight + (mainHeaderSlot ? -30 : 0)}px`
+									}}
+								></div>
+							)}
+
+							{children}
+						</div>
+					</div>
+				</ResizablePanel>
+			</ResizablePanelGroup>
+			<GlobalFooter
+				ref={footerRef}
+				fullWidth={fullWidth}
+				isFixed={isFooterFixed}
+				footerClassName={footerClassName}
+			/>
+		</>
+	);
+
+	// If inside LayoutShell, sidebar/container are already provided by the shell.
+	// Only render the page-specific content (header, panels, footer).
+	if (isInsideShell) {
+		return pageContent;
+	}
+
+	// Standalone mode: full layout with sidebar (for pages outside the (main) route group)
 	return (
 		<AppContainer title={title}>
 			<SidebarProvider className="flex-1 w-full h-full">
@@ -175,64 +251,7 @@ export function MainLayout({
 				</Suspense>
 				{/* Layout content structure implementation */}
 				<SidebarInset className="relative flex-1 overflow-x-hidden !h-full !w-full">
-					<ResizablePanelGroup direction="vertical" className="min-h-full">
-						<GlobalHeader
-							ref={headerRef}
-							fullWidth={fullWidth}
-							showTimer={shouldRenderTimer && activeTimer}
-							publicTeam={publicTeam || false}
-							notFound={notFound || false}
-							mainHeaderSlot={mainHeaderSlot}
-							mainHeaderSlotClassName={mainHeaderSlotClassName}
-						/>
-
-						<ResizableHandle withHandle />
-						{/* </Container> */}
-						<ResizablePanel
-							defaultSize={75}
-							className="!overflow-y-auto custom-scrollbar w-full min-h-svh h-full"
-							style={{
-								flexGrow: 0,
-								flexShrink: 0,
-								flexBasis: 'auto',
-								minHeight: '90svh'
-							}}
-						>
-							<div className={cn('flex-1 p-4 w-full h-full', className)}>
-								<MainSidebarTrigger />
-								{/* Warning: this is to remove the unwanted double scroll on the Dashboard */}
-								<div
-									className={cn(
-										'overflow-x-hidden flex-1 w-full h-full min-h-[calc(100vh_-_240px)]',
-										childrenClassName
-									)}
-									style={{
-										/*
-								marginTop: `${headerRef?.current?.offsetHeight ? headerRef.current.offsetHeight : 95}px`,*/
-										marginBottom: `${isFooterFixed ? footerHeight : 0}px`
-									}}
-								>
-									{headerHeight && (
-										<div
-											data-layout="main-scroll-offset"
-											className="w-full"
-											style={{
-												height: `${headerHeight + (mainHeaderSlot ? -30 : 0)}px`
-											}}
-										></div>
-									)}
-
-									{children}
-								</div>
-							</div>
-						</ResizablePanel>
-					</ResizablePanelGroup>
-					<GlobalFooter
-						ref={footerRef}
-						fullWidth={fullWidth}
-						isFixed={isFooterFixed}
-						footerClassName={footerClassName}
-					/>
+					{pageContent}
 				</SidebarInset>
 			</SidebarProvider>
 		</AppContainer>

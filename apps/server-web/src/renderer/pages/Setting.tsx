@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { SettingPageTypeMessage } from '../../main/helpers/constant';
 import {
-  SideBar,
-  Popup,
-  ServerComponent,
-  UpdaterComponent,
-  AboutComponent,
+  Popup
 } from '../components';
+import { SideBar } from './setting/SideBar';
+import { ServerComponent } from './setting/Server';
+import { UpdaterComponent } from './setting/Updater';
+import { AboutComponent } from './setting/About';
 import {
   IUpdaterStates,
   IUpdateSetting,
@@ -240,6 +240,10 @@ export function Setting() {
             GAUZY_API_SERVER_URL: arg.data.server.GAUZY_API_SERVER_URL,
             NEXT_PUBLIC_GAUZY_API_SERVER_URL:
               arg.data.server.NEXT_PUBLIC_GAUZY_API_SERVER_URL,
+            useSsl: arg.data.server.useSsl,
+            sslKey: arg.data.server.sslKey,
+            sslSecret: arg.data.server.sslSecret,
+            DESKTOP_WEB_SERVER_HOSTNAME: arg.data.server.DESKTOP_WEB_SERVER_HOSTNAME,
           });
           setLng(arg.data.general.lang);
           setUpdateSetting({

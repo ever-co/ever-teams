@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Card } from '@/core/components/common/card';
 import { ArrowLeftIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-react';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 import { Container } from '@/core/components';
 import { cn } from '@/core/lib/helpers';
 import { useAtomValue } from 'jotai';
@@ -70,8 +70,8 @@ function TeamDashboard() {
 	}
 
 	return (
-		<MainLayout
-			className="items-start pb-1 !overflow-hidden w-full"
+		<PageLayout
+			className="items-start pb-1 overflow-hidden! w-full"
 			childrenClassName="w-full"
 			showTimer={isTrackingEnabled}
 			mainHeaderSlot={
@@ -153,7 +153,7 @@ function TeamDashboard() {
 					</Card>
 				</Suspense>
 			</Container>
-		</MainLayout>
+		</PageLayout>
 	);
 }
 

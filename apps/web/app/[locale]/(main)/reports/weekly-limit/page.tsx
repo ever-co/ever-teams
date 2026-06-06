@@ -1,6 +1,6 @@
 'use client';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 import { useEffect, useMemo, useState } from 'react';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
 import { useTimeLimits } from '@/core/hooks/activities/use-time-limits';
@@ -121,7 +121,7 @@ function WeeklyLimitReport() {
 	}
 
 	return (
-		<MainLayout
+		<PageLayout
 			showTimer={isTrackingEnabled}
 			className="!p-0 pb-1 !overflow-hidden w-full"
 			childrenClassName="w-full h-full"
@@ -231,7 +231,7 @@ function WeeklyLimitReport() {
 					className="pt-0"
 				/>
 			</div>
-		</MainLayout>
+		</PageLayout>
 	);
 }
 

@@ -59,11 +59,32 @@ Note: Currently WIP, the screenshot is just a temporary picture :)
 
 ## 🔗 Links
 
+### For Everyone
+
 -   **<https://app.ever.team>** - Ever® Teams™ Platform Web Application.
 -   **<https://demo.ever.team>** - Ever® Teams™ Platform Demo Web Application.
 -   **<https://stage.ever.team>** - Ever® Teams™ Platform Stage / Test Web Application.
 -   **<https://docs.ever.team>** - Ever® Teams™ Platform Documentation (WIP).
 -   **<https://ever.team>** - Check more information about the Ever® Teams™ platform at the official website (WIP).
+
+### For Developers
+
+#### Main Links
+
+- **<https://storybook.ever.team>** - Ever® Teams™ Platform Kit Storybook.
+- **<https://builders.ever.team>** - Ever® Teams™ Platform Visual Builders.
+
+#### Examples
+
+- **<https://base.examples.ever.team>** - Ever® Teams™ base example
+- **<https://next.examples.ever.team>** - Ever® Teams™ NextJs example
+- **<https://saas.examples.ever.team>** - Ever® Teams™ SaaS platform example
+- **<https://vite.examples.ever.team>** - Ever® Teams™ example built with Vite
+- **<https://next-boilerplate.examples.ever.team>** - Ever® Teams™ example built with NextJs Boilerplate
+- **<https://remix.examples.ever.team>** - Ever® Teams™ example built with Remix
+
+### Other Links
+
 -   **<https://gauzy.co>** - Check more information about the Ever® Gauzy™ Platform at the official website.
 -   **<https://ever.co>** - Get more information about our company products.
 
@@ -73,6 +94,11 @@ Ever® Teams™ Platform (<https://app.ever.team>) is built on top of our Busine
 
 ## 🧱 Technology Stack and Requirements
 
+### Common
+
+Below is a list of frameworks/libraries we are using across platform apps:
+
+-   [Turborepo](https://turbo.build/repo)
 -   [TypeScript](https://www.typescriptlang.org)
 -   [Nx](https://nx.dev) and [Lerna](https://github.com/lerna/lerna)
 -   [NodeJs](https://nodejs.org)
@@ -82,7 +108,18 @@ Ever® Teams™ Platform (<https://app.ever.team>) is built on top of our Busine
 -   [Expo](https://expo.dev)
 -   [Tailwind](https://tailwindcss.com) - CSS / Styles
 -   [shadcn/ui](https://ui.shadcn.com), [Radix](https://www.radix-ui.com) and [HeadlessUI](https://headlessui.com) - UI Component Libraries
+-   [GitHub Actions](https://docs.github.com/en/actions)
+-   [Storybook](https://github.com/storybookjs/storybook) - frontend workshop for building UI components and pages in isolation.
 -   [DigitalOcean](https://www.digitalocean.com) and [Vercel](https://vercel.com) - Hosting
+
+### Toolkit
+
+- [Next.js](https://github.com/vercel/next.js)
+- [Headless UI](https://github.com/tailwindlabs/headlessui)
+- [Radix UI](https://github.com/radix-ui), e.g. [Primitives](https://github.com/radix-ui/primitives), [Themes](https://github.com/radix-ui/themes), etc.
+- [Shadcn UI](https://ui.shadcn.com)
+- [TailwindCSS](https://github.com/tailwindlabs/tailwindcss)
+- [Storybook](https://github.com/storybookjs/storybook) - frontend workshop for building UI components and pages in isolation.
 
 #### See also README.md and [CREDITS.md](CREDITS.md) files in relevant folders for lists of libraries and software included in the Platform, information about licenses, and other details
 

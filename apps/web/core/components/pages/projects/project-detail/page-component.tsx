@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { Menu, Transition } from '@headlessui/react';
 
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 import { Container } from '@/core/components';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { HorizontalSeparator, VerticalSeparator } from '@/core/components/duplicated-components/separator';
@@ -136,7 +136,7 @@ export default function ProjectDetailPageComponent() {
 		const errorMessage = error instanceof Error ? error.message : t('pages.error.HEADING_TITLE');
 
 		return (
-			<MainLayout showTimer={isTrackingEnabled} className="p-0! pb-1 overflow-hidden! w-full">
+			<PageLayout showTimer={isTrackingEnabled} className="p-0! pb-1 overflow-hidden! w-full">
 				<Container fullWidth={fullWidth} className="flex flex-col items-center justify-center h-full gap-4 p-8">
 					<div className="text-center">
 						<h2 className="mb-2 text-2xl font-semibold text-gray-900 dark:text-white">
@@ -148,14 +148,14 @@ export default function ProjectDetailPageComponent() {
 						</Button>
 					</div>
 				</Container>
-			</MainLayout>
+			</PageLayout>
 		);
 	}
 
 	// Access denied - Project doesn't belong to active team
 	if (project && !projectBelongsToActiveTeam) {
 		return (
-			<MainLayout showTimer={isTrackingEnabled} className="p-0! pb-1 overflow-hidden! w-full">
+			<PageLayout showTimer={isTrackingEnabled} className="p-0! pb-1 overflow-hidden! w-full">
 				<Container fullWidth={fullWidth} className="flex flex-col items-center justify-center h-full gap-4 p-8">
 					<div className="text-center">
 						<div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 dark:bg-amber-900/30">
@@ -178,12 +178,12 @@ export default function ProjectDetailPageComponent() {
 						</div>
 					</div>
 				</Container>
-			</MainLayout>
+			</PageLayout>
 		);
 	}
 
 	return (
-		<MainLayout
+		<PageLayout
 			showTimer={isTrackingEnabled}
 			className="p-0! pb-1 overflow-hidden! w-full"
 			childrenClassName="w-full h-full overflow-y-auto"
@@ -217,7 +217,7 @@ export default function ProjectDetailPageComponent() {
 					fullWidth={fullWidth}
 				/>
 			) : null}
-		</MainLayout>
+		</PageLayout>
 	);
 }
 

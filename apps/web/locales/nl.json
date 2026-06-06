@@ -100,6 +100,7 @@
 		"CONFIRM": "Bevestigen",
 		"YOUR_EMAIL": "jouw e-mailadres",
 		"CONTINUE": "Doorgaan",
+		"AND": "en",
 		"EDIT_TASK": "Taak bewerken",
 		"ASSIGN_TASK": "Taak toewijzen",
 		"ASSIGN_TASK_TO": "Taak toewijzen",
@@ -705,7 +706,10 @@
 			"NO_TEAMS_BADGE": "Geen teams",
 			"TEAM_COUNT_SINGULAR": "team",
 			"TEAM_COUNT_PLURAL": "teams",
-			"FORGOT_PASSWORD": "Forgot Password?"
+			"FORGOT_PASSWORD": "Wachtwoord vergeten?",
+			"TERMS_OF_SERVICE": "Servicevoorwaarden",
+			"PRIVACY_POLICY": "Privacybeleid",
+			"OR_CONTINUE_WITH": "of ga verder met"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Bestaand team joinen",
@@ -785,6 +789,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "Algemene instellingen",
+			"goToTeamSettings": "Ga naar teaminstellingen",
+			"WORKING_HOURS": "Werktijden",
 			"emailNotValid": "Voer een geldig e-mailadres in",
 			"phoneNotValid": "Voer een geldig telefoonnummer in",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "U staat op het punt uw account en al uw gegevens te verwijderen?",
@@ -998,6 +1004,20 @@
 			"IN_REVIEW": "In beoordeling",
 			"DRAFT": "Concept",
 			"REJECTED": "Afgewezen"
+		},
+		"timeLog": {
+			"DELETE_SUCCESS": "Het tijdlogboek is succesvol verwijderd.",
+			"DELETE_ERROR": "Er is een fout opgetreden. Het tijdlogboek kon niet worden verwijderd.",
+			"MODIFY_SUCCESS": "Het tijdlogboek is succesvol gewijzigd.",
+			"MODIFY_ERROR": "Het tijdlogboek kon niet worden gewijzigd. Probeer het opnieuw.",
+			"DELETION_CONFIRMED": "Verwijdering bevestigd",
+			"DELETION_ERROR_TITLE": "Fout bij het verwijderen",
+			"MODIFICATION_CONFIRMED": "Wijziging bevestigd",
+			"MODIFICATION_ERROR_TITLE": "Fout bij het wijzigen",
+			"BILLABLE_MODIFY_SUCCESS": "De factureerbare status is succesvol gewijzigd.",
+			"BILLABLE_MODIFY_ERROR": "De factureerbare status kon niet worden gewijzigd. Probeer het opnieuw.",
+			"STATUS_MODIFY_SUCCESS": "De status van de urenstaat is succesvol gewijzigd.",
+			"STATUS_MODIFY_ERROR": "De status van de urenstaat kon niet worden gewijzigd. Probeer het opnieuw."
 		}
 	},
 	"timer": {
@@ -1248,5 +1268,33 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "Weet u zeker dat u dit tijdslot wilt verwijderen?"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "AI Chat configuratie",
+		"DIALOG_DESCRIPTION": "Configureer uw AI-provider en API-sleutel om de chatassistent te activeren.",
+		"PROVIDER_LABEL": "Provider",
+		"API_KEY_LABEL": "API-sleutel",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "Uw sleutel wordt lokaal opgeslagen en alleen naar de chat-API verzonden wanneer u de assistent gebruikt.",
+		"MODEL_LABEL": "Model",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "Basis-URL",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "Annuleren",
+		"SAVE": "Opslaan"
+	},
+	"chatView": {
+		"HEADER_TITLE": "AI Chat",
+		"CLEAR_CONVERSATION": "Gesprek wissen",
+		"CONFIGURATION": "Configuratie",
+		"ASSISTANT_NAME": "Ever Teams Assistent",
+		"EMPTY_CONFIGURED": "Stel een vraag om te beginnen.",
+		"EMPTY_NOT_CONFIGURED": "Configureer uw API-sleutel om te beginnen.",
+		"CONFIGURE_BUTTON": "Configureren",
+		"ERROR_FALLBACK": "Er is een fout opgetreden. Controleer uw configuratie.",
+		"INPUT_PLACEHOLDER_READY": "Uw bericht...",
+		"INPUT_PLACEHOLDER_NO_KEY": "Configureer uw API-sleutel...",
+		"STOP": "Stoppen",
+		"SEND": "Verzenden"
 	}
 }

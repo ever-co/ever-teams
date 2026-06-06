@@ -3,7 +3,6 @@
 import { CAPTCHA_TYPE, DEFAULT_APP_PATH, RECAPTCHA_SITE_KEY } from '@/core/constants/config/constants';
 import { IStepProps, TStartMode, useAuthenticationTeam } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
-import { clsxm } from '@/core/lib/utils';
 import { BackButton, BackdropLoader, Button, SiteReCAPTCHA, Text } from '@/core/components';
 import { AuthLayout } from '@/core/components/layouts/default-layout';
 import { useState } from 'react';
@@ -11,8 +10,8 @@ import { useTranslations } from 'next-intl';
 import SocialLogins from '@/core/components/auth/social-logins-buttons';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 import Turnstile from 'react-turnstile';
-import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '@/core/components/duplicated-components/_input';
+import { cn } from '@/core/lib/helpers';
 
 function AuthSignup() {
 	const {
@@ -31,55 +30,54 @@ function AuthSignup() {
 	const t = useTranslations();
 
 	return (
-		<>
-			<AuthLayout title={t('pages.authTeam.HEADING_TITLE')} description={t('pages.authTeam.HEADING_DESCRIPTION')}>
-				<div className="w-[98%] md:w-[550px] overflow-x-hidden overflow-y-clip max-w-[450px] mx-auto">
-					<form onSubmit={handleSubmit} autoComplete="off" className="w-full">
+		<AuthLayout
+			title={t('pages.authTeam.HEADING_TITLE')}
+			description={t('pages.authTeam.HEADING_DESCRIPTION')}
+			headerLinkText={t('pages.auth.LOGIN')}
+			headerLinkHref={DEFAULT_APP_PATH}
+		>
+			<div className="w-full overflow-x-hidden overflow-y-clip p-1.5">
+				<form onSubmit={handleSubmit} autoComplete="off" className="w-full">
+					<div
+						className={cn(
+							'w-[200%] flex flex-row transition-[transform] duration-500',
+							step !== FIRST_STEP && '-translate-x-[50%]'
+						)}
+					>
+						{/* Step 1: User Information (Name, Email, Captcha) */}
+						<div className="w-1/2">
+							<FillUserDataForm
+								errors={errors}
+								handleOnChange={handleOnChange}
+								form={formValues}
+								loading={loading}
+							/>
+						</div>
+
+						{/* Step 2: Choose Mode (Solo or Team) */}
 						<div
-							className={clsxm(
-								'w-[200%] flex flex-row transition-[transform] duration-500',
-								step !== FIRST_STEP && ['-translate-x-[50%]']
+							className={cn(
+								'w-1/2 transition-[visibility] ease-out duration-700',
+								step === FIRST_STEP && 'invisible'
 							)}
 						>
-							{/* Step 1: User Information (Name, Email, Captcha) */}
-							<div className="w-1/2">
-								<FillUserDataForm
-									errors={errors}
-									handleOnChange={handleOnChange}
-									form={formValues}
-									loading={loading}
-								/>
-							</div>
-
-							{/* Step 2: Choose Mode (Solo or Team) */}
-							<div
-								className={clsxm(
-									'w-1/2 transition-[visibility] ease-out duration-700',
-									step === FIRST_STEP && ['invisible']
-								)}
-							>
-								<ChooseModeForm
-									errors={errors}
-									handleOnChange={handleOnChange}
-									form={formValues}
-									onPreviousStep={() => setStep(FIRST_STEP)}
-									loading={loading}
-									startMode={startMode}
-									onStartModeChange={handleStartModeChange}
-								/>
-							</div>
+							<ChooseModeForm
+								errors={errors}
+								handleOnChange={handleOnChange}
+								form={formValues}
+								onPreviousStep={() => setStep(FIRST_STEP)}
+								loading={loading}
+								startMode={startMode}
+								onStartModeChange={handleStartModeChange}
+							/>
 						</div>
-					</form>
-					{/* Social logins - only shown on step 1 */}
-					{step === FIRST_STEP && (
-						<div>
-							<SocialLogins />
-						</div>
-					)}
-				</div>
-				<BackdropLoader show={loading} title={t('pages.authTeam.LOADING_TEXT')} />
-			</AuthLayout>
-		</>
+					</div>
+				</form>
+				{/* Social logins - only shown on step 1 */}
+				{step === FIRST_STEP && <SocialLogins />}
+			</div>
+			<BackdropLoader show={loading} title={t('pages.authTeam.LOADING_TEXT')} />
+		</AuthLayout>
 	);
 }
 
@@ -131,49 +129,69 @@ function FillUserDataForm({
 		}
 	};
 
-	return (
-		<EverCard className={clsxm('w-full dark:bg-[#25272D]', className)} shadow="custom">
-			<div className="flex flex-col justify-between items-center h-full">
-				<Text.Heading as="h3" className="mb-10 text-center">
-					{t('pages.authTeam.STEP_USER_INFO')}
-				</Text.Heading>
+	const INPUT_CLASS =
+		'dark:bg-foreground/5 ring-foreground/10 placeholder:text-muted-foreground/75 selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border border-transparent bg-white px-3 py-1 text-base shadow-sm outline-none ring-1 transition-[color,box-shadow] md:text-sm focus-visible:border-foreground/35 focus-visible:ring-ring/25 dark:focus-visible:border-foreground/25 focus-visible:ring-[3px]';
 
-				<div className="mb-6 w-full">
+	return (
+		<div className={cn('space-y-6 w-full', className)}>
+			<div className="space-y-4">
+				<div className="space-y-2.5">
+					<label
+						data-slot="label"
+						className="block text-sm font-medium leading-none select-none"
+						htmlFor="signup-name"
+					>
+						{t('form.NAME_PLACEHOLDER')}
+					</label>
 					<InputField
+						id="signup-name"
 						placeholder={t('form.NAME_PLACEHOLDER')}
 						name="name"
 						value={form.name}
 						errors={errors}
 						onChange={handleOnChange}
 						autoComplete="off"
-						wrapperClassName="dark:bg-[#25272D]"
-						className="dark:bg-[#25272D]"
+						noWrapper
+						className={INPUT_CLASS}
 					/>
+					{errors?.name && <Text.Error className="text-xs">{errors.name}</Text.Error>}
+				</div>
+
+				<div className="space-y-2.5">
+					<label
+						data-slot="label"
+						className="block text-sm font-medium leading-none select-none"
+						htmlFor="signup-email"
+					>
+						{t('form.EMAIL_PLACEHOLDER')}
+					</label>
 					<InputField
+						id="signup-email"
 						type="email"
 						placeholder={t('form.EMAIL_PLACEHOLDER')}
-						className="dark:bg-[#25272D]"
-						wrapperClassName="mb-5 dark:bg-[#25272D]"
 						name="email"
 						value={form.email}
 						errors={errors}
 						onChange={handleOnChange}
 						autoComplete="off"
+						noWrapper
+						className={INPUT_CLASS}
 					/>
-					{renderCaptcha()}
+					{errors?.email && <Text.Error className="text-xs">{errors.email}</Text.Error>}
 				</div>
 
-				<div className="flex justify-between items-center w-full">
-					<Text.Link href={DEFAULT_APP_PATH} underline variant="primary" className="font-normal">
-						{t('pages.auth.LOGIN')}
-					</Text.Link>
-
-					<Button type="submit" disabled={loading}>
-						{t('pages.authTeam.CONTINUE')}
-					</Button>
-				</div>
+				{renderCaptcha()}
 			</div>
-		</EverCard>
+
+			{/* Submit button — template exact classes */}
+			<Button
+				type="submit"
+				disabled={loading}
+				className="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-md border-[0.5px] border-white/10 shadow-black/15 [&_svg]:drop-shadow-sm bg-primary ring-1 ring-(--ring-color) [--ring-color:color-mix(in_oklab,black_15%,var(--color-primary))] dark:border-transparent dark:[--ring-color:color-mix(in_oklab,white_15%,var(--color-primary))] text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2 w-full"
+			>
+				{t('pages.authTeam.CONTINUE')}
+			</Button>
+		</div>
 	);
 }
 
@@ -198,92 +216,95 @@ function ChooseModeForm({
 } & IClassName) {
 	const t = useTranslations();
 
+	const INPUT_CLASS =
+		'dark:bg-foreground/5 ring-foreground/10 placeholder:text-muted-foreground/75 selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border border-transparent bg-white px-3 py-1 text-base shadow-sm outline-none ring-1 transition-[color,box-shadow] md:text-sm focus-visible:border-foreground/35 focus-visible:ring-ring/25 dark:focus-visible:border-foreground/25 focus-visible:ring-[3px]';
+
 	return (
-		<EverCard className={clsxm('w-full dark:bg-[#25272D]', className)} shadow="bigger">
-			<div className="flex flex-col justify-between items-center h-full">
-				<Text.Heading as="h3" className="mb-6 text-center">
-					{t('pages.authTeam.GET_STARTED_TITLE')}
-				</Text.Heading>
-
-				<div className="mb-6 space-y-4 w-full">
-					{/* Solo Option */}
-					<label
-						className={clsxm(
-							'flex items-start p-4 border-2 rounded-lg cursor-pointer transition-all',
-							startMode === 'solo'
-								? 'border-primary-600 bg-primary-50 dark:bg-primary-900/20'
-								: 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-						)}
-					>
-						<input
-							type="radio"
-							name="startMode"
-							value="solo"
-							checked={startMode === 'solo'}
-							onChange={() => onStartModeChange('solo')}
-							className="mt-1 mr-3 w-4 h-4 text-primary-600 focus:ring-primary-500"
-						/>
-						<div className="flex-1">
-							<span className="font-medium text-gray-900 dark:text-white">
-								{t('pages.authTeam.START_SOLO')}
-							</span>
-							<p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-								{t('pages.authTeam.START_SOLO_NOTE')}
-							</p>
-						</div>
-					</label>
-
-					{/* Team Option */}
-					<label
-						className={clsxm(
-							'flex items-start p-4 border-2 rounded-lg cursor-pointer transition-all',
-							startMode === 'team'
-								? 'border-primary-600 bg-primary-50 dark:bg-primary-900/20'
-								: 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-						)}
-					>
-						<input
-							type="radio"
-							name="startMode"
-							value="team"
-							checked={startMode === 'team'}
-							onChange={() => onStartModeChange('team')}
-							className="mt-1 mr-3 w-4 h-4 text-primary-600 focus:ring-primary-500"
-						/>
-						<div className="flex-1">
-							<span className="font-medium text-gray-900 dark:text-white">
-								{t('pages.authTeam.CREATE_TEAM_NOW')}
-							</span>
-						</div>
-					</label>
-
-					{/* Team Name Input - only shown when team mode is selected */}
-					{startMode === 'team' && (
-						<div className="pl-7 mt-4">
-							<InputField
-								name="team"
-								value={form.team}
-								errors={errors}
-								onChange={handleOnChange}
-								placeholder={t('form.TEAM_NAME_PLACEHOLDER')}
-								autoComplete="off"
-								wrapperClassName="dark:bg-[#25272D]"
-								className="dark:bg-[#25272D]"
-								required
-							/>
-						</div>
+		<div className={cn('space-y-6 w-full', className)}>
+			<div className="space-y-3">
+				{/* Solo Option */}
+				<label
+					className={cn(
+						'flex items-start p-4 rounded-lg cursor-pointer transition-all border ring-1',
+						startMode === 'solo'
+							? 'border-primary ring-primary/25 bg-primary/5'
+							: 'border-transparent ring-foreground/10 hover:bg-muted/50'
 					)}
-				</div>
+				>
+					<input
+						type="radio"
+						name="startMode"
+						value="solo"
+						checked={startMode === 'solo'}
+						onChange={() => onStartModeChange('solo')}
+						className="mt-1 mr-3 w-4 h-4 accent-primary"
+					/>
+					<div className="flex-1">
+						<span className="font-medium">{t('pages.authTeam.START_SOLO')}</span>
+						<p className="mt-1 text-sm text-muted-foreground">{t('pages.authTeam.START_SOLO_NOTE')}</p>
+					</div>
+				</label>
 
-				<div className="flex justify-between items-center w-full">
-					<BackButton onClick={onPreviousStep} />
+				{/* Team Option */}
+				<label
+					className={cn(
+						'flex items-start p-4 rounded-lg cursor-pointer transition-all border ring-1',
+						startMode === 'team'
+							? 'border-primary ring-primary/25 bg-primary/5'
+							: 'border-transparent ring-foreground/10 hover:bg-muted/50'
+					)}
+				>
+					<input
+						type="radio"
+						name="startMode"
+						value="team"
+						checked={startMode === 'team'}
+						onChange={() => onStartModeChange('team')}
+						className="mt-1 mr-3 w-4 h-4 accent-primary"
+					/>
+					<div className="flex-1">
+						<span className="font-medium">{t('pages.authTeam.CREATE_TEAM_NOW')}</span>
+					</div>
+				</label>
 
-					<Button type="submit" disabled={loading}>
-						{t('pages.authTeam.GET_STARTED')}
-					</Button>
-				</div>
+				{/* Team Name Input - only shown when team mode is selected */}
+				{startMode === 'team' && (
+					<div className="pl-7 space-y-2.5">
+						<label
+							data-slot="label"
+							className="block text-sm font-medium leading-none select-none"
+							htmlFor="signup-team"
+						>
+							{t('form.TEAM_NAME_PLACEHOLDER')}
+						</label>
+						<InputField
+							id="signup-team"
+							name="team"
+							value={form.team}
+							errors={errors}
+							onChange={handleOnChange}
+							placeholder={t('form.TEAM_NAME_PLACEHOLDER')}
+							autoComplete="off"
+							noWrapper
+							className={INPUT_CLASS}
+							required
+						/>
+						{errors?.team && <Text.Error className="text-xs">{errors.team}</Text.Error>}
+					</div>
+				)}
 			</div>
-		</EverCard>
+
+			<div className="flex flex-col gap-1.5 items-center w-full">
+				<Button
+					type="submit"
+					disabled={loading}
+					className="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-md border-[0.5px] border-white/10 shadow-black/15 [&_svg]:drop-shadow-sm bg-primary ring-1 ring-(--ring-color) [--ring-color:color-mix(in_oklab,black_15%,var(--color-primary))] dark:border-transparent dark:[--ring-color:color-mix(in_oklab,white_15%,var(--color-primary))] text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2"
+				>
+					{t('pages.authTeam.GET_STARTED')}
+				</Button>
+				<BackButton onClick={onPreviousStep} />
+			</div>
+		</div>
 	);
 }
 
