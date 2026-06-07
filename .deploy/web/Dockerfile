@@ -133,6 +133,9 @@ ARG VERDACCIO_TOKEN
 COPY package.json yarn.lock ./
 
 COPY packages/constants/package.json packages/constants/package.json
+# constants/utils/services depend on @ever-teams/toolkit-types, so its manifest
+# must be present for the workspace-aware `yarn install --frozen-lockfile` below.
+COPY packages/toolkit-types/package.json packages/toolkit-types/package.json
 COPY packages/types/package.json packages/types/package.json
 COPY packages/utils/package.json packages/utils/package.json
 COPY packages/ui/package.json packages/ui/package.json
