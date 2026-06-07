@@ -13,10 +13,10 @@
 		"format": "prettier --write ."
 	},
 	"dependencies": {
-		"@remix-run/node": "^2.17.3",
-		"@remix-run/react": "^2.17.3",
-		"@remix-run/serve": "^2.17.3",
-		"@remix-run/server-runtime": "^2.17.3",
+		"@remix-run/node": "^2.17.5",
+		"@remix-run/react": "^2.17.5",
+		"@remix-run/serve": "^2.17.5",
+		"@remix-run/server-runtime": "^2.17.5",
 		"@vercel/remix": "^2.16.7",
 		"@ever-teams/atoms": "*",
 		"isbot": "^5.1.25",
@@ -25,8 +25,8 @@
 		"theme-ui": "^0.17.1"
 	},
 	"devDependencies": {
-		"@remix-run/dev": "^2.17.3",
-		"@remix-run/eslint-config": "^2.17.3",
+		"@remix-run/dev": "^2.17.5",
+		"@remix-run/eslint-config": "^2.17.5",
 		"@types/react": "^19.1.0",
 		"@types/react-dom": "^19.1.0",
 		"@typescript-eslint/eslint-plugin": "^6.7.4",
@@ -38,7 +38,7 @@
 		"eslint-plugin-jsx-a11y": "^6.7.1",
 		"eslint-plugin-react": "^7.33.2",
 		"eslint-plugin-react-hooks": "^4.6.0",
-		"postcss": "^8.4.38",
+		"postcss": "^8.5.10",
 		"tailwindcss": "^3.4.4",
 		"tailwindcss-animate": "^1.0.7",
 		"typescript": "^5.1.6",

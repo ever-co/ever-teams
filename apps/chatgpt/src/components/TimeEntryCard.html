@@ -224,6 +224,16 @@
         (function() {
             const data = window.__WIDGET_DATA__ || {};
 
+            function escapeHtml(value) {
+                if (value === null || value === undefined) return '';
+                return String(value)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
             function formatDuration(seconds) {
                 if (!seconds && seconds !== 0) return '0h 0m';
 
@@ -294,8 +304,8 @@
                 let html = `
                     <div class="entry-header">
                         <div class="entry-project-info">
-                            <div class="entry-project-name">${projectName}</div>
-                            ${taskName ? `<div class="entry-task-name">${taskName}</div>` : ''}
+                            <div class="entry-project-name">${escapeHtml(projectName)}</div>
+                            ${taskName ? `<div class="entry-task-name">${escapeHtml(taskName)}</div>` : ''}
                         </div>
                         <div class="entry-duration-badge">${formatDuration(duration)}</div>
                     </div>
@@ -303,7 +313,7 @@
 
                 if (description) {
                     html += `
-                        <div class="entry-description">${description}</div>
+                        <div class="entry-description">${escapeHtml(description)}</div>
                     `;
                 }
 
@@ -329,7 +339,7 @@
                         html += `
                             <div class="entry-meta-item">
                                 <div class="entry-meta-label">Client</div>
-                                <div class="entry-meta-value">${clientName}</div>
+                                <div class="entry-meta-value">${escapeHtml(clientName)}</div>
                             </div>
                         `;
                     }
@@ -338,7 +348,7 @@
                         html += `
                             <div class="entry-meta-item">
                                 <div class="entry-meta-label">Employee</div>
-                                <div class="entry-meta-value">${employeeName}</div>
+                                <div class="entry-meta-value">${escapeHtml(employeeName)}</div>
                             </div>
                         `;
                     }
@@ -350,7 +360,7 @@
                     html += '<div class="entry-tags">';
                     tags.forEach(tag => {
                         const tagName = typeof tag === 'string' ? tag : tag.name;
-                        html += `<span class="entry-tag">${tagName}</span>`;
+                        html += `<span class="entry-tag">${escapeHtml(tagName)}</span>`;
                     });
                     html += '</div>';
                 }

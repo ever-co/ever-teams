@@ -13,8 +13,8 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
-    "next": "^16.1.0",
-    "next-intl": "^4.1.0",
+    "next": "^16.2.6",
+    "next-intl": "^4.9.2",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "@radix-ui/react-avatar": "^1.1.3",
@@ -38,7 +38,7 @@
     "drizzle-orm": "^0.40.0",
     "jose": "^6.0.8",
     "lucide-react": "^0.479.0",
-    "postcss": "^8.5.3",
+    "postcss": "^8.5.10",
     "postgres": "^3.4.5",
     "server-only": "^0.0.1",
     "stripe": "^17.7.0",
@@ -54,7 +54,7 @@
     "swr": "^2.3.8"
   },
   "resolutions": {
-    "@types/react": "19.2.7",
+    "@types/react": "19.2.8",
     "@types/react-dom": "19.2.3"
   }
 }

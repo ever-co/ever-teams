@@ -47,11 +47,12 @@ jobs:
           context: .
           file: ./.deploy/web/Dockerfile
           load: true
+          # Note: CW registry tag removed — secret CW_DOCKER_REGISTRY is unset, which produced an invalid tag "/ever-co/...".
+          # Re-add it together with the commented-out CW login/push steps below once CW_DOCKER_REGISTRY is configured.
           tags: |
             ghcr.io/ever-co/ever-teams-webapp:latest
             everco/ever-teams-webapp:latest
             registry.digitalocean.com/ever/ever-teams-webapp:latest
-            ${{ secrets.CW_DOCKER_REGISTRY }}/ever-co/ever-teams-webapp:latest
           cache-from: type=registry,ref=everco/ever-teams-webapp:latest
           cache-to: type=inline
           build-args: |

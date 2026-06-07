@@ -52,7 +52,7 @@ export const useMemberInvitationForm = () => {
 			return;
 		}
 
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		const emailRegex = /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/;
 		if (!emailRegex.test(formValues.email)) {
 			setError('Invalid email format');
 			toast({

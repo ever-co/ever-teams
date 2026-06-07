@@ -9,7 +9,7 @@
 		"dist"
 	],
 	"publishConfig": {
-		"access": "restricted"
+		"access": "public"
 	},
 	"exports": {
 		".": {
@@ -22,7 +22,7 @@
 	},
 	"dependencies": {
 		"@ever-teams/toolkit-types": "*",
-		"@ever-teams/types": "*"
+		"qs": "^6.15.2"
 	},
 	"devDependencies": {
 		"@ever-teams/ts-config": "*",

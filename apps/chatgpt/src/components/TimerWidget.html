@@ -232,6 +232,16 @@
             // Get data from parent window or embedded data
             const data = window.__WIDGET_DATA__ || {};
 
+            function escapeHtml(value) {
+                if (value === null || value === undefined) return '';
+                return String(value)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
             function formatTime(seconds) {
                 if (!seconds && seconds !== 0) return '00:00:00';
 
@@ -294,7 +304,7 @@
                             <div class="timer-status-label ${isRunning ? 'running' : 'stopped'}">
                                 ${isRunning ? 'TIMER RUNNING' : 'TIMER STOPPED'}
                             </div>
-                            <div class="timer-project">${projectName}</div>
+                            <div class="timer-project">${escapeHtml(projectName)}</div>
                         </div>
                     </div>
 
@@ -309,7 +319,7 @@
                     html += `
                         <div class="timer-detail-row">
                             <div class="timer-detail-label">Description</div>
-                            <div class="timer-detail-value">${description}</div>
+                            <div class="timer-detail-value">${escapeHtml(description)}</div>
                         </div>
                     `;
                 }
@@ -327,7 +337,7 @@
                     html += `
                         <div class="timer-detail-row">
                             <div class="timer-detail-label">Client</div>
-                            <div class="timer-detail-value">${organizationContactName}</div>
+                            <div class="timer-detail-value">${escapeHtml(organizationContactName)}</div>
                         </div>
                     `;
                 }
@@ -338,7 +348,7 @@
                     html += `
                         <div class="timer-task">
                             <div class="timer-task-label">Task</div>
-                            <div class="timer-task-name">${taskName}</div>
+                            <div class="timer-task-name">${escapeHtml(taskName)}</div>
                         </div>
                     `;
                 }
