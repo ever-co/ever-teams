@@ -127,3 +127,4 @@ megalinter-reports/
 
 .claude/worktrees
 .claude/settings.local.json
+.agent-out/

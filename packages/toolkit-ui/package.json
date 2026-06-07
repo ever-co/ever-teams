@@ -25,9 +25,10 @@
 		"@emotion/react": "^11.13.5",
 		"theme-ui": "^0.16.2"
 	},
+	"dependencies": {
+		"@ever-teams/toolkit-types": "*"
+	},
 	"devDependencies": {
-		"@ever-teams/toolkit-types": "*",
-		"@ever-teams/types": "*",
 		"@ever-teams/eslint-config": "*",
 		"@ever-teams/tailwind-config": "*",
 		"@ever-teams/ts-config": "*",
@@ -59,11 +60,11 @@
 		"clsx": "^2.1.1",
 		"date-fns": "^3.6.0",
 		"lucide-react": "^0.395.0",
-		"postcss": "^8.5.6",
-		"react": "19.1.0",
-		"react-dom": "19.1.0",
-		"@types/react": "19.1.0",
-		"@types/react-dom": "19.1.1",
+		"postcss": "^8.5.10",
+		"react": "19.2.3",
+		"react-dom": "19.2.3",
+		"@types/react": "19.2.8",
+		"@types/react-dom": "19.2.3",
 		"react-day-picker": "^8.10.1",
 		"react-popper-tooltip": "^4.4.2",
 		"react-timer-hook": "^3.0.7",

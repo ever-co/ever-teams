@@ -122,7 +122,7 @@ interface UseEditorProps {
 export const useEditor = ({ containerId, blockComponents = [], theme, config = {} }: UseEditorProps) => {
 	const [editor, setEditor] = useState<any | null>(null);
 	const editorRef = useRef<any>(null);
-	const escapeName = useCallback((name: string) => name.trim().replace(/[^a-z0-9\w-:/]+/gi, '-'), []);
+	const escapeName = useCallback((name: string) => name.trim().replace(/[^\w:/-]+/gi, '-'), []);
 
 	const initializeEditor = useCallback((containerId: string, blockComponents: BlockComponent[], theme: Theme) => {
 		try {

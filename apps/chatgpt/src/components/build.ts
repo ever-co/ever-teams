@@ -120,9 +120,16 @@ async function buildComponents() {
  * Basic HTML minification
  */
 function minifyHTML(html: string): string {
-	return html
-		// Remove comments
-		.replace(/<!--[\s\S]*?-->/g, '')
+	// Remove comments, looping until stable so nested/overlapping
+	// markers (e.g. '<!--<!-- -->') cannot leave a residual '<!--'.
+	let result = html;
+	let previous: string;
+	do {
+		previous = result;
+		result = result.replace(/<!--[\s\S]*?-->/g, '');
+	} while (result !== previous);
+
+	return result
 		// Remove extra whitespace between tags
 		.replace(/>\s+</g, '><')
 		// Remove leading/trailing whitespace

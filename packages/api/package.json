@@ -20,9 +20,11 @@
 	"scripts": {
 		"build": " rollup -c"
 	},
-	"devDependencies": {
+	"dependencies": {
 		"@ever-teams/toolkit-types": "*",
-		"@ever-teams/types": "*",
+		"qs": "^6.15.2"
+	},
+	"devDependencies": {
 		"@ever-teams/ts-config": "*",
 		"@rollup/plugin-commonjs": "^28.0.1",
 		"@rollup/plugin-node-resolve": "^15.3.0",

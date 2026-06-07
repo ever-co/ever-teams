@@ -40,8 +40,8 @@
     "@spotlightjs/spotlight": "^2.10.3",
     "@t3-oss/env-nextjs": "^0.12.0",
     "drizzle-orm": "^0.39.3",
-    "next": "^16.1.0",
-    "next-intl": "^3.26.3",
+    "next": "^16.2.6",
+    "next-intl": "^4.9.2",
     "pg": "^8.13.2",
     "pino": "^9.6.0",
     "pino-pretty": "^13.0.0",
@@ -103,7 +103,7 @@
     "jsdom": "^26.0.0",
     "lint-staged": "^15.4.3",
     "npm-run-all": "^4.1.5",
-    "postcss": "^8.5.2",
+    "postcss": "^8.5.10",
     "postcss-load-config": "^6.0.1",
     "rimraf": "^6.0.1",
     "semantic-release": "^24.2.2",
@@ -119,7 +119,7 @@
   },
   "resolutions": {
     "playwright": "1.57.0",
-    "@types/react": "19.2.7",
+    "@types/react": "19.2.8",
     "@types/react-dom": "19.2.3"
   },
   "config": {

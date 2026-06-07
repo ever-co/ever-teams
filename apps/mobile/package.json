@@ -1,4 +1,16 @@
 {
+	"resolutions": {
+		"@hono/node-server": "1.19.13",
+		"fast-xml-parser": "4.5.6",
+		"react-server-dom-webpack": "19.0.5",
+		"follow-redirects": "1.16.0",
+		"@xmldom/xmldom": "0.8.13",
+		"fast-uri": "3.1.2",
+		"@babel/plugin-transform-modules-systemjs": "7.29.4",
+		"@tootallnate/once": "2.0.1",
+		"hono": "4.12.23",
+		"axios": "1.17.0"
+	},
 	"name": "@ever-teams/mobile",
 	"version": "0.1.0",
 	"license": "GPL-3.0",
