@@ -7,6 +7,9 @@ on:
     types:
       - completed
 
+permissions:
+  contents: read
+
 jobs:
   deploy-chatgpt-prod:
     runs-on: ubicloud-standard-2
@@ -66,7 +69,7 @@ jobs:
           fi
 
           # Validate SESSION_SECRET is not default
-          if [ "$SESSION_SECRET" = "your-secure-session-secret-change-in-production" ]; then
+          if [ "$SESSION_SECRET" = "default-secret-change-in-production" ]; then
             echo "❌ SESSION_SECRET must not use the default value in production"
             exit 1
           fi

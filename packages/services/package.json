@@ -18,7 +18,7 @@
 	"dependencies": {
 		"@ever-teams/constants": "*",
 		"@ever-teams/toolkit-types": "*",
-		"axios": "^1.13.2",
+		"axios": "^1.17.0",
 		"tsup": "^8.5.1",
 		"typescript": "^5.9.3"
 	}

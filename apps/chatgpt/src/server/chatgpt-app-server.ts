@@ -97,6 +97,61 @@ export class ChatGPTAppServer {
 	}
 
 	/**
+	 * Create a minimal, dependency-free in-memory fixed-window rate limiter.
+	 *
+	 * Keys requests by client IP and allows up to `max` requests per `windowMs`.
+	 * When the limit is exceeded, responds with HTTP 429 and a JSON-RPC error.
+	 * Stale buckets are pruned lazily to keep memory bounded. This is intended
+	 * as a basic safeguard for the authenticated /mcp proxy endpoint and is not
+	 * a substitute for an edge/CDN rate limiter in production.
+	 */
+	private createRateLimiter(
+		options: { windowMs?: number; max?: number } = {}
+	): (req: Request, res: Response, next: NextFunction) => void {
+		const windowMs = options.windowMs ?? 60_000;
+		const max = options.max ?? 60;
+		const hits = new Map<string, { count: number; resetAt: number }>();
+
+		return (req: Request, res: Response, next: NextFunction): void => {
+			const now = Date.now();
+			const key = req.ip ?? req.socket.remoteAddress ?? 'unknown';
+
+			// Lazily prune expired buckets to bound memory usage.
+			if (hits.size > 10_000) {
+				for (const [k, v] of hits) {
+					if (v.resetAt <= now) {
+						hits.delete(k);
+					}
+				}
+			}
+
+			const entry = hits.get(key);
+			if (!entry || entry.resetAt <= now) {
+				hits.set(key, { count: 1, resetAt: now + windowMs });
+				next();
+				return;
+			}
+
+			if (entry.count >= max) {
+				const retryAfterSec = Math.max(1, Math.ceil((entry.resetAt - now) / 1000));
+				res.setHeader('Retry-After', String(retryAfterSec));
+				res.status(429).json({
+					jsonrpc: '2.0',
+					id: req.body?.id ?? null,
+					error: {
+						code: -32029,
+						message: 'Too many requests'
+					}
+				});
+				return;
+			}
+
+			entry.count += 1;
+			next();
+		};
+	}
+
+	/**
 	 * Setup Express routes
 	 */
 	private setupRoutes(): void {
@@ -106,8 +161,8 @@ export class ChatGPTAppServer {
 		// OAuth discovery endpoint (for ChatGPT to discover OAuth configuration)
 		this.app.get('/.well-known/oauth-authorization-server', this.handleOAuthDiscovery.bind(this));
 
-		// MCP endpoint (main proxy endpoint)
-		this.app.post('/mcp', this.handleMcpRequest.bind(this));
+		// MCP endpoint (main proxy endpoint) - rate limited to mitigate abuse
+		this.app.post('/mcp', this.createRateLimiter(), this.handleMcpRequest.bind(this));
 
 		// OAuth callback endpoint
 		this.app.get('/oauth2/callback', this.handleOAuthCallback.bind(this));
@@ -136,7 +191,7 @@ export class ChatGPTAppServer {
 	 * Setup error handling
 	 */
 	private setupErrorHandling(): void {
-		this.app.use((err: Error, req: Request, res: Response) => {
+		this.app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
 			logger.error({
 				error: err.message,
 				stack: err.stack,
@@ -217,6 +272,20 @@ export class ChatGPTAppServer {
 					);
 				}
 			} else if (method === 'tools/call') {
+				// Validate params for malformed JSON-RPC requests
+				if (!params || typeof params !== 'object' || typeof params.name !== 'string') {
+					const invalidParamsResponse: McpResponse = {
+						jsonrpc: '2.0',
+						id: mcpRequest.id ?? null,
+						error: {
+							code: -32602,
+							message: 'Invalid params: "name" is required for tools/call'
+						}
+					};
+					res.status(400).json(invalidParamsResponse);
+					return;
+				}
+
 				// Call a specific tool
 				const toolName = params.name;
 				const toolArgs = params.arguments || {};

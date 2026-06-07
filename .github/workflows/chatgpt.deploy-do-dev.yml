@@ -7,6 +7,9 @@ on:
     types:
       - completed
 
+permissions:
+  contents: read
+
 jobs:
   deploy-chatgpt-dev:
     runs-on: ubicloud-standard-2

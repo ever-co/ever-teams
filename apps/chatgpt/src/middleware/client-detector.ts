@@ -24,6 +24,37 @@ export interface ClientInfo {
  */
 export class ClientDetector {
 	/**
+	 * Trusted OpenAI/ChatGPT hosts. A request matches only when the Origin/Referer
+	 * hostname equals one of these or is a true subdomain of it. ("openai.com" also
+	 * covers "chat.openai.com" and any other *.openai.com subdomain.)
+	 */
+	private static readonly OPENAI_HOSTS = ['openai.com', 'chatgpt.com'];
+
+	/**
+	 * Safely check whether a URL string (Origin or Referer header value) points at a
+	 * trusted OpenAI host.
+	 *
+	 * Parses the value as a URL and compares the actual hostname against the allowlist,
+	 * accepting only exact matches or genuine subdomains. This avoids incomplete URL
+	 * substring sanitization where hostile values such as "https://chatgpt.com.evil.com"
+	 * or "https://evil.com/?ref=openai.com" would satisfy a naive includes() check.
+	 */
+	private static isOpenAIHost(value: string | undefined): boolean {
+		if (!value) {
+			return false;
+		}
+
+		let hostname: string;
+		try {
+			hostname = new URL(value).hostname.toLowerCase();
+		} catch {
+			return false;
+		}
+
+		return ClientDetector.OPENAI_HOSTS.some((host) => hostname === host || hostname.endsWith(`.${host}`));
+	}
+
+	/**
 	 * Detect if the request is from ChatGPT
 	 *
 	 * ChatGPT includes specific identifiers in:
@@ -64,13 +95,10 @@ export class ClientDetector {
 			// OpenAI-specific request header
 			req.headers['x-openai-request'] !== undefined ||
 			req.headers['x-openai-app-id'] !== undefined ||
-			// Origin is from OpenAI domains
-			origin.includes('chat.openai.com') ||
-			origin.includes('chatgpt.com') ||
-			origin.includes('openai.com') ||
-			// Referer is from OpenAI domains
-			referer.includes('chat.openai.com') ||
-			referer.includes('chatgpt.com');
+			// Origin is from OpenAI domains (exact hostname or subdomain, not substring)
+			ClientDetector.isOpenAIHost(origin) ||
+			// Referer is from OpenAI domains (exact hostname or subdomain, not substring)
+			ClientDetector.isOpenAIHost(referer);
 
 		logger.debug({
 			userAgent,
@@ -156,9 +184,11 @@ export class ClientDetector {
 			allowedOrigins.some((allowed) => {
 				if (allowed === '*') return true;
 				if (allowed.endsWith('*')) {
-					// Wildcard subdomain matching
+					// Wildcard subdomain matching: anchor to the prefix and require a
+					// boundary ("." for subdomains or "/" for the path) so that origins
+					// like "https://allowed.example.com.evil.tld" cannot bypass the check.
 					const domain = allowed.slice(0, -1);
-					return origin.includes(domain);
+					return origin === domain || origin.startsWith(`${domain}.`) || origin.startsWith(`${domain}/`);
 				}
 				return origin === allowed;
 			});

@@ -6,8 +6,21 @@
  * have to remember these extra steps.
  */
 
-// Patch any packages that need patching
-run("npx patch-package")
+// Patch any packages that need patching.
+// Resolve patch-package's CLI entry directly and run it with `node`, bypassing the
+// `.bin` shim / npx / nested-yarn resolution. During a yarn-workspaces install lifecycle
+// those compute a doubled `node_modules/node_modules/patch-package/index.js` path on
+// Windows, which throws MODULE_NOT_FOUND and aborts the entire monorepo install.
+try {
+  const patchPackageCli = require.resolve("patch-package/index.js")
+  run(`node "${patchPackageCli}"`)
+} catch (error) {
+  if (error && error.code === "MODULE_NOT_FOUND") {
+    console.log("./bin/postInstall: patch-package not installed, skipping patch step")
+  } else {
+    throw error
+  }
+}
 
 // Kill the metro bundler if it's running.
 if (["darwin", "linux"].includes(process.platform)) {

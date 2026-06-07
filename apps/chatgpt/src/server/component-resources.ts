@@ -1,5 +1,10 @@
 import { Request, Response } from 'express';
+import { createRequire } from 'node:module';
 import { createLogger } from '../config/logger.js';
+
+// This package is ESM ("type": "module"), where the CommonJS `require` is not
+// defined. Recreate it so the built component registry can be loaded synchronously.
+const require = createRequire(import.meta.url);
 
 const logger = createLogger('ComponentResources');
 

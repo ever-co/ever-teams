@@ -40,7 +40,7 @@ spec:
     tls:
         - hosts:
               - chatgpt.ever.team
-          secretName: api.ever.co-tls
+          secretName: chatgpt.ever.team-tls
 
 ---
 kind: HorizontalPodAutoscaler

@@ -232,6 +232,15 @@
         (function() {
             const data = window.__WIDGET_DATA__ || {};
 
+            function escapeHtml(value) {
+                return String(value == null ? '' : value)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
             function formatDate(isoString) {
                 if (!isoString) return 'N/A';
                 const date = new Date(isoString);
@@ -289,8 +298,8 @@
 
                 let html = `
                     <div class="project-header">
-                        <div class="project-name">${name}</div>
-                        ${description ? `<div class="project-description">${description}</div>` : ''}
+                        <div class="project-name">${escapeHtml(name)}</div>
+                        ${description ? `<div class="project-description">${escapeHtml(description)}</div>` : ''}
                     </div>
 
                     <div class="project-stats">
@@ -339,7 +348,7 @@
                         html += `
                             <div class="project-detail">
                                 <div class="project-detail-label">Client</div>
-                                <div class="project-detail-value">${client}</div>
+                                <div class="project-detail-value">${escapeHtml(client)}</div>
                             </div>
                         `;
                     }
@@ -365,7 +374,7 @@
 
                     members.forEach(member => {
                         const memberName = typeof member === 'string' ? member : (member.fullName || member.user?.name || 'Unknown');
-                        html += `<span class="project-team-member">${memberName}</span>`;
+                        html += `<span class="project-team-member">${escapeHtml(memberName)}</span>`;
                     });
 
                     html += `
@@ -390,7 +399,7 @@
 
                 html += `
                     <div class="project-status-bar">
-                        <span class="project-status ${getStatusClass(status)}">${status}</span>
+                        <span class="project-status ${getStatusClass(status)}">${escapeHtml(status)}</span>
                         ${startDate || endDate ? `
                             <span class="project-dates">
                                 ${startDate ? formatDate(startDate) : ''}
