@@ -108,12 +108,9 @@ export default function BuilderPageWrapper({ pageParams }: BuilderPageWrapperPro
 
         setPageUrl(normalizedUrl);
         await refetchContent();
-        const href = `${normalizedUrl}?id=${blockIdRef.current}`;
-        if (/^https?:\/\//.test(normalizedUrl)) {
-            window.location.assign(href);
-        } else {
-            router.push(href);
-        }
+        const safeUrl = getValidBuilderUrl(normalizedUrl, DEFAULT_BUILDER_URL);
+        const href = `${safeUrl}?id=${encodeURIComponent(blockIdRef.current ?? '')}`;
+        router.push(href);
     };
 
     const handleTitleChange = async (newTitle: string) => {

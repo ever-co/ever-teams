@@ -35,7 +35,10 @@ jobs:
         run: |
           {
             echo "CHANGED_FILES<<EOF"
-            git diff --name-only origin/develop | grep '^apps/web/' || true
+            # Only evaluate source files for unused code. Exclude manifests/lockfiles:
+            # knip lists unused dependencies with a trailing "package.json", which would
+            # otherwise make this substring check fail for any dependency-bump PR.
+            git diff --name-only origin/develop | grep '^apps/web/' | grep -vE '(package\.json|yarn\.lock)$' || true
             echo "EOF"
           } >> $GITHUB_ENV
 
