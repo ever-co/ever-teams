@@ -33519,14 +33519,9 @@ i18next-electron-fs-backend@^3.0.1:
     lodash.clonedeep "^4.5.0"
     lodash.merge "^4.6.2"
 
-i18next-fs-backend@^2.1.1:
-  version "2.6.3"
-  resolved "https://registry.yarnpkg.com/i18next-fs-backend/-/i18next-fs-backend-2.6.3.tgz#a8e16f4f4321614cb35183976e63c3f341fd6eeb"
-  integrity sha512-/5aW996nbolGh/qVU9urjAJ2QiXpiyGuhG8x/ZvvZQ3bMlrK+ouUdD6whS4e+sU9CCdUIzl7x/heEjsBh/3xtw==
-
-i18next-fs-backend@^2.6.4:
+i18next-fs-backend@^2.1.1, i18next-fs-backend@^2.6.4:
   version "2.6.6"
-  resolved "https://registry.npmjs.org/i18next-fs-backend/-/i18next-fs-backend-2.6.6.tgz#d7a0b4595cc3d504c9d0b267e527d2b4926d9418"
+  resolved "https://registry.yarnpkg.com/i18next-fs-backend/-/i18next-fs-backend-2.6.6.tgz#d7a0b4595cc3d504c9d0b267e527d2b4926d9418"
   integrity sha512-mYGu6Nt8RIp3X/U8Y+Gej1wo5xmYWmGKLqBGMCC2OCAou5rW5epeHgHmVcw20mJs9Z9+DAPHIxQPNCgFyPRMeg==
 
 i18next-http-backend@^2.2.0:
