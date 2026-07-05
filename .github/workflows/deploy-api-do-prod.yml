@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   deploy-api-prod:
-    runs-on: ubicloud-standard-2
+    runs-on: ever-k8s-linux-x64-4
 
     environment: prod
 
