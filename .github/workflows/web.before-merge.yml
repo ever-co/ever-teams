@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on: ever-k8s-linux-x64-4
+    runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -33,6 +33,7 @@ jobs:
         run: echo "Workflow was skipped" && exit 0
 
       - name: Free disk space
+        if: runner.environment == 'github-hosted'
         run: |
             df -h /
             sudo swapoff -a
