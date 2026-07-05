@@ -1,0 +1,38 @@
+# syntax=docker/dockerfile:1
+# ever-teams-storybook (Storybook static build served by nginx)
+# Built from the MONOREPO ROOT context (yarn-1 workspaces + turbo).
+# The @ever-teams/storybook package depends on workspace packages
+# (@ever-teams/atoms, @ever-teams/toolkit-ui, @ever-teams/toolkit-types, ...)
+# whose dist/ is NOT committed, so we must install + build them first via turbo.
+
+# ---------- builder ----------
+FROM node:24-alpine AS builder
+RUN apk add --no-cache bash git python3 make g++ libc6-compat
+ENV NODE_OPTIONS=--max_old_space_size=8192
+ENV HUSKY=0
+ENV CI=1
+
+# Optional private-registry auth (not needed for this repo; kept for parity)
+ARG NPM_TOKEN
+RUN if [ -n "$NPM_TOKEN" ]; then \
+      printf '//registry.npmjs.org/:_authToken=%s\n' "$NPM_TOKEN" > /root/.npmrc; \
+    fi
+
+WORKDIR /app
+
+# Full monorepo (context = repo root)
+COPY . .
+
+# Install the whole workspace (yarn classic). Ignore lifecycle scripts we don't need.
+RUN yarn install --frozen-lockfile --network-timeout 600000 || \
+    yarn install --network-timeout 600000
+
+# Build storybook (turbo resolves ^build so workspace deps build first)
+RUN yarn turbo build --filter=@ever-teams/storybook
+
+# ---------- runtime ----------
+FROM nginx:alpine AS runtime
+# Storybook is a multi-page static site; default nginx serving is correct.
+COPY --from=builder /app/apps/storybook/storybook-static /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

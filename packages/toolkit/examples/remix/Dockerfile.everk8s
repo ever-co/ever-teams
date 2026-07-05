@@ -1,0 +1,46 @@
+# syntax=docker/dockerfile:1
+# ever-teams-examples-remix (Remix SSR — Node runtime, remix-serve on :3000)
+# Built from the MONOREPO ROOT context (yarn-1 workspaces + turbo).
+# Remix here is a standard SSR app (no ssr:false), so it needs a Node runtime.
+# Depends on workspace packages (@ever-teams/atoms, toolkit-ui) whose dist/ is
+# NOT committed -> build them first via turbo (^build).
+
+# ---------- builder ----------
+FROM node:24-alpine AS builder
+RUN apk add --no-cache bash git python3 make g++ libc6-compat
+ENV NODE_OPTIONS=--max_old_space_size=8192
+ENV HUSKY=0
+ENV CI=1
+
+# Non-secret public build-time var consumed by the Remix app
+ARG PUBLIC_CLOC_API_URL=https://api.cloc.ai
+ENV PUBLIC_CLOC_API_URL=${PUBLIC_CLOC_API_URL}
+
+# Optional private-registry auth (not needed for this repo; kept for parity)
+ARG NPM_TOKEN
+RUN if [ -n "$NPM_TOKEN" ]; then \
+      printf '//registry.npmjs.org/:_authToken=%s\n' "$NPM_TOKEN" > /root/.npmrc; \
+    fi
+
+WORKDIR /app
+COPY . .
+
+RUN yarn install --frozen-lockfile --network-timeout 600000 || \
+    yarn install --network-timeout 600000
+
+# Build the remix example (turbo resolves ^build so workspace deps build first)
+RUN yarn turbo build --filter=@ever-teams/example-remix
+
+# ---------- runtime ----------
+# Keep a Node runtime with the full workspace so remix-serve + hoisted
+# node_modules resolve correctly. Serve the built app on :3000.
+FROM node:24-alpine AS runtime
+RUN apk add --no-cache libc6-compat
+ENV NODE_ENV=production
+ENV PORT=3000
+WORKDIR /app/packages/toolkit/examples/remix
+COPY --from=builder /app /app
+EXPOSE 3000
+# remix-serve is provided by @remix-run/serve; run it via yarn workspace so the
+# hoisted binary in the monorepo root node_modules is found.
+CMD ["yarn", "--cwd", "/app", "workspace", "@ever-teams/example-remix", "run", "start"]

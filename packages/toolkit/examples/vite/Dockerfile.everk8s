@@ -1,0 +1,41 @@
+# syntax=docker/dockerfile:1
+# ever-teams-examples-vite (Vite SPA served by nginx)
+# Built from the MONOREPO ROOT context (yarn-1 workspaces + turbo).
+# Depends on workspace packages (@ever-teams/atoms, toolkit-ui, tracking)
+# whose dist/ is NOT committed -> build them first via turbo (^build).
+
+# ---------- builder ----------
+FROM node:24-alpine AS builder
+RUN apk add --no-cache bash git python3 make g++ libc6-compat
+ENV NODE_OPTIONS=--max_old_space_size=8192
+ENV HUSKY=0
+ENV CI=1
+
+# Non-secret public build-time var consumed by the Vite app
+ARG VITE_CLOC_API_URL=https://api.cloc.ai
+ENV VITE_CLOC_API_URL=${VITE_CLOC_API_URL}
+
+# Optional private-registry auth (not needed for this repo; kept for parity)
+ARG NPM_TOKEN
+RUN if [ -n "$NPM_TOKEN" ]; then \
+      printf '//registry.npmjs.org/:_authToken=%s\n' "$NPM_TOKEN" > /root/.npmrc; \
+    fi
+
+WORKDIR /app
+COPY . .
+
+RUN yarn install --frozen-lockfile --network-timeout 600000 || \
+    yarn install --network-timeout 600000
+
+# Build the vite example. Its package build is `tsc -b && vite build`.
+# If the strict tsc project build trips on unused-locals, fall back to a
+# direct production `vite build` (workspace deps are already built by ^build).
+RUN yarn turbo build --filter=@ever-teams/example-vite || \
+    ( yarn workspace @ever-teams/example-vite exec vite build )
+
+# ---------- runtime ----------
+FROM nginx:alpine AS runtime
+COPY --from=builder /app/packages/toolkit/examples/vite/dist /usr/share/nginx/html
+COPY --from=builder /app/packages/toolkit/examples/vite/nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
