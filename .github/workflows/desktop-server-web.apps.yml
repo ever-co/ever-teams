@@ -20,7 +20,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [${{ vars.RUNNER_LINUX_X64_8 || 'ubuntu-latest' }}]
+        os: ["${{ vars.RUNNER_LINUX_X64_8 || 'ubuntu-latest' }}"]
 
     steps:
       - name: Check out Git repository
