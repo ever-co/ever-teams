@@ -1,0 +1,59 @@
+# syntax=docker/dockerfile:1
+# ever-teams-examples-next-boilerplate (Ixartz Next 16 boilerplate — standalone on :3000)
+# Built from the MONOREPO ROOT context (yarn-1 workspaces + turbo).
+# Depends on workspace packages (@ever-teams/atoms, @ever-teams/toolkit-ui)
+# whose dist/ is NOT committed -> turbo (^build) first.
+# src/libs/Env.ts (t3-env) marks every var optional, so the build does not
+# require live Clerk/DB/Arcjet creds. Sentry upload is skipped (no auth token).
+# next.config forces output:'standalone' + outputFileTracingRoot=<monorepo root>,
+# so server.js lands at
+# .next/standalone/packages/toolkit/examples/next-boilerplate-ixartz/server.js
+
+# ---------- builder ----------
+FROM node:24-alpine AS builder
+RUN apk add --no-cache bash git python3 make g++ libc6-compat
+ENV NODE_OPTIONS=--max_old_space_size=8192
+ENV HUSKY=0
+ENV CI=1
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV SENTRY_UNSTABLE_MODE=disabled
+
+# NEXT_PUBLIC_* are build-time inlined -> declared as ARG and exported as ENV.
+ARG NEXT_PUBLIC_APP_URL
+ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+ARG NEXT_PUBLIC_CLERK_SIGN_IN_URL
+ARG NEXT_PUBLIC_CLERK_SIGN_UP_URL
+ARG NEXT_PUBLIC_TEAMS_API_URL
+ARG NEXT_PUBLIC_CLOC_API_URL
+ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+ENV NEXT_PUBLIC_CLERK_SIGN_IN_URL=${NEXT_PUBLIC_CLERK_SIGN_IN_URL}
+ENV NEXT_PUBLIC_CLERK_SIGN_UP_URL=${NEXT_PUBLIC_CLERK_SIGN_UP_URL}
+ENV NEXT_PUBLIC_TEAMS_API_URL=${NEXT_PUBLIC_TEAMS_API_URL}
+ENV NEXT_PUBLIC_CLOC_API_URL=${NEXT_PUBLIC_CLOC_API_URL}
+
+WORKDIR /app
+COPY . .
+
+RUN yarn install --frozen-lockfile --network-timeout 600000 || \
+    yarn install --network-timeout 600000
+
+RUN yarn turbo build --filter=@ever-teams/example-nextjs-boilerplate
+
+# ---------- runtime ----------
+FROM node:24-alpine AS runtime
+RUN apk add --no-cache libc6-compat
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+WORKDIR /app
+
+COPY --from=builder /app/packages/toolkit/examples/next-boilerplate-ixartz/.next/standalone ./
+COPY --from=builder /app/packages/toolkit/examples/next-boilerplate-ixartz/.next/static ./packages/toolkit/examples/next-boilerplate-ixartz/.next/static
+COPY --from=builder /app/packages/toolkit/examples/next-boilerplate-ixartz/public ./packages/toolkit/examples/next-boilerplate-ixartz/public
+
+RUN addgroup -g 1001 nodejs && adduser -u 1001 -G nodejs -S nextjs && chown -R nextjs:nodejs /app
+USER nextjs
+
+EXPOSE 3000
+CMD ["node", "packages/toolkit/examples/next-boilerplate-ixartz/server.js"]

@@ -1,0 +1,52 @@
+# syntax=docker/dockerfile:1
+# ever-teams-examples-base (Next 16 App Router — standalone Node runtime on :3000)
+# Built from the MONOREPO ROOT context (yarn-1 workspaces + turbo).
+# Depends on workspace packages (@ever-teams/toolkit-ui, @ever-teams/atoms)
+# whose dist/ is NOT committed -> turbo (^build) builds them first.
+# next.config forces output:'standalone' + outputFileTracingRoot=<monorepo root>,
+# so the standalone bundle lands at packages/toolkit/examples/base/.next/standalone
+# with the app entrypoint at .../standalone/packages/toolkit/examples/base/server.js
+
+# ---------- builder ----------
+FROM node:24-alpine AS builder
+RUN apk add --no-cache bash git python3 make g++ libc6-compat
+ENV NODE_OPTIONS=--max_old_space_size=8192
+ENV HUSKY=0
+ENV CI=1
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# NEXT_PUBLIC_* are build-time inlined -> declared as ARG and exported as ENV.
+ARG NEXT_PUBLIC_CLOC_API_URL
+ENV NEXT_PUBLIC_CLOC_API_URL=${NEXT_PUBLIC_CLOC_API_URL}
+
+WORKDIR /app
+# Full monorepo (context = repo root; use the ROOT package.json which is the real
+# workspace root and includes packages/toolkit/examples/*).
+COPY . .
+
+RUN yarn install --frozen-lockfile --network-timeout 600000 || \
+    yarn install --network-timeout 600000
+
+# turbo resolves ^build so workspace deps build first, then the app.
+RUN yarn turbo build --filter=@ever-teams/example-base
+
+# ---------- runtime ----------
+FROM node:24-alpine AS runtime
+RUN apk add --no-cache libc6-compat
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+WORKDIR /app
+
+# Standalone server (traced from monorepo root -> preserves the workspace path).
+COPY --from=builder /app/packages/toolkit/examples/base/.next/standalone ./
+# Static assets + public are not part of standalone; copy to the app's paths.
+COPY --from=builder /app/packages/toolkit/examples/base/.next/static ./packages/toolkit/examples/base/.next/static
+COPY --from=builder /app/packages/toolkit/examples/base/public ./packages/toolkit/examples/base/public
+
+# Non-root
+RUN addgroup -g 1001 nodejs && adduser -u 1001 -G nodejs -S nextjs && chown -R nextjs:nodejs /app
+USER nextjs
+
+EXPOSE 3000
+CMD ["node", "packages/toolkit/examples/base/server.js"]

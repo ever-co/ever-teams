@@ -1,6 +1,7 @@
 import withBundleAnalyzer from '@next/bundle-analyzer';
 import { withSentryConfig } from '@sentry/nextjs';
 import createNextIntlPlugin from 'next-intl/plugin';
+import path from 'path';
 import './src/libs/Env';
 
 const withNextIntl = createNextIntlPlugin('./src/libs/i18n.ts');
@@ -9,12 +10,18 @@ const bundleAnalyzer = withBundleAnalyzer({
 	enabled: process.env.ANALYZE === 'true'
 });
 
+// --- ever-k8s: monorepo root is four levels up from packages/toolkit/examples/next-boilerplate-ixartz.
+const monorepoRoot = path.join(__dirname, '../../../..');
+
 /** @type {import('next').NextConfig} */
-export default withSentryConfig(
+const composedConfig = withSentryConfig(
 	bundleAnalyzer(
 		withNextIntl({
 			poweredByHeader: false,
 			reactStrictMode: true,
+			// --- ever-k8s: force Next standalone output for containerization ---
+			output: 'standalone',
+			outputFileTracingRoot: monorepoRoot,
 			serverExternalPackages: ['@electric-sql/pglite'],
 			env: {
 				NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
@@ -67,4 +74,10 @@ export default withSentryConfig(
 		// Disable Sentry telemetry
 		telemetry: false
 	}
-);
+) as import('next').NextConfig;
+
+// Force standalone on the composed config too, in case a wrapping plugin drops top-level keys.
+composedConfig.output = 'standalone';
+composedConfig.outputFileTracingRoot = monorepoRoot;
+
+export default composedConfig;
