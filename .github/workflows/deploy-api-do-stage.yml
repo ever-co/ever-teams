@@ -10,7 +10,8 @@ concurrency:
 
 jobs:
   deploy-api-stage:
-    runs-on: ubicloud-standard-2
+    runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
+    if: ${{ vars.DO_ENABLED == 'true' }}
 
     environment: stage
 
