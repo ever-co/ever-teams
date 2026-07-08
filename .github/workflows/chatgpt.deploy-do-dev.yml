@@ -13,6 +13,7 @@ permissions:
 jobs:
   deploy-chatgpt-dev:
     runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
+    if: ${{ vars.DO_ENABLED == 'true' }}
 
     environment: dev
 
