@@ -148,9 +148,16 @@ COPY apps/web/package.json ./apps/web/package.json
 # Set working directory to the web app
 WORKDIR /app/apps/web
 
-# Configure private registry if token is provided
-RUN if [ -n "$VERDACCIO_TOKEN" ]; then \
-	echo "//packages.ever.co/:_authToken=${VERDACCIO_TOKEN}" >> /app/.npmrc; \
+# Configure the npm registry: prefer the internal Verdaccio cache (VERDACCIO_REGISTRY build-arg, anonymous),
+# else the legacy packages.ever.co token path. Empty (e.g. a fork) → public npm. The yarn.lock rewrite is
+# best-effort (non-fatal) so a path mismatch degrades to public downloads rather than breaking the build.
+ARG VERDACCIO_REGISTRY=""
+RUN if [ -n "$VERDACCIO_REGISTRY" ]; then \
+		echo "registry=${VERDACCIO_REGISTRY}" >> /app/.npmrc && \
+		printf 'registry "%s"\n' "${VERDACCIO_REGISTRY}" >> /app/.yarnrc && \
+		{ sed -i "s|https://registry.yarnpkg.com|${VERDACCIO_REGISTRY%/}|g; s|https://registry.npmjs.org|${VERDACCIO_REGISTRY%/}|g" /app/yarn.lock 2>/dev/null || true; }; \
+	elif [ -n "$VERDACCIO_TOKEN" ]; then \
+		echo "//packages.ever.co/:_authToken=${VERDACCIO_TOKEN}" >> /app/.npmrc; \
 	fi
 
 # --- STEP 2: Install deps in deterministic and cacheable way ---

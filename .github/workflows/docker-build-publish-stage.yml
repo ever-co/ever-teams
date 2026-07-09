@@ -59,6 +59,7 @@ jobs:
           build-args: |
             NODE_ENV=production
             VERDACCIO_TOKEN=${{ secrets.VERDACCIO_TOKEN }}
+            VERDACCIO_REGISTRY=${{ vars.VERDACCIO_REGISTRY }}
             NEXT_PUBLIC_DEMO=false
             API_BASE_URL=${{ vars.API_BASE_URL }}
             CLIENT_BASE_URL=${{ vars.CLIENT_BASE_URL }}
