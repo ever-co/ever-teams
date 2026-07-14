@@ -21,7 +21,7 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Skip workflow if PR is from develop to main
         if: github.event.pull_request.head.ref == 'develop' && github.event.pull_request.base.ref == 'main'
@@ -35,7 +35,7 @@ jobs:
         run: echo "Workflow was skipped" && exit 0
 
       - name: Use Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: "24.14.0"
           cache: "yarn"
