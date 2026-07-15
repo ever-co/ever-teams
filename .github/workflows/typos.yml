@@ -15,7 +15,7 @@ jobs:
     runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v7
-      - uses: streetsidesoftware/cspell-action@v2
+      - uses: streetsidesoftware/cspell-action@v8
         with:
           # Github token used to fetch the list of changed files in the commit.
           github_token: ${{ secrets.GH_TOKEN || secrets.GITHUB_TOKEN }}
