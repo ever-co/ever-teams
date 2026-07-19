@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   ever-teams-webapp:
-    runs-on: ubicloud-standard-8
+    runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
 
     environment: prod
 

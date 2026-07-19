@@ -9,7 +9,7 @@ on:
 
 jobs:
   deploy-stage:
-    runs-on: ubicloud-standard-2
+    runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
 
     environment: stage
 
