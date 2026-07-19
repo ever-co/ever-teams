@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   deploy-api-dev:
-    runs-on: ubicloud-standard-2
+    runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
 
     environment: dev
 
