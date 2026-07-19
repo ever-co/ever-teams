@@ -3,6 +3,11 @@
 	"sidebar": {
 		"DASHBOARD": "Табло",
 		"FORYOU": "Общи",
+		"QUICK_CREATE": "Бързо създаване",
+		"COMMAND": "Команда",
+		"PLATFORM": "Платформа",
+		"TEAM_DASHBOARD": "Табло на екипа",
+		"APPS_AND_URLS": "Приложения и URL адреси",
 		"HOME": "Начало",
 		"INBOX": "Входящи",
 		"PROJECTS": "Проекти",
@@ -44,6 +49,9 @@
 		"ADD_TIME_ENTRY": "Добавяне на запис на време",
 		"OPT_IN_UPDATES": "Абонирайте се за актуализации и новини за {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "Абонирайте се за нашия бюлетин",
+		"SUBSCRIBE": "Абонирайте се",
+		"SUBSCRIBING": "Абониране...",
+		"EMAIL": "Имейл",
 		"VIEW_PROJECT": "Преглед на проекта",
 		"SHARE_PROJECT": "Споделяне на проекта",
 		"DELETE_PROJECT": "Изтриване на проекта",
@@ -1227,7 +1235,8 @@
 		"PASSWORDS_DO_NOT_MATCH": "Паролите не съвпадат"
 	},
 	"placeholders": {
-		"ENTER_TO_VALIDATE": "Натиснете Enter за валидиране"
+		"ENTER_TO_VALIDATE": "Натиснете Enter за валидиране",
+		"ENTER_A_COMMAND": "Въведете команда..."
 	},
 	"team": {
 		"BACK_LABEL": "Обратно към отбора",

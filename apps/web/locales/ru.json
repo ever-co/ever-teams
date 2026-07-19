@@ -3,6 +3,11 @@
 	"sidebar": {
 		"DASHBOARD": "Панель управления",
 		"FORYOU": "Общие",
+		"QUICK_CREATE": "Быстрое создание",
+		"COMMAND": "Команда",
+		"PLATFORM": "Платформа",
+		"TEAM_DASHBOARD": "Панель команды",
+		"APPS_AND_URLS": "Приложения и URL-адреса",
 		"HOME": "Главная",
 		"INBOX": "Входящие",
 		"PROJECTS": "Проекты",
@@ -44,6 +49,9 @@
 		"ADD_TIME_ENTRY": "Добавить запись времени",
 		"OPT_IN_UPDATES": "Согласитесь получать обновления и новости о {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "Подпишитесь на нашу рассылку",
+		"SUBSCRIBE": "Подписаться",
+		"SUBSCRIBING": "Подписка...",
+		"EMAIL": "Эл. почта",
 		"VIEW_PROJECT": "Просмотр проекта",
 		"SHARE_PROJECT": "Поделиться проектом",
 		"DELETE_PROJECT": "Удалить проект",
@@ -1227,7 +1235,8 @@
 		"PASSWORDS_DO_NOT_MATCH": "Пароли не совпадают"
 	},
 	"placeholders": {
-		"ENTER_TO_VALIDATE": "Нажмите Enter для подтверждения"
+		"ENTER_TO_VALIDATE": "Нажмите Enter для подтверждения",
+		"ENTER_A_COMMAND": "Введите команду..."
 	},
 	"team": {
 		"BACK_LABEL": "Вернуться в Команду",

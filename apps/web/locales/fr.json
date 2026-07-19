@@ -3,6 +3,11 @@
 	"sidebar": {
 		"DASHBOARD": "Tableau de bord",
 		"FORYOU": "Général",
+		"QUICK_CREATE": "Création rapide",
+		"COMMAND": "Commande",
+		"PLATFORM": "Plateforme",
+		"TEAM_DASHBOARD": "Tableau de bord d'équipe",
+		"APPS_AND_URLS": "Applications et URL",
 		"HOME": "Accueil",
 		"INBOX": "Boîte de réception",
 		"PROJECTS": "Projets",
@@ -44,6 +49,9 @@
 		"ADD_TIME_ENTRY": "Ajouter une entrée de temps",
 		"OPT_IN_UPDATES": "Acceptez de recevoir des mises à jour et des nouvelles sur {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "Abonnez-vous à notre newsletter",
+		"SUBSCRIBE": "S'abonner",
+		"SUBSCRIBING": "Abonnement en cours...",
+		"EMAIL": "E-mail",
 		"VIEW_PROJECT": "Voir le projet",
 		"SHARE_PROJECT": "Partager le projet",
 		"DELETE_PROJECT": "Supprimer le projet",
@@ -1235,7 +1243,8 @@
 		}
 	},
 	"placeholders": {
-		"ENTER_TO_VALIDATE": "Appuyez sur Entrée pour valider"
+		"ENTER_TO_VALIDATE": "Appuyez sur Entrée pour valider",
+		"ENTER_A_COMMAND": "Saisir une commande..."
 	},
 	"links": {
 		"common": {

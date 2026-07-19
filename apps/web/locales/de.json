@@ -3,6 +3,11 @@
 	"sidebar": {
 		"DASHBOARD": "Dashboard",
 		"FORYOU": "Allgemein",
+		"QUICK_CREATE": "Schnellerstellung",
+		"COMMAND": "Befehl",
+		"PLATFORM": "Plattform",
+		"TEAM_DASHBOARD": "Team Dashboard",
+		"APPS_AND_URLS": "Apps & URLs",
 		"HOME": "Startseite",
 		"INBOX": "Posteingang",
 		"PROJECTS": "Projekte",
@@ -44,6 +49,9 @@
 		"ADD_TIME_ENTRY": "Zeiteintrag hinzufügen",
 		"OPT_IN_UPDATES": "Abonnieren Sie Updates und Nachrichten zu {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "Abonnieren Sie unseren Newsletter",
+		"SUBSCRIBE": "Abonnieren",
+		"SUBSCRIBING": "Abonnieren...",
+		"EMAIL": "E-Mail",
 		"VIEW_PROJECT": "Projekt anzeigen",
 		"SHARE_PROJECT": "Projekt teilen",
 		"DELETE_PROJECT": "Projekt löschen",
@@ -1227,7 +1235,8 @@
 		"PASSWORDS_DO_NOT_MATCH": "Passwörter stimmen nicht überein"
 	},
 	"placeholders": {
-		"ENTER_TO_VALIDATE": "Enter drücken, um zu validieren"
+		"ENTER_TO_VALIDATE": "Enter drücken, um zu validieren",
+		"ENTER_A_COMMAND": "Befehl eingeben..."
 	},
 	"team": {
 		"BACK_LABEL": "Zurück zum Team",
