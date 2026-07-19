@@ -153,14 +153,14 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 		],
 		home: [
 			{
-				title: 'Home',
+				title: t('sidebar.HOME'),
 				url: '/',
 				selectable: true,
 				icon: HomeIcon,
 				label: 'home'
 			},
 			{
-				title: 'Inbox',
+				title: t('sidebar.INBOX'),
 				url: '/inbox',
 				selectable: true,
 				icon: InboxIcon,
@@ -176,12 +176,12 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				label: 'dashboard',
 				items: [
 					{
-						title: 'Team Dashboard',
+						title: t('sidebar.TEAM_DASHBOARD'),
 						url: `/dashboard/team-dashboard/${user?.id}?name=${encodeURIComponent(username || '')}`,
 						label: 'team dashboard'
 					},
 					{
-						title: 'Apps & URLs',
+						title: t('sidebar.APPS_AND_URLS'),
 						url: `/dashboard/app-url/${user?.id}?name=${encodeURIComponent(username || '')}`,
 						label: 'apps-urls'
 					}

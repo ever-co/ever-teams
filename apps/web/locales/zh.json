@@ -3,6 +3,11 @@
 	"sidebar": {
 		"DASHBOARD": "仪表板",
 		"FORYOU": "常规",
+		"QUICK_CREATE": "快速创建",
+		"COMMAND": "命令",
+		"PLATFORM": "平台",
+		"TEAM_DASHBOARD": "团队仪表板",
+		"APPS_AND_URLS": "应用和网址",
 		"HOME": "主页",
 		"INBOX": "收件箱",
 		"PROJECTS": "项目",
@@ -40,6 +45,9 @@
 		"ADD_TIME_ENTRY": "添加时间条目",
 		"OPT_IN_UPDATES": "选择接收关于 {appName} 的更新和新闻。",
 		"SUBSCRIBE_NEWSLETTER": "订阅我们的新闻通讯",
+		"SUBSCRIBE": "订阅",
+		"SUBSCRIBING": "订阅中...",
+		"EMAIL": "电子邮箱",
 		"VIEW_PROJECT": "查看项目",
 		"SHARE_PROJECT": "分享项目",
 		"DELETE_PROJECT": "删除项目",
@@ -1227,7 +1235,8 @@
 		"PASSWORDS_DO_NOT_MATCH": "密码不匹配"
 	},
 	"placeholders": {
-		"ENTER_TO_VALIDATE": "按Enter键验证"
+		"ENTER_TO_VALIDATE": "按Enter键验证",
+		"ENTER_A_COMMAND": "输入命令..."
 	},
 	"team": {
 		"BACK_LABEL": "返回团队",

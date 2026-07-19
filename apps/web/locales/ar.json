@@ -19,6 +19,9 @@
 		"ADD_TIME_ENTRY": "إضافة إدخال وقت",
 		"OPT_IN_UPDATES": "اشترك لتلقي التحديثات والأخبار حول {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "اشترك في النشرة الإخبارية",
+		"SUBSCRIBE": "اشترك",
+		"SUBSCRIBING": "جارٍ الاشتراك...",
+		"EMAIL": "البريد الإلكتروني",
 		"VIEW_PROJECT": "عرض المشروع",
 		"SHARE_PROJECT": "مشاركة المشروع",
 		"DELETE_PROJECT": "حذف المشروع",
@@ -453,6 +456,11 @@
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",
 		"FORYOU": "عام",
+		"QUICK_CREATE": "إنشاء سريع",
+		"COMMAND": "أمر",
+		"PLATFORM": "المنصة",
+		"TEAM_DASHBOARD": "لوحة تحكم الفريق",
+		"APPS_AND_URLS": "التطبيقات والروابط",
 		"HOME": "الصفحة الرئيسية",
 		"INBOX": "الوارد",
 		"PROJECTS": "المشاريع",
@@ -1227,7 +1235,8 @@
 		"PASSWORDS_DO_NOT_MATCH": "كلمات المرور غير متطابقة"
 	},
 	"placeholders": {
-		"ENTER_TO_VALIDATE": "اضغط إدخال للتحقق"
+		"ENTER_TO_VALIDATE": "اضغط إدخال للتحقق",
+		"ENTER_A_COMMAND": "أدخل أمرًا..."
 	},
 	"team": {
 		"BACK_LABEL": "العودة إلى الفريق",
