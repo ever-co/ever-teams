@@ -318,7 +318,7 @@ You can also view a full list of our [contributors tracked by GitHub](https://gi
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=ever-co/ever-teams&type=Date)](https://star-history.com/#ever-co/ever-teams&Date)
+[![Star History Chart](https://stats-github.ever.co/svg?repos=ever-co/ever-teams&type=Date)](https://stats-github.ever.co/#ever-co/ever-teams&Date)
 
 ## ❤️ Powered By
 
