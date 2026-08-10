@@ -107,6 +107,8 @@ module.exports.serverweb = async (isProd) => {
 
 		// For GitHub options see https://www.electron.build/configuration/publish.html
 
+		// The DigitalOcean Spaces CDN (bucket "ever"/sfo3) was decommissioned; only the GitHub
+		// Releases feed is live. Publish to GitHub alone so builds no longer target the dead bucket.
 		if (!isProd) {
 			package.build.publish = [
 				{
@@ -114,13 +116,6 @@ module.exports.serverweb = async (isProd) => {
 					repo: appRepoName,
 					owner: appRepoOwner,
 					releaseType: 'prerelease'
-				},
-				{
-					provider: 'spaces',
-					name: 'ever',
-					region: 'sfo3',
-					path: `/${appName}-pre`,
-					acl: 'public-read'
 				}
 			];
 		} else {
@@ -130,13 +125,6 @@ module.exports.serverweb = async (isProd) => {
 					repo: appRepoName,
 					owner: appRepoOwner,
 					releaseType: 'release'
-				},
-				{
-					provider: 'spaces',
-					name: 'ever',
-					region: 'sfo3',
-					path: `/${appName}`,
-					acl: 'public-read'
 				}
 			];
 		}
