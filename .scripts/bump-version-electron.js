@@ -107,6 +107,8 @@ module.exports.serverweb = async (isProd) => {
 
 		// For GitHub options see https://www.electron.build/configuration/publish.html
 
+		// The DigitalOcean Spaces CDN (bucket "ever"/sfo3) was decommissioned; only the GitHub
+		// Releases feed is live. Publish to GitHub alone so builds no longer target the dead bucket.
 		if (!isProd) {
 			package.build.publish = [
 				{
@@ -114,13 +116,6 @@ module.exports.serverweb = async (isProd) => {
 					repo: appRepoName,
 					owner: appRepoOwner,
 					releaseType: 'prerelease'
-				},
-				{
-					provider: 'spaces',
-					name: 'ever',
-					region: 'sfo3',
-					path: `/${appName}-pre`,
-					acl: 'public-read'
 				}
 			];
 		} else {
@@ -130,15 +125,22 @@ module.exports.serverweb = async (isProd) => {
 					repo: appRepoName,
 					owner: appRepoOwner,
 					releaseType: 'release'
-				},
-				{
-					provider: 'spaces',
-					name: 'ever',
-					region: 'sfo3',
-					path: `/${appName}`,
-					acl: 'public-read'
 				}
 			];
+		}
+
+		// Windows Authenticode: engage electron-updater publisher verification ONLY when a
+		// publisher name is provided (i.e. a publicly-trusted certificate is configured). With no
+		// publisher name, electron-updater skips signature verification, so unsigned or self-signed
+		// interim builds are never stranded. Signing itself is driven by the WIN_CSC_LINK /
+		// WIN_CSC_KEY_PASSWORD env in CI (electron-builder signs automatically when they are set).
+		if (process.env.WINDOWS_PUBLISHER_NAME) {
+			package.build.win = package.build.win || {};
+			package.build.win.signtoolOptions = {
+				...(package.build.win.signtoolOptions || {}),
+				publisherName: process.env.WINDOWS_PUBLISHER_NAME,
+				rfc3161TimeStampServer: 'http://timestamp.digicert.com'
+			};
 		}
 
 		fs.writeFileSync('./apps/server-web/package.json', JSON.stringify(package, null, 2));
