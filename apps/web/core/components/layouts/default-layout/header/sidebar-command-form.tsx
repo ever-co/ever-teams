@@ -1,23 +1,25 @@
 import type React from 'react';
 
+import { useTranslations } from 'next-intl';
 import { Label } from '@/core/components/common/label';
 import { SidebarGroup, SidebarGroupContent, SidebarInput } from '@/core/components/common/sidebar';
 import { CommandIcon } from '../../../icons';
 
 export function SidebarCommandForm({ ...props }: React.ComponentProps<'form'>) {
+	const t = useTranslations();
 	return (
 		<>
 			<form {...props}>
 				<SidebarGroup className="py-0 mt-2">
 					<SidebarGroupContent className="relative inline-flex">
 						<Label htmlFor="command" className="sr-only">
-							Command
+							{t('sidebar.COMMAND')}
 						</Label>
 						<SidebarInput
 							id="command"
-							placeholder="Enter a command..."
+							placeholder={t('placeholders.ENTER_A_COMMAND')}
 							className="pl-8 file:text-foreground placeholder:text-gray-500 dark:placeholder:text-muted-foreground/70 flex rounded-md border px-3 py-1.5 text-sm shadow-xs transition-[color,box-shadow] outline-hidden file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-fit ps-9 pe-9  w-fit min-w-32 max-w-[98.5%] bg-[#eaeef4] dark:bg-dark--theme-light border-gray-200 dark:border-gray-700"
-							aria-label="Command"
+							aria-label={t('sidebar.COMMAND')}
 						/>
 
 						<div className="absolute inset-y-0 flex items-center justify-center text-gray-500 pointer-events-none start-0 ps-2 dark:text-muted-foreground/70 peer-disabled:opacity-50">

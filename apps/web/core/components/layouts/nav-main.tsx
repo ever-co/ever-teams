@@ -17,6 +17,7 @@ import {
 	useSidebar
 } from '@/core/components/common/sidebar';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { activeMenuIndexState, activeSubMenuIndexState, openMenusState } from '@/core/stores/common/menu';
 import { ReactNode } from 'react';
 
@@ -37,6 +38,7 @@ export function NavMain({
 		}[];
 	}[];
 }>) {
+	const t = useTranslations();
 	const { state } = useSidebar();
 	const [openMenus, setOpenMenus] = useAtom(openMenusState);
 	const [activeMenuIndex, setActiveMenuIndex] = useAtom(activeMenuIndexState);
@@ -103,7 +105,7 @@ export function NavMain({
 	};
 	return (
 		<SidebarGroup>
-			<SidebarGroupLabel>Platform</SidebarGroupLabel>
+			<SidebarGroupLabel>{t('sidebar.PLATFORM')}</SidebarGroupLabel>
 			<SidebarMenu
 				className={cn('w-full max-w-[230px]', state === 'collapsed' ? 'items-center gap-y-2' : '', 'gap-y-1')}
 			>

@@ -3,6 +3,11 @@
 	"sidebar": {
 		"DASHBOARD": "לוח מחוונים",
 		"FORYOU": "כללי",
+		"QUICK_CREATE": "יצירה מהירה",
+		"COMMAND": "פקודה",
+		"PLATFORM": "פלטפורמה",
+		"TEAM_DASHBOARD": "לוח מחוונים של הצוות",
+		"APPS_AND_URLS": "אפליקציות וכתובות URL",
 		"HOME": "בית",
 		"INBOX": "דואר נכנס",
 		"PROJECTS": "פרויקטים",
@@ -44,6 +49,9 @@
 		"ADD_TIME_ENTRY": "הוסף כניסת זמן",
 		"OPT_IN_UPDATES": "בחר לקבל עדכונים וחדשות על {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "הירשם לניוזלטר שלנו",
+		"SUBSCRIBE": "הירשם",
+		"SUBSCRIBING": "נרשם...",
+		"EMAIL": "אימייל",
 		"VIEW_PROJECT": "צפה בפרויקט",
 		"SHARE_PROJECT": "שתף פרויקט",
 		"DELETE_PROJECT": "מחק פרויקט",
@@ -1227,7 +1235,8 @@
 		"PASSWORDS_DO_NOT_MATCH": "הסיסמאות אינן תואמות"
 	},
 	"placeholders": {
-		"ENTER_TO_VALIDATE": "לחץ Enter כדי לאמת"
+		"ENTER_TO_VALIDATE": "לחץ Enter כדי לאמת",
+		"ENTER_A_COMMAND": "הזן פקודה..."
 	},
 	"team": {
 		"BACK_LABEL": "חזור לצוות",

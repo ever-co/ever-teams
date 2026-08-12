@@ -3,6 +3,11 @@
 	"sidebar": {
 		"DASHBOARD": "Dashboard",
 		"FORYOU": "Algemeen",
+		"QUICK_CREATE": "Snel aanmaken",
+		"COMMAND": "Opdracht",
+		"PLATFORM": "Platform",
+		"TEAM_DASHBOARD": "Team Dashboard",
+		"APPS_AND_URLS": "Apps & URL's",
 		"HOME": "Startpagina",
 		"INBOX": "Postvak IN",
 		"PROJECTS": "Projecten",
@@ -44,6 +49,9 @@
 		"ADD_TIME_ENTRY": "Tijdinvoer toevoegen",
 		"OPT_IN_UPDATES": "Kies ervoor om updates en nieuws over {appName} te ontvangen.",
 		"SUBSCRIBE_NEWSLETTER": "Abonneer je op onze nieuwsbrief",
+		"SUBSCRIBE": "Abonneren",
+		"SUBSCRIBING": "Bezig met abonneren...",
+		"EMAIL": "E-mail",
 		"VIEW_PROJECT": "Project bekijken",
 		"SHARE_PROJECT": "Project delen",
 		"DELETE_PROJECT": "Project verwijderen",
@@ -1227,7 +1235,8 @@
 		"PASSWORDS_DO_NOT_MATCH": "Wachtwoorden komen niet overeen"
 	},
 	"placeholders": {
-		"ENTER_TO_VALIDATE": "Druk op Enter om te valideren"
+		"ENTER_TO_VALIDATE": "Druk op Enter om te valideren",
+		"ENTER_A_COMMAND": "Voer een opdracht in..."
 	},
 	"team": {
 		"BACK_LABEL": "Terug naar team",

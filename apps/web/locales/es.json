@@ -3,6 +3,11 @@
 	"sidebar": {
 		"DASHBOARD": "Tablero",
 		"FORYOU": "General",
+		"QUICK_CREATE": "Creación rápida",
+		"COMMAND": "Comando",
+		"PLATFORM": "Plataforma",
+		"TEAM_DASHBOARD": "Panel del Equipo",
+		"APPS_AND_URLS": "Aplicaciones y URLs",
 		"HOME": "Inicio",
 		"INBOX": "Bandeja de entrada",
 		"PROJECTS": "Proyectos",
@@ -40,6 +45,9 @@
 		"ADD_TIME_ENTRY": "Agregar entrada de tiempo",
 		"OPT_IN_UPDATES": "Opta por recibir actualizaciones y noticias sobre {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "Suscríbete a nuestro boletín",
+		"SUBSCRIBE": "Suscribirse",
+		"SUBSCRIBING": "Suscribiendo...",
+		"EMAIL": "Correo electrónico",
 		"VIEW_PROJECT": "Ver proyecto",
 		"SHARE_PROJECT": "Compartir proyecto",
 		"DELETE_PROJECT": "Eliminar proyecto",
@@ -1227,7 +1235,8 @@
 		"PASSWORDS_DO_NOT_MATCH": "Las contraseñas no coinciden"
 	},
 	"placeholders": {
-		"ENTER_TO_VALIDATE": "Presione Enter para validar"
+		"ENTER_TO_VALIDATE": "Presione Enter para validar",
+		"ENTER_A_COMMAND": "Escribe un comando..."
 	},
 	"team": {
 		"BACK_LABEL": "Volver al equipo",
