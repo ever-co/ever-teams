@@ -136,11 +136,28 @@ module.exports.serverweb = async (isProd) => {
 		// WIN_CSC_KEY_PASSWORD env in CI (electron-builder signs automatically when they are set).
 		if (process.env.WINDOWS_PUBLISHER_NAME) {
 			package.build.win = package.build.win || {};
-			package.build.win.signtoolOptions = {
-				...(package.build.win.signtoolOptions || {}),
-				publisherName: process.env.WINDOWS_PUBLISHER_NAME,
-				rfc3161TimeStampServer: 'http://timestamp.digicert.com'
-			};
+			// Preferred path: Azure Artifact Signing (formerly Trusted Signing). Engaged only when a
+			// certificate profile name is supplied, i.e. Azure identity validation has completed and a
+			// profile exists. electron-builder authenticates with AZURE_TENANT_ID / AZURE_CLIENT_ID /
+			// AZURE_CLIENT_SECRET from the environment (DefaultAzureCredential).
+			if (process.env.AZURE_CERT_PROFILE_NAME) {
+				package.build.win.azureSignOptions = {
+					...(package.build.win.azureSignOptions || {}),
+					publisherName: process.env.WINDOWS_PUBLISHER_NAME,
+					endpoint: process.env.AZURE_CODE_SIGNING_ENDPOINT || 'https://eus.codesigning.azure.net/',
+					codeSigningAccountName: process.env.AZURE_CODE_SIGNING_ACCOUNT || 'ever',
+					certificateProfileName: process.env.AZURE_CERT_PROFILE_NAME
+				};
+				// Azure signing supersedes the PFX/signtool path; keep exactly one signer configured.
+				delete package.build.win.signtoolOptions;
+			} else {
+				// Fallback: PFX via WIN_CSC_LINK / WIN_CSC_KEY_PASSWORD (signtool).
+				package.build.win.signtoolOptions = {
+					...(package.build.win.signtoolOptions || {}),
+					publisherName: process.env.WINDOWS_PUBLISHER_NAME,
+					rfc3161TimeStampServer: 'http://timestamp.digicert.com'
+				};
+			}
 		}
 
 		fs.writeFileSync('./apps/server-web/package.json', JSON.stringify(package, null, 2));
