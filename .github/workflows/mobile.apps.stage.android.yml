@@ -50,7 +50,29 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
+      # The Play Store upload needs a base64 service-account JSON in GOOGLE_CREDENTIALS. In the
+      # `stage` environment that secret exists but is BLANK (created 2024-04-29, never updated), so
+      # `base64 --decode` died on whitespace and killed the job at this step — before the EAS build
+      # and the OTA publish, which then never ran at all.
+      #
+      # Detect it and gate the Google/Play steps instead of hard-failing, so the stage train still
+      # builds and publishes its OTA. The upload resumes on its own the moment a real value is set
+      # in the environment; nothing here needs changing. Gate, don't remove.
+      - name: Detect Play Store credentials
+        id: play_creds
+        shell: bash
+        run: |
+          if [ -n "$(printf '%s' "$GOOGLE_CREDENTIALS_RAW" | tr -d '[:space:]')" ]; then
+            echo 'present=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'present=false' >> "$GITHUB_OUTPUT"
+            echo "::warning::GOOGLE_CREDENTIALS is empty in this environment - skipping the Play Store upload. Set it to the base64-encoded service-account JSON to re-enable."
+          fi
+        env:
+          GOOGLE_CREDENTIALS_RAW: ${{ secrets.GOOGLE_CREDENTIALS }}
+
       - name: Decode Google Credentials
+        if: steps.play_creds.outputs.present == 'true'
         run: |
           DECODED_GOOGLE_CREDENTIALS=$(echo '${{ secrets.GOOGLE_CREDENTIALS }}' | base64 --decode)
           echo "DECODED_GOOGLE_CREDENTIALS=$DECODED_GOOGLE_CREDENTIALS" >> $GITHUB_ENV
@@ -124,16 +146,21 @@ jobs:
         env:
           UPDATE_MESSAGE: ${{ github.ref_name }}@${{ github.sha }}
 
+      # All three gated on the same flag as the decode step above — see "Detect Play Store
+      # credentials". Without credentials these would fail on an empty credentials_json anyway.
       - name: 'Authenticate to Google Cloud'
+        if: steps.play_creds.outputs.present == 'true'
         uses: 'google-github-actions/auth@v1'
         with:
           credentials_json: ${{ env.DECODED_GOOGLE_CREDENTIALS }}
 
       # Install gcloud, `setup-gcloud` automatically picks up authentication from `auth`.
       - name: 'Set up Cloud SDK'
+        if: steps.play_creds.outputs.present == 'true'
         uses: 'google-github-actions/setup-gcloud@v1'
         with:
           project_id: 'ever-teams-399720'
 
       - name: Upload to Play Store Console
+        if: steps.play_creds.outputs.present == 'true'
         run: cd apps/mobile && eas submit --platform android --profile internal --latest --non-interactive
