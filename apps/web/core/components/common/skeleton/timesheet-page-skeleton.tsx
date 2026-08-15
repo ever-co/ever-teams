@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { Container } from '@/core/components';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 
 interface TimesheetPageSkeletonProps {
 	className?: string;
@@ -10,7 +10,7 @@ interface TimesheetPageSkeletonProps {
 
 /**
  * Complete page-level skeleton for Timesheet page
- * Integrates seamlessly with MainLayout structure without swallowing it up
+ * Integrates seamlessly with PageLayout structure without swallowing it up
  * Matches exact layout: mainHeaderSlot (5 sections: breadcrumb + greeting + cards + toggle+search + filters) + main content (calendar/table)
  */
 export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({
@@ -19,7 +19,7 @@ export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({
 	fullWidth = false
 }) => {
 	return (
-		<MainLayout
+		<PageLayout
 			showTimer={showTimer}
 			className="items-start pb-1 !overflow-hidden w-full"
 			footerClassName="!hidden"
@@ -231,7 +231,7 @@ export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({
 					</div>
 				</Container>
 			</div>
-		</MainLayout>
+		</PageLayout>
 	);
 };
 

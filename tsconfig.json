@@ -25,7 +25,7 @@
 		"skipDefaultLibCheck": true,
 		"paths": {
 			"@ever-teams/types": [
-				"packages/types/src/index.d.ts"
+				"packages/toolkit-types/src/index.d.ts"
 			]
 		},
 		"baseUrl": ".",

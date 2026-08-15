@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { Container } from '@/core/components';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 import { cn } from '@/core/lib/helpers';
 
 interface AppUrlsDashboardPageSkeletonProps {
@@ -11,7 +11,7 @@ interface AppUrlsDashboardPageSkeletonProps {
 
 /**
  * Complete page-level skeleton for App URLs Dashboard page
- * Integrates seamlessly with MainLayout structure without swallowing it up
+ * Integrates seamlessly with PageLayout structure without swallowing it up
  * Matches exact layout: mainHeaderSlot (3 sections: breadcrumb + header + productivity card) + main content (tables)
  */
 export const AppUrlsDashboardPageSkeleton: FC<AppUrlsDashboardPageSkeletonProps> = ({
@@ -20,7 +20,7 @@ export const AppUrlsDashboardPageSkeleton: FC<AppUrlsDashboardPageSkeletonProps>
 	fullWidth = false
 }) => {
 	return (
-		<MainLayout
+		<PageLayout
 			className="items-start pb-1 !overflow-hidden w-full"
 			childrenClassName="w-full"
 			showTimer={showTimer}
@@ -169,7 +169,7 @@ export const AppUrlsDashboardPageSkeleton: FC<AppUrlsDashboardPageSkeletonProps>
 					</div>
 				</div>
 			</Container>
-		</MainLayout>
+		</PageLayout>
 	);
 };
 

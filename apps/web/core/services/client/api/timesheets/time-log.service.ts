@@ -27,6 +27,7 @@ import {
 	TGetTimeLimitReport,
 	TTimeLimitReportList
 } from '@/core/types/schemas';
+import { ITimeLogUpdatePayload } from '@/core/types/interfaces/timesheet/time-log.interface';
 
 class TimeLogService extends APIService {
 	getTimeLimitsReport = async (params: TGetTimeLimitReport): Promise<TTimeLimitReportList[]> => {
@@ -237,6 +238,23 @@ class TimeLogService extends APIService {
 			);
 		} catch (error) {
 			throw new Error('Failed to create timesheet log');
+		}
+	};
+
+	updateTimeLog = async (payload: ITimeLogUpdatePayload) => {
+		if (!this.organizationId || !this.tenantId) {
+			throw new Error('Required parameters missing: organizationId and tenantId are required');
+		}
+		const { timeLogId, ...data } = payload;
+
+		try {
+			return await this.put<ITimeLog>(
+				`/timesheet/time-log/${timeLogId}`,
+				{ ...data, organizationId: this.organizationId },
+				{ tenantId: this.tenantId }
+			);
+		} catch (error) {
+			throw new Error('Failed to update time-log', { cause: error });
 		}
 	};
 

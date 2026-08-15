@@ -3,7 +3,7 @@ import { KanbanTabs } from '@/core/constants/config/constants';
 import { useModal, useStatusValue } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container } from '@/core/components';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useSearchParams } from 'next/navigation';
@@ -212,7 +212,7 @@ const Kanban = () => {
 
 	return (
 		<>
-			<MainLayout
+			<PageLayout
 				title={`${t('common.KANBAN')} ${t('common.BOARD')}`}
 				showTimer={isTrackingEnabled}
 				footerClassName={cn(Object.values(filteredBoard).length > 3 ? '!pr-32' : 'pr-20')}
@@ -417,7 +417,7 @@ const Kanban = () => {
 						)}
 					</div>
 				)}
-			</MainLayout>
+			</PageLayout>
 			{isOpen && !!user?.isEmailVerified && (
 				<Suspense fallback={<ModalSkeleton size="lg" />}>
 					<LazyInviteFormModal open={true} closeModal={closeModal} />

@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { Container } from '@/core/components';
-import { MainLayout, MainHeader } from '@/core/components/layouts/default-layout';
+import { PageLayout, MainHeader } from '@/core/components/layouts/default-layout';
 import { TimerSkeleton } from './timer-skeleton';
 import { TaskFilterSkeleton, UserProfileTaskSkeleton, UserProfileDetailSkeleton } from './profile-component-skeletons';
 
@@ -12,7 +12,7 @@ interface ProfilePageSkeletonProps {
 
 /**
  * Complete page-level skeleton for Profile page
- * Integrates seamlessly with MainLayout structure without swallowing it up
+ * Integrates seamlessly with PageLayout structure without swallowing it up
  * Matches exact layout: mainHeaderSlot (2 sections: breadcrumb + profile detail/timer/filter) + main content (activity tabs)
  */
 export const ProfilePageSkeleton: FC<ProfilePageSkeletonProps> = ({
@@ -21,7 +21,7 @@ export const ProfilePageSkeleton: FC<ProfilePageSkeletonProps> = ({
 	fullWidth = false
 }) => {
 	return (
-		<MainLayout
+		<PageLayout
 			mainHeaderSlot={
 				<MainHeader fullWidth={fullWidth} className="pt-14">
 					<div className="space-y-4 w-full">
@@ -50,7 +50,7 @@ export const ProfilePageSkeleton: FC<ProfilePageSkeletonProps> = ({
 			<Container fullWidth={fullWidth} className="mt-6 mb-10">
 				<UserProfileTaskSkeleton />
 			</Container>
-		</MainLayout>
+		</PageLayout>
 	);
 };
 

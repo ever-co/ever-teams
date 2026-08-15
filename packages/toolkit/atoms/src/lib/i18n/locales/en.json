@@ -1,0 +1,525 @@
+{
+	"ORGANIZATION": "Ever",
+	"TITLE": "Teams",
+	"COMMON": {
+		"password": "Password",
+		"email": "Email",
+		"token": "Token",
+		"now": "Now",
+		"today": "Today",
+		"loading": "Loading",
+		"client": "Client",
+		"project": "Project",
+		"team": "Team",
+		"task": "Task",
+		"view_more": "View more",
+		"activity": "Activity",
+		"members": "Members",
+		"time": "Time",
+		"worked": "Worked",
+		"members_activities": "Members activities",
+		"apps_and_url": "Applications and Urls",
+		"full_name": "Full name",
+		"first_name": "First Name",
+		"last_name": "Last Name",
+		"preferred_language": "Preferred Language",
+		"time_zone": "Time Zone",
+		"time_format": "Time Format",
+		"phone_number": "Phone Number",
+		"accept": "Accept",
+		"terms_and_conditions": "Terms and Conditions",
+		"privacy_policy": "Privacy Policy",
+		"tenant": "Tenant",
+		"organization": "Organization",
+		"employee": "Employee",
+		"and": "and",
+		"or": "or",
+		"save": "Save"
+	},
+	"WARNING": {
+		"start_without_account": "You cannot start timer without an account.",
+		"not_employee": "You are not an employee, you cannot start timer.",
+		"stop_timer_before_selecting": "Please stop timer before selecting {{item}}."
+	},
+	"ERROR": {
+		"invalid_password_or_email": "You intered an invalid email or password.",
+		"is_required": "{{field}} is required",
+		"passwords_not_match": "Passwords do not match.",
+		"password_length": "Password should be at least {{number}} characters long.",
+		"accept_terms_and_conditions": "You must accept the terms and conditions.",
+		"could_not_register": "Could not register!",
+		"could_not_create": "Could not create {{item}}"
+	},
+	"NO_DATA": {
+		"no_data_available": "No data available"
+	},
+	"REPORT": {
+		"title": "Teams Report",
+		"worked_today": "Worked today",
+		"worked_this_week": "Worked this week",
+		"worked_over_period": "Worked over the period",
+		"today_activity": "Today's activity",
+		"week_activity": "Weeky activity",
+		"activity_over_period": "Activity over the period"
+	},
+	"TIME_TRACKER": {
+		"title": "Timer",
+		"start": "Start",
+		"stop": "Stop"
+	},
+	"AUTH": {
+		"sign_in_title": "Sign In",
+		"sign_up_title": "Register",
+		"register_now": "Register Now",
+		"email_prompt": "Enter your email",
+		"password_prompt": "Enter your password",
+		"token_prompt": "Enter your Teams token",
+		"confirm_password_prompt": "Confirm password",
+		"full_name_prompt": "Enter your full name",
+		"first_name_prompt": "Enter your first name",
+		"last_name_prompt": "Enter your last name",
+		"phone_number_prompt": "Enter your phone number",
+		"logout": "Logout",
+		"dont_have_an_account": "Don't have an account ? ",
+		"have_an_account": "Have an account ? "
+	},
+	"INPUT": {
+		"language_switcher": {
+			"select_language": "Select language"
+		},
+		"team_select": {
+			"select_team": "Select team"
+		},
+		"project_select": {
+			"select_project": "Select project"
+		},
+		"task_select": {
+			"select_task": "Select task"
+		},
+		"client_select": {
+			"select_client": "Select client"
+		}
+	},
+	"FOOTER": {
+		"version": "Version",
+		"powered_by": "Powered by"
+	},
+	"LANGUAGES": {
+		"en": "English",
+		"fr": "French"
+	},
+	"POMODORO": {
+		"title": "Teams Pomodoro Timer",
+		"description": "Focus on what you need to do for a few minutes, then take a break for a few minutes.",
+		"reset": "Reset",
+		"customize": "Customize",
+		"timer_customization": "Timer Customization",
+		"pomodoro": "Pomodoro",
+		"break": "Break",
+		"short_break": "Short Break",
+		"long_break": "Long Break",
+		"start": "Start",
+		"stop": "Stop",
+		"TASK": {
+			"task": "Task",
+			"add_tasks": "Add Task Here",
+			"delete_task": "Delete Task",
+			"edit_task": "Edit Task",
+			"delete_all": "Delete All Tasks"
+		},
+		"LEVEL": {
+			"title": "Level",
+			"medium": "medium",
+			"very_short": "Very Short",
+			"short": "Short",
+			"long": "Long",
+			"custom": "Custom"
+		}
+	},
+	"PROFILE": {
+		"title": "Account Information",
+		"update_profil": "Update Profile"
+	},
+	"ACCOUNT_DELETION_FORM": {
+		"title": "Delete Account",
+		"description": "Account deletion is non-reversable. Please proceed with caution.",
+		"confirm_delete": "Are you sure you want to delete your account?",
+		"confirm_password": "Confirm Password",
+		"enter_current_password": "Enter your current password",
+		"cancel": "Cancel",
+		"delete_account": "Delete Account",
+		"dialog": {
+			"title": "Are you absolutely sure?",
+			"description": "This action cannot be undone. This will permanently delete your account and remove your data from our servers.",
+			"delete_account_success": "Account deleted successfully",
+			"delete_account_failed": "Account deletion failed"
+		}
+	},
+	"PASSWORD_UPDATE_FORM": {
+		"title": "Password",
+		"current_password": "Current Password",
+		"enter_current_password": "Enter your current password",
+		"new_password": "New Password",
+		"enter_new_password": "Enter your new password",
+		"confirm_new_password": "Confirm New Password",
+		"enter_confirm_new_password": "Retype your new password",
+		"update_password": "Update Password",
+		"dialog": {
+			"update_failed": "Password update failed",
+			"update_success": "Password updated successfully"
+		}
+	},
+	"TEAM_CREATION_FORM": {
+		"title": "Create Team",
+		"name": "Team Name",
+		"enter_team_name": "Enter team name",
+		"create_team": "Create Team",
+		"description": "Description",
+		"enter_team_description": "Enter a brief team description",
+		"dialog": {
+			"create_failed": "Team creation failed",
+			"create_success": "Team created successfully",
+			"create_new_team": "Create new team"
+		}
+	},
+	"TEAMS_VIEWER": {
+		"title": {
+			"all_teams": "Teams for {{orgName}}"
+		},
+		"search_placeholder": "Search for a team",
+		"table_headers": {
+			"name": "Name",
+			"managers": "Managers",
+			"members": "Members"
+		},
+		"table_empty": {
+			"no_teams": "No teams found"
+		},
+		"actions": {
+			"add_team": "Add Member"
+		},
+		"pagination": {
+			"show": "Show {{number}}",
+			"page": "{{currentPage}}/{{totalPages}}"
+		}
+	},
+	"TEAM_MEMBERS": {
+		"title": {
+			"all_teams": "Team Members",
+			"single_team": "Members of the team "
+		},
+		"search_placeholder": "Search for a member",
+		"table_headers": {
+			"name": "Name",
+			"email": "Email",
+			"position": "Position",
+			"roles": "Roles",
+			"joined_left": "Joined / Left",
+			"status": "Status",
+			"actions": "Actions"
+		},
+		"status": {
+			"member": "Member"
+		},
+		"actions": {
+			"remove_member": "Remove Member",
+			"leave_team": "Leave team"
+		},
+		"table_empty": {
+			"no_members": "No members found"
+		},
+		"dialog": {
+			"remove_member": {
+				"title": "Are you sure you want to remove this member?",
+				"description": "This action cannot be undone. This will permanently remove the member from the team."
+			},
+			"leave_team": {
+				"title": "Are you sure you want to leave this team?",
+				"description": "This action cannot be undone. This will permanently remove you from the team."
+			},
+			"remove_member_success": "Member removed successfully",
+			"remove_member_failed": "Member removal failed",
+			"remove": "Remove",
+			"leave": "Leave",
+			"cancel": "Cancel"
+		},
+		"pagination": {
+			"show": "Show {{number}}",
+			"page": "{{currentPage}}/{{totalPages}}"
+		}
+	},
+	"MEMBER_INVITATION_FORM": {
+		"title": "Invite member to your team",
+		"description": "Send an invitation to a team member by email",
+		"email": "Email",
+		"enter_email": "Enter email",
+		"name": "Name",
+		"enter_name": "Enter name",
+		"role": "Role",
+		"select_role": "Select role",
+		"roles": {
+			"manager": "Manager",
+			"employee": "Employee"
+		},
+		"send_invitation": "Send Invitation",
+		"dialog": {
+			"invite_failed": "Member invitation failed",
+			"invite_success": "Member invited successfully",
+			"invite_member": "Invite member"
+		}
+	},
+	"TEAM_SETTING": {
+		"title": "Team settings",
+		"form": {
+			"team_name": "Team Name",
+			"enter_team_name": "Enter team name",
+			"team_description": "Team Description",
+			"enter_team_description": "Enter team description",
+			"team_color": "Team Color",
+			"enter_team_color": "Enter team color",
+			"team_size": "Team size",
+			"select_team_size": "Select team size",
+			"team_type": "Team type",
+			"private": "Private",
+			"public": "Public",
+			"update_team": "Update team"
+		},
+		"dialog": {
+			"failure": "Failed to update team",
+			"success": "Team updated successfully !"
+		}
+	},
+	"TEAMS_TRACKING_FILTER": {
+		"title": "Tracking Filters",
+		"labels": {
+			"organization": "Organization",
+			"employee": "Employee",
+			"date": "Date",
+			"time_range": "Time Range"
+		},
+		"actions": {
+			"apply_filter": "Apply filter",
+			"refresh": "Refresh",
+			"export": "Export"
+		},
+		"results": {
+			"loading": "Loading...",
+			"error_occurred": "Error occurred",
+			"no_session_found": "No session found",
+			"sessions_found": "{{count}} session found",
+			"sessions_found_plural": "{{count}} sessions found",
+			"auto_refresh": "Auto-refresh"
+		}
+	},
+	"TEAMS_TRACKING_CLICK_INSIGHT": {
+		"error": {
+			"title": "Analytics Error",
+			"retry": "Retry"
+		},
+		"loading": {
+			"message": "Loading insight data..."
+		},
+		"empty": {
+			"title": "No Insight Data",
+			"message": "No session data available"
+		}
+	},
+	"TEAMS_TRACKING_SESSION_INSIGHT": {
+		"error": {
+			"title": "Analytics Error",
+			"retry": "Retry"
+		},
+		"loading": {
+			"message": "Loading insight data..."
+		},
+		"empty": {
+			"title": "No Insight Data",
+			"message": "No session data available"
+		}
+	},
+	"CLICK_INSIGHT": {
+		"title": "Click Analytics",
+		"description": "Analysis of user click interactions and engagement patterns",
+		"total_clicks": "total clicks",
+		"metrics": {
+			"total_clicks": "Total Clicks",
+			"click_rate": "Click Rate",
+			"click_density": "Click Density",
+			"unique_elements": "Unique Elements",
+			"subtitles": {
+				"user_interactions": "User click interactions",
+				"clicks_per_minute": "Clicks per minute",
+				"per_1000px": "Per 1000px²",
+				"avg_clicks_per_element": "avg clicks/element"
+			}
+		},
+		"distribution": {
+			"title": "Spatial Distribution",
+			"top_25": "Top 25%",
+			"middle_50": "Middle 50%",
+			"bottom_25": "Bottom 25%"
+		},
+		"elements": {
+			"title": "Top Clicked Elements",
+			"element": "Element",
+			"percentage_of_clicks": "% of total clicks",
+			"clicks": "clicks",
+			"no_data": "No element data available"
+		},
+		"empty": {
+			"title": "No Click Data",
+			"message": "No click interaction data available for analysis."
+		}
+	},
+	"SESSION_INSIGHT": {
+		"title": "Session Analytics",
+		"description": "Overview of user engagement and interaction patterns",
+		"payloads": "payload",
+		"payloads_plural": "payloads",
+		"metrics": {
+			"total_duration": "Total Duration",
+			"active_time": "Active Time",
+			"engagement_score": "Engagement Score",
+			"interaction_rate": "Interaction Rate",
+			"total_events": "Total Events",
+			"idle_time": "Idle Time",
+			"subtitles": {
+				"complete_session_length": "Complete session length",
+				"of_total_session": "of total session",
+				"engagement": "engagement",
+				"interactions_per_minute": "Interactions per minute",
+				"user_interactions_recorded": "User interactions recorded",
+				"time_without_interactions": "Time without interactions"
+			}
+		},
+		"insights": {
+			"title": "Session Insights",
+			"activity_level": "Activity Level:",
+			"session_quality": "Session Quality:",
+			"levels": {
+				"very_active": "Very Active",
+				"active": "Active",
+				"moderate": "Moderate",
+				"low": "Low",
+				"excellent": "Excellent",
+				"good": "Good",
+				"needs_improvement": "Needs Improvement"
+			}
+		},
+		"empty": {
+			"title": "No Session Data",
+			"message": "No session data available for analysis."
+		}
+	},
+	"TEAMS_TRACKING_HEATMAP": {
+		"title": "Teams Tracking Heatmap",
+		"controls": {
+			"color_scheme": "Color Scheme:",
+			"color_options": {
+				"hot": "Hot (Red-Yellow)",
+				"cool": "Cool (Blue-Cyan)",
+				"blue": "Blue"
+			},
+			"aggregation_radius": "Aggregation Radius:",
+			"show_counts": "Show Counts",
+			"heatmap_type": "Heatmap Type:",
+			"clicks": "🖱️ Clicks",
+			"scroll": "📜 Scroll"
+		},
+		"device_stats": {
+			"sessions": "Sessions:",
+			"mobile": "Mobile",
+			"desktop": "Desktop"
+		},
+		"states": {
+			"loading": "Loading sessions...",
+			"error": "Error loading sessions",
+			"no_sessions": "No sessions available",
+			"no_sessions_message": "Try adjusting your filters or check back later for new sessions.",
+			"select_session": "Please select a session to view the replay",
+			"select_session_message": "Choose a session from the list on the left to start watching the replay."
+		}
+	},
+	"MANUAL_TIME_FORM": {
+		"title": "Add manual time",
+		"select_date": "Select Date",
+		"start_time": "Start Time",
+		"end_time": "End Time",
+		"is_billable": "Is Billable",
+		"description": "Description",
+		"description_placeholder": "Enter task description",
+		"add_time": "Add Time",
+		"auth_org_missing": "Authentication or organization missing",
+		"error_start_after_end": "Start time must be before end time",
+		"success_title": "Success",
+		"success_description": "Manual time added successfully",
+		"manual_time_disabled": "Manual time is disabled for this organization"
+	},
+	"TEAMS_TRACKING_SESSION_REPLAY": {
+		"title": "Teams Tracking Session Replay",
+		"sessions_title": "Sessions",
+		"actions": {
+			"clear": "Clear"
+		},
+		"session_details": {
+			"session_id": "Session ID:",
+			"time_range": "Time range:",
+			"url": "URL:"
+		},
+		"device_indicators": {
+			"mobile": "📱",
+			"desktop": "🖥️"
+		},
+		"states": {
+			"no_sessions": "No sessions found.",
+			"no_sessions_available": "No sessions available",
+			"select_session": "Please select a session to view the replay",
+			"select_session_message": "Choose a session from the list on the left to start watching the replay.",
+			"loading": "Loading sessions...",
+			"error": "Error loading sessions"
+		}
+	},
+	"TIMESHEET": {
+		"title": "Timesheets for {{orgName}}",
+		"filters": {
+			"select_date": "Select date",
+			"select_sources": "Select sources",
+			"select_log_types": "Select log types"
+		},
+		"actions": {
+			"refresh": "Refresh"
+		},
+		"table_headers": {
+			"employee": "Employee",
+			"project": "Project",
+			"log_type": "Log Type",
+			"source": "Source",
+			"duration": "Duration",
+			"time_span": "Time Span",
+			"notes": "Notes"
+		},
+		"table_empty": {
+			"no_time_logs": "No time logs found"
+		},
+		"pagination": {
+			"show": "Show {{number}}",
+			"page": "{{currentPage}}/{{totalPages}}"
+		},
+		"sources": {
+			"TEAMS": "Teams",
+			"DESKTOP": "Desktop",
+			"MOBILE": "Mobile",
+			"BROWSER": "Browser",
+			"BROWSER_EXTENSION": "Browser Extension",
+			"HUBSTAFF": "Hubstaff",
+			"UPWORK": "Upwork",
+			"TEAMS": "Teams"
+		},
+		"log_types": {
+			"TRACKED": "Tracked",
+			"MANUAL": "Manual",
+			"IDLE": "Idle",
+			"RESUMED": "Resumed"
+		}
+	}
+}

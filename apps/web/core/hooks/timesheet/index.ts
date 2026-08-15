@@ -7,6 +7,7 @@ export { useTimesheetQuery } from './use-timesheet-query';
 export { useCreateTimesheet } from './use-create-timesheet';
 export { useUpdateTimesheet } from './use-update-timesheet';
 export { useDeleteTimesheet } from './use-delete-timesheet';
+export { useUpdateTimeLogMutation } from './use-update-time-log';
 
 // Re-export pure utility functions and types for convenience
 export {
@@ -22,4 +23,3 @@ export {
 	groupedByTimesheetIds,
 	rowsToObject
 } from '@/core/lib/helpers/timesheet-grouping';
-

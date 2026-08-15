@@ -26,7 +26,7 @@
 		"@types/node": "^20.12.2",
 		"@types/react": "^19.2.8",
 		"@types/react-dom": "^19.2.3",
-		"postcss": "^8.4.19",
+		"postcss": "^8.5.10",
 		"prettier": "^3.2.5",
 		"typescript": "^4.9.4"
 	},

@@ -126,10 +126,16 @@ RUN apt-get update -qq && \
 # Install Yarn
 RUN npm install -g yarn --force
 
+# Private registry token (optional — set via build-arg to access packages.ever.co)
+ARG VERDACCIO_TOKEN
+
 # --- STEP 1: Copy only lockfiles and manifests for dependency resolution ---
 COPY package.json yarn.lock ./
 
 COPY packages/constants/package.json packages/constants/package.json
+# constants/utils/services depend on @ever-teams/toolkit-types, so its manifest
+# must be present for the workspace-aware `yarn install --frozen-lockfile` below.
+COPY packages/toolkit-types/package.json packages/toolkit-types/package.json
 COPY packages/types/package.json packages/types/package.json
 COPY packages/utils/package.json packages/utils/package.json
 COPY packages/ui/package.json packages/ui/package.json
@@ -142,8 +148,23 @@ COPY apps/web/package.json ./apps/web/package.json
 # Set working directory to the web app
 WORKDIR /app/apps/web
 
+# Configure the npm registry: prefer the internal Verdaccio cache (VERDACCIO_REGISTRY build-arg, anonymous),
+# else the legacy packages.ever.co token path. Empty (e.g. a fork) → public npm. The yarn.lock rewrite is
+# best-effort (non-fatal) so a path mismatch degrades to public downloads rather than breaking the build.
+ARG VERDACCIO_REGISTRY=""
+RUN if [ -n "$VERDACCIO_REGISTRY" ]; then \
+		echo "registry=${VERDACCIO_REGISTRY}" >> /app/.npmrc && \
+		printf 'registry "%s"\n' "${VERDACCIO_REGISTRY}" >> /app/.yarnrc && \
+		{ sed -i "s|https://registry.yarnpkg.com|${VERDACCIO_REGISTRY%/}|g; s|https://registry.npmjs.org|${VERDACCIO_REGISTRY%/}|g" /app/yarn.lock 2>/dev/null || true; }; \
+	elif [ -n "$VERDACCIO_TOKEN" ]; then \
+		echo "//packages.ever.co/:_authToken=${VERDACCIO_TOKEN}" >> /app/.npmrc; \
+	fi
+
 # --- STEP 2: Install deps in deterministic and cacheable way ---
 RUN yarn install --network-timeout 1000000 --frozen-lockfile --non-interactive --ignore-scripts
+
+# Clean up .npmrc to avoid leaking token into subsequent layers
+RUN rm -f /app/.npmrc
 
 # --- STEP 3: Copy the rest of the repo for build ---
 WORKDIR /app

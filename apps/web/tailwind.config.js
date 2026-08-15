@@ -85,8 +85,8 @@ module.exports = {
 					DEFAULT: 'var(--tw-color-dark--theme)'
 				},
 				primary: {
-					DEFAULT: '#3826A6',
-					light: '#6755C9',
+					DEFAULT: 'oklch(58.5% 0.233 277.117)',
+					light: 'oklch(58.5% 0.233 277.117)',
 					xlight: '#8E76FA',
 					mid: '#483A95',
 					foreground: 'hsl(var(--primary-foreground))'

@@ -183,31 +183,31 @@ const Sidebar = React.forwardRef<
 			{/* This is what handles the sidebar gap on desktop */}
 			<div
 				className={cn(
-					'duration-300 relative h-svh w-[var(--sidebar-width)] bg-transparent transition-[width,transform] ease-linear',
+					'duration-300 relative h-svh w-(--sidebar-width) bg-sidebar transition-[width,transform] ease-linear',
 					'group-data-[collapsible=offcanvas]:w-0',
 					'group-data-[side=right]:rotate-180',
 					variant === 'floating' || variant === 'inset'
-						? 'group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_1rem)]'
-						: 'group-data-[collapsible=icon]:w-[var(--sidebar-width-icon)]'
+						? 'group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+1rem)]'
+						: 'group-data-[collapsible=icon]:w-(--sidebar-width-icon)'
 				)}
 			/>
 			<div
 				className={cn(
-					'duration-300 fixed inset-y-0 z-10 hidden h-svh w-[var(--sidebar-width)] transition-[left,right,width] ease-linear md:flex',
+					'duration-300 fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] ease-linear md:flex',
 					side === 'left'
 						? 'left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]'
 						: 'right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
 					// Adjust the padding for floating and inset variants.
 					variant === 'floating' || variant === 'inset'
 						? 'p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_1rem_+_2px)]'
-						: 'group-data-[collapsible=icon]:w-[var(--sidebar-width-icon)] group-data-[side=left]:border-r group-data-[side=right]:border-l',
+						: 'group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l',
 					className
 				)}
 				{...props}
 			>
 				<div
 					data-sidebar="sidebar"
-					className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow z-[1000]"
+					className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow z-1000"
 				>
 					{children}
 				</div>
@@ -237,7 +237,7 @@ const SidebarTrigger = React.forwardRef<React.ElementRef<typeof Button>, React.C
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					className={cn(
-						state === 'collapsed' ? 'rotate-[180deg]' : '',
+						state === 'collapsed' ? 'rotate-180' : '',
 						'transition-transform duration-300 size-3'
 					)}
 					width={9}
@@ -293,7 +293,7 @@ const SidebarRail = React.forwardRef<HTMLButtonElement, React.ComponentProps<'bu
 				title="Toggle Sidebar"
 				className={cn(
 					'absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] hover:after:bg-sidebar-border group-data-[side=left]:-right-4 group-data-[side=right]:left-0 sm:flex',
-					'[[data-side=left]_&]:cursor-w-resize [[data-side=right]_&]:cursor-e-resize',
+					'in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize',
 					'[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize',
 					'group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full group-data-[collapsible=offcanvas]:hover:bg-sidebar',
 					'[[data-side=left][data-collapsible=offcanvas]_&]:-right-2',

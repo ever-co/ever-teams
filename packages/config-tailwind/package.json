@@ -1,0 +1,14 @@
+{
+	"name": "@ever-teams/tailwind-config",
+	"version": "0.1.0",
+	"private": true,
+	"license": "MIT",
+	"packageManager": "yarn@1.22.19",
+	"exports": {
+		".": "./tailwind.config.ts"
+	},
+	"devDependencies": {
+		"@ever-teams/ts-config": "*",
+		"tailwindcss": "^3.4.1"
+	}
+}

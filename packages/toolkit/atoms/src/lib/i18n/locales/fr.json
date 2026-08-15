@@ -1,0 +1,521 @@
+{
+	"ORGANIZATION": "Ever",
+	"TITLE": "Teams",
+	"COMMON": {
+		"password": "Mot de passe",
+		"email": "Email",
+		"token": "Token",
+		"now": "Maintenant",
+		"today": "Aujourdhui",
+		"loading": "Chargement",
+		"client": "Client",
+		"project": "Projet",
+		"team": "Equipe",
+		"task": "Tache",
+		"view_more": "Voir plus",
+		"activity": "Activité",
+		"members": "Membres",
+		"time": "Temps",
+		"worked": "Travaillé",
+		"members_activities": "Activités de membres",
+		"apps_and_url": "Applications et Urls",
+		"full_name": "Nom complet",
+		"first_name": "Prénom",
+		"last_name": "Post-nom",
+		"preferred_language": "Langue préférée",
+		"time_zone": "Fuseau horaire",
+		"time_format": "Format de l'heure",
+		"phone_number": "Numéro de téléphone",
+		"accept": "Accepter",
+		"terms_and_conditions": "les conditions générales",
+		"privacy_policy": "la politique de confidentialité",
+		"tenant": "Tenant",
+		"organization": "Organisation",
+		"employee": "Employé(e)",
+		"and": "et",
+		"or": "ou",
+		"save": "Enregistrer"
+	},
+	"WARNING": {
+		"start_without_account": "Vous ne pouvez pas démarrer le minuteur sans vous connecter.",
+		"not_employee": "Vous n'êtes pas un employé, vous ne pouvez pas démarrer le minuteur.",
+		"stop_timer_before_selecting": "Veuillez arrêter la minuterie avant de sélectionner un {{item}}."
+	},
+	"ERROR": {
+		"invalid_password_or_email": "Vous avez saisi un email ou un mot de passe invalide.",
+		"is_required": "{{field}} est requis",
+		"passwords_not_match": "Les mots de passe ne correspondent pas.",
+		"password_length": "Le mot de passe doit contenir au moins {{number}} caractères.",
+		"accept_terms_and_conditions": "Vous devez accepter les termes et conditions.",
+		"could_not_register": "Impossible de s'inscrire !",
+		"could_not_create": "Impossible de créer {{item}}"
+	},
+	"NO_DATA": {
+		"no_data_available": "Aucune donnée disponible"
+	},
+	"REPORT": {
+		"title": "Rapport Teams",
+		"worked_today": "Travaillé aujourd'hui",
+		"worked_this_week": "Travaillé cette semaine",
+		"worked_over_period": "Travaillé sur la période",
+		"today_activity": "Activité d'aujourd'hui",
+		"week_activity": "Activité de la semaine",
+		"activity_over_period": "Activité sur la periode"
+	},
+	"TIME_TRACKER": {
+		"title": "Muniteur",
+		"start": "Demarrer",
+		"stop": "Arreter"
+	},
+	"AUTH": {
+		"sign_in_title": "Se connecter",
+		"sign_up_title": "S'inscrire",
+		"register_now": "S'inscrire maintenant",
+		"email_prompt": "Entrez votre email",
+		"password_prompt": "Entrez votre mot de passe",
+		"token_prompt": "Saisissez votre jeton Teams",
+		"confirm_password_prompt": "Confirmez votre mot de passe",
+		"full_name_prompt": "Entrez votre nom complet",
+		"logout": "Se déconnecter",
+		"dont_have_an_account": "Vous n'avez pas de compte ? ",
+		"have_an_account": "Vous avez déjà un compte ? "
+	},
+	"INPUT": {
+		"language_switcher": {
+			"select_language": "Selectionner la langue"
+		},
+		"team_select": {
+			"select_team": "Selectionner l'équipe"
+		},
+		"project_select": {
+			"select_project": "Selectionner le projet"
+		},
+		"task_select": {
+			"select_task": "Selectionner la tache"
+		},
+		"client_select": {
+			"select_client": "Selectionner le client"
+		}
+	},
+	"FOOTER": {
+		"version": "Version",
+		"powered_by": "Propulsé par "
+	},
+	"LANGUAGES": {
+		"en": "Anglais",
+		"fr": "Français"
+	},
+	"POMODORO": {
+		"title": "Pomodoro Teams",
+		"description": "Concentrez-vous sur ce que vous devez faire pendant quelques minutes, puis faites une pause pendant quelques minutes.",
+		"reset": "Réinitialiser",
+		"customize": "Personnaliser",
+		"timer_customization": "Personnalisation du Pomodoro",
+		"pomodoro": "Pomodoro",
+		"break": "Pause",
+		"short_break": "Petite Pause",
+		"long_break": "Longue Pause",
+		"start": "Démarrer",
+		"stop": "Arrêter",
+		"TASK": {
+			"task": "Tâche",
+			"add_tasks": "Ajouter une tâche ici",
+			"delete_task": "Supprimer la tâche",
+			"edit_task": "Modifier la tâche",
+			"delete_all": "Supprimer toutes les tâches"
+		},
+		"LEVEL": {
+			"title": "Niveau",
+			"medium": "Moyen",
+			"very_short": "Très Court",
+			"short": "Court",
+			"long": "Long",
+			"custom": "Personnalisé"
+		}
+	},
+	"PROFILE": {
+		"title": "Information sur le compte",
+		"update_profil": "Mettre à jour le profil"
+	},
+	"ACCOUNT_DELETION_FORM": {
+		"title": "Supprimer le compte",
+		"description": "La suppression d'un compte est irréversible. Veuillez procéder avec prudence.",
+		"confirm_delete": "Êtes-vous sûr de vouloir supprimer votre compte ?",
+		"confirm_password": "Confirmer le mot de passe",
+		"enter_current_password": "Entrez votre mot de passe actuel",
+		"cancel": "Annuler",
+		"delete_account": "Supprimer le compte",
+		"dialog": {
+			"title": "Êtes-vous absolument sûr ?",
+			"description": "Cette action ne peut être annulée. Elle supprimera définitivement votre compte et vos données de nos serveurs.",
+			"delete_account_success": "Compte supprimé avec succès",
+			"delete_account_failed": "La suppression du compte a échouéd"
+		}
+	},
+	"PASSWORD_UPDATE_FORM": {
+		"title": "Mot de passe",
+		"current_password": "Mot de passe actuel",
+		"enter_current_password": "Entrez votre mot de passe actuel",
+		"new_password": "Nouveau mot de passe",
+		"enter_new_password": "Entrez votre nouveau mot de passe",
+		"confirm_new_password": "Confirmer le nouveau mot de passe",
+		"enter_confirm_new_password": "Retapez votre nouveau mot de passe",
+		"update_password": "Mettre à jour le mot de passe",
+		"dialog": {
+			"update_failed": "Échec de la mise à jour du mot de passe",
+			"update_success": "Mot de passe mis à jour avec succès"
+		}
+	},
+	"TEAM_CREATION_FORM": {
+		"title": "Créer une équipe",
+		"name": "Nom de l'équipe",
+		"enter_team_name": "Entrez le nom de l'équipe",
+		"create_team": "Créer une équipe",
+		"description": "Description",
+		"enter_team_description": "Entrez une brève description de l'équipe",
+		"dialog": {
+			"create_failed": "Échec de la création de l'équipe",
+			"create_success": "Équipe créée avec succès",
+			"create_new_team": "Créer une équipe"
+		}
+	},
+	"TEAMS_VIEWER": {
+		"title": {
+			"all_teams": "Équipes pour {{orgName}}"
+		},
+		"search_placeholder": "Rechercher une équipe",
+		"table_headers": {
+			"name": "Nom",
+			"managers": "Gestionnaires",
+			"members": "Membres"
+		},
+		"table_empty": {
+			"no_teams": "Aucune équipe trouvée"
+		},
+		"actions": {
+			"add_team": "Ajouter un membre"
+		},
+		"pagination": {
+			"show": "Afficher {{number}}",
+			"page": "{{currentPage}}/{{totalPages}}"
+		}
+	},
+	"TEAM_MEMBERS": {
+		"title": {
+			"all_teams": "Membres de toutes les équipes",
+			"single_team": "Membres de l'équipe "
+		},
+		"search_placeholder": "Rechercher un membre",
+		"table_headers": {
+			"name": "Nom",
+			"email": "Email",
+			"position": "Position",
+			"roles": "Rôles",
+			"joined_left": "Rejoint / Quitte",
+			"status": "Statut"
+		},
+		"status": {
+			"member": "Membre"
+		},
+		"actions": {
+			"remove_member": "Supprimer le membre",
+			"leave_team": "Quitter l'équipe"
+		},
+		"table_empty": {
+			"no_members": "Aucun membre trouvé"
+		},
+		"dialog": {
+			"remove_member": {
+				"title": "Êtes-vous sûr de vouloir supprimer ce membre ?",
+				"description": "Cette action est irréversible. Ce membre sera définitivement retiré de l'équipe."
+			},
+			"leave_team": {
+				"title": "Êtes-vous sûr de vouloir quitter cette équipe ?",
+				"description": "Cette action est irréversible. Vous serez définitivement retiré de l'équipe."
+			},
+			"remove_member_success": "Membre supprimé avec succès",
+			"remove_member_failed": "Échec de la suppression du membre",
+			"remove": "Supprimer",
+			"leave": "Quitter",
+			"cancel": "Annuler"
+		},
+		"pagination": {
+			"show": "Afficher {{number}}",
+			"page": "{{currentPage}}/{{totalPages}}"
+		}
+	},
+	"MEMBER_INVITATION_FORM": {
+		"title": "Inviter un membre dans votre équipe",
+		"description": "Envoyez une invitation à un membre de l'équipe par e-mail",
+		"email": "E-mail",
+		"enter_email": "Entrez l'e-mail",
+		"name": "Nom",
+		"enter_name": "Entrez le nom",
+		"role": "Rôle",
+		"select_role": "Sélectionnez un rôle",
+		"roles": {
+			"manager": "Gestionnaire",
+			"employee": "Employé"
+		},
+		"send_invitation": "Envoyer l'invitation",
+		"dialog": {
+			"invite_failed": "Échec de l'invitation du membre",
+			"invite_success": "Membre invité avec succès",
+			"invite_member": "Inviter un membre"
+		}
+	},
+	"TEAM_SETTING": {
+		"title": "Paramètres de l'équipe",
+		"form": {
+			"team_name": "Nom de l'équipe",
+			"enter_team_name": "Entrez le nom de l'équipe",
+			"team_description": "Description de l'équipe",
+			"enter_team_description": "Entrez la description de l'équipe",
+			"team_color": "Couleur de l'équipe",
+			"enter_team_color": "Entrez la couleur de l'équipe",
+			"team_size": "Taille de l'équipe",
+			"select_team_size": "Sélectionnez la taille de l'équipe",
+			"team_type": "Type d'équipe",
+			"private": "Privée",
+			"public": "Publique",
+			"update_team": "Mettre à jour l'équipe"
+		},
+		"dialog": {
+			"failure": "Échec de la mise à jour de l'équipe",
+			"success": "Équipe mise à jour avec succès !"
+		}
+	},
+	"TEAMS_TRACKING_FILTER": {
+		"title": "Filtres de Suivi",
+		"labels": {
+			"organization": "Organisation",
+			"employee": "Employé",
+			"date": "Date",
+			"time_range": "Plage Horaire"
+		},
+		"actions": {
+			"apply_filter": "Appliquer le filtre",
+			"refresh": "Actualiser",
+			"export": "Exporter"
+		},
+		"results": {
+			"loading": "Chargement...",
+			"error_occurred": "Une erreur s'est produite",
+			"no_session_found": "Aucune session trouvée",
+			"sessions_found": "{{count}} session trouvée",
+			"sessions_found_plural": "{{count}} sessions trouvées",
+			"auto_refresh": "Actualisation automatique"
+		}
+	},
+	"TEAMS_TRACKING_CLICK_INSIGHT": {
+		"error": {
+			"title": "Erreur d'Analyse",
+			"retry": "Réessayer"
+		},
+		"loading": {
+			"message": "Chargement des données d'analyse..."
+		},
+		"empty": {
+			"title": "Aucune Donnée d'Analyse",
+			"message": "Aucune donnée de session disponible"
+		}
+	},
+	"TEAMS_TRACKING_SESSION_INSIGHT": {
+		"error": {
+			"title": "Erreur d'Analyse",
+			"retry": "Réessayer"
+		},
+		"loading": {
+			"message": "Chargement des données d'analyse..."
+		},
+		"empty": {
+			"title": "Aucune Donnée d'Analyse",
+			"message": "Aucune donnée de session disponible"
+		}
+	},
+	"CLICK_INSIGHT": {
+		"title": "Analyse des Clics",
+		"description": "Analyse des interactions de clics utilisateur et des modèles d'engagement",
+		"total_clicks": "clics au total",
+		"metrics": {
+			"total_clicks": "Total des Clics",
+			"click_rate": "Taux de Clics",
+			"click_density": "Densité de Clics",
+			"unique_elements": "Éléments Uniques",
+			"subtitles": {
+				"user_interactions": "Interactions de clics utilisateur",
+				"clicks_per_minute": "Clics par minute",
+				"per_1000px": "Par 1000px²",
+				"avg_clicks_per_element": "clics/élément en moyenne"
+			}
+		},
+		"distribution": {
+			"title": "Distribution Spatiale",
+			"top_25": "Top 25%",
+			"middle_50": "Milieu 50%",
+			"bottom_25": "Bas 25%"
+		},
+		"elements": {
+			"title": "Éléments les Plus Cliqués",
+			"element": "Élément",
+			"percentage_of_clicks": "% du total des clics",
+			"clicks": "clics",
+			"no_data": "Aucune donnée d'élément disponible"
+		},
+		"empty": {
+			"title": "Aucune Donnée de Clic",
+			"message": "Aucune donnée d'interaction de clic disponible pour l'analyse."
+		}
+	},
+	"SESSION_INSIGHT": {
+		"title": "Analyse de Session",
+		"description": "Aperçu de l'engagement utilisateur et des modèles d'interaction",
+		"payloads": "charge utile",
+		"payloads_plural": "charges utiles",
+		"metrics": {
+			"total_duration": "Durée Totale",
+			"active_time": "Temps Actif",
+			"engagement_score": "Score d'Engagement",
+			"interaction_rate": "Taux d'Interaction",
+			"total_events": "Total des Événements",
+			"idle_time": "Temps d'Inactivité",
+			"subtitles": {
+				"complete_session_length": "Durée complète de la session",
+				"of_total_session": "de la session totale",
+				"engagement": "engagement",
+				"interactions_per_minute": "Interactions par minute",
+				"user_interactions_recorded": "Interactions utilisateur enregistrées",
+				"time_without_interactions": "Temps sans interactions"
+			}
+		},
+		"insights": {
+			"title": "Aperçus de Session",
+			"activity_level": "Niveau d'Activité:",
+			"session_quality": "Qualité de Session:",
+			"levels": {
+				"very_active": "Très Actif",
+				"active": "Actif",
+				"moderate": "Modéré",
+				"low": "Faible",
+				"excellent": "Excellent",
+				"good": "Bon",
+				"needs_improvement": "Nécessite une Amélioration"
+			}
+		},
+		"empty": {
+			"title": "Aucune Donnée de Session",
+			"message": "Aucune donnée de session disponible pour l'analyse."
+		}
+	},
+	"TEAMS_TRACKING_HEATMAP": {
+		"title": "Carte de Chaleur de Suivi Teams",
+		"controls": {
+			"color_scheme": "Schéma de Couleurs:",
+			"color_options": {
+				"hot": "Chaud (Rouge-Jaune)",
+				"cool": "Froid (Bleu-Cyan)",
+				"blue": "Bleu"
+			},
+			"aggregation_radius": "Rayon d'Agrégation:",
+			"show_counts": "Afficher les Comptes",
+			"heatmap_type": "Type de Carte de Chaleur:",
+			"clicks": "🖱️ Clics",
+			"scroll": "📜 Défilement"
+		},
+		"device_stats": {
+			"sessions": "Sessions:",
+			"mobile": "Mobile",
+			"desktop": "Bureau"
+		},
+		"states": {
+			"loading": "Chargement des sessions...",
+			"error": "Erreur lors du chargement des sessions",
+			"no_sessions": "Aucune session disponible",
+			"no_sessions_message": "Essayez d'ajuster vos filtres ou revenez plus tard pour de nouvelles sessions.",
+			"select_session": "Veuillez sélectionner une session pour voir la relecture",
+			"select_session_message": "Choisissez une session dans la liste de gauche pour commencer à regarder la relecture."
+		}
+	},
+	"MANUAL_TIME_FORM": {
+		"title": "Ajouter du temps manuel",
+		"select_date": "Sélectionner la date",
+		"start_time": "Heure de début",
+		"end_time": "Heure de fin",
+		"is_billable": "Est facturable",
+		"description": "Description",
+		"description_placeholder": "Entrez la description de la tâche",
+		"add_time": "Ajouter du temps",
+		"auth_org_missing": "Authentification ou organisation manquante",
+		"error_start_after_end": "L'heure de début doit être antérieure à l'heure de fin",
+		"success_title": "Succès",
+		"success_description": "Temps manuel ajouté avec succès",
+		"manual_time_disabled": "Le temps manuel est désactivé pour cette organisation"
+	},
+	"TEAMS_TRACKING_SESSION_REPLAY": {
+		"title": "Relecture de Session de Suivi Teams",
+		"sessions_title": "Sessions",
+		"actions": {
+			"clear": "Effacer"
+		},
+		"session_details": {
+			"session_id": "ID de Session:",
+			"time_range": "Plage horaire:",
+			"url": "URL:"
+		},
+		"device_indicators": {
+			"mobile": "📱",
+			"desktop": "🖥️"
+		},
+		"states": {
+			"no_sessions": "Aucune session trouvée.",
+			"no_sessions_available": "Aucune session disponible",
+			"select_session": "Veuillez sélectionner une session pour voir la relecture",
+			"select_session_message": "Choisissez une session dans la liste de gauche pour commencer à regarder la relecture.",
+			"loading": "Chargement des sessions...",
+			"error": "Erreur lors du chargement des sessions"
+		}
+	},
+	"TIMESHEET": {
+		"title": "Feuilles de temps pour {{orgName}}",
+		"filters": {
+			"select_date": "Sélectionner une date",
+			"select_sources": "Sélectionner les sources",
+			"select_log_types": "Sélectionner les types de journal"
+		},
+		"actions": {
+			"refresh": "Actualiser"
+		},
+		"table_headers": {
+			"employee": "Employé",
+			"project": "Projet",
+			"log_type": "Type de Journal",
+			"source": "Source",
+			"duration": "Durée",
+			"time_span": "Période",
+			"notes": "Notes"
+		},
+		"table_empty": {
+			"no_time_logs": "Aucun journal de temps trouvé"
+		},
+		"pagination": {
+			"show": "Afficher {{number}}",
+			"page": "{{currentPage}}/{{totalPages}}"
+		},
+		"sources": {
+			"TEAMS": "Teams",
+			"DESKTOP": "Bureau",
+			"MOBILE": "Mobile",
+			"BROWSER": "Navigateur",
+			"BROWSER_EXTENSION": "Extension Navigateur",
+			"HUBSTAFF": "Hubstaff",
+			"UPWORK": "Upwork",
+			"TEAMS": "Teams"
+		},
+		"log_types": {
+			"TRACKED": "Suivi",
+			"MANUAL": "Manuel",
+			"IDLE": "Inactif",
+			"RESUMED": "Repris"
+		}
+	}
+}

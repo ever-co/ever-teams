@@ -1,0 +1,78 @@
+# Ever Teams — self-hosted deploy for the `ever-k8s` cluster (Proxmox homelab).
+# Managed by Argo CD (Application watches this directory). PARALLEL to the DigitalOcean deploy — DO is untouched.
+# Phase 1: stateless web app -> hosted Gauzy API (api.ever.team). No Postgres/Redis/S3 needed here.
+# Phase 2 (later): point NEXT_PUBLIC_GAUZY_API_SERVER_URL at an in-cluster Gauzy API (requires an image rebuild,
+# since NEXT_PUBLIC_* is baked at build time).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: ever-teams
+  labels:
+    app: ever-teams-web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ever-teams-web
+  template:
+    metadata:
+      labels:
+        app: ever-teams-web
+    spec:
+      containers:
+        - name: web
+          image: ghcr.io/ever-co/ever-teams-webapp:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3030
+          env:
+            - name: PORT
+              value: "3030"
+            - name: GAUZY_API_SERVER_URL
+              value: "https://api.ever.team/api"
+            - name: NEXT_PUBLIC_GAUZY_API_SERVER_URL
+              value: "https://api.ever.team"
+          readinessProbe:
+            httpGet: { path: /api/health, port: 3030 }
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet: { path: /api/health, port: 3030 }
+            initialDelaySeconds: 40
+            periodSeconds: 20
+          resources:
+            requests: { cpu: 200m, memory: 512Mi }
+            limits: { cpu: "1", memory: 1Gi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: ever-teams
+spec:
+  selector:
+    app: ever-teams-web
+  ports:
+    - port: 80
+      targetPort: 3030
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web
+  namespace: ever-teams
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: teams-lab.ever.team
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web
+                port:
+                  number: 80

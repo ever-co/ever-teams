@@ -4,6 +4,9 @@ import { withAuthentication } from '@/core/components/layouts/app/authenticator'
 import { Accordian } from '@/core/components/common/accordian';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { InteractionObserverVisible } from '@/core/components/pages/settings/interaction-observer';
+import { useSetAtom } from 'jotai';
+import { activeSettingPersonalTab } from '@/core/stores/common/setting';
 // Import optimized components from centralized location
 import {
 	LazyWorkingHours,
@@ -19,50 +22,59 @@ import { WorkingHoursSkeleton } from '@/core/components/common/skeleton/working-
 
 const Personal = () => {
 	const t = useTranslations();
-
+	const setActivePersonalTab = useSetAtom(activeSettingPersonalTab);
 	return (
 		<div className="overflow-auto pb-16">
 			<Link href={'/settings/team'} className="w-full">
 				<button className="p-4 mt-2 w-full rounded-xl border lg:hidden hover:bg-white border-dark text-dark">
-					Go to Team settings
+					{t('pages.settingsPersonal.goToTeamSettings')}
 				</button>
 			</Link>
-			<Accordian
-				title={t('pages.settingsPersonal.HEADING_TITLE')}
-				className="w-full max-w-[96vw] p-4 mt-5 dark:bg-dark--theme"
-				id="general"
-			>
-				{/* <Text className="text-base font-normal text-center text-gray-400 sm:text-left">
+			<InteractionObserverVisible id="general" setActiveSection={setActivePersonalTab}>
+				<Accordian
+					title={t('pages.settingsPersonal.HEADING_TITLE')}
+					className="w-full max-w-[96vw] p-4 mt-5 dark:bg-dark--theme"
+					id="general"
+				>
+					{/* <Text className="text-base font-normal text-center text-gray-400 sm:text-left">
 					{t('pages.settings.HEADING_DESCRIPTION')}
 				</Text> */}
-				<LazyProfileAvatar />
-				<Suspense fallback={<PersonalSettingFormSkeleton />}>
-					<LazyPersonalSettingForm />
-				</Suspense>
-			</Accordian>
-			<Accordian title="Working hours" className="p-4 mt-4 dark:bg-dark--theme" id="working-hours">
-				<Suspense fallback={<WorkingHoursSkeleton />}>
-					<LazyWorkingHours />
-				</Suspense>
-			</Accordian>
-			<Accordian
-				title={t('pages.settingsPersonal.DATA_SYNCHRONIZATION')}
-				className="p-4 mt-4 dark:bg-dark--theme"
-				id="sync-zone"
-			>
-				<Suspense fallback={<AccordionContentSkeleton type="sync" />}>
-					<LazySyncZone />
-				</Suspense>
-			</Accordian>
-			<Accordian
-				title={t('pages.settings.DANDER_ZONE')}
-				className="p-4 mt-4 dark:bg-dark--theme"
-				id="danger-zone"
-			>
-				<Suspense fallback={<AccordionContentSkeleton type="danger" />}>
-					<LazyDangerZone />
-				</Suspense>
-			</Accordian>
+					<LazyProfileAvatar />
+					<Suspense fallback={<PersonalSettingFormSkeleton />}>
+						<LazyPersonalSettingForm />
+					</Suspense>
+				</Accordian>
+			</InteractionObserverVisible>
+
+			<InteractionObserverVisible id="working-hours" setActiveSection={setActivePersonalTab}>
+				<Accordian title={t('pages.settingsPersonal.WORKING_HOURS')} className="p-4 mt-4 dark:bg-dark--theme" id="working-hours">
+					<Suspense fallback={<WorkingHoursSkeleton />}>
+						<LazyWorkingHours />
+					</Suspense>
+				</Accordian>
+			</InteractionObserverVisible>
+			<InteractionObserverVisible id="sync-zone" setActiveSection={setActivePersonalTab}>
+				<Accordian
+					title={t('pages.settingsPersonal.DATA_SYNCHRONIZATION')}
+					className="p-4 mt-4 dark:bg-dark--theme"
+					id="sync-zone"
+				>
+					<Suspense fallback={<AccordionContentSkeleton type="sync" />}>
+						<LazySyncZone />
+					</Suspense>
+				</Accordian>
+			</InteractionObserverVisible>
+			<InteractionObserverVisible id="danger-zone" setActiveSection={setActivePersonalTab}>
+				<Accordian
+					title={t('pages.settings.DANDER_ZONE')}
+					className="p-4 mt-4 dark:bg-dark--theme"
+					id="danger-zone"
+				>
+					<Suspense fallback={<AccordionContentSkeleton type="danger" />}>
+						<LazyDangerZone />
+					</Suspense>
+				</Accordian>
+			</InteractionObserverVisible>
 		</div>
 	);
 };

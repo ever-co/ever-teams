@@ -24,13 +24,15 @@ const GlobalHeader = forwardRef(
 			<div
 				ref={ref as LegacyRef<HTMLDivElement>}
 				className={cn(
-					'fixed flex flex-col top-0 left-0 right-0 z-50 bg-white border-b min-h-fit shrink-0 h-max bg-background ',
-					`!lg:pl-[${state === 'expanded' ? '--sidebar-width' : '--sidebar-width-icon'}]`,
-					`!lg:pl-[var(${state === 'expanded' ? '--sidebar-width' : '--sidebar-width-icon'})]`
+					'fixed flex flex-col top-0 left-0 right-0 z-50 bg-white border-b min-h-fit shrink-0 h-max bg-background  md:pl-[var(--global-header-offset)]'
 				)}
-				style={{
-					paddingLeft: `var(${state === 'expanded' ? '--sidebar-width' : '--sidebar-width-icon'})`
-				}}
+				style={
+					{
+						'--global-header-offset': `calc(var(${
+							state === 'expanded' ? '--sidebar-width' : '--sidebar-width-icon'
+						}) + var(--chat-panel-width, 0px))`
+					} as React.CSSProperties
+				}
 			>
 				<header
 					className={cn(

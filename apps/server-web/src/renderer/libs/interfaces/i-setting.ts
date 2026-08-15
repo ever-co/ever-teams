@@ -30,6 +30,9 @@ interface IServerSetting {
   GAUZY_API_SERVER_URL: string;
   NEXT_PUBLIC_GAUZY_API_SERVER_URL: string;
   DESKTOP_WEB_SERVER_HOSTNAME?: string;
+  useSsl?: boolean;
+  sslKey?: string;
+  sslSecret?: string;
 }
 
 interface IPopup {

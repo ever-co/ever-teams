@@ -1,0 +1,17 @@
+export enum TimerSource {
+	'MOBILE' = 'MOBILE',
+	'BROWSER' = 'BROWSER',
+	'DESKTOP' = 'DESKTOP',
+	'BROWSER_EXTENSION' = 'BROWSER_EXTENSION',
+	'HUBSTAFF' = 'HUBSTAFF',
+	'UPWORK' = 'UPWORK',
+	'TEAMS' = 'TEAMS',
+	'CLOC' = 'CLOC'
+}
+
+export enum LogType {
+	TRACKED = 'TRACKED',
+	MANUAL = 'MANUAL',
+	IDLE = 'IDLE',
+	RESUMED = 'RESUMED'
+}

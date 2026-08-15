@@ -12,6 +12,9 @@ export interface ServerConfig {
     NEXT_PUBLIC_GAUZY_API_SERVER_URL: string;
     GAUZY_API_SERVER_URL: string;
     DESKTOP_WEB_SERVER_HOSTNAME: string;
+    sslKey?: string;
+    sslSecret?: string;
+    useSsl?: boolean;
     [key: string]: any;
 }
 export interface WebServer {

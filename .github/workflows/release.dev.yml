@@ -10,14 +10,14 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubicloud-standard-2]
+        os: ["${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}"]
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Bump version and push tag
-        uses: mathieudutour/github-tag-action@v6.1
+        uses: mathieudutour/github-tag-action@v6.2
         id: tag_version
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

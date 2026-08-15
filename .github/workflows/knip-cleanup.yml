@@ -13,16 +13,16 @@ permissions:
 
 jobs:
   knip-review:
-    runs-on: ubicloud-standard-2
+    runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Use Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '24.14.0'
 
@@ -35,7 +35,10 @@ jobs:
         run: |
           {
             echo "CHANGED_FILES<<EOF"
-            git diff --name-only origin/develop | grep '^apps/web/' || true
+            # Only evaluate source files for unused code. Exclude manifests/lockfiles:
+            # knip lists unused dependencies with a trailing "package.json", which would
+            # otherwise make this substring check fail for any dependency-bump PR.
+            git diff --name-only origin/develop | grep '^apps/web/' | grep -vE '(package\.json|yarn\.lock)$' || true
             echo "EOF"
           } >> $GITHUB_ENV
 

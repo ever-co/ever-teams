@@ -2,12 +2,8 @@ import { useEffect, useState } from 'react';
 import AdvancedSetting from './setup/AdvancedSetting';
 import Landing from './setup/Landing';
 import CheckIcon from '../components/svgs/CheckIcon';
-import WindowControl from '../components/window-control';
-import { WindowTypes } from '../../main/helpers/constant';
-import { IDevices } from '../../main/helpers/interfaces';
 const SetupPage = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
-  const [platform, setPlatform] = useState<IDevices>('win32');
 
   const letsGo = () => {
     setCurrentStep(2);
@@ -17,21 +13,12 @@ const SetupPage = () => {
     setCurrentStep(1);
   };
 
-  const getPlatform = async () => {
-    const devicePlatform = await window.electron.ipcRenderer.invoke('get-platform');
-    setPlatform(devicePlatform);
-  }
-
   useEffect(() => {
-    getPlatform();
   }, [])
 
   return (
     <>
-      {platform === 'darwin' && (
-        <WindowControl windowTypes={WindowTypes.SETUP_WINDOW} />
-      )}
-      <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 text-white px-4">
+      <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-[#25272D] text-white px-4">
         <div className="flex w-full justify-center mb-8 mt-8">
           <div className="flex items-center">
             <div

@@ -1,0 +1,28 @@
+.counter {
+  margin: 32px auto;
+  display: flex;
+  width: 100%;
+  max-width: 190px;
+}
+
+.btn {
+  width: 42px;
+  font-size: 32px;
+  font-weight: bold;
+  background-color: #1c6bd1;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.btn:hover {
+  opacity: 0.8;
+}
+
+.count {
+  flex: 1;
+  font-size: 42px;
+  text-align: center;
+}

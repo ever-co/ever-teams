@@ -12,6 +12,7 @@
 	},
 	"license": "AGPL-3.0",
 	"dependencies": {
+		"@ever-teams/toolkit-types": "*",
 		"@ever-teams/types": "*"
 	},
 	"devDependencies": {

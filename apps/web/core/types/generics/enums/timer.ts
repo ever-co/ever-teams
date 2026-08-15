@@ -7,14 +7,14 @@ export enum ETimeLogType {
 
 export enum ETimeLogSource {
 	MOBILE = 'MOBILE',
-	WEB_TIMER = 'BROWSER',
+	WEB_TIMER = 'WEB_TIMER',
+	BROWSER = 'BROWSER',
 	DESKTOP = 'DESKTOP',
 	BROWSER_EXTENSION = 'BROWSER_EXTENSION',
 	HUBSTAFF = 'HUBSTAFF',
 	UPWORK = 'UPWORK',
 	TEAMS = 'TEAMS',
 	CLOC = 'CLOC',
-	BROWSER = 'BROWSER'
 }
 
 export enum ETimerStatus {

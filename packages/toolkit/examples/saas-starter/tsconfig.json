@@ -1,0 +1,23 @@
+{
+	"extends": "@ever-teams/ts-config/nextjs.json",
+	"compilerOptions": {
+		"plugins": [
+			{
+				"name": "next"
+			}
+		],
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["./*"]
+		},
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"noEmit": true,
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
+		"skipLibCheck": true,
+		"types":[],
+	},
+	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+	"exclude": ["node_modules"]
+}

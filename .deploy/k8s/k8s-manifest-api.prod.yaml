@@ -61,8 +61,8 @@ spec:
                   image: registry.digitalocean.com/ever/gauzy-api:latest
                   resources:
                       requests:
-                          memory: '1536Mi'
-                          cpu: '1000m'
+                          cpu: '100m'
+                          memory: '768Mi'
                       limits:
                           memory: '2048Mi'
                   env:

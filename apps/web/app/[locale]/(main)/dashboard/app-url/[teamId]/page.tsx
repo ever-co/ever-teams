@@ -1,7 +1,7 @@
 'use client';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 import { cn } from '@/core/lib/helpers';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
@@ -246,8 +246,8 @@ function AppUrls() {
 	}
 
 	return (
-		<MainLayout
-			className="items-start pb-1 !overflow-hidden w-full"
+		<PageLayout
+			className="items-start pb-1 overflow-hidden! w-full"
 			childrenClassName="w-full"
 			showTimer={isTrackingEnabled}
 			mainHeaderSlot={
@@ -303,7 +303,7 @@ function AppUrls() {
 			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
 				{groupByMap[groupByType as keyof typeof groupByMap] || groupByMap.date}
 			</Container>
-		</MainLayout>
+		</PageLayout>
 	);
 }
 

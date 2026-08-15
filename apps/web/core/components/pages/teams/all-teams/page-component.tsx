@@ -5,7 +5,7 @@ import { useAtomValue } from 'jotai';
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container } from '@/core/components';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
@@ -44,7 +44,7 @@ function AllTeamsPage() {
 	}
 
 	return (
-		<MainLayout
+		<PageLayout
 			showTimer={isTrackingEnabled}
 			className="items-start"
 			mainHeaderSlot={
@@ -68,7 +68,7 @@ function AllTeamsPage() {
 			<Container fullWidth={fullWidth} className="mx-auto mt-5">
 				<AllTeamsMembers teams={filteredTeams as unknown as TOrganizationTeam[]} view={view} />
 			</Container>
-		</MainLayout>
+		</PageLayout>
 	);
 }
 

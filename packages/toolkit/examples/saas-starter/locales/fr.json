@@ -1,0 +1,389 @@
+{
+	"Layout": {
+		"title": "Teams | SaaS Starter",
+		"description": "Commencez rapidement avec Teams, Next.js, Postgres et Stripe."
+	},
+	"Hero": {
+		"badge_new": "Nouveau",
+		"badge_powered_by": "Propulsé par la technologie Teams",
+		"title_transform": "Transformez la",
+		"title_productivity": "Productivité de votre équipe",
+		"description": "Plateforme avancée de suivi du temps et de gestion d'équipe propulsée par le SDK intelligent de Teams. Obtenez des insights en temps réel et boostez la productivité de votre équipe.",
+		"cta_get_started": "Commencer gratuitement",
+		"cta_watch_demo": "Voir la démo",
+		"dashboard_alt_light": "Tableau de bord Teams thème clair",
+		"dashboard_alt_dark": "Tableau de bord Teams thème sombre"
+	},
+	"Features": {
+		"badge": "Boîte à Outils Complète",
+		"title": "Fonctionnalités Puissantes",
+		"subtitle": "Tout ce dont vous avez besoin pour suivre le temps, gérer les équipes et augmenter la productivité.",
+		"heading": "Fonctionnalités Puissantes",
+		"description": "Tout ce dont vous avez besoin pour suivre le temps, gérer les équipes et augmenter la productivité.",
+		"why_choose_title": "Pourquoi Choisir Teams ?",
+		"accurate_tracking": "Suivi du temps précis",
+		"real_time_sync": "Synchronisation en temps réel",
+		"ai_insights": "Insights alimentés par l'IA",
+		"enterprise_security": "Sécurité de niveau entreprise",
+		"easy_integration": "Intégration facile",
+		"smart_time_tracking": {
+			"title": "Suivi du Temps Intelligent",
+			"description": "Alimenté par le SDK Teams, notre plateforme fournit un suivi du temps intelligent avec catégorisation automatique et synchronisation en temps réel."
+		},
+		"ai_powered_insights": {
+			"title": "Insights Alimentés par l'IA",
+			"description": "Transformez le temps suivi en insights exploitables avec des analyses alimentées par l'IA et des recommandations de productivité."
+		},
+		"team_management": {
+			"title": "Gestion d'Équipe",
+			"description": "Outils complets pour gérer les équipes, suivre les performances et optimiser la productivité de la main-d'œuvre."
+		},
+		"advanced_reports": {
+			"title": "Rapports Avancés",
+			"description": "Analyses détaillées et rapports personnalisés pour vous aider à prendre des décisions basées sur les données concernant votre équipe et vos projets."
+		},
+		"automatic_tracking": {
+			"title": "Suivi Automatique",
+			"description": "Suivi du temps intelligent avec détection et catégorisation des projets."
+		},
+		"activity_monitoring": {
+			"title": "Surveillance d'Activité",
+			"description": "Suivez les niveaux de productivité et les modèles de travail en temps réel."
+		},
+		"team_dashboard": {
+			"title": "Tableau de Bord d'Équipe",
+			"description": "Vue d'ensemble complète des performances et activités de l'équipe."
+		}
+	},
+	"Testimonials": {
+		"badge": "Témoignages clients",
+		"title": "Approuvé par les développeurs du monde entier",
+		"subtitle": "Découvrez ce que nos clients disent de leur expérience avec Teams",
+		"sarah_chen": {
+			"name": "Sarah Chen",
+			"role": "Responsable des opérations chez TechFlow",
+			"content": "Cette plateforme a révolutionné la façon dont nous gérons nos équipes distantes. Les fonctionnalités de suivi du temps et de reporting sont exceptionnelles."
+		},
+		"marcus_rodriguez": {
+			"name": "Marcus Rodriguez",
+			"role": "Lead technique chez DevCorp",
+			"content": "Les insights IA nous ont aidés à identifier les goulots d'étranglement et à améliorer la productivité de l'équipe de 35%. Une véritable révolution pour notre flux de travail."
+		},
+		"emily_watson": {
+			"name": "Emily Watson",
+			"role": "Product Owner chez Agile Inc",
+			"content": "Enfin, une plateforme qui combine un suivi du temps puissant avec des analyses significatives. Parfait pour les équipes agiles !"
+		}
+	},
+	"FeaturesGrid": {
+		"badge": "Solution complète",
+		"title": "Tout ce dont vous avez besoin pour réussir",
+		"subtitle": "Fonctionnalités complètes conçues pour rationaliser votre workflow et booster la productivité",
+		"automatic_tracking": {
+			"title": "Suivi automatique",
+			"description": "Suivi intelligent du temps avec détection et catégorisation des projets."
+		},
+		"activity_monitoring": {
+			"title": "Surveillance d'activité",
+			"description": "Suivez les niveaux de productivité et les modèles de travail en temps réel."
+		},
+		"ai_insights": {
+			"title": "Insights IA",
+			"description": "Obtenez des recommandations intelligentes pour améliorer la productivité de l'équipe."
+		},
+		"team_dashboard": {
+			"title": "Tableau de bord d'équipe",
+			"description": "Vue d'ensemble complète des performances et activités de l'équipe."
+		},
+		"advanced_reports": {
+			"title": "Rapports avancés",
+			"description": "Analyses détaillées et outils de reporting personnalisables."
+		},
+		"enterprise_security": {
+			"title": "Sécurité entreprise",
+			"description": "Fonctionnalités de sécurité avancées avec contrôle d'accès basé sur les rôles."
+		}
+	},
+	"CTA": {
+		"badge": "Prêt à commencer ?",
+		"title": "Prêt à suivre plus intelligemment ?",
+		"subtitle": "Rejoignez des milliers de développeurs qui utilisent déjà Teams pour booster leur productivité.",
+		"get_started": "Commencer l'essai gratuit",
+		"contact_sales": "Contacter les ventes",
+		"no_credit_card": "Aucune carte de crédit requise"
+	},
+	"Auth": {
+		"sign_in": "Se connecter",
+		"sign_up": "S'inscrire",
+		"email": "Email",
+		"password": "Mot de passe",
+		"forgot_password": "Mot de passe oublié ?",
+		"no_account": "Vous n'avez pas de compte ?",
+		"have_account": "Vous avez déjà un compte ?",
+		"create_account": "Créer un compte",
+		"welcome_back": "Bon retour",
+		"get_started": "Commencez dès aujourd'hui"
+	},
+	"Login": {
+		"page_title": {
+			"sign_in": "Connectez-vous à votre compte",
+			"sign_up": "Créez votre compte"
+		},
+		"form": {
+			"email_label": "Email",
+			"email_placeholder": "Entrez votre email",
+			"password_label": "Mot de passe",
+			"password_placeholder": "Entrez votre mot de passe"
+		},
+		"buttons": {
+			"sign_in": "Se connecter",
+			"sign_up": "S'inscrire",
+			"loading": "Chargement..."
+		},
+		"navigation": {
+			"new_to_platform": "Nouveau sur notre plateforme ?",
+			"already_have_account": "Vous avez déjà un compte ?",
+			"create_account": "Créer un compte",
+			"sign_in_existing": "Se connecter à un compte existant"
+		}
+	},
+	"Navigation": {
+		"home": "Accueil",
+		"features": "Fonctionnalités",
+		"pricing": "Tarification",
+		"testimonials": "Témoignages",
+		"faq": "FAQ",
+		"about": "À propos",
+		"contact": "Contact",
+		"dashboard": "Tableau de bord",
+		"sign_in": "Se connecter",
+		"sign_up": "S'inscrire",
+		"sign_out": "Se déconnecter",
+		"user_menu": "Menu utilisateur",
+		"language": "Langue"
+	},
+	"Dashboard": {
+		"title": "Tableau de bord",
+		"welcome": "Bienvenue sur votre tableau de bord",
+		"overview": "Aperçu",
+		"general": "Général",
+		"general_description": "Gérez vos paramètres de compte et préférences",
+		"activity": "Activité",
+		"team": "Équipe",
+		"team_description": "Gérez vos membres d'équipe et les paramètres de l'équipe",
+		"security": "Sécurité",
+		"settings": "Paramètres",
+		"profile": "Profil",
+		"billing": "Facturation",
+		"analytics": "Analyses",
+		"reports": "Rapports",
+		"TeamPage": {
+			"subscription": {
+				"title": "Abonnement d'équipe",
+				"current_plan": "Plan actuel",
+				"trial_period": "Période d'essai",
+				"billed_monthly": "Facturé mensuellement",
+				"manage_subscription": "Gérer l'abonnement",
+				"no_subscription": "Aucun abonnement actif",
+				"free": "Gratuit"
+			},
+			"members": {
+				"title": "Membres de l'équipe",
+				"no_members": "Aucun membre pour le moment",
+				"remove": "Supprimer",
+				"removing": "Suppression..."
+			},
+			"invite": {
+				"title": "Inviter un membre",
+				"email_label": "Email",
+				"email_placeholder": "Entrez l'email",
+				"role_label": "Rôle",
+				"member": "Membre",
+				"owner": "Propriétaire",
+				"inviting": "Invitation en cours...",
+				"owner_required": "Vous devez être propriétaire de l'équipe pour inviter des membres",
+				"invite_button": "Inviter un membre"
+			}
+		},
+		"GeneralPage": {
+			"title": "Paramètres généraux",
+			"description": "Gérez vos paramètres de compte et préférences",
+			"account_info": {
+				"title": "Informations du compte",
+				"name_label": "Nom",
+				"name_placeholder": "Entrez votre nom",
+				"email_label": "Email",
+				"email_placeholder": "Entrez votre email",
+				"save_button": "Enregistrer les modifications",
+				"saving": "Enregistrement..."
+			}
+		},
+		"ActivityPage": {
+			"title": "Activité",
+			"description": "Gérez vos activités de compte",
+			"meta_description": "Consultez le journal d'activité de votre compte",
+			"actions": {
+				"sign_up": "Vous vous êtes inscrit",
+				"sign_in": "Vous vous êtes connecté",
+				"sign_out": "Vous vous êtes déconnecté",
+				"update_password": "Vous avez changé votre mot de passe",
+				"delete_account": "Vous avez supprimé votre compte",
+				"update_account": "Vous avez mis à jour votre compte",
+				"create_team": "Vous avez créé une nouvelle équipe",
+				"remove_team_member": "Vous avez supprimé un membre d'équipe",
+				"invite_team_member": "Vous avez invité un membre d'équipe",
+				"accept_invitation": "Vous avez accepté une invitation",
+				"unknown": "Action inconnue effectuée"
+			},
+			"time": {
+				"just_now": "à l'instant",
+				"minutes_ago": "il y a {{count}} minutes",
+				"hours_ago": "il y a {{count}} heures",
+				"days_ago": "il y a {{count}} jours"
+			},
+			"empty_state": {
+				"title": "Aucune activité pour le moment",
+				"description": "Lorsque vous effectuez des actions comme vous connecter ou mettre à jour votre compte, elles apparaîtront ici."
+			},
+			"from_ip": " depuis l'IP "
+		},
+		"SecurityPage": {
+			"title": "Paramètres de sécurité",
+			"description": "Gérez les paramètres de sécurité de votre compte",
+			"password": {
+				"title": "Mot de passe",
+				"current_label": "Mot de passe actuel",
+				"new_label": "Nouveau mot de passe",
+				"confirm_label": "Confirmer le nouveau mot de passe",
+				"update_button": "Mettre à jour le mot de passe",
+				"updating": "Mise à jour..."
+			},
+			"delete_account": {
+				"title": "Supprimer le compte",
+				"warning": "La suppression du compte est irréversible. Veuillez procéder avec prudence.",
+				"password_label": "Confirmer le mot de passe",
+				"delete_button": "Supprimer le compte",
+				"deleting": "Suppression..."
+			}
+		}
+	},
+	"Teams": {
+		"title": "Vitrine Teams",
+		"description": "Découvrez la puissance du suivi du temps Teams",
+		"get_started": "Commencer",
+		"learn_more": "En savoir plus"
+	},
+	"NotFound": {
+		"title": "Page non trouvée",
+		"description": "La page que vous recherchez a peut-être été supprimée, son nom a changé ou elle est temporairement indisponible.",
+		"back_to_home": "Retour à l'accueil"
+	},
+	"Pricing": {
+		"badge": "Tarification Flexible",
+		"title": "Choisissez Votre Plan",
+		"subtitle": "Choisissez le plan parfait pour votre équipe",
+		"heading": "Choisissez Votre Plan",
+		"description": "Commencez avec notre plan gratuit et évoluez selon vos besoins. Tous les plans incluent nos fonctionnalités principales.",
+		"monthly": "Mensuel",
+		"annually": "Annuel",
+		"save_20": "-20%",
+		"get_started": "Commencer",
+		"contact_sales": "Contacter les Ventes",
+		"most_popular": "Le Plus Populaire",
+		"per_month": "par mois",
+		"per_year": "par an",
+		"billed_annually": "Facturé annuellement",
+		"loading_pricing": "Chargement des tarifs...",
+		"retry": "Réessayer",
+		"starter": {
+			"name": "Débutant",
+			"price": 29,
+			"description": "Pour les petites équipes",
+			"feature_1": "Jusqu'à 10 membres d'équipe",
+			"feature_2": "Suivi du temps de base",
+			"feature_3": "Tableau de bord d'équipe",
+			"feature_4": "Rapports standards"
+		},
+		"professional": {
+			"name": "Professionnel",
+			"price": 79,
+			"description": "Pour les équipes en croissance",
+			"feature_1": "Jusqu'à 50 membres d'équipe",
+			"feature_2": "Suivi du temps avancé",
+			"feature_3": "Insights alimentés par l'IA",
+			"feature_4": "Rapports personnalisés",
+			"feature_5": "Support prioritaire"
+		},
+		"enterprise": {
+			"name": "Entreprise",
+			"price": "Personnalisé",
+			"description": "Pour les grandes organisations",
+			"feature_1": "Membres d'équipe illimités",
+			"feature_2": "Sécurité avancée",
+			"feature_3": "Intégration personnalisée",
+			"feature_4": "Support 24/7",
+			"feature_5": "Gestionnaire de compte dédié"
+		}
+	},
+	"FAQ": {
+		"badge": "Support",
+		"title": "Questions Fréquemment Posées",
+		"subtitle": "Tout ce que vous devez savoir sur Teams et notre plateforme",
+		"heading": "Questions Fréquemment Posées",
+		"description": "Tout ce que vous devez savoir sur Teams.",
+		"question_1": "À quel point est-il facile d'intégrer Teams ?",
+		"answer_1": "Teams est conçu pour les développeurs avec des composants intégrables simples. L'intégration prend quelques minutes avec notre SDK et une documentation complète.",
+		"question_2": "Teams fonctionne-t-il hors ligne ?",
+		"answer_2": "Oui, Teams propose un suivi hors ligne transparent. Toutes les données sont synchronisées automatiquement lorsque la connexion est rétablie, garantissant qu'aucun temps n'est perdu.",
+		"question_3": "Comment l'IA améliore-t-elle la productivité ?",
+		"answer_3": "Notre IA analyse les modèles de travail, catégorise automatiquement les tâches et fournit des insights pour l'optimisation de la productivité tout en maintenant la confidentialité et la sécurité.",
+		"question_4": "Quels types de rapports sont disponibles ?",
+		"answer_4": "Teams offre des rapports complets en temps réel incluant des analyses de productivité, la distribution du temps, l'utilisation des ressources et la génération de rapports personnalisés."
+	},
+	"Footer": {
+		"theme_toggle": {
+			"light_mode": "Passer en mode clair",
+			"dark_mode": "Passer en mode sombre",
+			"theme": "Thème"
+		},
+		"language_switch": {
+			"current_language": "Langue actuelle",
+			"switch_language": "Changer de langue",
+			"language": "Langue"
+		}
+	},
+	"Teams": {
+		"subscription": {
+			"title": "Abonnement d'équipe",
+			"current_plan": "Plan actuel: {{plan}}",
+			"status": {
+				"active": "Facturé mensuellement",
+				"trial": "Période d'essai",
+				"no_subscription": "Aucun abonnement actif"
+			},
+			"manage_button": "Gérer l'abonnement"
+		},
+		"members": {
+			"title": "Membres de l'équipe",
+			"no_members": "Aucun membre d'équipe pour l'instant",
+			"current_role": "{{role}}",
+			"remove_button": "Supprimer",
+			"removing_button": "Suppression..."
+		},
+		"invite": {
+			"title": "Inviter un membre",
+			"email_label": "Email",
+			"email_placeholder": "Entrer email",
+			"role_label": "Rôle",
+			"role_types": {
+				"member": "Membre",
+				"owner": "Propriétaire"
+			},
+			"button": {
+				"invite": "Inviter un membre",
+				"inviting": "Invitation..."
+			},
+			"owner_only": "Vous devez être propriétaire de l'équipe pour inviter de nouveaux membres"
+		}
+	}
+}

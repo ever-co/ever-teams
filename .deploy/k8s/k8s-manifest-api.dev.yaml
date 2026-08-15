@@ -59,6 +59,10 @@ spec:
             containers:
                 - name: ever-teams-dev-api
                   image: registry.digitalocean.com/ever/gauzy-api-demo:latest
+                  resources:
+                      requests:
+                          cpu: '50m'
+                          memory: '512Mi'
                   env:
                       - name: API_HOST
                         value: 0.0.0.0

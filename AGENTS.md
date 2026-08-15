@@ -25,14 +25,14 @@ Ever Teams is an **Open Work and Project Management Platform** built as a monore
 
 ### Primary Commands (Web App)
 
-| Command | Description |
-|---------|-------------|
-| `yarn dev:web` | Start the dev server at `http://localhost:3030` |
-| `yarn build:web` | Production build for the web app |
-| `yarn start:web` | Serve the production build |
-| `yarn lint` | Run ESLint across all packages (via Lerna) |
-| `yarn lint-fix` | Auto-fix ESLint issues in `apps/web` |
-| `yarn format` | Format code with Prettier (via Nx) |
+| Command          | Description                                     |
+| ---------------- | ----------------------------------------------- |
+| `yarn dev:web`   | Start the dev server at `http://localhost:3030` |
+| `yarn build:web` | Production build for the web app                |
+| `yarn start:web` | Serve the production build                      |
+| `yarn lint`      | Run ESLint across all packages (via Lerna)      |
+| `yarn lint-fix`  | Auto-fix ESLint issues in `apps/web`            |
+| `yarn format`    | Format code with Prettier (via Nx)              |
 
 ### Package-Specific Builds
 
@@ -95,6 +95,47 @@ apps/web/
 - Follow existing patterns for API calls (see `core/services/`).
 - Prefer **TypeScript** for all code.
 
+## Authentication
+
+The app supports **magic code** (passwordless), **password**, **social/OAuth**, and **forgot/reset password** auth flows. All auth is powered by the [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) backend.
+
+### Key Auth Files
+
+| File                                             | Purpose                                   |
+| ------------------------------------------------ | ----------------------------------------- |
+| `core/services/client/api/auth/auth.service.ts`  | All auth API calls (`authService`)        |
+| `core/hooks/auth/use-authentication-passcode.ts` | Magic code auth hook                      |
+| `core/hooks/auth/use-authentication-password.ts` | Password auth hook                        |
+| `core/components/pages/auth/passcode/`           | Magic code login UI                       |
+| `core/components/pages/auth/password/`           | Password login UI                         |
+| `core/components/pages/auth/forgot-password/`    | Forgot password UI                        |
+| `core/components/pages/auth/reset-password/`     | Reset password UI                         |
+| `core/constants/config/constants.tsx`            | `AUTH_CODE_LENGTH` (magic code = 8 chars) |
+
+### Auth Routes
+
+| Route                   | Purpose                            |
+| ----------------------- | ---------------------------------- |
+| `/auth/passcode`        | Magic code login (default)         |
+| `/auth/password`        | Password login                     |
+| `/auth/signup`          | Registration                       |
+| `/auth/forgot-password` | Request password reset             |
+| `/auth/reset-password`  | Set new password (from email link) |
+
+### Auth API Endpoints (Gauzy API, called directly)
+
+| Endpoint                      | Method | Purpose                      |
+| ----------------------------- | ------ | ---------------------------- |
+| `/auth/signin.email`          | POST   | Send magic code              |
+| `/auth/signin.email/confirm`  | POST   | Confirm magic code           |
+| `/auth/signin.email.password` | POST   | Password sign-in             |
+| `/auth/request-password`      | POST   | Request password reset email |
+| `/auth/reset-password`        | POST   | Reset password with token    |
+| `/auth/signin.workspace`      | POST   | Sign into workspace          |
+| `/auth/refresh-token`         | POST   | Refresh JWT tokens           |
+
+> **Full auth documentation**: <https://docs.ever.team/docs/features/authentication>
+
 ## Safety & Side Effects
 
 ### Avoid by Default (ask the user first)
@@ -114,19 +155,19 @@ apps/web/
 
 ## Tech Stack Reference
 
-| Category | Technology |
-|----------|------------|
-| Framework | Next.js 16 (App Router) |
-| Language | TypeScript |
-| Styling | Tailwind CSS 4 |
-| UI Components | Radix UI, shadcn/ui patterns |
-| State Management | Jotai |
-| Data Fetching | TanStack Query (React Query) |
-| Forms | React Hook Form + Zod |
-| i18n | next-intl |
-| Auth | NextAuth.js v5 (beta) |
-| Monitoring | Sentry |
-| Icons | Lucide React, Heroicons, React Icons |
+| Category         | Technology                           |
+| ---------------- | ------------------------------------ |
+| Framework        | Next.js 16 (App Router)              |
+| Language         | TypeScript                           |
+| Styling          | Tailwind CSS 4                       |
+| UI Components    | Radix UI, shadcn/ui patterns         |
+| State Management | Jotai                                |
+| Data Fetching    | TanStack Query (React Query)         |
+| Forms            | React Hook Form + Zod                |
+| i18n             | next-intl                            |
+| Auth             | NextAuth.js v5 (beta)                |
+| Monitoring       | Sentry                               |
+| Icons            | Lucide React, Heroicons, React Icons |
 
 ## Commit Convention
 
@@ -145,14 +186,24 @@ This project uses [Conventional Commits](https://www.conventionalcommits.org/). 
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->
 
-# General Guidelines for working with Nx
+## General Guidelines for working with Nx
 
+- For navigating/exploring the workspace, invoke the `nx-workspace` skill first - it has patterns for querying projects, targets, and dependencies
 - When running tasks (for example build, lint, test, e2e, etc.), always prefer running the task through `nx` (i.e. `nx run`, `nx run-many`, `nx affected`) instead of using the underlying tooling directly
+- Prefix nx commands with the workspace's package manager (e.g., `pnpm nx build`, `npm exec nx test`) - avoids using globally installed CLI
 - You have access to the Nx MCP server and its tools, use them to help the user
-- When answering questions about the repository, use the `nx_workspace` tool first to gain an understanding of the workspace architecture where applicable.
-- When working in individual projects, use the `nx_project_details` mcp tool to analyze and understand the specific project structure and dependencies
-- For questions around nx configuration, best practices or if you're unsure, use the `nx_docs` tool to get relevant, up-to-date docs. Always use this instead of assuming things about nx configuration
-- If the user needs help with an Nx configuration or project graph error, use the `nx_workspace` tool to get any errors
+- For Nx plugin best practices, check `node_modules/@nx/<plugin>/PLUGIN.md`. Not all plugins have this file - proceed without it if unavailable.
+- NEVER guess CLI flags - always check nx_docs or `--help` first when unsure
+
+## Scaffolding & Generators
+
+- For scaffolding tasks (creating apps, libs, project structure, setup), ALWAYS invoke the `nx-generate` skill FIRST before exploring or calling MCP tools
+
+## When to use nx_docs
+
+- USE for: advanced config options, unfamiliar flags, migration guides, plugin configuration, edge cases
+- DON'T USE for: basic generator syntax (`nx g @nx/react:app`), standard commands, things you already know
+- The `nx-generate` skill handles generator discovery internally - don't call nx_docs just to look up generator syntax
 
 <!-- nx configuration end-->
 

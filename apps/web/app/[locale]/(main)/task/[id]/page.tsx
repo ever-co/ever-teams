@@ -4,7 +4,7 @@ import { useTaskQueries, useUserProfilePage } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Button, Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -99,7 +99,7 @@ const TaskDetails = () => {
 	}, [getTasksByIdLoading, hasAttemptedLoad, detailedTask]);
 
 	return (
-		<MainLayout
+		<PageLayout
 			showTimer={!profile.isAuthUser && isTrackingEnabled}
 			childrenClassName="bg-white dark:bg-dark--theme"
 			mainHeaderSlot={
@@ -125,7 +125,7 @@ const TaskDetails = () => {
 				{renderContent}
 				{/* <IssueModal task={task} /> */}
 			</Container>
-		</MainLayout>
+		</PageLayout>
 	);
 };
 

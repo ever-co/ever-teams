@@ -9,7 +9,7 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { SelectContent } from '@/core/components/common/select';
 import { ConfirmStatusChange, statusOptions } from '../../integration/calendar';
-import { useModal, useTimelogFilterOptions } from '@/core/hooks';
+import { useModal, useMyRolePermissionsQuery, useTimelogFilterOptions } from '@/core/hooks';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { clsxm } from '@/core/lib/utils';
 import { AlertConfirmationModal, statusColor } from '@/core/components';
@@ -39,8 +39,7 @@ import {
 import { TUser } from '@/core/types/schemas';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
-import { toast } from '@/core/hooks/common/use-toast';
-import { ToastAction } from '@/core/components/common/toast';
+import { toast as sonnerToast } from 'sonner';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { Button } from '@/core/components/common/button';
 import { Checkbox } from '@/core/components/common/checkbox';
@@ -62,6 +61,7 @@ import {
 import { CaretDownIcon, CaretUpIcon } from '@radix-ui/react-icons';
 import { ETimeFrequency } from '@/core/types/generics/enums/date';
 import moment from 'moment';
+import { useUpdateTimeLogMutation } from '@/core/hooks/timesheet';
 
 export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; user?: TUser | null }) {
 	const accordionRef = React.useRef(null);
@@ -328,7 +328,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 																	}
 																/>
 																<TaskActionMenu
-																	dataTimesheet={task}
+																	timeLog={task}
 																	isManage={isManage}
 																	user={user}
 																/>
@@ -402,37 +402,30 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
 }
 
 const TaskActionMenu = ({
-	dataTimesheet,
+	timeLog,
 	isManage,
 	user
 }: {
-	dataTimesheet: ITimeLog;
+	timeLog: ITimeLog;
 	isManage?: boolean | null;
 	user?: TUser | null;
 }) => {
 	const { isOpen: isEditTask, openModal: isOpenModalEditTask, closeModal: isCloseModalEditTask } = useModal();
 	const { isOpen: isOpenAlert, openModal: openAlertConfirmation, closeModal: closeAlertConfirmation } = useModal();
 	const { deleteTaskTimesheet, loadingDeleteTimesheet } = useDeleteTimesheet();
-	const canEdit = isManage || user?.id === dataTimesheet.employee?.user.id;
+	const canEdit = isManage || user?.id === timeLog.employee?.user.id;
 
 	const t = useTranslations();
-	const handleDeleteTask = () => {
-		deleteTaskTimesheet({ logIds: [dataTimesheet.id] })
+	const handleDeleteTimeLog = async () => {
+		await deleteTaskTimesheet({ logIds: [timeLog.id] })
 			.then(() => {
-				toast({
-					title: 'Deletion Confirmed',
-					description: 'The timesheet has been successfully deleted.',
-					variant: 'default',
-					className: 'bg-red-50 text-red-600 border-red-500',
-					action: <ToastAction altText="Restore timesheet">Undo</ToastAction>
+				sonnerToast.info(t('pages.timeLog.DELETION_CONFIRMED'), {
+					description: t('pages.timeLog.DELETE_SUCCESS')
 				});
 			})
-			.catch((error) => {
-				toast({
-					title: 'Error during deletion',
-					description: `An error occurred: ${error}.The timesheet could not be deleted.`,
-					variant: 'destructive',
-					className: 'bg-red-50 text-red-600 border-red-500'
+			.catch(() => {
+				sonnerToast.error(t('pages.timeLog.DELETION_ERROR_TITLE'), {
+					description: t('pages.timeLog.DELETE_ERROR')
 				});
 			});
 	};
@@ -443,11 +436,11 @@ const TaskActionMenu = ({
 				description={t('common.IRREVERSIBLE_ACTION_WARNING')}
 				close={closeAlertConfirmation}
 				loading={loadingDeleteTimesheet}
-				onAction={handleDeleteTask}
+				onAction={handleDeleteTimeLog}
 				open={isOpenAlert}
 				title={t('common.DELETE_CONFIRMATION')}
 			/>
-			<EditTaskModal closeModal={isCloseModalEditTask} isOpen={isEditTask} dataTimesheet={dataTimesheet} />
+			<EditTaskModal closeModal={isCloseModalEditTask} isOpen={isEditTask} timeLogData={timeLog} />
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<Button variant="ghost" className="w-8 h-8 p-0 text-sm sm:text-base">
@@ -462,7 +455,7 @@ const TaskActionMenu = ({
 						</DropdownMenuItem>
 					)}
 					<DropdownMenuSeparator />
-					<StatusTask timesheet={dataTimesheet} />
+					<StatusTask timeLog={timeLog} />
 					<DropdownMenuItem
 						onClick={openAlertConfirmation}
 						className="text-red-600 hover:!text-red-600 cursor-pointer"
@@ -475,59 +468,87 @@ const TaskActionMenu = ({
 	);
 };
 
-export const StatusTask = ({ timesheet }: { timesheet: ITimeLog }) => {
+export const StatusTask = ({ timeLog }: { timeLog: ITimeLog }) => {
 	const t = useTranslations();
-	const { updateTimesheetStatus, updateTimesheet } = useUpdateTimesheet();
-	const handleUpdateTimesheet = async (isBillable: boolean) => {
-		await updateTimesheet({
-			id: timesheet.timesheetId,
-			isBillable: isBillable,
-			employeeId: timesheet.employeeId,
-			logType: timesheet.logType,
-			source: timesheet.source,
-			stoppedAt: timesheet.stoppedAt,
-			startedAt: timesheet.startedAt,
-			tenantId: timesheet.tenantId,
-			organizationId: timesheet.organizationId,
-			description: timesheet.description,
-			projectId: timesheet.projectId,
-			reason: timesheet.reason
-		});
+
+	const { mutateAsync: updateTimelog } = useUpdateTimeLogMutation();
+	const updateTimelogBillableStatus = React.useCallback(
+		async (isBillable: boolean) => {
+			await updateTimelog({
+				timeLogId: timeLog.id,
+				startedAt: timeLog.startedAt,
+				stoppedAt: timeLog.stoppedAt,
+				employeeId: timeLog.employeeId,
+				isBillable
+			})
+				.then(() => {
+					sonnerToast.success(t('pages.timeLog.MODIFICATION_CONFIRMED'), {
+						description: t('pages.timeLog.BILLABLE_MODIFY_SUCCESS')
+					});
+				})
+				.catch(() => {
+					sonnerToast.error(t('pages.timeLog.MODIFICATION_ERROR_TITLE'), {
+						description: t('pages.timeLog.BILLABLE_MODIFY_ERROR')
+					});
+				});
+		},
+		[updateTimelog, timeLog.id, timeLog.startedAt, timeLog.stoppedAt, timeLog.employeeId, t]
+	);
+
+	const { updateTimesheetStatus } = useUpdateTimesheet();
+	const handleStatusChange = async (status: ETimesheetStatus, ids: string[]) => {
+		await updateTimesheetStatus({
+			status,
+			ids
+		})
+			.then(() => {
+				sonnerToast.success(t('pages.timeLog.MODIFICATION_CONFIRMED'), {
+					description: t('pages.timeLog.STATUS_MODIFY_SUCCESS')
+				});
+			})
+			.catch(() => {
+				sonnerToast.error(t('pages.timeLog.MODIFICATION_ERROR_TITLE'), {
+					description: t('pages.timeLog.STATUS_MODIFY_ERROR')
+				});
+			});
 	};
 
+	const { myPermissions } = useMyRolePermissionsQuery();
+	const canUpdateTimeSheetStatus = React.useMemo(
+		() => (myPermissions ?? []).includes('CAN_APPROVE_TIMESHEET'),
+		[myPermissions]
+	);
 	return (
 		<>
-			<DropdownMenuSub>
-				<DropdownMenuSubTrigger>
-					<span>{t('common.CHANGE_STATUS')}</span>
-				</DropdownMenuSubTrigger>
-				<DropdownMenuPortal>
-					<DropdownMenuSubContent>
-						{statusTable?.map((status, index) => (
-							<DropdownMenuItem
-								onClick={async () => {
-									try {
-										await updateTimesheetStatus({
-											status: status.label as ETimesheetStatus,
-											ids: [timesheet.timesheet?.id ?? '']
-										});
-									} catch (error) {
-										console.error('Failed to update timesheet status:');
-									}
-								}}
-								key={index}
-								textValue={status.label}
-								className="cursor-pointer"
-							>
-								<div className="flex items-center gap-3">
-									<div className={clsxm('h-2 w-2 rounded-full', statusColor(status.label).bg)}></div>
-									<span>{status.label}</span>
-								</div>
-							</DropdownMenuItem>
-						))}
-					</DropdownMenuSubContent>
-				</DropdownMenuPortal>
-			</DropdownMenuSub>
+			{canUpdateTimeSheetStatus ? (
+				<DropdownMenuSub>
+					<DropdownMenuSubTrigger>
+						<span>{t('common.CHANGE_STATUS')}</span>
+					</DropdownMenuSubTrigger>
+					<DropdownMenuPortal>
+						<DropdownMenuSubContent>
+							{statusTable?.map((status, index) => (
+								<DropdownMenuItem
+									onClick={() => {
+										if (!timeLog.timesheetId) return;
+										handleStatusChange(status.label as ETimesheetStatus, [timeLog.timesheetId!]);
+									}}
+									key={index}
+									textValue={status.label}
+									className="cursor-pointer"
+								>
+									<div className="flex items-center gap-3">
+										<div
+											className={clsxm('h-2 w-2 rounded-full', statusColor(status.label).bg)}
+										></div>
+										<span>{status.label}</span>
+									</div>
+								</DropdownMenuItem>
+							))}
+						</DropdownMenuSubContent>
+					</DropdownMenuPortal>
+				</DropdownMenuSub>
+			) : null}
 			<DropdownMenuSub>
 				<DropdownMenuSubTrigger>
 					<span>{t('pages.timesheet.BILLABLE.BILLABLE')}</span>
@@ -536,7 +557,7 @@ export const StatusTask = ({ timesheet }: { timesheet: ITimeLog }) => {
 					<DropdownMenuSubContent>
 						<DropdownMenuItem
 							onClick={async () => {
-								await handleUpdateTimesheet(true);
+								await updateTimelogBillableStatus(true);
 							}}
 							textValue={'Yes'}
 							className="cursor-pointer"
@@ -547,7 +568,7 @@ export const StatusTask = ({ timesheet }: { timesheet: ITimeLog }) => {
 						</DropdownMenuItem>
 						<DropdownMenuItem
 							onClick={async () => {
-								await handleUpdateTimesheet(false);
+								await updateTimelogBillableStatus(false);
 							}}
 							textValue={'No'}
 							className="cursor-pointer"

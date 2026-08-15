@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { Container } from '@/core/components';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 
 interface TeamTasksPageSkeletonProps {
 	className?: string;
@@ -10,7 +10,7 @@ interface TeamTasksPageSkeletonProps {
 
 /**
  * Complete page-level skeleton for Team Tasks page
- * Integrates seamlessly with MainLayout structure without swallowing it up
+ * Integrates seamlessly with PageLayout structure without swallowing it up
  * Matches exact layout: mainHeaderSlot (3 sections: breadcrumb + title/status + search/filters) + main content (task table)
  */
 export const TeamTasksPageSkeleton: FC<TeamTasksPageSkeletonProps> = ({
@@ -19,7 +19,7 @@ export const TeamTasksPageSkeleton: FC<TeamTasksPageSkeletonProps> = ({
 	showTimer = false
 }) => {
 	return (
-		<MainLayout
+		<PageLayout
 			title="Team Tasks"
 			showTimer={showTimer}
 			mainHeaderSlot={
@@ -150,7 +150,7 @@ export const TeamTasksPageSkeleton: FC<TeamTasksPageSkeletonProps> = ({
 					</div>
 				</div>
 			</Container>
-		</MainLayout>
+		</PageLayout>
 	);
 };
 

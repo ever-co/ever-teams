@@ -5,7 +5,7 @@ import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
 import NotFound from '@/core/components/pages/404';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { CommonToggle, Container, Divider, Text } from '@/core/components';
-import { MainHeader, MainLayout } from '@/core/components/layouts/default-layout';
+import { MainHeader, PageLayout } from '@/core/components/layouts/default-layout';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
@@ -58,14 +58,14 @@ const Permissions = () => {
 
 	if (!canAccessPermissions) {
 		return (
-			<MainLayout className="items-start">
+			<PageLayout className="items-start">
 				<NotFound />
-			</MainLayout>
+			</PageLayout>
 		);
 	}
 
 	return (
-		<MainLayout className="items-start">
+		<PageLayout className="items-start">
 			<MainHeader>
 				<Breadcrumb paths={['Dashboard', 'Roles & Permissions']} className="text-sm" />
 			</MainHeader>
@@ -278,7 +278,7 @@ const Permissions = () => {
 					</div>
 				</EverCard>
 			</Container>
-		</MainLayout>
+		</PageLayout>
 	);
 };
 

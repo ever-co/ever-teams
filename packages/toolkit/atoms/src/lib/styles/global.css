@@ -1,0 +1,105 @@
+@import 'tailwindcss';
+
+@config '../../../tailwind.config.js';
+
+@layer base {
+	:root {
+		--scroll-background: #ffffff;
+		--scroll-foreground: #e0e3ea;
+
+		--background: 0 0% 100%;
+		--foreground: 222.2 47.4% 11.2%;
+
+		--muted: 210 40% 96.1%;
+		--muted-foreground: 215.4 16.3% 46.9%;
+
+		--popover: 0 0% 100%;
+		--popover-foreground: 222.2 47.4% 11.2%;
+
+		--border: 214.3 31.8% 91.4%;
+		--input: 214.3 31.8% 91.4%;
+
+		--card: 0 0% 100%;
+		--card-foreground: 222.2 47.4% 11.2%;
+
+		--primary: 222.2 47.4% 11.2%;
+		--primary-foreground: 210 40% 98%;
+
+		--secondary: 210 0% 80%;
+		--secondary-foreground: 222.2 47.4% 11.2%;
+
+		--accent: 210 40% 96.1%;
+		--accent-foreground: 222.2 47.4% 11.2%;
+
+		--destructive: 0 100% 50%;
+		--destructive-foreground: 210 40% 98%;
+
+		--ring: 215 20.2% 65.1%;
+
+		--radius: 0.5rem;
+
+		--z-modal: 1000;
+		--z-overlay: 99999;
+		--z-portal: 99999;
+		--z-dropdown: 99998;
+	}
+
+	.dark {
+		--scroll-background: #000000;
+		--scroll-foreground: #303030;
+
+		--background: 224 71% 4%;
+		--foreground: 213 31% 91%;
+
+		--muted: 223 47% 11%;
+		--muted-foreground: 215.4 16.3% 56.9%;
+
+		--accent: 216 34% 17%;
+		--accent-foreground: 210 40% 98%;
+
+		--popover: 224 71% 4%;
+		--popover-foreground: 215 20.2% 65.1%;
+
+		--border: 216 34% 17%;
+		--input: 216 34% 17%;
+
+		--card: 224 71% 4%;
+		--card-foreground: 213 31% 91%;
+
+		--primary: 210 40% 98%;
+		--primary-foreground: 222.2 47.4% 1.2%;
+
+		--secondary: 222.2 47.4% 11.2%;
+		--secondary-foreground: 210 40% 98%;
+
+		--destructive: 0 63% 31%;
+		--destructive-foreground: 210 40% 98%;
+
+		--ring: 216 34% 17%;
+
+		--radius: 0.5rem;
+	}
+
+	.custom-scroll::-webkit-scrollbar {
+		display: block;
+		width: 4px;
+		height: 4px;
+		cursor: pointer;
+	}
+
+	.custom-scroll::-webkit-scrollbar-track {
+		background: var(--scroll-background);
+		border-radius: 1px;
+	}
+
+	.custom-scroll::-webkit-scrollbar-thumb {
+		background: var(--scroll-foreground);
+		border-radius: 1px;
+	}
+
+	@supports not selector(::-webkit-scrollbar) {
+		.custom-scroll {
+			scrollbar-color: var(--scroll-foreground) var(--scroll-background);
+		}
+	}
+}

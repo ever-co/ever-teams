@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { cn } from '@/core/lib/helpers';
 import { Container } from '@/core/components';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 import { Card } from '@/core/components/common/card';
 
 interface TimeActivityPageSkeletonProps {
@@ -12,7 +12,7 @@ interface TimeActivityPageSkeletonProps {
 
 /**
  * Complete page-level skeleton for Time and Activity page
- * Integrates seamlessly with MainLayout structure without swallowing it up
+ * Integrates seamlessly with PageLayout structure without swallowing it up
  * Matches exact layout: mainHeaderSlot (breadcrumb + filters + cards) + main content (table)
  */
 export const TimeActivityPageSkeleton: FC<TimeActivityPageSkeletonProps> = ({
@@ -21,7 +21,7 @@ export const TimeActivityPageSkeleton: FC<TimeActivityPageSkeletonProps> = ({
 	fullWidth = false
 }) => {
 	return (
-		<MainLayout
+		<PageLayout
 			className="items-start pb-1 !overflow-hidden w-full"
 			childrenClassName="w-full"
 			showTimer={showTimer}
@@ -222,7 +222,7 @@ export const TimeActivityPageSkeleton: FC<TimeActivityPageSkeletonProps> = ({
 					</div>
 				</Card>
 			</Container>
-		</MainLayout>
+		</PageLayout>
 	);
 };
 

@@ -79,6 +79,7 @@
 		"CONFIRM": "تأكيد",
 		"YOUR_EMAIL": "بريدك الإلكتروني",
 		"CONTINUE": "متابعة",
+		"AND": "و",
 		"EDIT_TASK": "تعديل المهمة",
 		"ASSIGN_TASK": "تعيين مهمة",
 		"ASSIGN_TASK_TO": "تعيين المهمة إلى",
@@ -704,7 +705,11 @@
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "ستتم مطالبتك بإنشاء فريق بعد تسجيل الدخول.",
 			"NO_TEAMS_BADGE": "لا توجد فرق",
 			"TEAM_COUNT_SINGULAR": "فريق",
-			"TEAM_COUNT_PLURAL": "فرق"
+			"TEAM_COUNT_PLURAL": "فرق",
+			"FORGOT_PASSWORD": "هل نسيت كلمة المرور؟",
+			"TERMS_OF_SERVICE": "شروط الخدمة",
+			"PRIVACY_POLICY": "سياسة الخصوصية",
+			"OR_CONTINUE_WITH": "أو تابع باستخدام"
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "الانضمام إلى فريق موجود",
@@ -728,6 +733,33 @@
 		},
 		"authPassword": {
 			"HEADING_DESCRIPTION": "يرجى إدخال معلومات تسجيل الدخول الخاصة بك."
+		},
+		"authForgotPassword": {
+			"HEADING_TITLE": "Forgot Password",
+			"HEADING_DESCRIPTION": "Enter your email to receive reset instructions",
+			"FORM_DESCRIPTION": "Enter the email address associated with your account and we'll send you a link to reset your password.",
+			"SEND_RESET_LINK": "Send Reset Link",
+			"SUCCESS_TITLE": "Check Your Email",
+			"SUCCESS_MESSAGE": "Password reset instructions have been sent to your email address. Please check your inbox and follow the link to reset your password.",
+			"ERROR_MESSAGE": "Something went wrong. Please try again.",
+			"BACK_TO_LOGIN": "Back to Login"
+		},
+		"authResetPassword": {
+			"HEADING_TITLE": "Reset Password",
+			"HEADING_DESCRIPTION": "Enter your new password",
+			"FORM_DESCRIPTION": "Please enter a new password for your account.",
+			"NEW_PASSWORD": "New Password",
+			"CONFIRM_PASSWORD": "Confirm Password",
+			"RESET_PASSWORD": "Reset Password",
+			"SUCCESS_TITLE": "Password Updated",
+			"SUCCESS_MESSAGE": "Your password has been successfully updated. You can now log in with your new password.",
+			"ERROR_MESSAGE": "Password reset failed. The link may have expired. Please request a new one.",
+			"PASSWORDS_DONT_MATCH": "Passwords don't match",
+			"PASSWORD_TOO_SHORT": "Password must be at least 6 characters",
+			"INVALID_LINK_TITLE": "Invalid Reset Link",
+			"TOKEN_EXPIRED": "This reset link is invalid or has expired. Please request a new password reset.",
+			"REQUEST_NEW_LINK": "Request a New Reset Link",
+			"GO_TO_LOGIN": "Go to Login"
 		},
 		"authTeam": {
 			"HEADING_TITLE": "سجل الآن",
@@ -757,6 +789,8 @@
 		},
 		"settingsPersonal": {
 			"HEADING_TITLE": "الإعدادات العامة",
+			"goToTeamSettings": "انتقل إلى إعدادات الفريق",
+			"WORKING_HOURS": "ساعات العمل",
 			"emailNotValid": "يرجى تقديم بريد إلكتروني صالح",
 			"phoneNotValid": "يرجى تقديم رقم هاتف صالح",
 			"WORK_SCHEDULE": "جدول العمل",
@@ -971,13 +1005,19 @@
 			"DRAFT": "مسودة",
 			"REJECTED": "مرفوض"
 		},
-		"addOrEditModal": {
-			"steps": {
-				"createProject": "إنشاء مشروع",
-				"financialSettings": "الإعدادات المالية",
-				"categorization": "التصنيف",
-				"teamAndRelations": "الفريق والعلاقات"
-			}
+		"timeLog": {
+			"DELETE_SUCCESS": "تم حذف سجل الوقت بنجاح.",
+			"DELETE_ERROR": "حدث خطأ. تعذر حذف سجل الوقت.",
+			"MODIFY_SUCCESS": "تم تعديل سجل الوقت بنجاح.",
+			"MODIFY_ERROR": "فشل تعديل سجل الوقت. يرجى المحاولة مرة أخرى.",
+			"DELETION_CONFIRMED": "تم تأكيد الحذف",
+			"DELETION_ERROR_TITLE": "خطأ أثناء الحذف",
+			"MODIFICATION_CONFIRMED": "تم تأكيد التعديل",
+			"MODIFICATION_ERROR_TITLE": "خطأ أثناء التعديل",
+			"BILLABLE_MODIFY_SUCCESS": "تم تعديل حالة الفوترة بنجاح.",
+			"BILLABLE_MODIFY_ERROR": "فشل تعديل حالة الفوترة. يرجى المحاولة مرة أخرى.",
+			"STATUS_MODIFY_SUCCESS": "تم تعديل حالة جدول الدوام بنجاح.",
+			"STATUS_MODIFY_ERROR": "فشل تعديل حالة جدول الدوام. يرجى المحاولة مرة أخرى."
 		}
 	},
 	"timer": {
@@ -1160,7 +1200,8 @@
 		"CHANGE_AVATAR": "تغيير الصورة الرمزية",
 		"SELECT_TEAM_SIZE": "حدد حجم الفريق",
 		"INVALID_ALLOWED_CHARACTER": "قيمة غير صالحة لـ allowedCharacters. استخدم أبجدي أو رقمي أو أبجدي رقمي",
-		"AGREE_TO": "أوافق على"
+		"AGREE_TO": "أوافق على",
+		"EMAIL_REQUIRED": "Email address is required"
 	},
 	"layout": {
 		"footer": {
@@ -1227,5 +1268,33 @@
 	},
 	"timeSlot": {
 		"DELETE_MESSAGE": "هل أنت متأكد أنك تريد حذف فترة الوقت هذه؟"
+	},
+	"chatConfig": {
+		"DIALOG_TITLE": "إعدادات محادثة الذكاء الاصطناعي",
+		"DIALOG_DESCRIPTION": "قم بتهيئة مزود الذكاء الاصطناعي ومفتاح API لتفعيل مساعد المحادثة.",
+		"PROVIDER_LABEL": "المزود",
+		"API_KEY_LABEL": "مفتاح API",
+		"API_KEY_PLACEHOLDER": "sk-...",
+		"API_KEY_HINT": "يتم تخزين مفتاحك محليًا ويُرسل إلى واجهة برمجة الدردشة فقط عند استخدام المساعد.",
+		"MODEL_LABEL": "النموذج",
+		"MODEL_PLACEHOLDER": "gpt-4o-mini",
+		"BASE_URL_LABEL": "عنوان URL الأساسي",
+		"BASE_URL_PLACEHOLDER": "https://api.example.com/v1",
+		"CANCEL": "إلغاء",
+		"SAVE": "حفظ"
+	},
+	"chatView": {
+		"HEADER_TITLE": "محادثة الذكاء الاصطناعي",
+		"CLEAR_CONVERSATION": "مسح المحادثة",
+		"CONFIGURATION": "الإعدادات",
+		"ASSISTANT_NAME": "مساعد Ever Teams",
+		"EMPTY_CONFIGURED": "اطرح سؤالاً للبدء.",
+		"EMPTY_NOT_CONFIGURED": "قم بتهيئة مفتاح API للبدء.",
+		"CONFIGURE_BUTTON": "تهيئة",
+		"ERROR_FALLBACK": "حدث خطأ. يرجى التحقق من الإعدادات.",
+		"INPUT_PLACEHOLDER_READY": "رسالتك...",
+		"INPUT_PLACEHOLDER_NO_KEY": "قم بتهيئة مفتاح API...",
+		"STOP": "إيقاف",
+		"SEND": "إرسال"
 	}
 }

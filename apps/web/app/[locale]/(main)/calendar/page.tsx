@@ -7,7 +7,7 @@ import HeaderTabs from '@/core/components/common/header-tabs';
 import { PeoplesIcon } from 'assets/svg';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container, Divider } from '@/core/components';
-import { Footer, MainLayout } from '@/core/components/layouts/default-layout';
+import { Footer, PageLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
@@ -70,7 +70,7 @@ const CalendarPage = () => {
 	}
 	return (
 		<>
-			<MainLayout showTimer={isTrackingEnabled} footerClassName="hidden" className="h-full shadow-xl">
+			<PageLayout showTimer={isTrackingEnabled} footerClassName="hidden" className="h-full shadow-xl">
 				{isManualTimeModalOpen && (
 					<Suspense fallback={<AddManualTimeModalSkeleton />}>
 						<LazyAddManualTimeModal
@@ -105,7 +105,7 @@ const CalendarPage = () => {
 				<div className="mt-[15vh] mb-32">
 					<Container fullWidth={fullWidth}>{renderComponent}</Container>
 				</div>
-			</MainLayout>
+			</PageLayout>
 			<div className="bg-white dark:bg-[#1e2025] w-screen z-[999] fixed bottom-0">
 				<Divider />
 				<Footer className={clsxm('justify-between px-0 mx-auto w-full', fullWidth ? 'px-8' : 'x-container')} />

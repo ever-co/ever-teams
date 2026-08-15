@@ -15,14 +15,14 @@ Most project details (build, run, tests, env, docs) are documented in `CLAUDE.md
 
 From the repo root:
 
-| Command | Purpose |
-|---------|---------|
-| `yarn dev:web` | Start dev server (http://localhost:3030) |
-| `yarn build:web` | Production build for web app |
-| `yarn start:web` | Start built app |
-| `yarn lint` | ESLint across all packages |
-| `yarn lint-fix` | Auto-fix lint issues |
-| `yarn format` | Format code with Prettier |
+| Command          | Purpose                                  |
+| ---------------- | ---------------------------------------- |
+| `yarn dev:web`   | Start dev server (http://localhost:3030) |
+| `yarn build:web` | Production build for web app             |
+| `yarn start:web` | Start built app                          |
+| `yarn lint`      | ESLint across all packages               |
+| `yarn lint-fix`  | Auto-fix lint issues                     |
+| `yarn format`    | Format code with Prettier                |
 
 ### Treat as Main "Tests"
 
@@ -42,13 +42,13 @@ If the user asks to "run tests" or "make sure it works", run at least **lint**, 
 
 - Prefer **small, localized diffs** and follow existing patterns.
 - Put business logic in:
-  - `apps/web/core/services/**`
-  - `apps/web/core/hooks/**`
+    - `apps/web/core/services/**`
+    - `apps/web/core/hooks/**`
 - Keep React components (in `apps/web/core/components/**` and `apps/web/app/**`) mostly presentational.
 - Use Jotai atoms in `apps/web/core/stores/**` for state management.
 - When modifying env vars or API contracts, also update:
-  - `apps/web/.env.sample`
-  - `README.md`
+    - `apps/web/.env.sample`
+    - `README.md`
 - Do **not** add new dependencies unless the user explicitly approves.
 
 ## Safe Commands for Augment
@@ -90,6 +90,16 @@ ever-teams/
 - Treat this file as a **thin rules layer** for Augment.
 - For full instructions (environment variables, project structure, scripts, docs, coding conventions), **always refer to `CLAUDE.md` at the repo root**.
 - For Cursor-specific instructions and Nx MCP tooling, see `AGENTS.md`.
+
+## Authentication
+
+Key auth files: `core/services/client/api/auth/auth.service.ts` (all API calls), `core/hooks/auth/use-authentication-passcode.ts` (magic code), `core/hooks/auth/use-authentication-password.ts` (password), `core/components/pages/auth/` (UI components).
+
+Auth routes: `/auth/passcode`, `/auth/password`, `/auth/signup`, `/auth/forgot-password`, `/auth/reset-password`
+
+Gauzy API auth endpoints (called directly): `POST /auth/signin.email`, `/auth/signin.email/confirm`, `/auth/signin.email.password`, `/auth/request-password`, `/auth/reset-password`, `/auth/signin.workspace`, `/auth/refresh-token`
+
+> **Full docs**: <https://docs.ever.team/docs/features/authentication>
 
 ## Documentation
 

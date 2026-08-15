@@ -96,12 +96,14 @@ const nextConfig = {
 			'@ever-teams/constants',
 			'@ever-teams/hooks',
 			'@ever-teams/services',
+			'@ever-teams/tookit',
+			'@ever-teams/tookit-ui',
+			'@ever-teams/tookit-types',
 			'@ever-teams/types',
 			'@ever-teams/utils',
 			'@ever-teams/ui'
 		],
-		// Next.js 16: Turbopack File System Caching for faster builds
-		turbopackFileSystemCacheForDev: true
+		// Turbopack caching is enabled by default in Next.js 16
 	},
 	transpilePackages: [
 		'geist',
@@ -132,12 +134,7 @@ const nextConfig = {
 				port: ''
 			}))
 		],
-		// Next.js 16: qualities is REQUIRED - restricts allowed quality values
-		qualities: [25, 50, 75, 100],
-		// Next.js 16: New image optimization defaults
-		minimumCacheTTL: 14400, // 4 hours (changed from 60s in Next.js 16)
-		dangerouslyAllowLocalIP: true, // Allow local IP optimization for development
-		maximumRedirects: 3 // Limit redirects to prevent infinite loops
+
 	},
 	async rewrites() {
 		// Next.js 16: rewrites should return an object with beforeFiles, afterFiles, and fallback

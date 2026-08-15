@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Trier - Tracking</title>
+		<!-- This points to the new UMD bundle -->
+		<script src="../dist/tracker.umd.js"></script>
+		<script>
+			// This correctly checks for the global variable set by Rollup
+			if (window.tracker) {
+				console.log('Tracker script loaded successfully!', window.tracker);
+				try {
+					// Initialize the tracker
+					window.tracker.start({
+						projectId: 'teams-local-test-project'
+					});
+					console.log('Tracker started!');
+				} catch (e) {
+					console.error('Error starting tracker:', e);
+				}
+			} else {
+				console.error('Tracker script failed to load or attach to window.');
+			}
+		</script>
+	</head>
+	<body>
+		<h1>Hello World</h1>
+	</body>
+</html>

@@ -1,0 +1,15 @@
+{
+	"extends": "@ever-teams/ts-config/base.json",
+	"compilerOptions": {
+		"plugins": [{ "name": "next" }],
+		"baseUrl": ".",
+		"outDir": "dist",
+		"rootDir": "./src",
+		"module": "NodeNext",
+		"target": "es6",
+		"jsx": "react-jsx",
+		"importHelpers": false
+	},
+	"include": ["src/**/*.ts", "src/**/*.tsx"],
+	"exclude": ["node_modules", ".turbo"]
+}

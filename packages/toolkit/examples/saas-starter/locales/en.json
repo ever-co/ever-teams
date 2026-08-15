@@ -1,0 +1,355 @@
+{
+	"Layout": {
+		"title": "Teams | SaaS Starter",
+		"description": "Get started quickly with Teams, Next.js, Postgres, and Stripe."
+	},
+	"Hero": {
+		"badge_new": "New",
+		"badge_powered_by": "Powered by Teams Technology",
+		"title_transform": "Transform Your",
+		"title_productivity": "Team's Productivity",
+		"description": "Advanced time tracking and team management platform powered by Teams's intelligent SDK. Get real-time insights and boost your team's productivity.",
+		"cta_get_started": "Get Started Free",
+		"cta_watch_demo": "Watch Demo",
+		"dashboard_alt_light": "Teams Dashboard Light Theme",
+		"dashboard_alt_dark": "Teams Dashboard Dark Theme"
+	},
+	"Features": {
+		"badge": "Complete Toolkit",
+		"title": "Powerful Features",
+		"subtitle": "Everything you need to track time, manage teams, and boost productivity.",
+		"heading": "Powerful Features",
+		"description": "Everything you need to track time, manage teams, and boost productivity.",
+		"why_choose_title": "Why Choose Teams?",
+		"accurate_tracking": "Accurate time tracking",
+		"real_time_sync": "Real-time synchronization",
+		"ai_insights": "AI-powered productivity insights",
+		"enterprise_security": "Enterprise-grade security",
+		"easy_integration": "Easy integration",
+		"smart_time_tracking": {
+			"title": "Smart Time Tracking",
+			"description": "Powered by Teams SDK, our platform provides intelligent time tracking with automatic categorization and real-time sync."
+		},
+		"ai_powered_insights": {
+			"title": "AI-Powered Insights",
+			"description": "Transform tracked time into actionable insights with AI-powered analytics and productivity recommendations."
+		},
+		"team_management": {
+			"title": "Team Management",
+			"description": "Comprehensive tools for managing teams, tracking performance, and optimizing workforce productivity."
+		},
+		"advanced_reports": {
+			"title": "Advanced Reports",
+			"description": "Detailed analytics and custom reports to help you make data-driven decisions about your team and projects."
+		},
+		"automatic_tracking": {
+			"title": "Automatic Tracking",
+			"description": "Smart time tracking with project detection and categorization."
+		},
+		"activity_monitoring": {
+			"title": "Activity Monitoring",
+			"description": "Track productivity levels and work patterns in real-time."
+		},
+		"team_dashboard": {
+			"title": "Team Dashboard",
+			"description": "Comprehensive overview of team performance and activities."
+		}
+	},
+	"Testimonials": {
+		"badge": "Customer Stories",
+		"title": "Trusted by Developers Worldwide",
+		"subtitle": "See what our customers have to say about their experience with Teams",
+		"sarah_chen": {
+			"name": "Sarah Chen",
+			"role": "Operations Manager at TechFlow",
+			"content": "This platform revolutionized how we manage our remote teams. The time tracking and reporting features are exceptional."
+		},
+		"marcus_rodriguez": {
+			"name": "Marcus Rodriguez",
+			"role": "Tech Lead at DevCorp",
+			"content": "The AI insights have helped us identify bottlenecks and improve team productivity by 35%. A game-changer for our workflow."
+		},
+		"emily_watson": {
+			"name": "Emily Watson",
+			"role": "Product Owner at Agile Inc",
+			"content": "Finally, a platform that combines powerful time tracking with meaningful analytics. Perfect for agile teams!"
+		}
+	},
+	"Pricing": {
+		"badge": "Flexible Pricing",
+		"title": "Choose Your Plan",
+		"subtitle": "Choose the perfect plan for your team",
+		"heading": "Choose Your Plan",
+		"description": "Start with our free plan and scale as you grow. All plans include our core features.",
+		"monthly": "Monthly",
+		"annually": "Annually",
+		"save_20": "-20%",
+		"get_started": "Get Started",
+		"contact_sales": "Contact Sales",
+		"most_popular": "Most Popular",
+		"per_month": "per month",
+		"per_year": "per year",
+		"billed_annually": "Billed annually",
+		"loading_pricing": "Loading pricing...",
+		"retry": "Try Again",
+		"starter": {
+			"name": "Starter",
+			"price": 29,
+			"description": "For small teams",
+			"feature_1": "Up to 10 team members",
+			"feature_2": "Basic time tracking",
+			"feature_3": "Team dashboard",
+			"feature_4": "Standard reports"
+		},
+		"professional": {
+			"name": "Professional",
+			"price": 79,
+			"description": "For growing teams",
+			"feature_1": "Up to 50 team members",
+			"feature_2": "Advanced time tracking",
+			"feature_3": "AI-powered insights",
+			"feature_4": "Custom reports",
+			"feature_5": "Priority support"
+		},
+		"enterprise": {
+			"name": "Enterprise",
+			"price": "Custom",
+			"description": "For large organizations",
+			"feature_1": "Unlimited team members",
+			"feature_2": "Advanced security",
+			"feature_3": "Custom integration",
+			"feature_4": "24/7 support",
+			"feature_5": "Dedicated account manager"
+		}
+	},
+	"FeaturesGrid": {
+		"badge": "Complete Solution",
+		"title": "Everything You Need to Succeed",
+		"subtitle": "Comprehensive features designed to streamline your workflow and boost productivity",
+		"automatic_tracking": {
+			"title": "Automatic Tracking",
+			"description": "Smart time tracking with project detection and categorization."
+		},
+		"activity_monitoring": {
+			"title": "Activity Monitoring",
+			"description": "Track productivity levels and work patterns in real-time."
+		},
+		"ai_insights": {
+			"title": "AI Insights",
+			"description": "Get intelligent recommendations to improve team productivity."
+		},
+		"team_dashboard": {
+			"title": "Team Dashboard",
+			"description": "Comprehensive overview of team performance and activities."
+		},
+		"advanced_reports": {
+			"title": "Advanced Reports",
+			"description": "Detailed analytics and customizable reporting tools."
+		},
+		"enterprise_security": {
+			"title": "Enterprise Security",
+			"description": "Advanced security features with role-based access control."
+		}
+	},
+	"FAQ": {
+		"badge": "Support",
+		"title": "Frequently Asked Questions",
+		"subtitle": "Everything you need to know about Teams and our platform",
+		"heading": "Frequently Asked Questions",
+		"description": "Everything you need to know about Teams.",
+		"question_1": "How easy is it to integrate Teams?",
+		"answer_1": "Teams is designed for developers with simple embeddable components. Integration takes minutes with our SDK and comprehensive documentation.",
+		"question_2": "Does Teams work offline?",
+		"answer_2": "Yes, Teams features seamless offline tracking. All data is synchronized automatically when connection is restored, ensuring no time is lost.",
+		"question_3": "How does AI improve productivity?",
+		"answer_3": "Our AI analyzes work patterns, automatically categorizes tasks, and provides insights for productivity optimization while maintaining privacy and security.",
+		"question_4": "What kind of reports are available?",
+		"answer_4": "Teams offers comprehensive real-time reporting including productivity analytics, time distribution, resource utilization, and custom report generation."
+	},
+	"CTA": {
+		"badge": "Ready to Get Started?",
+		"title": "Ready to Track Smarter?",
+		"subtitle": "Join thousands of developers already using Teams to boost their productivity.",
+		"get_started": "Start Free Trial",
+		"contact_sales": "Contact Sales",
+		"no_credit_card": "No credit card required"
+	},
+	"Auth": {
+		"sign_in": "Sign In",
+		"sign_up": "Sign Up",
+		"email": "Email",
+		"password": "Password",
+		"forgot_password": "Forgot Password?",
+		"no_account": "Don't have an account?",
+		"have_account": "Already have an account?",
+		"create_account": "Create Account",
+		"welcome_back": "Welcome back",
+		"get_started": "Get started today"
+	},
+	"Login": {
+		"page_title": {
+			"sign_in": "Sign in to your account",
+			"sign_up": "Create your account"
+		},
+		"form": {
+			"email_label": "Email",
+			"email_placeholder": "Enter your email",
+			"password_label": "Password",
+			"password_placeholder": "Enter your password"
+		},
+		"buttons": {
+			"sign_in": "Sign in",
+			"sign_up": "Sign up",
+			"loading": "Loading..."
+		},
+		"navigation": {
+			"new_to_platform": "New to our platform?",
+			"already_have_account": "Already have an account?",
+			"create_account": "Create an account",
+			"sign_in_existing": "Sign in to existing account"
+		}
+	},
+	"Navigation": {
+		"home": "Home",
+		"features": "Features",
+		"pricing": "Pricing",
+		"testimonials": "Testimonials",
+		"faq": "FAQ",
+		"about": "About",
+		"contact": "Contact",
+		"dashboard": "Dashboard",
+		"sign_in": "Sign In",
+		"sign_up": "Sign Up",
+		"sign_out": "Sign Out",
+		"user_menu": "User menu",
+		"language": "Language"
+	},
+	"Dashboard": {
+		"title": "Dashboard",
+		"welcome": "Welcome to your dashboard",
+		"overview": "Overview",
+		"general": "General",
+		"general_description": "Manage your account settings and preferences",
+		"activity": "Activity",
+		"team": "Team",
+		"team_description": "Manage your team members and settings",
+		"security": "Security",
+		"settings": "Settings",
+		"profile": "Profile",
+		"billing": "Billing",
+		"analytics": "Analytics",
+		"reports": "Reports",
+		"TeamPage": {
+			"subscription": {
+				"title": "Team Subscription",
+				"current_plan": "Current Plan",
+				"trial_period": "Trial period",
+				"billed_monthly": "Billed monthly",
+				"manage_subscription": "Manage Subscription",
+				"no_subscription": "No active subscription",
+				"free": "Free"
+			},
+			"members": {
+				"title": "Team Members",
+				"no_members": "No team members yet",
+				"remove": "Remove",
+				"removing": "Removing..."
+			},
+			"invite": {
+				"title": "Invite Team Member",
+				"email_label": "Email",
+				"email_placeholder": "Enter email",
+				"role_label": "Role",
+				"member": "Member",
+				"owner": "Owner",
+				"inviting": "Inviting...",
+				"owner_required": "You must be a team owner to invite new members",
+				"invite_button": "Invite Member"
+			}
+		},
+		"GeneralPage": {
+			"title": "General settings",
+			"description": "Manage your account settings and preferences",
+			"account_info": {
+				"title": "Account Information",
+				"name_label": "Name",
+				"name_placeholder": "Enter your name",
+				"email_label": "Email",
+				"email_placeholder": "Enter your email",
+				"save_button": "Save Changes",
+				"saving": "Saving..."
+			}
+		},
+		"ActivityPage": {
+			"title": "Activity",
+			"description": "Manage your account activities",
+			"meta_description": "View your account activity log",
+			"actions": {
+				"sign_up": "You signed up",
+				"sign_in": "You signed in",
+				"sign_out": "You signed out",
+				"update_password": "You changed your password",
+				"delete_account": "You deleted your account",
+				"update_account": "You updated your account",
+				"create_team": "You created a new team",
+				"remove_team_member": "You removed a team member",
+				"invite_team_member": "You invited a team member",
+				"accept_invitation": "You accepted an invitation",
+				"unknown": "Unknown action occurred"
+			},
+			"time": {
+				"just_now": "just now",
+				"minutes_ago": "{{count}} minutes ago",
+				"hours_ago": "{{count}} hours ago",
+				"days_ago": "{{count}} days ago"
+			},
+			"empty_state": {
+				"title": "No activity yet",
+				"description": "When you perform actions like signing in or updating your account, they'll appear here."
+			},
+			"from_ip": " from IP "
+		},
+		"SecurityPage": {
+			"title": "Security Settings",
+			"description": "Manage your account security settings",
+			"password": {
+				"title": "Password",
+				"current_label": "Current Password",
+				"new_label": "New Password",
+				"confirm_label": "Confirm New Password",
+				"update_button": "Update Password",
+				"updating": "Updating..."
+			},
+			"delete_account": {
+				"title": "Delete Account",
+				"warning": "Account deletion is non-reversible. Please proceed with caution.",
+				"password_label": "Confirm Password",
+				"delete_button": "Delete Account",
+				"deleting": "Deleting..."
+			}
+		}
+	},
+	"Teams": {
+		"title": "Teams Showcase",
+		"description": "Experience the power of Teams time tracking",
+		"get_started": "Get Started",
+		"learn_more": "Learn More"
+	},
+	"NotFound": {
+		"title": "Page Not Found",
+		"description": "The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.",
+		"back_to_home": "Back to Home"
+	},
+	"Footer": {
+		"theme_toggle": {
+			"light_mode": "Switch to light mode",
+			"dark_mode": "Switch to dark mode",
+			"theme": "Theme"
+		},
+		"language_switch": {
+			"current_language": "Current language",
+			"switch_language": "Switch language",
+			"language": "Language"
+		}
+	}
+}

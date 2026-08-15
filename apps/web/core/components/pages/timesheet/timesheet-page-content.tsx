@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import React, { Suspense, use, useMemo, useState } from 'react';
 
 import { Container } from '@/core/components';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 
 import { useLocalStorageState, useModal } from '@/core/hooks';
 import { fullWidthState } from '@/core/stores/common/full-width';
@@ -206,7 +206,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 
 	return (
 		<>
-			<MainLayout
+			<PageLayout
 				showTimer={isTrackingEnabled}
 				className="items-start pb-1 !overflow-hidden w-full"
 				childrenClassName="w-full"
@@ -386,7 +386,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 						/>
 					</Suspense>
 				)}
-			</MainLayout>
+			</PageLayout>
 		</>
 	);
 }

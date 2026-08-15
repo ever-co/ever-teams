@@ -9,13 +9,14 @@ on:
 
 jobs:
   deploy-prod:
-    runs-on: ubicloud-standard-2
+    runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
+    if: ${{ vars.DO_ENABLED == 'true' }}
 
     environment: prod
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2

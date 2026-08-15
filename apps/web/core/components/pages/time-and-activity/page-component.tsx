@@ -1,5 +1,5 @@
 'use client';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import { useRouter, useParams } from 'next/navigation';
 import { useAtomValue } from 'jotai';
@@ -149,7 +149,7 @@ const TimeActivityComponents = () => {
 	}
 
 	return (
-		<MainLayout
+		<PageLayout
 			className="items-start pb-1 !overflow-hidden w-full"
 			childrenClassName="w-full"
 			showTimer={isTrackingEnabled}
@@ -241,7 +241,7 @@ const TimeActivityComponents = () => {
 					})()}
 				</Card>
 			</Container>
-		</MainLayout>
+		</PageLayout>
 	);
 };
 export { TimeActivityComponents };

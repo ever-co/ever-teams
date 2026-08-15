@@ -9,13 +9,13 @@ on:
 
 jobs:
   deploy-render:
-    runs-on: ubicloud-standard-2
+    runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
 
     environment: dev
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Render CLI
         run: |

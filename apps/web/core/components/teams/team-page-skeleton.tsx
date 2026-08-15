@@ -1,5 +1,5 @@
 import Skeleton from 'react-loading-skeleton';
-import { MainLayout, MainHeader } from '@/core/components/layouts/default-layout';
+import { PageLayout, MainHeader } from '@/core/components/layouts/default-layout';
 import { Container } from '@/core/components';
 import UserTeamCardSkeletonCard from './user-team-card-skeleton';
 import InviteUserTeamCardSkeleton from './invite-team-card-skeleton';
@@ -16,7 +16,7 @@ const TeamPageSkeleton = () => {
 
 	return (
 		<div>
-			<MainLayout className="items-start hidden sm:relative">
+			<PageLayout className="items-start hidden sm:relative">
 				<MainHeader>
 					<Container>
 						<Skeleton height={20} width={180} borderRadius={10} className="dark:bg-[#353741] " />
@@ -98,8 +98,8 @@ const TeamPageSkeleton = () => {
 					{TeamCards}
 					<InviteUserTeamCardSkeleton />
 				</Container>
-			</MainLayout>
-			<MainLayout className="relative sm:hidden">
+			</PageLayout>
+			<PageLayout className="relative sm:hidden">
 				<MainHeader>
 					<Container>
 						<div className="w-full flex flex-col p-4 pb-0 rounded-2xl dark:bg-[#1F2126]">
@@ -178,7 +178,7 @@ const TeamPageSkeleton = () => {
 					</div>
 					{TeamCardsMobile}
 				</Container>
-			</MainLayout>
+			</PageLayout>
 		</div>
 	);
 };

@@ -3,7 +3,6 @@ import * as Toast from '@radix-ui/react-toast';
 import { IToastComponent } from '../libs/interfaces';
 import { useTranslation } from 'react-i18next';
 export const ToastComponent = ({
-  title,
   message,
   show,
   autoClose,
@@ -25,7 +24,7 @@ export const ToastComponent = ({
   return (
     <Toast.Provider swipeDirection="down">
       <Toast.Root
-        className={`${type === 'success' ? 'bg-green-700' : 'bg-red-700'} rounded-lg shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] p-[15px] grid [grid-template-areas:_'title_action'_'description_action'] grid-cols-[auto_max-content] gap-x-[15px] items-center data-[state=open]:animate-slideIn data-[state=closed]:animate-hide data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=cancel]:translate-x-0 data-[swipe=cancel]:transition-[transform_200ms_ease-out] data-[swipe=end]:animate-swipeOut absolute top-0 right-0`}
+        className={`${type === 'success' ? 'bg-green-700' : 'bg-red-700'} rounded-lg shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] p-[15px] grid [grid-template-areas:_'title_action'_'description_action'] grid-cols-[auto_max-content] gap-x-[15px] items-center data-[state=open]:animate-slideIn data-[state=closed]:animate-hide data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=cancel]:translate-x-0 data-[swipe=cancel]:transition-[transform_200ms_ease-out] data-[swipe=end]:animate-swipeOut absolute top-[28px] right-0`}
         open={show}
         duration={1000}
       >

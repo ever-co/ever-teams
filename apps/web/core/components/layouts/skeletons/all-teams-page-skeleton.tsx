@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { Container } from '@/core/components';
-import { MainLayout } from '@/core/components/layouts/default-layout';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 
 interface AllTeamsPageSkeletonProps {
 	className?: string;
@@ -10,7 +10,7 @@ interface AllTeamsPageSkeletonProps {
 
 /**
  * Complete page-level skeleton for All Teams page
- * Integrates seamlessly with MainLayout structure without swallowing it up
+ * Integrates seamlessly with PageLayout structure without swallowing it up
  * Matches exact layout: mainHeaderSlot (3 sections: breadcrumb + tabs/filter + header) + main content (team members grid)
  */
 export const AllTeamsPageSkeleton: FC<AllTeamsPageSkeletonProps> = ({
@@ -19,7 +19,7 @@ export const AllTeamsPageSkeleton: FC<AllTeamsPageSkeletonProps> = ({
 	showTimer = false
 }) => {
 	return (
-		<MainLayout
+		<PageLayout
 			title="All Teams"
 			showTimer={showTimer}
 			className="items-start"
@@ -127,7 +127,7 @@ export const AllTeamsPageSkeleton: FC<AllTeamsPageSkeletonProps> = ({
 					</div>
 				</div>
 			</Container>
-		</MainLayout>
+		</PageLayout>
 	);
 };
 
