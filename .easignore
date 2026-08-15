@@ -1,0 +1,20 @@
+# Files excluded from the archive uploaded to EAS Build.
+#
+# EAS uploads the repo root (apps/mobile is a yarn workspace) and runs
+# `yarn install --frozen-lockfile --production false` at the root, which installs the deps of
+# EVERY workspace it finds — including ones a mobile build has no use for.
+#
+# apps/storybook pulls @storybook/nextjs, which carries its own nested legacy `sharp`. That copy
+# has no prebuilt binary for Node 24 + darwin-arm64, so node-gyp compiles it from source on the
+# EAS macOS builder and fails:
+#
+#   node_modules/@storybook/nextjs/node_modules/sharp .. metadata.cc:
+#   error: no member named 'NewOrCopy' in 'Napi::Buffer<char>'  (x5)  -> make: *** exit 2
+#   -> yarn install --frozen-lockfile --production false exited with non-zero code: 1
+#
+# That broke every iOS build. Excluding the workspace keeps it out of the archive, so yarn never
+# installs its dependencies. Safe with --frozen-lockfile: yarn 1 fails when the lockfile would need
+# to CHANGE, not when it contains extra entries.
+#
+# Kept deliberately narrow — only the workspace that actually breaks the build.
+apps/storybook
