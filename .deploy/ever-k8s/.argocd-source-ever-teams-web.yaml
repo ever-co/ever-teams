@@ -1,0 +1,3 @@
+kustomize:
+  images:
+  - ghcr.io/ever-co/ever-teams-webapp:latest@sha256:cf9fd98a1184579588f71b7905674f174e26ec318b758a4f735fc6dbb69f2bc6

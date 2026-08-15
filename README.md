@@ -9,6 +9,10 @@
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/ever-co/ever-teams)
 [![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/ever-co/ever-teams)
 
+## 💡 What's New
+- 🔥🔥🔥 we just released [Ever Works](https://github.com/ever-works/ever-works) - An open agentic runtime that autonomously researches, ships, and maintains entire businesses, 24/7. Please grab it now from <https://github.com/ever-works/ever-works> and make it ⭐⭐⭐ on GitHub!
+- if you like Ever Teams, you should also check [Ever Gauzy](https://github.com/ever-co/ever-gauzy) - Open Business Management Platform (ERP/CRM/HRM/ATS/PM). Please check <https://github.com/ever-co/ever-gauzy> and make it ⭐ on GitHub! Ever Teams actually utilize Ever Gauzy headless APIs, see [Ever Gauzy Platform APIs](https://api.gauzy.co/docs).
+
 ## ⭐️ What is it?
 
 [Ever® Teams™](https://app.ever.team) - Open Work and Project Management Platform.
@@ -318,7 +322,7 @@ You can also view a full list of our [contributors tracked by GitHub](https://gi
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=ever-co/ever-teams&type=Date)](https://star-history.com/#ever-co/ever-teams&Date)
+[![Star History Chart](https://stats-github.ever.co/svg?repos=ever-co/ever-teams&type=Date)](https://stats-github.ever.co/#ever-co/ever-teams&Date)
 
 ## ❤️ Powered By
 
