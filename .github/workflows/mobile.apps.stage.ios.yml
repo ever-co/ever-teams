@@ -55,6 +55,19 @@ jobs:
           echo "APPLE_ID=${{ secrets.APPLE_ID }}" >> $GITHUB_ENV
           echo "APPSTORE_ISSUER_ID=${{ secrets.APPSTORE_ISSUER_ID }}" >> $GITHUB_ENV
           echo "APPSTORE_API_KEY_ID=${{ secrets.APPSTORE_API_KEY_ID }}" >> $GITHUB_ENV
+          # Same defect the production iOS workflow had: the App Store Connect API key held in the
+          # EAS credentials service has no Apple Team attached, so eas-cli gets teamId=undefined and
+          # falls through to an interactive "Apple Team ID:" prompt that cannot be answered under
+          # --non-interactive. eas-cli reads these two env vars directly. Without them the build
+          # still proceeds, but Apple-side provisioning-profile validation is silently SKIPPED.
+          #
+          # Passed via the step's env: block below rather than interpolated into this script -
+          # expanding a secret inline splices its value into the shell source (SonarCloud: "Avoid
+          # expanding secrets in a run block").
+          echo "EXPO_APPLE_TEAM_ID=$APPLE_TEAM_ID_VALUE" >> $GITHUB_ENV
+          echo "EXPO_APPLE_TEAM_TYPE=COMPANY_OR_ORGANIZATION" >> $GITHUB_ENV
+        env:
+          APPLE_TEAM_ID_VALUE: ${{ secrets.APPLE_TEAM_ID }}
 
       - name: Replace Secrets in eas.json
         run: |
@@ -114,7 +127,18 @@ jobs:
         run: cd apps/mobile && eas build --profile internal --platform ios --non-interactive
 
       - name: Publish update
-        run: cd apps/mobile && eas update --auto --platform ios --non-interactive
+        # Publish to the CHANNEL these binaries actually listen on. The build step above uses
+        # --profile internal, and eas.json bakes channel "internal" into that binary.
+        # This previously used --auto, which derives the EAS branch from the GIT branch name, so
+        # updates landed on a branch nobody listens to. On the production pipeline that meant
+        # every OTA went to channel "apps" while shipped builds waited on channel "production",
+        # which had zero updates in its whole history — OTA reached nobody. Verified against the
+        # Expo API on 2026-08-15. --auto also supplied the message, so pass one explicitly.
+        # The message goes through env: rather than being interpolated into the run line, so a
+        # crafted ref name cannot splice shell into the command.
+        run: cd apps/mobile && eas update --channel internal --message "$UPDATE_MESSAGE" --platform ios --non-interactive
+        env:
+          UPDATE_MESSAGE: ${{ github.ref_name }}@${{ github.sha }}
 
       - name: Upload App build to App store
         run: cd apps/mobile && eas submit --profile internal --platform ios --latest --non-interactive
