@@ -55,8 +55,14 @@ jobs:
           # reads these two env vars directly (credentials/ios/appstore/resolveCredentials.js).
           # Without them the build still proceeds, but Apple-side provisioning-profile validation
           # is silently SKIPPED — so set them and keep that check active.
-          echo "EXPO_APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }}" >> $GITHUB_ENV
+          #
+          # Referenced via the step's env: block rather than interpolated with ${{ }} directly in
+          # this script — expanding a secret inline splices its value into the shell source, which
+          # is a script-injection risk (SonarCloud: "Avoid expanding secrets in a run block").
+          echo "EXPO_APPLE_TEAM_ID=$APPLE_TEAM_ID_VALUE" >> $GITHUB_ENV
           echo "EXPO_APPLE_TEAM_TYPE=COMPANY_OR_ORGANIZATION" >> $GITHUB_ENV
+        env:
+          APPLE_TEAM_ID_VALUE: ${{ secrets.APPLE_TEAM_ID }}
 
       - name: Replace Secrets in eas.json
         run: |
