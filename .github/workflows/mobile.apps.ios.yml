@@ -49,6 +49,14 @@ jobs:
           echo "APPLE_ID=${{ secrets.APPLE_ID }}" >> $GITHUB_ENV
           echo "APPSTORE_ISSUER_ID=${{ secrets.APPSTORE_ISSUER_ID }}" >> $GITHUB_ENV
           echo "APPSTORE_API_KEY_ID=${{ secrets.APPSTORE_API_KEY_ID }}" >> $GITHUB_ENV
+          # The App Store Connect API key stored in the EAS credentials service has no Apple Team
+          # associated, so eas-cli receives teamId=undefined and falls through to an interactive
+          # prompt ("Apple Team ID:") that cannot be answered under --non-interactive. eas-cli
+          # reads these two env vars directly (credentials/ios/appstore/resolveCredentials.js).
+          # Without them the build still proceeds, but Apple-side provisioning-profile validation
+          # is silently SKIPPED — so set them and keep that check active.
+          echo "EXPO_APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }}" >> $GITHUB_ENV
+          echo "EXPO_APPLE_TEAM_TYPE=COMPANY_OR_ORGANIZATION" >> $GITHUB_ENV
 
       - name: Replace Secrets in eas.json
         run: |
