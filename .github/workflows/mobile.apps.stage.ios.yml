@@ -1,9 +1,15 @@
 name: Mobile Build, Deploy and Publish Apps iOS
 on:
+  # Allows re-running the published build by hand without touching app sources.
+  workflow_dispatch:
   push:
     branches:
       - apps-stage
     paths:
+      # This workflow's own definition — without it, editing this file never re-runs it,
+      # so a fix to the workflow cannot be validated. The sibling entry below points at
+      # an aggregate file that does not exist; left in place deliberately.
+      - '.github/workflows/mobile.apps.stage.ios.yml'
       - '.github/workflows/mobile.apps.stage.yml'
       - 'apps/mobile/**'
       - 'package.json'
