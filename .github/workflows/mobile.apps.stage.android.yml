@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - apps-stage
+      - stage-apps
     paths:
       # This workflow's own definition — without it, editing this file never re-runs it,
       # so a fix to the workflow cannot be validated. The sibling entry below points at
