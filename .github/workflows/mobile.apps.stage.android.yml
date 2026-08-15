@@ -92,6 +92,15 @@ jobs:
           EXPO_SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           EXPO_SENTRY_PROJECT: ${{ secrets.EXPO_SENTRY_PROJECT }}
 
+      # SECURITY: "Configure Registry" appends the internal registry + VERDACCIO_TOKEN to
+      # .npmrc, which is a git-TRACKED file. eas-cli ships modified tracked files in the
+      # build archive, so the token was being uploaded to Expo (their log shows
+      # "PREPARE_PROJECT | .npmrc found at .npmrc"). Restore it before the upload. This also
+      # stops Expo builders trying to reach packages.ever.co, which they cannot resolve.
+      - name: Restore .npmrc before EAS upload
+        shell: bash
+        run: git checkout -- .npmrc || true
+
       - name: Build on EAS
         run: cd apps/mobile && eas build --profile internal --platform android --non-interactive
 
