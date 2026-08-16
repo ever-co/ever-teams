@@ -33,7 +33,7 @@ export const AuthenticatedTaskScreen: FC<AuthenticatedDrawerScreenProps<'TaskScr
 				<View style={[$headerContainer, { backgroundColor: colors.background }]}>
 					<View style={[styles.container, { backgroundColor: colors.background }]}>
 						<TouchableOpacity onPress={() => navigation.navigate('AuthenticatedTab')}>
-							<AntDesign name="arrowleft" size={24} color={colors.primary} />
+							<AntDesign name="arrow-left" size={24} color={colors.primary} />
 						</TouchableOpacity>
 						<Text style={[styles.title, { color: colors.primary }]}>
 							{translate('taskDetailsScreen.taskScreen')}

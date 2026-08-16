@@ -51,8 +51,12 @@ export function validateForm<T extends Ks>(keys: (keyof T)[], data: T) {
 	const errors = {} as { [k in keyof T]: string | undefined };
 
 	keys.forEach((key) => {
-		const value = data[key];
-		data[key] = typeof value === 'string' ? (value.trim() as any) : value;
+		// Validate the TRIMMED value. Previously the trimmed string was written back to `data` but
+		// the regexes ran against the raw one, so an email with a trailing space (" a@b.co ") was
+		// rejected as invalid even though it was stored correctly. Caught by helpers.test.ts.
+		const raw = data[key];
+		const value = typeof raw === 'string' ? (raw.trim() as any) : raw;
+		data[key] = value;
 		switch (key) {
 			case 'email':
 				if (value && !EMAIL_REGEX.test(value)) {

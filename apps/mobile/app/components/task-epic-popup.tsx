@@ -99,7 +99,7 @@ const Item: React.FC<ItemProps> = ({ currentEpicId, epic, onTaskSelect, teamTask
 					{!selected ? (
 						<Feather name="circle" size={22} color={colors.divider} />
 					) : (
-						<AntDesign name="checkcircle" size={22} color="#27AE60" />
+						<AntDesign name="check-circle" size={22} color="#27AE60" />
 					)}
 				</View>
 			</View>
