@@ -231,8 +231,12 @@ jobs:
           #                               "status":"ok" also catches a booted-but-degraded API
           #                               whose database or Redis dependency has failed.
           #   ever.team/               -> the marketing site, server-rendered HTML. No health
-          #                               route exists, so we assert 200 + a body marker taken
-          #                               from the <title>. A size floor alone was NOT enough:
+          #                               route exists, so we assert 200 + a SEMANTIC marker: the
+          #                               `<meta name="author" content="Ever Teams">` tag. NOT the
+          #                               <title> tagline -- pinning health to marketing copy means
+          #                               a rebrand takes the site "DOWN" on a perfectly healthy
+          #                               deploy, which is the false-alarm class this workflow
+          #                               exists to end. A size floor alone was NOT enough:
           #                               the real page is ~59,796 B against a 1024 B floor, so a
           #                               Cloudflare interstitial, an "Always Online" cached
           #                               shell, a Next.js error page or a wrong-environment
@@ -261,7 +265,7 @@ jobs:
           done <<'ENDPOINTS'
           https://app.ever.team/api/health|Ever Teams Next.js API|10
           https://api.ever.team/api/health|"status":"ok"|10
-          https://ever.team/|Time Tracking Platform|1024
+          https://ever.team/|name="author" content="Ever Teams"|1024
           ENDPOINTS
 
           # -------------------------------------------------------------------------------
@@ -348,8 +352,16 @@ jobs:
           # Match the exact title this workflow writes, not the label alone. The recovery step
           # does not merely comment -- it CLOSES. A human who hand-labels a related incident
           # issue must never have it silently auto-closed by the monitor.
-          EXISTING="$(gh issue list --label "$LABEL" --state open --limit 20 \
-            --json number,title --jq '[.[] | select(.title == env.TITLE)] | .[0].number // empty')"
+          # --limit must comfortably exceed the number of open issues that could carry this label,
+          # or our own older alert falls outside the page, the title filter never sees it, and the
+          # outage path opens a duplicate while recovery leaves the missed one open. This workflow
+          # holds only ONE such issue at a time, so 100 is generous -- but warn loudly rather than
+          # truncate silently if that assumption ever breaks.
+          LISTED="$(gh issue list --label "$LABEL" --state open --limit 100 --json number,title)"
+          if [ "$(jq 'length' <<< "$LISTED")" -ge 100 ]; then
+            echo "::warning::100+ open $LABEL issues — this lookup may be truncated."
+          fi
+          EXISTING="$(jq -r '[.[] | select(.title == $t)] | .[0].number // empty' --arg t "$TITLE" <<< "$LISTED")"
 
           if [ -z "$EXISTING" ]; then
             echo "No open $LABEL issue -- creating one."
@@ -397,8 +409,16 @@ jobs:
 
           # Same exact-title match as the alerting step: this path CLOSES issues, so it must only
           # ever touch the one this workflow opened.
-          EXISTING="$(gh issue list --label "$LABEL" --state open --limit 20 \
-            --json number,title --jq '[.[] | select(.title == env.TITLE)] | .[0].number // empty')"
+          # --limit must comfortably exceed the number of open issues that could carry this label,
+          # or our own older alert falls outside the page, the title filter never sees it, and the
+          # outage path opens a duplicate while recovery leaves the missed one open. This workflow
+          # holds only ONE such issue at a time, so 100 is generous -- but warn loudly rather than
+          # truncate silently if that assumption ever breaks.
+          LISTED="$(gh issue list --label "$LABEL" --state open --limit 100 --json number,title)"
+          if [ "$(jq 'length' <<< "$LISTED")" -ge 100 ]; then
+            echo "::warning::100+ open $LABEL issues — this lookup may be truncated."
+          fi
+          EXISTING="$(jq -r '[.[] | select(.title == $t)] | .[0].number // empty' --arg t "$TITLE" <<< "$LISTED")"
 
           if [ -z "$EXISTING" ]; then
             echo "All endpoints healthy and no open alert issue. Nothing to do."
