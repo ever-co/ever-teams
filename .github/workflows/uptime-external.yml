@@ -231,7 +231,14 @@ jobs:
           #                               "status":"ok" also catches a booted-but-degraded API
           #                               whose database or Redis dependency has failed.
           #   ever.team/               -> the marketing site, server-rendered HTML. No health
-          #                               route exists, so we assert 200 + a non-trivial body.
+          #                               route exists, so we assert 200 + a body marker taken
+          #                               from the <title>. A size floor alone was NOT enough:
+          #                               the real page is ~59,796 B against a 1024 B floor, so a
+          #                               Cloudflare interstitial, an "Always Online" cached
+          #                               shell, a Next.js error page or a wrong-environment
+          #                               deploy would all clear it and report UP. Verified with
+          #                               a known-dirty control: /bogus-xyz-9931 returns 404 and
+          #                               does NOT contain this marker.
           #
           # Deliberately NOT monitored: stage.ever.team and demo.ever.team. Those are WIP
           # environments where short outages are expected and tolerated, and alerting on them
@@ -254,7 +261,7 @@ jobs:
           done <<'ENDPOINTS'
           https://app.ever.team/api/health|Ever Teams Next.js API|10
           https://api.ever.team/api/health|"status":"ok"|10
-          https://ever.team/||1024
+          https://ever.team/|Time Tracking Platform|1024
           ENDPOINTS
 
           # -------------------------------------------------------------------------------
@@ -357,12 +364,24 @@ jobs:
           fi
 
       - name: Note that the runner itself is suspect
-        if: steps.probe.outputs.control_down == 'true'
+        # Also requires something to have actually FAILED. Gated on control_down alone, a run
+        # where all three endpoints answered 200 with correct markers but the control merely
+        # flapped would print "these results cannot tell an outage from a network fault" onto a
+        # GREEN run -- which is false there, and is the kind of noise that teaches people to stop
+        # reading this workflow's output.
+        if: steps.probe.outputs.control_down == 'true' && steps.probe.outputs.failed == 'true'
         shell: bash
         run: |
           echo "::error::The known-good control endpoint was also unreachable, so this runner's own"
           echo "::error::network is suspect. No alert issue was filed: these results cannot tell an"
           echo "::error::Ever Teams outage apart from a GitHub Actions network fault."
+
+      - name: Note that the control endpoint flapped on an otherwise healthy run
+        if: steps.probe.outputs.control_down == 'true' && steps.probe.outputs.failed == 'false'
+        shell: bash
+        run: |
+          echo "::warning::The control endpoint failed but every Ever Teams endpoint answered"
+          echo "::warning::correctly, so this run is still valid evidence that the service is up."
 
       - name: Close the alert issue on recovery
         if: steps.probe.outputs.failed == 'false'
