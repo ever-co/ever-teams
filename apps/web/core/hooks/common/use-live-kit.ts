@@ -4,29 +4,34 @@ import { useEffect, useState } from 'react';
 
 interface ITokenLiveKitProps {
 	roomName: string;
-	username: string;
 }
 
-export function useTokenLiveKit({ roomName, username }: ITokenLiveKitProps) {
-	const [token, setToken] = useState<string | null>(() => {
-		if (typeof window !== 'undefined') {
-			return window.localStorage.getItem('token-live-kit');
-		}
-		return null;
-	});
+export function useTokenLiveKit({ roomName }: ITokenLiveKitProps) {
+	const [token, setToken] = useState<string | null>(null);
 
 	useEffect(() => {
+		// A stale token would publish local tracks into the room the user just left
+		setToken(null);
+
+		if (!roomName) return;
+
+		let cancelled = false;
+
 		const fetchToken = async () => {
 			try {
-				const response = await tokenLiveKitRoom({ roomName, username });
-				window.localStorage.setItem('token-live-kit', response.token);
+				const response = await tokenLiveKitRoom({ roomName });
+				if (cancelled || !response?.token) return;
 				setToken(response.token);
 			} catch (error) {
 				console.error('Failed to fetch token:', error);
 			}
 		};
 		fetchToken();
-	}, [roomName, username]);
+
+		return () => {
+			cancelled = true;
+		};
+	}, [roomName]);
 
 	return { token };
 }

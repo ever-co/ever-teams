@@ -31,8 +31,7 @@ function LiveKitPage() {
 	}, [params]);
 
 	const { token } = useTokenLiveKit({
-		roomName: roomName || '',
-		username: user?.email || ''
+		roomName: roomName || ''
 	});
 
 	return (
