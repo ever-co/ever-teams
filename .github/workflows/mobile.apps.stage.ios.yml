@@ -14,6 +14,9 @@ on:
       - 'apps/mobile/**'
       - 'package.json'
       - 'yarn.lock'
+      # The EAS upload archive decides which workspaces get installed on the builder,
+      # so a change to it changes the build as surely as a dependency bump does.
+      - '.easignore'
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -77,10 +80,6 @@ jobs:
           sed -i 's|SENTRY_AUTH_TOKEN_PLACEHOLDER|${{ secrets.SENTRY_AUTH_TOKEN }}|g' ./apps/mobile/eas.json
           sed -i 's|SENTRY_ORG_PLACEHOLDER|${{ secrets.SENTRY_ORG }}|g' ./apps/mobile/eas.json
           sed -i 's|SENTRY_PROJECT_PLACEHOLDER|${{ secrets.EXPO_SENTRY_PROJECT }}|g' ./apps/mobile/eas.json
-
-      - name: Create Apple API Key File
-        run: |
-          echo "${{ secrets.APPSTORE_API_PRIVATE_KEY }}" > ./apps/mobile/AuthKey_R9QZ5LP8NK.p8
 
       - name: Configure Registry
         shell: bash
@@ -158,5 +157,41 @@ jobs:
         env:
           UPDATE_MESSAGE: ${{ github.ref_name }}@${{ github.sha }}
 
+      # Written HERE, after "Build on EAS", and deliberately not earlier. `eas submit` is the
+      # only consumer of this key and it runs on THIS runner, never on the Expo builder.
+      # eas-cli uploads a shallow copy of the working directory (requireCommit defaults to
+      # false), so anything on disk at `eas build` time is shipped to Expo. This key is
+      # gitignored via `*.p8`, but .easignore REPLACES .gitignore rather than extending it
+      # (eas-cli build/vcs/local.js:49-59), so that alone had already leaked it once.
+      # .easignore now restates the rule AND the key is created too late to be captured —
+      # two independent guarantees, so trimming either one cannot re-open the leak.
+      #
+      # Do NOT "fix" this with `requireCommit: true`: these jobs sed-edit eas.json and
+      # generate an untracked apps/mobile/app.json, so eas-cli would abort with
+      # "You have some uncommitted changes in your repository." (git.js:109-120), and a
+      # commit-based archive would omit the generated app.json the build needs.
+      - name: Create Apple API Key File
+        run: |
+          echo "${{ secrets.APPSTORE_API_PRIVATE_KEY }}" > ./apps/mobile/AuthKey_R9QZ5LP8NK.p8
+
       - name: Upload App build to App store
+        # GATED, not removed. This step could never have submitted the build above, and would
+        # instead upload an unrelated PRODUCTION binary to App Store Connect.
+        #
+        # This job builds `--profile internal`, and eas.json marks that profile
+        # "distribution": "internal". But `eas submit --latest` resolves its candidate through
+        # getRecentBuildsForSubmissionAsync (eas-cli build/submit/utils/builds.js), which filters
+        # `distribution: DistributionType.Store` and ignores the build profile entirely. An
+        # internal-distribution build therefore can NEVER be selected here; --latest picks the
+        # newest STORE build on the whole app - any profile, any branch, any author - across
+        # statuses New, InQueue, InProgress and Finished.
+        #
+        # It has never fired only because this workflow has never produced a build: it dies
+        # earlier at "EAS CLI couldn't find any credentials suitable for internal distribution".
+        # Fixing that credential gap without this guard would have turned a staging run into an
+        # unintended App Store Connect upload.
+        #
+        # Flip STAGE_IOS_SUBMIT_ENABLED to 'true' only once this step submits by explicit build
+        # id, the way mobile.apps.ios.yml now does.
+        if: ${{ vars.STAGE_IOS_SUBMIT_ENABLED == 'true' }}
         run: cd apps/mobile && eas submit --profile internal --platform ios --latest --non-interactive

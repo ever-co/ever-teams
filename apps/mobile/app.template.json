@@ -52,7 +52,13 @@
 						"deploymentTarget": "15.1",
 						"config": {
 							"usesNonExemptEncryption": false
-						}
+						},
+						"extraPods": [
+							{
+								"name": "MMKV",
+								"version": "~> 1.3.17"
+							}
+						]
 					},
 					"android": {
 						"enableProguardInReleaseBuilds": true,
