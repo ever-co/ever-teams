@@ -14,6 +14,9 @@ on:
       - 'apps/mobile/**'
       - 'package.json'
       - 'yarn.lock'
+      # The EAS upload archive decides which workspaces get installed on the builder,
+      # so a change to it changes the build as surely as a dependency bump does.
+      - '.easignore'
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -85,10 +88,6 @@ jobs:
           sed -i 's|SENTRY_ORG_PLACEHOLDER|${{ secrets.SENTRY_ORG }}|g' ./apps/mobile/eas.json
           sed -i 's|SENTRY_PROJECT_PLACEHOLDER|${{ secrets.EXPO_SENTRY_PROJECT }}|g' ./apps/mobile/eas.json
 
-      - name: Create Apple API Key File
-        run: |
-          echo "${{ secrets.APPSTORE_API_PRIVATE_KEY }}" > ./apps/mobile/AuthKey_R9QZ5LP8NK.p8
-
       - name: Configure Registry
         shell: bash
         run: |
@@ -149,7 +148,37 @@ jobs:
         run: git checkout -- .npmrc || true
 
       - name: Build on EAS
-        run: cd apps/mobile && eas build --profile production --platform ios --non-interactive
+        id: eas_build
+        # Capture THIS build's id so the submit step can target it explicitly.
+        #
+        # `eas submit --latest` does NOT mean "the build this job just made". It resolves through
+        # getRecentBuildsForSubmissionAsync (eas-cli build/submit/utils/builds.js), which filters
+        # `distribution: DistributionType.Store` and ignores the build profile, the branch and who
+        # started it, across statuses New, InQueue, InProgress AND Finished. So any
+        # production-profile build started from a laptop or the Expo dashboard can win that race
+        # and be the thing shipped to the store. That is not hypothetical: on 2026-08-16 the newest
+        # STORE build on this app was one driven from a local checkout while debugging.
+        #
+        # The explicit FINISHED assertion also closes a second hole: `eas build --wait` exits 0 on
+        # a CANCELED build, and `concurrency.cancel-in-progress: true` above makes cancellation
+        # reachable, so without it a cancelled build would fall through to submit.
+        #
+        # The JSON is written to $RUNNER_TEMP, outside the repo, so it can never be picked up by
+        # the EAS upload archive.
+        run: |
+          cd apps/mobile
+          eas build --profile production --platform ios --non-interactive --json --wait > "$RUNNER_TEMP/eas-ios-build.json"
+          node -e '
+            const fs = require("fs");
+            const raw = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + "/eas-ios-build.json", "utf8"));
+            const build = Array.isArray(raw) ? raw[0] : raw;
+            if (!build || build.status !== "FINISHED") {
+              console.error("EAS build did not finish, refusing to submit. status=" + (build && build.status));
+              process.exit(1);
+            }
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, "build_id=" + build.id + "\n");
+            console.log("EAS build " + build.id + " FINISHED");
+          '
 
       - name: Publish update
         # Publish to the CHANNEL these binaries actually listen on. The build step above uses
@@ -165,5 +194,22 @@ jobs:
         env:
           UPDATE_MESSAGE: ${{ github.ref_name }}@${{ github.sha }}
 
+      # Written HERE, after "Build on EAS", and deliberately not earlier. `eas submit` is the
+      # only consumer of this key and it runs on THIS runner, never on the Expo builder.
+      # eas-cli uploads a shallow copy of the working directory (requireCommit defaults to
+      # false), so anything on disk at `eas build` time is shipped to Expo. This key is
+      # gitignored via `*.p8`, but .easignore REPLACES .gitignore rather than extending it
+      # (eas-cli build/vcs/local.js:49-59), so that alone had already leaked it once.
+      # .easignore now restates the rule AND the key is created too late to be captured —
+      # two independent guarantees, so trimming either one cannot re-open the leak.
+      #
+      # Do NOT "fix" this with `requireCommit: true`: these jobs sed-edit eas.json and
+      # generate an untracked apps/mobile/app.json, so eas-cli would abort with
+      # "You have some uncommitted changes in your repository." (git.js:109-120), and a
+      # commit-based archive would omit the generated app.json the build needs.
+      - name: Create Apple API Key File
+        run: |
+          echo "${{ secrets.APPSTORE_API_PRIVATE_KEY }}" > ./apps/mobile/AuthKey_R9QZ5LP8NK.p8
+
       - name: Upload App build to App store
-        run: cd apps/mobile && eas submit --profile production --platform ios --latest --non-interactive
+        run: cd apps/mobile && eas submit --profile production --platform ios --id "${{ steps.eas_build.outputs.build_id }}" --non-interactive

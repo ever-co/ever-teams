@@ -10,6 +10,7 @@
 			"distribution": "internal",
 			"channel": "development",
 			"env": {
+				"SHARP_IGNORE_GLOBAL_LIBVIPS": "1",
 				"SENTRY_AUTH_TOKEN": "SENTRY_AUTH_TOKEN_PLACEHOLDER",
 				"SENTRY_ORG": "SENTRY_ORG_PLACEHOLDER",
 				"SENTRY_PROJECT": "SENTRY_PROJECT_PLACEHOLDER"
@@ -20,6 +21,7 @@
 			"distribution": "internal",
 			"channel": "preview",
 			"env": {
+				"SHARP_IGNORE_GLOBAL_LIBVIPS": "1",
 				"SENTRY_AUTH_TOKEN": "SENTRY_AUTH_TOKEN_PLACEHOLDER",
 				"SENTRY_ORG": "SENTRY_ORG_PLACEHOLDER",
 				"SENTRY_PROJECT": "SENTRY_PROJECT_PLACEHOLDER",
@@ -31,10 +33,12 @@
 			"autoIncrement": true,
 			"channel": "production",
 			"env": {
+				"SHARP_IGNORE_GLOBAL_LIBVIPS": "1",
 				"SENTRY_AUTH_TOKEN": "SENTRY_AUTH_TOKEN_PLACEHOLDER",
 				"SENTRY_ORG": "SENTRY_ORG_PLACEHOLDER",
 				"SENTRY_PROJECT": "SENTRY_PROJECT_PLACEHOLDER",
-				"SENTRY_URL": "https://sentry.io"
+				"SENTRY_URL": "https://sentry.io",
+				"SENTRY_ALLOW_FAILURE": "true"
 			}
 		},
 		"internal": {
@@ -42,10 +46,12 @@
 			"distribution": "internal",
 			"channel": "internal",
 			"env": {
+				"SHARP_IGNORE_GLOBAL_LIBVIPS": "1",
 				"SENTRY_AUTH_TOKEN": "SENTRY_AUTH_TOKEN_PLACEHOLDER",
 				"SENTRY_ORG": "SENTRY_ORG_PLACEHOLDER",
 				"SENTRY_PROJECT": "SENTRY_PROJECT_PLACEHOLDER",
-				"SENTRY_URL": "https://sentry.io"
+				"SENTRY_URL": "https://sentry.io",
+				"SENTRY_ALLOW_FAILURE": "true"
 			}
 		}
 	},

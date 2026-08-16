@@ -1,20 +1,229 @@
 # Files excluded from the archive uploaded to EAS Build.
 #
-# EAS uploads the repo root (apps/mobile is a yarn workspace) and runs
-# `yarn install --frozen-lockfile --production false` at the root, which installs the deps of
-# EVERY workspace it finds — including ones a mobile build has no use for.
+# =============================================================================================
+# 🛑 THIS FILE REPLACES .gitignore — IT IS NOT ADDITIVE
+# =============================================================================================
+# eas-cli's Ignore class (eas-cli 22.0.0, build/vcs/local.js:49-59) is explicit:
 #
-# apps/storybook pulls @storybook/nextjs, which carries its own nested legacy `sharp`. That copy
-# has no prebuilt binary for Node 24 + darwin-arm64, so node-gyp compiles it from source on the
-# EAS macOS builder and fails:
+#     * - if .easignore exists, .gitignore files are not used.
 #
-#   node_modules/@storybook/nextjs/node_modules/sharp .. metadata.cc:
-#   error: no member named 'NewOrCopy' in 'Napi::Buffer<char>'  (x5)  -> make: *** exit 2
-#   -> yarn install --frozen-lockfile --production false exited with non-zero code: 1
+#     if (await fs.pathExists(easIgnorePath)) {
+#       this.ignoreMapping = [['', ignore().add(defaultIgnore)],
+#                             ['', ignore().add(await fs.readFile(easIgnorePath, 'utf-8'))]];
+#       return;                       // <-- never reads any .gitignore, root or nested
+#     }
 #
-# That broke every iOS build. Excluding the workspace keeps it out of the archive, so yarn never
-# installs its dependencies. Safe with --frozen-lockfile: yarn 1 fails when the lockfile would need
-# to CHANGE, not when it contains extra entries.
+# and `defaultIgnore` for copying is only `.git` + `node_modules` (local.js:33-36).
 #
-# Kept deliberately narrow — only the workspace that actually breaks the build.
+# eas.json sets no `requireCommit`, so it defaults to false, and with requireCommit false
+# eas-cli SHALLOW-COPIES THE WORKING DIRECTORY rather than exporting a git commit
+# (build/vcs/clients/git.js:199-207). Untracked files therefore ship too.
+#
+# Consequence: the moment this file was created, every .gitignore rule in the repo stopped
+# applying to the upload — including `*.p8` in apps/mobile/.gitignore, which covers
+# apps/mobile/AuthKey_R9QZ5LP8NK.p8, the App Store Connect private key that the mobile
+# workflows write to disk immediately before `eas build` runs. That key, plus every build
+# artifact and any .env file present on the runner, was being uploaded to Expo.
+#
+# So this file restates .gitignore first, and only then adds the EAS-specific exclusions.
+# 🛑 If you add a rule to .gitignore that protects a secret, add it here too.
+
+# ---------------------------------------------------------------------------------------------
+# 1. Restated from the ROOT .gitignore
+# ---------------------------------------------------------------------------------------------
+/dist
+/tmp
+/out-tsc
+/lerna-debug.log
+.turbo
+.turbo-build-summary.json
+.turbo-build-summary.md
+.turbo-debug.log
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-shm
+*.sqlite3-wal
+node_modules/
+/.pnp
+.pnp.js
+.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+/coverage
+/.next
+/out/
+/build
+/.sass-cache
+/connect.lock
+/libpeerconnection.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log
+testem.log
+/typings
+.env.local
+.env.build
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
+.vercel
+.DS_Store
+Thumbs.db
+*.pem
+/.cache
+/apps/**/.cache
+/packages/**/.cache
+/packages/**/dist
+**/.rollup.cache
+*.tsbuildinfo
+.netlify
+/.nx
+megalinter-reports/
+.claude/worktrees
+.claude/settings.local.json
+.agent-out/
+
+# ---------------------------------------------------------------------------------------------
+# 2. Restated from apps/mobile/.gitignore — CREDENTIALS. Do not weaken.
+# ---------------------------------------------------------------------------------------------
+# apps/mobile/AuthKey_*.p8 is written by the "Create Apple API Key File" step in every mobile
+# workflow, before `eas build`. `eas submit` reads it on the GitHub runner, NOT on the Expo
+# builder, so the builder never needs it and it must not be uploaded.
+*.p8
+*.p12
+*.key
+*.jks
+*.mobileprovision
+*.keystore
+!debug.keystore
+.env
+.env.*.local
+!.env.template
+
+# ---------------------------------------------------------------------------------------------
+# 3. Restated from apps/mobile/.gitignore — native/build artifacts
+# ---------------------------------------------------------------------------------------------
+# apps/mobile/ios and apps/mobile/android have ZERO tracked files: this is the managed Expo
+# workflow and `expo prebuild` regenerates both on the builder. Shipping local copies only
+# risks a stale native project.
+.expo/
+web-build/
+*.jsbundle
+*.ipa
+*.hmap
+*.xcuserstate
+xcuserdata
+DerivedData
+/apps/mobile/ios/Pods/
+.gradle
+local.properties
+*.iml
+*.hprof
+.cxx/
+.metro-health-check*
+**/fastlane/report.xml
+**/fastlane/Preview.html
+**/fastlane/screenshots
+**/fastlane/test_output
+
+# ---------------------------------------------------------------------------------------------
+# 4. Workspaces the mobile app does not need
+# ---------------------------------------------------------------------------------------------
+# EAS uploads the repo ROOT (apps/mobile is a yarn workspace) and runs
+#
+#     yarn install --frozen-lockfile --production false
+#
+# in that root, so it installs the dependencies of EVERY workspace in the archive, not just the
+# mobile app's. A workspace whose package.json is not in the archive is not a workspace on the
+# builder, so its dependencies are never resolved, fetched, linked or built. This list is the
+# only lever that stops that.
+#
+# THE FAILURE THIS FIXES — every iOS build errored from 2025-11-13 to 2026-08-16. The GitHub log
+# only ever said "Unknown error, see the Install dependencies build phase"; Expo's own log said:
+#
+#     error .../node_modules/@storybook/nextjs/node_modules/sharp,
+#           .../node_modules/plasmo/node_modules/sharp: Command failed.
+#     Command: node install/check
+#     sharp: Detected globally-installed libvips v8.16.1
+#     sharp: Attempting to build from source via node-gyp
+#     ../metadata.cc:237:46: error: no member named 'NewOrCopy' in 'Napi::Buffer<char>'   (x5)
+#     make: *** [Release/obj.target/sharp-darwin-arm64/metadata.o] Error 1
+#
+#   1. apps/extensions                                   -> plasmo@0.90.5            -> sharp 0.33.5
+#      packages/toolkit/examples/next-boilerplate-ixartz -> @storybook/nextjs@8.6.18  -> sharp 0.33.5
+#      Both land NESTED, because the repo root already hoists sharp 0.34.5.
+#
+#   2. The EAS macOS image ships libvips 8.16.1 GLOBALLY. sharp 0.33.5 declares
+#      `config.libvips: ">=8.15.3"` and its install/check.js does
+#          if (useGlobalLibvips()) buildFromSource(...)
+#      so it DISCARDS its own prebuilt @img/sharp-darwin-arm64 binary and compiles from source.
+#      Root sharp 0.34.5 escapes only because it wants libvips >=8.17.3 — one minor release of
+#      margin, controlled by Expo, not by us.
+#
+#   3. sharp 0.33.5 lists node-addon-api only as a devDependency, so nothing installs a copy for
+#      it and its build walks up to the ROOT-hoisted one. apps/extensions also pulls
+#      plasmo -> @parcel/core -> lmdb -> node-addon-api ^4.3.0, and that 4.3.0 is what yarn 1
+#      hoists. `Napi::Buffer<char>::NewOrCopy` does not exist before node-addon-api 6.x
+#      (verified: absent in 1.7.2 and 4.3.0; present in 6.1.0, 7.1.1 and 8.5.0).
+#
+# One workspace supplied the sharp that compiles; the other supplied the node-addon-api that
+# cannot compile it. Excluding them removes both halves at once.
+#
+# WHY THE LIST IS THIS BROAD — excluding only those two would fix today's failure and leave the
+# trap armed: any workspace here may add a native or install-scripted dependency at any time and
+# break iOS again, visibly only in Expo's log. apps/mobile declares NO @ever-teams/* dependency
+# and has no source coupling outside itself, so the required set is provably tiny:
+#
+#     apps/mobile              the app being built
+#     packages/types           the ROOT package.json devDepends on "@ever-teams/types": "*"
+#     packages/eslint-config   packages/types devDepends on "@ever-teams/eslint-config": "*"
+#
+# Those three must never be excluded: yarn.lock has no @ever-teams/* entries, so they resolve
+# only by workspace linking, and excluding one turns a link into a registry lookup that fails
+# --frozen-lockfile at [2/5].
+#
+# This is a GATE, not a removal. Every workspace stays in the repo, in git, and in every other
+# build; only the mobile upload archive skips them.
+#
+# Verified before shipping on the builder's exact toolchain (yarn 1.22.22, node 24.14.0): with
+# these 25 workspaces removed, `yarn install --frozen-lockfile --production false` completes in
+# 438s and exits 0. --frozen-lockfile fails on lockfile entries that are MISSING, never on ones
+# merely unused, so the extra yarn.lock entries are harmless. The resulting tree hoists
+# node-addon-api 6.1.0, leaving react-native-bootsplash's sharp 0.32.6 as the only source build,
+# which compiles cleanly against 6.x.
+#
+# Defence in depth: apps/mobile/eas.json sets SHARP_IGNORE_GLOBAL_LIBVIPS=1 on every build
+# profile. All three sharp versions in this tree honour it and it short-circuits before any
+# pkg-config probe, so no sharp consults the builder's global libvips at all. Keep BOTH — this
+# list stops the dependencies arriving; that flag stops any sharp that does arrive from
+# compiling, and unlike a version pin it does not expire when Expo bumps libvips.
+#
+# Before adding a workspace back, check what install scripts it drags onto a macOS builder.
+apps/chatgpt
+apps/extensions
+apps/playground
+apps/server-web
 apps/storybook
+apps/web
+packages/api
+packages/config-tailwind
+packages/constants
+packages/hooks
+packages/services
+packages/toolkit
+packages/toolkit-types
+packages/toolkit-ui
+packages/ts-config
+packages/ui
+packages/utils
