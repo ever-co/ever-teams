@@ -4,6 +4,10 @@
 	"caseSensitive": false,
 	"$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
 	"words": [
+		"cicd",
+		"creds",
+		"easignore",
+		"esac",
 		"Buildx",
 		"codesign",
 		"codesigning",
