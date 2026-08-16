@@ -7,31 +7,24 @@ interface ITokenLiveKitProps {
 }
 
 export function useTokenLiveKit({ roomName }: ITokenLiveKitProps) {
-	const [token, setToken] = useState<string | null>(null);
+	const [issued, setIssued] = useState<{ room: string; token: string } | null>(null);
 
 	useEffect(() => {
-		// A stale token would publish local tracks into the room the user just left
-		setToken(null);
-
 		if (!roomName) return;
-
-		let cancelled = false;
 
 		const fetchToken = async () => {
 			try {
 				const response = await tokenLiveKitRoom({ roomName });
-				if (cancelled || !response?.token) return;
-				setToken(response.token);
+				if (!response?.token) return;
+				setIssued({ room: roomName, token: response.token });
 			} catch (error) {
 				console.error('Failed to fetch token:', error);
 			}
 		};
 		fetchToken();
-
-		return () => {
-			cancelled = true;
-		};
 	}, [roomName]);
 
-	return { token };
+	// A token only grants the room it was issued for, so handing back one from a previous
+	// room would publish local tracks into the room the user just left
+	return { token: issued?.room === roomName ? issued.token : null };
 }
