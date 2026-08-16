@@ -6,6 +6,9 @@
 	"build": {
 		"development": {
 			"node": "24.14.0",
+			"ios": {
+				"image": "macos-sequoia-15.6-xcode-26.0"
+			},
 			"developmentClient": true,
 			"distribution": "internal",
 			"channel": "development",
@@ -18,6 +21,9 @@
 		},
 		"preview": {
 			"node": "24.14.0",
+			"ios": {
+				"image": "macos-sequoia-15.6-xcode-26.0"
+			},
 			"distribution": "internal",
 			"channel": "preview",
 			"env": {
@@ -30,6 +36,9 @@
 		},
 		"production": {
 			"node": "24.14.0",
+			"ios": {
+				"image": "macos-sequoia-15.6-xcode-26.0"
+			},
 			"autoIncrement": true,
 			"channel": "production",
 			"env": {
@@ -43,6 +52,9 @@
 		},
 		"internal": {
 			"node": "24.14.0",
+			"ios": {
+				"image": "macos-sequoia-15.6-xcode-26.0"
+			},
 			"distribution": "internal",
 			"channel": "internal",
 			"env": {
