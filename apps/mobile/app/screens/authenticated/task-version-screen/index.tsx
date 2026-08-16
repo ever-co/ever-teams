@@ -160,7 +160,7 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
               accessibilityRole="button"
               onPress={handleGoBack} // Use our custom handler
             >
-              <AntDesign name="arrowleft" size={24} color={colors.primary} />
+              <AntDesign name="arrow-left" size={24} color={colors.primary} />
             </TouchableOpacity>
             <Text style={[styles.title, { color: colors.primary }]}>
               {translate('settingScreen.versionScreen.mainTitle')}

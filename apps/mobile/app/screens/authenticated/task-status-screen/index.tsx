@@ -164,7 +164,7 @@ export const TaskStatusScreen: FC<AuthenticatedDrawerScreenProps<'TaskStatus'>> 
               accessibilityRole="button"
               onPress={handleGoBack} // Use our custom handler for back navigation
             >
-              <AntDesign name="arrowleft" size={24} color={colors.primary} />
+              <AntDesign name="arrow-left" size={24} color={colors.primary} />
             </TouchableOpacity>
             <Text style={[styles.title, { color: colors.primary }]}>
               {translate('settingScreen.statusScreen.mainTitle')}

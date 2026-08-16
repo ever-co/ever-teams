@@ -25,7 +25,7 @@ const TaskDisplayBox = ({ count, openTask, selected }: ITasDisplayBox) => {
 				</>
 			) : (
 				<>
-					<AntDesign name="checkcircleo" size={18} color="#BEBCC8" />
+					<AntDesign name="check-circle" size={18} color="#BEBCC8" />
 					<Text
 						style={[
 							styles.filterText,

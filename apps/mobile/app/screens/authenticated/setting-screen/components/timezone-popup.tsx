@@ -161,7 +161,7 @@ const TimezonePopup: FC<Props> = function FilterPopup({
 									{item}
 								</Text>
 								{(selectedTimezone || userTimezone) === item ? (
-									<AntDesign name="checkcircle" color={"#27AE60"} size={21.5} />
+									<AntDesign name="check-circle" color={"#27AE60"} size={21.5} />
 								) : (
 									<FontAwesome
 										name="circle-thin"

@@ -105,7 +105,7 @@ const LanguageModal: FC<Props> = function FilterPopup({ visible, onDismiss, onLa
 							>
 								<Text style={{ ...styles.tzTitle, color: colors.primary }}>{item.name}</Text>
 								{selectedLanguage?.id === item.id ? (
-									<AntDesign name="checkcircle" color={'#27AE60'} size={24} />
+									<AntDesign name="check-circle" color={'#27AE60'} size={24} />
 								) : (
 									<FontAwesome
 										name="circle-thin"

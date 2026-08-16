@@ -10,10 +10,10 @@ const SettingHeader = (props) => {
 	return (
 		<View style={[styles.container, { backgroundColor: colors.background }]}>
 			<TouchableOpacity onPress={() => navigation.goBack()}>
-				<AntDesign name="arrowleft" size={24} color={colors.primary} />
+				<AntDesign name="arrow-left" size={24} color={colors.primary} />
 			</TouchableOpacity>
 			<Text style={[styles.title, { color: colors.primary }]}>{translate('settingScreen.name')}</Text>
-			<AntDesign name="exclamationcircleo" size={24} color={colors.primary} />
+			<AntDesign name="exclamation-circle" size={24} color={colors.primary} />
 		</View>
 	);
 };
