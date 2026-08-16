@@ -10,9 +10,9 @@ export async function GET(req: NextRequest) {
 		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 	}
 
-	const room = req.nextUrl.searchParams.get('roomName');
+	const room = req.nextUrl.searchParams.get('roomName')?.trim();
 
-	if (!room || room.trim() === '') {
+	if (!room) {
 		return NextResponse.json({ error: 'Missing or invalid "roomName" query parameter' }, { status: 400 });
 	}
 
