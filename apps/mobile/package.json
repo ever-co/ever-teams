@@ -165,7 +165,7 @@
 		"@babel/runtime": "^7.20.0",
 		"@hapi/shot": "^6.0.1",
 		"@react-native/jest-preset": "0.86.2",
-		"@testing-library/react-native": "^12.5.2",
+		"@testing-library/react-native": "^14.0.1",
 		"@types/hapi__shot": "^6.0.0",
 		"@types/jest": "^29.5.14",
 		"@types/react": "19.1.2",
@@ -187,6 +187,7 @@
 		"reactotron-react-js": "^3.3.11",
 		"reactotron-react-native": "^5.0.5",
 		"reactotron-react-native-mmkv": "^0.2.6",
+		"test-renderer": "^1.0.0",
 		"ts-jest": "^29.1.1",
 		"ts-node": "^10.9.2",
 		"typescript": "~6.0.3"
