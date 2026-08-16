@@ -33,8 +33,7 @@ export async function GET(req: NextRequest) {
 			roomJoin: true,
 			canPublish: true,
 			canSubscribe: true,
-			canPublishData: true,
-			canUpdateOwnMetadata: true
+			canPublishData: true
 		});
 		const token = await at.toJwt();
 		return NextResponse.json({ token: token });
