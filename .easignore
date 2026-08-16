@@ -1,20 +1,101 @@
 # Files excluded from the archive uploaded to EAS Build.
 #
-# EAS uploads the repo root (apps/mobile is a yarn workspace) and runs
-# `yarn install --frozen-lockfile --production false` at the root, which installs the deps of
-# EVERY workspace it finds — including ones a mobile build has no use for.
+# ---------------------------------------------------------------------------------------------
+# WHY THIS FILE EXISTS
+# ---------------------------------------------------------------------------------------------
+# EAS uploads the repo ROOT (apps/mobile is a yarn workspace) and runs
 #
-# apps/storybook pulls @storybook/nextjs, which carries its own nested legacy `sharp`. That copy
-# has no prebuilt binary for Node 24 + darwin-arm64, so node-gyp compiles it from source on the
-# EAS macOS builder and fails:
+#     yarn install --frozen-lockfile --production false
 #
-#   node_modules/@storybook/nextjs/node_modules/sharp .. metadata.cc:
-#   error: no member named 'NewOrCopy' in 'Napi::Buffer<char>'  (x5)  -> make: *** exit 2
-#   -> yarn install --frozen-lockfile --production false exited with non-zero code: 1
+# in that root, which installs the dependencies of EVERY workspace it can see — not just the
+# mobile app's. A workspace whose package.json is not in the archive is simply not a workspace on
+# the builder, so its dependencies are never resolved, fetched, linked, or built.
 #
-# That broke every iOS build. Excluding the workspace keeps it out of the archive, so yarn never
-# installs its dependencies. Safe with --frozen-lockfile: yarn 1 fails when the lockfile would need
-# to CHANGE, not when it contains extra entries.
+# That is the whole mechanism: this file is the only lever that stops unrelated workspaces from
+# being installed on an iOS/Android builder.
 #
-# Kept deliberately narrow — only the workspace that actually breaks the build.
+# ---------------------------------------------------------------------------------------------
+# THE FAILURE THIS FIXES  (every iOS build errored from 2025-11-13 to 2026-08-16)
+# ---------------------------------------------------------------------------------------------
+# The Expo build log — NOT the GitHub log, which only ever says "Unknown error, see the Install
+# dependencies build phase" — showed, in phase INSTALL_DEPENDENCIES, step [5/5]:
+#
+#     error .../node_modules/@storybook/nextjs/node_modules/sharp,
+#           .../node_modules/plasmo/node_modules/sharp: Command failed.
+#     Command: node install/check
+#     sharp: Detected globally-installed libvips v8.16.1
+#     sharp: Attempting to build from source via node-gyp
+#     ../metadata.cc:237:46: error: no member named 'NewOrCopy' in 'Napi::Buffer<char>'   (x5)
+#     make: *** [Release/obj.target/sharp-darwin-arm64/metadata.o] Error 1
+#
+# The causal chain, verified end to end:
+#
+#   1. apps/extensions                                  -> plasmo@0.90.5           -> sharp 0.33.5
+#      packages/toolkit/examples/next-boilerplate-ixartz -> @storybook/nextjs@8.6.18 -> sharp 0.33.5
+#      Both land NESTED, because the repo root already hoists sharp 0.34.5.
+#
+#   2. The EAS macOS image (macos-sequoia-15.5-xcode-16.4) ships libvips 8.16.1 GLOBALLY.
+#      sharp 0.33.5 declares `config.libvips: ">=8.15.3"`, and its install/check.js does:
+#          if (useGlobalLibvips()) buildFromSource(...)
+#      8.16.1 satisfies >=8.15.3, so sharp DELIBERATELY IGNORES its own prebuilt
+#      @img/sharp-darwin-arm64 binary and compiles from source with node-gyp.
+#      (Root sharp 0.34.5 escapes this only because it requires libvips >=8.17.3, which 8.16.1
+#      does not satisfy — a margin of one minor release, not a design guarantee.)
+#
+#   3. apps/extensions -> plasmo -> @parcel/core -> lmdb -> node-addon-api ^4.3.0.
+#      yarn 1 hoists that 4.3.0 copy to the ROOT node_modules. `Napi::Buffer<char>::NewOrCopy`
+#      only exists from node-addon-api 6.x onward (verified: absent in 1.7.2 and 4.3.0, present
+#      in 6.1.0, 7.1.1 and 8.5.0), so the source build fails to compile.
+#
+# So the browser extension and a Storybook example — neither of which a mobile binary has any use
+# for — were together breaking every iOS build: one supplied the sharp that compiles, the other
+# supplied the node-addon-api that cannot compile it.
+#
+# Excluding them removes BOTH halves. With the list below applied, the root node_modules hoists
+# node-addon-api 6.1.0, and the only remaining native image dep is react-native-bootsplash's
+# sharp 0.32.6, which compiles cleanly against it.
+#
+# ---------------------------------------------------------------------------------------------
+# WHY THE LIST IS THIS BROAD
+# ---------------------------------------------------------------------------------------------
+# Excluding only the two guilty workspaces would fix today's failure and leave the trap armed:
+# any workspace here may add a native or install-scripted dependency at any time and silently
+# break iOS again, with a failure visible only in Expo's log. apps/mobile declares NO
+# @ever-teams/* workspace dependency at all, so the required set is provably tiny:
+#
+#     apps/mobile              the app being built
+#     packages/types           the root package.json devDepends on "@ever-teams/types": "*"
+#     packages/eslint-config   packages/types devDepends on "@ever-teams/eslint-config": "*"
+#
+# Everything else is excluded. This is a GATE, not a removal: every workspace stays in the repo,
+# in git, and in every other build. Only the mobile upload archive skips them.
+#
+# Verified before shipping, on the same toolchain the builder uses (yarn 1.22.22, node 24.14.0):
+# with the 25 workspaces below removed, `yarn install --frozen-lockfile --production false`
+# completes in 438s and exits 0. --frozen-lockfile fails on lockfile entries that are MISSING,
+# never on ones that are merely unused, so extra yarn.lock entries are harmless.
+#
+# Defence in depth: apps/mobile/eas.json also sets SHARP_IGNORE_GLOBAL_LIBVIPS=1 on every build
+# profile, which makes any sharp in the tree use its prebuilt binary instead of consulting the
+# builder's global libvips. Keep both — this file stops the deps arriving, that flag stops any
+# sharp that does arrive from compiling.
+#
+# Before adding a workspace back here, check what install scripts it drags onto a macOS builder.
+
+apps/chatgpt
+apps/extensions
+apps/playground
+apps/server-web
 apps/storybook
+apps/web
+packages/api
+packages/config-tailwind
+packages/constants
+packages/hooks
+packages/services
+packages/toolkit
+packages/toolkit-types
+packages/toolkit-ui
+packages/ts-config
+packages/ui
+packages/utils
