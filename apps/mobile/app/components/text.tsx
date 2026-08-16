@@ -56,8 +56,14 @@ export function Text(props: TextProps) {
 	const i18nText = tx && translate(tx, txOptions);
 	const content = i18nText || text || children;
 
-	const preset: Presets = $presets[props.preset] ? props.preset : 'default';
-	const $styles = [$rtlStyle, $presets[preset], $fontWeightStyles[weight], $sizeStyles[size], $styleOverride];
+	const preset: Presets = props.preset && $presets[props.preset] ? props.preset : 'default';
+	const $styles = [
+		$rtlStyle,
+		$presets[preset],
+		weight ? $fontWeightStyles[weight] : undefined,
+		size ? $sizeStyles[size] : undefined,
+		$styleOverride
+	];
 
 	return (
 		<RNText {...rest} style={$styles}>
