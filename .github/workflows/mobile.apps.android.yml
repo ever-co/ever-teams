@@ -129,7 +129,37 @@ jobs:
         run: git checkout -- .npmrc || true
 
       - name: Build on EAS
-        run: cd apps/mobile && eas build --profile production --platform android --non-interactive
+        id: eas_build
+        # Capture THIS build's id so the submit step can target it explicitly.
+        #
+        # `eas submit --latest` does NOT mean "the build this job just made". It resolves through
+        # getRecentBuildsForSubmissionAsync (eas-cli build/submit/utils/builds.js), which filters
+        # `distribution: DistributionType.Store` and ignores the build profile, the branch and who
+        # started it, across statuses New, InQueue, InProgress AND Finished. So any
+        # production-profile build started from a laptop or the Expo dashboard can win that race
+        # and be the thing shipped to the store. That is not hypothetical: on 2026-08-16 the newest
+        # STORE build on this app was one driven from a local checkout while debugging.
+        #
+        # The explicit FINISHED assertion also closes a second hole: `eas build --wait` exits 0 on
+        # a CANCELED build, and `concurrency.cancel-in-progress: true` above makes cancellation
+        # reachable, so without it a cancelled build would fall through to submit.
+        #
+        # The JSON is written to $RUNNER_TEMP, outside the repo, so it can never be picked up by
+        # the EAS upload archive.
+        run: |
+          cd apps/mobile
+          eas build --profile production --platform android --non-interactive --json --wait > "$RUNNER_TEMP/eas-android-build.json"
+          node -e '
+            const fs = require("fs");
+            const raw = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + "/eas-android-build.json", "utf8"));
+            const build = Array.isArray(raw) ? raw[0] : raw;
+            if (!build || build.status !== "FINISHED") {
+              console.error("EAS build did not finish, refusing to submit. status=" + (build && build.status));
+              process.exit(1);
+            }
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, "build_id=" + build.id + "\n");
+            console.log("EAS build " + build.id + " FINISHED");
+          '
 
       - name: Publish update
         # Publish to the CHANNEL these binaries actually listen on. The build step above uses
@@ -157,4 +187,4 @@ jobs:
           project_id: 'ever-teams-399720'
 
       - name: Upload to Play Store Console
-        run: cd apps/mobile && eas submit --profile production --platform android --latest --non-interactive
+        run: cd apps/mobile && eas submit --profile production --platform android --id "${{ steps.eas_build.outputs.build_id }}" --non-interactive

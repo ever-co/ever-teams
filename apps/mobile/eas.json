@@ -37,7 +37,8 @@
 				"SENTRY_AUTH_TOKEN": "SENTRY_AUTH_TOKEN_PLACEHOLDER",
 				"SENTRY_ORG": "SENTRY_ORG_PLACEHOLDER",
 				"SENTRY_PROJECT": "SENTRY_PROJECT_PLACEHOLDER",
-				"SENTRY_URL": "https://sentry.io"
+				"SENTRY_URL": "https://sentry.io",
+				"SENTRY_ALLOW_FAILURE": "true"
 			}
 		},
 		"internal": {
@@ -49,7 +50,8 @@
 				"SENTRY_AUTH_TOKEN": "SENTRY_AUTH_TOKEN_PLACEHOLDER",
 				"SENTRY_ORG": "SENTRY_ORG_PLACEHOLDER",
 				"SENTRY_PROJECT": "SENTRY_PROJECT_PLACEHOLDER",
-				"SENTRY_URL": "https://sentry.io"
+				"SENTRY_URL": "https://sentry.io",
+				"SENTRY_ALLOW_FAILURE": "true"
 			}
 		}
 	},

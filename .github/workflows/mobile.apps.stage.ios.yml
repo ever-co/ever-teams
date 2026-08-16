@@ -175,4 +175,23 @@ jobs:
           echo "${{ secrets.APPSTORE_API_PRIVATE_KEY }}" > ./apps/mobile/AuthKey_R9QZ5LP8NK.p8
 
       - name: Upload App build to App store
+        # GATED, not removed. This step could never have submitted the build above, and would
+        # instead upload an unrelated PRODUCTION binary to App Store Connect.
+        #
+        # This job builds `--profile internal`, and eas.json marks that profile
+        # "distribution": "internal". But `eas submit --latest` resolves its candidate through
+        # getRecentBuildsForSubmissionAsync (eas-cli build/submit/utils/builds.js), which filters
+        # `distribution: DistributionType.Store` and ignores the build profile entirely. An
+        # internal-distribution build therefore can NEVER be selected here; --latest picks the
+        # newest STORE build on the whole app - any profile, any branch, any author - across
+        # statuses New, InQueue, InProgress and Finished.
+        #
+        # It has never fired only because this workflow has never produced a build: it dies
+        # earlier at "EAS CLI couldn't find any credentials suitable for internal distribution".
+        # Fixing that credential gap without this guard would have turned a staging run into an
+        # unintended App Store Connect upload.
+        #
+        # Flip STAGE_IOS_SUBMIT_ENABLED to 'true' only once this step submits by explicit build
+        # id, the way mobile.apps.ios.yml now does.
+        if: ${{ vars.STAGE_IOS_SUBMIT_ENABLED == 'true' }}
         run: cd apps/mobile && eas submit --profile internal --platform ios --latest --non-interactive
