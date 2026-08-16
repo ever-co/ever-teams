@@ -69,10 +69,28 @@ jobs:
       - name: Configure Registry
         shell: bash
         run: |
-          if [ -n "${{ secrets.VERDACCIO_TOKEN }}" ]; then
-            echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
-            echo "registry=https://packages.ever.co/" >> .npmrc
-          fi
+          # Prefer the INTERNAL Verdaccio VIP (org var VERDACCIO_REGISTRY, per
+          # docs/infrastructure/k8s-cicd-standard.md) over the public packages.ever.co route.
+          # These jobs run on in-cluster ARC runners that can reach the VIP directly. The public
+          # Cloudflare-fronted route runs ~280 KB/s and was measured on 2026-08-16 truncating a
+          # 14,590,565-byte tarball to 9,525,323 bytes mid-stream. A truncated prebuilt-binary
+          # package makes sharp fall back to compiling from source, which fails under Node 24.
+          # The VIP served the same file byte-exact.
+          REGISTRY="${VERDACCIO_REGISTRY:-https://packages.ever.co/}"
+          echo "registry=$REGISTRY" >> .npmrc
+          # The VIP allows anonymous reads; only the public route needs the token. Passed via env:
+          # so the secret is never spliced into this script.
+          case "$REGISTRY" in
+            *packages.ever.co*)
+              if [ -n "$VERDACCIO_TOKEN" ]; then
+                echo "//packages.ever.co/:_authToken=$VERDACCIO_TOKEN" >> .npmrc
+              fi
+              ;;
+          esac
+          echo "Using npm registry: $REGISTRY"
+        env:
+          VERDACCIO_REGISTRY: ${{ vars.VERDACCIO_REGISTRY }}
+          VERDACCIO_TOKEN: ${{ secrets.VERDACCIO_TOKEN }}
 
       - name: Install Packages
         run: |
