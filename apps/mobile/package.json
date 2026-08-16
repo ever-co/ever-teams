@@ -1,6 +1,6 @@
 {
 	"resolutions": {
-		"@hono/node-server": "1.19.13",
+		"@hono/node-server": "1.19.17",
 		"fast-xml-parser": "4.5.6",
 		"react-server-dom-webpack": "19.0.5",
 		"follow-redirects": "1.16.0",
