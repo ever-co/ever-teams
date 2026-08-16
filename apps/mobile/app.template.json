@@ -7,20 +7,27 @@
 		"version": "0.1.0",
 		"orientation": "portrait",
 		"icon": "./assets/images/ever-teams-logo.png",
-		"splash": {
-			"image": "./assets/images/splash-ever-teams.png",
-			"resizeMode": "cover",
-			"backgroundColor": "#ffffff"
-		},
 		"owner": "$EXPO_PROJECT_OWNER",
 		"updates": {
 			"fallbackToCacheTimeout": 0,
 			"url": "https://u.expo.dev/$EXPO_PROJECT_ID"
 		},
-		"newArchEnabled": false,
-		"jsEngine": "hermes",
-		"assetBundlePatterns": ["**/*"],
+		"assetBundlePatterns": [
+			"**/*"
+		],
 		"plugins": [
+			[
+				"expo-splash-screen",
+				{
+					"image": "./assets/images/splash-ever-teams.png",
+					"resizeMode": "cover",
+					"backgroundColor": "#ffffff",
+					"enableFullScreenImage_legacy": true,
+					"ios": {
+						"tabletImage": "./assets/images/splash-logo-ever-teams-ios-tablet.png"
+					}
+				}
+			],
 			[
 				"@sentry/react-native/expo",
 				{
@@ -48,17 +55,11 @@
 				"expo-build-properties",
 				{
 					"ios": {
-						"newArchEnabled": false,
-						"deploymentTarget": "15.1",
+						"newArchEnabled": true,
+						"deploymentTarget": "16.4",
 						"config": {
 							"usesNonExemptEncryption": false
-						},
-						"extraPods": [
-							{
-								"name": "MMKV",
-								"version": "~> 1.3.17"
-							}
-						]
+						}
 					},
 					"android": {
 						"enableProguardInReleaseBuilds": true,
@@ -77,11 +78,6 @@
 				"foregroundImage": "./assets/images/app-icon-android-adaptive-foreground-ever.png",
 				"backgroundImage": "./assets/images/app-icon-android-adaptive-background.png"
 			},
-			"splash": {
-				"image": "./assets/images/splash-ever-teams.png",
-				"resizeMode": "cover",
-				"backgroundColor": "#ffffff"
-			},
 			"permissions": [
 				"android.permission.READ_EXTERNAL_STORAGE",
 				"android.permission.WRITE_EXTERNAL_STORAGE",
@@ -94,12 +90,6 @@
 			"icon": "./assets/images/app-icon-ios-ever-teams.png",
 			"supportsTablet": true,
 			"bundleIdentifier": "$EXPO_PROJECT_IOS_BUNDLE_IDENTIFIER",
-			"splash": {
-				"image": "./assets/images/splash-ever-teams.png",
-				"tabletImage": "./assets/images/splash-logo-ever-teams-ios-tablet.png",
-				"resizeMode": "cover",
-				"backgroundColor": "#ffffff"
-			},
 			"infoPlist": {
 				"NSCameraUsageDescription": "This app uses the camera to scan barcodes on event tickets.",
 				"NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos.",
@@ -125,6 +115,6 @@
 				}
 			}
 		},
-		"runtimeVersion": "exposdk:53.0.0"
+		"runtimeVersion": "exposdk:57.0.0"
 	}
 }

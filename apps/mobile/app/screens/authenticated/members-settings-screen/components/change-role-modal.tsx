@@ -64,7 +64,7 @@ const ChangeRoleModal: React.FC<IChangeRoleModal> = ({ onDismiss, visible, membe
 							<Text>{role.name}</Text>
 							{member?.role?.name.toLowerCase() === role.name.toLowerCase() ||
 							(!member?.role?.name && role.name === "Member") ? (
-								<AntDesign name="checkcircle" size={24} color="#27AE60" />
+								<AntDesign name="check-circle" size={24} color="#27AE60" />
 							) : (
 								<Feather name="circle" size={24} color="#FFFFFF" />
 							)}
