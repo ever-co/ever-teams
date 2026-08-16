@@ -6,6 +6,7 @@ export async function GET(req: NextRequest) {
 	const res = new NextResponse();
 	const { user } = await authenticatedGuard(req, res);
 
+	// Session tenant, not the guard's auth-tenant-id cookie: that one is client-writable
 	if (!user || !user.tenantId) {
 		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 	}
