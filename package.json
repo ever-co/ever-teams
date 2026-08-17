@@ -45,6 +45,8 @@
 		"prebuild": "rimraf dist coverage",
 		"build": "turbo build",
 		"build:web": "turbo build --filter=@ever-teams/web",
+		"test:web": "yarn workspace @ever-teams/web test",
+		"test:mobile": "yarn workspace @ever-teams/mobile test",
 		"build:mobile": "cd apps/mobile && yarn install && yarn run build",
 		"build:extensions": "cd apps/extensions && yarn install && yarn run build",
 		"commit": "git-cz",

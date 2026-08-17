@@ -37,8 +37,13 @@ export async function POST(req: Request) {
 
 	const { errors, valid: formValid } = authFormValidate(validationFields, body);
 
+	// A 400 here is load-bearing: useAuthenticationTeam only reads `errors` on status 400.
+	// This route used to answer 200 with { errors }, so every validation failure looked like a
+	// success to the client — it router.push("/")-ed with the "creating your workplace" loader
+	// pinned forever and the real reason never shown (that is how the blank-captcha stage
+	// outage read to a user). Same for a failed captcha verification below.
 	if (!formValid) {
-		return NextResponse.json({ errors });
+		return NextResponse.json({ errors }, { status: 400 });
 	}
 
 	if (RECAPTCHA_SECRET_KEY) {
@@ -48,7 +53,7 @@ export async function POST(req: Request) {
 		});
 
 		if (!success) {
-			return NextResponse.json({ errors: { recaptcha: 'Invalid reCAPTCHA. Please try again' } });
+			return NextResponse.json({ errors: { recaptcha: 'Invalid reCAPTCHA. Please try again' } }, { status: 400 });
 		}
 	}
 	/**
@@ -67,7 +72,6 @@ export async function POST(req: Request) {
 	const password = generateToken(8);
 	const names = body.name.split(' ');
 
-	console.log('Random password: ', password);
 
 	// Register user
 	const { data: user } = await registerUserRequest({

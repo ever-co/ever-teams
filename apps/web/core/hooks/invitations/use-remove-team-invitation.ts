@@ -44,14 +44,16 @@ export function useRemoveTeamInvitation() {
 		}
 	});
 
+	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change).
+	const removeInvitationMutateAsync = removeInvitationMutation.mutateAsync;
 	const removeTeamInvitation = useCallback(
 		(invitationId: string, email?: string) => {
 			if (!(activeTeamId && isTeamManager && user?.tenantId)) {
 				return Promise.resolve();
 			}
-			return removeInvitationMutation.mutateAsync({ invitationId, email });
+			return removeInvitationMutateAsync({ invitationId, email });
 		},
-		[removeInvitationMutation, activeTeamId, isTeamManager, user]
+		[removeInvitationMutateAsync, activeTeamId, isTeamManager, user]
 	);
 
 	// ===== RETURN =====

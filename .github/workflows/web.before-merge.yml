@@ -67,6 +67,9 @@ jobs:
         env:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
 
+      - name: Test Web
+        run: yarn test:web
+
       - name: Build Web
 
         run: |

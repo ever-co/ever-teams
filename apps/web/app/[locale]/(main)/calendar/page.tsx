@@ -12,6 +12,7 @@ import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
+import { useSidebar } from '@/core/components/common/sidebar';
 import { HeadCalendar } from '@/core/components/pages/calendar/page-component';
 import { timesheetCalendar } from '@/core/components/integration/calendar';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
@@ -30,6 +31,7 @@ import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 const CalendarPage = () => {
 	const t = useTranslations();
 	const fullWidth = useAtomValue(fullWidthState);
+	const { state: sidebarState } = useSidebar();
 
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
@@ -81,7 +83,19 @@ const CalendarPage = () => {
 						/>
 					</Suspense>
 				)}
-				<div className="fixed top-20 flex flex-col border-b-[1px] dark:border-gray-800 z-10 mx-0 w-full bg-white dark:bg-dark-high shadow-lg shadow-gray-100 dark:shadow-gray-700 ">
+				{/* Fixed header: span the CONTENT column, not the viewport. With `w-full` this box was 100vw wide but
+				    started after the sidebar, so its right ~256px — the "Add Time" button — sat off-screen at every
+				    viewport width (2026-08-17). Same offset formula as GlobalHeader. */}
+				<div
+					className="fixed top-20 flex flex-col border-b-[1px] dark:border-gray-800 z-10 mx-0 right-0 md:left-[var(--calendar-header-offset)] left-0 bg-white dark:bg-dark-high shadow-lg shadow-gray-100 dark:shadow-gray-700 "
+					style={
+						{
+							'--calendar-header-offset': `calc(var(${
+								sidebarState === 'expanded' ? '--sidebar-width' : '--sidebar-width-icon'
+							}) + var(--chat-panel-width, 0px))`
+						} as React.CSSProperties
+					}
+				>
 					<Container fullWidth={fullWidth}>
 						<div className="flex flex-row justify-between items-start mt-12 bg-white dark:bg-dark-high">
 							<div className="flex gap-8 justify-center items-center h-10">

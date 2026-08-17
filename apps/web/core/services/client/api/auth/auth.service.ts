@@ -23,6 +23,23 @@ import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-tea
 import { TUser } from '@/core/types/schemas';
 
 class AuthService extends APIService {
+	/**
+	 * Exchange a refresh token for a new access (+ rotated refresh) token — raw, no cookie side-effects.
+	 * Talks to the RUNTIME API base URL (direct Gauzy API, or the Next /api/auth/refresh route as fallback).
+	 *
+	 * 🛑 Do NOT use core/services/server/requests.refreshTokenRequest from client code for this: that helper
+	 * is built on serverFetch → GAUZY_API_SERVER_URL, a SERVER env var that is undefined in the browser
+	 * bundle and falls back to the hard-coded production host. On stage/dev the proactive refresh was
+	 * posting refresh tokens to https://api.ever.team, getting 401 and force-logging users out (2026-08-17).
+	 */
+	refreshTokenRaw = async (refresh_token: string) => {
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			return this.post<{ token: string; refresh_token: string }>('/auth/refresh-token', { refresh_token });
+		}
+		const api = await getFallbackAPI();
+		return api.post<{ token: string; refresh_token: string }>('/auth/refresh', { refresh_token });
+	};
+
 	refreshToken = async () => {
 		const refresh_token = getRefreshTokenCookie();
 

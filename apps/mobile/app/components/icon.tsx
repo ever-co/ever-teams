@@ -53,7 +53,7 @@ export function Icon(props: IconProps) {
 	} = props;
 
 	const isPressable = !!WrapperProps.onPress;
-	const Wrapper: ComponentType<TouchableOpacityProps> = WrapperProps?.onPress ? TouchableOpacity : View;
+	const Wrapper = (WrapperProps?.onPress ? TouchableOpacity : View) as ComponentType<TouchableOpacityProps>;
 
 	return (
 		<Wrapper
@@ -64,8 +64,8 @@ export function Icon(props: IconProps) {
 			<Image
 				style={[
 					$imageStyle,
-					color && { tintColor: color },
-					size && { width: size, height: size },
+					color ? { tintColor: color } : undefined,
+					size ? { width: size, height: size } : undefined,
 					$imageStyleOverride
 				]}
 				source={iconRegistry[icon]}

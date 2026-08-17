@@ -128,18 +128,21 @@ export function useDeleteOrganizationTeam() {
 
 	// ==================== EXPORTED FUNCTIONS ====================
 
+	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change).
+	const deleteOrganizationTeamMutateAsync = deleteOrganizationTeamMutation.mutateAsync;
 	const deleteOrganizationTeam = useCallback(
 		(id: string) => {
-			return deleteOrganizationTeamMutation.mutateAsync(id);
+			return deleteOrganizationTeamMutateAsync(id);
 		},
-		[deleteOrganizationTeamMutation]
+		[deleteOrganizationTeamMutateAsync]
 	);
 
+	const removeUserFromAllTeamMutateAsync = removeUserFromAllTeamMutation.mutateAsync;
 	const removeUserFromAllTeam = useCallback(
 		(userId: string) => {
-			return removeUserFromAllTeamMutation.mutateAsync(userId);
+			return removeUserFromAllTeamMutateAsync(userId);
 		},
-		[removeUserFromAllTeamMutation]
+		[removeUserFromAllTeamMutateAsync]
 	);
 
 	return {

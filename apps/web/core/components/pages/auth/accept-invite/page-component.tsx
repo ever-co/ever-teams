@@ -8,7 +8,7 @@ import { InvitationExpiredMessageCard } from './invitation-expired-message-card'
 import { AcceptInviteSkeleton } from '@/core/components/layouts/skeletons/accept-invite-skeleton';
 import { Loader } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 export function AcceptInvitePageComponent() {
 	const searchParams = useSearchParams();
@@ -40,7 +40,13 @@ export function AcceptInvitePageComponent() {
 		[handleAcceptInvitation, code, email]
 	);
 
+	// Validate exactly once per (code, email). Guarding by key means a changing callback identity can
+	// never re-trigger the request (that is what looped this page — see use-invite-validation.ts).
+	const validatedKeyRef = useRef<string | null>(null);
 	useEffect(() => {
+		const key = `${code ?? ''}|${email ?? ''}`;
+		if (validatedKeyRef.current === key) return;
+		validatedKeyRef.current = key;
 		// Validate invitation
 		if (!code || !email) {
 			setInvitationState({

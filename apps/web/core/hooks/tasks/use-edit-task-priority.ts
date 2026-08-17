@@ -27,9 +27,10 @@ export function useEditTaskPriority() {
 		onSuccess: invalidateTaskPrioritiesData
 	});
 
+	const updateTaskPriorityMutateAsync = updateTaskPriorityMutation.mutateAsync;
 	const editTaskPriorities = useCallback(
-		(id: string, data: ITaskPrioritiesCreate) => updateTaskPriorityMutation.mutateAsync({ id, data }),
-		[updateTaskPriorityMutation]
+		(id: string, data: ITaskPrioritiesCreate) => updateTaskPriorityMutateAsync({ id, data }),
+		[updateTaskPriorityMutateAsync]
 	);
 
 	return {

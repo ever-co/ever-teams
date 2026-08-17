@@ -31,32 +31,36 @@ export const useUser = () => {
 		}
 	});
 
+	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change)
+	const deleteUserMutateAsync = deleteUserMutation.mutateAsync;
+	const resetUserMutateAsync = resetUserMutation.mutateAsync;
+
 	// Preserve exact interface - delete user function
 	const deleteUser = useCallback(async () => {
 		if (user) {
-			return await deleteUserMutation.mutateAsync(user.id);
+			return await deleteUserMutateAsync(user.id);
 		}
-	}, [user, deleteUserMutation]);
+	}, [user, deleteUserMutateAsync]);
 
 	// Preserve exact interface - reset user function
 	const resetUser = useCallback(async () => {
 		if (user) {
-			return await resetUserMutation.mutateAsync();
+			return await resetUserMutateAsync();
 		}
-	}, [user, resetUserMutation]);
+	}, [user, resetUserMutateAsync]);
 
 	// Preserve exact interface - delete query call function
 	const deleteQueryCall = useCallback(
 		async (id: string): Promise<TDeleteResponse> => {
-			return await deleteUserMutation.mutateAsync(id);
+			return await deleteUserMutateAsync(id);
 		},
-		[deleteUserMutation]
+		[deleteUserMutateAsync]
 	);
 
 	// Preserve exact interface - reset query call function
 	const resetQueryCall = useCallback(async (): Promise<TDeleteResponse> => {
-		return await resetUserMutation.mutateAsync();
-	}, [resetUserMutation]);
+		return await resetUserMutateAsync();
+	}, [resetUserMutateAsync]);
 
 	return {
 		// Preserve exact interface names and behavior

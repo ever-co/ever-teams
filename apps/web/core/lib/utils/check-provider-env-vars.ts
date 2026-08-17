@@ -84,9 +84,36 @@ export const providers: Provider[] = [
 	})
 ];
 
+/**
+ * A provider is available only when it is BOTH advertised (NEXT_PUBLIC_<X>_APP_NAME set) AND
+ * actually configured (a non-empty client id).
+ *
+ * Previously this filtered on the display name alone. On production and stage
+ * NEXT_PUBLIC_GITHUB_APP_NAME / NEXT_PUBLIC_TWITTER_APP_NAME were set while
+ * GITHUB_CLIENT_ID / TWITTER_CLIENT_ID were EMPTY, so the GitHub and Twitter/X buttons
+ * rendered on app.ever.team, and clicking them sent users to the provider with
+ * `client_id=` — a dead-end error page. Found by the 2026-08-17 browser sweep on prod.
+ *
+ * Gate, do not delete: the moment the credentials are supplied the button reappears.
+ */
+const providerClientIds: Record<string, string | undefined> = {
+	apple: APPLE_CLIENT_ID,
+	discord: DISCORD_CLIENT_ID,
+	facebook: FACEBOOK_CLIENT_ID,
+	google: GOOGLE_CLIENT_ID,
+	github: GITHUB_CLIENT_ID,
+	linkedin: LINKEDIN_CLIENT_ID,
+	microsoftentraid: MICROSOFT_CLIENT_ID,
+	slack: SLACK_CLIENT_ID,
+	twitter: TWITTER_CLIENT_ID
+};
+
 export const filteredProviders = providers.filter((provider) => {
 	const providerName = provider.name.toLowerCase();
-	return providerNames[providerName] !== undefined;
+	const providerId = typeof provider === 'function' ? provider().id : provider.id;
+	const advertised = providerNames[providerName] !== undefined || providerNames[providerId] !== undefined;
+	const configured = !!(providerClientIds[providerId] || providerClientIds[providerName])?.trim();
+	return advertised && configured;
 });
 
 export const mappedProviders = filteredProviders.map((provider) => {

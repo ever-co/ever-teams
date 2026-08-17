@@ -38,10 +38,12 @@ export function useCreateDailyPlan() {
 		}
 	});
 
+	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change).
+	const createDailyplanMutateAsync = createDailyplanMutation.mutateAsync;
 	const createDailyPlan = useCallback(
 		async (data: TCreateDailyPlan) => {
 			if (user?.tenantId) {
-				return await createDailyplanMutation.mutateAsync({ ...data, organizationTeamId: activeTeam?.id });
+				return await createDailyplanMutateAsync({ ...data, organizationTeamId: activeTeam?.id });
 			} else {
 				toast.warning('Cannot create daily plan: Missing tenantId', {
 					description: 'Missing tenantId'
@@ -49,7 +51,7 @@ export function useCreateDailyPlan() {
 				return Promise.reject(new Error('Missing tenantId'));
 			}
 		},
-		[createDailyplanMutation, user?.tenantId, activeTeam?.id]
+		[createDailyplanMutateAsync, user?.tenantId, activeTeam?.id]
 	);
 
 	return {

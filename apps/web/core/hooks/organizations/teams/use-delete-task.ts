@@ -52,28 +52,31 @@ export function useDeleteTask() {
 		}
 	});
 
+	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change).
+	const deleteTaskMutateAsync = deleteTaskMutation.mutateAsync;
 	const deleteTask = useCallback(
 		async (task: TTask) => {
 			try {
-				return await deleteTaskMutation.mutateAsync(task.id);
+				return await deleteTaskMutateAsync(task.id);
 			} catch (error) {
 				console.error('Error deleting task:', error);
 				throw error;
 			}
 		},
-		[deleteTaskMutation]
+		[deleteTaskMutateAsync]
 	);
 
+	const deleteEmployeeFromTasksMutateAsync = deleteEmployeeFromTasksMutation.mutateAsync;
 	const deleteEmployeeFromTasks = useCallback(
 		async (employeeId: string) => {
 			try {
-				await deleteEmployeeFromTasksMutation.mutateAsync(employeeId);
+				await deleteEmployeeFromTasksMutateAsync(employeeId);
 			} catch (error) {
 				logErrorInDev('Error deleting employee from tasks:', error);
 				throw error;
 			}
 		},
-		[deleteEmployeeFromTasksMutation]
+		[deleteEmployeeFromTasksMutateAsync]
 	);
 
 	const unassignAuthActiveTask = useCallback(() => {

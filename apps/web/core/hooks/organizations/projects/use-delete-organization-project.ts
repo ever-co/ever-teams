@@ -20,17 +20,19 @@ export function useDeleteOrganizationProject() {
 		onSuccess: invalidateOrganizationProjectsData
 	});
 
+	// Depend on the STABLE mutateAsync, not the mutation object (recreated on every state change).
+	const deleteOrganizationProjectMutateAsync = deleteOrganizationProjectMutation.mutateAsync;
 	const deleteOrganizationProject = useCallback(
 		async (id: string): Promise<boolean> => {
 			try {
-				await deleteOrganizationProjectMutation.mutateAsync(id);
+				await deleteOrganizationProjectMutateAsync(id);
 				return true; // Success if no exception thrown (204 No Content)
 			} catch (error) {
 				console.error('Failed to delete project:', error);
 				return false;
 			}
 		},
-		[deleteOrganizationProjectMutation]
+		[deleteOrganizationProjectMutateAsync]
 	);
 
 	return {

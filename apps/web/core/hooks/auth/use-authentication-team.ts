@@ -24,7 +24,7 @@ export interface IStepProps {
 	form: IRegisterDataAPI;
 }
 
-const initialValues: IRegisterDataAPI = RECAPTCHA_SITE_KEY
+const initialValues: IRegisterDataAPI = RECAPTCHA_SITE_KEY.value
 	? {
 			name: '',
 			email: '',
@@ -76,7 +76,8 @@ export function useAuthenticationTeam() {
 		if (step === FIRST_STEP) {
 			const noRecaptchaArray = ['email', 'name'];
 			const withRecaptchaArray = [...noRecaptchaArray, 'recaptcha'];
-			const validationFields = RECAPTCHA_SITE_KEY ? withRecaptchaArray : noRecaptchaArray;
+			// RECAPTCHA_SITE_KEY is a lazy { value } getter — the object itself is always truthy.
+			const validationFields = RECAPTCHA_SITE_KEY.value ? withRecaptchaArray : noRecaptchaArray;
 
 			const { errors, valid } = authFormValidate(validationFields, formValues);
 			setErrors(errors as any);

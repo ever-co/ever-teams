@@ -91,13 +91,26 @@ export const PERMISSION_ROLES: PermissionMap = {
 export const API_BASE_URL = '/api';
 export const DEFAULT_APP_PATH = process.env.NEXT_PUBLIC_DEMO === 'true' ? '/auth/password' : '/auth/passcode';
 export const DEFAULT_MAIN_PATH = '/';
+/**
+ * Optional locale prefix for protected-path matching. Must list the same locales as the
+ * proxy matcher in proxy.ts (`/(en|ar|bg|...)/:path*`) and APPLICATION_LANGUAGES_CODE below.
+ *
+ * Without it every protected path was anchored at "^/settings", "^/task", ... so a
+ * NON-DEFAULT-locale URL such as /fr/settings/personal or /de/task/<id> did not match, was
+ * treated as public, and was served 200 to an unauthenticated visitor, while
+ * /settings/personal correctly redirected to /unauthorized. (The default locale "en" is
+ * stripped before matching, which is why only /en/... looked right.) Found by the
+ * 2026-08-17 browser sweep.
+ */
+const LOCALE_PREFIX = '(?:\\/(?:en|fr|ar|bg|zh|nl|de|he|it|pl|pt|ru|es))?';
+
 export const PROTECTED_APP_URL_PATHS: RegExp[] = [
-	/^\/$/,
-	/^(\/profile(\/)?)(.*)$/,
-	/^(\/settings(\/)?)(.*)$/,
-	/^(\/task(\/)?)(.*)$/,
-	/^(\/meet(\/)?)(.*)$/,
-	/^(\/board(\/)?)(.*)$/
+	new RegExp('^' + LOCALE_PREFIX + '\\/?$'),
+	new RegExp('^' + LOCALE_PREFIX + '(\\/profile(\\/)?)(.*)$'),
+	new RegExp('^' + LOCALE_PREFIX + '(\\/settings(\\/)?)(.*)$'),
+	new RegExp('^' + LOCALE_PREFIX + '(\\/task(\\/)?)(.*)$'),
+	new RegExp('^' + LOCALE_PREFIX + '(\\/meet(\\/)?)(.*)$'),
+	new RegExp('^' + LOCALE_PREFIX + '(\\/board(\\/)?)(.*)$')
 ];
 
 // Cookies
@@ -117,11 +130,27 @@ export const ACTIVE_PROJECT_COOKIE_NAME = 'auth-active-project';
 export const IS_DESKTOP_APP = process.env.IS_DESKTOP_APP === 'true';
 
 // Recaptcha
-export const RECAPTCHA_SITE_KEY = getNextPublicEnv(
-	'NEXT_PUBLIC_CAPTCHA_SITE_KEY',
-	process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY
-);
-export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;
+/**
+ * A captcha key counts as CONFIGURED only when it is non-blank.
+ *
+ * On stage the secrets held one-character placeholder values (a single space) for both
+ * CAPTCHA_SECRET_KEY and NEXT_PUBLIC_CAPTCHA_SITE_KEY. A space is truthy, so the register route
+ * demanded a recaptcha token and the form validator demanded a token — but the widget was
+ * rendered with sitekey=" ", which Google rejects, so no token could ever be produced. Result:
+ * EVERY signup on stage.ever.team hung on "We are now creating your new workplace, hold on..."
+ * with the API answering {"recaptcha":"Please check the ReCaptcha checkbox before continue"}.
+ * Found on 2026-08-17. Blank ⇒ unset, everywhere this is read.
+ */
+const blankToUndefined = (v: string | undefined | null): string | undefined => {
+	const t = (v ?? '').trim();
+	return t.length > 0 ? t : undefined;
+};
+// getNextPublicEnv's `map` option keeps the lazy runtime-env getter semantics intact.
+export const RECAPTCHA_SITE_KEY = getNextPublicEnv('NEXT_PUBLIC_CAPTCHA_SITE_KEY', {
+	default: process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY,
+	map: blankToUndefined
+});
+export const RECAPTCHA_SECRET_KEY = blankToUndefined(process.env.CAPTCHA_SECRET_KEY);
 export const CAPTCHA_TYPE = process.env.NEXT_PUBLIC_CAPTCHA_TYPE;
 let basePath = process.env.GAUZY_API_SERVER_URL ? process.env.GAUZY_API_SERVER_URL : 'https://api.ever.team';
 if (IS_DESKTOP_APP) {
@@ -163,7 +192,10 @@ export const DEMO_ACCOUNTS_CONFIG = IS_DEMO_MODE
 			{
 				type: 'EMPLOYEE',
 				email: 'employee@ever.co',
-				password: '123456',
+				// The Gauzy demo seed creates this account with '12345678', not '123456'. Verified against
+				// the live demo API on 2026-08-17: 123456 -> 401, 12345678 -> 200. With the wrong value the
+				// "Employee Demo" one-click login on demo.ever.team failed with 401 for every visitor.
+				password: '12345678',
 				translationKey: 'DEMO_EMPLOYEE',
 				role: 'Employee',
 				icon: User2
