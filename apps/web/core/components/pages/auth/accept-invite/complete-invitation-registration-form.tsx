@@ -142,8 +142,13 @@ export function CompleteInvitationRegistrationForm(props: {
 
 					<div className="flex items-center justify-between w-full">
 						<div className="flex items-center gap-2">
-							<Checkbox checked={agreeToTerms} onCheckedChange={() => setAgreeToTerms(!agreeToTerms)} />
-							<p className="space-x-2 dark:text-gray-300">
+							<Checkbox
+								id="accept-invite-agree-terms"
+								checked={agreeToTerms}
+								onCheckedChange={() => setAgreeToTerms(!agreeToTerms)}
+							/>
+							{/* A real label: clicking the "Agree to" text toggles the (16px) checkbox — it did not before. */}
+							<label htmlFor="accept-invite-agree-terms" className="space-x-2 dark:text-gray-300 cursor-pointer">
 								{t('form.AGREE_TO')}{' '}
 								<a
 									href={TERMS_LINK}
@@ -153,7 +158,7 @@ export function CompleteInvitationRegistrationForm(props: {
 								>
 									{t('layout.footer.TERMS_AND_CONDITIONS')}
 								</a>
-							</p>
+							</label>
 						</div>
 
 						<Button
