@@ -603,6 +603,24 @@ jobs:
           ref: master
           clean: false
 
+      # The self-hosted Windows runners resolve `shell: bash` by a plain PATH lookup (actions/runner
+      # ScriptHandler → Which("bash")). On EVERGR that finds WSL's C:\Windows\System32\bash.exe first
+      # and every bash step dies with "Running WSL as local system is not supported" (run 32058756571,
+      # "Configure Registry"); the EVERDESK boxes have no WSL launcher so Git Bash wins there. Prepending
+      # Git for Windows' bin (found via git.exe, which checkout already needs) to GITHUB_PATH makes the
+      # lookup deterministic on every box. No-op when Git Bash is not installed.
+      - name: Prefer Git Bash for bash steps
+        shell: powershell
+        run: |
+          $git = (Get-Command git.exe -ErrorAction SilentlyContinue).Source
+          if ($git) {
+            $bin = Join-Path (Split-Path (Split-Path $git -Parent) -Parent) 'bin'
+            if (Test-Path (Join-Path $bin 'bash.exe')) {
+              $bin | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+              Write-Host "Prepended $bin to PATH for later steps"
+            } else { Write-Host "No bash.exe under $bin - leaving PATH alone" }
+          } else { Write-Host 'git.exe not on PATH - leaving PATH alone' }
+
       - name: Selective cleanup (preserve .nx/cache)
         shell: powershell
         run: |
