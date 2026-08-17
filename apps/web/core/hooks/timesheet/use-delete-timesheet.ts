@@ -26,6 +26,7 @@ export function useDeleteTimesheet() {
 		}
 	});
 
+	const deleteTimesheetMutate = deleteTimesheetMutation.mutateAsync;
 	const deleteTaskTimesheet = useCallback(
 		async ({ logIds }: { logIds: string[] }) => {
 			if (!user) {
@@ -35,13 +36,13 @@ export function useDeleteTimesheet() {
 				throw new Error('No timesheet IDs provided for deletion');
 			}
 			try {
-				await deleteTimesheetMutation.mutateAsync({ logIds });
+				await deleteTimesheetMutate({ logIds });
 			} catch (error) {
 				console.error('Failed to delete timesheets:', error);
 				throw error;
 			}
 		},
-		[user, deleteTimesheetMutation]
+		[user, deleteTimesheetMutate]
 	);
 
 	return {

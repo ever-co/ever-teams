@@ -20,6 +20,10 @@ jobs:
 
     strategy:
       matrix:
+        # Self-hosted ARC runner (fleet policy: no GitHub-hosted / Ubicloud runners). snapd cannot run
+        # inside the ARC container, so the Snapcraft step below is skipped there and the `snap` (and
+        # `flatpak`) targets are dropped for this run ("Adapt Linux targets"); deb / tar.gz / rpm /
+        # AppImage are still built and published.
         os: ["${{ vars.RUNNER_LINUX_X64_8 || 'ubuntu-latest' }}"]
 
     steps:
@@ -54,9 +58,26 @@ jobs:
         run: "sudo chown -R $(whoami) ./*"
 
       - name: Install system dependencies
-        run: 'sudo apt-get update && sudo apt install -y curl gnupg git libappindicator3-1 ca-certificates binutils icnsutils graphicsmagick'
+        # `rpm` provides rpmbuild, which fpm needs for the rpm target; GitHub-hosted images ship it,
+        # the self-hosted ARC runner image is not known to.
+        run: 'sudo apt-get update && sudo apt install -y curl gnupg git libappindicator3-1 ca-certificates binutils icnsutils graphicsmagick rpm'
+
+      # The self-hosted ARC runners are containers without snapd, so `snap install snapcraft` fails
+      # with "sudo: snap: command not found" (this killed every release-linux run since the runner
+      # migration). Detect snapd and only install Snapcraft where it exists.
+      - name: Detect snapd
+        id: snapd
+        shell: bash
+        run: |
+          if command -v snap >/dev/null 2>&1; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "snapd is not available on this runner (ARC container); skipping Snapcraft install"
+          fi
 
       - name: Install Snapcraft
+        if: ${{ steps.snapd.outputs.available == 'true' }}
         uses: samuelmeuli/action-snapcraft@v2
 
       - name: Fix node-gyp and Python
@@ -99,6 +120,94 @@ jobs:
           DESKTOP_TIMER_APP_DESCRIPTION: "Ever Teams Desktop"
           DESKTOP_TIMER_APP_ID: "com.ever.everteamsdesktop"
 
+      # The upstream bump script (ever-gauzy) re-injects a DigitalOcean Spaces publish target
+      # (bucket `ever`, sfo3). That bucket no longer exists (NoSuchBucket) and electron-builder
+      # fails the whole publish when one provider errors. Keep GitHub Releases as the only publisher
+      # unless DigitalOcean is explicitly re-enabled.
+      - name: Drop DigitalOcean Spaces publish target
+        if: ${{ vars.DO_ENABLED != 'true' }}
+        shell: bash
+        run: |
+          node -e '
+            const fs = require("fs");
+            const file = "apps/desktop-timer/src/package.json";
+            const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
+            const current = (pkg.build && pkg.build.publish) || [];
+            const list = Array.isArray(current) ? current : [current];
+            const kept = list.filter((p) => !(p && p.provider === "spaces"));
+            if (kept.length !== list.length) {
+              pkg.build.publish = kept;
+              fs.writeFileSync(file, JSON.stringify(pkg, null, 2));
+              console.log("Removed spaces publish target; remaining publishers:", JSON.stringify(kept));
+            } else {
+              console.log("No spaces publish target present; nothing to do");
+            }
+          '
+
+      # `snap` needs snapcraft (build + Snap Store publish) and `flatpak` needs flatpak-builder;
+      # neither exists on the ARC container runners. Build only the targets this runner can produce.
+      # Set repo/org var DESKTOP_LINUX_KEEP_ALL_TARGETS=true to force the full upstream target list.
+      - name: Adapt Linux targets to the runner toolchain
+        if: ${{ vars.DESKTOP_LINUX_KEEP_ALL_TARGETS != 'true' }}
+        shell: bash
+        run: |
+          HAS_SNAPCRAFT=false; command -v snapcraft >/dev/null 2>&1 && HAS_SNAPCRAFT=true
+          HAS_FLATPAK=false; command -v flatpak-builder >/dev/null 2>&1 && HAS_FLATPAK=true
+          echo "snapcraft available: $HAS_SNAPCRAFT, flatpak-builder available: $HAS_FLATPAK"
+          HAS_SNAPCRAFT="$HAS_SNAPCRAFT" HAS_FLATPAK="$HAS_FLATPAK" node -e '
+            const fs = require("fs");
+            const file = "apps/desktop-timer/src/package.json";
+            const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
+            const linux = pkg.build && pkg.build.linux;
+            if (!linux || !Array.isArray(linux.target)) {
+              console.log("linux.target is not a list; leaving it untouched");
+              process.exit(0);
+            }
+            const unavailable = [];
+            if (process.env.HAS_SNAPCRAFT !== "true") unavailable.push("snap");
+            if (process.env.HAS_FLATPAK !== "true") unavailable.push("flatpak");
+            const name = (t) => (typeof t === "string" ? t : t && t.target);
+            const kept = linux.target.filter((t) => !unavailable.includes(name(t)));
+            if (kept.length !== linux.target.length) {
+              linux.target = kept;
+              fs.writeFileSync(file, JSON.stringify(pkg, null, 2));
+              console.log("Linux targets for this runner:", JSON.stringify(kept));
+            } else {
+              console.log("All configured Linux targets are buildable here:", JSON.stringify(kept));
+            }
+          '
+
+      # The desktop-timer app icons are generated at build time from GAUZY_DESKTOP_LOGO_512X512 and
+      # PLATFORM_LOGO. Those pointed at https://ever.team/assets/ever-teams{,-512x512}.png, which
+      # 404 since the ever.team site was rebuilt (the gauzy downloader does not check the status, so
+      # it saved the HTML error page as a .png, its Jimp step failed silently and app-builder then
+      # died with "image: unknown format" on mac, win-x64 and win-arm64). Fetch the assets from this
+      # repo up front, fail fast unless they are real PNGs, and hand the generator local paths
+      # (the form gauzy's own .env.sample uses) so a transient 429/5xx cannot corrupt the icons.
+      - name: Fetch Ever Teams branding assets
+        shell: bash
+        env:
+          BRANDING_BASE_URL: ${{ vars.DESKTOP_BRANDING_BASE_URL || 'https://raw.githubusercontent.com/ever-co/ever-teams/develop' }}
+        run: |
+          set -euo pipefail
+          dest="apps/desktop-timer/src/assets/branding"
+          # src/icons is generated (gitignored upstream) and is fully rewritten by gauzy's icon
+          # generator; recreate it empty so a stale HTML-as-.png left by an earlier failed run on a
+          # persistent (clean: false) runner cannot be picked up, and because gauzy's https download
+          # strategy used to create the directory while the local-asset strategy does not.
+          rm -rf apps/desktop-timer/src/icons
+          mkdir -p "$dest" apps/desktop-timer/src/icons
+          fetch() {
+            curl -fsSL --retry 5 --retry-delay 5 --retry-all-errors -o "$2" "$1"
+            if [ "$(head -c 8 "$2" | od -An -tx1 | tr -d ' \n')" != "89504e470d0a1a0a" ]; then
+              echo "::error::$1 is not a PNG: $(head -c 120 "$2" | tr -d '\r\n')"
+              exit 1
+            fi
+            echo "fetched $1 -> $2 ($(wc -c < "$2") bytes)"
+          }
+          fetch "$BRANDING_BASE_URL/apps/mobile/assets/images/app-icon-ios-ever-teams.png" "$dest/ever-teams-512x512.png"
+          fetch "$BRANDING_BASE_URL/apps/web/public/assets/ever-teams.png" "$dest/ever-teams.png"
+
       - name: Ensure dist directory exists
         shell: bash
         run: mkdir -p dist/packages
@@ -133,12 +242,29 @@ jobs:
           DESKTOP_TIMER_APP_REPO_OWNER: "ever-co"
           DESKTOP_TIMER_APP_WELCOME_TITLE: "Welcome to Ever Teams"
           DESKTOP_TIMER_APP_WELCOME_CONTENT: "Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better."
-          I18N_FILES_URL: "https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/desktop/i18n"
-          PLATFORM_LOGO: "https://ever.team/assets/ever-teams.png"
-          GAUZY_DESKTOP_LOGO_512X512: "https://ever.team/assets/ever-teams-512x512.png"
+          # Translations: apps/desktop/i18n no longer exists in this repo (removed in the 2026-06-06
+          # "next" commit), so every download from the old URL 404s and gauzy's translation-util then
+          # leaves apps/desktop-timer/src/assets/i18n EMPTY (it only copies its bundled defaults when
+          # the URL is unset) — the shipped app would show raw i18n keys. Leave the URL empty so gauzy's
+          # complete ui-core translations are bundled; set repo/org var DESKTOP_I18N_FILES_URL to a
+          # folder of Ever Teams-specific <lang>.json files to override (previous value:
+          # https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/desktop/i18n).
+          I18N_FILES_URL: ${{ vars.DESKTOP_I18N_FILES_URL }}
+          # Local copies made by the "Fetch Ever Teams branding assets" step (paths are relative to
+          # apps/desktop-timer/src, the same form as gauzy's own defaults). Previously the dead
+          # https://ever.team/assets/ever-teams.png and .../ever-teams-512x512.png.
+          PLATFORM_LOGO: "assets/branding/ever-teams.png"
+          GAUZY_DESKTOP_LOGO_512X512: "assets/branding/ever-teams-512x512.png"
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
 
   release-linux-arm64:
+    # No runner carries the `ubicloud-standard-8-arm` label any more (the Ubicloud integration is
+    # gone from the org and there is no self-hosted arm64 runner): every run of this job sat "queued"
+    # until the next run's cancel-in-progress killed it (~6h each), holding the whole workflow run
+    # "in progress". Gate it on the RUNNER_LINUX_ARM64_8 org/repo variable — set it to an arm64 runner
+    # label (a self-hosted VM, or `ubicloud-standard-8-arm` if Ubicloud is re-enabled) to bring this
+    # leg back; until then it is skipped instead of hanging.
+    if: ${{ vars.RUNNER_LINUX_ARM64_8 != '' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 300
 
@@ -146,7 +272,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubicloud-standard-8-arm]
+        os: ["${{ vars.RUNNER_LINUX_ARM64_8 || 'ubicloud-standard-8-arm' }}"]
 
     steps:
       - name: Check out Git repository
@@ -185,10 +311,25 @@ jobs:
           sudo apt install -y curl gnupg git libappindicator3-1 ca-certificates binutils icnsutils graphicsmagick libx11-dev libxtst-dev libxt-dev libxinerama-dev libx11-xcb-dev libxkbcommon-dev libxkbcommon-x11-dev libxkbfile-dev libxrandr-dev ruby ruby-dev rubygems build-essential
           sudo gem install --no-document fpm
 
+      # See release-linux: snapd only exists on VM runners; skip the snap tooling where it is absent
+      # (a future self-hosted arm64 runner may well be an ARC container too).
+      - name: Detect snapd
+        id: snapd
+        shell: bash
+        run: |
+          if command -v snap >/dev/null 2>&1; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "snapd is not available on this runner; skipping Snapcraft/Multipass install"
+          fi
+
       - name: Install Snapcraft
+        if: ${{ steps.snapd.outputs.available == 'true' }}
         uses: samuelmeuli/action-snapcraft@v2
 
       - name: Install Multipass
+        if: ${{ steps.snapd.outputs.available == 'true' }}
         run: 'sudo snap install multipass'
 
       - name: Fix node-gyp and Python
@@ -231,6 +372,83 @@ jobs:
           DESKTOP_TIMER_APP_DESCRIPTION: "Ever Teams Desktop"
           DESKTOP_TIMER_APP_ID: "com.ever.everteamsdesktop"
 
+      # See release-linux: the upstream bump script re-injects the dead DigitalOcean Spaces publisher.
+      - name: Drop DigitalOcean Spaces publish target
+        if: ${{ vars.DO_ENABLED != 'true' }}
+        shell: bash
+        run: |
+          node -e '
+            const fs = require("fs");
+            const file = "apps/desktop-timer/src/package.json";
+            const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
+            const current = (pkg.build && pkg.build.publish) || [];
+            const list = Array.isArray(current) ? current : [current];
+            const kept = list.filter((p) => !(p && p.provider === "spaces"));
+            if (kept.length !== list.length) {
+              pkg.build.publish = kept;
+              fs.writeFileSync(file, JSON.stringify(pkg, null, 2));
+              console.log("Removed spaces publish target; remaining publishers:", JSON.stringify(kept));
+            } else {
+              console.log("No spaces publish target present; nothing to do");
+            }
+          '
+
+      # See release-linux: build only the Linux targets this runner's toolchain can produce.
+      - name: Adapt Linux targets to the runner toolchain
+        if: ${{ vars.DESKTOP_LINUX_KEEP_ALL_TARGETS != 'true' }}
+        shell: bash
+        run: |
+          HAS_SNAPCRAFT=false; command -v snapcraft >/dev/null 2>&1 && HAS_SNAPCRAFT=true
+          HAS_FLATPAK=false; command -v flatpak-builder >/dev/null 2>&1 && HAS_FLATPAK=true
+          echo "snapcraft available: $HAS_SNAPCRAFT, flatpak-builder available: $HAS_FLATPAK"
+          HAS_SNAPCRAFT="$HAS_SNAPCRAFT" HAS_FLATPAK="$HAS_FLATPAK" node -e '
+            const fs = require("fs");
+            const file = "apps/desktop-timer/src/package.json";
+            const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
+            const linux = pkg.build && pkg.build.linux;
+            if (!linux || !Array.isArray(linux.target)) {
+              console.log("linux.target is not a list; leaving it untouched");
+              process.exit(0);
+            }
+            const unavailable = [];
+            if (process.env.HAS_SNAPCRAFT !== "true") unavailable.push("snap");
+            if (process.env.HAS_FLATPAK !== "true") unavailable.push("flatpak");
+            const name = (t) => (typeof t === "string" ? t : t && t.target);
+            const kept = linux.target.filter((t) => !unavailable.includes(name(t)));
+            if (kept.length !== linux.target.length) {
+              linux.target = kept;
+              fs.writeFileSync(file, JSON.stringify(pkg, null, 2));
+              console.log("Linux targets for this runner:", JSON.stringify(kept));
+            } else {
+              console.log("All configured Linux targets are buildable here:", JSON.stringify(kept));
+            }
+          '
+
+      # See release-linux: the icon URLs on ever.team are dead; fetch the branding PNGs from this repo.
+      - name: Fetch Ever Teams branding assets
+        shell: bash
+        env:
+          BRANDING_BASE_URL: ${{ vars.DESKTOP_BRANDING_BASE_URL || 'https://raw.githubusercontent.com/ever-co/ever-teams/develop' }}
+        run: |
+          set -euo pipefail
+          dest="apps/desktop-timer/src/assets/branding"
+          # src/icons is generated (gitignored upstream) and is fully rewritten by gauzy's icon
+          # generator; recreate it empty so a stale HTML-as-.png left by an earlier failed run on a
+          # persistent (clean: false) runner cannot be picked up, and because gauzy's https download
+          # strategy used to create the directory while the local-asset strategy does not.
+          rm -rf apps/desktop-timer/src/icons
+          mkdir -p "$dest" apps/desktop-timer/src/icons
+          fetch() {
+            curl -fsSL --retry 5 --retry-delay 5 --retry-all-errors -o "$2" "$1"
+            if [ "$(head -c 8 "$2" | od -An -tx1 | tr -d ' \n')" != "89504e470d0a1a0a" ]; then
+              echo "::error::$1 is not a PNG: $(head -c 120 "$2" | tr -d '\r\n')"
+              exit 1
+            fi
+            echo "fetched $1 -> $2 ($(wc -c < "$2") bytes)"
+          }
+          fetch "$BRANDING_BASE_URL/apps/mobile/assets/images/app-icon-ios-ever-teams.png" "$dest/ever-teams-512x512.png"
+          fetch "$BRANDING_BASE_URL/apps/web/public/assets/ever-teams.png" "$dest/ever-teams.png"
+
       - name: Ensure dist directory exists
         shell: bash
         run: mkdir -p dist/packages
@@ -266,9 +484,19 @@ jobs:
           DESKTOP_TIMER_APP_REPO_OWNER: "ever-co"
           DESKTOP_TIMER_APP_WELCOME_TITLE: "Welcome to Ever Teams"
           DESKTOP_TIMER_APP_WELCOME_CONTENT: "Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better."
-          I18N_FILES_URL: "https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/desktop/i18n"
-          PLATFORM_LOGO: "https://ever.team/assets/ever-teams.png"
-          GAUZY_DESKTOP_LOGO_512X512: "https://ever.team/assets/ever-teams-512x512.png"
+          # Translations: apps/desktop/i18n no longer exists in this repo (removed in the 2026-06-06
+          # "next" commit), so every download from the old URL 404s and gauzy's translation-util then
+          # leaves apps/desktop-timer/src/assets/i18n EMPTY (it only copies its bundled defaults when
+          # the URL is unset) — the shipped app would show raw i18n keys. Leave the URL empty so gauzy's
+          # complete ui-core translations are bundled; set repo/org var DESKTOP_I18N_FILES_URL to a
+          # folder of Ever Teams-specific <lang>.json files to override (previous value:
+          # https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/desktop/i18n).
+          I18N_FILES_URL: ${{ vars.DESKTOP_I18N_FILES_URL }}
+          # Local copies made by the "Fetch Ever Teams branding assets" step (paths are relative to
+          # apps/desktop-timer/src, the same form as gauzy's own defaults). Previously the dead
+          # https://ever.team/assets/ever-teams.png and .../ever-teams-512x512.png.
+          PLATFORM_LOGO: "assets/branding/ever-teams.png"
+          GAUZY_DESKTOP_LOGO_512X512: "assets/branding/ever-teams-512x512.png"
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
           SNAPCRAFT_BUILD_ENVIRONMENT: host
 
@@ -355,6 +583,54 @@ jobs:
           echo "${{ secrets.APPLE_API_KEY_BASE64 }}" | base64 --decode > /tmp/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
           chmod 600 /tmp/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
 
+      # See release-linux: the upstream bump script re-injects the dead DigitalOcean Spaces publisher
+      # (bucket `ever` returns NoSuchBucket, which fails the whole publish after the GitHub upload).
+      - name: Drop DigitalOcean Spaces publish target
+        if: ${{ vars.DO_ENABLED != 'true' }}
+        shell: bash
+        run: |
+          node -e '
+            const fs = require("fs");
+            const file = "apps/desktop-timer/src/package.json";
+            const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
+            const current = (pkg.build && pkg.build.publish) || [];
+            const list = Array.isArray(current) ? current : [current];
+            const kept = list.filter((p) => !(p && p.provider === "spaces"));
+            if (kept.length !== list.length) {
+              pkg.build.publish = kept;
+              fs.writeFileSync(file, JSON.stringify(pkg, null, 2));
+              console.log("Removed spaces publish target; remaining publishers:", JSON.stringify(kept));
+            } else {
+              console.log("No spaces publish target present; nothing to do");
+            }
+          '
+
+      # See release-linux: the icon URLs on ever.team are dead (this is what killed the mac build with
+      # "image: unknown format" from app-builder); fetch the branding PNGs from this repo instead.
+      - name: Fetch Ever Teams branding assets
+        shell: bash
+        env:
+          BRANDING_BASE_URL: ${{ vars.DESKTOP_BRANDING_BASE_URL || 'https://raw.githubusercontent.com/ever-co/ever-teams/develop' }}
+        run: |
+          set -euo pipefail
+          dest="apps/desktop-timer/src/assets/branding"
+          # src/icons is generated (gitignored upstream) and is fully rewritten by gauzy's icon
+          # generator; recreate it empty so a stale HTML-as-.png left by an earlier failed run on a
+          # persistent (clean: false) runner cannot be picked up, and because gauzy's https download
+          # strategy used to create the directory while the local-asset strategy does not.
+          rm -rf apps/desktop-timer/src/icons
+          mkdir -p "$dest" apps/desktop-timer/src/icons
+          fetch() {
+            curl -fsSL --retry 5 --retry-delay 5 --retry-all-errors -o "$2" "$1"
+            if [ "$(head -c 8 "$2" | od -An -tx1 | tr -d ' \n')" != "89504e470d0a1a0a" ]; then
+              echo "::error::$1 is not a PNG: $(head -c 120 "$2" | tr -d '\r\n')"
+              exit 1
+            fi
+            echo "fetched $1 -> $2 ($(wc -c < "$2") bytes)"
+          }
+          fetch "$BRANDING_BASE_URL/apps/mobile/assets/images/app-icon-ios-ever-teams.png" "$dest/ever-teams-512x512.png"
+          fetch "$BRANDING_BASE_URL/apps/web/public/assets/ever-teams.png" "$dest/ever-teams.png"
+
       - name: Ensure dist directory exists
         shell: bash
         run: mkdir -p dist/packages
@@ -418,11 +694,31 @@ jobs:
           DESKTOP_TIMER_APP_REPO_OWNER: "ever-co"
           DESKTOP_TIMER_APP_WELCOME_TITLE: "Welcome to Ever Teams"
           DESKTOP_TIMER_APP_WELCOME_CONTENT: "Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better."
-          I18N_FILES_URL: "https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/desktop/i18n"
-          PLATFORM_LOGO: "https://ever.team/assets/ever-teams.png"
-          GAUZY_DESKTOP_LOGO_512X512: "https://ever.team/assets/ever-teams-512x512.png"
-          APPLE_ID: ${{ secrets.APPLE_ID }}
+          # Translations: apps/desktop/i18n no longer exists in this repo (removed in the 2026-06-06
+          # "next" commit), so every download from the old URL 404s and gauzy's translation-util then
+          # leaves apps/desktop-timer/src/assets/i18n EMPTY (it only copies its bundled defaults when
+          # the URL is unset) — the shipped app would show raw i18n keys. Leave the URL empty so gauzy's
+          # complete ui-core translations are bundled; set repo/org var DESKTOP_I18N_FILES_URL to a
+          # folder of Ever Teams-specific <lang>.json files to override (previous value:
+          # https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/desktop/i18n).
+          I18N_FILES_URL: ${{ vars.DESKTOP_I18N_FILES_URL }}
+          # Local copies made by the "Fetch Ever Teams branding assets" step (paths are relative to
+          # apps/desktop-timer/src, the same form as gauzy's own defaults). Previously the dead
+          # https://ever.team/assets/ever-teams.png and .../ever-teams-512x512.png.
+          PLATFORM_LOGO: "assets/branding/ever-teams.png"
+          GAUZY_DESKTOP_LOGO_512X512: "assets/branding/ever-teams-512x512.png"
+          # macOS notarization. electron-builder 26 accepts ONE credential set and checks the
+          # Apple-ID pair FIRST: whenever APPLE_ID is set it demands APPLE_APP_SPECIFIC_PASSWORD
+          # and aborts the build ("APPLE_APP_SPECIFIC_PASSWORD env var needs to be set") before
+          # it ever looks at the App Store Connect API key. The intended path here is the API
+          # key (APPLE_API_KEY* below; gauzy's afterSign hook tools/notarize.js defers to
+          # electron-builder when APPLE_API_KEY is a file path), and no APPLE_ID_APP_PASSWORD
+          # secret exists, so the Apple-ID pair is only exported when an app-specific password
+          # is actually configured — and then also under the name electron-builder reads
+          # (APPLE_APP_SPECIFIC_PASSWORD; APPLE_ID_APP_PASSWORD is kept for the older name).
+          APPLE_ID: ${{ secrets.APPLE_ID_APP_PASSWORD != '' && secrets.APPLE_ID || '' }}
           APPLE_ID_APP_PASSWORD: ${{ secrets.APPLE_ID_APP_PASSWORD }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_APP_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           # CSC_LINK deliberately NOT set: that is what makes electron-builder build its own
           # (broken) keychain. Point it at the one imported above instead.
@@ -478,7 +774,7 @@ jobs:
           "npm_config_msvs_version=2022" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Fix node-gyp and Python
-        run: python3 -m pip install packaging setuptools
+        run: python3 -m pip install --break-system-packages packaging setuptools || python3 -m pip install packaging setuptools
 
       - name: Setup MSVC (VS 2022 dev env)
         uses: ilammy/msvc-dev-cmd@v1
@@ -576,6 +872,54 @@ jobs:
         shell: powershell
         run: npx nx reset
 
+      # See release-linux: the upstream bump script re-injects the dead DigitalOcean Spaces publisher
+      # (bucket `ever` returns NoSuchBucket, which fails the whole publish after the GitHub upload).
+      - name: Drop DigitalOcean Spaces publish target
+        if: ${{ vars.DO_ENABLED != 'true' }}
+        shell: bash
+        run: |
+          node -e '
+            const fs = require("fs");
+            const file = "apps/desktop-timer/src/package.json";
+            const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
+            const current = (pkg.build && pkg.build.publish) || [];
+            const list = Array.isArray(current) ? current : [current];
+            const kept = list.filter((p) => !(p && p.provider === "spaces"));
+            if (kept.length !== list.length) {
+              pkg.build.publish = kept;
+              fs.writeFileSync(file, JSON.stringify(pkg, null, 2));
+              console.log("Removed spaces publish target; remaining publishers:", JSON.stringify(kept));
+            } else {
+              console.log("No spaces publish target present; nothing to do");
+            }
+          '
+
+      # See release-linux: the icon URLs on ever.team are dead (this is what killed the Windows build
+      # with "image: unknown format" from app-builder); fetch the branding PNGs from this repo instead.
+      - name: Fetch Ever Teams branding assets
+        shell: bash
+        env:
+          BRANDING_BASE_URL: ${{ vars.DESKTOP_BRANDING_BASE_URL || 'https://raw.githubusercontent.com/ever-co/ever-teams/develop' }}
+        run: |
+          set -euo pipefail
+          dest="apps/desktop-timer/src/assets/branding"
+          # src/icons is generated (gitignored upstream) and is fully rewritten by gauzy's icon
+          # generator; recreate it empty so a stale HTML-as-.png left by an earlier failed run on a
+          # persistent (clean: false) runner cannot be picked up, and because gauzy's https download
+          # strategy used to create the directory while the local-asset strategy does not.
+          rm -rf apps/desktop-timer/src/icons
+          mkdir -p "$dest" apps/desktop-timer/src/icons
+          fetch() {
+            curl -fsSL --retry 5 --retry-delay 5 --retry-all-errors -o "$2" "$1"
+            if [ "$(head -c 8 "$2" | od -An -tx1 | tr -d ' \n')" != "89504e470d0a1a0a" ]; then
+              echo "::error::$1 is not a PNG: $(head -c 120 "$2" | tr -d '\r\n')"
+              exit 1
+            fi
+            echo "fetched $1 -> $2 ($(wc -c < "$2") bytes)"
+          }
+          fetch "$BRANDING_BASE_URL/apps/mobile/assets/images/app-icon-ios-ever-teams.png" "$dest/ever-teams-512x512.png"
+          fetch "$BRANDING_BASE_URL/apps/web/public/assets/ever-teams.png" "$dest/ever-teams.png"
+
       - name: Build Desktop Timer App
         shell: cmd
         run: 'yarn build:desktop-timer:windows:release:gh:x64'
@@ -608,9 +952,19 @@ jobs:
           DESKTOP_TIMER_APP_REPO_OWNER: "ever-co"
           DESKTOP_TIMER_APP_WELCOME_TITLE: "Welcome to Ever Teams"
           DESKTOP_TIMER_APP_WELCOME_CONTENT: "Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better."
-          I18N_FILES_URL: "https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/desktop/i18n"
-          PLATFORM_LOGO: "https://ever.team/assets/ever-teams.png"
-          GAUZY_DESKTOP_LOGO_512X512: "https://ever.team/assets/ever-teams-512x512.png"
+          # Translations: apps/desktop/i18n no longer exists in this repo (removed in the 2026-06-06
+          # "next" commit), so every download from the old URL 404s and gauzy's translation-util then
+          # leaves apps/desktop-timer/src/assets/i18n EMPTY (it only copies its bundled defaults when
+          # the URL is unset) — the shipped app would show raw i18n keys. Leave the URL empty so gauzy's
+          # complete ui-core translations are bundled; set repo/org var DESKTOP_I18N_FILES_URL to a
+          # folder of Ever Teams-specific <lang>.json files to override (previous value:
+          # https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/desktop/i18n).
+          I18N_FILES_URL: ${{ vars.DESKTOP_I18N_FILES_URL }}
+          # Local copies made by the "Fetch Ever Teams branding assets" step (paths are relative to
+          # apps/desktop-timer/src, the same form as gauzy's own defaults). Previously the dead
+          # https://ever.team/assets/ever-teams.png and .../ever-teams-512x512.png.
+          PLATFORM_LOGO: "assets/branding/ever-teams.png"
+          GAUZY_DESKTOP_LOGO_512X512: "assets/branding/ever-teams-512x512.png"
 
   release-windows-arm64:
     runs-on: ${{ matrix.os }}
@@ -675,7 +1029,7 @@ jobs:
           "npm_config_msvs_version=2022" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Fix node-gyp and Python
-        run: python3 -m pip install packaging setuptools
+        run: python3 -m pip install --break-system-packages packaging setuptools || python3 -m pip install packaging setuptools
 
       - name: Setup MSVC (VS 2022 dev env)
         uses: ilammy/msvc-dev-cmd@v1
@@ -769,6 +1123,54 @@ jobs:
           # Patch graceful-fs to retry EMFILE errors with backoff
           node -e "try { var gfs = require('graceful-fs'); gfs.gracefulify(require('fs')); console.log('graceful-fs patched'); } catch(e) { console.log('graceful-fs not available, skipping'); }"
 
+      # See release-linux: the upstream bump script re-injects the dead DigitalOcean Spaces publisher
+      # (bucket `ever` returns NoSuchBucket, which fails the whole publish after the GitHub upload).
+      - name: Drop DigitalOcean Spaces publish target
+        if: ${{ vars.DO_ENABLED != 'true' }}
+        shell: bash
+        run: |
+          node -e '
+            const fs = require("fs");
+            const file = "apps/desktop-timer/src/package.json";
+            const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
+            const current = (pkg.build && pkg.build.publish) || [];
+            const list = Array.isArray(current) ? current : [current];
+            const kept = list.filter((p) => !(p && p.provider === "spaces"));
+            if (kept.length !== list.length) {
+              pkg.build.publish = kept;
+              fs.writeFileSync(file, JSON.stringify(pkg, null, 2));
+              console.log("Removed spaces publish target; remaining publishers:", JSON.stringify(kept));
+            } else {
+              console.log("No spaces publish target present; nothing to do");
+            }
+          '
+
+      # See release-linux: the icon URLs on ever.team are dead (this is what killed the Windows build
+      # with "image: unknown format" from app-builder); fetch the branding PNGs from this repo instead.
+      - name: Fetch Ever Teams branding assets
+        shell: bash
+        env:
+          BRANDING_BASE_URL: ${{ vars.DESKTOP_BRANDING_BASE_URL || 'https://raw.githubusercontent.com/ever-co/ever-teams/develop' }}
+        run: |
+          set -euo pipefail
+          dest="apps/desktop-timer/src/assets/branding"
+          # src/icons is generated (gitignored upstream) and is fully rewritten by gauzy's icon
+          # generator; recreate it empty so a stale HTML-as-.png left by an earlier failed run on a
+          # persistent (clean: false) runner cannot be picked up, and because gauzy's https download
+          # strategy used to create the directory while the local-asset strategy does not.
+          rm -rf apps/desktop-timer/src/icons
+          mkdir -p "$dest" apps/desktop-timer/src/icons
+          fetch() {
+            curl -fsSL --retry 5 --retry-delay 5 --retry-all-errors -o "$2" "$1"
+            if [ "$(head -c 8 "$2" | od -An -tx1 | tr -d ' \n')" != "89504e470d0a1a0a" ]; then
+              echo "::error::$1 is not a PNG: $(head -c 120 "$2" | tr -d '\r\n')"
+              exit 1
+            fi
+            echo "fetched $1 -> $2 ($(wc -c < "$2") bytes)"
+          }
+          fetch "$BRANDING_BASE_URL/apps/mobile/assets/images/app-icon-ios-ever-teams.png" "$dest/ever-teams-512x512.png"
+          fetch "$BRANDING_BASE_URL/apps/web/public/assets/ever-teams.png" "$dest/ever-teams.png"
+
       - name: Build Desktop Timer App
         shell: cmd
         run: yarn build:desktop-timer:windows:release:gh:arm64
@@ -801,6 +1203,16 @@ jobs:
           DESKTOP_TIMER_APP_REPO_OWNER: "ever-co"
           DESKTOP_TIMER_APP_WELCOME_TITLE: "Welcome to Ever Teams"
           DESKTOP_TIMER_APP_WELCOME_CONTENT: "Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better."
-          I18N_FILES_URL: "https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/desktop/i18n"
-          PLATFORM_LOGO: "https://ever.team/assets/ever-teams.png"
-          GAUZY_DESKTOP_LOGO_512X512: "https://ever.team/assets/ever-teams-512x512.png"
+          # Translations: apps/desktop/i18n no longer exists in this repo (removed in the 2026-06-06
+          # "next" commit), so every download from the old URL 404s and gauzy's translation-util then
+          # leaves apps/desktop-timer/src/assets/i18n EMPTY (it only copies its bundled defaults when
+          # the URL is unset) — the shipped app would show raw i18n keys. Leave the URL empty so gauzy's
+          # complete ui-core translations are bundled; set repo/org var DESKTOP_I18N_FILES_URL to a
+          # folder of Ever Teams-specific <lang>.json files to override (previous value:
+          # https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/desktop/i18n).
+          I18N_FILES_URL: ${{ vars.DESKTOP_I18N_FILES_URL }}
+          # Local copies made by the "Fetch Ever Teams branding assets" step (paths are relative to
+          # apps/desktop-timer/src, the same form as gauzy's own defaults). Previously the dead
+          # https://ever.team/assets/ever-teams.png and .../ever-teams-512x512.png.
+          PLATFORM_LOGO: "assets/branding/ever-teams.png"
+          GAUZY_DESKTOP_LOGO_512X512: "assets/branding/ever-teams-512x512.png"

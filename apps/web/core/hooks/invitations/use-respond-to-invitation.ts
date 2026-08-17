@@ -64,11 +64,13 @@ export function useRespondToInvitation() {
 		}
 	});
 
+	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change).
+	const acceptOrRejectMutateAsync = acceptOrRejectMutation.mutateAsync;
 	const acceptOrRejectInvitation = useCallback(
 		(id: string, action: EInviteAction) => {
-			return acceptOrRejectMutation.mutateAsync({ id, action });
+			return acceptOrRejectMutateAsync({ id, action });
 		},
-		[acceptOrRejectMutation]
+		[acceptOrRejectMutateAsync]
 	);
 
 	// ===== RETURN =====

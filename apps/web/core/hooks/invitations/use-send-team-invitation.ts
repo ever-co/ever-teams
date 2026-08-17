@@ -36,13 +36,15 @@ export function useSendTeamInvitation() {
 		}
 	});
 
+	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change).
+	const inviteUserMutateAsync = inviteUserMutation.mutateAsync;
 	const inviteUser = useCallback(
 		(email: string, name: string, roleId?: string) => {
 			if (!user?.employee?.organizationId || !activeTeamId || !user?.tenantId) {
 				return Promise.reject(new Error('Missing required parameters'));
 			}
 
-			return inviteUserMutation.mutateAsync({
+			return inviteUserMutateAsync({
 				email,
 				name,
 				organizationId: user.employee.organizationId,
@@ -51,7 +53,7 @@ export function useSendTeamInvitation() {
 				roleId
 			});
 		},
-		[inviteUserMutation, user, activeTeamId]
+		[inviteUserMutateAsync, user, activeTeamId]
 	);
 
 	// ===== RESEND INVITATION =====
@@ -65,11 +67,12 @@ export function useSendTeamInvitation() {
 		}
 	});
 
+	const resendInvitationMutateAsync = resendInvitationMutation.mutateAsync;
 	const resendTeamInvitation = useCallback(
 		(invitationId: string) => {
-			return resendInvitationMutation.mutateAsync(invitationId);
+			return resendInvitationMutateAsync(invitationId);
 		},
-		[resendInvitationMutation]
+		[resendInvitationMutateAsync]
 	);
 
 	// ===== RETURN =====

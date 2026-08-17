@@ -24,11 +24,13 @@ export function useDeleteDailyPlan() {
 		}
 	});
 
+	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change).
+	const deleteDailyPlanMutateAsync = deleteDailyPlanMutation.mutateAsync;
 	const deleteDailyPlan = useCallback(
 		async (planId: string) => {
-			return await deleteDailyPlanMutation.mutateAsync(planId);
+			return await deleteDailyPlanMutateAsync(planId);
 		},
-		[deleteDailyPlanMutation]
+		[deleteDailyPlanMutateAsync]
 	);
 
 	return {
