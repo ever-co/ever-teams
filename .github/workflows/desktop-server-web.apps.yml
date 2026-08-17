@@ -563,9 +563,17 @@ jobs:
           "npm_config_msvs_version=2022" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Fix node-gyp and Python
-        # Windows jobs run under PowerShell 5.1, where `||` is a parse error ("The token '||' is not a valid
-        # statement separator") — the PEP 668 fallback form is only needed on the Linux/mac (bash) jobs.
-        run: python3 -m pip install packaging setuptools
+        # The self-hosted Windows pool is heterogeneous: EVERDESK* expose `python3`, EVERGR only `python`
+        # ("The term 'python3' is not recognized", run 32048487421), and PowerShell 5.1 (EVERDESK) has no
+        # `||`. Discover the interpreter the same way "Configure npm python for node-gyp" below does
+        # (python.exe first — the Windows Store `python3.exe` alias stub would open the Store and fail).
+        shell: powershell
+        run: |
+          $py = Get-Command python.exe, python3.exe, py.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $py) { throw "No Python interpreter (python.exe / python3.exe / py.exe) on PATH" }
+          Write-Host "python is: $($py.Source)"
+          if ($py.Name -ieq 'py.exe') { & $py.Source -3 -m pip install packaging setuptools } else { & $py.Source -m pip install packaging setuptools }
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Setup MSVC (VS 2022 dev env)
         uses: ilammy/msvc-dev-cmd@v1
@@ -797,9 +805,17 @@ jobs:
           "npm_config_msvs_version=2022" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Fix node-gyp and Python
-        # Windows jobs run under PowerShell 5.1, where `||` is a parse error ("The token '||' is not a valid
-        # statement separator") — the PEP 668 fallback form is only needed on the Linux/mac (bash) jobs.
-        run: python3 -m pip install packaging setuptools
+        # The self-hosted Windows pool is heterogeneous: EVERDESK* expose `python3`, EVERGR only `python`
+        # ("The term 'python3' is not recognized", run 32048487421), and PowerShell 5.1 (EVERDESK) has no
+        # `||`. Discover the interpreter the same way "Configure npm python for node-gyp" below does
+        # (python.exe first — the Windows Store `python3.exe` alias stub would open the Store and fail).
+        shell: powershell
+        run: |
+          $py = Get-Command python.exe, python3.exe, py.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $py) { throw "No Python interpreter (python.exe / python3.exe / py.exe) on PATH" }
+          Write-Host "python is: $($py.Source)"
+          if ($py.Name -ieq 'py.exe') { & $py.Source -3 -m pip install packaging setuptools } else { & $py.Source -m pip install packaging setuptools }
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Setup MSVC (VS 2022 dev env)
         uses: ilammy/msvc-dev-cmd@v1
