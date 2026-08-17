@@ -243,31 +243,39 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 		[timerStatus, setTimerStatus, queryCall, loadingRef, user]
 	);
 
+	// Depend on the STABLE mutateAsync functions, never on the mutation result objects: those objects are
+	// recreated on every state change (idle → pending → success), which made every callback below new on
+	// each transition and re-ran the effects that depend on them (stopTimer → team/task-change effects).
+	const toggleTimerMutate = toggleTimerMutation.mutateAsync;
 	const toggleTimer = useCallback(
 		(taskIdParam: string, updateStore = true) => {
-			return toggleTimerMutation.mutateAsync(taskIdParam).then((res) => {
+			return toggleTimerMutate(taskIdParam).then((res) => {
 				if (updateStore && res.data && !isEqual(timerStatus, res.data)) {
 					setTimerStatus(res.data);
 				}
 				return res;
 			});
 		},
-		[timerStatus, toggleTimerMutation, setTimerStatus]
+		[timerStatus, toggleTimerMutate, setTimerStatus]
 	);
 
+	const syncTimerMutate = syncTimerMutation.mutateAsync;
+	const syncTimerPending = syncTimerMutation.isPending;
 	const syncTimer = useCallback(() => {
-		if (syncTimerMutation.isPending) {
+		if (syncTimerPending) {
 			return;
 		}
-		return syncTimerMutation
-			.mutateAsync({ source: timerStatus?.lastLog?.source || ETimeLogSource.TEAMS, user: $user.current })
-			.then((res) => {
-				return res;
-			});
-	}, [syncTimerMutation, timerStatus]);
+		return syncTimerMutate({
+			source: timerStatus?.lastLog?.source || ETimeLogSource.TEAMS,
+			user: $user.current
+		}).then((res) => {
+			return res;
+		});
+	}, [syncTimerMutate, syncTimerPending, timerStatus]);
 
 	// ==================== START TIMER ====================
 
+	const startTimerMutate = startTimerMutation.mutateAsync;
 	const startTimer = useCallback(
 		async (explicitTask?: TTask) => {
 			// Check if the user is tracking time in another tab or device
@@ -328,7 +336,7 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 			});
 
 			setTimerStatusFetching(true);
-			const promise = startTimerMutation.mutateAsync().then(async (res) => {
+			const promise = startTimerMutate().then(async (res) => {
 				res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
 
 				// Save active task via API when timer starts
@@ -422,7 +430,7 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 			taskId,
 			updateLocalTimerStatus,
 			setTimerStatusFetching,
-			startTimerMutation,
+			startTimerMutate,
 			activeTeamTaskRef,
 			timerStatus,
 			setTimerStatus,
@@ -443,6 +451,7 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 
 	// ==================== STOP TIMER ====================
 
+	const stopTimerMutate = stopTimerMutation.mutateAsync;
 	const stopTimer = useCallback(() => {
 		updateLocalTimerStatus({
 			lastTaskId: taskId.current || null,
@@ -470,46 +479,44 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 		// Placed after debounce check to avoid wasteful duplicate sync calls
 		syncTimer();
 
-		return stopTimerMutation
-			.mutateAsync(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS)
-			.then(async (res) => {
-				res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
+		return stopTimerMutate(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS).then(async (res) => {
+			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
 
-				// Clear active task via API when timer stops
-				if (activeTeamId && user) {
-					const currentMember = activeTeam?.members?.find((m) => m.employee?.userId === user.id);
+			// Clear active task via API when timer stops
+			if (activeTeamId && user) {
+				const currentMember = activeTeam?.members?.find((m) => m.employee?.userId === user.id);
 
-					if (currentMember?.id) {
-						await updateOrganizationTeamEmployeeActiveTask(currentMember.id, {
-							organizationId: activeTeam?.organizationId,
-							activeTaskId: null,
-							organizationTeamId: activeTeam?.id,
-							tenantId: activeTeam?.tenantId ?? ''
-						});
-					}
-				}
-
-				// Invalidate timer query for current team
-				if (activeTeamId) {
-					queryClient.invalidateQueries({
-						queryKey: queryKeys.timer.all
+				if (currentMember?.id) {
+					await updateOrganizationTeamEmployeeActiveTask(currentMember.id, {
+						organizationId: activeTeam?.organizationId,
+						activeTaskId: null,
+						organizationTeamId: activeTeam?.id,
+						tenantId: activeTeam?.tenantId ?? ''
 					});
 				}
+			}
 
-				// Invalidate team-related queries to update member stats in real-time
+			// Invalidate timer query for current team
+			if (activeTeamId) {
 				queryClient.invalidateQueries({
-					queryKey: queryKeys.organizationTeams.all
+					queryKey: queryKeys.timer.all
 				});
-				if (activeTeamId) {
-					queryClient.invalidateQueries({
-						queryKey: queryKeys.organizationTeams.detail(activeTeamId)
-					});
-				}
+			}
+
+			// Invalidate team-related queries to update member stats in real-time
+			queryClient.invalidateQueries({
+				queryKey: queryKeys.organizationTeams.all
 			});
+			if (activeTeamId) {
+				queryClient.invalidateQueries({
+					queryKey: queryKeys.organizationTeams.detail(activeTeamId)
+				});
+			}
+		});
 	}, [
 		timerStatus,
 		setTimerStatus,
-		stopTimerMutation,
+		stopTimerMutate,
 		taskId,
 		updateLocalTimerStatus,
 		queryClient,

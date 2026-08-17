@@ -24,9 +24,10 @@ export function useEditTaskSize() {
 		onSuccess: invalidateTaskSizesData
 	});
 
+	const updateTaskSizeMutateAsync = updateTaskSizeMutation.mutateAsync;
 	const editTaskSize = useCallback(
-		(id: string, data: ITaskSizesCreate) => updateTaskSizeMutation.mutateAsync({ taskSizeId: id, data }),
-		[updateTaskSizeMutation]
+		(id: string, data: ITaskSizesCreate) => updateTaskSizeMutateAsync({ taskSizeId: id, data }),
+		[updateTaskSizeMutateAsync]
 	);
 
 	return {

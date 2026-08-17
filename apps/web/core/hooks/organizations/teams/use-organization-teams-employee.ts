@@ -158,29 +158,35 @@ export function useOrganizationEmployeeTeams() {
 		}
 	});
 
+	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change).
+	const deleteOrganizationEmployeeTeamMutateAsync = deleteOrganizationEmployeeTeamMutation.mutateAsync;
+	const updateOrganizationEmployeeTeamMutateAsync = updateOrganizationEmployeeTeamMutation.mutateAsync;
+	const editEmployeeOrderMutateAsync = editEmployeeOrderMutation.mutateAsync;
+	const updateActiveTaskMutateAsync = updateActiveTaskMutation.mutateAsync;
+
 	// Delete organization team employee function
 	const deleteOrganizationTeamEmployee = useCallback(
 		async ({ id, employeeId }: { id: string; employeeId: string }) => {
-			return await deleteOrganizationEmployeeTeamMutation.mutateAsync({
+			return await deleteOrganizationEmployeeTeamMutateAsync({
 				id,
 				employeeId
 			});
 		},
-		[deleteOrganizationEmployeeTeamMutation]
+		[deleteOrganizationEmployeeTeamMutateAsync]
 	);
 
 	// Update organization team employee function
 	const updateOrganizationTeamEmployee = useCallback(
 		async (id: string, data: Partial<TOrganizationTeamEmployeeUpdate>) => {
-			return await updateOrganizationEmployeeTeamMutation.mutateAsync({ id, data });
+			return await updateOrganizationEmployeeTeamMutateAsync({ id, data });
 		},
-		[updateOrganizationEmployeeTeamMutation]
+		[updateOrganizationEmployeeTeamMutateAsync]
 	);
 
 	// Update employee order function
 	const updateOrganizationTeamEmployeeOrderOnList = useCallback(
 		async (employee: TOrganizationTeamEmployee, order: number) => {
-			return await editEmployeeOrderMutation.mutateAsync({
+			return await editEmployeeOrderMutateAsync({
 				employeeId: employee.id,
 				data: {
 					order,
@@ -189,15 +195,15 @@ export function useOrganizationEmployeeTeams() {
 				}
 			});
 		},
-		[editEmployeeOrderMutation]
+		[editEmployeeOrderMutateAsync]
 	);
 
 	// Update employee active task function
 	const updateOrganizationTeamEmployeeActiveTask = useCallback(
 		async (id: string, data: Partial<TOrganizationTeamEmployeeUpdate>) => {
-			return await updateActiveTaskMutation.mutateAsync({ id, data });
+			return await updateActiveTaskMutateAsync({ id, data });
 		},
-		[updateActiveTaskMutation]
+		[updateActiveTaskMutateAsync]
 	);
 
 	return {

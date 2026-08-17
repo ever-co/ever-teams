@@ -129,32 +129,38 @@ export function useUpdateDailyPlan() {
 		}
 	});
 
+	// Depend on the STABLE mutateAsync, never on the mutation result objects (recreated on every state change).
+	const updateDailyPlanMutateAsync = updateDailyPlanMutation.mutateAsync;
+	const addTaskToPlanMutateAsync = addTaskToPlanMutation.mutateAsync;
+	const removeTaskFromPlanMutateAsync = removeTaskFromPlanMutation.mutateAsync;
+	const removeTaskPlansMutateAsync = removeTaskPlansMutation.mutateAsync;
+
 	const updateDailyPlan = useCallback(
 		async (data: TUpdateDailyPlan, planId: string) => {
-			return await updateDailyPlanMutation.mutateAsync({ data, dailyPlanId: planId });
+			return await updateDailyPlanMutateAsync({ data, dailyPlanId: planId });
 		},
-		[updateDailyPlanMutation]
+		[updateDailyPlanMutateAsync]
 	);
 
 	const addTaskToPlan = useCallback(
 		async (data: IDailyPlanTasksUpdate, planId: string) => {
-			return await addTaskToPlanMutation.mutateAsync({ data, dailyPlanId: planId });
+			return await addTaskToPlanMutateAsync({ data, dailyPlanId: planId });
 		},
-		[addTaskToPlanMutation]
+		[addTaskToPlanMutateAsync]
 	);
 
 	const removeTaskFromPlan = useCallback(
 		async (data: IDailyPlanTasksUpdate, planId: string) => {
-			return await removeTaskFromPlanMutation.mutateAsync({ data, dailyPlanId: planId });
+			return await removeTaskFromPlanMutateAsync({ data, dailyPlanId: planId });
 		},
-		[removeTaskFromPlanMutation]
+		[removeTaskFromPlanMutateAsync]
 	);
 
 	const removeManyTaskPlans = useCallback(
 		async (data: IRemoveTaskFromManyPlansRequest, taskId: string) => {
-			return await removeTaskPlansMutation.mutateAsync({ data, taskId });
+			return await removeTaskPlansMutateAsync({ data, taskId });
 		},
-		[removeTaskPlansMutation]
+		[removeTaskPlansMutateAsync]
 	);
 
 	return {

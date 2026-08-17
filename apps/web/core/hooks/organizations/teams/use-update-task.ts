@@ -100,10 +100,11 @@ export function useUpdateTask() {
 		}
 	});
 
+	const updateTaskMutateAsync = updateTaskMutation.mutateAsync;
 	const updateTask = useCallback(
 		async (task: Partial<TTask> & { id: string }) => {
 			try {
-				const res = await updateTaskMutation.mutateAsync({
+				const res = await updateTaskMutateAsync({
 					taskId: task.id,
 					taskData: task
 				});
@@ -124,7 +125,7 @@ export function useUpdateTask() {
 				throw error;
 			}
 		},
-		[updateTaskMutation, setActive, detailedTask, getTaskById]
+		[updateTaskMutateAsync, setActive, detailedTask, getTaskById]
 	);
 
 	const updateTitle = useCallback(

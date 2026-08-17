@@ -36,6 +36,7 @@ export function useUpdateTimesheet() {
 		}
 	});
 
+	const updateTimesheetMutate = updateTimesheetMutation.mutateAsync;
 	const updateTimesheet = useCallback(
 		async (timesheet: IUpdateTimesheetRequest) => {
 			if (!user) {
@@ -43,27 +44,28 @@ export function useUpdateTimesheet() {
 				return;
 			}
 			try {
-				const response = await updateTimesheetMutation.mutateAsync(timesheet);
+				const response = await updateTimesheetMutate(timesheet);
 				return response.data;
 			} catch (error) {
 				console.error('Error updating the timesheet:', error);
 				throw error;
 			}
 		},
-		[updateTimesheetMutation, user]
+		[updateTimesheetMutate, user]
 	);
 
+	const updateTimesheetStatusMutate = updateTimesheetStatusMutation.mutateAsync;
 	const updateTimesheetStatus = useCallback(
 		async ({ status, ids }: { status: ETimesheetStatus; ids: string[] | string }) => {
 			if (!user) return;
 			const idsArray = Array.isArray(ids) ? ids : [ids];
 			try {
-				await updateTimesheetStatusMutation.mutateAsync({ status, ids: idsArray });
+				await updateTimesheetStatusMutate({ status, ids: idsArray });
 			} catch (error) {
 				console.error('Error updating timesheet status:', error);
 			}
 		},
-		[updateTimesheetStatusMutation, user]
+		[updateTimesheetStatusMutate, user]
 	);
 
 	return {
