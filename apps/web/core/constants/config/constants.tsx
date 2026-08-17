@@ -130,11 +130,27 @@ export const ACTIVE_PROJECT_COOKIE_NAME = 'auth-active-project';
 export const IS_DESKTOP_APP = process.env.IS_DESKTOP_APP === 'true';
 
 // Recaptcha
-export const RECAPTCHA_SITE_KEY = getNextPublicEnv(
-	'NEXT_PUBLIC_CAPTCHA_SITE_KEY',
-	process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY
-);
-export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;
+/**
+ * A captcha key counts as CONFIGURED only when it is non-blank.
+ *
+ * On stage the secrets held one-character placeholder values (a single space) for both
+ * CAPTCHA_SECRET_KEY and NEXT_PUBLIC_CAPTCHA_SITE_KEY. A space is truthy, so the register route
+ * demanded a recaptcha token and the form validator demanded a token — but the widget was
+ * rendered with sitekey=" ", which Google rejects, so no token could ever be produced. Result:
+ * EVERY signup on stage.ever.team hung on "We are now creating your new workplace, hold on..."
+ * with the API answering {"recaptcha":"Please check the ReCaptcha checkbox before continue"}.
+ * Found on 2026-08-17. Blank ⇒ unset, everywhere this is read.
+ */
+const blankToUndefined = (v: string | undefined | null): string | undefined => {
+	const t = (v ?? '').trim();
+	return t.length > 0 ? t : undefined;
+};
+// getNextPublicEnv's `map` option keeps the lazy runtime-env getter semantics intact.
+export const RECAPTCHA_SITE_KEY = getNextPublicEnv('NEXT_PUBLIC_CAPTCHA_SITE_KEY', {
+	default: process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY,
+	map: blankToUndefined
+});
+export const RECAPTCHA_SECRET_KEY = blankToUndefined(process.env.CAPTCHA_SECRET_KEY);
 export const CAPTCHA_TYPE = process.env.NEXT_PUBLIC_CAPTCHA_TYPE;
 let basePath = process.env.GAUZY_API_SERVER_URL ? process.env.GAUZY_API_SERVER_URL : 'https://api.ever.team';
 if (IS_DESKTOP_APP) {
