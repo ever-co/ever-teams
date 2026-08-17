@@ -91,13 +91,26 @@ export const PERMISSION_ROLES: PermissionMap = {
 export const API_BASE_URL = '/api';
 export const DEFAULT_APP_PATH = process.env.NEXT_PUBLIC_DEMO === 'true' ? '/auth/password' : '/auth/passcode';
 export const DEFAULT_MAIN_PATH = '/';
+/**
+ * Optional locale prefix for protected-path matching. Must list the same locales as the
+ * proxy matcher in proxy.ts (`/(en|ar|bg|...)/:path*`) and APPLICATION_LANGUAGES_CODE below.
+ *
+ * Without it every protected path was anchored at "^/settings", "^/task", ... so a
+ * NON-DEFAULT-locale URL such as /fr/settings/personal or /de/task/<id> did not match, was
+ * treated as public, and was served 200 to an unauthenticated visitor, while
+ * /settings/personal correctly redirected to /unauthorized. (The default locale "en" is
+ * stripped before matching, which is why only /en/... looked right.) Found by the
+ * 2026-08-17 browser sweep.
+ */
+const LOCALE_PREFIX = '(?:\\/(?:en|fr|ar|bg|zh|nl|de|he|it|pl|pt|ru|es))?';
+
 export const PROTECTED_APP_URL_PATHS: RegExp[] = [
-	/^\/$/,
-	/^(\/profile(\/)?)(.*)$/,
-	/^(\/settings(\/)?)(.*)$/,
-	/^(\/task(\/)?)(.*)$/,
-	/^(\/meet(\/)?)(.*)$/,
-	/^(\/board(\/)?)(.*)$/
+	new RegExp('^' + LOCALE_PREFIX + '\\/?$'),
+	new RegExp('^' + LOCALE_PREFIX + '(\\/profile(\\/)?)(.*)$'),
+	new RegExp('^' + LOCALE_PREFIX + '(\\/settings(\\/)?)(.*)$'),
+	new RegExp('^' + LOCALE_PREFIX + '(\\/task(\\/)?)(.*)$'),
+	new RegExp('^' + LOCALE_PREFIX + '(\\/meet(\\/)?)(.*)$'),
+	new RegExp('^' + LOCALE_PREFIX + '(\\/board(\\/)?)(.*)$')
 ];
 
 // Cookies
