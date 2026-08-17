@@ -12,6 +12,8 @@ export function useAcceptInvite() {
 		error: null
 	});
 	const { acceptInvitationLoading, acceptInvitationMutation, validateInviteByCode } = useInviteValidation();
+	// Stable function reference (the mutation result object itself changes on every state transition).
+	const acceptInvitation = acceptInvitationMutation.mutateAsync;
 
 	const handleAcceptInvitation = useCallback(
 		async ({
@@ -28,7 +30,7 @@ export function useAcceptInvite() {
 			try {
 				if (invitationState?.state !== EInvitationState.VALIDATED) return;
 
-				const res = await acceptInvitationMutation.mutateAsync({
+				const res = await acceptInvitation({
 					user,
 					password,
 					code,
@@ -79,7 +81,7 @@ export function useAcceptInvite() {
 				console.error('Accept invitation error:', error);
 			}
 		},
-		[acceptInvitationMutation, invitationState.state]
+		[acceptInvitation, invitationState.state, invitationState.data]
 	);
 
 	const validateInvitation = useCallback(
