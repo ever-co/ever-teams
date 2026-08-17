@@ -56,7 +56,7 @@ jobs:
       - name: Install system dependencies
         # `rpm` provides rpmbuild, which fpm needs for the rpm target; GitHub-hosted images ship it,
         # the self-hosted ARC runner image (actions-runner + build toolchain) is not known to.
-        run: 'sudo apt-get update && sudo apt install -y curl gnupg git libappindicator3-1 ca-certificates binutils icnsutils graphicsmagick rpm'
+        run: 'sudo apt-get update && sudo apt install -y curl gnupg git libappindicator3-1 ca-certificates binutils icnsutils graphicsmagick rpm squashfs-tools'
 
       # The self-hosted ARC runners are containers without snapd, so `snap install snapcraft` fails
       # with "sudo: snap: command not found". Detect snapd and only install Snapcraft where it exists.
@@ -76,7 +76,7 @@ jobs:
         uses: samuelmeuli/action-snapcraft@v2
 
       - name: Fix node-gyp and Python
-        run: python3 -m pip install packaging setuptools
+        run: python3 -m pip install --break-system-packages packaging setuptools || python3 -m pip install packaging setuptools
 
       - name: Install latest version of NPM
         run: 'sudo npm install -g npm@11.6.2'
@@ -271,7 +271,7 @@ jobs:
         run: 'sudo snap install multipass'
 
       - name: Fix node-gyp and Python
-        run: python3 -m pip install packaging setuptools
+        run: python3 -m pip install --break-system-packages packaging setuptools || python3 -m pip install packaging setuptools
 
       - name: Install latest version of NPM
         run: 'sudo npm install -g npm@11.6.2'
@@ -607,7 +607,7 @@ jobs:
           "npm_config_msvs_version=2022" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Fix node-gyp and Python
-        run: python3 -m pip install packaging setuptools
+        run: python3 -m pip install --break-system-packages packaging setuptools || python3 -m pip install packaging setuptools
 
       - name: Setup MSVC (VS 2022 dev env)
         uses: ilammy/msvc-dev-cmd@v1
@@ -826,7 +826,7 @@ jobs:
           "npm_config_msvs_version=2022" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Fix node-gyp and Python
-        run: python3 -m pip install packaging setuptools
+        run: python3 -m pip install --break-system-packages packaging setuptools || python3 -m pip install packaging setuptools
 
       - name: Setup MSVC (VS 2022 dev env)
         uses: ilammy/msvc-dev-cmd@v1
