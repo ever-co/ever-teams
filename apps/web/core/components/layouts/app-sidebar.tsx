@@ -159,13 +159,19 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				icon: HomeIcon,
 				label: 'home'
 			},
-			{
-				title: 'Inbox',
-				url: '/inbox',
-				selectable: true,
-				icon: InboxIcon,
-				label: 'inbox'
-			}
+			// /inbox has no page yet (404 for every user who clicks it). Gated, not removed — flip
+			// NEXT_PUBLIC_INBOX_ENABLED=true when the route ships.
+			...(process.env.NEXT_PUBLIC_INBOX_ENABLED === 'true'
+				? [
+						{
+							title: 'Inbox',
+							url: '/inbox',
+							selectable: true,
+							icon: InboxIcon,
+							label: 'inbox'
+						}
+					]
+				: [])
 		],
 		navMain: [
 			{
