@@ -4,8 +4,9 @@ import { TGetTimerLogsDailyReportRequest } from '@/core/types/schemas';
 import { useQuery } from '@tanstack/react-query';
 import moment from 'moment';
 
-export function useGetTimeLogs(params?: TGetTimerLogsDailyReportRequest) {
+export function useGetTimeLogs(params?: TGetTimerLogsDailyReportRequest, options?: { enabled?: boolean }) {
 	return useQuery({
+		enabled: options?.enabled ?? true,
 		queryKey: params ? queryKeys.timeLogs.withParams(params) : queryKeys.timeLogs.all,
 		queryFn: async () => {
 			if (!params?.startDate && !params?.endDate && !params?.date) {
