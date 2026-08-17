@@ -7,7 +7,7 @@ import {
 	setAccessTokenCookie,
 	setRefreshTokenCookie
 } from '@/core/lib/helpers/cookies';
-import { refreshTokenRequest } from '@/core/services/server/requests/auth';
+import { authService } from '@/core/services/client/api/auth/auth.service';
 import {
 	shouldRefreshToken,
 	getTokenRemainingTime,
@@ -90,7 +90,9 @@ export function useProactiveTokenRefresh() {
 				console.log('[ProactiveTokenRefresh] Token expired/expiring, refreshing now...');
 
 				// Use retry logic with exponential backoff for network errors
-				const { data } = await retryWithBackoff(() => refreshTokenRequest(refresh_token), 3, 1000);
+				// Client-side call → runtime API base URL. The server-only refreshTokenRequest (serverFetch) resolves
+				// to the hard-coded production host inside the browser bundle — see authService.refreshTokenRaw.
+				const { data } = await retryWithBackoff(() => authService.refreshTokenRaw(refresh_token), 3, 1000);
 
 				if (!data?.token) {
 					logErrorInDev('[ProactiveTokenRefresh] No token received from refresh endpoint', data);

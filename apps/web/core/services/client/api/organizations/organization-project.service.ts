@@ -222,11 +222,13 @@ class OrganizationProjectService extends APIService {
 		take?: number;
 	} = {}): Promise<PaginationResponse<TOrganizationProject>> => {
 		try {
+			// No `join[...]` params here: the Gauzy API (stage, 2026-08) answers them with HTTP 200 and the
+			// body {"message":"\"join\" option has been removed. Use \"relations\" ..."} — no items/total —
+			// so every page logged "Organization projects validation failed" and projects never loaded.
+			// `relations` below already left-joins tags, which is all the join was doing.
 			const obj = {
 				'where[organizationId]': this.organizationId,
-				'where[tenantId]': this.tenantId,
-				'join[alias]': 'organization_project',
-				'join[leftJoin][tags]': 'organization_project.tags'
+				'where[tenantId]': this.tenantId
 			} as Record<string, string>;
 
 			// Relations matching the provided URL structure

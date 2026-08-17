@@ -36,7 +36,7 @@ const TeamTask = () => {
 		() => [
 			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
 			{ title: activeTeam?.name || '', href: '/' },
-			{ title: "Team's Task", href: `/${currentLocale}/team/task` }
+			{ title: "Team's Task", href: `/${currentLocale}/team/tasks` }
 		],
 		[activeTeam?.name, currentLocale, t]
 	);
