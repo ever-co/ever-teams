@@ -608,7 +608,10 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 														/>
 													</span>
 												</div>
-												<span
+												<button
+													type="button"
+													aria-label={`${t('common.SELECT')} ${workspaceName}`}
+													aria-pressed={props.selectedWorkspace === originalIndex}
 													className="shrink-0 hover:cursor-pointer"
 													onClick={() => {
 														props.setSelectedWorkspace(originalIndex);
@@ -631,7 +634,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 													) : (
 														<CircleIcon className="w-6 h-6" />
 													)}
-												</span>
+												</button>
 											</div>
 											<span
 												className={`bg-[#E5E5E5] w-full h-px hidden ${expandedWorkspace === index && 'block'}`}
