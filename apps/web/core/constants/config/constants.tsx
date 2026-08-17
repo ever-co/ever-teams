@@ -176,7 +176,10 @@ export const DEMO_ACCOUNTS_CONFIG = IS_DEMO_MODE
 			{
 				type: 'EMPLOYEE',
 				email: 'employee@ever.co',
-				password: '123456',
+				// The Gauzy demo seed creates this account with '12345678', not '123456'. Verified against
+				// the live demo API on 2026-08-17: 123456 -> 401, 12345678 -> 200. With the wrong value the
+				// "Employee Demo" one-click login on demo.ever.team failed with 401 for every visitor.
+				password: '12345678',
 				translationKey: 'DEMO_EMPLOYEE',
 				role: 'Employee',
 				icon: User2
