@@ -181,7 +181,9 @@ function MainPage() {
 					</div>
 				</PageLayout>
 			</div>
-			<Analytics />
+			{/* Vercel Web Analytics only exists on Vercel; on the k8s deployments its /_vercel/insights/script.js
+			    404s on every page view (gate, don't remove — it comes back the moment the app runs on Vercel). */}
+			{process.env.NEXT_PUBLIC_VERCEL_ENV || process.env.VERCEL ? <Analytics /> : null}
 		</>
 	);
 }

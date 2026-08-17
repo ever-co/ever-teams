@@ -16,7 +16,6 @@ import {
 	TOrganizationTeamCreate,
 	TTeamRequestParams,
 	TUser,
-	TOrganizationProject,
 	organizationTeamCreateResponseSchema,
 	organizationTeamUpdateSchema,
 	TOrganizationTeamUpdate
@@ -101,7 +100,10 @@ class OrganizationTeamService extends APIService {
 			organizationId: validatedInput.organizationId
 		});
 
-		validatedInput.projects = [project.data as TOrganizationProject];
+		// createOrganizationProject already returns the validated project (not an axios response) — reading
+		// `.data` here sent `projects: [null]`, the API answered 400 (organizationProjectId not-null) and
+		// EVERY "Create New Team" failed, leaving an orphan project behind each time (2026-08-17).
+		validatedInput.projects = [project];
 
 		try {
 			const response = await this.post<TOrganizationTeam>('/organization-team', validatedInput, {
