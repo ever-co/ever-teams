@@ -20,6 +20,9 @@ jobs:
 
     strategy:
       matrix:
+        # Self-hosted ARC runner (fleet policy: no GitHub-hosted / Ubicloud runners). snapd cannot run in
+        # the ARC container, so the Snapcraft step below is skipped there and the `snap` target is dropped
+        # for this run ("Adapt Linux targets"); deb / tar.gz / rpm / AppImage are still built + published.
         os: ["${{ vars.RUNNER_LINUX_X64_8 || 'ubuntu-latest' }}"]
 
     steps:
@@ -51,9 +54,21 @@ jobs:
         run: "sudo chown -R $(whoami) ./*"
 
       - name: Install system dependencies
-        run: 'sudo apt-get update && sudo apt install -y curl gnupg git libappindicator3-1 ca-certificates binutils icnsutils graphicsmagick'
+        run: 'sudo apt-get update && sudo apt install -y curl gnupg git libappindicator3-1 ca-certificates binutils icnsutils graphicsmagick rpm'
+
+      - name: Detect snapd
+        id: snapd
+        shell: bash
+        run: |
+          if command -v snap >/dev/null 2>&1; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "snapd is not available on this runner (ARC container); skipping Snapcraft install"
+          fi
 
       - name: Install Snapcraft
+        if: ${{ steps.snapd.outputs.available == 'true' }}
         uses: samuelmeuli/action-snapcraft@v2
 
       - name: Fix node-gyp and Python
@@ -100,6 +115,32 @@ jobs:
         shell: bash
         run: mkdir -p dist/packages
 
+      - name: Adapt Linux targets to the runner toolchain
+        if: ${{ vars.DESKTOP_LINUX_KEEP_ALL_TARGETS != 'true' }}
+        shell: bash
+        run: |
+          # apps/server-web/package.json lists deb, snap, tar.gz, rpm, AppImage. `snap` needs snapcraft
+          # (absent inside the ARC container) — drop only what this runner cannot build; a VM runner with
+          # snapcraft keeps the full list. Set DESKTOP_LINUX_KEEP_ALL_TARGETS=true to disable this step.
+          HAS_SNAPCRAFT=false; command -v snapcraft >/dev/null 2>&1 && HAS_SNAPCRAFT=true
+          echo "snapcraft available: $HAS_SNAPCRAFT"
+          HAS_SNAPCRAFT="$HAS_SNAPCRAFT" node -e '
+            const fs = require("fs");
+            const file = "apps/server-web/package.json";
+            const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
+            const linux = pkg.build && pkg.build.linux;
+            if (!linux || !Array.isArray(linux.target)) { console.log("linux.target is not a list; untouched"); process.exit(0); }
+            const name = (t) => (typeof t === "string" ? t : t && t.target);
+            const kept = process.env.HAS_SNAPCRAFT === "true" ? linux.target : linux.target.filter((t) => name(t) !== "snap");
+            if (kept.length !== linux.target.length) {
+              linux.target = kept;
+              fs.writeFileSync(file, JSON.stringify(pkg, null, 4) + String.fromCharCode(10));
+              console.log("Linux targets for this runner:", JSON.stringify(kept.map(name)));
+            } else {
+              console.log("All configured Linux targets are buildable here:", JSON.stringify(kept.map(name)));
+            }
+          '
+
       - name: Build Web Server App
         run: "yarn build:web-server:linux:release:gh:x64"
         env:
@@ -137,6 +178,13 @@ jobs:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
 
   release-linux-arm64:
+    # No runner carries the `ubicloud-standard-8-arm` label any more (the Ubicloud
+    # integration is gone from the org and there is no self-hosted arm64 runner): every run
+    # of this job sat "queued" until the next run's cancel-in-progress killed it (~6h each).
+    # Gate it on the RUNNER_LINUX_ARM64_8 org/repo variable — set it to an arm64 runner
+    # label (a self-hosted VM, or `ubicloud-standard-8-arm` if Ubicloud is re-enabled) to
+    # bring this leg back; until then it is skipped instead of hanging.
+    if: ${{ vars.RUNNER_LINUX_ARM64_8 != '' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 300
 
@@ -144,7 +192,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubicloud-standard-8-arm]
+        os: ["${{ vars.RUNNER_LINUX_ARM64_8 || 'ubicloud-standard-8-arm' }}"]
 
     steps:
       - name: Check out Git repository
@@ -426,8 +474,18 @@ jobs:
           DESKTOP_WEB_SERVER_APP_DEFAULT_PORT: 3001
           GAUZY_API_SERVER_URL: "https://api.ever.team"
           NEXT_PUBLIC_GAUZY_API_SERVER_URL: "https://api.ever.team"
-          APPLE_ID: ${{ secrets.APPLE_ID }}
+          # macOS notarization. electron-builder 26 accepts ONE credential set and checks the
+          # Apple-ID pair FIRST: whenever APPLE_ID is set it demands APPLE_APP_SPECIFIC_PASSWORD
+          # and aborts the build ("APPLE_APP_SPECIFIC_PASSWORD env var needs to be set") before
+          # it ever looks at the App Store Connect API key. The intended path here is the API
+          # key (APPLE_API_KEY* below; the afterSign hook apps/server-web/.erb/scripts/notarize.js
+          # defers to electron-builder for it), and no APPLE_ID_APP_PASSWORD secret exists, so
+          # the Apple-ID pair is only exported when an app-specific password is actually set.
+          # (electron-builder reads APPLE_APP_SPECIFIC_PASSWORD; APPLE_ID_APP_PASSWORD is kept
+          # for the older name.)
+          APPLE_ID: ${{ secrets.APPLE_ID_APP_PASSWORD != '' && secrets.APPLE_ID || '' }}
           APPLE_ID_APP_PASSWORD: ${{ secrets.APPLE_ID_APP_PASSWORD }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_APP_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           # Must be true: the Developer ID identity now lives in the keychain we imported above,
@@ -739,8 +797,18 @@ jobs:
         env:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
 
+      # The root-level `electron-builder install-app-deps` (postinstall.manual) rebuilds every
+      # module named like a root prod dependency anywhere in node_modules — which drags in the
+      # MOBILE-only nested react-native-bootsplash/node_modules/sharp@0.32.6. sharp 0.32 ships
+      # no win32-arm64 prebuilt (only ia32/x64), so on this runner @electron/rebuild falls back
+      # to node-gyp, which cannot find libvips ("Cannot open include file: 'vips/vips8'") and
+      # the whole job dies before the app is even built. Nothing in server-web needs that
+      # module: the app's own native deps (sharp 0.34.5, prebuilt for win32-arm64) are rebuilt
+      # by apps/server-web's postinstall inside `build:server-web`. x64 is unaffected because
+      # its prebuilt exists. So on ARM64 this step is allowed to fail instead of aborting.
       - name: Run Postinstall Manually
         run: 'yarn postinstall.manual'
+        continue-on-error: true
 
       - name: Bump version
         uses: actions/github-script@v7

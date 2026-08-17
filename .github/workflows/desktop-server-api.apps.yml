@@ -54,9 +54,25 @@ jobs:
         run: "sudo chown -R $(whoami) ./*"
 
       - name: Install system dependencies
-        run: 'sudo apt-get update && sudo apt install -y curl gnupg git libappindicator3-1 ca-certificates binutils icnsutils graphicsmagick'
+        # `rpm` provides rpmbuild, which fpm needs for the rpm target; GitHub-hosted images ship it,
+        # the self-hosted ARC runner image (actions-runner + build toolchain) is not known to.
+        run: 'sudo apt-get update && sudo apt install -y curl gnupg git libappindicator3-1 ca-certificates binutils icnsutils graphicsmagick rpm'
+
+      # The self-hosted ARC runners are containers without snapd, so `snap install snapcraft` fails
+      # with "sudo: snap: command not found". Detect snapd and only install Snapcraft where it exists.
+      - name: Detect snapd
+        id: snapd
+        shell: bash
+        run: |
+          if command -v snap >/dev/null 2>&1; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "snapd is not available on this runner; skipping Snapcraft install"
+          fi
 
       - name: Install Snapcraft
+        if: ${{ steps.snapd.outputs.available == 'true' }}
         uses: samuelmeuli/action-snapcraft@v2
 
       - name: Fix node-gyp and Python
@@ -99,6 +115,63 @@ jobs:
           DESKTOP_API_SERVER_APP_DESCRIPTION: "Ever Teams API Server"
           DESKTOP_API_SERVER_APP_ID: "com.ever.everteamsapiserver"
 
+      # The upstream bump script (ever-gauzy) re-injects a DigitalOcean Spaces publish target
+      # (bucket `ever`, sfo3). That bucket no longer exists (NoSuchBucket) and electron-builder
+      # fails the whole publish when one provider errors. Keep GitHub Releases as the only publisher
+      # unless DigitalOcean is explicitly re-enabled.
+      - name: Drop DigitalOcean Spaces publish target
+        if: ${{ vars.DO_ENABLED != 'true' }}
+        shell: bash
+        run: |
+          node -e '
+            const fs = require("fs");
+            const file = "apps/server-api/src/package.json";
+            const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
+            const current = (pkg.build && pkg.build.publish) || [];
+            const list = Array.isArray(current) ? current : [current];
+            const kept = list.filter((p) => !(p && p.provider === "spaces"));
+            if (kept.length !== list.length) {
+              pkg.build.publish = kept;
+              fs.writeFileSync(file, JSON.stringify(pkg, null, 2));
+              console.log("Removed spaces publish target; remaining publishers:", JSON.stringify(kept));
+            } else {
+              console.log("No spaces publish target present; nothing to do");
+            }
+          '
+
+      # `snap` needs snapcraft (build + Snap Store publish) and `flatpak` needs flatpak-builder;
+      # neither exists on the ARC container runners. Build only the targets this runner can produce.
+      # Set repo/org var DESKTOP_LINUX_KEEP_ALL_TARGETS=true to force the full upstream target list.
+      - name: Adapt Linux targets to the runner toolchain
+        if: ${{ vars.DESKTOP_LINUX_KEEP_ALL_TARGETS != 'true' }}
+        shell: bash
+        run: |
+          HAS_SNAPCRAFT=false; command -v snapcraft >/dev/null 2>&1 && HAS_SNAPCRAFT=true
+          HAS_FLATPAK=false; command -v flatpak-builder >/dev/null 2>&1 && HAS_FLATPAK=true
+          echo "snapcraft available: $HAS_SNAPCRAFT, flatpak-builder available: $HAS_FLATPAK"
+          HAS_SNAPCRAFT="$HAS_SNAPCRAFT" HAS_FLATPAK="$HAS_FLATPAK" node -e '
+            const fs = require("fs");
+            const file = "apps/server-api/src/package.json";
+            const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
+            const linux = pkg.build && pkg.build.linux;
+            if (!linux || !Array.isArray(linux.target)) {
+              console.log("linux.target is not a list; leaving it untouched");
+              process.exit(0);
+            }
+            const unavailable = [];
+            if (process.env.HAS_SNAPCRAFT !== "true") unavailable.push("snap");
+            if (process.env.HAS_FLATPAK !== "true") unavailable.push("flatpak");
+            const name = (t) => (typeof t === "string" ? t : t && t.target);
+            const kept = linux.target.filter((t) => !unavailable.includes(name(t)));
+            if (kept.length !== linux.target.length) {
+              linux.target = kept;
+              fs.writeFileSync(file, JSON.stringify(pkg, null, 2));
+              console.log("Linux targets for this runner:", JSON.stringify(kept));
+            } else {
+              console.log("All configured Linux targets are buildable here:", JSON.stringify(kept));
+            }
+          '
+
       - name: Ensure dist directory exists
         shell: bash
         run: mkdir -p dist/packages
@@ -139,6 +212,12 @@ jobs:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
 
   release-linux-arm64:
+    # No arm64 Linux runner is available to this org right now: the Ubicloud pool behind
+    # `ubicloud-standard-8-arm` never picks the job up, so it sits "queued" for hours and holds the
+    # whole run in progress. Gated until an arm64 runner label exists — set repo/org var
+    # RUNNER_LINUX_ARM64_8 to that label to turn this job back on (the ubicloud label stays as the
+    # fallback value so nothing here needs rewriting).
+    if: ${{ vars.RUNNER_LINUX_ARM64_8 != '' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 300
 
@@ -146,7 +225,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubicloud-standard-8-arm]
+        os: ["${{ vars.RUNNER_LINUX_ARM64_8 || 'ubicloud-standard-8-arm' }}"]
 
     steps:
       - name: Check out Git repository
@@ -230,6 +309,27 @@ jobs:
           COMPANY_SITE_LINK: "https://ever.team"
           DESKTOP_API_SERVER_APP_DESCRIPTION: "Ever Teams API Server"
           DESKTOP_API_SERVER_APP_ID: "com.ever.everteamsapiserver"
+
+      # See release-linux: the upstream bump script re-injects the dead DigitalOcean Spaces publisher.
+      - name: Drop DigitalOcean Spaces publish target
+        if: ${{ vars.DO_ENABLED != 'true' }}
+        shell: bash
+        run: |
+          node -e '
+            const fs = require("fs");
+            const file = "apps/server-api/src/package.json";
+            const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
+            const current = (pkg.build && pkg.build.publish) || [];
+            const list = Array.isArray(current) ? current : [current];
+            const kept = list.filter((p) => !(p && p.provider === "spaces"));
+            if (kept.length !== list.length) {
+              pkg.build.publish = kept;
+              fs.writeFileSync(file, JSON.stringify(pkg, null, 2));
+              console.log("Removed spaces publish target; remaining publishers:", JSON.stringify(kept));
+            } else {
+              console.log("No spaces publish target present; nothing to do");
+            }
+          '
 
       - name: Ensure dist directory exists
         shell: bash
@@ -355,6 +455,27 @@ jobs:
           echo "${{ secrets.APPLE_API_KEY_BASE64 }}" | base64 --decode > /tmp/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
           chmod 600 /tmp/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
 
+      # See release-linux: the upstream bump script re-injects the dead DigitalOcean Spaces publisher.
+      - name: Drop DigitalOcean Spaces publish target
+        if: ${{ vars.DO_ENABLED != 'true' }}
+        shell: bash
+        run: |
+          node -e '
+            const fs = require("fs");
+            const file = "apps/server-api/src/package.json";
+            const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
+            const current = (pkg.build && pkg.build.publish) || [];
+            const list = Array.isArray(current) ? current : [current];
+            const kept = list.filter((p) => !(p && p.provider === "spaces"));
+            if (kept.length !== list.length) {
+              pkg.build.publish = kept;
+              fs.writeFileSync(file, JSON.stringify(pkg, null, 2));
+              console.log("Removed spaces publish target; remaining publishers:", JSON.stringify(kept));
+            } else {
+              console.log("No spaces publish target present; nothing to do");
+            }
+          '
+
       - name: Ensure dist directory exists
         shell: bash
         run: mkdir -p dist/packages
@@ -421,8 +542,16 @@ jobs:
           I18N_FILES_URL: "https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-api/i18n"
           PLATFORM_LOGO: "https://ever.team/assets/ever-teams.png"
           GAUZY_DESKTOP_LOGO_512X512: "https://ever.team/assets/ever-teams-512x512.png"
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_ID_APP_PASSWORD: ${{ secrets.APPLE_ID_APP_PASSWORD }}
+          # Notarization runs through the App Store Connect API key below. electron-builder picks
+          # the credential path by env presence and checks APPLE_ID FIRST: any non-empty APPLE_ID
+          # forces the app-specific-password path and aborts with "APPLE_APP_SPECIFIC_PASSWORD env
+          # var needs to be set" (app-builder-lib macPackager getNotarizeOptions) — it never even
+          # looks at APPLE_API_KEY. So the Apple-ID pair is only exported when explicitly opted in
+          # via repo/org var APPLE_NOTARIZE_WITH_APPLE_ID=true, and then under the name electron-
+          # builder actually reads (APPLE_APP_SPECIFIC_PASSWORD).
+          APPLE_ID: ${{ vars.APPLE_NOTARIZE_WITH_APPLE_ID == 'true' && secrets.APPLE_ID || '' }}
+          APPLE_ID_APP_PASSWORD: ${{ vars.APPLE_NOTARIZE_WITH_APPLE_ID == 'true' && secrets.APPLE_ID_APP_PASSWORD || '' }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ vars.APPLE_NOTARIZE_WITH_APPLE_ID == 'true' && secrets.APPLE_ID_APP_PASSWORD || '' }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           # CSC_LINK deliberately NOT set: that is what makes electron-builder build its own
           # (broken) keychain. Point it at the one imported above instead.
@@ -575,6 +704,28 @@ jobs:
       - name: Reset NX
         shell: powershell
         run: npx nx reset
+
+      # See release-linux: the upstream bump script re-injects the dead DigitalOcean Spaces publisher
+      # (bucket `ever` returns NoSuchBucket, which fails the whole publish after the GitHub upload).
+      - name: Drop DigitalOcean Spaces publish target
+        if: ${{ vars.DO_ENABLED != 'true' }}
+        shell: bash
+        run: |
+          node -e '
+            const fs = require("fs");
+            const file = "apps/server-api/src/package.json";
+            const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
+            const current = (pkg.build && pkg.build.publish) || [];
+            const list = Array.isArray(current) ? current : [current];
+            const kept = list.filter((p) => !(p && p.provider === "spaces"));
+            if (kept.length !== list.length) {
+              pkg.build.publish = kept;
+              fs.writeFileSync(file, JSON.stringify(pkg, null, 2));
+              console.log("Removed spaces publish target; remaining publishers:", JSON.stringify(kept));
+            } else {
+              console.log("No spaces publish target present; nothing to do");
+            }
+          '
 
       - name: Build API Server App
         shell: cmd
@@ -768,6 +919,28 @@ jobs:
           "UV_THREADPOOL_SIZE=32" | Out-File -FilePath $env:GITHUB_ENV -Append
           # Patch graceful-fs to retry EMFILE errors with backoff
           node -e "try { var gfs = require('graceful-fs'); gfs.gracefulify(require('fs')); console.log('graceful-fs patched'); } catch(e) { console.log('graceful-fs not available, skipping'); }"
+
+      # See release-linux: the upstream bump script re-injects the dead DigitalOcean Spaces publisher
+      # (bucket `ever` returns NoSuchBucket, which fails the whole publish after the GitHub upload).
+      - name: Drop DigitalOcean Spaces publish target
+        if: ${{ vars.DO_ENABLED != 'true' }}
+        shell: bash
+        run: |
+          node -e '
+            const fs = require("fs");
+            const file = "apps/server-api/src/package.json";
+            const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
+            const current = (pkg.build && pkg.build.publish) || [];
+            const list = Array.isArray(current) ? current : [current];
+            const kept = list.filter((p) => !(p && p.provider === "spaces"));
+            if (kept.length !== list.length) {
+              pkg.build.publish = kept;
+              fs.writeFileSync(file, JSON.stringify(pkg, null, 2));
+              console.log("Removed spaces publish target; remaining publishers:", JSON.stringify(kept));
+            } else {
+              console.log("No spaces publish target present; nothing to do");
+            }
+          '
 
       - name: Build API Server App
         shell: cmd
