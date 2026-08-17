@@ -72,9 +72,13 @@ describe('MustBeAManager', () => {
 		expect(mockReplace).toHaveBeenCalledWith('/');
 	});
 
-	it('redirects a user with no teams at all (nothing to wait for)', () => {
+	it('a user with no teams is decided only after the bounded wait (the teams atom lags the query)', () => {
 		setState({ user: { id: 'u1' }, teams: [], activeTeam: null, isTeamManager: false });
 		render(<MustBeAManager useRedirect>{<div>child</div>}</MustBeAManager>);
+		expect(mockReplace).not.toHaveBeenCalled();
+		act(() => {
+			jest.advanceTimersByTime(8100);
+		});
 		expect(mockReplace).toHaveBeenCalledWith('/');
 	});
 

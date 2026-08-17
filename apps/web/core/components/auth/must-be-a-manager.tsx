@@ -37,7 +37,10 @@ export default function MustBeAManager({ children, redirectTo = '/', useRedirect
 			(m?.employee?.userId && m.employee.userId === user?.id) ||
 			(m?.employeeId && user?.employee?.id && m.employeeId === user.employee.id)
 	);
-	const membershipPending = !userReady || isTeamsLoading || (teams.length > 0 && !selfMembershipLoaded);
+	// NOTE: the `teams` atom lags the teams query by one effect too — right after the query resolves the
+	// atom is still [] for a render (a full page load of any /reports URL is a cold load). "No teams"
+	// therefore keeps waiting as well; a user with genuinely zero teams is decided by the bounded wait.
+	const membershipPending = !userReady || isTeamsLoading || teams.length === 0 || !selfMembershipLoaded;
 	// Safety valve: if membership never resolves (e.g. the active-team cookie points at a team the user
 	// is no longer in), decide after a bounded wait instead of showing the skeleton forever.
 	const [waitedTooLong, setWaitedTooLong] = useState(false);
