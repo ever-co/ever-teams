@@ -1063,6 +1063,45 @@ jobs:
         env:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
 
+      # sharp < 0.33 ships no win32-arm64 prebuilt and falls back to a node-gyp build that needs a
+      # system libvips ("Cannot open include file: 'vips/vips8'"). The monorepo carries such a copy
+      # ONLY as a nested, MOBILE-only dependency (react-native-bootsplash -> sharp@0.32.6), but
+      # electron-builder's install-app-deps (root `postinstall.manual` AND the installAppDeps it runs
+      # again inside the app build) rebuilds every module *named* like an app dependency anywhere in
+      # node_modules, so that nested copy killed every ARM64 build (run 32038575750, failedTask=
+      # installAppDeps). Nothing built here imports it: the apps use the hoisted sharp >= 0.34, whose
+      # win32-arm64 binary is a plain optional package (@img/sharp-win32-arm64). Drop only nested
+      # sharp copies older than 0.33 from this CI checkout (nothing in the repo changes; x64 and mac
+      # runners have prebuilts and are left alone).
+      - name: Drop nested sharp < 0.33 (no win32-arm64 prebuilt)
+        shell: bash
+        run: |
+          node -e '
+            const fs = require("fs"), path = require("path");
+            const roots = ["node_modules"];
+            const found = [];
+            const scan = (dir, depth) => {
+              if (depth > 3 || !fs.existsSync(dir)) return;
+              for (const name of fs.readdirSync(dir)) {
+                const p = path.join(dir, name);
+                if (name.startsWith("@")) { scan(p, depth); continue; }
+                const nested = path.join(p, "node_modules", "sharp", "package.json");
+                if (fs.existsSync(nested)) found.push(path.dirname(nested));
+                const deeper = path.join(p, "node_modules");
+                if (fs.existsSync(deeper)) scan(deeper, depth + 1);
+              }
+            };
+            for (const r of roots) scan(r, 0);
+            let dropped = 0;
+            for (const dir of found) {
+              const v = JSON.parse(fs.readFileSync(path.join(dir, "package.json"), "utf8")).version || "0.0.0";
+              const [maj, min] = v.split(".").map(Number);
+              if (maj === 0 && min < 33) { fs.rmSync(dir, { recursive: true, force: true }); dropped++; console.log("dropped " + dir + " (sharp@" + v + ")"); }
+              else console.log("kept " + dir + " (sharp@" + v + ")");
+            }
+            console.log("nested sharp copies: " + found.length + ", dropped: " + dropped);
+          '
+
       - name: Run Postinstall Manually
         run: 'yarn postinstall.manual'
 
