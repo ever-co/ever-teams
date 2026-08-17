@@ -29,13 +29,18 @@ export function useQueryCall<T extends (...params: any[]) => Promise<any>, R = A
 		loadingRef.current = true;
 
 		const promise = queryFunction(...params);
-		promise.finally(() => {
-			if (!infiniteLoading.current) {
-				setLoading(false);
+		promise
+			.finally(() => {
+				if (!infiniteLoading.current) {
+					setLoading(false);
 
-				loadingRef.current = false;
-			}
-		});
+					loadingRef.current = false;
+				}
+			})
+			// `.finally()` returns a NEW promise that re-throws the rejection; without a handler every
+			// failed query surfaced as an "Unhandled promise rejection" (the caller only ever sees the
+			// original `promise` returned below, which it handles itself).
+			.catch(() => undefined);
 		promise.catch(() => {
 			setLoading(false);
 			loadingRef.current = false;
