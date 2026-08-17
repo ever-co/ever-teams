@@ -563,7 +563,9 @@ jobs:
           "npm_config_msvs_version=2022" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Fix node-gyp and Python
-        run: python3 -m pip install --break-system-packages packaging setuptools || python3 -m pip install packaging setuptools
+        # Windows jobs run under PowerShell 5.1, where `||` is a parse error ("The token '||' is not a valid
+        # statement separator") — the PEP 668 fallback form is only needed on the Linux/mac (bash) jobs.
+        run: python3 -m pip install packaging setuptools
 
       - name: Setup MSVC (VS 2022 dev env)
         uses: ilammy/msvc-dev-cmd@v1
@@ -795,7 +797,9 @@ jobs:
           "npm_config_msvs_version=2022" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Fix node-gyp and Python
-        run: python3 -m pip install --break-system-packages packaging setuptools || python3 -m pip install packaging setuptools
+        # Windows jobs run under PowerShell 5.1, where `||` is a parse error ("The token '||' is not a valid
+        # statement separator") — the PEP 668 fallback form is only needed on the Linux/mac (bash) jobs.
+        run: python3 -m pip install packaging setuptools
 
       - name: Setup MSVC (VS 2022 dev env)
         uses: ilammy/msvc-dev-cmd@v1
