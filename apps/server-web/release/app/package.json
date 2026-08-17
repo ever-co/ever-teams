@@ -15,6 +15,6 @@
         "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts"
     },
     "dependencies": {
-        "sharp": "^0.34.5"
+        "sharp": "^0.35.0"
     }
 }
