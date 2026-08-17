@@ -16,6 +16,43 @@ import { NextRequest, NextResponse } from 'next/server';
 import createMiddleware from 'next-intl/middleware';
 import { delay } from './core/lib/auth/retry-logic';
 
+/**
+ * Attach the authenticated user to the response for SSR consumers — but ONLY as much as a
+ * reverse proxy will actually forward.
+ *
+ * This used to be `response.headers.set('x-user', JSON.stringify(user))`: the ENTIRE user
+ * object, ~3.4 KB for an admin (the permissions array alone is large). nginx-ingress buffers
+ * upstream response headers in `proxy_buffer_size`, which defaults to one memory page (4 KB).
+ * Total headers for such a user were 4,832 bytes, so nginx logged
+ * "upstream sent too big header while reading response header from upstream" and returned
+ * 502 for EVERY authenticated page — while the very same request answered 200 straight from
+ * the pod on :3030. Unauthenticated requests (no x-user) were fine, which made this look like
+ * a login/session bug rather than what it is: a response-header size limit. Found on
+ * demo.ever.team 2026-08-17; stage/prod run the same code and the same ingress defaults, so any
+ * user whose serialized profile is large enough was one permission grant away from lockout.
+ *
+ * The only reader of this header, getAuthenticationProps() in layouts/app/authenticator.tsx,
+ * is a Pages-router (getServerSideProps) helper that no App Router route calls (0 usages).
+ * The client re-fetches the user via useAuthenticateUser regardless. So the header carried a
+ * multi-kilobyte payload that nothing consumed and that could take the site down.
+ *
+ * Kept, gated, not deleted (repo rule): the header is still emitted when it is small enough
+ * for a proxy to forward, and dropped with a log line when it is not. Raise the ingress
+ * `proxy-buffer-size` as well (belt and braces), but the app must not depend on it.
+ */
+const X_USER_HEADER_MAX_BYTES = 2048;
+function setUserHeader(response: NextResponse, user: unknown): void {
+	if (!user) return;
+	const serialized = JSON.stringify(user);
+	if (serialized.length > X_USER_HEADER_MAX_BYTES) {
+		console.log(
+			`[Proxy] Skipping x-user header: ${serialized.length} bytes exceeds ${X_USER_HEADER_MAX_BYTES} (reverse-proxy header buffer safety)`
+		);
+		return;
+	}
+	response.headers.set('x-user', serialized);
+}
+
 export const config = {
 	matcher: [
 		'/',
@@ -339,7 +376,7 @@ export async function proxy(request: NextRequest) {
 
 			if (authResult?.response.ok) {
 				// Access token is valid - set user header and continue
-				response.headers.set('x-user', JSON.stringify(authResult.data));
+				setUserHeader(response, authResult.data);
 			}
 			// INTENTIONAL: If API fails but token is valid locally, we proceed WITHOUT refresh.
 			// Why? The token passed local validation (signature OK, not expired, decodable).
@@ -363,7 +400,7 @@ export async function proxy(request: NextRequest) {
 
 			if (refreshResult.success && refreshResult.userData) {
 				console.log('[Proxy] Token refreshed successfully');
-				response.headers.set('x-user', JSON.stringify(refreshResult.userData));
+				setUserHeader(response, refreshResult.userData);
 				return response;
 			}
 
@@ -384,7 +421,7 @@ export async function proxy(request: NextRequest) {
 
 		if (refreshResult.success && refreshResult.userData) {
 			console.log('[Proxy] Token refreshed successfully');
-			response.headers.set('x-user', JSON.stringify(refreshResult.userData));
+			setUserHeader(response, refreshResult.userData);
 			return response;
 		}
 
