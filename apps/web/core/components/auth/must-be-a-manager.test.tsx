@@ -10,8 +10,10 @@
 import { render, screen, act } from '@testing-library/react';
 
 const mockReplace = jest.fn();
-const auth = { user: null as null | { id: string }, userLoading: false, isTeamManager: false };
+const auth = { user: null as null | { id: string; employee?: { id: string } }, userLoading: false, isTeamManager: false };
 const teamsQ = { getOrganizationTeamsLoading: false, teams: [] as unknown[], activeTeam: null as null | { members: unknown[] } };
+const SELF = { id: 'm-self', employee: { userId: 'u1' } };
+const OTHER = { id: 'm-other', employee: { userId: 'u2' } };
 
 jest.mock('next/navigation', () => ({ useRouter: () => ({ replace: mockReplace, push: jest.fn() }) }));
 jest.mock('@/core/hooks', () => ({ useAuthenticateUser: () => auth }));
@@ -51,14 +53,21 @@ describe('MustBeAManager', () => {
 		expect(mockReplace).not.toHaveBeenCalled();
 
 		// membership arrives → the user IS a manager → children render, still no redirect
-		setState({ activeTeam: { members: [{ id: 'm1' }] }, isTeamManager: true });
+		setState({ activeTeam: { members: [OTHER, SELF] }, isTeamManager: true });
 		rerender(<MustBeAManager useRedirect>{<div>child</div>}</MustBeAManager>);
 		expect(screen.getByText('child')).toBeTruthy();
 		expect(mockReplace).not.toHaveBeenCalled();
 	});
 
+	it('keeps waiting while other members are loaded but the user\x27s own row is not (cold first load)', () => {
+		setState({ user: { id: 'u1' }, teams: [{ id: 't1' }], activeTeam: { members: [OTHER] }, isTeamManager: false });
+		render(<MustBeAManager useRedirect>{<div>child</div>}</MustBeAManager>);
+		expect(screen.getByTestId('skeleton')).toBeTruthy();
+		expect(mockReplace).not.toHaveBeenCalled();
+	});
+
 	it('redirects a real non-manager once membership is loaded', () => {
-		setState({ user: { id: 'u1' }, teams: [{ id: 't1' }], activeTeam: { members: [{ id: 'm1' }] }, isTeamManager: false });
+		setState({ user: { id: 'u1' }, teams: [{ id: 't1' }], activeTeam: { members: [OTHER, SELF] }, isTeamManager: false });
 		render(<MustBeAManager useRedirect>{<div>child</div>}</MustBeAManager>);
 		expect(mockReplace).toHaveBeenCalledWith('/');
 	});

@@ -28,8 +28,16 @@ export default function MustBeAManager({ children, redirectTo = '/', useRedirect
 	// user is known, and a disabled query reports isLoading=false. Treat all of that as "still
 	// loading" until the membership data the decision depends on is really there.
 	const userReady = !!user?.id && !isUserLoading;
-	const membershipPending =
-		!userReady || isTeamsLoading || (teams.length > 0 && !(activeTeam?.members && activeTeam.members.length > 0));
+	// The manager check compares member.employee.userId (or employeeId) with the current user, so wait
+	// for the CURRENT USER'S OWN membership row to be present — "some members are loaded" was not
+	// enough: on a cold first load the list can be present before the employee relation is, and
+	// managers were still bounced once (verified on stage 06:30Z).
+	const selfMembershipLoaded = !!activeTeam?.members?.some(
+		(m) =>
+			(m?.employee?.userId && m.employee.userId === user?.id) ||
+			(m?.employeeId && user?.employee?.id && m.employeeId === user.employee.id)
+	);
+	const membershipPending = !userReady || isTeamsLoading || (teams.length > 0 && !selfMembershipLoaded);
 	// Safety valve: if membership never resolves (e.g. the active-team cookie points at a team the user
 	// is no longer in), decide after a bounded wait instead of showing the skeleton forever.
 	const [waitedTooLong, setWaitedTooLong] = useState(false);
