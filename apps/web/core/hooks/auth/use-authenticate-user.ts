@@ -98,6 +98,12 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		retry: 1,
 		gcTime: 0
 	});
+	// Stable function refs: the useMutation RESULT object is recreated on every state change (idle → pending →
+	// success). Depending on it made refreshUserData/refreshToken new on every render and re-ran the
+	// refresh-scheduler effect mid-flight (a second refresh could then run with an already-rotated refresh
+	// token). mutate/mutateAsync are bound once and safe to depend on.
+	const refreshTokenMutate = refreshTokenMutation.mutate;
+	const refreshTokenMutateAsync = refreshTokenMutation.mutateAsync;
 
 	useEffect(() => {
 		if (userDataQuery.data && userDataQuery.isFetched && userDataQuery.data !== user) {
@@ -130,7 +136,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 			const error = result.error as any;
 			if (error?.response?.status === 401 || error?.status === 401) {
 				try {
-					await refreshTokenMutation.mutateAsync();
+					await refreshTokenMutateAsync();
 					const retryResult = await userDataQuery.refetch();
 					if (retryResult.data) {
 						setUser(retryResult.data);
@@ -143,7 +149,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 			}
 			throw error;
 		}
-	}, [userDataQuery, setUser, refreshTokenMutation]);
+	}, [userDataQuery, setUser, refreshTokenMutateAsync]);
 
 	// Register the refresh callback so handleUnauthorized can attempt token refresh on 401
 	// The registerRefreshTokenCallback returns an unregister function that removes THIS specific callback
@@ -252,7 +258,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 					console.log('[Auth] Scheduled token refresh triggered');
 
 					try {
-						await refreshTokenMutation.mutateAsync();
+						await refreshTokenMutateAsync();
 						// Success: Schedule next refresh with NEW token's interval
 						scheduleNextRefresh();
 					} catch (error) {
@@ -277,7 +283,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 			// NOTE: The mutation's onSuccess/onError already handle core logic (reset failures,
 			// invalidate queries, 401 detection, etc). These callbacks ONLY add scheduling control.
 			console.log('[Auth] Token expired or expiring soon, refreshing immediately...');
-			refreshTokenMutation.mutate(undefined, {
+			refreshTokenMutate(undefined, {
 				onSuccess: () => {
 					// Core success logic handled by mutation's onSuccess
 					// Here we ONLY add: start scheduler with the refreshed token
@@ -306,11 +312,11 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 				refreshTimeoutRef.current = null;
 			}
 		};
-	}, [refreshTokenMutation]);
+	}, [refreshTokenMutate]);
 
 	const refreshToken = useCallback(async (): Promise<void> => {
-		await refreshTokenMutation.mutateAsync();
-	}, [refreshTokenMutation]);
+		await refreshTokenMutateAsync();
+	}, [refreshTokenMutateAsync]);
 
 	return {
 		$user,

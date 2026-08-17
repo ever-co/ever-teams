@@ -113,27 +113,19 @@ export function useAuthenticationPasscode() {
 	 */
 	const verifySignInEmailConfirmRequest = useCallback(
 		async ({ email, code, lastTeamId }: { email: string; code: string; lastTeamId?: string }) => {
-			// First attempt
-
-			let firstAttemptError: unknown;
+			// Attempt 1 — the Gauzy auth-code confirmation (signin.email/confirm). This is the normal path:
+			// it returns the user's workspaces so multi-workspace users get the chooser and single-workspace
+			// users are signed straight in.
+			//
+			// Attempt 2 — the Next.js /api/auth/login route, which understands INVITE codes typed into this
+			// box (and auth codes, but then it signs into the FIRST workspace without a chooser). It used to run
+			// FIRST: with GAUZY_API_BASE_SERVER_URL set the client posts it straight to Gauzy, whose /auth/login
+			// wants {email,password}, so every passcode login began with a guaranteed 400 (WEB-012 / Q17).
+			// Order swapped 2026-08-17: confirm first, invite-code route only when confirm does not sign in.
+			let confirmError: unknown;
 			try {
 				setStatus('loading');
-				const loginResponse = await queryCall(email, code);
-
-				if (loginResponse?.data?.user || loginResponse?.data?.team) {
-					setAuthenticated(true);
-					setStatus('success');
-					router.replace('/');
-					return;
-				}
-			} catch (loginError) {
-				firstAttemptError = loginError;
-			}
-
-			// Second attempt: signInEmailConfirmQueryCall
-			try {
 				const response = await signInEmailConfirmQueryCall(email, code);
-
 				if (response?.data?.user || (response?.data?.workspaces?.length ?? 0) > 0) {
 					setAuthenticated(true);
 					setStatus('success');
@@ -146,21 +138,32 @@ export function useAuthenticationPasscode() {
 					}
 					return;
 				}
+			} catch (error) {
+				confirmError = error;
+			}
 
-				if (response?.status === 401 || response?.data?.status === 401) {
-					setStatus('error');
-					setErrors({ code: t('pages.auth.INVALID_CODE_TRY_AGAIN') });
+			// Attempt 2: invite-code path (Next.js route). Only reached when attempt 1 did not sign the user in.
+			try {
+				const loginResponse = await queryCall(email, code);
+				if (loginResponse?.data?.user || loginResponse?.data?.team) {
+					setAuthenticated(true);
+					setStatus('success');
+					router.replace('/');
+					return;
 				}
-			} catch (confirmError) {
+				setStatus('error');
+				setErrors({ code: t('pages.auth.INVALID_CODE_TRY_AGAIN') });
+			} catch (loginError) {
 				setStatus('error');
 				if (isAxiosError(confirmError) && confirmError.response?.status === 400) {
 					setErrors(confirmError.response.data?.errors || {});
-				} else if (isAxiosError(firstAttemptError) && firstAttemptError.response?.status === 400) {
-					setErrors(firstAttemptError.response.data?.errors || {});
+				} else if (isAxiosError(loginError) && loginError.response?.status === 400) {
+					setErrors(loginError.response.data?.errors || {});
 				} else {
 					setErrors({ code: t('pages.auth.INVALID_CODE_TRY_AGAIN') });
 				}
 			}
+			void lastTeamId;
 		},
 		[queryCall, signInEmailConfirmQueryCall, router, t]
 	);

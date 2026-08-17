@@ -128,6 +128,9 @@ export function useWorkspaceSwitcher() {
 		}
 	});
 
+	// Depend on the STABLE mutate, never on the mutation result object (recreated on every state change).
+	const switchWorkspaceMutate = switchWorkspaceMutation.mutate;
+
 	/**
 	 * Main switch function (adapted from password component logic)
 	 */
@@ -149,12 +152,12 @@ export function useWorkspaceSwitcher() {
 				}
 
 				// Execute the switch using the proven flow
-				switchWorkspaceMutation.mutate({ workspace, selectedTeam });
+				switchWorkspaceMutate({ workspace, selectedTeam });
 			} catch (error: any) {
 				toast.error(error.message || 'Error preparing workspace switch');
 			}
 		},
-		[user, getSmartTeamSelection, switchWorkspaceMutation]
+		[user, getSmartTeamSelection, switchWorkspaceMutate]
 	);
 
 	return {

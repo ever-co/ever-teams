@@ -57,11 +57,13 @@ export function useEditOrganizationTeam() {
 
 	// ==================== EXPORTED FUNCTION ====================
 
+	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change).
+	const editOrganizationTeamMutateAsync = editOrganizationTeamMutation.mutateAsync;
 	const editOrganizationTeam = useCallback(
 		(data: Partial<TOrganizationTeamUpdate>) => {
-			return editOrganizationTeamMutation.mutateAsync(data);
+			return editOrganizationTeamMutateAsync(data);
 		},
-		[editOrganizationTeamMutation]
+		[editOrganizationTeamMutateAsync]
 	);
 
 	return {

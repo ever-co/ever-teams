@@ -35,11 +35,13 @@ export function useAcceptRejectRequestToJoin() {
 		}
 	});
 
+	// Depend on the STABLE mutateAsync, not the mutation object (recreated on every state change).
+	const acceptRejectMutateAsync = acceptRejectMutation.mutateAsync;
 	const acceptRejectRequestToJoin = useCallback(
 		async (id: string, action: ERequestStatus) => {
-			await acceptRejectMutation.mutateAsync({ id, action });
+			await acceptRejectMutateAsync({ id, action });
 		},
-		[acceptRejectMutation]
+		[acceptRejectMutateAsync]
 	);
 
 	return {

@@ -29,9 +29,10 @@ export function useEditTaskVersion() {
 		}
 	});
 
+	const editTaskVersionMutate = editTaskVersionMutation.mutateAsync;
 	const editTaskVersion = useCallback(
-		(id: string, data: TTaskVersionUpdate) => editTaskVersionMutation.mutateAsync({ id, data }),
-		[editTaskVersionMutation]
+		(id: string, data: TTaskVersionUpdate) => editTaskVersionMutate({ id, data }),
+		[editTaskVersionMutate]
 	);
 
 	return {

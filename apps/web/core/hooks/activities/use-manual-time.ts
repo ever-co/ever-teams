@@ -42,6 +42,8 @@ export function useManualTime() {
 		}
 	});
 
+	// Depend on the STABLE mutate, never on the mutation result object (recreated on every state change).
+	const addManualTimeMutate = addManualTimeMutation.mutate;
 	// Preserve exact same interface for existing consumers
 	const addManualTime = useCallback(
 		(data: Omit<TAddManualTimeRequest, 'tenantId' | 'employeeId' | 'logType' | 'source'>) => {
@@ -53,9 +55,9 @@ export function useManualTime() {
 				...data
 			};
 
-			addManualTimeMutation.mutate(requestData);
+			addManualTimeMutate(requestData);
 		},
-		[addManualTimeMutation, user?.employee?.id, user?.tenantId]
+		[addManualTimeMutate, user?.employee?.id, user?.tenantId]
 	);
 
 	return {

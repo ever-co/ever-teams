@@ -57,10 +57,11 @@ export function useUpdateOrganizationTeam() {
 	});
 
 	// Preserve exact same interface and logic as original
+	const updateOrganizationTeamMutate = updateOrganizationTeamMutation.mutate;
 	const updateOrganizationTeam = useCallback(
 		(team: TOrganizationTeam, data: Partial<TOrganizationTeamUpdate> = {}) => {
 			// Use React Query mutation instead of legacy queryCall
-			updateOrganizationTeamMutation.mutate({
+			updateOrganizationTeamMutate({
 				teamId: team.id,
 				data: {
 					...team,
@@ -68,7 +69,7 @@ export function useUpdateOrganizationTeam() {
 				}
 			});
 		},
-		[updateOrganizationTeamMutation]
+		[updateOrganizationTeamMutate]
 	);
 
 	return {

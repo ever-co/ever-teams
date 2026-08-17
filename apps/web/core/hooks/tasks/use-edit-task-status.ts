@@ -26,9 +26,10 @@ export function useEditTaskStatus() {
 		onSuccess: () => invalidateTaskStatusesData()
 	});
 
+	const updateTaskStatusMutate = updateTaskStatusMutation.mutateAsync;
 	const editTaskStatus = useCallback(
-		(id: string, data: ITaskStatusCreate) => updateTaskStatusMutation.mutateAsync({ id, data }),
-		[updateTaskStatusMutation]
+		(id: string, data: ITaskStatusCreate) => updateTaskStatusMutate({ id, data }),
+		[updateTaskStatusMutate]
 	);
 
 	return {

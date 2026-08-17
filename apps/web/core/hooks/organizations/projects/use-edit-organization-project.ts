@@ -43,26 +43,29 @@ export function useEditOrganizationProject() {
 	});
 
 	// Callback wrappers for backward compatibility
+	// Depend on the STABLE mutateAsync, not the mutation object (recreated on every state change).
+	const editOrganizationProjectMutateAsync = editOrganizationProjectMutation.mutateAsync;
 	const editOrganizationProject = useCallback(
 		async (id: string, data: TEditProjectRequest) => {
 			try {
-				return await editOrganizationProjectMutation.mutateAsync({ projectId: id, data });
+				return await editOrganizationProjectMutateAsync({ projectId: id, data });
 			} catch (error) {
 				console.error('Failed to edit the organization project', error);
 			}
 		},
-		[editOrganizationProjectMutation]
+		[editOrganizationProjectMutateAsync]
 	);
 
+	const editOrganizationProjectSettingMutateAsync = editOrganizationProjectSettingMutation.mutateAsync;
 	const editOrganizationProjectSetting = useCallback(
 		(id: string, data: any) => {
 			try {
-				return editOrganizationProjectSettingMutation.mutateAsync({ projectId: id, data });
+				return editOrganizationProjectSettingMutateAsync({ projectId: id, data });
 			} catch (error) {
 				console.error('Failed to edit the organization project setting', error);
 			}
 		},
-		[editOrganizationProjectSettingMutation]
+		[editOrganizationProjectSettingMutateAsync]
 	);
 
 	return {

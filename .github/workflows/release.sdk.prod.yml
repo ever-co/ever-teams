@@ -15,6 +15,17 @@ jobs:
       packages: write
       id-token: write # for trusted publishing (future use)
 
+    env:
+      # setup-node (with `registry-url`) writes $RUNNER_TEMP/.npmrc containing
+      # `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}` and points
+      # NPM_CONFIG_USERCONFIG at it for EVERY later step. Yarn 1 reads that file
+      # and does strict env substitution, so if NODE_AUTH_TOKEN is unset the very
+      # first `yarn install` dies with "Failed to replace env in config:
+      # ${NODE_AUTH_TOKEN}" (chronic failure of this workflow). Export the token
+      # job-wide so install/build/version/publish all resolve it — the publish
+      # step already relied on it, this only widens its scope, never weakens it.
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -29,6 +40,11 @@ jobs:
         with:
           node-version: '24.14.0'
           registry-url: 'https://registry.npmjs.org'
+          # NOTE: setup-node >= v4 dropped the `always-auth` input — the runner
+          # logs "Unexpected input(s) 'always-auth'" as a WARNING only (not
+          # fatal). Auth is carried by NODE_AUTH_TOKEN (job env above) via the
+          # .npmrc that setup-node writes; `always-auth=true` is also written
+          # by "Configure NPM Authentication" below. Kept for intent.
           always-auth: true
 
       - name: Verify NPM Token
