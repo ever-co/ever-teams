@@ -35,7 +35,19 @@ class DailyPlanService extends APIService {
 	 */
 	getAllDayPlans = async (): Promise<PaginationResponse<TDailyPlan>> => {
 		try {
-			const relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user'];
+			// PERF: this team-wide fetch feeds exactly ONE consumer - the "Planned" task badge
+			// (task-all-status-type.tsx:46 -> planBadgeContent / planBadgeContPast in
+			// core/lib/helpers/plan-day-badge.ts:11,17,24,34-48), which reads only plan.id, plan.date and
+			// plan.tasks[].id. The four dropped relations ('employee', 'employee.user', 'tasks.members',
+			// 'tasks.members.user') have no reader on this endpoint, yet they fatten every row - and
+			// init-state.tsx:201 refetches this unbounded call every 5 minutes for the whole session.
+			// Schema-safe: dailyPlanSchema.employee (daily-plan.schema.ts:45) and
+			// taskAssociationsSchema.members (task.schema.ts:18) are both optional, and getPlansByTask()
+			// below already validates a zero-relation /daily-plan/* response against the same strict
+			// dailyPlanSchema.
+			// Do NOT trim getMyDailyPlans / getDayPlansByEmployee - those render task cards with assignee
+			// avatars and genuinely read tasks.members.user.
+			const relations = ['tasks'];
 
 			const obj = {
 				'where[organizationId]': this.organizationId,
