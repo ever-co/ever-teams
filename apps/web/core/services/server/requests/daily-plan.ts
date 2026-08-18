@@ -15,7 +15,12 @@ export function getAllDayPlans({
 	tenantId,
 	organizationTeamId,
 	bearer_token,
-	relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user']
+	// PERF: keep in sync with the client-side DailyPlanService.getAllDayPlans() relation trim.
+	// The only caller is the Next.js proxy route (app/api/daily-plan/route.ts:32), which discards the
+	// incoming query string and falls back to this default - so without the same ['tasks'] trim the
+	// proxy deployment mode would keep fetching employee / tasks.members / tasks.members.user that no
+	// consumer reads. The sibling requests below intentionally keep their full relation defaults.
+	relations = ['tasks']
 }: {
 	organizationId: ID;
 	tenantId: ID;
