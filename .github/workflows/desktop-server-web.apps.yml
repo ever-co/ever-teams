@@ -185,6 +185,58 @@ jobs:
           NEXT_PUBLIC_GAUZY_API_SERVER_URL: "https://api.ever.team"
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
 
+      # The yarn + .nx cache these jobs share has grown to ~9.5 GB: every job spends ~10 min RESTORING it, and
+      # when the key changes the POST step uploads all of it — on 2026-08-18 that upload stalled at 52% and
+      # burned the whole 300-minute job budget, so `release-linux` was cancelled after 5 h with the app already
+      # built (run 32101473424). `.nx/cache` grows forever because the cache key only changes with yarn.lock.
+      # This trims the OLDEST `.nx/cache` entries until the directory fits the budget, right before the cache
+      # POST step reads it: nothing the build needs is touched (nx recomputes a missing entry), the yarn cache
+      # is left alone, and the step can never fail a build. Set repo/org var DESKTOP_CACHE_MAX_MB to another
+      # size in MB, or to 0 to disable the trim. Node is used instead of `find -printf` (GNU-only: it would
+      # silently do nothing on the macOS runners).
+      - name: Bound the CI cache before it is saved
+        if: always()
+        continue-on-error: true
+        shell: bash
+        env:
+          DESKTOP_CACHE_MAX_MB: ${{ vars.DESKTOP_CACHE_MAX_MB }}
+        run: |
+          node -e '
+            const fs = require("fs"), path = require("path");
+            const limitMb = Number(process.env.DESKTOP_CACHE_MAX_MB || 2048);
+            const dir = ".nx/cache";
+            if (!limitMb) { console.log("DESKTOP_CACHE_MAX_MB=0 - trim disabled"); process.exit(0); }
+            if (!fs.existsSync(dir)) { console.log("no " + dir + " - nothing to trim"); process.exit(0); }
+            const sizeOf = (p) => {
+              let total = 0;
+              const stack = [p];
+              while (stack.length) {
+                const cur = stack.pop();
+                let st; try { st = fs.lstatSync(cur); } catch { continue; }
+                if (st.isDirectory()) { for (const n of fs.readdirSync(cur)) stack.push(path.join(cur, n)); }
+                else total += st.size;
+              }
+              return total;
+            };
+            const limit = limitMb * 1024 * 1024;
+            const entries = fs.readdirSync(dir).map((n) => {
+              const p = path.join(dir, n);
+              let mtime = 0; try { mtime = fs.lstatSync(p).mtimeMs; } catch {}
+              return { p, mtime, size: sizeOf(p) };
+            });
+            let total = entries.reduce((a, e) => a + e.size, 0);
+            const mb = (b) => Math.round(b / 1048576);
+            console.log(dir + " is " + mb(total) + " MB in " + entries.length + " entries (budget " + limitMb + " MB)");
+            if (total <= limit) { console.log("within budget - nothing to do"); process.exit(0); }
+            entries.sort((a, b) => a.mtime - b.mtime);
+            let removed = 0;
+            for (const e of entries) {
+              if (total <= limit) break;
+              try { fs.rmSync(e.p, { recursive: true, force: true }); total -= e.size; removed++; } catch {}
+            }
+            console.log("trimmed " + removed + " oldest entries; " + dir + " is now " + mb(total) + " MB");
+          '
+
   release-linux-arm64:
     # No runner carries the `ubicloud-standard-8-arm` label any more (the Ubicloud
     # integration is gone from the org and there is no self-hosted arm64 runner): every run
@@ -331,6 +383,58 @@ jobs:
           NEXT_PUBLIC_GAUZY_API_SERVER_URL: "https://api.ever.team"
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
           SNAPCRAFT_BUILD_ENVIRONMENT: host
+
+      # The yarn + .nx cache these jobs share has grown to ~9.5 GB: every job spends ~10 min RESTORING it, and
+      # when the key changes the POST step uploads all of it — on 2026-08-18 that upload stalled at 52% and
+      # burned the whole 300-minute job budget, so `release-linux` was cancelled after 5 h with the app already
+      # built (run 32101473424). `.nx/cache` grows forever because the cache key only changes with yarn.lock.
+      # This trims the OLDEST `.nx/cache` entries until the directory fits the budget, right before the cache
+      # POST step reads it: nothing the build needs is touched (nx recomputes a missing entry), the yarn cache
+      # is left alone, and the step can never fail a build. Set repo/org var DESKTOP_CACHE_MAX_MB to another
+      # size in MB, or to 0 to disable the trim. Node is used instead of `find -printf` (GNU-only: it would
+      # silently do nothing on the macOS runners).
+      - name: Bound the CI cache before it is saved
+        if: always()
+        continue-on-error: true
+        shell: bash
+        env:
+          DESKTOP_CACHE_MAX_MB: ${{ vars.DESKTOP_CACHE_MAX_MB }}
+        run: |
+          node -e '
+            const fs = require("fs"), path = require("path");
+            const limitMb = Number(process.env.DESKTOP_CACHE_MAX_MB || 2048);
+            const dir = ".nx/cache";
+            if (!limitMb) { console.log("DESKTOP_CACHE_MAX_MB=0 - trim disabled"); process.exit(0); }
+            if (!fs.existsSync(dir)) { console.log("no " + dir + " - nothing to trim"); process.exit(0); }
+            const sizeOf = (p) => {
+              let total = 0;
+              const stack = [p];
+              while (stack.length) {
+                const cur = stack.pop();
+                let st; try { st = fs.lstatSync(cur); } catch { continue; }
+                if (st.isDirectory()) { for (const n of fs.readdirSync(cur)) stack.push(path.join(cur, n)); }
+                else total += st.size;
+              }
+              return total;
+            };
+            const limit = limitMb * 1024 * 1024;
+            const entries = fs.readdirSync(dir).map((n) => {
+              const p = path.join(dir, n);
+              let mtime = 0; try { mtime = fs.lstatSync(p).mtimeMs; } catch {}
+              return { p, mtime, size: sizeOf(p) };
+            });
+            let total = entries.reduce((a, e) => a + e.size, 0);
+            const mb = (b) => Math.round(b / 1048576);
+            console.log(dir + " is " + mb(total) + " MB in " + entries.length + " entries (budget " + limitMb + " MB)");
+            if (total <= limit) { console.log("within budget - nothing to do"); process.exit(0); }
+            entries.sort((a, b) => a.mtime - b.mtime);
+            let removed = 0;
+            for (const e of entries) {
+              if (total <= limit) break;
+              try { fs.rmSync(e.p, { recursive: true, force: true }); total -= e.size; removed++; } catch {}
+            }
+            console.log("trimmed " + removed + " oldest entries; " + dir + " is now " + mb(total) + " MB");
+          '
 
   release-mac:
     runs-on: ${{ matrix.os }}
@@ -518,6 +622,58 @@ jobs:
           APPLE_API_KEY: /tmp/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+
+      # The yarn + .nx cache these jobs share has grown to ~9.5 GB: every job spends ~10 min RESTORING it, and
+      # when the key changes the POST step uploads all of it — on 2026-08-18 that upload stalled at 52% and
+      # burned the whole 300-minute job budget, so `release-linux` was cancelled after 5 h with the app already
+      # built (run 32101473424). `.nx/cache` grows forever because the cache key only changes with yarn.lock.
+      # This trims the OLDEST `.nx/cache` entries until the directory fits the budget, right before the cache
+      # POST step reads it: nothing the build needs is touched (nx recomputes a missing entry), the yarn cache
+      # is left alone, and the step can never fail a build. Set repo/org var DESKTOP_CACHE_MAX_MB to another
+      # size in MB, or to 0 to disable the trim. Node is used instead of `find -printf` (GNU-only: it would
+      # silently do nothing on the macOS runners).
+      - name: Bound the CI cache before it is saved
+        if: always()
+        continue-on-error: true
+        shell: bash
+        env:
+          DESKTOP_CACHE_MAX_MB: ${{ vars.DESKTOP_CACHE_MAX_MB }}
+        run: |
+          node -e '
+            const fs = require("fs"), path = require("path");
+            const limitMb = Number(process.env.DESKTOP_CACHE_MAX_MB || 2048);
+            const dir = ".nx/cache";
+            if (!limitMb) { console.log("DESKTOP_CACHE_MAX_MB=0 - trim disabled"); process.exit(0); }
+            if (!fs.existsSync(dir)) { console.log("no " + dir + " - nothing to trim"); process.exit(0); }
+            const sizeOf = (p) => {
+              let total = 0;
+              const stack = [p];
+              while (stack.length) {
+                const cur = stack.pop();
+                let st; try { st = fs.lstatSync(cur); } catch { continue; }
+                if (st.isDirectory()) { for (const n of fs.readdirSync(cur)) stack.push(path.join(cur, n)); }
+                else total += st.size;
+              }
+              return total;
+            };
+            const limit = limitMb * 1024 * 1024;
+            const entries = fs.readdirSync(dir).map((n) => {
+              const p = path.join(dir, n);
+              let mtime = 0; try { mtime = fs.lstatSync(p).mtimeMs; } catch {}
+              return { p, mtime, size: sizeOf(p) };
+            });
+            let total = entries.reduce((a, e) => a + e.size, 0);
+            const mb = (b) => Math.round(b / 1048576);
+            console.log(dir + " is " + mb(total) + " MB in " + entries.length + " entries (budget " + limitMb + " MB)");
+            if (total <= limit) { console.log("within budget - nothing to do"); process.exit(0); }
+            entries.sort((a, b) => a.mtime - b.mtime);
+            let removed = 0;
+            for (const e of entries) {
+              if (total <= limit) break;
+              try { fs.rmSync(e.p, { recursive: true, force: true }); total -= e.size; removed++; } catch {}
+            }
+            console.log("trimmed " + removed + " oldest entries; " + dir + " is now " + mb(total) + " MB");
+          '
 
   release-windows:
     runs-on: ${{ matrix.os }}
@@ -1081,3 +1237,55 @@ jobs:
           DESKTOP_WEB_SERVER_APP_DEFAULT_PORT: 3001
           GAUZY_API_SERVER_URL: "https://api.ever.team"
           NEXT_PUBLIC_GAUZY_API_SERVER_URL: "https://api.ever.team"
+
+      # The yarn + .nx cache these jobs share has grown to ~9.5 GB: every job spends ~10 min RESTORING it, and
+      # when the key changes the POST step uploads all of it — on 2026-08-18 that upload stalled at 52% and
+      # burned the whole 300-minute job budget, so `release-linux` was cancelled after 5 h with the app already
+      # built (run 32101473424). `.nx/cache` grows forever because the cache key only changes with yarn.lock.
+      # This trims the OLDEST `.nx/cache` entries until the directory fits the budget, right before the cache
+      # POST step reads it: nothing the build needs is touched (nx recomputes a missing entry), the yarn cache
+      # is left alone, and the step can never fail a build. Set repo/org var DESKTOP_CACHE_MAX_MB to another
+      # size in MB, or to 0 to disable the trim. Node is used instead of `find -printf` (GNU-only: it would
+      # silently do nothing on the macOS runners).
+      - name: Bound the CI cache before it is saved
+        if: always()
+        continue-on-error: true
+        shell: bash
+        env:
+          DESKTOP_CACHE_MAX_MB: ${{ vars.DESKTOP_CACHE_MAX_MB }}
+        run: |
+          node -e '
+            const fs = require("fs"), path = require("path");
+            const limitMb = Number(process.env.DESKTOP_CACHE_MAX_MB || 2048);
+            const dir = ".nx/cache";
+            if (!limitMb) { console.log("DESKTOP_CACHE_MAX_MB=0 - trim disabled"); process.exit(0); }
+            if (!fs.existsSync(dir)) { console.log("no " + dir + " - nothing to trim"); process.exit(0); }
+            const sizeOf = (p) => {
+              let total = 0;
+              const stack = [p];
+              while (stack.length) {
+                const cur = stack.pop();
+                let st; try { st = fs.lstatSync(cur); } catch { continue; }
+                if (st.isDirectory()) { for (const n of fs.readdirSync(cur)) stack.push(path.join(cur, n)); }
+                else total += st.size;
+              }
+              return total;
+            };
+            const limit = limitMb * 1024 * 1024;
+            const entries = fs.readdirSync(dir).map((n) => {
+              const p = path.join(dir, n);
+              let mtime = 0; try { mtime = fs.lstatSync(p).mtimeMs; } catch {}
+              return { p, mtime, size: sizeOf(p) };
+            });
+            let total = entries.reduce((a, e) => a + e.size, 0);
+            const mb = (b) => Math.round(b / 1048576);
+            console.log(dir + " is " + mb(total) + " MB in " + entries.length + " entries (budget " + limitMb + " MB)");
+            if (total <= limit) { console.log("within budget - nothing to do"); process.exit(0); }
+            entries.sort((a, b) => a.mtime - b.mtime);
+            let removed = 0;
+            for (const e of entries) {
+              if (total <= limit) break;
+              try { fs.rmSync(e.p, { recursive: true, force: true }); total -= e.size; removed++; } catch {}
+            }
+            console.log("trimmed " + removed + " oldest entries; " + dir + " is now " + mb(total) + " MB");
+          '
