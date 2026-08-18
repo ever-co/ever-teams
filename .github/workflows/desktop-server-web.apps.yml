@@ -604,6 +604,22 @@ jobs:
       - name: Install globally node-gyp, ts-node and nx packages
         run: 'npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^22.5.2'
 
+      # yarn 1 rebuilds native modules with `npm_config_node_gyp` and, when it is unset, defaults to the
+      # npm-BUNDLED copy <node>/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js. After the
+      # `npm install -g npm@…` step above that file no longer exists on some self-hosted boxes (EVERDESK4:
+      # "Cannot find module …/npm/node_modules/node-gyp/bin/node-gyp.js" while electron-builder rebuilt
+      # better-sqlite3, run 32087030551) but does on others (EVERDESK3). Point it at the node-gyp@10.2.0
+      # that was just installed globally so every runner in the pool behaves the same.
+      - name: Configure npm node-gyp path
+        shell: powershell
+        run: |
+          $root = (npm root -g).Trim()
+          $gyp = Join-Path $root 'node-gyp\bin\node-gyp.js'
+          if (Test-Path $gyp) {
+            "npm_config_node_gyp=$gyp" | Out-File -FilePath $env:GITHUB_ENV -Append
+            Write-Host "node-gyp is: $gyp"
+          } else { Write-Host "global node-gyp not found at $gyp - leaving the yarn default" }
+
       - name: Configure npm python for node-gyp
         shell: powershell
         run: |
@@ -845,6 +861,22 @@ jobs:
 
       - name: Install globally node-gyp, ts-node and nx packages
         run: 'npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^22.5.2'
+
+      # yarn 1 rebuilds native modules with `npm_config_node_gyp` and, when it is unset, defaults to the
+      # npm-BUNDLED copy <node>/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js. After the
+      # `npm install -g npm@…` step above that file no longer exists on some self-hosted boxes (EVERDESK4:
+      # "Cannot find module …/npm/node_modules/node-gyp/bin/node-gyp.js" while electron-builder rebuilt
+      # better-sqlite3, run 32087030551) but does on others (EVERDESK3). Point it at the node-gyp@10.2.0
+      # that was just installed globally so every runner in the pool behaves the same.
+      - name: Configure npm node-gyp path
+        shell: powershell
+        run: |
+          $root = (npm root -g).Trim()
+          $gyp = Join-Path $root 'node-gyp\bin\node-gyp.js'
+          if (Test-Path $gyp) {
+            "npm_config_node_gyp=$gyp" | Out-File -FilePath $env:GITHUB_ENV -Append
+            Write-Host "node-gyp is: $gyp"
+          } else { Write-Host "global node-gyp not found at $gyp - leaving the yarn default" }
 
       - name: Configure npm python for node-gyp
         shell: powershell
