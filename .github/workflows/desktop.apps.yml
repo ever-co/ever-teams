@@ -98,9 +98,28 @@ jobs:
           fi
 
       - name: Install Yarn dependencies
-        run: 'yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts'
+        # yarn 1 does NOT retry a failed git-dependency tarball fetch, so one transient
+        # `codeload.github.com/... : Request failed "429 Too Many Requests"` (the fleet shares a single
+        # egress IP and GitHub throttles it whenever several jobs install at once) throws away a build
+        # that is already 40+ minutes in — it killed release-linux twice on 2026-08-18 (runs 32101473424,
+        # 32139317563), each time with nothing wrong in the repo. Retry with a linear back-off instead.
+        # bash (not the Windows default shell) so the loop is identical on every runner; Git Bash is put
+        # on PATH by the "Prefer Git Bash for bash steps" step above.
+        shell: bash
         env:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
+        run: |
+          install() { yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts; }
+          for attempt in 1 2 3 4; do
+            if install; then exit 0; fi
+            if [ "$attempt" = 4 ]; then
+              echo "::error title=yarn install::failed 4 times - this is very unlikely to be transient"
+              exit 1
+            fi
+            wait=$((attempt * 60))
+            echo "::warning title=yarn install retry::attempt ${attempt} failed (usually a codeload/registry 429) - retrying in ${wait}s"
+            sleep "$wait"
+          done
 
       - name: Run Postinstall Manually
         run: 'yarn postinstall.manual'
@@ -402,9 +421,28 @@ jobs:
           fi
 
       - name: Install Yarn dependencies
-        run: 'yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts'
+        # yarn 1 does NOT retry a failed git-dependency tarball fetch, so one transient
+        # `codeload.github.com/... : Request failed "429 Too Many Requests"` (the fleet shares a single
+        # egress IP and GitHub throttles it whenever several jobs install at once) throws away a build
+        # that is already 40+ minutes in — it killed release-linux twice on 2026-08-18 (runs 32101473424,
+        # 32139317563), each time with nothing wrong in the repo. Retry with a linear back-off instead.
+        # bash (not the Windows default shell) so the loop is identical on every runner; Git Bash is put
+        # on PATH by the "Prefer Git Bash for bash steps" step above.
+        shell: bash
         env:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
+        run: |
+          install() { yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts; }
+          for attempt in 1 2 3 4; do
+            if install; then exit 0; fi
+            if [ "$attempt" = 4 ]; then
+              echo "::error title=yarn install::failed 4 times - this is very unlikely to be transient"
+              exit 1
+            fi
+            wait=$((attempt * 60))
+            echo "::warning title=yarn install retry::attempt ${attempt} failed (usually a codeload/registry 429) - retrying in ${wait}s"
+            sleep "$wait"
+          done
 
       - name: Run Postinstall Manually
         run: 'yarn postinstall.manual'
@@ -660,9 +698,28 @@ jobs:
           fi
 
       - name: Install Yarn dependencies
-        run: 'yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts'
+        # yarn 1 does NOT retry a failed git-dependency tarball fetch, so one transient
+        # `codeload.github.com/... : Request failed "429 Too Many Requests"` (the fleet shares a single
+        # egress IP and GitHub throttles it whenever several jobs install at once) throws away a build
+        # that is already 40+ minutes in — it killed release-linux twice on 2026-08-18 (runs 32101473424,
+        # 32139317563), each time with nothing wrong in the repo. Retry with a linear back-off instead.
+        # bash (not the Windows default shell) so the loop is identical on every runner; Git Bash is put
+        # on PATH by the "Prefer Git Bash for bash steps" step above.
+        shell: bash
         env:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
+        run: |
+          install() { yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts; }
+          for attempt in 1 2 3 4; do
+            if install; then exit 0; fi
+            if [ "$attempt" = 4 ]; then
+              echo "::error title=yarn install::failed 4 times - this is very unlikely to be transient"
+              exit 1
+            fi
+            wait=$((attempt * 60))
+            echo "::warning title=yarn install retry::attempt ${attempt} failed (usually a codeload/registry 429) - retrying in ${wait}s"
+            sleep "$wait"
+          done
 
       - name: Run Postinstall Manually
         run: 'yarn postinstall.manual'
@@ -1004,9 +1061,28 @@ jobs:
           fi
 
       - name: Install Yarn dependencies
-        run: 'yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts'
+        # yarn 1 does NOT retry a failed git-dependency tarball fetch, so one transient
+        # `codeload.github.com/... : Request failed "429 Too Many Requests"` (the fleet shares a single
+        # egress IP and GitHub throttles it whenever several jobs install at once) throws away a build
+        # that is already 40+ minutes in — it killed release-linux twice on 2026-08-18 (runs 32101473424,
+        # 32139317563), each time with nothing wrong in the repo. Retry with a linear back-off instead.
+        # bash (not the Windows default shell) so the loop is identical on every runner; Git Bash is put
+        # on PATH by the "Prefer Git Bash for bash steps" step above.
+        shell: bash
         env:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
+        run: |
+          install() { yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts; }
+          for attempt in 1 2 3 4; do
+            if install; then exit 0; fi
+            if [ "$attempt" = 4 ]; then
+              echo "::error title=yarn install::failed 4 times - this is very unlikely to be transient"
+              exit 1
+            fi
+            wait=$((attempt * 60))
+            echo "::warning title=yarn install retry::attempt ${attempt} failed (usually a codeload/registry 429) - retrying in ${wait}s"
+            sleep "$wait"
+          done
 
       - name: Run Postinstall Manually
         run: 'yarn postinstall.manual'
@@ -1184,6 +1260,22 @@ jobs:
           ref: master
           clean: false
 
+
+      # Same PATH determinism as the x64 Windows job: today this leg runs on the GitHub-hosted
+      # windows-11-arm image where `shell: bash` already resolves to Git Bash, but if an arm64 runner is
+      # ever self-hosted (RUNNER_LINUX_ARM64_8 / a Windows arm64 box) it could resolve to WSL and fail as
+      # EVERGR did. No-op when Git Bash is not installed.
+      - name: Prefer Git Bash for bash steps
+        shell: powershell
+        run: |
+          $git = (Get-Command git.exe -ErrorAction SilentlyContinue).Source
+          if ($git) {
+            $bin = Join-Path (Split-Path (Split-Path $git -Parent) -Parent) 'bin'
+            if (Test-Path (Join-Path $bin 'bash.exe')) {
+              $bin | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+              Write-Host "Prepended $bin to PATH for later steps"
+            } else { Write-Host "No bash.exe under $bin - leaving PATH alone" }
+          } else { Write-Host 'git.exe not on PATH - leaving PATH alone' }
       - name: Selective cleanup (preserve .nx/cache)
         shell: powershell
         run: |
@@ -1285,9 +1377,28 @@ jobs:
           fi
 
       - name: Install Yarn dependencies
-        run: 'yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts'
+        # yarn 1 does NOT retry a failed git-dependency tarball fetch, so one transient
+        # `codeload.github.com/... : Request failed "429 Too Many Requests"` (the fleet shares a single
+        # egress IP and GitHub throttles it whenever several jobs install at once) throws away a build
+        # that is already 40+ minutes in — it killed release-linux twice on 2026-08-18 (runs 32101473424,
+        # 32139317563), each time with nothing wrong in the repo. Retry with a linear back-off instead.
+        # bash (not the Windows default shell) so the loop is identical on every runner; Git Bash is put
+        # on PATH by the "Prefer Git Bash for bash steps" step above.
+        shell: bash
         env:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
+        run: |
+          install() { yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts; }
+          for attempt in 1 2 3 4; do
+            if install; then exit 0; fi
+            if [ "$attempt" = 4 ]; then
+              echo "::error title=yarn install::failed 4 times - this is very unlikely to be transient"
+              exit 1
+            fi
+            wait=$((attempt * 60))
+            echo "::warning title=yarn install retry::attempt ${attempt} failed (usually a codeload/registry 429) - retrying in ${wait}s"
+            sleep "$wait"
+          done
 
       # sharp < 0.33 ships no win32-arm64 prebuilt and falls back to a node-gyp build that needs a
       # system libvips ("Cannot open include file: 'vips/vips8'"). The monorepo carries such a copy

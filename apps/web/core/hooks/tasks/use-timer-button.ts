@@ -1,6 +1,7 @@
 // core/hooks/task-card/useTimerButton.ts
 import { useCallback, useMemo, useState } from 'react';
-import { useStartStopTimerHandler, useTeamTasksState, useTimerView } from '@/core/hooks';
+import { useStartStopTimerHandler, useTeamTasksState } from '@/core/hooks';
+import { useTimerActions } from '@/core/hooks/timer';
 import { useTimerOptimisticUI } from '@/core/hooks/activities/use-timer-optimistic-ui';
 import { TOrganizationTeam } from '@/core/types/schemas/team/organization-team.schema';
 import { toast } from 'sonner';
@@ -14,7 +15,15 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 	const [loading, setLoading] = useState(false);
 	const timerStatus = useAtomValue(timerStatusState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const { canTrack, disabled, startTimer, stopTimer, hasPlan } = useTimerView();
+	// PERF: this hook runs once PER TASK CARD. useTimerView() composes all three timer layers, and Layer 3
+	// (useTimerUi) SUBSCRIBES to the ticking atoms (timeCounterState & co). Exactly one interval exists
+	// app-wide — init-state.tsx owns it, because useTimerUi's effects are gated on a `firstLoad` that only
+	// that instance ever flips — but every subscriber re-renders on its writes, i.e. 20x/second per card
+	// while a timer runs, plus a wasted time-format computation each time. None of the five values below
+	// come from Layer 3; they are all Layer 1 (useTimerApi). useTimerActions is the codebase's own
+	// Layers-1+2 hook for exactly this case (its docblock: "No 50ms ticking interval").
+	const { canTrack, canRunTimer, startTimer, stopTimer, hasPlan } = useTimerActions();
+	const disabled = !canRunTimer;
 	const { setActiveTask } = useTeamTasksState();
 	const t = useTranslations();
 
