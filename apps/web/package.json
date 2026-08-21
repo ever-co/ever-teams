@@ -30,7 +30,7 @@
 	"dependencies": {
 		"@ai-sdk/openai": "^1.3.22",
 		"@ai-sdk/react": "^1.2.12",
-		"@auth/core": "^0.34.3",
+		"@auth/core": "^0.41.3",
 		"@emoji-mart/data": "^1.2.1",
 		"@emoji-mart/react": "^1.1.1",
 		"@ever-teams/constants": "*",
