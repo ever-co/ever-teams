@@ -4,29 +4,27 @@ import { useEffect, useState } from 'react';
 
 interface ITokenLiveKitProps {
 	roomName: string;
-	username: string;
 }
 
-export function useTokenLiveKit({ roomName, username }: ITokenLiveKitProps) {
-	const [token, setToken] = useState<string | null>(() => {
-		if (typeof window !== 'undefined') {
-			return window.localStorage.getItem('token-live-kit');
-		}
-		return null;
-	});
+export function useTokenLiveKit({ roomName }: ITokenLiveKitProps) {
+	const [issued, setIssued] = useState<{ room: string; token: string } | null>(null);
 
 	useEffect(() => {
+		if (!roomName) return;
+
 		const fetchToken = async () => {
 			try {
-				const response = await tokenLiveKitRoom({ roomName, username });
-				window.localStorage.setItem('token-live-kit', response.token);
-				setToken(response.token);
+				const response = await tokenLiveKitRoom({ roomName });
+				if (!response?.token) return;
+				setIssued({ room: roomName, token: response.token });
 			} catch (error) {
 				console.error('Failed to fetch token:', error);
 			}
 		};
 		fetchToken();
-	}, [roomName, username]);
+	}, [roomName]);
 
-	return { token };
+	// A token only grants the room it was issued for, so handing back one from a previous
+	// room would publish local tracks into the room the user just left
+	return { token: issued?.room === roomName ? issued.token : null };
 }
