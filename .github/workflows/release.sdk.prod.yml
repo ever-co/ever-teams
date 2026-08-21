@@ -64,8 +64,34 @@ jobs:
           echo "@ever-teams:registry=https://registry.npmjs.org/" >> ~/.npmrc
           echo "✅ NPM authentication configured"
 
+      - name: Configure Registry
+        uses: ever-co/ever-gauzy/.github/actions/configure-registry@9459d29e9a3859740348bb445dfe885cae83fc88
+        with:
+          verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
+          verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
+          force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
+          expect-vip: ${{ vars.RUNNER_LINUX_X64_4 != '' }}
+
       - name: Install dependencies (Yarn)
         run: yarn install --frozen-lockfile
+
+      - name: Restore registry config (keep the checkout npmjs-clean)
+        # Configure Registry above may rewrite yarn.lock and append registry lines
+        # to the tracked .npmrc/.yarnrc so the install resolves through the internal
+        # Verdaccio cache. Later steps run `git add .` + push version bumps and then
+        # publish to npmjs - a committed rewritten lockfile or a leftover project-level
+        # registry= line pointing at a LAN VIP must never survive past the install.
+        # Tracked files are restored; untracked leftovers are removed.
+        if: always()
+        run: |
+          for f in yarn.lock .npmrc .yarnrc; do
+            if git ls-files --error-unmatch "$f" >/dev/null 2>&1; then
+              git checkout -- "$f"
+            else
+              rm -f "$f"
+            fi
+          done
+          rm -f yarn.lock.rewritten package-lock.json.rewritten
 
       - name: Build SDK packages
         run: |
