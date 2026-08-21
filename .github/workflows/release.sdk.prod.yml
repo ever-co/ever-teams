@@ -65,7 +65,7 @@ jobs:
           echo "✅ NPM authentication configured"
 
       - name: Configure Registry
-        uses: ever-co/ever-gauzy/.github/actions/configure-registry@9459d29e9a3859740348bb445dfe885cae83fc88
+        uses: ever-co/ever-gauzy/.github/actions/configure-registry@aa4ee19926fabcf820aa1294385a76aec6bdb548
         with:
           verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
           verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
