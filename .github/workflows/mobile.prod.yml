@@ -35,12 +35,12 @@ jobs:
           cache: "yarn"
 
       - name: Configure Registry
-        shell: bash
-        run: |
-          if [ -n "${{ secrets.VERDACCIO_TOKEN }}" ]; then
-            echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
-            echo "registry=https://packages.ever.co/" >> .npmrc
-          fi
+        uses: ever-co/ever-gauzy/.github/actions/configure-registry@aa4ee19926fabcf820aa1294385a76aec6bdb548
+        with:
+          verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
+          verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
+          force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
+          expect-vip: ${{ vars.RUNNER_LINUX_X64_4 != '' }}
 
       - name: Install Packages
         run: |

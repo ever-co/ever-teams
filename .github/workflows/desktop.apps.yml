@@ -90,12 +90,12 @@ jobs:
         run: 'sudo npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^22.5.2'
 
       - name: Configure Registry
-        shell: bash
-        run: |
-          if [ -n "${{ secrets.VERDACCIO_TOKEN }}" ]; then
-            echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
-            echo "registry=https://packages.ever.co/" >> .npmrc
-          fi
+        uses: ever-co/ever-gauzy/.github/actions/configure-registry@aa4ee19926fabcf820aa1294385a76aec6bdb548
+        with:
+          verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
+          verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
+          force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
+          expect-vip: ${{ vars.RUNNER_LINUX_X64_8 != '' }}
 
       - name: Install Yarn dependencies
         # yarn 1 does NOT retry a failed git-dependency tarball fetch, so one transient
@@ -1053,12 +1053,12 @@ jobs:
           "PYTHON=$py"            | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Configure Registry
-        shell: bash
-        run: |
-          if [ -n "${{ secrets.VERDACCIO_TOKEN }}" ]; then
-            echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
-            echo "registry=https://packages.ever.co/" >> .npmrc
-          fi
+        uses: ever-co/ever-gauzy/.github/actions/configure-registry@aa4ee19926fabcf820aa1294385a76aec6bdb548
+        with:
+          verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
+          verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
+          force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
+          expect-vip: 'true'
 
       - name: Install Yarn dependencies
         # yarn 1 does NOT retry a failed git-dependency tarball fetch, so one transient
