@@ -70,30 +70,12 @@ jobs:
           sed -i 's|SENTRY_PROJECT_PLACEHOLDER|${{ secrets.EXPO_SENTRY_PROJECT }}|g' ./apps/mobile/eas.json
 
       - name: Configure Registry
-        shell: bash
-        run: |
-          # Prefer the INTERNAL Verdaccio VIP (org var VERDACCIO_REGISTRY, per
-          # docs/infrastructure/k8s-cicd-standard.md) over the public packages.ever.co route.
-          # These jobs run on in-cluster ARC runners that can reach the VIP directly. The public
-          # Cloudflare-fronted route runs ~280 KB/s and was measured on 2026-08-16 truncating a
-          # 14,590,565-byte tarball to 9,525,323 bytes mid-stream. A truncated prebuilt-binary
-          # package makes sharp fall back to compiling from source, which fails under Node 24.
-          # The VIP served the same file byte-exact.
-          REGISTRY="${VERDACCIO_REGISTRY:-https://packages.ever.co/}"
-          echo "registry=$REGISTRY" >> .npmrc
-          # The VIP allows anonymous reads; only the public route needs the token. Passed via env:
-          # so the secret is never spliced into this script.
-          case "$REGISTRY" in
-            *packages.ever.co*)
-              if [ -n "$VERDACCIO_TOKEN" ]; then
-                echo "//packages.ever.co/:_authToken=$VERDACCIO_TOKEN" >> .npmrc
-              fi
-              ;;
-          esac
-          echo "Using npm registry: $REGISTRY"
-        env:
-          VERDACCIO_REGISTRY: ${{ vars.VERDACCIO_REGISTRY }}
-          VERDACCIO_TOKEN: ${{ secrets.VERDACCIO_TOKEN }}
+        uses: ever-co/ever-gauzy/.github/actions/configure-registry@727973d766f3968d3f1184300af085872abcb20b
+        with:
+          verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
+          verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
+          force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
+          expect-vip: ${{ vars.RUNNER_LINUX_X64_4 != '' }}
 
       - name: Install Packages
         run: |
@@ -119,14 +101,35 @@ jobs:
           EXPO_SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           EXPO_SENTRY_PROJECT: ${{ secrets.EXPO_SENTRY_PROJECT }}
 
-      # SECURITY: "Configure Registry" appends the internal registry + VERDACCIO_TOKEN to
-      # .npmrc, which is a git-TRACKED file. eas-cli ships modified tracked files in the
-      # build archive, so the token was being uploaded to Expo (their log shows
+      # SECURITY + CORRECTNESS: "Configure Registry" appends the internal registry +
+      # VERDACCIO_TOKEN to .npmrc, which is a git-TRACKED file. eas-cli ships modified tracked
+      # files in the build archive, so the token was being uploaded to Expo (their log shows
       # "PREPARE_PROJECT | .npmrc found at .npmrc"). Restore it before the upload. This also
       # stops Expo builders trying to reach packages.ever.co, which they cannot resolve.
-      - name: Restore .npmrc before EAS upload
+      #
+      # .npmrc is NOT the only file the step mutates. The shared configure-registry action also
+      # appends `registry "<REGISTRY>"` to .yarnrc and sed-rewrites EVERY resolved URL in
+      # yarn.lock to that registry, and on these runners the registry is the LAN-only Verdaccio
+      # VIP. .easignore REPLACES .gitignore (it is not additive) and lists none of these three
+      # files, so all three ship in the archive; the Expo builder then runs
+      # `yarn install --frozen-lockfile` in the uploaded root and cannot resolve a single
+      # tarball. Restoring only .npmrc leaves that lockfile poisoned.
+      #
+      # Same per-path loop as .github/workflows/release.sdk.prod.yml: tracked files are checked
+      # out, untracked leftovers are removed. `if: always()` so a failed install still leaves
+      # the checkout clean for the next job on this self-hosted runner.
+      - name: Restore registry config before EAS upload
         shell: bash
-        run: git checkout -- .npmrc || true
+        if: always()
+        run: |
+          for f in yarn.lock .npmrc .yarnrc; do
+            if git ls-files --error-unmatch "$f" >/dev/null 2>&1; then
+              git checkout -- "$f"
+            else
+              rm -f "$f"
+            fi
+          done
+          rm -f yarn.lock.rewritten package-lock.json.rewritten
 
       - name: Build on EAS
         id: eas_build

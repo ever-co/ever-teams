@@ -29,6 +29,26 @@ jobs:
           node-version: "24.14.0"
           cache: "yarn"
 
+      # 🛑 DO NOT migrate this step to the shared ever-gauzy configure-registry action.
+      # It was migrated once and reverted here; this comment is why.
+      #
+      # This job does NOT ship the artifact it builds on the runner. The deploy step below
+      # (BetaHuhn/deploy-to-vercel-action@v1) passes no PREBUILT input and uses
+      # WORKING_DIRECTORY: ./, so Vercel UPLOADS this working tree and runs install + build
+      # REMOTELY on its own builders. There is no .vercelignore in this repo, so every tracked
+      # file goes up exactly as it sits on disk at that moment.
+      #
+      # The shared action mutates three TRACKED files: it appends `registry=<REGISTRY>` to
+      # .npmrc, appends `registry "<REGISTRY>"` to .yarnrc, and sed-rewrites every resolved
+      # URL in yarn.lock to that registry. On these runners <REGISTRY> is the internal
+      # Verdaccio VIP (192.168.1.183:4873), which is LAN-only. Vercel's builders cannot route
+      # to it, so the remote `yarn install` fails on every tarball and the deploy dies.
+      # A post-install restore guard does not help either: it would hand Vercel a config with
+      # no Verdaccio credentials at all.
+      #
+      # The hand-rolled step below is kept ON PURPOSE. It touches only .npmrc, and writes only
+      # the PUBLICLY reachable https://packages.ever.co/ route plus its auth token - so the
+      # config that ships to Vercel still resolves from outside our network.
       - name: Configure Registry
         shell: bash
         run: |
