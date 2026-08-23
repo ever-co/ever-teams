@@ -30,27 +30,12 @@ jobs:
           cache: "yarn"
 
       - name: Configure Registry
-        shell: bash
-        run: |
-          # Prefer the INTERNAL Verdaccio VIP (org var VERDACCIO_REGISTRY, per
-          # docs/infrastructure/k8s-cicd-standard.md) over the public packages.ever.co route — same
-          # pattern as the mobile workflows. The public route has been seen truncating large prebuilt
-          # tarballs (e.g. @img/sharp-libvips-*), which turns into a broken sharp at build time.
-          REGISTRY="${VERDACCIO_REGISTRY:-https://packages.ever.co/}"
-          echo "registry=$REGISTRY" >> .npmrc
-          # The VIP allows anonymous reads; only the public route needs the token. Passed via env:
-          # so the secret is never spliced into this script.
-          case "$REGISTRY" in
-            *packages.ever.co*)
-              if [ -n "$VERDACCIO_TOKEN" ]; then
-                echo "//packages.ever.co/:_authToken=$VERDACCIO_TOKEN" >> .npmrc
-              fi
-              ;;
-          esac
-          echo "Using npm registry: $REGISTRY"
-        env:
-          VERDACCIO_REGISTRY: ${{ vars.VERDACCIO_REGISTRY }}
-          VERDACCIO_TOKEN: ${{ secrets.VERDACCIO_TOKEN }}
+        uses: ever-co/ever-gauzy/.github/actions/configure-registry@727973d766f3968d3f1184300af085872abcb20b
+        with:
+          verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
+          verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
+          force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
+          expect-vip: ${{ vars.RUNNER_LINUX_X64_4 != '' }}
 
       - name: Install Packages
         run: |

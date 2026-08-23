@@ -8,7 +8,14 @@ on:
 jobs:
   release:
     name: Version and SDK Publish with Changesets
-    runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
+    # Prefer the -8 ARC pool: its RAM-backed volumes are work=24Gi + package cache=12Gi.
+    # The -4 pool (work=16Gi, cache=8Gi) is measurably too small for this repo's full
+    # `yarn install` — yarn 1 downloads every platform variant of the optional native
+    # deps (electron, @sentry/cli-*, @img/sharp-*), and run 32514096730 (2026-08-21)
+    # died with "ENOSPC: no space left on device" while extracting into the 8Gi cache
+    # tmpfs. Same ENOSPC hit web.before-merge.yml on the -4 pool the same day, on a run
+    # that installs straight from registry.yarnpkg.com — pool capacity, not registry.
+    runs-on: ${{ vars.RUNNER_LINUX_X64_8 || vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
 
     permissions:
       contents: write # for changelog/version PRs
@@ -65,12 +72,12 @@ jobs:
           echo "✅ NPM authentication configured"
 
       - name: Configure Registry
-        uses: ever-co/ever-gauzy/.github/actions/configure-registry@aa4ee19926fabcf820aa1294385a76aec6bdb548
+        uses: ever-co/ever-gauzy/.github/actions/configure-registry@727973d766f3968d3f1184300af085872abcb20b
         with:
           verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
           verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
           force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
-          expect-vip: ${{ vars.RUNNER_LINUX_X64_4 != '' }}
+          expect-vip: ${{ vars.RUNNER_LINUX_X64_8 != '' || vars.RUNNER_LINUX_X64_4 != '' }}
 
       - name: Install dependencies (Yarn)
         run: yarn install --frozen-lockfile
