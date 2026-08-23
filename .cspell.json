@@ -847,7 +847,14 @@
 		"typeahead",
 		"antfu",
 		"conventionalcommits",
-	],
+		"DLOPEN",
+		"ENOENT",
+		"EVERDESK",
+		"EVERGR",
+		"Jimp",
+		"prebuilts",
+		"vercelignore"
+],
 	"useGitignore": true,
 	"ignorePaths": [
 		"**/locales/**",
