@@ -44,7 +44,7 @@ jobs:
           cache: "yarn"
 
       - name: Configure Registry
-        uses: ever-co/ever-gauzy/.github/actions/configure-registry@aa4ee19926fabcf820aa1294385a76aec6bdb548
+        uses: ever-co/ever-gauzy/.github/actions/configure-registry@727973d766f3968d3f1184300af085872abcb20b
         with:
           verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
           verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
