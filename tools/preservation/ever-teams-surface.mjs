@@ -2,7 +2,7 @@
 
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
@@ -17,6 +17,7 @@ const SERVICE_FILE = /(?:^|\/)(?:services?\/.*|[^/]+\.service)\.[cm]?[jt]sx?$/;
 const TEXT_FILE = /(?:\.(?:[cm]?[jt]sx?|json|ya?ml|env|sample)|(?:^|\/)Dockerfile)$/;
 const WEB_SURFACE_FILE = /^(?:apps\/web|packages)\//;
 const API_SERVICE_FILE = /^(?:apps\/web\/core\/services|packages\/.*services)\//;
+const GIT_EXECUTABLE = process.platform === 'win32' ? String.raw`C:\Program Files\Git\cmd\git.exe` : '/usr/bin/git';
 const REMOVAL_CATEGORIES = [
 	'routes',
 	'overlayComponents',
@@ -29,7 +30,11 @@ const REMOVAL_CATEGORIES = [
 ];
 
 function runGit(cwd, args, input) {
-	const result = spawnSync('git', args, {
+	if (!existsSync(GIT_EXECUTABLE)) {
+		throw new Error(`Git executable not found at the trusted path: ${GIT_EXECUTABLE}`);
+	}
+
+	const result = spawnSync(GIT_EXECUTABLE, args, {
 		cwd,
 		input,
 		encoding: input === undefined ? undefined : 'buffer',

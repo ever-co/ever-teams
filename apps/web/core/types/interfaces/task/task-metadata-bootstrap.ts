@@ -33,7 +33,7 @@ export type TaskMetadataBootstrapResponse = Partial<{
 }>;
 
 export function canonicalizeTaskMetadataInclude(include?: readonly TaskMetadataSection[]): TaskMetadataSection[] {
-	const selected = include === undefined ? TASK_METADATA_SECTIONS : include;
+	const selected = include ?? TASK_METADATA_SECTIONS;
 
-	return [...new Set(selected)].sort();
+	return [...new Set(selected)].sort((left, right) => (left < right ? -1 : left > right ? 1 : 0));
 }

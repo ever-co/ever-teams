@@ -133,9 +133,12 @@ jobs:
           expect-vip: ${{ vars.RUNNER_LINUX_X64_4 != '' }}
 
       - name: Install Packages
-        run: yarn install --network-timeout 1000000 --frozen-lockfile
+        run: yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts
         env:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
+
+      - name: Install trusted Cypress binary
+        run: yarn cypress install
 
       - name: Build deterministic browser app
         run: yarn build:web
