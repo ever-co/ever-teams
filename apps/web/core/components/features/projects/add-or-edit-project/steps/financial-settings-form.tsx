@@ -34,7 +34,7 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 	const handleSubmit = (e: FormEvent) => {
 		e.preventDefault();
 		goToNext?.({
-			currency: currencies.find((el) => el.isoCode === currency)?.isoCode as ECurrencies,
+			currency: currency as ECurrencies,
 			budget: budgetAmount,
 			budgetType,
 			billing: billingType
@@ -43,12 +43,12 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 
 	const handlePrevious = useCallback(() => {
 		goToPrevious?.({
-			currency: currencies.find((el) => el.isoCode === currency)?.isoCode as ECurrencies,
+			currency: currency as ECurrencies,
 			budget: budgetAmount,
 			budgetType,
 			billing: billingType
 		});
-	}, [billingType, budgetAmount, budgetType, currencies, currency, goToPrevious]);
+	}, [billingType, budgetAmount, budgetType, currency, goToPrevious]);
 
 	return (
 		<form onSubmit={handleSubmit} className="w-full space-y-5 pt-4">

@@ -5,6 +5,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { InviteFormModal } from './invite-form-modal';
 
 const mockInviteUser = jest.fn();
+const mockResendTeamInvitation = jest.fn();
 const mockUseFastInviteDataOwner = jest.fn();
 const mockActiveTeam = { members: [] };
 
@@ -16,7 +17,7 @@ jest.mock('@/core/hooks/invitations/use-send-team-invitation', () => ({
 	useSendTeamInvitation: () => ({
 		inviteUser: mockInviteUser,
 		inviteLoading: false,
-		resendTeamInvitation: jest.fn(),
+		resendTeamInvitation: mockResendTeamInvitation,
 		resendInviteLoading: false
 	})
 }));
@@ -119,6 +120,7 @@ describe('InviteFormModal role selection', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 		mockInviteUser.mockResolvedValue(undefined);
+		mockResendTeamInvitation.mockResolvedValue(undefined);
 		mockUseFastInviteDataOwner.mockReturnValue(noInviteData);
 	});
 
@@ -179,5 +181,58 @@ describe('InviteFormModal role selection', () => {
 		rerender(<InviteFormModal open closeModal={jest.fn()} />);
 
 		await waitFor(() => expect(selectedRoleValue()).toBe('employee-role-b'));
+	});
+
+	it('waits for invite prerequisites and resends a matching resolved invitation without creating another', async () => {
+		mockUseFastInviteDataOwner.mockReturnValue({
+			...loadedInviteData,
+			teamInvitations: [],
+			fetchingInvitations: true,
+			getWorkingEmployeeLoading: false
+		});
+		const { rerender } = render(<InviteFormModal open closeModal={jest.fn()} />);
+		await waitFor(() => expect(selectedRoleValue()).toBe('employee-role'));
+		fireEvent.click(screen.getByTestId('choose-email'));
+		const form = screen.getByTestId('choose-email').closest('form')!;
+
+		fireEvent.submit(form);
+		expect(mockInviteUser).not.toHaveBeenCalled();
+		expect(mockResendTeamInvitation).not.toHaveBeenCalled();
+
+		mockUseFastInviteDataOwner.mockReturnValue({
+			...loadedInviteData,
+			teamInvitations: [{ id: 'invite-1', email: 'new@example.com' }],
+			fetchingInvitations: false,
+			getWorkingEmployeeLoading: true
+		});
+		rerender(<InviteFormModal open closeModal={jest.fn()} />);
+		fireEvent.submit(form);
+		expect(mockInviteUser).not.toHaveBeenCalled();
+		expect(mockResendTeamInvitation).not.toHaveBeenCalled();
+
+		mockUseFastInviteDataOwner.mockReturnValue({
+			...noInviteData,
+			teamInvitations: [{ id: 'invite-1', email: 'new@example.com' }],
+			fetchingInvitations: false,
+			getWorkingEmployeeLoading: false
+		});
+		rerender(<InviteFormModal open closeModal={jest.fn()} />);
+		await waitFor(() => expect(selectedRoleValue()).toBe(''));
+		fireEvent.submit(form);
+		expect(mockInviteUser).not.toHaveBeenCalled();
+		expect(mockResendTeamInvitation).not.toHaveBeenCalled();
+
+		mockUseFastInviteDataOwner.mockReturnValue({
+			...loadedInviteData,
+			teamInvitations: [{ id: 'invite-1', email: 'new@example.com' }],
+			fetchingInvitations: false,
+			getWorkingEmployeeLoading: false
+		});
+		rerender(<InviteFormModal open closeModal={jest.fn()} />);
+		await waitFor(() => expect(selectedRoleValue()).toBe('employee-role'));
+		fireEvent.submit(form);
+
+		await waitFor(() => expect(mockResendTeamInvitation).toHaveBeenCalledWith('invite-1'));
+		expect(mockInviteUser).not.toHaveBeenCalled();
 	});
 });

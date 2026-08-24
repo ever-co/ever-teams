@@ -18,6 +18,7 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 import { useTaskQueries } from './use-task-queries';
+import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 
 /**
  * Hook for updating team tasks (UPDATE operations only).
@@ -40,6 +41,14 @@ import { useTaskQueries } from './use-task-queries';
 export function useUpdateTask() {
 	const queryClient = useQueryClient();
 	const activeTeam = useAtomValue(activeTeamState);
+	const taskListQueryKey = FAST_APP_BOOTSTRAP.value
+		? queryKeys.tasks.byTeamByScope(
+				activeTeam?.tenantId,
+				activeTeam?.organizationId,
+				activeTeam?.id,
+				activeTeam?.projects?.[0]?.id ?? null
+			)
+		: queryKeys.tasks.byTeam(activeTeam?.id);
 	const setAllTasks = useSetAtom(teamTasksState);
 	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
 	const setActive = useSetAtom(activeTeamTaskId);
@@ -55,12 +64,10 @@ export function useUpdateTask() {
 		},
 		onMutate: async ({ taskId, taskData }) => {
 			// Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-			await queryClient.cancelQueries({ queryKey: queryKeys.tasks.byTeam(activeTeam?.id) });
+			await queryClient.cancelQueries({ queryKey: taskListQueryKey });
 
 			// Snapshot the previous value
-			const previousTasks = queryClient.getQueryData<PaginationResponse<TTask>>(
-				queryKeys.tasks.byTeam(activeTeam?.id)
-			);
+			const previousTasks = queryClient.getQueryData<PaginationResponse<TTask>>(taskListQueryKey);
 
 			// Optimistically update to the new value
 			if (previousTasks?.items) {
@@ -71,7 +78,7 @@ export function useUpdateTask() {
 				const optimisticData = { ...previousTasks, items: optimisticTasksItems };
 
 				// 1. Update React Query Cache
-				queryClient.setQueryData(queryKeys.tasks.byTeam(activeTeam?.id), optimisticData);
+				queryClient.setQueryData(taskListQueryKey, optimisticData);
 
 				// 2. Update Jotai State immediately (for instant UI feedback)
 				setAllTasks(optimisticTasksItems as TTask[]);
@@ -87,7 +94,7 @@ export function useUpdateTask() {
 		onError: (_err, _newTodo, context) => {
 			// Rollback to the previous value
 			if (context?.previousTasks) {
-				queryClient.setQueryData(queryKeys.tasks.byTeam(activeTeam?.id), context.previousTasks);
+				queryClient.setQueryData(taskListQueryKey, context.previousTasks);
 
 				if (context.previousTasks.items) {
 					setAllTasks(context.previousTasks.items);
