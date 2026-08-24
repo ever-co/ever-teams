@@ -8,7 +8,7 @@ import {
 } from '@/core/lib/helpers/index';
 import { taskService } from '@/core/services/client/api';
 import { activeTeamState, activeTeamTaskId, detailedTaskState, teamTasksState } from '@/core/stores';
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
@@ -49,6 +49,15 @@ export function useUpdateTask() {
 				activeTeam?.projects?.[0]?.id ?? null
 			)
 		: queryKeys.tasks.byTeam(activeTeam?.id);
+	const scopeFingerprint = JSON.stringify([
+		FAST_APP_BOOTSTRAP.value,
+		activeTeam?.tenantId ?? null,
+		activeTeam?.organizationId ?? null,
+		activeTeam?.id ?? null,
+		activeTeam?.projects?.[0]?.id ?? null
+	]);
+	const currentScopeFingerprintRef = useRef(scopeFingerprint);
+	currentScopeFingerprintRef.current = scopeFingerprint;
 	const setAllTasks = useSetAtom(teamTasksState);
 	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
 	const setActive = useSetAtom(activeTeamTaskId);
@@ -89,14 +98,15 @@ export function useUpdateTask() {
 				}
 			}
 
-			return { previousTasks };
+			return { previousTasks, queryKey: taskListQueryKey, scopeFingerprint };
 		},
 		onError: (_err, _newTodo, context) => {
-			// Rollback to the previous value
+			// Always restore the cache that owned the mutation. Shared mirrors may only
+			// be restored while that same scope is still active.
 			if (context?.previousTasks) {
-				queryClient.setQueryData(taskListQueryKey, context.previousTasks);
+				queryClient.setQueryData(context.queryKey, context.previousTasks);
 
-				if (context.previousTasks.items) {
+				if (context.scopeFingerprint === currentScopeFingerprintRef.current && context.previousTasks.items) {
 					setAllTasks(context.previousTasks.items);
 				}
 			}

@@ -98,18 +98,23 @@ export function useScopeTransitionGuard(scope: FastShellScope, enabled = true) {
 			const organizationChanged =
 				previous.scope.tenantId !== scope.tenantId || previous.scope.organizationId !== scope.organizationId;
 			const teamChanged = organizationChanged || previous.scope.teamId !== scope.teamId;
-			const taskChanged = teamChanged || previous.scope.taskId !== scope.taskId;
+			const projectChanged = teamChanged || previous.scope.projectId !== scope.projectId;
+			const timerIdentityChanged =
+				teamChanged || previous.scope.userId !== scope.userId || previous.scope.employeeId !== scope.employeeId;
+			const statisticsChanged = projectChanged || timerIdentityChanged || previous.scope.taskId !== scope.taskId;
 			if (organizationChanged) setTeams([]);
-			if (teamChanged) {
+			if (projectChanged) {
 				setTasks([]);
 				setActiveTask(null);
+			}
+			if (timerIdentityChanged) {
 				setTimerStatus(null);
 				setLocalTimerStatus(null);
 				setTimeCounter(0);
 				setTimerSeconds(0);
 				setTimerFetching(false);
 			}
-			if (taskChanged) {
+			if (statisticsChanged) {
 				setTasksFetching(false);
 				setTaskStatistics({ all: [], today: [] });
 				setActiveTaskStatistics({ total: null, today: null });

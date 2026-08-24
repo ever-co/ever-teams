@@ -510,6 +510,10 @@ export class APIService {
 		const requestId = `POST:${url}:${Date.now()}`;
 		const controller = new AbortController();
 		this.cancelSources.set(requestId, controller);
+		const { signal, cleanup } = this.composeAbortSignals([
+			config?.signal as AbortSignal | undefined,
+			controller.signal
+		]);
 
 		try {
 			return await this.executeRequest<T>(() => {
@@ -526,10 +530,11 @@ export class APIService {
 				return postRequest(url, data, {
 					...config,
 					headers,
-					signal: controller.signal
+					signal
 				});
 			});
 		} finally {
+			cleanup();
 			this.cancelSources.delete(requestId);
 		}
 	}

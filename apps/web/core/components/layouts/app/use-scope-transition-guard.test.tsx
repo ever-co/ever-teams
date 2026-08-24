@@ -158,4 +158,45 @@ describe('useScopeTransitionGuard', () => {
 		});
 		await waitFor(() => expect(store.get(organizationTeamsState)).toEqual([]));
 	});
+
+	it('clears task mirrors on project changes and timer mirrors on user changes within one team', () => {
+		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		const store = createStore();
+		const wrapper = ({ children }: PropsWithChildren) => (
+			<QueryClientProvider client={queryClient}>
+				<Provider store={store}>{children}</Provider>
+			</QueryClientProvider>
+		);
+		const scope: FastShellScope = {
+			tenantId: 'tenant-1',
+			organizationId: 'org-1',
+			teamId: 'team-1',
+			projectId: 'project-1',
+			userId: 'user-1',
+			employeeId: 'employee-1',
+			taskId: 'task-1'
+		};
+		const { rerender } = renderHook(
+			({ current }: { current: FastShellScope }) => useScopeTransitionGuard(current, true),
+			{ wrapper, initialProps: { current: scope } }
+		);
+
+		store.set(teamTasksState, [{ id: 'task-1' } as any]);
+		store.set(activeTeamTaskState, { id: 'task-1' } as any);
+		store.set(timerStatusState, { running: true } as any);
+		rerender({ current: { ...scope, projectId: 'project-2' } });
+		expect(store.get(teamTasksState)).toEqual([]);
+		expect(store.get(activeTeamTaskState)).toBeNull();
+		expect(store.get(timerStatusState)).toEqual({ running: true });
+
+		store.set(timerStatusState, { running: true } as any);
+		store.set(localTimerStatusState, { running: true, runnedDateTime: 1, lastTaskId: 'task-1' });
+		store.set(timeCounterState, 15);
+		store.set(timerSecondsState, 15);
+		rerender({ current: { ...scope, projectId: 'project-2', userId: 'user-2', employeeId: 'employee-2' } });
+		expect(store.get(timerStatusState)).toBeNull();
+		expect(store.get(localTimerStatusState)).toBeNull();
+		expect(store.get(timeCounterState)).toBe(0);
+		expect(store.get(timerSecondsState)).toBe(0);
+	});
 });

@@ -14,7 +14,7 @@ const mockSetDetailedTask = jest.fn();
 const mockSetActive = jest.fn();
 const mockInvalidateTeamTasksData = jest.fn();
 const mockGetTaskById = jest.fn();
-const mockActiveTeam = {
+let mockActiveTeam = {
 	id: 'team-1',
 	tenantId: 'tenant-1',
 	organizationId: 'organization-1',
@@ -127,6 +127,12 @@ async function expectOptimisticUpdateAndRollback(
 describe('useUpdateTask authoritative task cache', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
+		mockActiveTeam = {
+			id: 'team-1',
+			tenantId: 'tenant-1',
+			organizationId: 'organization-1',
+			projects: [{ id: 'project-1' }]
+		};
 		jest.spyOn(console, 'error').mockImplementation(() => undefined);
 	});
 
@@ -147,5 +153,41 @@ describe('useUpdateTask authoritative task cache', () => {
 		client.setQueryData(legacyKey, list('Before'));
 
 		await expectOptimisticUpdateAndRollback(client, legacyKey);
+	});
+
+	it('rolls back the captured cache without overwriting mirrors after the active scope changes', async () => {
+		mockFastBootstrap = true;
+		const client = createQueryClient();
+		client.setQueryData(scopedKey, list('Before'));
+		let rejectUpdate!: (reason: Error) => void;
+		mockUpdateTask.mockImplementation(
+			() =>
+				new Promise((_resolve, reject) => {
+					rejectUpdate = reject;
+				})
+		);
+		const { result, rerender } = renderHook(() => useUpdateTask(), { wrapper: createWrapper(client) });
+		const updatePromise = result.current.updateTask({ ...originalTask, title: 'After' }).catch((error) => error);
+		await waitFor(() => expect(client.getQueryData<PaginationResponse<TTask>>(scopedKey)?.items[0].title).toBe('After'));
+
+		mockActiveTeam = {
+			id: 'team-2',
+			tenantId: 'tenant-1',
+			organizationId: 'organization-1',
+			projects: [{ id: 'project-2' }]
+		};
+		const nextKey = queryKeys.tasks.byTeamByScope('tenant-1', 'organization-1', 'team-2', 'project-2');
+		client.setQueryData(nextKey, list('Current scope'));
+		rerender();
+		mockSetAllTasks.mockClear();
+
+		await act(async () => {
+			rejectUpdate(new Error('update failed'));
+			await updatePromise;
+		});
+
+		expect(client.getQueryData<PaginationResponse<TTask>>(scopedKey)?.items[0].title).toBe('Before');
+		expect(client.getQueryData<PaginationResponse<TTask>>(nextKey)?.items[0].title).toBe('Current scope');
+		expect(mockSetAllTasks).not.toHaveBeenCalled();
 	});
 });

@@ -209,6 +209,25 @@ describe('APIService request transport', () => {
 		expect(service.getRequestStats()).toEqual({ activeAbortControllers: 0 });
 	});
 
+	it('relays caller abort through POST and cleans the composed signal listeners', async () => {
+		const service = createService();
+		const pending = createPendingAdapter();
+		service.axiosInstance.defaults.adapter = pending.adapter;
+		const caller = new AbortController();
+		const removeListener = jest.spyOn(caller.signal, 'removeEventListener');
+
+		const requestPromise = service.post('/caller-cancel', { value: true }, { signal: caller.signal });
+		const request = await pending.nextRequest();
+		caller.abort('caller changed scope');
+		request.release();
+
+		await expect(requestPromise).rejects.toMatchObject({ isApiError: true, statusCode: 499 });
+		expect((request.config.signal as AbortSignal).aborted).toBe(true);
+		expect((request.config.signal as AbortSignal).reason).toBe('caller changed scope');
+		expect(removeListener).toHaveBeenCalledWith('abort', expect.any(Function));
+		expect(service.getRequestStats()).toEqual({ activeAbortControllers: 0 });
+	});
+
 	it('cancelRequest aborts only its composed request and never the caller signal', async () => {
 		const now = 1_777_000_000_001;
 		jest.spyOn(Date, 'now').mockReturnValue(now);
