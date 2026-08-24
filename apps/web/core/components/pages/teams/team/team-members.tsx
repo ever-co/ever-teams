@@ -19,6 +19,7 @@ import { activeTeamState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { TeamMemberFilterType } from '@/core/lib/utils/team-members.utils';
 import { useFuseMemberSearch } from '@/core/hooks/teams/use-fuse-member-search';
+import { useFastTeamDailyPlansOwner } from '@/core/hooks/bootstrap/use-fast-feature-data';
 
 // Types for better performance and security
 
@@ -60,6 +61,7 @@ const sortByOrder = (a: TOrganizationTeamEmployee, b: TOrganizationTeamEmployee)
 
 // Main component optimized with refactored hooks
 export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanView: view = IssuesView.CARDS }) => {
+	useFastTeamDailyPlansOwner(!publicTeam);
 	// Hooks
 	const { data: user } = useUserQuery();
 	const activeFilter = useAtomValue(taskBlockFilterState) as TeamMemberFilterType;

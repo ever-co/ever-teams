@@ -31,10 +31,12 @@ import {
 } from '@/core/components/optimized-components';
 import { activeTeamManagersState, activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useFastTeamDailyPlansOwner } from '@/core/hooks/bootstrap/use-fast-feature-data';
 
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
 const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
+	useFastTeamDailyPlansOwner();
 	const unwrappedParams = React.use(params as any) as { memberId: string };
 	const { data: user } = useUserQuery();
 
