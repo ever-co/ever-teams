@@ -1,5 +1,6 @@
 import type { Config } from 'jest';
 import nextJest from 'next/jest.js';
+import { resolve } from 'node:path';
 
 /**
  * Unit-test harness for apps/web.
@@ -11,7 +12,8 @@ import nextJest from 'next/jest.js';
  * Every dependency this needs (jest 29, jest-environment-jsdom, @testing-library/*) is already
  * hoisted at the monorepo root — nothing new was added for it.
  */
-const createJestConfig = nextJest({ dir: './' });
+const webDirectory = typeof __dirname === 'string' ? __dirname : resolve(process.cwd(), 'apps/web');
+const createJestConfig = nextJest({ dir: webDirectory });
 
 const config: Config = {
 	// Node by default: most units under test are helpers, route handlers and hooks' pure logic.

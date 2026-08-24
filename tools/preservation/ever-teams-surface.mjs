@@ -4,10 +4,11 @@ import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import ts from 'typescript';
 
 const SOURCE_FILE = /\.(?:[cm]?[jt]sx?)$/;
-const ROUTE_FILE = /^apps\/web\/app\/.+\/(?:page|layout)\.(?:[jt]sx?)$/;
-const TEST_FILE = /(?:^|\/)(?:__tests__\/.*|[^/]+\.(?:spec|test))\.[cm]?[jt]sx?$/;
+const ROUTE_FILE = /^apps\/web\/app\/(?:.*\/)?(?:page|layout)\.(?:[jt]sx?)$/;
+const TEST_FILE = /(?:^|\/)(?:__tests__\/.*|[^/]+\.(?:spec|test|cy|e2e))\.[cm]?[jt]sx?$/;
 const BARREL_FILE = /(?:^|\/)index\.[cm]?[jt]sx?$/;
 const SERVICE_FILE = /(?:^|\/)(?:services?\/.*|[^/]+\.service)\.[cm]?[jt]sx?$/;
 const TEXT_FILE = /(?:\.(?:[cm]?[jt]sx?|json|ya?ml|env|sample)|(?:^|\/)Dockerfile)$/;
@@ -20,6 +21,7 @@ const REMOVAL_CATEGORIES = [
 	'nextPublicOccurrences',
 	'publicExports',
 	'serviceMethods',
+	'testConfiguration',
 	'testNames'
 ];
 
@@ -76,196 +78,277 @@ function readGitTree(cwd, ref) {
 	return files;
 }
 
+function compareCodePoints(left, right) {
+	const leftPoints = Array.from(left, (character) => character.codePointAt(0));
+	const rightPoints = Array.from(right, (character) => character.codePointAt(0));
+	const length = Math.min(leftPoints.length, rightPoints.length);
+	for (let index = 0; index < length; index += 1) {
+		if (leftPoints[index] !== rightPoints[index]) return leftPoints[index] - rightPoints[index];
+	}
+	return leftPoints.length - rightPoints.length;
+}
+
 function sorted(values) {
-	return [...new Set(values)].sort((left, right) => left.localeCompare(right));
+	return [...new Set(values)].sort(compareCodePoints);
 }
 
-function withoutComments(source) {
-	return source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1');
+function sortedOccurrences(values) {
+	const counts = new Map();
+	return [...values].sort(compareCodePoints).map((value) => {
+		const ordinal = (counts.get(value) ?? 0) + 1;
+		counts.set(value, ordinal);
+		return `${value}::#${ordinal}`;
+	});
 }
 
-function maskStringsAndComments(source) {
-	const chars = [...source];
-	let state = 'code';
-	let quote = '';
-	for (let index = 0; index < chars.length; index += 1) {
-		const current = chars[index];
-		const next = chars[index + 1];
-		if (state === 'line-comment') {
-			if (current === '\n') state = 'code';
-			else chars[index] = ' ';
-			continue;
-		}
-		if (state === 'block-comment') {
-			if (current === '*' && next === '/') {
-				chars[index] = ' ';
-				chars[index + 1] = ' ';
-				index += 1;
-				state = 'code';
-			} else if (current !== '\n') chars[index] = ' ';
-			continue;
-		}
-		if (state === 'string') {
-			if (current === '\\') {
-				chars[index] = ' ';
-				if (index + 1 < chars.length && chars[index + 1] !== '\n') chars[index + 1] = ' ';
-				index += 1;
-				continue;
-			}
-			if (current === quote) {
-				chars[index] = ' ';
-				state = 'code';
-			} else if (current !== '\n') chars[index] = ' ';
-			continue;
-		}
-		if (current === '/' && next === '/') {
-			chars[index] = ' ';
-			chars[index + 1] = ' ';
-			index += 1;
-			state = 'line-comment';
-		} else if (current === '/' && next === '*') {
-			chars[index] = ' ';
-			chars[index + 1] = ' ';
-			index += 1;
-			state = 'block-comment';
-		} else if (current === "'" || current === '"' || current === '`') {
-			quote = current;
-			chars[index] = ' ';
-			state = 'string';
-		}
+function parseSource(path, source) {
+	let scriptKind = ts.ScriptKind.TS;
+	if (/\.tsx$/.test(path)) scriptKind = ts.ScriptKind.TSX;
+	else if (/\.[cm]?jsx$/.test(path)) scriptKind = ts.ScriptKind.JSX;
+	else if (/\.[cm]?js$/.test(path)) scriptKind = ts.ScriptKind.JS;
+	return ts.createSourceFile(path, source, ts.ScriptTarget.Latest, true, scriptKind);
+}
+
+function hasModifier(node, kind) {
+	return node.modifiers?.some((modifier) => modifier.kind === kind) === true;
+}
+
+function publicMemberName(member, sourceFile) {
+	if (!member.name || ts.isPrivateIdentifier(member.name)) return undefined;
+	if (hasModifier(member, ts.SyntaxKind.PrivateKeyword) || hasModifier(member, ts.SyntaxKind.ProtectedKeyword)) {
+		return undefined;
 	}
-	return chars.join('');
-}
-
-function matchingBrace(source, openIndex) {
-	let depth = 0;
-	for (let index = openIndex; index < source.length; index += 1) {
-		if (source[index] === '{') depth += 1;
-		else if (source[index] === '}') {
-			depth -= 1;
-			if (depth === 0) return index;
-		}
+	if (ts.isIdentifier(member.name) || ts.isStringLiteralLike(member.name) || ts.isNumericLiteral(member.name)) {
+		return member.name.text;
 	}
-	return -1;
-}
-
-function depthAtOffsets(source) {
-	const depths = new Uint16Array(source.length + 1);
-	let depth = 0;
-	for (let index = 0; index < source.length; index += 1) {
-		depths[index] = depth;
-		if (source[index] === '{') depth += 1;
-		else if (source[index] === '}') depth = Math.max(0, depth - 1);
-	}
-	depths[source.length] = depth;
-	return depths;
+	return member.name.getText(sourceFile);
 }
 
 function collectServiceMethods(path, source) {
 	const methods = [];
-	const masked = maskStringsAndComments(source);
-	const classPattern = /\bclass\s+([A-Za-z_$][\w$]*)[^\{]*\{/g;
-	for (const classMatch of masked.matchAll(classPattern)) {
-		const className = classMatch[1];
-		const open = classMatch.index + classMatch[0].lastIndexOf('{');
-		const close = matchingBrace(masked, open);
-		if (close === -1) continue;
-		const body = masked.slice(open + 1, close);
-		const depths = depthAtOffsets(body);
-		const methodPattern =
-			/^[ \t]*(?:(?:public|protected|private|static|async|override|abstract|readonly|get|set)\s+)*([A-Za-z_$][\w$]*)\s*(?:<[^;\n\{]*>)?\s*\(/gm;
-		for (const methodMatch of body.matchAll(methodPattern)) {
-			if (depths[methodMatch.index] !== 0) continue;
-			if (/\b(?:private|protected)\b/.test(methodMatch[0])) continue;
-			const methodName = methodMatch[1];
-			if (methodName !== 'constructor') methods.push(`${path}::${className}.${methodName}`);
+	const sourceFile = parseSource(path, source);
+	const visit = (node) => {
+		if (ts.isClassDeclaration(node) || ts.isClassExpression(node)) {
+			const className = node.name?.text ?? 'default';
+			for (const member of node.members) {
+				const isMethod =
+					ts.isMethodDeclaration(member) ||
+					ts.isGetAccessorDeclaration(member) ||
+					ts.isSetAccessorDeclaration(member);
+				const isFunctionProperty =
+					ts.isPropertyDeclaration(member) &&
+					member.initializer &&
+					(ts.isArrowFunction(member.initializer) || ts.isFunctionExpression(member.initializer));
+				if (!isMethod && !isFunctionProperty) continue;
+				const name = publicMemberName(member, sourceFile);
+				if (name) methods.push(`${path}::${className}.${name}`);
+			}
 		}
-		const propertyPattern =
-			/^[ \t]*(?:(?:public|static|async|override|readonly)\s+)*([A-Za-z_$][\w$]*)[^;\n=]*=\s*(?:async\s*)?(?:\([^\n]*\)|[A-Za-z_$][\w$]*)\s*=>/gm;
-		for (const propertyMatch of body.matchAll(propertyPattern)) {
-			if (depths[propertyMatch.index] === 0) methods.push(`${path}::${className}.${propertyMatch[1]}`);
-		}
-	}
+		ts.forEachChild(node, visit);
+	};
+	visit(sourceFile);
 	return methods;
+}
+
+function collectBindingNames(name, names) {
+	if (ts.isIdentifier(name)) names.push(name.text);
+	else
+		for (const element of name.elements) if (ts.isBindingElement(element)) collectBindingNames(element.name, names);
 }
 
 function collectPublicExports(path, source) {
 	const exports = [];
-	const code = withoutComments(source);
-	for (const match of code.matchAll(/\bexport\s+\*\s+from\s+(['"])([^'"]+)\1/g)) {
-		exports.push(`${path}::* from ${match[2]}`);
-	}
-	for (const match of code.matchAll(/\bexport\s+\{([\s\S]*?)\}(?:\s+from\s+(['"])[^'"]+\2)?\s*;?/g)) {
-		for (const item of match[1].split(',')) {
-			const normalized = item.trim().replace(/^type\s+/, '');
-			if (!normalized) continue;
-			const alias = normalized.match(/\bas\s+([A-Za-z_$][\w$]*)$/);
-			const name = alias?.[1] ?? normalized.match(/^([A-Za-z_$][\w$]*)/)?.[1];
-			if (name) exports.push(`${path}::${name}`);
+	const sourceFile = parseSource(path, source);
+	for (const statement of sourceFile.statements) {
+		if (ts.isExportDeclaration(statement)) {
+			const moduleName =
+				statement.moduleSpecifier && ts.isStringLiteralLike(statement.moduleSpecifier)
+					? statement.moduleSpecifier.text
+					: '';
+			if (!statement.exportClause) exports.push(`${path}::* from ${moduleName}`);
+			else if (ts.isNamespaceExport(statement.exportClause)) {
+				exports.push(`${path}::${statement.exportClause.name.text}`);
+			} else {
+				for (const element of statement.exportClause.elements) exports.push(`${path}::${element.name.text}`);
+			}
+			continue;
+		}
+		if (ts.isExportAssignment(statement)) {
+			exports.push(`${path}::${statement.isExportEquals ? 'export=' : 'default'}`);
+			continue;
+		}
+		if (!hasModifier(statement, ts.SyntaxKind.ExportKeyword)) continue;
+		if (hasModifier(statement, ts.SyntaxKind.DefaultKeyword)) {
+			exports.push(`${path}::default`);
+			continue;
+		}
+		if (ts.isVariableStatement(statement)) {
+			const names = [];
+			for (const declaration of statement.declarationList.declarations) {
+				collectBindingNames(declaration.name, names);
+			}
+			for (const name of names) exports.push(`${path}::${name}`);
+		} else if (
+			(ts.isFunctionDeclaration(statement) ||
+				ts.isClassDeclaration(statement) ||
+				ts.isInterfaceDeclaration(statement) ||
+				ts.isTypeAliasDeclaration(statement) ||
+				ts.isEnumDeclaration(statement) ||
+				ts.isModuleDeclaration(statement)) &&
+			statement.name
+		) {
+			exports.push(`${path}::${statement.name.text}`);
 		}
 	}
-	for (const match of code.matchAll(
-		/\bexport\s+(?:declare\s+)?(?:abstract\s+)?(?:const|let|var|function|class|interface|type|enum)\s+([A-Za-z_$][\w$]*)/g
-	)) {
-		exports.push(`${path}::${match[1]}`);
-	}
 	return exports;
+}
+
+function testChain(expression) {
+	if (ts.isParenthesizedExpression(expression)) return testChain(expression.expression);
+	if (ts.isCallExpression(expression)) return testChain(expression.expression);
+	if (ts.isPropertyAccessExpression(expression)) {
+		const parent = testChain(expression.expression);
+		return parent ? [...parent, expression.name.text] : undefined;
+	}
+	if (ts.isElementAccessExpression(expression) && expression.argumentExpression) {
+		const parent = testChain(expression.expression);
+		const member = ts.isStringLiteralLike(expression.argumentExpression)
+			? expression.argumentExpression.text
+			: undefined;
+		return parent && member ? [...parent, member] : undefined;
+	}
+	if (ts.isIdentifier(expression)) {
+		if (/^(?:describe|it|test|xdescribe|xit|xtest|fdescribe|fit|ftest)$/.test(expression.text)) {
+			return [expression.text];
+		}
+	}
+	return undefined;
+}
+
+function testTitle(node, sourceFile) {
+	if (ts.isStringLiteralLike(node)) return node.text;
+	if (ts.isTemplateExpression(node)) return node.getText(sourceFile).slice(1, -1);
+	return undefined;
 }
 
 function collectTests(path, source) {
 	const names = [];
 	const markers = [];
-	const occurrences = new Map();
-	const code = withoutComments(source);
-	const testPattern = /\b(describe|it|test)\s*(?:\.\s*(skip|only|todo))?\s*\(\s*(['"`])([^'"`\r\n]+)\3/g;
-	for (const match of code.matchAll(testPattern)) {
-		const title = match[4];
-		const count = (occurrences.get(title) ?? 0) + 1;
-		occurrences.set(title, count);
-		names.push(`${path}::${title}::${count}`);
-		if (match[2]) markers.push(`${path}::${match[1]}.${match[2]}::${title}`);
-	}
-	const prefixedPattern = /\b([xf])(describe|it|test)\s*\(\s*(['"`])([^'"`\r\n]+)\3/g;
-	for (const match of code.matchAll(prefixedPattern)) {
-		const title = match[4];
-		const count = (occurrences.get(title) ?? 0) + 1;
-		occurrences.set(title, count);
-		names.push(`${path}::${title}::${count}`);
-		markers.push(`${path}::${match[1]}${match[2]}::${title}`);
-	}
+	const nameCounts = new Map();
+	const markerCounts = new Map();
+	const sourceFile = parseSource(path, source);
+	const visit = (node) => {
+		if (ts.isCallExpression(node) && node.arguments.length > 0) {
+			const chain = testChain(node.expression);
+			const title = testTitle(node.arguments[0], sourceFile);
+			if (chain && title) {
+				const nameKey = `${path}::${title}`;
+				const nameOrdinal = (nameCounts.get(nameKey) ?? 0) + 1;
+				nameCounts.set(nameKey, nameOrdinal);
+				names.push(`${nameKey}::#${nameOrdinal}`);
+				const root = chain[0];
+				const marked =
+					/^[xf](?:describe|it|test)$/.test(root) || chain.some((part) => /^(?:skip|only|todo)$/.test(part));
+				if (marked) {
+					const markerKey = `${path}::${chain.join('.')}::${title}`;
+					const markerOrdinal = (markerCounts.get(markerKey) ?? 0) + 1;
+					markerCounts.set(markerKey, markerOrdinal);
+					markers.push(`${markerKey}::#${markerOrdinal}`);
+				}
+			}
+		}
+		ts.forEachChild(node, visit);
+	};
+	visit(sourceFile);
 	return { markers, names };
 }
 
-function collectExclusions(path, source) {
+function literalValues(node) {
+	if (!node) return [];
+	if (ts.isStringLiteralLike(node) || ts.isNumericLiteral(node)) return [node.text];
+	if (node.kind === ts.SyntaxKind.TrueKeyword) return ['true'];
+	if (node.kind === ts.SyntaxKind.FalseKeyword) return ['false'];
+	if (ts.isArrayLiteralExpression(node)) return node.elements.flatMap(literalValues);
+	return [];
+}
+
+function objectLiteral(node) {
+	while (ts.isAsExpression(node) || ts.isSatisfiesExpression(node) || ts.isParenthesizedExpression(node)) {
+		node = node.expression;
+	}
+	return ts.isObjectLiteralExpression(node) ? node : undefined;
+}
+
+function propertyName(property) {
+	return property.name && (ts.isIdentifier(property.name) || ts.isStringLiteralLike(property.name))
+		? property.name.text
+		: undefined;
+}
+
+function collectObjectConfig(path, object, prefix, configuration, exclusions) {
+	for (const property of object.properties) {
+		if (!ts.isPropertyAssignment(property)) continue;
+		const name = propertyName(property);
+		if (!name) continue;
+		const values = literalValues(property.initializer);
+		if (['testMatch', 'testRegex', 'roots'].includes(name)) {
+			for (const value of values) configuration.push(`${path}::${prefix}${name}=${value}`);
+		} else if (/ignore|exclude/i.test(name)) {
+			for (const value of values) exclusions.push(`${path}::${prefix}${name}=${value}`);
+		}
+	}
+}
+
+function collectTestConfiguration(path, source, trackedPaths) {
+	const configuration = [];
 	const exclusions = [];
 	if (/(?:^|\/)(?:project|workspace|nx)\.json$/.test(path)) {
 		try {
-			const value = JSON.parse(source);
-			const visit = (node, keyPath = []) => {
-				if (!node || typeof node !== 'object') return;
-				for (const [key, child] of Object.entries(node)) {
-					const nextPath = [...keyPath, key];
-					if (/exclude|ignore/i.test(key) || (key === 'passWithNoTests' && child === true)) {
-						exclusions.push(`${path}::${nextPath.join('.')}=${JSON.stringify(child)}`);
-					}
-					visit(child, nextPath);
+			const root = JSON.parse(source);
+			const testTarget = root?.targets?.test ?? root?.projects?.web?.targets?.test;
+			if (testTarget && typeof testTarget === 'object') {
+				if (typeof testTarget.executor === 'string') {
+					configuration.push(`${path}::targets.test.executor=${testTarget.executor}`);
 				}
-			};
-			visit(value);
+				for (const [name, value] of Object.entries(testTarget.options ?? {})) {
+					const key = `targets.test.options.${name}`;
+					if (name === 'jestConfig' && trackedPaths.has(String(value).replaceAll('\\', '/'))) {
+						configuration.push(`${path}::${key}=${String(value)}`);
+					} else if (name === 'passWithNoTests') {
+						configuration.push(`${path}::${key}=${String(value)}`);
+						if (value === true) exclusions.push(`${path}::${key}=true`);
+					} else if (['testMatch', 'testRegex', 'roots'].includes(name)) {
+						for (const item of Array.isArray(value) ? value : [value]) {
+							configuration.push(`${path}::${key}=${String(item)}`);
+						}
+					} else if (/ignore|exclude/i.test(name)) {
+						for (const item of Array.isArray(value) ? value : [value]) {
+							exclusions.push(`${path}::${key}=${String(item)}`);
+						}
+					}
+				}
+			}
 		} catch {
-			// Non-JSON text is still scanned below when it is a Jest config.
+			return { configuration, exclusions };
 		}
 	}
 	if (/(?:^|\/)jest\.config\.[cm]?[jt]s$/.test(path)) {
-		for (const match of source.matchAll(
-			/\b(testPathIgnorePatterns|coveragePathIgnorePatterns|modulePathIgnorePatterns|transformIgnorePatterns|watchPathIgnorePatterns)\s*:\s*\[([\s\S]*?)\]/g
-		)) {
-			for (const value of match[2].matchAll(/(['"`])([^'"`]+)\1/g)) {
-				exclusions.push(`${path}::${match[1]}=${value[2]}`);
+		const sourceFile = parseSource(path, source);
+		for (const statement of sourceFile.statements) {
+			if (!ts.isVariableStatement(statement)) continue;
+			for (const declaration of statement.declarationList.declarations) {
+				if (
+					ts.isIdentifier(declaration.name) &&
+					declaration.name.text === 'config' &&
+					declaration.initializer
+				) {
+					const config = objectLiteral(declaration.initializer);
+					if (config) collectObjectConfig(path, config, '', configuration, exclusions);
+				}
 			}
 		}
 	}
-	return exclusions;
+	return { configuration, exclusions };
 }
 
 export function collectSurface(ref, options = {}) {
@@ -282,6 +365,7 @@ export function collectSurface(ref, options = {}) {
 		publicExports: [],
 		routes: [],
 		serviceMethods: [],
+		testConfiguration: [],
 		testMarkers: [],
 		testNames: []
 	};
@@ -289,23 +373,22 @@ export function collectSurface(ref, options = {}) {
 	for (const [path, source] of files) {
 		if (ROUTE_FILE.test(path)) surface.routes.push(path);
 		if (SOURCE_FILE.test(path) && WEB_SURFACE_FILE.test(path)) {
-			const code = withoutComments(source);
 			const basename = path.slice(path.lastIndexOf('/') + 1).replace(SOURCE_FILE, '');
 			if (/(?:modal|dialog|drawer)/i.test(basename)) surface.overlayComponents.push(path);
-			for (const match of code.matchAll(
+			for (const match of source.matchAll(
 				/\b(?:function|class|const)\s+([A-Za-z_$][\w$]*(?:Modal|Dialog|Drawer)[A-Za-z_$\d]*)\b/g
 			)) {
 				surface.overlayComponents.push(`${path}::${match[1]}`);
 			}
-			for (const match of code.matchAll(/\bhref\s*(?:=|:)\s*(?:\{\s*)?(['"`])([^'"`]+)\1/g)) {
+			for (const match of source.matchAll(/\bhref\s*(?:=|:)\s*(?:\{\s*)?(['"`])([^'"`]+)\1/g)) {
 				surface.navigation.push(`${path}::href=${match[2]}`);
 			}
-			for (const match of code.matchAll(
+			for (const match of source.matchAll(
 				/\b([A-Z][A-Z0-9_]*(?:ROUTE|PATH|URL)[A-Z0-9_]*)\s*(?:=|:)\s*(['"`])([^'"`]+)\2/g
 			)) {
 				surface.navigation.push(`${path}::${match[1]}=${match[3]}`);
 			}
-			for (const match of code.matchAll(
+			for (const match of source.matchAll(
 				/\b(?:const|let|var)\s+([A-Z][A-Z0-9_]*(?:ROUTE|PATH|URL)[A-Z0-9_]*)\b/g
 			)) {
 				surface.navigation.push(`${path}::constant=${match[1]}`);
@@ -323,10 +406,18 @@ export function collectSurface(ref, options = {}) {
 		for (const match of source.matchAll(/\bNEXT_PUBLIC_[A-Z0-9_]+\b/g)) {
 			surface.nextPublicOccurrences.push(`${path}::${match[0]}`);
 		}
-		surface.exclusions.push(...collectExclusions(path, source));
+		const testConfiguration = collectTestConfiguration(path, source, files);
+		surface.exclusions.push(...testConfiguration.exclusions);
+		surface.testConfiguration.push(...testConfiguration.configuration);
 	}
 
-	for (const category of Object.keys(surface)) surface[category] = sorted(surface[category]);
+	surface.navigation = sortedOccurrences(surface.navigation);
+	surface.nextPublicOccurrences = sortedOccurrences(surface.nextPublicOccurrences);
+	for (const category of Object.keys(surface)) {
+		if (category !== 'navigation' && category !== 'nextPublicOccurrences') {
+			surface[category] = sorted(surface[category]);
+		}
+	}
 	return { commit, ref, surface };
 }
 
@@ -361,7 +452,10 @@ export function compareSurface(base, head, allow = []) {
 		}
 	}
 	return violations.sort((left, right) =>
-		`${left.category}:${left.kind}:${left.value}`.localeCompare(`${right.category}:${right.kind}:${right.value}`)
+		compareCodePoints(
+			`${left.category}:${left.kind}:${left.value}`,
+			`${right.category}:${right.kind}:${right.value}`
+		)
 	);
 }
 
@@ -383,9 +477,20 @@ function readAllow(argument, cwd) {
 	return JSON.parse(readFileSync(resolve(cwd, argument), 'utf8'));
 }
 
+function assertTrackedHeadIsClean(cwd, head) {
+	if (head !== 'HEAD') return;
+	const changes = runGit(cwd, ['status', '--porcelain=v1', '-z', '--untracked-files=no']);
+	if (changes.length > 0) {
+		throw new Error(
+			'Refusing --head=HEAD because tracked changes differ from HEAD; commit them or use an explicit ref'
+		);
+	}
+}
+
 function runCli(argv) {
 	const cwd = process.cwd();
 	const args = parseArguments(argv);
+	assertTrackedHeadIsClean(cwd, args.head);
 	const allow = readAllow(args.allow, cwd);
 	const base = collectSurface(args.base, { cwd });
 	const head = collectSurface(args.head, { cwd });
