@@ -20,8 +20,8 @@ export const getAPI = async (): Promise<APIService> => {
 				if (cookie) {
 					config.headers['Authorization'] = `Bearer ${cookie}`;
 				}
-				if (tenantId) {
-					config.headers['tenant-id'] = tenantId;
+				if (tenantId && !config.headers.has('tenant-id')) {
+					config.headers.set('tenant-id', tenantId);
 				}
 				return config;
 			},
@@ -58,8 +58,8 @@ export const getAPIDirect = async (): Promise<APIService> => {
 				if (cookie) {
 					config.headers['Authorization'] = `Bearer ${cookie}`;
 				}
-				if (tenantId) {
-					config.headers['tenant-id'] = tenantId;
+				if (tenantId && !config.headers.has('tenant-id')) {
+					config.headers.set('tenant-id', tenantId);
 				}
 				return config;
 			},

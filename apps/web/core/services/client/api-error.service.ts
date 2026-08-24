@@ -115,6 +115,11 @@ export class ApiErrorService extends Error {
 	private _details?: Record<string, any>;
 
 	/**
+	 * @description Status observed directly on an Axios HTTP response, when one exists.
+	 */
+	private _httpResponseStatus?: number;
+
+	/**
 	 * @description Timestamp of the error creation
 	 * @type {Date}
 	 */
@@ -195,6 +200,27 @@ export class ApiErrorService extends Error {
 	}
 
 	/**
+	 * @description Status captured directly from error.response.status, if Axios received a response.
+	 */
+	get httpResponseStatus(): number | undefined {
+		return this._httpResponseStatus;
+	}
+
+	/**
+	 * @description Whether Axios received an HTTP response with one of the supplied statuses.
+	 */
+	hasHttpResponseStatus(...statuses: number[]): boolean {
+		return this._httpResponseStatus != null && statuses.includes(this._httpResponseStatus);
+	}
+
+	/**
+	 * @description Whether Axios received an HTTP response proving the requested endpoint is unavailable.
+	 */
+	isEndpointUnavailable(): boolean {
+		return this.hasHttpResponseStatus(404, 405, 501);
+	}
+
+	/**
 	 * @description Converts an Axios error into an instance of ApiErrorService with contextual enrichment.
 	 * @param error An error originating from an Axios call
 	 * @returns A proper instance of ApiErrorService
@@ -229,7 +255,14 @@ export class ApiErrorService extends Error {
 		const details = data?.details;
 
 		// We put them in our ApiError box
-		return new ApiErrorService(message, errorFrom.status ?? response?.status ?? extractStatus, code, details);
+		const apiError = new ApiErrorService(
+			message,
+			errorFrom.status ?? response?.status ?? extractStatus,
+			code,
+			details
+		);
+		apiError._httpResponseStatus = response.status;
+		return apiError;
 	}
 	/**
 	 * @description Checks if a given error is an instance of ApiErrorService
