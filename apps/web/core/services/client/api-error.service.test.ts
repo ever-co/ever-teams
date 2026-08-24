@@ -137,4 +137,33 @@ describe('ApiErrorService HTTP response provenance', () => {
 		expect(error.hasHttpResponseStatus(404)).toBe(false);
 		expect(error.isEndpointUnavailable()).toBe(false);
 	});
+
+	it('does not let runtime properties forge endpoint-unavailable provenance', () => {
+		const legacyPrivateName = new ApiErrorService('legacy private field name', 404);
+		Reflect.set(legacyPrivateName, '_httpResponseStatus', 404);
+		expect((legacyPrivateName as any)._httpResponseStatus).toBe(404);
+		expect(legacyPrivateName.hasHttpResponseStatus(404)).toBe(false);
+		expect(legacyPrivateName.isEndpointUnavailable()).toBe(false);
+
+		const publicGetterName = new ApiErrorService('public getter name', 404);
+		Object.defineProperty(publicGetterName, 'httpResponseStatus', {
+			configurable: true,
+			value: 405,
+			writable: true
+		});
+		Reflect.set(publicGetterName, 'httpResponseStatus', 501);
+		expect((publicGetterName as any).httpResponseStatus).toBe(501);
+		expect(publicGetterName.hasHttpResponseStatus(404, 405, 501)).toBe(false);
+		expect(publicGetterName.isEndpointUnavailable()).toBe(false);
+
+		const rawProperties = new ApiErrorService('raw properties', 500);
+		Object.assign(rawProperties, {
+			response: { status: 404 },
+			responseStatus: 405,
+			status: 501,
+			statusCode: 404
+		});
+		expect(rawProperties.hasHttpResponseStatus(404, 405, 501)).toBe(false);
+		expect(rawProperties.isEndpointUnavailable()).toBe(false);
+	});
 });

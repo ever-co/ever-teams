@@ -9,6 +9,8 @@ type AxiosErrorInfo = {
 	httpCode?: number;
 };
 
+const httpResponseStatuses = new WeakMap<ApiErrorService, number>();
+
 export const AxiosErrorStatus: Record<string, number> = {
 	ERR_FR_TOO_MANY_REDIRECTS: 310,
 	ERR_BAD_OPTION_VALUE: 500,
@@ -115,11 +117,6 @@ export class ApiErrorService extends Error {
 	private _details?: Record<string, any>;
 
 	/**
-	 * @description Status observed directly on an Axios HTTP response, when one exists.
-	 */
-	private _httpResponseStatus?: number;
-
-	/**
 	 * @description Timestamp of the error creation
 	 * @type {Date}
 	 */
@@ -203,14 +200,15 @@ export class ApiErrorService extends Error {
 	 * @description Status captured directly from error.response.status, if Axios received a response.
 	 */
 	get httpResponseStatus(): number | undefined {
-		return this._httpResponseStatus;
+		return httpResponseStatuses.get(this);
 	}
 
 	/**
 	 * @description Whether Axios received an HTTP response with one of the supplied statuses.
 	 */
 	hasHttpResponseStatus(...statuses: number[]): boolean {
-		return this._httpResponseStatus != null && statuses.includes(this._httpResponseStatus);
+		const responseStatus = httpResponseStatuses.get(this);
+		return responseStatus != null && statuses.includes(responseStatus);
 	}
 
 	/**
@@ -261,7 +259,7 @@ export class ApiErrorService extends Error {
 			code,
 			details
 		);
-		apiError._httpResponseStatus = response.status;
+		httpResponseStatuses.set(apiError, response.status);
 		return apiError;
 	}
 	/**
