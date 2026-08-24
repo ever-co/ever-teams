@@ -14,6 +14,7 @@ import { LazyActivityCalendar, LazyTaskCard } from '@/core/components/optimized-
 import { ActivityCalendarSkeleton } from '../../common/skeleton/activity-calendar-skeleton';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import { TaskCardSkeleton } from '../../common/skeleton/profile-component-skeletons';
+import type { TProfileActivityScope } from '@/core/types/schemas/activities/profile-activity.schema';
 
 type Props = {
 	tabFiltered: I_TaskFilter;
@@ -22,6 +23,7 @@ type Props = {
 	useVirtualization?: boolean;
 	user?: TUser;
 	employeeId?: string; // Accept employeeId to pass to UserProfilePlans
+	activityScope?: TProfileActivityScope;
 };
 /**
  * It displays a list of tasks, the first task being the active task and the rest being the last 24 hours of tasks
@@ -29,7 +31,7 @@ type Props = {
  * @returns A component that displays a user's profile page.
  */
 export const UserProfileTask = memo(
-	({ profile, tabFiltered, useVirtualization = false, user, employeeId }: Props) => {
+	({ profile, tabFiltered, useVirtualization = false, user, employeeId, activityScope }: Props) => {
 		const t = useTranslations();
 		// Get current timer seconds
 		const { time, timerStatus } = useLiveTimerStatus();
@@ -126,7 +128,7 @@ export const UserProfileTask = memo(
 					)}
 				{tabFiltered.tab === 'stats' && (
 					<Suspense fallback={<ActivityCalendarSkeleton />}>
-						<LazyActivityCalendar />
+						<LazyActivityCalendar scope={activityScope} />
 					</Suspense>
 				)}
 				{tabFiltered.tab === 'dailyplan' && (

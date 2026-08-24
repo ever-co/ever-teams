@@ -12,8 +12,40 @@ import {
 	TTimerSlotDataRequest
 } from '@/core/types/schemas';
 import { taskStatisticsSchema, TTaskStatistics } from '@/core/types/schemas/activities/statistics.schema';
+import {
+	profileActivityRequestSchema,
+	profileActivityResponseSchema,
+	type TProfileActivityRequest,
+	type TProfileActivityResponse
+} from '@/core/types/schemas/activities/profile-activity.schema';
 
 class StatisticsService extends APIService {
+	getProfileActivity = async (
+		request: TProfileActivityRequest,
+		signal?: AbortSignal
+	): Promise<TProfileActivityResponse> => {
+		const validated = profileActivityRequestSchema.parse(request);
+		const { tenantId, ...queryParams } = validated;
+		const query = qs.stringify(queryParams, { encode: true });
+		const response = await this.get<TProfileActivityResponse>(`/timesheet/statistics/profile-activity?${query}`, {
+			tenantId,
+			signal
+		});
+		const result = profileActivityResponseSchema.parse(response.data);
+
+		if (
+			result.employeeId !== validated.employeeId ||
+			result.period.startDate !== validated.startDate ||
+			result.period.endDate !== validated.endDate ||
+			result.period.timeZone !== validated.timeZone ||
+			(validated.includeDaily === true && result.daily === undefined)
+		) {
+			throw new Error('Profile activity response scope does not match the request');
+		}
+
+		return result;
+	};
+
 	getTimeSlotsStatistics = async (params: TGetTimeSlotsStatisticsRequest): Promise<TTimerSlotDataRequest[]> => {
 		try {
 			const queryParams = {
