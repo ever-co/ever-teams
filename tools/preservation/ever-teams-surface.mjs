@@ -164,6 +164,7 @@ function collectServiceMethods(path, source) {
 	const methods = [];
 	const sourceFile = parseSource(path, source);
 	const callables = new Set();
+	const serviceInstances = new Set();
 	const serviceObjects = new Map();
 	const exportedBindings = [];
 	const objectCallableMembers = (initializer) => {
@@ -195,6 +196,8 @@ function collectServiceMethods(path, source) {
 				const initializer = unwrapExpression(declaration.initializer);
 				if (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) {
 					callables.add(declaration.name.text);
+				} else if (ts.isNewExpression(initializer)) {
+					serviceInstances.add(declaration.name.text);
 				}
 			}
 		}
@@ -210,6 +213,7 @@ function collectServiceMethods(path, source) {
 
 	const exportBinding = (outwardName, localName) => {
 		if (callables.has(localName)) exportedBindings.push({ kind: 'callable', outwardName });
+		if (serviceInstances.has(localName)) exportedBindings.push({ kind: 'instance', outwardName });
 		const members = serviceObjects.get(localName);
 		if (members) exportedBindings.push({ kind: 'object', members, outwardName });
 	};
@@ -228,6 +232,8 @@ function collectServiceMethods(path, source) {
 			if (ts.isIdentifier(expression)) exportBinding('default', expression.text);
 			else if (ts.isArrowFunction(expression) || ts.isFunctionExpression(expression)) {
 				exportedBindings.push({ kind: 'callable', outwardName: 'default' });
+			} else if (ts.isNewExpression(expression)) {
+				exportedBindings.push({ kind: 'instance', outwardName: 'default' });
 			}
 			continue;
 		}
@@ -242,7 +248,7 @@ function collectServiceMethods(path, source) {
 		}
 	}
 	for (const binding of exportedBindings) {
-		if (binding.kind === 'callable') methods.push(`${path}::${binding.outwardName}`);
+		if (binding.kind === 'callable' || binding.kind === 'instance') methods.push(`${path}::${binding.outwardName}`);
 		else for (const member of binding.members) methods.push(`${path}::${binding.outwardName}.${member}`);
 	}
 
@@ -779,7 +785,7 @@ function accessPropertyName(expression) {
 	if (
 		ts.isElementAccessExpression(expression) &&
 		expression.argumentExpression &&
-		ts.isStringLiteralLike(expression.argumentExpression)
+		(ts.isStringLiteralLike(expression.argumentExpression) || ts.isNumericLiteral(expression.argumentExpression))
 	) {
 		return expression.argumentExpression.text;
 	}
@@ -924,6 +930,17 @@ function recordConfigOptions(path, options, prefix, configuration, exclusions) {
 	for (const spread of options[UNRESOLVED_SPREADS] ?? []) {
 		exclusions.push(`${path}::${prefix}<unresolvedSpread>=${spread}`);
 	}
+	for (const [name, value] of Object.entries(options)) {
+		if (Array.isArray(value)) {
+			value.forEach((item, index) => {
+				if (isStaticObject(item)) {
+					recordConfigOptions(path, item, `${prefix}${name}[${index}].`, configuration, exclusions);
+				}
+			});
+		} else if (isStaticObject(value)) {
+			recordConfigOptions(path, value, `${prefix}${name}.`, configuration, exclusions);
+		}
+	}
 }
 
 function assignStaticProperty(expression, value, values) {
@@ -1021,22 +1038,39 @@ function exportedConfigRoots(exportNode, declarations) {
 	return roots;
 }
 
-function collectConfigMutationTokens(path, sourceFile, source, roots) {
+function collectConfigMutationTokens(path, sourceFile, source, roots, values, staticContext) {
 	const tokens = [];
 	const digest = sourceDigest(source);
+	const isRelevantSelectionPath = (segments) => {
+		if (!segments) return false;
+		const isRelevantRoot =
+			roots.has(segments[0]) || segments.slice(0, 2).join('.') === 'module.exports' || segments[0] === 'exports';
+		return (
+			isRelevantRoot &&
+			segments.some(
+				(segment) =>
+					TEST_SELECTION_KEYS.has(segment) || segment === 'passWithNoTests' || /ignore|exclude/i.test(segment)
+			)
+		);
+	};
 	const visit = (node) => {
 		if (ts.isCallExpression(node)) {
 			const segments = expressionAccessSegments(node.expression);
 			const method = segments?.at(-1);
 			const configPath = segments?.slice(0, -1) ?? [];
-			const isRelevantRoot =
-				roots.has(configPath[0]) ||
-				configPath.slice(0, 2).join('.') === 'module.exports' ||
-				configPath[0] === 'exports';
-			const isSelectionMutation = configPath.some(
-				(segment) => TEST_SELECTION_KEYS.has(segment) || /ignore|exclude/i.test(segment)
-			);
-			if (method && CONFIG_MUTATION_METHODS.has(method) && isRelevantRoot && isSelectionMutation) {
+			if (method && CONFIG_MUTATION_METHODS.has(method) && isRelevantSelectionPath(configPath)) {
+				tokens.push(`${path}::<configMutation>=${node.getText(sourceFile)}::source=${digest}`);
+			}
+		} else if (ts.isBinaryExpression(node)) {
+			const segments = expressionAccessSegments(node.left);
+			const option = segments?.at(-1);
+			const isAssignment =
+				node.operatorToken.kind >= ts.SyntaxKind.FirstAssignment &&
+				node.operatorToken.kind <= ts.SyntaxKind.LastAssignment;
+			const isNeutralFalse =
+				(NEUTRAL_FALSE_SELECTION_KEYS.has(option) || option === 'passWithNoTests') &&
+				staticValue(node.right, values, staticContext) === false;
+			if (isAssignment && !isNeutralFalse && isRelevantSelectionPath(segments)) {
 				tokens.push(`${path}::<configMutation>=${node.getText(sourceFile)}::source=${digest}`);
 			}
 		}
@@ -1138,7 +1172,7 @@ function collectJestConfig(path, source, configuration, exclusions) {
 	}
 	const selectedExportNode = hasEsmExport ? esmExportNode : commonJsExportNode;
 	const roots = exportedConfigRoots(selectedExportNode, declarations);
-	exclusions.push(...collectConfigMutationTokens(path, sourceFile, source, roots));
+	exclusions.push(...collectConfigMutationTokens(path, sourceFile, source, roots, values, staticContext));
 	const config = hasEsmExport ? esmExport : hasCommonJsExport ? moduleExports : UNRESOLVED;
 	const unresolvedConfig = unresolvedExpressionText(config);
 	if (unresolvedConfig !== undefined) {

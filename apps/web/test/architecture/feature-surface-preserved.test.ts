@@ -262,6 +262,16 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 	);
 	write(
 		repository,
+		'apps/web/core/services/client/api/tasks/task-status.service.ts',
+		[
+			'export class TaskStatusService { getTaskStatuses() { return []; } }',
+			'export const taskStatusService = new TaskStatusService();',
+			'const taskPriorityService = new TaskStatusService();',
+			'export { taskPriorityService as metadataService };'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
 		'apps/web/core/account.cy.ts',
 		[
 			"describe.each([{ name: 'one' }])('account $name', () => {",
@@ -448,6 +458,35 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 			'if (process.env.CI) { config.testMatch.splice(1, 1); }',
 			'export default config;'
 		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/function/jest.config.ts',
+		[
+			"const config = { testMatch: ['<rootDir>/**/*.test.ts', '<rootDir>/**/*.spec.ts'] };",
+			'function resolveConfig() {',
+			"\tconfig.testMatch = ['<rootDir>/**/*.test.ts', '<rootDir>/**/*.spec.ts'];",
+			'\treturn config;',
+			'}',
+			'resolveConfig();',
+			'export default config;'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/conditional/jest.config.ts',
+		[
+			"const config = { testMatch: ['<rootDir>/**/*.test.ts', '<rootDir>/**/*.spec.ts'] };",
+			"if (process.env.CI) config.testMatch = ['<rootDir>/**/*.test.ts', '<rootDir>/**/*.spec.ts'];",
+			'config.onlyChanged = false;',
+			'config.passWithNoTests = false;',
+			'export default config;'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/projects/jest.config.ts',
+		"export default { projects: [{ testMatch: ['<rootDir>/**/*.test.ts', '<rootDir>/**/*.spec.ts'] }] };\n"
 	);
 	write(
 		repository,
@@ -676,6 +715,16 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 	);
 	write(
 		repository,
+		'apps/web/core/services/client/api/tasks/task-status.service.ts',
+		[
+			'export class TaskStatusService { getTaskStatuses() { return []; } }',
+			'const taskStatusService = new TaskStatusService();',
+			'const taskPriorityService = new TaskStatusService();',
+			'void taskStatusService; void taskPriorityService;'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
 		'apps/web/core/account.cy.ts',
 		[
 			"describe.skip.each([{ name: 'one' }])('account $name', () => {",
@@ -808,6 +857,35 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 			'if (process.env.CI) { config.testMatch.splice(0, 1); }',
 			'export default config;'
 		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/function/jest.config.ts',
+		[
+			"const config = { testMatch: ['<rootDir>/**/*.test.ts', '<rootDir>/**/*.spec.ts'] };",
+			'function resolveConfig() {',
+			"\tconfig.testMatch = ['<rootDir>/only.test.ts'];",
+			'\treturn config;',
+			'}',
+			'resolveConfig();',
+			'export default config;'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/conditional/jest.config.ts',
+		[
+			"const config = { testMatch: ['<rootDir>/**/*.test.ts', '<rootDir>/**/*.spec.ts'] };",
+			"if (process.env.CI) config.testMatch = ['<rootDir>/only.test.ts'];",
+			'config.onlyChanged = false;',
+			'config.passWithNoTests = false;',
+			'export default config;'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/projects/jest.config.ts',
+		"export default { projects: [{ testMatch: ['<rootDir>/only.test.ts'] }] };\n"
 	);
 	write(
 		repository,
@@ -1024,6 +1102,26 @@ describe('Ever Teams feature surface preservation', () => {
 				{ category: 'serviceMethods', kind: 'removed', value: `${path}::arrowRequest` },
 				{ category: 'serviceMethods', kind: 'removed', value: `${path}::renamedRequest` },
 				{ category: 'serviceMethods', kind: 'removed', value: `${path}::InlineService.patchThing` }
+			])
+		);
+	});
+
+	it('preserves direct and aliased outward identities for class-instance service singletons', () => {
+		const path = 'apps/web/core/services/client/api/tasks/task-status.service.ts';
+		expect(violationRun.report?.base.surface.serviceMethods).toEqual(
+			expect.arrayContaining([
+				`${path}::TaskStatusService.getTaskStatuses`,
+				`${path}::taskStatusService`,
+				`${path}::metadataService`
+			])
+		);
+		expect(violationRun.report?.head.surface.serviceMethods).toContain(
+			`${path}::TaskStatusService.getTaskStatuses`
+		);
+		expect(violationRun.report?.violations).toEqual(
+			expect.arrayContaining([
+				{ category: 'serviceMethods', kind: 'removed', value: `${path}::taskStatusService` },
+				{ category: 'serviceMethods', kind: 'removed', value: `${path}::metadataService` }
 			])
 		);
 	});
@@ -1404,6 +1502,43 @@ describe('Ever Teams feature surface preservation', () => {
 		}
 	});
 
+	it('fails closed when local function and conditional assignments narrow an exported Jest config', () => {
+		for (const path of ['apps/function/jest.config.ts', 'apps/conditional/jest.config.ts']) {
+			const prefix = `${path}::<configMutation>=`;
+			const baseToken = violationRun.report?.base.surface.exclusions.find((value) => value.startsWith(prefix));
+			const headToken = violationRun.report?.head.surface.exclusions.find((value) => value.startsWith(prefix));
+			if (!baseToken || !headToken) throw new Error(`Missing assignment evidence for ${path}`);
+			expect(baseToken).not.toBe(headToken);
+			expect(violationRun.report?.violations).toContainEqual({
+				category: 'exclusions',
+				kind: 'added',
+				value: headToken
+			});
+		}
+		expect(
+			violationRun.report?.base.surface.exclusions.some((value) =>
+				value.startsWith('apps/conditional/jest.config.ts::<configMutation>=config.onlyChanged = false')
+			)
+		).toBe(false);
+		expect(
+			violationRun.report?.base.surface.exclusions.some((value) =>
+				value.startsWith('apps/conditional/jest.config.ts::<configMutation>=config.passWithNoTests = false')
+			)
+		).toBe(false);
+	});
+
+	it('preserves selection options nested inside Jest project configuration', () => {
+		const path = 'apps/projects/jest.config.ts';
+		expect(violationRun.report?.base.surface.testConfiguration).toContain(
+			`${path}::projects[0].testMatch=<rootDir>/**/*.spec.ts`
+		);
+		expect(violationRun.report?.violations).toContainEqual({
+			category: 'testConfiguration',
+			kind: 'removed',
+			value: `${path}::projects[0].testMatch=<rootDir>/**/*.spec.ts`
+		});
+	});
+
 	it('collects package Jest settings and every matching Nx project target', () => {
 		expect(violationRun.report?.base.surface.testConfiguration).toEqual(
 			expect.arrayContaining([
@@ -1663,6 +1798,12 @@ describe('Ever Teams feature surface preservation', () => {
 			])
 		);
 		expect(surface.serviceMethods.length).toBeGreaterThan(400);
+	});
+
+	it('covers the real exported task metadata service singleton identity', () => {
+		expect(collectRealHeadSurface().serviceMethods).toContain(
+			'apps/web/core/services/client/api/tasks/task-status.service.ts::taskStatusService'
+		);
 	});
 
 	it('covers all real App Router route files and outward handler verbs', () => {
