@@ -29,7 +29,9 @@ export function useFastInviteDataOwner(open: boolean) {
 	return {
 		...employee,
 		...roles,
-		...invitations
+		...invitations,
+		rolesLoading: roles.isLoading,
+		rolesSuccess: roles.isSuccess
 	};
 }
 

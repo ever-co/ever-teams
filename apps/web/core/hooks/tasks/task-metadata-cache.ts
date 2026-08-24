@@ -101,12 +101,13 @@ export function updateTaskMetadataSectionCaches<T>(
 	updaterOrValue: T[] | ((previous: T[]) => T[])
 ) {
 	const { section, scope, teamId, useBootstrap = false } = target;
+	const legacyTeamId = teamId ?? scope?.organizationTeamId;
 	const source =
 		useBootstrap && scope
 			? (queryClient.getQueryData<TaskMetadataBootstrapResponse>(queryKeys.taskMetadata.bootstrap(scope))?.[
 					section
 				] as SectionCache<T> | undefined)
-			: queryClient.getQueryData<SectionCache<T>>(legacySectionKey(section, teamId));
+			: queryClient.getQueryData<SectionCache<T>>(legacySectionKey(section, legacyTeamId));
 	const previous = source?.items ?? [];
 	const items = typeof updaterOrValue === 'function' ? updaterOrValue(previous) : updaterOrValue;
 
@@ -126,13 +127,14 @@ export function updateTaskMetadataSectionCaches<T>(
 		);
 	}
 
-	queryClient.setQueryData<SectionCache<T>>(legacySectionKey(section, teamId), (oldData) =>
+	queryClient.setQueryData<SectionCache<T>>(legacySectionKey(section, legacyTeamId), (oldData) =>
 		updateSection(oldData, items)
 	);
 }
 
 export async function invalidateTaskMetadataSectionCaches(queryClient: QueryClient, target: CacheTarget) {
 	const { section, scope, teamId } = target;
+	const legacyTeamId = teamId ?? scope?.organizationTeamId;
 	const invalidations: Promise<unknown>[] = [];
 
 	if (scope) {
@@ -144,8 +146,10 @@ export async function invalidateTaskMetadataSectionCaches(queryClient: QueryClie
 		);
 	}
 
-	if (teamId) {
-		invalidations.push(queryClient.invalidateQueries({ queryKey: legacySectionKey(section, teamId), exact: true }));
+	if (legacyTeamId) {
+		invalidations.push(
+			queryClient.invalidateQueries({ queryKey: legacySectionKey(section, legacyTeamId), exact: true })
+		);
 	}
 
 	await Promise.all(invalidations);

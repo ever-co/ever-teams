@@ -22,7 +22,7 @@ const INVITABLE_ROLE_NAMES = new Set([ERoleName.ADMIN, ERoleName.EMPLOYEE, ERole
 
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const { data: user } = useUserQuery();
-	const { roles, teamInvitations, workingEmployees, fetchingInvitations, getWorkingEmployeeLoading } =
+	const { roles, teamInvitations, workingEmployees, fetchingInvitations, getWorkingEmployeeLoading, rolesLoading } =
 		useFastInviteDataOwner(open);
 	const t = useTranslations();
 
@@ -45,7 +45,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 	const [selectedRoleId, setSelectedRoleId] = useState(() => defaultSelectedRole?.id);
 	const isAdmin = user?.role?.name && [ERoleName.ADMIN, ERoleName.SUPER_ADMIN].includes(user?.role.name as ERoleName);
 	const prerequisitesPending =
-		Boolean(fetchingInvitations) || Boolean(getWorkingEmployeeLoading) || Boolean(isAdmin && !selectedRoleId);
+		Boolean(fetchingInvitations) || Boolean(getWorkingEmployeeLoading) || Boolean(isAdmin && rolesLoading);
 	const isLoading = inviteLoading || resendInviteLoading || prerequisitesPending;
 
 	useEffect(() => {

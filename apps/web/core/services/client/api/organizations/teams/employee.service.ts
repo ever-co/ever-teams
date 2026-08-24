@@ -27,7 +27,7 @@ class EmployeeService extends APIService {
 		try {
 			const tenantId = options ? options.scope.tenantId : this.tenantId;
 			const organizationId = options ? options.scope.organizationId : this.organizationId;
-			const teamId = options ? options.scope.teamId : organizationTeamId;
+			const teamId = options ? (options.scope.teamId ?? organizationTeamId) : organizationTeamId;
 			const params: Record<string, any> = {
 				organizationId,
 				tenantId,

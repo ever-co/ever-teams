@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import moment from 'moment-timezone';
+import { useEffect, useState } from 'react';
 import { queryKeys } from '@/core/query/keys';
 import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
 import type { TProfileActivityRequest } from '@/core/types/schemas/activities/profile-activity.schema';
@@ -44,6 +45,35 @@ export function getProfileActivityMonthRange(timeZone: string, referenceDate = n
 		startDate: start.format('YYYY-MM-DD'),
 		endDate: start.clone().add(1, 'month').format('YYYY-MM-DD')
 	};
+}
+
+export function getMillisecondsUntilNextProfileActivityMonth(timeZone: string, referenceDate = new Date()): number {
+	const now = moment(referenceDate).tz(timeZone);
+	return Math.max(1, now.clone().add(1, 'month').startOf('month').diff(now) + 1);
+}
+
+/** Keeps a mounted profile on the current local-calendar month without polling the API. */
+export function useProfileActivityMonthRange(timeZone: string): ProfileActivityDateRange {
+	const [range, setRange] = useState(() => getProfileActivityMonthRange(timeZone));
+
+	useEffect(() => {
+		let timeout: ReturnType<typeof setTimeout>;
+		const refreshAndSchedule = () => {
+			setRange((current) => {
+				const next = getProfileActivityMonthRange(timeZone);
+				return current.startDate === next.startDate && current.endDate === next.endDate ? current : next;
+			});
+			timeout = setTimeout(
+				refreshAndSchedule,
+				getMillisecondsUntilNextProfileActivityMonth(timeZone)
+			);
+		};
+
+		refreshAndSchedule();
+		return () => clearTimeout(timeout);
+	}, [timeZone]);
+
+	return range;
 }
 
 export function getProfileActivityYearRange(timeZone: string, year: number): ProfileActivityDateRange {

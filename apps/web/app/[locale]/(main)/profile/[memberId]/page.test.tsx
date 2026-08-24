@@ -72,6 +72,7 @@ jest.mock('@/core/hooks/tasks/use-task-filter', () => ({
 jest.mock('@/core/hooks/activities/use-profile-activity', () => ({
 	getProfileActivityMonthRange: () => ({ startDate: '2026-08-01', endDate: '2026-09-01' }),
 	normalizeProfileActivityTimeZone: () => 'UTC',
+	useProfileActivityMonthRange: () => ({ startDate: '2026-08-01', endDate: '2026-09-01' }),
 	useProfileActivity: (...args: unknown[]) => mockUseProfileActivity(...args)
 }));
 jest.mock('@/core/hooks/bootstrap/use-fast-feature-data', () => ({ useFastTeamDailyPlansOwner: jest.fn() }));

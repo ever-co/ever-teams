@@ -33,9 +33,9 @@ import { activeTeamManagersState, activeTeamState, isTrackingEnabledState } from
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import {
-	getProfileActivityMonthRange,
 	normalizeProfileActivityTimeZone,
-	useProfileActivity
+	useProfileActivity,
+	useProfileActivityMonthRange
 } from '@/core/hooks/activities/use-profile-activity';
 import type { TProfileActivityScope } from '@/core/types/schemas/activities/profile-activity.schema';
 import { useFastTeamDailyPlansOwner } from '@/core/hooks/bootstrap/use-fast-feature-data';
@@ -115,7 +115,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		profileValidation.isValid,
 		targetEmployeeId
 	]);
-	const currentMonthRange = useMemo(() => getProfileActivityMonthRange(activityTimeZone), [activityTimeZone]);
+	const currentMonthRange = useProfileActivityMonthRange(activityTimeZone);
 	const summaryRequest = useMemo(
 		() => (activityScope ? { ...activityScope, ...currentMonthRange, includeDaily: false } : null),
 		[activityScope, currentMonthRange]

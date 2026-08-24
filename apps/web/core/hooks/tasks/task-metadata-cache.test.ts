@@ -125,4 +125,14 @@ describe('task metadata cache helpers', () => {
 			expect(queryClient.getQueryState(otherScopeKey)?.isInvalidated).toBe(false);
 		}
 	);
+
+	it('derives the legacy invalidation key from the captured scope when no separate team id is passed', async () => {
+		const queryClient = new QueryClient();
+		const legacyKey = queryKeys.taskLabels.byTeam(scope.organizationTeamId);
+		queryClient.setQueryData(legacyKey, { items: [], total: 0 });
+
+		await invalidateTaskMetadataSectionCaches(queryClient, { section: 'taskLabels', scope });
+
+		expect(queryClient.getQueryState(legacyKey)?.isInvalidated).toBe(true);
+	});
 });

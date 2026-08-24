@@ -66,8 +66,10 @@ import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import {
 	getProfileActivityMonthRange,
 	getProfileActivityYearRange,
+	getMillisecondsUntilNextProfileActivityMonth,
 	normalizeProfileActivityTimeZone,
-	useProfileActivity
+	useProfileActivity,
+	useProfileActivityMonthRange
 } from './use-profile-activity';
 
 const ids = {
@@ -160,6 +162,18 @@ describe('strict profile activity contract', () => {
 			startDate: '2024-01-01',
 			endDate: '2025-01-01'
 		});
+	});
+
+	it('moves a mounted current-month range forward at the local month boundary', () => {
+		jest.useFakeTimers().setSystemTime(new Date('2026-08-31T23:59:30.000Z'));
+		const { result, unmount } = renderHook(() => useProfileActivityMonthRange('UTC'));
+		expect(result.current).toEqual({ startDate: '2026-08-01', endDate: '2026-09-01' });
+		expect(getMillisecondsUntilNextProfileActivityMonth('UTC')).toBe(30_001);
+
+		act(() => jest.advanceTimersByTime(30_001));
+		expect(result.current).toEqual({ startDate: '2026-09-01', endDate: '2026-10-01' });
+		unmount();
+		jest.useRealTimers();
 	});
 
 	it('sends tenant only through transport config, consumes the signal, and validates the response', async () => {

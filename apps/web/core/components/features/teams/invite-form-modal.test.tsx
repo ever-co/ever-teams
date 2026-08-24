@@ -104,7 +104,8 @@ jest.mock('../../common/select', () => ({
 const noInviteData = {
 	roles: [],
 	teamInvitations: [],
-	workingEmployees: []
+	workingEmployees: [],
+	rolesLoading: false
 };
 const loadedInviteData = {
 	roles: [
@@ -196,8 +197,8 @@ describe('InviteFormModal role selection', () => {
 		const form = screen.getByTestId('choose-email').closest('form')!;
 
 		fireEvent.submit(form);
-		expect(mockInviteUser).not.toHaveBeenCalled();
 		expect(mockResendTeamInvitation).not.toHaveBeenCalled();
+		expect(mockInviteUser).not.toHaveBeenCalled();
 
 		mockUseFastInviteDataOwner.mockReturnValue({
 			...loadedInviteData,
@@ -219,8 +220,9 @@ describe('InviteFormModal role selection', () => {
 		rerender(<InviteFormModal open closeModal={jest.fn()} />);
 		await waitFor(() => expect(selectedRoleValue()).toBe(''));
 		fireEvent.submit(form);
+		await waitFor(() => expect(mockResendTeamInvitation).toHaveBeenCalledWith('invite-1'));
 		expect(mockInviteUser).not.toHaveBeenCalled();
-		expect(mockResendTeamInvitation).not.toHaveBeenCalled();
+		mockResendTeamInvitation.mockClear();
 
 		mockUseFastInviteDataOwner.mockReturnValue({
 			...loadedInviteData,
@@ -234,5 +236,14 @@ describe('InviteFormModal role selection', () => {
 
 		await waitFor(() => expect(mockResendTeamInvitation).toHaveBeenCalledWith('invite-1'));
 		expect(mockInviteUser).not.toHaveBeenCalled();
+	});
+
+	it('uses the invitation service fallback when an admin has no selectable roles', async () => {
+		mockUseFastInviteDataOwner.mockReturnValue(noInviteData);
+		render(<InviteFormModal open closeModal={jest.fn()} />);
+		fireEvent.click(screen.getByTestId('choose-email'));
+		fireEvent.submit(screen.getByTestId('choose-email').closest('form')!);
+
+		await waitFor(() => expect(mockInviteUser).toHaveBeenCalledWith('new@example.com', 'New User', undefined));
 	});
 });
