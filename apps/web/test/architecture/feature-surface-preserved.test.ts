@@ -74,6 +74,16 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 	write(repository, 'apps/web/app/account/page.tsx', 'export default function AccountPage() { return null; }\n');
 	write(
 		repository,
+		'apps/web/app/api/sample/route.ts',
+		[
+			'const load = async () => undefined;',
+			'export { load as GET };',
+			'export async function POST() { return undefined; }',
+			'export const PUT = async () => undefined;'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
 		'apps/web/core/navigation.tsx',
 		[
 			"export const links = [<a href='/same' />, <a href='/same' />, <a href='/a' />, <a href='/z' />, <a href='/ä' />];",
@@ -156,6 +166,36 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 	);
 	write(
 		repository,
+		'packages/imported/index.ts',
+		[
+			"import DefaultThing, { NamedThing as LocalNamed, type TypeThing as LocalType } from './leaf';",
+			"import * as ThingNamespace from './namespace';",
+			'export { DefaultThing as ImportedDefault, LocalNamed as ImportedNamed, LocalType as ImportedType, ThingNamespace };',
+			"export * from './star-a';",
+			"export * from './star-b';"
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'packages/imported/leaf.ts',
+		'export default function DefaultThing() {} export const NamedThing = true; export interface TypeThing { value: string }\n'
+	);
+	write(repository, 'packages/imported/namespace.ts', 'export const NamespaceValue = true;\n');
+	write(
+		repository,
+		'packages/imported/star-a.ts',
+		"export const ImportedNamed = 'star'; export const StarOnly = true;\n"
+	);
+	write(repository, 'packages/imported/star-b.ts', 'export const OtherStar = true;\n');
+	write(repository, 'packages/cross-kind/index.ts', "export * from './runtime'; export * from './types';\n");
+	write(repository, 'packages/cross-kind/runtime.ts', 'export const CrossKind = true;\n');
+	write(repository, 'packages/cross-kind/types.ts', 'export interface OtherType { value: string }\n');
+	write(repository, 'packages/shared-class.ts', 'export class SharedClass {}\n');
+	write(repository, 'packages/same-class/index.ts', "export * from './left'; export * from './right';\n");
+	write(repository, 'packages/same-class/left.ts', "export { SharedClass } from '../shared-class';\n");
+	write(repository, 'packages/same-class/right.ts', "export { SharedClass } from '../shared-class';\n");
+	write(
+		repository,
 		'apps/web/core/components/overlays.tsx',
 		[
 			'export const DialogTrigger = () => null;',
@@ -171,6 +211,20 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 		repository,
 		'apps/web/core/components/anonymous-modal.tsx',
 		'export default function Surface() { return null; }\n'
+	);
+	write(
+		repository,
+		'apps/web/core/components/overlay-identities.tsx',
+		[
+			'type DialogState = { open: boolean };',
+			'const DialogOpen = false;',
+			'const InternalModal = () => null;',
+			'const CommandDialog = () => null;',
+			'const StoredDrawer = { open: () => undefined };',
+			'export { CommandDialog, CommandDialog as QuickDialog, StoredDrawer as ExportedDrawer };',
+			'export default CommandDialog;',
+			'void DialogOpen;'
+		].join('\n') + '\n'
 	);
 	write(
 		repository,
@@ -194,6 +248,20 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 	);
 	write(
 		repository,
+		'apps/web/core/services/requests/callables.ts',
+		[
+			'export function directRequest() {}',
+			'export default function defaultRequest() {}',
+			'export const arrowRequest = () => undefined;',
+			'const localRequest = function () {};',
+			'const aliasedRequest = () => undefined;',
+			'const serviceObject = { getThing() {}, postThing: async () => undefined, state: true };',
+			'export { localRequest, aliasedRequest as renamedRequest, serviceObject as RequestService };',
+			'export const InlineService = { deleteThing() {}, patchThing: () => undefined, state: false };'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
 		'apps/web/core/account.cy.ts',
 		[
 			"describe.each([{ name: 'one' }])('account $name', () => {",
@@ -210,6 +278,39 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 		].join('\n') + '\n'
 	);
 	write(repository, 'apps/web/core/account.e2e.ts', "test('e2e account', () => undefined);\n");
+	write(
+		repository,
+		'apps/web/core/aliases.test.ts',
+		[
+			"import { test as check, describe as suite } from '@jest/globals';",
+			"import * as jestGlobals from '@jest/globals';",
+			'const local = check;',
+			"check('named alias', () => undefined);",
+			"jestGlobals.test('namespace alias', () => undefined);",
+			"local('local alias', () => undefined);",
+			"suite('aliased suite', () => undefined);"
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/web/core/imperative-navigation.ts',
+		[
+			'const env = process.env;',
+			'const publicEnv = env;',
+			'const metaEnv = import.meta.env;',
+			'const aliasUses = [publicEnv.NEXT_PUBLIC_ALIAS_URL, metaEnv.NEXT_PUBLIC_META_ALIAS_URL];',
+			'const { NEXT_PUBLIC_ALIAS_DESTRUCTURED } = publicEnv;',
+			"router.push('/imperative');",
+			"navigation.replace('/replace');",
+			"redirect('/redirect');",
+			'permanentRedirect(dynamicDestination);',
+			"location.assign('/assign');",
+			'window.location.replace(dynamicDestination);',
+			"const items = ['/not-navigation'];",
+			"items.push('/still-not-navigation');",
+			'void aliasUses; void NEXT_PUBLIC_ALIAS_DESTRUCTURED;'
+		].join('\n') + '\n'
+	);
 	write(
 		repository,
 		'nx.json',
@@ -232,6 +333,12 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 							changedSince: 'main',
 							watch: false
 						}
+					},
+					unit: {
+						options: {
+							jestConfig: 'apps/web/jest.config.ts',
+							testRegex: 'unit\\.test\\.ts$'
+						}
 					}
 				}
 			},
@@ -250,7 +357,7 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 						executor: '@nx/jest:jest',
 						options: {
 							jestConfig: 'apps/web/jest.config.ts',
-							passWithNoTests: true,
+							passWithNoTests: false,
 							testFile: 'apps/web/all.test.ts',
 							findRelatedTests: 'apps/web/core/base.ts',
 							onlyChanged: false,
@@ -332,6 +439,85 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 		'apps/unknown-cjs/jest.config.js',
 		"module.exports = unknownFactory({ roots: ['<rootDir>'] });\n"
 	);
+	write(
+		repository,
+		'apps/mutating/jest.config.ts',
+		[
+			"const config = { testMatch: ['<rootDir>/**/*.test.ts', '<rootDir>/**/*.spec.ts'], testPathIgnorePatterns: ['/node_modules/'] };",
+			"config.testPathIgnorePatterns.push('/generated/');",
+			'if (process.env.CI) { config.testMatch.splice(1, 1); }',
+			'export default config;'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/dynamic/jest.config.ts',
+		["const config = { testMatch: ['<rootDir>/**/*.test.ts'] };", 'export default async () => config;'].join('\n') +
+			'\n'
+	);
+	write(
+		repository,
+		'apps/wrapped/jest.config.js',
+		["const config = { roots: ['<rootDir>'] };", 'module.exports = wrap(config);'].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/config-package/package.json',
+		JSON.stringify(
+			{
+				name: 'config-package',
+				jest: {
+					testMatch: ['<rootDir>/**/*.test.ts'],
+					testPathIgnorePatterns: ['/generated/']
+				}
+			},
+			null,
+			2
+		) + '\n'
+	);
+	write(repository, 'apps/unit/jest.config.ts', "export default { roots: ['<rootDir>'] };\n");
+	write(
+		repository,
+		'apps/unit/project.json',
+		JSON.stringify(
+			{
+				name: 'unit',
+				targets: {
+					unit: {
+						executor: '@nx/jest:jest',
+						options: { jestConfig: 'apps/unit/jest.config.ts', roots: ['apps/unit'] }
+					}
+				}
+			},
+			null,
+			2
+		) + '\n'
+	);
+	write(
+		repository,
+		'workspace.json',
+		JSON.stringify(
+			{
+				projects: {
+					other: {
+						targets: {
+							test: {
+								executor: '@nx/jest:jest',
+								options: {
+									roots: ['apps/other'],
+									onlyChanged: true,
+									watch: true,
+									passWithNoTests: true
+								}
+							}
+						}
+					}
+				}
+			},
+			null,
+			2
+		) + '\n'
+	);
 	git(repository, 'add', '.');
 	git(repository, 'commit', '--quiet', '-m', 'synthetic base');
 	const base = git(repository, 'rev-parse', 'HEAD');
@@ -343,6 +529,16 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 		'apps/web/app/page.tsx',
 		'apps/web/app/layout.tsx',
 		'apps/web/core/components/anonymous-modal.tsx'
+	);
+	write(
+		repository,
+		'apps/web/app/api/sample/route.ts',
+		[
+			'const load = async () => undefined;',
+			'export { load as GET };',
+			'async function POST() { return undefined; }',
+			'export const PUT = async () => undefined;'
+		].join('\n') + '\n'
 	);
 	write(
 		repository,
@@ -359,6 +555,25 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 			`const fixture = "<a href='/fake-href' /> process.env.NEXT_PUBLIC_FAKE";`,
 			"// const commented = { href: '/comment-href', env: process.env.NEXT_PUBLIC_COMMENT };",
 			'void fixture; void NEXT_PUBLIC_DESTRUCTURED; void processDuplicate; void importAlias;'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/web/core/imperative-navigation.ts',
+		[
+			'const env = process.env;',
+			'const publicEnv = env;',
+			'const metaEnv = import.meta.env;',
+			'const aliasUses = [metaEnv.NEXT_PUBLIC_META_ALIAS_URL];',
+			'const { NEXT_PUBLIC_ALIAS_DESTRUCTURED } = publicEnv;',
+			"navigation.replace('/replace');",
+			"redirect('/changed-redirect');",
+			'permanentRedirect(dynamicDestination);',
+			"location.assign('/assign');",
+			'window.location.replace(dynamicDestination);',
+			"const items = ['/not-navigation'];",
+			"items.push('/still-not-navigation');",
+			'void aliasUses; void NEXT_PUBLIC_ALIAS_DESTRUCTURED;'
 		].join('\n') + '\n'
 	);
 	write(
@@ -383,6 +598,24 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 	write(repository, 'packages/ambiguous/b.ts', 'export const OnlyB = true; export const SharedName = false;\n');
 	write(
 		repository,
+		'packages/imported/index.ts',
+		[
+			"import DefaultThing, { NamedThing as LocalNamed, type TypeThing as LocalType } from './leaf';",
+			"import * as ThingNamespace from './namespace';",
+			'export { LocalNamed as ImportedNamed, LocalType as ImportedType, ThingNamespace };',
+			"export * from './star-a';",
+			"export * from './star-b';",
+			'void DefaultThing;'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'packages/imported/star-b.ts',
+		'export const OtherStar = true; export const ImportedNamed = false;\n'
+	);
+	write(repository, 'packages/cross-kind/types.ts', 'export interface CrossKind { value: string }\n');
+	write(
+		repository,
 		'packages/type-star/leaf.ts',
 		[
 			'export interface TypeOnly { value: string }',
@@ -404,6 +637,19 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 	);
 	write(
 		repository,
+		'apps/web/core/components/overlay-identities.tsx',
+		[
+			'type DialogState = { open: boolean };',
+			'const DialogOpen = false;',
+			'const InternalModal = () => null;',
+			'const CommandDialog = () => null;',
+			'const StoredDrawer = { open: () => undefined };',
+			'export { StoredDrawer as ExportedDrawer };',
+			'void DialogOpen; void CommandDialog;'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
 		'apps/web/core/services/account.service.ts',
 		[
 			'export class AccountService {',
@@ -411,6 +657,21 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 			'\tgetAccount(id: string): string { return id; }',
 			'\tprivate hiddenAccount() {}',
 			'}'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/web/core/services/requests/callables.ts',
+		[
+			'function directRequest() {}',
+			'export default function defaultRequest() {}',
+			'const arrowRequest = () => undefined;',
+			'const localRequest = function () {};',
+			'const aliasedRequest = () => undefined;',
+			'const serviceObject = { getThing() {}, postThing: async () => undefined, state: true };',
+			'export { localRequest, serviceObject as RequestService };',
+			'export const InlineService = { deleteThing() {}, state: false };',
+			'void directRequest; void arrowRequest; void aliasedRequest;'
 		].join('\n') + '\n'
 	);
 	write(
@@ -428,6 +689,19 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 			`const fixture = "test.skip('fixture is not a test')";`,
 			"// describe.only('comment is not a test', () => undefined);",
 			'void fixture;'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/web/core/aliases.test.ts',
+		[
+			"import { test as check, describe as suite } from '@jest/globals';",
+			"import * as jestGlobals from '@jest/globals';",
+			'const local = check;',
+			"check.skip('named alias', () => undefined);",
+			"jestGlobals.test.todo('namespace alias');",
+			"suite('aliased suite', () => undefined);",
+			'void local;'
 		].join('\n') + '\n'
 	);
 	write(
@@ -527,6 +801,88 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 	);
 	write(
 		repository,
+		'apps/mutating/jest.config.ts',
+		[
+			"const config = { testMatch: ['<rootDir>/**/*.test.ts', '<rootDir>/**/*.spec.ts'], testPathIgnorePatterns: ['/node_modules/'] };",
+			"config.testPathIgnorePatterns.push('/architecture/');",
+			'if (process.env.CI) { config.testMatch.splice(0, 1); }',
+			'export default config;'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/dynamic/jest.config.ts',
+		["const config = { testMatch: ['<rootDir>/only.test.ts'] };", 'export default async () => config;'].join('\n') +
+			'\n'
+	);
+	write(
+		repository,
+		'apps/wrapped/jest.config.js',
+		["const config = { roots: ['<rootDir>/only'] };", 'module.exports = wrap(config);'].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/config-package/package.json',
+		JSON.stringify(
+			{
+				name: 'config-package',
+				jest: {
+					testMatch: ['<rootDir>/**/*.test.ts'],
+					testPathIgnorePatterns: ['/generated/', '/architecture/']
+				}
+			},
+			null,
+			2
+		) + '\n'
+	);
+	write(
+		repository,
+		'apps/unit/project.json',
+		JSON.stringify(
+			{
+				name: 'unit',
+				targets: {
+					unit: {
+						executor: '@nx/jest:jest',
+						options: {
+							jestConfig: 'apps/unit/jest.config.ts',
+							roots: ['apps/unit/specs'],
+							testPathIgnorePatterns: ['legacy']
+						}
+					}
+				}
+			},
+			null,
+			2
+		) + '\n'
+	);
+	write(
+		repository,
+		'workspace.json',
+		JSON.stringify(
+			{
+				projects: {
+					other: {
+						targets: {
+							test: {
+								executor: '@nx/jest:jest',
+								options: {
+									roots: ['apps/other'],
+									onlyChanged: false,
+									watch: false,
+									passWithNoTests: false
+								}
+							}
+						}
+					}
+				}
+			},
+			null,
+			2
+		) + '\n'
+	);
+	write(
+		repository,
 		'nx.json',
 		JSON.stringify(
 			{
@@ -607,6 +963,23 @@ describe('Ever Teams feature surface preservation', () => {
 		expect(violationRun.report?.base.surface.routes).toContain('apps/web/app/account/page.tsx');
 	});
 
+	it('protects route handler files and each outward HTTP verb independently', () => {
+		expect(violationRun.report?.base.surface.routes).toEqual(
+			expect.arrayContaining([
+				'apps/web/app/api/sample/route.ts',
+				'apps/web/app/api/sample/route.ts::GET',
+				'apps/web/app/api/sample/route.ts::POST',
+				'apps/web/app/api/sample/route.ts::PUT'
+			])
+		);
+		expect(violationRun.report?.head.surface.routes).toContain('apps/web/app/api/sample/route.ts');
+		expect(violationRun.report?.violations).toContainEqual({
+			category: 'routes',
+			kind: 'removed',
+			value: 'apps/web/app/api/sample/route.ts::POST'
+		});
+	});
+
 	it('collects public method declarations and typed arrow/function properties only', () => {
 		expect(violationRun.report?.base.surface.serviceMethods).toEqual(
 			expect.arrayContaining([
@@ -627,6 +1000,32 @@ describe('Ever Teams feature surface preservation', () => {
 			kind: 'removed',
 			value: 'apps/web/core/services/account.service.ts::AccountService.createAccount'
 		});
+	});
+
+	it('protects every outward top-level and exported service-object callable', () => {
+		const path = 'apps/web/core/services/requests/callables.ts';
+		expect(violationRun.report?.base.surface.serviceMethods).toEqual(
+			expect.arrayContaining([
+				`${path}::directRequest`,
+				`${path}::default`,
+				`${path}::arrowRequest`,
+				`${path}::localRequest`,
+				`${path}::renamedRequest`,
+				`${path}::RequestService.getThing`,
+				`${path}::RequestService.postThing`,
+				`${path}::InlineService.deleteThing`,
+				`${path}::InlineService.patchThing`
+			])
+		);
+		expect(violationRun.report?.base.surface.serviceMethods.join('\n')).not.toContain('InlineService.state');
+		expect(violationRun.report?.violations).toEqual(
+			expect.arrayContaining([
+				{ category: 'serviceMethods', kind: 'removed', value: `${path}::directRequest` },
+				{ category: 'serviceMethods', kind: 'removed', value: `${path}::arrowRequest` },
+				{ category: 'serviceMethods', kind: 'removed', value: `${path}::renamedRequest` },
+				{ category: 'serviceMethods', kind: 'removed', value: `${path}::InlineService.patchThing` }
+			])
+		);
 	});
 
 	it('resolves transitive barrel exports, kinds, and cycles without exposing private declarations', () => {
@@ -715,6 +1114,39 @@ describe('Ever Teams feature surface preservation', () => {
 		});
 	});
 
+	it('resolves imported-local exports and applies ambiguity across runtime and type origins', () => {
+		expect(violationRun.report?.base.surface.publicExports).toEqual(
+			expect.arrayContaining([
+				'packages/imported/index.ts::runtime::ImportedDefault',
+				'packages/imported/index.ts::runtime::ImportedNamed',
+				'packages/imported/index.ts::type::ImportedType',
+				'packages/imported/index.ts::runtime::ThingNamespace',
+				'packages/cross-kind/index.ts::runtime::CrossKind',
+				'packages/same-class/index.ts::runtime::SharedClass',
+				'packages/same-class/index.ts::type::SharedClass'
+			])
+		);
+		expect(violationRun.report?.violations).toContainEqual({
+			category: 'publicExports',
+			kind: 'removed',
+			value: 'packages/imported/index.ts::runtime::ImportedDefault'
+		});
+		expect(violationRun.report?.head.surface.publicExports).toContain(
+			'packages/imported/index.ts::runtime::ImportedNamed'
+		);
+		expect(violationRun.report?.head.surface.publicExports).not.toContain(
+			'packages/cross-kind/index.ts::runtime::CrossKind'
+		);
+		expect(violationRun.report?.head.surface.publicExports).not.toContain(
+			'packages/cross-kind/index.ts::type::CrossKind'
+		);
+		expect(violationRun.report?.violations).toContainEqual({
+			category: 'publicExports',
+			kind: 'removed',
+			value: 'packages/cross-kind/index.ts::runtime::CrossKind'
+		});
+	});
+
 	it('protects every exported overlay symbol in a multi-component file', () => {
 		expect(violationRun.report?.base.surface.overlayComponents).toEqual(
 			expect.arrayContaining([
@@ -736,6 +1168,30 @@ describe('Ever Teams feature surface preservation', () => {
 			kind: 'removed',
 			value: 'apps/web/core/components/anonymous-modal.tsx'
 		});
+	});
+
+	it('distinguishes overlay components and outward runtime export identities from type or state names', () => {
+		const path = 'apps/web/core/components/overlay-identities.tsx';
+		expect(violationRun.report?.base.surface.overlayComponents).toEqual(
+			expect.arrayContaining([
+				`${path}::InternalModal`,
+				`${path}::CommandDialog`,
+				`${path}::export::CommandDialog`,
+				`${path}::export::QuickDialog`,
+				`${path}::export::ExportedDrawer`,
+				`${path}::export::default`
+			])
+		);
+		expect(violationRun.report?.base.surface.overlayComponents.join('\n')).not.toContain('DialogState');
+		expect(violationRun.report?.base.surface.overlayComponents.join('\n')).not.toContain('DialogOpen');
+		expect(violationRun.report?.head.surface.overlayComponents).toContain(`${path}::CommandDialog`);
+		expect(violationRun.report?.violations).toEqual(
+			expect.arrayContaining([
+				{ category: 'overlayComponents', kind: 'removed', value: `${path}::export::CommandDialog` },
+				{ category: 'overlayComponents', kind: 'removed', value: `${path}::export::QuickDialog` },
+				{ category: 'overlayComponents', kind: 'removed', value: `${path}::export::default` }
+			])
+		);
 	});
 
 	it('finds cy/e2e tests and every skip/only chain without parsing strings or comments', () => {
@@ -760,6 +1216,26 @@ describe('Ever Teams feature surface preservation', () => {
 		);
 		expect(violationRun.report?.head.surface.testNames.join('\n')).not.toContain('fixture is not a test');
 		expect(violationRun.report?.head.surface.testNames.join('\n')).not.toContain('comment is not a test');
+	});
+
+	it('resolves Jest global imports, namespaces, and simple local test aliases', () => {
+		const path = 'apps/web/core/aliases.test.ts';
+		expect(violationRun.report?.base.surface.testNames).toEqual(
+			expect.arrayContaining([
+				`${path}::named alias::#1`,
+				`${path}::namespace alias::#1`,
+				`${path}::local alias::#1`,
+				`${path}::aliased suite::#1`
+			])
+		);
+		expect(violationRun.report?.head.surface.testMarkers).toEqual(
+			expect.arrayContaining([`${path}::test.skip::named alias::#1`, `${path}::test.todo::namespace alias::#1`])
+		);
+		expect(violationRun.report?.violations).toContainEqual({
+			category: 'testNames',
+			kind: 'removed',
+			value: `${path}::local alias::#1`
+		});
 	});
 
 	it('protects effective Jest/Nx selection and wiring', () => {
@@ -900,6 +1376,67 @@ describe('Ever Teams feature surface preservation', () => {
 		);
 	});
 
+	it('fails closed on nested config mutations and source-sensitive dynamic wrappers', () => {
+		const mutationPrefix = 'apps/mutating/jest.config.ts::<configMutation>=';
+		const baseMutationTokens = violationRun.report?.base.surface.exclusions.filter((value) =>
+			value.startsWith(mutationPrefix)
+		);
+		const headMutationTokens = violationRun.report?.head.surface.exclusions.filter((value) =>
+			value.startsWith(mutationPrefix)
+		);
+		expect(baseMutationTokens).toHaveLength(2);
+		expect(headMutationTokens).toHaveLength(2);
+		expect(baseMutationTokens).not.toEqual(headMutationTokens);
+
+		for (const path of ['apps/dynamic/jest.config.ts', 'apps/wrapped/jest.config.js']) {
+			const prefix = `${path}::<unresolvedConfig>=`;
+			const baseToken = violationRun.report?.base.surface.exclusions.find((value) => value.startsWith(prefix));
+			const headToken = violationRun.report?.head.surface.exclusions.find((value) => value.startsWith(prefix));
+			if (!baseToken || !headToken) throw new Error(`Missing unresolved config evidence for ${path}`);
+			expect(baseToken).toContain('::source=');
+			expect(headToken).toContain('::source=');
+			expect(baseToken).not.toBe(headToken);
+			expect(violationRun.report?.violations).toContainEqual({
+				category: 'exclusions',
+				kind: 'added',
+				value: headToken
+			});
+		}
+	});
+
+	it('collects package Jest settings and every matching Nx project target', () => {
+		expect(violationRun.report?.base.surface.testConfiguration).toEqual(
+			expect.arrayContaining([
+				'apps/config-package/package.json::jest.testMatch=<rootDir>/**/*.test.ts',
+				'apps/unit/project.json::targets.unit.executor=@nx/jest:jest',
+				'apps/unit/project.json::targets.unit.options.jestConfig=apps/unit/jest.config.ts',
+				'workspace.json::projects.other.targets.test.options.roots=apps/other'
+			])
+		);
+		expect(violationRun.report?.base.surface.exclusions).toContain(
+			'apps/config-package/package.json::jest.testPathIgnorePatterns=/generated/'
+		);
+		expect(violationRun.report?.violations).toEqual(
+			expect.arrayContaining([
+				{
+					category: 'exclusions',
+					kind: 'added',
+					value: 'apps/config-package/package.json::jest.testPathIgnorePatterns=/architecture/'
+				},
+				{
+					category: 'testConfiguration',
+					kind: 'added',
+					value: 'apps/unit/project.json::targets.unit.options.roots=apps/unit/specs'
+				},
+				{
+					category: 'exclusions',
+					kind: 'added',
+					value: 'apps/unit/project.json::targets.unit.options.testPathIgnorePatterns=legacy'
+				}
+			])
+		);
+	});
+
 	it('protects every installed Nx Jest selector in project and target defaults', () => {
 		expect(violationRun.report?.violations).toEqual(
 			expect.arrayContaining([
@@ -919,7 +1456,7 @@ describe('Ever Teams feature surface preservation', () => {
 					value: 'apps/web/project.json::targets.test.options.changedSince=main'
 				},
 				{
-					category: 'testConfiguration',
+					category: 'exclusions',
 					kind: 'added',
 					value: 'apps/web/project.json::targets.test.options.watch=true'
 				},
@@ -940,6 +1477,16 @@ describe('Ever Teams feature surface preservation', () => {
 				},
 				{
 					category: 'testConfiguration',
+					kind: 'removed',
+					value: 'nx.json::targetDefaults.unit.options.jestConfig=apps/web/jest.config.ts'
+				},
+				{
+					category: 'testConfiguration',
+					kind: 'removed',
+					value: 'nx.json::targetDefaults.unit.options.testRegex=unit\\.test\\.ts$'
+				},
+				{
+					category: 'exclusions',
 					kind: 'added',
 					value: 'nx.json::targetDefaults.@nx/jest:jest.options.onlyChanged=true'
 				}
@@ -953,20 +1500,31 @@ describe('Ever Teams feature surface preservation', () => {
 		expect(baseConfiguration.join('\n')).not.toContain('watch=false');
 		expect(violationRun.report?.violations.some(({ value }) => value.includes('onlyChanged=false'))).toBe(false);
 		expect(violationRun.report?.violations.some(({ value }) => value.includes('watch=false'))).toBe(false);
+		expect(baseConfiguration.join('\n')).not.toContain('passWithNoTests=false');
 		expect(violationRun.report?.violations).toEqual(
 			expect.arrayContaining([
 				{
-					category: 'testConfiguration',
+					category: 'exclusions',
 					kind: 'added',
 					value: 'apps/web/project.json::targets.test.options.onlyChanged=true'
 				},
 				{
-					category: 'testConfiguration',
+					category: 'exclusions',
 					kind: 'added',
 					value: 'nx.json::targetDefaults.test.options.watch=true'
+				},
+				{
+					category: 'exclusions',
+					kind: 'added',
+					value: 'apps/web/project.json::targets.test.options.passWithNoTests=true'
 				}
 			])
 		);
+		expect(
+			violationRun.report?.violations.some(({ value }) =>
+				value.startsWith('workspace.json::projects.other.targets.test.options.')
+			)
+		).toBe(false);
 	});
 
 	it('preserves duplicate href and NEXT_PUBLIC occurrences with stable ordinals', () => {
@@ -1013,6 +1571,43 @@ describe('Ever Teams feature surface preservation', () => {
 		);
 	});
 
+	it('protects imperative navigation calls without treating generic array pushes as routes', () => {
+		const path = 'apps/web/core/imperative-navigation.ts';
+		expect(violationRun.report?.base.surface.navigation).toEqual(
+			expect.arrayContaining([
+				`${path}::router.push=/imperative::#1`,
+				`${path}::navigation.replace=/replace::#1`,
+				`${path}::redirect=/redirect::#1`,
+				`${path}::permanentRedirect=<dynamic:dynamicDestination>::#1`,
+				`${path}::location.assign=/assign::#1`,
+				`${path}::location.replace=<dynamic:dynamicDestination>::#1`
+			])
+		);
+		expect(violationRun.report?.base.surface.navigation.join('\n')).not.toContain('still-not-navigation');
+		expect(violationRun.report?.violations).toEqual(
+			expect.arrayContaining([
+				{ category: 'navigation', kind: 'removed', value: `${path}::router.push=/imperative::#1` },
+				{ category: 'navigation', kind: 'removed', value: `${path}::redirect=/redirect::#1` }
+			])
+		);
+	});
+
+	it('follows simple process.env and import.meta.env aliases for NEXT_PUBLIC uses', () => {
+		const path = 'apps/web/core/imperative-navigation.ts';
+		expect(violationRun.report?.base.surface.nextPublicOccurrences).toEqual(
+			expect.arrayContaining([
+				`${path}::NEXT_PUBLIC_ALIAS_URL::#1`,
+				`${path}::NEXT_PUBLIC_META_ALIAS_URL::#1`,
+				`${path}::NEXT_PUBLIC_ALIAS_DESTRUCTURED::#1`
+			])
+		);
+		expect(violationRun.report?.violations).toContainEqual({
+			category: 'nextPublicOccurrences',
+			kind: 'removed',
+			value: `${path}::NEXT_PUBLIC_ALIAS_URL::#1`
+		});
+	});
+
 	it('uses deterministic code-point order rather than locale collation', () => {
 		const navigation = violationRun.report?.base.surface.navigation.filter((value) => value.includes('::href=/'));
 		expect(navigation).toEqual([
@@ -1049,17 +1644,66 @@ describe('Ever Teams feature surface preservation', () => {
 		expect(dirty.report).toBeUndefined();
 	});
 
-	it('covers the concrete typed service methods from the real repository', () => {
+	it('covers real class and standalone service callables from the repository', () => {
 		const surface = collectRealHeadSurface();
 		expect(surface.serviceMethods).toEqual(
 			expect.arrayContaining([
 				'apps/web/core/services/client/api/tasks/task.service.ts::TaskService.createTask',
 				'apps/web/core/services/client/api/tasks/task.service.ts::TaskService.getTasks',
 				'apps/web/core/services/client/api/activities/activity.service.ts::ActivityService.getActivities',
-				'apps/web/core/services/client/api/currencies/currency.service.ts::CurrencyService.getCurrencies'
+				'apps/web/core/services/client/api/currencies/currency.service.ts::CurrencyService.getCurrencies',
+				'apps/web/core/services/client/axios.ts::getAPI',
+				'apps/web/core/services/client/axios.ts::getAPIDirect',
+				'apps/web/core/services/client/axios.ts::get',
+				'apps/web/core/services/client/axios.ts::post',
+				'apps/web/core/services/client/axios.ts::deleteApi',
+				'apps/web/core/services/client/axios.ts::put',
+				'apps/web/core/services/client/axios.ts::patch',
+				'apps/web/core/services/server/requests/auth.ts::registerUserRequest'
 			])
 		);
-		expect(surface.serviceMethods.length).toBeGreaterThanOrEqual(263);
+		expect(surface.serviceMethods.length).toBeGreaterThan(400);
+	});
+
+	it('covers all real App Router route files and outward handler verbs', () => {
+		const routes = collectRealHeadSurface().routes;
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(105);
+		expect(
+			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
+		).toHaveLength(145);
+		expect(routes).toEqual(
+			expect.arrayContaining([
+				'apps/web/app/api/auth/[...nextauth]/route.ts::GET',
+				'apps/web/app/api/auth/[...nextauth]/route.ts::POST',
+				'apps/web/app/api/daily-plan/[id]/route.ts::GET',
+				'apps/web/app/api/daily-plan/[id]/route.ts::PUT',
+				'apps/web/app/api/daily-plan/[id]/route.ts::DELETE',
+				'apps/web/app/api/subscribe/route.ts::POST'
+			])
+		);
+	});
+
+	it('covers imported reexports, package Jest config, and outward overlay identity in real files', () => {
+		const surface = collectRealHeadSurface();
+		expect(surface.publicExports).toEqual(
+			expect.arrayContaining([
+				'packages/toolkit/builder/app/craft/components/atoms-panel/data/index.ts::runtime::SECTION_IDS',
+				'packages/toolkit/builder/app/craft/components/drag-components/layout/row-layout/index.ts::type::RowProps',
+				'packages/toolkit/builder/app/craft/components/drag-components/layout/row-layout/index.ts::runtime::ROW_PRESETS'
+			])
+		);
+		expect(surface.exclusions).toEqual(
+			expect.arrayContaining([
+				'apps/server-web/package.json::jest.testPathIgnorePatterns=release/app/dist',
+				'apps/server-web/package.json::jest.testPathIgnorePatterns=.erb/dll'
+			])
+		);
+		expect(surface.overlayComponents).toEqual(
+			expect.arrayContaining([
+				'apps/web/core/components/common/command.tsx::CommandDialog',
+				'apps/web/core/components/common/command.tsx::export::CommandDialog'
+			])
+		);
 	});
 
 	it('collects the effective CommonJS Jest configuration from the real mobile workspace', () => {
