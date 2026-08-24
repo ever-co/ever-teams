@@ -459,6 +459,167 @@ function resolveLocalModule(fromPath, specifier, files) {
 	return candidates.find((candidate) => files.has(candidate));
 }
 
+function addOrigin(target, name, origin) {
+	const origins = target.get(name) ?? new Set();
+	origins.add(origin);
+	target.set(name, origins);
+}
+
+function addOrigins(target, name, origins) {
+	for (const origin of origins ?? []) addOrigin(target, name, origin);
+}
+
+function copyOriginMap(source) {
+	return new Map([...source].map(([name, origins]) => [name, new Set(origins)]));
+}
+
+function sameOriginMap(left, right) {
+	if (left.size !== right.size) return false;
+	for (const [name, origins] of left) {
+		const other = right.get(name);
+		if (!other || origins.size !== other.size || [...origins].some((origin) => !other.has(origin))) return false;
+	}
+	return true;
+}
+
+function serviceInstanceModuleInfo(path, source) {
+	const seeds = new Map();
+	const aliases = [];
+	const imports = [];
+	const directExports = [];
+	const inlineExports = new Map();
+	const reexports = [];
+	const sourceFile = parseSource(path, source);
+	for (const statement of sourceFile.statements) {
+		if (
+			ts.isImportDeclaration(statement) &&
+			statement.importClause &&
+			ts.isStringLiteralLike(statement.moduleSpecifier)
+		) {
+			const clause = statement.importClause;
+			if (clause.isTypeOnly) continue;
+			if (clause.name) {
+				imports.push({
+					localName: clause.name.text,
+					sourceName: 'default',
+					specifier: statement.moduleSpecifier.text
+				});
+			}
+			if (clause.namedBindings && ts.isNamedImports(clause.namedBindings)) {
+				for (const element of clause.namedBindings.elements) {
+					if (!element.isTypeOnly) {
+						imports.push({
+							localName: element.name.text,
+							sourceName: element.propertyName?.text ?? element.name.text,
+							specifier: statement.moduleSpecifier.text
+						});
+					}
+				}
+			}
+			continue;
+		}
+		if (ts.isVariableStatement(statement)) {
+			for (const declaration of statement.declarationList.declarations) {
+				if (!ts.isIdentifier(declaration.name) || !declaration.initializer) continue;
+				const name = declaration.name.text;
+				const initializer = unwrapExpression(declaration.initializer);
+				if (ts.isNewExpression(initializer)) addOrigin(seeds, name, `${path}::${name}`);
+				else if (ts.isIdentifier(initializer)) aliases.push({ localName: name, sourceName: initializer.text });
+				if (hasModifier(statement, ts.SyntaxKind.ExportKeyword)) {
+					directExports.push({ localName: name, outwardName: name });
+				}
+			}
+			continue;
+		}
+		if (ts.isExportDeclaration(statement)) {
+			const specifier =
+				statement.moduleSpecifier && ts.isStringLiteralLike(statement.moduleSpecifier)
+					? statement.moduleSpecifier.text
+					: undefined;
+			if (!statement.exportClause) {
+				if (!statement.isTypeOnly && specifier) reexports.push({ kind: 'star', specifier });
+			} else if (ts.isNamedExports(statement.exportClause)) {
+				for (const element of statement.exportClause.elements) {
+					if (statement.isTypeOnly || element.isTypeOnly) continue;
+					const sourceName = element.propertyName?.text ?? element.name.text;
+					if (specifier) {
+						reexports.push({ kind: 'named', outwardName: element.name.text, sourceName, specifier });
+					} else {
+						directExports.push({ localName: sourceName, outwardName: element.name.text });
+					}
+				}
+			}
+			continue;
+		}
+		if (ts.isExportAssignment(statement) && !statement.isExportEquals) {
+			const expression = unwrapExpression(statement.expression);
+			if (ts.isIdentifier(expression)) directExports.push({ localName: expression.text, outwardName: 'default' });
+			else if (ts.isNewExpression(expression)) addOrigin(inlineExports, 'default', `${path}::default`);
+		}
+	}
+	return { aliases, directExports, imports, inlineExports, reexports, seeds };
+}
+
+function collectServiceInstanceExports(files) {
+	const paths = [...files.keys()].filter(
+		(path) =>
+			SOURCE_FILE.test(path) &&
+			WEB_SURFACE_FILE.test(path) &&
+			SERVICE_FILE.test(path) &&
+			API_SERVICE_FILE.test(path)
+	);
+	const infos = new Map(paths.map((path) => [path, serviceInstanceModuleInfo(path, files.get(path))]));
+	let resolved = new Map(paths.map((path) => [path, new Map()]));
+	let changed = true;
+	while (changed) {
+		changed = false;
+		const next = new Map();
+		for (const path of paths) {
+			const info = infos.get(path);
+			const locals = copyOriginMap(info.seeds);
+			for (const imported of info.imports) {
+				const targetPath = resolveLocalModule(path, imported.specifier, files);
+				addOrigins(locals, imported.localName, resolved.get(targetPath)?.get(imported.sourceName));
+			}
+			let aliasChanged = true;
+			while (aliasChanged) {
+				aliasChanged = false;
+				for (const alias of info.aliases) {
+					const before = locals.get(alias.localName)?.size ?? 0;
+					addOrigins(locals, alias.localName, locals.get(alias.sourceName));
+					if ((locals.get(alias.localName)?.size ?? 0) !== before) aliasChanged = true;
+				}
+			}
+			const outward = copyOriginMap(info.inlineExports);
+			for (const exported of info.directExports) {
+				addOrigins(outward, exported.outwardName, locals.get(exported.localName));
+			}
+			for (const reexported of info.reexports) {
+				const targetPath = resolveLocalModule(path, reexported.specifier, files);
+				const target = resolved.get(targetPath);
+				if (reexported.kind === 'star') {
+					for (const [name, origins] of target ?? []) {
+						if (name !== 'default') addOrigins(outward, name, origins);
+					}
+				} else {
+					addOrigins(outward, reexported.outwardName, target?.get(reexported.sourceName));
+				}
+			}
+			next.set(path, outward);
+			if (!sameOriginMap(outward, resolved.get(path))) changed = true;
+		}
+		resolved = next;
+	}
+	const identities = [];
+	for (const path of paths) {
+		for (const [outwardName, origins] of resolved.get(path)) {
+			identities.push(`${path}::${outwardName}`);
+			for (const origin of origins) identities.push(`${path}::${outwardName}=>${origin}`);
+		}
+	}
+	return identities;
+}
+
 function copyExports(source) {
 	const copy = new Map();
 	for (const [name, kinds] of source) {
@@ -1038,9 +1199,89 @@ function exportedConfigRoots(exportNode, declarations) {
 	return roots;
 }
 
-function collectConfigMutationTokens(path, sourceFile, source, roots, values, staticContext) {
+function configGraphDigest(node, declarations, sourceFile) {
+	const roots = exportedConfigRoots(node, declarations);
+	const graph = [node?.getText(sourceFile) ?? '<unresolved>'];
+	for (const name of [...roots].sort(compareCodePoints)) {
+		graph.push(`${name}=${declarations.get(name)?.getText(sourceFile) ?? '<missing>'}`);
+	}
+	return sourceDigest(graph.join('\n'));
+}
+
+function mutationGraphDigest(node, sourceFile, declarations) {
+	const dependencies = [];
+	const context = [];
+	if (ts.isCallExpression(node)) dependencies.push(...node.arguments);
+	else if (ts.isBinaryExpression(node)) dependencies.push(node.right);
+	let current = node;
+	const functionNames = new Set();
+	while (current.parent && !ts.isSourceFile(current.parent)) {
+		const parent = current.parent;
+		if (ts.isIfStatement(parent)) {
+			context.push(
+				`if:${parent.expression.getText(sourceFile)}:${current === parent.elseStatement ? 'else' : 'then'}`
+			);
+			dependencies.push(parent.expression);
+		} else if (ts.isConditionalExpression(parent)) {
+			context.push(
+				`conditional:${parent.condition.getText(sourceFile)}:${current === parent.whenFalse ? 'false' : 'true'}`
+			);
+			dependencies.push(parent.condition);
+		} else if (
+			ts.isWhileStatement(parent) ||
+			ts.isDoStatement(parent) ||
+			ts.isForInStatement(parent) ||
+			ts.isForOfStatement(parent)
+		) {
+			const expression = parent.expression;
+			context.push(`loop:${expression.getText(sourceFile)}`);
+			dependencies.push(expression);
+		} else if (ts.isForStatement(parent) && parent.condition) {
+			context.push(`for:${parent.condition.getText(sourceFile)}`);
+			dependencies.push(parent.condition);
+		} else if (ts.isFunctionDeclaration(parent) && parent.name) {
+			functionNames.add(parent.name.text);
+			context.push(
+				`function:${parent.name.text}(${parent.parameters.map((parameter) => parameter.getText(sourceFile)).join(',')})`
+			);
+		} else if (
+			(ts.isArrowFunction(parent) || ts.isFunctionExpression(parent)) &&
+			ts.isVariableDeclaration(parent.parent) &&
+			ts.isIdentifier(parent.parent.name)
+		) {
+			functionNames.add(parent.parent.name.text);
+			context.push(
+				`function:${parent.parent.name.text}(${parent.parameters.map((parameter) => parameter.getText(sourceFile)).join(',')})`
+			);
+		}
+		current = parent;
+	}
+	if (functionNames.size > 0) {
+		const visitCalls = (candidate) => {
+			if (
+				ts.isCallExpression(candidate) &&
+				ts.isIdentifier(candidate.expression) &&
+				functionNames.has(candidate.expression.text)
+			) {
+				dependencies.push(candidate);
+			}
+			ts.forEachChild(candidate, visitCalls);
+		};
+		visitCalls(sourceFile);
+	}
+	const names = new Set();
+	for (const dependency of dependencies) {
+		for (const name of exportedConfigRoots(dependency, declarations)) names.add(name);
+	}
+	const graph = [node.getText(sourceFile), ...context];
+	for (const name of [...names].sort(compareCodePoints)) {
+		graph.push(`${name}=${declarations.get(name)?.getText(sourceFile) ?? '<missing>'}`);
+	}
+	return sourceDigest(graph.join('\n'));
+}
+
+function collectConfigMutationTokens(path, sourceFile, roots, values, staticContext, declarations) {
 	const tokens = [];
-	const digest = sourceDigest(source);
 	const isRelevantSelectionPath = (segments) => {
 		if (!segments) return false;
 		const isRelevantRoot =
@@ -1059,6 +1300,7 @@ function collectConfigMutationTokens(path, sourceFile, source, roots, values, st
 			const method = segments?.at(-1);
 			const configPath = segments?.slice(0, -1) ?? [];
 			if (method && CONFIG_MUTATION_METHODS.has(method) && isRelevantSelectionPath(configPath)) {
+				const digest = mutationGraphDigest(node, sourceFile, declarations);
 				tokens.push(`${path}::<configMutation>=${node.getText(sourceFile)}::source=${digest}`);
 			}
 		} else if (ts.isBinaryExpression(node)) {
@@ -1071,6 +1313,7 @@ function collectConfigMutationTokens(path, sourceFile, source, roots, values, st
 				(NEUTRAL_FALSE_SELECTION_KEYS.has(option) || option === 'passWithNoTests') &&
 				staticValue(node.right, values, staticContext) === false;
 			if (isAssignment && !isNeutralFalse && isRelevantSelectionPath(segments)) {
+				const digest = mutationGraphDigest(node, sourceFile, declarations);
 				tokens.push(`${path}::<configMutation>=${node.getText(sourceFile)}::source=${digest}`);
 			}
 		}
@@ -1095,6 +1338,10 @@ function collectJestConfig(path, source, configuration, exclusions) {
 	let commonJsExportNode;
 	let hasCommonJsExport = false;
 	for (const statement of sourceFile.statements) {
+		if (ts.isFunctionDeclaration(statement) && statement.name) {
+			declarations.set(statement.name.text, statement);
+			continue;
+		}
 		if (ts.isVariableStatement(statement)) {
 			for (const declaration of statement.declarationList.declarations) {
 				if (ts.isIdentifier(declaration.name) && declaration.initializer) {
@@ -1172,18 +1419,20 @@ function collectJestConfig(path, source, configuration, exclusions) {
 	}
 	const selectedExportNode = hasEsmExport ? esmExportNode : commonJsExportNode;
 	const roots = exportedConfigRoots(selectedExportNode, declarations);
-	exclusions.push(...collectConfigMutationTokens(path, sourceFile, source, roots, values, staticContext));
+	exclusions.push(...collectConfigMutationTokens(path, sourceFile, roots, values, staticContext, declarations));
 	const config = hasEsmExport ? esmExport : hasCommonJsExport ? moduleExports : UNRESOLVED;
 	const unresolvedConfig = unresolvedExpressionText(config);
 	if (unresolvedConfig !== undefined) {
-		const referencesLocalConfig = referencedLocalNames(selectedExportNode, declarations).size > 0;
-		const suffix = referencesLocalConfig ? `::source=${sourceDigest(source)}` : '';
+		const suffix =
+			roots.size > 0 ? `::source=${configGraphDigest(selectedExportNode, declarations, sourceFile)}` : '';
 		exclusions.push(`${path}::<unresolvedConfig>=${unresolvedConfig}${suffix}`);
 	} else if (isStaticObject(config)) {
 		recordConfigOptions(path, config, '', configuration, exclusions);
 	} else {
 		const expression = selectedExportNode?.getText(sourceFile) ?? '<unresolved>';
-		exclusions.push(`${path}::<unresolvedConfig>=${expression}::source=${sourceDigest(source)}`);
+		const digest =
+			roots.size > 0 ? configGraphDigest(selectedExportNode, declarations, sourceFile) : sourceDigest(source);
+		exclusions.push(`${path}::<unresolvedConfig>=${expression}::source=${digest}`);
 	}
 }
 
@@ -1503,6 +1752,7 @@ export function collectSurface(ref, options = {}) {
 		testNames: []
 	};
 	surface.publicExports.push(...collectPublicExports(files));
+	surface.serviceMethods.push(...collectServiceInstanceExports(files));
 
 	for (const [path, source] of files) {
 		surface.routes.push(...collectRoutes(path, source));

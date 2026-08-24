@@ -272,6 +272,29 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 	);
 	write(
 		repository,
+		'apps/web/core/services/client/api/tasks/aliased-task.service.ts',
+		[
+			'export class AliasedTaskService { getTasks() { return []; } }',
+			'const primary = new AliasedTaskService();',
+			'const alias = primary;',
+			'export { alias as outwardTaskService };'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/web/core/services/client/api/tasks/source.service.ts',
+		[
+			'export class SourceService { getSource() { return []; } }',
+			'export const sourceService = new SourceService();'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/web/core/services/client/api/tasks/metadata.service.ts',
+		"export { sourceService as outwardMetadataService } from './source.service';\n"
+	);
+	write(
+		repository,
 		'apps/web/core/account.cy.ts',
 		[
 			"describe.each([{ name: 'one' }])('account $name', () => {",
@@ -487,6 +510,26 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 		repository,
 		'apps/projects/jest.config.ts',
 		"export default { projects: [{ testMatch: ['<rootDir>/**/*.test.ts', '<rootDir>/**/*.spec.ts'] }] };\n"
+	);
+	write(
+		repository,
+		'apps/function-return/jest.config.ts',
+		[
+			'function makeConfig() {',
+			"\treturn { projects: [{ testMatch: ['<rootDir>/**/*.test.ts', '<rootDir>/**/*.spec.ts'] }] };",
+			'}',
+			'export default makeConfig();'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/directional-mutation/jest.config.ts',
+		[
+			"const config = { testMatch: ['<rootDir>/**/*.test.ts', '<rootDir>/**/*.spec.ts'] };",
+			"if (process.env.CI) config.testMatch = ['<rootDir>/**/*.test.ts'];",
+			'config.onlyChanged = true;',
+			'export default config;'
+		].join('\n') + '\n'
 	);
 	write(
 		repository,
@@ -725,6 +768,21 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 	);
 	write(
 		repository,
+		'apps/web/core/services/client/api/tasks/aliased-task.service.ts',
+		[
+			'export class AliasedTaskService { getTasks() { return []; } }',
+			'const primary = new AliasedTaskService();',
+			'const alias = primary;',
+			'void alias;'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/web/core/services/client/api/tasks/metadata.service.ts',
+		"export { sourceService } from './source.service';\n"
+	);
+	write(
+		repository,
 		'apps/web/core/account.cy.ts',
 		[
 			"describe.skip.each([{ name: 'one' }])('account $name', () => {",
@@ -886,6 +944,26 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 		repository,
 		'apps/projects/jest.config.ts',
 		"export default { projects: [{ testMatch: ['<rootDir>/only.test.ts'] }] };\n"
+	);
+	write(
+		repository,
+		'apps/function-return/jest.config.ts',
+		[
+			'function makeConfig() {',
+			"\treturn { projects: [{ testMatch: ['<rootDir>/**/*.test.ts'] }] };",
+			'}',
+			'export default makeConfig();'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/directional-mutation/jest.config.ts',
+		[
+			"const config = { testMatch: ['<rootDir>/**/*.test.ts', '<rootDir>/**/*.spec.ts'] };",
+			"if (process.env.CI) config.testMatch = ['<rootDir>/**/*.test.ts'];",
+			'config.onlyChanged = false;',
+			'export default config;'
+		].join('\n') + '\n'
 	);
 	write(
 		repository,
@@ -1122,6 +1200,43 @@ describe('Ever Teams feature surface preservation', () => {
 			expect.arrayContaining([
 				{ category: 'serviceMethods', kind: 'removed', value: `${path}::taskStatusService` },
 				{ category: 'serviceMethods', kind: 'removed', value: `${path}::metadataService` }
+			])
+		);
+	});
+
+	it('preserves singleton identity through local aliases and source-module reexports', () => {
+		const aliasPath = 'apps/web/core/services/client/api/tasks/aliased-task.service.ts';
+		const sourcePath = 'apps/web/core/services/client/api/tasks/source.service.ts';
+		const reexportPath = 'apps/web/core/services/client/api/tasks/metadata.service.ts';
+		expect(violationRun.report?.base.surface.serviceMethods).toEqual(
+			expect.arrayContaining([
+				`${aliasPath}::outwardTaskService`,
+				`${aliasPath}::outwardTaskService=>${aliasPath}::primary`,
+				`${reexportPath}::outwardMetadataService`,
+				`${reexportPath}::outwardMetadataService=>${sourcePath}::sourceService`
+			])
+		);
+		expect(violationRun.report?.head.surface.serviceMethods).toEqual(
+			expect.arrayContaining([
+				`${aliasPath}::AliasedTaskService.getTasks`,
+				`${sourcePath}::SourceService.getSource`,
+				`${sourcePath}::sourceService`
+			])
+		);
+		expect(violationRun.report?.violations).toEqual(
+			expect.arrayContaining([
+				{ category: 'serviceMethods', kind: 'removed', value: `${aliasPath}::outwardTaskService` },
+				{
+					category: 'serviceMethods',
+					kind: 'removed',
+					value: `${aliasPath}::outwardTaskService=>${aliasPath}::primary`
+				},
+				{ category: 'serviceMethods', kind: 'removed', value: `${reexportPath}::outwardMetadataService` },
+				{
+					category: 'serviceMethods',
+					kind: 'removed',
+					value: `${reexportPath}::outwardMetadataService=>${sourcePath}::sourceService`
+				}
 			])
 		);
 	});
@@ -1525,6 +1640,36 @@ describe('Ever Teams feature surface preservation', () => {
 				value.startsWith('apps/conditional/jest.config.ts::<configMutation>=config.passWithNoTests = false')
 			)
 		).toBe(false);
+	});
+
+	it('fingerprints selector sources returned from a named local config function', () => {
+		const path = 'apps/function-return/jest.config.ts';
+		const prefix = `${path}::<unresolvedConfig>=makeConfig()`;
+		const baseToken = violationRun.report?.base.surface.exclusions.find((value) => value.startsWith(prefix));
+		const headToken = violationRun.report?.head.surface.exclusions.find((value) => value.startsWith(prefix));
+		if (!baseToken || !headToken) throw new Error(`Missing returned config evidence for ${path}`);
+		expect(baseToken).toContain('::source=');
+		expect(headToken).toContain('::source=');
+		expect(baseToken).not.toBe(headToken);
+		expect(violationRun.report?.violations).toContainEqual({
+			category: 'exclusions',
+			kind: 'added',
+			value: headToken
+		});
+	});
+
+	it('keeps safe directional booleans from changing retained selector mutation evidence', () => {
+		const path = 'apps/directional-mutation/jest.config.ts';
+		const prefix = `${path}::<configMutation>=`;
+		const baseToken = violationRun.report?.base.surface.exclusions.find(
+			(value) => value.startsWith(prefix) && value.includes('config.testMatch')
+		);
+		const headToken = violationRun.report?.head.surface.exclusions.find(
+			(value) => value.startsWith(prefix) && value.includes('config.testMatch')
+		);
+		if (!baseToken || !headToken) throw new Error(`Missing conditional selector evidence for ${path}`);
+		expect(baseToken).toBe(headToken);
+		expect(violationRun.report?.violations.filter(({ value }) => value.startsWith(`${path}::`))).toEqual([]);
 	});
 
 	it('preserves selection options nested inside Jest project configuration', () => {
