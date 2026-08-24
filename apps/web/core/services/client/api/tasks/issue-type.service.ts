@@ -22,7 +22,7 @@ class IssueTypeService extends APIService {
 		return this.delete<DeleteResponse>(`/issue-types/${id}`);
 	};
 
-	getIssueTypeList = async (scope?: TaskMetadataScope) => {
+	getIssueTypeList = async (scope?: TaskMetadataScope, signal?: AbortSignal) => {
 		if (scope) {
 			const query = qs.stringify({
 				tenantId: scope.tenantId,
@@ -32,12 +32,18 @@ class IssueTypeService extends APIService {
 			});
 			const endpoint = `/issue-types?${query}`;
 
-			return this.get<PaginationResponse<IIssueType>>(endpoint, { tenantId: scope.tenantId });
+			return this.get<PaginationResponse<IIssueType>>(endpoint, {
+				tenantId: scope.tenantId,
+				...(signal ? { signal } : {})
+			});
 		}
 
 		const endpoint = `/issue-types?tenantId=${this.tenantId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`;
 
-		return this.get<PaginationResponse<IIssueType>>(endpoint, { tenantId: this.tenantId });
+		return this.get<PaginationResponse<IIssueType>>(endpoint, {
+			tenantId: this.tenantId,
+			...(signal ? { signal } : {})
+		});
 	};
 }
 

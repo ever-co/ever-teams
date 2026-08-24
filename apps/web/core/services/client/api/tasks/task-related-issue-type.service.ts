@@ -25,7 +25,7 @@ class TaskRelatedIssueTypeService extends APIService {
 		// return this.delete<DeleteResponse>(`/task-related-issue-types/${id}`);
 	};
 
-	getTaskRelatedIssueTypeList = async (scope?: TaskMetadataScope) => {
+	getTaskRelatedIssueTypeList = async (scope?: TaskMetadataScope, signal?: AbortSignal) => {
 		if (scope) {
 			const query = qs.stringify({
 				tenantId: scope.tenantId,
@@ -35,12 +35,18 @@ class TaskRelatedIssueTypeService extends APIService {
 			});
 			const endpoint = `/task-related-issue-types?${query}`;
 
-			return this.get<PaginationResponse<ITaskRelatedIssueType>>(endpoint, { tenantId: scope.tenantId });
+			return this.get<PaginationResponse<ITaskRelatedIssueType>>(endpoint, {
+				tenantId: scope.tenantId,
+				...(signal ? { signal } : {})
+			});
 		}
 
 		const endpoint = `/task-related-issue-types?tenantId=${this.tenantId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`;
 
-		return this.get<PaginationResponse<ITaskRelatedIssueType>>(endpoint, { tenantId: this.tenantId });
+		return this.get<PaginationResponse<ITaskRelatedIssueType>>(endpoint, {
+			tenantId: this.tenantId,
+			...(signal ? { signal } : {})
+		});
 	};
 }
 

@@ -111,7 +111,10 @@ class TaskPriorityService extends APIService {
 	 * @returns Promise<PaginationResponse<TTaskPriority>> - Validated task priorities data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getTaskPrioritiesList = async (scope?: TaskMetadataScope): Promise<PaginationResponse<TTaskPriority>> => {
+	getTaskPrioritiesList = async (
+		scope?: TaskMetadataScope,
+		signal?: AbortSignal
+	): Promise<PaginationResponse<TTaskPriority>> => {
 		try {
 			if (scope) {
 				const query = qs.stringify({
@@ -122,7 +125,8 @@ class TaskPriorityService extends APIService {
 				});
 				const endpoint = `/task-priorities?${query}`;
 				const response = await this.get<PaginationResponse<TTaskPriority>>(endpoint, {
-					tenantId: scope.tenantId
+					tenantId: scope.tenantId,
+					...(signal ? { signal } : {})
 				});
 
 				return validatePaginationResponse(
@@ -134,7 +138,10 @@ class TaskPriorityService extends APIService {
 
 			const endpoint = `/task-priorities?tenantId=${this.tenantId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`;
 
-			const response = await this.get<PaginationResponse<TTaskPriority>>(endpoint, { tenantId: this.tenantId });
+			const response = await this.get<PaginationResponse<TTaskPriority>>(endpoint, {
+				tenantId: this.tenantId,
+				...(signal ? { signal } : {})
+			});
 
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(taskPrioritySchema, response.data, 'getTaskPrioritiesList API response');

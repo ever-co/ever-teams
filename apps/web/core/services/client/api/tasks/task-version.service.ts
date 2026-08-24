@@ -124,7 +124,10 @@ class TaskVersionService extends APIService {
 	 * @returns Promise<PaginationResponse<TTaskVersion>> - Validated task versions data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getTaskVersions = async (scope?: TaskMetadataScope): Promise<PaginationResponse<TTaskVersion>> => {
+	getTaskVersions = async (
+		scope?: TaskMetadataScope,
+		signal?: AbortSignal
+	): Promise<PaginationResponse<TTaskVersion>> => {
 		try {
 			if (scope) {
 				const query = qs.stringify({
@@ -135,7 +138,8 @@ class TaskVersionService extends APIService {
 				});
 				const endpoint = `/task-versions?${query}`;
 				const response = await this.get<PaginationResponse<TTaskVersion>>(endpoint, {
-					tenantId: scope.tenantId
+					tenantId: scope.tenantId,
+					...(signal ? { signal } : {})
 				});
 
 				return validatePaginationResponse(taskVersionSchema, response.data, 'getTaskVersions API response');
@@ -144,7 +148,10 @@ class TaskVersionService extends APIService {
 			const query = qs.stringify(this.activeTeamBasedQueries);
 			const endpoint = `/task-versions?${query}`;
 
-			const response = await this.get<PaginationResponse<TTaskVersion>>(endpoint, { tenantId: this.tenantId });
+			const response = await this.get<PaginationResponse<TTaskVersion>>(endpoint, {
+				tenantId: this.tenantId,
+				...(signal ? { signal } : {})
+			});
 
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(taskVersionSchema, response.data, 'getTaskVersions API response');

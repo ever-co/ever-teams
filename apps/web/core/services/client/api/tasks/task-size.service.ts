@@ -113,7 +113,7 @@ class TaskSizeService extends APIService {
 	 * @returns Promise<PaginationResponse<TTaskSize>> - Validated task sizes data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getTaskSizes = async (scope?: TaskMetadataScope): Promise<PaginationResponse<TTaskSize>> => {
+	getTaskSizes = async (scope?: TaskMetadataScope, signal?: AbortSignal): Promise<PaginationResponse<TTaskSize>> => {
 		try {
 			if (scope) {
 				const query = qs.stringify({
@@ -124,14 +124,17 @@ class TaskSizeService extends APIService {
 				});
 				const endpoint = `/task-sizes?${query}`;
 				const response = await this.get<PaginationResponse<TTaskSize>>(endpoint, {
-					tenantId: scope.tenantId
+					tenantId: scope.tenantId,
+					...(signal ? { signal } : {})
 				});
 
 				return validatePaginationResponse(taskSizeSchema, response.data, 'getTaskSizes API response');
 			}
 
 			const endpoint = `/task-sizes?tenantId=${this.tenantId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`;
-			const response = await this.get<PaginationResponse<TTaskSize>>(endpoint);
+			const response = signal
+				? await this.get<PaginationResponse<TTaskSize>>(endpoint, { signal })
+				: await this.get<PaginationResponse<TTaskSize>>(endpoint);
 
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(taskSizeSchema, response.data, 'getTaskSizes API response');

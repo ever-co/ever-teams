@@ -46,7 +46,7 @@ class TaskMetadataBootstrapService extends APIService {
 			return this.selectAndValidate(response.data, canonicalInclude);
 		} catch (error) {
 			if (ApiErrorService.isApiError(error) && error.isEndpointUnavailable()) {
-				return this.loadLegacySections(scope, canonicalInclude);
+				return this.loadLegacySections(scope, canonicalInclude, signal);
 			}
 
 			throw error;
@@ -99,16 +99,18 @@ class TaskMetadataBootstrapService extends APIService {
 
 	private async loadLegacySections(
 		scope: TaskMetadataScope,
-		include: readonly TaskMetadataSection[]
+		include: readonly TaskMetadataSection[],
+		signal?: AbortSignal
 	): Promise<TaskMetadataBootstrapResponse> {
 		const loaders: Record<TaskMetadataSection, () => Promise<unknown>> = {
-			taskStatuses: () => taskStatusService.getTaskStatuses(scope),
-			taskPriorities: () => taskPriorityService.getTaskPrioritiesList(scope),
-			taskSizes: () => taskSizeService.getTaskSizes(scope),
-			taskLabels: async () => (await taskLabelService.getTaskLabelsList(scope)).data,
-			taskVersions: () => taskVersionService.getTaskVersions(scope),
-			issueTypes: async () => (await issueTypeService.getIssueTypeList(scope)).data,
-			relatedIssueTypes: async () => (await taskRelatedIssueTypeService.getTaskRelatedIssueTypeList(scope)).data
+			taskStatuses: () => taskStatusService.getTaskStatuses(scope, signal),
+			taskPriorities: () => taskPriorityService.getTaskPrioritiesList(scope, signal),
+			taskSizes: () => taskSizeService.getTaskSizes(scope, signal),
+			taskLabels: async () => (await taskLabelService.getTaskLabelsList(scope, signal)).data,
+			taskVersions: () => taskVersionService.getTaskVersions(scope, signal),
+			issueTypes: async () => (await issueTypeService.getIssueTypeList(scope, signal)).data,
+			relatedIssueTypes: async () =>
+				(await taskRelatedIssueTypeService.getTaskRelatedIssueTypeList(scope, signal)).data
 		};
 		const entries = await Promise.all(include.map(async (section) => [section, await loaders[section]()] as const));
 

@@ -25,7 +25,7 @@ class TaskLabelService extends APIService {
 		return this.delete<DeleteResponse>(`/tags/${id}`);
 	};
 
-	getTaskLabelsList = async (scope?: TaskMetadataScope) => {
+	getTaskLabelsList = async (scope?: TaskMetadataScope, signal?: AbortSignal) => {
 		if (scope) {
 			const query = qs.stringify({
 				tenantId: scope.tenantId,
@@ -34,12 +34,18 @@ class TaskLabelService extends APIService {
 			});
 			const endpoint = `/tags/level?${query}`;
 
-			return this.get<PaginationResponse<TTag>>(endpoint, { tenantId: scope.tenantId });
+			return this.get<PaginationResponse<TTag>>(endpoint, {
+				tenantId: scope.tenantId,
+				...(signal ? { signal } : {})
+			});
 		}
 
 		const endpoint = `/tags/level?tenantId=${this.tenantId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`;
 
-		return this.get<PaginationResponse<TTag>>(endpoint, { tenantId: this.tenantId });
+		return this.get<PaginationResponse<TTag>>(endpoint, {
+			tenantId: this.tenantId,
+			...(signal ? { signal } : {})
+		});
 	};
 }
 

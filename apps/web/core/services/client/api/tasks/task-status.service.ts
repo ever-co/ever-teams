@@ -183,7 +183,10 @@ class TaskStatusService extends APIService {
 	 * @returns Promise<PaginationResponse<TTaskStatus>> - Validated task statuses data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getTaskStatuses = async (scope?: TaskMetadataScope): Promise<PaginationResponse<TTaskStatus>> => {
+	getTaskStatuses = async (
+		scope?: TaskMetadataScope,
+		signal?: AbortSignal
+	): Promise<PaginationResponse<TTaskStatus>> => {
 		try {
 			if (scope) {
 				const query = qs.stringify({
@@ -194,7 +197,8 @@ class TaskStatusService extends APIService {
 				});
 				const endpoint = `/task-statuses?${query}`;
 				const response = await this.get<PaginationResponse<TTaskStatus>>(endpoint, {
-					tenantId: scope.tenantId
+					tenantId: scope.tenantId,
+					...(signal ? { signal } : {})
 				});
 
 				return validatePaginationResponse(taskStatusSchema, response.data, 'getTaskStatuses API response');
@@ -208,7 +212,10 @@ class TaskStatusService extends APIService {
 
 			const endpoint = `/task-statuses?${query}`;
 
-			const response = await this.get<PaginationResponse<TTaskStatus>>(endpoint, { tenantId: this.tenantId });
+			const response = await this.get<PaginationResponse<TTaskStatus>>(endpoint, {
+				tenantId: this.tenantId,
+				...(signal ? { signal } : {})
+			});
 
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(taskStatusSchema, response.data, 'getTaskStatuses API response');

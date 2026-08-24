@@ -284,6 +284,7 @@ describe('strict endpoint-unavailable fallback', () => {
 
 	it('starts all seven selected legacy loaders once before any one resolves and preserves their values', async () => {
 		jest.spyOn(taskMetadataBootstrapService, 'get').mockRejectedValue(responseError(404));
+		const signal = new AbortController().signal;
 		const releases: Array<() => void> = [];
 		const deferred = <T>(value: T) =>
 			new Promise<T>((resolve) => {
@@ -313,13 +314,13 @@ describe('strict endpoint-unavailable fallback', () => {
 				.mockImplementation(() => deferred(axiosResponse(fullBundle.relatedIssueTypes)) as never)
 		};
 
-		const resultPromise = taskMetadataBootstrapService.getTaskMetadataBootstrap(scope);
+		const resultPromise = taskMetadataBootstrapService.getTaskMetadataBootstrap(scope, undefined, signal);
 		await allowPromiseChainToStart();
 
 		expect(releases).toHaveLength(7);
 		Object.values(legacy).forEach((loader) => {
 			expect(loader).toHaveBeenCalledTimes(1);
-			expect(loader).toHaveBeenCalledWith(scope);
+			expect(loader).toHaveBeenCalledWith(scope, signal);
 		});
 		releases.forEach((release) => release());
 		const result = await resultPromise;
@@ -498,26 +499,32 @@ describe('captured-scope legacy metadata reads', () => {
 		const versionGet = jest.spyOn(taskVersionService, 'get').mockResolvedValue(response as never);
 		const issueGet = jest.spyOn(issueTypeService, 'get').mockResolvedValue(response as never);
 		const relatedGet = jest.spyOn(taskRelatedIssueTypeService, 'get').mockResolvedValue(response as never);
+		const signal = new AbortController().signal;
 
-		await taskStatusService.getTaskStatuses(capturedScope);
-		await taskPriorityService.getTaskPrioritiesList(capturedScope);
-		await taskSizeService.getTaskSizes(capturedScope);
-		await taskLabelService.getTaskLabelsList(capturedScope);
-		await taskVersionService.getTaskVersions(capturedScope);
-		await issueTypeService.getIssueTypeList(capturedScope);
-		await taskRelatedIssueTypeService.getTaskRelatedIssueTypeList(capturedScope);
+		await taskStatusService.getTaskStatuses(capturedScope, signal);
+		await taskPriorityService.getTaskPrioritiesList(capturedScope, signal);
+		await taskSizeService.getTaskSizes(capturedScope, signal);
+		await taskLabelService.getTaskLabelsList(capturedScope, signal);
+		await taskVersionService.getTaskVersions(capturedScope, signal);
+		await issueTypeService.getIssueTypeList(capturedScope, signal);
+		await taskRelatedIssueTypeService.getTaskRelatedIssueTypeList(capturedScope, signal);
 
 		const scopedSuffix = 'tenantId=old-tenant&organizationId=old-organization&projectId=old-project';
-		expect(statusGet).toHaveBeenCalledWith(`/task-statuses?${scopedSuffix}`, { tenantId: 'old-tenant' });
-		expect(priorityGet).toHaveBeenCalledWith(`/task-priorities?${scopedSuffix}`, { tenantId: 'old-tenant' });
-		expect(sizeGet).toHaveBeenCalledWith(`/task-sizes?${scopedSuffix}`, { tenantId: 'old-tenant' });
-		expect(versionGet).toHaveBeenCalledWith(`/task-versions?${scopedSuffix}`, { tenantId: 'old-tenant' });
-		expect(issueGet).toHaveBeenCalledWith(`/issue-types?${scopedSuffix}`, { tenantId: 'old-tenant' });
+		expect(statusGet).toHaveBeenCalledWith(`/task-statuses?${scopedSuffix}`, { tenantId: 'old-tenant', signal });
+		expect(priorityGet).toHaveBeenCalledWith(`/task-priorities?${scopedSuffix}`, {
+			tenantId: 'old-tenant',
+			signal
+		});
+		expect(sizeGet).toHaveBeenCalledWith(`/task-sizes?${scopedSuffix}`, { tenantId: 'old-tenant', signal });
+		expect(versionGet).toHaveBeenCalledWith(`/task-versions?${scopedSuffix}`, { tenantId: 'old-tenant', signal });
+		expect(issueGet).toHaveBeenCalledWith(`/issue-types?${scopedSuffix}`, { tenantId: 'old-tenant', signal });
 		expect(relatedGet).toHaveBeenCalledWith(`/task-related-issue-types?${scopedSuffix}`, {
-			tenantId: 'old-tenant'
+			tenantId: 'old-tenant',
+			signal
 		});
 		expect(labelGet).toHaveBeenCalledWith('/tags/level?tenantId=old-tenant&organizationId=old-organization', {
-			tenantId: 'old-tenant'
+			tenantId: 'old-tenant',
+			signal
 		});
 		[statusGet, priorityGet, sizeGet, labelGet, versionGet, issueGet, relatedGet].forEach((get) => {
 			expect(get.mock.calls[0][0]).not.toContain('cookie-');
