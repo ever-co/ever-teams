@@ -1,8 +1,8 @@
 'use client';
 import { APPLICATION_LANGUAGES_CODE } from '@/core/constants/config/constants';
-import { getActiveLanguageIdCookie, setActiveLanguageIdCookie } from '@/core/lib/helpers/cookies';
+import { getAccessTokenCookie, getActiveLanguageIdCookie, setActiveLanguageIdCookie } from '@/core/lib/helpers/cookies';
 import { activeLanguageIdState, activeLanguageState, languageListState, languagesFetchingState } from '@/core/stores';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useFirstLoad } from './use-first-load';
 import { useLanguage } from './use-language';
@@ -15,6 +15,12 @@ import { TLanguageItemList } from '@/core/types/schemas';
 import { useUserLanguagePreference } from './use-user-language-preference';
 import { useLanguageStateSync } from './use-language-state-sync';
 import { useUserQuery } from '../queries/user-user.query';
+import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
+import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
+
+export interface UseLanguageSettingsOptions {
+	enabled?: boolean;
+}
 
 /**
  * Filters languages based on APPLICATION_LANGUAGES_CODE configuration
@@ -85,8 +91,9 @@ const filterLanguagesByCode = (data: PaginationResponse<TLanguageItemList>) => {
  * @throws {Error} When language API request fails
  * @throws {ZodValidationError} When API response doesn't match expected schema
  */
-export function useLanguageSettings(): UseLanguageSettingsReturn {
+export function useLanguageSettings({ enabled = true }: UseLanguageSettingsOptions = {}): UseLanguageSettingsReturn {
 	const { data: user } = useUserQuery();
+	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
 	const [languages, setLanguages] = useAtom(languageListState);
 	const { changeLanguage } = useLanguage();
 	const activeLanguage = useAtomValue(activeLanguageState);
@@ -102,8 +109,19 @@ export function useLanguageSettings(): UseLanguageSettingsReturn {
 
 	// Stable query key using memoized isSystem
 	const queryKey = useMemo(() => {
-		return queryKeys.languages.system(isSystem);
-	}, [isSystem]); // Only changes when isSystem actually changes
+		return fastBootstrap
+			? queryKeys.languages.byScope(user?.tenantId, user?.id, isSystem)
+			: queryKeys.languages.system(isSystem);
+	}, [fastBootstrap, isSystem, user?.id, user?.tenantId]);
+	const scope = {
+		tenantId: user?.tenantId,
+		userId: user?.id,
+		accessToken: fastBootstrap ? getAccessTokenCookie() : undefined
+	};
+	const fastOwnerActive = enabled && fastBootstrap;
+	const fastQueryEnabled = fastOwnerActive && !!(scope.tenantId && scope.userId && scope.accessToken);
+	const effectsEnabled = fastBootstrap ? fastOwnerActive : enabled;
+	const isCurrentScope = useFastScopeGuard(queryKey, fastOwnerActive);
 
 	/**
 	 * React Query for languages data with optimized caching strategy
@@ -116,23 +134,40 @@ export function useLanguageSettings(): UseLanguageSettingsReturn {
 	 */
 	const languagesQuery = useQuery({
 		queryKey, // Use stable memoized query key
-		queryFn: () => languageService.getLanguages(isSystem),
-		enabled: !!user, // Only fetch when user is available
+		queryFn: ({ signal }) =>
+			fastBootstrap
+				? languageService.getLanguages(isSystem, { scope, signal })
+				: languageService.getLanguages(isSystem),
+		enabled: fastBootstrap ? fastQueryEnabled : enabled && !!user, // Only fetch when user is available
 		staleTime: 1000 * 60 * 60, // Languages are stable, cache for 1 hour
 		gcTime: 1000 * 60 * 60 * 24, // Keep in cache for 24 hours
 		select: filterLanguagesByCode
 	});
+
+	useEffect(() => {
+		if (fastOwnerActive && isCurrentScope()) {
+			setLanguages([]);
+		}
+	}, [fastOwnerActive, isCurrentScope, setLanguages, user?.id, user?.tenantId]);
 	const activeLanguageId = useMemo(() => getActiveLanguageIdCookie(), []);
 	// Use custom hooks to reduce complexity
-	useLanguageStateSync(languagesQuery, setLanguages, setLanguagesFetching);
-	useUserLanguagePreference(user!, changeLanguage);
+	useLanguageStateSync(languagesQuery, setLanguages, setLanguagesFetching, {
+		enabled: effectsEnabled,
+		isCurrentScope: fastBootstrap ? isCurrentScope : undefined
+	});
+	useUserLanguagePreference(user!, changeLanguage, effectsEnabled);
 
 	/**
 	 * Loads languages data intelligently - uses cache if fresh, fetches if stale
 	 * @returns Promise resolving to the API response data
 	 */
 	const loadLanguagesData = useCallback(async () => {
-		setActiveLanguageCode(activeLanguageId);
+		if (fastBootstrap && !isCurrentScope()) {
+			return { data: { items: [], total: 0 } };
+		}
+		if (effectsEnabled) {
+			setActiveLanguageCode(activeLanguageId);
+		}
 		try {
 			// SMART LOADING - Check cache first, only fetch if needed
 			let result;
@@ -156,7 +191,16 @@ export function useLanguageSettings(): UseLanguageSettingsReturn {
 			}
 			return { data: { items: [], total: 0 } };
 		}
-	}, [languagesQuery.data, languagesQuery.isStale]);
+	}, [
+		activeLanguageId,
+		effectsEnabled,
+		fastBootstrap,
+		isCurrentScope,
+		languagesQuery.data,
+		languagesQuery.isStale,
+		languagesQuery.refetch,
+		setActiveLanguageCode
+	]);
 
 	/**
 	 * Sets the active language and persists the selection
@@ -164,13 +208,26 @@ export function useLanguageSettings(): UseLanguageSettingsReturn {
 	 */
 	const setActiveLanguage = useCallback(
 		(languageId: ILanguageItemList) => {
-			if (activeLanguageId !== languageId.code && languageId.code !== activeLanguageCode) {
+			if (
+				effectsEnabled &&
+				(!fastBootstrap || isCurrentScope()) &&
+				activeLanguageId !== languageId.code &&
+				languageId.code !== activeLanguageCode
+			) {
 				changeLanguage(languageId.code);
 				setActiveLanguageIdCookie(languageId.code);
 				setActiveLanguageCode(languageId.code);
 			}
 		},
-		[activeLanguageId, activeLanguageCode, setActiveLanguageCode, changeLanguage]
+		[
+			activeLanguageId,
+			activeLanguageCode,
+			changeLanguage,
+			effectsEnabled,
+			fastBootstrap,
+			isCurrentScope,
+			setActiveLanguageCode
+		]
 	);
 
 	return {

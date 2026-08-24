@@ -30,8 +30,10 @@ import {
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { useAtomValue } from 'jotai';
+import { useFastCurrentOrganizationOwner } from '@/core/hooks/bootstrap/use-fast-feature-data';
 
 function WeeklyLimitReport() {
+	useFastCurrentOrganizationOwner();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	// The organization is loaded app-wide by useGetCurrentOrganization (init-state) through the CLIENT api
 	// service. This page used to call the server-only getUserOrganizationsRequest (serverFetch →

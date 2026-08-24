@@ -6,6 +6,13 @@ import { organizationProjectService } from '@/core/services/client/api/organizat
 import { queryKeys } from '@/core/query/keys';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useInvalidateOrganizationProjects } from './use-invalidate-organization-projects';
+import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
+import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
+import { useFastScopeGuard } from '../../bootstrap/use-fast-scope-guard';
+
+export interface UseOrganizationProjectsQueryOptions {
+	enabled?: boolean;
+}
 
 /**
  * Hook for read-only organization projects operations.
@@ -20,19 +27,39 @@ import { useInvalidateOrganizationProjects } from './use-invalidate-organization
  * - `setSearchQueries` - Setter for search/filter queries
  * - `filteredOrganizations` - React Query result for filtered projects
  */
-export function useOrganizationProjectsQuery() {
+export function useOrganizationProjectsQuery({ enabled = true }: UseOrganizationProjectsQueryOptions = {}) {
 	const { tenantId, organizationId, queryClient } = useInvalidateOrganizationProjects();
 	const { data: user } = useUserQuery();
+	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
 	const [searchQueries, setSearchQueries] = useState<Record<string, string> | null>(null);
 	const memoizedSearchQueries = useMemo(() => searchQueries, [JSON.stringify(searchQueries)]);
+	const accessToken = fastBootstrap ? getAccessTokenCookie() : undefined;
+	const scope = useMemo(
+		() => ({ tenantId, organizationId, userId: user?.id, accessToken }),
+		[accessToken, organizationId, tenantId, user?.id]
+	);
+	const mainQueryKey = fastBootstrap
+		? queryKeys.organizationProjects.byScope(scope.tenantId, scope.organizationId)
+		: queryKeys.organizationProjects.byOrganization(organizationId, tenantId);
+	const filteredQueryKey = fastBootstrap
+		? queryKeys.organizationProjects.withQueriesByScope(scope.tenantId, scope.organizationId, memoizedSearchQueries)
+		: [...queryKeys.organizationProjects.all, ...queryKeys.organizationProjects.withQueries(memoizedSearchQueries)];
+	const fastOwnerActive = enabled && fastBootstrap;
+	const fastQueryEnabled =
+		fastOwnerActive && !!(scope.tenantId && scope.organizationId && scope.userId && scope.accessToken);
+	useFastScopeGuard(mainQueryKey, fastOwnerActive);
+	useFastScopeGuard(filteredQueryKey, fastOwnerActive && !!memoizedSearchQueries);
 
 	// ==================== QUERIES ====================
 
 	// Main query: fetch all organization projects
 	const organizationProjectsQuery = useQuery({
-		queryKey: queryKeys.organizationProjects.byOrganization(organizationId, tenantId),
-		queryFn: () => organizationProjectService.getOrganizationProjects(),
-		enabled: !!organizationId && !!tenantId
+		queryKey: mainQueryKey,
+		queryFn: ({ signal }) =>
+			fastBootstrap
+				? organizationProjectService.getOrganizationProjects({ scope, signal })
+				: organizationProjectService.getOrganizationProjects(),
+		enabled: fastBootstrap ? fastQueryEnabled : enabled && !!organizationId && !!tenantId
 	});
 	const organizationProjects = useMemo(
 		() => organizationProjectsQuery?.data?.items ?? [],
@@ -41,15 +68,14 @@ export function useOrganizationProjectsQuery() {
 
 	// Filtered query: fetch projects matching search queries
 	const filteredOrganizations = useQuery({
-		queryKey: [
-			...queryKeys.organizationProjects.all,
-			...queryKeys.organizationProjects.withQueries(memoizedSearchQueries)
-		],
-		queryFn: () =>
-			organizationProjectService.getOrganizationProjects({
-				queries: memoizedSearchQueries ?? undefined
-			}),
-		enabled: !!memoizedSearchQueries
+		queryKey: filteredQueryKey,
+		queryFn: ({ signal }) =>
+			organizationProjectService.getOrganizationProjects(
+				fastBootstrap
+					? { queries: memoizedSearchQueries ?? undefined, scope, signal }
+					: { queries: memoizedSearchQueries ?? undefined }
+			),
+		enabled: !!memoizedSearchQueries && (fastBootstrap ? fastQueryEnabled : enabled)
 	});
 
 	// ==================== CALLBACKS ====================
@@ -58,27 +84,32 @@ export function useOrganizationProjectsQuery() {
 		async (id: string) => {
 			try {
 				const result = await queryClient.fetchQuery({
-					queryKey: queryKeys.organizationProjects.detail(id),
-					queryFn: () => organizationProjectService.getOrganizationProject(id)
+					queryKey: fastBootstrap
+						? queryKeys.organizationProjects.detailByScope(tenantId, organizationId, id)
+						: queryKeys.organizationProjects.detail(id),
+					queryFn: ({ signal }) =>
+						fastBootstrap
+							? organizationProjectService.getOrganizationProject(id, { scope, signal })
+							: organizationProjectService.getOrganizationProject(id)
 				});
 				return result;
 			} catch (error) {
 				console.error('Failed to get the organization project', error);
 			}
 		},
-		[queryClient]
+		[fastBootstrap, organizationId, queryClient, scope, tenantId]
 	);
 
 	const loadOrganizationProjects = useCallback(async () => {
 		try {
-			if (!user) return;
+			if (!enabled || !user || (fastBootstrap && !fastQueryEnabled)) return;
 			if (organizationProjects?.length) return;
 
 			return await organizationProjectsQuery?.refetch();
 		} catch (error) {
 			console.error('Failed to load organization projects', error);
 		}
-	}, [user, organizationProjects, organizationProjectsQuery?.refetch]);
+	}, [enabled, fastBootstrap, fastQueryEnabled, user, organizationProjects, organizationProjectsQuery?.refetch]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadOrganizationProjects();

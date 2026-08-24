@@ -6,11 +6,16 @@ import { useEffect } from 'react';
  * @param user - Current user object
  * @param changeLanguage - Function to change language
  */
-export const useUserLanguagePreference = (user: TUser | null, changeLanguage: (lang: string) => void) => {
+export const useUserLanguagePreference = (
+	user: TUser | null,
+	changeLanguage: (lang: string) => void,
+	enabled = true
+) => {
 	useEffect(() => {
+		if (!enabled) return;
 		const language = (user?.preferredLanguage || window?.localStorage?.getItem('preferredLanguage')) ?? null;
 		if (language) {
 			changeLanguage(language);
 		}
-	}, [changeLanguage, user]);
+	}, [changeLanguage, enabled, user]);
 };

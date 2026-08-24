@@ -5,11 +5,19 @@ import { useQuery } from '@tanstack/react-query';
 import { organizationProjectService } from '@/core/services/client/api/organizations';
 import { queryKeys } from '@/core/query/keys';
 import { useInvalidateOrganizationProjects } from './use-invalidate-organization-projects';
+import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
+import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
+import { useFastScopeGuard } from '../../bootstrap/use-fast-scope-guard';
+import { useUserQuery } from '../../queries/user-user.query';
 
 /** Simple pagination params type */
 export interface PaginationParams {
 	skip?: number;
 	take?: number;
+}
+
+export interface UseOrganizationProjectsPaginationOptions {
+	enabled?: boolean;
 }
 
 /**
@@ -25,23 +33,39 @@ export interface PaginationParams {
  * - `loadNextPage` - Navigate to next page
  * - `loadPreviousPage` - Navigate to previous page
  */
-export function useOrganizationProjectsPagination() {
+export function useOrganizationProjectsPagination({ enabled = true }: UseOrganizationProjectsPaginationOptions = {}) {
 	const { organizationId, tenantId } = useInvalidateOrganizationProjects();
+	const { data: user } = useUserQuery();
+	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
 
 	const [paginationParams, setPaginationParams] = useState<PaginationParams>({
 		skip: 0,
 		take: 20
 	});
+	const scope = {
+		tenantId,
+		organizationId,
+		userId: user?.id,
+		accessToken: fastBootstrap ? getAccessTokenCookie() : undefined
+	};
+	const queryKey = fastBootstrap
+		? queryKeys.organizationProjects.paginationByScope(scope.tenantId, scope.organizationId, paginationParams)
+		: [...queryKeys.organizationProjects.all, 'pagination', paginationParams];
+	const fastOwnerActive = enabled && fastBootstrap;
+	const fastQueryEnabled =
+		fastOwnerActive && !!(scope.tenantId && scope.organizationId && scope.userId && scope.accessToken);
+	useFastScopeGuard(queryKey, fastOwnerActive);
 
 	// Enhanced query with pagination
 	const organizationProjectsWithPagination = useQuery({
-		queryKey: [...queryKeys.organizationProjects.all, 'pagination', paginationParams],
-		queryFn: () =>
-			organizationProjectService.getOrganizationProjects({
-				skip: paginationParams.skip,
-				take: paginationParams.take
-			}),
-		enabled: !!organizationId && !!tenantId
+		queryKey,
+		queryFn: ({ signal }) =>
+			organizationProjectService.getOrganizationProjects(
+				fastBootstrap
+					? { skip: paginationParams.skip, take: paginationParams.take, scope, signal }
+					: { skip: paginationParams.skip, take: paginationParams.take }
+			),
+		enabled: fastBootstrap ? fastQueryEnabled : enabled && !!organizationId && !!tenantId
 	});
 
 	// Pagination helpers
@@ -78,4 +102,3 @@ export function useOrganizationProjectsPagination() {
 		loadPreviousPage
 	};
 }
-

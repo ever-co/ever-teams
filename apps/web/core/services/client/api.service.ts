@@ -204,7 +204,7 @@ export class APIService {
 				const tenantId = getTenantIdCookie();
 				const cookie = getAccessTokenCookie();
 
-				if (cookie) {
+				if (cookie && !config.pinnedAuthorization) {
 					config.headers['Authorization'] = `Bearer ${cookie}`;
 				}
 

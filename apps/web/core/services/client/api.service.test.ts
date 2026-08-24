@@ -142,6 +142,37 @@ describe('APIService request transport', () => {
 		expect(sentConfig?.params).toEqual({ include: 'all' });
 	});
 
+	it('preserves a captured authorization header only when the scoped request pins it', async () => {
+		const service = createService();
+		let sentConfig: InternalAxiosRequestConfig | undefined;
+		service.axiosInstance.defaults.adapter = captureAdapter((config) => {
+			sentConfig = config;
+		});
+		mockCookieState.accessToken = 'cookie-token-a';
+
+		const request = service.get('/captured-auth', {
+			headers: { Authorization: 'Bearer captured-token-a' },
+			pinnedAuthorization: true
+		});
+		mockCookieState.accessToken = 'cookie-token-b';
+		await request;
+
+		expect((sentConfig?.headers as AxiosHeaders).get('Authorization')).toBe('Bearer captured-token-a');
+	});
+
+	it('retains legacy cookie-derived authorization overwrite when a request is not pinned', async () => {
+		const service = createService();
+		let sentConfig: InternalAxiosRequestConfig | undefined;
+		service.axiosInstance.defaults.adapter = captureAdapter((config) => {
+			sentConfig = config;
+		});
+		mockCookieState.accessToken = 'legacy-cookie-token';
+
+		await service.get('/legacy-auth', { headers: { Authorization: 'Bearer legacy-explicit-token' } });
+
+		expect((sentConfig?.headers as AxiosHeaders).get('Authorization')).toBe('Bearer legacy-cookie-token');
+	});
+
 	it('relays caller abort through the Axios signal and cleans the request state', async () => {
 		const service = createService();
 		const pending = createPendingAdapter();

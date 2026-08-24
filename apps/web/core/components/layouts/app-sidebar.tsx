@@ -45,12 +45,12 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
 import { useFavoritesQuery } from '@/core/hooks/favorites/use-favorites-query';
 import { activeTeamState, isTeamManagerState, tasksByTeamState } from '@/core/stores';
-import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { GlobalAllPlansModal } from '../daily-plan';
 import { GlobalAssignTaskModal } from '../features/tasks/global-assign-task-modal';
 import { GlobalProjectActionModal } from '../features/projects/global-project-action-modal';
+import { useFastSidebarDataOwner } from '@/core/hooks/bootstrap/use-fast-feature-data';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { data: user } = useUserQuery();
@@ -62,7 +62,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { isOpen, closeModal } = useModal();
 	const t = useTranslations();
-	const { organizationProjects } = useOrganizationProjectsQuery();
+	const { organizationProjects } = useFastSidebarDataOwner(publicTeam);
 	const activeTeam = useAtomValue(activeTeamState);
 
 	// Filter projects based on active team context:

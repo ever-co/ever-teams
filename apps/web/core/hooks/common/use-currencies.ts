@@ -5,9 +5,15 @@ import { currenciesState } from '@/core/stores/common/currencies';
 import { currencyService } from '@/core/services/client/api/currencies/currency.service';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
-import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { UseCurrenciesReturn } from '@/core/types/interfaces/common/currency';
 import { useFirstLoad } from './use-first-load';
+import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
+import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
+
+export interface UseCurrenciesOptions {
+	enabled?: boolean;
+}
 
 /**
  * Custom hook for managing application currencies with React Query integration
@@ -58,9 +64,23 @@ import { useFirstLoad } from './use-first-load';
  * @throws {Error} When currency API request fails
  * @throws {ZodValidationError} When API response doesn't match expected schema
  */
-export const useCurrencies = (): UseCurrenciesReturn => {
+export const useCurrencies = ({ enabled = true }: UseCurrenciesOptions = {}): UseCurrenciesReturn => {
 	const [currencies, setCurrencies] = useAtom(currenciesState);
 	const { firstLoadData } = useFirstLoad();
+	const tenantId = getTenantIdCookie();
+	const organizationId = getOrganizationIdCookie();
+	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
+	const scope = {
+		tenantId,
+		organizationId,
+		accessToken: fastBootstrap ? getAccessTokenCookie() : undefined
+	};
+	const queryKey = fastBootstrap
+		? queryKeys.currencies.byScope(tenantId, organizationId)
+		: queryKeys.currencies.byOrganization(tenantId || '', organizationId || '');
+	const fastOwnerActive = enabled && fastBootstrap;
+	const fastQueryEnabled = fastOwnerActive && !!(scope.tenantId && scope.organizationId && scope.accessToken);
+	const isCurrentScope = useFastScopeGuard(queryKey, fastOwnerActive);
 
 	/**
 	 * React Query for currencies data with optimized caching strategy
@@ -71,16 +91,23 @@ export const useCurrencies = (): UseCurrenciesReturn => {
 	 * - Only fetches when organization and tenant are available
 	 */
 	const currenciesQuery = useQuery({
-		queryKey: queryKeys.currencies.byOrganization(getTenantIdCookie() || '', getOrganizationIdCookie() || ''),
-		queryFn: currencyService.getCurrencies,
-		enabled: !!(getTenantIdCookie() && getOrganizationIdCookie()),
+		queryKey,
+		queryFn: ({ signal }) =>
+			fastBootstrap ? currencyService.getCurrencies({ scope, signal }) : currencyService.getCurrencies(),
+		enabled: fastBootstrap ? fastQueryEnabled : enabled && !!(tenantId && organizationId),
 		staleTime: 1000 * 60 * 10, // Currencies are relatively stable, cache for 10 minutes
 		gcTime: 1000 * 60 * 30 // Keep in cache for 30 minutes
 	});
 
+	useEffect(() => {
+		if (fastOwnerActive && isCurrentScope()) {
+			setCurrencies([]);
+		}
+	}, [fastOwnerActive, isCurrentScope, organizationId, setCurrencies, tenantId]);
+
 	// Sync React Query data with Jotai state for backward compatibility
 	useEffect(() => {
-		if (currenciesQuery.data?.items) {
+		if (enabled && currenciesQuery.data?.items && (!fastBootstrap || isCurrentScope())) {
 			// Cast to any for backward compatibility with existing interfaces
 			const adaptedCurrencies = currenciesQuery.data.items.map((item) => ({
 				id: item.id,
@@ -89,7 +116,7 @@ export const useCurrencies = (): UseCurrenciesReturn => {
 			}));
 			setCurrencies(adaptedCurrencies);
 		}
-	}, [currenciesQuery.data?.items, setCurrencies]);
+	}, [currenciesQuery.data?.items, enabled, fastBootstrap, isCurrentScope, setCurrencies]);
 
 	/**
 	 * Manually fetch currencies data

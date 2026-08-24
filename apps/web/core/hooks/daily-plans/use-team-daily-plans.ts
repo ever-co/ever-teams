@@ -1,13 +1,16 @@
 'use client';
 
 import { useAtom, useAtomValue } from 'jotai';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { activeTeamState, dailyPlanListState } from '@/core/stores';
 import { useFirstLoad } from '../common/use-first-load';
 import { dailyPlanService } from '../../services/client/api';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { useConditionalUpdateEffect, useQueryCall } from '../common';
+import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
+import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
 
 export interface UseTeamDailyPlansOptions {
 	/**
@@ -47,32 +50,72 @@ export interface UseTeamDailyPlansOptions {
 export function useTeamDailyPlans(options?: UseTeamDailyPlansOptions) {
 	const activeTeam = useAtomValue(activeTeamState);
 	const queryClient = useQueryClient();
+	const tenantId = getTenantIdCookie();
+	const organizationId = getOrganizationIdCookie();
+	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
 
 	// Extract options with defaults
 	const { enabled = true } = options || {};
+	const scope = {
+		tenantId,
+		organizationId,
+		teamId: activeTeam?.id,
+		accessToken: fastBootstrap ? getAccessTokenCookie() : undefined
+	};
+	const allPlansKey = fastBootstrap
+		? queryKeys.dailyPlans.allPlansByScope(scope.tenantId, scope.organizationId, scope.teamId)
+		: queryKeys.dailyPlans.allPlans(activeTeam?.id);
+	const fastOwnerActive = enabled && fastBootstrap;
+	const fastQueryEnabled =
+		fastOwnerActive && !!(scope.tenantId && scope.organizationId && scope.teamId && scope.accessToken);
+	const isCurrentScope = useFastScopeGuard(allPlansKey, fastOwnerActive);
+	const scopedTaskQueryKeys = useMemo(
+		() => new Set<readonly unknown[]>(),
+		[scope.organizationId, scope.teamId, scope.tenantId]
+	);
+	const previousTaskQueryKeysRef = useRef<Set<readonly unknown[]> | null>(null);
+
+	useEffect(() => {
+		const previousTaskQueryKeys = previousTaskQueryKeysRef.current;
+		if (previousTaskQueryKeys && previousTaskQueryKeys !== scopedTaskQueryKeys) {
+			previousTaskQueryKeys.forEach((taskQueryKey) => {
+				void queryClient.cancelQueries({ queryKey: taskQueryKey, exact: true });
+			});
+		}
+		previousTaskQueryKeysRef.current = scopedTaskQueryKeys;
+	}, [queryClient, scopedTaskQueryKeys]);
 
 	// ==================== QUERIES ====================
 
 	const getAllDayPlansQuery = useQuery({
-		queryKey: queryKeys.dailyPlans.allPlans(activeTeam?.id),
-		queryFn: async () => {
-			const res = await dailyPlanService.getAllDayPlans();
+		queryKey: allPlansKey,
+		queryFn: async ({ signal }) => {
+			const res = fastBootstrap
+				? await dailyPlanService.getAllDayPlans({ scope, signal })
+				: await dailyPlanService.getAllDayPlans();
 			return res;
 		},
-		enabled: enabled && !!activeTeam?.id,
+		enabled: fastBootstrap ? fastQueryEnabled : enabled && !!activeTeam?.id,
 		gcTime: 1000 * 60 * 60 // 1 hour
 	});
 
-	const { loading: getPlansByTaskQueryLoading, queryCall: getPlansByTaskQuery } = useQueryCall((taskId: string) =>
-		queryClient.fetchQuery({
-			queryKey: queryKeys.dailyPlans.byTask(taskId),
-			queryFn: async () => {
-				const res = await dailyPlanService.getPlansByTask({ taskId });
+	const { loading: getPlansByTaskQueryLoading, queryCall: getPlansByTaskQuery } = useQueryCall((taskId: string) => {
+		const taskQueryKey = fastBootstrap
+			? queryKeys.dailyPlans.byTaskByScope(scope.tenantId, scope.organizationId, scope.teamId, taskId)
+			: queryKeys.dailyPlans.byTask(taskId);
+		if (fastBootstrap) scopedTaskQueryKeys.add(taskQueryKey);
+
+		return queryClient.fetchQuery({
+			queryKey: taskQueryKey,
+			queryFn: async ({ signal }) => {
+				const res = fastBootstrap
+					? await dailyPlanService.getPlansByTask({ taskId, scope, signal })
+					: await dailyPlanService.getPlansByTask({ taskId });
 				return res;
 			},
 			gcTime: 1000 * 60 * 60
-		})
-	);
+		});
+	}, fastBootstrap);
 
 	// ==================== JOTAI SYNCHRONIZATION (Backward Compatibility) ====================
 
@@ -80,15 +123,25 @@ export function useTeamDailyPlans(options?: UseTeamDailyPlansOptions) {
 	const [dailyPlan, setDailyPlan] = useAtom(dailyPlanListState);
 	const { firstLoadData: firstLoadDailyPlanData } = useFirstLoad();
 
+	useConditionalUpdateEffect(
+		() => {
+			if (fastOwnerActive && isCurrentScope()) {
+				setDailyPlan({ items: [], total: 0 });
+			}
+		},
+		[activeTeam?.id, fastOwnerActive, isCurrentScope, organizationId, setDailyPlan, tenantId],
+		false
+	);
+
 	// Sync team-wide daily plans (only team-wide atom)
 	useConditionalUpdateEffect(
 		() => {
-			if (getAllDayPlansQuery.data) {
+			if (enabled && getAllDayPlansQuery.data && (!fastBootstrap || isCurrentScope())) {
 				setDailyPlan(getAllDayPlansQuery.data);
 			}
 		},
-		[getAllDayPlansQuery.data, setDailyPlan],
-		Boolean(dailyPlan?.items?.length)
+		[enabled, fastBootstrap, getAllDayPlansQuery.data, isCurrentScope, setDailyPlan],
+		fastBootstrap ? false : Boolean(dailyPlan?.items?.length)
 	);
 
 	// ==================== QUERY FUNCTIONS ====================
@@ -110,15 +163,15 @@ export function useTeamDailyPlans(options?: UseTeamDailyPlansOptions) {
 	const loadAllDayPlans = useCallback(async () => {
 		const allDayPlans = await getAllDayPlansQuery.refetch();
 
-		if (allDayPlans?.data) {
+		if (allDayPlans?.data && (!fastBootstrap || isCurrentScope())) {
 			setDailyPlan(allDayPlans.data);
 		}
-	}, [getAllDayPlansQuery, setDailyPlan]);
+	}, [fastBootstrap, getAllDayPlansQuery, isCurrentScope, setDailyPlan]);
 
 	const getPlansByTask = useCallback(
 		async (taskId?: string) => {
 			try {
-				if (taskId) {
+				if (taskId && (!fastBootstrap || fastQueryEnabled)) {
 					const res = await getPlansByTaskQuery(taskId);
 					return res; // Return data directly instead of setting atom
 				} else {
@@ -128,7 +181,7 @@ export function useTeamDailyPlans(options?: UseTeamDailyPlansOptions) {
 				console.error('Error fetching plans by task:', error);
 			}
 		},
-		[getPlansByTaskQuery]
+		[fastBootstrap, fastQueryEnabled, getPlansByTaskQuery]
 	);
 
 	const firstLoadTeamDailyPlans = useCallback(async () => {

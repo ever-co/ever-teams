@@ -8,12 +8,11 @@ import { cn } from '@/core/lib/helpers';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { getInitialValue } from '@/core/lib/helpers/create-project';
 import { ECurrencies } from '@/core/types/generics/enums/currency';
-import { useAtomValue } from 'jotai';
-import { currenciesState } from '@/core/stores';
+import { useFastCurrenciesOwner } from '@/core/hooks/bootstrap/use-fast-feature-data';
 
 export default function FinancialSettingsForm(props: IStepElementProps) {
 	const { goToNext, goToPrevious, currentData } = props;
-	const currencies = useAtomValue(currenciesState);
+	const { currencies } = useFastCurrenciesOwner();
 	const [currency, setCurrency] = useState<string>(() => getInitialValue(currentData, 'currency', undefined));
 	const [billingType, setBillingType] = useState<EProjectBilling>(() =>
 		getInitialValue(currentData, 'billing', EProjectBilling.FLAT_FEE)

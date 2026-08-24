@@ -11,6 +11,7 @@ import {
 	TOrganizationTeamEmployee,
 	TUpdateEmployee
 } from '@/core/types/schemas';
+import { scopedReadConfig, ScopedReadOptions } from '@/core/services/client/api-request-scope';
 
 class EmployeeService extends APIService {
 	/**
@@ -19,17 +20,23 @@ class EmployeeService extends APIService {
 	 * @param organizationTeamId - Optional team ID to filter members by specific team
 	 * @returns Paginated list of employees
 	 */
-	getWorkingEmployees = async (organizationTeamId?: string): Promise<PaginationResponse<TOrganizationTeamEmployee>> => {
+	getWorkingEmployees = async (
+		organizationTeamId?: string,
+		options?: ScopedReadOptions
+	): Promise<PaginationResponse<TOrganizationTeamEmployee>> => {
 		try {
+			const tenantId = options ? options.scope.tenantId : this.tenantId;
+			const organizationId = options ? options.scope.organizationId : this.organizationId;
+			const teamId = options ? options.scope.teamId : organizationTeamId;
 			const params: Record<string, any> = {
-				organizationId: this.organizationId,
-				tenantId: this.tenantId,
+				organizationId,
+				tenantId,
 				'relations[0]': 'user'
 			};
 
 			// Filter by team if provided (correct parameter name: organizationTeamId, NOT teamId)
-			if (organizationTeamId) {
-				params.organizationTeamId = organizationTeamId;
+			if (teamId) {
+				params.organizationTeamId = teamId;
 			}
 
 			const query = qs.stringify(params);
@@ -37,9 +44,10 @@ class EmployeeService extends APIService {
 			// Use /employee/members instead of /employee/pagination
 			const endpoint = `/employee/members?${query}`;
 
-			const response = await this.get<PaginationResponse<TOrganizationTeamEmployee>>(endpoint, {
-				tenantId: this.tenantId
-			});
+			const response = await this.get<PaginationResponse<TOrganizationTeamEmployee>>(
+				endpoint,
+				options ? scopedReadConfig(options) : { tenantId: this.tenantId }
+			);
 
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(

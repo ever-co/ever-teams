@@ -8,6 +8,7 @@ import {
 	ZodValidationError,
 	TCurrencyList
 } from '@/core/types/schemas';
+import { scopedReadConfig, ScopedReadOptions } from '../../api-request-scope';
 
 /**
  * Enhanced Currency Service with Zod validation
@@ -22,14 +23,19 @@ class CurrencyService extends APIService {
 	 * @returns Promise<PaginationResponse<TCurrencyList>> - Validated currencies data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getCurrencies = async (): Promise<PaginationResponse<TCurrencyList>> => {
+	getCurrencies = async (options?: ScopedReadOptions): Promise<PaginationResponse<TCurrencyList>> => {
+		const tenantId = options ? options.scope.tenantId : this.tenantId;
+		const organizationId = options ? options.scope.organizationId : this.organizationId;
 		const obj = {
-			'where[organizationId]': this.organizationId,
-			'where[tenantId]': this.tenantId
+			'where[organizationId]': organizationId,
+			'where[tenantId]': tenantId
 		} as Record<string, string>;
 
 		const query = qs.stringify(obj);
-		const response = await this.get<PaginationResponse<TCurrencyList>>(`/currency?${query}`);
+		const response = await this.get<PaginationResponse<TCurrencyList>>(
+			`/currency?${query}`,
+			options ? scopedReadConfig(options) : undefined
+		);
 
 		try {
 			// Validate the response data using Zod schema

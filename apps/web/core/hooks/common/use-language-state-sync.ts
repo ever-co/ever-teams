@@ -4,6 +4,8 @@ import { TLanguageItemList } from '@/core/types/schemas';
 import { UseQueryResult } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
+const alwaysCurrentScope = () => true;
+
 /**
  * Custom hook to sync React Query state with Jotai atoms for backward compatibility
  * @param languagesQuery - The React Query result
@@ -13,18 +15,31 @@ import { useEffect } from 'react';
 export const useLanguageStateSync = (
 	languagesQuery: UseQueryResult<PaginationResponse<TLanguageItemList>, Error>,
 	setLanguages: (languages: ILanguageItemList[]) => void,
-	setLanguagesFetching: (loading: boolean) => void
+	setLanguagesFetching: (loading: boolean) => void,
+	options: { enabled?: boolean; isCurrentScope?: () => boolean } = {}
 ) => {
+	const { enabled = true } = options;
+	const isCurrentScope = options.isCurrentScope ?? alwaysCurrentScope;
 	// Sync React Query loading state with Jotai state for backward compatibility
 	useEffect(() => {
-		setLanguagesFetching(languagesQuery.isLoading);
-	}, [languagesQuery.isLoading, setLanguagesFetching]);
+		if (enabled && isCurrentScope()) {
+			setLanguagesFetching(languagesQuery.isLoading);
+		}
+	}, [enabled, isCurrentScope, languagesQuery.isLoading, setLanguagesFetching]);
+
+	useEffect(() => {
+		return () => {
+			if (enabled && isCurrentScope()) {
+				setLanguagesFetching(false);
+			}
+		};
+	}, [enabled, isCurrentScope, setLanguagesFetching]);
 
 	// Sync React Query data with Jotai state for backward compatibility
 	useEffect(() => {
-		if (languagesQuery.data?.items) {
+		if (enabled && isCurrentScope() && languagesQuery.data?.items) {
 			// Cast to the expected type for backward compatibility
 			setLanguages(languagesQuery.data.items as unknown as ILanguageItemList[]);
 		}
-	}, [languagesQuery.data?.items, setLanguages]);
+	}, [enabled, isCurrentScope, languagesQuery.data?.items, setLanguages]);
 };
