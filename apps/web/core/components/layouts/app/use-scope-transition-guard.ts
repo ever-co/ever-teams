@@ -31,13 +31,19 @@ export interface FastShellScope {
 	taskId?: string | null;
 }
 
-function criticalKeys(scope: FastShellScope): QueryKey[] {
+export function getFastShellCredentialQueryKeys(scope: FastShellScope): QueryKey[] {
 	return [
 		queryKeys.organizationTeams.listByScope(scope.tenantId, scope.organizationId),
 		queryKeys.organizationTeams.detailByScope(scope.tenantId, scope.organizationId, scope.teamId),
 		queryKeys.tasks.byTeamByScope(scope.tenantId, scope.organizationId, scope.teamId, scope.projectId),
 		queryKeys.dailyPlans.myPlansByScope(scope.tenantId, scope.organizationId, scope.teamId, scope.userId),
-		queryKeys.timer.statusByScope(scope.tenantId, scope.organizationId, scope.teamId, scope.userId),
+		queryKeys.timer.statusByScope(scope.tenantId, scope.organizationId, scope.teamId, scope.userId)
+	];
+}
+
+export function getFastShellCriticalQueryKeys(scope: FastShellScope): QueryKey[] {
+	return [
+		...getFastShellCredentialQueryKeys(scope),
 		queryKeys.tasks.statisticsByScope(
 			scope.tenantId,
 			scope.organizationId,
@@ -85,7 +91,7 @@ export function useScopeTransitionGuard(scope: FastShellScope, enabled = true) {
 		if (!enabled) return;
 		const previous = previousRef.current;
 		if (previous && previous.fingerprint !== fingerprint) {
-			criticalKeys(previous.scope).forEach((queryKey) => {
+			getFastShellCriticalQueryKeys(previous.scope).forEach((queryKey) => {
 				void queryClient.cancelQueries({ queryKey, exact: true });
 			});
 

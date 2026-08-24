@@ -2,6 +2,9 @@
 
 import { act, render } from '@testing-library/react';
 
+const mockInvalidateQueries = jest.fn(() => Promise.resolve());
+const mockCancelQueries = jest.fn(() => Promise.resolve());
+
 const calls = {
 	teams: jest.fn(),
 	tasks: jest.fn(),
@@ -26,6 +29,10 @@ let timerSuccess = false;
 let plansSuccess = false;
 let rawTimerRunning = false;
 let accessToken = 'token-1';
+
+jest.mock('@tanstack/react-query', () => ({
+	useQueryClient: () => ({ cancelQueries: mockCancelQueries, invalidateQueries: mockInvalidateQueries })
+}));
 
 jest.mock('@/core/hooks/queries/user-user.query', () => ({
 	useUserQuery: () => ({ data: user })
@@ -69,7 +76,23 @@ jest.mock('@/core/hooks/activities/time-logs/use-time-logs', () => ({
 	useTimeLogs: () => calls.timeLogs()
 }));
 jest.mock('./use-scope-transition-guard', () => ({
-	useScopeTransitionGuard: (scope: unknown, enabled: boolean) => calls.guard(scope, enabled)
+	useScopeTransitionGuard: (scope: unknown, enabled: boolean) => calls.guard(scope, enabled),
+	getFastShellCriticalQueryKeys: (scope: any) => [
+		['organization-teams', 'list-scope', scope.tenantId, scope.organizationId],
+		['organization-teams', 'detail-scope', scope.tenantId, scope.organizationId, scope.teamId],
+		['tasks', 'by-team-scope', scope.tenantId, scope.organizationId, scope.teamId, scope.projectId],
+		['timer', 'scope', scope.tenantId, scope.organizationId, scope.teamId, scope.userId],
+		['daily-plans', 'my-plans-scope', scope.tenantId, scope.organizationId, scope.teamId, scope.userId],
+		[
+			'tasks',
+			'statistics-scope',
+			scope.tenantId,
+			scope.organizationId,
+			scope.teamId,
+			scope.taskId,
+			scope.employeeId
+		]
+	]
 }));
 jest.mock('@/core/lib/helpers/cookies', () => ({
 	ACCESS_TOKEN_REFRESHED_EVENT: 'ever-teams:access-token-refreshed',
@@ -93,6 +116,8 @@ function resetState() {
 	rawTimerRunning = false;
 	accessToken = 'token-1';
 	jest.clearAllMocks();
+	mockCancelQueries.mockResolvedValue(undefined);
+	mockInvalidateQueries.mockResolvedValue(undefined);
 }
 
 function resolveWorkspace() {
@@ -197,9 +222,10 @@ describe('FastInitState dependency DAG', () => {
 		expect(calls.timer.mock.calls[0][0]).not.toHaveProperty('scheduleTokenRefresh');
 	});
 
-	it('replaces every core owner scope after any access-token rotation', () => {
+	it('replaces every core owner scope after any access-token rotation', async () => {
 		resolveWorkspace();
 		resolveTeam();
+		activeTask = { id: 'task-1' };
 		render(<FastInitState />);
 		expect(calls.tasks).toHaveBeenLastCalledWith(
 			expect.objectContaining({ scope: expect.objectContaining({ accessToken: 'token-1' }) })
@@ -216,5 +242,99 @@ describe('FastInitState dependency DAG', () => {
 		expect(calls.timer).toHaveBeenLastCalledWith(
 			expect.objectContaining({ scope: expect.objectContaining({ accessToken: 'token-2' }) })
 		);
+		await act(async () => Promise.resolve());
+		for (const queryKey of [
+			['tasks', 'by-team-scope', 'tenant-1', 'org-1', 'team-1', 'project-1'],
+			['timer', 'scope', 'tenant-1', 'org-1', 'team-1', 'user-1'],
+			['daily-plans', 'my-plans-scope', 'tenant-1', 'org-1', 'team-1', 'user-1'],
+			['tasks', 'statistics-scope', 'tenant-1', 'org-1', 'team-1', 'task-1', 'employee-1']
+		]) {
+			expect(mockCancelQueries).toHaveBeenCalledWith({ queryKey, exact: true });
+			expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey, exact: true, refetchType: 'active' });
+		}
+		expect(Math.min(...mockInvalidateQueries.mock.invocationCallOrder)).toBeGreaterThan(
+			Math.max(...mockCancelQueries.mock.invocationCallOrder)
+		);
+	});
+
+	it('re-owns workspace reads when the token rotates while team bootstrap is still pending', async () => {
+		resolveWorkspace();
+		render(<FastInitState />);
+		mockCancelQueries.mockClear();
+		mockInvalidateQueries.mockClear();
+
+		act(() => {
+			accessToken = 'token-2';
+			window.dispatchEvent(new Event('ever-teams:access-token-refreshed'));
+		});
+		await act(async () => Promise.resolve());
+
+		const listKey = ['organization-teams', 'list-scope', 'tenant-1', 'org-1'];
+		expect(mockCancelQueries).toHaveBeenCalledWith({ queryKey: listKey, exact: true });
+		expect(mockInvalidateQueries).toHaveBeenCalledWith({
+			queryKey: listKey,
+			exact: true,
+			refetchType: 'active'
+		});
+	});
+
+	it('does not restart an old scope when it changes while cancellation is pending', async () => {
+		resolveWorkspace();
+		resolveTeam();
+		let releaseCancel!: () => void;
+		const cancellationGate = new Promise<void>((resolve) => {
+			releaseCancel = resolve;
+		});
+		mockCancelQueries.mockReturnValue(cancellationGate);
+		const view = render(<FastInitState />);
+		mockCancelQueries.mockClear();
+		mockInvalidateQueries.mockClear();
+
+		act(() => {
+			accessToken = 'token-2';
+			window.dispatchEvent(new Event('ever-teams:access-token-refreshed'));
+		});
+		expect(mockCancelQueries).toHaveBeenCalled();
+
+		act(() => {
+			user = {
+				...user,
+				employee: { ...user.employee, tenantId: 'tenant-2', organizationId: 'org-2' }
+			};
+			currentWorkspace = { user: { tenant: { id: 'tenant-2' } } };
+			activeTeam = { ...activeTeam, id: 'team-2', tenantId: 'tenant-2', organizationId: 'org-2' };
+			teams = [activeTeam];
+		});
+		view.rerender(<FastInitState />);
+		await act(async () => {
+			releaseCancel();
+			await cancellationGate;
+		});
+
+		expect(mockInvalidateQueries).not.toHaveBeenCalled();
+	});
+
+	it('does not refetch the previous workspace scope when token and scope change together', () => {
+		resolveWorkspace();
+		resolveTeam();
+		const view = render(<FastInitState />);
+		mockCancelQueries.mockClear();
+		mockInvalidateQueries.mockClear();
+
+		act(() => {
+			accessToken = 'token-2';
+			user = {
+				...user,
+				employee: { ...user.employee, tenantId: 'tenant-2', organizationId: 'org-2' }
+			};
+			currentWorkspace = { user: { tenant: { id: 'tenant-2' } } };
+			activeTeam = { ...activeTeam, id: 'team-2', tenantId: 'tenant-2', organizationId: 'org-2' };
+			teams = [activeTeam];
+			window.dispatchEvent(new Event('ever-teams:access-token-refreshed'));
+		});
+		view.rerender(<FastInitState />);
+
+		expect(mockCancelQueries).not.toHaveBeenCalled();
+		expect(mockInvalidateQueries).not.toHaveBeenCalled();
 	});
 });

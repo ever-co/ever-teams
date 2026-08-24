@@ -3,12 +3,15 @@ import { useTimer } from '@/core/hooks/activities';
 import { useTimerPolling } from '@/core/hooks/activities/use-timer-polling';
 import { useWorkspaces } from '@/core/hooks/auth';
 import { useReactiveAccessTokenCookie } from '@/core/hooks/auth/use-reactive-access-token-cookie';
+import { useIsomorphicLayoutEffect } from '@/core/hooks/common/use-isomorphic-layout-effect';
 import { useOrganizationTeamsQuery, useTeamTasksQuery } from '@/core/hooks/organizations';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useAutoAssignTask, useTaskStatistics } from '@/core/hooks/tasks';
 import { DISABLE_AUTO_REFRESH } from '@/core/constants/config/constants';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef } from 'react';
-import { useScopeTransitionGuard } from './use-scope-transition-guard';
+import { reownActiveQueriesAfterTokenRefresh } from './token-refresh-query-ownership';
+import { getFastShellCriticalQueryKeys, useScopeTransitionGuard } from './use-scope-transition-guard';
 
 const SHELL_REFRESH_INTERVAL = 60_000;
 
@@ -17,6 +20,7 @@ export function FastInitState() {
 	const { data: user } = useUserQuery();
 	const { currentWorkspace, workspacesQuery } = useWorkspaces();
 	const accessToken = useReactiveAccessTokenCookie();
+	const queryClient = useQueryClient();
 	const tenantId = user?.employee?.tenantId ?? user?.tenantId ?? null;
 	const organizationId = user?.employee?.organizationId ?? null;
 	const workspaceReady = !!(
@@ -96,6 +100,63 @@ export function FastInitState() {
 		scope: { ...teamScope, teamId: activeTeam?.id ?? null },
 		refetchInterval: autoRefreshEnabled && timerOwner.rawTimerRunning ? SHELL_REFRESH_INTERVAL : false
 	});
+
+	const credentialScope = useMemo(
+		() => ({
+			...teamScope,
+			projectId,
+			userId: user?.id ?? null,
+			employeeId: user?.employee?.id ?? null,
+			taskId: activeTask?.id ?? null
+		}),
+		[activeTask?.id, projectId, teamScope, user?.employee?.id, user?.id]
+	);
+	const credentialQueryKeys = useMemo(() => getFastShellCriticalQueryKeys(credentialScope), [credentialScope]);
+	const tokenScopeFingerprint = JSON.stringify([
+		credentialScope.tenantId,
+		credentialScope.organizationId,
+		credentialScope.teamId,
+		credentialScope.projectId,
+		credentialScope.userId,
+		credentialScope.employeeId,
+		credentialScope.taskId
+	]);
+	const previousTokenScopeRef = useRef({ accessToken, fingerprint: tokenScopeFingerprint });
+	const currentTokenScopeRef = useRef({ accessToken, fingerprint: tokenScopeFingerprint });
+	useIsomorphicLayoutEffect(() => {
+		currentTokenScopeRef.current = { accessToken, fingerprint: tokenScopeFingerprint };
+	}, [accessToken, tokenScopeFingerprint]);
+	const mountedRef = useRef(false);
+	useEffect(() => {
+		mountedRef.current = true;
+		return () => {
+			mountedRef.current = false;
+		};
+	}, []);
+	useEffect(() => {
+		const previous = previousTokenScopeRef.current;
+		previousTokenScopeRef.current = { accessToken, fingerprint: tokenScopeFingerprint };
+		if (
+			!workspaceReady ||
+			!accessToken ||
+			!previous.accessToken ||
+			previous.accessToken === accessToken ||
+			previous.fingerprint !== tokenScopeFingerprint
+		) {
+			return;
+		}
+
+		const refreshedToken = accessToken;
+		const refreshedFingerprint = tokenScopeFingerprint;
+		void reownActiveQueriesAfterTokenRefresh(
+			queryClient,
+			credentialQueryKeys,
+			() =>
+				mountedRef.current &&
+				currentTokenScopeRef.current.accessToken === refreshedToken &&
+				currentTokenScopeRef.current.fingerprint === refreshedFingerprint
+		);
+	}, [accessToken, credentialQueryKeys, queryClient, tokenScopeFingerprint, workspaceReady]);
 
 	useScopeTransitionGuard(
 		{
