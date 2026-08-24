@@ -4,6 +4,7 @@ import { act, renderHook } from '@testing-library/react';
 
 let pathname = '/auth/login';
 let accessToken: string | undefined;
+let shouldRefresh = false;
 
 jest.mock('next/navigation', () => ({ usePathname: () => pathname }));
 jest.mock('@/core/lib/helpers/cookies', () => ({
@@ -16,7 +17,7 @@ jest.mock('@/core/services/client/api/auth/auth.service', () => ({
 	authService: { refreshTokenRaw: jest.fn() }
 }));
 jest.mock('@/core/lib/auth/jwt-utils', () => ({
-	shouldRefreshToken: () => false,
+	shouldRefreshToken: () => shouldRefresh,
 	getTokenRemainingTime: () => 3600,
 	getTokenLifetime: () => 7200,
 	formatRemainingTime: (value: number) => String(value),
@@ -31,6 +32,7 @@ describe('useProactiveTokenRefresh scheduler ownership', () => {
 		jest.useFakeTimers();
 		pathname = '/auth/login';
 		accessToken = undefined;
+		shouldRefresh = false;
 	});
 
 	afterEach(() => {
@@ -57,5 +59,29 @@ describe('useProactiveTokenRefresh scheduler ownership', () => {
 
 		unmount();
 		expect(jest.getTimerCount()).toBeLessThanOrEqual(1);
+	});
+
+	it('delegates refresh notification to the access-token cookie writer', async () => {
+		const { authService } = jest.requireMock('@/core/services/client/api/auth/auth.service');
+		const { setAccessTokenCookie } = jest.requireMock('@/core/lib/helpers/cookies');
+		const dispatchSpy = jest.spyOn(window, 'dispatchEvent');
+		accessToken = 'expiring-access-token';
+		pathname = '/dashboard';
+		shouldRefresh = true;
+		authService.refreshTokenRaw.mockResolvedValue({
+			data: { token: 'fresh-access-token', refresh_token: 'fresh-refresh-token' }
+		});
+
+		const { unmount } = renderHook(() => useProactiveTokenRefresh());
+		await act(async () => {
+			await jest.advanceTimersByTimeAsync(10);
+		});
+
+		expect(setAccessTokenCookie).toHaveBeenCalledWith('fresh-access-token');
+		expect(dispatchSpy).not.toHaveBeenCalledWith(
+			expect.objectContaining({ type: 'ever-teams:access-token-refreshed' })
+		);
+		unmount();
+		dispatchSpy.mockRestore();
 	});
 });

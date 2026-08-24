@@ -5,7 +5,7 @@ import { useWorkspaces } from '@/core/hooks/auth';
 import { useOrganizationTeamsQuery, useTeamTasksQuery } from '@/core/hooks/organizations';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useAutoAssignTask, useTaskStatistics } from '@/core/hooks/tasks';
-import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
+import { ACCESS_TOKEN_REFRESHED_EVENT, getAccessTokenCookie } from '@/core/lib/helpers/cookies';
 import { DISABLE_AUTO_REFRESH } from '@/core/constants/config/constants';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useScopeTransitionGuard } from './use-scope-transition-guard';
@@ -19,8 +19,8 @@ export function FastInitState() {
 	const [accessToken, setAccessToken] = useState(() => getAccessTokenCookie());
 	useEffect(() => {
 		const captureRotatedToken = () => setAccessToken(getAccessTokenCookie());
-		window.addEventListener('ever-teams:access-token-refreshed', captureRotatedToken);
-		return () => window.removeEventListener('ever-teams:access-token-refreshed', captureRotatedToken);
+		window.addEventListener(ACCESS_TOKEN_REFRESHED_EVENT, captureRotatedToken);
+		return () => window.removeEventListener(ACCESS_TOKEN_REFRESHED_EVENT, captureRotatedToken);
 	}, []);
 	const tenantId = user?.employee?.tenantId ?? user?.tenantId ?? null;
 	const organizationId = user?.employee?.organizationId ?? null;

@@ -103,9 +103,6 @@ export function useProactiveTokenRefresh() {
 
 				// Update the access token cookie
 				setAccessTokenCookie(data.token);
-				if (typeof window !== 'undefined') {
-					window.dispatchEvent(new Event('ever-teams:access-token-refreshed'));
-				}
 
 				// Update refresh token if a new one is provided (token rotation)
 				if (data.refresh_token) {

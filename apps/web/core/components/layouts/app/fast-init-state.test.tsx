@@ -25,6 +25,7 @@ let activeTask: any = null;
 let timerSuccess = false;
 let plansSuccess = false;
 let rawTimerRunning = false;
+let accessToken = 'token-1';
 
 jest.mock('@/core/hooks/queries/user-user.query', () => ({
 	useUserQuery: () => ({ data: user })
@@ -71,7 +72,8 @@ jest.mock('./use-scope-transition-guard', () => ({
 	useScopeTransitionGuard: (scope: unknown, enabled: boolean) => calls.guard(scope, enabled)
 }));
 jest.mock('@/core/lib/helpers/cookies', () => ({
-	getAccessTokenCookie: () => 'token-1'
+	ACCESS_TOKEN_REFRESHED_EVENT: 'ever-teams:access-token-refreshed',
+	getAccessTokenCookie: () => accessToken
 }));
 
 import { FastInitState } from './fast-init-state';
@@ -89,6 +91,7 @@ function resetState() {
 	timerSuccess = false;
 	plansSuccess = false;
 	rawTimerRunning = false;
+	accessToken = 'token-1';
 	jest.clearAllMocks();
 }
 
@@ -192,5 +195,26 @@ describe('FastInitState dependency DAG', () => {
 		expect(calls.timeLogs).toHaveBeenCalledTimes(1);
 		expect(calls.polling).toHaveBeenLastCalledWith(true);
 		expect(calls.timer.mock.calls[0][0]).not.toHaveProperty('scheduleTokenRefresh');
+	});
+
+	it('replaces every core owner scope after any access-token rotation', () => {
+		resolveWorkspace();
+		resolveTeam();
+		render(<FastInitState />);
+		expect(calls.tasks).toHaveBeenLastCalledWith(
+			expect.objectContaining({ scope: expect.objectContaining({ accessToken: 'token-1' }) })
+		);
+
+		act(() => {
+			accessToken = 'token-2';
+			window.dispatchEvent(new Event('ever-teams:access-token-refreshed'));
+		});
+
+		expect(calls.tasks).toHaveBeenLastCalledWith(
+			expect.objectContaining({ scope: expect.objectContaining({ accessToken: 'token-2' }) })
+		);
+		expect(calls.timer).toHaveBeenLastCalledWith(
+			expect.objectContaining({ scope: expect.objectContaining({ accessToken: 'token-2' }) })
+		);
 	});
 });
