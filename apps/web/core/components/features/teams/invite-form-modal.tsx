@@ -22,7 +22,8 @@ const INVITABLE_ROLE_NAMES = new Set([ERoleName.ADMIN, ERoleName.EMPLOYEE, ERole
 
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const { data: user } = useUserQuery();
-	const { roles, teamInvitations, workingEmployees } = useFastInviteDataOwner(open);
+	const { roles, teamInvitations, workingEmployees, fetchingInvitations, getWorkingEmployeeLoading } =
+		useFastInviteDataOwner(open);
 	const t = useTranslations();
 
 	const { inviteUser, inviteLoading, resendTeamInvitation, resendInviteLoading } = useSendTeamInvitation();
@@ -33,7 +34,6 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 	const activeTeam = useAtomValue(activeTeamState);
 	const nameInputRef = useRef<HTMLInputElement>(null);
 	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-	const isLoading = inviteLoading || resendInviteLoading;
 	const selectableRoles = useMemo(
 		() => roles.filter((role) => INVITABLE_ROLE_NAMES.has(role.name as ERoleName)),
 		[roles]
@@ -44,6 +44,9 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 	);
 	const [selectedRoleId, setSelectedRoleId] = useState(() => defaultSelectedRole?.id);
 	const isAdmin = user?.role?.name && [ERoleName.ADMIN, ERoleName.SUPER_ADMIN].includes(user?.role.name as ERoleName);
+	const prerequisitesPending =
+		Boolean(fetchingInvitations) || Boolean(getWorkingEmployeeLoading) || Boolean(isAdmin && !selectedRoleId);
+	const isLoading = inviteLoading || resendInviteLoading || prerequisitesPending;
 
 	useEffect(() => {
 		setSelectedRoleId((currentRoleId) => {
@@ -122,6 +125,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 	const handleSubmit = useCallback(
 		async (e: React.FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
+			if (prerequisitesPending) return;
 			const form = new FormData(e.currentTarget);
 
 			const email = selectedEmail?.title?.trim() || '';
@@ -155,7 +159,16 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 				}
 			}
 		},
-		[selectedEmail, selectedRoleId, teamInvitations, closeModal, t, inviteUser, resendTeamInvitation]
+		[
+			selectedEmail,
+			selectedRoleId,
+			teamInvitations,
+			closeModal,
+			t,
+			inviteUser,
+			resendTeamInvitation,
+			prerequisitesPending
+		]
 	);
 
 	return (

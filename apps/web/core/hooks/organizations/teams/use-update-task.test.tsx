@@ -1,0 +1,151 @@
+/** @jest-environment jsdom */
+
+import React from 'react';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { queryKeys } from '@/core/query/keys';
+import type { TTask } from '@/core/types/schemas/task/task.schema';
+import type { PaginationResponse } from '@/core/types/interfaces/common/data-response';
+
+let mockFastBootstrap = true;
+const mockUpdateTask = jest.fn();
+const mockSetAllTasks = jest.fn();
+const mockSetDetailedTask = jest.fn();
+const mockSetActive = jest.fn();
+const mockInvalidateTeamTasksData = jest.fn();
+const mockGetTaskById = jest.fn();
+const mockActiveTeam = {
+	id: 'team-1',
+	tenantId: 'tenant-1',
+	organizationId: 'organization-1',
+	projects: [{ id: 'project-1' }]
+};
+
+jest.mock('@/core/constants/config/constants', () => ({
+	FAST_APP_BOOTSTRAP: {
+		get value() {
+			return mockFastBootstrap;
+		}
+	}
+}));
+
+jest.mock('@/core/services/client/api', () => ({
+	taskService: {
+		updateTask: (...args: unknown[]) => mockUpdateTask(...args)
+	}
+}));
+
+jest.mock('@/core/stores', () => ({
+	activeTeamState: 'active-team',
+	activeTeamTaskId: 'active-team-task-id',
+	detailedTaskState: 'detailed-task',
+	teamTasksState: 'team-tasks'
+}));
+
+jest.mock('jotai', () => ({
+	useAtomValue: () => mockActiveTeam,
+	useSetAtom: (atom: string) => (atom === 'team-tasks' ? mockSetAllTasks : mockSetActive),
+	useAtom: () => [null, mockSetDetailedTask]
+}));
+
+jest.mock('@/core/hooks/organizations/teams/use-invalidate-team-tasks', () => ({
+	useInvalidateTeamTasks: () => ({ invalidateTeamTasksData: mockInvalidateTeamTasksData })
+}));
+
+jest.mock('@/core/hooks/organizations/teams/use-task-queries', () => ({
+	useTaskQueries: () => ({ getTaskById: mockGetTaskById })
+}));
+
+jest.mock('@/core/lib/helpers/index', () => ({
+	getActiveTaskIdCookie: jest.fn(),
+	getActiveUserTaskCookie: jest.fn(),
+	setActiveTaskIdCookie: jest.fn(),
+	setActiveUserTaskCookie: jest.fn()
+}));
+
+import { useUpdateTask } from './use-update-task';
+
+const originalTask = { id: 'task-1', title: 'Before' } as TTask;
+const legacyKey = queryKeys.tasks.byTeam(mockActiveTeam.id);
+const scopedKey = queryKeys.tasks.byTeamByScope(
+	mockActiveTeam.tenantId,
+	mockActiveTeam.organizationId,
+	mockActiveTeam.id,
+	mockActiveTeam.projects[0].id
+);
+
+function createQueryClient() {
+	return new QueryClient({
+		defaultOptions: {
+			queries: { retry: false, gcTime: Infinity },
+			mutations: { retry: false }
+		}
+	});
+}
+
+function createWrapper(client: QueryClient) {
+	return function Wrapper({ children }: React.PropsWithChildren) {
+		return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+	};
+}
+
+function list(title: string): PaginationResponse<TTask> {
+	return { items: [{ ...originalTask, title }], total: 1 };
+}
+
+async function expectOptimisticUpdateAndRollback(
+	client: QueryClient,
+	queryKey: readonly unknown[],
+	otherQueryKey?: readonly unknown[]
+) {
+	let rejectUpdate!: (reason: Error) => void;
+	mockUpdateTask.mockImplementation(
+		() =>
+			new Promise((_resolve, reject) => {
+				rejectUpdate = reject;
+			})
+	);
+	const { result } = renderHook(() => useUpdateTask(), { wrapper: createWrapper(client) });
+	const updatePromise = result.current.updateTask({ ...originalTask, title: 'After' });
+	const settled = updatePromise.catch((error) => error);
+
+	await waitFor(() => expect(client.getQueryData<PaginationResponse<TTask>>(queryKey)?.items[0].title).toBe('After'));
+	if (otherQueryKey) {
+		expect(client.getQueryData<PaginationResponse<TTask>>(otherQueryKey)?.items[0].title).toBe('Other cache');
+	}
+
+	const failure = new Error('update failed');
+	await act(async () => {
+		rejectUpdate(failure);
+		expect(await settled).toBe(failure);
+	});
+	await waitFor(() =>
+		expect(client.getQueryData<PaginationResponse<TTask>>(queryKey)?.items[0].title).toBe('Before')
+	);
+}
+
+describe('useUpdateTask authoritative task cache', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+		jest.spyOn(console, 'error').mockImplementation(() => undefined);
+	});
+
+	afterEach(() => jest.restoreAllMocks());
+
+	it('optimistically updates and rolls back the scoped fast-mode cache without writing the legacy cache', async () => {
+		mockFastBootstrap = true;
+		const client = createQueryClient();
+		client.setQueryData(scopedKey, list('Before'));
+		client.setQueryData(legacyKey, list('Other cache'));
+
+		await expectOptimisticUpdateAndRollback(client, scopedKey, legacyKey);
+	});
+
+	it('preserves the legacy optimistic update and rollback when fast bootstrap is disabled', async () => {
+		mockFastBootstrap = false;
+		const client = createQueryClient();
+		client.setQueryData(legacyKey, list('Before'));
+
+		await expectOptimisticUpdateAndRollback(client, legacyKey);
+	});
+});
