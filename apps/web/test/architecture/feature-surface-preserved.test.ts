@@ -77,7 +77,14 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 		'apps/web/core/navigation.tsx',
 		[
 			"export const links = [<a href='/same' />, <a href='/same' />, <a href='/a' />, <a href='/z' />, <a href='/ä' />];",
-			'export const api = [process.env.NEXT_PUBLIC_API_URL, process.env.NEXT_PUBLIC_API_URL];'
+			"export const menu = [{ href: '/object' }];",
+			"export const ACCOUNT_ROUTE = '/account';",
+			"export const SETTINGS_PATH = '/settings';",
+			'export const api = [process.env.NEXT_PUBLIC_API_URL, process.env.NEXT_PUBLIC_API_URL];',
+			'export const assets = import.meta.env.NEXT_PUBLIC_ASSET_URL;',
+			`const fixture = "<a href='/fake-href' /> process.env.NEXT_PUBLIC_FAKE";`,
+			"// const commented = { href: '/comment-href', env: process.env.NEXT_PUBLIC_COMMENT };",
+			'void fixture;'
 		].join('\n') + '\n'
 	);
 	write(
@@ -89,6 +96,7 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 			"export * as AccountNamespace from './account-feature';",
 			"export * from './extra';",
 			"export type { ExtraType } from './extra';",
+			"export * from './middle';",
 			'export default function PublicDefault() {}',
 			'export const directExport = true;'
 		].join('\n') + '\n'
@@ -96,9 +104,35 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 	write(
 		repository,
 		'apps/web/core/public/account-feature.ts',
-		'export default true; export type AccountType = {};\n'
+		'export default true; export const helper = true; export type AccountType = {};\n'
 	);
 	write(repository, 'apps/web/core/public/extra.ts', 'export const extra = true; export type ExtraType = {};\n');
+	write(repository, 'apps/web/core/public/middle.ts', "export * from './leaf'; export * from './cycle';\n");
+	write(
+		repository,
+		'apps/web/core/public/leaf.ts',
+		[
+			'export const LeafRuntime = true;',
+			'export const RuntimeToType = true;',
+			'export type LeafType = { value: string };',
+			'const PrivateLeaf = true;',
+			'void PrivateLeaf;'
+		].join('\n') + '\n'
+	);
+	write(repository, 'apps/web/core/public/cycle.ts', "export * from './middle'; export const CycleRuntime = true;\n");
+	write(
+		repository,
+		'apps/web/core/components/overlays.tsx',
+		[
+			'export const DialogTrigger = () => null;',
+			'export function DialogContent() { return null; }',
+			'const DrawerTrigger = () => null;',
+			'export { DrawerTrigger };',
+			`const fixture = 'FakeModal in a string';`,
+			'// function CommentDrawer() {}',
+			'void fixture;'
+		].join('\n') + '\n'
+	);
 	write(
 		repository,
 		'apps/web/core/services/account.service.ts',
@@ -126,14 +160,34 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 			"describe.each([{ name: 'one' }])('account $name', () => {",
 			"\tit.each([1])('loads %s', () => undefined);",
 			"\ttest.concurrent.each([1])('parallel %s', () => undefined);",
+			"\tit.each`value`('tagged loads %s', () => undefined);",
+			"\ttest.concurrent.each`value`('tagged parallel %s', () => undefined);",
 			"\tit('legacy %s', () => undefined);",
 			'});',
+			"describe.each`value`('tagged account %s', () => undefined);",
 			`const fixture = "test.skip('fixture is not a test')";`,
 			"// describe.only('comment is not a test', () => undefined);",
 			'void fixture;'
 		].join('\n') + '\n'
 	);
 	write(repository, 'apps/web/core/account.e2e.ts', "test('e2e account', () => undefined);\n");
+	write(
+		repository,
+		'nx.json',
+		JSON.stringify(
+			{
+				targetDefaults: {
+					test: {
+						executor: '@nx/jest:jest',
+						options: { roots: ['apps/web'], testPathPattern: ['apps/web'] }
+					},
+					'@nx/jest:jest': { options: { testNamePattern: 'preserved' } }
+				}
+			},
+			null,
+			2
+		) + '\n'
+	);
 	write(
 		repository,
 		'apps/web/project.json',
@@ -155,12 +209,14 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 		repository,
 		'apps/web/jest.config.ts',
 		[
-			'const config = {',
-			"\ttestMatch: ['<rootDir>/**/*.test.ts', '<rootDir>/**/*.cy.ts', '<rootDir>/**/*.e2e.ts'],",
-			"\ttestRegex: ['.*\\\\.spec\\\\.ts$'],",
-			"\troots: ['<rootDir>/core'],",
-			"\ttestPathIgnorePatterns: ['/node_modules/']",
-			'};',
+			"const TEST_MATCH = ['<rootDir>/**/*.test.ts', '<rootDir>/**/*.cy.ts', '<rootDir>/**/*.e2e.ts'];",
+			"const TEST_REGEX = ['.*\\\\.spec\\\\.ts$'];",
+			"const ROOTS = ['<rootDir>/core'];",
+			"const IGNORES = ['/node_modules/'];",
+			'const BASE_SELECTION = { testMatch: TEST_MATCH, testRegex: TEST_REGEX };',
+			'const config = { ...BASE_SELECTION };',
+			'config.roots = ROOTS;',
+			'config.testPathIgnorePatterns = IGNORES;',
 			'export default config;'
 		].join('\n') + '\n'
 	);
@@ -174,13 +230,43 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 		'apps/web/core/navigation.tsx',
 		[
 			"export const links = [<a href='/same' />, <a href='/a' />, <a href='/z' />, <a href='/ä' />];",
-			'export const api = [process.env.NEXT_PUBLIC_API_URL];'
+			"export const menu = [{ href: '/object' }];",
+			"export const ACCOUNT_ROUTE = '/account';",
+			"export const SETTINGS_PATH = '/settings';",
+			'export const api = [process.env.NEXT_PUBLIC_API_URL];',
+			'export const assets = import.meta.env.NEXT_PUBLIC_ASSET_URL;',
+			`const fixture = "<a href='/fake-href' /> process.env.NEXT_PUBLIC_FAKE";`,
+			"// const commented = { href: '/comment-href', env: process.env.NEXT_PUBLIC_COMMENT };",
+			'void fixture;'
 		].join('\n') + '\n'
 	);
 	write(
 		repository,
 		'apps/web/core/public/index.ts',
-		"export { default as AccountFeature } from './account-feature';\n"
+		["export { default as AccountFeature } from './account-feature';", "export * from './middle';"].join('\n') +
+			'\n'
+	);
+	write(
+		repository,
+		'apps/web/core/public/leaf.ts',
+		[
+			'export type RuntimeToType = { value: string };',
+			'export type LeafType = { value: string };',
+			'const PrivateLeaf = true;',
+			'void PrivateLeaf;'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/web/core/components/overlays.tsx',
+		[
+			'export const DialogTrigger = () => null;',
+			'const DrawerTrigger = () => null;',
+			'export { DrawerTrigger };',
+			`const fixture = 'FakeModal in a string';`,
+			'// function CommentDrawer() {}',
+			'void fixture;'
+		].join('\n') + '\n'
 	);
 	write(
 		repository,
@@ -200,8 +286,11 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 			"describe.skip.each([{ name: 'one' }])('account $name', () => {",
 			"\tit.skip.each([1])('loads %s', () => undefined);",
 			"\ttest.concurrent.only.each([1])('parallel %s', () => undefined);",
+			"\tit.skip.each`value`('tagged loads %s', () => undefined);",
+			"\ttest.concurrent.only.each`value`('tagged parallel %s', () => undefined);",
 			"\txit('legacy %s', () => undefined);",
 			'});',
+			"describe.only.each`value`('tagged account %s', () => undefined);",
 			`const fixture = "test.skip('fixture is not a test')";`,
 			"// describe.only('comment is not a test', () => undefined);",
 			'void fixture;'
@@ -228,14 +317,38 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 		repository,
 		'apps/web/jest.config.ts',
 		[
-			'const config = {',
-			"\ttestMatch: ['<rootDir>/**/*.test.ts'],",
-			"\ttestRegex: ['.*\\\\.spec\\\\.ts$'],",
-			"\troots: ['<rootDir>/core'],",
-			"\ttestPathIgnorePatterns: ['/node_modules/', '/architecture/']",
-			'};',
+			"const TEST_MATCH = ['<rootDir>/**/*.test.ts'];",
+			"const TEST_REGEX = ['.*\\\\.spec\\\\.ts$'];",
+			"const ROOTS = ['<rootDir>/core'];",
+			"const IGNORES = ['/node_modules/', '/architecture/'];",
+			'const BASE_SELECTION = { testMatch: TEST_MATCH, testRegex: TEST_REGEX };',
+			'const config = { ...BASE_SELECTION };',
+			'config.roots = ROOTS;',
+			'config.testPathIgnorePatterns = IGNORES;',
+			"config.testNamePattern = 'account';",
 			'export default config;'
 		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'nx.json',
+		JSON.stringify(
+			{
+				targetDefaults: {
+					test: {
+						executor: '@nx/jest:jest',
+						options: {
+							roots: ['apps/web/core'],
+							testPathPattern: ['apps/web/core'],
+							testPathIgnorePatterns: ['architecture']
+						}
+					},
+					'@nx/jest:jest': { options: { testNamePattern: 'account' } }
+				}
+			},
+			null,
+			2
+		) + '\n'
 	);
 	git(repository, 'add', '.');
 	git(repository, 'commit', '--quiet', '-m', 'synthetic regression');
@@ -243,7 +356,10 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 	return { base, head: git(repository, 'rev-parse', 'HEAD'), repository };
 }
 
+let realHeadSurface: Surface | undefined;
+
 function collectRealHeadSurface(): Surface {
+	if (realHeadSurface) return realHeadSurface;
 	const expression = [
 		`import { collectSurface } from ${JSON.stringify(pathToFileURL(SCRIPT).href)};`,
 		`const result = collectSurface('HEAD', { cwd: ${JSON.stringify(REPOSITORY_ROOT)} });`,
@@ -253,7 +369,8 @@ function collectRealHeadSurface(): Surface {
 		spawnSync(process.execPath, ['--input-type=module', '--eval', expression], { encoding: 'utf8' })
 	);
 	if (result.status !== 0) throw new Error(result.stderr);
-	return JSON.parse(result.stdout) as Surface;
+	realHeadSurface = JSON.parse(result.stdout) as Surface;
+	return realHeadSurface;
 }
 
 describe('Ever Teams feature surface preservation', () => {
@@ -308,23 +425,49 @@ describe('Ever Teams feature surface preservation', () => {
 		});
 	});
 
-	it('collects default, namespace, star, type, aliased, and declaration barrel exports', () => {
+	it('resolves transitive barrel exports, kinds, and cycles without exposing private declarations', () => {
 		expect(violationRun.report?.base.surface.publicExports).toEqual(
 			expect.arrayContaining([
-				'apps/web/core/public/index.ts::default',
-				'apps/web/core/public/index.ts::AccountFeature',
-				'apps/web/core/public/index.ts::AccountNamespace',
-				'apps/web/core/public/index.ts::* from ./extra',
-				'apps/web/core/public/index.ts::AccountType',
-				'apps/web/core/public/index.ts::ExtraType',
-				'apps/web/core/public/index.ts::renamedHelper',
-				'apps/web/core/public/index.ts::directExport'
+				'apps/web/core/public/index.ts::runtime::default',
+				'apps/web/core/public/index.ts::runtime::AccountFeature',
+				'apps/web/core/public/index.ts::runtime::AccountNamespace',
+				'apps/web/core/public/index.ts::type::AccountType',
+				'apps/web/core/public/index.ts::type::ExtraType',
+				'apps/web/core/public/index.ts::runtime::renamedHelper',
+				'apps/web/core/public/index.ts::runtime::directExport',
+				'apps/web/core/public/index.ts::runtime::LeafRuntime',
+				'apps/web/core/public/index.ts::runtime::RuntimeToType',
+				'apps/web/core/public/index.ts::type::LeafType',
+				'apps/web/core/public/index.ts::runtime::CycleRuntime'
 			])
 		);
+		expect(violationRun.report?.base.surface.publicExports.join('\n')).not.toContain('PrivateLeaf');
 		expect(violationRun.report?.violations).toContainEqual({
 			category: 'publicExports',
 			kind: 'removed',
-			value: 'apps/web/core/public/index.ts::AccountNamespace'
+			value: 'apps/web/core/public/index.ts::runtime::LeafRuntime'
+		});
+		expect(violationRun.report?.violations).toContainEqual({
+			category: 'publicExports',
+			kind: 'removed',
+			value: 'apps/web/core/public/index.ts::runtime::RuntimeToType'
+		});
+	});
+
+	it('protects every exported overlay symbol in a multi-component file', () => {
+		expect(violationRun.report?.base.surface.overlayComponents).toEqual(
+			expect.arrayContaining([
+				'apps/web/core/components/overlays.tsx::DialogTrigger',
+				'apps/web/core/components/overlays.tsx::DialogContent',
+				'apps/web/core/components/overlays.tsx::DrawerTrigger'
+			])
+		);
+		expect(violationRun.report?.base.surface.overlayComponents.join('\n')).not.toContain('FakeModal');
+		expect(violationRun.report?.base.surface.overlayComponents.join('\n')).not.toContain('CommentDrawer');
+		expect(violationRun.report?.violations).toContainEqual({
+			category: 'overlayComponents',
+			kind: 'removed',
+			value: 'apps/web/core/components/overlays.tsx::DialogContent'
 		});
 	});
 
@@ -342,7 +485,10 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/core/account.cy.ts::describe.skip.each::account $name::#1',
 				'apps/web/core/account.cy.ts::it.skip.each::loads %s::#1',
 				'apps/web/core/account.cy.ts::test.concurrent.only.each::parallel %s::#1',
-				'apps/web/core/account.cy.ts::xit::legacy %s::#1'
+				'apps/web/core/account.cy.ts::xit::legacy %s::#1',
+				'apps/web/core/account.cy.ts::it.skip.each::tagged loads %s::#1',
+				'apps/web/core/account.cy.ts::test.concurrent.only.each::tagged parallel %s::#1',
+				'apps/web/core/account.cy.ts::describe.only.each::tagged account %s::#1'
 			])
 		);
 		expect(violationRun.report?.head.surface.testNames.join('\n')).not.toContain('fixture is not a test');
@@ -371,12 +517,46 @@ describe('Ever Teams feature surface preservation', () => {
 					category: 'exclusions',
 					kind: 'added',
 					value: 'apps/web/jest.config.ts::testPathIgnorePatterns=/architecture/'
+				},
+				{
+					category: 'testConfiguration',
+					kind: 'removed',
+					value: 'nx.json::targetDefaults.test.options.testPathPattern=apps/web'
+				},
+				{
+					category: 'testConfiguration',
+					kind: 'removed',
+					value: 'nx.json::targetDefaults.@nx/jest:jest.options.testNamePattern=preserved'
+				},
+				{
+					category: 'exclusions',
+					kind: 'added',
+					value: 'nx.json::targetDefaults.test.options.testPathIgnorePatterns=architecture'
+				},
+				{
+					category: 'testConfiguration',
+					kind: 'added',
+					value: 'apps/web/jest.config.ts::testNamePattern=account'
 				}
 			])
 		);
 	});
 
 	it('preserves duplicate href and NEXT_PUBLIC occurrences with stable ordinals', () => {
+		expect(violationRun.report?.base.surface.navigation).toEqual(
+			expect.arrayContaining([
+				'apps/web/core/navigation.tsx::href=/object::#1',
+				'apps/web/core/navigation.tsx::ACCOUNT_ROUTE=/account::#1',
+				'apps/web/core/navigation.tsx::SETTINGS_PATH=/settings::#1'
+			])
+		);
+		expect(violationRun.report?.base.surface.nextPublicOccurrences).toContain(
+			'apps/web/core/navigation.tsx::NEXT_PUBLIC_ASSET_URL::#1'
+		);
+		expect(violationRun.report?.base.surface.navigation.join('\n')).not.toContain('fake-href');
+		expect(violationRun.report?.base.surface.navigation.join('\n')).not.toContain('comment-href');
+		expect(violationRun.report?.base.surface.nextPublicOccurrences.join('\n')).not.toContain('NEXT_PUBLIC_FAKE');
+		expect(violationRun.report?.base.surface.nextPublicOccurrences.join('\n')).not.toContain('NEXT_PUBLIC_COMMENT');
 		expect(violationRun.report?.violations).toEqual(
 			expect.arrayContaining([
 				{
@@ -397,6 +577,7 @@ describe('Ever Teams feature surface preservation', () => {
 		const navigation = violationRun.report?.base.surface.navigation.filter((value) => value.includes('::href=/'));
 		expect(navigation).toEqual([
 			'apps/web/core/navigation.tsx::href=/a::#1',
+			'apps/web/core/navigation.tsx::href=/object::#1',
 			'apps/web/core/navigation.tsx::href=/same::#1',
 			'apps/web/core/navigation.tsx::href=/same::#2',
 			'apps/web/core/navigation.tsx::href=/z::#1',
@@ -439,5 +620,12 @@ describe('Ever Teams feature surface preservation', () => {
 			])
 		);
 		expect(surface.serviceMethods.length).toBeGreaterThanOrEqual(263);
+	});
+
+	it('does not treat architecture fixture strings as real navigation or environment uses', () => {
+		const surface = collectRealHeadSurface();
+		const fixturePath = 'apps/web/test/architecture/feature-surface-preserved.test.ts::';
+		expect(surface.navigation.some((value) => value.startsWith(fixturePath))).toBe(false);
+		expect(surface.nextPublicOccurrences.some((value) => value.startsWith(fixturePath))).toBe(false);
 	});
 });

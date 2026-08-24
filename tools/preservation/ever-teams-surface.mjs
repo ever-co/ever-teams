@@ -2,7 +2,7 @@
 
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { dirname, posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 
@@ -156,48 +156,188 @@ function collectBindingNames(name, names) {
 		for (const element of name.elements) if (ts.isBindingElement(element)) collectBindingNames(element.name, names);
 }
 
-function collectPublicExports(path, source) {
-	const exports = [];
+function addExport(exports, name, kind) {
+	if (!name) return;
+	const kinds = exports.get(name) ?? new Set();
+	kinds.add(kind);
+	exports.set(name, kinds);
+}
+
+function declarationKinds(statement) {
+	if (ts.isInterfaceDeclaration(statement) || ts.isTypeAliasDeclaration(statement)) return ['type'];
+	if (ts.isClassDeclaration(statement) || ts.isEnumDeclaration(statement)) return ['runtime', 'type'];
+	if (ts.isVariableStatement(statement) || ts.isFunctionDeclaration(statement) || ts.isModuleDeclaration(statement)) {
+		return ['runtime'];
+	}
+	return [];
+}
+
+function declarationNames(statement) {
+	if (ts.isVariableStatement(statement)) {
+		const names = [];
+		for (const declaration of statement.declarationList.declarations) {
+			collectBindingNames(declaration.name, names);
+		}
+		return names;
+	}
+	if (
+		(ts.isFunctionDeclaration(statement) ||
+			ts.isClassDeclaration(statement) ||
+			ts.isInterfaceDeclaration(statement) ||
+			ts.isTypeAliasDeclaration(statement) ||
+			ts.isEnumDeclaration(statement) ||
+			ts.isModuleDeclaration(statement)) &&
+		statement.name
+	) {
+		return [statement.name.text];
+	}
+	return [];
+}
+
+function moduleInfo(path, source) {
+	const direct = new Map();
+	const locals = new Map();
+	const reexports = [];
 	const sourceFile = parseSource(path, source);
 	for (const statement of sourceFile.statements) {
+		const names = declarationNames(statement);
+		const kinds = declarationKinds(statement);
+		for (const name of names) for (const kind of kinds) addExport(locals, name, kind);
+
 		if (ts.isExportDeclaration(statement)) {
-			const moduleName =
+			const specifier =
 				statement.moduleSpecifier && ts.isStringLiteralLike(statement.moduleSpecifier)
 					? statement.moduleSpecifier.text
-					: '';
-			if (!statement.exportClause) exports.push(`${path}::* from ${moduleName}`);
-			else if (ts.isNamespaceExport(statement.exportClause)) {
-				exports.push(`${path}::${statement.exportClause.name.text}`);
+					: undefined;
+			if (!statement.exportClause) {
+				reexports.push({ kind: 'star', specifier, typeOnly: statement.isTypeOnly });
+			} else if (ts.isNamespaceExport(statement.exportClause)) {
+				reexports.push({
+					kind: 'namespace',
+					name: statement.exportClause.name.text,
+					specifier,
+					typeOnly: statement.isTypeOnly
+				});
 			} else {
-				for (const element of statement.exportClause.elements) exports.push(`${path}::${element.name.text}`);
+				for (const element of statement.exportClause.elements) {
+					reexports.push({
+						kind: 'named',
+						name: element.name.text,
+						sourceName: element.propertyName?.text ?? element.name.text,
+						specifier,
+						typeOnly: statement.isTypeOnly || element.isTypeOnly
+					});
+				}
 			}
 			continue;
 		}
 		if (ts.isExportAssignment(statement)) {
-			exports.push(`${path}::${statement.isExportEquals ? 'export=' : 'default'}`);
+			addExport(direct, statement.isExportEquals ? 'export=' : 'default', 'runtime');
 			continue;
 		}
 		if (!hasModifier(statement, ts.SyntaxKind.ExportKeyword)) continue;
 		if (hasModifier(statement, ts.SyntaxKind.DefaultKeyword)) {
-			exports.push(`${path}::default`);
-			continue;
+			for (const kind of kinds.length > 0 ? kinds : ['runtime']) addExport(direct, 'default', kind);
+		} else {
+			for (const name of names) for (const kind of kinds) addExport(direct, name, kind);
 		}
-		if (ts.isVariableStatement(statement)) {
-			const names = [];
-			for (const declaration of statement.declarationList.declarations) {
-				collectBindingNames(declaration.name, names);
+	}
+	return { direct, locals, reexports };
+}
+
+const MODULE_EXTENSIONS = ['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs'];
+
+function resolveLocalModule(fromPath, specifier, files) {
+	if (!specifier?.startsWith('.')) return undefined;
+	const base = posix.normalize(posix.join(posix.dirname(fromPath), specifier));
+	const roots = [base];
+	const importedExtension = posix.extname(base);
+	if (MODULE_EXTENSIONS.includes(importedExtension)) roots.push(base.slice(0, -importedExtension.length));
+	const candidates = [...roots];
+	for (const root of roots) for (const extension of MODULE_EXTENSIONS) candidates.push(`${root}${extension}`);
+	for (const root of roots) {
+		for (const extension of MODULE_EXTENSIONS) candidates.push(`${root}/index${extension}`);
+	}
+	return candidates.find((candidate) => files.has(candidate));
+}
+
+function copyExports(source) {
+	const copy = new Map();
+	for (const [name, kinds] of source) copy.set(name, new Set(kinds));
+	return copy;
+}
+
+function sameExports(left, right) {
+	if (left.size !== right.size) return false;
+	for (const [name, kinds] of left) {
+		const other = right.get(name);
+		if (!other || kinds.size !== other.size || [...kinds].some((kind) => !other.has(kind))) return false;
+	}
+	return true;
+}
+
+function collectPublicExports(files) {
+	const barrelPaths = [...files.keys()].filter(
+		(path) => SOURCE_FILE.test(path) && WEB_SURFACE_FILE.test(path) && BARREL_FILE.test(path)
+	);
+	const infos = new Map();
+	const pending = [...barrelPaths];
+	while (pending.length > 0) {
+		const path = pending.pop();
+		if (infos.has(path)) continue;
+		const source = files.get(path);
+		if (source === undefined) continue;
+		const info = moduleInfo(path, source);
+		infos.set(path, info);
+		for (const reexport of info.reexports) {
+			const target = resolveLocalModule(path, reexport.specifier, files);
+			if (target && !infos.has(target)) pending.push(target);
+		}
+	}
+
+	let resolved = new Map([...infos].map(([path, info]) => [path, copyExports(info.direct)]));
+	for (let iteration = 0; iteration <= infos.size; iteration += 1) {
+		let changed = false;
+		const next = new Map();
+		for (const [path, info] of infos) {
+			const exports = copyExports(info.direct);
+			for (const reexport of info.reexports) {
+				if (reexport.kind === 'namespace') {
+					addExport(exports, reexport.name, reexport.typeOnly ? 'type' : 'runtime');
+					continue;
+				}
+				const targetPath = resolveLocalModule(path, reexport.specifier, files);
+				const targetExports = targetPath ? resolved.get(targetPath) : undefined;
+				if (reexport.kind === 'star') {
+					if (!targetExports) {
+						if (reexport.specifier) {
+							addExport(exports, `* from ${reexport.specifier}`, reexport.typeOnly ? 'type' : 'runtime');
+						}
+						continue;
+					}
+					for (const [name, kinds] of targetExports) {
+						if (name === 'default' || name === 'export=') continue;
+						for (const kind of reexport.typeOnly ? ['type'] : kinds) addExport(exports, name, kind);
+					}
+					continue;
+				}
+				const sourceExports = targetExports ?? (reexport.specifier ? new Map() : info.locals);
+				const kinds = sourceExports.get(reexport.sourceName);
+				if (reexport.typeOnly) addExport(exports, reexport.name, 'type');
+				else if (kinds) for (const kind of kinds) addExport(exports, reexport.name, kind);
+				else addExport(exports, reexport.name, 'runtime');
 			}
-			for (const name of names) exports.push(`${path}::${name}`);
-		} else if (
-			(ts.isFunctionDeclaration(statement) ||
-				ts.isClassDeclaration(statement) ||
-				ts.isInterfaceDeclaration(statement) ||
-				ts.isTypeAliasDeclaration(statement) ||
-				ts.isEnumDeclaration(statement) ||
-				ts.isModuleDeclaration(statement)) &&
-			statement.name
-		) {
-			exports.push(`${path}::${statement.name.text}`);
+			next.set(path, exports);
+			if (!sameExports(exports, resolved.get(path) ?? new Map())) changed = true;
+		}
+		resolved = next;
+		if (!changed) break;
+	}
+
+	const exports = [];
+	for (const path of barrelPaths) {
+		for (const [name, kinds] of resolved.get(path) ?? []) {
+			for (const kind of kinds) exports.push(`${path}::${kind}::${name}`);
 		}
 	}
 	return exports;
@@ -206,6 +346,7 @@ function collectPublicExports(path, source) {
 function testChain(expression) {
 	if (ts.isParenthesizedExpression(expression)) return testChain(expression.expression);
 	if (ts.isCallExpression(expression)) return testChain(expression.expression);
+	if (ts.isTaggedTemplateExpression(expression)) return testChain(expression.tag);
 	if (ts.isPropertyAccessExpression(expression)) {
 		const parent = testChain(expression.expression);
 		return parent ? [...parent, expression.name.text] : undefined;
@@ -263,39 +404,213 @@ function collectTests(path, source) {
 	return { markers, names };
 }
 
-function literalValues(node) {
-	if (!node) return [];
-	if (ts.isStringLiteralLike(node) || ts.isNumericLiteral(node)) return [node.text];
-	if (node.kind === ts.SyntaxKind.TrueKeyword) return ['true'];
-	if (node.kind === ts.SyntaxKind.FalseKeyword) return ['false'];
-	if (ts.isArrayLiteralExpression(node)) return node.elements.flatMap(literalValues);
-	return [];
-}
-
-function objectLiteral(node) {
-	while (ts.isAsExpression(node) || ts.isSatisfiesExpression(node) || ts.isParenthesizedExpression(node)) {
-		node = node.expression;
-	}
-	return ts.isObjectLiteralExpression(node) ? node : undefined;
-}
-
 function propertyName(property) {
 	return property.name && (ts.isIdentifier(property.name) || ts.isStringLiteralLike(property.name))
 		? property.name.text
 		: undefined;
 }
 
-function collectObjectConfig(path, object, prefix, configuration, exclusions) {
-	for (const property of object.properties) {
-		if (!ts.isPropertyAssignment(property)) continue;
-		const name = propertyName(property);
-		if (!name) continue;
-		const values = literalValues(property.initializer);
-		if (['testMatch', 'testRegex', 'roots'].includes(name)) {
-			for (const value of values) configuration.push(`${path}::${prefix}${name}=${value}`);
-		} else if (/ignore|exclude/i.test(name)) {
-			for (const value of values) exclusions.push(`${path}::${prefix}${name}=${value}`);
+const UNRESOLVED = Symbol('unresolved');
+const UNRESOLVED_SPREADS = Symbol('unresolved-spreads');
+const TEST_SELECTION_KEYS = new Set([
+	'roots',
+	'testMatch',
+	'testNamePattern',
+	'testNamePatterns',
+	'testPathPattern',
+	'testPathPatterns',
+	'testRegex'
+]);
+
+function unwrapExpression(node) {
+	while (
+		node &&
+		(ts.isAsExpression(node) ||
+			ts.isSatisfiesExpression(node) ||
+			ts.isParenthesizedExpression(node) ||
+			ts.isNonNullExpression(node) ||
+			ts.isTypeAssertionExpression(node))
+	) {
+		node = node.expression;
+	}
+	return node;
+}
+
+function accessPropertyName(expression) {
+	if (ts.isPropertyAccessExpression(expression)) return expression.name.text;
+	if (
+		ts.isElementAccessExpression(expression) &&
+		expression.argumentExpression &&
+		ts.isStringLiteralLike(expression.argumentExpression)
+	) {
+		return expression.argumentExpression.text;
+	}
+	return undefined;
+}
+
+function staticValue(node, values, seen = new Set()) {
+	node = unwrapExpression(node);
+	if (!node) return UNRESOLVED;
+	if (ts.isStringLiteralLike(node) || ts.isNumericLiteral(node)) return node.text;
+	if (ts.isNoSubstitutionTemplateLiteral(node)) return node.text;
+	if (node.kind === ts.SyntaxKind.TrueKeyword) return true;
+	if (node.kind === ts.SyntaxKind.FalseKeyword) return false;
+	if (node.kind === ts.SyntaxKind.NullKeyword) return null;
+	if (ts.isIdentifier(node)) {
+		if (seen.has(node.text) || !values.has(node.text)) return UNRESOLVED;
+		seen.add(node.text);
+		const value = values.get(node.text);
+		seen.delete(node.text);
+		return value;
+	}
+	if (ts.isArrayLiteralExpression(node)) {
+		const result = [];
+		for (const element of node.elements) {
+			if (ts.isSpreadElement(element)) {
+				const spread = staticValue(element.expression, values, seen);
+				if (!Array.isArray(spread)) return UNRESOLVED;
+				result.push(...spread);
+			} else {
+				result.push(staticValue(element, values, seen));
+			}
 		}
+		return result;
+	}
+	if (ts.isObjectLiteralExpression(node)) {
+		const result = {};
+		for (const property of node.properties) {
+			if (ts.isSpreadAssignment(property)) {
+				const spread = staticValue(property.expression, values, seen);
+				if (spread && typeof spread === 'object' && !Array.isArray(spread)) Object.assign(result, spread);
+				else {
+					result[UNRESOLVED_SPREADS] = [...(result[UNRESOLVED_SPREADS] ?? []), property.getText()];
+				}
+				continue;
+			}
+			const name = propertyName(property);
+			if (!name) continue;
+			if (ts.isPropertyAssignment(property)) result[name] = staticValue(property.initializer, values, seen);
+			else if (ts.isShorthandPropertyAssignment(property)) {
+				result[name] = values.get(property.name.text) ?? UNRESOLVED;
+			}
+		}
+		return result;
+	}
+	if (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
+		const name = accessPropertyName(node);
+		const parent = staticValue(node.expression, values, seen);
+		return name && parent && typeof parent === 'object' ? (parent[name] ?? UNRESOLVED) : UNRESOLVED;
+	}
+	if (ts.isCallExpression(node) && node.arguments.length > 0) return staticValue(node.arguments[0], values, seen);
+	if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
+		const left = staticValue(node.left, values, seen);
+		const right = staticValue(node.right, values, seen);
+		if (left !== UNRESOLVED && right !== UNRESOLVED) return String(left) + String(right);
+	}
+	return UNRESOLVED;
+}
+
+function flattenedValues(value) {
+	if (value === UNRESOLVED) return ['<unresolved>'];
+	if (Array.isArray(value)) return value.flatMap(flattenedValues);
+	if (value === null || ['string', 'number', 'boolean'].includes(typeof value)) return [String(value)];
+	return ['<unresolved>'];
+}
+
+function recordConfigOptions(path, options, prefix, configuration, exclusions) {
+	if (!options || typeof options !== 'object' || Array.isArray(options)) return;
+	for (const [name, value] of Object.entries(options)) {
+		if (TEST_SELECTION_KEYS.has(name)) {
+			for (const item of flattenedValues(value)) configuration.push(`${path}::${prefix}${name}=${item}`);
+		} else if (/ignore|exclude/i.test(name)) {
+			for (const item of flattenedValues(value)) exclusions.push(`${path}::${prefix}${name}=${item}`);
+		} else if (name === 'passWithNoTests') {
+			for (const item of flattenedValues(value)) configuration.push(`${path}::${prefix}${name}=${item}`);
+			if (value === true) exclusions.push(`${path}::${prefix}${name}=true`);
+		}
+	}
+	for (const spread of options[UNRESOLVED_SPREADS] ?? []) {
+		exclusions.push(`${path}::${prefix}<unresolvedSpread>=${spread}`);
+	}
+}
+
+function assignStaticProperty(expression, value, values) {
+	const name = accessPropertyName(expression);
+	const root = expression.expression;
+	if (!name || !ts.isIdentifier(root)) return;
+	const target = values.get(root.text);
+	if (target && typeof target === 'object' && !Array.isArray(target)) target[name] = value;
+}
+
+function collectJestConfig(path, source, configuration, exclusions) {
+	const sourceFile = parseSource(path, source);
+	const values = new Map();
+	let exported;
+	for (const statement of sourceFile.statements) {
+		if (ts.isVariableStatement(statement)) {
+			for (const declaration of statement.declarationList.declarations) {
+				if (ts.isIdentifier(declaration.name) && declaration.initializer) {
+					values.set(declaration.name.text, staticValue(declaration.initializer, values));
+				}
+			}
+			continue;
+		}
+		if (ts.isExpressionStatement(statement) && ts.isBinaryExpression(statement.expression)) {
+			const assignment = statement.expression;
+			if (assignment.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+				assignStaticProperty(assignment.left, staticValue(assignment.right, values), values);
+			}
+			continue;
+		}
+		if (
+			ts.isExpressionStatement(statement) &&
+			ts.isCallExpression(statement.expression) &&
+			statement.expression.expression.getText(sourceFile) === 'Object.assign'
+		) {
+			const [targetNode, ...sourceNodes] = statement.expression.arguments;
+			if (targetNode && ts.isIdentifier(targetNode)) {
+				const target = values.get(targetNode.text);
+				if (target && typeof target === 'object' && !Array.isArray(target)) {
+					for (const sourceNode of sourceNodes) {
+						const sourceValue = staticValue(sourceNode, values);
+						if (sourceValue && typeof sourceValue === 'object' && !Array.isArray(sourceValue)) {
+							Object.assign(target, sourceValue);
+						} else target[UNRESOLVED_SPREADS] = ['Object.assign'];
+					}
+				}
+			}
+			continue;
+		}
+		if (ts.isExportAssignment(statement)) exported = staticValue(statement.expression, values);
+	}
+	const config = values.get('config') ?? exported;
+	if (config && typeof config === 'object' && !Array.isArray(config)) {
+		recordConfigOptions(path, config, '', configuration, exclusions);
+	} else {
+		exclusions.push(`${path}::<unresolvedConfig>`);
+	}
+}
+
+function collectJsonTarget(path, target, prefix, trackedPaths, configuration, exclusions) {
+	if (!target || typeof target !== 'object' || Array.isArray(target)) return;
+	if (typeof target.executor === 'string') configuration.push(`${path}::${prefix}.executor=${target.executor}`);
+	for (const [name, value] of Object.entries(target.options ?? {})) {
+		const key = `${prefix}.options.${name}`;
+		if (name === 'jestConfig') {
+			if (trackedPaths.has(String(value).replaceAll('\\', '/'))) {
+				configuration.push(`${path}::${key}=${String(value)}`);
+			}
+		} else if (TEST_SELECTION_KEYS.has(name)) {
+			for (const item of flattenedValues(value)) configuration.push(`${path}::${key}=${item}`);
+		} else if (/ignore|exclude/i.test(name)) {
+			for (const item of flattenedValues(value)) exclusions.push(`${path}::${key}=${item}`);
+		} else if (name === 'passWithNoTests') {
+			configuration.push(`${path}::${key}=${String(value)}`);
+			if (value === true) exclusions.push(`${path}::${key}=true`);
+		}
+	}
+	for (const [name, value] of Object.entries(target.configurations ?? {})) {
+		collectJsonTarget(path, value, `${prefix}.configurations.${name}`, trackedPaths, configuration, exclusions);
 	}
 }
 
@@ -303,52 +618,138 @@ function collectTestConfiguration(path, source, trackedPaths) {
 	const configuration = [];
 	const exclusions = [];
 	if (/(?:^|\/)(?:project|workspace|nx)\.json$/.test(path)) {
+		let root;
 		try {
-			const root = JSON.parse(source);
-			const testTarget = root?.targets?.test ?? root?.projects?.web?.targets?.test;
-			if (testTarget && typeof testTarget === 'object') {
-				if (typeof testTarget.executor === 'string') {
-					configuration.push(`${path}::targets.test.executor=${testTarget.executor}`);
-				}
-				for (const [name, value] of Object.entries(testTarget.options ?? {})) {
-					const key = `targets.test.options.${name}`;
-					if (name === 'jestConfig' && trackedPaths.has(String(value).replaceAll('\\', '/'))) {
-						configuration.push(`${path}::${key}=${String(value)}`);
-					} else if (name === 'passWithNoTests') {
-						configuration.push(`${path}::${key}=${String(value)}`);
-						if (value === true) exclusions.push(`${path}::${key}=true`);
-					} else if (['testMatch', 'testRegex', 'roots'].includes(name)) {
-						for (const item of Array.isArray(value) ? value : [value]) {
-							configuration.push(`${path}::${key}=${String(item)}`);
-						}
-					} else if (/ignore|exclude/i.test(name)) {
-						for (const item of Array.isArray(value) ? value : [value]) {
-							exclusions.push(`${path}::${key}=${String(item)}`);
-						}
-					}
-				}
+			root = JSON.parse(source);
+		} catch (error) {
+			throw new Error(`Unable to parse test configuration ${path}: ${error.message}`);
+		}
+		if (root?.targets?.test) {
+			collectJsonTarget(path, root.targets.test, 'targets.test', trackedPaths, configuration, exclusions);
+		}
+		if (root?.projects?.web?.targets?.test) {
+			collectJsonTarget(
+				path,
+				root.projects.web.targets.test,
+				'projects.web.targets.test',
+				trackedPaths,
+				configuration,
+				exclusions
+			);
+		}
+		for (const [name, target] of Object.entries(root?.targetDefaults ?? {})) {
+			if (name === 'test' || /jest/i.test(name) || /jest/i.test(String(target?.executor ?? ''))) {
+				collectJsonTarget(path, target, `targetDefaults.${name}`, trackedPaths, configuration, exclusions);
 			}
-		} catch {
-			return { configuration, exclusions };
 		}
 	}
 	if (/(?:^|\/)jest\.config\.[cm]?[jt]s$/.test(path)) {
-		const sourceFile = parseSource(path, source);
-		for (const statement of sourceFile.statements) {
-			if (!ts.isVariableStatement(statement)) continue;
-			for (const declaration of statement.declarationList.declarations) {
-				if (
-					ts.isIdentifier(declaration.name) &&
-					declaration.name.text === 'config' &&
-					declaration.initializer
-				) {
-					const config = objectLiteral(declaration.initializer);
-					if (config) collectObjectConfig(path, config, '', configuration, exclusions);
-				}
+		collectJestConfig(path, source, configuration, exclusions);
+	}
+	return { configuration, exclusions };
+}
+
+function isOverlayName(name) {
+	return /(?:Modal|Dialog|Drawer)/.test(name);
+}
+
+function collectOverlayComponents(path, source) {
+	const components = [];
+	const sourceFile = parseSource(path, source);
+	const addNames = (names) => {
+		for (const name of names) if (isOverlayName(name)) components.push(`${path}::${name}`);
+	};
+	const visit = (node) => {
+		if (ts.isVariableDeclaration(node)) {
+			const names = [];
+			collectBindingNames(node.name, names);
+			addNames(names);
+		} else if (
+			(ts.isFunctionDeclaration(node) ||
+				ts.isClassDeclaration(node) ||
+				ts.isInterfaceDeclaration(node) ||
+				ts.isTypeAliasDeclaration(node) ||
+				ts.isEnumDeclaration(node)) &&
+			node.name
+		) {
+			addNames([node.name.text]);
+		} else if (ts.isExportDeclaration(node) && node.exportClause && ts.isNamedExports(node.exportClause)) {
+			addNames(node.exportClause.elements.map((element) => element.name.text));
+		} else if (ts.isNamespaceExport(node)) {
+			addNames([node.name.text]);
+		}
+		ts.forEachChild(node, visit);
+	};
+	visit(sourceFile);
+	return components;
+}
+
+function staticString(node, values = new Map()) {
+	const value = staticValue(node, values);
+	return typeof value === 'string' ? value : undefined;
+}
+
+function environmentAccessSegments(node) {
+	node = unwrapExpression(node);
+	if (!node) return undefined;
+	if (ts.isIdentifier(node)) return [node.text];
+	if (ts.isMetaProperty(node) && node.keywordToken === ts.SyntaxKind.ImportKeyword) {
+		return ['import', node.name.text];
+	}
+	if (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
+		const parent = environmentAccessSegments(node.expression);
+		const name = accessPropertyName(node);
+		return parent && name ? [...parent, name] : undefined;
+	}
+	return undefined;
+}
+
+function collectNavigationAndEnvironment(path, source) {
+	const navigation = [];
+	const nextPublicOccurrences = [];
+	const sourceFile = parseSource(path, source);
+	const values = new Map();
+	for (const statement of sourceFile.statements) {
+		if (!ts.isVariableStatement(statement)) continue;
+		for (const declaration of statement.declarationList.declarations) {
+			if (ts.isIdentifier(declaration.name) && declaration.initializer) {
+				values.set(declaration.name.text, staticValue(declaration.initializer, values));
 			}
 		}
 	}
-	return { configuration, exclusions };
+	const visit = (node) => {
+		if (ts.isJsxAttribute(node) && node.name.text === 'href' && node.initializer) {
+			const value = ts.isJsxExpression(node.initializer)
+				? staticString(node.initializer.expression, values)
+				: staticString(node.initializer, values);
+			if (value !== undefined) navigation.push(`${path}::href=${value}`);
+		} else if (
+			(ts.isPropertyAssignment(node) || ts.isPropertyDeclaration(node)) &&
+			propertyName(node) === 'href' &&
+			node.initializer
+		) {
+			const value = staticString(node.initializer, values);
+			if (value !== undefined) navigation.push(`${path}::href=${value}`);
+		} else if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)) {
+			if (/(?:ROUTE|PATH|URL)/.test(node.name.text)) {
+				navigation.push(`${path}::constant=${node.name.text}`);
+				const value = staticString(node.initializer, values);
+				if (value !== undefined) navigation.push(`${path}::${node.name.text}=${value}`);
+			}
+		}
+
+		if (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
+			const segments = environmentAccessSegments(node);
+			const name = segments?.at(-1);
+			const prefix = segments?.slice(0, -1).join('.');
+			if (name?.startsWith('NEXT_PUBLIC_') && (prefix === 'process.env' || prefix === 'import.meta.env')) {
+				nextPublicOccurrences.push(`${path}::${name}`);
+			}
+		}
+		ts.forEachChild(node, visit);
+	};
+	visit(sourceFile);
+	return { navigation, nextPublicOccurrences };
 }
 
 export function collectSurface(ref, options = {}) {
@@ -369,31 +770,15 @@ export function collectSurface(ref, options = {}) {
 		testMarkers: [],
 		testNames: []
 	};
+	surface.publicExports.push(...collectPublicExports(files));
 
 	for (const [path, source] of files) {
 		if (ROUTE_FILE.test(path)) surface.routes.push(path);
 		if (SOURCE_FILE.test(path) && WEB_SURFACE_FILE.test(path)) {
-			const basename = path.slice(path.lastIndexOf('/') + 1).replace(SOURCE_FILE, '');
-			if (/(?:modal|dialog|drawer)/i.test(basename)) surface.overlayComponents.push(path);
-			for (const match of source.matchAll(
-				/\b(?:function|class|const)\s+([A-Za-z_$][\w$]*(?:Modal|Dialog|Drawer)[A-Za-z_$\d]*)\b/g
-			)) {
-				surface.overlayComponents.push(`${path}::${match[1]}`);
-			}
-			for (const match of source.matchAll(/\bhref\s*(?:=|:)\s*(?:\{\s*)?(['"`])([^'"`]+)\1/g)) {
-				surface.navigation.push(`${path}::href=${match[2]}`);
-			}
-			for (const match of source.matchAll(
-				/\b([A-Z][A-Z0-9_]*(?:ROUTE|PATH|URL)[A-Z0-9_]*)\s*(?:=|:)\s*(['"`])([^'"`]+)\2/g
-			)) {
-				surface.navigation.push(`${path}::${match[1]}=${match[3]}`);
-			}
-			for (const match of source.matchAll(
-				/\b(?:const|let|var)\s+([A-Z][A-Z0-9_]*(?:ROUTE|PATH|URL)[A-Z0-9_]*)\b/g
-			)) {
-				surface.navigation.push(`${path}::constant=${match[1]}`);
-			}
-			if (BARREL_FILE.test(path)) surface.publicExports.push(...collectPublicExports(path, source));
+			surface.overlayComponents.push(...collectOverlayComponents(path, source));
+			const navigation = collectNavigationAndEnvironment(path, source);
+			surface.navigation.push(...navigation.navigation);
+			surface.nextPublicOccurrences.push(...navigation.nextPublicOccurrences);
 			if (SERVICE_FILE.test(path) && API_SERVICE_FILE.test(path)) {
 				surface.serviceMethods.push(...collectServiceMethods(path, source));
 			}
@@ -403,8 +788,10 @@ export function collectSurface(ref, options = {}) {
 			surface.testNames.push(...tests.names);
 			surface.testMarkers.push(...tests.markers);
 		}
-		for (const match of source.matchAll(/\bNEXT_PUBLIC_[A-Z0-9_]+\b/g)) {
-			surface.nextPublicOccurrences.push(`${path}::${match[0]}`);
+		if (!SOURCE_FILE.test(path)) {
+			for (const match of source.matchAll(/\bNEXT_PUBLIC_[A-Z0-9_]+\b/g)) {
+				surface.nextPublicOccurrences.push(`${path}::${match[0]}`);
+			}
 		}
 		const testConfiguration = collectTestConfiguration(path, source, files);
 		surface.exclusions.push(...testConfiguration.exclusions);
@@ -449,6 +836,15 @@ export function compareSurface(base, head, allow = []) {
 		const baseValues = new Set(base.surface[category] ?? []);
 		for (const value of head.surface[category] ?? []) {
 			if (!baseValues.has(value)) addViolation(category, 'added', value);
+		}
+	}
+	const baseConfiguration = new Set(base.surface.testConfiguration ?? []);
+	for (const value of head.surface.testConfiguration ?? []) {
+		if (
+			!baseConfiguration.has(value) &&
+			/::.*(?:roots|testMatch|testNamePatterns?|testPathPatterns?|testRegex)=/.test(value)
+		) {
+			addViolation('testConfiguration', 'added', value);
 		}
 	}
 	return violations.sort((left, right) =>
