@@ -82,9 +82,11 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 			"export const SETTINGS_PATH = '/settings';",
 			'export const api = [process.env.NEXT_PUBLIC_API_URL, process.env.NEXT_PUBLIC_API_URL];',
 			'export const assets = import.meta.env.NEXT_PUBLIC_ASSET_URL;',
+			'const { NEXT_PUBLIC_DESTRUCTURED, NEXT_PUBLIC_DUPLICATE: processDuplicate } = process.env;',
+			'const { NEXT_PUBLIC_IMPORT_ALIAS: importAlias, NEXT_PUBLIC_DUPLICATE: importDuplicate } = import.meta.env;',
 			`const fixture = "<a href='/fake-href' /> process.env.NEXT_PUBLIC_FAKE";`,
 			"// const commented = { href: '/comment-href', env: process.env.NEXT_PUBLIC_COMMENT };",
-			'void fixture;'
+			'void fixture; void NEXT_PUBLIC_DESTRUCTURED; void processDuplicate; void importAlias; void importDuplicate;'
 		].join('\n') + '\n'
 	);
 	write(
@@ -120,6 +122,12 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 		].join('\n') + '\n'
 	);
 	write(repository, 'apps/web/core/public/cycle.ts', "export * from './middle'; export const CycleRuntime = true;\n");
+	write(repository, 'packages/contracts/index.d.ts', "export * from './leaf.js';\n");
+	write(repository, 'packages/contracts/leaf.d.ts', 'export interface DeclaredOnly { value: string }\n');
+	write(repository, 'packages/contracts-mts/index.d.mts', "export * from './leaf.mjs';\n");
+	write(repository, 'packages/contracts-mts/leaf.d.mts', 'export type DeclaredMts = string;\n');
+	write(repository, 'packages/contracts-cts/index.d.cts', "export * from './leaf.cjs';\n");
+	write(repository, 'packages/contracts-cts/leaf.d.cts', 'export type DeclaredCts = string;\n');
 	write(
 		repository,
 		'apps/web/core/components/overlays.tsx',
@@ -132,6 +140,11 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 			'// function CommentDrawer() {}',
 			'void fixture;'
 		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/web/core/components/anonymous-modal.tsx',
+		'export default function Surface() { return null; }\n'
 	);
 	write(
 		repository,
@@ -179,9 +192,20 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 				targetDefaults: {
 					test: {
 						executor: '@nx/jest:jest',
-						options: { roots: ['apps/web'], testPathPattern: ['apps/web'] }
+						options: {
+							roots: ['apps/web'],
+							testPathPattern: ['apps/web'],
+							testFile: 'apps/web/all.test.ts'
+						}
 					},
-					'@nx/jest:jest': { options: { testNamePattern: 'preserved' } }
+					'@nx/jest:jest': {
+						options: {
+							testNamePattern: 'preserved',
+							findRelatedTests: 'apps/web/core/base.ts',
+							onlyChanged: false,
+							changedSince: 'main'
+						}
+					}
 				}
 			},
 			null,
@@ -197,7 +221,14 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 				targets: {
 					test: {
 						executor: '@nx/jest:jest',
-						options: { jestConfig: 'apps/web/jest.config.ts', passWithNoTests: true }
+						options: {
+							jestConfig: 'apps/web/jest.config.ts',
+							passWithNoTests: true,
+							testFile: 'apps/web/all.test.ts',
+							findRelatedTests: 'apps/web/core/base.ts',
+							onlyChanged: false,
+							changedSince: 'main'
+						}
 					}
 				}
 			},
@@ -220,11 +251,43 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 			'export default config;'
 		].join('\n') + '\n'
 	);
+	write(
+		repository,
+		'apps/secondary/jest.config.ts',
+		[
+			"const config = { testMatch: ['<rootDir>/**/*.test.ts'] };",
+			"const effective = { ...config, testPathIgnorePatterns: ['/generated/'] };",
+			'export default effective;'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/common/jest.config.js',
+		[
+			"const selection = { testRegex: ['.*\\\\.test\\\\.js$'] };",
+			'module.exports = { ...selection };',
+			"module.exports.testPathIgnorePatterns = ['/node_modules/'];"
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/exports/jest.config.js',
+		["exports.testMatch = ['<rootDir>/**/*.spec.js'];", "exports.testPathIgnorePatterns = ['/vendor/'];"].join(
+			'\n'
+		) + '\n'
+	);
 	git(repository, 'add', '.');
 	git(repository, 'commit', '--quiet', '-m', 'synthetic base');
 	const base = git(repository, 'rev-parse', 'HEAD');
 
-	git(repository, 'rm', '--quiet', 'apps/web/app/page.tsx', 'apps/web/app/layout.tsx');
+	git(
+		repository,
+		'rm',
+		'--quiet',
+		'apps/web/app/page.tsx',
+		'apps/web/app/layout.tsx',
+		'apps/web/core/components/anonymous-modal.tsx'
+	);
 	write(
 		repository,
 		'apps/web/core/navigation.tsx',
@@ -235,9 +298,11 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 			"export const SETTINGS_PATH = '/settings';",
 			'export const api = [process.env.NEXT_PUBLIC_API_URL];',
 			'export const assets = import.meta.env.NEXT_PUBLIC_ASSET_URL;',
+			'const { NEXT_PUBLIC_DESTRUCTURED, NEXT_PUBLIC_DUPLICATE: processDuplicate } = process.env;',
+			'const { NEXT_PUBLIC_IMPORT_ALIAS: importAlias } = import.meta.env;',
 			`const fixture = "<a href='/fake-href' /> process.env.NEXT_PUBLIC_FAKE";`,
 			"// const commented = { href: '/comment-href', env: process.env.NEXT_PUBLIC_COMMENT };",
-			'void fixture;'
+			'void fixture; void NEXT_PUBLIC_DESTRUCTURED; void processDuplicate; void importAlias;'
 		].join('\n') + '\n'
 	);
 	write(
@@ -256,6 +321,9 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 			'void PrivateLeaf;'
 		].join('\n') + '\n'
 	);
+	write(repository, 'packages/contracts/leaf.d.ts', 'interface PrivateDeclaredOnly { value: string }\n');
+	write(repository, 'packages/contracts-mts/leaf.d.mts', 'type PrivateDeclaredMts = string;\n');
+	write(repository, 'packages/contracts-cts/leaf.d.cts', 'type PrivateDeclaredCts = string;\n');
 	write(
 		repository,
 		'apps/web/core/components/overlays.tsx',
@@ -305,7 +373,15 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 				targets: {
 					test: {
 						executor: 'nx:run-commands',
-						options: { jestConfig: 'apps/web/other-jest.config.ts', passWithNoTests: true }
+						options: {
+							jestConfig: 'apps/web/other-jest.config.ts',
+							passWithNoTests: true,
+							findRelatedTests: 'apps/web/core/head.ts',
+							onlyChanged: true,
+							changedSince: 'develop',
+							watch: true,
+							config: '{"testMatch":["only"]}'
+						}
 					}
 				}
 			},
@@ -331,6 +407,32 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 	);
 	write(
 		repository,
+		'apps/secondary/jest.config.ts',
+		[
+			"const config = { testMatch: ['<rootDir>/**/*.test.ts'] };",
+			"const effective = { ...config, testPathIgnorePatterns: ['/generated/', '/architecture/'] };",
+			'export default effective;'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/common/jest.config.js',
+		[
+			"const selection = { testRegex: ['.*\\\\.test\\\\.js$'] };",
+			'module.exports = { ...selection };',
+			"module.exports.testPathIgnorePatterns = ['/node_modules/', '/legacy/'];"
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/exports/jest.config.js',
+		[
+			"exports.testMatch = ['<rootDir>/**/*.spec.js'];",
+			"exports.testPathIgnorePatterns = ['/vendor/', '/skipped/'];"
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
 		'nx.json',
 		JSON.stringify(
 			{
@@ -340,10 +442,18 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 						options: {
 							roots: ['apps/web/core'],
 							testPathPattern: ['apps/web/core'],
-							testPathIgnorePatterns: ['architecture']
+							testPathIgnorePatterns: ['architecture'],
+							watch: true
 						}
 					},
-					'@nx/jest:jest': { options: { testNamePattern: 'account' } }
+					'@nx/jest:jest': {
+						options: {
+							testNamePattern: 'account',
+							findRelatedTests: 'apps/web/core/head.ts',
+							onlyChanged: true,
+							changedSince: 'develop'
+						}
+					}
 				}
 			},
 			null,
@@ -438,7 +548,10 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/core/public/index.ts::runtime::LeafRuntime',
 				'apps/web/core/public/index.ts::runtime::RuntimeToType',
 				'apps/web/core/public/index.ts::type::LeafType',
-				'apps/web/core/public/index.ts::runtime::CycleRuntime'
+				'apps/web/core/public/index.ts::runtime::CycleRuntime',
+				'packages/contracts/index.d.ts::type::DeclaredOnly',
+				'packages/contracts-mts/index.d.mts::type::DeclaredMts',
+				'packages/contracts-cts/index.d.cts::type::DeclaredCts'
 			])
 		);
 		expect(violationRun.report?.base.surface.publicExports.join('\n')).not.toContain('PrivateLeaf');
@@ -452,6 +565,25 @@ describe('Ever Teams feature surface preservation', () => {
 			kind: 'removed',
 			value: 'apps/web/core/public/index.ts::runtime::RuntimeToType'
 		});
+		expect(violationRun.report?.violations).toEqual(
+			expect.arrayContaining([
+				{
+					category: 'publicExports',
+					kind: 'removed',
+					value: 'packages/contracts/index.d.ts::type::DeclaredOnly'
+				},
+				{
+					category: 'publicExports',
+					kind: 'removed',
+					value: 'packages/contracts-mts/index.d.mts::type::DeclaredMts'
+				},
+				{
+					category: 'publicExports',
+					kind: 'removed',
+					value: 'packages/contracts-cts/index.d.cts::type::DeclaredCts'
+				}
+			])
+		);
 	});
 
 	it('protects every exported overlay symbol in a multi-component file', () => {
@@ -459,7 +591,8 @@ describe('Ever Teams feature surface preservation', () => {
 			expect.arrayContaining([
 				'apps/web/core/components/overlays.tsx::DialogTrigger',
 				'apps/web/core/components/overlays.tsx::DialogContent',
-				'apps/web/core/components/overlays.tsx::DrawerTrigger'
+				'apps/web/core/components/overlays.tsx::DrawerTrigger',
+				'apps/web/core/components/anonymous-modal.tsx'
 			])
 		);
 		expect(violationRun.report?.base.surface.overlayComponents.join('\n')).not.toContain('FakeModal');
@@ -468,6 +601,11 @@ describe('Ever Teams feature surface preservation', () => {
 			category: 'overlayComponents',
 			kind: 'removed',
 			value: 'apps/web/core/components/overlays.tsx::DialogContent'
+		});
+		expect(violationRun.report?.violations).toContainEqual({
+			category: 'overlayComponents',
+			kind: 'removed',
+			value: 'apps/web/core/components/anonymous-modal.tsx'
 		});
 	});
 
@@ -542,6 +680,89 @@ describe('Ever Teams feature surface preservation', () => {
 		);
 	});
 
+	it('resolves the exported ESM and CommonJS Jest config objects and their mutations', () => {
+		expect(violationRun.report?.base.surface.testConfiguration).toEqual(
+			expect.arrayContaining([
+				'apps/secondary/jest.config.ts::testMatch=<rootDir>/**/*.test.ts',
+				'apps/common/jest.config.js::testRegex=.*\\.test\\.js$',
+				'apps/exports/jest.config.js::testMatch=<rootDir>/**/*.spec.js'
+			])
+		);
+		expect(violationRun.report?.base.surface.exclusions).toEqual(
+			expect.arrayContaining([
+				'apps/secondary/jest.config.ts::testPathIgnorePatterns=/generated/',
+				'apps/common/jest.config.js::testPathIgnorePatterns=/node_modules/',
+				'apps/exports/jest.config.js::testPathIgnorePatterns=/vendor/'
+			])
+		);
+		expect(violationRun.report?.violations).toEqual(
+			expect.arrayContaining([
+				{
+					category: 'exclusions',
+					kind: 'added',
+					value: 'apps/secondary/jest.config.ts::testPathIgnorePatterns=/architecture/'
+				},
+				{
+					category: 'exclusions',
+					kind: 'added',
+					value: 'apps/common/jest.config.js::testPathIgnorePatterns=/legacy/'
+				},
+				{
+					category: 'exclusions',
+					kind: 'added',
+					value: 'apps/exports/jest.config.js::testPathIgnorePatterns=/skipped/'
+				}
+			])
+		);
+	});
+
+	it('protects every installed Nx Jest selector in project and target defaults', () => {
+		expect(violationRun.report?.violations).toEqual(
+			expect.arrayContaining([
+				{
+					category: 'testConfiguration',
+					kind: 'removed',
+					value: 'apps/web/project.json::targets.test.options.testFile=apps/web/all.test.ts'
+				},
+				{
+					category: 'testConfiguration',
+					kind: 'added',
+					value: 'apps/web/project.json::targets.test.options.findRelatedTests=apps/web/core/head.ts'
+				},
+				{
+					category: 'testConfiguration',
+					kind: 'removed',
+					value: 'apps/web/project.json::targets.test.options.changedSince=main'
+				},
+				{
+					category: 'testConfiguration',
+					kind: 'added',
+					value: 'apps/web/project.json::targets.test.options.watch=true'
+				},
+				{
+					category: 'testConfiguration',
+					kind: 'added',
+					value: 'apps/web/project.json::targets.test.options.config={"testMatch":["only"]}'
+				},
+				{
+					category: 'testConfiguration',
+					kind: 'removed',
+					value: 'nx.json::targetDefaults.test.options.testFile=apps/web/all.test.ts'
+				},
+				{
+					category: 'testConfiguration',
+					kind: 'removed',
+					value: 'nx.json::targetDefaults.@nx/jest:jest.options.findRelatedTests=apps/web/core/base.ts'
+				},
+				{
+					category: 'testConfiguration',
+					kind: 'added',
+					value: 'nx.json::targetDefaults.@nx/jest:jest.options.onlyChanged=true'
+				}
+			])
+		);
+	});
+
 	it('preserves duplicate href and NEXT_PUBLIC occurrences with stable ordinals', () => {
 		expect(violationRun.report?.base.surface.navigation).toEqual(
 			expect.arrayContaining([
@@ -552,6 +773,14 @@ describe('Ever Teams feature surface preservation', () => {
 		);
 		expect(violationRun.report?.base.surface.nextPublicOccurrences).toContain(
 			'apps/web/core/navigation.tsx::NEXT_PUBLIC_ASSET_URL::#1'
+		);
+		expect(violationRun.report?.base.surface.nextPublicOccurrences).toEqual(
+			expect.arrayContaining([
+				'apps/web/core/navigation.tsx::NEXT_PUBLIC_DESTRUCTURED::#1',
+				'apps/web/core/navigation.tsx::NEXT_PUBLIC_IMPORT_ALIAS::#1',
+				'apps/web/core/navigation.tsx::NEXT_PUBLIC_DUPLICATE::#1',
+				'apps/web/core/navigation.tsx::NEXT_PUBLIC_DUPLICATE::#2'
+			])
 		);
 		expect(violationRun.report?.base.surface.navigation.join('\n')).not.toContain('fake-href');
 		expect(violationRun.report?.base.surface.navigation.join('\n')).not.toContain('comment-href');
@@ -568,6 +797,11 @@ describe('Ever Teams feature surface preservation', () => {
 					category: 'nextPublicOccurrences',
 					kind: 'removed',
 					value: 'apps/web/core/navigation.tsx::NEXT_PUBLIC_API_URL::#2'
+				},
+				{
+					category: 'nextPublicOccurrences',
+					kind: 'removed',
+					value: 'apps/web/core/navigation.tsx::NEXT_PUBLIC_DUPLICATE::#2'
 				}
 			])
 		);
@@ -620,6 +854,18 @@ describe('Ever Teams feature surface preservation', () => {
 			])
 		);
 		expect(surface.serviceMethods.length).toBeGreaterThanOrEqual(263);
+	});
+
+	it('collects the effective CommonJS Jest configuration from the real mobile workspace', () => {
+		const surface = collectRealHeadSurface();
+		expect(surface.exclusions).toEqual(
+			expect.arrayContaining([
+				'apps/mobile/jest.config.js::testPathIgnorePatterns=<rootDir>/node_modules/',
+				'apps/mobile/jest.config.js::testPathIgnorePatterns=/detox',
+				'apps/mobile/jest.config.js::testPathIgnorePatterns=@react-native'
+			])
+		);
+		expect(surface.exclusions).not.toContain('apps/mobile/jest.config.js::<unresolvedConfig>');
 	});
 
 	it('does not treat architecture fixture strings as real navigation or environment uses', () => {

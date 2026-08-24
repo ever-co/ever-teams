@@ -9,7 +9,7 @@ import ts from 'typescript';
 const SOURCE_FILE = /\.(?:[cm]?[jt]sx?)$/;
 const ROUTE_FILE = /^apps\/web\/app\/(?:.*\/)?(?:page|layout)\.(?:[jt]sx?)$/;
 const TEST_FILE = /(?:^|\/)(?:__tests__\/.*|[^/]+\.(?:spec|test|cy|e2e))\.[cm]?[jt]sx?$/;
-const BARREL_FILE = /(?:^|\/)index\.[cm]?[jt]sx?$/;
+const BARREL_FILE = /(?:^|\/)index(?:\.d)?\.[cm]?[jt]sx?$/;
 const SERVICE_FILE = /(?:^|\/)(?:services?\/.*|[^/]+\.service)\.[cm]?[jt]sx?$/;
 const TEXT_FILE = /(?:\.(?:[cm]?[jt]sx?|json|ya?ml|env|sample)|(?:^|\/)Dockerfile)$/;
 const WEB_SURFACE_FILE = /^(?:apps\/web|packages)\//;
@@ -245,18 +245,35 @@ function moduleInfo(path, source) {
 	return { direct, locals, reexports };
 }
 
-const MODULE_EXTENSIONS = ['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs'];
+const MODULE_EXTENSIONS = ['.ts', '.tsx', '.d.ts', '.mts', '.d.mts', '.cts', '.d.cts', '.js', '.jsx', '.mjs', '.cjs'];
+const MODULE_EXTENSION_REPLACEMENTS = {
+	'.cjs': ['.cts', '.d.cts', '.cjs'],
+	'.cts': ['.cts', '.d.cts'],
+	'.d.cts': ['.d.cts'],
+	'.d.mts': ['.d.mts'],
+	'.d.ts': ['.d.ts'],
+	'.js': ['.ts', '.tsx', '.d.ts', '.js', '.jsx'],
+	'.jsx': ['.tsx', '.d.ts', '.jsx'],
+	'.mjs': ['.mts', '.d.mts', '.mjs'],
+	'.mts': ['.mts', '.d.mts'],
+	'.ts': ['.ts', '.tsx', '.d.ts'],
+	'.tsx': ['.tsx', '.d.ts']
+};
 
 function resolveLocalModule(fromPath, specifier, files) {
 	if (!specifier?.startsWith('.')) return undefined;
 	const base = posix.normalize(posix.join(posix.dirname(fromPath), specifier));
-	const roots = [base];
-	const importedExtension = posix.extname(base);
-	if (MODULE_EXTENSIONS.includes(importedExtension)) roots.push(base.slice(0, -importedExtension.length));
-	const candidates = [...roots];
-	for (const root of roots) for (const extension of MODULE_EXTENSIONS) candidates.push(`${root}${extension}`);
-	for (const root of roots) {
-		for (const extension of MODULE_EXTENSIONS) candidates.push(`${root}/index${extension}`);
+	const importedExtension = [...MODULE_EXTENSIONS]
+		.sort((left, right) => right.length - left.length)
+		.find((extension) => base.endsWith(extension));
+	const root = importedExtension ? base.slice(0, -importedExtension.length) : base;
+	const extensions = importedExtension
+		? (MODULE_EXTENSION_REPLACEMENTS[importedExtension] ?? [importedExtension])
+		: MODULE_EXTENSIONS;
+	const candidates = importedExtension ? [] : [base];
+	for (const extension of extensions) candidates.push(`${root}${extension}`);
+	if (!importedExtension) {
+		for (const extension of extensions) candidates.push(`${root}/index${extension}`);
 	}
 	return candidates.find((candidate) => files.has(candidate));
 }
@@ -413,13 +430,18 @@ function propertyName(property) {
 const UNRESOLVED = Symbol('unresolved');
 const UNRESOLVED_SPREADS = Symbol('unresolved-spreads');
 const TEST_SELECTION_KEYS = new Set([
+	'changedSince',
+	'findRelatedTests',
+	'onlyChanged',
 	'roots',
+	'testFile',
 	'testMatch',
 	'testNamePattern',
 	'testNamePatterns',
 	'testPathPattern',
 	'testPathPatterns',
-	'testRegex'
+	'testRegex',
+	'watch'
 ]);
 
 function unwrapExpression(node) {
@@ -444,6 +466,21 @@ function accessPropertyName(expression) {
 		ts.isStringLiteralLike(expression.argumentExpression)
 	) {
 		return expression.argumentExpression.text;
+	}
+	return undefined;
+}
+
+function expressionAccessSegments(node) {
+	node = unwrapExpression(node);
+	if (!node) return undefined;
+	if (ts.isIdentifier(node)) return [node.text];
+	if (ts.isMetaProperty(node) && node.keywordToken === ts.SyntaxKind.ImportKeyword) {
+		return ['import', node.name.text];
+	}
+	if (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
+		const parent = expressionAccessSegments(node.expression);
+		const name = accessPropertyName(node);
+		return parent && name ? [...parent, name] : undefined;
 	}
 	return undefined;
 }
@@ -545,7 +582,11 @@ function assignStaticProperty(expression, value, values) {
 function collectJestConfig(path, source, configuration, exclusions) {
 	const sourceFile = parseSource(path, source);
 	const values = new Map();
-	let exported;
+	let esmExport = UNRESOLVED;
+	let hasEsmExport = false;
+	let moduleExports = {};
+	const exportsAlias = moduleExports;
+	let hasCommonJsExport = false;
 	for (const statement of sourceFile.statements) {
 		if (ts.isVariableStatement(statement)) {
 			for (const declaration of statement.declarationList.declarations) {
@@ -558,7 +599,22 @@ function collectJestConfig(path, source, configuration, exclusions) {
 		if (ts.isExpressionStatement(statement) && ts.isBinaryExpression(statement.expression)) {
 			const assignment = statement.expression;
 			if (assignment.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
-				assignStaticProperty(assignment.left, staticValue(assignment.right, values), values);
+				const value = staticValue(assignment.right, values);
+				const segments = expressionAccessSegments(assignment.left);
+				if (segments?.join('.') === 'module.exports') {
+					moduleExports = value;
+					hasCommonJsExport = true;
+				} else if (segments?.slice(0, 2).join('.') === 'module.exports' && segments.length === 3) {
+					if (moduleExports && typeof moduleExports === 'object' && !Array.isArray(moduleExports)) {
+						moduleExports[segments[2]] = value;
+					}
+					hasCommonJsExport = true;
+				} else if (segments?.[0] === 'exports' && segments.length === 2) {
+					exportsAlias[segments[1]] = value;
+					hasCommonJsExport = true;
+				} else {
+					assignStaticProperty(assignment.left, value, values);
+				}
 			}
 			continue;
 		}
@@ -568,8 +624,18 @@ function collectJestConfig(path, source, configuration, exclusions) {
 			statement.expression.expression.getText(sourceFile) === 'Object.assign'
 		) {
 			const [targetNode, ...sourceNodes] = statement.expression.arguments;
-			if (targetNode && ts.isIdentifier(targetNode)) {
-				const target = values.get(targetNode.text);
+			if (targetNode) {
+				const targetSegments = expressionAccessSegments(targetNode);
+				let target;
+				if (targetSegments?.join('.') === 'module.exports') {
+					target = moduleExports;
+					hasCommonJsExport = true;
+				} else if (targetSegments?.join('.') === 'exports') {
+					target = exportsAlias;
+					hasCommonJsExport = true;
+				} else if (ts.isIdentifier(targetNode)) {
+					target = values.get(targetNode.text);
+				}
 				if (target && typeof target === 'object' && !Array.isArray(target)) {
 					for (const sourceNode of sourceNodes) {
 						const sourceValue = staticValue(sourceNode, values);
@@ -581,9 +647,12 @@ function collectJestConfig(path, source, configuration, exclusions) {
 			}
 			continue;
 		}
-		if (ts.isExportAssignment(statement)) exported = staticValue(statement.expression, values);
+		if (ts.isExportAssignment(statement)) {
+			esmExport = staticValue(statement.expression, values);
+			hasEsmExport = true;
+		}
 	}
-	const config = values.get('config') ?? exported;
+	const config = hasEsmExport ? esmExport : hasCommonJsExport ? moduleExports : UNRESOLVED;
 	if (config && typeof config === 'object' && !Array.isArray(config)) {
 		recordConfigOptions(path, config, '', configuration, exclusions);
 	} else {
@@ -600,6 +669,8 @@ function collectJsonTarget(path, target, prefix, trackedPaths, configuration, ex
 			if (trackedPaths.has(String(value).replaceAll('\\', '/'))) {
 				configuration.push(`${path}::${key}=${String(value)}`);
 			}
+		} else if (name === 'config') {
+			configuration.push(`${path}::${key}=${String(value)}`);
 		} else if (TEST_SELECTION_KEYS.has(name)) {
 			for (const item of flattenedValues(value)) configuration.push(`${path}::${key}=${item}`);
 		} else if (/ignore|exclude/i.test(name)) {
@@ -655,6 +726,7 @@ function isOverlayName(name) {
 
 function collectOverlayComponents(path, source) {
 	const components = [];
+	if (/(?:Modal|Dialog|Drawer)/i.test(posix.basename(path))) components.push(path);
 	const sourceFile = parseSource(path, source);
 	const addNames = (names) => {
 		for (const name of names) if (isOverlayName(name)) components.push(`${path}::${name}`);
@@ -690,18 +762,7 @@ function staticString(node, values = new Map()) {
 }
 
 function environmentAccessSegments(node) {
-	node = unwrapExpression(node);
-	if (!node) return undefined;
-	if (ts.isIdentifier(node)) return [node.text];
-	if (ts.isMetaProperty(node) && node.keywordToken === ts.SyntaxKind.ImportKeyword) {
-		return ['import', node.name.text];
-	}
-	if (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
-		const parent = environmentAccessSegments(node.expression);
-		const name = accessPropertyName(node);
-		return parent && name ? [...parent, name] : undefined;
-	}
-	return undefined;
+	return expressionAccessSegments(node);
 }
 
 function collectNavigationAndEnvironment(path, source) {
@@ -735,6 +796,21 @@ function collectNavigationAndEnvironment(path, source) {
 				navigation.push(`${path}::constant=${node.name.text}`);
 				const value = staticString(node.initializer, values);
 				if (value !== undefined) navigation.push(`${path}::${node.name.text}=${value}`);
+			}
+		}
+		if (ts.isVariableDeclaration(node) && ts.isObjectBindingPattern(node.name) && node.initializer) {
+			const environment = environmentAccessSegments(node.initializer)?.join('.');
+			if (environment === 'process.env' || environment === 'import.meta.env') {
+				for (const element of node.name.elements) {
+					if (element.dotDotDotToken) continue;
+					const selected = element.propertyName ?? element.name;
+					if (
+						(ts.isIdentifier(selected) || ts.isStringLiteralLike(selected)) &&
+						selected.text.startsWith('NEXT_PUBLIC_')
+					) {
+						nextPublicOccurrences.push(`${path}::${selected.text}`);
+					}
+				}
 			}
 		}
 
@@ -842,7 +918,9 @@ export function compareSurface(base, head, allow = []) {
 	for (const value of head.surface.testConfiguration ?? []) {
 		if (
 			!baseConfiguration.has(value) &&
-			/::.*(?:roots|testMatch|testNamePatterns?|testPathPatterns?|testRegex)=/.test(value)
+			/::.*(?:changedSince|config|findRelatedTests|onlyChanged|roots|testFile|testMatch|testNamePatterns?|testPathPatterns?|testRegex|watch)=/.test(
+				value
+			)
 		) {
 			addViolation('testConfiguration', 'added', value);
 		}
