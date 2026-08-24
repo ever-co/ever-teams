@@ -206,9 +206,7 @@ yarn nx run core:test --runInBand
 yarn nx run core:lint
 yarn nx run core:build
 yarn nx run api:build
-yarn nx affected -t test,lint,build `
-  --base=99ba709847c5dd6962b9b19b95b941f9c8e5aab9 `
-  --head=HEAD
+yarn nx affected -t test,lint,build --base=99ba709847c5dd6962b9b19b95b941f9c8e5aab9 --head=HEAD
 git diff --check
 ```
 
