@@ -136,7 +136,7 @@ export function useTimerApi({
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const { taskStatuses } = useTaskStatusesQuery({ enabled: !statusEnabled });
+	const { taskStatuses } = useTaskStatusesQuery({ enabled });
 	const detailedTask = useAtomValue(detailedTaskState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
 	const teamTasks = useAtomValue(teamTasksState);
