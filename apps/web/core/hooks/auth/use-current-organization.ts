@@ -2,11 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { currentOrganizationState, currentOrganizationFetchingState } from '@/core/stores/user/user-organizations';
 import { useAtom } from 'jotai';
-import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { organizationService } from '@/core/services/client/api/organizations';
 import { useEffect } from 'react';
 import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
+import { useReactiveAccessTokenCookie } from './use-reactive-access-token-cookie';
 
 export interface UseGetCurrentOrganizationOptions {
 	enabled?: boolean;
@@ -18,10 +19,11 @@ export const useGetCurrentOrganization = ({ enabled = true }: UseGetCurrentOrgan
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
 	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
+	const accessToken = useReactiveAccessTokenCookie();
 	const scope = {
 		tenantId,
 		organizationId,
-		accessToken: fastBootstrap ? getAccessTokenCookie() : undefined
+		accessToken: fastBootstrap ? accessToken : undefined
 	};
 	const queryKey = fastBootstrap
 		? queryKeys.workspaces.currentOrganizationByScope(tenantId, organizationId)

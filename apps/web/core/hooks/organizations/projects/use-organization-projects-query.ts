@@ -7,8 +7,8 @@ import { queryKeys } from '@/core/query/keys';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useInvalidateOrganizationProjects } from './use-invalidate-organization-projects';
 import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
-import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
 import { useFastScopeGuard } from '../../bootstrap/use-fast-scope-guard';
+import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
 
 export interface UseOrganizationProjectsQueryOptions {
 	enabled?: boolean;
@@ -33,7 +33,8 @@ export function useOrganizationProjectsQuery({ enabled = true }: UseOrganization
 	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
 	const [searchQueries, setSearchQueries] = useState<Record<string, string> | null>(null);
 	const memoizedSearchQueries = useMemo(() => searchQueries, [JSON.stringify(searchQueries)]);
-	const accessToken = fastBootstrap ? getAccessTokenCookie() : undefined;
+	const reactiveAccessToken = useReactiveAccessTokenCookie();
+	const accessToken = fastBootstrap ? reactiveAccessToken : undefined;
 	const scope = useMemo(
 		() => ({ tenantId, organizationId, userId: user?.id, accessToken }),
 		[accessToken, organizationId, tenantId, user?.id]

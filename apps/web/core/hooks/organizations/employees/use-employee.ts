@@ -10,9 +10,10 @@ import { TUpdateEmployee } from '@/core/types/schemas/organization/employee.sche
 import { toast } from 'sonner';
 import { useUserQuery } from '../../queries/user-user.query';
 import { activeTeamIdState } from '@/core/stores/teams/organization-team';
-import { getAccessTokenCookie, getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
+import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
 import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import { useFastScopeGuard } from '../../bootstrap/use-fast-scope-guard';
+import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
 
 export interface UseEmployeeOptions {
 	enabled?: boolean;
@@ -39,7 +40,8 @@ export const useEmployee = ({ enabled = true }: UseEmployeeOptions = {}) => {
 		}),
 		[user?.tenantId, user?.employee?.organizationId, organizationTeamId]
 	);
-	const accessToken = fastBootstrap ? getAccessTokenCookie() : undefined;
+	const reactiveAccessToken = useReactiveAccessTokenCookie();
+	const accessToken = fastBootstrap ? reactiveAccessToken : undefined;
 	const scope = useMemo(
 		() => ({
 			tenantId: queryParams.tenantId,

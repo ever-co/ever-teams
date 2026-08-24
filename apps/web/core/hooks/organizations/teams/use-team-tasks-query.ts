@@ -11,7 +11,7 @@ import {
 	teamTasksState
 } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useAuthenticateUser } from '../../auth';
 import { useFirstLoad, useConditionalUpdateEffect, useSyncRef } from '../../common';
@@ -21,6 +21,8 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useFastScopeGuard } from '../../bootstrap/use-fast-scope-guard';
+import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
+import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
 
 export interface UseTeamTasksQueryOptions {
 	enabled?: boolean;
@@ -63,10 +65,37 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 	const tasksRef = useSyncRef(tasks);
 	const memberActiveTaskId = useAtomValue(memberActiveTaskIdState);
 	const [activeTeamTask, setActiveTeamTask] = useAtom(activeTeamTaskState);
+	const reactiveAccessToken = useReactiveAccessTokenCookie();
+	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
 
 	const { firstLoad, firstLoadData: firstLoadTasksData } = useFirstLoad();
-	const { enabled = true, scope, refetchInterval = false } = options;
+	const { enabled = true, scope: explicitScope, refetchInterval = false } = options;
+	const scope = useMemo<ApiRequestScope | undefined>(
+		() =>
+			explicitScope ??
+			(fastBootstrap
+				? {
+						tenantId: user?.employee?.tenantId ?? user?.tenantId,
+						organizationId: activeTeam?.organizationId ?? user?.employee?.organizationId,
+						teamId: activeTeam?.id,
+						userId: user?.id,
+						accessToken: reactiveAccessToken
+					}
+				: undefined),
+		[
+			activeTeam?.id,
+			activeTeam?.organizationId,
+			explicitScope,
+			fastBootstrap,
+			reactiveAccessToken,
+			user?.employee?.organizationId,
+			user?.employee?.tenantId,
+			user?.id,
+			user?.tenantId
+		]
+	);
 	const scoped = scope !== undefined;
+	const canHydrateSharedState = !fastBootstrap || explicitScope !== undefined;
 	const projectId = activeTeam?.projects?.[0]?.id ?? null;
 	const queryKey = scoped
 		? queryKeys.tasks.byTeamByScope(scope.tenantId, scope.organizationId, scope.teamId, projectId)
@@ -87,7 +116,10 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 				...(scoped ? { options: { scope: scope!, signal } } : {})
 			});
 		},
-		enabled: scoped ? enabled && scopedReady && !!activeTeam?.id : enabled && !!activeTeam?.id,
+		enabled: scoped
+			? enabled && scopedReady && !!activeTeam?.id && canHydrateSharedState
+			: enabled && !!activeTeam?.id,
+		staleTime: scoped ? 60_000 : 0,
 		gcTime: 1000 * 60 * 60,
 		refetchInterval: scoped ? refetchInterval : false,
 		refetchIntervalInBackground: false
@@ -96,6 +128,7 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 	// Deep update function for React Query → Jotai sync
 	const deepCheckAndUpdateTasks = useCallback(
 		(responseTasks: TTask[], deepCheck?: boolean) => {
+			if (!canHydrateSharedState) return;
 			if (scoped && !isCurrentScope()) return;
 			// Map to new objects if modification is needed to avoid mutating cache
 			const processedTasks =
@@ -130,7 +163,7 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 				setAllTasks(processedTasks);
 			}
 		},
-		[activeTeamRef, isCurrentScope, scoped, setAllTasks, tasksRef]
+		[activeTeamRef, canHydrateSharedState, isCurrentScope, scoped, setAllTasks, tasksRef]
 	);
 
 	const loadTeamTasksData = useCallback(
@@ -158,11 +191,11 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 	// Reload tasks after active team changed
 	useConditionalUpdateEffect(
 		() => {
-			if (activeTeam?.id && firstLoad) {
+			if (canHydrateSharedState && activeTeam?.id && firstLoad) {
 				loadTeamTasksData();
 			}
 		},
-		[activeTeam?.id, firstLoad],
+		[activeTeam?.id, canHydrateSharedState, firstLoad],
 		true
 	);
 
@@ -180,6 +213,7 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 	// Sync active team task from member data
 	useConditionalUpdateEffect(
 		() => {
+			if (!canHydrateSharedState) return;
 			// Validate: ensure the task belongs to the current active team
 			const memberActiveTask = getValidActiveTask(tasks, memberActiveTaskId, activeTeam?.id);
 			if (scoped && !isCurrentScope()) return;
@@ -190,7 +224,7 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 				setActiveTeamTask(null);
 			}
 		},
-		[activeTeam, tasks, memberActiveTaskId, scoped, isCurrentScope],
+		[activeTeam, tasks, memberActiveTaskId, canHydrateSharedState, scoped, isCurrentScope],
 		true
 	);
 

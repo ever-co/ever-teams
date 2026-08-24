@@ -2,12 +2,12 @@ import { useTimeLogs } from '@/core/hooks/activities/time-logs/use-time-logs';
 import { useTimer } from '@/core/hooks/activities';
 import { useTimerPolling } from '@/core/hooks/activities/use-timer-polling';
 import { useWorkspaces } from '@/core/hooks/auth';
+import { useReactiveAccessTokenCookie } from '@/core/hooks/auth/use-reactive-access-token-cookie';
 import { useOrganizationTeamsQuery, useTeamTasksQuery } from '@/core/hooks/organizations';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useAutoAssignTask, useTaskStatistics } from '@/core/hooks/tasks';
-import { ACCESS_TOKEN_REFRESHED_EVENT, getAccessTokenCookie } from '@/core/lib/helpers/cookies';
 import { DISABLE_AUTO_REFRESH } from '@/core/constants/config/constants';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useScopeTransitionGuard } from './use-scope-transition-guard';
 
 const SHELL_REFRESH_INTERVAL = 60_000;
@@ -16,12 +16,7 @@ export function FastInitState() {
 	useTimeLogs();
 	const { data: user } = useUserQuery();
 	const { currentWorkspace, workspacesQuery } = useWorkspaces();
-	const [accessToken, setAccessToken] = useState(() => getAccessTokenCookie());
-	useEffect(() => {
-		const captureRotatedToken = () => setAccessToken(getAccessTokenCookie());
-		window.addEventListener(ACCESS_TOKEN_REFRESHED_EVENT, captureRotatedToken);
-		return () => window.removeEventListener(ACCESS_TOKEN_REFRESHED_EVENT, captureRotatedToken);
-	}, []);
+	const accessToken = useReactiveAccessTokenCookie();
 	const tenantId = user?.employee?.tenantId ?? user?.tenantId ?? null;
 	const organizationId = user?.employee?.organizationId ?? null;
 	const workspaceReady = !!(

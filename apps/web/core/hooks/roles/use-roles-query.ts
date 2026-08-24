@@ -4,11 +4,12 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { roleService } from '@/core/services/client/api/roles';
 import { queryKeys } from '@/core/query/keys';
-import { getAccessTokenCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { useUserQuery } from '../queries/user-user.query';
 import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
+import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
 
 export interface UseRolesQueryOptions {
 	enabled?: boolean;
@@ -28,10 +29,11 @@ export function useRolesQuery({ enabled = true }: UseRolesQueryOptions = {}) {
 
 	const tenantId = getTenantIdCookie();
 	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
+	const accessToken = useReactiveAccessTokenCookie();
 	const scope = {
 		tenantId,
 		userId: user?.id,
-		accessToken: fastBootstrap ? getAccessTokenCookie() : undefined
+		accessToken: fastBootstrap ? accessToken : undefined
 	};
 	const queryKey = fastBootstrap ? queryKeys.roles.byTenant(scope.tenantId) : queryKeys.roles.all;
 	const fastOwnerActive = enabled && fastBootstrap;

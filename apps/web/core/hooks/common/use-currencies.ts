@@ -5,11 +5,12 @@ import { currenciesState } from '@/core/stores/common/currencies';
 import { currencyService } from '@/core/services/client/api/currencies/currency.service';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
-import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { UseCurrenciesReturn } from '@/core/types/interfaces/common/currency';
 import { useFirstLoad } from './use-first-load';
 import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
+import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
 
 export interface UseCurrenciesOptions {
 	enabled?: boolean;
@@ -70,10 +71,11 @@ export const useCurrencies = ({ enabled = true }: UseCurrenciesOptions = {}): Us
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
 	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
+	const accessToken = useReactiveAccessTokenCookie();
 	const scope = {
 		tenantId,
 		organizationId,
-		accessToken: fastBootstrap ? getAccessTokenCookie() : undefined
+		accessToken: fastBootstrap ? accessToken : undefined
 	};
 	const queryKey = fastBootstrap
 		? queryKeys.currencies.byScope(tenantId, organizationId)

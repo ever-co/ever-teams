@@ -8,8 +8,8 @@ import { useUserQuery } from '../queries/user-user.query';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { TInvite } from '@/core/types/schemas';
 import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
-import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
 import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
+import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
 
 /**
  * Hook for reading the current user's invitations.
@@ -24,10 +24,11 @@ export function useMyInvitationsQuery() {
 
 	const { data: user } = useUserQuery();
 	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
+	const accessToken = useReactiveAccessTokenCookie();
 	const scope = {
 		tenantId: user?.tenantId,
 		userId: user?.id,
-		accessToken: fastBootstrap ? getAccessTokenCookie() : undefined
+		accessToken: fastBootstrap ? accessToken : undefined
 	};
 	const myInvitationsKey = useMemo(
 		() =>
@@ -55,7 +56,9 @@ export function useMyInvitationsQuery() {
 		},
 		enabled: fastBootstrap ? fastQueryEnabled : !!user?.tenantId,
 		staleTime: 2 * 60 * 1000, // 2 minutes — prevents unnecessary refetch on re-mount
-		gcTime: 5 * 60 * 1000 // 5 minutes — keeps data in cache after unmount
+		gcTime: 5 * 60 * 1000, // 5 minutes — keeps data in cache after unmount
+		// LegacyInitState already owns this cadence when the fast bootstrap is off.
+		refetchInterval: fastBootstrap ? 60_000 : false
 	});
 
 	// ===== HYDRATED DATA =====

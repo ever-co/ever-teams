@@ -2,7 +2,8 @@
 
 import { useQueryClient, type QueryKey } from '@tanstack/react-query';
 import { useSetAtom } from 'jotai';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
+import { useIsomorphicLayoutEffect } from '@/core/hooks/common/use-isomorphic-layout-effect';
 
 import { queryKeys } from '@/core/query/keys';
 import {
@@ -80,7 +81,7 @@ export function useScopeTransitionGuard(scope: FastShellScope, enabled = true) {
 	}
 	const generation = generationRef.current.value;
 
-	useEffect(() => {
+	useIsomorphicLayoutEffect(() => {
 		if (!enabled) return;
 		const previous = previousRef.current;
 		if (previous && previous.fingerprint !== fingerprint) {

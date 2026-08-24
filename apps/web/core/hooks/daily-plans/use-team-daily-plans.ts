@@ -8,9 +8,10 @@ import { dailyPlanService } from '../../services/client/api';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { useConditionalUpdateEffect, useQueryCall } from '../common';
-import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
+import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
 
 export interface UseTeamDailyPlansOptions {
 	/**
@@ -53,6 +54,7 @@ export function useTeamDailyPlans(options?: UseTeamDailyPlansOptions) {
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
 	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
+	const accessToken = useReactiveAccessTokenCookie();
 
 	// Extract options with defaults
 	const { enabled = true } = options || {};
@@ -60,7 +62,7 @@ export function useTeamDailyPlans(options?: UseTeamDailyPlansOptions) {
 		tenantId,
 		organizationId,
 		teamId: activeTeam?.id,
-		accessToken: fastBootstrap ? getAccessTokenCookie() : undefined
+		accessToken: fastBootstrap ? accessToken : undefined
 	};
 	const allPlansKey = fastBootstrap
 		? queryKeys.dailyPlans.allPlansByScope(scope.tenantId, scope.organizationId, scope.teamId)

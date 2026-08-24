@@ -6,9 +6,9 @@ import { organizationProjectService } from '@/core/services/client/api/organizat
 import { queryKeys } from '@/core/query/keys';
 import { useInvalidateOrganizationProjects } from './use-invalidate-organization-projects';
 import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
-import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
 import { useFastScopeGuard } from '../../bootstrap/use-fast-scope-guard';
 import { useUserQuery } from '../../queries/user-user.query';
+import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
 
 /** Simple pagination params type */
 export interface PaginationParams {
@@ -37,6 +37,7 @@ export function useOrganizationProjectsPagination({ enabled = true }: UseOrganiz
 	const { organizationId, tenantId } = useInvalidateOrganizationProjects();
 	const { data: user } = useUserQuery();
 	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
+	const accessToken = useReactiveAccessTokenCookie();
 
 	const [paginationParams, setPaginationParams] = useState<PaginationParams>({
 		skip: 0,
@@ -46,7 +47,7 @@ export function useOrganizationProjectsPagination({ enabled = true }: UseOrganiz
 		tenantId,
 		organizationId,
 		userId: user?.id,
-		accessToken: fastBootstrap ? getAccessTokenCookie() : undefined
+		accessToken: fastBootstrap ? accessToken : undefined
 	};
 	const queryKey = fastBootstrap
 		? queryKeys.organizationProjects.paginationByScope(scope.tenantId, scope.organizationId, paginationParams)

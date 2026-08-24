@@ -1,6 +1,6 @@
 'use client';
 import { APPLICATION_LANGUAGES_CODE } from '@/core/constants/config/constants';
-import { getAccessTokenCookie, getActiveLanguageIdCookie, setActiveLanguageIdCookie } from '@/core/lib/helpers/cookies';
+import { getActiveLanguageIdCookie, setActiveLanguageIdCookie } from '@/core/lib/helpers/cookies';
 import { activeLanguageIdState, activeLanguageState, languageListState, languagesFetchingState } from '@/core/stores';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -17,6 +17,7 @@ import { useLanguageStateSync } from './use-language-state-sync';
 import { useUserQuery } from '../queries/user-user.query';
 import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
+import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
 
 export interface UseLanguageSettingsOptions {
 	enabled?: boolean;
@@ -94,6 +95,7 @@ const filterLanguagesByCode = (data: PaginationResponse<TLanguageItemList>) => {
 export function useLanguageSettings({ enabled = true }: UseLanguageSettingsOptions = {}): UseLanguageSettingsReturn {
 	const { data: user } = useUserQuery();
 	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
+	const accessToken = useReactiveAccessTokenCookie();
 	const [languages, setLanguages] = useAtom(languageListState);
 	const { changeLanguage } = useLanguage();
 	const activeLanguage = useAtomValue(activeLanguageState);
@@ -116,7 +118,7 @@ export function useLanguageSettings({ enabled = true }: UseLanguageSettingsOptio
 	const scope = {
 		tenantId: user?.tenantId,
 		userId: user?.id,
-		accessToken: fastBootstrap ? getAccessTokenCookie() : undefined
+		accessToken: fastBootstrap ? accessToken : undefined
 	};
 	const fastOwnerActive = enabled && fastBootstrap;
 	const fastQueryEnabled = fastOwnerActive && !!(scope.tenantId && scope.userId && scope.accessToken);

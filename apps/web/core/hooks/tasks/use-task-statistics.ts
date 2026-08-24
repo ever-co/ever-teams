@@ -24,6 +24,7 @@ import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
+import { useIsomorphicLayoutEffect } from '../common/use-isomorphic-layout-effect';
 
 export interface UseTaskStatisticsOptions {
 	enabled?: boolean;
@@ -234,7 +235,7 @@ export function useTaskStatistics(addSeconds = 0, options: UseTaskStatisticsOpti
 	/**
 	 * set null to active team stats when active team or active task are changed
 	 */
-	useEffect(() => {
+	useIsomorphicLayoutEffect(() => {
 		if (
 			(!scoped && firstLoad && initialLoad.current) ||
 			(scoped && (!activeTeamTask?.id || (enabled && isCurrentScope())))

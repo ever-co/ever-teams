@@ -1,7 +1,7 @@
 'use client';
 
 import { useAtomValue } from 'jotai';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { dailyPlanService } from '../../services/client/api';
 import { useQuery } from '@tanstack/react-query';
@@ -10,6 +10,8 @@ import { useUserQuery } from '../queries/user-user.query';
 import { useDailyPlanCalculations } from './use-daily-plan-calculations';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
+import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
+import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
 
 export interface UseMyDailyPlansOptions {
 	/**
@@ -53,10 +55,37 @@ export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
 	const { data: user } = useUserQuery();
 	const activeTeam = useAtomValue(activeTeamState);
 	const allTeamTasks = useAtomValue(tasksByTeamState);
+	const reactiveAccessToken = useReactiveAccessTokenCookie();
+	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
 
 	// Extract options with defaults
-	const { enabled = true, scope, refetchInterval = false } = options || {};
+	const { enabled = true, scope: explicitScope, refetchInterval = false } = options || {};
+	const scope = useMemo<ApiRequestScope | undefined>(
+		() =>
+			explicitScope ??
+			(fastBootstrap
+				? {
+						tenantId: user?.employee?.tenantId ?? user?.tenantId,
+						organizationId: activeTeam?.organizationId ?? user?.employee?.organizationId,
+						teamId: activeTeam?.id,
+						userId: user?.id,
+						accessToken: reactiveAccessToken
+					}
+				: undefined),
+		[
+			activeTeam?.id,
+			activeTeam?.organizationId,
+			explicitScope,
+			fastBootstrap,
+			reactiveAccessToken,
+			user?.employee?.organizationId,
+			user?.employee?.tenantId,
+			user?.id,
+			user?.tenantId
+		]
+	);
 	const scoped = scope !== undefined;
+	const canOwnScopedQuery = !fastBootstrap || explicitScope !== undefined;
 	const queryKey = scoped
 		? queryKeys.dailyPlans.myPlansByScope(scope.tenantId, scope.organizationId, scope.teamId, scope.userId)
 		: queryKeys.dailyPlans.myPlans(activeTeam?.id);
@@ -79,7 +108,8 @@ export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
 				: await dailyPlanService.getMyDailyPlans();
 			return res;
 		},
-		enabled: scoped ? enabled && scopedReady : enabled && !!activeTeam?.id,
+		enabled: scoped ? enabled && scopedReady && canOwnScopedQuery : enabled && !!activeTeam?.id,
+		staleTime: scoped ? 60_000 : 0,
 		gcTime: 1000 * 60 * 60, // 1 hour
 		refetchInterval: scoped ? refetchInterval : false,
 		refetchIntervalInBackground: false

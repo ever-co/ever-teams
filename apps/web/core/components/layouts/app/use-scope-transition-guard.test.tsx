@@ -1,9 +1,9 @@
 /** @jest-environment jsdom */
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Provider, createStore } from 'jotai';
+import { Provider, createStore, useSetAtom } from 'jotai';
 import { renderHook, waitFor } from '@testing-library/react';
-import type { PropsWithChildren } from 'react';
+import { useEffect, type PropsWithChildren } from 'react';
 
 import {
 	activeTaskStatisticsState,
@@ -22,6 +22,68 @@ import { useScopeTransitionGuard, type FastShellScope } from './use-scope-transi
 const team = (id: string) => ({ id, name: id }) as any;
 
 describe('useScopeTransitionGuard', () => {
+	it('clears the previous scope before cached current-scope mirrors hydrate', () => {
+		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		const store = createStore();
+		const wrapper = ({ children }: PropsWithChildren) => (
+			<QueryClientProvider client={queryClient}>
+				<Provider store={store}>{children}</Provider>
+			</QueryClientProvider>
+		);
+		const scopeA: FastShellScope = {
+			tenantId: 'tenant-a',
+			organizationId: 'organization-a',
+			teamId: 'team-a',
+			projectId: 'project-a',
+			userId: 'user-a',
+			employeeId: 'employee-a',
+			taskId: 'task-a'
+		};
+		const scopeB: FastShellScope = {
+			tenantId: 'tenant-b',
+			organizationId: 'organization-b',
+			teamId: 'team-b',
+			projectId: 'project-b',
+			userId: 'user-b',
+			employeeId: 'employee-b',
+			taskId: 'task-b'
+		};
+
+		const { rerender } = renderHook(
+			({ scope }: { scope: FastShellScope }) => {
+				const setTeams = useSetAtom(organizationTeamsState);
+				const setTasks = useSetAtom(teamTasksState);
+				const setActiveTask = useSetAtom(activeTeamTaskState);
+				const setTimerStatus = useSetAtom(timerStatusState);
+				const setStatistics = useSetAtom(activeTaskStatisticsState);
+
+				// The shell's query-owner hydration effects are registered before its
+				// transition guard and can synchronously expose fresh cached data.
+				useEffect(() => {
+					setTeams([team(scope.teamId!)]);
+					setTasks([{ id: scope.taskId, title: scope.taskId } as any]);
+					setActiveTask({ id: scope.taskId, title: scope.taskId } as any);
+					setTimerStatus({ running: false, source: scope.teamId } as any);
+					setStatistics({
+						total: { id: `total-${scope.taskId}` } as any,
+						today: { id: `today-${scope.taskId}` } as any
+					});
+				}, [scope, setActiveTask, setStatistics, setTasks, setTeams, setTimerStatus]);
+
+				useScopeTransitionGuard(scope, true);
+			},
+			{ wrapper, initialProps: { scope: scopeA } }
+		);
+
+		rerender({ scope: scopeB });
+
+		expect(store.get(organizationTeamsState).map(({ id }) => id)).toEqual(['team-b']);
+		expect(store.get(teamTasksState).map(({ id }) => id)).toEqual(['task-b']);
+		expect(store.get(activeTeamTaskState)?.id).toBe('task-b');
+		expect((store.get(timerStatusState) as any)?.source).toBe('team-b');
+		expect((store.get(activeTaskStatisticsState).today as any)?.id).toBe('today-task-b');
+	});
+
 	it('cancels only exact old critical keys, rejects the old generation, and clears incompatible mirrors', async () => {
 		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 		const store = createStore();
