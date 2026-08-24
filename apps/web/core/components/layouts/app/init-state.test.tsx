@@ -205,6 +205,8 @@ const mockUseGetCurrentOrganization = jest.fn(() => mockOwner('useGetCurrentOrga
 const mockUseSyncTimer = jest.fn(() => mockOwner('useSyncTimer', undefined));
 const mockUseTimerPolling = jest.fn();
 const mockUseScopeTransitionGuard = jest.fn();
+const mockCancelQueries = jest.fn(() => Promise.resolve());
+const mockInvalidateQueries = jest.fn(() => Promise.resolve());
 
 jest.mock('@/core/constants/config/constants', () => ({
 	DISABLE_AUTO_REFRESH: { value: false },
@@ -223,7 +225,13 @@ jest.mock('@/core/hooks/activities/time-logs/use-time-logs-daily-report', () => 
 jest.mock('@/core/hooks/activities/time-logs/use-time-logs', () => ({ useTimeLogs: mockUseTimeLogs }));
 jest.mock('@/core/hooks/activities', () => ({ useTimer: mockUseTimer, useSyncTimer: mockUseSyncTimer }));
 jest.mock('@/core/hooks/activities/use-timer-polling', () => ({ useTimerPolling: mockUseTimerPolling }));
-jest.mock('./use-scope-transition-guard', () => ({ useScopeTransitionGuard: mockUseScopeTransitionGuard }));
+jest.mock('@tanstack/react-query', () => ({
+	useQueryClient: () => ({ cancelQueries: mockCancelQueries, invalidateQueries: mockInvalidateQueries })
+}));
+jest.mock('./use-scope-transition-guard', () => ({
+	useScopeTransitionGuard: mockUseScopeTransitionGuard,
+	getFastShellCriticalQueryKeys: () => []
+}));
 jest.mock('@/core/hooks/common', () => ({
 	useLanguageSettings: mockUseLanguageSettings,
 	useCallbackRef: (func: () => void) => ({ current: func }),
