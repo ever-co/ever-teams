@@ -58,7 +58,7 @@ export interface ITaskMetadataBootstrapResponse {
 }
 ```
 
-- [ ] Write failing transform/validation tests for omission, sorting-independent deduplication, invalid section, empty include, missing organization, and invalid optional UUIDs.
+- [ ] Write failing transform/validation tests for omission, stable first-occurrence deduplication, invalid/empty/interior-empty section values, missing organization, invalid optional UUIDs, and request-supplied tenant stripping through the real transform+whitelist validation pipe.
 - [ ] Run `yarn nx test core --runInBand --testPathPatterns=task-metadata-bootstrap-query.dto.spec.ts` and confirm the missing DTO causes RED.
 - [ ] Extend the existing organization-scoped DTO base while exposing only `organizationId`; transform comma-separated `include` to a deduplicated array and validate each literal.
 - [ ] Re-run and commit as `feat(api): define task metadata bootstrap contract`.
@@ -107,9 +107,11 @@ const entries = await Promise.all(
 return Object.fromEntries(entries) as ITaskMetadataBootstrapResponse;
 ```
 
+- [ ] Read `RequestContext.currentTenantId()` exactly once before validating/constructing/starting loaders; if absent, throw a generic `ForbiddenException` and prove zero loader calls.
 - [ ] First prove all seven literal pagination objects are returned when `include` is omitted.
 - [ ] Prove partial include calls only selected services and omits siblings.
-- [ ] Prove non-label services receive `{ organizationId, organizationTeamId, projectId }`; labels receive only `{ organizationId, organizationTeamId }`.
+- [ ] Validate the complete selected section list before starting any loader so even a mixed valid+unknown defensive input fails with zero calls.
+- [ ] Prove non-label services receive `{ tenantId, organizationId, organizationTeamId, projectId }`; labels receive only `{ organizationId, organizationTeamId }`.
 - [ ] Use deferred promises to prove every loader starts before any resolves.
 - [ ] Prove one rejection rejects the whole bundle.
 - [ ] Implement using the existing `fetchAll` methods and `TagService.findTagsByLevel`; do not reimplement fallback/order/filter logic.
@@ -137,7 +139,7 @@ export class TaskMetadataBootstrapController {
 }
 ```
 
-The module imports exactly the seven metadata modules and never imports `TaskModule`.
+The module imports exactly the seven metadata modules in section order plus `RolePermissionModule` as the eighth infrastructure import, and never imports `TaskModule`. The explicit role-permission import is required for `TenantPermissionGuard` dependencies; transitive module imports do not provide them.
 
 - [ ] Write failing tests for controller/method paths, HTTP method, exact guard, delegation, error propagation, module imports, absence of `TaskModule`, and additive AppModule registration.
 - [ ] Implement the controller/module and register it directly in AppModule.

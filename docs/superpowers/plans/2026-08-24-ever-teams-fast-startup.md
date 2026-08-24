@@ -15,11 +15,16 @@
 - Preserve `NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS=true`; default remains off.
 - Keep public-team `byTeam` keys and legacy reads unchanged.
 - Metadata fallback occurs only on 404, 405, or 501.
+- Metadata fallback requires proof that 404, 405, or 501 came from an actual HTTP response; transformed message/code guesses, timeout, cancellation, and network failures never fan out.
 - Query keys fully scope tenant, organization, team, optional project/include, and profile employee/range/timezone.
 - Scope changes cancel old queries, clear incompatible Jotai mirrors, and prevent late old responses from writing new scope.
 - Personal plans load for every active team, even when `requirePlanToTrack=false`; they block timer actions only when required.
 - Team plan atom hydration, current-user permissions, timer facade methods, auto-assignment, task statistics, and all route-owned data remain functional.
 - Existing rich time-log/report hooks, atoms, API clients, and endpoints remain exported and callable.
+
+## Authoritative execution order
+
+Task numbers below group related work; execute them in this safety order: preservation (Task 1/1A, complete) -> transport safety (Task 1B) -> additive metadata client (Task 2) -> default-false selector (Task 5) -> flag-gated metadata facades (Task 3) -> flag-gated profile integration (Task 4) -> route/modal owners and scope guards (Task 7) -> fast initializer/timer orchestration (Task 6) -> build flags (Task 8) -> browser/performance and final gates (Tasks 9-10). Do not remove a legacy/global owner until its replacement owner has hard-load evidence.
 
 ## Task 1: Add a machine-enforced feature-preservation gate
 
@@ -42,6 +47,21 @@ yarn nx run web:test --runInBand
 ```
 
 - [ ] Commit as `test: enforce Ever Teams feature preservation`.
+
+## Task 1B: Preserve captured transport scope, cancellation, and HTTP provenance
+
+**Files**
+
+- Modify `apps/web/core/services/client/api.service.ts`, `apps/web/core/services/client/axios.ts`, and `apps/web/core/services/client/api-error.service.ts`.
+- Create focused transport/error tests beside those files.
+
+All request interceptors fill `tenant-id` from cookies only when no case-insensitive explicit tenant header exists. `APIService.get()` composes, rather than replaces, a caller abort signal with internal per-request and cancel-all cancellation. Transformed API errors record whether a status came from a real HTTP response without changing existing public fields or call sites.
+
+- [ ] Capture RED for an explicit old-scope tenant scheduled before a cookie switch, caller abort propagation, internal cancel behavior, and message/code-inferred status provenance.
+- [ ] Prove all three interceptors preserve explicit tenant scope case-insensitively and retain cookie-derived behavior for legacy callers.
+- [ ] Prove caller abort, `cancelRequest`, and `cancelAll` each reach Axios; composing one source must not disable the others or leak listeners.
+- [ ] Prove only `error.response.status` (or an equivalent explicit response marker created from it) is HTTP provenance. Preserve existing transformed error shapes/fields while making strict fallback decisions possible.
+- [ ] Run focused/full web tests, typecheck, preservation CLI with empty allowlist, targeted format, and `git diff --check`; commit as `fix: preserve scoped API transport intent`.
 
 ## Task 2: Add scoped metadata client, key, and strict fallback
 
@@ -69,7 +89,7 @@ taskMetadata.bootstrap(scope, canonicalInclude) => [
 
 - [ ] Write failing tests for include sorting/deduplication, explicit query parameters, all section shapes, and no-argument legacy compatibility.
 - [ ] Prove `tenantId` participates in cache keys only and is never serialized into the HTTP query; Gauzy derives tenant scope from the authenticated request context.
-- [ ] Test 404/405/501 fallback and non-fallback for 400/401/403/409/422/429/5xx/timeout/cancel/network.
+- [ ] Test genuine-response 404/405/501 fallback and non-fallback for inferred/message/code-only 404/405/501, 400/401/403/409/422/429/5xx/timeout/cancel/network.
 - [ ] Assemble fallback with the existing seven services in `Promise.all`; labels retain their existing `/tags/level` behavior.
 - [ ] Add authenticated `byScope` section keys while leaving every `byTeam` function untouched.
 - [ ] Run focused tests/typecheck and commit as `feat: add scoped task metadata bootstrap client`.
@@ -83,9 +103,12 @@ taskMetadata.bootstrap(scope, canonicalInclude) => [
 
 Authenticated facades call the same reactive `useQuery` key/query function for all seven sections and select their existing section from the shared result. TanStack Query coalesces the shared in-flight request and propagates loading/error/data updates to every facade. `ensureQueryData` is reserved for deliberate prefetching, not facade reactivity. Public mode keeps the old query and key.
 
+Every authenticated facade selects the bundle path only when `NEXT_PUBLIC_FAST_APP_BOOTSTRAP` is true. Default/false preserves each legacy seven-query read path, existing `byTeam` key, return facade, mutation behavior, and request manifest. Public mode always remains legacy and makes zero bundle calls.
+
 Cache helpers must update matching bundle entries and legacy/authenticated section keys while preserving sibling sections, section totals, optimistic label helpers, public `byTeam` caches, and different scopes/includes.
 
 - [ ] Prove seven simultaneous consumers produce one bundle HTTP request and zero legacy reads.
+- [ ] Prove default/false produces the legacy seven reads and zero bundle calls; public mode also produces zero bundle calls.
 - [ ] Prove 404 yields one bundle request plus the seven legacy requests; other failures yield none.
 - [ ] Prove canonical partial keys cannot poison the full key.
 - [ ] Prove all existing public return names/setters remain unchanged and public mode never calls the bundle.
@@ -103,6 +126,7 @@ Cache helpers must update matching bundle entries and legacy/authenticated secti
 - Modify `apps/web/core/components/activities/activity-calendar.tsx`.
 - Modify `apps/web/core/components/pages/profile/user-profile-tasks.tsx`.
 - Modify `apps/web/app/[locale]/(main)/profile/[memberId]/page.tsx`.
+- Modify the member-card path that reuses `UserProfileTask`, without introducing any card-owned profile request.
 
 ```ts
 profileActivity.byScope(request) => [
@@ -113,9 +137,11 @@ profileActivity.byScope(request) => [
 ];
 ```
 
-- [ ] Write failing tests for exact target employee/team/range/timezone parameters, current-month `activeDays`, forbidden neutrality, profile switching, and absence of rich-report fallback.
+- [ ] Write failing tests for exact target employee/team/range/timezone parameters, current-month `activeDays`, forbidden neutrality, profile switching, absence of rich-report fallback, and eight rendered member cards producing zero profile-summary requests.
 - [ ] Thread scope explicitly through `Profile -> UserProfileTask -> ActivityCalendar`.
-- [ ] The profile route owns the current-month summary; the calendar requests selected-year `includeDaily=true` only when the Stats tab mounts.
+- [ ] The actual profile route owns exactly one current-month summary and passes only a scalar/neutral `statsCount` into `useTaskFilter`; `useTaskFilter` never fetches. Card surfaces without a route summary use the neutral count.
+- [ ] The fast calendar itself requests selected-year `includeDaily=true` only when the Stats tab mounts, maps daily seconds to the legacy hour/rounding shape, and cancels/ignores late employee/year/unmount results. Preserve the current five-year selector and dynamic SSR-disabled mount.
+- [ ] Gate every new profile read/UI dependency on `NEXT_PUBLIC_FAST_APP_BOOTSTRAP`; default/false performs zero `/profile-activity` calls and retains the old monthly-atom badge plus rich lazy calendar.
 - [ ] Replace only the badge/calendar dependency on the rich report. Do not delete its state, hook, client, or other consumers.
 - [ ] Run focused tests/typecheck and commit as `feat: scope profile activity to the selected employee`.
 
@@ -123,7 +149,7 @@ profileActivity.byScope(request) => [
 
 **Files**
 
-- Create `legacy-init-state.tsx`, `fast-init-state.tsx`, `legacy-time-log-preloader.tsx`, and selector tests under `apps/web/core/components/layouts/app/`.
+- Create `legacy-init-state.tsx`, `fast-init-state.tsx`, a single-owner `legacy-time-log-preloader.tsx` if extraction is chosen, and selector tests under `apps/web/core/components/layouts/app/`.
 - Modify `init-state.tsx` and the existing public config constants.
 
 Move the existing initializer implementation into `LegacyInitState` without removing or changing its capabilities. `AppState` remains the stable exported entry and selects legacy by default:
@@ -134,10 +160,11 @@ return FAST_APP_BOOTSTRAP.value ? <FastInitState /> : <LegacyInitState />;
 
 - [ ] First test default/false and true selections.
 - [ ] Prove the default path invokes the baseline legacy hook set.
-- [ ] Mount an explicit legacy yearly preloader in both paths; its existing hook stays disabled unless `NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS === 'true'`.
+- [ ] Preserve exactly one `useTimeLogs()` yearly-preload owner in each flag path: either retain the existing legacy call and add the explicit preloader only to fast, or extract one owner above the selector. Its existing query stays disabled unless `NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS === 'true'`.
+- [ ] Prove all four combinations of fast `{false,true}` and yearly preload `{false,true}` have the intended observer/request count, and default/false makes zero bundle/profile calls.
 - [ ] Commit as `feat: add reversible fast app bootstrap`.
 
-## Task 6: Implement the dependency-gated shell path
+## Task 6: Implement the dependency-gated shell path after Task 7 owners
 
 **Files**
 
@@ -150,18 +177,20 @@ Critical order:
 1. User.
 2. Workspaces and active tenant/organization.
 3. Teams and active team.
-4. In parallel: team tasks, timer status, personal plans, and current-user permissions.
+4. In parallel: team tasks, timer status, and personal plans. Do not add a global current-user permission query; current real observers remain feature-owned.
 5. Auto-assignment after timer/active task; statistics only after active task.
 6. Token refresh once; timer/presence polling only while relevant.
 
 - [ ] Write failing tests for no dependent request before scope, exactly one request per phase, plans with `requirePlanToTrack=false`, timer blocking when true, active-task-only statistics, and one token-refresh schedule.
 - [ ] Preserve `getTimerStatus`, `startTimer`, `stopTimer`, `toggleTimer`, `syncTimer`, `hasPlan`, `hasPlanForTomorrow`, `canRunTimer`, `canTrack`, and `isPlanVerified`.
 - [ ] On scope change, cancel only old keys, clear old Jotai mirrors, and use a monotonic token/abort signal so late responses cannot write.
+- [ ] Fully scope tenant/organization/team/task keys for teams, tasks, personal/team plans, timer, statistics, metadata, and profile activity. Capture scope in service arguments and check a monotonic generation/current scope immediately before every manual Jotai write or loading-state commit.
 - [ ] Replace one-shot pseudo-refreshes with query intervals only on the fast path; do not delete compatibility utilities.
+- [ ] Instantiate exactly one full `useTimer()` facade. Pass its `syncTimer` and running state into a lightweight synchronization/presence poller; never mount `useSyncTimer()` or `useTimerActions()` as a second full timer owner. Preserve every public facade field and prove one status owner, storage sync, UI ticker, running-only sync loop, and token-refresh schedule.
 - [ ] Mark `ever-teams:shell-ready` only after critical success.
 - [ ] Run initializer/timer/task regression suites and commit as `feat: gate shell startup by resolved scope`.
 
-## Task 7: Move data ownership without losing atom hydration
+## Task 7: Move data ownership and add scope guards before Task 6
 
 Mount the existing hooks in every surface that directly reads their atom before removing that hook from the fast initializer:
 
@@ -169,20 +198,22 @@ Mount the existing hooks in every surface that directly reads their atom before 
 - Team invite/member UI -> employees/invitations.
 - Project financial settings -> currencies.
 - Task, kanban, profile, and relevant team surfaces -> team daily plans and `dailyPlanListState` hydration.
-- Permission-sensitive shell -> current-user permissions remains global.
+- Existing permission-sensitive modals/tables retain their own current-user permission observers; do not add a global observer.
 - Role lists -> permission/edit/invite/project surfaces.
 - Sidebar projects and languages -> deferred prefetch after interactive paint plus existing route/modal owners.
 
 - [ ] Create `route-data-ownership.test.tsx` using a fresh QueryClient/Jotai store for each hard-loaded surface.
+- [ ] Mount the four direct atom owners before disabling their fast-global counterparts: weekly-limit current organization, invite-modal employees while needed/open, financial-settings currencies, and one owning task/team surface for team-plan hydration before per-card planned badges.
+- [ ] Add fixed-scope keys/captured service arguments and cancellation/generation guards for every owner that writes Jotai. Prove A -> B scope switches where B resolves first and A last cannot contaminate B.
 - [ ] Prove planned badges, optional plans, currencies, roles, permissions, invitations, projects, languages, and public-team behavior all remain available without warming legacy startup.
 - [ ] Commit as `refactor: move feature data to owning surfaces`.
 
 ## Task 8: Wire the build-time flag safely
 
-- [ ] Add `NEXT_PUBLIC_FAST_APP_BOOTSTRAP=false` to `apps/web/.env.sample`, never to a secret/local `.env` file.
-- [ ] Trace every actual web image build path and pass the build arg through `.deploy/web/Dockerfile`, relevant compose files, and relevant dev/stage/prod workflows. Do not edit unrelated ChatGPT/API deploy paths.
-- [ ] Keep generic, stage, and production defaults false. The workflow expression reads `vars.NEXT_PUBLIC_FAST_APP_BOOTSTRAP` with a literal false fallback, so the absent new variable is safely false. After local proof and a pushed maintenance claim, create/update the canonical `develop` environment variable with `gh variable set NEXT_PUBLIC_FAST_APP_BOOTSTRAP --body true --env develop` (or the actual existing develop environment name discovered read-only); record the previous/absent state for rollback.
-- [ ] Build both flag positions locally and verify generated behavior.
+- [ ] Add `NEXT_PUBLIC_FAST_APP_BOOTSTRAP=false` and document the existing `NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS=false` in `apps/web/.env.sample`, never in a secret/local `.env` file.
+- [ ] Pass both flags as build-stage `ARG`/`ENV` before `yarn build:web` in `.deploy/web/Dockerfile`, through `docker-compose.build.yml` build args and `docker-compose.dev.yml` hot-reload environment, and through all three actual web workflows with literal false fallbacks. Do not edit unrelated ChatGPT/API deploy paths or assume runtime variables can change a prebuilt `NEXT_PUBLIC_*` bundle.
+- [ ] Keep generic, stage, and production defaults false. After local proof and a pushed maintenance claim, create/update only the canonical `dev` GitHub environment variable for `NEXT_PUBLIC_FAST_APP_BOOTSTRAP=true`; record the previous/absent state for rollback.
+- [ ] Build all four flag combinations locally and verify generated request/observer behavior, not only command exit status.
 - [ ] Commit as `build: wire fast app bootstrap flag`.
 
 ## Task 9: Add browser parity and reproducible performance evidence
@@ -212,9 +243,12 @@ node tools/preservation/ever-teams-surface.mjs --base=7a75a102464779008f4b6e9fa6
 yarn test:web --runInBand
 yarn workspace @ever-teams/web tsc --noEmit -p tsconfig.json
 yarn nx run web:lint
-$env:NEXT_PUBLIC_FAST_APP_BOOTSTRAP='false'; yarn build:web
-$env:NEXT_PUBLIC_FAST_APP_BOOTSTRAP='true'; yarn build:web
+$env:NEXT_PUBLIC_FAST_APP_BOOTSTRAP='false'; $env:NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS='false'; yarn build:web
+$env:NEXT_PUBLIC_FAST_APP_BOOTSTRAP='false'; $env:NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS='true'; yarn build:web
+$env:NEXT_PUBLIC_FAST_APP_BOOTSTRAP='true'; $env:NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS='false'; yarn build:web
+$env:NEXT_PUBLIC_FAST_APP_BOOTSTRAP='true'; $env:NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS='true'; yarn build:web
 Remove-Item Env:NEXT_PUBLIC_FAST_APP_BOOTSTRAP
+Remove-Item Env:NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS
 yarn nx show projects --affected --base=7a75a102464779008f4b6e9fa61bb69e2cde8621 --head=HEAD
 yarn nx affected -t lint,test,build --base=7a75a102464779008f4b6e9fa61bb69e2cde8621 --head=HEAD
 yarn e2e:web
@@ -222,7 +256,7 @@ git diff --check
 git status --short
 ```
 
-- [ ] Verify the original 10 suites / 41 tests remain present and passing, no skipped/excluded test is added, preservation allowlist is empty, and `apps/mobile/app.json` is neither modified nor staged.
+- [ ] Verify the current accepted baseline 11 suites / 81 tests (plus every new suite) remains present and passing, no skipped/excluded test is added, preservation allowlist is empty, and `apps/mobile/app.json` is neither modified nor staged.
 
 ## Delivery and rollback
 
