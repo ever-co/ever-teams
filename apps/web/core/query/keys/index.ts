@@ -7,6 +7,7 @@ import {
 	TaskMetadataSection,
 	canonicalizeTaskMetadataInclude
 } from '@/core/types/interfaces/task/task-metadata-bootstrap';
+import type { TProfileActivityRequest } from '@/core/types/schemas/activities/profile-activity.schema';
 
 export const queryKeys = {
 	// Keys related to authentication and users
@@ -311,6 +312,21 @@ export const queryKeys = {
 		daily: (params: Record<string, any>) => ['activities', 'daily-activity-report', params] as const,
 		statisticsCounts: (params: Record<string, any>) => ['activities', 'statistics-counts', params] as const,
 		activityReport: (params: Record<string, any>) => ['activities', 'activity-report', params] as const
+	},
+
+	profileActivity: {
+		byScope: (request: TProfileActivityRequest) =>
+			[
+				'profile-activity',
+				request.tenantId,
+				request.organizationId,
+				request.organizationTeamId ?? null,
+				request.employeeId,
+				request.startDate,
+				request.endDate,
+				request.timeZone,
+				request.includeDaily === true
+			] as const
 	},
 
 	// Keys related to task statuses

@@ -8,9 +8,24 @@ import { useTranslations } from 'next-intl';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
 import { ActivityCalendarSkeleton } from '../common/skeleton/activity-calendar-skeleton';
 import { useGetTimeLogsDailyReport } from '@/core/hooks/activities/time-logs/use-get-time-logs-daily-report';
+import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
+import { getProfileActivityYearRange, useProfileActivity } from '@/core/hooks/activities/use-profile-activity';
+import type { TProfileActivityScope } from '@/core/types/schemas/activities/profile-activity.schema';
 
-export function ActivityCalendar() {
-	const t = useTranslations();
+type ActivityCalendarProps = {
+	scope?: TProfileActivityScope;
+};
+
+type ActivityCalendarEntry = {
+	day: string;
+	value: number;
+};
+
+export function ActivityCalendar({ scope }: ActivityCalendarProps) {
+	return FAST_APP_BOOTSTRAP.value ? <FastActivityCalendar scope={scope} /> : <LegacyActivityCalendar />;
+}
+
+function LegacyActivityCalendar() {
 	const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
 	const { data: timeLogsDailyReport = [], isLoading: timerLogsDailyReportLoading } = useGetTimeLogsDailyReport({
@@ -25,6 +40,59 @@ export function ActivityCalendar() {
 		}));
 	}, [timeLogsDailyReport]);
 
+	return (
+		<ActivityCalendarView
+			data={filteredData}
+			isLoading={timerLogsDailyReportLoading}
+			selectedYear={selectedYear}
+			setSelectedYear={setSelectedYear}
+		/>
+	);
+}
+
+function FastActivityCalendar({ scope }: ActivityCalendarProps) {
+	const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+	const range = useMemo(
+		() => getProfileActivityYearRange(scope?.timeZone ?? 'UTC', selectedYear),
+		[scope?.timeZone, selectedYear]
+	);
+	const request = useMemo(() => (scope ? { ...scope, ...range, includeDaily: true } : null), [range, scope]);
+	const profileActivity = useProfileActivity(request, { enabled: scope !== undefined });
+	const profileActivityData = profileActivity.data;
+	const filteredData = useMemo(
+		() =>
+			profileActivityData && scope && profileActivityData.employeeId === scope.employeeId
+				? (profileActivityData.daily ?? []).map(({ date, duration }) => ({
+						value: Number((duration / 3600).toPrecision(2)),
+						day: date
+					}))
+				: [],
+		[profileActivityData, scope?.employeeId]
+	);
+
+	return (
+		<ActivityCalendarView
+			data={filteredData}
+			isLoading={profileActivity.isLoading}
+			selectedYear={selectedYear}
+			setSelectedYear={setSelectedYear}
+		/>
+	);
+}
+
+function ActivityCalendarView({
+	data,
+	isLoading,
+	selectedYear,
+	setSelectedYear
+}: {
+	data: ActivityCalendarEntry[];
+	isLoading: boolean;
+	selectedYear: number;
+	setSelectedYear: (year: number) => void;
+}) {
+	const t = useTranslations();
+
 	const colorRange = useMemo(
 		() => [
 			'#9370DB', // 0-4 hours
@@ -38,7 +106,7 @@ export function ActivityCalendar() {
 	return (
 		<div className="flex flex-col space-y-4 w-full bg-white rounded-xl dark:bg-dark--theme">
 			<div className="overflow-hidden p-4 w-full md:p-6">
-				{timerLogsDailyReportLoading ? (
+				{isLoading ? (
 					<ActivityCalendarSkeleton />
 				) : (
 					<div className="flex flex-col space-y-4">
@@ -58,7 +126,7 @@ export function ActivityCalendar() {
 										</div>
 									</div>
 								)}
-								data={filteredData}
+								data={data}
 								from={`${selectedYear}-01-01`}
 								to={`${selectedYear}-12-31`}
 								emptyColor="rgb(229, 231, 235)"

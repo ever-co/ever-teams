@@ -5,7 +5,7 @@ import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-dai
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/constants';
+import { DAILY_PLAN_SUGGESTION_MODAL_DATE, FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import { estimatedTotalTime, getTotalTasks } from '@/core/components/tasks/daily-plan';
 import intersection from 'lodash/intersection';
 import { ITab } from '@/core/components/pages/profile/task-filters';
@@ -40,6 +40,8 @@ export type UseTaskFilterOptions = {
 	 * Can be 'auto' to automatically select based on daily plans availability.
 	 */
 	defaultTab?: ITab | 'auto';
+	/** Employee-specific active-day count used by the fast profile endpoint. */
+	statsCount?: number;
 };
 
 /**
@@ -48,7 +50,7 @@ export type UseTaskFilterOptions = {
  * @param {UseTaskFilterOptions} options - Optional configuration for state persistence
  */
 export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilterOptions = {}) {
-	const { persistState = true, defaultTab = 'worked' } = options;
+	const { persistState = true, defaultTab = 'worked', statsCount } = options;
 	const t = useTranslations();
 	// const defaultValue = useMemo(
 	// 	() => (typeof window !== 'undefined' ? (window.localStorage.getItem('task-tab') as ITab) || null : 'worked'),
@@ -76,6 +78,7 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 
 	const { employeeTodayPlan, employeeOutstandingPlans, employeeDailyPlans } = useEmployeeDailyPlans(targetEmployeeId);
 	const timeLogsDailyReport = useAtomValue(timeLogsDailyReportState);
+	const resolvedStatsCount = FAST_APP_BOOTSTRAP.value ? (statsCount ?? 0) : timeLogsDailyReport.length;
 	const isManagerConnectedUser = useMemo(
 		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id),
 		[activeTeamManagers, user?.id]
@@ -216,7 +219,7 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 			tab: 'stats',
 			name: 'Stats',
 			description: 'This tab shows all stats',
-			count: timeLogsDailyReport.length
+			count: resolvedStatsCount
 		});
 		tabs.unshift({
 			tab: 'worked',
