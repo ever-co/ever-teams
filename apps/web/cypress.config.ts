@@ -4,6 +4,10 @@ import { dirname, resolve } from 'node:path';
 import { defineConfig } from 'cypress';
 
 import { createMockGauzyServer } from './cypress/support/mock-gauzy-server.mjs';
+import {
+	assertDeterministicApiOrigins,
+	resolvePerformanceOutput
+} from '../../tools/performance/cypress-performance-config.mjs';
 
 type LiveAuthResult = {
 	accessToken: string;
@@ -60,6 +64,15 @@ export default defineConfig({
 				readFileSync(resolve(config.projectRoot, 'apps/web/cypress/fixtures/bootstrap.json'), 'utf8')
 			);
 			const mockServer = await createMockGauzyServer({ fixture, port: 3988 });
+			try {
+				assertDeterministicApiOrigins(mockServer.origin, {
+					GAUZY_API_SERVER_URL: process.env.GAUZY_API_SERVER_URL,
+					NEXT_PUBLIC_GAUZY_API_SERVER_URL: process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL
+				});
+			} catch (error) {
+				await mockServer.close();
+				throw error;
+			}
 			config.env.GAUZY_API_ORIGIN = mockServer.origin;
 			config.env.FAST_APP_BOOTSTRAP = process.env.NEXT_PUBLIC_FAST_APP_BOOTSTRAP === 'true';
 			config.env.PRELOAD_YEAR_TIME_LOGS = process.env.NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS === 'true';
@@ -93,11 +106,7 @@ export default defineConfig({
 							}))
 						}))
 					};
-					const repositoryRoot = resolve(config.projectRoot, '../..');
-					const output = resolve(
-						repositoryRoot,
-						process.env.CYPRESS_PERFORMANCE_OUT ?? 'artifacts/fast-startup-candidate.json'
-					);
+					const output = resolvePerformanceOutput(config.projectRoot, process.env.CYPRESS_PERFORMANCE_OUT);
 					mkdirSync(dirname(output), { recursive: true });
 					writeFileSync(output, `${JSON.stringify(safeCandidate, null, 2)}\n`, 'utf8');
 					return { samples: safeCandidate.samples.length };

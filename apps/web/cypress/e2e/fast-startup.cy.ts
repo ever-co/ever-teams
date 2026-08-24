@@ -8,6 +8,7 @@ const criticalStartupAliases = [
 	'@startupTimer',
 	'@startupPlans'
 ] as const;
+const rotatedScopedAliases = ['@rotatedTasks', '@rotatedTimer', '@rotatedPlans'] as const;
 
 function observeCriticalStartup() {
 	cy.intercept('GET', /\/api\/user\/me(?:\?.*)?$/).as('startupUser');
@@ -16,6 +17,12 @@ function observeCriticalStartup() {
 	cy.intercept('GET', /\/api\/tasks\/team(?:\?.*)?$/).as('startupTasks');
 	cy.intercept('GET', /\/api\/timesheet\/timer\/status(?:\?.*)?$/).as('startupTimer');
 	cy.intercept('GET', /\/api\/daily-plan\/me(?:\?.*)?$/).as('startupPlans');
+}
+
+function observeRotatedScopedReads() {
+	cy.intercept('GET', /\/api\/tasks\/team(?:\?.*)?$/).as('rotatedTasks');
+	cy.intercept('GET', /\/api\/timesheet\/timer\/status(?:\?.*)?$/).as('rotatedTimer');
+	cy.intercept('GET', /\/api\/daily-plan\/me(?:\?.*)?$/).as('rotatedPlans');
 }
 
 describe('fast authenticated startup', () => {
@@ -56,16 +63,22 @@ describe('fast authenticated startup', () => {
 
 	it('loads personal plans even when the team does not require a plan', () => {
 		cy.mockScenario({ requirePlanToTrack: false, hasPlan: false });
+		cy.intercept('GET', /\/api\/daily-plan\/me(?:\?.*)?$/).as('personalPlans');
 		cy.hardVisit('/team/tasks');
-		cy.wait(250);
+		cy.wait('@personalPlans', { timeout: 20_000 });
 		cy.mockRequests().then((requests) => {
 			expect(requests.some((request) => request.path === '/api/daily-plan/me')).to.equal(true);
 		});
 	});
 
 	it('keeps the legacy flag-off path free of fast-only endpoints', () => {
+		observeCriticalStartup();
+		if (Cypress.env('FAST_APP_BOOTSTRAP')) {
+			cy.intercept('GET', /\/api\/task-metadata\/bootstrap(?:\?.*)?$/).as('fastMetadata');
+		}
 		cy.hardVisit('/team/tasks');
-		cy.wait(250);
+		cy.wait([...criticalStartupAliases], { timeout: 20_000 });
+		if (Cypress.env('FAST_APP_BOOTSTRAP')) cy.wait('@fastMetadata', { timeout: 20_000 });
 		cy.mockRequests().then((requests) => {
 			const fastCalls = requests.filter(
 				(request) =>
@@ -81,11 +94,13 @@ describe('fast authenticated startup', () => {
 	});
 
 	it('re-owns long-lived scoped reads after access-token rotation', () => {
+		observeCriticalStartup();
 		cy.hardVisit('/team/tasks');
-		cy.wait(250);
+		cy.wait([...criticalStartupAliases], { timeout: 20_000 });
 		cy.mockRequests().then((before) => {
+			if (Cypress.env('FAST_APP_BOOTSTRAP')) observeRotatedScopedReads();
 			cy.rotateSyntheticAccessToken();
-			cy.wait(350);
+			if (Cypress.env('FAST_APP_BOOTSTRAP')) cy.wait([...rotatedScopedAliases], { timeout: 20_000 });
 			cy.mockRequests().then((after) => {
 				const fastOnly = after.filter(
 					(request) =>

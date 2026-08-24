@@ -72,3 +72,19 @@ test('classifies only legacy global time-log/report reads as rich', () => {
 	assert.equal(isRichGlobalRead('GET', '/api/timesheet/time-log/time-limit'), false);
 	assert.equal(isRichGlobalRead('GET', '/api/timesheet/statistics/profile-activity'), false);
 });
+
+test('preserves malformed percent-encoded path segments without aborting capture', () => {
+	let normalized;
+	assert.doesNotThrow(() => {
+		normalized = normalizeGauzyRequest(
+			{
+				method: 'GET',
+				resourceType: 'xhr',
+				url: 'https://apidev.ever.team/api/tasks/%E0%A4%A'
+			},
+			{ apiOrigins: API_ORIGINS }
+		);
+	});
+
+	assert.equal(normalized?.path, '/api/tasks/%E0%A4%A');
+});

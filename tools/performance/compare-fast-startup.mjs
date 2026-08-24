@@ -4,6 +4,15 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+const REQUIRED_SHELL_ROUTE_KEYS = [
+	'GET /api/user/me',
+	'GET /api/auth/workspaces',
+	'GET /api/organization-team',
+	'GET /api/tasks/team',
+	'GET /api/timesheet/timer/status',
+	'GET /api/daily-plan/me'
+];
+
 function nearestRank(values, percentile) {
 	if (!values.length) return null;
 	const sorted = [...values].sort((left, right) => left - right);
@@ -50,6 +59,7 @@ export function summarizeCandidate(candidate) {
 			(request) => request.method === 'GET' && Number(request.startMs) <= shellReadyMs
 		);
 		const firstFiveSeconds = requests.filter((request) => Number(request.startMs) <= 5_000);
+		const routeKeys = new Set(requests.map((request) => request.routeKey));
 		const seen = new Set();
 		let duplicateGetCount = 0;
 		for (const request of requests.filter((entry) => entry.method === 'GET')) {
@@ -66,6 +76,7 @@ export function summarizeCandidate(candidate) {
 			index: sample.index ?? index + 1,
 			shellReadyMs,
 			requestCount: requests.length,
+			missingCriticalRouteKeys: REQUIRED_SHELL_ROUTE_KEYS.filter((routeKey) => !routeKeys.has(routeKey)),
 			criticalReadsBeforeShellReady: readsBeforeReady.length,
 			gauzyRequestsInFirst5s: firstFiveSeconds.length,
 			duplicateGetCount,
@@ -82,13 +93,34 @@ export function summarizeCandidate(candidate) {
 	};
 }
 
-export function compareFastStartup(candidateSummary, { samples = 5, criticalReads = 12, firstFiveSeconds = 20 } = {}) {
+export function compareFastStartup(
+	candidateSummary,
+	{ samples = 5, criticalReads = 12, firstFiveSeconds = 20, shellReadyMs = 5_000, baseline } = {}
+) {
 	const failures = [];
 	if (candidateSummary.sampleCount !== samples) {
 		failures.push(`Expected exactly ${samples} cold samples; received ${candidateSummary.sampleCount}.`);
 	}
+	if (baseline && baseline.transport.count === 0) {
+		failures.push('The supplied HAR reference captured no Gauzy requests.');
+	}
 	for (const sample of candidateSummary.samples) {
 		const label = `Sample ${sample.index}`;
+		if (sample.requestCount === 0) {
+			failures.push(`${label}: captured no Gauzy requests.`);
+		}
+		if (sample.missingCriticalRouteKeys.length > 0) {
+			failures.push(`${label}: missing critical route keys: ${sample.missingCriticalRouteKeys.join(', ')}.`);
+		}
+		if (!Number.isFinite(sample.shellReadyMs) || sample.shellReadyMs <= 0) {
+			failures.push(`${label}: shell-ready timing is missing or invalid.`);
+		} else if (sample.shellReadyMs > shellReadyMs) {
+			failures.push(
+				`${label}: shell-ready ${sample.shellReadyMs.toLocaleString('en-US')} ms exceeds ${shellReadyMs.toLocaleString(
+					'en-US'
+				)} ms.`
+			);
+		}
 		if (sample.criticalReadsBeforeShellReady > criticalReads) {
 			failures.push(
 				`${label}: critical reads before shell-ready ${sample.criticalReadsBeforeShellReady} exceed ${criticalReads}.`
@@ -127,12 +159,14 @@ function runCli() {
 	}
 	const candidate = JSON.parse(readFileSync(resolve(args.candidate), 'utf8'));
 	const candidateSummary = summarizeCandidate(candidate);
-	const comparison = compareFastStartup(candidateSummary);
-	const report = { candidate: candidateSummary, comparison };
+	let baseline;
 	if (args.baseline) {
 		const har = JSON.parse(readFileSync(resolve(args.baseline), 'utf8'));
-		report.baseline = summarizeHar(har, { apiOrigins: args.apiOrigins });
+		baseline = summarizeHar(har, { apiOrigins: args.apiOrigins });
 	}
+	const comparison = compareFastStartup(candidateSummary, { baseline });
+	const report = { candidate: candidateSummary, comparison };
+	if (baseline) report.baseline = baseline;
 	if (args.out) {
 		const out = resolve(args.out);
 		mkdirSync(dirname(out), { recursive: true });

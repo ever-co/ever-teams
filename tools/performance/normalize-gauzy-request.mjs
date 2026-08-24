@@ -21,7 +21,15 @@ function canonicalQuery(searchParams) {
 function normalizePath(pathname) {
 	const normalized = pathname
 		.split('/')
-		.map((segment) => (UUID_SEGMENT.test(decodeURIComponent(segment)) ? ':uuid' : segment))
+		.map((segment) => {
+			let decoded = segment;
+			try {
+				decoded = decodeURIComponent(segment);
+			} catch {
+				// Preserve malformed path bytes as-is so one request cannot abort the capture.
+			}
+			return UUID_SEGMENT.test(decoded) ? ':uuid' : segment;
+		})
 		.join('/');
 	return normalized.length > 1 ? normalized.replace(/\/+$/, '') : normalized;
 }

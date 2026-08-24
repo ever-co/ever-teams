@@ -7,14 +7,17 @@ import {
 
 type CapturedRequest = NormalizedGauzyRequest & { startMs: number; endMs: number };
 type Sample = { index: number; startedAt: number; shellReadyMs: number; requests: CapturedRequest[] };
+const SHELL_READY_BUDGET_MS = 5_000;
 
 describe('five-sample cold-start performance budget', () => {
 	it('meets normalized Gauzy request budgets without rich global reports', () => {
 		if (!Cypress.env('FAST_APP_BOOTSTRAP')) {
 			cy.mockReset();
 			cy.syntheticLogin();
+			cy.intercept('GET', /\/api\/tasks\/team(?:\?.*)?$/).as('legacyTasks');
+			cy.intercept('GET', /\/api\/daily-plan\/me(?:\?.*)?$/).as('legacyPlans');
 			cy.hardVisit('/team/tasks');
-			cy.wait(250);
+			cy.wait(['@legacyTasks', '@legacyPlans'], { timeout: 20_000 });
 			cy.mockRequests().then((requests) => {
 				expect(requests.some((request) => request.path === '/api/task-metadata/bootstrap')).to.equal(false);
 				expect(
@@ -36,18 +39,19 @@ describe('five-sample cold-start performance budget', () => {
 				},
 				{ apiOrigins: [apiOrigin] }
 			);
-			if (!normalized || !activeSample) {
+			const sample = activeSample;
+			if (!normalized || !sample) {
 				request.continue();
 				return;
 			}
 			const captured: CapturedRequest = {
 				...normalized,
-				startMs: Date.now() - activeSample.startedAt,
-				endMs: Date.now() - activeSample.startedAt
+				startMs: Date.now() - sample.startedAt,
+				endMs: Date.now() - sample.startedAt
 			};
-			activeSample.requests.push(captured);
+			sample.requests.push(captured);
 			request.on('response', () => {
-				captured.endMs = Date.now() - activeSample!.startedAt;
+				captured.endMs = Date.now() - sample.startedAt;
 			});
 			request.continue();
 		});
@@ -68,7 +72,9 @@ describe('five-sample cold-start performance budget', () => {
 				}
 			});
 			cy.waitForShellReady().then(() => {
-				activeSample!.shellReadyMs = Date.now() - activeSample!.startedAt;
+				const sample = activeSample!;
+				sample.shellReadyMs = Date.now() - sample.startedAt;
+				expect(sample.shellReadyMs, `sample ${index} shell-ready`).to.be.at.most(SHELL_READY_BUDGET_MS);
 			});
 			cy.wait(5_000, { log: false });
 			cy.then(() => {
@@ -89,6 +95,7 @@ describe('five-sample cold-start performance budget', () => {
 					sample.requests.filter((request) => request.richGlobalRead),
 					`sample ${index} rich reports`
 				).to.deep.equal([]);
+				activeSample = undefined;
 			});
 		}
 
