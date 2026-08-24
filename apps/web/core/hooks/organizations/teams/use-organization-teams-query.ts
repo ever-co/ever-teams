@@ -65,7 +65,8 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 	const activeTeamIdRef = useSyncRef(activeTeamId);
 	const [isTeamMemberJustDeleted, setIsTeamMemberJustDeleted] = useAtom(isTeamMemberJustDeletedState);
 	const { firstLoadData: firstLoadTeamsDataInternal } = useFirstLoad();
-	const setIsTeamMember = useSetAtom(isTeamMemberState);
+	const [isTeamMember, setIsTeamMember] = useAtom(isTeamMemberState);
+	const isTeamMemberRef = useSyncRef(isTeamMember);
 	const setActiveTeamTask = useSetAtom(activeTeamTaskState);
 	const setTeamTasks = useSetAtom(teamTasksState);
 	const reactiveAccessToken = useReactiveAccessTokenCookie();
@@ -240,6 +241,11 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			if (latestTeams.length === 0) {
 				setIsTeamMember(false);
 				setIsTeamMemberJustDeleted(true);
+			} else {
+				// Recover the normal shell after an invitation/new team appears. Preserve a
+				// real team-deletion toast when membership never went through no-team.
+				if (!isTeamMemberRef.current) setIsTeamMemberJustDeleted(false);
+				setIsTeamMember(true);
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -248,6 +254,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 		setTeams,
 		setIsTeamMember,
 		setIsTeamMemberJustDeleted,
+		isTeamMemberRef,
 		canHydrateSharedState,
 		scoped,
 		listCurrent

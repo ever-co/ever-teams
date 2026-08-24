@@ -66,6 +66,7 @@ export function useTeamInvitationsQuery({ enabled = true }: UseTeamInvitationsQu
 	const {
 		data: teamInvitationsData,
 		isLoading: teamInvitationsLoading,
+		isFetching: teamInvitationsFetching,
 		isSuccess: teamInvitationsSuccess
 	} = useQuery({
 		queryKey,
@@ -90,7 +91,8 @@ export function useTeamInvitationsQuery({ enabled = true }: UseTeamInvitationsQu
 	return {
 		teamInvitations,
 		firstLoadTeamInvitationsData,
-		fetchingInvitations: teamInvitationsLoading,
+		// A cached empty list is not authoritative while a background refetch is pending.
+		fetchingInvitations: teamInvitationsFetching,
 		isLoading: teamInvitationsLoading,
 		isSuccess: teamInvitationsSuccess
 	};

@@ -2,7 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Provider, createStore } from 'jotai';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import type { PropsWithChildren } from 'react';
 
 import {
@@ -11,6 +11,7 @@ import {
 	isTeamMemberState,
 	organizationTeamsState
 } from '@/core/stores';
+import { queryKeys } from '@/core/query/keys';
 
 jest.mock('@/core/constants/config/constants', () => ({
 	...jest.requireActual('@/core/constants/config/constants'),
@@ -37,7 +38,16 @@ jest.mock('@/core/hooks/queries/user-user.query', () => ({
 jest.mock('@/core/services/client/api/organizations/teams', () => ({
 	organizationTeamService: {
 		getOrganizationTeams: jest.fn(async () => ({ data: { items: [], total: 0 } })),
-		getOrganizationTeam: jest.fn()
+		getOrganizationTeam: jest.fn(async (id: string) => ({
+			data: {
+				id,
+				name: 'Team A',
+				organizationId: 'organization-a',
+				tenantId: 'tenant-a',
+				members: [],
+				projects: []
+			}
+		}))
 	}
 }));
 jest.mock('../../common', () => {
@@ -74,7 +84,7 @@ describe('fast organization-team ownership', () => {
 			</QueryClientProvider>
 		);
 
-		renderHook(
+		const view = renderHook(
 			() => {
 				const owner = useOrganizationTeamsQuery({
 					scope: {
@@ -93,5 +103,27 @@ describe('fast organization-team ownership', () => {
 		await waitFor(() => expect(mockGetOrganizationTeams).toHaveBeenCalledTimes(1));
 		await waitFor(() => expect(store.get(isTeamMemberState)).toBe(false));
 		expect(store.get(isTeamMemberJustDeletedState)).toBe(true);
+
+		await act(async () => {
+			client.setQueryData(queryKeys.organizationTeams.listByScope('tenant-a', 'organization-a'), {
+				data: {
+					items: [
+						{
+							id: 'team-a',
+							name: 'Team A',
+							organizationId: 'organization-a',
+							tenantId: 'tenant-a',
+							members: [],
+							projects: []
+						}
+					],
+					total: 1
+				}
+			});
+		});
+
+		await waitFor(() => expect(view.result.current.teams).toHaveLength(1));
+		await waitFor(() => expect(store.get(isTeamMemberState)).toBe(true));
+		expect(store.get(isTeamMemberJustDeletedState)).toBe(false);
 	});
 });
