@@ -156,11 +156,21 @@ function collectBindingNames(name, names) {
 		for (const element of name.elements) if (ts.isBindingElement(element)) collectBindingNames(element.name, names);
 }
 
-function addExport(exports, name, kind) {
+function addExport(exports, name, kind, binding) {
 	if (!name) return;
-	const kinds = exports.get(name) ?? new Set();
-	kinds.add(kind);
+	const kinds = exports.get(name) ?? new Map();
+	const bindings = kinds.get(kind) ?? new Set();
+	bindings.add(binding);
+	kinds.set(kind, bindings);
 	exports.set(name, kinds);
+}
+
+function addExportBindings(exports, name, kind, bindings) {
+	for (const binding of bindings) addExport(exports, name, kind, binding);
+}
+
+function declarationBinding(path, name, kind) {
+	return `${path}::${name}::${kind}`;
 }
 
 function declarationKinds(statement) {
@@ -202,7 +212,9 @@ function moduleInfo(path, source) {
 	for (const statement of sourceFile.statements) {
 		const names = declarationNames(statement);
 		const kinds = declarationKinds(statement);
-		for (const name of names) for (const kind of kinds) addExport(locals, name, kind);
+		for (const name of names) {
+			for (const kind of kinds) addExport(locals, name, kind, declarationBinding(path, name, kind));
+		}
 
 		if (ts.isExportDeclaration(statement)) {
 			const specifier =
@@ -232,14 +244,20 @@ function moduleInfo(path, source) {
 			continue;
 		}
 		if (ts.isExportAssignment(statement)) {
-			addExport(direct, statement.isExportEquals ? 'export=' : 'default', 'runtime');
+			const name = statement.isExportEquals ? 'export=' : 'default';
+			addExport(direct, name, 'runtime', declarationBinding(path, name, 'runtime'));
 			continue;
 		}
 		if (!hasModifier(statement, ts.SyntaxKind.ExportKeyword)) continue;
 		if (hasModifier(statement, ts.SyntaxKind.DefaultKeyword)) {
-			for (const kind of kinds.length > 0 ? kinds : ['runtime']) addExport(direct, 'default', kind);
+			const bindingName = names[0] ?? 'default';
+			for (const kind of kinds.length > 0 ? kinds : ['runtime']) {
+				addExport(direct, 'default', kind, declarationBinding(path, bindingName, kind));
+			}
 		} else {
-			for (const name of names) for (const kind of kinds) addExport(direct, name, kind);
+			for (const name of names) {
+				for (const kind of kinds) addExport(direct, name, kind, declarationBinding(path, name, kind));
+			}
 		}
 	}
 	return { direct, locals, reexports };
@@ -280,15 +298,27 @@ function resolveLocalModule(fromPath, specifier, files) {
 
 function copyExports(source) {
 	const copy = new Map();
-	for (const [name, kinds] of source) copy.set(name, new Set(kinds));
+	for (const [name, kinds] of source) {
+		copy.set(name, new Map([...kinds].map(([kind, bindings]) => [kind, new Set(bindings)])));
+	}
 	return copy;
 }
 
 function sameExports(left, right) {
 	if (left.size !== right.size) return false;
 	for (const [name, kinds] of left) {
-		const other = right.get(name);
-		if (!other || kinds.size !== other.size || [...kinds].some((kind) => !other.has(kind))) return false;
+		const otherKinds = right.get(name);
+		if (!otherKinds || kinds.size !== otherKinds.size) return false;
+		for (const [kind, bindings] of kinds) {
+			const otherBindings = otherKinds.get(kind);
+			if (
+				!otherBindings ||
+				bindings.size !== otherBindings.size ||
+				[...bindings].some((binding) => !otherBindings.has(binding))
+			) {
+				return false;
+			}
+		}
 	}
 	return true;
 }
@@ -318,31 +348,78 @@ function collectPublicExports(files) {
 		const next = new Map();
 		for (const [path, info] of infos) {
 			const exports = copyExports(info.direct);
-			for (const reexport of info.reexports) {
+			const explicitNames = new Set([
+				...info.direct.keys(),
+				...info.reexports.filter(({ kind }) => kind !== 'star').map(({ name }) => name)
+			]);
+			for (const reexport of info.reexports.filter(({ kind }) => kind !== 'star')) {
 				if (reexport.kind === 'namespace') {
-					addExport(exports, reexport.name, reexport.typeOnly ? 'type' : 'runtime');
+					const kind = reexport.typeOnly ? 'type' : 'runtime';
+					addExport(
+						exports,
+						reexport.name,
+						kind,
+						`${path}::namespace:${reexport.specifier ?? ''}:${reexport.name}::${kind}`
+					);
 					continue;
 				}
 				const targetPath = resolveLocalModule(path, reexport.specifier, files);
 				const targetExports = targetPath ? resolved.get(targetPath) : undefined;
-				if (reexport.kind === 'star') {
-					if (!targetExports) {
-						if (reexport.specifier) {
-							addExport(exports, `* from ${reexport.specifier}`, reexport.typeOnly ? 'type' : 'runtime');
-						}
-						continue;
+				const sourceExports = targetExports ?? (reexport.specifier ? new Map() : info.locals);
+				const kinds = sourceExports.get(reexport.sourceName);
+				if (reexport.typeOnly) {
+					const bindings = kinds?.get('type');
+					if (bindings?.size === 1) addExportBindings(exports, reexport.name, 'type', bindings);
+					else if (!targetPath && reexport.specifier && !reexport.specifier.startsWith('.')) {
+						addExport(
+							exports,
+							reexport.name,
+							'type',
+							`${reexport.specifier}::${reexport.sourceName}::type`
+						);
 					}
-					for (const [name, kinds] of targetExports) {
-						if (name === 'default' || name === 'export=') continue;
-						for (const kind of reexport.typeOnly ? ['type'] : kinds) addExport(exports, name, kind);
+				} else if (kinds) {
+					for (const [kind, bindings] of kinds) {
+						if (bindings.size === 1) addExportBindings(exports, reexport.name, kind, bindings);
+					}
+				} else if (!targetPath && reexport.specifier && !reexport.specifier.startsWith('.')) {
+					addExport(
+						exports,
+						reexport.name,
+						'runtime',
+						`${reexport.specifier}::${reexport.sourceName}::runtime`
+					);
+				}
+			}
+			for (const name of explicitNames) {
+				for (const [kind, bindings] of exports.get(name) ?? []) {
+					if (bindings.size > 1) {
+						exports.get(name).set(kind, new Set([`${path}::explicit:${name}::${kind}`]));
+					}
+				}
+			}
+			for (const reexport of info.reexports.filter(({ kind }) => kind === 'star')) {
+				const targetPath = resolveLocalModule(path, reexport.specifier, files);
+				const targetExports = targetPath ? resolved.get(targetPath) : undefined;
+				if (!targetExports) {
+					if (reexport.specifier && !reexport.specifier.startsWith('.')) {
+						const kind = reexport.typeOnly ? 'type' : 'runtime';
+						const name = `* from ${reexport.specifier}`;
+						addExport(exports, name, kind, `${reexport.specifier}::*::${kind}`);
 					}
 					continue;
 				}
-				const sourceExports = targetExports ?? (reexport.specifier ? new Map() : info.locals);
-				const kinds = sourceExports.get(reexport.sourceName);
-				if (reexport.typeOnly) addExport(exports, reexport.name, 'type');
-				else if (kinds) for (const kind of kinds) addExport(exports, reexport.name, kind);
-				else addExport(exports, reexport.name, 'runtime');
+				for (const [name, kinds] of targetExports) {
+					if (name === 'default' || name === 'export=' || explicitNames.has(name)) continue;
+					if (reexport.typeOnly) {
+						const bindings = kinds.get('type');
+						if (bindings?.size === 1) addExportBindings(exports, name, 'type', bindings);
+					} else {
+						for (const [kind, bindings] of kinds) {
+							if (bindings.size === 1) addExportBindings(exports, name, kind, bindings);
+						}
+					}
+				}
 			}
 			next.set(path, exports);
 			if (!sameExports(exports, resolved.get(path) ?? new Map())) changed = true;
@@ -354,7 +431,9 @@ function collectPublicExports(files) {
 	const exports = [];
 	for (const path of barrelPaths) {
 		for (const [name, kinds] of resolved.get(path) ?? []) {
-			for (const kind of kinds) exports.push(`${path}::${kind}::${name}`);
+			for (const [kind, bindings] of kinds) {
+				if (bindings.size === 1) exports.push(`${path}::${kind}::${name}`);
+			}
 		}
 	}
 	return exports;
@@ -428,6 +507,7 @@ function propertyName(property) {
 }
 
 const UNRESOLVED = Symbol('unresolved');
+const UNRESOLVED_EXPRESSION = Symbol('unresolved-expression');
 const UNRESOLVED_SPREADS = Symbol('unresolved-spreads');
 const TEST_SELECTION_KEYS = new Set([
 	'changedSince',
@@ -443,6 +523,8 @@ const TEST_SELECTION_KEYS = new Set([
 	'testRegex',
 	'watch'
 ]);
+const NEUTRAL_FALSE_SELECTION_KEYS = new Set(['onlyChanged', 'watch']);
+const TRUSTED_PASSTHROUGH_FACTORY_MODULES = new Set(['next/jest', 'next/jest.js']);
 
 function unwrapExpression(node) {
 	while (
@@ -485,7 +567,23 @@ function expressionAccessSegments(node) {
 	return undefined;
 }
 
-function staticValue(node, values, seen = new Set()) {
+function unresolvedExpression(node) {
+	return { [UNRESOLVED_EXPRESSION]: node?.getText() ?? '<unknown expression>' };
+}
+
+function unresolvedExpressionText(value) {
+	return value && typeof value === 'object' && !Array.isArray(value) ? value[UNRESOLVED_EXPRESSION] : undefined;
+}
+
+function isUnresolvedValue(value) {
+	return value === UNRESOLVED || unresolvedExpressionText(value) !== undefined;
+}
+
+function isStaticObject(value) {
+	return value && typeof value === 'object' && !Array.isArray(value) && !isUnresolvedValue(value);
+}
+
+function staticValue(node, values, context = {}, seen = new Set()) {
 	node = unwrapExpression(node);
 	if (!node) return UNRESOLVED;
 	if (ts.isStringLiteralLike(node) || ts.isNumericLiteral(node)) return node.text;
@@ -504,11 +602,11 @@ function staticValue(node, values, seen = new Set()) {
 		const result = [];
 		for (const element of node.elements) {
 			if (ts.isSpreadElement(element)) {
-				const spread = staticValue(element.expression, values, seen);
+				const spread = staticValue(element.expression, values, context, seen);
 				if (!Array.isArray(spread)) return UNRESOLVED;
 				result.push(...spread);
 			} else {
-				result.push(staticValue(element, values, seen));
+				result.push(staticValue(element, values, context, seen));
 			}
 		}
 		return result;
@@ -517,8 +615,8 @@ function staticValue(node, values, seen = new Set()) {
 		const result = {};
 		for (const property of node.properties) {
 			if (ts.isSpreadAssignment(property)) {
-				const spread = staticValue(property.expression, values, seen);
-				if (spread && typeof spread === 'object' && !Array.isArray(spread)) Object.assign(result, spread);
+				const spread = staticValue(property.expression, values, context, seen);
+				if (isStaticObject(spread)) Object.assign(result, spread);
 				else {
 					result[UNRESOLVED_SPREADS] = [...(result[UNRESOLVED_SPREADS] ?? []), property.getText()];
 				}
@@ -526,8 +624,9 @@ function staticValue(node, values, seen = new Set()) {
 			}
 			const name = propertyName(property);
 			if (!name) continue;
-			if (ts.isPropertyAssignment(property)) result[name] = staticValue(property.initializer, values, seen);
-			else if (ts.isShorthandPropertyAssignment(property)) {
+			if (ts.isPropertyAssignment(property)) {
+				result[name] = staticValue(property.initializer, values, context, seen);
+			} else if (ts.isShorthandPropertyAssignment(property)) {
 				result[name] = values.get(property.name.text) ?? UNRESOLVED;
 			}
 		}
@@ -535,30 +634,51 @@ function staticValue(node, values, seen = new Set()) {
 	}
 	if (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) {
 		const name = accessPropertyName(node);
-		const parent = staticValue(node.expression, values, seen);
-		return name && parent && typeof parent === 'object' ? (parent[name] ?? UNRESOLVED) : UNRESOLVED;
+		const parent = staticValue(node.expression, values, context, seen);
+		return name && isStaticObject(parent) ? (parent[name] ?? UNRESOLVED) : unresolvedExpression(node);
 	}
-	if (ts.isCallExpression(node) && node.arguments.length > 0) return staticValue(node.arguments[0], values, seen);
+	if (ts.isCallExpression(node)) {
+		if (expressionAccessSegments(node.expression)?.join('.') === 'Object.assign') {
+			const evaluated = node.arguments.map((argument) => staticValue(argument, values, context, seen));
+			const [target, ...sources] = evaluated;
+			if (!isStaticObject(target) || sources.some((source) => !isStaticObject(source))) {
+				return unresolvedExpression(node);
+			}
+			Object.assign(target, ...sources);
+			return target;
+		}
+		const callee = unwrapExpression(node.expression);
+		if (node.arguments.length > 0 && ts.isIdentifier(callee) && context.passthroughCalls?.has(callee.text)) {
+			return staticValue(node.arguments[0], values, context, seen);
+		}
+		return unresolvedExpression(node);
+	}
 	if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
-		const left = staticValue(node.left, values, seen);
-		const right = staticValue(node.right, values, seen);
-		if (left !== UNRESOLVED && right !== UNRESOLVED) return String(left) + String(right);
+		const left = staticValue(node.left, values, context, seen);
+		const right = staticValue(node.right, values, context, seen);
+		if (!isUnresolvedValue(left) && !isUnresolvedValue(right)) return String(left) + String(right);
 	}
 	return UNRESOLVED;
 }
 
 function flattenedValues(value) {
 	if (value === UNRESOLVED) return ['<unresolved>'];
+	const expression = unresolvedExpressionText(value);
+	if (expression !== undefined) return [`<unresolved:${expression}>`];
 	if (Array.isArray(value)) return value.flatMap(flattenedValues);
 	if (value === null || ['string', 'number', 'boolean'].includes(typeof value)) return [String(value)];
 	return ['<unresolved>'];
+}
+
+function selectionValues(name, value) {
+	return NEUTRAL_FALSE_SELECTION_KEYS.has(name) && value === false ? [] : flattenedValues(value);
 }
 
 function recordConfigOptions(path, options, prefix, configuration, exclusions) {
 	if (!options || typeof options !== 'object' || Array.isArray(options)) return;
 	for (const [name, value] of Object.entries(options)) {
 		if (TEST_SELECTION_KEYS.has(name)) {
-			for (const item of flattenedValues(value)) configuration.push(`${path}::${prefix}${name}=${item}`);
+			for (const item of selectionValues(name, value)) configuration.push(`${path}::${prefix}${name}=${item}`);
 		} else if (/ignore|exclude/i.test(name)) {
 			for (const item of flattenedValues(value)) exclusions.push(`${path}::${prefix}${name}=${item}`);
 		} else if (name === 'passWithNoTests') {
@@ -576,12 +696,74 @@ function assignStaticProperty(expression, value, values) {
 	const root = expression.expression;
 	if (!name || !ts.isIdentifier(root)) return;
 	const target = values.get(root.text);
-	if (target && typeof target === 'object' && !Array.isArray(target)) target[name] = value;
+	if (isStaticObject(target)) target[name] = value;
+}
+
+function requiredModuleSpecifier(node) {
+	node = unwrapExpression(node);
+	return ts.isCallExpression(node) &&
+		ts.isIdentifier(node.expression) &&
+		node.expression.text === 'require' &&
+		node.arguments.length === 1 &&
+		ts.isStringLiteralLike(node.arguments[0])
+		? node.arguments[0].text
+		: undefined;
+}
+
+function trustedFactoryModule(node) {
+	node = unwrapExpression(node);
+	const required = requiredModuleSpecifier(node);
+	if (required) return required;
+	if (
+		(ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) &&
+		accessPropertyName(node) === 'default'
+	) {
+		return requiredModuleSpecifier(node.expression);
+	}
+	return undefined;
+}
+
+function collectTrustedFactoryBindings(sourceFile) {
+	const bindings = new Set();
+	for (const statement of sourceFile.statements) {
+		if (
+			ts.isImportDeclaration(statement) &&
+			ts.isStringLiteralLike(statement.moduleSpecifier) &&
+			TRUSTED_PASSTHROUGH_FACTORY_MODULES.has(statement.moduleSpecifier.text) &&
+			statement.importClause?.name
+		) {
+			bindings.add(statement.importClause.name.text);
+		}
+		if (!ts.isVariableStatement(statement)) continue;
+		for (const declaration of statement.declarationList.declarations) {
+			if (
+				ts.isIdentifier(declaration.name) &&
+				declaration.initializer &&
+				TRUSTED_PASSTHROUGH_FACTORY_MODULES.has(trustedFactoryModule(declaration.initializer))
+			) {
+				bindings.add(declaration.name.text);
+			}
+		}
+	}
+	return bindings;
+}
+
+function isTrustedFactoryInvocation(node, trustedFactoryBindings) {
+	node = unwrapExpression(node);
+	if (!ts.isCallExpression(node)) return false;
+	const callee = unwrapExpression(node.expression);
+	return (
+		(ts.isIdentifier(callee) && trustedFactoryBindings.has(callee.text)) ||
+		TRUSTED_PASSTHROUGH_FACTORY_MODULES.has(trustedFactoryModule(callee))
+	);
 }
 
 function collectJestConfig(path, source, configuration, exclusions) {
 	const sourceFile = parseSource(path, source);
 	const values = new Map();
+	const trustedFactoryBindings = collectTrustedFactoryBindings(sourceFile);
+	const passthroughCalls = new Set();
+	const staticContext = { passthroughCalls };
 	let esmExport = UNRESOLVED;
 	let hasEsmExport = false;
 	let moduleExports = {};
@@ -591,7 +773,10 @@ function collectJestConfig(path, source, configuration, exclusions) {
 		if (ts.isVariableStatement(statement)) {
 			for (const declaration of statement.declarationList.declarations) {
 				if (ts.isIdentifier(declaration.name) && declaration.initializer) {
-					values.set(declaration.name.text, staticValue(declaration.initializer, values));
+					if (isTrustedFactoryInvocation(declaration.initializer, trustedFactoryBindings)) {
+						passthroughCalls.add(declaration.name.text);
+					}
+					values.set(declaration.name.text, staticValue(declaration.initializer, values, staticContext));
 				}
 			}
 			continue;
@@ -599,7 +784,7 @@ function collectJestConfig(path, source, configuration, exclusions) {
 		if (ts.isExpressionStatement(statement) && ts.isBinaryExpression(statement.expression)) {
 			const assignment = statement.expression;
 			if (assignment.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
-				const value = staticValue(assignment.right, values);
+				const value = staticValue(assignment.right, values, staticContext);
 				const segments = expressionAccessSegments(assignment.left);
 				if (segments?.join('.') === 'module.exports') {
 					moduleExports = value;
@@ -636,24 +821,32 @@ function collectJestConfig(path, source, configuration, exclusions) {
 				} else if (ts.isIdentifier(targetNode)) {
 					target = values.get(targetNode.text);
 				}
-				if (target && typeof target === 'object' && !Array.isArray(target)) {
+				if (isStaticObject(target)) {
 					for (const sourceNode of sourceNodes) {
-						const sourceValue = staticValue(sourceNode, values);
-						if (sourceValue && typeof sourceValue === 'object' && !Array.isArray(sourceValue)) {
+						const sourceValue = staticValue(sourceNode, values, staticContext);
+						if (isStaticObject(sourceValue)) {
 							Object.assign(target, sourceValue);
-						} else target[UNRESOLVED_SPREADS] = ['Object.assign'];
+						} else {
+							target[UNRESOLVED_SPREADS] = [
+								...(target[UNRESOLVED_SPREADS] ?? []),
+								`Object.assign source ${sourceNode.getText()}`
+							];
+						}
 					}
 				}
 			}
 			continue;
 		}
 		if (ts.isExportAssignment(statement)) {
-			esmExport = staticValue(statement.expression, values);
+			esmExport = staticValue(statement.expression, values, staticContext);
 			hasEsmExport = true;
 		}
 	}
 	const config = hasEsmExport ? esmExport : hasCommonJsExport ? moduleExports : UNRESOLVED;
-	if (config && typeof config === 'object' && !Array.isArray(config)) {
+	const unresolvedConfig = unresolvedExpressionText(config);
+	if (unresolvedConfig !== undefined) {
+		exclusions.push(`${path}::<unresolvedConfig>=${unresolvedConfig}`);
+	} else if (isStaticObject(config)) {
 		recordConfigOptions(path, config, '', configuration, exclusions);
 	} else {
 		exclusions.push(`${path}::<unresolvedConfig>`);
@@ -672,7 +865,7 @@ function collectJsonTarget(path, target, prefix, trackedPaths, configuration, ex
 		} else if (name === 'config') {
 			configuration.push(`${path}::${key}=${String(value)}`);
 		} else if (TEST_SELECTION_KEYS.has(name)) {
-			for (const item of flattenedValues(value)) configuration.push(`${path}::${key}=${item}`);
+			for (const item of selectionValues(name, value)) configuration.push(`${path}::${key}=${item}`);
 		} else if (/ignore|exclude/i.test(name)) {
 			for (const item of flattenedValues(value)) exclusions.push(`${path}::${key}=${item}`);
 		} else if (name === 'passWithNoTests') {

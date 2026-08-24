@@ -128,6 +128,32 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 	write(repository, 'packages/contracts-mts/leaf.d.mts', 'export type DeclaredMts = string;\n');
 	write(repository, 'packages/contracts-cts/index.d.cts', "export * from './leaf.cjs';\n");
 	write(repository, 'packages/contracts-cts/leaf.d.cts', 'export type DeclaredCts = string;\n');
+	write(repository, 'packages/ambiguous/index.ts', "export * from './a'; export * from './b';\n");
+	write(repository, 'packages/ambiguous/a.ts', 'export const SharedName = true; export const OnlyA = true;\n');
+	write(repository, 'packages/ambiguous/b.ts', 'export const OnlyB = true;\n');
+	write(repository, 'packages/shared-leaf.ts', 'export const SharedBinding = true;\n');
+	write(repository, 'packages/same-binding/index.ts', "export * from './left'; export * from './right';\n");
+	write(
+		repository,
+		'packages/same-binding/left.ts',
+		"export { SharedBinding as SharedSame } from '../shared-leaf';\n"
+	);
+	write(
+		repository,
+		'packages/same-binding/right.ts',
+		"export { SharedBinding as SharedSame } from '../shared-leaf';\n"
+	);
+	write(repository, 'packages/type-star/index.ts', "export type * from './leaf';\n");
+	write(
+		repository,
+		'packages/type-star/leaf.ts',
+		[
+			'export const RuntimeOnly = true;',
+			'export interface TypeOnly { value: string }',
+			'export class RuntimeAndTypeClass {}',
+			'export enum RuntimeAndTypeEnum { Value }'
+		].join('\n') + '\n'
+	);
 	write(
 		repository,
 		'apps/web/core/components/overlays.tsx',
@@ -203,7 +229,8 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 							testNamePattern: 'preserved',
 							findRelatedTests: 'apps/web/core/base.ts',
 							onlyChanged: false,
-							changedSince: 'main'
+							changedSince: 'main',
+							watch: false
 						}
 					}
 				}
@@ -227,7 +254,8 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 							testFile: 'apps/web/all.test.ts',
 							findRelatedTests: 'apps/web/core/base.ts',
 							onlyChanged: false,
-							changedSince: 'main'
+							changedSince: 'main',
+							watch: false
 						}
 					}
 				}
@@ -275,6 +303,34 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 		["exports.testMatch = ['<rootDir>/**/*.spec.js'];", "exports.testPathIgnorePatterns = ['/vendor/'];"].join(
 			'\n'
 		) + '\n'
+	);
+	write(
+		repository,
+		'apps/assign-esm/jest.config.ts',
+		[
+			"const selection = { testMatch: ['<rootDir>/**/*.test.ts'] };",
+			"const ignored = { testPathIgnorePatterns: ['/generated/'] };",
+			'export default Object.assign({}, selection, ignored);'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/assign-cjs/jest.config.js',
+		[
+			"const selection = { testRegex: ['.*\\\\.spec\\\\.js$'] };",
+			"const ignored = { testPathIgnorePatterns: ['/vendor/'] };",
+			'module.exports = Object.assign({}, selection, ignored);'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/unknown-esm/jest.config.ts',
+		"export default mysteryConfig({ testMatch: ['<rootDir>/**/*.test.ts'] });\n"
+	);
+	write(
+		repository,
+		'apps/unknown-cjs/jest.config.js',
+		"module.exports = unknownFactory({ roots: ['<rootDir>'] });\n"
 	);
 	git(repository, 'add', '.');
 	git(repository, 'commit', '--quiet', '-m', 'synthetic base');
@@ -324,6 +380,16 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 	write(repository, 'packages/contracts/leaf.d.ts', 'interface PrivateDeclaredOnly { value: string }\n');
 	write(repository, 'packages/contracts-mts/leaf.d.mts', 'type PrivateDeclaredMts = string;\n');
 	write(repository, 'packages/contracts-cts/leaf.d.cts', 'type PrivateDeclaredCts = string;\n');
+	write(repository, 'packages/ambiguous/b.ts', 'export const OnlyB = true; export const SharedName = false;\n');
+	write(
+		repository,
+		'packages/type-star/leaf.ts',
+		[
+			'export interface TypeOnly { value: string }',
+			'export class RuntimeAndTypeClass {}',
+			'export enum RuntimeAndTypeEnum { Value }'
+		].join('\n') + '\n'
+	);
 	write(
 		repository,
 		'apps/web/core/components/overlays.tsx',
@@ -430,6 +496,34 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 			"exports.testMatch = ['<rootDir>/**/*.spec.js'];",
 			"exports.testPathIgnorePatterns = ['/vendor/', '/skipped/'];"
 		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/assign-esm/jest.config.ts',
+		[
+			"const selection = { testMatch: ['<rootDir>/**/*.test.ts'] };",
+			"const ignored = { testPathIgnorePatterns: ['/generated/', '/architecture/'] };",
+			'export default Object.assign({}, selection, ignored);'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/assign-cjs/jest.config.js',
+		[
+			"const selection = { testRegex: ['.*\\\\.spec\\\\.js$'] };",
+			"const ignored = { testPathIgnorePatterns: ['/vendor/', '/legacy/'] };",
+			'module.exports = Object.assign({}, selection, ignored);'
+		].join('\n') + '\n'
+	);
+	write(
+		repository,
+		'apps/unknown-esm/jest.config.ts',
+		"export default mysteryConfig({ testMatch: ['<rootDir>/only.test.ts'] });\n"
+	);
+	write(
+		repository,
+		'apps/unknown-cjs/jest.config.js',
+		"module.exports = unknownFactory({ roots: ['<rootDir>/only'] });\n"
 	);
 	write(
 		repository,
@@ -586,6 +680,41 @@ describe('Ever Teams feature surface preservation', () => {
 		);
 	});
 
+	it('removes newly ambiguous star names while retaining one shared source binding', () => {
+		expect(violationRun.report?.base.surface.publicExports).toEqual(
+			expect.arrayContaining([
+				'packages/ambiguous/index.ts::runtime::SharedName',
+				'packages/same-binding/index.ts::runtime::SharedSame'
+			])
+		);
+		expect(violationRun.report?.head.surface.publicExports).toContain(
+			'packages/same-binding/index.ts::runtime::SharedSame'
+		);
+		expect(violationRun.report?.violations).toContainEqual({
+			category: 'publicExports',
+			kind: 'removed',
+			value: 'packages/ambiguous/index.ts::runtime::SharedName'
+		});
+	});
+
+	it('propagates only actual type bindings through export type star', () => {
+		expect(violationRun.report?.base.surface.publicExports).toEqual(
+			expect.arrayContaining([
+				'packages/type-star/index.ts::type::TypeOnly',
+				'packages/type-star/index.ts::type::RuntimeAndTypeClass',
+				'packages/type-star/index.ts::type::RuntimeAndTypeEnum'
+			])
+		);
+		expect(violationRun.report?.base.surface.publicExports).not.toContain(
+			'packages/type-star/index.ts::type::RuntimeOnly'
+		);
+		expect(violationRun.report?.violations).not.toContainEqual({
+			category: 'publicExports',
+			kind: 'removed',
+			value: 'packages/type-star/index.ts::type::RuntimeOnly'
+		});
+	});
+
 	it('protects every exported overlay symbol in a multi-component file', () => {
 		expect(violationRun.report?.base.surface.overlayComponents).toEqual(
 			expect.arrayContaining([
@@ -716,6 +845,61 @@ describe('Ever Teams feature surface preservation', () => {
 		);
 	});
 
+	it('merges every Object.assign source for ESM and CommonJS Jest exports', () => {
+		expect(violationRun.report?.base.surface.testConfiguration).toEqual(
+			expect.arrayContaining([
+				'apps/assign-esm/jest.config.ts::testMatch=<rootDir>/**/*.test.ts',
+				'apps/assign-cjs/jest.config.js::testRegex=.*\\.spec\\.js$'
+			])
+		);
+		expect(violationRun.report?.base.surface.exclusions).toEqual(
+			expect.arrayContaining([
+				'apps/assign-esm/jest.config.ts::testPathIgnorePatterns=/generated/',
+				'apps/assign-cjs/jest.config.js::testPathIgnorePatterns=/vendor/'
+			])
+		);
+		expect(violationRun.report?.violations).toEqual(
+			expect.arrayContaining([
+				{
+					category: 'exclusions',
+					kind: 'added',
+					value: 'apps/assign-esm/jest.config.ts::testPathIgnorePatterns=/architecture/'
+				},
+				{
+					category: 'exclusions',
+					kind: 'added',
+					value: 'apps/assign-cjs/jest.config.js::testPathIgnorePatterns=/legacy/'
+				}
+			])
+		);
+	});
+
+	it('fails closed with expression-specific tokens for unknown ESM and CommonJS calls', () => {
+		expect(violationRun.report?.base.surface.exclusions).toEqual(
+			expect.arrayContaining([
+				"apps/unknown-esm/jest.config.ts::<unresolvedConfig>=mysteryConfig({ testMatch: ['<rootDir>/**/*.test.ts'] })",
+				"apps/unknown-cjs/jest.config.js::<unresolvedConfig>=unknownFactory({ roots: ['<rootDir>'] })"
+			])
+		);
+		expect(
+			violationRun.report?.base.surface.testConfiguration.some((value) => value.startsWith('apps/unknown-'))
+		).toBe(false);
+		expect(violationRun.report?.violations).toEqual(
+			expect.arrayContaining([
+				{
+					category: 'exclusions',
+					kind: 'added',
+					value: "apps/unknown-esm/jest.config.ts::<unresolvedConfig>=mysteryConfig({ testMatch: ['<rootDir>/only.test.ts'] })"
+				},
+				{
+					category: 'exclusions',
+					kind: 'added',
+					value: "apps/unknown-cjs/jest.config.js::<unresolvedConfig>=unknownFactory({ roots: ['<rootDir>/only'] })"
+				}
+			])
+		);
+	});
+
 	it('protects every installed Nx Jest selector in project and target defaults', () => {
 		expect(violationRun.report?.violations).toEqual(
 			expect.arrayContaining([
@@ -758,6 +942,28 @@ describe('Ever Teams feature surface preservation', () => {
 					category: 'testConfiguration',
 					kind: 'added',
 					value: 'nx.json::targetDefaults.@nx/jest:jest.options.onlyChanged=true'
+				}
+			])
+		);
+	});
+
+	it('normalizes neutral false selectors while preserving truthy narrowing modes', () => {
+		const baseConfiguration = violationRun.report?.base.surface.testConfiguration ?? [];
+		expect(baseConfiguration.join('\n')).not.toContain('onlyChanged=false');
+		expect(baseConfiguration.join('\n')).not.toContain('watch=false');
+		expect(violationRun.report?.violations.some(({ value }) => value.includes('onlyChanged=false'))).toBe(false);
+		expect(violationRun.report?.violations.some(({ value }) => value.includes('watch=false'))).toBe(false);
+		expect(violationRun.report?.violations).toEqual(
+			expect.arrayContaining([
+				{
+					category: 'testConfiguration',
+					kind: 'added',
+					value: 'apps/web/project.json::targets.test.options.onlyChanged=true'
+				},
+				{
+					category: 'testConfiguration',
+					kind: 'added',
+					value: 'nx.json::targetDefaults.test.options.watch=true'
 				}
 			])
 		);
@@ -866,6 +1072,14 @@ describe('Ever Teams feature surface preservation', () => {
 			])
 		);
 		expect(surface.exclusions).not.toContain('apps/mobile/jest.config.js::<unresolvedConfig>');
+	});
+
+	it('recognizes the real nextJest-produced local passthrough wrapper', () => {
+		const surface = collectRealHeadSurface();
+		expect(surface.testConfiguration).toContain('apps/web/jest.config.ts::testMatch=<rootDir>/**/*.test.[jt]s?(x)');
+		expect(
+			surface.exclusions.some((value) => value.startsWith('apps/web/jest.config.ts::<unresolvedConfig>'))
+		).toBe(false);
 	});
 
 	it('does not treat architecture fixture strings as real navigation or environment uses', () => {
