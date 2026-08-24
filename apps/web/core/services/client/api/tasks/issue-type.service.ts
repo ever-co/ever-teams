@@ -2,6 +2,8 @@ import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { IIssueTypesCreate, IIssueType } from '@/core/types/interfaces/task/issue-type';
+import { TaskMetadataScope } from '@/core/types/interfaces/task/task-metadata-bootstrap';
+import qs from 'qs';
 
 class IssueTypeService extends APIService {
 	createIssueType = async (data: IIssueTypesCreate) => {
@@ -20,7 +22,19 @@ class IssueTypeService extends APIService {
 		return this.delete<DeleteResponse>(`/issue-types/${id}`);
 	};
 
-	getIssueTypeList = async () => {
+	getIssueTypeList = async (scope?: TaskMetadataScope) => {
+		if (scope) {
+			const query = qs.stringify({
+				tenantId: scope.tenantId,
+				organizationId: scope.organizationId,
+				...(scope.organizationTeamId !== undefined ? { organizationTeamId: scope.organizationTeamId } : {}),
+				...(scope.projectId !== undefined ? { projectId: scope.projectId } : {})
+			});
+			const endpoint = `/issue-types?${query}`;
+
+			return this.get<PaginationResponse<IIssueType>>(endpoint, { tenantId: scope.tenantId });
+		}
+
 		const endpoint = `/issue-types?tenantId=${this.tenantId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`;
 
 		return this.get<PaginationResponse<IIssueType>>(endpoint, { tenantId: this.tenantId });

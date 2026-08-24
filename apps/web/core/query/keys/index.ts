@@ -2,6 +2,12 @@
  * Centralize all query keys used by Tanstack Query.
  * Each key is defined once for better consistency.
  */
+import {
+	TaskMetadataScope,
+	TaskMetadataSection,
+	canonicalizeTaskMetadataInclude
+} from '@/core/types/interfaces/task/task-metadata-bootstrap';
+
 export const queryKeys = {
 	// Keys related to authentication and users
 	// Keys related to users
@@ -269,6 +275,19 @@ export const queryKeys = {
 		linked: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : []), 'linked'] as const
 	},
 
+	taskMetadata: {
+		bootstrap: (scope: TaskMetadataScope, include?: readonly TaskMetadataSection[]) =>
+			[
+				'task-metadata',
+				'bootstrap',
+				scope.tenantId,
+				scope.organizationId,
+				scope.organizationTeamId ?? null,
+				scope.projectId ?? null,
+				canonicalizeTaskMetadataInclude(include).join(',')
+			] as const
+	},
+
 	// Keys related to activities
 	activities: {
 		all: ['activities'] as const,
@@ -299,6 +318,15 @@ export const queryKeys = {
 		all: ['task-statuses'] as const,
 		byTeam: (teamId: string | undefined | null) =>
 			['task-statuses', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		byScope: (scope: TaskMetadataScope) =>
+			[
+				'task-statuses',
+				'by-scope',
+				scope.tenantId,
+				scope.organizationId,
+				scope.organizationTeamId ?? null,
+				scope.projectId ?? null
+			] as const,
 		detail: (statusId: string | undefined | null) => ['task-statuses', ...(statusId ? [statusId] : [])] as const
 	},
 
@@ -307,6 +335,15 @@ export const queryKeys = {
 		all: ['task-priorities'] as const,
 		byTeam: (teamId: string | undefined | null) =>
 			['task-priorities', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		byScope: (scope: TaskMetadataScope) =>
+			[
+				'task-priorities',
+				'by-scope',
+				scope.tenantId,
+				scope.organizationId,
+				scope.organizationTeamId ?? null,
+				scope.projectId ?? null
+			] as const,
 		detail: (priorityId: string | undefined | null) =>
 			['task-priorities', ...(priorityId ? [priorityId] : [])] as const
 	},
@@ -315,6 +352,15 @@ export const queryKeys = {
 	taskSizes: {
 		all: ['task-sizes'] as const,
 		byTeam: (teamId: string | undefined | null) => ['task-sizes', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		byScope: (scope: TaskMetadataScope) =>
+			[
+				'task-sizes',
+				'by-scope',
+				scope.tenantId,
+				scope.organizationId,
+				scope.organizationTeamId ?? null,
+				scope.projectId ?? null
+			] as const,
 		detail: (sizeId: string | undefined | null) => ['task-sizes', ...(sizeId ? [sizeId] : [])] as const
 	},
 
@@ -322,6 +368,15 @@ export const queryKeys = {
 	taskLabels: {
 		all: ['task-labels'] as const,
 		byTeam: (teamId: string | undefined | null) => ['task-labels', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		byScope: (scope: TaskMetadataScope) =>
+			[
+				'task-labels',
+				'by-scope',
+				scope.tenantId,
+				scope.organizationId,
+				scope.organizationTeamId ?? null,
+				scope.projectId ?? null
+			] as const,
 		detail: (labelId: string | undefined | null) => ['task-labels', ...(labelId ? [labelId] : [])] as const
 	},
 
@@ -329,6 +384,15 @@ export const queryKeys = {
 	issueTypes: {
 		all: ['issue-types'] as const,
 		byTeam: (teamId: string | undefined | null) => ['issue-types', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		byScope: (scope: TaskMetadataScope) =>
+			[
+				'issue-types',
+				'by-scope',
+				scope.tenantId,
+				scope.organizationId,
+				scope.organizationTeamId ?? null,
+				scope.projectId ?? null
+			] as const,
 		detail: (issueTypeId: string | undefined | null) =>
 			['issue-types', ...(issueTypeId ? [issueTypeId] : [])] as const
 	},
@@ -338,6 +402,15 @@ export const queryKeys = {
 		all: ['task-versions'] as const,
 		byTeam: (teamId: string | undefined | null) =>
 			['task-versions', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		byScope: (scope: TaskMetadataScope) =>
+			[
+				'task-versions',
+				'by-scope',
+				scope.tenantId,
+				scope.organizationId,
+				scope.organizationTeamId ?? null,
+				scope.projectId ?? null
+			] as const,
 		detail: (versionId: string | undefined | null) => ['task-versions', ...(versionId ? [versionId] : [])] as const
 	},
 
@@ -346,6 +419,15 @@ export const queryKeys = {
 		all: ['task-related-issue-types'] as const,
 		byTeam: (teamId: string | undefined | null) =>
 			['task-related-issue-types', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		byScope: (scope: TaskMetadataScope) =>
+			[
+				'task-related-issue-types',
+				'by-scope',
+				scope.tenantId,
+				scope.organizationId,
+				scope.organizationTeamId ?? null,
+				scope.projectId ?? null
+			] as const,
 		detail: (relatedIssueTypeId: string | undefined | null) =>
 			['task-related-issue-types', ...(relatedIssueTypeId ? [relatedIssueTypeId] : [])] as const
 	},

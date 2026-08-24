@@ -3,6 +3,7 @@ import { APIService } from '../../api.service';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import { TaskMetadataScope } from '@/core/types/interfaces/task/task-metadata-bootstrap';
 import {
 	validatePaginationResponse,
 	taskVersionSchema,
@@ -123,8 +124,23 @@ class TaskVersionService extends APIService {
 	 * @returns Promise<PaginationResponse<TTaskVersion>> - Validated task versions data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getTaskVersions = async (): Promise<PaginationResponse<TTaskVersion>> => {
+	getTaskVersions = async (scope?: TaskMetadataScope): Promise<PaginationResponse<TTaskVersion>> => {
 		try {
+			if (scope) {
+				const query = qs.stringify({
+					tenantId: scope.tenantId,
+					organizationId: scope.organizationId,
+					...(scope.organizationTeamId !== undefined ? { organizationTeamId: scope.organizationTeamId } : {}),
+					...(scope.projectId !== undefined ? { projectId: scope.projectId } : {})
+				});
+				const endpoint = `/task-versions?${query}`;
+				const response = await this.get<PaginationResponse<TTaskVersion>>(endpoint, {
+					tenantId: scope.tenantId
+				});
+
+				return validatePaginationResponse(taskVersionSchema, response.data, 'getTaskVersions API response');
+			}
+
 			const query = qs.stringify(this.activeTeamBasedQueries);
 			const endpoint = `/task-versions?${query}`;
 
