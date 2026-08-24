@@ -1,4 +1,4 @@
-import { languagesFlags } from '@/core/constants/config/constants';
+import { FAST_APP_BOOTSTRAP, languagesFlags } from '@/core/constants/config/constants';
 import { setActiveLanguageIdCookie } from '@/core/lib/helpers/index';
 import { useLanguage, useLanguageSettings } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
@@ -10,13 +10,17 @@ import { mapLanguageItems } from './language-item';
 
 export function LanguageDropDownWithFlags({
 	btnClassName,
-	showFlag = true
+	showFlag = true,
+	deferFastBootstrap = false
 }: {
 	btnClassName?: string;
 	showFlag?: boolean;
+	deferFastBootstrap?: boolean;
 }) {
 	const { changeLanguage } = useLanguage();
-	const { languages, loadLanguagesData, setActiveLanguage } = useLanguageSettings();
+	const { languages, loadLanguagesData, setActiveLanguage } = useLanguageSettings({
+		enabled: !deferFastBootstrap || !FAST_APP_BOOTSTRAP.value
+	});
 	const { setValue } = useForm();
 	const router = useRouter();
 	const path: any = usePathname();

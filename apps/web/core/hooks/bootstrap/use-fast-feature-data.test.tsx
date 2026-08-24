@@ -1,6 +1,8 @@
 /** @jest-environment jsdom */
 
 import { act, renderHook } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 jest.mock('@/core/constants/config/constants', () => ({
 	FAST_APP_BOOTSTRAP: {
@@ -160,5 +162,26 @@ describe('fast feature data owners', () => {
 
 		expect(mockUseOrganizationProjectsQuery).toHaveBeenLastCalledWith({ enabled: true });
 		expect(mockUseLanguageSettings).toHaveBeenLastCalledWith({ enabled: false });
+	});
+
+	it('routes authenticated shell language consumers through the deferred owner', () => {
+		const dropdownSource = readFileSync(
+			resolve(__dirname, '../../components/common/language-dropdown-flags.tsx'),
+			'utf8'
+		);
+		const footerSource = readFileSync(
+			resolve(__dirname, '../../components/layouts/default-layout/footer.tsx'),
+			'utf8'
+		);
+		const navSource = readFileSync(resolve(__dirname, '../../components/users/user-nav-menu.tsx'), 'utf8');
+		const authSource = readFileSync(
+			resolve(__dirname, '../../components/layouts/default-layout/auth-layout.tsx'),
+			'utf8'
+		);
+
+		expect(dropdownSource).toMatch(/enabled:\s*!deferFastBootstrap\s*\|\|\s*!FAST_APP_BOOTSTRAP\.value/);
+		expect(footerSource).toMatch(/LanguageDropDownWithFlags[\s\S]*deferFastBootstrap/);
+		expect(navSource).toMatch(/LanguageDropDownWithFlags[\s\S]*deferFastBootstrap/);
+		expect(authSource).not.toMatch(/LanguageDropDownWithFlags[\s\S]{0,120}deferFastBootstrap/);
 	});
 });
