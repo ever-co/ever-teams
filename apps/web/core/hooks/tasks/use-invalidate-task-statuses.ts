@@ -1,12 +1,17 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { activeTeamState, activeTeamIdState } from '@/core/stores';
-import { queryKeys } from '@/core/query/keys';
-import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
+import {
+	getActiveProjectIdCookie,
+	getActiveTeamIdCookie,
+	getOrganizationIdCookie,
+	getTenantIdCookie
+} from '@/core/lib/helpers/index';
 import { useUserQuery } from '../queries/user-user.query';
+import { createTaskMetadataScope, invalidateTaskMetadataSectionCaches } from './task-metadata-cache';
 
 /**
  * Hook providing shared cache invalidation logic for task statuses.
@@ -30,15 +35,15 @@ export function useInvalidateTaskStatuses() {
 	const teamId = activeTeam?.id || getActiveTeamIdCookie() || activeTeamId;
 	const organizationId = user?.employee?.organizationId || getOrganizationIdCookie();
 	const tenantId = user?.employee?.tenantId || getTenantIdCookie();
+	const projectId = getActiveProjectIdCookie();
+	const scope = useMemo(
+		() => createTaskMetadataScope(tenantId, organizationId, teamId, projectId),
+		[organizationId, projectId, teamId, tenantId]
+	);
 
 	const invalidateTaskStatusesData = useCallback(
-		() =>
-			teamId
-				? queryClient.invalidateQueries({
-						queryKey: queryKeys.taskStatuses.byTeam(teamId)
-					})
-				: Promise.resolve(),
-		[queryClient, teamId]
+		() => invalidateTaskMetadataSectionCaches(queryClient, { section: 'taskStatuses', scope, teamId }),
+		[queryClient, scope, teamId]
 	);
 
 	return {
@@ -49,4 +54,3 @@ export function useInvalidateTaskStatuses() {
 		tenantId
 	};
 }
-
