@@ -20,6 +20,7 @@ import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { retryWithBackoff, isUnauthorizedError } from '@/core/lib/auth/retry-logic';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { INIT_DELAY_MS } from '@/core/constants/config/constants';
+import { usePathname } from 'next/navigation';
 
 /**
  * Hook for proactive token refresh
@@ -43,6 +44,7 @@ import { INIT_DELAY_MS } from '@/core/constants/config/constants';
  *
  */
 export function useProactiveTokenRefresh() {
+	const pathname = usePathname();
 	// Use number type for browser setTimeout (not NodeJS.Timeout)
 	const timeoutRef = useRef<number | null>(null);
 	const isRefreshingRef = useRef(false);
@@ -101,6 +103,9 @@ export function useProactiveTokenRefresh() {
 
 				// Update the access token cookie
 				setAccessTokenCookie(data.token);
+				if (typeof window !== 'undefined') {
+					window.dispatchEvent(new Event('ever-teams:access-token-refreshed'));
+				}
 
 				// Update refresh token if a new one is provided (token rotation)
 				if (data.refresh_token) {
@@ -239,5 +244,5 @@ export function useProactiveTokenRefresh() {
 			}
 			clearTimeout(initialTimeout);
 		};
-	}, []);
+	}, [pathname]);
 }

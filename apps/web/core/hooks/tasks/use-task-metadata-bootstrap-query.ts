@@ -19,7 +19,7 @@ import { createTaskMetadataScope } from './task-metadata-cache';
 
 const DISABLED_SCOPE = { tenantId: '', organizationId: '', organizationTeamId: '' } as const;
 
-export function useTaskMetadataBootstrapQuery() {
+export function useTaskMetadataBootstrapQuery({ enabled = true }: { enabled?: boolean } = {}) {
 	const activeTeamId = useAtomValue(activeTeamIdState);
 	const activeTeam = useAtomValue(activeTeamState);
 	const publicTeam = useAtomValue(publicState);
@@ -43,7 +43,7 @@ export function useTaskMetadataBootstrapQuery() {
 			}
 			return taskMetadataBootstrapService.getTaskMetadataBootstrap(scope, TASK_METADATA_SECTIONS, signal);
 		},
-		enabled: useBootstrap && Boolean(scope),
+		enabled: enabled && useBootstrap && Boolean(scope),
 		staleTime: 5 * 60 * 1000,
 		gcTime: 15 * 60 * 1000
 	});

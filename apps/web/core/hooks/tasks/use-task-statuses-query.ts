@@ -23,10 +23,10 @@ import { updateTaskMetadataSectionCaches } from './task-metadata-cache';
  * - `loadTaskStatuses` - Legacy load function (backward compat)
  * - `firstLoadTaskStatusesData` - First load handler (backward compat)
  */
-export function useTaskStatusesQuery() {
+export function useTaskStatusesQuery({ enabled = true }: { enabled?: boolean } = {}) {
 	const { queryClient, teamId, organizationId, tenantId } = useInvalidateTaskStatuses();
 	const { firstLoadData: firstLoadTaskStatusesData } = useFirstLoad();
-	const taskMetadataQuery = useTaskMetadataBootstrapQuery();
+	const taskMetadataQuery = useTaskMetadataBootstrapQuery({ enabled });
 
 	// Main query: fetch all task statuses for the active team
 	const taskStatusesQuery = useQuery({
@@ -37,7 +37,12 @@ export function useTaskStatusesQuery() {
 			}
 			return taskStatusService.getTaskStatuses();
 		},
-		enabled: !taskMetadataQuery.useBootstrap && Boolean(organizationId) && Boolean(teamId) && Boolean(tenantId)
+		enabled:
+			enabled &&
+			!taskMetadataQuery.useBootstrap &&
+			Boolean(organizationId) &&
+			Boolean(teamId) &&
+			Boolean(tenantId)
 	});
 
 	const taskStatusesData = taskMetadataQuery.useBootstrap

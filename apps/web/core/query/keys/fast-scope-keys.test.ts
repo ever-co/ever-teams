@@ -2,6 +2,52 @@ import { queryKeys } from './index';
 
 describe('fast bootstrap scope query keys', () => {
 	it('keeps tenant, organization, team and user boundaries explicit', () => {
+		expect(queryKeys.organizationTeams.listByScope('tenant-1', 'org-1')).toEqual([
+			'organization-teams',
+			'list-scope',
+			'tenant-1',
+			'org-1'
+		]);
+		expect(queryKeys.organizationTeams.detailByScope('tenant-1', 'org-1', 'team-1')).toEqual([
+			'organization-teams',
+			'detail-scope',
+			'tenant-1',
+			'org-1',
+			'team-1'
+		]);
+		expect(queryKeys.tasks.byTeamByScope('tenant-1', 'org-1', 'team-1', 'project-1')).toEqual([
+			'tasks',
+			'by-team-scope',
+			'tenant-1',
+			'org-1',
+			'team-1',
+			'project-1'
+		]);
+		expect(queryKeys.dailyPlans.myPlansByScope('tenant-1', 'org-1', 'team-1', 'user-1')).toEqual([
+			'daily-plans',
+			'my-plans-scope',
+			'tenant-1',
+			'org-1',
+			'team-1',
+			'user-1'
+		]);
+		expect(queryKeys.timer.byScope('tenant-1', 'org-1', 'team-1', 'user-1')).toEqual([
+			'timer',
+			'scope',
+			'tenant-1',
+			'org-1',
+			'team-1',
+			'user-1'
+		]);
+		expect(queryKeys.tasks.statisticsByScope('tenant-1', 'org-1', 'team-1', 'task-1', 'employee-1')).toEqual([
+			'tasks',
+			'statistics-scope',
+			'tenant-1',
+			'org-1',
+			'team-1',
+			'task-1',
+			'employee-1'
+		]);
 		expect(queryKeys.workspaces.currentOrganizationByScope('tenant-1', 'org-1')).toEqual([
 			'workspaces',
 			'current-organization-scope',
@@ -63,6 +109,21 @@ describe('fast bootstrap scope query keys', () => {
 	});
 
 	it('uses null placeholders instead of collapsing incomplete scopes', () => {
+		expect(queryKeys.organizationTeams.detailByScope(null, null, null)).toEqual([
+			'organization-teams',
+			'detail-scope',
+			null,
+			null,
+			null
+		]);
+		expect(queryKeys.tasks.byTeamByScope(null, null, null, null)).toEqual([
+			'tasks',
+			'by-team-scope',
+			null,
+			null,
+			null,
+			null
+		]);
 		expect(queryKeys.dailyPlans.allPlansByScope(null, null, null)).toEqual([
 			'daily-plans',
 			'all-plans-scope',

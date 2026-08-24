@@ -204,6 +204,20 @@ export const queryKeys = {
 		all: ['daily-plans'] as const,
 		myPlans: (teamId: string | undefined | null) =>
 			['daily-plans', 'my-plans', ...(teamId ? [teamId] : [])] as const,
+		myPlansByScope: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			teamId: string | undefined | null,
+			userId: string | undefined | null
+		) =>
+			[
+				'daily-plans',
+				'my-plans-scope',
+				tenantId ?? null,
+				organizationId ?? null,
+				teamId ?? null,
+				userId ?? null
+			] as const,
 		detail: (planId: string | undefined | null) => ['daily-plans', ...(planId ? [planId] : [])] as const,
 		tasks: (planId: string | undefined | null) => ['daily-plans', ...(planId ? [planId] : []), 'tasks'] as const,
 		allPlans: (teamId: string | undefined | null) =>
@@ -236,8 +250,15 @@ export const queryKeys = {
 	organizationTeams: {
 		// Standard organization teams keys (preserved for backward compatibility)
 		all: ['organization-teams'] as const,
+		listByScope: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+			['organization-teams', 'list-scope', tenantId ?? null, organizationId ?? null] as const,
 		paginated: (params: Record<string, string>) => ['organization-teams', 'paginated', params] as const,
 		detail: (teamId: string | undefined | null) => ['organization-teams', ...(teamId ? [teamId] : [])] as const,
+		detailByScope: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			teamId: string | undefined | null
+		) => ['organization-teams', 'detail-scope', tenantId ?? null, organizationId ?? null, teamId ?? null] as const,
 		members: (teamId: string | undefined | null) =>
 			['organization-teams', ...(teamId ? [teamId] : []), 'members'] as const,
 		joinRequests: (teamId: string | undefined | null) =>
@@ -318,10 +339,40 @@ export const queryKeys = {
 		byEmployee: (employeeId: string | undefined | null, teamId: string | undefined | null) =>
 			['tasks', 'by-employee', ...(employeeId ? [employeeId] : []), ...(teamId ? [teamId] : [])] as const,
 		byTeam: (teamId: string | undefined | null) => ['tasks', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		byTeamByScope: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			teamId: string | undefined | null,
+			projectId: string | undefined | null
+		) =>
+			[
+				'tasks',
+				'by-team-scope',
+				tenantId ?? null,
+				organizationId ?? null,
+				teamId ?? null,
+				projectId ?? null
+			] as const,
 		byTeamAndProject: (teamId: string | undefined | null, projectId: string | undefined | null) =>
 			['tasks', 'by-team', ...(teamId ? [teamId] : []), 'project', ...(projectId ? [projectId] : [])] as const,
 		statistics: (teamId?: string | undefined | null) =>
 			['tasks', 'statistics', ...(teamId ? [teamId] : [])] as const,
+		statisticsByScope: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			teamId: string | undefined | null,
+			taskId: string | undefined | null,
+			employeeId: string | undefined | null
+		) =>
+			[
+				'tasks',
+				'statistics-scope',
+				tenantId ?? null,
+				organizationId ?? null,
+				teamId ?? null,
+				taskId ?? null,
+				employeeId ?? null
+			] as const,
 		activity: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : []), 'activity'] as const,
 		linked: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : []), 'linked'] as const
 	},
@@ -602,6 +653,18 @@ export const queryKeys = {
 	timer: {
 		all: ['timer'] as const,
 		timer: (teamId?: string | null) => ['timer', ...(teamId ? [teamId] : [])] as const,
+		byScope: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			teamId: string | undefined | null,
+			userId: string | undefined | null
+		) => ['timer', 'scope', tenantId ?? null, organizationId ?? null, teamId ?? null, userId ?? null] as const,
+		statusByScope: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			teamId: string | undefined | null,
+			userId: string | undefined | null
+		) => ['timer', 'scope', tenantId ?? null, organizationId ?? null, teamId ?? null, userId ?? null] as const,
 		timeLimits: {
 			all: ['timer', 'time-limits'] as const,
 			byParams: (params: Record<string, any> | null) =>

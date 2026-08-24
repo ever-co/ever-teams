@@ -92,14 +92,17 @@ class DailyPlanService extends APIService {
 	 * @returns Promise<PaginationResponse<TDailyPlan>> - Validated daily plans data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getMyDailyPlans = async (): Promise<PaginationResponse<TDailyPlan>> => {
+	getMyDailyPlans = async (options?: ScopedReadOptions): Promise<PaginationResponse<TDailyPlan>> => {
 		try {
+			const tenantId = options?.scope.tenantId ?? this.tenantId;
+			const organizationId = options?.scope.organizationId ?? this.organizationId;
+			const teamId = options?.scope.teamId ?? this.activeTeamId;
 			const relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user'];
 
 			const obj = {
-				'where[organizationId]': this.organizationId,
-				'where[tenantId]': this.tenantId,
-				'where[organizationTeamId]': this.activeTeamId
+				'where[organizationId]': organizationId,
+				'where[tenantId]': tenantId,
+				'where[organizationTeamId]': teamId
 			} as Record<string, string>;
 
 			relations.forEach((relation, i) => {
@@ -107,9 +110,10 @@ class DailyPlanService extends APIService {
 			});
 
 			const query = qs.stringify(obj);
-			const response = await this.get<PaginationResponse<TDailyPlan>>(`/daily-plan/me?${query}`, {
-				tenantId: this.tenantId
-			});
+			const response = await this.get<PaginationResponse<TDailyPlan>>(
+				`/daily-plan/me?${query}`,
+				options ? scopedReadConfig(options) : { tenantId: this.tenantId }
+			);
 
 			// Validate the response data using zod validation with auto-normalization
 			return zodStrictPaginationResponseValidate(dailyPlanSchema, response.data, 'getMyDailyPlans API response');

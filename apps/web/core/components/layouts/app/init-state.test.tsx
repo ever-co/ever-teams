@@ -67,13 +67,19 @@ const mockUseUserQuery = jest.fn(() => ({ data: mockUser }));
 const mockUseOrganizationTeamsQuery = jest.fn(() =>
 	mockOwner('useOrganizationTeamsQuery', {
 		loadTeamsData: mockLoadTeamsData,
-		firstLoadTeamsData: mockFirstLoadTeamsData
+		firstLoadTeamsData: mockFirstLoadTeamsData,
+		teams: [],
+		activeTeam: null,
+		organizationTeamsSuccess: false,
+		organizationTeamSuccess: false
 	})
 );
 const mockUseTeamTasksQuery = jest.fn(() =>
 	mockOwner('useTeamTasksQuery', {
 		firstLoadTasksData: mockFirstLoadTasksData,
-		loadTeamTasksData: mockLoadTeamTasksData
+		loadTeamTasksData: mockLoadTeamTasksData,
+		activeTeamTask: null,
+		querySuccess: false
 	})
 );
 const mockUseTeamInvitationsQuery = jest.fn(() =>
@@ -83,7 +89,14 @@ const mockUseMyInvitationsQuery = jest.fn(() =>
 	mockOwner('useMyInvitationsQuery', { refetchMyInvitations: mockRefetchMyInvitations })
 );
 const mockUseTimer = jest.fn(() =>
-	mockOwner('useTimer', { getTimerStatus: mockGetTimerStatus, firstLoadTimerData: mockFirstLoadTimerData })
+	mockOwner('useTimer', {
+		getTimerStatus: mockGetTimerStatus,
+		firstLoadTimerData: mockFirstLoadTimerData,
+		rawTimerRunning: false,
+		statusResolved: false,
+		plansResolved: false,
+		syncTimer: jest.fn()
+	})
 );
 const mockUseTaskStatistics = jest.fn(() =>
 	mockOwner('useTaskStatistics', { firstLoadtasksStatisticsData: mockFirstLoadtasksStatisticsData })
@@ -123,7 +136,11 @@ const mockUseAuthenticateUser = jest.fn(() =>
 	mockOwner('useAuthenticateUser', { timeToTimeRefreshToken: mockTimeToTimeRefreshToken })
 );
 const mockUseWorkspaces = jest.fn(() =>
-	mockOwner('useWorkspaces', { firstLoadWorkspacesData: mockFirstLoadWorkspacesData })
+	mockOwner('useWorkspaces', {
+		firstLoadWorkspacesData: mockFirstLoadWorkspacesData,
+		currentWorkspace: null,
+		workspacesQuery: { isSuccess: false }
+	})
 );
 const mockUseCurrentOrg = jest.fn(() =>
 	mockOwner('useCurrentOrg', {
@@ -186,6 +203,8 @@ const mockUseTimeLogs = jest.fn(() => {
 });
 const mockUseGetCurrentOrganization = jest.fn(() => mockOwner('useGetCurrentOrganization', undefined));
 const mockUseSyncTimer = jest.fn(() => mockOwner('useSyncTimer', undefined));
+const mockUseTimerPolling = jest.fn();
+const mockUseScopeTransitionGuard = jest.fn();
 
 jest.mock('@/core/constants/config/constants', () => ({
 	DISABLE_AUTO_REFRESH: { value: false },
@@ -203,6 +222,8 @@ jest.mock('@/core/hooks/activities/time-logs/use-time-logs-daily-report', () => 
 }));
 jest.mock('@/core/hooks/activities/time-logs/use-time-logs', () => ({ useTimeLogs: mockUseTimeLogs }));
 jest.mock('@/core/hooks/activities', () => ({ useTimer: mockUseTimer, useSyncTimer: mockUseSyncTimer }));
+jest.mock('@/core/hooks/activities/use-timer-polling', () => ({ useTimerPolling: mockUseTimerPolling }));
+jest.mock('./use-scope-transition-guard', () => ({ useScopeTransitionGuard: mockUseScopeTransitionGuard }));
 jest.mock('@/core/hooks/common', () => ({
 	useLanguageSettings: mockUseLanguageSettings,
 	useCallbackRef: (func: () => void) => ({ current: func }),
@@ -296,6 +317,16 @@ const legacyOwners = [
 	'useSyncTimer'
 ] as const;
 
+const fastOwners = [
+	'useTimeLogs',
+	'useWorkspaces',
+	'useOrganizationTeamsQuery',
+	'useTeamTasksQuery',
+	'useTimer',
+	'useAutoAssignTask',
+	'useTaskStatistics'
+] as const;
+
 describe('AppState startup transport selector', () => {
 	beforeEach(() => {
 		jest.useFakeTimers();
@@ -331,8 +362,8 @@ describe('AppState startup transport selector', () => {
 	it.each([
 		[false, false, legacyOwners, 0],
 		[false, true, legacyOwners, 1],
-		[true, false, ['useTimeLogs'], 0],
-		[true, true, ['useTimeLogs'], 1]
+		[true, false, fastOwners, 0],
+		[true, true, fastOwners, 1]
 	] as const)(
 		'selects one startup owner for fast=%s and year=%s',
 		(fastEnabled, yearlyEnabled, expectedOwners, expectedYearRequests) => {
@@ -431,19 +462,21 @@ describe('AppState startup transport selector', () => {
 		expect(mockFirstLoadWorkspacesData).toHaveBeenCalledTimes(1);
 	});
 
-	it('keeps the fast placeholder limited to the single yearly time-log owner', () => {
+	it('keeps fast startup limited to dependency-gated shell owners', () => {
 		mockFastAppBootstrap = true;
 		expect(FastInitState).toBeDefined();
 
 		render(<AppState />);
 
-		expect(mockLegacyOwnerCalls).toEqual(['useTimeLogs']);
+		expect(mockLegacyOwnerCalls).toEqual(fastOwners);
 		expect(mockStartupCallOrder).toEqual([]);
 		expect(mockRefreshIntervalCalls).toEqual([]);
 		expect(mockTeamRefreshIntervalCalls).toEqual([]);
 		expect(mockUseTimeLogsDailyReport).not.toHaveBeenCalled();
 		expect(mockUseGetCurrentOrganization).not.toHaveBeenCalled();
-		expect(mockUseWorkspaces).not.toHaveBeenCalled();
+		expect(mockUseWorkspaces).toHaveBeenCalledTimes(1);
+		expect(mockUseTimer).toHaveBeenCalledTimes(1);
+		expect(mockUseSyncTimer).not.toHaveBeenCalled();
 	});
 });
 
