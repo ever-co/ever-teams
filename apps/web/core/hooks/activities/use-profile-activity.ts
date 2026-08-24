@@ -11,6 +11,8 @@ export type UseProfileActivityOptions = {
 	enabled?: boolean;
 };
 
+export const MAX_PROFILE_ACTIVITY_TIMEOUT_MS = 2_147_000_000;
+
 function recognizedTimeZone(value: string | null | undefined): string | null {
 	if (!value) return null;
 
@@ -65,7 +67,10 @@ export function useProfileActivityMonthRange(timeZone: string): ProfileActivityD
 			});
 			timeout = setTimeout(
 				refreshAndSchedule,
-				getMillisecondsUntilNextProfileActivityMonth(timeZone)
+				Math.min(
+					getMillisecondsUntilNextProfileActivityMonth(timeZone),
+					MAX_PROFILE_ACTIVITY_TIMEOUT_MS
+				)
 			);
 		};
 

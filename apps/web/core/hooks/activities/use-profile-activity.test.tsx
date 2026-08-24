@@ -67,6 +67,7 @@ import {
 	getProfileActivityMonthRange,
 	getProfileActivityYearRange,
 	getMillisecondsUntilNextProfileActivityMonth,
+	MAX_PROFILE_ACTIVITY_TIMEOUT_MS,
 	normalizeProfileActivityTimeZone,
 	useProfileActivity,
 	useProfileActivityMonthRange
@@ -117,7 +118,10 @@ function createWrapper(client: QueryClient) {
 }
 
 describe('strict profile activity contract', () => {
-	afterEach(() => jest.restoreAllMocks());
+	afterEach(() => {
+		jest.restoreAllMocks();
+		jest.useRealTimers();
+	});
 
 	it('accepts only strict UUID/date/IANA request fields and a half-open range', () => {
 		expect(profileActivityRequestSchema.parse(request)).toEqual(request);
@@ -173,7 +177,18 @@ describe('strict profile activity contract', () => {
 		act(() => jest.advanceTimersByTime(30_001));
 		expect(result.current).toEqual({ startDate: '2026-09-01', endDate: '2026-10-01' });
 		unmount();
-		jest.useRealTimers();
+	});
+
+	it('caps long month-boundary timers and reschedules instead of overflowing browser timeouts', () => {
+		jest.useFakeTimers().setSystemTime(new Date('2026-08-01T00:00:00.000Z'));
+		const timeoutSpy = jest.spyOn(globalThis, 'setTimeout');
+		const { unmount } = renderHook(() => useProfileActivityMonthRange('UTC'));
+
+		expect(getMillisecondsUntilNextProfileActivityMonth('UTC')).toBeGreaterThan(
+			MAX_PROFILE_ACTIVITY_TIMEOUT_MS
+		);
+		expect(timeoutSpy).toHaveBeenLastCalledWith(expect.any(Function), MAX_PROFILE_ACTIVITY_TIMEOUT_MS);
+		unmount();
 	});
 
 	it('sends tenant only through transport config, consumes the signal, and validates the response', async () => {
