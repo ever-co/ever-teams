@@ -27,6 +27,15 @@ import { mergePreservingOrder } from '@/core/lib/utils/team-members.utils';
 import { queryKeys } from '@/core/query/keys';
 import { useSettings } from '../../users';
 import { TOrganizationTeam } from '@/core/types/schemas';
+import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
+import { useFastScopeGuard } from '../../bootstrap/use-fast-scope-guard';
+
+export interface UseOrganizationTeamsQueryOptions {
+	enabled?: boolean;
+	scope?: ApiRequestScope;
+	refetchInterval?: number | false;
+	detailRefetchInterval?: number | false;
+}
 
 /**
  * Hook for read-only organization teams operations.
@@ -41,7 +50,7 @@ import { TOrganizationTeam } from '@/core/types/schemas';
  * - `teams` - Array of organization teams (from Jotai)
  * - `activeTeam` - Currently active team (from Jotai)
  */
-export function useOrganizationTeamsQuery() {
+export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOptions = {}) {
 	const queryClient = useQueryClient();
 	const [teams, setTeams] = useAtom(organizationTeamsState);
 	const teamsRef = useSyncRef(teams);
@@ -58,6 +67,19 @@ export function useOrganizationTeamsQuery() {
 	const setIsTeamMember = useSetAtom(isTeamMemberState);
 	const setActiveTeamTask = useSetAtom(activeTeamTaskState);
 	const setTeamTasks = useSetAtom(teamTasksState);
+	const { enabled = true, scope, refetchInterval = false, detailRefetchInterval = false } = options;
+	const scoped = scope !== undefined;
+	const scopedTeamId = scope?.teamId ?? activeTeamId;
+	const listKey = scoped
+		? queryKeys.organizationTeams.listByScope(scope.tenantId, scope.organizationId)
+		: queryKeys.organizationTeams.all;
+	const detailKey = scoped
+		? queryKeys.organizationTeams.detailByScope(scope.tenantId, scope.organizationId, scopedTeamId)
+		: queryKeys.organizationTeams.detail(activeTeamId);
+	const listCurrent = useFastScopeGuard(listKey, scoped && enabled);
+	const detailCurrent = useFastScopeGuard(detailKey, scoped && enabled);
+	const scopedListReady = !!(scope?.tenantId && scope.organizationId && scope.accessToken);
+	const scopedDetailReady = scopedListReady && !!scopedTeamId;
 
 	// ==================== SET ACTIVE TEAM (inlined to avoid circular dependency) ====================
 
@@ -91,31 +113,43 @@ export function useOrganizationTeamsQuery() {
 
 	// Query for organization teams list
 	const organizationTeamsQuery = useQuery({
-		queryKey: queryKeys.organizationTeams.all,
-		queryFn: async () => {
-			return await organizationTeamService.getOrganizationTeams();
+		queryKey: listKey,
+		queryFn: async ({ signal }) => {
+			return scoped
+				? await organizationTeamService.getOrganizationTeams({ scope: scope!, signal })
+				: await organizationTeamService.getOrganizationTeams();
 		},
-		enabled: !!(user?.employee?.organizationId && user?.employee?.tenantId),
+		enabled: scoped
+			? enabled && scopedListReady
+			: enabled && !!(user?.employee?.organizationId && user?.employee?.tenantId),
 		staleTime: 1000 * 60 * 10, // 10 minutes
 		gcTime: 1000 * 60 * 30, // 30 minutes
 		refetchOnWindowFocus: false,
-		refetchOnReconnect: false
+		refetchOnReconnect: false,
+		refetchInterval: scoped ? refetchInterval : false,
+		refetchIntervalInBackground: false
 	});
 
 	// Query for specific team details
 	const organizationTeamQuery = useQuery({
-		queryKey: queryKeys.organizationTeams.detail(activeTeamId),
-		queryFn: async () => {
-			if (!activeTeamId) {
+		queryKey: detailKey,
+		queryFn: async ({ signal }) => {
+			if (!scopedTeamId) {
 				throw new Error('Team ID is required');
 			}
-			return await organizationTeamService.getOrganizationTeam(activeTeamId);
+			return scoped
+				? await organizationTeamService.getOrganizationTeam(scopedTeamId, { scope: scope!, signal })
+				: await organizationTeamService.getOrganizationTeam(scopedTeamId);
 		},
-		enabled: !!(activeTeamId && user?.employee?.organizationId && user?.employee?.tenantId),
+		enabled: scoped
+			? enabled && scopedDetailReady
+			: enabled && !!(activeTeamId && user?.employee?.organizationId && user?.employee?.tenantId),
 		staleTime: 1000 * 60 * 10,
 		gcTime: 1000 * 60 * 30,
 		refetchOnWindowFocus: false,
-		refetchOnReconnect: false
+		refetchOnReconnect: false,
+		refetchInterval: scoped ? detailRefetchInterval : false,
+		refetchIntervalInBackground: false
 	});
 
 	// ==================== JOTAI SYNCHRONIZATION ====================
@@ -124,7 +158,7 @@ export function useOrganizationTeamsQuery() {
 	const lastProcessedTeamsSignatureRef = useRef<string>('');
 
 	useEffect(() => {
-		if (organizationTeamsQuery.data?.data?.items) {
+		if (organizationTeamsQuery.data?.data?.items && (!scoped || listCurrent())) {
 			const latestTeams = organizationTeamsQuery.data.data.items;
 
 			// Create a signature based on ALL mutable fields
@@ -179,13 +213,46 @@ export function useOrganizationTeamsQuery() {
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [organizationTeamsQuery.dataUpdatedAt, setTeams, setIsTeamMember, setIsTeamMemberJustDeleted]);
+	}, [
+		organizationTeamsQuery.dataUpdatedAt,
+		setTeams,
+		setIsTeamMember,
+		setIsTeamMemberJustDeleted,
+		scoped,
+		listCurrent
+	]);
+
+	// The fast path resolves the selected team from the scoped list without issuing an imperative duplicate fetch.
+	useEffect(() => {
+		if (!scoped || !enabled || !organizationTeamsQuery.data?.data?.items || !listCurrent()) return;
+		const latestTeams = organizationTeamsQuery.data.data.items;
+		if (!latestTeams.length) {
+			setActiveTeamId('');
+			return;
+		}
+		let selectedId = getActiveTeamIdCookie();
+		if (!selectedId && typeof window !== 'undefined') {
+			selectedId = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) || '';
+		}
+		if (!selectedId) selectedId = user?.lastTeamId || '';
+		const selected = latestTeams.find((team) => team.id === selectedId) ?? latestTeams[0];
+		if (selected?.id && activeTeamIdRef.current !== selected.id) setActiveTeam(selected);
+	}, [
+		activeTeamIdRef,
+		enabled,
+		listCurrent,
+		organizationTeamsQuery.data,
+		scoped,
+		setActiveTeam,
+		setActiveTeamId,
+		user?.lastTeamId
+	]);
 
 	// Sync specific team data with Jotai state
 	const lastProcessedTeamSignatureRef = useRef<string>('');
 
 	useEffect(() => {
-		if (organizationTeamQuery.data?.data) {
+		if (organizationTeamQuery.data?.data && (!scoped || detailCurrent())) {
 			const newTeam = organizationTeamQuery.data.data;
 
 			const memberActiveTaskIds = newTeam.members?.map((m) => m.activeTaskId || 'null').join(',') || '';
@@ -205,7 +272,7 @@ export function useOrganizationTeamsQuery() {
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [organizationTeamQuery.dataUpdatedAt, setTeamsUpdate, activeTeam]);
+	}, [organizationTeamQuery.dataUpdatedAt, setTeamsUpdate, activeTeam, scoped, detailCurrent]);
 
 	// ==================== QUERY FUNCTIONS ====================
 
@@ -229,9 +296,11 @@ export function useOrganizationTeamsQuery() {
 
 		try {
 			const teamsResult = await queryClient.fetchQuery({
-				queryKey: queryKeys.organizationTeams.all,
-				queryFn: async () => {
-					return await organizationTeamService.getOrganizationTeams();
+				queryKey: listKey,
+				queryFn: async ({ signal }) => {
+					return scoped
+						? await organizationTeamService.getOrganizationTeams({ scope: scope!, signal })
+						: await organizationTeamService.getOrganizationTeams();
 				}
 			});
 
@@ -256,9 +325,13 @@ export function useOrganizationTeamsQuery() {
 
 			if (teamId) {
 				await queryClient.fetchQuery({
-					queryKey: queryKeys.organizationTeams.detail(teamId),
-					queryFn: async () => {
-						return await organizationTeamService.getOrganizationTeam(teamId);
+					queryKey: scoped
+						? queryKeys.organizationTeams.detailByScope(scope?.tenantId, scope?.organizationId, teamId)
+						: queryKeys.organizationTeams.detail(teamId),
+					queryFn: async ({ signal }) => {
+						return scoped
+							? await organizationTeamService.getOrganizationTeam(teamId, { scope: scope!, signal })
+							: await organizationTeamService.getOrganizationTeam(teamId);
 					}
 				});
 			}
@@ -276,7 +349,10 @@ export function useOrganizationTeamsQuery() {
 		setActiveTeamId,
 		setIsTeamMember,
 		setIsTeamMemberJustDeleted,
-		setActiveTeam
+		setActiveTeam,
+		listKey,
+		scope,
+		scoped
 	]);
 
 	const handleFirstLoad = useCallback(async () => {
@@ -304,6 +380,10 @@ export function useOrganizationTeamsQuery() {
 		getOrganizationTeamsLoading: organizationTeamsQuery.isLoading,
 		loadingTeam: organizationTeamQuery.isLoading,
 		teamsFetching: organizationTeamsQuery.isFetching,
+		organizationTeamsSuccess: organizationTeamsQuery.isSuccess && (!scoped || listCurrent()),
+		organizationTeamSuccess:
+			(!teams.length && organizationTeamsQuery.isSuccess) ||
+			(organizationTeamQuery.isSuccess && (!scoped || detailCurrent())),
 
 		// Data from Jotai (for backward compatibility)
 		teams,

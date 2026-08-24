@@ -20,8 +20,18 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '../queries/user-user.query';
 import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
 import { getTaskTotalWorkedDuration } from '@/core/lib/utils/task.utils';
+import { useQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/core/query/keys';
+import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
+import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
 
-export function useTaskStatistics(addSeconds = 0) {
+export interface UseTaskStatisticsOptions {
+	enabled?: boolean;
+	scope?: ApiRequestScope;
+	refetchInterval?: number | false;
+}
+
+export function useTaskStatistics(addSeconds = 0, options: UseTaskStatisticsOptions = {}) {
 	const { data: user } = useUserQuery();
 	const [statActiveTask, setStatActiveTask] = useAtom(activeTaskStatisticsState);
 	const [statTasks, setStatTasks] = useAtom(tasksStatisticsState);
@@ -39,6 +49,38 @@ export function useTaskStatistics(addSeconds = 0) {
 	// Dep status
 	const timerStatus = useAtomValue(timerStatusState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const { enabled = true, scope, refetchInterval = false } = options;
+	const scoped = scope !== undefined;
+	const statisticsKey = scoped
+		? queryKeys.tasks.statisticsByScope(
+				scope.tenantId,
+				scope.organizationId,
+				scope.teamId,
+				activeTeamTask?.id,
+				user?.employee?.id
+			)
+		: queryKeys.tasks.statistics(activeTeam?.id);
+	const isCurrentScope = useFastScopeGuard(statisticsKey, scoped && enabled);
+	const scopedReady = !!(
+		scope?.tenantId &&
+		scope.organizationId &&
+		scope.teamId &&
+		scope.accessToken &&
+		activeTeamTask?.id &&
+		user?.employee?.id
+	);
+	const activeStatsQuery = useQuery({
+		queryKey: statisticsKey,
+		queryFn: ({ signal }) =>
+			statisticsService.activeTaskTimesheetStatistics({
+				activeTaskId: activeTeamTask!.id,
+				employeeId: user?.employee?.id,
+				options: { scope: scope!, signal }
+			}),
+		enabled: scoped && enabled && scopedReady,
+		refetchInterval: scoped ? refetchInterval : false,
+		refetchIntervalInBackground: false
+	});
 
 	/**
 	 * Get employee all tasks statistics  (API Call)
@@ -50,24 +92,43 @@ export function useTaskStatistics(addSeconds = 0) {
 			}
 			statisticsService
 				.tasksTimesheetStatistics({
-					employeeId
+					employeeId,
+					...(scoped ? { options: { scope: scope! } } : {})
 				})
 				.then(({ data }) => {
+					if (scoped && !isCurrentScope()) return;
 					setStatTasks({
 						all: data.global || [],
 						today: data.today || []
 					});
 				});
 		},
-		[setStatTasks, user?.employee?.tenantId]
+		[isCurrentScope, scope, scoped, setStatTasks, user?.employee?.tenantId]
 	);
 	const getAllTasksStatsData = useCallback(() => {
 		statisticsService.allTaskTimesheetStatistics().then((data) => {
+			if (scoped && !isCurrentScope()) return;
 			if (Array.isArray(data)) {
 				setAllTaskStatistics(data);
 			}
 		});
-	}, [setAllTaskStatistics]);
+	}, [isCurrentScope, scoped, setAllTaskStatistics]);
+
+	useEffect(() => {
+		if (!scoped || !enabled || !activeStatsQuery.data || !isCurrentScope()) return;
+		const { data } = activeStatsQuery.data;
+		setStatActiveTask({
+			total: data.global ? data.global[0] || null : null,
+			today: data.today ? data.today[0] || null : null
+		});
+	}, [activeStatsQuery.data, enabled, isCurrentScope, scoped, setStatActiveTask]);
+
+	useEffect(() => {
+		if (scoped && enabled && isCurrentScope()) setTasksFetching(activeStatsQuery.isFetching);
+		return () => {
+			if (scoped && isCurrentScope()) setTasksFetching(false);
+		};
+	}, [activeStatsQuery.isFetching, enabled, isCurrentScope, scoped, setTasksFetching]);
 
 	/**
 	 * Get task timesheet statistics
@@ -87,6 +148,10 @@ export function useTaskStatistics(addSeconds = 0) {
 	 * Get statistics of the active tasks fresh (API Call)
 	 */
 	const getActiveTaskStatData = useCallback(() => {
+		if (scoped) {
+			if (!enabled || !scopedReady) return Promise.resolve(true);
+			return activeStatsQuery.refetch().then((result) => result.data ?? true);
+		}
 		// Check all required conditions before setting loading state
 		if (!user?.employee?.tenantId || !user?.employee?.organizationId) {
 			return new Promise((resolve) => {
@@ -113,6 +178,7 @@ export function useTaskStatistics(addSeconds = 0) {
 			employeeId: user?.employee?.id
 		});
 		promise.then(({ data }) => {
+			if (scoped && !isCurrentScope()) return;
 			setStatActiveTask({
 				total: data.global ? data.global[0] || null : null,
 				today: data.today ? data.today[0] || null : null
@@ -126,6 +192,11 @@ export function useTaskStatistics(addSeconds = 0) {
 		setStatActiveTask,
 		setTasksFetching,
 		activeTeam?.id,
+		activeStatsQuery,
+		enabled,
+		isCurrentScope,
+		scoped,
+		scopedReady,
 		user?.employee?.id,
 		user?.employee?.organizationId,
 		user?.employee?.tenantId
@@ -144,33 +215,36 @@ export function useTaskStatistics(addSeconds = 0) {
 	 * Get statistics of the active tasks at the component load
 	 */
 	useEffect(() => {
-		if (firstLoad) {
+		if (!scoped && enabled && firstLoad) {
 			getActiveTaskStatData().then(() => {
 				initialLoad.current = true;
 			});
 		}
-	}, [firstLoad, getActiveTaskStatData, user?.employee?.organizationId, user?.employee?.tenantId]);
+	}, [enabled, firstLoad, getActiveTaskStatData, scoped, user?.employee?.organizationId, user?.employee?.tenantId]);
 
 	/**
 	 * Get fresh statistic of the active task
 	 */
 	useEffect(() => {
-		if (firstLoad && initialLoad.current) {
+		if (!scoped && enabled && firstLoad && initialLoad.current) {
 			debounceLoadActiveTaskStat();
 		}
-	}, [firstLoad, timerStatus, activeTeamTask?.id, debounceLoadActiveTaskStat]);
+	}, [enabled, firstLoad, timerStatus, activeTeamTask?.id, debounceLoadActiveTaskStat, scoped]);
 
 	/**
 	 * set null to active team stats when active team or active task are changed
 	 */
 	useEffect(() => {
-		if (firstLoad && initialLoad.current) {
+		if (
+			(!scoped && firstLoad && initialLoad.current) ||
+			(scoped && (!activeTeamTask?.id || (enabled && isCurrentScope())))
+		) {
 			setStatActiveTask({
 				today: null,
 				total: null
 			});
 		}
-	}, [firstLoad, activeTeamTask?.id, setStatActiveTask]);
+	}, [activeTeamTask?.id, enabled, firstLoad, isCurrentScope, scoped, setStatActiveTask]);
 
 	/**
 	 * Get task estimation percentage.
@@ -205,7 +279,12 @@ export function useTaskStatistics(addSeconds = 0) {
 
 		// Add local timer seconds (addSeconds) to the total worked time
 		// This ensures the progress bar updates in real-time as the timer runs locally
-		const estimation = getEstimation(null, activeTeamTask, totalWorkedTasksTimer + addSeconds, activeTeamTask?.estimate || 0);
+		const estimation = getEstimation(
+			null,
+			activeTeamTask,
+			totalWorkedTasksTimer + addSeconds,
+			activeTeamTask?.estimate || 0
+		);
 
 		return estimation;
 	}, [activeTeam?.members, activeTeamTask, getEstimation, addSeconds]);

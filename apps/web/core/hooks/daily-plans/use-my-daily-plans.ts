@@ -8,6 +8,8 @@ import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { useUserQuery } from '../queries/user-user.query';
 import { useDailyPlanCalculations } from './use-daily-plan-calculations';
+import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
+import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
 
 export interface UseMyDailyPlansOptions {
 	/**
@@ -16,6 +18,10 @@ export interface UseMyDailyPlansOptions {
 	 * @default true
 	 */
 	enabled?: boolean;
+	/** Captured request identity for the fast bootstrap path. */
+	scope?: ApiRequestScope;
+	/** Optional declarative refresh interval. Legacy callers keep the existing no-interval behavior. */
+	refetchInterval?: number | false;
 }
 
 /**
@@ -49,18 +55,34 @@ export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
 	const allTeamTasks = useAtomValue(tasksByTeamState);
 
 	// Extract options with defaults
-	const { enabled = true } = options || {};
+	const { enabled = true, scope, refetchInterval = false } = options || {};
+	const scoped = scope !== undefined;
+	const queryKey = scoped
+		? queryKeys.dailyPlans.myPlansByScope(scope.tenantId, scope.organizationId, scope.teamId, scope.userId)
+		: queryKeys.dailyPlans.myPlans(activeTeam?.id);
+	const isCurrentScope = useFastScopeGuard(queryKey, scoped && enabled);
+	const scopedReady = !!(
+		scope?.tenantId &&
+		scope.organizationId &&
+		scope.teamId &&
+		scope.userId &&
+		scope.accessToken
+	);
 
 	// ==================== QUERY ====================
 
 	const getMyDailyPlansQuery = useQuery({
-		queryKey: queryKeys.dailyPlans.myPlans(activeTeam?.id),
-		queryFn: async () => {
-			const res = await dailyPlanService.getMyDailyPlans();
+		queryKey,
+		queryFn: async ({ signal }) => {
+			const res = scoped
+				? await dailyPlanService.getMyDailyPlans({ scope: scope!, signal })
+				: await dailyPlanService.getMyDailyPlans();
 			return res;
 		},
-		enabled: enabled && !!activeTeam?.id,
-		gcTime: 1000 * 60 * 60 // 1 hour
+		enabled: scoped ? enabled && scopedReady : enabled && !!activeTeam?.id,
+		gcTime: 1000 * 60 * 60, // 1 hour
+		refetchInterval: scoped ? refetchInterval : false,
+		refetchIntervalInBackground: false
 	});
 
 	// ==================== DERIVED STATE ====================
@@ -118,6 +140,7 @@ export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
 		// Loading states
 		isLoading: getMyDailyPlansQuery.isLoading,
 		isFetching: getMyDailyPlansQuery.isFetching,
+		isSuccess: getMyDailyPlansQuery.isSuccess && (!scoped || isCurrentScope()),
 		isError: getMyDailyPlansQuery.isError,
 		error: getMyDailyPlansQuery.error
 	};

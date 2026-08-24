@@ -19,6 +19,14 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
+import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
+import { useFastScopeGuard } from '../../bootstrap/use-fast-scope-guard';
+
+export interface UseTeamTasksQueryOptions {
+	enabled?: boolean;
+	scope?: ApiRequestScope;
+	refetchInterval?: number | false;
+}
 
 /**
  * Hook for reading team tasks data (GET operations only).
@@ -42,7 +50,7 @@ import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
  * - `firstLoadTasksData` - First load utility
  * - `setAllTasks` - Setter for all tasks (state management)
  */
-export function useTeamTasksQuery() {
+export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 	const { user } = useAuthenticateUser();
 	const queryClient = useQueryClient();
 
@@ -57,24 +65,38 @@ export function useTeamTasksQuery() {
 	const [activeTeamTask, setActiveTeamTask] = useAtom(activeTeamTaskState);
 
 	const { firstLoad, firstLoadData: firstLoadTasksData } = useFirstLoad();
+	const { enabled = true, scope, refetchInterval = false } = options;
+	const scoped = scope !== undefined;
+	const projectId = activeTeam?.projects?.[0]?.id ?? null;
+	const queryKey = scoped
+		? queryKeys.tasks.byTeamByScope(scope.tenantId, scope.organizationId, scope.teamId, projectId)
+		: queryKeys.tasks.byTeam(activeTeam?.id);
+	const isCurrentScope = useFastScopeGuard(queryKey, scoped && enabled);
+	const scopedReady = !!(scope?.tenantId && scope.organizationId && scope.teamId && scope.accessToken);
 
 	// React Query for team tasks
 	const teamTasksQuery = useQuery({
-		queryKey: queryKeys.tasks.byTeam(activeTeam?.id),
-		queryFn: async () => {
+		queryKey,
+		queryFn: async ({ signal }) => {
 			if (!activeTeam?.id) {
 				throw new Error('Required parameters missing');
 			}
-			const projectId = activeTeam?.projects && activeTeam?.projects.length > 0 ? activeTeam.projects[0].id : '';
-			return await taskService.getTasks({ projectId });
+			const activeProjectId = projectId ?? '';
+			return await taskService.getTasks({
+				projectId: activeProjectId,
+				...(scoped ? { options: { scope: scope!, signal } } : {})
+			});
 		},
-		enabled: !!activeTeam?.id,
-		gcTime: 1000 * 60 * 60
+		enabled: scoped ? enabled && scopedReady && !!activeTeam?.id : enabled && !!activeTeam?.id,
+		gcTime: 1000 * 60 * 60,
+		refetchInterval: scoped ? refetchInterval : false,
+		refetchIntervalInBackground: false
 	});
 
 	// Deep update function for React Query → Jotai sync
 	const deepCheckAndUpdateTasks = useCallback(
 		(responseTasks: TTask[], deepCheck?: boolean) => {
+			if (scoped && !isCurrentScope()) return;
 			// Map to new objects if modification is needed to avoid mutating cache
 			const processedTasks =
 				responseTasks?.map((task) => {
@@ -108,7 +130,7 @@ export function useTeamTasksQuery() {
 				setAllTasks(processedTasks);
 			}
 		},
-		[activeTeamRef, setAllTasks, tasksRef]
+		[activeTeamRef, isCurrentScope, scoped, setAllTasks, tasksRef]
 	);
 
 	const loadTeamTasksData = useCallback(
@@ -147,11 +169,11 @@ export function useTeamTasksQuery() {
 	// Sync React Query data with Jotai state
 	useConditionalUpdateEffect(
 		() => {
-			if (teamTasksQuery.data?.items) {
+			if (teamTasksQuery.data?.items && (!scoped || isCurrentScope())) {
 				deepCheckAndUpdateTasks(teamTasksQuery.data.items, true);
 			}
 		},
-		[teamTasksQuery.data?.items],
+		[teamTasksQuery.data?.items, scoped, isCurrentScope],
 		Boolean(tasks?.length)
 	);
 
@@ -160,6 +182,7 @@ export function useTeamTasksQuery() {
 		() => {
 			// Validate: ensure the task belongs to the current active team
 			const memberActiveTask = getValidActiveTask(tasks, memberActiveTaskId, activeTeam?.id);
+			if (scoped && !isCurrentScope()) return;
 			if (memberActiveTask) {
 				setActiveTeamTask(memberActiveTask);
 			} else if (memberActiveTaskId && activeTeam?.id) {
@@ -167,7 +190,7 @@ export function useTeamTasksQuery() {
 				setActiveTeamTask(null);
 			}
 		},
-		[activeTeam, tasks, memberActiveTaskId],
+		[activeTeam, tasks, memberActiveTaskId, scoped, isCurrentScope],
 		true
 	);
 
@@ -182,6 +205,7 @@ export function useTeamTasksQuery() {
 		// Loading states
 		loading: teamTasksQuery.isLoading,
 		tasksFetching: teamTasksQuery.isFetching,
+		querySuccess: teamTasksQuery.isSuccess && (!scoped || isCurrentScope()),
 
 		// Functions
 		loadTeamTasksData,
