@@ -33,8 +33,8 @@ export interface FastShellScope {
 
 export function getFastShellCredentialQueryKeys(scope: FastShellScope): QueryKey[] {
 	return [
-		queryKeys.organizationTeams.listByScope(scope.tenantId, scope.organizationId),
-		queryKeys.organizationTeams.detailByScope(scope.tenantId, scope.organizationId, scope.teamId),
+		queryKeys.organizationTeams.listByScope(scope.tenantId, scope.organizationId, scope.userId),
+		queryKeys.organizationTeams.detailByScope(scope.tenantId, scope.organizationId, scope.teamId, scope.userId),
 		queryKeys.tasks.byTeamByScope(scope.tenantId, scope.organizationId, scope.teamId, scope.projectId),
 		queryKeys.dailyPlans.myPlansByScope(scope.tenantId, scope.organizationId, scope.teamId, scope.userId),
 		queryKeys.timer.statusByScope(scope.tenantId, scope.organizationId, scope.teamId, scope.userId)

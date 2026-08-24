@@ -105,7 +105,7 @@ describe('fast organization-team ownership', () => {
 		expect(store.get(isTeamMemberJustDeletedState)).toBe(true);
 
 		await act(async () => {
-			client.setQueryData(queryKeys.organizationTeams.listByScope('tenant-a', 'organization-a'), {
+			client.setQueryData(queryKeys.organizationTeams.listByScope('tenant-a', 'organization-a', 'user-a'), {
 				data: {
 					items: [
 						{

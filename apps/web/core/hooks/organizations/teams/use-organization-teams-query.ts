@@ -99,10 +99,10 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 	const canHydrateSharedState = !fastBootstrap || explicitScope !== undefined;
 	const scopedTeamId = scope?.teamId ?? activeTeamId;
 	const listKey = scoped
-		? queryKeys.organizationTeams.listByScope(scope.tenantId, scope.organizationId)
+		? queryKeys.organizationTeams.listByScope(scope.tenantId, scope.organizationId, scope.userId)
 		: queryKeys.organizationTeams.all;
 	const detailKey = scoped
-		? queryKeys.organizationTeams.detailByScope(scope.tenantId, scope.organizationId, scopedTeamId)
+		? queryKeys.organizationTeams.detailByScope(scope.tenantId, scope.organizationId, scopedTeamId, scope.userId)
 		: queryKeys.organizationTeams.detail(activeTeamId);
 	const listCurrent = useFastScopeGuard(listKey, scoped && enabled);
 	const detailCurrent = useFastScopeGuard(detailKey, scoped && enabled);
@@ -375,7 +375,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			if (teamId) {
 				await queryClient.fetchQuery({
 					queryKey: scoped
-						? queryKeys.organizationTeams.detailByScope(scope?.tenantId, scope?.organizationId, teamId)
+						? queryKeys.organizationTeams.detailByScope(scope?.tenantId, scope?.organizationId, teamId, scope?.userId)
 						: queryKeys.organizationTeams.detail(teamId),
 					queryFn: async ({ signal }) => {
 						return scoped

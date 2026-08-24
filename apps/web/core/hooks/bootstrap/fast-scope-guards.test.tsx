@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import { createStore, Provider as JotaiProvider } from 'jotai';
 import type { PropsWithChildren } from 'react';
@@ -33,6 +33,9 @@ require('@/core/types/schemas');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { useEmployee } =
 	require('../organizations/employees/use-employee') as typeof import('../organizations/employees/use-employee');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { useFastScopeGuard } =
+	require('./use-fast-scope-guard') as typeof import('./use-fast-scope-guard');
 
 describe('fast scope enable guards', () => {
 	beforeEach(() => {
@@ -71,5 +74,36 @@ describe('fast scope enable guards', () => {
 			},
 			signal: expect.any(AbortSignal)
 		});
+	});
+
+	it('does not cancel an old-scope request while another observer still owns it', async () => {
+		const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		const oldKey = ['shared-scope', 'old'] as const;
+		const newKey = ['shared-scope', 'new'] as const;
+		let oldAborted = false;
+		const wrapper = ({ children }: PropsWithChildren) => (
+			<QueryClientProvider client={client}>{children}</QueryClientProvider>
+		);
+		const useOwner = (queryKey: readonly string[]) => {
+			useQuery({
+				queryKey,
+				queryFn: ({ signal }) =>
+					new Promise(() => signal.addEventListener('abort', () => (oldAborted = true), { once: true }))
+			});
+			useFastScopeGuard(queryKey, true);
+		};
+		const first = renderHook(({ queryKey }) => useOwner(queryKey), {
+			wrapper,
+			initialProps: { queryKey: oldKey as readonly string[] }
+		});
+		const second = renderHook(() => useOwner(oldKey), { wrapper });
+		await waitFor(() => expect(client.getQueryCache().find({ queryKey: oldKey, exact: true })?.getObserversCount()).toBe(2));
+
+		first.rerender({ queryKey: newKey });
+		await waitFor(() => expect(client.getQueryCache().find({ queryKey: oldKey, exact: true })?.getObserversCount()).toBe(1));
+		expect(oldAborted).toBe(false);
+
+		second.unmount();
+		first.unmount();
 	});
 });

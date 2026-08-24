@@ -27,7 +27,10 @@ export function useFastScopeGuard(queryKey: QueryKey, active: boolean) {
 
 		const previous = previousRef.current;
 		if (previous && previous.fingerprint !== fingerprint) {
-			void queryClient.cancelQueries({ queryKey: previous.queryKey, exact: true });
+			const previousQuery = queryClient.getQueryCache().find({ queryKey: previous.queryKey, exact: true });
+			if (!previousQuery || previousQuery.getObserversCount() === 0) {
+				void queryClient.cancelQueries({ queryKey: previous.queryKey, exact: true });
+			}
 		}
 		previousRef.current = { fingerprint, queryKey };
 		// queryKey identity is intentionally represented by its stable fingerprint.

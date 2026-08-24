@@ -250,15 +250,20 @@ export const queryKeys = {
 	organizationTeams: {
 		// Standard organization teams keys (preserved for backward compatibility)
 		all: ['organization-teams'] as const,
-		listByScope: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
-			['organization-teams', 'list-scope', tenantId ?? null, organizationId ?? null] as const,
+		listByScope: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null
+		) => ['organization-teams', 'list-scope', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
 		paginated: (params: Record<string, string>) => ['organization-teams', 'paginated', params] as const,
 		detail: (teamId: string | undefined | null) => ['organization-teams', ...(teamId ? [teamId] : [])] as const,
 		detailByScope: (
 			tenantId: string | undefined | null,
 			organizationId: string | undefined | null,
-			teamId: string | undefined | null
-		) => ['organization-teams', 'detail-scope', tenantId ?? null, organizationId ?? null, teamId ?? null] as const,
+			teamId: string | undefined | null,
+			userId: string | undefined | null
+		) =>
+			['organization-teams', 'detail-scope', tenantId ?? null, organizationId ?? null, teamId ?? null, userId ?? null] as const,
 		members: (teamId: string | undefined | null) =>
 			['organization-teams', ...(teamId ? [teamId] : []), 'members'] as const,
 		joinRequests: (teamId: string | undefined | null) =>
@@ -658,7 +663,7 @@ export const queryKeys = {
 			organizationId: string | undefined | null,
 			teamId: string | undefined | null,
 			userId: string | undefined | null
-		) => ['timer', 'scope', tenantId ?? null, organizationId ?? null, teamId ?? null, userId ?? null] as const,
+		) => ['timer', 'state-scope', tenantId ?? null, organizationId ?? null, teamId ?? null, userId ?? null] as const,
 		statusByScope: (
 			tenantId: string | undefined | null,
 			organizationId: string | undefined | null,
