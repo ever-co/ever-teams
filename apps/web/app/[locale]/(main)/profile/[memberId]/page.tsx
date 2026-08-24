@@ -68,8 +68,11 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		[activeTeamManagers, user?.id]
 	);
 	const canSeeActivity = useMemo(
-		() => profile.userProfile?.id === user?.id || isManagerConnectedUser !== -1,
-		[isManagerConnectedUser, profile.userProfile?.id, user?.id]
+		() =>
+			profile.userProfile?.id === user?.id ||
+			isManagerConnectedUser !== -1 ||
+			activeTeam?.shareProfileView === true,
+		[activeTeam?.shareProfileView, isManagerConnectedUser, profile.userProfile?.id, user?.id]
 	);
 	const targetEmployeeId = useMemo(
 		() =>
