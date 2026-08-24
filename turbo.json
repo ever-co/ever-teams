@@ -1,8 +1,8 @@
 {
 	"$schema": "https://turborepo.com/schema.json",
 	"globalDependencies": ["**/.env.*local"],
+	"globalPassThroughEnv": ["AUTH_SECRET"],
 	"globalEnv": [
-		"AUTH_SECRET",
 		"GAUZY_API_SERVER_URL",
 		"NEXT_PUBLIC_GAUZY_API_SERVER_URL",
 		"NEXT_PUBLIC_GAUZY_API_URL",

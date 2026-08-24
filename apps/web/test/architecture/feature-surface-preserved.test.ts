@@ -74,6 +74,11 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 	write(repository, 'apps/web/app/account/page.tsx', 'export default function AccountPage() { return null; }\n');
 	write(
 		repository,
+		'apps/web/.env.local',
+		'NEXT_PUBLIC_SUFFIXED_ENV_RETAINED=true\nNEXT_PUBLIC_SUFFIXED_ENV_REMOVED=true\n'
+	);
+	write(
+		repository,
 		'apps/web/app/api/sample/route.ts',
 		[
 			'const load = async () => undefined;',
@@ -604,6 +609,7 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 	git(repository, 'commit', '--quiet', '-m', 'synthetic base');
 	const base = git(repository, 'rev-parse', 'HEAD');
 
+	write(repository, 'apps/web/.env.local', 'NEXT_PUBLIC_SUFFIXED_ENV_RETAINED=true\n');
 	git(
 		repository,
 		'rm',
@@ -1885,6 +1891,21 @@ describe('Ever Teams feature surface preservation', () => {
 			category: 'nextPublicOccurrences',
 			kind: 'removed',
 			value: `${path}::NEXT_PUBLIC_ALIAS_URL::#1`
+		});
+	});
+
+	it('preserves NEXT_PUBLIC occurrences in suffixed environment files', () => {
+		const path = 'apps/web/.env.local';
+		expect(violationRun.report?.base.surface.nextPublicOccurrences).toEqual(
+			expect.arrayContaining([
+				`${path}::NEXT_PUBLIC_SUFFIXED_ENV_RETAINED::#1`,
+				`${path}::NEXT_PUBLIC_SUFFIXED_ENV_REMOVED::#1`
+			])
+		);
+		expect(violationRun.report?.violations).toContainEqual({
+			category: 'nextPublicOccurrences',
+			kind: 'removed',
+			value: `${path}::NEXT_PUBLIC_SUFFIXED_ENV_REMOVED::#1`
 		});
 	});
 

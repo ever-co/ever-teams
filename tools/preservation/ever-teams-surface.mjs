@@ -14,7 +14,7 @@ const HTTP_METHODS = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', '
 const TEST_FILE = /(?:^|\/)(?:__tests__\/.*|[^/]+\.(?:spec|test|cy|e2e))\.[cm]?[jt]sx?$/;
 const BARREL_FILE = /(?:^|\/)index(?:\.d)?\.[cm]?[jt]sx?$/;
 const SERVICE_FILE = /(?:^|\/)(?:services?\/.*|[^/]+\.service)\.[cm]?[jt]sx?$/;
-const TEXT_FILE = /(?:\.(?:[cm]?[jt]sx?|json|ya?ml|env|sample)|(?:^|\/)Dockerfile)$/;
+const TEXT_FILE = /(?:\.(?:[cm]?[jt]sx?|json|ya?ml|env(?:\.[^/]*)?|sample)|(?:^|\/)Dockerfile)$/;
 const WEB_SURFACE_FILE = /^(?:apps\/web|packages)\//;
 const API_SERVICE_FILE = /^(?:apps\/web\/core\/services|packages\/.*services)\//;
 const GIT_EXECUTABLE = process.platform === 'win32' ? String.raw`C:\Program Files\Git\cmd\git.exe` : '/usr/bin/git';
