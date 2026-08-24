@@ -8,6 +8,8 @@ services:
       args:
         GAUZY_API_SERVER_URL: ${GAUZY_API_SERVER_URL:-https://api.ever.team}
         NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${NEXT_PUBLIC_GAUZY_API_SERVER_URL:-https://api.ever.team}
+        NEXT_PUBLIC_FAST_APP_BOOTSTRAP: "${NEXT_PUBLIC_FAST_APP_BOOTSTRAP:-false}"
+        NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS: "${NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS:-false}"
         NODE_ENV: ${NODE_ENV:-development}
         NEXT_PUBLIC_DEMO: 'true'
         # App Branding Variables

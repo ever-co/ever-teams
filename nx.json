@@ -25,6 +25,12 @@
 			},
 			{
 				"env": "NODE_ENV"
+			},
+			{
+				"env": "NEXT_PUBLIC_FAST_APP_BOOTSTRAP"
+			},
+			{
+				"env": "NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS"
 			}
 		],
 		"production": [
