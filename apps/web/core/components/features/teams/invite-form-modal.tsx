@@ -18,6 +18,8 @@ import { ERoleName } from '@/core/types/generics/enums/role';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useFastInviteDataOwner } from '@/core/hooks/bootstrap/use-fast-feature-data';
 
+const INVITABLE_ROLE_NAMES = new Set([ERoleName.ADMIN, ERoleName.EMPLOYEE, ERoleName.MANAGER]);
+
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const { data: user } = useUserQuery();
 	const { roles, teamInvitations, workingEmployees } = useFastInviteDataOwner(open);
@@ -32,10 +34,26 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 	const nameInputRef = useRef<HTMLInputElement>(null);
 	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const isLoading = inviteLoading || resendInviteLoading;
-	const defaultSelectedRole = useMemo(() => roles.find((role) => role.name === ERoleName.EMPLOYEE), [roles]);
+	const selectableRoles = useMemo(
+		() => roles.filter((role) => INVITABLE_ROLE_NAMES.has(role.name as ERoleName)),
+		[roles]
+	);
+	const defaultSelectedRole = useMemo(
+		() => selectableRoles.find((role) => role.name === ERoleName.EMPLOYEE),
+		[selectableRoles]
+	);
 	const [selectedRoleId, setSelectedRoleId] = useState(() => defaultSelectedRole?.id);
 	const isAdmin = user?.role?.name && [ERoleName.ADMIN, ERoleName.SUPER_ADMIN].includes(user?.role.name as ERoleName);
-	const allowedRoles = new Set([ERoleName.ADMIN, ERoleName.EMPLOYEE, ERoleName.MANAGER]);
+
+	useEffect(() => {
+		setSelectedRoleId((currentRoleId) => {
+			if (currentRoleId && selectableRoles.some((role) => role.id === currentRoleId)) {
+				return currentRoleId;
+			}
+
+			return defaultSelectedRole?.id;
+		});
+	}, [defaultSelectedRole?.id, selectableRoles]);
 
 	useEffect(() => {
 		return () => {
@@ -137,7 +155,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 				}
 			}
 		},
-		[selectedEmail, teamInvitations, closeModal, t, inviteUser, resendTeamInvitation]
+		[selectedEmail, selectedRoleId, teamInvitations, closeModal, t, inviteUser, resendTeamInvitation]
 	);
 
 	return (
@@ -188,17 +206,15 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 									</SelectTrigger>
 									<SelectContent className="z-[1001] max-h-60 overflow-y-auto">
 										<SelectGroup>
-											{roles
-												.filter((role) => allowedRoles.has(role.name as ERoleName))
-												.map((role) => (
-													<SelectItem
-														key={role.id}
-														value={role.id}
-														className="hover:bg-primary focus:bg-primary focus:text-white hover:!text-white  py-1 cursor-pointer"
-													>
-														{role.name}
-													</SelectItem>
-												))}
+											{selectableRoles.map((role) => (
+												<SelectItem
+													key={role.id}
+													value={role.id}
+													className="hover:bg-primary focus:bg-primary focus:text-white hover:!text-white  py-1 cursor-pointer"
+												>
+													{role.name}
+												</SelectItem>
+											))}
 										</SelectGroup>
 									</SelectContent>
 								</Select>
