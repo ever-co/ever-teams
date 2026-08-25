@@ -37,13 +37,13 @@ jobs:
           BASE_SHA="${{ github.event.pull_request.base.sha }}"
 
           git diff --name-only "$BASE_SHA...HEAD" -- apps/web > "$CHANGED_FILES"
-          (cd apps/web && yarn knip --no-exit-code --reporter json > "$HEAD_REPORT")
+          (cd apps/web && ../../node_modules/.bin/knip --no-exit-code --reporter json > "$HEAD_REPORT")
 
           # Use the already-installed dependency tree to inspect the exact PR base.
           # The checkout is disposable and restored before this step exits.
           trap 'git checkout HEAD -- apps/web' EXIT
           git checkout "$BASE_SHA" -- apps/web
-          (cd apps/web && yarn knip --no-exit-code --reporter json > "$BASE_REPORT")
+          (cd apps/web && ../../node_modules/.bin/knip --no-exit-code --reporter json > "$BASE_REPORT")
           git checkout HEAD -- apps/web
           trap - EXIT
 
