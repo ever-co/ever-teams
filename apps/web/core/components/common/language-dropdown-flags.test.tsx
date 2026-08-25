@@ -6,6 +6,10 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 const mockFetchLanguages = jest.fn();
 const mockUseLanguageSettings = jest.fn();
 
+type Language = { code: string; id: string; name: string };
+
+const english: Language = { code: 'en', id: 'language-en', name: 'English' };
+
 jest.mock('@/core/constants/config/constants', () => ({
 	FAST_APP_BOOTSTRAP: { value: true },
 	languagesFlags: [{ code: 'en', Flag: () => <span data-testid="english-flag" /> }]
@@ -22,27 +26,36 @@ jest.mock('next/navigation', () => ({
 jest.mock('react-hook-form', () => ({ useForm: () => ({ setValue: jest.fn() }) }));
 jest.mock('@/core/components/common/select', () => {
 	const ActualReact = jest.requireActual('react') as typeof React;
+	const SelectContext = ActualReact.createContext<{
+		open: boolean;
+		setOpen: (open: boolean) => void;
+	} | null>(null);
 	return {
 		Select: ({ children, onOpenChange, open }: any) => {
 			const [internalOpen, setInternalOpen] = ActualReact.useState(false);
 			const visible = open ?? internalOpen;
+			const setVisible = (nextOpen: boolean) => {
+				if (open === undefined) setInternalOpen(nextOpen);
+				onOpenChange?.(nextOpen);
+			};
 			return (
-				<>
-					<button
-						type="button"
-						onClick={() => {
-							if (open === undefined) setInternalOpen(true);
-							onOpenChange?.(true);
-						}}
-					>
-						Open language
-					</button>
-					{visible ? <div role="listbox">{children}</div> : null}
-				</>
+				<SelectContext.Provider value={{ open: visible, setOpen: setVisible }}>
+					{children}
+				</SelectContext.Provider>
 			);
 		},
-		SelectTrigger: ({ children }: any) => <>{children}</>,
-		SelectContent: ({ children }: any) => <>{children}</>,
+		SelectTrigger: ({ children, ...props }: any) => {
+			const context = ActualReact.useContext(SelectContext);
+			return (
+				<button type="button" aria-label="Open language" onClick={() => context?.setOpen(true)} {...props}>
+					{children}
+				</button>
+			);
+		},
+		SelectContent: ({ children }: any) => {
+			const context = ActualReact.useContext(SelectContext);
+			return context?.open ? <div role="listbox">{children}</div> : null;
+		},
 		SelectItem: ({ children }: any) => <div role="option">{children}</div>
 	};
 });
@@ -50,31 +63,51 @@ jest.mock('@/core/components/common/select', () => {
 import { LanguageDropDownWithFlags } from './language-dropdown-flags';
 
 describe('LanguageDropDownWithFlags deferred fast loading', () => {
+	beforeEach(() => {
+		mockFetchLanguages.mockReset();
+		mockUseLanguageSettings.mockReset();
+		mockUseLanguageSettings.mockImplementation(({ enabled }: { enabled?: boolean }) => {
+			const [languages, setLanguages] = React.useState<Language[]>([]);
+			const [loading, setLoading] = React.useState(false);
+			const [isError, setIsError] = React.useState(false);
+			const fetchLanguages = React.useCallback(async () => {
+				setLoading(true);
+				setIsError(false);
+				try {
+					const nextLanguages = (await mockFetchLanguages()) as Language[];
+					setLanguages(nextLanguages);
+					return { data: { items: nextLanguages, total: nextLanguages.length }, isError: false };
+				} catch (error) {
+					setLanguages([]);
+					setIsError(true);
+					return { data: undefined, error, isError: true };
+				} finally {
+					setLoading(false);
+				}
+			}, []);
+
+			React.useEffect(() => {
+				if (!enabled) return;
+				void fetchLanguages();
+			}, [enabled, fetchLanguages]);
+
+			return {
+				languages,
+				loading,
+				isError,
+				loadLanguagesData: fetchLanguages,
+				refetch: fetchLanguages,
+				setActiveLanguage: jest.fn()
+			};
+		});
+	});
+
 	it('loads exactly once on an early open and never exposes an empty interactive menu', async () => {
-		type Language = { code: string; id: string; name: string };
 		let resolveLanguages!: (languages: Language[]) => void;
 		const pendingLanguages = new Promise<Language[]>((resolve) => {
 			resolveLanguages = resolve;
 		});
 		mockFetchLanguages.mockReturnValue(pendingLanguages);
-		mockUseLanguageSettings.mockImplementation(({ enabled }: { enabled?: boolean }) => {
-			const [languages, setLanguages] = React.useState<Language[]>([]);
-			React.useEffect(() => {
-				if (!enabled) return;
-				let active = true;
-				void mockFetchLanguages().then((nextLanguages: Language[]) => {
-					if (active) setLanguages(nextLanguages);
-				});
-				return () => {
-					active = false;
-				};
-			}, [enabled]);
-			return {
-				languages,
-				loadLanguagesData: mockFetchLanguages,
-				setActiveLanguage: jest.fn()
-			};
-		});
 
 		render(<LanguageDropDownWithFlags deferFastBootstrap />);
 		expect(mockFetchLanguages).not.toHaveBeenCalled();
@@ -84,7 +117,7 @@ describe('LanguageDropDownWithFlags deferred fast loading', () => {
 		expect(screen.queryByRole('listbox')).toBeNull();
 
 		await act(async () => {
-			resolveLanguages([{ code: 'en', id: 'language-en', name: 'English' }]);
+			resolveLanguages([english]);
 			await pendingLanguages;
 		});
 
@@ -92,4 +125,54 @@ describe('LanguageDropDownWithFlags deferred fast loading', () => {
 		expect(screen.getAllByRole('option')).toHaveLength(1);
 		expect(mockFetchLanguages).toHaveBeenCalledTimes(1);
 	});
+
+	it.each(['error', 'empty'] as const)(
+		're-enables after an initial %s result and retries exactly once on the next open',
+		async (firstResult) => {
+			let resolveFirst!: (languages: Language[]) => void;
+			let rejectFirst!: (error: Error) => void;
+			const firstRequest = new Promise<Language[]>((resolve, reject) => {
+				resolveFirst = resolve;
+				rejectFirst = reject;
+			});
+			let resolveRetry!: (languages: Language[]) => void;
+			const retryRequest = new Promise<Language[]>((resolve) => {
+				resolveRetry = resolve;
+			});
+			mockFetchLanguages.mockReturnValueOnce(firstRequest).mockReturnValueOnce(retryRequest);
+
+			render(<LanguageDropDownWithFlags deferFastBootstrap />);
+			const trigger = screen.getByRole('button', { name: 'Open language' });
+
+			expect(mockFetchLanguages).not.toHaveBeenCalled();
+			fireEvent.click(trigger);
+			expect(mockFetchLanguages).toHaveBeenCalledTimes(1);
+			expect((trigger as HTMLButtonElement).disabled).toBe(true);
+			expect(screen.queryByRole('listbox')).toBeNull();
+
+			await act(async () => {
+				if (firstResult === 'error') rejectFirst(new Error('language request failed'));
+				else resolveFirst([]);
+				await firstRequest.catch(() => undefined);
+			});
+
+			await waitFor(() => expect((trigger as HTMLButtonElement).disabled).toBe(false));
+			expect(screen.queryByRole('listbox')).toBeNull();
+			expect(mockFetchLanguages).toHaveBeenCalledTimes(1);
+
+			fireEvent.click(trigger);
+			await waitFor(() => expect(mockFetchLanguages).toHaveBeenCalledTimes(2));
+			expect((trigger as HTMLButtonElement).disabled).toBe(true);
+			expect(screen.queryByRole('listbox')).toBeNull();
+
+			await act(async () => {
+				resolveRetry([english]);
+				await retryRequest;
+			});
+
+			await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeNull());
+			expect(screen.getAllByRole('option')).toHaveLength(1);
+			expect(mockFetchLanguages).toHaveBeenCalledTimes(2);
+		}
+	);
 });

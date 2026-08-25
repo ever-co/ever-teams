@@ -22,7 +22,9 @@ export function LanguageDropDownWithFlags({
 	const [interactionActivated, setInteractionActivated] = useState(false);
 	const [open, setOpen] = useState(false);
 	const [pendingOpen, setPendingOpen] = useState(false);
-	const { languages, loadLanguagesData, setActiveLanguage } = useLanguageSettings({
+	const [loadPhase, setLoadPhase] = useState<'idle' | 'activating' | 'retrying' | 'awaiting-items'>('idle');
+	const [activationCheckReady, setActivationCheckReady] = useState(false);
+	const { languages, loadLanguagesData, setActiveLanguage, loading, isError, refetch } = useLanguageSettings({
 		enabled: !isDeferredFastBootstrap || interactionActivated
 	});
 	const { setValue } = useForm();
@@ -42,16 +44,50 @@ export function LanguageDropDownWithFlags({
 		if (pendingOpen && items.length > 0) {
 			setPendingOpen(false);
 			setOpen(true);
+			setLoadPhase('idle');
+			setActivationCheckReady(false);
+			return;
+		}
+		if (pendingOpen && loadPhase === 'activating') {
+			if (loading) {
+				if (!activationCheckReady) setActivationCheckReady(true);
+				return;
+			}
+			if (!activationCheckReady && !isError) {
+				setActivationCheckReady(true);
+				return;
+			}
+			setPendingOpen(false);
+			setLoadPhase('idle');
+			setActivationCheckReady(false);
 		} else if (open && items.length === 0) {
 			setOpen(false);
 		}
-	}, [isDeferredFastBootstrap, items.length, open, pendingOpen]);
+	}, [activationCheckReady, isDeferredFastBootstrap, isError, items.length, loadPhase, loading, open, pendingOpen]);
+
+	const retryLanguages = useCallback(async () => {
+		setLoadPhase('retrying');
+		try {
+			const result = await refetch();
+			if (result.isError || !result.data?.items.length) {
+				setPendingOpen(false);
+				setLoadPhase('idle');
+				return;
+			}
+			setLoadPhase('awaiting-items');
+		} catch {
+			setPendingOpen(false);
+			setLoadPhase('idle');
+		}
+	}, [refetch]);
 
 	const handleOpenChange = useCallback(
 		(nextOpen: boolean) => {
 			if (!nextOpen) {
 				setPendingOpen(false);
 				setOpen(false);
+				setLoadPhase('idle');
+				setActivationCheckReady(false);
 				return;
 			}
 			if (items.length > 0) {
@@ -60,9 +96,15 @@ export function LanguageDropDownWithFlags({
 			}
 
 			setPendingOpen(true);
-			setInteractionActivated(true);
+			if (!interactionActivated) {
+				setLoadPhase('activating');
+				setActivationCheckReady(false);
+				setInteractionActivated(true);
+				return;
+			}
+			void retryLanguages();
 		},
-		[items.length]
+		[interactionActivated, items.length, retryLanguages]
 	);
 
 	const handleChangeLanguage = useCallback(
