@@ -2,7 +2,7 @@
 
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { accessSync, constants, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { delimiter, dirname, isAbsolute, posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
@@ -47,7 +47,9 @@ function resolveGitExecutable() {
 		.filter((candidate) => candidate && isAbsolute(candidate))
 		.find((candidate) => {
 			try {
-				return existsSync(candidate) && statSync(candidate).isFile();
+				if (!existsSync(candidate) || !statSync(candidate).isFile()) return false;
+				if (process.platform !== 'win32') accessSync(candidate, constants.X_OK);
+				return true;
 			} catch {
 				return false;
 			}
@@ -64,7 +66,6 @@ function resolveGitExecutable() {
 const GIT_EXECUTABLE = resolveGitExecutable();
 
 function runGit(cwd, args, input) {
-
 	const result = spawnSync(GIT_EXECUTABLE, args, {
 		cwd,
 		input,
