@@ -5,7 +5,7 @@ import { ACCESS_TOKEN_REFRESHED_EVENT, getAccessTokenCookie } from '@/core/lib/h
 
 const RECONCILIATION_INTERVAL_MS = 1_000;
 const subscribers = new Set<() => void>();
-let latestSnapshot: string | null | undefined;
+let lastBroadcastSnapshot: string | null | undefined;
 let reconciliationInterval: number | null = null;
 let scheduledReconciliation: number | null = null;
 
@@ -15,8 +15,8 @@ const readSnapshot = () => getAccessTokenCookie() ?? null;
 
 const reconcileSnapshot = () => {
 	const nextSnapshot = readSnapshot();
-	if (nextSnapshot === latestSnapshot) return;
-	latestSnapshot = nextSnapshot;
+	if (nextSnapshot === lastBroadcastSnapshot) return;
+	lastBroadcastSnapshot = nextSnapshot;
 	subscribers.forEach((subscriber) => subscriber());
 };
 
@@ -36,6 +36,7 @@ const getCookieStore = (): CookieStoreTarget | undefined =>
 	(window as typeof window & { cookieStore?: CookieStoreTarget }).cookieStore;
 
 const startReconciliation = () => {
+	lastBroadcastSnapshot = readSnapshot();
 	window.addEventListener(ACCESS_TOKEN_REFRESHED_EVENT, reconcileSnapshot);
 	window.addEventListener('focus', reconcileSnapshot);
 	window.addEventListener('pageshow', reconcileSnapshot);
@@ -68,8 +69,7 @@ const subscribe = (onStoreChange: () => void) => {
 };
 
 const getSnapshot = () => {
-	latestSnapshot = readSnapshot();
-	return latestSnapshot;
+	return readSnapshot();
 };
 const getServerSnapshot = () => null;
 

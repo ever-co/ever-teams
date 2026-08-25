@@ -43,6 +43,61 @@ describe('useReactiveAccessTokenCookie', () => {
 		jest.useRealTimers();
 	});
 
+	it('broadcasts a silent rotation after one of two subscribers rerenders first', () => {
+		jest.useFakeTimers();
+		const intervalSpy = jest.spyOn(window, 'setInterval');
+		const first = renderHook(
+			({ unrelated }) => {
+				void unrelated;
+				return useReactiveAccessTokenCookie();
+			},
+			{ initialProps: { unrelated: 0 } }
+		);
+		const second = renderHook(() => useReactiveAccessTokenCookie());
+		expect(first.result.current).toBe('token-a');
+		expect(second.result.current).toBe('token-a');
+		expect(intervalSpy).toHaveBeenCalledTimes(1);
+
+		accessToken = 'token-b';
+		first.rerender({ unrelated: 1 });
+		expect(first.result.current).toBe('token-b');
+		expect(second.result.current).toBe('token-a');
+
+		act(() => jest.advanceTimersByTime(1_000));
+
+		expect(first.result.current).toBe('token-b');
+		expect(second.result.current).toBe('token-b');
+		first.unmount();
+		second.unmount();
+		intervalSpy.mockRestore();
+		jest.useRealTimers();
+	});
+
+	it('keeps pageshow and Cookie Store reconciliation active', () => {
+		jest.useFakeTimers();
+		const cookieStore = new EventTarget();
+		const cookieWindow = window as typeof window & { cookieStore?: EventTarget };
+		Object.defineProperty(cookieWindow, 'cookieStore', { configurable: true, value: cookieStore });
+		const view = renderHook(() => useReactiveAccessTokenCookie());
+
+		act(() => {
+			accessToken = 'token-b';
+			window.dispatchEvent(new Event('pageshow'));
+		});
+		expect(view.result.current).toBe('token-b');
+
+		act(() => {
+			accessToken = 'token-c';
+			cookieStore.dispatchEvent(new Event('change'));
+			jest.advanceTimersByTime(0);
+		});
+		expect(view.result.current).toBe('token-c');
+
+		view.unmount();
+		delete cookieWindow.cookieStore;
+		jest.useRealTimers();
+	});
+
 	it('reconciles immediately when the browser becomes active again', () => {
 		const { result } = renderHook(() => useReactiveAccessTokenCookie());
 		expect(result.current).toBe('token-a');
