@@ -59,10 +59,11 @@ jobs:
           node tools/knip/compare-knip-reports.mjs \
             --base="$BASE_REPORT" \
             --head="$HEAD_REPORT" \
-            --changed="$CHANGED_FILES" 2>&1 | tee "$RESULT_FILE"
-          STATUS=${PIPESTATUS[0]}
+            --changed="$CHANGED_FILES" > "$RESULT_FILE" 2>&1
+          STATUS=$?
           set -e
 
+          cat "$RESULT_FILE"
           echo "fail=$STATUS" >> "$GITHUB_OUTPUT"
           echo "reported_findings<<EOF" >> "$GITHUB_OUTPUT"
           cat "$RESULT_FILE" >> "$GITHUB_OUTPUT"
