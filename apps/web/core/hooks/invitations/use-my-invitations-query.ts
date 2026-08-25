@@ -39,7 +39,7 @@ export function useMyInvitationsQuery() {
 		[fastBootstrap, scope.tenantId, scope.userId, user?.tenantId]
 	);
 	const fastQueryEnabled = fastBootstrap && !!(scope.tenantId && scope.userId && scope.accessToken);
-	useFastScopeGuard(myInvitationsKey, fastBootstrap);
+	const isCurrentScope = useFastScopeGuard(myInvitationsKey, fastBootstrap);
 
 	// ===== QUERY =====
 
@@ -91,8 +91,9 @@ export function useMyInvitationsQuery() {
 	// ===== REFETCH CALLBACK =====
 
 	const refetchMyInvitations = useCallback(() => {
-		refetchMyInvitationsQuery();
-	}, [refetchMyInvitationsQuery]);
+		if (fastBootstrap && (!fastQueryEnabled || !isCurrentScope())) return;
+		void refetchMyInvitationsQuery();
+	}, [fastBootstrap, fastQueryEnabled, isCurrentScope, refetchMyInvitationsQuery]);
 
 	// ===== RETURN =====
 

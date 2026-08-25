@@ -9,14 +9,16 @@ const getMyInvitations = jest.fn(async () => ({
 	items: [{ id: 'invite-1' }, { id: 'invite-2' }],
 	total: 2
 }));
+let currentUser: { id: string; tenantId: string } | undefined = { id: 'user-1', tenantId: 'tenant-1' };
+let accessToken: string | null = 'access-token';
 
 jest.mock('@/core/constants/config/constants', () => ({ FAST_APP_BOOTSTRAP: { value: true } }));
 jest.mock('@/core/lib/helpers/cookies', () => ({
 	ACCESS_TOKEN_REFRESHED_EVENT: 'ever-teams:access-token-refreshed',
-	getAccessTokenCookie: () => 'access-token'
+	getAccessTokenCookie: () => accessToken
 }));
 jest.mock('../queries/user-user.query', () => ({
-	useUserQuery: () => ({ data: { id: 'user-1', tenantId: 'tenant-1' } })
+	useUserQuery: () => ({ data: currentUser })
 }));
 jest.mock('@/core/services/client/api/organizations/teams/invites', () => ({
 	inviteService: { getMyInvitations }
@@ -26,7 +28,28 @@ jest.mock('@/core/services/client/api/organizations/teams/invites', () => ({
 const { useMyInvitationsQuery } = require('./use-my-invitations-query') as typeof import('./use-my-invitations-query');
 
 describe('fast my-invitations cache ownership', () => {
-	beforeEach(() => getMyInvitations.mockClear());
+	beforeEach(() => {
+		getMyInvitations.mockClear();
+		currentUser = { id: 'user-1', tenantId: 'tenant-1' };
+		accessToken = 'access-token';
+	});
+
+	it('does not manually refetch before the fast credential scope is complete', async () => {
+		currentUser = undefined;
+		accessToken = null;
+		const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		const wrapper = ({ children }: PropsWithChildren) => (
+			<QueryClientProvider client={client}>{children}</QueryClientProvider>
+		);
+		const { result } = renderHook(() => useMyInvitationsQuery(), { wrapper });
+
+		await act(async () => {
+			result.current.refetchMyInvitations();
+			await Promise.resolve();
+		});
+
+		expect(getMyInvitations).not.toHaveBeenCalled();
+	});
 
 	it('optimistically removes only from the user-scoped cache and keeps the legacy cache untouched', async () => {
 		const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
