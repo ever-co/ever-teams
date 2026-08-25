@@ -88,12 +88,16 @@ describe('application bootstrap build wiring', () => {
 		};
 		const steps = workflow.jobs['browser-parity'].steps;
 		const packagesIndex = steps.findIndex((step) => step.name === 'Install Packages');
+		const systemDependenciesIndex = steps.findIndex((step) => step.name === 'Install browser system dependencies');
 		const cypressIndex = steps.findIndex((step) => step.name === 'Install trusted Cypress binary');
+		const systemDependencies = steps[systemDependenciesIndex];
 		const cypressInstall = steps[cypressIndex];
 
 		expect(packagesIndex).toBeGreaterThanOrEqual(0);
 		expect(steps[packagesIndex]?.run).toContain('--ignore-scripts');
-		expect(cypressIndex).toBeGreaterThan(packagesIndex);
+		expect(systemDependenciesIndex).toBeGreaterThan(packagesIndex);
+		expect(systemDependencies?.run).toContain('apt-get install -y --no-install-recommends xvfb');
+		expect(cypressIndex).toBeGreaterThan(systemDependenciesIndex);
 		expect(cypressInstall?.run).toBe('node ./node_modules/cypress/bin/cypress install');
 		expect(cypressInstall?.run).not.toMatch(/\b(?:yarn|npm)\b/);
 	});
