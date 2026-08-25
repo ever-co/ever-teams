@@ -4,6 +4,8 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { DEFAULT_SHELL_READY_BUDGET_MS } from './startup-budget.mjs';
+
 const REQUIRED_SHELL_ROUTE_KEYS = [
 	'GET /api/user/me',
 	'GET /api/auth/workspaces',
@@ -11,8 +13,6 @@ const REQUIRED_SHELL_ROUTE_KEYS = [
 	'GET /api/tasks/team',
 	'GET /api/timesheet/timer/status'
 ];
-
-export const DEFAULT_SHELL_READY_BUDGET_MS = 8_000;
 
 function nearestRank(values, percentile) {
 	if (!values.length) return null;

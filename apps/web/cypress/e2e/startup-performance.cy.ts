@@ -1,10 +1,10 @@
 /// <reference types="cypress" />
 
-import { DEFAULT_SHELL_READY_BUDGET_MS } from '../../../../tools/performance/compare-startup.mjs';
 import {
 	normalizeGauzyRequest,
 	type NormalizedGauzyRequest
 } from '../../../../tools/performance/normalize-gauzy-request.mjs';
+import { DEFAULT_SHELL_READY_BUDGET_MS } from '../../../../tools/performance/startup-budget.mjs';
 
 type CapturedRequest = NormalizedGauzyRequest & { startMs: number; endMs: number };
 type Sample = { index: number; startedAt: number; shellReadyMs: number; requests: CapturedRequest[] };
