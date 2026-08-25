@@ -1,6 +1,1 @@
-[
-	{
-		"id": "removed:nextPublicOccurrences:apps/web/core/hooks/activities/time-logs/use-time-logs.ts::NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS::#1",
-		"reason": "The global year preload switch and its startup owner were explicitly retired; yearly aggregate activity is route-owned."
-	}
-]
+[]

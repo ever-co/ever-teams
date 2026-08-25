@@ -21,7 +21,6 @@ const REMOVAL_CATEGORIES = [
 	'routes',
 	'overlayComponents',
 	'navigation',
-	'nextPublicOccurrences',
 	'publicExports',
 	'serviceMethods',
 	'testConfiguration',

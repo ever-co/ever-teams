@@ -6,6 +6,8 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
+import { compareSurface } from './ever-teams-surface.mjs';
+
 const toolPath = resolve(dirname(fileURLToPath(import.meta.url)), 'ever-teams-surface.mjs');
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const pathGitNames = process.platform === 'win32' ? ['git.exe', 'git.cmd'] : ['git'];
@@ -27,6 +29,23 @@ const knownGit = knownGitCandidates.find((candidate) => {
 	} catch {
 		return false;
 	}
+});
+
+test('reports environment inventory without treating configuration cleanup as feature removal', () => {
+	const base = {
+		surface: {
+			nextPublicOccurrences: ['apps/web/example.ts::NEXT_PUBLIC_RETIRED_SWITCH'],
+			publicExports: ['apps/web/example.ts::keptFeature']
+		}
+	};
+	const head = {
+		surface: {
+			nextPublicOccurrences: [],
+			publicExports: ['apps/web/example.ts::keptFeature']
+		}
+	};
+
+	assert.deepEqual(compareSurface(base, head), []);
 });
 
 function runResolverProbe(directory, environment = {}) {
