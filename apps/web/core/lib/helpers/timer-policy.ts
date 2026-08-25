@@ -2,7 +2,7 @@ import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 
 // ==================== TYPES ====================
 
-export interface TimerEligibilityState {
+interface TimerEligibilityState {
 	isEmailVerified: boolean;
 	hasActiveTask: boolean;
 	isActiveTaskClosed: boolean;
