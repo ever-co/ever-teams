@@ -141,7 +141,7 @@ jobs:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
 
       - name: Install trusted Cypress binary
-        run: yarn cypress install
+        run: node ./node_modules/cypress/bin/cypress install
 
       - name: Build deterministic browser app
         run: yarn build:web

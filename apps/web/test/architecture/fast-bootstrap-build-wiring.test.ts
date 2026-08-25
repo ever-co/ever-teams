@@ -163,6 +163,22 @@ describe('fast bootstrap build wiring', () => {
 		expect(cypressTypecheck?.run).toBe('yarn workspace @ever-teams/web tsc --noEmit -p cypress/tsconfig.json');
 	});
 
+	it('installs the trusted Cypress binary directly after the ignore-scripts package install', () => {
+		const workflow = parseYaml(read('.github/workflows/web.before-merge.yml')) as {
+			jobs: { 'browser-parity': { steps: WorkflowStep[] } };
+		};
+		const steps = workflow.jobs['browser-parity'].steps;
+		const packagesIndex = steps.findIndex((step) => step.name === 'Install Packages');
+		const cypressIndex = steps.findIndex((step) => step.name === 'Install trusted Cypress binary');
+		const cypressInstall = steps[cypressIndex];
+
+		expect(packagesIndex).toBeGreaterThanOrEqual(0);
+		expect(steps[packagesIndex]?.run).toContain('--ignore-scripts');
+		expect(cypressIndex).toBeGreaterThan(packagesIndex);
+		expect(cypressInstall?.run).toBe('node ./node_modules/cypress/bin/cypress install');
+		expect(cypressInstall?.run).not.toMatch(/\b(?:yarn|npm)\b/);
+	});
+
 	it('uses the pull-request base for affected projects while preserving the reviewed surface baseline', () => {
 		const workflow = parseYaml(read('.github/workflows/web.before-merge.yml')) as {
 			jobs: { deploy: { steps: WorkflowStep[] } };
