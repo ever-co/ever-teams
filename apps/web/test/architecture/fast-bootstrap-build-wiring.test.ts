@@ -141,4 +141,20 @@ describe('fast bootstrap build wiring', () => {
 			expect(nxEnvironmentInputs).toContain(flag);
 		}
 	});
+
+	it('isolates Jest and Cypress TypeScript globals in separate projects', () => {
+		const web = JSON.parse(read('apps/web/tsconfig.json')) as {
+			compilerOptions: { types: string[] };
+			exclude: string[];
+		};
+		const cypress = JSON.parse(read('apps/web/cypress/tsconfig.json')) as {
+			compilerOptions: { types: string[] };
+			include: string[];
+		};
+
+		expect(web.compilerOptions.types).toEqual(['node', 'jest']);
+		expect(web.exclude).toEqual(expect.arrayContaining(['node_modules', 'cypress', 'cypress.config.ts']));
+		expect(cypress.compilerOptions.types).toEqual(['cypress', 'node']);
+		expect(cypress.include).toEqual(expect.arrayContaining(['../cypress.config.ts', './**/*.ts']));
+	});
 });

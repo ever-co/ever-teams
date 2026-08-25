@@ -35,7 +35,7 @@ jest.mock('../queries/user-user.query', () => ({
 jest.mock('../bootstrap/use-fast-scope-guard', () => ({ useFastScopeGuard: () => mockIsCurrentScope }));
 jest.mock('../auth/use-reactive-access-token-cookie', () => ({ useReactiveAccessTokenCookie: () => null }));
 jest.mock('@/core/services/client/api', () => ({
-	languageService: { getLanguages: (...args: unknown[]) => mockGetLanguages(...args) }
+	languageService: { getLanguages: () => mockGetLanguages() }
 }));
 
 import { useLanguageSettings } from './use-language-settings';
