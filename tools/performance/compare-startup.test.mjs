@@ -85,6 +85,14 @@ test('accepts five cold samples inside every structural budget', () => {
 	assert.deepEqual(result.failures, []);
 });
 
+test('accepts ordinary team startup without preloading personal plans', () => {
+	const summary = summarizeCandidate(makeCandidate({ requests: makeCriticalRequests(5) }));
+	const result = compareStartup(summary);
+
+	assert.equal(result.passed, true);
+	assert.deepEqual(result.failures, []);
+});
+
 test('rejects missing samples, excessive reads, duplicate GETs, and rich global reads', () => {
 	const candidate = makeCandidate({
 		requests: makeRequests(21, { duplicate: true, rich: true }),

@@ -9,8 +9,7 @@ const REQUIRED_SHELL_ROUTE_KEYS = [
 	'GET /api/auth/workspaces',
 	'GET /api/organization-team',
 	'GET /api/tasks/team',
-	'GET /api/timesheet/timer/status',
-	'GET /api/daily-plan/me'
+	'GET /api/timesheet/timer/status'
 ];
 
 function nearestRank(values, percentile) {
