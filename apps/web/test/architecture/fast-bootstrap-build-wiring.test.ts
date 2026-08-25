@@ -151,11 +151,16 @@ describe('fast bootstrap build wiring', () => {
 			compilerOptions: { types: string[] };
 			include: string[];
 		};
+		const workflow = parseYaml(read('.github/workflows/web.before-merge.yml')) as {
+			jobs: { deploy: { steps: WorkflowStep[] } };
+		};
+		const cypressTypecheck = workflow.jobs.deploy.steps.find((step) => step.name === 'Typecheck Cypress');
 
 		expect(web.compilerOptions.types).toEqual(['node', 'jest']);
 		expect(web.exclude).toEqual(expect.arrayContaining(['node_modules', 'cypress', 'cypress.config.ts']));
 		expect(cypress.compilerOptions.types).toEqual(['cypress', 'node']);
 		expect(cypress.include).toEqual(expect.arrayContaining(['../cypress.config.ts', './**/*.ts']));
+		expect(cypressTypecheck?.run).toBe('yarn workspace @ever-teams/web tsc --noEmit -p cypress/tsconfig.json');
 	});
 
 	it('uses the pull-request base for affected projects while preserving the reviewed surface baseline', () => {

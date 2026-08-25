@@ -89,6 +89,9 @@ jobs:
       - name: Typecheck Web
         run: yarn workspace @ever-teams/web tsc --noEmit -p tsconfig.json
 
+      - name: Typecheck Cypress
+        run: yarn workspace @ever-teams/web tsc --noEmit -p cypress/tsconfig.json
+
       - name: Lint Web
         run: yarn nx run web:lint
 
