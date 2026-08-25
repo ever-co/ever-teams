@@ -56,25 +56,27 @@ export function getMillisecondsUntilNextProfileActivityMonth(timeZone: string, r
 
 /** Keeps a mounted profile on the current local-calendar month without polling the API. */
 export function useProfileActivityMonthRange(timeZone: string): ProfileActivityDateRange {
-	const [range, setRange] = useState(() => getProfileActivityMonthRange(timeZone));
+	const [, setReferenceTime] = useState(() => Date.now());
+	const range = getProfileActivityMonthRange(timeZone, new Date());
 
 	useEffect(() => {
 		let timeout: ReturnType<typeof setTimeout>;
-		const refreshAndSchedule = () => {
-			setRange((current) => {
-				const next = getProfileActivityMonthRange(timeZone);
-				return current.startDate === next.startDate && current.endDate === next.endDate ? current : next;
-			});
+		const scheduleFrom = (referenceDate: Date) => {
 			timeout = setTimeout(
 				refreshAndSchedule,
 				Math.min(
-					getMillisecondsUntilNextProfileActivityMonth(timeZone),
+					getMillisecondsUntilNextProfileActivityMonth(timeZone, referenceDate),
 					MAX_PROFILE_ACTIVITY_TIMEOUT_MS
 				)
 			);
 		};
+		const refreshAndSchedule = () => {
+			const referenceDate = new Date();
+			setReferenceTime(referenceDate.getTime());
+			scheduleFrom(referenceDate);
+		};
 
-		refreshAndSchedule();
+		scheduleFrom(new Date());
 		return () => clearTimeout(timeout);
 	}, [timeZone]);
 

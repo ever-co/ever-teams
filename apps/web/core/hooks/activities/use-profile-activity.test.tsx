@@ -179,14 +179,61 @@ describe('strict profile activity contract', () => {
 		unmount();
 	});
 
+	it('switches time zones across a local month boundary without issuing a stale-period request', async () => {
+		jest.useFakeTimers().setSystemTime(new Date('2026-08-31T12:30:00.000Z'));
+		const getProfileActivity = jest
+			.spyOn(statisticsService, 'getProfileActivity')
+			.mockImplementation(async (nextRequest) => ({
+				...summaryResponse,
+				period: {
+					startDate: nextRequest.startDate,
+					endDate: nextRequest.endDate,
+					timeZone: nextRequest.timeZone
+				}
+			}));
+		const client = createQueryClient();
+		const { rerender, unmount } = renderHook(
+			({ timeZone }) => {
+				const range = useProfileActivityMonthRange(timeZone);
+				return useProfileActivity({ ...request, ...range, timeZone });
+			},
+			{
+				initialProps: { timeZone: 'UTC' },
+				wrapper: createWrapper(client)
+			}
+		);
+
+		await act(async () => Promise.resolve());
+		expect(getProfileActivity).toHaveBeenCalledTimes(1);
+		expect(getProfileActivity.mock.calls[0][0]).toEqual(
+			expect.objectContaining({
+				timeZone: 'UTC',
+				startDate: '2026-08-01',
+				endDate: '2026-09-01'
+			})
+		);
+
+		getProfileActivity.mockClear();
+		rerender({ timeZone: 'Pacific/Kiritimati' });
+		await act(async () => Promise.resolve());
+
+		expect(getProfileActivity).toHaveBeenCalledTimes(1);
+		expect(getProfileActivity.mock.calls[0][0]).toEqual(
+			expect.objectContaining({
+				timeZone: 'Pacific/Kiritimati',
+				startDate: '2026-09-01',
+				endDate: '2026-10-01'
+			})
+		);
+		unmount();
+	});
+
 	it('caps long month-boundary timers and reschedules instead of overflowing browser timeouts', () => {
 		jest.useFakeTimers().setSystemTime(new Date('2026-08-01T00:00:00.000Z'));
 		const timeoutSpy = jest.spyOn(globalThis, 'setTimeout');
 		const { unmount } = renderHook(() => useProfileActivityMonthRange('UTC'));
 
-		expect(getMillisecondsUntilNextProfileActivityMonth('UTC')).toBeGreaterThan(
-			MAX_PROFILE_ACTIVITY_TIMEOUT_MS
-		);
+		expect(getMillisecondsUntilNextProfileActivityMonth('UTC')).toBeGreaterThan(MAX_PROFILE_ACTIVITY_TIMEOUT_MS);
 		expect(timeoutSpy).toHaveBeenLastCalledWith(expect.any(Function), MAX_PROFILE_ACTIVITY_TIMEOUT_MS);
 		unmount();
 	});
