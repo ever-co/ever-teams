@@ -50,11 +50,15 @@ export function useProactiveTokenRefresh() {
 	const isRefreshingRef = useRef(false);
 
 	useEffect(() => {
+		let active = true;
+
 		/**
 		 * Perform token refresh ONLY if needed
 		 * Returns true if refresh was performed, false if skipped
 		 */
 		const performRefreshIfNeeded = async (): Promise<boolean> => {
+			if (!active) return false;
+
 			// Prevent concurrent refresh attempts
 			if (isRefreshingRef.current) {
 				console.log('[ProactiveTokenRefresh] Refresh already in progress, skipping');
@@ -95,6 +99,7 @@ export function useProactiveTokenRefresh() {
 				// Client-side call → runtime API base URL. The server-only refreshTokenRequest (serverFetch) resolves
 				// to the hard-coded production host inside the browser bundle — see authService.refreshTokenRaw.
 				const { data } = await retryWithBackoff(() => authService.refreshTokenRaw(refresh_token), 3, 1000);
+				if (!active) return false;
 
 				if (!data?.token) {
 					logErrorInDev('[ProactiveTokenRefresh] No token received from refresh endpoint', data);
@@ -117,6 +122,8 @@ export function useProactiveTokenRefresh() {
 				);
 				return true;
 			} catch (error) {
+				if (!active) return false;
+
 				const details = {
 					source: 'useProactiveTokenRefresh',
 					error: String(error)
@@ -142,6 +149,8 @@ export function useProactiveTokenRefresh() {
 		 * This ensures the interval is recalculated based on the CURRENT token after each refresh
 		 */
 		const scheduleNextRefresh = () => {
+			if (!active) return;
+
 			const currentToken = getAccessTokenCookie();
 			if (!currentToken) {
 				console.log('[ProactiveTokenRefresh] No access token, stopping scheduler');
@@ -167,8 +176,10 @@ export function useProactiveTokenRefresh() {
 			timeoutRef.current =
 				typeof window !== 'undefined'
 					? window.setTimeout(async () => {
+							if (!active) return;
 							console.log('[ProactiveTokenRefresh] Scheduled check triggered...');
 							await performRefreshIfNeeded();
+							if (!active) return;
 							// Always reschedule (whether refresh happened or was skipped)
 							// The interval will be recalculated based on the current token
 							scheduleNextRefresh();
@@ -180,6 +191,8 @@ export function useProactiveTokenRefresh() {
 		 * Initial setup: check if immediate refresh is needed, then start scheduler
 		 */
 		const setupRefreshSchedule = async () => {
+			if (!active) return;
+
 			const accessToken = getAccessTokenCookie();
 
 			if (!accessToken) {
@@ -191,6 +204,7 @@ export function useProactiveTokenRefresh() {
 			if (shouldRefreshToken(accessToken, 300)) {
 				console.log('[ProactiveTokenRefresh] Token needs refresh, doing it now...');
 				const success = await performRefreshIfNeeded();
+				if (!active) return;
 
 				if (!success) {
 					// Refresh failed - performRefreshIfNeeded already handled 401 (logout)
@@ -203,7 +217,9 @@ export function useProactiveTokenRefresh() {
 						timeoutRef.current =
 							typeof window !== 'undefined'
 								? window.setTimeout(async () => {
+										if (!active) return;
 										await performRefreshIfNeeded();
+										if (!active) return;
 										scheduleNextRefresh();
 									}, 30000)
 								: null;
@@ -230,11 +246,12 @@ export function useProactiveTokenRefresh() {
 		// causing unnecessary "no token" logs or race conditions.
 		// 2s is conservative - could be reduced but adds safety margin.
 		const initialTimeout = setTimeout(() => {
-			setupRefreshSchedule();
+			if (active) void setupRefreshSchedule();
 		}, INIT_DELAY_MS);
 
 		// Cleanup function
 		return () => {
+			active = false;
 			if (timeoutRef.current) {
 				window?.clearTimeout(timeoutRef.current);
 				timeoutRef.current = null;

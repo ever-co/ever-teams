@@ -61,6 +61,41 @@ describe('useProactiveTokenRefresh scheduler ownership', () => {
 		expect(jest.getTimerCount()).toBeLessThanOrEqual(1);
 	});
 
+	it('keeps one live scheduler when pathname changes during an immediate refresh', async () => {
+		const { authService } = jest.requireMock('@/core/services/client/api/auth/auth.service');
+		let resolveRefresh!: (response: { data: { token: string; refresh_token: string } }) => void;
+		const refreshRequest = new Promise<{ data: { token: string; refresh_token: string } }>((resolve) => {
+			resolveRefresh = resolve;
+		});
+		accessToken = 'expiring-access-token';
+		pathname = '/dashboard';
+		shouldRefresh = true;
+		authService.refreshTokenRaw.mockReturnValue(refreshRequest);
+
+		const { rerender, unmount } = renderHook(() => useProactiveTokenRefresh());
+		await act(async () => {
+			await jest.advanceTimersByTimeAsync(10);
+		});
+		expect(authService.refreshTokenRaw).toHaveBeenCalledTimes(1);
+
+		pathname = '/projects';
+		rerender();
+		shouldRefresh = false;
+		await act(async () => {
+			resolveRefresh({
+				data: { token: 'fresh-access-token', refresh_token: 'fresh-refresh-token' }
+			});
+			await refreshRequest;
+		});
+		await act(async () => {
+			await jest.advanceTimersByTimeAsync(10);
+		});
+
+		expect(jest.getTimerCount()).toBe(1);
+		unmount();
+		expect(jest.getTimerCount()).toBe(0);
+	});
+
 	it('delegates refresh notification to the access-token cookie writer', async () => {
 		const { authService } = jest.requireMock('@/core/services/client/api/auth/auth.service');
 		const { setAccessTokenCookie } = jest.requireMock('@/core/lib/helpers/cookies');
