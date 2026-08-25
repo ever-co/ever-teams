@@ -87,7 +87,15 @@ jobs:
         run: yarn test:performance
 
       - name: Verify preserved feature surface
-        run: yarn preservation:web
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          node tools/preservation/ever-teams-surface.mjs \
+            --base="$BASE_SHA" \
+            --head="$HEAD_SHA" \
+            --allow=tools/preservation/ever-teams-preservation.allow.json \
+            --out=artifacts/ever-teams-surface.json
 
       - name: Typecheck Web
         run: yarn workspace @ever-teams/web tsc --noEmit -p tsconfig.json
