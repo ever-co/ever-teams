@@ -14,6 +14,8 @@ test('serves deterministic bootstrap data and keeps request evidence body/header
 	const response = await fetch(`${server.origin}/api/user/me`);
 	assert.equal(response.status, 200);
 	assert.equal((await response.json()).id, fixture.ids.user);
+	const tasks = await (await fetch(`${server.origin}/api/tasks/team`)).json();
+	assert.equal(tasks.items[0].teams[0].id, fixture.ids.teamA);
 
 	const requests = server.requests();
 	assert.deepEqual(Object.keys(requests[0]).sort(), ['endMs', 'method', 'path', 'query', 'startMs', 'status']);
@@ -47,6 +49,21 @@ test('supports deterministic A to B delay scenarios without leaking bodies', asy
 	await fetch(`${server.origin}/api/tasks?tenantId=${fixture.ids.tenantA}`);
 	assert.ok(Date.now() - started >= 20);
 	assert.equal(server.requests()[0].query, `tenantId=${fixture.ids.tenantA}`);
+});
+
+test('scopes fixture responses from the tenant header and models a non-manager role', async (context) => {
+	const server = await createMockGauzyServer({ fixture, port: 0 });
+	context.after(() => server.close());
+	server.setScenario({ manager: false });
+
+	const response = await fetch(`${server.origin}/api/user/me`, {
+		headers: { 'tenant-id': fixture.ids.tenantB }
+	});
+	const user = await response.json();
+
+	assert.equal(user.defaultOrganizationId, fixture.ids.organizationB);
+	assert.equal(user.lastTeamId, fixture.ids.teamB);
+	assert.equal(user.role.name, 'EMPLOYEE');
 });
 
 test('survives an aborted request body and continues serving deterministic traffic', async (context) => {

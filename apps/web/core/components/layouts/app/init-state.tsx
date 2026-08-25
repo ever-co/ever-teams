@@ -75,7 +75,7 @@ export function InitState() {
 		scope: teamScope,
 		statusEnabled: teamReady,
 		statusRefetchInterval: autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false,
-		plansEnabled: true,
+		plansEnabled: Boolean(activeTeam?.requirePlanToTrack),
 		plansRefetchInterval: autoRefreshEnabled ? 5 * SHELL_REFRESH_INTERVAL : false,
 		manageRuntime: false
 	});

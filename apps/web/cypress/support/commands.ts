@@ -89,8 +89,10 @@ Cypress.Commands.add('clearBrowserState', () => {
 	cy.window({ log: false }).then(async (window) => {
 		window.localStorage.clear();
 		window.sessionStorage.clear();
-		const registrations = await window.navigator.serviceWorker?.getRegistrations();
-		await Promise.all((registrations ?? []).map((registration) => registration.unregister()));
+		if (window.location.protocol !== 'about:') {
+			const registrations = await window.navigator.serviceWorker?.getRegistrations();
+			await Promise.all((registrations ?? []).map((registration) => registration.unregister()));
+		}
 	});
 	cy.then(() => Cypress.automation('remote:debugger:protocol', { command: 'Network.clearBrowserCache', params: {} }));
 });

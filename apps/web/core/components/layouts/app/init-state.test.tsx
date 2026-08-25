@@ -174,11 +174,11 @@ describe('InitState dependency DAG', () => {
 		view.rerender(<InitState />);
 		expect(calls.tasks).toHaveBeenLastCalledWith(expect.objectContaining({ enabled: true }));
 		expect(calls.timer).toHaveBeenLastCalledWith(
-			expect.objectContaining({ enabled: true, plansEnabled: true, manageRuntime: false })
+			expect.objectContaining({ enabled: true, plansEnabled: false, manageRuntime: false })
 		);
 	});
 
-	it('always loads personal plans but only makes them critical when team policy requires them', () => {
+	it('loads personal plans only when team policy requires them', () => {
 		resolveWorkspace();
 		resolveTeam(false);
 		tasksSuccess = true;
@@ -186,7 +186,7 @@ describe('InitState dependency DAG', () => {
 		plansSuccess = false;
 		const view = render(<InitState />);
 
-		expect(calls.timer).toHaveBeenLastCalledWith(expect.objectContaining({ plansEnabled: true }));
+		expect(calls.timer).toHaveBeenLastCalledWith(expect.objectContaining({ plansEnabled: false }));
 		expect(performance.mark).toHaveBeenCalledWith('ever-teams:shell-ready');
 
 		view.unmount();
@@ -194,6 +194,7 @@ describe('InitState dependency DAG', () => {
 		activeTeam = { ...activeTeam, id: 'team-2', requirePlanToTrack: true };
 		teams = [activeTeam];
 		const requiredView = render(<InitState />);
+		expect(calls.timer).toHaveBeenLastCalledWith(expect.objectContaining({ plansEnabled: true }));
 		expect(jest.mocked(performance.mark).mock.calls.filter(([name]) => name === 'ever-teams:shell-ready')).toEqual(
 			[]
 		);

@@ -32,6 +32,7 @@ describe('authenticated startup', () => {
 	});
 
 	it('hard-loads the shell through user, workspace, team, and critical feature phases', () => {
+		cy.mockScenario({ requirePlanToTrack: true });
 		observeCriticalStartup();
 		cy.hardVisit('/team/tasks');
 		cy.wait([...criticalStartupAliases], { timeout: 20_000 });
@@ -54,17 +55,20 @@ describe('authenticated startup', () => {
 		});
 	});
 
-	it('loads personal plans even when the team does not require a plan', () => {
+	it('does not load personal plans when the team does not require a plan', () => {
 		cy.mockScenario({ requirePlanToTrack: false, hasPlan: false });
-		cy.intercept('GET', /\/api\/daily-plan\/me(?:\?.*)?$/).as('personalPlans');
+		cy.intercept('GET', /\/api\/tasks\/team(?:\?.*)?$/).as('startupTasksWithoutPlans');
+		cy.intercept('GET', /\/api\/timesheet\/timer\/status(?:\?.*)?$/).as('startupTimerWithoutPlans');
 		cy.hardVisit('/team/tasks');
-		cy.wait('@personalPlans', { timeout: 20_000 });
+		cy.wait(['@startupTasksWithoutPlans', '@startupTimerWithoutPlans'], { timeout: 20_000 });
+		cy.wait(300);
 		cy.mockRequests().then((requests) => {
-			expect(requests.some((request) => request.path === '/api/daily-plan/me')).to.equal(true);
+			expect(requests.some((request) => request.path === '/api/daily-plan/me')).to.equal(false);
 		});
 	});
 
 	it('uses the metadata bundle without starting profile activity reads', () => {
+		cy.mockScenario({ requirePlanToTrack: true });
 		observeCriticalStartup();
 		cy.intercept('GET', /\/api\/task-metadata\/bootstrap(?:\?.*)?$/).as('metadata');
 		cy.hardVisit('/team/tasks');
@@ -84,6 +88,7 @@ describe('authenticated startup', () => {
 	});
 
 	it('re-owns long-lived scoped reads after access-token rotation', () => {
+		cy.mockScenario({ requirePlanToTrack: true });
 		observeCriticalStartup();
 		cy.hardVisit('/team/tasks');
 		cy.wait([...criticalStartupAliases], { timeout: 20_000 });

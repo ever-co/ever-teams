@@ -14,6 +14,7 @@ import {
 	SYNC_TIMER_INTERVAL
 } from '@/core/constants/config/constants';
 import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
+import { canRunTimerForState } from '@/core/lib/helpers/timer-policy';
 import { queryKeys } from '@/core/query/keys';
 import { timerService } from '@/core/services/client/api/timers';
 import {
@@ -277,13 +278,14 @@ export function useTimerApi({
 
 	const canRunTimer = useMemo(
 		() =>
-			!!(
-				user?.isEmailVerified &&
-				((!!activeTeamTask && activeTeamTask.status !== 'closed') ||
-					timerStatusRef.current?.lastLog?.source !== ETimeLogSource.TEAMS)
-			),
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[user?.isEmailVerified, activeTeamTask]
+			canRunTimerForState({
+				isEmailVerified: !!user?.isEmailVerified,
+				hasActiveTask: !!activeTeamTask,
+				isActiveTaskClosed: activeTeamTask?.status === ETaskStatusName.CLOSED,
+				isTimerRunning: !!timerStatus?.running,
+				timerSource: timerStatus?.lastLog?.source
+			}),
+		[user?.isEmailVerified, activeTeamTask, timerStatus?.running, timerStatus?.lastLog?.source]
 	);
 
 	// ==================== CALLBACKS ====================
@@ -566,43 +568,48 @@ export function useTimerApi({
 		// Placed after debounce check to avoid wasteful duplicate sync calls
 		syncTimer();
 
-		return stopTimerMutate(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS).then(async (res) => {
-			res.data &&
-				(!statusEnabled || isCurrentScope()) &&
-				!isEqual(timerStatus, res.data) &&
-				setTimerStatus(res.data);
+		if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
+		return stopTimerMutate(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS)
+			.then(async (res) => {
+				res.data &&
+					(!statusEnabled || isCurrentScope()) &&
+					!isEqual(timerStatus, res.data) &&
+					setTimerStatus(res.data);
 
-			// Clear active task via API when timer stops
-			if (activeTeamId && user) {
-				const currentMember = activeTeam?.members?.find((m) => m.employee?.userId === user.id);
+				// Clear active task via API when timer stops
+				if (activeTeamId && user) {
+					const currentMember = activeTeam?.members?.find((m) => m.employee?.userId === user.id);
 
-				if (currentMember?.id) {
-					await updateOrganizationTeamEmployeeActiveTask(currentMember.id, {
-						organizationId: activeTeam?.organizationId,
-						activeTaskId: null,
-						organizationTeamId: activeTeam?.id,
-						tenantId: activeTeam?.tenantId ?? ''
+					if (currentMember?.id) {
+						await updateOrganizationTeamEmployeeActiveTask(currentMember.id, {
+							organizationId: activeTeam?.organizationId,
+							activeTaskId: null,
+							organizationTeamId: activeTeam?.id,
+							tenantId: activeTeam?.tenantId ?? ''
+						});
+					}
+				}
+
+				// Invalidate timer query for current team
+				if (activeTeamId) {
+					queryClient.invalidateQueries({
+						queryKey: queryKeys.timer.all
 					});
 				}
-			}
 
-			// Invalidate timer query for current team
-			if (activeTeamId) {
+				// Invalidate team-related queries to update member stats in real-time
 				queryClient.invalidateQueries({
-					queryKey: queryKeys.timer.all
+					queryKey: queryKeys.organizationTeams.all
 				});
-			}
-
-			// Invalidate team-related queries to update member stats in real-time
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.organizationTeams.all
+				if (activeTeamId) {
+					queryClient.invalidateQueries({
+						queryKey: queryKeys.organizationTeams.detail(activeTeamId)
+					});
+				}
+			})
+			.finally(() => {
+				if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(false);
 			});
-			if (activeTeamId) {
-				queryClient.invalidateQueries({
-					queryKey: queryKeys.organizationTeams.detail(activeTeamId)
-				});
-			}
-		});
 	}, [
 		timerStatus,
 		setTimerStatus,
@@ -617,21 +624,18 @@ export function useTimerApi({
 		updateOrganizationTeamEmployeeActiveTask,
 		syncTimer,
 		isCurrentScope,
-		statusEnabled
+		statusEnabled,
+		setTimerStatusFetching
 	]);
 
 	// ==================== SIDE EFFECTS ====================
 
 	// Loading states
 	useEffect(() => {
-		if (firstLoad && (!statusEnabled || isCurrentScope())) {
+		if (firstLoad && statusEnabled && isCurrentScope()) {
 			setTimerStatusFetching(loading);
 		}
 	}, [loading, firstLoad, isCurrentScope, setTimerStatusFetching, statusEnabled]);
-
-	useEffect(() => {
-		if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(stopTimerMutation.isPending);
-	}, [isCurrentScope, statusEnabled, stopTimerMutation.isPending, setTimerStatusFetching]);
 
 	// Sync timer interval (every 60s while running)
 	useEffect(() => {

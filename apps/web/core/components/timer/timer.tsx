@@ -16,7 +16,7 @@ import {
 	LifebuoyIcon
 } from '@heroicons/react/24/outline';
 import { HotkeysEvent } from 'hotkeys-js';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
 import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
 import { ProgressBar } from '../duplicated-components/_progress-bar';
@@ -27,8 +27,15 @@ import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { useAtomValue } from 'jotai';
 import { activeTeamState, activeTeamTaskState } from '@/core/stores';
 
+function useHydrated() {
+	const [hydrated, setHydrated] = useState(false);
+	useEffect(() => setHydrated(true), []);
+	return hydrated;
+}
+
 export function Timer({ className, showTimerButton = true }: IClassName) {
 	const t = useTranslations();
+	const hydrated = useHydrated();
 
 	const {
 		hours,
@@ -39,12 +46,11 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 		canRunTimer,
 		timerHanlder,
 		timerStatus,
-		disabled,
 		hasPlan,
 		startTimer,
 		stopTimer
 	} = useTimerView();
-	const { modals, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
+	const { modals, actionDisabled, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
@@ -171,10 +177,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 							<TimerButton
 								onClick={startStopTimerHandler}
 								running={displayRunning}
-								disabled={
-									// If timer is running at some other source and user may or may not have selected the task
-									!canRunTimer || (disabled && timerStatus?.lastLog?.source !== ETimeLogSource.TEAMS)
-								}
+								disabled={!hydrated || actionDisabled}
 							/>
 						</Tooltip>
 
@@ -227,8 +230,9 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 }
 
 export function MinTimerFrame({ className }: IClassName) {
-	const { hours, minutes, seconds, ms_p, timerStatus, disabled, hasPlan, startTimer, stopTimer } = useTimerView();
-	const { modals, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
+	const hydrated = useHydrated();
+	const { hours, minutes, seconds, ms_p, timerStatus, hasPlan, startTimer, stopTimer } = useTimerView();
+	const { modals, actionDisabled, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
@@ -295,7 +299,7 @@ export function MinTimerFrame({ className }: IClassName) {
 				<TimerButton
 					onClick={startStopTimerHandler}
 					running={displayRunning}
-					disabled={disabled}
+					disabled={!hydrated || actionDisabled}
 					className="w-7 h-7"
 				/>
 			</div>

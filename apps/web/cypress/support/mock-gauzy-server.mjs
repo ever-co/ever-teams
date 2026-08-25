@@ -8,9 +8,10 @@ const jsonClone = (value) => JSON.parse(JSON.stringify(value));
 const pagination = (items = []) => ({ items, total: items.length });
 const TRUSTED_BROWSER_ORIGINS = new Set(['http://127.0.0.1:3030', 'http://localhost:3030']);
 
-function buildData(fixture, scenario, requestUrl) {
+function buildData(fixture, scenario, requestUrl, requestTenantId) {
 	const { ids, names } = fixture;
 	const scopeB =
+		requestTenantId === ids.tenantB ||
 		requestUrl.searchParams.get('tenantId') === ids.tenantB ||
 		requestUrl.searchParams.get('where[tenantId]') === ids.tenantB ||
 		scenario.scope === 'B';
@@ -33,7 +34,13 @@ function buildData(fixture, scenario, requestUrl) {
 		enabled: true,
 		tenantId
 	}));
-	const role = { id: ids.role, name: 'ADMIN', isSystem: true, rolePermissions, tenantId };
+	const role = {
+		id: ids.role,
+		name: scenario.manager === false ? 'EMPLOYEE' : 'ADMIN',
+		isSystem: true,
+		rolePermissions,
+		tenantId
+	};
 	const organization = {
 		id: organizationId,
 		name: organizationName,
@@ -145,7 +152,7 @@ function buildData(fixture, scenario, requestUrl) {
 		tenantId,
 		members: [employees.self],
 		tags: [],
-		teams: []
+		teams: [{ id: teamId, name: teamName, organizationId, tenantId }]
 	};
 	const makeMember = ({ id, employee, isManager }) => ({
 		id,
@@ -476,7 +483,7 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 		);
 		if (delayMs > 0) await new Promise((resolve) => setTimeout(resolve, delayMs));
 		const body = await readJsonBody(request);
-		const data = buildData(fixture, state.scenario, requestUrl);
+		const data = buildData(fixture, state.scenario, requestUrl, typeof tenantId === 'string' ? tenantId : undefined);
 		const payload = routeResponse(method, requestUrl.pathname, requestUrl, data, fixture, state, body);
 		const status = 200;
 		const endMs = performance.now() - state.startedAt;

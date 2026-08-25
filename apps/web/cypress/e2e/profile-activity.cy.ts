@@ -57,7 +57,7 @@ describe('employee-scoped profile activity', () => {
 		cy.fixture('bootstrap').then((fixture) => {
 			cy.mockScenario({ manager: false, shareProfileView: true });
 			cy.hardVisit(`/profile/${fixture.ids.teammateUser}`);
-			cy.contains('button', /^stats$/i, { timeout: 15_000 }).click();
+			cy.contains('button', /^stats/i, { timeout: 15_000 }).click();
 			cy.wait(300);
 			cy.mockRequests().then((requests) => {
 				const reads = profileReads(requests);

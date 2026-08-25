@@ -7,12 +7,21 @@ describe('feature parity on the authenticated shell', () => {
 	});
 
 	it('starts the timer and preserves the canonical IN_PROGRESS taskStatusId on task mutation', () => {
-		cy.mockScenario({ hasPlan: false, requirePlanToTrack: false });
+		cy.mockScenario({ hasPlan: true, requirePlanToTrack: false });
 		cy.hardVisit('/team/tasks');
+		cy.window().then((window) => {
+			const today = new Date().toISOString().split('T')[0];
+			window.localStorage.setItem('daily-plan-suggestion-modal-date', today);
+			window.localStorage.setItem('tasks-estimate-hours-modal-date', today);
+			window.localStorage.setItem('daily-plan-estimate-hours-modal', today);
+		});
+		cy.intercept('POST', '**/api/timer/start').as('startTimer');
+		cy.intercept('POST', '**/api/timesheet/timer/start').as('startTimer');
+		cy.intercept({ method: /PUT|PATCH/, url: '**/api/tasks/**' }).as('updateTask');
 		cy.get('button[aria-label="Start timer"]', { timeout: 20_000 })
 			.should('have.attr', 'aria-disabled', 'false')
 			.click();
-		cy.wait(500);
+		cy.wait(['@startTimer', '@updateTask'], { timeout: 20_000 });
 		cy.mockState().then((state) => {
 			expect(state.mutationProof).to.deep.equal({
 				startedTimer: true,
@@ -36,17 +45,19 @@ describe('feature parity on the authenticated shell', () => {
 		cy.contains('ADMIN', { timeout: 15_000 }).click();
 		cy.contains('Activated').should('exist');
 
+		cy.intercept('GET', '**/api/invite*').as('teamInvites');
 		cy.hardVisit('/settings/team');
-		cy.wait(250);
+		cy.wait('@teamInvites', { timeout: 20_000 });
 		cy.mockRequests().then((requests) => {
 			expect(requests.some((request) => request.path === '/api/invite')).to.equal(true);
 		});
 
 		cy.fixture('bootstrap').then((fixture) => {
+			cy.intercept('GET', '**/api/public/team/**').as('publicTeam');
 			cy.clearCookies({ log: false });
 			cy.visit(`/team/${fixture.ids.teamA}/${fixture.profileLink}`);
 			cy.get('body').should('be.visible');
-			cy.wait(250);
+			cy.wait('@publicTeam', { timeout: 20_000 });
 			cy.mockRequests().then((requests) => {
 				expect(requests.some((request) => request.path.startsWith('/api/public/team/'))).to.equal(true);
 			});
@@ -55,7 +66,10 @@ describe('feature parity on the authenticated shell', () => {
 
 	it('does not let a delayed A owner overwrite the resolved B scope', () => {
 		cy.fixture('bootstrap').then((fixture) => {
-			cy.mockScenario({ delays: { [`${fixture.ids.tenantA}:/api/daily-plan`]: 900 } });
+			cy.mockScenario({
+				requirePlanToTrack: true,
+				delays: { [`${fixture.ids.tenantA}:/api/daily-plan`]: 900 }
+			});
 			cy.hardVisit('/team/tasks');
 			cy.syntheticLogin('B');
 			cy.reload();
@@ -64,7 +78,7 @@ describe('feature parity on the authenticated shell', () => {
 			cy.wait(1_000);
 			cy.contains(fixture.names.teamB).should('exist');
 			cy.mockRequests().then((requests) => {
-				const teamPlans = requests.filter((request) => request.path === '/api/daily-plan');
+				const teamPlans = requests.filter((request) => request.path.startsWith('/api/daily-plan'));
 				const lastScope = new URLSearchParams(teamPlans.at(-1)?.query).get('where[tenantId]');
 				expect(lastScope).to.equal(fixture.ids.tenantB);
 			});
