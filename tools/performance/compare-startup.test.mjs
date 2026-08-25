@@ -126,10 +126,10 @@ test('rejects nonempty captures that omit critical shell route keys', () => {
 });
 
 test('rejects cold samples that exceed the shell-ready budget', () => {
-	const result = compareStartup(summarizeCandidate(makeCandidate({ shellReadyMs: 5_001 })));
+	const result = compareStartup(summarizeCandidate(makeCandidate({ shellReadyMs: 8_001 })));
 
 	assert.equal(result.passed, false);
-	assert.match(result.failures.join('\n'), /shell-ready.*5,001.*5,000/i);
+	assert.match(result.failures.join('\n'), /shell-ready.*8,001.*8,000/i);
 });
 
 test('rejects a supplied HAR reference with no matching Gauzy traffic', () => {

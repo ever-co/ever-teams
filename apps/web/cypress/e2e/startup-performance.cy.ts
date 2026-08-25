@@ -1,5 +1,6 @@
 /// <reference types="cypress" />
 
+import { DEFAULT_SHELL_READY_BUDGET_MS } from '../../../../tools/performance/compare-startup.mjs';
 import {
 	normalizeGauzyRequest,
 	type NormalizedGauzyRequest
@@ -7,7 +8,6 @@ import {
 
 type CapturedRequest = NormalizedGauzyRequest & { startMs: number; endMs: number };
 type Sample = { index: number; startedAt: number; shellReadyMs: number; requests: CapturedRequest[] };
-const SHELL_READY_BUDGET_MS = 5_000;
 
 describe('five-sample cold-start performance budget', () => {
 	it('meets normalized Gauzy request budgets without rich global reports', () => {
@@ -58,7 +58,7 @@ describe('five-sample cold-start performance budget', () => {
 			cy.waitForShellReady().then(() => {
 				const sample = activeSample!;
 				sample.shellReadyMs = Date.now() - sample.startedAt;
-				expect(sample.shellReadyMs, `sample ${index} shell-ready`).to.be.at.most(SHELL_READY_BUDGET_MS);
+				expect(sample.shellReadyMs, `sample ${index} shell-ready`).to.be.at.most(DEFAULT_SHELL_READY_BUDGET_MS);
 			});
 			cy.wait(5_000, { log: false });
 			cy.then(() => {

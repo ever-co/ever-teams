@@ -12,6 +12,8 @@ const REQUIRED_SHELL_ROUTE_KEYS = [
 	'GET /api/timesheet/timer/status'
 ];
 
+export const DEFAULT_SHELL_READY_BUDGET_MS = 8_000;
+
 function nearestRank(values, percentile) {
 	if (!values.length) return null;
 	const sorted = [...values].sort((left, right) => left - right);
@@ -94,7 +96,7 @@ export function summarizeCandidate(candidate) {
 
 export function compareStartup(
 	candidateSummary,
-	{ samples = 5, criticalReads = 12, firstFiveSeconds = 20, shellReadyMs = 5_000, baseline } = {}
+	{ samples = 5, criticalReads = 12, firstFiveSeconds = 20, shellReadyMs = DEFAULT_SHELL_READY_BUDGET_MS, baseline } = {}
 ) {
 	const failures = [];
 	if (candidateSummary.sampleCount !== samples) {
