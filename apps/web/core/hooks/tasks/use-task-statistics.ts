@@ -26,7 +26,7 @@ import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useScopeGuard } from '../bootstrap/use-scope-guard';
 import { useIsomorphicLayoutEffect } from '../common/use-isomorphic-layout-effect';
 
-export interface UseTaskStatisticsOptions {
+interface UseTaskStatisticsOptions {
 	enabled?: boolean;
 	scope?: ApiRequestScope;
 	refetchInterval?: number | false;

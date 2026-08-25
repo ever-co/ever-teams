@@ -9,7 +9,7 @@ import { useScopeGuard } from '../bootstrap/use-scope-guard';
 import { useReactiveAccessTokenCookie } from './use-reactive-access-token-cookie';
 import { CREDENTIAL_SCOPED_QUERY_META } from '@/core/query/credential-query';
 
-export interface UseGetCurrentOrganizationOptions {
+interface UseGetCurrentOrganizationOptions {
 	enabled?: boolean;
 }
 

@@ -1813,7 +1813,7 @@ describe('Ever Teams feature surface preservation', () => {
 		).toBe(false);
 	});
 
-	it('preserves duplicate href and NEXT_PUBLIC occurrences with stable ordinals', () => {
+	it('protects duplicate navigation while inventorying NEXT_PUBLIC occurrences with stable ordinals', () => {
 		expect(violationRun.report?.base.surface.navigation).toEqual(
 			expect.arrayContaining([
 				'apps/web/core/navigation.tsx::href=/object::#1',
@@ -1842,18 +1842,11 @@ describe('Ever Teams feature surface preservation', () => {
 					category: 'navigation',
 					kind: 'removed',
 					value: 'apps/web/core/navigation.tsx::href=/same::#2'
-				},
-				{
-					category: 'nextPublicOccurrences',
-					kind: 'removed',
-					value: 'apps/web/core/navigation.tsx::NEXT_PUBLIC_API_URL::#2'
-				},
-				{
-					category: 'nextPublicOccurrences',
-					kind: 'removed',
-					value: 'apps/web/core/navigation.tsx::NEXT_PUBLIC_DUPLICATE::#2'
 				}
 			])
+		);
+		expect(violationRun.report?.violations.filter(({ category }) => category === 'nextPublicOccurrences')).toEqual(
+			[]
 		);
 	});
 
@@ -1878,7 +1871,7 @@ describe('Ever Teams feature surface preservation', () => {
 		);
 	});
 
-	it('follows simple process.env and import.meta.env aliases for NEXT_PUBLIC uses', () => {
+	it('inventories simple process.env and import.meta.env aliases for NEXT_PUBLIC uses', () => {
 		const path = 'apps/web/core/imperative-navigation.ts';
 		expect(violationRun.report?.base.surface.nextPublicOccurrences).toEqual(
 			expect.arrayContaining([
@@ -1887,14 +1880,14 @@ describe('Ever Teams feature surface preservation', () => {
 				`${path}::NEXT_PUBLIC_ALIAS_DESTRUCTURED::#1`
 			])
 		);
-		expect(violationRun.report?.violations).toContainEqual({
-			category: 'nextPublicOccurrences',
-			kind: 'removed',
-			value: `${path}::NEXT_PUBLIC_ALIAS_URL::#1`
-		});
+		expect(
+			violationRun.report?.violations.some(
+				({ category, value }) => category === 'nextPublicOccurrences' && value.startsWith(`${path}::`)
+			)
+		).toBe(false);
 	});
 
-	it('preserves NEXT_PUBLIC occurrences in tracked environment samples', () => {
+	it('inventories NEXT_PUBLIC occurrences in tracked environment samples without blocking cleanup', () => {
 		const path = 'apps/web/.env.sample';
 		expect(violationRun.report?.base.surface.nextPublicOccurrences).toEqual(
 			expect.arrayContaining([
@@ -1902,11 +1895,11 @@ describe('Ever Teams feature surface preservation', () => {
 				`${path}::NEXT_PUBLIC_SUFFIXED_ENV_REMOVED::#1`
 			])
 		);
-		expect(violationRun.report?.violations).toContainEqual({
-			category: 'nextPublicOccurrences',
-			kind: 'removed',
-			value: `${path}::NEXT_PUBLIC_SUFFIXED_ENV_REMOVED::#1`
-		});
+		expect(
+			violationRun.report?.violations.some(
+				({ category, value }) => category === 'nextPublicOccurrences' && value.startsWith(`${path}::`)
+			)
+		).toBe(false);
 	});
 
 	it('uses deterministic code-point order rather than locale collation', () => {

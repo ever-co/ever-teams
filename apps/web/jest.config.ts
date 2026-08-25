@@ -9,8 +9,7 @@ import { resolve } from 'node:path';
  * fonts, so tests can import app modules exactly like the app does. Run from the repo root with
  * `yarn test:web` (or `yarn workspace @ever-teams/web test`).
  *
- * Every dependency this needs (jest 29, jest-environment-jsdom, @testing-library/*) is already
- * hoisted at the monorepo root — nothing new was added for it.
+ * Test dependencies are declared by the web workspace so the harness is reproducible in isolation.
  */
 const webDirectory = typeof __dirname === 'string' ? __dirname : resolve(process.cwd(), 'apps/web');
 const createJestConfig = nextJest({ dir: webDirectory });

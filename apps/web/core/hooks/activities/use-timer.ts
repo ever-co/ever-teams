@@ -25,7 +25,7 @@ export { useLiveTimerStatus } from '../timer';
  * - `useTimerPlanStatus` — Read-only plan state, NO mutations (from '@/core/hooks/timer')
  * - `useLiveTimerStatus` — Lightweight live timer display (from '@/core/hooks/timer')
  */
-export interface UseTimerOptions {
+interface UseTimerOptions {
 	enabled?: boolean;
 	scope?: ApiRequestScope;
 	statusEnabled?: boolean;
@@ -142,10 +142,6 @@ export function useSyncTimer() {
 	const { syncTimer } = useTimer();
 	const timerStatus = useAtomValue(timerStatusState);
 
-	// Enable real-time polling of team data when timer is active
-	// This ensures all team members see updated statuses (Working/Pause/Not Working) in real-time
-	// Note: This hook is called only once in init-state.tsx, so we have a single polling instance
 	useTimerPolling(timerStatus?.running ?? false);
-
 	useRefreshIntervalV2(timerStatus?.running ? syncTimer : () => void 0, REFRESH_INTERVAL);
 }

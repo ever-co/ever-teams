@@ -32,7 +32,7 @@ export interface ShellScope {
 	taskId?: string | null;
 }
 
-export function getShellCredentialQueryKeys(scope: ShellScope): QueryKey[] {
+function getShellCredentialQueryKeys(scope: ShellScope): QueryKey[] {
 	return [
 		queryKeys.organizationTeams.listByScope(scope.tenantId, scope.organizationId, scope.userId),
 		queryKeys.organizationTeams.detailByScope(scope.tenantId, scope.organizationId, scope.teamId, scope.userId),

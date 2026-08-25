@@ -5,9 +5,9 @@ import { queryKeys } from '@/core/query/keys';
 import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
 import type { TProfileActivityRequest } from '@/core/types/schemas/activities/profile-activity.schema';
 
-export type ProfileActivityDateRange = Pick<TProfileActivityRequest, 'startDate' | 'endDate'>;
+type ProfileActivityDateRange = Pick<TProfileActivityRequest, 'startDate' | 'endDate'>;
 
-export type UseProfileActivityOptions = {
+type UseProfileActivityOptions = {
 	enabled?: boolean;
 };
 

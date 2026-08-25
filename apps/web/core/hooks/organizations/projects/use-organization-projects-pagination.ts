@@ -16,7 +16,7 @@ export interface PaginationParams {
 	take?: number;
 }
 
-export interface UseOrganizationProjectsPaginationOptions {
+interface UseOrganizationProjectsPaginationOptions {
 	enabled?: boolean;
 }
 
