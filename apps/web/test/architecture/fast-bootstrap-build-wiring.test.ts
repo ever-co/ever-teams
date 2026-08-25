@@ -157,4 +157,19 @@ describe('fast bootstrap build wiring', () => {
 		expect(cypress.compilerOptions.types).toEqual(['cypress', 'node']);
 		expect(cypress.include).toEqual(expect.arrayContaining(['../cypress.config.ts', './**/*.ts']));
 	});
+
+	it('uses the pull-request base for affected projects while preserving the reviewed surface baseline', () => {
+		const workflow = parseYaml(read('.github/workflows/web.before-merge.yml')) as {
+			jobs: { deploy: { steps: WorkflowStep[] } };
+		};
+		const audit = workflow.jobs.deploy.steps.find((step) => step.name === 'Audit affected projects');
+		const verify = workflow.jobs.deploy.steps.find((step) => step.name === 'Verify affected projects');
+		const packageJson = JSON.parse(read('package.json')) as { scripts: Record<string, string> };
+		const pullRequestBase = '${{ github.event.pull_request.base.sha }}';
+
+		expect(audit?.run).toBe(`yarn nx show projects --affected --base=${pullRequestBase} --head=HEAD`);
+		expect(verify?.run).toBe(`yarn nx affected -t lint,test,build --base=${pullRequestBase} --head=HEAD`);
+		expect(`${audit?.run}\n${verify?.run}`).not.toContain('--base=7a75a102464779008f4b6e9fa61bb69e2cde8621');
+		expect(packageJson.scripts['preservation:web']).toContain('--base=7a75a102464779008f4b6e9fa61bb69e2cde8621');
+	});
 });

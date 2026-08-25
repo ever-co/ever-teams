@@ -93,10 +93,10 @@ jobs:
         run: yarn nx run web:lint
 
       - name: Audit affected projects
-        run: yarn nx show projects --affected --base=7a75a102464779008f4b6e9fa61bb69e2cde8621 --head=HEAD
+        run: yarn nx show projects --affected --base=${{ github.event.pull_request.base.sha }} --head=HEAD
 
       - name: Verify affected projects
-        run: yarn nx affected -t lint,test,build --base=7a75a102464779008f4b6e9fa61bb69e2cde8621 --head=HEAD
+        run: yarn nx affected -t lint,test,build --base=${{ github.event.pull_request.base.sha }} --head=HEAD
 
       - name: Build Web
 
