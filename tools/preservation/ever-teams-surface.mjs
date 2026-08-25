@@ -49,7 +49,12 @@ function resolveGitExecutable() {
 			try {
 				if (!existsSync(candidate) || !statSync(candidate).isFile()) return false;
 				if (process.platform !== 'win32') accessSync(candidate, constants.X_OK);
-				return true;
+				const probe = spawnSync(candidate, ['--version'], {
+					encoding: 'utf8',
+					timeout: 5_000,
+					windowsHide: true
+				});
+				return probe.status === 0 && /^git version\b/i.test(probe.stdout.trim());
 			} catch {
 				return false;
 			}

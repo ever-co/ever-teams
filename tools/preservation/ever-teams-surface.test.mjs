@@ -8,10 +8,15 @@ import test from 'node:test';
 
 const toolPath = resolve(dirname(fileURLToPath(import.meta.url)), 'ever-teams-surface.mjs');
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
-const knownGit = ['/usr/bin/git', '/usr/local/bin/git'].find((candidate) => {
+const knownGitCandidates =
+	process.platform === 'win32'
+		? [String.raw`C:\Program Files\Git\cmd\git.exe`, String.raw`C:\Program Files\Git\bin\git.exe`]
+		: ['/usr/bin/git', '/usr/local/bin/git'];
+const knownGit = knownGitCandidates.find((candidate) => {
 	try {
-		accessSync(candidate, constants.X_OK);
-		return true;
+		if (process.platform !== 'win32') accessSync(candidate, constants.X_OK);
+		const result = spawnSync(candidate, ['--version'], { encoding: 'utf8', windowsHide: true });
+		return result.status === 0 && /^git version\b/i.test(result.stdout.trim());
 	} catch {
 		return false;
 	}
@@ -60,6 +65,24 @@ test(
 	}
 );
 
+test('skips a non-Git PATH shadow before using known Git', { skip: !knownGit }, (context) => {
+	const directory = mkdtempSync(join(tmpdir(), 'ever-teams-preservation-git-shadow-'));
+	context.after(() => rmSync(directory, { recursive: true, force: true }));
+	const shadowGit = join(directory, process.platform === 'win32' ? 'git.exe' : 'git');
+	const shadowContents =
+		process.platform === 'win32'
+			? 'completion metadata only\n'
+			: '#!/bin/sh\necho completion metadata only\nexit 0\n';
+	writeFileSync(shadowGit, shadowContents, { mode: 0o755 });
+	if (process.platform !== 'win32') chmodSync(shadowGit, 0o755);
+
+	const result = runResolverProbe(directory, { PATH: directory });
+
+	assert.equal(result.status, 2);
+	assert.match(result.stderr, /git rev-parse .* failed:/i);
+	assert.doesNotMatch(result.stderr, /EACCES|EINVAL|ENOEXEC|permission denied/i);
+});
+
 test(
 	'prefers an executable configured Git candidate over PATH and known locations',
 	{ skip: process.platform === 'win32' },
@@ -67,7 +90,11 @@ test(
 		const directory = mkdtempSync(join(tmpdir(), 'ever-teams-preservation-configured-git-'));
 		context.after(() => rmSync(directory, { recursive: true, force: true }));
 		const configuredGit = join(directory, 'configured-git');
-		writeFileSync(configuredGit, '#!/bin/sh\necho CONFIGURED_GIT_MARKER >&2\nexit 7\n', { mode: 0o755 });
+		writeFileSync(
+			configuredGit,
+			'#!/bin/sh\nif [ "$1" = "--version" ]; then\n  echo "git version configured-test"\n  exit 0\nfi\necho CONFIGURED_GIT_MARKER >&2\nexit 7\n',
+			{ mode: 0o755 }
+		);
 		chmodSync(configuredGit, 0o755);
 
 		const result = runResolverProbe(directory, {
