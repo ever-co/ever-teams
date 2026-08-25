@@ -148,12 +148,15 @@ describe('fast feature data owners', () => {
 		expect(mockUseLanguageSettings).toHaveBeenLastCalledWith({ enabled: true });
 	});
 
-	it('never starts fast sidebar ownership for a public team', () => {
+	it('hydrates public-team languages once without starting authenticated project ownership', () => {
 		window.requestAnimationFrame = jest.fn();
 		renderHook(() => useFastSidebarDataOwner(true));
 
+		expect(mockUseOrganizationProjectsQuery).toHaveBeenCalledTimes(1);
 		expect(mockUseOrganizationProjectsQuery).toHaveBeenLastCalledWith({ enabled: false });
-		expect(mockUseLanguageSettings).toHaveBeenLastCalledWith({ enabled: false });
+		expect(mockUseLanguageSettings).toHaveBeenCalledTimes(1);
+		expect(mockUseLanguageSettings).toHaveBeenLastCalledWith({ enabled: true });
+		expect(window.requestAnimationFrame).not.toHaveBeenCalled();
 	});
 
 	it('preserves legacy sidebar project ownership without adding a second language owner', () => {

@@ -67,9 +67,10 @@ export function useFastSidebarDataOwner(publicTeam: boolean | undefined) {
 		};
 	}, [fastBootstrap, publicTeam]);
 
-	const fastOwnerEnabled = fastBootstrap && !publicTeam && deferredReady;
-	const projects = useOrganizationProjectsQuery({ enabled: fastBootstrap ? fastOwnerEnabled : true });
-	useLanguageSettings({ enabled: fastOwnerEnabled });
+	const fastProjectOwnerEnabled = fastBootstrap && !publicTeam && deferredReady;
+	const fastLanguageOwnerEnabled = fastBootstrap && (Boolean(publicTeam) || deferredReady);
+	const projects = useOrganizationProjectsQuery({ enabled: fastBootstrap ? fastProjectOwnerEnabled : true });
+	useLanguageSettings({ enabled: fastLanguageOwnerEnabled });
 
 	return projects;
 }

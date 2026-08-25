@@ -14,6 +14,7 @@ import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
 import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import { useFastScopeGuard } from '../../bootstrap/use-fast-scope-guard';
 import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
+import { FAST_CREDENTIAL_QUERY_META } from '@/core/query/fast-credential-query';
 
 export interface UseEmployeeOptions {
 	enabled?: boolean;
@@ -21,6 +22,7 @@ export interface UseEmployeeOptions {
 
 export const useEmployee = ({ enabled = true }: UseEmployeeOptions = {}) => {
 	const { data: user } = useUserQuery();
+	const queryClient = useQueryClient();
 	const [workingEmployees, setWorkingEmployees] = useAtom(workingEmployeesState);
 	const [workingEmployeesEmail, setWorkingEmployeesEmail] = useAtom(workingEmployeesEmailState);
 
@@ -69,6 +71,7 @@ export const useEmployee = ({ enabled = true }: UseEmployeeOptions = {}) => {
 	// NOTE: (migrated from /employee/pagination?.. because of security reasons)
 	const { data: employeesData, isLoading: getWorkingEmployeeLoading } = useQuery({
 		queryKey,
+		meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
 		queryFn: ({ signal }) =>
 			fastBootstrap
 				? employeeService.getWorkingEmployees(queryParams.organizationTeamId, { scope, signal })
@@ -104,10 +107,16 @@ export const useEmployee = ({ enabled = true }: UseEmployeeOptions = {}) => {
 	const getWorkingEmployeeQueryCall = useCallback(() => {
 		if (fastBootstrap) {
 			if (!fastQueryEnabled) return Promise.resolve({ items: [], total: 0 });
-			return employeeService.getWorkingEmployees(queryParams.organizationTeamId, { scope });
+			return queryClient.fetchQuery({
+				queryKey,
+				meta: FAST_CREDENTIAL_QUERY_META,
+				queryFn: ({ signal }) =>
+					employeeService.getWorkingEmployees(queryParams.organizationTeamId, { scope, signal }),
+				staleTime: 0
+			});
 		}
 		return employeeService.getWorkingEmployees(queryParams.organizationTeamId);
-	}, [fastBootstrap, fastQueryEnabled, queryParams.organizationTeamId, scope]);
+	}, [fastBootstrap, fastQueryEnabled, queryClient, queryKey, queryParams.organizationTeamId, scope]);
 
 	return {
 		firstLoadDataEmployee,

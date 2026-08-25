@@ -8,6 +8,7 @@ import { useIsomorphicLayoutEffect } from '@/core/hooks/common/use-isomorphic-la
 import { queryKeys } from '@/core/query/keys';
 import {
 	activeTaskStatisticsState,
+	activeTeamIdState,
 	activeTeamTaskState,
 	allTaskStatisticsState,
 	localTimerStatusState,
@@ -58,6 +59,7 @@ export function getFastShellCriticalQueryKeys(scope: FastShellScope): QueryKey[]
 export function useScopeTransitionGuard(scope: FastShellScope, enabled = true) {
 	const queryClient = useQueryClient();
 	const setTeams = useSetAtom(organizationTeamsState);
+	const setActiveTeamId = useSetAtom(activeTeamIdState);
 	const setTasks = useSetAtom(teamTasksState);
 	const setActiveTask = useSetAtom(activeTeamTaskState);
 	const setTimerStatus = useSetAtom(timerStatusState);
@@ -97,12 +99,16 @@ export function useScopeTransitionGuard(scope: FastShellScope, enabled = true) {
 
 			const organizationChanged =
 				previous.scope.tenantId !== scope.tenantId || previous.scope.organizationId !== scope.organizationId;
+			const teamCredentialChanged = organizationChanged || previous.scope.userId !== scope.userId;
 			const teamChanged = organizationChanged || previous.scope.teamId !== scope.teamId;
 			const projectChanged = teamChanged || previous.scope.projectId !== scope.projectId;
 			const timerIdentityChanged =
 				teamChanged || previous.scope.userId !== scope.userId || previous.scope.employeeId !== scope.employeeId;
 			const statisticsChanged = projectChanged || timerIdentityChanged || previous.scope.taskId !== scope.taskId;
-			if (organizationChanged) setTeams([]);
+			if (teamCredentialChanged) {
+				setTeams([]);
+				setActiveTeamId(null);
+			}
 			if (projectChanged) {
 				setTasks([]);
 				setActiveTask(null);
@@ -127,6 +133,7 @@ export function useScopeTransitionGuard(scope: FastShellScope, enabled = true) {
 		fingerprint,
 		queryClient,
 		scope,
+		setActiveTeamId,
 		setActiveTask,
 		setActiveTaskStatistics,
 		setAllTaskStatistics,

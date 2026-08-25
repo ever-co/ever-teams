@@ -10,6 +10,7 @@ import { useUserQuery } from '../queries/user-user.query';
 import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
 import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
+import { FAST_CREDENTIAL_QUERY_META } from '@/core/query/fast-credential-query';
 
 export interface UseRolesQueryOptions {
 	enabled?: boolean;
@@ -46,6 +47,7 @@ export function useRolesQuery({ enabled = true }: UseRolesQueryOptions = {}) {
 		isSuccess
 	} = useQuery({
 		queryKey,
+		meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
 		queryFn: ({ signal }) => (fastBootstrap ? roleService.getRoles({ scope, signal }) : roleService.getRoles()),
 		enabled: fastBootstrap ? fastQueryEnabled : enabled && !!tenantId && isAdmin,
 		staleTime: 1000 * 60 * 10, // 10 minutes — roles are relatively stable

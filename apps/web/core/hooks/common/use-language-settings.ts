@@ -18,6 +18,7 @@ import { useUserQuery } from '../queries/user-user.query';
 import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
 import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
+import { FAST_CREDENTIAL_QUERY_META } from '@/core/query/fast-credential-query';
 
 export interface UseLanguageSettingsOptions {
 	enabled?: boolean;
@@ -136,6 +137,7 @@ export function useLanguageSettings({ enabled = true }: UseLanguageSettingsOptio
 	 */
 	const languagesQuery = useQuery({
 		queryKey, // Use stable memoized query key
+		meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
 		queryFn: ({ signal }) =>
 			fastBootstrap
 				? languageService.getLanguages(isSystem, { scope, signal })
@@ -164,7 +166,7 @@ export function useLanguageSettings({ enabled = true }: UseLanguageSettingsOptio
 	 * @returns Promise resolving to the API response data
 	 */
 	const loadLanguagesData = useCallback(async () => {
-		if (fastBootstrap && !isCurrentScope()) {
+		if (fastBootstrap && (!fastQueryEnabled || !isCurrentScope())) {
 			return { data: { items: [], total: 0 } };
 		}
 		if (effectsEnabled) {
@@ -197,6 +199,7 @@ export function useLanguageSettings({ enabled = true }: UseLanguageSettingsOptio
 		activeLanguageId,
 		effectsEnabled,
 		fastBootstrap,
+		fastQueryEnabled,
 		isCurrentScope,
 		languagesQuery.data,
 		languagesQuery.isStale,

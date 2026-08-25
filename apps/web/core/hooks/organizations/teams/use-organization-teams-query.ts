@@ -186,7 +186,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 	const lastProcessedTeamsSignatureRef = useRef<string | null>(null);
 	useEffect(() => {
 		lastProcessedTeamsSignatureRef.current = null;
-	}, [scope?.organizationId, scope?.tenantId]);
+	}, [scope?.organizationId, scope?.tenantId, scope?.userId]);
 
 	useEffect(() => {
 		if (canHydrateSharedState && organizationTeamsQuery.data?.data?.items && (!scoped || listCurrent())) {
@@ -298,7 +298,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 	const lastProcessedTeamSignatureRef = useRef<string | null>(null);
 	useEffect(() => {
 		lastProcessedTeamSignatureRef.current = null;
-	}, [scope?.organizationId, scope?.teamId, scope?.tenantId]);
+	}, [scope?.organizationId, scope?.teamId, scope?.tenantId, scope?.userId]);
 
 	useEffect(() => {
 		if (canHydrateSharedState && organizationTeamQuery.data?.data && (!scoped || detailCurrent())) {
@@ -375,7 +375,12 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			if (teamId) {
 				await queryClient.fetchQuery({
 					queryKey: scoped
-						? queryKeys.organizationTeams.detailByScope(scope?.tenantId, scope?.organizationId, teamId, scope?.userId)
+						? queryKeys.organizationTeams.detailByScope(
+								scope?.tenantId,
+								scope?.organizationId,
+								teamId,
+								scope?.userId
+							)
 						: queryKeys.organizationTeams.detail(teamId),
 					queryFn: async ({ signal }) => {
 						return scoped

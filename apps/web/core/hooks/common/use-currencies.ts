@@ -11,6 +11,7 @@ import { useFirstLoad } from './use-first-load';
 import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
 import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
+import { FAST_CREDENTIAL_QUERY_META } from '@/core/query/fast-credential-query';
 
 export interface UseCurrenciesOptions {
 	enabled?: boolean;
@@ -94,6 +95,7 @@ export const useCurrencies = ({ enabled = true }: UseCurrenciesOptions = {}): Us
 	 */
 	const currenciesQuery = useQuery({
 		queryKey,
+		meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
 		queryFn: ({ signal }) =>
 			fastBootstrap ? currencyService.getCurrencies({ scope, signal }) : currencyService.getCurrencies(),
 		enabled: fastBootstrap ? fastQueryEnabled : enabled && !!(tenantId && organizationId),

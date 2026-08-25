@@ -12,6 +12,7 @@ import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/c
 import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
 import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
+import { FAST_CREDENTIAL_QUERY_META } from '@/core/query/fast-credential-query';
 
 export interface UseTeamDailyPlansOptions {
 	/**
@@ -91,6 +92,7 @@ export function useTeamDailyPlans(options?: UseTeamDailyPlansOptions) {
 
 	const getAllDayPlansQuery = useQuery({
 		queryKey: allPlansKey,
+		meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
 		queryFn: async ({ signal }) => {
 			const res = fastBootstrap
 				? await dailyPlanService.getAllDayPlans({ scope, signal })
@@ -109,6 +111,7 @@ export function useTeamDailyPlans(options?: UseTeamDailyPlansOptions) {
 
 		return queryClient.fetchQuery({
 			queryKey: taskQueryKey,
+			meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
 			queryFn: async ({ signal }) => {
 				const res = fastBootstrap
 					? await dailyPlanService.getPlansByTask({ taskId, scope, signal })

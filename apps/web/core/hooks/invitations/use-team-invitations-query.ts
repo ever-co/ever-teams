@@ -12,6 +12,7 @@ import { useUserQuery } from '../queries/user-user.query';
 import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
 import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
+import { FAST_CREDENTIAL_QUERY_META } from '@/core/query/fast-credential-query';
 
 export interface UseTeamInvitationsQueryOptions {
 	enabled?: boolean;
@@ -70,6 +71,7 @@ export function useTeamInvitationsQuery({ enabled = true }: UseTeamInvitationsQu
 		isSuccess: teamInvitationsSuccess
 	} = useQuery({
 		queryKey,
+		meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
 		queryFn: async ({ signal }) => {
 			if (!teamInvitationsParams) return { items: [] };
 			return fastBootstrap

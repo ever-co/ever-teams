@@ -9,6 +9,7 @@ import { useInvalidateOrganizationProjects } from './use-invalidate-organization
 import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import { useFastScopeGuard } from '../../bootstrap/use-fast-scope-guard';
 import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
+import { FAST_CREDENTIAL_QUERY_META } from '@/core/query/fast-credential-query';
 
 export interface UseOrganizationProjectsQueryOptions {
 	enabled?: boolean;
@@ -56,6 +57,7 @@ export function useOrganizationProjectsQuery({ enabled = true }: UseOrganization
 	// Main query: fetch all organization projects
 	const organizationProjectsQuery = useQuery({
 		queryKey: mainQueryKey,
+		meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
 		queryFn: ({ signal }) =>
 			fastBootstrap
 				? organizationProjectService.getOrganizationProjects({ scope, signal })
@@ -70,6 +72,7 @@ export function useOrganizationProjectsQuery({ enabled = true }: UseOrganization
 	// Filtered query: fetch projects matching search queries
 	const filteredOrganizations = useQuery({
 		queryKey: filteredQueryKey,
+		meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
 		queryFn: ({ signal }) =>
 			organizationProjectService.getOrganizationProjects(
 				fastBootstrap
@@ -88,6 +91,7 @@ export function useOrganizationProjectsQuery({ enabled = true }: UseOrganization
 					queryKey: fastBootstrap
 						? queryKeys.organizationProjects.detailByScope(tenantId, organizationId, id)
 						: queryKeys.organizationProjects.detail(id),
+					meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
 					queryFn: ({ signal }) =>
 						fastBootstrap
 							? organizationProjectService.getOrganizationProject(id, { scope, signal })

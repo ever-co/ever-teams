@@ -2,9 +2,17 @@ import { PaginationResponse } from '@/core/types/interfaces/common/data-response
 import { ILanguageItemList } from '@/core/types/interfaces/common/language';
 import { TLanguageItemList } from '@/core/types/schemas';
 import { UseQueryResult } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 const alwaysCurrentScope = () => true;
+type LoadingSetter = (loading: boolean) => void;
+const loadingOwners = new Set<symbol>();
+
+const updateLoadingOwnership = (setter: LoadingSetter, owner: symbol, loading: boolean) => {
+	if (loading) loadingOwners.add(owner);
+	else loadingOwners.delete(owner);
+	setter(loadingOwners.size > 0);
+};
 
 /**
  * Custom hook to sync React Query state with Jotai atoms for backward compatibility
@@ -20,20 +28,16 @@ export const useLanguageStateSync = (
 ) => {
 	const { enabled = true } = options;
 	const isCurrentScope = options.isCurrentScope ?? alwaysCurrentScope;
+	const loadingOwner = useRef(Symbol('language-loading-owner'));
 	// Sync React Query loading state with Jotai state for backward compatibility
 	useEffect(() => {
-		if (enabled && isCurrentScope()) {
-			setLanguagesFetching(languagesQuery.isLoading);
-		}
+		updateLoadingOwnership(
+			setLanguagesFetching,
+			loadingOwner.current,
+			enabled && isCurrentScope() && languagesQuery.isLoading
+		);
+		return () => updateLoadingOwnership(setLanguagesFetching, loadingOwner.current, false);
 	}, [enabled, isCurrentScope, languagesQuery.isLoading, setLanguagesFetching]);
-
-	useEffect(() => {
-		return () => {
-			if (enabled && isCurrentScope()) {
-				setLanguagesFetching(false);
-			}
-		};
-	}, [enabled, isCurrentScope, setLanguagesFetching]);
 
 	// Sync React Query data with Jotai state for backward compatibility
 	useEffect(() => {

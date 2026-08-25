@@ -10,6 +10,7 @@ import { TInvite } from '@/core/types/schemas';
 import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
 import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
+import { FAST_CREDENTIAL_QUERY_META } from '@/core/query/fast-credential-query';
 
 /**
  * Hook for reading the current user's invitations.
@@ -49,6 +50,7 @@ export function useMyInvitationsQuery() {
 		refetch: refetchMyInvitationsQuery
 	} = useQuery({
 		queryKey: myInvitationsKey,
+		meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
 		queryFn: async ({ signal }) => {
 			return fastBootstrap
 				? await inviteService.getMyInvitations({ scope, signal })

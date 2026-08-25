@@ -4,6 +4,15 @@ import { act, render } from '@testing-library/react';
 
 const mockInvalidateQueries = jest.fn(() => Promise.resolve());
 const mockCancelQueries = jest.fn(() => Promise.resolve());
+let mockCredentialQueries: Array<{ queryKey: readonly unknown[]; meta?: Record<string, unknown> }> = [];
+const mockQueryClient = {
+	cancelQueries: mockCancelQueries,
+	invalidateQueries: mockInvalidateQueries,
+	getQueryCache: () => ({
+		findAll: ({ predicate }: { predicate?: (query: (typeof mockCredentialQueries)[number]) => boolean }) =>
+			predicate ? mockCredentialQueries.filter(predicate) : mockCredentialQueries
+	})
+};
 
 const calls = {
 	teams: jest.fn(),
@@ -31,7 +40,8 @@ let rawTimerRunning = false;
 let accessToken = 'token-1';
 
 jest.mock('@tanstack/react-query', () => ({
-	useQueryClient: () => ({ cancelQueries: mockCancelQueries, invalidateQueries: mockInvalidateQueries })
+	...jest.requireActual('@tanstack/react-query'),
+	useQueryClient: () => mockQueryClient
 }));
 
 jest.mock('@/core/hooks/queries/user-user.query', () => ({
@@ -115,6 +125,7 @@ function resetState() {
 	plansSuccess = false;
 	rawTimerRunning = false;
 	accessToken = 'token-1';
+	mockCredentialQueries = [];
 	jest.clearAllMocks();
 	mockCancelQueries.mockResolvedValue(undefined);
 	mockInvalidateQueries.mockResolvedValue(undefined);
@@ -273,6 +284,27 @@ describe('FastInitState dependency DAG', () => {
 		expect(mockCancelQueries).toHaveBeenCalledWith({ queryKey: listKey, exact: true });
 		expect(mockInvalidateQueries).toHaveBeenCalledWith({
 			queryKey: listKey,
+			exact: true,
+			refetchType: 'active'
+		});
+	});
+
+	it('re-owns a mounted credential query when the token rotates before workspace bootstrap resolves', async () => {
+		const routeKey = ['roles', 'scope', 'tenant-1'] as const;
+		mockCredentialQueries = [{ queryKey: routeKey, meta: { fastCredentialScoped: true } }];
+		render(<FastInitState />);
+		mockCancelQueries.mockClear();
+		mockInvalidateQueries.mockClear();
+
+		act(() => {
+			accessToken = 'token-2';
+			window.dispatchEvent(new Event('ever-teams:access-token-refreshed'));
+		});
+		await act(async () => Promise.resolve());
+
+		expect(mockCancelQueries).toHaveBeenCalledWith({ queryKey: routeKey, exact: true });
+		expect(mockInvalidateQueries).toHaveBeenCalledWith({
+			queryKey: routeKey,
 			exact: true,
 			refetchType: 'active'
 		});

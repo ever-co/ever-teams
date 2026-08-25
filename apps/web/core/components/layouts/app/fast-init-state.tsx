@@ -137,7 +137,6 @@ export function FastInitState() {
 		const previous = previousTokenScopeRef.current;
 		previousTokenScopeRef.current = { accessToken, fingerprint: tokenScopeFingerprint };
 		if (
-			!workspaceReady ||
 			!accessToken ||
 			!previous.accessToken ||
 			previous.accessToken === accessToken ||
@@ -150,7 +149,7 @@ export function FastInitState() {
 		const refreshedFingerprint = tokenScopeFingerprint;
 		void reownActiveQueriesAfterTokenRefresh(
 			queryClient,
-			credentialQueryKeys,
+			workspaceReady ? credentialQueryKeys : [],
 			() =>
 				mountedRef.current &&
 				currentTokenScopeRef.current.accessToken === refreshedToken &&

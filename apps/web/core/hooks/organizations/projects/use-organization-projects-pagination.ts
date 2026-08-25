@@ -9,6 +9,7 @@ import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import { useFastScopeGuard } from '../../bootstrap/use-fast-scope-guard';
 import { useUserQuery } from '../../queries/user-user.query';
 import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
+import { FAST_CREDENTIAL_QUERY_META } from '@/core/query/fast-credential-query';
 
 /** Simple pagination params type */
 export interface PaginationParams {
@@ -60,6 +61,7 @@ export function useOrganizationProjectsPagination({ enabled = true }: UseOrganiz
 	// Enhanced query with pagination
 	const organizationProjectsWithPagination = useQuery({
 		queryKey,
+		meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
 		queryFn: ({ signal }) =>
 			organizationProjectService.getOrganizationProjects(
 				fastBootstrap
