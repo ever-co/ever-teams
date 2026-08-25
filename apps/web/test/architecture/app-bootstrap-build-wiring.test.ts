@@ -98,18 +98,19 @@ describe('application bootstrap build wiring', () => {
 		expect(cypressInstall?.run).not.toMatch(/\b(?:yarn|npm)\b/);
 	});
 
-	it('uses the pull-request base for affected projects while preserving the reviewed surface baseline', () => {
+	it('verifies the changed web application without inheriting unrelated monorepo baseline failures', () => {
 		const workflow = parseYaml(read('.github/workflows/web.before-merge.yml')) as {
 			jobs: { deploy: { steps: WorkflowStep[] } };
 		};
-		const audit = workflow.jobs.deploy.steps.find((step) => step.name === 'Audit affected projects');
-		const verify = workflow.jobs.deploy.steps.find((step) => step.name === 'Verify affected projects');
+		const test = workflow.jobs.deploy.steps.find((step) => step.name === 'Test Web');
+		const lint = workflow.jobs.deploy.steps.find((step) => step.name === 'Lint Web');
+		const build = workflow.jobs.deploy.steps.find((step) => step.name === 'Build Web');
 		const packageJson = JSON.parse(read('package.json')) as { scripts: Record<string, string> };
-		const pullRequestBase = '${{ github.event.pull_request.base.sha }}';
 
-		expect(audit?.run).toBe(`yarn nx show projects --affected --base=${pullRequestBase} --head=HEAD`);
-		expect(verify?.run).toBe(`yarn nx affected -t lint,test,build --base=${pullRequestBase} --head=HEAD`);
-		expect(`${audit?.run}\n${verify?.run}`).not.toContain('--base=7a75a102464779008f4b6e9fa61bb69e2cde8621');
+		expect(test?.run).toBe('yarn test:web --runInBand');
+		expect(lint?.run).toBe('yarn nx run web:lint');
+		expect(build?.run).toContain('yarn build:web');
+		expect(workflow.jobs.deploy.steps.some((step) => step.run?.includes('nx affected'))).toBe(false);
 		expect(packageJson.scripts['preservation:web']).toContain('--base=origin/develop');
 	});
 });
