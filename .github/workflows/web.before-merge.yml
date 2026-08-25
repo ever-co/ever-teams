@@ -141,16 +141,15 @@ jobs:
         env:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
 
+      # cspell:ignore libgbm libnotify libnss libxss libasound xauth
       - name: Install browser system dependencies
         run: |
-          if ! command -v Xvfb >/dev/null 2>&1; then
-            if command -v sudo >/dev/null 2>&1; then
-              sudo apt-get update -qq
-              sudo apt-get install -y --no-install-recommends xvfb
-            else
-              apt-get update -qq
-              apt-get install -y --no-install-recommends xvfb
-            fi
+          if command -v sudo >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends libgtk-3-0t64 libgbm-dev libnotify-dev libnss3 libxss1 libasound2t64 libxtst6 xauth xvfb
+          else
+            apt-get update -qq
+            apt-get install -y --no-install-recommends libgtk-3-0t64 libgbm-dev libnotify-dev libnss3 libxss1 libasound2t64 libxtst6 xauth xvfb
           fi
 
       - name: Install trusted Cypress binary

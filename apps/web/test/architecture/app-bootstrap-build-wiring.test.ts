@@ -83,6 +83,7 @@ describe('application bootstrap build wiring', () => {
 	});
 
 	it('installs the trusted Cypress binary directly after the ignore-scripts package install', () => {
+		// cspell:ignore libgbm libnotify libnss libxss libasound xauth
 		const workflow = parseYaml(read('.github/workflows/web.before-merge.yml')) as {
 			jobs: { 'browser-parity': { steps: WorkflowStep[] } };
 		};
@@ -96,7 +97,9 @@ describe('application bootstrap build wiring', () => {
 		expect(packagesIndex).toBeGreaterThanOrEqual(0);
 		expect(steps[packagesIndex]?.run).toContain('--ignore-scripts');
 		expect(systemDependenciesIndex).toBeGreaterThan(packagesIndex);
-		expect(systemDependencies?.run).toContain('apt-get install -y --no-install-recommends xvfb');
+		expect(systemDependencies?.run).toContain(
+			'apt-get install -y --no-install-recommends libgtk-3-0t64 libgbm-dev libnotify-dev libnss3 libxss1 libasound2t64 libxtst6 xauth xvfb'
+		);
 		expect(cypressIndex).toBeGreaterThan(systemDependenciesIndex);
 		expect(cypressInstall?.run).toBe('node ./node_modules/cypress/bin/cypress install');
 		expect(cypressInstall?.run).not.toMatch(/\b(?:yarn|npm)\b/);
