@@ -182,7 +182,12 @@ describe('fast feature data owners', () => {
 			'utf8'
 		);
 
-		expect(dropdownSource).toMatch(/enabled:\s*!deferFastBootstrap\s*\|\|\s*!FAST_APP_BOOTSTRAP\.value/);
+		expect(dropdownSource).toMatch(
+			/isDeferredFastBootstrap\s*=\s*deferFastBootstrap\s*&&\s*FAST_APP_BOOTSTRAP\.value/
+		);
+		expect(dropdownSource).toMatch(/enabled:\s*!isDeferredFastBootstrap\s*\|\|\s*interactionActivated/);
+		expect(dropdownSource).toMatch(/setInteractionActivated\(true\)/);
+		expect(dropdownSource).toMatch(/if \(isDeferredFastBootstrap\) return;[\s\S]*loadLanguagesData\(\)/);
 		expect(footerSource).toMatch(/LanguageDropDownWithFlags[\s\S]*deferFastBootstrap/);
 		expect(navSource).toMatch(/LanguageDropDownWithFlags[\s\S]*deferFastBootstrap/);
 		expect(authSource).not.toMatch(/LanguageDropDownWithFlags[\s\S]{0,120}deferFastBootstrap/);
