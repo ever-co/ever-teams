@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 
 const TIMER_API = resolve(__dirname, '../../core/hooks/timer/use-timer-api.ts');
 
-describe('fast-shell timer task-status ownership', () => {
+describe('shell timer task-status ownership', () => {
 	it('keeps task statuses enabled whenever the timer API is enabled', () => {
 		const source = readFileSync(TIMER_API, 'utf8');
 

@@ -7,10 +7,9 @@ import { queryKeys } from '@/core/query/keys';
 import { getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { useUserQuery } from '../queries/user-user.query';
-import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
-import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
+import { useScopeGuard } from '../bootstrap/use-scope-guard';
 import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
-import { FAST_CREDENTIAL_QUERY_META } from '@/core/query/fast-credential-query';
+import { CREDENTIAL_SCOPED_QUERY_META } from '@/core/query/credential-query';
 
 export interface UseRolesQueryOptions {
 	enabled?: boolean;
@@ -29,17 +28,16 @@ export function useRolesQuery({ enabled = true }: UseRolesQueryOptions = {}) {
 		: false;
 
 	const tenantId = getTenantIdCookie();
-	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
 	const accessToken = useReactiveAccessTokenCookie();
 	const scope = {
 		tenantId,
 		userId: user?.id,
-		accessToken: fastBootstrap ? accessToken : undefined
+		accessToken
 	};
-	const queryKey = fastBootstrap ? queryKeys.roles.byTenant(scope.tenantId) : queryKeys.roles.all;
-	const fastOwnerActive = enabled && fastBootstrap;
-	const fastQueryEnabled = fastOwnerActive && isAdmin && !!(scope.tenantId && scope.userId && scope.accessToken);
-	useFastScopeGuard(queryKey, fastOwnerActive);
+	const queryKey = queryKeys.roles.byTenant(scope.tenantId);
+	const ownerActive = enabled;
+	const queryEnabled = ownerActive && isAdmin && !!(scope.tenantId && scope.userId && scope.accessToken);
+	useScopeGuard(queryKey, ownerActive);
 
 	const {
 		data: rolesData,
@@ -47,9 +45,9 @@ export function useRolesQuery({ enabled = true }: UseRolesQueryOptions = {}) {
 		isSuccess
 	} = useQuery({
 		queryKey,
-		meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
-		queryFn: ({ signal }) => (fastBootstrap ? roleService.getRoles({ scope, signal }) : roleService.getRoles()),
-		enabled: fastBootstrap ? fastQueryEnabled : enabled && !!tenantId && isAdmin,
+		meta: CREDENTIAL_SCOPED_QUERY_META,
+		queryFn: ({ signal }) => roleService.getRoles({ scope, signal }),
+		enabled: queryEnabled,
 		staleTime: 1000 * 60 * 10, // 10 minutes — roles are relatively stable
 		gcTime: 1000 * 60 * 30 // 30 minutes
 	});

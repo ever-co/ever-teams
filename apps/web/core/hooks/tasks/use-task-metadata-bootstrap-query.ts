@@ -3,7 +3,6 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
-import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import {
 	getActiveProjectIdCookie,
 	getActiveTeamIdCookie,
@@ -33,7 +32,7 @@ export function useTaskMetadataBootstrapQuery({ enabled = true }: { enabled?: bo
 		() => createTaskMetadataScope(tenantId, organizationId, teamId, projectId),
 		[organizationId, projectId, teamId, tenantId]
 	);
-	const useBootstrap = FAST_APP_BOOTSTRAP.value === true && !publicTeam;
+	const useBootstrap = !publicTeam;
 
 	const query = useQuery({
 		queryKey: queryKeys.taskMetadata.bootstrap(scope ?? DISABLED_SCOPE, TASK_METADATA_SECTIONS),

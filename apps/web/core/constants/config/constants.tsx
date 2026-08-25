@@ -241,13 +241,6 @@ export const DISABLE_AUTO_REFRESH = getNextPublicEnv('NEXT_PUBLIC_DISABLE_AUTO_R
 	}
 });
 
-export const FAST_APP_BOOTSTRAP = getNextPublicEnv('NEXT_PUBLIC_FAST_APP_BOOTSTRAP', {
-	default: process.env.NEXT_PUBLIC_FAST_APP_BOOTSTRAP,
-	map(value) {
-		return value === 'true';
-	}
-});
-
 // Branding constants - no fallbacks to detect missing values
 export const APP_NAME = process.env.APP_NAME || 'Ever Teams';
 export const SITE_TITLE = process.env.NEXT_PUBLIC_SITE_TITLE || 'Open Work and Project Management Platform';

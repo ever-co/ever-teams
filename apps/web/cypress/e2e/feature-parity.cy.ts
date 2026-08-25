@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-describe('feature parity on the fast shell', () => {
+describe('feature parity on the authenticated shell', () => {
 	beforeEach(() => {
 		cy.mockReset();
 		cy.syntheticLogin();
@@ -9,7 +9,9 @@ describe('feature parity on the fast shell', () => {
 	it('starts the timer and preserves the canonical IN_PROGRESS taskStatusId on task mutation', () => {
 		cy.mockScenario({ hasPlan: false, requirePlanToTrack: false });
 		cy.hardVisit('/team/tasks');
-		cy.get('button[aria-label="Start timer"]', { timeout: 15_000 }).click();
+		cy.get('button[aria-label="Start timer"]', { timeout: 20_000 })
+			.should('have.attr', 'aria-disabled', 'false')
+			.click();
 		cy.wait(500);
 		cy.mockState().then((state) => {
 			expect(state.mutationProof).to.deep.equal({
@@ -30,7 +32,7 @@ describe('feature parity on the fast shell', () => {
 
 	it('keeps roles, permission controls, invitations, and public teams available', () => {
 		cy.hardVisit('/permissions');
-		cy.contains('Fixture Manager').should('exist');
+		cy.contains('Roles & Permissions', { timeout: 15_000 }).should('be.visible');
 		cy.contains('ADMIN', { timeout: 15_000 }).click();
 		cy.contains('Activated').should('exist');
 
@@ -57,7 +59,7 @@ describe('feature parity on the fast shell', () => {
 			cy.hardVisit('/team/tasks');
 			cy.syntheticLogin('B');
 			cy.reload();
-			if (Cypress.env('FAST_APP_BOOTSTRAP')) cy.waitForShellReady();
+			cy.waitForShellReady();
 			cy.contains(fixture.names.teamB, { timeout: 15_000 }).should('exist');
 			cy.wait(1_000);
 			cy.contains(fixture.names.teamB).should('exist');

@@ -19,7 +19,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { FAST_APP_BOOTSTRAP, LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
+import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
 import { useFirstLoad, useSyncRef } from '../../common';
 import { useTeamsState } from './use-teams-state';
@@ -28,7 +28,7 @@ import { queryKeys } from '@/core/query/keys';
 import { useSettings } from '../../users';
 import { TOrganizationTeam } from '@/core/types/schemas';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
-import { useFastScopeGuard } from '../../bootstrap/use-fast-scope-guard';
+import { useScopeGuard } from '../../bootstrap/use-scope-guard';
 import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
 
 export interface UseOrganizationTeamsQueryOptions {
@@ -70,24 +70,19 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 	const setActiveTeamTask = useSetAtom(activeTeamTaskState);
 	const setTeamTasks = useSetAtom(teamTasksState);
 	const reactiveAccessToken = useReactiveAccessTokenCookie();
-	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
 	const { enabled = true, scope: explicitScope, refetchInterval = false, detailRefetchInterval = false } = options;
 	const scope = useMemo<ApiRequestScope | undefined>(
 		() =>
-			explicitScope ??
-			(fastBootstrap
-				? {
-						tenantId: user?.employee?.tenantId ?? user?.tenantId,
-						organizationId: user?.employee?.organizationId,
-						teamId: activeTeamId || null,
-						userId: user?.id,
-						accessToken: reactiveAccessToken
-					}
-				: undefined),
+			explicitScope ?? {
+				tenantId: user?.employee?.tenantId ?? user?.tenantId,
+				organizationId: user?.employee?.organizationId,
+				teamId: activeTeamId || null,
+				userId: user?.id,
+				accessToken: reactiveAccessToken
+			},
 		[
 			activeTeamId,
 			explicitScope,
-			fastBootstrap,
 			reactiveAccessToken,
 			user?.employee?.organizationId,
 			user?.employee?.tenantId,
@@ -95,17 +90,17 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			user?.tenantId
 		]
 	);
-	const scoped = scope !== undefined;
-	const canHydrateSharedState = !fastBootstrap || explicitScope !== undefined;
+	const canHydrateSharedState = explicitScope !== undefined;
 	const scopedTeamId = scope?.teamId ?? activeTeamId;
-	const listKey = scoped
-		? queryKeys.organizationTeams.listByScope(scope.tenantId, scope.organizationId, scope.userId)
-		: queryKeys.organizationTeams.all;
-	const detailKey = scoped
-		? queryKeys.organizationTeams.detailByScope(scope.tenantId, scope.organizationId, scopedTeamId, scope.userId)
-		: queryKeys.organizationTeams.detail(activeTeamId);
-	const listCurrent = useFastScopeGuard(listKey, scoped && enabled);
-	const detailCurrent = useFastScopeGuard(detailKey, scoped && enabled);
+	const listKey = queryKeys.organizationTeams.listByScope(scope?.tenantId, scope?.organizationId, scope?.userId);
+	const detailKey = queryKeys.organizationTeams.detailByScope(
+		scope?.tenantId,
+		scope?.organizationId,
+		scopedTeamId,
+		scope?.userId
+	);
+	const listCurrent = useScopeGuard(listKey, enabled);
+	const detailCurrent = useScopeGuard(detailKey, enabled);
 	const scopedListReady = !!(scope?.tenantId && scope.organizationId && scope.accessToken);
 	const scopedDetailReady = scopedListReady && !!scopedTeamId;
 
@@ -142,19 +137,13 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 	// Query for organization teams list
 	const organizationTeamsQuery = useQuery({
 		queryKey: listKey,
-		queryFn: async ({ signal }) => {
-			return scoped
-				? await organizationTeamService.getOrganizationTeams({ scope: scope!, signal })
-				: await organizationTeamService.getOrganizationTeams();
-		},
-		enabled: scoped
-			? enabled && scopedListReady && canHydrateSharedState
-			: enabled && !!(user?.employee?.organizationId && user?.employee?.tenantId),
+		queryFn: ({ signal }) => organizationTeamService.getOrganizationTeams({ scope: scope!, signal }),
+		enabled: enabled && scopedListReady && canHydrateSharedState,
 		staleTime: 1000 * 60 * 10, // 10 minutes
 		gcTime: 1000 * 60 * 30, // 30 minutes
 		refetchOnWindowFocus: false,
 		refetchOnReconnect: false,
-		refetchInterval: scoped ? refetchInterval : false,
+		refetchInterval,
 		refetchIntervalInBackground: false
 	});
 
@@ -165,18 +154,14 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			if (!scopedTeamId) {
 				throw new Error('Team ID is required');
 			}
-			return scoped
-				? await organizationTeamService.getOrganizationTeam(scopedTeamId, { scope: scope!, signal })
-				: await organizationTeamService.getOrganizationTeam(scopedTeamId);
+			return organizationTeamService.getOrganizationTeam(scopedTeamId, { scope: scope!, signal });
 		},
-		enabled: scoped
-			? enabled && scopedDetailReady && canHydrateSharedState
-			: enabled && !!(activeTeamId && user?.employee?.organizationId && user?.employee?.tenantId),
+		enabled: enabled && scopedDetailReady && canHydrateSharedState,
 		staleTime: 1000 * 60 * 10,
 		gcTime: 1000 * 60 * 30,
 		refetchOnWindowFocus: false,
 		refetchOnReconnect: false,
-		refetchInterval: scoped ? detailRefetchInterval : false,
+		refetchInterval: detailRefetchInterval,
 		refetchIntervalInBackground: false
 	});
 
@@ -189,7 +174,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 	}, [scope?.organizationId, scope?.tenantId, scope?.userId]);
 
 	useEffect(() => {
-		if (canHydrateSharedState && organizationTeamsQuery.data?.data?.items && (!scoped || listCurrent())) {
+		if (canHydrateSharedState && organizationTeamsQuery.data?.data?.items && listCurrent()) {
 			const latestTeams = organizationTeamsQuery.data.data.items;
 
 			// Create a signature based on ALL mutable fields
@@ -256,20 +241,12 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 		setIsTeamMemberJustDeleted,
 		isTeamMemberRef,
 		canHydrateSharedState,
-		scoped,
 		listCurrent
 	]);
 
-	// The fast path resolves the selected team from the scoped list without issuing an imperative duplicate fetch.
+	// Resolve the selected team from the scoped list without issuing an imperative duplicate fetch.
 	useEffect(() => {
-		if (
-			!canHydrateSharedState ||
-			!scoped ||
-			!enabled ||
-			!organizationTeamsQuery.data?.data?.items ||
-			!listCurrent()
-		)
-			return;
+		if (!canHydrateSharedState || !enabled || !organizationTeamsQuery.data?.data?.items || !listCurrent()) return;
 		const latestTeams = organizationTeamsQuery.data.data.items;
 		if (!latestTeams.length) {
 			setActiveTeamId('');
@@ -288,7 +265,6 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 		enabled,
 		listCurrent,
 		organizationTeamsQuery.data,
-		scoped,
 		setActiveTeam,
 		setActiveTeamId,
 		user?.lastTeamId
@@ -301,7 +277,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 	}, [scope?.organizationId, scope?.teamId, scope?.tenantId, scope?.userId]);
 
 	useEffect(() => {
-		if (canHydrateSharedState && organizationTeamQuery.data?.data && (!scoped || detailCurrent())) {
+		if (canHydrateSharedState && organizationTeamQuery.data?.data && detailCurrent()) {
 			const newTeam = organizationTeamQuery.data.data;
 
 			const memberActiveTaskIds = newTeam.members?.map((m) => m.activeTaskId || 'null').join(',') || '';
@@ -321,7 +297,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [organizationTeamQuery.dataUpdatedAt, setTeamsUpdate, activeTeam, canHydrateSharedState, scoped, detailCurrent]);
+	}, [organizationTeamQuery.dataUpdatedAt, setTeamsUpdate, activeTeam, canHydrateSharedState, detailCurrent]);
 
 	// ==================== QUERY FUNCTIONS ====================
 
@@ -346,11 +322,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 		try {
 			const teamsResult = await queryClient.fetchQuery({
 				queryKey: listKey,
-				queryFn: async ({ signal }) => {
-					return scoped
-						? await organizationTeamService.getOrganizationTeams({ scope: scope!, signal })
-						: await organizationTeamService.getOrganizationTeams();
-				}
+				queryFn: ({ signal }) => organizationTeamService.getOrganizationTeams({ scope: scope!, signal })
 			});
 
 			const latestTeams = teamsResult.data?.items || [];
@@ -374,19 +346,14 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 
 			if (teamId) {
 				await queryClient.fetchQuery({
-					queryKey: scoped
-						? queryKeys.organizationTeams.detailByScope(
-								scope?.tenantId,
-								scope?.organizationId,
-								teamId,
-								scope?.userId
-							)
-						: queryKeys.organizationTeams.detail(teamId),
-					queryFn: async ({ signal }) => {
-						return scoped
-							? await organizationTeamService.getOrganizationTeam(teamId, { scope: scope!, signal })
-							: await organizationTeamService.getOrganizationTeam(teamId);
-					}
+					queryKey: queryKeys.organizationTeams.detailByScope(
+						scope?.tenantId,
+						scope?.organizationId,
+						teamId,
+						scope?.userId
+					),
+					queryFn: ({ signal }) =>
+						organizationTeamService.getOrganizationTeam(teamId, { scope: scope!, signal })
 				});
 			}
 
@@ -405,8 +372,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 		setIsTeamMemberJustDeleted,
 		setActiveTeam,
 		listKey,
-		scope,
-		scoped
+		scope
 	]);
 
 	const handleFirstLoad = useCallback(async () => {
@@ -420,24 +386,30 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			// We use getQueryData to retrieve from cache instead of making a redundant API call
 			const cachedTeamData = queryClient.getQueryData<{
 				data: TOrganizationTeam;
-			}>(queryKeys.organizationTeams.detail(currentTeamId));
+			}>(
+				queryKeys.organizationTeams.detailByScope(
+					scope?.tenantId,
+					scope?.organizationId,
+					currentTeamId,
+					scope?.userId
+				)
+			);
 			if (cachedTeamData) {
 				setTeamsUpdate(cachedTeamData.data);
 			}
 		}
 
 		firstLoadTeamsDataInternal();
-	}, [activeTeamIdRef, firstLoadTeamsDataInternal, loadTeamsData, queryClient, setTeamsUpdate]);
+	}, [activeTeamIdRef, firstLoadTeamsDataInternal, loadTeamsData, queryClient, scope, setTeamsUpdate]);
 
 	return {
 		// Query states
 		getOrganizationTeamsLoading: organizationTeamsQuery.isLoading,
 		loadingTeam: organizationTeamQuery.isLoading,
 		teamsFetching: organizationTeamsQuery.isFetching,
-		organizationTeamsSuccess: organizationTeamsQuery.isSuccess && (!scoped || listCurrent()),
+		organizationTeamsSuccess: organizationTeamsQuery.isSuccess && listCurrent(),
 		organizationTeamSuccess:
-			(!teams.length && organizationTeamsQuery.isSuccess) ||
-			(organizationTeamQuery.isSuccess && (!scoped || detailCurrent())),
+			(!teams.length && organizationTeamsQuery.isSuccess) || (organizationTeamQuery.isSuccess && detailCurrent()),
 
 		// Data from Jotai (for backward compatibility)
 		teams,

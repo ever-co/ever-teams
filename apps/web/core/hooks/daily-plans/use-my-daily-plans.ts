@@ -9,8 +9,7 @@ import { queryKeys } from '@/core/query/keys';
 import { useUserQuery } from '../queries/user-user.query';
 import { useDailyPlanCalculations } from './use-daily-plan-calculations';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
-import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
-import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
+import { useScopeGuard } from '../bootstrap/use-scope-guard';
 import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
 
 export interface UseMyDailyPlansOptions {
@@ -20,9 +19,9 @@ export interface UseMyDailyPlansOptions {
 	 * @default true
 	 */
 	enabled?: boolean;
-	/** Captured request identity for the fast bootstrap path. */
+	/** Captured request identity for the shell owner. */
 	scope?: ApiRequestScope;
-	/** Optional declarative refresh interval. Legacy callers keep the existing no-interval behavior. */
+	/** Optional declarative refresh interval. */
 	refetchInterval?: number | false;
 }
 
@@ -56,27 +55,22 @@ export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
 	const activeTeam = useAtomValue(activeTeamState);
 	const allTeamTasks = useAtomValue(tasksByTeamState);
 	const reactiveAccessToken = useReactiveAccessTokenCookie();
-	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
 
 	// Extract options with defaults
 	const { enabled = true, scope: explicitScope, refetchInterval = false } = options || {};
 	const scope = useMemo<ApiRequestScope | undefined>(
 		() =>
-			explicitScope ??
-			(fastBootstrap
-				? {
-						tenantId: user?.employee?.tenantId ?? user?.tenantId,
-						organizationId: activeTeam?.organizationId ?? user?.employee?.organizationId,
-						teamId: activeTeam?.id,
-						userId: user?.id,
-						accessToken: reactiveAccessToken
-					}
-				: undefined),
+			explicitScope ?? {
+				tenantId: user?.employee?.tenantId ?? user?.tenantId,
+				organizationId: activeTeam?.organizationId ?? user?.employee?.organizationId,
+				teamId: activeTeam?.id,
+				userId: user?.id,
+				accessToken: reactiveAccessToken
+			},
 		[
 			activeTeam?.id,
 			activeTeam?.organizationId,
 			explicitScope,
-			fastBootstrap,
 			reactiveAccessToken,
 			user?.employee?.organizationId,
 			user?.employee?.tenantId,
@@ -84,12 +78,14 @@ export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
 			user?.tenantId
 		]
 	);
-	const scoped = scope !== undefined;
-	const canOwnScopedQuery = !fastBootstrap || explicitScope !== undefined;
-	const queryKey = scoped
-		? queryKeys.dailyPlans.myPlansByScope(scope.tenantId, scope.organizationId, scope.teamId, scope.userId)
-		: queryKeys.dailyPlans.myPlans(activeTeam?.id);
-	const isCurrentScope = useFastScopeGuard(queryKey, scoped && enabled);
+	const canOwnScopedQuery = explicitScope !== undefined;
+	const queryKey = queryKeys.dailyPlans.myPlansByScope(
+		scope?.tenantId,
+		scope?.organizationId,
+		scope?.teamId,
+		scope?.userId
+	);
+	const isCurrentScope = useScopeGuard(queryKey, enabled);
 	const scopedReady = !!(
 		scope?.tenantId &&
 		scope.organizationId &&
@@ -102,16 +98,11 @@ export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
 
 	const getMyDailyPlansQuery = useQuery({
 		queryKey,
-		queryFn: async ({ signal }) => {
-			const res = scoped
-				? await dailyPlanService.getMyDailyPlans({ scope: scope!, signal })
-				: await dailyPlanService.getMyDailyPlans();
-			return res;
-		},
-		enabled: scoped ? enabled && scopedReady && canOwnScopedQuery : enabled && !!activeTeam?.id,
-		staleTime: scoped ? 60_000 : 0,
+		queryFn: ({ signal }) => dailyPlanService.getMyDailyPlans({ scope: scope!, signal }),
+		enabled: enabled && scopedReady && canOwnScopedQuery,
+		staleTime: 60_000,
 		gcTime: 1000 * 60 * 60, // 1 hour
-		refetchInterval: scoped ? refetchInterval : false,
+		refetchInterval,
 		refetchIntervalInBackground: false
 	});
 
@@ -170,7 +161,7 @@ export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
 		// Loading states
 		isLoading: getMyDailyPlansQuery.isLoading,
 		isFetching: getMyDailyPlansQuery.isFetching,
-		isSuccess: getMyDailyPlansQuery.isSuccess && (!scoped || isCurrentScope()),
+		isSuccess: getMyDailyPlansQuery.isSuccess && isCurrentScope(),
 		isError: getMyDailyPlansQuery.isError,
 		error: getMyDailyPlansQuery.error
 	};

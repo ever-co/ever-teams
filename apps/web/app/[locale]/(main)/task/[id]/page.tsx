@@ -20,10 +20,10 @@ import Link from 'next/link';
 // Import optimized components from centralized location
 import { LazyTaskDetailsComponent } from '@/core/components/optimized-components';
 import { activeTeamState, detailedTaskState, isTrackingEnabledState } from '@/core/stores';
-import { useFastTeamDailyPlansOwner } from '@/core/hooks/bootstrap/use-fast-feature-data';
+import { useTeamDailyPlansOwner } from '@/core/hooks/bootstrap/use-feature-data';
 
 const TaskDetails = () => {
-	useFastTeamDailyPlansOwner();
+	useTeamDailyPlansOwner();
 	const profile = useUserProfilePage();
 	const t = useTranslations();
 	const router = useRouter();

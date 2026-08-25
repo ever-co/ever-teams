@@ -23,7 +23,7 @@ import { getTaskTotalWorkedDuration } from '@/core/lib/utils/task.utils';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
-import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
+import { useScopeGuard } from '../bootstrap/use-scope-guard';
 import { useIsomorphicLayoutEffect } from '../common/use-isomorphic-layout-effect';
 
 export interface UseTaskStatisticsOptions {
@@ -61,7 +61,7 @@ export function useTaskStatistics(addSeconds = 0, options: UseTaskStatisticsOpti
 				user?.employee?.id
 			)
 		: queryKeys.tasks.statistics(activeTeam?.id);
-	const isCurrentScope = useFastScopeGuard(statisticsKey, scoped && enabled);
+	const isCurrentScope = useScopeGuard(statisticsKey, scoped && enabled);
 	const scopedReady = !!(
 		scope?.tenantId &&
 		scope.organizationId &&

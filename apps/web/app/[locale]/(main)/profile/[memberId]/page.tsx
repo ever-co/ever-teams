@@ -31,19 +31,18 @@ import {
 } from '@/core/components/optimized-components';
 import { activeTeamManagersState, activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import {
 	normalizeProfileActivityTimeZone,
 	useProfileActivity,
 	useProfileActivityMonthRange
 } from '@/core/hooks/activities/use-profile-activity';
 import type { TProfileActivityScope } from '@/core/types/schemas/activities/profile-activity.schema';
-import { useFastTeamDailyPlansOwner } from '@/core/hooks/bootstrap/use-fast-feature-data';
+import { useTeamDailyPlansOwner } from '@/core/hooks/bootstrap/use-feature-data';
 
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
 const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
-	useFastTeamDailyPlansOwner();
+	useTeamDailyPlansOwner();
 	const unwrappedParams = React.use(params as any) as { memberId: string };
 	const { data: user } = useUserQuery();
 
@@ -121,7 +120,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		[activityScope, currentMonthRange]
 	);
 	const profileActivitySummary = useProfileActivity(summaryRequest, {
-		enabled: FAST_APP_BOOTSTRAP.value && profileValidation.isValid && canSeeActivity
+		enabled: profileValidation.isValid && canSeeActivity
 	});
 	const summaryData = profileActivitySummary.data;
 	const statsCount =

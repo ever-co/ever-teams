@@ -1,524 +1,367 @@
 /** @jest-environment jsdom */
 
-import { act, cleanup, render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 
-type Action = jest.Mock<void, []>;
-
-let mockFastAppBootstrap = false;
-let mockUser: unknown = { id: 'user-1' };
-const mockPublicTeam = { id: 'public-team' };
-const mockLegacyOwnerCalls: string[] = [];
-const mockStartupCallOrder: string[] = [];
-const mockRefreshIntervalCalls: Array<[string, number, unknown?]> = [];
-const mockTeamRefreshIntervalCalls: Array<[string, number, unknown?]> = [];
-const mockYearTimeLogRequest = jest.fn();
-
-function mockOwner<T>(name: string, value: T): T {
-	mockLegacyOwnerCalls.push(name);
-	return value;
-}
-
-function mockAction(name: string): Action {
-	return jest.fn(() => {
-		mockStartupCallOrder.push(name);
-	});
-}
-
-const mockFirstLoadWorkspacesData = mockAction('firstLoadWorkspacesData');
-const mockFirstLoadTeamsData = mockAction('firstLoadTeamsData');
-const mockFirstLoadTasksData = mockAction('firstLoadTasksData');
-const mockFirstLoadTeamInvitationsData = mockAction('firstLoadTeamInvitationsData');
-const mockFirstLoadTimerData = mockAction('firstLoadTimerData');
-const mockFirstLoadtasksStatisticsData = mockAction('firstLoadtasksStatisticsData');
-const mockFirstLoadLanguagesData = mockAction('firstLoadLanguagesData');
-const mockFirstLoadAutoAssignTask = mockAction('firstLoadAutoAssignTask');
-const mockFirstLoadOrganizationProjectsData = mockAction('firstLoadOrganizationProjectsData');
-const mockFirstLoadTaskStatusesData = mockAction('firstLoadTaskStatusesData');
-const mockFirstLoadTaskVersionData = mockAction('firstLoadTaskVersionData');
-const mockFirstLoadTaskPrioritiesData = mockAction('firstLoadTaskPrioritiesData');
-const mockFirstLoadTaskSizesData = mockAction('firstLoadTaskSizesData');
-const mockFirstLoadTaskLabelsData = mockAction('firstLoadTaskLabelsData');
-const mockFirstLoadIssueTypeData = mockAction('firstLoadIssueTypeData');
-const mockFirstLoadTaskRelatedIssueTypeData = mockAction('firstLoadTaskRelatedIssueTypeData');
-const mockFirstLoadMyDailyPlans = mockAction('firstLoadMyDailyPlans');
-const mockFirstLoadTeamDailyPlans = mockAction('firstLoadTeamDailyPlans');
-const mockFirstLoadDataEmployee = mockAction('firstLoadDataEmployee');
-const mockFirstLoadRolesData = mockAction('firstLoadRolesData');
-const mockFirstLoadMyRolePermissionsData = mockAction('firstLoadMyRolePermissionsData');
-const mockFirstLoadCurrenciesData = mockAction('firstLoadCurrenciesData');
-const mockGetTimerStatus = mockAction('getTimerStatus').mockName('getTimerStatus');
-const mockLoadTeamsData = mockAction('loadTeamsData').mockName('loadTeamsData');
-const mockLoadLanguagesData = mockAction('loadLanguagesData').mockName('loadLanguagesData');
-const mockTimeToTimeRefreshToken = mockAction('timeToTimeRefreshToken');
-const mockLoadTeamTasksData = jest.fn().mockName('loadTeamTasksData');
-const mockRefetchMyInvitations = jest.fn().mockName('refetchMyInvitations');
-const mockLoadTaskStatusesData = jest.fn().mockName('loadTaskStatusesData');
-const mockLoadTaskPriorities = jest.fn().mockName('loadTaskPriorities');
-const mockLoadTaskSizes = jest.fn().mockName('loadTaskSizes');
-const mockLoadTaskLabels = jest.fn().mockName('loadTaskLabels');
-const mockLoadTaskRelatedIssueTypeData = jest.fn().mockName('loadTaskRelatedIssueTypeData');
-const mockLoadTaskVersionData = jest.fn().mockName('loadTaskVersionData');
-const mockLoadAllDayPlans = jest.fn().mockName('loadAllDayPlans');
-const mockLoadMyDailyPlans = jest.fn().mockName('loadMyDailyPlans');
-const mockValidateCurrentOrgAccess = jest.fn(async () => ({ isValid: true }));
-const mockHandleOrgBranching = jest.fn(() => ({ action: 'keep-current' }));
-
-const mockUseUserQuery = jest.fn(() => ({ data: mockUser }));
-const mockUseOrganizationTeamsQuery = jest.fn(() =>
-	mockOwner('useOrganizationTeamsQuery', {
-		loadTeamsData: mockLoadTeamsData,
-		firstLoadTeamsData: mockFirstLoadTeamsData,
-		teams: [],
-		activeTeam: null,
-		organizationTeamsSuccess: false,
-		organizationTeamSuccess: false
-	})
-);
-const mockUseTeamTasksQuery = jest.fn(() =>
-	mockOwner('useTeamTasksQuery', {
-		firstLoadTasksData: mockFirstLoadTasksData,
-		loadTeamTasksData: mockLoadTeamTasksData,
-		activeTeamTask: null,
-		querySuccess: false
-	})
-);
-const mockUseTeamInvitationsQuery = jest.fn(() =>
-	mockOwner('useTeamInvitationsQuery', { firstLoadTeamInvitationsData: mockFirstLoadTeamInvitationsData })
-);
-const mockUseMyInvitationsQuery = jest.fn(() =>
-	mockOwner('useMyInvitationsQuery', { refetchMyInvitations: mockRefetchMyInvitations })
-);
-const mockUseTimer = jest.fn(() =>
-	mockOwner('useTimer', {
-		getTimerStatus: mockGetTimerStatus,
-		firstLoadTimerData: mockFirstLoadTimerData,
-		rawTimerRunning: false,
-		statusResolved: false,
-		plansResolved: false,
-		syncTimer: jest.fn()
-	})
-);
-const mockUseTaskStatistics = jest.fn(() =>
-	mockOwner('useTaskStatistics', { firstLoadtasksStatisticsData: mockFirstLoadtasksStatisticsData })
-);
-const mockUseLanguageSettings = jest.fn(() =>
-	mockOwner('useLanguageSettings', {
-		loadLanguagesData: mockLoadLanguagesData,
-		firstLoadLanguagesData: mockFirstLoadLanguagesData
-	})
-);
-const mockUseOrganizationProjectsQuery = jest.fn(() =>
-	mockOwner('useOrganizationProjectsQuery', {
-		firstLoadOrganizationProjectsData: mockFirstLoadOrganizationProjectsData
-	})
-);
-const mockUseAutoAssignTask = jest.fn(() =>
-	mockOwner('useAutoAssignTask', { firstLoadData: mockFirstLoadAutoAssignTask })
-);
-const mockUseInvalidateRoles = jest.fn(() =>
-	mockOwner('useInvalidateRoles', { invalidateRoles: mockFirstLoadRolesData })
-);
-const mockUseTaskStatusesQuery = jest.fn(() =>
-	mockOwner('useTaskStatusesQuery', {
-		firstLoadTaskStatusesData: mockFirstLoadTaskStatusesData,
-		loadTaskStatuses: mockLoadTaskStatusesData
-	})
-);
-const mockUseInvalidateRolePermissions = jest.fn(() =>
-	mockOwner('useInvalidateRolePermissions', {
-		invalidateMyRolePermissions: mockFirstLoadMyRolePermissionsData
-	})
-);
-const mockUseCurrencies = jest.fn(() =>
-	mockOwner('useCurrencies', { firstLoadCurrenciesData: mockFirstLoadCurrenciesData })
-);
-const mockUseAuthenticateUser = jest.fn(() =>
-	mockOwner('useAuthenticateUser', { timeToTimeRefreshToken: mockTimeToTimeRefreshToken })
-);
-const mockUseWorkspaces = jest.fn(() =>
-	mockOwner('useWorkspaces', {
-		firstLoadWorkspacesData: mockFirstLoadWorkspacesData,
-		currentWorkspace: null,
-		workspacesQuery: { isSuccess: false }
-	})
-);
-const mockUseCurrentOrg = jest.fn(() =>
-	mockOwner('useCurrentOrg', {
-		validateCurrentOrgAccess: mockValidateCurrentOrgAccess,
-		handleOrgBranching: mockHandleOrgBranching
-	})
-);
-const mockUseTaskVersionsQuery = jest.fn(() =>
-	mockOwner('useTaskVersionsQuery', {
-		firstLoadTaskVersionData: mockFirstLoadTaskVersionData,
-		loadTaskVersionData: mockLoadTaskVersionData
-	})
-);
-const mockUseTaskPrioritiesQuery = jest.fn(() =>
-	mockOwner('useTaskPrioritiesQuery', {
-		firstLoadTaskPrioritiesData: mockFirstLoadTaskPrioritiesData,
-		loadTaskPriorities: mockLoadTaskPriorities
-	})
-);
-const mockUseTaskSizesQuery = jest.fn(() =>
-	mockOwner('useTaskSizesQuery', {
-		firstLoadTaskSizesData: mockFirstLoadTaskSizesData,
-		loadTaskSizes: mockLoadTaskSizes
-	})
-);
-const mockUseTaskLabelsQuery = jest.fn(() =>
-	mockOwner('useTaskLabelsQuery', {
-		firstLoadTaskLabelsData: mockFirstLoadTaskLabelsData,
-		loadTaskLabels: mockLoadTaskLabels
-	})
-);
-const mockUseIssueTypesQuery = jest.fn(() =>
-	mockOwner('useIssueTypesQuery', { firstLoadIssueTypeData: mockFirstLoadIssueTypeData })
-);
-const mockUseTaskRelatedIssueTypesQuery = jest.fn(() =>
-	mockOwner('useTaskRelatedIssueTypesQuery', {
-		firstLoadTaskRelatedIssueTypeData: mockFirstLoadTaskRelatedIssueTypeData,
-		loadTaskRelatedIssueTypeData: mockLoadTaskRelatedIssueTypeData
-	})
-);
-const mockUseMyDailyPlans = jest.fn(() =>
-	mockOwner('useMyDailyPlans', {
-		firstLoadMyDailyPlans: mockFirstLoadMyDailyPlans,
-		loadMyDailyPlans: mockLoadMyDailyPlans
-	})
-);
-const mockUseTeamDailyPlans = jest.fn(() =>
-	mockOwner('useTeamDailyPlans', {
-		firstLoadTeamDailyPlans: mockFirstLoadTeamDailyPlans,
-		loadAllDayPlans: mockLoadAllDayPlans
-	})
-);
-const mockUseEmployee = jest.fn(() => mockOwner('useEmployee', { firstLoadDataEmployee: mockFirstLoadDataEmployee }));
-const mockUseTimeLogsDailyReport = jest.fn(() => mockOwner('useTimeLogsDailyReport', undefined));
-const mockUseTimeLogs = jest.fn(() => {
-	mockOwner('useTimeLogs', undefined);
-	if (process.env.NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS === 'true') {
-		mockYearTimeLogRequest();
-	}
-});
-const mockUseGetCurrentOrganization = jest.fn(() => mockOwner('useGetCurrentOrganization', undefined));
-const mockUseSyncTimer = jest.fn(() => mockOwner('useSyncTimer', undefined));
-const mockUseTimerPolling = jest.fn();
-const mockUseScopeTransitionGuard = jest.fn();
-const mockCancelQueries = jest.fn(() => Promise.resolve());
 const mockInvalidateQueries = jest.fn(() => Promise.resolve());
+const mockCancelQueries = jest.fn(() => Promise.resolve());
+let mockCredentialQueries: Array<{ queryKey: readonly unknown[]; meta?: Record<string, unknown> }> = [];
+const mockQueryClient = {
+	cancelQueries: mockCancelQueries,
+	invalidateQueries: mockInvalidateQueries,
+	getQueryCache: () => ({
+		findAll: ({ predicate }: { predicate?: (query: (typeof mockCredentialQueries)[number]) => boolean }) =>
+			predicate ? mockCredentialQueries.filter(predicate) : mockCredentialQueries
+	})
+};
 
-jest.mock('@/core/constants/config/constants', () => ({
-	DISABLE_AUTO_REFRESH: { value: false },
-	FAST_APP_BOOTSTRAP: {
-		get value() {
-			return mockFastAppBootstrap;
-		}
-	}
-}));
-jest.mock('@/core/hooks/queries/user-user.query', () => ({ useUserQuery: mockUseUserQuery }));
-jest.mock('@/core/stores', () => ({ publicState: Symbol('publicState') }));
-jest.mock('jotai', () => ({ useAtomValue: () => mockPublicTeam }));
-jest.mock('@/core/hooks/activities/time-logs/use-time-logs-daily-report', () => ({
-	useTimeLogsDailyReport: mockUseTimeLogsDailyReport
-}));
-jest.mock('@/core/hooks/activities/time-logs/use-time-logs', () => ({ useTimeLogs: mockUseTimeLogs }));
-jest.mock('@/core/hooks/activities', () => ({ useTimer: mockUseTimer, useSyncTimer: mockUseSyncTimer }));
-jest.mock('@/core/hooks/activities/use-timer-polling', () => ({ useTimerPolling: mockUseTimerPolling }));
+const calls = {
+	teams: jest.fn(),
+	tasks: jest.fn(),
+	timer: jest.fn(),
+	autoAssign: jest.fn(),
+	statistics: jest.fn(),
+	polling: jest.fn(),
+	guard: jest.fn()
+};
+
+let user: any = null;
+let workspaceSuccess = false;
+let currentWorkspace: any = null;
+let teams: any[] = [];
+let activeTeam: any = null;
+let teamsSuccess = false;
+let teamSuccess = false;
+let tasksSuccess = false;
+let activeTask: any = null;
+let timerSuccess = false;
+let plansSuccess = false;
+let rawTimerRunning = false;
+let accessToken = 'token-1';
+
 jest.mock('@tanstack/react-query', () => ({
-	useQueryClient: () => ({ cancelQueries: mockCancelQueries, invalidateQueries: mockInvalidateQueries })
+	...jest.requireActual('@tanstack/react-query'),
+	useQueryClient: () => mockQueryClient
 }));
-jest.mock('./use-scope-transition-guard', () => ({
-	useScopeTransitionGuard: mockUseScopeTransitionGuard,
-	getFastShellCriticalQueryKeys: () => []
-}));
-jest.mock('@/core/hooks/common', () => ({
-	useLanguageSettings: mockUseLanguageSettings,
-	useCallbackRef: (func: () => void) => ({ current: func }),
-	useRefreshIntervalV2: (callback: jest.Mock, interval: number, parameter?: unknown) => {
-		mockRefreshIntervalCalls.push([callback.getMockName(), interval, parameter]);
-	},
-	useOTRefreshInterval: (callback: jest.Mock, interval: number, parameter?: unknown) => {
-		mockTeamRefreshIntervalCalls.push([callback.getMockName(), interval, parameter]);
-	}
-}));
-jest.mock('@/core/hooks/common/use-currencies', () => ({ useCurrencies: mockUseCurrencies }));
-jest.mock('@/core/hooks/daily-plans/use-my-daily-plans', () => ({ useMyDailyPlans: mockUseMyDailyPlans }));
-jest.mock('@/core/hooks/daily-plans/use-team-daily-plans', () => ({ useTeamDailyPlans: mockUseTeamDailyPlans }));
-jest.mock('@/core/hooks/organizations', () => ({
-	useOrganizationTeamsQuery: mockUseOrganizationTeamsQuery,
-	useTeamTasksQuery: mockUseTeamTasksQuery,
-	useOrganizationProjectsQuery: mockUseOrganizationProjectsQuery,
-	useEmployee: mockUseEmployee
-}));
-jest.mock('@/core/hooks/invitations/use-team-invitations-query', () => ({
-	useTeamInvitationsQuery: mockUseTeamInvitationsQuery
-}));
-jest.mock('@/core/hooks/invitations/use-my-invitations-query', () => ({
-	useMyInvitationsQuery: mockUseMyInvitationsQuery
+
+jest.mock('@/core/hooks/queries/user-user.query', () => ({
+	useUserQuery: () => ({ data: user })
 }));
 jest.mock('@/core/hooks/auth', () => ({
-	useWorkspaces: mockUseWorkspaces,
-	useCurrentOrg: mockUseCurrentOrg,
-	useAuthenticateUser: mockUseAuthenticateUser
+	useWorkspaces: () => ({
+		currentWorkspace,
+		workspacesQuery: { isSuccess: workspaceSuccess }
+	})
 }));
-jest.mock('@/core/hooks/auth/use-current-organization', () => ({
-	useGetCurrentOrganization: mockUseGetCurrentOrganization
+jest.mock('@/core/hooks/organizations', () => ({
+	useOrganizationTeamsQuery: (options: unknown) => {
+		calls.teams(options);
+		return { teams, activeTeam, organizationTeamsSuccess: teamsSuccess, organizationTeamSuccess: teamSuccess };
+	},
+	useTeamTasksQuery: (options: unknown) => {
+		calls.tasks(options);
+		return { activeTeamTask: activeTask, querySuccess: tasksSuccess };
+	}
 }));
-jest.mock('@/core/hooks/roles/use-invalidate-roles', () => ({ useInvalidateRoles: mockUseInvalidateRoles }));
-jest.mock('@/core/hooks/roles/use-invalidate-role-permissions', () => ({
-	useInvalidateRolePermissions: mockUseInvalidateRolePermissions
+jest.mock('@/core/hooks/activities', () => ({
+	useTimer: (options: unknown) => {
+		calls.timer(options);
+		return {
+			statusResolved: timerSuccess,
+			plansResolved: plansSuccess,
+			rawTimerRunning,
+			syncTimer: jest.fn(),
+			firstLoadTimerData: jest.fn()
+		};
+	}
 }));
 jest.mock('@/core/hooks/tasks', () => ({
-	useTaskStatistics: mockUseTaskStatistics,
-	useAutoAssignTask: mockUseAutoAssignTask
+	useAutoAssignTask: (options: unknown) => calls.autoAssign(options),
+	useTaskStatistics: (_seconds: number, options: unknown) => calls.statistics(options)
 }));
-jest.mock('@/core/hooks/tasks/use-task-versions-query', () => ({ useTaskVersionsQuery: mockUseTaskVersionsQuery }));
-jest.mock('@/core/hooks/tasks/use-task-statuses-query', () => ({ useTaskStatusesQuery: mockUseTaskStatusesQuery }));
-jest.mock('@/core/hooks/tasks/use-task-sizes-query', () => ({ useTaskSizesQuery: mockUseTaskSizesQuery }));
-jest.mock('@/core/hooks/tasks/use-task-priorities-query', () => ({
-	useTaskPrioritiesQuery: mockUseTaskPrioritiesQuery
+jest.mock('@/core/hooks/activities/use-timer-polling', () => ({
+	useTimerPolling: (running: boolean) => calls.polling(running)
 }));
-jest.mock('@/core/hooks/tasks/use-task-labels-query', () => ({ useTaskLabelsQuery: mockUseTaskLabelsQuery }));
-jest.mock('@/core/hooks/tasks/use-issue-types-query', () => ({ useIssueTypesQuery: mockUseIssueTypesQuery }));
-jest.mock('@/core/hooks/tasks/use-task-related-issue-types-query', () => ({
-	useTaskRelatedIssueTypesQuery: mockUseTaskRelatedIssueTypesQuery
+jest.mock('./use-scope-transition-guard', () => ({
+	useScopeTransitionGuard: (scope: unknown, enabled: boolean) => calls.guard(scope, enabled),
+	getShellCriticalQueryKeys: (scope: any) => [
+		['organization-teams', 'list-scope', scope.tenantId, scope.organizationId],
+		['organization-teams', 'detail-scope', scope.tenantId, scope.organizationId, scope.teamId],
+		['tasks', 'by-team-scope', scope.tenantId, scope.organizationId, scope.teamId, scope.projectId],
+		['timer', 'scope', scope.tenantId, scope.organizationId, scope.teamId, scope.userId],
+		['daily-plans', 'my-plans-scope', scope.tenantId, scope.organizationId, scope.teamId, scope.userId],
+		[
+			'tasks',
+			'statistics-scope',
+			scope.tenantId,
+			scope.organizationId,
+			scope.teamId,
+			scope.taskId,
+			scope.employeeId
+		]
+	]
+}));
+jest.mock('@/core/lib/helpers/cookies', () => ({
+	ACCESS_TOKEN_REFRESHED_EVENT: 'ever-teams:access-token-refreshed',
+	getAccessTokenCookie: () => accessToken
 }));
 
-// Loaded after the mocks so the focused RED is the missing Task 5 modules/flag, not legacy dependencies.
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { AppState } = require('./init-state') as typeof import('./init-state');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { LegacyInitState } = require('./legacy-init-state') as typeof import('./legacy-init-state');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { FastInitState } = require('./fast-init-state') as typeof import('./fast-init-state');
+import { InitState } from './init-state';
 
-const legacyOwners = [
-	'useOrganizationTeamsQuery',
-	'useTeamTasksQuery',
-	'useTeamInvitationsQuery',
-	'useMyInvitationsQuery',
-	'useTimer',
-	'useTaskStatistics',
-	'useLanguageSettings',
-	'useOrganizationProjectsQuery',
-	'useAutoAssignTask',
-	'useInvalidateRoles',
-	'useTaskStatusesQuery',
-	'useInvalidateRolePermissions',
-	'useCurrencies',
-	'useAuthenticateUser',
-	'useWorkspaces',
-	'useCurrentOrg',
-	'useTaskVersionsQuery',
-	'useTaskPrioritiesQuery',
-	'useTaskSizesQuery',
-	'useTaskLabelsQuery',
-	'useIssueTypesQuery',
-	'useTaskRelatedIssueTypesQuery',
-	'useMyDailyPlans',
-	'useTeamDailyPlans',
-	'useEmployee',
-	'useTimeLogsDailyReport',
-	'useTimeLogs',
-	'useGetCurrentOrganization',
-	'useSyncTimer'
-] as const;
+function resetState() {
+	user = null;
+	workspaceSuccess = false;
+	currentWorkspace = null;
+	teams = [];
+	activeTeam = null;
+	teamsSuccess = false;
+	teamSuccess = false;
+	tasksSuccess = false;
+	activeTask = null;
+	timerSuccess = false;
+	plansSuccess = false;
+	rawTimerRunning = false;
+	accessToken = 'token-1';
+	mockCredentialQueries = [];
+	jest.clearAllMocks();
+	mockCancelQueries.mockResolvedValue(undefined);
+	mockInvalidateQueries.mockResolvedValue(undefined);
+}
 
-const fastOwners = [
-	'useTimeLogs',
-	'useWorkspaces',
-	'useOrganizationTeamsQuery',
-	'useTeamTasksQuery',
-	'useTimer',
-	'useAutoAssignTask',
-	'useTaskStatistics'
-] as const;
+function resolveWorkspace() {
+	user = {
+		id: 'user-1',
+		tenantId: 'tenant-1',
+		employee: { id: 'employee-1', tenantId: 'tenant-1', organizationId: 'org-1' }
+	};
+	workspaceSuccess = true;
+	currentWorkspace = { user: { tenant: { id: 'tenant-1' } } };
+}
 
-describe('AppState startup transport selector', () => {
+function resolveTeam(requirePlanToTrack = false) {
+	activeTeam = {
+		id: 'team-1',
+		tenantId: 'tenant-1',
+		organizationId: 'org-1',
+		requirePlanToTrack,
+		projects: [{ id: 'project-1' }]
+	};
+	teams = [activeTeam];
+	teamsSuccess = true;
+	teamSuccess = true;
+}
+
+describe('InitState dependency DAG', () => {
 	beforeEach(() => {
-		jest.useFakeTimers();
-		jest.clearAllMocks();
-		mockFastAppBootstrap = false;
-		mockUser = { id: 'user-1' };
-		process.env.NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS = 'false';
-		mockLegacyOwnerCalls.length = 0;
-		mockStartupCallOrder.length = 0;
-		mockRefreshIntervalCalls.length = 0;
-		mockTeamRefreshIntervalCalls.length = 0;
+		resetState();
+		if (!performance.mark) Object.defineProperty(performance, 'mark', { configurable: true, value: jest.fn() });
+		jest.spyOn(performance, 'mark').mockImplementation(() => ({}) as PerformanceMark);
 	});
 
-	afterEach(() => {
-		cleanup();
-		jest.useRealTimers();
+	afterEach(() => jest.restoreAllMocks());
+
+	it('does not enable a dependent phase before its complete parent scope', () => {
+		const view = render(<InitState />);
+		expect(calls.teams).toHaveBeenLastCalledWith(expect.objectContaining({ enabled: false }));
+		expect(calls.tasks).toHaveBeenLastCalledWith(expect.objectContaining({ enabled: false }));
+		expect(calls.timer).toHaveBeenLastCalledWith(expect.objectContaining({ enabled: false }));
+
+		act(resolveWorkspace);
+		view.rerender(<InitState />);
+		expect(calls.teams).toHaveBeenLastCalledWith(expect.objectContaining({ enabled: true }));
+		expect(calls.tasks).toHaveBeenLastCalledWith(expect.objectContaining({ enabled: false }));
+
+		act(() => resolveTeam(false));
+		view.rerender(<InitState />);
+		expect(calls.tasks).toHaveBeenLastCalledWith(expect.objectContaining({ enabled: true }));
+		expect(calls.timer).toHaveBeenLastCalledWith(
+			expect.objectContaining({ enabled: true, plansEnabled: true, manageRuntime: false })
+		);
 	});
 
-	it.each([undefined, null, false, 0, ''])(
-		'keeps both startup branches behind the existing truthy user gate (%p)',
-		(user) => {
-			mockUser = user;
+	it('always loads personal plans but only makes them critical when team policy requires them', () => {
+		resolveWorkspace();
+		resolveTeam(false);
+		tasksSuccess = true;
+		timerSuccess = true;
+		plansSuccess = false;
+		const view = render(<InitState />);
 
-			render(<AppState />);
+		expect(calls.timer).toHaveBeenLastCalledWith(expect.objectContaining({ plansEnabled: true }));
+		expect(performance.mark).toHaveBeenCalledWith('ever-teams:shell-ready');
 
-			expect(mockUseUserQuery).toHaveBeenCalledTimes(1);
-			expect(mockLegacyOwnerCalls).toEqual([]);
-			expect(mockUseTimeLogs).not.toHaveBeenCalled();
-			expect(mockStartupCallOrder).toEqual([]);
-		}
-	);
+		view.unmount();
+		jest.mocked(performance.mark).mockClear();
+		activeTeam = { ...activeTeam, id: 'team-2', requirePlanToTrack: true };
+		teams = [activeTeam];
+		const requiredView = render(<InitState />);
+		expect(jest.mocked(performance.mark).mock.calls.filter(([name]) => name === 'ever-teams:shell-ready')).toEqual(
+			[]
+		);
 
-	it.each([
-		[false, false, legacyOwners, 0],
-		[false, true, legacyOwners, 1],
-		[true, false, fastOwners, 0],
-		[true, true, fastOwners, 1]
-	] as const)(
-		'selects one startup owner for fast=%s and year=%s',
-		(fastEnabled, yearlyEnabled, expectedOwners, expectedYearRequests) => {
-			mockFastAppBootstrap = fastEnabled;
-			process.env.NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS = String(yearlyEnabled);
+		plansSuccess = true;
+		requiredView.rerender(<InitState />);
+		expect(performance.mark).toHaveBeenCalledWith('ever-teams:shell-ready');
+	});
 
-			render(<AppState />);
+	it('enables task follow-ups only when their own prerequisites resolve', () => {
+		resolveWorkspace();
+		resolveTeam();
+		render(<InitState />);
+		expect(calls.autoAssign).toHaveBeenLastCalledWith({ enabled: false });
+		expect(calls.statistics).toHaveBeenLastCalledWith(expect.objectContaining({ enabled: false }));
 
-			expect(mockLegacyOwnerCalls).toEqual(expectedOwners);
-			expect(mockUseTimeLogs).toHaveBeenCalledTimes(1);
-			expect(mockYearTimeLogRequest).toHaveBeenCalledTimes(expectedYearRequests);
-			expect(mockUseGetCurrentOrganization).toHaveBeenCalledTimes(fastEnabled ? 0 : 1);
-		}
-	);
+		timerSuccess = true;
+		activeTask = { id: 'task-1' };
+		render(<InitState />);
+		expect(calls.autoAssign).toHaveBeenLastCalledWith({ enabled: true });
+		expect(calls.statistics).toHaveBeenLastCalledWith(expect.objectContaining({ enabled: true }));
+	});
 
-	it('preserves the exact legacy owner, first-load, refresh, and validation manifests', async () => {
-		expect(LegacyInitState).toBeDefined();
-		render(<AppState />);
+	it('owns one timer facade without a global time-log preload or duplicate token scheduler', () => {
+		resolveWorkspace();
+		resolveTeam();
+		rawTimerRunning = true;
+		render(<InitState />);
 
-		expect(mockLegacyOwnerCalls).toEqual(legacyOwners);
-		expect(mockStartupCallOrder).toEqual([
-			'firstLoadWorkspacesData',
-			'firstLoadTeamsData',
-			'firstLoadTasksData',
-			'firstLoadTeamInvitationsData',
-			'firstLoadTimerData',
-			'firstLoadtasksStatisticsData',
-			'firstLoadLanguagesData',
-			'firstLoadAutoAssignTask',
-			'firstLoadOrganizationProjectsData',
-			'firstLoadTaskStatusesData',
-			'firstLoadTaskVersionData',
-			'firstLoadTaskPrioritiesData',
-			'firstLoadTaskSizesData',
-			'firstLoadTaskLabelsData',
-			'firstLoadIssueTypeData',
-			'firstLoadTaskRelatedIssueTypeData',
-			'firstLoadMyDailyPlans',
-			'firstLoadTeamDailyPlans',
-			'firstLoadDataEmployee',
-			'firstLoadRolesData',
-			'firstLoadMyRolePermissionsData',
-			'firstLoadCurrenciesData',
-			'getTimerStatus',
-			'loadTeamsData',
-			'loadLanguagesData',
-			'timeToTimeRefreshToken'
-		]);
-		expect(mockRefreshIntervalCalls).toEqual([
-			['getTimerStatus', 60_000, undefined],
-			['loadTeamTasksData', 60_000, true],
-			['refetchMyInvitations', 60_000, true],
-			['loadTaskStatusesData', 300_000, true],
-			['loadTaskPriorities', 300_000, true],
-			['loadTaskSizes', 300_000, true],
-			['loadTaskLabels', 300_000, true],
-			['loadTaskRelatedIssueTypeData', 300_000, true],
-			['loadTaskVersionData', 300_000, true],
-			['loadAllDayPlans', 300_000, true],
-			['loadMyDailyPlans', 300_000, true]
-		]);
-		expect(mockTeamRefreshIntervalCalls).toEqual([['loadTeamsData', 60_000, mockPublicTeam]]);
+		expect(calls.timer).toHaveBeenCalledTimes(1);
+		expect(calls.polling).toHaveBeenLastCalledWith(true);
+		expect(calls.timer.mock.calls[0][0]).not.toHaveProperty('scheduleTokenRefresh');
+	});
+
+	it('replaces every core owner scope after any access-token rotation', async () => {
+		resolveWorkspace();
+		resolveTeam();
+		activeTask = { id: 'task-1' };
+		render(<InitState />);
+		expect(calls.tasks).toHaveBeenLastCalledWith(
+			expect.objectContaining({ scope: expect.objectContaining({ accessToken: 'token-1' }) })
+		);
 
 		act(() => {
-			jest.advanceTimersByTime(1999);
+			accessToken = 'token-2';
+			window.dispatchEvent(new Event('ever-teams:access-token-refreshed'));
 		});
-		expect(mockValidateCurrentOrgAccess).not.toHaveBeenCalled();
 
+		expect(calls.tasks).toHaveBeenLastCalledWith(
+			expect.objectContaining({ scope: expect.objectContaining({ accessToken: 'token-2' }) })
+		);
+		expect(calls.timer).toHaveBeenLastCalledWith(
+			expect.objectContaining({ scope: expect.objectContaining({ accessToken: 'token-2' }) })
+		);
+		await act(async () => Promise.resolve());
+		for (const queryKey of [
+			['tasks', 'by-team-scope', 'tenant-1', 'org-1', 'team-1', 'project-1'],
+			['timer', 'scope', 'tenant-1', 'org-1', 'team-1', 'user-1'],
+			['daily-plans', 'my-plans-scope', 'tenant-1', 'org-1', 'team-1', 'user-1'],
+			['tasks', 'statistics-scope', 'tenant-1', 'org-1', 'team-1', 'task-1', 'employee-1']
+		]) {
+			expect(mockCancelQueries).toHaveBeenCalledWith({ queryKey, exact: true });
+			expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey, exact: true, refetchType: 'active' });
+		}
+		expect(Math.min(...mockInvalidateQueries.mock.invocationCallOrder)).toBeGreaterThan(
+			Math.max(...mockCancelQueries.mock.invocationCallOrder)
+		);
+	});
+
+	it('re-owns workspace reads when the token rotates while team bootstrap is still pending', async () => {
+		resolveWorkspace();
+		render(<InitState />);
+		mockCancelQueries.mockClear();
+		mockInvalidateQueries.mockClear();
+
+		act(() => {
+			accessToken = 'token-2';
+			window.dispatchEvent(new Event('ever-teams:access-token-refreshed'));
+		});
+		await act(async () => Promise.resolve());
+
+		const listKey = ['organization-teams', 'list-scope', 'tenant-1', 'org-1'];
+		expect(mockCancelQueries).toHaveBeenCalledWith({ queryKey: listKey, exact: true });
+		expect(mockInvalidateQueries).toHaveBeenCalledWith({
+			queryKey: listKey,
+			exact: true,
+			refetchType: 'active'
+		});
+	});
+
+	it('re-owns a mounted credential query when the token rotates before workspace bootstrap resolves', async () => {
+		const routeKey = ['roles', 'scope', 'tenant-1'] as const;
+		mockCredentialQueries = [{ queryKey: routeKey, meta: { credentialScoped: true } }];
+		render(<InitState />);
+		mockCancelQueries.mockClear();
+		mockInvalidateQueries.mockClear();
+
+		act(() => {
+			accessToken = 'token-2';
+			window.dispatchEvent(new Event('ever-teams:access-token-refreshed'));
+		});
+		await act(async () => Promise.resolve());
+
+		expect(mockCancelQueries).toHaveBeenCalledWith({ queryKey: routeKey, exact: true });
+		expect(mockInvalidateQueries).toHaveBeenCalledWith({
+			queryKey: routeKey,
+			exact: true,
+			refetchType: 'active'
+		});
+	});
+
+	it('does not restart an old scope when it changes while cancellation is pending', async () => {
+		resolveWorkspace();
+		resolveTeam();
+		let releaseCancel!: () => void;
+		const cancellationGate = new Promise<void>((resolve) => {
+			releaseCancel = resolve;
+		});
+		mockCancelQueries.mockReturnValue(cancellationGate);
+		const view = render(<InitState />);
+		mockCancelQueries.mockClear();
+		mockInvalidateQueries.mockClear();
+
+		act(() => {
+			accessToken = 'token-2';
+			window.dispatchEvent(new Event('ever-teams:access-token-refreshed'));
+		});
+		expect(mockCancelQueries).toHaveBeenCalled();
+
+		act(() => {
+			user = {
+				...user,
+				employee: { ...user.employee, tenantId: 'tenant-2', organizationId: 'org-2' }
+			};
+			currentWorkspace = { user: { tenant: { id: 'tenant-2' } } };
+			activeTeam = { ...activeTeam, id: 'team-2', tenantId: 'tenant-2', organizationId: 'org-2' };
+			teams = [activeTeam];
+		});
+		view.rerender(<InitState />);
 		await act(async () => {
-			jest.advanceTimersByTime(1);
-			await Promise.resolve();
+			releaseCancel();
+			await cancellationGate;
 		});
-		expect(mockValidateCurrentOrgAccess).toHaveBeenCalledTimes(1);
-		expect(mockHandleOrgBranching).toHaveBeenCalledTimes(1);
+
+		expect(mockInvalidateQueries).not.toHaveBeenCalled();
 	});
 
-	it('keeps default-false metadata, monthly report, organization profile, calendar, and workspace rollback owners', () => {
-		render(<AppState />);
+	it('does not refetch the previous workspace scope when token and scope change together', () => {
+		resolveWorkspace();
+		resolveTeam();
+		const view = render(<InitState />);
+		mockCancelQueries.mockClear();
+		mockInvalidateQueries.mockClear();
 
-		expect(
-			[
-				mockUseTaskStatusesQuery,
-				mockUseTaskPrioritiesQuery,
-				mockUseTaskSizesQuery,
-				mockUseTaskLabelsQuery,
-				mockUseTaskVersionsQuery,
-				mockUseIssueTypesQuery,
-				mockUseTaskRelatedIssueTypesQuery
-			].every((owner) => owner.mock.calls.length === 1)
-		).toBe(true);
-		expect(mockUseTimeLogsDailyReport).toHaveBeenCalledTimes(1);
-		expect(mockUseGetCurrentOrganization).toHaveBeenCalledTimes(1);
-		expect(mockUseMyDailyPlans).toHaveBeenCalledTimes(1);
-		expect(mockUseTeamDailyPlans).toHaveBeenCalledTimes(1);
-		expect(mockUseWorkspaces).toHaveBeenCalledTimes(1);
-		expect(mockFirstLoadWorkspacesData).toHaveBeenCalledTimes(1);
-	});
+		act(() => {
+			accessToken = 'token-2';
+			user = {
+				...user,
+				employee: { ...user.employee, tenantId: 'tenant-2', organizationId: 'org-2' }
+			};
+			currentWorkspace = { user: { tenant: { id: 'tenant-2' } } };
+			activeTeam = { ...activeTeam, id: 'team-2', tenantId: 'tenant-2', organizationId: 'org-2' };
+			teams = [activeTeam];
+			window.dispatchEvent(new Event('ever-teams:access-token-refreshed'));
+		});
+		view.rerender(<InitState />);
 
-	it('keeps fast startup limited to dependency-gated shell owners', () => {
-		mockFastAppBootstrap = true;
-		expect(FastInitState).toBeDefined();
-
-		render(<AppState />);
-
-		expect(mockLegacyOwnerCalls).toEqual(fastOwners);
-		expect(mockStartupCallOrder).toEqual([]);
-		expect(mockRefreshIntervalCalls).toEqual([]);
-		expect(mockTeamRefreshIntervalCalls).toEqual([]);
-		expect(mockUseTimeLogsDailyReport).not.toHaveBeenCalled();
-		expect(mockUseGetCurrentOrganization).not.toHaveBeenCalled();
-		expect(mockUseWorkspaces).toHaveBeenCalledTimes(1);
-		expect(mockUseTimer).toHaveBeenCalledTimes(1);
-		expect(mockUseSyncTimer).not.toHaveBeenCalled();
-	});
-});
-
-describe('FAST_APP_BOOTSTRAP environment contract', () => {
-	const originalValue = process.env.NEXT_PUBLIC_FAST_APP_BOOTSTRAP;
-
-	afterAll(() => {
-		if (originalValue === undefined) {
-			delete process.env.NEXT_PUBLIC_FAST_APP_BOOTSTRAP;
-		} else {
-			process.env.NEXT_PUBLIC_FAST_APP_BOOTSTRAP = originalValue;
-		}
-	});
-
-	it.each([
-		[undefined, false],
-		['', false],
-		['false', false],
-		['TRUE', false],
-		[' true ', false],
-		['1', false],
-		['true', true]
-	] as const)('maps %p to %s', (value, expected) => {
-		jest.resetModules();
-		if (value === undefined) {
-			delete process.env.NEXT_PUBLIC_FAST_APP_BOOTSTRAP;
-		} else {
-			process.env.NEXT_PUBLIC_FAST_APP_BOOTSTRAP = value;
-		}
-
-		const { FAST_APP_BOOTSTRAP } = jest.requireActual(
-			'@/core/constants/config/constants'
-		) as typeof import('@/core/constants/config/constants');
-
-		expect(FAST_APP_BOOTSTRAP.value).toBe(expected);
+		expect(mockCancelQueries).not.toHaveBeenCalled();
+		expect(mockInvalidateQueries).not.toHaveBeenCalled();
 	});
 });

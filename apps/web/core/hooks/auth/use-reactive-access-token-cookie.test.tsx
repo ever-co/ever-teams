@@ -15,6 +15,10 @@ describe('useReactiveAccessTokenCookie', () => {
 	beforeEach(() => {
 		accessToken = 'token-a';
 	});
+	afterEach(() => {
+		jest.restoreAllMocks();
+		jest.useRealTimers();
+	});
 
 	it('updates mounted request owners after a token rotation event', () => {
 		const { result } = renderHook(() => useReactiveAccessTokenCookie());

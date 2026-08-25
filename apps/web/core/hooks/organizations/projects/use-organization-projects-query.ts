@@ -6,10 +6,9 @@ import { organizationProjectService } from '@/core/services/client/api/organizat
 import { queryKeys } from '@/core/query/keys';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useInvalidateOrganizationProjects } from './use-invalidate-organization-projects';
-import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
-import { useFastScopeGuard } from '../../bootstrap/use-fast-scope-guard';
+import { useScopeGuard } from '../../bootstrap/use-scope-guard';
 import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
-import { FAST_CREDENTIAL_QUERY_META } from '@/core/query/fast-credential-query';
+import { CREDENTIAL_SCOPED_QUERY_META } from '@/core/query/credential-query';
 
 export interface UseOrganizationProjectsQueryOptions {
 	enabled?: boolean;
@@ -31,38 +30,33 @@ export interface UseOrganizationProjectsQueryOptions {
 export function useOrganizationProjectsQuery({ enabled = true }: UseOrganizationProjectsQueryOptions = {}) {
 	const { tenantId, organizationId, queryClient } = useInvalidateOrganizationProjects();
 	const { data: user } = useUserQuery();
-	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
 	const [searchQueries, setSearchQueries] = useState<Record<string, string> | null>(null);
 	const memoizedSearchQueries = useMemo(() => searchQueries, [JSON.stringify(searchQueries)]);
 	const reactiveAccessToken = useReactiveAccessTokenCookie();
-	const accessToken = fastBootstrap ? reactiveAccessToken : undefined;
+	const accessToken = reactiveAccessToken;
 	const scope = useMemo(
 		() => ({ tenantId, organizationId, userId: user?.id, accessToken }),
 		[accessToken, organizationId, tenantId, user?.id]
 	);
-	const mainQueryKey = fastBootstrap
-		? queryKeys.organizationProjects.byScope(scope.tenantId, scope.organizationId)
-		: queryKeys.organizationProjects.byOrganization(organizationId, tenantId);
-	const filteredQueryKey = fastBootstrap
-		? queryKeys.organizationProjects.withQueriesByScope(scope.tenantId, scope.organizationId, memoizedSearchQueries)
-		: [...queryKeys.organizationProjects.all, ...queryKeys.organizationProjects.withQueries(memoizedSearchQueries)];
-	const fastOwnerActive = enabled && fastBootstrap;
-	const fastQueryEnabled =
-		fastOwnerActive && !!(scope.tenantId && scope.organizationId && scope.userId && scope.accessToken);
-	useFastScopeGuard(mainQueryKey, fastOwnerActive);
-	useFastScopeGuard(filteredQueryKey, fastOwnerActive && !!memoizedSearchQueries);
+	const mainQueryKey = queryKeys.organizationProjects.byScope(scope.tenantId, scope.organizationId);
+	const filteredQueryKey = queryKeys.organizationProjects.withQueriesByScope(
+		scope.tenantId,
+		scope.organizationId,
+		memoizedSearchQueries
+	);
+	const ownerActive = enabled;
+	const queryEnabled = ownerActive && !!(scope.tenantId && scope.organizationId && scope.userId && scope.accessToken);
+	useScopeGuard(mainQueryKey, ownerActive);
+	useScopeGuard(filteredQueryKey, ownerActive && !!memoizedSearchQueries);
 
 	// ==================== QUERIES ====================
 
 	// Main query: fetch all organization projects
 	const organizationProjectsQuery = useQuery({
 		queryKey: mainQueryKey,
-		meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
-		queryFn: ({ signal }) =>
-			fastBootstrap
-				? organizationProjectService.getOrganizationProjects({ scope, signal })
-				: organizationProjectService.getOrganizationProjects(),
-		enabled: fastBootstrap ? fastQueryEnabled : enabled && !!organizationId && !!tenantId
+		meta: CREDENTIAL_SCOPED_QUERY_META,
+		queryFn: ({ signal }) => organizationProjectService.getOrganizationProjects({ scope, signal }),
+		enabled: queryEnabled
 	});
 	const organizationProjects = useMemo(
 		() => organizationProjectsQuery?.data?.items ?? [],
@@ -72,14 +66,14 @@ export function useOrganizationProjectsQuery({ enabled = true }: UseOrganization
 	// Filtered query: fetch projects matching search queries
 	const filteredOrganizations = useQuery({
 		queryKey: filteredQueryKey,
-		meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
+		meta: CREDENTIAL_SCOPED_QUERY_META,
 		queryFn: ({ signal }) =>
-			organizationProjectService.getOrganizationProjects(
-				fastBootstrap
-					? { queries: memoizedSearchQueries ?? undefined, scope, signal }
-					: { queries: memoizedSearchQueries ?? undefined }
-			),
-		enabled: !!memoizedSearchQueries && (fastBootstrap ? fastQueryEnabled : enabled)
+			organizationProjectService.getOrganizationProjects({
+				queries: memoizedSearchQueries ?? undefined,
+				scope,
+				signal
+			}),
+		enabled: !!memoizedSearchQueries && queryEnabled
 	});
 
 	// ==================== CALLBACKS ====================
@@ -88,33 +82,28 @@ export function useOrganizationProjectsQuery({ enabled = true }: UseOrganization
 		async (id: string) => {
 			try {
 				const result = await queryClient.fetchQuery({
-					queryKey: fastBootstrap
-						? queryKeys.organizationProjects.detailByScope(tenantId, organizationId, id)
-						: queryKeys.organizationProjects.detail(id),
-					meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
-					queryFn: ({ signal }) =>
-						fastBootstrap
-							? organizationProjectService.getOrganizationProject(id, { scope, signal })
-							: organizationProjectService.getOrganizationProject(id)
+					queryKey: queryKeys.organizationProjects.detailByScope(tenantId, organizationId, id),
+					meta: CREDENTIAL_SCOPED_QUERY_META,
+					queryFn: ({ signal }) => organizationProjectService.getOrganizationProject(id, { scope, signal })
 				});
 				return result;
 			} catch (error) {
 				console.error('Failed to get the organization project', error);
 			}
 		},
-		[fastBootstrap, organizationId, queryClient, scope, tenantId]
+		[organizationId, queryClient, scope, tenantId]
 	);
 
 	const loadOrganizationProjects = useCallback(async () => {
 		try {
-			if (!enabled || !user || (fastBootstrap && !fastQueryEnabled)) return;
+			if (!enabled || !user || !queryEnabled) return;
 			if (organizationProjects?.length) return;
 
 			return await organizationProjectsQuery?.refetch();
 		} catch (error) {
 			console.error('Failed to load organization projects', error);
 		}
-	}, [enabled, fastBootstrap, fastQueryEnabled, user, organizationProjects, organizationProjectsQuery?.refetch]);
+	}, [enabled, organizationProjects, organizationProjectsQuery?.refetch, queryEnabled, user]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadOrganizationProjects();

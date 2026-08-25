@@ -8,10 +8,6 @@ import type { PropsWithChildren } from 'react';
 let teamId = '';
 const getWorkingEmployees = jest.fn(async () => ({ items: [], total: 0 }));
 
-jest.mock('@/core/constants/config/constants', () => ({
-	...jest.requireActual('@/core/constants/config/constants'),
-	FAST_APP_BOOTSTRAP: { value: true }
-}));
 jest.mock('@/core/lib/helpers/cookies', () => ({
 	getActiveTeamIdCookie: () => teamId,
 	getAccessTokenCookie: () => 'access-token'
@@ -34,10 +30,9 @@ require('@/core/types/schemas');
 const { useEmployee } =
 	require('../organizations/employees/use-employee') as typeof import('../organizations/employees/use-employee');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { useFastScopeGuard } =
-	require('./use-fast-scope-guard') as typeof import('./use-fast-scope-guard');
+const { useScopeGuard } = require('./use-scope-guard') as typeof import('./use-scope-guard');
 
-describe('fast scope enable guards', () => {
+describe('scope enable guards', () => {
 	beforeEach(() => {
 		teamId = '';
 		getWorkingEmployees.mockClear();
@@ -90,17 +85,21 @@ describe('fast scope enable guards', () => {
 				queryFn: ({ signal }) =>
 					new Promise(() => signal.addEventListener('abort', () => (oldAborted = true), { once: true }))
 			});
-			useFastScopeGuard(queryKey, true);
+			useScopeGuard(queryKey, true);
 		};
 		const first = renderHook(({ queryKey }) => useOwner(queryKey), {
 			wrapper,
 			initialProps: { queryKey: oldKey as readonly string[] }
 		});
 		const second = renderHook(() => useOwner(oldKey), { wrapper });
-		await waitFor(() => expect(client.getQueryCache().find({ queryKey: oldKey, exact: true })?.getObserversCount()).toBe(2));
+		await waitFor(() =>
+			expect(client.getQueryCache().find({ queryKey: oldKey, exact: true })?.getObserversCount()).toBe(2)
+		);
 
 		first.rerender({ queryKey: newKey });
-		await waitFor(() => expect(client.getQueryCache().find({ queryKey: oldKey, exact: true })?.getObserversCount()).toBe(1));
+		await waitFor(() =>
+			expect(client.getQueryCache().find({ queryKey: oldKey, exact: true })?.getObserversCount()).toBe(1)
+		);
 		expect(oldAborted).toBe(false);
 
 		second.unmount();

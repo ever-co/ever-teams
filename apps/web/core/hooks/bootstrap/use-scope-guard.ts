@@ -8,7 +8,7 @@ import { useCallback, useEffect, useRef } from 'react';
  * Gives atom bridges a render-generation guard and cancels the exact previous scoped query.
  * Query data remains cached by scope; only obsolete in-flight work is cancelled.
  */
-export function useFastScopeGuard(queryKey: QueryKey, active: boolean) {
+export function useScopeGuard(queryKey: QueryKey, active: boolean) {
 	const queryClient = useQueryClient();
 	const fingerprint = JSON.stringify(queryKey);
 	const currentRef = useRef({ fingerprint, generation: 0 });

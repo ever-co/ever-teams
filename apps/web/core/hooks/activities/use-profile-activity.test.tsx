@@ -54,7 +54,6 @@ jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('next/navigation', () => ({ usePathname: () => '/profile/member-1' }));
 jest.mock('@/core/hooks/queries/user-user.query', () => ({ useUserQuery: () => mockUseUserQuery() }));
 
-import { setNextPublicEnv } from '@/env-config';
 import { queryKeys } from '@/core/query/keys';
 import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
 import {
@@ -365,25 +364,20 @@ describe('profile integration contracts', () => {
 		mockUseAtomValue.mockImplementation((atom) => {
 			if (atom === 'active-team-managers') return [];
 			if (atom === 'active-team') return { shareProfileView: true };
-			if (atom === 'time-logs-daily-report') return Array.from({ length: 19 }, (_, index) => index);
 			return undefined;
 		});
 	});
 
-	it('uses employee activeDays for fast Stats while flag-off preserves the legacy organization-date count', () => {
+	it('uses the employee activeDays summary for Stats', () => {
 		const profile = {
 			isAuthUser: true,
 			userProfile: { id: 'user-1' },
 			member: null,
 			tasksGrouped: { assignedTasks: [], unassignedTasks: [], workedTasks: [], planned: 0 }
 		} as never;
-		setNextPublicEnv({ NEXT_PUBLIC_FAST_APP_BOOTSTRAP: 'true' });
-		const { result, rerender } = renderHook(() => useTaskFilter(profile, { statsCount: 3 }));
+		const { result } = renderHook(() => useTaskFilter(profile, { statsCount: 3 }));
 
 		expect(result.current.tabs.find(({ tab }) => tab === 'stats')?.count).toBe(3);
-		setNextPublicEnv({ NEXT_PUBLIC_FAST_APP_BOOTSTRAP: 'false' });
-		rerender();
-		expect(result.current.tabs.find(({ tab }) => tab === 'stats')?.count).toBe(19);
 	});
 
 	it('keeps exactly one route-owned current-month summary and passes its activeDays as a scalar', () => {
@@ -392,7 +386,8 @@ describe('profile integration contracts', () => {
 		expect(routeSource).toMatch(/const statsCount =[\s\S]*activeDays/);
 		expect(routeSource).toMatch(/useTaskFilter\(profile,\s*\{ statsCount \}\)/);
 		expect(routeSource).toMatch(/profileValidation\.isValid/);
-		expect(filterSource).toMatch(/FAST_APP_BOOTSTRAP\.value[\s\S]*statsCount[\s\S]*timeLogsDailyReport\.length/);
+		expect(filterSource).toMatch(/resolvedStatsCount\s*=\s*statsCount\s*\?\?\s*0/);
+		expect(filterSource).not.toContain('timeLogsDailyReport');
 	});
 
 	it('proves eight member cards and public cards own zero summary calls', () => {
@@ -405,9 +400,8 @@ describe('profile integration contracts', () => {
 		expect(cardSource).toMatch(/publicTeam[\s\S]*return undefined/);
 	});
 
-	it('keeps rich yearly loading only in legacy and mounts one fast daily request only in lazy Stats', () => {
-		expect(calendarSource).toMatch(/FAST_APP_BOOTSTRAP\.value\s*\?\s*<FastActivityCalendar/);
-		expect(calendarSource.match(/useGetTimeLogsDailyReport\(/g)).toHaveLength(1);
+	it('loads one scoped yearly aggregate only when the lazy activity calendar mounts', () => {
+		expect(calendarSource).not.toContain('useGetTimeLogsDailyReport');
 		expect(calendarSource.match(/useProfileActivity\(/g)).toHaveLength(1);
 		expect(calendarSource).toMatch(/includeDaily:\s*true/);
 		expect(calendarSource).toMatch(/Array\.from\(\{ length:\s*5 \}/);

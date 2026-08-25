@@ -9,10 +9,9 @@ import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
 import { TeamInvitationsQueryParams } from '@/core/types/interfaces/user/invite';
 import { useIsMemberManager } from '../organizations/teams/use-team-member';
 import { useUserQuery } from '../queries/user-user.query';
-import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
-import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
+import { useScopeGuard } from '../bootstrap/use-scope-guard';
 import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
-import { FAST_CREDENTIAL_QUERY_META } from '@/core/query/fast-credential-query';
+import { CREDENTIAL_SCOPED_QUERY_META } from '@/core/query/credential-query';
 
 export interface UseTeamInvitationsQueryOptions {
 	enabled?: boolean;
@@ -33,24 +32,21 @@ export function useTeamInvitationsQuery({ enabled = true }: UseTeamInvitationsQu
 
 	const { data: user } = useUserQuery();
 	const { isTeamManager } = useIsMemberManager(user);
-	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
 	const accessToken = useReactiveAccessTokenCookie();
 	const scope = {
 		tenantId: user?.tenantId,
 		organizationId: user?.employee?.organizationId,
 		teamId: activeTeamId,
 		userId: user?.id,
-		accessToken: fastBootstrap ? accessToken : undefined
+		accessToken
 	};
-	const queryKey = fastBootstrap
-		? queryKeys.users.invitations.teamByScope(scope.tenantId, scope.organizationId, scope.teamId)
-		: queryKeys.users.invitations.team(scope.tenantId || '', scope.organizationId || '', scope.teamId || '');
-	const fastOwnerActive = enabled && fastBootstrap;
-	const fastQueryEnabled =
-		fastOwnerActive &&
+	const queryKey = queryKeys.users.invitations.teamByScope(scope.tenantId, scope.organizationId, scope.teamId);
+	const ownerActive = enabled;
+	const queryEnabled =
+		ownerActive &&
 		isTeamManager &&
 		!!(scope.tenantId && scope.organizationId && scope.teamId && scope.userId && scope.accessToken);
-	useFastScopeGuard(queryKey, fastOwnerActive);
+	useScopeGuard(queryKey, ownerActive);
 
 	// Request params
 	const teamInvitationsParams: TeamInvitationsQueryParams | null =
@@ -71,14 +67,12 @@ export function useTeamInvitationsQuery({ enabled = true }: UseTeamInvitationsQu
 		isSuccess: teamInvitationsSuccess
 	} = useQuery({
 		queryKey,
-		meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
+		meta: CREDENTIAL_SCOPED_QUERY_META,
 		queryFn: async ({ signal }) => {
 			if (!teamInvitationsParams) return { items: [] };
-			return fastBootstrap
-				? await inviteService.getTeamInvitations({ teamId: teamInvitationsParams.teamId }, { scope, signal })
-				: await inviteService.getTeamInvitations({ teamId: teamInvitationsParams.teamId });
+			return inviteService.getTeamInvitations({ teamId: teamInvitationsParams.teamId }, { scope, signal });
 		},
-		enabled: fastBootstrap ? fastQueryEnabled : enabled && !!(activeTeamId && isTeamManager && user?.tenantId)
+		enabled: queryEnabled
 	});
 
 	// ===== HYDRATED DATA =====

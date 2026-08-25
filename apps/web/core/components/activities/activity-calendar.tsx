@@ -7,8 +7,6 @@ import Separator from '@/core/components/common/separator';
 import { useTranslations } from 'next-intl';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
 import { ActivityCalendarSkeleton } from '../common/skeleton/activity-calendar-skeleton';
-import { useGetTimeLogsDailyReport } from '@/core/hooks/activities/time-logs/use-get-time-logs-daily-report';
-import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import { getProfileActivityYearRange, useProfileActivity } from '@/core/hooks/activities/use-profile-activity';
 import type { TProfileActivityScope } from '@/core/types/schemas/activities/profile-activity.schema';
 
@@ -22,35 +20,10 @@ type ActivityCalendarEntry = {
 };
 
 export function ActivityCalendar({ scope }: ActivityCalendarProps) {
-	return FAST_APP_BOOTSTRAP.value ? <FastActivityCalendar scope={scope} /> : <LegacyActivityCalendar />;
+	return <ProfileActivityCalendar scope={scope} />;
 }
 
-function LegacyActivityCalendar() {
-	const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-
-	const { data: timeLogsDailyReport = [], isLoading: timerLogsDailyReportLoading } = useGetTimeLogsDailyReport({
-		startDate: moment().year(selectedYear).startOf('year').toDate(),
-		endDate: moment().year(selectedYear).endOf('year').toDate()
-	});
-
-	const filteredData = useMemo(() => {
-		return timeLogsDailyReport.map((el) => ({
-			value: Number((el.sum / 3600).toPrecision(2)),
-			day: String(el.date)
-		}));
-	}, [timeLogsDailyReport]);
-
-	return (
-		<ActivityCalendarView
-			data={filteredData}
-			isLoading={timerLogsDailyReportLoading}
-			selectedYear={selectedYear}
-			setSelectedYear={setSelectedYear}
-		/>
-	);
-}
-
-function FastActivityCalendar({ scope }: ActivityCalendarProps) {
+function ProfileActivityCalendar({ scope }: ActivityCalendarProps) {
 	const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 	const range = useMemo(
 		() => getProfileActivityYearRange(scope?.timeZone ?? 'UTC', selectedYear),

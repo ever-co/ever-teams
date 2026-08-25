@@ -64,7 +64,7 @@ test('excludes non-Gauzy, OPTIONS, non-fetch/XHR, assets, RSC, session, and heal
 	}
 });
 
-test('classifies only legacy global time-log/report reads as rich', () => {
+test('classifies only global time-log/report reads as rich', () => {
 	assert.equal(isRichGlobalRead('GET', '/api/timesheet/time-log'), true);
 	assert.equal(isRichGlobalRead('GET', '/api/timesheet/time-log/report/daily'), true);
 	assert.equal(isRichGlobalRead('GET', '/api/timesheet/activity/report'), true);

@@ -74,8 +74,6 @@ export default defineConfig({
 				throw error;
 			}
 			config.env.GAUZY_API_ORIGIN = mockServer.origin;
-			config.env.FAST_APP_BOOTSTRAP = process.env.NEXT_PUBLIC_FAST_APP_BOOTSTRAP === 'true';
-			config.env.PRELOAD_YEAR_TIME_LOGS = process.env.NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS === 'true';
 
 			on('task', {
 				'auth:live': liveAuthenticate,

@@ -7,7 +7,6 @@ import { queryKeys } from '@/core/query/keys';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import type { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 
-let mockFastBootstrap = true;
 const mockUpdateTask = jest.fn();
 const mockSetAllTasks = jest.fn();
 const mockSetDetailedTask = jest.fn();
@@ -20,14 +19,6 @@ let mockActiveTeam = {
 	organizationId: 'organization-1',
 	projects: [{ id: 'project-1' }]
 };
-
-jest.mock('@/core/constants/config/constants', () => ({
-	FAST_APP_BOOTSTRAP: {
-		get value() {
-			return mockFastBootstrap;
-		}
-	}
-}));
 
 jest.mock('@/core/services/client/api', () => ({
 	taskService: {
@@ -138,8 +129,7 @@ describe('useUpdateTask authoritative task cache', () => {
 
 	afterEach(() => jest.restoreAllMocks());
 
-	it('optimistically updates and rolls back the scoped fast-mode cache without writing the legacy cache', async () => {
-		mockFastBootstrap = true;
+	it('optimistically updates and rolls back only the active scoped cache', async () => {
 		const client = createQueryClient();
 		client.setQueryData(scopedKey, list('Before'));
 		client.setQueryData(legacyKey, list('Other cache'));
@@ -147,16 +137,7 @@ describe('useUpdateTask authoritative task cache', () => {
 		await expectOptimisticUpdateAndRollback(client, scopedKey, legacyKey);
 	});
 
-	it('preserves the legacy optimistic update and rollback when fast bootstrap is disabled', async () => {
-		mockFastBootstrap = false;
-		const client = createQueryClient();
-		client.setQueryData(legacyKey, list('Before'));
-
-		await expectOptimisticUpdateAndRollback(client, legacyKey);
-	});
-
 	it('rolls back the captured cache without overwriting mirrors after the active scope changes', async () => {
-		mockFastBootstrap = true;
 		const client = createQueryClient();
 		client.setQueryData(scopedKey, list('Before'));
 		let rejectUpdate!: (reason: Error) => void;
@@ -168,7 +149,9 @@ describe('useUpdateTask authoritative task cache', () => {
 		);
 		const { result, rerender } = renderHook(() => useUpdateTask(), { wrapper: createWrapper(client) });
 		const updatePromise = result.current.updateTask({ ...originalTask, title: 'After' }).catch((error) => error);
-		await waitFor(() => expect(client.getQueryData<PaginationResponse<TTask>>(scopedKey)?.items[0].title).toBe('After'));
+		await waitFor(() =>
+			expect(client.getQueryData<PaginationResponse<TTask>>(scopedKey)?.items[0].title).toBe('After')
+		);
 
 		mockActiveTeam = {
 			id: 'team-2',

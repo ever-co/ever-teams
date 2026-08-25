@@ -21,8 +21,8 @@ jest.mock('../common/use-first-load', () => ({
 	useFirstLoad: () => ({ firstLoad: false, firstLoadData: jest.fn() })
 }));
 jest.mock('../common', () => ({ useRefreshIntervalV2: jest.fn() }));
-jest.mock('../bootstrap/use-fast-scope-guard', () => ({
-	useFastScopeGuard: () => isCurrentScope
+jest.mock('../bootstrap/use-scope-guard', () => ({
+	useScopeGuard: () => isCurrentScope
 }));
 jest.mock('@/core/services/client/api/timesheets/statistic.service', () => ({
 	statisticsService: {

@@ -8,10 +8,6 @@ import type { PropsWithChildren } from 'react';
 import { activeTeamIdState, organizationTeamsState, teamTasksState } from '@/core/stores';
 import { queryKeys } from '@/core/query/keys';
 
-jest.mock('@/core/constants/config/constants', () => ({
-	...jest.requireActual('@/core/constants/config/constants'),
-	FAST_APP_BOOTSTRAP: { value: true }
-}));
 jest.mock('@/core/lib/helpers/cookies', () => ({
 	ACCESS_TOKEN_REFRESHED_EVENT: 'ever-teams:access-token-refreshed',
 	getAccessTokenCookie: () => 'token-a'
@@ -45,7 +41,7 @@ const mockGetMyDailyPlans = jest.mocked(
 	(jest.requireMock('../../services/client/api') as any).dailyPlanService.getMyDailyPlans
 );
 
-describe('fast personal-plan ownership', () => {
+describe('personal-plan ownership', () => {
 	beforeEach(() => mockGetMyDailyPlans.mockClear());
 
 	it('makes default consumers share the shell scoped query and request', async () => {

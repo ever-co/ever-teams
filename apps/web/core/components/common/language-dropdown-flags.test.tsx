@@ -11,7 +11,6 @@ type Language = { code: string; id: string; name: string };
 const english: Language = { code: 'en', id: 'language-en', name: 'English' };
 
 jest.mock('@/core/constants/config/constants', () => ({
-	FAST_APP_BOOTSTRAP: { value: true },
 	languagesFlags: [{ code: 'en', Flag: () => <span data-testid="english-flag" /> }]
 }));
 jest.mock('@/core/hooks', () => ({
@@ -62,7 +61,7 @@ jest.mock('@/core/components/common/select', () => {
 
 import { LanguageDropDownWithFlags } from './language-dropdown-flags';
 
-describe('LanguageDropDownWithFlags deferred fast loading', () => {
+describe('LanguageDropDownWithFlags deferred loading', () => {
 	beforeEach(() => {
 		mockFetchLanguages.mockReset();
 		mockUseLanguageSettings.mockReset();
@@ -109,7 +108,7 @@ describe('LanguageDropDownWithFlags deferred fast loading', () => {
 		});
 		mockFetchLanguages.mockReturnValue(pendingLanguages);
 
-		render(<LanguageDropDownWithFlags deferFastBootstrap />);
+		render(<LanguageDropDownWithFlags deferLoading />);
 		expect(mockFetchLanguages).not.toHaveBeenCalled();
 
 		fireEvent.click(screen.getByRole('button', { name: 'Open language' }));
@@ -141,7 +140,7 @@ describe('LanguageDropDownWithFlags deferred fast loading', () => {
 			});
 			mockFetchLanguages.mockReturnValueOnce(firstRequest).mockReturnValueOnce(retryRequest);
 
-			render(<LanguageDropDownWithFlags deferFastBootstrap />);
+			render(<LanguageDropDownWithFlags deferLoading />);
 			const trigger = screen.getByRole('button', { name: 'Open language' });
 
 			expect(mockFetchLanguages).not.toHaveBeenCalled();

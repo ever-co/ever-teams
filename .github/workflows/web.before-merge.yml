@@ -1,4 +1,7 @@
 name: Web Build Before Merge
+permissions:
+  contents: read
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -111,10 +114,6 @@ jobs:
   browser-parity:
     needs: deploy
     runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
-    strategy:
-      fail-fast: false
-      matrix:
-        fast_app_bootstrap: ['false', 'true']
 
     steps:
       - uses: actions/checkout@v7
@@ -148,9 +147,7 @@ jobs:
         env:
           AUTH_SECRET: deterministic-cypress-only-not-a-secret
           GAUZY_API_SERVER_URL: http://127.0.0.1:3988
-          NEXT_PUBLIC_FAST_APP_BOOTSTRAP: ${{ matrix.fast_app_bootstrap }}
           NEXT_PUBLIC_GAUZY_API_SERVER_URL: http://127.0.0.1:3988
-          NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS: 'false'
           SHARP_FORCE_GLOBAL_LIBVIPS: 'false'
           SHARP_IGNORE_GLOBAL_LIBVIPS: '1'
 
@@ -160,11 +157,9 @@ jobs:
           AUTH_SECRET: deterministic-cypress-only-not-a-secret
           CYPRESS_BASE_URL: http://127.0.0.1:3030
           GAUZY_API_SERVER_URL: http://127.0.0.1:3988
-          NEXT_PUBLIC_FAST_APP_BOOTSTRAP: ${{ matrix.fast_app_bootstrap }}
           NEXT_PUBLIC_GAUZY_API_SERVER_URL: http://127.0.0.1:3988
-          NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS: 'false'
         run: |
-          yarn start:web > "$RUNNER_TEMP/ever-teams-web-${{ matrix.fast_app_bootstrap }}.log" 2>&1 &
+          yarn start:web > "$RUNNER_TEMP/ever-teams-web.log" 2>&1 &
           server_pid=$!
           cleanup() {
             kill "$server_pid" 2>/dev/null || true
@@ -178,29 +173,27 @@ jobs:
               break
             fi
             if ! kill -0 "$server_pid" 2>/dev/null; then
-              tail -n 100 "$RUNNER_TEMP/ever-teams-web-${{ matrix.fast_app_bootstrap }}.log"
+              tail -n 100 "$RUNNER_TEMP/ever-teams-web.log"
               exit 1
             fi
             sleep 1
           done
           if [ "$ready" != true ]; then
-            tail -n 100 "$RUNNER_TEMP/ever-teams-web-${{ matrix.fast_app_bootstrap }}.log"
+            tail -n 100 "$RUNNER_TEMP/ever-teams-web.log"
             exit 1
           fi
           yarn e2e:web
-          if [ "${{ matrix.fast_app_bootstrap }}" = "true" ]; then
-            node tools/performance/compare-fast-startup.mjs --candidate=artifacts/fast-startup-candidate.json --out=artifacts/fast-startup-report.json
-          fi
+          node tools/performance/compare-startup.mjs --candidate=artifacts/startup-candidate.json --out=artifacts/startup-report.json
 
       - name: Record live performance status
         run: echo "Live performance NOT RUN in CI; this job uses the deterministic browser fixture and does not claim database-backed timing evidence."
 
       - name: Upload sanitized deterministic performance evidence
-        if: always() && matrix.fast_app_bootstrap == 'true'
+        if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: fast-startup-performance-${{ github.sha }}
+          name: startup-performance-${{ github.sha }}
           path: |
-            artifacts/fast-startup-candidate.json
-            artifacts/fast-startup-report.json
+            artifacts/startup-candidate.json
+            artifacts/startup-report.json
           if-no-files-found: warn

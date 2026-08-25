@@ -1,6 +1,6 @@
 import { queryKeys } from './index';
 
-describe('fast bootstrap scope query keys', () => {
+describe('scoped query keys', () => {
 	it('keeps tenant, organization, team and user boundaries explicit', () => {
 		expect(queryKeys.organizationTeams.listByScope('tenant-1', 'org-1', 'user-1')).toEqual([
 			'organization-teams',

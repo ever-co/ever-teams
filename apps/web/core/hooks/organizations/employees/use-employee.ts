@@ -11,10 +11,9 @@ import { toast } from 'sonner';
 import { useUserQuery } from '../../queries/user-user.query';
 import { activeTeamIdState } from '@/core/stores/teams/organization-team';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
-import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
-import { useFastScopeGuard } from '../../bootstrap/use-fast-scope-guard';
+import { useScopeGuard } from '../../bootstrap/use-scope-guard';
 import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
-import { FAST_CREDENTIAL_QUERY_META } from '@/core/query/fast-credential-query';
+import { CREDENTIAL_SCOPED_QUERY_META } from '@/core/query/credential-query';
 
 export interface UseEmployeeOptions {
 	enabled?: boolean;
@@ -31,7 +30,6 @@ export const useEmployee = ({ enabled = true }: UseEmployeeOptions = {}) => {
 	// Get the active team ID from the currently selected team (not from user's default team)
 	const activeTeamId = useAtomValue(activeTeamIdState);
 	const organizationTeamId = activeTeamId ?? getActiveTeamIdCookie();
-	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
 
 	// Memoize query parameters to prevent unnecessary re-renders
 	const queryParams = useMemo(
@@ -43,7 +41,7 @@ export const useEmployee = ({ enabled = true }: UseEmployeeOptions = {}) => {
 		[user?.tenantId, user?.employee?.organizationId, organizationTeamId]
 	);
 	const reactiveAccessToken = useReactiveAccessTokenCookie();
-	const accessToken = fastBootstrap ? reactiveAccessToken : undefined;
+	const accessToken = reactiveAccessToken;
 	const scope = useMemo(
 		() => ({
 			tenantId: queryParams.tenantId,
@@ -54,39 +52,32 @@ export const useEmployee = ({ enabled = true }: UseEmployeeOptions = {}) => {
 		}),
 		[accessToken, queryParams.organizationId, queryParams.organizationTeamId, queryParams.tenantId, user?.id]
 	);
-	const queryKey = fastBootstrap
-		? queryKeys.users.employees.workingByScope(scope.tenantId, scope.organizationId, scope.teamId)
-		: queryKeys.users.employees.working(
-				queryParams.tenantId,
-				queryParams.organizationId,
-				queryParams.organizationTeamId
-			);
-	const fastOwnerActive = enabled && fastBootstrap;
-	const fastQueryEnabled =
-		fastOwnerActive &&
-		!!(scope.tenantId && scope.organizationId && scope.teamId && scope.userId && scope.accessToken);
-	const isCurrentScope = useFastScopeGuard(queryKey, fastOwnerActive);
+	const queryKey = useMemo(
+		() => queryKeys.users.employees.workingByScope(scope.tenantId, scope.organizationId, scope.teamId),
+		[scope.organizationId, scope.teamId, scope.tenantId]
+	);
+	const ownerActive = enabled;
+	const queryEnabled =
+		ownerActive && !!(scope.tenantId && scope.organizationId && scope.teamId && scope.userId && scope.accessToken);
+	const isCurrentScope = useScopeGuard(queryKey, ownerActive);
 
 	// React Query for fetching employees using /employee/members
 	// NOTE: (migrated from /employee/pagination?.. because of security reasons)
 	const { data: employeesData, isLoading: getWorkingEmployeeLoading } = useQuery({
 		queryKey,
-		meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
-		queryFn: ({ signal }) =>
-			fastBootstrap
-				? employeeService.getWorkingEmployees(queryParams.organizationTeamId, { scope, signal })
-				: employeeService.getWorkingEmployees(queryParams.organizationTeamId),
-		enabled: fastBootstrap ? fastQueryEnabled : enabled && !!queryParams.tenantId && !!queryParams.organizationId
+		meta: CREDENTIAL_SCOPED_QUERY_META,
+		queryFn: ({ signal }) => employeeService.getWorkingEmployees(queryParams.organizationTeamId, { scope, signal }),
+		enabled: queryEnabled
 	});
 
 	useEffect(() => {
-		if (fastOwnerActive && isCurrentScope()) {
+		if (ownerActive && isCurrentScope()) {
 			setWorkingEmployees([]);
 			setWorkingEmployeesEmail([]);
 		}
 	}, [
-		fastOwnerActive,
 		isCurrentScope,
+		ownerActive,
 		queryParams.organizationId,
 		queryParams.organizationTeamId,
 		queryParams.tenantId,
@@ -96,27 +87,23 @@ export const useEmployee = ({ enabled = true }: UseEmployeeOptions = {}) => {
 
 	// Sync React Query data with Jotai state
 	useEffect(() => {
-		if (enabled && employeesData?.items && (!fastBootstrap || isCurrentScope())) {
+		if (enabled && employeesData?.items && isCurrentScope()) {
 			const items = employeesData.items;
 			setWorkingEmployees(items);
 			setWorkingEmployeesEmail(items.map((item) => item.user?.email ?? ''));
 		}
-	}, [employeesData, enabled, fastBootstrap, isCurrentScope, setWorkingEmployees, setWorkingEmployeesEmail]);
+	}, [employeesData, enabled, isCurrentScope, setWorkingEmployees, setWorkingEmployeesEmail]);
 
-	// Legacy function to maintain backward compatibility
 	const getWorkingEmployeeQueryCall = useCallback(() => {
-		if (fastBootstrap) {
-			if (!fastQueryEnabled) return Promise.resolve({ items: [], total: 0 });
-			return queryClient.fetchQuery({
-				queryKey,
-				meta: FAST_CREDENTIAL_QUERY_META,
-				queryFn: ({ signal }) =>
-					employeeService.getWorkingEmployees(queryParams.organizationTeamId, { scope, signal }),
-				staleTime: 0
-			});
-		}
-		return employeeService.getWorkingEmployees(queryParams.organizationTeamId);
-	}, [fastBootstrap, fastQueryEnabled, queryClient, queryKey, queryParams.organizationTeamId, scope]);
+		if (!queryEnabled) return Promise.resolve({ items: [], total: 0 });
+		return queryClient.fetchQuery({
+			queryKey,
+			meta: CREDENTIAL_SCOPED_QUERY_META,
+			queryFn: ({ signal }) =>
+				employeeService.getWorkingEmployees(queryParams.organizationTeamId, { scope, signal }),
+			staleTime: 0
+		});
+	}, [queryClient, queryEnabled, queryKey, queryParams.organizationTeamId, scope]);
 
 	return {
 		firstLoadDataEmployee,

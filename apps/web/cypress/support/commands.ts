@@ -82,7 +82,7 @@ Cypress.Commands.add('hardVisit', (path: string) => {
 		}
 	});
 	cy.get('body', { timeout: 20_000 }).should('be.visible');
-	if (Cypress.env('FAST_APP_BOOTSTRAP')) cy.waitForShellReady();
+	cy.waitForShellReady();
 });
 
 Cypress.Commands.add('clearBrowserState', () => {

@@ -16,14 +16,21 @@ import { useAtomValue } from 'jotai';
 import { activeTeamState } from '@/core/stores';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { useFastInviteDataOwner } from '@/core/hooks/bootstrap/use-fast-feature-data';
+import { useInviteDataOwner } from '@/core/hooks/bootstrap/use-feature-data';
 
 const INVITABLE_ROLE_NAMES = new Set([ERoleName.ADMIN, ERoleName.EMPLOYEE, ERoleName.MANAGER]);
 
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const { data: user } = useUserQuery();
-	const { roles, teamInvitations, workingEmployees, fetchingInvitations, getWorkingEmployeeLoading, rolesLoading } =
-		useFastInviteDataOwner(open);
+	const {
+		roles,
+		teamInvitations,
+		workingEmployees,
+		fetchingInvitations,
+		getWorkingEmployeeLoading,
+		rolesLoading,
+		rolesSuccess
+	} = useInviteDataOwner(open);
 	const t = useTranslations();
 
 	const { inviteUser, inviteLoading, resendTeamInvitation, resendInviteLoading } = useSendTeamInvitation();
@@ -39,13 +46,15 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 		[roles]
 	);
 	const defaultSelectedRole = useMemo(
-		() => selectableRoles.find((role) => role.name === ERoleName.EMPLOYEE),
+		() => selectableRoles.find((role) => role.name === ERoleName.EMPLOYEE) ?? selectableRoles[0],
 		[selectableRoles]
 	);
 	const [selectedRoleId, setSelectedRoleId] = useState(() => defaultSelectedRole?.id);
 	const isAdmin = user?.role?.name && [ERoleName.ADMIN, ERoleName.SUPER_ADMIN].includes(user?.role.name as ERoleName);
 	const prerequisitesPending =
-		Boolean(fetchingInvitations) || Boolean(getWorkingEmployeeLoading) || Boolean(isAdmin && rolesLoading);
+		Boolean(fetchingInvitations) ||
+		Boolean(getWorkingEmployeeLoading) ||
+		Boolean(isAdmin && (rolesLoading || !rolesSuccess || (selectableRoles.length > 0 && !selectedRoleId)));
 	const isLoading = inviteLoading || resendInviteLoading || prerequisitesPending;
 
 	useEffect(() => {

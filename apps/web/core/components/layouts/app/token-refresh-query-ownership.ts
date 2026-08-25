@@ -4,7 +4,7 @@ function getOwnedQueryKeys(queryClient: QueryClient, explicitQueryKeys: QueryKey
 	const keysByHash = new Map(explicitQueryKeys.map((queryKey) => [hashKey(queryKey), queryKey]));
 	queryClient
 		.getQueryCache()
-		.findAll({ predicate: (query) => query.meta?.fastCredentialScoped === true })
+		.findAll({ predicate: (query) => query.meta?.credentialScoped === true })
 		.forEach((query) => keysByHash.set(query.queryHash, query.queryKey));
 	return [...keysByHash.values()];
 }

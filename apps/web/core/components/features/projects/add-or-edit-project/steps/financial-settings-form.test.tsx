@@ -5,8 +5,8 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import FinancialSettingsForm from './financial-settings-form';
 import { EProjectBilling, EProjectBudgetType } from '@/core/types/generics/enums/project';
 
-jest.mock('@/core/hooks/bootstrap/use-fast-feature-data', () => ({
-	useFastCurrenciesOwner: () => ({ currencies: [] })
+jest.mock('@/core/hooks/bootstrap/use-feature-data', () => ({
+	useCurrenciesOwner: () => ({ currencies: [] })
 }));
 
 jest.mock('next-intl', () => ({

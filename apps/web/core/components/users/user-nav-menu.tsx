@@ -277,7 +277,7 @@ function UserNavMenu() {
 							<Globe2Icon className="w-5 h-5" strokeWidth="1.7" /> <span>{t('common.LANGUAGE')}</span>
 						</div>
 						<LanguageDropDownWithFlags
-							deferFastBootstrap
+							deferLoading
 							showFlag={false}
 							btnClassName="dark:bg-transparent border-none flex items-center justify-end w-[120px]"
 						/>

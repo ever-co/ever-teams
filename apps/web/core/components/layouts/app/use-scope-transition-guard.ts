@@ -22,7 +22,7 @@ import {
 	timerStatusState
 } from '@/core/stores';
 
-export interface FastShellScope {
+export interface ShellScope {
 	tenantId?: string | null;
 	organizationId?: string | null;
 	teamId?: string | null;
@@ -32,7 +32,7 @@ export interface FastShellScope {
 	taskId?: string | null;
 }
 
-export function getFastShellCredentialQueryKeys(scope: FastShellScope): QueryKey[] {
+export function getShellCredentialQueryKeys(scope: ShellScope): QueryKey[] {
 	return [
 		queryKeys.organizationTeams.listByScope(scope.tenantId, scope.organizationId, scope.userId),
 		queryKeys.organizationTeams.detailByScope(scope.tenantId, scope.organizationId, scope.teamId, scope.userId),
@@ -42,9 +42,9 @@ export function getFastShellCredentialQueryKeys(scope: FastShellScope): QueryKey
 	];
 }
 
-export function getFastShellCriticalQueryKeys(scope: FastShellScope): QueryKey[] {
+export function getShellCriticalQueryKeys(scope: ShellScope): QueryKey[] {
 	return [
-		...getFastShellCredentialQueryKeys(scope),
+		...getShellCredentialQueryKeys(scope),
 		queryKeys.tasks.statisticsByScope(
 			scope.tenantId,
 			scope.organizationId,
@@ -56,7 +56,7 @@ export function getFastShellCriticalQueryKeys(scope: FastShellScope): QueryKey[]
 }
 
 /** Cancels the previous shell scope and clears only mirrors that cannot cross that boundary. */
-export function useScopeTransitionGuard(scope: FastShellScope, enabled = true) {
+export function useScopeTransitionGuard(scope: ShellScope, enabled = true) {
 	const queryClient = useQueryClient();
 	const setTeams = useSetAtom(organizationTeamsState);
 	const setActiveTeamId = useSetAtom(activeTeamIdState);
@@ -82,7 +82,7 @@ export function useScopeTransitionGuard(scope: FastShellScope, enabled = true) {
 		scope.taskId ?? null
 	]);
 	const generationRef = useRef({ fingerprint, value: 0 });
-	const previousRef = useRef<{ fingerprint: string; scope: FastShellScope } | null>(null);
+	const previousRef = useRef<{ fingerprint: string; scope: ShellScope } | null>(null);
 
 	if (generationRef.current.fingerprint !== fingerprint) {
 		generationRef.current = { fingerprint, value: generationRef.current.value + 1 };
@@ -93,7 +93,7 @@ export function useScopeTransitionGuard(scope: FastShellScope, enabled = true) {
 		if (!enabled) return;
 		const previous = previousRef.current;
 		if (previous && previous.fingerprint !== fingerprint) {
-			getFastShellCriticalQueryKeys(previous.scope).forEach((queryKey) => {
+			getShellCriticalQueryKeys(previous.scope).forEach((queryKey) => {
 				void queryClient.cancelQueries({ queryKey, exact: true });
 			});
 

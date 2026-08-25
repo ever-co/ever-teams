@@ -1,30 +1,27 @@
 'use client';
 
-import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import { useGetCurrentOrganization } from '@/core/hooks/auth/use-current-organization';
 import { useCurrencies } from '@/core/hooks/common/use-currencies';
+import { useLanguageSettings } from '@/core/hooks/common/use-language-settings';
 import { useTeamDailyPlans } from '@/core/hooks/daily-plans/use-team-daily-plans';
 import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invitations-query';
 import { useEmployee } from '@/core/hooks/organizations/employees/use-employee';
-import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
-import { useLanguageSettings } from '@/core/hooks/common/use-language-settings';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
+import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
 import { useEffect, useState } from 'react';
 
-export function useFastCurrentOrganizationOwner() {
-	useGetCurrentOrganization({ enabled: FAST_APP_BOOTSTRAP.value });
+export function useCurrentOrganizationOwner() {
+	useGetCurrentOrganization({ enabled: true });
 }
 
-export function useFastCurrenciesOwner() {
-	return useCurrencies({ enabled: FAST_APP_BOOTSTRAP.value });
+export function useCurrenciesOwner() {
+	return useCurrencies({ enabled: true });
 }
 
-export function useFastInviteDataOwner(open: boolean) {
-	const fastAndOpen = FAST_APP_BOOTSTRAP.value && open;
-	const legacyOrOpen = !FAST_APP_BOOTSTRAP.value || open;
-	const employee = useEmployee({ enabled: fastAndOpen });
-	const roles = useRolesQuery({ enabled: legacyOrOpen });
-	const invitations = useTeamInvitationsQuery({ enabled: legacyOrOpen });
+export function useInviteDataOwner(open: boolean) {
+	const employee = useEmployee({ enabled: open });
+	const roles = useRolesQuery({ enabled: open });
+	const invitations = useTeamInvitationsQuery({ enabled: open });
 
 	return {
 		...employee,
@@ -35,16 +32,15 @@ export function useFastInviteDataOwner(open: boolean) {
 	};
 }
 
-export function useFastTeamDailyPlansOwner(featureEnabled = true) {
-	return useTeamDailyPlans({ enabled: FAST_APP_BOOTSTRAP.value && featureEnabled });
+export function useTeamDailyPlansOwner(featureEnabled = true) {
+	return useTeamDailyPlans({ enabled: featureEnabled });
 }
 
-export function useFastSidebarDataOwner(publicTeam: boolean | undefined) {
-	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
+export function useSidebarDataOwner(publicTeam: boolean | undefined) {
 	const [deferredReady, setDeferredReady] = useState(false);
 
 	useEffect(() => {
-		if (!fastBootstrap || publicTeam) return;
+		if (publicTeam) return;
 
 		const idleWindow = window as typeof window & {
 			requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
@@ -65,12 +61,10 @@ export function useFastSidebarDataOwner(publicTeam: boolean | undefined) {
 			if (idleId !== undefined) idleWindow.cancelIdleCallback?.(idleId);
 			if (fallbackTimer !== undefined) window.clearTimeout(fallbackTimer);
 		};
-	}, [fastBootstrap, publicTeam]);
+	}, [publicTeam]);
 
-	const fastProjectOwnerEnabled = fastBootstrap && !publicTeam && deferredReady;
-	const fastLanguageOwnerEnabled = fastBootstrap && (Boolean(publicTeam) || deferredReady);
-	const projects = useOrganizationProjectsQuery({ enabled: fastBootstrap ? fastProjectOwnerEnabled : true });
-	useLanguageSettings({ enabled: fastLanguageOwnerEnabled });
+	const projects = useOrganizationProjectsQuery({ enabled: !publicTeam && deferredReady });
+	useLanguageSettings({ enabled: Boolean(publicTeam) || deferredReady });
 
 	return projects;
 }

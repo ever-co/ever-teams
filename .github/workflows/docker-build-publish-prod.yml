@@ -70,8 +70,6 @@ jobs:
             NODE_ENV=production
             VERDACCIO_TOKEN=${{ secrets.VERDACCIO_TOKEN }}
             NEXT_PUBLIC_DEMO=false
-            NEXT_PUBLIC_FAST_APP_BOOTSTRAP=${{ vars.NEXT_PUBLIC_FAST_APP_BOOTSTRAP || 'false' }}
-            NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS=${{ vars.NEXT_PUBLIC_PRELOAD_YEAR_TIME_LOGS || 'false' }}
             API_BASE_URL=${{ vars.API_BASE_URL }}
             CLIENT_BASE_URL=${{ vars.CLIENT_BASE_URL }}
             NEXT_PUBLIC_WEB_APP_URL=${{ vars.NEXT_PUBLIC_WEB_APP_URL }}

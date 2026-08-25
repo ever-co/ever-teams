@@ -1,7 +1,12 @@
 import { createServer } from 'node:http';
+import { Buffer } from 'node:buffer';
+import { performance } from 'node:perf_hooks';
+import { setTimeout } from 'node:timers';
+import { URL } from 'node:url';
 
 const jsonClone = (value) => JSON.parse(JSON.stringify(value));
 const pagination = (items = []) => ({ items, total: items.length });
+const TRUSTED_BROWSER_ORIGINS = new Set(['http://127.0.0.1:3030', 'http://localhost:3030']);
 
 function buildData(fixture, scenario, requestUrl) {
 	const { ids, names } = fixture;
@@ -434,19 +439,24 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 		}
 	};
 
-	const server = createServer(async (request, response) => {
+	const handleRequest = async (request, response) => {
 		const startMs = performance.now() - state.startedAt;
 		const requestUrl = new URL(request.url ?? '/', 'http://127.0.0.1');
 		const method = String(request.method ?? 'GET').toUpperCase();
-		const origin = request.headers.origin ?? 'http://127.0.0.1:3030';
+		const requestOrigin = typeof request.headers.origin === 'string' ? request.headers.origin : undefined;
+		if (requestOrigin && !TRUSTED_BROWSER_ORIGINS.has(requestOrigin)) {
+			response.writeHead(403, { 'cache-control': 'no-store', 'content-type': 'application/json; charset=utf-8' });
+			response.end(JSON.stringify({ error: 'Untrusted synthetic browser origin.' }));
+			return;
+		}
 		const cors = {
 			'access-control-allow-credentials': 'true',
 			'access-control-allow-headers':
 				'authorization, content-type, tenant-id, organization-id, organization-team-id',
 			'access-control-allow-methods': 'DELETE, GET, OPTIONS, PATCH, POST, PUT',
-			'access-control-allow-origin': origin,
 			'access-control-expose-headers': '*',
-			'cache-control': 'no-store'
+			'cache-control': 'no-store',
+			...(requestOrigin ? { 'access-control-allow-origin': requestOrigin } : {})
 		};
 		if (method === 'OPTIONS') {
 			response.writeHead(204, cors);
@@ -480,6 +490,21 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 		});
 		response.writeHead(status, { ...cors, 'content-type': 'application/json; charset=utf-8' });
 		response.end(JSON.stringify(payload));
+	};
+	const server = createServer((request, response) => {
+		void handleRequest(request, response).catch((error) => {
+			if (request.aborted && error?.code === 'ECONNRESET') return;
+			if (response.destroyed || response.writableEnded) return;
+			if (response.headersSent) {
+				response.destroy(error instanceof Error ? error : undefined);
+				return;
+			}
+			response.writeHead(500, {
+				'cache-control': 'no-store',
+				'content-type': 'application/json; charset=utf-8'
+			});
+			response.end(JSON.stringify({ error: 'Synthetic Gauzy request failed.' }));
+		});
 	});
 
 	await new Promise((resolve, reject) => {

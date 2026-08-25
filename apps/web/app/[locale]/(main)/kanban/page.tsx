@@ -46,10 +46,10 @@ import {
 } from '@/core/components/optimized-components/kanban';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { useFastTeamDailyPlansOwner } from '@/core/hooks/bootstrap/use-fast-feature-data';
+import { useTeamDailyPlansOwner } from '@/core/hooks/bootstrap/use-feature-data';
 
 const Kanban = () => {
-	useFastTeamDailyPlansOwner();
+	useTeamDailyPlansOwner();
 	// Get all required hooks and states — single instance for the entire Kanban page.
 	// Board operations are passed down to KanbanView via props (no duplicate hook instance).
 	const {

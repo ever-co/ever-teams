@@ -93,7 +93,7 @@ export function summarizeCandidate(candidate) {
 	};
 }
 
-export function compareFastStartup(
+export function compareStartup(
 	candidateSummary,
 	{ samples = 5, criticalReads = 12, firstFiveSeconds = 20, shellReadyMs = 5_000, baseline } = {}
 ) {
@@ -155,7 +155,7 @@ function parseArgs(argv) {
 function runCli() {
 	const args = parseArgs(process.argv.slice(2));
 	if (!args.candidate) {
-		throw new Error('Usage: compare-fast-startup.mjs --candidate=<json> [--baseline=<har>] [--out=<json>]');
+		throw new Error('Usage: compare-startup.mjs --candidate=<json> [--baseline=<har>] [--out=<json>]');
 	}
 	const candidate = JSON.parse(readFileSync(resolve(args.candidate), 'utf8'));
 	const candidateSummary = summarizeCandidate(candidate);
@@ -164,7 +164,7 @@ function runCli() {
 		const har = JSON.parse(readFileSync(resolve(args.baseline), 'utf8'));
 		baseline = summarizeHar(har, { apiOrigins: args.apiOrigins });
 	}
-	const comparison = compareFastStartup(candidateSummary, { baseline });
+	const comparison = compareStartup(candidateSummary, { baseline });
 	const report = { candidate: candidateSummary, comparison };
 	if (baseline) report.baseline = baseline;
 	if (args.out) {

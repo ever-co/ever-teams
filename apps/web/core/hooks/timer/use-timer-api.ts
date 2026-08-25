@@ -40,7 +40,7 @@ import { useMyDailyPlans } from '../daily-plans/use-my-daily-plans';
 import { useOrganizationEmployeeTeams, useTeamTasksState, useUpdateTask } from '../organizations';
 import { useTaskStatusesQuery } from '../tasks/use-task-statuses-query';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
-import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
+import { useScopeGuard } from '../bootstrap/use-scope-guard';
 
 // ==================== TYPES ====================
 
@@ -49,7 +49,7 @@ export interface UseTimerApiParams {
 	updateLocalTimerStatus: (status: ILocalTimerStatus) => void;
 	/** Whether the initial data load has completed */
 	firstLoad: boolean;
-	/** Controls the fast-path status and plan observers. Defaults preserve legacy ownership. */
+	/** Controls the scoped status and plan observers. */
 	enabled?: boolean;
 	scope?: ApiRequestScope;
 	statusEnabled?: boolean;
@@ -92,7 +92,7 @@ export interface UseTimerApiReturn {
 	activeTeamTask: TTask | null;
 	/** Unfiltered status used only by the single runtime owner. */
 	rawTimerRunning: boolean;
-	/** Fast-path critical observer readiness. */
+	/** Critical observer readiness. */
 	statusResolved: boolean;
 	plansResolved: boolean;
 }
@@ -171,7 +171,7 @@ export function useTimerApi({
 	const statusKey = statusEnabled
 		? queryKeys.timer.statusByScope(scope?.tenantId, scope?.organizationId, scope?.teamId, scope?.userId)
 		: queryKeys.timer.timer(activeTeamId);
-	const isCurrentScope = useFastScopeGuard(statusKey, statusEnabled && enabled);
+	const isCurrentScope = useScopeGuard(statusKey, statusEnabled && enabled);
 	const scopedStatusReady = !!(
 		scope?.tenantId &&
 		scope.organizationId &&
@@ -188,7 +188,7 @@ export function useTimerApi({
 	});
 	const {
 		queryCall,
-		loading: legacyLoading,
+		loading: fallbackLoading,
 		loadingRef
 	} = useQueryCall(async () =>
 		queryClient.fetchQuery({
@@ -196,7 +196,7 @@ export function useTimerApi({
 			queryFn: () => timerService.getTimerStatus()
 		})
 	);
-	const loading = statusEnabled ? scopedStatusQuery.isLoading : legacyLoading;
+	const loading = statusEnabled ? scopedStatusQuery.isLoading : fallbackLoading;
 
 	useEffect(() => {
 		const nextStatus = scopedStatusQuery.data?.data;

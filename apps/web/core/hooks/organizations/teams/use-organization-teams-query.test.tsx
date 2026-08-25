@@ -18,7 +18,6 @@ let mockUserId = 'user-a';
 
 jest.mock('@/core/constants/config/constants', () => ({
 	...jest.requireActual('@/core/constants/config/constants'),
-	FAST_APP_BOOTSTRAP: { value: true },
 	LAST_WORKSPACE_AND_TEAM: 'last-workspace-and-team'
 }));
 jest.mock('@/core/lib/helpers/cookies', () => ({
@@ -74,7 +73,7 @@ const mockGetOrganizationTeams = jest.mocked(
 		.getOrganizationTeams
 );
 
-describe('fast organization-team ownership', () => {
+describe('scoped organization-team ownership', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 		mockUserId = 'user-a';

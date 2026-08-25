@@ -42,7 +42,7 @@ describe('employee-scoped profile activity', () => {
 				cy.wait(200);
 				cy.mockRequests().then((requests) => {
 					const reads = profileReads(requests);
-					if (!Cypress.env('FAST_APP_BOOTSTRAP') || testCase.denied) {
+					if (testCase.denied) {
 						expect(reads).to.have.length(0);
 					} else {
 						expect(reads).to.have.length(1);
@@ -57,11 +57,6 @@ describe('employee-scoped profile activity', () => {
 		cy.fixture('bootstrap').then((fixture) => {
 			cy.mockScenario({ manager: false, shareProfileView: true });
 			cy.hardVisit(`/profile/${fixture.ids.teammateUser}`);
-			if (!Cypress.env('FAST_APP_BOOTSTRAP')) {
-				cy.wait(200);
-				cy.mockRequests().then((requests) => expect(profileReads(requests)).to.have.length(0));
-				return;
-			}
 			cy.contains('button', /^stats$/i, { timeout: 15_000 }).click();
 			cy.wait(300);
 			cy.mockRequests().then((requests) => {
@@ -81,11 +76,6 @@ describe('employee-scoped profile activity', () => {
 		cy.fixture('bootstrap').then((fixture) => {
 			cy.mockScenario({ manager: true });
 			cy.hardVisit(`/profile/${fixture.ids.teammateUser}`);
-			if (!Cypress.env('FAST_APP_BOOTSTRAP')) {
-				cy.wait(200);
-				cy.mockRequests().then((requests) => expect(profileReads(requests)).to.have.length(0));
-				return;
-			}
 			cy.hardVisit(`/profile/${fixture.ids.deniedUser}`);
 			cy.wait(250);
 			cy.mockRequests().then((requests) => {

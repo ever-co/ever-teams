@@ -263,7 +263,14 @@ export const queryKeys = {
 			teamId: string | undefined | null,
 			userId: string | undefined | null
 		) =>
-			['organization-teams', 'detail-scope', tenantId ?? null, organizationId ?? null, teamId ?? null, userId ?? null] as const,
+			[
+				'organization-teams',
+				'detail-scope',
+				tenantId ?? null,
+				organizationId ?? null,
+				teamId ?? null,
+				userId ?? null
+			] as const,
 		members: (teamId: string | undefined | null) =>
 			['organization-teams', ...(teamId ? [teamId] : []), 'members'] as const,
 		joinRequests: (teamId: string | undefined | null) =>
@@ -663,7 +670,8 @@ export const queryKeys = {
 			organizationId: string | undefined | null,
 			teamId: string | undefined | null,
 			userId: string | undefined | null
-		) => ['timer', 'state-scope', tenantId ?? null, organizationId ?? null, teamId ?? null, userId ?? null] as const,
+		) =>
+			['timer', 'state-scope', tenantId ?? null, organizationId ?? null, teamId ?? null, userId ?? null] as const,
 		statusByScope: (
 			tenantId: string | undefined | null,
 			organizationId: string | undefined | null,

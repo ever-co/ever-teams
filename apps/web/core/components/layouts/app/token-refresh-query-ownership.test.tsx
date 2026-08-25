@@ -58,7 +58,7 @@ describe('reownActiveQueriesAfterTokenRefresh', () => {
 		function Harness({ token }: { token: string }) {
 			useQuery({
 				queryKey,
-				meta: { fastCredentialScoped: true },
+				meta: { credentialScoped: true },
 				queryFn: ({ signal }) => {
 					calls.push(token);
 					signals.push(signal);
@@ -99,7 +99,7 @@ describe('reownActiveQueriesAfterTokenRefresh', () => {
 		const request = queryClient
 			.fetchQuery({
 				queryKey,
-				meta: { fastCredentialScoped: true },
+				meta: { credentialScoped: true },
 				queryFn: ({ signal }) => {
 					calls += 1;
 					signals.push(signal);

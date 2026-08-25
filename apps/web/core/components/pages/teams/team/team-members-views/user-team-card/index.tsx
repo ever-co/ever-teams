@@ -55,7 +55,6 @@ import {
 	UserProfileTaskSkeleton
 } from '@/core/components/common/skeleton/profile-component-skeletons';
 import { uniqueId } from 'lodash';
-import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 import { normalizeProfileActivityTimeZone } from '@/core/hooks/activities/use-profile-activity';
 import type { TProfileActivityScope } from '@/core/types/schemas/activities/profile-activity.schema';
 
@@ -239,14 +238,7 @@ export function UserTeamCard({
 		return result;
 	}, [identity.memberUser?.id, user?.id, isManagerConnectedUser]);
 	const activityScope = useMemo<TProfileActivityScope | undefined>(() => {
-		if (
-			!FAST_APP_BOOTSTRAP.value ||
-			publicTeam ||
-			!canSeeActivity ||
-			!targetEmployeeId ||
-			!activeTeam?.tenantId ||
-			!activeTeam.organizationId
-		) {
+		if (publicTeam || !canSeeActivity || !targetEmployeeId || !activeTeam?.tenantId || !activeTeam.organizationId) {
 			return undefined;
 		}
 

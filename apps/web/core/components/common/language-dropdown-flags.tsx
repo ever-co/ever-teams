@@ -1,4 +1,4 @@
-import { FAST_APP_BOOTSTRAP, languagesFlags } from '@/core/constants/config/constants';
+import { languagesFlags } from '@/core/constants/config/constants';
 import { setActiveLanguageIdCookie } from '@/core/lib/helpers/index';
 import { useLanguage, useLanguageSettings } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
@@ -11,21 +11,21 @@ import { mapLanguageItems } from './language-item';
 export function LanguageDropDownWithFlags({
 	btnClassName,
 	showFlag = true,
-	deferFastBootstrap = false
+	deferLoading = false
 }: {
 	btnClassName?: string;
 	showFlag?: boolean;
-	deferFastBootstrap?: boolean;
+	deferLoading?: boolean;
 }) {
 	const { changeLanguage } = useLanguage();
-	const isDeferredFastBootstrap = deferFastBootstrap && FAST_APP_BOOTSTRAP.value;
+	const isDeferred = deferLoading;
 	const [interactionActivated, setInteractionActivated] = useState(false);
 	const [open, setOpen] = useState(false);
 	const [pendingOpen, setPendingOpen] = useState(false);
 	const [loadPhase, setLoadPhase] = useState<'idle' | 'activating' | 'retrying' | 'awaiting-items'>('idle');
 	const [activationCheckReady, setActivationCheckReady] = useState(false);
 	const { languages, loadLanguagesData, setActiveLanguage, loading, isError, refetch } = useLanguageSettings({
-		enabled: !isDeferredFastBootstrap || interactionActivated
+		enabled: !isDeferred || interactionActivated
 	});
 	const { setValue } = useForm();
 	const router = useRouter();
@@ -35,12 +35,12 @@ export function LanguageDropDownWithFlags({
 	const isLanguageNotEn = Array.isArray(pathArray) && pathArray[1].length == 2;
 
 	useEffect(() => {
-		if (isDeferredFastBootstrap) return;
+		if (isDeferred) return;
 		loadLanguagesData();
-	}, [isDeferredFastBootstrap, loadLanguagesData]);
+	}, [isDeferred, loadLanguagesData]);
 
 	useEffect(() => {
-		if (!isDeferredFastBootstrap) return;
+		if (!isDeferred) return;
 		if (pendingOpen && items.length > 0) {
 			setPendingOpen(false);
 			setOpen(true);
@@ -63,7 +63,7 @@ export function LanguageDropDownWithFlags({
 		} else if (open && items.length === 0) {
 			setOpen(false);
 		}
-	}, [activationCheckReady, isDeferredFastBootstrap, isError, items.length, loadPhase, loading, open, pendingOpen]);
+	}, [activationCheckReady, isDeferred, isError, items.length, loadPhase, loading, open, pendingOpen]);
 
 	const retryLanguages = useCallback(async () => {
 		setLoadPhase('retrying');
@@ -130,7 +130,7 @@ export function LanguageDropDownWithFlags({
 	const ActiveFlag = converLanguageToObject[isLanguageNotEn ? pathArray[1] : 'en'].Flag;
 	return (
 		<Select
-			{...(isDeferredFastBootstrap ? { open, onOpenChange: handleOpenChange } : {})}
+			{...(isDeferred ? { open, onOpenChange: handleOpenChange } : {})}
 			onValueChange={(e: any) => {
 				handleChangeLanguage(e.code);
 				setActiveLanguage(e);
@@ -138,8 +138,8 @@ export function LanguageDropDownWithFlags({
 		>
 			<SelectTrigger
 				className={clsxm(btnClassName)}
-				disabled={isDeferredFastBootstrap && pendingOpen}
-				aria-busy={isDeferredFastBootstrap && pendingOpen}
+				disabled={isDeferred && pendingOpen}
+				aria-busy={isDeferred && pendingOpen}
 			>
 				{showFlag ? <ActiveFlag className="size-3 shrink-0 mr-2.5 " /> : null}
 

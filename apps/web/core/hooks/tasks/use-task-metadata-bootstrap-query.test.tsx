@@ -5,7 +5,6 @@ import { ReactNode } from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Provider as JotaiProvider, createStore } from 'jotai';
-import { setNextPublicEnv } from '@/env-config';
 import { queryKeys } from '@/core/query/keys';
 import { activeTeamIdState, organizationTeamsState, publicState } from '@/core/stores';
 import {
@@ -195,7 +194,6 @@ function expectNoLegacyReads() {
 describe('shared task metadata facade query', () => {
 	beforeEach(() => {
 		document.cookie = 'auth-active-team=team-1; path=/';
-		setNextPublicEnv({ NEXT_PUBLIC_FAST_APP_BOOTSTRAP: 'false' });
 		mockBundle.mockReset();
 		mockStatuses.mockReset();
 		mockPriorities.mockReset();
@@ -208,7 +206,6 @@ describe('shared task metadata facade query', () => {
 	});
 
 	it('coalesces seven authenticated facades onto one canonical full-scope request', async () => {
-		setNextPublicEnv({ NEXT_PUBLIC_FAST_APP_BOOTSTRAP: 'true' });
 		mockBundle.mockResolvedValue(sections);
 		const { queryClient, wrapper } = createHarness();
 		const { result } = renderHook(useAllMetadataFacades, { wrapper });
@@ -225,6 +222,14 @@ describe('shared task metadata facade query', () => {
 		expect(result.current.versions.taskVersions).toEqual(sections.taskVersions?.items);
 		expect(result.current.issueTypes.issueTypes).toEqual(sections.issueTypes?.items);
 		expect(result.current.relatedIssueTypes.taskRelatedIssueTypes).toEqual(sections.relatedIssueTypes?.items);
+		expect(typeof result.current.statuses.setTaskStatuses).toBe('function');
+		expect(typeof result.current.priorities.setTaskPriorities).toBe('function');
+		expect(typeof result.current.sizes.setTaskSizes).toBe('function');
+		expect(typeof result.current.labels.setTaskLabels).toBe('function');
+		expect(typeof result.current.labels.addOptimisticLabel).toBe('function');
+		expect(typeof result.current.versions.loadTaskVersionData).toBe('function');
+		expect(typeof result.current.issueTypes.loadIssueTypes).toBe('function');
+		expect(typeof result.current.relatedIssueTypes.loadTaskRelatedIssueTypeData).toBe('function');
 
 		const query = queryClient.getQueryCache().find({
 			queryKey: queryKeys.taskMetadata.bootstrap(scope, TASK_METADATA_SECTIONS),
@@ -235,26 +240,7 @@ describe('shared task metadata facade query', () => {
 		expect(options?.gcTime).toBe(15 * 60 * 1000);
 	});
 
-	it('preserves all seven legacy reads and public return helpers when the flag is false', async () => {
-		const { wrapper } = createHarness();
-		const { result } = renderHook(useAllMetadataFacades, { wrapper });
-
-		await waitFor(() => expect(result.current.relatedIssueTypes.taskRelatedIssueTypes).toHaveLength(1));
-
-		expect(mockBundle).not.toHaveBeenCalled();
-		expectSevenLegacyReads();
-		expect(typeof result.current.statuses.setTaskStatuses).toBe('function');
-		expect(typeof result.current.priorities.setTaskPriorities).toBe('function');
-		expect(typeof result.current.sizes.setTaskSizes).toBe('function');
-		expect(typeof result.current.labels.setTaskLabels).toBe('function');
-		expect(typeof result.current.labels.addOptimisticLabel).toBe('function');
-		expect(typeof result.current.versions.loadTaskVersionData).toBe('function');
-		expect(typeof result.current.issueTypes.loadIssueTypes).toBe('function');
-		expect(typeof result.current.relatedIssueTypes.loadTaskRelatedIssueTypeData).toBe('function');
-	});
-
-	it('keeps public mode on the seven legacy byTeam reads even when the flag is true', async () => {
-		setNextPublicEnv({ NEXT_PUBLIC_FAST_APP_BOOTSTRAP: 'true' });
+	it('keeps public mode on the seven public byTeam reads', async () => {
 		const { wrapper } = createHarness(true);
 		const { result } = renderHook(useAllMetadataFacades, { wrapper });
 
@@ -265,7 +251,6 @@ describe('shared task metadata facade query', () => {
 	});
 
 	it('propagates the accepted service fallback result without mounting duplicate legacy queries', async () => {
-		setNextPublicEnv({ NEXT_PUBLIC_FAST_APP_BOOTSTRAP: 'true' });
 		mockBundle.mockImplementation(async () => {
 			const [taskStatuses, taskPriorities, taskSizes, taskLabels, taskVersions, issueTypes, relatedIssueTypes] =
 				await Promise.all([
@@ -289,7 +274,6 @@ describe('shared task metadata facade query', () => {
 	});
 
 	it('does not fan out legacy queries when the bundle service rejects a non-fallback failure', async () => {
-		setNextPublicEnv({ NEXT_PUBLIC_FAST_APP_BOOTSTRAP: 'true' });
 		mockBundle.mockRejectedValue(new Error('HTTP 500'));
 		const { queryClient, wrapper } = createHarness();
 		renderHook(useAllMetadataFacades, { wrapper });
@@ -302,7 +286,6 @@ describe('shared task metadata facade query', () => {
 	});
 
 	it('does not let a canonical partial cache entry satisfy the full facade key', async () => {
-		setNextPublicEnv({ NEXT_PUBLIC_FAST_APP_BOOTSTRAP: 'true' });
 		mockBundle.mockResolvedValue(sections);
 		const { queryClient, wrapper } = createHarness();
 		const partialKey = queryKeys.taskMetadata.bootstrap(scope, ['taskStatuses']);

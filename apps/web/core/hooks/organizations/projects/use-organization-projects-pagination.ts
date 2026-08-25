@@ -5,11 +5,10 @@ import { useQuery } from '@tanstack/react-query';
 import { organizationProjectService } from '@/core/services/client/api/organizations';
 import { queryKeys } from '@/core/query/keys';
 import { useInvalidateOrganizationProjects } from './use-invalidate-organization-projects';
-import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
-import { useFastScopeGuard } from '../../bootstrap/use-fast-scope-guard';
+import { useScopeGuard } from '../../bootstrap/use-scope-guard';
 import { useUserQuery } from '../../queries/user-user.query';
 import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
-import { FAST_CREDENTIAL_QUERY_META } from '@/core/query/fast-credential-query';
+import { CREDENTIAL_SCOPED_QUERY_META } from '@/core/query/credential-query';
 
 /** Simple pagination params type */
 export interface PaginationParams {
@@ -37,7 +36,6 @@ export interface UseOrganizationProjectsPaginationOptions {
 export function useOrganizationProjectsPagination({ enabled = true }: UseOrganizationProjectsPaginationOptions = {}) {
 	const { organizationId, tenantId } = useInvalidateOrganizationProjects();
 	const { data: user } = useUserQuery();
-	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
 	const accessToken = useReactiveAccessTokenCookie();
 
 	const [paginationParams, setPaginationParams] = useState<PaginationParams>({
@@ -48,27 +46,29 @@ export function useOrganizationProjectsPagination({ enabled = true }: UseOrganiz
 		tenantId,
 		organizationId,
 		userId: user?.id,
-		accessToken: fastBootstrap ? accessToken : undefined
+		accessToken
 	};
-	const queryKey = fastBootstrap
-		? queryKeys.organizationProjects.paginationByScope(scope.tenantId, scope.organizationId, paginationParams)
-		: [...queryKeys.organizationProjects.all, 'pagination', paginationParams];
-	const fastOwnerActive = enabled && fastBootstrap;
-	const fastQueryEnabled =
-		fastOwnerActive && !!(scope.tenantId && scope.organizationId && scope.userId && scope.accessToken);
-	useFastScopeGuard(queryKey, fastOwnerActive);
+	const queryKey = queryKeys.organizationProjects.paginationByScope(
+		scope.tenantId,
+		scope.organizationId,
+		paginationParams
+	);
+	const ownerActive = enabled;
+	const queryEnabled = ownerActive && !!(scope.tenantId && scope.organizationId && scope.userId && scope.accessToken);
+	useScopeGuard(queryKey, ownerActive);
 
 	// Enhanced query with pagination
 	const organizationProjectsWithPagination = useQuery({
 		queryKey,
-		meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
+		meta: CREDENTIAL_SCOPED_QUERY_META,
 		queryFn: ({ signal }) =>
-			organizationProjectService.getOrganizationProjects(
-				fastBootstrap
-					? { skip: paginationParams.skip, take: paginationParams.take, scope, signal }
-					: { skip: paginationParams.skip, take: paginationParams.take }
-			),
-		enabled: fastBootstrap ? fastQueryEnabled : enabled && !!organizationId && !!tenantId
+			organizationProjectService.getOrganizationProjects({
+				skip: paginationParams.skip,
+				take: paginationParams.take,
+				scope,
+				signal
+			}),
+		enabled: queryEnabled
 	});
 
 	// Pagination helpers

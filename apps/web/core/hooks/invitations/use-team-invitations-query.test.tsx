@@ -19,8 +19,7 @@ jest.mock('../queries/user-user.query', () => ({
 		data: { id: 'user-a', tenantId: 'tenant-a', employee: { organizationId: 'organization-a' } }
 	})
 }));
-jest.mock('@/core/constants/config/constants', () => ({ FAST_APP_BOOTSTRAP: { value: true } }));
-jest.mock('../bootstrap/use-fast-scope-guard', () => ({ useFastScopeGuard: jest.fn() }));
+jest.mock('../bootstrap/use-scope-guard', () => ({ useScopeGuard: jest.fn() }));
 jest.mock('../auth/use-reactive-access-token-cookie', () => ({
 	useReactiveAccessTokenCookie: () => 'token-a'
 }));

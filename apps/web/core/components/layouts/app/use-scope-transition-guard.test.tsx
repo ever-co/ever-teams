@@ -17,7 +17,7 @@ import {
 	timerStatusState
 } from '@/core/stores';
 import { queryKeys } from '@/core/query/keys';
-import { useScopeTransitionGuard, type FastShellScope } from './use-scope-transition-guard';
+import { useScopeTransitionGuard, type ShellScope } from './use-scope-transition-guard';
 
 const team = (id: string) => ({ id, name: id }) as any;
 
@@ -30,7 +30,7 @@ describe('useScopeTransitionGuard', () => {
 				<Provider store={store}>{children}</Provider>
 			</QueryClientProvider>
 		);
-		const scopeA: FastShellScope = {
+		const scopeA: ShellScope = {
 			tenantId: 'tenant-a',
 			organizationId: 'organization-a',
 			teamId: 'team-a',
@@ -39,7 +39,7 @@ describe('useScopeTransitionGuard', () => {
 			employeeId: 'employee-a',
 			taskId: 'task-a'
 		};
-		const scopeB: FastShellScope = {
+		const scopeB: ShellScope = {
 			tenantId: 'tenant-b',
 			organizationId: 'organization-b',
 			teamId: 'team-b',
@@ -50,7 +50,7 @@ describe('useScopeTransitionGuard', () => {
 		};
 
 		const { rerender } = renderHook(
-			({ scope }: { scope: FastShellScope }) => {
+			({ scope }: { scope: ShellScope }) => {
 				const setTeams = useSetAtom(organizationTeamsState);
 				const setTasks = useSetAtom(teamTasksState);
 				const setActiveTask = useSetAtom(activeTeamTaskState);
@@ -114,7 +114,7 @@ describe('useScopeTransitionGuard', () => {
 				<Provider store={store}>{children}</Provider>
 			</QueryClientProvider>
 		);
-		const scope1: FastShellScope = {
+		const scope1: ShellScope = {
 			tenantId: 'tenant-1',
 			organizationId: 'org-1',
 			teamId: 'team-1',
@@ -124,7 +124,7 @@ describe('useScopeTransitionGuard', () => {
 			taskId: 'task-1'
 		};
 		const { result, rerender } = renderHook(
-			({ scope }: { scope: FastShellScope }) => useScopeTransitionGuard(scope, true),
+			({ scope }: { scope: ShellScope }) => useScopeTransitionGuard(scope, true),
 			{
 				wrapper,
 				initialProps: { scope: scope1 }
@@ -167,7 +167,7 @@ describe('useScopeTransitionGuard', () => {
 				<Provider store={store}>{children}</Provider>
 			</QueryClientProvider>
 		);
-		const scope: FastShellScope = {
+		const scope: ShellScope = {
 			tenantId: 'tenant-1',
 			organizationId: 'org-1',
 			teamId: 'team-1',
@@ -177,7 +177,7 @@ describe('useScopeTransitionGuard', () => {
 			taskId: 'task-1'
 		};
 		const { rerender } = renderHook(
-			({ current }: { current: FastShellScope }) => useScopeTransitionGuard(current, true),
+			({ current }: { current: ShellScope }) => useScopeTransitionGuard(current, true),
 			{ wrapper, initialProps: { current: scope } }
 		);
 

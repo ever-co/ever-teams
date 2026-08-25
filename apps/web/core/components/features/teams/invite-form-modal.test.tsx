@@ -6,11 +6,11 @@ import { InviteFormModal } from './invite-form-modal';
 
 const mockInviteUser = jest.fn();
 const mockResendTeamInvitation = jest.fn();
-const mockUseFastInviteDataOwner = jest.fn();
+const mockUseInviteDataOwner = jest.fn();
 const mockActiveTeam = { members: [] };
 
-jest.mock('@/core/hooks/bootstrap/use-fast-feature-data', () => ({
-	useFastInviteDataOwner: (open: boolean) => mockUseFastInviteDataOwner(open)
+jest.mock('@/core/hooks/bootstrap/use-feature-data', () => ({
+	useInviteDataOwner: (open: boolean) => mockUseInviteDataOwner(open)
 }));
 
 jest.mock('@/core/hooks/invitations/use-send-team-invitation', () => ({
@@ -105,7 +105,8 @@ const noInviteData = {
 	roles: [],
 	teamInvitations: [],
 	workingEmployees: [],
-	rolesLoading: false
+	rolesLoading: false,
+	rolesSuccess: true
 };
 const loadedInviteData = {
 	roles: [
@@ -113,7 +114,9 @@ const loadedInviteData = {
 		{ id: 'manager-role', name: 'MANAGER' }
 	],
 	teamInvitations: [],
-	workingEmployees: []
+	workingEmployees: [],
+	rolesLoading: false,
+	rolesSuccess: true
 };
 const selectedRoleValue = () => (screen.getByTestId('role-select') as HTMLSelectElement).value;
 
@@ -122,13 +125,13 @@ describe('InviteFormModal role selection', () => {
 		jest.clearAllMocks();
 		mockInviteUser.mockResolvedValue(undefined);
 		mockResendTeamInvitation.mockResolvedValue(undefined);
-		mockUseFastInviteDataOwner.mockReturnValue(noInviteData);
+		mockUseInviteDataOwner.mockReturnValue(noInviteData);
 	});
 
 	it('selects the employee role when deferred roles arrive after a cold open', async () => {
 		const { rerender } = render(<InviteFormModal open={false} closeModal={jest.fn()} />);
 
-		mockUseFastInviteDataOwner.mockReturnValue(loadedInviteData);
+		mockUseInviteDataOwner.mockReturnValue(loadedInviteData);
 		rerender(<InviteFormModal open closeModal={jest.fn()} />);
 
 		await waitFor(() => expect(selectedRoleValue()).toBe('employee-role'));
@@ -142,12 +145,12 @@ describe('InviteFormModal role selection', () => {
 
 	it('does not replace an explicit role choice when roles refresh', async () => {
 		const { rerender } = render(<InviteFormModal open={false} closeModal={jest.fn()} />);
-		mockUseFastInviteDataOwner.mockReturnValue(loadedInviteData);
+		mockUseInviteDataOwner.mockReturnValue(loadedInviteData);
 		rerender(<InviteFormModal open closeModal={jest.fn()} />);
 
 		await waitFor(() => expect(selectedRoleValue()).toBe('employee-role'));
 		fireEvent.change(screen.getByTestId('role-select'), { target: { value: 'manager-role' } });
-		mockUseFastInviteDataOwner.mockReturnValue({
+		mockUseInviteDataOwner.mockReturnValue({
 			...loadedInviteData,
 			roles: [...loadedInviteData.roles]
 		});
@@ -162,17 +165,17 @@ describe('InviteFormModal role selection', () => {
 
 	it('drops a stale selection and chooses the new scope employee role', async () => {
 		const { rerender } = render(<InviteFormModal open={false} closeModal={jest.fn()} />);
-		mockUseFastInviteDataOwner.mockReturnValue(loadedInviteData);
+		mockUseInviteDataOwner.mockReturnValue(loadedInviteData);
 		rerender(<InviteFormModal open closeModal={jest.fn()} />);
 
 		await waitFor(() => expect(selectedRoleValue()).toBe('employee-role'));
 		fireEvent.change(screen.getByTestId('role-select'), { target: { value: 'manager-role' } });
 
-		mockUseFastInviteDataOwner.mockReturnValue(noInviteData);
+		mockUseInviteDataOwner.mockReturnValue(noInviteData);
 		rerender(<InviteFormModal open closeModal={jest.fn()} />);
 		await waitFor(() => expect(selectedRoleValue()).toBe(''));
 
-		mockUseFastInviteDataOwner.mockReturnValue({
+		mockUseInviteDataOwner.mockReturnValue({
 			...loadedInviteData,
 			roles: [
 				{ id: 'employee-role-b', name: 'EMPLOYEE' },
@@ -185,7 +188,7 @@ describe('InviteFormModal role selection', () => {
 	});
 
 	it('waits for invite prerequisites and resends a matching resolved invitation without creating another', async () => {
-		mockUseFastInviteDataOwner.mockReturnValue({
+		mockUseInviteDataOwner.mockReturnValue({
 			...loadedInviteData,
 			teamInvitations: [],
 			fetchingInvitations: true,
@@ -200,7 +203,7 @@ describe('InviteFormModal role selection', () => {
 		expect(mockResendTeamInvitation).not.toHaveBeenCalled();
 		expect(mockInviteUser).not.toHaveBeenCalled();
 
-		mockUseFastInviteDataOwner.mockReturnValue({
+		mockUseInviteDataOwner.mockReturnValue({
 			...loadedInviteData,
 			teamInvitations: [{ id: 'invite-1', email: 'new@example.com' }],
 			fetchingInvitations: false,
@@ -211,7 +214,7 @@ describe('InviteFormModal role selection', () => {
 		expect(mockInviteUser).not.toHaveBeenCalled();
 		expect(mockResendTeamInvitation).not.toHaveBeenCalled();
 
-		mockUseFastInviteDataOwner.mockReturnValue({
+		mockUseInviteDataOwner.mockReturnValue({
 			...noInviteData,
 			teamInvitations: [{ id: 'invite-1', email: 'new@example.com' }],
 			fetchingInvitations: false,
@@ -224,7 +227,7 @@ describe('InviteFormModal role selection', () => {
 		expect(mockInviteUser).not.toHaveBeenCalled();
 		mockResendTeamInvitation.mockClear();
 
-		mockUseFastInviteDataOwner.mockReturnValue({
+		mockUseInviteDataOwner.mockReturnValue({
 			...loadedInviteData,
 			teamInvitations: [{ id: 'invite-1', email: 'new@example.com' }],
 			fetchingInvitations: false,
@@ -239,7 +242,7 @@ describe('InviteFormModal role selection', () => {
 	});
 
 	it('uses the invitation service fallback when an admin has no selectable roles', async () => {
-		mockUseFastInviteDataOwner.mockReturnValue(noInviteData);
+		mockUseInviteDataOwner.mockReturnValue(noInviteData);
 		render(<InviteFormModal open closeModal={jest.fn()} />);
 		fireEvent.click(screen.getByTestId('choose-email'));
 		fireEvent.submit(screen.getByTestId('choose-email').closest('form')!);

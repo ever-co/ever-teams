@@ -8,10 +8,9 @@ import { queryKeys } from '@/core/query/keys';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { UseCurrenciesReturn } from '@/core/types/interfaces/common/currency';
 import { useFirstLoad } from './use-first-load';
-import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
-import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
+import { useScopeGuard } from '../bootstrap/use-scope-guard';
 import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
-import { FAST_CREDENTIAL_QUERY_META } from '@/core/query/fast-credential-query';
+import { CREDENTIAL_SCOPED_QUERY_META } from '@/core/query/credential-query';
 
 export interface UseCurrenciesOptions {
 	enabled?: boolean;
@@ -71,19 +70,16 @@ export const useCurrencies = ({ enabled = true }: UseCurrenciesOptions = {}): Us
 	const { firstLoadData } = useFirstLoad();
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
-	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
 	const accessToken = useReactiveAccessTokenCookie();
 	const scope = {
 		tenantId,
 		organizationId,
-		accessToken: fastBootstrap ? accessToken : undefined
+		accessToken
 	};
-	const queryKey = fastBootstrap
-		? queryKeys.currencies.byScope(tenantId, organizationId)
-		: queryKeys.currencies.byOrganization(tenantId || '', organizationId || '');
-	const fastOwnerActive = enabled && fastBootstrap;
-	const fastQueryEnabled = fastOwnerActive && !!(scope.tenantId && scope.organizationId && scope.accessToken);
-	const isCurrentScope = useFastScopeGuard(queryKey, fastOwnerActive);
+	const queryKey = queryKeys.currencies.byScope(tenantId, organizationId);
+	const ownerActive = enabled;
+	const queryEnabled = ownerActive && !!(scope.tenantId && scope.organizationId && scope.accessToken);
+	const isCurrentScope = useScopeGuard(queryKey, ownerActive);
 
 	/**
 	 * React Query for currencies data with optimized caching strategy
@@ -95,23 +91,22 @@ export const useCurrencies = ({ enabled = true }: UseCurrenciesOptions = {}): Us
 	 */
 	const currenciesQuery = useQuery({
 		queryKey,
-		meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
-		queryFn: ({ signal }) =>
-			fastBootstrap ? currencyService.getCurrencies({ scope, signal }) : currencyService.getCurrencies(),
-		enabled: fastBootstrap ? fastQueryEnabled : enabled && !!(tenantId && organizationId),
+		meta: CREDENTIAL_SCOPED_QUERY_META,
+		queryFn: ({ signal }) => currencyService.getCurrencies({ scope, signal }),
+		enabled: queryEnabled,
 		staleTime: 1000 * 60 * 10, // Currencies are relatively stable, cache for 10 minutes
 		gcTime: 1000 * 60 * 30 // Keep in cache for 30 minutes
 	});
 
 	useEffect(() => {
-		if (fastOwnerActive && isCurrentScope()) {
+		if (ownerActive && isCurrentScope()) {
 			setCurrencies([]);
 		}
-	}, [fastOwnerActive, isCurrentScope, organizationId, setCurrencies, tenantId]);
+	}, [isCurrentScope, organizationId, ownerActive, setCurrencies, tenantId]);
 
 	// Sync React Query data with Jotai state for backward compatibility
 	useEffect(() => {
-		if (enabled && currenciesQuery.data?.items && (!fastBootstrap || isCurrentScope())) {
+		if (enabled && currenciesQuery.data?.items && isCurrentScope()) {
 			// Cast to any for backward compatibility with existing interfaces
 			const adaptedCurrencies = currenciesQuery.data.items.map((item) => ({
 				id: item.id,
@@ -120,7 +115,7 @@ export const useCurrencies = ({ enabled = true }: UseCurrenciesOptions = {}): Us
 			}));
 			setCurrencies(adaptedCurrencies);
 		}
-	}, [currenciesQuery.data?.items, enabled, fastBootstrap, isCurrentScope, setCurrencies]);
+	}, [currenciesQuery.data?.items, enabled, isCurrentScope, setCurrencies]);
 
 	/**
 	 * Manually fetch currencies data

@@ -50,7 +50,7 @@ import { APP_NAME } from '@/core/constants/config/constants';
 import { GlobalAllPlansModal } from '../daily-plan';
 import { GlobalAssignTaskModal } from '../features/tasks/global-assign-task-modal';
 import { GlobalProjectActionModal } from '../features/projects/global-project-action-modal';
-import { useFastSidebarDataOwner } from '@/core/hooks/bootstrap/use-fast-feature-data';
+import { useSidebarDataOwner } from '@/core/hooks/bootstrap/use-feature-data';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { data: user } = useUserQuery();
@@ -62,7 +62,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { isOpen, closeModal } = useModal();
 	const t = useTranslations();
-	const { organizationProjects } = useFastSidebarDataOwner(publicTeam);
+	const { organizationProjects } = useSidebarDataOwner(publicTeam);
 	const activeTeam = useAtomValue(activeTeamState);
 
 	// Filter projects based on active team context:

@@ -23,9 +23,6 @@ const getOrganizationById = jest.fn(
 		})
 );
 
-jest.mock('@/core/constants/config/constants', () => ({
-	FAST_APP_BOOTSTRAP: { value: true }
-}));
 jest.mock('@/core/lib/helpers/cookies', () => ({
 	getTenantIdCookie: () => tenantId,
 	getOrganizationIdCookie: () => organizationId,
@@ -44,7 +41,7 @@ const { useGetCurrentOrganization } =
 const { currentOrganizationState } =
 	require('@/core/stores/user/user-organizations') as typeof import('@/core/stores/user/user-organizations');
 
-describe('fast scoped atom synchronization', () => {
+describe('scoped atom synchronization', () => {
 	beforeEach(() => {
 		tenantId = 'tenant-a';
 		organizationId = 'org-a';
@@ -91,7 +88,7 @@ describe('fast scoped atom synchronization', () => {
 		expect(store.get(currentOrganizationState)?.id).toBe('org-b');
 	});
 
-	it('does not issue a fast organization request for an incomplete tenant scope', async () => {
+	it('does not issue an organization request for an incomplete tenant scope', async () => {
 		tenantId = '';
 		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 		const store = createStore();

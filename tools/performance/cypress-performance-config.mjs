@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 
-const DEFAULT_PERFORMANCE_OUTPUT = 'artifacts/fast-startup-candidate.json';
+const DEFAULT_PERFORMANCE_OUTPUT = 'artifacts/startup-candidate.json';
 
 function configuredOrigin(name, value) {
 	if (!value?.trim()) throw new Error(`Deterministic Cypress requires ${name}.`);

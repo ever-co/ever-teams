@@ -75,7 +75,7 @@ jest.mock('@/core/hooks/activities/use-profile-activity', () => ({
 	useProfileActivityMonthRange: () => ({ startDate: '2026-08-01', endDate: '2026-09-01' }),
 	useProfileActivity: (...args: unknown[]) => mockUseProfileActivity(...args)
 }));
-jest.mock('@/core/hooks/bootstrap/use-fast-feature-data', () => ({ useFastTeamDailyPlansOwner: jest.fn() }));
+jest.mock('@/core/hooks/bootstrap/use-feature-data', () => ({ useTeamDailyPlansOwner: jest.fn() }));
 
 jest.mock('@/core/stores', () => ({
 	activeTeamManagersState: 'active-team-managers',
@@ -103,7 +103,6 @@ jest.mock('jotai', () => ({
 	useSetAtom: () => jest.fn()
 }));
 
-jest.mock('@/core/constants/config/constants', () => ({ FAST_APP_BOOTSTRAP: { value: true } }));
 jest.mock('@/core/components', () => ({ Container: ({ children }: React.PropsWithChildren) => <div>{children}</div> }));
 jest.mock('@/core/components/layouts/default-layout', () => ({
 	MainHeader: ({ children }: React.PropsWithChildren) => <header>{children}</header>,

@@ -11,22 +11,6 @@ const SHELL_READY_BUDGET_MS = 5_000;
 
 describe('five-sample cold-start performance budget', () => {
 	it('meets normalized Gauzy request budgets without rich global reports', () => {
-		if (!Cypress.env('FAST_APP_BOOTSTRAP')) {
-			cy.mockReset();
-			cy.syntheticLogin();
-			cy.intercept('GET', /\/api\/tasks\/team(?:\?.*)?$/).as('legacyTasks');
-			cy.intercept('GET', /\/api\/daily-plan\/me(?:\?.*)?$/).as('legacyPlans');
-			cy.hardVisit('/team/tasks');
-			cy.wait(['@legacyTasks', '@legacyPlans'], { timeout: 20_000 });
-			cy.mockRequests().then((requests) => {
-				expect(requests.some((request) => request.path === '/api/task-metadata/bootstrap')).to.equal(false);
-				expect(
-					requests.some((request) => request.path === '/api/timesheet/statistics/profile-activity')
-				).to.equal(false);
-			});
-			return;
-		}
-
 		const samples: Sample[] = [];
 		let activeSample: Sample | undefined;
 		const apiOrigin = String(Cypress.env('GAUZY_API_ORIGIN'));

@@ -25,7 +25,7 @@ function observeRotatedScopedReads() {
 	cy.intercept('GET', /\/api\/daily-plan\/me(?:\?.*)?$/).as('rotatedPlans');
 }
 
-describe('fast authenticated startup', () => {
+describe('authenticated startup', () => {
 	beforeEach(() => {
 		cy.mockReset();
 		cy.syntheticLogin();
@@ -43,21 +43,14 @@ describe('fast authenticated startup', () => {
 			const taskIndex = paths.indexOf('/api/tasks/team');
 
 			expect(userIndex, 'user phase').to.be.greaterThan(-1);
-			if (Cypress.env('FAST_APP_BOOTSTRAP')) {
-				expect(workspaceIndex, 'workspace phase').to.be.greaterThan(userIndex);
-				expect(teamIndex, 'team phase').to.be.greaterThan(workspaceIndex);
-				expect(taskIndex, 'task phase').to.be.greaterThan(teamIndex);
-			} else {
-				expect(workspaceIndex, 'workspace request').to.be.greaterThan(-1);
-				expect(teamIndex, 'team request').to.be.greaterThan(-1);
-				expect(taskIndex, 'task request').to.be.greaterThan(-1);
-			}
+			expect(workspaceIndex, 'workspace phase').to.be.greaterThan(userIndex);
+			expect(teamIndex, 'team phase').to.be.greaterThan(workspaceIndex);
+			expect(taskIndex, 'task phase').to.be.greaterThan(teamIndex);
 			expect(paths).to.include('/api/timesheet/timer/status');
 			expect(paths).to.include('/api/daily-plan/me');
 
 			const bundles = paths.filter((path) => path === '/api/task-metadata/bootstrap');
-			if (Cypress.env('FAST_APP_BOOTSTRAP')) expect(bundles).to.have.length(1);
-			else expect(bundles).to.have.length(0);
+			expect(bundles).to.have.length(1);
 		});
 	});
 
@@ -71,25 +64,22 @@ describe('fast authenticated startup', () => {
 		});
 	});
 
-	it('keeps the legacy flag-off path free of fast-only endpoints', () => {
+	it('uses the metadata bundle without starting profile activity reads', () => {
 		observeCriticalStartup();
-		if (Cypress.env('FAST_APP_BOOTSTRAP')) {
-			cy.intercept('GET', /\/api\/task-metadata\/bootstrap(?:\?.*)?$/).as('fastMetadata');
-		}
+		cy.intercept('GET', /\/api\/task-metadata\/bootstrap(?:\?.*)?$/).as('metadata');
 		cy.hardVisit('/team/tasks');
 		cy.wait([...criticalStartupAliases], { timeout: 20_000 });
-		if (Cypress.env('FAST_APP_BOOTSTRAP')) cy.wait('@fastMetadata', { timeout: 20_000 });
+		cy.wait('@metadata', { timeout: 20_000 });
 		cy.mockRequests().then((requests) => {
-			const fastCalls = requests.filter(
+			const scopedCalls = requests.filter(
 				(request) =>
 					request.path === '/api/task-metadata/bootstrap' ||
 					request.path === '/api/timesheet/statistics/profile-activity'
 			);
-			if (Cypress.env('FAST_APP_BOOTSTRAP')) {
-				expect(fastCalls.some((request) => request.path === '/api/task-metadata/bootstrap')).to.equal(true);
-			} else {
-				expect(fastCalls).to.deep.equal([]);
-			}
+			expect(scopedCalls.filter((request) => request.path === '/api/task-metadata/bootstrap')).to.have.length(1);
+			expect(
+				scopedCalls.some((request) => request.path === '/api/timesheet/statistics/profile-activity')
+			).to.equal(false);
 		});
 	});
 
@@ -98,20 +88,10 @@ describe('fast authenticated startup', () => {
 		cy.hardVisit('/team/tasks');
 		cy.wait([...criticalStartupAliases], { timeout: 20_000 });
 		cy.mockRequests().then((before) => {
-			if (Cypress.env('FAST_APP_BOOTSTRAP')) observeRotatedScopedReads();
+			observeRotatedScopedReads();
 			cy.rotateSyntheticAccessToken();
-			if (Cypress.env('FAST_APP_BOOTSTRAP')) cy.wait([...rotatedScopedAliases], { timeout: 20_000 });
+			cy.wait([...rotatedScopedAliases], { timeout: 20_000 });
 			cy.mockRequests().then((after) => {
-				const fastOnly = after.filter(
-					(request) =>
-						request.path === '/api/task-metadata/bootstrap' ||
-						request.path === '/api/timesheet/statistics/profile-activity'
-				);
-				if (!Cypress.env('FAST_APP_BOOTSTRAP')) {
-					expect(fastOnly).to.deep.equal([]);
-					return;
-				}
-
 				for (const scopedPath of ['/api/tasks/team', '/api/timesheet/timer/status', '/api/daily-plan/me']) {
 					const count = (requests: typeof after) =>
 						requests.filter((request) => request.path === scopedPath).length;

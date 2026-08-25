@@ -5,11 +5,11 @@ import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-dai
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { DAILY_PLAN_SUGGESTION_MODAL_DATE, FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
+import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/constants';
 import { estimatedTotalTime, getTotalTasks } from '@/core/components/tasks/daily-plan';
 import intersection from 'lodash/intersection';
 import { ITab } from '@/core/components/pages/profile/task-filters';
-import { timeLogsDailyReportState, activeTeamManagersState, activeTeamState } from '@/core/stores';
+import { activeTeamManagersState, activeTeamState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 import { useUserQuery } from '../queries/user-user.query';
 
@@ -40,7 +40,7 @@ export type UseTaskFilterOptions = {
 	 * Can be 'auto' to automatically select based on daily plans availability.
 	 */
 	defaultTab?: ITab | 'auto';
-	/** Employee-specific active-day count used by the fast profile endpoint. */
+	/** Employee-specific active-day count supplied by the profile summary endpoint. */
 	statsCount?: number;
 };
 
@@ -77,8 +77,7 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 	]);
 
 	const { employeeTodayPlan, employeeOutstandingPlans, employeeDailyPlans } = useEmployeeDailyPlans(targetEmployeeId);
-	const timeLogsDailyReport = useAtomValue(timeLogsDailyReportState);
-	const resolvedStatsCount = FAST_APP_BOOTSTRAP.value ? (statsCount ?? 0) : timeLogsDailyReport.length;
+	const resolvedStatsCount = statsCount ?? 0;
 	const isManagerConnectedUser = useMemo(
 		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id),
 		[activeTeamManagers, user?.id]

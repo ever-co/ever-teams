@@ -11,7 +11,6 @@ import { queryKeys } from '@/core/query/keys';
 import { useUserQuery } from '../queries/user-user.query';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { TInvite } from '@/core/types/schemas';
-import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 
 /**
  * Hook for responding to invitations (accept or reject).
@@ -29,10 +28,7 @@ export function useRespondToInvitation() {
 	const { refreshToken } = useAuthenticateUser();
 	const { invalidateTeamInvitations, invalidateMyInvitations } = useInvitationInvalidation();
 	const { data: user } = useUserQuery();
-	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
-	const myInvitationsKey = fastBootstrap
-		? queryKeys.users.invitations.myByUser(user?.tenantId, user?.id)
-		: queryKeys.users.invitations.my(user?.tenantId || '');
+	const myInvitationsKey = queryKeys.users.invitations.myByUser(user?.tenantId, user?.id);
 
 	// ===== ACCEPT / REJECT =====
 

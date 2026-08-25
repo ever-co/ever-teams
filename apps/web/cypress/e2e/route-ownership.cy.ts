@@ -51,7 +51,7 @@ describe('route-owned data on empty-cache hard loads', () => {
 		});
 	}
 
-	it('hard-loads task and profile routes without warmed legacy startup state', () => {
+	it('hard-loads task and profile routes without warmed startup state', () => {
 		cy.fixture('bootstrap').then((fixture) => {
 			cy.hardVisit(`/task/${fixture.ids.task}`);
 			cy.location('pathname').should('include', `/task/${fixture.ids.task}`);

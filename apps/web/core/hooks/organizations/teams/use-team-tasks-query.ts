@@ -20,8 +20,7 @@ import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
-import { useFastScopeGuard } from '../../bootstrap/use-fast-scope-guard';
-import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
+import { useScopeGuard } from '../../bootstrap/use-scope-guard';
 import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
 
 export interface UseTeamTasksQueryOptions {
@@ -66,27 +65,22 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 	const memberActiveTaskId = useAtomValue(memberActiveTaskIdState);
 	const [activeTeamTask, setActiveTeamTask] = useAtom(activeTeamTaskState);
 	const reactiveAccessToken = useReactiveAccessTokenCookie();
-	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
 
 	const { firstLoad, firstLoadData: firstLoadTasksData } = useFirstLoad();
 	const { enabled = true, scope: explicitScope, refetchInterval = false } = options;
 	const scope = useMemo<ApiRequestScope | undefined>(
 		() =>
-			explicitScope ??
-			(fastBootstrap
-				? {
-						tenantId: user?.employee?.tenantId ?? user?.tenantId,
-						organizationId: activeTeam?.organizationId ?? user?.employee?.organizationId,
-						teamId: activeTeam?.id,
-						userId: user?.id,
-						accessToken: reactiveAccessToken
-					}
-				: undefined),
+			explicitScope ?? {
+				tenantId: user?.employee?.tenantId ?? user?.tenantId,
+				organizationId: activeTeam?.organizationId ?? user?.employee?.organizationId,
+				teamId: activeTeam?.id,
+				userId: user?.id,
+				accessToken: reactiveAccessToken
+			},
 		[
 			activeTeam?.id,
 			activeTeam?.organizationId,
 			explicitScope,
-			fastBootstrap,
 			reactiveAccessToken,
 			user?.employee?.organizationId,
 			user?.employee?.tenantId,
@@ -94,13 +88,10 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 			user?.tenantId
 		]
 	);
-	const scoped = scope !== undefined;
-	const canHydrateSharedState = !fastBootstrap || explicitScope !== undefined;
+	const canHydrateSharedState = explicitScope !== undefined;
 	const projectId = activeTeam?.projects?.[0]?.id ?? null;
-	const queryKey = scoped
-		? queryKeys.tasks.byTeamByScope(scope.tenantId, scope.organizationId, scope.teamId, projectId)
-		: queryKeys.tasks.byTeam(activeTeam?.id);
-	const isCurrentScope = useFastScopeGuard(queryKey, scoped && enabled);
+	const queryKey = queryKeys.tasks.byTeamByScope(scope?.tenantId, scope?.organizationId, scope?.teamId, projectId);
+	const isCurrentScope = useScopeGuard(queryKey, enabled);
 	const scopedReady = !!(scope?.tenantId && scope.organizationId && scope.teamId && scope.accessToken);
 
 	// React Query for team tasks
@@ -113,15 +104,13 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 			const activeProjectId = projectId ?? '';
 			return await taskService.getTasks({
 				projectId: activeProjectId,
-				...(scoped ? { options: { scope: scope!, signal } } : {})
+				options: { scope: scope!, signal }
 			});
 		},
-		enabled: scoped
-			? enabled && scopedReady && !!activeTeam?.id && canHydrateSharedState
-			: enabled && !!activeTeam?.id,
-		staleTime: scoped ? 60_000 : 0,
+		enabled: enabled && scopedReady && !!activeTeam?.id && canHydrateSharedState,
+		staleTime: 60_000,
 		gcTime: 1000 * 60 * 60,
-		refetchInterval: scoped ? refetchInterval : false,
+		refetchInterval,
 		refetchIntervalInBackground: false
 	});
 
@@ -129,7 +118,7 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 	const deepCheckAndUpdateTasks = useCallback(
 		(responseTasks: TTask[], deepCheck?: boolean) => {
 			if (!canHydrateSharedState) return;
-			if (scoped && !isCurrentScope()) return;
+			if (!isCurrentScope()) return;
 			// Map to new objects if modification is needed to avoid mutating cache
 			const processedTasks =
 				responseTasks?.map((task) => {
@@ -163,7 +152,7 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 				setAllTasks(processedTasks);
 			}
 		},
-		[activeTeamRef, canHydrateSharedState, isCurrentScope, scoped, setAllTasks, tasksRef]
+		[activeTeamRef, canHydrateSharedState, isCurrentScope, setAllTasks, tasksRef]
 	);
 
 	const loadTeamTasksData = useCallback(
@@ -202,11 +191,11 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 	// Sync React Query data with Jotai state
 	useConditionalUpdateEffect(
 		() => {
-			if (teamTasksQuery.data?.items && (!scoped || isCurrentScope())) {
+			if (teamTasksQuery.data?.items && isCurrentScope()) {
 				deepCheckAndUpdateTasks(teamTasksQuery.data.items, true);
 			}
 		},
-		[teamTasksQuery.data?.items, scoped, isCurrentScope],
+		[teamTasksQuery.data?.items, isCurrentScope],
 		Boolean(tasks?.length)
 	);
 
@@ -216,7 +205,7 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 			if (!canHydrateSharedState) return;
 			// Validate: ensure the task belongs to the current active team
 			const memberActiveTask = getValidActiveTask(tasks, memberActiveTaskId, activeTeam?.id);
-			if (scoped && !isCurrentScope()) return;
+			if (!isCurrentScope()) return;
 			if (memberActiveTask) {
 				setActiveTeamTask(memberActiveTask);
 			} else if (memberActiveTaskId && activeTeam?.id) {
@@ -224,7 +213,7 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 				setActiveTeamTask(null);
 			}
 		},
-		[activeTeam, tasks, memberActiveTaskId, canHydrateSharedState, scoped, isCurrentScope],
+		[activeTeam, tasks, memberActiveTaskId, canHydrateSharedState, isCurrentScope],
 		true
 	);
 
@@ -239,7 +228,7 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 		// Loading states
 		loading: teamTasksQuery.isLoading,
 		tasksFetching: teamTasksQuery.isFetching,
-		querySuccess: teamTasksQuery.isSuccess && (!scoped || isCurrentScope()),
+		querySuccess: teamTasksQuery.isSuccess && isCurrentScope(),
 
 		// Functions
 		loadTeamTasksData,

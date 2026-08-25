@@ -1,17 +1,24 @@
 import assert from 'node:assert/strict';
 import { accessSync, chmodSync, constants, mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { delimiter, dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
 const toolPath = resolve(dirname(fileURLToPath(import.meta.url)), 'ever-teams-surface.mjs');
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
-const knownGitCandidates =
-	process.platform === 'win32'
+const pathGitNames = process.platform === 'win32' ? ['git.exe', 'git.cmd'] : ['git'];
+const pathGitCandidates = (process.env.PATH ?? '')
+	.split(delimiter)
+	.filter(Boolean)
+	.flatMap((directory) => pathGitNames.map((name) => join(directory, name)));
+const knownGitCandidates = [
+	...pathGitCandidates,
+	...(process.platform === 'win32'
 		? [String.raw`C:\Program Files\Git\cmd\git.exe`, String.raw`C:\Program Files\Git\bin\git.exe`]
-		: ['/usr/bin/git', '/usr/local/bin/git'];
+		: ['/usr/bin/git', '/usr/local/bin/git', '/opt/homebrew/bin/git'])
+];
 const knownGit = knownGitCandidates.find((candidate) => {
 	try {
 		if (process.platform !== 'win32') accessSync(candidate, constants.X_OK);

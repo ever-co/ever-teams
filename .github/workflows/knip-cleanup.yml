@@ -26,9 +26,12 @@ jobs:
         with:
           node-version: '24.14.0'
 
+      - name: Install Packages
+        run: yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts
+
       - name: Run Knip
         working-directory: apps/web
-        run: npx knip --cache --no-exit-code > reported-files.txt
+        run: yarn knip --cache --no-exit-code > reported-files.txt
 
       - name: Get list of changed files
         id: changed
@@ -80,15 +83,35 @@ jobs:
         if: failure() && steps.check_unused.outputs.fail == '1'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
           REPORTED_FILES: ${{ steps.check_unused.outputs.reported_files }}
         run: |
-          PR_NUMBER=${{ github.event.pull_request.number }}
-
           if [ -z "$PR_NUMBER" ]; then
             echo "❌ Could not find the pull request for this commit."
             exit 1
           fi
-
-          echo -e "⚠️ **Unused code detected in the following changed files:**\n\n$(echo "$REPORTED_FILES" | sed 's/^/- /')\n\nPlease review these files and clean up the unused code." > comment.md
-
-          gh pr comment "$PR_NUMBER" --body-file comment.md
+          node <<'NODE'
+          const files = process.env.REPORTED_FILES.split('\n').filter(Boolean);
+          const body = [
+            '⚠️ **Unused code detected in the following changed files:**',
+            '',
+            ...files.map((file) => `- ${file}`),
+            '',
+            'Please review these files and clean up the unused code.'
+          ].join('\n');
+          const response = await fetch(
+            `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/issues/${process.env.PR_NUMBER}/comments`,
+            {
+              method: 'POST',
+              headers: {
+                accept: 'application/vnd.github+json',
+                authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+                'content-type': 'application/json',
+                'x-github-api-version': '2022-11-28'
+              },
+              body: JSON.stringify({ body })
+            }
+          );
+          if (!response.ok) throw new Error(`GitHub comment failed with HTTP ${response.status}`);
+          NODE

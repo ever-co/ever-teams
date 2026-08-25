@@ -23,7 +23,7 @@ describe('useQueryCall', () => {
 		expect(calls).toEqual(['team-b:task-1']);
 	});
 
-	it('preserves the legacy initial-callback behavior unless latest scope is requested', async () => {
+	it('preserves the initial-callback behavior unless latest scope is requested', async () => {
 		const calls: string[] = [];
 		const { result, rerender } = renderHook(
 			({ scope }) =>

@@ -47,5 +47,5 @@ test('resolves candidate output inside the Cypress repository root', async () =>
 		resolvePerformanceOutput(projectRoot, 'artifacts/candidate.json'),
 		resolve(projectRoot, 'artifacts/candidate.json')
 	);
-	assert.equal(resolvePerformanceOutput(projectRoot), resolve(projectRoot, 'artifacts/fast-startup-candidate.json'));
+	assert.equal(resolvePerformanceOutput(projectRoot), resolve(projectRoot, 'artifacts/startup-candidate.json'));
 });

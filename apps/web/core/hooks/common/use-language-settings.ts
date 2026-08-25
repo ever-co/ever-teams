@@ -15,10 +15,9 @@ import { TLanguageItemList } from '@/core/types/schemas';
 import { useUserLanguagePreference } from './use-user-language-preference';
 import { useLanguageStateSync } from './use-language-state-sync';
 import { useUserQuery } from '../queries/user-user.query';
-import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
-import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
+import { useScopeGuard } from '../bootstrap/use-scope-guard';
 import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
-import { FAST_CREDENTIAL_QUERY_META } from '@/core/query/fast-credential-query';
+import { CREDENTIAL_SCOPED_QUERY_META } from '@/core/query/credential-query';
 
 export interface UseLanguageSettingsOptions {
 	enabled?: boolean;
@@ -95,7 +94,6 @@ const filterLanguagesByCode = (data: PaginationResponse<TLanguageItemList>) => {
  */
 export function useLanguageSettings({ enabled = true }: UseLanguageSettingsOptions = {}): UseLanguageSettingsReturn {
 	const { data: user } = useUserQuery();
-	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
 	const accessToken = useReactiveAccessTokenCookie();
 	const [languages, setLanguages] = useAtom(languageListState);
 	const { changeLanguage } = useLanguage();
@@ -111,20 +109,18 @@ export function useLanguageSettings({ enabled = true }: UseLanguageSettingsOptio
 	}, [user?.role?.isSystem]); // Only depend on the specific property, not entire user object
 
 	// Stable query key using memoized isSystem
-	const queryKey = useMemo(() => {
-		return fastBootstrap
-			? queryKeys.languages.byScope(user?.tenantId, user?.id, isSystem)
-			: queryKeys.languages.system(isSystem);
-	}, [fastBootstrap, isSystem, user?.id, user?.tenantId]);
+	const queryKey = useMemo(
+		() => queryKeys.languages.byScope(user?.tenantId, user?.id, isSystem),
+		[isSystem, user?.id, user?.tenantId]
+	);
 	const scope = {
 		tenantId: user?.tenantId,
 		userId: user?.id,
-		accessToken: fastBootstrap ? accessToken : undefined
+		accessToken
 	};
-	const fastOwnerActive = enabled && fastBootstrap;
-	const fastQueryEnabled = fastOwnerActive && !!(scope.tenantId && scope.userId && scope.accessToken);
-	const effectsEnabled = fastBootstrap ? fastOwnerActive : enabled;
-	const isCurrentScope = useFastScopeGuard(queryKey, fastOwnerActive);
+	const ownerActive = enabled;
+	const queryEnabled = ownerActive && !!(scope.tenantId && scope.userId && scope.accessToken);
+	const isCurrentScope = useScopeGuard(queryKey, ownerActive);
 
 	/**
 	 * React Query for languages data with optimized caching strategy
@@ -137,39 +133,36 @@ export function useLanguageSettings({ enabled = true }: UseLanguageSettingsOptio
 	 */
 	const languagesQuery = useQuery({
 		queryKey, // Use stable memoized query key
-		meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
-		queryFn: ({ signal }) =>
-			fastBootstrap
-				? languageService.getLanguages(isSystem, { scope, signal })
-				: languageService.getLanguages(isSystem),
-		enabled: fastBootstrap ? fastQueryEnabled : enabled && !!user, // Only fetch when user is available
+		meta: CREDENTIAL_SCOPED_QUERY_META,
+		queryFn: ({ signal }) => languageService.getLanguages(isSystem, { scope, signal }),
+		enabled: queryEnabled,
 		staleTime: 1000 * 60 * 60, // Languages are stable, cache for 1 hour
 		gcTime: 1000 * 60 * 60 * 24, // Keep in cache for 24 hours
 		select: filterLanguagesByCode
 	});
 
 	useEffect(() => {
-		if (fastOwnerActive && isCurrentScope()) {
+		if (ownerActive && isCurrentScope()) {
 			setLanguages([]);
 		}
-	}, [fastOwnerActive, isCurrentScope, setLanguages, user?.id, user?.tenantId]);
+	}, [isCurrentScope, ownerActive, setLanguages, user?.id, user?.tenantId]);
 	const activeLanguageId = useMemo(() => getActiveLanguageIdCookie(), []);
 	// Use custom hooks to reduce complexity
 	useLanguageStateSync(languagesQuery, setLanguages, setLanguagesFetching, {
-		enabled: effectsEnabled,
-		isCurrentScope: fastBootstrap ? isCurrentScope : undefined
+		enabled: ownerActive,
+		isCurrentScope
 	});
-	useUserLanguagePreference(user!, changeLanguage, effectsEnabled);
+	useUserLanguagePreference(user!, changeLanguage, ownerActive);
 
 	/**
 	 * Loads languages data intelligently - uses cache if fresh, fetches if stale
 	 * @returns Promise resolving to the API response data
 	 */
 	const loadLanguagesData = useCallback(async () => {
-		if (fastBootstrap && (!fastQueryEnabled || !isCurrentScope())) {
+		if (!queryEnabled || !isCurrentScope()) {
 			return { data: { items: [], total: 0 } };
 		}
-		if (effectsEnabled) {
+		if (ownerActive) {
 			setActiveLanguageCode(activeLanguageId);
 		}
 		try {
@@ -197,13 +190,12 @@ export function useLanguageSettings({ enabled = true }: UseLanguageSettingsOptio
 		}
 	}, [
 		activeLanguageId,
-		effectsEnabled,
-		fastBootstrap,
-		fastQueryEnabled,
 		isCurrentScope,
 		languagesQuery.data,
 		languagesQuery.isStale,
 		languagesQuery.refetch,
+		ownerActive,
+		queryEnabled,
 		setActiveLanguageCode
 	]);
 
@@ -214,8 +206,8 @@ export function useLanguageSettings({ enabled = true }: UseLanguageSettingsOptio
 	const setActiveLanguage = useCallback(
 		(languageId: ILanguageItemList) => {
 			if (
-				effectsEnabled &&
-				(!fastBootstrap || isCurrentScope()) &&
+				ownerActive &&
+				isCurrentScope() &&
 				activeLanguageId !== languageId.code &&
 				languageId.code !== activeLanguageCode
 			) {
@@ -224,15 +216,7 @@ export function useLanguageSettings({ enabled = true }: UseLanguageSettingsOptio
 				setActiveLanguageCode(languageId.code);
 			}
 		},
-		[
-			activeLanguageId,
-			activeLanguageCode,
-			changeLanguage,
-			effectsEnabled,
-			fastBootstrap,
-			isCurrentScope,
-			setActiveLanguageCode
-		]
+		[activeLanguageId, activeLanguageCode, changeLanguage, isCurrentScope, ownerActive, setActiveLanguageCode]
 	);
 
 	return {

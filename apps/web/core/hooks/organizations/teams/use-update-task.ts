@@ -18,7 +18,6 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 import { useTaskQueries } from './use-task-queries';
-import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 
 /**
  * Hook for updating team tasks (UPDATE operations only).
@@ -41,16 +40,13 @@ import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
 export function useUpdateTask() {
 	const queryClient = useQueryClient();
 	const activeTeam = useAtomValue(activeTeamState);
-	const taskListQueryKey = FAST_APP_BOOTSTRAP.value
-		? queryKeys.tasks.byTeamByScope(
-				activeTeam?.tenantId,
-				activeTeam?.organizationId,
-				activeTeam?.id,
-				activeTeam?.projects?.[0]?.id ?? null
-			)
-		: queryKeys.tasks.byTeam(activeTeam?.id);
+	const taskListQueryKey = queryKeys.tasks.byTeamByScope(
+		activeTeam?.tenantId,
+		activeTeam?.organizationId,
+		activeTeam?.id,
+		activeTeam?.projects?.[0]?.id ?? null
+	);
 	const scopeFingerprint = JSON.stringify([
-		FAST_APP_BOOTSTRAP.value,
 		activeTeam?.tenantId ?? null,
 		activeTeam?.organizationId ?? null,
 		activeTeam?.id ?? null,

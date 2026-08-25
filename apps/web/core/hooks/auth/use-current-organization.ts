@@ -5,10 +5,9 @@ import { useAtom } from 'jotai';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { organizationService } from '@/core/services/client/api/organizations';
 import { useEffect } from 'react';
-import { FAST_APP_BOOTSTRAP } from '@/core/constants/config/constants';
-import { useFastScopeGuard } from '../bootstrap/use-fast-scope-guard';
+import { useScopeGuard } from '../bootstrap/use-scope-guard';
 import { useReactiveAccessTokenCookie } from './use-reactive-access-token-cookie';
-import { FAST_CREDENTIAL_QUERY_META } from '@/core/query/fast-credential-query';
+import { CREDENTIAL_SCOPED_QUERY_META } from '@/core/query/credential-query';
 
 export interface UseGetCurrentOrganizationOptions {
 	enabled?: boolean;
@@ -19,60 +18,52 @@ export const useGetCurrentOrganization = ({ enabled = true }: UseGetCurrentOrgan
 	const [, setCurrentOrganizationFetching] = useAtom(currentOrganizationFetchingState);
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
-	const fastBootstrap = FAST_APP_BOOTSTRAP.value;
 	const accessToken = useReactiveAccessTokenCookie();
 	const scope = {
 		tenantId,
 		organizationId,
-		accessToken: fastBootstrap ? accessToken : undefined
+		accessToken
 	};
-	const queryKey = fastBootstrap
-		? queryKeys.workspaces.currentOrganizationByScope(tenantId, organizationId)
-		: queryKeys.workspaces.currentOrganization(organizationId);
-	const fastOwnerActive = enabled && fastBootstrap;
-	const fastQueryEnabled = fastOwnerActive && !!(scope.tenantId && scope.organizationId && scope.accessToken);
-	const isCurrentScope = useFastScopeGuard(queryKey, fastOwnerActive);
+	const queryKey = queryKeys.workspaces.currentOrganizationByScope(tenantId, organizationId);
+	const ownerActive = enabled;
+	const queryEnabled = ownerActive && !!(scope.tenantId && scope.organizationId && scope.accessToken);
+	const isCurrentScope = useScopeGuard(queryKey, ownerActive);
 
 	const currentOrganizationQuery = useQuery({
 		queryKey,
-		meta: fastBootstrap ? FAST_CREDENTIAL_QUERY_META : undefined,
-		queryFn: async ({ signal }) => {
-			return fastBootstrap
-				? await organizationService.getOrganizationById(organizationId, { scope, signal })
-				: await organizationService.getOrganizationById(organizationId);
-		},
-		enabled: fastBootstrap ? fastQueryEnabled : enabled && !!organizationId,
+		meta: CREDENTIAL_SCOPED_QUERY_META,
+		queryFn: ({ signal }) => organizationService.getOrganizationById(organizationId, { scope, signal }),
+		enabled: queryEnabled,
 		staleTime: 1000 * 60 * 60, // 1h
 		gcTime: 1000 * 60 * 60 * 2, // 2h
 		retry: 2
 	});
 
-	// Fast mode keeps feature-owned atoms isolated when the authenticated scope changes.
 	useEffect(() => {
-		if (fastOwnerActive && isCurrentScope()) {
+		if (ownerActive && isCurrentScope()) {
 			setCurrentOrganization(null);
 		}
-	}, [fastOwnerActive, isCurrentScope, organizationId, setCurrentOrganization, tenantId]);
+	}, [isCurrentScope, organizationId, ownerActive, setCurrentOrganization, tenantId]);
 
 	// Sync React Query data with Jotai state
 	useEffect(() => {
-		if (enabled && currentOrganizationQuery.data && (!fastBootstrap || isCurrentScope())) {
+		if (enabled && currentOrganizationQuery.data && isCurrentScope()) {
 			setCurrentOrganization(currentOrganizationQuery.data);
 		}
-	}, [currentOrganizationQuery.data, enabled, fastBootstrap, isCurrentScope, setCurrentOrganization]);
+	}, [currentOrganizationQuery.data, enabled, isCurrentScope, setCurrentOrganization]);
 
 	// Track fetching state
 	useEffect(() => {
-		if (enabled && (!fastBootstrap || isCurrentScope())) {
+		if (enabled && isCurrentScope()) {
 			setCurrentOrganizationFetching(currentOrganizationQuery.isLoading);
 		}
-	}, [currentOrganizationQuery.isLoading, enabled, fastBootstrap, isCurrentScope, setCurrentOrganizationFetching]);
+	}, [currentOrganizationQuery.isLoading, enabled, isCurrentScope, setCurrentOrganizationFetching]);
 
 	useEffect(() => {
 		return () => {
-			if (fastBootstrap && isCurrentScope()) {
+			if (isCurrentScope()) {
 				setCurrentOrganizationFetching(false);
 			}
 		};
-	}, [fastBootstrap, isCurrentScope, setCurrentOrganizationFetching]);
+	}, [isCurrentScope, setCurrentOrganizationFetching]);
 };
