@@ -75,7 +75,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, disable
 					onChange={handleInputChange}
 					onBlur={handleInputBlur}
 					placeholder="HH:MM"
-					className="w-full"
+					className={cn('w-full', className)}
 					maxLength={5}
 					disabled={disabled}
 					pattern="[0-2][0-9]:[0-5][0-9]"
@@ -92,7 +92,10 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, disable
 					}}
 				>
 					<SelectTrigger
-						className="w-full bg-white dark:bg-dark--theme-light rounded-md border border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-600 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-gray-700 dark:text-gray-300 text-sm font-normal transition-colors"
+						className={cn(
+							'w-full bg-white dark:bg-dark--theme-light rounded-md border border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-600 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-gray-700 dark:text-gray-300 text-sm font-normal transition-colors',
+							className
+						)}
 						onClick={() => setIsEditing(true)}
 					>
 						<SelectValue placeholder="Select time">{value}</SelectValue>

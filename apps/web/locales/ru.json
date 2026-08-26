@@ -796,7 +796,7 @@
 			"ADD_HOURS_FOR": "Добавить часы для {day}",
 			"REMOVE_HOURS_FOR": "Удалить часы для {day}",
 			"UNAVAILABLE": "Недоступно",
-			"TOGGLE_AVAILABILITY_FOR": "Доступность для {day}",
+			"TOGGLE_AVAILABILITY_FOR": "Переключить доступность для {day}",
 			"emailNotValid": "Пожалуйста, укажите действительный адрес электронной почты",
 			"phoneNotValid": "Пожалуйста, укажите действительный номер телефона",
 			"WORK_SCHEDULE": "График работы",

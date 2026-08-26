@@ -142,7 +142,7 @@ export function ChatView({ pageContext }: ChatViewProps) {
 	}, [messages, scrollToBottom]);
 
 	useEffect(() => {
-		if (!canPersistChatHistory(loadedHistoryScopeKey, historyScope, messages.length)) return;
+		if (!historyScope || !canPersistChatHistory(loadedHistoryScopeKey, historyScope, messages.length)) return;
 		const session = createChatSession(messages as unknown as ChatHistoryMessage[], sessionId);
 		setHistory((current) => {
 			const next = upsertChatSession(current, session);

@@ -11,21 +11,10 @@ import {
 import { useForm } from 'react-hook-form';
 
 import { useTranslations } from 'next-intl';
-
-interface TimeSlot {
-	id?: string;
-	startTime: string;
-	endTime: string;
-}
-
-interface WorkDay {
-	day: string;
-	timeSlots: TimeSlot[];
-	enabled: boolean;
-}
+import { initializeWorkSchedule, type WorkDay, type WorkDayInput, WORKDAY_ROW_CLASS } from './working-hours-utils';
 
 interface WorkScheduleProps {
-	initialSchedule?: WorkDay[];
+	initialSchedule?: WorkDayInput[];
 }
 
 export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) => {
@@ -34,7 +23,7 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 	const t = useTranslations();
 	const { setValue } = useForm();
 
-	const defaultWorkDays: WorkDay[] = [
+	const defaultWorkDays: WorkDayInput[] = [
 		{
 			day: t('common.DAYOFWEEK.Monday'),
 			timeSlots: [
@@ -76,7 +65,9 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 		}
 	];
 
-	const [schedule, setSchedule] = React.useState<WorkDay[]>(initialSchedule || defaultWorkDays);
+	const [schedule, setSchedule] = React.useState<WorkDay[]>(() =>
+		initializeWorkSchedule(initialSchedule || defaultWorkDays)
+	);
 	const handleChangeTimezone = React.useCallback(
 		(newTimezone: string | undefined) => {
 			setActiveTimezoneCookie(newTimezone || userTimezone());
@@ -152,10 +143,7 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 					</div>
 				</div>
 				{schedule.map((workDay, dayIndex) => (
-					<div
-						key={workDay.day}
-						className="grid grid-cols-[10rem_minmax(0,1fr)_2rem] items-start gap-x-3 border-t py-3 dark:border-white/10"
-					>
+					<div key={workDay.day} className={WORKDAY_ROW_CLASS}>
 						<div className="pt-1">
 							<div>
 								<ToggleSwitch
@@ -172,7 +160,7 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 							<button
 								type="button"
 								onClick={() => handleAddTimeSlot(dayIndex)}
-								className="col-start-3 row-start-1 ml-auto flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary hover:bg-primary/15"
+								className="col-start-2 row-start-1 ml-auto flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary hover:bg-primary/15 sm:col-start-3"
 								aria-label={t('pages.settingsPersonal.ADD_HOURS_FOR', { day: workDay.day })}
 							>
 								<span className="text-2xl leading-none">+</span>
@@ -181,19 +169,19 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 						{workDay.enabled &&
 							workDay.timeSlots.map((timeSlot, slotIndex) => (
 								<div
-									key={timeSlot.id || `${workDay.day}-${timeSlot.startTime}-${timeSlot.endTime}`}
-									className="col-start-2 flex items-center gap-2 pb-2"
+									key={timeSlot.id}
+									className="col-span-2 col-start-1 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto] items-center gap-2 pb-2 sm:col-span-1 sm:col-start-2 sm:flex"
 								>
 									<TimePicker
 										value={timeSlot.startTime}
 										onChange={(value) => handleTimeChange(dayIndex, slotIndex, 'startTime', value)}
-										className="w-24 text-sm bg-white dark:bg-gray-700/50 dark:text-gray-300 rounded-md"
+										className="w-full text-sm bg-white dark:bg-gray-700/50 dark:text-gray-300 rounded-md sm:w-24"
 									/>
 									<span className="mx-1 text-gray-400 dark:text-gray-500">-</span>
 									<TimePicker
 										value={timeSlot.endTime}
 										onChange={(value) => handleTimeChange(dayIndex, slotIndex, 'endTime', value)}
-										className="w-24 text-sm bg-white dark:bg-dark--theme-light dark:text-gray-400"
+										className="w-full text-sm bg-white dark:bg-dark--theme-light dark:text-gray-400 sm:w-24"
 									/>
 									{workDay.timeSlots.length > 1 && (
 										<button
@@ -210,7 +198,7 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 								</div>
 							))}
 						{!workDay.enabled && (
-							<div className="col-start-2 py-2 text-sm text-gray-400 dark:text-gray-500">
+							<div className="col-span-2 py-2 text-sm text-gray-400 dark:text-gray-500 sm:col-span-1 sm:col-start-2">
 								{t('pages.settingsPersonal.UNAVAILABLE')}
 							</div>
 						)}
