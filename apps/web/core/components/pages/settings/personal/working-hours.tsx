@@ -13,6 +13,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 
 interface TimeSlot {
+	id?: string;
 	startTime: string;
 	endTime: string;
 }
@@ -113,7 +114,7 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 
 	const handleAddTimeSlot = (dayIndex: number) => {
 		const newSchedule = [...schedule];
-		newSchedule[dayIndex].timeSlots.push({ startTime: '09:00', endTime: '17:00' });
+		newSchedule[dayIndex].timeSlots.push({ id: `slot-${Date.now()}`, startTime: '09:00', endTime: '17:00' });
 		setSchedule(newSchedule);
 	};
 
@@ -171,7 +172,10 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 						)}
 						{workDay.enabled &&
 							workDay.timeSlots.map((timeSlot, slotIndex) => (
-								<div key={slotIndex} className="col-start-2 flex items-center gap-2 pb-2">
+								<div
+									key={timeSlot.id || `${workDay.day}-${timeSlot.startTime}-${timeSlot.endTime}`}
+									className="col-start-2 flex items-center gap-2 pb-2"
+								>
 									<TimePicker
 										value={timeSlot.startTime}
 										onChange={(value) => handleTimeChange(dayIndex, slotIndex, 'startTime', value)}
@@ -222,9 +226,13 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ enabled, onToggle, label })
 			/>
 		</button>
 		{label && (
-			<label className="ml-2 cursor-pointer select-none" onClick={onToggle}>
-				<span className="text-sm font-medium text-gray-700 dark:text-gray-400">{label}</span>
-			</label>
+			<button
+				type="button"
+				className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-400"
+				onClick={onToggle}
+			>
+				{label}
+			</button>
 		)}
 	</div>
 );

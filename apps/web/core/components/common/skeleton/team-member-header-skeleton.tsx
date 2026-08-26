@@ -6,7 +6,10 @@ interface TeamMemberHeaderSkeletonProps {
 	className?: string;
 }
 
-export function TeamMemberHeaderSkeleton({ view = IssuesView.CARDS, className }: TeamMemberHeaderSkeletonProps) {
+export function TeamMemberHeaderSkeleton({
+	view = IssuesView.CARDS,
+	className
+}: Readonly<TeamMemberHeaderSkeletonProps>) {
 	// Note: Removed useAtomValue hook to prevent rendering issues in Suspense fallbacks
 
 	const renderCardHeaderSkeleton = () => (

@@ -4,7 +4,7 @@ interface NoTeamSkeletonProps {
 	className?: string;
 }
 
-export function NoTeamSkeleton({ className }: NoTeamSkeletonProps) {
+export function NoTeamSkeleton({ className }: Readonly<NoTeamSkeletonProps>) {
 	return (
 		<div className={clsxm('flex flex-col items-center justify-center min-h-[400px] p-8', className, 'w-full')}>
 			{/* Icon skeleton */}

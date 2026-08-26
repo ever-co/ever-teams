@@ -4,7 +4,7 @@ interface KanbanViewSkeletonProps {
 	className?: string;
 }
 
-export function KanbanViewSkeleton({ className }: KanbanViewSkeletonProps) {
+export function KanbanViewSkeleton({ className }: Readonly<KanbanViewSkeletonProps>) {
 	const columns = Array.from(Array(5));
 	const tasks = Array.from(Array(2));
 

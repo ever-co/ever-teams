@@ -53,9 +53,9 @@ export const TeamDashboardPageSkeleton: FC<TeamDashboardPageSkeletonProps> = ({ 
 
 							{/* ✅ SKELETON: Section 3 - Team Stats Grid */}
 							<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-								{[...Array(5)].map((_, index) => (
+								{['members', 'tracked', 'manual', 'idle', 'total'].map((stat) => (
 									<div
-										key={index}
+										key={stat}
 										className="p-6 bg-white dark:bg-dark--theme-light rounded-lg border border-gray-200 dark:border-gray-600"
 									>
 										<div className="flex flex-col">
@@ -92,20 +92,18 @@ export const TeamDashboardPageSkeleton: FC<TeamDashboardPageSkeletonProps> = ({ 
 					<div className="p-4">
 						{/* Table Headers */}
 						<div className="grid grid-cols-6 gap-4 mb-4">
-							{['Employee', 'Project', 'Task', 'Time Spent', 'Activity', 'Status'].map(
-								(header, index) => (
-									<div
-										key={index}
-										className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded"
-									/>
-								)
-							)}
+							{['Employee', 'Project', 'Task', 'Time Spent', 'Activity', 'Status'].map((header) => (
+								<div
+									key={header}
+									className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded"
+								/>
+							))}
 						</div>
 
 						{/* Table Rows */}
-						{[...Array(8)].map((_, rowIndex) => (
+						{Array.from({ length: 8 }, (_, rowIndex) => `team-row-${rowIndex + 1}`).map((rowKey) => (
 							<div
-								key={rowIndex}
+								key={rowKey}
 								className="grid grid-cols-6 gap-4 py-3 border-b border-gray-100 dark:border-gray-700"
 							>
 								{/* Employee Cell with Avatar */}

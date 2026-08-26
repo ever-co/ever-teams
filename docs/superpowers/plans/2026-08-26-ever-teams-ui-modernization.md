@@ -27,6 +27,7 @@
 ### Task 1: Permanent full-width shell and density recipes
 
 **Files:**
+
 - Create: `apps/web/core/components/common/container.test.tsx`
 - Modify: `apps/web/styles/globals.css`
 - Modify: `apps/web/core/components/common/container.tsx`
@@ -36,6 +37,7 @@
 - Modify: all web callers of `fullWidthState`, `fullWidth`, and `conf-fullWidth-mode`
 
 **Interfaces:**
+
 - Produces: fluid `Container({ children, className })` and semantic CSS recipes `.app-page`, `.app-page-header`, `.app-surface`, `.app-section`, `.app-field`, `.app-label`, `.app-help`.
 - Removes: `FullWidthToggler`, `fullWidthState`, and `conf-fullWidth-mode` from web runtime code.
 
@@ -59,6 +61,7 @@ test('renders every page container as a fluid padded region', () => {
 ### Task 2: One-scroll `PageLayout`
 
 **Files:**
+
 - Create: `apps/web/core/components/layouts/default-layout/page-content-scroller.tsx`
 - Create: `apps/web/core/components/layouts/default-layout/page-content-scroller.test.tsx`
 - Modify: `apps/web/core/components/layouts/default-layout/page-layout.tsx`
@@ -67,6 +70,7 @@ test('renders every page container as a fluid padded region', () => {
 - Modify: page callers that set viewport heights or vertical `overflow-y-auto`
 
 **Interfaces:**
+
 - Produces: `PageContentScroller({ children, className, bottomOffset })` as the sole `data-page-scroll-owner` and `PageLayout` as a normal `min-h-0 flex flex-col` page.
 - Preserves: `showTimer`, `mainHeaderSlot`, footer sizing, title updates, and public-team behavior.
 
@@ -79,6 +83,7 @@ test('renders every page container as a fluid padded region', () => {
 ### Task 3: Professional Settings layout and compact forms
 
 **Files:**
+
 - Create: `apps/web/core/components/pages/settings/settings-navigation.tsx`
 - Create: `apps/web/core/components/pages/settings/settings-navigation.test.tsx`
 - Modify: `apps/web/app/[locale]/(main)/settings/layout.tsx`
@@ -89,6 +94,7 @@ test('renders every page container as a fluid padded region', () => {
 - Delete only after callers are migrated: `apps/web/core/components/layouts/sidebar-accordian.tsx`
 
 **Interfaces:**
+
 - Produces: `SettingsNavigation` with route groups, anchor links, pathname-derived route state, and active-section state.
 - Consumes: existing `useLeftSettingData`, manager permissions, and current setting-section atoms.
 
@@ -102,6 +108,7 @@ test('renders every page container as a fluid padded region', () => {
 ### Task 4: My Work navigation and compact date-range picker
 
 **Files:**
+
 - Create: `apps/web/core/components/layouts/my-work-navigation.ts`
 - Create: `apps/web/core/components/layouts/my-work-navigation.test.ts`
 - Modify: `apps/web/core/components/layouts/app-sidebar.tsx`
@@ -112,6 +119,7 @@ test('renders every page container as a fluid padded region', () => {
 - Create: `apps/web/core/components/pages/time-and-activity/date-range-picker-time-activity.test.tsx`
 
 **Interfaces:**
+
 - Produces: `getMyWorkNavigation(userId: string, userName: string): NavSubItem[]`.
 - Produces: compact two-month `Calendar` styling while retaining the existing DayPicker props contract.
 
@@ -125,6 +133,7 @@ test('renders every page container as a fluid padded region', () => {
 ### Task 5: Complete AI chat panel controls and browser-local history
 
 **Files:**
+
 - Create: `apps/web/core/components/features/chat-panel/services/chat-history.storage.ts`
 - Create: `apps/web/core/components/features/chat-panel/services/chat-history.storage.test.ts`
 - Create: `apps/web/core/components/features/chat-panel/components/chat-toolbar.tsx`
@@ -137,6 +146,7 @@ test('renders every page container as a fluid padded region', () => {
 - Create: `apps/web/core/components/features/chat-panel/components/chat-panel-controls.test.tsx`
 
 **Interfaces:**
+
 - Produces: `ChatConversation { id: string; title: string; createdAt: string; updatedAt: string; messages: Message[] }`.
 - Produces: `loadChatHistory`, `saveConversation`, `deleteConversation`, and `clearChatHistory` with malformed-storage fallback.
 - Produces: launcher, collapse, expand/restore, drag resize, New Chat, and History controls.
@@ -152,12 +162,14 @@ test('renders every page container as a fluid padded region', () => {
 ### Task 6: Expanded team chart in normal page flow
 
 **Files:**
+
 - Create: `apps/web/core/components/pages/dashboard/team-dashboard/team-dashboard-activity-section.tsx`
 - Create: `apps/web/core/components/pages/dashboard/team-dashboard/team-dashboard-activity-section.test.tsx`
 - Modify: `apps/web/app/[locale]/(main)/dashboard/team-dashboard/[teamId]/page.tsx`
 - Modify: `apps/web/core/components/pages/dashboard/team-dashboard/team-stats-chart.tsx`
 
 **Interfaces:**
+
 - Produces: `TeamDashboardActivitySection({ showChart, onToggleChart, chart, table })`, which renders an optional chart before a table in normal document flow.
 
 - [ ] **Step 1: Write a jsdom test for `TeamDashboardActivitySection` that expands the chart, asserts chart-before-table DOM order, and confirms both remain descendants of the page scroll owner.**
@@ -169,10 +181,12 @@ test('renders every page container as a fluid padded region', () => {
 ### Task 7: High-use page consistency sweep
 
 **Files:**
+
 - Modify: dashboard, project, task, profile, timesheet, Time & Activity, calendar, sidebar, header, footer, and related skeleton components that contain oversized or conflicting layout classes
 - Create: `apps/web/core/components/common/app-surface-contract.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `.app-page`, `.app-page-header`, `.app-surface`, `.app-section`, `.app-field`, `.app-label`, `.app-help`.
 - Produces: consistent high-use surface density without changing data or event contracts.
 
@@ -185,10 +199,12 @@ test('renders every page container as a fluid padded region', () => {
 ### Task 8: Browser verification, review, merge, and develop deployment
 
 **Files:**
+
 - Modify only if verification finds a reproducible defect: the owning component plus its regression test
 - External coordination: `E:\Coding\_LOCAL\MAINTENANCE.md`
 
 **Interfaces:**
+
 - Produces: reviewed PR merged to `develop` and exact-SHA deployment evidence for `ever-teams-dev`.
 
 - [ ] **Step 1: Run `yarn workspace @ever-teams/web test --runInBand`, `yarn workspace @ever-teams/web lint`, and `yarn workspace @ever-teams/web build`; require zero failures.**
