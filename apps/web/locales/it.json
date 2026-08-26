@@ -1214,7 +1214,10 @@
 			"TERMS_AND_CONDITIONS": "Termini e condizioni",
 			"PRIVACY_POLICY": "politica sulla riservatezza",
 			"COOKIES": "Gestione dei Cookie",
-			"BY": "Di"
+			"BY": "Di",
+			"BUILD_WEB": "Build Web v{version}",
+			"API_VERSION": "API v{version}",
+			"OPEN_COMMIT": "Apri commit {commit}"
 		}
 	},
 	"errors": {

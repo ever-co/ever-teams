@@ -1214,7 +1214,10 @@
 			"TERMS_AND_CONDITIONS": "תנאים והגבלות",
 			"PRIVACY_POLICY": "מדיניות פרטיות",
 			"COOKIES": "מדיניות עוגיות",
-			"BY": "על ידי"
+			"BY": "על ידי",
+			"BUILD_WEB": "גרסת Web v{version}",
+			"API_VERSION": "API v{version}",
+			"OPEN_COMMIT": "פתיחת commit {commit}"
 		}
 	},
 	"errors": {

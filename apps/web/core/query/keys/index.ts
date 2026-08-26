@@ -788,6 +788,10 @@ export const queryKeys = {
 		health: ['api-check', 'health'] as const
 	},
 
+	appVersion: {
+		all: ['app-version'] as const
+	},
+
 	// Keys related to email verification
 	emailVerification: {
 		all: ['email-verification'] as const,

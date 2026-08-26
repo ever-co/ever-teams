@@ -5,6 +5,8 @@ import { render, screen } from '@testing-library/react';
 import { Footer } from './footer';
 
 const mockUseAppVersionQuery = jest.fn();
+const mockUseTranslations = jest.fn();
+const originalProcessEnv = process.env;
 
 jest.mock('@/core/hooks/common/use-app-version-query', () => ({
 	useAppVersionQuery: () => mockUseAppVersionQuery()
@@ -16,7 +18,15 @@ jest.mock('jotai', () => ({
 }));
 
 jest.mock('next-intl', () => ({
-	useTranslations: () => (key: string) => key
+	useTranslations: (namespace?: string) => {
+		mockUseTranslations(namespace);
+		return (key: string, values?: Record<string, string>) => {
+			if (key === 'BUILD_WEB') return `Build Web v${values?.version}`;
+			if (key === 'API_VERSION') return `API v${values?.version}`;
+			if (key === 'OPEN_COMMIT') return `Open commit ${values?.commit}`;
+			return key;
+		};
+	}
 }));
 
 jest.mock('@/core/constants/config/constants', () => ({
@@ -40,8 +50,11 @@ jest.mock('@/core/components/common/language-dropdown-flags', () => ({
 
 describe('Footer build identity', () => {
 	beforeEach(() => {
-		process.env.NEXT_PUBLIC_BUILD_VERSION = '0.1.0';
-		process.env.NEXT_PUBLIC_BUILD_SHA = 'b9316faee8735d1ee3d8acedde19980fd7f75f9e';
+		process.env = {
+			...originalProcessEnv,
+			NEXT_PUBLIC_BUILD_VERSION: '0.1.0',
+			NEXT_PUBLIC_BUILD_SHA: 'b9316faee8735d1ee3d8acedde19980fd7f75f9e'
+		};
 		mockUseAppVersionQuery.mockReturnValue({
 			data: {
 				name: 'api',
@@ -51,9 +64,14 @@ describe('Footer build identity', () => {
 		});
 	});
 
+	afterEach(() => {
+		process.env = originalProcessEnv;
+	});
+
 	it('shows linked Web and API build versions on the copyright line', () => {
 		render(<Footer />);
 
+		expect(mockUseTranslations).toHaveBeenCalledWith('layout.footer');
 		expect(
 			screen.getByText(
 				(_content, element) =>

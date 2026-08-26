@@ -1214,7 +1214,10 @@
 			"TERMS_AND_CONDITIONS": "Allgemeine Geschäftsbedingungen",
 			"PRIVACY_POLICY": "Datenschutzrichtlinie",
 			"COOKIES": "Cookie-Richtlinie",
-			"BY": "Von"
+			"BY": "Von",
+			"BUILD_WEB": "Web-Build v{version}",
+			"API_VERSION": "API v{version}",
+			"OPEN_COMMIT": "Commit {commit} öffnen"
 		}
 	},
 	"errors": {

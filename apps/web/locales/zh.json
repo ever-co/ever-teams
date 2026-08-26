@@ -1214,7 +1214,10 @@
 			"TERMS_AND_CONDITIONS": "条款和条件",
 			"PRIVACY_POLICY": "隐私政策",
 			"COOKIES": "Cookie政策",
-			"BY": "by"
+			"BY": "by",
+			"BUILD_WEB": "Web 构建 v{version}",
+			"API_VERSION": "API v{version}",
+			"OPEN_COMMIT": "打开提交 {commit}"
 		}
 	},
 	"errors": {

@@ -1214,7 +1214,10 @@
 			"TERMS_AND_CONDITIONS": "Conditions générales",
 			"PRIVACY_POLICY": "Politique de confidentialité",
 			"COOKIES": "Politique des cookies",
-			"BY": "Par"
+			"BY": "Par",
+			"BUILD_WEB": "Version Web v{version}",
+			"API_VERSION": "API v{version}",
+			"OPEN_COMMIT": "Ouvrir le commit {commit}"
 		}
 	},
 	"errors": {
