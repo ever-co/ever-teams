@@ -8,6 +8,7 @@ import { APP_LINK, APP_NAME, CHATWOOT_API_KEY, COMPANY_LINK, COMPANY_NAME } from
 import { fullWidthState } from '@/core/stores/common/full-width';
 import { clsxm } from '@/core/lib/utils';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
+import { BuildVersion } from './build-version';
 
 export function Footer({ className }: IClassName) {
 	const t = useTranslations();
@@ -37,7 +38,7 @@ export function Footer({ className }: IClassName) {
 				) : (
 					<span>{COMPANY_NAME}</span>
 				)}{' '}
-				{t('layout.footer.RIGHTS_RESERVED')}
+				{t('layout.footer.RIGHTS_RESERVED')} · <BuildVersion />
 			</p>
 			<div className="flex gap-3 items-center" style={{ marginRight: fullWidth && showChatwoot ? '66px' : 0 }}>
 				<LanguageDropDownWithFlags deferLoading btnClassName="bg-light--theme-dark dark:bg-[#1D222A]" />

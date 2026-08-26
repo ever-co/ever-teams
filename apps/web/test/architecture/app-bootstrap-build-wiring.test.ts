@@ -37,9 +37,11 @@ describe('application bootstrap build wiring', () => {
 			const workflow = parseWorkflow(file);
 			const job = workflow.jobs['ever-teams-webapp'];
 			const build = job.steps.find((step) => step.uses === 'docker/build-push-action@v7');
+			const webVersion = job.steps.find((step) => step.name === 'Read Web version');
 			const validation = job.steps.find((step) => step.name === 'Validate NEXT_PUBLIC_GAUZY_API_SERVER_URL');
 			const allRunScripts = job.steps.map((step) => step.run ?? '').join('\n');
 			const tags = String(build?.with?.tags ?? '');
+			const buildArgs = String(build?.with?.['build-args'] ?? '');
 
 			expect(workflow.on.push.branches).toEqual([branch]);
 			expect(job.environment).toBe(environment);
@@ -58,8 +60,23 @@ describe('application bootstrap build wiring', () => {
 			expect(validation?.run).toContain('[ -z "$NEXT_PUBLIC_GAUZY_API_SERVER_URL" ]');
 			expect(allRunScripts).not.toContain('${{ secrets.NEXT_PUBLIC_GAUZY_API_SERVER_URL }}');
 			expect(allRunScripts).not.toMatch(/echo[^\n]*\$\{?NEXT_PUBLIC_GAUZY_API_SERVER_URL/);
+			expect(webVersion?.run).toContain("require('./apps/web/package.json').version");
+			expect(buildArgs).toContain('NEXT_PUBLIC_BUILD_VERSION=${{ steps.web-version.outputs.version }}');
+			expect(buildArgs).toContain('NEXT_PUBLIC_BUILD_SHA=${{ github.sha }}');
 		}
 	);
+
+	it('makes Web build identity available during the Docker build', () => {
+		const dockerfile = read('.deploy/web/Dockerfile');
+		const nextConfig = read('apps/web/next.config.js');
+
+		expect(dockerfile).toContain('ARG NEXT_PUBLIC_BUILD_VERSION');
+		expect(dockerfile).toContain('ARG NEXT_PUBLIC_BUILD_SHA');
+		expect(dockerfile).toContain('ENV NEXT_PUBLIC_BUILD_VERSION=${NEXT_PUBLIC_BUILD_VERSION}');
+		expect(dockerfile).toContain('ENV NEXT_PUBLIC_BUILD_SHA=${NEXT_PUBLIC_BUILD_SHA}');
+		expect(nextConfig).toContain('process.env.VERCEL_GIT_COMMIT_SHA');
+		expect(nextConfig).toContain('process.env.GITHUB_SHA');
+	});
 
 	it('isolates Jest and Cypress TypeScript globals in separate projects', () => {
 		const web = JSON.parse(read('apps/web/tsconfig.json')) as {

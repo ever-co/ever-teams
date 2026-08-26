@@ -18,6 +18,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Read Web version
+        id: web-version
+        shell: bash
+        run: |
+          version=$(node -p "require('./apps/web/package.json').version")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
       - name: Free disk space
         if: runner.environment == 'github-hosted'
         run: |
@@ -68,6 +75,8 @@ jobs:
           cache-to: type=inline
           build-args: |
             NODE_ENV=production
+            NEXT_PUBLIC_BUILD_VERSION=${{ steps.web-version.outputs.version }}
+            NEXT_PUBLIC_BUILD_SHA=${{ github.sha }}
             VERDACCIO_TOKEN=${{ secrets.VERDACCIO_TOKEN }}
             NEXT_PUBLIC_DEMO=false
             API_BASE_URL=${{ vars.API_BASE_URL }}

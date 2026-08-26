@@ -1214,7 +1214,10 @@
 			"TERMS_AND_CONDITIONS": "الشروط والأحكام",
 			"PRIVACY_POLICY": "سياسة الخصوصية",
 			"COOKIES": "سياسة ملفات تعريف الارتباط",
-			"BY": "من طرف"
+			"BY": "من طرف",
+			"BUILD_WEB": "إصدار الويب v{version}",
+			"API_VERSION": "API v{version}",
+			"OPEN_COMMIT": "فتح الالتزام {commit}"
 		}
 	},
 	"errors": {
