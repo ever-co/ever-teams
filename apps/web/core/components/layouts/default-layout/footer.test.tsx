@@ -58,7 +58,7 @@ describe('Footer build identity', () => {
 		mockUseAppVersionQuery.mockReturnValue({
 			data: {
 				name: 'api',
-				version: '0.1.0',
+				version: 'v111.39.2',
 				commit: '63cb7a951107b2ab44d98617358c682bf9560eb8'
 			}
 		});
@@ -73,10 +73,10 @@ describe('Footer build identity', () => {
 
 		expect(mockUseTranslations).toHaveBeenCalledWith();
 		expect(
-			screen.getByText(
-				(_content, element) =>
-					element?.tagName === 'SPAN' &&
-					element.textContent === 'Build Web v0.1.0 · b9316fa · API v0.1.0 · 63cb7a9'
+				screen.getByText(
+					(_content, element) =>
+						element?.tagName === 'SPAN' &&
+						element.textContent === 'Build Web v0.1.0 · b9316fa · API v111.39.2 · 63cb7a9'
 			)
 		).toBeTruthy();
 		expect(screen.getByRole('link', { name: 'b9316fa' }).getAttribute('href')).toBe(

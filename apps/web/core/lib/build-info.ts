@@ -17,6 +17,10 @@ export function getShortCommit(commit: string): string {
 	return commit.slice(0, 7);
 }
 
+export function getVersionNumber(version: string): string {
+	return version.trim().replace(/^v(?=\d)/i, '');
+}
+
 export function getCommitUrl(repositoryUrl: string, commit: string): string {
 	return `${repositoryUrl}/commit/${commit}`;
 }

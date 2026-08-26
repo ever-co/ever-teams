@@ -7,6 +7,7 @@ import {
 	EVER_TEAMS_REPOSITORY_URL,
 	getCommitUrl,
 	getShortCommit,
+	getVersionNumber,
 	getWebBuildInfo
 } from '@/core/lib/build-info';
 
@@ -39,12 +40,12 @@ export function BuildVersion() {
 
 	return (
 		<span>
-			{t('layout.footer.BUILD_WEB', { version: webVersion.version })} ·{' '}
+			{t('layout.footer.BUILD_WEB', { version: getVersionNumber(webVersion.version) })} ·{' '}
 			<CommitLink commit={webVersion.commit} repositoryUrl={EVER_TEAMS_REPOSITORY_URL} />
 			{hasApiVersion && apiVersion ? (
 				<>
 					{' · '}
-					{t('layout.footer.API_VERSION', { version: apiVersion.version })} ·{' '}
+					{t('layout.footer.API_VERSION', { version: getVersionNumber(apiVersion.version) })} ·{' '}
 					<CommitLink commit={apiVersion.commit} repositoryUrl={EVER_GAUZY_REPOSITORY_URL} />
 				</>
 			) : null}
