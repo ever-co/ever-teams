@@ -3,6 +3,11 @@ import { resolve } from 'node:path';
 
 const LOCALES_DIRECTORY = resolve(__dirname, '../../locales');
 const BUILD_VERSION_KEYS = ['BUILD_WEB', 'API_VERSION', 'OPEN_COMMIT'] as const;
+const REQUIRED_PLACEHOLDERS = {
+	BUILD_WEB: '{version}',
+	API_VERSION: '{version}',
+	OPEN_COMMIT: '{commit}'
+} as const;
 
 describe('footer build-version translations', () => {
 	it.each(readdirSync(LOCALES_DIRECTORY).filter((file) => file.endsWith('.json')))(
@@ -14,6 +19,7 @@ describe('footer build-version translations', () => {
 
 			for (const key of BUILD_VERSION_KEYS) {
 				expect(messages.layout.footer[key]).toBeTruthy();
+				expect(messages.layout.footer[key]).toContain(REQUIRED_PLACEHOLDERS[key]);
 			}
 		}
 	);
