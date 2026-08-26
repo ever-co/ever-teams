@@ -18,12 +18,12 @@ jest.mock('jotai', () => ({
 }));
 
 jest.mock('next-intl', () => ({
-	useTranslations: (namespace?: string) => {
-		mockUseTranslations(namespace);
+	useTranslations: (...args: unknown[]) => {
+		mockUseTranslations(...args);
 		return (key: string, values?: Record<string, string>) => {
-			if (key === 'BUILD_WEB') return `Build Web v${values?.version}`;
-			if (key === 'API_VERSION') return `API v${values?.version}`;
-			if (key === 'OPEN_COMMIT') return `Open commit ${values?.commit}`;
+			if (key === 'layout.footer.BUILD_WEB') return `Build Web v${values?.version}`;
+			if (key === 'layout.footer.API_VERSION') return `API v${values?.version}`;
+			if (key === 'layout.footer.OPEN_COMMIT') return `Open commit ${values?.commit}`;
 			return key;
 		};
 	}
@@ -71,7 +71,7 @@ describe('Footer build identity', () => {
 	it('shows linked Web and API build versions on the copyright line', () => {
 		render(<Footer />);
 
-		expect(mockUseTranslations).toHaveBeenCalledWith('layout.footer');
+		expect(mockUseTranslations).toHaveBeenCalledWith();
 		expect(
 			screen.getByText(
 				(_content, element) =>
