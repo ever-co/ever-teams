@@ -68,11 +68,14 @@ describe('application bootstrap build wiring', () => {
 
 	it('makes Web build identity available during the Docker build', () => {
 		const dockerfile = read('.deploy/web/Dockerfile');
+		const nextConfig = read('apps/web/next.config.js');
 
 		expect(dockerfile).toContain('ARG NEXT_PUBLIC_BUILD_VERSION');
 		expect(dockerfile).toContain('ARG NEXT_PUBLIC_BUILD_SHA');
 		expect(dockerfile).toContain('ENV NEXT_PUBLIC_BUILD_VERSION=${NEXT_PUBLIC_BUILD_VERSION}');
 		expect(dockerfile).toContain('ENV NEXT_PUBLIC_BUILD_SHA=${NEXT_PUBLIC_BUILD_SHA}');
+		expect(nextConfig).toContain('process.env.VERCEL_GIT_COMMIT_SHA');
+		expect(nextConfig).toContain('process.env.GITHUB_SHA');
 	});
 
 	it('isolates Jest and Cypress TypeScript globals in separate projects', () => {
