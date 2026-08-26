@@ -11,7 +11,7 @@ import {
 	getWebBuildInfo
 } from '@/core/lib/build-info';
 
-function CommitLink({ commit, repositoryUrl }: { commit: string; repositoryUrl: string }) {
+function CommitLink({ commit, repositoryUrl }: Readonly<{ commit: string; repositoryUrl: string }>) {
 	const t = useTranslations();
 	const shortCommit = getShortCommit(commit);
 
