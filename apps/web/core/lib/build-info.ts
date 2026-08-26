@@ -1,7 +1,7 @@
 export const EVER_TEAMS_REPOSITORY_URL = 'https://github.com/ever-co/ever-teams';
 export const EVER_GAUZY_REPOSITORY_URL = 'https://github.com/ever-co/ever-gauzy';
 
-export interface BuildInfo {
+interface BuildInfo {
 	version: string;
 	commit: string;
 }
