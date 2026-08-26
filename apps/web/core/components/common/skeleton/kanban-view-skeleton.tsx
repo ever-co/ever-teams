@@ -2,10 +2,9 @@ import { KanbanColumnLoadingSkeleton } from './kanban-column-loading-skeleton';
 
 interface KanbanViewSkeletonProps {
 	className?: string;
-	fullWidth?: boolean;
 }
 
-export function KanbanViewSkeleton({ className, fullWidth = true }: KanbanViewSkeletonProps) {
+export function KanbanViewSkeleton({ className }: KanbanViewSkeletonProps) {
 	const columns = Array.from(Array(5));
 	const tasks = Array.from(Array(2));
 

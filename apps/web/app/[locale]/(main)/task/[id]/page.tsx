@@ -9,7 +9,6 @@ import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { useAtomValue } from 'jotai';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { TaskDetailsPageSkeleton } from '@/core/components/common/skeleton/task-details-page-skeleton';
@@ -33,7 +32,6 @@ const TaskDetails = () => {
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const detailedTask = useAtomValue(detailedTaskState);
 	const { getTaskById, getTasksByIdLoading } = useTaskQueries();
-	const fullWidth = useAtomValue(fullWidthState);
 
 	// State to track if we've already tried to load the task
 	const [hasAttemptedLoad, setHasAttemptedLoad] = useState(false);
@@ -106,7 +104,7 @@ const TaskDetails = () => {
 			childrenClassName="bg-white dark:bg-dark--theme"
 			mainHeaderSlot={
 				<div ref={profile.loadTaskStatsIObserverRef} className="py-5 bg-white dark:bg-dark--theme">
-					<Container fullWidth={fullWidth}>
+					<Container>
 						<div className="flex gap-8 items-center">
 							<span
 								className="cursor-pointer"
@@ -123,7 +121,7 @@ const TaskDetails = () => {
 				</div>
 			}
 		>
-			<Container fullWidth={fullWidth} className="mt-6 mb-10">
+			<Container className="mt-6 mb-10">
 				{renderContent}
 				{/* <IssueModal task={task} /> */}
 			</Container>

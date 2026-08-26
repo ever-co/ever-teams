@@ -12,12 +12,11 @@ import {
 	TimerStopIcon
 } from 'assets/svg';
 import { Text } from './typography';
-import { AllSidesIcon, Cross2Icon, LightningBoltIcon, UpdateIcon } from '@radix-ui/react-icons';
+import { Cross2Icon, LightningBoltIcon, UpdateIcon } from '@radix-ui/react-icons';
 import { useAtom } from 'jotai';
 import { dataSyncModeState, isDataSyncState } from '@/core/stores/common/data-sync';
 import { useModal } from '@/core/hooks';
 import { RealTimePopup } from '@/core/components/pages/settings/personal/sync.zone';
-import { fullWidthState } from '@/core/stores/common/full-width';
 
 type Props = {
 	className?: string;
@@ -205,43 +204,6 @@ export function CommonToggle({
 				/>
 			</Switch>
 			<Text className="font-normal text-gray-400 text-md">{enabled ? enabledText : disabledText}</Text>
-		</div>
-	);
-}
-
-export function FullWidthToggler({ className }: IClassName) {
-	const [fullWidth, setFullWidth] = useAtom(fullWidthState);
-
-	React.useEffect(() => {
-		window && window.localStorage.setItem('conf-fullWidth-mode', JSON.stringify(fullWidth));
-	}, [fullWidth]);
-
-	return (
-		<div
-			className={clsxm(
-				'flex flex-row items-start bg-light--theme-dark dark:bg-[#1D222A] py-1 px-2 rounded-[60px] gap-[10px]',
-				className
-			)}
-		>
-			<button
-				onClick={() => setFullWidth(true)}
-				className={clsxm(
-					'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] ml-[-2px]',
-					fullWidth && 'bg-white text-primary shadow-md dark:bg-transparent dark:bg-[#3B4454]'
-				)}
-			>
-				<AllSidesIcon className="dark:text-white" />
-			</button>
-
-			<button
-				onClick={() => setFullWidth(false)}
-				className={clsxm(
-					'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] mr-[-2px]',
-					!fullWidth && 'bg-red-400 shadow-md dark:bg-transparent dark:bg-red-400'
-				)}
-			>
-				<Cross2Icon className={clsxm(!fullWidth && 'text-white')} />
-			</button>
 		</div>
 	);
 }

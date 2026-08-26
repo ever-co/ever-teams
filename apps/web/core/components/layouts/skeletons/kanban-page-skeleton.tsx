@@ -5,7 +5,6 @@ import { KanbanColumnLoadingSkeleton } from '../../common/skeleton/kanban-column
 
 interface KanbanPageSkeletonProps {
 	className?: string;
-	fullWidth?: boolean;
 	showTimer?: boolean;
 }
 
@@ -14,11 +13,7 @@ interface KanbanPageSkeletonProps {
  * Integrates seamlessly with PageLayout structure without swallowing it up
  * Matches exact layout: mainHeaderSlot (3 sections: breadcrumb + title/actions + tabs/filters) + main content (kanban board)
  */
-export const KanbanPageSkeleton: FC<KanbanPageSkeletonProps> = ({
-	className,
-	fullWidth = false,
-	showTimer = false
-}) => {
+export const KanbanPageSkeleton: FC<KanbanPageSkeletonProps> = ({ className, showTimer = false }) => {
 	return (
 		<PageLayout
 			title="Kanban Board"
@@ -28,7 +23,7 @@ export const KanbanPageSkeleton: FC<KanbanPageSkeletonProps> = ({
 			childrenClassName="flex flex-col h-full w-full !mx-0 !px-0 overflow-x-auto"
 			mainHeaderSlot={
 				<div className="flex flex-col min-h-fit border-b-[1px] dark:border-[#26272C] mx-[0px] w-full bg-white dark:bg-dark-high">
-					<Container fullWidth={fullWidth} className="!pt-0">
+					<Container className="!pt-0">
 						{/* SKELETON: Section 1 - Breadcrumb + Navigation */}
 						<div className="flex flex-row justify-between items-start mt-4 bg-white dark:bg-dark-high">
 							<div className="flex gap-8 justify-center items-center h-10">

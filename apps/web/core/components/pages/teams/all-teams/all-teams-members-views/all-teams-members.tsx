@@ -1,6 +1,4 @@
-import { useAtomValue } from 'jotai';
 import { IssuesView } from '@/core/constants/config/constants';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { Container } from '@/core/components';
 import UserTeamCardSkeletonCard from '@/core/components/teams/user-team-card-skeleton';
 import InviteUserTeamCardSkeleton from '@/core/components/teams/invite-team-card-skeleton';
@@ -16,13 +14,12 @@ export default function AllTeamsMembers({
 	teams: TOrganizationTeam[];
 	view: IssuesView;
 }) {
-	const fullWidth = useAtomValue(fullWidthState);
 	let teamsMembersView;
 
 	switch (true) {
 		case teams.length === 0:
 			teamsMembersView = (
-				<Container fullWidth={fullWidth}>
+				<Container>
 					<div className="hidden lg:block">
 						<UserTeamCardSkeletonCard />
 						<InviteUserTeamCardSkeleton />

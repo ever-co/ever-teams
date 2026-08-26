@@ -5,7 +5,6 @@ import { PageLayout } from '@/core/components/layouts/default-layout';
 interface TimesheetPageSkeletonProps {
 	className?: string;
 	showTimer?: boolean;
-	fullWidth?: boolean;
 }
 
 /**
@@ -13,11 +12,7 @@ interface TimesheetPageSkeletonProps {
  * Integrates seamlessly with PageLayout structure without swallowing it up
  * Matches exact layout: mainHeaderSlot (5 sections: breadcrumb + greeting + cards + toggle+search + filters) + main content (calendar/table)
  */
-export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({
-	className,
-	showTimer = false,
-	fullWidth = false
-}) => {
+export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({ className, showTimer = false }) => {
 	return (
 		<PageLayout
 			showTimer={showTimer}
@@ -26,7 +21,7 @@ export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({
 			childrenClassName="w-full"
 			mainHeaderSlot={
 				<div className="flex flex-col py-4 bg-gray-100 dark:bg-dark--theme">
-					<Container fullWidth={fullWidth} className="flex flex-col gap-y-3">
+					<Container className="flex flex-col gap-y-3">
 						{/* SKELETON: Section 1 - Breadcrumb Navigation */}
 						<div className="flex flex-row justify-between items-start">
 							<div className="flex gap-8 justify-center items-center h-10">
@@ -163,7 +158,7 @@ export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({
 		>
 			{/* SKELETON: Main Content Area */}
 			<div className="flex flex-col w-full border-1 rounded-lg bg-[#FFFFFF] dark:bg-dark--theme px-4">
-				<Container fullWidth={fullWidth} className="py-5 mt-3 h-full">
+				<Container className="py-5 mt-3 h-full">
 					<div className="rounded-lg border border-gray-200 dark:border-gray-800">
 						{/* SKELETON: Calendar/Table View Content */}
 						<div className="p-6">

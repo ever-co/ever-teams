@@ -107,7 +107,7 @@ function WeeklyLimitReport() {
 	]);
 	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
 	if (!organization || !organizationLimits || getTimeLimitReportLoading) {
-		return <ReportsPageSkeleton showTimer={isTrackingEnabled} fullWidth={false} />;
+		return <ReportsPageSkeleton showTimer={isTrackingEnabled} />;
 	}
 
 	return (

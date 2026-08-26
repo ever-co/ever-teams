@@ -133,13 +133,11 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 	};
 
 	return (
-		<div className="p-6 bg-white rounded-lg shadow-xs dark:bg-dark--theme-light">
-			<div className="space-y-2">
-				<div className="flex items-center mb-6">
-					<p className="w-40 text-base font-medium text-gray-700 dark:text-gray-300">
-						{t('common.TIME_ZONE')}
-					</p>
-					<div className="md:w-72">
+		<div className="w-full">
+			<div>
+				<div className="grid grid-cols-[10rem_minmax(0,1fr)] items-center gap-3 pb-4">
+					<p className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('common.TIME_ZONE')}</p>
+					<div className="max-w-sm">
 						<TimezoneDropDown
 							currentTimezone={currentTimezone}
 							onChange={(t: string) => {
@@ -149,9 +147,12 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 					</div>
 				</div>
 				{schedule.map((workDay, dayIndex) => (
-					<div key={workDay.day} className={`relative rounded-lg`}>
-						<div className="flex items-center px-4 py-2.5 gap-2 justify-between absolute -top-1 ">
-							<div className="w-[180px]">
+					<div
+						key={workDay.day}
+						className="grid grid-cols-[10rem_minmax(0,1fr)_2rem] items-start gap-x-3 border-t py-3 dark:border-white/10"
+					>
+						<div className="pt-1">
+							<div>
 								<ToggleSwitch
 									enabled={workDay.enabled}
 									onToggle={() => handleToggleDay(dayIndex)}
@@ -162,29 +163,31 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 						{workDay.enabled && (
 							<button
 								onClick={() => handleAddTimeSlot(dayIndex)}
-								className="ml-auto w-7 h-7 flex items-center justify-center bg-[#D8D0F84D] text-[#3826A6] hover:text-[#3826A6]/80 rounded-sm hover:bg-[#DBD3FA]/20 top-2 right-0 absolute"
+								className="col-start-3 row-start-1 ml-auto flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary hover:bg-primary/15"
+								aria-label={`Add hours for ${workDay.day}`}
 							>
 								<span className="text-2xl leading-none">+</span>
 							</button>
 						)}
 						{workDay.enabled &&
 							workDay.timeSlots.map((timeSlot, slotIndex) => (
-								<div key={slotIndex} className="flex items-center mb-3 pl-[180px] gap-x-5 ">
+								<div key={slotIndex} className="col-start-2 flex items-center gap-2 pb-2">
 									<TimePicker
 										value={timeSlot.startTime}
 										onChange={(value) => handleTimeChange(dayIndex, slotIndex, 'startTime', value)}
-										className="w-[100px] text-sm bg-white dark:bg-gray-700/50 dark:text-gray-300 rounded-md"
+										className="w-24 text-sm bg-white dark:bg-gray-700/50 dark:text-gray-300 rounded-md"
 									/>
 									<span className="mx-1 text-gray-400 dark:text-gray-500">-</span>
 									<TimePicker
 										value={timeSlot.endTime}
 										onChange={(value) => handleTimeChange(dayIndex, slotIndex, 'endTime', value)}
-										className="w-[100px] text-sm bg-white dark:bg-dark--theme-light dark:text-gray-400 "
+										className="w-24 text-sm bg-white dark:bg-dark--theme-light dark:text-gray-400"
 									/>
 									{workDay.timeSlots.length > 1 && (
 										<button
 											onClick={() => handleRemoveTimeSlot(dayIndex, slotIndex)}
-											className="flex justify-center items-center w-7 h-7 text-gray-400 rounded-full hover:text-gray-600 hover:bg-gray-100/80 dark:hover:bg-gray-600/30"
+											className="flex justify-center items-center w-7 h-7 text-gray-400 rounded-md hover:text-gray-600 hover:bg-gray-100/80 dark:hover:bg-gray-600/30"
+											aria-label={`Remove hours for ${workDay.day}`}
 										>
 											<span className="text-xl font-medium leading-none">×</span>
 										</button>
@@ -192,7 +195,7 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 								</div>
 							))}
 						{!workDay.enabled && (
-							<div className="pl-[180px] text-gray-400 dark:text-gray-500 text-sm py-3">Unavailable</div>
+							<div className="col-start-2 py-2 text-sm text-gray-400 dark:text-gray-500">Unavailable</div>
 						)}
 					</div>
 				))}
@@ -211,16 +214,16 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ enabled, onToggle, label })
 	<div className="flex items-center">
 		<button
 			type="button"
-			className={`relative inline-flex h-[32px] w-16 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${enabled ? 'bg-[#DBD3FA] dark:bg-purple-400/30' : 'bg-[#EDEDED] dark:bg-gray-600'}`}
+			className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${enabled ? 'bg-[#DBD3FA] dark:bg-purple-400/30' : 'bg-[#EDEDED] dark:bg-gray-600'}`}
 			onClick={onToggle}
 		>
 			<span
-				className={`${enabled ? 'bg-[#3826A6] dark:bg-purple-500' : 'bg-white dark:bg-gray-300'} pointer-events-none absolute left-1 top-[0.9px] inline-block h-6 w-6 transform rounded-full shadow-xs ring-0 transition duration-200 ease-in-out ${enabled ? 'translate-x-7' : 'translate-x-0'}`}
+				className={`${enabled ? 'bg-[#3826A6] dark:bg-purple-500' : 'bg-white dark:bg-gray-300'} pointer-events-none absolute left-0.5 top-0.5 inline-block h-4 w-4 transform rounded-full shadow-xs ring-0 transition duration-200 ease-in-out ${enabled ? 'translate-x-5' : 'translate-x-0'}`}
 			/>
 		</button>
 		{label && (
-			<label className="ml-3 cursor-pointer select-none" onClick={onToggle}>
-				<span className="font-medium text-gray-700 dark:text-gray-400">{label}</span>
+			<label className="ml-2 cursor-pointer select-none" onClick={onToggle}>
+				<span className="text-sm font-medium text-gray-700 dark:text-gray-400">{label}</span>
 			</label>
 		)}
 	</div>

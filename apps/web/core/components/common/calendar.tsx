@@ -51,6 +51,13 @@ CustomSelectItem.displayName = 'CustomSelectItem';
 // Types
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
+export const compactCalendarClassNames = {
+	months: 'flex flex-col gap-2 sm:flex-row',
+	month: 'space-y-2',
+	head_cell: 'text-gray-500 dark:text-gray-400 w-8 font-medium text-xs flex-1 text-center py-1',
+	day: 'h-8 w-8 p-0 mx-auto text-xs font-normal aria-selected:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors dark:text-gray-300'
+} as const;
+
 interface CustomCaptionProps extends CaptionProps {
 	onMonthChange?: (date: Date) => void;
 }
@@ -164,10 +171,10 @@ function Calendar({
 			weekStartsOn={1} // Start week on Monday
 			showOutsideDays={showOutsideDays}
 			captionLayout={captionLayout}
-			className={cn('p-4 bg-white rounded-lg dark:bg-dark--theme-light', className)}
+			className={cn('p-3 bg-white rounded-lg dark:bg-dark--theme-light', className)}
 			classNames={{
-				months: 'flex gap-4',
-				month: 'space-y-4',
+				months: compactCalendarClassNames.months,
+				month: compactCalendarClassNames.month,
 				caption: 'flex justify-between pt-1 relative items-center px-2',
 				caption_label: 'text-sm font-medium dark:text-gray-300',
 				nav: 'space-x-1 flex items-center',
@@ -179,15 +186,13 @@ function Calendar({
 				nav_button_next: 'absolute right-1',
 				table: 'w-full border-collapse',
 				head_row: 'flex w-full mb-1',
-				head_cell: 'text-gray-500 dark:text-gray-400 w-9 font-medium text-[0.8rem] flex-1 text-center py-2',
+				head_cell: compactCalendarClassNames.head_cell,
 				row: 'flex w-full mt-1',
 				cell: cn(
 					'relative p-0 text-center text-sm focus-within:relative focus-within:z-20 flex-1 my-0.5',
 					'[&:has([aria-selected])]:bg-transparent'
 				),
-				day: cn(
-					'h-9 w-9 p-0 mx-auto font-normal aria-selected:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors dark:text-gray-300'
-				),
+				day: compactCalendarClassNames.day,
 				day_selected: cn(
 					'bg-indigo-600 dark:bg-indigo-500 text-white font-medium',
 					'hover:bg-indigo-700 dark:hover:bg-indigo-600 hover:text-white',

@@ -12,7 +12,6 @@ import HeaderTabs from '@/core/components/common/header-tabs';
 import { AddIcon, PeoplesIcon } from 'assets/svg';
 import { userTimezone } from '@/core/lib/helpers/index';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { cn } from '@/core/lib/helpers';
 import { useKanban } from '@/core/hooks/tasks/use-kanban';
@@ -79,7 +78,6 @@ const Kanban = () => {
 	const activeTeam = useAtomValue(activeTeamState);
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
-	const fullWidth = useAtomValue(fullWidthState);
 	const currentLocale = params ? params.locale : null;
 	const [activeTab, setActiveTab] = useState(KanbanTabs.ALL);
 	const employee = useSearchParams().get('employee');
@@ -209,7 +207,7 @@ const Kanban = () => {
 	// Show unified skeleton while initial data is loading
 	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
 	if (isLoading || !data || !activeTeam) {
-		return <KanbanPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
+		return <KanbanPageSkeleton showTimer={isTrackingEnabled} />;
 	}
 
 	return (
@@ -226,7 +224,7 @@ const Kanban = () => {
 							'flex flex-col min-h-fit border-b-[1px] dark:border-[#26272C] mx-[0px] w-full bg-white dark:bg-dark-high'
 						}
 					>
-						<Container fullWidth={fullWidth} className="!pt-0">
+						<Container className="!pt-0">
 							<div className="flex flex-row justify-between items-start mt-4 bg-white dark:bg-dark-high">
 								<div className="flex gap-8 justify-center items-center h-10">
 									<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
@@ -414,7 +412,7 @@ const Kanban = () => {
 							</div>
 						) : (
 							<div className="flex flex-col flex-1 w-full h-full">
-								<KanbanViewSkeleton fullWidth={fullWidth} />
+								<KanbanViewSkeleton />
 							</div>
 						)}
 					</div>

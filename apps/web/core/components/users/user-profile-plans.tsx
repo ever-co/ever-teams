@@ -18,7 +18,6 @@ import {
 } from '@/core/constants/config/constants';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { activeTeamState } from '@/core/stores';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { clsxm } from '@/core/lib/utils';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
@@ -88,7 +87,6 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		isLoading
 	} = useEmployeeDailyPlans(targetEmployeeId);
 	const { deleteDailyPlan, deleteDailyPlanLoading } = useDeleteDailyPlan();
-	const fullWidth = useAtomValue(fullWidthState);
 	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'DATE');
 	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');
 	const { setDate, date } = useDateRange(currentTab);
@@ -247,7 +245,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 
 	return (
 		<div ref={profile.loadTaskStatsIObserverRef}>
-			<Container fullWidth={fullWidth} className="">
+			<Container className="">
 				<>
 					{/*
 					 * CONDITIONAL RENDERING WITH LOADING STATES

@@ -5,7 +5,7 @@ import { useAuthenticateUser } from '@/core/hooks';
 import { activeTeamState, isTeamMemberState, publicState, timerStatusState } from '@/core/stores';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
-import { Divider, FullWidthToggler, Text, ThemeToggler } from '@/core/components';
+import { Divider, Text, ThemeToggler } from '@/core/components';
 
 import {
 	DevicesIcon,
@@ -13,8 +13,7 @@ import {
 	MoonLightOutlineIcon as MoonIcon,
 	PeoplesIcon,
 	BriefCaseIcon,
-	SettingOutlineIcon,
-	FullWidthIcon
+	SettingOutlineIcon
 } from 'assets/svg';
 import ThemesPopup from '@/core/components/common/themes-popup';
 import { useTheme } from 'next-themes';
@@ -254,15 +253,6 @@ function UserNavMenu() {
 							<SettingOutlineIcon strokeWidth="1.7" className="w-5 h-5" />{' '}
 							<span>{t('common.SETTINGS')}</span>
 						</Link>
-					</li>
-
-					{/* fullWidth menu */}
-					<li className="flex justify-between items-center space-x-3 h-10 font-normal">
-						<div className="flex flex-1 items-center space-x-3 font-normal">
-							<FullWidthIcon strokeWidth="1.7" className="w-5 h-5" />{' '}
-							<span>{t('common.FULL_WIDTH')}</span>
-						</div>
-						<FullWidthToggler className="scale-75" />
 					</li>
 
 					{/* Darkmode menu */}

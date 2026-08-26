@@ -6,6 +6,7 @@ import type { PropsWithChildren } from 'react';
 import { CHAT_PANEL_CONSTRAINTS } from '../constants/chat-panel-constraints.constant';
 import { useChatPanel } from '../hooks/use-chat-panel';
 import { ChatView } from './chat-view';
+import { Bot, ChevronLeft, Maximize2, Minimize2 } from 'lucide-react';
 
 export function ChatPanelLayout({ children }: PropsWithChildren) {
 	const chatPanel = useChatPanel();
@@ -13,7 +14,7 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 	return (
 		// Provide chat controls to the entire subtree (children included)
 		<div
-			className="flex h-full w-full overflow-hidden"
+			className="relative flex h-full w-full overflow-hidden"
 			style={
 				{
 					'--chat-panel-width': `${chatPanel.sizePixels}px`
@@ -41,7 +42,7 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 				</ResizablePanel>
 
 				{/* ── HANDLE ──────────────────────────────────────────────── */}
-				<ResizableHandle withHandle className="z-[1020] relative" />
+				<ResizableHandle className="z-[1020] relative" />
 
 				{/* ── PANEL 2 : Page Content ───────────────────────────────── */}
 				<ResizablePanel
@@ -50,9 +51,55 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 					minSize={50}
 					className="relative"
 				>
-					<div className="absolute inset-0 overflow-y-auto">{children}</div>
+					<div className="absolute inset-0 overflow-hidden">{children}</div>
 				</ResizablePanel>
 			</ResizablePanelGroup>
+
+			{chatPanel.isOpen ? (
+				<div
+					className="absolute top-1/2 z-[1030] flex -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-lg border bg-background shadow-lg"
+					style={{ left: `${chatPanel.sizePixels}px` }}
+					aria-label="Chat panel controls"
+				>
+					<button
+						type="button"
+						onClick={chatPanel.closePanel}
+						className="p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+						title="Collapse assistant"
+						aria-label="Collapse assistant"
+					>
+						<ChevronLeft className="h-4 w-4" />
+					</button>
+					<button
+						type="button"
+						onClick={() => chatPanel.resizePanel(CHAT_PANEL_CONSTRAINTS.defaultSize)}
+						className="border-t p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+						title="Standard assistant width"
+						aria-label="Standard assistant width"
+					>
+						<Minimize2 className="h-4 w-4" />
+					</button>
+					<button
+						type="button"
+						onClick={() => chatPanel.resizePanel(CHAT_PANEL_CONSTRAINTS.maxSize)}
+						className="border-t p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+						title="Expand assistant"
+						aria-label="Expand assistant"
+					>
+						<Maximize2 className="h-4 w-4" />
+					</button>
+				</div>
+			) : (
+				<button
+					type="button"
+					onClick={chatPanel.openPanel}
+					className="absolute left-0 top-1/2 z-[1030] flex -translate-y-1/2 items-center justify-center rounded-r-xl border border-l-0 bg-background p-3 text-primary shadow-lg transition-colors hover:bg-muted dark:text-primary-light"
+					title="Open Ever Teams Assistant"
+					aria-label="Open Ever Teams Assistant"
+				>
+					<Bot className="h-5 w-5" />
+				</button>
+			)}
 		</div>
 	);
 }
