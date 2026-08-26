@@ -1,5 +1,6 @@
 const withNextIntl = require('next-intl/plugin')('./core/lib/i18n/request.ts');
 const { withSentryConfig } = require('@sentry/nextjs');
+const { version: webPackageVersion } = require('./package.json');
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
 	enabled: process.env.ANALYZE === 'true'
 });
@@ -150,6 +151,8 @@ const nextConfig = {
 		};
 	},
 	env: {
+		NEXT_PUBLIC_BUILD_VERSION: process.env.NEXT_PUBLIC_BUILD_VERSION || webPackageVersion,
+		NEXT_PUBLIC_BUILD_SHA: process.env.NEXT_PUBLIC_BUILD_SHA || 'dev',
 		APP_NAME: process.env.APP_NAME,
 		APP_SIGNATURE: process.env.APP_SIGNATURE,
 		APP_LOGO_URL: process.env.APP_LOGO_URL,
