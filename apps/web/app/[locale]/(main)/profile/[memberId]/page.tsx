@@ -31,10 +31,18 @@ import {
 } from '@/core/components/optimized-components';
 import { activeTeamManagersState, activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import {
+	normalizeProfileActivityTimeZone,
+	useProfileActivity,
+	useProfileActivityMonthRange
+} from '@/core/hooks/activities/use-profile-activity';
+import type { TProfileActivityScope } from '@/core/types/schemas/activities/profile-activity.schema';
+import { useTeamDailyPlansOwner } from '@/core/hooks/bootstrap/use-feature-data';
 
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
 const Profile = React.memo(function ProfilePage({ params }: { params: { memberId: string } }) {
+	useTeamDailyPlansOwner();
 	const unwrappedParams = React.use(params as any) as { memberId: string };
 	const { data: user } = useUserQuery();
 
@@ -53,16 +61,71 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const fullWidth = useAtomValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useLocalStorageState<FilterTab>('activity-filter', 'Tasks');
 	const setActivityTypeFilter = useSetAtom(activityTypeState);
-	const hook = useTaskFilter(profile);
 
 	const isManagerConnectedUser = useMemo(
 		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id),
 		[activeTeamManagers, user?.id]
 	);
 	const canSeeActivity = useMemo(
-		() => profile.userProfile?.id === user?.id || isManagerConnectedUser !== -1,
-		[isManagerConnectedUser, profile.userProfile?.id, user?.id]
+		() =>
+			profile.userProfile?.id === user?.id ||
+			isManagerConnectedUser !== -1 ||
+			activeTeam?.shareProfileView === true,
+		[activeTeam?.shareProfileView, isManagerConnectedUser, profile.userProfile?.id, user?.id]
 	);
+	const targetEmployeeId = useMemo(
+		() =>
+			profileValidation.isAuthUser
+				? (user?.employee?.id ?? user?.employeeId)
+				: (profileValidation.member?.employeeId ?? profileValidation.member?.employee?.id),
+		[
+			profileValidation.isAuthUser,
+			profileValidation.member?.employeeId,
+			profileValidation.member?.employee?.id,
+			user?.employee?.id,
+			user?.employeeId
+		]
+	);
+	const activityTimeZone = useMemo(() => normalizeProfileActivityTimeZone(user?.timeZone), [user?.timeZone]);
+	const activityScope = useMemo<TProfileActivityScope | null>(() => {
+		if (
+			!profileValidation.isValid ||
+			!canSeeActivity ||
+			!targetEmployeeId ||
+			!activeTeam?.tenantId ||
+			!activeTeam.organizationId
+		) {
+			return null;
+		}
+
+		return {
+			tenantId: activeTeam.tenantId,
+			organizationId: activeTeam.organizationId,
+			organizationTeamId: activeTeam.id,
+			employeeId: targetEmployeeId,
+			timeZone: activityTimeZone
+		};
+	}, [
+		activeTeam?.id,
+		activeTeam?.organizationId,
+		activeTeam?.tenantId,
+		activityTimeZone,
+		canSeeActivity,
+		profileValidation.isValid,
+		targetEmployeeId
+	]);
+	const currentMonthRange = useProfileActivityMonthRange(activityTimeZone);
+	const summaryRequest = useMemo(
+		() => (activityScope ? { ...activityScope, ...currentMonthRange, includeDaily: false } : null),
+		[activityScope, currentMonthRange]
+	);
+	const profileActivitySummary = useProfileActivity(summaryRequest, {
+		enabled: profileValidation.isValid && canSeeActivity
+	});
+	const summaryData = profileActivitySummary.data;
+	const statsCount =
+		summaryData && targetEmployeeId && summaryData.employeeId === targetEmployeeId ? summaryData.activeDays : 0;
+	const hook = useTaskFilter(profile, { statsCount });
 
 	const t = useTranslations();
 	const breadcrumb = useMemo(
@@ -84,13 +147,14 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 					tabFiltered={hook}
 					user={profileUser}
 					employeeId={profileValidation.member?.employeeId ?? undefined}
+					activityScope={activityScope ?? undefined}
 				/>
 			),
 			Screenshots: <LazyScreenshootTab />,
 			Apps: <LazyAppsTab />,
 			'Visited Sites': <LazyVisitedSitesTab />
 		}),
-		[hook, profile, profileUser, profileValidation.member?.employeeId]
+		[activityScope, hook, profile, profileUser, profileValidation.member?.employeeId]
 	);
 
 	const activityScreen = activityScreens[activityFilter] ?? null;
@@ -202,6 +266,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 						paginateTasks={true}
 						user={profileUser}
 						employeeId={profileValidation.member?.employeeId ?? undefined}
+						activityScope={activityScope ?? undefined}
 					/>
 				)}
 			</Container>

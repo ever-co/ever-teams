@@ -33,8 +33,8 @@ services:
         environment:
             NODE_ENV: development
             IS_DOCKER: "true"
-            GAUZY_API_SERVER_URL: ${GAUZY_API_SERVER_URL:-https://api.ever.team}
-            NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${NEXT_PUBLIC_GAUZY_API_SERVER_URL:-https://api.ever.team}
+			GAUZY_API_SERVER_URL: ${GAUZY_API_SERVER_URL:-https://api.ever.team}
+			NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${NEXT_PUBLIC_GAUZY_API_SERVER_URL:-https://api.ever.team}
 
             # Enable polling for hot reload in Docker
             # Required because file watchers don't always work well with Docker volumes

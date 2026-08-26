@@ -15,6 +15,8 @@ export function TimerButton({ onClick, running, disabled, className }: Props) {
 	return (
 		<Button
 			onClick={onClick}
+			aria-label={running ? 'Stop timer' : 'Start timer'}
+			aria-disabled={disabled}
 			className={clsxm(
 				running
 					? ['bg-rose-600 dark:bg-rose-600 border-none shadow-rose-600/30']

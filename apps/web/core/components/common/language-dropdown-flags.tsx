@@ -4,19 +4,29 @@ import { useLanguage, useLanguageSettings } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/core/components/common/select';
 import { usePathname, useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { mapLanguageItems } from './language-item';
 
 export function LanguageDropDownWithFlags({
 	btnClassName,
-	showFlag = true
+	showFlag = true,
+	deferLoading = false
 }: {
 	btnClassName?: string;
 	showFlag?: boolean;
+	deferLoading?: boolean;
 }) {
 	const { changeLanguage } = useLanguage();
-	const { languages, loadLanguagesData, setActiveLanguage } = useLanguageSettings();
+	const isDeferred = deferLoading;
+	const [interactionActivated, setInteractionActivated] = useState(false);
+	const [open, setOpen] = useState(false);
+	const [pendingOpen, setPendingOpen] = useState(false);
+	const [loadPhase, setLoadPhase] = useState<'idle' | 'activating' | 'retrying' | 'awaiting-items'>('idle');
+	const [activationCheckReady, setActivationCheckReady] = useState(false);
+	const { languages, loadLanguagesData, setActiveLanguage, loading, isError, refetch } = useLanguageSettings({
+		enabled: !isDeferred || interactionActivated
+	});
 	const { setValue } = useForm();
 	const router = useRouter();
 	const path: any = usePathname();
@@ -25,8 +35,77 @@ export function LanguageDropDownWithFlags({
 	const isLanguageNotEn = Array.isArray(pathArray) && pathArray[1].length == 2;
 
 	useEffect(() => {
+		if (isDeferred) return;
 		loadLanguagesData();
-	}, [loadLanguagesData]);
+	}, [isDeferred, loadLanguagesData]);
+
+	useEffect(() => {
+		if (!isDeferred) return;
+		if (pendingOpen && items.length > 0) {
+			setPendingOpen(false);
+			setOpen(true);
+			setLoadPhase('idle');
+			setActivationCheckReady(false);
+			return;
+		}
+		if (pendingOpen && loadPhase === 'activating') {
+			if (loading) {
+				if (!activationCheckReady) setActivationCheckReady(true);
+				return;
+			}
+			if (!activationCheckReady && !isError) {
+				setActivationCheckReady(true);
+				return;
+			}
+			setPendingOpen(false);
+			setLoadPhase('idle');
+			setActivationCheckReady(false);
+		} else if (open && items.length === 0) {
+			setOpen(false);
+		}
+	}, [activationCheckReady, isDeferred, isError, items.length, loadPhase, loading, open, pendingOpen]);
+
+	const retryLanguages = useCallback(async () => {
+		setLoadPhase('retrying');
+		try {
+			const result = await refetch();
+			if (result.isError || !result.data?.items.length) {
+				setPendingOpen(false);
+				setLoadPhase('idle');
+				return;
+			}
+			setLoadPhase('awaiting-items');
+		} catch {
+			setPendingOpen(false);
+			setLoadPhase('idle');
+		}
+	}, [refetch]);
+
+	const handleOpenChange = useCallback(
+		(nextOpen: boolean) => {
+			if (!nextOpen) {
+				setPendingOpen(false);
+				setOpen(false);
+				setLoadPhase('idle');
+				setActivationCheckReady(false);
+				return;
+			}
+			if (items.length > 0) {
+				setOpen(true);
+				return;
+			}
+
+			setPendingOpen(true);
+			if (!interactionActivated) {
+				setLoadPhase('activating');
+				setActivationCheckReady(false);
+				setInteractionActivated(true);
+				return;
+			}
+			void retryLanguages();
+		},
+		[interactionActivated, items.length, retryLanguages]
+	);
 
 	const handleChangeLanguage = useCallback(
 		(newLanguage: string) => {
@@ -51,12 +130,17 @@ export function LanguageDropDownWithFlags({
 	const ActiveFlag = converLanguageToObject[isLanguageNotEn ? pathArray[1] : 'en'].Flag;
 	return (
 		<Select
+			{...(isDeferred ? { open, onOpenChange: handleOpenChange } : {})}
 			onValueChange={(e: any) => {
 				handleChangeLanguage(e.code);
 				setActiveLanguage(e);
 			}}
 		>
-			<SelectTrigger className={clsxm(btnClassName)}>
+			<SelectTrigger
+				className={clsxm(btnClassName)}
+				disabled={isDeferred && pendingOpen}
+				aria-busy={isDeferred && pendingOpen}
+			>
 				{showFlag ? <ActiveFlag className="size-3 shrink-0 mr-2.5 " /> : null}
 
 				<span className="text-sm text-gray-500">

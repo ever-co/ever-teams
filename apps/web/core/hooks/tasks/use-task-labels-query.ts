@@ -7,6 +7,8 @@ import { queryKeys } from '@/core/query/keys';
 import { useFirstLoad } from '../common/use-first-load';
 import { useInvalidateTaskLabels } from './use-invalidate-task-labels';
 import { OptimisticAction, TTag } from '@/core/types/schemas';
+import { useTaskMetadataBootstrapQuery } from './use-task-metadata-bootstrap-query';
+import { updateTaskMetadataSectionCaches } from './task-metadata-cache';
 
 /**
  * Hook for reading task labels data.
@@ -22,6 +24,7 @@ import { OptimisticAction, TTag } from '@/core/types/schemas';
 export function useTaskLabelsQuery() {
 	const { queryClient, teamId, isEnabled } = useInvalidateTaskLabels();
 	const { firstLoadData: firstLoadTaskLabelsData } = useFirstLoad();
+	const taskMetadataQuery = useTaskMetadataBootstrapQuery();
 
 	const taskLabelsQuery = useQuery({
 		queryKey: queryKeys.taskLabels.byTeam(teamId),
@@ -32,11 +35,13 @@ export function useTaskLabelsQuery() {
 			const res = await taskLabelService.getTaskLabelsList();
 			return res.data;
 		},
-		enabled: isEnabled
+		enabled: !taskMetadataQuery.useBootstrap && isEnabled
 	});
 
+	const taskLabelsData = taskMetadataQuery.useBootstrap ? taskMetadataQuery.data?.taskLabels : taskLabelsQuery.data;
 	// Memoized to prevent infinite re-renders (stable reference)
-	const actualTaskLabels = useMemo(() => taskLabelsQuery.data?.items ?? [], [taskLabelsQuery.data?.items]);
+	const actualTaskLabels = useMemo(() => taskLabelsData?.items ?? [], [taskLabelsData?.items]);
+	const taskLabelsLoading = taskMetadataQuery.useBootstrap ? taskMetadataQuery.isLoading : taskLabelsQuery.isLoading;
 
 	// Stable base data for optimistic UI
 	const baseLabels = useMemo(() => actualTaskLabels || [], [actualTaskLabels]);
@@ -64,19 +69,24 @@ export function useTaskLabelsQuery() {
 	 */
 	const setTaskLabels = useCallback(
 		(updaterOrValue: TTag[] | ((prev: TTag[]) => TTag[])) => {
-			queryClient.setQueryData(queryKeys.taskLabels.byTeam(teamId), (oldData: any) => {
-				const prev: TTag[] = oldData?.items ?? [];
-				const newItems = typeof updaterOrValue === 'function' ? updaterOrValue(prev) : updaterOrValue;
-				return { ...(oldData ?? {}), items: newItems };
-			});
+			updateTaskMetadataSectionCaches<TTag>(
+				queryClient,
+				{
+					section: 'taskLabels',
+					scope: taskMetadataQuery.scope,
+					teamId,
+					useBootstrap: taskMetadataQuery.useBootstrap
+				},
+				updaterOrValue
+			);
 		},
-		[queryClient, teamId]
+		[queryClient, taskMetadataQuery.scope, taskMetadataQuery.useBootstrap, teamId]
 	);
 
 	// Legacy backward compat
 	const loadTaskLabels = useCallback(async () => {
-		return taskLabelsQuery.data;
-	}, [taskLabelsQuery.data]);
+		return taskLabelsData;
+	}, [taskLabelsData]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadTaskLabels();
@@ -86,8 +96,8 @@ export function useTaskLabelsQuery() {
 	return {
 		taskLabels: optimisticLabels, // Return optimistic labels for UI
 		actualTaskLabels, // Provide access to actual data if needed
-		loading: taskLabelsQuery.isLoading,
-		getTaskLabelsLoading: taskLabelsQuery.isLoading,
+		loading: taskLabelsLoading,
+		getTaskLabelsLoading: taskLabelsLoading,
 		setTaskLabels,
 		loadTaskLabels,
 		firstLoadTaskLabelsData: handleFirstLoad,
@@ -98,4 +108,3 @@ export function useTaskLabelsQuery() {
 		startTransition
 	};
 }
-

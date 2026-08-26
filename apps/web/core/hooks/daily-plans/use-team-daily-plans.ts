@@ -1,13 +1,17 @@
 'use client';
 
 import { useAtom, useAtomValue } from 'jotai';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { activeTeamState, dailyPlanListState } from '@/core/stores';
 import { useFirstLoad } from '../common/use-first-load';
 import { dailyPlanService } from '../../services/client/api';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { useConditionalUpdateEffect, useQueryCall } from '../common';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { useScopeGuard } from '../bootstrap/use-scope-guard';
+import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
+import { CREDENTIAL_SCOPED_QUERY_META } from '@/core/query/credential-query';
 
 export interface UseTeamDailyPlansOptions {
 	/**
@@ -47,32 +51,64 @@ export interface UseTeamDailyPlansOptions {
 export function useTeamDailyPlans(options?: UseTeamDailyPlansOptions) {
 	const activeTeam = useAtomValue(activeTeamState);
 	const queryClient = useQueryClient();
+	const tenantId = getTenantIdCookie();
+	const organizationId = getOrganizationIdCookie();
+	const accessToken = useReactiveAccessTokenCookie();
 
 	// Extract options with defaults
 	const { enabled = true } = options || {};
+	const scope = {
+		tenantId,
+		organizationId,
+		teamId: activeTeam?.id,
+		accessToken
+	};
+	const allPlansKey = queryKeys.dailyPlans.allPlansByScope(scope.tenantId, scope.organizationId, scope.teamId);
+	const ownerActive = enabled;
+	const queryEnabled = ownerActive && !!(scope.tenantId && scope.organizationId && scope.teamId && scope.accessToken);
+	const isCurrentScope = useScopeGuard(allPlansKey, ownerActive);
+	const scopedTaskQueryKeys = useMemo(
+		() => new Set<readonly unknown[]>(),
+		[scope.organizationId, scope.teamId, scope.tenantId]
+	);
+	const previousTaskQueryKeysRef = useRef<Set<readonly unknown[]> | null>(null);
+
+	useEffect(() => {
+		const previousTaskQueryKeys = previousTaskQueryKeysRef.current;
+		if (previousTaskQueryKeys && previousTaskQueryKeys !== scopedTaskQueryKeys) {
+			previousTaskQueryKeys.forEach((taskQueryKey) => {
+				void queryClient.cancelQueries({ queryKey: taskQueryKey, exact: true });
+			});
+		}
+		previousTaskQueryKeysRef.current = scopedTaskQueryKeys;
+	}, [queryClient, scopedTaskQueryKeys]);
 
 	// ==================== QUERIES ====================
 
 	const getAllDayPlansQuery = useQuery({
-		queryKey: queryKeys.dailyPlans.allPlans(activeTeam?.id),
-		queryFn: async () => {
-			const res = await dailyPlanService.getAllDayPlans();
-			return res;
-		},
-		enabled: enabled && !!activeTeam?.id,
+		queryKey: allPlansKey,
+		meta: CREDENTIAL_SCOPED_QUERY_META,
+		queryFn: ({ signal }) => dailyPlanService.getAllDayPlans({ scope, signal }),
+		enabled: queryEnabled,
 		gcTime: 1000 * 60 * 60 // 1 hour
 	});
 
-	const { loading: getPlansByTaskQueryLoading, queryCall: getPlansByTaskQuery } = useQueryCall((taskId: string) =>
-		queryClient.fetchQuery({
-			queryKey: queryKeys.dailyPlans.byTask(taskId),
-			queryFn: async () => {
-				const res = await dailyPlanService.getPlansByTask({ taskId });
-				return res;
-			},
+	const { loading: getPlansByTaskQueryLoading, queryCall: getPlansByTaskQuery } = useQueryCall((taskId: string) => {
+		const taskQueryKey = queryKeys.dailyPlans.byTaskByScope(
+			scope.tenantId,
+			scope.organizationId,
+			scope.teamId,
+			taskId
+		);
+		scopedTaskQueryKeys.add(taskQueryKey);
+
+		return queryClient.fetchQuery({
+			queryKey: taskQueryKey,
+			meta: CREDENTIAL_SCOPED_QUERY_META,
+			queryFn: ({ signal }) => dailyPlanService.getPlansByTask({ taskId, scope, signal }),
 			gcTime: 1000 * 60 * 60
-		})
-	);
+		});
+	}, true);
 
 	// ==================== JOTAI SYNCHRONIZATION (Backward Compatibility) ====================
 
@@ -80,15 +116,25 @@ export function useTeamDailyPlans(options?: UseTeamDailyPlansOptions) {
 	const [dailyPlan, setDailyPlan] = useAtom(dailyPlanListState);
 	const { firstLoadData: firstLoadDailyPlanData } = useFirstLoad();
 
+	useConditionalUpdateEffect(
+		() => {
+			if (ownerActive && isCurrentScope()) {
+				setDailyPlan({ items: [], total: 0 });
+			}
+		},
+		[activeTeam?.id, isCurrentScope, organizationId, ownerActive, setDailyPlan, tenantId],
+		false
+	);
+
 	// Sync team-wide daily plans (only team-wide atom)
 	useConditionalUpdateEffect(
 		() => {
-			if (getAllDayPlansQuery.data) {
+			if (enabled && getAllDayPlansQuery.data && isCurrentScope()) {
 				setDailyPlan(getAllDayPlansQuery.data);
 			}
 		},
-		[getAllDayPlansQuery.data, setDailyPlan],
-		Boolean(dailyPlan?.items?.length)
+		[enabled, getAllDayPlansQuery.data, isCurrentScope, setDailyPlan],
+		false
 	);
 
 	// ==================== QUERY FUNCTIONS ====================
@@ -110,15 +156,15 @@ export function useTeamDailyPlans(options?: UseTeamDailyPlansOptions) {
 	const loadAllDayPlans = useCallback(async () => {
 		const allDayPlans = await getAllDayPlansQuery.refetch();
 
-		if (allDayPlans?.data) {
+		if (allDayPlans?.data && isCurrentScope()) {
 			setDailyPlan(allDayPlans.data);
 		}
-	}, [getAllDayPlansQuery, setDailyPlan]);
+	}, [getAllDayPlansQuery, isCurrentScope, setDailyPlan]);
 
 	const getPlansByTask = useCallback(
 		async (taskId?: string) => {
 			try {
-				if (taskId) {
+				if (taskId && queryEnabled) {
 					const res = await getPlansByTaskQuery(taskId);
 					return res; // Return data directly instead of setting atom
 				} else {
@@ -128,7 +174,7 @@ export function useTeamDailyPlans(options?: UseTeamDailyPlansOptions) {
 				console.error('Error fetching plans by task:', error);
 			}
 		},
-		[getPlansByTaskQuery]
+		[getPlansByTaskQuery, queryEnabled]
 	);
 
 	const firstLoadTeamDailyPlans = useCallback(async () => {

@@ -25,6 +25,8 @@ type NextCtx = {
 	res: any;
 };
 
+export const ACCESS_TOKEN_REFRESHED_EVENT = 'ever-teams:access-token-refreshed';
+
 /**
  * Clears all existing chunks for a given cookie name.
  * This prevents cookie duplication when setting new chunked cookies.
@@ -235,10 +237,16 @@ export function setAccessTokenCookie(accessToken: string, ctx?: NextCtx) {
 		// Clear any existing chunks before setting a non-chunked token
 		// This handles the case where the previous token was chunked but the new one fits in a single cookie
 		clearExistingChunks(TOKEN_COOKIE_NAME, ctx, true);
-		return setCookie(TOKEN_COOKIE_NAME, accessToken, ctx, true); // cross site cookie
+		setCookie(TOKEN_COOKIE_NAME, accessToken, ctx, true); // cross site cookie
 	} else {
 		// setLargeStringInCookies already calls clearExistingChunks internally
-		return setLargeStringInCookies(TOKEN_COOKIE_NAME, accessToken, ctx, true); // cross site cookie
+		setLargeStringInCookies(TOKEN_COOKIE_NAME, accessToken, ctx, true); // cross site cookie
+	}
+
+	// Fast, scope-pinned API owners need to replace their Authorization token after
+	// every client-side refresh, regardless of which refresh flow wrote the cookie.
+	if (!ctx && typeof window !== 'undefined') {
+		window.dispatchEvent(new Event(ACCESS_TOKEN_REFRESHED_EVENT));
 	}
 }
 

@@ -2,6 +2,13 @@
  * Centralize all query keys used by Tanstack Query.
  * Each key is defined once for better consistency.
  */
+import {
+	TaskMetadataScope,
+	TaskMetadataSection,
+	canonicalizeTaskMetadataInclude
+} from '@/core/types/interfaces/task/task-metadata-bootstrap';
+import type { TProfileActivityRequest } from '@/core/types/schemas/activities/profile-activity.schema';
+
 export const queryKeys = {
 	// Keys related to authentication and users
 	// Keys related to users
@@ -40,6 +47,19 @@ export const queryKeys = {
 		// Employee-related keys under users
 		employees: {
 			all: ['users', 'employees'] as const,
+			workingByScope: (
+				tenantId: string | undefined | null,
+				organizationId: string | undefined | null,
+				organizationTeamId?: string | undefined | null
+			) =>
+				[
+					'users',
+					'employees',
+					'working-scope',
+					tenantId ?? null,
+					organizationId ?? null,
+					organizationTeamId ?? null
+				] as const,
 			working: (
 				tenantId: string | undefined | null,
 				organizationId: string | undefined | null,
@@ -77,8 +97,23 @@ export const queryKeys = {
 					...(organizationId ? [organizationId] : []),
 					...(teamId ? [teamId] : [])
 				] as const,
+			teamByScope: (
+				tenantId: string | undefined | null,
+				organizationId: string | undefined | null,
+				teamId: string | undefined | null
+			) =>
+				[
+					'users',
+					'invitations',
+					'team-scope',
+					tenantId ?? null,
+					organizationId ?? null,
+					teamId ?? null
+				] as const,
 			my: (tenantId: string | undefined | null) =>
 				['users', 'invitations', 'my', ...(tenantId ? [tenantId] : [])] as const,
+			myByUser: (tenantId: string | undefined | null, userId: string | undefined | null) =>
+				['users', 'invitations', 'my-user', tenantId ?? null, userId ?? null] as const,
 			operations: {
 				all: ['users', 'invitations', 'operations'] as const,
 				validateByCode: (code: string | undefined | null, email: string | undefined | null) =>
@@ -104,6 +139,7 @@ export const queryKeys = {
 	},
 	roles: {
 		all: ['roles'] as const,
+		byTenant: (tenantId: string | undefined | null) => ['roles', 'tenant', tenantId ?? null] as const,
 		detail: (roleId: string | undefined | null) => ['roles', ...(roleId ? [roleId] : [])] as const,
 		permissions: (roleId: string | undefined | null) =>
 			['roles', ...(roleId ? [roleId] : []), 'permissions'] as const,
@@ -158,7 +194,9 @@ export const queryKeys = {
 				...(workspaceId ? [workspaceId] : []),
 				...(userId ? [userId] : [])
 			] as const,
-		currentOrganization: (id: string) => ['workspaces', 'current-organization', id] as const
+		currentOrganization: (id: string) => ['workspaces', 'current-organization', id] as const,
+		currentOrganizationByScope: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+			['workspaces', 'current-organization-scope', tenantId ?? null, organizationId ?? null] as const
 	},
 	// Keys related to Daily Plans
 	dailyPlans: {
@@ -166,10 +204,43 @@ export const queryKeys = {
 		all: ['daily-plans'] as const,
 		myPlans: (teamId: string | undefined | null) =>
 			['daily-plans', 'my-plans', ...(teamId ? [teamId] : [])] as const,
+		myPlansByScope: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			teamId: string | undefined | null,
+			userId: string | undefined | null
+		) =>
+			[
+				'daily-plans',
+				'my-plans-scope',
+				tenantId ?? null,
+				organizationId ?? null,
+				teamId ?? null,
+				userId ?? null
+			] as const,
 		detail: (planId: string | undefined | null) => ['daily-plans', ...(planId ? [planId] : [])] as const,
 		tasks: (planId: string | undefined | null) => ['daily-plans', ...(planId ? [planId] : []), 'tasks'] as const,
 		allPlans: (teamId: string | undefined | null) =>
 			['daily-plans', 'all-plans', ...(teamId ? [teamId] : [])] as const,
+		allPlansByScope: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			teamId: string | undefined | null
+		) => ['daily-plans', 'all-plans-scope', tenantId ?? null, organizationId ?? null, teamId ?? null] as const,
+		byTaskByScope: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			teamId: string | undefined | null,
+			taskId: string | undefined | null
+		) =>
+			[
+				'daily-plans',
+				'by-task-scope',
+				tenantId ?? null,
+				organizationId ?? null,
+				teamId ?? null,
+				taskId ?? null
+			] as const,
 		byEmployee: (employeeId: string | undefined | null, teamId: string | undefined | null) =>
 			['daily-plans', 'by-employee', ...(employeeId ? [employeeId] : []), ...(teamId ? [teamId] : [])] as const,
 		byTask: (taskId: string | undefined | null) => ['daily-plans', 'by-task', ...(taskId ? [taskId] : [])] as const
@@ -179,8 +250,27 @@ export const queryKeys = {
 	organizationTeams: {
 		// Standard organization teams keys (preserved for backward compatibility)
 		all: ['organization-teams'] as const,
+		listByScope: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null
+		) => ['organization-teams', 'list-scope', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
 		paginated: (params: Record<string, string>) => ['organization-teams', 'paginated', params] as const,
 		detail: (teamId: string | undefined | null) => ['organization-teams', ...(teamId ? [teamId] : [])] as const,
+		detailByScope: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			teamId: string | undefined | null,
+			userId: string | undefined | null
+		) =>
+			[
+				'organization-teams',
+				'detail-scope',
+				tenantId ?? null,
+				organizationId ?? null,
+				teamId ?? null,
+				userId ?? null
+			] as const,
 		members: (teamId: string | undefined | null) =>
 			['organization-teams', ...(teamId ? [teamId] : []), 'members'] as const,
 		joinRequests: (teamId: string | undefined | null) =>
@@ -261,12 +351,55 @@ export const queryKeys = {
 		byEmployee: (employeeId: string | undefined | null, teamId: string | undefined | null) =>
 			['tasks', 'by-employee', ...(employeeId ? [employeeId] : []), ...(teamId ? [teamId] : [])] as const,
 		byTeam: (teamId: string | undefined | null) => ['tasks', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		byTeamByScope: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			teamId: string | undefined | null,
+			projectId: string | undefined | null
+		) =>
+			[
+				'tasks',
+				'by-team-scope',
+				tenantId ?? null,
+				organizationId ?? null,
+				teamId ?? null,
+				projectId ?? null
+			] as const,
 		byTeamAndProject: (teamId: string | undefined | null, projectId: string | undefined | null) =>
 			['tasks', 'by-team', ...(teamId ? [teamId] : []), 'project', ...(projectId ? [projectId] : [])] as const,
 		statistics: (teamId?: string | undefined | null) =>
 			['tasks', 'statistics', ...(teamId ? [teamId] : [])] as const,
+		statisticsByScope: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			teamId: string | undefined | null,
+			taskId: string | undefined | null,
+			employeeId: string | undefined | null
+		) =>
+			[
+				'tasks',
+				'statistics-scope',
+				tenantId ?? null,
+				organizationId ?? null,
+				teamId ?? null,
+				taskId ?? null,
+				employeeId ?? null
+			] as const,
 		activity: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : []), 'activity'] as const,
 		linked: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : []), 'linked'] as const
+	},
+
+	taskMetadata: {
+		bootstrap: (scope: TaskMetadataScope, include?: readonly TaskMetadataSection[]) =>
+			[
+				'task-metadata',
+				'bootstrap',
+				scope.tenantId,
+				scope.organizationId,
+				scope.organizationTeamId ?? null,
+				scope.projectId ?? null,
+				canonicalizeTaskMetadataInclude(include).join(',')
+			] as const
 	},
 
 	// Keys related to activities
@@ -294,11 +427,35 @@ export const queryKeys = {
 		activityReport: (params: Record<string, any>) => ['activities', 'activity-report', params] as const
 	},
 
+	profileActivity: {
+		byScope: (request: TProfileActivityRequest) =>
+			[
+				'profile-activity',
+				request.tenantId,
+				request.organizationId,
+				request.organizationTeamId ?? null,
+				request.employeeId,
+				request.startDate,
+				request.endDate,
+				request.timeZone,
+				request.includeDaily === true
+			] as const
+	},
+
 	// Keys related to task statuses
 	taskStatuses: {
 		all: ['task-statuses'] as const,
 		byTeam: (teamId: string | undefined | null) =>
 			['task-statuses', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		byScope: (scope: TaskMetadataScope) =>
+			[
+				'task-statuses',
+				'by-scope',
+				scope.tenantId,
+				scope.organizationId,
+				scope.organizationTeamId ?? null,
+				scope.projectId ?? null
+			] as const,
 		detail: (statusId: string | undefined | null) => ['task-statuses', ...(statusId ? [statusId] : [])] as const
 	},
 
@@ -307,6 +464,15 @@ export const queryKeys = {
 		all: ['task-priorities'] as const,
 		byTeam: (teamId: string | undefined | null) =>
 			['task-priorities', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		byScope: (scope: TaskMetadataScope) =>
+			[
+				'task-priorities',
+				'by-scope',
+				scope.tenantId,
+				scope.organizationId,
+				scope.organizationTeamId ?? null,
+				scope.projectId ?? null
+			] as const,
 		detail: (priorityId: string | undefined | null) =>
 			['task-priorities', ...(priorityId ? [priorityId] : [])] as const
 	},
@@ -315,6 +481,15 @@ export const queryKeys = {
 	taskSizes: {
 		all: ['task-sizes'] as const,
 		byTeam: (teamId: string | undefined | null) => ['task-sizes', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		byScope: (scope: TaskMetadataScope) =>
+			[
+				'task-sizes',
+				'by-scope',
+				scope.tenantId,
+				scope.organizationId,
+				scope.organizationTeamId ?? null,
+				scope.projectId ?? null
+			] as const,
 		detail: (sizeId: string | undefined | null) => ['task-sizes', ...(sizeId ? [sizeId] : [])] as const
 	},
 
@@ -322,6 +497,15 @@ export const queryKeys = {
 	taskLabels: {
 		all: ['task-labels'] as const,
 		byTeam: (teamId: string | undefined | null) => ['task-labels', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		byScope: (scope: TaskMetadataScope) =>
+			[
+				'task-labels',
+				'by-scope',
+				scope.tenantId,
+				scope.organizationId,
+				scope.organizationTeamId ?? null,
+				scope.projectId ?? null
+			] as const,
 		detail: (labelId: string | undefined | null) => ['task-labels', ...(labelId ? [labelId] : [])] as const
 	},
 
@@ -329,6 +513,15 @@ export const queryKeys = {
 	issueTypes: {
 		all: ['issue-types'] as const,
 		byTeam: (teamId: string | undefined | null) => ['issue-types', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		byScope: (scope: TaskMetadataScope) =>
+			[
+				'issue-types',
+				'by-scope',
+				scope.tenantId,
+				scope.organizationId,
+				scope.organizationTeamId ?? null,
+				scope.projectId ?? null
+			] as const,
 		detail: (issueTypeId: string | undefined | null) =>
 			['issue-types', ...(issueTypeId ? [issueTypeId] : [])] as const
 	},
@@ -338,6 +531,15 @@ export const queryKeys = {
 		all: ['task-versions'] as const,
 		byTeam: (teamId: string | undefined | null) =>
 			['task-versions', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		byScope: (scope: TaskMetadataScope) =>
+			[
+				'task-versions',
+				'by-scope',
+				scope.tenantId,
+				scope.organizationId,
+				scope.organizationTeamId ?? null,
+				scope.projectId ?? null
+			] as const,
 		detail: (versionId: string | undefined | null) => ['task-versions', ...(versionId ? [versionId] : [])] as const
 	},
 
@@ -346,6 +548,15 @@ export const queryKeys = {
 		all: ['task-related-issue-types'] as const,
 		byTeam: (teamId: string | undefined | null) =>
 			['task-related-issue-types', 'by-team', ...(teamId ? [teamId] : [])] as const,
+		byScope: (scope: TaskMetadataScope) =>
+			[
+				'task-related-issue-types',
+				'by-scope',
+				scope.tenantId,
+				scope.organizationId,
+				scope.organizationTeamId ?? null,
+				scope.projectId ?? null
+			] as const,
 		detail: (relatedIssueTypeId: string | undefined | null) =>
 			['task-related-issue-types', ...(relatedIssueTypeId ? [relatedIssueTypeId] : [])] as const
 	},
@@ -361,6 +572,18 @@ export const queryKeys = {
 		all: ['organization-projects'] as const,
 		detail: (projectId: string | undefined | null) =>
 			['organization-projects', ...(projectId ? [projectId] : [])] as const,
+		detailByScope: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			projectId: string | undefined | null
+		) =>
+			[
+				'organization-projects',
+				'detail-scope',
+				tenantId ?? null,
+				organizationId ?? null,
+				projectId ?? null
+			] as const,
 		byOrganization: (organizationId: string | undefined | null, tenantId: string | undefined | null) =>
 			[
 				'organization-projects',
@@ -368,8 +591,28 @@ export const queryKeys = {
 				...(organizationId ? [organizationId] : []),
 				...(tenantId ? [tenantId] : [])
 			] as const,
+		byScope: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+			['organization-projects', 'by-scope', tenantId ?? null, organizationId ?? null] as const,
 		withQueries: (queries: Record<string, string> | undefined | null) =>
-			['organization-projects', 'with-queries', ...(queries ? [queries] : [])] as const
+			['organization-projects', 'with-queries', ...(queries ? [queries] : [])] as const,
+		withQueriesByScope: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			queries: Record<string, string> | undefined | null
+		) =>
+			[
+				'organization-projects',
+				'with-queries-scope',
+				tenantId ?? null,
+				organizationId ?? null,
+				queries ?? null
+			] as const,
+		paginationByScope: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			pagination: { skip?: number; take?: number }
+		) =>
+			['organization-projects', 'pagination-scope', tenantId ?? null, organizationId ?? null, pagination] as const
 	},
 
 	// Keys related to the Timesheet / Timer
@@ -422,6 +665,19 @@ export const queryKeys = {
 	timer: {
 		all: ['timer'] as const,
 		timer: (teamId?: string | null) => ['timer', ...(teamId ? [teamId] : [])] as const,
+		byScope: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			teamId: string | undefined | null,
+			userId: string | undefined | null
+		) =>
+			['timer', 'state-scope', tenantId ?? null, organizationId ?? null, teamId ?? null, userId ?? null] as const,
+		statusByScope: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			teamId: string | undefined | null,
+			userId: string | undefined | null
+		) => ['timer', 'scope', tenantId ?? null, organizationId ?? null, teamId ?? null, userId ?? null] as const,
 		timeLimits: {
 			all: ['timer', 'time-limits'] as const,
 			byParams: (params: Record<string, any> | null) =>
@@ -450,12 +706,16 @@ export const queryKeys = {
 	languages: {
 		all: ['languages'] as const,
 		system: (isSystem: boolean) => ['languages', 'system', isSystem] as const,
+		byScope: (tenantId: string | undefined | null, userId: string | undefined | null, isSystem: boolean) =>
+			['languages', 'scope', tenantId ?? null, userId ?? null, isSystem] as const,
 		byCode: (code: string | undefined | null) => ['languages', 'by-code', ...(code ? [code] : [])] as const
 	},
 
 	// Keys related to currencies
 	currencies: {
 		all: ['currencies'] as const,
+		byScope: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+			['currencies', 'scope', tenantId ?? null, organizationId ?? null] as const,
 		byOrganization: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
 			[
 				'currencies',

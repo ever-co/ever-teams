@@ -17,11 +17,11 @@ export const getAPI = async (): Promise<APIService> => {
 			async (config: any) => {
 				const cookie = getAccessTokenCookie();
 				const tenantId = getTenantIdCookie();
-				if (cookie) {
+				if (cookie && !config.pinnedAuthorization) {
 					config.headers['Authorization'] = `Bearer ${cookie}`;
 				}
-				if (tenantId) {
-					config.headers['tenant-id'] = tenantId;
+				if (tenantId && !config.headers.has('tenant-id')) {
+					config.headers.set('tenant-id', tenantId);
 				}
 				return config;
 			},
@@ -55,11 +55,11 @@ export const getAPIDirect = async (): Promise<APIService> => {
 			async (config: any) => {
 				const cookie = getAccessTokenCookie();
 				const tenantId = getTenantIdCookie();
-				if (cookie) {
+				if (cookie && !config.pinnedAuthorization) {
 					config.headers['Authorization'] = `Bearer ${cookie}`;
 				}
-				if (tenantId) {
-					config.headers['tenant-id'] = tenantId;
+				if (tenantId && !config.headers.has('tenant-id')) {
+					config.headers.set('tenant-id', tenantId);
 				}
 				return config;
 			},
@@ -95,7 +95,11 @@ export const getAPIDirect = async (): Promise<APIService> => {
 	return apiDirect;
 };
 
-export type APIConfig = AxiosRequestConfig<any> & { tenantId?: string | null; directAPI?: boolean };
+export type APIConfig = AxiosRequestConfig<any> & {
+	tenantId?: string | null;
+	directAPI?: boolean;
+	pinnedAuthorization?: boolean;
+};
 
 async function apiConfig(config?: APIConfig) {
 	const tenantId = getTenantIdCookie();

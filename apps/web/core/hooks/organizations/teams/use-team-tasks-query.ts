@@ -11,7 +11,7 @@ import {
 	teamTasksState
 } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useAuthenticateUser } from '../../auth';
 import { useFirstLoad, useConditionalUpdateEffect, useSyncRef } from '../../common';
@@ -19,6 +19,15 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
+import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
+import { useScopeGuard } from '../../bootstrap/use-scope-guard';
+import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
+
+interface UseTeamTasksQueryOptions {
+	enabled?: boolean;
+	scope?: ApiRequestScope;
+	refetchInterval?: number | false;
+}
 
 /**
  * Hook for reading team tasks data (GET operations only).
@@ -42,7 +51,7 @@ import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
  * - `firstLoadTasksData` - First load utility
  * - `setAllTasks` - Setter for all tasks (state management)
  */
-export function useTeamTasksQuery() {
+export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 	const { user } = useAuthenticateUser();
 	const queryClient = useQueryClient();
 
@@ -55,26 +64,61 @@ export function useTeamTasksQuery() {
 	const tasksRef = useSyncRef(tasks);
 	const memberActiveTaskId = useAtomValue(memberActiveTaskIdState);
 	const [activeTeamTask, setActiveTeamTask] = useAtom(activeTeamTaskState);
+	const reactiveAccessToken = useReactiveAccessTokenCookie();
 
 	const { firstLoad, firstLoadData: firstLoadTasksData } = useFirstLoad();
+	const { enabled = true, scope: explicitScope, refetchInterval = false } = options;
+	const scope = useMemo<ApiRequestScope | undefined>(
+		() =>
+			explicitScope ?? {
+				tenantId: user?.employee?.tenantId ?? user?.tenantId,
+				organizationId: activeTeam?.organizationId ?? user?.employee?.organizationId,
+				teamId: activeTeam?.id,
+				userId: user?.id,
+				accessToken: reactiveAccessToken
+			},
+		[
+			activeTeam?.id,
+			activeTeam?.organizationId,
+			explicitScope,
+			reactiveAccessToken,
+			user?.employee?.organizationId,
+			user?.employee?.tenantId,
+			user?.id,
+			user?.tenantId
+		]
+	);
+	const canHydrateSharedState = explicitScope !== undefined;
+	const projectId = activeTeam?.projects?.[0]?.id ?? null;
+	const queryKey = queryKeys.tasks.byTeamByScope(scope?.tenantId, scope?.organizationId, scope?.teamId, projectId);
+	const isCurrentScope = useScopeGuard(queryKey, enabled);
+	const scopedReady = !!(scope?.tenantId && scope.organizationId && scope.teamId && scope.accessToken);
 
 	// React Query for team tasks
 	const teamTasksQuery = useQuery({
-		queryKey: queryKeys.tasks.byTeam(activeTeam?.id),
-		queryFn: async () => {
+		queryKey,
+		queryFn: async ({ signal }) => {
 			if (!activeTeam?.id) {
 				throw new Error('Required parameters missing');
 			}
-			const projectId = activeTeam?.projects && activeTeam?.projects.length > 0 ? activeTeam.projects[0].id : '';
-			return await taskService.getTasks({ projectId });
+			const activeProjectId = projectId ?? '';
+			return await taskService.getTasks({
+				projectId: activeProjectId,
+				options: { scope: scope!, signal }
+			});
 		},
-		enabled: !!activeTeam?.id,
-		gcTime: 1000 * 60 * 60
+		enabled: enabled && scopedReady && !!activeTeam?.id && canHydrateSharedState,
+		staleTime: 60_000,
+		gcTime: 1000 * 60 * 60,
+		refetchInterval,
+		refetchIntervalInBackground: false
 	});
 
 	// Deep update function for React Query → Jotai sync
 	const deepCheckAndUpdateTasks = useCallback(
 		(responseTasks: TTask[], deepCheck?: boolean) => {
+			if (!canHydrateSharedState) return;
+			if (!isCurrentScope()) return;
 			// Map to new objects if modification is needed to avoid mutating cache
 			const processedTasks =
 				responseTasks?.map((task) => {
@@ -108,7 +152,7 @@ export function useTeamTasksQuery() {
 				setAllTasks(processedTasks);
 			}
 		},
-		[activeTeamRef, setAllTasks, tasksRef]
+		[activeTeamRef, canHydrateSharedState, isCurrentScope, setAllTasks, tasksRef]
 	);
 
 	const loadTeamTasksData = useCallback(
@@ -136,30 +180,32 @@ export function useTeamTasksQuery() {
 	// Reload tasks after active team changed
 	useConditionalUpdateEffect(
 		() => {
-			if (activeTeam?.id && firstLoad) {
+			if (canHydrateSharedState && activeTeam?.id && firstLoad) {
 				loadTeamTasksData();
 			}
 		},
-		[activeTeam?.id, firstLoad],
+		[activeTeam?.id, canHydrateSharedState, firstLoad],
 		true
 	);
 
 	// Sync React Query data with Jotai state
 	useConditionalUpdateEffect(
 		() => {
-			if (teamTasksQuery.data?.items) {
+			if (teamTasksQuery.data?.items && isCurrentScope()) {
 				deepCheckAndUpdateTasks(teamTasksQuery.data.items, true);
 			}
 		},
-		[teamTasksQuery.data?.items],
+		[teamTasksQuery.data?.items, isCurrentScope],
 		Boolean(tasks?.length)
 	);
 
 	// Sync active team task from member data
 	useConditionalUpdateEffect(
 		() => {
+			if (!canHydrateSharedState) return;
 			// Validate: ensure the task belongs to the current active team
 			const memberActiveTask = getValidActiveTask(tasks, memberActiveTaskId, activeTeam?.id);
+			if (!isCurrentScope()) return;
 			if (memberActiveTask) {
 				setActiveTeamTask(memberActiveTask);
 			} else if (memberActiveTaskId && activeTeam?.id) {
@@ -167,7 +213,7 @@ export function useTeamTasksQuery() {
 				setActiveTeamTask(null);
 			}
 		},
-		[activeTeam, tasks, memberActiveTaskId],
+		[activeTeam, tasks, memberActiveTaskId, canHydrateSharedState, isCurrentScope],
 		true
 	);
 
@@ -182,6 +228,7 @@ export function useTeamTasksQuery() {
 		// Loading states
 		loading: teamTasksQuery.isLoading,
 		tasksFetching: teamTasksQuery.isFetching,
+		querySuccess: teamTasksQuery.isSuccess && isCurrentScope(),
 
 		// Functions
 		loadTeamTasksData,

@@ -77,7 +77,7 @@ describe('useAcceptInvite → validateInvitation', () => {
 			</QueryClientProvider>
 		);
 
-		await waitFor(() => expect(getByTestId('state').textContent.toLowerCase()).toBe('validated'), { timeout: 3000 });
+		await waitFor(() => expect(getByTestId('state').textContent?.toLowerCase()).toBe('validated'), { timeout: 3000 });
 
 		// Force several parent re-renders after the mutation settled.
 		for (let i = 0; i < 5; i++) {

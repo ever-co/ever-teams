@@ -8,6 +8,7 @@ import {
 	TRoleList,
 	roleListSchema
 } from '@/core/types/schemas';
+import { scopedReadConfig, ScopedReadOptions } from '../../api-request-scope';
 
 /**
  * Enhanced Role Service with Zod validation
@@ -22,9 +23,9 @@ class RoleService extends APIService {
 	 * @returns Promise<PaginationResponse<Role>> - Validated roles data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getRoles = async (): Promise<TRoleList> => {
+	getRoles = async (options?: ScopedReadOptions): Promise<TRoleList> => {
 		try {
-			const response = await this.get<TRoleList>('/roles');
+			const response = await this.get<TRoleList>('/roles', options ? scopedReadConfig(options) : undefined);
 
 			// Validate the response data using Zod schema
 			return validateApiResponse(roleListSchema, response.data, 'getRoles API response');

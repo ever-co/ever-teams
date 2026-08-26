@@ -7,6 +7,8 @@ import { queryKeys } from '@/core/query/keys';
 import { useFirstLoad } from '../common/use-first-load';
 import { useInvalidateTaskSizes } from './use-invalidate-task-sizes';
 import { TTaskSize } from '@/core/types/schemas';
+import { useTaskMetadataBootstrapQuery } from './use-task-metadata-bootstrap-query';
+import { updateTaskMetadataSectionCaches } from './task-metadata-cache';
 
 /**
  * Hook for reading task sizes data.
@@ -20,17 +22,21 @@ import { TTaskSize } from '@/core/types/schemas';
 export function useTaskSizesQuery() {
 	const { queryClient, teamId } = useInvalidateTaskSizes();
 	const { firstLoadData: firstLoadTaskSizesData } = useFirstLoad();
+	const taskMetadataQuery = useTaskMetadataBootstrapQuery();
 
 	const taskSizesQuery = useQuery({
 		queryKey: queryKeys.taskSizes.byTeam(teamId),
 		queryFn: async () => {
 			const res = await taskSizeService.getTaskSizes();
 			return res;
-		}
+		},
+		enabled: !taskMetadataQuery.useBootstrap
 	});
 
+	const taskSizesData = taskMetadataQuery.useBootstrap ? taskMetadataQuery.data?.taskSizes : taskSizesQuery.data;
 	// Memoized to prevent infinite re-renders (stable reference)
-	const taskSizes = useMemo(() => taskSizesQuery.data?.items ?? [], [taskSizesQuery.data?.items]);
+	const taskSizes = useMemo(() => taskSizesData?.items ?? [], [taskSizesData?.items]);
+	const taskSizesLoading = taskMetadataQuery.useBootstrap ? taskMetadataQuery.isLoading : taskSizesQuery.isLoading;
 
 	/**
 	 * Optimistic cache updater — supports functional updater pattern:
@@ -38,19 +44,24 @@ export function useTaskSizesQuery() {
 	 */
 	const setTaskSizes = useCallback(
 		(updaterOrValue: TTaskSize[] | ((prev: TTaskSize[]) => TTaskSize[])) => {
-			queryClient.setQueryData(queryKeys.taskSizes.byTeam(teamId), (oldData: any) => {
-				const prev: TTaskSize[] = oldData?.items ?? [];
-				const newItems = typeof updaterOrValue === 'function' ? updaterOrValue(prev) : updaterOrValue;
-				return { ...(oldData ?? {}), items: newItems };
-			});
+			updateTaskMetadataSectionCaches<TTaskSize>(
+				queryClient,
+				{
+					section: 'taskSizes',
+					scope: taskMetadataQuery.scope,
+					teamId,
+					useBootstrap: taskMetadataQuery.useBootstrap
+				},
+				updaterOrValue
+			);
 		},
-		[queryClient, teamId]
+		[queryClient, taskMetadataQuery.scope, taskMetadataQuery.useBootstrap, teamId]
 	);
 
 	// Legacy backward compat
 	const loadTaskSizes = useCallback(async () => {
-		return taskSizesQuery.data;
-	}, [taskSizesQuery.data]);
+		return taskSizesData;
+	}, [taskSizesData]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadTaskSizes();
@@ -59,11 +70,10 @@ export function useTaskSizesQuery() {
 
 	return {
 		taskSizes,
-		loading: taskSizesQuery.isLoading,
-		getTaskSizesLoading: taskSizesQuery.isLoading,
+		loading: taskSizesLoading,
+		getTaskSizesLoading: taskSizesLoading,
 		setTaskSizes,
 		loadTaskSizes,
 		firstLoadTaskSizesData: handleFirstLoad
 	};
 }
-

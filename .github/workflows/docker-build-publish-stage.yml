@@ -39,8 +39,15 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
-      - name: Output NEXT_PUBLIC_GAUZY_API_SERVER_URL
-        run: echo "NEXT_PUBLIC_GAUZY_API_SERVER_URL=${{ secrets.NEXT_PUBLIC_GAUZY_API_SERVER_URL }}"
+      - name: Validate NEXT_PUBLIC_GAUZY_API_SERVER_URL
+        env:
+          NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${{ secrets.NEXT_PUBLIC_GAUZY_API_SERVER_URL }}
+        run: |
+          if [ -z "$NEXT_PUBLIC_GAUZY_API_SERVER_URL" ]; then
+            echo "::error::NEXT_PUBLIC_GAUZY_API_SERVER_URL is not configured"
+            exit 1
+          fi
+          echo "NEXT_PUBLIC_GAUZY_API_SERVER_URL is configured"
 
       - name: Build and push
         uses: docker/build-push-action@v7
@@ -52,8 +59,11 @@ jobs:
           # Re-add it together with the commented-out CW login/push steps below once CW_DOCKER_REGISTRY is configured.
           tags: |
             ghcr.io/ever-co/ever-teams-webapp-stage:latest
+            ghcr.io/ever-co/ever-teams-webapp-stage:sha-${{ github.sha }}
             everco/ever-teams-webapp-stage:latest
+            everco/ever-teams-webapp-stage:sha-${{ github.sha }}
             registry.digitalocean.com/ever/ever-teams-webapp-stage:latest
+            registry.digitalocean.com/ever/ever-teams-webapp-stage:sha-${{ github.sha }}
           cache-from: type=registry,ref=everco/ever-teams-webapp-stage:latest
           cache-to: type=inline
           build-args: |
@@ -89,6 +99,7 @@ jobs:
       - name: Push to Docker Hub Registry
         run: |
           docker push everco/ever-teams-webapp-stage:latest
+          docker push everco/ever-teams-webapp-stage:sha-${{ github.sha }}
 
       - name: Install doctl
         if: ${{ vars.DO_ENABLED == 'true' }}
@@ -104,6 +115,7 @@ jobs:
         if: ${{ vars.DO_ENABLED == 'true' }}
         run: |
           docker push registry.digitalocean.com/ever/ever-teams-webapp-stage:latest
+          docker push registry.digitalocean.com/ever/ever-teams-webapp-stage:sha-${{ github.sha }}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v4
@@ -115,6 +127,7 @@ jobs:
       - name: Push to Github Registry
         run: |
           docker push ghcr.io/ever-co/ever-teams-webapp-stage:latest
+          docker push ghcr.io/ever-co/ever-teams-webapp-stage:sha-${{ github.sha }}
 
     #  - name: Login to CW Container Registry
     #    uses: docker/login-action@v4

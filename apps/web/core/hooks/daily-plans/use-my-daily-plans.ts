@@ -1,13 +1,16 @@
 'use client';
 
 import { useAtomValue } from 'jotai';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { dailyPlanService } from '../../services/client/api';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { useUserQuery } from '../queries/user-user.query';
 import { useDailyPlanCalculations } from './use-daily-plan-calculations';
+import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
+import { useScopeGuard } from '../bootstrap/use-scope-guard';
+import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
 
 export interface UseMyDailyPlansOptions {
 	/**
@@ -16,6 +19,10 @@ export interface UseMyDailyPlansOptions {
 	 * @default true
 	 */
 	enabled?: boolean;
+	/** Captured request identity for the shell owner. */
+	scope?: ApiRequestScope;
+	/** Optional declarative refresh interval. */
+	refetchInterval?: number | false;
 }
 
 /**
@@ -47,20 +54,56 @@ export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
 	const { data: user } = useUserQuery();
 	const activeTeam = useAtomValue(activeTeamState);
 	const allTeamTasks = useAtomValue(tasksByTeamState);
+	const reactiveAccessToken = useReactiveAccessTokenCookie();
 
 	// Extract options with defaults
-	const { enabled = true } = options || {};
+	const { enabled = true, scope: explicitScope, refetchInterval = false } = options || {};
+	const scope = useMemo<ApiRequestScope | undefined>(
+		() =>
+			explicitScope ?? {
+				tenantId: user?.employee?.tenantId ?? user?.tenantId,
+				organizationId: activeTeam?.organizationId ?? user?.employee?.organizationId,
+				teamId: activeTeam?.id,
+				userId: user?.id,
+				accessToken: reactiveAccessToken
+			},
+		[
+			activeTeam?.id,
+			activeTeam?.organizationId,
+			explicitScope,
+			reactiveAccessToken,
+			user?.employee?.organizationId,
+			user?.employee?.tenantId,
+			user?.id,
+			user?.tenantId
+		]
+	);
+	const canOwnScopedQuery = explicitScope !== undefined;
+	const queryKey = queryKeys.dailyPlans.myPlansByScope(
+		scope?.tenantId,
+		scope?.organizationId,
+		scope?.teamId,
+		scope?.userId
+	);
+	const isCurrentScope = useScopeGuard(queryKey, enabled);
+	const scopedReady = !!(
+		scope?.tenantId &&
+		scope.organizationId &&
+		scope.teamId &&
+		scope.userId &&
+		scope.accessToken
+	);
 
 	// ==================== QUERY ====================
 
 	const getMyDailyPlansQuery = useQuery({
-		queryKey: queryKeys.dailyPlans.myPlans(activeTeam?.id),
-		queryFn: async () => {
-			const res = await dailyPlanService.getMyDailyPlans();
-			return res;
-		},
-		enabled: enabled && !!activeTeam?.id,
-		gcTime: 1000 * 60 * 60 // 1 hour
+		queryKey,
+		queryFn: ({ signal }) => dailyPlanService.getMyDailyPlans({ scope: scope!, signal }),
+		enabled: enabled && scopedReady && canOwnScopedQuery,
+		staleTime: 60_000,
+		gcTime: 1000 * 60 * 60, // 1 hour
+		refetchInterval,
+		refetchIntervalInBackground: false
 	});
 
 	// ==================== DERIVED STATE ====================
@@ -118,6 +161,7 @@ export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
 		// Loading states
 		isLoading: getMyDailyPlansQuery.isLoading,
 		isFetching: getMyDailyPlansQuery.isFetching,
+		isSuccess: getMyDailyPlansQuery.isSuccess && isCurrentScope(),
 		isError: getMyDailyPlansQuery.isError,
 		error: getMyDailyPlansQuery.error
 	};

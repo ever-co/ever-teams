@@ -204,12 +204,12 @@ export class APIService {
 				const tenantId = getTenantIdCookie();
 				const cookie = getAccessTokenCookie();
 
-				if (cookie) {
+				if (cookie && !config.pinnedAuthorization) {
 					config.headers['Authorization'] = `Bearer ${cookie}`;
 				}
 
-				if (tenantId) {
-					config.headers['tenant-id'] = tenantId;
+				if (tenantId && !config.headers.has('tenant-id')) {
+					config.headers.set('tenant-id', tenantId);
 				}
 
 				// Log outgoing requests
@@ -412,6 +412,48 @@ export class APIService {
 		}
 	}
 
+	private composeAbortSignals(signals: Array<AbortSignal | undefined>): {
+		signal: AbortSignal;
+		cleanup: () => void;
+	} {
+		const uniqueSignals = [...new Set(signals.filter((signal): signal is AbortSignal => signal !== undefined))];
+
+		if (uniqueSignals.length === 1) {
+			return { signal: uniqueSignals[0], cleanup: () => undefined };
+		}
+
+		const controller = new AbortController();
+		const listeners = new Map<AbortSignal, () => void>();
+		let cleanedUp = false;
+		const cleanup = () => {
+			if (cleanedUp) return;
+			cleanedUp = true;
+			listeners.forEach((listener, signal) => signal.removeEventListener('abort', listener));
+			listeners.clear();
+		};
+		const abortFrom = (source: AbortSignal) => {
+			const reason = source.reason;
+			cleanup();
+			if (!controller.signal.aborted) {
+				controller.abort(reason);
+			}
+		};
+		const alreadyAborted = uniqueSignals.find((signal) => signal.aborted);
+
+		if (alreadyAborted) {
+			controller.abort(alreadyAborted.reason);
+			return { signal: controller.signal, cleanup };
+		}
+
+		uniqueSignals.forEach((signal) => {
+			const listener = () => abortFrom(signal);
+			listeners.set(signal, listener);
+			signal.addEventListener('abort', listener, { once: true });
+		});
+
+		return { signal: controller.signal, cleanup };
+	}
+
 	/**
 	 * Sends a GET request.
 	 *
@@ -427,16 +469,21 @@ export class APIService {
 		const requestId = `GET:${url}:${Date.now()}`;
 		const controller = new AbortController();
 		this.cancelSources.set(requestId, controller);
+		const { signal, cleanup } = this.composeAbortSignals([
+			config?.signal as AbortSignal | undefined,
+			controller.signal
+		]);
 
 		try {
 			return await this.executeRequest<T>(() =>
 				getRequest(url, {
 					...config,
 					headers,
-					signal: controller.signal
+					signal
 				})
 			);
 		} finally {
+			cleanup();
 			this.cancelSources.delete(requestId);
 		}
 	}
@@ -463,6 +510,10 @@ export class APIService {
 		const requestId = `POST:${url}:${Date.now()}`;
 		const controller = new AbortController();
 		this.cancelSources.set(requestId, controller);
+		const { signal, cleanup } = this.composeAbortSignals([
+			config?.signal as AbortSignal | undefined,
+			controller.signal
+		]);
 
 		try {
 			return await this.executeRequest<T>(() => {
@@ -479,10 +530,11 @@ export class APIService {
 				return postRequest(url, data, {
 					...config,
 					headers,
-					signal: controller.signal
+					signal
 				});
 			});
 		} finally {
+			cleanup();
 			this.cancelSources.delete(requestId);
 		}
 	}

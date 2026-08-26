@@ -6,13 +6,16 @@ import { APIService, getFallbackAPI } from '../../api.service';
 import { getActiveTaskIdCookie } from '@/core/lib/helpers/cookies';
 import { ITimerStatus, IToggleTimerStatusParams } from '@/core/types/interfaces/timer/timer-status';
 import { TUser } from '@/core/types/schemas';
+import { scopedReadConfig, type ScopedReadOptions } from '../../api-request-scope';
 
 class TimerService extends APIService {
-	getTimerStatus = async () => {
-		const params = qs.stringify({ tenantId: this.tenantId, organizationId: this.organizationId });
+	getTimerStatus = async (options?: ScopedReadOptions) => {
+		const tenantId = options?.scope.tenantId ?? this.tenantId;
+		const organizationId = options?.scope.organizationId ?? this.organizationId;
+		const params = qs.stringify({ tenantId, organizationId });
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/timesheet/timer/status?${params}` : '/timer/status';
 
-		return this.get<ITimerStatus>(endpoint);
+		return this.get<ITimerStatus>(endpoint, options ? scopedReadConfig(options) : undefined);
 	};
 
 	toggleTimer = async (body: Pick<IToggleTimerStatusParams, 'taskId'>) => {

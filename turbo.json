@@ -1,7 +1,12 @@
 {
 	"$schema": "https://turborepo.com/schema.json",
 	"globalDependencies": ["**/.env.*local"],
-	"globalEnv": ["NEXT_PUBLIC_GAUZY_API_URL"],
+	"globalPassThroughEnv": ["AUTH_SECRET"],
+	"globalEnv": [
+		"GAUZY_API_SERVER_URL",
+		"NEXT_PUBLIC_GAUZY_API_SERVER_URL",
+		"NEXT_PUBLIC_GAUZY_API_URL"
+	],
 	"tasks": {
 		"build": {
 			"dependsOn": ["^build"],
