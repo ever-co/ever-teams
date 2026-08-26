@@ -436,7 +436,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "Podział produktywności dla {month}",
 		"DAILY": "Dziennie",
 		"WEEKLY": "Tygodniowo",
-		"MONTHLY": "Miesięcznie"
+		"MONTHLY": "Miesięcznie",
+		"HIDE_CHART": "Ukryj wykres",
+		"SHOW_ACTIVITY_CHART": "Pokaż wykres aktywności"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "Czas i Aktywność",
@@ -1298,6 +1300,14 @@
 		"INPUT_PLACEHOLDER_READY": "Twoja wiadomość...",
 		"INPUT_PLACEHOLDER_NO_KEY": "Skonfiguruj klucz API...",
 		"STOP": "Zatrzymaj",
-		"SEND": "Wyślij"
+		"SEND": "Wyślij",
+		"NEW_CHAT": "Nowy czat",
+		"HISTORY": "Historia",
+		"NO_CONVERSATIONS": "Brak rozmów",
+		"PANEL_CONTROLS": "Elementy sterujące panelem czatu",
+		"COLLAPSE_ASSISTANT": "Zwiń asystenta",
+		"STANDARD_ASSISTANT_WIDTH": "Standardowa szerokość asystenta",
+		"EXPAND_ASSISTANT": "Rozwiń asystenta",
+		"OPEN_ASSISTANT": "Otwórz asystenta Ever Teams"
 	}
 }

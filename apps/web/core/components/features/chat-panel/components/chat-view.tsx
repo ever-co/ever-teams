@@ -169,7 +169,7 @@ export function ChatView({ pageContext }: ChatViewProps) {
 						className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-medium hover:bg-muted"
 					>
 						<Plus className="h-3.5 w-3.5" />
-						New chat
+						{t('chatView.NEW_CHAT')}
 					</button>
 					<button
 						type="button"
@@ -178,7 +178,7 @@ export function ChatView({ pageContext }: ChatViewProps) {
 						aria-expanded={historyOpen}
 					>
 						<History className="h-3.5 w-3.5" />
-						History
+						{t('chatView.HISTORY')}
 					</button>
 				</div>
 				{historyOpen ? (
@@ -198,7 +198,9 @@ export function ChatView({ pageContext }: ChatViewProps) {
 								</button>
 							))
 						) : (
-							<p className="px-3 py-4 text-center text-xs text-muted-foreground">No conversations yet</p>
+							<p className="px-3 py-4 text-center text-xs text-muted-foreground">
+								{t('chatView.NO_CONVERSATIONS')}
+							</p>
 						)}
 					</div>
 				) : null}

@@ -436,7 +436,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "Разбивка на продуктивността за {month}",
 		"DAILY": "Дневно",
 		"WEEKLY": "Седмично",
-		"MONTHLY": "Месечно"
+		"MONTHLY": "Месечно",
+		"HIDE_CHART": "Скрий диаграмата",
+		"SHOW_ACTIVITY_CHART": "Покажи диаграмата на активността"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "Време и дейност",
@@ -1298,6 +1300,14 @@
 		"INPUT_PLACEHOLDER_READY": "Вашето съобщение...",
 		"INPUT_PLACEHOLDER_NO_KEY": "Конфигурирайте вашия API ключ...",
 		"STOP": "Спри",
-		"SEND": "Изпрати"
+		"SEND": "Изпрати",
+		"NEW_CHAT": "Нов чат",
+		"HISTORY": "История",
+		"NO_CONVERSATIONS": "Все още няма разговори",
+		"PANEL_CONTROLS": "Контроли на чат панела",
+		"COLLAPSE_ASSISTANT": "Свий асистента",
+		"STANDARD_ASSISTANT_WIDTH": "Стандартна ширина на асистента",
+		"EXPAND_ASSISTANT": "Разшири асистента",
+		"OPEN_ASSISTANT": "Отвори асистента Ever Teams"
 	}
 }

@@ -7,9 +7,11 @@ import { CHAT_PANEL_CONSTRAINTS } from '../constants/chat-panel-constraints.cons
 import { useChatPanel } from '../hooks/use-chat-panel';
 import { ChatView } from './chat-view';
 import { Bot, ChevronLeft, Maximize2, Minimize2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export function ChatPanelLayout({ children }: PropsWithChildren) {
 	const chatPanel = useChatPanel();
+	const t = useTranslations('chatView');
 
 	return (
 		// Provide chat controls to the entire subtree (children included)
@@ -59,14 +61,14 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 				<div
 					className="absolute top-1/2 z-[1030] flex -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-lg border bg-background shadow-lg"
 					style={{ left: `${chatPanel.sizePixels}px` }}
-					aria-label="Chat panel controls"
+					aria-label={t('PANEL_CONTROLS')}
 				>
 					<button
 						type="button"
 						onClick={chatPanel.closePanel}
 						className="p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
-						title="Collapse assistant"
-						aria-label="Collapse assistant"
+						title={t('COLLAPSE_ASSISTANT')}
+						aria-label={t('COLLAPSE_ASSISTANT')}
 					>
 						<ChevronLeft className="h-4 w-4" />
 					</button>
@@ -74,8 +76,8 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 						type="button"
 						onClick={() => chatPanel.resizePanel(CHAT_PANEL_CONSTRAINTS.defaultSize)}
 						className="border-t p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
-						title="Standard assistant width"
-						aria-label="Standard assistant width"
+						title={t('STANDARD_ASSISTANT_WIDTH')}
+						aria-label={t('STANDARD_ASSISTANT_WIDTH')}
 					>
 						<Minimize2 className="h-4 w-4" />
 					</button>
@@ -83,8 +85,8 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 						type="button"
 						onClick={() => chatPanel.resizePanel(CHAT_PANEL_CONSTRAINTS.maxSize)}
 						className="border-t p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
-						title="Expand assistant"
-						aria-label="Expand assistant"
+						title={t('EXPAND_ASSISTANT')}
+						aria-label={t('EXPAND_ASSISTANT')}
 					>
 						<Maximize2 className="h-4 w-4" />
 					</button>
@@ -94,8 +96,8 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 					type="button"
 					onClick={chatPanel.openPanel}
 					className="absolute left-0 top-1/2 z-[1030] flex -translate-y-1/2 items-center justify-center rounded-r-xl border border-l-0 bg-background p-3 text-primary shadow-lg transition-colors hover:bg-muted dark:text-primary-light"
-					title="Open Ever Teams Assistant"
-					aria-label="Open Ever Teams Assistant"
+					title={t('OPEN_ASSISTANT')}
+					aria-label={t('OPEN_ASSISTANT')}
 				>
 					<Bot className="h-5 w-5" />
 				</button>

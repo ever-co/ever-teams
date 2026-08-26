@@ -436,7 +436,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "Productiviteitsuitsplitsing voor {month}",
 		"DAILY": "Dagelijks",
 		"WEEKLY": "Wekelijks",
-		"MONTHLY": "Maandelijks"
+		"MONTHLY": "Maandelijks",
+		"HIDE_CHART": "Grafiek verbergen",
+		"SHOW_ACTIVITY_CHART": "Activiteitsgrafiek tonen"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "Tijd en Activiteit",
@@ -1298,6 +1300,14 @@
 		"INPUT_PLACEHOLDER_READY": "Uw bericht...",
 		"INPUT_PLACEHOLDER_NO_KEY": "Configureer uw API-sleutel...",
 		"STOP": "Stoppen",
-		"SEND": "Verzenden"
+		"SEND": "Verzenden",
+		"NEW_CHAT": "Nieuwe chat",
+		"HISTORY": "Geschiedenis",
+		"NO_CONVERSATIONS": "Nog geen gesprekken",
+		"PANEL_CONTROLS": "Bediening van het chatpaneel",
+		"COLLAPSE_ASSISTANT": "Assistent inklappen",
+		"STANDARD_ASSISTANT_WIDTH": "Standaardbreedte van de assistent",
+		"EXPAND_ASSISTANT": "Assistent uitbreiden",
+		"OPEN_ASSISTANT": "Ever Teams Assistent openen"
 	}
 }

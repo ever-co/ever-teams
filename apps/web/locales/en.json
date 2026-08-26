@@ -436,7 +436,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "Productivity breakdown for {month}",
 		"DAILY": "Daily",
 		"WEEKLY": "Weekly",
-		"MONTHLY": "Monthly"
+		"MONTHLY": "Monthly",
+		"HIDE_CHART": "Hide chart",
+		"SHOW_ACTIVITY_CHART": "Show activity chart"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "Time and Activity",
@@ -1298,6 +1300,14 @@
 		"INPUT_PLACEHOLDER_READY": "Your message...",
 		"INPUT_PLACEHOLDER_NO_KEY": "Configure your API key...",
 		"STOP": "Stop",
-		"SEND": "Send"
+		"SEND": "Send",
+		"NEW_CHAT": "New chat",
+		"HISTORY": "History",
+		"NO_CONVERSATIONS": "No conversations yet",
+		"PANEL_CONTROLS": "Chat panel controls",
+		"COLLAPSE_ASSISTANT": "Collapse assistant",
+		"STANDARD_ASSISTANT_WIDTH": "Standard assistant width",
+		"EXPAND_ASSISTANT": "Expand assistant",
+		"OPEN_ASSISTANT": "Open Ever Teams Assistant"
 	}
 }

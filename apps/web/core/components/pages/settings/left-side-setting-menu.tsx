@@ -77,7 +77,7 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 		>
 			<div className="px-3 pb-2 pt-1">
 				<h1 className="text-xl font-semibold tracking-tight">{t('common.SETTINGS')}</h1>
-				<p className="mt-1 text-xs text-muted-foreground">Manage your workspace preferences</p>
+				<p className="mt-1 text-xs text-muted-foreground">{t('pages.settings.HEADING_DESCRIPTION')}</p>
 			</div>
 			<div className="space-y-4">
 				<section>

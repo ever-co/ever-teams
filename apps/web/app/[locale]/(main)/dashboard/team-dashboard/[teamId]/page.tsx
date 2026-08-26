@@ -131,7 +131,7 @@ function TeamDashboard() {
 											onClick={() => setShowChart(false)}
 										>
 											<ChevronUpIcon className="h-3.5 w-3.5" />
-											Hide chart
+											{t('dashboard.HIDE_CHART')}
 										</Button>
 									</div>
 									<LazyTeamStatsChart
@@ -148,7 +148,7 @@ function TeamDashboard() {
 										onClick={() => setShowChart(true)}
 									>
 										<ChevronDownIcon className="h-3.5 w-3.5" />
-										Show activity chart
+										{t('dashboard.SHOW_ACTIVITY_CHART')}
 									</Button>
 								</div>
 							)}

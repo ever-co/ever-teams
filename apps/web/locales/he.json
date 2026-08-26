@@ -436,7 +436,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "פירוט פרודוקטיביות עבור {month}",
 		"DAILY": "יומי",
 		"WEEKLY": "שבועי",
-		"MONTHLY": "חודשי"
+		"MONTHLY": "חודשי",
+		"HIDE_CHART": "הסתר תרשים",
+		"SHOW_ACTIVITY_CHART": "הצג תרשים פעילות"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "זמן ופעילות",
@@ -1298,6 +1300,14 @@
 		"INPUT_PLACEHOLDER_READY": "ההודעה שלך...",
 		"INPUT_PLACEHOLDER_NO_KEY": "הגדר את מפתח ה-API שלך...",
 		"STOP": "עצור",
-		"SEND": "שלח"
+		"SEND": "שלח",
+		"NEW_CHAT": "צ'אט חדש",
+		"HISTORY": "היסטוריה",
+		"NO_CONVERSATIONS": "אין עדיין שיחות",
+		"PANEL_CONTROLS": "פקדי חלונית הצ'אט",
+		"COLLAPSE_ASSISTANT": "כווץ את העוזר",
+		"STANDARD_ASSISTANT_WIDTH": "רוחב רגיל של העוזר",
+		"EXPAND_ASSISTANT": "הרחב את העוזר",
+		"OPEN_ASSISTANT": "פתח את עוזר Ever Teams"
 	}
 }
