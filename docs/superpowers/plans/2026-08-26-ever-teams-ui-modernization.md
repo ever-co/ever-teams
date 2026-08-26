@@ -25,7 +25,7 @@
 ### Task 1: Permanent full-width shell and density recipes
 
 **Files:**
-- Create: `apps/web/test/architecture/full-width-layout.test.ts`
+- Create: `apps/web/core/components/common/container.test.tsx`
 - Modify: `apps/web/styles/globals.css`
 - Modify: `apps/web/core/components/common/container.tsx`
 - Modify: `apps/web/core/components/users/user-nav-menu.tsx`
@@ -37,21 +37,19 @@
 - Produces: fluid `Container({ children, className })` and semantic CSS recipes `.app-page`, `.app-page-header`, `.app-surface`, `.app-section`, `.app-field`, `.app-label`, `.app-help`.
 - Removes: `FullWidthToggler`, `fullWidthState`, and `conf-fullWidth-mode` from web runtime code.
 
-- [ ] **Step 1: Write the failing architecture test**
+- [ ] **Step 1: Write the failing container behavior test**
 
 ```ts
-import fs from 'node:fs';
-import path from 'node:path';
-
-test('web layout has no configurable full-width mode', () => {
-	const root = path.resolve(process.cwd());
-	const files = walk(path.join(root, 'app')).concat(walk(path.join(root, 'core')));
-	const source = files.filter((file) => /\.[jt]sx?$/.test(file)).map((file) => fs.readFileSync(file, 'utf8')).join('\n');
-	expect(source).not.toMatch(/fullWidthState|FullWidthToggler|conf-fullWidth-mode/);
+/** @jest-environment jsdom */
+test('renders every page container as a fluid padded region', () => {
+	render(<Container data-testid="container">Content</Container>);
+	const container = screen.getByTestId('container');
+	expect(container).toHaveClass('w-full', 'px-4');
+	expect(container).not.toHaveClass('x-container');
 });
 ```
 
-- [ ] **Step 2: Run `yarn workspace @ever-teams/web test test/architecture/full-width-layout.test.ts --runInBand` and verify it fails on the legacy state/switch references.**
+- [ ] **Step 2: Run `yarn workspace @ever-teams/web test core/components/common/container.test.tsx --runInBand` and verify it fails because the current container still depends on the `fullWidth` prop.**
 - [ ] **Step 3: Add the compact semantic recipes, simplify `Container` to responsive fluid padding, remove the profile switch/persistence/state, and migrate every web caller to the structural full-width API.**
 - [ ] **Step 4: Run the focused test plus `yarn workspace @ever-teams/web test --runInBand`; expect all tests to pass.**
 - [ ] **Step 5: Commit with `refactor(web): make application layout permanently full width`.**
@@ -59,18 +57,19 @@ test('web layout has no configurable full-width mode', () => {
 ### Task 2: One-scroll `PageLayout`
 
 **Files:**
-- Create: `apps/web/test/architecture/page-scroll-ownership.test.ts`
+- Create: `apps/web/core/components/layouts/default-layout/page-content-scroller.tsx`
+- Create: `apps/web/core/components/layouts/default-layout/page-content-scroller.test.tsx`
 - Modify: `apps/web/core/components/layouts/default-layout/page-layout.tsx`
 - Modify: `apps/web/core/components/layouts/default-layout/global-header.tsx`
 - Modify: `apps/web/core/components/layouts/default-layout/layout-shell.tsx`
 - Modify: page callers that set viewport heights or vertical `overflow-y-auto`
 
 **Interfaces:**
-- Produces: `PageLayout` as a normal `min-h-0 flex flex-col` page with one `data-page-scroll-owner` content element.
+- Produces: `PageContentScroller({ children, className, bottomOffset })` as the sole `data-page-scroll-owner` and `PageLayout` as a normal `min-h-0 flex flex-col` page.
 - Preserves: `showTimer`, `mainHeaderSlot`, footer sizing, title updates, and public-team behavior.
 
-- [ ] **Step 1: Write a source-level architecture test asserting one `data-page-scroll-owner`, no vertical `ResizablePanelGroup` in `page-layout.tsx`, and no synthetic `main-scroll-offset`.**
-- [ ] **Step 2: Run the focused test and verify failure against the current vertical resizable layout.**
+- [ ] **Step 1: Write a jsdom test rendering `PageContentScroller` with tall children and asserting exactly one vertical scroll owner, normal child flow, and the supplied fixed-footer bottom offset.**
+- [ ] **Step 2: Run the focused test and verify failure because `PageContentScroller` does not exist.**
 - [ ] **Step 3: Replace the vertical panel/offset structure with a flex header plus one overflow-y content region; retain horizontal overflow only in table wrappers.**
 - [ ] **Step 4: Run shell/layout tests and the full web suite.**
 - [ ] **Step 5: Commit with `refactor(web): establish one-scroll page shell`.**
@@ -108,6 +107,7 @@ test('web layout has no configurable full-width mode', () => {
 - Modify: `apps/web/core/components/common/calendar.tsx`
 - Modify: `apps/web/core/components/pages/time-and-activity/date-range-picker-time-activity.tsx`
 - Create: `apps/web/core/components/common/calendar.test.tsx`
+- Create: `apps/web/core/components/pages/time-and-activity/date-range-picker-time-activity.test.tsx`
 
 **Interfaces:**
 - Produces: `getMyWorkNavigation(userId: string, userName: string): NavSubItem[]`.
@@ -116,7 +116,7 @@ test('web layout has no configurable full-width mode', () => {
 - [ ] **Step 1: Write tests asserting `/reports/time-and-activity` and `/reports/timesheet/<encoded-id>?name=<encoded-name>` and asserting pathname-derived active submenu behavior.**
 - [ ] **Step 2: Run the navigation tests and verify the current `href="#"` behavior fails.**
 - [ ] **Step 3: Implement real destinations and route-derived active states, preserving expandable sidebar groups.**
-- [ ] **Step 4: Write a calendar render test asserting two-month behavior remains available and day/caption/preset controls use compact class recipes.**
+- [ ] **Step 4: Write calendar/picker render tests that open the real popover, assert two month grids and preset actions remain present, and assert day buttons/preset buttons meet the compact 30-32px/32px rendered-size contract.**
 - [ ] **Step 5: Reduce day cells, captions, gaps, preset buttons, and footer actions; add narrow-width overflow/wrapping behavior.**
 - [ ] **Step 6: Run focused tests and commit with `fix(web): restore My Work routes and compact date picker`.**
 
@@ -132,6 +132,7 @@ test('web layout has no configurable full-width mode', () => {
 - Modify: `apps/web/core/components/features/chat-panel/components/chat-view.tsx`
 - Modify: `apps/web/core/components/features/chat-panel/hooks/use-chat-panel.ts`
 - Modify: chat-panel atom/constants and locale files
+- Create: `apps/web/core/components/features/chat-panel/components/chat-panel-controls.test.tsx`
 
 **Interfaces:**
 - Produces: `ChatConversation { id: string; title: string; createdAt: string; updatedAt: string; messages: Message[] }`.
@@ -141,22 +142,24 @@ test('web layout has no configurable full-width mode', () => {
 - [ ] **Step 1: Write pure storage tests for empty, malformed, save/update, delete, clear, ordering, and bounded history behavior.**
 - [ ] **Step 2: Run the storage tests and verify failure before the service exists.**
 - [ ] **Step 3: Implement local storage using a versioned key and safe JSON validation; cap history to 50 conversations.**
-- [ ] **Step 4: Build the Bot launcher on the sidebar boundary, the open-panel control rail, toolbar, and history view; persist clamped width/open state and provide a mobile close overlay.**
-- [ ] **Step 5: Add translated accessible labels for every new control and wire AI SDK messages to New Chat/history selection without changing `/api/chat`.**
-- [ ] **Step 6: Run chat tests and full suite; commit with `feat(chat): add professional panel controls and history`.**
+- [ ] **Step 4: Write a component test for the real launcher/control rail that asserts accessible open, collapse, resize, and expand/restore controls; watch it fail before the components exist.**
+- [ ] **Step 5: Build the Bot launcher on the sidebar boundary, the open-panel control rail, toolbar, and history view; persist clamped width/open state and provide a mobile close overlay.**
+- [ ] **Step 6: Add translated accessible labels for every new control and wire AI SDK messages to New Chat/history selection without changing `/api/chat`.**
+- [ ] **Step 7: Run chat tests and full suite; commit with `feat(chat): add professional panel controls and history`.**
 
 ### Task 6: Expanded team chart in normal page flow
 
 **Files:**
-- Create: `apps/web/test/architecture/team-dashboard-chart-flow.test.ts`
+- Create: `apps/web/core/components/pages/dashboard/team-dashboard/team-dashboard-activity-section.tsx`
+- Create: `apps/web/core/components/pages/dashboard/team-dashboard/team-dashboard-activity-section.test.tsx`
 - Modify: `apps/web/app/[locale]/(main)/dashboard/team-dashboard/[teamId]/page.tsx`
 - Modify: `apps/web/core/components/pages/dashboard/team-dashboard/team-stats-chart.tsx`
 
 **Interfaces:**
-- Produces: dashboard header limited to navigation/filter/stat cards and a chart/table document sequence inside `PageLayout` content.
+- Produces: `TeamDashboardActivitySection({ showChart, onToggleChart, chart, table })`, which renders an optional chart before a table in normal document flow.
 
-- [ ] **Step 1: Write an architecture test that parses the team dashboard source and asserts `LazyTeamStatsChart` occurs after the `mainHeaderSlot` block and before `LazyTeamStatsTable`.**
-- [ ] **Step 2: Run the test and verify failure because the chart is currently inside `mainHeaderSlot`.**
+- [ ] **Step 1: Write a jsdom test for `TeamDashboardActivitySection` that expands the chart, asserts chart-before-table DOM order, and confirms both remain descendants of the page scroll owner.**
+- [ ] **Step 2: Run the test and verify failure because the flow component does not exist.**
 - [ ] **Step 3: Move the chart toggle/card into the page content above the table, keeping `showChart`, grouping, line visibility, loading, and collapse behavior unchanged.**
 - [ ] **Step 4: Compact chart padding/control sizing and ensure the chart wrapper has intrinsic height rather than viewport height.**
 - [ ] **Step 5: Run focused/full tests and commit with `fix(dashboard): keep expanded chart and table scrollable`.**
@@ -165,14 +168,14 @@ test('web layout has no configurable full-width mode', () => {
 
 **Files:**
 - Modify: dashboard, project, task, profile, timesheet, Time & Activity, calendar, sidebar, header, footer, and related skeleton components that contain oversized or conflicting layout classes
-- Create: `apps/web/test/architecture/ui-density-regressions.test.ts`
+- Create: `apps/web/core/components/common/app-surface-contract.test.tsx`
 
 **Interfaces:**
 - Consumes: `.app-page`, `.app-page-header`, `.app-surface`, `.app-section`, `.app-field`, `.app-label`, `.app-help`.
 - Produces: consistent high-use surface density without changing data or event contracts.
 
-- [ ] **Step 1: Add a targeted architecture test listing migrated high-use files and rejecting new `h-[54px]`, `text-4xl` Settings headings, and viewport-height nested vertical scrollers.**
-- [ ] **Step 2: Run it and record current failures.**
+- [ ] **Step 1: Add a render contract test for representative Settings, date, dashboard, and sidebar controls that asserts 36-40px interactive heights, compact heading hierarchy, and a single vertical scroll owner.**
+- [ ] **Step 2: Run it and record the failing rendered dimensions/ownership assertions.**
 - [ ] **Step 3: Migrate the named high-use files to shared recipes, preserving timer dimensions and deliberate table/chart visualization sizes.**
 - [ ] **Step 4: Run formatter, focused tests, full tests, lint, and the production web build.**
 - [ ] **Step 5: Commit with `style(web): normalize high-use application surfaces`.**
@@ -193,4 +196,3 @@ test('web layout has no configurable full-width mode', () => {
 - [ ] **Step 5: Merge only with green required checks; verify the exact develop merge SHA and resulting image build.**
 - [ ] **Step 6: Verify Argo `Synced/Healthy`, exact image digest/SHA, ready pods with zero restarts, HTTP health, browser flows, and console/network behavior on `demo.ever.team`.**
 - [ ] **Step 7: Move the maintenance claim to the change log with data impact (`none`), verification evidence, and rollback SHA; do not promote stage or production.**
-
