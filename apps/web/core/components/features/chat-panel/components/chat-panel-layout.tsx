@@ -11,7 +11,7 @@ import { useTranslations } from 'next-intl';
 
 export function ChatPanelLayout({ children }: PropsWithChildren) {
 	const chatPanel = useChatPanel();
-	const t = useTranslations('chatView');
+	const t = useTranslations();
 
 	return (
 		// Provide chat controls to the entire subtree (children included)
@@ -61,14 +61,14 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 				<div
 					className="absolute top-1/2 z-[1030] flex -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-lg border bg-background shadow-lg"
 					style={{ left: `${chatPanel.sizePixels}px` }}
-					aria-label={t('PANEL_CONTROLS')}
+					aria-label={t('chatView.PANEL_CONTROLS')}
 				>
 					<button
 						type="button"
 						onClick={chatPanel.closePanel}
 						className="p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
-						title={t('COLLAPSE_ASSISTANT')}
-						aria-label={t('COLLAPSE_ASSISTANT')}
+						title={t('chatView.COLLAPSE_ASSISTANT')}
+						aria-label={t('chatView.COLLAPSE_ASSISTANT')}
 					>
 						<ChevronLeft className="h-4 w-4" />
 					</button>
@@ -76,8 +76,8 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 						type="button"
 						onClick={() => chatPanel.resizePanel(CHAT_PANEL_CONSTRAINTS.defaultSize)}
 						className="border-t p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
-						title={t('STANDARD_ASSISTANT_WIDTH')}
-						aria-label={t('STANDARD_ASSISTANT_WIDTH')}
+						title={t('chatView.STANDARD_ASSISTANT_WIDTH')}
+						aria-label={t('chatView.STANDARD_ASSISTANT_WIDTH')}
 					>
 						<Minimize2 className="h-4 w-4" />
 					</button>
@@ -85,8 +85,8 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 						type="button"
 						onClick={() => chatPanel.resizePanel(CHAT_PANEL_CONSTRAINTS.maxSize)}
 						className="border-t p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
-						title={t('EXPAND_ASSISTANT')}
-						aria-label={t('EXPAND_ASSISTANT')}
+						title={t('chatView.EXPAND_ASSISTANT')}
+						aria-label={t('chatView.EXPAND_ASSISTANT')}
 					>
 						<Maximize2 className="h-4 w-4" />
 					</button>
@@ -96,8 +96,8 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 					type="button"
 					onClick={chatPanel.openPanel}
 					className="absolute left-0 top-1/2 z-[1030] flex -translate-y-1/2 items-center justify-center rounded-r-xl border border-l-0 bg-background p-3 text-primary shadow-lg transition-colors hover:bg-muted dark:text-primary-light"
-					title={t('OPEN_ASSISTANT')}
-					aria-label={t('OPEN_ASSISTANT')}
+					title={t('chatView.OPEN_ASSISTANT')}
+					aria-label={t('chatView.OPEN_ASSISTANT')}
 				>
 					<Bot className="h-5 w-5" />
 				</button>
