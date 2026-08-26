@@ -75,6 +75,14 @@ export function chatHistoryKey(scope: ChatHistoryScope) {
 	return `${CHAT_HISTORY_KEY}:${scopeSegment(scope.userId)}:${scopeSegment(scope.workspaceId)}:${scopeSegment(scope.teamId)}`;
 }
 
+export function canPersistChatHistory(
+	loadedScopeKey: string | null,
+	scope: ChatHistoryScope | null,
+	messageCount: number
+) {
+	return Boolean(scope && messageCount > 0 && loadedScopeKey === chatHistoryKey(scope));
+}
+
 export function readChatHistory(scope: ChatHistoryScope): ChatSession[] {
 	if (typeof window === 'undefined') return [];
 	try {

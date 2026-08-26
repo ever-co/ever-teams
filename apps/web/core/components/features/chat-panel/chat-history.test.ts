@@ -1,5 +1,6 @@
 import {
 	CHAT_HISTORY_KEY,
+	canPersistChatHistory,
 	type ChatSession,
 	type ChatHistoryScope,
 	chatHistoryKey,
@@ -66,6 +67,14 @@ describe('chat history', () => {
 
 		expect(new Set([scope, otherUser, otherWorkspace, otherTeam].map(chatHistoryKey))).toHaveProperty('size', 4);
 		expect(chatHistoryKey(scope)).not.toBe(CHAT_HISTORY_KEY);
+	});
+
+	it('blocks persistence until the rendered messages belong to the active scope', () => {
+		const nextScope = { ...scope, workspaceId: 'workspace-b' };
+
+		expect(canPersistChatHistory(chatHistoryKey(scope), nextScope, 1)).toBe(false);
+		expect(canPersistChatHistory(chatHistoryKey(nextScope), nextScope, 1)).toBe(true);
+		expect(canPersistChatHistory(chatHistoryKey(nextScope), nextScope, 0)).toBe(false);
 	});
 
 	it('clears every scoped history entry for a user on logout', () => {

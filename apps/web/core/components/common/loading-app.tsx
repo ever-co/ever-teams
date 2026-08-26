@@ -18,7 +18,7 @@ export const LoadingApp: FC<{ className?: string }> = ({ className }) => {
 					<header className="flex max-h-fit flex-col flex-1 my-auto inset-x-0 w-full min-h-20 top-0 h-fit shrink-0 justify-start gap-2 px-8 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-20 bg-white dark:bg-dark-high mx-0! !nav-items--shadow dark:shadow-none! border-b-[0.5px] dark:border-b-2 border-gray-200 relative z-50 dark:border-b-[#26272C]">
 						<div
 							role="status"
-							className="container flex gap-3 justify-between items-center h-12 animate-pulse mt mx-0!"
+							className="flex h-12 w-full animate-pulse items-center justify-between gap-3 mx-0!"
 						>
 							<div className="w-20 h-8 bg-gray-200 rounded-full dark:bg-gray-700 me-3" />
 							<div className="flex items-center justify-center gap-4 mt-4">

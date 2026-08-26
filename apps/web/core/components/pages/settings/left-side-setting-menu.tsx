@@ -73,7 +73,7 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 	return (
 		<nav
 			className={clsxm('rounded-xl border bg-card p-2 shadow-sm dark:border-white/10', className)}
-			aria-label="Settings"
+			aria-label={t('common.SETTINGS')}
 		>
 			<div className="px-3 pb-2 pt-1">
 				<h1 className="text-xl font-semibold tracking-tight">{t('common.SETTINGS')}</h1>

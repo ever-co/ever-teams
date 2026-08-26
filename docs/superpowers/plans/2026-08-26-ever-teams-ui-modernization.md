@@ -71,10 +71,10 @@ test('renders every page container as a fluid padded region', () => {
 
 **Interfaces:**
 
-- Produces: `PageContentScroller({ children, className, bottomOffset })` as the sole `data-page-scroll-owner` and `PageLayout` as a normal `min-h-0 flex flex-col` page.
+- Produces: `PageContentScroller({ children, className, contentClassName, footer, footerFixed })` as the sole `data-page-scroll-owner` and `PageLayout` as a normal `min-h-0 flex flex-col` page.
 - Preserves: `showTimer`, `mainHeaderSlot`, footer sizing, title updates, and public-team behavior.
 
-- [ ] **Step 1: Write a jsdom test rendering `PageContentScroller` with tall children and asserting exactly one vertical scroll owner, normal child flow, and the supplied fixed-footer bottom offset.**
+- [ ] **Step 1: Write a jsdom test rendering `PageContentScroller` with tall children and asserting exactly one vertical scroll owner, normal child flow, and sticky footer behavior when `footerFixed` is enabled.**
 - [ ] **Step 2: Run the focused test and verify failure because `PageContentScroller` does not exist.**
 - [ ] **Step 3: Replace the vertical panel/offset structure with a flex header plus one overflow-y content region; retain horizontal overflow only in table wrappers.**
 - [ ] **Step 4: Run shell/layout tests and the full web suite.**
@@ -120,7 +120,7 @@ test('renders every page container as a fluid padded region', () => {
 
 **Interfaces:**
 
-- Produces: `getMyWorkNavigation(userId: string, userName: string): NavSubItem[]`.
+- Produces: `getMyWorkNavigation(userId?: string, userName?: string): { timeAndActivity: string; workDiary: string }`.
 - Produces: compact two-month `Calendar` styling while retaining the existing DayPicker props contract.
 
 - [ ] **Step 1: Write tests asserting `/reports/time-and-activity` and `/reports/timesheet/<encoded-id>?name=<encoded-name>` and asserting pathname-derived active submenu behavior.**
@@ -147,13 +147,13 @@ test('renders every page container as a fluid padded region', () => {
 
 **Interfaces:**
 
-- Produces: `ChatConversation { id: string; title: string; createdAt: string; updatedAt: string; messages: Message[] }`.
-- Produces: `loadChatHistory`, `saveConversation`, `deleteConversation`, and `clearChatHistory` with malformed-storage fallback.
+- Produces: `ChatSession { id: string; title: string; updatedAt: number; messages: ChatHistoryMessage[] }`.
+- Produces: scoped `readChatHistory`, `writeChatHistory`, `upsertChatSession`, and `clearChatHistoryForUser` with malformed-storage fallback.
 - Produces: launcher, collapse, expand/restore, drag resize, New Chat, and History controls.
 
 - [ ] **Step 1: Write pure storage tests for empty, malformed, save/update, delete, clear, ordering, and bounded history behavior.**
 - [ ] **Step 2: Run the storage tests and verify failure before the service exists.**
-- [ ] **Step 3: Implement local storage using a versioned key and safe JSON validation; cap history to 50 conversations.**
+- [ ] **Step 3: Implement local storage using a versioned user/workspace/team-scoped key and safe JSON validation; cap history to 50 conversations and clear the current user's scoped records on logout.**
 - [ ] **Step 4: Write a component test for the real launcher/control rail that asserts accessible open, collapse, resize, and expand/restore controls; watch it fail before the components exist.**
 - [ ] **Step 5: Build the Bot launcher on the sidebar boundary, the open-panel control rail, toolbar, and history view; persist clamped width/open state and provide a mobile close overlay.**
 - [ ] **Step 6: Add translated accessible labels for every new control and wire AI SDK messages to New Chat/history selection without changing `/api/chat`.**

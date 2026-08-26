@@ -3,7 +3,7 @@ import { clsxm } from '@/core/lib/utils';
 import { Transition } from '@headlessui/react';
 import { PropsWithChildren } from 'react';
 
-export function Container({ children, className }: PropsWithChildren<IClassName>) {
+export function Container({ children, className }: PropsWithChildren<Pick<IClassName, 'className'>>) {
 	return (
 		<Transition
 			as="div"

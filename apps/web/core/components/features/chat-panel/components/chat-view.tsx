@@ -7,11 +7,13 @@ import { cn } from '@/core/lib/helpers';
 import { ScrollArea } from '@/core/components/common/scroll-area';
 import { ChatConfigDialog, type ChatConfig } from './chat-config-dialog';
 import { ChatMessageItem } from './chat-message-item';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import {
 	type ChatHistoryMessage,
 	type ChatHistoryScope,
 	type ChatSession,
+	canPersistChatHistory,
+	chatHistoryKey,
 	createChatSession,
 	readChatHistory,
 	upsertChatSession,
@@ -43,6 +45,7 @@ function storeConfig(config: ChatConfig) {
 
 export function ChatView({ pageContext }: ChatViewProps) {
 	const t = useTranslations();
+	const locale = useLocale();
 	const user = useAtomValue(userState);
 	const workspaceId = useAtomValue(activeWorkspaceIdState);
 	const teamId = useAtomValue(activeTeamIdState);
@@ -57,6 +60,7 @@ export function ChatView({ pageContext }: ChatViewProps) {
 	const [historyOpen, setHistoryOpen] = useState(false);
 	const [history, setHistory] = useState<ChatSession[]>([]);
 	const [sessionId, setSessionId] = useState(() => `chat-${Date.now()}`);
+	const [loadedHistoryScopeKey, setLoadedHistoryScopeKey] = useState<string | null>(null);
 
 	useEffect(() => {
 		setMounted(true);
@@ -96,12 +100,18 @@ export function ChatView({ pageContext }: ChatViewProps) {
 
 	useEffect(() => {
 		if (!mounted) return;
+		setLoadedHistoryScopeKey(null);
 		stop();
 		setMessages([]);
 		setSessionId(`chat-${Date.now()}`);
 		setHistory(historyScope ? readChatHistory(historyScope) : []);
 		setHistoryOpen(false);
 	}, [historyScope, mounted, setMessages, stop]);
+
+	useEffect(() => {
+		if (!mounted || !historyScope || loadedHistoryScopeKey !== null || messages.length !== 0) return;
+		setLoadedHistoryScopeKey(chatHistoryKey(historyScope));
+	}, [historyScope, loadedHistoryScopeKey, messages.length, mounted]);
 
 	const handleNewChat = useCallback(() => {
 		stop();
@@ -132,14 +142,14 @@ export function ChatView({ pageContext }: ChatViewProps) {
 	}, [messages, scrollToBottom]);
 
 	useEffect(() => {
-		if (!mounted || !historyScope || messages.length === 0) return;
+		if (!canPersistChatHistory(loadedHistoryScopeKey, historyScope, messages.length)) return;
 		const session = createChatSession(messages as unknown as ChatHistoryMessage[], sessionId);
 		setHistory((current) => {
 			const next = upsertChatSession(current, session);
 			writeChatHistory(historyScope, next);
 			return next;
 		});
-	}, [historyScope, messages, mounted, sessionId]);
+	}, [historyScope, loadedHistoryScopeKey, messages, sessionId]);
 
 	if (!mounted) return null;
 
@@ -211,7 +221,7 @@ export function ChatView({ pageContext }: ChatViewProps) {
 								>
 									<span className="block truncate text-xs font-medium">{session.title}</span>
 									<span className="mt-0.5 block text-[11px] text-muted-foreground">
-										{new Date(session.updatedAt).toLocaleString()}
+										{new Date(session.updatedAt).toLocaleString(locale)}
 									</span>
 								</button>
 							))
@@ -326,7 +336,7 @@ export function ChatView({ pageContext }: ChatViewProps) {
 							type="button"
 							onClick={stop}
 							className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-destructive text-destructive-foreground transition-colors hover:bg-destructive/90"
-							title="Stop"
+							title={t('chatView.STOP')}
 						>
 							<Square className="h-3.5 w-3.5" />
 						</button>
@@ -340,7 +350,7 @@ export function ChatView({ pageContext }: ChatViewProps) {
 								'dark:bg-primary-light dark:hover:bg-primary-light/90',
 								'disabled:cursor-not-allowed disabled:opacity-50'
 							)}
-							title="Send"
+							title={t('chatView.SEND')}
 						>
 							<Send className="h-3.5 w-3.5" />
 						</button>

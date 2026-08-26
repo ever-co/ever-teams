@@ -114,7 +114,11 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 
 	const handleAddTimeSlot = (dayIndex: number) => {
 		const newSchedule = [...schedule];
-		newSchedule[dayIndex].timeSlots.push({ id: `slot-${Date.now()}`, startTime: '09:00', endTime: '17:00' });
+		newSchedule[dayIndex].timeSlots.push({
+			id: `slot-${crypto.randomUUID()}`,
+			startTime: '09:00',
+			endTime: '17:00'
+		});
 		setSchedule(newSchedule);
 	};
 
@@ -158,14 +162,18 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 									enabled={workDay.enabled}
 									onToggle={() => handleToggleDay(dayIndex)}
 									label={workDay.day}
+									ariaLabel={t('pages.settingsPersonal.TOGGLE_AVAILABILITY_FOR', {
+										day: workDay.day
+									})}
 								/>
 							</div>
 						</div>
 						{workDay.enabled && (
 							<button
+								type="button"
 								onClick={() => handleAddTimeSlot(dayIndex)}
 								className="col-start-3 row-start-1 ml-auto flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary hover:bg-primary/15"
-								aria-label={`Add hours for ${workDay.day}`}
+								aria-label={t('pages.settingsPersonal.ADD_HOURS_FOR', { day: workDay.day })}
 							>
 								<span className="text-2xl leading-none">+</span>
 							</button>
@@ -189,9 +197,12 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 									/>
 									{workDay.timeSlots.length > 1 && (
 										<button
+											type="button"
 											onClick={() => handleRemoveTimeSlot(dayIndex, slotIndex)}
 											className="flex justify-center items-center w-7 h-7 text-gray-400 rounded-md hover:text-gray-600 hover:bg-gray-100/80 dark:hover:bg-gray-600/30"
-											aria-label={`Remove hours for ${workDay.day}`}
+											aria-label={t('pages.settingsPersonal.REMOVE_HOURS_FOR', {
+												day: workDay.day
+											})}
 										>
 											<span className="text-xl font-medium leading-none">×</span>
 										</button>
@@ -199,7 +210,9 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 								</div>
 							))}
 						{!workDay.enabled && (
-							<div className="col-start-2 py-2 text-sm text-gray-400 dark:text-gray-500">Unavailable</div>
+							<div className="col-start-2 py-2 text-sm text-gray-400 dark:text-gray-500">
+								{t('pages.settingsPersonal.UNAVAILABLE')}
+							</div>
 						)}
 					</div>
 				))}
@@ -212,13 +225,17 @@ interface ToggleSwitchProps {
 	enabled: boolean;
 	onToggle: () => void;
 	label?: string;
+	ariaLabel: string;
 }
 
-const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ enabled, onToggle, label }) => (
+const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ enabled, onToggle, label, ariaLabel }) => (
 	<div className="flex items-center">
 		<button
 			type="button"
-			className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${enabled ? 'bg-[#DBD3FA] dark:bg-purple-400/30' : 'bg-[#EDEDED] dark:bg-gray-600'}`}
+			role="switch"
+			aria-checked={enabled}
+			aria-label={ariaLabel}
+			className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${enabled ? 'bg-[#DBD3FA] dark:bg-purple-400/30' : 'bg-[#EDEDED] dark:bg-gray-600'}`}
 			onClick={onToggle}
 		>
 			<span

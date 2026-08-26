@@ -64,7 +64,7 @@ The range picker keeps two months. Day cells shrink to 30-32px, month gaps and o
 
 The chat remains a left-side companion panel. A Bot launcher sits on the application sidebar boundary when the panel is closed. When open, a compact control rail provides collapse, drag resize, and expand/restore actions. Width and open state persist locally with safe min/max clamping.
 
-The toolbar adds New Chat and History. Conversation records are stored browser-locally because Ever Teams has no conversation-history API today; no server endpoint or database contract is invented. Stored records contain an id, title, timestamps, and AI SDK messages. Clear conversation remains available. Mobile uses an overlay with an explicit close control.
+The toolbar adds New Chat and History. Conversation records are stored browser-locally because Ever Teams has no conversation-history API today; no server endpoint or database contract is invented. Storage is isolated by authenticated user, workspace, and team. A scope transition must never write or display the prior scope's messages, and logout removes all scoped history for the current user plus the legacy origin-wide key without removing another user's records. Stored records contain an id, title, numeric update timestamp, and AI SDK messages. Clear conversation remains available. Mobile uses an overlay with an explicit close control.
 
 ### Team dashboard chart flow
 

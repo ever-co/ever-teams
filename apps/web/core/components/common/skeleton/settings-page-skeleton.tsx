@@ -45,7 +45,7 @@ const SettingsPageSkeleton: FC<SettingsPageSkeletonProps> = ({ className }) => {
  */
 export const LeftSideSettingMenuSkeleton: FC = () => {
 	return (
-		<div className="w-[320px] mt-[36px] mr-[56px]">
+		<div className="w-full rounded-xl border bg-card p-3 shadow-sm dark:border-white/10">
 			{/* Personal Settings Section */}
 			<div className="mb-8">
 				{/* Section Header with Icon */}
@@ -90,7 +90,7 @@ export const LeftSideSettingMenuSkeleton: FC = () => {
  */
 const SettingsContentSkeleton: FC = () => {
 	return (
-		<div className="overflow-auto pb-16">
+		<div className="w-full pb-16">
 			{/* Mobile Team Settings Button (lg:hidden) */}
 			<div className="mb-4 w-full lg:hidden">
 				<div className="w-full h-12 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-xl border border-gray-100 dark:border-gray-800" />
@@ -168,7 +168,7 @@ const AccordionSectionSkeleton: FC<{ isDanger?: boolean }> = ({ isDanger = false
  */
 export const SettingsContentPageSkeleton: FC<SettingsPageSkeletonProps> = ({ className }) => {
 	return (
-		<div className={cn('overflow-auto pb-16', className)}>
+		<div className={cn('w-full pb-16', className)}>
 			{/* Mobile Team Settings Button (lg:hidden) */}
 			<div className="mb-4 w-full lg:hidden">
 				<div className="w-full h-12 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-xl border border-gray-100 dark:border-gray-800" />

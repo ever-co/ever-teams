@@ -25,8 +25,10 @@ export const Accordian = ({ children, title, className, isDanger, id, defaultOpe
 						<AccordionTrigger className="flex h-auto w-full items-center justify-between px-5 py-4 text-left hover:bg-muted/40 hover:no-underline [&>svg]:hidden">
 							<>
 								<Text
-									className={`text-lg font-semibold tracking-tight dark:text-white text-left ${
-										isDanger ? 'text-[#EB6961]' : 'text-[#282048]'
+									className={`text-left text-lg font-semibold tracking-tight ${
+										isDanger
+											? 'text-[#EB6961] dark:text-[#EB6961]'
+											: 'text-[#282048] dark:text-white'
 									}`}
 								>
 									{title}

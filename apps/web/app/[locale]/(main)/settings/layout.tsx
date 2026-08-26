@@ -1,5 +1,7 @@
 'use client';
-import SettingsPageSkeleton from '@/core/components/common/skeleton/settings-page-skeleton';
+import SettingsPageSkeleton, {
+	LeftSideSettingMenuSkeleton
+} from '@/core/components/common/skeleton/settings-page-skeleton';
 import { Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { PageLayout } from '@/core/components/layouts/default-layout';
@@ -32,7 +34,13 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
 	if (userLoading && !user) {
-		return <SettingsPageSkeleton showTimer={false} />;
+		return (
+			<Container>
+				<SettingsFrame navigation={<LeftSideSettingMenuSkeleton />}>
+					<SettingsPageSkeleton showTimer={false} />
+				</SettingsFrame>
+			</Container>
+		);
 	}
 
 	return (

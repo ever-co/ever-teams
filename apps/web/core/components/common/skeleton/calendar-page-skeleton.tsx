@@ -1,6 +1,9 @@
+'use client';
+
 import React, { FC } from 'react';
 import { Container } from '@/core/components';
 import { PageLayout } from '@/core/components/layouts/default-layout';
+import { useSidebar } from '@/core/components/common/sidebar';
 
 interface CalendarPageSkeletonProps {
 	className?: string;
@@ -13,10 +16,21 @@ interface CalendarPageSkeletonProps {
  * Matches exact layout: fixed header (breadcrumb + tabs + calendar controls) + main content (FullCalendar)
  */
 export const CalendarPageSkeleton: FC<CalendarPageSkeletonProps> = ({ className, showTimer = false }) => {
+	const { state: sidebarState } = useSidebar();
+
 	return (
 		<PageLayout showTimer={showTimer} footerClassName="hidden" className="h-full shadow-xl">
 			{/* SKELETON: Fixed Header Section */}
-			<div className="fixed top-20 flex flex-col border-b-[1px] dark:border-gray-800 z-10 mx-0 w-full bg-white dark:bg-dark-high shadow-lg shadow-gray-100 dark:shadow-gray-700">
+			<div
+				className="fixed left-0 right-0 top-20 z-10 mx-0 flex flex-col border-b-[1px] bg-white shadow-lg shadow-gray-100 dark:border-gray-800 dark:bg-dark-high dark:shadow-gray-700 md:left-[var(--calendar-header-offset)]"
+				style={
+					{
+						'--calendar-header-offset': `calc(var(${
+							sidebarState === 'expanded' ? '--sidebar-width' : '--sidebar-width-icon'
+						}) + var(--chat-panel-width, 0px))`
+					} as React.CSSProperties
+				}
+			>
 				<Container>
 					{/* SKELETON: Header Row with Breadcrumb + Tabs */}
 					<div className="flex flex-row justify-between items-start mt-12 bg-white dark:bg-dark-high">
