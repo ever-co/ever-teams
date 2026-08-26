@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD010 MD013 MD032 MD043 -->
+
 # Ever Teams UI Modernization Design
 
 ## Objective
@@ -95,4 +97,3 @@ After the foundation is in place, audit the high-use dashboard, projects, tasks,
 - No new chat-history backend.
 - No removal of an Ever Teams feature other than the explicitly retired Full Width switch and its obsolete conditional path.
 - No stage or production promotion without a later explicit approval.
-
