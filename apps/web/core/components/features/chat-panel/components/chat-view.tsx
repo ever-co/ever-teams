@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Bot, Settings, Trash2, Send, Square, ChevronDown, History, Plus } from 'lucide-react';
 import { useChat } from '@ai-sdk/react';
 import { cn } from '@/core/lib/helpers';
@@ -9,13 +9,16 @@ import { ChatConfigDialog, type ChatConfig } from './chat-config-dialog';
 import { ChatMessageItem } from './chat-message-item';
 import { useTranslations } from 'next-intl';
 import {
-	ChatHistoryMessage,
-	ChatSession,
+	type ChatHistoryMessage,
+	type ChatHistoryScope,
+	type ChatSession,
 	createChatSession,
 	readChatHistory,
 	upsertChatSession,
 	writeChatHistory
 } from '../chat-history';
+import { activeTeamIdState, activeWorkspaceIdState, userState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 
 const CHAT_CONFIG_KEY = 'ever-teams-chat-config';
 
@@ -40,6 +43,13 @@ function storeConfig(config: ChatConfig) {
 
 export function ChatView({ pageContext }: ChatViewProps) {
 	const t = useTranslations();
+	const user = useAtomValue(userState);
+	const workspaceId = useAtomValue(activeWorkspaceIdState);
+	const teamId = useAtomValue(activeTeamIdState);
+	const historyScope = useMemo<ChatHistoryScope | null>(
+		() => (user?.id ? { userId: user.id, workspaceId, teamId } : null),
+		[user?.id, workspaceId, teamId]
+	);
 
 	const [config, setConfig] = useState<ChatConfig | null>(null);
 	const [configOpen, setConfigOpen] = useState(false);
@@ -54,7 +64,6 @@ export function ChatView({ pageContext }: ChatViewProps) {
 		if (stored) {
 			setConfig(stored);
 		}
-		setHistory(readChatHistory());
 	}, []);
 
 	const { messages, input, handleInputChange, handleSubmit, isLoading, stop, setMessages, error } = useChat({
@@ -85,6 +94,15 @@ export function ChatView({ pageContext }: ChatViewProps) {
 		setMessages([]);
 	}, [setMessages, stop]);
 
+	useEffect(() => {
+		if (!mounted) return;
+		stop();
+		setMessages([]);
+		setSessionId(`chat-${Date.now()}`);
+		setHistory(historyScope ? readChatHistory(historyScope) : []);
+		setHistoryOpen(false);
+	}, [historyScope, mounted, setMessages, stop]);
+
 	const handleNewChat = useCallback(() => {
 		stop();
 		setMessages([]);
@@ -114,14 +132,14 @@ export function ChatView({ pageContext }: ChatViewProps) {
 	}, [messages, scrollToBottom]);
 
 	useEffect(() => {
-		if (!mounted || messages.length === 0) return;
+		if (!mounted || !historyScope || messages.length === 0) return;
 		const session = createChatSession(messages as unknown as ChatHistoryMessage[], sessionId);
 		setHistory((current) => {
 			const next = upsertChatSession(current, session);
-			writeChatHistory(next);
+			writeChatHistory(historyScope, next);
 			return next;
 		});
-	}, [messages, mounted, sessionId]);
+	}, [historyScope, messages, mounted, sessionId]);
 
 	if (!mounted) return null;
 

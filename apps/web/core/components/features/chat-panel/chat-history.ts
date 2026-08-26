@@ -1,6 +1,12 @@
 export const CHAT_HISTORY_KEY = 'ever-teams-chat-history-v1';
 export const CHAT_HISTORY_LIMIT = 50;
 
+export type ChatHistoryScope = {
+	userId: string;
+	workspaceId?: string | null;
+	teamId?: string | null;
+};
+
 export type ChatHistoryMessage = {
 	id: string;
 	role: string;
@@ -61,21 +67,48 @@ export function upsertChatSession(sessions: ChatSession[], session: ChatSession)
 		.slice(0, CHAT_HISTORY_LIMIT);
 }
 
-export function readChatHistory(): ChatSession[] {
+function scopeSegment(value?: string | null) {
+	return encodeURIComponent(value || 'none');
+}
+
+export function chatHistoryKey(scope: ChatHistoryScope) {
+	return `${CHAT_HISTORY_KEY}:${scopeSegment(scope.userId)}:${scopeSegment(scope.workspaceId)}:${scopeSegment(scope.teamId)}`;
+}
+
+export function readChatHistory(scope: ChatHistoryScope): ChatSession[] {
 	if (typeof window === 'undefined') return [];
 	try {
-		const value: unknown = JSON.parse(localStorage.getItem(CHAT_HISTORY_KEY) || '[]');
+		// Never expose history written by the former origin-wide key to another signed-in account.
+		localStorage.removeItem(CHAT_HISTORY_KEY);
+		const value: unknown = JSON.parse(localStorage.getItem(chatHistoryKey(scope)) || '[]');
 		return Array.isArray(value) ? value.filter(isChatSession).slice(0, CHAT_HISTORY_LIMIT) : [];
 	} catch {
 		return [];
 	}
 }
 
-export function writeChatHistory(sessions: ChatSession[]) {
+export function writeChatHistory(scope: ChatHistoryScope, sessions: ChatSession[]) {
 	if (typeof window === 'undefined') return;
 	try {
-		localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(sessions.slice(0, CHAT_HISTORY_LIMIT)));
+		localStorage.setItem(chatHistoryKey(scope), JSON.stringify(sessions.slice(0, CHAT_HISTORY_LIMIT)));
 	} catch {
 		// Browser storage can be unavailable or full; chat must remain usable without persistence.
+	}
+}
+
+export function clearChatHistoryForUser(userId?: string | null) {
+	if (typeof window === 'undefined') return;
+	try {
+		const userPrefix = userId ? `${CHAT_HISTORY_KEY}:${scopeSegment(userId)}:` : null;
+		const keysToRemove: string[] = [];
+		for (let index = 0; index < localStorage.length; index += 1) {
+			const key = localStorage.key(index);
+			if (key === CHAT_HISTORY_KEY || (key && userPrefix && key.startsWith(userPrefix))) {
+				keysToRemove.push(key);
+			}
+		}
+		keysToRemove.forEach((key) => localStorage.removeItem(key));
+	} catch {
+		// Logout and account switching must still work when browser storage is unavailable.
 	}
 }

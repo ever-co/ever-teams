@@ -1,6 +1,9 @@
 import {
 	CHAT_HISTORY_KEY,
-	ChatSession,
+	type ChatSession,
+	type ChatHistoryScope,
+	chatHistoryKey,
+	clearChatHistoryForUser,
 	createChatSession,
 	readChatHistory,
 	upsertChatSession,
@@ -8,6 +11,7 @@ import {
 } from './chat-history';
 
 describe('chat history', () => {
+	const scope: ChatHistoryScope = { userId: 'user-a', workspaceId: 'workspace-a', teamId: 'team-a' };
 	const storage = {
 		getItem: jest.fn<string | null, [string]>(),
 		setItem: jest.fn<void, [string, string]>(),
@@ -51,8 +55,35 @@ describe('chat history', () => {
 		const valid = { id: 'valid', title: 'Valid', updatedAt: 1, messages: [] };
 		storage.getItem.mockReturnValue(JSON.stringify([null, 'legacy', { id: 'broken' }, valid]));
 
-		expect(readChatHistory()).toEqual([valid]);
-		expect(storage.getItem).toHaveBeenCalledWith(CHAT_HISTORY_KEY);
+		expect(readChatHistory(scope)).toEqual([valid]);
+		expect(storage.getItem).toHaveBeenCalledWith(chatHistoryKey(scope));
+	});
+
+	it('isolates history by authenticated user, workspace, and team', () => {
+		const otherUser = { ...scope, userId: 'user-b' };
+		const otherWorkspace = { ...scope, workspaceId: 'workspace-b' };
+		const otherTeam = { ...scope, teamId: 'team-b' };
+
+		expect(new Set([scope, otherUser, otherWorkspace, otherTeam].map(chatHistoryKey))).toHaveProperty('size', 4);
+		expect(chatHistoryKey(scope)).not.toBe(CHAT_HISTORY_KEY);
+	});
+
+	it('clears every scoped history entry for a user on logout', () => {
+		const keys = [
+			chatHistoryKey(scope),
+			chatHistoryKey({ ...scope, workspaceId: 'workspace-b' }),
+			chatHistoryKey({ ...scope, userId: 'user-b' }),
+			CHAT_HISTORY_KEY
+		];
+		Object.defineProperty(storage, 'length', { configurable: true, value: keys.length });
+		storage.key.mockImplementation((index) => keys[index] ?? null);
+
+		clearChatHistoryForUser(scope.userId);
+
+		expect(storage.removeItem).toHaveBeenCalledWith(keys[0]);
+		expect(storage.removeItem).toHaveBeenCalledWith(keys[1]);
+		expect(storage.removeItem).toHaveBeenCalledWith(CHAT_HISTORY_KEY);
+		expect(storage.removeItem).not.toHaveBeenCalledWith(keys[2]);
 	});
 
 	it('keeps chat usable when browser-local history cannot be written', () => {
@@ -60,6 +91,6 @@ describe('chat history', () => {
 			throw new DOMException('Quota exceeded', 'QuotaExceededError');
 		});
 
-		expect(() => writeChatHistory([])).not.toThrow();
+		expect(() => writeChatHistory(scope, [])).not.toThrow();
 	});
 });
