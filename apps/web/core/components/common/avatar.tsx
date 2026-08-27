@@ -26,7 +26,10 @@ const AvatarImage = React.forwardRef<
 	//
 	// `|| undefined` because an empty `src` makes the underlying <img> request the current document
 	// URL; `undefined` is also what tells Radix to show the fallback instead.
-	const normalizedSrc = normalizeImageUrl(src) || undefined;
+	//
+	// React 19 types an <img> `src` as `string | Blob | undefined`. A Blob carries its own data and
+	// cannot resolve against a route, so it is forwarded untouched.
+	const normalizedSrc = typeof src === 'string' ? normalizeImageUrl(src) || undefined : src;
 
 	return (
 		<AvatarPrimitive.Image

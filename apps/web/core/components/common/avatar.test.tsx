@@ -48,6 +48,14 @@ describe('AvatarImage', () => {
 		expect(renderProps({ src: '   ' }).src).toBeUndefined();
 	});
 
+	// React 19 types an <img> `src` as `string | Blob | undefined`. A Blob carries its own data and
+	// cannot resolve against a route, so it must be forwarded untouched.
+	it('forwards a Blob src untouched', () => {
+		const blob = new Blob(['x'], { type: 'image/png' });
+
+		expect(renderProps({ src: blob }).src).toBe(blob);
+	});
+
 	it('still forwards the other props it is given', () => {
 		const props = renderProps({ src: 'assets/a.png', alt: 'Alish M.' });
 		expect(props.alt).toBe('Alish M.');
