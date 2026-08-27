@@ -82,7 +82,6 @@ jest.mock('@/core/stores', () => ({
 	activeTeamState: 'active-team',
 	isTrackingEnabledState: 'tracking-enabled'
 }));
-jest.mock('@/core/stores/common/full-width', () => ({ fullWidthState: 'full-width' }));
 jest.mock('@/core/stores/timer/activity-type', () => ({ activityTypeState: 'activity-type' }));
 jest.mock('jotai', () => ({
 	useAtomValue: (atom: string) => {

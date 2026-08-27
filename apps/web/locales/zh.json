@@ -436,7 +436,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "{month}的生产力分解",
 		"DAILY": "每日",
 		"WEEKLY": "每周",
-		"MONTHLY": "每月"
+		"MONTHLY": "每月",
+		"HIDE_CHART": "隐藏图表",
+		"SHOW_ACTIVITY_CHART": "显示活动图表"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "时间和活动",
@@ -791,6 +793,10 @@
 			"HEADING_TITLE": "常规设置",
 			"goToTeamSettings": "前往团队设置",
 			"WORKING_HOURS": "工作时间",
+			"ADD_HOURS_FOR": "为{day}添加工时",
+			"REMOVE_HOURS_FOR": "移除{day}的工时",
+			"UNAVAILABLE": "不可用",
+			"TOGGLE_AVAILABILITY_FOR": "{day}可用状态",
 			"emailNotValid": "请输入有效的电子邮箱",
 			"phoneNotValid": "请输入有效的手机号码",
 			"WORK_SCHEDULE": "工作时间表",
@@ -1298,6 +1304,14 @@
 		"INPUT_PLACEHOLDER_READY": "您的消息...",
 		"INPUT_PLACEHOLDER_NO_KEY": "配置您的 API 密钥...",
 		"STOP": "停止",
-		"SEND": "发送"
+		"SEND": "发送",
+		"NEW_CHAT": "新聊天",
+		"HISTORY": "历史记录",
+		"NO_CONVERSATIONS": "暂无对话",
+		"PANEL_CONTROLS": "聊天面板控件",
+		"COLLAPSE_ASSISTANT": "折叠助手",
+		"STANDARD_ASSISTANT_WIDTH": "助手标准宽度",
+		"EXPAND_ASSISTANT": "展开助手",
+		"OPEN_ASSISTANT": "打开 Ever Teams 助手"
 	}
 }

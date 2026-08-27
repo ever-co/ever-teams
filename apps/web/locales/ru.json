@@ -436,7 +436,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "Разбивка продуктивности за {month}",
 		"DAILY": "Ежедневно",
 		"WEEKLY": "Еженедельно",
-		"MONTHLY": "Ежемесячно"
+		"MONTHLY": "Ежемесячно",
+		"HIDE_CHART": "Скрыть график",
+		"SHOW_ACTIVITY_CHART": "Показать график активности"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "Время и активность",
@@ -791,6 +793,10 @@
 			"HEADING_TITLE": "Общие настройки",
 			"goToTeamSettings": "Перейти к настройкам команды",
 			"WORKING_HOURS": "Рабочие часы",
+			"ADD_HOURS_FOR": "Добавить часы для {day}",
+			"REMOVE_HOURS_FOR": "Удалить часы для {day}",
+			"UNAVAILABLE": "Недоступно",
+			"TOGGLE_AVAILABILITY_FOR": "Переключить доступность для {day}",
 			"emailNotValid": "Пожалуйста, укажите действительный адрес электронной почты",
 			"phoneNotValid": "Пожалуйста, укажите действительный номер телефона",
 			"WORK_SCHEDULE": "График работы",
@@ -1298,6 +1304,14 @@
 		"INPUT_PLACEHOLDER_READY": "Ваше сообщение...",
 		"INPUT_PLACEHOLDER_NO_KEY": "Настройте ключ API...",
 		"STOP": "Остановить",
-		"SEND": "Отправить"
+		"SEND": "Отправить",
+		"NEW_CHAT": "Новый чат",
+		"HISTORY": "История",
+		"NO_CONVERSATIONS": "Разговоров пока нет",
+		"PANEL_CONTROLS": "Элементы управления панелью чата",
+		"COLLAPSE_ASSISTANT": "Свернуть ассистента",
+		"STANDARD_ASSISTANT_WIDTH": "Стандартная ширина ассистента",
+		"EXPAND_ASSISTANT": "Развернуть ассистента",
+		"OPEN_ASSISTANT": "Открыть ассистента Ever Teams"
 	}
 }

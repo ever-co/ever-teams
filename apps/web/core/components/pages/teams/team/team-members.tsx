@@ -7,7 +7,6 @@ import { IssuesView } from '@/core/constants/config/constants';
 import { useAtomValue } from 'jotai';
 import { taskBlockFilterState, blockViewSearchQueryState } from '@/core/stores/tasks/task-filter';
 import { Container } from '@/core/components';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { useMemo, memo } from 'react';
 import TeamMembersCardView from './team-members-views/team-members-card-view';
 import TeamMembersTableView from './team-members-views/user-team-table/team-members-table-view';
@@ -29,7 +28,6 @@ interface TeamMembersProps {
 }
 
 interface TeamMembersViewProps {
-	fullWidth?: boolean;
 	members: TOrganizationTeamEmployee[];
 	currentUser?: TOrganizationTeamEmployee;
 	teamsFetching: boolean;
@@ -66,8 +64,6 @@ export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanV
 	const { data: user } = useUserQuery();
 	const activeFilter = useAtomValue(taskBlockFilterState) as TeamMemberFilterType;
 	const searchQuery = useAtomValue(blockViewSearchQueryState);
-	const fullWidth = useAtomValue(fullWidthState);
-
 	const activeTeam = useAtomValue(activeTeamState);
 	const { getOrganizationTeamsLoading: teamsFetching } = useOrganizationTeamsQuery();
 
@@ -88,7 +84,6 @@ export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanV
 			teamsFetching={isTeamsFetching}
 			members={processedMembers.members}
 			currentUser={processedMembers.currentUser}
-			fullWidth={fullWidth}
 			publicTeam={publicTeam}
 			view={view}
 			blockViewMembers={filteredBlockViewMembers}
@@ -124,7 +119,7 @@ const VIEW_COMPONENTS_CONFIG = {
 
 // Optimized view component with table of correspondence
 export const TeamMembersView = memo<TeamMembersViewProps>(
-	({ fullWidth, members, currentUser, teamsFetching, view, blockViewMembers, publicTeam, isMemberActive }) => {
+	({ members, currentUser, teamsFetching, view, blockViewMembers, publicTeam, isMemberActive }) => {
 		// Filtering and sorting the other members (optimized)
 		const otherMembers = useMemo(() => {
 			return members.filter((member) => member.id !== currentUser?.id).sort(sortByOrder);
@@ -133,7 +128,7 @@ export const TeamMembersView = memo<TeamMembersViewProps>(
 		// Early return for empty members
 		if (teamsFetching) {
 			return (
-				<Container fullWidth={fullWidth} className="!overflow-x-auto !mx-0 px-1">
+				<Container className="!overflow-x-auto !mx-0 px-1">
 					<div className="hidden lg:block">
 						<UserTeamCardSkeletonCard />
 						<UserTeamCardSkeletonCard />
@@ -188,11 +183,7 @@ export const TeamMembersView = memo<TeamMembersViewProps>(
 			viewContent
 		);
 
-		return (
-			<Container fullWidth={fullWidth} {...viewConfig.containerProps}>
-				{containerContent}
-			</Container>
-		);
+		return <Container {...viewConfig.containerProps}>{containerContent}</Container>;
 	}
 );
 

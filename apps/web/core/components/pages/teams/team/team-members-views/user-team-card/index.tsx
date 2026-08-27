@@ -36,7 +36,6 @@ import { AppsTab } from '@/core/components/pages/profile/apps';
 import { VisitedSitesTab } from '@/core/components/pages/profile/visited-sites';
 import { FilterTab } from '@/app/[locale]/(main)/profile/[memberId]/page';
 import { Loader } from 'lucide-react';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { ScreenshootTab } from '@/core/components/pages/profile/screenshots/screenshoots';
 import { InputField } from '@/core/components/duplicated-components/_input';
@@ -132,7 +131,6 @@ export function UserTeamCard({
 
 	const taskEdition = useTMCardTaskEdit(memberTask);
 	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(identity.memberUser);
-	const fullWidth = useAtomValue(fullWidthState);
 
 	const seconds = useAtomValue(timerSecondsState);
 	const setActivityFilter = useSetAtom(activityTypeState);
@@ -421,7 +419,7 @@ export function UserTeamCard({
 					) : (
 						// Show content once loaded
 						<div className="overflow-y-auto h-96">
-							<Container fullWidth={fullWidth} className="px-3 py-5 xl:px-0">
+							<Container className="px-3 py-5 xl:px-0">
 								<div className={clsxm('flex gap-4 justify-start items-center mt-3')}>
 									{Object.keys(activityScreens).map((filter, i) => (
 										<div

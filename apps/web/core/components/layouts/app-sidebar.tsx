@@ -51,6 +51,7 @@ import { GlobalAllPlansModal } from '../daily-plan';
 import { GlobalAssignTaskModal } from '../features/tasks/global-assign-task-modal';
 import { GlobalProjectActionModal } from '../features/projects/global-project-action-modal';
 import { useSidebarDataOwner } from '@/core/hooks/bootstrap/use-feature-data';
+import { getMyWorkNavigation } from './my-work-navigation';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { data: user } = useUserQuery();
@@ -64,6 +65,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const t = useTranslations();
 	const { organizationProjects } = useSidebarDataOwner(publicTeam);
 	const activeTeam = useAtomValue(activeTeamState);
+	const myWorkNavigation = getMyWorkNavigation(user?.id, username || undefined);
 
 	// Filter projects based on active team context:
 	// - "All Teams" mode (no active team): show ALL projects
@@ -306,12 +308,12 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 					{
 						title: t('sidebar.TIME_AND_ACTIVITY'),
 						label: 'time-and-activity',
-						url: '#'
+						url: myWorkNavigation.timeAndActivity
 					},
 					{
 						title: t('sidebar.WORK_DIARY'),
 						label: 'work-and-diary',
-						url: '#'
+						url: myWorkNavigation.workDiary
 					}
 				]
 			},

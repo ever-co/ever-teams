@@ -1,13 +1,26 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { Bot, Settings, Trash2, Send, Square, ChevronDown } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Bot, Settings, Trash2, Send, Square, ChevronDown, History, Plus } from 'lucide-react';
 import { useChat } from '@ai-sdk/react';
 import { cn } from '@/core/lib/helpers';
 import { ScrollArea } from '@/core/components/common/scroll-area';
 import { ChatConfigDialog, type ChatConfig } from './chat-config-dialog';
 import { ChatMessageItem } from './chat-message-item';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import {
+	type ChatHistoryMessage,
+	type ChatHistoryScope,
+	type ChatSession,
+	canPersistChatHistory,
+	chatHistoryKey,
+	createChatSession,
+	readChatHistory,
+	upsertChatSession,
+	writeChatHistory
+} from '../chat-history';
+import { activeTeamIdState, activeWorkspaceIdState, userState } from '@/core/stores';
+import { useAtomValue } from 'jotai';
 
 const CHAT_CONFIG_KEY = 'ever-teams-chat-config';
 
@@ -32,10 +45,22 @@ function storeConfig(config: ChatConfig) {
 
 export function ChatView({ pageContext }: ChatViewProps) {
 	const t = useTranslations();
+	const locale = useLocale();
+	const user = useAtomValue(userState);
+	const workspaceId = useAtomValue(activeWorkspaceIdState);
+	const teamId = useAtomValue(activeTeamIdState);
+	const historyScope = useMemo<ChatHistoryScope | null>(
+		() => (user?.id ? { userId: user.id, workspaceId, teamId } : null),
+		[user?.id, workspaceId, teamId]
+	);
 
 	const [config, setConfig] = useState<ChatConfig | null>(null);
 	const [configOpen, setConfigOpen] = useState(false);
 	const [mounted, setMounted] = useState(false);
+	const [historyOpen, setHistoryOpen] = useState(false);
+	const [history, setHistory] = useState<ChatSession[]>([]);
+	const [sessionId, setSessionId] = useState(() => `chat-${Date.now()}`);
+	const [loadedHistoryScopeKey, setLoadedHistoryScopeKey] = useState<string | null>(null);
 
 	useEffect(() => {
 		setMounted(true);
@@ -73,6 +98,38 @@ export function ChatView({ pageContext }: ChatViewProps) {
 		setMessages([]);
 	}, [setMessages, stop]);
 
+	useEffect(() => {
+		if (!mounted) return;
+		setLoadedHistoryScopeKey(null);
+		stop();
+		setMessages([]);
+		setSessionId(`chat-${Date.now()}`);
+		setHistory(historyScope ? readChatHistory(historyScope) : []);
+		setHistoryOpen(false);
+	}, [historyScope, mounted, setMessages, stop]);
+
+	useEffect(() => {
+		if (!mounted || !historyScope || loadedHistoryScopeKey !== null || messages.length !== 0) return;
+		setLoadedHistoryScopeKey(chatHistoryKey(historyScope));
+	}, [historyScope, loadedHistoryScopeKey, messages.length, mounted]);
+
+	const handleNewChat = useCallback(() => {
+		stop();
+		setMessages([]);
+		setSessionId(`chat-${Date.now()}`);
+		setHistoryOpen(false);
+	}, [setMessages, stop]);
+
+	const handleSelectHistory = useCallback(
+		(session: ChatSession) => {
+			stop();
+			setMessages(session.messages as Parameters<typeof setMessages>[0]);
+			setSessionId(session.id);
+			setHistoryOpen(false);
+		},
+		[setMessages, stop]
+	);
+
 	const scrollToBottom = useCallback(() => {
 		const viewport = document.getElementById('chat-scroll-viewport');
 		if (viewport) {
@@ -84,6 +141,16 @@ export function ChatView({ pageContext }: ChatViewProps) {
 		scrollToBottom();
 	}, [messages, scrollToBottom]);
 
+	useEffect(() => {
+		if (!historyScope || !canPersistChatHistory(loadedHistoryScopeKey, historyScope, messages.length)) return;
+		const session = createChatSession(messages as unknown as ChatHistoryMessage[], sessionId);
+		setHistory((current) => {
+			const next = upsertChatSession(current, session);
+			writeChatHistory(historyScope, next);
+			return next;
+		});
+	}, [historyScope, loadedHistoryScopeKey, messages, sessionId]);
+
 	if (!mounted) return null;
 
 	const isConfigured = !!config?.apiKey;
@@ -91,34 +158,80 @@ export function ChatView({ pageContext }: ChatViewProps) {
 	return (
 		<div className="flex h-full flex-col dark:bg-dark-high">
 			{/* Header */}
-			<div className="flex items-center justify-between border-b border-border px-3 py-2">
-				<div className="flex items-center gap-2">
-					<Bot className="h-4 w-4 text-primary dark:text-primary-light" />
-					<span className="text-sm font-semibold text-foreground">{t('chatView.HEADER_TITLE')}</span>
-				</div>
-				<div className="flex items-center gap-1">
-					{messages.length > 0 && (
+			<div className="relative border-b border-border px-3 py-2">
+				<div className="flex items-center justify-between">
+					<div className="flex items-center gap-2">
+						<div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+							<Bot className="h-4 w-4 text-primary dark:text-primary-light" />
+						</div>
+						<span className="text-sm font-semibold text-foreground">{t('chatView.HEADER_TITLE')}</span>
+					</div>
+					<div className="flex items-center gap-1">
+						{messages.length > 0 && (
+							<button
+								type="button"
+								onClick={handleClearChat}
+								className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+								title={t('chatView.CLEAR_CONVERSATION')}
+							>
+								<Trash2 className="h-3.5 w-3.5" />
+							</button>
+						)}
 						<button
 							type="button"
-							onClick={handleClearChat}
-							className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-							title={t('chatView.CLEAR_CONVERSATION')}
+							onClick={() => setConfigOpen(true)}
+							className={cn(
+								'rounded-md p-1.5 transition-colors hover:bg-muted hover:text-foreground',
+								isConfigured ? 'text-muted-foreground' : 'text-destructive'
+							)}
+							title={t('chatView.CONFIGURATION')}
 						>
-							<Trash2 className="h-3.5 w-3.5" />
+							<Settings className="h-3.5 w-3.5" />
 						</button>
-					)}
+					</div>
+				</div>
+				<div className="mt-2 flex items-center gap-1">
 					<button
 						type="button"
-						onClick={() => setConfigOpen(true)}
-						className={cn(
-							'rounded-md p-1.5 transition-colors hover:bg-muted hover:text-foreground',
-							isConfigured ? 'text-muted-foreground' : 'text-destructive'
-						)}
-						title={t('chatView.CONFIGURATION')}
+						onClick={handleNewChat}
+						className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-medium hover:bg-muted"
 					>
-						<Settings className="h-3.5 w-3.5" />
+						<Plus className="h-3.5 w-3.5" />
+						{t('chatView.NEW_CHAT')}
+					</button>
+					<button
+						type="button"
+						onClick={() => setHistoryOpen((open) => !open)}
+						className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-medium hover:bg-muted"
+						aria-expanded={historyOpen}
+					>
+						<History className="h-3.5 w-3.5" />
+						{t('chatView.HISTORY')}
 					</button>
 				</div>
+				{historyOpen ? (
+					<div className="absolute left-3 right-3 top-full z-50 mt-1 max-h-72 overflow-y-auto rounded-lg border bg-background p-1 shadow-xl">
+						{history.length ? (
+							history.map((session) => (
+								<button
+									type="button"
+									key={session.id}
+									onClick={() => handleSelectHistory(session)}
+									className="block w-full rounded-md px-3 py-2 text-left hover:bg-muted"
+								>
+									<span className="block truncate text-xs font-medium">{session.title}</span>
+									<span className="mt-0.5 block text-[11px] text-muted-foreground">
+										{new Date(session.updatedAt).toLocaleString(locale)}
+									</span>
+								</button>
+							))
+						) : (
+							<p className="px-3 py-4 text-center text-xs text-muted-foreground">
+								{t('chatView.NO_CONVERSATIONS')}
+							</p>
+						)}
+					</div>
+				) : null}
 			</div>
 
 			{/* Messages */}
@@ -223,7 +336,7 @@ export function ChatView({ pageContext }: ChatViewProps) {
 							type="button"
 							onClick={stop}
 							className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-destructive text-destructive-foreground transition-colors hover:bg-destructive/90"
-							title="Stop"
+							title={t('chatView.STOP')}
 						>
 							<Square className="h-3.5 w-3.5" />
 						</button>
@@ -237,7 +350,7 @@ export function ChatView({ pageContext }: ChatViewProps) {
 								'dark:bg-primary-light dark:hover:bg-primary-light/90',
 								'disabled:cursor-not-allowed disabled:opacity-50'
 							)}
-							title="Send"
+							title={t('chatView.SEND')}
 						>
 							<Send className="h-3.5 w-3.5" />
 						</button>

@@ -436,7 +436,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "Desglose de productividad para {month}",
 		"DAILY": "Diario",
 		"WEEKLY": "Semanal",
-		"MONTHLY": "Mensual"
+		"MONTHLY": "Mensual",
+		"HIDE_CHART": "Ocultar gráfico",
+		"SHOW_ACTIVITY_CHART": "Mostrar gráfico de actividad"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "Tiempo y Actividad",
@@ -791,6 +793,10 @@
 			"HEADING_TITLE": "Ajustes generales",
 			"goToTeamSettings": "Ir a ajustes del equipo",
 			"WORKING_HOURS": "Horario de trabajo",
+			"ADD_HOURS_FOR": "Añadir horas para {day}",
+			"REMOVE_HOURS_FOR": "Eliminar horas para {day}",
+			"UNAVAILABLE": "No disponible",
+			"TOGGLE_AVAILABILITY_FOR": "Disponibilidad para {day}",
 			"emailNotValid": "Por favor provea un Email válido",
 			"phoneNotValid": "Por favor provea un Número de Teléfono válido",
 			"WORK_SCHEDULE": "Horario de trabajo",
@@ -1298,6 +1304,14 @@
 		"INPUT_PLACEHOLDER_READY": "Tu mensaje...",
 		"INPUT_PLACEHOLDER_NO_KEY": "Configura tu clave API...",
 		"STOP": "Detener",
-		"SEND": "Enviar"
+		"SEND": "Enviar",
+		"NEW_CHAT": "Nuevo chat",
+		"HISTORY": "Historial",
+		"NO_CONVERSATIONS": "Aún no hay conversaciones",
+		"PANEL_CONTROLS": "Controles del panel de chat",
+		"COLLAPSE_ASSISTANT": "Contraer asistente",
+		"STANDARD_ASSISTANT_WIDTH": "Ancho estándar del asistente",
+		"EXPAND_ASSISTANT": "Expandir asistente",
+		"OPEN_ASSISTANT": "Abrir el asistente de Ever Teams"
 	}
 }

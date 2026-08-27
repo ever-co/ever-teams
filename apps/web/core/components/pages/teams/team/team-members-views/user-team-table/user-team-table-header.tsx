@@ -1,14 +1,11 @@
-import { fullWidthState } from '@/core/stores/common/full-width';
-import { useAtomValue } from 'jotai';
 import { Container } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
 
 function UserTeamTableHeader() {
 	const t = useTranslations();
-	const fullWidth = useAtomValue(fullWidthState);
 	return (
-		<Container fullWidth={fullWidth} className="!overflow-x-auto  !mx-0 px-[3.2rem]">
+		<Container className="!overflow-x-auto  !mx-0 px-[3.2rem]">
 			<div className="font-normal h-14   dark:text-[#7B8089] dark:bg-dark-high py-3 mb-[11px]">
 				<div className="text-center flex w-full items-center">
 					<div className="w-[29.2%] shrink-0 font-normal ">

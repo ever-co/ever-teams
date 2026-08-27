@@ -5,12 +5,9 @@ import { SidebarProvider, SidebarInset } from '@/core/components/common/sidebar'
 // Lazy load AppSidebar for performance optimization
 import { AppSidebarSkeleton } from '@/core/components/common/skeleton/app-sidebar-skeleton';
 import AppContainer from '../layouts/default-layout/app-container';
-import { fullWidthState } from '@/core/stores/common/full-width';
-import { useAtomValue } from 'jotai';
 import { FC } from 'react';
 import { Container } from './container';
 export const LoadingApp: FC<{ className?: string }> = ({ className }) => {
-	const fullWidth = useAtomValue(fullWidthState);
 	return (
 		<AppContainer title="Loading...">
 			<SidebarProvider className={cn('flex-1 w-full h-full', className)}>
@@ -18,18 +15,10 @@ export const LoadingApp: FC<{ className?: string }> = ({ className }) => {
 				<AppSidebarSkeleton />
 				{/* Layout content structure implementation */}
 				<SidebarInset className="relative flex-1 overflow-x-hidden size-full!">
-					<header
-						className={cn(
-							'flex max-h-fit flex-col flex-1  my-auto inset-x-0 w-full min-h-20 top-0 h-fit shrink-0 justify-start gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-20 bg-white dark:bg-dark-high mx-0! !nav-items--shadow dark:shadow-none! border-b-[0.5px] dark:border-b-2 border-gray-200 relative z-50 dark:border-b-[#26272C]',
-							fullWidth ? 'px-8' : 'lg:px-8'
-						)}
-					>
+					<header className="flex max-h-fit flex-col flex-1 my-auto inset-x-0 w-full min-h-20 top-0 h-fit shrink-0 justify-start gap-2 px-8 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-20 bg-white dark:bg-dark-high mx-0! !nav-items--shadow dark:shadow-none! border-b-[0.5px] dark:border-b-2 border-gray-200 relative z-50 dark:border-b-[#26272C]">
 						<div
 							role="status"
-							className={cn(
-								'container flex gap-3 justify-between items-center h-12 animate-pulse mt',
-								fullWidth ? 'mx-0!' : 'mx-auto x-container'
-							)}
+							className="flex h-12 w-full animate-pulse items-center justify-between gap-3 mx-0!"
 						>
 							<div className="w-20 h-8 bg-gray-200 rounded-full dark:bg-gray-700 me-3" />
 							<div className="flex items-center justify-center gap-4 mt-4">
@@ -50,7 +39,7 @@ export const LoadingApp: FC<{ className?: string }> = ({ className }) => {
 					</header>
 
 					<div className="w-full bg-light--theme-dark dark:bg-dark--theme-light">
-						<Container fullWidth={fullWidth} className="flex justify-between mt-10">
+						<Container className="flex justify-between mt-10">
 							<div className="flex justify-start gap-2">
 								<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
 								<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
@@ -61,7 +50,7 @@ export const LoadingApp: FC<{ className?: string }> = ({ className }) => {
 							</div>
 						</Container>
 						{/* Task Input Skeleton */}
-						<Container fullWidth={fullWidth} className="pt-12 pb-24">
+						<Container className="pt-12 pb-24">
 							<div className="w-full bg-white h-36 rounded-xl animate-pulse dark:bg-dark-high" />
 						</Container>
 						<div className="flex items-center w-full pb-16 justify-evenly">
@@ -72,7 +61,7 @@ export const LoadingApp: FC<{ className?: string }> = ({ className }) => {
 						</div>
 					</div>
 					<div className="w-full py-4">
-						<Container fullWidth={fullWidth} className="flex flex-col items-stretch gap-6 pt-4">
+						<Container className="flex flex-col items-stretch gap-6 pt-4">
 							<div className="w-full bg-white h-36 rounded-xl animate-pulse dark:bg-dark-high" />
 							<div className="w-full bg-white h-36 rounded-xl animate-pulse dark:bg-dark-high" />
 							<div className="w-full bg-white h-36 rounded-xl animate-pulse dark:bg-dark-high" />

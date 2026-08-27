@@ -1,6 +1,7 @@
 'use client';
-import { fullWidthState } from '@/core/stores/common/full-width';
-import SettingsPageSkeleton from '@/core/components/common/skeleton/settings-page-skeleton';
+import SettingsPageSkeleton, {
+	LeftSideSettingMenuSkeleton
+} from '@/core/components/common/skeleton/settings-page-skeleton';
 import { Container } from '@/core/components';
 import { ArrowLeftIcon } from 'assets/svg';
 import { PageLayout } from '@/core/components/layouts/default-layout';
@@ -16,10 +17,10 @@ import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { LazyLeftSideSettingMenu } from '@/core/components/optimized-components/settings';
 import { isTrackingEnabledState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { SettingsFrame } from '@/core/components/pages/settings/settings-frame';
 const SettingsLayout = ({ children }: { children: ReactNode }) => {
 	const t = useTranslations();
 	const { data: user, isFetching: userLoading } = useUserQuery();
-	const fullWidth = useAtomValue(fullWidthState);
 	const pathName = usePathname();
 
 	const getEndPath: any = pathName?.split('settings/')[1];
@@ -33,20 +34,23 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
 	if (userLoading && !user) {
-		return <SettingsPageSkeleton showTimer={false} fullWidth={fullWidth} />;
+		return (
+			<Container>
+				<SettingsFrame navigation={<LeftSideSettingMenuSkeleton />}>
+					<SettingsPageSkeleton showTimer={false} />
+				</SettingsFrame>
+			</Container>
+		);
 	}
 
 	return (
 		<PageLayout
 			showTimer={isTrackingEnabled}
-			className="overflow-hidden items-start pb-1 w-full"
-			childrenClassName="h-[calc(100vh-_300px)] overflow-hidden w-full !min-h-fit"
+			className="items-start !p-0 w-full"
+			childrenClassName="w-full"
 			mainHeaderSlot={
-				<div className="py-6 w-full bg-white dark:bg-dark--theme">
-					<Container
-						fullWidth={fullWidth}
-						className={cn('flex flex-row gap-8 justify-start items-center w-full')}
-					>
+				<div className="py-3 w-full bg-white dark:bg-dark-high">
+					<Container className={cn('flex flex-row gap-4 justify-start items-center w-full')}>
 						<Link href="/">
 							<ArrowLeftIcon className="w-6 h-6" />
 						</Link>
@@ -56,11 +60,8 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
 				</div>
 			}
 		>
-			<Container fullWidth={fullWidth} className={cn('!p-0 w-full')}>
-				<div className="flex w-full">
-					<LazyLeftSideSettingMenu />
-					<div className="h-[calc(100svh-_291px)] mt-3 px-5 overflow-y-auto w-full">{children}</div>
-				</div>
+			<Container>
+				<SettingsFrame navigation={<LazyLeftSideSettingMenu />}>{children}</SettingsFrame>
 			</Container>
 		</PageLayout>
 	);

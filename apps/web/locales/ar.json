@@ -415,7 +415,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "تفصيل الإنتاجية لـ {month}",
 		"DAILY": "يومي",
 		"WEEKLY": "أسبوعي",
-		"MONTHLY": "شهري"
+		"MONTHLY": "شهري",
+		"HIDE_CHART": "إخفاء المخطط",
+		"SHOW_ACTIVITY_CHART": "إظهار مخطط النشاط"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "الوقت والنشاط",
@@ -791,6 +793,10 @@
 			"HEADING_TITLE": "الإعدادات العامة",
 			"goToTeamSettings": "انتقل إلى إعدادات الفريق",
 			"WORKING_HOURS": "ساعات العمل",
+			"ADD_HOURS_FOR": "إضافة ساعات ليوم {day}",
+			"REMOVE_HOURS_FOR": "إزالة ساعات ليوم {day}",
+			"UNAVAILABLE": "غير متاح",
+			"TOGGLE_AVAILABILITY_FOR": "توفر يوم {day}",
 			"emailNotValid": "يرجى تقديم بريد إلكتروني صالح",
 			"phoneNotValid": "يرجى تقديم رقم هاتف صالح",
 			"WORK_SCHEDULE": "جدول العمل",
@@ -1298,6 +1304,14 @@
 		"INPUT_PLACEHOLDER_READY": "رسالتك...",
 		"INPUT_PLACEHOLDER_NO_KEY": "قم بتهيئة مفتاح API...",
 		"STOP": "إيقاف",
-		"SEND": "إرسال"
+		"SEND": "إرسال",
+		"NEW_CHAT": "محادثة جديدة",
+		"HISTORY": "السجل",
+		"NO_CONVERSATIONS": "لا توجد محادثات بعد",
+		"PANEL_CONTROLS": "عناصر التحكم في لوحة المحادثة",
+		"COLLAPSE_ASSISTANT": "طي المساعد",
+		"STANDARD_ASSISTANT_WIDTH": "عرض المساعد القياسي",
+		"EXPAND_ASSISTANT": "توسيع المساعد",
+		"OPEN_ASSISTANT": "فتح مساعد Ever Teams"
 	}
 }

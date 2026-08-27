@@ -6,9 +6,8 @@ import { UserProfileTaskSkeleton } from './profile-component-skeletons';
 interface TeamMembersSkeletonProps {
 	view?: IssuesView;
 	className?: string;
-	fullWidth?: boolean;
 }
-const TeamMembersSkeleton = ({ view = IssuesView.CARDS, className, fullWidth = true }: TeamMembersSkeletonProps) => {
+const TeamMembersSkeleton = ({ view = IssuesView.CARDS, className }: TeamMembersSkeletonProps) => {
 	// Note: Removed useAtomValue hook to prevent rendering issues in Suspense fallbacks
 
 	const renderCardView = () => (
@@ -71,11 +70,7 @@ const TeamMembersSkeleton = ({ view = IssuesView.CARDS, className, fullWidth = t
 
 	const renderContent = renderMap[view as keyof typeof renderMap] || renderCardView;
 
-	return (
-		<Container fullWidth={fullWidth} className={className}>
-			{renderContent()}
-		</Container>
-	);
+	return <Container className={className}>{renderContent()}</Container>;
 };
 
 export default TeamMembersSkeleton;

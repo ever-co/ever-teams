@@ -6,7 +6,6 @@ import { cn } from '@/core/lib/helpers';
 interface TeamDashboardPageSkeletonProps {
 	className?: string;
 	showTimer?: boolean;
-	fullWidth?: boolean;
 }
 
 /**
@@ -14,11 +13,7 @@ interface TeamDashboardPageSkeletonProps {
  * Integrates seamlessly with PageLayout structure without swallowing it up
  * Matches exact layout: mainHeaderSlot (3 sections: breadcrumb + header + stats/chart) + main content (table)
  */
-export const TeamDashboardPageSkeleton: FC<TeamDashboardPageSkeletonProps> = ({
-	className,
-	showTimer = false,
-	fullWidth = false
-}) => {
+export const TeamDashboardPageSkeleton: FC<TeamDashboardPageSkeletonProps> = ({ className, showTimer = false }) => {
 	return (
 		<PageLayout
 			className="items-start pb-1 !overflow-hidden w-full"
@@ -26,7 +21,7 @@ export const TeamDashboardPageSkeleton: FC<TeamDashboardPageSkeletonProps> = ({
 			showTimer={showTimer}
 			mainHeaderSlot={
 				<div className="flex flex-col py-4 bg-gray-100 dark:bg-dark--theme">
-					<Container fullWidth={fullWidth} className={cn('flex flex-col gap-4 w-full')}>
+					<Container className={cn('flex flex-col gap-4 w-full')}>
 						{/* ✅ SKELETON: Section 1 - Back Button + Breadcrumb */}
 						<div className="flex items-center pt-6 dark:bg-dark--theme">
 							<div className="p-1 rounded-full">
@@ -58,8 +53,11 @@ export const TeamDashboardPageSkeleton: FC<TeamDashboardPageSkeletonProps> = ({
 
 							{/* ✅ SKELETON: Section 3 - Team Stats Grid */}
 							<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-								{[...Array(5)].map((_, index) => (
-									<div key={index} className="p-6 bg-white dark:bg-dark--theme-light rounded-lg border border-gray-200 dark:border-gray-600">
+								{['members', 'tracked', 'manual', 'idle', 'total'].map((stat) => (
+									<div
+										key={stat}
+										className="p-6 bg-white dark:bg-dark--theme-light rounded-lg border border-gray-200 dark:border-gray-600"
+									>
 										<div className="flex flex-col">
 											<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
 											<div className="mt-2 h-9">
@@ -83,7 +81,7 @@ export const TeamDashboardPageSkeleton: FC<TeamDashboardPageSkeletonProps> = ({
 			}
 		>
 			{/* ✅ SKELETON: Main Content Area - Team Stats Table */}
-			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
+			<Container className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
 				<div className="w-full bg-white dark:bg-dark--theme-light rounded-lg border border-gray-200 dark:border-gray-600">
 					{/* Table Header */}
 					<div className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-600 p-4">
@@ -94,14 +92,20 @@ export const TeamDashboardPageSkeleton: FC<TeamDashboardPageSkeletonProps> = ({
 					<div className="p-4">
 						{/* Table Headers */}
 						<div className="grid grid-cols-6 gap-4 mb-4">
-							{['Employee', 'Project', 'Task', 'Time Spent', 'Activity', 'Status'].map((header, index) => (
-								<div key={index} className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+							{['Employee', 'Project', 'Task', 'Time Spent', 'Activity', 'Status'].map((header) => (
+								<div
+									key={header}
+									className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded"
+								/>
 							))}
 						</div>
 
 						{/* Table Rows */}
-						{[...Array(8)].map((_, rowIndex) => (
-							<div key={rowIndex} className="grid grid-cols-6 gap-4 py-3 border-b border-gray-100 dark:border-gray-700">
+						{Array.from({ length: 8 }, (_, rowIndex) => `team-row-${rowIndex + 1}`).map((rowKey) => (
+							<div
+								key={rowKey}
+								className="grid grid-cols-6 gap-4 py-3 border-b border-gray-100 dark:border-gray-700"
+							>
 								{/* Employee Cell with Avatar */}
 								<div className="flex items-center gap-3">
 									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />

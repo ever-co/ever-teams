@@ -436,7 +436,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "Productiviteitsuitsplitsing voor {month}",
 		"DAILY": "Dagelijks",
 		"WEEKLY": "Wekelijks",
-		"MONTHLY": "Maandelijks"
+		"MONTHLY": "Maandelijks",
+		"HIDE_CHART": "Grafiek verbergen",
+		"SHOW_ACTIVITY_CHART": "Activiteitsgrafiek tonen"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "Tijd en Activiteit",
@@ -791,6 +793,10 @@
 			"HEADING_TITLE": "Algemene instellingen",
 			"goToTeamSettings": "Ga naar teaminstellingen",
 			"WORKING_HOURS": "Werktijden",
+			"ADD_HOURS_FOR": "Uren toevoegen voor {day}",
+			"REMOVE_HOURS_FOR": "Uren verwijderen voor {day}",
+			"UNAVAILABLE": "Niet beschikbaar",
+			"TOGGLE_AVAILABILITY_FOR": "Beschikbaarheid voor {day}",
 			"emailNotValid": "Voer een geldig e-mailadres in",
 			"phoneNotValid": "Voer een geldig telefoonnummer in",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "U staat op het punt uw account en al uw gegevens te verwijderen?",
@@ -1298,6 +1304,14 @@
 		"INPUT_PLACEHOLDER_READY": "Uw bericht...",
 		"INPUT_PLACEHOLDER_NO_KEY": "Configureer uw API-sleutel...",
 		"STOP": "Stoppen",
-		"SEND": "Verzenden"
+		"SEND": "Verzenden",
+		"NEW_CHAT": "Nieuwe chat",
+		"HISTORY": "Geschiedenis",
+		"NO_CONVERSATIONS": "Nog geen gesprekken",
+		"PANEL_CONTROLS": "Bediening van het chatpaneel",
+		"COLLAPSE_ASSISTANT": "Assistent inklappen",
+		"STANDARD_ASSISTANT_WIDTH": "Standaardbreedte van de assistent",
+		"EXPAND_ASSISTANT": "Assistent uitbreiden",
+		"OPEN_ASSISTANT": "Ever Teams Assistent openen"
 	}
 }

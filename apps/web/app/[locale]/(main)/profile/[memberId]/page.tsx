@@ -12,7 +12,6 @@ import { useProfileValidation } from '@/core/hooks/users/use-profile-validation'
 import { ProfileErrorBoundary } from '@/core/components/common/profile-error-boundary';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { activityTypeState } from '@/core/stores/timer/activity-type';
 import { cn } from '@/core/lib/helpers';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
@@ -58,7 +57,6 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	const profile = useUserProfilePage();
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 
-	const fullWidth = useAtomValue(fullWidthState);
 	const [activityFilter, setActivityFilter] = useLocalStorageState<FilterTab>('activity-filter', 'Tasks');
 	const setActivityTypeFilter = useSetAtom(activityTypeState);
 
@@ -180,7 +178,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	if (!profileValidation.isValid) {
 		// Show loading skeleton for loading state
 		if (profileValidation.state === 'loading') {
-			return <ProfilePageSkeleton showTimer={profileIsAuthUser && isTrackingEnabled} fullWidth={fullWidth} />;
+			return <ProfilePageSkeleton showTimer={profileIsAuthUser && isTrackingEnabled} />;
 		}
 
 		// Show error boundary for all other error states
@@ -196,13 +194,13 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 	// Additional check for userProfile (keep existing logic)
 	if (!profile.userProfile) {
-		return <ProfilePageSkeleton showTimer={profileIsAuthUser && isTrackingEnabled} fullWidth={fullWidth} />;
+		return <ProfilePageSkeleton showTimer={profileIsAuthUser && isTrackingEnabled} />;
 	}
 
 	return (
 		<PageLayout
 			mainHeaderSlot={
-				<MainHeader fullWidth={fullWidth} className={cn(hookFilterType && ['pb-0'], '!pt-14')}>
+				<MainHeader className={cn(hookFilterType && ['pb-0'], '!pt-14')}>
 					<div className="space-y-4 w-full">
 						{/* Breadcrumb */}
 						<div className="flex gap-8 items-center">
@@ -237,7 +235,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 		>
 			{/* Activity Filter Tabs - Second tab system in the page */}
 			{hook.tab == 'worked' && canSeeActivity && (
-				<Container fullWidth={fullWidth} className="py-8">
+				<Container className="py-8">
 					<div className={cn('flex gap-4 justify-start items-center mt-3')}>
 						{Object.keys(activityScreens).map((filter, i) => (
 							<div key={i} className="flex gap-4 justify-start items-center cursor-pointer">
@@ -256,7 +254,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 					</div>
 				</Container>
 			)}
-			<Container fullWidth={fullWidth} className="mt-6 mb-10">
+			<Container className="mt-6 mb-10">
 				{hook.tab === 'worked' && activityFilter !== 'Tasks' ? (
 					activityScreen
 				) : (

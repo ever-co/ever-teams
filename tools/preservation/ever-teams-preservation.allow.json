@@ -1,1 +1,14 @@
-[]
+[
+	{
+		"id": "removed:publicExports:apps/web/core/components/index.ts::runtime::FullWidthToggler",
+		"reason": "Full width is now structural and the user-requested preference switch was removed."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/stores/common/index.ts::runtime::fullWidthState",
+		"reason": "Full width is now structural and no persisted legacy layout state remains."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/stores/index.ts::runtime::fullWidthState",
+		"reason": "Full width is now structural and no persisted legacy layout state remains."
+	}
+]
