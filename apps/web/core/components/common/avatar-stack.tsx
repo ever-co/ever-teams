@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { useMemo } from 'react';
+import { normalizeImageUrl } from '@/core/lib/utils/normalize-image-url';
 
 interface AvatarStackProps {
 	avatars: { imageUrl?: string; name: string }[];
@@ -23,33 +24,41 @@ const AvatarStack: React.FC<AvatarStackProps> = ({ avatars, maxVisible = 5 }) =>
 
 	return (
 		<div className="flex -space-x-3">
-			{avatars.slice(0, maxItemsToShow).map((avatar, index) => (
-				<div key={index} className="relative group">
-					<div className="relative w-8 h-8 rounded-full shrink-0 aspect-square">
-						{avatar?.imageUrl ? (
-							<Image
-								src={avatar?.imageUrl}
-								alt={avatar?.name}
-								width={32}
-								height={32}
-								className="object-cover border-2 border-white rounded-full size-full aspect-square"
-							/>
-						) : (
-							<div
-								className="flex items-center justify-center w-8 h-8 font-medium text-white bg-gray-500 border-2 border-white rounded-full"
-								role="img"
-								aria-label={`Avatar for ${avatar?.name}`}
-							>
-								{avatar?.name?.substring(0, 2).toUpperCase()}
-							</div>
-						)}
+			{avatars.slice(0, maxItemsToShow).map((avatar, index) => {
+				// Normalised because the API can return a route-relative path, which Next.js would
+				// otherwise resolve against the current route and 404. The branch below tests the
+				// NORMALISED value: a whitespace-only `imageUrl` is truthy but normalises to '', and
+				// next/image rejects an empty `src`.
+				const src = normalizeImageUrl(avatar?.imageUrl ?? '');
+
+				return (
+					<div key={index} className="relative group">
+						<div className="relative w-8 h-8 rounded-full shrink-0 aspect-square">
+							{src ? (
+								<Image
+									src={src}
+									alt={avatar?.name}
+									width={32}
+									height={32}
+									className="object-cover border-2 border-white rounded-full size-full aspect-square"
+								/>
+							) : (
+								<div
+									className="flex items-center justify-center w-8 h-8 font-medium text-white bg-gray-500 border-2 border-white rounded-full"
+									role="img"
+									aria-label={`Avatar for ${avatar?.name}`}
+								>
+									{avatar?.name?.substring(0, 2).toUpperCase()}
+								</div>
+							)}
+						</div>
+						{/* Tooltip */}
+						<div className="absolute p-1.5 text-xs text-white transition transform -translate-x-1/2 bg-gray-800 rounded-sm shadow-lg opacity-0 bottom-12 left-1/2 group-hover:opacity-100 whitespace-nowrap">
+							{avatar?.name}
+						</div>
 					</div>
-					{/* Tooltip */}
-					<div className="absolute p-1.5 text-xs text-white transition transform -translate-x-1/2 bg-gray-800 rounded-sm shadow-lg opacity-0 bottom-12 left-1/2 group-hover:opacity-100 whitespace-nowrap">
-						{avatar?.name}
-					</div>
-				</div>
-			))}
+				);
+			})}
 			{avatars.length > maxItemsToShow && (
 				<div className="flex items-center justify-center w-8 h-8 text-xs font-medium bg-gray-300 border-2 border-white rounded-full">
 					+{avatars.length - maxItemsToShow}
