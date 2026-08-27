@@ -65,7 +65,7 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 		}
 
 		return (
-			<div>
+			<div className="h-full min-h-0">
 				<Component {...props} />
 				{!isTeamMember && showCreateTeamModal && (
 					<Suspense fallback={<ModalSkeleton />}>
