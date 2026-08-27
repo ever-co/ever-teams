@@ -251,6 +251,10 @@ Please see our [Wiki](https://github.com/ever-co/ever-teams/wiki/Deploy-to-Digit
 
 [Deploy to Northflank](https://app.northflank.com/s/account/templates/new?data=656ed069216b5d387f5379c6)
 
+### RepoCloud
+
+[![Deploy on RepoCloud](https://d16t0pc4846x52.cloudfront.net/deploylobe.svg)](https://repocloud.io/details/ever-teams/)
+
 ## 📄 Content
 
 -   [`/apps/web`](apps/web) - NextJs-based (React) Web App at <https://app.ever.team> (deployed from `main` branch)
