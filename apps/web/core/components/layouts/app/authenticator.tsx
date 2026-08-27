@@ -17,6 +17,7 @@ type Params = {
 	showPageSkeleton?: boolean;
 };
 
+/** Wraps a protected page with user loading, authentication state, and team-join/create modal handling. */
 export function withAuthentication(Component: NextPage<any, any>, params: Params) {
 	const AppComponent = (props: any) => {
 		const [user, setUser] = useAtom(userState);

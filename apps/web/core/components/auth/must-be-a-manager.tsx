@@ -12,6 +12,7 @@ type Props = {
 	useRedirect?: boolean;
 };
 
+/** Restricts report content to team managers and tenant-wide administrators. */
 export default function MustBeAManager({ children, redirectTo = '/', useRedirect = true }: Props) {
 	// All hooks must be called before any conditional returns
 	const { user, userLoading: isUserLoading, isTeamManager } = useAuthenticateUser();
