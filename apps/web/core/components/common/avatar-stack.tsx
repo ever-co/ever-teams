@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { useMemo } from 'react';
+import { normalizeImageUrl } from '@/core/lib/utils/normalize-image-url';
 
 interface AvatarStackProps {
 	avatars: { imageUrl?: string; name: string }[];
@@ -27,8 +28,10 @@ const AvatarStack: React.FC<AvatarStackProps> = ({ avatars, maxVisible = 5 }) =>
 				<div key={index} className="relative group">
 					<div className="relative w-8 h-8 rounded-full shrink-0 aspect-square">
 						{avatar?.imageUrl ? (
+							// `src` is normalised because the API can return a route-relative path, which
+							// Next.js would otherwise resolve against the current route and 404.
 							<Image
-								src={avatar?.imageUrl}
+								src={normalizeImageUrl(avatar?.imageUrl ?? '')}
 								alt={avatar?.name}
 								width={32}
 								height={32}

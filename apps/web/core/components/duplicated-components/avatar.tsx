@@ -2,7 +2,7 @@
 
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { avatarState } from '@/core/stores';
-import { clsxm, isValidUrl } from '@/core/lib/utils';
+import { clsxm, isValidUrl, normalizeImageUrl } from '@/core/lib/utils';
 import Image from 'next/image';
 import { PropsWithChildren, useEffect, useMemo } from 'react';
 import { useAtom } from 'jotai';
@@ -70,10 +70,13 @@ export function Avatar({
 			{imageTitle && !imgUrl && <span className="text-lg font-normal uppercase">{imageTitle[0] || ''}</span>}
 
 			{imgUrl && (
+				// `src` is normalised because the API can return a route-relative path (e.g. the seeded
+				// `assets/images/avatars/avatar-default.svg`), which Next.js would otherwise resolve
+				// against the current route and 404. See `normalizeImageUrl`.
 				<Image
 					fill
 					sizes={`${size}px`}
-					src={imgUrl}
+					src={normalizeImageUrl(imgUrl)}
 					className={clsxm(
 						'w-full h-full object-cover',
 						shape === 'circle' && ['rounded-full'],
