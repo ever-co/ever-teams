@@ -1,6 +1,6 @@
 // cspell:ignore alish julia rahul
 /**
- * Makes an image URL safe to hand to an `<img>` / next `<Image>` `src`.
+ * Makes an image URL resolve independently of the route the user happens to be on.
  *
  * The Gauzy API can return a ROUTE-RELATIVE image path — the seeded users and employees carry
  * `imageUrl: 'assets/images/avatars/avatar-default.svg'` (no leading slash, no origin). The Angular
@@ -12,6 +12,11 @@
  * Anything already resolvable on its own — absolute (`https:`, `data:`, `blob:`, ...),
  * protocol-relative (`//host/...`) or root-relative (`/...`) — is returned untouched, so real
  * uploaded avatars served from S3/MinIO/the CDN keep working.
+ *
+ * Note: a protocol-relative value is deliberately left alone. It already resolves against the
+ * origin's scheme rather than the route, so it is not this function's problem — and rewriting its
+ * scheme would be a behaviour change well beyond "stop resolving against the current route".
+ * (`next/image` rejects protocol-relative sources, but it did so before this helper existed too.)
  */
 
 /** Matches a URI scheme such as `https:`, `data:` or `blob:` at the start of the value. */

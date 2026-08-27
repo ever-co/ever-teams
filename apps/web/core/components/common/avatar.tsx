@@ -19,17 +19,24 @@ Avatar.displayName = AvatarPrimitive.Root.displayName;
 const AvatarImage = React.forwardRef<
 	React.ElementRef<typeof AvatarPrimitive.Image>,
 	React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
->(({ className, src, ...props }, ref) => (
+>(({ className, src, ...props }, ref) => {
 	// `src` is normalised because the API can return a route-relative path (e.g. the seeded
 	// `assets/images/avatars/avatar-default.svg`), which Next.js would otherwise resolve against the
 	// current route and 404. See `normalizeImageUrl`.
-	<AvatarPrimitive.Image
-		ref={ref}
-		className={cn('aspect-square h-full w-full', className)}
-		src={normalizeImageUrl(src)}
-		{...props}
-	/>
-));
+	//
+	// `|| undefined` because an empty `src` makes the underlying <img> request the current document
+	// URL; `undefined` is also what tells Radix to show the fallback instead.
+	const normalizedSrc = normalizeImageUrl(src) || undefined;
+
+	return (
+		<AvatarPrimitive.Image
+			ref={ref}
+			className={cn('aspect-square h-full w-full', className)}
+			src={normalizedSrc}
+			{...props}
+		/>
+	);
+});
 AvatarImage.displayName = AvatarPrimitive.Image.displayName;
 
 const AvatarFallback = React.forwardRef<

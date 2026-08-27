@@ -33,4 +33,13 @@ describe('AvatarStack', () => {
 
 		expect(screen.getByLabelText('Avatar for Rahul S.')).toBeTruthy();
 	});
+
+	// A whitespace-only value is truthy, so branching on the RAW value would render <Image src="">,
+	// which next/image rejects. The branch has to use the normalised value.
+	it('shows the initials fallback for a whitespace-only imageUrl instead of rendering an empty src', () => {
+		render(<AvatarStack avatars={[{ imageUrl: '   ', name: 'Rahul S.' }]} />);
+
+		expect(screen.getByLabelText('Avatar for Rahul S.')).toBeTruthy();
+		expect(screen.queryByAltText('Rahul S.')).toBeNull();
+	});
 });

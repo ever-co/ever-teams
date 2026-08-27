@@ -38,6 +38,16 @@ describe('AvatarImage', () => {
 		expect(renderProps({ src: undefined }).src).toBeUndefined();
 	});
 
+	// An empty `src` makes the underlying <img> request the current document URL, so it must become
+	// `undefined` — which is also what tells Radix to show the fallback.
+	it('turns an empty src into undefined rather than requesting the current document', () => {
+		expect(renderProps({ src: '' }).src).toBeUndefined();
+	});
+
+	it('turns a whitespace-only src into undefined', () => {
+		expect(renderProps({ src: '   ' }).src).toBeUndefined();
+	});
+
 	it('still forwards the other props it is given', () => {
 		const props = renderProps({ src: 'assets/a.png', alt: 'Alish M.' });
 		expect(props.alt).toBe('Alish M.');

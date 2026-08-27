@@ -36,11 +36,13 @@ export function Avatar({
 	const avatarPresent = hasOwn(avatar, imagePathName);
 
 	const imgUrl = useMemo(() => {
-		if (avatarPresent) {
-			return avatar[imagePathName];
-		} else {
-			return imageUrl;
-		}
+		const raw = avatarPresent ? avatar[imagePathName] : imageUrl;
+
+		// Normalised here so the fallback branch below and the <Image> `src` agree on one value: the
+		// API can return a route-relative path (e.g. the seeded `assets/images/avatars/…`) which
+		// Next.js would resolve against the current route and 404, and a whitespace-only value is
+		// truthy while normalising to '' — which next/image rejects. See `normalizeImageUrl`.
+		return normalizeImageUrl(raw) || undefined;
 		/* eslint-disable react-hooks/exhaustive-deps */
 	}, [imagePathName, avatarPresent]);
 
@@ -70,13 +72,10 @@ export function Avatar({
 			{imageTitle && !imgUrl && <span className="text-lg font-normal uppercase">{imageTitle[0] || ''}</span>}
 
 			{imgUrl && (
-				// `src` is normalised because the API can return a route-relative path (e.g. the seeded
-				// `assets/images/avatars/avatar-default.svg`), which Next.js would otherwise resolve
-				// against the current route and 404. See `normalizeImageUrl`.
 				<Image
 					fill
 					sizes={`${size}px`}
-					src={normalizeImageUrl(imgUrl)}
+					src={imgUrl}
 					className={clsxm(
 						'w-full h-full object-cover',
 						shape === 'circle' && ['rounded-full'],
