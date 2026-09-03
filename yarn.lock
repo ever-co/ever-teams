@@ -1367,7 +1367,7 @@
 
 "@babel/plugin-transform-modules-systemjs@7.29.4", "@babel/plugin-transform-modules-systemjs@^7.28.5", "@babel/plugin-transform-modules-systemjs@^7.29.0":
   version "7.29.4"
-  resolved "https://registry.npmjs.org/@babel/plugin-transform-modules-systemjs/-/plugin-transform-modules-systemjs-7.29.4.tgz#f621105da99919c15cf4bde6fcc7346ef95e7b20"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-modules-systemjs/-/plugin-transform-modules-systemjs-7.29.4.tgz#f621105da99919c15cf4bde6fcc7346ef95e7b20"
   integrity sha512-N7QmZ0xRZfjHOfZeQLJjwgX2zS9pdGHSVl/cjSGlo4dXMqvurfxXDMKY4RqEKzPozV78VMcd0lxyG13mlbKc4w==
   dependencies:
     "@babel/helper-module-transforms" "^7.28.6"
@@ -5625,10 +5625,10 @@
     chalk "^4.1.0"
     js-yaml "^4.1.0"
 
-"@faker-js/faker@^9.4.0":
-  version "9.9.0"
-  resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-9.9.0.tgz#3ad015fbbaaae7af3149555e0f22b4b30134c69d"
-  integrity sha512-OEl393iCOoo/z8bMezRlJu+GlRGlsKbUAN7jKB6LhnKoqKve5DXRpalbItIIcwnCjs1k/FOPjFzcA6Qn+H+YbA==
+"@faker-js/faker@^10.5.0":
+  version "10.5.0"
+  resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-10.5.0.tgz#d2f6a8c7f08d087ac5f077d6babd0821edf24c03"
+  integrity sha512-bsxD8WLS5lIj7aaoCx1YJkktqYj5vlBUE6HWzu2Q51ksrGJ0H737ECCKlFU7Yf8Br45z9t99frBp/J7kzbMPAg==
 
 "@fastify/otel@0.18.0":
   version "0.18.0"
@@ -21704,7 +21704,7 @@
 
 "@xmldom/xmldom@0.8.13", "@xmldom/xmldom@^0.8.8":
   version "0.8.13"
-  resolved "https://registry.npmjs.org/@xmldom/xmldom/-/xmldom-0.8.13.tgz#00d1dd940b218dff2e49309d410d8bb212159225"
+  resolved "https://registry.yarnpkg.com/@xmldom/xmldom/-/xmldom-0.8.13.tgz#00d1dd940b218dff2e49309d410d8bb212159225"
   integrity sha512-KRYzxepc14G/CEpEGc3Yn+JKaAeT63smlDr+vjB8jRfgTBBI9wRj/nkQEO+ucV8p8I9bfKLWp37uHgFrbntPvw==
 
 "@xtuc/ieee754@^1.2.0":
@@ -31211,7 +31211,7 @@ fast-unique-numbers@^8.0.13:
 
 fast-uri@3.1.2, fast-uri@^3.0.1:
   version "3.1.2"
-  resolved "https://registry.npmjs.org/fast-uri/-/fast-uri-3.1.2.tgz#8af3d4fc9d3e71b11572cc2673b514a7d1a8c8ec"
+  resolved "https://registry.yarnpkg.com/fast-uri/-/fast-uri-3.1.2.tgz#8af3d4fc9d3e71b11572cc2673b514a7d1a8c8ec"
   integrity sha512-rVjf7ArG3LTk+FS6Yw81V1DLuZl1bRbNrev6Tmd/9RaroeeRRJhAt7jg/6YFxbvAQXUCavSoZhPPj6oOx+5KjQ==
 
 fast-xml-parser@^4.4.1:
@@ -31697,7 +31697,7 @@ fn.name@1.x.x:
 
 follow-redirects@1.16.0, follow-redirects@^1.0.0, follow-redirects@^1.14.0, follow-redirects@^1.15.11, follow-redirects@^1.15.6, follow-redirects@^1.15.9, follow-redirects@^1.16.0:
   version "1.16.0"
-  resolved "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.16.0.tgz#28474a159d3b9d11ef62050a14ed60e4df6d61bc"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.16.0.tgz#28474a159d3b9d11ef62050a14ed60e4df6d61bc"
   integrity sha512-y5rN/uOsadFT/JfYwhxRS5R7Qce+g3zG97+JrtFZlC9klX/W5hD7iiLzScI4nZqUS7DNUdhPgw4xI8W2LuXlUw==
 
 fontfaceobserver@2.1.0:
@@ -33345,7 +33345,7 @@ homedir-polyfill@^1.0.0, homedir-polyfill@^1.0.1:
 
 hono@4.12.23, hono@^4.11.4:
   version "4.12.23"
-  resolved "https://registry.npmjs.org/hono/-/hono-4.12.23.tgz#998b91651686149f0e6edbb8564d604da04f3cf8"
+  resolved "https://registry.yarnpkg.com/hono/-/hono-4.12.23.tgz#998b91651686149f0e6edbb8564d604da04f3cf8"
   integrity sha512-eIaZ9qDgu7XV0pxOCrg7/WhnQ6Ivm22UcxhXx/A3dcbqbbYgBEkc6e/J/s7j2tS96zoB0S9VBdLwQNCWwUo4LA==
 
 hook-std@^3.0.0:
@@ -43901,17 +43901,31 @@ plasmo@^0.90.5:
     tempy "3.1.0"
     typescript "5.8.2"
 
+playwright-core@1.57.0:
+  version "1.57.0"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.57.0.tgz#3dcc9a865af256fa9f0af0d67fc8dd54eecaebf5"
+  integrity sha512-agTcKlMw/mjBWOnD6kFZttAAGHgi/Nw0CZ2o6JqWSbMlI219lAFLZZCyqByTsvVAJq5XA5H8cA6PrvBRpBWEuQ==
+
 playwright-core@1.59.1, playwright-core@>=1.2.0:
   version "1.59.1"
   resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.59.1.tgz#d8a2b28bcb8f2bd08ef3df93b02ae83c813244b2"
   integrity sha512-HBV/RJg81z5BiiZ9yPzIiClYV/QMsDCKUyogwH9p3MCP6IYjUFu/MActgYAvK0oWyV9NlwM3GLBjADyWgydVyg==
 
-playwright@1.59.1, playwright@^1.14.0, playwright@^1.57.0:
+playwright@1.59.1:
   version "1.59.1"
   resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.59.1.tgz#f7b0ca61637ae25264cec370df671bbe1f368a4a"
   integrity sha512-C8oWjPR3F81yljW9o5OxcWzfh6avkVwDD2VYdwIGqTkl+OGFISgypqzfu7dOe4QNLL2aqcWBmI3PMtLIK233lw==
   dependencies:
     playwright-core "1.59.1"
+  optionalDependencies:
+    fsevents "2.3.2"
+
+playwright@^1.14.0, playwright@^1.57.0:
+  version "1.57.0"
+  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.57.0.tgz#74d1dacff5048dc40bf4676940b1901e18ad0f46"
+  integrity sha512-ilYQj1s8sr2ppEJ2YVadYBN0Mb3mdo9J0wQ+UuDhzYqURwSoW4n1Xs5vs7ORwgDGmyEh33tRMeS8KhdkMoLXQw==
+  dependencies:
+    playwright-core "1.57.0"
   optionalDependencies:
     fsevents "2.3.2"
 
