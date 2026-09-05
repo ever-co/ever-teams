@@ -1,4 +1,5 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getTimeLogReportDailyRequest } from '@/core/services/server/requests/timesheet';
 import { ITimeLogRequestParams } from '@/core/services/server/requests/timesheet';
 
@@ -6,7 +7,13 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 export async function GET(req: NextRequest) {
+	const res = new NextResponse();
+
 	try {
+		// Authenticate before reading parameters so anonymous callers always get 401
+		const { user, access_token } = await authenticatedGuard(req, res);
+		if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+
 		const searchParams = req.nextUrl.searchParams;
 
 		const params: Partial<ITimeLogRequestParams> = {
@@ -53,9 +60,9 @@ export async function GET(req: NextRequest) {
 			};
 		}
 
-		const response = await getTimeLogReportDailyRequest(params as ITimeLogRequestParams);
+		const { data } = await getTimeLogReportDailyRequest(params as ITimeLogRequestParams, access_token);
 
-		return new Response(JSON.stringify(response), {
+		return new Response(JSON.stringify(data), {
 			status: 200,
 			headers: {
 				'Content-Type': 'application/json'

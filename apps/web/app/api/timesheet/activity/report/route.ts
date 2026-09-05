@@ -1,4 +1,5 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getActivityReportRequest } from '@/core/services/server/requests/timesheet';
 import { IActivityRequestParams } from '@/core/services/server/requests/timesheet';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
@@ -11,7 +12,13 @@ export const runtime = 'nodejs';
  * Fetches activity report data based on provided query parameters
  */
 export async function GET(req: NextRequest) {
+	const res = new NextResponse();
+
 	try {
+		// Authenticate before reading parameters so anonymous callers always get 401
+		const { user, access_token } = await authenticatedGuard(req, res);
+		if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+
 		const searchParams = req.nextUrl.searchParams;
 
 		const params: Partial<IActivityRequestParams> = {
@@ -63,7 +70,7 @@ export async function GET(req: NextRequest) {
 		}
 
 		// Fetch activity report data
-		const data = await getActivityReportRequest(params as IActivityRequestParams);
+		const { data } = await getActivityReportRequest(params as IActivityRequestParams, access_token);
 
 		return new Response(JSON.stringify(data), {
 			status: 200,
