@@ -10,9 +10,15 @@ export async function GET(req: NextRequest) {
 	const res = new NextResponse();
 
 	try {
-		// Authenticate before reading parameters so anonymous callers always get 401
-		const { user, access_token } = await authenticatedGuard(req, res);
-		if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+		// Authenticate before reading parameters so anonymous callers always get 401. A session check
+		// that could not reach Gauzy is a 503, not a 401, so the client does not log the user out.
+		const guard = await authenticatedGuard(req, res);
+		if (!guard.user) {
+			return guard.unauthorized
+				? NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+				: NextResponse.json({ message: 'Session check unavailable, retry later' }, { status: 503 });
+		}
+		const { access_token } = guard;
 
 		const searchParams = req.nextUrl.searchParams;
 

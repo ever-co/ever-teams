@@ -17,14 +17,24 @@ export async function authenticatedGuard(req: Request, res: NextResponse<unknown
 	const taskId = getActiveTaskIdCookie({ req, res });
 	const projectId = getActiveProjectIdCookie({ req, res });
 
+	// serverFetch rejects a non-2xx answer with Promise.reject(data), so Gauzy's status code sits inside
+	// that promise; a network failure rejects with a plain error that carries no status code.
+	let rejectedStatus: number | undefined;
 	const r_res = await currentAuthenticatedUserRequest({
 		bearer_token: access_token?.toString() || ''
-	}).catch(console.error);
+	}).catch(async (error: unknown) => {
+		const reason = error instanceof Promise ? await error.catch((data) => data) : error;
+		rejectedStatus = (reason as { statusCode?: number } | undefined)?.statusCode;
+		console.error(reason);
+	});
 
 	if (!r_res || (r_res.data as any).statusCode === 401) {
 		return {
 			$res: (data: any) => NextResponse.json({ statusCode: 401, message: data }),
-			user: null
+			user: null,
+			// True when Gauzy rejected the token itself; false when the check could not be completed,
+			// which callers should not report as 401 or the client will log the user out.
+			unauthorized: rejectedStatus === 401 || (r_res?.data as any)?.statusCode === 401
 		};
 	}
 
