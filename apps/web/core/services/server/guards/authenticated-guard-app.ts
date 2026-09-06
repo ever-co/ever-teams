@@ -17,30 +17,36 @@ export async function authenticatedGuard(req: Request, res: NextResponse<unknown
 	const taskId = getActiveTaskIdCookie({ req, res });
 	const projectId = getActiveProjectIdCookie({ req, res });
 
-	// serverFetch rejects a non-2xx answer with Promise.reject(data), so Gauzy's status code sits inside
+	// serverFetch rejects a non-2xx answer with Promise.reject(data), so Gauzy's error body sits inside
 	// that promise; a network failure rejects with a plain error that carries no status code.
-	let rejectedStatus: number | undefined;
+	let rejection: { statusCode?: number; message?: string } | undefined;
 	const r_res = await currentAuthenticatedUserRequest({
 		bearer_token: access_token?.toString() || ''
 	}).catch(async (error: unknown) => {
 		const reason = error instanceof Promise ? await error.catch((data) => data) : error;
-		rejectedStatus = (reason as { statusCode?: number } | undefined)?.statusCode;
+		rejection = reason && typeof reason === 'object' ? reason : undefined;
 		console.error(reason);
 	});
 
 	if (!r_res || (r_res.data as any).statusCode === 401) {
-		// True when Gauzy rejected the token itself; false when the check could not be completed.
-		const unauthorized = rejectedStatus === 401 || (r_res?.data as any)?.statusCode === 401;
+		// Keep Gauzy's own status (401, 404, 429...); only a check that never got an answer is a 503, so
+		// an outage never looks like an expired session that the client should log out.
+		const upstreamStatus = rejection?.statusCode ?? (r_res?.data as any)?.statusCode;
+		const status = typeof upstreamStatus === 'number' && upstreamStatus >= 400 ? upstreamStatus : 503;
 		return {
 			$res: (data: any) => NextResponse.json({ statusCode: 401, message: data }),
 			user: null,
-			unauthorized,
-			// 401 only when the token was rejected: answering 401 to a failed check would make the
-			// client log the user out during a Gauzy outage.
+			status,
 			deny: () =>
-				unauthorized
-					? NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
-					: NextResponse.json({ message: 'Session check unavailable, retry later' }, { status: 503 })
+				NextResponse.json(
+					{
+						message:
+							status === 503
+								? 'Session check unavailable, retry later'
+								: rejection?.message || 'Unauthorized'
+					},
+					{ status }
+				)
 		};
 	}
 
