@@ -31,8 +31,9 @@ export async function authenticatedGuard(req: Request, res: NextResponse<unknown
 	if (!r_res || (r_res.data as any).statusCode === 401) {
 		// Keep Gauzy's own status (401, 404, 429...); only a check that never got an answer is a 503, so
 		// an outage never looks like an expired session that the client should log out.
-		const upstreamStatus = rejection?.statusCode ?? (r_res?.data as any)?.statusCode;
-		const status = typeof upstreamStatus === 'number' && upstreamStatus >= 400 ? upstreamStatus : 503;
+		const upstream: { statusCode?: number; message?: string } | undefined = rejection ?? (r_res?.data as any);
+		const status =
+			typeof upstream?.statusCode === 'number' && upstream.statusCode >= 400 ? upstream.statusCode : 503;
 		return {
 			$res: (data: any) => NextResponse.json({ statusCode: 401, message: data }),
 			user: null,
@@ -43,7 +44,7 @@ export async function authenticatedGuard(req: Request, res: NextResponse<unknown
 						message:
 							status === 503
 								? 'Session check unavailable, retry later'
-								: rejection?.message || 'Unauthorized'
+								: upstream?.message || 'Unauthorized'
 					},
 					{ status }
 				)
