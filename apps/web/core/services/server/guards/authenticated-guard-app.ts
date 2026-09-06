@@ -29,12 +29,18 @@ export async function authenticatedGuard(req: Request, res: NextResponse<unknown
 	});
 
 	if (!r_res || (r_res.data as any).statusCode === 401) {
+		// True when Gauzy rejected the token itself; false when the check could not be completed.
+		const unauthorized = rejectedStatus === 401 || (r_res?.data as any)?.statusCode === 401;
 		return {
 			$res: (data: any) => NextResponse.json({ statusCode: 401, message: data }),
 			user: null,
-			// True when Gauzy rejected the token itself; false when the check could not be completed,
-			// which callers should not report as 401 or the client will log the user out.
-			unauthorized: rejectedStatus === 401 || (r_res?.data as any)?.statusCode === 401
+			unauthorized,
+			// 401 only when the token was rejected: answering 401 to a failed check would make the
+			// client log the user out during a Gauzy outage.
+			deny: () =>
+				unauthorized
+					? NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+					: NextResponse.json({ message: 'Session check unavailable, retry later' }, { status: 503 })
 		};
 	}
 
