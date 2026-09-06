@@ -15,7 +15,8 @@ export async function GET(req: NextRequest) {
 	const res = new NextResponse();
 
 	try {
-		// Authenticate before reading parameters so anonymous callers always get 401
+		// Authenticate before reading parameters: the guard answers 401 to a rejected token and 503 when
+		// the session check could not reach Gauzy, so an outage never looks like an expired session
 		const guard = await authenticatedGuard(req, res);
 		if (!guard.user) return guard.deny();
 		const { access_token } = guard;
