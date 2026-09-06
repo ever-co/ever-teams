@@ -1,4 +1,5 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getTimeLogReportDailyRequest } from '@/core/services/server/requests/timesheet';
 import { ITimeLogRequestParams } from '@/core/services/server/requests/timesheet';
 
@@ -6,7 +7,15 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 export async function GET(req: NextRequest) {
+	const res = new NextResponse();
+
 	try {
+		// Authenticate before reading parameters: the guard answers 401 to a rejected token and 503 when
+		// the session check could not reach Gauzy, so an outage never looks like an expired session
+		const guard = await authenticatedGuard(req, res);
+		if (!guard.user) return guard.deny();
+		const { access_token } = guard;
+
 		const searchParams = req.nextUrl.searchParams;
 
 		const params: Partial<ITimeLogRequestParams> = {
@@ -53,9 +62,9 @@ export async function GET(req: NextRequest) {
 			};
 		}
 
-		const response = await getTimeLogReportDailyRequest(params as ITimeLogRequestParams);
+		const { data } = await getTimeLogReportDailyRequest(params as ITimeLogRequestParams, access_token);
 
-		return new Response(JSON.stringify(response), {
+		return new Response(JSON.stringify(data), {
 			status: 200,
 			headers: {
 				'Content-Type': 'application/json'
