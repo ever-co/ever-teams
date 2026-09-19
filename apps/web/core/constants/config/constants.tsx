@@ -1,6 +1,6 @@
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { I_SMTPRequest } from '@/core/types/interfaces/auth/custom-smtp';
-import { getNextPublicEnv, getServerRuntimeConfig } from '@/env-config';
+import { getNextPublicEnv, getServerRuntimeConfig, readRuntimeEnv } from '@/env-config';
 import enLanguage from '@/locales/en.json';
 import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
 import { EManualTimeReasons } from '@/core/types/generics/enums/timer';
@@ -89,7 +89,11 @@ export const PERMISSION_ROLES: PermissionMap = {
 	VIEWER: ['SUPER_ADMIN', 'ADMIN', 'VIEWER']
 };
 export const API_BASE_URL = '/api';
-export const DEFAULT_APP_PATH = process.env.NEXT_PUBLIC_DEMO === 'true' ? '/auth/password' : '/auth/passcode';
+// Runtime-configurable (readRuntimeEnv): a published Docker image decides demo mode from its container env.
+export const DEFAULT_APP_PATH =
+	(readRuntimeEnv('NEXT_PUBLIC_DEMO') || process.env.NEXT_PUBLIC_DEMO) === 'true'
+		? '/auth/password'
+		: '/auth/passcode';
 export const DEFAULT_MAIN_PATH = '/';
 /**
  * Optional locale prefix for protected-path matching. Must list the same locales as the
@@ -151,7 +155,7 @@ export const RECAPTCHA_SITE_KEY = getNextPublicEnv('NEXT_PUBLIC_CAPTCHA_SITE_KEY
 	map: blankToUndefined
 });
 export const RECAPTCHA_SECRET_KEY = blankToUndefined(process.env.CAPTCHA_SECRET_KEY);
-export const CAPTCHA_TYPE = process.env.NEXT_PUBLIC_CAPTCHA_TYPE;
+export const CAPTCHA_TYPE = readRuntimeEnv('NEXT_PUBLIC_CAPTCHA_TYPE') || process.env.NEXT_PUBLIC_CAPTCHA_TYPE;
 let basePath = process.env.GAUZY_API_SERVER_URL ? process.env.GAUZY_API_SERVER_URL : 'https://api.ever.team';
 if (IS_DESKTOP_APP) {
 	const serverRuntimeConfig = getServerRuntimeConfig();
@@ -165,7 +169,7 @@ export const GAUZY_API_BASE_SERVER_URL = getNextPublicEnv(
 	process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL
 );
 export const IS_DEV_MODE = process.env.NODE_ENV === 'development';
-export const IS_DEMO_MODE = process.env.NEXT_PUBLIC_DEMO === 'true';
+export const IS_DEMO_MODE = (readRuntimeEnv('NEXT_PUBLIC_DEMO') || process.env.NEXT_PUBLIC_DEMO) === 'true';
 
 /**
  * Demo account credentials for auto-login feature
@@ -242,12 +246,19 @@ export const DISABLE_AUTO_REFRESH = getNextPublicEnv('NEXT_PUBLIC_DISABLE_AUTO_R
 });
 
 // Branding constants - no fallbacks to detect missing values
-export const APP_NAME = process.env.APP_NAME || 'Ever Teams';
-export const SITE_TITLE = process.env.NEXT_PUBLIC_SITE_TITLE || 'Open Work and Project Management Platform';
-export const APP_SIGNATURE = process.env.APP_SIGNATURE || 'Ever Teams';
-export const APP_LOGO_URL = process.env.APP_LOGO_URL || 'https://app.ever.team/assets/ever-teams.png';
-export const APP_LINK = process.env.APP_LINK || 'https://app.ever.team';
-export const APP_SLOGAN_TEXT = process.env.APP_SLOGAN_TEXT || 'Real-Time Clarity, Real-Time Reality™.';
+// Branding is read at RUNTIME (readRuntimeEnv), so a published Docker image can be rebranded with
+// `docker run -e APP_NAME=...`; these keys are no longer inlined by next.config's `env` block.
+export const APP_NAME = readRuntimeEnv('APP_NAME') || process.env.APP_NAME || 'Ever Teams';
+export const SITE_TITLE =
+	readRuntimeEnv('NEXT_PUBLIC_SITE_TITLE') ||
+	process.env.NEXT_PUBLIC_SITE_TITLE ||
+	'Open Work and Project Management Platform';
+export const APP_SIGNATURE = readRuntimeEnv('APP_SIGNATURE') || process.env.APP_SIGNATURE || 'Ever Teams';
+export const APP_LOGO_URL =
+	readRuntimeEnv('APP_LOGO_URL') || process.env.APP_LOGO_URL || 'https://app.ever.team/assets/ever-teams.png';
+export const APP_LINK = readRuntimeEnv('APP_LINK') || process.env.APP_LINK || 'https://app.ever.team';
+export const APP_SLOGAN_TEXT =
+	readRuntimeEnv('APP_SLOGAN_TEXT') || process.env.APP_SLOGAN_TEXT || 'Real-Time Clarity, Real-Time Reality™.';
 
 const isHttpUrl = (value?: string | null) => Boolean(value && /^https?:\/\//i.test(value));
 const getHostname = (value?: string | null) => {
@@ -283,8 +294,8 @@ const resolveLogoSource = (value: string) => {
 
 export const APP_LOGO_SRC = resolveLogoSource(APP_LOGO_URL);
 
-export const COMPANY_NAME = process.env.COMPANY_NAME || 'Ever Co. LTD';
-export const COMPANY_LINK = process.env.COMPANY_LINK || 'https://ever.co';
+export const COMPANY_NAME = readRuntimeEnv('COMPANY_NAME') || process.env.COMPANY_NAME || 'Ever Co. LTD';
+export const COMPANY_LINK = readRuntimeEnv('COMPANY_LINK') || process.env.COMPANY_LINK || 'https://ever.co';
 
 // Utility to detect missing branding variables
 export const getMissingBrandingVars = () => {
@@ -316,11 +327,14 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
 	}
 }
 
-export const TERMS_LINK = process.env.TERMS_LINK || 'https://ever.team/tos';
-export const PRIVACY_POLICY_LINK = process.env.PRIVACY_POLICY_LINK || 'https://ever.team/privacy';
+export const TERMS_LINK = readRuntimeEnv('TERMS_LINK') || process.env.TERMS_LINK || 'https://ever.team/tos';
+export const PRIVACY_POLICY_LINK =
+	readRuntimeEnv('PRIVACY_POLICY_LINK') || process.env.PRIVACY_POLICY_LINK || 'https://ever.team/privacy';
 
-export const MAIN_PICTURE = process.env.MAIN_PICTURE || '/assets/cover/auth-bg-cover.png';
-export const MAIN_PICTURE_DARK = process.env.MAIN_PICTURE_DARK || '/assets/cover/auth-bg-cover-dark.png';
+export const MAIN_PICTURE =
+	readRuntimeEnv('MAIN_PICTURE') || process.env.MAIN_PICTURE || '/assets/cover/auth-bg-cover.png';
+export const MAIN_PICTURE_DARK =
+	readRuntimeEnv('MAIN_PICTURE_DARK') || process.env.MAIN_PICTURE_DARK || '/assets/cover/auth-bg-cover-dark.png';
 
 export const CHARACTER_LIMIT_TO_SHOW = 20;
 
@@ -384,9 +398,12 @@ export const jitsuConfiguration: () => JitsuOptions = () => ({
 });
 
 // Github Integration
+// Default 'ever-github': every published image used to be built with it (a hard-coded build arg), and
+// Ever's deployments keep the runtime key empty, so without it the "install GitHub app" link becomes
+// github.com/apps//installations/new. Self-hosters point it at their own GitHub App at runtime.
 export const GITHUB_APP_NAME = getNextPublicEnv(
 	'NEXT_PUBLIC_GITHUB_APP_NAME',
-	process.env.NEXT_PUBLIC_GITHUB_APP_NAME || ''
+	process.env.NEXT_PUBLIC_GITHUB_APP_NAME || 'ever-github'
 );
 
 // Application Languages

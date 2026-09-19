@@ -11,6 +11,7 @@ import { useEffect, use } from 'react';
 import { Geist } from 'next/font/google';
 import { useCheckAPI } from '@/core/hooks/common/use-check-api';
 import OfflineWrapper from '@/core/components/common/offline-wrapper';
+import { RuntimeEnvScript } from '@/core/components/providers/runtime-env-provider';
 
 import { PHProvider } from './(main)/integration/posthog/provider';
 import { APPLICATION_LANGUAGES_CODE as LOCALES } from '@/core/constants/config/constants';
@@ -110,6 +111,8 @@ const LocaleLayout = (props: Props) => {
 			suppressHydrationWarning
 		>
 			<head>
+				{/* Must stay the first child of <head>: publishes the runtime env before any bundle runs. */}
+				<RuntimeEnvScript />
 				<title>{formatTitle(`${pathname}${name ? `?name=${name}` : ''}`) || 'Home'}</title>
 			</head>
 			{/* <head>
