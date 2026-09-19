@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { useTokenLiveKit } from '@/core/hooks/common/use-live-kit';
 import { useAuthenticateUser } from '@/core/hooks/auth';
+import { readRuntimeEnv } from '@/env-config';
 
 // Import optimized components from centralized location
 import { LazyLiveKit as LiveKit } from '@/core/components/optimized-components/meet';
@@ -41,7 +42,7 @@ function LiveKitPage() {
 				<LiveKit
 					token={token}
 					roomName={roomName}
-					liveKitUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL || ''}
+					liveKitUrl={readRuntimeEnv('NEXT_PUBLIC_LIVEKIT_URL') || process.env.NEXT_PUBLIC_LIVEKIT_URL || ''}
 					onLeave={onLeave}
 					userChoices={{
 						videoEnabled: true,

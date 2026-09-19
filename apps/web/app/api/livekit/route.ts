@@ -1,5 +1,6 @@
 import { AccessToken } from "livekit-server-sdk";
 import { NextRequest, NextResponse } from "next/server";
+import { readRuntimeEnv } from "@/env-config";
 
 export async function GET(req: NextRequest) {
     const room = req.nextUrl.searchParams.get("roomName");
@@ -21,7 +22,8 @@ export async function GET(req: NextRequest) {
 
     const apiKey = process.env.LIVEKIT_API_KEY;
     const apiSecret = process.env.LIVEKIT_API_SECRET;
-    const wsUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL;
+    // Next inlines a build-time NEXT_PUBLIC_* literal into server bundles too: read the container env first.
+    const wsUrl = readRuntimeEnv("NEXT_PUBLIC_LIVEKIT_URL") || process.env.NEXT_PUBLIC_LIVEKIT_URL;
 
     if (!apiKey || !apiSecret || !wsUrl) {
         console.error("Server misconfigured: missing environment variables.");

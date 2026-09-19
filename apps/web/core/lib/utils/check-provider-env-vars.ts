@@ -28,21 +28,30 @@ import {
 	TWITTER_CLIENT_ID,
 	TWITTER_CLIENT_SECRET
 } from '@/core/constants/config/constants';
+import { readRuntimeEnv } from '@/env-config';
 
 type ProviderNames = {
 	[key: string]: string | undefined;
 };
 
+/**
+ * Display names of the social providers, read from the RUNTIME (container) env first so a published
+ * Docker image can advertise its own providers; the literal is the build-time fallback.
+ *
+ * `??`, not `||`: a provider counts as advertised when its NEXT_PUBLIC_<X>_APP_NAME is SET, even to
+ * an empty string (see filteredProviders), so a runtime '' must not fall through to a build-time value.
+ */
 export const providerNames: ProviderNames = {
-	apple: process.env.NEXT_PUBLIC_APPLE_APP_NAME,
-	discord: process.env.NEXT_PUBLIC_DISCORD_APP_NAME,
-	facebook: process.env.NEXT_PUBLIC_FACEBOOK_APP_NAME,
-	google: process.env.NEXT_PUBLIC_GOOGLE_APP_NAME,
-	github: process.env.NEXT_PUBLIC_GITHUB_APP_NAME,
-	linkedin: process.env.NEXT_PUBLIC_LINKEDIN_APP_NAME,
-	microsoftEntraId: process.env.NEXT_PUBLIC_MICROSOFTENTRAID_APP_NAME,
-	slack: process.env.NEXT_PUBLIC_SLACK_APP_NAME,
-	twitter: process.env.NEXT_PUBLIC_TWITTER_APP_NAME
+	apple: readRuntimeEnv('NEXT_PUBLIC_APPLE_APP_NAME') ?? process.env.NEXT_PUBLIC_APPLE_APP_NAME,
+	discord: readRuntimeEnv('NEXT_PUBLIC_DISCORD_APP_NAME') ?? process.env.NEXT_PUBLIC_DISCORD_APP_NAME,
+	facebook: readRuntimeEnv('NEXT_PUBLIC_FACEBOOK_APP_NAME') ?? process.env.NEXT_PUBLIC_FACEBOOK_APP_NAME,
+	google: readRuntimeEnv('NEXT_PUBLIC_GOOGLE_APP_NAME') ?? process.env.NEXT_PUBLIC_GOOGLE_APP_NAME,
+	github: readRuntimeEnv('NEXT_PUBLIC_GITHUB_APP_NAME') ?? process.env.NEXT_PUBLIC_GITHUB_APP_NAME,
+	linkedin: readRuntimeEnv('NEXT_PUBLIC_LINKEDIN_APP_NAME') ?? process.env.NEXT_PUBLIC_LINKEDIN_APP_NAME,
+	microsoftEntraId:
+		readRuntimeEnv('NEXT_PUBLIC_MICROSOFTENTRAID_APP_NAME') ?? process.env.NEXT_PUBLIC_MICROSOFTENTRAID_APP_NAME,
+	slack: readRuntimeEnv('NEXT_PUBLIC_SLACK_APP_NAME') ?? process.env.NEXT_PUBLIC_SLACK_APP_NAME,
+	twitter: readRuntimeEnv('NEXT_PUBLIC_TWITTER_APP_NAME') ?? process.env.NEXT_PUBLIC_TWITTER_APP_NAME
 };
 
 export const providers: Provider[] = [

@@ -3,8 +3,11 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from '@sentry/nextjs';
+import { readRuntimeEnv } from '@/env-config';
 
-const SENTRY_DSN = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN;
+// NEXT_PUBLIC_SENTRY_* are read from the runtime (container) env first; the literals are the build-time fallback.
+const SENTRY_DSN =
+	process.env.SENTRY_DSN || readRuntimeEnv('NEXT_PUBLIC_SENTRY_DSN') || process.env.NEXT_PUBLIC_SENTRY_DSN;
 
 if (SENTRY_DSN) {
 	Sentry.init({
@@ -13,7 +16,7 @@ if (SENTRY_DSN) {
 		tracesSampleRate: 1,
 
 		// Setting this option to true will print useful information to the console while you're setting up Sentry.
-		debug: process.env.NEXT_PUBLIC_SENTRY_DEBUG && process.env.NEXT_PUBLIC_SENTRY_DEBUG === 'true' ? true : false,
+		debug: (readRuntimeEnv('NEXT_PUBLIC_SENTRY_DEBUG') || process.env.NEXT_PUBLIC_SENTRY_DEBUG) === 'true',
 
 		replaysOnErrorSampleRate: 1.0,
 

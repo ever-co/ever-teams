@@ -52,6 +52,7 @@ import { GlobalAssignTaskModal } from '../features/tasks/global-assign-task-moda
 import { GlobalProjectActionModal } from '../features/projects/global-project-action-modal';
 import { useSidebarDataOwner } from '@/core/hooks/bootstrap/use-feature-data';
 import { getMyWorkNavigation } from './my-work-navigation';
+import { readRuntimeEnv } from '@/env-config';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { data: user } = useUserQuery();
@@ -162,8 +163,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				label: 'home'
 			},
 			// /inbox has no page yet (404 for every user who clicks it). Gated, not removed — flip
-			// NEXT_PUBLIC_INBOX_ENABLED=true when the route ships.
-			...(process.env.NEXT_PUBLIC_INBOX_ENABLED === 'true'
+			// NEXT_PUBLIC_INBOX_ENABLED=true when the route ships (read at runtime: no rebuild of the image).
+			...((readRuntimeEnv('NEXT_PUBLIC_INBOX_ENABLED') || process.env.NEXT_PUBLIC_INBOX_ENABLED) === 'true'
 				? [
 						{
 							title: 'Inbox',

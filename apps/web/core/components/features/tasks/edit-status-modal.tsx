@@ -10,6 +10,11 @@ import { Loader } from 'lucide-react';
 import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
 import { ETaskStatusName } from '@/core/types/schemas';
+import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+
+// Status icons are served by the Gauzy API (`<api>/public/ever-icons/...`, as in generateIconList). Used
+// only when this deployment has no public API origin configured (the app proxies the API).
+const DEFAULT_STATUS_ICON_API_ORIGIN = 'https://api.ever.team';
 
 type EditSet = {
 	name: ETaskStatusName;
@@ -29,13 +34,15 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 		}
 	});
 	const renameProperty = (newProp: string, icon: string) => {
+		// This deployment's API (runtime env), so a self-hosted instance does not load icons from Ever's API.
+		const iconApiOrigin = (GAUZY_API_BASE_SERVER_URL.value || DEFAULT_STATUS_ICON_API_ORIGIN).replace(/\/+$/, '');
 		setColumn((prev: any) => {
 			const newColumn = prev.map((column: any) => {
 				if (column.id === status.id) {
 					return {
 						...column,
 						name: newProp,
-						icon: !icon.includes('https') ? `https://api.ever.team/public/${icon}` : icon
+						icon: !icon.includes('https') ? `${iconApiOrigin}/public/${icon}` : icon
 					};
 				}
 				return column;
