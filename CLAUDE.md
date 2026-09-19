@@ -54,7 +54,8 @@ SENTRY_DSN=...
 ```
 
 - The web app runs on port **3030** by default.
-- `apps/web/env.js` handles environment injection at startup.
+- Public env is read at **runtime**, per request: `app/layout.tsx` calls `getPublicRuntimeEnv()` (`core/services/server/runtime-env.ts`, only `NEXT_PUBLIC_*` + branding keys, never secrets), `app/[locale]/layout.tsx` writes it into an inline `<script>` (`RuntimeEnvScript`, first child of `<head>`, runs before any bundle), and code reads it through `env-config.ts` `readRuntimeEnv()` / `getNextPublicEnv()`. This is what lets one published Docker image be configured with `docker run -e ...` (see `.env.docker`).
+- Never read `process.env.NEXT_PUBLIC_*` directly in client code: use `readRuntimeEnv('NEXT_PUBLIC_X') || process.env.NEXT_PUBLIC_X` (the literal is only the build-time fallback) or `getNextPublicEnv()`. Never add deployment values (API URL, keys, branding, secrets) as Docker build args: Next.js would inline them into the image.
 
 ## 5. Common Commands
 

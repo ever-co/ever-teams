@@ -10,9 +10,10 @@
 #    - Production: Compiles the app with `yarn build:web` (Next.js build)
 #    - Development: Runs `yarn dev:web` directly (Next.js dev server)
 #
-# 2. NO ARG FOR ENVIRONMENT VARIABLES:
-#    - Production: NEXT_PUBLIC_* variables are baked in during build
-#    - Development: Variables are read at runtime from .env.dev.docker
+# 2. NO ARG FOR ENVIRONMENT VARIABLES (same as production):
+#    - Production: nothing deployment-specific is baked in during build; NEXT_PUBLIC_*, branding and secrets
+#      are read from the container env at runtime (see .deploy/web/Dockerfile and .env.docker)
+#    - Development: Variables are read at runtime from docker-compose.dev.yml and .env.dev.docker
 #
 # 3. SOURCE CODE MOUNTED AS VOLUME:
 #    - Production: Compiled code copied into image (immutable)
