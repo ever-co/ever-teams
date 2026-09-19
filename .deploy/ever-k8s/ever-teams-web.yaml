@@ -30,7 +30,7 @@ spec:
             - name: PORT
               value: "3030"
             - name: GAUZY_API_SERVER_URL
-              value: "https://api.ever.team/api"
+              value: "https://api.ever.team"
             - name: NEXT_PUBLIC_GAUZY_API_SERVER_URL
               value: "https://api.ever.team"
           readinessProbe:

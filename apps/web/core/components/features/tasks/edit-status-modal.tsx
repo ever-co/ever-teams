@@ -43,7 +43,8 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 					return {
 						...column,
 						name: newProp,
-						icon: !icon.includes('https') ? `${iconApiOrigin}/public/${icon}` : icon
+						// Absolute icon URLs (https, or http on a self-hosted API / MinIO) are kept as they are.
+						icon: /^https?:\/\//i.test(icon) ? icon : `${iconApiOrigin}/public/${icon}`
 					};
 				}
 				return column;

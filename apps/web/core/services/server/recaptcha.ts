@@ -9,6 +9,7 @@ import { readRuntimeEnv } from '@/env-config';
  * Every token used to be sent to Google, so a self-hosted image configured for hCaptcha or Turnstile rejected
  * every signup as soon as CAPTCHA_SECRET_KEY was set.
  */
+const GOOGLE_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify';
 const HCAPTCHA_VERIFY_URL = 'https://api.hcaptcha.com/siteverify';
 const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 
@@ -37,19 +38,15 @@ export function recaptchaVerification({
 		case 'cloudflare':
 			return siteVerify(TURNSTILE_VERIFY_URL, secret, response);
 		default:
-			// Google reCAPTCHA v2 — the request production relies on, kept exactly as it was.
-			return fetch(`https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${response}`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
-				}
-			}).then((res) => res.json());
+			// Google reCAPTCHA v2. The secret travels in the POST body (Google's documented form), never in the
+			// URL, where proxies and egress logs would record it.
+			return siteVerify(GOOGLE_VERIFY_URL, secret, response);
 	}
 }
 
 /**
- * hCaptcha and Turnstile share one contract: a form-encoded POST body carrying `secret` and `response`, answered
- * with `{ success: boolean, ... }`. Errors propagate like the Google path's do.
+ * Google, hCaptcha and Turnstile share one contract: a form-encoded POST body carrying `secret` and `response`,
+ * answered with `{ success: boolean, ... }`. Network errors propagate to the caller.
  */
 function siteVerify(url: string, secret: string, response: string): Promise<{ success: boolean }> {
 	return fetch(url, {

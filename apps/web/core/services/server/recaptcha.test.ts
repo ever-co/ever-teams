@@ -50,7 +50,7 @@ describe('recaptchaVerification — Google reCAPTCHA (default)', () => {
 		['recaptcha', 'recaptcha'],
 		['an unknown value', 'turnstile'],
 		['a different case than the form matches (the form renders reCAPTCHA too)', 'HCaptcha']
-	])('sends the unchanged Google request when NEXT_PUBLIC_CAPTCHA_TYPE is %s', async (_label, type) => {
+	])('sends the Google request, secret in the POST body, when NEXT_PUBLIC_CAPTCHA_TYPE is %s', async (_label, type) => {
 		setCaptchaType(type);
 
 		await expect(recaptchaVerification({ secret: 'secret-value', response: 'tok-1' })).resolves.toEqual({
@@ -58,8 +58,9 @@ describe('recaptchaVerification — Google reCAPTCHA (default)', () => {
 		});
 
 		const [url, init] = sentRequest();
-		expect(url).toBe(`${GOOGLE}?secret=secret-value&response=tok-1`);
-		expect(init).toStrictEqual({ method: 'POST', headers: FORM_HEADERS });
+		expect(url).toBe(GOOGLE);
+		expect(url).not.toContain('secret');
+		expect(init).toStrictEqual({ method: 'POST', headers: FORM_HEADERS, body: 'secret=secret-value&response=tok-1' });
 	});
 
 	it('lets a network failure reject, as it always has', async () => {
@@ -124,11 +125,7 @@ describe('recaptchaVerification — provider selection', () => {
 		setCaptchaType('cloudflare');
 		await recaptchaVerification({ secret: 's', response: 't' });
 
-		expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
-			`${GOOGLE}?secret=s&response=t`,
-			HCAPTCHA,
-			TURNSTILE
-		]);
+		expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([GOOGLE, HCAPTCHA, TURNSTILE]);
 	});
 
 	it('lets an explicit `type` override the env', async () => {
@@ -136,6 +133,6 @@ describe('recaptchaVerification — provider selection', () => {
 		await recaptchaVerification({ secret: 's', response: 't', type: 'cloudflare' });
 		await recaptchaVerification({ secret: 's', response: 't', type: 'recaptcha' });
 
-		expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([TURNSTILE, `${GOOGLE}?secret=s&response=t`]);
+		expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([TURNSTILE, GOOGLE]);
 	});
 });

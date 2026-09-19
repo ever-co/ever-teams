@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     const apiKey = process.env.LIVEKIT_API_KEY;
     const apiSecret = process.env.LIVEKIT_API_SECRET;
     // Next inlines a build-time NEXT_PUBLIC_* literal into server bundles too: read the container env first.
-    const wsUrl = readRuntimeEnv("NEXT_PUBLIC_LIVEKIT_URL") || process.env.NEXT_PUBLIC_LIVEKIT_URL;
+    const wsUrl = readRuntimeEnv("NEXT_PUBLIC_LIVEKIT_URL") || process.env.NEXT_PUBLIC_LIVEKIT_URL?.trim();
 
     if (!apiKey || !apiSecret || !wsUrl) {
         console.error("Server misconfigured: missing environment variables.");

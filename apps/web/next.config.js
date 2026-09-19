@@ -134,12 +134,8 @@ const nextConfig = {
 	env: {
 		NEXT_PUBLIC_BUILD_VERSION: process.env.NEXT_PUBLIC_BUILD_VERSION || webPackageVersion,
 		NEXT_PUBLIC_BUILD_SHA: webBuildSha,
-		NEXT_PUBLIC_SITE_NAME: process.env.NEXT_PUBLIC_SITE_NAME,
-		NEXT_PUBLIC_SITE_TITLE: process.env.NEXT_PUBLIC_SITE_TITLE,
-		NEXT_PUBLIC_SITE_DESCRIPTION: process.env.NEXT_PUBLIC_SITE_DESCRIPTION,
-		NEXT_PUBLIC_SITE_KEYWORDS: process.env.NEXT_PUBLIC_SITE_KEYWORDS,
-		NEXT_PUBLIC_WEB_APP_URL: process.env.NEXT_PUBLIC_WEB_APP_URL,
-		NEXT_PUBLIC_TWITTER_USERNAME: process.env.NEXT_PUBLIC_TWITTER_USERNAME,
+		// NEXT_PUBLIC_SITE_* / NEXT_PUBLIC_WEB_APP_URL / NEXT_PUBLIC_TWITTER_USERNAME used to be listed here too;
+		// like every NEXT_PUBLIC_* they are read at runtime (readRuntimeEnv), never pinned by this block.
 		// Build-time by nature: the hosts the /_next/image optimizer accepts (images.remotePatterns is
 		// frozen into the build). proxy.ts compares them with the RUNTIME image hosts, and serves hosts
 		// allowed only at runtime unoptimized instead of letting the optimizer reject them.
