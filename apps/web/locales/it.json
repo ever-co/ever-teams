@@ -1296,7 +1296,7 @@
 		"HEADER_TITLE": "Chat IA",
 		"CLEAR_CONVERSATION": "Cancella conversazione",
 		"CONFIGURATION": "Configurazione",
-		"ASSISTANT_NAME": "Assistente Ever Teams",
+		"ASSISTANT_NAME": "Assistente {appName}",
 		"EMPTY_CONFIGURED": "Fai una domanda per iniziare.",
 		"EMPTY_NOT_CONFIGURED": "Configura la tua chiave API per iniziare.",
 		"CONFIGURE_BUTTON": "Configura",
@@ -1312,6 +1312,6 @@
 		"COLLAPSE_ASSISTANT": "Comprimi assistente",
 		"STANDARD_ASSISTANT_WIDTH": "Larghezza standard dell’assistente",
 		"EXPAND_ASSISTANT": "Espandi assistente",
-		"OPEN_ASSISTANT": "Apri l’assistente Ever Teams"
+		"OPEN_ASSISTANT": "Apri l’assistente {appName}"
 	}
 }

@@ -1,5 +1,5 @@
 {
-	"TITLE": "إيفر تيمز",
+	"TITLE": "{appName}",
 	"common": {
 		"APPLICATION": "تطبيق",
 		"TIME_SPENT": "الوقت المستغرق",
@@ -1296,7 +1296,7 @@
 		"HEADER_TITLE": "محادثة الذكاء الاصطناعي",
 		"CLEAR_CONVERSATION": "مسح المحادثة",
 		"CONFIGURATION": "الإعدادات",
-		"ASSISTANT_NAME": "مساعد Ever Teams",
+		"ASSISTANT_NAME": "مساعد {appName}",
 		"EMPTY_CONFIGURED": "اطرح سؤالاً للبدء.",
 		"EMPTY_NOT_CONFIGURED": "قم بتهيئة مفتاح API للبدء.",
 		"CONFIGURE_BUTTON": "تهيئة",
@@ -1312,6 +1312,6 @@
 		"COLLAPSE_ASSISTANT": "طي المساعد",
 		"STANDARD_ASSISTANT_WIDTH": "عرض المساعد القياسي",
 		"EXPAND_ASSISTANT": "توسيع المساعد",
-		"OPEN_ASSISTANT": "فتح مساعد Ever Teams"
+		"OPEN_ASSISTANT": "فتح مساعد {appName}"
 	}
 }

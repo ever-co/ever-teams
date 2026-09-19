@@ -125,7 +125,15 @@ describe('self-hostable Docker image', () => {
 // ---------------------------------------------------------------------------------------------
 
 const SCANNED_DIRS = ['app', 'core'];
-const SCANNED_ROOT_FILES = ['proxy.ts', 'auth.ts', 'sentry.client.config.ts'];
+const SCANNED_ROOT_FILES = [
+	'proxy.ts',
+	'auth.ts',
+	'instrumentation.ts',
+	'instrumentation-client.ts',
+	'sentry.client.config.ts',
+	'sentry.server.config.ts',
+	'sentry.edge.config.ts'
+];
 // Values that are build-time by design (build identity / build flavour / Vercel-only).
 const BUILD_TIME_READS = new Set([...BUILD_TIME_PUBLIC_VARS, 'NEXT_PUBLIC_IS_DESKTOP_APP', 'NEXT_PUBLIC_VERCEL_ENV']);
 const TEST_FILE = /\.(test|spec)\.[jt]sx?$/;

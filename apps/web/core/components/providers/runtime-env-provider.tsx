@@ -1,6 +1,6 @@
 'use client';
 import React, { createContext, useContext } from 'react';
-import { installRuntimeEnv, RUNTIME_ENV_SCRIPT_ID, serializeRuntimeEnvScript } from '@/env-config';
+import { installRuntimeEnv, readRuntimeEnv, RUNTIME_ENV_SCRIPT_ID, serializeRuntimeEnvScript } from '@/env-config';
 
 type RuntimeEnv = Record<string, string>;
 
@@ -16,6 +16,21 @@ export function RuntimeEnvProvider({ env, children }: Readonly<{ env: RuntimeEnv
 	// Normally a no-op (the inline script already installed the same values before any module ran).
 	installRuntimeEnv(env);
 	return <RuntimeEnvContext.Provider value={env}>{children}</RuntimeEnvContext.Provider>;
+}
+
+/**
+ * A value of the request's public runtime env, for components that render differently depending on it.
+ *
+ * Reads the same object during SSR and hydration (the provider's env), so server and client markup
+ * match — unlike readRuntimeEnv(), which reads process.env on the server and the injected payload in
+ * the browser. Outside the provider it falls back to readRuntimeEnv(). Whitespace-only counts as ''
+ * (secret-store placeholders), as in readRuntimeEnv().
+ */
+export function useRuntimeEnvValue(name: string): string | undefined {
+	const env = useContext(RuntimeEnvContext);
+	if (!env) return readRuntimeEnv(name);
+	const value = env[name];
+	return value?.trim() === '' ? '' : value;
 }
 
 /**

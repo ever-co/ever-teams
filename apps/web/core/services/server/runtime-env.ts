@@ -1,5 +1,6 @@
 import { isPublicRuntimeEnvKey } from '@/env-config';
 import { getDesktopConfig } from '@/core/services/server/requests/desktop-source';
+import { getConfiguredAuthProviderIds } from '@/core/lib/utils/check-provider-env-vars';
 
 /**
  * The public runtime configuration the browser receives for this request.
@@ -9,9 +10,10 @@ import { getDesktopConfig } from '@/core/services/server/requests/desktop-source
  * NEXT_PUBLIC_CAPTCHA_SITE_KEY=... -e NEXT_PUBLIC_GAUZY_API_SERVER_URL=...`.
  *
  * Only `NEXT_PUBLIC_*` keys and the allow-listed branding keys (env-config.ts
- * PUBLIC_RUNTIME_ENV_KEYS) are returned — never server secrets such as AUTH_SECRET,
- * CAPTCHA_SECRET_KEY or *_CLIENT_SECRET. Keys that are set to an empty string are kept (empty),
- * because some readers distinguish "set" from "absent" (e.g. NEXT_PUBLIC_<X>_APP_NAME).
+ * PUBLIC_RUNTIME_ENV_KEYS) are returned, plus the derived EVER_TEAMS_AUTH_PROVIDERS — never server
+ * secrets such as AUTH_SECRET, CAPTCHA_SECRET_KEY, *_CLIENT_ID or *_CLIENT_SECRET. Keys that are set
+ * to an empty string are kept (empty), because some readers distinguish "set" from "absent" (e.g.
+ * NEXT_PUBLIC_<X>_APP_NAME).
  */
 export function getPublicRuntimeEnv(): Record<string, string> {
 	const env = process.env as Record<string, string | undefined>;
@@ -22,6 +24,15 @@ export function getPublicRuntimeEnv(): Record<string, string> {
 		if (value !== undefined && isPublicRuntimeEnvKey(key)) {
 			publicEnv[key] = value;
 		}
+	}
+
+	// Social-login buttons: whether a provider is usable depends on its client id, which is server
+	// config the browser never sees, so the server decides and publishes only the resulting provider
+	// ids — next-auth's own list (auth.ts), hence fixed at server start like it. Derived, never read
+	// from the container env, never a client id or secret. Omitted when there is none.
+	const authProviderIds = getConfiguredAuthProviderIds();
+	if (authProviderIds.length > 0) {
+		publicEnv.EVER_TEAMS_AUTH_PROVIDERS = authProviderIds.join(',');
 	}
 
 	// Desktop (Electron) app: the browser talks to the API the user configured in the desktop

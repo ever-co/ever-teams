@@ -108,6 +108,109 @@ describe('runtime env in the browser', () => {
 	});
 });
 
+describe('deployment-specific defaults in the browser', () => {
+	beforeEach(() => {
+		// Server-only keys are never inlined into the client bundle: in a browser only the injected env has them.
+		// (next/jest loads apps/web/.env, which sets some of them; the NEXT_PUBLIC_ ones stand for build-time values.)
+		const keys = ['APP_LINK', 'APP_LOGO_URL', 'APP_FAVICON_URL', 'APP_SLOGAN_TEXT', 'COMPANY_LINK', 'TERMS_LINK'];
+		keys.push('PRIVACY_POLICY_LINK', 'GAUZY_API_SERVER_URL', 'NEXT_PUBLIC_GITHUB_APP_NAME');
+		keys.push('NEXT_PUBLIC_POSTHOG_HOST');
+		for (const key of keys) delete process.env[key];
+		delete (globalThis as Record<string, unknown>).__everTeamsConfigWarnings;
+	});
+
+	it('derives the logo from the runtime APP_LINK and reads the runtime favicon', () => {
+		(globalThis as Record<string, unknown>)[GLOBAL] = {
+			APP_LINK: 'https://teams.example.org/',
+			APP_FAVICON_URL: '/assets/acme.ico'
+		};
+
+		const constants = loadConstants();
+
+		expect(constants.APP_LOGO_URL).toBe('https://teams.example.org/assets/ever-teams.png');
+		expect(constants.APP_LOGO_SRC).toBe('/assets/ever-teams.png');
+		expect(constants.APP_FAVICON_URL).toBe('/assets/acme.ico');
+	});
+
+	it("keeps Ever's logo and the default favicon when the runtime env sets neither", () => {
+		(globalThis as Record<string, unknown>)[GLOBAL] = {};
+
+		const constants = loadConstants();
+
+		expect(constants.APP_LOGO_URL).toBe('https://app.ever.team/assets/ever-teams.png');
+		expect(constants.APP_FAVICON_URL).toBe('/favicon.ico');
+	});
+
+	it("turns optional branding off with the runtime value 'none'", () => {
+		(globalThis as Record<string, unknown>)[GLOBAL] = {
+			APP_SLOGAN_TEXT: 'None',
+			COMPANY_LINK: 'none',
+			TERMS_LINK: 'NONE',
+			PRIVACY_POLICY_LINK: 'none'
+		};
+
+		const constants = loadConstants();
+
+		expect([
+			constants.APP_SLOGAN_TEXT,
+			constants.COMPANY_LINK,
+			constants.TERMS_LINK,
+			constants.PRIVACY_POLICY_LINK
+		]).toEqual(['', '', '', '']);
+		expect(constants.COMPANY_NAME).toBeTruthy();
+	});
+
+	it('reads the demo accounts, GitHub App and PostHog host from the runtime env', () => {
+		(globalThis as Record<string, unknown>)[GLOBAL] = {
+			NEXT_PUBLIC_DEMO: 'true',
+			NEXT_PUBLIC_DEMO_ACCOUNTS: '[{"type":"ADMIN","email":"demo@example.org","password":"demo-pass"}]',
+			NEXT_PUBLIC_GITHUB_APP_NAME: 'acme-github',
+			NEXT_PUBLIC_POSTHOG_HOST: 'https://eu.i.posthog.com'
+		};
+
+		const constants = loadConstants();
+
+		expect(constants.DEMO_ACCOUNTS_CONFIG).toEqual([
+			expect.objectContaining({
+				type: 'ADMIN',
+				email: 'demo@example.org',
+				password: 'demo-pass',
+				role: 'Admin',
+				translationKey: 'DEMO_ADMIN'
+			})
+		]);
+		expect(constants.GITHUB_APP_NAME.value).toBe('acme-github');
+		expect(constants.POSTHOG_HOST.value).toBe('https://eu.i.posthog.com');
+	});
+
+	it('has no GitHub App and PostHog Cloud as host when the runtime env sets neither', () => {
+		(globalThis as Record<string, unknown>)[GLOBAL] = {};
+
+		const constants = loadConstants();
+
+		expect(constants.GITHUB_APP_NAME.value).toBe('');
+		expect(constants.POSTHOG_HOST.value).toBe('https://us.i.posthog.com');
+	});
+
+	it('never warns about the API proxy base in the browser', () => {
+		const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+		Object.assign(process.env, { NODE_ENV: 'production' });
+		delete process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL;
+		(globalThis as Record<string, unknown>)[GLOBAL] = {
+			NEXT_PUBLIC_GAUZY_API_SERVER_URL: 'https://api.example.org'
+		};
+
+		try {
+			expect(loadConstants().GAUZY_API_SERVER_URL).toBe('https://api.example.org/api');
+			(globalThis as Record<string, unknown>)[GLOBAL] = {};
+			expect(loadConstants().GAUZY_API_SERVER_URL).toBe('https://api.ever.team/api');
+			expect(warn).not.toHaveBeenCalled();
+		} finally {
+			warn.mockRestore();
+		}
+	});
+});
+
 describe('RuntimeEnvScript / RuntimeEnvProvider', () => {
 	// Regular imports (not jest.isolateModules): the components must share the test's React instance.
 	it('renders the injected env as an executable inline script and installs it', () => {

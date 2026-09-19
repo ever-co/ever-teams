@@ -95,7 +95,7 @@ services:
       # App Branding Variables
       APP_NAME: ${APP_NAME:-Ever Teams}
       APP_SIGNATURE: ${APP_SIGNATURE:-Ever Teams}
-      APP_LOGO_URL: ${APP_LOGO_URL:-https://app.ever.team/assets/ever-teams.png}
+      APP_LOGO_URL: ${APP_LOGO_URL:-/assets/ever-teams.png}
       APP_LINK: ${APP_LINK:-https://app.ever.team}
       APP_SLOGAN_TEXT: ${APP_SLOGAN_TEXT:-Real-Time Clarity, Real-Time Reality™.}
       COMPANY_NAME: ${COMPANY_NAME:-Ever Co. LTD}
@@ -117,7 +117,9 @@ services:
       NEXT_PUBLIC_GOOGLE_APP_NAME: ${NEXT_PUBLIC_GOOGLE_APP_NAME:-Ever Teams}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
-      NEXT_PUBLIC_GITHUB_APP_NAME: ${NEXT_PUBLIC_GITHUB_APP_NAME:-ever-github}
+      # Also the slug of the GitHub App behind the GitHub integration, which offers no install link while it is empty
+      # (Ever-operated: ever-github)
+      NEXT_PUBLIC_GITHUB_APP_NAME: ${NEXT_PUBLIC_GITHUB_APP_NAME:-}
       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
       GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
       NEXT_PUBLIC_FACEBOOK_APP_NAME: ${NEXT_PUBLIC_FACEBOOK_APP_NAME:-Ever Teams}
@@ -130,7 +132,8 @@ services:
       NEXT_PUBLIC_CAPTCHA_TYPE: ${NEXT_PUBLIC_CAPTCHA_TYPE:-recaptcha}
       NEXT_PUBLIC_CAPTCHA_SITE_KEY: ${NEXT_PUBLIC_CAPTCHA_SITE_KEY:-}
       NEXT_PUBLIC_MEET_TYPE: ${NEXT_PUBLIC_MEET_TYPE:-Jitsi}
-      NEXT_PUBLIC_MEET_DOMAIN: ${NEXT_PUBLIC_MEET_DOMAIN:-meet.ever.team}
+      # Your Jitsi server domain (Ever-operated: meet.ever.team)
+      NEXT_PUBLIC_MEET_DOMAIN: ${NEXT_PUBLIC_MEET_DOMAIN:-}
       LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET:-}
       LIVEKIT_API_KEY: ${LIVEKIT_API_KEY:-}
       NEXT_PUBLIC_LIVEKIT_URL: ${NEXT_PUBLIC_LIVEKIT_URL:-}
@@ -151,21 +154,24 @@ services:
       ACTIVE_LOCAL_LOG_SYSTEM: ${ACTIVE_LOCAL_LOG_SYSTEM:-false}
       NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM: ${NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM:-false}
       IS_DESKTOP_APP: ${IS_DESKTOP_APP:-false}
-      # Board and Firebase
-      NEXT_PUBLIC_BOARD_APP_DOMAIN: ${NEXT_PUBLIC_BOARD_APP_DOMAIN:-https://board.ever.team}
-      NEXT_PUBLIC_BOARD_BACKEND_POST_URL: ${NEXT_PUBLIC_BOARD_BACKEND_POST_URL:-https://jsonboard.ever.team/api/v2/post/}
+      # Board and Firebase: your own whiteboard deployment; empty = whiteboard off (Ever-operated:
+      # https://board.ever.team and https://jsonboard.ever.team/api/v2/post/)
+      NEXT_PUBLIC_BOARD_APP_DOMAIN: ${NEXT_PUBLIC_BOARD_APP_DOMAIN:-}
+      NEXT_PUBLIC_BOARD_BACKEND_POST_URL: ${NEXT_PUBLIC_BOARD_BACKEND_POST_URL:-}
       NEXT_PUBLIC_BOARD_FIREBASE_CONFIG: ${NEXT_PUBLIC_BOARD_FIREBASE_CONFIG:-}
       # Analytics and Tracking
       NEXT_PUBLIC_GA_MEASUREMENT_ID: ${NEXT_PUBLIC_GA_MEASUREMENT_ID:-}
       NEXT_PUBLIC_JITSU_BROWSER_URL: ${NEXT_PUBLIC_JITSU_BROWSER_URL:-}
       NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY: ${NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY:-}
       NEXT_PUBLIC_CHATWOOT_API_KEY: ${NEXT_PUBLIC_CHATWOOT_API_KEY:-}
-      # Cookie Configuration
-      NEXT_PUBLIC_COOKIE_DOMAINS: ${NEXT_PUBLIC_COOKIE_DOMAINS:-ever.team}
+      # Cookie Configuration (not read: the app sets host-only cookies)
+      NEXT_PUBLIC_COOKIE_DOMAINS: ${NEXT_PUBLIC_COOKIE_DOMAINS:-}
       # Server Configuration
       JITSU_SERVER_URL: ${JITSU_SERVER_URL:-}
       JITSU_SERVER_WRITE_KEY: ${JITSU_SERVER_WRITE_KEY:-}
       AUTH_SECRET: ${AUTH_SECRET:-}
+      # Public origin for next-auth (OAuth callbacks), needed behind a proxy that hides the public host
+      AUTH_URL: ${AUTH_URL:-}
       CAPTCHA_SECRET_KEY: ${CAPTCHA_SECRET_KEY:-}
       SMTP_FROM_ADDRESS: ${SMTP_FROM_ADDRESS:-}
       SMTP_HOST: ${SMTP_HOST:-}

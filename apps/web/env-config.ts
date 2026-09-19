@@ -30,7 +30,8 @@ export const PUBLIC_RUNTIME_ENV_KEYS = [
 	'TERMS_LINK',
 	'PRIVACY_POLICY_LINK',
 	'MAIN_PICTURE',
-	'MAIN_PICTURE_DARK'
+	'MAIN_PICTURE_DARK',
+	'APP_FAVICON_URL'
 ] as const;
 
 export function isPublicRuntimeEnvKey(key: string): boolean {

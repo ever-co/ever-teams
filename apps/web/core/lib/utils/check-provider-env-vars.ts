@@ -117,13 +117,29 @@ const providerClientIds: Record<string, string | undefined> = {
 	twitter: TWITTER_CLIENT_ID
 };
 
+function getProviderId(provider: Provider): string {
+	return typeof provider === 'function' ? provider().id : provider.id;
+}
+
 export const filteredProviders = providers.filter((provider) => {
 	const providerName = provider.name.toLowerCase();
-	const providerId = typeof provider === 'function' ? provider().id : provider.id;
+	const providerId = getProviderId(provider);
 	const advertised = providerNames[providerName] !== undefined || providerNames[providerId] !== undefined;
 	const configured = !!(providerClientIds[providerId] || providerClientIds[providerName])?.trim();
 	return advertised && configured;
 });
+
+/**
+ * Ids of the social providers next-auth actually serves (auth.ts), in display order.
+ *
+ * The browser cannot work this out itself: the client ids are server-only env, so a client component
+ * computing it always got an empty list and no social-login button ever rendered. The server publishes
+ * this list instead (core/services/server/runtime-env.ts) — provider ids only, never a client id or
+ * secret. Derived from filteredProviders so the buttons and next-auth can never disagree.
+ */
+export function getConfiguredAuthProviderIds(): string[] {
+	return filteredProviders.map(getProviderId);
+}
 
 export const mappedProviders = filteredProviders.map((provider) => {
 	if (typeof provider === 'function') {

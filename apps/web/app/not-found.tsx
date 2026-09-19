@@ -2,6 +2,7 @@
 
 import NotFound from '@/core/components/pages/404';
 import { RuntimeEnvScript } from '@/core/components/providers/runtime-env-provider';
+import { APP_FAVICON_URL } from '@/core/constants/config/constants';
 
 const NotFoundPage = () => {
 	return (
@@ -14,6 +15,8 @@ const NotFoundPage = () => {
 			 */}
 			<RuntimeEnvScript />
 			<NotFound />
+			{/* React hoists this into <head>: the deployment's icon, not a build-time one. */}
+			<link rel="icon" href={APP_FAVICON_URL} />
 		</>
 	);
 };

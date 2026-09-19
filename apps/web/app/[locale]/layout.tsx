@@ -14,7 +14,7 @@ import OfflineWrapper from '@/core/components/common/offline-wrapper';
 import { RuntimeEnvScript } from '@/core/components/providers/runtime-env-provider';
 
 import { PHProvider } from './(main)/integration/posthog/provider';
-import { APPLICATION_LANGUAGES_CODE as LOCALES } from '@/core/constants/config/constants';
+import { APPLICATION_LANGUAGES_CODE as LOCALES, APP_FAVICON_URL } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
 // import { cn } from '@ever-teams/ui';
 
@@ -113,6 +113,8 @@ const LocaleLayout = (props: Props) => {
 			<head>
 				{/* Must stay the first child of <head>: publishes the runtime env before any bundle runs. */}
 				<RuntimeEnvScript />
+				{/* Runtime APP_FAVICON_URL (default /favicon.ico), so a reused image can carry its own icon. */}
+				<link rel="icon" href={APP_FAVICON_URL} />
 				<title>{formatTitle(`${pathname}${name ? `?name=${name}` : ''}`) || 'Home'}</title>
 			</head>
 			{/* <head>

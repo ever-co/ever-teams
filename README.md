@@ -153,6 +153,11 @@ _Notes:_
 - _By default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in the environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see more in the [Run with a Self-hosted Backend](#run-with-a-self-hosted-backend) section._
 - _The web app is configured at runtime by the `environment:` block of the `webapp` service (no rebuild needed, see [Configure at Runtime](#configure-at-runtime)). Values listed there take precedence over the `env_file` (`.env.compose` / `.env.demo.compose`); to change one, export it in your shell or pass `--env-file <file>` to `docker-compose`, which fills the `${VAR:-default}` placeholders._
 - _Both `docker-compose.yml` and `docker-compose.demo.yml` default `NEXT_PUBLIC_DEMO` to `false`. Demo mode (password login page with one-click demo accounts) only works against a Gauzy API seeded with the demo accounts; enable it with `NEXT_PUBLIC_DEMO=true docker-compose up` (or in a root `.env` file, which Compose uses for `${...}` substitution)._
+- _`docker-compose.build.yml` defaults `NEXT_PUBLIC_DEMO` to `true`, and an empty value keeps that default there:
+  run `NEXT_PUBLIC_DEMO=false docker-compose -f docker-compose.build.yml up` (or set `NEXT_PUBLIC_DEMO=false` in the
+  `--env-file`) to turn demo mode off._
+- _The Compose files leave the services Ever operates for its own deployments (Jitsi meetings, whiteboard, GitHub
+  App) off; see [Configure at Runtime](#configure-at-runtime) to point them at your own._
 
 ### Run with Docker
 
@@ -198,7 +203,28 @@ docker run -d -p 3030:3030 \
 - `GAUZY_API_SERVER_URL` is used by the Next.js server, so it must be reachable from inside the container; `NEXT_PUBLIC_GAUZY_API_SERVER_URL` is used by the browser. Both are the API origin, without a trailing `/api`. If `NEXT_PUBLIC_GAUZY_API_SERVER_URL` is unset, the browser calls the API through the web app's own `/api` proxy.
 - `AUTH_SECRET` is required in production (sessions and social login).
 - `NEXT_PUBLIC_CAPTCHA_TYPE` is `recaptcha` (default), `hcaptcha` or `cloudflare` (Turnstile). Set `NEXT_PUBLIC_CAPTCHA_SITE_KEY` and `CAPTCHA_SECRET_KEY` together, or leave both empty to sign up without a captcha.
-- Branding: `APP_NAME`, `APP_SIGNATURE`, `APP_LOGO_URL`, `APP_LINK`, `APP_SLOGAN_TEXT`, `COMPANY_NAME`, `COMPANY_LINK`, `TERMS_LINK`, `PRIVACY_POLICY_LINK`, `MAIN_PICTURE`, `MAIN_PICTURE_DARK`.
+- Branding: `APP_NAME`, `APP_SIGNATURE`, `APP_LOGO_URL`, `APP_FAVICON_URL` (default `/favicon.ico`), `APP_LINK`,
+  `APP_SLOGAN_TEXT`, `COMPANY_NAME`, `COMPANY_LINK`, `TERMS_LINK`, `PRIVACY_POLICY_LINK`, `MAIN_PICTURE`,
+  `MAIN_PICTURE_DARK`. The logo and favicon are absolute URLs or paths served by the app (emails resolve a logo path
+  against `APP_LINK`). Set `APP_SLOGAN_TEXT`, `COMPANY_LINK`, `TERMS_LINK` or `PRIVACY_POLICY_LINK` to `none` to hide
+  it (an empty value brings back the default).
+- Social login (Google, Facebook, GitHub, Twitter/X): set `NEXT_PUBLIC_<PROVIDER>_APP_NAME` and
+  `<PROVIDER>_CLIENT_ID` / `<PROVIDER>_CLIENT_SECRET`, and register `<public origin>/api/auth/callback/<provider>`
+  (e.g. `https://teams.example.com/api/auth/callback/google`) as the OAuth callback URL. Behind a reverse proxy or
+  ingress that does not forward the public host (`Host` / `X-Forwarded-Host`) and `X-Forwarded-Proto`, also set
+  `AUTH_URL` to the public origin of the app, without a path (e.g. `https://teams.example.com`).
+- Services that Ever operates for its own deployments are off unless you point them at your own: Jitsi meetings
+  (`NEXT_PUBLIC_MEET_DOMAIN` with `MEET_JWT_APP_ID` / `MEET_JWT_APP_SECRET`, or LiveKit), the collaborative
+  whiteboard (`NEXT_PUBLIC_BOARD_APP_DOMAIN`, `NEXT_PUBLIC_BOARD_BACKEND_POST_URL`) and the GitHub integration,
+  which offers no install link until `NEXT_PUBLIC_GITHUB_APP_NAME` is set to the slug of your own GitHub App.
+- Error reporting: `SENTRY_DSN` (server) and `NEXT_PUBLIC_SENTRY_DSN` (browser) are read at runtime; unset = off.
+  Analytics and support chat are runtime settings too: PostHog (`NEXT_PUBLIC_POSTHOG_KEY`, unset = off;
+  `NEXT_PUBLIC_POSTHOG_HOST`, default `https://us.i.posthog.com`), Jitsu and Chatwoot.
+- Demo mode (`NEXT_PUBLIC_DEMO=true`): `NEXT_PUBLIC_DEMO_ACCOUNTS` replaces the one-click demo accounts with a JSON
+  array of `{"type","email","password"}` objects (optional `"role"` label), one per `type` among `SUPER_ADMIN`,
+  `ADMIN` and `EMPLOYEE`, e.g.
+  `[{"type":"ADMIN","email":"demo@example.com","password":"demo-password"}]`. It is sent to the browser: use
+  throwaway demo credentials only.
 - `NEXT_PUBLIC_IMAGES_HOSTS` (comma-separated) allows extra remote image hosts at runtime; the origins of the `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, `APP_LOGO_URL` and `MAIN_PICTURE*` URLs are allowed automatically. An entry is either `host`, `*.host` (subdomains only) or `host:port`, which means https, or a full origin such as `http://minio.lan:9000`, which allows exactly that origin (use it for http or a custom port). Hosts that were not in the list the image was built with are served without Next.js image optimization (`/_next/image` redirects the browser to the original image); hosts in the build-time list always go through the optimizer.
 - An empty value counts as unset, so the built-in default applies. The one exception is `NEXT_PUBLIC_<PROVIDER>_APP_NAME`: setting it, even to an empty value, advertises that social login, which still only appears once `<PROVIDER>_CLIENT_ID` and `<PROVIDER>_CLIENT_SECRET` are set. Sign-in buttons exist only for Google, Facebook, GitHub and Twitter/X.
 - Only `NEXT_PUBLIC_*` and branding variables reach the browser. Secrets (`AUTH_SECRET`, `CAPTCHA_SECRET_KEY`, `*_CLIENT_SECRET`, `SMTP_PASSWORD`, ...) stay on the server.
@@ -250,6 +276,10 @@ DevContainers for VSCode are supported (WIP).
 ## 🚗 Self Hosting
 
 Platforms that run our prebuilt Docker image (e.g. the Koyeb button below) are configured with environment variables only: the image bakes nothing deployment-specific. See [Configure at Runtime](#configure-at-runtime) and [`.env.docker`](.env.docker).
+
+The Render, Heroku and Northflank templates generate a random `AUTH_SECRET`; on Fly, set it once with
+`fly secrets set AUTH_SECRET=$(openssl rand -base64 32)`. They all point `GAUZY_API_SERVER_URL` and
+`NEXT_PUBLIC_GAUZY_API_SERVER_URL` at our public API (<https://api.ever.team>): change both to use your own Gauzy API.
 
 ### DigitalOcean
 

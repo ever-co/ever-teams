@@ -101,6 +101,8 @@ CHATGPT_WIDGET_DOMAIN=teams.example.com
 # Environment
 NODE_ENV=development
 LOG_LEVEL=info
+# Optional: also ship logs to Better Stack (Logtail); empty = console only
+LOGTAIL_SOURCE_TOKEN=
 ```
 
 ### Development
@@ -260,9 +262,11 @@ workspace) and published as
 The image is built once and configured at **runtime**: the server reads every
 deployment-specific value (`MCP_SERVER_URL`, `OAUTH_SERVER_URL`, `PUBLIC_URL`,
 `ALLOWED_ORIGINS`, `CHATGPT_WIDGET_DOMAIN`, `CHATGPT_WIDGET_CSP`,
-`CHATGPT_APP_ID`, `CHATGPT_APP_SECRET`, `SESSION_SECRET`, `LOG_LEVEL`, ...) from
-the container environment when it starts, so a self-hosted deployment only
-passes its own values - nothing needs a rebuild. The image sets
+`CHATGPT_APP_ID`, `CHATGPT_APP_SECRET`, `SESSION_SECRET`, `LOG_LEVEL`,
+`LOGTAIL_SOURCE_TOKEN`, ...) from the container environment when it starts, so
+a self-hosted deployment only passes its own values - nothing needs a rebuild.
+`LOGTAIL_SOURCE_TOKEN` is optional: set it to also ship the logs to Better
+Stack (Logtail), see Monitoring below. The image sets
 `NODE_ENV=production`, `CHATGPT_APP_HOST=0.0.0.0` and `CHATGPT_APP_PORT=3004`;
 `SESSION_SECRET` is required in production.
 
@@ -298,8 +302,8 @@ docker run -d \
 # Check if MCP server is accessible
 curl https://mcp.ever.team/health
 
-# Check server logs
-tail -f logs/combined.log
+# Check server logs (console output)
+docker logs -f chatgpt-app
 ```
 
 ### OAuth Authorization Failed
@@ -318,9 +322,10 @@ curl https://mcpauth.ever.team/.well-known/oauth-authorization-server
 ## 📊 Monitoring
 
 The app uses Pino for logging. Logs are written to:
-- Console (colorized, formatted)
-- `logs/combined.log` (all logs)
-- `logs/error.log` (errors only)
+- Console (colorized, formatted), e.g. `docker logs chatgpt-app`
+- [Better Stack](https://betterstack.com/logs) (Logtail), only when
+  `LOGTAIL_SOURCE_TOKEN` is set to the token of a Better Stack source
+  (optional; unset = console only)
 
 ### Log Levels
 - `error`: Errors and exceptions

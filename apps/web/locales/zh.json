@@ -1,5 +1,5 @@
 {
-	"TITLE": "永恒团队",
+	"TITLE": "{appName}",
 	"sidebar": {
 		"DASHBOARD": "仪表板",
 		"FORYOU": "常规",
@@ -1296,7 +1296,7 @@
 		"HEADER_TITLE": "AI 聊天",
 		"CLEAR_CONVERSATION": "清除对话",
 		"CONFIGURATION": "配置",
-		"ASSISTANT_NAME": "Ever Teams 助手",
+		"ASSISTANT_NAME": "{appName} 助手",
 		"EMPTY_CONFIGURED": "提出问题以开始。",
 		"EMPTY_NOT_CONFIGURED": "配置您的 API 密钥以开始。",
 		"CONFIGURE_BUTTON": "配置",
@@ -1312,6 +1312,6 @@
 		"COLLAPSE_ASSISTANT": "折叠助手",
 		"STANDARD_ASSISTANT_WIDTH": "助手标准宽度",
 		"EXPAND_ASSISTANT": "展开助手",
-		"OPEN_ASSISTANT": "打开 Ever Teams 助手"
+		"OPEN_ASSISTANT": "打开 {appName} 助手"
 	}
 }

@@ -7,6 +7,24 @@ import vm from 'node:vm';
 
 const ORIGINAL_ENV = process.env;
 
+// runtime-env.ts publishes the social providers next-auth serves (check-provider-env-vars.ts), which
+// imports next-auth's providers: ESM only, so Jest cannot load them. Only their id and name matter here.
+function mockProvider(id: string, name: string) {
+	return {
+		__esModule: true,
+		default: (options: Record<string, unknown>) => ({ id, name, type: 'oauth', options })
+	};
+}
+jest.mock('next-auth/providers/apple', () => mockProvider('apple', 'Apple'));
+jest.mock('next-auth/providers/discord', () => mockProvider('discord', 'Discord'));
+jest.mock('next-auth/providers/facebook', () => mockProvider('facebook', 'Facebook'));
+jest.mock('next-auth/providers/google', () => mockProvider('google', 'Google'));
+jest.mock('next-auth/providers/github', () => mockProvider('github', 'GitHub'));
+jest.mock('next-auth/providers/linkedin', () => mockProvider('linkedin', 'LinkedIn'));
+jest.mock('next-auth/providers/azure-ad', () => mockProvider('azure-ad', 'Azure Active Directory'));
+jest.mock('next-auth/providers/slack', () => mockProvider('slack', 'Slack'));
+jest.mock('next-auth/providers/twitter', () => mockProvider('twitter', 'Twitter'));
+
 function loadModules() {
 	let modules!: {
 		runtimeEnv: typeof import('@/core/services/server/runtime-env');
@@ -87,6 +105,7 @@ describe('getPublicRuntimeEnv', () => {
 			Object.keys(env).every(
 				(key) =>
 					key.startsWith('NEXT_PUBLIC_') ||
+					key === 'EVER_TEAMS_AUTH_PROVIDERS' ||
 					key.startsWith('APP_') ||
 					/^(COMPANY_|TERMS_|PRIVACY_|MAIN_PICTURE)/.test(key)
 			)
@@ -114,6 +133,67 @@ describe('getPublicRuntimeEnv', () => {
 		const { runtimeEnv } = loadModules();
 
 		expect(runtimeEnv.getPublicRuntimeEnv().NEXT_PUBLIC_GAUZY_API_SERVER_URL).toBe('http://localhost:3000');
+	});
+});
+
+describe('getPublicRuntimeEnv: social login providers', () => {
+	const PROVIDERS = ['APPLE', 'DISCORD', 'FACEBOOK', 'GOOGLE', 'GITHUB', 'LINKEDIN', 'MICROSOFT', 'SLACK', 'TWITTER'];
+	const APP_NAME_KEYS = [...PROVIDERS, 'MICROSOFTENTRAID'].map((provider) => `NEXT_PUBLIC_${provider}_APP_NAME`);
+	const CLIENT_KEYS = PROVIDERS.flatMap((provider) => [`${provider}_CLIENT_ID`, `${provider}_CLIENT_SECRET`]);
+
+	beforeEach(() => {
+		// apps/web/.env advertises some providers (with empty client ids): start from none.
+		for (const key of [...APP_NAME_KEYS, ...CLIENT_KEYS, 'EVER_TEAMS_AUTH_PROVIDERS']) delete process.env[key];
+	});
+
+	it('publishes the ids of the providers next-auth serves, never their client ids or secrets', () => {
+		Object.assign(process.env, {
+			NEXT_PUBLIC_GOOGLE_APP_NAME: 'Google',
+			GOOGLE_CLIENT_ID: 'google-client-id',
+			GOOGLE_CLIENT_SECRET: 'google-client-secret',
+			NEXT_PUBLIC_GITHUB_APP_NAME: 'GitHub',
+			GITHUB_CLIENT_ID: 'github-client-id',
+			GITHUB_CLIENT_SECRET: 'github-client-secret',
+			// Advertised but not configured, and configured but not advertised: neither is usable.
+			NEXT_PUBLIC_TWITTER_APP_NAME: 'X',
+			FACEBOOK_CLIENT_ID: 'facebook-client-id',
+			FACEBOOK_CLIENT_SECRET: 'facebook-client-secret'
+		});
+		const { runtimeEnv } = loadModules();
+
+		const env = runtimeEnv.getPublicRuntimeEnv();
+		const serialized = JSON.stringify(env);
+
+		expect(env.EVER_TEAMS_AUTH_PROVIDERS).toBe('google,github');
+		for (const value of [
+			'google-client-id',
+			'google-client-secret',
+			'github-client-id',
+			'github-client-secret',
+			'facebook-client-id',
+			'facebook-client-secret'
+		]) {
+			expect(serialized).not.toContain(value);
+		}
+		expect(Object.keys(env).filter((key) => /CLIENT_(ID|SECRET)/.test(key))).toEqual([]);
+	});
+
+	it('omits the provider list when no provider is configured (whitespace placeholders included)', () => {
+		Object.assign(process.env, { NEXT_PUBLIC_GOOGLE_APP_NAME: 'Google', GOOGLE_CLIENT_ID: ' ' });
+		const { runtimeEnv } = loadModules();
+
+		expect(runtimeEnv.getPublicRuntimeEnv()).not.toHaveProperty('EVER_TEAMS_AUTH_PROVIDERS');
+	});
+
+	it('derives the provider list on the server: the container env cannot inject one', () => {
+		process.env.EVER_TEAMS_AUTH_PROVIDERS = 'github,slack';
+		Object.assign(process.env, { NEXT_PUBLIC_GOOGLE_APP_NAME: 'Google', GOOGLE_CLIENT_ID: 'google-client-id' });
+		const { runtimeEnv } = loadModules();
+
+		expect(runtimeEnv.getPublicRuntimeEnv().EVER_TEAMS_AUTH_PROVIDERS).toBe('google');
+
+		delete process.env.GOOGLE_CLIENT_ID;
+		expect(loadModules().runtimeEnv.getPublicRuntimeEnv()).not.toHaveProperty('EVER_TEAMS_AUTH_PROVIDERS');
 	});
 });
 

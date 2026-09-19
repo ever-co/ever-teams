@@ -1,29 +1,21 @@
 /**
- * @jest-environment jsdom
- */
-/**
- * Social providers are advertised from the RUNTIME env (NEXT_PUBLIC_<X>_APP_NAME), so a published Docker
- * image can offer its own providers without a rebuild. The semantics are "set" vs "absent" (`??`): a
- * provider whose app name is set to '' is still advertised, and a runtime '' must NOT fall through to the
- * value that was inlined when the image was built (simulated here by process.env, which is what the
- * `process.env.NEXT_PUBLIC_X` fallbacks read under Jest).
+ * check-provider-env-vars.ts is SERVER code (auth.ts, core/services/server/runtime-env.ts): whether a
+ * provider is usable depends on its client id, which is server-only env a browser never has. The
+ * browser receives the resulting provider ids through the runtime env payload instead.
+ *
+ * Display names are read from the container env first (readRuntimeEnv, stubbed here by mockContainerEnv)
+ * with the literal `process.env.NEXT_PUBLIC_X` as the build-time fallback, which Next inlines into the
+ * server bundle too (simulated here by process.env). The semantics are "set" vs "absent" (`??`): a
+ * provider whose app name is set to '' is still advertised, and a runtime '' must NOT fall through to
+ * the value that was inlined when the image was built. Client ids are plain server env (never inlined).
  */
 
 import type * as ProviderModuleExports from './check-provider-env-vars';
 
-const GLOBAL = '__EVER_TEAMS_RUNTIME_ENV__';
 const ORIGINAL_ENV = process.env;
-const APP_NAME_KEYS = [
-	'NEXT_PUBLIC_APPLE_APP_NAME',
-	'NEXT_PUBLIC_DISCORD_APP_NAME',
-	'NEXT_PUBLIC_FACEBOOK_APP_NAME',
-	'NEXT_PUBLIC_GOOGLE_APP_NAME',
-	'NEXT_PUBLIC_GITHUB_APP_NAME',
-	'NEXT_PUBLIC_LINKEDIN_APP_NAME',
-	'NEXT_PUBLIC_MICROSOFTENTRAID_APP_NAME',
-	'NEXT_PUBLIC_SLACK_APP_NAME',
-	'NEXT_PUBLIC_TWITTER_APP_NAME'
-];
+const PROVIDER_KEYS = ['APPLE', 'DISCORD', 'FACEBOOK', 'GOOGLE', 'GITHUB', 'LINKEDIN', 'SLACK', 'TWITTER'];
+const APP_NAME_KEYS = [...PROVIDER_KEYS, 'MICROSOFTENTRAID'].map((key) => `NEXT_PUBLIC_${key}_APP_NAME`);
+const CLIENT_KEYS = [...PROVIDER_KEYS, 'MICROSOFT'].flatMap((key) => [`${key}_CLIENT_ID`, `${key}_CLIENT_SECRET`]);
 
 // next-auth ships ESM only; the unit under test only needs each provider's id and name.
 function mockProvider(id: string, name: string) {
@@ -42,51 +34,64 @@ jest.mock('next-auth/providers/azure-ad', () => mockProvider('azure-ad', 'Azure 
 jest.mock('next-auth/providers/slack', () => mockProvider('slack', 'Slack'));
 jest.mock('next-auth/providers/twitter', () => mockProvider('twitter', 'Twitter'));
 
-// Google and GitHub have client ids; Twitter is advertised in some tests but has NO client id.
-jest.mock('@/core/constants/config/constants', () => ({
-	GOOGLE_CLIENT_ID: 'google-client-id',
-	GITHUB_CLIENT_ID: 'github-client-id'
+// The container env of the running server, as readRuntimeEnv() returns it.
+const mockContainerEnv: Record<string, string | undefined> = {};
+jest.mock('@/env-config', () => ({
+	...jest.requireActual('@/env-config'),
+	readRuntimeEnv: (name: string) => mockContainerEnv[name]
 }));
 
-// Type-only import: the module itself is required fresh per test (providerNames is computed at import time).
-type ProviderModule = typeof ProviderModuleExports;
+// Type-only import: the module itself is required fresh per test (it computes everything at import time).
+type ProviderModule = Pick<
+	typeof ProviderModuleExports,
+	'providerNames' | 'filteredProviders' | 'mappedProviders' | 'getConfiguredAuthProviderIds'
+>;
 
-/** providerNames is computed at import time: load it fresh, after the runtime env is in place. */
-function loadWithRuntimeEnv(runtimeEnv: Record<string, string>): ProviderModule {
-	(globalThis as Record<string, unknown>)[GLOBAL] = runtimeEnv;
+/** Loads the module fresh, as a server booting with this container env (and process.env) would. */
+function loadWithContainerEnv(containerEnv: Record<string, string>): ProviderModule {
+	for (const key of Object.keys(mockContainerEnv)) delete mockContainerEnv[key];
+	Object.assign(mockContainerEnv, containerEnv);
 	let mod!: ProviderModule;
 	jest.isolateModules(() => {
-		mod = require('./check-provider-env-vars');
+		// Destructured straight from require() (no cast): that is how Knip sees which exports are used.
+		const {
+			providerNames,
+			filteredProviders,
+			mappedProviders,
+			getConfiguredAuthProviderIds
+		} = require('./check-provider-env-vars');
+		mod = { providerNames, filteredProviders, mappedProviders, getConfiguredAuthProviderIds };
 	});
 	return mod;
 }
 
-const advertisedIds = (mod: ProviderModule) => mod.mappedProviders.map((provider) => provider.id);
+const nextAuthIds = (mod: ProviderModule) => mod.mappedProviders.map((provider) => provider.id);
 
 beforeEach(() => {
 	process.env = { ...ORIGINAL_ENV };
-	// Start from an image built WITHOUT provider names (apps/web/.env may define some).
-	for (const key of APP_NAME_KEYS) delete process.env[key];
-	delete (globalThis as Record<string, unknown>)[GLOBAL];
+	// Start from a server built and started WITHOUT social providers (apps/web/.env defines some names).
+	for (const key of [...APP_NAME_KEYS, ...CLIENT_KEYS]) delete process.env[key];
+	// Google and GitHub have client ids; Twitter is advertised in some tests but has NO client id.
+	process.env.GOOGLE_CLIENT_ID = 'google-client-id';
+	process.env.GITHUB_CLIENT_ID = 'github-client-id';
 });
 
 afterAll(() => {
 	process.env = ORIGINAL_ENV;
-	delete (globalThis as Record<string, unknown>)[GLOBAL];
 });
 
 describe('providerNames / filteredProviders read at runtime', () => {
 	it('advertises a provider whose runtime app name is set to an empty string', () => {
-		const mod = loadWithRuntimeEnv({ NEXT_PUBLIC_GOOGLE_APP_NAME: '' });
+		const mod = loadWithContainerEnv({ NEXT_PUBLIC_GOOGLE_APP_NAME: '' });
 
 		expect(mod.providerNames.google).toBe('');
-		expect(advertisedIds(mod)).toEqual(['google']);
+		expect(nextAuthIds(mod)).toEqual(['google']);
 	});
 
 	it('keeps a runtime empty app name instead of falling through to the build-time value', () => {
 		process.env.NEXT_PUBLIC_GOOGLE_APP_NAME = 'Baked Google';
 
-		const mod = loadWithRuntimeEnv({ NEXT_PUBLIC_GOOGLE_APP_NAME: '' });
+		const mod = loadWithContainerEnv({ NEXT_PUBLIC_GOOGLE_APP_NAME: '' });
 
 		expect(mod.providerNames.google).toBe('');
 	});
@@ -94,33 +99,72 @@ describe('providerNames / filteredProviders read at runtime', () => {
 	it('prefers the runtime app name over the build-time one', () => {
 		process.env.NEXT_PUBLIC_GITHUB_APP_NAME = 'Baked GitHub';
 
-		const mod = loadWithRuntimeEnv({ NEXT_PUBLIC_GITHUB_APP_NAME: 'Acme GitHub' });
+		const mod = loadWithContainerEnv({ NEXT_PUBLIC_GITHUB_APP_NAME: 'Acme GitHub' });
 
 		expect(mod.providerNames.github).toBe('Acme GitHub');
-		expect(advertisedIds(mod)).toEqual(['github']);
+		expect(nextAuthIds(mod)).toEqual(['github']);
 	});
 
 	it('does not advertise a configured provider whose app name is absent at runtime and build time', () => {
-		const mod = loadWithRuntimeEnv({});
+		const mod = loadWithContainerEnv({});
 
 		expect(mod.providerNames.google).toBeUndefined();
 		expect(mod.providerNames.github).toBeUndefined();
-		expect(advertisedIds(mod)).toEqual([]);
+		expect(nextAuthIds(mod)).toEqual([]);
 	});
 
 	it('falls back to the build-time app name when the runtime env does not set it (non-Docker builds)', () => {
 		process.env.NEXT_PUBLIC_GITHUB_APP_NAME = 'GitHub';
 
-		const mod = loadWithRuntimeEnv({});
+		const mod = loadWithContainerEnv({});
 
 		expect(mod.providerNames.github).toBe('GitHub');
-		expect(advertisedIds(mod)).toEqual(['github']);
+		expect(nextAuthIds(mod)).toEqual(['github']);
 	});
 
 	it('still hides an advertised provider that has no client id', () => {
-		const mod = loadWithRuntimeEnv({ NEXT_PUBLIC_TWITTER_APP_NAME: 'X', NEXT_PUBLIC_GOOGLE_APP_NAME: 'Google' });
+		const mod = loadWithContainerEnv({ NEXT_PUBLIC_TWITTER_APP_NAME: 'X', NEXT_PUBLIC_GOOGLE_APP_NAME: 'Google' });
 
 		expect(mod.providerNames.twitter).toBe('X');
-		expect(advertisedIds(mod)).toEqual(['google']);
+		expect(nextAuthIds(mod)).toEqual(['google']);
+	});
+});
+
+describe('getConfiguredAuthProviderIds (published to the browser)', () => {
+	it('returns exactly the providers next-auth is given, in display order', () => {
+		process.env.TWITTER_CLIENT_ID = 'twitter-client-id';
+
+		const mod = loadWithContainerEnv({
+			NEXT_PUBLIC_TWITTER_APP_NAME: 'X',
+			NEXT_PUBLIC_GITHUB_APP_NAME: 'GitHub',
+			NEXT_PUBLIC_GOOGLE_APP_NAME: 'Google',
+			NEXT_PUBLIC_FACEBOOK_APP_NAME: 'Facebook'
+		});
+
+		expect(mod.getConfiguredAuthProviderIds()).toEqual(['google', 'github', 'twitter']);
+		expect(mod.getConfiguredAuthProviderIds()).toEqual(nextAuthIds(mod));
+		expect(mod.filteredProviders).toHaveLength(3);
+	});
+
+	it('treats a whitespace-only client id (secret-store placeholder) as not configured', () => {
+		process.env.GITHUB_CLIENT_ID = '  ';
+
+		const mod = loadWithContainerEnv({
+			NEXT_PUBLIC_GITHUB_APP_NAME: 'GitHub',
+			NEXT_PUBLIC_GOOGLE_APP_NAME: 'Google'
+		});
+
+		expect(mod.getConfiguredAuthProviderIds()).toEqual(['google']);
+	});
+
+	it('returns provider ids only, never a client id or secret', () => {
+		process.env.GOOGLE_CLIENT_SECRET = 'google-client-secret';
+
+		const mod = loadWithContainerEnv({ NEXT_PUBLIC_GOOGLE_APP_NAME: 'Google' });
+		const published = JSON.stringify(mod.getConfiguredAuthProviderIds());
+
+		expect(published).toBe('["google"]');
+		expect(published).not.toContain('google-client-id');
+		expect(published).not.toContain('google-client-secret');
 	});
 });

@@ -1,11 +1,13 @@
 'use client';
 
-import * as Sentry from '@sentry/nextjs';
 import { useEffect } from 'react';
+import { initSentryClient } from '../sentry.client.config';
 
 export default function GlobalError({ error }: { error: Error & { digest?: string } }) {
 	useEffect(() => {
-		Sentry.captureException(error);
+		// Sentry starts lazily and only when the runtime env has a DSN: wait for it (no-op when it is off),
+		// otherwise an error caught here before the SDK finished loading would be dropped.
+		void initSentryClient().then((Sentry) => Sentry?.captureException(error));
 	}, [error]);
 
 	return (
