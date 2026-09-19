@@ -170,8 +170,8 @@ services:
       JITSU_SERVER_URL: ${JITSU_SERVER_URL:-}
       JITSU_SERVER_WRITE_KEY: ${JITSU_SERVER_WRITE_KEY:-}
       AUTH_SECRET: ${AUTH_SECRET:-}
-      # Public origin for next-auth (OAuth callbacks), needed behind a proxy that hides the public host
-      AUTH_URL: ${AUTH_URL:-}
+      # AUTH_URL (public origin for next-auth OAuth callbacks behind a proxy): set it in .env.compose. It is not
+      # listed here on purpose: an empty value here would override the env_file one (and NEXTAUTH_URL).
       CAPTCHA_SECRET_KEY: ${CAPTCHA_SECRET_KEY:-}
       SMTP_FROM_ADDRESS: ${SMTP_FROM_ADDRESS:-}
       SMTP_HOST: ${SMTP_HOST:-}

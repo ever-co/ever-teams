@@ -114,7 +114,7 @@ describe('deployment-specific defaults in the browser', () => {
 		// (next/jest loads apps/web/.env, which sets some of them; the NEXT_PUBLIC_ ones stand for build-time values.)
 		const keys = ['APP_LINK', 'APP_LOGO_URL', 'APP_FAVICON_URL', 'APP_SLOGAN_TEXT', 'COMPANY_LINK', 'TERMS_LINK'];
 		keys.push('PRIVACY_POLICY_LINK', 'GAUZY_API_SERVER_URL', 'NEXT_PUBLIC_GITHUB_APP_NAME');
-		keys.push('NEXT_PUBLIC_POSTHOG_HOST');
+		keys.push('NEXT_PUBLIC_POSTHOG_HOST', 'NEXT_PUBLIC_WEB_APP_URL');
 		for (const key of keys) delete process.env[key];
 		delete (globalThis as Record<string, unknown>).__everTeamsConfigWarnings;
 	});
@@ -130,6 +130,15 @@ describe('deployment-specific defaults in the browser', () => {
 		expect(constants.APP_LOGO_URL).toBe('https://teams.example.org/assets/ever-teams.png');
 		expect(constants.APP_LOGO_SRC).toBe('/assets/ever-teams.png');
 		expect(constants.APP_FAVICON_URL).toBe('/assets/acme.ico');
+	});
+
+	it("resolves a path-valued logo against this app's public URL before APP_LINK", () => {
+		(globalThis as Record<string, unknown>)[GLOBAL] = {
+			APP_LINK: 'https://www.example.org',
+			NEXT_PUBLIC_WEB_APP_URL: 'https://teams.example.org/'
+		};
+
+		expect(loadConstants().APP_LOGO_URL).toBe('https://teams.example.org/assets/ever-teams.png');
 	});
 
 	it("keeps Ever's logo and the default favicon when the runtime env sets neither", () => {

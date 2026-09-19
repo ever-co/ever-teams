@@ -207,8 +207,8 @@ describe('self-hosting surfaces', () => {
 	});
 
 	describe('social login behind a reverse proxy', () => {
-		it.each(IMAGE_COMPOSE_FILES)('%s passes AUTH_URL through (empty = taken from the request)', (file) => {
-			expect(webappEnvironment(file).AUTH_URL).toBe('${AUTH_URL:-}');
+		it.each(IMAGE_COMPOSE_FILES)('%s never forces AUTH_URL empty (it would mask the env_file value)', (file) => {
+			expect(webappEnvironment(file)).not.toHaveProperty('AUTH_URL');
 		});
 	});
 

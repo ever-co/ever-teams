@@ -9,7 +9,8 @@ import { readRuntimeEnv } from '@/env-config';
 
 type Sentry = typeof SentrySdk;
 
-const DEFAULT_TRACES_SAMPLE_RATE = 1;
+// 10% of requests unless SENTRY_TRACES_SAMPLE_RATE says otherwise: every request is a transaction on the server.
+const DEFAULT_TRACES_SAMPLE_RATE = 0.1;
 
 /**
  * First non-blank value of the server-only `SENTRY_*` key, then of the `NEXT_PUBLIC_SENTRY_*` key the browser uses,
@@ -24,6 +25,23 @@ function readSampleRate(value: string | undefined, fallback: number): number {
 	return rate >= 0 && rate <= 1 ? rate : fallback;
 }
 
+type ProbeSamplingContext = {
+	name?: string;
+	normalizedRequest?: { url?: string; headers?: Record<string, string | string[] | undefined> };
+};
+
+/**
+ * Kubernetes liveness/readiness probes (User-Agent `kube-probe/...`) and /api/health checks hit every replica every
+ * few seconds; tracing them would spend the Sentry quota on nothing.
+ */
+function isHealthProbe(context: ProbeSamplingContext): boolean {
+	const userAgent = context.normalizedRequest?.headers?.['user-agent'];
+	const agent = Array.isArray(userAgent) ? userAgent[0] : userAgent;
+	if (agent?.toLowerCase().startsWith('kube-probe/')) return true;
+	const target = `${context.name ?? ''} ${context.normalizedRequest?.url ?? ''}`;
+	return /\/api\/health(?:[/?#\s]|$)/.test(target);
+}
+
 /** `Sentry.init` options for the server, or undefined when no DSN is configured (Sentry off). */
 export function getSentryServerOptions(): Parameters<Sentry['init']>[0] | undefined {
 	const dsn = readSentryEnv('SENTRY_DSN', 'NEXT_PUBLIC_SENTRY_DSN');
@@ -31,6 +49,10 @@ export function getSentryServerOptions(): Parameters<Sentry['init']>[0] | undefi
 
 	const environment = readSentryEnv('SENTRY_ENVIRONMENT', 'NEXT_PUBLIC_SENTRY_ENVIRONMENT');
 	const release = readSentryEnv('SENTRY_RELEASE', 'NEXT_PUBLIC_SENTRY_RELEASE');
+	const tracesSampleRate = readSampleRate(
+		readSentryEnv('SENTRY_TRACES_SAMPLE_RATE', 'NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE'),
+		DEFAULT_TRACES_SAMPLE_RATE
+	);
 
 	return {
 		dsn,
@@ -38,11 +60,10 @@ export function getSentryServerOptions(): Parameters<Sentry['init']>[0] | undefi
 		...(environment ? { environment } : {}),
 		...(release ? { release } : {}),
 
-		// Adjust this value in production, or use tracesSampler for greater control
-		tracesSampleRate: readSampleRate(
-			readSentryEnv('SENTRY_TRACES_SAMPLE_RATE', 'NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE'),
-			DEFAULT_TRACES_SAMPLE_RATE
-		),
+		tracesSampleRate,
+		// Takes precedence over tracesSampleRate: never trace health probes, otherwise honour the incoming trace's
+		// decision or the configured rate.
+		tracesSampler: (context) => (isHealthProbe(context) ? 0 : context.inheritOrSampleWith(tracesSampleRate)),
 
 		// Setting this option to true will print useful information to the console while you're setting up Sentry.
 		debug: readRuntimeEnv('NEXT_PUBLIC_SENTRY_DEBUG') === 'true'

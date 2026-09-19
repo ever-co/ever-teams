@@ -187,7 +187,11 @@ describe('getPublicRuntimeEnv: social login providers', () => {
 
 	it('derives the provider list on the server: the container env cannot inject one', () => {
 		process.env.EVER_TEAMS_AUTH_PROVIDERS = 'github,slack';
-		Object.assign(process.env, { NEXT_PUBLIC_GOOGLE_APP_NAME: 'Google', GOOGLE_CLIENT_ID: 'google-client-id' });
+		Object.assign(process.env, {
+			NEXT_PUBLIC_GOOGLE_APP_NAME: 'Google',
+			GOOGLE_CLIENT_ID: 'google-client-id',
+			GOOGLE_CLIENT_SECRET: 'google-client-secret'
+		});
 		const { runtimeEnv } = loadModules();
 
 		expect(runtimeEnv.getPublicRuntimeEnv().EVER_TEAMS_AUTH_PROVIDERS).toBe('google');

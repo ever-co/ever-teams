@@ -9,7 +9,9 @@ import { readRuntimeEnv } from '@/env-config';
 type Sentry = typeof SentrySdk;
 type EarlyError = { error: unknown; mechanism: string };
 
-const DEFAULT_TRACES_SAMPLE_RATE = 1;
+const DEFAULT_TRACES_SAMPLE_RATE = 0.1;
+const DEFAULT_REPLAYS_SESSION_SAMPLE_RATE = 0.1;
+const DEFAULT_REPLAYS_ON_ERROR_SAMPLE_RATE = 1;
 // Enough for a burst of startup errors, bounded in case the SDK chunk never arrives.
 const MAX_EARLY_ERRORS = 20;
 
@@ -34,6 +36,17 @@ export function getSentryClientOptions(Sentry: Sentry, dsn: string): SentrySdk.B
 		readRuntimeEnv('NEXT_PUBLIC_SENTRY_ENVIRONMENT') || process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT
 	)?.trim();
 	const release = (readRuntimeEnv('NEXT_PUBLIC_SENTRY_RELEASE') || process.env.NEXT_PUBLIC_SENTRY_RELEASE)?.trim();
+	// Session Replay rates are runtime settings too; 0 for both leaves the Replay integration out entirely.
+	const replaysSessionSampleRate = readSampleRate(
+		readRuntimeEnv('NEXT_PUBLIC_SENTRY_REPLAYS_SESSION_SAMPLE_RATE') ||
+			process.env.NEXT_PUBLIC_SENTRY_REPLAYS_SESSION_SAMPLE_RATE,
+		DEFAULT_REPLAYS_SESSION_SAMPLE_RATE
+	);
+	const replaysOnErrorSampleRate = readSampleRate(
+		readRuntimeEnv('NEXT_PUBLIC_SENTRY_REPLAYS_ON_ERROR_SAMPLE_RATE') ||
+			process.env.NEXT_PUBLIC_SENTRY_REPLAYS_ON_ERROR_SAMPLE_RATE,
+		DEFAULT_REPLAYS_ON_ERROR_SAMPLE_RATE
+	);
 
 	return {
 		dsn,
@@ -51,20 +64,22 @@ export function getSentryClientOptions(Sentry: Sentry, dsn: string): SentrySdk.B
 		// Setting this option to true will print useful information to the console while you're setting up Sentry.
 		debug: (readRuntimeEnv('NEXT_PUBLIC_SENTRY_DEBUG') || process.env.NEXT_PUBLIC_SENTRY_DEBUG) === 'true',
 
-		replaysOnErrorSampleRate: 1.0,
+		replaysOnErrorSampleRate,
 
-		// This sets the sample rate to be 10%. You may want this to be 100% while
-		// in development and sample at a lower rate in production
-		replaysSessionSampleRate: 0.1,
+		// Share of all sessions recorded (default 10%); replaysOnErrorSampleRate covers sessions with an error.
+		replaysSessionSampleRate,
 
 		// Replay may only be enabled for the client-side
-		integrations: [
-			Sentry.replayIntegration({
-				// Additional Replay configuration goes in here, for example:
-				maskAllText: true,
-				blockAllMedia: true
-			})
-		]
+		integrations:
+			replaysSessionSampleRate > 0 || replaysOnErrorSampleRate > 0
+				? [
+						Sentry.replayIntegration({
+							// Additional Replay configuration goes in here, for example:
+							maskAllText: true,
+							blockAllMedia: true
+						})
+					]
+				: []
 	};
 }
 

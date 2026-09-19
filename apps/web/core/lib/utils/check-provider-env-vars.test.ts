@@ -71,9 +71,11 @@ beforeEach(() => {
 	process.env = { ...ORIGINAL_ENV };
 	// Start from a server built and started WITHOUT social providers (apps/web/.env defines some names).
 	for (const key of [...APP_NAME_KEYS, ...CLIENT_KEYS]) delete process.env[key];
-	// Google and GitHub have client ids; Twitter is advertised in some tests but has NO client id.
+	// Google and GitHub have client credentials; Twitter is advertised in some tests but has NO client id.
 	process.env.GOOGLE_CLIENT_ID = 'google-client-id';
+	process.env.GOOGLE_CLIENT_SECRET = 'google-client-secret';
 	process.env.GITHUB_CLIENT_ID = 'github-client-id';
+	process.env.GITHUB_CLIENT_SECRET = 'github-client-secret';
 });
 
 afterAll(() => {
@@ -133,6 +135,7 @@ describe('providerNames / filteredProviders read at runtime', () => {
 describe('getConfiguredAuthProviderIds (published to the browser)', () => {
 	it('returns exactly the providers next-auth is given, in display order', () => {
 		process.env.TWITTER_CLIENT_ID = 'twitter-client-id';
+		process.env.TWITTER_CLIENT_SECRET = 'twitter-client-secret';
 
 		const mod = loadWithContainerEnv({
 			NEXT_PUBLIC_TWITTER_APP_NAME: 'X',
@@ -157,9 +160,19 @@ describe('getConfiguredAuthProviderIds (published to the browser)', () => {
 		expect(mod.getConfiguredAuthProviderIds()).toEqual(['google']);
 	});
 
-	it('returns provider ids only, never a client id or secret', () => {
-		process.env.GOOGLE_CLIENT_SECRET = 'google-client-secret';
+	it('hides a provider whose client secret is missing or blank (the token exchange would fail)', () => {
+		process.env.GITHUB_CLIENT_SECRET = ' ';
+		delete process.env.GOOGLE_CLIENT_SECRET;
 
+		const mod = loadWithContainerEnv({
+			NEXT_PUBLIC_GITHUB_APP_NAME: 'GitHub',
+			NEXT_PUBLIC_GOOGLE_APP_NAME: 'Google'
+		});
+
+		expect(mod.getConfiguredAuthProviderIds()).toEqual([]);
+	});
+
+	it('returns provider ids only, never a client id or secret', () => {
 		const mod = loadWithContainerEnv({ NEXT_PUBLIC_GOOGLE_APP_NAME: 'Google' });
 		const published = JSON.stringify(mod.getConfiguredAuthProviderIds());
 

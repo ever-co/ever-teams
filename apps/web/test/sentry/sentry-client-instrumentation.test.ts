@@ -89,7 +89,7 @@ describe('browser Sentry (sentry.client.config.ts)', () => {
 		expect(mockInit).toHaveBeenCalledTimes(1);
 		expect(mockInit).toHaveBeenCalledWith({
 			dsn: RUNTIME_DSN,
-			tracesSampleRate: 1,
+			tracesSampleRate: 0.1,
 			debug: false,
 			replaysOnErrorSampleRate: 1,
 			replaysSessionSampleRate: 0.1,
@@ -115,6 +115,20 @@ describe('browser Sentry (sentry.client.config.ts)', () => {
 				tracesSampleRate: 0.2,
 				debug: true
 			})
+		);
+	});
+
+	it('takes the Session Replay rates from the runtime env and leaves Replay out when both are 0', async () => {
+		setRuntimeEnv({
+			NEXT_PUBLIC_SENTRY_DSN: RUNTIME_DSN,
+			NEXT_PUBLIC_SENTRY_REPLAYS_SESSION_SAMPLE_RATE: '0',
+			NEXT_PUBLIC_SENTRY_REPLAYS_ON_ERROR_SAMPLE_RATE: '0'
+		});
+
+		await loadClientConfig().initSentryClient();
+
+		expect(mockInit).toHaveBeenCalledWith(
+			expect.objectContaining({ replaysSessionSampleRate: 0, replaysOnErrorSampleRate: 0, integrations: [] })
 		);
 	});
 

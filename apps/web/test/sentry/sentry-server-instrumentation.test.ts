@@ -73,7 +73,12 @@ describe('server Sentry options (sentry.server.config.ts)', () => {
 
 		expect(mockInit).toHaveBeenCalledTimes(1);
 		// No environment/release keys: the SDK keeps its own defaults for them.
-		expect(mockInit).toHaveBeenCalledWith({ dsn: RUNTIME_DSN, tracesSampleRate: 1, debug: false });
+		expect(mockInit).toHaveBeenCalledWith({
+			dsn: RUNTIME_DSN,
+			tracesSampleRate: 0.1,
+			tracesSampler: expect.any(Function),
+			debug: false
+		});
 	});
 
 	it('falls back to NEXT_PUBLIC_SENTRY_DSN, and prefers the server-only SENTRY_DSN', () => {
@@ -96,6 +101,7 @@ describe('server Sentry options (sentry.server.config.ts)', () => {
 			environment: 'staging',
 			release: 'ever-teams-web@1.2.3',
 			tracesSampleRate: 0.25,
+			tracesSampler: expect.any(Function),
 			debug: true
 		});
 	});
@@ -104,7 +110,34 @@ describe('server Sentry options (sentry.server.config.ts)', () => {
 		process.env.SENTRY_DSN = RUNTIME_DSN;
 		process.env.SENTRY_TRACES_SAMPLE_RATE = rate;
 
-		expect(loadServerConfig().getSentryServerOptions()?.tracesSampleRate).toBe(1);
+		expect(loadServerConfig().getSentryServerOptions()?.tracesSampleRate).toBe(0.1);
+	});
+
+	it('never traces health probes, and samples everything else at the configured rate', () => {
+		process.env.SENTRY_DSN = RUNTIME_DSN;
+		process.env.SENTRY_TRACES_SAMPLE_RATE = '0.3';
+		const sampler = loadServerConfig().getSentryServerOptions()?.tracesSampler as (context: object) => number;
+		const inheritOrSampleWith = (rate: number) => rate;
+
+		expect(
+			sampler({
+				name: 'GET /',
+				normalizedRequest: { headers: { 'user-agent': 'kube-probe/1.31' } },
+				inheritOrSampleWith
+			})
+		).toBe(0);
+		expect(sampler({ name: 'GET /api/health', inheritOrSampleWith })).toBe(0);
+		expect(
+			sampler({ name: 'GET', normalizedRequest: { url: 'http://pod:3030/api/health?x=1' }, inheritOrSampleWith })
+		).toBe(0);
+		expect(sampler({ name: 'GET /api/healthy-thing', inheritOrSampleWith })).toBe(0.3);
+		expect(
+			sampler({
+				name: 'GET /auth/passcode',
+				normalizedRequest: { headers: { 'user-agent': 'Mozilla/5.0' } },
+				inheritOrSampleWith
+			})
+		).toBe(0.3);
 	});
 });
 

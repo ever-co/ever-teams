@@ -95,7 +95,8 @@ export const providers: Provider[] = [
 
 /**
  * A provider is available only when it is BOTH advertised (NEXT_PUBLIC_<X>_APP_NAME set) AND
- * actually configured (a non-empty client id).
+ * actually configured (a non-blank client id AND client secret: without the secret the OAuth
+ * token exchange fails after the user already went through the provider's consent screen).
  *
  * Previously this filtered on the display name alone. On production and stage
  * NEXT_PUBLIC_GITHUB_APP_NAME / NEXT_PUBLIC_TWITTER_APP_NAME were set while
@@ -117,6 +118,18 @@ const providerClientIds: Record<string, string | undefined> = {
 	twitter: TWITTER_CLIENT_ID
 };
 
+const providerClientSecrets: Record<string, string | undefined> = {
+	apple: APPLE_CLIENT_SECRET,
+	discord: DISCORD_CLIENT_SECRET,
+	facebook: FACEBOOK_CLIENT_SECRET,
+	google: GOOGLE_CLIENT_SECRET,
+	github: GITHUB_CLIENT_SECRET,
+	linkedin: LINKEDIN_CLIENT_SECRET,
+	microsoftentraid: MICROSOFT_CLIENT_SECRET,
+	slack: SLACK_CLIENT_SECRET,
+	twitter: TWITTER_CLIENT_SECRET
+};
+
 function getProviderId(provider: Provider): string {
 	return typeof provider === 'function' ? provider().id : provider.id;
 }
@@ -125,7 +138,9 @@ export const filteredProviders = providers.filter((provider) => {
 	const providerName = provider.name.toLowerCase();
 	const providerId = getProviderId(provider);
 	const advertised = providerNames[providerName] !== undefined || providerNames[providerId] !== undefined;
-	const configured = !!(providerClientIds[providerId] || providerClientIds[providerName])?.trim();
+	const configured =
+		!!(providerClientIds[providerId] || providerClientIds[providerName])?.trim() &&
+		!!(providerClientSecrets[providerId] || providerClientSecrets[providerName])?.trim();
 	return advertised && configured;
 });
 

@@ -345,11 +345,15 @@ const isAppRelativePath = (value: string) => value.startsWith('/') && !value.sta
 
 // The logo as configured; the default is the one this app serves itself.
 const APP_LOGO = readRuntimeEnv('APP_LOGO_URL') || process.env.APP_LOGO_URL || '/assets/ever-teams.png';
+// The public origin of THIS web app, where a path-valued logo is served. NEXT_PUBLIC_WEB_APP_URL first: some
+// deployments point APP_LINK at their marketing site, which does not serve /assets/ever-teams.png.
+const APP_LOGO_ORIGIN =
+	readRuntimeEnv('NEXT_PUBLIC_WEB_APP_URL') || process.env.NEXT_PUBLIC_WEB_APP_URL?.trim() || APP_LINK;
 /**
  * Absolute logo URL: it also goes into auth emails, where a path relative to this app cannot load, so a
- * path is resolved against APP_LINK (unset: https://app.ever.team/assets/ever-teams.png, as before).
+ * path is resolved against the app's public origin (unset: https://app.ever.team/assets/ever-teams.png).
  */
-export const APP_LOGO_URL = isAppRelativePath(APP_LOGO) ? withoutTrailingSlashes(APP_LINK) + APP_LOGO : APP_LOGO;
+export const APP_LOGO_URL = isAppRelativePath(APP_LOGO) ? withoutTrailingSlashes(APP_LOGO_ORIGIN) + APP_LOGO : APP_LOGO;
 
 /**
  * Optional branding (the slogan, the company and legal links) is turned OFF with the literal value 'none'

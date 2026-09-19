@@ -83,8 +83,8 @@ x-webapp-runtime-env: &webapp-runtime-env
   JITSU_SERVER_URL: ${JITSU_SERVER_URL:-}
   JITSU_SERVER_WRITE_KEY: ${JITSU_SERVER_WRITE_KEY:-}
   AUTH_SECRET: ${AUTH_SECRET:-}
-  # Public origin for next-auth (OAuth callbacks), needed behind a proxy that hides the public host
-  AUTH_URL: ${AUTH_URL:-}
+  # AUTH_URL (public origin for next-auth behind a proxy) comes from .env.docker / .env.compose (env_file):
+  # an empty value here would override it.
   CAPTCHA_SECRET_KEY: ${CAPTCHA_SECRET_KEY:-}
   SMTP_FROM_ADDRESS: ${SMTP_FROM_ADDRESS:-}
   SMTP_HOST: ${SMTP_HOST:-}
@@ -146,7 +146,10 @@ services:
       POSTMARK_SERVER_API_TOKEN: ${POSTMARK_SERVER_API_TOKEN:-}
       MAILCHIMP_API_KEY: ${MAILCHIMP_API_KEY:-}
       MAILCHIMP_LIST_ID: ${MAILCHIMP_LIST_ID:-}
+    # .env.docker first (every documented runtime variable reaches the container, not only the keys listed in
+    # x-webapp-runtime-env), then .env.compose; `environment:` above still wins for the keys it sets.
     env_file:
+      - .env.docker
       - .env.compose
     restart: on-failure
     ports:

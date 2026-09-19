@@ -156,8 +156,8 @@ ENV IS_DOCKER=true
 #   the old build-stage defaults.
 # - NEXT_PUBLIC_{GOOGLE,FACEBOOK,TWITTER,GITHUB}_APP_NAME: were defined at build (empty, or 'ever-github'
 #   for GitHub), which advertises those social logins (core/lib/utils/check-provider-env-vars.ts); a
-#   provider still only appears once its *_CLIENT_ID is set. An empty GitHub app name falls back to the
-#   code default 'ever-github' for the GitHub integration link (constants.tsx GITHUB_APP_NAME).
+#   provider still only appears once its *_CLIENT_ID and *_CLIENT_SECRET are set. The GitHub integration
+#   (install a GitHub App) stays disabled until a deployment sets NEXT_PUBLIC_GITHUB_APP_NAME to its own app.
 ENV NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM=false
 ENV NEXT_PUBLIC_LOG_FOLDER_MAX_SIZE=10
 ENV NEXT_PUBLIC_DISABLE_AUTO_REFRESH=false
