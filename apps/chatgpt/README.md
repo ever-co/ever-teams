@@ -322,6 +322,7 @@ curl https://mcpauth.ever.team/.well-known/oauth-authorization-server
 ## 📊 Monitoring
 
 The app uses Pino for logging. Logs are written to:
+
 - Console (colorized, formatted), e.g. `docker logs chatgpt-app`
 - [Better Stack](https://betterstack.com/logs) (Logtail), only when
   `LOGTAIL_SOURCE_TOKEN` is set to the token of a Better Stack source
