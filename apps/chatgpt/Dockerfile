@@ -72,6 +72,9 @@ ENV CHATGPT_APP_HOST=0.0.0.0
 # Expose port
 EXPOSE 3004
 
+# Run as the unprivileged user the node image provides (the app only reads its files at runtime)
+USER node
+
 # Use dumb-init to handle signals properly
 ENTRYPOINT ["dumb-init", "--"]
 

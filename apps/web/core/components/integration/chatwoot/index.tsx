@@ -28,7 +28,9 @@ export default function ChatwootWidget() {
 			// Self-hosted Chatwoot: NEXT_PUBLIC_CHATWOOT_BASE_URL (read at runtime) overrides Chatwoot Cloud.
 			const chatwootOverride =
 				readRuntimeEnv('NEXT_PUBLIC_CHATWOOT_BASE_URL') || process.env.NEXT_PUBLIC_CHATWOOT_BASE_URL || '';
-			const chatwootOrigin = chatwootOverride.trim().replace(/\/+$/, '') || BASE_URL;
+			let chatwootOrigin = chatwootOverride.trim();
+			while (chatwootOrigin.endsWith('/')) chatwootOrigin = chatwootOrigin.slice(0, -1);
+			chatwootOrigin = chatwootOrigin || BASE_URL;
 			const g = d.createElement(t) as HTMLScriptElement;
 			const s = d.getElementsByTagName(t)[0];
 

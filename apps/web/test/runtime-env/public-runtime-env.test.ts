@@ -144,6 +144,6 @@ describe('serializeRuntimeEnvScript', () => {
 		sandbox.self = sandbox;
 		vm.runInNewContext(script, sandbox);
 
-		expect(sandbox[envConfig.RUNTIME_ENV_GLOBAL]).toEqual({ APP_NAME: hostile, NEXT_PUBLIC_X: 'x' });
+		expect(sandbox.__EVER_TEAMS_RUNTIME_ENV__).toEqual({ APP_NAME: hostile, NEXT_PUBLIC_X: 'x' });
 	});
 });

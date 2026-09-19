@@ -68,9 +68,11 @@ function parseImageHosts(value) {
  */
 function serializeImageRemotePatterns(remotePatterns) {
 	return remotePatterns
-		.map(({ protocol, hostname, port }) =>
-			protocol === 'https' && !port ? hostname : `${protocol}://${hostname}${port ? `:${port}` : ''}`
-		)
+		.map(({ protocol, hostname, port }) => {
+			if (protocol === 'https' && !port) return hostname;
+			const portSuffix = port ? ':' + port : '';
+			return `${protocol}://${hostname}${portSuffix}`;
+		})
 		.join(',');
 }
 

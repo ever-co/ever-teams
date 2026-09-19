@@ -17,7 +17,7 @@ export function getPublicRuntimeEnv(): Record<string, string> {
 	const env = process.env as Record<string, string | undefined>;
 	const publicEnv: Record<string, string> = {};
 
-	for (const key of Object.keys(env).sort()) {
+	for (const key of Object.keys(env).sort((a, b) => a.localeCompare(b))) {
 		const value = env[key];
 		if (value !== undefined && isPublicRuntimeEnvKey(key)) {
 			publicEnv[key] = value;

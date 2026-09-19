@@ -16,7 +16,7 @@ const ReactQueryDevtools =
 	process.env.NODE_ENV === 'development'
 		? dynamic(() => import('@tanstack/react-query-devtools').then((mod) => mod.ReactQueryDevtools))
 		: () => null;
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	// The public runtime env must be read per request: a page prerendered at build time would freeze
 	// the build machine's env into its HTML, which is exactly what self-hosted images must avoid.
 	await connection();

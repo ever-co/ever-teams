@@ -17,7 +17,7 @@ const NEXT_PUBLIC_ENVS: { value: Env } = { value: {} };
  * Only keys that are public by definition may be exposed: every `NEXT_PUBLIC_*` key plus the
  * branding keys below (all rendered in the UI anyway). NEVER add a secret here.
  */
-export const RUNTIME_ENV_GLOBAL = '__EVER_TEAMS_RUNTIME_ENV__';
+const RUNTIME_ENV_GLOBAL = '__EVER_TEAMS_RUNTIME_ENV__';
 export const RUNTIME_ENV_SCRIPT_ID = 'ever-teams-runtime-env';
 export const PUBLIC_RUNTIME_ENV_KEYS = [
 	'APP_NAME',
@@ -44,7 +44,7 @@ export function isPublicRuntimeEnvKey(key: string): boolean {
  * readers rely on (NEXT_PUBLIC_<X>_APP_NAME).
  */
 function normalizeRuntimeValue(value: string | undefined): string | undefined {
-	return value !== undefined && value.trim() === '' ? '' : value;
+	return value?.trim() === '' ? '' : value;
 }
 
 /** The runtime env the server injected into the page, when running in a browser that received it. */
@@ -79,11 +79,11 @@ export function readRuntimeEnv(name: string): string | undefined {
  */
 export function serializeRuntimeEnvScript(env: Env): string {
 	const json = JSON.stringify(env)
-		.replace(/</g, '\\u003c')
-		.replace(/>/g, '\\u003e')
-		.replace(/&/g, '\\u0026')
-		.replace(/\u2028/g, '\\u2028')
-		.replace(/\u2029/g, '\\u2029');
+		.replace(/</g, String.raw`\u003c`)
+		.replace(/>/g, String.raw`\u003e`)
+		.replace(/&/g, String.raw`\u0026`)
+		.replace(/\u2028/g, String.raw`\u2028`)
+		.replace(/\u2029/g, String.raw`\u2029`);
 	return `self.${RUNTIME_ENV_GLOBAL}=${json};`;
 }
 

@@ -35,7 +35,8 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 	});
 	const renameProperty = (newProp: string, icon: string) => {
 		// This deployment's API (runtime env), so a self-hosted instance does not load icons from Ever's API.
-		const iconApiOrigin = (GAUZY_API_BASE_SERVER_URL.value || DEFAULT_STATUS_ICON_API_ORIGIN).replace(/\/+$/, '');
+		let iconApiOrigin: string = GAUZY_API_BASE_SERVER_URL.value || DEFAULT_STATUS_ICON_API_ORIGIN;
+		while (iconApiOrigin.endsWith('/')) iconApiOrigin = iconApiOrigin.slice(0, -1);
 		setColumn((prev: any) => {
 			const newColumn = prev.map((column: any) => {
 				if (column.id === status.id) {

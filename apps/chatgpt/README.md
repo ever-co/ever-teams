@@ -48,7 +48,8 @@ ChatGPT → ChatGPT App (this) → mcp.ever.team → Ever Teams API
 
 ### Prerequisites
 
-- Node.js 24+ (the monorepo's `engines` constraint, enforced by `yarn install`) and Yarn 1
+- Node.js 24+ (the monorepo's `engines` constraint, enforced by `yarn install`)
+  and Yarn 1
 - Access to `mcp.ever.team` (MCP server)
 - Access to `mcpauth.ever.team` (MCP OAuth server)
 
@@ -89,12 +90,13 @@ CHATGPT_APP_SECRET=your-app-secret-from-openai
 ALLOWED_ORIGINS=https://chat.openai.com,https://chatgpt.com
 SESSION_SECRET=your-secure-random-secret
 
-# ChatGPT widget metadata (optional - defaults describe Ever's hosted deployment)
+# ChatGPT widget metadata (optional; defaults = Ever's hosted deployment)
 # Domain advertised as openai/widgetDomain (default: ever.team)
 CHATGPT_WIDGET_DOMAIN=teams.example.com
-# Full widget CSP (openai/widgetCSP). Default: 'self' + https://$CHATGPT_WIDGET_DOMAIN,
-# or 'self' https://ever.team https://*.gauzy.co when CHATGPT_WIDGET_DOMAIN is not set
-# CHATGPT_WIDGET_CSP=default-src 'self' https://teams.example.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';
+# Full widget CSP (openai/widgetCSP). Default: 'self' plus
+# https://$CHATGPT_WIDGET_DOMAIN, or 'self' https://ever.team https://*.gauzy.co
+# when CHATGPT_WIDGET_DOMAIN is not set. Example override:
+# CHATGPT_WIDGET_CSP=default-src 'self' https://teams.example.com
 
 # Environment
 NODE_ENV=development
@@ -206,8 +208,9 @@ The app automatically enhances responses for ChatGPT with `_meta` fields:
 }
 ```
 
-`openai/widgetDomain` and `openai/widgetCSP` are read from the runtime environment (`CHATGPT_WIDGET_DOMAIN`,
-`CHATGPT_WIDGET_CSP`); the values above are the defaults used when they are not set.
+`openai/widgetDomain` and `openai/widgetCSP` are read from the runtime
+environment (`CHATGPT_WIDGET_DOMAIN`, `CHATGPT_WIDGET_CSP`); the values above
+are the defaults used when they are not set.
 
 ### Tool-Specific Metadata
 
@@ -248,15 +251,19 @@ The app automatically enhances responses for ChatGPT with `_meta` fields:
 
 ### Docker Deployment
 
-The image is built from the monorepo root with [`apps/chatgpt/Dockerfile`](./Dockerfile) (a multi-stage build
-of the Yarn workspace) and published as `ghcr.io/ever-co/ever-teams-chatgpt-{dev,stage,prod}` by the
+The image is built from the monorepo root with
+[`apps/chatgpt/Dockerfile`](./Dockerfile) (a multi-stage build of the Yarn
+workspace) and published as
+`ghcr.io/ever-co/ever-teams-chatgpt-{dev,stage,prod}` by the
 `chatgpt.docker-build-publish-*` workflows.
 
-The image is built once and configured at **runtime**: the server reads every deployment-specific value
-(`MCP_SERVER_URL`, `OAUTH_SERVER_URL`, `PUBLIC_URL`, `ALLOWED_ORIGINS`, `CHATGPT_WIDGET_DOMAIN`,
-`CHATGPT_WIDGET_CSP`, `CHATGPT_APP_ID`, `CHATGPT_APP_SECRET`, `SESSION_SECRET`, `LOG_LEVEL`, ...) from the
-container environment when it starts, so a self-hosted deployment only passes its own values - nothing needs a
-rebuild. The image sets `NODE_ENV=production`, `CHATGPT_APP_HOST=0.0.0.0` and `CHATGPT_APP_PORT=3004`;
+The image is built once and configured at **runtime**: the server reads every
+deployment-specific value (`MCP_SERVER_URL`, `OAUTH_SERVER_URL`, `PUBLIC_URL`,
+`ALLOWED_ORIGINS`, `CHATGPT_WIDGET_DOMAIN`, `CHATGPT_WIDGET_CSP`,
+`CHATGPT_APP_ID`, `CHATGPT_APP_SECRET`, `SESSION_SECRET`, `LOG_LEVEL`, ...) from
+the container environment when it starts, so a self-hosted deployment only
+passes its own values - nothing needs a rebuild. The image sets
+`NODE_ENV=production`, `CHATGPT_APP_HOST=0.0.0.0` and `CHATGPT_APP_PORT=3004`;
 `SESSION_SECRET` is required in production.
 
 ```bash

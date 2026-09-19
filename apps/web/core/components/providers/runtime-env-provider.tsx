@@ -12,7 +12,7 @@ const RuntimeEnvContext = createContext<RuntimeEnv | null>(null);
  * app/[locale]/layout.tsx. The env reaches the client through the RSC payload, so the server-rendered
  * and hydrated script are byte-identical (no hydration mismatch).
  */
-export function RuntimeEnvProvider({ env, children }: { env: RuntimeEnv; children: React.ReactNode }) {
+export function RuntimeEnvProvider({ env, children }: Readonly<{ env: RuntimeEnv; children: React.ReactNode }>) {
 	// Normally a no-op (the inline script already installed the same values before any module ran).
 	installRuntimeEnv(env);
 	return <RuntimeEnvContext.Provider value={env}>{children}</RuntimeEnvContext.Provider>;

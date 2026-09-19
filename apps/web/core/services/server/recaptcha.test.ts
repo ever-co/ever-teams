@@ -53,19 +53,19 @@ describe('recaptchaVerification — Google reCAPTCHA (default)', () => {
 	])('sends the unchanged Google request when NEXT_PUBLIC_CAPTCHA_TYPE is %s', async (_label, type) => {
 		setCaptchaType(type);
 
-		await expect(recaptchaVerification({ secret: 's3cret', response: 'tok-1' })).resolves.toEqual({
+		await expect(recaptchaVerification({ secret: 'secret-value', response: 'tok-1' })).resolves.toEqual({
 			success: true
 		});
 
 		const [url, init] = sentRequest();
-		expect(url).toBe(`${GOOGLE}?secret=s3cret&response=tok-1`);
+		expect(url).toBe(`${GOOGLE}?secret=secret-value&response=tok-1`);
 		expect(init).toStrictEqual({ method: 'POST', headers: FORM_HEADERS });
 	});
 
 	it('lets a network failure reject, as it always has', async () => {
 		fetchMock.mockRejectedValue(new TypeError('fetch failed'));
 
-		await expect(recaptchaVerification({ secret: 's3cret', response: 'tok-1' })).rejects.toThrow('fetch failed');
+		await expect(recaptchaVerification({ secret: 'secret-value', response: 'tok-1' })).rejects.toThrow('fetch failed');
 	});
 });
 
@@ -76,7 +76,7 @@ describe.each([
 	beforeEach(() => setCaptchaType(type));
 
 	it('POSTs the secret and token form-encoded to the provider, never in the URL', async () => {
-		await expect(recaptchaVerification({ secret: 's3cret', response: 'tok-1' })).resolves.toEqual({
+		await expect(recaptchaVerification({ secret: 'secret-value', response: 'tok-1' })).resolves.toEqual({
 			success: true
 		});
 
@@ -84,7 +84,7 @@ describe.each([
 		expect(url).toBe(endpoint);
 		expect(init).toStrictEqual({ method: 'POST', headers: FORM_HEADERS, body: expect.any(String) });
 		expect(Object.fromEntries(new URLSearchParams(init.body as string))).toEqual({
-			secret: 's3cret',
+			secret: 'secret-value',
 			response: 'tok-1'
 		});
 	});
@@ -102,7 +102,7 @@ describe.each([
 	it("returns the provider's verdict for the route to act on", async () => {
 		reply({ success: false, 'error-codes': ['invalid-input-response'] });
 
-		await expect(recaptchaVerification({ secret: 's3cret', response: 'bad' })).resolves.toEqual({
+		await expect(recaptchaVerification({ secret: 'secret-value', response: 'bad' })).resolves.toEqual({
 			success: false,
 			'error-codes': ['invalid-input-response']
 		});
@@ -111,7 +111,7 @@ describe.each([
 	it('lets a network failure reject, like the Google path', async () => {
 		fetchMock.mockRejectedValue(new TypeError('fetch failed'));
 
-		await expect(recaptchaVerification({ secret: 's3cret', response: 'tok-1' })).rejects.toThrow('fetch failed');
+		await expect(recaptchaVerification({ secret: 'secret-value', response: 'tok-1' })).rejects.toThrow('fetch failed');
 	});
 });
 

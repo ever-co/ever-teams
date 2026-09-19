@@ -128,7 +128,9 @@ export function resolveImageRequest(
 	optimizedHosts: readonly string[],
 	runtimeHosts: readonly string[]
 ): ImageRequestDecision {
-	const value = typeof urlParam === 'string' ? urlParam : urlParam?.length === 1 ? urlParam[0] : undefined;
+	let value: string | undefined;
+	if (typeof urlParam === 'string') value = urlParam;
+	else if (urlParam?.length === 1) value = urlParam[0];
 	// Relative URLs are the app's own files: always the optimizer's (it also rejects `//host` URLs).
 	if (!value || value.startsWith('/')) return 'optimize';
 
