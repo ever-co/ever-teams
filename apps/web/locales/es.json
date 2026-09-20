@@ -1,5 +1,5 @@
 {
-	"TITLE": "Equipos Siempre",
+	"TITLE": "{appName}",
 	"sidebar": {
 		"DASHBOARD": "Tablero",
 		"FORYOU": "General",
@@ -195,6 +195,8 @@
 		"THEMES": "Temas",
 		"3D_MODE": "Modo 3D",
 		"DARK_MODE": "Modo oscuro",
+		"THEME_LIGHT": "Claro",
+		"THEME_DARK": "Oscuro",
 		"SETTINGS": "Ajustes",
 		"PERSONAL": "Personal",
 		"USE_SETTING": "Usar ajuste",
@@ -1296,7 +1298,7 @@
 		"HEADER_TITLE": "Chat IA",
 		"CLEAR_CONVERSATION": "Borrar conversación",
 		"CONFIGURATION": "Configuración",
-		"ASSISTANT_NAME": "Asistente Ever Teams",
+		"ASSISTANT_NAME": "Asistente {appName}",
 		"EMPTY_CONFIGURED": "Haz una pregunta para empezar.",
 		"EMPTY_NOT_CONFIGURED": "Configura tu clave API para empezar.",
 		"CONFIGURE_BUTTON": "Configurar",
@@ -1312,6 +1314,6 @@
 		"COLLAPSE_ASSISTANT": "Contraer asistente",
 		"STANDARD_ASSISTANT_WIDTH": "Ancho estándar del asistente",
 		"EXPAND_ASSISTANT": "Expandir asistente",
-		"OPEN_ASSISTANT": "Abrir el asistente de Ever Teams"
+		"OPEN_ASSISTANT": "Abrir el asistente de {appName}"
 	}
 }

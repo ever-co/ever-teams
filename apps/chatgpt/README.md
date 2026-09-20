@@ -48,7 +48,8 @@ ChatGPT → ChatGPT App (this) → mcp.ever.team → Ever Teams API
 
 ### Prerequisites
 
-- Node.js 18+ and Yarn
+- Node.js 24+ (the monorepo's `engines` constraint, enforced by `yarn install`)
+  and Yarn 1
 - Access to `mcp.ever.team` (MCP server)
 - Access to `mcpauth.ever.team` (MCP OAuth server)
 
@@ -89,9 +90,19 @@ CHATGPT_APP_SECRET=your-app-secret-from-openai
 ALLOWED_ORIGINS=https://chat.openai.com,https://chatgpt.com
 SESSION_SECRET=your-secure-random-secret
 
+# ChatGPT widget metadata (optional; defaults = Ever's hosted deployment)
+# Domain advertised as openai/widgetDomain (default: ever.team)
+CHATGPT_WIDGET_DOMAIN=teams.example.com
+# Full widget CSP (openai/widgetCSP). Default: 'self' plus
+# https://$CHATGPT_WIDGET_DOMAIN, or 'self' https://ever.team https://*.gauzy.co
+# when CHATGPT_WIDGET_DOMAIN is not set. Example override:
+# CHATGPT_WIDGET_CSP=default-src 'self' https://teams.example.com
+
 # Environment
 NODE_ENV=development
 LOG_LEVEL=info
+# Optional: also ship logs to Better Stack (Logtail); empty = console only
+LOGTAIL_SOURCE_TOKEN=
 ```
 
 ### Development
@@ -105,6 +116,9 @@ yarn build
 
 # Start production server
 yarn start
+
+# Unit tests (Node's built-in test runner through tsx)
+yarn test
 ```
 
 ### Testing
@@ -189,12 +203,16 @@ The app automatically enhances responses for ChatGPT with `_meta` fields:
 {
   _meta: {
     "openai/widgetPrefersBorder": true,
-    "openai/widgetDomain": "ever.team",
-    "openai/widgetCSP": "...",
+    "openai/widgetDomain": "ever.team",  // CHATGPT_WIDGET_DOMAIN
+    "openai/widgetCSP": "...",           // CHATGPT_WIDGET_CSP
     "openai/locale": "en-US"  // User's locale
   }
 }
 ```
+
+`openai/widgetDomain` and `openai/widgetCSP` are read from the runtime
+environment (`CHATGPT_WIDGET_DOMAIN`, `CHATGPT_WIDGET_CSP`); the values above
+are the defaults used when they are not set.
 
 ### Tool-Specific Metadata
 
@@ -235,31 +253,34 @@ The app automatically enhances responses for ChatGPT with `_meta` fields:
 
 ### Docker Deployment
 
-```dockerfile
-# Dockerfile
-FROM node:18-alpine
+The image is built from the monorepo root with
+[`apps/chatgpt/Dockerfile`](./Dockerfile) (a multi-stage build of the Yarn
+workspace) and published as
+`ghcr.io/ever-co/ever-teams-chatgpt-{dev,stage,prod}` by the
+`chatgpt.docker-build-publish-*` workflows.
 
-WORKDIR /app
-
-COPY package.json yarn.lock ./
-RUN yarn install --production
-
-COPY dist/ ./dist/
-
-EXPOSE 3004
-
-CMD ["node", "dist/index.js"]
-```
+The image is built once and configured at **runtime**: the server reads every
+deployment-specific value (`MCP_SERVER_URL`, `OAUTH_SERVER_URL`, `PUBLIC_URL`,
+`ALLOWED_ORIGINS`, `CHATGPT_WIDGET_DOMAIN`, `CHATGPT_WIDGET_CSP`,
+`CHATGPT_APP_ID`, `CHATGPT_APP_SECRET`, `SESSION_SECRET`, `LOG_LEVEL`,
+`LOGTAIL_SOURCE_TOKEN`, ...) from the container environment when it starts, so
+a self-hosted deployment only passes its own values - nothing needs a rebuild.
+`LOGTAIL_SOURCE_TOKEN` is optional: set it to also ship the logs to Better
+Stack (Logtail), see Monitoring below. The image sets
+`NODE_ENV=production`, `CHATGPT_APP_HOST=0.0.0.0` and `CHATGPT_APP_PORT=3004`;
+`SESSION_SECRET` is required in production.
 
 ```bash
-# Build Docker image
-docker build -t ever-teams-chatgpt-app .
+# Build Docker image (from the repository root)
+docker build -f apps/chatgpt/Dockerfile -t ever-teams-chatgpt-app .
 
 # Run container
 docker run -d \
   -p 3004:3004 \
   -e MCP_SERVER_URL=https://mcp.ever.team \
   -e OAUTH_SERVER_URL=https://mcpauth.ever.team \
+  -e SESSION_SECRET=your-secure-random-secret \
+  -e CHATGPT_WIDGET_DOMAIN=ever.team \
   --name chatgpt-app \
   ever-teams-chatgpt-app
 ```
@@ -281,8 +302,8 @@ docker run -d \
 # Check if MCP server is accessible
 curl https://mcp.ever.team/health
 
-# Check server logs
-tail -f logs/combined.log
+# Check server logs (console output)
+docker logs -f chatgpt-app
 ```
 
 ### OAuth Authorization Failed
@@ -301,9 +322,11 @@ curl https://mcpauth.ever.team/.well-known/oauth-authorization-server
 ## 📊 Monitoring
 
 The app uses Pino for logging. Logs are written to:
-- Console (colorized, formatted)
-- `logs/combined.log` (all logs)
-- `logs/error.log` (errors only)
+
+- Console (colorized, formatted), e.g. `docker logs chatgpt-app`
+- [Better Stack](https://betterstack.com/logs) (Logtail), only when
+  `LOGTAIL_SOURCE_TOKEN` is set to the token of a Better Stack source
+  (optional; unset = console only)
 
 ### Log Levels
 - `error`: Errors and exceptions

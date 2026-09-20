@@ -197,6 +197,8 @@
 		"THEMES": "Темы",
 		"3D_MODE": "3D-режим",
 		"DARK_MODE": "Темный режим",
+		"THEME_LIGHT": "Светлая",
+		"THEME_DARK": "Тёмная",
 		"SETTINGS": "Настройки",
 		"PERSONAL": "Личные",
 		"USE_SETTING": "Использовать настройки",
@@ -1296,7 +1298,7 @@
 		"HEADER_TITLE": "AI Чат",
 		"CLEAR_CONVERSATION": "Очистить разговор",
 		"CONFIGURATION": "Настройки",
-		"ASSISTANT_NAME": "Ассистент Ever Teams",
+		"ASSISTANT_NAME": "Ассистент {appName}",
 		"EMPTY_CONFIGURED": "Задайте вопрос, чтобы начать.",
 		"EMPTY_NOT_CONFIGURED": "Настройте ключ API, чтобы начать.",
 		"CONFIGURE_BUTTON": "Настроить",
@@ -1312,6 +1314,6 @@
 		"COLLAPSE_ASSISTANT": "Свернуть ассистента",
 		"STANDARD_ASSISTANT_WIDTH": "Стандартная ширина ассистента",
 		"EXPAND_ASSISTANT": "Развернуть ассистента",
-		"OPEN_ASSISTANT": "Открыть ассистента Ever Teams"
+		"OPEN_ASSISTANT": "Открыть ассистента {appName}"
 	}
 }

@@ -198,6 +198,8 @@
 		"THEMES": "Thema's",
 		"3D_MODE": "3D-modus",
 		"DARK_MODE": "Donkere modus",
+		"THEME_LIGHT": "Licht",
+		"THEME_DARK": "Donker",
 		"SETTINGS": "Instellingen",
 		"PERSONAL": "Persoonlijk",
 		"USE_SETTING": "Instelling gebruiken",
@@ -1296,7 +1298,7 @@
 		"HEADER_TITLE": "AI Chat",
 		"CLEAR_CONVERSATION": "Gesprek wissen",
 		"CONFIGURATION": "Configuratie",
-		"ASSISTANT_NAME": "Ever Teams Assistent",
+		"ASSISTANT_NAME": "{appName} Assistent",
 		"EMPTY_CONFIGURED": "Stel een vraag om te beginnen.",
 		"EMPTY_NOT_CONFIGURED": "Configureer uw API-sleutel om te beginnen.",
 		"CONFIGURE_BUTTON": "Configureren",
@@ -1312,6 +1314,6 @@
 		"COLLAPSE_ASSISTANT": "Assistent inklappen",
 		"STANDARD_ASSISTANT_WIDTH": "Standaardbreedte van de assistent",
 		"EXPAND_ASSISTANT": "Assistent uitbreiden",
-		"OPEN_ASSISTANT": "Ever Teams Assistent openen"
+		"OPEN_ASSISTANT": "{appName} Assistent openen"
 	}
 }

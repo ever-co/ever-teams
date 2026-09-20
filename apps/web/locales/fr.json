@@ -198,6 +198,8 @@
 		"THEMES": "Thèmes",
 		"3D_MODE": "Mode 3D",
 		"DARK_MODE": "Mode sombre",
+		"THEME_LIGHT": "Clair",
+		"THEME_DARK": "Sombre",
 		"SETTINGS": "Paramètres",
 		"PERSONAL": "Personnel",
 		"USE_SETTING": "Utiliser les paramètres",
@@ -1296,7 +1298,7 @@
 		"HEADER_TITLE": "Chat IA",
 		"CLEAR_CONVERSATION": "Effacer la conversation",
 		"CONFIGURATION": "Configuration",
-		"ASSISTANT_NAME": "Assistant Ever Teams",
+		"ASSISTANT_NAME": "Assistant {appName}",
 		"EMPTY_CONFIGURED": "Posez une question pour commencer.",
 		"EMPTY_NOT_CONFIGURED": "Configurez votre clé API pour commencer.",
 		"CONFIGURE_BUTTON": "Configurer",
@@ -1312,6 +1314,6 @@
 		"COLLAPSE_ASSISTANT": "Réduire l’assistant",
 		"STANDARD_ASSISTANT_WIDTH": "Largeur standard de l’assistant",
 		"EXPAND_ASSISTANT": "Agrandir l’assistant",
-		"OPEN_ASSISTANT": "Ouvrir l’assistant Ever Teams"
+		"OPEN_ASSISTANT": "Ouvrir l’assistant {appName}"
 	}
 }

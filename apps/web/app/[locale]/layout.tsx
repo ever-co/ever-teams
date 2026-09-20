@@ -11,9 +11,10 @@ import { useEffect, use } from 'react';
 import { Geist } from 'next/font/google';
 import { useCheckAPI } from '@/core/hooks/common/use-check-api';
 import OfflineWrapper from '@/core/components/common/offline-wrapper';
+import { useRuntimeEnvHtmlProps } from '@/core/components/providers/runtime-env-provider';
 
 import { PHProvider } from './(main)/integration/posthog/provider';
-import { APPLICATION_LANGUAGES_CODE as LOCALES } from '@/core/constants/config/constants';
+import { APPLICATION_LANGUAGES_CODE as LOCALES, APP_FAVICON_URL } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
 // import { cn } from '@ever-teams/ui';
 
@@ -52,6 +53,8 @@ const LocaleLayout = (props: Props) => {
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
 	const { isApiWork, loading } = useCheckAPI();
+	// Publishes this request's runtime env on <html>, before any bundle module is evaluated.
+	const runtimeEnvHtmlProps = useRuntimeEnvHtmlProps();
 
 	// Enable static rendering
 	// unstable_setRequestLocale(locale);
@@ -96,7 +99,16 @@ const LocaleLayout = (props: Props) => {
 		else if (isApiWork && pathname?.split('/').reverse()[0] === 'maintenance') router.replace('/');
 	}, [isApiWork, loading, router, pathname]);
 
-	// Validate that the incoming `locale` parameter is valid
+	// Validate that the incoming `locale` parameter is valid.
+	//
+	// This only ever fires for a first path segment proxy.ts's matcher skips — one containing a dot,
+	// e.g. /foo.bar — because next-intl rewrites every other unknown segment under the default locale.
+	// Raised from a client component it cannot be handled during SSR (React runs no error boundary in
+	// the server renderer, and there is no loading.tsx here to give Fizz a Suspense boundary), so React
+	// errors the shell and Next serves its own `<html id="__next_error__">` document and renders it on
+	// the client: no app/layout.tsx, no runtime env attribute. The 404 status is correct and worth
+	// keeping, so we do not render the 404 inline here; core/components/pages/404 leaves that document
+	// with a full page load instead, so its build-time-default constants never reach the app.
 	if (!LOCALES.includes(locale as string)) {
 		notFound();
 	}
@@ -108,8 +120,11 @@ const LocaleLayout = (props: Props) => {
 			className={`${font.variable} ${font.className}`}
 			data-scroll-behavior="smooth"
 			suppressHydrationWarning
+			{...runtimeEnvHtmlProps}
 		>
 			<head>
+				{/* Runtime APP_FAVICON_URL (default /favicon.ico), so a reused image can carry its own icon. */}
+				<link rel="icon" href={APP_FAVICON_URL} />
 				<title>{formatTitle(`${pathname}${name ? `?name=${name}` : ''}`) || 'Home'}</title>
 			</head>
 			{/* <head>

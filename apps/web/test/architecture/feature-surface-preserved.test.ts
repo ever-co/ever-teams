@@ -1967,10 +1967,10 @@ describe('Ever Teams feature surface preservation', () => {
 
 	it('covers all real App Router route files and outward handler verbs', () => {
 		const routes = collectRealHeadSurface().routes;
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(105);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(106);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(145);
+		).toHaveLength(146);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				'apps/web/app/api/auth/[...nextauth]/route.ts::GET',

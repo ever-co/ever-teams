@@ -21,8 +21,6 @@ import Link from 'next/link';
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import stc from 'string-to-color';
-import gauzyDark from '@/public/assets/themeImages/gauzyDark.png';
-import gauzyLight from '@/public/assets/themeImages/gauzyLight.png';
 import { TimerStatus, getTimerStatusValue } from '../timer/timer-status';
 import Collaborate from '@/core/components/collaborate';
 import { TeamsDropDown } from '../teams/teams-dropdown';
@@ -324,19 +322,20 @@ function UserNavMenu() {
 }
 
 function ThemeDropdown() {
+	const t = useTranslations();
 	const { theme, setTheme } = useTheme();
 
+	// Neutral, translated names: a deployment rebranded with `docker run -e APP_NAME=...` must not
+	// read someone else's product name in its own theme picker.
 	const themes: ThemeInterface[] = [
 		{
 			theme: 'light',
-			text: 'Gauzy Light 2D',
-			image: gauzyLight,
+			text: t('common.THEME_LIGHT'),
 			enabled: theme === 'light'
 		},
 		{
 			theme: 'dark',
-			text: 'Gauzy Dark 2D',
-			image: gauzyDark,
+			text: t('common.THEME_DARK'),
 			enabled: theme === 'dark'
 		}
 	];
@@ -346,7 +345,7 @@ function ThemeDropdown() {
 	return (
 		<Popover className="flex relative z-30 items-center h-full">
 			<PopoverButton className="flex items-center h-full text-sm font-light">
-				<p className="text-sm text-neutral">{selectedThemeText?.replace('2D', '')}</p>
+				<p className="text-sm text-neutral">{selectedThemeText}</p>
 				<ChevronDown className="ml-2 w-4 h-4 opacity-50" />
 			</PopoverButton>
 			<Transition
@@ -369,7 +368,6 @@ function ThemeDropdown() {
 								index={index}
 								theme={item.theme}
 								text={item.text}
-								image={item.image}
 								enabled={item.enabled}
 								setTheme={setTheme}
 							/>

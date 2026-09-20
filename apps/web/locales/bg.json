@@ -1,5 +1,5 @@
 {
-	"TITLE": "Ever Отбори",
+	"TITLE": "{appName}",
 	"sidebar": {
 		"DASHBOARD": "Табло",
 		"FORYOU": "Общи",
@@ -197,6 +197,8 @@
 		"THEMES": "Теми",
 		"3D_MODE": "3D режим",
 		"DARK_MODE": "Тъмен режим",
+		"THEME_LIGHT": "Светла",
+		"THEME_DARK": "Тъмна",
 		"SETTINGS": "Настройки",
 		"PERSONAL": "Лични",
 		"USE_SETTING": "Използвай настройка",
@@ -1296,7 +1298,7 @@
 		"HEADER_TITLE": "AI Чат",
 		"CLEAR_CONVERSATION": "Изчисти разговора",
 		"CONFIGURATION": "Конфигурация",
-		"ASSISTANT_NAME": "Асистент Ever Teams",
+		"ASSISTANT_NAME": "Асистент {appName}",
 		"EMPTY_CONFIGURED": "Задайте въпрос, за да започнете.",
 		"EMPTY_NOT_CONFIGURED": "Конфигурирайте вашия API ключ, за да започнете.",
 		"CONFIGURE_BUTTON": "Конфигуриране",
@@ -1312,6 +1314,6 @@
 		"COLLAPSE_ASSISTANT": "Свий асистента",
 		"STANDARD_ASSISTANT_WIDTH": "Стандартна ширина на асистента",
 		"EXPAND_ASSISTANT": "Разшири асистента",
-		"OPEN_ASSISTANT": "Отвори асистента Ever Teams"
+		"OPEN_ASSISTANT": "Отвори асистента {appName}"
 	}
 }

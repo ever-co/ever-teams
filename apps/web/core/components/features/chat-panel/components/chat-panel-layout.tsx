@@ -8,10 +8,12 @@ import { useChatPanel } from '../hooks/use-chat-panel';
 import { ChatView } from './chat-view';
 import { Bot, ChevronLeft, Maximize2, Minimize2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { APP_NAME } from '@/core/constants/config/constants';
 
 export function ChatPanelLayout({ children }: PropsWithChildren) {
 	const chatPanel = useChatPanel();
 	const t = useTranslations();
+	const openAssistantLabel = t('chatView.OPEN_ASSISTANT', { appName: APP_NAME });
 
 	return (
 		// Provide chat controls to the entire subtree (children included)
@@ -96,8 +98,8 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 					type="button"
 					onClick={chatPanel.openPanel}
 					className="absolute left-0 top-1/2 z-[1030] flex -translate-y-1/2 items-center justify-center rounded-r-xl border border-l-0 bg-background p-3 text-primary shadow-lg transition-colors hover:bg-muted dark:text-primary-light"
-					title={t('chatView.OPEN_ASSISTANT')}
-					aria-label={t('chatView.OPEN_ASSISTANT')}
+					title={openAssistantLabel}
+					aria-label={openAssistantLabel}
 				>
 					<Bot className="h-5 w-5" />
 				</button>

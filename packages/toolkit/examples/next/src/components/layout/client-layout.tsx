@@ -5,7 +5,7 @@ import NavBar from './nav-bar';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Footer } from './footer/Footer';
 import { cn } from '@ever-teams/toolkit-ui';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 // import { tracker } from '@ever-teams/tracking';
 
 interface GradientBackgroundProps {
@@ -71,11 +71,12 @@ function ErrorFallback({ error }: { error: Error }) {
 	);
 }
 
-const teamsConfig = {
-	apiUrl: process.env.NEXT_PUBLIC_TEAMS_API_URL
-};
+export default function ClientLayout({ apiUrl, children }: { apiUrl?: string; children: React.ReactNode }) {
+	// The API URL arrives as a prop, read per request from the container env by the server root layout
+	// (src/lib/runtime-env.ts). Never read process.env.NEXT_PUBLIC_* here: Next would inline the value
+	// of whoever built the image.
+	const teamsConfig = useMemo(() => ({ apiUrl }), [apiUrl]);
 
-export default function ClientLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<TeamsProvider config={teamsConfig} theme={theme8}>
 			<ClientLayoutContent>{children}</ClientLayoutContent>

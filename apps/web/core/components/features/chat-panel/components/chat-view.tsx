@@ -20,6 +20,7 @@ import {
 	writeChatHistory
 } from '../chat-history';
 import { activeTeamIdState, activeWorkspaceIdState, userState } from '@/core/stores';
+import { APP_NAME } from '@/core/constants/config/constants';
 import { useAtomValue } from 'jotai';
 
 const CHAT_CONFIG_KEY = 'ever-teams-chat-config';
@@ -243,7 +244,9 @@ export function ChatView({ pageContext }: ChatViewProps) {
 								<Bot className="h-6 w-6 text-muted-foreground" />
 							</div>
 							<div>
-								<p className="text-sm font-medium text-foreground">{t('chatView.ASSISTANT_NAME')}</p>
+								<p className="text-sm font-medium text-foreground">
+									{t('chatView.ASSISTANT_NAME', { appName: APP_NAME })}
+								</p>
 								<p className="mt-1 text-xs text-muted-foreground">
 									{isConfigured ? t('chatView.EMPTY_CONFIGURED') : t('chatView.EMPTY_NOT_CONFIGURED')}
 								</p>

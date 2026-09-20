@@ -1,5 +1,5 @@
 {
-	"TITLE": "Ever צוותים",
+	"TITLE": "{appName}",
 	"sidebar": {
 		"DASHBOARD": "לוח מחוונים",
 		"FORYOU": "כללי",
@@ -196,6 +196,8 @@
 		"THEMES": "ערכות עיצוב",
 		"3D_MODE": "מצב 3D",
 		"DARK_MODE": "מצב כהה",
+		"THEME_LIGHT": "בהיר",
+		"THEME_DARK": "כהה",
 		"SETTINGS": "הגדרות",
 		"PERSONAL": "אישי",
 		"USE_SETTING": "השתמש בהגדרה",
@@ -1296,7 +1298,7 @@
 		"HEADER_TITLE": "צ'אט AI",
 		"CLEAR_CONVERSATION": "נקה שיחה",
 		"CONFIGURATION": "הגדרות",
-		"ASSISTANT_NAME": "עוזר Ever Teams",
+		"ASSISTANT_NAME": "עוזר {appName}",
 		"EMPTY_CONFIGURED": "שאל שאלה כדי להתחיל.",
 		"EMPTY_NOT_CONFIGURED": "הגדר את מפתח ה-API שלך כדי להתחיל.",
 		"CONFIGURE_BUTTON": "הגדרה",
@@ -1312,6 +1314,6 @@
 		"COLLAPSE_ASSISTANT": "כווץ את העוזר",
 		"STANDARD_ASSISTANT_WIDTH": "רוחב רגיל של העוזר",
 		"EXPAND_ASSISTANT": "הרחב את העוזר",
-		"OPEN_ASSISTANT": "פתח את עוזר Ever Teams"
+		"OPEN_ASSISTANT": "פתח את עוזר {appName}"
 	}
 }

@@ -49,7 +49,8 @@ const Footer = () => {
 
 			<div className="flex flex-col items-center xs:flex-row sm:flex-col md:flex-row">
 				<div className="flex justify-center space-x-4 w-full text-center">
-					{TERMS_LINK ? (
+					{/* A deployment can turn either link off ('' => not rendered). */}
+					{TERMS_LINK && (
 						<Link
 							href={TERMS_LINK}
 							target="_blank"
@@ -58,10 +59,8 @@ const Footer = () => {
 						>
 							{t('layout.footer.TERMS')}
 						</Link>
-					) : (
-						<span className="text-gray-400">{t('layout.footer.TERMS')}</span>
 					)}
-					{PRIVACY_POLICY_LINK ? (
+					{PRIVACY_POLICY_LINK && (
 						<Link
 							href={PRIVACY_POLICY_LINK}
 							target="_blank"
@@ -70,8 +69,6 @@ const Footer = () => {
 						>
 							{t('layout.footer.PRIVACY_POLICY')}
 						</Link>
-					) : (
-						<span className="text-gray-400">{t('layout.footer.PRIVACY_POLICY')}</span>
 					)}
 				</div>
 				<div className="flex px-4 space-x-2 xs:hidden md:flex">

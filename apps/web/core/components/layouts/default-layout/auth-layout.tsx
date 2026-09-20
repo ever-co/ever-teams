@@ -136,21 +136,27 @@ export function AuthLayout({ children, title, description, isAuthPage = true, he
 							{t('layout.footer.RIGHTS_RESERVED')}
 						</p>
 
-						{/* Terms + Privacy */}
-						<p className="text-xs text-center text-muted-foreground">
-							<a className="underline hover:text-foreground" href={TERMS_LINK}>
-								{t('pages.auth.TERMS_OF_SERVICE')}
-							</a>
-							{' · '}
-							<Link
-								target="_blank"
-								className="underline hover:text-foreground"
-								href={PRIVACY_POLICY_LINK}
-								rel="noreferrer"
-							>
-								{t('pages.auth.PRIVACY_POLICY')}
-							</Link>
-						</p>
+						{/* Terms + Privacy (each one can be turned off: '' => not rendered) */}
+						{(TERMS_LINK || PRIVACY_POLICY_LINK) && (
+							<p className="text-xs text-center text-muted-foreground">
+								{TERMS_LINK && (
+									<a className="underline hover:text-foreground" href={TERMS_LINK}>
+										{t('pages.auth.TERMS_OF_SERVICE')}
+									</a>
+								)}
+								{TERMS_LINK && PRIVACY_POLICY_LINK && ' · '}
+								{PRIVACY_POLICY_LINK && (
+									<Link
+										target="_blank"
+										className="underline hover:text-foreground"
+										href={PRIVACY_POLICY_LINK}
+										rel="noreferrer"
+									>
+										{t('pages.auth.PRIVACY_POLICY')}
+									</Link>
+								)}
+							</p>
+						)}
 
 						{/* Language + Theme controls */}
 						<div className="flex gap-3 justify-center items-center">
