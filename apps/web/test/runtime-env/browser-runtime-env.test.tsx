@@ -2,24 +2,17 @@
  * @jest-environment jsdom
  */
 /**
- * Browser side of the runtime env contract: once the server-injected
- * `self.__EVER_TEAMS_RUNTIME_ENV__` is present (the inline <script> in app/[locale]/layout.tsx runs
- * before any bundle module), constants and lazy getters resolve to the RUNTIME values — not to the
+ * Browser side of the runtime env contract: once the server-injected payload is present (the
+ * data-ever-teams-runtime-env attribute of <html>, parsed before any bundle module runs, installed
+ * on `self.__EVER_TEAMS_RUNTIME_ENV__` on first read), constants and lazy getters resolve to the
+ * RUNTIME values — not to the
  * value that was inlined when the image was built (simulated here by process.env, which is what the
  * `process.env.NEXT_PUBLIC_X` fallbacks read under Jest).
  */
 import React from 'react';
 import { render } from '@testing-library/react';
-import { RuntimeEnvProvider, RuntimeEnvScript } from '@/core/components/providers/runtime-env-provider';
-import {
-	getNextPublicEnv,
-	readRuntimeEnv,
-	RUNTIME_ENV_ATTRIBUTE,
-	RUNTIME_ENV_SCRIPT_ID,
-	serializeRuntimeEnvAttribute,
-	serializeRuntimeEnvScript
-} from '@/env-config';
-import { useRuntimeEnvHtmlProps } from '@/core/components/providers/runtime-env-provider';
+import { RuntimeEnvProvider, useRuntimeEnvHtmlProps } from '@/core/components/providers/runtime-env-provider';
+import { RUNTIME_ENV_ATTRIBUTE, serializeRuntimeEnvAttribute } from '@/env-config';
 
 const ORIGINAL_ENV = process.env;
 const GLOBAL = '__EVER_TEAMS_RUNTIME_ENV__';
@@ -271,7 +264,7 @@ describe('deployment-specific defaults in the browser', () => {
 	});
 });
 
-describe('RuntimeEnvScript / RuntimeEnvProvider', () => {
+describe('RuntimeEnvProvider', () => {
 	// Regular imports (not jest.isolateModules): the components must share the test's React instance.
 	function HtmlPropsProbe() {
 		return <div data-testid="probe" {...useRuntimeEnvHtmlProps()} />;
@@ -296,25 +289,4 @@ describe('RuntimeEnvScript / RuntimeEnvProvider', () => {
 		expect(container.querySelector('[data-testid="probe"]')?.hasAttribute(RUNTIME_ENV_ATTRIBUTE)).toBe(false);
 	});
 
-	it('renders the injected env as an executable inline script and installs it', () => {
-		const env = { NEXT_PUBLIC_CAPTCHA_SITE_KEY: 'self-hosted-site-key', APP_NAME: 'Acme </script> Teams' };
-
-		const { container } = render(
-			<RuntimeEnvProvider env={env}>
-				<RuntimeEnvScript />
-			</RuntimeEnvProvider>
-		);
-
-		const script = container.querySelector(`script#${RUNTIME_ENV_SCRIPT_ID}`);
-		expect(script?.innerHTML).toBe(serializeRuntimeEnvScript(env));
-		expect((globalThis as Record<string, unknown>)[GLOBAL]).toEqual(env);
-		expect(readRuntimeEnv('APP_NAME')).toBe('Acme </script> Teams');
-		expect(getNextPublicEnv('NEXT_PUBLIC_CAPTCHA_SITE_KEY').value).toBe('self-hosted-site-key');
-	});
-
-	it('renders nothing outside a provider', () => {
-		const { container } = render(<RuntimeEnvScript />);
-
-		expect(container.innerHTML).toBe('');
-	});
 });

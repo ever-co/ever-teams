@@ -3,7 +3,8 @@
  * the per-request payload sent to the browser contains the public configuration read from the
  * LIVE process env — and never a secret.
  */
-import vm from 'node:vm';
+// No top-level import left in this file: keep it a module so its consts stay file-scoped.
+export {};
 
 const ORIGINAL_ENV = process.env;
 
@@ -213,21 +214,3 @@ describe('readRuntimeEnv (server)', () => {
 	});
 });
 
-describe('serializeRuntimeEnvScript', () => {
-	it('round-trips values and cannot break out of the <script> element', () => {
-		const { envConfig } = loadModules();
-		const hostile = '</script><script>alert(1)</script> & \u2028\u2029 "quoted" \'single\'';
-		const script = envConfig.serializeRuntimeEnvScript({ APP_NAME: hostile, NEXT_PUBLIC_X: 'x' });
-
-		expect(script).not.toMatch(/<\/script/i);
-		expect(script).not.toContain('<');
-		expect(script).not.toContain('\u2028');
-		expect(script).not.toContain('\u2029');
-
-		const sandbox: Record<string, any> = {};
-		sandbox.self = sandbox;
-		vm.runInNewContext(script, sandbox);
-
-		expect(sandbox.__EVER_TEAMS_RUNTIME_ENV__).toEqual({ APP_NAME: hostile, NEXT_PUBLIC_X: 'x' });
-	});
-});

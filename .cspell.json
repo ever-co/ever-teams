@@ -551,6 +551,8 @@
 		"miliseconds",
 		"millisencods",
 		"MINIO",
+		"buildcache",
+		"Dockerfiles",
 		"nosniff",
 		"hoistables",
 		"SLSA",

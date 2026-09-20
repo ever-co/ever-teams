@@ -98,6 +98,7 @@ COPY packages/utils/package.json ./packages/utils/
 # --frozen-lockfile: Use exact versions from yarn.lock (deterministic)
 # --non-interactive: No interactive prompts (for CI/CD)
 # --network-timeout: Increase timeout for slow downloads (default: 30000ms)
+# --ignore-scripts: No dependency runs arbitrary code while the image is built, as in the prod image
 #
 # Environment variables to skip optional binary downloads:
 # - SENTRYCLI_SKIP_DOWNLOAD: Skip Sentry CLI binary download (can cause timeouts)
@@ -118,7 +119,7 @@ RUN --mount=type=secret,id=verdaccio_token \
 	if [ -s /run/secrets/verdaccio_token ]; then \
 	printf '//packages.ever.co/:_authToken=%s\n' "$(cat /run/secrets/verdaccio_token)" >> .npmrc; \
 	fi; \
-	yarn install --frozen-lockfile --non-interactive --network-timeout 600000; \
+	yarn install --frozen-lockfile --non-interactive --network-timeout 600000 --ignore-scripts; \
 	rm -f .npmrc
 
 # ==============================================================================

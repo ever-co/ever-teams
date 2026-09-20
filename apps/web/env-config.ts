@@ -25,7 +25,6 @@ const NEXT_PUBLIC_ENVS: { value: Env } = { value: {} };
  */
 const RUNTIME_ENV_GLOBAL = '__EVER_TEAMS_RUNTIME_ENV__';
 export const RUNTIME_ENV_ATTRIBUTE = 'data-ever-teams-runtime-env';
-export const RUNTIME_ENV_SCRIPT_ID = 'ever-teams-runtime-env';
 export const PUBLIC_RUNTIME_ENV_KEYS = [
 	'APP_NAME',
 	'APP_SIGNATURE',
@@ -109,26 +108,11 @@ export function serializeRuntimeEnvAttribute(env: Env): string {
 }
 
 /**
- * The `<script>` body that publishes `env` to a document that renders no <html> of its own
- * (app/not-found.tsx). JSON is escaped so a value can never close the script tag or break out of
- * the string (same escaping as Next's htmlescape).
- */
-export function serializeRuntimeEnvScript(env: Env): string {
-	const json = JSON.stringify(env)
-		.replace(/</g, String.raw`\u003c`)
-		.replace(/>/g, String.raw`\u003e`)
-		.replace(/&/g, String.raw`\u0026`)
-		.replace(/\u2028/g, String.raw`\u2028`)
-		.replace(/\u2029/g, String.raw`\u2029`);
-	return `self.${RUNTIME_ENV_GLOBAL}=${json};`;
-}
-
-/**
  * Installs the runtime env in the browser, for the lazy readers (getNextPublicEnv getters,
  * readRuntimeEnv calls made from now on). Normally the <html> attribute already carried it before
  * any module ran; values a module computed at load time on a document that had NEITHER the
- * attribute nor <RuntimeEnvScript /> are not corrected by this, so every document must carry one
- * (see app/[locale]/layout.tsx and app/not-found.tsx). Idempotent.
+ * attribute are not corrected by this, so every document the app renders must carry it (see
+ * app/[locale]/layout.tsx and app/not-found.tsx). Idempotent.
  */
 export function installRuntimeEnv(env: Env) {
 	if (typeof window === 'undefined' || !env) return;
@@ -220,7 +204,7 @@ if (injectedRuntimeEnv) {
  *
  * Decided once, HERE, before anything can install a payload later: true on the server (it reads live
  * process.env) and in every document the app renders itself, where the <html> attribute or
- * <RuntimeEnvScript /> published the payload before the first module ran. False only in the document
+ * the <html> attribute published the payload before the first module ran. False only in the document
  * Next builds WITHOUT app/layout.tsx — its own `<html id="__next_error__">` shell, client-rendered
  * after an SSR error or a notFound() raised during SSR (a first path segment with a dot, e.g.
  * /foo.bar, which proxy.ts's matcher skips). There every `const` computed at load time keeps the

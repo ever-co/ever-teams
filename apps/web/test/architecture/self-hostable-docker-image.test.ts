@@ -140,12 +140,15 @@ describe('self-hostable Docker image', () => {
 		// On <html>, whose start tag the browser parses before Next's bootstrap chunks can run.
 		expect(localeLayout).toContain('useRuntimeEnvHtmlProps()');
 		expect(localeLayout).toMatch(/<html[^>]*\{\.\.\.runtimeEnvHtmlProps\}/);
-		// Never a <head> child: there it is hydrated by position, so anything injected into <head>
-		// (a test harness, a proxy, an extension) would make React discard the whole document.
-		expect(localeLayout).not.toContain('<RuntimeEnvScript />');
-		// Documents rendered without app/[locale]/layout.tsx (the root not-found) render no <html>
-		// of their own, so they carry the payload in a script ahead of the page content instead.
-		expect(read('apps/web/app/not-found.tsx')).toMatch(/<RuntimeEnvScript \/>\s*<NotFound \/>/);
+		// Never an inline <script> in <head>: there it is hydrated by position, so anything injected
+		// into <head> (a test harness, a proxy, an extension) makes React discard the whole document.
+		const head = /<head>([\s\S]*?)<\/head>/.exec(localeLayout)?.[1] ?? '';
+		expect(head).not.toContain('<script');
+		// The root not-found is rendered without app/[locale]/layout.tsx, so it renders its own <html>
+		// and carries the payload the same way.
+		const notFound = read('apps/web/app/not-found.tsx');
+		expect(notFound).toContain('useRuntimeEnvHtmlProps()');
+		expect(notFound).toMatch(/<html[^>]*\{\.\.\.runtimeEnvHtmlProps\}/);
 	});
 
 	it('survives the documents Next renders without app/layout.tsx', () => {
