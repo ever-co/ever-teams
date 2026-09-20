@@ -104,22 +104,22 @@ COPY packages/utils/package.json ./packages/utils/
 # - CYPRESS_INSTALL_BINARY: Skip Cypress binary download (large file)
 # - PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: Skip Playwright browsers download
 
-# Private registry token (optional — set via build-arg to access packages.ever.co)
-ARG VERDACCIO_TOKEN
-
 ENV SENTRYCLI_SKIP_DOWNLOAD=1 \
 	CYPRESS_INSTALL_BINARY=0 \
 	PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
-# Configure private registry if token is provided
-RUN if [ -n "$VERDACCIO_TOKEN" ]; then \
-	echo "//packages.ever.co/:_authToken=${VERDACCIO_TOKEN}" >> .npmrc; \
-	fi
-
-RUN yarn install --frozen-lockfile --non-interactive --network-timeout 600000
-
-# Clean up .npmrc to avoid leaking token
-RUN rm -f .npmrc
+# Private registry credential (optional): a BuildKit secret, NEVER a build arg. This image is single-stage,
+# so any layer that once held the token ships with the image — a later `rm` only writes a whiteout and
+# `docker save` recovers the file. The .npmrc is written and deleted inside one RUN, so no layer carries it.
+# No secret (the default, including `docker compose -f docker-compose.dev.yml build`) → public npm.
+#   docker build --secret id=verdaccio_token,env=VERDACCIO_TOKEN -f .deploy/web/Dockerfile.dev .
+RUN --mount=type=secret,id=verdaccio_token \
+	set -e; \
+	if [ -s /run/secrets/verdaccio_token ]; then \
+	printf '//packages.ever.co/:_authToken=%s\n' "$(cat /run/secrets/verdaccio_token)" >> .npmrc; \
+	fi; \
+	yarn install --frozen-lockfile --non-interactive --network-timeout 600000; \
+	rm -f .npmrc
 
 # ==============================================================================
 # STEP 5: COPY SOURCE CODE

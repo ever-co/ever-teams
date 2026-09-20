@@ -1,16 +1,23 @@
 'use client';
 import React, { createContext, useContext } from 'react';
-import { installRuntimeEnv, readRuntimeEnv, RUNTIME_ENV_SCRIPT_ID, serializeRuntimeEnvScript } from '@/env-config';
+import {
+	installRuntimeEnv,
+	readRuntimeEnv,
+	RUNTIME_ENV_ATTRIBUTE,
+	RUNTIME_ENV_SCRIPT_ID,
+	serializeRuntimeEnvAttribute,
+	serializeRuntimeEnvScript
+} from '@/env-config';
 
 type RuntimeEnv = Record<string, string>;
 
 const RuntimeEnvContext = createContext<RuntimeEnv | null>(null);
 
 /**
- * Carries the request's public runtime env (read on the server by app/layout.tsx) down to
- * <RuntimeEnvScript />, which must live inside the <head> rendered by the 'use client'
- * app/[locale]/layout.tsx. The env reaches the client through the RSC payload, so the server-rendered
- * and hydrated script are byte-identical (no hydration mismatch).
+ * Carries the request's public runtime env (read on the server by app/layout.tsx) down to the
+ * <html> rendered by the 'use client' app/[locale]/layout.tsx. The env reaches the client through
+ * the RSC payload, so the server-rendered and hydrated attribute are byte-identical (no hydration
+ * mismatch).
  */
 export function RuntimeEnvProvider({ env, children }: Readonly<{ env: RuntimeEnv; children: React.ReactNode }>) {
 	// Normally a no-op (the inline script already installed the same values before any module ran).
@@ -34,9 +41,22 @@ export function useRuntimeEnvValue(name: string): string | undefined {
 }
 
 /**
- * Publishes the runtime env as `self.__EVER_TEAMS_RUNTIME_ENV__`. Render it as the FIRST child of
- * <head>: it executes while the HTML is parsed, before Next's bootstrap chunks evaluate any module,
- * so module-level constants (API service singletons, captcha key, branding) read runtime values.
+ * The <html> attributes that publish the runtime env to the browser. Spread them on the <html> the
+ * document renders: its start tag is parsed before anything else, so module-level constants (API
+ * service singletons, captcha key, branding) read runtime values from the first module evaluation
+ * on — including in the `async` bundle chunks Next puts at the top of <head>.
+ */
+export function useRuntimeEnvHtmlProps(): Record<string, string> {
+	const env = useContext(RuntimeEnvContext);
+	if (!env) return {};
+	return { [RUNTIME_ENV_ATTRIBUTE]: serializeRuntimeEnvAttribute(env) };
+}
+
+/**
+ * Publishes the runtime env as `self.__EVER_TEAMS_RUNTIME_ENV__`, for a document that renders no
+ * <html> of its own and so cannot carry useRuntimeEnvHtmlProps() (app/not-found.tsx). Render it
+ * ahead of the page content, and never inside <head>: there it is a positionally hydrated host
+ * element, and anything that injects into <head> would make React discard the whole document.
  * It must stay in the initial shell — never inside a Suspense boundary or client-only branch,
  * where it would arrive too late (or, when created by React on the client, never execute).
  */

@@ -9,15 +9,22 @@ const NEXT_PUBLIC_ENVS: { value: Env } = { value: {} };
  * bundles at BUILD time, so a published Docker image used to carry the values of whoever built it —
  * e.g. Ever's reCAPTCHA site key — and no `docker run -e ...` could change them. Instead, the root
  * layout (app/layout.tsx) now reads the allow-listed public keys from process.env on EVERY request
- * (see core/services/server/runtime-env.ts) and app/[locale]/layout.tsx writes them into an inline
- * <script> as the first child of <head>. That script runs during HTML parsing, before any bundle
- * module is evaluated, so every reader below (lazy getters AND module-level constants) sees the
- * runtime values in the browser, exactly as the server does.
+ * (see core/services/server/runtime-env.ts) and app/[locale]/layout.tsx writes them into the
+ * RUNTIME_ENV_ATTRIBUTE of <html>. The <html> start tag is the first thing the browser parses, so
+ * every reader below (lazy getters AND module-level constants) sees the runtime values from the
+ * first module evaluation on, exactly as the server does — even for the `async` bundle chunks Next
+ * puts at the top of <head>, which may run before the rest of the document is parsed.
+ *
+ * An attribute rather than an inline <script> on purpose: a script in <head> is a positionally
+ * hydrated host element, so anything that injects into <head> (a test harness, a proxy, a browser
+ * extension) shifts it and makes React discard and re-render the document; and it would force
+ * `script-src unsafe-inline` on deployments with a strict CSP.
  *
  * Only keys that are public by definition may be exposed: every `NEXT_PUBLIC_*` key plus the
  * branding keys below (all rendered in the UI anyway). NEVER add a secret here.
  */
 const RUNTIME_ENV_GLOBAL = '__EVER_TEAMS_RUNTIME_ENV__';
+export const RUNTIME_ENV_ATTRIBUTE = 'data-ever-teams-runtime-env';
 export const RUNTIME_ENV_SCRIPT_ID = 'ever-teams-runtime-env';
 export const PUBLIC_RUNTIME_ENV_KEYS = [
 	'APP_NAME',
@@ -48,11 +55,30 @@ function normalizeRuntimeValue(value: string | undefined): string | undefined {
 	return value?.trim() === '' ? '' : value;
 }
 
+/** The payload the server wrote on <html>, or undefined when this document did not get one. */
+function readRuntimeEnvAttribute(): Env | undefined {
+	if (typeof document === 'undefined') return undefined;
+	const raw = document.documentElement?.getAttribute(RUNTIME_ENV_ATTRIBUTE);
+	if (!raw) return undefined;
+	try {
+		const parsed: unknown = JSON.parse(raw);
+		return parsed && typeof parsed === 'object' ? (parsed as Env) : undefined;
+	} catch {
+		// A payload we cannot parse is no payload: fall back to the build-time values.
+		return undefined;
+	}
+}
+
 /** The runtime env the server injected into the page, when running in a browser that received it. */
 function readInjectedRuntimeEnv(): Env | undefined {
 	if (typeof window === 'undefined') return undefined;
 	const injected = (globalThis as Record<string, unknown>)[RUNTIME_ENV_GLOBAL];
-	return injected && typeof injected === 'object' ? (injected as Env) : undefined;
+	if (injected && typeof injected === 'object') return injected as Env;
+	// Read <html> once and keep it: app/global-error.tsx re-renders the document without the
+	// attribute, and a soft navigation never re-parses it.
+	const fromAttribute = readRuntimeEnvAttribute();
+	if (fromAttribute) installRuntimeEnv(fromAttribute);
+	return fromAttribute;
 }
 
 /**
@@ -75,8 +101,17 @@ export function readRuntimeEnv(name: string): string | undefined {
 }
 
 /**
- * The `<script>` body that publishes `env` to the browser. JSON is escaped so a value can never
- * close the script tag or break out of the string (same escaping as Next's htmlescape).
+ * The RUNTIME_ENV_ATTRIBUTE value that publishes `env` to the browser. Plain JSON: React escapes
+ * attribute values, and an attribute can hold no markup, so nothing here can break out of the tag.
+ */
+export function serializeRuntimeEnvAttribute(env: Env): string {
+	return JSON.stringify(env);
+}
+
+/**
+ * The `<script>` body that publishes `env` to a document that renders no <html> of its own
+ * (app/not-found.tsx). JSON is escaped so a value can never close the script tag or break out of
+ * the string (same escaping as Next's htmlescape).
  */
 export function serializeRuntimeEnvScript(env: Env): string {
 	const json = JSON.stringify(env)
@@ -90,10 +125,10 @@ export function serializeRuntimeEnvScript(env: Env): string {
 
 /**
  * Installs the runtime env in the browser, for the lazy readers (getNextPublicEnv getters,
- * readRuntimeEnv calls made from now on). Normally the inline <script> already did this before any
- * module ran; values a module computed at load time on a document WITHOUT that script (a page
- * outside app/[locale] that does not render <RuntimeEnvScript />) are not corrected by this — every
- * document must render the script (see app/not-found.tsx). Idempotent.
+ * readRuntimeEnv calls made from now on). Normally the <html> attribute already carried it before
+ * any module ran; values a module computed at load time on a document that had NEITHER the
+ * attribute nor <RuntimeEnvScript /> are not corrected by this, so every document must carry one
+ * (see app/[locale]/layout.tsx and app/not-found.tsx). Idempotent.
  */
 export function installRuntimeEnv(env: Env) {
 	if (typeof window === 'undefined' || !env) return;

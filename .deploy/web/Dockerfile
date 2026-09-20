@@ -44,9 +44,6 @@ RUN apt-get update -qq && \
 # Install Yarn
 RUN npm install -g yarn --force
 
-# Private registry token (optional — set via build-arg to access packages.ever.co)
-ARG VERDACCIO_TOKEN
-
 # --- STEP 1: Copy only lockfiles and manifests for dependency resolution ---
 COPY package.json yarn.lock ./
 
@@ -66,23 +63,31 @@ COPY apps/web/package.json ./apps/web/package.json
 # Set working directory to the web app
 WORKDIR /app/apps/web
 
-# Configure the npm registry: prefer the internal Verdaccio cache (VERDACCIO_REGISTRY build-arg, anonymous),
-# else the legacy packages.ever.co token path. Empty (e.g. a fork) → public npm. The yarn.lock rewrite is
-# best-effort (non-fatal) so a path mismatch degrades to public downloads rather than breaking the build.
+# Configure the npm registry: prefer the internal Verdaccio cache (VERDACCIO_REGISTRY build-arg, anonymous).
+# Empty (e.g. a fork) → public npm. The yarn.lock rewrite is best-effort (non-fatal) so a path mismatch
+# degrades to public downloads rather than breaking the build. The registry URL is not a credential, so it
+# stays a build arg; the packages.ever.co token is a BuildKit secret instead (STEP 2).
 ARG VERDACCIO_REGISTRY=""
 RUN if [ -n "$VERDACCIO_REGISTRY" ]; then \
 		echo "registry=${VERDACCIO_REGISTRY}" >> /app/.npmrc && \
 		printf 'registry "%s"\n' "${VERDACCIO_REGISTRY}" >> /app/.yarnrc && \
 		{ sed -i "s|https://registry.yarnpkg.com|${VERDACCIO_REGISTRY%/}|g; s|https://registry.npmjs.org|${VERDACCIO_REGISTRY%/}|g" /app/yarn.lock 2>/dev/null || true; }; \
-	elif [ -n "$VERDACCIO_TOKEN" ]; then \
-		echo "//packages.ever.co/:_authToken=${VERDACCIO_TOKEN}" >> /app/.npmrc; \
 	fi
 
 # --- STEP 2: Install deps in deterministic and cacheable way ---
-RUN yarn install --network-timeout 1000000 --frozen-lockfile --non-interactive --ignore-scripts
-
-# Clean up .npmrc to avoid leaking token into subsequent layers
-RUN rm -f /app/.npmrc
+# The legacy packages.ever.co credential arrives as a BuildKit secret, NEVER a build arg: a build arg is
+# readable in `docker history`, is recorded in SLSA provenance, and any layer written from it is published
+# the moment cache-to switches to mode=max. The auth line is appended to /app/.npmrc and the file removed
+# inside this same RUN, so no committed layer ever carries the token. The secret is optional: with none
+# (forks, self-hosters, `docker compose build`) the install falls through to the public registry.
+#   docker build --secret id=verdaccio_token,env=VERDACCIO_TOKEN -f .deploy/web/Dockerfile .
+RUN --mount=type=secret,id=verdaccio_token \
+	set -e; \
+	if [ -s /run/secrets/verdaccio_token ]; then \
+		printf '//packages.ever.co/:_authToken=%s\n' "$(cat /run/secrets/verdaccio_token)" >> /app/.npmrc; \
+	fi; \
+	yarn install --network-timeout 1000000 --frozen-lockfile --non-interactive --ignore-scripts; \
+	rm -f /app/.npmrc
 
 # --- STEP 3: Copy the rest of the repo for build ---
 WORKDIR /app

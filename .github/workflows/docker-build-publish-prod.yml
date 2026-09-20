@@ -77,11 +77,15 @@ jobs:
           # NOT build args: Next.js would inline them into the published image, which self-hosters could then
           # never change. Each deployment sets them at runtime (k8s Secret / docker run -e); see .env.docker.
           # NEXT_PUBLIC_DEMO only sets the image's runtime default (final-stage ENV), it is not inlined.
+          # The private-registry credential is a BuildKit secret, never a build arg: build args are readable
+          # in `docker history`, are recorded in SLSA provenance, and land in any cache exported with
+          # mode=max. Unset (forks) -> empty secret -> the Dockerfile falls back to the public registry.
+          secrets: |
+            verdaccio_token=${{ secrets.VERDACCIO_TOKEN }}
           build-args: |
             NODE_ENV=production
             NEXT_PUBLIC_BUILD_VERSION=${{ steps.web-version.outputs.version }}
             NEXT_PUBLIC_BUILD_SHA=${{ github.sha }}
-            VERDACCIO_TOKEN=${{ secrets.VERDACCIO_TOKEN }}
             NEXT_PUBLIC_DEMO=false
             API_BASE_URL=${{ vars.API_BASE_URL }}
             CLIENT_BASE_URL=${{ vars.CLIENT_BASE_URL }}

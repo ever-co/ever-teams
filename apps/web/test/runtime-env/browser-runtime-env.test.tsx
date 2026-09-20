@@ -11,7 +11,15 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { RuntimeEnvProvider, RuntimeEnvScript } from '@/core/components/providers/runtime-env-provider';
-import { getNextPublicEnv, readRuntimeEnv, RUNTIME_ENV_SCRIPT_ID, serializeRuntimeEnvScript } from '@/env-config';
+import {
+	getNextPublicEnv,
+	readRuntimeEnv,
+	RUNTIME_ENV_ATTRIBUTE,
+	RUNTIME_ENV_SCRIPT_ID,
+	serializeRuntimeEnvAttribute,
+	serializeRuntimeEnvScript
+} from '@/env-config';
+import { useRuntimeEnvHtmlProps } from '@/core/components/providers/runtime-env-provider';
 
 const ORIGINAL_ENV = process.env;
 const GLOBAL = '__EVER_TEAMS_RUNTIME_ENV__';
@@ -37,11 +45,13 @@ beforeEach(() => {
 		APP_NAME: 'Ever Teams'
 	};
 	delete (globalThis as Record<string, unknown>)[GLOBAL];
+	document.documentElement.removeAttribute(RUNTIME_ENV_ATTRIBUTE);
 });
 
 afterAll(() => {
 	process.env = ORIGINAL_ENV;
 	delete (globalThis as Record<string, unknown>)[GLOBAL];
+	document.documentElement.removeAttribute(RUNTIME_ENV_ATTRIBUTE);
 });
 
 describe('runtime env in the browser', () => {
@@ -105,6 +115,47 @@ describe('runtime env in the browser', () => {
 		expect(constants.IS_DEMO_MODE).toBe(false);
 		expect(constants.APP_NAME).toBe('Ever Teams');
 		expect(constants.TERMS_LINK).toBe('https://ever.team/tos');
+	});
+});
+
+/**
+ * The payload travels on <html>, not in a <head> script, so it is already there when the FIRST
+ * bundle module is evaluated: Next puts its chunks in <head> as `async` scripts, which may run
+ * before the rest of the document is parsed. A module-level constant that missed the payload would
+ * hold a build-time value while the server rendered the runtime one — a hydration mismatch.
+ */
+describe('runtime env carried by the <html> attribute', () => {
+	it('is what module-level constants read, with no script having run', () => {
+		document.documentElement.setAttribute(
+			RUNTIME_ENV_ATTRIBUTE,
+			serializeRuntimeEnvAttribute({
+				NEXT_PUBLIC_CAPTCHA_SITE_KEY: 'self-hosted-site-key',
+				APP_NAME: 'Acme Teams'
+			})
+		);
+
+		const constants = loadConstants();
+
+		expect(constants.RECAPTCHA_SITE_KEY.value).toBe('self-hosted-site-key');
+		expect(constants.APP_NAME).toBe('Acme Teams');
+	});
+
+	it('keeps working once the document no longer carries it (global-error re-renders <html>)', () => {
+		document.documentElement.setAttribute(RUNTIME_ENV_ATTRIBUTE, serializeRuntimeEnvAttribute({ APP_NAME: 'Acme' }));
+		let envConfig!: typeof import('@/env-config');
+		jest.isolateModules(() => {
+			envConfig = require('@/env-config');
+		});
+
+		expect(envConfig.readRuntimeEnv('APP_NAME')).toBe('Acme');
+		document.documentElement.removeAttribute(RUNTIME_ENV_ATTRIBUTE);
+		expect(envConfig.readRuntimeEnv('APP_NAME')).toBe('Acme');
+	});
+
+	it('falls back to the build-time values when the attribute is not valid JSON', () => {
+		document.documentElement.setAttribute(RUNTIME_ENV_ATTRIBUTE, '{not json');
+
+		expect(loadConstants().RECAPTCHA_SITE_KEY.value).toBe('ever-baked-site-key');
 	});
 });
 
@@ -222,6 +273,29 @@ describe('deployment-specific defaults in the browser', () => {
 
 describe('RuntimeEnvScript / RuntimeEnvProvider', () => {
 	// Regular imports (not jest.isolateModules): the components must share the test's React instance.
+	function HtmlPropsProbe() {
+		return <div data-testid="probe" {...useRuntimeEnvHtmlProps()} />;
+	}
+
+	it('publishes the env as an <html> attribute, ahead of every bundle chunk', () => {
+		const env = { NEXT_PUBLIC_CAPTCHA_SITE_KEY: 'self-hosted-site-key', APP_NAME: 'Acme Teams' };
+
+		const { container } = render(
+			<RuntimeEnvProvider env={env}>
+				<HtmlPropsProbe />
+			</RuntimeEnvProvider>
+		);
+
+		const probe = container.querySelector('[data-testid="probe"]');
+		expect(JSON.parse(probe?.getAttribute(RUNTIME_ENV_ATTRIBUTE) ?? '{}')).toEqual(env);
+	});
+
+	it('publishes no attribute outside a provider', () => {
+		const { container } = render(<HtmlPropsProbe />);
+
+		expect(container.querySelector('[data-testid="probe"]')?.hasAttribute(RUNTIME_ENV_ATTRIBUTE)).toBe(false);
+	});
+
 	it('renders the injected env as an executable inline script and installs it', () => {
 		const env = { NEXT_PUBLIC_CAPTCHA_SITE_KEY: 'self-hosted-site-key', APP_NAME: 'Acme </script> Teams' };
 

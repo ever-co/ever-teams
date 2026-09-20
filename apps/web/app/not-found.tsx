@@ -9,9 +9,10 @@ const NotFoundPage = () => {
 		<>
 			{/*
 			 * This document is rendered by app/layout.tsx without app/[locale]/layout.tsx (unknown or
-			 * invalid first path segment), so it does not get the <head> runtime env script. Render it
-			 * here, ahead of the page content: its module-level constants (and those of the pages a
-			 * soft navigation from here loads) must see the runtime env, not the build-time fallbacks.
+			 * invalid first path segment), so it renders no <html> of its own and cannot carry the
+			 * runtime env attribute. Publish it here, ahead of the page content: its module-level
+			 * constants (and those of the pages a soft navigation from here loads) must see the
+			 * runtime env, not the build-time fallbacks.
 			 */}
 			<RuntimeEnvScript />
 			<NotFound />

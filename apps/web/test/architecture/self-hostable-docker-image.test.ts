@@ -11,7 +11,7 @@
  * The contract these tests pin:
  * - the image is built without deployment-specific values (Dockerfile + publish workflows);
  * - branding is not inlined through next.config's `env` block;
- * - the runtime env reaches the browser through app/layout.tsx -> <RuntimeEnvScript /> in <head>;
+ * - the runtime env reaches the browser through app/layout.tsx -> the <html> runtime env attribute;
  * - app code reads NEXT_PUBLIC_* through readRuntimeEnv()/getNextPublicEnv(), with the literal
  *   `process.env.NEXT_PUBLIC_X` at most as the build-time fallback.
  */
@@ -57,7 +57,7 @@ describe('self-hostable Docker image', () => {
 			publicVars.filter((name) => ![...BUILD_TIME_PUBLIC_VARS, 'NEXT_PUBLIC_IMAGES_HOSTS'].includes(name))
 		).toEqual([]);
 		expect(defined.filter((name) => (PUBLIC_RUNTIME_ENV_KEYS as readonly string[]).includes(name))).toEqual([]);
-		expect(defined.filter((name) => name !== 'VERDACCIO_TOKEN' && SECRET_VAR.test(name))).toEqual([]);
+		expect(defined.filter((name) => SECRET_VAR.test(name))).toEqual([]);
 	});
 
 	it('declares no deployment-specific build args before the first stage', () => {
@@ -67,6 +67,23 @@ describe('self-hostable Docker image', () => {
 		expect(globalArgs.filter((name) => name.startsWith('NEXT_PUBLIC_'))).toEqual(BUILD_TIME_PUBLIC_VARS);
 		expect(globalArgs.filter((name) => SECRET_VAR.test(name))).toEqual([]);
 	});
+
+	it.each(['.deploy/web/Dockerfile', '.deploy/web/Dockerfile.dev'])(
+		'takes the private-registry credential as a BuildKit secret in %s',
+		(path) => {
+			const content = read(path);
+
+			// A build arg is readable in `docker history`, is recorded in SLSA provenance and is published
+			// with any cache exported at mode=max; Dockerfile.dev is single-stage, so a layer holding the
+			// token ships inside the image and a later `rm` only writes a whiteout.
+			expect(content).not.toMatch(/^ARG\s+VERDACCIO_TOKEN\b/m);
+			expect(content).not.toContain('$VERDACCIO_TOKEN');
+			expect(content).not.toContain('${VERDACCIO_TOKEN}');
+			expect(content).toContain('--mount=type=secret,id=verdaccio_token');
+			// Written and removed inside the SAME RUN, so no committed layer ever carries it.
+			expect(content).toMatch(/--mount=type=secret,id=verdaccio_token[\s\S]{0,600}?rm -f [^\n]*\.npmrc/);
+		}
+	);
 
 	it.each(['dev', 'stage', 'prod'])('does not bake deployment values in the %s publish workflow', (environment) => {
 		const workflow = parseYaml(read(`.github/workflows/docker-build-publish-${environment}.yml`)) as {
@@ -89,7 +106,14 @@ describe('self-hostable Docker image', () => {
 					name.startsWith('NEXT_PUBLIC_') && ![...BUILD_TIME_PUBLIC_VARS, 'NEXT_PUBLIC_DEMO'].includes(name)
 			)
 		).toEqual([]);
-		expect(buildArgNames.filter((name) => name !== 'VERDACCIO_TOKEN' && SECRET_VAR.test(name))).toEqual([]);
+		expect(buildArgNames.filter((name) => SECRET_VAR.test(name))).toEqual([]);
+
+		// The private-registry credential travels as a BuildKit secret, not a build arg.
+		const secretIds = String(build?.with?.secrets ?? '')
+			.split('\n')
+			.map((line) => line.trim().split('=')[0])
+			.filter(Boolean);
+		expect(secretIds).toContain('verdaccio_token');
 	});
 
 	it('keeps branding out of the next.config env block (it would be inlined at build time)', () => {
@@ -113,9 +137,14 @@ describe('self-hostable Docker image', () => {
 		expect(rootLayout).toMatch(/<RuntimeEnvProvider env=\{runtimeEnv\}>/);
 		// Per-request, never frozen into prerendered HTML.
 		expect(rootLayout).toContain('await connection()');
-		// First child of <head>: executes during HTML parsing, ahead of Next's bootstrap chunks.
-		expect(localeLayout).toMatch(/<head>\s*(\{\/\*[\s\S]*?\*\/\}\s*)?<RuntimeEnvScript \/>/);
-		// Documents rendered without app/[locale]/layout.tsx (the root not-found) carry it themselves.
+		// On <html>, whose start tag the browser parses before Next's bootstrap chunks can run.
+		expect(localeLayout).toContain('useRuntimeEnvHtmlProps()');
+		expect(localeLayout).toMatch(/<html[^>]*\{\.\.\.runtimeEnvHtmlProps\}/);
+		// Never a <head> child: there it is hydrated by position, so anything injected into <head>
+		// (a test harness, a proxy, an extension) would make React discard the whole document.
+		expect(localeLayout).not.toContain('<RuntimeEnvScript />');
+		// Documents rendered without app/[locale]/layout.tsx (the root not-found) render no <html>
+		// of their own, so they carry the payload in a script ahead of the page content instead.
 		expect(read('apps/web/app/not-found.tsx')).toMatch(/<RuntimeEnvScript \/>\s*<NotFound \/>/);
 	});
 });

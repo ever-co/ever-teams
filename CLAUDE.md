@@ -57,10 +57,15 @@ SENTRY_DSN=...
 - Public env is read at **runtime**, per request: `app/layout.tsx` calls
   `getPublicRuntimeEnv()` (`core/services/server/runtime-env.ts`, only
   `NEXT_PUBLIC_*` + branding keys, never secrets), `app/[locale]/layout.tsx`
-  writes it into an inline `<script>` (`RuntimeEnvScript`, first child of
-  `<head>`, runs before any bundle), and code reads it through `env-config.ts`
-  `readRuntimeEnv()` / `getNextPublicEnv()`. This is what lets one published
-  Docker image be configured with `docker run -e ...` (see `.env.docker`).
+  writes it into the `data-ever-teams-runtime-env` attribute of `<html>`
+  (`useRuntimeEnvHtmlProps`), whose start tag is parsed before any bundle runs,
+  and code reads it through `env-config.ts` `readRuntimeEnv()` /
+  `getNextPublicEnv()`. This is what lets one published Docker image be
+  configured with `docker run -e ...` (see `.env.docker`).
+- Never put that payload (or any other inline `<script>`) in `<head>`: React
+  hydrates `<head>` children by position, so anything that injects there — the
+  Cypress proxy, a corporate proxy, a browser extension — makes React discard and
+  re-render the whole document (`test/runtime-env/head-hydration.test.tsx`).
 - Never read `process.env.NEXT_PUBLIC_*` directly in client code: use
   `readRuntimeEnv('NEXT_PUBLIC_X') || process.env.NEXT_PUBLIC_X` (the literal is
   only the build-time fallback) or `getNextPublicEnv()`. Never add deployment
