@@ -21,7 +21,7 @@ jest.mock('next-auth/providers/facebook', () => mockProvider('facebook', 'Facebo
 jest.mock('next-auth/providers/google', () => mockProvider('google', 'Google'));
 jest.mock('next-auth/providers/github', () => mockProvider('github', 'GitHub'));
 jest.mock('next-auth/providers/linkedin', () => mockProvider('linkedin', 'LinkedIn'));
-jest.mock('next-auth/providers/azure-ad', () => mockProvider('azure-ad', 'Azure Active Directory'));
+jest.mock('next-auth/providers/microsoft-entra-id', () => mockProvider('microsoft-entra-id', 'Microsoft Entra ID'));
 jest.mock('next-auth/providers/slack', () => mockProvider('slack', 'Slack'));
 jest.mock('next-auth/providers/twitter', () => mockProvider('twitter', 'Twitter'));
 
@@ -138,7 +138,7 @@ describe('getPublicRuntimeEnv', () => {
 
 describe('getPublicRuntimeEnv: social login providers', () => {
 	const PROVIDERS = ['APPLE', 'DISCORD', 'FACEBOOK', 'GOOGLE', 'GITHUB', 'LINKEDIN', 'MICROSOFT', 'SLACK', 'TWITTER'];
-	const APP_NAME_KEYS = [...PROVIDERS, 'MICROSOFTENTRAID'].map((provider) => `NEXT_PUBLIC_${provider}_APP_NAME`);
+	const APP_NAME_KEYS = PROVIDERS.map((provider) => `NEXT_PUBLIC_${provider}_APP_NAME`);
 	const CLIENT_KEYS = PROVIDERS.flatMap((provider) => [`${provider}_CLIENT_ID`, `${provider}_CLIENT_SECRET`]);
 
 	beforeEach(() => {

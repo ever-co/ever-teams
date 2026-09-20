@@ -208,3 +208,30 @@ describe('runtime reads of NEXT_PUBLIC_* in app code', () => {
 		expect(offenders).toEqual([]);
 	});
 });
+
+// ---------------------------------------------------------------------------------------------
+// Source scan: no Ever host hard-coded as a deployment's default.
+// ---------------------------------------------------------------------------------------------
+
+// The one file where an Ever host is a documented default: the API origin of last resort (which warns
+// in production) and the branding links, all of them `readRuntimeEnv(..) || process.env.. || '<x>'`.
+const EVER_DEFAULTS_FILE = join(WEB_ROOT, 'core/constants/config/constants.tsx');
+// A host inside a string literal. A comment recording an Ever-only incident is not configuration.
+const EVER_HOST_LITERAL = /(['"`])[^'"`\n]*\bever\.team\b/;
+
+describe('Ever hosts in app code', () => {
+	it('never hard-codes an Ever host as a fallback outside the branding defaults', () => {
+		// The task status / priority / size icons fell back to https://api.ever.team whenever a
+		// deployment published no API origin to the browser, so a self-hosted instance requested them
+		// from Ever's production API (core/lib/helpers/public-asset-url.ts).
+		const files = [...walk(join(WEB_ROOT, 'app')), ...walk(join(WEB_ROOT, 'core'))].filter(
+			(file) => file !== EVER_DEFAULTS_FILE
+		);
+		const offenders = files
+			.filter((file) => EVER_HOST_LITERAL.test(readFileSync(file, 'utf8')))
+			.map((file) => relative(WEB_ROOT, file).split(sep).join('/'));
+
+		expect(files.length).toBeGreaterThan(200);
+		expect(offenders).toEqual([]);
+	});
+});

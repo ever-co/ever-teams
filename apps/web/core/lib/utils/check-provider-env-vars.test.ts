@@ -13,9 +13,9 @@
 import type * as ProviderModuleExports from './check-provider-env-vars';
 
 const ORIGINAL_ENV = process.env;
-const PROVIDER_KEYS = ['APPLE', 'DISCORD', 'FACEBOOK', 'GOOGLE', 'GITHUB', 'LINKEDIN', 'SLACK', 'TWITTER'];
-const APP_NAME_KEYS = [...PROVIDER_KEYS, 'MICROSOFTENTRAID'].map((key) => `NEXT_PUBLIC_${key}_APP_NAME`);
-const CLIENT_KEYS = [...PROVIDER_KEYS, 'MICROSOFT'].flatMap((key) => [`${key}_CLIENT_ID`, `${key}_CLIENT_SECRET`]);
+const PROVIDER_KEYS = ['APPLE', 'DISCORD', 'FACEBOOK', 'GOOGLE', 'GITHUB', 'LINKEDIN', 'MICROSOFT', 'SLACK', 'TWITTER'];
+const APP_NAME_KEYS = PROVIDER_KEYS.map((key) => `NEXT_PUBLIC_${key}_APP_NAME`);
+const CLIENT_KEYS = PROVIDER_KEYS.flatMap((key) => [`${key}_CLIENT_ID`, `${key}_CLIENT_SECRET`]);
 
 // next-auth ships ESM only; the unit under test only needs each provider's id and name.
 function mockProvider(id: string, name: string) {
@@ -30,7 +30,7 @@ jest.mock('next-auth/providers/facebook', () => mockProvider('facebook', 'Facebo
 jest.mock('next-auth/providers/google', () => mockProvider('google', 'Google'));
 jest.mock('next-auth/providers/github', () => mockProvider('github', 'GitHub'));
 jest.mock('next-auth/providers/linkedin', () => mockProvider('linkedin', 'LinkedIn'));
-jest.mock('next-auth/providers/azure-ad', () => mockProvider('azure-ad', 'Azure Active Directory'));
+jest.mock('next-auth/providers/microsoft-entra-id', () => mockProvider('microsoft-entra-id', 'Microsoft Entra ID'));
 jest.mock('next-auth/providers/slack', () => mockProvider('slack', 'Slack'));
 jest.mock('next-auth/providers/twitter', () => mockProvider('twitter', 'Twitter'));
 
@@ -179,5 +179,64 @@ describe('getConfiguredAuthProviderIds (published to the browser)', () => {
 		expect(published).toBe('["google"]');
 		expect(published).not.toContain('google-client-id');
 		expect(published).not.toContain('google-client-secret');
+	});
+});
+
+/**
+ * Microsoft could never be enabled: the maps were keyed 'microsoftEntraId' / 'microsoftentraid', while
+ * the provider answers to the id 'microsoft-entra-id' and the name 'Microsoft Entra ID'. Both the
+ * `advertised` and the `configured` lookup missed, whatever the deployment set.
+ */
+describe('Microsoft Entra ID', () => {
+	beforeEach(() => {
+		process.env.MICROSOFT_CLIENT_ID = 'microsoft-client-id';
+		process.env.MICROSOFT_CLIENT_SECRET = 'microsoft-client-secret';
+	});
+
+	it('is published when the deployment sets the app name and the client credentials', () => {
+		const mod = loadWithContainerEnv({ NEXT_PUBLIC_MICROSOFT_APP_NAME: '' });
+
+		expect(mod.providerNames['microsoft-entra-id']).toBe('');
+		expect(mod.getConfiguredAuthProviderIds()).toEqual(['microsoft-entra-id']);
+	});
+
+	it('stays hidden when only the client credentials are set', () => {
+		expect(loadWithContainerEnv({}).getConfiguredAuthProviderIds()).toEqual([]);
+	});
+
+	it('stays hidden when the client secret is blank', () => {
+		process.env.MICROSOFT_CLIENT_SECRET = ' ';
+
+		expect(loadWithContainerEnv({ NEXT_PUBLIC_MICROSOFT_APP_NAME: '' }).getConfiguredAuthProviderIds()).toEqual([]);
+	});
+});
+
+describe('every provider next-auth is given is reachable from the env', () => {
+	// Provider id -> env prefix. A provider whose id is not a key of providerNames / providerClientIds
+	// is dead weight: registered with next-auth but impossible to switch on.
+	const ENV_PREFIX: Record<string, string> = {
+		apple: 'APPLE',
+		discord: 'DISCORD',
+		facebook: 'FACEBOOK',
+		google: 'GOOGLE',
+		github: 'GITHUB',
+		linkedin: 'LINKEDIN',
+		'microsoft-entra-id': 'MICROSOFT',
+		slack: 'SLACK',
+		twitter: 'TWITTER'
+	};
+
+	it('advertises and configures each registered provider through its own env vars', () => {
+		for (const prefix of Object.values(ENV_PREFIX)) {
+			process.env[`${prefix}_CLIENT_ID`] = `${prefix}-client-id`;
+			process.env[`${prefix}_CLIENT_SECRET`] = `${prefix}-client-secret`;
+		}
+		const containerEnv = Object.fromEntries(
+			Object.values(ENV_PREFIX).map((prefix) => [`NEXT_PUBLIC_${prefix}_APP_NAME`, ''])
+		);
+
+		const published = loadWithContainerEnv(containerEnv).getConfiguredAuthProviderIds();
+
+		expect([...published].sort()).toEqual(Object.keys(ENV_PREFIX).sort());
 	});
 });

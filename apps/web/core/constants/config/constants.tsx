@@ -200,6 +200,13 @@ if (IS_DESKTOP_APP) {
 	basePath = serverRuntimeConfig?.GAUZY_API_SERVER_URL || basePath;
 }
 
+/**
+ * The API ORIGIN this server talks to, WITHOUT `/api`: Gauzy serves its static files next to the API
+ * rather than under it (`<origin>/public/ever-icons/...`, the task status, priority and size icons).
+ * Not the same thing as GAUZY_API_BASE_SERVER_URL, which is what the BROWSER was given.
+ */
+export const GAUZY_API_SERVER_ORIGIN = basePath;
+
 export const GAUZY_API_SERVER_URL = basePath + '/api';
 
 export const GAUZY_API_BASE_SERVER_URL = getNextPublicEnv(
@@ -687,6 +694,8 @@ export const LINKEDIN_CLIENT_SECRET = process.env.LINKEDIN_CLIENT_SECRET;
 
 export const MICROSOFT_CLIENT_ID = process.env.MICROSOFT_CLIENT_ID;
 export const MICROSOFT_CLIENT_SECRET = process.env.MICROSOFT_CLIENT_SECRET;
+// Entra tenant id; empty = 'common' (multi-tenant app registrations only).
+export const MICROSOFT_TENANT_ID = process.env.MICROSOFT_TENANT_ID;
 
 export const SLACK_CLIENT_ID = process.env.SLACK_CLIENT_ID;
 export const SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET;

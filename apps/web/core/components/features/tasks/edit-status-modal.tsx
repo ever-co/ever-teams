@@ -10,11 +10,7 @@ import { Loader } from 'lucide-react';
 import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
 import { ETaskStatusName } from '@/core/types/schemas';
-import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-
-// Status icons are served by the Gauzy API (`<api>/public/ever-icons/...`, as in generateIconList). Used
-// only when this deployment has no public API origin configured (the app proxies the API).
-const DEFAULT_STATUS_ICON_API_ORIGIN = 'https://api.ever.team';
+import { publicAssetUrl } from '@/core/lib/helpers/public-asset-url';
 
 type EditSet = {
 	name: ETaskStatusName;
@@ -34,17 +30,16 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 		}
 	});
 	const renameProperty = (newProp: string, icon: string) => {
-		// This deployment's API (runtime env), so a self-hosted instance does not load icons from Ever's API.
-		let iconApiOrigin: string = GAUZY_API_BASE_SERVER_URL.value || DEFAULT_STATUS_ICON_API_ORIGIN;
-		while (iconApiOrigin.endsWith('/')) iconApiOrigin = iconApiOrigin.slice(0, -1);
 		setColumn((prev: any) => {
 			const newColumn = prev.map((column: any) => {
 				if (column.id === status.id) {
 					return {
 						...column,
 						name: newProp,
-						// Absolute icon URLs (https, or http on a self-hosted API / MinIO) are kept as they are.
-						icon: /^https?:\/\//i.test(icon) ? icon : `${iconApiOrigin}/public/${icon}`
+						// This deployment's API, or this app's /api proxy when it publishes no API origin to
+						// the browser: a self-hosted instance never loads icons from Ever's API. An absolute
+						// URL (https, or http on a self-hosted API / MinIO) is kept as it is.
+						icon: publicAssetUrl(icon)
 					};
 				}
 				return column;
