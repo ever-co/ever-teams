@@ -147,6 +147,27 @@ describe('self-hostable Docker image', () => {
 		// of their own, so they carry the payload in a script ahead of the page content instead.
 		expect(read('apps/web/app/not-found.tsx')).toMatch(/<RuntimeEnvScript \/>\s*<NotFound \/>/);
 	});
+
+	it('survives the documents Next renders without app/layout.tsx', () => {
+		const globalError = read('apps/web/app/global-error.tsx');
+
+		// It replaces the root layout, so React reconciles <html> down to its own props: it must keep
+		// the payload the document was served with on the element instead of dropping it.
+		expect(globalError).toMatch(/<html[^>]*\{\.\.\.injectedRuntimeEnvHtmlProps\(\)\}/);
+		// And it must render nothing a deployment configures: Next also renders it in its own
+		// `__next_error__` document, which carries no payload at all, where every branding constant
+		// still holds the value that was inlined when the image was built.
+		expect(globalError).not.toContain('@/core/constants/config/constants');
+		for (const key of PUBLIC_RUNTIME_ENV_KEYS) {
+			expect(globalError).not.toContain(key);
+		}
+
+		// A payload-less document must be left by a full page load: a soft navigation would carry its
+		// build-time-default constants into the app until the next reload.
+		expect(read('apps/web/core/components/pages/404/index.tsx')).toMatch(
+			/moduleConstantsSawRuntimeEnv\(\)[\s\S]*<a href="\/">Go back to home<\/a>/
+		);
+	});
 });
 
 // ---------------------------------------------------------------------------------------------

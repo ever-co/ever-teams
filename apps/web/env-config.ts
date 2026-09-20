@@ -214,3 +214,32 @@ if (injectedRuntimeEnv) {
 } else {
 	setNextPublicEnv(loadNextPublicEnvs());
 }
+
+/**
+ * Whether the module-level constants of this bundle saw the deployment's runtime env.
+ *
+ * Decided once, HERE, before anything can install a payload later: true on the server (it reads live
+ * process.env) and in every document the app renders itself, where the <html> attribute or
+ * <RuntimeEnvScript /> published the payload before the first module ran. False only in the document
+ * Next builds WITHOUT app/layout.tsx — its own `<html id="__next_error__">` shell, client-rendered
+ * after an SSR error or a notFound() raised during SSR (a first path segment with a dot, e.g.
+ * /foo.bar, which proxy.ts's matcher skips). There every `const` computed at load time keeps the
+ * build-time default; installRuntimeEnv() from a later <RuntimeEnvProvider> repairs the lazy readers
+ * but never those, so such a document must be left by a full page load, not a soft navigation.
+ */
+const MODULE_CONSTANTS_SAW_RUNTIME_ENV = typeof window === 'undefined' || injectedRuntimeEnv !== undefined;
+
+export function moduleConstantsSawRuntimeEnv(): boolean {
+	return MODULE_CONSTANTS_SAW_RUNTIME_ENV;
+}
+
+/**
+ * The RUNTIME_ENV_ATTRIBUTE props for a document that re-renders <html> outside
+ * <RuntimeEnvProvider>: app/global-error.tsx replaces the root layout, so React would otherwise drop
+ * the attribute from the element and leave nothing on the document for a module that has not read it
+ * yet. Empty when this document never carried a payload (the `__next_error__` shell).
+ */
+export function injectedRuntimeEnvHtmlProps(): Record<string, string> {
+	const env = readInjectedRuntimeEnv();
+	return env ? { [RUNTIME_ENV_ATTRIBUTE]: serializeRuntimeEnvAttribute(env) } : {};
+}

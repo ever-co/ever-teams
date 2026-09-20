@@ -183,7 +183,7 @@ describe('getConfiguredAuthProviderIds (published to the browser)', () => {
 });
 
 /**
- * Microsoft could never be enabled: the maps were keyed 'microsoftEntraId' / 'microsoftentraid', while
+ * Microsoft could never be enabled: the maps were keyed 'microsoftEntraId' and an all-lowercase variant, while
  * the provider answers to the id 'microsoft-entra-id' and the name 'Microsoft Entra ID'. Both the
  * `advertised` and the `configured` lookup missed, whatever the deployment set.
  */

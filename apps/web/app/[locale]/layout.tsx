@@ -99,7 +99,16 @@ const LocaleLayout = (props: Props) => {
 		else if (isApiWork && pathname?.split('/').reverse()[0] === 'maintenance') router.replace('/');
 	}, [isApiWork, loading, router, pathname]);
 
-	// Validate that the incoming `locale` parameter is valid
+	// Validate that the incoming `locale` parameter is valid.
+	//
+	// This only ever fires for a first path segment proxy.ts's matcher skips — one containing a dot,
+	// e.g. /foo.bar — because next-intl rewrites every other unknown segment under the default locale.
+	// Raised from a client component it cannot be handled during SSR (React runs no error boundary in
+	// the server renderer, and there is no loading.tsx here to give Fizz a Suspense boundary), so React
+	// errors the shell and Next serves its own `<html id="__next_error__">` document and renders it on
+	// the client: no app/layout.tsx, no runtime env attribute. The 404 status is correct and worth
+	// keeping, so we do not render the 404 inline here; core/components/pages/404 leaves that document
+	// with a full page load instead, so its build-time-default constants never reach the app.
 	if (!LOCALES.includes(locale as string)) {
 		notFound();
 	}

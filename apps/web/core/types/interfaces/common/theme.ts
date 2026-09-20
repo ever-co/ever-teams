@@ -1,17 +1,15 @@
-import { StaticImageData } from 'next/image';
+import { TThemePreviewVariant } from '@/core/components/common/theme-preview';
 
 export interface ThemeInterface {
-	theme: string;
+	theme: TThemePreviewVariant;
 	text: string;
-	image: StaticImageData;
 	enabled: boolean;
 }
 
 export interface ThemesPopup {
-	theme: string;
+	theme: TThemePreviewVariant;
 	currentTheme: string | undefined;
 	text: string;
-	image: StaticImageData;
 	enabled: boolean;
 	index: number;
 	setTheme: (theme: string) => void;

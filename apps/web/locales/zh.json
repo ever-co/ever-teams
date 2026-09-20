@@ -198,6 +198,8 @@
 		"THEMES": "主题",
 		"3D_MODE": "3D模式",
 		"DARK_MODE": "夜间模式",
+		"THEME_LIGHT": "浅色",
+		"THEME_DARK": "深色",
 		"SETTINGS": "设置",
 		"PERSONAL": "个人",
 		"USE_SETTING": "使用设置",

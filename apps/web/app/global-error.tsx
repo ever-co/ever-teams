@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { initSentryClient } from '../sentry.client.config';
+import { injectedRuntimeEnvHtmlProps } from '@/env-config';
 
 export default function GlobalError({ error }: { error: Error & { digest?: string } }) {
 	useEffect(() => {
@@ -11,7 +12,14 @@ export default function GlobalError({ error }: { error: Error & { digest?: strin
 	}, [error]);
 
 	return (
-		<html data-scroll-behavior="smooth">
+		// This replaces the root layout, so there is no <RuntimeEnvProvider> to read the request's env
+		// from — and React would reconcile <html> down to these props, dropping the payload attribute the
+		// document was served with. Re-publish it instead. It is empty in the `<html id="__next_error__">`
+		// document Next client-renders after an SSR error, which never carried one: NOTHING here may read
+		// a value a deployment configures (no logo, no app name, no links), and the only runtime-env
+		// reader below is the Sentry DSN — an error that got us here was already reported server-side by
+		// instrumentation.ts's onRequestError.
+		<html data-scroll-behavior="smooth" {...injectedRuntimeEnvHtmlProps()}>
 			<body>
 				<div
 					style={{
