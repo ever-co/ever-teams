@@ -66,7 +66,7 @@ describe('self-hostable Docker image', () => {
 		// happened to hold. An OAuth callback that is not registered with the provider then dead-ends the
 		// user at "Access blocked" - verified against the live Google client on 2026-09-21, where neither
 		// app.ever.team nor stage.ever.team was a registered redirect URI. It must be an explicit act.
-		expect(dockerfile).not.toMatch(/^ENV\s+NEXT_PUBLIC_[A-Z0-9_]*_APP_NAME=/m);
+		expect(dockerfile).not.toMatch(/^ENV\s+NEXT_PUBLIC_[A-Z0-9_]*_APP_NAME(?:=|\s)/m);
 	});
 
 	it('declares no deployment-specific build args before the first stage', () => {
