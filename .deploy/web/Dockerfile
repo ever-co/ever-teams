@@ -159,17 +159,18 @@ ENV IS_DOCKER=true
 # no default here and must be set by each deployment):
 # - NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM / NEXT_PUBLIC_LOG_FOLDER_MAX_SIZE / NEXT_PUBLIC_DISABLE_AUTO_REFRESH:
 #   the old build-stage defaults.
-# - NEXT_PUBLIC_{GOOGLE,FACEBOOK,TWITTER,GITHUB}_APP_NAME: were defined at build (empty, or 'ever-github'
-#   for GitHub), which advertises those social logins (core/lib/utils/check-provider-env-vars.ts); a
-#   provider still only appears once its *_CLIENT_ID and *_CLIENT_SECRET are set. The GitHub integration
-#   (install a GitHub App) stays disabled until a deployment sets NEXT_PUBLIC_GITHUB_APP_NAME to its own app.
+#
+# NEXT_PUBLIC_<PROVIDER>_APP_NAME is deliberately NOT defaulted here. A provider counts as advertised
+# when that key is SET, even to an empty string (check-provider-env-vars.ts), so defaulting it in the
+# image silently switched on every social login whose credentials a deployment happened to hold — and
+# an unregistered OAuth callback then dead-ends the user at "Access blocked: this app's request is
+# invalid" (verified against the live Google client on 2026-09-21: neither app.ever.team nor
+# stage.ever.team is a registered redirect URI). Turning a sign-in button on must be an explicit act
+# by the deployment: set NEXT_PUBLIC_<PROVIDER>_APP_NAME together with its _CLIENT_ID and
+# _CLIENT_SECRET, once the callback <public origin>/api/auth/callback/<provider id> is registered.
 ENV NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM=false
 ENV NEXT_PUBLIC_LOG_FOLDER_MAX_SIZE=10
 ENV NEXT_PUBLIC_DISABLE_AUTO_REFRESH=false
-ENV NEXT_PUBLIC_GOOGLE_APP_NAME=""
-ENV NEXT_PUBLIC_FACEBOOK_APP_NAME=""
-ENV NEXT_PUBLIC_TWITTER_APP_NAME=""
-ENV NEXT_PUBLIC_GITHUB_APP_NAME=""
 
 # Default port for the web server
 EXPOSE 3030

@@ -60,6 +60,15 @@ describe('self-hostable Docker image', () => {
 		expect(defined.filter((name) => SECRET_VAR.test(name))).toEqual([]);
 	});
 
+	it('never advertises a social login by default', () => {
+		// A provider counts as advertised when NEXT_PUBLIC_<X>_APP_NAME is SET, even to an empty string,
+		// so defaulting it in the image switched on every sign-in button whose credentials a deployment
+		// happened to hold. An OAuth callback that is not registered with the provider then dead-ends the
+		// user at "Access blocked" - verified against the live Google client on 2026-09-21, where neither
+		// app.ever.team nor stage.ever.team was a registered redirect URI. It must be an explicit act.
+		expect(dockerfile).not.toMatch(/^ENV\s+NEXT_PUBLIC_[A-Z0-9_]*_APP_NAME=/m);
+	});
+
 	it('declares no deployment-specific build args before the first stage', () => {
 		const globalSection = dockerfile.slice(0, dockerfile.indexOf('\nFROM '));
 		const globalArgs = declaredNames(globalSection, 'ARG');
