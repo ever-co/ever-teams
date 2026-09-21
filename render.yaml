@@ -21,10 +21,8 @@ services:
             sync: false
           - key: CAPTCHA_SECRET_KEY
             sync: false
-          - key: INVITE_CALLBACK_URL
-            value: https://app.ever.team/auth/passcode
-          - key: VERIFY_EMAIL_CALLBACK_URL
-            value: https://app.ever.team/verify-email
+          - key: AUTH_SECRET
+            generateValue: true
           - key: SMTP_FROM_ADDRESS
             value: noreply@ever.team
           - key: SMTP_HOST
@@ -45,8 +43,6 @@ services:
             value: 'Ever Teams'
           - key: APP_LOGO_URL
             value: 'https://app.ever.team/assets/ever-teams.png'
-          - key: NEXT_PUBLIC_COOKIE_DOMAINS
-            value: ever.team
           - key: NEXT_PUBLIC_BOARD_APP_DOMAIN
             value: https://board.ever.team
           - key: NEXT_PUBLIC_BOARD_BACKEND_POST_URL

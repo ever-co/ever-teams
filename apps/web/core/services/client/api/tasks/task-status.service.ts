@@ -4,6 +4,7 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { ITaskStatusCreate } from '@/core/types/interfaces/task/task-status/task-status';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { ITaskStatusOrder } from '@/core/types/interfaces/task/task-status/task-status-order';
+import { TaskMetadataScope } from '@/core/types/interfaces/task/task-metadata-bootstrap';
 import {
 	validatePaginationResponse,
 	taskStatusSchema,
@@ -182,8 +183,27 @@ class TaskStatusService extends APIService {
 	 * @returns Promise<PaginationResponse<TTaskStatus>> - Validated task statuses data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getTaskStatuses = async (): Promise<PaginationResponse<TTaskStatus>> => {
+	getTaskStatuses = async (
+		scope?: TaskMetadataScope,
+		signal?: AbortSignal
+	): Promise<PaginationResponse<TTaskStatus>> => {
 		try {
+			if (scope) {
+				const query = qs.stringify({
+					tenantId: scope.tenantId,
+					organizationId: scope.organizationId,
+					...(scope.organizationTeamId !== undefined ? { organizationTeamId: scope.organizationTeamId } : {}),
+					...(scope.projectId !== undefined ? { projectId: scope.projectId } : {})
+				});
+				const endpoint = `/task-statuses?${query}`;
+				const response = await this.get<PaginationResponse<TTaskStatus>>(endpoint, {
+					tenantId: scope.tenantId,
+					...(signal ? { signal } : {})
+				});
+
+				return validatePaginationResponse(taskStatusSchema, response.data, 'getTaskStatuses API response');
+			}
+
 			const query = qs.stringify({
 				tenantId: this.tenantId,
 				organizationId: this.organizationId,
@@ -192,7 +212,10 @@ class TaskStatusService extends APIService {
 
 			const endpoint = `/task-statuses?${query}`;
 
-			const response = await this.get<PaginationResponse<TTaskStatus>>(endpoint, { tenantId: this.tenantId });
+			const response = await this.get<PaginationResponse<TTaskStatus>>(endpoint, {
+				tenantId: this.tenantId,
+				...(signal ? { signal } : {})
+			});
 
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(taskStatusSchema, response.data, 'getTaskStatuses API response');

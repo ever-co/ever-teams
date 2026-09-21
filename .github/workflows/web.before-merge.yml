@@ -1,14 +1,25 @@
 name: Web Build Before Merge
+permissions:
+  contents: read
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
     paths:
-      - ".deploy/web/**"
-      - ".github/workflows/web.before-merge.yml"
-      - "apps/web/**"
-      - "package.json"
-      - "yarn.lock"
-      - "README.md"
+      - '.deploy/web/**'
+      - '.github/workflows/web.before-merge.yml'
+      - 'apps/web/**'
+      - 'packages/**'
+      - 'tools/performance/**'
+      - 'tools/preservation/**'
+      - 'docker-compose.build.yml'
+      - 'docker-compose.dev.yml'
+      - 'nx.json'
+      - 'package.json'
+      - 'tsconfig.base.json'
+      - 'turbo.json'
+      - 'yarn.lock'
+      - 'README.md'
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -20,6 +31,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Skip workflow if PR is from develop to main
         if: github.event.pull_request.head.ref == 'develop' && github.event.pull_request.base.ref == 'main'
@@ -35,23 +48,23 @@ jobs:
       - name: Free disk space
         if: runner.environment == 'github-hosted'
         run: |
-            df -h /
-            sudo swapoff -a
-            sudo apt clean
-            docker image ls -aq
-            if [ "$(docker image ls -aq)" ]; then
-              docker rmi $(docker image ls -aq)
-            fi
-            find ~/work/_temp -name "cache.tgz" -exec rm -f {} \;
-            sudo rm -rf "/usr/local/share/boost"
-            if [ -n "$AGENT_TOOLSDIRECTORY" ]; then sudo rm -rf "$AGENT_TOOLSDIRECTORY"; fi
-            df -h /
+          df -h /
+          sudo swapoff -a
+          sudo apt clean
+          docker image ls -aq
+          if [ "$(docker image ls -aq)" ]; then
+            docker rmi $(docker image ls -aq)
+          fi
+          find ~/work/_temp -name "cache.tgz" -exec rm -f {} \;
+          sudo rm -rf "/usr/local/share/boost"
+          if [ -n "$AGENT_TOOLSDIRECTORY" ]; then sudo rm -rf "$AGENT_TOOLSDIRECTORY"; fi
+          df -h /
 
       - name: Use Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: "24.14.0"
-          cache: "yarn"
+          node-version: '24.14.0'
+          cache: 'yarn'
 
       - name: Configure Registry
         uses: ever-co/ever-gauzy/.github/actions/configure-registry@727973d766f3968d3f1184300af085872abcb20b
@@ -68,7 +81,30 @@ jobs:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
 
       - name: Test Web
-        run: yarn test:web
+        run: yarn test:web --runInBand
+
+      - name: Test performance tooling
+        run: yarn test:performance
+
+      - name: Verify preserved feature surface
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          node tools/preservation/ever-teams-surface.mjs \
+            --base="$BASE_SHA" \
+            --head="$HEAD_SHA" \
+            --allow=tools/preservation/ever-teams-preservation.allow.json \
+            --out=artifacts/ever-teams-surface.json
+
+      - name: Typecheck Web
+        run: yarn workspace @ever-teams/web tsc --noEmit -p tsconfig.json
+
+      - name: Typecheck Cypress
+        run: yarn workspace @ever-teams/web tsc --noEmit -p cypress/tsconfig.json
+
+      - name: Lint Web
+        run: yarn nx run web:lint
 
       - name: Build Web
 
@@ -76,3 +112,101 @@ jobs:
           export SHARP_IGNORE_GLOBAL_LIBVIPS=1
           export SHARP_FORCE_GLOBAL_LIBVIPS=false
           yarn build:web
+
+  browser-parity:
+    needs: deploy
+    runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24.14.0'
+          cache: 'yarn'
+
+      - name: Configure Registry
+        uses: ever-co/ever-gauzy/.github/actions/configure-registry@727973d766f3968d3f1184300af085872abcb20b
+        with:
+          verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
+          verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
+          force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
+          expect-vip: ${{ vars.RUNNER_LINUX_X64_4 != '' }}
+
+      - name: Install Packages
+        run: yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts
+        env:
+          NODE_OPTIONS: '--dns-result-order=ipv4first'
+
+      # cspell:ignore libgbm libnotify libnss libxss libasound xauth
+      - name: Install browser system dependencies
+        run: |
+          if command -v sudo >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends libgtk-3-0t64 libgbm-dev libnotify-dev libnss3 libxss1 libasound2t64 libxtst6 xauth xvfb
+          else
+            apt-get update -qq
+            apt-get install -y --no-install-recommends libgtk-3-0t64 libgbm-dev libnotify-dev libnss3 libxss1 libasound2t64 libxtst6 xauth xvfb
+          fi
+
+      - name: Install trusted Cypress binary
+        run: node ./node_modules/cypress/bin/cypress install
+
+      - name: Build deterministic browser app
+        run: yarn build:web
+        env:
+          AUTH_SECRET: deterministic-cypress-only-not-a-secret
+          GAUZY_API_SERVER_URL: http://127.0.0.1:3988
+          NEXT_PUBLIC_GAUZY_API_SERVER_URL: http://127.0.0.1:3988
+          SHARP_FORCE_GLOBAL_LIBVIPS: 'false'
+          SHARP_IGNORE_GLOBAL_LIBVIPS: '1'
+
+      - name: Run deterministic browser parity
+        shell: bash
+        env:
+          AUTH_SECRET: deterministic-cypress-only-not-a-secret
+          CYPRESS_BASE_URL: http://127.0.0.1:3030
+          GAUZY_API_SERVER_URL: http://127.0.0.1:3988
+          NEXT_PUBLIC_GAUZY_API_SERVER_URL: http://127.0.0.1:3988
+        run: |
+          yarn start:web > "$RUNNER_TEMP/ever-teams-web.log" 2>&1 &
+          server_pid=$!
+          cleanup() {
+            kill "$server_pid" 2>/dev/null || true
+            wait "$server_pid" 2>/dev/null || true
+          }
+          trap cleanup EXIT
+          ready=false
+          for attempt in $(seq 1 90); do
+            if curl -sS -o /dev/null http://127.0.0.1:3030/; then
+              ready=true
+              break
+            fi
+            if ! kill -0 "$server_pid" 2>/dev/null; then
+              tail -n 100 "$RUNNER_TEMP/ever-teams-web.log"
+              exit 1
+            fi
+            sleep 1
+          done
+          if [ "$ready" != true ]; then
+            tail -n 100 "$RUNNER_TEMP/ever-teams-web.log"
+            exit 1
+          fi
+          yarn e2e:web
+          node tools/performance/compare-startup.mjs --candidate=artifacts/startup-candidate.json --out=artifacts/startup-report.json
+
+      - name: Record live performance status
+        run: echo "Live performance NOT RUN in CI; this job uses the deterministic browser fixture and does not claim database-backed timing evidence."
+
+      - name: Upload sanitized deterministic performance evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: startup-performance-${{ github.sha }}
+          path: |
+            artifacts/startup-candidate.json
+            artifacts/startup-report.json
+          if-no-files-found: warn

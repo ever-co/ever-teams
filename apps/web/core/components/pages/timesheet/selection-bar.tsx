@@ -1,4 +1,3 @@
-import { cn } from '@/core/lib/helpers';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
@@ -21,7 +20,6 @@ const ActionButton = ({ label, onClick }: ActionButtonProps) => (
 );
 
 interface SelectionBarProps {
-	fullWidth: boolean;
 	selectedCount: number;
 	onApprove: () => void;
 	onReject: () => void;
@@ -29,22 +27,10 @@ interface SelectionBarProps {
 	onClearSelection: () => void;
 }
 
-export const SelectionBar = ({
-	fullWidth,
-	selectedCount,
-	onApprove,
-	onReject,
-	onDelete,
-	onClearSelection
-}: SelectionBarProps) => {
+export const SelectionBar = ({ selectedCount, onApprove, onReject, onDelete, onClearSelection }: SelectionBarProps) => {
 	const t = useTranslations();
 	return (
-		<div
-			className={cn(
-				'bg-[#E2E2E2CC] fixed dark:bg-slate-800 opacity-85 h-16 z-50  bottom-5 left-1/2 transform -translate-x-1/2 shadow-lg rounded-2xl flex items-center justify-between gap-x-4 px-4',
-				fullWidth && 'x-container'
-			)}
-		>
+		<div className="bg-[#E2E2E2CC] fixed dark:bg-slate-800 opacity-85 h-16 z-50 bottom-5 left-1/2 transform -translate-x-1/2 shadow-lg rounded-2xl flex items-center justify-between gap-x-4 px-4">
 			<div className="flex gap-x-4 justify-start items-center">
 				<div className="flex items-center justify-center gap-x-2 text-[#282048] dark:text-[#7a62d8]">
 					<div className="flex justify-center items-center w-7 h-7 font-bold text-white rounded-full bg-primary dark:bg-primary-light">
@@ -70,7 +56,6 @@ export const SelectionBar = ({
 interface SelectedTimesheetProps {
 	selectTimesheetId: ITimeLog[];
 	setSelectTimesheetId: React.Dispatch<React.SetStateAction<ITimeLog[]>>;
-	fullWidth: boolean;
 }
 
 /**
@@ -82,14 +67,9 @@ interface SelectedTimesheetProps {
  *
  * @param selectTimesheetId - The selected timesheet logs.
  * @param setSelectTimesheetId - A function to set the selected timesheet logs.
- * @param fullWidth - A boolean to indicate if the component should be rendered in full width.
  * @returns {React.ReactElement} - The rendered timesheet component.
  */
-export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({
-	selectTimesheetId,
-	setSelectTimesheetId,
-	fullWidth
-}) => {
+export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({ selectTimesheetId, setSelectTimesheetId }) => {
 	const { updateTimesheetStatus } = useUpdateTimesheet();
 	const { deleteTaskTimesheet } = useDeleteTimesheet();
 
@@ -140,7 +120,6 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({
 			onReject={handleReject}
 			onDelete={handleDelete}
 			onClearSelection={() => setSelectTimesheetId([])}
-			fullWidth={fullWidth}
 		/>
 	);
 };

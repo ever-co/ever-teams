@@ -197,6 +197,8 @@
 		"THEMES": "Themen",
 		"3D_MODE": "3D Modus",
 		"DARK_MODE": "Dark Mode",
+		"THEME_LIGHT": "Hell",
+		"THEME_DARK": "Dunkel",
 		"SETTINGS": "Einstellungen",
 		"PERSONAL": "Persönlich",
 		"USE_SETTING": "Einstellung verwenden",
@@ -436,7 +438,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "Produktivitätsaufschlüsselung für {month}",
 		"DAILY": "Täglich",
 		"WEEKLY": "Wöchentlich",
-		"MONTHLY": "Monatlich"
+		"MONTHLY": "Monatlich",
+		"HIDE_CHART": "Diagramm ausblenden",
+		"SHOW_ACTIVITY_CHART": "Aktivitätsdiagramm anzeigen"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "Zeit und Aktivität",
@@ -791,6 +795,10 @@
 			"HEADING_TITLE": "Allgemeine Einstellungen",
 			"goToTeamSettings": "Go to Team settings",
 			"WORKING_HOURS": "Working hours",
+			"ADD_HOURS_FOR": "Stunden für {day} hinzufügen",
+			"REMOVE_HOURS_FOR": "Stunden für {day} entfernen",
+			"UNAVAILABLE": "Nicht verfügbar",
+			"TOGGLE_AVAILABILITY_FOR": "Verfügbarkeit für {day}",
 			"emailNotValid": "Bitte geben Sie eine gültige E-Mail-Adresse an",
 			"phoneNotValid": "Bitte geben Sie eine gültige Telefonnummer an",
 			"WORK_SCHEDULE": "Arbeitszeitplan",
@@ -1214,7 +1222,10 @@
 			"TERMS_AND_CONDITIONS": "Allgemeine Geschäftsbedingungen",
 			"PRIVACY_POLICY": "Datenschutzrichtlinie",
 			"COOKIES": "Cookie-Richtlinie",
-			"BY": "Von"
+			"BY": "Von",
+			"BUILD_WEB": "Web-Build v{version}",
+			"API_VERSION": "API v{version}",
+			"OPEN_COMMIT": "Commit {commit} öffnen"
 		}
 	},
 	"errors": {
@@ -1287,7 +1298,7 @@
 		"HEADER_TITLE": "AI-Chat",
 		"CLEAR_CONVERSATION": "Gespräch löschen",
 		"CONFIGURATION": "Konfiguration",
-		"ASSISTANT_NAME": "Ever Teams Assistent",
+		"ASSISTANT_NAME": "{appName} Assistent",
 		"EMPTY_CONFIGURED": "Stellen Sie eine Frage, um zu beginnen.",
 		"EMPTY_NOT_CONFIGURED": "Konfigurieren Sie Ihren API-Schlüssel, um zu beginnen.",
 		"CONFIGURE_BUTTON": "Konfigurieren",
@@ -1295,6 +1306,14 @@
 		"INPUT_PLACEHOLDER_READY": "Ihre Nachricht...",
 		"INPUT_PLACEHOLDER_NO_KEY": "Konfigurieren Sie Ihren API-Schlüssel...",
 		"STOP": "Stoppen",
-		"SEND": "Senden"
+		"SEND": "Senden",
+		"NEW_CHAT": "Neuer Chat",
+		"HISTORY": "Verlauf",
+		"NO_CONVERSATIONS": "Noch keine Unterhaltungen",
+		"PANEL_CONTROLS": "Steuerelemente des Chatbereichs",
+		"COLLAPSE_ASSISTANT": "Assistenten einklappen",
+		"STANDARD_ASSISTANT_WIDTH": "Standardbreite des Assistenten",
+		"EXPAND_ASSISTANT": "Assistenten erweitern",
+		"OPEN_ASSISTANT": "{appName} Assistenten öffnen"
 	}
 }

@@ -1,4 +1,4 @@
-import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { publicAssetUrl } from '@/core/lib/helpers/public-asset-url';
 import { clsxm } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
 import { useTranslations } from 'next-intl';
@@ -100,9 +100,12 @@ export function IconItem({
 
 export function generateIconList(iconFor: string, icons: string[]) {
 	return icons.map((icon) => {
+		// `path` is what the API stores; `fullUrl` is where the browser loads it from — this deployment's
+		// API, or this app's /api proxy when it publishes no API origin (it used to be `undefined/...`).
+		const path = `ever-icons/${iconFor}/${icon}.svg`;
 		return {
-			fullUrl: `${GAUZY_API_BASE_SERVER_URL.value}/public/ever-icons/${iconFor}/${icon}.svg`,
-			path: `ever-icons/${iconFor}/${icon}.svg`,
+			fullUrl: publicAssetUrl(path),
+			path,
 			title: icon
 		};
 	});

@@ -1,219 +1,206 @@
-import { DISABLE_AUTO_REFRESH } from '@/core/constants/config/constants';
-
-import { useTimeLogsDailyReport } from '@/core/hooks/activities/time-logs/use-time-logs-daily-report';
+import { useTimer } from '@/core/hooks/activities';
+import { useTimerPolling } from '@/core/hooks/activities/use-timer-polling';
+import { useWorkspaces } from '@/core/hooks/auth';
+import { useReactiveAccessTokenCookie } from '@/core/hooks/auth/use-reactive-access-token-cookie';
+import { useIsomorphicLayoutEffect } from '@/core/hooks/common/use-isomorphic-layout-effect';
+import { useOrganizationTeamsQuery, useTeamTasksQuery } from '@/core/hooks/organizations';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { publicState } from '@/core/stores';
-// import { useSyncLanguage } from 'ni18n';
-import { useEffect, useMemo } from 'react';
-import { useAtomValue } from 'jotai';
-import { useTimer, useSyncTimer } from '@/core/hooks/activities';
-import { useLanguageSettings, useRefreshIntervalV2, useOTRefreshInterval, useCallbackRef } from '@/core/hooks/common';
-import { useMyDailyPlans } from '@/core/hooks/daily-plans/use-my-daily-plans';
-import { useTeamDailyPlans } from '@/core/hooks/daily-plans/use-team-daily-plans';
-import {
-	useOrganizationTeamsQuery,
-	useTeamTasksQuery,
-	useOrganizationProjectsQuery,
-	useEmployee
-} from '@/core/hooks/organizations';
-import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invitations-query';
-import { useMyInvitationsQuery } from '@/core/hooks/invitations/use-my-invitations-query';
-import { useWorkspaces, useCurrentOrg, useAuthenticateUser } from '@/core/hooks/auth';
-import { useInvalidateRoles } from '@/core/hooks/roles/use-invalidate-roles';
-import { useInvalidateRolePermissions } from '@/core/hooks/roles/use-invalidate-role-permissions';
-import {
-	useTaskStatistics,
-	useAutoAssignTask
-} from '@/core/hooks/tasks';
-import { useTaskVersionsQuery } from '@/core/hooks/tasks/use-task-versions-query';
-import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
-import { useTaskSizesQuery } from '@/core/hooks/tasks/use-task-sizes-query';
-import { useTaskPrioritiesQuery } from '@/core/hooks/tasks/use-task-priorities-query';
-import { useTaskLabelsQuery } from '@/core/hooks/tasks/use-task-labels-query';
-import { useIssueTypesQuery } from '@/core/hooks/tasks/use-issue-types-query';
-import { useTaskRelatedIssueTypesQuery } from '@/core/hooks/tasks/use-task-related-issue-types-query';
-import { useTimeLogs } from '@/core/hooks/activities/time-logs/use-time-logs';
-import { useGetCurrentOrganization } from '@/core/hooks/auth/use-current-organization';
-import { useCurrencies } from '@/core/hooks/common/use-currencies';
+import { useAutoAssignTask, useTaskStatistics } from '@/core/hooks/tasks';
+import { DISABLE_AUTO_REFRESH } from '@/core/constants/config/constants';
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useMemo, useRef } from 'react';
+import { reownActiveQueriesAfterTokenRefresh } from './token-refresh-query-ownership';
+import { getShellCriticalQueryKeys, useScopeTransitionGuard } from './use-scope-transition-guard';
+
+const SHELL_REFRESH_INTERVAL = 60_000;
 
 export function AppState() {
 	const { data: user } = useUserQuery();
-
-	// const { currentLanguage } = useLanguage();
-	// useSyncLanguage(currentLanguage);
 	return <>{user && <InitState />}</>;
 }
 
-function InitState() {
-	const publicTeam = useAtomValue(publicState);
-	const { loadTeamsData, firstLoadTeamsData } = useOrganizationTeamsQuery();
-	const { firstLoadTasksData, loadTeamTasksData } = useTeamTasksQuery();
-	const { firstLoadTeamInvitationsData } = useTeamInvitationsQuery();
-	const { refetchMyInvitations } = useMyInvitationsQuery();
-	const { getTimerStatus, firstLoadTimerData } = useTimer();
-	const { firstLoadtasksStatisticsData } = useTaskStatistics();
-	const { loadLanguagesData, firstLoadLanguagesData } = useLanguageSettings();
-	const { firstLoadOrganizationProjectsData } = useOrganizationProjectsQuery();
-	const { firstLoadData: firstLoadAutoAssignTask } = useAutoAssignTask();
-	const { invalidateRoles: firstLoadRolesData } = useInvalidateRoles();
-	const { firstLoadTaskStatusesData, loadTaskStatuses: loadTaskStatusesData } = useTaskStatusesQuery();
-	const { invalidateMyRolePermissions: firstLoadMyRolePermissionsData } = useInvalidateRolePermissions();
-	const { firstLoadCurrenciesData } = useCurrencies();
-
-	// Start automatic token refresh
-	const { timeToTimeRefreshToken } = useAuthenticateUser();
-
-	// Load workspaces data on app initialization
-	const { firstLoadWorkspacesData } = useWorkspaces();
-
-	// Current organization management and validation
-	const { validateCurrentOrgAccess, handleOrgBranching } = useCurrentOrg();
-
-	const { firstLoadTaskVersionData, loadTaskVersionData } = useTaskVersionsQuery();
-	const { firstLoadTaskPrioritiesData, loadTaskPriorities } = useTaskPrioritiesQuery();
-	const { firstLoadTaskSizesData, loadTaskSizes } = useTaskSizesQuery();
-	const { firstLoadTaskLabelsData, loadTaskLabels } = useTaskLabelsQuery();
-	const { firstLoadIssueTypeData } = useIssueTypesQuery();
-	const { firstLoadTaskRelatedIssueTypeData, loadTaskRelatedIssueTypeData } = useTaskRelatedIssueTypesQuery();
-
-	// Use specialized hooks for daily plans initialization
-	const { firstLoadMyDailyPlans, loadMyDailyPlans } = useMyDailyPlans();
-	const { firstLoadTeamDailyPlans, loadAllDayPlans } = useTeamDailyPlans();
-
-	// Combine first load functions
-	const firstLoadDailyPlanData = async () => {
-		await Promise.all([firstLoadMyDailyPlans(), firstLoadTeamDailyPlans()]);
-	};
-
-	const { firstLoadDataEmployee } = useEmployee();
-
-	// Load time logs / daily report for the current year (global state)
-	useTimeLogsDailyReport();
-	// Load time logs for the current year (global state)
-	useTimeLogs();
-	// Load current organization
-	useGetCurrentOrganization();
-
-	useOneTimeLoad(() => {
-		//To be called once, at the top level component (e.g main.tsx | _app.tsx);
-
-		// Load workspaces first as they're fundamental to the app
-		firstLoadWorkspacesData();
-
-		// Load other data
-		firstLoadTeamsData();
-		firstLoadTasksData();
-		firstLoadTeamInvitationsData();
-		firstLoadTimerData();
-		firstLoadtasksStatisticsData();
-		firstLoadLanguagesData();
-		firstLoadAutoAssignTask();
-		firstLoadOrganizationProjectsData();
-		firstLoadTaskStatusesData();
-		firstLoadTaskVersionData();
-		firstLoadTaskPrioritiesData();
-		firstLoadTaskSizesData();
-		firstLoadTaskLabelsData();
-		firstLoadIssueTypeData();
-		firstLoadTaskRelatedIssueTypeData();
-		firstLoadDailyPlanData();
-		firstLoadDataEmployee();
-		firstLoadRolesData();
-		firstLoadMyRolePermissionsData();
-		firstLoadCurrenciesData();
-		// --------------
-
-		getTimerStatus();
-		loadTeamsData();
-		loadLanguagesData();
-
-		// Start automatic token refresh every 10 minutes
-		// This prevents token expiration and automatic logout
-		timeToTimeRefreshToken();
-
-		// Perform organization access validation (non-blocking)
-		// This runs after initial data loading to avoid blocking the app startup
-		setTimeout(async () => {
-			try {
-				const validationResult = await validateCurrentOrgAccess();
-				console.log('InitState Organization Validation Result:', validationResult);
-
-				// Handle validation results (non-blocking, informational only)
-				if (!validationResult.isValid) {
-					console.warn('InitState: Organization access validation failed', {
-						reason: validationResult.reason,
-						suggestedAction: validationResult.action,
-						redirectTo: validationResult.redirectTo
-					});
-
-					// Note: We don't automatically redirect here to avoid breaking existing flows
-					// The validation is primarily for logging and future enhancements
-				}
-
-				// Also run branching logic for informational purposes
-				const branchingResult = handleOrgBranching();
-				console.log('InitState Organization Branching Result:', branchingResult);
-			} catch (error) {
-				console.error('InitState: Non-critical validation error', error);
-				// Don't throw - this is non-blocking validation
-			}
-		}, 2000); // Run after 2 seconds to allow initial loading to complete
+export function InitState() {
+	const { data: user } = useUserQuery();
+	const { currentWorkspace, workspacesQuery } = useWorkspaces();
+	const accessToken = useReactiveAccessTokenCookie();
+	const queryClient = useQueryClient();
+	const tenantId = user?.employee?.tenantId ?? user?.tenantId ?? null;
+	const organizationId = user?.employee?.organizationId ?? null;
+	const workspaceReady = !!(
+		user?.id &&
+		accessToken &&
+		tenantId &&
+		organizationId &&
+		workspacesQuery.isSuccess &&
+		currentWorkspace
+	);
+	const autoRefreshEnabled = !DISABLE_AUTO_REFRESH.value;
+	const baseScope = useMemo(
+		() => ({
+			tenantId,
+			organizationId,
+			userId: user?.id ?? null,
+			accessToken
+		}),
+		[accessToken, organizationId, tenantId, user?.id]
+	);
+	const teamOwner = useOrganizationTeamsQuery({
+		enabled: workspaceReady,
+		scope: baseScope,
+		refetchInterval: autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false,
+		detailRefetchInterval: autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false
+	});
+	const { activeTeam, teams } = teamOwner;
+	const teamReady = !!(
+		workspaceReady &&
+		teamOwner.organizationTeamsSuccess &&
+		teamOwner.organizationTeamSuccess &&
+		activeTeam?.id
+	);
+	const projectId = activeTeam?.projects?.[0]?.id ?? null;
+	const teamScope = useMemo(
+		() => ({
+			...baseScope,
+			teamId: activeTeam?.id ?? null
+		}),
+		[activeTeam?.id, baseScope]
+	);
+	const tasksOwner = useTeamTasksQuery({
+		enabled: teamReady,
+		scope: teamScope,
+		refetchInterval: autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false
+	});
+	const timerOwner = useTimer({
+		enabled: teamReady,
+		scope: teamScope,
+		statusEnabled: teamReady,
+		statusRefetchInterval: autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false,
+		plansEnabled: Boolean(activeTeam?.requirePlanToTrack),
+		plansRefetchInterval: autoRefreshEnabled ? 5 * SHELL_REFRESH_INTERVAL : false,
+		manageRuntime: false
 	});
 
-	const AutoRefresher = useMemo(() => {
-		const five_minutes = 1000 * 60 * 5; // in milliseconds
-		const one_minute = 1000 * 60; // in milliseconds
+	const timerActivatedRef = useRef(false);
+	useEffect(() => {
+		if (teamReady && !timerActivatedRef.current) {
+			timerActivatedRef.current = true;
+			timerOwner.firstLoadTimerData();
+		}
+	}, [teamReady, timerOwner.firstLoadTimerData]);
 
-		const Component = () => {
-			useSyncTimer();
+	// The single full timer owner supplies both callbacks and the unfiltered running state.
+	useTimerPolling(autoRefreshEnabled && teamReady && timerOwner.rawTimerRunning);
+	useEffect(() => {
+		if (!autoRefreshEnabled || !teamReady || !timerOwner.rawTimerRunning) return;
+		const interval = window.setInterval(() => timerOwner.syncTimer(), SHELL_REFRESH_INTERVAL);
+		return () => window.clearInterval(interval);
+	}, [autoRefreshEnabled, teamReady, timerOwner.rawTimerRunning, timerOwner.syncTimer]);
 
-			/**
-			 * Refresh Timer Running status,
-			 * This will sync timer in all the open tabs
-			 */
-			useRefreshIntervalV2(getTimerStatus, one_minute);
+	const activeTask = tasksOwner.activeTeamTask;
+	useAutoAssignTask({ enabled: teamReady && timerOwner.statusResolved && !!activeTask });
+	useTaskStatistics(0, {
+		enabled: teamReady && !!activeTask,
+		scope: { ...teamScope, teamId: activeTeam?.id ?? null },
+		refetchInterval: autoRefreshEnabled && timerOwner.rawTimerRunning ? SHELL_REFRESH_INTERVAL : false
+	});
 
-			/**
-			 * Refresh Teams data every 5 seconds.
-			 *
-			 * So that if Team is deleted by manager it updates the UI accordingly
-			 */
-			useOTRefreshInterval(loadTeamsData, one_minute, publicTeam);
-			// Refresh tasks with a deep compare
-			useRefreshIntervalV2(loadTeamTasksData, one_minute, true /* used as loadTeamTasksData deepCheck param */);
-
-			// Timer status
-			// useRefreshIntervalV2(
-			// 	getTimerStatus,
-			// 	5000,
-			// 	true /* used as getTimerStatus deepCheck param */
-			// );
-
-			useRefreshIntervalV2(refetchMyInvitations, 60 * 1000, true /* used as refetchMyInvitations deepCheck param */);
-
-			useRefreshIntervalV2(loadTaskStatusesData, five_minutes, true);
-			useRefreshIntervalV2(loadTaskPriorities, five_minutes, true);
-			useRefreshIntervalV2(loadTaskSizes, five_minutes, true);
-			useRefreshIntervalV2(loadTaskLabels, five_minutes, true);
-			useRefreshIntervalV2(loadTaskRelatedIssueTypeData, five_minutes, true);
-			useRefreshIntervalV2(loadTaskVersionData, five_minutes, true);
-
-			useRefreshIntervalV2(loadAllDayPlans, five_minutes, true);
-			useRefreshIntervalV2(loadMyDailyPlans, five_minutes, true);
-
-			return <></>;
+	const credentialScope = useMemo(
+		() => ({
+			...teamScope,
+			projectId,
+			userId: user?.id ?? null,
+			employeeId: user?.employee?.id ?? null,
+			taskId: activeTask?.id ?? null
+		}),
+		[activeTask?.id, projectId, teamScope, user?.employee?.id, user?.id]
+	);
+	const credentialQueryKeys = useMemo(() => getShellCriticalQueryKeys(credentialScope), [credentialScope]);
+	const tokenScopeFingerprint = JSON.stringify([
+		credentialScope.tenantId,
+		credentialScope.organizationId,
+		credentialScope.teamId,
+		credentialScope.projectId,
+		credentialScope.userId,
+		credentialScope.employeeId,
+		credentialScope.taskId
+	]);
+	const previousTokenScopeRef = useRef({ accessToken, fingerprint: tokenScopeFingerprint });
+	const currentTokenScopeRef = useRef({ accessToken, fingerprint: tokenScopeFingerprint });
+	useIsomorphicLayoutEffect(() => {
+		currentTokenScopeRef.current = { accessToken, fingerprint: tokenScopeFingerprint };
+	}, [accessToken, tokenScopeFingerprint]);
+	const mountedRef = useRef(false);
+	useEffect(() => {
+		mountedRef.current = true;
+		return () => {
+			mountedRef.current = false;
 		};
-		return Component;
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+	useEffect(() => {
+		const previous = previousTokenScopeRef.current;
+		previousTokenScopeRef.current = { accessToken, fingerprint: tokenScopeFingerprint };
+		if (
+			!accessToken ||
+			!previous.accessToken ||
+			previous.accessToken === accessToken ||
+			previous.fingerprint !== tokenScopeFingerprint
+		) {
+			return;
+		}
 
-	return !DISABLE_AUTO_REFRESH.value ? <AutoRefresher /> : <></>;
-}
+		const refreshedToken = accessToken;
+		const refreshedFingerprint = tokenScopeFingerprint;
+		void reownActiveQueriesAfterTokenRefresh(
+			queryClient,
+			workspaceReady ? credentialQueryKeys : [],
+			() =>
+				mountedRef.current &&
+				currentTokenScopeRef.current.accessToken === refreshedToken &&
+				currentTokenScopeRef.current.fingerprint === refreshedFingerprint
+		);
+	}, [accessToken, credentialQueryKeys, queryClient, tokenScopeFingerprint, workspaceReady]);
 
-function useOneTimeLoad(func: () => void) {
-	const funcRef = useCallbackRef(func);
+	useScopeTransitionGuard(
+		{
+			...teamScope,
+			projectId,
+			employeeId: user?.employee?.id ?? null,
+			taskId: activeTask?.id ?? null
+		},
+		workspaceReady
+	);
+
+	const noTeams = teamOwner.organizationTeamsSuccess && teams.length === 0;
+	const plansReady = !activeTeam?.requirePlanToTrack || timerOwner.plansResolved;
+	const criticalReady =
+		workspaceReady &&
+		(noTeams || (teamReady && tasksOwner.querySuccess && timerOwner.statusResolved && plansReady));
+	const readyScope = `${tenantId ?? ''}:${organizationId ?? ''}:${activeTeam?.id ?? 'no-team'}`;
+	const markedReadyScopeRef = useRef<string | null>(null);
+	const bootstrapMarkedRef = useRef(false);
 
 	useEffect(() => {
-		funcRef.current && funcRef.current();
-	}, [funcRef]);
+		if (
+			!bootstrapMarkedRef.current &&
+			typeof performance !== 'undefined' &&
+			typeof performance.mark === 'function'
+		) {
+			bootstrapMarkedRef.current = true;
+			performance.mark('ever-teams:shell-bootstrap-start');
+		}
+	}, []);
+
+	useEffect(() => {
+		if (
+			criticalReady &&
+			markedReadyScopeRef.current !== readyScope &&
+			typeof performance !== 'undefined' &&
+			typeof performance.mark === 'function'
+		) {
+			markedReadyScopeRef.current = readyScope;
+			performance.mark('ever-teams:shell-ready');
+		}
+	}, [criticalReady, readyScope]);
+
+	return null;
 }

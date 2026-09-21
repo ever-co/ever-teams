@@ -1,8 +1,8 @@
 # Ever Teams — self-hosted deploy for the `ever-k8s` cluster (Proxmox homelab).
 # Managed by Argo CD (Application watches this directory). PARALLEL to the DigitalOcean deploy — DO is untouched.
 # Phase 1: stateless web app -> hosted Gauzy API (api.ever.team). No Postgres/Redis/S3 needed here.
-# Phase 2 (later): point NEXT_PUBLIC_GAUZY_API_SERVER_URL at an in-cluster Gauzy API (requires an image rebuild,
-# since NEXT_PUBLIC_* is baked at build time).
+# Phase 2 (later): point GAUZY_API_SERVER_URL / NEXT_PUBLIC_GAUZY_API_SERVER_URL at an in-cluster Gauzy API by
+# editing `env` below - no image rebuild: the image reads NEXT_PUBLIC_* (and every other variable) at runtime.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -30,7 +30,7 @@ spec:
             - name: PORT
               value: "3030"
             - name: GAUZY_API_SERVER_URL
-              value: "https://api.ever.team/api"
+              value: "https://api.ever.team"
             - name: NEXT_PUBLIC_GAUZY_API_SERVER_URL
               value: "https://api.ever.team"
           readinessProbe:

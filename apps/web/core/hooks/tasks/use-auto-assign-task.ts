@@ -11,7 +11,9 @@ import { useUserQuery } from '../queries/user-user.query';
 /**
  * Auto assign task to auth user when start tracking time
  */
-export function useAutoAssignTask() {
+export function useAutoAssignTask(options: { enabled?: boolean } = {}) {
+	const { enabled = true } = options;
+	const explicitlyControlled = options.enabled !== undefined;
 	const { firstLoad, firstLoadData } = useFirstLoad();
 	const activeTeam = useAtomValue(activeTeamState);
 
@@ -42,10 +44,10 @@ export function useAutoAssignTask() {
 	);
 
 	useEffect(() => {
-		if (firstLoad && timerStatus?.running && activeTeamTask && authUser) {
+		if (enabled && (firstLoad || explicitlyControlled) && timerStatus?.running && activeTeamTask && authUser) {
 			autoAssignTask(activeTeamTask, authUser.employee?.id || '');
 		}
-	}, [autoAssignTask, activeTeamTask, timerStatus, authUser, firstLoad]);
+	}, [autoAssignTask, activeTeamTask, timerStatus, authUser, firstLoad, enabled, explicitlyControlled]);
 
 	return {
 		firstLoadData

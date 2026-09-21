@@ -18,6 +18,8 @@ export function CompleteInvitationRegistrationForm(props: {
 	const t = useTranslations();
 	const { invitationData, onCompleteRegistration, acceptInvitationLoading } = props;
 	const [agreeToTerms, setAgreeToTerms] = useState(false);
+	// A deployment that turned TERMS_LINK off has no terms to agree to: no checkbox, nothing to tick.
+	const requiresTermsAgreement = Boolean(TERMS_LINK);
 	const router = useRouter();
 	const [loadingWorkspace, setLoadingWorkspace] = useState(false);
 
@@ -140,30 +142,42 @@ export function CompleteInvitationRegistrationForm(props: {
 						</div>
 					</div>
 
-					<div className="flex items-center justify-between w-full">
-						<div className="flex items-center gap-2">
-							<Checkbox
-								id="accept-invite-agree-terms"
-								checked={agreeToTerms}
-								onCheckedChange={() => setAgreeToTerms(!agreeToTerms)}
-							/>
-							{/* A real label: clicking the "Agree to" text toggles the (16px) checkbox — it did not before. */}
-							<label htmlFor="accept-invite-agree-terms" className="space-x-2 dark:text-gray-300 cursor-pointer">
-								{t('form.AGREE_TO')}{' '}
-								<a
-									href={TERMS_LINK}
-									target="_blank"
-									className="text-primary dark:text-gray-300 dark:font-medium"
-									rel="noreferrer"
+					<div
+						className={cn(
+							'flex items-center w-full',
+							requiresTermsAgreement ? 'justify-between' : 'justify-end'
+						)}
+					>
+						{requiresTermsAgreement && (
+							<div className="flex items-center gap-2">
+								<Checkbox
+									id="accept-invite-agree-terms"
+									checked={agreeToTerms}
+									onCheckedChange={() => setAgreeToTerms(!agreeToTerms)}
+								/>
+								{/* A real label: clicking the "Agree to" text toggles the (16px) checkbox — it did not before. */}
+								<label
+									htmlFor="accept-invite-agree-terms"
+									className="space-x-2 dark:text-gray-300 cursor-pointer"
 								>
-									{t('layout.footer.TERMS_AND_CONDITIONS')}
-								</a>
-							</label>
-						</div>
+									{t('form.AGREE_TO')}{' '}
+									<a
+										href={TERMS_LINK}
+										target="_blank"
+										className="text-primary dark:text-gray-300 dark:font-medium"
+										rel="noreferrer"
+									>
+										{t('layout.footer.TERMS_AND_CONDITIONS')}
+									</a>
+								</label>
+							</div>
+						)}
 
 						<Button
 							loading={acceptInvitationLoading}
-							disabled={acceptInvitationLoading || !agreeToTerms || loadingWorkspace}
+							disabled={
+								acceptInvitationLoading || (requiresTermsAgreement && !agreeToTerms) || loadingWorkspace
+							}
 							className="px-6"
 							type="submit"
 						>

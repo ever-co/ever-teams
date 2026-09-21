@@ -2,6 +2,7 @@ import { IOrganization, IOrganizationCreate } from '@/core/types/interfaces/orga
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { organizationSchema, validateApiResponse, ZodValidationError } from '@/core/types/schemas';
+import { scopedReadConfig, ScopedReadOptions } from '../../api-request-scope';
 
 class OrganizationService extends APIService {
 	createOrganization = async (data: IOrganizationCreate, bearer_token: string) => {
@@ -10,10 +11,10 @@ class OrganizationService extends APIService {
 		}).then(({ data }) => data);
 	};
 
-	getOrganizationById = async (id: string) => {
+	getOrganizationById = async (id: string, options?: ScopedReadOptions) => {
 		try {
 			const response = await this.get<IOrganization>(`/organization/${id}`, {
-				tenantId: this.tenantId
+				...(options ? scopedReadConfig(options) : { tenantId: this.tenantId })
 			});
 			return validateApiResponse(organizationSchema, response.data, 'getOrganizationById API response');
 		} catch (error) {

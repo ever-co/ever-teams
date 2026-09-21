@@ -10,5 +10,10 @@ RUN yarn install --network-timeout 1000000 --frozen-lockfile --non-interactive -
 RUN yarn turbo run build --filter=@ever-teams/example-vite
 FROM nginx:alpine AS runner
 COPY --from=build /app/packages/toolkit/examples/vite/dist /usr/share/nginx/html
+# Static bundle, no server: /runtime-config.js is rewritten from the container environment before
+# nginx starts, so `docker run -e VITE_TEAMS_API_URL=...` reconfigures the image without a rebuild.
+COPY .deploy/examples/runtime-config.sh /docker-entrypoint.d/40-runtime-config.sh
+RUN chmod +x /docker-entrypoint.d/40-runtime-config.sh
+ENV RUNTIME_ENV_KEYS="VITE_TEAMS_API_URL"
 RUN printf "server {\n  listen 80 default_server;\n  root /usr/share/nginx/html;\n  index index.html;\n  location / { try_files \$uri \$uri/ /index.html; }\n}\n" > /etc/nginx/conf.d/default.conf
 EXPOSE 80

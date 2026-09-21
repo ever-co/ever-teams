@@ -4,7 +4,6 @@ import { PageLayout, MainHeader } from '@/core/components/layouts/default-layout
 
 interface TeamMemberProfilePageSkeletonProps {
 	className?: string;
-	fullWidth?: boolean;
 	publicTeam?: boolean;
 }
 
@@ -15,13 +14,12 @@ interface TeamMemberProfilePageSkeletonProps {
  */
 export const TeamMemberProfilePageSkeleton: FC<TeamMemberProfilePageSkeletonProps> = ({
 	className,
-	fullWidth = false,
 	publicTeam = false
 }) => {
 	return (
 		<PageLayout publicTeam={publicTeam}>
 			{/* SKELETON: MainHeader with 3 sections */}
-			<MainHeader fullWidth={fullWidth}>
+			<MainHeader>
 				{/* SKELETON: Section 1 - Breadcrumb */}
 				<div className="flex gap-2 items-center mb-4">
 					<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
@@ -71,7 +69,7 @@ export const TeamMemberProfilePageSkeleton: FC<TeamMemberProfilePageSkeletonProp
 			<div className="h-0.5 bg-[#FFFFFF14]"></div>
 
 			{/* SKELETON: Main Content Area - Team Members View */}
-			<Container fullWidth={fullWidth}>
+			<Container>
 				<div className="py-6">
 					{/* Team Members Grid */}
 					<div className="grid gap-6 lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3">

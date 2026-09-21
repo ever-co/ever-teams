@@ -1,4 +1,20 @@
+import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+
 // ==================== TYPES ====================
+
+interface TimerEligibilityState {
+	isEmailVerified: boolean;
+	hasActiveTask: boolean;
+	isActiveTaskClosed: boolean;
+	isTimerRunning: boolean;
+	timerSource: ETimeLogSource | undefined;
+}
+
+export function canRunTimerForState(state: TimerEligibilityState): boolean {
+	if (!state.isEmailVerified) return false;
+	if (state.hasActiveTask && !state.isActiveTaskClosed) return true;
+	return state.isTimerRunning && state.timerSource !== ETimeLogSource.TEAMS;
+}
 
 /**
  * Modal types that the timer policy can request to show.

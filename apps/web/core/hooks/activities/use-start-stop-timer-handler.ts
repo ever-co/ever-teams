@@ -64,6 +64,7 @@ export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStop
 
 	const timerStatusFetching = useAtomValue(timerStatusFetchingState);
 	const { hasPlan, canRunTimer, activeTeam, activeTeamTask, timerStatus } = useTimerPlanStatus();
+	const actionDisabled = timerStatusFetching || !canRunTimer;
 
 	const requirePlan = useMemo(() => !!activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 
@@ -171,6 +172,7 @@ export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStop
 			enforceTaskSoftCloseModal,
 			openEnforcePlannedTaskSoftModal
 		},
+		actionDisabled,
 		startStopTimerHandler
 	};
 }

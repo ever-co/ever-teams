@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import { connection } from 'next/server';
 import { Manrope } from 'next/font/google';
+import { readRuntimeEnv } from '@/lib/runtime-env';
 import { UserProvider } from '@/lib/auth';
 import { getUser } from '@/lib/db/queries';
 import { getUserLocale } from '@/lib/i18n/locale';
@@ -17,6 +19,10 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }): Promise<ReactElement> {
+	// Per request, never prerendered: a page rendered at build time would freeze the build machine's env
+	// into its HTML, which is exactly what a re-usable image must avoid.
+	await connection();
+	const apiUrl = readRuntimeEnv('NEXT_PUBLIC_TEAMS_API_URL') || process.env.NEXT_PUBLIC_TEAMS_API_URL;
 	const userPromise = getUser();
 	const locale = await getUserLocale();
 	const messages = await getMessages();
@@ -33,7 +39,7 @@ export default async function RootLayout({ children }: { children: ReactNode }):
 			>
 				<NextIntlClientProvider locale={locale} messages={messages}>
 					<UserProvider userPromise={userPromise}>
-						<ClientLayout lang={locale}>
+						<ClientLayout apiUrl={apiUrl} lang={locale}>
 							<>{children}</>
 						</ClientLayout>
 					</UserProvider>

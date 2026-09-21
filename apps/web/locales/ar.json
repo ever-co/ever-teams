@@ -1,5 +1,5 @@
 {
-	"TITLE": "إيفر تيمز",
+	"TITLE": "{appName}",
 	"common": {
 		"APPLICATION": "تطبيق",
 		"TIME_SPENT": "الوقت المستغرق",
@@ -177,6 +177,8 @@
 		"THEMES": "المواضيع",
 		"3D_MODE": "الوضع ثلاثي الأبعاد",
 		"DARK_MODE": "الوضع الداكن",
+		"THEME_LIGHT": "فاتح",
+		"THEME_DARK": "داكن",
 		"SETTINGS": "الإعدادات",
 		"PERSONAL": "شخصي",
 		"USE_SETTING": "استخدام الإعداد",
@@ -415,7 +417,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "تفصيل الإنتاجية لـ {month}",
 		"DAILY": "يومي",
 		"WEEKLY": "أسبوعي",
-		"MONTHLY": "شهري"
+		"MONTHLY": "شهري",
+		"HIDE_CHART": "إخفاء المخطط",
+		"SHOW_ACTIVITY_CHART": "إظهار مخطط النشاط"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "الوقت والنشاط",
@@ -791,6 +795,10 @@
 			"HEADING_TITLE": "الإعدادات العامة",
 			"goToTeamSettings": "انتقل إلى إعدادات الفريق",
 			"WORKING_HOURS": "ساعات العمل",
+			"ADD_HOURS_FOR": "إضافة ساعات ليوم {day}",
+			"REMOVE_HOURS_FOR": "إزالة ساعات ليوم {day}",
+			"UNAVAILABLE": "غير متاح",
+			"TOGGLE_AVAILABILITY_FOR": "توفر يوم {day}",
 			"emailNotValid": "يرجى تقديم بريد إلكتروني صالح",
 			"phoneNotValid": "يرجى تقديم رقم هاتف صالح",
 			"WORK_SCHEDULE": "جدول العمل",
@@ -1214,7 +1222,10 @@
 			"TERMS_AND_CONDITIONS": "الشروط والأحكام",
 			"PRIVACY_POLICY": "سياسة الخصوصية",
 			"COOKIES": "سياسة ملفات تعريف الارتباط",
-			"BY": "من طرف"
+			"BY": "من طرف",
+			"BUILD_WEB": "إصدار الويب v{version}",
+			"API_VERSION": "API v{version}",
+			"OPEN_COMMIT": "فتح الالتزام {commit}"
 		}
 	},
 	"errors": {
@@ -1287,7 +1298,7 @@
 		"HEADER_TITLE": "محادثة الذكاء الاصطناعي",
 		"CLEAR_CONVERSATION": "مسح المحادثة",
 		"CONFIGURATION": "الإعدادات",
-		"ASSISTANT_NAME": "مساعد Ever Teams",
+		"ASSISTANT_NAME": "مساعد {appName}",
 		"EMPTY_CONFIGURED": "اطرح سؤالاً للبدء.",
 		"EMPTY_NOT_CONFIGURED": "قم بتهيئة مفتاح API للبدء.",
 		"CONFIGURE_BUTTON": "تهيئة",
@@ -1295,6 +1306,14 @@
 		"INPUT_PLACEHOLDER_READY": "رسالتك...",
 		"INPUT_PLACEHOLDER_NO_KEY": "قم بتهيئة مفتاح API...",
 		"STOP": "إيقاف",
-		"SEND": "إرسال"
+		"SEND": "إرسال",
+		"NEW_CHAT": "محادثة جديدة",
+		"HISTORY": "السجل",
+		"NO_CONVERSATIONS": "لا توجد محادثات بعد",
+		"PANEL_CONTROLS": "عناصر التحكم في لوحة المحادثة",
+		"COLLAPSE_ASSISTANT": "طي المساعد",
+		"STANDARD_ASSISTANT_WIDTH": "عرض المساعد القياسي",
+		"EXPAND_ASSISTANT": "توسيع المساعد",
+		"OPEN_ASSISTANT": "فتح مساعد {appName}"
 	}
 }

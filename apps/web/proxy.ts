@@ -11,6 +11,12 @@ import { cookiesKeys, setAccessTokenCookie, setRefreshTokenCookie } from '@/core
 import { currentAuthenticatedUserRequest, refreshTokenRequest } from '@/core/services/server/requests/auth';
 import { range } from '@/core/lib/helpers';
 import { isTokenExpired, decodeJWT, getTokenRemainingTime, formatRemainingTime } from '@/core/lib/auth/jwt-utils';
+import {
+	getRuntimeImageHosts,
+	isImageOptimizerRequest,
+	resolveImageRequest,
+	splitImageHostList
+} from '@/core/lib/helpers/image-request';
 import { NextRequest, NextResponse } from 'next/server';
 
 import createMiddleware from 'next-intl/middleware';
@@ -65,13 +71,39 @@ export const config = {
 		'/meet(.*)',
 		'/board(.*)',
 		'/kanban(.*)',
-		'/unauthorized(.*)'
+		'/unauthorized(.*)',
+		// next/image optimizer: see handleImageRequest (must stay a literal, Next reads it statically)
+		'/_next/image'
 	]
 };
 
 export { auth as authMiddleware } from './auth';
 
+/**
+ * `/_next/image` requests: serve hosts allowed only at RUNTIME (container env) without the optimizer.
+ *
+ * The optimizer's host allowlist (next.config images.remotePatterns) is frozen into the build, so a
+ * published Docker image answered 400 for a self-hoster's own image hosts (their Gauzy API, S3,
+ * MinIO, logo host). Those requests are now redirected (307) to the original image; everything else
+ * — relative URLs, build-time hosts, hosts allowed nowhere — continues to the optimizer untouched.
+ * See core/lib/helpers/image-request.ts.
+ */
+function handleImageRequest(request: NextRequest): NextResponse {
+	const decision = resolveImageRequest(
+		request.nextUrl.searchParams.getAll('url'),
+		// Inlined at build from next.config.js `env` (the build-time optimizer allowlist).
+		splitImageHostList(process.env.EVER_TEAMS_OPTIMIZED_IMAGE_HOSTS),
+		getRuntimeImageHosts()
+	);
+	return decision === 'optimize' ? NextResponse.next() : NextResponse.redirect(decision.redirect, 307);
+}
+
 export async function proxy(request: NextRequest) {
+	// Image optimizer requests never go through i18n or auth handling below.
+	if (isImageOptimizerRequest(request.nextUrl.pathname)) {
+		return handleImageRequest(request);
+	}
+
 	const nextIntlMiddleware = createMiddleware({
 		defaultLocale: APPLICATION_DEFAULT_LANGUAGE,
 		locales: APPLICATION_LANGUAGES_CODE,

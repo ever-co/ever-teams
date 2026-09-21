@@ -52,12 +52,25 @@ export function getTaskPrioritiesListRequest(
 	{
 		organizationId,
 		tenantId,
-		organizationTeamId
-	}: { tenantId: string; organizationId: string; organizationTeamId: string | null },
+		organizationTeamId,
+		projectId
+	}: {
+		tenantId: string;
+		organizationId: string;
+		organizationTeamId: string | null;
+		projectId?: string | null;
+	},
 	bearer_token: string
 ) {
+	const query = new URLSearchParams({
+		tenantId,
+		organizationId,
+		organizationTeamId: organizationTeamId ?? 'null'
+	});
+	if (projectId !== undefined && projectId !== null) query.set('projectId', projectId);
+
 	return serverFetch({
-		path: `/task-priorities?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`,
+		path: `/task-priorities?${query}`,
 		method: 'GET',
 		bearer_token
 	});

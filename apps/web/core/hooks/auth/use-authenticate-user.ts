@@ -26,6 +26,7 @@ import { toast } from 'sonner';
 import { UseAuthenticateUserResult } from '@/core/types/interfaces/user/user';
 import { useUserQuery } from '../queries/user-user.query';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
+import { clearChatHistoryForUser } from '@/core/components/features/chat-panel/chat-history';
 
 export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserResult => {
 	const userDataQuery = useUserQuery();
@@ -175,6 +176,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		});
 
 		window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, activeTeam?.id ?? '');
+		clearChatHistoryForUser(user?.id);
 		removeAuthCookies();
 		// Clear the refresh timeout scheduler
 		if (refreshTimeoutRef.current) {

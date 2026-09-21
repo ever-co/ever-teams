@@ -3,6 +3,7 @@ name: Build and Publish Docker Images Dev
 on:
   push:
     branches: [develop]
+  workflow_dispatch: {}
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -17,6 +18,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Read Web version
+        id: web-version
+        shell: bash
+        run: |
+          version=$(node -p "require('./apps/web/package.json').version")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Free disk space
         if: runner.environment == 'github-hosted'
@@ -39,8 +47,15 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
-      - name: Output NEXT_PUBLIC_GAUZY_API_SERVER_URL
-        run: echo "NEXT_PUBLIC_GAUZY_API_SERVER_URL=${{ secrets.NEXT_PUBLIC_GAUZY_API_SERVER_URL }}"
+      - name: Validate NEXT_PUBLIC_GAUZY_API_SERVER_URL
+        env:
+          NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${{ secrets.NEXT_PUBLIC_GAUZY_API_SERVER_URL }}
+        run: |
+          if [ -z "$NEXT_PUBLIC_GAUZY_API_SERVER_URL" ]; then
+            echo "::error::NEXT_PUBLIC_GAUZY_API_SERVER_URL is not configured"
+            exit 1
+          fi
+          echo "NEXT_PUBLIC_GAUZY_API_SERVER_URL is configured"
 
       - name: Build and push
         uses: docker/build-push-action@v7
@@ -52,33 +67,30 @@ jobs:
           # Re-add it together with the commented-out CW login/push steps below once CW_DOCKER_REGISTRY is configured.
           tags: |
             ghcr.io/ever-co/ever-teams-webapp-dev:latest
+            ghcr.io/ever-co/ever-teams-webapp-dev:sha-${{ github.sha }}
             everco/ever-teams-webapp-dev:latest
+            everco/ever-teams-webapp-dev:sha-${{ github.sha }}
             registry.digitalocean.com/ever/ever-teams-webapp-dev:latest
+            registry.digitalocean.com/ever/ever-teams-webapp-dev:sha-${{ github.sha }}
           cache-from: type=registry,ref=everco/ever-teams-webapp-dev:latest
           cache-to: type=inline
+          # Deployment-specific values (API URL, captcha/analytics keys, board/meet endpoints, GitHub app, ...) are
+          # NOT build args: Next.js would inline them into the published image, which self-hosters could then
+          # never change. Each deployment sets them at runtime (k8s Secret / docker run -e); see .env.docker.
+          # NEXT_PUBLIC_DEMO only sets the image's runtime default (final-stage ENV), it is not inlined.
+          # The private-registry credential is a BuildKit secret, never a build arg: build args are readable
+          # in `docker history`, are recorded in SLSA provenance, and land in any cache exported with
+          # mode=max. Unset (forks) -> empty secret -> the Dockerfile falls back to the public registry.
+          secrets: |
+            verdaccio_token=${{ secrets.VERDACCIO_TOKEN }}
           build-args: |
             NODE_ENV=development
-            VERDACCIO_TOKEN=${{ secrets.VERDACCIO_TOKEN }}
+            NEXT_PUBLIC_BUILD_VERSION=${{ steps.web-version.outputs.version }}
+            NEXT_PUBLIC_BUILD_SHA=${{ github.sha }}
             VERDACCIO_REGISTRY=${{ vars.VERDACCIO_REGISTRY }}
             NEXT_PUBLIC_DEMO=true
             API_BASE_URL=${{ vars.API_BASE_URL }}
             CLIENT_BASE_URL=${{ vars.CLIENT_BASE_URL }}
-            NEXT_PUBLIC_WEB_APP_URL=${{ vars.NEXT_PUBLIC_WEB_APP_URL }}
-            NEXT_PUBLIC_GAUZY_API_SERVER_URL=${{ secrets.NEXT_PUBLIC_GAUZY_API_SERVER_URL }}
-            NEXT_PUBLIC_GA_MEASUREMENT_ID=${{ secrets.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
-            NEXT_PUBLIC_CAPTCHA_SITE_KEY=${{ secrets.NEXT_PUBLIC_CAPTCHA_SITE_KEY }}
-            NEXT_PUBLIC_DISABLE_AUTO_REFRESH=false
-            NEXT_PUBLIC_COOKIE_DOMAINS=${{ secrets.NEXT_PUBLIC_COOKIE_DOMAINS }}
-            NEXT_PUBLIC_BOARD_APP_DOMAIN=${{ secrets.NEXT_PUBLIC_BOARD_APP_DOMAIN }}
-            NEXT_PUBLIC_BOARD_BACKEND_POST_URL=${{ secrets.NEXT_PUBLIC_BOARD_BACKEND_POST_URL }}
-            NEXT_PUBLIC_BOARD_FIREBASE_CONFIG=${{ secrets.NEXT_PUBLIC_BOARD_FIREBASE_CONFIG }}
-            NEXT_PUBLIC_MEET_DOMAIN=${{ secrets.NEXT_PUBLIC_MEET_DOMAIN }}
-            NEXT_PUBLIC_SENTRY_DSN=${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
-            NEXT_PUBLIC_SENTRY_DEBUG=${{ secrets.NEXT_PUBLIC_SENTRY_DEBUG }}
-            NEXT_PUBLIC_JITSU_BROWSER_URL=${{ secrets.NEXT_PUBLIC_JITSU_BROWSER_URL }}
-            NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY=${{ secrets.NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY }}
-            NEXT_PUBLIC_GITHUB_APP_NAME=ever-github
-            NEXT_PUBLIC_CHATWOOT_API_KEY=${{ secrets.NEXT_PUBLIC_CHATWOOT_API_KEY }}
 
       - name: Login to DockerHub
         uses: docker/login-action@v4
@@ -89,6 +101,7 @@ jobs:
       - name: Push to Docker Hub Registry
         run: |
           docker push everco/ever-teams-webapp-dev:latest
+          docker push everco/ever-teams-webapp-dev:sha-${{ github.sha }}
 
       - name: Install doctl
         if: ${{ vars.DO_ENABLED == 'true' }}
@@ -104,6 +117,7 @@ jobs:
         if: ${{ vars.DO_ENABLED == 'true' }}
         run: |
           docker push registry.digitalocean.com/ever/ever-teams-webapp-dev:latest
+          docker push registry.digitalocean.com/ever/ever-teams-webapp-dev:sha-${{ github.sha }}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v4
@@ -115,6 +129,7 @@ jobs:
       - name: Push to Github Registry
         run: |
           docker push ghcr.io/ever-co/ever-teams-webapp-dev:latest
+          docker push ghcr.io/ever-co/ever-teams-webapp-dev:sha-${{ github.sha }}
 
     #  - name: Login to CW Container Registry
     #    uses: docker/login-action@v4

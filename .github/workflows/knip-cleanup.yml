@@ -26,69 +26,85 @@ jobs:
         with:
           node-version: '24.14.0'
 
-      - name: Run Knip
-        working-directory: apps/web
-        run: npx knip --cache --no-exit-code > reported-files.txt
+      - name: Install Packages
+        run: yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts
 
-      - name: Get list of changed files
-        id: changed
+      - name: Create head and base Knip reports
         run: |
-          {
-            echo "CHANGED_FILES<<EOF"
-            # Only evaluate source files for unused code. Exclude manifests/lockfiles:
-            # knip lists unused dependencies with a trailing "package.json", which would
-            # otherwise make this substring check fail for any dependency-bump PR.
-            git diff --name-only origin/develop | grep '^apps/web/' | grep -vE '(package\.json|yarn\.lock)$' || true
-            echo "EOF"
-          } >> $GITHUB_ENV
+          HEAD_REPORT="$RUNNER_TEMP/knip-head.json"
+          BASE_REPORT="$RUNNER_TEMP/knip-base.json"
+          CHANGED_FILES="$RUNNER_TEMP/knip-changed-files.txt"
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
 
-      - name: Check if changed files are in Knip report
+          git diff --name-only "$BASE_SHA...HEAD" -- apps/web > "$CHANGED_FILES"
+          (cd apps/web && ../../node_modules/.bin/knip --no-exit-code --reporter json > "$HEAD_REPORT")
+
+          # Use the already-installed dependency tree to inspect the exact PR base.
+          # The checkout is disposable and restored before this step exits.
+          trap 'git checkout HEAD -- apps/web' EXIT
+          git checkout "$BASE_SHA" -- apps/web
+          (cd apps/web && ../../node_modules/.bin/knip --no-exit-code --reporter json > "$BASE_REPORT")
+          git checkout HEAD -- apps/web
+          trap - EXIT
+
+          echo "HEAD_REPORT=$HEAD_REPORT" >> "$GITHUB_ENV"
+          echo "BASE_REPORT=$BASE_REPORT" >> "$GITHUB_ENV"
+          echo "CHANGED_FILES=$CHANGED_FILES" >> "$GITHUB_ENV"
+
+      - name: Check for new Knip findings
         id: check_unused
         run: |
-          FAIL=0
-          FILES_WITH_UNUSED_CODE=""
+          RESULT_FILE="$RUNNER_TEMP/knip-new-findings.txt"
+          set +e
+          node tools/knip/compare-knip-reports.mjs \
+            --base="$BASE_REPORT" \
+            --head="$HEAD_REPORT" \
+            --changed="$CHANGED_FILES" > "$RESULT_FILE" 2>&1
+          STATUS=$?
+          set -e
 
-          # Use a loop that runs in the same shell
-          while read -r file; do
-            REL_FILE="${file#apps/web/}"
+          cat "$RESULT_FILE"
+          echo "fail=$STATUS" >> "$GITHUB_OUTPUT"
+          echo "reported_findings<<EOF" >> "$GITHUB_OUTPUT"
+          cat "$RESULT_FILE" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          exit "$STATUS"
 
-            if [ -z "$file" ]; then
-             continue
-            fi
-
-            if grep -qF "$REL_FILE" apps/web/reported-files.txt; then
-              echo "❌ Found unused code in: $file"
-              FILES_WITH_UNUSED_CODE+="$file"$'\n'
-              FAIL=1
-            fi
-          done <<< "$CHANGED_FILES"
-
-          echo "fail=$FAIL" >> $GITHUB_OUTPUT
-          echo "reported_files<<EOF" >> $GITHUB_OUTPUT
-          printf "%s\n" "$FILES_WITH_UNUSED_CODE" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-          if [ "$FAIL" -eq 1 ]; then
-            echo "🛑 Unused code detected in changed files:"
-            echo "$FILES_WITH_UNUSED_CODE"
-            exit 1
-          else
-            echo "✅ No unused code detected in changed files."
-          fi
-
-      - name: Comment on PR with unused code files
+      - name: Comment on PR with new Knip findings
         if: failure() && steps.check_unused.outputs.fail == '1'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPORTED_FILES: ${{ steps.check_unused.outputs.reported_files }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPORTED_FINDINGS: ${{ steps.check_unused.outputs.reported_findings }}
         run: |
-          PR_NUMBER=${{ github.event.pull_request.number }}
-
           if [ -z "$PR_NUMBER" ]; then
             echo "❌ Could not find the pull request for this commit."
             exit 1
           fi
-
-          echo -e "⚠️ **Unused code detected in the following changed files:**\n\n$(echo "$REPORTED_FILES" | sed 's/^/- /')\n\nPlease review these files and clean up the unused code." > comment.md
-
-          gh pr comment "$PR_NUMBER" --body-file comment.md
+          node <<'NODE'
+          const findings = process.env.REPORTED_FINDINGS.split('\n').filter(Boolean);
+          const body = [
+            '⚠️ **New Knip findings introduced by this pull request:**',
+            '',
+            '```text',
+            ...findings,
+            '```',
+            '',
+            'Existing findings from the base branch are excluded.'
+          ].join('\n');
+          const response = await fetch(
+            `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/issues/${process.env.PR_NUMBER}/comments`,
+            {
+              method: 'POST',
+              headers: {
+                accept: 'application/vnd.github+json',
+                authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+                'content-type': 'application/json',
+                'x-github-api-version': '2022-11-28'
+              },
+              body: JSON.stringify({ body })
+            }
+          );
+          if (!response.ok) throw new Error(`GitHub comment failed with HTTP ${response.status}`);
+          NODE

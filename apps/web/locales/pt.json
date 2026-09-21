@@ -197,6 +197,8 @@
 		"THEMES": "Temas",
 		"3D_MODE": "Modo 3D",
 		"DARK_MODE": "Modo Escuro",
+		"THEME_LIGHT": "Claro",
+		"THEME_DARK": "Escuro",
 		"SETTINGS": "Configurações",
 		"PERSONAL": "Pessoal",
 		"USE_SETTING": "Usar Configuração",
@@ -436,7 +438,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "Detalhamento de produtividade para {month}",
 		"DAILY": "Diário",
 		"WEEKLY": "Semanal",
-		"MONTHLY": "Mensal"
+		"MONTHLY": "Mensal",
+		"HIDE_CHART": "Ocultar gráfico",
+		"SHOW_ACTIVITY_CHART": "Mostrar gráfico de atividade"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "Tempo e Atividade",
@@ -791,6 +795,10 @@
 			"HEADING_TITLE": "Configurações Gerais",
 			"goToTeamSettings": "Ir para configurações da equipe",
 			"WORKING_HOURS": "Horário de trabalho",
+			"ADD_HOURS_FOR": "Adicionar horas para {day}",
+			"REMOVE_HOURS_FOR": "Remover horas para {day}",
+			"UNAVAILABLE": "Indisponível",
+			"TOGGLE_AVAILABILITY_FOR": "Disponibilidade para {day}",
 			"emailNotValid": "Por favor, forneça um e-mail válido",
 			"phoneNotValid": "Por favor, forneça um número de telefone válido",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "Você está prestes a excluir sua conta e todos os seus dados?",
@@ -1214,7 +1222,10 @@
 			"TERMS_AND_CONDITIONS": "Termos e Condições",
 			"PRIVACY_POLICY": "Política de Privacidade",
 			"COOKIES": "Política de Cookies",
-			"BY": "Por"
+			"BY": "Por",
+			"BUILD_WEB": "Build Web v{version}",
+			"API_VERSION": "API v{version}",
+			"OPEN_COMMIT": "Abrir commit {commit}"
 		}
 	},
 	"errors": {
@@ -1287,7 +1298,7 @@
 		"HEADER_TITLE": "Chat IA",
 		"CLEAR_CONVERSATION": "Limpar conversa",
 		"CONFIGURATION": "Configuração",
-		"ASSISTANT_NAME": "Assistente Ever Teams",
+		"ASSISTANT_NAME": "Assistente {appName}",
 		"EMPTY_CONFIGURED": "Faça uma pergunta para começar.",
 		"EMPTY_NOT_CONFIGURED": "Configure sua chave API para começar.",
 		"CONFIGURE_BUTTON": "Configurar",
@@ -1295,6 +1306,14 @@
 		"INPUT_PLACEHOLDER_READY": "Sua mensagem...",
 		"INPUT_PLACEHOLDER_NO_KEY": "Configure sua chave API...",
 		"STOP": "Parar",
-		"SEND": "Enviar"
+		"SEND": "Enviar",
+		"NEW_CHAT": "Novo chat",
+		"HISTORY": "Histórico",
+		"NO_CONVERSATIONS": "Ainda não há conversas",
+		"PANEL_CONTROLS": "Controles do painel de chat",
+		"COLLAPSE_ASSISTANT": "Recolher assistente",
+		"STANDARD_ASSISTANT_WIDTH": "Largura padrão do assistente",
+		"EXPAND_ASSISTANT": "Expandir assistente",
+		"OPEN_ASSISTANT": "Abrir o assistente {appName}"
 	}
 }

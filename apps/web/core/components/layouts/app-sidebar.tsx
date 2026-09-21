@@ -45,12 +45,14 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
 import { useFavoritesQuery } from '@/core/hooks/favorites/use-favorites-query';
 import { activeTeamState, isTeamManagerState, tasksByTeamState } from '@/core/stores';
-import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { GlobalAllPlansModal } from '../daily-plan';
 import { GlobalAssignTaskModal } from '../features/tasks/global-assign-task-modal';
 import { GlobalProjectActionModal } from '../features/projects/global-project-action-modal';
+import { useSidebarDataOwner } from '@/core/hooks/bootstrap/use-feature-data';
+import { getMyWorkNavigation } from './my-work-navigation';
+import { readRuntimeEnv } from '@/env-config';
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { data: user } = useUserQuery();
@@ -62,8 +64,9 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { isOpen, closeModal } = useModal();
 	const t = useTranslations();
-	const { organizationProjects } = useOrganizationProjectsQuery();
+	const { organizationProjects } = useSidebarDataOwner(publicTeam);
 	const activeTeam = useAtomValue(activeTeamState);
+	const myWorkNavigation = getMyWorkNavigation(user?.id, username || undefined);
 
 	// Filter projects based on active team context:
 	// - "All Teams" mode (no active team): show ALL projects
@@ -160,8 +163,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				label: 'home'
 			},
 			// /inbox has no page yet (404 for every user who clicks it). Gated, not removed — flip
-			// NEXT_PUBLIC_INBOX_ENABLED=true when the route ships.
-			...(process.env.NEXT_PUBLIC_INBOX_ENABLED === 'true'
+			// NEXT_PUBLIC_INBOX_ENABLED=true when the route ships (read at runtime: no rebuild of the image).
+			...((readRuntimeEnv('NEXT_PUBLIC_INBOX_ENABLED') || process.env.NEXT_PUBLIC_INBOX_ENABLED) === 'true'
 				? [
 						{
 							title: 'Inbox',
@@ -306,12 +309,12 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 					{
 						title: t('sidebar.TIME_AND_ACTIVITY'),
 						label: 'time-and-activity',
-						url: '#'
+						url: myWorkNavigation.timeAndActivity
 					},
 					{
 						title: t('sidebar.WORK_DIARY'),
 						label: 'work-and-diary',
-						url: '#'
+						url: myWorkNavigation.workDiary
 					}
 				]
 			},
