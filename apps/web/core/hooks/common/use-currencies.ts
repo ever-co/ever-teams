@@ -8,6 +8,13 @@ import { queryKeys } from '@/core/query/keys';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { UseCurrenciesReturn } from '@/core/types/interfaces/common/currency';
 import { useFirstLoad } from './use-first-load';
+import { useScopeGuard } from '../bootstrap/use-scope-guard';
+import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
+import { CREDENTIAL_SCOPED_QUERY_META } from '@/core/query/credential-query';
+
+interface UseCurrenciesOptions {
+	enabled?: boolean;
+}
 
 /**
  * Custom hook for managing application currencies with React Query integration
@@ -58,9 +65,21 @@ import { useFirstLoad } from './use-first-load';
  * @throws {Error} When currency API request fails
  * @throws {ZodValidationError} When API response doesn't match expected schema
  */
-export const useCurrencies = (): UseCurrenciesReturn => {
+export const useCurrencies = ({ enabled = true }: UseCurrenciesOptions = {}): UseCurrenciesReturn => {
 	const [currencies, setCurrencies] = useAtom(currenciesState);
 	const { firstLoadData } = useFirstLoad();
+	const tenantId = getTenantIdCookie();
+	const organizationId = getOrganizationIdCookie();
+	const accessToken = useReactiveAccessTokenCookie();
+	const scope = {
+		tenantId,
+		organizationId,
+		accessToken
+	};
+	const queryKey = queryKeys.currencies.byScope(tenantId, organizationId);
+	const ownerActive = enabled;
+	const queryEnabled = ownerActive && !!(scope.tenantId && scope.organizationId && scope.accessToken);
+	const isCurrentScope = useScopeGuard(queryKey, ownerActive);
 
 	/**
 	 * React Query for currencies data with optimized caching strategy
@@ -71,16 +90,23 @@ export const useCurrencies = (): UseCurrenciesReturn => {
 	 * - Only fetches when organization and tenant are available
 	 */
 	const currenciesQuery = useQuery({
-		queryKey: queryKeys.currencies.byOrganization(getTenantIdCookie() || '', getOrganizationIdCookie() || ''),
-		queryFn: currencyService.getCurrencies,
-		enabled: !!(getTenantIdCookie() && getOrganizationIdCookie()),
+		queryKey,
+		meta: CREDENTIAL_SCOPED_QUERY_META,
+		queryFn: ({ signal }) => currencyService.getCurrencies({ scope, signal }),
+		enabled: queryEnabled,
 		staleTime: 1000 * 60 * 10, // Currencies are relatively stable, cache for 10 minutes
 		gcTime: 1000 * 60 * 30 // Keep in cache for 30 minutes
 	});
 
+	useEffect(() => {
+		if (ownerActive && isCurrentScope()) {
+			setCurrencies([]);
+		}
+	}, [isCurrentScope, organizationId, ownerActive, setCurrencies, tenantId]);
+
 	// Sync React Query data with Jotai state for backward compatibility
 	useEffect(() => {
-		if (currenciesQuery.data?.items) {
+		if (enabled && currenciesQuery.data?.items && isCurrentScope()) {
 			// Cast to any for backward compatibility with existing interfaces
 			const adaptedCurrencies = currenciesQuery.data.items.map((item) => ({
 				id: item.id,
@@ -89,7 +115,7 @@ export const useCurrencies = (): UseCurrenciesReturn => {
 			}));
 			setCurrencies(adaptedCurrencies);
 		}
-	}, [currenciesQuery.data?.items, setCurrencies]);
+	}, [currenciesQuery.data?.items, enabled, isCurrentScope, setCurrencies]);
 
 	/**
 	 * Manually fetch currencies data

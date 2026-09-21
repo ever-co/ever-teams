@@ -46,6 +46,11 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      # No deployment-specific build-arg may be added here. Vite/Storybook freeze their env into the
+      # static bundle and Next.js inlines every NEXT_PUBLIC_* into the client AND server bundles, so a
+      # build-arg would make the published image un-reusable. These images are configured at RUNTIME
+      # (docker run -e ...); see each app's runtime-env.ts / runtime-config.js and
+      # apps/web/test/architecture/self-hostable-example-images.test.ts, which enforces this.
       - uses: docker/build-push-action@v7
         with:
           context: .

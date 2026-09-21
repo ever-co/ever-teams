@@ -5,7 +5,6 @@ import { useParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { getCoreRowModel, getFilteredRowModel, useReactTable, VisibilityState } from '@tanstack/react-table';
 import { cn, getStatusColor } from '@/core/lib/helpers';
@@ -28,7 +27,6 @@ import { activeTeamState, tasksByTeamState } from '@/core/stores';
 const TeamTask = () => {
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
-	const fullWidth = useAtomValue(fullWidthState);
 	const currentLocale = params ? params.locale : null;
 
 	const activeTeam = useAtomValue(activeTeamState);
@@ -73,13 +71,13 @@ const TeamTask = () => {
 	// COMPLETE PAGE SKELETON: Show unified skeleton while initial data is loading
 	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
 	if (!activeTeam || !tasks) {
-		return <TeamTasksPageSkeleton fullWidth={fullWidth} />;
+		return <TeamTasksPageSkeleton />;
 	}
 
 	return (
 		<PageLayout
 			mainHeaderSlot={
-				<Container fullWidth={fullWidth} className="mt-5">
+				<Container className="mt-5">
 					<Breadcrumb paths={breadcrumbPath} className="mb-5 text-sm" />
 
 					<div className="flex flex-col my-4 leading-snug">

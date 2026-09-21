@@ -1,7 +1,6 @@
 'use client';
 
 import { useLocalStorageState, useModal } from '@/core/hooks';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { clsxm } from '@/core/lib/utils';
 import HeaderTabs from '@/core/components/common/header-tabs';
 import { PeoplesIcon } from 'assets/svg';
@@ -30,7 +29,6 @@ import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 
 const CalendarPage = () => {
 	const t = useTranslations();
-	const fullWidth = useAtomValue(fullWidthState);
 	const { state: sidebarState } = useSidebar();
 
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
@@ -68,7 +66,7 @@ const CalendarPage = () => {
 
 	// Show unified skeleton while components are loading
 	if (!activeTeam) {
-		return <CalendarPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
+		return <CalendarPageSkeleton showTimer={isTrackingEnabled} />;
 	}
 	return (
 		<>
@@ -96,7 +94,7 @@ const CalendarPage = () => {
 						} as React.CSSProperties
 					}
 				>
-					<Container fullWidth={fullWidth}>
+					<Container>
 						<div className="flex flex-row justify-between items-start mt-12 bg-white dark:bg-dark-high">
 							<div className="flex gap-8 justify-center items-center h-10">
 								<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
@@ -117,12 +115,12 @@ const CalendarPage = () => {
 					</Container>
 				</div>
 				<div className="mt-[15vh] mb-32">
-					<Container fullWidth={fullWidth}>{renderComponent}</Container>
+					<Container>{renderComponent}</Container>
 				</div>
 			</PageLayout>
 			<div className="bg-white dark:bg-[#1e2025] w-screen z-[999] fixed bottom-0">
 				<Divider />
-				<Footer className={clsxm('justify-between px-0 mx-auto w-full', fullWidth ? 'px-8' : 'x-container')} />
+				<Footer className={clsxm('justify-between px-8 mx-auto w-full')} />
 			</div>
 		</>
 	);

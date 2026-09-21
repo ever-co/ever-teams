@@ -27,6 +27,7 @@ import {
 	TInviteResendResult,
 	TValidateInviteRequest
 } from '@/core/types/schemas/user/invite.schema';
+import { scopedReadConfig, ScopedReadOptions } from '@/core/services/client/api-request-scope';
 
 class InviteService extends APIService {
 	inviteByEmails = async (data: IInviteRequest): Promise<PaginationResponse<TInvite>> => {
@@ -94,18 +95,24 @@ class InviteService extends APIService {
 	 * - Get all invitations by not specifying roles (returns all roles by default)
 	 * - Filter by specific roles by passing a roles array
 	 */
-	getTeamInvitations = async (requestParams: IGetInvitationRequest): Promise<PaginationResponse<TInvite>> => {
+	getTeamInvitations = async (
+		requestParams: IGetInvitationRequest,
+		options?: ScopedReadOptions
+	): Promise<PaginationResponse<TInvite>> => {
 		try {
 			const { teamId, roles, ...remainingParams } = requestParams;
+			const tenantId = options ? options.scope.tenantId : this.tenantId;
+			const organizationId = options ? options.scope.organizationId : this.organizationId;
+			const organizationTeamId = options ? options.scope.teamId : teamId;
 
 			const baseQuery: Record<string, any> = {
-				'where[tenantId]': this.tenantId,
-				'where[organizationId]': this.organizationId,
+				'where[tenantId]': tenantId,
+				'where[organizationId]': organizationId,
 				'where[status]': EInviteStatus.INVITED
 			};
 
-			if (teamId) {
-				baseQuery['where[teams][id][0]'] = teamId;
+			if (organizationTeamId) {
+				baseQuery['where[teams][id][0]'] = organizationTeamId;
 			}
 
 			// Add role filter if roles are specified
@@ -129,9 +136,10 @@ class InviteService extends APIService {
 			});
 
 			// Single request to get invitations
-			const response = await this.get<PaginationResponse<TInvite>>(`/invite?${qs.stringify(baseQuery)}`, {
-				tenantId: this.tenantId
-			});
+			const response = await this.get<PaginationResponse<TInvite>>(
+				`/invite?${qs.stringify(baseQuery)}`,
+				options ? scopedReadConfig(options) : { tenantId: this.tenantId }
+			);
 
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(inviteSchema, response.data, 'getTeamInvitations API response');
@@ -244,11 +252,14 @@ class InviteService extends APIService {
 			: { inviteId };
 	}
 
-	getMyInvitations = async (): Promise<PaginationResponse<TInvite>> => {
+	getMyInvitations = async (options?: ScopedReadOptions): Promise<PaginationResponse<TInvite>> => {
 		try {
 			const endpoint = '/invite/me';
 
-			const response = await this.get<PaginationResponse<TInvite>>(endpoint, { tenantId: this.tenantId });
+			const response = await this.get<PaginationResponse<TInvite>>(
+				endpoint,
+				options ? scopedReadConfig(options) : { tenantId: this.tenantId }
+			);
 
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(inviteSchema, response.data, 'getMyInvitations API response');

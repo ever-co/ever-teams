@@ -4,7 +4,6 @@ import { PageLayout } from '@/core/components/layouts/default-layout';
 
 interface TeamTasksPageSkeletonProps {
 	className?: string;
-	fullWidth?: boolean;
 	showTimer?: boolean;
 }
 
@@ -13,17 +12,13 @@ interface TeamTasksPageSkeletonProps {
  * Integrates seamlessly with PageLayout structure without swallowing it up
  * Matches exact layout: mainHeaderSlot (3 sections: breadcrumb + title/status + search/filters) + main content (task table)
  */
-export const TeamTasksPageSkeleton: FC<TeamTasksPageSkeletonProps> = ({
-	className,
-	fullWidth = false,
-	showTimer = false
-}) => {
+export const TeamTasksPageSkeleton: FC<TeamTasksPageSkeletonProps> = ({ className, showTimer = false }) => {
 	return (
 		<PageLayout
 			title="Team Tasks"
 			showTimer={showTimer}
 			mainHeaderSlot={
-				<Container fullWidth={fullWidth} className="mt-5">
+				<Container className="mt-5">
 					{/* SKELETON: Section 1 - Breadcrumb */}
 					<div className="flex gap-2 items-center mb-5">
 						<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
@@ -81,7 +76,7 @@ export const TeamTasksPageSkeleton: FC<TeamTasksPageSkeletonProps> = ({
 			}
 		>
 			{/* SKELETON: Main Content Area - Task Table */}
-			<Container fullWidth={fullWidth} className="mt-6">
+			<Container className="mt-6">
 				{/* Table Header */}
 				<div className="bg-white rounded-t-lg border border-gray-200 dark:bg-dark--theme-light dark:border-gray-700">
 					<div className="flex items-center p-4 border-b border-gray-200 dark:border-gray-700">

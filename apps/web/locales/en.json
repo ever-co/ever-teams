@@ -222,6 +222,8 @@
 		"THEMES": "Themes",
 		"3D_MODE": "3D Mode",
 		"DARK_MODE": "Dark Mode",
+		"THEME_LIGHT": "Light",
+		"THEME_DARK": "Dark",
 		"SETTINGS": "Settings",
 		"PERSONAL": "Personal",
 		"USE_SETTING": "Use setting",
@@ -436,7 +438,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "Productivity breakdown for {month}",
 		"DAILY": "Daily",
 		"WEEKLY": "Weekly",
-		"MONTHLY": "Monthly"
+		"MONTHLY": "Monthly",
+		"HIDE_CHART": "Hide chart",
+		"SHOW_ACTIVITY_CHART": "Show activity chart"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "Time and Activity",
@@ -791,6 +795,10 @@
 			"HEADING_TITLE": "General Settings",
 			"goToTeamSettings": "Go to Team settings",
 			"WORKING_HOURS": "Working hours",
+			"ADD_HOURS_FOR": "Add hours for {day}",
+			"REMOVE_HOURS_FOR": "Remove hours for {day}",
+			"UNAVAILABLE": "Unavailable",
+			"TOGGLE_AVAILABILITY_FOR": "Availability for {day}",
 			"emailNotValid": "Please provide a valid Email",
 			"phoneNotValid": "Please provide a valid Phone Number",
 			"WORK_SCHEDULE": "Work Schedule",
@@ -1214,7 +1222,10 @@
 			"TERMS_AND_CONDITIONS": "Terms and Conditions",
 			"PRIVACY_POLICY": "Privacy Policy",
 			"COOKIES": "Cookie Policy",
-			"BY": "By"
+			"BY": "By",
+			"BUILD_WEB": "Build Web v{version}",
+			"API_VERSION": "API v{version}",
+			"OPEN_COMMIT": "Open commit {commit}"
 		}
 	},
 	"errors": {
@@ -1287,7 +1298,7 @@
 		"HEADER_TITLE": "Chat AI",
 		"CLEAR_CONVERSATION": "Clear conversation",
 		"CONFIGURATION": "Configuration",
-		"ASSISTANT_NAME": "Ever Teams Assistant",
+		"ASSISTANT_NAME": "{appName} Assistant",
 		"EMPTY_CONFIGURED": "Ask a question to get started.",
 		"EMPTY_NOT_CONFIGURED": "Configure your API key to get started.",
 		"CONFIGURE_BUTTON": "Configure",
@@ -1295,6 +1306,14 @@
 		"INPUT_PLACEHOLDER_READY": "Your message...",
 		"INPUT_PLACEHOLDER_NO_KEY": "Configure your API key...",
 		"STOP": "Stop",
-		"SEND": "Send"
+		"SEND": "Send",
+		"NEW_CHAT": "New chat",
+		"HISTORY": "History",
+		"NO_CONVERSATIONS": "No conversations yet",
+		"PANEL_CONTROLS": "Chat panel controls",
+		"COLLAPSE_ASSISTANT": "Collapse assistant",
+		"STANDARD_ASSISTANT_WIDTH": "Standard assistant width",
+		"EXPAND_ASSISTANT": "Expand assistant",
+		"OPEN_ASSISTANT": "Open {appName} Assistant"
 	}
 }

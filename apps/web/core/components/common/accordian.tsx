@@ -1,7 +1,6 @@
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import { Divider } from './divider';
 import { Text } from './typography';
-import { useState } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './accordion';
 
 interface isProps {
@@ -14,32 +13,22 @@ interface isProps {
 }
 
 export const Accordian = ({ children, title, className, isDanger, id, defaultOpen = true }: isProps) => {
-	const [isOpen, setOpen] = useState<boolean>(defaultOpen);
-
 	// Generate a unique value for the accordion item
 	const accordionValue = id || `accordion-${title.replace(/\s+/g, '-').toLowerCase()}`;
 	const defaultValue = defaultOpen ? accordionValue : undefined;
 
 	return (
-		<div className={`w-full ${isDanger && !isOpen && 'mb-[500px]'}`} id={id}>
-			<div
-				className={`rounded-2xl p-2 ${className} shadow-[0px_14px_34px_rgba(0,0,0,0.05)] bg-light--theme-light dark:bg-dark--theme-light`}
-			>
-				<Accordion
-					type="single"
-					collapsible
-					defaultValue={defaultValue}
-					onValueChange={(value) => {
-						// Update isOpen state based on whether the accordion is open
-						setOpen(value === accordionValue);
-					}}
-				>
+		<div className="w-full scroll-mt-6" id={id}>
+			<div className={`overflow-hidden rounded-xl border bg-card shadow-sm dark:border-white/10 ${className}`}>
+				<Accordion type="single" collapsible defaultValue={defaultValue}>
 					<AccordionItem value={accordionValue} className="border-none">
-						<AccordionTrigger className="flex w-full justify-between rounded-lg px-4 py-2 text-left text-sm font-medium hover:bg-white items-center pt-[0.15rem] pb-0 h-[3.81rem] bg-light--theme-light dark:bg-dark--theme-light hover:no-underline [&>svg]:hidden">
+						<AccordionTrigger className="flex h-auto w-full items-center justify-between px-5 py-4 text-left hover:bg-muted/40 hover:no-underline [&>svg]:hidden">
 							<>
 								<Text
-									className={`text-2xl font-medium dark:text-white text-center sm:text-left ${
-										isDanger ? 'text-[#EB6961]' : 'text-[#282048]'
+									className={`text-left text-lg font-semibold tracking-tight ${
+										isDanger
+											? 'text-[#EB6961] dark:text-[#EB6961]'
+											: 'text-[#282048] dark:text-white'
 									}`}
 								>
 									{title}
@@ -47,8 +36,8 @@ export const Accordian = ({ children, title, className, isDanger, id, defaultOpe
 								<ChevronUpIcon className="h-5 w-5 text-[#292D32] dark:text-white transition-transform duration-200 data-[state=closed]:rotate-180" />
 							</>
 						</AccordionTrigger>
-						<AccordionContent className="px-4 pt-4 pb-2 text-sm text-gray-500">
-							<Divider />
+						<AccordionContent className="px-5 pb-5 pt-0 text-sm text-muted-foreground">
+							<Divider className="mb-4" />
 							{children}
 						</AccordionContent>
 					</AccordionItem>

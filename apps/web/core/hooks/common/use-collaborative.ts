@@ -7,9 +7,11 @@ import { nanoid } from 'nanoid';
 import capitalize from 'lodash/capitalize';
 import { TUser } from '@/core/types/schemas';
 import { useUserQuery } from '../queries/user-user.query';
+import { readRuntimeEnv } from '@/env-config';
 
 export function useCollaborative(user?: TUser) {
-	const meetType = process.env.NEXT_PUBLIC_MEET_TYPE || 'Jitsi';
+	// Runtime (container) env first, so a published Docker image can switch to LiveKit without a rebuild.
+	const meetType = readRuntimeEnv('NEXT_PUBLIC_MEET_TYPE') || process.env.NEXT_PUBLIC_MEET_TYPE || 'Jitsi';
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const { data: authUser } = useUserQuery();
@@ -61,7 +63,12 @@ export function useCollaborative(user?: TUser) {
 		// LiveKit | Jitsi
 		const meetName = getMeetRoomName();
 		const encodedName = Buffer.from(meetName).toString('base64');
-		const path = meetType === 'Jitsi' ? `/meet/jitsi?room=${encodedName}` : `/meet/livekit?roomName=${encodedName}`;
+		// Case-insensitive: deployments commonly write 'jitsi' (e.g. the docker-compose defaults), which the
+		// published image used to ignore (it baked the value at build time) but now honours at runtime.
+		const path =
+			meetType.toLowerCase() === 'jitsi'
+				? `/meet/jitsi?room=${encodedName}`
+				: `/meet/livekit?roomName=${encodedName}`;
 		router.push(path);
 	}, [getMeetRoomName, router, meetType]);
 

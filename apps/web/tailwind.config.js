@@ -99,6 +99,7 @@ module.exports = {
 				'regal-blue': '#6A71E7',
 				'regal-rose': '#E93CB9',
 				border: 'hsl(var(--border))',
+				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',

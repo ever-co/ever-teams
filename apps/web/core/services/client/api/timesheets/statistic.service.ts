@@ -12,8 +12,41 @@ import {
 	TTimerSlotDataRequest
 } from '@/core/types/schemas';
 import { taskStatisticsSchema, TTaskStatistics } from '@/core/types/schemas/activities/statistics.schema';
+import {
+	profileActivityRequestSchema,
+	profileActivityResponseSchema,
+	type TProfileActivityRequest,
+	type TProfileActivityResponse
+} from '@/core/types/schemas/activities/profile-activity.schema';
+import { scopedReadConfig, type ScopedReadOptions } from '../../api-request-scope';
 
 class StatisticsService extends APIService {
+	getProfileActivity = async (
+		request: TProfileActivityRequest,
+		signal?: AbortSignal
+	): Promise<TProfileActivityResponse> => {
+		const validated = profileActivityRequestSchema.parse(request);
+		const { tenantId, ...queryParams } = validated;
+		const query = qs.stringify(queryParams, { encode: true });
+		const response = await this.get<TProfileActivityResponse>(`/timesheet/statistics/profile-activity?${query}`, {
+			tenantId,
+			signal
+		});
+		const result = profileActivityResponseSchema.parse(response.data);
+
+		if (
+			result.employeeId !== validated.employeeId ||
+			result.period.startDate !== validated.startDate ||
+			result.period.endDate !== validated.endDate ||
+			result.period.timeZone !== validated.timeZone ||
+			(validated.includeDaily === true && result.daily === undefined)
+		) {
+			throw new Error('Profile activity response scope does not match the request');
+		}
+
+		return result;
+	};
+
 	getTimeSlotsStatistics = async (params: TGetTimeSlotsStatisticsRequest): Promise<TTimerSlotDataRequest[]> => {
 		try {
 			const queryParams = {
@@ -52,13 +85,18 @@ class StatisticsService extends APIService {
 		}
 	};
 
-	getStatisticsForTasks = async (queries: Record<string, string | string[] | number>) => {
+	getStatisticsForTasks = async (
+		queries: Record<string, string | string[] | number>,
+		options?: ScopedReadOptions
+	) => {
 		try {
 			const query = qs.stringify(queries, { arrayFormat: 'indices' });
 
-			const response = await this.post<TTaskStatistics>(`/timesheet/statistics/tasks?${query}`, {
-				tenantId: this.tenantId
-			});
+			const response = await this.post<TTaskStatistics>(
+				`/timesheet/statistics/tasks?${query}`,
+				{ tenantId: options?.scope.tenantId ?? this.tenantId },
+				options ? scopedReadConfig(options) : undefined
+			);
 
 			return validateApiResponse(taskStatisticsSchema, response.data, 'getStatisticsForTasks API response');
 		} catch (error) {
@@ -72,17 +110,25 @@ class StatisticsService extends APIService {
 		}
 	};
 
-	tasksTimesheetStatistics = async ({ employeeId }: { employeeId?: string }) => {
+	tasksTimesheetStatistics = async ({
+		employeeId,
+		options
+	}: {
+		employeeId?: string;
+		options?: ScopedReadOptions;
+	}) => {
 		const api = await getFallbackAPI();
 		try {
-			if (!this.tenantId || !this.organizationId) {
+			const tenantId = options?.scope.tenantId ?? this.tenantId;
+			const organizationId = options?.scope.organizationId ?? this.organizationId;
+			if (!tenantId || !organizationId) {
 				throw new Error('TenantId and OrganizationId are required');
 			}
 
 			if (GAUZY_API_BASE_SERVER_URL.value) {
 				const commonParams = {
-					tenantId: this.tenantId,
-					organizationId: this.organizationId,
+					tenantId,
+					organizationId,
 					...(employeeId ? { employeeIds: [employeeId] } : {})
 				};
 				const globalParams = {
@@ -90,14 +136,14 @@ class StatisticsService extends APIService {
 					defaultRange: 'false'
 				};
 
-				const globalData = await this.getStatisticsForTasks(globalParams);
+				const globalData = await this.getStatisticsForTasks(globalParams, options);
 
 				const todayParams = {
 					...commonParams,
 					defaultRange: 'true',
 					unitOfTime: 'day'
 				};
-				const todayData = await this.getStatisticsForTasks(todayParams);
+				const todayData = await this.getStatisticsForTasks(todayParams, options);
 
 				return {
 					data: {
@@ -117,20 +163,24 @@ class StatisticsService extends APIService {
 
 	activeTaskTimesheetStatistics = async ({
 		activeTaskId,
-		employeeId
+		employeeId,
+		options
 	}: {
 		activeTaskId: string;
 		employeeId?: string;
+		options?: ScopedReadOptions;
 	}) => {
 		try {
-			if (!this.tenantId || !this.organizationId || !activeTaskId) {
+			const tenantId = options?.scope.tenantId ?? this.tenantId;
+			const organizationId = options?.scope.organizationId ?? this.organizationId;
+			if (!tenantId || !organizationId || !activeTaskId) {
 				throw new Error('TenantId, OrganizationId, and ActiveTaskId are required');
 			}
 
 			if (GAUZY_API_BASE_SERVER_URL.value) {
 				const commonParams = {
-					tenantId: this.tenantId,
-					organizationId: this.organizationId,
+					tenantId,
+					organizationId,
 					taskIds: [activeTaskId],
 					...(employeeId ? { employeeIds: [employeeId] } : {})
 				};
@@ -140,14 +190,14 @@ class StatisticsService extends APIService {
 					defaultRange: 'false'
 				};
 
-				const globalData = await this.getStatisticsForTasks(globalParams);
+				const globalData = await this.getStatisticsForTasks(globalParams, options);
 
 				const todayParams = {
 					...commonParams,
 					defaultRange: 'true',
 					unitOfTime: 'day'
 				};
-				const todayData = await this.getStatisticsForTasks(todayParams);
+				const todayData = await this.getStatisticsForTasks(todayParams, options);
 
 				return {
 					data: {

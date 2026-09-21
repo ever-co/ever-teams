@@ -1,5 +1,4 @@
 'use client';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { cn } from '@/core/lib/helpers';
@@ -49,7 +48,6 @@ interface ProductivityData {
 function AppUrls() {
 	const t = useTranslations();
 	const router = useRouter();
-	const fullWidth = useAtomValue(fullWidthState);
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
@@ -57,8 +55,13 @@ function AppUrls() {
 	const { closeModal, isOpen, openModal } = useModal();
 	const { user } = useAuthenticateUser();
 
-	const { mergedProps, enabled, currentFilters, updateDateRange, updateFilters, handleGroupByChange, isManage } = useActivityFilters();
-	const { activityReport, isLoading: loading, refetchActivityReport } = useActivityReportListQuery({ mergedProps, enabled });
+	const { mergedProps, enabled, currentFilters, updateDateRange, updateFilters, handleGroupByChange, isManage } =
+		useActivityFilters();
+	const {
+		activityReport,
+		isLoading: loading,
+		refetchActivityReport
+	} = useActivityReportListQuery({ mergedProps, enabled });
 
 	const handleGroupTypeChange = (type: GroupByType) => {
 		setGroupByType(type);
@@ -242,7 +245,7 @@ function AppUrls() {
 	};
 	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
 	if (loading && (!activityReport || activityReport.length === 0)) {
-		return <AppUrlsDashboardPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
+		return <AppUrlsDashboardPageSkeleton showTimer={isTrackingEnabled} />;
 	}
 
 	return (
@@ -252,7 +255,7 @@ function AppUrls() {
 			showTimer={isTrackingEnabled}
 			mainHeaderSlot={
 				<div className="flex flex-col pb-4 bg-gray-100 dark:bg-dark--theme">
-					<Container fullWidth={fullWidth} className={cn('flex flex-col gap-4 items-center w-full')}>
+					<Container className={cn('flex flex-col gap-4 items-center w-full')}>
 						<div className="flex items-center pt-6 w-full">
 							<button
 								onClick={handleBack}
@@ -300,7 +303,7 @@ function AppUrls() {
 				</div>
 			}
 		>
-			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
+			<Container className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
 				{groupByMap[groupByType as keyof typeof groupByMap] || groupByMap.date}
 			</Container>
 		</PageLayout>

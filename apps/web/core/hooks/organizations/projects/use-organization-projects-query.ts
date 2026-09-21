@@ -6,6 +6,13 @@ import { organizationProjectService } from '@/core/services/client/api/organizat
 import { queryKeys } from '@/core/query/keys';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useInvalidateOrganizationProjects } from './use-invalidate-organization-projects';
+import { useScopeGuard } from '../../bootstrap/use-scope-guard';
+import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
+import { CREDENTIAL_SCOPED_QUERY_META } from '@/core/query/credential-query';
+
+interface UseOrganizationProjectsQueryOptions {
+	enabled?: boolean;
+}
 
 /**
  * Hook for read-only organization projects operations.
@@ -20,19 +27,36 @@ import { useInvalidateOrganizationProjects } from './use-invalidate-organization
  * - `setSearchQueries` - Setter for search/filter queries
  * - `filteredOrganizations` - React Query result for filtered projects
  */
-export function useOrganizationProjectsQuery() {
+export function useOrganizationProjectsQuery({ enabled = true }: UseOrganizationProjectsQueryOptions = {}) {
 	const { tenantId, organizationId, queryClient } = useInvalidateOrganizationProjects();
 	const { data: user } = useUserQuery();
 	const [searchQueries, setSearchQueries] = useState<Record<string, string> | null>(null);
 	const memoizedSearchQueries = useMemo(() => searchQueries, [JSON.stringify(searchQueries)]);
+	const reactiveAccessToken = useReactiveAccessTokenCookie();
+	const accessToken = reactiveAccessToken;
+	const scope = useMemo(
+		() => ({ tenantId, organizationId, userId: user?.id, accessToken }),
+		[accessToken, organizationId, tenantId, user?.id]
+	);
+	const mainQueryKey = queryKeys.organizationProjects.byScope(scope.tenantId, scope.organizationId);
+	const filteredQueryKey = queryKeys.organizationProjects.withQueriesByScope(
+		scope.tenantId,
+		scope.organizationId,
+		memoizedSearchQueries
+	);
+	const ownerActive = enabled;
+	const queryEnabled = ownerActive && !!(scope.tenantId && scope.organizationId && scope.userId && scope.accessToken);
+	useScopeGuard(mainQueryKey, ownerActive);
+	useScopeGuard(filteredQueryKey, ownerActive && !!memoizedSearchQueries);
 
 	// ==================== QUERIES ====================
 
 	// Main query: fetch all organization projects
 	const organizationProjectsQuery = useQuery({
-		queryKey: queryKeys.organizationProjects.byOrganization(organizationId, tenantId),
-		queryFn: () => organizationProjectService.getOrganizationProjects(),
-		enabled: !!organizationId && !!tenantId
+		queryKey: mainQueryKey,
+		meta: CREDENTIAL_SCOPED_QUERY_META,
+		queryFn: ({ signal }) => organizationProjectService.getOrganizationProjects({ scope, signal }),
+		enabled: queryEnabled
 	});
 	const organizationProjects = useMemo(
 		() => organizationProjectsQuery?.data?.items ?? [],
@@ -41,15 +65,15 @@ export function useOrganizationProjectsQuery() {
 
 	// Filtered query: fetch projects matching search queries
 	const filteredOrganizations = useQuery({
-		queryKey: [
-			...queryKeys.organizationProjects.all,
-			...queryKeys.organizationProjects.withQueries(memoizedSearchQueries)
-		],
-		queryFn: () =>
+		queryKey: filteredQueryKey,
+		meta: CREDENTIAL_SCOPED_QUERY_META,
+		queryFn: ({ signal }) =>
 			organizationProjectService.getOrganizationProjects({
-				queries: memoizedSearchQueries ?? undefined
+				queries: memoizedSearchQueries ?? undefined,
+				scope,
+				signal
 			}),
-		enabled: !!memoizedSearchQueries
+		enabled: !!memoizedSearchQueries && queryEnabled
 	});
 
 	// ==================== CALLBACKS ====================
@@ -58,27 +82,28 @@ export function useOrganizationProjectsQuery() {
 		async (id: string) => {
 			try {
 				const result = await queryClient.fetchQuery({
-					queryKey: queryKeys.organizationProjects.detail(id),
-					queryFn: () => organizationProjectService.getOrganizationProject(id)
+					queryKey: queryKeys.organizationProjects.detailByScope(tenantId, organizationId, id),
+					meta: CREDENTIAL_SCOPED_QUERY_META,
+					queryFn: ({ signal }) => organizationProjectService.getOrganizationProject(id, { scope, signal })
 				});
 				return result;
 			} catch (error) {
 				console.error('Failed to get the organization project', error);
 			}
 		},
-		[queryClient]
+		[organizationId, queryClient, scope, tenantId]
 	);
 
 	const loadOrganizationProjects = useCallback(async () => {
 		try {
-			if (!user) return;
+			if (!enabled || !user || !queryEnabled) return;
 			if (organizationProjects?.length) return;
 
 			return await organizationProjectsQuery?.refetch();
 		} catch (error) {
 			console.error('Failed to load organization projects', error);
 		}
-	}, [user, organizationProjects, organizationProjectsQuery?.refetch]);
+	}, [enabled, organizationProjects, organizationProjectsQuery?.refetch, queryEnabled, user]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadOrganizationProjects();

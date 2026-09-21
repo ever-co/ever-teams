@@ -7,11 +7,10 @@ import { Footer } from '.';
 import { useSidebar } from '@/core/components/common/sidebar';
 interface GlobalFooterProps {
 	footerClassName?: string;
-	fullWidth?: boolean;
 	isFixed?: boolean;
 }
 
-const GlobalFooter = forwardRef(({ fullWidth, footerClassName, isFixed = false }: GlobalFooterProps, ref) => {
+const GlobalFooter = forwardRef(({ footerClassName, isFixed = false }: GlobalFooterProps, ref) => {
 	const { state } = useSidebar();
 	return (
 		<div
@@ -31,7 +30,7 @@ const GlobalFooter = forwardRef(({ fullWidth, footerClassName, isFixed = false }
 			}
 		>
 			<Divider />
-			<Container fullWidth={fullWidth} className={cn('w-full px-8 mt-auto', fullWidth && '!mx-0')}>
+			<Container className="w-full px-8 mt-auto !mx-0">
 				<Footer className={cn('justify-between w-full px-0 mx-auto', footerClassName)} />
 			</Container>
 		</div>

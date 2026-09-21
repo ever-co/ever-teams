@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as AvatarPrimitive from '@radix-ui/react-avatar';
 
 import { cn } from '@/core/lib/helpers';
+import { normalizeImageUrl } from '@/core/lib/utils/normalize-image-url';
 
 const Avatar = React.forwardRef<
 	React.ElementRef<typeof AvatarPrimitive.Root>,
@@ -18,9 +19,27 @@ Avatar.displayName = AvatarPrimitive.Root.displayName;
 const AvatarImage = React.forwardRef<
 	React.ElementRef<typeof AvatarPrimitive.Image>,
 	React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
->(({ className, ...props }, ref) => (
-	<AvatarPrimitive.Image ref={ref} className={cn('aspect-square h-full w-full', className)} {...props} />
-));
+>(({ className, src, ...props }, ref) => {
+	// `src` is normalised because the API can return a route-relative path (e.g. the seeded
+	// `assets/images/avatars/avatar-default.svg`), which Next.js would otherwise resolve against the
+	// current route and 404. See `normalizeImageUrl`.
+	//
+	// `|| undefined` because an empty `src` makes the underlying <img> request the current document
+	// URL; `undefined` is also what tells Radix to show the fallback instead.
+	//
+	// React 19 types an <img> `src` as `string | Blob | undefined`. A Blob carries its own data and
+	// cannot resolve against a route, so it is forwarded untouched.
+	const normalizedSrc = typeof src === 'string' ? normalizeImageUrl(src) || undefined : src;
+
+	return (
+		<AvatarPrimitive.Image
+			ref={ref}
+			className={cn('aspect-square h-full w-full', className)}
+			src={normalizedSrc}
+			{...props}
+		/>
+	);
+});
 AvatarImage.displayName = AvatarPrimitive.Image.displayName;
 
 const AvatarFallback = React.forwardRef<

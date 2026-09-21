@@ -57,20 +57,17 @@ const Team = () => {
 		);
 	}
 	return (
-		<div className="overflow-hidden pb-16">
+		<div className="space-y-4 pb-8">
 			{isTeamMember ? (
 				<>
 					<Link href={'/settings/personal'} className="w-full">
-						<button className="p-4 mt-2 w-full rounded-xl border lg:hidden hover:bg-white border-dark text-dark">
+						<button className="h-10 px-4 w-full rounded-lg border lg:hidden hover:bg-muted">
 							{t('pages.settingsTeam.GO_TO_PERSONAL_SETTINGS')}
 						</button>
 					</Link>
 					{/* General Settings */}
 					<InteractionObserverVisible id="general-settings" setActiveSection={setActiveTeam}>
-						<Accordian
-							title={t('pages.settingsTeam.HEADING_TITLE')}
-							className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
-						>
+						<Accordian title={t('pages.settingsTeam.HEADING_TITLE')} className="w-full">
 							<div className="flex flex-col">
 								<TeamAvatar disabled={!isTeamManager} bgColor={activeTeam?.color || ''} />
 								{/* Use lazy loaded TeamSettingForm with Suspense */}
@@ -87,7 +84,7 @@ const Team = () => {
 							<Accordian
 								title={t('pages.settingsTeam.INVITATION_HEADING_TITLE')}
 								defaultOpen={teamInvitations.length ? true : false}
-								className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
+								className="w-full"
 							>
 								{/* Use lazy loaded InvitationSetting with Suspense */}
 								<Suspense fallback={<InvitationSettingSkeleton />}>
@@ -100,10 +97,7 @@ const Team = () => {
 					{/* Members */}
 					{isTeamManager ? (
 						<InteractionObserverVisible id="member" setActiveSection={setActiveTeam}>
-							<Accordian
-								title={t('pages.settingsTeam.MEMBER_HEADING_TITLE')}
-								className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
-							>
+							<Accordian title={t('pages.settingsTeam.MEMBER_HEADING_TITLE')} className="w-full">
 								{/* Use lazy loaded MemberSetting with Suspense */}
 								<Suspense fallback={<MemberSettingSkeleton />}>
 									<LazyMemberSetting />
@@ -114,10 +108,7 @@ const Team = () => {
 
 					{isTeamManager && (
 						<InteractionObserverVisible id="integrations" setActiveSection={setActiveTeam}>
-							<Accordian
-								title={t('pages.settingsTeam.INTEGRATIONS')}
-								className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
-							>
+							<Accordian title={t('pages.settingsTeam.INTEGRATIONS')} className="w-full">
 								{/* Use lazy loaded IntegrationSetting with Suspense */}
 								<Suspense fallback={<IntegrationSettingSkeleton />}>
 									<LazyIntegrationSetting />
@@ -128,10 +119,7 @@ const Team = () => {
 
 					{/* Issues Settings */}
 					<InteractionObserverVisible id="issues-settings" setActiveSection={setActiveTeam}>
-						<Accordian
-							title={t('pages.settingsTeam.ISSUES_HEADING_TITLE')}
-							className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
-						>
+						<Accordian title={t('pages.settingsTeam.ISSUES_HEADING_TITLE')} className="w-full">
 							{/* Use lazy loaded IssuesSettings with Suspense */}
 							<Suspense fallback={<IssuesSettingsSkeleton />}>
 								<LazyIssuesSettings />
@@ -152,7 +140,7 @@ const Team = () => {
 					<InteractionObserverVisible id="danger-zones" setActiveSection={setActiveTeam}>
 						<Accordian
 							title={t('pages.settings.DANDER_ZONE')}
-							className="w-full max-w-[96vw] p-4 mt-8 mb-40 dark:bg-dark--theme"
+							className="w-full border-destructive/30"
 							isDanger={true}
 						>
 							{/* Use lazy loaded DangerZoneTeam with Suspense */}

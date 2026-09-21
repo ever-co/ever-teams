@@ -2,9 +2,6 @@
 
 import { cn } from '@/core/lib/helpers';
 import { PropsWithChildren, useEffect, useRef, useState } from 'react';
-import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/common/full-width';
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/core/components/common/resizable';
 import { useElementHeight } from '@/core/hooks/common';
 import { useActiveTimer } from '@/core/hooks/common/use-active-timer';
 import { usePathname } from 'next/navigation';
@@ -12,6 +9,7 @@ import { APP_NAME, PATH_WITH_MORE_THAN_ONE_TIMER, APPLICATION_LANGUAGES_CODE } f
 import GlobalHeader from './global-header';
 import MainSidebarTrigger from './main-sidebar-trigger';
 import GlobalFooter from './global-footer';
+import { PageContentScroller } from './page-content-scroller';
 
 /**
  * Props for the PageLayout component.
@@ -66,16 +64,12 @@ export function PageLayout({
 	mainHeaderSlotClassName = '',
 	footerClassName = ''
 }: PageLayoutProps) {
-	const fullWidth = useAtomValue(fullWidthState);
-
 	const [shouldRenderTimer, setShouldRenderTimer] = useState(false);
 	const { activeTimer, setActiveTimer } = useActiveTimer();
 	const path = usePathname();
 
 	const headerRef = useRef<HTMLDivElement>(null);
-	const footerRef = useRef<HTMLDivElement>(null);
 	const headerHeight = useElementHeight<HTMLDivElement | null>(headerRef);
-	const footerHeight = useElementHeight<HTMLDivElement | null>(footerRef);
 
 	// Update browser tab title when `title` prop changes (restores on unmount)
 	useEffect(() => {
@@ -119,60 +113,24 @@ export function PageLayout({
 	}, [path, headerHeight, mainHeaderSlot]);
 
 	return (
-		<>
-			<ResizablePanelGroup direction="vertical" className="min-h-full">
-				<GlobalHeader
-					ref={headerRef}
-					fullWidth={fullWidth}
-					showTimer={(shouldRenderTimer && activeTimer) || showTimer}
-					publicTeam={publicTeam || false}
-					notFound={notFound || false}
-					mainHeaderSlot={mainHeaderSlot}
-					mainHeaderSlotClassName={mainHeaderSlotClassName}
-				/>
-
-				<ResizableHandle withHandle />
-				<ResizablePanel
-					defaultSize={75}
-					className="overflow-y-auto! custom-scrollbar w-full min-h-svh h-full"
-					style={{
-						flexGrow: 0,
-						flexShrink: 0,
-						flexBasis: 'auto',
-						minHeight: '90svh'
-					}}
-				>
-					<div className={cn('flex-1 p-4 w-full h-full', className)}>
-						<MainSidebarTrigger />
-						<div
-							className={cn(
-								'overflow-x-hidden flex-1 w-full h-full min-h-[calc(100vh-240px)]',
-								childrenClassName
-							)}
-							style={{
-								marginBottom: `${isFooterFixed ? footerHeight : 0}px`
-							}}
-						>
-							{headerHeight && (
-								<div
-									data-layout="main-scroll-offset"
-									className="w-full"
-									style={{
-										height: `${headerHeight + (mainHeaderSlot ? -30 : 0)}px`
-									}}
-								></div>
-							)}
-							{children}
-						</div>
-					</div>
-				</ResizablePanel>
-			</ResizablePanelGroup>
-			<GlobalFooter
-				ref={footerRef}
-				fullWidth={fullWidth}
-				isFixed={isFooterFixed}
-				footerClassName={footerClassName}
+		<div className="flex h-full min-h-0 w-full flex-col overflow-hidden">
+			<GlobalHeader
+				ref={headerRef}
+				showTimer={(shouldRenderTimer && activeTimer) || showTimer}
+				publicTeam={publicTeam || false}
+				notFound={notFound || false}
+				mainHeaderSlot={mainHeaderSlot}
+				mainHeaderSlotClassName={mainHeaderSlotClassName}
 			/>
-		</>
+			<PageContentScroller
+				footer={<GlobalFooter isFixed={false} footerClassName={footerClassName} />}
+				footerFixed={isFooterFixed}
+			>
+				<main className={cn('relative flex min-h-full w-full flex-col p-4', className)}>
+					<MainSidebarTrigger />
+					<div className={cn('min-h-0 w-full flex-1 overflow-x-hidden', childrenClassName)}>{children}</div>
+				</main>
+			</PageContentScroller>
+		</div>
 	);
 }

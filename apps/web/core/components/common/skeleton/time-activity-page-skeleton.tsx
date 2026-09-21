@@ -7,7 +7,6 @@ import { Card } from '@/core/components/common/card';
 interface TimeActivityPageSkeletonProps {
 	className?: string;
 	showTimer?: boolean;
-	fullWidth?: boolean;
 }
 
 /**
@@ -15,11 +14,7 @@ interface TimeActivityPageSkeletonProps {
  * Integrates seamlessly with PageLayout structure without swallowing it up
  * Matches exact layout: mainHeaderSlot (breadcrumb + filters + cards) + main content (table)
  */
-export const TimeActivityPageSkeleton: FC<TimeActivityPageSkeletonProps> = ({
-	className,
-	showTimer = false,
-	fullWidth = false
-}) => {
+export const TimeActivityPageSkeleton: FC<TimeActivityPageSkeletonProps> = ({ className, showTimer = false }) => {
 	return (
 		<PageLayout
 			className="items-start pb-1 !overflow-hidden w-full"
@@ -27,7 +22,7 @@ export const TimeActivityPageSkeleton: FC<TimeActivityPageSkeletonProps> = ({
 			showTimer={showTimer}
 			mainHeaderSlot={
 				<div className="flex flex-col pb-4 bg-gray-100 dark:bg-dark-high">
-					<Container fullWidth={fullWidth} className={cn('flex flex-col gap-4 items-center w-full')}>
+					<Container className={cn('flex flex-col gap-4 items-center w-full')}>
 						{/* SKELETON: Breadcrumb Section */}
 						<div className="flex items-center pt-6 w-full">
 							{/* Back Arrow Skeleton */}
@@ -102,7 +97,7 @@ export const TimeActivityPageSkeleton: FC<TimeActivityPageSkeletonProps> = ({
 			}
 		>
 			{/* SKELETON: Main Content Area */}
-			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
+			<Container className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
 				<Card className="w-full dark:bg-dark--theme-light min-h-[600px]">
 					{/* SKELETON: Data Table Content */}
 					<div className="p-6">

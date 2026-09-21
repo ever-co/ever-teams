@@ -17,7 +17,6 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import '@/styles/globals.css';
 
 import { useAtom, useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import HeaderTabs from '@/core/components/common/header-tabs';
 import { headerTabs } from '@/core/stores/common/header-tabs';
 import { usePathname } from 'next/navigation';
@@ -61,7 +60,6 @@ function MainPage() {
 	const { isTeamManager } = useIsMemberManager(user);
 
 	const { myInvitations: myInvitationsList, refetchMyInvitations } = useMyInvitationsQuery();
-	const [fullWidth, setFullWidth] = useAtom(fullWidthState);
 	const [view, setView] = useAtom(headerTabs);
 	const path = usePathname();
 	const breadcrumb = [
@@ -86,11 +84,6 @@ function MainPage() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [path, setView]);
 
-	React.useEffect(() => {
-		window && window?.localStorage.getItem('conf-fullWidth-mode');
-		setFullWidth(JSON.parse(window?.localStorage.getItem('conf-fullWidth-mode') || 'true'));
-	}, [setFullWidth]);
-
 	return (
 		<>
 			<div className="flex flex-col justify-between h-full min-h-screen">
@@ -99,7 +92,7 @@ function MainPage() {
 					className="h-full"
 					mainHeaderSlot={
 						<div className="bg-white dark:bg-dark-high">
-							<div className={clsxm('bg-white dark:bg-dark-high ', !fullWidth && 'x-container')}>
+							<div className="bg-white dark:bg-dark-high">
 								<div className="mx-8-container my-3 !px-0 flex flex-row items-start justify-between ">
 									<div className="flex items-center justify-center h-10 gap-8">
 										<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
@@ -157,7 +150,7 @@ function MainPage() {
 										</Suspense>
 									) : null}
 								</div>
-								<Suspense fallback={<TeamMemberHeaderSkeleton view={view} fullWidth={fullWidth} />}>
+								<Suspense fallback={<TeamMemberHeaderSkeleton view={view} />}>
 									<LazyTeamMemberHeader view={view} />
 								</Suspense>
 							</div>
@@ -167,13 +160,13 @@ function MainPage() {
 				>
 					<LazyChatwootWidget />
 					<div className="h-full">
-						<Container fullWidth={fullWidth} className="mx-auto">
+						<Container className="mx-auto">
 							{isTeamMember ? (
-								<Suspense fallback={<TeamMembersSkeleton view={view} fullWidth={fullWidth} />}>
+								<Suspense fallback={<TeamMembersSkeleton view={view} />}>
 									<LazyTeamMembers kanbanView={view} />
 								</Suspense>
 							) : (
-								<Suspense fallback={<NoTeamSkeleton fullWidth={fullWidth} />}>
+								<Suspense fallback={<NoTeamSkeleton />}>
 									<LazyNoTeam />
 								</Suspense>
 							)}

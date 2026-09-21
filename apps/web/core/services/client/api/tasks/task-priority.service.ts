@@ -1,6 +1,8 @@
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import { TaskMetadataScope } from '@/core/types/interfaces/task/task-metadata-bootstrap';
+import qs from 'qs';
 import {
 	validatePaginationResponse,
 	taskPrioritySchema,
@@ -109,11 +111,37 @@ class TaskPriorityService extends APIService {
 	 * @returns Promise<PaginationResponse<TTaskPriority>> - Validated task priorities data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getTaskPrioritiesList = async (): Promise<PaginationResponse<TTaskPriority>> => {
+	getTaskPrioritiesList = async (
+		scope?: TaskMetadataScope,
+		signal?: AbortSignal
+	): Promise<PaginationResponse<TTaskPriority>> => {
 		try {
+			if (scope) {
+				const query = qs.stringify({
+					tenantId: scope.tenantId,
+					organizationId: scope.organizationId,
+					...(scope.organizationTeamId !== undefined ? { organizationTeamId: scope.organizationTeamId } : {}),
+					...(scope.projectId !== undefined ? { projectId: scope.projectId } : {})
+				});
+				const endpoint = `/task-priorities?${query}`;
+				const response = await this.get<PaginationResponse<TTaskPriority>>(endpoint, {
+					tenantId: scope.tenantId,
+					...(signal ? { signal } : {})
+				});
+
+				return validatePaginationResponse(
+					taskPrioritySchema,
+					response.data,
+					'getTaskPrioritiesList API response'
+				);
+			}
+
 			const endpoint = `/task-priorities?tenantId=${this.tenantId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`;
 
-			const response = await this.get<PaginationResponse<TTaskPriority>>(endpoint, { tenantId: this.tenantId });
+			const response = await this.get<PaginationResponse<TTaskPriority>>(endpoint, {
+				tenantId: this.tenantId,
+				...(signal ? { signal } : {})
+			});
 
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(taskPrioritySchema, response.data, 'getTaskPrioritiesList API response');

@@ -1,0 +1,1 @@
+export const DEFAULT_SHELL_READY_BUDGET_MS: 8000;

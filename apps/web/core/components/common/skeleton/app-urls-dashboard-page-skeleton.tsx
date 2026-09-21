@@ -6,7 +6,6 @@ import { cn } from '@/core/lib/helpers';
 interface AppUrlsDashboardPageSkeletonProps {
 	className?: string;
 	showTimer?: boolean;
-	fullWidth?: boolean;
 }
 
 /**
@@ -16,8 +15,7 @@ interface AppUrlsDashboardPageSkeletonProps {
  */
 export const AppUrlsDashboardPageSkeleton: FC<AppUrlsDashboardPageSkeletonProps> = ({
 	className,
-	showTimer = false,
-	fullWidth = false
+	showTimer = false
 }) => {
 	return (
 		<PageLayout
@@ -26,7 +24,7 @@ export const AppUrlsDashboardPageSkeleton: FC<AppUrlsDashboardPageSkeletonProps>
 			showTimer={showTimer}
 			mainHeaderSlot={
 				<div className="flex flex-col pb-4 bg-gray-100 dark:bg-dark--theme">
-					<Container fullWidth={fullWidth} className={cn('flex flex-col gap-4 items-center w-full')}>
+					<Container className={cn('flex flex-col gap-4 items-center w-full')}>
 						{/* SKELETON: Section 1 - Back Button + Breadcrumb */}
 						<div className="flex items-center pt-6 w-full">
 							<div className="p-1 rounded-full">
@@ -99,7 +97,7 @@ export const AppUrlsDashboardPageSkeleton: FC<AppUrlsDashboardPageSkeletonProps>
 			}
 		>
 			{/* SKELETON: Main Content Area - Productivity Tables */}
-			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
+			<Container className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
 				<div className="w-full bg-white dark:bg-dark--theme-light rounded-lg border border-gray-200 dark:border-gray-600">
 					{/* Table Header */}
 					<div className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-600 p-4">

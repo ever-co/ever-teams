@@ -61,6 +61,9 @@ function primeHappyPath() {
 	mockRequests.refreshTokenRequest.mockResolvedValue({ data: { token: 't2' } });
 }
 
+// No top-level import in this file: keep it a module so its consts stay file-scoped.
+export {};
+
 const ORIGINAL_ENV = { ...process.env };
 afterEach(() => {
 	for (const k of ['CAPTCHA_SECRET_KEY', 'NEXT_PUBLIC_CAPTCHA_SITE_KEY']) {

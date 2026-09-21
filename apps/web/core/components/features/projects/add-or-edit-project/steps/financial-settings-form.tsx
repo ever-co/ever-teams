@@ -8,12 +8,11 @@ import { cn } from '@/core/lib/helpers';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { getInitialValue } from '@/core/lib/helpers/create-project';
 import { ECurrencies } from '@/core/types/generics/enums/currency';
-import { useAtomValue } from 'jotai';
-import { currenciesState } from '@/core/stores';
+import { useCurrenciesOwner } from '@/core/hooks/bootstrap/use-feature-data';
 
 export default function FinancialSettingsForm(props: IStepElementProps) {
 	const { goToNext, goToPrevious, currentData } = props;
-	const currencies = useAtomValue(currenciesState);
+	const { currencies } = useCurrenciesOwner();
 	const [currency, setCurrency] = useState<string>(() => getInitialValue(currentData, 'currency', undefined));
 	const [billingType, setBillingType] = useState<EProjectBilling>(() =>
 		getInitialValue(currentData, 'billing', EProjectBilling.FLAT_FEE)
@@ -35,7 +34,7 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 	const handleSubmit = (e: FormEvent) => {
 		e.preventDefault();
 		goToNext?.({
-			currency: currencies.find((el) => el.isoCode === currency)?.isoCode as ECurrencies,
+			currency: currency as ECurrencies,
 			budget: budgetAmount,
 			budgetType,
 			billing: billingType
@@ -44,12 +43,12 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 
 	const handlePrevious = useCallback(() => {
 		goToPrevious?.({
-			currency: currencies.find((el) => el.isoCode === currency)?.isoCode as ECurrencies,
+			currency: currency as ECurrencies,
 			budget: budgetAmount,
 			budgetType,
 			billing: billingType
 		});
-	}, [billingType, budgetAmount, budgetType, currencies, currency, goToPrevious]);
+	}, [billingType, budgetAmount, budgetType, currency, goToPrevious]);
 
 	return (
 		<form onSubmit={handleSubmit} className="w-full space-y-5 pt-4">

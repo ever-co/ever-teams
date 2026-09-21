@@ -9,7 +9,6 @@ import { MainHeader, PageLayout } from '@/core/components/layouts/default-layout
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { useIsMemberManager } from '@/core/hooks/organizations';
 import { useRolePermissionsQuery } from '@/core/hooks/roles/use-role-permissions-query';
 import { useUpdateRolePermission } from '@/core/hooks/roles/use-update-role-permission';
@@ -24,7 +23,6 @@ const Permissions = () => {
 
 	// Global state
 	const { data: user } = useUserQuery();
-	const fullWidth = useAtomValue(fullWidthState);
 
 	// Local state
 	const [selectedRole, setSelectedRole] = useState<TRole | null>(null);
@@ -69,7 +67,7 @@ const Permissions = () => {
 			<MainHeader>
 				<Breadcrumb paths={['Dashboard', 'Roles & Permissions']} className="text-sm" />
 			</MainHeader>
-			<Container fullWidth={fullWidth} className="flex">
+			<Container className="flex">
 				<EverCard className="w-[90vw] h-[90vh] min-w-fit flex my-5 py-0 gap-8" shadow="custom">
 					<div className="flex flex-col w-[35%] overflow-auto gap-2 mt-5">
 						{roles.map((role) => (

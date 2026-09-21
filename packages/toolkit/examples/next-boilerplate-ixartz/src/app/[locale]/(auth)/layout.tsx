@@ -2,6 +2,7 @@ import { routing } from '@/libs/i18nNavigation';
 import { enUS, frFR } from '@clerk/localizations';
 import { ClerkProvider } from '@clerk/nextjs';
 import { setRequestLocale } from 'next-intl/server';
+import { readRuntimeEnv } from '@/libs/runtime-env';
 
 // Prevent prerendering of auth pages at build time (Clerk requires runtime env vars)
 export const dynamic = 'force-dynamic';
@@ -26,12 +27,17 @@ export default async function AuthLayout(props: { children: React.ReactNode; par
 		afterSignOutUrl = `/${locale}${afterSignOutUrl}`;
 	}
 
-	if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
+	// Read per request from the container env: Clerk's own bundle reads the build-time literal, so the
+	// key has to be handed to <ClerkProvider> explicitly for `docker run -e ...` to work.
+	const publishableKey =
+		readRuntimeEnv('NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY') || process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+	if (!publishableKey) {
 		return <main>{props.children}</main>;
 	}
 
 	return (
 		<ClerkProvider
+			publishableKey={publishableKey}
 			localization={clerkLocale}
 			signInUrl={signInUrl}
 			signUpUrl={signUpUrl}
