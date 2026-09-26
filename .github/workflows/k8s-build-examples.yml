@@ -59,5 +59,8 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:prod
             ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:sha-${{ github.sha }}
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:buildcache
-          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:buildcache,mode=max
+          # Inline cache (as the web image does), not a separate mode=max export: `COPY . .` precedes the
+          # install, so the multi-GB install/build layers never hit the cache anyway, and exporting them
+          # just for the cache overflowed the runner's 24Gi docker volume (vite's image had already pushed).
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:prod
+          cache-to: type=inline
