@@ -6,7 +6,9 @@ RUN apt-get update -qq && apt-get install -y build-essential pkg-config python-i
 RUN npm install -g yarn --force
 WORKDIR /app
 COPY . .
-RUN yarn install --network-timeout 1000000 --frozen-lockfile --non-interactive --ignore-scripts
+# Drop the yarn cache in the SAME layer as the install: it holds every platform variant of the native
+# packages (GBs), and exporting a layer that still carries it overflows the CI runner's 24Gi docker volume.
+RUN yarn install --network-timeout 1000000 --frozen-lockfile --non-interactive --ignore-scripts && yarn cache clean
 
 RUN yarn turbo run build --filter=@ever-teams/example-remix
 WORKDIR /app/packages/toolkit/examples/remix
