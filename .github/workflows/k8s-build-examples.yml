@@ -59,8 +59,10 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:prod
             ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:sha-${{ github.sha }}
-          # Inline cache (as the web image does), not a separate mode=max export: `COPY . .` precedes the
-          # install, so the multi-GB install/build layers never hit the cache anyway, and exporting them
-          # just for the cache overflowed the runner's 24Gi docker volume (vite's image had already pushed).
+          # Inline cache (as the web image does), not a separate mode=max export, which overflowed the
+          # runner's 24Gi docker volume after vite's image had already pushed. `COPY . .` precedes the
+          # install, so every commit that triggers this workflow rebuilds the install/build layers anyway;
+          # only a re-run of the same commit could reuse them. Inline cache keeps no intermediate
+          # build-stage layers, so vite and storybook (final stage nginx) redo their apt/yarn setup.
           cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:prod
           cache-to: type=inline
