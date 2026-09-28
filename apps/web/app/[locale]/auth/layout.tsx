@@ -5,8 +5,8 @@ import type { Metadata } from 'next';
 // in every locale (/auth/passcode, /fr/auth/passcode, ...) on app., stage. and demo.ever.team.
 // Declared once here so every page under /[locale]/auth inherits it: no page in this group exports
 // its own metadata, and no parent layout sets robots, so nothing overrides it.
-// There is deliberately no `googleBot` key: Next emits that as a separate <meta name="googlebot">,
-// which Googlebot also reads, so a second tag could only ever disagree with this one.
+// There is deliberately no `googleBot` key: Next emits that as a separate googlebot meta tag, which
+// Googlebot also reads, so a second tag could only ever disagree with this one.
 export const metadata: Metadata = {
 	robots: {
 		index: false,

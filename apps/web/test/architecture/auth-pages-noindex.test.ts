@@ -8,13 +8,14 @@ import { metadata } from '@/app/[locale]/auth/layout';
  * locales on app., stage. and demo.ever.team (39 rows), with no robots meta at all.
  *
  * app/[locale]/auth/layout.tsx now declares robots { index: false, follow: true } once, and every
- * page in the group inherits it. These tests pin the three ways that can silently regress:
- * the layout loses the directive, a page or a parent layout overrides it, or it spreads to routes
- * that must stay indexable.
+ * page in the group inherits it. These tests pin the ways that can silently regress: the layout
+ * loses the directive, a page or nested layout under it overrides it, a raw robots/googlebot meta
+ * tag rendered elsewhere contradicts it, or it spreads to routes that must stay indexable.
  */
 const APP_DIR = resolve(__dirname, '../../app');
 const AUTH_DIR = join(APP_DIR, '[locale]', 'auth');
 const AUTH_LAYOUT = join(AUTH_DIR, 'layout.tsx');
+const CORE_DIR = resolve(__dirname, '../../core');
 
 function listSourceFiles(dir: string): string[] {
 	return readdirSync(dir).flatMap((entry) => {
@@ -53,17 +54,27 @@ describe('auth pages are noindex, follow', () => {
 		expect(overriding).toEqual([]);
 	});
 
-	it('is not overridden by a parent layout', () => {
-		for (const parent of [join(APP_DIR, 'layout.tsx'), join(APP_DIR, '[locale]', 'layout.tsx')]) {
-			const source = readFileSync(parent, 'utf8');
-			expect(source).not.toMatch(DECLARES_METADATA);
-			expect(source).not.toMatch(/name=["']robots["']|name=["']googlebot["']/i);
-		}
+	// A parent layout's metadata cannot override this one (the deepest segment wins), but a raw
+	// <meta name="robots"> or <meta name="googlebot"> rendered by a layout or shared component would sit
+	// next to the generated tag and could say "index". app/[locale]/layout.tsx renders <head> by hand.
+	it('renders no raw robots or googlebot meta tag anywhere in the app or shared components', () => {
+		const RAW_ROBOTS_META = /name=["'](robots|googlebot)["']/i;
+		// Control: the pattern recognises both tag names.
+		expect('<meta name="robots" content="index, follow" />').toMatch(RAW_ROBOTS_META);
+		expect("<meta name='googlebot' content='index' />").toMatch(RAW_ROBOTS_META);
+
+		const files = [...listSourceFiles(APP_DIR), ...listSourceFiles(CORE_DIR)];
+		// Control: the walk reaches the layout that renders <head> by hand.
+		expect(files).toContain(join(APP_DIR, '[locale]', 'layout.tsx'));
+
+		expect(files.filter((file) => RAW_ROBOTS_META.test(readFileSync(file, 'utf8')))).toEqual([]);
 	});
 
-	it('does not spread robots metadata to any route outside /[locale]/auth', () => {
+	it('does not spread robots or googleBot metadata to any route outside /[locale]/auth', () => {
 		const files = listSourceFiles(APP_DIR);
 		// Control: the pattern finds the one declaration that is supposed to exist.
-		expect(files.filter((file) => /\brobots\s*:/.test(readFileSync(file, 'utf8')))).toEqual([AUTH_LAYOUT]);
+		expect(files.filter((file) => /\b(robots|googleBot)\s*:/.test(readFileSync(file, 'utf8')))).toEqual([
+			AUTH_LAYOUT
+		]);
 	});
 });
