@@ -21,6 +21,15 @@ describe('JtiReplayCache', () => {
 		expect(cache.seen('jti-1')).toBe(false);
 	});
 
+	it('accepts a forgotten jti again', () => {
+		const cache = new JtiReplayCache();
+
+		cache.seen('jti-1');
+		cache.forget('jti-1');
+
+		expect(cache.seen('jti-1')).toBe(false);
+	});
+
 	it('keeps at most maxEntries, evicting the oldest first', () => {
 		const cache = new JtiReplayCache(600_000, 3, () => 0);
 

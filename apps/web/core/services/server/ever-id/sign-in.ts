@@ -239,8 +239,9 @@ export function everIdUserByAccount(providerAccountId: string) {
  * access token exists yet; the chooser's workspace sign-in makes it). `undefined` when there is none.
  */
 export function everIdJwtPayload(account: EverIdAccount): IEverIdSessionData | undefined {
+	// The subject memo is left to expire (MEMO_TTL_MS): another sign-in of the same person running at the same
+	// time may still need it for its own adapter lookup.
 	const record = byAccount.get(account);
-	bySubject.delete(account.providerAccountId);
 	if (!record || record.exchange.kind !== 'workspaces') return undefined;
 	const { response } = record.exchange;
 	return {

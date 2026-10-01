@@ -373,6 +373,34 @@ describe('Ever ID sign-in without a workspace', () => {
 	);
 });
 
+describe('overlapping Ever ID sign-ins of one person', () => {
+	it('lets both finish, each with one exchange', async () => {
+		mockSignWithEverId.mockResolvedValue(workspaces(workspace('user-1', 'tenant-1', 'Acme')));
+		const { config, adapter } = await loadAuth();
+		const first = everIdAccount();
+		const second = everIdAccount();
+		const lookup = { provider: 'ever-id', providerAccountId: 'person-1' };
+		const profile = { sub: 'person-1' };
+
+		expect(await config.callbacks.signIn({ user: {}, account: first, profile })).toBe(true);
+		expect(await config.callbacks.signIn({ user: {}, account: second, profile })).toBe(true);
+		const firstUser = await adapter.getUserByAccount(lookup);
+		await config.callbacks.jwt({ token: {}, user: firstUser, account: first, profile, trigger: 'signIn' });
+		const secondUser = await adapter.getUserByAccount(lookup);
+		const secondToken = await config.callbacks.jwt({
+			token: {},
+			user: secondUser,
+			account: second,
+			profile,
+			trigger: 'signIn'
+		});
+
+		expect(secondUser?.id).toBe('user-1');
+		expect(secondToken.authCookie?.provider).toBe('ever-id');
+		expect(mockSignWithEverId).toHaveBeenCalledTimes(2);
+	});
+});
+
 describe('GauzyAdapter for Ever ID', () => {
 	it('links nothing here (the link lives in the API)', async () => {
 		const { adapter } = await loadAuth();

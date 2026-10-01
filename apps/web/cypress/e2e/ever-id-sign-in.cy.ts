@@ -74,7 +74,7 @@ function signInWithEverId(username: string, password: string) {
 		({ username: loginName, password: secret }) => {
 			cy.get('input[name="loginName"], input[autocomplete="username"], input[type="email"]', { timeout: 30_000 })
 				.first()
-				.type(loginName);
+				.type(loginName, { log: false });
 			cy.get('button[type="submit"]').first().click();
 			cy.get('input[type="password"]', { timeout: 30_000 }).first().type(secret, { log: false });
 			cy.get('button[type="submit"]').first().click();

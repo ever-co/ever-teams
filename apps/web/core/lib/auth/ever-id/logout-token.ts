@@ -6,7 +6,8 @@ import { createRemoteJWKSet, jwtVerify, type JWTPayload, type JWTVerifyGetKey } 
  *
  * Checks: the signature against the issuer's published keys (ES256, RS256 or EdDSA); `iss` is the issuer;
  * `aud` contains this app's client id; `iat` present, at most 300 s old and not from the future (60 s skew);
- * `jti` present; the `events` claim carries the back-channel logout event; `sid` present; no `nonce`.
+ * `jti` present; the `events` claim carries the back-channel logout event; `sid` or `sub` present (a token naming
+ * only the subject ends every session of that person); no `nonce`.
  * Replays (`jti` seen before) are the caller's check.
  *
  * Keys: the key set URL comes from the issuer's discovery document; a key set is reused for 600 s, and a
@@ -42,7 +43,7 @@ export class LogoutTokenError extends Error {
 
 export interface VerifiedLogoutToken {
 	jti: string;
-	sid: string;
+	sid?: string;
 	sub?: string;
 	iat: number;
 }
@@ -132,10 +133,11 @@ function checkLogoutClaims(payload: JWTPayload, nowMs: number): VerifiedLogoutTo
 		throw new LogoutTokenError('invalid', 'A logout token must not carry a nonce');
 	}
 	const sid = nonEmptyString(claims.sid);
-	if (!sid) {
-		throw new LogoutTokenError('invalid', 'Logout token names no session');
+	const sub = nonEmptyString(payload.sub);
+	if (!sid && !sub) {
+		throw new LogoutTokenError('invalid', 'Logout token names neither a session nor a subject');
 	}
-	return { jti, sid, sub: nonEmptyString(payload.sub), iat };
+	return { jti, sid, sub, iat };
 }
 
 /** A verifier with its own key and discovery caches. */

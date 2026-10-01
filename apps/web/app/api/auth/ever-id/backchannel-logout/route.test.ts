@@ -124,7 +124,7 @@ describe('POST /api/auth/ever-id/backchannel-logout', () => {
 		['from another issuer', { iss: 'https://other.example.test' }, 'invalid'],
 		['carrying a nonce', { nonce: 'n' }, 'invalid'],
 		['without events', { events: undefined }, 'invalid'],
-		['without a session id', { sid: undefined }, 'invalid'],
+		['naming neither a session nor a subject', { sid: undefined, sub: undefined }, 'invalid'],
 		['without a jti', { jti: undefined }, 'invalid']
 	])('answers 400 for a token %s and forwards nothing', async (_label, overrides, outcome) => {
 		const { POST } = loadRoute(true);
@@ -151,21 +151,41 @@ describe('POST /api/auth/ever-id/backchannel-logout', () => {
 		expect(gauzy.calls('POST', FORWARD_PATH)).toHaveLength(0);
 	});
 
-	it.each([
-		['refuses it', { status: 400, body: { statusCode: 400, message: 'Bad Request' } }],
-		['fails', { status: 503, body: { statusCode: 503 } }]
-	])('still answers 200 when the API %s, and logs the failed forward', async (_label, answer) => {
+	it('accepts and forwards a token naming only the subject (the API ends every session of that person)', async () => {
 		const { POST } = loadRoute(true);
-		gauzy.on('POST', FORWARD_PATH, answer);
 
-		const res = await POST(postForm({ logout_token: await logoutToken() }));
+		const res = await POST(postForm({ logout_token: await logoutToken({ sid: undefined }) }));
 
 		expect(res.status).toBe(200);
-		expect(logs.join('\n')).toContain(`ever_id.backchannel outcome=forward_failed`);
-		expect(logs.join('\n')).toContain(`status=${answer.status}`);
+		expect(gauzy.calls('POST', FORWARD_PATH)).toHaveLength(1);
 	});
 
-	it('gives up on a slow API after 4 s and still answers 200', async () => {
+	it('answers 200 when the API refuses the token (sending it again would not help), and logs it', async () => {
+		const { POST } = loadRoute(true);
+		gauzy.on('POST', FORWARD_PATH, { status: 400, body: { statusCode: 400, message: 'Bad Request' } });
+		const token = await logoutToken();
+
+		expect((await POST(postForm({ logout_token: token }))).status).toBe(200);
+		expect((await POST(postForm({ logout_token: token }))).status).toBe(400);
+		expect(logs.join('\n')).toContain('ever_id.backchannel outcome=forward_failed');
+		expect(logs.join('\n')).toContain('status=400');
+	});
+
+	it('answers 503 when the API fails, and accepts the same token again once the API is back', async () => {
+		const { POST } = loadRoute(true);
+		gauzy.on('POST', FORWARD_PATH, { status: 503, body: { statusCode: 503 } });
+		const token = await logoutToken();
+
+		expect((await POST(postForm({ logout_token: token }))).status).toBe(503);
+		gauzy.on('POST', FORWARD_PATH, { status: 200 });
+		expect((await POST(postForm({ logout_token: token }))).status).toBe(200);
+
+		expect(gauzy.calls('POST', FORWARD_PATH)).toHaveLength(2);
+		expect(logs.join('\n')).toContain('ever_id.backchannel outcome=forward_failed');
+		expect(logs.join('\n')).toContain('status=503');
+	});
+
+	it('gives up on a slow API after 4 s and answers 503 so the identity provider can retry', async () => {
 		const { POST } = loadRoute(true);
 		gauzy.on(
 			'POST',
@@ -176,7 +196,7 @@ describe('POST /api/auth/ever-id/backchannel-logout', () => {
 
 		const res = await POST(postForm({ logout_token: await logoutToken() }));
 
-		expect(res.status).toBe(200);
+		expect(res.status).toBe(503);
 		expect(Date.now() - startedAt).toBeLessThan(5_500);
 		expect(logs.join('\n')).toContain('ever_id.backchannel outcome=forward_failed');
 	}, 15_000);

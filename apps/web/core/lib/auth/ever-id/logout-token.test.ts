@@ -55,7 +55,7 @@ describe('verifyLogoutToken', () => {
 			{ events: { 'http://schemas.openid.net/event/backchannel-logout': 1 } },
 			'invalid'
 		],
-		['without a session id', { sid: undefined }, 'invalid'],
+		['naming neither a session nor a subject', { sid: undefined, sub: undefined }, 'invalid'],
 		['without a jti', { jti: undefined }, 'invalid'],
 		['already expired', { exp: Math.floor(Date.now() / 1000) - 120 }, 'invalid']
 	])('refuses a token %s', async (_label, overrides, expected) => {
@@ -63,6 +63,17 @@ describe('verifyLogoutToken', () => {
 		const token = await issuer.sign(issuer.logoutClaims(overrides));
 
 		expect(await reason(verifier.verify(token, { issuer: issuer.issuer, clientId: CLIENT_ID }))).toBe(expected);
+	});
+
+	it('accepts a token naming only the subject, or only the session', async () => {
+		const verifier = createLogoutTokenVerifier();
+		const options = { issuer: issuer.issuer, clientId: CLIENT_ID };
+
+		const subjectOnly = await verifier.verify(await issuer.sign(issuer.logoutClaims({ sid: undefined })), options);
+		const sessionOnly = await verifier.verify(await issuer.sign(issuer.logoutClaims({ sub: undefined })), options);
+
+		expect(subjectOnly).toEqual(expect.objectContaining({ sub: 'person-1', sid: undefined }));
+		expect(sessionOnly).toEqual(expect.objectContaining({ sid: 'session-1', sub: undefined }));
 	});
 
 	it('refuses a tampered signature, an unsigned token and anything that is not a JWS', async () => {

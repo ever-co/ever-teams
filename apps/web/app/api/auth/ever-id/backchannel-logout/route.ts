@@ -14,8 +14,10 @@ import { forwardEverIdLogoutRequest } from '@/core/services/server/requests/ever
  * 401 and the person is signed out here too). This route answers:
  * - 404 while the Ever ID sign-in is not configured;
  * - 400 for anything that is not a form-encoded, valid, fresh logout token for this app, and for a replay;
- * - 503 when the issuer's keys cannot be obtained to check the token;
- * - 200 for a valid token, also when forwarding it failed (that is logged).
+ * - 503 when the issuer's keys cannot be obtained to check the token, or when the API cannot be reached or fails
+ *   (5xx, timeout): the token is then forgotten here, so the identity provider can send it again;
+ * - 200 for a valid token the API accepted, and for one the API refused (4xx: sending it again would not help;
+ *   logged as a failed forward).
  * Neither the token nor anything it names is ever logged.
  */
 
@@ -77,10 +79,16 @@ export async function POST(req: Request) {
 	} catch {
 		status = 0;
 	}
+	const forwarded = status >= 200 && status < 300;
 	logEverIdOutcome('ever_id.backchannel', {
-		outcome: status >= 200 && status < 300 ? 'ok' : 'forward_failed',
+		outcome: forwarded ? 'ok' : 'forward_failed',
 		latencyMs: Date.now() - startedAt,
 		status
 	});
+	// The API could not end the sessions (unreachable, timed out, 5xx): let the identity provider send it again.
+	if (!forwarded && (status === 0 || status >= 500)) {
+		logoutJtiCache.forget(jti);
+		return answer(503);
+	}
 	return answer(200);
 }

@@ -166,7 +166,7 @@ function FillUserDataForm({
 						value={form.name}
 						errors={errors}
 						onChange={handleOnChange}
-						readOnly={!!everId}
+						readOnly={!!everId?.prefill?.name}
 						autoComplete="off"
 						noWrapper
 						className={INPUT_CLASS}

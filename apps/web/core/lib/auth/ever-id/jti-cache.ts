@@ -27,6 +27,11 @@ export class JtiReplayCache {
 		return false;
 	}
 
+	/** Forgets `jti` (a logout that could not be completed may be sent again). */
+	forget(jti: string): void {
+		this.entries.delete(jti);
+	}
+
 	/** How many entries are kept. */
 	get size(): number {
 		return this.entries.size;
