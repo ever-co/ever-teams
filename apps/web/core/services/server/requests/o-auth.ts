@@ -18,14 +18,13 @@ import { APP_NAME, VERIFY_EMAIL_CALLBACK_PATH } from '@/core/constants/config/co
 import { signinService } from '../../client/api/auth/signin.service';
 import { userOrganizationService } from '../../client/api/users/user-organization.service';
 import { EProvider } from '@/core/types/generics/enums/social-accounts';
-import { EVER_ID_TEAMS_AUTO_PROVISION } from '@/core/constants/config/constants';
 import { everIdUserByAccount, isEverIdCallbackRequest } from '@/core/services/server/ever-id/sign-in';
 
 export function GauzyAdapter(req: NextRequest): Adapter {
 	return {
 		createUser: async (user): Promise<any> => {
-			// Ever ID never creates an account behind the person's back: only with EVER_ID_TEAMS_AUTO_PROVISION=true
-			if (isEverIdCallbackRequest(req) && !EVER_ID_TEAMS_AUTO_PROVISION) {
+			// The Ever ID sign-in never creates an account itself (an account comes only from a sign-up the person confirms)
+			if (isEverIdCallbackRequest(req)) {
 				throw new Error('Ever ID sign-in does not create accounts');
 			}
 			const url = new URL(req.url);

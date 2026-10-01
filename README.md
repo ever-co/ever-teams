@@ -271,7 +271,7 @@ Ever Teams can offer Ever ID as one more sign-in method, through OpenID Connect.
     - `EVER_ID_ISSUER_URL`: the issuer;
     - `EVER_ID_CLIENT_ID` and `EVER_ID_CLIENT_SECRET`: the client of step 1 (server only, never sent to the browser);
     - `EVER_PLATFORM_PROJECT_ID` (optional): also requests the audience of that project id;
-    - `EVER_ID_TEAMS_AUTO_PROVISION` (default `false`): a sign-in whose Ever ID is linked to no workspace ends on an explanatory page and creates nothing; only `true` creates an account for it.
+    - `EVER_ID_TEAMS_AUTO_PROVISION` (default `false`): a sign-in whose Ever ID is linked to no workspace ends on an explanatory page and creates nothing; with `true` that page also offers the usual sign-up, and an account is created only once the person completes it.
 3. The Gauzy API the web app uses must run its Ever ID sign-in with this client id in its allowed audiences (`ZITADEL_ALLOWED_AUDIENCES`): the web app exchanges the ID token there for the person's workspaces, signs in through the usual workspace sign-in, and forwards back-channel logouts there.
 
 The button appears after Google, and demo mode (`NEXT_PUBLIC_DEMO=true`) hides it like the other sign-in buttons. No token or e-mail address is ever put in a URL: the steps that continue on another page (the API's one-time e-mail code before an existing account is linked, or the confirmation of a new workspace) carry only a one-time key.

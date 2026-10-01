@@ -333,7 +333,7 @@ describe('Ever ID sign-in: the ID token exchange', () => {
 });
 
 describe('Ever ID sign-in without a workspace', () => {
-	it('ends on the no-workspace page and creates nothing (auto-provisioning off by default)', async () => {
+	it('ends on the no-workspace page and creates nothing (the sign-up offer is off by default)', async () => {
 		mockSignWithEverId.mockResolvedValue({ status: 404, data: { code: 'no_workspace' } });
 		const auth = await loadAuth();
 
@@ -346,29 +346,24 @@ describe('Ever ID sign-in without a workspace', () => {
 		expect(logs.join('\n')).toContain('ever_id.signin outcome=no_workspace');
 	});
 
-	it("runs the existing account creation once when EVER_ID_TEAMS_AUTO_PROVISION is 'true'", async () => {
+	it("only offers the usual sign-up when EVER_ID_TEAMS_AUTO_PROVISION is 'true', and still creates nothing", async () => {
 		mockSignWithEverId.mockResolvedValue({ status: 404, data: { code: 'no_workspace' } });
-		mockRegisterUser.mockResolvedValue({ data: { id: 'new-user' } });
-		mockLoginUser.mockResolvedValue({ data: { token: 't1', refresh_token: 'r1' } });
-		mockCreateTenant.mockResolvedValue({ data: { id: 'tenant-1' } });
-		mockCreateOrganization.mockResolvedValue({ data: { id: 'org-1' } });
-		mockCreateEmployee.mockResolvedValue({ data: { id: 'employee-1' } });
-		mockCreateTeam.mockResolvedValue({ data: { id: 'team-1' } });
-		mockRefreshToken.mockResolvedValue({ data: { token: 't2' } });
 		const auth = await loadAuth({ EVER_ID_TEAMS_AUTO_PROVISION: 'true' });
 
 		const { signIn, user, token } = await signInWithEverId(auth);
 
-		expect(signIn).toBe(true);
-		expect(user).toEqual({ id: 'new-user' });
-		expect(mockRegisterUser).toHaveBeenCalledTimes(1);
-		// The link itself is never made here, and no workspace list exists for this sign-in.
+		expect(signIn).toBe('/auth/error?error=EverIdNoWorkspaceSignup');
+		expect(user).toBeNull();
+		expect(token).toBeNull();
+		// An account comes only from the sign-up the person completes, never from the Ever ID sign-in itself.
+		await expect(auth.adapter.createUser({ id: 'x', email: 'person@example.test', name: 'P' })).rejects.toThrow();
+		expect(mockRegisterUser).not.toHaveBeenCalled();
+		expect(mockCreateTenant).not.toHaveBeenCalled();
 		expect(mockLinkSocialAccount).not.toHaveBeenCalled();
-		expect(token?.authCookie).toBeUndefined();
 	});
 
 	it.each(['TRUE', '1', 'yes', ' '])(
-		"keeps auto-provisioning off for EVER_ID_TEAMS_AUTO_PROVISION='%s'",
+		"does not offer the sign-up for EVER_ID_TEAMS_AUTO_PROVISION='%s' (exactly 'true' only)",
 		async (value) => {
 			mockSignWithEverId.mockResolvedValue({ status: 404, data: { code: 'no_workspace' } });
 			const auth = await loadAuth({ EVER_ID_TEAMS_AUTO_PROVISION: value });

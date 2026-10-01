@@ -725,8 +725,9 @@ export const EVER_ID_CLIENT_SECRET = blankToUndefined(process.env.EVER_ID_CLIENT
 /** Optional: when set, the sign-in also asks for the platform project audience. */
 export const EVER_PLATFORM_PROJECT_ID = blankToUndefined(process.env.EVER_PLATFORM_PROJECT_ID);
 /**
- * Off by default: an Ever ID sign-in without a workspace never creates one silently. Exactly 'true' turns the
- * existing account creation of the social sign-in on for Ever ID too.
+ * Off by default. An Ever ID sign-in without a workspace never creates one: it ends on a page that explains why.
+ * Exactly 'true' makes that page also offer the usual sign-up, where an account is created only once the person
+ * confirms it.
  */
 export const EVER_ID_TEAMS_AUTO_PROVISION = blankToUndefined(process.env.EVER_ID_TEAMS_AUTO_PROVISION) === 'true';
 

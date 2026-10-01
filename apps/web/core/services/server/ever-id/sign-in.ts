@@ -20,7 +20,8 @@ import type {
  * - workspaces: the existing workspace chooser at /auth/workspace, then the unchanged workspace sign-in;
  * - a link that needs Gauzy's one-time e-mail code: /auth/passcode with the hand-off key only;
  * - a person new to the product (where the API offers the sign-up): /auth/signup with the hand-off key only;
- * - no workspace: an error page, and nothing is created (unless EVER_ID_TEAMS_AUTO_PROVISION is 'true').
+ * - no workspace: an error page, and nothing is created. With EVER_ID_TEAMS_AUTO_PROVISION=true the page also offers
+ *   the usual sign-up: an account is only ever created by that sign-up, after the person confirms it there.
  *
  * next-auth asks the adapter for the user BEFORE the signIn callback runs, and again after it, then runs the
  * jwt callback, all within the one callback request. The exchange result is kept in memory for exactly that
@@ -30,6 +31,9 @@ import type {
 
 /** Where a sign-in without any workspace ends. */
 export const EVER_ID_NO_WORKSPACE_PATH = '/auth/error?error=EverIdNoWorkspace';
+
+/** The same, on a deployment that opted in to offering its usual sign-up there (EVER_ID_TEAMS_AUTO_PROVISION). */
+export const EVER_ID_NO_WORKSPACE_SIGNUP_PATH = '/auth/error?error=EverIdNoWorkspaceSignup';
 
 /** Where a sign-in ends whose every workspace requires another sign-in method (its company sign-in). */
 export const EVER_ID_BLOCKED_PATH = '/auth/error?error=EverIdWorkspaceBlocked';
@@ -199,7 +203,7 @@ export async function everIdSignInCallback(
 		case 'signup_required':
 			return everIdHandoffPath('/auth/signup', exchange.handoff);
 		case 'no_workspace':
-			return config.autoProvision ? true : EVER_ID_NO_WORKSPACE_PATH;
+			return config.autoProvision ? EVER_ID_NO_WORKSPACE_SIGNUP_PATH : EVER_ID_NO_WORKSPACE_PATH;
 		case 'blocked':
 			return EVER_ID_BLOCKED_PATH;
 		default:
@@ -210,7 +214,7 @@ export async function everIdSignInCallback(
 /**
  * The adapter's `getUserByAccount` for Ever ID: the Gauzy user the exchange resolved, so next-auth never
  * reaches `createUser` for a linked person. `null` before the exchange (next-auth asks once before the signIn
- * callback) and for a sign-in without workspaces.
+ * callback) and for any other answer, which never continues to the adapter (the signIn callback redirects).
  */
 export function everIdUserByAccount(providerAccountId: string) {
 	const entry = bySubject.get(providerAccountId);

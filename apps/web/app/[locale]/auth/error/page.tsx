@@ -8,6 +8,7 @@ import EverIdNoWorkspace from '@/core/components/pages/auth/ever-id-no-workspace
 enum Error {
 	// Ever ID sign-in without a workspace it may enter (nothing is created)
 	EverIdNoWorkspace = 'EverIdNoWorkspace',
+	EverIdNoWorkspaceSignup = 'EverIdNoWorkspaceSignup',
 	EverIdWorkspaceBlocked = 'EverIdWorkspaceBlocked',
 	Configuration = 'Configuration',
 	AccessDenied = 'AccessDenied'
@@ -15,6 +16,7 @@ enum Error {
 
 const errorMap = {
 	[Error.EverIdNoWorkspace]: <EverIdNoWorkspace />,
+	[Error.EverIdNoWorkspaceSignup]: <EverIdNoWorkspace offerSignup />,
 	[Error.EverIdWorkspaceBlocked]: <EverIdNoWorkspace reason="blocked" />,
 	[Error.Configuration]: <ErrorPageComponent />,
 	[Error.AccessDenied]: <UnauthorizedPage />

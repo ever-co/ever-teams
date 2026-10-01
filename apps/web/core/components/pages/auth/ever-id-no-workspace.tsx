@@ -8,9 +8,17 @@ import { DEFAULT_APP_PATH } from '@/core/constants/config/constants';
 
 /**
  * Where an Ever ID sign-in ends when it cannot enter any workspace: no workspace is linked to that Ever ID
- * (nothing was created), or every linked workspace asks for its company sign-in instead.
+ * (nothing was created), or every linked workspace asks for its company sign-in instead. A deployment that opted
+ * in (EVER_ID_TEAMS_AUTO_PROVISION) also offers its usual sign-up here; nothing is created until the person
+ * completes it.
  */
-export default function EverIdNoWorkspace({ reason = 'no_workspace' }: { reason?: 'no_workspace' | 'blocked' }) {
+export default function EverIdNoWorkspace({
+	reason = 'no_workspace',
+	offerSignup = false
+}: {
+	reason?: 'no_workspace' | 'blocked';
+	offerSignup?: boolean;
+}) {
 	const t = useTranslations();
 	const blocked = reason === 'blocked';
 
@@ -23,9 +31,25 @@ export default function EverIdNoWorkspace({ reason = 'no_workspace' }: { reason?
 			<Text className="text-lg leading-7 text-gray-400">
 				{blocked ? t('pages.auth.everId.WORKSPACE_BLOCKED_BODY') : t('pages.auth.everId.NO_WORKSPACE_BODY')}
 			</Text>
-			<Link href={DEFAULT_APP_PATH}>
-				<Button className="px-7 font-normal rounded-lg">{t('pages.auth.everId.SIGN_IN_ANOTHER_WAY')}</Button>
-			</Link>
+			{offerSignup && !blocked && (
+				<Text className="text-base leading-6 text-gray-400">
+					{t('pages.auth.everId.NO_WORKSPACE_SIGNUP_BODY')}
+				</Text>
+			)}
+			<div className="flex flex-wrap gap-3 justify-center">
+				<Link href={DEFAULT_APP_PATH}>
+					<Button className="px-7 font-normal rounded-lg">
+						{t('pages.auth.everId.SIGN_IN_ANOTHER_WAY')}
+					</Button>
+				</Link>
+				{offerSignup && !blocked && (
+					<Link href="/auth/signup">
+						<Button variant="outline" className="px-7 font-normal rounded-lg">
+							{t('pages.auth.everId.CREATE_WORKSPACE')}
+						</Button>
+					</Link>
+				)}
+			</div>
 		</div>
 	);
 }

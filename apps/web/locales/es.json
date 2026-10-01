@@ -597,6 +597,8 @@
 				"WORKSPACE_BLOCKED_TITLE": "Use your company sign-in",
 				"WORKSPACE_BLOCKED_BODY": "Your workspace asks you to sign in with your company sign-in. Use it to continue, or sign in another way.",
 				"SIGN_IN_ANOTHER_WAY": "Sign in another way",
+				"NO_WORKSPACE_SIGNUP_BODY": "You can also create a new workspace with the usual sign-up.",
+				"CREATE_WORKSPACE": "Create a workspace",
 				"CONFIRM_HINT": "We sent a one-time code to the e-mail address of your existing account. Enter it to connect your Ever ID.",
 				"CODE_EXPIRED": "This code has expired or was tried too often. Sign in with Ever ID again.",
 				"TOO_MANY_ATTEMPTS": "Too many attempts. Wait a minute, then try again.",
