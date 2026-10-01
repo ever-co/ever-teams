@@ -226,7 +226,7 @@ docker run -d -p 3030:3030 \
   `[{"type":"ADMIN","email":"demo@example.com","password":"demo-password"}]`. It is sent to the browser: use
   throwaway demo credentials only.
 - `NEXT_PUBLIC_IMAGES_HOSTS` (comma-separated) allows extra remote image hosts at runtime; the origins of the `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, `APP_LOGO_URL` and `MAIN_PICTURE*` URLs are allowed automatically. An entry is either `host`, `*.host` (subdomains only) or `host:port`, which means https, or a full origin such as `http://minio.lan:9000`, which allows exactly that origin (use it for http or a custom port). Hosts that were not in the list the image was built with are served without Next.js image optimization (`/_next/image` redirects the browser to the original image); hosts in the build-time list always go through the optimizer.
-- An empty value counts as unset, so the built-in default applies. The one exception is `NEXT_PUBLIC_<PROVIDER>_APP_NAME`: setting it, even to an empty value, advertises that social login, which still only appears once `<PROVIDER>_CLIENT_ID` and `<PROVIDER>_CLIENT_SECRET` are set. Sign-in buttons exist only for Google, Facebook, GitHub and Twitter/X.
+- An empty value counts as unset, so the built-in default applies. The one exception is `NEXT_PUBLIC_<PROVIDER>_APP_NAME`: setting it, even to an empty value, advertises that social login, which still only appears once `<PROVIDER>_CLIENT_ID` and `<PROVIDER>_CLIENT_SECRET` are set. Social sign-in buttons exist only for Google, Facebook, GitHub and Twitter/X; Ever ID has its own (see [Sign in with Ever ID](#sign-in-with-ever-id-optional)).
 - Only `NEXT_PUBLIC_*` and branding variables reach the browser. Secrets (`AUTH_SECRET`, `CAPTCHA_SECRET_KEY`, `*_CLIENT_SECRET`, `SMTP_PASSWORD`, ...) stay on the server.
 - [`.env.docker`](.env.docker) lists every runtime variable with its default. You can pass it as is: `docker run --env-file .env.docker -p 3030:3030 everco/ever-teams-webapp`.
 
@@ -260,6 +260,21 @@ _Notes:_
 #### Notes
 
 Note: Ever® Teams™ requires access to Ever® Gauzy™ Platform APIs, provided by another project - Ever® Gauzy™ Platform, see <https://github.com/ever-co/ever-gauzy> (and also <https://gauzy.co>). Specifically, you might be interested in the `apps/api` and `apps/server` folders of the mono-repo for the Gauzy API & Gauzy Server code.
+
+#### Sign in with Ever ID (optional)
+
+Ever Teams can offer Ever ID as one more sign-in method, through OpenID Connect. It is off unless you configure it, and every existing sign-in method keeps working exactly as before.
+
+1. Register a confidential OpenID Connect client at your Ever ID issuer with the redirect URI `https://<host>/api/auth/callback/ever-id` and the back-channel logout URI `https://<host>/api/auth/ever-id/backchannel-logout`, where `<host>` is the public host of the web app.
+2. Set these variables on the web app (read at runtime, no rebuild needed):
+    - `NEXT_PUBLIC_EVER_ID_APP_NAME` (e.g. `Ever ID`) turns the sign-in on. While it, `EVER_ID_ISSUER_URL`, `EVER_ID_CLIENT_ID` or `EVER_ID_CLIENT_SECRET` is missing there is no button, next-auth does not serve the provider and the `/api/auth/ever-id/*` routes answer 404;
+    - `EVER_ID_ISSUER_URL`: the issuer;
+    - `EVER_ID_CLIENT_ID` and `EVER_ID_CLIENT_SECRET`: the client of step 1 (server only, never sent to the browser);
+    - `EVER_PLATFORM_PROJECT_ID` (optional): also requests the audience of that project id;
+    - `EVER_ID_TEAMS_AUTO_PROVISION` (default `false`): a sign-in whose Ever ID is linked to no workspace ends on an explanatory page and creates nothing; only `true` creates an account for it.
+3. The Gauzy API the web app uses must run its Ever ID sign-in with this client id in its allowed audiences (`ZITADEL_ALLOWED_AUDIENCES`): the web app exchanges the ID token there for the person's workspaces, signs in through the usual workspace sign-in, and forwards back-channel logouts there.
+
+The button appears after Google, and demo mode (`NEXT_PUBLIC_DEMO=true`) hides it like the other sign-in buttons. No token or e-mail address is ever put in a URL: the steps that continue on another page (the API's one-time e-mail code before an existing account is linked, or the confirmation of a new workspace) carry only a one-time key.
 
 ### Run in Gitpod
 
