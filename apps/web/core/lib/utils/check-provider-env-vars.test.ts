@@ -240,3 +240,190 @@ describe('every provider next-auth is given is reachable from the env', () => {
 		expect([...published].sort()).toEqual(Object.keys(ENV_PREFIX).sort());
 	});
 });
+
+/**
+ * Ever ID, an OpenID Connect provider: served only when NEXT_PUBLIC_EVER_ID_APP_NAME is set AND the issuer, the
+ * client id and the client secret are all non-blank. These cases extend the suite; the ones above are unchanged.
+ */
+describe('Ever ID provider', () => {
+	const EVER_ID_KEYS = [
+		'NEXT_PUBLIC_EVER_ID_APP_NAME',
+		'EVER_ID_ISSUER_URL',
+		'EVER_ID_ISSUER',
+		'EVER_ID_CLIENT_ID',
+		'EVER_ID_CLIENT_SECRET',
+		'EVER_PLATFORM_PROJECT_ID',
+		'EVER_ID_TEAMS_AUTO_PROVISION'
+	];
+	const ISSUER = 'https://id.example.test';
+
+	type EverIdModule = ProviderModule & {
+		providers: typeof ProviderModuleExports.providers;
+		isEverIdConfigured: () => boolean;
+	};
+
+	/** Loads the provider module and the Ever ID settings fresh, as a server booting with this env. */
+	function loadEverId(containerEnv: Record<string, string>): EverIdModule {
+		for (const key of Object.keys(mockContainerEnv)) delete mockContainerEnv[key];
+		Object.assign(mockContainerEnv, containerEnv);
+		let mod!: EverIdModule;
+		jest.isolateModules(() => {
+			const {
+				providerNames,
+				filteredProviders,
+				mappedProviders,
+				getConfiguredAuthProviderIds,
+				providers
+			} = require('./check-provider-env-vars');
+			const { isEverIdConfigured } = require('@/core/lib/auth/ever-id/config');
+			mod = {
+				providerNames,
+				filteredProviders,
+				mappedProviders,
+				getConfiguredAuthProviderIds,
+				providers,
+				isEverIdConfigured
+			};
+		});
+		return mod;
+	}
+
+	function everIdProvider(mod: EverIdModule) {
+		return mod.providers.find((provider) => typeof provider !== 'function' && provider.id === 'ever-id') as {
+			id: string;
+			name: string;
+			type: string;
+			issuer?: string;
+			clientId?: string;
+			checks?: string[];
+			authorization?: { params?: { scope?: string } };
+		};
+	}
+
+	beforeEach(() => {
+		for (const key of EVER_ID_KEYS) delete process.env[key];
+		process.env.EVER_ID_ISSUER_URL = ISSUER;
+		process.env.EVER_ID_CLIENT_ID = 'teams-web-client';
+		process.env.EVER_ID_CLIENT_SECRET = 'teams-web-secret';
+		delete (globalThis as { __everTeamsConfigWarnings?: Set<string> }).__everTeamsConfigWarnings;
+	});
+
+	it('is served when the app name, the issuer, the client id and the client secret are all set', () => {
+		const mod = loadEverId({ NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' });
+
+		expect(mod.getConfiguredAuthProviderIds()).toEqual(['ever-id']);
+		expect(mod.mappedProviders).toEqual([{ id: 'ever-id', name: 'Ever ID' }]);
+		expect(mod.isEverIdConfigured()).toBe(true);
+	});
+
+	it.each([
+		['the app name is absent', {}, {}],
+		['the issuer is blank', { EVER_ID_ISSUER_URL: ' ' }, { NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' }],
+		['the issuer is missing', { EVER_ID_ISSUER_URL: undefined }, { NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' }],
+		['the client id is blank', { EVER_ID_CLIENT_ID: '  ' }, { NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' }],
+		[
+			'the client secret is missing',
+			{ EVER_ID_CLIENT_SECRET: undefined },
+			{ NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' }
+		]
+	])('is not served when %s (and the Ever ID routes agree)', (_label, env, containerEnv) => {
+		for (const [key, value] of Object.entries(env as Record<string, string | undefined>)) {
+			if (value === undefined) delete process.env[key];
+			else process.env[key] = value;
+		}
+
+		const mod = loadEverId(containerEnv as Record<string, string>);
+
+		expect(mod.getConfiguredAuthProviderIds()).not.toContain('ever-id');
+		expect(mod.isEverIdConfigured()).toBe(false);
+	});
+
+	it('takes the runtime app name over the build-time one, and an empty runtime value counts as set', () => {
+		process.env.NEXT_PUBLIC_EVER_ID_APP_NAME = 'Baked Ever ID';
+
+		const mod = loadEverId({ NEXT_PUBLIC_EVER_ID_APP_NAME: '' });
+
+		expect(mod.providerNames['ever-id']).toBe('');
+		expect(mod.getConfiguredAuthProviderIds()).toEqual(['ever-id']);
+	});
+
+	it('falls back to the build-time app name', () => {
+		process.env.NEXT_PUBLIC_EVER_ID_APP_NAME = 'Ever ID';
+
+		expect(loadEverId({}).getConfiguredAuthProviderIds()).toEqual(['ever-id']);
+	});
+
+	it('accepts the deprecated EVER_ID_ISSUER, with a single warning', () => {
+		delete process.env.EVER_ID_ISSUER_URL;
+		process.env.EVER_ID_ISSUER = `${ISSUER}/`;
+		const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+		const first = loadEverId({ NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' });
+		loadEverId({ NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' });
+
+		expect(first.getConfiguredAuthProviderIds()).toEqual(['ever-id']);
+		expect(everIdProvider(first).issuer).toBe(ISSUER);
+		const deprecations = warn.mock.calls.filter((call) => String(call[0]).includes('EVER_ID_ISSUER is deprecated'));
+		expect(deprecations).toHaveLength(1);
+		warn.mockRestore();
+	});
+
+	it('is listed right after Google, the other providers keeping their order', () => {
+		process.env.TWITTER_CLIENT_ID = 'twitter-client-id';
+		process.env.TWITTER_CLIENT_SECRET = 'twitter-client-secret';
+
+		const mod = loadEverId({
+			NEXT_PUBLIC_TWITTER_APP_NAME: 'X',
+			NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID',
+			NEXT_PUBLIC_GITHUB_APP_NAME: 'GitHub',
+			NEXT_PUBLIC_GOOGLE_APP_NAME: 'Google'
+		});
+
+		expect(mod.getConfiguredAuthProviderIds()).toEqual(['google', 'ever-id', 'github', 'twitter']);
+	});
+
+	it('is an OpenID Connect provider that checks PKCE, state and nonce', () => {
+		const provider = everIdProvider(loadEverId({ NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' }));
+
+		expect(provider).toEqual(
+			expect.objectContaining({
+				id: 'ever-id',
+				name: 'Ever ID',
+				type: 'oidc',
+				issuer: ISSUER,
+				clientId: 'teams-web-client'
+			})
+		);
+		expect(provider.checks).toEqual(['pkce', 'state', 'nonce']);
+	});
+
+	it('asks for the project audience only when EVER_PLATFORM_PROJECT_ID is set, and never for an organization', () => {
+		const without = everIdProvider(loadEverId({ NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' }));
+		process.env.EVER_PLATFORM_PROJECT_ID = '298765432109876543';
+		const withProject = everIdProvider(loadEverId({ NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' }));
+
+		expect(without.authorization?.params?.scope).toBe('openid profile email urn:zitadel:iam:user:resourceowner');
+		expect(withProject.authorization?.params?.scope).toBe(
+			'openid profile email urn:zitadel:iam:user:resourceowner urn:zitadel:iam:org:project:id:298765432109876543:aud'
+		);
+		for (const scope of [without.authorization?.params?.scope, withProject.authorization?.params?.scope]) {
+			expect(scope).not.toContain('urn:zitadel:iam:org:id:');
+		}
+	});
+
+	it('ignores a project id that is not a plain identifier (it could add scopes)', () => {
+		process.env.EVER_PLATFORM_PROJECT_ID = '1 urn:zitadel:iam:org:id:2';
+
+		const provider = everIdProvider(loadEverId({ NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' }));
+
+		expect(provider.authorization?.params?.scope).toBe('openid profile email urn:zitadel:iam:user:resourceowner');
+	});
+
+	it('publishes the provider id only, never the client id, secret or issuer', () => {
+		const mod = loadEverId({ NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' });
+		const published = JSON.stringify(mod.getConfiguredAuthProviderIds());
+
+		expect(published).toBe('["ever-id"]');
+		expect(published).not.toMatch(/teams-web-client|teams-web-secret|id\.example\.test/);
+	});
+});

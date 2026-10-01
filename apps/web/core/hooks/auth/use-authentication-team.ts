@@ -5,7 +5,7 @@ import { userTimezone } from '@/core/lib/helpers/date-and-time';
 import { authFormValidate } from '@/core/lib/helpers/validations';
 import { IRegisterDataAPI } from '@/core/types/interfaces/auth/auth';
 import { AxiosError } from 'axios';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryCall } from '../common/use-query';
 import { RECAPTCHA_SITE_KEY } from '@/core/constants/config/constants';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -74,6 +74,9 @@ export function useAuthenticationTeam() {
 	const [everIdConfirmed, setEverIdConfirmed] = useState(false);
 	const [everIdTermsAccepted, setEverIdTermsAccepted] = useState(false);
 	const [everIdSubmitting, setEverIdSubmitting] = useState(false);
+	// The prefill is read once per key: the translation function must not re-run it.
+	const translate = useRef(t);
+	translate.current = t;
 
 	useEffect(() => {
 		if (!everIdHandoff) return;
@@ -87,17 +90,19 @@ export function useAuthenticationTeam() {
 					setFormValues((values) => ({ ...values, name: data.name || values.name, email: data.email }));
 				} else {
 					setEverIdError(
-						status === 410 ? t('pages.auth.everId.SIGNUP_EXPIRED') : t('pages.auth.everId.UNAVAILABLE')
+						translate.current(
+							status === 410 ? 'pages.auth.everId.SIGNUP_EXPIRED' : 'pages.auth.everId.UNAVAILABLE'
+						)
 					);
 				}
 			})
 			.catch(() => {
-				if (!cancelled) setEverIdError(t('pages.auth.everId.UNAVAILABLE'));
+				if (!cancelled) setEverIdError(translate.current('pages.auth.everId.UNAVAILABLE'));
 			});
 		return () => {
 			cancelled = true;
 		};
-	}, [everIdHandoff, locale, t]);
+	}, [everIdHandoff, locale]);
 
 	/** The Ever ID confirmation (and the documents, when there are any) must be ticked before anything happens. */
 	const everIdStepErrors = useCallback((): Record<string, string> | null => {

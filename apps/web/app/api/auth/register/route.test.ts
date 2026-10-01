@@ -137,3 +137,207 @@ describe('POST /api/auth/register — validation', () => {
 		log.mockRestore();
 	});
 });
+/**
+ * Ever ID sign-up: a register body that carries `ever_id_handoff` creates the account from the verified Ever
+ * ID through the Gauzy API (`POST /api/auth/zitadel/signup`), only once the person confirmed. Without the key
+ * the route is unchanged. These cases are appended; the ones above are untouched.
+ */
+const mockEverIdRequests = {
+	everIdSignupRequest: jest.fn(),
+	everIdWorkspaceSigninRequest: jest.fn()
+};
+jest.mock('@/core/services/server/requests/ever-id', () => mockEverIdRequests);
+
+const EVER_ID_HANDOFF = 'k3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yA';
+const EVER_ID_TERMS = [{ documentId: 'tos:gauzy', version: '1.0.2', sha256: 'a'.repeat(64), locale: 'en' }];
+const EVER_ID_KEYS = [
+	'NEXT_PUBLIC_EVER_ID_APP_NAME',
+	'EVER_ID_ISSUER_URL',
+	'EVER_ID_CLIENT_ID',
+	'EVER_ID_CLIENT_SECRET'
+];
+
+function configureEverId(on: boolean) {
+	for (const key of EVER_ID_KEYS) delete process.env[key];
+	if (on) {
+		process.env.NEXT_PUBLIC_EVER_ID_APP_NAME = 'Ever ID';
+		process.env.EVER_ID_ISSUER_URL = 'https://id.example.test';
+		process.env.EVER_ID_CLIENT_ID = 'teams-web-client';
+		process.env.EVER_ID_CLIENT_SECRET = 'teams-web-secret';
+	}
+}
+
+const everIdBody = (extra: Record<string, unknown> = {}) => ({
+	name: 'New Person',
+	email: 'new.person@example.test',
+	team: 'New Team',
+	timezone: 'UTC',
+	ever_id_handoff: EVER_ID_HANDOFF,
+	terms: EVER_ID_TERMS,
+	...extra
+});
+
+function primeEverIdHappyPath() {
+	mockEverIdRequests.everIdSignupRequest.mockResolvedValue({
+		status: 200,
+		data: {
+			workspaces: [
+				{
+					token: 'workspace-token-new',
+					user: { id: 'new-user', email: 'new.person@example.test', tenant: null }
+				}
+			],
+			confirmed_email: 'new.person@example.test',
+			show_popup: false,
+			total_workspaces: 1,
+			blocked_workspaces: []
+		}
+	});
+	mockEverIdRequests.everIdWorkspaceSigninRequest.mockResolvedValue({
+		status: 200,
+		data: { user: { id: 'new-user', tenantId: null }, token: 'access-1', refresh_token: 'refresh-1' }
+	});
+	mockRequests.createTenantRequest.mockResolvedValue({ data: { id: 'tenant-1' } });
+	mockRequests.createOrganizationRequest.mockResolvedValue({ data: { id: 'org-1' } });
+	mockRequests.createEmployeeFromUser.mockResolvedValue({ data: { id: 'emp-1' } });
+	mockRequests.createOrganizationTeamRequest.mockResolvedValue({ data: { id: 'team-1' } });
+	mockRequests.refreshTokenRequest.mockResolvedValue({ data: { token: 'access-2', refresh_token: 'refresh-2' } });
+}
+
+describe('POST /api/auth/register — Ever ID sign-up', () => {
+	beforeEach(() => configureEverId(true));
+	afterEach(() => configureEverId(false));
+
+	it('answers 400 and calls nothing without the confirmation', async () => {
+		const { POST } = loadRoute({});
+
+		const res = await POST(post(everIdBody()));
+
+		expect(res.status).toBe(400);
+		await expect(res.json()).resolves.toEqual({ errors: { confirm: expect.any(String) } });
+		expect(mockEverIdRequests.everIdSignupRequest).not.toHaveBeenCalled();
+		expect(mockRequests.registerUserRequest).not.toHaveBeenCalled();
+	});
+
+	it('creates the account through the Ever ID sign-up exactly once, never through the plain register', async () => {
+		primeEverIdHappyPath();
+		const { POST } = loadRoute({});
+
+		const res = await POST(post(everIdBody({ confirm: true })));
+
+		expect(res.status).toBe(200);
+		expect(mockEverIdRequests.everIdSignupRequest).toHaveBeenCalledTimes(1);
+		expect(mockEverIdRequests.everIdSignupRequest).toHaveBeenCalledWith({
+			handoff: EVER_ID_HANDOFF,
+			firstName: 'New',
+			lastName: 'Person',
+			terms: EVER_ID_TERMS
+		});
+		expect(mockRequests.registerUserRequest).not.toHaveBeenCalled();
+		expect(mockRequests.loginUserRequest).not.toHaveBeenCalled();
+		// Gauzy's unchanged workspace sign-in with the new account's token, then the usual setup steps.
+		expect(mockEverIdRequests.everIdWorkspaceSigninRequest).toHaveBeenCalledWith(
+			'new.person@example.test',
+			'workspace-token-new'
+		);
+		expect(mockRequests.createTenantRequest).toHaveBeenCalledWith('New Team', 'access-1');
+		expect(mockRequests.createOrganizationRequest).toHaveBeenCalledWith(
+			{ currency: 'USD', name: 'New Team', tenantId: 'tenant-1', invitesAllowed: true },
+			'access-1'
+		);
+		expect(mockRequests.createEmployeeFromUser).toHaveBeenCalledWith(
+			expect.objectContaining({ organizationId: 'org-1', tenantId: 'tenant-1', userId: 'new-user' }),
+			'access-1'
+		);
+		expect(mockRequests.createOrganizationTeamRequest).toHaveBeenCalledWith(
+			{ name: 'New Team', tenantId: 'tenant-1', organizationId: 'org-1', managerIds: ['emp-1'], public: true },
+			'access-1'
+		);
+		expect(mockRequests.refreshTokenRequest).toHaveBeenCalledWith('refresh-1');
+	});
+
+	it('sends the person to checkout when the API asks for a subscription first', async () => {
+		mockEverIdRequests.everIdSignupRequest.mockResolvedValue({
+			status: 403,
+			data: {
+				code: 'subscription_required',
+				checkoutUrl: 'https://billing.example.test/checkout/1',
+				handoff: 'next-key'
+			}
+		});
+		const { POST } = loadRoute({});
+
+		const res = await POST(post(everIdBody({ confirm: true })));
+
+		expect(res.status).toBe(403);
+		await expect(res.json()).resolves.toEqual({ checkoutUrl: 'https://billing.example.test/checkout/1' });
+		expect(mockEverIdRequests.everIdWorkspaceSigninRequest).not.toHaveBeenCalled();
+		expect(mockRequests.createTenantRequest).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		[400, 400, 'confirm'],
+		[410, 410, 'email'],
+		[429, 429, 'email'],
+		[500, 502, 'email']
+	])('maps an API answer %s to %s', async (apiStatus, status, field) => {
+		mockEverIdRequests.everIdSignupRequest.mockResolvedValue({
+			status: apiStatus,
+			data: { statusCode: apiStatus }
+		});
+		const { POST } = loadRoute({});
+
+		const res = await POST(post(everIdBody({ confirm: true })));
+
+		expect(res.status).toBe(status);
+		expect(Object.keys((await res.json()).errors)).toEqual([field]);
+		expect(mockRequests.createTenantRequest).not.toHaveBeenCalled();
+	});
+
+	it('answers 400 and calls nothing for a malformed key', async () => {
+		const { POST } = loadRoute({});
+
+		const res = await POST(post(everIdBody({ confirm: true, ever_id_handoff: 'person@example.test' })));
+
+		expect(res.status).toBe(400);
+		expect(mockEverIdRequests.everIdSignupRequest).not.toHaveBeenCalled();
+	});
+
+	it('still requires the captcha when it is configured', async () => {
+		const { POST } = loadRoute({ secret: 'real-secret', siteKey: 'real-site-key' });
+
+		const res = await POST(post(everIdBody({ confirm: true })));
+
+		expect(res.status).toBe(400);
+		expect(mockEverIdRequests.everIdSignupRequest).not.toHaveBeenCalled();
+	});
+
+	it('answers 404 and calls nothing while Ever ID is not configured', async () => {
+		configureEverId(false);
+		const { POST } = loadRoute({});
+
+		const res = await POST(post(everIdBody({ confirm: true })));
+
+		expect(res.status).toBe(404);
+		expect(mockEverIdRequests.everIdSignupRequest).not.toHaveBeenCalled();
+		expect(mockRequests.registerUserRequest).not.toHaveBeenCalled();
+	});
+
+	it('keeps the plain register path, with the same request body, for a body without the key', async () => {
+		primeHappyPath();
+		const { POST } = loadRoute({});
+
+		const res = await POST(post(validBody));
+
+		expect(res.status).toBe(200);
+		expect(mockEverIdRequests.everIdSignupRequest).not.toHaveBeenCalled();
+		expect(mockRequests.registerUserRequest).toHaveBeenCalledTimes(1);
+		const [registerBody] = mockRequests.registerUserRequest.mock.calls[0];
+		expect(registerBody).toEqual({
+			password: expect.any(String),
+			confirmPassword: registerBody.password,
+			user: { firstName: 'E2E', lastName: 'Tester', email: 'e2e@example.com', timeZone: 'UTC' },
+			appEmailConfirmationUrl: 'https://stage.ever.team/verify-email'
+		});
+	});
+});
