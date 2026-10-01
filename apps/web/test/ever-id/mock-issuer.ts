@@ -32,6 +32,7 @@ export class MockIssuer {
 					issuer: this.issuer,
 					authorization_endpoint: `${this.issuer}/oauth/v2/authorize`,
 					token_endpoint: `${this.issuer}/oauth/v2/token`,
+					userinfo_endpoint: `${this.issuer}/oidc/v1/userinfo`,
 					jwks_uri: `${this.issuer}/oauth/v2/keys`
 				});
 			}

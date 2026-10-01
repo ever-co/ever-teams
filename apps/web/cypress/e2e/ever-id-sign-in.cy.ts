@@ -44,10 +44,23 @@ function recordAppUrls(urls: string[]) {
 	});
 }
 
+/**
+ * The OAuth callback carries the authorization code and next-auth's encrypted state (a JWE, so it starts like a
+ * JWT): those two parameters are the protocol itself and are left out of the check; nothing else may match.
+ */
+function withoutOAuthCallbackParameters(url: string): string {
+	const parsed = new URL(url);
+	if (parsed.pathname.endsWith('/api/auth/callback/ever-id')) {
+		parsed.searchParams.delete('code');
+		parsed.searchParams.delete('state');
+	}
+	return parsed.href;
+}
+
 function expectNoLeak(urls: string[]) {
 	cy.location('href').should('not.match', LEAK);
 	cy.wrap(urls).each((url: string) => {
-		expect(url, 'request URL on the web app').not.to.match(LEAK);
+		expect(withoutOAuthCallbackParameters(url), 'request URL on the web app').not.to.match(LEAK);
 	});
 }
 
