@@ -23,9 +23,6 @@ export const LOGOUT_TOKEN_MAX_AGE_S = 300;
 /** Tolerance for a token dated slightly in the future, seconds. */
 const CLOCK_SKEW_S = 60;
 
-const JWKS_CACHE_MAX_AGE_MS = 600_000;
-const JWKS_COOLDOWN_MS = 30_000;
-const DISCOVERY_TTL_MS = 600_000;
 const HTTP_TIMEOUT_MS = 5_000;
 const MAX_TOKEN_LENGTH = 16_384;
 const ALGORITHMS = ['ES256', 'RS256', 'EdDSA'];
@@ -55,8 +52,15 @@ export interface LogoutTokenOptions {
 	issuer: string;
 	/** This app's client id: the token's `aud` must contain it. */
 	clientId: string;
-	/** Current time in milliseconds (tests). */
+	/** Current time in milliseconds, for the claim checks (tests). */
 	now?: number;
+}
+
+/** How long keys and discovery are reused; the defaults are the values above. */
+export interface LogoutTokenVerifierSettings {
+	jwksCacheMaxAgeMs?: number;
+	jwksCooldownMs?: number;
+	discoveryTtlMs?: number;
 }
 
 interface IssuerKeys {
@@ -65,8 +69,6 @@ interface IssuerKeys {
 	getKey: JWTVerifyGetKey;
 	expiresAt: number;
 }
-
-const issuerKeys = new Map<string, IssuerKeys>();
 
 const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
 
@@ -92,93 +94,20 @@ function isJsonObject(value: unknown): value is Record<string, unknown> {
 	return !!value && typeof value === 'object' && !Array.isArray(value);
 }
 
-/** The issuer's key getter, from its discovery document (cached; a failed discovery is not cached). */
-async function keysFor(configuredIssuer: string, now: number): Promise<IssuerKeys> {
-	const cached = issuerKeys.get(configuredIssuer);
-	if (cached && cached.expiresAt > now) return cached;
-
-	let document: Record<string, unknown>;
-	try {
-		const discoveryUrl = new URL(`${configuredIssuer.replace(/\/+$/, '')}/.well-known/openid-configuration`);
-		if (!isAllowedEndpoint(discoveryUrl)) throw new Error('issuer must use https');
-		const response = await fetch(discoveryUrl, {
-			headers: { Accept: 'application/json' },
-			cache: 'no-store',
-			redirect: 'error',
-			signal: AbortSignal.timeout(HTTP_TIMEOUT_MS)
-		});
-		if (!response.ok) throw new Error(`discovery answered ${response.status}`);
-		document = (await response.json()) as Record<string, unknown>;
-	} catch (error) {
-		if (cached) return cached;
-		throw new LogoutTokenError('unavailable', `Issuer discovery failed: ${(error as Error)?.message ?? 'error'}`);
-	}
-
-	const issuer = nonEmptyString(document?.issuer);
-	const jwksUri = nonEmptyString(document?.jwks_uri);
-	let jwksUrl: URL | undefined;
-	try {
-		jwksUrl = jwksUri ? new URL(jwksUri) : undefined;
-	} catch {
-		jwksUrl = undefined;
-	}
-	if (!issuer || !sameIssuer(issuer, configuredIssuer) || !jwksUrl || !isAllowedEndpoint(jwksUrl)) {
-		if (cached) return cached;
-		throw new LogoutTokenError('unavailable', 'Issuer discovery document is not usable');
-	}
-
-	// Kept across discovery refreshes while the key set URL stays the same, so its key cache survives.
-	const getKey =
-		cached && cached.issuer === issuer && cached.jwksUrl === jwksUrl.href
-			? cached.getKey
-			: createRemoteJWKSet(jwksUrl, {
-					cacheMaxAge: JWKS_CACHE_MAX_AGE_MS,
-					cooldownDuration: JWKS_COOLDOWN_MS,
-					timeoutDuration: HTTP_TIMEOUT_MS
-				});
-	const keys: IssuerKeys = { issuer, jwksUrl: jwksUrl.href, getKey, expiresAt: now + DISCOVERY_TTL_MS };
-	issuerKeys.set(configuredIssuer, keys);
-	return keys;
-}
-
 /** jose's failures that say the keys could not be obtained, as opposed to a bad token. */
 function isKeyAvailabilityError(error: unknown): boolean {
-	const code = (error as { code?: string })?.code;
-	return code === 'ERR_JWKS_TIMEOUT' || code === 'ERR_JOSE_GENERIC' || error instanceof TypeError;
+	const { code, name } = (error ?? {}) as { code?: string; name?: string };
+	// A failed fetch is a TypeError (compared by name: it may come from another realm than this module's).
+	return (
+		code === 'ERR_JWKS_TIMEOUT' ||
+		code === 'ERR_JWKS_INVALID' ||
+		code === 'ERR_JOSE_GENERIC' ||
+		name === 'TypeError'
+	);
 }
 
-/**
- * Verifies a back-channel logout token.
- *
- * @throws LogoutTokenError `invalid`, `stale` or `unavailable`.
- */
-export async function verifyLogoutToken(token: string, options: LogoutTokenOptions): Promise<VerifiedLogoutToken> {
-	if (typeof token !== 'string' || token.length > MAX_TOKEN_LENGTH || token.split('.').length !== 3) {
-		throw new LogoutTokenError('invalid', 'Not a compact JWS');
-	}
-	const nowMs = options.now ?? Date.now();
-	const keys = await keysFor(options.issuer, nowMs);
-
-	let payload: JWTPayload;
-	try {
-		({ payload } = await jwtVerify(token, keys.getKey, {
-			issuer: keys.issuer,
-			audience: options.clientId,
-			algorithms: ALGORITHMS,
-			clockTolerance: CLOCK_SKEW_S,
-			currentDate: new Date(nowMs),
-			requiredClaims: ['iat', 'jti']
-		}));
-	} catch (error) {
-		if (isKeyAvailabilityError(error)) {
-			throw new LogoutTokenError('unavailable', 'Signing keys unavailable');
-		}
-		throw new LogoutTokenError(
-			'invalid',
-			`Logout token rejected (${(error as { code?: string })?.code ?? 'error'})`
-		);
-	}
-
+/** Checks the claims a logout token must (and must not) carry, after its signature was verified. */
+function checkLogoutClaims(payload: JWTPayload, nowMs: number): VerifiedLogoutToken {
 	const now = Math.floor(nowMs / 1000);
 	const iat = payload.iat;
 	if (typeof iat !== 'number' || !Number.isFinite(iat)) {
@@ -194,16 +123,121 @@ export async function verifyLogoutToken(token: string, options: LogoutTokenOptio
 	if (!jti) {
 		throw new LogoutTokenError('invalid', 'Logout token has no jti');
 	}
-	const events = (payload as Record<string, unknown>).events;
+	const claims = payload as Record<string, unknown>;
+	const events = claims.events;
 	if (!isJsonObject(events) || !isJsonObject(events[BACKCHANNEL_LOGOUT_EVENT])) {
 		throw new LogoutTokenError('invalid', 'Logout token carries no back-channel logout event');
 	}
-	if ('nonce' in payload) {
+	if ('nonce' in claims) {
 		throw new LogoutTokenError('invalid', 'A logout token must not carry a nonce');
 	}
-	const sid = nonEmptyString((payload as Record<string, unknown>).sid);
+	const sid = nonEmptyString(claims.sid);
 	if (!sid) {
 		throw new LogoutTokenError('invalid', 'Logout token names no session');
 	}
 	return { jti, sid, sub: nonEmptyString(payload.sub), iat };
+}
+
+/** A verifier with its own key and discovery caches. */
+export function createLogoutTokenVerifier(settings: LogoutTokenVerifierSettings = {}) {
+	const jwksCacheMaxAgeMs = settings.jwksCacheMaxAgeMs ?? 600_000;
+	const jwksCooldownMs = settings.jwksCooldownMs ?? 30_000;
+	const discoveryTtlMs = settings.discoveryTtlMs ?? 600_000;
+	const issuerKeys = new Map<string, IssuerKeys>();
+
+	/** The issuer's key getter, from its discovery document (cached; a failed discovery is not cached). */
+	async function keysFor(configuredIssuer: string): Promise<IssuerKeys> {
+		const now = Date.now();
+		const cached = issuerKeys.get(configuredIssuer);
+		if (cached && cached.expiresAt > now) return cached;
+
+		let document: Record<string, unknown>;
+		try {
+			const discoveryUrl = new URL(`${configuredIssuer.replace(/\/+$/, '')}/.well-known/openid-configuration`);
+			if (!isAllowedEndpoint(discoveryUrl)) throw new Error('the issuer must use https');
+			const response = await fetch(discoveryUrl, {
+				headers: { Accept: 'application/json' },
+				cache: 'no-store',
+				redirect: 'error',
+				signal: AbortSignal.timeout(HTTP_TIMEOUT_MS)
+			});
+			if (!response.ok) throw new Error(`discovery answered ${response.status}`);
+			document = (await response.json()) as Record<string, unknown>;
+		} catch (error) {
+			if (cached) return cached;
+			throw new LogoutTokenError(
+				'unavailable',
+				`Issuer discovery failed: ${(error as Error)?.message ?? 'error'}`
+			);
+		}
+
+		const issuer = nonEmptyString(document?.issuer);
+		const jwksUri = nonEmptyString(document?.jwks_uri);
+		let jwksUrl: URL | undefined;
+		try {
+			jwksUrl = jwksUri ? new URL(jwksUri) : undefined;
+		} catch {
+			jwksUrl = undefined;
+		}
+		if (!issuer || !sameIssuer(issuer, configuredIssuer) || !jwksUrl || !isAllowedEndpoint(jwksUrl)) {
+			if (cached) return cached;
+			throw new LogoutTokenError('unavailable', 'Issuer discovery document is not usable');
+		}
+
+		// Kept across discovery refreshes while the key set URL stays the same, so its key cache survives.
+		const getKey =
+			cached && cached.issuer === issuer && cached.jwksUrl === jwksUrl.href
+				? cached.getKey
+				: createRemoteJWKSet(jwksUrl, {
+						cacheMaxAge: jwksCacheMaxAgeMs,
+						cooldownDuration: jwksCooldownMs,
+						timeoutDuration: HTTP_TIMEOUT_MS
+					});
+		const keys: IssuerKeys = { issuer, jwksUrl: jwksUrl.href, getKey, expiresAt: now + discoveryTtlMs };
+		issuerKeys.set(configuredIssuer, keys);
+		return keys;
+	}
+
+	/**
+	 * Verifies a back-channel logout token.
+	 *
+	 * @throws LogoutTokenError `invalid`, `stale` or `unavailable`.
+	 */
+	async function verify(token: string, options: LogoutTokenOptions): Promise<VerifiedLogoutToken> {
+		if (typeof token !== 'string' || token.length > MAX_TOKEN_LENGTH || token.split('.').length !== 3) {
+			throw new LogoutTokenError('invalid', 'Not a compact JWS');
+		}
+		const nowMs = options.now ?? Date.now();
+		const keys = await keysFor(options.issuer);
+
+		let payload: JWTPayload;
+		try {
+			({ payload } = await jwtVerify(token, keys.getKey, {
+				issuer: keys.issuer,
+				audience: options.clientId,
+				algorithms: ALGORITHMS,
+				clockTolerance: CLOCK_SKEW_S,
+				currentDate: new Date(nowMs),
+				requiredClaims: ['iat', 'jti']
+			}));
+		} catch (error) {
+			if (isKeyAvailabilityError(error)) {
+				throw new LogoutTokenError('unavailable', 'Signing keys unavailable');
+			}
+			throw new LogoutTokenError(
+				'invalid',
+				`Logout token rejected (${(error as { code?: string })?.code ?? 'error'})`
+			);
+		}
+		return checkLogoutClaims(payload, nowMs);
+	}
+
+	return { verify };
+}
+
+const defaultVerifier = createLogoutTokenVerifier();
+
+/** Verifies a back-channel logout token with the process-wide key cache. */
+export function verifyLogoutToken(token: string, options: LogoutTokenOptions): Promise<VerifiedLogoutToken> {
+	return defaultVerifier.verify(token, options);
 }
