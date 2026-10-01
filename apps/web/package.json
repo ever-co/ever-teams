@@ -203,6 +203,7 @@
 			"core/hooks/index.ts",
 			"**/*.test.{ts,tsx}",
 			"cypress.config.ts",
+			"cypress/ever-id-stage.config.ts",
 			"cypress/e2e/**/*.cy.{ts,tsx}",
 			"cypress/support/**/*.{ts,mts,mjs}"
 		]

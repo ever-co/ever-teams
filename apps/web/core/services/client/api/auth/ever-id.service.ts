@@ -12,7 +12,7 @@ import type {
  * `{ status, data }` and never throw for an HTTP error, so every page decides what each status means.
  */
 
-export interface EverIdCallResult<T> {
+interface EverIdCallResult<T> {
 	status: number;
 	data: T;
 }

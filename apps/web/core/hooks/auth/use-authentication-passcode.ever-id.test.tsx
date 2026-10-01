@@ -78,7 +78,7 @@ describe('useAuthenticationPasscode in Ever ID mode', () => {
 		mockConfirmLink.mockResolvedValue({
 			status: 200,
 			data: {
-				workspaces: [workspace('u1', 't1', 'Acme'), workspace('u2', 't2', 'Globex')],
+				workspaces: [workspace('u1', 't1', 'Acme'), workspace('u2', 't2', 'Beta')],
 				confirmed_email: 'person@example.test',
 				show_popup: true,
 				total_workspaces: 2

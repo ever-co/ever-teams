@@ -8,7 +8,7 @@
 export const EVER_ID_HANDOFF_PARAM = 'ever_id_handoff';
 
 /** The API issues 43 base64url characters; anything far outside that shape is not a key. */
-export const EVER_ID_HANDOFF_PATTERN = /^[A-Za-z0-9_-]{16,128}$/;
+const EVER_ID_HANDOFF_PATTERN = /^[A-Za-z0-9_-]{16,128}$/;
 
 /** The key when `value` has the shape of one, otherwise `null`. */
 export function readEverIdHandoff(value: string | null | undefined): string | null {

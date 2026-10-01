@@ -23,7 +23,7 @@ describe('readEverIdSession', () => {
 			user: { name: 'Test Person' },
 			authCookie: {
 				provider: 'ever-id',
-				workspaces: [workspace('u1', 't1', 'Acme'), workspace('u2', 't2', 'Globex')],
+				workspaces: [workspace('u1', 't1', 'Acme'), workspace('u2', 't2', 'Beta')],
 				confirmed_mail: 'person@example.test',
 				preselectTenantId: 't2'
 			}
@@ -34,7 +34,7 @@ describe('readEverIdSession', () => {
 		expect(data?.teamsUnavailable).toBe(true);
 		expect(data?.workspaces.map((entry) => [entry.token, entry.user.tenant.name])).toEqual([
 			['workspace-token-u1', 'Acme'],
-			['workspace-token-u2', 'Globex']
+			['workspace-token-u2', 'Beta']
 		]);
 	});
 

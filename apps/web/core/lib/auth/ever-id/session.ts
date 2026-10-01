@@ -8,7 +8,7 @@ import type { IEverIdWorkspace } from '@/core/types/interfaces/auth/ever-id';
  * point; the chooser's usual workspace sign-in creates it.
  */
 
-export interface EverIdChooserData {
+interface EverIdChooserData {
 	workspaces: ISigninEmailConfirmWorkspaces[];
 	confirmedEmail: string;
 	/** Index of the workspace to start on, or -1. */

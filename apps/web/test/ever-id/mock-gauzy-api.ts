@@ -7,7 +7,7 @@
 import { createServer, type Server } from 'node:http';
 import { close, listen, readBody, sendJson } from './http';
 
-export interface RecordedRequest {
+interface RecordedRequest {
 	method: string;
 	path: string;
 	contentType: string;

@@ -15,10 +15,10 @@ import { createRemoteJWKSet, jwtVerify, type JWTPayload, type JWTVerifyGetKey } 
  */
 
 /** The event a logout token must carry; an identifier fixed by the specification, never requested. */
-export const BACKCHANNEL_LOGOUT_EVENT = 'http://schemas.openid.net/event/backchannel-logout';
+const BACKCHANNEL_LOGOUT_EVENT = 'http://schemas.openid.net/event/backchannel-logout';
 
 /** A logout token older than this is refused, seconds. */
-export const LOGOUT_TOKEN_MAX_AGE_S = 300;
+const LOGOUT_TOKEN_MAX_AGE_S = 300;
 
 /** Tolerance for a token dated slightly in the future, seconds. */
 const CLOCK_SKEW_S = 60;
@@ -28,7 +28,7 @@ const MAX_TOKEN_LENGTH = 16_384;
 const ALGORITHMS = ['ES256', 'RS256', 'EdDSA'];
 
 /** Why a token was refused: `invalid` (bad token), `stale` (too old) or `unavailable` (no keys to check it). */
-export type LogoutTokenFailure = 'invalid' | 'stale' | 'unavailable';
+type LogoutTokenFailure = 'invalid' | 'stale' | 'unavailable';
 
 export class LogoutTokenError extends Error {
 	constructor(
@@ -47,7 +47,7 @@ export interface VerifiedLogoutToken {
 	iat: number;
 }
 
-export interface LogoutTokenOptions {
+interface LogoutTokenOptions {
 	/** The configured issuer (EVER_ID_ISSUER_URL). */
 	issuer: string;
 	/** This app's client id: the token's `aud` must contain it. */
@@ -57,7 +57,7 @@ export interface LogoutTokenOptions {
 }
 
 /** How long keys and discovery are reused; the defaults are the values above. */
-export interface LogoutTokenVerifierSettings {
+interface LogoutTokenVerifierSettings {
 	jwksCacheMaxAgeMs?: number;
 	jwksCooldownMs?: number;
 	discoveryTtlMs?: number;
@@ -73,7 +73,7 @@ interface IssuerKeys {
 const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
 
 /** https, or plain http on the local machine only. */
-export function isAllowedEndpoint(url: URL): boolean {
+function isAllowedEndpoint(url: URL): boolean {
 	if (url.protocol === 'https:') return true;
 	return url.protocol === 'http:' && LOOPBACK_HOSTS.has(url.hostname);
 }

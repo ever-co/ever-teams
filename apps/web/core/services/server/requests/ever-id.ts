@@ -24,7 +24,7 @@ const EVER_ID_PATH = '/auth/zitadel';
 const DEFAULT_TIMEOUT_MS = 10_000;
 
 /** A forwarded back-channel logout gives up quickly: the identity provider waits for this route's answer. */
-export const EVER_ID_LOGOUT_FORWARD_TIMEOUT_MS = 4_000;
+const EVER_ID_LOGOUT_FORWARD_TIMEOUT_MS = 4_000;
 
 export interface EverIdApiResult<T> {
 	status: number;
@@ -97,7 +97,7 @@ export function everIdSignupDetailsRequest(handoff: string) {
 	});
 }
 
-export interface EverIdSignupInput {
+interface EverIdSignupInput {
 	handoff: string;
 	firstName?: string;
 	lastName?: string;

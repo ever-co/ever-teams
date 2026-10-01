@@ -6,7 +6,7 @@
  * signature below accepts nothing else, and the test of this module pins the keys.
  */
 
-export type EverIdLogEvent = 'ever_id.signin' | 'ever_id.backchannel' | 'ever_id.confirm' | 'ever_id.signup';
+type EverIdLogEvent = 'ever_id.signin' | 'ever_id.backchannel' | 'ever_id.confirm' | 'ever_id.signup';
 
 export type EverIdSignInOutcome =
 	| 'ok'
@@ -17,11 +17,11 @@ export type EverIdSignInOutcome =
 	| 'rejected'
 	| 'gauzy_error';
 
-export type EverIdBackchannelOutcome = 'ok' | 'invalid' | 'replay' | 'stale' | 'forward_failed';
+type EverIdBackchannelOutcome = 'ok' | 'invalid' | 'replay' | 'stale' | 'forward_failed';
 
 export type EverIdStepOutcome = 'ok' | 'invalid' | 'expired' | 'subscription_required' | 'throttled' | 'gauzy_error';
 
-export interface EverIdLogFields {
+interface EverIdLogFields {
 	outcome: EverIdSignInOutcome | EverIdBackchannelOutcome | EverIdStepOutcome;
 	/** Milliseconds the step took. */
 	latencyMs?: number;
@@ -29,7 +29,7 @@ export interface EverIdLogFields {
 	status?: number;
 }
 
-export interface EverIdLogPayload {
+interface EverIdLogPayload {
 	event: EverIdLogEvent;
 	outcome: string;
 	latency_ms?: number;

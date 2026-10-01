@@ -25,7 +25,7 @@ const BASE_SCOPES = ['openid', 'profile', 'email', 'urn:zitadel:iam:user:resourc
 /** A project id is a plain identifier: anything else could smuggle extra scopes into the request. */
 const PROJECT_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 
-export interface EverIdConfig {
+interface EverIdConfig {
 	issuer: string;
 	clientId: string;
 	clientSecret: string;

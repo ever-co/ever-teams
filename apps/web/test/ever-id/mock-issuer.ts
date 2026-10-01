@@ -9,7 +9,7 @@ import { createServer, type Server } from 'node:http';
 import { SignJWT, exportJWK, generateKeyPair, type JWK, type JWTPayload } from 'jose';
 import { close, listen, sendJson } from './http';
 
-export const BACKCHANNEL_EVENT = 'http://schemas.openid.net/event/backchannel-logout';
+const BACKCHANNEL_EVENT = 'http://schemas.openid.net/event/backchannel-logout';
 
 export class MockIssuer {
 	issuer = '';

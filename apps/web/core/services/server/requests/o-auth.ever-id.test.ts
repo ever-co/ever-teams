@@ -213,7 +213,7 @@ describe('Ever ID sign-in: the ID token exchange', () => {
 
 	it('preselects the workspace the ID token points at when exactly one matches', async () => {
 		mockSignWithEverId.mockResolvedValue(
-			workspaces(workspace('user-1', 'tenant-1', 'Acme'), workspace('user-2', 'tenant-2', 'Globex'))
+			workspaces(workspace('user-1', 'tenant-1', 'Acme'), workspace('user-2', 'tenant-2', 'Beta'))
 		);
 		const auth = await loadAuth();
 		const profile = {
@@ -238,7 +238,7 @@ describe('Ever ID sign-in: the ID token exchange', () => {
 		['the claim is malformed', 'not-an-array']
 	])('starts on no particular workspace when %s', async (_label, orgs) => {
 		mockSignWithEverId.mockResolvedValue(
-			workspaces(workspace('user-1', 'tenant-1', 'Acme'), workspace('user-2', 'tenant-2', 'Globex'))
+			workspaces(workspace('user-1', 'tenant-1', 'Acme'), workspace('user-2', 'tenant-2', 'Beta'))
 		);
 		const auth = await loadAuth();
 

@@ -30,13 +30,13 @@ import type {
  */
 
 /** Where a sign-in without any workspace ends. */
-export const EVER_ID_NO_WORKSPACE_PATH = '/auth/error?error=EverIdNoWorkspace';
+const EVER_ID_NO_WORKSPACE_PATH = '/auth/error?error=EverIdNoWorkspace';
 
 /** The same, on a deployment that opted in to offering its usual sign-up there (EVER_ID_TEAMS_AUTO_PROVISION). */
-export const EVER_ID_NO_WORKSPACE_SIGNUP_PATH = '/auth/error?error=EverIdNoWorkspaceSignup';
+const EVER_ID_NO_WORKSPACE_SIGNUP_PATH = '/auth/error?error=EverIdNoWorkspaceSignup';
 
 /** Where a sign-in ends whose every workspace requires another sign-in method (its company sign-in). */
-export const EVER_ID_BLOCKED_PATH = '/auth/error?error=EverIdWorkspaceBlocked';
+const EVER_ID_BLOCKED_PATH = '/auth/error?error=EverIdWorkspaceBlocked';
 
 /** How long the adapter can still read an exchange by provider account id. */
 const MEMO_TTL_MS = 30_000;
@@ -46,7 +46,7 @@ const MEMO_MAX_ENTRIES = 1_000;
 
 const ORGS_CLAIM = 'urn:ever:orgs';
 
-export type EverIdExchange =
+type EverIdExchange =
 	| { kind: 'workspaces'; response: IEverIdWorkspacesResponse }
 	| { kind: 'blocked' }
 	| { kind: 'confirm_required'; handoff: string }
@@ -61,7 +61,7 @@ interface EverIdSignInRecord {
 }
 
 /** The parts of a next-auth account this module reads. */
-export interface EverIdAccount {
+interface EverIdAccount {
 	provider: string;
 	providerAccountId: string;
 	id_token?: string;
@@ -80,7 +80,7 @@ function isWorkspace(value: unknown): value is IEverIdWorkspace {
 }
 
 /** Maps an answer of `POST /api/auth/zitadel/token` to what the sign-in does next. */
-export function toEverIdExchange(result: EverIdApiResult<IEverIdTokenResponse | IEverIdTokenNotFound>): EverIdExchange {
+function toEverIdExchange(result: EverIdApiResult<IEverIdTokenResponse | IEverIdTokenNotFound>): EverIdExchange {
 	const status = result.status;
 	const data: unknown = result.data;
 	if (status === 200 && isRecord(data)) {
@@ -111,7 +111,7 @@ export function toEverIdExchange(result: EverIdApiResult<IEverIdTokenResponse | 
  * The tenant to start the chooser on: the ID token's organizations list the product tenants they are
  * linked to (`urn:ever:orgs[].links[].product_tenant_id`); exactly one matching workspace is preselected.
  */
-export function everIdPreselectTenantId(
+function everIdPreselectTenantId(
 	profile: Record<string, unknown> | undefined,
 	workspaces: IEverIdWorkspace[]
 ): string | undefined {
