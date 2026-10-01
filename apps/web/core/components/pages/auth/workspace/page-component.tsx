@@ -4,7 +4,7 @@ import { clsxm } from '@/core/lib/utils';
 import { AuthLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { WorkSpaceComponent } from '../passcode/page-component';
 import { useAuthenticationSocialLogin } from '@/core/hooks/auth/use-authentication-social-login';
 import Cookies from 'js-cookie';
@@ -17,6 +17,7 @@ import {
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
 import { getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
 import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
+import { readEverIdSession } from '@/core/lib/auth/ever-id/session';
 
 export default function SocialLoginChooseWorspace() {
 	const t = useTranslations();
@@ -67,6 +68,15 @@ function WorkSpaceScreen() {
 		loadOAuthSession();
 	}, [session]);
 
+	// Ever ID: the sign-in left the workspace list in the session (no Gauzy token yet: the workspace sign-in
+	// below makes it). Runs after the effect above, so its values are the ones kept.
+	const everIdSession = useMemo(() => readEverIdSession(session), [session]);
+	useEffect(() => {
+		if (!everIdSession) return;
+		setSigninResult((current) => ({ ...current, confirmed_mail: everIdSession.confirmedEmail }));
+		setWorkspaces(everIdSession.workspaces);
+	}, [everIdSession]);
+
 	// Analyze workspace structure to determine if we should show workspace selection
 	// Using centralized hook to avoid code duplication across auth components
 	const workspaceAnalysis = useWorkspaceAnalysis(workspaces);
@@ -115,6 +125,13 @@ function WorkSpaceScreen() {
 		}
 	}, [workspaces, workspaceAnalysis]);
 
+	// Ever ID: start on the workspace the ID token points at (when exactly one matches)
+	useEffect(() => {
+		if (everIdSession && everIdSession.preselectIndex >= 0 && everIdSession.preselectIndex < workspaces.length) {
+			setSelectedWorkspace(everIdSession.preselectIndex);
+		}
+	}, [everIdSession, workspaces]);
+
 	const signInToWorkspace = (e: any) => {
 		e.preventDefault();
 		updateOAuthSession();
@@ -142,6 +159,7 @@ function WorkSpaceScreen() {
 			setSelectedTeam={setSelectedTeam}
 			selectedTeam={selectedTeam}
 			signInWorkspaceLoading={form.signInWorkspaceLoading}
+			teamsUnavailable={everIdSession?.teamsUnavailable}
 		/>
 	);
 }

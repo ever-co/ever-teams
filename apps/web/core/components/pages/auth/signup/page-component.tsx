@@ -12,6 +12,18 @@ import HCaptcha from '@hcaptcha/react-hcaptcha';
 import Turnstile from 'react-turnstile';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { cn } from '@/core/lib/helpers';
+import { Checkbox } from '@/core/components/common/checkbox';
+import type { IEverIdSignupPrefill } from '@/core/types/interfaces/auth/ever-id';
+
+/** The Ever ID part of the sign-up form (null for the usual sign-up). */
+type TEverIdSignup = {
+	prefill: IEverIdSignupPrefill | null;
+	error: string | null;
+	confirmed: boolean;
+	setConfirmed: (confirmed: boolean) => void;
+	termsAccepted: boolean;
+	setTermsAccepted: (accepted: boolean) => void;
+} | null;
 
 function AuthSignup() {
 	const {
@@ -24,7 +36,8 @@ function AuthSignup() {
 		errors,
 		formValues,
 		loading,
-		startMode
+		startMode,
+		everId
 	} = useAuthenticationTeam();
 
 	const t = useTranslations();
@@ -51,6 +64,7 @@ function AuthSignup() {
 								handleOnChange={handleOnChange}
 								form={formValues}
 								loading={loading}
+								everId={everId}
 							/>
 						</div>
 
@@ -89,10 +103,12 @@ function FillUserDataForm({
 	errors,
 	handleOnChange,
 	loading,
-	className
+	className,
+	everId = null
 }: IStepProps & {
 	errors: Record<string, string>;
 	loading?: boolean;
+	everId?: TEverIdSignup;
 } & IClassName) {
 	const t = useTranslations();
 
@@ -150,6 +166,7 @@ function FillUserDataForm({
 						value={form.name}
 						errors={errors}
 						onChange={handleOnChange}
+						readOnly={!!everId}
 						autoComplete="off"
 						noWrapper
 						className={INPUT_CLASS}
@@ -173,12 +190,15 @@ function FillUserDataForm({
 						value={form.email}
 						errors={errors}
 						onChange={handleOnChange}
+						readOnly={!!everId}
 						autoComplete="off"
 						noWrapper
 						className={INPUT_CLASS}
 					/>
 					{errors?.email && <Text.Error className="text-xs">{errors.email}</Text.Error>}
 				</div>
+
+				{everId && <EverIdSignupConfirmation everId={everId} error={errors?.everId} />}
 
 				{renderCaptcha()}
 			</div>
@@ -304,6 +324,71 @@ function ChooseModeForm({
 				</Button>
 				<BackButton onClick={onPreviousStep} />
 			</div>
+		</div>
+	);
+}
+
+/**
+ * Ever ID sign-up: the name and e-mail address above are the verified ones of the Ever ID (read-only), and
+ * nothing is created until the person ticks the confirmation (and accepts the documents, if any) and submits.
+ */
+function EverIdSignupConfirmation({ everId, error }: { everId: NonNullable<TEverIdSignup>; error?: string }) {
+	const t = useTranslations();
+	const { prefill } = everId;
+	const message = error || everId.error;
+
+	return (
+		<div className="p-3 space-y-3 text-sm rounded-md ring-1 ring-foreground/10">
+			{prefill?.checkoutUrl && (
+				<p className="text-muted-foreground">
+					{t('pages.auth.everId.SIGNUP_CHECKOUT')}{' '}
+					<a href={prefill.checkoutUrl} className="font-medium underline text-primary">
+						{t('pages.auth.everId.CONTINUE_TO_CHECKOUT')}
+					</a>
+				</p>
+			)}
+			<p className="text-muted-foreground">{t('pages.auth.everId.SIGNUP_HINT')}</p>
+			<div className="flex gap-2 items-start">
+				<Checkbox
+					id="ever-id-signup-confirm"
+					checked={everId.confirmed}
+					disabled={!prefill}
+					onCheckedChange={(checked) => everId.setConfirmed(checked === true)}
+				/>
+				<label htmlFor="ever-id-signup-confirm" className="cursor-pointer">
+					{t('pages.auth.everId.SIGNUP_CONFIRM')}
+				</label>
+			</div>
+			{prefill && prefill.terms.length > 0 && (
+				<div className="flex gap-2 items-start">
+					<Checkbox
+						id="ever-id-signup-terms"
+						checked={everId.termsAccepted}
+						onCheckedChange={(checked) => everId.setTermsAccepted(checked === true)}
+					/>
+					<label htmlFor="ever-id-signup-terms" className="cursor-pointer">
+						{t('pages.auth.everId.SIGNUP_TERMS')}{' '}
+						{prefill.terms.map((document, index) => (
+							<span key={`${document.documentId}:${document.version}`}>
+								{index > 0 && ', '}
+								{document.url ? (
+									<a
+										href={document.url}
+										target="_blank"
+										rel="noreferrer"
+										className="underline text-primary"
+									>
+										{document.title || document.documentId}
+									</a>
+								) : (
+									document.title || document.documentId
+								)}
+							</span>
+						))}
+					</label>
+				</div>
+			)}
+			{message && <Text.Error className="text-xs">{message}</Text.Error>}
 		</div>
 	);
 }

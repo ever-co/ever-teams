@@ -10,6 +10,9 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
+import { EVER_ID_HANDOFF_PARAM, readEverIdHandoff } from '@/core/lib/auth/ever-id/handoff';
+import { toEverIdChooserData } from '@/core/lib/auth/ever-id/session';
+import { everIdService } from '@/core/services/client/api/auth/ever-id.service';
 
 type AuthCodeRef = {
 	focus: () => void;
@@ -39,9 +42,14 @@ export function useAuthenticationPasscode() {
 		return query?.get('code');
 	}, [query]);
 
+	// Ever ID sign-in that needs Gauzy's one-time e-mail code first: only the one-time key is in the URL.
+	const everIdHandoff = useMemo(() => readEverIdHandoff(query?.get(EVER_ID_HANDOFF_PARAM)), [query]);
+
 	const loginFromQuery = useRef(false);
 	const inputCodeRef = useRef<AuthCodeRef | null>(null);
-	const [screen, setScreen] = useState<'email' | 'passcode' | 'workspace'>('email');
+	const [screen, setScreen] = useState<'email' | 'passcode' | 'workspace'>(everIdHandoff ? 'passcode' : 'email');
+	const [everIdConfirmLoading, setEverIdConfirmLoading] = useState(false);
+	const [everIdTeamsUnavailable, setEverIdTeamsUnavailable] = useState(false);
 	const [workspaces, setWorkspaces] = useState<ISigninEmailConfirmWorkspaces[]>([]);
 	const [defaultTeamId, setDefaultTeamId] = useState<string | undefined>(undefined);
 	const [authenticated, setAuthenticated] = useState(false);
@@ -168,6 +176,48 @@ export function useAuthenticationPasscode() {
 		[queryCall, signInEmailConfirmQueryCall, router, t]
 	);
 
+	/**
+	 * Ever ID: the code from Gauzy's e-mail completes the link, then the usual workspace chooser follows.
+	 * The account's e-mail address arrives with the answer; it is never part of the URL.
+	 */
+	const verifyEverIdCodeRequest = useCallback(
+		async (handoff: string, code: string) => {
+			setStatus('loading');
+			setEverIdConfirmLoading(true);
+			try {
+				const { status: httpStatus, data } = await everIdService.confirmLink(handoff, code);
+				const chooser = httpStatus === 200 ? toEverIdChooserData(data.workspaces, data.confirmed_email) : null;
+				if (chooser) {
+					setWorkspaces(chooser.workspaces);
+					setEverIdTeamsUnavailable(chooser.teamsUnavailable);
+					setFormValues((values) => ({ ...values, email: chooser.confirmedEmail }));
+					setAuthenticated(true);
+					setStatus('success');
+					setScreen('workspace');
+					return;
+				}
+				setStatus('error');
+				setErrors({
+					code:
+						httpStatus === 410
+							? t('pages.auth.everId.CODE_EXPIRED')
+							: httpStatus === 429
+								? t('pages.auth.everId.TOO_MANY_ATTEMPTS')
+								: httpStatus === 400
+									? t('pages.auth.INVALID_CODE_TRY_AGAIN')
+									: t('pages.auth.everId.UNAVAILABLE')
+				});
+				inputCodeRef.current?.clear();
+			} catch {
+				setStatus('error');
+				setErrors({ code: t('pages.auth.everId.UNAVAILABLE') });
+			} finally {
+				setEverIdConfirmLoading(false);
+			}
+		},
+		[t]
+	);
+
 	const verifyPasscodeRequest = useCallback(
 		({ email, code }: { email: string; code: string }) => {
 			queryCall(email, code)
@@ -196,6 +246,17 @@ export function useAuthenticationPasscode() {
 		e.preventDefault();
 		setErrors({});
 		setStatus('loading');
+
+		if (everIdHandoff) {
+			const { errors, valid } = authFormValidate(['code'], formValues as any);
+			if (!valid) {
+				setStatus('error');
+				setErrors(errors);
+				return;
+			}
+			verifyEverIdCodeRequest(everIdHandoff, formValues.code);
+			return;
+		}
 
 		const { errors, valid } = authFormValidate(['email', 'code'], formValues as any);
 		if (!valid) {
@@ -311,7 +372,10 @@ export function useAuthenticationPasscode() {
 		sendCodeQueryCall,
 		signInWorkspaceLoading,
 		handleWorkspaceSubmit,
-		getLastTeamIdWithRecentLogout
+		getLastTeamIdWithRecentLogout,
+		everIdHandoff,
+		everIdConfirmLoading,
+		everIdTeamsUnavailable
 	};
 }
 

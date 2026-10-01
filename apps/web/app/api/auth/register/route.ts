@@ -20,6 +20,7 @@ import {
 	VERIFY_EMAIL_CALLBACK_PATH
 } from '@/core/constants/config/constants';
 import { NextResponse } from 'next/server';
+import { isEverIdRegisterBody, registerWithEverId } from '@/core/services/server/ever-id/register';
 
 export async function POST(req: Request) {
 	const url = new URL(req.url);
@@ -55,6 +56,12 @@ export async function POST(req: Request) {
 		if (!success) {
 			return NextResponse.json({ errors: { recaptcha: 'Invalid reCAPTCHA. Please try again' } }, { status: 400 });
 		}
+	}
+
+	// Ever ID sign-up (the body carries the one-time key of an Ever ID sign-in): the account comes from the
+	// verified Ever ID, created by the Gauzy API once the person confirmed. Without the key nothing below changes.
+	if (isEverIdRegisterBody(body)) {
+		return registerWithEverId(req, body, response);
 	}
 	/**
 	 * Verify if the SMTP has been configured

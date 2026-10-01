@@ -3,13 +3,19 @@
 import { useSearchParams } from 'next/navigation';
 import UnauthorizedPage from '@/core/components/pages/unauthorized';
 import ErrorPageComponent from '@/core/components/pages/error/error';
+import EverIdNoWorkspace from '@/core/components/pages/auth/ever-id-no-workspace';
 
 enum Error {
+	// Ever ID sign-in without a workspace it may enter (nothing is created)
+	EverIdNoWorkspace = 'EverIdNoWorkspace',
+	EverIdWorkspaceBlocked = 'EverIdWorkspaceBlocked',
 	Configuration = 'Configuration',
 	AccessDenied = 'AccessDenied'
 }
 
 const errorMap = {
+	[Error.EverIdNoWorkspace]: <EverIdNoWorkspace />,
+	[Error.EverIdWorkspaceBlocked]: <EverIdNoWorkspace reason="blocked" />,
 	[Error.Configuration]: <ErrorPageComponent />,
 	[Error.AccessDenied]: <UnauthorizedPage />
 };

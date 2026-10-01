@@ -713,7 +713,26 @@
 			"FORGOT_PASSWORD": "Esqueceu a senha?",
 			"TERMS_OF_SERVICE": "Termos de serviço",
 			"PRIVACY_POLICY": "Política de privacidade",
-			"OR_CONTINUE_WITH": "ou continue com"
+			"OR_CONTINUE_WITH": "ou continue com",
+			"everId": {
+				"NO_WORKSPACE_TITLE": "No workspace for this Ever ID yet",
+				"NO_WORKSPACE_BODY": "No workspace is linked to this Ever ID yet. Sign in another way, or ask your workspace admin for an invitation.",
+				"WORKSPACE_BLOCKED_TITLE": "Use your company sign-in",
+				"WORKSPACE_BLOCKED_BODY": "Your workspace asks you to sign in with your company sign-in. Use it to continue, or sign in another way.",
+				"SIGN_IN_ANOTHER_WAY": "Sign in another way",
+				"CONFIRM_HINT": "We sent a one-time code to the e-mail address of your existing account. Enter it to connect your Ever ID.",
+				"CODE_EXPIRED": "This code has expired or was tried too often. Sign in with Ever ID again.",
+				"TOO_MANY_ATTEMPTS": "Too many attempts. Wait a minute, then try again.",
+				"UNAVAILABLE": "Ever ID sign-in is not available right now. Try again later or sign in another way.",
+				"SIGNUP_CONFIRM": "Create my workspace with this Ever ID",
+				"SIGNUP_HINT": "Your name and e-mail address come from your verified Ever ID. Nothing is created until you continue.",
+				"SIGNUP_CONFIRM_REQUIRED": "Tick the box to create your workspace with this Ever ID.",
+				"SIGNUP_TERMS": "I accept these documents:",
+				"SIGNUP_TERMS_REQUIRED": "Accept the documents to continue.",
+				"SIGNUP_EXPIRED": "This sign-up link has expired. Sign in with Ever ID again.",
+				"SIGNUP_CHECKOUT": "A subscription is needed before your workspace can be created.",
+				"CONTINUE_TO_CHECKOUT": "Continue to checkout"
+			}
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Participar de uma Equipe Existente",
