@@ -33,7 +33,7 @@ const MAX_BODY_BYTES = 1_024;
 const MAX_CODE_LENGTH = 64;
 
 /** The answers of the API that judged the code (an attempt); any other answer gives the attempt back. */
-const JUDGED = [200, 401, 410];
+const JUDGED = new Set([200, 401, 410]);
 
 type Reason = 'invalid_code' | 'expired' | 'throttled' | 'unavailable';
 
@@ -103,7 +103,7 @@ export async function POST(req: Request) {
 	} catch {
 		status = 0;
 	}
-	if (!JUDGED.includes(status)) attempt.giveBack();
+	if (!JUDGED.has(status)) attempt.giveBack();
 
 	if (status === 200) {
 		if (isWorkspacesResponse(data)) {

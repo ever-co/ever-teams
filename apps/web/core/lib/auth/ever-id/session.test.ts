@@ -4,6 +4,7 @@
  */
 import {
 	everIdSetupTarget,
+	isAccountNotReadyError,
 	isExpiredWorkspaceTokenError,
 	isWorkspaceTokenExpired,
 	readEverIdSession,
@@ -138,16 +139,19 @@ describe('everIdSetupTarget', () => {
 		authCookie: { provider: 'ever-id', workspaces, confirmed_mail: confirmed }
 	});
 
-	it('finds the workspace without a tenant at a chooser index, with its token, the address and the user', () => {
-		expect(everIdSetupTarget(session([workspace('u1', 't1', 'Acme'), workspace('u2', null, '')]), 1)).toEqual({
+	it('finds the workspace at a chooser index, with its token, the address and the user', () => {
+		const list = session([workspace('u1', 't1', 'Acme'), workspace('u2', null, '')]);
+
+		expect(everIdSetupTarget(list, 1)).toEqual({
 			token: 'workspace-token-u2',
 			email: 'person@example.test',
 			userId: 'u2'
 		});
+		// One with a tenant too: the server decides whether its setup has anything left to do.
+		expect(everIdSetupTarget(list, 0)?.userId).toBe('u1');
 	});
 
 	it.each([
-		['a workspace that has its tenant', session([workspace('u1', 't1', 'Acme')]), 0],
 		['an index outside the list', session([workspace('u2', null, '')]), 3],
 		['a session of another sign-in', { authCookie: { workspaces: [workspace('u2', null, '')] } }, 0],
 		['no session', null, 0]
@@ -192,5 +196,19 @@ describe('workspace token expiry', () => {
 		['a request that could not be sent', new TypeError('Failed to fetch'), false]
 	])('recognises %s', (_label, error, expected) => {
 		expect(isExpiredWorkspaceTokenError(error)).toBe(expected);
+	});
+
+	it.each([
+		["the chooser's own answer for an account without an organization", { errors: { email: 'not ready' } }, true],
+		['an HTTP error with field errors', { errors: { email: 'x' }, response: { status: 400 } }, false],
+		[
+			'the expired-token answer',
+			{ response: { status: 400, data: { message: 'JWT token has been expired.' } } },
+			false
+		],
+		['a request that could not be sent', new TypeError('Failed to fetch'), false],
+		['nothing', undefined, false]
+	])('tells an account without an organization from %s', (_label, error, expected) => {
+		expect(isAccountNotReadyError(error)).toBe(expected);
 	});
 });

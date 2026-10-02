@@ -128,7 +128,8 @@ export class MockGauzyApi {
 		this.on('POST', '/api/auth/zitadel/backchannel-logout', () => ({ status: 200 }));
 		// The user and tenant of the workspace token it is given (the tokens are `workspace-token-<user id>`).
 		this.on('POST', '/api/auth/signin.workspace', (request) => {
-			const token = String((request.body as { token?: unknown } | undefined)?.token ?? '');
+			const sent = (request.body as { token?: unknown } | undefined)?.token;
+			const token = typeof sent === 'string' ? sent : '';
 			const userId = token.startsWith('workspace-token-') ? token.slice('workspace-token-'.length) : 'unknown';
 			return {
 				status: 200,

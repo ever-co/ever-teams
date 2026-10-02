@@ -3,8 +3,9 @@
  *
  * The workspace chooser after an Ever ID sign-in: its workspace tokens last 15 minutes, so an expired one starts the
  * Ever ID sign-in again instead of failing; a workspace without a tenant yet (an account whose setup did not finish,
- * or a sign-up completed after checkout) is set up through /api/auth/ever-id/finish-setup instead of being refused.
- * For any other session the chooser works as before.
+ * or a sign-up completed after checkout), or one whose usual sign-in finds no organization (the setup stopped after
+ * the tenant), is set up through /api/auth/ever-id/finish-setup instead of being refused. For any other session the
+ * chooser works as before.
  */
 import { act, renderHook } from '@testing-library/react';
 
@@ -151,6 +152,50 @@ describe('useEverIdWorkspaceChoice', () => {
 		expect(mockPush).not.toHaveBeenCalled();
 		expect(mockSignInFunction).not.toHaveBeenCalled();
 		expect(signInUsually).not.toHaveBeenCalled();
+	});
+
+	it('finishes the setup of the chosen workspace when its usual sign-in finds no organization', async () => {
+		mockFinishSetup.mockResolvedValue({ status: 200, data: { ok: true } });
+		const signInUsually = jest.fn();
+		const { result } = renderHook(() => useEverIdWorkspaceChoice(everIdSession));
+
+		// Workspace 0 has its tenant: the usual workspace sign-in runs, then answers that the account is not ready.
+		expect(result.current.continueChoice(0, inAWhile(), signInUsually)).toBe(false);
+		act(() => {
+			result.current.onWorkspaceSigninError?.({ errors: { email: 'Your account is not yet ready' } });
+		});
+		await settle();
+
+		expect(mockFinishSetup).toHaveBeenCalledWith(0, 'Europe/Paris');
+		expect(mockPush).toHaveBeenCalledWith('/');
+	});
+
+	it('stops when that setup finds nothing to do (409), without a second usual sign-in', async () => {
+		mockFinishSetup.mockResolvedValue({ status: 409, data: { reason: 'has_workspace' } });
+		const signInUsually = jest.fn();
+		const { result } = renderHook(() => useEverIdWorkspaceChoice(everIdSession));
+
+		result.current.continueChoice(0, inAWhile(), signInUsually);
+		act(() => {
+			result.current.onWorkspaceSigninError?.({ errors: { email: 'Your account is not yet ready' } });
+		});
+		await settle();
+
+		expect(mockFinishSetup).toHaveBeenCalledTimes(1);
+		expect(signInUsually).not.toHaveBeenCalled();
+		expect(result.current.setupRunning).toBe(false);
+	});
+
+	it('leaves other failures of the usual workspace sign-in alone', async () => {
+		const { result } = renderHook(() => useEverIdWorkspaceChoice(everIdSession));
+
+		result.current.continueChoice(0, inAWhile(), jest.fn());
+		result.current.onWorkspaceSigninError?.({ response: { status: 401, data: {} } });
+		result.current.onWorkspaceSigninError?.(new TypeError('Failed to fetch'));
+		await settle();
+
+		expect(mockFinishSetup).not.toHaveBeenCalled();
+		expect(mockSignInFunction).not.toHaveBeenCalled();
 	});
 
 	it('starts the Ever ID sign-in again when the usual workspace sign-in answers that the token expired', async () => {

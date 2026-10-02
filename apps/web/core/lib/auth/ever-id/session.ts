@@ -96,8 +96,8 @@ export function readEverIdSession(session: unknown): EverIdChooserData | null {
 }
 
 /**
- * The workspace without a tenant at a chooser index of an Ever ID session (server side, to resume its setup): its
- * workspace token, the verified e-mail address and the user id; `null` when that entry has a tenant or is not there.
+ * The workspace at a chooser index of an Ever ID session (server side, to finish its setup): its workspace token,
+ * the verified e-mail address and the user id; `null` when that entry is not there.
  */
 export function everIdSetupTarget(
 	session: unknown,
@@ -105,7 +105,7 @@ export function everIdSetupTarget(
 ): { token: string; email: string; userId: string } | null {
 	const data = everIdSessionData(session);
 	const workspace = data ? usableWorkspaces(data.workspaces)[index] : undefined;
-	if (!workspace || workspace.user.tenant) return null;
+	if (!workspace) return null;
 	const email =
 		(typeof data?.confirmed_mail === 'string' && data.confirmed_mail) ||
 		(typeof workspace.user.email === 'string' && workspace.user.email) ||
@@ -118,6 +118,14 @@ export function isExpiredWorkspaceTokenError(error: unknown): boolean {
 	const response = isRecord(error) && isRecord(error.response) ? error.response : undefined;
 	const data = response && isRecord(response.data) ? response.data : undefined;
 	return response?.status === 400 && typeof data?.message === 'string' && /expired/i.test(data.message);
+}
+
+/**
+ * Whether the usual workspace sign-in of the chooser stopped because the account has no organization yet (its own
+ * "account not ready" answer, not an HTTP error): an Ever ID account whose setup stopped after its tenant.
+ */
+export function isAccountNotReadyError(error: unknown): boolean {
+	return isRecord(error) && isRecord(error.errors) && !('response' in error);
 }
 
 /**

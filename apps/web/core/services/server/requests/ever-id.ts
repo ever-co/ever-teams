@@ -101,13 +101,18 @@ const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve,
  * Runs a step again while the API answers 409 `handoff_busy` (another attempt holds the key for a moment), waiting
  * what the API asks (at most 5 s) between tries; the last answer is returned, still busy after three tries.
  */
-export async function retryWhileBusy<T>(call: () => Promise<EverIdApiResult<T>>): Promise<EverIdApiResult<T>> {
-	let result = await call();
-	for (let tries = 1; tries < BUSY_TRIES && isHandoffBusy(result); tries++) {
-		await sleep(Math.min(result.retryAfter ?? DEFAULT_BUSY_WAIT_S, MAX_BUSY_WAIT_S) * 1000);
-		result = await call();
-	}
-	return result;
+export function retryWhileBusy<T>(call: () => Promise<EverIdApiResult<T>>): Promise<EverIdApiResult<T>> {
+	return tryWhileBusy(call, BUSY_TRIES);
+}
+
+async function tryWhileBusy<T>(
+	call: () => Promise<EverIdApiResult<T>>,
+	triesLeft: number
+): Promise<EverIdApiResult<T>> {
+	const result = await call();
+	if (triesLeft <= 1 || !isHandoffBusy(result)) return result;
+	await sleep(Math.min(result.retryAfter ?? DEFAULT_BUSY_WAIT_S, MAX_BUSY_WAIT_S) * 1000);
+	return tryWhileBusy(call, triesLeft - 1);
 }
 
 /**

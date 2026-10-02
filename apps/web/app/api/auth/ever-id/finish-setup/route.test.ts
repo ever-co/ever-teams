@@ -1,7 +1,8 @@
 /**
  * POST /api/auth/ever-id/finish-setup: a workspace an Ever ID sign-in lists without a tenant (an account the API
- * created whose setup here did not finish, or a sign-up completed after checkout) is set up instead of refused. The
- * workspace token comes from the Ever ID sign-in's next-auth session on the server, never from the page.
+ * created whose setup here did not finish, or a sign-up completed after checkout), or whose owner has no
+ * organization yet (the setup stopped after the tenant), is set up instead of refused. The workspace token comes
+ * from the Ever ID sign-in's next-auth session on the server, never from the page.
  */
 
 const mockAuth = jest.fn();
@@ -12,6 +13,7 @@ const mockRequests = {
 	createOrganizationRequest: jest.fn(),
 	createEmployeeFromUser: jest.fn(),
 	createOrganizationTeamRequest: jest.fn(),
+	getUserOrganizationsRequest: jest.fn(),
 	refreshTokenRequest: jest.fn()
 };
 const mockSetAuthCookies = jest.fn();
@@ -149,7 +151,6 @@ describe('POST /api/auth/ever-id/finish-setup', () => {
 	});
 
 	it.each([
-		['a workspace that has its tenant', { workspace: 0 }],
 		['an index outside the list', { workspace: 7 }],
 		['no index', {}],
 		['an index that is not a whole number', { workspace: 1.5 }]
@@ -222,6 +223,67 @@ describe('POST /api/auth/ever-id/finish-setup', () => {
 
 		clock += 15_000;
 		expect((await POST(post({ workspace: 1 }))).status).toBe(409);
+	});
+
+	it("resumes a setup that stopped after the tenant: the owner's tenant is kept, the remaining steps run", async () => {
+		primeSetup();
+		mockWorkspaceSignin.mockResolvedValue({
+			status: 200,
+			data: {
+				user: { id: 'u1', tenantId: 't1', name: 'Test Person', role: { name: 'SUPER_ADMIN' } },
+				token: 'access-1',
+				refresh_token: 'refresh-1'
+			}
+		});
+		mockRequests.getUserOrganizationsRequest.mockResolvedValue({ data: { items: [], total: 0 } });
+		const { POST } = loadRoute();
+
+		const res = await POST(post({ workspace: 0 }));
+
+		expect(res.status).toBe(200);
+		expect(mockWorkspaceSignin).toHaveBeenCalledWith('person@example.test', 'workspace-token-u1');
+		expect(mockRequests.getUserOrganizationsRequest).toHaveBeenCalledWith(
+			{ tenantId: 't1', userId: 'u1' },
+			'access-1'
+		);
+		// The tenant exists: never a second one (the API allows one per account).
+		expect(mockRequests.createTenantRequest).not.toHaveBeenCalled();
+		expect(mockRequests.createTenantSmtpRequest).not.toHaveBeenCalled();
+		expect(mockRequests.createOrganizationRequest).toHaveBeenCalledWith(
+			expect.objectContaining({ name: "Test Person's Team", tenantId: 't1' }),
+			'access-1'
+		);
+		expect(mockRequests.createEmployeeFromUser).toHaveBeenCalledWith(
+			expect.objectContaining({ organizationId: 'org-2', tenantId: 't1', userId: 'u1' }),
+			'access-1'
+		);
+		expect(mockSetAuthCookies).toHaveBeenCalledWith(
+			expect.objectContaining({ tenantId: 't1', organizationId: 'org-2', teamId: 'team-2', userId: 'u1' }),
+			expect.anything()
+		);
+	});
+
+	it.each([
+		[
+			'the owner of a tenant that has its organization',
+			{ name: 'SUPER_ADMIN' },
+			{ data: { items: [{ organizationId: 'org-1' }], total: 1 } }
+		],
+		['a member of a tenant it does not own', { name: 'EMPLOYEE' }, undefined],
+		['an account whose role the answer does not name', undefined, undefined]
+	])('answers 409 and creates nothing for %s', async (_label, role, memberships) => {
+		mockWorkspaceSignin.mockResolvedValue({
+			status: 200,
+			data: { user: { id: 'u1', tenantId: 't1', role }, token: 'access-1', refresh_token: 'refresh-1' }
+		});
+		if (memberships) mockRequests.getUserOrganizationsRequest.mockResolvedValue(memberships);
+		const { POST } = loadRoute();
+
+		expect((await POST(post({ workspace: 0 }))).status).toBe(409);
+		expect(mockRequests.createTenantRequest).not.toHaveBeenCalled();
+		expect(mockRequests.createOrganizationRequest).not.toHaveBeenCalled();
+		expect(mockSetAuthCookies).not.toHaveBeenCalled();
+		if (!memberships) expect(mockRequests.getUserOrganizationsRequest).not.toHaveBeenCalled();
 	});
 
 	it('answers 502 when a setup step fails', async () => {

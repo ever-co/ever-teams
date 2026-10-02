@@ -37,7 +37,7 @@ const SETUP_FAILED =
 	'Your account was created, but its workspace could not be set up yet. Sign in with Ever ID again to finish it.';
 
 /** The answers of the API that judged the sign-up (an attempt); any other answer gives the attempt back. */
-const JUDGED = [200, 400, 403, 410];
+const JUDGED = new Set([200, 400, 403, 410]);
 
 /** More accepted documents than the API could require is not a sign-up form. */
 const MAX_TERMS = 32;
@@ -124,65 +124,52 @@ function isWorkspacesResponse(value: unknown): value is IEverIdWorkspacesRespons
 	);
 }
 
-export async function registerWithEverId(req: Request, input: unknown, response: NextResponse): Promise<NextResponse> {
-	const body = (input && typeof input === 'object' ? input : {}) as Record<string, unknown>;
-	if (!isEverIdConfigured()) {
-		return errors(404, { email: 'Ever ID sign-up is not available.' });
-	}
+type SignupAnswer = Awaited<ReturnType<typeof everIdSignupRequest>>;
+type LogOutcome = (outcome: EverIdStepOutcome, status?: number) => void;
+
+/**
+ * The checks before the API is called: the answer that ends the request, or the one-time key and the accepted
+ * documents the sign-up sends.
+ */
+function checkSignupRequest(
+	req: Request,
+	body: Record<string, unknown>
+): { answer: NextResponse } | { handoff: string; terms: IEverIdTermsClaim[] } {
 	if (body.ever_id !== 'signup' || !/^application\/json\b/i.test(req.headers.get('content-type') ?? '')) {
-		return errors(400, { email: 'This sign-up is not valid. Sign in with Ever ID again.' });
+		return { answer: errors(400, { email: 'This sign-up is not valid. Sign in with Ever ID again.' }) };
 	}
-	const secure = everIdCookieSecure(req.headers, req.url);
-	/** Answers that end the sign-up with this key also drop its cookie. */
-	const withoutKey = (answer: NextResponse) => {
-		answer.cookies.set(clearedEverIdHandoffCookie(secure));
-		return answer;
-	};
 	const handoff = everIdHandoffFromRequest(req, 'signup');
 	if (!handoff) {
-		return errors(410, { email: 'This sign-up has expired. Sign in with Ever ID again.' });
+		return { answer: errors(410, { email: 'This sign-up has expired. Sign in with Ever ID again.' }) };
 	}
 	if (body.ever_id_flow !== everIdFlowId(handoff)) {
-		return errors(409, {
-			email: 'This sign-up was replaced by another Ever ID sign-in. Sign in with Ever ID again.'
-		});
+		return {
+			answer: errors(409, {
+				email: 'This sign-up was replaced by another Ever ID sign-in. Sign in with Ever ID again.'
+			})
+		};
 	}
 	if (body.confirm !== true) {
-		return errors(400, { confirm: 'Confirm that you want to create your workspace with this Ever ID.' });
+		return {
+			answer: errors(400, { confirm: 'Confirm that you want to create your workspace with this Ever ID.' })
+		};
 	}
 	const terms = termsClaims(body.terms);
 	if (!terms) {
-		return errors(400, { confirm: 'Accept the required documents to create your workspace.' });
+		return { answer: errors(400, { confirm: 'Accept the required documents to create your workspace.' }) };
 	}
+	return { handoff, terms };
+}
 
-	const team = text(body.team);
-	const startedAt = Date.now();
-	const log = (outcome: EverIdStepOutcome, status?: number) =>
-		logEverIdOutcome('ever_id.signup', { outcome, latencyMs: Date.now() - startedAt, status });
-
-	const attempt = everIdSignupAttempts.take(handoff);
-	if (!attempt.allowed) {
-		log('throttled');
-		return errors(429, { email: 'Too many attempts. Try again in a minute.' }, attempt.retryAfterS);
-	}
-
-	const language = everIdLanguage(body.language);
-	let signup;
-	try {
-		signup = await retryWhileBusy(() =>
-			everIdSignupRequest(
-				{ handoff, ...(body.verified_name === true ? {} : enteredName(body.name)), terms },
-				language
-			)
-		);
-	} catch {
-		attempt.giveBack();
-		log('gauzy_error', 0);
-		return errors(502, { email: 'The workspace could not be created. Try again later.' });
-	}
-	// Only an answer about the sign-up itself counts as an attempt (not the API's rate limit or failures).
-	if (!JUDGED.includes(signup.status)) attempt.giveBack();
-
+/**
+ * The answer to an API sign-up answer that does not lead to the workspace setup, or `null` for a complete workspace
+ * list. `withoutKey` drops the cookie of a key the API used up.
+ */
+function answerUnfinishedSignup(
+	signup: SignupAnswer,
+	log: LogOutcome,
+	withoutKey: (answer: NextResponse) => NextResponse
+): NextResponse | null {
 	const signupData = signup.data as Record<string, unknown> | undefined;
 	if (signup.status === 403 && signupData?.code === 'subscription_required' && isHttpsUrl(signupData.checkoutUrl)) {
 		// The confirmed sign-up waits in the API while the person goes through checkout; it completes at their
@@ -195,7 +182,8 @@ export async function registerWithEverId(req: Request, input: unknown, response:
 			)
 		);
 	}
-	if (signup.status === 200 && !isWorkspacesResponse(signup.data)) {
+	if (signup.status === 200) {
+		if (isWorkspacesResponse(signup.data)) return null;
 		// The API took the key (and most likely created the account) but its answer cannot continue the sign-in.
 		log('gauzy_error', signup.status);
 		return withoutKey(errors(502, { team: SETUP_FAILED }));
@@ -209,12 +197,59 @@ export async function registerWithEverId(req: Request, input: unknown, response:
 			signup.retryAfter ?? (signup.status === 409 ? 2 : 60)
 		);
 	}
-	if (signup.status !== 200 || !isWorkspacesResponse(signup.data)) {
-		const failure = SIGNUP_FAILURES[signup.status] ?? SIGNUP_FAILURES[502];
-		log(failure.outcome, signup.status);
-		// A 410 means used up or expired: the cookie goes.
-		const answer = errors(failure.status, failure.errors);
-		return signup.status === 410 ? withoutKey(answer) : answer;
+	const failure = SIGNUP_FAILURES[signup.status] ?? SIGNUP_FAILURES[502];
+	log(failure.outcome, signup.status);
+	// A 410 means used up or expired: the cookie goes.
+	const answer = errors(failure.status, failure.errors);
+	return signup.status === 410 ? withoutKey(answer) : answer;
+}
+
+export async function registerWithEverId(req: Request, input: unknown, response: NextResponse): Promise<NextResponse> {
+	const body = (input && typeof input === 'object' ? input : {}) as Record<string, unknown>;
+	if (!isEverIdConfigured()) {
+		return errors(404, { email: 'Ever ID sign-up is not available.' });
+	}
+	const checked = checkSignupRequest(req, body);
+	if ('answer' in checked) return checked.answer;
+	const { handoff, terms } = checked;
+
+	const secure = everIdCookieSecure(req.headers, req.url);
+	/** Answers that end the sign-up with this key also drop its cookie. */
+	const withoutKey = (answer: NextResponse) => {
+		answer.cookies.set(clearedEverIdHandoffCookie(secure));
+		return answer;
+	};
+	const team = text(body.team);
+	const startedAt = Date.now();
+	const log: LogOutcome = (outcome, status) =>
+		logEverIdOutcome('ever_id.signup', { outcome, latencyMs: Date.now() - startedAt, status });
+
+	const attempt = everIdSignupAttempts.take(handoff);
+	if (!attempt.allowed) {
+		log('throttled');
+		return errors(429, { email: 'Too many attempts. Try again in a minute.' }, attempt.retryAfterS);
+	}
+
+	const language = everIdLanguage(body.language);
+	let signup: SignupAnswer;
+	try {
+		signup = await retryWhileBusy(() =>
+			everIdSignupRequest(
+				{ handoff, ...(body.verified_name === true ? {} : enteredName(body.name)), terms },
+				language
+			)
+		);
+	} catch {
+		attempt.giveBack();
+		log('gauzy_error', 0);
+		return errors(502, { email: 'The workspace could not be created. Try again later.' });
+	}
+	// Only an answer about the sign-up itself counts as an attempt (not the API's rate limit or failures).
+	if (!JUDGED.has(signup.status)) attempt.giveBack();
+
+	const unfinished = answerUnfinishedSignup(signup, log, withoutKey);
+	if (unfinished || !isWorkspacesResponse(signup.data)) {
+		return unfinished ?? withoutKey(errors(502, { team: SETUP_FAILED }));
 	}
 
 	const created = signup.data;
