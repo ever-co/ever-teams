@@ -254,8 +254,13 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 					)}
 				</div>
 
+				{/* Ever ID: Gauzy already sent its one-time code to the account's mailbox (no resend from here) */}
+				{form.everIdConfirm && (
+					<p className="text-sm text-muted-foreground">{t('pages.auth.everId.CONFIRM_HINT')}</p>
+				)}
+
 				{/* Resend code + back */}
-				<div className="flex flex-col gap-2 text-sm">
+				<div className={cn('flex flex-col gap-2 text-sm', form.everIdConfirm && 'hidden')}>
 					<div className="flex flex-row gap-2 items-center">
 						<span className="text-muted-foreground">{t('pages.auth.UNRECEIVED_CODE')}</span>
 						{!form.sendCodeLoading ? (
@@ -289,8 +294,8 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 				<div className="flex flex-col gap-1.5 items-center w-full">
 					<Button
 						type="submit"
-						loading={form.signInEmailConfirmLoading}
-						disabled={form.signInEmailConfirmLoading}
+						loading={form.signInEmailConfirmLoading || form.everIdConfirmLoading}
+						disabled={form.signInEmailConfirmLoading || form.everIdConfirmLoading}
 						className="cursor-pointer w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-md border-[0.5px] border-white/10 shadow-black/15 [&_svg]:drop-shadow-sm bg-primary ring-1 ring-(--ring-color) [--ring-color:color-mix(in_oklab,black_15%,var(--color-primary))] dark:border-transparent dark:[--ring-color:color-mix(in_oklab,white_15%,var(--color-primary))] text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2"
 					>
 						{t('pages.auth.LOGIN')}
@@ -299,6 +304,8 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 					<BackButton
 						className={buttonVariants({ variant: 'link', className: 'w-full underline' })}
 						onClick={() => {
+							// Leaving the Ever ID step drops its marker from the URL and empties the code
+							form.leaveEverIdStep();
 							form.authScreen.setScreen('email');
 							form.setErrors({});
 						}}
@@ -402,6 +409,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 					workspaces={form.workspaces}
 					onSubmit={signInToWorkspace}
 					onBackButtonClick={() => {
+						form.leaveEverIdStep();
 						form.authScreen.setScreen('email');
 						form.setErrors({});
 					}}
@@ -410,6 +418,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 					setSelectedTeam={setSelectedTeam}
 					selectedTeam={selectedTeam}
 					signInWorkspaceLoading={form.signInWorkspaceLoading}
+					teamsUnavailable={form.everIdTeamsUnavailable}
 				/>
 			</div>
 
@@ -433,6 +442,8 @@ type IWorkSpace = {
 	signInWorkspaceLoading?: boolean;
 	setSelectedTeam: Dispatch<SetStateAction<string>>;
 	selectedTeam: string;
+	/** The workspaces carry no team list (an Ever ID sign-in): list them without empty-workspace warnings. */
+	teamsUnavailable?: boolean;
 };
 
 export function WorkSpaceComponent(props: IWorkSpace) {
@@ -449,6 +460,19 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 	// so the user can still proceed to create a team.
 	// Also preserve original indices to correctly map filtered UI selections back to the original array.
 	const workspacesWithTeamsStatus = useMemo(() => {
+		// Team lists unknown (Ever ID sign-in): every workspace is listed as a plain choice, the team is picked later
+		if (props.teamsUnavailable) {
+			return props.workspaces
+				.map((workspace, index) => ({ workspace, originalIndex: index }))
+				.filter(({ workspace }) => workspace?.user)
+				.map(({ workspace, originalIndex }) => ({
+					workspace: { ...workspace, current_teams: workspace.current_teams ?? [] },
+					originalIndex,
+					hasTeams: true,
+					teamCount: 0
+				}));
+		}
+
 		// Get all valid workspaces with their original indices
 		const allWorkspacesWithIndices = props.workspaces
 			.map((workspace, index) => ({ workspace, originalIndex: index }))
@@ -469,7 +493,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 			hasTeams: hasTeams(workspace),
 			teamCount: workspace.current_teams?.length || 0
 		}));
-	}, [props.workspaces]);
+	}, [props.workspaces, props.teamsUnavailable]);
 
 	// Find the selected workspace in the filtered array using originalIndex
 	const selectedWorkspaceData = workspacesWithTeamsStatus.find((ws) => ws.originalIndex === props.selectedWorkspace);

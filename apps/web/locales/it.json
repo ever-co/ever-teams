@@ -713,7 +713,28 @@
 			"FORGOT_PASSWORD": "Password dimenticata?",
 			"TERMS_OF_SERVICE": "Termini di servizio",
 			"PRIVACY_POLICY": "Informativa sulla privacy",
-			"OR_CONTINUE_WITH": "o continua con"
+			"OR_CONTINUE_WITH": "o continua con",
+			"everId": {
+				"NO_WORKSPACE_TITLE": "Ancora nessuno spazio di lavoro per questo Ever ID",
+				"NO_WORKSPACE_BODY": "Nessuno spazio di lavoro è ancora collegato a questo Ever ID. Accedi in un altro modo oppure chiedi un invito all'amministratore del tuo spazio di lavoro.",
+				"WORKSPACE_BLOCKED_TITLE": "Usa l'accesso della tua azienda",
+				"WORKSPACE_BLOCKED_BODY": "Il tuo spazio di lavoro richiede l'accesso tramite la tua azienda. Usalo per continuare oppure accedi in un altro modo.",
+				"SIGN_IN_ANOTHER_WAY": "Accedi in un altro modo",
+				"NO_WORKSPACE_SIGNUP_BODY": "Puoi anche creare un nuovo spazio di lavoro con la consueta registrazione.",
+				"CREATE_WORKSPACE": "Crea uno spazio di lavoro",
+				"CONFIRM_HINT": "Abbiamo inviato un codice monouso all'indirizzo e-mail del tuo account esistente. Inseriscilo per collegare il tuo Ever ID.",
+				"CODE_EXPIRED": "Questo codice è scaduto o è stato provato troppe volte. Accedi di nuovo con Ever ID.",
+				"TOO_MANY_ATTEMPTS": "Troppi tentativi. Attendi un minuto, poi riprova.",
+				"UNAVAILABLE": "L'accesso con Ever ID non è disponibile al momento. Riprova più tardi oppure accedi in un altro modo.",
+				"SIGNUP_CONFIRM": "Crea il mio spazio di lavoro con questo Ever ID",
+				"SIGNUP_HINT": "Il tuo indirizzo e-mail proviene dal tuo Ever ID verificato. Non viene creato nulla finché non continui.",
+				"SIGNUP_CONFIRM_REQUIRED": "Seleziona la casella per creare il tuo spazio di lavoro con questo Ever ID.",
+				"SIGNUP_TERMS": "Accetto questi documenti:",
+				"SIGNUP_TERMS_REQUIRED": "Accetta i documenti per continuare.",
+				"SIGNUP_EXPIRED": "Questa registrazione è scaduta. Accedi di nuovo con Ever ID.",
+				"SIGNUP_CHECKOUT": "È necessario un abbonamento prima di poter creare il tuo spazio di lavoro.",
+				"CONTINUE_TO_CHECKOUT": "Continua al pagamento"
+			}
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Unisciti a un Team esistente",

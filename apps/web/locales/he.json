@@ -713,7 +713,28 @@
 			"FORGOT_PASSWORD": "שכחת סיסמה?",
 			"TERMS_OF_SERVICE": "תנאי שימוש",
 			"PRIVACY_POLICY": "מדיניות פרטיות",
-			"OR_CONTINUE_WITH": "או המשך עם"
+			"OR_CONTINUE_WITH": "או המשך עם",
+			"everId": {
+				"NO_WORKSPACE_TITLE": "עדיין אין סביבת עבודה עבור Ever ID זה",
+				"NO_WORKSPACE_BODY": "עדיין לא מקושרת סביבת עבודה ל-Ever ID זה. התחבר בדרך אחרת, או בקש הזמנה ממנהל סביבת העבודה שלך.",
+				"WORKSPACE_BLOCKED_TITLE": "השתמש בהתחברות של החברה שלך",
+				"WORKSPACE_BLOCKED_BODY": "סביבת העבודה שלך מבקשת שתתחבר דרך ההתחברות של החברה שלך. השתמש בה כדי להמשיך, או התחבר בדרך אחרת.",
+				"SIGN_IN_ANOTHER_WAY": "התחבר בדרך אחרת",
+				"NO_WORKSPACE_SIGNUP_BODY": "אפשר גם ליצור סביבת עבודה חדשה בהרשמה הרגילה.",
+				"CREATE_WORKSPACE": "צור סביבת עבודה",
+				"CONFIRM_HINT": "שלחנו קוד חד-פעמי לכתובת האימייל של החשבון הקיים שלך. הזן אותו כדי לחבר את ה-Ever ID שלך.",
+				"CODE_EXPIRED": "תוקף הקוד הזה פג או שנוסה יותר מדי פעמים. התחבר שוב עם Ever ID.",
+				"TOO_MANY_ATTEMPTS": "יותר מדי ניסיונות. המתן דקה ונסה שוב.",
+				"UNAVAILABLE": "ההתחברות עם Ever ID אינה זמינה כרגע. נסה שוב מאוחר יותר או התחבר בדרך אחרת.",
+				"SIGNUP_CONFIRM": "צור את סביבת העבודה שלי עם Ever ID זה",
+				"SIGNUP_HINT": "כתובת האימייל שלך מגיעה מה-Ever ID המאומת שלך. שום דבר לא נוצר עד שתמשיך.",
+				"SIGNUP_CONFIRM_REQUIRED": "סמן את התיבה כדי ליצור את סביבת העבודה שלך עם Ever ID זה.",
+				"SIGNUP_TERMS": "אני מקבל את המסמכים האלה:",
+				"SIGNUP_TERMS_REQUIRED": "קבל את המסמכים כדי להמשיך.",
+				"SIGNUP_EXPIRED": "תוקף ההרשמה הזו פג. התחבר שוב עם Ever ID.",
+				"SIGNUP_CHECKOUT": "נדרש מנוי לפני שניתן ליצור את סביבת העבודה שלך.",
+				"CONTINUE_TO_CHECKOUT": "המשך לתשלום"
+			}
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "הצטרף לצוות קיים",

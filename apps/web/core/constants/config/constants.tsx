@@ -703,6 +703,35 @@ export const SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET;
 export const TWITTER_CLIENT_ID = process.env.TWITTER_CLIENT_ID;
 export const TWITTER_CLIENT_SECRET = process.env.TWITTER_CLIENT_SECRET;
 
+/**
+ * Ever ID sign-in (an OpenID Connect provider), server-only and OFF unless configured: next-auth serves it
+ * only when NEXT_PUBLIC_EVER_ID_APP_NAME is set AND the issuer, client id and client secret below are all
+ * non-blank (core/lib/auth/ever-id/config.ts). Nothing here is published to the browser, and nothing
+ * contacts the issuer before someone actually signs in with it.
+ *
+ * EVER_ID_ISSUER is the deprecated name of EVER_ID_ISSUER_URL: still read, with one warning per process. The
+ * value is used exactly as configured (an issuer identifier is compared character for character).
+ */
+const resolveEverIdIssuerUrl = (): string | undefined => {
+	const issuer = blankToUndefined(process.env.EVER_ID_ISSUER_URL);
+	if (issuer) return issuer;
+	const deprecated = blankToUndefined(process.env.EVER_ID_ISSUER);
+	if (!deprecated) return undefined;
+	warnOnce('EVER_ID_ISSUER', 'EVER_ID_ISSUER is deprecated: set EVER_ID_ISSUER_URL instead.');
+	return deprecated;
+};
+export const EVER_ID_ISSUER_URL = resolveEverIdIssuerUrl();
+export const EVER_ID_CLIENT_ID = blankToUndefined(process.env.EVER_ID_CLIENT_ID);
+export const EVER_ID_CLIENT_SECRET = blankToUndefined(process.env.EVER_ID_CLIENT_SECRET);
+/** Optional: when set, the sign-in also asks for the platform project audience. */
+export const EVER_PLATFORM_PROJECT_ID = blankToUndefined(process.env.EVER_PLATFORM_PROJECT_ID);
+/**
+ * Off by default. An Ever ID sign-in without a workspace never creates one: it ends on a page that explains why.
+ * Exactly 'true' makes that page also offer the usual sign-up, where an account is created only once the person
+ * confirms it.
+ */
+export const EVER_ID_TEAMS_AUTO_PROVISION = blankToUndefined(process.env.EVER_ID_TEAMS_AUTO_PROVISION) === 'true';
+
 export const developmentAuthSecret = 'DEFAULT_VALUE_OF_SECRET_FOR_DEVELOPMENT';
 export const isDevelopment = process.env.NODE_ENV === 'development';
 
