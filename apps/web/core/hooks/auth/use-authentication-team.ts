@@ -11,7 +11,7 @@ import { RECAPTCHA_SITE_KEY } from '@/core/constants/config/constants';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { useLocale, useTranslations } from 'next-intl';
-import { EVER_ID_HANDOFF_PARAM, readEverIdHandoff } from '@/core/lib/auth/ever-id/handoff';
+import { EVER_ID_STEP_PARAM, isEverIdStep } from '@/core/lib/auth/ever-id/step';
 import { everIdService } from '@/core/services/client/api/auth/ever-id.service';
 import type { IEverIdSignupPrefill } from '@/core/types/interfaces/auth/ever-id';
 
@@ -22,6 +22,13 @@ const SECOND_STEP = 'STEP2' as const;
 
 // Start mode: solo (default) or team
 export type TStartMode = 'solo' | 'team';
+
+/** The message of an Ever ID sign-up step that did not succeed. */
+function everIdStepMessage(status: number) {
+	if (status === 410) return 'pages.auth.everId.SIGNUP_EXPIRED' as const;
+	if (status === 429) return 'pages.auth.everId.TOO_MANY_ATTEMPTS' as const;
+	return 'pages.auth.everId.UNAVAILABLE' as const;
+}
 
 export interface IStepProps {
 	handleOnChange: any;
@@ -65,58 +72,86 @@ export function useAuthenticationTeam() {
 	const { queryCall, loading, infiniteLoading } = useQueryCall(authService.registerUserTeam);
 
 	// Ever ID sign-up: a person new to the product creates the workspace with the Ever ID they signed in with.
-	// Only the one-time key is in the URL; the verified name and e-mail address are read from the server.
+	// The URL only carries the step marker; the verified name and e-mail address are read from the server, which
+	// holds the step's one-time key in a cookie this page cannot read.
 	const t = useTranslations();
 	const locale = useLocale();
-	const everIdHandoff = useMemo(() => readEverIdHandoff(query?.get(EVER_ID_HANDOFF_PARAM)), [query]);
+	const everIdSignup = useMemo(() => isEverIdStep(query?.get(EVER_ID_STEP_PARAM), 'signup'), [query]);
 	const [everIdPrefill, setEverIdPrefill] = useState<IEverIdSignupPrefill | null>(null);
-	const [everIdError, setEverIdError] = useState<string | null>(null);
+	const [everIdPrefillLoading, setEverIdPrefillLoading] = useState(false);
+	const [everIdPrefillError, setEverIdPrefillError] = useState<string | null>(null);
+	const [everIdSubmitError, setEverIdSubmitError] = useState<string | null>(null);
 	const [everIdConfirmed, setEverIdConfirmed] = useState(false);
 	const [everIdTermsAccepted, setEverIdTermsAccepted] = useState(false);
 	const [everIdSubmitting, setEverIdSubmitting] = useState(false);
-	// The prefill is read once per key: the translation function must not re-run it.
+	// The prefill is read once per step (and locale): the translation function must not re-run it.
 	const translate = useRef(t);
 	translate.current = t;
 
 	useEffect(() => {
-		if (!everIdHandoff) return;
+		if (!everIdSignup) return;
 		let cancelled = false;
+		// Every read starts from nothing: no earlier identity, confirmation or acceptance carries over.
+		setEverIdPrefill(null);
+		setEverIdPrefillError(null);
+		setEverIdSubmitError(null);
+		setEverIdConfirmed(false);
+		setEverIdTermsAccepted(false);
+		setEverIdPrefillLoading(true);
 		everIdService
-			.signupPrefill(everIdHandoff, locale)
+			.signupPrefill(locale)
 			.then(({ status, data }) => {
 				if (cancelled) return;
 				if (status === 200 && typeof data?.email === 'string') {
 					setEverIdPrefill(data);
 					setFormValues((values) => ({ ...values, name: data.name || values.name, email: data.email }));
 				} else {
-					setEverIdError(
-						translate.current(
-							status === 410 ? 'pages.auth.everId.SIGNUP_EXPIRED' : 'pages.auth.everId.UNAVAILABLE'
-						)
-					);
+					setEverIdPrefillError(translate.current(everIdStepMessage(status)));
 				}
 			})
 			.catch(() => {
-				if (!cancelled) setEverIdError(translate.current('pages.auth.everId.UNAVAILABLE'));
+				if (!cancelled) setEverIdPrefillError(translate.current('pages.auth.everId.UNAVAILABLE'));
+			})
+			.finally(() => {
+				if (!cancelled) setEverIdPrefillLoading(false);
 			});
 		return () => {
 			cancelled = true;
 		};
-	}, [everIdHandoff, locale]);
+	}, [everIdSignup, locale]);
+
+	/** The verified name is used as it is (read-only); a missing or too short one is entered by the person. */
+	const everIdNameVerified = !!everIdPrefill && everIdPrefill.name.trim().length >= 2;
 
 	/** The Ever ID confirmation (and the documents, when there are any) must be ticked before anything happens. */
 	const everIdStepErrors = useCallback((): Record<string, string> | null => {
-		if (!everIdHandoff) return null;
-		if (!everIdPrefill) return { everId: everIdError || t('pages.auth.everId.UNAVAILABLE') };
+		if (!everIdSignup) return null;
+		// Still reading the Ever ID: nothing can be submitted yet, and nothing has failed either.
+		if (everIdPrefillLoading) return {};
+		if (!everIdPrefill) return { everId: everIdPrefillError || t('pages.auth.everId.UNAVAILABLE') };
 		if (!everIdConfirmed) return { everId: t('pages.auth.everId.SIGNUP_CONFIRM_REQUIRED') };
 		if (everIdPrefill.terms.length > 0 && !everIdTermsAccepted) {
 			return { everId: t('pages.auth.everId.SIGNUP_TERMS_REQUIRED') };
 		}
 		return null;
-	}, [everIdHandoff, everIdPrefill, everIdError, everIdConfirmed, everIdTermsAccepted, t]);
+	}, [
+		everIdSignup,
+		everIdPrefillLoading,
+		everIdPrefill,
+		everIdPrefillError,
+		everIdConfirmed,
+		everIdTermsAccepted,
+		t
+	]);
+
+	/** A ticked or unticked box ends the message of the previous attempt. */
+	const clearEverIdErrors = useCallback(() => {
+		setEverIdSubmitError(null);
+		setErrors((current) => ({ ...current, everId: '' }) as IRegisterDataAPI);
+	}, []);
 
 	const submitEverIdSignup = useCallback(
-		async (handoff: string, prefill: IEverIdSignupPrefill, data: IRegisterDataAPI) => {
+		async (prefill: IEverIdSignupPrefill, data: IRegisterDataAPI, nameVerified: boolean) => {
 			setEverIdSubmitting(true);
 			try {
 				const { status, data: answer } = await everIdService.register({
@@ -125,8 +160,9 @@ export function useAuthenticationTeam() {
 					team: data.team,
 					timezone: data.timezone,
 					...(data.recaptcha ? { recaptcha: data.recaptcha } : {}),
-					ever_id_handoff: handoff,
+					ever_id: 'signup',
 					confirm: true,
+					verified_name: nameVerified,
 					terms: prefill.terms.map(({ documentId, version, sha256, locale: documentLocale }) => ({
 						documentId,
 						version,
@@ -146,16 +182,18 @@ export function useAuthenticationTeam() {
 					window.location.assign(answer.checkoutUrl);
 					return;
 				}
+				// Back to the first step, where the Ever ID confirmation shows what went wrong.
+				setStep(FIRST_STEP);
 				if (status === 400 && answer?.errors) {
 					setErrors((current) => ({ ...current, ...answer.errors }) as IRegisterDataAPI);
 				}
-				setEverIdError(
-					status === 410
-						? t('pages.auth.everId.SIGNUP_EXPIRED')
-						: (answer?.errors && Object.values(answer.errors)[0]) || t('pages.auth.everId.UNAVAILABLE')
+				const answered = answer?.errors && Object.values(answer.errors)[0];
+				setEverIdSubmitError(
+					status === 410 || status === 429 || !answered ? t(everIdStepMessage(status)) : answered
 				);
 			} catch {
-				setEverIdError(t('pages.auth.everId.UNAVAILABLE'));
+				setStep(FIRST_STEP);
+				setEverIdSubmitError(t('pages.auth.everId.UNAVAILABLE'));
 			} finally {
 				setEverIdSubmitting(false);
 			}
@@ -214,8 +252,8 @@ export function useAuthenticationTeam() {
 			timezone: userTimezone()
 		};
 
-		if (everIdHandoff && everIdPrefill) {
-			submitEverIdSignup(everIdHandoff, everIdPrefill, submissionData);
+		if (everIdSignup && everIdPrefill) {
+			void submitEverIdSignup(everIdPrefill, submissionData, everIdNameVerified);
 			return;
 		}
 
@@ -256,15 +294,23 @@ export function useAuthenticationTeam() {
 		handleSubmit,
 		handleOnChange,
 		handleStartModeChange,
-		loading: loading || everIdSubmitting,
-		everId: everIdHandoff
+		loading: loading || everIdSubmitting || everIdPrefillLoading,
+		everId: everIdSignup
 			? {
 					prefill: everIdPrefill,
-					error: everIdError,
+					loading: everIdPrefillLoading,
+					error: everIdSubmitError || everIdPrefillError,
+					nameVerified: everIdNameVerified,
 					confirmed: everIdConfirmed,
-					setConfirmed: setEverIdConfirmed,
+					setConfirmed: (confirmed: boolean) => {
+						setEverIdConfirmed(confirmed);
+						clearEverIdErrors();
+					},
 					termsAccepted: everIdTermsAccepted,
-					setTermsAccepted: setEverIdTermsAccepted
+					setTermsAccepted: (accepted: boolean) => {
+						setEverIdTermsAccepted(accepted);
+						clearEverIdErrors();
+					}
 				}
 			: null,
 		FIRST_STEP,

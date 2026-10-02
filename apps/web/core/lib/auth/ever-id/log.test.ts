@@ -68,6 +68,43 @@ describe('Ever ID outcome logs', () => {
 		]);
 	});
 
+	it('writes the listed fields only, whatever else the payload object carries', () => {
+		const payload = {
+			event: 'ever_id.signin',
+			outcome: 'ok',
+			status: 200,
+			id_token: 'not-for-logs',
+			email: 'person@example.test'
+		} as unknown as Parameters<typeof everIdLogLine>[0];
+
+		expect(everIdLogLine(payload)).toBe('ever_id.signin outcome=ok status=200');
+	});
+
+	it.each([
+		['ever_id.signin', 'confirm_required', 'info'],
+		['ever_id.signin', 'signup_required', 'info'],
+		['ever_id.signin', 'no_workspace', 'info'],
+		['ever_id.signin', 'blocked', 'info'],
+		['ever_id.signin', 'rejected', 'warn'],
+		['ever_id.signin', 'gauzy_error', 'warn'],
+		['ever_id.confirm', 'invalid', 'info'],
+		['ever_id.confirm', 'expired', 'info'],
+		['ever_id.confirm', 'throttled', 'warn'],
+		['ever_id.signup', 'subscription_required', 'info'],
+		['ever_id.signup', 'gauzy_error', 'warn'],
+		['ever_id.backchannel', 'invalid', 'warn'],
+		['ever_id.backchannel', 'unavailable', 'warn'],
+		['ever_id.backchannel', 'replay', 'warn']
+	] as const)('logs %s outcome=%s as %s', (event, outcome, level) => {
+		const info = jest.spyOn(console, 'info').mockImplementation(() => undefined);
+		const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+		logEverIdOutcome(event, { outcome } as Parameters<typeof logEverIdOutcome>[1]);
+
+		expect((level === 'info' ? info : warn).mock.calls).toHaveLength(1);
+		expect((level === 'info' ? warn : info).mock.calls).toHaveLength(0);
+	});
+
 	it('keeps every value on one line', () => {
 		expect(everIdLogLine({ event: 'ever_id.confirm', outcome: 'ok', replica: 'pod a=b "c"' })).toBe(
 			'ever_id.confirm outcome=ok replica=pod_a_b_c_'

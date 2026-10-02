@@ -53,7 +53,11 @@ describe('readEverIdSession', () => {
 			{ authCookie: { access_token: 'x', workspaces: [workspace('u1', 't1', 'A')] } }
 		],
 		['an Ever ID session without workspaces', { authCookie: { provider: 'ever-id', workspaces: [] } }],
-		['entries without a token', { authCookie: { provider: 'ever-id', workspaces: [{ user: { id: 'u1' } }] } }]
+		['entries without a token', { authCookie: { provider: 'ever-id', workspaces: [{ user: { id: 'u1' } }] } }],
+		[
+			'entries with an empty token',
+			{ authCookie: { provider: 'ever-id', workspaces: [{ token: '', user: { id: 'u1' } }] } }
+		]
 	])('returns null for %s', (_label, session) => {
 		expect(readEverIdSession(session)).toBeNull();
 	});
@@ -75,6 +79,33 @@ describe('toEverIdChooserData', () => {
 
 		expect(data?.teamsUnavailable).toBe(false);
 		expect(data?.workspaces[0].current_teams).toEqual(teams);
+	});
+
+	it('lists every workspace without teams as soon as one entry has no team list', () => {
+		const teams = [
+			{
+				team_id: 'team-1',
+				team_name: 'Team',
+				team_logo: '',
+				team_member_count: '1',
+				profile_link: '',
+				prefix: null
+			}
+		];
+		const data = toEverIdChooserData(
+			[{ ...workspace('u1', 't1', 'Acme'), current_teams: teams }, workspace('u2', 't2', 'Beta')],
+			'a@b.test'
+		);
+
+		expect(data?.teamsUnavailable).toBe(true);
+		expect(data?.workspaces).toHaveLength(2);
+	});
+
+	it('never hands the chooser a team list that is not a list', () => {
+		const data = toEverIdChooserData([{ ...workspace('u1', 't1', 'Acme'), current_teams: 'none' }], 'a@b.test');
+
+		expect(data?.workspaces[0].current_teams).toEqual([]);
+		expect(data?.teamsUnavailable).toBe(true);
 	});
 
 	it('names a workspace without a tenant by the person', () => {

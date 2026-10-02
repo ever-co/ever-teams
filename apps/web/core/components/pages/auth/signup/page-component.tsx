@@ -18,7 +18,10 @@ import type { IEverIdSignupPrefill } from '@/core/types/interfaces/auth/ever-id'
 /** The Ever ID part of the sign-up form (null for the usual sign-up). */
 type TEverIdSignup = {
 	prefill: IEverIdSignupPrefill | null;
+	loading: boolean;
 	error: string | null;
+	/** The name is the verified one of the Ever ID (read-only); otherwise the person enters it. */
+	nameVerified: boolean;
 	confirmed: boolean;
 	setConfirmed: (confirmed: boolean) => void;
 	termsAccepted: boolean;
@@ -166,7 +169,7 @@ function FillUserDataForm({
 						value={form.name}
 						errors={errors}
 						onChange={handleOnChange}
-						readOnly={!!everId?.prefill?.name}
+						readOnly={!!everId?.nameVerified}
 						autoComplete="off"
 						noWrapper
 						className={INPUT_CLASS}
@@ -329,8 +332,9 @@ function ChooseModeForm({
 }
 
 /**
- * Ever ID sign-up: the name and e-mail address above are the verified ones of the Ever ID (read-only), and
- * nothing is created until the person ticks the confirmation (and accepts the documents, if any) and submits.
+ * Ever ID sign-up: the e-mail address above (and the name, when the Ever ID has one) is the verified one of the
+ * Ever ID (read-only), and nothing is created until the person ticks the confirmation (and accepts the documents,
+ * if any) and submits. The documents are listed outside the label, so opening one never ticks the box.
  */
 function EverIdSignupConfirmation({ everId, error }: Readonly<{ everId: NonNullable<TEverIdSignup>; error?: string }>) {
 	const t = useTranslations();
@@ -360,17 +364,20 @@ function EverIdSignupConfirmation({ everId, error }: Readonly<{ everId: NonNulla
 				</label>
 			</div>
 			{prefill && prefill.terms.length > 0 && (
-				<div className="flex gap-2 items-start">
-					<Checkbox
-						id="ever-id-signup-terms"
-						checked={everId.termsAccepted}
-						onCheckedChange={(checked) => everId.setTermsAccepted(checked === true)}
-					/>
-					<label htmlFor="ever-id-signup-terms" className="cursor-pointer">
-						{t('pages.auth.everId.SIGNUP_TERMS')}{' '}
-						{prefill.terms.map((document, index) => (
-							<span key={`${document.documentId}:${document.version}`}>
-								{index > 0 && ', '}
+				<div className="space-y-1">
+					<div className="flex gap-2 items-start">
+						<Checkbox
+							id="ever-id-signup-terms"
+							checked={everId.termsAccepted}
+							onCheckedChange={(checked) => everId.setTermsAccepted(checked === true)}
+						/>
+						<label htmlFor="ever-id-signup-terms" className="cursor-pointer">
+							{t('pages.auth.everId.SIGNUP_TERMS')}
+						</label>
+					</div>
+					<ul className="pl-10 space-y-0.5 list-disc">
+						{prefill.terms.map((document) => (
+							<li key={`${document.documentId}:${document.version}`}>
 								{document.url ? (
 									<a
 										href={document.url}
@@ -383,9 +390,9 @@ function EverIdSignupConfirmation({ everId, error }: Readonly<{ everId: NonNulla
 								) : (
 									document.title || document.documentId
 								)}
-							</span>
+							</li>
 						))}
-					</label>
+					</ul>
 				</div>
 			)}
 			{message && <Text.Error className="text-xs">{message}</Text.Error>}

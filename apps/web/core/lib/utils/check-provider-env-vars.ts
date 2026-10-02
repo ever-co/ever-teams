@@ -33,7 +33,12 @@ import {
 	EVER_ID_ISSUER_URL
 } from '@/core/constants/config/constants';
 import { readRuntimeEnv } from '@/env-config';
-import { EVER_ID_PROVIDER_ID, everIdScope, readEverIdAppName } from '@/core/lib/auth/ever-id/config';
+import {
+	EVER_ID_PROVIDER_ID,
+	everIdScope,
+	isEverIdConfigured,
+	readEverIdAppName
+} from '@/core/lib/auth/ever-id/config';
 
 type ProviderNames = {
 	[key: string]: string | undefined;
@@ -178,8 +183,9 @@ export const filteredProviders = providers.filter((provider) => {
 	const providerId = getProviderId(provider);
 	const advertised = providerNames[providerId] !== undefined;
 	const configured = !!providerClientIds[providerId]?.trim() && !!providerClientSecrets[providerId]?.trim();
-	// Ever ID also needs its issuer: without one there is nothing to discover, so it is never served.
-	if (providerId === EVER_ID_PROVIDER_ID && !EVER_ID_ISSUER_URL) return false;
+	// Ever ID also needs its issuer (https), an explicitly configured Gauzy API and a non-blank name: one gate,
+	// shared with the Ever ID routes (core/lib/auth/ever-id/config.ts).
+	if (providerId === EVER_ID_PROVIDER_ID) return isEverIdConfigured();
 	return advertised && configured;
 });
 

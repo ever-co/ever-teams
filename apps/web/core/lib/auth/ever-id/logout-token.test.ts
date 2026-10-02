@@ -98,23 +98,24 @@ describe('verifyLogoutToken', () => {
 	});
 
 	it('refetches the key set once for an unknown kid, and not again within the cooldown', async () => {
-		const verifier = createLogoutTokenVerifier({ jwksCooldownMs: 200 });
+		// Wide margins: the third token below must reach the verifier well within the cooldown, even on a slow runner.
+		const verifier = createLogoutTokenVerifier({ jwksCooldownMs: 2_000 });
 		const options = { issuer: issuer.issuer, clientId: CLIENT_ID };
 		await verifier.verify(await issuer.sign(issuer.logoutClaims()), options);
 		expect(keyFetches()).toBe(1);
 
 		// The issuer rotated its key: after the cooldown a token with the new kid triggers one refetch.
 		await issuer.rotateKey('test-key-2');
-		await new Promise((resolve) => setTimeout(resolve, 250));
+		await new Promise((resolve) => setTimeout(resolve, 2_500));
 		expect(await reason(verifier.verify(await issuer.sign(issuer.logoutClaims()), options))).toBe('accepted');
 		expect(keyFetches()).toBe(2);
 
-		// Another unknown kid right away: refused without fetching again.
+		// Another unknown kid right away: no refetch, and a retryable answer (a rotated-in key may not be served yet).
 		const { privateKey } = await generateKeyPair('ES256');
 		const unknown = await issuer.sign(issuer.logoutClaims(), { kid: 'never-published', key: privateKey });
-		expect(await reason(verifier.verify(unknown, options))).toBe('invalid');
+		expect(await reason(verifier.verify(unknown, options))).toBe('unavailable');
 		expect(keyFetches()).toBe(2);
-	});
+	}, 10_000);
 
 	it('answers unavailable when the issuer cannot be reached', async () => {
 		const verifier = createLogoutTokenVerifier();
@@ -123,6 +124,92 @@ describe('verifyLogoutToken', () => {
 		await issuer.stop();
 
 		expect(await reason(verifier.verify(token, { issuer: unreachable, clientId: CLIENT_ID }))).toBe('unavailable');
+	});
+
+	it('compares the issuer exactly: a root issuer with or without its slash is the same, a path issuer is not', async () => {
+		const token = await issuer.sign(issuer.logoutClaims());
+		expect(
+			await reason(
+				createLogoutTokenVerifier().verify(token, { issuer: `${issuer.issuer}/`, clientId: CLIENT_ID })
+			)
+		).toBe('accepted');
+
+		const pathIssuer = await new MockIssuer(CLIENT_ID, '/realms/teams').start();
+		try {
+			const pathToken = await pathIssuer.sign(pathIssuer.logoutClaims());
+			expect(
+				await reason(
+					createLogoutTokenVerifier().verify(pathToken, { issuer: pathIssuer.issuer, clientId: CLIENT_ID })
+				)
+			).toBe('accepted');
+			expect(
+				await reason(
+					createLogoutTokenVerifier().verify(pathToken, {
+						issuer: `${pathIssuer.issuer}/`,
+						clientId: CLIENT_ID
+					})
+				)
+			).toBe('unavailable');
+		} finally {
+			await pathIssuer.stop();
+		}
+	});
+
+	it('shares one discovery between concurrent tokens', async () => {
+		const verifier = createLogoutTokenVerifier();
+		const options = { issuer: issuer.issuer, clientId: CLIENT_ID };
+		const tokens = await Promise.all([1, 2, 3].map(() => issuer.sign(issuer.logoutClaims())));
+
+		const results = await Promise.all(tokens.map((token) => reason(verifier.verify(token, options))));
+
+		expect(results).toEqual(['accepted', 'accepted', 'accepted']);
+		expect(issuer.requests.filter((request) => request.path.endsWith('/openid-configuration'))).toHaveLength(1);
+	});
+
+	it('does not try a failed discovery again for a while', async () => {
+		const verifier = createLogoutTokenVerifier({ discoveryRetryMs: 60_000 });
+		const token = await issuer.sign(issuer.logoutClaims());
+		const unreachable = issuer.issuer;
+		await issuer.stop();
+		const fetchSpy = jest.spyOn(globalThis, 'fetch');
+
+		expect(await reason(verifier.verify(token, { issuer: unreachable, clientId: CLIENT_ID }))).toBe('unavailable');
+		expect(await reason(verifier.verify(token, { issuer: unreachable, clientId: CLIENT_ID }))).toBe('unavailable');
+
+		expect(fetchSpy).toHaveBeenCalledTimes(1);
+		fetchSpy.mockRestore();
+	});
+
+	it('takes keys over plain http only when the issuer itself is on this machine', async () => {
+		const options = { issuer: issuer.issuer, clientId: CLIENT_ID };
+		const token = await issuer.sign(issuer.logoutClaims());
+
+		// A local issuer pointing at keys elsewhere over plain http: refused without fetching them.
+		issuer.jwksUri = 'http://keys.example.test/oauth/v2/keys';
+		const fetchSpy = jest.spyOn(globalThis, 'fetch');
+		expect(await reason(createLogoutTokenVerifier().verify(token, options))).toBe('unavailable');
+		expect(fetchSpy.mock.calls.map(([url]) => String(url))).not.toContainEqual(
+			expect.stringContaining('keys.example.test')
+		);
+		fetchSpy.mockRestore();
+
+		// A remote issuer pointing at keys on this machine over plain http: refused as well.
+		const discovery = jest
+			.spyOn(globalThis, 'fetch')
+			.mockResolvedValue(
+				new Response(
+					JSON.stringify({ issuer: 'https://id.example.test', jwks_uri: `${issuer.issuer}/oauth/v2/keys` }),
+					{ status: 200, headers: { 'content-type': 'application/json' } }
+				)
+			);
+		expect(
+			await reason(
+				createLogoutTokenVerifier().verify(token, { issuer: 'https://id.example.test', clientId: CLIENT_ID })
+			)
+		).toBe('unavailable');
+		expect(discovery).toHaveBeenCalledTimes(1);
+		expect(keyFetches()).toBe(0);
+		discovery.mockRestore();
 	});
 
 	it('never contacts a plain-http issuer that is not on this machine', async () => {

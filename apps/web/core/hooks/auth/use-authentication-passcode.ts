@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
-import { EVER_ID_HANDOFF_PARAM, readEverIdHandoff } from '@/core/lib/auth/ever-id/handoff';
+import { EVER_ID_STEP_PARAM, isEverIdStep } from '@/core/lib/auth/ever-id/step';
 import { toEverIdChooserData } from '@/core/lib/auth/ever-id/session';
 import { everIdService } from '@/core/services/client/api/auth/ever-id.service';
 
@@ -25,6 +25,15 @@ type AuthCodeRef = {
 	focus: () => void;
 	clear: () => void;
 };
+
+/** Drops the Ever ID step marker from the address bar (Next.js keeps its router in step with replaceState). */
+function removeEverIdStepFromUrl() {
+	if (typeof window === 'undefined') return;
+	const url = new URL(window.location.href);
+	if (!url.searchParams.has(EVER_ID_STEP_PARAM)) return;
+	url.searchParams.delete(EVER_ID_STEP_PARAM);
+	window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+}
 
 export function useAuthenticationPasscode() {
 	const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -49,12 +58,14 @@ export function useAuthenticationPasscode() {
 		return query?.get('code');
 	}, [query]);
 
-	// Ever ID sign-in that needs Gauzy's one-time e-mail code first: only the one-time key is in the URL.
-	const everIdHandoff = useMemo(() => readEverIdHandoff(query?.get(EVER_ID_HANDOFF_PARAM)), [query]);
+	// Ever ID sign-in that needs Gauzy's one-time e-mail code first: the URL only carries the step marker (the
+	// one-time key is in a cookie this page cannot read). Read once: leaving the step ends it.
+	const [everIdConfirm, setEverIdConfirm] = useState(() => isEverIdStep(query?.get(EVER_ID_STEP_PARAM), 'confirm'));
+	const everIdStepActive = useRef(everIdConfirm);
 
 	const loginFromQuery = useRef(false);
 	const inputCodeRef = useRef<AuthCodeRef | null>(null);
-	const [screen, setScreen] = useState<'email' | 'passcode' | 'workspace'>(everIdHandoff ? 'passcode' : 'email');
+	const [screen, setScreen] = useState<'email' | 'passcode' | 'workspace'>(everIdConfirm ? 'passcode' : 'email');
 	const [everIdConfirmLoading, setEverIdConfirmLoading] = useState(false);
 	const [everIdTeamsUnavailable, setEverIdTeamsUnavailable] = useState(false);
 	const [workspaces, setWorkspaces] = useState<ISigninEmailConfirmWorkspaces[]>([]);
@@ -184,15 +195,28 @@ export function useAuthenticationPasscode() {
 	);
 
 	/**
+	 * Leaves the Ever ID step (after it succeeded, or when the person goes back): the marker leaves the URL and the
+	 * code is emptied, so the e-mail sign-in on this page works as usual again. Does nothing on any other sign-in.
+	 */
+	const leaveEverIdStep = useCallback(() => {
+		if (!everIdStepActive.current) return;
+		everIdStepActive.current = false;
+		setEverIdConfirm(false);
+		setFormValues((values) => ({ ...values, code: '' }));
+		inputCodeRef.current?.clear();
+		removeEverIdStepFromUrl();
+	}, []);
+
+	/**
 	 * Ever ID: the code from Gauzy's e-mail completes the link, then the usual workspace chooser follows.
 	 * The account's e-mail address arrives with the answer; it is never part of the URL.
 	 */
 	const verifyEverIdCodeRequest = useCallback(
-		async (handoff: string, code: string) => {
+		async (code: string) => {
 			setStatus('loading');
 			setEverIdConfirmLoading(true);
 			try {
-				const { status: httpStatus, data } = await everIdService.confirmLink(handoff, code);
+				const { status: httpStatus, data } = await everIdService.confirmLink(code);
 				const chooser = httpStatus === 200 ? toEverIdChooserData(data.workspaces, data.confirmed_email) : null;
 				if (chooser) {
 					setWorkspaces(chooser.workspaces);
@@ -201,6 +225,8 @@ export function useAuthenticationPasscode() {
 					setAuthenticated(true);
 					setStatus('success');
 					setScreen('workspace');
+					// The key is used up: a later code on this page is an e-mail sign-in again.
+					leaveEverIdStep();
 					return;
 				}
 				setStatus('error');
@@ -216,7 +242,7 @@ export function useAuthenticationPasscode() {
 				setEverIdConfirmLoading(false);
 			}
 		},
-		[t]
+		[leaveEverIdStep, t]
 	);
 
 	const verifyPasscodeRequest = useCallback(
@@ -248,14 +274,14 @@ export function useAuthenticationPasscode() {
 		setErrors({});
 		setStatus('loading');
 
-		if (everIdHandoff) {
+		if (everIdConfirm) {
 			const { errors, valid } = authFormValidate(['code'], formValues as any);
 			if (!valid) {
 				setStatus('error');
 				setErrors(errors);
 				return;
 			}
-			verifyEverIdCodeRequest(everIdHandoff, formValues.code);
+			void verifyEverIdCodeRequest(formValues.code);
 			return;
 		}
 
@@ -374,9 +400,10 @@ export function useAuthenticationPasscode() {
 		signInWorkspaceLoading,
 		handleWorkspaceSubmit,
 		getLastTeamIdWithRecentLogout,
-		everIdHandoff,
+		everIdConfirm,
 		everIdConfirmLoading,
-		everIdTeamsUnavailable
+		everIdTeamsUnavailable,
+		leaveEverIdStep
 	};
 }
 

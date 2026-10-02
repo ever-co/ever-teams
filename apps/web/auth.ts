@@ -4,7 +4,7 @@ import { GauzyAdapter, jwtCallback, signInCallback } from '@/core/services/serve
 import { NextRequest } from 'next/server';
 import { AUTH_SECRET, IS_DESKTOP_APP, developmentAuthSecret, isDevelopment } from '@/core/constants/config/constants';
 import { EProvider } from '@/core/types/generics/enums/social-accounts';
-import { everIdJwtPayload, everIdSignInCallback } from '@/core/services/server/ever-id/sign-in';
+import { everIdJwtPayload, everIdSignInCallback, isEverIdSessionData } from '@/core/services/server/ever-id/sign-in';
 
 declare module 'next-auth' {
 	interface Session extends DefaultSession {
@@ -52,6 +52,11 @@ const config: NextAuthConfig = {
 				if (everIdSession) {
 					token.authCookie = everIdSession;
 				}
+				return token;
+			}
+			// Ever ID: the chooser's workspace sign-in is done; nothing that can sign in again stays in this session
+			if (trigger === 'update' && isEverIdSessionData(token.authCookie)) {
+				delete token.authCookie;
 				return token;
 			}
 			if (user && account) {

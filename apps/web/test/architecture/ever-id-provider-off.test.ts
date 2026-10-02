@@ -2,7 +2,8 @@
  * Architecture guard: with no Ever ID settings (the default of every deployment), Ever Teams behaves exactly as
  * before and never contacts an Ever ID issuer or the Ever ID routes of the API.
  *
- * - next-auth is not given the provider, the browser is not told about it and no button renders;
+ * - next-auth is not given the provider, the browser is not told about it and no button renders (also with a blank
+ *   app name, an issuer that is not https, or no explicitly configured API to exchange the ID tokens with);
  * - the Ever ID routes answer 404, and the register route refuses an Ever ID sign-up body;
  * - none of the above makes a single outbound request;
  * - the issuer is configuration only: no Ever ID issuer host is written into the app's source.
@@ -59,6 +60,9 @@ let fetchSpy: jest.SpyInstance;
 
 beforeEach(() => {
 	for (const key of EVER_ID_KEYS) delete process.env[key];
+	// No captcha: the register route then reaches the Ever ID check whatever the environment of the run.
+	delete process.env.CAPTCHA_SECRET_KEY;
+	delete process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY;
 	// A configured API: only the Ever ID settings are missing.
 	process.env.GAUZY_API_SERVER_URL = 'https://api.example.test';
 	fetchSpy = jest.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('no outbound request expected'));
@@ -136,6 +140,30 @@ describe('Ever ID with no settings', () => {
 		expect(fetchSpy).not.toHaveBeenCalled();
 	});
 
+	it.each([
+		['a blank app name (an unset compose variable)', { NEXT_PUBLIC_EVER_ID_APP_NAME: ' ' }],
+		['an issuer that is not https', { EVER_ID_ISSUER_URL: 'http://id.example.test' }],
+		['no explicitly configured API', { GAUZY_API_SERVER_URL: '' }]
+	])('stays off with %s, without any request', async (_label, override) => {
+		const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+		Object.assign(process.env, {
+			NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID',
+			EVER_ID_ISSUER_URL: 'https://id.example.test',
+			EVER_ID_CLIENT_ID: 'teams-web-client',
+			EVER_ID_CLIENT_SECRET: 'teams-web-secret',
+			...override
+		});
+		delete process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL;
+
+		const { nextAuthProviderIds, providerIds, markup } = await boot();
+
+		expect(nextAuthProviderIds).not.toContain('ever-id');
+		expect(providerIds).not.toContain('ever-id');
+		expect(markup).not.toContain('Ever ID');
+		expect(fetchSpy).not.toHaveBeenCalled();
+		warn.mockRestore();
+	});
+
 	it('answers 404 on every Ever ID route, without any request', async () => {
 		const routes: Record<string, { POST: (req: Request) => Promise<Response> }> = {};
 		jest.isolateModules(() => {
@@ -143,14 +171,12 @@ describe('Ever ID with no settings', () => {
 			routes.confirm = require('@/app/api/auth/ever-id/confirm/route');
 			routes.signup = require('@/app/api/auth/ever-id/signup-handoff/route');
 		});
-		const handoff = 'k3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yA';
-
 		const answers = await Promise.all([
 			routes.backchannel.POST(
 				post('/api/auth/ever-id/backchannel-logout', 'logout_token=a.b.c', 'application/x-www-form-urlencoded')
 			),
-			routes.confirm.POST(post('/api/auth/ever-id/confirm', JSON.stringify({ handoff, code: 'ABCD1234' }))),
-			routes.signup.POST(post('/api/auth/ever-id/signup-handoff', JSON.stringify({ handoff })))
+			routes.confirm.POST(post('/api/auth/ever-id/confirm', JSON.stringify({ code: 'ABCD1234' }))),
+			routes.signup.POST(post('/api/auth/ever-id/signup-handoff', JSON.stringify({ locale: 'en' })))
 		]);
 
 		expect(answers.map((answer) => answer.status)).toEqual([404, 404, 404]);
@@ -166,7 +192,7 @@ describe('Ever ID with no settings', () => {
 			name: 'New Person',
 			email: 'new.person@example.test',
 			team: 'New Team',
-			ever_id_handoff: 'k3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yA',
+			ever_id: 'signup',
 			confirm: true
 		};
 

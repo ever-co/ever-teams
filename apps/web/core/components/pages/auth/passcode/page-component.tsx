@@ -166,7 +166,6 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 
 function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } & IClassName) {
 	const t = useTranslations();
-	const router = useRouter();
 	const inputsRef = useRef<Array<HTMLInputElement>>([]);
 	const formRef = useRef<HTMLFormElement>(null);
 	const urlSearchParams = new URLSearchParams(window.location.search);
@@ -256,12 +255,12 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 				</div>
 
 				{/* Ever ID: Gauzy already sent its one-time code to the account's mailbox (no resend from here) */}
-				{form.everIdHandoff && (
+				{form.everIdConfirm && (
 					<p className="text-sm text-muted-foreground">{t('pages.auth.everId.CONFIRM_HINT')}</p>
 				)}
 
 				{/* Resend code + back */}
-				<div className={cn('flex flex-col gap-2 text-sm', form.everIdHandoff && 'hidden')}>
+				<div className={cn('flex flex-col gap-2 text-sm', form.everIdConfirm && 'hidden')}>
 					<div className="flex flex-row gap-2 items-center">
 						<span className="text-muted-foreground">{t('pages.auth.UNRECEIVED_CODE')}</span>
 						{!form.sendCodeLoading ? (
@@ -305,10 +304,8 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 					<BackButton
 						className={buttonVariants({ variant: 'link', className: 'w-full underline' })}
 						onClick={() => {
-							// Leaving the Ever ID step drops its one-time key from the URL
-							if (form.everIdHandoff) {
-								router.replace('/auth/passcode');
-							}
+							// Leaving the Ever ID step drops its marker from the URL and empties the code
+							form.leaveEverIdStep();
 							form.authScreen.setScreen('email');
 							form.setErrors({});
 						}}
@@ -412,6 +409,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 					workspaces={form.workspaces}
 					onSubmit={signInToWorkspace}
 					onBackButtonClick={() => {
+						form.leaveEverIdStep();
 						form.authScreen.setScreen('email');
 						form.setErrors({});
 					}}

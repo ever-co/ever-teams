@@ -13,7 +13,7 @@ interface EverIdChooserData {
 	confirmedEmail: string;
 	/** Index of the workspace to start on, or -1. */
 	preselectIndex: number;
-	/** The workspace entries carry no team list (the chooser then shows workspaces only). */
+	/** Some workspace entry carries no team list: the chooser then lists the workspaces only, teams come later. */
 	teamsUnavailable: boolean;
 }
 
@@ -21,8 +21,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 	return !!value && typeof value === 'object' && !Array.isArray(value);
 }
 
+/** An entry the chooser can sign in with: a non-empty workspace token and a user (as the server checks too). */
 function isWorkspace(value: unknown): value is IEverIdWorkspace {
-	return isRecord(value) && typeof value.token === 'string' && isRecord(value.user);
+	return isRecord(value) && typeof value.token === 'string' && !!value.token && isRecord(value.user);
 }
 
 /** The chooser's workspace shape, from an Ever ID workspace entry. */
@@ -38,7 +39,10 @@ function toChooserWorkspace(workspace: IEverIdWorkspace): ISigninEmailConfirmWor
 			...(user.lastLoginAt ? { lastLoginAt: user.lastLoginAt } : {}),
 			tenant: { name: user.tenant?.name ?? '', logo: user.tenant?.logo ?? '' }
 		},
-		current_teams: workspace.current_teams as ISigninEmailConfirmWorkspaces['current_teams']
+		// Anything but a list is no team list: the chooser never receives something it cannot render.
+		current_teams: (Array.isArray(workspace.current_teams)
+			? workspace.current_teams
+			: []) as ISigninEmailConfirmWorkspaces['current_teams']
 	};
 }
 
@@ -60,7 +64,7 @@ export function toEverIdChooserData(
 			typeof preselectTenantId === 'string' && preselectTenantId
 				? workspaces.findIndex((workspace) => workspace.user.tenant?.id === preselectTenantId)
 				: -1,
-		teamsUnavailable: workspaces.every((workspace) => !Array.isArray(workspace.current_teams))
+		teamsUnavailable: workspaces.some((workspace) => !Array.isArray(workspace.current_teams))
 	};
 }
 

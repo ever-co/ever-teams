@@ -1,8 +1,9 @@
 /**
  * Test-only stand-in of the Gauzy API routes Ever Teams calls for Ever ID (never part of the app):
  * `/api/auth/zitadel/*`, the required terms and the workspace sign-in, answering with the statuses and
- * payload shapes of the API's Ever ID plugin. Every request is recorded (method, path, content type, parsed
- * body), and every answer can be replaced per test.
+ * payload shapes of the API's Ever ID plugin. Every request is recorded (method, path, query, content type,
+ * authorization, parsed body), and every answer can be replaced per test. A handler that throws answers 500, so a
+ * test mistake fails that test instead of crashing the run.
  */
 import { createServer, type Server } from 'node:http';
 import { close, listen, readBody, sendJson } from './http';
@@ -10,7 +11,10 @@ import { close, listen, readBody, sendJson } from './http';
 interface RecordedRequest {
 	method: string;
 	path: string;
+	/** The query string, `?…` or empty. */
+	search: string;
 	contentType: string;
+	authorization: string;
 	body: unknown;
 	raw: string;
 }
@@ -100,14 +104,19 @@ export class MockGauzyApi {
 		}));
 		this.on('POST', '/api/auth/zitadel/backchannel-logout', () => ({ status: 200 }));
 		this.on('GET', '/api/terms/required', () => ({ status: 200, body: REQUIRED_TERMS }));
-		this.on('POST', '/api/auth/signin.workspace', () => ({
-			status: 200,
-			body: {
-				user: { id: 'new-user', tenantId: null },
-				token: 'gauzy-access-1',
-				refresh_token: 'gauzy-refresh-1'
-			}
-		}));
+		// The user and tenant of the workspace token it is given (the tokens are `workspace-token-<user id>`).
+		this.on('POST', '/api/auth/signin.workspace', (request) => {
+			const token = String((request.body as { token?: unknown } | undefined)?.token ?? '');
+			const userId = token.startsWith('workspace-token-') ? token.slice('workspace-token-'.length) : 'unknown';
+			return {
+				status: 200,
+				body: {
+					user: { id: userId, tenantId: userId === 'user-1' ? 'tenant-1' : null },
+					token: `gauzy-access-${userId}`,
+					refresh_token: `gauzy-refresh-${userId}`
+				}
+			};
+		});
 	}
 
 	/** Sets the answer of a route (a fixed answer or a function of the recorded request). */
@@ -126,14 +135,21 @@ export class MockGauzyApi {
 			const raw = await readBody(req);
 			const contentType = String(req.headers['content-type'] ?? '');
 			let body: unknown = raw;
-			if (contentType.includes('application/json') && raw) body = JSON.parse(raw);
-			else if (contentType.includes('application/x-www-form-urlencoded')) {
+			if (contentType.includes('application/json') && raw) {
+				try {
+					body = JSON.parse(raw);
+				} catch {
+					body = raw;
+				}
+			} else if (contentType.includes('application/x-www-form-urlencoded')) {
 				body = Object.fromEntries(new URLSearchParams(raw));
 			}
 			const request: RecordedRequest = {
 				method: req.method ?? 'GET',
 				path: url.pathname,
+				search: url.search,
 				contentType,
+				authorization: String(req.headers.authorization ?? ''),
 				body,
 				raw
 			};
@@ -141,8 +157,12 @@ export class MockGauzyApi {
 			const handler = this.handlers.get(`${request.method} ${request.path}`);
 			if (!handler)
 				return sendJson(res, 404, { statusCode: 404, message: `Cannot ${request.method} ${request.path}` });
-			const answer = await handler(request);
-			return sendJson(res, answer.status, answer.body);
+			try {
+				const answer = await handler(request);
+				return sendJson(res, answer.status, answer.body);
+			} catch (error) {
+				return sendJson(res, 500, { statusCode: 500, message: `Stand-in handler failed: ${String(error)}` });
+			}
 		});
 		this.origin = await listen(this.server);
 		return this;

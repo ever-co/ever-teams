@@ -1,6 +1,6 @@
 /**
  * Test-only OpenID Provider on 127.0.0.1 (never part of the app): a discovery document and an ES256 key set;
- * it signs ID tokens and back-channel logout tokens and can rotate its key (unknown `kid` cases).
+ * it signs back-channel logout tokens and can rotate its key (unknown `kid` cases).
  *
  * `jose` is an ES module only: a test file that uses this loads it through Node itself, with
  * `jest.mock('jose', () => process.getBuiltinModule('node:module').createRequire(__filename)('jose'))`.
@@ -16,34 +16,40 @@ const BACKCHANNEL_EVENT = 'http://schemas.openid.net/event/backchannel-logout'; 
 export class MockIssuer {
 	issuer = '';
 	kid = 'test-key-1';
+	/** The `jwks_uri` the discovery document announces instead of the issuer's own key set (issuer rule cases). */
+	jwksUri: string | undefined;
 	/** Every request (method and path), for egress assertions. */
 	readonly requests: Array<{ method: string; path: string }> = [];
 	private server: Server | null = null;
 	private privateKey: CryptoKey | null = null;
 	private publicJwk: JWK | null = null;
 
-	constructor(readonly clientId: string) {}
+	/** `issuerPath` makes an issuer identifier with a path (`http://127.0.0.1:<port>/realms/teams`). */
+	constructor(
+		readonly clientId: string,
+		private readonly issuerPath = ''
+	) {}
 
 	async start(): Promise<this> {
 		await this.rotateKey(this.kid);
 		this.server = createServer((req, res) => {
 			const path = new URL(req.url ?? '/', 'http://127.0.0.1').pathname;
 			this.requests.push({ method: req.method ?? 'GET', path });
-			if (path === '/.well-known/openid-configuration') {
+			if (path === `${this.issuerPath}/.well-known/openid-configuration`) {
 				return sendJson(res, 200, {
 					issuer: this.issuer,
 					authorization_endpoint: `${this.issuer}/oauth/v2/authorize`,
 					token_endpoint: `${this.issuer}/oauth/v2/token`,
 					userinfo_endpoint: `${this.issuer}/oidc/v1/userinfo`,
-					jwks_uri: `${this.issuer}/oauth/v2/keys`
+					jwks_uri: this.jwksUri ?? `${this.issuer}/oauth/v2/keys`
 				});
 			}
-			if (path === '/oauth/v2/keys') {
+			if (path === `${this.issuerPath}/oauth/v2/keys`) {
 				return sendJson(res, 200, { keys: [this.publicJwk] });
 			}
 			return sendJson(res, 404, { error: 'not_found' });
 		});
-		this.issuer = await listen(this.server);
+		this.issuer = `${await listen(this.server)}${this.issuerPath}`;
 		return this;
 	}
 
@@ -52,7 +58,7 @@ export class MockIssuer {
 		this.server = null;
 	}
 
-	/** A new signing key (published from now on); returns the key so a test can sign with it. */
+	/** A new signing key, published from now on; later `sign()` calls use it. */
 	async rotateKey(kid: string): Promise<void> {
 		const { privateKey, publicKey } = await generateKeyPair('ES256', { extractable: true });
 		this.privateKey = privateKey;
@@ -77,25 +83,6 @@ export class MockIssuer {
 			sid: 'session-1',
 			sub: 'person-1',
 			events: { [BACKCHANNEL_EVENT]: {} },
-			...overrides
-		} as JWTPayload;
-	}
-
-	/** ID token claims of the Ever ID sign-in for `subject`. */
-	idTokenClaims(subject: string, overrides: Record<string, unknown> = {}): JWTPayload {
-		const now = Math.floor(Date.now() / 1000);
-		return {
-			iss: this.issuer,
-			sub: subject,
-			aud: this.clientId,
-			azp: this.clientId,
-			iat: now,
-			exp: now + 600,
-			email: `${subject}@example.test`,
-			email_verified: true,
-			given_name: 'Test',
-			family_name: 'Person',
-			sid: `sid-${subject}`,
 			...overrides
 		} as JWTPayload;
 	}

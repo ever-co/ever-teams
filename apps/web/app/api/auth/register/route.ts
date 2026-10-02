@@ -58,8 +58,9 @@ export async function POST(req: Request) {
 		}
 	}
 
-	// Ever ID sign-up (the body carries the one-time key of an Ever ID sign-in): the account comes from the
-	// verified Ever ID, created by the Gauzy API once the person confirmed. Without the key nothing below changes.
+	// Ever ID sign-up (the body carries the `ever_id` marker; the one-time key is in the sealed cookie of the sign-in):
+	// the account comes from the verified Ever ID, created by the Gauzy API once the person confirmed. Without the
+	// marker nothing below changes.
 	if (isEverIdRegisterBody(body)) {
 		return registerWithEverId(req, body, response);
 	}

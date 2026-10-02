@@ -37,17 +37,13 @@ export default function EverIdNoWorkspace({
 				</Text>
 			)}
 			<div className="flex flex-wrap gap-3 justify-center">
-				<Link href={DEFAULT_APP_PATH}>
-					<Button className="px-7 font-normal rounded-lg">
-						{t('pages.auth.everId.SIGN_IN_ANOTHER_WAY')}
-					</Button>
-				</Link>
+				<Button asChild className="px-7 font-normal rounded-lg">
+					<Link href={DEFAULT_APP_PATH}>{t('pages.auth.everId.SIGN_IN_ANOTHER_WAY')}</Link>
+				</Button>
 				{offerSignup && !blocked && (
-					<Link href="/auth/signup">
-						<Button variant="outline" className="px-7 font-normal rounded-lg">
-							{t('pages.auth.everId.CREATE_WORKSPACE')}
-						</Button>
-					</Link>
+					<Button asChild variant="outline" className="px-7 font-normal rounded-lg">
+						<Link href="/auth/signup">{t('pages.auth.everId.CREATE_WORKSPACE')}</Link>
+					</Button>
 				)}
 			</div>
 		</div>

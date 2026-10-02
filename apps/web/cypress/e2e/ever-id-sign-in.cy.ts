@@ -2,7 +2,7 @@
 
 /**
  * The Ever ID sign-in on a deployed environment. Skipped unless CYPRESS_EVER_ID_STAGE=1, so the deterministic
- * browser run (which has no identity provider) skips it.
+ * browser run (which has no identity provider) skips it; its own configuration refuses to run without that flag.
  *
  * Run it against a deployment with its own configuration (no mock API, the real next-auth session):
  *
@@ -21,15 +21,19 @@
  * - CYPRESS_EVER_ID_SIGNUP=1 with CYPRESS_EVER_ID_NEW_USERNAME / _PASSWORD: a person new to the product, on an API
  *   that offers the Ever ID sign-up.
  *
- * Credentials come from the CI secret store; never commit them. Every case records the URLs requested on the web
- * app's origin and checks that none carries a token or an e-mail address.
+ * Credentials come from the CI secret store; never commit them. Every case that signs in records the URLs requested
+ * on the web app's origin and, once the page it ends on is shown, checks that none carries a token, a one-time key
+ * or an e-mail address.
  */
 
 const enabled = String(Cypress.env('EVER_ID_STAGE')) === '1';
 const describeOnStage = enabled ? describe : describe.skip;
 
-/** A token, a JWT or an e-mail address (plain or encoded) in a URL. */
-const LEAK = /id_token|access_token|eyJ[A-Za-z0-9_-]{10,}|%40|@/;
+/** A token, a one-time key, a JWT or an e-mail address (plain or encoded) in a URL. */
+const LEAK = /id_token|access_token|refresh_token|[?&]token=|ever_id_handoff|handoff=|eyJ[A-Za-z0-9_-]{10,}|%40|@/i;
+
+/** The main app after a direct sign-in: `/`, or `/<locale>`. */
+const APP_HOME = /^\/(?:[a-z]{2}(?:-[A-Za-z]{2})?)?\/?$/;
 
 function setting(name: string): string {
 	const value = Cypress.env(name);
@@ -57,10 +61,23 @@ function withoutOAuthCallbackParameters(url: string): string {
 	return parsed.href;
 }
 
+/** Called once the page the case ends on is shown, so the requests that led there are all recorded. */
 function expectNoLeak(urls: string[]) {
 	cy.location('href').should('not.match', LEAK);
-	cy.wrap(urls).each((url: string) => {
-		expect(withoutOAuthCallbackParameters(url), 'request URL on the web app').not.to.match(LEAK);
+	cy.then(() => {
+		expect(urls.length, 'recorded requests').to.be.greaterThan(0);
+		for (const url of urls) {
+			expect(withoutOAuthCallbackParameters(url), 'request URL on the web app').not.to.match(LEAK);
+		}
+	});
+}
+
+/** The one-time key of the step is in an httpOnly cookie for the app's own routes, never readable by the page. */
+function expectStepCookie() {
+	cy.getCookie('ever-id-handoff').should((cookie) => {
+		expect(cookie, 'step cookie').not.to.equal(null);
+		expect(cookie?.httpOnly, 'httpOnly').to.equal(true);
+		expect(cookie?.path, 'path').to.equal('/api/auth');
 	});
 }
 
@@ -82,25 +99,41 @@ function signInWithEverId(username: string, password: string) {
 	);
 }
 
+/**
+ * Where a signed-in person lands: the workspace chooser listing their workspace or, for one workspace with one
+ * team, the main app directly (the chooser signs in by itself).
+ */
+function expectChooserOrApp(tenantName: string) {
+	cy.location('pathname', { timeout: 60_000 }).should(
+		'match',
+		/\/auth\/(?:workspace|passcode)$|^\/(?:[a-z]{2})?\/?$/
+	);
+	cy.get('body', { timeout: 30_000 }).then(($body) => {
+		if ($body.find('#continue-to-workspace:visible').length > 0) {
+			cy.contains(tenantName, { timeout: 30_000 }).should('be.visible');
+		} else {
+			cy.location('pathname', { timeout: 60_000 }).should('match', APP_HOME);
+		}
+	});
+}
+
 describeOnStage('Ever ID sign-in (deployed environment)', () => {
 	it('shows the Ever ID button on the sign-in page', () => {
 		cy.visit('/auth/passcode');
 		cy.contains('button', 'Ever ID', { timeout: 30_000 }).should('be.visible');
 	});
 
-	it('takes a linked person to the workspace chooser with their workspace, leaking nothing in any URL', () => {
+	it('takes a linked person to their workspace, leaking nothing in any URL', () => {
 		const urls: string[] = [];
 		recordAppUrls(urls);
 
 		signInWithEverId(setting('EVER_ID_USERNAME'), setting('EVER_ID_PASSWORD'));
 
-		cy.location('pathname', { timeout: 60_000 }).should('match', /\/auth\/workspace$/);
-		cy.contains(setting('EVER_ID_TENANT_NAME'), { timeout: 30_000 }).should('be.visible');
-		cy.get('#continue-to-workspace').should('be.visible');
+		expectChooserOrApp(setting('EVER_ID_TENANT_NAME'));
 		expectNoLeak(urls);
 	});
 
-	it('sends a link that needs the one-time e-mail code to the passcode page, with the one-time key only', function () {
+	it('sends a link that needs the one-time e-mail code to the passcode page, with the step marker only', function () {
 		if (!setting('EVER_ID_UNLINKED_USERNAME')) this.skip();
 		const urls: string[] = [];
 		recordAppUrls(urls);
@@ -108,20 +141,26 @@ describeOnStage('Ever ID sign-in (deployed environment)', () => {
 		signInWithEverId(setting('EVER_ID_UNLINKED_USERNAME'), setting('EVER_ID_UNLINKED_PASSWORD'));
 
 		cy.location('pathname', { timeout: 60_000 }).should('match', /\/auth\/passcode$/);
-		cy.location('search').should('match', /^\?ever_id_handoff=[A-Za-z0-9_-]{16,128}$/);
+		cy.location('search').should('equal', '?ever_id=confirm');
+		cy.contains('one-time code', { timeout: 30_000 }).should('be.visible');
+		expectStepCookie();
 		expectNoLeak(urls);
 
 		if (setting('EVER_ID_CONFIRM_CODE_URL')) {
 			cy.request(setting('EVER_ID_CONFIRM_CODE_URL')).then(({ body }) => {
-				cy.get('form input').first().type(String(body.code), { log: false });
+				const code = String(body.code);
+				// The code boxes take one character each; a paste fills them all, as a person would.
+				cy.get('input[autocomplete="one-time-code"]').trigger('paste', {
+					clipboardData: { getData: () => code }
+				});
 			});
 			cy.contains('button', /log ?in|sign ?in/i).click();
-			cy.get('#continue-to-workspace', { timeout: 30_000 }).should('be.visible');
+			expectChooserOrApp(setting('EVER_ID_UNLINKED_TENANT_NAME') || setting('EVER_ID_TENANT_NAME'));
 			expectNoLeak(urls);
 		}
 	});
 
-	it('takes a person new to the product to the sign-up page with the one-time key only', function () {
+	it('takes a person new to the product to the sign-up page with the step marker only', function () {
 		if (setting('EVER_ID_SIGNUP') !== '1' || !setting('EVER_ID_NEW_USERNAME')) this.skip();
 		const urls: string[] = [];
 		recordAppUrls(urls);
@@ -129,9 +168,10 @@ describeOnStage('Ever ID sign-in (deployed environment)', () => {
 		signInWithEverId(setting('EVER_ID_NEW_USERNAME'), setting('EVER_ID_NEW_PASSWORD'));
 
 		cy.location('pathname', { timeout: 60_000 }).should('match', /\/auth\/signup$/);
-		cy.location('search').should('match', /^\?ever_id_handoff=[A-Za-z0-9_-]{16,128}$/);
+		cy.location('search').should('equal', '?ever_id=signup');
 		cy.get('#signup-email', { timeout: 30_000 }).should('have.attr', 'readonly');
-		cy.get('#ever-id-signup-confirm').should('exist');
+		cy.get('#ever-id-signup-confirm').should('not.be.disabled');
+		expectStepCookie();
 		expectNoLeak(urls);
 	});
 });

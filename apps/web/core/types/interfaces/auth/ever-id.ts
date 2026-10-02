@@ -3,8 +3,8 @@ import { ISigninEmailConfirmWorkspaces } from './auth';
 /**
  * Payloads of the Gauzy API's Ever ID routes (`/api/auth/zitadel/*`), as Ever Teams uses them.
  *
- * The API hands out opaque one-time keys ("hand-off" keys) for every step that continues on another page;
- * nothing personal ever travels in a URL, only such a key.
+ * The API hands out opaque one-time keys ("hand-off" keys) for every step that continues on another page. This
+ * app keeps them in a sealed httpOnly cookie for its own routes: neither a key nor anything personal travels in a URL.
  */
 
 /** A workspace of an Ever ID sign-in: Gauzy's usual workspace entry (the token signs in once chosen). */
@@ -69,7 +69,7 @@ export interface IEverIdTermsDocument {
 /** The acceptance of one document, sent back with the sign-up (Gauzy checks it against what it publishes). */
 export type IEverIdTermsClaim = Pick<IEverIdTermsDocument, 'documentId' | 'version' | 'sha256' | 'locale'>;
 
-/** What the sign-up page reads for an Ever ID hand-off (`POST /api/auth/ever-id/signup-handoff`). */
+/** What the sign-up page reads for an Ever ID sign-up (`POST /api/auth/ever-id/signup-handoff`). */
 export interface IEverIdSignupPrefill {
 	name: string;
 	email: string;
@@ -78,15 +78,20 @@ export interface IEverIdSignupPrefill {
 	checkoutUrl?: string;
 }
 
-/** The register body of an Ever ID sign-up: the usual fields plus the hand-off key and the confirmation. */
+/**
+ * The register body of an Ever ID sign-up: the usual fields plus the step marker, the confirmation and the accepted
+ * documents (the one-time key is in the sealed cookie of the sign-in, never in the body).
+ */
 export interface IEverIdRegisterDataAPI {
 	name: string;
 	email: string;
 	team: string;
 	timezone?: string;
 	recaptcha?: string;
-	ever_id_handoff: string;
+	ever_id: 'signup';
 	confirm: boolean;
+	/** The name shown was the verified one of the Ever ID (it is then not sent to the API). */
+	verified_name: boolean;
 	terms?: IEverIdTermsClaim[];
 }
 

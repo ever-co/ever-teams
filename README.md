@@ -265,16 +265,16 @@ Note: Ever® Teams™ requires access to Ever® Gauzy™ Platform APIs, provided
 
 Ever Teams can offer Ever ID as one more sign-in method, through OpenID Connect. It is off unless you configure it, and every existing sign-in method keeps working exactly as before.
 
-1. Register a confidential OpenID Connect client at your Ever ID issuer with the redirect URI `https://<host>/api/auth/callback/ever-id` and the back-channel logout URI `https://<host>/api/auth/ever-id/backchannel-logout`, where `<host>` is the public host of the web app.
+1. Register a confidential OpenID Connect client at your Ever ID issuer with the redirect URI `https://<host>/api/auth/callback/ever-id` and the back-channel logout URI `https://<host>/api/auth/ever-id/backchannel-logout`, where `<host>` is the public host of the web app. Behind a reverse proxy or ingress that does not forward the public host and protocol, also set `AUTH_URL` (see the social login notes above), or the redirect URI the app sends will not match.
 2. Set these variables on the web app (read at runtime, no rebuild needed):
-    - `NEXT_PUBLIC_EVER_ID_APP_NAME` (e.g. `Ever ID`) turns the sign-in on. While it, `EVER_ID_ISSUER_URL`, `EVER_ID_CLIENT_ID` or `EVER_ID_CLIENT_SECRET` is missing there is no button, next-auth does not serve the provider and the `/api/auth/ever-id/*` routes answer 404;
-    - `EVER_ID_ISSUER_URL`: the issuer;
+    - `NEXT_PUBLIC_EVER_ID_APP_NAME` (e.g. `Ever ID`) turns the sign-in on; unlike the social login names, an empty value counts as unset. The sign-in stays off (no button, next-auth does not serve the provider and the `/api/auth/ever-id/*` routes answer 404) until this name and all of `EVER_ID_ISSUER_URL`, `EVER_ID_CLIENT_ID` and `EVER_ID_CLIENT_SECRET` are set, and `GAUZY_API_SERVER_URL` (or `NEXT_PUBLIC_GAUZY_API_SERVER_URL`) is set explicitly: the ID tokens are exchanged there, never with a default API;
+    - `EVER_ID_ISSUER_URL`: the issuer, an https URL used exactly as written (plain http only on the local machine);
     - `EVER_ID_CLIENT_ID` and `EVER_ID_CLIENT_SECRET`: the client of step 1 (server only, never sent to the browser);
     - `EVER_PLATFORM_PROJECT_ID` (optional): also requests the audience of that project id;
     - `EVER_ID_TEAMS_AUTO_PROVISION` (default `false`): a sign-in whose Ever ID is linked to no workspace ends on an explanatory page and creates nothing; with `true` that page also offers the usual sign-up, and an account is created only once the person completes it.
-3. The Gauzy API the web app uses must run its Ever ID sign-in with this client id in its allowed audiences (`ZITADEL_ALLOWED_AUDIENCES`): the web app exchanges the ID token there for the person's workspaces, signs in through the usual workspace sign-in, and forwards back-channel logouts there.
+3. The Gauzy API the web app uses must run its Ever ID sign-in with this client id in its allowed audiences (`ZITADEL_ALLOWED_AUDIENCES`): the web app exchanges the ID token there for the person's workspaces, signs in through the usual workspace sign-in, and forwards back-channel logouts there. Back-channel logout also needs a Gauzy API that accepts logout tokens issued for this client; until it does, the forwarded tokens are refused (logged as `ever_id.backchannel outcome=forward_failed`) and signing out at the issuer does not end the sessions here.
 
-The button appears after Google, and demo mode (`NEXT_PUBLIC_DEMO=true`) hides it like the other sign-in buttons. No token or e-mail address is ever put in a URL: the steps that continue on another page (the API's one-time e-mail code before an existing account is linked, or the confirmation of a new workspace) carry only a one-time key.
+The button appears after Google, and demo mode (`NEXT_PUBLIC_DEMO=true`) hides it like the other sign-in buttons. No token, key or e-mail address is ever put in a URL: the steps that continue on another page (the API's one-time e-mail code before an existing account is linked, or the confirmation of a new workspace) carry only a step marker, and their one-time key travels in a short-lived, encrypted, httpOnly cookie that only the web app's own `/api/auth` routes receive.
 
 ### Run in Gitpod
 

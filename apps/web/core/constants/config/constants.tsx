@@ -709,15 +709,16 @@ export const TWITTER_CLIENT_SECRET = process.env.TWITTER_CLIENT_SECRET;
  * non-blank (core/lib/auth/ever-id/config.ts). Nothing here is published to the browser, and nothing
  * contacts the issuer before someone actually signs in with it.
  *
- * EVER_ID_ISSUER is the deprecated name of EVER_ID_ISSUER_URL: still read, with one warning per process.
+ * EVER_ID_ISSUER is the deprecated name of EVER_ID_ISSUER_URL: still read, with one warning per process. The
+ * value is used exactly as configured (an issuer identifier is compared character for character).
  */
 const resolveEverIdIssuerUrl = (): string | undefined => {
 	const issuer = blankToUndefined(process.env.EVER_ID_ISSUER_URL);
-	if (issuer) return withoutTrailingSlashes(issuer);
+	if (issuer) return issuer;
 	const deprecated = blankToUndefined(process.env.EVER_ID_ISSUER);
 	if (!deprecated) return undefined;
 	warnOnce('EVER_ID_ISSUER', 'EVER_ID_ISSUER is deprecated: set EVER_ID_ISSUER_URL instead.');
-	return withoutTrailingSlashes(deprecated);
+	return deprecated;
 };
 export const EVER_ID_ISSUER_URL = resolveEverIdIssuerUrl();
 export const EVER_ID_CLIENT_ID = blankToUndefined(process.env.EVER_ID_CLIENT_ID);

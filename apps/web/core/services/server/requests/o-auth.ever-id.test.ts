@@ -4,8 +4,9 @@
  * getUserByAccount again and createUser/linkAccount for a new user, then callbacks.jwt).
  *
  * The Gauzy API is mocked at the request functions. Checked here: one ID token exchange per sign-in, the
- * redirect of each answer (with nothing but a one-time key in a URL), the preselected workspace, no account
- * created behind the person's back, and the other providers' path unchanged.
+ * redirect of each answer (a step marker at most in a URL, the one-time key in a sealed httpOnly cookie), the
+ * preselected workspace, no account created behind the person's back, the chooser data dropped from the session
+ * once the workspace sign-in is done, and the other providers' path unchanged.
  */
 
 const mockSignWithEverId = jest.fn();
@@ -22,6 +23,14 @@ const mockSocialUserByProvider = jest.fn();
 const mockSigninWorkspace = jest.fn();
 const mockUserOrganizations = jest.fn();
 let mockNextAuthFactory: ((request: unknown) => Promise<Record<string, any>>) | undefined;
+const mockCookieStore = { set: jest.fn() };
+const mockRequestHeaders: Record<string, string> = {};
+
+// The callback request's cookies and headers (next/headers works only inside a request).
+jest.mock('next/headers', () => ({
+	cookies: async () => mockCookieStore,
+	headers: async () => new Headers(mockRequestHeaders)
+}));
 
 // next-auth ships ESM only: capture the configuration auth.ts hands to it.
 jest.mock('next-auth', () => ({
@@ -80,7 +89,9 @@ const EVER_ID_ENV = [
 	'EVER_ID_CLIENT_ID',
 	'EVER_ID_CLIENT_SECRET',
 	'EVER_PLATFORM_PROJECT_ID',
-	'EVER_ID_TEAMS_AUTO_PROVISION'
+	'EVER_ID_TEAMS_AUTO_PROVISION',
+	'GAUZY_API_SERVER_URL',
+	'AUTH_SECRET'
 ];
 const ORIGINAL_ENV = { ...process.env };
 const CALLBACK_REQUEST = new Request('https://teams.example.test/api/auth/callback/ever-id?code=c&state=s');
@@ -111,6 +122,7 @@ const workspaces = (...entries: ReturnType<typeof workspace>[]) => ({
 let logs: string[];
 
 beforeEach(() => {
+	mockRequestHeaders['x-forwarded-proto'] = 'https';
 	logs = [];
 	for (const method of ['info', 'warn', 'error', 'log'] as const) {
 		jest.spyOn(console, method).mockImplementation((...args: unknown[]) => {
@@ -139,10 +151,15 @@ async function loadAuth(env: Record<string, string> = {}, request: Request = CAL
 			NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID',
 			EVER_ID_ISSUER_URL: 'https://id.example.test',
 			EVER_ID_CLIENT_ID: 'teams-web-client',
-			EVER_ID_CLIENT_SECRET: 'teams-web-secret'
+			EVER_ID_CLIENT_SECRET: 'teams-web-secret',
+			GAUZY_API_SERVER_URL: 'https://api.example.test',
+			AUTH_SECRET: 'test-only-auth-secret'
 		},
 		env
 	);
+	for (const [key, value] of Object.entries(env)) {
+		if (value === undefined) delete process.env[key];
+	}
 	mockNextAuthFactory = undefined;
 	jest.isolateModules(() => {
 		require('@/auth');
@@ -151,6 +168,20 @@ async function loadAuth(env: Record<string, string> = {}, request: Request = CAL
 	if (!factory) throw new Error('auth.ts did not configure next-auth');
 	const config = await factory(request);
 	return { config, adapter: config.adapter };
+}
+
+/** The cookie the callback set for a step, and the key it opens to (with the same secret). */
+function setStepCookie() {
+	expect(mockCookieStore.set).toHaveBeenCalledTimes(1);
+	const cookie = mockCookieStore.set.mock.calls[0][0] as Record<string, unknown>;
+	const open = (step: 'confirm' | 'signup') => {
+		let key: string | null = null;
+		jest.isolateModules(() => {
+			key = require('@/core/lib/auth/ever-id/handoff').openEverIdHandoff(cookie.value, step);
+		});
+		return key;
+	};
+	return { cookie, open };
 }
 
 function everIdAccount() {
@@ -251,41 +282,67 @@ describe('Ever ID sign-in: the ID token exchange', () => {
 		expect(token?.authCookie.preselectTenantId).toBeUndefined();
 	});
 
-	it('sends a link that needs the one-time e-mail code to the passcode page, with the key only', async () => {
+	it('sends a link that needs the one-time e-mail code to the passcode page; the key goes into a sealed cookie', async () => {
 		mockSignWithEverId.mockResolvedValue({ status: 200, data: { confirm_required: true, handoff: HANDOFF } });
 		const auth = await loadAuth();
 
 		const { signIn, token } = await signInWithEverId(auth);
 
-		expect(signIn).toBe(`/auth/passcode?ever_id_handoff=${HANDOFF}`);
-		expect(signIn).not.toMatch(/@|%40|email=/i);
+		expect(signIn).toBe('/auth/passcode?ever_id=confirm');
+		const { cookie, open } = setStepCookie();
+		expect(cookie).toEqual(
+			expect.objectContaining({
+				name: 'ever-id-handoff',
+				httpOnly: true,
+				sameSite: 'lax',
+				secure: true,
+				path: '/api/auth',
+				maxAge: 1800
+			})
+		);
+		expect(String(cookie.value)).not.toContain(HANDOFF);
+		expect(open('confirm')).toBe(HANDOFF);
+		expect(open('signup')).toBeNull();
 		expect(token).toBeNull();
 		expect(mockSignWithEverId).toHaveBeenCalledTimes(1);
 		expect(logs.join('\n')).toContain('ever_id.signin outcome=confirm_required');
 	});
 
-	it('sends a person new to the product to the sign-up page, with the key only, and creates nothing', async () => {
+	it('sends a person new to the product to the sign-up page, the key in a sealed cookie, and creates nothing', async () => {
 		mockSignWithEverId.mockResolvedValue({ status: 404, data: { code: 'signup_required', handoff: HANDOFF } });
 		const auth = await loadAuth();
 
 		const { signIn } = await signInWithEverId(auth);
 
-		expect(signIn).toBe(`/auth/signup?ever_id_handoff=${HANDOFF}`);
-		expect(signIn).not.toMatch(/@|%40|email=/i);
+		expect(signIn).toBe('/auth/signup?ever_id=signup');
+		expect(setStepCookie().open('signup')).toBe(HANDOFF);
 		expect(mockRegisterUser).not.toHaveBeenCalled();
 		expect(mockCreateTenant).not.toHaveBeenCalled();
 	});
 
-	it('never puts a malformed key into a URL', async () => {
+	it('marks the cookie Secure only for a request that came over https', async () => {
+		delete mockRequestHeaders['x-forwarded-proto'];
+		mockSignWithEverId.mockResolvedValue({ status: 404, data: { code: 'signup_required', handoff: HANDOFF } });
+		const auth = await loadAuth();
+
+		await signInWithEverId(auth);
+
+		expect(setStepCookie().cookie.secure).toBe(false);
+	});
+
+	it('refuses the sign-in, and sets nothing, for a malformed key or without a secret to seal it with', async () => {
 		mockSignWithEverId.mockResolvedValue({
 			status: 200,
 			data: { confirm_required: true, handoff: 'person@example.test' }
 		});
-		const auth = await loadAuth();
+		expect((await signInWithEverId(await loadAuth())).signIn).toBe(false);
 
-		const { signIn } = await signInWithEverId(auth);
+		mockSignWithEverId.mockResolvedValue({ status: 200, data: { confirm_required: true, handoff: HANDOFF } });
+		expect((await signInWithEverId(await loadAuth({ AUTH_SECRET: undefined as unknown as string }))).signIn).toBe(
+			false
+		);
 
-		expect(signIn).toBe(false);
+		expect(mockCookieStore.set).not.toHaveBeenCalled();
 	});
 
 	it.each([
@@ -402,6 +459,37 @@ describe('overlapping Ever ID sign-ins of one person', () => {
 		expect(secondUser?.id).toBe('user-1');
 		expect(secondToken.authCookie?.provider).toBe('ever-id');
 		expect(mockSignWithEverId).toHaveBeenCalledTimes(2);
+	});
+});
+
+describe('the next-auth session after the workspace sign-in', () => {
+	it('drops the Ever ID chooser data (and whatever the update carries) once the chooser signed in', async () => {
+		mockSignWithEverId.mockResolvedValue(workspaces(workspace('user-1', 'tenant-1', 'Acme')));
+		const auth = await loadAuth();
+		const { token } = await signInWithEverId(auth);
+		expect(token?.authCookie.provider).toBe('ever-id');
+
+		const updated = await auth.config.callbacks.jwt({
+			token,
+			trigger: 'update',
+			session: { access_token: 'gauzy-access', refresh_token: { token: 'gauzy-refresh' }, workspaces: [] }
+		});
+
+		expect(updated.authCookie).toBeUndefined();
+		expect(JSON.stringify(updated)).not.toMatch(/workspace-token|gauzy-access|gauzy-refresh/);
+	});
+
+	it("keeps the other providers' session update as it was", async () => {
+		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/session'));
+		const session = { access_token: 'gauzy-access', teamId: 'team-1' };
+
+		const updated = await config.callbacks.jwt({
+			token: { authCookie: { access_token: 'old' } },
+			trigger: 'update',
+			session
+		});
+
+		expect(updated.authCookie).toEqual(session);
 	});
 });
 

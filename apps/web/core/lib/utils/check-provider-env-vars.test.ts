@@ -242,8 +242,9 @@ describe('every provider next-auth is given is reachable from the env', () => {
 });
 
 /**
- * Ever ID, an OpenID Connect provider: served only when NEXT_PUBLIC_EVER_ID_APP_NAME is set AND the issuer, the
- * client id and the client secret are all non-blank. These cases extend the suite; the ones above are unchanged.
+ * Ever ID, an OpenID Connect provider: served only when NEXT_PUBLIC_EVER_ID_APP_NAME is set to a non-blank name AND
+ * the issuer (https), the client id and the client secret are all non-blank AND the Gauzy API URL is configured
+ * explicitly. These cases extend the suite; the ones above are unchanged.
  */
 describe('Ever ID provider', () => {
 	const EVER_ID_KEYS = [
@@ -305,6 +306,8 @@ describe('Ever ID provider', () => {
 		process.env.EVER_ID_ISSUER_URL = ISSUER;
 		process.env.EVER_ID_CLIENT_ID = 'teams-web-client';
 		process.env.EVER_ID_CLIENT_SECRET = 'teams-web-secret';
+		process.env.GAUZY_API_SERVER_URL = 'https://api.example.test';
+		delete process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL;
 		delete (globalThis as { __everTeamsConfigWarnings?: Set<string> }).__everTeamsConfigWarnings;
 	});
 
@@ -326,7 +329,7 @@ describe('Ever ID provider', () => {
 			{ EVER_ID_CLIENT_SECRET: undefined },
 			{ NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' }
 		]
-	])('is not served when %s (and the Ever ID routes agree)', (_label, env, containerEnv) => {
+	])('is not served when %s', (_label, env, containerEnv) => {
 		for (const [key, value] of Object.entries(env as Record<string, string | undefined>)) {
 			if (value === undefined) delete process.env[key];
 			else process.env[key] = value;
@@ -338,13 +341,61 @@ describe('Ever ID provider', () => {
 		expect(mod.isEverIdConfigured()).toBe(false);
 	});
 
-	it('takes the runtime app name over the build-time one, and an empty runtime value counts as set', () => {
+	it('takes the runtime app name over the build-time one', () => {
 		process.env.NEXT_PUBLIC_EVER_ID_APP_NAME = 'Baked Ever ID';
 
-		const mod = loadEverId({ NEXT_PUBLIC_EVER_ID_APP_NAME: '' });
+		const mod = loadEverId({ NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' });
 
-		expect(mod.providerNames['ever-id']).toBe('');
+		expect(mod.providerNames['ever-id']).toBe('Ever ID');
 		expect(mod.getConfiguredAuthProviderIds()).toEqual(['ever-id']);
+	});
+
+	it.each([
+		['empty', ''],
+		['blank', '   ']
+	])('counts a %s app name as unset (unlike the social login names)', (_label, name) => {
+		const mod = loadEverId({ NEXT_PUBLIC_EVER_ID_APP_NAME: name });
+
+		expect(mod.getConfiguredAuthProviderIds()).not.toContain('ever-id');
+		expect(mod.isEverIdConfigured()).toBe(false);
+	});
+
+	it.each([
+		['plain http on another machine', 'http://id.example.test', false],
+		['not a URL', 'id.example.test', false],
+		['https', 'https://id.example.test', true],
+		['plain http on this machine', 'http://localhost:8080', true]
+	])('takes an issuer that is %s: %p', (_label, issuer, served) => {
+		const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+		try {
+			process.env.EVER_ID_ISSUER_URL = issuer;
+
+			const mod = loadEverId({ NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' });
+
+			expect(mod.isEverIdConfigured()).toBe(served);
+			expect(mod.getConfiguredAuthProviderIds().includes('ever-id')).toBe(served);
+		} finally {
+			warn.mockRestore();
+		}
+	});
+
+	it('is not served without an explicitly configured Gauzy API (it never exchanges ID tokens with a default one)', () => {
+		const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+		try {
+			delete process.env.GAUZY_API_SERVER_URL;
+
+			const without = loadEverId({ NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' });
+			expect(without.isEverIdConfigured()).toBe(false);
+			expect(without.getConfiguredAuthProviderIds()).not.toContain('ever-id');
+
+			process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL = 'https://api.example.test';
+			const withPublicUrl = loadEverId({ NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' });
+			expect(withPublicUrl.isEverIdConfigured()).toBe(true);
+			expect(withPublicUrl.getConfiguredAuthProviderIds()).toContain('ever-id');
+			expect(warn.mock.calls.flat().join('\n')).toContain('the Ever ID sign-in stays off');
+		} finally {
+			warn.mockRestore();
+		}
 	});
 
 	it('falls back to the build-time app name', () => {
@@ -353,19 +404,23 @@ describe('Ever ID provider', () => {
 		expect(loadEverId({}).getConfiguredAuthProviderIds()).toEqual(['ever-id']);
 	});
 
-	it('accepts the deprecated EVER_ID_ISSUER, with a single warning', () => {
+	it('accepts the deprecated EVER_ID_ISSUER, with a single warning, and uses the issuer exactly as written', () => {
 		delete process.env.EVER_ID_ISSUER_URL;
 		process.env.EVER_ID_ISSUER = `${ISSUER}/`;
 		const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+		try {
+			const first = loadEverId({ NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' });
+			loadEverId({ NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' });
 
-		const first = loadEverId({ NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' });
-		loadEverId({ NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' });
-
-		expect(first.getConfiguredAuthProviderIds()).toEqual(['ever-id']);
-		expect(everIdProvider(first).issuer).toBe(ISSUER);
-		const deprecations = warn.mock.calls.filter((call) => String(call[0]).includes('EVER_ID_ISSUER is deprecated'));
-		expect(deprecations).toHaveLength(1);
-		warn.mockRestore();
+			expect(first.getConfiguredAuthProviderIds()).toEqual(['ever-id']);
+			expect(everIdProvider(first).issuer).toBe(`${ISSUER}/`);
+			const deprecations = warn.mock.calls.filter((call) =>
+				String(call[0]).includes('EVER_ID_ISSUER is deprecated')
+			);
+			expect(deprecations).toHaveLength(1);
+		} finally {
+			warn.mockRestore();
+		}
 	});
 
 	it('is listed right after Google, the other providers keeping their order', () => {
@@ -411,12 +466,21 @@ describe('Ever ID provider', () => {
 		}
 	});
 
-	it('ignores a project id that is not a plain identifier (it could add scopes)', () => {
+	it('ignores a project id that is not a plain identifier (it could add scopes), and says so once', () => {
 		process.env.EVER_PLATFORM_PROJECT_ID = '1 urn:zitadel:iam:org:id:2';
+		const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+		try {
+			const provider = everIdProvider(loadEverId({ NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' }));
 
-		const provider = everIdProvider(loadEverId({ NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' }));
-
-		expect(provider.authorization?.params?.scope).toBe('openid profile email urn:zitadel:iam:user:resourceowner');
+			expect(provider.authorization?.params?.scope).toBe(
+				'openid profile email urn:zitadel:iam:user:resourceowner'
+			);
+			const notices = warn.mock.calls.filter((call) => String(call[0]).includes('EVER_PLATFORM_PROJECT_ID'));
+			expect(notices).toHaveLength(1);
+			expect(notices.flat().join(' ')).not.toContain('urn:zitadel');
+		} finally {
+			warn.mockRestore();
+		}
 	});
 
 	it('publishes the provider id only, never the client id, secret or issuer', () => {

@@ -10,9 +10,11 @@ import { createRemoteJWKSet, jwtVerify, type JWTPayload, type JWTVerifyGetKey } 
  * only the subject ends every session of that person); no `nonce`.
  * Replays (`jti` seen before) are the caller's check.
  *
- * Keys: the key set URL comes from the issuer's discovery document; a key set is reused for 600 s, and a
- * token signed with an unknown `kid` refetches it at most once every 30 s. The issuer comes only from the
- * deployment's configuration, and only https endpoints are used (plain http only on the local machine).
+ * Keys: the key set URL comes from the issuer's discovery document, whose `issuer` must be the configured one
+ * (compared as URLs, exactly); a key set is reused for 600 s, and a token signed with an unknown `kid` refetches
+ * it at most once every 30 s. A failed discovery is not retried for 30 s, and concurrent requests share one.
+ * The issuer comes only from the deployment's configuration, and only https endpoints are used: plain http only
+ * when the configured issuer is itself on the local machine, and then only for keys on the local machine too.
  */
 
 /**
@@ -65,6 +67,7 @@ interface LogoutTokenVerifierSettings {
 	jwksCacheMaxAgeMs?: number;
 	jwksCooldownMs?: number;
 	discoveryTtlMs?: number;
+	discoveryRetryMs?: number;
 }
 
 interface IssuerKeys {
@@ -76,10 +79,18 @@ interface IssuerKeys {
 
 const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
 
+function isLocalHttp(url: URL): boolean {
+	return url.protocol === 'http:' && LOOPBACK_HOSTS.has(url.hostname);
+}
+
 /** https, or plain http on the local machine only. */
 function isAllowedEndpoint(url: URL): boolean {
-	if (url.protocol === 'https:') return true;
-	return url.protocol === 'http:' && LOOPBACK_HOSTS.has(url.hostname);
+	return url.protocol === 'https:' || isLocalHttp(url);
+}
+
+/** The key set: https, or plain http on the local machine when the configured issuer is local http as well. */
+function isAllowedKeySet(jwksUrl: URL, discoveryUrl: URL): boolean {
+	return jwksUrl.protocol === 'https:' || (isLocalHttp(jwksUrl) && isLocalHttp(discoveryUrl));
 }
 
 function withoutTrailingSlashes(value: string): string {
@@ -88,9 +99,10 @@ function withoutTrailingSlashes(value: string): string {
 	return value.slice(0, end);
 }
 
+/** The same issuer identifier: compared exactly, as URLs (so only an empty path and the host's case normalize). */
 function sameIssuer(a: string, b: string): boolean {
 	try {
-		return withoutTrailingSlashes(new URL(a).href) === withoutTrailingSlashes(new URL(b).href);
+		return new URL(a).href === new URL(b).href;
 	} catch {
 		return false;
 	}
@@ -107,10 +119,12 @@ function isJsonObject(value: unknown): value is Record<string, unknown> {
 /** jose's failures that say the keys could not be obtained, as opposed to a bad token. */
 function isKeyAvailabilityError(error: unknown): boolean {
 	const { code, name } = (error ?? {}) as { code?: string; name?: string };
-	// A failed fetch is a TypeError (compared by name: it may come from another realm than this module's).
+	// A failed fetch is a TypeError (compared by name: it may come from another realm than this module's). An
+	// unknown `kid` is retryable too: around a key rotation the new key may not be served (or refetched) yet.
 	return (
 		code === 'ERR_JWKS_TIMEOUT' ||
 		code === 'ERR_JWKS_INVALID' ||
+		code === 'ERR_JWKS_NO_MATCHING_KEY' ||
 		code === 'ERR_JOSE_GENERIC' ||
 		name === 'TypeError'
 	);
@@ -154,19 +168,44 @@ export function createLogoutTokenVerifier(settings: LogoutTokenVerifierSettings 
 	const jwksCacheMaxAgeMs = settings.jwksCacheMaxAgeMs ?? 600_000;
 	const jwksCooldownMs = settings.jwksCooldownMs ?? 30_000;
 	const discoveryTtlMs = settings.discoveryTtlMs ?? 600_000;
+	const discoveryRetryMs = settings.discoveryRetryMs ?? 30_000;
 	const issuerKeys = new Map<string, IssuerKeys>();
+	const failedUntil = new Map<string, number>();
+	const pending = new Map<string, Promise<IssuerKeys>>();
 
-	/** The issuer's key getter, from its discovery document (cached; a failed discovery is not cached). */
-	async function keysFor(configuredIssuer: string): Promise<IssuerKeys> {
+	/**
+	 * The issuer's key getter, from its discovery document: cached; after a failure the previous keys (if any) are
+	 * used, and discovery is not tried again for `discoveryRetryMs`; concurrent callers share one discovery.
+	 */
+	function keysFor(configuredIssuer: string): Promise<IssuerKeys> {
 		const now = Date.now();
 		const cached = issuerKeys.get(configuredIssuer);
-		if (cached && cached.expiresAt > now) return cached;
+		if (cached && cached.expiresAt > now) return Promise.resolve(cached);
+		if ((failedUntil.get(configuredIssuer) ?? 0) > now) {
+			return cached
+				? Promise.resolve(cached)
+				: Promise.reject(new LogoutTokenError('unavailable', 'Issuer discovery failed recently'));
+		}
+		let discovery = pending.get(configuredIssuer);
+		if (!discovery) {
+			discovery = discover(configuredIssuer, cached).finally(() => pending.delete(configuredIssuer));
+			pending.set(configuredIssuer, discovery);
+		}
+		return discovery;
+	}
+
+	async function discover(configuredIssuer: string, cached: IssuerKeys | undefined): Promise<IssuerKeys> {
+		const now = Date.now();
+		const failed = (message: string): IssuerKeys => {
+			failedUntil.set(configuredIssuer, now + discoveryRetryMs);
+			if (cached) return cached;
+			throw new LogoutTokenError('unavailable', message);
+		};
 
 		let document: Record<string, unknown>;
+		let discoveryUrl: URL;
 		try {
-			const discoveryUrl = new URL(
-				`${withoutTrailingSlashes(configuredIssuer)}/.well-known/openid-configuration`
-			);
+			discoveryUrl = new URL(`${withoutTrailingSlashes(configuredIssuer)}/.well-known/openid-configuration`);
 			if (!isAllowedEndpoint(discoveryUrl)) throw new Error('the issuer must use https');
 			const response = await fetch(discoveryUrl, {
 				headers: { Accept: 'application/json' },
@@ -177,11 +216,7 @@ export function createLogoutTokenVerifier(settings: LogoutTokenVerifierSettings 
 			if (!response.ok) throw new Error(`discovery answered ${response.status}`);
 			document = (await response.json()) as Record<string, unknown>;
 		} catch (error) {
-			if (cached) return cached;
-			throw new LogoutTokenError(
-				'unavailable',
-				`Issuer discovery failed: ${(error as Error)?.message ?? 'error'}`
-			);
+			return failed(`Issuer discovery failed: ${(error as Error)?.message ?? 'error'}`);
 		}
 
 		const issuer = nonEmptyString(document?.issuer);
@@ -192,10 +227,10 @@ export function createLogoutTokenVerifier(settings: LogoutTokenVerifierSettings 
 		} catch {
 			jwksUrl = undefined;
 		}
-		if (!issuer || !sameIssuer(issuer, configuredIssuer) || !jwksUrl || !isAllowedEndpoint(jwksUrl)) {
-			if (cached) return cached;
-			throw new LogoutTokenError('unavailable', 'Issuer discovery document is not usable');
+		if (!issuer || !sameIssuer(issuer, configuredIssuer) || !jwksUrl || !isAllowedKeySet(jwksUrl, discoveryUrl)) {
+			return failed('Issuer discovery document is not usable');
 		}
+		failedUntil.delete(configuredIssuer);
 
 		// Kept across discovery refreshes while the key set URL stays the same, so its key cache survives.
 		const getKey =

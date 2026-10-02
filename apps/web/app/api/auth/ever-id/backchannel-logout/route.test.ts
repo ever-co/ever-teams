@@ -185,6 +185,43 @@ describe('POST /api/auth/ever-id/backchannel-logout', () => {
 		expect(logs.join('\n')).toContain('status=503');
 	});
 
+	it("answers 503 for the API's rate limit, and accepts the same token again later", async () => {
+		const { POST } = loadRoute(true);
+		gauzy.on('POST', FORWARD_PATH, { status: 429, body: { statusCode: 429 } });
+		const token = await logoutToken();
+
+		expect((await POST(postForm({ logout_token: token }))).status).toBe(503);
+		gauzy.on('POST', FORWARD_PATH, { status: 200 });
+		expect((await POST(postForm({ logout_token: token }))).status).toBe(200);
+
+		expect(gauzy.calls('POST', FORWARD_PATH)).toHaveLength(2);
+		expect(logs.join('\n')).toContain('status=429');
+	});
+
+	it('stops reading an oversized body sent without a length, and answers 400', async () => {
+		const { POST } = loadRoute(true);
+		const chunk = new TextEncoder().encode(`logout_token=${'a'.repeat(16_000)}`);
+		let sent = 0;
+		const body = new ReadableStream<Uint8Array>({
+			pull(controller) {
+				if (sent >= 8) return controller.close();
+				sent += 1;
+				controller.enqueue(chunk);
+			}
+		});
+		const request = new Request('https://teams.example.test/api/auth/ever-id/backchannel-logout', {
+			method: 'POST',
+			headers: { 'content-type': 'application/x-www-form-urlencoded' },
+			body,
+			duplex: 'half'
+		} as RequestInit);
+
+		expect((await POST(request)).status).toBe(400);
+		expect(sent).toBeLessThan(8);
+		expect(issuer.requests).toEqual([]);
+		expect(gauzy.calls('POST', FORWARD_PATH)).toHaveLength(0);
+	});
+
 	it('gives up on a slow API after 4 s and answers 503 so the identity provider can retry', async () => {
 		const { POST } = loadRoute(true);
 		gauzy.on(
@@ -201,13 +238,15 @@ describe('POST /api/auth/ever-id/backchannel-logout', () => {
 		expect(logs.join('\n')).toContain('ever_id.backchannel outcome=forward_failed');
 	}, 15_000);
 
-	it('answers 503 when the issuer keys cannot be obtained', async () => {
+	it('answers 503 when the issuer keys cannot be obtained, logged as unavailable (not as an invalid token)', async () => {
 		const { POST } = loadRoute(true, { EVER_ID_ISSUER_URL: 'http://127.0.0.1:9' });
 
 		const res = await POST(postForm({ logout_token: await logoutToken() }));
 
 		expect(res.status).toBe(503);
 		expect(gauzy.calls('POST', FORWARD_PATH)).toHaveLength(0);
+		expect(logs.join('\n')).toContain('ever_id.backchannel outcome=unavailable');
+		expect(logs.join('\n')).not.toContain('outcome=invalid');
 	});
 
 	it('never logs the token, the subject or the session id', async () => {

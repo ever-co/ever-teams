@@ -1,6 +1,13 @@
+import { cookies, headers } from 'next/headers';
 import { getEverIdConfig } from '@/core/lib/auth/ever-id/config';
-import { everIdHandoffPath, readEverIdHandoff } from '@/core/lib/auth/ever-id/handoff';
+import {
+	everIdHandoffCookie,
+	isHttpsRequest,
+	readEverIdHandoff,
+	sealEverIdHandoff
+} from '@/core/lib/auth/ever-id/handoff';
 import { logEverIdOutcome, type EverIdSignInOutcome } from '@/core/lib/auth/ever-id/log';
+import { everIdStepPath, type EverIdStep } from '@/core/lib/auth/ever-id/step';
 import { signWithEverIdRequest, type EverIdApiResult } from '@/core/services/server/requests/ever-id';
 import type {
 	IEverIdSessionData,
@@ -18,10 +25,13 @@ import type {
  * The answer drives the rest of the sign-in:
  *
  * - workspaces: the existing workspace chooser at /auth/workspace, then the unchanged workspace sign-in;
- * - a link that needs Gauzy's one-time e-mail code: /auth/passcode with the hand-off key only;
- * - a person new to the product (where the API offers the sign-up): /auth/signup with the hand-off key only;
+ * - a link that needs Gauzy's one-time e-mail code: /auth/passcode?ever_id=confirm;
+ * - a person new to the product (where the API offers the sign-up): /auth/signup?ever_id=signup;
  * - no workspace: an error page, and nothing is created. With EVER_ID_TEAMS_AUTO_PROVISION=true the page also offers
  *   the usual sign-up: an account is only ever created by that sign-up, after the person confirms it there.
+ *
+ * For those two steps the API's one-time key goes into a sealed httpOnly cookie for this app's routes
+ * (core/lib/auth/ever-id/handoff.ts), never into the URL.
  *
  * next-auth asks the adapter for the user BEFORE the signIn callback runs, and again after it, then runs the
  * jwt callback, all within the one callback request. The exchange result is kept in memory for exactly that
@@ -79,7 +89,7 @@ function isWorkspace(value: unknown): value is IEverIdWorkspace {
 	return isRecord(value.user) && typeof value.user.id === 'string' && !!value.user.id;
 }
 
-/** The hand-off key of an answer, only when it has the shape of one (it ends up in a URL). */
+/** The hand-off key of an answer, only when it has the shape of one. */
 function handoffOf(data: Record<string, unknown>): string | null {
 	return readEverIdHandoff(typeof data.handoff === 'string' ? data.handoff : null);
 }
@@ -154,11 +164,13 @@ const OUTCOMES: Record<EverIdExchange['kind'], EverIdSignInOutcome> = {
 function remember(account: EverIdAccount, record: EverIdSignInRecord): void {
 	byAccount.set(account, record);
 	const now = Date.now();
-	for (const [subject, entry] of bySubject) {
-		if (entry.expiresAt <= now || bySubject.size >= MEMO_MAX_ENTRIES) bySubject.delete(subject);
-		else break;
-	}
 	bySubject.delete(account.providerAccountId);
+	// Entries are kept in insertion order, which is also expiry order: the expired ones go first; a live entry is
+	// only dropped when the memo is full of live ones (more than MEMO_MAX_ENTRIES sign-ins within MEMO_TTL_MS).
+	for (const [subject, entry] of bySubject) {
+		if (entry.expiresAt > now && bySubject.size < MEMO_MAX_ENTRIES) break;
+		bySubject.delete(subject);
+	}
 	bySubject.set(account.providerAccountId, { record, expiresAt: now + MEMO_TTL_MS });
 }
 
@@ -193,8 +205,20 @@ async function signInRecord(account: EverIdAccount, profile?: Record<string, unk
 }
 
 /**
+ * Hands the key of a step to this app's routes in the sealed cookie, and returns the page of the step (which
+ * carries the step marker only); `false` when no secret is configured to seal it with.
+ */
+async function continueWithStep(step: EverIdStep, handoff: string): Promise<string | false> {
+	const sealed = sealEverIdHandoff(handoff, step);
+	if (!sealed) return false;
+	// Set on the response of this callback request (next-auth's redirect to the step's page).
+	(await cookies()).set(everIdHandoffCookie(sealed, isHttpsRequest(await headers())));
+	return everIdStepPath(step);
+}
+
+/**
  * next-auth `signIn` callback for Ever ID: `true` to continue to the workspace chooser, a same-origin path
- * (carrying a hand-off key at most) to continue elsewhere, `false` to refuse.
+ * (carrying a step marker at most) to continue elsewhere, `false` to refuse.
  */
 export async function everIdSignInCallback(
 	account: EverIdAccount,
@@ -207,9 +231,9 @@ export async function everIdSignInCallback(
 		case 'workspaces':
 			return true;
 		case 'confirm_required':
-			return everIdHandoffPath('/auth/passcode', exchange.handoff);
+			return continueWithStep('confirm', exchange.handoff);
 		case 'signup_required':
-			return everIdHandoffPath('/auth/signup', exchange.handoff);
+			return continueWithStep('signup', exchange.handoff);
 		case 'no_workspace':
 			return config.autoProvision ? EVER_ID_NO_WORKSPACE_SIGNUP_PATH : EVER_ID_NO_WORKSPACE_PATH;
 		case 'blocked':
@@ -258,6 +282,16 @@ export function everIdJwtPayload(account: EverIdAccount): IEverIdSessionData | u
 		confirmed_mail: response.confirmed_email,
 		...(record.preselectTenantId ? { preselectTenantId: record.preselectTenantId } : {})
 	};
+}
+
+/**
+ * Whether next-auth session data is what an Ever ID sign-in left for the chooser. The chooser's workspace sign-in
+ * updates the session once it succeeded; for an Ever ID session that update ends what the session holds (auth.ts):
+ * from then on the Gauzy cookies are the session, and neither the workspace tokens nor the Gauzy tokens stay in
+ * the next-auth one, where they could start another session after a sign-out elsewhere.
+ */
+export function isEverIdSessionData(value: unknown): boolean {
+	return isRecord(value) && value.provider === 'ever-id';
 }
 
 /** Whether next-auth is handling the Ever ID callback in this request (createUser receives no provider). */
