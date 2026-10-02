@@ -713,7 +713,28 @@
 			"FORGOT_PASSWORD": "Esqueceu a senha?",
 			"TERMS_OF_SERVICE": "Termos de serviço",
 			"PRIVACY_POLICY": "Política de privacidade",
-			"OR_CONTINUE_WITH": "ou continue com"
+			"OR_CONTINUE_WITH": "ou continue com",
+			"everId": {
+				"NO_WORKSPACE_TITLE": "Ainda não há espaço de trabalho para este Ever ID",
+				"NO_WORKSPACE_BODY": "Ainda não há nenhum espaço de trabalho vinculado a este Ever ID. Entre de outra forma ou peça um convite ao administrador do seu espaço de trabalho.",
+				"WORKSPACE_BLOCKED_TITLE": "Use o login da sua empresa",
+				"WORKSPACE_BLOCKED_BODY": "Seu espaço de trabalho pede que você entre com o login da sua empresa. Use-o para continuar ou entre de outra forma.",
+				"SIGN_IN_ANOTHER_WAY": "Entrar de outra forma",
+				"NO_WORKSPACE_SIGNUP_BODY": "Você também pode criar um novo espaço de trabalho com o cadastro habitual.",
+				"CREATE_WORKSPACE": "Criar um espaço de trabalho",
+				"CONFIRM_HINT": "Enviamos um código de uso único para o endereço de e-mail da sua conta existente. Digite-o para conectar seu Ever ID.",
+				"CODE_EXPIRED": "Este código expirou ou foi tentado vezes demais. Entre novamente com o Ever ID.",
+				"TOO_MANY_ATTEMPTS": "Tentativas demais. Aguarde um minuto e tente novamente.",
+				"UNAVAILABLE": "O login com Ever ID não está disponível no momento. Tente novamente mais tarde ou entre de outra forma.",
+				"SIGNUP_CONFIRM": "Criar meu espaço de trabalho com este Ever ID",
+				"SIGNUP_HINT": "Seu endereço de e-mail vem do seu Ever ID verificado. Nada é criado até você continuar.",
+				"SIGNUP_CONFIRM_REQUIRED": "Marque a caixa para criar seu espaço de trabalho com este Ever ID.",
+				"SIGNUP_TERMS": "Aceito estes documentos:",
+				"SIGNUP_TERMS_REQUIRED": "Aceite os documentos para continuar.",
+				"SIGNUP_EXPIRED": "Este cadastro expirou. Entre novamente com o Ever ID.",
+				"SIGNUP_CHECKOUT": "É necessária uma assinatura antes de criar seu espaço de trabalho.",
+				"CONTINUE_TO_CHECKOUT": "Continuar para o pagamento"
+			}
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Participar de uma Equipe Existente",

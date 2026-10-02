@@ -33,7 +33,9 @@ export function useAuthenticationSocialLogin() {
 			workspaces: ISigninEmailConfirmWorkspaces[],
 			selectedWorkspace: number,
 			selectedTeam: string,
-			defaultTeamId?: IOrganizationTeam['id']
+			defaultTeamId?: IOrganizationTeam['id'],
+			// Told about a failed workspace sign-in (an Ever ID chooser starts its sign-in again for an expired token)
+			onError?: (error: unknown) => void
 		) => {
 			setSignInWorkspaceLoading(true);
 			signinService
@@ -98,6 +100,7 @@ export function useAuthenticationSocialLogin() {
 				.catch((err) => {
 					console.error('Workspace signin error:', err);
 					setSignInWorkspaceLoading(false);
+					onError?.(err);
 				});
 		},
 		[router, updateNextAuthSession]

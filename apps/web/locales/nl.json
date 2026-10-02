@@ -713,7 +713,28 @@
 			"FORGOT_PASSWORD": "Wachtwoord vergeten?",
 			"TERMS_OF_SERVICE": "Servicevoorwaarden",
 			"PRIVACY_POLICY": "Privacybeleid",
-			"OR_CONTINUE_WITH": "of ga verder met"
+			"OR_CONTINUE_WITH": "of ga verder met",
+			"everId": {
+				"NO_WORKSPACE_TITLE": "Nog geen werkruimte voor deze Ever ID",
+				"NO_WORKSPACE_BODY": "Er is nog geen werkruimte aan deze Ever ID gekoppeld. Log op een andere manier in of vraag de beheerder van uw werkruimte om een uitnodiging.",
+				"WORKSPACE_BLOCKED_TITLE": "Gebruik de aanmelding van uw bedrijf",
+				"WORKSPACE_BLOCKED_BODY": "Uw werkruimte vraagt u in te loggen via de aanmelding van uw bedrijf. Gebruik die om verder te gaan, of log op een andere manier in.",
+				"SIGN_IN_ANOTHER_WAY": "Op een andere manier inloggen",
+				"NO_WORKSPACE_SIGNUP_BODY": "U kunt ook een nieuwe werkruimte maken via de gewone registratie.",
+				"CREATE_WORKSPACE": "Een werkruimte maken",
+				"CONFIRM_HINT": "We hebben een eenmalige code gestuurd naar het e-mailadres van uw bestaande account. Voer die in om uw Ever ID te koppelen.",
+				"CODE_EXPIRED": "Deze code is verlopen of te vaak geprobeerd. Log opnieuw in met Ever ID.",
+				"TOO_MANY_ATTEMPTS": "Te veel pogingen. Wacht een minuut en probeer het dan opnieuw.",
+				"UNAVAILABLE": "Inloggen met Ever ID is op dit moment niet beschikbaar. Probeer het later opnieuw of log op een andere manier in.",
+				"SIGNUP_CONFIRM": "Mijn werkruimte maken met deze Ever ID",
+				"SIGNUP_HINT": "Uw e-mailadres komt uit uw geverifieerde Ever ID. Er wordt niets gemaakt totdat u verdergaat.",
+				"SIGNUP_CONFIRM_REQUIRED": "Vink het vakje aan om uw werkruimte met deze Ever ID te maken.",
+				"SIGNUP_TERMS": "Ik accepteer deze documenten:",
+				"SIGNUP_TERMS_REQUIRED": "Accepteer de documenten om verder te gaan.",
+				"SIGNUP_EXPIRED": "Deze registratie is verlopen. Log opnieuw in met Ever ID.",
+				"SIGNUP_CHECKOUT": "Er is een abonnement nodig voordat uw werkruimte kan worden gemaakt.",
+				"CONTINUE_TO_CHECKOUT": "Doorgaan naar betalen"
+			}
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Bestaand team joinen",

@@ -713,7 +713,28 @@
 			"FORGOT_PASSWORD": "Zapomniałeś hasła?",
 			"TERMS_OF_SERVICE": "Regulamin",
 			"PRIVACY_POLICY": "Polityka prywatności",
-			"OR_CONTINUE_WITH": "lub kontynuuj przez"
+			"OR_CONTINUE_WITH": "lub kontynuuj przez",
+			"everId": {
+				"NO_WORKSPACE_TITLE": "Brak jeszcze przestrzeni roboczej dla tego Ever ID",
+				"NO_WORKSPACE_BODY": "Z tym Ever ID nie jest jeszcze połączona żadna przestrzeń robocza. Zaloguj się w inny sposób lub poproś administratora swojej przestrzeni roboczej o zaproszenie.",
+				"WORKSPACE_BLOCKED_TITLE": "Użyj logowania swojej firmy",
+				"WORKSPACE_BLOCKED_BODY": "Twoja przestrzeń robocza wymaga logowania przez Twoją firmę. Użyj go, aby kontynuować, lub zaloguj się w inny sposób.",
+				"SIGN_IN_ANOTHER_WAY": "Zaloguj się w inny sposób",
+				"NO_WORKSPACE_SIGNUP_BODY": "Możesz też utworzyć nową przestrzeń roboczą za pomocą zwykłej rejestracji.",
+				"CREATE_WORKSPACE": "Utwórz przestrzeń roboczą",
+				"CONFIRM_HINT": "Wysłaliśmy jednorazowy kod na adres e-mail Twojego istniejącego konta. Wpisz go, aby połączyć swoje Ever ID.",
+				"CODE_EXPIRED": "Ten kod wygasł lub był wpisywany zbyt wiele razy. Zaloguj się ponownie przez Ever ID.",
+				"TOO_MANY_ATTEMPTS": "Zbyt wiele prób. Poczekaj minutę i spróbuj ponownie.",
+				"UNAVAILABLE": "Logowanie przez Ever ID jest teraz niedostępne. Spróbuj ponownie później lub zaloguj się w inny sposób.",
+				"SIGNUP_CONFIRM": "Utwórz moją przestrzeń roboczą z tym Ever ID",
+				"SIGNUP_HINT": "Twój adres e-mail pochodzi z Twojego zweryfikowanego Ever ID. Nic nie zostanie utworzone, dopóki nie przejdziesz dalej.",
+				"SIGNUP_CONFIRM_REQUIRED": "Zaznacz pole, aby utworzyć przestrzeń roboczą z tym Ever ID.",
+				"SIGNUP_TERMS": "Akceptuję te dokumenty:",
+				"SIGNUP_TERMS_REQUIRED": "Zaakceptuj dokumenty, aby kontynuować.",
+				"SIGNUP_EXPIRED": "Ta rejestracja wygasła. Zaloguj się ponownie przez Ever ID.",
+				"SIGNUP_CHECKOUT": "Przed utworzeniem przestrzeni roboczej potrzebna jest subskrypcja.",
+				"CONTINUE_TO_CHECKOUT": "Przejdź do płatności"
+			}
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Dołącz do istniejącego zespołu",

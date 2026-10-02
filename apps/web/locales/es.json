@@ -590,7 +590,28 @@
 			"FORGOT_PASSWORD": "¿Olvidaste tu contraseña?",
 			"TERMS_OF_SERVICE": "Términos de servicio",
 			"PRIVACY_POLICY": "Política de privacidad",
-			"OR_CONTINUE_WITH": "o continuar con"
+			"OR_CONTINUE_WITH": "o continuar con",
+			"everId": {
+				"NO_WORKSPACE_TITLE": "Todavía no hay un espacio de trabajo para este Ever ID",
+				"NO_WORKSPACE_BODY": "Todavía no hay ningún espacio de trabajo vinculado a este Ever ID. Inicie sesión de otra forma o pida una invitación al administrador de su espacio de trabajo.",
+				"WORKSPACE_BLOCKED_TITLE": "Use el inicio de sesión de su empresa",
+				"WORKSPACE_BLOCKED_BODY": "Su espacio de trabajo le pide que acceda con el inicio de sesión de su empresa. Úselo para continuar o inicie sesión de otra forma.",
+				"SIGN_IN_ANOTHER_WAY": "Iniciar sesión de otra forma",
+				"NO_WORKSPACE_SIGNUP_BODY": "También puede crear un nuevo espacio de trabajo con el registro habitual.",
+				"CREATE_WORKSPACE": "Crear un espacio de trabajo",
+				"CONFIRM_HINT": "Hemos enviado un código de un solo uso a la dirección de correo electrónico de su cuenta existente. Ingréselo para conectar su Ever ID.",
+				"CODE_EXPIRED": "Este código ha expirado o se ha intentado demasiadas veces. Inicie sesión de nuevo con Ever ID.",
+				"TOO_MANY_ATTEMPTS": "Demasiados intentos. Espere un minuto y vuelva a intentarlo.",
+				"UNAVAILABLE": "El inicio de sesión con Ever ID no está disponible en este momento. Inténtelo más tarde o inicie sesión de otra forma.",
+				"SIGNUP_CONFIRM": "Crear mi espacio de trabajo con este Ever ID",
+				"SIGNUP_HINT": "Su dirección de correo electrónico procede de su Ever ID verificado. No se crea nada hasta que continúe.",
+				"SIGNUP_CONFIRM_REQUIRED": "Marque la casilla para crear su espacio de trabajo con este Ever ID.",
+				"SIGNUP_TERMS": "Acepto estos documentos:",
+				"SIGNUP_TERMS_REQUIRED": "Acepte los documentos para continuar.",
+				"SIGNUP_EXPIRED": "Este registro ha expirado. Inicie sesión de nuevo con Ever ID.",
+				"SIGNUP_CHECKOUT": "Se necesita una suscripción antes de poder crear su espacio de trabajo.",
+				"CONTINUE_TO_CHECKOUT": "Continuar al pago"
+			}
 		},
 		"projects": {
 			"projectTitle": {

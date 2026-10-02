@@ -7,7 +7,7 @@ import Linkedin from 'next-auth/providers/linkedin';
 import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id';
 import Slack from 'next-auth/providers/slack';
 import Twitter from 'next-auth/providers/twitter';
-import type { Provider } from 'next-auth/providers';
+import type { OIDCConfig, Provider } from 'next-auth/providers';
 import {
 	APPLE_CLIENT_ID,
 	APPLE_CLIENT_SECRET,
@@ -27,9 +27,18 @@ import {
 	SLACK_CLIENT_ID,
 	SLACK_CLIENT_SECRET,
 	TWITTER_CLIENT_ID,
-	TWITTER_CLIENT_SECRET
+	TWITTER_CLIENT_SECRET,
+	EVER_ID_CLIENT_ID,
+	EVER_ID_CLIENT_SECRET,
+	EVER_ID_ISSUER_URL
 } from '@/core/constants/config/constants';
 import { readRuntimeEnv } from '@/env-config';
+import {
+	EVER_ID_PROVIDER_ID,
+	everIdScope,
+	isEverIdConfigured,
+	readEverIdAppName
+} from '@/core/lib/auth/ever-id/config';
 
 type ProviderNames = {
 	[key: string]: string | undefined;
@@ -59,7 +68,25 @@ export const providerNames: ProviderNames = {
 	'microsoft-entra-id':
 		readRuntimeEnv('NEXT_PUBLIC_MICROSOFT_APP_NAME') ?? process.env.NEXT_PUBLIC_MICROSOFT_APP_NAME,
 	slack: readRuntimeEnv('NEXT_PUBLIC_SLACK_APP_NAME') ?? process.env.NEXT_PUBLIC_SLACK_APP_NAME,
-	twitter: readRuntimeEnv('NEXT_PUBLIC_TWITTER_APP_NAME') ?? process.env.NEXT_PUBLIC_TWITTER_APP_NAME
+	twitter: readRuntimeEnv('NEXT_PUBLIC_TWITTER_APP_NAME') ?? process.env.NEXT_PUBLIC_TWITTER_APP_NAME,
+	[EVER_ID_PROVIDER_ID]: readEverIdAppName()
+};
+
+/**
+ * Ever ID, an OpenID Connect provider that next-auth has no built-in for. PKCE, state AND nonce are checked
+ * here (the Gauzy API that receives the ID token afterwards does not check the nonce). The ID token is then
+ * exchanged with the Gauzy API for the workspace list: core/services/server/ever-id/sign-in.ts. Only the
+ * profile scopes are requested, plus the platform project audience when EVER_PLATFORM_PROJECT_ID is set.
+ */
+const everIdProvider: OIDCConfig<Record<string, unknown>> = {
+	id: EVER_ID_PROVIDER_ID,
+	name: 'Ever ID',
+	type: 'oidc',
+	issuer: EVER_ID_ISSUER_URL,
+	clientId: EVER_ID_CLIENT_ID,
+	clientSecret: EVER_ID_CLIENT_SECRET,
+	checks: ['pkce', 'state', 'nonce'],
+	authorization: { params: { scope: everIdScope() } }
 };
 
 export const providers: Provider[] = [
@@ -79,6 +106,7 @@ export const providers: Provider[] = [
 		clientId: GOOGLE_CLIENT_ID,
 		clientSecret: GOOGLE_CLIENT_SECRET
 	}),
+	everIdProvider,
 	Github({
 		clientId: GITHUB_CLIENT_ID,
 		clientSecret: GITHUB_CLIENT_SECRET
@@ -130,7 +158,8 @@ const providerClientIds: Record<string, string | undefined> = {
 	linkedin: LINKEDIN_CLIENT_ID,
 	'microsoft-entra-id': MICROSOFT_CLIENT_ID,
 	slack: SLACK_CLIENT_ID,
-	twitter: TWITTER_CLIENT_ID
+	twitter: TWITTER_CLIENT_ID,
+	[EVER_ID_PROVIDER_ID]: EVER_ID_CLIENT_ID
 };
 
 const providerClientSecrets: Record<string, string | undefined> = {
@@ -142,7 +171,8 @@ const providerClientSecrets: Record<string, string | undefined> = {
 	linkedin: LINKEDIN_CLIENT_SECRET,
 	'microsoft-entra-id': MICROSOFT_CLIENT_SECRET,
 	slack: SLACK_CLIENT_SECRET,
-	twitter: TWITTER_CLIENT_SECRET
+	twitter: TWITTER_CLIENT_SECRET,
+	[EVER_ID_PROVIDER_ID]: EVER_ID_CLIENT_SECRET
 };
 
 function getProviderId(provider: Provider): string {
@@ -153,6 +183,9 @@ export const filteredProviders = providers.filter((provider) => {
 	const providerId = getProviderId(provider);
 	const advertised = providerNames[providerId] !== undefined;
 	const configured = !!providerClientIds[providerId]?.trim() && !!providerClientSecrets[providerId]?.trim();
+	// Ever ID also needs its issuer (https; plain http only on the local machine), an explicitly configured Gauzy
+	// API and a non-blank name: one gate, shared with the Ever ID routes (core/lib/auth/ever-id/config.ts).
+	if (providerId === EVER_ID_PROVIDER_ID) return isEverIdConfigured();
 	return advertised && configured;
 });
 

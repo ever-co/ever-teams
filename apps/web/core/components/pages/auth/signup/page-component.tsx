@@ -12,6 +12,21 @@ import HCaptcha from '@hcaptcha/react-hcaptcha';
 import Turnstile from 'react-turnstile';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { cn } from '@/core/lib/helpers';
+import { Checkbox } from '@/core/components/common/checkbox';
+import type { IEverIdSignupPrefill } from '@/core/types/interfaces/auth/ever-id';
+
+/** The Ever ID part of the sign-up form (null for the usual sign-up). */
+type TEverIdSignup = {
+	prefill: IEverIdSignupPrefill | null;
+	loading: boolean;
+	error: string | null;
+	/** The name is the verified one of the Ever ID (read-only); otherwise the person enters it. */
+	nameVerified: boolean;
+	confirmed: boolean;
+	setConfirmed: (confirmed: boolean) => void;
+	termsAccepted: boolean;
+	setTermsAccepted: (accepted: boolean) => void;
+} | null;
 
 function AuthSignup() {
 	const {
@@ -24,7 +39,8 @@ function AuthSignup() {
 		errors,
 		formValues,
 		loading,
-		startMode
+		startMode,
+		everId
 	} = useAuthenticationTeam();
 
 	const t = useTranslations();
@@ -51,6 +67,7 @@ function AuthSignup() {
 								handleOnChange={handleOnChange}
 								form={formValues}
 								loading={loading}
+								everId={everId}
 							/>
 						</div>
 
@@ -89,10 +106,12 @@ function FillUserDataForm({
 	errors,
 	handleOnChange,
 	loading,
-	className
+	className,
+	everId = null
 }: IStepProps & {
 	errors: Record<string, string>;
 	loading?: boolean;
+	everId?: TEverIdSignup;
 } & IClassName) {
 	const t = useTranslations();
 
@@ -150,6 +169,7 @@ function FillUserDataForm({
 						value={form.name}
 						errors={errors}
 						onChange={handleOnChange}
+						readOnly={!!everId?.nameVerified || !!everId?.loading}
 						autoComplete="off"
 						noWrapper
 						className={INPUT_CLASS}
@@ -173,6 +193,7 @@ function FillUserDataForm({
 						value={form.email}
 						errors={errors}
 						onChange={handleOnChange}
+						readOnly={!!everId}
 						autoComplete="off"
 						noWrapper
 						className={INPUT_CLASS}
@@ -180,13 +201,15 @@ function FillUserDataForm({
 					{errors?.email && <Text.Error className="text-xs">{errors.email}</Text.Error>}
 				</div>
 
+				{everId && <EverIdSignupConfirmation everId={everId} error={errors?.everId} />}
+
 				{renderCaptcha()}
 			</div>
 
 			{/* Submit button — template exact classes */}
 			<Button
 				type="submit"
-				disabled={loading}
+				disabled={loading || !!everId?.loading}
 				className="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-md border-[0.5px] border-white/10 shadow-black/15 [&_svg]:drop-shadow-sm bg-primary ring-1 ring-(--ring-color) [--ring-color:color-mix(in_oklab,black_15%,var(--color-primary))] dark:border-transparent dark:[--ring-color:color-mix(in_oklab,white_15%,var(--color-primary))] text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2 w-full"
 			>
 				{t('pages.authTeam.CONTINUE')}
@@ -304,6 +327,75 @@ function ChooseModeForm({
 				</Button>
 				<BackButton onClick={onPreviousStep} />
 			</div>
+		</div>
+	);
+}
+
+/**
+ * Ever ID sign-up: the e-mail address above (and the name, when the Ever ID has one) is the verified one of the
+ * Ever ID (read-only), and nothing is created until the person ticks the confirmation (and accepts the documents,
+ * if any) and submits. The documents are listed outside the label, so opening one never ticks the box.
+ */
+function EverIdSignupConfirmation({ everId, error }: Readonly<{ everId: NonNullable<TEverIdSignup>; error?: string }>) {
+	const t = useTranslations();
+	const { prefill } = everId;
+	const message = error || everId.error;
+
+	return (
+		<div className="p-3 space-y-3 text-sm rounded-md ring-1 ring-foreground/10">
+			{prefill?.checkoutUrl && (
+				<p className="text-muted-foreground">
+					{t('pages.auth.everId.SIGNUP_CHECKOUT')}{' '}
+					<a href={prefill.checkoutUrl} className="font-medium underline text-primary">
+						{t('pages.auth.everId.CONTINUE_TO_CHECKOUT')}
+					</a>
+				</p>
+			)}
+			<p className="text-muted-foreground">{t('pages.auth.everId.SIGNUP_HINT')}</p>
+			<div className="flex gap-2 items-start">
+				<Checkbox
+					id="ever-id-signup-confirm"
+					checked={everId.confirmed}
+					disabled={!prefill}
+					onCheckedChange={(checked) => everId.setConfirmed(checked === true)}
+				/>
+				<label htmlFor="ever-id-signup-confirm" className="cursor-pointer">
+					{t('pages.auth.everId.SIGNUP_CONFIRM')}
+				</label>
+			</div>
+			{prefill && prefill.terms.length > 0 && (
+				<div className="space-y-1">
+					<div className="flex gap-2 items-start">
+						<Checkbox
+							id="ever-id-signup-terms"
+							checked={everId.termsAccepted}
+							onCheckedChange={(checked) => everId.setTermsAccepted(checked === true)}
+						/>
+						<label htmlFor="ever-id-signup-terms" className="cursor-pointer">
+							{t('pages.auth.everId.SIGNUP_TERMS')}
+						</label>
+					</div>
+					<ul className="pl-10 space-y-0.5 list-disc">
+						{prefill.terms.map((document) => (
+							<li key={`${document.documentId}:${document.version}`}>
+								{document.url ? (
+									<a
+										href={document.url}
+										target="_blank"
+										rel="noreferrer"
+										className="underline text-primary"
+									>
+										{document.title || document.documentId}
+									</a>
+								) : (
+									document.title || document.documentId
+								)}
+							</li>
+						))}
+					</ul>
+				</div>
+			)}
+			{message && <Text.Error className="text-xs">{message}</Text.Error>}
 		</div>
 	);
 }

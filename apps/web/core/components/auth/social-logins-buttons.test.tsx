@@ -116,3 +116,53 @@ describe('SocialLogins', () => {
 		expect(source).not.toMatch(/_CLIENT_ID/);
 	});
 });
+
+/**
+ * The Ever ID button: one more provider, rendered from the published list like the others (it comes after Google)
+ * and hidden in demo mode. These cases extend the suite; the ones above are unchanged.
+ */
+describe('SocialLogins: Ever ID', () => {
+	it('renders the Ever ID button right after Google', () => {
+		renderWithRuntimeEnv({ EVER_TEAMS_AUTH_PROVIDERS: 'github,ever-id,google' });
+
+		expect(buttonLabels()).toEqual(['Google', 'Ever ID', 'GitHub']);
+	});
+
+	it('renders the Ever ID button alone when it is the only published provider', () => {
+		renderWithRuntimeEnv({ EVER_TEAMS_AUTH_PROVIDERS: 'ever-id' });
+
+		expect(buttonLabels()).toEqual(['Ever ID']);
+		expect(screen.getByText('pages.auth.OR_CONTINUE_WITH')).toBeTruthy();
+	});
+
+	it('renders no Ever ID button when the server did not publish it', () => {
+		renderWithRuntimeEnv({ EVER_TEAMS_AUTH_PROVIDERS: 'google', NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID' });
+
+		expect(buttonLabels()).toEqual(['Google']);
+	});
+
+	it('hides the Ever ID button in demo mode', () => {
+		mockDemoMode = true;
+
+		const { container } = renderWithRuntimeEnv({ EVER_TEAMS_AUTH_PROVIDERS: 'google,ever-id' });
+
+		expect(container.innerHTML).toBe('');
+	});
+
+	it('starts the Ever ID sign-in', () => {
+		renderWithRuntimeEnv({ EVER_TEAMS_AUTH_PROVIDERS: 'google,ever-id' });
+
+		fireEvent.click(screen.getByRole('button', { name: 'Ever ID' }));
+
+		expect(mockSignInFunction).toHaveBeenCalledTimes(1);
+		expect(mockSignInFunction).toHaveBeenCalledWith({ id: 'ever-id', name: 'Ever ID' });
+	});
+
+	it('labels the button with the provider name only, with a decorative icon', () => {
+		renderWithRuntimeEnv({ EVER_TEAMS_AUTH_PROVIDERS: 'ever-id' });
+
+		const button = screen.getByRole('button', { name: 'Ever ID' });
+		expect(button.textContent).toBe('Ever ID');
+		expect(button.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+	});
+});
