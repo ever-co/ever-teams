@@ -886,7 +886,8 @@
 		"resourceowner",
 		"logfmt",
 		"cooldown",
-		"pkce"
+		"pkce",
+		"nosonar"
 ],
 	"useGitignore": true,
 	"ignorePaths": [
