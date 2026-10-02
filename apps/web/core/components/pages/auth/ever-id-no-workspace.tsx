@@ -15,10 +15,10 @@ import { DEFAULT_APP_PATH } from '@/core/constants/config/constants';
 export default function EverIdNoWorkspace({
 	reason = 'no_workspace',
 	offerSignup = false
-}: {
+}: Readonly<{
 	reason?: 'no_workspace' | 'blocked';
 	offerSignup?: boolean;
-}) {
+}>) {
 	const t = useTranslations();
 	const blocked = reason === 'blocked';
 

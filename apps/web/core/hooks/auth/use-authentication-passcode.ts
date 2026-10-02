@@ -14,6 +14,13 @@ import { EVER_ID_HANDOFF_PARAM, readEverIdHandoff } from '@/core/lib/auth/ever-i
 import { toEverIdChooserData } from '@/core/lib/auth/ever-id/session';
 import { everIdService } from '@/core/services/client/api/auth/ever-id.service';
 
+/** The message for each answer of the Ever ID code confirmation that is not a success. */
+const EVER_ID_CONFIRM_ERRORS = {
+	400: 'pages.auth.INVALID_CODE_TRY_AGAIN',
+	410: 'pages.auth.everId.CODE_EXPIRED',
+	429: 'pages.auth.everId.TOO_MANY_ATTEMPTS'
+} as const;
+
 type AuthCodeRef = {
 	focus: () => void;
 	clear: () => void;
@@ -197,16 +204,10 @@ export function useAuthenticationPasscode() {
 					return;
 				}
 				setStatus('error');
-				setErrors({
-					code:
-						httpStatus === 410
-							? t('pages.auth.everId.CODE_EXPIRED')
-							: httpStatus === 429
-								? t('pages.auth.everId.TOO_MANY_ATTEMPTS')
-								: httpStatus === 400
-									? t('pages.auth.INVALID_CODE_TRY_AGAIN')
-									: t('pages.auth.everId.UNAVAILABLE')
-				});
+				const message =
+					EVER_ID_CONFIRM_ERRORS[httpStatus as keyof typeof EVER_ID_CONFIRM_ERRORS] ??
+					'pages.auth.everId.UNAVAILABLE';
+				setErrors({ code: t(message) });
 				inputCodeRef.current?.clear();
 			} catch {
 				setStatus('error');
@@ -328,7 +329,7 @@ export function useAuthenticationPasscode() {
 		}
 		const promise = signInEmailQueryCall(formValues['email']);
 
-		promise.then(() => setErrors({}));
+		void promise.then(() => setErrors({}));
 		promise.catch((err: AxiosError) => {
 			if (err.response?.status === 400) {
 				setErrors((err.response?.data as any)?.errors || {});

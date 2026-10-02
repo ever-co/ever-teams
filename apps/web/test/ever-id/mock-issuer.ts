@@ -5,11 +5,13 @@
  * `jose` is an ES module only: a test file that uses this loads it through Node itself, with
  * `jest.mock('jose', () => process.getBuiltinModule('node:module').createRequire(__filename)('jose'))`.
  */
+import { randomUUID } from 'node:crypto';
 import { createServer, type Server } from 'node:http';
 import { SignJWT, exportJWK, generateKeyPair, type JWK, type JWTPayload } from 'jose';
 import { close, listen, sendJson } from './http';
 
-const BACKCHANNEL_EVENT = 'http://schemas.openid.net/event/backchannel-logout';
+// A specification identifier compared as a string, never requested.
+const BACKCHANNEL_EVENT = 'http://schemas.openid.net/event/backchannel-logout'; // NOSONAR
 
 export class MockIssuer {
 	issuer = '';
@@ -59,7 +61,7 @@ export class MockIssuer {
 	}
 
 	/** Signs claims with the current key (or with a key the issuer does not publish). */
-	async sign(claims: JWTPayload, options: { kid?: string; key?: CryptoKey } = {}): Promise<string> {
+	sign(claims: JWTPayload, options: { kid?: string; key?: CryptoKey } = {}): Promise<string> {
 		return new SignJWT(claims)
 			.setProtectedHeader({ alg: 'ES256', kid: options.kid ?? this.kid, typ: 'JWT' })
 			.sign(options.key ?? (this.privateKey as CryptoKey));
@@ -71,7 +73,7 @@ export class MockIssuer {
 			iss: this.issuer,
 			aud: this.clientId,
 			iat: Math.floor(Date.now() / 1000),
-			jti: `jti-${Math.random().toString(36).slice(2)}`,
+			jti: `jti-${randomUUID()}`,
 			sid: 'session-1',
 			sub: 'person-1',
 			events: { [BACKCHANNEL_EVENT]: {} },

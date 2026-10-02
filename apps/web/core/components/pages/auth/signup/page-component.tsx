@@ -332,7 +332,7 @@ function ChooseModeForm({
  * Ever ID sign-up: the name and e-mail address above are the verified ones of the Ever ID (read-only), and
  * nothing is created until the person ticks the confirmation (and accepts the documents, if any) and submits.
  */
-function EverIdSignupConfirmation({ everId, error }: { everId: NonNullable<TEverIdSignup>; error?: string }) {
+function EverIdSignupConfirmation({ everId, error }: Readonly<{ everId: NonNullable<TEverIdSignup>; error?: string }>) {
 	const t = useTranslations();
 	const { prefill } = everId;
 	const message = error || everId.error;

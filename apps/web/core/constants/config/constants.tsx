@@ -713,11 +713,11 @@ export const TWITTER_CLIENT_SECRET = process.env.TWITTER_CLIENT_SECRET;
  */
 const resolveEverIdIssuerUrl = (): string | undefined => {
 	const issuer = blankToUndefined(process.env.EVER_ID_ISSUER_URL);
-	if (issuer) return issuer.replace(/\/+$/, '');
+	if (issuer) return withoutTrailingSlashes(issuer);
 	const deprecated = blankToUndefined(process.env.EVER_ID_ISSUER);
 	if (!deprecated) return undefined;
 	warnOnce('EVER_ID_ISSUER', 'EVER_ID_ISSUER is deprecated: set EVER_ID_ISSUER_URL instead.');
-	return deprecated.replace(/\/+$/, '');
+	return withoutTrailingSlashes(deprecated);
 };
 export const EVER_ID_ISSUER_URL = resolveEverIdIssuerUrl();
 export const EVER_ID_CLIENT_ID = blankToUndefined(process.env.EVER_ID_CLIENT_ID);

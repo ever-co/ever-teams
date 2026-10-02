@@ -79,32 +79,40 @@ function isWorkspace(value: unknown): value is IEverIdWorkspace {
 	return isRecord(value.user) && typeof value.user.id === 'string' && !!value.user.id;
 }
 
+/** The hand-off key of an answer, only when it has the shape of one (it ends up in a URL). */
+function handoffOf(data: Record<string, unknown>): string | null {
+	return readEverIdHandoff(typeof data.handoff === 'string' ? data.handoff : null);
+}
+
+/** A 200 answer: the workspaces (minus malformed entries), or a link that needs the one-time e-mail code. */
+function fromSuccess(data: Record<string, unknown>): EverIdExchange {
+	if (data.confirm_required === true) {
+		const handoff = handoffOf(data);
+		return handoff ? { kind: 'confirm_required', handoff } : { kind: 'gauzy_error' };
+	}
+	if (!Array.isArray(data.workspaces)) return { kind: 'gauzy_error' };
+	const response = data as unknown as IEverIdWorkspacesResponse;
+	const workspaces = response.workspaces.filter(isWorkspace);
+	if (workspaces.length) return { kind: 'workspaces', response: { ...response, workspaces } };
+	return response.blocked_workspaces?.length ? { kind: 'blocked' } : { kind: 'no_workspace' };
+}
+
+/** A 404 answer: the sign-up offer or "no workspace"; any other 404 means the routes are off. */
+function fromNotFound(data: Record<string, unknown>): EverIdExchange {
+	if (data.code === 'signup_required') {
+		const handoff = handoffOf(data);
+		return handoff ? { kind: 'signup_required', handoff } : { kind: 'gauzy_error' };
+	}
+	return data.code === 'no_workspace' ? { kind: 'no_workspace' } : { kind: 'gauzy_error' };
+}
+
 /** Maps an answer of `POST /api/auth/zitadel/token` to what the sign-in does next. */
 function toEverIdExchange(result: EverIdApiResult<IEverIdTokenResponse | IEverIdTokenNotFound>): EverIdExchange {
-	const status = result.status;
 	const data: unknown = result.data;
-	if (status === 200 && isRecord(data)) {
-		if (data.confirm_required === true) {
-			const handoff = readEverIdHandoff(typeof data.handoff === 'string' ? data.handoff : null);
-			return handoff ? { kind: 'confirm_required', handoff } : { kind: 'gauzy_error' };
-		}
-		if (Array.isArray(data.workspaces)) {
-			const response = data as unknown as IEverIdWorkspacesResponse;
-			const workspaces = response.workspaces.filter(isWorkspace);
-			if (workspaces.length) return { kind: 'workspaces', response: { ...response, workspaces } };
-			return response.blocked_workspaces?.length ? { kind: 'blocked' } : { kind: 'no_workspace' };
-		}
-		return { kind: 'gauzy_error' };
-	}
-	if (status === 404 && isRecord(data)) {
-		if (data.code === 'signup_required') {
-			const handoff = readEverIdHandoff(typeof data.handoff === 'string' ? data.handoff : null);
-			return handoff ? { kind: 'signup_required', handoff } : { kind: 'gauzy_error' };
-		}
-		if (data.code === 'no_workspace') return { kind: 'no_workspace' };
-	}
+	if (result.status === 200 && isRecord(data)) return fromSuccess(data);
+	if (result.status === 404 && isRecord(data)) return fromNotFound(data);
 	// 401: the API refused the token. Anything else (the routes switched off, a rate limit, an outage) is the API's.
-	return status === 401 ? { kind: 'rejected' } : { kind: 'gauzy_error' };
+	return result.status === 401 ? { kind: 'rejected' } : { kind: 'gauzy_error' };
 }
 
 /**
@@ -242,7 +250,7 @@ export function everIdJwtPayload(account: EverIdAccount): IEverIdSessionData | u
 	// The subject memo is left to expire (MEMO_TTL_MS): another sign-in of the same person running at the same
 	// time may still need it for its own adapter lookup.
 	const record = byAccount.get(account);
-	if (!record || record.exchange.kind !== 'workspaces') return undefined;
+	if (record?.exchange.kind !== 'workspaces') return undefined;
 	const { response } = record.exchange;
 	return {
 		provider: 'ever-id',

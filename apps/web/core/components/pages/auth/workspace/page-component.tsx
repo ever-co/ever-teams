@@ -65,7 +65,7 @@ function WorkSpaceScreen() {
 				return;
 			}
 		};
-		loadOAuthSession();
+		void loadOAuthSession();
 	}, [session]);
 
 	// Ever ID: the sign-in left the workspace list in the session (no Gauzy token yet: the workspace sign-in

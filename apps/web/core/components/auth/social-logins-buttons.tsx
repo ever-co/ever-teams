@@ -77,7 +77,7 @@ export default function SocialLogins() {
 							key={provider.id}
 							onSubmit={(e) => {
 								e.preventDefault();
-								signInFunction(provider);
+								void signInFunction(provider);
 							}}
 						>
 							<Button type="submit" variant="secondary" className={SOCIAL_BUTTON_CLASS}>

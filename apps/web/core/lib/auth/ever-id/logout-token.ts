@@ -15,8 +15,11 @@ import { createRemoteJWKSet, jwtVerify, type JWTPayload, type JWTVerifyGetKey } 
  * deployment's configuration, and only https endpoints are used (plain http only on the local machine).
  */
 
-/** The event a logout token must carry; an identifier fixed by the specification, never requested. */
-const BACKCHANNEL_LOGOUT_EVENT = 'http://schemas.openid.net/event/backchannel-logout';
+/**
+ * The event a logout token must carry (Back-Channel Logout 1.0, section 2.4): an identifier fixed by the
+ * specification, compared as a string and never requested, so its `http` scheme is not a transport.
+ */
+const BACKCHANNEL_LOGOUT_EVENT = 'http://schemas.openid.net/event/backchannel-logout'; // NOSONAR
 
 /** A logout token older than this is refused, seconds. */
 const LOGOUT_TOKEN_MAX_AGE_S = 300;
@@ -79,9 +82,15 @@ function isAllowedEndpoint(url: URL): boolean {
 	return url.protocol === 'http:' && LOOPBACK_HOSTS.has(url.hostname);
 }
 
+function withoutTrailingSlashes(value: string): string {
+	let end = value.length;
+	while (end > 0 && value[end - 1] === '/') end--;
+	return value.slice(0, end);
+}
+
 function sameIssuer(a: string, b: string): boolean {
 	try {
-		return new URL(a).href.replace(/\/+$/, '') === new URL(b).href.replace(/\/+$/, '');
+		return withoutTrailingSlashes(new URL(a).href) === withoutTrailingSlashes(new URL(b).href);
 	} catch {
 		return false;
 	}
@@ -155,7 +164,9 @@ export function createLogoutTokenVerifier(settings: LogoutTokenVerifierSettings 
 
 		let document: Record<string, unknown>;
 		try {
-			const discoveryUrl = new URL(`${configuredIssuer.replace(/\/+$/, '')}/.well-known/openid-configuration`);
+			const discoveryUrl = new URL(
+				`${withoutTrailingSlashes(configuredIssuer)}/.well-known/openid-configuration`
+			);
 			if (!isAllowedEndpoint(discoveryUrl)) throw new Error('the issuer must use https');
 			const response = await fetch(discoveryUrl, {
 				headers: { Accept: 'application/json' },
@@ -188,7 +199,7 @@ export function createLogoutTokenVerifier(settings: LogoutTokenVerifierSettings 
 
 		// Kept across discovery refreshes while the key set URL stays the same, so its key cache survives.
 		const getKey =
-			cached && cached.issuer === issuer && cached.jwksUrl === jwksUrl.href
+			cached?.issuer === issuer && cached?.jwksUrl === jwksUrl.href
 				? cached.getKey
 				: createRemoteJWKSet(jwksUrl, {
 						cacheMaxAge: jwksCacheMaxAgeMs,

@@ -31,6 +31,25 @@ function answer(status: number): NextResponse {
 	return new NextResponse(null, { status, headers: NO_STORE });
 }
 
+/** The logout token of a form-encoded body of reasonable size, or `null`. */
+async function readLogoutToken(req: Request): Promise<string | null> {
+	const contentType = req.headers.get('content-type') ?? '';
+	if (!/^application\/x-www-form-urlencoded\b/i.test(contentType)) return null;
+	if (Number(req.headers.get('content-length') ?? 0) > MAX_BODY_BYTES) return null;
+	const body = await req.text().catch(() => '');
+	if (!body || body.length > MAX_BODY_BYTES) return null;
+	return new URLSearchParams(body).get('logout_token') || null;
+}
+
+/** Forwards a verified token to the API; the HTTP status of its answer, 0 when it could not be reached. */
+async function forward(logoutToken: string): Promise<number> {
+	try {
+		return (await forwardEverIdLogoutRequest(logoutToken)).status;
+	} catch {
+		return 0;
+	}
+}
+
 export async function POST(req: Request) {
 	const config = getEverIdConfig();
 	if (!config) {
@@ -42,18 +61,7 @@ export async function POST(req: Request) {
 		return answer(status);
 	};
 
-	const contentType = req.headers.get('content-type') ?? '';
-	if (!/^application\/x-www-form-urlencoded\b/i.test(contentType)) {
-		return refuse('invalid');
-	}
-	if (Number(req.headers.get('content-length') ?? 0) > MAX_BODY_BYTES) {
-		return refuse('invalid');
-	}
-	const body = await req.text().catch(() => '');
-	if (!body || body.length > MAX_BODY_BYTES) {
-		return refuse('invalid');
-	}
-	const logoutToken = new URLSearchParams(body).get('logout_token');
+	const logoutToken = await readLogoutToken(req);
 	if (!logoutToken) {
 		return refuse('invalid');
 	}
@@ -73,12 +81,7 @@ export async function POST(req: Request) {
 		return refuse('replay');
 	}
 
-	let status = 0;
-	try {
-		({ status } = await forwardEverIdLogoutRequest(logoutToken));
-	} catch {
-		status = 0;
-	}
+	const status = await forward(logoutToken);
 	const forwarded = status >= 200 && status < 300;
 	logEverIdOutcome('ever_id.backchannel', {
 		outcome: forwarded ? 'ok' : 'forward_failed',

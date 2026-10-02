@@ -28,6 +28,27 @@ import type { IEverIdTermsClaim, IEverIdWorkspacesResponse } from '@/core/types/
 
 const SMTP_CONFIGURED = Boolean(SMTP_USERNAME && SMTP_PASSWORD);
 
+/** What each failed answer of the API's sign-up becomes (anything unlisted is the API's failure, 502). */
+const SIGNUP_FAILURES: Record<number, { status: number; outcome: EverIdStepOutcome; errors: Record<string, string> }> =
+	{
+		400: {
+			status: 400,
+			outcome: 'invalid',
+			errors: { confirm: 'Accept the required documents to create your workspace.' }
+		},
+		410: {
+			status: 410,
+			outcome: 'expired',
+			errors: { email: 'This sign-up link has expired. Sign in with Ever ID again.' }
+		},
+		429: { status: 429, outcome: 'throttled', errors: { email: 'Too many attempts. Try again in a minute.' } },
+		502: {
+			status: 502,
+			outcome: 'gauzy_error',
+			errors: { email: 'The workspace could not be created. Try again later.' }
+		}
+	};
+
 /** Whether a register body is an Ever ID sign-up (it carries the hand-off key). */
 export function isEverIdRegisterBody(body: unknown): boolean {
 	return !!body && typeof body === 'object' && 'ever_id_handoff' in body;
@@ -37,16 +58,20 @@ function errors(status: number, fields: Record<string, string>, extra: Record<st
 	return NextResponse.json({ errors: fields, ...extra }, { status });
 }
 
+function text(value: unknown): string {
+	return typeof value === 'string' ? value.trim() : '';
+}
+
 /** The accepted documents as the API expects them; anything malformed is dropped. */
 function termsClaims(value: unknown): IEverIdTermsClaim[] {
 	if (!Array.isArray(value)) return [];
 	return value
 		.filter((claim): claim is Record<string, unknown> => !!claim && typeof claim === 'object')
 		.map((claim) => ({
-			documentId: String(claim.documentId ?? ''),
-			version: String(claim.version ?? ''),
-			sha256: String(claim.sha256 ?? ''),
-			locale: String(claim.locale ?? '')
+			documentId: text(claim.documentId),
+			version: text(claim.version),
+			sha256: text(claim.sha256),
+			locale: text(claim.locale)
 		}))
 		.filter((claim) => claim.documentId && claim.version && /^[0-9a-f]{64}$/.test(claim.sha256) && claim.locale)
 		.slice(0, 10);
@@ -84,10 +109,8 @@ export async function registerWithEverId(req: Request, input: unknown, response:
 		return errors(400, { confirm: 'Confirm that you want to create your workspace with this Ever ID.' });
 	}
 
-	const team = String(body.team ?? '').trim();
-	const names = String(body.name ?? '')
-		.trim()
-		.split(' ');
+	const team = text(body.team);
+	const names = text(body.name).split(' ');
 	const startedAt = Date.now();
 	const log = (outcome: EverIdStepOutcome, status?: number) =>
 		logEverIdOutcome('ever_id.signup', { outcome, latencyMs: Date.now() - startedAt, status });
@@ -113,20 +136,9 @@ export async function registerWithEverId(req: Request, input: unknown, response:
 		return NextResponse.json({ checkoutUrl: signupData.checkoutUrl }, { status: 403 });
 	}
 	if (signup.status !== 200 || !isWorkspacesResponse(signup.data)) {
-		switch (signup.status) {
-			case 400:
-				log('invalid', signup.status);
-				return errors(400, { confirm: 'Accept the required documents to create your workspace.' });
-			case 410:
-				log('expired', signup.status);
-				return errors(410, { email: 'This sign-up link has expired. Sign in with Ever ID again.' });
-			case 429:
-				log('throttled', signup.status);
-				return errors(429, { email: 'Too many attempts. Try again in a minute.' });
-			default:
-				log('gauzy_error', signup.status);
-				return errors(502, { email: 'The workspace could not be created. Try again later.' });
-		}
+		const failure = SIGNUP_FAILURES[signup.status] ?? SIGNUP_FAILURES[502];
+		log(failure.outcome, signup.status);
+		return errors(failure.status, failure.errors);
 	}
 
 	const created = signup.data;
