@@ -1,6 +1,6 @@
 /**
  * Test-only stand-in of the Gauzy API routes Ever Teams calls for Ever ID (never part of the app):
- * `/api/auth/zitadel/*`, the required terms and the workspace sign-in, answering with the statuses and
+ * `/api/auth/zitadel/*` and the workspace sign-in, answering with the statuses and
  * payload shapes of the API's Ever ID plugin. Every request is recorded (method, path, query, content type,
  * authorization, parsed body), and every answer can be replaced per test. A handler that throws answers 500, so a
  * test mistake fails that test instead of crashing the run.
@@ -15,11 +15,13 @@ interface RecordedRequest {
 	search: string;
 	contentType: string;
 	authorization: string;
+	/** The `language` header (the sign-up routes' documents follow it). */
+	language: string;
 	body: unknown;
 	raw: string;
 }
 
-type Answer = { status: number; body?: unknown };
+type Answer = { status: number; body?: unknown; headers?: Record<string, string> };
 type Handler = (request: RecordedRequest) => Answer | Promise<Answer>;
 
 /** A workspace entry as the API's Ever ID routes answer it. */
@@ -39,7 +41,10 @@ export function everIdWorkspace(userId: string, tenantId: string | null, tenantN
 }
 
 /** The 200 answer of `/token`, `/confirm` and `/signup` with these workspaces. */
-export function workspacesAnswer(workspaces: ReturnType<typeof everIdWorkspace>[], blocked: unknown[] = []) {
+export function workspacesAnswer(
+	workspaces: Array<ReturnType<typeof everIdWorkspace> & { current_teams?: unknown }>,
+	blocked: unknown[] = []
+) {
 	return {
 		workspaces,
 		confirmed_email: 'person@example.test',
@@ -49,14 +54,14 @@ export function workspacesAnswer(workspaces: ReturnType<typeof everIdWorkspace>[
 	};
 }
 
-/** The documents `GET /api/terms/required` lists by default. */
+/** The documents `POST /api/auth/zitadel/signup/details` lists by default (absolute links to the API's web app). */
 export const REQUIRED_TERMS = [
 	{
 		documentId: 'tos:gauzy',
 		version: '1.0.2',
 		sha256: 'a'.repeat(64),
 		locale: 'en',
-		url: '/legal/tos',
+		url: 'https://gauzy.example.test/#/legal/terms',
 		title: 'Terms of Service',
 		effectiveDate: '2026-08-02'
 	},
@@ -65,11 +70,29 @@ export const REQUIRED_TERMS = [
 		version: '1.0.2',
 		sha256: 'b'.repeat(64),
 		locale: 'en',
-		url: '/legal/privacy',
+		url: 'https://gauzy.example.test/#/legal/privacy',
 		title: 'Privacy Policy',
 		effectiveDate: '2026-08-02'
 	}
 ];
+
+/** 409 `handoff_busy`: another attempt holds the key for a moment (it stays valid). */
+export function busyAnswer(retryAfter = 1): Answer {
+	return {
+		status: 409,
+		body: { statusCode: 409, code: 'handoff_busy', message: 'Busy', retryAfter },
+		headers: { 'Retry-After': String(retryAfter) }
+	};
+}
+
+/** 429 `handoff_throttled`: the key was used too often this minute. */
+export function throttledAnswer(retryAfter = 30): Answer {
+	return {
+		status: 429,
+		body: { statusCode: 429, code: 'handoff_throttled', message: 'Too many', retryAfter },
+		headers: { 'Retry-After': String(retryAfter) }
+	};
+}
 
 export class MockGauzyApi {
 	/** The API origin, without `/api` (what GAUZY_API_SERVER_URL holds). */
@@ -96,14 +119,13 @@ export class MockGauzyApi {
 		}));
 		this.on('POST', '/api/auth/zitadel/signup/details', () => ({
 			status: 200,
-			body: { email: 'new.person@example.test', firstName: 'New', lastName: 'Person' }
+			body: { email: 'new.person@example.test', firstName: 'New', lastName: 'Person', terms: REQUIRED_TERMS }
 		}));
 		this.on('POST', '/api/auth/zitadel/signup', () => ({
 			status: 200,
 			body: workspacesAnswer([everIdWorkspace('new-user', null, '')])
 		}));
 		this.on('POST', '/api/auth/zitadel/backchannel-logout', () => ({ status: 200 }));
-		this.on('GET', '/api/terms/required', () => ({ status: 200, body: REQUIRED_TERMS }));
 		// The user and tenant of the workspace token it is given (the tokens are `workspace-token-<user id>`).
 		this.on('POST', '/api/auth/signin.workspace', (request) => {
 			const token = String((request.body as { token?: unknown } | undefined)?.token ?? '');
@@ -150,6 +172,7 @@ export class MockGauzyApi {
 				search: url.search,
 				contentType,
 				authorization: String(req.headers.authorization ?? ''),
+				language: String(req.headers.language ?? ''),
 				body,
 				raw
 			};
@@ -159,6 +182,7 @@ export class MockGauzyApi {
 				return sendJson(res, 404, { statusCode: 404, message: `Cannot ${request.method} ${request.path}` });
 			try {
 				const answer = await handler(request);
+				for (const [name, value] of Object.entries(answer.headers ?? {})) res.setHeader(name, value);
 				return sendJson(res, answer.status, answer.body);
 			} catch (error) {
 				return sendJson(res, 500, { statusCode: 500, message: `Stand-in handler failed: ${String(error)}` });

@@ -18,6 +18,7 @@ import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth
 import { getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
 import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
 import { readEverIdSession } from '@/core/lib/auth/ever-id/session';
+import { useEverIdWorkspaceChoice } from '@/core/hooks/auth/use-ever-id-workspace-choice';
 
 export default function SocialLoginChooseWorspace() {
 	const t = useTranslations();
@@ -132,8 +133,14 @@ function WorkSpaceScreen() {
 		}
 	}, [everIdSession, workspaces]);
 
+	// Ever ID: an expired workspace token starts its sign-in again; a workspace without a tenant yet is set up
+	const everIdChoice = useEverIdWorkspaceChoice(everIdSession);
+
 	const signInToWorkspace = (e: any) => {
 		e.preventDefault();
+		if (everIdChoice.continueChoice(selectedWorkspace, workspaces[selectedWorkspace]?.token, updateOAuthSession)) {
+			return;
+		}
 		updateOAuthSession();
 
 		new Array(3).fill('').forEach((_, i) => {
@@ -143,9 +150,17 @@ function WorkSpaceScreen() {
 		window && window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, selectedTeam);
 	};
 
+	const { onWorkspaceSigninError } = everIdChoice;
 	const updateOAuthSession = useCallback(() => {
-		form.updateOAuthSession(signinResult, workspaces, selectedWorkspace, selectedTeam);
-	}, [form, selectedTeam, selectedWorkspace, signinResult, workspaces]);
+		form.updateOAuthSession(
+			signinResult,
+			workspaces,
+			selectedWorkspace,
+			selectedTeam,
+			undefined,
+			onWorkspaceSigninError
+		);
+	}, [form, onWorkspaceSigninError, selectedTeam, selectedWorkspace, signinResult, workspaces]);
 
 	return (
 		<WorkSpaceComponent
@@ -158,7 +173,7 @@ function WorkSpaceScreen() {
 			setSelectedWorkspace={setSelectedWorkspace}
 			setSelectedTeam={setSelectedTeam}
 			selectedTeam={selectedTeam}
-			signInWorkspaceLoading={form.signInWorkspaceLoading}
+			signInWorkspaceLoading={form.signInWorkspaceLoading || everIdChoice.setupRunning}
 			teamsUnavailable={everIdSession?.teamsUnavailable}
 		/>
 	);

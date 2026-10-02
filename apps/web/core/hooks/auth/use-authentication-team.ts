@@ -172,6 +172,8 @@ export function useAuthenticationTeam() {
 					...(data.recaptcha ? { recaptcha: data.recaptcha } : {}),
 					ever_id: 'signup',
 					ever_id_flow: prefill.flow,
+					// The documents accepted are checked in the language the prefill listed them in.
+					language: locale,
 					confirm: true,
 					verified_name: nameVerified,
 					terms: prefill.terms.map(({ documentId, version, sha256, locale: documentLocale }) => ({
@@ -211,7 +213,7 @@ export function useAuthenticationTeam() {
 				setEverIdSubmitting(false);
 			}
 		},
-		[router, t]
+		[locale, router, t]
 	);
 
 	/**

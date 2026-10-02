@@ -140,6 +140,7 @@ describe('useAuthenticationTeam in Ever ID mode', () => {
 				team: "New Person's Team",
 				ever_id: 'signup',
 				ever_id_flow: 'flow-of-this-sign-up',
+				language: 'fr',
 				confirm: true,
 				verified_name: true,
 				terms: TERMS.map(({ documentId, version, sha256, locale }) => ({ documentId, version, sha256, locale }))

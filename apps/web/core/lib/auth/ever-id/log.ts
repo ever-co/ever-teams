@@ -14,11 +14,13 @@ interface EverIdOutcomes {
 		| 'blocked'
 		| 'confirm_required'
 		| 'signup_required'
+		| 'busy'
 		| 'rejected'
 		| 'gauzy_error';
 	'ever_id.backchannel': 'ok' | 'invalid' | 'replay' | 'stale' | 'unavailable' | 'unknown_key' | 'forward_failed';
 	'ever_id.confirm': EverIdStepOutcome;
 	'ever_id.signup': EverIdStepOutcome;
+	'ever_id.setup': EverIdStepOutcome;
 }
 
 type EverIdLogEvent = keyof EverIdOutcomes;
@@ -48,10 +50,11 @@ interface EverIdLogPayload {
  * (a link that needs the e-mail code, a new person, a wrong code, an old link) and are logged as information.
  */
 const WARNINGS: { [E in EverIdLogEvent]: ReadonlySet<EverIdOutcomes[E]> } = {
-	'ever_id.signin': new Set(['rejected', 'gauzy_error']),
+	'ever_id.signin': new Set(['busy', 'rejected', 'gauzy_error']),
 	'ever_id.backchannel': new Set(['invalid', 'replay', 'stale', 'unavailable', 'unknown_key', 'forward_failed']),
 	'ever_id.confirm': new Set(['throttled', 'gauzy_error']),
-	'ever_id.signup': new Set(['throttled', 'gauzy_error'])
+	'ever_id.signup': new Set(['throttled', 'gauzy_error']),
+	'ever_id.setup': new Set(['throttled', 'gauzy_error'])
 };
 
 /** The exact object that is logged. */

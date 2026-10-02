@@ -1,4 +1,12 @@
 import { cookies, headers } from 'next/headers';
+import {
+	APP_LINK,
+	APP_LOGO_URL,
+	APP_NAME,
+	APP_SIGNATURE,
+	COMPANY_LINK,
+	COMPANY_NAME
+} from '@/core/constants/config/constants';
 import { getEverIdConfig } from '@/core/lib/auth/ever-id/config';
 import {
 	everIdCookieSecure,
@@ -8,8 +16,14 @@ import {
 } from '@/core/lib/auth/ever-id/handoff';
 import { logEverIdOutcome, type EverIdSignInOutcome } from '@/core/lib/auth/ever-id/log';
 import { everIdStepPath, type EverIdStep } from '@/core/lib/auth/ever-id/step';
-import { signWithEverIdRequest, type EverIdApiResult } from '@/core/services/server/requests/ever-id';
+import {
+	isHandoffBusy,
+	retryWhileBusy,
+	signWithEverIdRequest,
+	type EverIdApiResult
+} from '@/core/services/server/requests/ever-id';
 import type {
+	IEverIdEmailBranding,
 	IEverIdSessionData,
 	IEverIdTokenNotFound,
 	IEverIdTokenResponse,
@@ -58,6 +72,7 @@ const ORGS_CLAIM = 'urn:ever:orgs';
 
 type EverIdExchange =
 	| { kind: 'workspaces'; response: IEverIdWorkspacesResponse }
+	| { kind: 'busy' }
 	| { kind: 'blocked' }
 	| { kind: 'confirm_required'; handoff: string }
 	| { kind: 'signup_required'; handoff: string }
@@ -121,6 +136,8 @@ function toEverIdExchange(result: EverIdApiResult<IEverIdTokenResponse | IEverId
 	const data: unknown = result.data;
 	if (result.status === 200 && isRecord(data)) return fromSuccess(data);
 	if (result.status === 404 && isRecord(data)) return fromNotFound(data);
+	// Still 409 after the retries: a sign-up of the same Ever ID is being finished.
+	if (isHandoffBusy(result)) return { kind: 'busy' };
 	// 401: the API refused the token. Anything else (the routes switched off, a rate limit, an outage) is the API's.
 	return result.status === 401 ? { kind: 'rejected' } : { kind: 'gauzy_error' };
 }
@@ -153,6 +170,7 @@ function everIdPreselectTenantId(
 
 const OUTCOMES: Record<EverIdExchange['kind'], EverIdSignInOutcome> = {
 	workspaces: 'ok',
+	busy: 'busy',
 	blocked: 'blocked',
 	confirm_required: 'confirm_required',
 	signup_required: 'signup_required',
@@ -160,6 +178,31 @@ const OUTCOMES: Record<EverIdExchange['kind'], EverIdSignInOutcome> = {
 	rejected: 'rejected',
 	gauzy_error: 'gauzy_error'
 };
+
+/** An absolute https link, or nothing (the API takes https links only). */
+function httpsLink(value: string | undefined): string | undefined {
+	try {
+		const url = new URL(value ?? '');
+		return url.protocol === 'https:' ? url.href : undefined;
+	} catch {
+		return undefined;
+	}
+}
+
+/** This app's branding for the API's one-time code e-mail: blank values and links that are not https are left out. */
+function everIdEmailBranding(): IEverIdEmailBranding {
+	const branding: IEverIdEmailBranding = {
+		appName: APP_NAME,
+		appSignature: APP_SIGNATURE,
+		companyName: COMPANY_NAME,
+		appLogo: httpsLink(APP_LOGO_URL),
+		appLink: httpsLink(APP_LINK),
+		companyLink: httpsLink(COMPANY_LINK)
+	};
+	return Object.fromEntries(
+		Object.entries(branding).filter(([, value]) => typeof value === 'string' && value.trim())
+	) as IEverIdEmailBranding;
+}
 
 function remember(account: EverIdAccount, record: EverIdSignInRecord): void {
 	byAccount.set(account, record);
@@ -184,7 +227,9 @@ async function signInRecord(account: EverIdAccount, profile?: Record<string, unk
 	let exchange: EverIdExchange;
 	if (typeof account.id_token === 'string' && account.id_token) {
 		try {
-			const result = await signWithEverIdRequest(account.id_token);
+			const idToken = account.id_token;
+			// While a sign-up of the same Ever ID is being finished the API answers 409 for a moment: try again.
+			const result = await retryWhileBusy(() => signWithEverIdRequest(idToken, everIdEmailBranding()));
 			status = result.status;
 			exchange = toEverIdExchange(result);
 		} catch {

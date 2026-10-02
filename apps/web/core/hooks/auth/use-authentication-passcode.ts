@@ -11,7 +11,12 @@ import { useTranslations } from 'next-intl';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
 import { EVER_ID_STEP_PARAM, isEverIdStep } from '@/core/lib/auth/ever-id/step';
-import { toEverIdChooserData } from '@/core/lib/auth/ever-id/session';
+import {
+	isExpiredWorkspaceTokenError,
+	isWorkspaceTokenExpired,
+	toEverIdChooserData
+} from '@/core/lib/auth/ever-id/session';
+import { restartEverIdSignIn } from '@/core/lib/auth/ever-id/restart';
 import { everIdService } from '@/core/services/client/api/auth/ever-id.service';
 
 /** The message for each answer of the Ever ID code confirmation that is not a success. */
@@ -62,6 +67,8 @@ export function useAuthenticationPasscode() {
 	// one-time key is in a cookie this page cannot read). Read once: leaving the step ends it.
 	const [everIdConfirm, setEverIdConfirm] = useState(() => isEverIdStep(query?.get(EVER_ID_STEP_PARAM), 'confirm'));
 	const everIdStepActive = useRef(everIdConfirm);
+	// The workspaces on screen came from an Ever ID confirmation (their tokens last 15 minutes).
+	const everIdWorkspaces = useRef(false);
 
 	const loginFromQuery = useRef(false);
 	const inputCodeRef = useRef<AuthCodeRef | null>(null);
@@ -125,6 +132,11 @@ export function useAuthenticationPasscode() {
 				.catch((err: AxiosError) => {
 					// Reset infinite loading on error to stop the loading state
 					infiniteWLoading.current = false;
+					// Ever ID: a workspace token that expired meanwhile starts the Ever ID sign-in again
+					if (everIdWorkspaces.current && isExpiredWorkspaceTokenError(err)) {
+						restartEverIdSignIn();
+						return;
+					}
 					if (err.response?.status === 400) {
 						setErrors((err.response?.data as any)?.errors || {});
 					}
@@ -219,6 +231,7 @@ export function useAuthenticationPasscode() {
 				const { status: httpStatus, data } = await everIdService.confirmLink(code);
 				const chooser = httpStatus === 200 ? toEverIdChooserData(data.workspaces, data.confirmed_email) : null;
 				if (chooser) {
+					everIdWorkspaces.current = true;
 					setWorkspaces(chooser.workspaces);
 					setEverIdTeamsUnavailable(chooser.teamsUnavailable);
 					setFormValues((values) => ({ ...values, email: chooser.confirmedEmail }));
@@ -323,6 +336,12 @@ export function useAuthenticationPasscode() {
 
 		if (!valid) {
 			setErrors(errors);
+			return;
+		}
+
+		// Ever ID: a workspace token past its 15 minutes starts the Ever ID sign-in again instead of failing
+		if (everIdWorkspaces.current && isWorkspaceTokenExpired(token)) {
+			restartEverIdSignIn();
 			return;
 		}
 

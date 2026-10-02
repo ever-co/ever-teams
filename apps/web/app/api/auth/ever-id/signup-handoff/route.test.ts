@@ -1,12 +1,12 @@
 /**
  * POST /api/auth/ever-id/signup-handoff: what the sign-up page shows for an Ever ID sign-up (the verified
- * name and e-mail address, and the documents to accept). It creates nothing. The one-time key comes from the
- * sealed cookie the sign-in set. Runs against a stand-in of the Gauzy API that answers like its Ever ID routes.
+ * name and e-mail address, and the documents to accept with their links, in the page's language). It creates
+ * nothing. The one-time key comes from the sealed cookie the sign-in set. Runs against a stand-in of the Gauzy API
+ * that answers like its Ever ID routes.
  */
-import { MockGauzyApi, REQUIRED_TERMS } from '@/test/ever-id/mock-gauzy-api';
+import { MockGauzyApi, REQUIRED_TERMS, busyAnswer, throttledAnswer } from '@/test/ever-id/mock-gauzy-api';
 
 const DETAILS_PATH = '/api/auth/zitadel/signup/details';
-const TERMS_PATH = '/api/terms/required';
 const HANDOFF = 'k3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yA';
 const EVER_ID_ENV = [
 	'NEXT_PUBLIC_EVER_ID_APP_NAME',
@@ -32,6 +32,10 @@ afterAll(async () => {
 
 beforeEach(() => {
 	gauzy.reset();
+});
+
+afterEach(() => {
+	jest.restoreAllMocks();
 });
 
 function loadRoute(configured: boolean): RouteModule {
@@ -67,6 +71,11 @@ function post(body: unknown, cookie: string | null = stepCookie()) {
 	});
 }
 
+/** Whether a response drops the step cookie. */
+function clearsStepCookie(res: Response): boolean {
+	return /ever-id-handoff=;.*Max-Age=0/i.test(res.headers.get('set-cookie') ?? '');
+}
+
 describe('POST /api/auth/ever-id/signup-handoff', () => {
 	it('answers 404 and calls nothing while Ever ID is not configured', async () => {
 		const { POST } = loadRoute(false);
@@ -77,7 +86,7 @@ describe('POST /api/auth/ever-id/signup-handoff', () => {
 		expect(gauzy.requests).toEqual([]);
 	});
 
-	it('answers only the verified name and e-mail address, and the documents to accept, and creates nothing', async () => {
+	it('answers the verified name and e-mail address and the documents with their links, and creates nothing', async () => {
 		const { POST } = loadRoute(true);
 
 		const res = await POST(post({ locale: 'fr' }));
@@ -86,47 +95,42 @@ describe('POST /api/auth/ever-id/signup-handoff', () => {
 		expect(res.headers.get('cache-control')).toBe('no-store');
 		const body = await res.json();
 		expect(Object.keys(body).sort()).toEqual(['email', 'flow', 'name', 'terms']);
+		expect(body.name).toBe('New Person');
+		expect(body.email).toBe('new.person@example.test');
+		expect(body.terms).toEqual(
+			REQUIRED_TERMS.map(({ documentId, version, sha256, locale, title, url }) => ({
+				documentId,
+				version,
+				sha256,
+				locale,
+				title,
+				url
+			}))
+		);
 		// A fingerprint of the key, never the key itself.
 		expect(body.flow).toBe(
 			require('node:crypto').createHash('sha256').update(HANDOFF).digest('base64url').slice(0, 16)
 		);
 		expect(JSON.stringify(body)).not.toContain(HANDOFF);
-		expect(body.name).toBe('New Person');
-		expect(body.email).toBe('new.person@example.test');
-		// A document path is relative to the API's own web app, so no link is offered for it here.
-		expect(body.terms).toEqual(
-			REQUIRED_TERMS.map(({ documentId, version, sha256, locale, title }) => ({
-				documentId,
-				version,
-				sha256,
-				locale,
-				title
-			}))
-		);
-		expect(gauzy.calls('POST', DETAILS_PATH).map((call) => call.body)).toEqual([{ handoff: HANDOFF }]);
-		expect(gauzy.calls('GET', TERMS_PATH).map((call) => call.search)).toEqual(['?locale=fr']);
+		const calls = gauzy.calls('POST', DETAILS_PATH);
+		expect(calls.map((call) => call.body)).toEqual([{ handoff: HANDOFF }]);
+		// The documents follow the page's language (the sign-up sends the same one).
+		expect(calls.map((call) => call.language)).toEqual(['fr']);
 		// Reading the confirmation never creates the account.
 		expect(gauzy.calls('POST', '/api/auth/zitadel/signup')).toEqual([]);
 	});
 
-	it('asks for the documents without a locale when none (or a malformed one) is given', async () => {
+	it.each([
+		['no locale', {}, 'en'],
+		['a locale with a region', { locale: 'pt-BR' }, 'pt'],
+		['a locale the API does not have', { locale: 'sv' }, 'en'],
+		['a malformed locale', { locale: 'fr;drop' }, 'en']
+	])('asks for the documents in English or the page language for %s', async (_label, body, language) => {
 		const { POST } = loadRoute(true);
 
-		await POST(post({ locale: 'fr;drop' }));
+		await POST(post(body));
 
-		expect(gauzy.calls('GET', TERMS_PATH).map((call) => call.search)).toEqual(['']);
-	});
-
-	it('keeps an absolute document link', async () => {
-		const { POST } = loadRoute(true);
-		gauzy.on('GET', TERMS_PATH, {
-			status: 200,
-			body: [{ ...REQUIRED_TERMS[0], url: 'https://legal.example.test/tos' }]
-		});
-
-		const body = await (await POST(post({}))).json();
-
-		expect(body.terms[0].url).toBe('https://legal.example.test/tos');
+		expect(gauzy.calls('POST', DETAILS_PATH).map((call) => call.language)).toEqual([language]);
 	});
 
 	it.each([
@@ -137,7 +141,12 @@ describe('POST /api/auth/ever-id/signup-handoff', () => {
 		const { POST } = loadRoute(true);
 		gauzy.on('POST', DETAILS_PATH, {
 			status: 200,
-			body: { email: 'new.person@example.test', status: 'subscription_required', checkoutUrl: link }
+			body: {
+				email: 'new.person@example.test',
+				status: 'subscription_required',
+				checkoutUrl: link,
+				terms: REQUIRED_TERMS
+			}
 		});
 
 		const body = await (await POST(post({}))).json();
@@ -146,12 +155,18 @@ describe('POST /api/auth/ever-id/signup-handoff', () => {
 	});
 
 	it.each([
-		['a used or expired key (410)', { status: 410, body: { statusCode: 410 } }, 410, 'expired'],
-		["the API's rate limit (429)", { status: 429, body: {} }, 429, 'throttled'],
-		['an API failure (500)', { status: 500, body: {} }, 502, 'unavailable'],
-		['details without an e-mail address', { status: 200, body: { firstName: 'New' } }, 502, 'unavailable'],
-		['the routes switched off (404)', { status: 404, body: { statusCode: 404 } }, 502, 'unavailable']
-	])('maps %s', async (_label, answer, status, reason) => {
+		['a used or expired key (410)', { status: 410, body: { statusCode: 410 } }, 410, 'expired', true],
+		["the API's limit for this key (429)", throttledAnswer(30), 429, 'throttled', false],
+		['an API failure (500)', { status: 500, body: {} }, 502, 'unavailable', false],
+		[
+			'details without an e-mail address',
+			{ status: 200, body: { firstName: 'New', terms: REQUIRED_TERMS } },
+			502,
+			'unavailable',
+			false
+		],
+		['the routes switched off (404)', { status: 404, body: { statusCode: 404 } }, 502, 'unavailable', false]
+	])('maps %s', async (_label, answer, status, reason, dropsCookie) => {
 		const { POST } = loadRoute(true);
 		gauzy.on('POST', DETAILS_PATH, answer);
 
@@ -159,38 +174,67 @@ describe('POST /api/auth/ever-id/signup-handoff', () => {
 
 		expect(res.status).toBe(status);
 		expect((await res.json()).reason).toBe(reason);
+		expect(clearsStepCookie(res)).toBe(dropsCookie);
 	});
 
-	it('reports a used key as such, without asking for the documents', async () => {
+	it('gives the Retry-After of the API for its limit on this key', async () => {
 		const { POST } = loadRoute(true);
-		gauzy.on('POST', DETAILS_PATH, { status: 410, body: {} });
-		gauzy.on('GET', TERMS_PATH, { status: 500, body: {} });
+		gauzy.on('POST', DETAILS_PATH, throttledAnswer(30));
 
 		const res = await POST(post({}));
 
-		expect(res.status).toBe(410);
-		// Kept: the API answers 410 as well while a sign-up with this key is in progress.
-		expect(res.headers.get('set-cookie')).toBeNull();
-		expect(gauzy.calls('GET', TERMS_PATH)).toEqual([]);
+		expect(res.headers.get('retry-after')).toBe('30');
 	});
+
+	it('tries again while a sign-up with this key runs, and answers 429 if it still does', async () => {
+		const { POST } = loadRoute(true);
+		let calls = 0;
+		gauzy.on('POST', DETAILS_PATH, () =>
+			++calls === 1
+				? busyAnswer(1)
+				: { status: 200, body: { email: 'new.person@example.test', terms: REQUIRED_TERMS } }
+		);
+		expect((await POST(post({}))).status).toBe(200);
+		expect(gauzy.calls('POST', DETAILS_PATH)).toHaveLength(2);
+
+		gauzy.on('POST', DETAILS_PATH, busyAnswer(1));
+		const busy = await POST(post({}));
+		expect(busy.status).toBe(429);
+		expect(busy.headers.get('retry-after')).toBe('1');
+		expect(clearsStepCookie(busy)).toBe(false);
+	}, 15_000);
 
 	it.each([
-		['cannot be read', { status: 500, body: {} }],
-		['is not a list', { status: 200, body: { documents: [] } }],
+		['is not a list', { email: 'new.person@example.test', terms: { documents: [] } }],
+		['is missing', { email: 'new.person@example.test' }],
 		[
 			'has a document without its digest',
-			{ status: 200, body: [REQUIRED_TERMS[0], { ...REQUIRED_TERMS[1], sha256: 'x' }] }
+			{ email: 'new.person@example.test', terms: [REQUIRED_TERMS[0], { ...REQUIRED_TERMS[1], sha256: 'x' }] }
 		],
-		['has a document without its version', { status: 200, body: [{ ...REQUIRED_TERMS[0], version: '' }] }]
-	])('answers 502 when the list of documents to accept %s (no document is ever dropped)', async (_label, answer) => {
-		const { POST } = loadRoute(true);
-		gauzy.on('GET', TERMS_PATH, answer);
+		[
+			'has a document without its version',
+			{ email: 'new.person@example.test', terms: [{ ...REQUIRED_TERMS[0], version: '' }] }
+		],
+		[
+			'has a document without a link to open it',
+			{ email: 'new.person@example.test', terms: [{ ...REQUIRED_TERMS[0], url: undefined }] }
+		],
+		[
+			'has a document with a relative link',
+			{ email: 'new.person@example.test', terms: [{ ...REQUIRED_TERMS[0], url: '/legal/tos' }] }
+		]
+	])(
+		'answers 502 when the list of documents to accept %s (no document is dropped or shown unlinked)',
+		async (_label, body) => {
+			const { POST } = loadRoute(true);
+			gauzy.on('POST', DETAILS_PATH, { status: 200, body });
 
-		const res = await POST(post({}));
+			const res = await POST(post({}));
 
-		expect(res.status).toBe(502);
-		expect((await res.json()).reason).toBe('unavailable');
-	});
+			expect(res.status).toBe(502);
+			expect((await res.json()).reason).toBe('unavailable');
+		}
+	);
 
 	it.each([
 		['no cookie', null],
@@ -218,17 +262,21 @@ describe('POST /api/auth/ever-id/signup-handoff', () => {
 		expect(gauzy.requests).toEqual([]);
 	});
 
-	it('reads one key at most ten times; then the key is spent here: 410 and the cookie is dropped', async () => {
+	it('reads one key at most nine times a minute, below the API limit; then 429 with when to try again', async () => {
+		let clock = Date.now();
+		jest.spyOn(Date, 'now').mockImplementation(() => clock);
 		const { POST } = loadRoute(true);
 
 		const statuses: number[] = [];
-		for (let attempt = 0; attempt < 10; attempt++) statuses.push((await POST(post({}))).status);
-		const spent = await POST(post({}));
+		for (let attempt = 0; attempt < 9; attempt++) statuses.push((await POST(post({}))).status);
+		clock += 20_000;
+		const limited = await POST(post({}));
 
-		expect(statuses).toEqual(Array(10).fill(200));
-		expect(spent.status).toBe(410);
-		expect(spent.headers.get('set-cookie')).toMatch(/ever-id-handoff=;.*Max-Age=0/i);
-		expect(gauzy.calls('POST', DETAILS_PATH)).toHaveLength(10);
+		expect(statuses).toEqual(Array(9).fill(200));
+		expect(limited.status).toBe(429);
+		expect(limited.headers.get('retry-after')).toBe('40');
+		expect(clearsStepCookie(limited)).toBe(false);
+		expect(gauzy.calls('POST', DETAILS_PATH)).toHaveLength(9);
 	});
 
 	it('does not count a read the API could not complete', async () => {

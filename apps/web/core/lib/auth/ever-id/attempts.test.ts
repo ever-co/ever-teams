@@ -1,55 +1,41 @@
 /**
- * Attempt budgets per one-time key: one browser repeating an Ever ID step cannot use up the API's limits that every
- * other person shares, because a key that used its budget, or comes back too soon, is answered here without calling
- * the API. An attempt the API did not judge is given back.
+ * Attempt budgets per one-time key: they stay just below the API's own per-key limits, so a browser repeating an
+ * Ever ID step is answered by this server (with when to try again) before the API refuses it. An attempt the API did
+ * not judge is given back, to the entry that counted it only.
  */
 import { AttemptBudget } from './attempts';
 
 const KEY = 'k3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yA';
 
 describe('AttemptBudget', () => {
-	it('allows a key its budget within the window, then refuses it until the window ends', () => {
+	it('allows a key its attempts within the window, then says when the window starts again', () => {
 		let now = 1_000;
 		const budget = new AttemptBudget({ limit: 3, windowMs: 60_000, maxEntries: 100, now: () => now });
 
-		expect([1, 2, 3].map(() => budget.take('key-1').verdict)).toEqual(['ok', 'ok', 'ok']);
-		expect(budget.take('key-1').verdict).toBe('exhausted');
-		expect(budget.take('key-2').verdict).toBe('ok');
+		expect([1, 2, 3].map(() => budget.take('key-1').allowed)).toEqual([true, true, true]);
+		now = 21_000;
+		const refused = budget.take('key-1');
+		expect(refused.allowed).toBe(false);
+		expect(refused.retryAfterS).toBe(40);
+		expect(budget.take('key-2').allowed).toBe(true);
 
-		now += 60_000;
-		expect(budget.take('key-1').verdict).toBe('ok');
+		now = 61_000;
+		expect(budget.take('key-1').allowed).toBe(true);
 	});
 
-	it('keeps a minimum interval between two attempts with one key, without counting the early one', () => {
-		let now = 0;
-		const budget = new AttemptBudget({ limit: 2, windowMs: 600_000, minIntervalMs: 15_000, now: () => now });
-
-		expect(budget.take(KEY).verdict).toBe('ok');
-		now = 14_999;
-		expect(budget.take(KEY).verdict).toBe('too_soon');
-		expect(budget.take('another-key-1234').verdict).toBe('ok');
-		now = 15_000;
-		expect(budget.take(KEY).verdict).toBe('ok');
-		now = 40_000;
-		expect(budget.take(KEY).verdict).toBe('exhausted');
-	});
-
-	it('gives an attempt back when the API did not judge it, keeping the interval', () => {
-		let now = 0;
-		const budget = new AttemptBudget({ limit: 1, windowMs: 600_000, minIntervalMs: 15_000, now: () => now });
+	it('gives an attempt back once, and not for an attempt that did not go ahead', () => {
+		const budget = new AttemptBudget({ limit: 1, windowMs: 60_000, now: () => 0 });
 
 		const first = budget.take(KEY);
-		expect(first.verdict).toBe('ok');
+		expect(first.allowed).toBe(true);
 		first.giveBack();
 		first.giveBack();
-		expect(budget.take(KEY).verdict).toBe('too_soon');
-		now = 15_000;
-		expect(budget.take(KEY).verdict).toBe('ok');
-		now = 30_000;
+		const second = budget.take(KEY);
+		expect(second.allowed).toBe(true);
 		const refused = budget.take(KEY);
-		expect(refused.verdict).toBe('exhausted');
+		expect(refused.allowed).toBe(false);
 		refused.giveBack();
-		expect(budget.take(KEY).verdict).toBe('exhausted');
+		expect(budget.take(KEY).allowed).toBe(false);
 	});
 
 	it('gives an attempt back only to the entry that counted it, never to one that replaced it since', () => {
@@ -60,11 +46,11 @@ describe('AttemptBudget', () => {
 		// Another key takes the only place, then the key comes back as a new entry and uses its attempt.
 		now = 100;
 		budget.take('another-key-1234');
-		expect(budget.take(KEY).verdict).toBe('ok');
+		expect(budget.take(KEY).allowed).toBe(true);
 
 		old.giveBack();
 
-		expect(budget.take(KEY).verdict).toBe('exhausted');
+		expect(budget.take(KEY).allowed).toBe(false);
 	});
 
 	it('stays bounded, dropping expired keys first and the oldest live one only when full', () => {
@@ -76,25 +62,25 @@ describe('AttemptBudget', () => {
 		budget.take('b');
 		budget.take('c');
 		// Full of live keys: the oldest one makes room.
-		expect(budget.take('d').verdict).toBe('ok');
-		expect(budget.take('a').verdict).toBe('ok');
+		expect(budget.take('d').allowed).toBe(true);
+		expect(budget.take('a').allowed).toBe(true);
 		// 'b', 'c', 'd' and 'a' all used their single attempt; 'b' went when 'a' came back.
-		expect(budget.take('c').verdict).toBe('exhausted');
-		expect(budget.take('d').verdict).toBe('exhausted');
+		expect(budget.take('c').allowed).toBe(false);
+		expect(budget.take('d').allowed).toBe(false);
 
 		now = 5_000;
-		expect(budget.take('c').verdict).toBe('ok');
+		expect(budget.take('c').allowed).toBe(true);
 	});
 
 	it('follows the clock of the process when none is given', () => {
 		const now = jest.spyOn(Date, 'now').mockReturnValue(1_000_000);
 		try {
-			const budget = new AttemptBudget({ limit: 5, windowMs: 60_000, minIntervalMs: 10_000 });
-			expect(budget.take(KEY).verdict).toBe('ok');
-			now.mockReturnValue(1_005_000);
-			expect(budget.take(KEY).verdict).toBe('too_soon');
-			now.mockReturnValue(1_010_000);
-			expect(budget.take(KEY).verdict).toBe('ok');
+			const budget = new AttemptBudget({ limit: 1, windowMs: 60_000 });
+			expect(budget.take(KEY).allowed).toBe(true);
+			now.mockReturnValue(1_030_000);
+			expect(budget.take(KEY)).toEqual(expect.objectContaining({ allowed: false, retryAfterS: 30 }));
+			now.mockReturnValue(1_060_000);
+			expect(budget.take(KEY).allowed).toBe(true);
 		} finally {
 			now.mockRestore();
 		}

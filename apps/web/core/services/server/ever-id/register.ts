@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server';
-import { SMTP_PASSWORD, SMTP_USERNAME } from '@/core/constants/config/constants';
-import { setAuthCookies } from '@/core/lib/helpers/cookies';
 import { everIdSignupAttempts } from '@/core/lib/auth/ever-id/attempts';
 import { isEverIdConfigured } from '@/core/lib/auth/ever-id/config';
 import {
@@ -9,16 +7,10 @@ import {
 	everIdFlowId,
 	everIdHandoffFromRequest
 } from '@/core/lib/auth/ever-id/handoff';
+import { everIdLanguage } from '@/core/lib/auth/ever-id/language';
 import { logEverIdOutcome, type EverIdStepOutcome } from '@/core/lib/auth/ever-id/log';
-import {
-	createEmployeeFromUser,
-	createOrganizationRequest,
-	createOrganizationTeamRequest,
-	createTenantRequest,
-	createTenantSmtpRequest,
-	refreshTokenRequest
-} from '@/core/services/server/requests';
-import { everIdSignupRequest, everIdWorkspaceSigninRequest } from '@/core/services/server/requests/ever-id';
+import { everIdSignupRequest, retryWhileBusy } from '@/core/services/server/requests/ever-id';
+import { provisionEverIdWorkspace } from './provision';
 import type { IEverIdTermsClaim, IEverIdWorkspacesResponse } from '@/core/types/interfaces/auth/ever-id';
 
 /**
@@ -32,16 +24,17 @@ import type { IEverIdTermsClaim, IEverIdWorkspacesResponse } from '@/core/types/
  * 409 rather than creating the account of an identity the page did not show. The account is
  * created by the Gauzy API from the verified Ever ID (`POST /api/auth/zitadel/signup`, behind its own subscription
  * check), which also links the Ever ID to it; the verified name is used unless the person had to enter one
- * (`verified_name` is not `true`). Then the register route's usual steps run (tenant, SMTP, organization, employee,
- * team) and the person is signed in.
+ * (`verified_name` is not `true`), and the documents accepted are checked in the page's `language`, as the prefill
+ * listed them. Then the register route's usual steps run (tenant, SMTP, organization, employee, team: provision.ts)
+ * and the person is signed in. While another attempt holds the key the sign-up is tried again after the wait the API
+ * asks; still busy, or the API's rate limit, answers 429 with a Retry-After and keeps the key.
  */
-
-const SMTP_CONFIGURED = Boolean(SMTP_USERNAME && SMTP_PASSWORD);
 
 const NO_STORE = 'no-store';
 
-/** The account exists (and is linked to the Ever ID) but its workspace is not complete: only support can finish it. */
-const SETUP_FAILED = 'Your account was created, but its workspace could not be set up. Please contact support.';
+/** The account exists and is linked to the Ever ID, but its workspace is not complete: the next sign-in finishes it. */
+const SETUP_FAILED =
+	'Your account was created, but its workspace could not be set up yet. Sign in with Ever ID again to finish it.';
 
 /** The answers of the API that judged the sign-up (an attempt); any other answer gives the attempt back. */
 const JUDGED = [200, 400, 403, 410];
@@ -75,8 +68,14 @@ export function isEverIdRegisterBody(body: unknown): boolean {
 	return !!body && typeof body === 'object' && 'ever_id' in body;
 }
 
-function errors(status: number, fields: Record<string, string>, extra: Record<string, unknown> = {}): NextResponse {
-	return NextResponse.json({ errors: fields, ...extra }, { status, headers: { 'Cache-Control': NO_STORE } });
+function errors(status: number, fields: Record<string, string>, retryAfterS?: number): NextResponse {
+	return NextResponse.json(
+		{ errors: fields },
+		{
+			status,
+			headers: { 'Cache-Control': NO_STORE, ...(retryAfterS ? { 'Retry-After': String(retryAfterS) } : {}) }
+		}
+	);
 }
 
 function text(value: unknown): string {
@@ -162,23 +161,20 @@ export async function registerWithEverId(req: Request, input: unknown, response:
 		logEverIdOutcome('ever_id.signup', { outcome, latencyMs: Date.now() - startedAt, status });
 
 	const attempt = everIdSignupAttempts.take(handoff);
-	if (attempt.verdict === 'exhausted') {
-		// Submitted too often with this key: like a used key, the person signs in with Ever ID again.
-		log('expired');
-		return withoutKey(errors(410, { email: 'This sign-up has expired. Sign in with Ever ID again.' }));
-	}
-	if (attempt.verdict === 'too_soon') {
+	if (!attempt.allowed) {
 		log('throttled');
-		return errors(429, { email: 'Too many attempts. Try again in a minute.' });
+		return errors(429, { email: 'Too many attempts. Try again in a minute.' }, attempt.retryAfterS);
 	}
 
+	const language = everIdLanguage(body.language);
 	let signup;
 	try {
-		signup = await everIdSignupRequest({
-			handoff,
-			...(body.verified_name === true ? {} : enteredName(body.name)),
-			terms
-		});
+		signup = await retryWhileBusy(() =>
+			everIdSignupRequest(
+				{ handoff, ...(body.verified_name === true ? {} : enteredName(body.name)), terms },
+				language
+			)
+		);
 	} catch {
 		attempt.giveBack();
 		log('gauzy_error', 0);
@@ -204,11 +200,21 @@ export async function registerWithEverId(req: Request, input: unknown, response:
 		log('gauzy_error', signup.status);
 		return withoutKey(errors(502, { team: SETUP_FAILED }));
 	}
+	if (signup.status === 409 || signup.status === 429) {
+		// Still busy after the retries, or the API's rate limit: the key stays valid; try again later.
+		log('throttled', signup.status);
+		return errors(
+			429,
+			{ email: 'Too many attempts. Try again in a minute.' },
+			signup.retryAfter ?? (signup.status === 409 ? 2 : 60)
+		);
+	}
 	if (signup.status !== 200 || !isWorkspacesResponse(signup.data)) {
 		const failure = SIGNUP_FAILURES[signup.status] ?? SIGNUP_FAILURES[502];
 		log(failure.outcome, signup.status);
-		// An API 410 keeps the cookie: the API also answers 410 while another attempt holds the key.
-		return errors(failure.status, failure.errors);
+		// A 410 means used up or expired: the cookie goes.
+		const answer = errors(failure.status, failure.errors);
+		return signup.status === 410 ? withoutKey(answer) : answer;
 	}
 
 	const created = signup.data;
@@ -219,60 +225,17 @@ export async function registerWithEverId(req: Request, input: unknown, response:
 		log('gauzy_error', signup.status);
 		return withoutKey(errors(502, { team: SETUP_FAILED }));
 	}
-	try {
-		// Gauzy's unchanged workspace sign-in for the new account (it has no tenant yet).
-		const signin = await everIdWorkspaceSigninRequest(email, workspace.token);
-		if (signin.status !== 200 || !signin.data?.token || !signin.data.refresh_token) {
-			throw new Error(`workspace sign-in answered ${signin.status}`);
-		}
-		let auth_token = signin.data.token;
-		const userId = signin.data.user?.id ?? workspace.user.id;
-
-		// From here on, the same steps as the register route.
-		const { data: tenant } = await createTenantRequest(team, auth_token);
-
-		if (SMTP_CONFIGURED) {
-			await createTenantSmtpRequest({ access_token: auth_token, tenantId: tenant.id });
-		}
-
-		const { data: organization } = await createOrganizationRequest(
-			{ currency: 'USD', name: team, tenantId: tenant.id, invitesAllowed: true },
-			auth_token
-		);
-
-		const { data: employee } = await createEmployeeFromUser(
-			{ organizationId: organization.id, startedWorkOn: new Date(), tenantId: tenant.id, userId },
-			auth_token
-		);
-
-		const { data: createdTeam } = await createOrganizationTeamRequest(
-			{
-				name: team,
-				tenantId: tenant.id,
-				organizationId: organization.id,
-				managerIds: [employee.id],
-				public: true
-			},
-			auth_token
-		);
-
-		const { data: refreshed } = await refreshTokenRequest(signin.data.refresh_token);
-		auth_token = refreshed.token;
-
-		setAuthCookies(
-			{
-				access_token: auth_token,
-				refresh_token: { token: refreshed.refresh_token || signin.data.refresh_token },
-				timezone: typeof body.timezone === 'string' ? body.timezone : undefined,
-				teamId: createdTeam.id,
-				tenantId: tenant.id,
-				organizationId: organization.id,
-				languageId: 'en',
-				userId
-			},
-			{ req, res: response }
-		);
-	} catch {
+	// The new account has no tenant yet: Gauzy's workspace sign-in, then the register route's usual steps.
+	const setup = await provisionEverIdWorkspace({
+		req,
+		response,
+		email,
+		workspaceToken: workspace.token,
+		fallbackUserId: workspace.user.id,
+		team,
+		timezone: typeof body.timezone === 'string' ? body.timezone : undefined
+	});
+	if (setup !== 'ok') {
 		// The account exists and is linked to the Ever ID, but its workspace is not complete; the key is used up.
 		log('gauzy_error');
 		return withoutKey(errors(502, { team: SETUP_FAILED }));

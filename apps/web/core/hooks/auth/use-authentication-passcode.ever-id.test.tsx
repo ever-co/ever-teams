@@ -13,6 +13,8 @@ const mockReplace = jest.fn();
 const mockPush = jest.fn();
 const mockConfirmLink = jest.fn();
 const mockEmailConfirm = jest.fn();
+const mockSignInWorkspace = jest.fn();
+const mockSignInFunction = jest.fn();
 let mockQuery = 'ever_id=confirm';
 
 jest.mock('next/navigation', () => ({
@@ -26,9 +28,13 @@ jest.mock('@/core/services/client/api/auth/auth.service', () => ({
 		sendAuthCode: jest.fn(),
 		signInEmail: jest.fn(),
 		signInEmailConfirm: (...args: unknown[]) => mockEmailConfirm(...args),
-		signInWorkspace: jest.fn(),
+		signInWorkspace: (...args: unknown[]) => mockSignInWorkspace(...args),
 		signInWithEmailAndCode: jest.fn()
 	}
+}));
+// A server action: the real module imports next-auth, which only runs on the server.
+jest.mock('@/core/lib/helpers/social-logins', () => ({
+	signInFunction: (...args: unknown[]) => mockSignInFunction(...args)
 }));
 jest.mock('@/core/services/client/api/auth/ever-id.service', () => ({
 	everIdService: { confirmLink: (...args: unknown[]) => mockConfirmLink(...args) }
@@ -37,6 +43,10 @@ jest.mock('@/core/services/client/api/auth/ever-id.service', () => ({
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { useAuthenticationPasscode } =
 	require('./use-authentication-passcode') as typeof import('./use-authentication-passcode');
+
+/** A workspace token shaped like Gauzy's (a JWT) that expires at `exp` (seconds). */
+const tokenExpiringAt = (exp: number) =>
+	[{ alg: 'none' }, { exp }].map((part) => Buffer.from(JSON.stringify(part)).toString('base64url')).join('.') + '.x';
 
 const workspace = (id: string, tenantId: string, name: string) => ({
 	token: `workspace-token-${id}`,
@@ -150,6 +160,70 @@ describe('useAuthenticationPasscode in Ever ID mode', () => {
 		expect(result.current.everIdConfirm).toBe(true);
 		expect(mockReplace).not.toHaveBeenCalled();
 		expect(mockPush).not.toHaveBeenCalled();
+	});
+
+	it('uses the team lists of a confirmed link (the chooser then lists the teams)', async () => {
+		const teams = [
+			{
+				team_id: 'team-1',
+				team_name: 'Team',
+				team_logo: '',
+				team_member_count: '1',
+				profile_link: '',
+				prefix: null
+			}
+		];
+		mockConfirmLink.mockResolvedValue({
+			status: 200,
+			data: { ...confirmed.data, workspaces: [{ ...workspace('u1', 't1', 'Acme'), current_teams: teams }] }
+		});
+		const { result } = renderHook(() => useAuthenticationPasscode());
+
+		await submitCode(result, 'ABCD1234');
+
+		expect(result.current.everIdTeamsUnavailable).toBe(false);
+		expect(result.current.workspaces[0].current_teams).toEqual(teams);
+	});
+
+	it('starts the Ever ID sign-in again for a workspace token past its 15 minutes, without trying it', async () => {
+		mockConfirmLink.mockResolvedValue({
+			status: 200,
+			data: { ...confirmed.data, workspaces: [{ ...workspace('u1', 't1', 'Acme'), token: tokenExpiringAt(1) }] }
+		});
+		const { result } = renderHook(() => useAuthenticationPasscode());
+		await submitCode(result, 'ABCD1234');
+
+		await act(async () => {
+			result.current.handleWorkspaceSubmit({ preventDefault() {} }, result.current.workspaces[0].token, 'team-1');
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		expect(mockSignInFunction).toHaveBeenCalledWith({ id: 'ever-id' });
+		expect(mockSignInWorkspace).not.toHaveBeenCalled();
+	});
+
+	it('starts the Ever ID sign-in again when the workspace sign-in answers that the token expired', async () => {
+		const future = Math.floor(Date.now() / 1000) + 600;
+		mockConfirmLink.mockResolvedValue({
+			status: 200,
+			data: {
+				...confirmed.data,
+				workspaces: [{ ...workspace('u1', 't1', 'Acme'), token: tokenExpiringAt(future) }]
+			}
+		});
+		mockSignInWorkspace.mockRejectedValue({
+			response: { status: 400, data: { statusCode: 400, message: 'JWT token has been expired.' } }
+		});
+		const { result } = renderHook(() => useAuthenticationPasscode());
+		await submitCode(result, 'ABCD1234');
+
+		await act(async () => {
+			result.current.handleWorkspaceSubmit({ preventDefault() {} }, result.current.workspaces[0].token, 'team-1');
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		expect(mockSignInWorkspace).toHaveBeenCalledTimes(1);
+		expect(mockSignInFunction).toHaveBeenCalledWith({ id: 'ever-id' });
 	});
 
 	it('shows the unavailable message when the call itself fails', async () => {

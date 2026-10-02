@@ -19,7 +19,7 @@ export interface IEverIdWorkspace {
 		lastLoginAt?: string | null;
 		tenant: { id: string; name: string; logo: string } | null;
 	};
-	/** Not sent by the Ever ID routes today; kept optional so a later API that adds it is used as is. */
+	/** The team lists: sent by a confirmed link (`/confirm`), not by `/token`. */
 	current_teams?: ISigninEmailConfirmWorkspaces['current_teams'];
 }
 
@@ -46,16 +46,33 @@ export type IEverIdTokenResponse = IEverIdWorkspacesResponse | { confirm_require
 /** `POST /api/auth/zitadel/token` (404 bodies the route distinguishes). */
 export type IEverIdTokenNotFound = { code: 'no_workspace' } | { code: 'signup_required'; handoff: string };
 
-/** `POST /api/auth/zitadel/signup/details`: what the sign-up confirmation shows (the key stays valid). */
+/**
+ * `POST /api/auth/zitadel/signup/details`: what the sign-up confirmation shows, with the documents to accept (the
+ * key stays valid).
+ */
 export interface IEverIdSignupDetails {
 	email: string;
 	firstName?: string;
 	lastName?: string;
 	status?: 'subscription_required';
 	checkoutUrl?: string;
+	terms?: IEverIdTermsDocument[];
 }
 
-/** A legal document Gauzy requires a new account to accept (`GET /api/terms/required`). */
+/**
+ * This app's presentation for the API's one-time code e-mail, sent with `POST /api/auth/zitadel/token`: names and
+ * a signature as text, links as https only.
+ */
+export interface IEverIdEmailBranding {
+	appName?: string;
+	appLogo?: string;
+	appSignature?: string;
+	appLink?: string;
+	companyName?: string;
+	companyLink?: string;
+}
+
+/** A legal document Gauzy requires a new account to accept (listed by the sign-up details). */
 export interface IEverIdTermsDocument {
 	documentId: string;
 	version: string;
@@ -96,6 +113,8 @@ export interface IEverIdRegisterDataAPI {
 	verified_name: boolean;
 	/** The `flow` of the prefill the page showed: another Ever ID sign-in in this browser since then is refused. */
 	ever_id_flow: string;
+	/** The page's language: the documents accepted are checked in it, as the prefill listed them. */
+	language?: string;
 	terms?: IEverIdTermsClaim[];
 }
 

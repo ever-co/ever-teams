@@ -147,7 +147,10 @@ const mockEverIdRequests = {
 	everIdSignupRequest: jest.fn(),
 	everIdWorkspaceSigninRequest: jest.fn()
 };
-jest.mock('@/core/services/server/requests/ever-id', () => mockEverIdRequests);
+jest.mock('@/core/services/server/requests/ever-id', () => ({
+	...jest.requireActual('@/core/services/server/requests/ever-id'),
+	...mockEverIdRequests
+}));
 
 const EVER_ID_HANDOFF = 'k3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yA';
 const EVER_ID_TERMS = [{ documentId: 'tos:gauzy', version: '1.0.2', sha256: 'a'.repeat(64), locale: 'en' }];
@@ -283,11 +286,11 @@ describe('POST /api/auth/register — Ever ID sign-up', () => {
 		expect(res.headers.get('cache-control')).toBe('no-store');
 		expect(dropsEverIdCookie(res)).toBe(true);
 		expect(mockEverIdRequests.everIdSignupRequest).toHaveBeenCalledTimes(1);
-		// The name shown was the verified one: the API uses its own copy of it.
-		expect(mockEverIdRequests.everIdSignupRequest).toHaveBeenCalledWith({
-			handoff: EVER_ID_HANDOFF,
-			terms: EVER_ID_TERMS
-		});
+		// The name shown was the verified one: the API uses its own copy of it. No language given: English.
+		expect(mockEverIdRequests.everIdSignupRequest).toHaveBeenCalledWith(
+			{ handoff: EVER_ID_HANDOFF, terms: EVER_ID_TERMS },
+			'en'
+		);
 		expect(mockRequests.registerUserRequest).not.toHaveBeenCalled();
 		expect(mockRequests.loginUserRequest).not.toHaveBeenCalled();
 		// Gauzy's unchanged workspace sign-in with the new account's token, then the usual setup steps.
@@ -317,12 +320,19 @@ describe('POST /api/auth/register — Ever ID sign-up', () => {
 
 		await POST(postEverId(everIdBody({ confirm: true, verified_name: false, name: '  Mary Jane   Smith ' })));
 
-		expect(mockEverIdRequests.everIdSignupRequest).toHaveBeenCalledWith({
-			handoff: EVER_ID_HANDOFF,
-			firstName: 'Mary',
-			lastName: 'Jane Smith',
-			terms: EVER_ID_TERMS
-		});
+		expect(mockEverIdRequests.everIdSignupRequest).toHaveBeenCalledWith(
+			{ handoff: EVER_ID_HANDOFF, firstName: 'Mary', lastName: 'Jane Smith', terms: EVER_ID_TERMS },
+			'en'
+		);
+	});
+
+	it("checks the documents in the page's language, the one the prefill listed them in", async () => {
+		primeEverIdHappyPath();
+		const { POST } = loadRoute({});
+
+		await POST(postEverId(everIdBody({ confirm: true, language: 'de' })));
+
+		expect(mockEverIdRequests.everIdSignupRequest).toHaveBeenCalledWith(expect.any(Object), 'de');
 	});
 
 	it('sends the person to checkout when the API asks for a subscription first', async () => {
@@ -347,8 +357,8 @@ describe('POST /api/auth/register — Ever ID sign-up', () => {
 
 	it.each([
 		[400, 400, 'confirm', false],
-		// Kept on 410: the API answers 410 as well while another attempt holds the key.
-		[410, 410, 'email', false],
+		// A 410 now always means used up or expired: the cookie goes.
+		[410, 410, 'email', true],
 		[429, 429, 'email', false],
 		[500, 502, 'email', false]
 	])('maps an API answer %s to %s', async (apiStatus, status, field, dropsCookie) => {
@@ -422,34 +432,39 @@ describe('POST /api/auth/register — Ever ID sign-up', () => {
 			jest.spyOn(Date, 'now').mockImplementation(() => clock);
 		});
 
-		it('are five submissions, 20 s apart at least; then the key is spent here: 410 and the cookie is dropped', async () => {
+		it('are four a minute here, below the API limit; then 429 with when to try again, the cookie kept', async () => {
 			mockEverIdRequests.everIdSignupRequest.mockResolvedValue({ status: 400, data: {} });
 			const { POST } = loadRoute({});
 
 			const statuses: number[] = [];
-			for (let attempt = 0; attempt < 5; attempt++) {
+			for (let attempt = 0; attempt < 4; attempt++) {
 				statuses.push((await POST(postEverId(everIdBody({ confirm: true })))).status);
-				clock += 20_000;
 			}
-			const spent = await POST(postEverId(everIdBody({ confirm: true })));
+			clock += 10_000;
+			const limited = await POST(postEverId(everIdBody({ confirm: true })));
 
-			expect(statuses).toEqual([400, 400, 400, 400, 400]);
-			expect(spent.status).toBe(410);
-			expect(dropsEverIdCookie(spent)).toBe(true);
-			expect(mockEverIdRequests.everIdSignupRequest).toHaveBeenCalledTimes(5);
+			expect(statuses).toEqual([400, 400, 400, 400]);
+			expect(limited.status).toBe(429);
+			expect(limited.headers.get('retry-after')).toBe('50');
+			expect(dropsEverIdCookie(limited)).toBe(false);
+			expect(mockEverIdRequests.everIdSignupRequest).toHaveBeenCalledTimes(4);
 		});
 
-		it('answer 429 without calling the API for a submission sooner than 20 s after the previous one', async () => {
-			mockEverIdRequests.everIdSignupRequest.mockResolvedValue({ status: 400, data: {} });
+		it('try again while another attempt holds the key, then answer 429 with its Retry-After if it still does', async () => {
+			mockEverIdRequests.everIdSignupRequest.mockResolvedValue({
+				status: 409,
+				data: { code: 'handoff_busy', retryAfter: 1 },
+				retryAfter: 1
+			});
 			const { POST } = loadRoute({});
 
-			await POST(postEverId(everIdBody({ confirm: true })));
-			clock += 19_000;
-			const early = await POST(postEverId(everIdBody({ confirm: true })));
+			const res = await POST(postEverId(everIdBody({ confirm: true })));
 
-			expect(early.status).toBe(429);
-			expect(mockEverIdRequests.everIdSignupRequest).toHaveBeenCalledTimes(1);
-		});
+			expect(res.status).toBe(429);
+			expect(res.headers.get('retry-after')).toBe('1');
+			expect(dropsEverIdCookie(res)).toBe(false);
+			expect(mockEverIdRequests.everIdSignupRequest).toHaveBeenCalledTimes(3);
+		}, 15_000);
 
 		it('do not count a submission the API did not judge (unreachable, rate limit, failure)', async () => {
 			mockEverIdRequests.everIdSignupRequest.mockResolvedValue({ status: 503, data: {} });

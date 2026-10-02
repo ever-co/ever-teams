@@ -7,9 +7,10 @@ import type {
 
 /**
  * Browser calls of the Ever ID sign-in steps that continue on this app's pages (Gauzy's one-time e-mail code
- * on the passcode page, the sign-up confirmation on the sign-up page). They go to this app's own routes
- * (/api/auth/ever-id/*, /api/auth/register), which read the step's one-time key from the sealed cookie the sign-in
- * set and talk to the Gauzy API on the server. They answer `{ status, data }` and never throw for an HTTP error,
+ * on the passcode page, the sign-up confirmation on the sign-up page, the setup of a workspace without a tenant on
+ * the workspace chooser). They go to this app's own routes (/api/auth/ever-id/*, /api/auth/register), which read the
+ * step's one-time key from the sealed cookie the sign-in set (or the workspace token from the session) and talk to
+ * the Gauzy API on the server. They answer `{ status, data }` and never throw for an HTTP error,
  * so every page decides what each status means; a connection failure or the deadline rejects.
  */
 
@@ -51,5 +52,9 @@ export const everIdService = {
 
 	/** The confirmed sign-up: the usual register route, with the step marker and the confirmation. */
 	register: (data: IEverIdRegisterDataAPI) =>
-		postJson<{ errors?: Record<string, string>; checkoutUrl?: string }>('/auth/register', data)
+		postJson<{ errors?: Record<string, string>; checkoutUrl?: string }>('/auth/register', data),
+
+	/** Finishes the setup of the chooser's workspace without a tenant (its token stays on the server). */
+	finishSetup: (workspace: number, timezone?: string) =>
+		postJson<{ reason?: string }>('/auth/ever-id/finish-setup', { workspace, timezone })
 };

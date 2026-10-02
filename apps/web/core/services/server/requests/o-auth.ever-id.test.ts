@@ -54,6 +54,7 @@ jest.mock('next-auth/providers/slack', () => mockProvider('slack', 'Slack'));
 jest.mock('next-auth/providers/twitter', () => mockProvider('twitter', 'Twitter'));
 
 jest.mock('@/core/services/server/requests/ever-id', () => ({
+	...jest.requireActual('@/core/services/server/requests/ever-id'),
 	signWithEverIdRequest: (...args: unknown[]) => mockSignWithEverId(...args)
 }));
 jest.mock('@/core/services/server/requests', () => ({
@@ -233,7 +234,7 @@ describe('Ever ID sign-in: the ID token exchange', () => {
 		expect(before).toBeNull();
 		expect(signIn).toBe(true);
 		expect(mockSignWithEverId).toHaveBeenCalledTimes(1);
-		expect(mockSignWithEverId).toHaveBeenCalledWith(ID_TOKEN);
+		expect(mockSignWithEverId).toHaveBeenCalledWith(ID_TOKEN, expect.any(Object));
 		expect(user).toEqual({ id: 'user-1', email: 'person@example.test', name: 'Test Person', emailVerified: null });
 		expect(token?.authCookie).toEqual({
 			provider: 'ever-id',
@@ -247,6 +248,54 @@ describe('Ever ID sign-in: the ID token exchange', () => {
 		expect(mockLinkSocialAccount).not.toHaveBeenCalled();
 		expect(logs.join('\n')).toContain('ever_id.signin outcome=ok');
 	});
+
+	it("sends this app's branding for the API's code e-mail, links as https only", async () => {
+		mockSignWithEverId.mockResolvedValue({ status: 200, data: { confirm_required: true, handoff: HANDOFF } });
+		const auth = await loadAuth({
+			APP_NAME: 'Acme Teams',
+			APP_SIGNATURE: 'The Acme team',
+			APP_LINK: 'https://teams.acme.test',
+			APP_LOGO_URL: 'http://cdn.acme.test/logo.png',
+			COMPANY_NAME: 'Acme Inc.',
+			COMPANY_LINK: 'https://acme.test'
+		});
+
+		await signInWithEverId(auth);
+
+		expect(mockSignWithEverId).toHaveBeenCalledWith(ID_TOKEN, {
+			appName: 'Acme Teams',
+			appSignature: 'The Acme team',
+			appLink: 'https://teams.acme.test/',
+			companyName: 'Acme Inc.',
+			companyLink: 'https://acme.test/'
+		});
+	});
+
+	it('tries the exchange again while a sign-up of the same Ever ID is being finished', async () => {
+		const busy = { status: 409, data: { code: 'handoff_busy', retryAfter: 1 }, retryAfter: 1 };
+		mockSignWithEverId
+			.mockResolvedValueOnce(busy)
+			.mockResolvedValueOnce(workspaces(workspace('user-1', 'tenant-1', 'Acme')));
+		const auth = await loadAuth();
+
+		const { signIn } = await signInWithEverId(auth);
+
+		expect(signIn).toBe(true);
+		expect(mockSignWithEverId).toHaveBeenCalledTimes(2);
+	}, 15_000);
+
+	it('refuses the sign-in, logged as busy, when the API is still busy after the retries', async () => {
+		mockSignWithEverId.mockResolvedValue({
+			status: 409,
+			data: { code: 'handoff_busy', retryAfter: 1 },
+			retryAfter: 1
+		});
+		const auth = await loadAuth();
+
+		expect((await signInWithEverId(auth)).signIn).toBe(false);
+		expect(mockSignWithEverId).toHaveBeenCalledTimes(3);
+		expect(logs.join('\n')).toContain('ever_id.signin outcome=busy');
+	}, 15_000);
 
 	it('preselects the workspace the ID token points at when exactly one matches', async () => {
 		mockSignWithEverId.mockResolvedValue(

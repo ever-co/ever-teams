@@ -173,16 +173,18 @@ describe('Ever ID with no settings', () => {
 			routes.backchannel = require('@/app/api/auth/ever-id/backchannel-logout/route');
 			routes.confirm = require('@/app/api/auth/ever-id/confirm/route');
 			routes.signup = require('@/app/api/auth/ever-id/signup-handoff/route');
+			routes.setup = require('@/app/api/auth/ever-id/finish-setup/route');
 		});
 		const answers = await Promise.all([
 			routes.backchannel.POST(
 				post('/api/auth/ever-id/backchannel-logout', 'logout_token=a.b.c', 'application/x-www-form-urlencoded')
 			),
 			routes.confirm.POST(post('/api/auth/ever-id/confirm', JSON.stringify({ code: 'ABCD1234' }))),
-			routes.signup.POST(post('/api/auth/ever-id/signup-handoff', JSON.stringify({ locale: 'en' })))
+			routes.signup.POST(post('/api/auth/ever-id/signup-handoff', JSON.stringify({ locale: 'en' }))),
+			routes.setup.POST(post('/api/auth/ever-id/finish-setup', JSON.stringify({ workspace: 0 })))
 		]);
 
-		expect(answers.map((answer) => answer.status)).toEqual([404, 404, 404]);
+		expect(answers.map((answer) => answer.status)).toEqual([404, 404, 404, 404]);
 		expect(fetchSpy).not.toHaveBeenCalled();
 	});
 
