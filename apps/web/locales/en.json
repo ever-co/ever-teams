@@ -727,7 +727,7 @@
 				"TOO_MANY_ATTEMPTS": "Too many attempts. Wait a minute, then try again.",
 				"UNAVAILABLE": "Ever ID sign-in is not available right now. Try again later or sign in another way.",
 				"SIGNUP_CONFIRM": "Create my workspace with this Ever ID",
-				"SIGNUP_HINT": "Your name and e-mail address come from your verified Ever ID. Nothing is created until you continue.",
+				"SIGNUP_HINT": "Your e-mail address comes from your verified Ever ID. Nothing is created until you continue.",
 				"SIGNUP_CONFIRM_REQUIRED": "Tick the box to create your workspace with this Ever ID.",
 				"SIGNUP_TERMS": "I accept these documents:",
 				"SIGNUP_TERMS_REQUIRED": "Accept the documents to continue.",
