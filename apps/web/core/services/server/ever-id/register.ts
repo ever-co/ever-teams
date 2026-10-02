@@ -161,13 +161,13 @@ export async function registerWithEverId(req: Request, input: unknown, response:
 	const log = (outcome: EverIdStepOutcome, status?: number) =>
 		logEverIdOutcome('ever_id.signup', { outcome, latencyMs: Date.now() - startedAt, status });
 
-	const verdict = everIdSignupAttempts.take(handoff);
-	if (verdict === 'exhausted') {
+	const attempt = everIdSignupAttempts.take(handoff);
+	if (attempt.verdict === 'exhausted') {
 		// Submitted too often with this key: like a used key, the person signs in with Ever ID again.
 		log('expired');
 		return withoutKey(errors(410, { email: 'This sign-up has expired. Sign in with Ever ID again.' }));
 	}
-	if (verdict === 'too_soon') {
+	if (attempt.verdict === 'too_soon') {
 		log('throttled');
 		return errors(429, { email: 'Too many attempts. Try again in a minute.' });
 	}
@@ -180,12 +180,12 @@ export async function registerWithEverId(req: Request, input: unknown, response:
 			terms
 		});
 	} catch {
-		everIdSignupAttempts.giveBack(handoff);
+		attempt.giveBack();
 		log('gauzy_error', 0);
 		return errors(502, { email: 'The workspace could not be created. Try again later.' });
 	}
 	// Only an answer about the sign-up itself counts as an attempt (not the API's rate limit or failures).
-	if (!JUDGED.includes(signup.status)) everIdSignupAttempts.giveBack(handoff);
+	if (!JUDGED.includes(signup.status)) attempt.giveBack();
 
 	const signupData = signup.data as Record<string, unknown> | undefined;
 	if (signup.status === 403 && signupData?.code === 'subscription_required' && isHttpsUrl(signupData.checkoutUrl)) {

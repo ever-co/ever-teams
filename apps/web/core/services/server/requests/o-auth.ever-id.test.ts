@@ -475,6 +475,18 @@ describe('overlapping Ever ID sign-ins of one person', () => {
 });
 
 describe('the next-auth session after the workspace sign-in', () => {
+	it('keeps the chooser data through an update that comes before a workspace was chosen', async () => {
+		mockSignWithEverId.mockResolvedValue(workspaces(workspace('user-1', 'tenant-1', 'Acme')));
+		const auth = await loadAuth();
+		const { token } = await signInWithEverId(auth);
+
+		// The passcode page refreshes the session like this when it opens.
+		const refreshed = await auth.config.callbacks.jwt({ token, trigger: 'update', session: {} });
+
+		expect(refreshed.authCookie?.provider).toBe('ever-id');
+		expect(refreshed.authCookie?.workspaces).toHaveLength(1);
+	});
+
 	it('drops the Ever ID chooser data (and whatever the update carries) once the chooser signed in', async () => {
 		mockSignWithEverId.mockResolvedValue(workspaces(workspace('user-1', 'tenant-1', 'Acme')));
 		const auth = await loadAuth();

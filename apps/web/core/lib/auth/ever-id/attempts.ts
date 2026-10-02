@@ -14,6 +14,21 @@ import { createHash } from 'node:crypto';
 /** `ok`: go ahead; `exhausted`: the key used its attempts; `too_soon`: wait before the next attempt. */
 type AttemptVerdict = 'ok' | 'exhausted' | 'too_soon';
 
+/** One attempt: its verdict, and how to give it back once the API did not judge it. */
+interface Attempt {
+	verdict: AttemptVerdict;
+	/** Gives this attempt back (the minimum interval still applies); a no-op for an attempt that did not go ahead. */
+	giveBack: () => void;
+}
+
+const NOTHING_TO_GIVE_BACK = () => undefined;
+
+interface AttemptEntry {
+	used: number;
+	resetAt: number;
+	lastAt: number;
+}
+
 interface AttemptBudgetOptions {
 	limit: number;
 	windowMs: number;
@@ -24,7 +39,7 @@ interface AttemptBudgetOptions {
 }
 
 export class AttemptBudget {
-	private readonly entries = new Map<string, { used: number; resetAt: number; lastAt: number }>();
+	private readonly entries = new Map<string, AttemptEntry>();
 	private readonly limit: number;
 	private readonly windowMs: number;
 	private readonly minIntervalMs: number;
@@ -40,27 +55,32 @@ export class AttemptBudget {
 	}
 
 	/** Counts one attempt with `key` when it may go ahead. */
-	take(key: string): AttemptVerdict {
+	take(key: string): Attempt {
 		const id = AttemptBudget.idOf(key);
 		const now = this.now();
-		const entry = this.entries.get(id);
+		let entry = this.entries.get(id);
 		if (entry && entry.resetAt > now) {
-			if (entry.used >= this.limit) return 'exhausted';
-			if (now - entry.lastAt < this.minIntervalMs) return 'too_soon';
+			if (entry.used >= this.limit) return { verdict: 'exhausted', giveBack: NOTHING_TO_GIVE_BACK };
+			if (now - entry.lastAt < this.minIntervalMs) return { verdict: 'too_soon', giveBack: NOTHING_TO_GIVE_BACK };
 			entry.used += 1;
 			entry.lastAt = now;
-			return 'ok';
+		} else {
+			this.entries.delete(id);
+			this.makeRoom(now);
+			entry = { used: 1, resetAt: now + this.windowMs, lastAt: now };
+			this.entries.set(id, entry);
 		}
-		this.entries.delete(id);
-		this.makeRoom(now);
-		this.entries.set(id, { used: 1, resetAt: now + this.windowMs, lastAt: now });
-		return 'ok';
+		return { verdict: 'ok', giveBack: this.giveBackTo(id, entry) };
 	}
 
-	/** Gives back the last attempt with `key`: the API did not judge it (the minimum interval still applies). */
-	giveBack(key: string): void {
-		const entry = this.entries.get(AttemptBudget.idOf(key));
-		if (entry && entry.used > 0) entry.used -= 1;
+	/** Gives an attempt back to the entry that counted it, never to one that replaced it since. */
+	private giveBackTo(id: string, entry: AttemptEntry): () => void {
+		let given = false;
+		return () => {
+			if (given || this.entries.get(id) !== entry || entry.used === 0) return;
+			given = true;
+			entry.used -= 1;
+		};
 	}
 
 	private static idOf(key: string): string {

@@ -98,12 +98,13 @@ export async function POST(req: Request) {
 		return response;
 	};
 	// Read too often with this key: like a used key, the person signs in with Ever ID again.
-	if (everIdPrefillAttempts.take(handoff) !== 'ok') {
+	const attempt = everIdPrefillAttempts.take(handoff);
+	if (attempt.verdict !== 'ok') {
 		return withoutKey(refuse(410, 'expired'));
 	}
 	/** A read that could not be completed (the API failed, not the key) does not count. */
 	const failed = (status: 429 | 502) => {
-		everIdPrefillAttempts.giveBack(handoff);
+		attempt.giveBack();
 		return refuse(status, status === 429 ? 'throttled' : 'unavailable');
 	};
 	const locale = typeof body.locale === 'string' && LOCALE_PATTERN.test(body.locale) ? body.locale : undefined;

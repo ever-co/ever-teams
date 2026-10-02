@@ -296,6 +296,18 @@ export function isEverIdSessionData(value: unknown): boolean {
 	return isRecord(value) && value.provider === 'ever-id';
 }
 
+/**
+ * A next-auth session update of an Ever ID session. The chooser's workspace sign-in reports its Gauzy tokens through
+ * one: from then on nothing that can sign in again stays in the session (the chooser data goes). Any other update
+ * (a page refreshing the session before a workspace was chosen) leaves the chooser data as it is. Neither stores the
+ * update's payload.
+ */
+export function everIdSessionUpdate(token: Record<string, unknown>, update: unknown): void {
+	if (isRecord(update) && typeof update.access_token === 'string' && update.access_token) {
+		delete token.authCookie;
+	}
+}
+
 /** Whether next-auth is handling the Ever ID callback in this request (createUser receives no provider). */
 export function isEverIdCallbackRequest(request: { url?: string } | undefined): boolean {
 	if (!request?.url) return false;

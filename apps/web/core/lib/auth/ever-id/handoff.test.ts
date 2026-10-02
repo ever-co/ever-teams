@@ -165,12 +165,23 @@ describe('everIdFlowId', () => {
 	});
 });
 
-describe('everIdCookieSecure', () => {
-	const ORIGINAL_AUTH_URL = process.env.AUTH_URL;
-	afterEach(() => {
-		if (ORIGINAL_AUTH_URL === undefined) delete process.env.AUTH_URL;
-		else process.env.AUTH_URL = ORIGINAL_AUTH_URL;
+/** Restores AUTH_URL and NEXTAUTH_URL after each test of a block. */
+function keepAppUrlEnv() {
+	const original = { AUTH_URL: process.env.AUTH_URL, NEXTAUTH_URL: process.env.NEXTAUTH_URL };
+	beforeEach(() => {
+		delete process.env.AUTH_URL;
+		delete process.env.NEXTAUTH_URL;
 	});
+	afterEach(() => {
+		for (const [key, value] of Object.entries(original)) {
+			if (value === undefined) delete process.env[key];
+			else process.env[key] = value;
+		}
+	});
+}
+
+describe('everIdCookieSecure', () => {
+	keepAppUrlEnv();
 
 	it('follows the configured app URL first, like next-auth', () => {
 		const { everIdCookieSecure } = load('test-only-auth-secret');
@@ -187,15 +198,7 @@ describe('everIdCookieSecure', () => {
 });
 
 describe('the request protocol, without a configured app URL', () => {
-	const ORIGINAL_AUTH_URL = process.env.AUTH_URL;
-	beforeEach(() => {
-		delete process.env.AUTH_URL;
-		delete process.env.NEXTAUTH_URL;
-	});
-	afterEach(() => {
-		if (ORIGINAL_AUTH_URL === undefined) delete process.env.AUTH_URL;
-		else process.env.AUTH_URL = ORIGINAL_AUTH_URL;
-	});
+	keepAppUrlEnv();
 
 	it.each([
 		['the proxy says https', { 'x-forwarded-proto': 'https' }, 'http://app.internal/api/auth', true],

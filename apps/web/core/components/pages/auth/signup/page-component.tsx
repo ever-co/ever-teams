@@ -169,7 +169,7 @@ function FillUserDataForm({
 						value={form.name}
 						errors={errors}
 						onChange={handleOnChange}
-						readOnly={!!everId?.nameVerified}
+						readOnly={!!everId?.nameVerified || !!everId?.loading}
 						autoComplete="off"
 						noWrapper
 						className={INPUT_CLASS}

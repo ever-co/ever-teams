@@ -251,7 +251,7 @@ export function createLogoutTokenVerifier(settings: LogoutTokenVerifierSettings 
 	/**
 	 * Verifies a back-channel logout token.
 	 *
-	 * @throws LogoutTokenError `invalid`, `stale` or `unavailable`.
+	 * @throws LogoutTokenError `invalid`, `stale`, `unavailable` or `unknown_key` (the last two are retryable).
 	 */
 	async function verify(token: string, options: LogoutTokenOptions): Promise<VerifiedLogoutToken> {
 		if (typeof token !== 'string' || token.length > MAX_TOKEN_LENGTH || token.split('.').length !== 3) {

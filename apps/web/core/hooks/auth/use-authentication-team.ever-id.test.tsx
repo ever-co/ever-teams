@@ -163,6 +163,21 @@ describe('useAuthenticationTeam in Ever ID mode', () => {
 		);
 	});
 
+	it('keeps a name the person typed while the Ever ID was read when the Ever ID has no usable one', async () => {
+		let answer: (value: unknown) => void = () => undefined;
+		mockPrefill.mockReturnValue(new Promise((resolve) => (answer = resolve)));
+		const { result } = renderHook(() => useAuthenticationTeam());
+		act(() => result.current.handleOnChange({ target: { name: 'name', value: 'Mary Jane Smith' } }));
+
+		await act(async () => {
+			answer({ status: 200, data: { name: 'N', email: 'new.person@example.test', terms: [], flow: 'flow-1' } });
+		});
+
+		expect(result.current.formValues.name).toBe('Mary Jane Smith');
+		expect(result.current.formValues.email).toBe('new.person@example.test');
+		expect(result.current.everId?.nameVerified).toBe(false);
+	});
+
 	it('goes to checkout when the API asks for a subscription first', async () => {
 		// jsdom cannot leave the page: it reports the navigation instead of making it.
 		const reported = jest.spyOn(console, 'error').mockImplementation(() => undefined);

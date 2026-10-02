@@ -108,7 +108,13 @@ export function useAuthenticationTeam() {
 				if (cancelled) return;
 				if (status === 200 && typeof data?.email === 'string') {
 					setEverIdPrefill(data);
-					setFormValues((values) => ({ ...values, name: data.name || values.name, email: data.email }));
+					// A usable verified name replaces the field; otherwise what the person typed meanwhile stays.
+					const verified = data.name.trim().length >= 2;
+					setFormValues((values) => ({
+						...values,
+						name: verified ? data.name : values.name || data.name,
+						email: data.email
+					}));
 				} else {
 					setEverIdPrefillError(translate.current(everIdStepMessage(status)));
 				}

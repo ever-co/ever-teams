@@ -89,12 +89,12 @@ export async function POST(req: Request) {
 		return response;
 	};
 
-	const verdict = everIdConfirmAttempts.take(handoff);
-	if (verdict === 'exhausted') {
+	const attempt = everIdConfirmAttempts.take(handoff);
+	if (attempt.verdict === 'exhausted') {
 		log('expired');
 		return withoutKey(refuse(410, 'expired'));
 	}
-	if (verdict === 'too_soon') {
+	if (attempt.verdict === 'too_soon') {
 		log('throttled');
 		return refuse(429, 'throttled');
 	}
@@ -105,7 +105,7 @@ export async function POST(req: Request) {
 	} catch {
 		status = 0;
 	}
-	if (!JUDGED.includes(status)) everIdConfirmAttempts.giveBack(handoff);
+	if (!JUDGED.includes(status)) attempt.giveBack();
 
 	if (status === 200) {
 		if (isWorkspacesResponse(data)) {
