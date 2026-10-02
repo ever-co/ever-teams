@@ -1,6 +1,7 @@
 'use client';
 
 import { IconsBrandGoogleSolid, IconsFacebook, IconsGithubFilled, IconsTwitterFilled } from '@/core/components/icons';
+import { IconsEverId } from '@/core/components/icons/ever-id';
 import { useRuntimeEnvValue } from '@/core/components/providers/runtime-env-provider';
 import { signInFunction } from '../../lib/helpers/social-logins';
 import { IS_DEMO_MODE } from '@/core/constants/config/constants';
@@ -31,6 +32,10 @@ export default function SocialLogins() {
 		google: {
 			icon: <IconsBrandGoogleSolid aria-hidden="true" className="size-4" />,
 			label: 'Google'
+		},
+		'ever-id': {
+			icon: <IconsEverId aria-hidden="true" className="size-4" />,
+			label: 'Ever ID'
 		},
 		github: {
 			icon: <IconsGithubFilled aria-hidden="true" className="size-4" />,
@@ -72,7 +77,7 @@ export default function SocialLogins() {
 							key={provider.id}
 							onSubmit={(e) => {
 								e.preventDefault();
-								signInFunction(provider);
+								void signInFunction(provider);
 							}}
 						>
 							<Button type="submit" variant="secondary" className={SOCIAL_BUTTON_CLASS}>

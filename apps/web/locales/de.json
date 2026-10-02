@@ -713,7 +713,28 @@
 			"FORGOT_PASSWORD": "Passwort vergessen?",
 			"TERMS_OF_SERVICE": "Nutzungsbedingungen",
 			"PRIVACY_POLICY": "Datenschutzrichtlinie",
-			"OR_CONTINUE_WITH": "oder weiter mit"
+			"OR_CONTINUE_WITH": "oder weiter mit",
+			"everId": {
+				"NO_WORKSPACE_TITLE": "Noch kein Arbeitsbereich für diese Ever ID",
+				"NO_WORKSPACE_BODY": "Mit dieser Ever ID ist noch kein Arbeitsbereich verknüpft. Melden Sie sich auf andere Weise an oder bitten Sie den Administrator Ihres Arbeitsbereichs um eine Einladung.",
+				"WORKSPACE_BLOCKED_TITLE": "Verwenden Sie die Anmeldung Ihres Unternehmens",
+				"WORKSPACE_BLOCKED_BODY": "Ihr Arbeitsbereich verlangt die Anmeldung über Ihr Unternehmen. Verwenden Sie diese, um fortzufahren, oder melden Sie sich auf andere Weise an.",
+				"SIGN_IN_ANOTHER_WAY": "Auf andere Weise anmelden",
+				"NO_WORKSPACE_SIGNUP_BODY": "Sie können auch über die übliche Registrierung einen neuen Arbeitsbereich erstellen.",
+				"CREATE_WORKSPACE": "Arbeitsbereich erstellen",
+				"CONFIRM_HINT": "Wir haben einen Einmalcode an die E-Mail-Adresse Ihres bestehenden Kontos gesendet. Geben Sie ihn ein, um Ihre Ever ID zu verbinden.",
+				"CODE_EXPIRED": "Dieser Code ist abgelaufen oder wurde zu oft eingegeben. Melden Sie sich erneut mit Ever ID an.",
+				"TOO_MANY_ATTEMPTS": "Zu viele Versuche. Warten Sie eine Minute und versuchen Sie es dann erneut.",
+				"UNAVAILABLE": "Die Anmeldung mit Ever ID ist gerade nicht verfügbar. Versuchen Sie es später erneut oder melden Sie sich auf andere Weise an.",
+				"SIGNUP_CONFIRM": "Meinen Arbeitsbereich mit dieser Ever ID erstellen",
+				"SIGNUP_HINT": "Ihre E-Mail-Adresse stammt aus Ihrer bestätigten Ever ID. Es wird nichts erstellt, bevor Sie fortfahren.",
+				"SIGNUP_CONFIRM_REQUIRED": "Aktivieren Sie das Kästchen, um Ihren Arbeitsbereich mit dieser Ever ID zu erstellen.",
+				"SIGNUP_TERMS": "Ich akzeptiere diese Dokumente:",
+				"SIGNUP_TERMS_REQUIRED": "Akzeptieren Sie die Dokumente, um fortzufahren.",
+				"SIGNUP_EXPIRED": "Diese Registrierung ist abgelaufen. Melden Sie sich erneut mit Ever ID an.",
+				"SIGNUP_CHECKOUT": "Bevor Ihr Arbeitsbereich erstellt werden kann, ist ein Abonnement erforderlich.",
+				"CONTINUE_TO_CHECKOUT": "Weiter zur Zahlung"
+			}
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Bestehendem Team beitreten",

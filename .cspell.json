@@ -881,7 +881,13 @@
 		"EVERGR",
 		"Jimp",
 		"prebuilts",
-		"vercelignore"
+		"vercelignore",
+		"zitadel",
+		"resourceowner",
+		"logfmt",
+		"cooldown",
+		"pkce",
+		"nosonar"
 ],
 	"useGitignore": true,
 	"ignorePaths": [

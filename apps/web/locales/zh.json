@@ -713,7 +713,28 @@
 			"FORGOT_PASSWORD": "忘记密码？",
 			"TERMS_OF_SERVICE": "服务条款",
 			"PRIVACY_POLICY": "隐私政策",
-			"OR_CONTINUE_WITH": "或继续使用"
+			"OR_CONTINUE_WITH": "或继续使用",
+			"everId": {
+				"NO_WORKSPACE_TITLE": "此 Ever ID 还没有工作区",
+				"NO_WORKSPACE_BODY": "此 Ever ID 尚未关联任何工作区。请使用其他方式登录，或向您的工作区管理员索取邀请。",
+				"WORKSPACE_BLOCKED_TITLE": "请使用您所在公司的登录方式",
+				"WORKSPACE_BLOCKED_BODY": "您的工作区要求您使用所在公司的登录方式。请使用该方式继续，或使用其他方式登录。",
+				"SIGN_IN_ANOTHER_WAY": "使用其他方式登录",
+				"NO_WORKSPACE_SIGNUP_BODY": "您也可以通过常规注册创建一个新工作区。",
+				"CREATE_WORKSPACE": "创建工作区",
+				"CONFIRM_HINT": "我们已向您现有账户的电子邮件地址发送了一次性验证码。输入该验证码以关联您的 Ever ID。",
+				"CODE_EXPIRED": "此验证码已过期或尝试次数过多。请重新使用 Ever ID 登录。",
+				"TOO_MANY_ATTEMPTS": "尝试次数过多。请等待一分钟后重试。",
+				"UNAVAILABLE": "Ever ID 登录目前不可用。请稍后重试，或使用其他方式登录。",
+				"SIGNUP_CONFIRM": "使用此 Ever ID 创建我的工作区",
+				"SIGNUP_HINT": "您的电子邮件地址来自您已验证的 Ever ID。在您继续之前不会创建任何内容。",
+				"SIGNUP_CONFIRM_REQUIRED": "勾选此框以使用此 Ever ID 创建您的工作区。",
+				"SIGNUP_TERMS": "我接受以下文件：",
+				"SIGNUP_TERMS_REQUIRED": "请接受这些文件以继续。",
+				"SIGNUP_EXPIRED": "此注册已过期。请重新使用 Ever ID 登录。",
+				"SIGNUP_CHECKOUT": "创建工作区之前需要订阅。",
+				"CONTINUE_TO_CHECKOUT": "继续付款"
+			}
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "加入已有团队",
