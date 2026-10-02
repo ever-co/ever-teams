@@ -42,7 +42,7 @@ describe('Ever ID outcome logs', () => {
 	it('drops anything else a caller might pass', () => {
 		const smuggled = {
 			outcome: 'replay',
-			token: 'eyJhbGciOiJFUzI1NiJ9.e30.sig',
+			token: `${Buffer.from('{"alg":"none"}').toString('base64url')}.e30.unsigned`,
 			sub: 'person-1',
 			sid: 'session-1',
 			email: 'person@example.test'

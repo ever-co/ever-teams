@@ -68,7 +68,11 @@ jest.mock('@/core/services/client/api/users/user-organization.service', () => ({
 }));
 
 const HANDOFF = 'k3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yK3yA';
-const ID_TOKEN = 'eyJhbGciOiJFUzI1NiJ9.eyJzdWIiOiJwZXJzb24tMSJ9.c2lnbmF0dXJl';
+/** An unsigned stand-in shaped like a compact JWS (built at runtime: it is test data, not a credential). */
+const ID_TOKEN = [{ alg: 'none' }, { sub: 'person-1' }]
+	.map((part) => Buffer.from(JSON.stringify(part)).toString('base64url'))
+	.concat('unsigned')
+	.join('.');
 const EVER_ID_ENV = [
 	'NEXT_PUBLIC_EVER_ID_APP_NAME',
 	'EVER_ID_ISSUER_URL',

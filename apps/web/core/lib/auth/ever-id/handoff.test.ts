@@ -13,7 +13,7 @@ describe('Ever ID hand-off key', () => {
 
 	it.each([
 		['an e-mail address', 'person@example.test'],
-		['a JWT', 'eyJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIxIn0.c2ln'],
+		['a JWT', `${Buffer.from('{"alg":"none"}').toString('base64url')}.e30.unsigned`],
 		['a path', '../../auth/passcode'],
 		['too short', 'abc'],
 		['too long', 'a'.repeat(129)],
