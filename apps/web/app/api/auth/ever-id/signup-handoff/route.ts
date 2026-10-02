@@ -2,7 +2,12 @@ import { NextResponse } from 'next/server';
 import { everIdPrefillAttempts } from '@/core/lib/auth/ever-id/attempts';
 import { readCappedJsonObject } from '@/core/lib/auth/ever-id/body';
 import { isEverIdConfigured } from '@/core/lib/auth/ever-id/config';
-import { clearedEverIdHandoffCookie, everIdHandoffFromRequest, isHttpsRequest } from '@/core/lib/auth/ever-id/handoff';
+import {
+	clearedEverIdHandoffCookie,
+	everIdCookieSecure,
+	everIdFlowId,
+	everIdHandoffFromRequest
+} from '@/core/lib/auth/ever-id/handoff';
 import { everIdSignupDetailsRequest, requiredTermsRequest } from '@/core/services/server/requests/ever-id';
 import type { IEverIdSignupPrefill, IEverIdTermsDocument } from '@/core/types/interfaces/auth/ever-id';
 
@@ -12,9 +17,11 @@ import type { IEverIdSignupPrefill, IEverIdTermsDocument } from '@/core/types/in
  * must accept. Nothing is created here: the account is created only when the person confirms and submits
  * the sign-up form (POST /api/auth/register).
  *
- * Body `{ locale? }` (JSON); the one-time key comes from the sealed cookie the sign-in set. 404 while the Ever ID
- * sign-in is not configured, 410 for a used, expired or missing key, 429 when the key was read too often, 502
- * when the API fails or answers something incomplete (a required document that cannot be shown is never dropped).
+ * Body `{ locale? }` (JSON); the one-time key comes from the sealed cookie the sign-in set, and the answer carries
+ * its fingerprint (`flow`), which the sign-up sends back. 404 while the Ever ID sign-in is not configured, 410 for a
+ * used, expired or missing key and for a key read more than ten times (then the cookie is dropped), 429 for the API's
+ * rate limit, 502 when the API fails or answers something incomplete (a required document that cannot be shown is
+ * never dropped); a read the API did not complete does not count.
  */
 
 export const dynamic = 'force-dynamic';
@@ -86,9 +93,19 @@ export async function POST(req: Request) {
 	if (!handoff) {
 		return refuse(410, 'expired');
 	}
-	if (!everIdPrefillAttempts.take(handoff)) {
-		return refuse(429, 'throttled');
+	const withoutKey = (response: NextResponse) => {
+		response.cookies.set(clearedEverIdHandoffCookie(everIdCookieSecure(req.headers, req.url)));
+		return response;
+	};
+	// Read too often with this key: like a used key, the person signs in with Ever ID again.
+	if (everIdPrefillAttempts.take(handoff) !== 'ok') {
+		return withoutKey(refuse(410, 'expired'));
 	}
+	/** A read that could not be completed (the API failed, not the key) does not count. */
+	const failed = (status: 429 | 502) => {
+		everIdPrefillAttempts.giveBack(handoff);
+		return refuse(status, status === 429 ? 'throttled' : 'unavailable');
+	};
 	const locale = typeof body.locale === 'string' && LOCALE_PATTERN.test(body.locale) ? body.locale : undefined;
 
 	// One after the other: a used key (410) is reported as such, and costs no second call.
@@ -96,33 +113,31 @@ export async function POST(req: Request) {
 	try {
 		details = await everIdSignupDetailsRequest(handoff);
 	} catch {
-		return refuse(502, 'unavailable');
+		return failed(502);
 	}
-	if (details.status === 410) {
-		const response = refuse(410, 'expired');
-		response.cookies.set(clearedEverIdHandoffCookie(isHttpsRequest(req.headers, req.url)));
-		return response;
-	}
-	if (details.status === 429) return refuse(429, 'throttled');
+	// Kept: the API also answers 410 while a sign-up with this key is in progress (the cookie expires by itself).
+	if (details.status === 410) return refuse(410, 'expired');
+	if (details.status === 429) return failed(429);
 	if (details.status !== 200 || !details.data || typeof details.data.email !== 'string' || !details.data.email) {
-		return refuse(502, 'unavailable');
+		return failed(502);
 	}
 
 	let terms;
 	try {
 		terms = await requiredTermsRequest(locale);
 	} catch {
-		return refuse(502, 'unavailable');
+		return failed(502);
 	}
 	const documents = terms.status === 200 ? toDocuments(terms.data) : null;
 	if (!documents) {
-		return refuse(502, 'unavailable');
+		return failed(502);
 	}
 
 	const prefill: IEverIdSignupPrefill = {
 		name: [text(details.data.firstName, 100), text(details.data.lastName, 100)].filter(Boolean).join(' '),
 		email: details.data.email,
-		terms: documents
+		terms: documents,
+		flow: everIdFlowId(handoff)
 	};
 	const checkout =
 		details.data.status === 'subscription_required' ? checkoutUrl(details.data.checkoutUrl) : undefined;

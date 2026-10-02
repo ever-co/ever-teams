@@ -18,6 +18,8 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
+	// A spy left behind by a failed assertion must not change the next test.
+	jest.restoreAllMocks();
 	await issuer.stop();
 });
 
@@ -113,7 +115,7 @@ describe('verifyLogoutToken', () => {
 		// Another unknown kid right away: no refetch, and a retryable answer (a rotated-in key may not be served yet).
 		const { privateKey } = await generateKeyPair('ES256');
 		const unknown = await issuer.sign(issuer.logoutClaims(), { kid: 'never-published', key: privateKey });
-		expect(await reason(verifier.verify(unknown, options))).toBe('unavailable');
+		expect(await reason(verifier.verify(unknown, options))).toBe('unknown_key');
 		expect(keyFetches()).toBe(2);
 	}, 10_000);
 

@@ -717,8 +717,8 @@
 			"everId": {
 				"NO_WORKSPACE_TITLE": "此 Ever ID 还没有工作区",
 				"NO_WORKSPACE_BODY": "此 Ever ID 尚未关联任何工作区。请使用其他方式登录，或向您的工作区管理员索取邀请。",
-				"WORKSPACE_BLOCKED_TITLE": "请使用贵公司的登录方式",
-				"WORKSPACE_BLOCKED_BODY": "您的工作区要求使用贵公司的登录方式登录。请使用该方式继续，或使用其他方式登录。",
+				"WORKSPACE_BLOCKED_TITLE": "请使用您所在公司的登录方式",
+				"WORKSPACE_BLOCKED_BODY": "您的工作区要求您使用所在公司的登录方式。请使用该方式继续，或使用其他方式登录。",
 				"SIGN_IN_ANOTHER_WAY": "使用其他方式登录",
 				"NO_WORKSPACE_SIGNUP_BODY": "您也可以通过常规注册创建一个新工作区。",
 				"CREATE_WORKSPACE": "创建工作区",
@@ -731,7 +731,7 @@
 				"SIGNUP_CONFIRM_REQUIRED": "勾选此框以使用此 Ever ID 创建您的工作区。",
 				"SIGNUP_TERMS": "我接受以下文件：",
 				"SIGNUP_TERMS_REQUIRED": "请接受这些文件以继续。",
-				"SIGNUP_EXPIRED": "此注册链接已过期。请重新使用 Ever ID 登录。",
+				"SIGNUP_EXPIRED": "此注册已过期。请重新使用 Ever ID 登录。",
 				"SIGNUP_CHECKOUT": "创建工作区之前需要订阅。",
 				"CONTINUE_TO_CHECKOUT": "继续付款"
 			}

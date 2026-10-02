@@ -105,7 +105,12 @@ describe('POST /api/auth/ever-id/confirm', () => {
 
 		expect(res.status).toBe(200);
 		expect(res.headers.get('cache-control')).toBe('no-store');
-		await expect(res.json()).resolves.toEqual(answer);
+		// Only what the passcode page uses.
+		await expect(res.json()).resolves.toEqual({
+			workspaces: answer.workspaces,
+			confirmed_email: answer.confirmed_email,
+			total_workspaces: answer.total_workspaces
+		});
 		expect(gauzy.calls('POST', CONFIRM_PATH).map((call) => call.body)).toEqual([
 			{ handoff: HANDOFF, code: 'ABC123' }
 		]);
@@ -115,7 +120,8 @@ describe('POST /api/auth/ever-id/confirm', () => {
 
 	it.each([
 		['a wrong code (401)', 401, 400, 'invalid_code', false],
-		['a used-up or expired key (410)', 410, 410, 'expired', true],
+		// Kept: the API answers 410 as well while another attempt holds the key.
+		['a used-up or expired key (410)', 410, 410, 'expired', false],
 		["the API's rate limit (429)", 429, 429, 'throttled', false],
 		['the routes switched off (404)', 404, 502, 'unavailable', false],
 		['an API failure (500)', 500, 502, 'unavailable', false]
@@ -156,7 +162,10 @@ describe('POST /api/auth/ever-id/confirm', () => {
 
 	it.each([
 		['no cookie', null],
-		['a cookie this server did not seal', `ever-id-handoff=${Buffer.from('forged').toString('base64url')}`],
+		[
+			'a cookie this server did not seal',
+			`ever-id-handoff=${require('node:crypto').randomBytes(64).toString('base64url')}`
+		],
 		['the plain key as the cookie', `ever-id-handoff=${HANDOFF}`],
 		['the cookie of the sign-up step', stepCookie('signup')]
 	])('answers 410 without calling the API for %s', async (_label, cookie) => {
@@ -183,18 +192,59 @@ describe('POST /api/auth/ever-id/confirm', () => {
 		expect(gauzy.requests).toEqual([]);
 	});
 
-	it('gives one key five tries, then answers 429 without calling the API', async () => {
-		const { POST } = loadRoute(true);
-		gauzy.on('POST', CONFIRM_PATH, { status: 401, body: {} });
+	describe('the attempts of one key', () => {
+		let clock = 0;
+		beforeEach(() => {
+			clock = Date.now();
+			jest.spyOn(Date, 'now').mockImplementation(() => clock);
+		});
 
-		const statuses: number[] = [];
-		for (let attempt = 0; attempt < 6; attempt++) statuses.push((await POST(post({ code: 'WRONG1' }))).status);
+		it('are five tries, 15 s apart at least; then the key is spent here: 410 and the cookie is dropped', async () => {
+			const { POST } = loadRoute(true);
+			gauzy.on('POST', CONFIRM_PATH, { status: 401, body: {} });
 
-		expect(statuses).toEqual([400, 400, 400, 400, 400, 429]);
-		expect(gauzy.calls('POST', CONFIRM_PATH)).toHaveLength(5);
-		// Another key is not affected.
-		const other = await POST(post({ code: 'WRONG1' }, { cookie: stepCookie('confirm', `${'Q'.repeat(42)}A`) }));
-		expect(other.status).toBe(400);
+			const statuses: number[] = [];
+			for (let attempt = 0; attempt < 5; attempt++) {
+				statuses.push((await POST(post({ code: 'WRONG1' }))).status);
+				clock += 15_000;
+			}
+			const spent = await POST(post({ code: 'WRONG1' }));
+
+			expect(statuses).toEqual([400, 400, 400, 400, 400]);
+			expect(spent.status).toBe(410);
+			expect(clearsStepCookie(spent)).toBe(true);
+			expect(gauzy.calls('POST', CONFIRM_PATH)).toHaveLength(5);
+			// Another key is not affected.
+			const other = await POST(post({ code: 'WRONG1' }, { cookie: stepCookie('confirm', `${'Q'.repeat(42)}A`) }));
+			expect(other.status).toBe(400);
+		});
+
+		it('answer 429 without calling the API for a try sooner than 15 s after the previous one', async () => {
+			const { POST } = loadRoute(true);
+			gauzy.on('POST', CONFIRM_PATH, { status: 401, body: {} });
+
+			expect((await POST(post({ code: 'WRONG1' }))).status).toBe(400);
+			clock += 14_000;
+			const early = await POST(post({ code: 'WRONG2' }));
+
+			expect(early.status).toBe(429);
+			expect(clearsStepCookie(early)).toBe(false);
+			expect(gauzy.calls('POST', CONFIRM_PATH)).toHaveLength(1);
+		});
+
+		it('do not count a try the API did not judge (unreachable, rate limit, failure)', async () => {
+			const { POST } = loadRoute(true);
+			gauzy.on('POST', CONFIRM_PATH, { status: 503, body: {} });
+
+			const statuses: number[] = [];
+			for (let attempt = 0; attempt < 7; attempt++) {
+				statuses.push((await POST(post({ code: 'ABC123' }))).status);
+				clock += 15_000;
+			}
+
+			expect(statuses).toEqual(Array(7).fill(502));
+			expect(gauzy.calls('POST', CONFIRM_PATH)).toHaveLength(7);
+		});
 	});
 
 	it('never logs the key or the code', async () => {

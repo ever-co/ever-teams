@@ -731,7 +731,7 @@
 				"SIGNUP_CONFIRM_REQUIRED": "Tick the box to create your workspace with this Ever ID.",
 				"SIGNUP_TERMS": "I accept these documents:",
 				"SIGNUP_TERMS_REQUIRED": "Accept the documents to continue.",
-				"SIGNUP_EXPIRED": "This sign-up link has expired. Sign in with Ever ID again.",
+				"SIGNUP_EXPIRED": "This sign-up has expired. Sign in with Ever ID again.",
 				"SIGNUP_CHECKOUT": "A subscription is needed before your workspace can be created.",
 				"CONTINUE_TO_CHECKOUT": "Continue to checkout"
 			}

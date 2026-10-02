@@ -15,7 +15,8 @@ import { forwardEverIdLogoutRequest } from '@/core/services/server/requests/ever
  * expires, as the API documents). This route answers:
  * - 404 while the Ever ID sign-in is not configured;
  * - 400 for anything that is not a form-encoded, valid, fresh logout token for this app, and for a replay;
- * - 503 when the issuer's keys cannot be obtained to check the token, or when the API cannot be reached, limits the
+ * - 503 when the issuer's keys cannot be obtained to check the token or do not include its key (yet: logged as
+ *   `unknown_key`), or when the API cannot be reached, limits the
  *   rate (429) or fails (5xx, timeout): the token is then forgotten here, so the identity provider can send it again;
  * - 200 for a valid token the API accepted, and for one the API refused (other 4xx: sending it again would not
  *   help; logged as a failed forward).
@@ -61,7 +62,7 @@ export async function POST(req: Request) {
 		return answer(404);
 	}
 	const startedAt = Date.now();
-	const refuse = (outcome: 'invalid' | 'stale' | 'replay' | 'unavailable', status = 400) => {
+	const refuse = (outcome: 'invalid' | 'stale' | 'replay' | 'unavailable' | 'unknown_key', status = 400) => {
 		logEverIdOutcome('ever_id.backchannel', { outcome, latencyMs: Date.now() - startedAt });
 		return answer(status);
 	};
@@ -76,8 +77,8 @@ export async function POST(req: Request) {
 		({ jti } = await verifyLogoutToken(logoutToken, { issuer: config.issuer, clientId: config.clientId }));
 	} catch (error) {
 		const reason = error instanceof LogoutTokenError ? error.reason : 'invalid';
-		if (reason === 'unavailable') {
-			return refuse('unavailable', 503);
+		if (reason === 'unavailable' || reason === 'unknown_key') {
+			return refuse(reason, 503);
 		}
 		return refuse(reason === 'stale' ? 'stale' : 'invalid');
 	}

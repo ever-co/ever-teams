@@ -31,7 +31,12 @@ async function postJson<T>(path: string, body: unknown): Promise<EverIdCallResul
 		// Browsers without AbortSignal.timeout (older Safari) keep the browser's own deadline.
 		signal: typeof AbortSignal.timeout === 'function' ? AbortSignal.timeout(REQUEST_TIMEOUT_MS) : undefined
 	});
-	const data = (await response.json().catch(() => ({}))) as T;
+	// A body cut off by the deadline is a failure, never an empty success.
+	const data = (await response.json().catch((error: unknown) => {
+		const name = (error as { name?: string } | null)?.name;
+		if (name === 'TimeoutError' || name === 'AbortError') throw error;
+		return {};
+	})) as T;
 	return { status: response.status, data };
 }
 

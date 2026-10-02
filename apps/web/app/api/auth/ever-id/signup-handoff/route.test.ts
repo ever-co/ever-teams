@@ -85,7 +85,12 @@ describe('POST /api/auth/ever-id/signup-handoff', () => {
 		expect(res.status).toBe(200);
 		expect(res.headers.get('cache-control')).toBe('no-store');
 		const body = await res.json();
-		expect(Object.keys(body).sort()).toEqual(['email', 'name', 'terms']);
+		expect(Object.keys(body).sort()).toEqual(['email', 'flow', 'name', 'terms']);
+		// A fingerprint of the key, never the key itself.
+		expect(body.flow).toBe(
+			require('node:crypto').createHash('sha256').update(HANDOFF).digest('base64url').slice(0, 16)
+		);
+		expect(JSON.stringify(body)).not.toContain(HANDOFF);
 		expect(body.name).toBe('New Person');
 		expect(body.email).toBe('new.person@example.test');
 		// A document path is relative to the API's own web app, so no link is offered for it here.
@@ -164,7 +169,8 @@ describe('POST /api/auth/ever-id/signup-handoff', () => {
 		const res = await POST(post({}));
 
 		expect(res.status).toBe(410);
-		expect(res.headers.get('set-cookie')).toMatch(/ever-id-handoff=;.*Max-Age=0/i);
+		// Kept: the API answers 410 as well while a sign-up with this key is in progress.
+		expect(res.headers.get('set-cookie')).toBeNull();
 		expect(gauzy.calls('GET', TERMS_PATH)).toEqual([]);
 	});
 
@@ -188,7 +194,10 @@ describe('POST /api/auth/ever-id/signup-handoff', () => {
 
 	it.each([
 		['no cookie', null],
-		['a cookie this server did not seal', `ever-id-handoff=${Buffer.from('forged').toString('base64url')}`],
+		[
+			'a cookie this server did not seal',
+			`ever-id-handoff=${require('node:crypto').randomBytes(64).toString('base64url')}`
+		],
 		['the cookie of the code step', stepCookie('confirm')]
 	])('answers 410 without calling the API for %s', async (_label, cookie) => {
 		const { POST } = loadRoute(true);
@@ -209,14 +218,27 @@ describe('POST /api/auth/ever-id/signup-handoff', () => {
 		expect(gauzy.requests).toEqual([]);
 	});
 
-	it('reads one key at most ten times, then answers 429 without calling the API', async () => {
+	it('reads one key at most ten times; then the key is spent here: 410 and the cookie is dropped', async () => {
 		const { POST } = loadRoute(true);
 
 		const statuses: number[] = [];
-		for (let attempt = 0; attempt < 11; attempt++) statuses.push((await POST(post({}))).status);
+		for (let attempt = 0; attempt < 10; attempt++) statuses.push((await POST(post({}))).status);
+		const spent = await POST(post({}));
 
-		expect(statuses.slice(0, 10)).toEqual(Array(10).fill(200));
-		expect(statuses[10]).toBe(429);
+		expect(statuses).toEqual(Array(10).fill(200));
+		expect(spent.status).toBe(410);
+		expect(spent.headers.get('set-cookie')).toMatch(/ever-id-handoff=;.*Max-Age=0/i);
 		expect(gauzy.calls('POST', DETAILS_PATH)).toHaveLength(10);
+	});
+
+	it('does not count a read the API could not complete', async () => {
+		const { POST } = loadRoute(true);
+		gauzy.on('POST', DETAILS_PATH, { status: 500, body: {} });
+
+		const statuses: number[] = [];
+		for (let attempt = 0; attempt < 12; attempt++) statuses.push((await POST(post({}))).status);
+
+		expect(statuses).toEqual(Array(12).fill(502));
+		expect(gauzy.calls('POST', DETAILS_PATH)).toHaveLength(12);
 	});
 });

@@ -25,7 +25,8 @@ export type TStartMode = 'solo' | 'team';
 
 /** The message of an Ever ID sign-up step that did not succeed. */
 function everIdStepMessage(status: number) {
-	if (status === 410) return 'pages.auth.everId.SIGNUP_EXPIRED' as const;
+	// 409: another Ever ID sign-in in this browser replaced the sign-up this page shows.
+	if (status === 410 || status === 409) return 'pages.auth.everId.SIGNUP_EXPIRED' as const;
 	if (status === 429) return 'pages.auth.everId.TOO_MANY_ATTEMPTS' as const;
 	return 'pages.auth.everId.UNAVAILABLE' as const;
 }
@@ -89,7 +90,10 @@ export function useAuthenticationTeam() {
 	translate.current = t;
 
 	useEffect(() => {
-		if (!everIdSignup) return;
+		if (!everIdSignup) {
+			setEverIdPrefillLoading(false);
+			return;
+		}
 		let cancelled = false;
 		// Every read starts from nothing: no earlier identity, confirmation or acceptance carries over.
 		setEverIdPrefill(null);
@@ -161,6 +165,7 @@ export function useAuthenticationTeam() {
 					timezone: data.timezone,
 					...(data.recaptcha ? { recaptcha: data.recaptcha } : {}),
 					ever_id: 'signup',
+					ever_id_flow: prefill.flow,
 					confirm: true,
 					verified_name: nameVerified,
 					terms: prefill.terms.map(({ documentId, version, sha256, locale: documentLocale }) => ({
@@ -189,7 +194,9 @@ export function useAuthenticationTeam() {
 				}
 				const answered = answer?.errors && Object.values(answer.errors)[0];
 				setEverIdSubmitError(
-					status === 410 || status === 429 || !answered ? t(everIdStepMessage(status)) : answered
+					status === 410 || status === 409 || status === 429 || !answered
+						? t(everIdStepMessage(status))
+						: answered
 				);
 			} catch {
 				setStep(FIRST_STEP);
@@ -294,7 +301,8 @@ export function useAuthenticationTeam() {
 		handleSubmit,
 		handleOnChange,
 		handleStartModeChange,
-		loading: loading || everIdSubmitting || everIdPrefillLoading,
+		// Reading the Ever ID details only disables the form (everId.loading); `loading` means creating the workspace.
+		loading: loading || everIdSubmitting,
 		everId: everIdSignup
 			? {
 					prefill: everIdPrefill,

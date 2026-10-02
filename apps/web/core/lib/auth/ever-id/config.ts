@@ -70,7 +70,7 @@ function isAllowedIssuer(issuer: string): boolean {
 
 function isGauzyApiConfigured(): boolean {
 	const publicUrl =
-		readRuntimeEnv('NEXT_PUBLIC_GAUZY_API_SERVER_URL') ?? process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL;
+		readRuntimeEnv('NEXT_PUBLIC_GAUZY_API_SERVER_URL') || process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL;
 	return !!(process.env.GAUZY_API_SERVER_URL?.trim() || publicUrl?.trim());
 }
 

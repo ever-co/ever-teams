@@ -2,7 +2,11 @@ import { NextResponse } from 'next/server';
 import { everIdConfirmAttempts } from '@/core/lib/auth/ever-id/attempts';
 import { readCappedJsonObject } from '@/core/lib/auth/ever-id/body';
 import { isEverIdConfigured } from '@/core/lib/auth/ever-id/config';
-import { clearedEverIdHandoffCookie, everIdHandoffFromRequest, isHttpsRequest } from '@/core/lib/auth/ever-id/handoff';
+import {
+	clearedEverIdHandoffCookie,
+	everIdCookieSecure,
+	everIdHandoffFromRequest
+} from '@/core/lib/auth/ever-id/handoff';
 import { logEverIdOutcome, type EverIdStepOutcome } from '@/core/lib/auth/ever-id/log';
 import { confirmEverIdLinkRequest } from '@/core/services/server/requests/ever-id';
 import type { IEverIdWorkspacesResponse } from '@/core/types/interfaces/auth/ever-id';
@@ -13,9 +17,11 @@ import type { IEverIdWorkspacesResponse } from '@/core/types/interfaces/auth/eve
  * account is linked only once the code is entered here.
  *
  * Body `{ code }` (JSON): the code from the e-mail. The one-time key comes from the sealed cookie the sign-in set
- * (never from the page). On success the answer is the workspace list and the cookie is dropped; the passcode
- * page continues with the usual workspace sign-in. A wrong code answers 400 (the API allows five tries), a
- * used-up or expired key 410, too many attempts 429. 404 while the Ever ID sign-in is not configured.
+ * (never from the page). On success the answer is the workspace list (`workspaces`, `confirmed_email`,
+ * `total_workspaces`) and the cookie is dropped; the passcode page continues with the usual workspace sign-in.
+ * A wrong code answers 400 (five tries per key, here as in the API), a used-up or expired key 410 (the cookie is
+ * dropped once the tries are spent here), an attempt sooner than 15 s after the previous one or the API's rate
+ * limit 429; an attempt the API did not judge is given back. 404 while the Ever ID sign-in is not configured.
  */
 
 export const dynamic = 'force-dynamic';
@@ -23,6 +29,9 @@ export const dynamic = 'force-dynamic';
 const NO_STORE = { 'Cache-Control': 'no-store' };
 const MAX_BODY_BYTES = 1_024;
 const MAX_CODE_LENGTH = 64;
+
+/** The answers of the API that judged the code (an attempt); any other answer gives the attempt back. */
+const JUDGED = [200, 401, 410];
 
 type Reason = 'invalid_code' | 'expired' | 'throttled' | 'unavailable';
 
@@ -73,8 +82,19 @@ export async function POST(req: Request) {
 	let status = 0;
 	const log = (outcome: EverIdStepOutcome) =>
 		logEverIdOutcome('ever_id.confirm', { outcome, latencyMs: Date.now() - startedAt, status });
+	// The key is used up once the API answered 200 (even malformed), or its tries are spent here: the browser drops
+	// the cookie.
+	const withoutKey = (response: NextResponse) => {
+		response.cookies.set(clearedEverIdHandoffCookie(everIdCookieSecure(req.headers, req.url)));
+		return response;
+	};
 
-	if (!everIdConfirmAttempts.take(handoff)) {
+	const verdict = everIdConfirmAttempts.take(handoff);
+	if (verdict === 'exhausted') {
+		log('expired');
+		return withoutKey(refuse(410, 'expired'));
+	}
+	if (verdict === 'too_soon') {
 		log('throttled');
 		return refuse(429, 'throttled');
 	}
@@ -85,16 +105,15 @@ export async function POST(req: Request) {
 	} catch {
 		status = 0;
 	}
+	if (!JUDGED.includes(status)) everIdConfirmAttempts.giveBack(handoff);
 
-	// The key is used up once the API answered 200 (even malformed) or 410: the browser drops the cookie.
-	const withoutKey = (response: NextResponse) => {
-		response.cookies.set(clearedEverIdHandoffCookie(isHttpsRequest(req.headers, req.url)));
-		return response;
-	};
 	if (status === 200) {
 		if (isWorkspacesResponse(data)) {
 			log('ok');
-			return withoutKey(NextResponse.json(data, { status: 200, headers: NO_STORE }));
+			const { workspaces, confirmed_email, total_workspaces } = data;
+			return withoutKey(
+				NextResponse.json({ workspaces, confirmed_email, total_workspaces }, { status: 200, headers: NO_STORE })
+			);
 		}
 		log('gauzy_error');
 		return withoutKey(refuse(502, 'unavailable'));
@@ -104,8 +123,9 @@ export async function POST(req: Request) {
 			log('invalid');
 			return refuse(400, 'invalid_code');
 		case 410:
+			// Kept: the API also answers 410 while another attempt holds the key (the cookie expires by itself).
 			log('expired');
-			return withoutKey(refuse(410, 'expired'));
+			return refuse(410, 'expired');
 		case 429:
 			log('throttled');
 			return refuse(429, 'throttled');

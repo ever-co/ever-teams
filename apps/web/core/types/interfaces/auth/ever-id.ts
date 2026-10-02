@@ -76,6 +76,8 @@ export interface IEverIdSignupPrefill {
 	terms: IEverIdTermsDocument[];
 	/** Set when the confirmed sign-up waits for a subscription: continue at checkout. */
 	checkoutUrl?: string;
+	/** Fingerprint of the sign-up this page shows (not the key itself): sent back with the sign-up. */
+	flow: string;
 }
 
 /**
@@ -92,6 +94,8 @@ export interface IEverIdRegisterDataAPI {
 	confirm: boolean;
 	/** The name shown was the verified one of the Ever ID (it is then not sent to the API). */
 	verified_name: boolean;
+	/** The `flow` of the prefill the page showed: another Ever ID sign-in in this browser since then is refused. */
+	ever_id_flow: string;
 	terms?: IEverIdTermsClaim[];
 }
 

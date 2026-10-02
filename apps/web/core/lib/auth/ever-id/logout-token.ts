@@ -33,8 +33,11 @@ const HTTP_TIMEOUT_MS = 5_000;
 const MAX_TOKEN_LENGTH = 16_384;
 const ALGORITHMS = ['ES256', 'RS256', 'EdDSA'];
 
-/** Why a token was refused: `invalid` (bad token), `stale` (too old) or `unavailable` (no keys to check it). */
-type LogoutTokenFailure = 'invalid' | 'stale' | 'unavailable';
+/**
+ * Why a token was refused: `invalid` (bad token), `stale` (too old), `unavailable` (no keys to check it) or
+ * `unknown_key` (signed with a key the issuer does not publish, or not yet: retryable around a key rotation).
+ */
+type LogoutTokenFailure = 'invalid' | 'stale' | 'unavailable' | 'unknown_key';
 
 export class LogoutTokenError extends Error {
 	constructor(
@@ -119,12 +122,10 @@ function isJsonObject(value: unknown): value is Record<string, unknown> {
 /** jose's failures that say the keys could not be obtained, as opposed to a bad token. */
 function isKeyAvailabilityError(error: unknown): boolean {
 	const { code, name } = (error ?? {}) as { code?: string; name?: string };
-	// A failed fetch is a TypeError (compared by name: it may come from another realm than this module's). An
-	// unknown `kid` is retryable too: around a key rotation the new key may not be served (or refetched) yet.
+	// A failed fetch is a TypeError (compared by name: it may come from another realm than this module's).
 	return (
 		code === 'ERR_JWKS_TIMEOUT' ||
 		code === 'ERR_JWKS_INVALID' ||
-		code === 'ERR_JWKS_NO_MATCHING_KEY' ||
 		code === 'ERR_JOSE_GENERIC' ||
 		name === 'TypeError'
 	);
@@ -197,7 +198,8 @@ export function createLogoutTokenVerifier(settings: LogoutTokenVerifierSettings 
 	async function discover(configuredIssuer: string, cached: IssuerKeys | undefined): Promise<IssuerKeys> {
 		const now = Date.now();
 		const failed = (message: string): IssuerKeys => {
-			failedUntil.set(configuredIssuer, now + discoveryRetryMs);
+			// Counted from the failure (a timeout may take seconds), not from the start of the discovery.
+			failedUntil.set(configuredIssuer, Date.now() + discoveryRetryMs);
 			if (cached) return cached;
 			throw new LogoutTokenError('unavailable', message);
 		};
@@ -271,6 +273,10 @@ export function createLogoutTokenVerifier(settings: LogoutTokenVerifierSettings 
 		} catch (error) {
 			if (isKeyAvailabilityError(error)) {
 				throw new LogoutTokenError('unavailable', 'Signing keys unavailable');
+			}
+			// Around a key rotation the new key may not be served (or refetched) yet: retryable, logged apart.
+			if ((error as { code?: string } | null)?.code === 'ERR_JWKS_NO_MATCHING_KEY') {
+				throw new LogoutTokenError('unknown_key', 'Signed with a key the issuer does not publish');
 			}
 			throw new LogoutTokenError(
 				'invalid',

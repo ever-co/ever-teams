@@ -26,8 +26,11 @@ function isWorkspace(value: unknown): value is IEverIdWorkspace {
 	return isRecord(value) && typeof value.token === 'string' && !!value.token && isRecord(value.user);
 }
 
-/** The chooser's workspace shape, from an Ever ID workspace entry. */
-function toChooserWorkspace(workspace: IEverIdWorkspace): ISigninEmailConfirmWorkspaces {
+/**
+ * The chooser's workspace shape, from an Ever ID workspace entry. Without team lists for every workspace, no team
+ * list is passed at all: a team of one workspace can then never be sent with another workspace's token.
+ */
+function toChooserWorkspace(workspace: IEverIdWorkspace, withTeams: boolean): ISigninEmailConfirmWorkspaces {
 	const { user } = workspace;
 	return {
 		token: workspace.token,
@@ -40,7 +43,7 @@ function toChooserWorkspace(workspace: IEverIdWorkspace): ISigninEmailConfirmWor
 			tenant: { name: user.tenant?.name ?? '', logo: user.tenant?.logo ?? '' }
 		},
 		// Anything but a list is no team list: the chooser never receives something it cannot render.
-		current_teams: (Array.isArray(workspace.current_teams)
+		current_teams: (withTeams && Array.isArray(workspace.current_teams)
 			? workspace.current_teams
 			: []) as ISigninEmailConfirmWorkspaces['current_teams']
 	};
@@ -57,14 +60,15 @@ export function toEverIdChooserData(
 ): EverIdChooserData | null {
 	const workspaces = Array.isArray(list) ? list.filter(isWorkspace) : [];
 	if (!workspaces.length) return null;
+	const teamsUnavailable = workspaces.some((workspace) => !Array.isArray(workspace.current_teams));
 	return {
-		workspaces: workspaces.map(toChooserWorkspace),
+		workspaces: workspaces.map((workspace) => toChooserWorkspace(workspace, !teamsUnavailable)),
 		confirmedEmail: typeof confirmedEmail === 'string' ? confirmedEmail : '',
 		preselectIndex:
 			typeof preselectTenantId === 'string' && preselectTenantId
 				? workspaces.findIndex((workspace) => workspace.user.tenant?.id === preselectTenantId)
 				: -1,
-		teamsUnavailable: workspaces.some((workspace) => !Array.isArray(workspace.current_teams))
+		teamsUnavailable
 	};
 }
 

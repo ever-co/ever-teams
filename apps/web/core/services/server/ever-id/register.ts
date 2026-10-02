@@ -3,7 +3,12 @@ import { SMTP_PASSWORD, SMTP_USERNAME } from '@/core/constants/config/constants'
 import { setAuthCookies } from '@/core/lib/helpers/cookies';
 import { everIdSignupAttempts } from '@/core/lib/auth/ever-id/attempts';
 import { isEverIdConfigured } from '@/core/lib/auth/ever-id/config';
-import { clearedEverIdHandoffCookie, everIdHandoffFromRequest, isHttpsRequest } from '@/core/lib/auth/ever-id/handoff';
+import {
+	clearedEverIdHandoffCookie,
+	everIdCookieSecure,
+	everIdFlowId,
+	everIdHandoffFromRequest
+} from '@/core/lib/auth/ever-id/handoff';
 import { logEverIdOutcome, type EverIdStepOutcome } from '@/core/lib/auth/ever-id/log';
 import {
 	createEmployeeFromUser,
@@ -22,7 +27,9 @@ import type { IEverIdTermsClaim, IEverIdWorkspacesResponse } from '@/core/types/
  *
  * It runs only for a body that carries `ever_id` (without it the register route is unchanged), sent as JSON with
  * `ever_id: 'signup'`, and only once the person ticked the confirmation (`confirm: true`): nothing is created
- * before that. The one-time key comes from the sealed cookie the sign-in set, never from the body. The account is
+ * before that. The one-time key comes from the sealed cookie the sign-in set, never from the body, and must be the
+ * one whose sign-up the page showed (`ever_id_flow`): another Ever ID sign-in in the same browser since then answers
+ * 409 rather than creating the account of an identity the page did not show. The account is
  * created by the Gauzy API from the verified Ever ID (`POST /api/auth/zitadel/signup`, behind its own subscription
  * check), which also links the Ever ID to it; the verified name is used unless the person had to enter one
  * (`verified_name` is not `true`). Then the register route's usual steps run (tenant, SMTP, organization, employee,
@@ -35,6 +42,9 @@ const NO_STORE = 'no-store';
 
 /** The account exists (and is linked to the Ever ID) but its workspace is not complete: only support can finish it. */
 const SETUP_FAILED = 'Your account was created, but its workspace could not be set up. Please contact support.';
+
+/** The answers of the API that judged the sign-up (an attempt); any other answer gives the attempt back. */
+const JUDGED = [200, 400, 403, 410];
 
 /** More accepted documents than the API could require is not a sign-up form. */
 const MAX_TERMS = 32;
@@ -50,7 +60,7 @@ const SIGNUP_FAILURES: Record<number, { status: number; outcome: EverIdStepOutco
 		410: {
 			status: 410,
 			outcome: 'expired',
-			errors: { email: 'This sign-up link has expired. Sign in with Ever ID again.' }
+			errors: { email: 'This sign-up has expired. Sign in with Ever ID again.' }
 		},
 		429: { status: 429, outcome: 'throttled', errors: { email: 'Too many attempts. Try again in a minute.' } },
 		502: {
@@ -123,7 +133,7 @@ export async function registerWithEverId(req: Request, input: unknown, response:
 	if (body.ever_id !== 'signup' || !/^application\/json\b/i.test(req.headers.get('content-type') ?? '')) {
 		return errors(400, { email: 'This sign-up is not valid. Sign in with Ever ID again.' });
 	}
-	const secure = isHttpsRequest(req.headers, req.url);
+	const secure = everIdCookieSecure(req.headers, req.url);
 	/** Answers that end the sign-up with this key also drop its cookie. */
 	const withoutKey = (answer: NextResponse) => {
 		answer.cookies.set(clearedEverIdHandoffCookie(secure));
@@ -131,7 +141,12 @@ export async function registerWithEverId(req: Request, input: unknown, response:
 	};
 	const handoff = everIdHandoffFromRequest(req, 'signup');
 	if (!handoff) {
-		return errors(410, { email: 'This sign-up link has expired. Sign in with Ever ID again.' });
+		return errors(410, { email: 'This sign-up has expired. Sign in with Ever ID again.' });
+	}
+	if (body.ever_id_flow !== everIdFlowId(handoff)) {
+		return errors(409, {
+			email: 'This sign-up was replaced by another Ever ID sign-in. Sign in with Ever ID again.'
+		});
 	}
 	if (body.confirm !== true) {
 		return errors(400, { confirm: 'Confirm that you want to create your workspace with this Ever ID.' });
@@ -146,7 +161,13 @@ export async function registerWithEverId(req: Request, input: unknown, response:
 	const log = (outcome: EverIdStepOutcome, status?: number) =>
 		logEverIdOutcome('ever_id.signup', { outcome, latencyMs: Date.now() - startedAt, status });
 
-	if (!everIdSignupAttempts.take(handoff)) {
+	const verdict = everIdSignupAttempts.take(handoff);
+	if (verdict === 'exhausted') {
+		// Submitted too often with this key: like a used key, the person signs in with Ever ID again.
+		log('expired');
+		return withoutKey(errors(410, { email: 'This sign-up has expired. Sign in with Ever ID again.' }));
+	}
+	if (verdict === 'too_soon') {
 		log('throttled');
 		return errors(429, { email: 'Too many attempts. Try again in a minute.' });
 	}
@@ -159,9 +180,12 @@ export async function registerWithEverId(req: Request, input: unknown, response:
 			terms
 		});
 	} catch {
+		everIdSignupAttempts.giveBack(handoff);
 		log('gauzy_error', 0);
 		return errors(502, { email: 'The workspace could not be created. Try again later.' });
 	}
+	// Only an answer about the sign-up itself counts as an attempt (not the API's rate limit or failures).
+	if (!JUDGED.includes(signup.status)) everIdSignupAttempts.giveBack(handoff);
 
 	const signupData = signup.data as Record<string, unknown> | undefined;
 	if (signup.status === 403 && signupData?.code === 'subscription_required' && isHttpsUrl(signupData.checkoutUrl)) {
@@ -175,11 +199,16 @@ export async function registerWithEverId(req: Request, input: unknown, response:
 			)
 		);
 	}
+	if (signup.status === 200 && !isWorkspacesResponse(signup.data)) {
+		// The API took the key (and most likely created the account) but its answer cannot continue the sign-in.
+		log('gauzy_error', signup.status);
+		return withoutKey(errors(502, { team: SETUP_FAILED }));
+	}
 	if (signup.status !== 200 || !isWorkspacesResponse(signup.data)) {
 		const failure = SIGNUP_FAILURES[signup.status] ?? SIGNUP_FAILURES[502];
 		log(failure.outcome, signup.status);
-		const answer = errors(failure.status, failure.errors);
-		return signup.status === 410 ? withoutKey(answer) : answer;
+		// An API 410 keeps the cookie: the API also answers 410 while another attempt holds the key.
+		return errors(failure.status, failure.errors);
 	}
 
 	const created = signup.data;

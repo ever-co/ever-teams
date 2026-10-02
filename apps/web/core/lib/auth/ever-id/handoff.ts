@@ -1,4 +1,4 @@
-import { createCipheriv, createDecipheriv, hkdfSync, randomBytes } from 'node:crypto';
+import { createCipheriv, createDecipheriv, createHash, hkdfSync, randomBytes } from 'node:crypto';
 import { AUTH_SECRET, developmentAuthSecret, isDevelopment } from '@/core/constants/config/constants';
 import type { EverIdStep } from './step';
 
@@ -107,8 +107,17 @@ export function clearedEverIdHandoffCookie(secure: boolean): EverIdHandoffCookie
 	return { ...everIdHandoffCookie('', secure), maxAge: 0 };
 }
 
+/**
+ * A short, non-secret fingerprint of a key: the sign-up page receives it with what it shows, and sends it back with
+ * the sign-up, so a sign-up started in another tab of the same browser (which replaced the cookie) is refused
+ * instead of creating the account of another identity than the one the page shows.
+ */
+export function everIdFlowId(handoff: string): string {
+	return createHash('sha256').update(handoff).digest('base64url').slice(0, 16);
+}
+
 /** Whether a request reached this app over https (directly, or through a proxy that says so). */
-export function isHttpsRequest(headers: Headers, url?: string): boolean {
+function isHttpsRequest(headers: Headers, url?: string): boolean {
 	const forwarded = headers.get('x-forwarded-proto')?.split(',')[0]?.trim().toLowerCase();
 	if (forwarded) return forwarded === 'https';
 	try {
@@ -118,15 +127,31 @@ export function isHttpsRequest(headers: Headers, url?: string): boolean {
 	}
 }
 
-function cookieValue(header: string | null, name: string): string | undefined {
-	for (const part of (header ?? '').split(';')) {
-		const separator = part.indexOf('=');
-		if (separator > 0 && part.slice(0, separator).trim() === name) return part.slice(separator + 1).trim();
-	}
-	return undefined;
+/**
+ * Whether the step cookie gets the Secure attribute: like next-auth's own cookies, from the app URL when one is
+ * configured (AUTH_URL), otherwise from the request.
+ */
+export function everIdCookieSecure(headers: Headers, url?: string): boolean {
+	const appUrl = (process.env.AUTH_URL || process.env.NEXTAUTH_URL)?.trim();
+	if (appUrl) return appUrl.toLowerCase().startsWith('https:');
+	return isHttpsRequest(headers, url);
 }
 
-/** The key of `step` that the request's cookie carries, or `null`. */
+/** Every value of the cookie `name` in a Cookie request header (another host of the domain may add its own). */
+function cookieValues(header: string | null, name: string): string[] {
+	const values: string[] = [];
+	for (const part of (header ?? '').split(';')) {
+		const separator = part.indexOf('=');
+		if (separator > 0 && part.slice(0, separator).trim() === name) values.push(part.slice(separator + 1).trim());
+	}
+	return values;
+}
+
+/** The key of `step` that the request's cookie carries, or `null` (the first value sealed here wins). */
 export function everIdHandoffFromRequest(req: Request, step: EverIdStep): string | null {
-	return openEverIdHandoff(cookieValue(req.headers.get('cookie'), EVER_ID_HANDOFF_COOKIE), step);
+	for (const value of cookieValues(req.headers.get('cookie'), EVER_ID_HANDOFF_COOKIE).slice(0, 5)) {
+		const handoff = openEverIdHandoff(value, step);
+		if (handoff) return handoff;
+	}
+	return null;
 }

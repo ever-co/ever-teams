@@ -91,7 +91,9 @@ const EVER_ID_ENV = [
 	'EVER_PLATFORM_PROJECT_ID',
 	'EVER_ID_TEAMS_AUTO_PROVISION',
 	'GAUZY_API_SERVER_URL',
-	'AUTH_SECRET'
+	'AUTH_SECRET',
+	'AUTH_URL',
+	'NEXTAUTH_URL'
 ];
 const ORIGINAL_ENV = { ...process.env };
 const CALLBACK_REQUEST = new Request('https://teams.example.test/api/auth/callback/ever-id?code=c&state=s');
@@ -321,13 +323,23 @@ describe('Ever ID sign-in: the ID token exchange', () => {
 	});
 
 	it('marks the cookie Secure only for a request that came over https', async () => {
-		delete mockRequestHeaders['x-forwarded-proto'];
+		mockRequestHeaders['x-forwarded-proto'] = 'http';
 		mockSignWithEverId.mockResolvedValue({ status: 404, data: { code: 'signup_required', handoff: HANDOFF } });
-		const auth = await loadAuth();
+		const auth = await loadAuth({ AUTH_URL: undefined as unknown as string });
 
 		await signInWithEverId(auth);
 
 		expect(setStepCookie().cookie.secure).toBe(false);
+	});
+
+	it('follows an https AUTH_URL like next-auth does, whatever the proxy says', async () => {
+		mockRequestHeaders['x-forwarded-proto'] = 'http';
+		mockSignWithEverId.mockResolvedValue({ status: 404, data: { code: 'signup_required', handoff: HANDOFF } });
+		const auth = await loadAuth({ AUTH_URL: 'https://teams.example.test' });
+
+		await signInWithEverId(auth);
+
+		expect(setStepCookie().cookie.secure).toBe(true);
 	});
 
 	it('refuses the sign-in, and sets nothing, for a malformed key or without a secret to seal it with', async () => {
@@ -477,6 +489,15 @@ describe('the next-auth session after the workspace sign-in', () => {
 
 		expect(updated.authCookie).toBeUndefined();
 		expect(JSON.stringify(updated)).not.toMatch(/workspace-token|gauzy-access|gauzy-refresh/);
+
+		// A later update (another workspace sign-in, a page refreshing the session) puts nothing back either.
+		const later = await auth.config.callbacks.jwt({
+			token: updated,
+			trigger: 'update',
+			session: { access_token: 'gauzy-access-2', workspaces: [{ token: 'workspace-token-2' }] }
+		});
+		expect(later.authCookie).toBeUndefined();
+		expect(JSON.stringify(later)).not.toMatch(/workspace-token|gauzy-access/);
 	});
 
 	it("keeps the other providers' session update as it was", async () => {

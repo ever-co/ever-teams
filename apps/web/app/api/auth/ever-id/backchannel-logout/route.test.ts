@@ -5,6 +5,7 @@
 // jose ships as an ES module only and jest runs CommonJS: Node itself loads it (require of an ES module).
 jest.mock('jose', () => process.getBuiltinModule('node:module').createRequire(__filename)('jose'));
 
+import { generateKeyPair } from 'jose';
 import { MockGauzyApi } from '@/test/ever-id/mock-gauzy-api';
 import { MockIssuer } from '@/test/ever-id/mock-issuer';
 
@@ -247,6 +248,18 @@ describe('POST /api/auth/ever-id/backchannel-logout', () => {
 		expect(gauzy.calls('POST', FORWARD_PATH)).toHaveLength(0);
 		expect(logs.join('\n')).toContain('ever_id.backchannel outcome=unavailable');
 		expect(logs.join('\n')).not.toContain('outcome=invalid');
+	});
+
+	it('answers 503 for a token signed with a key the issuer does not publish, logged apart', async () => {
+		const { POST } = loadRoute(true);
+		const { privateKey } = await generateKeyPair('ES256');
+		const forged = await issuer.sign(issuer.logoutClaims(), { kid: 'never-published', key: privateKey });
+
+		const res = await POST(postForm({ logout_token: forged }));
+
+		expect(res.status).toBe(503);
+		expect(gauzy.calls('POST', FORWARD_PATH)).toHaveLength(0);
+		expect(logs.join('\n')).toContain('ever_id.backchannel outcome=unknown_key');
 	});
 
 	it('never logs the token, the subject or the session id', async () => {

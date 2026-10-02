@@ -140,8 +140,62 @@ describe('the sealed hand-off cookie', () => {
 	});
 });
 
-describe('isHttpsRequest', () => {
-	const { isHttpsRequest } = load('test-only-auth-secret');
+describe('the other hosts of the domain', () => {
+	it('reads the value sealed here even when another host of the domain set a cookie of the same name first', () => {
+		const { sealEverIdHandoff, everIdHandoffFromRequest } = load('test-only-auth-secret');
+		const request = new Request('https://app.example.test/api/auth/ever-id/confirm', {
+			method: 'POST',
+			headers: {
+				cookie: `ever-id-handoff=planted-by-a-sibling; ever-id-handoff=${sealEverIdHandoff(KEY, 'confirm')}`
+			}
+		});
+
+		expect(everIdHandoffFromRequest(request, 'confirm')).toBe(KEY);
+	});
+});
+
+describe('everIdFlowId', () => {
+	it('is a short fingerprint that is stable for a key, differs between keys and does not show the key', () => {
+		const { everIdFlowId } = load('test-only-auth-secret');
+
+		expect(everIdFlowId(KEY)).toMatch(/^[A-Za-z0-9_-]{16}$/);
+		expect(everIdFlowId(KEY)).toBe(everIdFlowId(KEY));
+		expect(everIdFlowId(KEY)).not.toBe(everIdFlowId(`${KEY.slice(0, -1)}A`));
+		expect(KEY).not.toContain(everIdFlowId(KEY));
+	});
+});
+
+describe('everIdCookieSecure', () => {
+	const ORIGINAL_AUTH_URL = process.env.AUTH_URL;
+	afterEach(() => {
+		if (ORIGINAL_AUTH_URL === undefined) delete process.env.AUTH_URL;
+		else process.env.AUTH_URL = ORIGINAL_AUTH_URL;
+	});
+
+	it('follows the configured app URL first, like next-auth', () => {
+		const { everIdCookieSecure } = load('test-only-auth-secret');
+		const proxiedHttp = new Headers({ 'x-forwarded-proto': 'http' });
+
+		process.env.AUTH_URL = 'https://teams.example.test';
+		expect(everIdCookieSecure(proxiedHttp, 'http://app.internal/api/auth')).toBe(true);
+		process.env.AUTH_URL = 'http://localhost:3030';
+		expect(everIdCookieSecure(new Headers({ 'x-forwarded-proto': 'https' }))).toBe(false);
+		delete process.env.AUTH_URL;
+		expect(everIdCookieSecure(proxiedHttp)).toBe(false);
+		expect(everIdCookieSecure(new Headers({ 'x-forwarded-proto': 'https' }))).toBe(true);
+	});
+});
+
+describe('the request protocol, without a configured app URL', () => {
+	const ORIGINAL_AUTH_URL = process.env.AUTH_URL;
+	beforeEach(() => {
+		delete process.env.AUTH_URL;
+		delete process.env.NEXTAUTH_URL;
+	});
+	afterEach(() => {
+		if (ORIGINAL_AUTH_URL === undefined) delete process.env.AUTH_URL;
+		else process.env.AUTH_URL = ORIGINAL_AUTH_URL;
+	});
 
 	it.each([
 		['the proxy says https', { 'x-forwarded-proto': 'https' }, 'http://app.internal/api/auth', true],
@@ -150,6 +204,8 @@ describe('isHttpsRequest', () => {
 		['no proxy, https URL', {}, 'https://app.example.test/api/auth', true],
 		['no proxy, http URL', {}, 'http://localhost:3030/api/auth', false]
 	])('%s', (_label, headers, url, expected) => {
-		expect(isHttpsRequest(new Headers(headers as Record<string, string>), url)).toBe(expected);
+		const { everIdCookieSecure } = load('test-only-auth-secret');
+
+		expect(everIdCookieSecure(new Headers(headers as Record<string, string>), url)).toBe(expected);
 	});
 });

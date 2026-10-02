@@ -731,7 +731,7 @@
 				"SIGNUP_CONFIRM_REQUIRED": "Cochez la case pour créer votre espace de travail avec cet Ever ID.",
 				"SIGNUP_TERMS": "J'accepte ces documents :",
 				"SIGNUP_TERMS_REQUIRED": "Acceptez les documents pour continuer.",
-				"SIGNUP_EXPIRED": "Ce lien d'inscription a expiré. Connectez-vous à nouveau avec Ever ID.",
+				"SIGNUP_EXPIRED": "Cette inscription a expiré. Connectez-vous à nouveau avec Ever ID.",
 				"SIGNUP_CHECKOUT": "Un abonnement est nécessaire avant que votre espace de travail puisse être créé.",
 				"CONTINUE_TO_CHECKOUT": "Continuer vers le paiement"
 			}

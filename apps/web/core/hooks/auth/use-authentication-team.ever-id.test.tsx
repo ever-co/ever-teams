@@ -47,7 +47,7 @@ const submit = (result: Hook) =>
 async function renderPrefilled(name = 'New Person') {
 	mockPrefill.mockResolvedValue({
 		status: 200,
-		data: { name, email: 'new.person@example.test', terms: TERMS }
+		data: { name, email: 'new.person@example.test', terms: TERMS, flow: 'flow-of-this-sign-up' }
 	});
 	const hook = renderHook(() => useAuthenticationTeam());
 	await waitFor(() => expect(hook.result.current.everId?.prefill).toBeTruthy());
@@ -81,19 +81,23 @@ describe('useAuthenticationTeam in Ever ID mode', () => {
 		expect(result.current.everId?.nameVerified).toBe(true);
 	});
 
-	it('is busy while the Ever ID is read, and a submit then shows no error', async () => {
+	it('marks the Ever ID as being read (not as creating the workspace), and a submit then shows no error', async () => {
 		let answer: (value: unknown) => void = () => undefined;
 		mockPrefill.mockReturnValue(new Promise((resolve) => (answer = resolve)));
 		const { result } = renderHook(() => useAuthenticationTeam());
 
 		expect(result.current.everId?.loading).toBe(true);
-		expect(result.current.loading).toBe(true);
+		// `loading` shows the "creating your new workplace" backdrop: not while only reading the Ever ID.
+		expect(result.current.loading).toBe(false);
 		await submit(result);
 		expect(result.current.errors.everId).toBeUndefined();
 		expect(result.current.everId?.error).toBeNull();
 
 		await act(async () => {
-			answer({ status: 200, data: { name: 'New Person', email: 'new.person@example.test', terms: [] } });
+			answer({
+				status: 200,
+				data: { name: 'New Person', email: 'new.person@example.test', terms: [], flow: 'flow-1' }
+			});
 		});
 		expect(result.current.everId?.loading).toBe(false);
 		expect(result.current.loading).toBe(false);
@@ -135,6 +139,7 @@ describe('useAuthenticationTeam in Ever ID mode', () => {
 				email: 'new.person@example.test',
 				team: "New Person's Team",
 				ever_id: 'signup',
+				ever_id_flow: 'flow-of-this-sign-up',
 				confirm: true,
 				verified_name: true,
 				terms: TERMS.map(({ documentId, version, sha256, locale }) => ({ documentId, version, sha256, locale }))
@@ -161,18 +166,33 @@ describe('useAuthenticationTeam in Ever ID mode', () => {
 	it('goes to checkout when the API asks for a subscription first', async () => {
 		// jsdom cannot leave the page: it reports the navigation instead of making it.
 		const reported = jest.spyOn(console, 'error').mockImplementation(() => undefined);
-		mockEverIdRegister.mockResolvedValue({
-			status: 403,
-			data: { checkoutUrl: 'https://billing.example.test/checkout/1' }
-		});
-		const { result } = await renderPrefilled();
+		try {
+			mockEverIdRegister.mockResolvedValue({
+				status: 403,
+				data: { checkoutUrl: 'https://billing.example.test/checkout/1' }
+			});
+			const { result } = await renderPrefilled();
 
-		await confirmAndSubmit(result);
+			await confirmAndSubmit(result);
 
-		expect(result.current.step).toBe('STEP2');
-		expect(result.current.everId?.error).toBeNull();
-		expect(mockPush).not.toHaveBeenCalled();
-		reported.mockRestore();
+			expect(result.current.step).toBe('STEP2');
+			expect(result.current.everId?.error).toBeNull();
+			expect(mockPush).not.toHaveBeenCalled();
+		} finally {
+			reported.mockRestore();
+		}
+	});
+
+	it('is the usual sign-up again, not busy, when the marker leaves the URL while the Ever ID is still read', async () => {
+		mockPrefill.mockReturnValue(new Promise(() => undefined));
+		const hook = renderHook(() => useAuthenticationTeam());
+		expect(hook.result.current.everId?.loading).toBe(true);
+
+		mockQuery = '';
+		hook.rerender();
+
+		expect(hook.result.current.everId).toBeNull();
+		expect(hook.result.current.loading).toBe(false);
 	});
 
 	it.each([
@@ -182,6 +202,11 @@ describe('useAuthenticationTeam in Ever ID mode', () => {
 			'pages.auth.everId.SIGNUP_EXPIRED'
 		],
 		['too many attempts (429)', { status: 429, data: {} }, 'pages.auth.everId.TOO_MANY_ATTEMPTS'],
+		[
+			'another Ever ID sign-in in this browser since (409)',
+			{ status: 409, data: { errors: { email: 'replaced' } } },
+			'pages.auth.everId.SIGNUP_EXPIRED'
+		],
 		[
 			'a refused sign-up (400)',
 			{ status: 400, data: { errors: { confirm: 'Accept the required documents.' } } },

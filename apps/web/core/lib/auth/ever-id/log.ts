@@ -16,7 +16,7 @@ interface EverIdOutcomes {
 		| 'signup_required'
 		| 'rejected'
 		| 'gauzy_error';
-	'ever_id.backchannel': 'ok' | 'invalid' | 'replay' | 'stale' | 'unavailable' | 'forward_failed';
+	'ever_id.backchannel': 'ok' | 'invalid' | 'replay' | 'stale' | 'unavailable' | 'unknown_key' | 'forward_failed';
 	'ever_id.confirm': EverIdStepOutcome;
 	'ever_id.signup': EverIdStepOutcome;
 }
@@ -49,7 +49,7 @@ interface EverIdLogPayload {
  */
 const WARNINGS: { [E in EverIdLogEvent]: ReadonlySet<EverIdOutcomes[E]> } = {
 	'ever_id.signin': new Set(['rejected', 'gauzy_error']),
-	'ever_id.backchannel': new Set(['invalid', 'replay', 'stale', 'unavailable', 'forward_failed']),
+	'ever_id.backchannel': new Set(['invalid', 'replay', 'stale', 'unavailable', 'unknown_key', 'forward_failed']),
 	'ever_id.confirm': new Set(['throttled', 'gauzy_error']),
 	'ever_id.signup': new Set(['throttled', 'gauzy_error'])
 };

@@ -94,6 +94,7 @@ describe('Ever ID outcome logs', () => {
 		['ever_id.signup', 'gauzy_error', 'warn'],
 		['ever_id.backchannel', 'invalid', 'warn'],
 		['ever_id.backchannel', 'unavailable', 'warn'],
+		['ever_id.backchannel', 'unknown_key', 'warn'],
 		['ever_id.backchannel', 'replay', 'warn']
 	] as const)('logs %s outcome=%s as %s', (event, outcome, level) => {
 		const info = jest.spyOn(console, 'info').mockImplementation(() => undefined);

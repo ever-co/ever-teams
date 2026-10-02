@@ -4,7 +4,8 @@
  */
 import { readCappedJsonObject, readCappedText } from './body';
 
-function chunked(chunks: string[]): Request {
+/** A body sent in chunks without a length; `pulled()` tells how many chunks were read. */
+function chunked(chunks: string[]): { request: Request; pulled: () => number } {
 	const encoder = new TextEncoder();
 	let pulled = 0;
 	const stream = new ReadableStream<Uint8Array>({
@@ -17,12 +18,13 @@ function chunked(chunks: string[]): Request {
 			pulled += 1;
 		}
 	});
-	return new Request('https://app.example.test/api/auth/ever-id/confirm', {
+	const request = new Request('https://app.example.test/api/auth/ever-id/confirm', {
 		method: 'POST',
 		headers: { 'content-type': 'application/json' },
 		body: stream,
 		duplex: 'half'
 	} as RequestInit);
+	return { request, pulled: () => pulled };
 }
 
 describe('readCappedText', () => {
@@ -32,8 +34,9 @@ describe('readCappedText', () => {
 			method: 'POST',
 			body: new ReadableStream<Uint8Array>({
 				start(controller) {
-					controller.enqueue(bytes.subarray(0, 11));
-					controller.enqueue(bytes.subarray(11));
+					// Byte 11 is the first of the two bytes of 'ë': the character is split across the chunks.
+					controller.enqueue(bytes.subarray(0, 12));
+					controller.enqueue(bytes.subarray(12));
 					controller.close();
 				}
 			}),
@@ -54,9 +57,11 @@ describe('readCappedText', () => {
 	});
 
 	it('stops reading a chunked body as soon as it passes the cap', async () => {
-		const request = chunked(['a'.repeat(600), 'b'.repeat(600), 'c'.repeat(600)]);
+		const { request, pulled } = chunked(['a'.repeat(600), 'b'.repeat(600), 'c'.repeat(600), 'd'.repeat(600)]);
 
 		await expect(readCappedText(request, 1_000)).resolves.toBeNull();
+		// The second chunk passes the cap: the rest is never read.
+		expect(pulled()).toBeLessThan(4);
 	});
 });
 

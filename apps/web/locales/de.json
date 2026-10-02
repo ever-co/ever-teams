@@ -731,7 +731,7 @@
 				"SIGNUP_CONFIRM_REQUIRED": "Aktivieren Sie das Kästchen, um Ihren Arbeitsbereich mit dieser Ever ID zu erstellen.",
 				"SIGNUP_TERMS": "Ich akzeptiere diese Dokumente:",
 				"SIGNUP_TERMS_REQUIRED": "Akzeptieren Sie die Dokumente, um fortzufahren.",
-				"SIGNUP_EXPIRED": "Dieser Registrierungslink ist abgelaufen. Melden Sie sich erneut mit Ever ID an.",
+				"SIGNUP_EXPIRED": "Diese Registrierung ist abgelaufen. Melden Sie sich erneut mit Ever ID an.",
 				"SIGNUP_CHECKOUT": "Bevor Ihr Arbeitsbereich erstellt werden kann, ist ein Abonnement erforderlich.",
 				"CONTINUE_TO_CHECKOUT": "Weiter zur Zahlung"
 			}

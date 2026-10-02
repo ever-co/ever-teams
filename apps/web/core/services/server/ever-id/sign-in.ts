@@ -1,8 +1,8 @@
 import { cookies, headers } from 'next/headers';
 import { getEverIdConfig } from '@/core/lib/auth/ever-id/config';
 import {
+	everIdCookieSecure,
 	everIdHandoffCookie,
-	isHttpsRequest,
 	readEverIdHandoff,
 	sealEverIdHandoff
 } from '@/core/lib/auth/ever-id/handoff';
@@ -211,8 +211,10 @@ async function signInRecord(account: EverIdAccount, profile?: Record<string, unk
 async function continueWithStep(step: EverIdStep, handoff: string): Promise<string | false> {
 	const sealed = sealEverIdHandoff(handoff, step);
 	if (!sealed) return false;
-	// Set on the response of this callback request (next-auth's redirect to the step's page).
-	(await cookies()).set(everIdHandoffCookie(sealed, isHttpsRequest(await headers())));
+	// Set on the response of this callback request (next-auth's redirect to the step's page). Secure like
+	// next-auth's own cookies: AUTH_URL first, then the request's protocol (Next.js sets X-Forwarded-Proto itself
+	// when no proxy did).
+	(await cookies()).set(everIdHandoffCookie(sealed, everIdCookieSecure(await headers())));
 	return everIdStepPath(step);
 }
 

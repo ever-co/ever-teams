@@ -146,22 +146,25 @@ describe('Ever ID with no settings', () => {
 		['no explicitly configured API', { GAUZY_API_SERVER_URL: '' }]
 	])('stays off with %s, without any request', async (_label, override) => {
 		const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-		Object.assign(process.env, {
-			NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID',
-			EVER_ID_ISSUER_URL: 'https://id.example.test',
-			EVER_ID_CLIENT_ID: 'teams-web-client',
-			EVER_ID_CLIENT_SECRET: 'teams-web-secret',
-			...override
-		});
-		delete process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL;
+		try {
+			Object.assign(process.env, {
+				NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID',
+				EVER_ID_ISSUER_URL: 'https://id.example.test',
+				EVER_ID_CLIENT_ID: 'teams-web-client',
+				EVER_ID_CLIENT_SECRET: 'teams-web-secret',
+				...override
+			});
+			delete process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL;
 
-		const { nextAuthProviderIds, providerIds, markup } = await boot();
+			const { nextAuthProviderIds, providerIds, markup } = await boot();
 
-		expect(nextAuthProviderIds).not.toContain('ever-id');
-		expect(providerIds).not.toContain('ever-id');
-		expect(markup).not.toContain('Ever ID');
-		expect(fetchSpy).not.toHaveBeenCalled();
-		warn.mockRestore();
+			expect(nextAuthProviderIds).not.toContain('ever-id');
+			expect(providerIds).not.toContain('ever-id');
+			expect(markup).not.toContain('Ever ID');
+			expect(fetchSpy).not.toHaveBeenCalled();
+		} finally {
+			warn.mockRestore();
+		}
 	});
 
 	it('answers 404 on every Ever ID route, without any request', async () => {

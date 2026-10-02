@@ -52,10 +52,12 @@ const config: NextAuthConfig = {
 				if (everIdSession) {
 					token.authCookie = everIdSession;
 				}
+				token.everId = true;
 				return token;
 			}
-			// Ever ID: the chooser's workspace sign-in is done; nothing that can sign in again stays in this session
-			if (trigger === 'update' && isEverIdSessionData(token.authCookie)) {
+			// Ever ID: the chooser's workspace sign-in is done; nothing that can sign in again stays in this session,
+			// and no later update puts anything back
+			if (trigger === 'update' && (token.everId === true || isEverIdSessionData(token.authCookie))) {
 				delete token.authCookie;
 				return token;
 			}

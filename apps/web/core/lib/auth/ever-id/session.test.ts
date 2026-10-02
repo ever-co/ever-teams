@@ -99,6 +99,8 @@ describe('toEverIdChooserData', () => {
 
 		expect(data?.teamsUnavailable).toBe(true);
 		expect(data?.workspaces).toHaveLength(2);
+		// No team of one workspace can then be sent with another workspace's token.
+		expect(data?.workspaces.map((entry) => entry.current_teams)).toEqual([[], []]);
 	});
 
 	it('never hands the chooser a team list that is not a list', () => {
