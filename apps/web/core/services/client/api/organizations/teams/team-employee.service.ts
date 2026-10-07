@@ -19,9 +19,14 @@ class OrganizationTeamEmployeeService extends APIService {
 		employeeId: string;
 	}): Promise<void> => {
 		// Gauzy answers with a DeleteResult whose shape varies with the ORM and driver, and no caller reads it.
-		await this.delete(
+		const { data } = await this.delete<unknown>(
 			`/organization-team-employee/${organizationTeamEmployeeId}?tenantId=${this.tenantId}&employeeId=${employeeId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`
 		);
+
+		// In proxy mode the auth guard refuses with HTTP 200 and a { statusCode: 401 } body, before anything is deleted.
+		if (typeof data === 'object' && data !== null && 'statusCode' in data && data.statusCode === 401) {
+			throw new Error('Unauthorized');
+		}
 	};
 
 	updateOrganizationTeamEmployee = async ({
