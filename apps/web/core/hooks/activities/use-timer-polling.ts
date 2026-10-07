@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '@/core/query/keys';
 import { useAtomValue } from 'jotai';
 import { activeTeamIdState } from '@/core/stores';
 
@@ -11,7 +10,7 @@ import { activeTeamIdState } from '@/core/stores';
  * This ensures real-time synchronization of employee statuses across multiple devices/browsers.
  *
  * When timer is running:
- * - Invalidates team queries every 5 seconds
+ * - Invalidates the active team detail query every 5 seconds
  * - Ensures "Working" | "Pause" | "Not Working" statuses are updated in real-time
  * - Syncs active task information across all team members
  *
@@ -38,15 +37,14 @@ export function useTimerPolling(timerRunning: boolean) {
 
 		// Set up polling interval to invalidate team queries every 5 seconds
 		intervalRef.current = setInterval(() => {
-			// Invalidate all team-related queries to sync member statuses
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.organizationTeams.all
-			});
-
-			// Invalidate specific team details if we have an active team
+			// Member timer data is only computed by the team detail endpoint, so refresh the active
+			// team's detailByScope query (teamId at index 4) instead of every organization-teams query.
 			if (activeTeamId) {
 				queryClient.invalidateQueries({
-					queryKey: queryKeys.organizationTeams.detail(activeTeamId)
+					predicate: ({ queryKey }) =>
+						queryKey[0] === 'organization-teams' &&
+						queryKey[1] === 'detail-scope' &&
+						queryKey[4] === activeTeamId
 				});
 			}
 
