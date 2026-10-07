@@ -1064,6 +1064,7 @@
 		"STARTING_TIMER": "Démarrage du chronomètre...",
 		"TIMER_STARTED": "Chronomètre démarré avec succès",
 		"TIMER_START_FAILED": "Échec du démarrage du chronomètre",
+		"TIMER_STOP_FAILED": "Échec de l'arrêt du chronomètre. Veuillez réessayer.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Chronomètre arrêté",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Le chronomètre s'est arrêté en raison du changement d'équipe"

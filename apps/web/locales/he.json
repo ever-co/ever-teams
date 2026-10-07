@@ -1064,6 +1064,7 @@
 		"STARTING_TIMER": "הפעלת טיימר...",
 		"TIMER_STARTED": "טיימר הופעל בהצלחה",
 		"TIMER_START_FAILED": "כישלון בהפעלת טיימר",
+		"TIMER_STOP_FAILED": "כישלון בעצירת טיימר. אנא נסה שוב.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "טיימר הופסק",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "הטיימר הופסק בגלל מעבר צוות"

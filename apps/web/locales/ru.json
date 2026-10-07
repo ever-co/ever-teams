@@ -1064,6 +1064,7 @@
 		"STARTING_TIMER": "Запуск таймера...",
 		"TIMER_STARTED": "Таймер успешно запущен",
 		"TIMER_START_FAILED": "Ошибка при запуске таймера",
+		"TIMER_STOP_FAILED": "Ошибка при остановке таймера. Пожалуйста, попробуйте снова.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Таймер остановлен",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Таймер остановлен из-за смены команды"

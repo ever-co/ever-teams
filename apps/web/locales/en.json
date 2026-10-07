@@ -1064,6 +1064,7 @@
 		"STARTING_TIMER": "Starting timer...",
 		"TIMER_STARTED": "Timer started successfully",
 		"TIMER_START_FAILED": "Failed to start timer",
+		"TIMER_STOP_FAILED": "Failed to stop timer. Please try again.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer Stopped",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer Stopped due to Team Switch"

@@ -1064,6 +1064,7 @@
 		"STARTING_TIMER": "Uruchamianie timera...",
 		"TIMER_STARTED": "Timer uruchomiony pomyślnie",
 		"TIMER_START_FAILED": "Nie udało się uruchomić timera",
+		"TIMER_STOP_FAILED": "Nie udało się zatrzymać timera. Spróbuj ponownie.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Zatrzymany Timer",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Zatrzymano Timer z powodu zmiany zespołu"
