@@ -367,17 +367,25 @@ class TaskService extends APIService {
 	 * Fetches tasks by employee ID with validation
 	 *
 	 * @param {string} employeeId - Employee identifier
+	 * @param {string} organizationTeamId - Team the tasks are scoped to
 	 * @returns {Promise<TTask[]>} - Validated array of tasks
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getTasksByEmployeeId = async ({ employeeId }: { employeeId: string }): Promise<TTask[]> => {
+	getTasksByEmployeeId = async ({
+		employeeId,
+		organizationTeamId
+	}: {
+		employeeId: string;
+		organizationTeamId: string;
+	}): Promise<TTask[]> => {
 		try {
 			const organizationId = this.organizationId;
 			const tenantId = this.tenantId;
 			const obj = {
 				'where[tenantId]': tenantId,
 				'where[organizationId]': organizationId,
-				'teams[0]': this.activeTeamId
+				// Gauzy passes `where` to the ORM unchanged on this endpoint and never reads a root `teams` key.
+				'where[teams][id]': organizationTeamId
 			} as Record<string, string>;
 			const query = qs.stringify(obj);
 
@@ -395,7 +403,7 @@ class TaskService extends APIService {
 						message: error.message,
 						issues: error.issues,
 						employeeId,
-						activeTeamId: this.activeTeamId
+						organizationTeamId
 					},
 					'TaskService'
 				);

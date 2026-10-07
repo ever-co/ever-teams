@@ -54,7 +54,10 @@ export function useTaskQueries() {
 			if (!activeTeam?.id) {
 				throw new Error('Required parameters missing');
 			}
-			return await taskService.getTasksByEmployeeId({ employeeId: selectedEmployeeId! });
+			return await taskService.getTasksByEmployeeId({
+				employeeId: selectedEmployeeId!,
+				organizationTeamId: selectedOrganizationTeamId!
+			});
 		},
 		enabled: !!selectedEmployeeId && !!activeTeam?.id && !!selectedOrganizationTeamId,
 		gcTime: 1000 * 60 * 60
@@ -99,7 +102,7 @@ export function useTaskQueries() {
 				return await queryClient.fetchQuery({
 					queryKey: queryKeys.tasks.byEmployee(employeeId, organizationTeamId),
 					queryFn: async () => {
-						return await taskService.getTasksByEmployeeId({ employeeId });
+						return await taskService.getTasksByEmployeeId({ employeeId, organizationTeamId });
 					}
 				});
 			} catch (error) {

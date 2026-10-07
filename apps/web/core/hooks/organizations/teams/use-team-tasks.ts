@@ -151,7 +151,10 @@ export function useTeamTasks() {
 			if (!activeTeam?.id) {
 				throw new Error('Required parameters missing');
 			}
-			return await taskService.getTasksByEmployeeId({ employeeId: selectedEmployeeId! });
+			return await taskService.getTasksByEmployeeId({
+				employeeId: selectedEmployeeId!,
+				organizationTeamId: selectedOrganizationTeamId!
+			});
 		},
 		enabled: !!selectedEmployeeId && !!activeTeam?.id && !!selectedOrganizationTeamId,
 		gcTime: 1000 * 60 * 60
