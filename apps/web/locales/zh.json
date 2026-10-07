@@ -1172,6 +1172,7 @@
 			"TASK_PLAN_FAILED": "任务规划失败。请重试。",
 			"TASK_ASSIGNMENT_FAILED": "任务分配/取消分配失败。请重试。",
 			"TASK_FAVORITE_FAILED": "更新收藏夹失败。请重试。",
+			"TASK_CREATION_FAILED": "任务创建失败。请重试。",
 			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "收藏项创建成功",
 			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "收藏项删除成功"
 		}

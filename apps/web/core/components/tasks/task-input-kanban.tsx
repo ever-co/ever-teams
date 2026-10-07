@@ -175,10 +175,13 @@ export function TaskInputKanban(props: Props) {
 					assignToUsers: props.usersTaskCreatedAssignTo || []
 				})
 				?.then(onTaskCreated)
-				.finally(async () => {
+				.then(() => {
 					setTaskName('');
 
 					props.onClose && props.onClose();
+				})
+				.catch(() => {
+					// useCreateTask already showed the error toast; the modal stays open for a retry.
 				});
 	}, [datas, props, onTaskCreated]);
 
