@@ -220,12 +220,15 @@ export function useTeamTasksState() {
 			const memberActiveTask = getValidActiveTask(tasks, memberActiveTaskId, activeTeam?.id);
 			if (memberActiveTask) {
 				setActiveTeamTask(memberActiveTask);
-				// The cookie is what the server guards and the fallback routes read, so it has to follow
-				// the atom here too, otherwise the two diverge without the user doing anything.
+				// Both cookies follow the atom here too, as in setActiveTask: the server guards and the fallback
+				// routes read the task id one, and the hydration effect below prefers the user one, so leaving
+				// either behind brings the old task back on the next task-list refresh.
 				setActiveTaskIdCookie(memberActiveTask.id);
+				setActiveUserTaskCookieCb(memberActiveTask);
 			} else if (memberActiveTaskId && activeTeam?.id) {
 				setActiveTeamTask(null);
 				setActiveTaskIdCookie('');
+				setActiveUserTaskCookieCb(null);
 			}
 		},
 		[activeTeam, tasks, memberActiveTaskId, isUpdatingActiveTask],
