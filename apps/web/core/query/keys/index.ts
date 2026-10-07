@@ -683,13 +683,6 @@ export const queryKeys = {
 			byParams: (params: Record<string, any> | null) =>
 				['timer', 'time-limits', 'by-params', ...(params ? [params] : [])] as const
 		},
-		timeLogs: {
-			all: ['timer', 'time-logs'] as const,
-			byEmployee: (employeeId: string | undefined | null) =>
-				['timer', 'time-logs', 'by-employee', ...(employeeId ? [employeeId] : [])] as const,
-			byParams: (params: Record<string, any> | null) =>
-				['timer', 'time-logs', 'by-params', ...(params ? [params] : [])] as const
-		},
 		timeSlots: {
 			all: ['timer', 'time-slots'] as const,
 			byParams: (params: Record<string, any> | null) =>
