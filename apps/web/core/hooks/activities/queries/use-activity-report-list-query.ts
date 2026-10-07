@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { activityService } from '@/core/services/client/api/activities';
-import { UseReportActivityProps } from '../use-activity-filters';
+import { UseReportActivityProps, getActivityQueryKeyParams } from '../use-activity-filters';
 import { shouldRetryQuery } from '../../../lib/helpers/retry-utils';
 
 // ==================== TYPES ====================
@@ -33,13 +33,7 @@ export interface UseActivityReportListQueryOptions {
  */
 export function useActivityReportListQuery({ mergedProps, enabled = true }: UseActivityReportListQueryOptions) {
 	const query = useQuery({
-		queryKey: queryKeys.activities.activityReport({
-			tenantId: mergedProps?.tenantId,
-			organizationId: mergedProps?.organizationId,
-			startDate: mergedProps?.startDate,
-			endDate: mergedProps?.endDate,
-			groupBy: mergedProps?.groupBy
-		}),
+		queryKey: queryKeys.activities.activityReport(getActivityQueryKeyParams(mergedProps)),
 		queryFn: () => activityService.getActivitiesReport(mergedProps!),
 		enabled: enabled && !!mergedProps,
 		staleTime: 1000 * 60 * 10,
