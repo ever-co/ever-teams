@@ -3,7 +3,7 @@
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Meta } from '@/core/components';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTokenLiveKit } from '@/core/hooks/common/use-live-kit';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { readRuntimeEnv } from '@/env-config';
@@ -15,17 +15,22 @@ function LiveKitPage() {
 	const router = useRouter();
 	const { user } = useAuthenticateUser();
 	const [roomName, setRoomName] = useState<string | undefined>(undefined);
+	const requestedRoom = useRef<string | undefined>(undefined);
 	const params = useSearchParams();
 
 	const onLeave = useCallback(() => {
+		// Moving to another room unmounts the connected component, which disconnects and calls this
+		// back for the room left behind. Only a disconnect from the room still requested is a leave.
+		if (roomName !== requestedRoom.current) return;
 		window.localStorage.removeItem('current-room-live-kit');
 		router.push('/');
-	}, [router]);
+	}, [roomName, router]);
 
 	useEffect(() => {
 		const room = params.get('roomName');
 		if (room) {
 			setRoomName(room);
+			requestedRoom.current = room;
 			window.localStorage.setItem('current-room-live-kit', room);
 		}
 	}, [params]);
