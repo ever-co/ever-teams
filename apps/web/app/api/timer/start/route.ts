@@ -1,5 +1,5 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
-import { getTimerStatusRequest, startTimerRequest } from '@/core/services/server/requests';
+import { getTimerStatusRequest, readTodayRange, startTimerRequest } from '@/core/services/server/requests';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { NextResponse } from 'next/server';
 
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
 	);
 
 	const { data: timerStatus } = await getTimerStatusRequest(
-		{ tenantId: tenantId || '', organizationId: organizationId || '' },
+		{ tenantId: tenantId || '', organizationId: organizationId || '', ...readTodayRange(req) },
 		access_token || ''
 	);
 
