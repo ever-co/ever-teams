@@ -4,7 +4,7 @@ import { useNetworkState } from '@uidotdev/usehooks';
 import { PropsWithChildren } from 'react';
 import dynamic from 'next/dynamic';
 import Offline from '@/core/components/pages/offline';
-import { useTimerView } from '@/core/hooks';
+import { useTimerActions } from '@/core/hooks/timer';
 import { usePathname } from 'next/navigation';
 
 /**
@@ -23,7 +23,8 @@ import { usePathname } from 'next/navigation';
 const OfflineWrapper = ({ children }: PropsWithChildren) => {
 	// All hooks must be called before any conditional returns
 	const { online } = useNetworkState();
-	const { timerStatus } = useTimerView();
+	// Team-filtered status, not the raw timerStatusState atom: a timer running on another team's task stays hidden.
+	const { timerStatus } = useTimerActions();
 	const pathname = usePathname();
 
 	// Compute conditions after all hooks are called
