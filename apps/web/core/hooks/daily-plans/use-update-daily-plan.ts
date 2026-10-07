@@ -68,7 +68,12 @@ export function useUpdateDailyPlan() {
 
 				// Get the task from React Query cache
 				const tasksData = queryClient.getQueryData<{ items: TTask[]; total: number }>(
-					queryKeys.tasks.byTeam(activeTeam?.id)
+					queryKeys.tasks.byTeamByScope(
+						activeTeam?.tenantId,
+						activeTeam?.organizationId,
+						activeTeam?.id,
+						activeTeam?.projects?.[0]?.id ?? null
+					)
 				);
 
 				const task = tasksData?.items?.find((t) => t.id === taskId);

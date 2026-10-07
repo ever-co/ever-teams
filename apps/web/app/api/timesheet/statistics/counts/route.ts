@@ -7,6 +7,12 @@ const isValidLogType = (type: string): type is ETimeLogType => {
 	return ['TRACKED', 'MANUAL', 'IDLE'].includes(type as ETimeLogType);
 };
 
+// The client sends each id list with qs indices (`employeeIds[0]=...`), and a list has no fixed length.
+const getIdList = (searchParams: URLSearchParams, key: string) =>
+	Array.from(searchParams.entries())
+		.filter(([name, value]) => name.startsWith(`${key}[`) && value)
+		.map(([, value]) => value);
+
 export async function GET(req: Request) {
 	const res = new NextResponse();
 	const { searchParams } = new URL(req.url);
@@ -61,7 +67,10 @@ export async function GET(req: Request) {
 				tenantId,
 				startDate,
 				endDate,
-				timeZone: timeZone || 'Etc/UTC'
+				timeZone: timeZone || 'Etc/UTC',
+				employeeIds: getIdList(searchParams, 'employeeIds'),
+				projectIds: getIdList(searchParams, 'projectIds'),
+				teamIds: getIdList(searchParams, 'teamIds')
 			},
 			access_token || ''
 		);
