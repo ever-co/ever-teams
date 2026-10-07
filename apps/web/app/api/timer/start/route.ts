@@ -17,9 +17,20 @@ export async function POST(req: Request) {
 
 	if (!user) return $res('Unauthorized');
 
-	// The caller names the task to start; the cookie is only a fallback for an older client.
-	const body = (await req.json().catch(() => ({}))) as { taskId?: string };
-	const taskId = body.taskId || activeTaskIdCookie;
+	// The caller names the task to start; the cookie is only a fallback for an older client that sends no body.
+	// A malformed body is rejected rather than silently falling back to the cookie, which may name another task.
+	const body: unknown = await req.json().catch(() => ({}));
+	if (!body || typeof body !== 'object' || Array.isArray(body)) {
+		return NextResponse.json({ error: 'Request body must be a JSON object' }, { status: 400 });
+	}
+
+	const bodyTaskId = (body as { taskId?: unknown }).taskId;
+	const hasBodyTaskId = typeof bodyTaskId === 'string' && bodyTaskId.trim() !== '';
+	if (bodyTaskId !== undefined && !hasBodyTaskId) {
+		return NextResponse.json({ error: 'taskId must be a non-empty string' }, { status: 400 });
+	}
+
+	const taskId = hasBodyTaskId ? bodyTaskId : activeTaskIdCookie;
 
 	await startTimerRequest(
 		{
