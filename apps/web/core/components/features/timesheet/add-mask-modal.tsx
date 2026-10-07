@@ -50,6 +50,16 @@ interface FormState {
 	}[];
 }
 
+const convertToMinutesHour = (time: string): number => {
+	const [hourMinute, period] = time.split(' ');
+	const [hours, minutes] = hourMinute.split(':').map(Number);
+
+	let totalMinutes = (hours % 12) * 60 + minutes;
+	if (period === 'PM') totalMinutes += 720;
+
+	return totalMinutes;
+};
+
 export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { generateTimeOptions } = useTimelogFilterOptions();
@@ -128,9 +138,16 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 		[t]
 	);
 
-	const createUtcDate = (baseDate: Date, time: string): Date => {
-		const [hours, minutes] = time.split(':').map(Number);
-		return new Date(Date.UTC(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate(), hours, minutes));
+	// The picked times are the user's wall-clock times; the Date is serialized to UTC when sent.
+	const createLocalDate = (baseDate: Date, time: string): Date => {
+		const minutesOfDay = convertToMinutesHour(time);
+		return new Date(
+			baseDate.getFullYear(),
+			baseDate.getMonth(),
+			baseDate.getDate(),
+			Math.floor(minutesOfDay / 60),
+			minutesOfDay % 60
+		);
 	};
 
 	const handleAddTimesheet = async (formState: FormState) => {
@@ -154,8 +171,8 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 						throw new Error('Incomplete shift data.');
 					}
 					const baseDate = shift.dateFrom instanceof Date ? shift.dateFrom : new Date(shift.dateFrom);
-					const start = createUtcDate(baseDate, shift.startTime);
-					const end = createUtcDate(baseDate, shift.endTime);
+					const start = createLocalDate(baseDate, shift.startTime);
+					const end = createLocalDate(baseDate, shift.endTime);
 					const startedAt = toUTC(start).toISOString();
 					const stoppedAt = toUTC(end).toISOString();
 					if (stoppedAt <= startedAt) {
@@ -377,16 +394,6 @@ const OptimizedAccordion = ({
 	timeOptions: string[];
 	t: TranslationHooks;
 }) => {
-	const convertToMinutesHour = (time: string): number => {
-		const [hourMinute, period] = time.split(' ');
-		const [hours, minutes] = hourMinute.split(':').map(Number);
-
-		let totalMinutes = (hours % 12) * 60 + minutes;
-		if (period === 'PM') totalMinutes += 720;
-
-		return totalMinutes;
-	};
-
 	const calculateTotalHoursHour = React.useCallback((start: string, end: string): string => {
 		if (!start || !end) return '00:00h';
 		const startMinutes = convertToMinutesHour(start);
