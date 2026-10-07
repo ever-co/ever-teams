@@ -25,12 +25,12 @@ export const baseTeamPropertiesSchema = basePerTenantAndOrganizationEntitySchema
 		color: z.string().optional().nullable(),
 		emoji: z.string().optional().nullable(),
 		teamSize: z.string().optional().nullable(),
-		logo: z.string().optional(),
+		logo: z.string().optional().nullable(),
 		prefix: z.string().optional().nullable(),
 		shareProfileView: z.boolean().optional(),
 		requirePlanToTrack: z.boolean().optional(),
 		public: z.boolean().nullable().optional(),
-		profile_link: z.string().optional(),
+		profile_link: z.string().optional().nullable(),
 		image: imageAssetSchema.optional().nullable(),
 		imageId: z.string().optional().nullable()
 	})
@@ -186,9 +186,9 @@ export const workspaceUserSchema = z.object({
 export const workspaceTeamSchema = z.object({
 	team_id: z.string(),
 	team_name: z.string(),
-	team_logo: z.string().optional(),
+	team_logo: z.string().optional().nullable(),
 	team_member_count: z.string().or(z.number()),
-	profile_link: z.string(),
+	profile_link: z.string().optional().nullable(),
 	prefix: z.string().nullable()
 });
 
