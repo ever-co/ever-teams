@@ -87,9 +87,16 @@ services:
     environment:
       # This file starts a Gauzy API of its own (service "api" above), so the webapp points at it rather
       # than at Ever's SaaS: a `docker compose up` with no .env must not authenticate against
-      # api.ever.team. Server side the container reaches it by service name over the overlay network,
-      # the browser through the published port. Set both to your own origins to use a remote API.
-      GAUZY_API_SERVER_URL: ${GAUZY_API_SERVER_URL:-http://api:3000}
+      # api.ever.team. The two values differ on purpose. The first is read inside this container, which
+      # reaches the API by service name on the overlay network, on the container port, hence API_PORT.
+      # The second is read by the browser, which reaches it through the published host port, fixed at
+      # 3000 by the api service above.
+      #
+      # localhost in the public value assumes the browser runs on this host, which is the case this
+      # file is for. Serving remote browsers means either publishing the API under a reachable origin
+      # and setting NEXT_PUBLIC_GAUZY_API_SERVER_URL to it, or leaving that variable empty so the
+      # browser calls the API through this app's own /api proxy on its own origin.
+      GAUZY_API_SERVER_URL: ${GAUZY_API_SERVER_URL:-http://api:${API_PORT:-3000}}
       NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${NEXT_PUBLIC_GAUZY_API_SERVER_URL:-http://localhost:3000}
       NODE_ENV: ${NODE_ENV:-development}
       # Demo mode (password login with one-click demo accounts) only makes sense against a Gauzy API seeded
