@@ -6,7 +6,6 @@ import {
 	useCanSeeActivityScreen,
 	useModal,
 	useTMCardTaskEdit,
-	useTaskStatistics,
 	useMemberIdentity,
 	useMemberActiveTask,
 	useTeamMemberMutations,
@@ -22,7 +21,7 @@ import {
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlansRequest
 } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { activeTeamState, activeTeamTaskState, timerSecondsState } from '@/core/stores';
+import { activeTaskStatisticsState, activeTeamState, activeTeamTaskState, timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import {
 	DropdownMenu,
@@ -98,11 +97,6 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 	} = props;
 	const t = useTranslations();
 	const [loading, setLoading] = useState(false);
-	// Only get timer state for active auth task to prevent unnecessary re-renders
-	const seconds = useAtomValue(timerSecondsState);
-	const { activeTaskDailyStat, activeTaskTotalStat, addSeconds } = useTaskStatistics(
-		isAuthUser && activeAuthTask ? seconds : 0
-	);
 
 	const { data: user } = useUserQuery();
 	const activeTeam = useAtomValue(activeTeamState);
@@ -117,39 +111,30 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 	// Auth member is the currently logged-in user's team member (for "Assign Task to Me" action)
 	const authMember = members.find((m) => m.employee?.user?.id === user?.id);
 
-	const { hours: h, minutes: m } = secondsToTime((activeTaskTotalStat?.duration || 0) + addSeconds);
 	const totalWork = useMemo(
 		() =>
 			isAuthUser && activeAuthTask ? (
 				<div className={clsxm('flex items-center space-x-2 font-normal')}>
 					<span className="text-gray-500 lg:text-sm">{t('pages.taskDetails.TOTAL_TIME')}:</span>
-					<Text>
-						{h}h : {m}m
-					</Text>
+					<ActiveTaskWorkedTime period="total" />
 				</div>
 			) : (
 				<></>
 			),
-		[activeAuthTask, h, isAuthUser, m, t]
+		[activeAuthTask, isAuthUser, t]
 	);
 	// Daily work
-	const { hours: dh, minutes: dm } = useMemo(
-		() => secondsToTime((activeTaskDailyStat?.duration || 0) + addSeconds),
-		[activeTaskDailyStat?.duration, addSeconds]
-	);
 	const todayWork = useMemo(
 		() =>
 			isAuthUser && activeAuthTask ? (
 				<div className={clsxm('flex flex-col items-start font-normal')}>
 					<span className="text-xs text-gray-500">{t('common.TOTAL_WORK')}</span>
-					<Text>
-						{dh}h : {dm}m
-					</Text>
+					<ActiveTaskWorkedTime period="today" />
 				</div>
 			) : (
 				<></>
 			),
-		[activeAuthTask, dh, dm, isAuthUser, t]
+		[activeAuthTask, isAuthUser, t]
 	);
 	// Granular hooks for currentMember — "pay only for what you use"
 	const identity = useMemberIdentity(currentMember || undefined);
@@ -347,6 +332,19 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 		</>
 	);
 });
+
+// Holds the per-second timer subscription so a tick re-renders this text, not the memoized TaskCard
+function ActiveTaskWorkedTime({ period }: { period: 'total' | 'today' }) {
+	const seconds = useAtomValue(timerSecondsState);
+	const statActiveTask = useAtomValue(activeTaskStatisticsState);
+	const { hours, minutes } = secondsToTime((statActiveTask[period]?.duration || 0) + seconds);
+
+	return (
+		<Text>
+			{hours}h : {minutes}m
+		</Text>
+	);
+}
 
 // Memorize UsersTaskAssigned with custom comparator to detect members changes
 const UsersTaskAssigned = React.memo(
