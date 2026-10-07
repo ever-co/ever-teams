@@ -85,8 +85,12 @@ services:
     # and branding included) is read by the container at runtime; change it and recreate the container, no rebuild.
     # An empty value means unset (built-in default). Full reference: .env.docker
     environment:
-      GAUZY_API_SERVER_URL: ${GAUZY_API_SERVER_URL:-https://api.ever.team}
-      NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${NEXT_PUBLIC_GAUZY_API_SERVER_URL:-https://api.ever.team}
+      # This file starts a Gauzy API of its own (service "api" above), so the webapp points at it rather
+      # than at Ever's SaaS: a `docker compose up` with no .env must not authenticate against
+      # api.ever.team. Server side the container reaches it by service name over the overlay network,
+      # the browser through the published port. Set both to your own origins to use a remote API.
+      GAUZY_API_SERVER_URL: ${GAUZY_API_SERVER_URL:-http://api:3000}
+      NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${NEXT_PUBLIC_GAUZY_API_SERVER_URL:-http://localhost:3000}
       NODE_ENV: ${NODE_ENV:-development}
       # Demo mode (password login with one-click demo accounts) only makes sense against a Gauzy API seeded
       # with the demo accounts (e.g. apidemo.ever.team). The previous image ignored this value (demo was baked
