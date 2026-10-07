@@ -99,9 +99,13 @@ function getDefaultProps(): DefaultProps {
  */
 export function useActivityFilters() {
 	// User and authentication
-	const { user } = useAuthenticateUser();
+	const { user, isTeamManager } = useAuthenticateUser();
 	const { allteamsState, alluserState, isUserAllowedToAccess } = useTimelogFilterOptions();
-	const isManage = useMemo(() => user && isUserAllowedToAccess(user), [user, isUserAllowedToAccess]);
+	// A team manager usually holds the EMPLOYEE role; the API checks which members they manage
+	const isManage = useMemo(
+		() => user && (isUserAllowedToAccess(user) || isTeamManager),
+		[user, isUserAllowedToAccess, isTeamManager]
+	);
 
 	// State management — lazy initializer so dates are fresh at mount time
 	const [currentFilters, setCurrentFilters] = useState<Partial<UseReportActivityProps>>(getDefaultProps);
