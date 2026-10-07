@@ -89,7 +89,10 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	const { deleteDailyPlan, deleteDailyPlanLoading } = useDeleteDailyPlan();
 	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'DATE');
 	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');
-	const { setDate, date } = useDateRange(currentTab);
+	const { setDate } = useDateRange(currentTab, targetEmployeeId);
+	const { date: futureRange } = useDateRange('Future Tasks', targetEmployeeId);
+	const { date: pastRange } = useDateRange('Past Tasks', targetEmployeeId);
+	const { date: allRange } = useDateRange('All Tasks', targetEmployeeId);
 
 	const filterPlanAndTask = useCallback(
 		(plans: TDailyPlan[]) => (filteredTaskIds ? filterDailyPlansByTasks(plans, filteredTaskIds) : plans),
@@ -187,10 +190,10 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	// Use data directly from useEmployeeDailyPlans instead of local states to prevent stale data
 	// when targetEmployeeId changes (e.g., when viewing different user profiles)
 	const totalTasksDailyPlansMap = useMemo(() => {
-		// Apply date filtering to get the correct counts
-		const filteredFuturePlans = filterDailyPlan(date, filterPlanAndTask(employeeFuturePlans));
-		const filteredPastPlans = filterDailyPlan(date, filterPlanAndTask(employeePastPlans));
-		const filteredAllPlans = filterDailyPlan(date, filterPlanAndTask(employeeSortedPlans));
+		// Filter each count by the range of its own tab, so it matches what that tab shows
+		const filteredFuturePlans = filterDailyPlan(futureRange, filterPlanAndTask(employeeFuturePlans));
+		const filteredPastPlans = filterDailyPlan(pastRange, filterPlanAndTask(employeePastPlans));
+		const filteredAllPlans = filterDailyPlan(allRange, filterPlanAndTask(employeeSortedPlans));
 
 		return {
 			// filterByEmployee = false: show ALL tasks in daily plans (not just assigned to user)
@@ -218,7 +221,9 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		employeeSortedPlans,
 		employeeOutstandingPlans,
 		user,
-		date
+		futureRange,
+		pastRange,
+		allRange
 	]);
 	/*
 	 * DAILY PLANS DISPLAY LOGIC FIX

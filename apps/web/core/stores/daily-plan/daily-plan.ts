@@ -1,4 +1,5 @@
 import { atom } from 'jotai';
+import { DateRange } from 'react-day-picker';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 
@@ -19,3 +20,8 @@ export const dailyPlanListState = atom<PaginationResponse<TDailyPlan>>({
 	items: [],
 	total: 0
 });
+
+/**
+ * Daily plan date ranges keyed by employee and plan tab, read and written through `useDateRange`.
+ */
+export const dailyPlanDateRangesState = atom<Record<string, DateRange | undefined>>({});

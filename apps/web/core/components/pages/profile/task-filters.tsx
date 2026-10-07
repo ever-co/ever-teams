@@ -230,7 +230,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 
 	// Get plans data from useEmployeeDailyPlans instead of useDateRange to avoid global atom conflicts
 	const { employeeSortedPlans, employeeFuturePlans, employeePastPlans } = useEmployeeDailyPlans(employeeId);
-	const { date, setDate } = useDateRange(dailyPlanTab);
+	const { date, setDate } = useDateRange(dailyPlanTab, employeeId);
 
 	// Map tab names to their corresponding plan data
 	const mapFilter: Record<string, typeof employeeFuturePlans> = {
