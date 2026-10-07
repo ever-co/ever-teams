@@ -62,7 +62,7 @@ class StatisticsService extends APIService {
 
 			const endpoint = GAUZY_API_BASE_SERVER_URL.value
 				? `/timesheet/statistics/time-slots?${query}`
-				: `/timer/slots?${query}`;
+				: `/timer/slot?${query}`;
 
 			const response = await this.get<TTimerSlotDataRequest | TTimerSlotDataRequest[]>(endpoint);
 
