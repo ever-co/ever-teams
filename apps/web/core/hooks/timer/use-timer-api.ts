@@ -407,11 +407,13 @@ export function useTimerApi({
 				return;
 			}
 
-			// NOTE_FIX: Use explicit task if provided to avoid race conditions with taskId.current
-			const taskToUse = explicitTask || activeTeamTaskRef.current;
+			// NOTE_FIX: Use explicit task if provided to avoid race conditions with taskId.current.
+			// On a task page that page's task becomes the active one, so it is also the one to start.
+			const pageTask = pathname?.startsWith('/task/') ? detailedTask : null;
+			const taskToUse = explicitTask || pageTask || activeTeamTaskRef.current;
 			const taskIdToUse = taskToUse?.id;
 
-			if (pathname?.startsWith('/task/')) setActiveTask(detailedTask);
+			if (pageTask) setActiveTask(pageTask);
 
 			if (!taskIdToUse) {
 				toast.error(t('timer.START_TIMER'));
