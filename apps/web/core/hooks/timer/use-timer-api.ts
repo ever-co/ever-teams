@@ -101,6 +101,13 @@ export interface UseTimerApiReturn {
 // ==================== HOOK ====================
 
 /**
+ * The stop request in flight, shared by every useTimerApi instance (app shell, timer, each task card): with a
+ * ref per instance, another instance could send a second stop before the first completes, and Gauzy answers
+ * that second stop with 406 because no running log is left.
+ */
+let inFlightStopRequest: Promise<void> | null = null;
+
+/**
  * Layer 1: Core Data & Mutations — "The Brain"
  *
  * Manages all server communication, business logic, and side effects
@@ -218,7 +225,15 @@ export function useTimerApi({
 
 	const stopTimerMutation = useMutation({
 		mutationFn: async (source: ETimeLogSource) => {
-			return await timerService.stopTimer({ source });
+			try {
+				return await timerService.stopTimer({ source });
+			} catch (error) {
+				// Gauzy answers 406 when no running log is left (duplicate request, stop from another tab or device),
+				// and the proxy route turns that answer into a 500: the stop only failed if the timer still runs.
+				const status = await timerService.getTimerStatus().catch(() => null);
+				if (status?.data?.running === false) return status;
+				throw error;
+			}
 		}
 	});
 
@@ -553,6 +568,10 @@ export function useTimerApi({
 			return Promise.resolve();
 		}
 
+		if (inFlightStopRequest) {
+			return inFlightStopRequest;
+		}
+
 		// Prevent duplicate stopTimer calls within 500ms
 		// PRIMARY defense against race conditions causing 406 errors
 		const timeSinceLastStop = Date.now() - lastStopTimerTimestamp.current;
@@ -569,7 +588,7 @@ export function useTimerApi({
 		syncTimer();
 
 		if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
-		return stopTimerMutate(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS)
+		inFlightStopRequest = stopTimerMutate(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS)
 			.then(async (res) => {
 				res.data &&
 					(!statusEnabled || isCurrentScope()) &&
@@ -608,8 +627,10 @@ export function useTimerApi({
 				}
 			})
 			.finally(() => {
+				inFlightStopRequest = null;
 				if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(false);
 			});
+		return inFlightStopRequest;
 	}, [
 		timerStatus,
 		setTimerStatus,
