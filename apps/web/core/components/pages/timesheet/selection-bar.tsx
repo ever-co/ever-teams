@@ -105,13 +105,14 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({ selectTime
 	const handleDelete = useCallback(async () => {
 		try {
 			await deleteTaskTimesheet({
-				logIds: getSelectedIds()
+				// Delete takes time-log ids, not the timesheet ids getSelectedIds returns for approve and reject
+				logIds: selectTimesheetId.map((select) => select.id)
 			});
 			setSelectTimesheetId([]);
 		} catch (error) {
 			console.error(error);
 		}
-	}, [getSelectedIds, deleteTaskTimesheet, setSelectTimesheetId]);
+	}, [selectTimesheetId, deleteTaskTimesheet, setSelectTimesheetId]);
 
 	return (
 		<SelectionBar
