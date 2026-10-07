@@ -3,9 +3,7 @@ import { APIService } from '@/core/services/client/api.service';
 import {
 	validateApiResponse,
 	organizationTeamEmployeeSchema,
-	organizationTeamSchema,
 	ZodValidationError,
-	TOrganizationTeam,
 	TOrganizationTeamEmployee,
 	TOrganizationTeamEmployeeUpdate,
 	organizationTeamEmployeeUpdateSchema
@@ -19,31 +17,11 @@ class OrganizationTeamEmployeeService extends APIService {
 	}: {
 		organizationTeamEmployeeId: string;
 		employeeId: string;
-	}): Promise<TOrganizationTeam> => {
-		try {
-			const response = await this.delete<TOrganizationTeam>(
-				`/organization-team-employee/${organizationTeamEmployeeId}?tenantId=${this.tenantId}&employeeId=${employeeId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`
-			);
-
-			// Validate API response using utility function
-			return validateApiResponse(
-				organizationTeamSchema,
-				response.data,
-				'deleteOrganizationTeamEmployee API response'
-			);
-		} catch (error) {
-			if (error instanceof ZodValidationError) {
-				this.logger.error(
-					'Delete organization team employee validation failed:',
-					{
-						message: error.message,
-						issues: error.issues
-					},
-					'OrganizationTeamEmployeeService'
-				);
-			}
-			throw error;
-		}
+	}): Promise<void> => {
+		// Gauzy answers with a DeleteResult whose shape varies with the ORM and driver, and no caller reads it.
+		await this.delete(
+			`/organization-team-employee/${organizationTeamEmployeeId}?tenantId=${this.tenantId}&employeeId=${employeeId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`
+		);
 	};
 
 	updateOrganizationTeamEmployee = async ({
