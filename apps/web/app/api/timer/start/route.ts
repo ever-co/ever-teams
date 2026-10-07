@@ -11,11 +11,15 @@ export async function POST(req: Request) {
 		tenantId,
 		access_token,
 		organizationId,
-		taskId,
+		taskId: activeTaskIdCookie,
 		teamId: organizationTeamId
 	} = await authenticatedGuard(req, res);
-	console.log({ user, tenantId, taskId });
+
 	if (!user) return $res('Unauthorized');
+
+	// The caller names the task to start; the cookie is only a fallback for an older client.
+	const body = (await req.json().catch(() => ({}))) as { taskId?: string };
+	const taskId = body.taskId || activeTaskIdCookie;
 
 	await startTimerRequest(
 		{

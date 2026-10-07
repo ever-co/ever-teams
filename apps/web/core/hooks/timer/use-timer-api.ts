@@ -207,7 +207,9 @@ export function useTimerApi({
 	}, [isCurrentScope, scopedStatusQuery.data, setTimerStatus, statusEnabled, timerStatusRef]);
 
 	const startTimerMutation = useMutation({
-		mutationFn: timerService.startTimer
+		mutationFn: async ({ taskId }: { taskId: string }) => {
+			return await timerService.startTimer({ taskId });
+		}
 	});
 
 	const toggleTimerMutation = useMutation({
@@ -410,7 +412,12 @@ export function useTimerApi({
 			const taskIdToUse = taskToUse?.id;
 
 			if (pathname?.startsWith('/task/')) setActiveTask(detailedTask);
-			if (!taskIdToUse) return;
+
+			if (!taskIdToUse) {
+				toast.error(t('timer.START_TIMER'));
+				return;
+			}
+
 			updateLocalTimerStatus({
 				lastTaskId: taskIdToUse,
 				runnedDateTime: Date.now(),
@@ -418,7 +425,7 @@ export function useTimerApi({
 			});
 
 			if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
-			const promise = startTimerMutate().then(async (res) => {
+			const promise = startTimerMutate({ taskId: taskIdToUse }).then(async (res) => {
 				res.data &&
 					(!statusEnabled || isCurrentScope()) &&
 					!isEqual(timerStatus, res.data) &&

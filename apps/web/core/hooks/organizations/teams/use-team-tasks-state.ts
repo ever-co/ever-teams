@@ -220,8 +220,12 @@ export function useTeamTasksState() {
 			const memberActiveTask = getValidActiveTask(tasks, memberActiveTaskId, activeTeam?.id);
 			if (memberActiveTask) {
 				setActiveTeamTask(memberActiveTask);
+				// The cookie is what the server guards and the fallback routes read, so it has to follow
+				// the atom here too, otherwise the two diverge without the user doing anything.
+				setActiveTaskIdCookie(memberActiveTask.id);
 			} else if (memberActiveTaskId && activeTeam?.id) {
 				setActiveTeamTask(null);
+				setActiveTaskIdCookie('');
 			}
 		},
 		[activeTeam, tasks, memberActiveTaskId, isUpdatingActiveTask],

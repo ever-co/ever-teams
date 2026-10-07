@@ -43,9 +43,7 @@ class TimerService extends APIService {
 		return api.post<ITimerStatus>('/timer/toggle', body);
 	};
 
-	startTimer = async () => {
-		const taskId = getActiveTaskIdCookie();
-
+	startTimer = async ({ taskId }: { taskId: string }) => {
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			await this.post('/timesheet/timer/start', {
 				tenantId: this.tenantId,
@@ -61,7 +59,7 @@ class TimerService extends APIService {
 		}
 
 		const api = await getFallbackAPI();
-		return api.post<ITimerStatus>('/timer/start');
+		return api.post<ITimerStatus>('/timer/start', { taskId });
 	};
 
 	stopTimer = async ({ source }: { source: ETimeLogSource }) => {
