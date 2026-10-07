@@ -37,7 +37,8 @@ export const getTimesheetButtons = (
 	status: StatusType,
 	t: TranslationHooks,
 	disabled: boolean,
-	onClick: (action: StatusAction) => void
+	onClick: (action: StatusAction) => void,
+	canUpdateStatus: boolean
 ) => {
 	const buttonsConfig: Record<StatusType, { icon: ReactNode; title: string; action: StatusAction }[]> = {
 		PENDING: [
@@ -83,7 +84,11 @@ export const getTimesheetButtons = (
 		]
 	};
 
-	return (buttonsConfig[status] || buttonsConfig.Denied).map((button, index) => (
+	const buttons = (buttonsConfig[status] || buttonsConfig.Denied).filter(
+		(button) => canUpdateStatus || button.action === 'Deleted'
+	);
+
+	return buttons.map((button, index) => (
 		<TimesheetButton
 			className="gap-2 text-sm hover:underline"
 			disabled={disabled}

@@ -85,6 +85,8 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 		isUserAllowedToAccess
 	} = useTimelogFilterOptions();
 	const isManage = isUserAllowedToAccess(user);
+	// isManage also covers MANAGER, but approve and reject call PUT /timesheet/status, which requires this permission
+	const canUpdateTimeSheetStatus = useMyRolePermissionsQuery().myPermissions.includes('CAN_APPROVE_TIMESHEET');
 	const handleConfirm = () => {
 		try {
 			deleteTaskTimesheet({
@@ -236,7 +238,8 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 																		status as StatusType,
 																		t,
 																		selectTimesheetId.length === 0,
-																		handleButtonClick
+																		handleButtonClick,
+																		canUpdateTimeSheetStatus
 																	)}
 															</div>
 														</div>
