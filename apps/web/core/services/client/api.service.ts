@@ -464,7 +464,8 @@ export class APIService {
 		const { baseURL, headers } = await this.getApiConfig(config);
 		const { directAPI = true } = config || {};
 		// If we don't use the direct API, we delegate to the old instance
-		const getRequest = !baseURL || !directAPI ? (await getFallbackAPI()).get<T> : this.axiosInstance.get<T>;
+		const getRequest =
+			!baseURL || !directAPI ? (await getFallbackAPI()).axiosInstance.get<T> : this.axiosInstance.get<T>;
 
 		const requestId = `GET:${url}:${Date.now()}`;
 		const controller = new AbortController();
@@ -505,7 +506,8 @@ export class APIService {
 		const { directAPI = true } = config || {};
 
 		// If we don't use the direct API, we delegate to the old instance
-		const postRequest = !baseURL || !directAPI ? (await getFallbackAPI()).post<T> : this.axiosInstance.post<T>;
+		const postRequest =
+			!baseURL || !directAPI ? (await getFallbackAPI()).axiosInstance.post<T> : this.axiosInstance.post<T>;
 
 		const requestId = `POST:${url}:${Date.now()}`;
 		const controller = new AbortController();
@@ -554,7 +556,8 @@ export class APIService {
 		const { baseURL, headers, tenantId, organizationId } = await this.getApiConfig(config);
 		const { directAPI = true } = config || {};
 		// If we don't use the direct API, we delegate to the old instance
-		const putRequest = !baseURL || !directAPI ? (await getFallbackAPI()).put<T> : this.axiosInstance.put<T>;
+		const putRequest =
+			!baseURL || !directAPI ? (await getFallbackAPI()).axiosInstance.put<T> : this.axiosInstance.put<T>;
 
 		const requestId = `PUT:${url}:${Date.now()}`;
 		const controller = new AbortController();
@@ -598,7 +601,8 @@ export class APIService {
 		const { directAPI = true } = config || {};
 
 		// If we don't use the direct API, we delegate to the old instance
-		const patchRequest = !baseURL || !directAPI ? (await getFallbackAPI()).patch<T> : this.axiosInstance.patch<T>;
+		const patchRequest =
+			!baseURL || !directAPI ? (await getFallbackAPI()).axiosInstance.patch<T> : this.axiosInstance.patch<T>;
 
 		const requestId = `PATCH:${url}:${Date.now()}`;
 		const controller = new AbortController();
@@ -637,7 +641,7 @@ export class APIService {
 		const { directAPI = true } = config || {};
 		// If we don't use the direct API, we delegate to the old instance
 		const deleteRequest =
-			!baseURL || !directAPI ? (await getFallbackAPI()).delete<T> : this.axiosInstance.delete<T>;
+			!baseURL || !directAPI ? (await getFallbackAPI()).axiosInstance.delete<T> : this.axiosInstance.delete<T>;
 
 		const requestId = `DELETE:${url}:${Date.now()}`;
 		const controller = new AbortController();
@@ -666,7 +670,8 @@ export class APIService {
 		const { baseURL, headers } = await this.getApiConfig(config);
 		const { directAPI = true } = config || {};
 		// If we don't use the direct API, we delegate to the old instance
-		const headRequest = !baseURL || !directAPI ? (await getFallbackAPI()).head<T> : this.axiosInstance.head<T>;
+		const headRequest =
+			!baseURL || !directAPI ? (await getFallbackAPI()).axiosInstance.head<T> : this.axiosInstance.head<T>;
 
 		const requestId = `HEAD:${url}:${Date.now()}`;
 		const controller = new AbortController();
@@ -696,7 +701,7 @@ export class APIService {
 		const { directAPI = true } = config || {};
 		// If we don't use the direct API, we delegate to the old instance
 		const optionsRequest =
-			!baseURL || !directAPI ? (await getFallbackAPI()).options<T> : this.axiosInstance.options<T>;
+			!baseURL || !directAPI ? (await getFallbackAPI()).axiosInstance.options<T> : this.axiosInstance.options<T>;
 
 		const requestId = `OPTIONS:${url}:${Date.now()}`;
 		const controller = new AbortController();
