@@ -1,5 +1,5 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
-import { getTeamTasksRequest, updateTaskRequest, getTaskByIdRequest } from '@/core/services/server/requests';
+import { updateTaskRequest, getTaskByIdRequest } from '@/core/services/server/requests';
 import { INextParams } from '@/core/types/interfaces/common/data-response';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { NextResponse } from 'next/server';
@@ -32,10 +32,7 @@ export async function PUT(req: Request, props: INextParams) {
 		return NextResponse.json({ error: 'Missing task ID' }, { status: 400 });
 	}
 
-	const { $res, user, tenantId, access_token, organizationId, projectId, teamId } = await authenticatedGuard(
-		req,
-		res
-	);
+	const { $res, user, access_token } = await authenticatedGuard(req, res);
 
 	if (!user) return $res('Unauthorized');
 
@@ -44,7 +41,7 @@ export async function PUT(req: Request, props: INextParams) {
 	// delete body.selectedTeam;
 	delete body.rootEpic;
 
-	await updateTaskRequest(
+	const { data: task } = await updateTaskRequest(
 		{
 			data: body,
 			id: params.id
@@ -52,13 +49,5 @@ export async function PUT(req: Request, props: INextParams) {
 		access_token || ''
 	);
 
-	const { data: tasks } = await getTeamTasksRequest({
-		tenantId: tenantId || '',
-		organizationId: organizationId || '',
-		projectId: projectId || '',
-		teamId: teamId || '',
-		bearer_token: access_token || ''
-	});
-
-	return $res(tasks);
+	return $res(task);
 }
