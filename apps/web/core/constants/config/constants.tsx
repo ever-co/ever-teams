@@ -732,8 +732,10 @@ export const EVER_PLATFORM_PROJECT_ID = blankToUndefined(process.env.EVER_PLATFO
  */
 export const EVER_ID_TEAMS_AUTO_PROVISION = blankToUndefined(process.env.EVER_ID_TEAMS_AUTO_PROVISION) === 'true';
 
-export const developmentAuthSecret = 'DEFAULT_VALUE_OF_SECRET_FOR_DEVELOPMENT';
+const developmentAuthSecret = 'DEFAULT_VALUE_OF_SECRET_FOR_DEVELOPMENT';
 export const isDevelopment = process.env.NODE_ENV === 'development';
+/** The secret next-auth and the Ever ID hand-off use; only `next dev` has a built-in one. */
+export const authSecret = AUTH_SECRET || (isDevelopment ? developmentAuthSecret : undefined);
 
 // Add manual timer reason
 

@@ -11,6 +11,7 @@ import type { OIDCConfig, Provider } from 'next-auth/providers';
 import {
 	APPLE_CLIENT_ID,
 	APPLE_CLIENT_SECRET,
+	AUTH_SECRET,
 	DISCORD_CLIENT_ID,
 	DISCORD_CLIENT_SECRET,
 	FACEBOOK_CLIENT_ID,
@@ -199,6 +200,23 @@ export const filteredProviders = providers.filter((provider) => {
  */
 export function getConfiguredAuthProviderIds(): string[] {
 	return filteredProviders.map(getProviderId);
+}
+
+/**
+ * Production start-up check (instrumentation.ts). Without AUTH_SECRET next-auth signs nobody in and only says so on
+ * each request, so a server that offers a social login or Ever ID refuses to start. With none configured nothing
+ * needs the secret yet: the README quick starts run the image without one.
+ */
+export function assertAuthSecret(): void {
+	if (AUTH_SECRET?.trim()) return;
+	const providerIds = getConfiguredAuthProviderIds();
+	if (providerIds.length > 0) {
+		throw new Error(
+			`AUTH_SECRET is not set, so sign-in with ${providerIds.join(', ')} cannot work. ` +
+				'Set it in the server environment, e.g. AUTH_SECRET=$(openssl rand -base64 32).'
+		);
+	}
+	console.warn('AUTH_SECRET is not set: set it before configuring a social login or Ever ID.');
 }
 
 export const mappedProviders = filteredProviders.map((provider) => {

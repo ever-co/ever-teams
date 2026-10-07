@@ -12,6 +12,11 @@ let captureRequestError: Instrumentation.onRequestError | undefined;
 export async function register() {
 	// Literal NEXT_RUNTIME checks: Next inlines them per bundle, so each runtime only bundles its own SDK build.
 	if (process.env.NEXT_RUNTIME === 'nodejs') {
+		// register() never runs during `next build`, and a throw here makes the server exit before it serves a request.
+		if (process.env.NODE_ENV === 'production') {
+			const { assertAuthSecret } = await import('@/core/lib/utils/check-provider-env-vars');
+			assertAuthSecret();
+		}
 		const { initSentryServer } = await import('./sentry.server.config');
 		captureRequestError = (await initSentryServer())?.captureRequestError;
 	}
