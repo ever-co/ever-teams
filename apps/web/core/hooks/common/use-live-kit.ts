@@ -12,16 +12,25 @@ export function useTokenLiveKit({ roomName }: ITokenLiveKitProps) {
 	useEffect(() => {
 		if (!roomName) return;
 
+		// Responses can land out of order: the request for the room the user just left must not
+		// overwrite the token of the room now on screen, which would leave the meeting blank with no
+		// further request to recover it.
+		let current = true;
+
 		const fetchToken = async () => {
 			try {
 				const response = await tokenLiveKitRoom({ roomName });
-				if (!response?.token) return;
+				if (!current || !response?.token) return;
 				setIssued({ room: roomName, token: response.token });
 			} catch (error) {
 				console.error('Failed to fetch token:', error);
 			}
 		};
 		fetchToken();
+
+		return () => {
+			current = false;
+		};
 	}, [roomName]);
 
 	// A token only grants the room it was issued for, so handing back one from a previous
