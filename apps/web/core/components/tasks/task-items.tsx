@@ -29,7 +29,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 	const t = useTranslations();
 
 	const handleChange = useCallback(
-		(status: ETaskStatusName) => {
+		(status: string) => {
 			handleStatusUpdate(status, 'status', task?.taskStatusId, task);
 		},
 		[task, handleStatusUpdate]
