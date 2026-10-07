@@ -37,18 +37,22 @@ export function useSettings() {
 		}
 	});
 
+	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change)
+	const updateAvatarMutateAsync = updateAvatarMutation.mutateAsync;
+	const refreshUserMutateAsync = refreshUserMutation.mutateAsync;
+
 	// Preserve exact interface - update avatar function
 	const updateAvatar = useCallback(
 		(userData: Partial<TUser> & { id: string }) => {
-			return updateAvatarMutation.mutateAsync({ userId: userData.id, body: userData }).then((res) => {
+			return updateAvatarMutateAsync({ userId: userData.id, body: userData }).then((res) => {
 				// Chain the refresh user call to maintain existing behavior
-				refreshUserMutation.mutateAsync().then((result) => {
+				refreshUserMutateAsync().then((result) => {
 					setUser(result);
 				});
 				return res;
 			});
 		},
-		[updateAvatarMutation, refreshUserMutation, setUser]
+		[updateAvatarMutateAsync, refreshUserMutateAsync, setUser]
 	);
 
 	return {

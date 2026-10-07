@@ -38,6 +38,14 @@ export function useChatPanel() {
 		}
 	}, [isOpen, openPanel, closePanel]);
 
+	const resizePanel = useCallback(
+		(size: number) => {
+			panelRef.current?.resize(size);
+			setIsOpen(size > CHAT_PANEL_CONSTRAINTS.collapsedSize);
+		},
+		[setIsOpen]
+	);
+
 	const handleResize = useCallback(() => {
 		if (chatPanelDomRef.current) {
 			const { width } = chatPanelDomRef.current.getBoundingClientRect();
@@ -81,6 +89,7 @@ export function useChatPanel() {
 		togglePanel,
 		openPanel,
 		closePanel,
+		resizePanel,
 		chatPanelDomRef,
 		sizePixels,
 		setSizePixels,

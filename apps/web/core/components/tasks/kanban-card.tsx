@@ -1,15 +1,16 @@
 import { useAtom, useAtomValue } from 'jotai';
 import Link from 'next/link';
 
+import { LazyImageComponent, LazyMenuKanbanCard } from '@/core/components/optimized-components/kanban';
 import {
-    LazyImageComponent, LazyMenuKanbanCard
-} from '@/core/components/optimized-components/kanban';
-import {
-    LazyTaskAllStatusTypes, LazyTaskInput, LazyTaskIssueStatus
+	LazyTaskAllStatusTypes,
+	LazyTaskInput,
+	LazyTaskIssueStatus
 } from '@/core/components/optimized-components/tasks';
 import CircularProgress from '@/core/components/svgs/circular-progress';
 import PriorityIcon from '@/core/components/svgs/priority-icon';
-import { useTaskStatistics, useTimerView } from '@/core/hooks';
+import { useTaskStatistics } from '@/core/hooks';
+import { useTimerActions } from '@/core/hooks/timer';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { getTaskTotalWorkedDuration } from '@/core/lib/utils/task.utils';
@@ -140,7 +141,10 @@ export default function Item(props: ItemProps) {
 	const { getEstimation } = useTaskStatistics(0);
 	const [activeTask, setActiveTask] = useAtom(activeTeamTaskId);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const { timerStatus } = useTimerView();
+	// PERF: per-card hook — see the note in use-timer-button.ts. useTimerView() would subscribe this card to
+	// the 20Hz tick atoms for a value that comes from Layer 1. `timerStatus` here is the same FILTERED value
+	// useTimerView exposes (useTimerApi returns filteredTimerStatus), not the raw atom.
+	const { timerStatus } = useTimerActions();
 
 	const members = activeTeam?.members || [];
 	const currentUser = members.find((m) => m.employee?.userId === user?.id);

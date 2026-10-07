@@ -9,6 +9,8 @@ type AxiosErrorInfo = {
 	httpCode?: number;
 };
 
+const httpResponseStatuses = new WeakMap<ApiErrorService, number>();
+
 export const AxiosErrorStatus: Record<string, number> = {
 	ERR_FR_TOO_MANY_REDIRECTS: 310,
 	ERR_BAD_OPTION_VALUE: 500,
@@ -195,6 +197,28 @@ export class ApiErrorService extends Error {
 	}
 
 	/**
+	 * @description Status captured directly from error.response.status, if Axios received a response.
+	 */
+	get httpResponseStatus(): number | undefined {
+		return httpResponseStatuses.get(this);
+	}
+
+	/**
+	 * @description Whether Axios received an HTTP response with one of the supplied statuses.
+	 */
+	hasHttpResponseStatus(...statuses: number[]): boolean {
+		const responseStatus = httpResponseStatuses.get(this);
+		return responseStatus != null && statuses.includes(responseStatus);
+	}
+
+	/**
+	 * @description Whether Axios received an HTTP response proving the requested endpoint is unavailable.
+	 */
+	isEndpointUnavailable(): boolean {
+		return this.hasHttpResponseStatus(404, 405, 501);
+	}
+
+	/**
 	 * @description Converts an Axios error into an instance of ApiErrorService with contextual enrichment.
 	 * @param error An error originating from an Axios call
 	 * @returns A proper instance of ApiErrorService
@@ -229,7 +253,14 @@ export class ApiErrorService extends Error {
 		const details = data?.details;
 
 		// We put them in our ApiError box
-		return new ApiErrorService(message, errorFrom.status ?? response?.status ?? extractStatus, code, details);
+		const apiError = new ApiErrorService(
+			message,
+			errorFrom.status ?? response?.status ?? extractStatus,
+			code,
+			details
+		);
+		httpResponseStatuses.set(apiError, response.status);
+		return apiError;
 	}
 	/**
 	 * @description Checks if a given error is an instance of ApiErrorService

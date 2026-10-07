@@ -4,14 +4,12 @@ import { Container } from '@/core/components';
 interface TeamMemberHeaderSkeletonProps {
 	view?: IssuesView;
 	className?: string;
-	fullWidth?: boolean;
 }
 
 export function TeamMemberHeaderSkeleton({
 	view = IssuesView.CARDS,
-	className,
-	fullWidth = true
-}: TeamMemberHeaderSkeletonProps) {
+	className
+}: Readonly<TeamMemberHeaderSkeletonProps>) {
 	// Note: Removed useAtomValue hook to prevent rendering issues in Suspense fallbacks
 
 	const renderCardHeaderSkeleton = () => (
@@ -110,9 +108,5 @@ export function TeamMemberHeaderSkeleton({
 	};
 	const renderHeaderSkeleton = renderMap[view as keyof typeof renderMap] || renderCardHeaderSkeleton;
 
-	return (
-		<Container fullWidth={fullWidth} className={className}>
-			{renderHeaderSkeleton()}
-		</Container>
-	);
+	return <Container className={className}>{renderHeaderSkeleton()}</Container>;
 }

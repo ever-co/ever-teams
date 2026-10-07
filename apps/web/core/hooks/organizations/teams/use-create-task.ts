@@ -37,6 +37,8 @@ export function useCreateTask() {
 		}
 	});
 
+	// Depend on the STABLE mutateAsync, not the mutation object (recreated on every state change).
+	const createTaskMutateAsync = createTaskMutation.mutateAsync;
 	const createTask = useCallback(
 		async ({
 			title,
@@ -62,7 +64,7 @@ export function useCreateTask() {
 			members?: TEmployee[] | { id: string }[] | null;
 		}) => {
 			try {
-				const res = await createTaskMutation.mutateAsync({
+				const res = await createTaskMutateAsync({
 					title,
 					issueType,
 					status: status ?? taskStatuses?.[0]?.name,
@@ -80,7 +82,7 @@ export function useCreateTask() {
 				throw error;
 			}
 		},
-		[createTaskMutation, taskStatuses]
+		[createTaskMutateAsync, taskStatuses]
 	);
 
 	return {

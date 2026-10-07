@@ -43,7 +43,8 @@ export function CreateTeamModal({
 		createOrganizationTeam(name.toString().trim())
 			.then(closeModal)
 			.catch((err) => {
-				setError(err?.message);
+				// Prefer the API's own message over axios' generic "Request failed with status code 400".
+				setError(err?.response?.data?.message || err?.message);
 			});
 	};
 

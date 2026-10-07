@@ -1,7 +1,21 @@
 {
 	"$schema": "https://turborepo.com/schema.json",
 	"globalDependencies": ["**/.env.*local"],
-	"globalEnv": ["NEXT_PUBLIC_GAUZY_API_URL"],
+	"globalPassThroughEnv": [
+		"AUTH_SECRET",
+		"NEXT_PUBLIC_EVER_ID_APP_NAME",
+		"EVER_ID_ISSUER_URL",
+		"EVER_ID_ISSUER",
+		"EVER_ID_CLIENT_ID",
+		"EVER_ID_CLIENT_SECRET",
+		"EVER_PLATFORM_PROJECT_ID",
+		"EVER_ID_TEAMS_AUTO_PROVISION"
+	],
+	"globalEnv": [
+		"GAUZY_API_SERVER_URL",
+		"NEXT_PUBLIC_GAUZY_API_SERVER_URL",
+		"NEXT_PUBLIC_GAUZY_API_URL"
+	],
 	"tasks": {
 		"build": {
 			"dependsOn": ["^build"],

@@ -37,7 +37,9 @@ export const IntegrationSetting = () => {
 
 	const queries = qs.stringify(params);
 
-	const url = `https://github.com/apps/${GITHUB_APP_NAME.value}/installations/new?${queries.toString()}`;
+	// No GitHub App configured (NEXT_PUBLIC_GITHUB_APP_NAME) => no install link: github.com/apps//... is a 404.
+	const githubAppName = GITHUB_APP_NAME.value;
+	const url = githubAppName ? `https://github.com/apps/${githubAppName}/installations/new?${queries.toString()}` : '';
 
 	const activeTeam = useAtomValue(activeTeamState);
 
@@ -212,14 +214,19 @@ export const IntegrationSetting = () => {
 						</Button>
 					)}
 
-					{(!integrationGithubRepositories || integrationGithubRepositories?.total_count === 0) && (
-						<Link
-							href={url}
-							className="flex flex-row gap-3 justify-center items-center px-4 py-3 w-24 min-w-0 text-sm text-white rounded-md bg-primary dark:bg-primary-light"
-						>
-							{t('pages.settingsTeam.INSTALL')}
-						</Link>
-					)}
+					{(!integrationGithubRepositories || integrationGithubRepositories?.total_count === 0) &&
+						(url ? (
+							<Link
+								href={url}
+								className="flex flex-row gap-3 justify-center items-center px-4 py-3 w-24 min-w-0 text-sm text-white rounded-md bg-primary dark:bg-primary-light"
+							>
+								{t('pages.settingsTeam.INSTALL')}
+							</Link>
+						) : (
+							<Button disabled className="w-24 min-w-0" title={t('common.DISABLED')}>
+								{t('pages.settingsTeam.INSTALL')}
+							</Button>
+						))}
 				</div>
 
 				{integrationGithubRepositories && integrationGithubRepositories?.total_count > 0 && (

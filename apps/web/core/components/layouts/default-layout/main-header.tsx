@@ -3,7 +3,7 @@ import { clsxm } from '@/core/lib/utils';
 import { Container } from '@/core/components';
 import { PropsWithChildren } from 'react';
 
-export function MainHeader({ children, className, fullWidth }: PropsWithChildren<IClassName>) {
+export function MainHeader({ children, className }: PropsWithChildren<IClassName>) {
 	return (
 		<>
 			<div
@@ -13,7 +13,7 @@ export function MainHeader({ children, className, fullWidth }: PropsWithChildren
 					'border-[#eeeeeee9]  border-b-[0.125rem] dark:border-b-[#26272cd6] dark:shadow-lg '
 				)}
 			>
-				<Container fullWidth={fullWidth}>{children}</Container>
+				<Container>{children}</Container>
 			</div>
 			{/* <Divider /> */}
 		</>

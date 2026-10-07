@@ -16,15 +16,17 @@ export function useImageAssets() {
 		}
 	});
 
+	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change).
+	const createImageAssetsMutateAsync = createImageAssetsMutation.mutateAsync;
 	// Preserve exact interface - createImageAssets function
 	const createImageAssets = useCallback(
 		async (file: File, folder: string) => {
-			return await createImageAssetsMutation.mutateAsync({
+			return await createImageAssetsMutateAsync({
 				file,
 				folder
 			});
 		},
-		[createImageAssetsMutation]
+		[createImageAssetsMutateAsync]
 	);
 
 	return {

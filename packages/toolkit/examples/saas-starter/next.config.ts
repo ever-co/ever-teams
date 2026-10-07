@@ -33,13 +33,11 @@ const nextConfig: NextConfig = {
 		}
 		return config;
 	},
-	env: {
-		// Only include NEXT_PUBLIC_ variables here as they need to be available at build time
-		// Server-side variables should be accessed directly via process.env at runtime
-		NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-		NEXT_PUBLIC_TEAMS_API_URL: process.env.NEXT_PUBLIC_TEAMS_API_URL,
-		NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL
-	}
+	// No `env:` block. Every key listed here is inlined by Next into the client AND the server bundles
+	// at build time, so the published image would carry the values of whoever built it and no
+	// `docker run -e ...` could change them. These are deployment values: the API URL comes from the
+	// server root layout as a prop, the app URL is read per request in the route handler that needs it
+	// (lib/runtime-env.ts).
 };
 
 export default withNextIntl(nextConfig);

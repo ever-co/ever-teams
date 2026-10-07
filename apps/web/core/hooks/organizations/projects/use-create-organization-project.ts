@@ -22,16 +22,18 @@ export function useCreateOrganizationProject() {
 		onSuccess: invalidateOrganizationProjectsData
 	});
 
+	// Depend on the STABLE mutateAsync, not the mutation object (recreated on every state change).
+	const createOrganizationProjectMutateAsync = createOrganizationProjectMutation.mutateAsync;
 	const createOrganizationProject = useCallback(
 		async (data: Partial<TCreateProjectRequest>) => {
 			try {
-				const res = await createOrganizationProjectMutation.mutateAsync(data);
+				const res = await createOrganizationProjectMutateAsync(data);
 				return res;
 			} catch (error) {
 				console.error('Failed to create the organization project', error);
 			}
 		},
-		[createOrganizationProjectMutation]
+		[createOrganizationProjectMutateAsync]
 	);
 
 	return {

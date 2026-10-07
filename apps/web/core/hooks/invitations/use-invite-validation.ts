@@ -24,11 +24,17 @@ export function useInviteValidation() {
 		}
 	});
 
+	// Depend on the STABLE mutateAsync, never on the mutation result object: that object is recreated on
+	// every state change (idle → pending → success), which made these callbacks new on every render.
+	// The accept-invite page effect depended on them → validate → new identity → effect → validate …
+	// = React #185 (max update depth) and POST /invite/validate-by-code fired ~50×/6s. Every invitee
+	// saw "Something went wrong" (2026-08-17).
+	const validateByTokenMutateAsync = validateByTokenMutation.mutateAsync;
 	const validateInviteByTokenAndEmail = useCallback(
 		(params: TValidateInviteRequest) => {
-			return validateByTokenMutation.mutateAsync(params);
+			return validateByTokenMutateAsync(params);
 		},
-		[validateByTokenMutation]
+		[validateByTokenMutateAsync]
 	);
 
 	// ===== VALIDATE BY CODE =====
@@ -39,11 +45,12 @@ export function useInviteValidation() {
 		}
 	});
 
+	const validateByCodeMutateAsync = validateByCodeMutation.mutateAsync;
 	const validateInviteByCode = useCallback(
 		(params: IInviteVerifyCode) => {
-			return validateByCodeMutation.mutateAsync(params);
+			return validateByCodeMutateAsync(params);
 		},
-		[validateByCodeMutation]
+		[validateByCodeMutateAsync]
 	);
 
 	// ===== ACCEPT INVITATION =====

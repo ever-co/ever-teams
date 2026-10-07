@@ -32,20 +32,21 @@ export function useValidateRequestToJoin() {
 		}
 	});
 
+	const validateRequestToJoinMutateAsync = validateRequestToJoinMutation.mutateAsync;
 	const validateRequestToJoinTeam = useCallback(
 		async (data: TValidateRequestToJoinTeam) => {
-			const result = await validateRequestToJoinMutation.mutateAsync(data);
+			const result = await validateRequestToJoinMutateAsync(data);
 			return result;
 		},
-		[validateRequestToJoinMutation]
+		[validateRequestToJoinMutateAsync]
 	);
 
 	const validateRequestToJoinQueryCall = useCallback(
 		async (data: TValidateRequestToJoinTeam) => {
-			const result = await validateRequestToJoinMutation.mutateAsync(data);
+			const result = await validateRequestToJoinMutateAsync(data);
 			return { data: result };
 		},
-		[validateRequestToJoinMutation]
+		[validateRequestToJoinMutateAsync]
 	);
 
 	return {

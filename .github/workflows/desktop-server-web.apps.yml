@@ -20,6 +20,9 @@ jobs:
 
     strategy:
       matrix:
+        # Self-hosted ARC runner (fleet policy: no GitHub-hosted / Ubicloud runners). snapd cannot run in
+        # the ARC container, so the Snapcraft step below is skipped there and the `snap` target is dropped
+        # for this run ("Adapt Linux targets"); deb / tar.gz / rpm / AppImage are still built + published.
         os: ["${{ vars.RUNNER_LINUX_X64_8 || 'ubuntu-latest' }}"]
 
     steps:
@@ -51,13 +54,25 @@ jobs:
         run: "sudo chown -R $(whoami) ./*"
 
       - name: Install system dependencies
-        run: 'sudo apt-get update && sudo apt install -y curl gnupg git libappindicator3-1 ca-certificates binutils icnsutils graphicsmagick'
+        run: 'sudo apt-get update && sudo apt install -y curl gnupg git libappindicator3-1 ca-certificates binutils icnsutils graphicsmagick rpm squashfs-tools'
+
+      - name: Detect snapd
+        id: snapd
+        shell: bash
+        run: |
+          if command -v snap >/dev/null 2>&1; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "snapd is not available on this runner (ARC container); skipping Snapcraft install"
+          fi
 
       - name: Install Snapcraft
+        if: ${{ steps.snapd.outputs.available == 'true' }}
         uses: samuelmeuli/action-snapcraft@v2
 
       - name: Fix node-gyp and Python
-        run: python3 -m pip install packaging setuptools
+        run: python3 -m pip install --break-system-packages packaging setuptools || python3 -m pip install packaging setuptools
 
       - name: Install latest version of NPM
         run: 'sudo npm install -g npm@11.6.2'
@@ -66,17 +81,36 @@ jobs:
         run: 'sudo npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^22.5.2'
 
       - name: Configure Registry
-        shell: bash
-        run: |
-          if [ -n "${{ secrets.VERDACCIO_TOKEN }}" ]; then
-            echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
-            echo "registry=https://packages.ever.co/" >> .npmrc
-          fi
+        uses: ever-co/ever-gauzy/.github/actions/configure-registry@727973d766f3968d3f1184300af085872abcb20b
+        with:
+          verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
+          verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
+          force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
+          expect-vip: ${{ vars.RUNNER_LINUX_X64_8 != '' }}
 
       - name: Install Yarn dependencies
-        run: 'yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts'
+        # yarn 1 does NOT retry a failed git-dependency tarball fetch, so one transient
+        # `codeload.github.com/... : Request failed "429 Too Many Requests"` (the fleet shares a single
+        # egress IP and GitHub throttles it whenever several jobs install at once) throws away a build
+        # that is already 40+ minutes in — it killed release-linux twice on 2026-08-18 (runs 32101473424,
+        # 32139317563), each time with nothing wrong in the repo. Retry with a linear back-off instead.
+        # bash (not the Windows default shell) so the loop is identical on every runner; Git Bash is put
+        # on PATH by the "Prefer Git Bash for bash steps" step above.
+        shell: bash
         env:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
+        run: |
+          install() { yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts; }
+          for attempt in 1 2 3 4; do
+            if install; then exit 0; fi
+            if [ "$attempt" = 4 ]; then
+              echo "::error title=yarn install::failed 4 times - this is very unlikely to be transient"
+              exit 1
+            fi
+            wait=$((attempt * 60))
+            echo "::warning title=yarn install retry::attempt ${attempt} failed (usually a codeload/registry 429) - retrying in ${wait}s"
+            sleep "$wait"
+          done
 
       - name: Run Postinstall Manually
         run: 'yarn postinstall.manual'
@@ -100,6 +134,32 @@ jobs:
         shell: bash
         run: mkdir -p dist/packages
 
+      - name: Adapt Linux targets to the runner toolchain
+        if: ${{ vars.DESKTOP_LINUX_KEEP_ALL_TARGETS != 'true' }}
+        shell: bash
+        run: |
+          # apps/server-web/package.json lists deb, snap, tar.gz, rpm, AppImage. `snap` needs snapcraft
+          # (absent inside the ARC container) — drop only what this runner cannot build; a VM runner with
+          # snapcraft keeps the full list. Set DESKTOP_LINUX_KEEP_ALL_TARGETS=true to disable this step.
+          HAS_SNAPCRAFT=false; command -v snapcraft >/dev/null 2>&1 && HAS_SNAPCRAFT=true
+          echo "snapcraft available: $HAS_SNAPCRAFT"
+          HAS_SNAPCRAFT="$HAS_SNAPCRAFT" node -e '
+            const fs = require("fs");
+            const file = "apps/server-web/package.json";
+            const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
+            const linux = pkg.build && pkg.build.linux;
+            if (!linux || !Array.isArray(linux.target)) { console.log("linux.target is not a list; untouched"); process.exit(0); }
+            const name = (t) => (typeof t === "string" ? t : t && t.target);
+            const kept = process.env.HAS_SNAPCRAFT === "true" ? linux.target : linux.target.filter((t) => name(t) !== "snap");
+            if (kept.length !== linux.target.length) {
+              linux.target = kept;
+              fs.writeFileSync(file, JSON.stringify(pkg, null, 4) + String.fromCharCode(10));
+              console.log("Linux targets for this runner:", JSON.stringify(kept.map(name)));
+            } else {
+              console.log("All configured Linux targets are buildable here:", JSON.stringify(kept.map(name)));
+            }
+          '
+
       - name: Build Web Server App
         run: "yarn build:web-server:linux:release:gh:x64"
         env:
@@ -112,8 +172,6 @@ jobs:
           SENTRY_HTTP_TRACING_ENABLED: "${{ secrets.SENTRY_HTTP_TRACING_ENABLED }}"
           SENTRY_POSTGRES_TRACKING_ENABLED: "${{ secrets.SENTRY_POSTGRES_TRACKING_ENABLED }}"
           SENTRY_PROFILING_ENABLED: "${{ secrets.SENTRY_PROFILING_ENABLED }}"
-          DO_KEY_ID: ${{ secrets.DO_KEY_ID }}
-          DO_SECRET_KEY: ${{ secrets.DO_SECRET_KEY }}
           NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
           NX_NO_CLOUD: false
           NX_DAEMON: false
@@ -130,7 +188,15 @@ jobs:
           DESKTOP_WEB_SERVER_APP_REPO_OWNER: "ever-co"
           DESKTOP_WEB_SERVER_APP_WELCOME_TITLE: "Welcome to Ever Teams"
           DESKTOP_WEB_SERVER_APP_WELCOME_CONTENT: "Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better."
-          I18N_FILES_URL: "https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/i18n"
+          # Translations: apps/server-web/i18n does not exist in this repo (only a README lives under
+          # apps/server-web), so every per-language download from this URL 404s and gauzy's translation-util
+          # then leaves apps/server-web/src/assets/i18n EMPTY (it only copies its bundled ui-core defaults
+          # when the URL is unset) — the shipped app has no translations at all (seen on run 32038575765:
+          # 13x "Error downloading language …: Not Found"). Leave the URL empty so the complete ui-core
+          # translations are bundled; set repo/org var DESKTOP_I18N_FILES_URL to a folder of Ever
+          # Teams-specific <lang>.json files to override (previous value:
+          # https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/i18n).
+          I18N_FILES_URL: ${{ vars.DESKTOP_I18N_FILES_URL }}
           PLATFORM_LOGO: "https://ever.team/assets/ever-teams.png"
           GAUZY_DESKTOP_LOGO_512X512: "https://ever.team/assets/ever-teams-512x512.png"
           DESKTOP_WEB_SERVER_APP_DEFAULT_PORT: 3001
@@ -138,7 +204,66 @@ jobs:
           NEXT_PUBLIC_GAUZY_API_SERVER_URL: "https://api.ever.team"
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
 
+      # The yarn + .nx cache these jobs share has grown to ~9.5 GB: every job spends ~10 min RESTORING it, and
+      # when the key changes the POST step uploads all of it — on 2026-08-18 that upload stalled at 52% and
+      # burned the whole 300-minute job budget, so `release-linux` was cancelled after 5 h with the app already
+      # built (run 32101473424). `.nx/cache` grows forever because the cache key only changes with yarn.lock.
+      # This trims the OLDEST `.nx/cache` entries until the directory fits the budget, right before the cache
+      # POST step reads it: nothing the build needs is touched (nx recomputes a missing entry), the yarn cache
+      # is left alone, and the step can never fail a build. Set repo/org var DESKTOP_CACHE_MAX_MB to another
+      # size in MB, or to 0 to disable the trim. Node is used instead of `find -printf` (GNU-only: it would
+      # silently do nothing on the macOS runners).
+      - name: Bound the CI cache before it is saved
+        if: always()
+        continue-on-error: true
+        shell: bash
+        env:
+          DESKTOP_CACHE_MAX_MB: ${{ vars.DESKTOP_CACHE_MAX_MB }}
+        run: |
+          node -e '
+            const fs = require("fs"), path = require("path");
+            const limitMb = Number(process.env.DESKTOP_CACHE_MAX_MB || 2048);
+            const dir = ".nx/cache";
+            if (!limitMb) { console.log("DESKTOP_CACHE_MAX_MB=0 - trim disabled"); process.exit(0); }
+            if (!fs.existsSync(dir)) { console.log("no " + dir + " - nothing to trim"); process.exit(0); }
+            const sizeOf = (p) => {
+              let total = 0;
+              const stack = [p];
+              while (stack.length) {
+                const cur = stack.pop();
+                let st; try { st = fs.lstatSync(cur); } catch { continue; }
+                if (st.isDirectory()) { for (const n of fs.readdirSync(cur)) stack.push(path.join(cur, n)); }
+                else total += st.size;
+              }
+              return total;
+            };
+            const limit = limitMb * 1024 * 1024;
+            const entries = fs.readdirSync(dir).map((n) => {
+              const p = path.join(dir, n);
+              let mtime = 0; try { mtime = fs.lstatSync(p).mtimeMs; } catch {}
+              return { p, mtime, size: sizeOf(p) };
+            });
+            let total = entries.reduce((a, e) => a + e.size, 0);
+            const mb = (b) => Math.round(b / 1048576);
+            console.log(dir + " is " + mb(total) + " MB in " + entries.length + " entries (budget " + limitMb + " MB)");
+            if (total <= limit) { console.log("within budget - nothing to do"); process.exit(0); }
+            entries.sort((a, b) => a.mtime - b.mtime);
+            let removed = 0;
+            for (const e of entries) {
+              if (total <= limit) break;
+              try { fs.rmSync(e.p, { recursive: true, force: true }); total -= e.size; removed++; } catch {}
+            }
+            console.log("trimmed " + removed + " oldest entries; " + dir + " is now " + mb(total) + " MB");
+          '
+
   release-linux-arm64:
+    # No runner carries the `ubicloud-standard-8-arm` label any more (the Ubicloud
+    # integration is gone from the org and there is no self-hosted arm64 runner): every run
+    # of this job sat "queued" until the next run's cancel-in-progress killed it (~6h each).
+    # Gate it on the RUNNER_LINUX_ARM64_8 org/repo variable — set it to an arm64 runner
+    # label (a self-hosted VM, or `ubicloud-standard-8-arm` if Ubicloud is re-enabled) to
+    # bring this leg back; until then it is skipped instead of hanging.
+    if: ${{ vars.RUNNER_LINUX_ARM64_8 != '' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 300
 
@@ -146,7 +271,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubicloud-standard-8-arm]
+        os: ["${{ vars.RUNNER_LINUX_ARM64_8 || 'ubicloud-standard-8-arm' }}"]
 
     steps:
       - name: Check out Git repository
@@ -189,7 +314,7 @@ jobs:
         run: 'sudo snap install multipass'
 
       - name: Fix node-gyp and Python
-        run: python3 -m pip install packaging setuptools
+        run: python3 -m pip install --break-system-packages packaging setuptools || python3 -m pip install packaging setuptools
 
       - name: Install latest version of NPM
         run: 'sudo npm install -g npm@11.6.2'
@@ -206,9 +331,28 @@ jobs:
           fi
 
       - name: Install Yarn dependencies
-        run: 'yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts'
+        # yarn 1 does NOT retry a failed git-dependency tarball fetch, so one transient
+        # `codeload.github.com/... : Request failed "429 Too Many Requests"` (the fleet shares a single
+        # egress IP and GitHub throttles it whenever several jobs install at once) throws away a build
+        # that is already 40+ minutes in — it killed release-linux twice on 2026-08-18 (runs 32101473424,
+        # 32139317563), each time with nothing wrong in the repo. Retry with a linear back-off instead.
+        # bash (not the Windows default shell) so the loop is identical on every runner; Git Bash is put
+        # on PATH by the "Prefer Git Bash for bash steps" step above.
+        shell: bash
         env:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
+        run: |
+          install() { yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts; }
+          for attempt in 1 2 3 4; do
+            if install; then exit 0; fi
+            if [ "$attempt" = 4 ]; then
+              echo "::error title=yarn install::failed 4 times - this is very unlikely to be transient"
+              exit 1
+            fi
+            wait=$((attempt * 60))
+            echo "::warning title=yarn install retry::attempt ${attempt} failed (usually a codeload/registry 429) - retrying in ${wait}s"
+            sleep "$wait"
+          done
 
       - name: Run Postinstall Manually
         run: 'yarn postinstall.manual'
@@ -245,8 +389,6 @@ jobs:
           SENTRY_HTTP_TRACING_ENABLED: "${{ secrets.SENTRY_HTTP_TRACING_ENABLED }}"
           SENTRY_POSTGRES_TRACKING_ENABLED: "${{ secrets.SENTRY_POSTGRES_TRACKING_ENABLED }}"
           SENTRY_PROFILING_ENABLED: "${{ secrets.SENTRY_PROFILING_ENABLED }}"
-          DO_KEY_ID: ${{ secrets.DO_KEY_ID }}
-          DO_SECRET_KEY: ${{ secrets.DO_SECRET_KEY }}
           NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
           NX_NO_CLOUD: false
           NX_DAEMON: false
@@ -263,7 +405,15 @@ jobs:
           DESKTOP_WEB_SERVER_APP_REPO_OWNER: "ever-co"
           DESKTOP_WEB_SERVER_APP_WELCOME_TITLE: "Welcome to Ever Teams"
           DESKTOP_WEB_SERVER_APP_WELCOME_CONTENT: "Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better."
-          I18N_FILES_URL: "https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/i18n"
+          # Translations: apps/server-web/i18n does not exist in this repo (only a README lives under
+          # apps/server-web), so every per-language download from this URL 404s and gauzy's translation-util
+          # then leaves apps/server-web/src/assets/i18n EMPTY (it only copies its bundled ui-core defaults
+          # when the URL is unset) — the shipped app has no translations at all (seen on run 32038575765:
+          # 13x "Error downloading language …: Not Found"). Leave the URL empty so the complete ui-core
+          # translations are bundled; set repo/org var DESKTOP_I18N_FILES_URL to a folder of Ever
+          # Teams-specific <lang>.json files to override (previous value:
+          # https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/i18n).
+          I18N_FILES_URL: ${{ vars.DESKTOP_I18N_FILES_URL }}
           PLATFORM_LOGO: "https://ever.team/assets/ever-teams.png"
           GAUZY_DESKTOP_LOGO_512X512: "https://ever.team/assets/ever-teams-512x512.png"
           DESKTOP_WEB_SERVER_APP_DEFAULT_PORT: 3001
@@ -271,6 +421,58 @@ jobs:
           NEXT_PUBLIC_GAUZY_API_SERVER_URL: "https://api.ever.team"
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
           SNAPCRAFT_BUILD_ENVIRONMENT: host
+
+      # The yarn + .nx cache these jobs share has grown to ~9.5 GB: every job spends ~10 min RESTORING it, and
+      # when the key changes the POST step uploads all of it — on 2026-08-18 that upload stalled at 52% and
+      # burned the whole 300-minute job budget, so `release-linux` was cancelled after 5 h with the app already
+      # built (run 32101473424). `.nx/cache` grows forever because the cache key only changes with yarn.lock.
+      # This trims the OLDEST `.nx/cache` entries until the directory fits the budget, right before the cache
+      # POST step reads it: nothing the build needs is touched (nx recomputes a missing entry), the yarn cache
+      # is left alone, and the step can never fail a build. Set repo/org var DESKTOP_CACHE_MAX_MB to another
+      # size in MB, or to 0 to disable the trim. Node is used instead of `find -printf` (GNU-only: it would
+      # silently do nothing on the macOS runners).
+      - name: Bound the CI cache before it is saved
+        if: always()
+        continue-on-error: true
+        shell: bash
+        env:
+          DESKTOP_CACHE_MAX_MB: ${{ vars.DESKTOP_CACHE_MAX_MB }}
+        run: |
+          node -e '
+            const fs = require("fs"), path = require("path");
+            const limitMb = Number(process.env.DESKTOP_CACHE_MAX_MB || 2048);
+            const dir = ".nx/cache";
+            if (!limitMb) { console.log("DESKTOP_CACHE_MAX_MB=0 - trim disabled"); process.exit(0); }
+            if (!fs.existsSync(dir)) { console.log("no " + dir + " - nothing to trim"); process.exit(0); }
+            const sizeOf = (p) => {
+              let total = 0;
+              const stack = [p];
+              while (stack.length) {
+                const cur = stack.pop();
+                let st; try { st = fs.lstatSync(cur); } catch { continue; }
+                if (st.isDirectory()) { for (const n of fs.readdirSync(cur)) stack.push(path.join(cur, n)); }
+                else total += st.size;
+              }
+              return total;
+            };
+            const limit = limitMb * 1024 * 1024;
+            const entries = fs.readdirSync(dir).map((n) => {
+              const p = path.join(dir, n);
+              let mtime = 0; try { mtime = fs.lstatSync(p).mtimeMs; } catch {}
+              return { p, mtime, size: sizeOf(p) };
+            });
+            let total = entries.reduce((a, e) => a + e.size, 0);
+            const mb = (b) => Math.round(b / 1048576);
+            console.log(dir + " is " + mb(total) + " MB in " + entries.length + " entries (budget " + limitMb + " MB)");
+            if (total <= limit) { console.log("within budget - nothing to do"); process.exit(0); }
+            entries.sort((a, b) => a.mtime - b.mtime);
+            let removed = 0;
+            for (const e of entries) {
+              if (total <= limit) break;
+              try { fs.rmSync(e.p, { recursive: true, force: true }); total -= e.size; removed++; } catch {}
+            }
+            console.log("trimmed " + removed + " oldest entries; " + dir + " is now " + mb(total) + " MB");
+          '
 
   release-mac:
     runs-on: ${{ matrix.os }}
@@ -325,9 +527,28 @@ jobs:
           fi
 
       - name: Install Yarn dependencies
-        run: 'yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts'
+        # yarn 1 does NOT retry a failed git-dependency tarball fetch, so one transient
+        # `codeload.github.com/... : Request failed "429 Too Many Requests"` (the fleet shares a single
+        # egress IP and GitHub throttles it whenever several jobs install at once) throws away a build
+        # that is already 40+ minutes in — it killed release-linux twice on 2026-08-18 (runs 32101473424,
+        # 32139317563), each time with nothing wrong in the repo. Retry with a linear back-off instead.
+        # bash (not the Windows default shell) so the loop is identical on every runner; Git Bash is put
+        # on PATH by the "Prefer Git Bash for bash steps" step above.
+        shell: bash
         env:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
+        run: |
+          install() { yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts; }
+          for attempt in 1 2 3 4; do
+            if install; then exit 0; fi
+            if [ "$attempt" = 4 ]; then
+              echo "::error title=yarn install::failed 4 times - this is very unlikely to be transient"
+              exit 1
+            fi
+            wait=$((attempt * 60))
+            echo "::warning title=yarn install retry::attempt ${attempt} failed (usually a codeload/registry 429) - retrying in ${wait}s"
+            sleep "$wait"
+          done
 
       - name: Run Postinstall Manually
         run: 'yarn postinstall.manual'
@@ -358,11 +579,43 @@ jobs:
 
       - name: Configure Code Signing
         run: |
+          # Deliberately does NOT export CSC_LINK. Setting it makes electron-builder build its own
+          # keychain, which is the code path that is broken (see the import step below). The cert is
+          # imported there instead and handed over via CSC_KEYCHAIN.
           if [ -n "$CSC_LINK_VALUE" ]; then
-            echo "CSC_LINK=$CSC_LINK_VALUE" >> $GITHUB_ENV
+            echo "CSC_KEYCHAIN=$RUNNER_TEMP/ever-signing.keychain-db" >> $GITHUB_ENV
           fi
         env:
           CSC_LINK_VALUE: ${{ secrets.CSC_LINK_BASE64 }}
+
+      # macOS signing: build the keychain ourselves instead of letting electron-builder do it.
+      # app-builder-lib passes the p12 password to `security set-key-partition-list -k`, which
+      # expects the KEYCHAIN password — fatal on the current runner image, and still unfixed in
+      # the latest release. With CSC_LINK unset, electron-builder skips its own keychain code and
+      # uses CSC_KEYCHAIN (macPackager.js:25-48), so this sidesteps the bug without patching deps.
+      - name: Import Apple signing certificate into a keychain
+        env:
+          CSC_LINK_BASE64: ${{ secrets.CSC_LINK_BASE64 }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          KEYCHAIN="$RUNNER_TEMP/ever-signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -base64 32)"
+          CERT="$RUNNER_TEMP/ever-signing-cert.p12"
+          printf '%s' "$CSC_LINK_BASE64" | base64 --decode > "$CERT"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import "$CERT" -k "$KEYCHAIN" -P "$CSC_KEY_PASSWORD" \
+            -T /usr/bin/codesign -T /usr/bin/productbuild -T /usr/bin/security
+          # The KEYCHAIN password here — this is the exact call app-builder-lib gets wrong.
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s \
+            -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" > /dev/null
+          security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | xargs)
+          rm -f "$CERT"
+          # Fail loudly here rather than silently shipping an unsigned app later.
+          security find-identity -v -p codesigning "$KEYCHAIN" | tee /tmp/identities.txt
+          grep -q "Developer ID Application" /tmp/identities.txt
 
       - name: Build Web Server App
         run: "yarn build:web-server:mac:release"
@@ -376,8 +629,6 @@ jobs:
           SENTRY_HTTP_TRACING_ENABLED: "${{ secrets.SENTRY_HTTP_TRACING_ENABLED }}"
           SENTRY_POSTGRES_TRACKING_ENABLED: "${{ secrets.SENTRY_POSTGRES_TRACKING_ENABLED }}"
           SENTRY_PROFILING_ENABLED: "${{ secrets.SENTRY_PROFILING_ENABLED }}"
-          DO_KEY_ID: ${{ secrets.DO_KEY_ID }}
-          DO_SECRET_KEY: ${{ secrets.DO_SECRET_KEY }}
           NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
           NX_NO_CLOUD: false
           NX_DAEMON: false
@@ -394,20 +645,92 @@ jobs:
           DESKTOP_WEB_SERVER_APP_REPO_OWNER: "ever-co"
           DESKTOP_WEB_SERVER_APP_WELCOME_TITLE: "Welcome to Ever Teams"
           DESKTOP_WEB_SERVER_APP_WELCOME_CONTENT: "Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better."
-          I18N_FILES_URL: "https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/i18n"
+          # Translations: apps/server-web/i18n does not exist in this repo (only a README lives under
+          # apps/server-web), so every per-language download from this URL 404s and gauzy's translation-util
+          # then leaves apps/server-web/src/assets/i18n EMPTY (it only copies its bundled ui-core defaults
+          # when the URL is unset) — the shipped app has no translations at all (seen on run 32038575765:
+          # 13x "Error downloading language …: Not Found"). Leave the URL empty so the complete ui-core
+          # translations are bundled; set repo/org var DESKTOP_I18N_FILES_URL to a folder of Ever
+          # Teams-specific <lang>.json files to override (previous value:
+          # https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/i18n).
+          I18N_FILES_URL: ${{ vars.DESKTOP_I18N_FILES_URL }}
           PLATFORM_LOGO: "https://ever.team/assets/ever-teams.png"
           GAUZY_DESKTOP_LOGO_512X512: "https://ever.team/assets/ever-teams-512x512.png"
           DESKTOP_WEB_SERVER_APP_DEFAULT_PORT: 3001
           GAUZY_API_SERVER_URL: "https://api.ever.team"
           NEXT_PUBLIC_GAUZY_API_SERVER_URL: "https://api.ever.team"
-          APPLE_ID: ${{ secrets.APPLE_ID }}
+          # macOS notarization. electron-builder 26 accepts ONE credential set and checks the
+          # Apple-ID pair FIRST: whenever APPLE_ID is set it demands APPLE_APP_SPECIFIC_PASSWORD
+          # and aborts the build ("APPLE_APP_SPECIFIC_PASSWORD env var needs to be set") before
+          # it ever looks at the App Store Connect API key. The intended path here is the API
+          # key (APPLE_API_KEY* below; the afterSign hook apps/server-web/.erb/scripts/notarize.js
+          # defers to electron-builder for it), and no APPLE_ID_APP_PASSWORD secret exists, so
+          # the Apple-ID pair is only exported when an app-specific password is actually set.
+          # (electron-builder reads APPLE_APP_SPECIFIC_PASSWORD; APPLE_ID_APP_PASSWORD is kept
+          # for the older name.)
+          APPLE_ID: ${{ secrets.APPLE_ID_APP_PASSWORD != '' && secrets.APPLE_ID || '' }}
           APPLE_ID_APP_PASSWORD: ${{ secrets.APPLE_ID_APP_PASSWORD }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_APP_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          CSC_IDENTITY_AUTO_DISCOVERY: false
+          # Must be true: the Developer ID identity now lives in the keychain we imported above,
+          # and electron-builder finds it by discovery. With this false it would skip signing.
+          CSC_IDENTITY_AUTO_DISCOVERY: true
           APPLE_API_KEY: /tmp/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+
+      # The yarn + .nx cache these jobs share has grown to ~9.5 GB: every job spends ~10 min RESTORING it, and
+      # when the key changes the POST step uploads all of it — on 2026-08-18 that upload stalled at 52% and
+      # burned the whole 300-minute job budget, so `release-linux` was cancelled after 5 h with the app already
+      # built (run 32101473424). `.nx/cache` grows forever because the cache key only changes with yarn.lock.
+      # This trims the OLDEST `.nx/cache` entries until the directory fits the budget, right before the cache
+      # POST step reads it: nothing the build needs is touched (nx recomputes a missing entry), the yarn cache
+      # is left alone, and the step can never fail a build. Set repo/org var DESKTOP_CACHE_MAX_MB to another
+      # size in MB, or to 0 to disable the trim. Node is used instead of `find -printf` (GNU-only: it would
+      # silently do nothing on the macOS runners).
+      - name: Bound the CI cache before it is saved
+        if: always()
+        continue-on-error: true
+        shell: bash
+        env:
+          DESKTOP_CACHE_MAX_MB: ${{ vars.DESKTOP_CACHE_MAX_MB }}
+        run: |
+          node -e '
+            const fs = require("fs"), path = require("path");
+            const limitMb = Number(process.env.DESKTOP_CACHE_MAX_MB || 2048);
+            const dir = ".nx/cache";
+            if (!limitMb) { console.log("DESKTOP_CACHE_MAX_MB=0 - trim disabled"); process.exit(0); }
+            if (!fs.existsSync(dir)) { console.log("no " + dir + " - nothing to trim"); process.exit(0); }
+            const sizeOf = (p) => {
+              let total = 0;
+              const stack = [p];
+              while (stack.length) {
+                const cur = stack.pop();
+                let st; try { st = fs.lstatSync(cur); } catch { continue; }
+                if (st.isDirectory()) { for (const n of fs.readdirSync(cur)) stack.push(path.join(cur, n)); }
+                else total += st.size;
+              }
+              return total;
+            };
+            const limit = limitMb * 1024 * 1024;
+            const entries = fs.readdirSync(dir).map((n) => {
+              const p = path.join(dir, n);
+              let mtime = 0; try { mtime = fs.lstatSync(p).mtimeMs; } catch {}
+              return { p, mtime, size: sizeOf(p) };
+            });
+            let total = entries.reduce((a, e) => a + e.size, 0);
+            const mb = (b) => Math.round(b / 1048576);
+            console.log(dir + " is " + mb(total) + " MB in " + entries.length + " entries (budget " + limitMb + " MB)");
+            if (total <= limit) { console.log("within budget - nothing to do"); process.exit(0); }
+            entries.sort((a, b) => a.mtime - b.mtime);
+            let removed = 0;
+            for (const e of entries) {
+              if (total <= limit) break;
+              try { fs.rmSync(e.p, { recursive: true, force: true }); total -= e.size; removed++; } catch {}
+            }
+            console.log("trimmed " + removed + " oldest entries; " + dir + " is now " + mb(total) + " MB");
+          '
 
   release-windows:
     runs-on: ${{ matrix.os }}
@@ -424,6 +747,24 @@ jobs:
         uses: actions/checkout@v4
         with:
           clean: false
+
+      # The self-hosted Windows runners resolve `shell: bash` by a plain PATH lookup (actions/runner
+      # ScriptHandler → Which("bash")). On EVERGR that finds WSL's C:\Windows\System32\bash.exe first
+      # and every bash step dies with "Running WSL as local system is not supported" (run 32058756571,
+      # "Configure Registry"); the EVERDESK boxes have no WSL launcher so Git Bash wins there. Prepending
+      # Git for Windows' bin (found via git.exe, which checkout already needs) to GITHUB_PATH makes the
+      # lookup deterministic on every box. No-op when Git Bash is not installed.
+      - name: Prefer Git Bash for bash steps
+        shell: powershell
+        run: |
+          $git = (Get-Command git.exe -ErrorAction SilentlyContinue).Source
+          if ($git) {
+            $bin = Join-Path (Split-Path (Split-Path $git -Parent) -Parent) 'bin'
+            if (Test-Path (Join-Path $bin 'bash.exe')) {
+              $bin | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+              Write-Host "Prepended $bin to PATH for later steps"
+            } else { Write-Host "No bash.exe under $bin - leaving PATH alone" }
+          } else { Write-Host 'git.exe not on PATH - leaving PATH alone' }
 
       - name: Selective cleanup (preserve .nx/cache)
         shell: powershell
@@ -453,7 +794,17 @@ jobs:
           "npm_config_msvs_version=2022" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Fix node-gyp and Python
-        run: python3 -m pip install packaging setuptools
+        # The self-hosted Windows pool is heterogeneous: EVERDESK* expose `python3`, EVERGR only `python`
+        # ("The term 'python3' is not recognized", run 32048487421), and PowerShell 5.1 (EVERDESK) has no
+        # `||`. Discover the interpreter the same way "Configure npm python for node-gyp" below does
+        # (python.exe first — the Windows Store `python3.exe` alias stub would open the Store and fail).
+        shell: powershell
+        run: |
+          $py = Get-Command python.exe, python3.exe, py.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $py) { throw "No Python interpreter (python.exe / python3.exe / py.exe) on PATH" }
+          Write-Host "python is: $($py.Source)"
+          if ($py.Name -ieq 'py.exe') { & $py.Source -3 -m pip install packaging setuptools } else { & $py.Source -m pip install packaging setuptools }
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Setup MSVC (VS 2022 dev env)
         uses: ilammy/msvc-dev-cmd@v1
@@ -466,6 +817,22 @@ jobs:
       - name: Install globally node-gyp, ts-node and nx packages
         run: 'npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^22.5.2'
 
+      # yarn 1 rebuilds native modules with `npm_config_node_gyp` and, when it is unset, defaults to the
+      # npm-BUNDLED copy <node>/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js. After the
+      # `npm install -g npm@…` step above that file no longer exists on some self-hosted boxes (EVERDESK4:
+      # "Cannot find module …/npm/node_modules/node-gyp/bin/node-gyp.js" while electron-builder rebuilt
+      # better-sqlite3, run 32087030551) but does on others (EVERDESK3). Point it at the node-gyp@10.2.0
+      # that was just installed globally so every runner in the pool behaves the same.
+      - name: Configure npm node-gyp path
+        shell: powershell
+        run: |
+          $root = (npm root -g).Trim()
+          $gyp = Join-Path $root 'node-gyp\bin\node-gyp.js'
+          if (Test-Path $gyp) {
+            "npm_config_node_gyp=$gyp" | Out-File -FilePath $env:GITHUB_ENV -Append
+            Write-Host "node-gyp is: $gyp"
+          } else { Write-Host "global node-gyp not found at $gyp - leaving the yarn default" }
+
       - name: Configure npm python for node-gyp
         shell: powershell
         run: |
@@ -475,17 +842,36 @@ jobs:
           "PYTHON=$py"            | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Configure Registry
-        shell: bash
-        run: |
-          if [ -n "${{ secrets.VERDACCIO_TOKEN }}" ]; then
-            echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
-            echo "registry=https://packages.ever.co/" >> .npmrc
-          fi
+        uses: ever-co/ever-gauzy/.github/actions/configure-registry@727973d766f3968d3f1184300af085872abcb20b
+        with:
+          verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
+          verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
+          force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
+          expect-vip: 'true'
 
       - name: Install Yarn dependencies
-        run: 'yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts'
+        # yarn 1 does NOT retry a failed git-dependency tarball fetch, so one transient
+        # `codeload.github.com/... : Request failed "429 Too Many Requests"` (the fleet shares a single
+        # egress IP and GitHub throttles it whenever several jobs install at once) throws away a build
+        # that is already 40+ minutes in — it killed release-linux twice on 2026-08-18 (runs 32101473424,
+        # 32139317563), each time with nothing wrong in the repo. Retry with a linear back-off instead.
+        # bash (not the Windows default shell) so the loop is identical on every runner; Git Bash is put
+        # on PATH by the "Prefer Git Bash for bash steps" step above.
+        shell: bash
         env:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
+        run: |
+          install() { yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts; }
+          for attempt in 1 2 3 4; do
+            if install; then exit 0; fi
+            if [ "$attempt" = 4 ]; then
+              echo "::error title=yarn install::failed 4 times - this is very unlikely to be transient"
+              exit 1
+            fi
+            wait=$((attempt * 60))
+            echo "::warning title=yarn install retry::attempt ${attempt} failed (usually a codeload/registry 429) - retrying in ${wait}s"
+            sleep "$wait"
+          done
 
       - name: Run Postinstall Manually
         run: 'yarn postinstall.manual'
@@ -497,6 +883,11 @@ jobs:
             const script = require('./.scripts/bump-version-electron.js')
             console.log(script.serverweb(true))
         env:
+          # Windows signing config must be visible to the BUMP step: this script writes build.win.azureSignOptions into package.json, which electron-builder reads later.
+          WINDOWS_PUBLISHER_NAME: ${{ secrets.WINDOWS_PUBLISHER_NAME }}
+          AZURE_CERT_PROFILE_NAME: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
+          AZURE_CODE_SIGNING_ACCOUNT: ${{ vars.AZURE_CODE_SIGNING_ACCOUNT || 'ever' }}
+          AZURE_CODE_SIGNING_ENDPOINT: ${{ vars.AZURE_CODE_SIGNING_ENDPOINT || 'https://eus.codesigning.azure.net/' }}
           PROJECT_REPO: "https://github.com/ever-co/ever-teams.git"
           DESKTOP_WEB_SERVER_APP_NAME: "ever-teams-web-server"
           DESKTOP_WEB_SERVER_REPO_NAME: "ever-teams-web-server"
@@ -551,6 +942,15 @@ jobs:
         shell: powershell
         run: npx nx reset
 
+      # Azure Trusted Signing runs Invoke-TrustedSigning, which installs the `sign` dotnet
+      # global tool. The self-hosted Windows runners have no .NET SDK, so that install fails
+      # ("sdk-not-found") and signing is skipped. Provision it here rather than on the host,
+      # so the requirement lives in Git and applies to every runner.
+      - name: Install .NET SDK (required by Azure Trusted Signing)
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
       - name: Build Web Server App
         shell: cmd
         run: 'yarn build:web-server:windows:release:gh:x64'
@@ -558,6 +958,20 @@ jobs:
           USE_HARD_LINKS: false
           ELECTRON_BUILDER_CACHE: ${{ github.workspace }}\.cache\electron-builder
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          # Windows Authenticode signing: electron-builder signs automatically when WIN_CSC_LINK is set.
+          # Empty secret => signing is skipped (no error). Trusted-cert verification engages only when
+          # WINDOWS_PUBLISHER_NAME is also set (see .scripts/bump-version-electron.js).
+          WIN_CSC_LINK: ${{ secrets.WINDOWS_CERT_PFX_BASE64 }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CERT_PASSWORD }}
+          WINDOWS_PUBLISHER_NAME: ${{ secrets.WINDOWS_PUBLISHER_NAME }}
+          # Azure Artifact Signing (preferred once a certificate profile exists). Engaged only when
+          # AZURE_CERT_PROFILE_NAME is set; otherwise the PFX path above is used.
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_CERT_PROFILE_NAME: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
+          AZURE_CODE_SIGNING_ACCOUNT: ${{ vars.AZURE_CODE_SIGNING_ACCOUNT || 'ever' }}
+          AZURE_CODE_SIGNING_ENDPOINT: ${{ vars.AZURE_CODE_SIGNING_ENDPOINT || 'https://eus.codesigning.azure.net/' }}
           EP_GH_IGNORE_TIME: true
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_TRACES_SAMPLE_RATE: "${{ secrets.SENTRY_TRACES_SAMPLE_RATE }}"
@@ -565,8 +979,6 @@ jobs:
           SENTRY_HTTP_TRACING_ENABLED: "${{ secrets.SENTRY_HTTP_TRACING_ENABLED }}"
           SENTRY_POSTGRES_TRACKING_ENABLED: "${{ secrets.SENTRY_POSTGRES_TRACKING_ENABLED }}"
           SENTRY_PROFILING_ENABLED: "${{ secrets.SENTRY_PROFILING_ENABLED }}"
-          DO_KEY_ID: ${{ secrets.DO_KEY_ID }}
-          DO_SECRET_KEY: ${{ secrets.DO_SECRET_KEY }}
           NX_NO_CLOUD: true
           NX_PLUGIN_NO_TIMEOUTS: true
           NX_DAEMON: false
@@ -583,7 +995,15 @@ jobs:
           DESKTOP_WEB_SERVER_APP_REPO_OWNER: "ever-co"
           DESKTOP_WEB_SERVER_APP_WELCOME_TITLE: "Welcome to Ever Teams"
           DESKTOP_WEB_SERVER_APP_WELCOME_CONTENT: "Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better."
-          I18N_FILES_URL: "https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/i18n"
+          # Translations: apps/server-web/i18n does not exist in this repo (only a README lives under
+          # apps/server-web), so every per-language download from this URL 404s and gauzy's translation-util
+          # then leaves apps/server-web/src/assets/i18n EMPTY (it only copies its bundled ui-core defaults
+          # when the URL is unset) — the shipped app has no translations at all (seen on run 32038575765:
+          # 13x "Error downloading language …: Not Found"). Leave the URL empty so the complete ui-core
+          # translations are bundled; set repo/org var DESKTOP_I18N_FILES_URL to a folder of Ever
+          # Teams-specific <lang>.json files to override (previous value:
+          # https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/i18n).
+          I18N_FILES_URL: ${{ vars.DESKTOP_I18N_FILES_URL }}
           PLATFORM_LOGO: "https://ever.team/assets/ever-teams.png"
           GAUZY_DESKTOP_LOGO_512X512: "https://ever.team/assets/ever-teams-512x512.png"
           DESKTOP_WEB_SERVER_APP_DEFAULT_PORT: 3001
@@ -606,6 +1026,22 @@ jobs:
         with:
           clean: false
 
+
+      # Same PATH determinism as the x64 Windows job: today this leg runs on the GitHub-hosted
+      # windows-11-arm image where `shell: bash` already resolves to Git Bash, but if an arm64 runner is
+      # ever self-hosted (RUNNER_LINUX_ARM64_8 / a Windows arm64 box) it could resolve to WSL and fail as
+      # EVERGR did. No-op when Git Bash is not installed.
+      - name: Prefer Git Bash for bash steps
+        shell: powershell
+        run: |
+          $git = (Get-Command git.exe -ErrorAction SilentlyContinue).Source
+          if ($git) {
+            $bin = Join-Path (Split-Path (Split-Path $git -Parent) -Parent) 'bin'
+            if (Test-Path (Join-Path $bin 'bash.exe')) {
+              $bin | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+              Write-Host "Prepended $bin to PATH for later steps"
+            } else { Write-Host "No bash.exe under $bin - leaving PATH alone" }
+          } else { Write-Host 'git.exe not on PATH - leaving PATH alone' }
       - name: Selective cleanup (preserve .nx/cache)
         shell: powershell
         run: |
@@ -651,7 +1087,17 @@ jobs:
           "npm_config_msvs_version=2022" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Fix node-gyp and Python
-        run: python3 -m pip install packaging setuptools
+        # The self-hosted Windows pool is heterogeneous: EVERDESK* expose `python3`, EVERGR only `python`
+        # ("The term 'python3' is not recognized", run 32048487421), and PowerShell 5.1 (EVERDESK) has no
+        # `||`. Discover the interpreter the same way "Configure npm python for node-gyp" below does
+        # (python.exe first — the Windows Store `python3.exe` alias stub would open the Store and fail).
+        shell: powershell
+        run: |
+          $py = Get-Command python.exe, python3.exe, py.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $py) { throw "No Python interpreter (python.exe / python3.exe / py.exe) on PATH" }
+          Write-Host "python is: $($py.Source)"
+          if ($py.Name -ieq 'py.exe') { & $py.Source -3 -m pip install packaging setuptools } else { & $py.Source -m pip install packaging setuptools }
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Setup MSVC (VS 2022 dev env)
         uses: ilammy/msvc-dev-cmd@v1
@@ -663,6 +1109,22 @@ jobs:
 
       - name: Install globally node-gyp, ts-node and nx packages
         run: 'npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^22.5.2'
+
+      # yarn 1 rebuilds native modules with `npm_config_node_gyp` and, when it is unset, defaults to the
+      # npm-BUNDLED copy <node>/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js. After the
+      # `npm install -g npm@…` step above that file no longer exists on some self-hosted boxes (EVERDESK4:
+      # "Cannot find module …/npm/node_modules/node-gyp/bin/node-gyp.js" while electron-builder rebuilt
+      # better-sqlite3, run 32087030551) but does on others (EVERDESK3). Point it at the node-gyp@10.2.0
+      # that was just installed globally so every runner in the pool behaves the same.
+      - name: Configure npm node-gyp path
+        shell: powershell
+        run: |
+          $root = (npm root -g).Trim()
+          $gyp = Join-Path $root 'node-gyp\bin\node-gyp.js'
+          if (Test-Path $gyp) {
+            "npm_config_node_gyp=$gyp" | Out-File -FilePath $env:GITHUB_ENV -Append
+            Write-Host "node-gyp is: $gyp"
+          } else { Write-Host "global node-gyp not found at $gyp - leaving the yarn default" }
 
       - name: Configure npm python for node-gyp
         shell: powershell
@@ -681,12 +1143,80 @@ jobs:
           fi
 
       - name: Install Yarn dependencies
-        run: 'yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts'
+        # yarn 1 does NOT retry a failed git-dependency tarball fetch, so one transient
+        # `codeload.github.com/... : Request failed "429 Too Many Requests"` (the fleet shares a single
+        # egress IP and GitHub throttles it whenever several jobs install at once) throws away a build
+        # that is already 40+ minutes in — it killed release-linux twice on 2026-08-18 (runs 32101473424,
+        # 32139317563), each time with nothing wrong in the repo. Retry with a linear back-off instead.
+        # bash (not the Windows default shell) so the loop is identical on every runner; Git Bash is put
+        # on PATH by the "Prefer Git Bash for bash steps" step above.
+        shell: bash
         env:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
+        run: |
+          install() { yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts; }
+          for attempt in 1 2 3 4; do
+            if install; then exit 0; fi
+            if [ "$attempt" = 4 ]; then
+              echo "::error title=yarn install::failed 4 times - this is very unlikely to be transient"
+              exit 1
+            fi
+            wait=$((attempt * 60))
+            echo "::warning title=yarn install retry::attempt ${attempt} failed (usually a codeload/registry 429) - retrying in ${wait}s"
+            sleep "$wait"
+          done
 
+      # sharp < 0.33 ships no win32-arm64 prebuilt and falls back to a node-gyp build that needs a
+      # system libvips ("Cannot open include file: 'vips/vips8'"). The monorepo carries such a copy
+      # ONLY as a nested, MOBILE-only dependency (react-native-bootsplash -> sharp@0.32.6), but
+      # electron-builder's install-app-deps (root `postinstall.manual` AND the installAppDeps it runs
+      # again inside the app build) rebuilds every module *named* like an app dependency anywhere in
+      # node_modules, so that nested copy killed every ARM64 build (run 32038575750, failedTask=
+      # installAppDeps). Nothing built here imports it: the apps use the hoisted sharp >= 0.34, whose
+      # win32-arm64 binary is a plain optional package (@img/sharp-win32-arm64). Drop only nested
+      # sharp copies older than 0.33 from this CI checkout (nothing in the repo changes; x64 and mac
+      # runners have prebuilts and are left alone).
+      - name: Drop nested sharp < 0.33 (no win32-arm64 prebuilt)
+        shell: bash
+        run: |
+          node -e '
+            const fs = require("fs"), path = require("path");
+            const roots = ["node_modules"];
+            const found = [];
+            const scan = (dir, depth) => {
+              if (depth > 3 || !fs.existsSync(dir)) return;
+              for (const name of fs.readdirSync(dir)) {
+                const p = path.join(dir, name);
+                if (name.startsWith("@")) { scan(p, depth); continue; }
+                const nested = path.join(p, "node_modules", "sharp", "package.json");
+                if (fs.existsSync(nested)) found.push(path.dirname(nested));
+                const deeper = path.join(p, "node_modules");
+                if (fs.existsSync(deeper)) scan(deeper, depth + 1);
+              }
+            };
+            for (const r of roots) scan(r, 0);
+            let dropped = 0;
+            for (const dir of found) {
+              const v = JSON.parse(fs.readFileSync(path.join(dir, "package.json"), "utf8")).version || "0.0.0";
+              const [maj, min] = v.split(".").map(Number);
+              if (maj === 0 && min < 33) { fs.rmSync(dir, { recursive: true, force: true }); dropped++; console.log("dropped " + dir + " (sharp@" + v + ")"); }
+              else console.log("kept " + dir + " (sharp@" + v + ")");
+            }
+            console.log("nested sharp copies: " + found.length + ", dropped: " + dropped);
+          '
+
+      # The root-level `electron-builder install-app-deps` (postinstall.manual) rebuilds every
+      # module named like a root prod dependency anywhere in node_modules — which drags in the
+      # MOBILE-only nested react-native-bootsplash/node_modules/sharp@0.32.6. sharp 0.32 ships
+      # no win32-arm64 prebuilt (only ia32/x64), so on this runner @electron/rebuild falls back
+      # to node-gyp, which cannot find libvips ("Cannot open include file: 'vips/vips8'") and
+      # the whole job dies before the app is even built. Nothing in server-web needs that
+      # module: the app's own native deps (sharp 0.34.5, prebuilt for win32-arm64) are rebuilt
+      # by apps/server-web's postinstall inside `build:server-web`. x64 is unaffected because
+      # its prebuilt exists. So on ARM64 this step is allowed to fail instead of aborting.
       - name: Run Postinstall Manually
         run: 'yarn postinstall.manual'
+        continue-on-error: true
 
       - name: Bump version
         uses: actions/github-script@v7
@@ -695,6 +1225,12 @@ jobs:
             const script = require('./.scripts/bump-version-electron.js')
             console.log(script.serverweb(true))
         env:
+          # Windows signing is deliberately NOT configured for ARM64. Azure Trusted Signing
+          # ships no ARM64 tooling (Microsoft.Trusted.Signing.Client 1.0.95 contains only
+          # bin/x64 and bin/x86), so Invoke-TrustedSigning loads the x64 dlib and fails with
+          # "SignTool failed with exit code 3", taking the whole build down. Without
+          # WINDOWS_PUBLISHER_NAME the bump script emits no signer, so ARM64 builds
+          # unsigned and succeeds; electron-updater verification stays off for it. x64 signs.
           PROJECT_REPO: "https://github.com/ever-co/ever-teams.git"
           DESKTOP_WEB_SERVER_APP_NAME: "ever-teams-web-server"
           DESKTOP_WEB_SERVER_REPO_NAME: "ever-teams-web-server"
@@ -745,6 +1281,15 @@ jobs:
           # Patch graceful-fs to retry EMFILE errors with backoff
           node -e "try { var gfs = require('graceful-fs'); gfs.gracefulify(require('fs')); console.log('graceful-fs patched'); } catch(e) { console.log('graceful-fs not available, skipping'); }"
 
+      # Azure Trusted Signing runs Invoke-TrustedSigning, which installs the `sign` dotnet
+      # global tool. The self-hosted Windows runners have no .NET SDK, so that install fails
+      # ("sdk-not-found") and signing is skipped. Provision it here rather than on the host,
+      # so the requirement lives in Git and applies to every runner.
+      - name: Install .NET SDK (required by Azure Trusted Signing)
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
       - name: Build Web Server App
         shell: cmd
         run: yarn build:web-server:windows:release:gh:arm64
@@ -752,6 +1297,20 @@ jobs:
           USE_HARD_LINKS: false
           ELECTRON_BUILDER_CACHE: ${{ github.workspace }}\.cache\electron-builder
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          # Empty secret => signing is skipped (no error). Trusted-cert verification engages only when
+          # WINDOWS_PUBLISHER_NAME is also set (see .scripts/bump-version-electron.js).
+          # WIN_CSC_LINK is deliberately NOT passed on ARM64. electron-builder auto-signs
+          # whenever it is set, independently of azureSignOptions, and then spawns a signtool
+          # that does not exist for ARM64 in its bundled winCodeSign package:
+          #   spawn ...\winCodeSign-2.6.0\windows-10\arm64\signtool.exe ENOENT
+          # ARM64 therefore ships unsigned (see the Bump step). x64 still signs via Azure.
+          WINDOWS_PUBLISHER_NAME: ${{ secrets.WINDOWS_PUBLISHER_NAME }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_CERT_PROFILE_NAME: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
+          AZURE_CODE_SIGNING_ACCOUNT: ${{ vars.AZURE_CODE_SIGNING_ACCOUNT || 'ever' }}
+          AZURE_CODE_SIGNING_ENDPOINT: ${{ vars.AZURE_CODE_SIGNING_ENDPOINT || 'https://eus.codesigning.azure.net/' }}
           EP_GH_IGNORE_TIME: true
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_TRACES_SAMPLE_RATE: "${{ secrets.SENTRY_TRACES_SAMPLE_RATE }}"
@@ -759,8 +1318,6 @@ jobs:
           SENTRY_HTTP_TRACING_ENABLED: "${{ secrets.SENTRY_HTTP_TRACING_ENABLED }}"
           SENTRY_POSTGRES_TRACKING_ENABLED: "${{ secrets.SENTRY_POSTGRES_TRACKING_ENABLED }}"
           SENTRY_PROFILING_ENABLED: "${{ secrets.SENTRY_PROFILING_ENABLED }}"
-          DO_KEY_ID: ${{ secrets.DO_KEY_ID }}
-          DO_SECRET_KEY: ${{ secrets.DO_SECRET_KEY }}
           NX_NO_CLOUD: true
           NX_PLUGIN_NO_TIMEOUTS: true
           NX_DAEMON: false
@@ -777,9 +1334,69 @@ jobs:
           DESKTOP_WEB_SERVER_APP_REPO_OWNER: "ever-co"
           DESKTOP_WEB_SERVER_APP_WELCOME_TITLE: "Welcome to Ever Teams"
           DESKTOP_WEB_SERVER_APP_WELCOME_CONTENT: "Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better."
-          I18N_FILES_URL: "https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/i18n"
+          # Translations: apps/server-web/i18n does not exist in this repo (only a README lives under
+          # apps/server-web), so every per-language download from this URL 404s and gauzy's translation-util
+          # then leaves apps/server-web/src/assets/i18n EMPTY (it only copies its bundled ui-core defaults
+          # when the URL is unset) — the shipped app has no translations at all (seen on run 32038575765:
+          # 13x "Error downloading language …: Not Found"). Leave the URL empty so the complete ui-core
+          # translations are bundled; set repo/org var DESKTOP_I18N_FILES_URL to a folder of Ever
+          # Teams-specific <lang>.json files to override (previous value:
+          # https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/server-web/i18n).
+          I18N_FILES_URL: ${{ vars.DESKTOP_I18N_FILES_URL }}
           PLATFORM_LOGO: "https://ever.team/assets/ever-teams.png"
           GAUZY_DESKTOP_LOGO_512X512: "https://ever.team/assets/ever-teams-512x512.png"
           DESKTOP_WEB_SERVER_APP_DEFAULT_PORT: 3001
           GAUZY_API_SERVER_URL: "https://api.ever.team"
           NEXT_PUBLIC_GAUZY_API_SERVER_URL: "https://api.ever.team"
+
+      # The yarn + .nx cache these jobs share has grown to ~9.5 GB: every job spends ~10 min RESTORING it, and
+      # when the key changes the POST step uploads all of it — on 2026-08-18 that upload stalled at 52% and
+      # burned the whole 300-minute job budget, so `release-linux` was cancelled after 5 h with the app already
+      # built (run 32101473424). `.nx/cache` grows forever because the cache key only changes with yarn.lock.
+      # This trims the OLDEST `.nx/cache` entries until the directory fits the budget, right before the cache
+      # POST step reads it: nothing the build needs is touched (nx recomputes a missing entry), the yarn cache
+      # is left alone, and the step can never fail a build. Set repo/org var DESKTOP_CACHE_MAX_MB to another
+      # size in MB, or to 0 to disable the trim. Node is used instead of `find -printf` (GNU-only: it would
+      # silently do nothing on the macOS runners).
+      - name: Bound the CI cache before it is saved
+        if: always()
+        continue-on-error: true
+        shell: bash
+        env:
+          DESKTOP_CACHE_MAX_MB: ${{ vars.DESKTOP_CACHE_MAX_MB }}
+        run: |
+          node -e '
+            const fs = require("fs"), path = require("path");
+            const limitMb = Number(process.env.DESKTOP_CACHE_MAX_MB || 2048);
+            const dir = ".nx/cache";
+            if (!limitMb) { console.log("DESKTOP_CACHE_MAX_MB=0 - trim disabled"); process.exit(0); }
+            if (!fs.existsSync(dir)) { console.log("no " + dir + " - nothing to trim"); process.exit(0); }
+            const sizeOf = (p) => {
+              let total = 0;
+              const stack = [p];
+              while (stack.length) {
+                const cur = stack.pop();
+                let st; try { st = fs.lstatSync(cur); } catch { continue; }
+                if (st.isDirectory()) { for (const n of fs.readdirSync(cur)) stack.push(path.join(cur, n)); }
+                else total += st.size;
+              }
+              return total;
+            };
+            const limit = limitMb * 1024 * 1024;
+            const entries = fs.readdirSync(dir).map((n) => {
+              const p = path.join(dir, n);
+              let mtime = 0; try { mtime = fs.lstatSync(p).mtimeMs; } catch {}
+              return { p, mtime, size: sizeOf(p) };
+            });
+            let total = entries.reduce((a, e) => a + e.size, 0);
+            const mb = (b) => Math.round(b / 1048576);
+            console.log(dir + " is " + mb(total) + " MB in " + entries.length + " entries (budget " + limitMb + " MB)");
+            if (total <= limit) { console.log("within budget - nothing to do"); process.exit(0); }
+            entries.sort((a, b) => a.mtime - b.mtime);
+            let removed = 0;
+            for (const e of entries) {
+              if (total <= limit) break;
+              try { fs.rmSync(e.p, { recursive: true, force: true }); total -= e.size; removed++; } catch {}
+            }
+            console.log("trimmed " + removed + " oldest entries; " + dir + " is now " + mb(total) + " MB");
+          '

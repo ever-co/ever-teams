@@ -1,5 +1,5 @@
 {
-	"TITLE": "Ever צוותים",
+	"TITLE": "{appName}",
 	"sidebar": {
 		"DASHBOARD": "לוח מחוונים",
 		"FORYOU": "כללי",
@@ -204,6 +204,8 @@
 		"THEMES": "ערכות עיצוב",
 		"3D_MODE": "מצב 3D",
 		"DARK_MODE": "מצב כהה",
+		"THEME_LIGHT": "בהיר",
+		"THEME_DARK": "כהה",
 		"SETTINGS": "הגדרות",
 		"PERSONAL": "אישי",
 		"USE_SETTING": "השתמש בהגדרה",
@@ -444,7 +446,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "פירוט פרודוקטיביות עבור {month}",
 		"DAILY": "יומי",
 		"WEEKLY": "שבועי",
-		"MONTHLY": "חודשי"
+		"MONTHLY": "חודשי",
+		"HIDE_CHART": "הסתר תרשים",
+		"SHOW_ACTIVITY_CHART": "הצג תרשים פעילות"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "זמן ופעילות",
@@ -717,7 +721,28 @@
 			"FORGOT_PASSWORD": "שכחת סיסמה?",
 			"TERMS_OF_SERVICE": "תנאי שימוש",
 			"PRIVACY_POLICY": "מדיניות פרטיות",
-			"OR_CONTINUE_WITH": "או המשך עם"
+			"OR_CONTINUE_WITH": "או המשך עם",
+			"everId": {
+				"NO_WORKSPACE_TITLE": "עדיין אין סביבת עבודה עבור Ever ID זה",
+				"NO_WORKSPACE_BODY": "עדיין לא מקושרת סביבת עבודה ל-Ever ID זה. התחבר בדרך אחרת, או בקש הזמנה ממנהל סביבת העבודה שלך.",
+				"WORKSPACE_BLOCKED_TITLE": "השתמש בהתחברות של החברה שלך",
+				"WORKSPACE_BLOCKED_BODY": "סביבת העבודה שלך מבקשת שתתחבר דרך ההתחברות של החברה שלך. השתמש בה כדי להמשיך, או התחבר בדרך אחרת.",
+				"SIGN_IN_ANOTHER_WAY": "התחבר בדרך אחרת",
+				"NO_WORKSPACE_SIGNUP_BODY": "אפשר גם ליצור סביבת עבודה חדשה בהרשמה הרגילה.",
+				"CREATE_WORKSPACE": "צור סביבת עבודה",
+				"CONFIRM_HINT": "שלחנו קוד חד-פעמי לכתובת האימייל של החשבון הקיים שלך. הזן אותו כדי לחבר את ה-Ever ID שלך.",
+				"CODE_EXPIRED": "תוקף הקוד הזה פג או שנוסה יותר מדי פעמים. התחבר שוב עם Ever ID.",
+				"TOO_MANY_ATTEMPTS": "יותר מדי ניסיונות. המתן דקה ונסה שוב.",
+				"UNAVAILABLE": "ההתחברות עם Ever ID אינה זמינה כרגע. נסה שוב מאוחר יותר או התחבר בדרך אחרת.",
+				"SIGNUP_CONFIRM": "צור את סביבת העבודה שלי עם Ever ID זה",
+				"SIGNUP_HINT": "כתובת האימייל שלך מגיעה מה-Ever ID המאומת שלך. שום דבר לא נוצר עד שתמשיך.",
+				"SIGNUP_CONFIRM_REQUIRED": "סמן את התיבה כדי ליצור את סביבת העבודה שלך עם Ever ID זה.",
+				"SIGNUP_TERMS": "אני מקבל את המסמכים האלה:",
+				"SIGNUP_TERMS_REQUIRED": "קבל את המסמכים כדי להמשיך.",
+				"SIGNUP_EXPIRED": "תוקף ההרשמה הזו פג. התחבר שוב עם Ever ID.",
+				"SIGNUP_CHECKOUT": "נדרש מנוי לפני שניתן ליצור את סביבת העבודה שלך.",
+				"CONTINUE_TO_CHECKOUT": "המשך לתשלום"
+			}
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "הצטרף לצוות קיים",
@@ -799,6 +824,10 @@
 			"HEADING_TITLE": "הגדרות כלליות",
 			"goToTeamSettings": "עבור להגדרות הצוות",
 			"WORKING_HOURS": "שעות עבודה",
+			"ADD_HOURS_FOR": "הוסף שעות עבור {day}",
+			"REMOVE_HOURS_FOR": "הסר שעות עבור {day}",
+			"UNAVAILABLE": "לא זמין",
+			"TOGGLE_AVAILABILITY_FOR": "זמינות עבור {day}",
 			"emailNotValid": "אנא ספק כתובת אימייל חוקית",
 			"phoneNotValid": "אנא ספק מספר טלפון חוקי",
 			"WORK_SCHEDULE": "לוח זמנים",
@@ -1222,7 +1251,10 @@
 			"TERMS_AND_CONDITIONS": "תנאים והגבלות",
 			"PRIVACY_POLICY": "מדיניות פרטיות",
 			"COOKIES": "מדיניות עוגיות",
-			"BY": "על ידי"
+			"BY": "על ידי",
+			"BUILD_WEB": "גרסת Web v{version}",
+			"API_VERSION": "API v{version}",
+			"OPEN_COMMIT": "פתיחת commit {commit}"
 		}
 	},
 	"errors": {
@@ -1296,7 +1328,7 @@
 		"HEADER_TITLE": "צ'אט AI",
 		"CLEAR_CONVERSATION": "נקה שיחה",
 		"CONFIGURATION": "הגדרות",
-		"ASSISTANT_NAME": "עוזר Ever Teams",
+		"ASSISTANT_NAME": "עוזר {appName}",
 		"EMPTY_CONFIGURED": "שאל שאלה כדי להתחיל.",
 		"EMPTY_NOT_CONFIGURED": "הגדר את מפתח ה-API שלך כדי להתחיל.",
 		"CONFIGURE_BUTTON": "הגדרה",
@@ -1304,6 +1336,14 @@
 		"INPUT_PLACEHOLDER_READY": "ההודעה שלך...",
 		"INPUT_PLACEHOLDER_NO_KEY": "הגדר את מפתח ה-API שלך...",
 		"STOP": "עצור",
-		"SEND": "שלח"
+		"SEND": "שלח",
+		"NEW_CHAT": "צ'אט חדש",
+		"HISTORY": "היסטוריה",
+		"NO_CONVERSATIONS": "אין עדיין שיחות",
+		"PANEL_CONTROLS": "פקדי חלונית הצ'אט",
+		"COLLAPSE_ASSISTANT": "כווץ את העוזר",
+		"STANDARD_ASSISTANT_WIDTH": "רוחב רגיל של העוזר",
+		"EXPAND_ASSISTANT": "הרחב את העוזר",
+		"OPEN_ASSISTANT": "פתח את עוזר {appName}"
 	}
 }

@@ -3,7 +3,22 @@ import nextPlugin from '@next/eslint-plugin-next';
 import unusedImportsPlugin from 'eslint-plugin-unused-imports';
 
 const eslintConfig = [
+	{
+		ignores: ['**/.next/**', '**/build/**', '**/coverage/**', '**/dist/**', '**/node_modules/**', '**/out/**']
+	},
 	js.configs.recommended,
+	{
+		files: ['**/*.config.js', '**/env.js'],
+		languageOptions: {
+			globals: {
+				__dirname: 'readonly',
+				console: 'readonly',
+				module: 'readonly',
+				process: 'readonly',
+				require: 'readonly'
+			}
+		}
+	},
 	{
 		plugins: {
 			'@next/next': nextPlugin,

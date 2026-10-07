@@ -156,7 +156,7 @@ const DropDownItem = observer(
 					<Text style={styles.itemText}>{limitTextCharaters({ text: sizeItem?.name, numChars: 17 })}</Text>
 				</View>
 				{exist ? (
-					<AntDesign name="checkcircle" size={24} color="#27AE60" />
+					<AntDesign name="check-circle" size={24} color="#27AE60" />
 				) : (
 					<Feather name="circle" size={24} color="rgba(40, 32, 72, 0.43)" />
 				)}

@@ -1,13 +1,22 @@
 name: Mobile Build, Deploy and Publish Apps Android
 on:
+  # Allows re-running the published build by hand without touching app sources.
+  workflow_dispatch:
   push:
     branches:
       - apps
     paths:
+      # This workflow's own definition — without it, editing this file never re-runs it,
+      # so a fix to the workflow cannot be validated. The sibling entry below points at
+      # an aggregate file that does not exist; left in place deliberately.
+      - '.github/workflows/mobile.apps.android.yml'
       - '.github/workflows/mobile.apps.yml'
       - 'apps/mobile/**'
       - 'package.json'
       - 'yarn.lock'
+      # The EAS upload archive decides which workspaces get installed on the builder,
+      # so a change to it changes the build as surely as a dependency bump does.
+      - '.easignore'
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -61,12 +70,12 @@ jobs:
           sed -i 's|SENTRY_PROJECT_PLACEHOLDER|${{ secrets.EXPO_SENTRY_PROJECT }}|g' ./apps/mobile/eas.json
 
       - name: Configure Registry
-        shell: bash
-        run: |
-          if [ -n "${{ secrets.VERDACCIO_TOKEN }}" ]; then
-            echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
-            echo "registry=https://packages.ever.co/" >> .npmrc
-          fi
+        uses: ever-co/ever-gauzy/.github/actions/configure-registry@727973d766f3968d3f1184300af085872abcb20b
+        with:
+          verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
+          verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
+          force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
+          expect-vip: ${{ vars.RUNNER_LINUX_X64_4 != '' }}
 
       - name: Install Packages
         run: |
@@ -92,11 +101,82 @@ jobs:
           EXPO_SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           EXPO_SENTRY_PROJECT: ${{ secrets.EXPO_SENTRY_PROJECT }}
 
+      # SECURITY + CORRECTNESS: "Configure Registry" appends the internal registry +
+      # VERDACCIO_TOKEN to .npmrc, which is a git-TRACKED file. eas-cli ships modified tracked
+      # files in the build archive, so the token was being uploaded to Expo (their log shows
+      # "PREPARE_PROJECT | .npmrc found at .npmrc"). Restore it before the upload. This also
+      # stops Expo builders trying to reach packages.ever.co, which they cannot resolve.
+      #
+      # .npmrc is NOT the only file the step mutates. The shared configure-registry action also
+      # appends `registry "<REGISTRY>"` to .yarnrc and sed-rewrites EVERY resolved URL in
+      # yarn.lock to that registry, and on these runners the registry is the LAN-only Verdaccio
+      # VIP. .easignore REPLACES .gitignore (it is not additive) and lists none of these three
+      # files, so all three ship in the archive; the Expo builder then runs
+      # `yarn install --frozen-lockfile` in the uploaded root and cannot resolve a single
+      # tarball. Restoring only .npmrc leaves that lockfile poisoned.
+      #
+      # Same per-path loop as .github/workflows/release.sdk.prod.yml: tracked files are checked
+      # out, untracked leftovers are removed. `if: always()` so a failed install still leaves
+      # the checkout clean for the next job on this self-hosted runner.
+      - name: Restore registry config before EAS upload
+        shell: bash
+        if: always()
+        run: |
+          for f in yarn.lock .npmrc .yarnrc; do
+            if git ls-files --error-unmatch "$f" >/dev/null 2>&1; then
+              git checkout -- "$f"
+            else
+              rm -f "$f"
+            fi
+          done
+          rm -f yarn.lock.rewritten package-lock.json.rewritten
+
       - name: Build on EAS
-        run: cd apps/mobile && eas build --profile production --platform android --non-interactive
+        id: eas_build
+        # Capture THIS build's id so the submit step can target it explicitly.
+        #
+        # `eas submit --latest` does NOT mean "the build this job just made". It resolves through
+        # getRecentBuildsForSubmissionAsync (eas-cli build/submit/utils/builds.js), which filters
+        # `distribution: DistributionType.Store` and ignores the build profile, the branch and who
+        # started it, across statuses New, InQueue, InProgress AND Finished. So any
+        # production-profile build started from a laptop or the Expo dashboard can win that race
+        # and be the thing shipped to the store. That is not hypothetical: on 2026-08-16 the newest
+        # STORE build on this app was one driven from a local checkout while debugging.
+        #
+        # The explicit FINISHED assertion also closes a second hole: `eas build --wait` exits 0 on
+        # a CANCELED build, and `concurrency.cancel-in-progress: true` above makes cancellation
+        # reachable, so without it a cancelled build would fall through to submit.
+        #
+        # The JSON is written to $RUNNER_TEMP, outside the repo, so it can never be picked up by
+        # the EAS upload archive.
+        run: |
+          cd apps/mobile
+          eas build --profile production --platform android --non-interactive --json --wait > "$RUNNER_TEMP/eas-android-build.json"
+          node -e '
+            const fs = require("fs");
+            const raw = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + "/eas-android-build.json", "utf8"));
+            const build = Array.isArray(raw) ? raw[0] : raw;
+            if (!build || build.status !== "FINISHED") {
+              console.error("EAS build did not finish, refusing to submit. status=" + (build && build.status));
+              process.exit(1);
+            }
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, "build_id=" + build.id + "\n");
+            console.log("EAS build " + build.id + " FINISHED");
+          '
 
       - name: Publish update
-        run: cd apps/mobile && eas update --auto --platform android --non-interactive
+        # Publish to the CHANNEL these binaries actually listen on. The build step above uses
+        # --profile production, and eas.json bakes channel "production" into that binary.
+        # This previously used --auto, which derives the EAS branch from the GIT branch name, so
+        # updates landed on a branch nobody listens to. On the production pipeline that meant
+        # every OTA went to channel "apps" while shipped builds waited on channel "production",
+        # which had zero updates in its whole history — OTA reached nobody. Verified against the
+        # Expo API on 2026-08-15. --auto also supplied the message, so pass one explicitly.
+        # The message goes through env: rather than being interpolated into the run line, so a
+        # crafted ref name cannot splice shell into the command.
+        run: cd apps/mobile && eas update --channel production --message "$UPDATE_MESSAGE" --platform android --non-interactive
+        env:
+          UPDATE_MESSAGE: ${{ github.ref_name }}@${{ github.sha }}
 
       - name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v1'
@@ -110,4 +190,4 @@ jobs:
           project_id: 'ever-teams-399720'
 
       - name: Upload to Play Store Console
-        run: cd apps/mobile && eas submit --profile production --platform android --latest --non-interactive
+        run: cd apps/mobile && eas submit --profile production --platform android --id "${{ steps.eas_build.outputs.build_id }}" --non-interactive

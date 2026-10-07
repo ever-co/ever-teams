@@ -4,7 +4,6 @@ import { PageLayout } from '@/core/components/layouts/default-layout';
 interface ReportsPageSkeletonProps {
 	className?: string;
 	showTimer?: boolean;
-	fullWidth?: boolean;
 }
 
 /**
@@ -12,11 +11,7 @@ interface ReportsPageSkeletonProps {
  * Integrates seamlessly with PageLayout structure without swallowing it up
  * Matches exact layout: mainHeaderSlot (2 sections: breadcrumb + title/filters) + main content (tables + pagination)
  */
-export const ReportsPageSkeleton: FC<ReportsPageSkeletonProps> = ({
-	className,
-	showTimer = false,
-	fullWidth = false
-}) => {
+export const ReportsPageSkeleton: FC<ReportsPageSkeletonProps> = ({ className, showTimer = false }) => {
 	return (
 		<PageLayout
 			showTimer={showTimer}

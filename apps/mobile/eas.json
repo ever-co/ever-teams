@@ -5,19 +5,29 @@
 	},
 	"build": {
 		"development": {
+			"node": "24.14.0",
+			"ios": {
+				"image": "macos-tahoe-26.5-xcode-26.6"
+			},
 			"developmentClient": true,
 			"distribution": "internal",
 			"channel": "development",
 			"env": {
+				"SHARP_IGNORE_GLOBAL_LIBVIPS": "1",
 				"SENTRY_AUTH_TOKEN": "SENTRY_AUTH_TOKEN_PLACEHOLDER",
 				"SENTRY_ORG": "SENTRY_ORG_PLACEHOLDER",
 				"SENTRY_PROJECT": "SENTRY_PROJECT_PLACEHOLDER"
 			}
 		},
 		"preview": {
+			"node": "24.14.0",
+			"ios": {
+				"image": "macos-tahoe-26.5-xcode-26.6"
+			},
 			"distribution": "internal",
 			"channel": "preview",
 			"env": {
+				"SHARP_IGNORE_GLOBAL_LIBVIPS": "1",
 				"SENTRY_AUTH_TOKEN": "SENTRY_AUTH_TOKEN_PLACEHOLDER",
 				"SENTRY_ORG": "SENTRY_ORG_PLACEHOLDER",
 				"SENTRY_PROJECT": "SENTRY_PROJECT_PLACEHOLDER",
@@ -25,23 +35,35 @@
 			}
 		},
 		"production": {
+			"node": "24.14.0",
+			"ios": {
+				"image": "macos-tahoe-26.5-xcode-26.6"
+			},
 			"autoIncrement": true,
 			"channel": "production",
 			"env": {
+				"SHARP_IGNORE_GLOBAL_LIBVIPS": "1",
 				"SENTRY_AUTH_TOKEN": "SENTRY_AUTH_TOKEN_PLACEHOLDER",
 				"SENTRY_ORG": "SENTRY_ORG_PLACEHOLDER",
 				"SENTRY_PROJECT": "SENTRY_PROJECT_PLACEHOLDER",
-				"SENTRY_URL": "https://sentry.io"
+				"SENTRY_URL": "https://sentry.io",
+				"SENTRY_ALLOW_FAILURE": "true"
 			}
 		},
 		"internal": {
+			"node": "24.14.0",
+			"ios": {
+				"image": "macos-tahoe-26.5-xcode-26.6"
+			},
 			"distribution": "internal",
 			"channel": "internal",
 			"env": {
+				"SHARP_IGNORE_GLOBAL_LIBVIPS": "1",
 				"SENTRY_AUTH_TOKEN": "SENTRY_AUTH_TOKEN_PLACEHOLDER",
 				"SENTRY_ORG": "SENTRY_ORG_PLACEHOLDER",
 				"SENTRY_PROJECT": "SENTRY_PROJECT_PLACEHOLDER",
-				"SENTRY_URL": "https://sentry.io"
+				"SENTRY_URL": "https://sentry.io",
+				"SENTRY_ALLOW_FAILURE": "true"
 			}
 		}
 	},

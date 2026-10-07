@@ -15,7 +15,11 @@ import {
 import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { translate } from '../../../../i18n';
 import { typography, useAppTheme } from '../../../../theme';
-import * as MediaLibrary from 'expo-media-library';
+// expo-media-library 57 made the root export the NEW class-based API (Asset/Album/Query). The
+// legacy functions this screen uses (getAssetsAsync, getAssetInfoAsync, usePermissions) are still
+// re-exported from the root but marked "@deprecated ... will throw in runtime" — the type error
+// that surfaced here was guarding a crash. The /legacy entrypoint keeps the same API unchanged.
+import * as MediaLibrary from 'expo-media-library/legacy';
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker';
 import { BlurView } from 'expo-blur';
 import { useImageAssets } from '../../../../services/hooks/features/use-image-assets';
@@ -127,7 +131,7 @@ const ChangeTeamLogo = observer(({ onDismiss, onExtend }: { onDismiss: () => unk
 						style={styles.wrapCirclePic}
 					>
 						<View style={[styles.circlePic, { backgroundColor: dark ? '#303540' : '#fff' }]}>
-							<AntDesign name="clockcircleo" size={24} color={colors.primary} />
+							<AntDesign name="clock-circle" size={24} color={colors.primary} />
 						</View>
 						<Text style={styles.selectText}>{translate('settingScreen.changeAvatar.recentPictures')}</Text>
 					</TouchableOpacity>

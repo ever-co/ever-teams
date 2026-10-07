@@ -1,5 +1,5 @@
 {
-	"TITLE": "Ever Отбори",
+	"TITLE": "{appName}",
 	"sidebar": {
 		"DASHBOARD": "Табло",
 		"FORYOU": "Общи",
@@ -205,6 +205,8 @@
 		"THEMES": "Теми",
 		"3D_MODE": "3D режим",
 		"DARK_MODE": "Тъмен режим",
+		"THEME_LIGHT": "Светла",
+		"THEME_DARK": "Тъмна",
 		"SETTINGS": "Настройки",
 		"PERSONAL": "Лични",
 		"USE_SETTING": "Използвай настройка",
@@ -444,7 +446,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "Разбивка на продуктивността за {month}",
 		"DAILY": "Дневно",
 		"WEEKLY": "Седмично",
-		"MONTHLY": "Месечно"
+		"MONTHLY": "Месечно",
+		"HIDE_CHART": "Скрий диаграмата",
+		"SHOW_ACTIVITY_CHART": "Покажи диаграмата на активността"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "Време и дейност",
@@ -717,7 +721,28 @@
 			"FORGOT_PASSWORD": "Забравена парола?",
 			"TERMS_OF_SERVICE": "Условия за ползване",
 			"PRIVACY_POLICY": "Политика за поверителност",
-			"OR_CONTINUE_WITH": "или продължете с"
+			"OR_CONTINUE_WITH": "или продължете с",
+			"everId": {
+				"NO_WORKSPACE_TITLE": "Все още няма работно пространство за този Ever ID",
+				"NO_WORKSPACE_BODY": "С този Ever ID все още не е свързано работно пространство. Влезте по друг начин или помолете администратора на работното си пространство за покана.",
+				"WORKSPACE_BLOCKED_TITLE": "Използвайте входа на вашата компания",
+				"WORKSPACE_BLOCKED_BODY": "Вашето работно пространство изисква вход чрез вашата компания. Използвайте го, за да продължите, или влезте по друг начин.",
+				"SIGN_IN_ANOTHER_WAY": "Вход по друг начин",
+				"NO_WORKSPACE_SIGNUP_BODY": "Можете също да създадете ново работно пространство чрез обичайната регистрация.",
+				"CREATE_WORKSPACE": "Създаване на работно пространство",
+				"CONFIRM_HINT": "Изпратихме еднократен код на имейл адреса на съществуващия ви акаунт. Въведете го, за да свържете своя Ever ID.",
+				"CODE_EXPIRED": "Този код е изтекъл или е въвеждан твърде много пъти. Влезте отново с Ever ID.",
+				"TOO_MANY_ATTEMPTS": "Твърде много опити. Изчакайте минута и опитайте отново.",
+				"UNAVAILABLE": "Входът с Ever ID в момента не е достъпен. Опитайте по-късно или влезте по друг начин.",
+				"SIGNUP_CONFIRM": "Създаване на работното ми пространство с този Ever ID",
+				"SIGNUP_HINT": "Имейл адресът ви идва от вашия потвърден Ever ID. Нищо не се създава, докато не продължите.",
+				"SIGNUP_CONFIRM_REQUIRED": "Отметнете полето, за да създадете работното си пространство с този Ever ID.",
+				"SIGNUP_TERMS": "Приемам тези документи:",
+				"SIGNUP_TERMS_REQUIRED": "Приемете документите, за да продължите.",
+				"SIGNUP_EXPIRED": "Тази регистрация е изтекла. Влезте отново с Ever ID.",
+				"SIGNUP_CHECKOUT": "Необходим е абонамент, преди работното ви пространство да бъде създадено.",
+				"CONTINUE_TO_CHECKOUT": "Продължете към плащане"
+			}
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Присъединяване към съществуващ отбор",
@@ -799,6 +824,10 @@
 			"HEADING_TITLE": "Основни настройки",
 			"goToTeamSettings": "Отидете към настройките на отбора",
 			"WORKING_HOURS": "Работно време",
+			"ADD_HOURS_FOR": "Добавяне на часове за {day}",
+			"REMOVE_HOURS_FOR": "Премахване на часове за {day}",
+			"UNAVAILABLE": "Недостъпно",
+			"TOGGLE_AVAILABILITY_FOR": "Наличност за {day}",
 			"emailNotValid": "Моля, въведете валиден имейл",
 			"phoneNotValid": "Моля, въведете валиден телефонен номер",
 			"WORK_SCHEDULE": "Работен график",
@@ -1222,7 +1251,10 @@
 			"TERMS_AND_CONDITIONS": "Общи условия",
 			"PRIVACY_POLICY": "Политика за поверителност",
 			"COOKIES": "Политика за бисквитки",
-			"BY": "От"
+			"BY": "От",
+			"BUILD_WEB": "Уеб компилация v{version}",
+			"API_VERSION": "API v{version}",
+			"OPEN_COMMIT": "Отвори комит {commit}"
 		}
 	},
 	"errors": {
@@ -1296,7 +1328,7 @@
 		"HEADER_TITLE": "AI Чат",
 		"CLEAR_CONVERSATION": "Изчисти разговора",
 		"CONFIGURATION": "Конфигурация",
-		"ASSISTANT_NAME": "Асистент Ever Teams",
+		"ASSISTANT_NAME": "Асистент {appName}",
 		"EMPTY_CONFIGURED": "Задайте въпрос, за да започнете.",
 		"EMPTY_NOT_CONFIGURED": "Конфигурирайте вашия API ключ, за да започнете.",
 		"CONFIGURE_BUTTON": "Конфигуриране",
@@ -1304,6 +1336,14 @@
 		"INPUT_PLACEHOLDER_READY": "Вашето съобщение...",
 		"INPUT_PLACEHOLDER_NO_KEY": "Конфигурирайте вашия API ключ...",
 		"STOP": "Спри",
-		"SEND": "Изпрати"
+		"SEND": "Изпрати",
+		"NEW_CHAT": "Нов чат",
+		"HISTORY": "История",
+		"NO_CONVERSATIONS": "Все още няма разговори",
+		"PANEL_CONTROLS": "Контроли на чат панела",
+		"COLLAPSE_ASSISTANT": "Свий асистента",
+		"STANDARD_ASSISTANT_WIDTH": "Стандартна ширина на асистента",
+		"EXPAND_ASSISTANT": "Разшири асистента",
+		"OPEN_ASSISTANT": "Отвори асистента {appName}"
 	}
 }

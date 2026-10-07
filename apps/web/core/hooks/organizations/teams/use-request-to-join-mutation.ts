@@ -25,20 +25,22 @@ export function useRequestToJoinMutation() {
 		onSuccess: invalidateRequestToJoinData
 	});
 
+	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change).
+	const requestToJoinMutateAsync = requestToJoinMutation.mutateAsync;
 	const requestToJoinTeam = useCallback(
 		async (data: TJoinTeamRequest) => {
-			const result = await requestToJoinMutation.mutateAsync(data);
+			const result = await requestToJoinMutateAsync(data);
 			return result;
 		},
-		[requestToJoinMutation]
+		[requestToJoinMutateAsync]
 	);
 
 	const requestToJoinQueryCall = useCallback(
 		async (data: TJoinTeamRequest) => {
-			const result = await requestToJoinMutation.mutateAsync(data);
+			const result = await requestToJoinMutateAsync(data);
 			return { data: result };
 		},
-		[requestToJoinMutation]
+		[requestToJoinMutateAsync]
 	);
 
 	return {

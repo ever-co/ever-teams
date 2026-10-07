@@ -1,7 +1,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import type { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { JitsuProvider } from '@jitsu/jitsu-react';
-import { setNextPublicEnv } from '@/env-config';
+import { readRuntimeEnv, setNextPublicEnv } from '@/env-config';
 import React, { useMemo } from 'react';
 import { JitsuAnalytics } from '@/core/components/analytics/jitsu-analytics';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
@@ -23,11 +23,16 @@ export function JitsuRoot({ pageProps, children }: MyAppProps) {
 	pageProps?.envs && setNextPublicEnv(pageProps?.envs);
 
 	const options = useMemo(() => {
+		// Runtime (container) env first, so a published Docker image can enable Jitsu without a rebuild;
+		// the literal is the build-time fallback (non-Docker builds).
 		const jitsuConf = pageProps?.jitsuConf || {
-			host: process.env.NEXT_PUBLIC_JITSU_BROWSER_URL,
-			writeKey: process.env.NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY,
+			host: readRuntimeEnv('NEXT_PUBLIC_JITSU_BROWSER_URL') || process.env.NEXT_PUBLIC_JITSU_BROWSER_URL,
+			writeKey:
+				readRuntimeEnv('NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY') ||
+				process.env.NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY,
 			debug: false,
-			cookieDomain: process.env.NEXT_PUBLIC_JITSU_COOKIE_DOMAIN,
+			cookieDomain:
+				readRuntimeEnv('NEXT_PUBLIC_JITSU_COOKIE_DOMAIN') || process.env.NEXT_PUBLIC_JITSU_COOKIE_DOMAIN,
 			echoEvents: false
 		};
 

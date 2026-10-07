@@ -196,9 +196,12 @@ export function TaskInput(props: Props) {
 
 	/*
 	If task is passed then we don't want to set the active task for the authenticated user.
-	after task creation
+	after task creation.
+	The dashboard input passes task={activeTeamTask}, which is null (not undefined) when the user has
+	no active task yet — treat that the same as "no task": a task created from an empty "What you
+	working on?" must become the active task, otherwise the play button silently does nothing.
    */
-	const autoActiveTask: boolean = props.task === undefined;
+	const autoActiveTask: boolean = props.task === undefined || props.task === null;
 	const handleTaskCreation = useCallback(() => {
 		/* Checking if the `handleTaskCreation` is available and if the `hasCreateForm` is true. */
 		datas &&

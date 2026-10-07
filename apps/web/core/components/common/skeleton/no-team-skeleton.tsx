@@ -2,18 +2,11 @@ import { clsxm } from '@/core/lib/utils';
 
 interface NoTeamSkeletonProps {
 	className?: string;
-	fullWidth?: boolean;
 }
 
-export function NoTeamSkeleton({ className, fullWidth = true }: NoTeamSkeletonProps) {
+export function NoTeamSkeleton({ className }: Readonly<NoTeamSkeletonProps>) {
 	return (
-		<div
-			className={clsxm(
-				'flex flex-col items-center justify-center min-h-[400px] p-8',
-				className,
-				fullWidth && 'w-full'
-			)}
-		>
+		<div className={clsxm('flex flex-col items-center justify-center min-h-[400px] p-8', className, 'w-full')}>
 			{/* Icon skeleton */}
 			<div className="w-24 h-24 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full mb-5" />
 

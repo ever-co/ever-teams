@@ -30,20 +30,22 @@ export function useResendCodeRequestToJoin() {
 		}
 	});
 
+	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change).
+	const resendCodeMutateAsync = resendCodeMutation.mutateAsync;
 	const resendCodeRequestToJoinTeam = useCallback(
 		async (data: TJoinTeamRequest) => {
-			const result = await resendCodeMutation.mutateAsync(data);
+			const result = await resendCodeMutateAsync(data);
 			return result;
 		},
-		[resendCodeMutation]
+		[resendCodeMutateAsync]
 	);
 
 	const resendCodeRequestToJoinQueryCall = useCallback(
 		async (data: TJoinTeamRequest) => {
-			const result = await resendCodeMutation.mutateAsync(data);
+			const result = await resendCodeMutateAsync(data);
 			return { data: result };
 		},
-		[resendCodeMutation]
+		[resendCodeMutateAsync]
 	);
 
 	return {

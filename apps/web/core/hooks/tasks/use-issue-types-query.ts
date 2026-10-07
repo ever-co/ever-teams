@@ -6,6 +6,7 @@ import { issueTypeService } from '@/core/services/client/api/tasks/issue-type.se
 import { queryKeys } from '@/core/query/keys';
 import { useFirstLoad } from '../common/use-first-load';
 import { useInvalidateIssueTypes } from './use-invalidate-issue-types';
+import { useTaskMetadataBootstrapQuery } from './use-task-metadata-bootstrap-query';
 
 /**
  * Hook for reading issue types data.
@@ -18,6 +19,7 @@ import { useInvalidateIssueTypes } from './use-invalidate-issue-types';
 export function useIssueTypesQuery() {
 	const { teamId, isEnabled } = useInvalidateIssueTypes();
 	const { firstLoadData: firstLoadIssueTypeData } = useFirstLoad();
+	const taskMetadataQuery = useTaskMetadataBootstrapQuery();
 
 	const issueTypesQuery = useQuery({
 		queryKey: queryKeys.issueTypes.byTeam(teamId),
@@ -28,18 +30,20 @@ export function useIssueTypesQuery() {
 			const res = await issueTypeService.getIssueTypeList();
 			return res.data;
 		},
-		enabled: isEnabled,
+		enabled: !taskMetadataQuery.useBootstrap && isEnabled,
 		staleTime: 1000 * 60 * 5,
 		gcTime: 1000 * 60 * 15
 	});
 
+	const issueTypesData = taskMetadataQuery.useBootstrap ? taskMetadataQuery.data?.issueTypes : issueTypesQuery.data;
 	// Memoized to prevent infinite re-renders (stable reference)
-	const issueTypes = useMemo(() => issueTypesQuery.data?.items ?? [], [issueTypesQuery.data?.items]);
+	const issueTypes = useMemo(() => issueTypesData?.items ?? [], [issueTypesData?.items]);
+	const issueTypesLoading = taskMetadataQuery.useBootstrap ? taskMetadataQuery.isLoading : issueTypesQuery.isLoading;
 
 	// Legacy backward compat
 	const loadIssueTypes = useCallback(async () => {
-		return issueTypesQuery.data;
-	}, [issueTypesQuery.data]);
+		return issueTypesData;
+	}, [issueTypesData]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadIssueTypes();
@@ -48,10 +52,9 @@ export function useIssueTypesQuery() {
 
 	return {
 		issueTypes,
-		loading: issueTypesQuery.isLoading,
-		getIssueTypesLoading: issueTypesQuery.isLoading,
+		loading: issueTypesLoading,
+		getIssueTypesLoading: issueTypesLoading,
 		loadIssueTypes,
 		firstLoadIssueTypeData: handleFirstLoad
 	};
 }
-

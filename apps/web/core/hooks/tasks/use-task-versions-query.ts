@@ -6,6 +6,7 @@ import { taskVersionService } from '@/core/services/client/api/tasks/task-versio
 import { queryKeys } from '@/core/query/keys';
 import { useFirstLoad } from '../common/use-first-load';
 import { useInvalidateTaskVersions } from './use-invalidate-task-versions';
+import { useTaskMetadataBootstrapQuery } from './use-task-metadata-bootstrap-query';
 
 /**
  * Hook for reading task versions data.
@@ -18,27 +19,34 @@ import { useInvalidateTaskVersions } from './use-invalidate-task-versions';
 export function useTaskVersionsQuery() {
 	const { activeTeamId } = useInvalidateTaskVersions();
 	const { firstLoadData: firstLoadTaskVersionData } = useFirstLoad();
+	const taskMetadataQuery = useTaskMetadataBootstrapQuery();
 
 	const taskVersionsQuery = useQuery({
 		queryKey: queryKeys.taskVersions.byTeam(activeTeamId),
-		queryFn: async () => taskVersionService.getTaskVersions()
+		queryFn: async () => taskVersionService.getTaskVersions(),
+		enabled: !taskMetadataQuery.useBootstrap
 	});
 
-	const taskVersions = useMemo(
-		() => taskVersionsQuery.data?.items ?? [],
-		[taskVersionsQuery.data?.items]
-	);
+	const taskVersionsData = taskMetadataQuery.useBootstrap
+		? taskMetadataQuery.data?.taskVersions
+		: taskVersionsQuery.data;
+	const taskVersions = useMemo(() => taskVersionsData?.items ?? [], [taskVersionsData?.items]);
+	const taskVersionsLoading = taskMetadataQuery.useBootstrap
+		? taskMetadataQuery.isLoading
+		: taskVersionsQuery.isLoading;
+	const taskVersionsPending = taskMetadataQuery.useBootstrap
+		? taskMetadataQuery.isPending
+		: taskVersionsQuery.isPending;
 
 	const loadTaskVersionData = useCallback(() => {
-		return taskVersionsQuery.data;
-	}, [taskVersionsQuery.data]);
+		return taskVersionsData;
+	}, [taskVersionsData]);
 
 	return {
 		taskVersions,
-		loading: taskVersionsQuery.isLoading,
-		taskVersionFetching: taskVersionsQuery.isPending,
+		loading: taskVersionsLoading,
+		taskVersionFetching: taskVersionsPending,
 		loadTaskVersionData,
 		firstLoadTaskVersionData
 	};
 }
-

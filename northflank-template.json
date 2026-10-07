@@ -24,6 +24,28 @@
             "type": "sequential",
             "steps": [
               {
+                "kind": "SecretGroup",
+                "spec": {
+                  "name": "ever-teams-web-secrets",
+                  "description": "Runtime secrets of the Ever Teams web app (see .env.docker in the repository).",
+                  "type": "secret",
+                  "secretType": "environment",
+                  "priority": 10,
+                  "secrets": {
+                    "variables": {
+                      "AUTH_SECRET": "${fn.randomSecret(48)}"
+                    },
+                    "files": {}
+                  },
+                  "addonDependencies": [],
+                  "restrictions": {
+                    "restricted": false,
+                    "nfObjects": [],
+                    "tags": []
+                  }
+                }
+              },
+              {
                 "kind": "DeploymentService",
                 "spec": {
                   "deployment": {
@@ -35,7 +57,10 @@
                       "imagePath": "ghcr.io/ever-co/ever-teams-webapp:latest"
                     }
                   },
-                  "runtimeEnvironment": {},
+                  "runtimeEnvironment": {
+                    "GAUZY_API_SERVER_URL": "https://api.ever.team",
+                    "NEXT_PUBLIC_GAUZY_API_SERVER_URL": "https://api.ever.team"
+                  },
                   "runtimeFiles": {},
                   "billing": {
                     "deploymentPlan": "nf-compute-10"

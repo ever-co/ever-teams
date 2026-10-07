@@ -14,12 +14,15 @@ export function useTimeLogsDailyReport() {
 
 	const timeLogsDailyReport = useGetTimeLogsDailyReport({
 		/**
-		 * Get all time logs for the current year for global state across the app (it can be changed if needed)
+		 * Global preload for the app shell — CURRENT MONTH only (2026-08-17, owner: "paging and good
+		 * performance everywhere"). This used to request the whole YEAR of the organization's daily report on
+		 * every app load, while its only consumer is the "Stats" tab COUNT on the profile page; the Stats tab
+		 * content (ActivityCalendar) fetches its own year range on demand with a year selector.
 		 *
 		 * Other components can use custom filters by calling `useGetTimeLogsDailyReport(filters)`
 		 */
-		startDate: moment().startOf('year').toDate(),
-		endDate: moment().endOf('year').toDate()
+		startDate: moment().startOf('month').toDate(),
+		endDate: moment().endOf('month').toDate()
 	});
 
 	// Track / sync the fetching state

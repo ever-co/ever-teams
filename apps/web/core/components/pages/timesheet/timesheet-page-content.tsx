@@ -8,7 +8,6 @@ import { Container } from '@/core/components';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 
 import { useLocalStorageState, useModal } from '@/core/hooks';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { useAtomValue } from 'jotai';
 
 import {
@@ -194,8 +193,6 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 	}, [statusTimesheet]);
 	const { hours: hours, minutes: minute } = secondsToTime(totalDuration || 0);
 
-	const fullWidth = useAtomValue(fullWidthState);
-
 	const shouldRenderPagination =
 		timesheetNavigator === 'ListView' ||
 		(timesheetGroupByDays === 'Daily' && timesheetNavigator === 'CalendarView');
@@ -212,7 +209,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 				childrenClassName="w-full"
 				mainHeaderSlot={
 					<div className="flex flex-col py-4 bg-gray-100 dark:bg-dark--theme">
-						<Container fullWidth={fullWidth} className="flex flex-col gap-y-3">
+						<Container className="flex flex-col gap-y-3">
 							<div className="flex flex-row justify-between items-start">
 								<div className="flex gap-8 justify-center items-center h-10">
 									<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
@@ -346,7 +343,6 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 								/>
 								{selectTimesheetId.length > 0 && (
 									<SelectedTimesheet
-										fullWidth={fullWidth}
 										selectTimesheetId={selectTimesheetId}
 										setSelectTimesheetId={setSelectTimesheetId}
 									/>

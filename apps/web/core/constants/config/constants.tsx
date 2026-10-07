@@ -1,6 +1,6 @@
 import { JitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 import { I_SMTPRequest } from '@/core/types/interfaces/auth/custom-smtp';
-import { getNextPublicEnv, getServerRuntimeConfig } from '@/env-config';
+import { getNextPublicEnv, getServerRuntimeConfig, readRuntimeEnv } from '@/env-config';
 import enLanguage from '@/locales/en.json';
 import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
 import { EManualTimeReasons } from '@/core/types/generics/enums/timer';
@@ -89,15 +89,32 @@ export const PERMISSION_ROLES: PermissionMap = {
 	VIEWER: ['SUPER_ADMIN', 'ADMIN', 'VIEWER']
 };
 export const API_BASE_URL = '/api';
-export const DEFAULT_APP_PATH = process.env.NEXT_PUBLIC_DEMO === 'true' ? '/auth/password' : '/auth/passcode';
+// Runtime-configurable (readRuntimeEnv): a published Docker image decides demo mode from its container env.
+export const DEFAULT_APP_PATH =
+	(readRuntimeEnv('NEXT_PUBLIC_DEMO') || process.env.NEXT_PUBLIC_DEMO) === 'true'
+		? '/auth/password'
+		: '/auth/passcode';
 export const DEFAULT_MAIN_PATH = '/';
+/**
+ * Optional locale prefix for protected-path matching. Must list the same locales as the
+ * proxy matcher in proxy.ts (`/(en|ar|bg|...)/:path*`) and APPLICATION_LANGUAGES_CODE below.
+ *
+ * Without it every protected path was anchored at "^/settings", "^/task", ... so a
+ * NON-DEFAULT-locale URL such as /fr/settings/personal or /de/task/<id> did not match, was
+ * treated as public, and was served 200 to an unauthenticated visitor, while
+ * /settings/personal correctly redirected to /unauthorized. (The default locale "en" is
+ * stripped before matching, which is why only /en/... looked right.) Found by the
+ * 2026-08-17 browser sweep.
+ */
+const LOCALE_PREFIX = '(?:\\/(?:en|fr|ar|bg|zh|nl|de|he|it|pl|pt|ru|es))?';
+
 export const PROTECTED_APP_URL_PATHS: RegExp[] = [
-	/^\/$/,
-	/^(\/profile(\/)?)(.*)$/,
-	/^(\/settings(\/)?)(.*)$/,
-	/^(\/task(\/)?)(.*)$/,
-	/^(\/meet(\/)?)(.*)$/,
-	/^(\/board(\/)?)(.*)$/
+	new RegExp('^' + LOCALE_PREFIX + '\\/?$'),
+	new RegExp('^' + LOCALE_PREFIX + '(\\/profile(\\/)?)(.*)$'),
+	new RegExp('^' + LOCALE_PREFIX + '(\\/settings(\\/)?)(.*)$'),
+	new RegExp('^' + LOCALE_PREFIX + '(\\/task(\\/)?)(.*)$'),
+	new RegExp('^' + LOCALE_PREFIX + '(\\/meet(\\/)?)(.*)$'),
+	new RegExp('^' + LOCALE_PREFIX + '(\\/board(\\/)?)(.*)$')
 ];
 
 // Cookies
@@ -117,17 +134,78 @@ export const ACTIVE_PROJECT_COOKIE_NAME = 'auth-active-project';
 export const IS_DESKTOP_APP = process.env.IS_DESKTOP_APP === 'true';
 
 // Recaptcha
-export const RECAPTCHA_SITE_KEY = getNextPublicEnv(
-	'NEXT_PUBLIC_CAPTCHA_SITE_KEY',
-	process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY
-);
-export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;
-export const CAPTCHA_TYPE = process.env.NEXT_PUBLIC_CAPTCHA_TYPE;
-let basePath = process.env.GAUZY_API_SERVER_URL ? process.env.GAUZY_API_SERVER_URL : 'https://api.ever.team';
+/**
+ * A captcha key counts as CONFIGURED only when it is non-blank.
+ *
+ * On stage the secrets held one-character placeholder values (a single space) for both
+ * CAPTCHA_SECRET_KEY and NEXT_PUBLIC_CAPTCHA_SITE_KEY. A space is truthy, so the register route
+ * demanded a recaptcha token and the form validator demanded a token — but the widget was
+ * rendered with sitekey=" ", which Google rejects, so no token could ever be produced. Result:
+ * EVERY signup on stage.ever.team hung on "We are now creating your new workplace, hold on..."
+ * with the API answering {"recaptcha":"Please check the ReCaptcha checkbox before continue"}.
+ * Found on 2026-08-17. Blank ⇒ unset, everywhere this is read.
+ */
+const blankToUndefined = (v: string | undefined | null): string | undefined => {
+	const t = (v ?? '').trim();
+	return t.length > 0 ? t : undefined;
+};
+
+/**
+ * Logs a configuration warning once per process. Next evaluates this module separately in each server
+ * bundle (RSC, SSR, route handlers), so a module-level flag alone would repeat the line.
+ */
+const warnOnce = (key: string, message: string) => {
+	const registry = globalThis as typeof globalThis & { __everTeamsConfigWarnings?: Set<string> };
+	registry.__everTeamsConfigWarnings ??= new Set<string>();
+	if (registry.__everTeamsConfigWarnings.has(key)) return;
+	registry.__everTeamsConfigWarnings.add(key);
+	console.warn(message);
+};
+
+// getNextPublicEnv's `map` option keeps the lazy runtime-env getter semantics intact.
+export const RECAPTCHA_SITE_KEY = getNextPublicEnv('NEXT_PUBLIC_CAPTCHA_SITE_KEY', {
+	default: process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY,
+	map: blankToUndefined
+});
+export const RECAPTCHA_SECRET_KEY = blankToUndefined(process.env.CAPTCHA_SECRET_KEY);
+export const CAPTCHA_TYPE = readRuntimeEnv('NEXT_PUBLIC_CAPTCHA_TYPE') || process.env.NEXT_PUBLIC_CAPTCHA_TYPE;
+/**
+ * Base URL the server-side /api proxy routes call. Most deployments expose Gauzy at one URL, so without
+ * GAUZY_API_SERVER_URL the public API URL is the right target; Ever's hosted API is only the last resort,
+ * and a production server says so, since a reused image would otherwise proxy to Ever silently.
+ */
+const resolveGauzyApiServerBase = (): string => {
+	const configured =
+		blankToUndefined(process.env.GAUZY_API_SERVER_URL) ||
+		readRuntimeEnv('NEXT_PUBLIC_GAUZY_API_SERVER_URL') ||
+		process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL;
+	if (configured) return configured;
+	// Not in the browser (it never proxies) nor during `next build`, where no deployment env is expected.
+	if (
+		typeof window === 'undefined' &&
+		process.env.NODE_ENV === 'production' &&
+		process.env.NEXT_PHASE !== 'phase-production-build'
+	) {
+		warnOnce(
+			'GAUZY_API_SERVER_URL',
+			'GAUZY_API_SERVER_URL and NEXT_PUBLIC_GAUZY_API_SERVER_URL are not set: ' +
+				'the /api routes fall back to https://api.ever.team.'
+		);
+	}
+	return 'https://api.ever.team';
+};
+let basePath = resolveGauzyApiServerBase();
 if (IS_DESKTOP_APP) {
 	const serverRuntimeConfig = getServerRuntimeConfig();
 	basePath = serverRuntimeConfig?.GAUZY_API_SERVER_URL || basePath;
 }
+
+/**
+ * The API ORIGIN this server talks to, WITHOUT `/api`: Gauzy serves its static files next to the API
+ * rather than under it (`<origin>/public/ever-icons/...`, the task status, priority and size icons).
+ * Not the same thing as GAUZY_API_BASE_SERVER_URL, which is what the BROWSER was given.
+ */
+export const GAUZY_API_SERVER_ORIGIN = basePath;
 
 export const GAUZY_API_SERVER_URL = basePath + '/api';
 
@@ -136,40 +214,84 @@ export const GAUZY_API_BASE_SERVER_URL = getNextPublicEnv(
 	process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL
 );
 export const IS_DEV_MODE = process.env.NODE_ENV === 'development';
-export const IS_DEMO_MODE = process.env.NEXT_PUBLIC_DEMO === 'true';
+export const IS_DEMO_MODE = (readRuntimeEnv('NEXT_PUBLIC_DEMO') || process.env.NEXT_PUBLIC_DEMO) === 'true';
+
+/** How each demo account type is presented (the labels are translated, so only these types exist). */
+const DEMO_ACCOUNT_TYPES = {
+	SUPER_ADMIN: { translationKey: 'DEMO_SUPER_ADMIN', role: 'Super Admin', icon: UserCog },
+	ADMIN: { translationKey: 'DEMO_ADMIN', role: 'Admin', icon: Shield },
+	EMPLOYEE: { translationKey: 'DEMO_EMPLOYEE', role: 'Employee', icon: User2 }
+} as const;
+type DemoAccountType = keyof typeof DEMO_ACCOUNT_TYPES;
+type DemoAccountCredentials = { type: DemoAccountType; email: string; password: string; role?: string };
+
+// The accounts of the Gauzy demo seed, which Ever's demo runs on.
+const DEFAULT_DEMO_ACCOUNTS: DemoAccountCredentials[] = [
+	{ type: 'SUPER_ADMIN', email: 'admin@ever.co', password: 'admin' },
+	{ type: 'ADMIN', email: 'local.admin@ever.co', password: 'admin' },
+	// The Gauzy demo seed creates this account with '12345678', not '123456'. Verified against
+	// the live demo API on 2026-08-17: 123456 -> 401, 12345678 -> 200. With the wrong value the
+	// "Employee Demo" one-click login on demo.ever.team failed with 401 for every visitor.
+	{ type: 'EMPLOYEE', email: 'employee@ever.co', password: '12345678' }
+];
+
+const isDemoAccountCredentials = (value: unknown): value is DemoAccountCredentials => {
+	if (!value || typeof value !== 'object') return false;
+	const { type, email, password, role } = value as Record<string, unknown>;
+	return (
+		typeof type === 'string' &&
+		Object.hasOwn(DEMO_ACCOUNT_TYPES, type) &&
+		typeof email === 'string' &&
+		email.trim() !== '' &&
+		typeof password === 'string' &&
+		password !== '' &&
+		(role === undefined || typeof role === 'string')
+	);
+};
+
+/**
+ * A demo deployment seeded with other accounts lists them in NEXT_PUBLIC_DEMO_ACCOUNTS, a JSON array of
+ * `{ type, email, password, role? }` with at most one account per type. Any other value keeps the
+ * defaults, with a warning (never the value itself).
+ */
+const parseDemoAccounts = (raw: string | undefined): DemoAccountCredentials[] => {
+	if (!raw) return DEFAULT_DEMO_ACCOUNTS;
+	try {
+		const accounts: unknown = JSON.parse(raw);
+		if (
+			Array.isArray(accounts) &&
+			accounts.every(isDemoAccountCredentials) &&
+			new Set(accounts.map((account) => account.type)).size === accounts.length
+		) {
+			return accounts;
+		}
+	} catch {
+		// Invalid JSON: reported below like any other invalid value.
+	}
+	warnOnce(
+		'NEXT_PUBLIC_DEMO_ACCOUNTS',
+		`NEXT_PUBLIC_DEMO_ACCOUNTS is ignored: expected a JSON array of { type, email, password, role? } with ` +
+			`one account per type (${Object.keys(DEMO_ACCOUNT_TYPES).join(', ')}).`
+	);
+	return DEFAULT_DEMO_ACCOUNTS;
+};
 
 /**
  * Demo account credentials for auto-login feature
  * Only used when IS_DEMO_MODE is true
  */
 export const DEMO_ACCOUNTS_CONFIG = IS_DEMO_MODE
-	? [
-			{
-				type: 'SUPER_ADMIN',
-				email: 'admin@ever.co',
-				password: 'admin',
-				translationKey: 'DEMO_SUPER_ADMIN',
-				role: 'Super Admin',
-				icon: UserCog
-			},
-			{
-				type: 'ADMIN',
-				email: 'local.admin@ever.co',
-				password: 'admin',
-				translationKey: 'DEMO_ADMIN',
-				role: 'Admin',
-				icon: Shield
-			},
-			{
-				type: 'EMPLOYEE',
-				email: 'employee@ever.co',
-				password: '123456',
-				translationKey: 'DEMO_EMPLOYEE',
-				role: 'Employee',
-				icon: User2
-			}
-		]
-	: ([] as const);
+	? parseDemoAccounts(readRuntimeEnv('NEXT_PUBLIC_DEMO_ACCOUNTS') || process.env.NEXT_PUBLIC_DEMO_ACCOUNTS).map(
+			({ type, email, password, role }) => ({
+				type,
+				email,
+				password,
+				translationKey: DEMO_ACCOUNT_TYPES[type].translationKey,
+				role: role?.trim() || DEMO_ACCOUNT_TYPES[type].role,
+				icon: DEMO_ACCOUNT_TYPES[type].icon
+			})
+		)
+	: [];
 
 export const ACTIVE_LOCAL_LOG_SYSTEM = getNextPublicEnv(
 	'NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM',
@@ -210,12 +332,45 @@ export const DISABLE_AUTO_REFRESH = getNextPublicEnv('NEXT_PUBLIC_DISABLE_AUTO_R
 });
 
 // Branding constants - no fallbacks to detect missing values
-export const APP_NAME = process.env.APP_NAME || 'Ever Teams';
-export const SITE_TITLE = process.env.NEXT_PUBLIC_SITE_TITLE || 'Open Work and Project Management Platform';
-export const APP_SIGNATURE = process.env.APP_SIGNATURE || 'Ever Teams';
-export const APP_LOGO_URL = process.env.APP_LOGO_URL || 'https://app.ever.team/assets/ever-teams.png';
-export const APP_LINK = process.env.APP_LINK || 'https://app.ever.team';
-export const APP_SLOGAN_TEXT = process.env.APP_SLOGAN_TEXT || 'Real-Time Clarity, Real-Time Reality™.';
+// Branding is read at RUNTIME (readRuntimeEnv), so a published Docker image can be rebranded with
+// `docker run -e APP_NAME=...`; these keys are no longer inlined by next.config's `env` block.
+export const APP_NAME = readRuntimeEnv('APP_NAME') || process.env.APP_NAME || 'Ever Teams';
+export const SITE_TITLE =
+	readRuntimeEnv('NEXT_PUBLIC_SITE_TITLE') ||
+	process.env.NEXT_PUBLIC_SITE_TITLE ||
+	'Open Work and Project Management Platform';
+export const APP_SIGNATURE = readRuntimeEnv('APP_SIGNATURE') || process.env.APP_SIGNATURE || 'Ever Teams';
+export const APP_LINK = readRuntimeEnv('APP_LINK') || process.env.APP_LINK || 'https://app.ever.team';
+
+// A loop, not /\/+$/: that regex backtracks polynomially on a long run of slashes.
+const withoutTrailingSlashes = (value: string) => {
+	let end = value.length;
+	while (end > 0 && value[end - 1] === '/') end -= 1;
+	return value.slice(0, end);
+};
+const isAppRelativePath = (value: string) => value.startsWith('/') && !value.startsWith('//');
+
+// The logo as configured; the default is the one this app serves itself.
+const APP_LOGO = readRuntimeEnv('APP_LOGO_URL') || process.env.APP_LOGO_URL || '/assets/ever-teams.png';
+// The public origin of THIS web app, where a path-valued logo is served. NEXT_PUBLIC_WEB_APP_URL first: some
+// deployments point APP_LINK at their marketing site, which does not serve /assets/ever-teams.png.
+const APP_LOGO_ORIGIN =
+	readRuntimeEnv('NEXT_PUBLIC_WEB_APP_URL') || process.env.NEXT_PUBLIC_WEB_APP_URL?.trim() || APP_LINK;
+/**
+ * Absolute logo URL: it also goes into auth emails, where a path relative to this app cannot load, so a
+ * path is resolved against the app's public origin (unset: https://app.ever.team/assets/ever-teams.png).
+ */
+export const APP_LOGO_URL = isAppRelativePath(APP_LOGO) ? withoutTrailingSlashes(APP_LOGO_ORIGIN) + APP_LOGO : APP_LOGO;
+
+/**
+ * Optional branding (the slogan, the company and legal links) is turned OFF with the literal value 'none'
+ * (any case); empty cannot say it, as empty means "use the default". Consumers render nothing for ''.
+ */
+const optionalBranding = (value: string) => (value.trim().toLowerCase() === 'none' ? '' : value);
+
+export const APP_SLOGAN_TEXT = optionalBranding(
+	readRuntimeEnv('APP_SLOGAN_TEXT') || process.env.APP_SLOGAN_TEXT || 'Real-Time Clarity, Real-Time Reality™.'
+);
 
 const isHttpUrl = (value?: string | null) => Boolean(value && /^https?:\/\//i.test(value));
 const getHostname = (value?: string | null) => {
@@ -249,10 +404,13 @@ const resolveLogoSource = (value: string) => {
 	}
 };
 
-export const APP_LOGO_SRC = resolveLogoSource(APP_LOGO_URL);
+// From the logo as configured: a path stays relative to this app, as the UI always loaded it.
+export const APP_LOGO_SRC = resolveLogoSource(APP_LOGO);
 
-export const COMPANY_NAME = process.env.COMPANY_NAME || 'Ever Co. LTD';
-export const COMPANY_LINK = process.env.COMPANY_LINK || 'https://ever.co';
+export const COMPANY_NAME = readRuntimeEnv('COMPANY_NAME') || process.env.COMPANY_NAME || 'Ever Co. LTD';
+export const COMPANY_LINK = optionalBranding(
+	readRuntimeEnv('COMPANY_LINK') || process.env.COMPANY_LINK || 'https://ever.co'
+);
 
 // Utility to detect missing branding variables
 export const getMissingBrandingVars = () => {
@@ -262,9 +420,8 @@ export const getMissingBrandingVars = () => {
 	if (!APP_SIGNATURE) missing.push('APP_SIGNATURE');
 	if (!APP_LOGO_URL) missing.push('APP_LOGO_URL');
 	if (!APP_LINK) missing.push('APP_LINK');
-	if (!APP_SLOGAN_TEXT) missing.push('APP_SLOGAN_TEXT');
+	// APP_SLOGAN_TEXT and COMPANY_LINK always have a default: empty means the deployment turned them off.
 	if (!COMPANY_NAME) missing.push('COMPANY_NAME');
-	if (!COMPANY_LINK) missing.push('COMPANY_LINK');
 
 	return missing;
 };
@@ -284,11 +441,19 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
 	}
 }
 
-export const TERMS_LINK = process.env.TERMS_LINK || 'https://ever.team/tos';
-export const PRIVACY_POLICY_LINK = process.env.PRIVACY_POLICY_LINK || 'https://ever.team/privacy';
+export const TERMS_LINK = optionalBranding(
+	readRuntimeEnv('TERMS_LINK') || process.env.TERMS_LINK || 'https://ever.team/tos'
+);
+export const PRIVACY_POLICY_LINK = optionalBranding(
+	readRuntimeEnv('PRIVACY_POLICY_LINK') || process.env.PRIVACY_POLICY_LINK || 'https://ever.team/privacy'
+);
 
-export const MAIN_PICTURE = process.env.MAIN_PICTURE || '/assets/cover/auth-bg-cover.png';
-export const MAIN_PICTURE_DARK = process.env.MAIN_PICTURE_DARK || '/assets/cover/auth-bg-cover-dark.png';
+export const MAIN_PICTURE =
+	readRuntimeEnv('MAIN_PICTURE') || process.env.MAIN_PICTURE || '/assets/cover/auth-bg-cover.png';
+export const MAIN_PICTURE_DARK =
+	readRuntimeEnv('MAIN_PICTURE_DARK') || process.env.MAIN_PICTURE_DARK || '/assets/cover/auth-bg-cover-dark.png';
+// The browser tab icon: a path served by this app or an absolute URL.
+export const APP_FAVICON_URL = readRuntimeEnv('APP_FAVICON_URL') || process.env.APP_FAVICON_URL || '/favicon.ico';
 
 export const CHARACTER_LIMIT_TO_SHOW = 20;
 
@@ -338,7 +503,11 @@ export const BOARD_FIREBASE_CONFIG = getNextPublicEnv(
 
 export const POSTHOG_KEY = getNextPublicEnv('NEXT_PUBLIC_POSTHOG_KEY', process.env.NEXT_PUBLIC_POSTHOG_KEY);
 
-export const POSTHOG_HOST = getNextPublicEnv('NEXT_PUBLIC_POSTHOG_HOST', process.env.NEXT_PUBLIC_POSTHOG_HOST);
+// PostHog Cloud (US) unless the deployment names its own host; analytics stay off without POSTHOG_KEY.
+export const POSTHOG_HOST = getNextPublicEnv(
+	'NEXT_PUBLIC_POSTHOG_HOST',
+	process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com'
+);
 
 // Jitsu
 export const jitsuConfiguration: () => JitsuOptions = () => ({
@@ -352,6 +521,8 @@ export const jitsuConfiguration: () => JitsuOptions = () => ({
 });
 
 // Github Integration
+// The slug of the deployment's own GitHub App, no default: a default would send every self-hosted
+// installation to Ever's app. Unset => the integration settings offer no install link.
 export const GITHUB_APP_NAME = getNextPublicEnv(
 	'NEXT_PUBLIC_GITHUB_APP_NAME',
 	process.env.NEXT_PUBLIC_GITHUB_APP_NAME || ''
@@ -523,12 +694,43 @@ export const LINKEDIN_CLIENT_SECRET = process.env.LINKEDIN_CLIENT_SECRET;
 
 export const MICROSOFT_CLIENT_ID = process.env.MICROSOFT_CLIENT_ID;
 export const MICROSOFT_CLIENT_SECRET = process.env.MICROSOFT_CLIENT_SECRET;
+// Entra tenant id; empty = 'common' (multi-tenant app registrations only).
+export const MICROSOFT_TENANT_ID = process.env.MICROSOFT_TENANT_ID;
 
 export const SLACK_CLIENT_ID = process.env.SLACK_CLIENT_ID;
 export const SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET;
 
 export const TWITTER_CLIENT_ID = process.env.TWITTER_CLIENT_ID;
 export const TWITTER_CLIENT_SECRET = process.env.TWITTER_CLIENT_SECRET;
+
+/**
+ * Ever ID sign-in (an OpenID Connect provider), server-only and OFF unless configured: next-auth serves it
+ * only when NEXT_PUBLIC_EVER_ID_APP_NAME is set AND the issuer, client id and client secret below are all
+ * non-blank (core/lib/auth/ever-id/config.ts). Nothing here is published to the browser, and nothing
+ * contacts the issuer before someone actually signs in with it.
+ *
+ * EVER_ID_ISSUER is the deprecated name of EVER_ID_ISSUER_URL: still read, with one warning per process. The
+ * value is used exactly as configured (an issuer identifier is compared character for character).
+ */
+const resolveEverIdIssuerUrl = (): string | undefined => {
+	const issuer = blankToUndefined(process.env.EVER_ID_ISSUER_URL);
+	if (issuer) return issuer;
+	const deprecated = blankToUndefined(process.env.EVER_ID_ISSUER);
+	if (!deprecated) return undefined;
+	warnOnce('EVER_ID_ISSUER', 'EVER_ID_ISSUER is deprecated: set EVER_ID_ISSUER_URL instead.');
+	return deprecated;
+};
+export const EVER_ID_ISSUER_URL = resolveEverIdIssuerUrl();
+export const EVER_ID_CLIENT_ID = blankToUndefined(process.env.EVER_ID_CLIENT_ID);
+export const EVER_ID_CLIENT_SECRET = blankToUndefined(process.env.EVER_ID_CLIENT_SECRET);
+/** Optional: when set, the sign-in also asks for the platform project audience. */
+export const EVER_PLATFORM_PROJECT_ID = blankToUndefined(process.env.EVER_PLATFORM_PROJECT_ID);
+/**
+ * Off by default. An Ever ID sign-in without a workspace never creates one: it ends on a page that explains why.
+ * Exactly 'true' makes that page also offer the usual sign-up, where an account is created only once the person
+ * confirms it.
+ */
+export const EVER_ID_TEAMS_AUTO_PROVISION = blankToUndefined(process.env.EVER_ID_TEAMS_AUTO_PROVISION) === 'true';
 
 export const developmentAuthSecret = 'DEFAULT_VALUE_OF_SECRET_FOR_DEVELOPMENT';
 export const isDevelopment = process.env.NODE_ENV === 'development';

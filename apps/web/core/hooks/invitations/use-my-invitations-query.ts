@@ -7,6 +7,9 @@ import { queryKeys } from '@/core/query/keys';
 import { useUserQuery } from '../queries/user-user.query';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { TInvite } from '@/core/types/schemas';
+import { useScopeGuard } from '../bootstrap/use-scope-guard';
+import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
+import { CREDENTIAL_SCOPED_QUERY_META } from '@/core/query/credential-query';
 
 /**
  * Hook for reading the current user's invitations.
@@ -20,6 +23,18 @@ export function useMyInvitationsQuery() {
 	const queryClient = useQueryClient();
 
 	const { data: user } = useUserQuery();
+	const accessToken = useReactiveAccessTokenCookie();
+	const scope = {
+		tenantId: user?.tenantId,
+		userId: user?.id,
+		accessToken
+	};
+	const myInvitationsKey = useMemo(
+		() => queryKeys.users.invitations.myByUser(scope.tenantId, scope.userId),
+		[scope.tenantId, scope.userId]
+	);
+	const queryEnabled = !!(scope.tenantId && scope.userId && scope.accessToken);
+	const isCurrentScope = useScopeGuard(myInvitationsKey, true);
 
 	// ===== QUERY =====
 
@@ -29,13 +44,14 @@ export function useMyInvitationsQuery() {
 		isSuccess: myInvitationsSuccess,
 		refetch: refetchMyInvitationsQuery
 	} = useQuery({
-		queryKey: queryKeys.users.invitations.my(user?.tenantId || ''),
-		queryFn: async () => {
-			return await inviteService.getMyInvitations();
-		},
-		enabled: !!user?.tenantId,
+		queryKey: myInvitationsKey,
+		meta: CREDENTIAL_SCOPED_QUERY_META,
+		queryFn: ({ signal }) => inviteService.getMyInvitations({ scope, signal }),
+		enabled: queryEnabled,
 		staleTime: 2 * 60 * 1000, // 2 minutes — prevents unnecessary refetch on re-mount
-		gcTime: 5 * 60 * 1000 // 5 minutes — keeps data in cache after unmount
+		gcTime: 5 * 60 * 1000, // 5 minutes — keeps data in cache after unmount
+		// Keep invitation changes fresh without adding the read to the critical startup path.
+		refetchInterval: 60_000
 	});
 
 	// ===== HYDRATED DATA =====
@@ -50,27 +66,25 @@ export function useMyInvitationsQuery() {
 	const removeMyInvitation = useCallback(
 		(id: string) => {
 			// Optimistic update: remove from React Query cache immediately
-			queryClient.setQueryData<PaginationResponse<TInvite>>(
-				queryKeys.users.invitations.my(user?.tenantId || ''),
-				(old) => {
-					if (!old?.items) return old;
-					const filtered = old.items.filter((invitation) => invitation.id !== id);
-					return {
-						...old,
-						items: filtered,
-						total: old.total - (old.items.length - filtered.length)
-					};
-				}
-			);
+			queryClient.setQueryData<PaginationResponse<TInvite>>(myInvitationsKey, (old) => {
+				if (!old?.items) return old;
+				const filtered = old.items.filter((invitation) => invitation.id !== id);
+				return {
+					...old,
+					items: filtered,
+					total: old.total - (old.items.length - filtered.length)
+				};
+			});
 		},
-		[queryClient, user?.tenantId]
+		[myInvitationsKey, queryClient]
 	);
 
 	// ===== REFETCH CALLBACK =====
 
 	const refetchMyInvitations = useCallback(() => {
-		refetchMyInvitationsQuery();
-	}, [refetchMyInvitationsQuery]);
+		if (!queryEnabled || !isCurrentScope()) return;
+		void refetchMyInvitationsQuery();
+	}, [isCurrentScope, queryEnabled, refetchMyInvitationsQuery]);
 
 	// ===== RETURN =====
 
@@ -81,4 +95,3 @@ export function useMyInvitationsQuery() {
 		removeMyInvitation
 	};
 }
-

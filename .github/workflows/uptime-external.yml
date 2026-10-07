@@ -1,0 +1,465 @@
+# ---------------------------------------------------------------------------------------------
+# WHY THIS WORKFLOW EXISTS -- and why it MUST stay on GitHub-hosted runners.
+#
+# Every other probe we have for Ever Teams (Kubernetes liveness/readiness probes, Uptime Kuma,
+# Prometheus blackbox exporter) runs INSIDE the homelab cluster that also owns our egress uplink,
+# so all of them share a single network fate. On 2026-08-15 a routing fault at the ISP (Orange,
+# Spain) made Cloudflare's 188.114.96.0/22 prefix unreachable *from the homelab only*. ever.team,
+# app.ever.team and api.ever.team all resolve into that exact prefix, so every internal probe went
+# red at once and it looked precisely like "production is down". It was not -- real users on the
+# public internet were served normally the whole time. Hours were burned on a false alarm.
+#
+# This workflow is the independent, OUTSIDE-the-homelab vantage point that would have answered
+# "is it them, or is it us?" in thirty seconds.
+#
+#   >>> DO NOT CHANGE `runs-on: ubuntu-latest` TO A SELF-HOSTED / ARC RUNNER. <<<
+#
+# This repository has a standing "self-hosted runners only" CI policy, and nearly every other
+# workflow here correctly uses the RUNNER_LINUX_X64_* org variables. THIS WORKFLOW IS A
+# DELIBERATE, DOCUMENTED EXCEPTION. Our self-hosted ARC runners live in the same homelab, behind
+# the same uplink, inside the same failure domain as the services being probed. Moving this
+# workflow onto them would not "fix an inconsistency" -- it would silently destroy the only
+# property that makes it worth running, and it would fail us in exactly the incident it was built
+# to catch. GitHub-hosted minutes are free and unlimited on public repositories, so there is no
+# cost argument either. If you are here to "clean this up": please don't.
+# ---------------------------------------------------------------------------------------------
+
+# cspell:ignore namelookup appconnect starttransfer ipify ifconfig blackhole homelab blackbox
+# cspell:ignore mktemp redirs ttfb elif esac endgroup
+# cspell:ignore checkip amazonaws unmetered ratelimit
+
+name: Uptime (external vantage point)
+
+on:
+  schedule:
+    # Every 15 minutes. Cost-safe: this repository is PUBLIC, and GitHub-hosted runner minutes are
+    # free and unlimited on public repositories. The happy path is a handful of curls and finishes
+    # in seconds. If this repo is ever made private, drop this to hourly ('0 * * * *') -- private
+    # repos bill against the 2,000 minutes/month free quota.
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+# Least privilege: read repo metadata, and file/close alert issues. Nothing else.
+permissions:
+  contents: read
+  issues: write
+
+# Never let two probe runs interleave and fight over the same alert issue.
+concurrency:
+  group: uptime-external
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    name: Probe public endpoints
+    # See the banner at the top of this file before touching this line.
+    runs-on: ubuntu-latest
+    # Worst case is 4 endpoints (control + 3) x [3 attempts x 25s --max-time + 2 x 20s spacing]
+    # = ~460s, plus runner boot and the gh steps. 10 minutes left almost no margin, and the
+    # failure mode is the bad one: the step is killed, no outputs are written, every later `if:`
+    # evaluates false, and a genuine outage produces a red X with no issue and no report.
+    timeout-minutes: 15
+
+    steps:
+      # No actions/checkout on purpose -- this job needs nothing from the repository tree, and
+      # skipping the checkout keeps each run down to a few seconds.
+      - name: Probe endpoints from outside the homelab
+        id: probe
+        shell: bash
+        run: |
+          set -uo pipefail
+
+          UA='ever-teams-uptime-monitor (+https://github.com/ever-co/ever-teams)'
+
+          # Attempts are spaced so a single transient blip can never raise an alert: an endpoint
+          # is only declared down after ATTEMPTS consecutive failures.
+          ATTEMPTS=3
+          SPACING=20
+
+          # Known-good control. If our endpoints look down but the control is down too, the fault
+          # is this runner's own network, not Ever Teams -- and we must NOT alert. A sweep with no
+          # control is how you manufacture a confident wrong answer.
+          #
+          # 🛑 NOT api.github.com/zen. Unauthenticated it is capped at 60 requests/hour PER EGRESS
+          # IP, and GitHub-hosted runners share huge NAT pools, so it returns
+          # "403 API rate limit exceeded" on ordinary runs (measured: X-RateLimit-Limit: 60,
+          # X-RateLimit-Remaining: 0). That sets control_down=true, which SKIPS the alert step
+          # entirely -- a monitor that silently disarms itself. It is also served by GitHub, the
+          # same provider as the runner, so it cannot separate "this runner's network is broken"
+          # from "the GitHub API is having an incident".
+          # 🛑 And NOT a Cloudflare-fronted host: all three targets sit behind Cloudflare, so a
+          # Cloudflare-wide event must never take the control down with them and suppress the
+          # alert at the exact moment it is real. (api.ipify.org, for one, answers `Server:
+          # cloudflare` and was observed returning 520 while this was written.)
+          # checkip.amazonaws.com is AWS-hosted, unmetered, and answers 200 with a ~14-byte body.
+          CONTROL_URL='https://checkip.amazonaws.com'
+
+          WORK="$(mktemp -d)"
+          REPORT="$WORK/report.md"
+          TABLE="$WORK/table.md"
+          : > "$TABLE"
+
+          # Public egress IP of this runner, recorded in every alert so a reader can tell
+          # "GitHub's egress cannot reach us" apart from "the site is genuinely down".
+          # AWS first, Cloudflare-fronted sources only as fallbacks: this field's whole job is to
+          # stay readable DURING a Cloudflare event, which is the incident class this workflow
+          # exists for.
+          EGRESS_IP="$(curl -fsS --max-time 10 https://checkip.amazonaws.com 2>/dev/null \
+            || curl -fsS --max-time 10 https://api.ipify.org 2>/dev/null \
+            || curl -fsS --max-time 10 https://ifconfig.me/ip 2>/dev/null \
+            || echo 'unknown')"
+          # This value is written to $GITHUB_OUTPUT, where an embedded newline would inject extra
+          # key=value records or break the parse outright ("Unable to process file command"). That
+          # would fail THIS step -- and because every later `if:` carries an implicit success(),
+          # the monitor would go SILENT rather than loud. Accept a bare address or nothing.
+          EGRESS_IP="$(printf '%s' "$EGRESS_IP" | tr -d '[:space:]')"
+          [[ "$EGRESS_IP" =~ ^[0-9A-Fa-f:.]{3,45}$ ]] || EGRESS_IP='unknown'
+          echo "Runner public egress IP: $EGRESS_IP"
+
+          # -------------------------------------------------------------------------------
+          # One probe. Emits a single pipe-separated metrics line on stdout.
+          #
+          # The timing breakdown is the whole point. On 2026-08-15 the diagnosis hinged on
+          # time_connect=0.000000 alongside a *successful* DNS lookup, which proves a TCP-level
+          # blackhole (packets dropped en route) rather than an application error -- an app that
+          # is merely broken still completes the handshake and answers with a 5xx.
+          # -------------------------------------------------------------------------------
+          probe_once() {
+            local url="$1" body="$2" w rc
+            w="$(curl -sS -A "$UA" \
+                  -L --max-redirs 5 \
+                  --connect-timeout 10 --max-time 25 \
+                  -o "$body" \
+                  -w '%{http_code}|%{time_namelookup}|%{time_connect}|%{time_appconnect}|%{time_starttransfer}|%{time_total}|%{size_download}|%{remote_ip}' \
+                  "$url" 2>"$body.err")"
+            rc=$?   # MUST stay on the line directly after the assignment.
+            # curl's exit status is load-bearing and was previously thrown away: on a --max-time
+            # abort mid-body curl exits 28 but STILL prints http_code=200 with a partial body, so
+            # a stalled endpoint could satisfy the marker check and suppress the alert. It also
+            # separates "the endpoint is down" from "the probe broke"
+            # (6 = DNS, 7 = connect refused, 28 = timeout, 35 = TLS).
+            if [ -z "$w" ]; then
+              # curl died before it could write its report (a DNS failure, for example).
+              w='000|0.000000|0.000000|0.000000|0.000000|0.000000|0|'
+            fi
+            printf '%s|%s' "$w" "$rc"
+          }
+
+          # check_endpoint <url> <expected-body-marker-or-empty> <min-bytes>
+          # Returns 0 if healthy, 1 if it failed every attempt. Appends a report row either way.
+          check_endpoint() {
+            local url="$1" marker="$2" min_bytes="$3"
+            local attempt code dns conn tls ttfb total size ip rc
+            local body="$WORK/body.$RANDOM"
+            local ok=0 fails=0 reason='' last=''
+
+            for attempt in $(seq 1 "$ATTEMPTS"); do
+              last="$(probe_once "$url" "$body")"
+              IFS='|' read -r code dns conn tls ttfb total size ip rc <<< "$last"
+
+              reason=''
+              if [ "${rc:-0}" -ne 0 ]; then
+                reason="curl exit ${rc} (transfer did not complete cleanly)"
+              elif [ "$code" != "200" ]; then
+                reason="HTTP $code (expected 200)"
+              elif [ "${size:-0}" -lt "$min_bytes" ]; then
+                reason="body too small: ${size}B < ${min_bytes}B"
+              elif [ -n "$marker" ] && ! grep -qF -- "$marker" "$body"; then
+                reason="body did not contain expected marker: $marker"
+              fi
+
+              if [ -z "$reason" ]; then
+                ok=1
+                echo "PASS  $url  (attempt $attempt, http=$code, ttfb=${ttfb}s)"
+                break
+              fi
+
+              fails=$((fails + 1))
+              echo "FAIL  $url  (attempt $attempt/$ATTEMPTS) -- $reason"
+              echo "      dns=${dns}s connect=${conn}s tls=${tls}s ttfb=${ttfb}s total=${total}s peer=${ip:-none}"
+              if [ -s "$body.err" ]; then
+                echo "      curl: $(head -c 300 "$body.err" | tr '\n' ' ')"
+              fi
+              if [ "$attempt" -lt "$ATTEMPTS" ]; then
+                sleep "$SPACING"
+              fi
+            done
+
+            IFS='|' read -r code dns conn tls ttfb total size ip rc <<< "$last"
+
+            local verdict='up'
+            if [ "$ok" -ne 1 ]; then
+              verdict="DOWN ($fails/$ATTEMPTS consecutive failures)"
+            fi
+
+            printf '| `%s` | %s | %s | %s | %s | %s | %s | %s | %s |\n' \
+              "$url" "$verdict" "$code" "$dns" "$conn" "$tls" "$ttfb" "${size}B" "${ip:-none}" >> "$TABLE"
+
+            if [ "$ok" -eq 1 ]; then
+              return 0
+            fi
+            LAST_REASON="$reason"
+            return 1
+          }
+
+          # -------------------------------------------------------------------------------
+          # Control first.
+          # -------------------------------------------------------------------------------
+          CONTROL_DOWN=false
+          LAST_REASON=''
+          echo "::group::Control check"
+          if ! check_endpoint "$CONTROL_URL" '' 1; then
+            CONTROL_DOWN=true
+            echo "::warning::Control endpoint is unreachable from this runner."
+          fi
+          echo "::endgroup::"
+
+          # -------------------------------------------------------------------------------
+          # The Ever Teams production surface.
+          #
+          #   url | expected body marker (empty = skip) | minimum body size in bytes
+          #
+          # Each was verified by hand against the live endpoint before being hard-coded here:
+          #
+          #   app.ever.team/api/health -> {"data":{"status":200,"message":"Ever Teams Next.js
+          #                               API"},...}  -- the Next.js route in
+          #                               apps/web/app/api/health/route.ts, the same path the
+          #                               Kubernetes readiness probe uses.
+          #   api.ever.team/api/health -> {"status":"ok","info":{"database":{"status":"up"},
+          #                               "storage":...,"cache":...,"redis":...},...}  -- the
+          #                               Gauzy headless API (NestJS Terminus). Asserting on
+          #                               "status":"ok" also catches a booted-but-degraded API
+          #                               whose database or Redis dependency has failed.
+          #   ever.team/               -> the marketing site, server-rendered HTML. No health
+          #                               route exists, so we assert 200 + a SEMANTIC marker: the
+          #                               `<meta name="author" content="Ever Teams">` tag. NOT the
+          #                               <title> tagline -- pinning health to marketing copy means
+          #                               a rebrand takes the site "DOWN" on a perfectly healthy
+          #                               deploy, which is the false-alarm class this workflow
+          #                               exists to end. A size floor alone was NOT enough:
+          #                               the real page is ~59,796 B against a 1024 B floor, so a
+          #                               Cloudflare interstitial, an "Always Online" cached
+          #                               shell, a Next.js error page or a wrong-environment
+          #                               deploy would all clear it and report UP. Verified with
+          #                               a known-dirty control: /bogus-xyz-9931 returns 404 and
+          #                               does NOT contain this marker.
+          #
+          # Deliberately NOT monitored: stage.ever.team and demo.ever.team. Those are WIP
+          # environments where short outages are expected and tolerated, and alerting on them
+          # would train everyone to ignore this label. Add rows below if that ever changes.
+          # -------------------------------------------------------------------------------
+          FAILED=false
+          FAILURES=''
+
+          while IFS='|' read -r url marker min_bytes; do
+            [ -z "$url" ] && continue
+            case "$url" in \#*) continue ;; esac
+            echo "::group::Checking $url"
+            LAST_REASON=''
+            if ! check_endpoint "$url" "$marker" "$min_bytes"; then
+              FAILED=true
+              FAILURES="${FAILURES}
+          - \`${url}\` -- ${LAST_REASON}"
+            fi
+            echo "::endgroup::"
+          done <<'ENDPOINTS'
+          https://app.ever.team/api/health|Ever Teams Next.js API|10
+          https://api.ever.team/api/health|"status":"ok"|10
+          https://ever.team/|name="author" content="Ever Teams"|1024
+          ENDPOINTS
+
+          # -------------------------------------------------------------------------------
+          # Build the report shared by the job summary and any issue comment.
+          # -------------------------------------------------------------------------------
+          {
+            if [ "$FAILED" = true ] && [ "$CONTROL_DOWN" = true ]; then
+              echo "## Ever Teams uptime check INCONCLUSIVE -- the control endpoint failed too"
+            elif [ "$FAILED" = true ]; then
+              echo "## Ever Teams uptime check FAILED"
+            elif [ "$CONTROL_DOWN" = true ]; then
+              echo "## Ever Teams uptime check passed (control endpoint was DOWN -- see below)"
+            else
+              echo "## Ever Teams uptime check passed"
+            fi
+            echo ""
+            echo "Probed from a **GitHub-hosted runner**, i.e. from outside the homelab network."
+            echo ""
+            echo "- Checked at: \`$(date -u '+%Y-%m-%d %H:%M:%S UTC')\`"
+            echo "- Runner public egress IP: \`$EGRESS_IP\`"
+            # The control shares the timing table below with the real targets. Without this line a
+            # reader sees "check passed" directly above a row reading DOWN and misreads a probe
+            # fault as an Ever Teams outage -- the precise confusion this workflow exists to end.
+            if [ "$CONTROL_DOWN" = true ]; then
+              echo "- Control endpoint \`$CONTROL_URL\` (**not** an Ever Teams service): **DOWN** -- this runner's own network is suspect, so these results are INCONCLUSIVE"
+            else
+              echo "- Control endpoint \`$CONTROL_URL\` (**not** an Ever Teams service): up -- this runner's network is fine, so the results below are trustworthy"
+            fi
+            echo "- Failure threshold: $ATTEMPTS consecutive failures, ${SPACING}s apart"
+            echo "- Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo ""
+            if [ "$FAILED" = true ]; then
+              echo "### Failing endpoints"
+              echo "$FAILURES"
+              echo ""
+            fi
+            echo "### Timing breakdown"
+            echo ""
+            echo "| endpoint | result | http | dns | connect | tls | ttfb | bytes | peer |"
+            echo "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"
+            cat "$TABLE"
+            echo ""
+            echo "> **How to read this:** a non-zero \`dns\` with \`connect\` stuck at \`0.000000\`"
+            echo "> means the TCP handshake never completed -- packets are being dropped en route"
+            echo "> (a routing blackhole or a firewall), not an application fault. An application"
+            echo "> that is merely broken still connects and answers with a 5xx. \`peer\` is the"
+            echo "> edge IP actually reached, which tells you which Cloudflare prefix was in play."
+          } > "$REPORT"
+
+          cat "$REPORT" >> "$GITHUB_STEP_SUMMARY"
+
+          # Hand the report to the steps below.
+          cp "$REPORT" "$RUNNER_TEMP/uptime-report.md"
+          {
+            echo "failed=$FAILED"
+            echo "control_down=$CONTROL_DOWN"
+            echo "egress_ip=$EGRESS_IP"
+          } >> "$GITHUB_OUTPUT"
+
+          # This step never fails the job by itself -- the reporting steps below must still run.
+          exit 0
+
+      # -----------------------------------------------------------------------------------
+      # Alerting. One long-lived issue per incident, reused across runs, so a multi-hour outage
+      # produces a single issue with a comment trail rather than four new issues an hour. Issue
+      # spam is the most common reason monitoring like this gets muted and then deleted.
+      # -----------------------------------------------------------------------------------
+      - name: Open or update the alert issue
+        if: steps.probe.outputs.failed == 'true' && steps.probe.outputs.control_down == 'false'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          LABEL='uptime-alert'
+          export TITLE='Uptime alert: Ever Teams public endpoints unreachable from outside'
+
+          # The label must exist before it can be applied; harmless if it already does.
+          gh label create "$LABEL" \
+            --color 'B60205' \
+            --description 'Automated external uptime monitoring alerts' >/dev/null 2>&1 || true
+
+          # Match the exact title this workflow writes, not the label alone. The recovery step
+          # does not merely comment -- it CLOSES. A human who hand-labels a related incident
+          # issue must never have it silently auto-closed by the monitor.
+          # --limit must comfortably exceed the number of open issues that could carry this label,
+          # or our own older alert falls outside the page, the title filter never sees it, and the
+          # outage path opens a duplicate while recovery leaves the missed one open. This workflow
+          # holds only ONE such issue at a time, so 100 is generous -- but warn loudly rather than
+          # truncate silently if that assumption ever breaks.
+          LISTED="$(gh issue list --label "$LABEL" --state open --limit 100 --json number,title)"
+          if [ "$(jq 'length' <<< "$LISTED")" -ge 100 ]; then
+            echo "::warning::100+ open $LABEL issues — this lookup may be truncated."
+          fi
+          EXISTING="$(jq -r '[.[] | select(.title == $t)] | .[0].number // empty' --arg t "$TITLE" <<< "$LISTED")"
+
+          if [ -z "$EXISTING" ]; then
+            echo "No open $LABEL issue -- creating one."
+            gh issue create \
+              --title "$TITLE" \
+              --label "$LABEL" \
+              --assignee evereq \
+              --body-file "$RUNNER_TEMP/uptime-report.md"
+          else
+            echo "Re-using open issue #$EXISTING -- adding a comment."
+            gh issue comment "$EXISTING" --body-file "$RUNNER_TEMP/uptime-report.md"
+          fi
+
+      - name: Note that the runner itself is suspect
+        # Also requires something to have actually FAILED. Gated on control_down alone, a run
+        # where all three endpoints answered 200 with correct markers but the control merely
+        # flapped would print "these results cannot tell an outage from a network fault" onto a
+        # GREEN run -- which is false there, and is the kind of noise that teaches people to stop
+        # reading this workflow's output.
+        if: steps.probe.outputs.control_down == 'true' && steps.probe.outputs.failed == 'true'
+        shell: bash
+        run: |
+          echo "::error::The known-good control endpoint was also unreachable, so this runner's own"
+          echo "::error::network is suspect. No alert issue was filed: these results cannot tell an"
+          echo "::error::Ever Teams outage apart from a GitHub Actions network fault."
+
+      - name: Note that the control endpoint flapped on an otherwise healthy run
+        if: steps.probe.outputs.control_down == 'true' && steps.probe.outputs.failed == 'false'
+        shell: bash
+        run: |
+          echo "::warning::The control endpoint failed but every Ever Teams endpoint answered"
+          echo "::warning::correctly, so this run is still valid evidence that the service is up."
+
+      - name: Close the alert issue on recovery
+        if: steps.probe.outputs.failed == 'false'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          EGRESS_IP: ${{ steps.probe.outputs.egress_ip }}
+        run: |
+          set -euo pipefail
+          LABEL='uptime-alert'
+          export TITLE='Uptime alert: Ever Teams public endpoints unreachable from outside'
+
+          # Same exact-title match as the alerting step: this path CLOSES issues, so it must only
+          # ever touch the one this workflow opened.
+          # --limit must comfortably exceed the number of open issues that could carry this label,
+          # or our own older alert falls outside the page, the title filter never sees it, and the
+          # outage path opens a duplicate while recovery leaves the missed one open. This workflow
+          # holds only ONE such issue at a time, so 100 is generous -- but warn loudly rather than
+          # truncate silently if that assumption ever breaks.
+          LISTED="$(gh issue list --label "$LABEL" --state open --limit 100 --json number,title)"
+          if [ "$(jq 'length' <<< "$LISTED")" -ge 100 ]; then
+            echo "::warning::100+ open $LABEL issues — this lookup may be truncated."
+          fi
+          EXISTING="$(jq -r '[.[] | select(.title == $t)] | .[0].number // empty' --arg t "$TITLE" <<< "$LISTED")"
+
+          if [ -z "$EXISTING" ]; then
+            echo "All endpoints healthy and no open alert issue. Nothing to do."
+            exit 0
+          fi
+
+          echo "Recovered -- commenting on and closing issue #$EXISTING."
+          {
+            echo "## Recovered"
+            echo ""
+            echo "All monitored endpoints answered correctly from a GitHub-hosted runner"
+            echo "(public egress IP \`$EGRESS_IP\`)."
+            echo ""
+            echo "Closing automatically. A new alert issue will be opened if this recurs."
+            echo ""
+            cat "$RUNNER_TEMP/uptime-report.md"
+          } > "$RUNNER_TEMP/uptime-recovery.md"
+
+          # Never let a failed recovery comment block the close: under `set -e` that would leave a
+          # stale "Ever Teams is down" issue open on a recovered service, which is exactly the
+          # alert fatigue this design is built to avoid. Warn, then close regardless.
+          gh issue comment "$EXISTING" --body-file "$RUNNER_TEMP/uptime-recovery.md" \
+            || echo "::warning::Recovery comment on #$EXISTING failed; closing the issue regardless."
+          gh issue close "$EXISTING" --reason completed
+
+      # Fail the run last, so the alerting steps above always get their chance. A red scheduled
+      # run is itself a free notification channel: GitHub emails the repo owner when a scheduled
+      # workflow fails.
+      - name: Fail the run if anything was down
+        # Deliberately NOT gated on control_down. Going green when the control is unhealthy would
+        # make this a monitor that can only report success -- worse than no monitor at all. Stay
+        # red, and say plainly which of the two situations this is.
+        if: steps.probe.outputs.failed == 'true'
+        shell: bash
+        env:
+          CONTROL_DOWN: ${{ steps.probe.outputs.control_down }}
+        run: |
+          if [ "$CONTROL_DOWN" = 'true' ]; then
+            echo "::error::INCONCLUSIVE -- the endpoints failed AND the control endpoint failed."
+            echo "::error::This run cannot tell an Ever Teams outage from a runner network fault."
+            exit 1
+          fi
+          echo "::error::One or more Ever Teams public endpoints failed every attempt from outside the homelab."
+          exit 1

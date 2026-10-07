@@ -28,19 +28,21 @@ export const useEmailReset = () => {
 	});
 
 	// Preserve exact interface - email reset request function
+	const emailResetRequestMutate = emailResetRequestMutation.mutateAsync;
 	const emailResetRequestQueryCall = useCallback(
 		async (email: string): Promise<TEmailResetSuccessResponse> => {
-			return await emailResetRequestMutation.mutateAsync(email);
+			return await emailResetRequestMutate(email);
 		},
-		[emailResetRequestMutation]
+		[emailResetRequestMutate]
 	);
 
 	// Preserve exact interface - verify change email function
+	const verifyChangeEmailRequestMutate = verifyChangeEmailRequestMutation.mutateAsync;
 	const verifyChangeEmailRequestQueryCall = useCallback(
 		async (code: string): Promise<TEmailResetSuccessResponse> => {
-			return await verifyChangeEmailRequestMutation.mutateAsync(code);
+			return await verifyChangeEmailRequestMutate(code);
 		},
-		[verifyChangeEmailRequestMutation]
+		[verifyChangeEmailRequestMutate]
 	);
 
 	return {

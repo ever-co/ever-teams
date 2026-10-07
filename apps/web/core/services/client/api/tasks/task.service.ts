@@ -5,7 +5,11 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { createTaskSchema, taskSchema, TCreateTask, TTask } from '@/core/types/schemas/task/task.schema';
 import { TEmployee, ZodValidationError } from '@/core/types/schemas';
-import { zodStrictApiResponseValidate, zodStrictPaginationResponseValidate } from '@/core/lib/validation/zod-validators';
+import {
+	zodStrictApiResponseValidate,
+	zodStrictPaginationResponseValidate
+} from '@/core/lib/validation/zod-validators';
+import { scopedReadConfig, type ScopedReadOptions } from '../../api-request-scope';
 
 /**
  * Enhanced Task Service with Zod validation
@@ -81,16 +85,30 @@ class TaskService extends APIService {
 	 * @returns {Promise<PaginationResponse<TTask>>} - Validated paginated tasks data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getTasks = async ({ projectId }: { projectId: string }): Promise<PaginationResponse<TTask>> => {
+	getTasks = async ({
+		projectId,
+		options
+	}: {
+		projectId: string;
+		options?: ScopedReadOptions;
+	}): Promise<PaginationResponse<TTask>> => {
 		try {
+			const tenantId = options?.scope.tenantId ?? this.tenantId;
+			const organizationId = options?.scope.organizationId ?? this.organizationId;
+			const teamId = options?.scope.teamId ?? this.activeTeamId;
 			const query = qs.stringify({
 				...this.baseQueries,
+				'where[organizationId]': organizationId,
+				'where[tenantId]': tenantId,
 				'where[projectId]': projectId,
-				'where[teams][0]': this.activeTeamId
+				'where[teams][0]': teamId
 			});
 			const endpoint = `/tasks/team?${query}`;
 
-			const response = await this.get<PaginationResponse<TTask>>(endpoint, { tenantId: this.tenantId });
+			const response = await this.get<PaginationResponse<TTask>>(
+				endpoint,
+				options ? scopedReadConfig(options) : { tenantId: this.tenantId }
+			);
 
 			// Validate the response data using zod validation with enum normalization
 			return zodStrictPaginationResponseValidate(taskSchema, response.data, 'getTasks API response');

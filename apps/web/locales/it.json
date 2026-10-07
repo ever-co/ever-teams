@@ -205,6 +205,8 @@
 		"THEMES": "Temi",
 		"3D_MODE": "Modalità 3D",
 		"DARK_MODE": "Modalità Scura",
+		"THEME_LIGHT": "Chiaro",
+		"THEME_DARK": "Scuro",
 		"SETTINGS": "Impostazioni",
 		"PERSONAL": "Personale",
 		"USE_SETTING": "Usa Impostazione",
@@ -444,7 +446,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "Ripartizione produttività per {month}",
 		"DAILY": "Giornaliero",
 		"WEEKLY": "Settimanale",
-		"MONTHLY": "Mensile"
+		"MONTHLY": "Mensile",
+		"HIDE_CHART": "Nascondi grafico",
+		"SHOW_ACTIVITY_CHART": "Mostra grafico attività"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "Tempo e Attività",
@@ -717,7 +721,28 @@
 			"FORGOT_PASSWORD": "Password dimenticata?",
 			"TERMS_OF_SERVICE": "Termini di servizio",
 			"PRIVACY_POLICY": "Informativa sulla privacy",
-			"OR_CONTINUE_WITH": "o continua con"
+			"OR_CONTINUE_WITH": "o continua con",
+			"everId": {
+				"NO_WORKSPACE_TITLE": "Ancora nessuno spazio di lavoro per questo Ever ID",
+				"NO_WORKSPACE_BODY": "Nessuno spazio di lavoro è ancora collegato a questo Ever ID. Accedi in un altro modo oppure chiedi un invito all'amministratore del tuo spazio di lavoro.",
+				"WORKSPACE_BLOCKED_TITLE": "Usa l'accesso della tua azienda",
+				"WORKSPACE_BLOCKED_BODY": "Il tuo spazio di lavoro richiede l'accesso tramite la tua azienda. Usalo per continuare oppure accedi in un altro modo.",
+				"SIGN_IN_ANOTHER_WAY": "Accedi in un altro modo",
+				"NO_WORKSPACE_SIGNUP_BODY": "Puoi anche creare un nuovo spazio di lavoro con la consueta registrazione.",
+				"CREATE_WORKSPACE": "Crea uno spazio di lavoro",
+				"CONFIRM_HINT": "Abbiamo inviato un codice monouso all'indirizzo e-mail del tuo account esistente. Inseriscilo per collegare il tuo Ever ID.",
+				"CODE_EXPIRED": "Questo codice è scaduto o è stato provato troppe volte. Accedi di nuovo con Ever ID.",
+				"TOO_MANY_ATTEMPTS": "Troppi tentativi. Attendi un minuto, poi riprova.",
+				"UNAVAILABLE": "L'accesso con Ever ID non è disponibile al momento. Riprova più tardi oppure accedi in un altro modo.",
+				"SIGNUP_CONFIRM": "Crea il mio spazio di lavoro con questo Ever ID",
+				"SIGNUP_HINT": "Il tuo indirizzo e-mail proviene dal tuo Ever ID verificato. Non viene creato nulla finché non continui.",
+				"SIGNUP_CONFIRM_REQUIRED": "Seleziona la casella per creare il tuo spazio di lavoro con questo Ever ID.",
+				"SIGNUP_TERMS": "Accetto questi documenti:",
+				"SIGNUP_TERMS_REQUIRED": "Accetta i documenti per continuare.",
+				"SIGNUP_EXPIRED": "Questa registrazione è scaduta. Accedi di nuovo con Ever ID.",
+				"SIGNUP_CHECKOUT": "È necessario un abbonamento prima di poter creare il tuo spazio di lavoro.",
+				"CONTINUE_TO_CHECKOUT": "Continua al pagamento"
+			}
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Unisciti a un Team esistente",
@@ -799,6 +824,10 @@
 			"HEADING_TITLE": "Impostazioni Generali",
 			"goToTeamSettings": "Vai alle impostazioni del team",
 			"WORKING_HOURS": "Orario di lavoro",
+			"ADD_HOURS_FOR": "Aggiungi ore per {day}",
+			"REMOVE_HOURS_FOR": "Rimuovi ore per {day}",
+			"UNAVAILABLE": "Non disponibile",
+			"TOGGLE_AVAILABILITY_FOR": "Attiva o disattiva la disponibilità per {day}",
 			"emailNotValid": "Fornisci un indirizzo email valido",
 			"phoneNotValid": "Fornisci un numero di telefono valido",
 			"WORK_SCHEDULE": "Orario di Lavoro",
@@ -1222,7 +1251,10 @@
 			"TERMS_AND_CONDITIONS": "Termini e condizioni",
 			"PRIVACY_POLICY": "politica sulla riservatezza",
 			"COOKIES": "Gestione dei Cookie",
-			"BY": "Di"
+			"BY": "Di",
+			"BUILD_WEB": "Build Web v{version}",
+			"API_VERSION": "API v{version}",
+			"OPEN_COMMIT": "Apri commit {commit}"
 		}
 	},
 	"errors": {
@@ -1296,7 +1328,7 @@
 		"HEADER_TITLE": "Chat IA",
 		"CLEAR_CONVERSATION": "Cancella conversazione",
 		"CONFIGURATION": "Configurazione",
-		"ASSISTANT_NAME": "Assistente Ever Teams",
+		"ASSISTANT_NAME": "Assistente {appName}",
 		"EMPTY_CONFIGURED": "Fai una domanda per iniziare.",
 		"EMPTY_NOT_CONFIGURED": "Configura la tua chiave API per iniziare.",
 		"CONFIGURE_BUTTON": "Configura",
@@ -1304,6 +1336,14 @@
 		"INPUT_PLACEHOLDER_READY": "Il tuo messaggio...",
 		"INPUT_PLACEHOLDER_NO_KEY": "Configura la tua chiave API...",
 		"STOP": "Ferma",
-		"SEND": "Invia"
+		"SEND": "Invia",
+		"NEW_CHAT": "Nuova chat",
+		"HISTORY": "Cronologia",
+		"NO_CONVERSATIONS": "Nessuna conversazione",
+		"PANEL_CONTROLS": "Controlli del pannello chat",
+		"COLLAPSE_ASSISTANT": "Comprimi assistente",
+		"STANDARD_ASSISTANT_WIDTH": "Larghezza standard dell’assistente",
+		"EXPAND_ASSISTANT": "Espandi assistente",
+		"OPEN_ASSISTANT": "Apri l’assistente {appName}"
 	}
 }

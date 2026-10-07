@@ -49,9 +49,29 @@ export function applyAllFilters(tasks: TTask[], criteria: KanbanFilterCriteria):
  */
 export function buildKanbanBoard(filteredTasks: TTask[], taskStatuses: TTaskStatus[]): IKanban {
 	const board: IKanban = {};
+	const placed = new Set<string>();
+	const norm = (v: string | null | undefined) => (v ?? '').trim().toLowerCase();
+
 	for (const status of taskStatuses) {
 		const key = status.name ?? '';
-		board[key] = filteredTasks.filter((task) => task.taskStatusId === status.id);
+		board[key] = filteredTasks.filter((task) => {
+			// Primary: the status relation. Fallback: tasks whose `taskStatusId` is null (older / seeded /
+			// API-created tasks) but whose `status` NAME matches — they used to vanish from the board
+			// entirely while still showing in the Tasks list (WEB-010).
+			const match =
+				task.taskStatusId === status.id ||
+				(!task.taskStatusId && !!task.status && norm(String(task.status)) === norm(status.name) && !placed.has(task.id));
+			if (match) placed.add(task.id);
+			return match;
+		});
+	}
+
+	// Anything still unplaced (no status at all, or a status id from another team's status set) goes into
+	// the first column so it is at least visible and can be dragged to the right place.
+	const firstKey = taskStatuses[0]?.name;
+	if (firstKey !== undefined && firstKey !== null) {
+		const orphans = filteredTasks.filter((task) => !placed.has(task.id));
+		if (orphans.length) board[firstKey] = [...(board[firstKey] ?? []), ...orphans];
 	}
 	return board;
 }

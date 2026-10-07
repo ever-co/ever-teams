@@ -2,13 +2,12 @@
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { useEffect, useMemo, useState } from 'react';
-import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/index';
 import { useTimeLimits } from '@/core/hooks/activities/use-time-limits';
 import { DateRange } from 'react-day-picker';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import moment from 'moment';
 import { usePagination } from '@/core/hooks/common/use-pagination';
-import { getUserOrganizationsRequest } from '@/core/services/server/requests';
 import { useTranslations } from 'next-intl';
 import { groupDataByEmployee } from '@/core/components/pages/reports/weekly-limit/time-report-table';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
@@ -29,20 +28,24 @@ import {
 	LazyPaginate
 } from '@/core/components/optimized-components/reports';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
-import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { useAtomValue } from 'jotai';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useCurrentOrganizationOwner } from '@/core/hooks/bootstrap/use-feature-data';
 
 function WeeklyLimitReport() {
+	useCurrentOrganizationOwner();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
-	const { data: user } = useUserQuery();
-	const [organization, setOrganization] = useState<IOrganization>();
+	// The organization is loaded app-wide by useGetCurrentOrganization (init-state) through the CLIENT api
+	// service. This page used to call the server-only getUserOrganizationsRequest (serverFetch →
+	// GAUZY_API_SERVER_URL), which in the browser bundle resolves to the hard-coded production host: on
+	// stage/dev the request went to api.ever.team with a stage token → 401 → the report never rendered
+	// (2026-08-17).
+	const organization = useAtomValue(currentOrganizationState) as IOrganization | undefined;
 	const { timeLimitsReports, getTimeLimitsReport, getTimeLimitReportLoading } = useTimeLimits();
 	const organizationId = getOrganizationIdCookie();
 	const tenantId = getTenantIdCookie();
 	const [groupBy, setGroupBy] = useState<TGroupByOption[]>(['date']);
 	const t = useTranslations();
-	const { myPermissions } = useMyRolePermissionsQuery();
 	const breadcrumbPath = useMemo(
 		() => [
 			{ title: t('common.REPORTS'), href: '/' },
@@ -65,7 +68,6 @@ function WeeklyLimitReport() {
 		from: startOfMonth(new Date()),
 		to: endOfMonth(new Date())
 	});
-	const accessToken = useMemo(() => getAccessTokenCookie(), []);
 	const timeZone = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, []);
 
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems, pageCount } =
@@ -79,18 +81,6 @@ function WeeklyLimitReport() {
 
 	const duration = useMemo(() => groupBy.find((el) => el == 'date' || el == 'week') ?? 'date', [groupBy]);
 	const displayMode = (groupBy.find((el) => el === 'date' || el === 'week') ?? 'date') as 'week' | 'date';
-
-	// Get the organization
-	useEffect(() => {
-		if (organizationId && tenantId) {
-			getUserOrganizationsRequest(
-				{ tenantId, userId: user?.id ?? '', userPermissions: myPermissions },
-				accessToken ?? ''
-			).then((org) => {
-				setOrganization(org.data.items[0].organization);
-			});
-		}
-	}, [organizationId, tenantId, user?.id, accessToken, myPermissions]);
 
 	// Get Time limits data
 	useEffect(() => {
@@ -117,7 +107,7 @@ function WeeklyLimitReport() {
 	]);
 	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
 	if (!organization || !organizationLimits || getTimeLimitReportLoading) {
-		return <ReportsPageSkeleton showTimer={isTrackingEnabled} fullWidth={false} />;
+		return <ReportsPageSkeleton showTimer={isTrackingEnabled} />;
 	}
 
 	return (

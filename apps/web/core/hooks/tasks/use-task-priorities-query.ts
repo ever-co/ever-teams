@@ -7,6 +7,8 @@ import { queryKeys } from '@/core/query/keys';
 import { useFirstLoad } from '../common/use-first-load';
 import { useInvalidateTaskPriorities } from './use-invalidate-task-priorities';
 import { TTaskPriority } from '@/core/types/schemas';
+import { useTaskMetadataBootstrapQuery } from './use-task-metadata-bootstrap-query';
+import { updateTaskMetadataSectionCaches } from './task-metadata-cache';
 
 /**
  * Hook for reading task priorities data.
@@ -20,6 +22,7 @@ import { TTaskPriority } from '@/core/types/schemas';
 export function useTaskPrioritiesQuery() {
 	const { queryClient, teamId, isEnabled } = useInvalidateTaskPriorities();
 	const { firstLoadData: firstLoadTaskPrioritiesData } = useFirstLoad();
+	const taskMetadataQuery = useTaskMetadataBootstrapQuery();
 
 	const taskPrioritiesQuery = useQuery({
 		queryKey: queryKeys.taskPriorities.byTeam(teamId),
@@ -29,14 +32,17 @@ export function useTaskPrioritiesQuery() {
 			}
 			return await taskPriorityService.getTaskPrioritiesList();
 		},
-		enabled: isEnabled
+		enabled: !taskMetadataQuery.useBootstrap && isEnabled
 	});
 
+	const taskPrioritiesData = taskMetadataQuery.useBootstrap
+		? taskMetadataQuery.data?.taskPriorities
+		: taskPrioritiesQuery.data;
 	// Memoized to prevent infinite re-renders (stable reference)
-	const taskPriorities = useMemo(
-		() => taskPrioritiesQuery.data?.items ?? [],
-		[taskPrioritiesQuery.data?.items]
-	);
+	const taskPriorities = useMemo(() => taskPrioritiesData?.items ?? [], [taskPrioritiesData?.items]);
+	const taskPrioritiesLoading = taskMetadataQuery.useBootstrap
+		? taskMetadataQuery.isLoading
+		: taskPrioritiesQuery.isLoading;
 
 	/**
 	 * Optimistic cache updater — supports functional updater pattern:
@@ -44,19 +50,24 @@ export function useTaskPrioritiesQuery() {
 	 */
 	const setTaskPriorities = useCallback(
 		(updaterOrValue: TTaskPriority[] | ((prev: TTaskPriority[]) => TTaskPriority[])) => {
-			queryClient.setQueryData(queryKeys.taskPriorities.byTeam(teamId), (oldData: any) => {
-				const prev: TTaskPriority[] = oldData?.items ?? [];
-				const newItems = typeof updaterOrValue === 'function' ? updaterOrValue(prev) : updaterOrValue;
-				return { ...(oldData ?? {}), items: newItems };
-			});
+			updateTaskMetadataSectionCaches<TTaskPriority>(
+				queryClient,
+				{
+					section: 'taskPriorities',
+					scope: taskMetadataQuery.scope,
+					teamId,
+					useBootstrap: taskMetadataQuery.useBootstrap
+				},
+				updaterOrValue
+			);
 		},
-		[queryClient, teamId]
+		[queryClient, taskMetadataQuery.scope, taskMetadataQuery.useBootstrap, teamId]
 	);
 
 	// Legacy backward compat
 	const loadTaskPriorities = useCallback(async () => {
-		return taskPrioritiesQuery.data;
-	}, [taskPrioritiesQuery.data]);
+		return taskPrioritiesData;
+	}, [taskPrioritiesData]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadTaskPriorities();
@@ -65,11 +76,10 @@ export function useTaskPrioritiesQuery() {
 
 	return {
 		taskPriorities,
-		loading: taskPrioritiesQuery.isLoading,
-		getTaskPrioritiesLoading: taskPrioritiesQuery.isLoading,
+		loading: taskPrioritiesLoading,
+		getTaskPrioritiesLoading: taskPrioritiesLoading,
 		setTaskPriorities,
 		loadTaskPriorities,
 		firstLoadTaskPrioritiesData: handleFirstLoad
 	};
 }
-

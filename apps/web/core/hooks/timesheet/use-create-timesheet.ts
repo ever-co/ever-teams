@@ -25,13 +25,14 @@ export function useCreateTimesheet() {
 		}
 	});
 
+	const createTimesheetMutate = createTimesheetMutation.mutateAsync;
 	const createTimesheet = useCallback(
 		async ({ ...timesheetParams }: IUpdateTimesheetRequest) => {
 			if (!user) {
 				throw new Error('User not authenticated');
 			}
 			try {
-				const response = await createTimesheetMutation.mutateAsync(timesheetParams);
+				const response = await createTimesheetMutate(timesheetParams);
 				return response.data;
 			} catch (error) {
 				if (axios.isAxiosError(error)) {
@@ -46,7 +47,7 @@ export function useCreateTimesheet() {
 				throw error;
 			}
 		},
-		[createTimesheetMutation, user]
+		[createTimesheetMutate, user]
 	);
 
 	return {

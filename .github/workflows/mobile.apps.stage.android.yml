@@ -1,13 +1,22 @@
 name: Mobile Build, Deploy and Publish Apps Android
 on:
+  # Allows re-running the published build by hand without touching app sources.
+  workflow_dispatch:
   push:
     branches:
-      - apps-stage
+      - stage-apps
     paths:
+      # This workflow's own definition — without it, editing this file never re-runs it,
+      # so a fix to the workflow cannot be validated. The sibling entry below points at
+      # an aggregate file that does not exist; left in place deliberately.
+      - '.github/workflows/mobile.apps.stage.android.yml'
       - '.github/workflows/mobile.apps.stage.yml'
       - 'apps/mobile/**'
       - 'package.json'
       - 'yarn.lock'
+      # The EAS upload archive decides which workspaces get installed on the builder,
+      # so a change to it changes the build as surely as a dependency bump does.
+      - '.easignore'
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -44,7 +53,29 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
+      # The Play Store upload needs a base64 service-account JSON in GOOGLE_CREDENTIALS. In the
+      # `stage` environment that secret exists but is BLANK (created 2024-04-29, never updated), so
+      # `base64 --decode` died on whitespace and killed the job at this step — before the EAS build
+      # and the OTA publish, which then never ran at all.
+      #
+      # Detect it and gate the Google/Play steps instead of hard-failing, so the stage train still
+      # builds and publishes its OTA. The upload resumes on its own the moment a real value is set
+      # in the environment; nothing here needs changing. Gate, don't remove.
+      - name: Detect Play Store credentials
+        id: play_creds
+        shell: bash
+        run: |
+          if [ -n "$(printf '%s' "$GOOGLE_CREDENTIALS_RAW" | tr -d '[:space:]')" ]; then
+            echo 'present=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'present=false' >> "$GITHUB_OUTPUT"
+            echo "::warning::GOOGLE_CREDENTIALS is empty in this environment - skipping the Play Store upload. Set it to the base64-encoded service-account JSON to re-enable."
+          fi
+        env:
+          GOOGLE_CREDENTIALS_RAW: ${{ secrets.GOOGLE_CREDENTIALS }}
+
       - name: Decode Google Credentials
+        if: steps.play_creds.outputs.present == 'true'
         run: |
           DECODED_GOOGLE_CREDENTIALS=$(echo '${{ secrets.GOOGLE_CREDENTIALS }}' | base64 --decode)
           echo "DECODED_GOOGLE_CREDENTIALS=$DECODED_GOOGLE_CREDENTIALS" >> $GITHUB_ENV
@@ -61,12 +92,12 @@ jobs:
           sed -i 's|SENTRY_PROJECT_PLACEHOLDER|${{ secrets.EXPO_SENTRY_PROJECT }}|g' ./apps/mobile/eas.json
 
       - name: Configure Registry
-        shell: bash
-        run: |
-          if [ -n "${{ secrets.VERDACCIO_TOKEN }}" ]; then
-            echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
-            echo "registry=https://packages.ever.co/" >> .npmrc
-          fi
+        uses: ever-co/ever-gauzy/.github/actions/configure-registry@727973d766f3968d3f1184300af085872abcb20b
+        with:
+          verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
+          verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
+          force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
+          expect-vip: ${{ vars.RUNNER_LINUX_X64_4 != '' }}
 
       - name: Install Packages
         run: |
@@ -92,22 +123,68 @@ jobs:
           EXPO_SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           EXPO_SENTRY_PROJECT: ${{ secrets.EXPO_SENTRY_PROJECT }}
 
+      # SECURITY + CORRECTNESS: "Configure Registry" appends the internal registry +
+      # VERDACCIO_TOKEN to .npmrc, which is a git-TRACKED file. eas-cli ships modified tracked
+      # files in the build archive, so the token was being uploaded to Expo (their log shows
+      # "PREPARE_PROJECT | .npmrc found at .npmrc"). Restore it before the upload. This also
+      # stops Expo builders trying to reach packages.ever.co, which they cannot resolve.
+      #
+      # .npmrc is NOT the only file the step mutates. The shared configure-registry action also
+      # appends `registry "<REGISTRY>"` to .yarnrc and sed-rewrites EVERY resolved URL in
+      # yarn.lock to that registry, and on these runners the registry is the LAN-only Verdaccio
+      # VIP. .easignore REPLACES .gitignore (it is not additive) and lists none of these three
+      # files, so all three ship in the archive; the Expo builder then runs
+      # `yarn install --frozen-lockfile` in the uploaded root and cannot resolve a single
+      # tarball. Restoring only .npmrc leaves that lockfile poisoned.
+      #
+      # Same per-path loop as .github/workflows/release.sdk.prod.yml: tracked files are checked
+      # out, untracked leftovers are removed. `if: always()` so a failed install still leaves
+      # the checkout clean for the next job on this self-hosted runner.
+      - name: Restore registry config before EAS upload
+        shell: bash
+        if: always()
+        run: |
+          for f in yarn.lock .npmrc .yarnrc; do
+            if git ls-files --error-unmatch "$f" >/dev/null 2>&1; then
+              git checkout -- "$f"
+            else
+              rm -f "$f"
+            fi
+          done
+          rm -f yarn.lock.rewritten package-lock.json.rewritten
+
       - name: Build on EAS
         run: cd apps/mobile && eas build --profile internal --platform android --non-interactive
 
       - name: Publish update
-        run: cd apps/mobile && eas update --auto --profile internal --platform android --non-interactive
+        # Publish to the CHANNEL these binaries actually listen on. The build step above uses
+        # --profile internal, and eas.json bakes channel "internal" into that binary.
+        # This previously used --auto, which derives the EAS branch from the GIT branch name, so
+        # updates landed on a branch nobody listens to. On the production pipeline that meant
+        # every OTA went to channel "apps" while shipped builds waited on channel "production",
+        # which had zero updates in its whole history — OTA reached nobody. Verified against the
+        # Expo API on 2026-08-15. --auto also supplied the message, so pass one explicitly.
+        # The message goes through env: rather than being interpolated into the run line, so a
+        # crafted ref name cannot splice shell into the command.
+        run: cd apps/mobile && eas update --channel internal --message "$UPDATE_MESSAGE" --platform android --non-interactive
+        env:
+          UPDATE_MESSAGE: ${{ github.ref_name }}@${{ github.sha }}
 
+      # All three gated on the same flag as the decode step above — see "Detect Play Store
+      # credentials". Without credentials these would fail on an empty credentials_json anyway.
       - name: 'Authenticate to Google Cloud'
+        if: steps.play_creds.outputs.present == 'true'
         uses: 'google-github-actions/auth@v1'
         with:
           credentials_json: ${{ env.DECODED_GOOGLE_CREDENTIALS }}
 
       # Install gcloud, `setup-gcloud` automatically picks up authentication from `auth`.
       - name: 'Set up Cloud SDK'
+        if: steps.play_creds.outputs.present == 'true'
         uses: 'google-github-actions/setup-gcloud@v1'
         with:
           project_id: 'ever-teams-399720'
 
       - name: Upload to Play Store Console
+        if: steps.play_creds.outputs.present == 'true'
         run: cd apps/mobile && eas submit --platform android --profile internal --latest --non-interactive

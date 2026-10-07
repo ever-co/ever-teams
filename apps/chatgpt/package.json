@@ -20,6 +20,7 @@
 		"build:components": "tsx src/components/build.ts",
 		"clean": "rimraf dist",
 		"type-check": "tsc --noEmit",
+		"test": "tsx --test test/*.test.ts",
 		"lint": "eslint src/**/*.ts"
 	},
 	"dependencies": {

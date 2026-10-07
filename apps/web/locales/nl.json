@@ -206,6 +206,8 @@
 		"THEMES": "Thema's",
 		"3D_MODE": "3D-modus",
 		"DARK_MODE": "Donkere modus",
+		"THEME_LIGHT": "Licht",
+		"THEME_DARK": "Donker",
 		"SETTINGS": "Instellingen",
 		"PERSONAL": "Persoonlijk",
 		"USE_SETTING": "Instelling gebruiken",
@@ -444,7 +446,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "Productiviteitsuitsplitsing voor {month}",
 		"DAILY": "Dagelijks",
 		"WEEKLY": "Wekelijks",
-		"MONTHLY": "Maandelijks"
+		"MONTHLY": "Maandelijks",
+		"HIDE_CHART": "Grafiek verbergen",
+		"SHOW_ACTIVITY_CHART": "Activiteitsgrafiek tonen"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "Tijd en Activiteit",
@@ -717,7 +721,28 @@
 			"FORGOT_PASSWORD": "Wachtwoord vergeten?",
 			"TERMS_OF_SERVICE": "Servicevoorwaarden",
 			"PRIVACY_POLICY": "Privacybeleid",
-			"OR_CONTINUE_WITH": "of ga verder met"
+			"OR_CONTINUE_WITH": "of ga verder met",
+			"everId": {
+				"NO_WORKSPACE_TITLE": "Nog geen werkruimte voor deze Ever ID",
+				"NO_WORKSPACE_BODY": "Er is nog geen werkruimte aan deze Ever ID gekoppeld. Log op een andere manier in of vraag de beheerder van uw werkruimte om een uitnodiging.",
+				"WORKSPACE_BLOCKED_TITLE": "Gebruik de aanmelding van uw bedrijf",
+				"WORKSPACE_BLOCKED_BODY": "Uw werkruimte vraagt u in te loggen via de aanmelding van uw bedrijf. Gebruik die om verder te gaan, of log op een andere manier in.",
+				"SIGN_IN_ANOTHER_WAY": "Op een andere manier inloggen",
+				"NO_WORKSPACE_SIGNUP_BODY": "U kunt ook een nieuwe werkruimte maken via de gewone registratie.",
+				"CREATE_WORKSPACE": "Een werkruimte maken",
+				"CONFIRM_HINT": "We hebben een eenmalige code gestuurd naar het e-mailadres van uw bestaande account. Voer die in om uw Ever ID te koppelen.",
+				"CODE_EXPIRED": "Deze code is verlopen of te vaak geprobeerd. Log opnieuw in met Ever ID.",
+				"TOO_MANY_ATTEMPTS": "Te veel pogingen. Wacht een minuut en probeer het dan opnieuw.",
+				"UNAVAILABLE": "Inloggen met Ever ID is op dit moment niet beschikbaar. Probeer het later opnieuw of log op een andere manier in.",
+				"SIGNUP_CONFIRM": "Mijn werkruimte maken met deze Ever ID",
+				"SIGNUP_HINT": "Uw e-mailadres komt uit uw geverifieerde Ever ID. Er wordt niets gemaakt totdat u verdergaat.",
+				"SIGNUP_CONFIRM_REQUIRED": "Vink het vakje aan om uw werkruimte met deze Ever ID te maken.",
+				"SIGNUP_TERMS": "Ik accepteer deze documenten:",
+				"SIGNUP_TERMS_REQUIRED": "Accepteer de documenten om verder te gaan.",
+				"SIGNUP_EXPIRED": "Deze registratie is verlopen. Log opnieuw in met Ever ID.",
+				"SIGNUP_CHECKOUT": "Er is een abonnement nodig voordat uw werkruimte kan worden gemaakt.",
+				"CONTINUE_TO_CHECKOUT": "Doorgaan naar betalen"
+			}
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Bestaand team joinen",
@@ -799,6 +824,10 @@
 			"HEADING_TITLE": "Algemene instellingen",
 			"goToTeamSettings": "Ga naar teaminstellingen",
 			"WORKING_HOURS": "Werktijden",
+			"ADD_HOURS_FOR": "Uren toevoegen voor {day}",
+			"REMOVE_HOURS_FOR": "Uren verwijderen voor {day}",
+			"UNAVAILABLE": "Niet beschikbaar",
+			"TOGGLE_AVAILABILITY_FOR": "Beschikbaarheid voor {day}",
 			"emailNotValid": "Voer een geldig e-mailadres in",
 			"phoneNotValid": "Voer een geldig telefoonnummer in",
 			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "U staat op het punt uw account en al uw gegevens te verwijderen?",
@@ -1222,7 +1251,10 @@
 			"TERMS_AND_CONDITIONS": "Algemene voorwaarden",
 			"PRIVACY_POLICY": "Privacybeleid",
 			"COOKIES": "Cookiebeleid",
-			"BY": "Door"
+			"BY": "Door",
+			"BUILD_WEB": "Webbuild v{version}",
+			"API_VERSION": "API v{version}",
+			"OPEN_COMMIT": "Commit {commit} openen"
 		}
 	},
 	"errors": {
@@ -1296,7 +1328,7 @@
 		"HEADER_TITLE": "AI Chat",
 		"CLEAR_CONVERSATION": "Gesprek wissen",
 		"CONFIGURATION": "Configuratie",
-		"ASSISTANT_NAME": "Ever Teams Assistent",
+		"ASSISTANT_NAME": "{appName} Assistent",
 		"EMPTY_CONFIGURED": "Stel een vraag om te beginnen.",
 		"EMPTY_NOT_CONFIGURED": "Configureer uw API-sleutel om te beginnen.",
 		"CONFIGURE_BUTTON": "Configureren",
@@ -1304,6 +1336,14 @@
 		"INPUT_PLACEHOLDER_READY": "Uw bericht...",
 		"INPUT_PLACEHOLDER_NO_KEY": "Configureer uw API-sleutel...",
 		"STOP": "Stoppen",
-		"SEND": "Verzenden"
+		"SEND": "Verzenden",
+		"NEW_CHAT": "Nieuwe chat",
+		"HISTORY": "Geschiedenis",
+		"NO_CONVERSATIONS": "Nog geen gesprekken",
+		"PANEL_CONTROLS": "Bediening van het chatpaneel",
+		"COLLAPSE_ASSISTANT": "Assistent inklappen",
+		"STANDARD_ASSISTANT_WIDTH": "Standaardbreedte van de assistent",
+		"EXPAND_ASSISTANT": "Assistent uitbreiden",
+		"OPEN_ASSISTANT": "{appName} Assistent openen"
 	}
 }

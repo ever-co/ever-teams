@@ -8,5 +8,21 @@
         "nextjs",
         "tailwind"
     ],
-    "stack": "container"
+    "stack": "container",
+    "env": {
+        "AUTH_SECRET": {
+            "description": "NextAuth secret for sessions and social login, generated for this app. Never reuse a published value.",
+            "generator": "secret"
+        },
+        "GAUZY_API_SERVER_URL": {
+            "description": "Gauzy API origin used by the Next.js server, without a trailing /api. Replace it with your own Gauzy API to self-host the backend too.",
+            "value": "https://api.ever.team",
+            "required": true
+        },
+        "NEXT_PUBLIC_GAUZY_API_SERVER_URL": {
+            "description": "Gauzy API origin used by the browser, usually the same as GAUZY_API_SERVER_URL. Other runtime settings (branding, captcha, social login, ...) are listed in .env.docker.",
+            "value": "https://api.ever.team",
+            "required": true
+        }
+    }
 }

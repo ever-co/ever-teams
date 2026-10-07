@@ -24,18 +24,14 @@ const Personal = () => {
 	const t = useTranslations();
 	const setActivePersonalTab = useSetAtom(activeSettingPersonalTab);
 	return (
-		<div className="overflow-auto pb-16">
+		<div className="space-y-4 pb-8">
 			<Link href={'/settings/team'} className="w-full">
-				<button className="p-4 mt-2 w-full rounded-xl border lg:hidden hover:bg-white border-dark text-dark">
+				<button className="h-10 px-4 w-full rounded-lg border lg:hidden hover:bg-muted">
 					{t('pages.settingsPersonal.goToTeamSettings')}
 				</button>
 			</Link>
 			<InteractionObserverVisible id="general" setActiveSection={setActivePersonalTab}>
-				<Accordian
-					title={t('pages.settingsPersonal.HEADING_TITLE')}
-					className="w-full max-w-[96vw] p-4 mt-5 dark:bg-dark--theme"
-					id="general"
-				>
+				<Accordian title={t('pages.settingsPersonal.HEADING_TITLE')} className="w-full" id="general">
 					{/* <Text className="text-base font-normal text-center text-gray-400 sm:text-left">
 					{t('pages.settings.HEADING_DESCRIPTION')}
 				</Text> */}
@@ -47,29 +43,21 @@ const Personal = () => {
 			</InteractionObserverVisible>
 
 			<InteractionObserverVisible id="working-hours" setActiveSection={setActivePersonalTab}>
-				<Accordian title={t('pages.settingsPersonal.WORKING_HOURS')} className="p-4 mt-4 dark:bg-dark--theme" id="working-hours">
+				<Accordian title={t('pages.settingsPersonal.WORKING_HOURS')} className="w-full" id="working-hours">
 					<Suspense fallback={<WorkingHoursSkeleton />}>
 						<LazyWorkingHours />
 					</Suspense>
 				</Accordian>
 			</InteractionObserverVisible>
 			<InteractionObserverVisible id="sync-zone" setActiveSection={setActivePersonalTab}>
-				<Accordian
-					title={t('pages.settingsPersonal.DATA_SYNCHRONIZATION')}
-					className="p-4 mt-4 dark:bg-dark--theme"
-					id="sync-zone"
-				>
+				<Accordian title={t('pages.settingsPersonal.DATA_SYNCHRONIZATION')} className="w-full" id="sync-zone">
 					<Suspense fallback={<AccordionContentSkeleton type="sync" />}>
 						<LazySyncZone />
 					</Suspense>
 				</Accordian>
 			</InteractionObserverVisible>
 			<InteractionObserverVisible id="danger-zone" setActiveSection={setActivePersonalTab}>
-				<Accordian
-					title={t('pages.settings.DANDER_ZONE')}
-					className="p-4 mt-4 dark:bg-dark--theme"
-					id="danger-zone"
-				>
+				<Accordian title={t('pages.settings.DANDER_ZONE')} className="w-full" id="danger-zone">
 					<Suspense fallback={<AccordionContentSkeleton type="danger" />}>
 						<LazyDangerZone />
 					</Suspense>

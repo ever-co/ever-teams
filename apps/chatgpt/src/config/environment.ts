@@ -38,6 +38,48 @@ export interface AppConfig {
 
 	// Security
 	sessionSecret: string;
+
+	// ChatGPT widget metadata (`openai/widgetDomain` / `openai/widgetCSP`, see MetaEnhancer)
+	widgetDomain: string;
+	widgetCsp: string;
+}
+
+/**
+ * Widget metadata of Ever's hosted deployment - the values used when the runtime env does not override them.
+ * A self-hosted image sets CHATGPT_WIDGET_DOMAIN (and optionally CHATGPT_WIDGET_CSP) at runtime instead of
+ * advertising Ever's domain.
+ */
+export const DEFAULT_CHATGPT_WIDGET_DOMAIN = 'ever.team';
+export const DEFAULT_CHATGPT_WIDGET_CSP_SOURCES: readonly string[] = ['https://ever.team', 'https://*.gauzy.co'];
+
+/**
+ * Build the widget Content Security Policy allowing `'self'` plus the given sources
+ * (the default sources produce exactly the policy the app always shipped with).
+ */
+export function buildWidgetCsp(sources: readonly string[]): string {
+	return `default-src ${["'self'", ...sources].join(' ')}; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';`;
+}
+
+/**
+ * Resolve the widget domain and CSP from the environment (read at runtime by the Node process, so a published
+ * image is configured with `docker run -e ...`):
+ * - CHATGPT_WIDGET_DOMAIN: the domain advertised as `openai/widgetDomain` (default: `ever.team`);
+ * - CHATGPT_WIDGET_CSP: the full widget policy. When unset it allows `'self'` and the configured widget domain
+ *   (served over https unless the value carries its own scheme), or Ever's hosts when no domain is configured.
+ * Empty values count as unset.
+ */
+export function resolveWidgetConfig(
+	env: NodeJS.ProcessEnv = process.env
+): Pick<AppConfig, 'widgetDomain' | 'widgetCsp'> {
+	const widgetDomain = env.CHATGPT_WIDGET_DOMAIN?.trim();
+	const widgetCsp = env.CHATGPT_WIDGET_CSP?.trim();
+	const widgetOrigin =
+		widgetDomain && (/^[a-z][a-z\d+.-]*:\/\//i.test(widgetDomain) ? widgetDomain : `https://${widgetDomain}`);
+
+	return {
+		widgetDomain: widgetDomain || DEFAULT_CHATGPT_WIDGET_DOMAIN,
+		widgetCsp: widgetCsp || buildWidgetCsp(widgetOrigin ? [widgetOrigin] : DEFAULT_CHATGPT_WIDGET_CSP_SOURCES)
+	};
 }
 
 /**
@@ -72,7 +114,10 @@ export const config: AppConfig = {
 	logLevel: process.env.LOG_LEVEL || 'info',
 
 	// Security
-	sessionSecret: process.env.SESSION_SECRET || 'default-secret-change-in-production'
+	sessionSecret: process.env.SESSION_SECRET || 'default-secret-change-in-production',
+
+	// ChatGPT widget metadata (CHATGPT_WIDGET_DOMAIN / CHATGPT_WIDGET_CSP)
+	...resolveWidgetConfig(process.env)
 };
 
 /**

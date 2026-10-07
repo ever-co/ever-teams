@@ -29,14 +29,16 @@ export function useDeleteFavorite() {
 		}
 	});
 
+	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change).
+	const deleteFavoriteMutateAsync = deleteFavoriteMutation.mutateAsync;
 	const deleteFavorite = useCallback(
 		async (entityId: ID) => {
 			const favoriteId = currentEmployeeFavorites.find((favorite) => favorite.entityId === entityId)?.id;
 			if (favoriteId) {
-				return deleteFavoriteMutation.mutateAsync(favoriteId);
+				return deleteFavoriteMutateAsync(favoriteId);
 			}
 		},
-		[deleteFavoriteMutation, currentEmployeeFavorites]
+		[deleteFavoriteMutateAsync, currentEmployeeFavorites]
 	);
 
 	return {

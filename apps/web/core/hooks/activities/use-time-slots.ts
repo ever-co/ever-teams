@@ -106,6 +106,8 @@ export function useTimeSlots(hasFilter?: boolean) {
 		// React Query will handle the actual fetching automatically
 	}, [queryParams, isAuthorized, setTimeSlots]);
 
+	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change).
+	const deleteTimeSlotsMutateAsync = deleteTimeSlotsMutation.mutateAsync;
 	// Preserve exact interface - deleteTimeSlots function
 	const deleteTimeSlots = useCallback(
 		async (ids: string[]) => {
@@ -120,7 +122,7 @@ export function useTimeSlots(hasFilter?: boolean) {
 			};
 
 			try {
-				await deleteTimeSlotsMutation.mutateAsync(deleteParams);
+				await deleteTimeSlotsMutateAsync(deleteParams);
 				// Update local state immediately for better UX
 				setTimeSlots((currentTimeSlots) => currentTimeSlots.filter((slot) => !ids.includes(slot.id)));
 				invalidateTimeSlots();
@@ -128,7 +130,7 @@ export function useTimeSlots(hasFilter?: boolean) {
 				console.log('==> ERROR ==>', error);
 			}
 		},
-		[user?.tenantId, user?.employee?.organizationId, deleteTimeSlotsMutation, setTimeSlots]
+		[user?.tenantId, user?.employee?.organizationId, deleteTimeSlotsMutateAsync, setTimeSlots]
 	);
 
 	// Auto-fetch on mount and dependency changes

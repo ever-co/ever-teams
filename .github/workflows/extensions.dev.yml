@@ -30,18 +30,29 @@ jobs:
           cache: "yarn"
 
       - name: Configure Registry
-        shell: bash
-        run: |
-          if [ -n "${{ secrets.VERDACCIO_TOKEN }}" ]; then
-            echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
-            echo "registry=https://packages.ever.co/" >> .npmrc
-          fi
+        uses: ever-co/ever-gauzy/.github/actions/configure-registry@727973d766f3968d3f1184300af085872abcb20b
+        with:
+          verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
+          verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
+          force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
+          expect-vip: ${{ vars.RUNNER_LINUX_X64_4 != '' }}
 
       - name: Install Packages
         run: |
           cd apps/extensions && yarn install --network-timeout 1000000 --frozen-lockfile
         env:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
+
+      - name: Repair sharp libvips layout (yarn 1 hoisting)
+        # apps/extensions -> plasmo pins sharp@0.33.5 while the workspace root uses sharp@^0.34.5.
+        # yarn 1 hoists ONE @img/sharp-libvips-linux-x64 to the root and nests the other, so the
+        # nested @img/sharp-linux-x64 that plasmo's sharp loads cannot find libvips through the
+        # RPATH baked into its binary -> `plasmo build` dies with
+        #   Could not load the "sharp" module using the linux-x64 runtime
+        #   ERR_DLOPEN_FAILED: libvips-cpp.so.42: cannot open shared object file
+        # The script symlinks the matching-version libvips into an RPATH slot next to every
+        # @img/sharp-<platform> binary. Idempotent, no lockfile change, no-op if already correct.
+        run: node apps/extensions/scripts/fix-sharp-libvips.js
 
       - name: Build and zip extension artifact
         run: cd apps/extensions && yarn build -- --zip

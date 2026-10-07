@@ -1,11 +1,8 @@
 'use client';
-import React, { forwardRef, LegacyRef, useState } from 'react';
+import React, { forwardRef, LegacyRef } from 'react';
 import { Navbar } from '.';
-import { useSidebar } from '@/core/components/common/sidebar';
-import { ResizableHandle, ResizablePanel } from '@/core/components/common/resizable';
 import { cn } from '@/core/lib/helpers';
 export interface GlobalHeaderProps {
-	fullWidth?: boolean;
 	showTimer?: boolean;
 	publicTeam?: boolean;
 	notFound?: boolean;
@@ -13,58 +10,25 @@ export interface GlobalHeaderProps {
 	mainHeaderSlotClassName?: string;
 }
 const GlobalHeader = forwardRef(
-	(
-		{ fullWidth, showTimer, publicTeam, notFound, mainHeaderSlot, mainHeaderSlotClassName }: GlobalHeaderProps,
-		ref
-	) => {
-		const { state } = useSidebar();
-		const [headerSize, setHeaderSize] = useState(10);
-
+	({ showTimer, publicTeam, notFound, mainHeaderSlot, mainHeaderSlotClassName }: GlobalHeaderProps, ref) => {
 		return (
 			<div
 				ref={ref as LegacyRef<HTMLDivElement>}
-				className={cn(
-					'fixed flex flex-col top-0 left-0 right-0 z-50 bg-white border-b min-h-fit shrink-0 h-max bg-background  md:pl-[var(--global-header-offset)]'
-				)}
-				style={
-					{
-						'--global-header-offset': `calc(var(${
-							state === 'expanded' ? '--sidebar-width' : '--sidebar-width-icon'
-						}) + var(--chat-panel-width, 0px))`
-					} as React.CSSProperties
-				}
+				className="relative z-40 flex w-full shrink-0 flex-col border-b bg-background dark:border-[#26272C] dark:bg-dark-high"
 			>
-				<header
-					className={cn(
-						'flex max-h-fit flex-col flex-1  my-auto inset-x-0 w-full min-h-[80px] top-0 h-fit shrink-0 justify-start gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-20 bg-white dark:bg-dark-high !mx-0 !nav-items--shadow dark:!shadow-none border-b-[0.5px] dark:border-b-[0.125rem] border-gray-200 relative z-50 dark:border-b-[#26272C]',
-						!fullWidth ? 'lg:px-8' : 'px-8'
-					)}
-				>
+				<header className="flex max-h-fit flex-col flex-1 my-auto inset-x-0 w-full min-h-[80px] top-0 h-fit shrink-0 justify-start gap-2 px-8 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-20 bg-white dark:bg-dark-high !mx-0 !nav-items--shadow dark:!shadow-none border-b-[0.5px] dark:border-b-[0.125rem] border-gray-200 relative z-50 dark:border-b-[#26272C]">
 					<Navbar
-						className={cn(
-							'flex items-center justify-end w-full transition-all h-max',
-							!fullWidth ? 'x-container mx-auto' : '!mx-0'
-						)}
+						className="flex items-center justify-end w-full transition-all h-max !mx-0"
 						showTimer={showTimer}
 						publicTeam={publicTeam || false}
 						notFound={notFound || false}
 					/>
 				</header>
 				{mainHeaderSlot ? (
-					<ResizablePanel
-						key="main-header-slot"
-						id="main-header-slot"
-						defaultSize={30}
-						className={cn(
-							headerSize < 20 ? '!overflow-hidden h-fit' : '!overflow-visible',
-							'dark:bg-dark-high border-b-[0.125rem] dark:border-[#26272C]'
-						)}
-						onResize={(size) => setHeaderSize(size)}
-					>
-						<div className={cn('flex-1 w-full', mainHeaderSlotClassName)}>{mainHeaderSlot}</div>
-					</ResizablePanel>
+					<div className={cn('w-full border-t dark:border-[#26272C]', mainHeaderSlotClassName)}>
+						{mainHeaderSlot}
+					</div>
 				) : null}
-				<ResizableHandle withHandle />
 			</div>
 		);
 	}

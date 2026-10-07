@@ -321,18 +321,21 @@ export function useTeamTasks() {
 		[authUser]
 	);
 
+	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change).
+	const deleteTaskMutateAsync = deleteTaskMutation.mutateAsync;
 	const deleteTask = useCallback(
 		async (task: (typeof tasks)[0]) => {
 			try {
-				return await deleteTaskMutation.mutateAsync(task.id);
+				return await deleteTaskMutateAsync(task.id);
 			} catch (error) {
 				console.error('Error deleting task:', error);
 				throw error;
 			}
 		},
-		[deleteTaskMutation, setAllTasks]
+		[deleteTaskMutateAsync, setAllTasks]
 	);
 
+	const createTaskMutateAsync = createTaskMutation.mutateAsync;
 	const createTask = useCallback(
 		async ({
 			title,
@@ -358,7 +361,7 @@ export function useTeamTasks() {
 			members?: TEmployee[] | { id: string }[] | null;
 		}) => {
 			try {
-				const res = await createTaskMutation.mutateAsync({
+				const res = await createTaskMutateAsync({
 					title,
 					issueType,
 					status,
@@ -378,13 +381,14 @@ export function useTeamTasks() {
 				throw error;
 			}
 		},
-		[createTaskMutation, deepCheckAndUpdateTasks, taskStatuses]
+		[createTaskMutateAsync, deepCheckAndUpdateTasks, taskStatuses]
 	);
 
+	const updateTaskMutateAsync = updateTaskMutation.mutateAsync;
 	const updateTask = useCallback(
 		async (task: Partial<TTask> & { id: string }) => {
 			try {
-				const res = await updateTaskMutation.mutateAsync({
+				const res = await updateTaskMutateAsync({
 					taskId: task.id,
 					taskData: task
 				});
@@ -402,7 +406,7 @@ export function useTeamTasks() {
 				throw error;
 			}
 		},
-		[updateTaskMutation, setActive, deepCheckAndUpdateTasks, detailedTask, getTaskById]
+		[updateTaskMutateAsync, setActive, deepCheckAndUpdateTasks, detailedTask, getTaskById]
 	);
 
 	const updateTitle = useCallback(
@@ -645,16 +649,17 @@ export function useTeamTasks() {
 		]
 	);
 
+	const deleteEmployeeFromTasksMutateAsync = deleteEmployeeFromTasksMutation.mutateAsync;
 	const deleteEmployeeFromTasks = useCallback(
 		async (employeeId: string) => {
 			try {
-				await deleteEmployeeFromTasksMutation.mutateAsync(employeeId);
+				await deleteEmployeeFromTasksMutateAsync(employeeId);
 			} catch (error) {
 				logErrorInDev('Error deleting employee from tasks:', error);
 				throw error;
 			}
 		},
-		[deleteEmployeeFromTasksMutation]
+		[deleteEmployeeFromTasksMutateAsync]
 	);
 
 	const unassignAuthActiveTask = useCallback(() => {

@@ -32,7 +32,6 @@ import { hidableColumnNames } from './project-views/list-view/data-table';
 import { Checkbox } from '@/core/components/common/checkbox';
 
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { useParams } from 'next/navigation';
 import { Breadcrumb } from '../../duplicated-components/breadcrumb';
 import { InputField } from '../../duplicated-components/_input';
@@ -70,7 +69,6 @@ function PageComponent() {
 	const [selectedView, setSelectedView] = useLocalStorageState<TViewMode>(LAST_SELECTED_PROJECTS_VIEW, 'LIST');
 	const [projects, setProjects] = useState<ProjectViewDataType[]>([]);
 
-	const fullWidth = useAtomValue(fullWidthState);
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
 	const { organizationProjects, getOrganizationProjectsLoading, setSearchQueries } = useOrganizationProjectsQuery();
@@ -455,7 +453,7 @@ function PageComponent() {
 			className="p-0! pb-1 overflow-hidden! w-full"
 			childrenClassName="w-full h-full"
 			mainHeaderSlot={
-				<Container fullWidth={fullWidth} className="flex flex-col p-4 dark:bg-dark--theme">
+				<Container className="flex flex-col p-4 dark:bg-dark--theme">
 					<div className="flex items-center w-full">
 						<button onClick={handleBack} className="p-1 rounded-full transition-colors hover:bg-gray-100">
 							<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
@@ -504,7 +502,7 @@ function PageComponent() {
 				</Container>
 			}
 		>
-			<Container fullWidth={fullWidth} className="flex flex-col gap-6 p-4 mt-6 w-full h-full dark:bg-dark--theme">
+			<Container className="flex flex-col gap-6 p-4 mt-6 w-full h-full dark:bg-dark--theme">
 				<div className="p-3 space-y-6 rounded-lg border bg-light--theme-light dark:bg-transparent">
 					<div className="flex justify-between items-center font-light rounded">
 						<div className="w-80 flex border dark:border-white h-[2.2rem] items-center px-4 rounded-lg">

@@ -9,14 +9,22 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { toast } from 'sonner';
 
 import {
-    STOP_TIMER_DEBOUNCE_MS, STOP_TIMER_EFFECT_DEBOUNCE_MS, SYNC_TIMER_INTERVAL
+	STOP_TIMER_DEBOUNCE_MS,
+	STOP_TIMER_EFFECT_DEBOUNCE_MS,
+	SYNC_TIMER_INTERVAL
 } from '@/core/constants/config/constants';
 import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
+import { canRunTimerForState } from '@/core/lib/helpers/timer-policy';
 import { queryKeys } from '@/core/query/keys';
 import { timerService } from '@/core/services/client/api/timers';
 import {
-    activeTeamIdState, activeTeamState, activeTeamTaskState, detailedTaskState,
-    teamTasksState, timerStatusFetchingState, timerStatusState
+	activeTeamIdState,
+	activeTeamState,
+	activeTeamTaskState,
+	detailedTaskState,
+	teamTasksState,
+	timerStatusFetchingState,
+	timerStatusState
 } from '@/core/stores';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
@@ -24,7 +32,7 @@ import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/t
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TUser } from '@/core/types/schemas/user/user.schema';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuthenticateUser } from '../auth';
 import { useQueryCall } from '../common/use-query';
@@ -32,6 +40,8 @@ import { useSyncRef } from '../common/use-sync-ref';
 import { useMyDailyPlans } from '../daily-plans/use-my-daily-plans';
 import { useOrganizationEmployeeTeams, useTeamTasksState, useUpdateTask } from '../organizations';
 import { useTaskStatusesQuery } from '../tasks/use-task-statuses-query';
+import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
+import { useScopeGuard } from '../bootstrap/use-scope-guard';
 
 // ==================== TYPES ====================
 
@@ -40,6 +50,14 @@ export interface UseTimerApiParams {
 	updateLocalTimerStatus: (status: ILocalTimerStatus) => void;
 	/** Whether the initial data load has completed */
 	firstLoad: boolean;
+	/** Controls the scoped status and plan observers. */
+	enabled?: boolean;
+	scope?: ApiRequestScope;
+	statusEnabled?: boolean;
+	statusRefetchInterval?: number | false;
+	plansEnabled?: boolean;
+	plansRefetchInterval?: number | false;
+	manageRuntime?: boolean;
 }
 
 export interface UseTimerApiReturn {
@@ -73,6 +91,11 @@ export interface UseTimerApiReturn {
 	isPlanVerified: boolean | undefined;
 	/** The currently active team task */
 	activeTeamTask: TTask | null;
+	/** Unfiltered status used only by the single runtime owner. */
+	rawTimerRunning: boolean;
+	/** Critical observer readiness. */
+	statusResolved: boolean;
+	plansResolved: boolean;
 }
 
 // ==================== HOOK ====================
@@ -95,7 +118,17 @@ export interface UseTimerApiReturn {
  * - localStorage persistence (→ useTimerStorage)
  * - High-frequency ticking / animation (→ useTimerUi)
  */
-export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiParams): UseTimerApiReturn {
+export function useTimerApi({
+	updateLocalTimerStatus,
+	firstLoad,
+	enabled = true,
+	scope,
+	statusEnabled = false,
+	statusRefetchInterval = false,
+	plansEnabled = true,
+	plansRefetchInterval = false,
+	manageRuntime = true
+}: UseTimerApiParams): UseTimerApiReturn {
 	const pathname = usePathname();
 	const queryClient = useQueryClient();
 	const t = useTranslations();
@@ -104,7 +137,7 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const { taskStatuses } = useTaskStatusesQuery();
+	const { taskStatuses } = useTaskStatusesQuery({ enabled });
 	const detailedTask = useAtomValue(detailedTaskState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
 	const teamTasks = useAtomValue(teamTasksState);
@@ -129,16 +162,49 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 	const { setActiveTask, isUpdatingActiveTask } = useTeamTasksState();
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
 	const { user, $user, refreshUserData } = useAuthenticateUser();
-	const { myDailyPlans } = useMyDailyPlans();
+	const { myDailyPlans, isSuccess: plansResolved } = useMyDailyPlans({
+		enabled: enabled && plansEnabled,
+		...(statusEnabled && scope ? { scope, refetchInterval: plansRefetchInterval } : {})
+	});
 
 	// ==================== QUERIES & MUTATIONS ====================
 
-	const { queryCall, loading, loadingRef } = useQueryCall(async () =>
+	const statusKey = statusEnabled
+		? queryKeys.timer.statusByScope(scope?.tenantId, scope?.organizationId, scope?.teamId, scope?.userId)
+		: queryKeys.timer.timer(activeTeamId);
+	const isCurrentScope = useScopeGuard(statusKey, statusEnabled && enabled);
+	const scopedStatusReady = !!(
+		scope?.tenantId &&
+		scope.organizationId &&
+		scope.teamId &&
+		scope.userId &&
+		scope.accessToken
+	);
+	const scopedStatusQuery = useQuery({
+		queryKey: statusKey,
+		queryFn: ({ signal }) => timerService.getTimerStatus({ scope: scope!, signal }),
+		enabled: statusEnabled && enabled && scopedStatusReady,
+		refetchInterval: statusEnabled ? statusRefetchInterval : false,
+		refetchIntervalInBackground: false
+	});
+	const {
+		queryCall,
+		loading: fallbackLoading,
+		loadingRef
+	} = useQueryCall(async () =>
 		queryClient.fetchQuery({
 			queryKey: queryKeys.timer.timer(activeTeamId),
 			queryFn: () => timerService.getTimerStatus()
 		})
 	);
+	const loading = statusEnabled ? scopedStatusQuery.isLoading : fallbackLoading;
+
+	useEffect(() => {
+		const nextStatus = scopedStatusQuery.data?.data;
+		if (statusEnabled && nextStatus && isCurrentScope() && !isEqual(timerStatusRef.current, nextStatus)) {
+			setTimerStatus(nextStatus);
+		}
+	}, [isCurrentScope, scopedStatusQuery.data, setTimerStatus, statusEnabled, timerStatusRef]);
 
 	const startTimerMutation = useMutation({
 		mutationFn: timerService.startTimer
@@ -212,24 +278,26 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 
 	const canRunTimer = useMemo(
 		() =>
-			!!(
-				user?.isEmailVerified &&
-				((!!activeTeamTask && activeTeamTask.status !== 'closed') ||
-					timerStatusRef.current?.lastLog?.source !== ETimeLogSource.TEAMS)
-			),
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[user?.isEmailVerified, activeTeamTask]
+			canRunTimerForState({
+				isEmailVerified: !!user?.isEmailVerified,
+				hasActiveTask: !!activeTeamTask,
+				isActiveTaskClosed: activeTeamTask?.status === ETaskStatusName.CLOSED,
+				isTimerRunning: !!timerStatus?.running,
+				timerSource: timerStatus?.lastLog?.source
+			}),
+		[user?.isEmailVerified, activeTeamTask, timerStatus?.running, timerStatus?.lastLog?.source]
 	);
 
 	// ==================== CALLBACKS ====================
 
 	const getTimerStatus = useCallback(
 		(deepCheck?: boolean) => {
-			if (loadingRef.current || !user?.tenantId) {
+			if ((statusEnabled ? scopedStatusQuery.isFetching : loadingRef.current) || !user?.tenantId) {
 				return;
 			}
-			return queryCall().then((res) => {
-				if (res.data && !isEqual(timerStatus, res.data)) {
+			const request = statusEnabled ? scopedStatusQuery.refetch().then((result) => result.data) : queryCall();
+			return request.then((res) => {
+				if (res?.data && (!statusEnabled || isCurrentScope()) && !isEqual(timerStatus, res.data)) {
 					setTimerStatus((t: ITimerStatus | null) => {
 						if (deepCheck) {
 							return res.data.running !== t?.running ? res.data : t;
@@ -240,34 +308,56 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 				return res;
 			});
 		},
-		[timerStatus, setTimerStatus, queryCall, loadingRef, user]
+		[
+			isCurrentScope,
+			loadingRef,
+			queryCall,
+			scopedStatusQuery,
+			setTimerStatus,
+			statusEnabled,
+			timerStatus,
+			user?.tenantId
+		]
 	);
 
+	// Depend on the STABLE mutateAsync functions, never on the mutation result objects: those objects are
+	// recreated on every state change (idle → pending → success), which made every callback below new on
+	// each transition and re-ran the effects that depend on them (stopTimer → team/task-change effects).
+	const toggleTimerMutate = toggleTimerMutation.mutateAsync;
 	const toggleTimer = useCallback(
 		(taskIdParam: string, updateStore = true) => {
-			return toggleTimerMutation.mutateAsync(taskIdParam).then((res) => {
-				if (updateStore && res.data && !isEqual(timerStatus, res.data)) {
+			return toggleTimerMutate(taskIdParam).then((res) => {
+				if (
+					updateStore &&
+					(!statusEnabled || isCurrentScope()) &&
+					res.data &&
+					!isEqual(timerStatus, res.data)
+				) {
 					setTimerStatus(res.data);
 				}
 				return res;
 			});
 		},
-		[timerStatus, toggleTimerMutation, setTimerStatus]
+		[isCurrentScope, statusEnabled, timerStatus, toggleTimerMutate, setTimerStatus]
 	);
 
+	const syncTimerMutate = syncTimerMutation.mutateAsync;
+	const syncTimerPending = syncTimerMutation.isPending;
 	const syncTimer = useCallback(() => {
-		if (syncTimerMutation.isPending) {
+		if (syncTimerPending) {
 			return;
 		}
-		return syncTimerMutation
-			.mutateAsync({ source: timerStatus?.lastLog?.source || ETimeLogSource.TEAMS, user: $user.current })
-			.then((res) => {
-				return res;
-			});
-	}, [syncTimerMutation, timerStatus]);
+		return syncTimerMutate({
+			source: timerStatus?.lastLog?.source || ETimeLogSource.TEAMS,
+			user: $user.current
+		}).then((res) => {
+			return res;
+		});
+	}, [syncTimerMutate, syncTimerPending, timerStatus]);
 
 	// ==================== START TIMER ====================
 
+	const startTimerMutate = startTimerMutation.mutateAsync;
 	const startTimer = useCallback(
 		async (explicitTask?: TTask) => {
 			// Check if the user is tracking time in another tab or device
@@ -327,9 +417,12 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 				running: true
 			});
 
-			setTimerStatusFetching(true);
-			const promise = startTimerMutation.mutateAsync().then(async (res) => {
-				res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
+			if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
+			const promise = startTimerMutate().then(async (res) => {
+				res.data &&
+					(!statusEnabled || isCurrentScope()) &&
+					!isEqual(timerStatus, res.data) &&
+					setTimerStatus(res.data);
 
 				// Save active task via API when timer starts
 				// Skip if we're on /task/ page because setActiveTask already does it
@@ -411,7 +504,9 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 				}
 			}
 
-			promise.finally(() => setTimerStatusFetching(false));
+			promise.finally(() => {
+				if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(false);
+			});
 
 			return promise;
 		},
@@ -422,7 +517,7 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 			taskId,
 			updateLocalTimerStatus,
 			setTimerStatusFetching,
-			startTimerMutation,
+			startTimerMutate,
 			activeTeamTaskRef,
 			timerStatus,
 			setTimerStatus,
@@ -437,12 +532,15 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 			t,
 			refreshUserData,
 			queryClient,
-			activeTeamId
+			activeTeamId,
+			isCurrentScope,
+			statusEnabled
 		]
 	);
 
 	// ==================== STOP TIMER ====================
 
+	const stopTimerMutate = stopTimerMutation.mutateAsync;
 	const stopTimer = useCallback(() => {
 		updateLocalTimerStatus({
 			lastTaskId: taskId.current || null,
@@ -470,10 +568,13 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 		// Placed after debounce check to avoid wasteful duplicate sync calls
 		syncTimer();
 
-		return stopTimerMutation
-			.mutateAsync(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS)
+		if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
+		return stopTimerMutate(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS)
 			.then(async (res) => {
-				res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
+				res.data &&
+					(!statusEnabled || isCurrentScope()) &&
+					!isEqual(timerStatus, res.data) &&
+					setTimerStatus(res.data);
 
 				// Clear active task via API when timer stops
 				if (activeTeamId && user) {
@@ -505,11 +606,14 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 						queryKey: queryKeys.organizationTeams.detail(activeTeamId)
 					});
 				}
+			})
+			.finally(() => {
+				if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(false);
 			});
 	}, [
 		timerStatus,
 		setTimerStatus,
-		stopTimerMutation,
+		stopTimerMutate,
 		taskId,
 		updateLocalTimerStatus,
 		queryClient,
@@ -518,26 +622,25 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 		user,
 		activeTeam,
 		updateOrganizationTeamEmployeeActiveTask,
-		syncTimer
+		syncTimer,
+		isCurrentScope,
+		statusEnabled,
+		setTimerStatusFetching
 	]);
 
 	// ==================== SIDE EFFECTS ====================
 
 	// Loading states
 	useEffect(() => {
-		if (firstLoad) {
+		if (firstLoad && statusEnabled && isCurrentScope()) {
 			setTimerStatusFetching(loading);
 		}
-	}, [loading, firstLoad, setTimerStatusFetching]);
-
-	useEffect(() => {
-		setTimerStatusFetching(stopTimerMutation.isPending);
-	}, [stopTimerMutation.isPending, setTimerStatusFetching]);
+	}, [loading, firstLoad, isCurrentScope, setTimerStatusFetching, statusEnabled]);
 
 	// Sync timer interval (every 60s while running)
 	useEffect(() => {
 		let syncTimerInterval: NodeJS.Timeout;
-		if (timerStatus?.running && firstLoad) {
+		if (manageRuntime && timerStatus?.running && firstLoad) {
 			syncTimerInterval = setInterval(() => {
 				syncTimer();
 			}, SYNC_TIMER_INTERVAL);
@@ -545,7 +648,7 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 		return () => {
 			if (syncTimerInterval) clearInterval(syncTimerInterval);
 		};
-	}, [syncTimer, timerStatus, firstLoad]);
+	}, [syncTimer, timerStatus, firstLoad, manageRuntime]);
 
 	// If active team changes then stop the timer and reinitialize
 	useEffect(() => {
@@ -689,6 +792,9 @@ export function useTimerApi({ updateLocalTimerStatus, firstLoad }: UseTimerApiPa
 		canRunTimer,
 		canTrack,
 		isPlanVerified,
-		activeTeamTask
+		activeTeamTask,
+		rawTimerRunning: timerStatus?.running === true,
+		statusResolved: statusEnabled ? scopedStatusQuery.isSuccess && isCurrentScope() : firstLoad,
+		plansResolved
 	};
 }

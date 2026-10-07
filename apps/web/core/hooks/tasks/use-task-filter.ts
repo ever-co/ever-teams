@@ -9,7 +9,7 @@ import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/consta
 import { estimatedTotalTime, getTotalTasks } from '@/core/components/tasks/daily-plan';
 import intersection from 'lodash/intersection';
 import { ITab } from '@/core/components/pages/profile/task-filters';
-import { timeLogsDailyReportState, activeTeamManagersState, activeTeamState } from '@/core/stores';
+import { activeTeamManagersState, activeTeamState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 import { useUserQuery } from '../queries/user-user.query';
 
@@ -40,6 +40,8 @@ export type UseTaskFilterOptions = {
 	 * Can be 'auto' to automatically select based on daily plans availability.
 	 */
 	defaultTab?: ITab | 'auto';
+	/** Employee-specific active-day count supplied by the profile summary endpoint. */
+	statsCount?: number;
 };
 
 /**
@@ -48,7 +50,7 @@ export type UseTaskFilterOptions = {
  * @param {UseTaskFilterOptions} options - Optional configuration for state persistence
  */
 export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilterOptions = {}) {
-	const { persistState = true, defaultTab = 'worked' } = options;
+	const { persistState = true, defaultTab = 'worked', statsCount } = options;
 	const t = useTranslations();
 	// const defaultValue = useMemo(
 	// 	() => (typeof window !== 'undefined' ? (window.localStorage.getItem('task-tab') as ITab) || null : 'worked'),
@@ -75,7 +77,7 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 	]);
 
 	const { employeeTodayPlan, employeeOutstandingPlans, employeeDailyPlans } = useEmployeeDailyPlans(targetEmployeeId);
-	const timeLogsDailyReport = useAtomValue(timeLogsDailyReportState);
+	const resolvedStatsCount = statsCount ?? 0;
 	const isManagerConnectedUser = useMemo(
 		() => activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id),
 		[activeTeamManagers, user?.id]
@@ -216,7 +218,7 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 			tab: 'stats',
 			name: 'Stats',
 			description: 'This tab shows all stats',
-			count: timeLogsDailyReport.length
+			count: resolvedStatsCount
 		});
 		tabs.unshift({
 			tab: 'worked',

@@ -1,6 +1,6 @@
 import { TUser } from '@/core/types/schemas';
 import { APIService } from '../../api.service';
-import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { GAUZY_API_BASE_SERVER_URL, IS_DEMO_MODE } from '@/core/constants/config/constants';
 import qs from 'qs';
 import {
 	validateApiResponse,
@@ -73,7 +73,16 @@ class UserService extends APIService {
 			const response = await this.get<TUser>(`/user/me?${query}`);
 
 			// Validate API response using utility function
-			return validateApiResponse(userSchema, response.data, 'getAuthenticatedUserData API response');
+			const user = validateApiResponse(userSchema, response.data, 'getAuthenticatedUserData API response');
+
+			// DEMO ONLY (NEXT_PUBLIC_DEMO=true): the demo tenant is re-seeded on every restart with users whose
+			// e-mail is never verified and who cannot receive mail, and ~24 features (create task, start
+			// timer, invite, create team, …) are gated on isEmailVerified — so the demo could not demonstrate
+			// the product. Treat demo users as verified. Real environments are untouched. (Owner, 2026-08-17.)
+			if (IS_DEMO_MODE && user && !user.isEmailVerified) {
+				return { ...user, isEmailVerified: true };
+			}
+			return user;
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(

@@ -4,18 +4,18 @@
 :root {
 	--tw-color-dark--theme: #1e2025;
 	--tooltipBackground: #000;
-	--radius: .625rem;
-    --color-background: var(--color-zinc-50);
-    --color-foreground: var(--color-zinc-950);
-    --color-card: var(--color-white);
-    --color-illustration: var(--color-white);
-    --color-card-foreground: var(--color-zinc-950);
-    --color-popover: var(--color-white);
-    --color-popover-foreground: var(--color-zinc-950);
-    --color-primary: var(--color-indigo-500);
-    --color-primary-foreground: var(--color-white);
-    --color-secondary: var(--color-sky-100);
-    --color-secondary-foreground: var(--color-sky-600);
+	--radius: 0.625rem;
+	--color-background: var(--color-zinc-50);
+	--color-foreground: var(--color-zinc-950);
+	--color-card: var(--color-white);
+	--color-illustration: var(--color-white);
+	--color-card-foreground: var(--color-zinc-950);
+	--color-popover: var(--color-white);
+	--color-popover-foreground: var(--color-zinc-950);
+	--color-primary: var(--color-indigo-500);
+	--color-primary-foreground: var(--color-white);
+	--color-secondary: var(--color-sky-100);
+	--color-secondary-foreground: var(--color-sky-600);
 }
 html {
 	background: hsl(var(--background));
@@ -70,7 +70,6 @@ html.dark {
 	}
 
 	:root {
-
 		--background: 240 5% 96%;
 		--foreground: 240 6% 10%;
 
@@ -195,6 +194,35 @@ html.dark {
 }
 
 @layer components {
+	/* Ever Teams application shell and density contracts. */
+	.app-page {
+		@apply flex min-h-0 w-full flex-col bg-background text-foreground;
+	}
+
+	.app-page-header {
+		@apply flex w-full flex-col gap-1 border-b bg-background px-4 py-4 sm:px-6 lg:px-8;
+	}
+
+	.app-surface {
+		@apply rounded-lg border bg-card text-card-foreground shadow-xs;
+	}
+
+	.app-section {
+		@apply p-4 sm:p-5 lg:p-6;
+	}
+
+	.app-field {
+		@apply h-10 rounded-md border border-input bg-background px-3 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/40 disabled:cursor-not-allowed disabled:opacity-60;
+	}
+
+	.app-label {
+		@apply text-sm font-medium leading-none text-foreground;
+	}
+
+	.app-help {
+		@apply text-xs leading-5 text-muted-foreground;
+	}
+
 	/* Colors custom */
 	.bg-gray-lighter {
 		@apply bg-[#F2F2F2] dark:bg-dark--theme-light;

@@ -16,13 +16,10 @@ export default withSentryConfig(
 			poweredByHeader: false,
 			reactStrictMode: true,
 			serverExternalPackages: ['@electric-sql/pglite'],
-			env: {
-				NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
-				NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
-				NEXT_PUBLIC_CLERK_SIGN_IN_URL: process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL,
-				NEXT_PUBLIC_CLERK_SIGN_UP_URL: process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL,
-				NEXT_PUBLIC_TEAMS_API_URL: process.env.NEXT_PUBLIC_TEAMS_API_URL
-			}
+			// No `env:` block. Every key listed here is inlined by Next into the client AND the server
+			// bundles at build time, so the published image would carry the values of whoever built it and
+			// no `docker run -e ...` could change them. Read deployment values per request instead
+			// (src/libs/runtime-env.ts) and pass them to client components as props.
 		})
 	),
 	{

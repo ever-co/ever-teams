@@ -1,5 +1,5 @@
 {
-	"TITLE": "永恒团队",
+	"TITLE": "{appName}",
 	"sidebar": {
 		"DASHBOARD": "仪表板",
 		"FORYOU": "常规",
@@ -206,6 +206,8 @@
 		"THEMES": "主题",
 		"3D_MODE": "3D模式",
 		"DARK_MODE": "夜间模式",
+		"THEME_LIGHT": "浅色",
+		"THEME_DARK": "深色",
 		"SETTINGS": "设置",
 		"PERSONAL": "个人",
 		"USE_SETTING": "使用设置",
@@ -444,7 +446,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "{month}的生产力分解",
 		"DAILY": "每日",
 		"WEEKLY": "每周",
-		"MONTHLY": "每月"
+		"MONTHLY": "每月",
+		"HIDE_CHART": "隐藏图表",
+		"SHOW_ACTIVITY_CHART": "显示活动图表"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "时间和活动",
@@ -717,7 +721,28 @@
 			"FORGOT_PASSWORD": "忘记密码？",
 			"TERMS_OF_SERVICE": "服务条款",
 			"PRIVACY_POLICY": "隐私政策",
-			"OR_CONTINUE_WITH": "或继续使用"
+			"OR_CONTINUE_WITH": "或继续使用",
+			"everId": {
+				"NO_WORKSPACE_TITLE": "此 Ever ID 还没有工作区",
+				"NO_WORKSPACE_BODY": "此 Ever ID 尚未关联任何工作区。请使用其他方式登录，或向您的工作区管理员索取邀请。",
+				"WORKSPACE_BLOCKED_TITLE": "请使用您所在公司的登录方式",
+				"WORKSPACE_BLOCKED_BODY": "您的工作区要求您使用所在公司的登录方式。请使用该方式继续，或使用其他方式登录。",
+				"SIGN_IN_ANOTHER_WAY": "使用其他方式登录",
+				"NO_WORKSPACE_SIGNUP_BODY": "您也可以通过常规注册创建一个新工作区。",
+				"CREATE_WORKSPACE": "创建工作区",
+				"CONFIRM_HINT": "我们已向您现有账户的电子邮件地址发送了一次性验证码。输入该验证码以关联您的 Ever ID。",
+				"CODE_EXPIRED": "此验证码已过期或尝试次数过多。请重新使用 Ever ID 登录。",
+				"TOO_MANY_ATTEMPTS": "尝试次数过多。请等待一分钟后重试。",
+				"UNAVAILABLE": "Ever ID 登录目前不可用。请稍后重试，或使用其他方式登录。",
+				"SIGNUP_CONFIRM": "使用此 Ever ID 创建我的工作区",
+				"SIGNUP_HINT": "您的电子邮件地址来自您已验证的 Ever ID。在您继续之前不会创建任何内容。",
+				"SIGNUP_CONFIRM_REQUIRED": "勾选此框以使用此 Ever ID 创建您的工作区。",
+				"SIGNUP_TERMS": "我接受以下文件：",
+				"SIGNUP_TERMS_REQUIRED": "请接受这些文件以继续。",
+				"SIGNUP_EXPIRED": "此注册已过期。请重新使用 Ever ID 登录。",
+				"SIGNUP_CHECKOUT": "创建工作区之前需要订阅。",
+				"CONTINUE_TO_CHECKOUT": "继续付款"
+			}
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "加入已有团队",
@@ -799,6 +824,10 @@
 			"HEADING_TITLE": "常规设置",
 			"goToTeamSettings": "前往团队设置",
 			"WORKING_HOURS": "工作时间",
+			"ADD_HOURS_FOR": "为{day}添加工时",
+			"REMOVE_HOURS_FOR": "移除{day}的工时",
+			"UNAVAILABLE": "不可用",
+			"TOGGLE_AVAILABILITY_FOR": "{day}可用状态",
 			"emailNotValid": "请输入有效的电子邮箱",
 			"phoneNotValid": "请输入有效的手机号码",
 			"WORK_SCHEDULE": "工作时间表",
@@ -1222,7 +1251,10 @@
 			"TERMS_AND_CONDITIONS": "条款和条件",
 			"PRIVACY_POLICY": "隐私政策",
 			"COOKIES": "Cookie政策",
-			"BY": "by"
+			"BY": "by",
+			"BUILD_WEB": "Web 构建 v{version}",
+			"API_VERSION": "API v{version}",
+			"OPEN_COMMIT": "打开提交 {commit}"
 		}
 	},
 	"errors": {
@@ -1296,7 +1328,7 @@
 		"HEADER_TITLE": "AI 聊天",
 		"CLEAR_CONVERSATION": "清除对话",
 		"CONFIGURATION": "配置",
-		"ASSISTANT_NAME": "Ever Teams 助手",
+		"ASSISTANT_NAME": "{appName} 助手",
 		"EMPTY_CONFIGURED": "提出问题以开始。",
 		"EMPTY_NOT_CONFIGURED": "配置您的 API 密钥以开始。",
 		"CONFIGURE_BUTTON": "配置",
@@ -1304,6 +1336,14 @@
 		"INPUT_PLACEHOLDER_READY": "您的消息...",
 		"INPUT_PLACEHOLDER_NO_KEY": "配置您的 API 密钥...",
 		"STOP": "停止",
-		"SEND": "发送"
+		"SEND": "发送",
+		"NEW_CHAT": "新聊天",
+		"HISTORY": "历史记录",
+		"NO_CONVERSATIONS": "暂无对话",
+		"PANEL_CONTROLS": "聊天面板控件",
+		"COLLAPSE_ASSISTANT": "折叠助手",
+		"STANDARD_ASSISTANT_WIDTH": "助手标准宽度",
+		"EXPAND_ASSISTANT": "展开助手",
+		"OPEN_ASSISTANT": "打开 {appName} 助手"
 	}
 }

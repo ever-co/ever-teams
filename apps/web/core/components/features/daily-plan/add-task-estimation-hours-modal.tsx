@@ -3,7 +3,8 @@ import { useMemo, useCallback, useState, useEffect, useRef, Dispatch, SetStateAc
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useTranslations } from 'next-intl';
-import { useModal, useTimerView } from '@/core/hooks';
+import { useModal } from '@/core/hooks';
+import { useTimerActions } from '@/core/hooks/timer';
 import { useTeamTasksState } from '@/core/hooks/organizations/teams/use-team-tasks-state';
 import { useCreateTask } from '@/core/hooks/organizations/teams/use-create-task';
 import { useTaskQueries } from '@/core/hooks/organizations/teams/use-task-queries';
@@ -106,7 +107,10 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const globalTasks = useAtomValue(tasksByTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const timerStatus = useAtomValue(timerStatusState);
-	const { startTimer } = useTimerView();
+	// PERF: task-card.tsx renders this modal ONCE PER CARD whenever the user has a daily plan, so
+	// useTimerView() here re-subscribed every card to the 20Hz timer tick (see use-timer-button.ts).
+	// `startTimer` is a Layer-1 mutation; useTimerActions provides it without Layer 3.
+	const { startTimer } = useTimerActions();
 
 	const { setActiveTask } = useTeamTasksState();
 	const [showSearchInput, setShowSearchInput] = useState(false);
@@ -1271,7 +1275,8 @@ function UnplanTask(props: IUnplanTaskProps) {
 	const { removeManyTaskPlans, removeManyTaskFromPlanLoading } = useUpdateDailyPlan();
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const { timerStatus } = useTimerView();
+	// PERF: same reason as the sibling above — Layer-1 value, no need for the 20Hz tick subscription.
+	const { timerStatus } = useTimerActions();
 
 	const isActiveTaskPlannedToday = useMemo(
 		() => employeeTodayPlan[0]?.tasks?.find((task) => task.id === activeTeamTask?.id),

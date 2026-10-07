@@ -15,8 +15,11 @@ export function AuthUserTaskInput({ className }: IClassName) {
 	const { activeTask: activeTeamTask } = useActiveTeamTask();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
+	// min-w-0: a flex child defaults to min-width:auto, so this column could never shrink below its
+	// dropdown row and pushed the Timer (and its play button) past the right edge on 1280/1366px
+	// screens; the row wraps instead.
 	return (
-		<div className={clsxm('flex flex-col flex-1 mt-8 lg:mt-0 gap-4', className)}>
+		<div className={clsxm('flex flex-col flex-1 min-w-0 mt-8 lg:mt-0 gap-4', className)}>
 			<TaskInput
 				fullWidthCombobox={true}
 				createOnEnterClick={true}
@@ -24,7 +27,7 @@ export function AuthUserTaskInput({ className }: IClassName) {
 				autoAssignTaskAuth={isTrackingEnabled}
 				task={activeTeamTask}
 			/>
-			<div className="flex flex-row items-center gap-3 ml-2 lg:gap-4 md:justify-between lg:justify-start">
+			<div className="flex flex-row flex-wrap items-center gap-3 ml-2 lg:gap-4 md:justify-between lg:justify-start">
 				<div className="mb-4 xl:flex lg:mb-0">
 					<span className="pr-2 font-normal text-gray-500">{t('common.ESTIMATE')}:</span>
 					<TaskEstimate _task={activeTeamTask} />

@@ -26,9 +26,10 @@ export function useEditTaskRelatedIssueType() {
 		onSuccess: invalidateTaskRelatedIssueTypesData
 	});
 
+	const editMutateAsync = editMutation.mutateAsync;
 	const editTaskRelatedIssueType = useCallback(
-		(id: string, data: ITaskRelatedIssueTypeCreate) => editMutation.mutateAsync({ id, data }),
-		[editMutation]
+		(id: string, data: ITaskRelatedIssueTypeCreate) => editMutateAsync({ id, data }),
+		[editMutateAsync]
 	);
 
 	return {

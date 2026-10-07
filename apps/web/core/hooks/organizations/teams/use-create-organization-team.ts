@@ -138,6 +138,8 @@ export function useCreateOrganizationTeam() {
 	});
 
 	// Preserve exact same interface and logic as original
+	// Depend on the STABLE mutateAsync, not the mutation object (recreated on every state change).
+	const createOrganizationTeamMutateAsync = createOrganizationTeamMutation.mutateAsync;
 	const createOrganizationTeam = useCallback(
 		(name: string) => {
 			const teams = teamsRef.current;
@@ -155,9 +157,9 @@ export function useCreateOrganizationTeam() {
 			}
 
 			// Use React Query mutation with Promise interface preserved
-			return createOrganizationTeamMutation.mutateAsync({ name: $name, user: user });
+			return createOrganizationTeamMutateAsync({ name: $name, user: user });
 		},
-		[createOrganizationTeamMutation, teamsRef, user]
+		[createOrganizationTeamMutateAsync, teamsRef, user]
 	);
 
 	return {

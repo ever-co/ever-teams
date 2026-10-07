@@ -7,7 +7,6 @@ import { TaskFilterSkeleton, UserProfileTaskSkeleton, UserProfileDetailSkeleton 
 interface ProfilePageSkeletonProps {
 	className?: string;
 	showTimer?: boolean;
-	fullWidth?: boolean;
 }
 
 /**
@@ -15,15 +14,11 @@ interface ProfilePageSkeletonProps {
  * Integrates seamlessly with PageLayout structure without swallowing it up
  * Matches exact layout: mainHeaderSlot (2 sections: breadcrumb + profile detail/timer/filter) + main content (activity tabs)
  */
-export const ProfilePageSkeleton: FC<ProfilePageSkeletonProps> = ({
-	className,
-	showTimer = false,
-	fullWidth = false
-}) => {
+export const ProfilePageSkeleton: FC<ProfilePageSkeletonProps> = ({ className, showTimer = false }) => {
 	return (
 		<PageLayout
 			mainHeaderSlot={
-				<MainHeader fullWidth={fullWidth} className="pt-14">
+				<MainHeader className="pt-14">
 					<div className="space-y-4 w-full">
 						{/* SKELETON: Section 1 - Back Button + Breadcrumb */}
 						<div className="flex gap-8 items-center">
@@ -47,7 +42,7 @@ export const ProfilePageSkeleton: FC<ProfilePageSkeletonProps> = ({
 			}
 		>
 			{/* SKELETON: Main Content Area - Activity Content */}
-			<Container fullWidth={fullWidth} className="mt-6 mb-10">
+			<Container className="mt-6 mb-10">
 				<UserProfileTaskSkeleton />
 			</Container>
 		</PageLayout>

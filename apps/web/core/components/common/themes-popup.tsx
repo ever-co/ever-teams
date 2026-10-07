@@ -1,9 +1,9 @@
 import { ThemesPopup as IThemesPopup } from '@/core/types/interfaces/common/theme';
 import { Switch } from '@headlessui/react';
 import { useTranslations } from 'next-intl';
-import Image from 'next/image';
+import { ThemePreview } from './theme-preview';
 
-const ThemesPopup = ({ theme, currentTheme, text, image, enabled, setTheme, index }: IThemesPopup) => {
+const ThemesPopup = ({ theme, currentTheme, text, enabled, setTheme, index }: IThemesPopup) => {
 	const t = useTranslations();
 	return (
 		<div
@@ -28,11 +28,9 @@ const ThemesPopup = ({ theme, currentTheme, text, image, enabled, setTheme, inde
 				</Switch>
 			</div>
 			<div className="flex justify-center overflow-hidden rounded-lg">
-				<Image
-					src={image}
-					alt="theme"
-					width={290}
-					className=""
+				<ThemePreview
+					variant={theme}
+					className="w-[290px] max-w-full h-auto rounded-lg"
 					style={
 						currentTheme === 'light' && index === 0
 							? { boxShadow: '5px 20px 26px rgba(0,0,0,0.18)' }

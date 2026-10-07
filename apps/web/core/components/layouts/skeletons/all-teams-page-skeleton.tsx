@@ -4,7 +4,6 @@ import { PageLayout } from '@/core/components/layouts/default-layout';
 
 interface AllTeamsPageSkeletonProps {
 	className?: string;
-	fullWidth?: boolean;
 	showTimer?: boolean;
 }
 
@@ -13,18 +12,14 @@ interface AllTeamsPageSkeletonProps {
  * Integrates seamlessly with PageLayout structure without swallowing it up
  * Matches exact layout: mainHeaderSlot (3 sections: breadcrumb + tabs/filter + header) + main content (team members grid)
  */
-export const AllTeamsPageSkeleton: FC<AllTeamsPageSkeletonProps> = ({
-	className,
-	fullWidth = false,
-	showTimer = false
-}) => {
+export const AllTeamsPageSkeleton: FC<AllTeamsPageSkeletonProps> = ({ className, showTimer = false }) => {
 	return (
 		<PageLayout
 			title="All Teams"
 			showTimer={showTimer}
 			className="items-start"
 			mainHeaderSlot={
-				<Container fullWidth={fullWidth} className="mx-auto">
+				<Container className="mx-auto">
 					<div className="flex flex-col justify-between items-start w-full">
 						{/* SKELETON: Section 1 - Breadcrumb */}
 						<div className="flex justify-between items-center px-4 py-2 w-full">
@@ -71,7 +66,7 @@ export const AllTeamsPageSkeleton: FC<AllTeamsPageSkeletonProps> = ({
 			}
 		>
 			{/* SKELETON: Main Content Area - Team Members Grid */}
-			<Container fullWidth={fullWidth} className="mx-auto mt-5">
+			<Container className="mx-auto mt-5">
 				<div className="grid gap-4 lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3">
 					{/* Team Member Cards Skeleton */}
 					{[...Array(6)].map((_, index) => (

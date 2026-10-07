@@ -2,7 +2,7 @@
 
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { avatarState } from '@/core/stores';
-import { clsxm, isValidUrl } from '@/core/lib/utils';
+import { clsxm, isValidUrl, normalizeImageUrl } from '@/core/lib/utils';
 import Image from 'next/image';
 import { PropsWithChildren, useEffect, useMemo } from 'react';
 import { useAtom } from 'jotai';
@@ -36,11 +36,13 @@ export function Avatar({
 	const avatarPresent = hasOwn(avatar, imagePathName);
 
 	const imgUrl = useMemo(() => {
-		if (avatarPresent) {
-			return avatar[imagePathName];
-		} else {
-			return imageUrl;
-		}
+		const raw = avatarPresent ? avatar[imagePathName] : imageUrl;
+
+		// Normalised here so the fallback branch below and the <Image> `src` agree on one value: the
+		// API can return a route-relative path (e.g. the seeded `assets/images/avatars/…`) which
+		// Next.js would resolve against the current route and 404, and a whitespace-only value is
+		// truthy while normalising to '' — which next/image rejects. See `normalizeImageUrl`.
+		return normalizeImageUrl(raw) || undefined;
 		/* eslint-disable react-hooks/exhaustive-deps */
 	}, [imagePathName, avatarPresent]);
 

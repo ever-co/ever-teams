@@ -427,8 +427,8 @@ export const TeamSettingForm = () => {
 													<InputField
 														type="text"
 														placeholder={getTeamLink()}
-														className="mb-0 h-[54px]"
-														wrapperClassName="mb-0 h-[54px] rounded-lg"
+														className="mb-0 h-10"
+														wrapperClassName="mb-0 h-10 rounded-lg"
 														disabled={true}
 													/>
 												</Tooltip>
@@ -436,7 +436,7 @@ export const TeamSettingForm = () => {
 											<div className="flex flex-row grow-0 justify-between items-center sm:w-1/5">
 												<Button
 													variant="outline"
-													className="border-2 rounded-xl h-[54px] min-w-[105px] font-[600] text-[14px]"
+													className="rounded-lg h-10 min-w-24 font-semibold text-sm"
 													type="button"
 													onClick={() => {
 														navigator.clipboard.writeText(getTeamLink());

@@ -47,12 +47,17 @@ const baseTaskSchema = z
 		number: z.number().optional().nullable(),
 		public: z.boolean().nullable(),
 		prefix: z.string().optional().nullable(),
-		description: z.string().optional(),
+		// The API returns `null` for tasks created without a description (any non-web client, or a bare
+		// POST /tasks). Since the list is validated STRICTLY, one such task used to fail the whole
+		// team task list ("Tasks validation failed … expected string, received null" — seen on demo).
+		description: z.string().optional().nullable(),
 		status: z.nativeEnum(ETaskStatusName).optional().nullable(),
-		priority: z.nativeEnum(ETaskPriority)
+		priority: z
+			.nativeEnum(ETaskPriority)
 			.or(z.enum(['Urgent', 'High', 'Medium', 'Low']))
-			.transform(val => val.toLowerCase())
-			.optional().nullable(),
+			.transform((val) => val.toLowerCase())
+			.optional()
+			.nullable(),
 		size: z.nativeEnum(ETaskSize).optional().nullable(),
 		issueType: z.nativeEnum(EIssueType).optional().nullable(),
 		startDate: z.coerce.date().optional().nullable(),

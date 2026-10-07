@@ -5,12 +5,14 @@ import { Sidebar } from '@/components/sidebar';
 import { TopBar } from '@/components/top-bar';
 import { TeamsProvider } from '@ever-teams/atoms';
 import { Footer } from '@/components/footer';
+import { useMemo } from 'react';
 
-const teamsConfig = {
-	apiUrl: process.env.NEXT_PUBLIC_TEAMS_API_URL
-};
+export default function ClientLayout({ apiUrl, children }: { apiUrl?: string; children: React.ReactNode }) {
+	// The API URL arrives as a prop, read per request from the container env by the server root layout
+	// (src/lib/runtime-env.ts). Never read process.env.NEXT_PUBLIC_* here: Next would inline the value
+	// of whoever built the image.
+	const teamsConfig = useMemo(() => ({ apiUrl }), [apiUrl]);
 
-export default function ClientLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
 			<TeamsProvider config={teamsConfig}>

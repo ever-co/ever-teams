@@ -3,7 +3,7 @@ import { clsxm } from '@/core/lib/utils';
 import { Transition } from '@headlessui/react';
 import { PropsWithChildren } from 'react';
 
-export function Container({ children, className, fullWidth }: PropsWithChildren<IClassName>) {
+export function Container({ children, className }: PropsWithChildren<Pick<IClassName, 'className'>>) {
 	return (
 		<Transition
 			as="div"
@@ -16,9 +16,7 @@ export function Container({ children, className, fullWidth }: PropsWithChildren<
 			leaveTo="opacity-0"
 			className="p-0 m-0 w-full"
 		>
-			<div className={clsxm('transition-all', !fullWidth && 'x-container', fullWidth && 'px-3', className)}>
-				{children}
-			</div>
+			<div className={clsxm('w-full px-4 sm:px-6 lg:px-8 transition-all', className)}>{children}</div>
 		</Transition>
 	);
 }

@@ -6,9 +6,12 @@ RUN apt-get update -qq && apt-get install -y build-essential pkg-config python-i
 RUN npm install -g yarn --force
 WORKDIR /app
 COPY . .
-RUN yarn install --network-timeout 1000000 --frozen-lockfile --non-interactive --ignore-scripts
-ARG NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_placeholder
-ENV NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=\${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+# Drop the yarn cache in the SAME layer as the install: it holds every platform variant of the native
+# packages (GBs), and exporting a layer that still carries it overflows the CI runner's 24Gi docker volume.
+RUN yarn install --network-timeout 1000000 --frozen-lockfile --non-interactive --ignore-scripts && yarn cache clean
+# No deployment value in the build stage: Next inlines NEXT_PUBLIC_* into the client AND server
+# bundles, so anything set here would be frozen into the image. Configure at runtime instead
+# (docker run -e NEXT_PUBLIC_TEAMS_API_URL=... -e NEXT_PUBLIC_APP_URL=...).
 RUN yarn turbo run build --filter=@ever-teams/example-saas-starter
 WORKDIR /app/packages/toolkit/examples/saas-starter
 ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0

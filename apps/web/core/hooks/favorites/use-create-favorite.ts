@@ -26,9 +26,11 @@ export function useCreateFavorite() {
 		}
 	});
 
+	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change).
+	const createFavoriteMutateAsync = createFavoriteMutation.mutateAsync;
 	const createFavorite = useCallback(
-		(data: IFavoriteCreateRequest) => createFavoriteMutation.mutateAsync(data),
-		[createFavoriteMutation]
+		(data: IFavoriteCreateRequest) => createFavoriteMutateAsync(data),
+		[createFavoriteMutateAsync]
 	);
 
 	return {

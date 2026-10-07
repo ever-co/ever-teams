@@ -14,7 +14,9 @@ export const AuthenticationStoreModel = types
 		authInviteCode: types.optional(types.string, ''),
 		organizationId: types.optional(types.string, ''),
 		tenantId: types.optional(types.string, ''),
-		user: types.frozen<IUser>(),
+		// Nullable: logout() sets this to null, and a fresh store has no user. Declaring it non-null
+		// was a type lie that TypeScript 6 strict mode caught (TS2322 in logout).
+		user: types.frozen<IUser | null>(),
 		employeeId: types.optional(types.string, ''),
 		preferredLanguage: types.optional(types.frozen(), null),
 		isDarkMode: types.optional(types.boolean, false)

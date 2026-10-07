@@ -179,7 +179,7 @@ const Item: FC<ItemProps> = ({ currentStatusName, status, onStatusSelected }) =>
 					{!selected ? (
 						<Feather name="circle" size={24} color={colors.divider} />
 					) : (
-						<AntDesign name="checkcircle" size={24} color="#27AE60" />
+						<AntDesign name="check-circle" size={24} color="#27AE60" />
 					)}
 				</View>
 			</View>

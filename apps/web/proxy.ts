@@ -11,10 +11,53 @@ import { cookiesKeys, setAccessTokenCookie, setRefreshTokenCookie } from '@/core
 import { currentAuthenticatedUserRequest, refreshTokenRequest } from '@/core/services/server/requests/auth';
 import { range } from '@/core/lib/helpers';
 import { isTokenExpired, decodeJWT, getTokenRemainingTime, formatRemainingTime } from '@/core/lib/auth/jwt-utils';
+import {
+	getRuntimeImageHosts,
+	isImageOptimizerRequest,
+	resolveImageRequest,
+	splitImageHostList
+} from '@/core/lib/helpers/image-request';
 import { NextRequest, NextResponse } from 'next/server';
 
 import createMiddleware from 'next-intl/middleware';
 import { delay } from './core/lib/auth/retry-logic';
+
+/**
+ * Attach the authenticated user to the response for SSR consumers — but ONLY as much as a
+ * reverse proxy will actually forward.
+ *
+ * This used to be `response.headers.set('x-user', JSON.stringify(user))`: the ENTIRE user
+ * object, ~3.4 KB for an admin (the permissions array alone is large). nginx-ingress buffers
+ * upstream response headers in `proxy_buffer_size`, which defaults to one memory page (4 KB).
+ * Total headers for such a user were 4,832 bytes, so nginx logged
+ * "upstream sent too big header while reading response header from upstream" and returned
+ * 502 for EVERY authenticated page — while the very same request answered 200 straight from
+ * the pod on :3030. Unauthenticated requests (no x-user) were fine, which made this look like
+ * a login/session bug rather than what it is: a response-header size limit. Found on
+ * demo.ever.team 2026-08-17; stage/prod run the same code and the same ingress defaults, so any
+ * user whose serialized profile is large enough was one permission grant away from lockout.
+ *
+ * The only reader of this header, getAuthenticationProps() in layouts/app/authenticator.tsx,
+ * is a Pages-router (getServerSideProps) helper that no App Router route calls (0 usages).
+ * The client re-fetches the user via useAuthenticateUser regardless. So the header carried a
+ * multi-kilobyte payload that nothing consumed and that could take the site down.
+ *
+ * Kept, gated, not deleted (repo rule): the header is still emitted when it is small enough
+ * for a proxy to forward, and dropped with a log line when it is not. Raise the ingress
+ * `proxy-buffer-size` as well (belt and braces), but the app must not depend on it.
+ */
+const X_USER_HEADER_MAX_BYTES = 2048;
+function setUserHeader(response: NextResponse, user: unknown): void {
+	if (!user) return;
+	const serialized = JSON.stringify(user);
+	if (serialized.length > X_USER_HEADER_MAX_BYTES) {
+		console.log(
+			`[Proxy] Skipping x-user header: ${serialized.length} bytes exceeds ${X_USER_HEADER_MAX_BYTES} (reverse-proxy header buffer safety)`
+		);
+		return;
+	}
+	response.headers.set('x-user', serialized);
+}
 
 export const config = {
 	matcher: [
@@ -28,13 +71,39 @@ export const config = {
 		'/meet(.*)',
 		'/board(.*)',
 		'/kanban(.*)',
-		'/unauthorized(.*)'
+		'/unauthorized(.*)',
+		// next/image optimizer: see handleImageRequest (must stay a literal, Next reads it statically)
+		'/_next/image'
 	]
 };
 
 export { auth as authMiddleware } from './auth';
 
+/**
+ * `/_next/image` requests: serve hosts allowed only at RUNTIME (container env) without the optimizer.
+ *
+ * The optimizer's host allowlist (next.config images.remotePatterns) is frozen into the build, so a
+ * published Docker image answered 400 for a self-hoster's own image hosts (their Gauzy API, S3,
+ * MinIO, logo host). Those requests are now redirected (307) to the original image; everything else
+ * — relative URLs, build-time hosts, hosts allowed nowhere — continues to the optimizer untouched.
+ * See core/lib/helpers/image-request.ts.
+ */
+function handleImageRequest(request: NextRequest): NextResponse {
+	const decision = resolveImageRequest(
+		request.nextUrl.searchParams.getAll('url'),
+		// Inlined at build from next.config.js `env` (the build-time optimizer allowlist).
+		splitImageHostList(process.env.EVER_TEAMS_OPTIMIZED_IMAGE_HOSTS),
+		getRuntimeImageHosts()
+	);
+	return decision === 'optimize' ? NextResponse.next() : NextResponse.redirect(decision.redirect, 307);
+}
+
 export async function proxy(request: NextRequest) {
+	// Image optimizer requests never go through i18n or auth handling below.
+	if (isImageOptimizerRequest(request.nextUrl.pathname)) {
+		return handleImageRequest(request);
+	}
+
 	const nextIntlMiddleware = createMiddleware({
 		defaultLocale: APPLICATION_DEFAULT_LANGUAGE,
 		locales: APPLICATION_LANGUAGES_CODE,
@@ -339,7 +408,7 @@ export async function proxy(request: NextRequest) {
 
 			if (authResult?.response.ok) {
 				// Access token is valid - set user header and continue
-				response.headers.set('x-user', JSON.stringify(authResult.data));
+				setUserHeader(response, authResult.data);
 			}
 			// INTENTIONAL: If API fails but token is valid locally, we proceed WITHOUT refresh.
 			// Why? The token passed local validation (signature OK, not expired, decodable).
@@ -363,7 +432,7 @@ export async function proxy(request: NextRequest) {
 
 			if (refreshResult.success && refreshResult.userData) {
 				console.log('[Proxy] Token refreshed successfully');
-				response.headers.set('x-user', JSON.stringify(refreshResult.userData));
+				setUserHeader(response, refreshResult.userData);
 				return response;
 			}
 
@@ -384,7 +453,7 @@ export async function proxy(request: NextRequest) {
 
 		if (refreshResult.success && refreshResult.userData) {
 			console.log('[Proxy] Token refreshed successfully');
-			response.headers.set('x-user', JSON.stringify(refreshResult.userData));
+			setUserHeader(response, refreshResult.userData);
 			return response;
 		}
 

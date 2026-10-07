@@ -2,7 +2,6 @@
 
 import { useRouter } from 'next/navigation';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Container } from '@/core/components';
 import { PageLayout } from '@/core/components/layouts/default-layout';
@@ -22,7 +21,6 @@ import { TOrganizationTeam } from '@/core/types/schemas/team/organization-team.s
 
 function AllTeamsPage() {
 	const t = useTranslations();
-	const fullWidth = useAtomValue(fullWidthState);
 	const view = useAtomValue(allTeamsHeaderTabs);
 	const { filteredTeams, userManagedTeams } = useOrganizationAndTeamManagers();
 
@@ -40,7 +38,7 @@ function AllTeamsPage() {
 
 	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
 	if (!filteredTeams || filteredTeams.length === 0) {
-		return <AllTeamsPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
+		return <AllTeamsPageSkeleton showTimer={isTrackingEnabled} />;
 	}
 
 	return (
@@ -48,7 +46,7 @@ function AllTeamsPage() {
 			showTimer={isTrackingEnabled}
 			className="items-start"
 			mainHeaderSlot={
-				<Container fullWidth={fullWidth} className="mx-auto">
+				<Container className="mx-auto">
 					<div className="flex flex-col justify-between items-start w-full">
 						<div className="flex justify-between items-center px-4 py-2 w-full">
 							<Breadcrumb paths={breadcrumb} className="text-sm" />
@@ -65,7 +63,7 @@ function AllTeamsPage() {
 				</Container>
 			}
 		>
-			<Container fullWidth={fullWidth} className="mx-auto mt-5">
+			<Container className="mx-auto mt-5">
 				<AllTeamsMembers teams={filteredTeams as unknown as TOrganizationTeam[]} view={view} />
 			</Container>
 		</PageLayout>

@@ -1,7 +1,6 @@
 'use client';
 
 import { useLocalStorageState, useModal } from '@/core/hooks';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { clsxm } from '@/core/lib/utils';
 import HeaderTabs from '@/core/components/common/header-tabs';
 import { PeoplesIcon } from 'assets/svg';
@@ -12,6 +11,7 @@ import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
+import { useSidebar } from '@/core/components/common/sidebar';
 import { HeadCalendar } from '@/core/components/pages/calendar/page-component';
 import { timesheetCalendar } from '@/core/components/integration/calendar';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
@@ -29,7 +29,7 @@ import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 
 const CalendarPage = () => {
 	const t = useTranslations();
-	const fullWidth = useAtomValue(fullWidthState);
+	const { state: sidebarState } = useSidebar();
 
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
@@ -66,7 +66,7 @@ const CalendarPage = () => {
 
 	// Show unified skeleton while components are loading
 	if (!activeTeam) {
-		return <CalendarPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
+		return <CalendarPageSkeleton showTimer={isTrackingEnabled} />;
 	}
 	return (
 		<>
@@ -81,8 +81,20 @@ const CalendarPage = () => {
 						/>
 					</Suspense>
 				)}
-				<div className="fixed top-20 flex flex-col border-b-[1px] dark:border-gray-800 z-10 mx-0 w-full bg-white dark:bg-dark-high shadow-lg shadow-gray-100 dark:shadow-gray-700 ">
-					<Container fullWidth={fullWidth}>
+				{/* Fixed header: span the CONTENT column, not the viewport. With `w-full` this box was 100vw wide but
+				    started after the sidebar, so its right ~256px — the "Add Time" button — sat off-screen at every
+				    viewport width (2026-08-17). Same offset formula as GlobalHeader. */}
+				<div
+					className="fixed top-20 flex flex-col border-b-[1px] dark:border-gray-800 z-10 mx-0 right-0 md:left-[var(--calendar-header-offset)] left-0 bg-white dark:bg-dark-high shadow-lg shadow-gray-100 dark:shadow-gray-700 "
+					style={
+						{
+							'--calendar-header-offset': `calc(var(${
+								sidebarState === 'expanded' ? '--sidebar-width' : '--sidebar-width-icon'
+							}) + var(--chat-panel-width, 0px))`
+						} as React.CSSProperties
+					}
+				>
+					<Container>
 						<div className="flex flex-row justify-between items-start mt-12 bg-white dark:bg-dark-high">
 							<div className="flex gap-8 justify-center items-center h-10">
 								<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
@@ -103,12 +115,12 @@ const CalendarPage = () => {
 					</Container>
 				</div>
 				<div className="mt-[15vh] mb-32">
-					<Container fullWidth={fullWidth}>{renderComponent}</Container>
+					<Container>{renderComponent}</Container>
 				</div>
 			</PageLayout>
 			<div className="bg-white dark:bg-[#1e2025] w-screen z-[999] fixed bottom-0">
 				<Divider />
-				<Footer className={clsxm('justify-between px-0 mx-auto w-full', fullWidth ? 'px-8' : 'x-container')} />
+				<Footer className={clsxm('justify-between px-8 mx-auto w-full')} />
 			</div>
 		</>
 	);

@@ -6,6 +6,7 @@ import { taskRelatedIssueTypeService } from '@/core/services/client/api/tasks/ta
 import { queryKeys } from '@/core/query/keys';
 import { useFirstLoad } from '../common/use-first-load';
 import { useInvalidateTaskRelatedIssueTypes } from './use-invalidate-task-related-issue-types';
+import { useTaskMetadataBootstrapQuery } from './use-task-metadata-bootstrap-query';
 
 /**
  * Hook for reading task related issue types data.
@@ -18,6 +19,7 @@ import { useInvalidateTaskRelatedIssueTypes } from './use-invalidate-task-relate
 export function useTaskRelatedIssueTypesQuery() {
 	const { teamId, isEnabled } = useInvalidateTaskRelatedIssueTypes();
 	const { firstLoadData: firstLoadTaskRelatedIssueTypeDataRaw } = useFirstLoad();
+	const taskMetadataQuery = useTaskMetadataBootstrapQuery();
 
 	const taskRelatedIssueTypesQuery = useQuery({
 		queryKey: queryKeys.taskRelatedIssueTypes.byTeam(teamId),
@@ -28,17 +30,23 @@ export function useTaskRelatedIssueTypesQuery() {
 			const res = await taskRelatedIssueTypeService.getTaskRelatedIssueTypeList();
 			return res.data;
 		},
-		enabled: isEnabled
+		enabled: !taskMetadataQuery.useBootstrap && isEnabled
 	});
 
+	const taskRelatedIssueTypesData = taskMetadataQuery.useBootstrap
+		? taskMetadataQuery.data?.relatedIssueTypes
+		: taskRelatedIssueTypesQuery.data;
 	const taskRelatedIssueTypes = useMemo(
-		() => taskRelatedIssueTypesQuery.data?.items ?? [],
-		[taskRelatedIssueTypesQuery.data?.items]
+		() => taskRelatedIssueTypesData?.items ?? [],
+		[taskRelatedIssueTypesData?.items]
 	);
+	const taskRelatedIssueTypesLoading = taskMetadataQuery.useBootstrap
+		? taskMetadataQuery.isLoading
+		: taskRelatedIssueTypesQuery.isLoading;
 
 	const loadTaskRelatedIssueTypeData = useCallback(async () => {
-		return taskRelatedIssueTypesQuery.data;
-	}, [taskRelatedIssueTypesQuery.data]);
+		return taskRelatedIssueTypesData;
+	}, [taskRelatedIssueTypesData]);
 
 	const firstLoadTaskRelatedIssueTypeData = useCallback(async () => {
 		await loadTaskRelatedIssueTypeData();
@@ -47,9 +55,8 @@ export function useTaskRelatedIssueTypesQuery() {
 
 	return {
 		taskRelatedIssueTypes,
-		loading: taskRelatedIssueTypesQuery.isLoading,
+		loading: taskRelatedIssueTypesLoading,
 		loadTaskRelatedIssueTypeData,
 		firstLoadTaskRelatedIssueTypeData
 	};
 }
-

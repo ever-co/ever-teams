@@ -1,13 +1,22 @@
 name: Mobile Build, Deploy and Publish Apps iOS
 on:
+  # Allows re-running the published build by hand without touching app sources.
+  workflow_dispatch:
   push:
     branches:
-      - apps-stage
+      - stage-apps
     paths:
+      # This workflow's own definition — without it, editing this file never re-runs it,
+      # so a fix to the workflow cannot be validated. The sibling entry below points at
+      # an aggregate file that does not exist; left in place deliberately.
+      - '.github/workflows/mobile.apps.stage.ios.yml'
       - '.github/workflows/mobile.apps.stage.yml'
       - 'apps/mobile/**'
       - 'package.json'
       - 'yarn.lock'
+      # The EAS upload archive decides which workspaces get installed on the builder,
+      # so a change to it changes the build as surely as a dependency bump does.
+      - '.easignore'
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -49,6 +58,19 @@ jobs:
           echo "APPLE_ID=${{ secrets.APPLE_ID }}" >> $GITHUB_ENV
           echo "APPSTORE_ISSUER_ID=${{ secrets.APPSTORE_ISSUER_ID }}" >> $GITHUB_ENV
           echo "APPSTORE_API_KEY_ID=${{ secrets.APPSTORE_API_KEY_ID }}" >> $GITHUB_ENV
+          # Same defect the production iOS workflow had: the App Store Connect API key held in the
+          # EAS credentials service has no Apple Team attached, so eas-cli gets teamId=undefined and
+          # falls through to an interactive "Apple Team ID:" prompt that cannot be answered under
+          # --non-interactive. eas-cli reads these two env vars directly. Without them the build
+          # still proceeds, but Apple-side provisioning-profile validation is silently SKIPPED.
+          #
+          # Passed via the step's env: block below rather than interpolated into this script -
+          # expanding a secret inline splices its value into the shell source (SonarCloud: "Avoid
+          # expanding secrets in a run block").
+          echo "EXPO_APPLE_TEAM_ID=$APPLE_TEAM_ID_VALUE" >> $GITHUB_ENV
+          echo "EXPO_APPLE_TEAM_TYPE=COMPANY_OR_ORGANIZATION" >> $GITHUB_ENV
+        env:
+          APPLE_TEAM_ID_VALUE: ${{ secrets.APPLE_TEAM_ID }}
 
       - name: Replace Secrets in eas.json
         run: |
@@ -59,17 +81,13 @@ jobs:
           sed -i 's|SENTRY_ORG_PLACEHOLDER|${{ secrets.SENTRY_ORG }}|g' ./apps/mobile/eas.json
           sed -i 's|SENTRY_PROJECT_PLACEHOLDER|${{ secrets.EXPO_SENTRY_PROJECT }}|g' ./apps/mobile/eas.json
 
-      - name: Create Apple API Key File
-        run: |
-          echo "${{ secrets.APPSTORE_API_PRIVATE_KEY }}" > ./apps/mobile/AuthKey_R9QZ5LP8NK.p8
-
       - name: Configure Registry
-        shell: bash
-        run: |
-          if [ -n "${{ secrets.VERDACCIO_TOKEN }}" ]; then
-            echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
-            echo "registry=https://packages.ever.co/" >> .npmrc
-          fi
+        uses: ever-co/ever-gauzy/.github/actions/configure-registry@727973d766f3968d3f1184300af085872abcb20b
+        with:
+          verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
+          verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
+          force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
+          expect-vip: ${{ vars.RUNNER_LINUX_X64_4 != '' }}
 
       - name: Install Packages
         run: |
@@ -95,11 +113,88 @@ jobs:
           EXPO_SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           EXPO_SENTRY_PROJECT: ${{ secrets.EXPO_SENTRY_PROJECT }}
 
+      # SECURITY + CORRECTNESS: "Configure Registry" appends the internal registry +
+      # VERDACCIO_TOKEN to .npmrc, which is a git-TRACKED file. eas-cli ships modified tracked
+      # files in the build archive, so the token was being uploaded to Expo (their log shows
+      # "PREPARE_PROJECT | .npmrc found at .npmrc"). Restore it before the upload. This also
+      # stops Expo builders trying to reach packages.ever.co, which they cannot resolve.
+      #
+      # .npmrc is NOT the only file the step mutates. The shared configure-registry action also
+      # appends `registry "<REGISTRY>"` to .yarnrc and sed-rewrites EVERY resolved URL in
+      # yarn.lock to that registry, and on these runners the registry is the LAN-only Verdaccio
+      # VIP. .easignore REPLACES .gitignore (it is not additive) and lists none of these three
+      # files, so all three ship in the archive; the Expo builder then runs
+      # `yarn install --frozen-lockfile` in the uploaded root and cannot resolve a single
+      # tarball. Restoring only .npmrc leaves that lockfile poisoned.
+      #
+      # Same per-path loop as .github/workflows/release.sdk.prod.yml: tracked files are checked
+      # out, untracked leftovers are removed. `if: always()` so a failed install still leaves
+      # the checkout clean for the next job on this self-hosted runner.
+      - name: Restore registry config before EAS upload
+        shell: bash
+        if: always()
+        run: |
+          for f in yarn.lock .npmrc .yarnrc; do
+            if git ls-files --error-unmatch "$f" >/dev/null 2>&1; then
+              git checkout -- "$f"
+            else
+              rm -f "$f"
+            fi
+          done
+          rm -f yarn.lock.rewritten package-lock.json.rewritten
+
       - name: Build on EAS
         run: cd apps/mobile && eas build --profile internal --platform ios --non-interactive
 
       - name: Publish update
-        run: cd apps/mobile && eas update --auto --platform ios --non-interactive
+        # Publish to the CHANNEL these binaries actually listen on. The build step above uses
+        # --profile internal, and eas.json bakes channel "internal" into that binary.
+        # This previously used --auto, which derives the EAS branch from the GIT branch name, so
+        # updates landed on a branch nobody listens to. On the production pipeline that meant
+        # every OTA went to channel "apps" while shipped builds waited on channel "production",
+        # which had zero updates in its whole history — OTA reached nobody. Verified against the
+        # Expo API on 2026-08-15. --auto also supplied the message, so pass one explicitly.
+        # The message goes through env: rather than being interpolated into the run line, so a
+        # crafted ref name cannot splice shell into the command.
+        run: cd apps/mobile && eas update --channel internal --message "$UPDATE_MESSAGE" --platform ios --non-interactive
+        env:
+          UPDATE_MESSAGE: ${{ github.ref_name }}@${{ github.sha }}
+
+      # Written HERE, after "Build on EAS", and deliberately not earlier. `eas submit` is the
+      # only consumer of this key and it runs on THIS runner, never on the Expo builder.
+      # eas-cli uploads a shallow copy of the working directory (requireCommit defaults to
+      # false), so anything on disk at `eas build` time is shipped to Expo. This key is
+      # gitignored via `*.p8`, but .easignore REPLACES .gitignore rather than extending it
+      # (eas-cli build/vcs/local.js:49-59), so that alone had already leaked it once.
+      # .easignore now restates the rule AND the key is created too late to be captured —
+      # two independent guarantees, so trimming either one cannot re-open the leak.
+      #
+      # Do NOT "fix" this with `requireCommit: true`: these jobs sed-edit eas.json and
+      # generate an untracked apps/mobile/app.json, so eas-cli would abort with
+      # "You have some uncommitted changes in your repository." (git.js:109-120), and a
+      # commit-based archive would omit the generated app.json the build needs.
+      - name: Create Apple API Key File
+        run: |
+          echo "${{ secrets.APPSTORE_API_PRIVATE_KEY }}" > ./apps/mobile/AuthKey_R9QZ5LP8NK.p8
 
       - name: Upload App build to App store
+        # GATED, not removed. This step could never have submitted the build above, and would
+        # instead upload an unrelated PRODUCTION binary to App Store Connect.
+        #
+        # This job builds `--profile internal`, and eas.json marks that profile
+        # "distribution": "internal". But `eas submit --latest` resolves its candidate through
+        # getRecentBuildsForSubmissionAsync (eas-cli build/submit/utils/builds.js), which filters
+        # `distribution: DistributionType.Store` and ignores the build profile entirely. An
+        # internal-distribution build therefore can NEVER be selected here; --latest picks the
+        # newest STORE build on the whole app - any profile, any branch, any author - across
+        # statuses New, InQueue, InProgress and Finished.
+        #
+        # It has never fired only because this workflow has never produced a build: it dies
+        # earlier at "EAS CLI couldn't find any credentials suitable for internal distribution".
+        # Fixing that credential gap without this guard would have turned a staging run into an
+        # unintended App Store Connect upload.
+        #
+        # Flip STAGE_IOS_SUBMIT_ENABLED to 'true' only once this step submits by explicit build
+        # id, the way mobile.apps.ios.yml now does.
+        if: ${{ vars.STAGE_IOS_SUBMIT_ENABLED == 'true' }}
         run: cd apps/mobile && eas submit --profile internal --platform ios --latest --non-interactive

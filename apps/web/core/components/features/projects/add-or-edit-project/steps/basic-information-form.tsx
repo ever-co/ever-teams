@@ -4,7 +4,7 @@ import RichTextEditor from '../text-editor';
 // import { Calendar } from '@/core/components/ui/calendar';
 import { cn } from '@/core/lib/helpers';
 import { CalendarIcon, X, Loader2 } from 'lucide-react';
-import { differenceInDays, format, isAfter, isEqual } from 'date-fns';
+import { differenceInDays, format, isAfter, isEqual, addDays } from 'date-fns';
 import { FormEvent, useCallback, useMemo, useState } from 'react';
 import { IStepElementProps } from '../container';
 import Image from 'next/image';
@@ -38,7 +38,9 @@ type BasicInfoErrorKeys = 'dateRange' | 'websiteUrl' | 'projectTitle' | 'project
 export default function BasicInformationForm(props: IStepElementProps) {
 	const { goToNext, currentData, mode } = props;
 	const [startDate, setStartDate] = useState(() => getInitialValue(currentData, 'startDate', new Date()));
-	const [endDate, setEndDate] = useState(() => getInitialValue(currentData, 'endDate', new Date()));
+	// Default the end date to a week out: the validator below requires end > start (strictly), so a
+	// same-day default made every fresh wizard fail step 1 with "End date must be after start date".
+	const [endDate, setEndDate] = useState(() => getInitialValue(currentData, 'endDate', addDays(new Date(), 7)));
 	const [projectTitle, setProjectTitle] = useState(() => getInitialValue(currentData, 'name', ''));
 	const [description, setDescription] = useState(() => getInitialValue(currentData, 'description', ''));
 	const [projectImageFile, setProjectImageFile] = useState<File | null>(null);

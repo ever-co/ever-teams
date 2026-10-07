@@ -13,7 +13,6 @@ import {
 	ViewStyle
 } from 'react-native';
 import Animated, {
-	AnimatedStyleProp,
 	Extrapolate,
 	interpolate,
 	useAnimatedStyle,
@@ -209,13 +208,7 @@ const EpisodeCard = observer(function EpisodeCard({
 				return (
 					<View>
 						<Animated.View
-							style={
-								[
-									$iconContainer,
-									StyleSheet.absoluteFill,
-									animatedLikeButtonStyles
-								] as AnimatedStyleProp<ViewStyle | TextStyle | ImageStyle>
-							}
+							style={[$iconContainer, StyleSheet.absoluteFill, animatedLikeButtonStyles]}
 						>
 							<Icon
 								icon="heart"
@@ -224,11 +217,7 @@ const EpisodeCard = observer(function EpisodeCard({
 							/>
 						</Animated.View>
 						<Animated.View
-							style={
-								[$iconContainer, animatedUnlikeButtonStyles] as AnimatedStyleProp<
-									ViewStyle | TextStyle | ImageStyle
-								>
-							}
+							style={[$iconContainer, animatedUnlikeButtonStyles]}
 						>
 							<Icon
 								icon="heart"

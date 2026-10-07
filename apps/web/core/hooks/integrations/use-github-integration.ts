@@ -149,24 +149,27 @@ export function useGitHubIntegration() {
 	});
 
 	// Phase 2: Migrated mutation functions using React Query
+	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change).
+	const installGitHubMutateAsync = installGitHubMutation.mutateAsync;
 	const installGitHub = useCallback(
 		async (installation_id: string, setup_action: string) => {
-			return await installGitHubMutation.mutateAsync({
+			return await installGitHubMutateAsync({
 				installation_id,
 				setup_action
 			});
 		},
-		[installGitHubMutation]
+		[installGitHubMutateAsync]
 	);
 
+	const oAuthGitHubMutateAsync = oAuthGitHubMutation.mutateAsync;
 	const oAuthGitHub = useCallback(
 		async (installation_id: string, setup_action: string, code: string) => {
-			return await oAuthGitHubMutation.mutateAsync({
+			return await oAuthGitHubMutateAsync({
 				code,
 				state: `${installation_id}_${setup_action}` // Combine installation_id and setup_action as state
 			});
 		},
-		[oAuthGitHubMutation]
+		[oAuthGitHubMutateAsync]
 	);
 	// Phase 1: Migrated GET functions using React Query
 	// OPTIMIZATION: Let React Query handle caching automatically instead of manual fetchQuery
@@ -187,6 +190,7 @@ export function useGitHubIntegration() {
 		// The data will be available through the repositoriesQuery.data
 	}, []);
 	// Phase 3: Migrated sync function using React Query mutation (maintains exact same interface)
+	const syncGitHubRepositoryMutateAsync = syncGitHubRepositoryMutation.mutateAsync;
 	const syncGitHubRepository = useCallback(
 		async (
 			installationId: string,
@@ -195,7 +199,7 @@ export function useGitHubIntegration() {
 			tenantId: string,
 			organizationId: string
 		) => {
-			return await syncGitHubRepositoryMutation.mutateAsync({
+			return await syncGitHubRepositoryMutateAsync({
 				installationId,
 				repository,
 				projectId,
@@ -203,7 +207,7 @@ export function useGitHubIntegration() {
 				organizationId
 			});
 		},
-		[syncGitHubRepositoryMutation]
+		[syncGitHubRepositoryMutateAsync]
 	);
 
 	return {

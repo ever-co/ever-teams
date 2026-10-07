@@ -13,7 +13,8 @@ import { useCallback, useRef, useState } from 'react';
  *   - `loadingRef`: A ref that can be used to access the current loading state.
  */
 export function useQueryCall<T extends (...params: any[]) => Promise<any>, R = Awaited<ReturnType<T>>>(
-	queryFunction: T
+	queryFunction: T,
+	useLatestQueryFunction = false
 ): {
 	queryCall: (...params: Parameters<T>) => Promise<R>;
 	loading: boolean;
@@ -21,6 +22,10 @@ export function useQueryCall<T extends (...params: any[]) => Promise<any>, R = A
 	loadingRef: React.RefObject<boolean>;
 } {
 	const [loading, setLoading] = useState(false);
+	const queryFunctionRef = useRef(queryFunction);
+	if (useLatestQueryFunction) {
+		queryFunctionRef.current = queryFunction;
+	}
 	const loadingRef = useRef(false);
 	const infiniteLoading = useRef(false);
 
@@ -28,14 +33,19 @@ export function useQueryCall<T extends (...params: any[]) => Promise<any>, R = A
 		setLoading(true);
 		loadingRef.current = true;
 
-		const promise = queryFunction(...params);
-		promise.finally(() => {
-			if (!infiniteLoading.current) {
-				setLoading(false);
+		const promise = queryFunctionRef.current(...params);
+		promise
+			.finally(() => {
+				if (!infiniteLoading.current) {
+					setLoading(false);
 
-				loadingRef.current = false;
-			}
-		});
+					loadingRef.current = false;
+				}
+			})
+			// `.finally()` returns a NEW promise that re-throws the rejection; without a handler every
+			// failed query surfaced as an "Unhandled promise rejection" (the caller only ever sees the
+			// original `promise` returned below, which it handles itself).
+			.catch(() => undefined);
 		promise.catch(() => {
 			setLoading(false);
 			loadingRef.current = false;

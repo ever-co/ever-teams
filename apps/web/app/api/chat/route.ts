@@ -1,5 +1,6 @@
 import { createOpenAI } from '@ai-sdk/openai';
 import { streamText } from 'ai';
+import { APP_NAME } from '@/core/constants/config/constants';
 
 export async function POST(req: Request) {
 	const { messages, config } = await req.json();
@@ -25,7 +26,9 @@ export async function POST(req: Request) {
 
 	const result = streamText({
 		model: openai(model || 'gpt-4o-mini'),
-		system: `You are a helpful AI assistant integrated into Ever Teams, a work and project management platform.
+		// APP_NAME is the deployment's runtime brand (container env), so a rebranded image's assistant
+		// introduces the product by its own name.
+		system: `You are a helpful AI assistant integrated into ${APP_NAME}, a work and project management platform.
 You help users with their tasks, projects, and team collaboration questions.
 Be concise, professional, and helpful. You can format your responses using Markdown.`,
 		messages

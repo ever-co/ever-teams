@@ -1,13 +1,22 @@
 'use client';
 
 import { TeamsProvider, theme5 } from '@ever-teams/atoms';
-import { ReactElement, ReactNode } from 'react';
+import { ReactElement, ReactNode, useMemo } from 'react';
 
-const teamsConfig = {
-	apiUrl: process.env.NEXT_PUBLIC_TEAMS_API_URL
-};
+const ClientLayout = ({
+	apiUrl,
+	children,
+	lang
+}: {
+	apiUrl?: string;
+	children: ReactNode;
+	lang?: string;
+}): ReactElement => {
+	// The API URL arrives as a prop, read per request from the container env by the server root layout
+	// (lib/runtime-env.ts). Never read process.env.NEXT_PUBLIC_* here: Next would inline the value of
+	// whoever built the image.
+	const teamsConfig = useMemo(() => ({ apiUrl }), [apiUrl]);
 
-const ClientLayout = ({ children, lang }: { children: ReactNode; lang?: string }): ReactElement => {
 	return (
 		<TeamsProvider config={teamsConfig} lang={lang} theme={theme5}>
 			{children}

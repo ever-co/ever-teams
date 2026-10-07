@@ -27,9 +27,10 @@ export function useEditIssueType() {
 	});
 
 	// Backward compat wrapper: editIssueType(id, data)
+	const updateIssueTypeMutateAsync = updateIssueTypeMutation.mutateAsync;
 	const editIssueType = useCallback(
-		(id: string, data: IIssueTypesCreate) => updateIssueTypeMutation.mutateAsync({ id, data }),
-		[updateIssueTypeMutation]
+		(id: string, data: IIssueTypesCreate) => updateIssueTypeMutateAsync({ id, data }),
+		[updateIssueTypeMutateAsync]
 	);
 
 	return {

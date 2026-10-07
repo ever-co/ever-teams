@@ -9,7 +9,7 @@ export function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEna
 		<EverCard
 			shadow="bigger"
 			className={clsxm(
-				'w-full flex lg:flex-row gap-4 lg:gap-4 xl:gap-6 max-w-full flex-col-reverse justify-center md:justify-between items-start py-4 mb-2',
+				'w-full min-w-0 flex lg:flex-row gap-4 lg:gap-4 xl:gap-6 max-w-full flex-col-reverse justify-center md:justify-between items-start py-4 mb-2',
 				'border-[#00000008] border-2 dark:border-[#26272C] dark:shadow-lg dark:bg-[#1B1D22] md:px-4'
 			)}
 		>
@@ -29,8 +29,10 @@ export function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEna
 					aria-label={showInput ? 'hide the issue input' : 'show the issue input'}
 				/>
 			</div>
+			{/* shrink-0: the timer keeps its natural width; the task-input column (min-w-0) is what gives way,
+			    so the play button stays inside the viewport at 1280/1366px with the sidebar open. */}
 			{isTrackingEnabled ? (
-				<div className="w-full max-w-fit lg:basis-1/4 grow">
+				<div className="w-full max-w-fit shrink-0 lg:basis-1/4 grow">
 					<LazyTimer />
 				</div>
 			) : null}

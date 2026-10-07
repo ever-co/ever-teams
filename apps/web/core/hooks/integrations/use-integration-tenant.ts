@@ -79,11 +79,13 @@ export function useIntegrationTenant() {
 	);
 
 	// Delete function using mutation (maintains backward compatibility)
+	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change).
+	const deleteIntegrationTenantMutateAsync = deleteIntegrationTenantMutation.mutateAsync;
 	const deleteIntegrationTenant = useCallback(
 		async (integrationId: string) => {
-			await deleteIntegrationTenantMutation.mutateAsync(integrationId);
+			await deleteIntegrationTenantMutateAsync(integrationId);
 		},
-		[deleteIntegrationTenantMutation]
+		[deleteIntegrationTenantMutateAsync]
 	);
 
 	return {

@@ -129,8 +129,15 @@ const EmployeeAvatar: React.FC<{ employee: IEmployee }> = React.memo(({ employee
 
 EmployeeAvatar.displayName = 'EmployeeAvatar';
 
-const ProjectLogo: React.FC = React.memo(() => (
-	<div className="w-8 h-8 rounded-md bg-[#422AFB] flex items-center justify-center text-white text-xs">Ever</div>
+// Derived from the row's project (not a hard-coded brand), so every deployment shows its own data. Decorative:
+// the project name is rendered right next to it.
+const ProjectLogo: React.FC<{ name?: string }> = React.memo(({ name }) => (
+	<div
+		aria-hidden="true"
+		className="w-8 h-8 rounded-md bg-[#422AFB] flex items-center justify-center text-white text-xs"
+	>
+		{getInitials(name).slice(0, 2)}
+	</div>
 ));
 
 ProjectLogo.displayName = 'ProjectLogo';
@@ -178,7 +185,7 @@ const ActivityRow: React.FC<ActivityRowProps> = React.memo(({ date, activity, is
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<div className="flex items-center gap-2">
-							<ProjectLogo />
+							<ProjectLogo name={activity.projectName} />
 							<span className="font-medium text-gray-700 dark:text-gray-300">
 								{activity.projectName || 'No project'}
 							</span>

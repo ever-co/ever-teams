@@ -42,8 +42,15 @@
 			"executor": "@nx/jest:jest",
 			"outputs": ["{workspaceRoot}/coverage/apps/web"],
 			"options": {
-				"jestConfig": "apps/web/jest.config.js",
+				"jestConfig": "apps/web/jest.config.ts",
 				"passWithNoTests": true
+			}
+		},
+		"e2e": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "yarn cypress run --config-file apps/web/cypress.config.ts",
+				"cwd": "{workspaceRoot}"
 			}
 		},
 		"lint": {

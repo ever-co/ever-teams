@@ -14,6 +14,7 @@ import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-dai
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import {
 	activeTaskStatisticsState,
+	activeTeamState,
 	activeTeamManagersState,
 	timerSecondsState,
 	userDetailAccordion as userAccordion
@@ -35,7 +36,6 @@ import { AppsTab } from '@/core/components/pages/profile/apps';
 import { VisitedSitesTab } from '@/core/components/pages/profile/visited-sites';
 import { FilterTab } from '@/app/[locale]/(main)/profile/[memberId]/page';
 import { Loader } from 'lucide-react';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { ScreenshootTab } from '@/core/components/pages/profile/screenshots/screenshoots';
 import { InputField } from '@/core/components/duplicated-components/_input';
@@ -54,6 +54,8 @@ import {
 	UserProfileTaskSkeleton
 } from '@/core/components/common/skeleton/profile-component-skeletons';
 import { uniqueId } from 'lodash';
+import { normalizeProfileActivityTimeZone } from '@/core/hooks/activities/use-profile-activity';
+import type { TProfileActivityScope } from '@/core/types/schemas/activities/profile-activity.schema';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -114,7 +116,7 @@ export function UserTeamCard({
 	const [userDetailAccordion, setUserDetailAccordion] = useAtom(userAccordion);
 	// Use isolated tab state for UserTeamCard to prevent global state leak from profile page
 	// With 'auto' default: shows daily plans if user has them, otherwise shows assigned tasks
-	const hook = useTaskFilter(profile, { persistState: false, defaultTab: 'auto' });
+	const hook = useTaskFilter(profile, { persistState: false, defaultTab: 'auto', statsCount: 0 });
 	// Granular hooks — "pay only for what you use"
 	const identity = useMemberIdentity(member);
 	const memberTask = useMemberActiveTask(member);
@@ -129,7 +131,6 @@ export function UserTeamCard({
 
 	const taskEdition = useTMCardTaskEdit(memberTask);
 	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(identity.memberUser);
-	const fullWidth = useAtomValue(fullWidthState);
 
 	const seconds = useAtomValue(timerSecondsState);
 	const setActivityFilter = useSetAtom(activityTypeState);
@@ -139,6 +140,7 @@ export function UserTeamCard({
 	const { addSeconds } = useTaskStatistics(seconds);
 	const [showActivity, setShowActivity] = React.useState<boolean>(false);
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
+	const activeTeam = useAtomValue(activeTeamState);
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id);
 
@@ -218,24 +220,6 @@ export function UserTeamCard({
 		</>
 	);
 	const [activityFilter, setActivity] = useState<FilterTab>('Tasks');
-
-	const activityScreens = useMemo(() => {
-		return {
-			Tasks: (
-				<LazyUserProfileTask
-					profile={profile}
-					tabFiltered={hook}
-					user={member?.employee?.user}
-					employeeId={member?.employeeId}
-					paginateTasks={true}
-					useVirtualization={hook.tasksFiltered?.length > ITEMS_LENGTH_TO_VIRTUALIZED}
-				/>
-			),
-			Screenshots: <ScreenshootTab />,
-			Apps: <AppsTab />,
-			'Visited Sites': <VisitedSitesTab />
-		};
-	}, [profile, hook, member?.employee?.user, member?.employeeId]);
 	const changeActivityFilter = useCallback(
 		(filter: FilterTab) => {
 			setActivity(filter);
@@ -251,6 +235,46 @@ export function UserTeamCard({
 
 		return result;
 	}, [identity.memberUser?.id, user?.id, isManagerConnectedUser]);
+	const activityScope = useMemo<TProfileActivityScope | undefined>(() => {
+		if (publicTeam || !canSeeActivity || !targetEmployeeId || !activeTeam?.tenantId || !activeTeam.organizationId) {
+			return undefined;
+		}
+
+		return {
+			tenantId: activeTeam.tenantId,
+			organizationId: activeTeam.organizationId,
+			organizationTeamId: activeTeam.id,
+			employeeId: targetEmployeeId,
+			timeZone: normalizeProfileActivityTimeZone(user?.timeZone)
+		};
+	}, [
+		activeTeam?.id,
+		activeTeam?.organizationId,
+		activeTeam?.tenantId,
+		canSeeActivity,
+		publicTeam,
+		targetEmployeeId,
+		user?.timeZone
+	]);
+
+	const activityScreens = useMemo(() => {
+		return {
+			Tasks: (
+				<LazyUserProfileTask
+					profile={profile}
+					tabFiltered={hook}
+					user={member?.employee?.user}
+					employeeId={member?.employeeId}
+					activityScope={activityScope}
+					paginateTasks={true}
+					useVirtualization={hook.tasksFiltered?.length > ITEMS_LENGTH_TO_VIRTUALIZED}
+				/>
+			),
+			Screenshots: <ScreenshootTab />,
+			Apps: <AppsTab />,
+			'Visited Sites': <VisitedSitesTab />
+		};
+	}, [activityScope, profile, hook, member?.employee?.user, member?.employeeId]);
 
 	// Use the memoized accordion state from above
 
@@ -395,7 +419,7 @@ export function UserTeamCard({
 					) : (
 						// Show content once loaded
 						<div className="overflow-y-auto h-96">
-							<Container fullWidth={fullWidth} className="px-3 py-5 xl:px-0">
+							<Container className="px-3 py-5 xl:px-0">
 								<div className={clsxm('flex gap-4 justify-start items-center mt-3')}>
 									{Object.keys(activityScreens).map((filter, i) => (
 										<div
@@ -444,12 +468,7 @@ export function UserTeamCard({
 				</div>
 
 				<div className="flex flex-wrap justify-between items-start pb-4 border-b">
-					<TaskInfo
-						edition={taskEdition}
-						className="px-4"
-						publicTeam={publicTeam}
-						tab="default"
-					/>
+					<TaskInfo edition={taskEdition} className="px-4" publicTeam={publicTeam} tab="default" />
 				</div>
 
 				<div className="flex justify-between items-center mt-4 mb-4 space-x-5">

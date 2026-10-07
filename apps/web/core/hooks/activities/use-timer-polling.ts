@@ -54,7 +54,12 @@ export function useTimerPolling(timerRunning: boolean) {
 			queryClient.invalidateQueries({
 				predicate: (query) => {
 					const key = query.queryKey;
-					return Array.isArray(key) && key[0] === 'users' && key[1] === 'employees' && key[2] === 'working';
+					return (
+						Array.isArray(key) &&
+						key[0] === 'users' &&
+						key[1] === 'employees' &&
+						(key[2] === 'working' || key[2] === 'working-scope')
+					);
 				}
 			});
 		}, 5000); // Poll every 5 seconds
