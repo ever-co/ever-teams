@@ -140,7 +140,7 @@ describe('self-hostable Docker image', () => {
 
 	it('publishes the runtime env to the browser before any bundle runs', () => {
 		const rootLayout = read('apps/web/app/layout.tsx');
-		const localeLayout = read('apps/web/app/[locale]/layout.tsx');
+		const localeLayout = read('apps/web/app/[locale]/layout-component.tsx');
 
 		expect(rootLayout).toContain('getPublicRuntimeEnv()');
 		expect(rootLayout).toMatch(/<RuntimeEnvProvider env=\{runtimeEnv\}>/);

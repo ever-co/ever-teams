@@ -8,7 +8,7 @@ const RuntimeEnvContext = createContext<RuntimeEnv | null>(null);
 
 /**
  * Carries the request's public runtime env (read on the server by app/layout.tsx) down to the
- * <html> rendered by the 'use client' app/[locale]/layout.tsx and app/not-found.tsx. The env reaches
+ * <html> rendered by the 'use client' app/[locale]/layout-component.tsx and app/not-found.tsx. The env reaches
  * the client through the RSC payload, so the server-rendered and hydrated attribute are
  * byte-identical (no hydration mismatch).
  */

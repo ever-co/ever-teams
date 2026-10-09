@@ -56,7 +56,7 @@ describe('auth pages are noindex, follow', () => {
 
 	// A parent layout's metadata cannot override this one (the deepest segment wins), but a raw
 	// <meta name="robots"> or <meta name="googlebot"> rendered by a layout or shared component would sit
-	// next to the generated tag and could say "index". app/[locale]/layout.tsx renders <head> by hand.
+	// next to the generated tag and could say "index". app/[locale]/layout-component.tsx renders <head> by hand.
 	it('renders no raw robots or googlebot meta tag anywhere in the app or shared components', () => {
 		const RAW_ROBOTS_META = /name=["'](robots|googlebot)["']/i;
 		// Control: the pattern recognises both tag names.
@@ -65,7 +65,7 @@ describe('auth pages are noindex, follow', () => {
 
 		const files = [...listSourceFiles(APP_DIR), ...listSourceFiles(CORE_DIR)];
 		// Control: the walk reaches the layout that renders <head> by hand.
-		expect(files).toContain(join(APP_DIR, '[locale]', 'layout.tsx'));
+		expect(files).toContain(join(APP_DIR, '[locale]', 'layout-component.tsx'));
 
 		expect(files.filter((file) => RAW_ROBOTS_META.test(readFileSync(file, 'utf8')))).toEqual([]);
 	});
