@@ -205,7 +205,15 @@ async function assertSignedIn(page, ctx) {
 export default {
 	env: {
 		off: { ...WOULD_SHOW, NEXT_PUBLIC_EVER_CONNECT_ENABLED: null, [ADMIN_PASSWORD_KEY]: adminPassword() },
-		loaded_off: { EVER_STATS_API_URL: WOULD_SHOW.EVER_STATS_API_URL, NEXT_PUBLIC_EVER_CONNECT_ENABLED: 'true', [ADMIN_PASSWORD_KEY]: adminPassword() },
+		// The paired API's statistics are on until the operator switches them off (prepareLoadedOff, as soon
+		// as the API is up): the reporter first asks after 10 minutes, as in production, then every 10
+		// minutes, so every one of its questions comes after the operator's switch and must stay silent.
+		loaded_off: {
+			EVER_STATS_API_URL: WOULD_SHOW.EVER_STATS_API_URL,
+			EVER_STATS_SEND_INTERVAL_S: '600',
+			NEXT_PUBLIC_EVER_CONNECT_ENABLED: 'true',
+			[ADMIN_PASSWORD_KEY]: adminPassword()
+		},
 		positive_stats: { NEXT_PUBLIC_EVER_CONNECT_ENABLED: null, [ADMIN_PASSWORD_KEY]: adminPassword() }
 	},
 

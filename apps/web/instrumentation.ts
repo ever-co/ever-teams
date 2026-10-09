@@ -13,6 +13,10 @@ let captureRequestError: Instrumentation.onRequestError | undefined;
 export async function register() {
 	// Literal NEXT_RUNTIME checks: Next inlines them per bundle, so each runtime only bundles its own SDK build.
 	if (process.env.NEXT_RUNTIME === 'nodejs') {
+		// Demo deployments: the default sign-in presets, kept out of the client code (see the module).
+		const { applyDemoAccountDefaults } = await import('./core/lib/demo/default-demo-accounts');
+		applyDemoAccountDefaults();
+
 		const { initSentryServer } = await import('./sentry.server.config');
 		captureRequestError = (await initSentryServer())?.captureRequestError;
 
