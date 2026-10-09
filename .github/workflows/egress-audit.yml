@@ -47,6 +47,9 @@ env:
   AUDIT_ARTIFACTS: egress-audit-artifacts
   TEAMS_WEB_IMAGE: ever-teams-webapp:egress-audit
   GAUZY_API_IMAGE: ${{ github.event.inputs.gauzy_api_image || 'ghcr.io/ever-co/gauzy-api-demo:latest' }}
+  # Names the harness adds to its never-allowed list for this run, kept out of the public list; the
+  # reports name them extra#<n> only. Empty when the secret is not set (the published list still applies).
+  EVER_EGRESS_EXTRA_HOSTS: ${{ secrets.EVER_EGRESS_EXTRA_HOSTS }}
 
 jobs:
   egress-audit:
@@ -119,7 +122,14 @@ jobs:
           BASE_REF: ${{ github.base_ref || 'develop' }}
         run: |
           base="origin/${BASE_REF}"
-          node "$EGRESS_AUDIT" check-baseline-shrink --base "$base" --file tools/egress-audit/ui-baseline.json
+          # The change that adopts the baseline is the one whose base has no baseline yet; from then on
+          # every change is compared with the base (the harness refuses --first-version once it exists).
+          first=""
+          if ! git cat-file -e "${base}:tools/egress-audit/ui-baseline.json" 2>/dev/null; then
+            first="--first-version"
+            echo "The baseline is adopted by this change (${base} has none)."
+          fi
+          node "$EGRESS_AUDIT" check-baseline-shrink --base "$base" --config "$AUDIT_CONFIG" $first
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1

@@ -120,7 +120,11 @@ async function api(fetchImpl, session, tenantId, method, path, body) {
 		body: body === undefined ? undefined : JSON.stringify(body)
 	});
 	const data = await json(response);
-	if (!response.ok) throw new Error(`${method} ${path} answered HTTP ${response.status}`);
+	if (!response.ok) {
+		// The API's own message (validation errors name fields, never values): what to fix next time.
+		const message = JSON.stringify(data?.message ?? data?.error ?? '').slice(0, 300);
+		throw new Error(`${method} ${path} answered HTTP ${response.status} ${message}`);
+	}
 	return data;
 }
 
@@ -214,8 +218,12 @@ export default {
 
 		let organizationId = me?.employee?.organizationId ?? me?.lastOrganizationId ?? me?.defaultOrganizationId ?? null;
 		if (!organizationId) {
-			const organizations = itemsOf(await api(fetchImpl, session, tenantId, 'GET', '/organization'));
-			organizationId = organizations[0]?.id ?? null;
+			try {
+				const organizations = itemsOf(await api(fetchImpl, session, tenantId, 'GET', '/organization'));
+				organizationId = organizations[0]?.id ?? null;
+			} catch (error) {
+				log(`adapter: listing the organizations failed (${error.message}); creating one`);
+			}
 		}
 		if (!organizationId) {
 			const organization = await api(fetchImpl, session, tenantId, 'POST', '/organization', {

@@ -28,7 +28,7 @@ This directory holds only Ever Teams' inputs:
 | `adapter.mjs` | Makes the seeded super admin a team manager, switches the statistics off as the operator (`loaded_off`), calls every Ever Platform route of the app (404 in `off`), signs in through the password sign-in page, and gives the ids of the pages that take one |
 | `ui-routes.json` | Every page of the Next.js app router (generated, checked in CI), plus the settings' health probe path |
 | `route-params.json` | The locale of the walk (`en`); the adapter adds the ids only a run knows |
-| `ui-baseline.json` | Links to Ever hosts the UI rendered before the Ever Platform settings existed (it may only shrink) |
+| `ui-baseline.json` | Links to Ever hosts the UI rendered before the Ever Platform settings existed, recorded from `base_commit` (it may only shrink; the change that adds it is checked with `--first-version`) |
 | `optin-hosts.json` | Older features that can reach an Ever host, off by default and documented as operator opt-ins (read by the static scan only) |
 
 The web server is audited as a process (`process_services`) and as the UI (`web_service`): it renders on the
@@ -48,7 +48,7 @@ a dependency here, not what is audited (the Gauzy repository audits its own egre
 
 `.github/workflows/egress-audit.yml` runs it on a GitHub-hosted runner for every pull request that changes the
 web app, in this order: the route list is in step with the router (`ui-routes --check`, with a control that
-must fail), the baseline only shrank (`check-baseline-shrink`), the web image is built, the modes and the
+must fail), the baseline only shrank (`check-baseline-shrink --config`), the web image is built, the modes and the
 control run, the browser never asked `health` in `off`, and the client bundle is scanned for Ever hosts
 (`static-hostnames`). The evidence (`report.json`, pcaps, DNS logs, the HAR, the DOM references, the mock's
 call record) is uploaded as the `egress-audit` artifact.
