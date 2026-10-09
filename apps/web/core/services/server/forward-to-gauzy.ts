@@ -2,6 +2,9 @@ import { GAUZY_API_SERVER_URL } from '@/core/constants/config/constants';
 import { NextResponse } from 'next/server';
 import { authenticatedGuard } from './guards/authenticated-guard-app';
 
+// The browser client gives up after 60 seconds (api.service.ts): past that, nobody is waiting for the answer.
+const UPSTREAM_TIMEOUT_MS = 60_000;
+
 /**
  * Hands a proxy mode request (the browser calls this app's /api routes) on to the Gauzy endpoint the browser
  * calls in direct mode, with the session's token, and answers with Gauzy's own status and body, so both modes
@@ -24,14 +27,17 @@ export async function forwardToGauzy(req: Request, path: string): Promise<Respon
 			authorization: `Bearer ${access_token}`,
 			...(tenantId ? { 'tenant-id': tenantId } : {})
 		},
-		body
-	}).catch((error) => {
-		console.error(`[WEB][API] ${req.method} ${path}: the Gauzy API is unreachable`, error);
-		return undefined;
-	});
+		body,
+		// A browser that cancels its request, or a Gauzy that stops answering, releases the connection.
+		signal: AbortSignal.any([req.signal, AbortSignal.timeout(UPSTREAM_TIMEOUT_MS)])
+	}).catch((error: Error) => error);
 
-	if (!upstream) {
-		return NextResponse.json({ statusCode: 502, message: 'The Gauzy API is unreachable' }, { status: 502 });
+	if (!(upstream instanceof Response)) {
+		const timedOut = upstream.name === 'TimeoutError';
+		const status = timedOut ? 504 : 502;
+		const message = timedOut ? 'The Gauzy API did not answer in time' : 'The Gauzy API is unreachable';
+		console.error(`[WEB][API] ${req.method} ${path}: ${message}`, upstream);
+		return NextResponse.json({ statusCode: status, message }, { status });
 	}
 
 	return new NextResponse(upstream.body, {
