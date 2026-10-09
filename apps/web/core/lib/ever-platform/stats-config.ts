@@ -23,6 +23,9 @@ const MAX_TEST_INTERVAL_S = 86_400;
 
 const blank = (value: string | undefined): value is undefined => value === undefined || value.trim() === '';
 
+/** The first of the values that is set and not blank. */
+const firstSet = (...values: Array<string | undefined>): string | undefined => values.find((value) => !blank(value));
+
 /** `EVER_INSTALL_SOURCE` as declared, or `self-hosted`. */
 export function readInstallSource(env: Env = process.env as Env): string {
 	const raw = env.EVER_INSTALL_SOURCE;
@@ -67,12 +70,9 @@ function usableBaseUrl(raw: string): string | null {
 
 /** Where reports are sent, or `null` when the configured address cannot be used (then nothing is sent). */
 export function readStatsApiUrl(env: Env = process.env as Env): string | null {
-	const configured = !blank(env.EVER_STATS_API_URL)
-		? env.EVER_STATS_API_URL
-		: !blank(env.EVER_PLATFORM_API_URL)
-			? env.EVER_PLATFORM_API_URL
-			: DEFAULT_EVER_PLATFORM_API_URL;
-	const url = usableBaseUrl(configured as string);
+	const configured =
+		firstSet(env.EVER_STATS_API_URL, env.EVER_PLATFORM_API_URL) ?? DEFAULT_EVER_PLATFORM_API_URL;
+	const url = usableBaseUrl(configured);
 	if (!url) {
 		warnOnce(
 			'ever-platform:EVER_STATS_API_URL',
@@ -118,11 +118,7 @@ export function readSendIntervalS(statsApiUrl: string | null, env: Env = process
  * configures none (the statistics then stay silent instead of asking a hosted API).
  */
 export function readPairedApiUrl(env: Env = process.env as Env): string | null {
-	const configured = !blank(env.GAUZY_API_SERVER_URL)
-		? env.GAUZY_API_SERVER_URL
-		: !blank(env.NEXT_PUBLIC_GAUZY_API_SERVER_URL)
-			? env.NEXT_PUBLIC_GAUZY_API_SERVER_URL
-			: undefined;
+	const configured = firstSet(env.GAUZY_API_SERVER_URL, env.NEXT_PUBLIC_GAUZY_API_SERVER_URL);
 	if (!configured) return null;
 	let base = configured.trim();
 	while (base.endsWith('/')) base = base.slice(0, -1);

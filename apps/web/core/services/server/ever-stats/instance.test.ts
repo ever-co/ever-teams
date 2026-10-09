@@ -84,7 +84,7 @@ describe('statistics identity', () => {
 	});
 
 	it('refuses an RSA PKCS#8 key', () => {
-		const { privateKey } = generateKeyPairSync('rsa', { modulusLength: 1024 });
+		const { privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
 		const der = privateKey.export({ format: 'der', type: 'pkcs8' }) as Buffer;
 		expect(seedOfConfiguredKey(der.toString('base64url'))).toBeNull();
 	});

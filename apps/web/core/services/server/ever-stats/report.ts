@@ -50,9 +50,11 @@ export function versionAndChannel(raw: string | undefined | null): { version: st
 	const suffix = (match[4] ?? '').toLowerCase();
 	if (version === '0.0.0') return { version, channel: 'dev' };
 	if (!suffix) return { version, channel: 'stable' };
-	if (/^rc(?:[.-]?\d+)*$/.test(suffix)) return { version, channel: 'rc' };
-	if (/^beta(?:[.-]?\d+)*$/.test(suffix)) return { version, channel: 'beta' };
-	if (/^dev(?:[.-]?\d+)*$/.test(suffix)) return { version, channel: 'dev' };
+	// `rc`, `rc1`, `rc.1`, `rc-1.2`: after the first number every further one needs its separator, so
+	// a long run of digits has one way to match (no backtracking).
+	if (/^rc(?:[.-]?\d+(?:[.-]\d+)*)?$/.test(suffix)) return { version, channel: 'rc' };
+	if (/^beta(?:[.-]?\d+(?:[.-]\d+)*)?$/.test(suffix)) return { version, channel: 'beta' };
+	if (/^dev(?:[.-]?\d+(?:[.-]\d+)*)?$/.test(suffix)) return { version, channel: 'dev' };
 	return { version, channel: 'custom' };
 }
 

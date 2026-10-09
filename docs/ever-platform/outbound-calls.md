@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD013 MD043 -->
+
 # Outbound calls of the Ever Platform features (Ever Teams web app)
 
 Every call the optional Ever Platform features of the Ever Teams web app can make, with what it carries and

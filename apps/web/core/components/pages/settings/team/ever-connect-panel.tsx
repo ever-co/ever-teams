@@ -23,11 +23,11 @@ function OrganizationLink({
 	handle,
 	integrationTenantId,
 	actions
-}: {
+}: Readonly<{
 	handle: string | null;
 	integrationTenantId: string | null;
 	actions: Actions;
-}) {
+}>) {
 	const t = useTranslations();
 	const [code, setCode] = useState('');
 	const normalized = code.trim().toUpperCase();
@@ -91,7 +91,7 @@ function OrganizationLink({
 	);
 }
 
-function StateChip({ integration }: { integration: IEverConnectIntegration }) {
+function StateChip({ integration }: Readonly<{ integration: IEverConnectIntegration }>) {
 	const t = useTranslations();
 	let label = t('pages.settingsTeam.everPlatform.STATE_OFF');
 	if (integration.state === 'enabled') label = t('pages.settingsTeam.everPlatform.STATE_ENABLED');
@@ -100,7 +100,7 @@ function StateChip({ integration }: { integration: IEverConnectIntegration }) {
 	return <span className="rounded-full border px-2 py-0.5 text-[11px] dark:border-white/10">{label}</span>;
 }
 
-function IntegrationRow({ integration, actions }: { integration: IEverConnectIntegration; actions: Actions }) {
+function IntegrationRow({ integration, actions }: Readonly<{ integration: IEverConnectIntegration; actions: Actions }>) {
 	const t = useTranslations();
 	const [showScope, setShowScope] = useState(false);
 	const canConsent =
@@ -159,7 +159,7 @@ function IntegrationRow({ integration, actions }: { integration: IEverConnectInt
 	);
 }
 
-function Entitlement({ summary, actions }: { summary: IEverConnectEntitlementSummary | null; actions: Actions }) {
+function Entitlement({ summary, actions }: Readonly<{ summary: IEverConnectEntitlementSummary | null; actions: Actions }>) {
 	const t = useTranslations();
 	const features = summary ? Object.entries(summary.features).filter(([, on]) => on) : [];
 	return (
@@ -202,7 +202,7 @@ function Entitlement({ summary, actions }: { summary: IEverConnectEntitlementSum
  * (read only; consent happens in app.ever.co) and its entitlement. The installation's own connection
  * (connect, disconnect, policy) is not here: it belongs to the API's settings.
  */
-export function EverConnectPanel({ connected }: { connected: boolean }) {
+export function EverConnectPanel({ connected }: Readonly<{ connected: boolean }>) {
 	const t = useTranslations();
 	const { scope, status, integrations, entitlement } = useEverConnectData(connected);
 	const actions = useEverConnectActions(scope.organizationId);

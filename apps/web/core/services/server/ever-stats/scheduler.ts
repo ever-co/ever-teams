@@ -127,57 +127,68 @@ export function startEverStats(deps: SchedulerDeps = {}): EverStatsScheduler | n
 		return failures <= ladder.length ? ladder[failures - 1] * 1000 : nextDailySlot(now());
 	};
 
+	/** The paired API's answer allows a report; otherwise logs why not (once per change) and pauses. */
+	async function pairedAllows(): Promise<boolean> {
+		const paired = await readPairedStatsState(pairedApiUrl, deps.fetch);
+		if (paired === 'enabled') {
+			lastSkip = null;
+			setStatus('running');
+			return true;
+		}
+		const outcome = SKIP_OUTCOME[paired];
+		// One line per change, not one per attempt: an unpaired API stays unpaired.
+		if (outcome !== lastSkip) logSendOutcome(outcome, null, false);
+		lastSkip = outcome;
+		setStatus('paused_by_api');
+		failures = 0;
+		return false;
+	}
+
+	/**
+	 * Sends the running month, and on days 1-3 the closed previous one. Answers `next` (wait for the next
+	 * slot), `retry` (a delivery failed) or `stopped` (a configured identity met another key).
+	 */
+	async function sendPeriods(at: Date): Promise<'next' | 'retry' | 'stopped'> {
+		const finalPeriod = previousUtcPeriod(at);
+		const finals = at.getUTCDate() <= FINAL_RESEND_LAST_DAY && finalSentFor !== finalPeriod ? [true] : [];
+		for (const final of [false, ...finals]) {
+			const report = buildTeamsReport({ now: at, instanceId: identity.instanceId, installSource, country, final });
+			const result = await sendTeamsReport(report, identity, {
+				baseUrl: statsApiUrl,
+				now: at,
+				fetch: deps.fetch,
+				attempt: failures
+			});
+			if (result.kind === 'sent') {
+				failures = 0;
+				if (final) finalSentFor = finalPeriod;
+			} else if (result.kind === 'failed') {
+				failures += 1;
+				return 'retry';
+			} else if (result.kind === 'rejected' && result.keyMismatch) {
+				if (identity.source !== 'ephemeral') return 'stopped';
+				// The random id met another key: start a new series with a new id and key.
+				identity = ephemeralIdentity();
+				return 'next';
+			}
+		}
+		return 'next';
+	}
+
 	async function run(): Promise<void> {
 		if (stopped || running) return;
 		running = true;
 		try {
 			const at = now();
-			const paired = await readPairedStatsState(pairedApiUrl, deps.fetch);
-			if (paired !== 'enabled') {
-				const outcome = SKIP_OUTCOME[paired];
-				// One line per change, not one per attempt: an unpaired API stays unpaired.
-				if (outcome !== lastSkip) logSendOutcome(outcome, null, false);
-				lastSkip = outcome;
-				setStatus('paused_by_api');
-				failures = 0;
+			const outcome = (await pairedAllows()) ? await sendPeriods(at) : 'next';
+			if (outcome === 'retry') {
+				schedule(retryDelay());
+			} else if (outcome === 'stopped') {
+				setStatus('off_key_mismatch');
+				stop();
+			} else {
 				schedule(nextDailySlot(at));
-				return;
 			}
-			lastSkip = null;
-			setStatus('running');
-
-			const finalPeriod = previousUtcPeriod(at);
-			const finals = at.getUTCDate() <= FINAL_RESEND_LAST_DAY && finalSentFor !== finalPeriod ? [true] : [];
-			for (const final of [false, ...finals]) {
-				const report = buildTeamsReport({ now: at, instanceId: identity.instanceId, installSource, country, final });
-				const result = await sendTeamsReport(report, identity, {
-					baseUrl: statsApiUrl,
-					now: at,
-					fetch: deps.fetch,
-					attempt: failures
-				});
-				if (result.kind === 'sent') {
-					failures = 0;
-					if (final) finalSentFor = finalPeriod;
-					continue;
-				}
-				if (result.kind === 'failed') {
-					failures += 1;
-					schedule(retryDelay());
-					return;
-				}
-				if (result.kind === 'rejected' && result.keyMismatch) {
-					if (identity.source === 'ephemeral') {
-						// The random id met another key: start a new series with a new id and key.
-						identity = ephemeralIdentity();
-						break;
-					}
-					setStatus('off_key_mismatch');
-					stop();
-					return;
-				}
-			}
-			schedule(nextDailySlot(at));
 		} finally {
 			running = false;
 		}

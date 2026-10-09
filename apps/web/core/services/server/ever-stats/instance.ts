@@ -35,9 +35,16 @@ const BASE64 = /^[A-Za-z0-9+/_-]+$/;
 
 const blank = (value: string | undefined): value is undefined => value === undefined || value.trim() === '';
 
+/** The text without its trailing `=` padding (a loop: no regular expression to backtrack). */
+function withoutPadding(text: string): string {
+	let end = text.length;
+	while (end > 0 && text[end - 1] === '=') end -= 1;
+	return text.slice(0, end);
+}
+
 /** The 32-byte seed of a configured key, or `null` when it is not a usable Ed25519 private key. */
 export function seedOfConfiguredKey(raw: string): Uint8Array | null {
-	const text = raw.trim().replace(/=+$/, '');
+	const text = withoutPadding(raw.trim());
 	if (!BASE64.test(text)) return null;
 	const bytes = Buffer.from(text.replace(/\+/g, '-').replace(/\//g, '_'), 'base64url');
 	if (bytes.length === 32) return new Uint8Array(bytes);

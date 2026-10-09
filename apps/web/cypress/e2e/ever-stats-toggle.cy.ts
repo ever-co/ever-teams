@@ -75,9 +75,17 @@ describe('the anonymous usage statistics switch', () => {
 	it('sends nothing while the paired API does not serve this web app (unpaired: state answers 404)', () => {
 		cy.mockScenario({ statsPaired: false });
 		cy.wait(INTERVAL_S * 1_000 + 1_000);
-		teamsReports().then((before) => {
-			cy.wait(INTERVAL_S * 1_000 * 3);
-			teamsReports().its('length').should('eq', before.length);
+		cy.mockState().then((stateBefore) => {
+			teamsReports().then((before) => {
+				cy.wait(INTERVAL_S * 1_000 * 3);
+				teamsReports().then((after) => {
+					// The reporter kept asking the paired API (so it was running), and sent nothing.
+					expect(after, 'reports while unpaired').to.have.length(before.length);
+				});
+				cy.mockState().then((stateAfter) => {
+					expect(stateAfter.everPlatform.stateReads, 'state reads').to.be.greaterThan(stateBefore.everPlatform.stateReads);
+				});
+			});
 		});
 	});
 });

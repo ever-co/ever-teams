@@ -32,7 +32,7 @@ function DocsLink() {
 	);
 }
 
-function AttemptView({ label, attempt }: { label: string; attempt: IEverStatsAttempt }) {
+function AttemptView({ label, attempt }: Readonly<{ label: string; attempt: IEverStatsAttempt }>) {
 	const t = useTranslations();
 	return (
 		<div className="flex flex-col gap-2" data-testid="ever-stats-last-payload">
@@ -65,7 +65,7 @@ function LastReports() {
 }
 
 /** Why nothing is sent, as the paired API says it. */
-function ReasonText({ reason }: { reason: string | null }) {
+function ReasonText({ reason }: Readonly<{ reason: string | null }>) {
 	const t = useTranslations();
 	if (reason === 'ui') return <> · {t('pages.settingsTeam.everPlatform.STATS_REASON_UI')}</>;
 	if (reason === 'config') return <> · {t('pages.settingsTeam.everPlatform.STATS_REASON_CONFIG')}</>;
@@ -73,7 +73,7 @@ function ReasonText({ reason }: { reason: string | null }) {
 	return null;
 }
 
-function OperatorView({ status }: { status: IEverStatsStatus }) {
+function OperatorView({ status }: Readonly<{ status: IEverStatsStatus }>) {
 	const t = useTranslations();
 	const setEnabled = useSetEverStatsEnabled();
 	const [showLast, setShowLast] = useState(false);

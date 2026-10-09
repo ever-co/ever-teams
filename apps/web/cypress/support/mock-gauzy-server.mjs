@@ -414,23 +414,15 @@ function routeResponse(method, pathname, requestUrl, data, fixture, state, body)
 	return pagination([]);
 }
 
-/**
- * The paired API's Ever Platform routes (anonymous usage statistics and the connection's
- * organization routes), as the Gauzy plugins answer them. Scenario switches: `statsPaired` (the API
- * serves `teams` in EVER_STATS_SERVES: `state` exists), `statsEnabledUi` (the operator's switch),
- * `statsOperator` (the signed-in person is the operator: the operator routes answer instead of 404),
- * `connectHealth` (the connection module answers `health`) and `connectConnected`.
- * Answers `{ status, payload }`, or null for every other route.
- */
-function everPlatformResponse(method, pathname, request, state, body) {
-	const scenario = state.scenario;
-	const signedIn =
-		typeof request.headers.authorization === 'string' && request.headers.authorization.startsWith('Bearer ');
-	const notFound = { status: 404, payload: { statusCode: 404, message: 'Not Found' } };
-	const unauthorized = { status: 401, payload: { statusCode: 401, message: 'Unauthorized' } };
-	const operatorStatus = () => ({
-		enabled: scenario.statsEnabledUi !== false,
-		reason: scenario.statsEnabledUi === false ? 'ui' : null,
+const NOT_FOUND = { status: 404, payload: { statusCode: 404, message: 'Not Found' } };
+const UNAUTHORIZED = { status: 401, payload: { statusCode: 401, message: 'Unauthorized' } };
+
+/** What the statistics plugin's `status` answers its operator. */
+function operatorStatus(scenario) {
+	const enabled = scenario.statsEnabledUi !== false;
+	return {
+		enabled,
+		reason: enabled ? null : 'ui',
 		install_source: 'self-hosted',
 		instance_id: null,
 		key_id: 'fixture-key-id',
@@ -441,88 +433,103 @@ function everPlatformResponse(method, pathname, request, state, body) {
 		last_attempt: null,
 		key_warning: null,
 		schema_url: 'http://127.0.0.1:3989/v1/stats/schema/ever.stats.v1'
-	});
+	};
+}
 
+/** The one integration the connection's organization routes list. */
+const STATS_LINK_INTEGRATION = {
+	key: 'stats_link',
+	name: 'Statistics link',
+	description: 'Links the anonymous usage statistics of this installation to the organization.',
+	direction: 'out',
+	instance_wide: true,
+	app_ever_co_only: false,
+	scope_version: 1,
+	scope: [
+		{
+			field_path: 'stats.instance_id',
+			direction: 'out',
+			form: 'opaque id',
+			frequency: 'once',
+			purpose: 'link the statistics',
+			retention: 'while linked'
+		}
+	],
+	revoke_effect: 'unlinked',
+	state: 'not_linked',
+	enabled: false,
+	pending_remote_revoke: false,
+	revoke_source: null,
+	revoked_at: null,
+	consent: null,
+	policy: 'allowed'
+};
+
+/** The operator's switch: a boolean only, stored in the scenario. */
+function statsToggle(state, body, signedIn) {
+	if (typeof body?.enabled !== 'boolean') {
+		return { status: 400, payload: { statusCode: 400, message: 'enabled must be true or false' } };
+	}
+	state.scenario.statsEnabledUi = body.enabled;
+	const keys = Object.keys(body).sort((a, b) => a.localeCompare(b));
+	state.everPlatform.toggles.push({ enabled: body.enabled, withBearer: signedIn, keys });
+	return { status: 200, payload: operatorStatus(state.scenario) };
+}
+
+/** `/api/ever-stats/*`: `state` (paired only, no credential) and the operator's routes. */
+function statsResponse(method, pathname, signedIn, state, body) {
+	const scenario = state.scenario;
 	if (pathname === '/api/ever-stats/state' && method === 'GET') {
 		state.everPlatform.stateReads += 1;
-		if (scenario.statsPaired === false) return notFound;
+		if (scenario.statsPaired === false) return NOT_FOUND;
 		return { status: 200, payload: { enabled: scenario.statsEnabledUi !== false } };
 	}
-	if (pathname.startsWith('/api/ever-stats/')) {
-		if (!signedIn) return unauthorized;
-		if (scenario.statsOperator === false) return notFound;
-		if (pathname === '/api/ever-stats/status' && method === 'GET') return { status: 200, payload: operatorStatus() };
-		if (pathname === '/api/ever-stats/enabled' && method === 'PUT') {
-			if (typeof body?.enabled !== 'boolean') {
-				return { status: 400, payload: { statusCode: 400, message: 'enabled must be true or false' } };
-			}
-			scenario.statsEnabledUi = body.enabled;
-			state.everPlatform.toggles.push({ enabled: body.enabled, withBearer: signedIn, keys: Object.keys(body).sort() });
-			return { status: 200, payload: operatorStatus() };
-		}
-		// `last` answers 404 until the API has sent a report.
-		return notFound;
-	}
-	if (pathname.startsWith('/api/ever-connect/')) {
-		if (!signedIn) return unauthorized;
-		if (scenario.connectHealth === false) return notFound;
-		const connected = scenario.connectConnected !== false;
-		if (pathname === '/api/ever-connect/health' && method === 'GET') return { status: 200, payload: { connected } };
-		if (pathname === '/api/ever-connect/status' && method === 'GET') {
-			return {
-				status: 200,
-				payload: {
-					enabled: true,
-					install_source: 'self-hosted',
-					managed_by: 'operator',
-					operator: true,
-					connected,
-					connection: null,
-					link: null,
-					pending_approvals: [],
-					in_product_consent: false
-				}
-			};
-		}
-		if (pathname === '/api/ever-connect/integrations' && method === 'GET') {
-			return {
-				status: 200,
-				payload: [
-					{
-						key: 'stats_link',
-						name: 'Statistics link',
-						description: 'Links the anonymous usage statistics of this installation to the organization.',
-						direction: 'out',
-						instance_wide: true,
-						app_ever_co_only: false,
-						scope_version: 1,
-						scope: [
-							{
-								field_path: 'stats.instance_id',
-								direction: 'out',
-								form: 'opaque id',
-								frequency: 'once',
-								purpose: 'link the statistics',
-								retention: 'while linked'
-							}
-						],
-						revoke_effect: 'unlinked',
-						state: 'not_linked',
-						enabled: false,
-						pending_remote_revoke: false,
-						revoke_source: null,
-						revoked_at: null,
-						consent: null,
-						policy: 'allowed'
-					}
-				]
-			};
-		}
-		if (pathname === '/api/ever-connect/entitlement' && method === 'GET') {
-			return { status: 200, payload: { instance: null, link: null } };
-		}
-		return notFound;
-	}
+	if (!signedIn) return UNAUTHORIZED;
+	if (scenario.statsOperator === false) return NOT_FOUND;
+	if (pathname === '/api/ever-stats/status' && method === 'GET') return { status: 200, payload: operatorStatus(scenario) };
+	if (pathname === '/api/ever-stats/enabled' && method === 'PUT') return statsToggle(state, body, signedIn);
+	// `last` answers 404 until the API has sent a report.
+	return NOT_FOUND;
+}
+
+/** `/api/ever-connect/*`: the connection's organization routes, for a signed-in person. */
+function connectResponse(method, pathname, signedIn, scenario) {
+	if (!signedIn) return UNAUTHORIZED;
+	if (scenario.connectHealth === false) return NOT_FOUND;
+	const connected = scenario.connectConnected !== false;
+	const routes = {
+		'GET /api/ever-connect/health': () => ({ connected }),
+		'GET /api/ever-connect/status': () => ({
+			enabled: true,
+			install_source: 'self-hosted',
+			managed_by: 'operator',
+			operator: true,
+			connected,
+			connection: null,
+			link: null,
+			pending_approvals: [],
+			in_product_consent: false
+		}),
+		'GET /api/ever-connect/integrations': () => [STATS_LINK_INTEGRATION],
+		'GET /api/ever-connect/entitlement': () => ({ instance: null, link: null })
+	};
+	const answer = routes[`${method} ${pathname}`];
+	return answer ? { status: 200, payload: answer() } : NOT_FOUND;
+}
+
+/**
+ * The paired API's Ever Platform routes (anonymous usage statistics and the connection's
+ * organization routes), as the Gauzy plugins answer them. Scenario switches: `statsPaired` (the API
+ * serves `teams` in EVER_STATS_SERVES: `state` exists), `statsEnabledUi` (the operator's switch),
+ * `statsOperator` (the signed-in person is the operator: the operator routes answer instead of 404),
+ * `connectHealth` (the connection module answers `health`) and `connectConnected`.
+ * Answers `{ status, payload }`, or null for every other route.
+ */
+function everPlatformResponse(method, pathname, request, state, body) {
+	const authorization = request.headers.authorization;
+	const signedIn = typeof authorization === 'string' && authorization.startsWith('Bearer ');
+	if (pathname.startsWith('/api/ever-stats/')) return statsResponse(method, pathname, signedIn, state, body);
+	if (pathname.startsWith('/api/ever-connect/')) return connectResponse(method, pathname, signedIn, state.scenario);
 	return null;
 }
 

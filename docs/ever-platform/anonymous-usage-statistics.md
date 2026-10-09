@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD013 MD043 -->
+
 # Anonymous usage statistics (Ever Teams web app)
 
 Ever Teams can send one small, anonymous report a day about the web app itself: which release runs and

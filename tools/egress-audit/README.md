@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD013 MD043 -->
+
 # Egress audit
 
 A runtime proof of what the optional Ever Platform features of the Ever Teams web app may send, from the

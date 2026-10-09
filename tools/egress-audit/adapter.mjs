@@ -14,7 +14,8 @@
 //   walk that is not signed in fails the run).
 // - routeParams: the ids only a run knows.
 
-const API = 'http://api:3000';
+// Plain http on purpose: the compose service inside the sealed audit network, never a public host.
+const API = 'http://api:3000'; // NOSONAR
 const ADMIN_EMAIL = 'admin@ever.co';
 const PLACEHOLDER_ID = '00000000-0000-4000-8000-000000000000';
 const API_READY_TIMEOUT_MS = 25 * 60 * 1000;
@@ -27,20 +28,20 @@ const ADMIN_PASSWORD_KEY = 'TEAMS_AUDIT_ADMIN_PASSWORD';
  * reporter loaded or sending by mistake would try within the watched window and be seen.
  */
 const WOULD_SHOW = {
-	EVER_STATS_API_URL: 'http://10.255.255.1:8080',
+	EVER_STATS_API_URL: 'http://10.255.255.1:8080', // NOSONAR: a private address nothing answers on
 	EVER_STATS_SEND_INTERVAL_S: '5'
 };
 
-/** The web app's Ever Platform routes, with the method its settings use. */
+/** The web app's Ever Platform routes, with the method (and body) its settings use. */
 const MODULE_ROUTES = [
 	['GET', '/api/ever-stats/status'],
 	['GET', '/api/ever-stats/last'],
-	['PUT', '/api/ever-stats/enabled'],
+	['PUT', '/api/ever-stats/enabled', { enabled: true }],
 	['GET', '/api/ever-connect/health'],
 	['GET', '/api/ever-connect/status'],
 	['GET', '/api/ever-connect/integrations'],
 	['GET', '/api/ever-connect/entitlement'],
-	['POST', '/api/ever-connect/links']
+	['POST', '/api/ever-connect/links', {}]
 ];
 
 const adminPassword = () => process.env[ADMIN_PASSWORD_KEY] ?? '';
@@ -123,7 +124,12 @@ async function api(fetchImpl, session, tenantId, method, path, body) {
 	return data;
 }
 
-const itemsOf = (data) => (Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : []);
+function itemsOf(data) {
+	if (Array.isArray(data)) return data;
+	return Array.isArray(data?.items) ? data.items : [];
+}
+
+const describeAnswers = (answers) => answers.map((a) => `${a.route} ${a.status}`).join('; ');
 
 /** The page the sign-in is checked on: a team manager's settings, behind the sign-in. */
 const SIGNED_IN_CHECK_PAGE = '/en/settings/team';
@@ -264,20 +270,20 @@ export default {
 	/** Every Ever Platform route of the web app; with the modules off, each must answer 404. */
 	async openSettings({ baseUrl, mode, fetch: fetchImpl, log }) {
 		const answers = [];
-		for (const [method, path] of MODULE_ROUTES) {
+		for (const [method, path, body] of MODULE_ROUTES) {
 			const response = await fetchImpl(`${baseUrl}${path}`, {
 				method,
 				redirect: 'manual',
-				headers: method === 'GET' ? {} : { 'content-type': 'application/json' },
-				body: method === 'GET' ? undefined : JSON.stringify(method === 'PUT' ? { enabled: true } : {})
+				headers: body === undefined ? {} : { 'content-type': 'application/json' },
+				body: body === undefined ? undefined : JSON.stringify(body)
 			});
 			answers.push({ route: `${method} ${path}`, status: response.status });
 		}
-		log(`adapter: ${answers.map((a) => `${a.route} ${a.status}`).join('; ')}`);
+		log(`adapter: ${describeAnswers(answers)}`);
 		if (mode !== 'off') return;
 		const answered = answers.filter((a) => a.status !== 404);
 		if (answered.length > 0) {
-			throw new Error(`with the Ever Platform modules off every route must answer 404: ${answered.map((a) => `${a.route} ${a.status}`).join('; ')}`);
+			throw new Error(`with the Ever Platform modules off every route must answer 404: ${describeAnswers(answered)}`);
 		}
 	},
 
