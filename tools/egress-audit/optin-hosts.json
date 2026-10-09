@@ -3,11 +3,6 @@
   "description": "Features older than the Ever Platform settings that can reach an Ever host. Each is off in the default configuration and documented in docs/ever-platform/outbound-calls.md as an operator opt-in. Only the static scan reads this file.",
   "hosts": [
     {
-      "host": "ever.co",
-      "setting": "NEXT_PUBLIC_DEMO=true",
-      "reason": "The sign-in presets of a demo deployment (the seeded demo accounts' e-mail addresses), shown only with NEXT_PUBLIC_DEMO=true; an address in a form, never contacted. Listed in docs/ever-platform/outbound-calls.md."
-    },
-    {
       "host": "ever.team",
       "setting": "NEXT_PUBLIC_COOKIE_DOMAINS",
       "reason": "The default cookie domain of the hosted Ever Teams; a cookie attribute that applies only when the app is served under that domain, never a request. Set NEXT_PUBLIC_COOKIE_DOMAINS to your own domain. Listed in docs/ever-platform/outbound-calls.md."
