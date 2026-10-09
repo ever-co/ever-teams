@@ -105,6 +105,8 @@ export function startEverStats(deps: SchedulerDeps = {}): EverStatsScheduler | n
 	let running = false;
 	let failures = 0;
 	let finalSentFor: string | null = null;
+	/** What a failed slot still has to send (`final` of each report), for its retries. */
+	let pendingRetry: boolean[] | null = null;
 	let lastSkip: SendOutcome | null = null;
 
 	const nextDailySlot = (at: Date): number => {
@@ -141,6 +143,7 @@ export function startEverStats(deps: SchedulerDeps = {}): EverStatsScheduler | n
 		lastSkip = outcome;
 		setStatus('paused_by_api');
 		failures = 0;
+		pendingRetry = null;
 		return false;
 	}
 
@@ -150,8 +153,15 @@ export function startEverStats(deps: SchedulerDeps = {}): EverStatsScheduler | n
 	 */
 	async function sendPeriods(at: Date): Promise<'next' | 'retry' | 'stopped'> {
 		const finalPeriod = previousUtcPeriod(at);
-		const finals = at.getUTCDate() <= FINAL_RESEND_LAST_DAY && finalSentFor !== finalPeriod ? [true] : [];
-		for (const final of [false, ...finals]) {
+		// A retry sends only what its slot still misses: a report already accepted is not sent twice.
+		const reports = pendingRetry ?? [
+			false,
+			...(at.getUTCDate() <= FINAL_RESEND_LAST_DAY && finalSentFor !== finalPeriod ? [true] : [])
+		];
+		pendingRetry = null;
+		let renewed = false;
+		while (reports.length > 0) {
+			const final = reports[0];
 			const report = buildTeamsReport({ now: at, instanceId: identity.instanceId, installSource, country, final });
 			const result = await sendTeamsReport(report, identity, {
 				baseUrl: statsApiUrl,
@@ -159,19 +169,25 @@ export function startEverStats(deps: SchedulerDeps = {}): EverStatsScheduler | n
 				fetch: deps.fetch,
 				attempt: failures
 			});
-			if (result.kind === 'sent') {
-				failures = 0;
-				if (final) finalSentFor = finalPeriod;
-			} else if (result.kind === 'failed') {
+			if (result.kind === 'failed') {
+				// Counted across the retries of this slot, so the waits step through the ladder.
 				failures += 1;
+				pendingRetry = reports;
 				return 'retry';
-			} else if (result.kind === 'rejected' && result.keyMismatch) {
-				if (identity.source !== 'ephemeral') return 'stopped';
-				// The random id met another key: start a new series with a new id and key.
-				identity = ephemeralIdentity();
-				return 'next';
 			}
+			if (result.kind === 'rejected' && result.keyMismatch) {
+				if (identity.source !== 'ephemeral') return 'stopped';
+				if (renewed) break;
+				// The random id met another key: start a new series with a new id and key, and send this
+				// report (and the rest of this slot) in it.
+				identity = ephemeralIdentity();
+				renewed = true;
+				continue;
+			}
+			if (result.kind === 'sent' && final) finalSentFor = finalPeriod;
+			reports.shift();
 		}
+		failures = 0;
 		return 'next';
 	}
 

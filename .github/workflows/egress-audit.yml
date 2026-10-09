@@ -115,8 +115,10 @@ jobs:
           echo "The control failed as it must (exit 1)."
 
       - name: The DOM baseline only shrinks
+        env:
+          BASE_REF: ${{ github.base_ref || 'develop' }}
         run: |
-          base="origin/${{ github.base_ref || 'develop' }}"
+          base="origin/${BASE_REF}"
           node "$EGRESS_AUDIT" check-baseline-shrink --base "$base" --file tools/egress-audit/ui-baseline.json
 
       - name: Set up Docker Buildx

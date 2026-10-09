@@ -100,19 +100,31 @@ function StateChip({ integration }: Readonly<{ integration: IEverConnectIntegrat
 	return <span className="rounded-full border px-2 py-0.5 text-[11px] dark:border-white/10">{label}</span>;
 }
 
-function IntegrationRow({ integration, actions }: Readonly<{ integration: IEverConnectIntegration; actions: Actions }>) {
+function IntegrationRow({
+	integration,
+	actions,
+	onConsentOpened
+}: Readonly<{ integration: IEverConnectIntegration; actions: Actions; onConsentOpened: () => void }>) {
 	const t = useTranslations();
 	const [showScope, setShowScope] = useState(false);
 	const canConsent =
 		integration.policy === 'allowed' && integration.state !== 'enabled' && integration.state !== 'pending_operator';
 
-	const openConsent = () =>
+	const openConsent = () => {
+		// The tab opens during the click (a browser blocks one opened after a request), then goes to the
+		// consent page once the paired API answers; it never gets a handle on this page.
+		const tab = window.open('', '_blank');
+		if (tab) tab.opener = null;
 		actions.openConsent.mutate(integration.key, {
 			onSuccess: ({ url }) => {
 				// The paired API builds this link; it carries no token and no e-mail.
-				window.open(url, '_blank', 'noopener,noreferrer');
-			}
+				if (tab) tab.location.href = url;
+				else window.location.assign(url);
+				onConsentOpened();
+			},
+			onError: () => tab?.close()
 		});
+	};
 
 	return (
 		<li className="flex flex-col gap-2 rounded-md border p-3 dark:border-white/10" data-testid="ever-connect-integration">
@@ -207,6 +219,7 @@ export function EverConnectPanel({ connected }: Readonly<{ connected: boolean }>
 	const { scope, status, integrations, entitlement } = useEverConnectData(connected);
 	const actions = useEverConnectActions(scope.organizationId);
 	const refreshedOnReturn = useRef(false);
+	const consentOpened = useRef(false);
 
 	useEffect(() => {
 		if (!connected || refreshedOnReturn.current) return;
@@ -214,6 +227,19 @@ export function EverConnectPanel({ connected }: Readonly<{ connected: boolean }>
 		if (params.get(RETURN_PARAM) !== '1') return;
 		refreshedOnReturn.current = true;
 		actions.refreshIntegrations.mutate();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [connected]);
+
+	// Consent happens in another tab: when the manager comes back to this one, read the integrations again.
+	useEffect(() => {
+		if (!connected) return;
+		const onVisible = () => {
+			if (document.visibilityState !== 'visible' || !consentOpened.current) return;
+			consentOpened.current = false;
+			actions.refreshIntegrations.mutate();
+		};
+		document.addEventListener('visibilitychange', onVisible);
+		return () => document.removeEventListener('visibilitychange', onVisible);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [connected]);
 
@@ -247,7 +273,12 @@ export function EverConnectPanel({ connected }: Readonly<{ connected: boolean }>
 				{integrations.data && integrations.data.length > 0 ? (
 					<ul className="flex flex-col gap-2">
 						{integrations.data.map((integration: IEverConnectIntegration) => (
-							<IntegrationRow key={integration.key} integration={integration} actions={actions} />
+							<IntegrationRow
+								key={integration.key}
+								integration={integration}
+								actions={actions}
+								onConsentOpened={() => (consentOpened.current = true)}
+							/>
 						))}
 					</ul>
 				) : (
