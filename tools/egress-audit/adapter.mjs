@@ -214,7 +214,7 @@ export default {
 
 		let organizationId = me?.employee?.organizationId ?? me?.lastOrganizationId ?? me?.defaultOrganizationId ?? null;
 		if (!organizationId) {
-			const organizations = itemsOf(await api(fetchImpl, session, tenantId, 'GET', `/organization?where[tenantId]=${tenantId}`));
+			const organizations = itemsOf(await api(fetchImpl, session, tenantId, 'GET', '/organization'));
 			organizationId = organizations[0]?.id ?? null;
 		}
 		if (!organizationId) {
