@@ -191,4 +191,30 @@ describe('the statistics reporter', () => {
 		expect(fetch).not.toHaveBeenCalled();
 		expect(reporterState().status).toBe(status);
 	});
+
+	it('retries only the report a slot still misses, stepping through the retry waits', async () => {
+		const reports: Array<{ final: boolean }> = [];
+		const finalAnswers = [503, 503, 202];
+		const fetch = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const url = String(input);
+			if (url === `${PAIRED}/api/ever-stats/state`) return json({ enabled: true });
+			const report = JSON.parse(Buffer.from(init?.body as Uint8Array).toString('utf8')) as { final: boolean };
+			reports.push(report);
+			const status = report.final ? (finalAnswers.shift() ?? 202) : 202;
+			return json({}, status);
+		}) as unknown as typeof globalThis.fetch;
+		// Day 2 of the month: the running month and the closed previous one.
+		const { deps: d, timers, setClock } = deps(fetch);
+		setClock(new Date('2026-11-02T08:00:00Z'));
+		const scheduler = startEverStats(d);
+		await scheduler?.runNow();
+		expect(reports.map((report) => report.final)).toEqual([false, true]);
+		expect(timers.at(-1)?.delayMs).toBe(3600 * 1000);
+		await scheduler?.runNow();
+		// Only the closed month again, and the next wait is the second step.
+		expect(reports.map((report) => report.final)).toEqual([false, true, true]);
+		expect(timers.at(-1)?.delayMs).toBe(14400 * 1000);
+		await scheduler?.runNow();
+		expect(reports.map((report) => report.final)).toEqual([false, true, true, true]);
+	});
 });
