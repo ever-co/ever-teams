@@ -6,10 +6,14 @@
  */
 let mockSession: { token: string | null; tenant: string | null } = { token: 'person-token', tenant: 'tenant-1' };
 
-jest.mock('@/core/lib/helpers/cookies', () => ({
-	getAccessTokenCookie: () => mockSession.token,
-	getTenantIdCookie: () => mockSession.tenant
-}));
+/** The cookies the sign-in sets, from `mockSession` (none when signed out). */
+function sessionCookies(): Record<string, string> {
+	const parts = [
+		mockSession.token ? `auth-token=${mockSession.token}` : null,
+		mockSession.tenant ? `auth-tenant-id=${mockSession.tenant}` : null
+	].filter(Boolean);
+	return parts.length ? { cookie: parts.join('; ') } : {};
+}
 
 import { DELETE, GET, POST, PUT } from './route';
 
@@ -23,11 +27,16 @@ let info: jest.SpyInstance;
 
 const handlers = { GET, POST, PUT, DELETE };
 
+function bodyOf(body: unknown): string | undefined {
+	if (body === undefined) return undefined;
+	return typeof body === 'string' ? body : JSON.stringify(body);
+}
+
 function call(method: keyof typeof handlers, path: string, body?: unknown) {
 	const url = new URL(`https://teams.example.test/api/ever-connect/${path}`);
 	const segments = url.pathname.replace('/api/ever-connect/', '').split('/');
 	return handlers[method](
-		new Request(url, { method, body: body === undefined ? undefined : typeof body === 'string' ? body : JSON.stringify(body) }),
+		new Request(url, { method, headers: sessionCookies(), body: bodyOf(body) }),
 		{ params: Promise.resolve({ path: segments }) }
 	);
 }

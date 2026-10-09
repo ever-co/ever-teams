@@ -25,7 +25,7 @@ Notes:
   silent and hides the connection parts.
 - `health` is asked only for a signed-in person, with that person's own token: a signed-out visitor never
   causes it.
-- *Manage in app.ever.co* opens the consent page the Gauzy API returns for that integration; the link carries
+- *Manage in Ever Platform* opens the consent page the Gauzy API returns for that integration; the link carries
   no token and no e-mail address.
 - The `/api/ever-connect/*` routes of this app forward only the organization routes above (their methods,
   their query parameters and body fields), to the configured Gauzy API only. The installation's own routes

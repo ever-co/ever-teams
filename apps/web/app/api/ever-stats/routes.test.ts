@@ -5,10 +5,14 @@
  */
 let mockSession: { token: string | null; tenant: string | null } = { token: 'person-token', tenant: 'tenant-1' };
 
-jest.mock('@/core/lib/helpers/cookies', () => ({
-	getAccessTokenCookie: () => mockSession.token,
-	getTenantIdCookie: () => mockSession.tenant
-}));
+/** The cookies the sign-in sets, from `mockSession` (none when signed out). */
+function sessionCookies(): Record<string, string> {
+	const parts = [
+		mockSession.token ? `auth-token=${mockSession.token}` : null,
+		mockSession.tenant ? `auth-tenant-id=${mockSession.tenant}` : null
+	].filter(Boolean);
+	return parts.length ? { cookie: parts.join('; ') } : {};
+}
 
 import { GET as getStatus } from './status/route';
 import { GET as getLast } from './last/route';
@@ -35,7 +39,11 @@ function answering(routes: Record<string, () => Response>) {
 	global.fetch = fetchMock as unknown as typeof fetch;
 }
 
-const request = (path: string, init?: RequestInit) => new Request(`https://teams.example.test${path}`, init);
+const request = (path: string, init?: RequestInit) =>
+	new Request(`https://teams.example.test${path}`, {
+		...init,
+		headers: { ...(init?.headers as Record<string, string> | undefined), ...sessionCookies() }
+	});
 
 beforeEach(() => {
 	process.env = { ...ORIGINAL_ENV, GAUZY_API_SERVER_URL: 'http://api.example.test' };
