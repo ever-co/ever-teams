@@ -38,7 +38,11 @@ export function useActivityDailyReportQuery({ mergedProps, enabled = true }: Use
 			organizationId: mergedProps?.organizationId,
 			startDate: mergedProps?.startDate,
 			endDate: mergedProps?.endDate,
-			groupBy: mergedProps?.groupBy
+			groupBy: mergedProps?.groupBy,
+			// Not employeeIds / teamIds: their dashboard filter fallback changes on every click in that filter
+			// and is applied with an explicit refetch
+			selectedEmployeeIds: mergedProps?.selectedEmployeeIds,
+			selectedTeamIds: mergedProps?.selectedTeamIds
 		}),
 		queryFn: () => timeLogService.getTimeLogReportDaily(mergedProps!),
 		enabled: enabled && !!mergedProps,
