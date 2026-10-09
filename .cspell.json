@@ -889,7 +889,17 @@
 		"logfmt",
 		"cooldown",
 		"pkce",
-		"nosonar"
+		"nosonar",
+		"optin",
+		"unconfigured",
+		"hostedtoolcache",
+		"println",
+		"isready",
+		"pcaps",
+		"EFGH",
+		"JKMN",
+		"ILOU",
+		"HJKMNP"
 ],
 	"useGitignore": true,
 	"ignorePaths": [

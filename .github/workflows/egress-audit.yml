@@ -1,0 +1,241 @@
+name: Egress audit
+# cspell:words DOTENV netshoot pcaps nomock buildx
+
+# Proves at runtime, with the web image built from this change, what the optional Ever Platform features
+# of Ever Teams may send, from the web server AND from the UI in a real browser:
+#
+#   off             EVER_STATS_ENABLED=false, NEXT_PUBLIC_EVER_CONNECT_ENABLED unset: no Ever host looked up,
+#                   requested or linked (outside ui-baseline.json), no connection attempt out, every
+#                   /api/ever-stats and /api/ever-connect route 404, and no health probe from the browser
+#   loaded_off      both loaded, the operator's statistics switch off in the paired API, the API not
+#                   connected: not a single call before an operator acts
+#   positive_stats  statistics on against the mock platform: reports accepted (202), nothing else; the
+#                   settings page asks this app's /api/ever-stats/status (the browser's positive control)
+#   control         positive_stats without the mock must FAIL, so a green run is not a blind one
+#
+# The harness is the egress audit of the Ever Platform SDK: the dev dependency @ever-co/connect-tools at
+# the version and integrity yarn.lock pins. Nothing of it is copied into this repository. The paired Gauzy
+# API runs from its published develop image (or the one given to a manual run); see tools/egress-audit.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - '.deploy/web/**'
+      - '.github/workflows/egress-audit.yml'
+      - 'apps/web/**'
+      - 'packages/**'
+      - 'tools/egress-audit/**'
+      - 'package.json'
+      - 'turbo.json'
+      - 'yarn.lock'
+  workflow_dispatch:
+    inputs:
+      gauzy_api_image:
+        description: 'The paired Gauzy API image'
+        required: true
+        default: 'ghcr.io/ever-co/gauzy-api-demo:latest'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  AUDIT_CONFIG: tools/egress-audit/egress-audit.config.json
+  AUDIT_ARTIFACTS: egress-audit-artifacts
+  TEAMS_WEB_IMAGE: ever-teams-webapp:egress-audit
+  GAUZY_API_IMAGE: ${{ github.event.inputs.gauzy_api_image || 'ghcr.io/ever-co/gauzy-api-demo:latest' }}
+
+jobs:
+  egress-audit:
+    name: egress-audit
+    # GitHub-hosted on purpose: the capture needs Docker with NET_RAW and NET_ADMIN.
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Free disk space for the images
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          df -h /
+
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24.14.0'
+
+      - name: Install the egress audit harness (the version and integrity yarn.lock pins)
+        run: |
+          version=$(node -p "require('./package.json').devDependencies['@ever-co/connect-tools']")
+          expected=$(awk -v key="\"@ever-co/connect-tools@${version}\":" '$0 == key { found = 1; next } found && /^  integrity / { print $2; exit }' yarn.lock)
+          if [ -z "$expected" ]; then
+            echo "::error::yarn.lock pins no integrity for @ever-co/connect-tools@${version}"
+            exit 1
+          fi
+          mkdir -p "$RUNNER_TEMP/harness"
+          cd "$RUNNER_TEMP/harness"
+          npm pack "@ever-co/connect-tools@${version}" --registry https://registry.npmjs.org --json > pack.json
+          actual=$(node -p "require('./pack.json')[0].integrity")
+          if [ "$actual" != "$expected" ]; then
+            echo "::error::@ever-co/connect-tools@${version} does not match the integrity yarn.lock pins"
+            exit 1
+          fi
+          echo '{"name":"egress-audit-harness","private":true}' > package.json
+          npm install --no-audit --no-fund --ignore-scripts --registry https://registry.npmjs.org "./ever-co-connect-tools-${version}.tgz"
+          echo "EGRESS_AUDIT=$RUNNER_TEMP/harness/node_modules/@ever-co/connect-tools/dist/egress-audit/run.mjs" >> "$GITHUB_ENV"
+          echo "The harness is @ever-co/connect-tools@${version} (${actual})." | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: The route list is in step with the Next.js app router
+        run: node "$EGRESS_AUDIT" ui-routes --framework next-app --entry apps/web/app --out tools/egress-audit/ui-routes.json --check
+
+      - name: 'Control: a page missing from the route list must fail the check'
+        run: |
+          node -e '
+            const fs = require("fs");
+            const list = JSON.parse(fs.readFileSync("tools/egress-audit/ui-routes.json", "utf8"));
+            const index = list.routes.findIndex((route) => route.source === "router");
+            list.routes.splice(index, 1);
+            fs.writeFileSync(process.env.RUNNER_TEMP + "/ui-routes.missing.json", JSON.stringify(list, null, 2));
+          '
+          set +e
+          node "$EGRESS_AUDIT" ui-routes --framework next-app --entry apps/web/app --out "$RUNNER_TEMP/ui-routes.missing.json" --check
+          code=$?
+          set -e
+          if [ "$code" -ne 1 ]; then
+            echo "::error::a route list missing a page must fail the check (exit 1); it exited $code"
+            exit 1
+          fi
+          echo "The control failed as it must (exit 1)."
+
+      - name: The DOM baseline only shrinks
+        run: |
+          base="origin/${{ github.base_ref || 'develop' }}"
+          node "$EGRESS_AUDIT" check-baseline-shrink --base "$base" --file tools/egress-audit/ui-baseline.json
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build the web image under test
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./.deploy/web/Dockerfile
+          load: true
+          tags: ${{ env.TEAMS_WEB_IMAGE }}
+          cache-from: type=gha,scope=egress-audit-web
+          cache-to: type=gha,scope=egress-audit-web,mode=min
+          build-args: |
+            NEXT_PUBLIC_BUILD_SHA=${{ github.sha }}
+
+      - name: Pull the paired API image
+        run: |
+          docker pull "$GAUZY_API_IMAGE"
+          docker pull postgres:18-alpine
+          commit=$(docker image inspect "$GAUZY_API_IMAGE" --format '{{range .Config.Env}}{{println .}}{{end}}' | sed -n 's/^GAUZY_APP_COMMIT=//p')
+          echo "The paired API image was built from Gauzy commit ${commit:-<unknown>}." | tee -a "$GITHUB_STEP_SUMMARY"
+          docker system df
+          df -h /
+
+      - name: Secrets of this run
+        run: |
+          secret=$(openssl rand -hex 32)
+          password=$(openssl rand -hex 16)
+          echo "::add-mask::$secret"
+          echo "::add-mask::$password"
+          echo "TEAMS_AUDIT_SECRET=$secret" >> "$GITHUB_ENV"
+          echo "TEAMS_AUDIT_ADMIN_PASSWORD=$password" >> "$GITHUB_ENV"
+
+      - name: 'off: statistics and connection off'
+        if: ${{ !cancelled() }}
+        env:
+          AUDIT_GAUZY_STATS_ENABLED: 'false'
+          AUDIT_GAUZY_CONNECT_ENABLED: ''
+        run: node "$EGRESS_AUDIT" --config "$AUDIT_CONFIG" --mode off --legs api,browser --artifacts "$AUDIT_ARTIFACTS" --verbose
+
+      - name: 'loaded_off: loaded, switched off by the operator, not connected'
+        if: ${{ !cancelled() }}
+        env:
+          AUDIT_GAUZY_STATS_ENABLED: 'true'
+          AUDIT_GAUZY_CONNECT_ENABLED: 'true'
+        run: node "$EGRESS_AUDIT" --config "$AUDIT_CONFIG" --mode loaded_off --legs api,browser --artifacts "$AUDIT_ARTIFACTS" --verbose
+
+      - name: 'positive_stats: on, against the mock platform'
+        if: ${{ !cancelled() }}
+        env:
+          AUDIT_GAUZY_STATS_ENABLED: 'true'
+          AUDIT_GAUZY_CONNECT_ENABLED: ''
+        run: node "$EGRESS_AUDIT" --config "$AUDIT_CONFIG" --mode positive_stats --legs api,browser --artifacts "$AUDIT_ARTIFACTS" --verbose
+
+      - name: 'control: positive_stats without the mock platform must fail'
+        if: ${{ !cancelled() }}
+        env:
+          AUDIT_GAUZY_STATS_ENABLED: 'true'
+          AUDIT_GAUZY_CONNECT_ENABLED: ''
+        run: |
+          set +e
+          node "$EGRESS_AUDIT" --config "$AUDIT_CONFIG" --mode positive_stats --no-mock --legs api,browser --artifacts "$AUDIT_ARTIFACTS" --verbose
+          code=$?
+          set -e
+          if [ "$code" -ne 1 ]; then
+            echo "::error::without the mock platform the audit must report a violation (exit 1); it exited $code, so a green run could be a blind one"
+            exit 1
+          fi
+          echo "The control failed as it must (exit 1)."
+
+      - name: 'off: the browser never asked the connection health'
+        if: ${{ !cancelled() }}
+        run: |
+          node -e '
+            const fs = require("fs");
+            const file = `${process.env.AUDIT_ARTIFACTS}/off/browser/requests.json`;
+            if (!fs.existsSync(file)) { console.error(`::error::${file} is missing`); process.exit(1); }
+            const probes = JSON.parse(fs.readFileSync(file, "utf8")).filter((request) => {
+              try { return new URL(request.url).pathname.endsWith("/ever-connect/health") && request.resource !== "document"; } catch { return false; }
+            });
+            if (probes.length) { console.error(`::error::with the flag unset the UI asked health ${probes.length} time(s)`); process.exit(1); }
+            console.log("No health probe from the UI with the flag unset.");
+          '
+
+      - name: 'Static scan: Ever hosts in the client bundle'
+        if: ${{ !cancelled() }}
+        run: |
+          container=$(docker create "$TEAMS_WEB_IMAGE")
+          mkdir -p "$RUNNER_TEMP/web-static"
+          docker cp "$container:/app/apps/web/.next/static" "$RUNNER_TEMP/web-static/static"
+          docker rm "$container" > /dev/null
+          node "$EGRESS_AUDIT" static-hostnames --root "$RUNNER_TEMP/web-static" --all-files \
+            --optin-hosts tools/egress-audit/optin-hosts.json --baseline tools/egress-audit/ui-baseline.json
+
+      - name: Summary
+        if: ${{ !cancelled() }}
+        run: |
+          node -e '
+            const fs = require("fs"), path = require("path");
+            const dir = process.env.AUDIT_ARTIFACTS;
+            const rows = ["| Mode | Exit | Violations | DNS queries | Connection attempts | Calls | Browser |", "|---|---|---|---|---|---|---|"];
+            for (const mode of fs.existsSync(dir) ? fs.readdirSync(dir).sort() : []) {
+              const file = path.join(dir, mode, "report.json");
+              if (!fs.existsSync(file)) continue;
+              const r = JSON.parse(fs.readFileSync(file, "utf8"));
+              const rules = Object.entries(r.summary?.rules ?? {}).map(([k, v]) => `${k}: ${v}`).join(", ") || "none";
+              const calls = r.summary?.calls ? r.summary.calls.join(", ") || "none" : "-";
+              const browser = r.summary?.browser ? JSON.stringify(r.summary.browser) : "-";
+              rows.push(`| ${mode} | ${r.exit} | ${rules} | ${r.summary?.dns_queries ?? "-"} | ${r.summary?.connection_attempts ?? "-"} | ${calls} | ${browser} |`);
+            }
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## Egress audit\n\n${rows.join("\n")}\n\nThe positive_stats-nomock row is the control and must exit 1.\n`);
+          '
+
+      - name: Upload the evidence (pcaps, DNS logs, HAR, DOM references, reports)
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: egress-audit
+          path: ${{ env.AUDIT_ARTIFACTS }}
+          retention-days: 14

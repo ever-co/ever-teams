@@ -414,6 +414,118 @@ function routeResponse(method, pathname, requestUrl, data, fixture, state, body)
 	return pagination([]);
 }
 
+/**
+ * The paired API's Ever Platform routes (anonymous usage statistics and the connection's
+ * organization routes), as the Gauzy plugins answer them. Scenario switches: `statsPaired` (the API
+ * serves `teams` in EVER_STATS_SERVES: `state` exists), `statsEnabledUi` (the operator's switch),
+ * `statsOperator` (the signed-in person is the operator: the operator routes answer instead of 404),
+ * `connectHealth` (the connection module answers `health`) and `connectConnected`.
+ * Answers `{ status, payload }`, or null for every other route.
+ */
+function everPlatformResponse(method, pathname, request, state, body) {
+	const scenario = state.scenario;
+	const signedIn =
+		typeof request.headers.authorization === 'string' && request.headers.authorization.startsWith('Bearer ');
+	const notFound = { status: 404, payload: { statusCode: 404, message: 'Not Found' } };
+	const unauthorized = { status: 401, payload: { statusCode: 401, message: 'Unauthorized' } };
+	const operatorStatus = () => ({
+		enabled: scenario.statsEnabledUi !== false,
+		reason: scenario.statsEnabledUi === false ? 'ui' : null,
+		install_source: 'self-hosted',
+		instance_id: null,
+		key_id: 'fixture-key-id',
+		serves: ['gauzy', 'teams'],
+		country: 'ZZ',
+		api_url: 'http://127.0.0.1:3989',
+		next_send_at: null,
+		last_attempt: null,
+		key_warning: null,
+		schema_url: 'http://127.0.0.1:3989/v1/stats/schema/ever.stats.v1'
+	});
+
+	if (pathname === '/api/ever-stats/state' && method === 'GET') {
+		state.everPlatform.stateReads += 1;
+		if (scenario.statsPaired === false) return notFound;
+		return { status: 200, payload: { enabled: scenario.statsEnabledUi !== false } };
+	}
+	if (pathname.startsWith('/api/ever-stats/')) {
+		if (!signedIn) return unauthorized;
+		if (scenario.statsOperator === false) return notFound;
+		if (pathname === '/api/ever-stats/status' && method === 'GET') return { status: 200, payload: operatorStatus() };
+		if (pathname === '/api/ever-stats/enabled' && method === 'PUT') {
+			if (typeof body?.enabled !== 'boolean') {
+				return { status: 400, payload: { statusCode: 400, message: 'enabled must be true or false' } };
+			}
+			scenario.statsEnabledUi = body.enabled;
+			state.everPlatform.toggles.push({ enabled: body.enabled, withBearer: signedIn, keys: Object.keys(body).sort() });
+			return { status: 200, payload: operatorStatus() };
+		}
+		// `last` answers 404 until the API has sent a report.
+		return notFound;
+	}
+	if (pathname.startsWith('/api/ever-connect/')) {
+		if (!signedIn) return unauthorized;
+		if (scenario.connectHealth === false) return notFound;
+		const connected = scenario.connectConnected !== false;
+		if (pathname === '/api/ever-connect/health' && method === 'GET') return { status: 200, payload: { connected } };
+		if (pathname === '/api/ever-connect/status' && method === 'GET') {
+			return {
+				status: 200,
+				payload: {
+					enabled: true,
+					install_source: 'self-hosted',
+					managed_by: 'operator',
+					operator: true,
+					connected,
+					connection: null,
+					link: null,
+					pending_approvals: [],
+					in_product_consent: false
+				}
+			};
+		}
+		if (pathname === '/api/ever-connect/integrations' && method === 'GET') {
+			return {
+				status: 200,
+				payload: [
+					{
+						key: 'stats_link',
+						name: 'Statistics link',
+						description: 'Links the anonymous usage statistics of this installation to the organization.',
+						direction: 'out',
+						instance_wide: true,
+						app_ever_co_only: false,
+						scope_version: 1,
+						scope: [
+							{
+								field_path: 'stats.instance_id',
+								direction: 'out',
+								form: 'opaque id',
+								frequency: 'once',
+								purpose: 'link the statistics',
+								retention: 'while linked'
+							}
+						],
+						revoke_effect: 'unlinked',
+						state: 'not_linked',
+						enabled: false,
+						pending_remote_revoke: false,
+						revoke_source: null,
+						revoked_at: null,
+						consent: null,
+						policy: 'allowed'
+					}
+				]
+			};
+		}
+		if (pathname === '/api/ever-connect/entitlement' && method === 'GET') {
+			return { status: 200, payload: { instance: null, link: null } };
+		}
+		return notFound;
+	}
+	return null;
+}
+
 async function readJsonBody(request) {
 	const chunks = [];
 	for await (const chunk of request) chunks.push(chunk);
@@ -437,8 +549,14 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			requirePlanToTrack: false,
 			scope: 'A',
 			shareProfileView: false,
-			timerRunning: false
+			timerRunning: false,
+			statsPaired: true,
+			statsEnabledUi: true,
+			statsOperator: true,
+			connectHealth: true,
+			connectConnected: true
 		},
+		everPlatform: { stateReads: 0, toggles: [] },
 		mutationProof: {
 			startedTimer: false,
 			updatedTask: false,
@@ -484,17 +602,24 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 		if (delayMs > 0) await new Promise((resolve) => setTimeout(resolve, delayMs));
 		const body = await readJsonBody(request);
 		const data = buildData(fixture, state.scenario, requestUrl, typeof tenantId === 'string' ? tenantId : undefined);
-		const payload = routeResponse(method, requestUrl.pathname, requestUrl, data, fixture, state, body);
-		const status = 200;
+		const everPlatform = everPlatformResponse(method, requestUrl.pathname, request, state, body);
+		const payload = everPlatform
+			? everPlatform.payload
+			: routeResponse(method, requestUrl.pathname, requestUrl, data, fixture, state, body);
+		const status = everPlatform ? everPlatform.status : 200;
 		const endMs = performance.now() - state.startedAt;
-		state.requests.push({
-			method,
-			path: requestUrl.pathname,
-			query: requestUrl.searchParams.toString(),
-			startMs,
-			endMs,
-			status
-		});
+		// The web app's statistics reporter reads `state` every few seconds in the browser runs: counted, not
+		// recorded with the requests the pages make.
+		if (requestUrl.pathname !== '/api/ever-stats/state') {
+			state.requests.push({
+				method,
+				path: requestUrl.pathname,
+				query: requestUrl.searchParams.toString(),
+				startMs,
+				endMs,
+				status
+			});
+		}
 		response.writeHead(status, { ...cors, 'content-type': 'application/json; charset=utf-8' });
 		response.end(JSON.stringify(payload));
 	};
@@ -524,7 +649,11 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 	return {
 		origin: `http://127.0.0.1:${address.port}`,
 		requests: () => jsonClone(state.requests),
-		state: () => ({ scenario: jsonClone(state.scenario), mutationProof: jsonClone(state.mutationProof) }),
+		state: () => ({
+			scenario: jsonClone(state.scenario),
+			mutationProof: jsonClone(state.mutationProof),
+			everPlatform: jsonClone(state.everPlatform)
+		}),
 		reset: () => {
 			state.requests = [];
 			state.startedAt = performance.now();
@@ -535,8 +664,14 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 				requirePlanToTrack: false,
 				scope: 'A',
 				shareProfileView: false,
-				timerRunning: false
+				timerRunning: false,
+				statsPaired: true,
+				statsEnabledUi: true,
+				statsOperator: true,
+				connectHealth: true,
+				connectConnected: true
 			};
+			state.everPlatform = { stateReads: 0, toggles: [] };
 			state.mutationProof = {
 				startedTimer: false,
 				updatedTask: false,

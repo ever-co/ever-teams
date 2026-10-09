@@ -1,0 +1,5 @@
+{
+  "$schema": "../../node_modules/@ever-co/connect-tools/dist/egress-audit/optin-hosts.schema.json",
+  "description": "Features older than the Ever Platform settings that can reach an Ever host. Each is off in the default configuration and documented in docs/ever-platform/outbound-calls.md as an operator opt-in. Only the static scan reads this file.",
+  "hosts": []
+}

@@ -1,0 +1,5 @@
+{
+  "$schema": "../../node_modules/@ever-co/connect-tools/dist/egress-audit/ui-baseline.schema.json",
+  "description": "Links to Ever hosts the Teams UI rendered before the Ever Platform settings existed (branding defaults: the company, terms and privacy links). They excuse those DOM references only, never a DNS query, a connection attempt or a request, and the list may only shrink.",
+  "entries": []
+}

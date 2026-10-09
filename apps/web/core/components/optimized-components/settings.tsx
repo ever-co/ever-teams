@@ -112,6 +112,17 @@ export const LazyIntegrationSetting = dynamic(
 	}
 );
 
+// Ever Platform (optional): loaded only when the section shows
+export const LazyEverPlatformSection = dynamic(
+	() =>
+		import('@/core/components/pages/settings/team/ever-platform-section').then((mod) => ({
+			default: mod.EverPlatformSection
+		})),
+	{
+		ssr: false
+	}
+);
+
 export const LazyIssuesSettings = dynamic(
 	() =>
 		import('@/core/components/pages/settings/team/issues-settings').then((mod) => ({
