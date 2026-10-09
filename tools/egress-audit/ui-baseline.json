@@ -2,5 +2,402 @@
   "$schema": "../../node_modules/@ever-co/connect-tools/dist/egress-audit/ui-baseline.schema.json",
   "description": "Links to Ever hosts the Teams UI rendered before the Ever Platform settings existed (branding defaults: the company, terms and privacy links). They excuse those DOM references only, never a DNS query, a connection attempt or a request, and the list may only shrink.",
   "base_commit": "20617b0a45e14f1f0efe0acca094dfb79254c353",
-  "entries": []
+  "entries": [
+    {
+      "route": "/:locale",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/all-teams",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/all-teams",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/auth/accept-invite",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/auth/accept-invite",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/auth/error",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/auth/error",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/auth/forgot-password",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/auth/forgot-password",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/auth/passcode",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/auth/passcode",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/auth/password",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/auth/password",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/auth/reset-password",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/auth/reset-password",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/auth/signup",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/auth/signup",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/auth/social-welcome",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/auth/social-welcome",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/auth/workspace",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/auth/workspace",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/calendar",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/calendar",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/dashboard/app-url/:teamId",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/dashboard/app-url/:teamId",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/dashboard/team-dashboard/:teamId",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/dashboard/team-dashboard/:teamId",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/kanban",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/kanban",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/maintenance",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/maintenance",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/permissions",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/permissions",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/profile/:memberId",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/profile/:memberId",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/projects",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/projects",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/projects/:id",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/projects/:id",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/reports/time-and-activity",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/reports/time-and-activity",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/reports/timesheet/:memberId",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/reports/timesheet/:memberId",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/reports/weekly-limit",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/reports/weekly-limit",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/settings/team",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/settings/team",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/task/:id",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/task/:id",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/team/:teamId/:profileLink",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/team/:teamId/:profileLink",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/team/join",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/team/join",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/team/join",
+      "attribute": "href",
+      "url": "https://ever.team/privacy",
+      "reason": "PRIVACY_POLICY_LINK default: the privacy link of the sign-in pages (set PRIVACY_POLICY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/team/join",
+      "attribute": "href",
+      "url": "https://ever.team/tos",
+      "reason": "TERMS_LINK default: the terms link of the sign-in pages (set TERMS_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/team/tasks",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/team/tasks",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/:locale/verify-email",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/:locale/verify-email",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/auth/password",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/auth/password",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/auth/password",
+      "attribute": "href",
+      "url": "https://ever.team/privacy",
+      "reason": "PRIVACY_POLICY_LINK default: the privacy link of the sign-in pages (set PRIVACY_POLICY_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/auth/password",
+      "attribute": "href",
+      "url": "https://ever.team/tos",
+      "reason": "TERMS_LINK default: the terms link of the sign-in pages (set TERMS_LINK to rebrand, empty to hide it)"
+    },
+    {
+      "route": "/settings/team",
+      "attribute": "href",
+      "url": "https://app.ever.team/",
+      "reason": "APP_LINK default: the link of the app name in the footer (set APP_LINK to rebrand)"
+    },
+    {
+      "route": "/settings/team",
+      "attribute": "href",
+      "url": "https://ever.co/",
+      "reason": "COMPANY_LINK default: the company link of the footer (set COMPANY_LINK to rebrand, empty to hide it)"
+    }
+  ]
 }

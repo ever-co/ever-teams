@@ -40,4 +40,14 @@ configuration and are listed here with the setting that turns them on. They are 
 
 | Feature | Host | Turned on by |
 |---|---|---|
-| None so far | | |
+| Demo sign-in presets (the seeded demo accounts' e-mail addresses in the sign-in form; never contacted) | `ever.co` (addresses only) | `NEXT_PUBLIC_DEMO=true` |
+| Default cookie domain of the hosted app (a cookie attribute, used only when the app is served under it; never a request) | `ever.team` | `NEXT_PUBLIC_COOKIE_DOMAINS` unset |
+
+Branding links rendered by default (the company, app, terms and privacy links) point at Ever's sites until
+`COMPANY_LINK`, `APP_LINK`, `TERMS_LINK` and `PRIVACY_POLICY_LINK` are set (or emptied, for the optional
+ones). They are links a person may follow, never requests the app makes, and they are listed in
+[`tools/egress-audit/ui-baseline.json`](../../tools/egress-audit/ui-baseline.json), which may only shrink.
+
+The web app also loads two third-party images by default, which the audit allows by name
+(`allowed_external_hosts`): country flags from `purecatamphetamine.github.io` (the phone number field) and
+placeholder images from `dummyimage.com`. Neither is an Ever service.

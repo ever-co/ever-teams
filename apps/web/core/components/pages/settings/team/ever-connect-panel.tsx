@@ -38,7 +38,7 @@ function OrganizationLink({
 			<div className="flex flex-wrap items-center justify-between gap-3" data-testid="ever-connect-link">
 				<p className="text-sm">
 					{t('pages.settingsTeam.everPlatform.CONNECT_LINKED_AS')}{' '}
-					<span className="font-medium text-foreground">{handle ? `ever.co/${handle}` : '-'}</span>
+					<span className="font-medium text-foreground">{handle ? `@${handle}` : '-'}</span>
 				</p>
 				{integrationTenantId ? (
 					<button

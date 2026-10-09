@@ -205,7 +205,7 @@ async function assertSignedIn(page, ctx) {
 export default {
 	env: {
 		off: { ...WOULD_SHOW, NEXT_PUBLIC_EVER_CONNECT_ENABLED: null, [ADMIN_PASSWORD_KEY]: adminPassword() },
-		loaded_off: { ...WOULD_SHOW, NEXT_PUBLIC_EVER_CONNECT_ENABLED: 'true', [ADMIN_PASSWORD_KEY]: adminPassword() },
+		loaded_off: { EVER_STATS_API_URL: WOULD_SHOW.EVER_STATS_API_URL, NEXT_PUBLIC_EVER_CONNECT_ENABLED: 'true', [ADMIN_PASSWORD_KEY]: adminPassword() },
 		positive_stats: { NEXT_PUBLIC_EVER_CONNECT_ENABLED: null, [ADMIN_PASSWORD_KEY]: adminPassword() }
 	},
 
@@ -218,11 +218,18 @@ export default {
 
 		let organizationId = me?.employee?.organizationId ?? me?.lastOrganizationId ?? me?.defaultOrganizationId ?? null;
 		if (!organizationId) {
+			// The organization the web app opens for this person: the first of their user organizations
+			// (the query the web app itself sends), so the team made below is the one it shows.
 			try {
-				const organizations = itemsOf(await api(fetchImpl, session, tenantId, 'GET', '/organization'));
-				organizationId = organizations[0]?.id ?? null;
+				const query = new URLSearchParams({
+					'where[userId]': me.id,
+					'where[tenantId]': tenantId,
+					'relations[0]': 'organization'
+				});
+				const links = itemsOf(await api(fetchImpl, session, tenantId, 'GET', `/user-organization?${query}`));
+				organizationId = links.find((link) => link?.organizationId)?.organizationId ?? null;
 			} catch (error) {
-				log(`adapter: listing the organizations failed (${error.message}); creating one`);
+				log(`adapter: listing the user's organizations failed (${error.message}); creating one`);
 			}
 		}
 		if (!organizationId) {
@@ -254,7 +261,8 @@ export default {
 			memberIds: [],
 			public: true
 		});
-		log(`adapter: fixtures ready (organization, employee, team)`);
+		const members = itemsOf(team?.members).length;
+		log(`adapter: fixtures ready (organization ${organizationId === me?.employee?.organizationId ? 'of the employee' : 'resolved'}, employee ${me?.employee?.id ? 'existing' : 'created'}, team with ${members} member(s))`);
 		return {
 			tenantId,
 			organizationId,
