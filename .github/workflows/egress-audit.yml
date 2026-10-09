@@ -73,7 +73,7 @@ jobs:
 
       - name: Install the egress audit harness (the version and integrity yarn.lock pins)
         run: |
-          version=$(node -p "require('./package.json').devDependencies['@ever-co/connect-tools']")
+          version=$(node -p "require('./apps/web/package.json').devDependencies['@ever-co/connect-tools']")
           expected=$(awk -v key="\"@ever-co/connect-tools@${version}\":" '$0 == key { found = 1; next } found && /^  integrity / { print $2; exit }' yarn.lock)
           if [ -z "$expected" ]; then
             echo "::error::yarn.lock pins no integrity for @ever-co/connect-tools@${version}"
@@ -188,6 +188,29 @@ jobs:
             exit 1
           fi
           echo "The control failed as it must (exit 1)."
+
+      - name: 'Every browser walk was signed in'
+        if: ${{ !cancelled() }}
+        run: |
+          node -e '
+            // A walk that was not signed in renders only the sign-in page: it proves nothing about the settings.
+            const fs = require("fs");
+            const signedOut = new RegExp("/(auth|unauthorized)(/|$)");
+            let failed = false;
+            for (const mode of ["off", "loaded_off", "positive_stats"]) {
+              const file = `${process.env.AUDIT_ARTIFACTS}/${mode}/browser/visits.json`;
+              if (!fs.existsSync(file)) { console.error(`::error::${file} is missing: the ${mode} walk did not run`); failed = true; continue; }
+              const visits = JSON.parse(fs.readFileSync(file, "utf8")).visits ?? [];
+              const settings = visits.filter((visit) => visit.route === "/:locale/settings/team");
+              const path = (url) => { try { return new URL(url).pathname; } catch { return String(url); } };
+              const bad = settings.filter((visit) => !visit.ok || signedOut.test(path(visit.final ?? "")));
+              if (settings.length === 0 || bad.length > 0) {
+                console.error(`::error::${mode}: the walk was not signed in (settings/team ended on ${bad.map((visit) => path(visit.final ?? "") || visit.error).join(", ") || "nothing"})`);
+                failed = true;
+              } else console.log(`${mode}: signed in (settings/team ended on ${path(settings[0].final)})`);
+            }
+            process.exit(failed ? 1 : 0);
+          '
 
       - name: 'off: the browser never asked the connection health'
         if: ${{ !cancelled() }}

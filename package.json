@@ -283,7 +283,6 @@
 		"@cucumber/cucumber-expressions": "^19.0.0",
 		"@cucumber/gherkin": "^38.0.0",
 		"@cypress/browserify-preprocessor": "^3.0.2",
-		"@ever-co/connect-tools": "1.0.0-rc.4",
 		"@ever-teams/types": "*",
 		"@hapi/shot": "^6.0.1",
 		"@lerna/legacy-package-management": "^8.1.2",

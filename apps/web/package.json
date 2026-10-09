@@ -166,6 +166,7 @@
 	"devDependencies": {
 		"@eslint/js": "^9.38.1",
 		"@ever-co/connect-contracts": "1.0.0-rc.4",
+		"@ever-co/connect-tools": "1.0.0-rc.4",
 		"@ever-teams/eslint-config": "*",
 		"@ever-teams/ts-config": "*",
 		"@next/bundle-analyzer": "^16.1.1",

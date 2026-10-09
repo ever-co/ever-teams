@@ -10,7 +10,8 @@
 //   off in the paired API, where Teams reads the switch before every report.
 // - openSettings: every Ever Platform route of the web app, with its own method; in `off` each must
 //   answer 404.
-// - uiLogin: signs in through the web app's password sign-in page.
+// - uiLogin: signs in through the web app's password sign-in page, then proves the session works (a
+//   walk that is not signed in fails the run).
 // - routeParams: the ids only a run knows.
 
 const API = 'http://api:3000';
@@ -73,26 +74,33 @@ async function waitForApi(fetchImpl, log) {
 	throw new Error('the paired API never became ready');
 }
 
-/** Signs the seeded super admin in at the paired API: its token, refresh token and user. */
+/**
+ * Signs the seeded super admin in at the paired API (`POST /auth/login`): its token, refresh token and
+ * user. (`/auth/signin.email.password` answers the workspaces to choose from, not a session.)
+ */
 async function signIn(fetchImpl, password) {
-	let lastStatus = 0;
+	let last = 'no answer';
 	// The seed finishes after the API answers health: a few tries.
 	for (let attempt = 0; attempt < 30; attempt += 1) {
-		const response = await fetchImpl(`${API}/api/auth/signin.email.password`, {
-			method: 'POST',
-			headers: { 'content-type': 'application/json', accept: 'application/json' },
-			body: JSON.stringify({ email: ADMIN_EMAIL, password, includeTeams: true })
-		});
-		lastStatus = response.status;
-		const body = await json(response);
-		const token = body?.token ?? body?.access_token ?? body?.data?.token;
-		if (response.ok && typeof token === 'string') {
-			const refresh = body?.refresh_token?.token ?? body?.refresh_token ?? null;
-			return { token, refreshToken: typeof refresh === 'string' ? refresh : null, user: body?.user ?? {} };
+		try {
+			const response = await fetchImpl(`${API}/api/auth/login`, {
+				method: 'POST',
+				headers: { 'content-type': 'application/json', accept: 'application/json' },
+				body: JSON.stringify({ email: ADMIN_EMAIL, password })
+			});
+			const body = await json(response);
+			const token = body?.token;
+			if (response.ok && typeof token === 'string' && token) {
+				const refresh = body?.refresh_token;
+				return { token, refreshToken: typeof refresh === 'string' ? refresh : null, user: body?.user ?? {} };
+			}
+			last = `HTTP ${response.status}${response.ok ? ' without a token' : ''}`;
+		} catch (error) {
+			last = String(error?.message ?? error).split('\n')[0];
 		}
 		await sleep(10_000);
 	}
-	throw new Error(`the seeded admin could not sign in at the paired API (HTTP ${lastStatus})`);
+	throw new Error(`the seeded admin could not sign in at the paired API (${last})`);
 }
 
 function authHeaders(session, tenantId) {
@@ -116,6 +124,73 @@ async function api(fetchImpl, session, tenantId, method, path, body) {
 }
 
 const itemsOf = (data) => (Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : []);
+
+/** The page the sign-in is checked on: a team manager's settings, behind the sign-in. */
+const SIGNED_IN_CHECK_PAGE = '/en/settings/team';
+
+/** A path the web app sends a visitor without a session to. */
+const SIGNED_OUT_PATH = /\/(auth|unauthorized)(\/|$)/;
+
+const pathOf = (url) => {
+	try {
+		return new URL(url).pathname;
+	} catch {
+		return String(url);
+	}
+};
+
+/** The password sign-in page: e-mail and password, then the workspace step when it asks for one. */
+async function signInThroughThePage(page, ctx, password) {
+	await page.goto(`${ctx.baseUrl}/en/auth/password`, { waitUntil: 'load', timeout: 120_000 });
+	await page.fill('input[name=email]', ADMIN_EMAIL, { timeout: 30_000 });
+	await page.fill('input[name=password]', password, { timeout: 30_000 });
+	await page.click('button[type=submit]', { timeout: 30_000 });
+	const leftTheSignIn = (url) => !SIGNED_OUT_PATH.test(new URL(url).pathname);
+	try {
+		// One workspace with one team: the page continues on its own.
+		await page.waitForURL(leftTheSignIn, { timeout: 45_000 });
+	} catch {
+		// Otherwise it shows the workspaces, the first one selected: confirm it.
+		await page.click('form button[type=submit]:visible', { timeout: 30_000 });
+		await page.waitForURL(leftTheSignIn, { timeout: 120_000 });
+	}
+	await page.waitForLoadState('load');
+}
+
+/** The cookies the sign-in page sets, from the paired API's own sign-in. */
+async function setSessionCookies(page, ctx, password) {
+	const session = await signIn(ctx.fetch, password);
+	const fixtures = ctx.fixtures ?? {};
+	const cookies = {
+		'auth-token': session.token,
+		'auth-refresh-token': session.refreshToken,
+		'auth-tenant-id': fixtures.tenantId ?? session.user.tenantId,
+		'auth-organization-id': fixtures.organizationId,
+		'auth-active-team': fixtures.teamId,
+		'auth-user-id': fixtures.userId ?? session.user.id,
+		'auth-active-language': 'en',
+		'no-team-popup-show': 'true'
+	};
+	await page.context().addCookies(
+		Object.entries(cookies)
+			.filter(([, value]) => typeof value === 'string' && value)
+			.map(([name, value]) => ({ name, value, url: ctx.baseUrl, sameSite: 'Lax' }))
+	);
+}
+
+/** Opens a page behind the sign-in and throws unless it stays there. */
+async function assertSignedIn(page, ctx) {
+	const response = await page.goto(`${ctx.baseUrl}${SIGNED_IN_CHECK_PAGE}`, { waitUntil: 'load', timeout: 120_000 });
+	const landed = pathOf(page.url());
+	if (SIGNED_OUT_PATH.test(landed)) {
+		throw new Error(`the test sign-in did not work: ${SIGNED_IN_CHECK_PAGE} ended on ${landed}`);
+	}
+	const status = response?.status() ?? 0;
+	if (status >= 400) throw new Error(`the test sign-in did not work: ${SIGNED_IN_CHECK_PAGE} answered ${status}`);
+	if ((await page.locator('input[name=password]').count()) > 0) {
+		throw new Error(`the test sign-in did not work: ${SIGNED_IN_CHECK_PAGE} shows a password field`);
+	}
+}
 
 export default {
 	env: {
@@ -207,46 +282,27 @@ export default {
 	},
 
 	/**
-	 * Signs in through the web app's password sign-in page, as a person would. Should that page not finish
-	 * (a release that changed it), the session cookies the page would set are set from the paired API's
-	 * own sign-in instead, so the walk still covers every signed-in page; the log says which happened.
+	 * Signs in through the web app's password sign-in page, as a person would: e-mail and password, then
+	 * the workspace (chosen automatically for a single workspace with a single team, else confirmed here).
+	 * Should that page not finish (a release that changed it), the session cookies the page would set are
+	 * set from the paired API's own sign-in instead, so the walk still covers every signed-in page; the log
+	 * says which happened. Either way the hook then opens a signed-in page and throws when it ends on a
+	 * sign-in or "unauthorized" page: a run whose walk was not signed in is a fault, never a pass.
 	 */
 	async uiLogin(page, ctx) {
 		const password = ctx.env[ADMIN_PASSWORD_KEY];
-		await page.goto(`${ctx.baseUrl}/en/auth/password`, { waitUntil: 'load', timeout: 120_000 });
+		if (!password) throw new Error(`${ADMIN_PASSWORD_KEY} is not in the mode env: the sign-in cannot be tested`);
+		let how = 'the sign-in page';
 		try {
-			await page.fill('input[name=email]', ADMIN_EMAIL, { timeout: 30_000 });
-			await page.fill('input[name=password]', password, { timeout: 30_000 });
-			await Promise.all([
-				page.waitForURL((url) => !/\/auth\//.test(new URL(url).pathname), { timeout: 120_000 }),
-				page.click('button[type=submit]')
-			]);
-			await page.waitForLoadState('load');
-			ctx.log(`adapter: signed in through the sign-in page (now on ${new URL(page.url()).pathname})`);
-			return;
+			await signInThroughThePage(page, ctx, password);
 		} catch (error) {
 			const reason = String(error?.message ?? error).split('\n')[0];
 			ctx.log(`adapter: the sign-in page did not finish (${reason}); setting the session cookies instead`);
+			await setSessionCookies(page, ctx, password);
+			how = 'the session cookies';
 		}
-		const session = await signIn(ctx.fetch, password);
-		const fixtures = ctx.fixtures ?? {};
-		const cookies = {
-			'auth-token': session.token,
-			'auth-refresh-token': session.refreshToken,
-			'auth-tenant-id': fixtures.tenantId ?? session.user.tenantId,
-			'auth-organization-id': fixtures.organizationId,
-			'auth-active-team': fixtures.teamId,
-			'auth-user-id': fixtures.userId ?? session.user.id,
-			'auth-active-language': 'en',
-			'no-team-popup-show': 'true'
-		};
-		await page.context().addCookies(
-			Object.entries(cookies)
-				.filter(([, value]) => typeof value === 'string' && value)
-				.map(([name, value]) => ({ name, value, url: ctx.baseUrl, sameSite: 'Lax' }))
-		);
-		await page.goto(`${ctx.baseUrl}/en`, { waitUntil: 'load', timeout: 120_000 });
-		ctx.log(`adapter: signed in with the session cookies (now on ${new URL(page.url()).pathname})`);
+		await assertSignedIn(page, ctx);
+		ctx.log(`adapter: signed in with ${how}; ${SIGNED_IN_CHECK_PAGE} opened signed in`);
 	},
 
 	/** The ids of what createFixtures made; a placeholder for the pages of a project or a task. */
