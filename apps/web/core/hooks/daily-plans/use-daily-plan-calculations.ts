@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import { isTaskFinished } from '@/core/lib/helpers/task';
 
 /**
  * Shared calculations for daily plan derived state.
@@ -94,8 +95,8 @@ export function useDailyPlanCalculations(
 			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 			.map((plan) => ({
 				...plan,
-				// Include only non-completed tasks
-				tasks: plan.tasks?.filter((task: TTask) => task.status !== 'completed')
+				// Include only unfinished tasks
+				tasks: plan.tasks?.filter((task: TTask) => !isTaskFinished(task.status))
 			}))
 			.map((plan) => ({
 				...plan,
@@ -121,7 +122,7 @@ export function useDailyPlanCalculations(
 			const hasTimeOrEstimate =
 				(task.totalWorkedTime && task.totalWorkedTime > 0) || (task.estimate && task.estimate > 0);
 
-			return isAssignedToTargetEmployee && isNotInAnyPlan && hasTimeOrEstimate;
+			return isAssignedToTargetEmployee && isNotInAnyPlan && hasTimeOrEstimate && !isTaskFinished(task.status);
 		});
 
 		// Create a virtual plan for tasks not in any plan (if any exist)
