@@ -7,6 +7,7 @@ import { Transition } from '@headlessui/react';
 import { Button } from '@/core/components';
 import { SearchNormalIcon } from 'assets/svg';
 import { useState } from 'react';
+import { useAtomValue } from 'jotai';
 import { TaskUnOrAssignPopover } from '../../features/tasks/task-assign-popover';
 import { TaskLabelsDropdown, TaskPropertiesDropdown, TaskStatusDropdown } from '@/core/components/tasks/task-status';
 import { useTranslations } from 'next-intl';
@@ -16,6 +17,7 @@ import { Divider } from '@/core/components';
 
 import { AddManualTimeModalSkeleton } from '@/core/components/common/skeleton/calendar-component-skeletons';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
+import { dailyPlanVisibleTabsState } from '@/core/stores';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
 import { TaskDatePickerWithRange } from '../../tasks/task-date-range';
 import { DateRange } from 'react-day-picker';
@@ -226,7 +228,9 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 	const [key, setKey] = useState(0);
 	const t = useTranslations();
 	// Use useLocalStorageState for consistent state management
-	const [dailyPlanTab] = useLocalStorageState<string>('daily-plan-tab', 'Future Tasks');
+	const [storedDailyPlanTab] = useLocalStorageState<string>('daily-plan-tab', 'Future Tasks');
+	// Follow the tab UserProfilePlans shows: the stored value is only read on mount and goes stale on tab switches
+	const dailyPlanTab = useAtomValue(dailyPlanVisibleTabsState)[employeeId] ?? storedDailyPlanTab;
 
 	// Get plans data from useEmployeeDailyPlans instead of useDateRange to avoid global atom conflicts
 	const { employeeSortedPlans, employeeFuturePlans, employeePastPlans } = useEmployeeDailyPlans(employeeId);

@@ -25,3 +25,9 @@ export const dailyPlanListState = atom<PaginationResponse<TDailyPlan>>({
  * Daily plan date ranges keyed by employee and plan tab, read and written through `useDateRange`.
  */
 export const dailyPlanDateRangesState = atom<Record<string, DateRange | undefined>>({});
+
+/**
+ * Plan tab shown by `UserProfilePlans`, keyed by employee. The profile filter bar reads it so its
+ * date picker edits the range of the tab on screen, since it keeps its own copy of 'daily-plan-tab'.
+ */
+export const dailyPlanVisibleTabsState = atom<Record<string, string>>({});

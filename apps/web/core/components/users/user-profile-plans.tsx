@@ -1,5 +1,5 @@
 'use client';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { AlertPopup, Container } from '@/core/components';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -17,7 +17,7 @@ import {
 	HAS_VISITED_OUTSTANDING_TASKS
 } from '@/core/constants/config/constants';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
-import { activeTeamState } from '@/core/stores';
+import { activeTeamState, dailyPlanVisibleTabsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
@@ -93,6 +93,14 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	const { date: futureRange } = useDateRange('Future Tasks', targetEmployeeId);
 	const { date: pastRange } = useDateRange('Past Tasks', targetEmployeeId);
 	const { date: allRange } = useDateRange('All Tasks', targetEmployeeId);
+	const setVisibleTabs = useSetAtom(dailyPlanVisibleTabsState);
+
+	// The date picker of the profile filter bar lives in another tree: tell it which tab is on screen
+	useEffect(() => {
+		setVisibleTabs((prev) =>
+			prev[targetEmployeeId] === currentTab ? prev : { ...prev, [targetEmployeeId]: currentTab }
+		);
+	}, [setVisibleTabs, targetEmployeeId, currentTab]);
 
 	const filterPlanAndTask = useCallback(
 		(plans: TDailyPlan[]) => (filteredTaskIds ? filterDailyPlansByTasks(plans, filteredTaskIds) : plans),

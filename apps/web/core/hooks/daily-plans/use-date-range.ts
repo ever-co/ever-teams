@@ -1,4 +1,5 @@
-import { useAtom } from 'jotai';
+import { useMemo } from 'react';
+import { atom, useAtomValue, useSetAtom } from 'jotai';
 import { DateRange } from 'react-day-picker';
 import { dailyPlanDateRangesState } from '@/core/stores';
 
@@ -29,10 +30,11 @@ const getDateRangeKey = (tab: string): DateRangeKey => {
 };
 
 export const useDateRange = (tab: string, employeeId: string) => {
-	const [ranges, setRanges] = useAtom(dailyPlanDateRangesState);
-
 	const key = `${employeeId}:${getDateRangeKey(tab)}`;
-	const date = ranges[key];
+	// Read this entry only, so a range set for another employee or tab does not re-render this caller
+	const rangeAtom = useMemo(() => atom((get) => get(dailyPlanDateRangesState)[key]), [key]);
+	const date = useAtomValue(rangeAtom);
+	const setRanges = useSetAtom(dailyPlanDateRangesState);
 
 	const setDate = (next: DateRange | undefined) => {
 		setRanges((prev) => (prev[key] === next ? prev : { ...prev, [key]: next }));
