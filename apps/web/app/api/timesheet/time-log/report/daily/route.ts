@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { getTimeLogReportDailyRequest } from '@/core/services/server/requests/timesheet';
-import { ITimeLogRequestParams } from '@/core/services/server/requests/timesheet';
+import { ITimeLogRequestParams, readArrayParam } from '@/core/services/server/requests/timesheet';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -33,10 +33,10 @@ export async function GET(req: NextRequest) {
 			);
 		}
 
-		const projectIds = searchParams.getAll('projectIds[]');
-		const employeeIds = searchParams.getAll('employeeIds[]');
-		const taskIds = searchParams.getAll('taskIds[]');
-		const teamIds = searchParams.getAll('teamIds[]');
+		const projectIds = readArrayParam(searchParams, 'projectIds');
+		const employeeIds = readArrayParam(searchParams, 'employeeIds');
+		const taskIds = readArrayParam(searchParams, 'taskIds');
+		const teamIds = readArrayParam(searchParams, 'teamIds');
 
 		if (projectIds.length) params.projectIds = projectIds;
 		if (employeeIds.length) params.employeeIds = employeeIds;
