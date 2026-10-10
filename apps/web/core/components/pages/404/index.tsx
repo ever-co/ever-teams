@@ -1,5 +1,9 @@
 'use client';
-import { Button, Text } from '@/core/components';
+// By path, never through the '@/core/components' barrel: Next loads the root not-found boundary
+// (app/not-found.tsx) on every page, in chunks of its own, so the barrel would ship the whole
+// component and hook graph a second time.
+import { Button } from '@/core/components/common/button';
+import { Text } from '@/core/components/common/typography';
 import Link from 'next/link';
 import { moduleConstantsSawRuntimeEnv } from '@/env-config';
 // import { useTranslations } from 'next-intl';
