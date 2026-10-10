@@ -1250,6 +1250,7 @@
 		"TOTAL_TASK": "Tarefas totais",
 		"DAILY_PLAN_DESCRIPTION": "'Plano diário' ajuda a organizar o processo de trabalho para obter os melhores resultados",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Esta tarefa não foi planeada no plano de hoje. Gostaria de acrescentar ao plano?",
+		"TASK_ORDER_SAVE_FAILED": "Não foi possível guardar a nova ordem das tarefas. Tente novamente.",
 		"planned_tasks_popup": {
 			"warning": {
 				"PLANNED_TIME": "Por favor, adicione o tempo planejado",

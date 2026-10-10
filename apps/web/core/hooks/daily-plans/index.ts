@@ -8,3 +8,4 @@ export * from './use-team-daily-plans';
 export * from './use-update-daily-plan';
 export * from './use-delete-daily-plan';
 export * from './use-daily-plan-invalidation';
+export * from './use-daily-plan-task-order';
