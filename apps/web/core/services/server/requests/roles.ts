@@ -1,4 +1,5 @@
 import { IRole } from '@/core/types/interfaces/role/role';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { serverFetch } from '../fetch';
 
 export function getEmployeeRoleRequest({
@@ -28,7 +29,7 @@ export function getRolesRequest({ bearer_token, tenantId }: { bearer_token: stri
 }
 
 export function getTeamAssignableRolesRequest({ bearer_token, tenantId }: { bearer_token: string; tenantId: string }) {
-	return serverFetch<IRole>({
+	return serverFetch<PaginationResponse<IRole>>({
 		path: `/roles/team-assignable`,
 		method: 'GET',
 		bearer_token,
