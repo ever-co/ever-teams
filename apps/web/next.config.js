@@ -96,6 +96,15 @@ const nextConfig = {
 		],
 		// Turbopack caching is enabled by default in Next.js 16
 	},
+	turbopack: {
+		resolveAlias: {
+			// Turbopack ignores excludeDefaultMomentLocales, so the dynamic require('./locale/' + name) in
+			// moment.js bundles all 137 locale files on every route. The min build has no locale folder next
+			// to it, and the app only uses moment's built-in English locale. moment-timezone requires
+			// 'moment' too, so it resolves to the same instance.
+			moment: 'moment/min/moment.min.js'
+		}
+	},
 	transpilePackages: [
 		'geist',
 		'@ever-teams/constants',
