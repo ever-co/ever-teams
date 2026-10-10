@@ -40,6 +40,7 @@ configuration and are listed here with the setting that turns them on. They are 
 
 | Feature | Host | Turned on by |
 |---|---|---|
+| The hosted Gauzy API as the app's backend (everything the app does goes to its Gauzy API; this is the one used when none is configured, with a warning on a production server) | `api.ever.team` | `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL` unset, or set to it (as `.env.docker` does) |
 | Default cookie domain of the hosted app (a cookie attribute, used only when the app is served under it; never a request) | `ever.team` | `NEXT_PUBLIC_COOKIE_DOMAINS` unset |
 
 Branding links rendered by default (the company, app, terms and privacy links) point at Ever's sites until
