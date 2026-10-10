@@ -4,11 +4,14 @@ import qs from 'qs';
 import { APIService, getFallbackAPI } from '../../api.service';
 
 import { getActiveTaskIdCookie } from '@/core/lib/helpers/cookies';
+import { toTimeSlotDuration } from '@/core/lib/helpers/timer';
 import { ITimerStatus, IToggleTimerStatusParams } from '@/core/types/interfaces/timer/timer-status';
 import { TUser } from '@/core/types/schemas';
 import { scopedReadConfig, type ScopedReadOptions } from '../../api-request-scope';
 
 class TimerService extends APIService {
+	private lastTimeSlotSyncAt: number | null = null;
+
 	getTimerStatus = async (options?: ScopedReadOptions) => {
 		const tenantId = options?.scope.tenantId ?? this.tenantId;
 		const organizationId = options?.scope.organizationId ?? this.organizationId;
@@ -45,6 +48,7 @@ class TimerService extends APIService {
 
 	startTimer = async () => {
 		const taskId = getActiveTaskIdCookie();
+		this.lastTimeSlotSyncAt = Date.now();
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			await this.post('/timesheet/timer/start', {
@@ -75,17 +79,27 @@ class TimerService extends APIService {
 				tenantId: this.tenantId,
 				organizationId: this.organizationId
 			});
+			this.lastTimeSlotSyncAt = null;
 
 			return this.getTimerStatus();
 		}
 
 		const api = await getFallbackAPI();
-		return api.post<ITimerStatus>('/timer/stop', {
+		const response = await api.post<ITimerStatus>('/timer/stop', {
 			source
 		});
+		this.lastTimeSlotSyncAt = null;
+		return response;
 	};
 
 	syncTimer = async ({ source, user }: { source: ETimeLogSource; user?: TUser | null }) => {
+		// Advanced before the request so overlapping syncs never credit the same seconds twice.
+		const now = Date.now();
+		const duration = toTimeSlotDuration(
+			this.lastTimeSlotSyncAt === null ? undefined : (now - this.lastTimeSlotSyncAt) / 1000
+		);
+		this.lastTimeSlotSyncAt = now;
+
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			await this.post('/timesheet/time-slot', {
 				tenantId: this.tenantId,
@@ -93,7 +107,7 @@ class TimerService extends APIService {
 				logType: 'TRACKED',
 				source,
 				employeeId: user?.employee?.id,
-				duration: 5
+				duration
 			});
 
 			return this.getTimerStatus();
@@ -101,7 +115,8 @@ class TimerService extends APIService {
 
 		const api = await getFallbackAPI();
 		return api.post<ITimerStatus>('/timer/sync', {
-			source
+			source,
+			duration
 		});
 	};
 
