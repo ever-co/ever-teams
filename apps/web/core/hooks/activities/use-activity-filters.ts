@@ -19,6 +19,9 @@ export interface UseReportActivityProps
 	employeeIds?: string[];
 	teamIds?: string[];
 	groupBy?: string;
+	/** Ids applied through `updateFilters`, without the dashboard filter fallback: used in the report query key */
+	selectedEmployeeIds?: string[];
+	selectedTeamIds?: string[];
 }
 
 export type GroupByType = 'date' | 'project' | 'employee' | 'application' | 'daily' | 'weekly' | 'member';
@@ -139,8 +142,11 @@ export function useActivityFilters() {
 			endDate: (currentFilters.endDate || defaults.endDate) as string,
 			groupBy: (currentFilters.groupBy || defaults.groupBy) as string,
 			projectIds: (currentFilters.projectIds || defaults.projectIds) as string[],
-			employeeIds,
-			teamIds: teamIds,
+			// Members and teams applied through updateFilters win over the dashboard filter state
+			employeeIds: currentFilters.employeeIds?.length ? currentFilters.employeeIds : employeeIds,
+			teamIds: currentFilters.teamIds?.length ? currentFilters.teamIds : teamIds,
+			selectedEmployeeIds: currentFilters.employeeIds ?? [],
+			selectedTeamIds: currentFilters.teamIds ?? [],
 			activityLevel: {
 				start: currentFilters.activityLevel?.start ?? defaults.activityLevel.start,
 				end: currentFilters.activityLevel?.end ?? defaults.activityLevel.end
