@@ -54,6 +54,8 @@ describe('runtime env in the browser', () => {
 			NEXT_PUBLIC_CAPTCHA_TYPE: 'hcaptcha',
 			NEXT_PUBLIC_GAUZY_API_SERVER_URL: 'https://api.example.org',
 			NEXT_PUBLIC_DEMO: 'true',
+			// What the server publishes on a demo deployment (its default presets when none is configured).
+			NEXT_PUBLIC_DEMO_ACCOUNTS: '[{"type":"ADMIN","email":"demo@example.org","password":"demo-pass"}]',
 			APP_NAME: 'Acme Teams',
 			TERMS_LINK: 'https://example.org/terms'
 		};

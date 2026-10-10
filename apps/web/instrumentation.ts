@@ -1,4 +1,5 @@
 import type { Instrumentation } from 'next';
+import { isEverStatsEnabled } from './core/lib/ever-platform/env';
 
 // Server-side Sentry. Next.js calls register() once per runtime when the server starts — in the published Docker
 // image too, unlike next.config.js's withSentryConfig, which only matters when SENTRY_DSN is set at BUILD time
@@ -23,8 +24,22 @@ export async function register() {
 				process.exit(1);
 			}
 		}
+
+		// Demo deployments: the default sign-in presets, kept out of the client code (see the module).
+		const { applyDemoAccountDefaults } = await import('./core/lib/demo/default-demo-accounts');
+		applyDemoAccountDefaults();
+
 		const { initSentryServer } = await import('./sentry.server.config');
 		captureRequestError = (await initSentryServer())?.captureRequestError;
+
+		// Anonymous usage statistics (docs/ever-platform/anonymous-usage-statistics.md): loaded only when
+		// EVER_STATS_ENABLED is not 'false', and silent unless the paired API says its statistics are on.
+		if (isEverStatsEnabled()) {
+			const { startEverStats } = await import('./core/services/server/ever-stats/scheduler');
+			startEverStats();
+		} else {
+			console.info('ever_stats.reporter state=not_loaded (EVER_STATS_ENABLED=false)');
+		}
 	}
 
 	if (process.env.NEXT_RUNTIME === 'edge') {

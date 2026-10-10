@@ -6,6 +6,11 @@ import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag
 import { EManualTimeReasons } from '@/core/types/generics/enums/timer';
 import { EInviteStatus } from '@/core/types/generics/enums/invite';
 import { Shield, User2, UserCog } from 'lucide-react';
+import {
+	DEMO_ACCOUNTS_WARNING,
+	parseDemoAccountsJson,
+	type DemoAccountCredentials
+} from '@/core/lib/demo/demo-accounts';
 import { TStatusItem } from '@/core/types/interfaces/task/task-card';
 
 export const BREAKPOINTS = {
@@ -222,58 +227,20 @@ const DEMO_ACCOUNT_TYPES = {
 	ADMIN: { translationKey: 'DEMO_ADMIN', role: 'Admin', icon: Shield },
 	EMPLOYEE: { translationKey: 'DEMO_EMPLOYEE', role: 'Employee', icon: User2 }
 } as const;
-type DemoAccountType = keyof typeof DEMO_ACCOUNT_TYPES;
-type DemoAccountCredentials = { type: DemoAccountType; email: string; password: string; role?: string };
-
-// The accounts of the Gauzy demo seed, which Ever's demo runs on.
-const DEFAULT_DEMO_ACCOUNTS: DemoAccountCredentials[] = [
-	{ type: 'SUPER_ADMIN', email: 'admin@ever.co', password: 'admin' },
-	{ type: 'ADMIN', email: 'local.admin@ever.co', password: 'admin' },
-	// The Gauzy demo seed creates this account with '12345678', not '123456'. Verified against
-	// the live demo API on 2026-08-17: 123456 -> 401, 12345678 -> 200. With the wrong value the
-	// "Employee Demo" one-click login on demo.ever.team failed with 401 for every visitor.
-	{ type: 'EMPLOYEE', email: 'employee@ever.co', password: '12345678' }
-];
-
-const isDemoAccountCredentials = (value: unknown): value is DemoAccountCredentials => {
-	if (!value || typeof value !== 'object') return false;
-	const { type, email, password, role } = value as Record<string, unknown>;
-	return (
-		typeof type === 'string' &&
-		Object.hasOwn(DEMO_ACCOUNT_TYPES, type) &&
-		typeof email === 'string' &&
-		email.trim() !== '' &&
-		typeof password === 'string' &&
-		password !== '' &&
-		(role === undefined || typeof role === 'string')
-	);
-};
 
 /**
- * A demo deployment seeded with other accounts lists them in NEXT_PUBLIC_DEMO_ACCOUNTS, a JSON array of
- * `{ type, email, password, role? }` with at most one account per type. Any other value keeps the
- * defaults, with a warning (never the value itself).
+ * A demo deployment lists its sign-in presets in NEXT_PUBLIC_DEMO_ACCOUNTS, a JSON array of
+ * `{ type, email, password, role? }` with at most one account per type. Unset, the server fills in the
+ * accounts of the Gauzy demo seed at start (core/lib/demo/default-demo-accounts.ts, server only) and
+ * publishes them with the rest of the runtime env, so they never sit in the client code of a deployment
+ * that is not a demo. Any other value lists none, with a warning (never the value itself).
  */
 const parseDemoAccounts = (raw: string | undefined): DemoAccountCredentials[] => {
-	if (!raw) return DEFAULT_DEMO_ACCOUNTS;
-	try {
-		const accounts: unknown = JSON.parse(raw);
-		if (
-			Array.isArray(accounts) &&
-			accounts.every(isDemoAccountCredentials) &&
-			new Set(accounts.map((account) => account.type)).size === accounts.length
-		) {
-			return accounts;
-		}
-	} catch {
-		// Invalid JSON: reported below like any other invalid value.
-	}
-	warnOnce(
-		'NEXT_PUBLIC_DEMO_ACCOUNTS',
-		`NEXT_PUBLIC_DEMO_ACCOUNTS is ignored: expected a JSON array of { type, email, password, role? } with ` +
-			`one account per type (${Object.keys(DEMO_ACCOUNT_TYPES).join(', ')}).`
-	);
-	return DEFAULT_DEMO_ACCOUNTS;
+	if (!raw) return [];
+	const accounts = parseDemoAccountsJson(raw);
+	if (accounts) return accounts;
+	warnOnce('NEXT_PUBLIC_DEMO_ACCOUNTS', DEMO_ACCOUNTS_WARNING);
+	return [];
 };
 
 /**
