@@ -136,7 +136,8 @@ export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStop
 				stopTimer();
 				return;
 			case 'START_TIMER':
-				startTimer();
+				// startTimer reports its own failure, this only keeps the rejection from going unhandled
+				Promise.resolve(startTimer()).catch(() => undefined);
 				return;
 			case 'SHOW_MODAL':
 				modalDispatch[action.modal]();

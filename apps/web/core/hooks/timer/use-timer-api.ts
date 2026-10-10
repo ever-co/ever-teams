@@ -461,15 +461,21 @@ export function useTimerApi({
 				});
 			});
 
-			promise.catch(() => {
-				if (taskId.current) {
-					updateLocalTimerStatus({
-						lastTaskId: taskId.current,
-						runnedDateTime: 0,
-						running: false
-					});
-				}
-			});
+			promise
+				.catch((error) => {
+					if (taskId.current) {
+						updateLocalTimerStatus({
+							lastTaskId: taskId.current,
+							runnedDateTime: 0,
+							running: false
+						});
+					}
+					toast.error(t('timer.TIMER_START_FAILED'));
+					logErrorInDev('startTimer', error);
+				})
+				.finally(() => {
+					if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(false);
+				});
 			// Updating the task status to "In Progress" when the timer is started
 			if (taskToUse && taskToUse.status !== ETaskStatusName.IN_PROGRESS) {
 				const selectedStatus = taskStatuses.find(
@@ -503,10 +509,6 @@ export function useTimerApi({
 					});
 				}
 			}
-
-			promise.finally(() => {
-				if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(false);
-			});
 
 			return promise;
 		},
