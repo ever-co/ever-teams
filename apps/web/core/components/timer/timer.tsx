@@ -44,7 +44,6 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 		activeTaskEstimation,
 		ms_p,
 		canRunTimer,
-		timerHanlder,
 		timerStatus,
 		hasPlan,
 		startTimer,
@@ -87,20 +86,20 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 		}
 	}, [os, timerStatus?.running]);
 
-	// Handling Hotkeys
+	// Handling Hotkeys: same handler as the button, so the shortcut cannot skip the daily plan rules
 	const handleStartSTOPTimer = useCallback(
 		(e?: KeyboardEvent, h?: HotkeysEvent) => {
 			// Start Timer
 			if ((h?.shortcut === 'ctrl+option+]' || h?.shortcut === 'ctrl+alt+]') && !timerStatus?.running) {
-				timerHanlder();
+				startStopTimerHandler();
 			}
 
 			// Stop Timer
 			if ((h?.shortcut === 'ctrl+option+[' || h?.shortcut === 'ctrl+alt+[') && timerStatus?.running) {
-				timerHanlder();
+				startStopTimerHandler();
 			}
 		},
-		[timerHanlder, timerStatus]
+		[startStopTimerHandler, timerStatus]
 	);
 	useHotkeys(HostKeys.START_STOP_TIMER, handleStartSTOPTimer);
 
