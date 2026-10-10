@@ -1,5 +1,6 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import moment from 'moment';
 import qs from 'qs';
 import { APIService, getFallbackAPI } from '../../api.service';
 
@@ -8,12 +9,25 @@ import { ITimerStatus, IToggleTimerStatusParams } from '@/core/types/interfaces/
 import { TUser } from '@/core/types/schemas';
 import { scopedReadConfig, type ScopedReadOptions } from '../../api-request-scope';
 
+// Without these bounds Gauzy counts "today" from the API server's midnight, not the user's.
+// One clock read for both bounds, so a call at midnight cannot span two days.
+const getTodayRangeQuery = () => {
+	const now = moment();
+
+	return qs.stringify({
+		todayStart: now.clone().startOf('day').toISOString(),
+		todayEnd: now.clone().endOf('day').toISOString()
+	});
+};
+
 class TimerService extends APIService {
 	getTimerStatus = async (options?: ScopedReadOptions) => {
 		const tenantId = options?.scope.tenantId ?? this.tenantId;
 		const organizationId = options?.scope.organizationId ?? this.organizationId;
 		const params = qs.stringify({ tenantId, organizationId });
-		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/timesheet/timer/status?${params}` : '/timer/status';
+		const endpoint = GAUZY_API_BASE_SERVER_URL.value
+			? `/timesheet/timer/status?${params}&${getTodayRangeQuery()}`
+			: `/timer/status?${getTodayRangeQuery()}`;
 
 		return this.get<ITimerStatus>(endpoint, options ? scopedReadConfig(options) : undefined);
 	};
@@ -40,7 +54,7 @@ class TimerService extends APIService {
 		}
 
 		const api = await getFallbackAPI();
-		return api.post<ITimerStatus>('/timer/toggle', body);
+		return api.post<ITimerStatus>(`/timer/toggle?${getTodayRangeQuery()}`, body);
 	};
 
 	startTimer = async () => {
@@ -61,7 +75,7 @@ class TimerService extends APIService {
 		}
 
 		const api = await getFallbackAPI();
-		return api.post<ITimerStatus>('/timer/start');
+		return api.post<ITimerStatus>(`/timer/start?${getTodayRangeQuery()}`);
 	};
 
 	stopTimer = async ({ source }: { source: ETimeLogSource }) => {
@@ -80,7 +94,7 @@ class TimerService extends APIService {
 		}
 
 		const api = await getFallbackAPI();
-		return api.post<ITimerStatus>('/timer/stop', {
+		return api.post<ITimerStatus>(`/timer/stop?${getTodayRangeQuery()}`, {
 			source
 		});
 	};
@@ -100,7 +114,7 @@ class TimerService extends APIService {
 		}
 
 		const api = await getFallbackAPI();
-		return api.post<ITimerStatus>('/timer/sync', {
+		return api.post<ITimerStatus>(`/timer/sync?${getTodayRangeQuery()}`, {
 			source
 		});
 	};
