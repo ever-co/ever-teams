@@ -12,6 +12,7 @@ export function createQueryClientInstance(): QueryClient {
 				staleTime: 1000 * 60 * 5, // The data is considered "fresh" for 5 minutes
 				gcTime: 1000 * 60 * 60 * 24, // The cache is kept for 24 hours (garbage collection)
 				refetchOnWindowFocus: false, // Do not refetch automatically when the window regains focus
+				refetchOnReconnect: false, // Fetches paused while offline still resume; hooks that need a resync opt in
 				retry: 1 // Retry the request 1 time in case of failure
 			},
 			mutations: {
