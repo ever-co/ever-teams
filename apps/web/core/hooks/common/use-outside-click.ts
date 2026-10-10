@@ -4,6 +4,28 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useCallbackRef } from './use-callback-ref';
 
 type Func<T = any> = (el: T, nodeTarget: HTMLElement) => void;
+type BodyClickHandler = (ev: MouseEvent) => void;
+
+// All instances share one body listener: a team list mounts several of these hooks for every member row.
+const bodyClickHandlers = new Set<BodyClickHandler>();
+
+function dispatchBodyClick(ev: MouseEvent) {
+	// Snapshot like the DOM does for separate listeners: a handler added during this click waits for the next one,
+	// a handler removed during it is skipped.
+	for (const handler of Array.from(bodyClickHandlers)) {
+		if (bodyClickHandlers.has(handler)) handler(ev);
+	}
+}
+
+function subscribeBodyClick(handler: BodyClickHandler) {
+	if (bodyClickHandlers.size === 0) document.body.addEventListener('click', dispatchBodyClick);
+	bodyClickHandlers.add(handler);
+
+	return () => {
+		bodyClickHandlers.delete(handler);
+		if (bodyClickHandlers.size === 0) document.body.removeEventListener('click', dispatchBodyClick);
+	};
+}
 
 export function useOutsideClick<T extends HTMLElement>(onClickOuSide?: Func) {
 	const targetEl = useRef<T>(null);
@@ -28,10 +50,7 @@ export function useOutsideClick<T extends HTMLElement>(onClickOuSide?: Func) {
 			onClickOuSideRef.current && onClickOuSideRef.current(el, ev.target as HTMLElement);
 		};
 
-		document.body.addEventListener('click', onBodyClick);
-		return () => {
-			document.body.removeEventListener('click', onBodyClick);
-		};
+		return subscribeBodyClick(onBodyClick);
 	}, [onClickOuSideRef]);
 
 	const onOutsideClick = useCallback(
@@ -41,8 +60,10 @@ export function useOutsideClick<T extends HTMLElement>(onClickOuSide?: Func) {
 		[onClickOuSideRef]
 	);
 
+	// Callers wrap this in mergeRefs() during render, so React calls it with null then the node on every
+	// render: keep each node once or the list grows for as long as the component lives.
 	const ignoreElementRef = useCallback((el: any) => {
-		refs.current.push(el);
+		if (el && !refs.current.includes(el)) refs.current.push(el);
 	}, []);
 
 	return {
