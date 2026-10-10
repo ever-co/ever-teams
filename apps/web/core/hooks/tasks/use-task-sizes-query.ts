@@ -20,7 +20,7 @@ import { updateTaskMetadataSectionCaches } from './task-metadata-cache';
  * - `loadTaskSizes` / `firstLoadTaskSizesData` — legacy backward compat
  */
 export function useTaskSizesQuery() {
-	const { queryClient, teamId } = useInvalidateTaskSizes();
+	const { queryClient, teamId, organizationId, tenantId } = useInvalidateTaskSizes();
 	const { firstLoadData: firstLoadTaskSizesData } = useFirstLoad();
 	const taskMetadataQuery = useTaskMetadataBootstrapQuery();
 
@@ -30,7 +30,7 @@ export function useTaskSizesQuery() {
 			const res = await taskSizeService.getTaskSizes();
 			return res;
 		},
-		enabled: !taskMetadataQuery.useBootstrap
+		enabled: !taskMetadataQuery.useBootstrap && Boolean(teamId && organizationId && tenantId)
 	});
 
 	const taskSizesData = taskMetadataQuery.useBootstrap ? taskMetadataQuery.data?.taskSizes : taskSizesQuery.data;
