@@ -14,7 +14,7 @@
 		"/api/ever-connect/status"
 	],
 	"adapter": "adapter.mjs",
-	"wait_s": 120,
+	"wait_s": 660,
 	"allowed_external_hosts": ["purecatamphetamine.github.io", "dummyimage.com"],
 	"web_service": "webapp",
 	"web_url": "http://webapp:3030",

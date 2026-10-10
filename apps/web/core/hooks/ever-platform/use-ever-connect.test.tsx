@@ -24,7 +24,10 @@ jest.mock('@/core/hooks/auth/use-reactive-access-token-cookie', () => ({
 	useReactiveAccessTokenCookie: () => mockToken
 }));
 
-import { useEverConnectAvailable } from './use-ever-connect';
+import { createStore, Provider } from 'jotai';
+import { activeTeamIdState, organizationTeamsState } from '@/core/stores/teams/organization-team';
+import type { TOrganizationTeam } from '@/core/types/schemas';
+import { useEverConnectAvailable, useEverPlatformScope } from './use-ever-connect';
 
 const ORIGINAL_ENV = process.env;
 
@@ -88,5 +91,38 @@ describe('useEverConnectAvailable', () => {
 		await waitFor(() => expect(mockHealth).toHaveBeenCalled());
 		await act(() => new Promise((resolve) => setTimeout(resolve, 20)));
 		expect(result.current.available).toBe(false);
+	});
+});
+
+describe('useEverPlatformScope', () => {
+	function withStore(store: ReturnType<typeof createStore>) {
+		return function StoreWrapper({ children }: { children: ReactNode }) {
+			return <Provider store={store}>{children}</Provider>;
+		};
+	}
+
+	const team = (id: string, organizationId: string) => ({ id, organizationId }) as unknown as TOrganizationTeam;
+
+	it("acts on the selected team's organization, not the person's own", () => {
+		const store = createStore();
+		store.set(organizationTeamsState, [team('team-1', 'org-1'), team('team-2', 'org-2')]);
+		store.set(activeTeamIdState, 'team-2');
+		const { result } = renderHook(() => useEverPlatformScope(), { wrapper: withStore(store) });
+		expect(result.current.organizationId).toBe('org-2');
+	});
+
+	it('follows a change of the selected team', () => {
+		const store = createStore();
+		store.set(organizationTeamsState, [team('team-1', 'org-1'), team('team-2', 'org-2')]);
+		store.set(activeTeamIdState, 'team-1');
+		const { result } = renderHook(() => useEverPlatformScope(), { wrapper: withStore(store) });
+		expect(result.current.organizationId).toBe('org-1');
+		act(() => store.set(activeTeamIdState, 'team-2'));
+		expect(result.current.organizationId).toBe('org-2');
+	});
+
+	it("falls back to the person's own organization while no team is loaded", () => {
+		const { result } = renderHook(() => useEverPlatformScope(), { wrapper: withStore(createStore()) });
+		expect(result.current.organizationId).toBe('org-1');
 	});
 });

@@ -1,11 +1,13 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 import { isEverConnectFlagOn } from '@/core/lib/ever-platform/env';
 import { queryKeys } from '@/core/query/keys';
 import { CREDENTIAL_SCOPED_QUERY_META } from '@/core/query/credential-query';
 import { everConnectService } from '@/core/services/client/api/ever-platform/ever-connect.service';
+import { activeTeamState } from '@/core/stores/teams/organization-team';
 import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
 import { useUserQuery } from '../queries/user-user.query';
 
@@ -13,21 +15,31 @@ import { useUserQuery } from '../queries/user-user.query';
 export const EVER_CONNECT_HEALTH_STALE_MS = 5 * 60 * 1000;
 
 /**
- * The signed-in person's scope: their own token and tenant, and the organization the settings act on.
- * Nothing is asked of the paired API without a signed-in person.
+ * The signed-in person's scope: their own token and tenant, and the organization the settings act on:
+ * the selected team's organization (a manager may select a team of another organization than their
+ * own), else their own. Nothing is asked of the paired API without a signed-in person.
  */
 function useEverPlatformScope() {
 	const { data: user } = useUserQuery();
+	const activeTeam = useAtomValue(activeTeamState);
 	const accessToken = useReactiveAccessTokenCookie();
+	const activeTeamOrganizationId = activeTeam?.organizationId ?? null;
 	return useMemo(
 		() => ({
 			tenantId: user?.tenantId ?? null,
-			organizationId: user?.employee?.organizationId ?? user?.lastOrganizationId ?? null,
+			organizationId: activeTeamOrganizationId ?? user?.employee?.organizationId ?? user?.lastOrganizationId ?? null,
 			userId: user?.id ?? null,
 			accessToken: accessToken ?? null,
 			signedIn: Boolean(user?.id && accessToken)
 		}),
-		[user?.tenantId, user?.employee?.organizationId, user?.lastOrganizationId, user?.id, accessToken]
+		[
+			user?.tenantId,
+			activeTeamOrganizationId,
+			user?.employee?.organizationId,
+			user?.lastOrganizationId,
+			user?.id,
+			accessToken
+		]
 	);
 }
 

@@ -230,9 +230,17 @@ describe('switched off', () => {
 
 	it('EVER_STATS_ENABLED=false: register() loads no statistics module', async () => {
 		process.env.EVER_STATS_ENABLED = 'false';
-		await require('@/instrumentation').register();
-		expect(mockSchedulerLoads).toBe(0);
-		expect(mockStart).not.toHaveBeenCalled();
+		const info = jest.spyOn(console, 'info').mockImplementation(() => undefined);
+		try {
+			await require('@/instrumentation').register();
+			expect(mockSchedulerLoads).toBe(0);
+			expect(mockStart).not.toHaveBeenCalled();
+			expect(info.mock.calls.map((call) => String(call[0]))).toContain(
+				'ever_stats.reporter state=not_loaded (EVER_STATS_ENABLED=false)'
+			);
+		} finally {
+			info.mockRestore();
+		}
 	});
 
 	it('(control) unset: register() loads and starts the reporter once', async () => {
