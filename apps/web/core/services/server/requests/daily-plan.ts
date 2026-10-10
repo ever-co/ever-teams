@@ -141,6 +141,23 @@ export function getPlansByTask({
 	});
 }
 
+export function getPlanByIdRequest({
+	planId,
+	bearer_token,
+	tenantId
+}: {
+	planId: string;
+	bearer_token?: string;
+	tenantId?: string;
+}) {
+	return serverFetch<IDailyPlan>({
+		path: `/daily-plan/${planId}`,
+		method: 'GET',
+		bearer_token,
+		tenantId
+	});
+}
+
 export function createPlanRequest({
 	data,
 	bearer_token,
