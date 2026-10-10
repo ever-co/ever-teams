@@ -15,6 +15,18 @@ import { getShellCriticalQueryKeys, useScopeTransitionGuard } from './use-scope-
 
 const SHELL_REFRESH_INTERVAL = 60_000;
 
+// Team detail cadence: faster with a refresh on tab return while a team view is mounted, off without auto refresh.
+function getTeamDetailRefresh(
+	autoRefreshEnabled: boolean,
+	teamPresenceViewActive: boolean
+): { interval: number | false; onWindowFocus: boolean } {
+	if (!autoRefreshEnabled) return { interval: false, onWindowFocus: false };
+	return {
+		interval: teamPresenceViewActive ? TEAM_PRESENCE_REFRESH_INTERVAL : SHELL_REFRESH_INTERVAL,
+		onWindowFocus: teamPresenceViewActive
+	};
+}
+
 export function AppState() {
 	const { data: user } = useUserQuery();
 	return <>{user && <InitState />}</>;
@@ -46,13 +58,13 @@ export function InitState() {
 		[accessToken, organizationId, tenantId, user?.id]
 	);
 	const teamPresenceViewActive = useAtomValue(teamPresenceViewCountState) > 0;
-	const detailRefreshInterval = teamPresenceViewActive ? TEAM_PRESENCE_REFRESH_INTERVAL : SHELL_REFRESH_INTERVAL;
+	const teamDetailRefresh = getTeamDetailRefresh(autoRefreshEnabled, teamPresenceViewActive);
 	const teamOwner = useOrganizationTeamsQuery({
 		enabled: workspaceReady,
 		scope: baseScope,
 		refetchInterval: autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false,
-		detailRefetchInterval: autoRefreshEnabled ? detailRefreshInterval : false,
-		detailRefetchOnWindowFocus: autoRefreshEnabled && teamPresenceViewActive
+		detailRefetchInterval: teamDetailRefresh.interval,
+		detailRefetchOnWindowFocus: teamDetailRefresh.onWindowFocus
 	});
 	const { activeTeam, teams } = teamOwner;
 	const teamReady = !!(
