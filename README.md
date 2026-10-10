@@ -247,6 +247,7 @@ We have Ever Teams Docker images published into:
 
 _Notes:_
 - _By default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see the [Run with a Self-hosted Backend](#run-with-a-self-hosted-backend) section below._
+- _`yarn start:web:dev` runs `next dev` with Turbopack, which compiles each page the first time it is requested. The `Ready in ...` line only means the server is listening, so with an empty cache the first visit to a page can still take several seconds. The compiler cache lives in `apps/web/.next/dev` and is reused after a restart: keep that folder between sessions, because deleting `.next` makes every page compile from scratch again._
 
 ### Run with a Self-hosted Backend
 
