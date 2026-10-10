@@ -4,6 +4,7 @@ import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { useUpdateTimesheet } from '@/core/hooks/timesheet/use-update-timesheet';
 import { useDeleteTimesheet } from '@/core/hooks/timesheet/use-delete-timesheet';
+import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 
 type ActionButtonProps = {
 	label: string;
@@ -21,8 +22,8 @@ const ActionButton = ({ label, onClick }: ActionButtonProps) => (
 
 interface SelectionBarProps {
 	selectedCount: number;
-	onApprove: () => void;
-	onReject: () => void;
+	onApprove?: () => void;
+	onReject?: () => void;
 	onDelete: () => void;
 	onClearSelection: () => void;
 }
@@ -38,8 +39,12 @@ export const SelectionBar = ({ selectedCount, onApprove, onReject, onDelete, onC
 					</div>
 					<span>selected</span>
 				</div>
-				<ActionButton label={t('pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED')} onClick={onApprove} />
-				<ActionButton label={t('pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED')} onClick={onReject} />
+				{onApprove && (
+					<ActionButton label={t('pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED')} onClick={onApprove} />
+				)}
+				{onReject && (
+					<ActionButton label={t('pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED')} onClick={onReject} />
+				)}
 				<ActionButton label={t('pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED')} onClick={onDelete} />
 			</div>
 			<button
@@ -72,6 +77,8 @@ interface SelectedTimesheetProps {
 export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({ selectTimesheetId, setSelectTimesheetId }) => {
 	const { updateTimesheetStatus } = useUpdateTimesheet();
 	const { deleteTaskTimesheet } = useDeleteTimesheet();
+	// Approve and reject call PUT /timesheet/status, which requires this permission
+	const canUpdateTimeSheetStatus = useMyRolePermissionsQuery().myPermissions.includes('CAN_APPROVE_TIMESHEET');
 
 	const getSelectedIds = useCallback(
 		() => selectTimesheetId.map((select) => select.timesheet?.id).filter((id): id is string => Boolean(id)),
@@ -116,8 +123,8 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({ selectTime
 	return (
 		<SelectionBar
 			selectedCount={selectTimesheetId.length}
-			onApprove={handleApprove}
-			onReject={handleReject}
+			onApprove={canUpdateTimeSheetStatus ? handleApprove : undefined}
+			onReject={canUpdateTimeSheetStatus ? handleReject : undefined}
 			onDelete={handleDelete}
 			onClearSelection={() => setSelectTimesheetId([])}
 		/>
