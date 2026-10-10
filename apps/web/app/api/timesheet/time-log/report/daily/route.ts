@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { getTimeLogReportDailyRequest } from '@/core/services/server/requests/timesheet';
-import { ITimeLogRequestParams } from '@/core/services/server/requests/timesheet';
+import { ITimeLogRequestParams, readArrayParam } from '@/core/services/server/requests/timesheet';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -33,15 +33,11 @@ export async function GET(req: NextRequest) {
 			);
 		}
 
-		const projectIds = searchParams.getAll('projectIds[]');
-		const employeeIds = searchParams.getAll('employeeIds[]');
-		const taskIds = searchParams.getAll('taskIds[]');
-		const teamIds = searchParams.getAll('teamIds[]');
-
-		if (projectIds.length) params.projectIds = projectIds;
-		if (employeeIds.length) params.employeeIds = employeeIds;
-		if (taskIds.length) params.taskIds = taskIds;
-		if (teamIds.length) params.teamIds = teamIds;
+		// The same four array filters that buildTimeLogParams forwards to Gauzy
+		for (const key of ['projectIds', 'employeeIds', 'taskIds', 'teamIds'] as const) {
+			const values = readArrayParam(searchParams, key);
+			if (values.length) params[key] = values;
+		}
 
 		const activityLevelStart = searchParams.get('activityLevel[start]');
 		const activityLevelEnd = searchParams.get('activityLevel[end]');

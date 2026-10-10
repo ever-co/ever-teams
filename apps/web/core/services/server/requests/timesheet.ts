@@ -235,6 +235,22 @@ function buildTimeLogParams(params: ITimeLogRequestParams): URLSearchParams {
 	return baseParams;
 }
 
+/**
+ * Reads an array query parameter sent as `key[]=a&key[]=b` or as `key[0]=a&key[1]=b`.
+ * The web client sends the indexed form, which `searchParams.getAll('key[]')` never matches.
+ */
+export function readArrayParam(searchParams: URLSearchParams, key: string): string[] {
+	const values: string[] = [];
+
+	searchParams.forEach((value, name) => {
+		if (name.startsWith(key) && /^\[\d*\]$/.test(name.slice(key.length))) {
+			values.push(value);
+		}
+	});
+
+	return values;
+}
+
 export async function getTimeLogReportDailyChartRequest(params: ITimeLogRequestParams, bearer_token?: string) {
 	const queries = buildTimeLogParams(params);
 
