@@ -216,7 +216,8 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			if (!isRenderedInSoftFlow) {
 				handleCloseModal();
 			}
-			startTimer();
+			// startTimer reports its own failure, this only keeps the rejection from going unhandled
+			startTimer()?.catch(() => undefined);
 		} else {
 			openActiveTaskHandlerModal();
 		}

@@ -88,8 +88,8 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 			window.scrollTo({ top: 0, behavior: 'smooth' });
 			toast.success(t('timer.TIMER_STARTED'), { id: toastId });
 		} catch (error) {
-			// Show error message
-			toast.error(t('timer.TIMER_START_FAILED'), { id: toastId });
+			// startTimer already shows the failure toast, so only the loading one is left to clear
+			toast.dismiss(toastId);
 			console.error('Failed to start timer:', error);
 		}
 	}, [task, timerStatus?.running, setActiveTask, activeTeam, startTimer, handleStop, t]);

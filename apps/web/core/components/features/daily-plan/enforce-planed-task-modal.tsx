@@ -16,7 +16,7 @@ interface IEnforcePlannedTaskModalProps {
 	task: TTask;
 	plan: TDailyPlan;
 	content: ReactNode;
-	onOK?: () => void;
+	onOK?: () => void | Promise<unknown>;
 	openDailyPlanModal?: () => void;
 }
 
@@ -53,14 +53,18 @@ export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 				plan.id
 			).then(() => {
 				closeModal();
+				// onOK may start the timer, which reports its own failure; this only keeps the rejection from going unhandled
+				const runOnOK = () => {
+					Promise.resolve(onOK?.()).catch(() => undefined);
+				};
 				if (requirePlan) {
 					if (hasWorkedHours && areAllTasksEstimated && task.estimate) {
-						onOK?.();
+						runOnOK();
 					} else {
 						openDailyPlanModal?.();
 					}
 				} else {
-					onOK?.();
+					runOnOK();
 				}
 			});
 		}
