@@ -176,5 +176,11 @@ ENV NEXT_PUBLIC_DISABLE_AUTO_REFRESH=false
 EXPOSE 3030
 ENV PORT=3030
 
+# For Docker, Compose and Swarm (Kubernetes ignores it and probes /api/health itself). The standalone server
+# binds HOSTNAME, which Docker sets to the container's own name, so 127.0.0.1 may not answer. node, because
+# the slim image has neither curl nor wget.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+	CMD ["node", "-e", "require('http').get({ host: process.env.HOSTNAME || '127.0.0.1', port: process.env.PORT || 3030, path: '/api/health' }, (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+
 # Start Next.js server
 CMD ["node", "./apps/web/server.js"]
