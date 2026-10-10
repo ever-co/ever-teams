@@ -659,6 +659,9 @@ export function useTimerApi({
 					const timeSinceLastStop = Date.now() - lastStopTimerTimestamp.current;
 					if (timeSinceLastStop > STOP_TIMER_EFFECT_DEBOUNCE_MS) {
 						stopTimer();
+						toast.info(t('timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_TITLE'), {
+							description: t('timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_DESCRIPTION')
+						});
 					}
 				}
 			}
@@ -712,7 +715,8 @@ export function useTimerApi({
 		setTimerStatus,
 		queryClient,
 		user,
-		updateOrganizationTeamEmployeeActiveTask
+		updateOrganizationTeamEmployeeActiveTask,
+		t
 	]);
 
 	// Track active task changes separately to keep lastActiveTask.current in sync
@@ -739,6 +743,9 @@ export function useTimerApi({
 				const timeSinceLastStop = Date.now() - lastStopTimerTimestamp.current;
 				if (timeSinceLastStop > STOP_TIMER_EFFECT_DEBOUNCE_MS) {
 					stopTimer();
+					toast.info(t('timer.TASK_SWITCH.STOPPED_TIMER_TOAST_TITLE'), {
+						description: t('timer.TASK_SWITCH.STOPPED_TIMER_TOAST_DESCRIPTION')
+					});
 				}
 			}
 		}
@@ -746,7 +753,7 @@ export function useTimerApi({
 		if (currentTaskId) {
 			lastActiveTaskId.current = currentTaskId;
 		}
-	}, [firstLoad, activeTeamTask?.id, stopTimer, timerStatusRef, isUpdatingActiveTask]);
+	}, [firstLoad, activeTeamTask?.id, stopTimer, timerStatusRef, isUpdatingActiveTask, t]);
 
 	// ==================== FILTERED TIMER STATUS ====================
 

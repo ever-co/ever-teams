@@ -1117,6 +1117,10 @@
 			"STOPPED_TIMER_TOAST_TITLE": "Zatrzymany Timer",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Zatrzymano Timer z powodu zmiany zespołu"
 		},
+		"TASK_SWITCH": {
+			"STOPPED_TIMER_TOAST_TITLE": "Zatrzymany Timer",
+			"STOPPED_TIMER_TOAST_DESCRIPTION": "Zatrzymano Timer z powodu zmiany aktywnego zadania"
+		},
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Szacunek"
 		},
