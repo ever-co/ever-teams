@@ -348,8 +348,6 @@ export const queryKeys = {
 		// Standard task keys (preserved for backward compatibility)
 		all: ['tasks'] as const,
 		detail: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : [])] as const,
-		byEmployee: (employeeId: string | undefined | null, teamId: string | undefined | null) =>
-			['tasks', 'by-employee', ...(employeeId ? [employeeId] : []), ...(teamId ? [teamId] : [])] as const,
 		byTeam: (teamId: string | undefined | null) => ['tasks', 'by-team', ...(teamId ? [teamId] : [])] as const,
 		byTeamByScope: (
 			tenantId: string | undefined | null,
