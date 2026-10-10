@@ -20,6 +20,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { timerService } from '@/core/services/client/api/timers';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { isRunningTeamsLog } from '@/core/lib/helpers/timer-policy';
 import { useIsMemberManager } from '../organizations';
 import { useUserProfilePage } from '../users';
 import { TUser } from '@/core/types/schemas';
@@ -183,9 +185,16 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		clearChatHistoryForUser(user?.id);
 
 		// A TEAMS timer left running would keep counting after logout: stop it while the session still
-		// exists, without letting a failed or slow request hold the logout back.
+		// exists, without letting a failed or slow request hold the logout back. Past the server's midnight
+		// the status reads stopped while the last log still runs (useTimerRunningPastMidnight): check it too.
 		const timerStatus = store.get(timerStatusState);
-		if (timerStatus?.running && timerStatus.lastLog?.source === ETimeLogSource.TEAMS) {
+		const pastMidnightLog = timerStatus?.running
+			? null
+			: queryClient.getQueryData<ITimeLog | null>(queryKeys.timer.lastLog(user?.employee?.id));
+		if (
+			(timerStatus?.running && timerStatus.lastLog?.source === ETimeLogSource.TEAMS) ||
+			isRunningTeamsLog(pastMidnightLog)
+		) {
 			const stopTimer = timerService
 				.stopTimer({ source: ETimeLogSource.TEAMS })
 				.catch((error) => logErrorInDev('[Auth] Timer stop before logout failed:', error));
@@ -200,7 +209,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		}
 		queryClient.clear();
 		window?.location.replace(DEFAULT_APP_PATH);
-	}, [activeTeam?.id, queryClient, store, user?.id, user?.email]);
+	}, [activeTeam?.id, queryClient, store, user?.id, user?.email, user?.employee?.id]);
 
 	/**
 	 * Start automatic token refresh based on JWT expiration
