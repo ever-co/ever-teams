@@ -9,6 +9,17 @@ import {
 import { currentAuthenticatedUserRequest } from '../requests/auth';
 import { NextResponse } from 'next/server';
 
+// serverFetch rejects a non-2xx answer with Promise.reject(data), so Gauzy's error body sits inside
+// that promise; a network failure rejects with a plain error that carries no status code.
+async function unwrapRejection(error: unknown): Promise<unknown> {
+	if (!(error instanceof Promise)) return error;
+	try {
+		return await error;
+	} catch (error_) {
+		return error_;
+	}
+}
+
 export async function authenticatedGuard(req: Request, res: NextResponse<unknown>) {
 	const access_token = getAccessTokenCookie({ req, res });
 	const tenantId = getTenantIdCookie({ req, res });
@@ -17,13 +28,11 @@ export async function authenticatedGuard(req: Request, res: NextResponse<unknown
 	const taskId = getActiveTaskIdCookie({ req, res });
 	const projectId = getActiveProjectIdCookie({ req, res });
 
-	// serverFetch rejects a non-2xx answer with Promise.reject(data), so Gauzy's error body sits inside
-	// that promise; a network failure rejects with a plain error that carries no status code.
 	let rejection: { statusCode?: number } | undefined;
 	const r_res = await currentAuthenticatedUserRequest({
 		bearer_token: access_token?.toString() || ''
 	}).catch(async (error: unknown) => {
-		const reason = error instanceof Promise ? await error.catch((data) => data) : error;
+		const reason = await unwrapRejection(error);
 		rejection = reason && typeof reason === 'object' ? reason : undefined;
 		console.error(reason);
 	});
