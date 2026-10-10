@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense, useCallback, useMemo, useState } from 'react';
+import React, { Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { ChevronDown } from 'lucide-react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
@@ -24,7 +24,8 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
-import { generateExportFilename } from '@/core/lib/utils/export-utils';
+import { exportToXLSX, generateExportFilename } from '@/core/lib/utils/export-utils';
+import { logErrorInDev } from '@/core/lib/helpers/error-message';
 
 /**
  * Type guard to check if the item has the new "logs" structure
@@ -48,9 +49,14 @@ interface ExportRow {
 	member: string;
 	project: string;
 	task: string;
+	status: string;
 	trackedHours: string;
 	earnings: string;
 	activityLevel: string;
+	// Raw values behind the three strings above, so the XLSX cells stay numbers a spreadsheet can sum
+	durationSeconds: number;
+	earningsAmount: number;
+	activityPercent: number;
 }
 
 // Using existing types from activity-report.ts
@@ -67,14 +73,17 @@ export function TimeActivityExportMenu({
 	const t = useTranslations();
 	const [showProgressModal, setShowProgressModal] = useState(false);
 	const [currentExportType, setCurrentExportType] = useState<'csv' | 'xlsx' | 'pdf'>('csv');
+	// Id of the export the modal follows: a run the user closed or replaced cannot overwrite the newer one
+	const activeExportIdRef = useRef(0);
 
-	const { exportableData, resetProgress, exportSummary, exportProgress } = useTimeActivityExport({
-		rapportDailyActivity,
-		isManage,
-		currentFilters,
-		startDate,
-		endDate
-	});
+	const { exportableData, resetProgress, exportSummary, exportProgress, startExport, setError, setSuccess } =
+		useTimeActivityExport({
+			rapportDailyActivity,
+			isManage,
+			currentFilters,
+			startDate,
+			endDate
+		});
 
 	// Check if we have data to export
 	const hasData = exportableData && exportableData.length > 0;
@@ -129,31 +138,12 @@ export function TimeActivityExportMenu({
 		// await exportToCSV(exportOptions);
 	}, [hasData, exportOptions]);
 
-	// Handle XLSX export
-	const handleXLSXExport = useCallback(async () => {
-		if (!hasData) {
-			console.warn('No data available for export');
-			return;
-		}
-		setCurrentExportType('xlsx');
-		setShowProgressModal(true);
-		// await exportToXLSX({ ...exportOptions, format: 'xlsx' });
-	}, [hasData, exportOptions]);
-
 	// Handle modal close
 	const handleCloseModal = useCallback(() => {
+		activeExportIdRef.current += 1;
 		setShowProgressModal(false);
 		resetProgress();
 	}, [resetProgress]);
-
-	// Handle retry export
-	const handleRetryExport = useCallback(async () => {
-		if (currentExportType === 'csv') {
-			await handleCSVExport();
-		} else if (currentExportType === 'xlsx') {
-			await handleXLSXExport();
-		}
-	}, [currentExportType, handleCSVExport, handleXLSXExport]);
 
 	// PDF Document Props (like weekly-limit approach)
 	const PDFDocumentProps = useMemo(
@@ -181,7 +171,7 @@ export function TimeActivityExportMenu({
 		[formattedStartDate, formattedEndDate, currentFilters, exportSummary]
 	);
 
-	// Transform data for PDF (use the same logic that works in the hook)
+	// Rows shared by the PDF and XLSX exports (use the same logic that works in the hook)
 	const transformedDataForPDF = useMemo(() => {
 		const rows: ExportRow[] = [];
 
@@ -209,19 +199,25 @@ export function TimeActivityExportMenu({
 								// Calculate earnings
 								const hourlyRate = employeeLog.employee?.billRateValue || 0;
 								const totalHours = duration / 3600;
-								const earnings = `$${(totalHours * hourlyRate).toFixed(2)}`;
+								const earningsAmount = totalHours * hourlyRate;
+								const earnings = `$${earningsAmount.toFixed(2)}`;
 
 								// Activity level
-								const activityLevel = `${employeeLog.activity || 0}%`;
+								const activityPercent = employeeLog.activity || 0;
+								const activityLevel = `${activityPercent}%`;
 
 								rows.push({
 									date,
 									member: memberName,
 									project: projectName,
 									task: taskTitle,
+									status: taskLog.task?.taskStatus?.name || taskLog.task?.status || '',
 									trackedHours,
 									earnings,
-									activityLevel
+									activityLevel,
+									durationSeconds: duration,
+									earningsAmount,
+									activityPercent
 								});
 							});
 						} else {
@@ -234,19 +230,25 @@ export function TimeActivityExportMenu({
 							// Calculate earnings
 							const hourlyRate = employeeLog.employee?.billRateValue || 0;
 							const totalHours = duration / 3600;
-							const earnings = `$${(totalHours * hourlyRate).toFixed(2)}`;
+							const earningsAmount = totalHours * hourlyRate;
+							const earnings = `$${earningsAmount.toFixed(2)}`;
 
 							// Activity level
-							const activityLevel = `${employeeLog.activity || 0}%`;
+							const activityPercent = employeeLog.activity || 0;
+							const activityLevel = `${activityPercent}%`;
 
 							rows.push({
 								date,
 								member: memberName,
 								project: projectName,
 								task: 'General Work',
+								status: '',
 								trackedHours,
 								earnings,
-								activityLevel
+								activityLevel,
+								durationSeconds: duration,
+								earningsAmount,
+								activityPercent
 							});
 						}
 					});
@@ -324,6 +326,63 @@ export function TimeActivityExportMenu({
 		return generateExportFilename('time-activity-report', 'pdf', effectiveStartDate, effectiveEndDate);
 	}, [effectiveStartDate, effectiveEndDate]);
 
+	// Handle XLSX export
+	const handleXLSXExport = useCallback(async () => {
+		if (!hasData) {
+			console.warn('No data available for export');
+			return;
+		}
+		const exportId = ++activeExportIdRef.current;
+		setCurrentExportType('xlsx');
+		setShowProgressModal(true);
+		startExport(1);
+		try {
+			await exportToXLSX(
+				transformedDataForPDF.rows,
+				[
+					{ header: t('common.DATE'), value: (row) => row.date, width: 12 },
+					{ header: t('common.MEMBER'), value: (row) => row.member, width: 24 },
+					{ header: t('pages.taskDetails.PROJECT'), value: (row) => row.project, width: 24 },
+					{ header: t('common.TASK'), value: (row) => row.task, width: 40 },
+					{ header: t('common.STATUS'), value: (row) => row.status, width: 16 },
+					// Excel stores a duration as a fraction of a day
+					{
+						header: t('timeActivity.TRACKED_HOURS'),
+						value: (row) => row.durationSeconds / 86400,
+						format: '[h]:mm',
+						width: 16
+					},
+					{
+						header: t('timeActivity.EARNINGS'),
+						value: (row) => row.earningsAmount,
+						format: '[$$-409]#,##0.00',
+						width: 14
+					},
+					{
+						header: t('timeActivity.ACTIVITY_LEVEL'),
+						value: (row) => row.activityPercent / 100,
+						format: '0%',
+						width: 16
+					}
+				],
+				generateExportFilename('time-activity-report', 'xlsx', effectiveStartDate, effectiveEndDate)
+			);
+			if (exportId === activeExportIdRef.current) setSuccess();
+		} catch (error) {
+			logErrorInDev('XLSX export', error);
+			if (exportId === activeExportIdRef.current) setError(t('timeActivity.EXPORT_FAILED'));
+		}
+	}, [hasData, startExport, transformedDataForPDF, t, effectiveStartDate, effectiveEndDate, setSuccess, setError]);
+
+	// Handle retry export
+	const handleRetryExport = useCallback(async () => {
+		if (currentExportType === 'csv') {
+			await handleCSVExport();
+		} else if (currentExportType === 'xlsx') {
+			await handleXLSXExport();
+		}
+	}, [currentExportType, handleCSVExport, handleXLSXExport]);
+
 	return (
 		<>
 			<DropdownMenu>
@@ -360,7 +419,7 @@ export function TimeActivityExportMenu({
 					</DropdownMenuItem>
 
 					{/* XLSX Export */}
-					<DropdownMenuItem disabled onClick={handleXLSXExport} className="cursor-pointer">
+					<DropdownMenuItem disabled={!hasData} onClick={handleXLSXExport} className="cursor-pointer">
 						XLSX
 					</DropdownMenuItem>
 				</DropdownMenuContent>
