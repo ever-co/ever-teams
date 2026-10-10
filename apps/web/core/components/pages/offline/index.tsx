@@ -8,7 +8,7 @@ interface IPropsOffline {
 	showTimer?: boolean;
 }
 
-// This screen is imported by the root layout of every route, and the timer brings the daily plan and task modals
+// This screen is imported by the (main) layout of every page, and the timer brings the daily plan and task modals
 // with it, so it is loaded on demand. Its chunk cannot be fetched once the network is gone, which is why
 // OfflineWrapper calls preloadOfflineTimer while still online as soon as a timer is running.
 const Timer = dynamic(() => import('../../timer/timer').then((mod) => ({ default: mod.Timer })), { ssr: false });

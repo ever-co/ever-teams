@@ -1,5 +1,6 @@
 'use client';
-import { Button, Text } from '@/core/components';
+import { Button } from '@/core/components/common/button';
+import { Text } from '@/core/components/common/typography';
 import Link from 'next/link';
 import { moduleConstantsSawRuntimeEnv } from '@/env-config';
 // import { useTranslations } from 'next-intl';
