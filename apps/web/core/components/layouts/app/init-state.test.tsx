@@ -20,7 +20,6 @@ const calls = {
 	timer: jest.fn(),
 	autoAssign: jest.fn(),
 	statistics: jest.fn(),
-	polling: jest.fn(),
 	guard: jest.fn()
 };
 
@@ -77,9 +76,6 @@ jest.mock('@/core/hooks/activities', () => ({
 jest.mock('@/core/hooks/tasks', () => ({
 	useAutoAssignTask: (options: unknown) => calls.autoAssign(options),
 	useTaskStatistics: (_seconds: number, options: unknown) => calls.statistics(options)
-}));
-jest.mock('@/core/hooks/activities/use-timer-polling', () => ({
-	useTimerPolling: (running: boolean) => calls.polling(running)
 }));
 jest.mock('./use-scope-transition-guard', () => ({
 	useScopeTransitionGuard: (scope: unknown, enabled: boolean) => calls.guard(scope, enabled),
@@ -225,7 +221,6 @@ describe('InitState dependency DAG', () => {
 		render(<InitState />);
 
 		expect(calls.timer).toHaveBeenCalledTimes(1);
-		expect(calls.polling).toHaveBeenLastCalledWith(true);
 		expect(calls.timer.mock.calls[0][0]).not.toHaveProperty('scheduleTokenRefresh');
 	});
 
