@@ -12,10 +12,16 @@ let captureRequestError: Instrumentation.onRequestError | undefined;
 export async function register() {
 	// Literal NEXT_RUNTIME checks: Next inlines them per bundle, so each runtime only bundles its own SDK build.
 	if (process.env.NEXT_RUNTIME === 'nodejs') {
-		// register() never runs during `next build`, and a throw here makes the server exit before it serves a request.
+		// register() never runs during `next build`. In production Next only logs a throw from here, then answers
+		// every page and API request with a 500 since they all wait for register(), so exit instead.
 		if (process.env.NODE_ENV === 'production') {
 			const { assertAuthSecret } = await import('@/core/lib/utils/check-provider-env-vars');
-			assertAuthSecret();
+			try {
+				assertAuthSecret();
+			} catch (error) {
+				console.error(error);
+				process.exit(1);
+			}
 		}
 		const { initSentryServer } = await import('./sentry.server.config');
 		captureRequestError = (await initSentryServer())?.captureRequestError;
