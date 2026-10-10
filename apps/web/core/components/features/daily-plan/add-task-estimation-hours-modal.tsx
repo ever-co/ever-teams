@@ -422,13 +422,6 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		</Button>
 	);
 
-	// TODO: Add onclick handler
-	const TimeSheetsButton = (
-		<Button className="px-5 py-3 w-full font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600">
-			{t('common.timesheets.PLURAL')}
-		</Button>
-	);
-
 	const content = (
 		<div className="flex flex-col justify-between w-full">
 			<div className="flex flex-col gap-4 w-full">
@@ -602,9 +595,9 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 									{StartWorkingButton}
 								</Tooltip>
 							) : (
-								<div className="w-40 h-full border">
-									{checkPastDate(plan.date) ? TimeSheetsButton : StartWorkingButton}
-								</div>
+								!checkPastDate(plan.date) && (
+									<div className="w-40 h-full border">{StartWorkingButton}</div>
+								)
 							)}
 						</div>
 					</>
