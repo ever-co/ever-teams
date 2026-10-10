@@ -261,7 +261,10 @@ class StatisticsService extends APIService {
 		logType,
 		startDate,
 		endDate,
-		timeZone = 'Etc/UTC'
+		timeZone = 'Etc/UTC',
+		employeeIds,
+		projectIds,
+		teamIds
 	}: ITimeLogReportDailyRequest): Promise<{ data: ITimesheetCountsStatistics }> => {
 		const queryString = qs.stringify(
 			{
@@ -270,7 +273,10 @@ class StatisticsService extends APIService {
 				organizationId: this.organizationId,
 				startDate,
 				endDate,
-				timeZone
+				timeZone,
+				employeeIds,
+				projectIds,
+				teamIds
 			},
 			{
 				arrayFormat: 'indices',
