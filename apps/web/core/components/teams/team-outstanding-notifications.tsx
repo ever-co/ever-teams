@@ -16,6 +16,7 @@ import {
 } from '@/core/lib/helpers/notifications';
 import { NOTIFICATION_KEYS } from '@/core/constants/config/notification';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { isTaskFinished } from '@/core/lib/helpers/task';
 
 export function TeamOutstandingNotifications({
 	outstandingPlans,
@@ -113,7 +114,7 @@ const ManagerOutstandingUsersNotification = memo(function ManagerOutstandingUser
 			.filter((plan) => {
 				if (plan.employeeId === user?.employee?.id || !plan.date) return false;
 				const isDue = moment(plan.date).isSameOrBefore(moment().endOf('day'));
-				const hasIncomplete = plan.tasks?.some((task) => task.status !== ETaskStatusName.COMPLETED);
+				const hasIncomplete = plan.tasks?.some((task) => !isTaskFinished(task.status));
 				return isDue && hasIncomplete;
 			})
 			.map((plan) => ({
