@@ -341,21 +341,23 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 					<div className="rounded-lg border border-gray-200 dark:border-gray-800">
 						{/* Use lazy loaded components with conditional rendering */}
 						{/* A failed load shows an error instead of an empty range */}
-						{hasLogsLoadError ? (
+						{hasLogsLoadError && (
 							<AnimatedEmptyState
 								title={t('pages.error.HEADING_TITLE')}
 								message={t('pages.error.HEADING_DESCRIPTION')}
 								actionLabel={t('pages.unauthorized.TRY_AGAIN')}
 								onAction={() => timesheetLogsQuery.refetch()}
 							/>
-						) : timesheetNavigator === 'ListView' ? (
+						)}
+						{!hasLogsLoadError && timesheetNavigator === 'ListView' && (
 							<LazyTimesheetView
 								user={user}
 								data={filteredData}
 								loading={loadingTimesheet}
 								key={`listview-${dateRange.from?.getTime()}-${dateRange.to?.getTime()}`}
 							/>
-						) : (
+						)}
+						{!hasLogsLoadError && timesheetNavigator !== 'ListView' && (
 							<>
 								<LazyCalendarView
 									data={filteredData}
