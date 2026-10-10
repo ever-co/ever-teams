@@ -44,8 +44,10 @@ export function generateExportFilename(
 
 interface XLSXColumn<Row> {
 	header: string;
-	value: (row: Row) => string;
+	value: (row: Row) => string | number;
 	width?: number;
+	/** Excel number format for numeric cells, e.g. '0%' */
+	format?: string;
 }
 
 /**
@@ -56,9 +58,9 @@ export async function exportToXLSX<Row>(rows: Row[], columns: XLSXColumn<Row>[],
 	const { default: writeXlsxFile } = await import('write-excel-file/browser');
 
 	await writeXlsxFile(rows, {
-		columns: columns.map(({ header, value, width }) => ({
+		columns: columns.map(({ header, value, width, format }) => ({
 			header: { value: header, fontWeight: 'bold' as const },
-			cell: value,
+			cell: (row: Row) => ({ value: value(row), format }),
 			width
 		}))
 	}).toFile(fileName);

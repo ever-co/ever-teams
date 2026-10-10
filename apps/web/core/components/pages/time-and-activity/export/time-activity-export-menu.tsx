@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense, useCallback, useMemo, useState } from 'react';
+import React, { Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { ChevronDown } from 'lucide-react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
@@ -53,6 +53,10 @@ interface ExportRow {
 	trackedHours: string;
 	earnings: string;
 	activityLevel: string;
+	// Raw values behind the three strings above, so the XLSX cells stay numbers a spreadsheet can sum
+	durationSeconds: number;
+	earningsAmount: number;
+	activityPercent: number;
 }
 
 // Using existing types from activity-report.ts
@@ -69,6 +73,8 @@ export function TimeActivityExportMenu({
 	const t = useTranslations();
 	const [showProgressModal, setShowProgressModal] = useState(false);
 	const [currentExportType, setCurrentExportType] = useState<'csv' | 'xlsx' | 'pdf'>('csv');
+	// Id of the export the modal follows: a run the user closed or replaced cannot overwrite the newer one
+	const activeExportIdRef = useRef(0);
 
 	const { exportableData, resetProgress, exportSummary, exportProgress, startExport, setError, setSuccess } =
 		useTimeActivityExport({
@@ -134,6 +140,7 @@ export function TimeActivityExportMenu({
 
 	// Handle modal close
 	const handleCloseModal = useCallback(() => {
+		activeExportIdRef.current += 1;
 		setShowProgressModal(false);
 		resetProgress();
 	}, [resetProgress]);
@@ -192,10 +199,12 @@ export function TimeActivityExportMenu({
 								// Calculate earnings
 								const hourlyRate = employeeLog.employee?.billRateValue || 0;
 								const totalHours = duration / 3600;
-								const earnings = `$${(totalHours * hourlyRate).toFixed(2)}`;
+								const earningsAmount = totalHours * hourlyRate;
+								const earnings = `$${earningsAmount.toFixed(2)}`;
 
 								// Activity level
-								const activityLevel = `${employeeLog.activity || 0}%`;
+								const activityPercent = employeeLog.activity || 0;
+								const activityLevel = `${activityPercent}%`;
 
 								rows.push({
 									date,
@@ -205,7 +214,10 @@ export function TimeActivityExportMenu({
 									status: taskLog.task?.taskStatus?.name || taskLog.task?.status || '',
 									trackedHours,
 									earnings,
-									activityLevel
+									activityLevel,
+									durationSeconds: duration,
+									earningsAmount,
+									activityPercent
 								});
 							});
 						} else {
@@ -218,10 +230,12 @@ export function TimeActivityExportMenu({
 							// Calculate earnings
 							const hourlyRate = employeeLog.employee?.billRateValue || 0;
 							const totalHours = duration / 3600;
-							const earnings = `$${(totalHours * hourlyRate).toFixed(2)}`;
+							const earningsAmount = totalHours * hourlyRate;
+							const earnings = `$${earningsAmount.toFixed(2)}`;
 
 							// Activity level
-							const activityLevel = `${employeeLog.activity || 0}%`;
+							const activityPercent = employeeLog.activity || 0;
+							const activityLevel = `${activityPercent}%`;
 
 							rows.push({
 								date,
@@ -231,7 +245,10 @@ export function TimeActivityExportMenu({
 								status: '',
 								trackedHours,
 								earnings,
-								activityLevel
+								activityLevel,
+								durationSeconds: duration,
+								earningsAmount,
+								activityPercent
 							});
 						}
 					});
@@ -315,6 +332,7 @@ export function TimeActivityExportMenu({
 			console.warn('No data available for export');
 			return;
 		}
+		const exportId = ++activeExportIdRef.current;
 		setCurrentExportType('xlsx');
 		setShowProgressModal(true);
 		startExport(1);
@@ -327,16 +345,32 @@ export function TimeActivityExportMenu({
 					{ header: t('pages.taskDetails.PROJECT'), value: (row) => row.project, width: 24 },
 					{ header: t('common.TASK'), value: (row) => row.task, width: 40 },
 					{ header: t('common.STATUS'), value: (row) => row.status, width: 16 },
-					{ header: t('timeActivity.TRACKED_HOURS'), value: (row) => row.trackedHours, width: 16 },
-					{ header: t('timeActivity.EARNINGS'), value: (row) => row.earnings, width: 14 },
-					{ header: t('timeActivity.ACTIVITY_LEVEL'), value: (row) => row.activityLevel, width: 16 }
+					// Excel stores a duration as a fraction of a day
+					{
+						header: t('timeActivity.TRACKED_HOURS'),
+						value: (row) => row.durationSeconds / 86400,
+						format: '[h]:mm',
+						width: 16
+					},
+					{
+						header: t('timeActivity.EARNINGS'),
+						value: (row) => row.earningsAmount,
+						format: '[$$-409]#,##0.00',
+						width: 14
+					},
+					{
+						header: t('timeActivity.ACTIVITY_LEVEL'),
+						value: (row) => row.activityPercent / 100,
+						format: '0%',
+						width: 16
+					}
 				],
 				generateExportFilename('time-activity-report', 'xlsx', effectiveStartDate, effectiveEndDate)
 			);
-			setSuccess();
+			if (exportId === activeExportIdRef.current) setSuccess();
 		} catch (error) {
 			logErrorInDev('XLSX export', error);
-			setError(t('timeActivity.EXPORT_FAILED'));
+			if (exportId === activeExportIdRef.current) setError(t('timeActivity.EXPORT_FAILED'));
 		}
 	}, [hasData, startExport, transformedDataForPDF, t, effectiveStartDate, effectiveEndDate, setSuccess, setError]);
 
