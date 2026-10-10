@@ -33,15 +33,11 @@ export async function GET(req: NextRequest) {
 			);
 		}
 
-		const projectIds = readArrayParam(searchParams, 'projectIds');
-		const employeeIds = readArrayParam(searchParams, 'employeeIds');
-		const taskIds = readArrayParam(searchParams, 'taskIds');
-		const teamIds = readArrayParam(searchParams, 'teamIds');
-
-		if (projectIds.length) params.projectIds = projectIds;
-		if (employeeIds.length) params.employeeIds = employeeIds;
-		if (taskIds.length) params.taskIds = taskIds;
-		if (teamIds.length) params.teamIds = teamIds;
+		// The same four array filters that buildTimeLogParams forwards to Gauzy
+		for (const key of ['projectIds', 'employeeIds', 'taskIds', 'teamIds'] as const) {
+			const values = readArrayParam(searchParams, key);
+			if (values.length) params[key] = values;
+		}
 
 		const activityLevelStart = searchParams.get('activityLevel[start]');
 		const activityLevelEnd = searchParams.get('activityLevel[end]');
