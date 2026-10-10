@@ -28,9 +28,10 @@ export async function authenticatedGuard(req: Request, res: NextResponse<unknown
 		console.error(reason);
 	});
 
-	if (!r_res || (r_res.data as any).statusCode === 401) {
+	// A 2xx with an empty or unreadable body leaves data undefined: treat it as a check without an answer.
+	if (!r_res?.data || (r_res.data as any).statusCode === 401) {
 		// The browser clients re-authenticate on the HTTP status, so the refusal carries Gauzy's own status.
-		// A check that never got an answer is a 503: an outage must not look like an expired session.
+		// A check that never got a usable answer is a 503: an outage must not look like an expired session.
 		const upstreamStatus = (rejection ?? (r_res?.data as any))?.statusCode;
 		const status = typeof upstreamStatus === 'number' && upstreamStatus >= 400 ? upstreamStatus : 503;
 		return {
