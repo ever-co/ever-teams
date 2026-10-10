@@ -11,7 +11,7 @@ import type { OIDCConfig, Provider } from 'next-auth/providers';
 import {
 	APPLE_CLIENT_ID,
 	APPLE_CLIENT_SECRET,
-	AUTH_SECRET,
+	authSecret,
 	DISCORD_CLIENT_ID,
 	DISCORD_CLIENT_SECRET,
 	FACEBOOK_CLIENT_ID,
@@ -208,7 +208,8 @@ export function getConfiguredAuthProviderIds(): string[] {
  * needs the secret yet: the README quick starts run the image without one.
  */
 export function assertAuthSecret(): void {
-	if (AUTH_SECRET?.trim()) return;
+	// The same value next-auth gets, so a blank AUTH_SECRET fails here too.
+	if (authSecret) return;
 	const providerIds = getConfiguredAuthProviderIds();
 	if (providerIds.length > 0) {
 		throw new Error(
