@@ -18,6 +18,10 @@ You can start editing the page by modifying `pages/index.tsx`. The page auto-upd
 
 The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
+## API routes and authorization
+
+When the browser reaches the Gauzy API through this app (`NEXT_PUBLIC_GAUZY_API_SERVER_URL` not set), it calls the routes under `app/api`, which forward each call to the Gauzy API. Their guard, `authenticatedGuard` in `core/services/server/guards/authenticated-guard-app.ts`, only authenticates: it checks the access token and reads the tenant, organization and team from the caller's cookies. The route then sends the caller's own token, so the Gauzy API is the only authorization boundary: it decides from the caller's role and permissions whether an id sent by the client (an employee, a team, a daily plan) may be read or changed. Do not add an ownership or membership check in a route. The access token is readable in the browser and can be sent to the Gauzy API directly, so such a check protects nothing, and it would break the legitimate reads of managers and admins on other members.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

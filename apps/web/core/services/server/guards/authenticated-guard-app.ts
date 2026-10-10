@@ -9,6 +9,17 @@ import {
 import { currentAuthenticatedUserRequest } from '../requests/auth';
 import { NextResponse } from 'next/server';
 
+/**
+ * Authenticates an `app/api` request: it checks the access token against the Gauzy API (`/user/me`) and
+ * returns it with the tenant, organization, team, task and project ids read from the caller's cookies.
+ *
+ * It does not authorize the resource a route acts on, by design. Every route forwards the caller's own
+ * token, so the Gauzy API is the only authorization boundary and decides from the caller's role and
+ * permissions whether an id sent by the client may be read or changed. Do not add an ownership or
+ * membership check here or in a route: the token is readable in the browser and can be sent to the Gauzy
+ * API directly, so such a check protects nothing, and it would block the legitimate reads of managers and
+ * admins on other members. See "API routes and authorization" in apps/web/README.md.
+ */
 export async function authenticatedGuard(req: Request, res: NextResponse<unknown>) {
 	const access_token = getAccessTokenCookie({ req, res });
 	const tenantId = getTenantIdCookie({ req, res });
