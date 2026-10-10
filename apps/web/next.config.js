@@ -82,28 +82,15 @@ const nextConfig = {
 	// Note: Disabled for now due to incompatibility with route segment config "runtime"
 	// cacheComponents: true,
 	experimental: {
-		optimizePackageImports: [
-			'geist',
-			'@ever-teams/constants',
-			'@ever-teams/hooks',
-			'@ever-teams/services',
-			'@ever-teams/tookit',
-			'@ever-teams/tookit-ui',
-			'@ever-teams/tookit-types',
-			'@ever-teams/types',
-			'@ever-teams/utils',
-			'@ever-teams/ui'
-		],
+		// No optimizePackageImports list: Next 16 already rewrites lodash imports per method and optimizes
+		// react-icons/* and the @heroicons/react sets used here by default, while @radix-ui/react-icons and
+		// country-flag-icons/react/1x1 keep every icon in a single module that it cannot split.
 		// Turbopack caching is enabled by default in Next.js 16
 	},
 	transpilePackages: [
-		'geist',
+		// Their entry point is raw TypeScript (main: ./src/index.ts), so Next must compile them once imported.
 		'@ever-teams/constants',
-		'@ever-teams/hooks',
-		'@ever-teams/services',
 		'@ever-teams/types',
-		'@ever-teams/utils',
-		'@ever-teams/ui',
 		'@radix-ui/react-icons',
 		'react-icons',
 		'@heroicons/react'
