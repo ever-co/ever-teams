@@ -1,12 +1,6 @@
-import { IUserOrganization } from '@/core/types/interfaces/organization/user-organization';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
-import {
-	createOrganizationTeamRequest,
-	getAllOrganizationTeamRequest,
-	getUserOrganizationsRequest
-} from '@/core/services/server/requests';
+import { createOrganizationTeamRequest, getAllOrganizationTeamRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
-import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 
 export async function POST(req: Request) {
 	const res = new NextResponse();
@@ -45,47 +39,16 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
 	const res = new NextResponse();
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, res);
 
 	if (!user) {
 		return NextResponse.json({}, { status: 401 });
 	}
 
 	try {
-		const { data: organizations } = await getUserOrganizationsRequest(
-			{ tenantId: tenantId || '', userId: user.id },
-			access_token || ''
-		);
-		const organizationsItems = organizations.items;
+		const teams = await getAllOrganizationTeamRequest({ tenantId, organizationId }, access_token || '');
 
-		const filteredOrganization = organizationsItems.reduce((acc, org) => {
-			if (!acc.find((o) => o.organizationId === org.organizationId)) {
-				acc.push(org);
-			}
-			return acc;
-		}, [] as IUserOrganization[]);
-
-		const call_teams = filteredOrganization.map((item) =>
-			getAllOrganizationTeamRequest(
-				{ tenantId: tenantId || '', organizationId: item.organizationId || '' },
-				access_token || ''
-			)
-		);
-
-		const teams = await Promise.all(call_teams).then((tms) =>
-			tms.reduce(
-				(acc, { data }) => {
-					if (data?.items) {
-						acc.items.push(...data.items);
-						acc.total += data.total;
-					}
-					return acc;
-				},
-				{ items: [] as IOrganizationTeam[], total: 0 }
-			)
-		);
-
-		return $res(teams);
+		return $res(teams.data);
 	} catch (error) {
 		return NextResponse.json({ error: 'Failed to fetch teams' }, { status: 500 });
 	}
