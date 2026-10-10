@@ -536,9 +536,10 @@ export function useTeamTasks() {
 
 			try {
 				/**
-				 * Unassign previous active task
+				 * Unassign previous active task. Skipped when it is the task being selected,
+				 * otherwise re-selecting it would remove the user from its members.
 				 */
-				if ($memberActiveTaskId.current && $user.current) {
+				if ($memberActiveTaskId.current && $memberActiveTaskId.current !== task?.id && $user.current) {
 					const _task = tasksRef.current.find((t) => t.id === $memberActiveTaskId.current);
 
 					if (_task) {
