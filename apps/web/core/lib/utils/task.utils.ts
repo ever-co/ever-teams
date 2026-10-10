@@ -54,8 +54,16 @@ export function indexTaskTotalWorkedDurations(
 	const durations = new Map<string, number>();
 
 	for (const member of members ?? []) {
+		// Like `find`, only a task's first entry within a member counts, even when its duration is 0.
+		const seenInMember = new Set<string>();
+
 		for (const taskStat of member?.totalWorkedTasks ?? []) {
-			if (taskStat?.id && taskStat.duration && !durations.has(taskStat.id)) {
+			if (!taskStat?.id || seenInMember.has(taskStat.id)) {
+				continue;
+			}
+			seenInMember.add(taskStat.id);
+
+			if (taskStat.duration && !durations.has(taskStat.id)) {
 				durations.set(taskStat.id, taskStat.duration);
 			}
 		}
