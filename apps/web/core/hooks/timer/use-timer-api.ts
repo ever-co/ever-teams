@@ -229,7 +229,7 @@ export function useTimerApi({
 				// 406 means Gauzy has no running timer left: a previous attempt whose response was lost,
 				// or another device, already stopped it. Report the real status instead of a failure.
 				if (ApiErrorService.isApiError(error) && error.hasHttpResponseStatus(406)) {
-					return await timerService.getTimerStatus();
+					return { ...(await timerService.getTimerStatus()), alreadyStopped: true };
 				}
 				throw error;
 			}
@@ -610,8 +610,9 @@ export function useTimerApi({
 					!isEqual(timerStatus, res.data) &&
 					setTimerStatus(res.data);
 
-				// Clear active task via API when timer stops
-				if (activeTeamId && user) {
+				// Clear active task via API when timer stops. Skipped when the timer was already stopped: a team
+				// switch can send two stops, and the one answered 406 may already carry the new team.
+				if (activeTeamId && user && !('alreadyStopped' in res)) {
 					const currentMember = activeTeam?.members?.find((m) => m.employee?.userId === user.id);
 
 					if (currentMember?.id) {
