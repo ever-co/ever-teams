@@ -20,9 +20,17 @@ The `pages/api` directory is mapped to `/api/*`. Files in this directory are tre
 
 ## Dev Server Memory
 
-`next dev` holds on to everything it has compiled for as long as it runs, so its memory grows with each page you open and does not go down afterwards. After a walk through the app it can use several GB, and two dev servers side by side can push a 16 GB machine into swap, which slows the editor and the terminal too.
+`next dev` keeps everything it has compiled in memory for as long as it runs.
+Memory peaks while a page compiles, then settles at a retained level that
+grows with each new page you open and is only released when the server stops.
+After a walk through the app it can hold several GB, and two dev servers side
+by side can push a 16 GB machine into swap, which slows the editor and the
+terminal too.
 
-When that happens, stop the dev server and start it again. Turbopack keeps its compiler cache on disk in `apps/web/.next/dev`, so the restarted server reuses what it already compiled and the restart is quick. Keep that folder between restarts: deleting `.next` makes every page compile from scratch again.
+When that happens, stop the dev server and start it again. Turbopack keeps its
+compiler cache on disk in `apps/web/.next/dev`, so the restarted server reuses
+what it already compiled and the restart is quick. Keep that folder between
+restarts: deleting `.next` makes every page compile from scratch again.
 
 ## Learn More
 
