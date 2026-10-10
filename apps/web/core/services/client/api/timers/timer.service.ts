@@ -10,7 +10,8 @@ import { TUser } from '@/core/types/schemas';
 import { scopedReadConfig, type ScopedReadOptions } from '../../api-request-scope';
 
 class TimerService extends APIService {
-	private lastTimeSlotSyncAt: number | null = null;
+	// Last time-slot sync, tied to the time log (timer run) it was measured for.
+	private lastTimeSlotSync: { at: number; timeLogId?: string } | null = null;
 
 	getTimerStatus = async (options?: ScopedReadOptions) => {
 		const tenantId = options?.scope.tenantId ?? this.tenantId;
@@ -48,7 +49,7 @@ class TimerService extends APIService {
 
 	startTimer = async () => {
 		const taskId = getActiveTaskIdCookie();
-		this.lastTimeSlotSyncAt = Date.now();
+		const startedAt = Date.now();
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			await this.post('/timesheet/timer/start', {
@@ -61,11 +62,16 @@ class TimerService extends APIService {
 				organizationTeamId: this.activeTeamId
 			});
 
-			return this.getTimerStatus();
+			return this.resetTimeSlotSync(startedAt, await this.getTimerStatus());
 		}
 
 		const api = await getFallbackAPI();
-		return api.post<ITimerStatus>('/timer/start');
+		return this.resetTimeSlotSync(startedAt, await api.post<ITimerStatus>('/timer/start'));
+	};
+
+	private resetTimeSlotSync = <R extends { data?: ITimerStatus }>(at: number, response: R): R => {
+		this.lastTimeSlotSync = { at, timeLogId: response.data?.lastLog?.id };
+		return response;
 	};
 
 	stopTimer = async ({ source }: { source: ETimeLogSource }) => {
@@ -79,26 +85,32 @@ class TimerService extends APIService {
 				tenantId: this.tenantId,
 				organizationId: this.organizationId
 			});
-			this.lastTimeSlotSyncAt = null;
 
 			return this.getTimerStatus();
 		}
 
 		const api = await getFallbackAPI();
-		const response = await api.post<ITimerStatus>('/timer/stop', {
+		return api.post<ITimerStatus>('/timer/stop', {
 			source
 		});
-		this.lastTimeSlotSyncAt = null;
-		return response;
 	};
 
-	syncTimer = async ({ source, user }: { source: ETimeLogSource; user?: TUser | null }) => {
+	syncTimer = async ({
+		source,
+		user,
+		timeLogId
+	}: {
+		source: ETimeLogSource;
+		user?: TUser | null;
+		timeLogId?: string;
+	}) => {
 		// Advanced before the request so overlapping syncs never credit the same seconds twice.
 		const now = Date.now();
-		const duration = toTimeSlotDuration(
-			this.lastTimeSlotSyncAt === null ? undefined : (now - this.lastTimeSlotSyncAt) / 1000
-		);
-		this.lastTimeSlotSyncAt = now;
+		const previous = this.lastTimeSlotSync;
+		// A reference from another run (stopped and restarted from another tab or device) would credit the gap.
+		const sameRun = previous !== null && (!previous.timeLogId || !timeLogId || previous.timeLogId === timeLogId);
+		const duration = toTimeSlotDuration(sameRun ? (now - previous.at) / 1000 : undefined);
+		this.lastTimeSlotSync = { at: now, timeLogId: timeLogId ?? previous?.timeLogId };
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			await this.post('/timesheet/time-slot', {
