@@ -14,5 +14,13 @@
 	{
 		"id": "removed:navigation:packages/toolkit/builder/app/providers.tsx::constant=TEAMS_API_URL::#1",
 		"reason": "The builder demo image froze its API URL at build time. The value is now read per request in app/layout.tsx and passed to this provider as a prop, so the module-level constant is gone by design."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/hooks/activities/index.ts::runtime::useSyncTimer",
+		"reason": "useSyncTimer had no caller. The timer-gated 5 s team polling it wrapped is replaced by the team presence cadence in InitState."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/hooks/index.ts::runtime::useSyncTimer",
+		"reason": "useSyncTimer had no caller. The timer-gated 5 s team polling it wrapped is replaced by the team presence cadence in InitState."
 	}
 ]
