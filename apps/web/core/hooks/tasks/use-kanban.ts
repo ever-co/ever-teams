@@ -23,7 +23,13 @@ import { buildKanbanBoard } from '@/core/lib/utils';
  * No global state (Jotai atom removed) — board state is local to the hook instance.
  */
 export function useKanban() {
-	const { taskStatuses, getTaskStatusesLoading, setTaskStatuses } = useTaskStatusesQuery();
+	const {
+		taskStatuses,
+		getTaskStatusesLoading,
+		setTaskStatuses,
+		isError: isTaskStatusesError,
+		refetch: refetchTaskStatuses
+	} = useTaskStatusesQuery();
 	const { editTaskStatus } = useEditTaskStatus();
 	const { updateTask } = useUpdateTask();
 	const { tasks: newTask } = useTeamTasksQuery();
@@ -268,6 +274,8 @@ export function useKanban() {
 	return {
 		data: kanbanBoard as IKanban,
 		isLoading: isDataLoading,
+		isError: isTaskStatusesError,
+		refetchTaskStatuses,
 		columns: optimisticTaskStatuses, // Use memoized optimistic state for instant UI updates
 		taskStatuses, // Raw statuses for status ID lookup (e.g., drag/drop status resolution)
 		searchTasks,

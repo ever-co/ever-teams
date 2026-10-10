@@ -21,6 +21,7 @@ import {
 import { ArrowLeftIcon } from 'assets/svg';
 import type { IconBaseProps } from 'react-icons';
 import { TimesheetDetailModalSkeleton } from '@/core/components/common/skeleton/timesheet-skeletons';
+import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { IconsSearch } from '@/core/components/icons';
 import { ViewToggleButton } from '@/core/components/timesheet/timesheet-toggle-view';
@@ -131,6 +132,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 		timesheetElementGroup: filterDataTimesheet,
 		statusTimesheet,
 		loadingTimesheet,
+		timesheetLogsQuery,
 		isManage,
 		timesheetGroupByDays,
 		selectTimesheetId,
@@ -327,7 +329,15 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 				<div className="flex flex-col w-full border-1 rounded-lg bg-[#FFFFFF] dark:bg-dark--theme mt-6">
 					<div className="rounded-lg border border-gray-200 dark:border-gray-800">
 						{/* Use lazy loaded components with conditional rendering */}
-						{timesheetNavigator === 'ListView' ? (
+						{/* A failed load would otherwise show the logs left in the store as if they matched this range */}
+						{timesheetLogsQuery.isLoadingError ? (
+							<AnimatedEmptyState
+								title={t('pages.error.HEADING_TITLE')}
+								message={t('pages.error.HEADING_DESCRIPTION')}
+								actionLabel={t('pages.unauthorized.TRY_AGAIN')}
+								onAction={() => timesheetLogsQuery.refetch()}
+							/>
+						) : timesheetNavigator === 'ListView' ? (
 							<LazyTimesheetView
 								user={user}
 								data={filteredData}
@@ -350,7 +360,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 							</>
 						)}
 						{/*  Use lazy loaded TimesheetPagination */}
-						{shouldRenderPagination && (
+						{shouldRenderPagination && !timesheetLogsQuery.isLoadingError && (
 							<LazyTimesheetPagination
 								currentPage={currentPage}
 								totalPages={totalPages}
