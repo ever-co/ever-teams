@@ -801,6 +801,8 @@
 			"LOADING_WORKSPACE": "We laden de werkruimte, even geduld...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Doorverwijzen naar uw werkruimte...",
 			"VERIFY_EMAIL_LOADING_TEXT": "We controleren uw e-mailadres, even geduld...",
+			"VERIFY_EMAIL_FAILED_TITLE": "We konden uw e-mailadres niet verifiëren",
+			"VERIFY_EMAIL_FAILED_MESSAGE": "De link is mogelijk ongeldig, verlopen of al gebruikt, of de server was niet bereikbaar. Probeer de link zo meteen opnieuw of open de app om een nieuwe aan te vragen.",
 			"INPUT_TEAM_NAME": "Voer uw teamnaam in",
 			"JOIN_EXISTING_TEAM": "Bestaand team joinen?",
 			"CREATE_FIRST_TEAM": "Maak uw eerste team",

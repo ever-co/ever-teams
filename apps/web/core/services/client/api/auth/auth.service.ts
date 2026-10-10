@@ -251,10 +251,11 @@ class AuthService extends APIService {
 	 * The API sends an email with a reset link containing a token.
 	 */
 	requestPassword = async (email: string) => {
-		const endpoint = GAUZY_API_BASE_SERVER_URL.value
-			? '/auth/request-password'
-			: `/auth/request-password`;
-		return this.post<boolean>(endpoint, { email });
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			return this.post<boolean>('/auth/request-password', { email });
+		}
+		const api = await getFallbackAPI();
+		return api.post<boolean>('/auth/request-password', { email });
 	};
 
 	/**
@@ -262,10 +263,11 @@ class AuthService extends APIService {
 	 * Calls POST /auth/reset-password with the token and new password.
 	 */
 	resetPassword = async (token: string, password: string, confirmPassword: string) => {
-		const endpoint = GAUZY_API_BASE_SERVER_URL.value
-			? '/auth/reset-password'
-			: `/auth/reset-password`;
-		return this.post<boolean>(endpoint, { token, password, confirmPassword });
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			return this.post<boolean>('/auth/reset-password', { token, password, confirmPassword });
+		}
+		const api = await getFallbackAPI();
+		return api.post<boolean>('/auth/reset-password', { token, password, confirmPassword });
 	};
 }
 
