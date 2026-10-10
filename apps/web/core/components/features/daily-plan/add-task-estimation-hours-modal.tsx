@@ -110,7 +110,8 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	// PERF: task-card.tsx renders this modal ONCE PER CARD whenever the user has a daily plan, so
 	// useTimerView() here re-subscribed every card to the 20Hz timer tick (see use-timer-button.ts).
 	// `startTimer` is a Layer-1 mutation; useTimerActions provides it without Layer 3.
-	const { startTimer } = useTimerActions();
+	// `stopTimer` goes down to the plan rows so UnplanActiveTaskModal does not mount a timer hook per row.
+	const { startTimer, stopTimer } = useTimerActions();
 
 	const { setActiveTask } = useTeamTasksState();
 	const [showSearchInput, setShowSearchInput] = useState(false);
@@ -442,6 +443,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 					<SearchTaskInput
 						defaultTask={defaultTask}
 						setDefaultTask={setDefaultTask}
+						stopTimer={stopTimer}
 						setShowSearchInput={setShowSearchInput}
 						selectedPlan={plan}
 						selectedDate={selectedDate}
@@ -571,6 +573,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 													key={index}
 													task={task}
 													setDefaultTask={setDefaultTask}
+													stopTimer={stopTimer}
 													isDefaultTask={task.id == defaultTask?.id}
 												/>
 											))}
@@ -651,6 +654,7 @@ interface ISearchTaskInputProps {
 	selectedPlan?: TDailyPlan;
 	setShowSearchInput: Dispatch<SetStateAction<boolean>>;
 	setDefaultTask: Dispatch<SetStateAction<TTask | null>>;
+	stopTimer: () => void;
 	defaultTask: TTask | null;
 	selectedDate?: Date;
 	employeeId?: string | null;
@@ -675,6 +679,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 		setShowSearchInput,
 		defaultTask,
 		setDefaultTask,
+		stopTimer,
 		selectedDate,
 		employeeId,
 		canEdit = true
@@ -791,6 +796,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 										task={task}
 										plan={selectedPlan}
 										setDefaultTask={setDefaultTask}
+										stopTimer={stopTimer}
 										isDefaultTask={task.id == defaultTask?.id}
 										selectedDate={selectedDate}
 										onTaskAdded={() => setShowSearchInput(false)}
@@ -826,6 +832,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 interface ITaskCardProps {
 	task: TTask;
 	setDefaultTask: Dispatch<SetStateAction<TTask | null>>;
+	stopTimer: () => void;
 	isDefaultTask: boolean;
 	plan?: TDailyPlan;
 	viewListMode?: 'planned' | 'searched';
@@ -842,6 +849,7 @@ function TaskCard(props: ITaskCardProps) {
 		viewListMode = 'planned',
 		isDefaultTask,
 		setDefaultTask,
+		stopTimer,
 		selectedDate,
 		onTaskAdded,
 		employeeId,
@@ -1021,6 +1029,7 @@ function TaskCard(props: ITaskCardProps) {
 					task={activeTeamTask}
 					plan={plan}
 					closeModal={closeUnplanActiveTaskModal}
+					stopTimer={stopTimer}
 				/>
 			)}
 		</EverCard>

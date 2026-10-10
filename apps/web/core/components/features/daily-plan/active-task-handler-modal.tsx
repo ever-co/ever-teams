@@ -3,7 +3,8 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { clsxm } from '@/core/lib/utils';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
-import { useTeamTasksState, useTimerView } from '@/core/hooks';
+import { useTeamTasksState } from '@/core/hooks';
+import { useTimerActions } from '@/core/hooks/timer';
 import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { RadioGroup } from '@headlessui/react';
 import { DEFAULT_PLANNED_TASK_ID } from '@/core/constants/config/constants';
@@ -32,7 +33,7 @@ export function ActiveTaskHandlerModal({
 	defaultPlannedTask: TTask;
 }) {
 	const t = useTranslations();
-	const { startTimer, hasPlan: todayPlan } = useTimerView();
+	const { startTimer, hasPlan: todayPlan } = useTimerActions();
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const { setActiveTask } = useTeamTasksState();
@@ -66,7 +67,7 @@ export function ActiveTaskHandlerModal({
 							await addTaskToPlan(
 								{
 									// Always use the plan owner for auto-assignment
-									// todayPlan comes from `useTimerView` which uses `useTimer` (current user's myDailyPlans)
+									// todayPlan comes from `useTimerActions` (current user's myDailyPlans)
 									// so this is effectively a "self-plan" scenario
 									employeeId: todayPlan.employeeId ?? undefined,
 									taskId: activeTeamTask.id
