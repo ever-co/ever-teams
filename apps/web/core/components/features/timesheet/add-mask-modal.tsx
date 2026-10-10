@@ -60,6 +60,21 @@ const convertToMinutesHour = (time: string): number => {
 	return totalMinutes;
 };
 
+// The picked times are the user's wall-clock times; the Date is serialized to UTC when sent.
+// Returns null when that time does not exist on the day (skipped by a daylight saving change),
+// because the local constructor would silently move it forward.
+const createLocalDate = (baseDate: Date, time: string): Date | null => {
+	const minutesOfDay = convertToMinutesHour(time);
+	const date = new Date(
+		baseDate.getFullYear(),
+		baseDate.getMonth(),
+		baseDate.getDate(),
+		Math.floor(minutesOfDay / 60),
+		minutesOfDay % 60
+	);
+	return date.getHours() * 60 + date.getMinutes() === minutesOfDay ? date : null;
+};
+
 export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { generateTimeOptions } = useTimelogFilterOptions();
@@ -138,18 +153,6 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 		[t]
 	);
 
-	// The picked times are the user's wall-clock times; the Date is serialized to UTC when sent.
-	const createLocalDate = (baseDate: Date, time: string): Date => {
-		const minutesOfDay = convertToMinutesHour(time);
-		return new Date(
-			baseDate.getFullYear(),
-			baseDate.getMonth(),
-			baseDate.getDate(),
-			Math.floor(minutesOfDay / 60),
-			minutesOfDay % 60
-		);
-	};
-
 	const handleAddTimesheet = async (formState: FormState) => {
 		const payload = {
 			isBillable: formState.isBillable,
@@ -165,26 +168,33 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 			if (!formState.shifts || formState.shifts.length === 0) {
 				throw new Error('No shifts provided.');
 			}
+			// Check every shift before sending any, so an invalid one cannot leave part of the batch saved.
+			const entries = formState.shifts.map((shift) => {
+				if (!shift.dateFrom || !shift.startTime || !shift.endTime) {
+					throw new Error('Incomplete shift data.');
+				}
+				const baseDate = shift.dateFrom instanceof Date ? shift.dateFrom : new Date(shift.dateFrom);
+				const start = createLocalDate(baseDate, shift.startTime);
+				const end = createLocalDate(baseDate, shift.endTime);
+				if (!start || !end) {
+					throw new Error('Picked time does not exist on this date.');
+				}
+				const startedAt = toUTC(start).toISOString();
+				const stoppedAt = toUTC(end).toISOString();
+				if (stoppedAt <= startedAt) {
+					throw new Error('End time must be after start time.');
+				}
+				return { start, end };
+			});
 			await Promise.all(
-				formState.shifts.map(async (shift) => {
-					if (!shift.dateFrom || !shift.startTime || !shift.endTime) {
-						throw new Error('Incomplete shift data.');
-					}
-					const baseDate = shift.dateFrom instanceof Date ? shift.dateFrom : new Date(shift.dateFrom);
-					const start = createLocalDate(baseDate, shift.startTime);
-					const end = createLocalDate(baseDate, shift.endTime);
-					const startedAt = toUTC(start).toISOString();
-					const stoppedAt = toUTC(end).toISOString();
-					if (stoppedAt <= startedAt) {
-						throw new Error('End time must be after start time.');
-					}
-					await createTimesheet({
+				entries.map(({ start, end }) =>
+					createTimesheet({
 						...payload,
 						startedAt: start,
 						stoppedAt: end,
 						taskId: payload.taskId
-					});
-				})
+					})
+				)
 			);
 			closeModal();
 		} catch (error) {
@@ -350,9 +360,18 @@ interface ShiftTimingSelectProps {
 	className?: string;
 	value?: string;
 	onChange?: (value: string) => void;
+	isTimeDisabled?: (time: string) => boolean;
 }
 
-const ShiftTimingSelect = ({ label, timeOptions, placeholder, className, onChange, value }: ShiftTimingSelectProps) => (
+const ShiftTimingSelect = ({
+	label,
+	timeOptions,
+	placeholder,
+	className,
+	onChange,
+	value,
+	isTimeDisabled
+}: ShiftTimingSelectProps) => (
 	<div className="flex gap-2 items-center w-full rounded-sm border border-gray-200 dark:border-gray-700">
 		<button
 			className={clsxm(
@@ -372,6 +391,7 @@ const ShiftTimingSelect = ({ label, timeOptions, placeholder, className, onChang
 						<SelectItem
 							key={time}
 							value={time}
+							disabled={isTimeDisabled?.(time)}
 							className="hover:bg-primary focus:bg-primary hover:!text-white  py-1 cursor-pointer"
 						>
 							{time}
@@ -507,6 +527,10 @@ const ShiftManagement = ({
 	timeOptions: string[];
 	t: TranslationHooks;
 }) => {
+	// Times skipped by a daylight saving change on the picked day cannot be saved as picked.
+	const baseDate = value.dateFrom ? new Date(value.dateFrom) : null;
+	const isTimeDisabled = (time: string) => baseDate !== null && createLocalDate(baseDate, time) === null;
+
 	return (
 		<>
 			<div className="w-[212px]">
@@ -527,6 +551,7 @@ const ShiftManagement = ({
 						className="bg-[#30B3661A]"
 						value={value.startTime}
 						onChange={(value) => onChange(index, 'startTime', value)}
+						isTimeDisabled={isTimeDisabled}
 					/>
 					<ShiftTimingSelect
 						label="End"
@@ -535,6 +560,7 @@ const ShiftManagement = ({
 						className="bg-[#DA27271A]"
 						value={value.endTime}
 						onChange={(value) => onChange(index, 'endTime', value)}
+						isTimeDisabled={isTimeDisabled}
 					/>
 					<button className="flex items-center px-2 py-2 font-medium text-center bg-gray-100 border-r dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none">
 						{value.totalHours}
