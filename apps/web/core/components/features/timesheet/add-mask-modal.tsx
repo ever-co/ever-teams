@@ -437,6 +437,17 @@ const OptimizedAccordion = ({
 		const updatedShifts = [...shifts];
 		updatedShifts[index][field] = value;
 
+		if (field === 'dateFrom' && value) {
+			// A time picked earlier may not exist on the new day (daylight saving change): clear it so it is picked again.
+			const shift = updatedShifts[index];
+			const day = new Date(value);
+			const clearStart = !!shift.startTime && !createLocalDate(day, shift.startTime);
+			const clearEnd = !!shift.endTime && !createLocalDate(day, shift.endTime);
+			if (clearStart) shift.startTime = '';
+			if (clearEnd) shift.endTime = '';
+			if (clearStart || clearEnd) shift.totalHours = '00:00h';
+		}
+
 		if (field === 'startTime' || field === 'endTime') {
 			const { startTime, endTime } = updatedShifts[index];
 
