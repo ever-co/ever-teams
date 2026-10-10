@@ -8,7 +8,7 @@ export async function GET(req: Request) {
 
 	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, res);
 
-	if (!user) return NextResponse.json({ error: 'unauthorized' });
+	if (!user) return $res('Unauthorized');
 
 	const { organizationTeamId } = searchParams as unknown as { organizationTeamId: string };
 
