@@ -13,6 +13,18 @@ let captureRequestError: Instrumentation.onRequestError | undefined;
 export async function register() {
 	// Literal NEXT_RUNTIME checks: Next inlines them per bundle, so each runtime only bundles its own SDK build.
 	if (process.env.NEXT_RUNTIME === 'nodejs') {
+		// register() never runs during `next build`. In production Next only logs a throw from here, then answers
+		// every page and API request with a 500 since they all wait for register(), so exit instead.
+		if (process.env.NODE_ENV === 'production') {
+			const { assertAuthSecret } = await import('@/core/lib/utils/check-provider-env-vars');
+			try {
+				assertAuthSecret();
+			} catch (error) {
+				console.error(error);
+				process.exit(1);
+			}
+		}
+
 		// Demo deployments: the default sign-in presets, kept out of the client code (see the module).
 		const { applyDemoAccountDefaults } = await import('./core/lib/demo/default-demo-accounts');
 		applyDemoAccountDefaults();
