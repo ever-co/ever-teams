@@ -54,7 +54,9 @@ export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
 			).then(() => {
 				closeModal();
 				// onOK may start the timer, which reports its own failure; this only keeps the rejection from going unhandled
-				const runOnOK = () => Promise.resolve(onOK?.()).catch(() => undefined);
+				const runOnOK = () => {
+					Promise.resolve(onOK?.()).catch(() => undefined);
+				};
 				if (requirePlan) {
 					if (hasWorkedHours && areAllTasksEstimated && task.estimate) {
 						runOnOK();
