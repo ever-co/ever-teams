@@ -160,6 +160,105 @@ describe('the statistics reporter', () => {
 		expect(reports.filter((report) => report.final)).toHaveLength(1);
 	});
 
+	it('asks the paired API again before the second report of a slot, and stops when it was switched off', async () => {
+		const states: boolean[] = [];
+		let enabled = true;
+		const { fetch, reports, stateCalls } = world({
+			state: () => {
+				states.push(enabled);
+				return json({ enabled });
+			}
+		});
+		const { deps: d, setClock } = deps(fetch);
+		// Day 2 of the month: the running month and the closed previous one are both due.
+		setClock(new Date('2026-11-02T08:00:00Z'));
+		const sendThenSwitchOff = fetch as unknown as jest.Mock;
+		const original = sendThenSwitchOff.getMockImplementation()!;
+		sendThenSwitchOff.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const answer = await original(input, init);
+			// The operator switches the statistics off while the first report is being delivered.
+			if (String(input).endsWith('/v1/stats/reports')) enabled = false;
+			return answer;
+		});
+		const scheduler = startEverStats(d);
+		await scheduler?.runNow();
+		expect(reports.map((report) => [report.period, report.final])).toEqual([['2026-11', false]]);
+		expect(stateCalls).toHaveLength(2);
+		expect(states).toEqual([true, false]);
+		expect(reporterState().status).toBe('paused_by_api');
+		// Switched off: nothing is owed, so switching back on sends the running month, not a stale retry.
+		enabled = true;
+		sendThenSwitchOff.mockImplementation(original);
+		await scheduler?.runNow();
+		expect(reports.map((report) => [report.period, report.final])).toEqual([
+			['2026-11', false],
+			['2026-11', false],
+			['2026-10', true]
+		]);
+	});
+
+	it.each([
+		['switched off after the 409: no report under the new identity', false, 1],
+		['(control) still on after the 409: the report is resent under the new identity', true, 2]
+	])('asks the paired API again before a resend after 409 key_mismatch; %s', async (_label, stillOn, sinkRequests) => {
+		let enabled = true;
+		const stateCalls: boolean[] = [];
+		const sent: string[] = [];
+		const fetch = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const url = String(input);
+			if (url === `${PAIRED}/api/ever-stats/state`) {
+				stateCalls.push(enabled);
+				return json({ enabled });
+			}
+			const report = JSON.parse(Buffer.from(init?.body as Uint8Array).toString('utf8')) as { instance_id: string };
+			sent.push(report.instance_id);
+			if (sent.length === 1) {
+				// The random id met another key; the operator switches the statistics off meanwhile.
+				enabled = stillOn;
+				return new Response(JSON.stringify({ code: 'key_mismatch' }), {
+					status: 409,
+					headers: { 'content-type': 'application/problem+json' }
+				});
+			}
+			return json({}, 202);
+		}) as unknown as typeof globalThis.fetch;
+		const { deps: d } = deps(fetch);
+		await startEverStats(d)?.runNow();
+		expect(stateCalls).toEqual([true, stillOn]);
+		expect(sent).toHaveLength(sinkRequests);
+		if (sinkRequests === 2) expect(sent[1]).not.toBe(sent[0]);
+	});
+
+	it('keeps the rest of a slot when the paired API becomes unreachable between two reports', async () => {
+		let reachable = true;
+		const { fetch, reports } = world({
+			state: () => {
+				if (!reachable) throw new TypeError('fetch failed');
+				return json({ enabled: true });
+			}
+		});
+		const mock = fetch as unknown as jest.Mock;
+		const original = mock.getMockImplementation()!;
+		mock.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const answer = await original(input, init);
+			if (String(input).endsWith('/v1/stats/reports')) reachable = false;
+			return answer;
+		});
+		const { deps: d, setClock } = deps(fetch);
+		setClock(new Date('2026-11-02T08:00:00Z'));
+		const scheduler = startEverStats(d);
+		await scheduler?.runNow();
+		expect(reports.map((report) => report.final)).toEqual([false]);
+		reachable = true;
+		mock.mockImplementation(original);
+		await scheduler?.runNow();
+		// Only what the slot still owed: the closed month, once.
+		expect(reports.map((report) => [report.period, report.final])).toEqual([
+			['2026-11', false],
+			['2026-10', true]
+		]);
+	});
+
 	it('retries a failed delivery after 1 h, then 4 h, then 12 h', async () => {
 		const { fetch } = world({ state: () => json({ enabled: true }), sinkStatus: 503 });
 		const { deps: d, timers } = deps(fetch);

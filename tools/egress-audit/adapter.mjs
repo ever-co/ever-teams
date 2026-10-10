@@ -32,6 +32,15 @@ const WOULD_SHOW = {
 	EVER_STATS_SEND_INTERVAL_S: '5'
 };
 
+/**
+ * The reporter interval of `loaded_off`: the first question 10 minutes after the start, as in
+ * production, then every 10 minutes. The config's wait_s (660) is longer than one interval, so at least
+ * one question is asked after the operator's switch-off and inside the watched window; the workflow
+ * then requires the log line of that question (`skipped_gauzy_off`), so a run in which the reporter
+ * never asked cannot pass.
+ */
+const LOADED_OFF_INTERVAL_S = '600';
+
 /** The web app's Ever Platform routes, with the method (and body) its settings use. */
 const MODULE_ROUTES = [
 	['GET', '/api/ever-stats/status'],
@@ -203,18 +212,28 @@ async function assertSignedIn(page, ctx) {
 }
 
 export default {
+	// Every mode sets the web app's statistics switch explicitly (the app's own default is on).
 	env: {
-		off: { ...WOULD_SHOW, NEXT_PUBLIC_EVER_CONNECT_ENABLED: null, [ADMIN_PASSWORD_KEY]: adminPassword() },
+		off: {
+			...WOULD_SHOW,
+			EVER_STATS_ENABLED: 'false',
+			NEXT_PUBLIC_EVER_CONNECT_ENABLED: null,
+			[ADMIN_PASSWORD_KEY]: adminPassword()
+		},
 		// The paired API's statistics are on until the operator switches them off (prepareLoadedOff, as soon
-		// as the API is up): the reporter first asks after 10 minutes, as in production, then every 10
-		// minutes, so every one of its questions comes after the operator's switch and must stay silent.
+		// as the API is up); see LOADED_OFF_INTERVAL_S for why its questions come after that switch.
 		loaded_off: {
+			EVER_STATS_ENABLED: 'true',
 			EVER_STATS_API_URL: WOULD_SHOW.EVER_STATS_API_URL,
-			EVER_STATS_SEND_INTERVAL_S: '600',
+			EVER_STATS_SEND_INTERVAL_S: LOADED_OFF_INTERVAL_S,
 			NEXT_PUBLIC_EVER_CONNECT_ENABLED: 'true',
 			[ADMIN_PASSWORD_KEY]: adminPassword()
 		},
-		positive_stats: { NEXT_PUBLIC_EVER_CONNECT_ENABLED: null, [ADMIN_PASSWORD_KEY]: adminPassword() }
+		positive_stats: {
+			EVER_STATS_ENABLED: 'true',
+			NEXT_PUBLIC_EVER_CONNECT_ENABLED: null,
+			[ADMIN_PASSWORD_KEY]: adminPassword()
+		}
 	},
 
 	/** The seeded super admin as a Teams manager: an organization, an employee and a team it manages. */
