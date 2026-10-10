@@ -9,7 +9,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useOrganizationTeamsQuery } from './use-organization-teams-query';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryKey, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { publicOrganizationTeamService } from '@/core/services/client/api/organizations';
 
@@ -17,6 +17,18 @@ import { publicOrganizationTeamService } from '@/core/services/client/api/organi
 // refetches each query once it is stale instead of only reading the cache
 const PUBLIC_TEAM_STALE_TIME = 1000 * 60 * 5; // 5 minutes - public team data is relatively stable
 const PUBLIC_TEAM_MISC_STALE_TIME = 1000 * 60 * 15; // 15 minutes - misc data changes less frequently
+
+// A query that failed before loading any data is left to its useQuery, which retries it on mount.
+// Without data, ensureQueryData ignores staleTime and fetches, so every tick would call the
+// unauthenticated endpoint again. Failures resolve to undefined: the query keeps the error.
+function ensurePublicTeamQueryData(queryClient: QueryClient, queryKey: QueryKey, staleTime: number): Promise<unknown> {
+	const state = queryClient.getQueryState(queryKey);
+	if (state?.status === 'error' && state.data === undefined) {
+		return Promise.resolve(undefined);
+	}
+
+	return queryClient.ensureQueryData({ queryKey, staleTime, revalidateIfStale: true }).catch(() => undefined);
+}
 
 export function usePublicOrganizationTeams() {
 	const activeTeam = useAtomValue(activeTeamState);
@@ -139,11 +151,11 @@ export function usePublicOrganizationTeams() {
 				setQueryParams({ profileLink, teamId });
 			}
 
-			return queryClient.ensureQueryData({
-				queryKey: queryKeys.teams.public.byProfileAndTeam(profileLink, teamId),
-				staleTime: PUBLIC_TEAM_STALE_TIME,
-				revalidateIfStale: true
-			});
+			return ensurePublicTeamQueryData(
+				queryClient,
+				queryKeys.teams.public.byProfileAndTeam(profileLink, teamId),
+				PUBLIC_TEAM_STALE_TIME
+			);
 		},
 		[setQueryParams, queryParams?.profileLink, queryParams?.teamId]
 	);
@@ -155,11 +167,11 @@ export function usePublicOrganizationTeams() {
 				setMiscQueryParams({ profileLink, teamId });
 			}
 
-			return queryClient.ensureQueryData({
-				queryKey: queryKeys.teams.public.miscData(profileLink, teamId),
-				staleTime: PUBLIC_TEAM_MISC_STALE_TIME,
-				revalidateIfStale: true
-			});
+			return ensurePublicTeamQueryData(
+				queryClient,
+				queryKeys.teams.public.miscData(profileLink, teamId),
+				PUBLIC_TEAM_MISC_STALE_TIME
+			);
 		},
 		[setMiscQueryParams, miscQueryParams?.profileLink, miscQueryParams?.teamId]
 	);
