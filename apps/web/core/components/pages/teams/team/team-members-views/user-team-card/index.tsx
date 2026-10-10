@@ -3,7 +3,6 @@ import { secondsToTime } from '@/core/lib/helpers/index';
 import {
 	useCollaborative,
 	useTMCardTaskEdit,
-	useTaskStatistics,
 	useMemberIdentity,
 	useMemberActiveTask,
 	useTeamMemberMutations,
@@ -96,7 +95,7 @@ const ChevronToggleButton = React.memo(
 	}
 );
 
-export function UserTeamCard({
+export const UserTeamCard = React.memo(function UserTeamCard({
 	className,
 	active,
 	member,
@@ -107,16 +106,9 @@ export function UserTeamCard({
 	onDragEnter = () => null,
 	onDragOver = () => null
 }: IUserTeamCard) {
-	const t = useTranslations();
-
 	const { data: user } = useUserQuery();
 
-	// Memoize expensive hook calls
-	const profile = useUserProfilePage();
 	const [userDetailAccordion, setUserDetailAccordion] = useAtom(userAccordion);
-	// Use isolated tab state for UserTeamCard to prevent global state leak from profile page
-	// With 'auto' default: shows daily plans if user has them, otherwise shows assigned tasks
-	const hook = useTaskFilter(profile, { persistState: false, defaultTab: 'auto', statsCount: 0 });
 	// Granular hooks — "pay only for what you use"
 	const identity = useMemberIdentity(member);
 	const memberTask = useMemberActiveTask(member);
@@ -132,12 +124,8 @@ export function UserTeamCard({
 	const taskEdition = useTMCardTaskEdit(memberTask);
 	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(identity.memberUser);
 
-	const seconds = useAtomValue(timerSecondsState);
 	const setActivityFilter = useSetAtom(activityTypeState);
 
-	const statActiveTask = useAtomValue(activeTaskStatisticsState);
-	const activeTaskTotalStat = statActiveTask.total;
-	const { addSeconds } = useTaskStatistics(seconds);
 	const [showActivity, setShowActivity] = React.useState<boolean>(false);
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 	const activeTeam = useAtomValue(activeTeamState);
@@ -172,29 +160,6 @@ export function UserTeamCard({
 		},
 		[setUserDetailAccordion, setActivityFilter]
 	);
-
-	let totalWork = <></>;
-	if (identity.isAuthUser) {
-		const { hours: h, minutes: m } = secondsToTime(
-			((member?.totalTodayTasks &&
-				member?.totalTodayTasks.reduce(
-					(previousValue: number, currentValue: TTaskStatistics) =>
-						previousValue + (currentValue.duration || 0),
-					0
-				)) ||
-				activeTaskTotalStat?.duration ||
-				0) + addSeconds
-		);
-
-		totalWork = (
-			<div className={clsxm('flex flex-col gap-1 items-center mr-4 font-normal')}>
-				<span className="text-xs text-gray-500">{t('common.TOTAL_TIME')}:</span>
-				<Text className="text-xs">
-					{h}h : {m}m
-				</Text>
-			</div>
-		);
-	}
 
 	const menu = (
 		<>
@@ -257,25 +222,6 @@ export function UserTeamCard({
 		user?.timeZone
 	]);
 
-	const activityScreens = useMemo(() => {
-		return {
-			Tasks: (
-				<LazyUserProfileTask
-					profile={profile}
-					tabFiltered={hook}
-					user={member?.employee?.user}
-					employeeId={member?.employeeId}
-					activityScope={activityScope}
-					paginateTasks={true}
-					useVirtualization={hook.tasksFiltered?.length > ITEMS_LENGTH_TO_VIRTUALIZED}
-				/>
-			),
-			Screenshots: <ScreenshootTab />,
-			Apps: <AppsTab />,
-			'Visited Sites': <VisitedSitesTab />
-		};
-	}, [activityScope, profile, hook, member?.employee?.user, member?.employeeId]);
-
 	// Use the memoized accordion state from above
 
 	// Determine if we're loading member data (for skeleton display)
@@ -294,7 +240,6 @@ export function UserTeamCard({
 			onDragEnter={onDragEnter}
 			onDragEnd={onDragEnd}
 			onDragOver={onDragOver}
-			ref={profile?.loadTaskStatsIObserverRef}
 		>
 			<EverCard
 				shadow="bigger"
@@ -411,38 +356,13 @@ export function UserTeamCard({
 					<div className="absolute right-2">{menu}</div>
 				</div>
 				{isAccordionExpanded && canSeeActivity && !showActivity ? (
-					isLoadingMemberData ? (
-						// Show skeleton while loading member data
-						<div className="overflow-y-auto h-96">
-							<UserProfileTaskSkeleton />
-						</div>
-					) : (
-						// Show content once loaded
-						<div className="overflow-y-auto h-96">
-							<Container className="px-3 py-5 xl:px-0">
-								<div className={clsxm('flex gap-4 justify-start items-center mt-3')}>
-									{Object.keys(activityScreens).map((filter, i) => (
-										<div
-											key={uniqueId(`${i + 1}`)}
-											className="flex gap-4 justify-start items-center cursor-pointer"
-										>
-											{i !== 0 && <VerticalSeparator />}
-											<div
-												className={clsxm(
-													'text-gray-500',
-													activityFilter == filter && 'text-black dark:text-white'
-												)}
-												onClick={() => changeActivityFilter(filter as FilterTab)}
-											>
-												{filter}
-											</div>
-										</div>
-									))}
-								</div>
-							</Container>
-							{activityScreens[activityFilter] ?? null}
-						</div>
-					)
+					<MemberActivityPanel
+						member={member}
+						activityScope={activityScope}
+						activityFilter={activityFilter}
+						onActivityFilterChange={changeActivityFilter}
+						isLoading={isLoadingMemberData}
+					/>
 				) : isAccordionExpanded ? (
 					<div className="flex justify-center items-center w-full h-20">
 						<Loader className="animate-spin" />
@@ -464,7 +384,7 @@ export function UserTeamCard({
 			>
 				<div className="flex justify-between items-center mb-4">
 					<UserInfo memberInfo={identity} publicTeam={publicTeam} className="w-9/12" />
-					{totalWork}
+					{identity.isAuthUser && <AuthUserTotalWork member={member} />}
 				</div>
 
 				<div className="flex flex-wrap justify-between items-start pb-4 border-b">
@@ -496,6 +416,109 @@ export function UserTeamCard({
 			{/* {currentExit && (
 				<HorizontalSeparator className="mt-2 !border-primary-light dark:!border-primary-light !border-t-2" />
 			)} */}
+		</div>
+	);
+});
+
+// Only the authenticated member's card shows this total, so only that card subscribes to the per-second timer
+function AuthUserTotalWork({ member }: { member: IUserTeamCard['member'] }) {
+	const t = useTranslations();
+	const seconds = useAtomValue(timerSecondsState);
+	const statActiveTask = useAtomValue(activeTaskStatisticsState);
+	const activeTaskTotalStat = statActiveTask.total;
+
+	const { hours: h, minutes: m } = secondsToTime(
+		((member?.totalTodayTasks &&
+			member?.totalTodayTasks.reduce(
+				(previousValue: number, currentValue: TTaskStatistics) => previousValue + (currentValue.duration || 0),
+				0
+			)) ||
+			activeTaskTotalStat?.duration ||
+			0) + seconds
+	);
+
+	return (
+		<div className={clsxm('flex flex-col gap-1 items-center mr-4 font-normal')}>
+			<span className="text-xs text-gray-500">{t('common.TOTAL_TIME')}:</span>
+			<Text className="text-xs">
+				{h}h : {m}m
+			</Text>
+		</div>
+	);
+}
+
+type MemberActivityPanelProps = {
+	member: IUserTeamCard['member'];
+	activityScope?: TProfileActivityScope;
+	activityFilter: FilterTab;
+	onActivityFilterChange: (filter: FilterTab) => void;
+	isLoading: boolean;
+};
+
+// Mounted only in the expanded card, so the profile and task filter hooks run once instead of once per member row
+function MemberActivityPanel({
+	member,
+	activityScope,
+	activityFilter,
+	onActivityFilterChange,
+	isLoading
+}: MemberActivityPanelProps) {
+	const profile = useUserProfilePage();
+	// Use isolated tab state for UserTeamCard to prevent global state leak from profile page
+	// With 'auto' default: shows daily plans if user has them, otherwise shows assigned tasks
+	const hook = useTaskFilter(profile, { persistState: false, defaultTab: 'auto', statsCount: 0 });
+
+	const activityScreens = useMemo(() => {
+		return {
+			Tasks: (
+				<LazyUserProfileTask
+					profile={profile}
+					tabFiltered={hook}
+					user={member?.employee?.user}
+					employeeId={member?.employeeId}
+					activityScope={activityScope}
+					paginateTasks={true}
+					useVirtualization={hook.tasksFiltered?.length > ITEMS_LENGTH_TO_VIRTUALIZED}
+				/>
+			),
+			Screenshots: <ScreenshootTab />,
+			Apps: <AppsTab />,
+			'Visited Sites': <VisitedSitesTab />
+		};
+	}, [activityScope, profile, hook, member?.employee?.user, member?.employeeId]);
+
+	return (
+		<div className="overflow-y-auto h-96" ref={profile.loadTaskStatsIObserverRef}>
+			{isLoading ? (
+				// Show skeleton while loading member data
+				<UserProfileTaskSkeleton />
+			) : (
+				// Show content once loaded
+				<>
+					<Container className="px-3 py-5 xl:px-0">
+						<div className={clsxm('flex gap-4 justify-start items-center mt-3')}>
+							{Object.keys(activityScreens).map((filter, i) => (
+								<div
+									key={uniqueId(`${i + 1}`)}
+									className="flex gap-4 justify-start items-center cursor-pointer"
+								>
+									{i !== 0 && <VerticalSeparator />}
+									<div
+										className={clsxm(
+											'text-gray-500',
+											activityFilter == filter && 'text-black dark:text-white'
+										)}
+										onClick={() => onActivityFilterChange(filter as FilterTab)}
+									>
+										{filter}
+									</div>
+								</div>
+							))}
+						</div>
+					</Container>
+					{activityScreens[activityFilter] ?? null}
+				</>
+			)}
 		</div>
 	);
 }
