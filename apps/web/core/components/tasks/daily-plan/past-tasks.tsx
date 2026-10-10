@@ -43,7 +43,7 @@ export function PastTasks({
 
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 	// Use a safe default instead of direct localStorage access
-	const { date } = useDateRange('Past Tasks');
+	const { date } = useDateRange('Past Tasks', employeeId);
 
 	// Use useMemo instead of useEffect to prevent infinite re-render loop
 	// The previous useEffect was modifying pastPlans while depending on pastPlans, causing infinite loop
