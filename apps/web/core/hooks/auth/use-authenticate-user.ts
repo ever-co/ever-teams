@@ -25,7 +25,7 @@ import { queryKeys } from '@/core/query/keys';
 import { toast } from 'sonner';
 import { UseAuthenticateUserResult } from '@/core/types/interfaces/user/user';
 import { useUserQuery } from '../queries/user-user.query';
-import { logErrorInDev } from '@/core/lib/helpers/error-message';
+import { logErrorInDev, logInDev } from '@/core/lib/helpers/error-message';
 import { clearChatHistoryForUser } from '@/core/components/features/chat-panel/chat-history';
 
 export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserResult => {
@@ -52,7 +52,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		},
 		onSuccess: () => {
 			consecutiveFailures.current = 0;
-			console.log('[Auth] ✅ Token refreshed successfully');
+			logInDev('[Auth] ✅ Token refreshed successfully');
 			queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
 		},
 		onError: (error: unknown) => {
@@ -89,7 +89,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 			} else {
 				console.warn(
 					`[Auth] ⚠️ Refresh attempt ${consecutiveFailures.current}/${maxConsecutiveFailures} failed:`,
-					error
+					(error as Error)?.message
 				);
 				toast.warning(
 					`Connection issue. Retrying... (${consecutiveFailures.current}/${maxConsecutiveFailures})`
@@ -219,14 +219,14 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 			// but never schedule a refresh after the token is expected to expire
 			const remainingTimeSeconds = getTokenRemainingTime(currentToken);
 			if (remainingTimeSeconds <= 0) {
-				console.log('[Auth] Token already expired, not scheduling further refreshes');
+				logInDev('[Auth] Token already expired, not scheduling further refreshes');
 				return;
 			}
 
 			const rawInterval = calculateRefreshInterval(currentToken);
 			const interval = Math.min(rawInterval, remainingTimeSeconds * 1000);
 
-			console.log(
+			logInDev(
 				`[Auth] Token remaining: ${formatRemainingTime(remainingTimeSeconds)}, ` +
 					`Next refresh in: ${formatRemainingTime(interval / 1000)}`
 			);
@@ -239,7 +239,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 					// Strategy: If token has more than 50% of its lifetime remaining, someone refreshed it
 					// This is consistent with the 50% refresh strategy used in calculateRefreshInterval
 					if (!tokenToCheck) {
-						console.log('[Auth] Token cleared, stopping scheduler');
+						logInDev('[Auth] Token cleared, stopping scheduler');
 						return; // Stop, don't reschedule - user logged out
 					}
 
@@ -250,14 +250,14 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 
 					if (remainingSeconds > halfLifeSeconds) {
 						// Token has more than 50% life remaining - was refreshed elsewhere (e.g., by proxy.ts)
-						console.log(
+						logInDev(
 							`[Auth] Token refreshed elsewhere (${formatRemainingTime(remainingSeconds)} remaining > 50% lifetime), rescheduling...`
 						);
 						scheduleNextRefresh();
 						return;
 					}
 
-					console.log('[Auth] Scheduled token refresh triggered');
+					logInDev('[Auth] Scheduled token refresh triggered');
 
 					try {
 						await refreshTokenMutateAsync();
@@ -284,7 +284,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 			// Using mutate() with callbacks to control scheduler timing (no async/await needed)
 			// NOTE: The mutation's onSuccess/onError already handle core logic (reset failures,
 			// invalidate queries, 401 detection, etc). These callbacks ONLY add scheduling control.
-			console.log('[Auth] Token expired or expiring soon, refreshing immediately...');
+			logInDev('[Auth] Token expired or expiring soon, refreshing immediately...');
 			refreshTokenMutate(undefined, {
 				onSuccess: () => {
 					// Core success logic handled by mutation's onSuccess

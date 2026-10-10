@@ -14,7 +14,6 @@ export async function POST(req: Request) {
 		taskId,
 		teamId: organizationTeamId
 	} = await authenticatedGuard(req, res);
-	console.log({ user, tenantId, taskId });
 	if (!user) return $res('Unauthorized');
 
 	await startTimerRequest(
