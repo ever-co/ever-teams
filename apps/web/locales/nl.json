@@ -1084,6 +1084,7 @@
 			"LOADING": "Tijdregistratiegegevens laden...",
 			"NO_ENTRIES_FOUND": "Geen tijdregistratie-invoeren gevonden",
 			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Je staat op het punt de geselecteerde invoer te weigeren, wil je doorgaan?",
+			"REJECTION_REASON": "Reden van afwijzing",
 			"ALL_TASKS": "Alle taken",
 			"PENDING": "In behandeling",
 			"APPROVED": "Goedgekeurd",

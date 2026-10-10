@@ -1084,6 +1084,7 @@
 			"LOADING": "Загрузка данных учета рабочего времени...",
 			"NO_ENTRIES_FOUND": "Записи учета рабочего времени не найдены",
 			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Você está prestes a rejeitar a entrada selecionada, deseja continuar?",
+			"REJECTION_REASON": "Motivo da rejeição",
 			"ALL_TASKS": "Todas as tarefas",
 			"PENDING": "Pendente",
 			"APPROVED": "Aprovado",

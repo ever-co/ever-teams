@@ -44,10 +44,13 @@ export function RejectSelectedModal({
 		try {
 			updateTimesheetStatus({
 				status: ETimesheetStatus.DENIED,
-				ids: selectTimesheetId || []
+				ids: selectTimesheetId || [],
+				reason
 			})
 				.then(() => {
 					closeModal();
+					setReason('');
+					onReject(reason);
 				})
 				.catch((error) => console.error(error));
 		} finally {

@@ -1084,6 +1084,7 @@
 			"LOADING": "Lade Zeiterfassungsdaten...",
 			"NO_ENTRIES_FOUND": "Keine Zeiterfassungseinträge gefunden",
 			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Sie sind dabei, den ausgewählten Eintrag abzulehnen. Möchten Sie fortfahren?",
+			"REJECTION_REASON": "Ablehnungsgrund",
 			"ALL_TASKS": "Alle Aufgaben",
 			"PENDING": "Ausstehend",
 			"APPROVED": "Genehmigt",
