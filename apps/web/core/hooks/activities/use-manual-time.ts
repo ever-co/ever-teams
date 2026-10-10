@@ -1,16 +1,16 @@
 import { useCallback, useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { useAuthenticateUser } from '../auth';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { TAddManualTimeRequest, TTimeLog } from '@/core/types/schemas';
-import { queryKeys } from '@/core/query/keys';
+import { useTimesheetInvalidation } from '@/core/hooks/timesheet/use-timesheet-invalidation';
 import { toast } from 'sonner';
 
 export function useManualTime() {
 	const { user } = useAuthenticateUser();
-	const queryClient = useQueryClient();
+	const { invalidateTimesheetData } = useTimesheetInvalidation();
 	const [timeLog, setTimeLog] = useState<TTimeLog>();
 
 	// React Query mutation for adding manual time
@@ -21,7 +21,7 @@ export function useManualTime() {
 		onSuccess: (data) => {
 			setTimeLog(data);
 			// Invalidate related queries to refresh data
-			queryClient.invalidateQueries({ queryKey: queryKeys.timer.timeLogs.all });
+			invalidateTimesheetData();
 
 			// Format dates for display
 			const startDate = new Date(data.startedAt);
