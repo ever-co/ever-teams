@@ -802,7 +802,7 @@
 			"REDIRECT_TO_WORSPACE_LOADING": "Redirection vers votre espace de travail...",
 			"VERIFY_EMAIL_LOADING_TEXT": "Nous vérifions votre e-mail, patientez...",
 			"VERIFY_EMAIL_FAILED_TITLE": "Nous n'avons pas pu vérifier votre e-mail",
-			"VERIFY_EMAIL_FAILED_MESSAGE": "Ce lien de vérification est invalide, a expiré ou a déjà été utilisé. Ouvrez l'application pour en demander un nouveau.",
+			"VERIFY_EMAIL_FAILED_MESSAGE": "Le lien est peut-être invalide, expiré ou déjà utilisé, ou le serveur n'a pas pu être joint. Réessayez le lien dans un instant, ou ouvrez l'application pour en demander un nouveau.",
 			"INPUT_TEAM_NAME": "Saisissez le nom de votre équipe",
 			"JOIN_EXISTING_TEAM": "Rejoindre une équipe existante ?",
 			"CREATE_FIRST_TEAM": "Créer votre première équipe",

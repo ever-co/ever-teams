@@ -802,7 +802,7 @@
 			"REDIRECT_TO_WORSPACE_LOADING": "Reindirizzamento al tuo spazio di lavoro...",
 			"VERIFY_EMAIL_LOADING_TEXT": "Stiamo verificando la tua email, attendi...",
 			"VERIFY_EMAIL_FAILED_TITLE": "Non siamo riusciti a verificare la tua email",
-			"VERIFY_EMAIL_FAILED_MESSAGE": "Questo link di verifica non è valido, è scaduto o è già stato utilizzato. Apri l'app per richiederne uno nuovo.",
+			"VERIFY_EMAIL_FAILED_MESSAGE": "Il link potrebbe non essere valido, essere scaduto o già utilizzato, oppure non è stato possibile raggiungere il server. Riprova tra poco o apri l'app per richiederne uno nuovo.",
 			"INPUT_TEAM_NAME": "Inserisci il nome del tuo team",
 			"JOIN_EXISTING_TEAM": "Unisciti a un team esistente?",
 			"CREATE_FIRST_TEAM": "Crea il tuo primo team",
