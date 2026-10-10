@@ -14,7 +14,7 @@ import { useFirstLoad } from '../common/use-first-load';
 import debounce from 'lodash/debounce';
 import { useSyncRef } from '../common/use-sync-ref';
 import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
-import { useRefreshIntervalV2 } from '../common';
+import { useRefreshIntervalV2 } from '../common/use-refresh-interval';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '../queries/user-user.query';

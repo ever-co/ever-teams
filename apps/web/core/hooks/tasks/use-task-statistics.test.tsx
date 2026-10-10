@@ -20,7 +20,7 @@ jest.mock('../queries/user-user.query', () => ({
 jest.mock('../common/use-first-load', () => ({
 	useFirstLoad: () => ({ firstLoad: false, firstLoadData: jest.fn() })
 }));
-jest.mock('../common', () => ({ useRefreshIntervalV2: jest.fn() }));
+jest.mock('../common/use-refresh-interval', () => ({ useRefreshIntervalV2: jest.fn() }));
 jest.mock('../bootstrap/use-scope-guard', () => ({
 	useScopeGuard: () => isCurrentScope
 }));

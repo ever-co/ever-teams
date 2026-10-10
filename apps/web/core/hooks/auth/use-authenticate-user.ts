@@ -18,8 +18,8 @@ import { useSetAtom, useAtomValue } from 'jotai';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { authService } from '@/core/services/client/api/auth/auth.service';
-import { useIsMemberManager } from '../organizations';
-import { useUserProfilePage } from '../users';
+import { useIsMemberManager } from '../organizations/teams/use-team-member';
+import { useUserProfilePage } from '../users/use-user-profile-page';
 import { TUser } from '@/core/types/schemas';
 import { queryKeys } from '@/core/query/keys';
 import { toast } from 'sonner';

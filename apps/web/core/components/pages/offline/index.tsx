@@ -1,12 +1,19 @@
+import dynamic from 'next/dynamic';
 import { cn } from '@/core/lib/helpers';
 import SadCry from '@/core/components/svgs/sad-cry';
-import { Text } from '@/core/components';
+import { Text } from '@/core/components/common/typography';
 import { useTranslations } from 'next-intl';
-import { Timer } from '../../timer/timer';
 
 interface IPropsOffline {
 	showTimer?: boolean;
 }
+
+// This screen is imported by the (main) layout of every page, and the timer brings the daily plan and task modals
+// with it, so it is loaded on demand. Its chunk cannot be fetched once the network is gone, which is why
+// OfflineWrapper calls preloadOfflineTimer while still online as soon as a timer is running.
+const Timer = dynamic(() => import('../../timer/timer').then((mod) => ({ default: mod.Timer })), { ssr: false });
+
+export const preloadOfflineTimer = () => import('../../timer/timer');
 
 function Offline({ showTimer }: IPropsOffline) {
 	const t = useTranslations();

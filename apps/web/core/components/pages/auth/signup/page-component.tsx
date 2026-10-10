@@ -1,10 +1,13 @@
 'use client';
 
 import { CAPTCHA_TYPE, DEFAULT_APP_PATH, RECAPTCHA_SITE_KEY } from '@/core/constants/config/constants';
-import { IStepProps, TStartMode, useAuthenticationTeam } from '@/core/hooks';
+import { IStepProps, TStartMode, useAuthenticationTeam } from '@/core/hooks/auth/use-authentication-team';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
-import { BackButton, BackdropLoader, Button, SiteReCAPTCHA, Text } from '@/core/components';
-import { AuthLayout } from '@/core/components/layouts/default-layout';
+import { BackButton, Button } from '@/core/components/common/button';
+import { BackdropLoader } from '@/core/components/common/loader';
+import { Text } from '@/core/components/common/typography';
+import { SiteReCAPTCHA } from '@/core/components/duplicated-components/recaptcha';
+import { AuthLayout } from '@/core/components/layouts/default-layout/auth-layout';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import SocialLogins from '@/core/components/auth/social-logins-buttons';

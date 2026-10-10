@@ -4,7 +4,8 @@ import { taskService } from '@/core/services/client/api';
 import { activeTeamState, detailedTaskState, tasksByTeamState } from '@/core/stores';
 import { useCallback, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
-import { useSyncRef, useQueryCall } from '../../common';
+import { useSyncRef } from '../../common/use-sync-ref';
+import { useQueryCall } from '../../common/use-query';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 

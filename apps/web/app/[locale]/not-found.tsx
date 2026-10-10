@@ -1,7 +1,7 @@
 'use client';
 
 import NotFound from '@/core/components/pages/404';
-import { AuthLayout } from '@/core/components/layouts/default-layout';
+import { AuthLayout } from '@/core/components/layouts/default-layout/auth-layout';
 import { useTranslations } from 'next-intl';
 
 const NotFoundPage = () => {

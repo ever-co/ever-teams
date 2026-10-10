@@ -52,10 +52,12 @@ jest.mock('@/core/services/client/api/organizations/teams', () => ({
 		}))
 	}
 }));
-jest.mock('../../common', () => {
+jest.mock('../../common/use-first-load', () => ({
+	useFirstLoad: () => ({ firstLoadData: jest.fn() })
+}));
+jest.mock('../../common/use-sync-ref', () => {
 	const React = require('react') as typeof import('react');
 	return {
-		useFirstLoad: () => ({ firstLoadData: jest.fn() }),
 		useSyncRef: <T,>(value: T) => {
 			const ref = React.useRef(value);
 			ref.current = value;
@@ -64,7 +66,7 @@ jest.mock('../../common', () => {
 	};
 });
 jest.mock('./use-teams-state', () => ({ useTeamsState: () => ({ setTeamsUpdate: jest.fn() }) }));
-jest.mock('../../users', () => ({ useSettings: () => ({ updateAvatar: jest.fn() }) }));
+jest.mock('../../users/use-settings', () => ({ useSettings: () => ({ updateAvatar: jest.fn() }) }));
 
 import { useOrganizationTeamsQuery } from './use-organization-teams-query';
 import { useScopeTransitionGuard } from '../../../components/layouts/app/use-scope-transition-guard';

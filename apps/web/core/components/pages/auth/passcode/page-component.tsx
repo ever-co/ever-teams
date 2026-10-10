@@ -1,11 +1,13 @@
 'use client';
 
 import { getAccessTokenCookie, getActiveUserIdCookie } from '@/core/lib/helpers/index';
-import { TAuthenticationPasscode, useAuthenticationPasscode } from '@/core/hooks';
+import { TAuthenticationPasscode, useAuthenticationPasscode } from '@/core/hooks/auth/use-authentication-passcode';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
-import { BackButton, BackdropLoader, Button, SpinnerLoader, Text } from '@/core/components';
+import { BackButton, Button } from '@/core/components/common/button';
+import { BackdropLoader, SpinnerLoader } from '@/core/components/common/loader';
+import { Text } from '@/core/components/common/typography';
 import { CircleIcon, CheckCircleOutlineIcon } from 'assets/svg';
-import { AuthLayout } from '@/core/components/layouts/default-layout';
+import { AuthLayout } from '@/core/components/layouts/default-layout/auth-layout';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';

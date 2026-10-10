@@ -2,7 +2,7 @@ import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-dai
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
-import { getTotalTasks } from '@/core/components/tasks/daily-plan';
+import { getTotalTasks } from '@/core/components/tasks/daily-plan/task-estimated-count';
 import { TUser } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';

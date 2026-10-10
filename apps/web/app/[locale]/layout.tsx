@@ -10,7 +10,6 @@ import { notFound, usePathname, useRouter, useSearchParams } from 'next/navigati
 import { useEffect, use } from 'react';
 import { Geist } from 'next/font/google';
 import { useCheckAPI } from '@/core/hooks/common/use-check-api';
-import OfflineWrapper from '@/core/components/common/offline-wrapper';
 import { useRuntimeEnvHtmlProps } from '@/core/components/providers/runtime-env-provider';
 
 import { PHProvider } from './(main)/integration/posthog/provider';
@@ -30,6 +29,13 @@ const font = Geist({
 });
 
 const PostHogPageView = dynamic(() => import('./(main)/integration/posthog/page-view'), {
+	ssr: false
+});
+
+// Every route below used to be client rendered because OfflineWrapper (ssr: false) wrapped it here. OfflineWrapper
+// moved to the (main) layout so the auth routes stop compiling the Timer of its offline screen. This boundary keeps
+// the rendering of every route unchanged.
+const ClientOnly = dynamic(() => Promise.resolve(({ children }: { children: React.ReactNode }) => <>{children}</>), {
 	ssr: false
 });
 
@@ -159,9 +165,9 @@ const LocaleLayout = (props: Props) => {
 									enableSystem
 									disableTransitionOnChange
 								>
-									<OfflineWrapper>
+									<ClientOnly>
 										<JitsuRoot>{children}</JitsuRoot>
-									</OfflineWrapper>
+									</ClientOnly>
 								</ThemeProvider>
 							</JotaiProvider>
 						</NextAuthSessionProvider>

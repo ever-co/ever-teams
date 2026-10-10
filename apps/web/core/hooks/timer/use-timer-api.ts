@@ -34,11 +34,13 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TUser } from '@/core/types/schemas/user/user.schema';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { useAuthenticateUser } from '../auth';
+import { useAuthenticateUser } from '../auth/use-authenticate-user';
 import { useQueryCall } from '../common/use-query';
 import { useSyncRef } from '../common/use-sync-ref';
 import { useMyDailyPlans } from '../daily-plans/use-my-daily-plans';
-import { useOrganizationEmployeeTeams, useTeamTasksState, useUpdateTask } from '../organizations';
+import { useOrganizationEmployeeTeams } from '../organizations/teams/use-organization-teams-employee';
+import { useTeamTasksState } from '../organizations/teams/use-team-tasks-state';
+import { useUpdateTask } from '../organizations/teams/use-update-task';
 import { useTaskStatusesQuery } from '../tasks/use-task-statuses-query';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useScopeGuard } from '../bootstrap/use-scope-guard';

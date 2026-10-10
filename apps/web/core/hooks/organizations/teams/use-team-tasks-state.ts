@@ -18,8 +18,9 @@ import {
 import { useCallback, useRef, useState } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useOrganizationEmployeeTeams } from './use-organization-teams-employee';
-import { useAuthenticateUser } from '../../auth';
-import { useConditionalUpdateEffect, useSyncRef } from '../../common';
+import { useAuthenticateUser } from '../../auth/use-authenticate-user';
+import { useConditionalUpdateEffect } from '../../common/use-has-mounted';
+import { useSyncRef } from '../../common/use-sync-ref';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '../../queries/user-user.query';

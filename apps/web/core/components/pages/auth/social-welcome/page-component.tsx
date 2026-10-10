@@ -1,6 +1,6 @@
 'use client';
 import { setAuthCookies } from '@/core/lib/helpers/index';
-import { BackdropLoader } from '@/core/components';
+import { BackdropLoader } from '@/core/components/common/loader';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
