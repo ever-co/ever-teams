@@ -1,4 +1,6 @@
+import { STALE_TIMER_THRESHOLD_MS } from '@/core/constants/config/constants';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 // ==================== TYPES ====================
 
@@ -14,6 +16,18 @@ export function canRunTimerForState(state: TimerEligibilityState): boolean {
 	if (!state.isEmailVerified) return false;
 	if (state.hasActiveTask && !state.isActiveTaskClosed) return true;
 	return state.isTimerRunning && state.timerSource !== ETimeLogSource.TEAMS;
+}
+
+/**
+ * Every web heartbeat moves the running log's stoppedAt to the server time, so a TEAMS log that is still
+ * running with an old stoppedAt was left behind by a tab that closed without stopping it.
+ */
+export function isStaleTeamsTimer(
+	lastLog: ITimeLog | null | undefined,
+	now: number
+): lastLog is ITimeLog & { stoppedAt: Date } {
+	if (!lastLog?.isRunning || lastLog.source !== ETimeLogSource.TEAMS || !lastLog.stoppedAt) return false;
+	return now - new Date(lastLog.stoppedAt).getTime() > STALE_TIMER_THRESHOLD_MS;
 }
 
 /**

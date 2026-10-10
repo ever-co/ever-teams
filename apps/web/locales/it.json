@@ -1113,6 +1113,7 @@
 		"STARTING_TIMER": "Avvio del timer...",
 		"TIMER_STARTED": "Timer avviato con successo",
 		"TIMER_START_FAILED": "Impossibile avviare il Timer",
+		"STALE_TIMER_STOPPED_DESCRIPTION": "Il timer ha continuato a funzionare dopo la chiusura dell'app. È stato quindi fermato all'ultimo momento in cui l'app era aperta ({stoppedAt}). Se hai lavorato dopo, aggiungi il tempo manualmente.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer Fermato",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Il timer è stato fermato a causa del cambio di team"

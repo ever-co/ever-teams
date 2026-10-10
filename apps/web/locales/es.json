@@ -1113,6 +1113,7 @@
 		"STARTING_TIMER": "Iniciando temporizador...",
 		"TIMER_STARTED": "Temporizador iniciado exitosamente",
 		"TIMER_START_FAILED": "Error al iniciar el temporizador",
+		"STALE_TIMER_STOPPED_DESCRIPTION": "Tu temporizador siguió en marcha después de cerrar la aplicación. Por eso se detuvo en el último momento en que la aplicación estaba abierta ({stoppedAt}). Si trabajaste después, añade el tiempo manualmente.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Temporizador detenido",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Temporizador detenido debido al cambio de equipo"
