@@ -1039,6 +1039,15 @@ export const TIMER_STATUS_CONSTANTS = {
 	HOURS_THRESHOLD: 24
 } as const;
 
+export const EMPLOYEE_PRESENCE_CONSTANTS = {
+	/** A heartbeat is sent this often while the tab is visible. */
+	HEARTBEAT_INTERVAL_MS: 60_000,
+	/** No keyboard, mouse or touch input for this long makes the heartbeat report idle. */
+	IDLE_AFTER_MS: 10 * 60_000,
+	/** A member whose last heartbeat is older than this is offline. */
+	ONLINE_WINDOW_MS: 3 * 60_000
+} as const;
+
 export const paginationPageSizeOptions = [5, 10, 20, 30, 40, 50];
 
 export const InviteStatusDisplayMap = {
