@@ -481,7 +481,11 @@
 		"GROUP_BY": "Группировать по",
 		"DATE": "Дата",
 		"VIEW": "Вид",
-		"HOURS_ON_DATE": "{hours} часов {date}"
+		"HOURS_ON_DATE": "{hours} часов {date}",
+		"PREVIOUS_WEEK": "Предыдущая неделя",
+		"NEXT_WEEK": "Следующая неделя",
+		"WEEKLY_REPORT_ERROR": "Недельный отчет недоступен",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "Не удалось загрузить время, отслеженное за выбранную неделю."
 	},
 	"hotkeys": {
 		"HELP": "Помощь",

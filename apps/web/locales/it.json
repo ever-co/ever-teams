@@ -481,7 +481,11 @@
 		"GROUP_BY": "Raggruppa per",
 		"DATE": "Data",
 		"VIEW": "Vista",
-		"HOURS_ON_DATE": "{hours} ore il {date}"
+		"HOURS_ON_DATE": "{hours} ore il {date}",
+		"PREVIOUS_WEEK": "Settimana precedente",
+		"NEXT_WEEK": "Settimana successiva",
+		"WEEKLY_REPORT_ERROR": "Report settimanale non disponibile",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "Non è stato possibile caricare il tempo registrato nella settimana selezionata."
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",

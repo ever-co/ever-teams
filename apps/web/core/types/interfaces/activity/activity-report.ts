@@ -207,6 +207,14 @@ export interface ITimeLogReportDailyRequest {
 	};
 }
 
+export interface ITimeLogReportWeeklyRequest extends Pick<
+	ITimeLogReportDailyRequest,
+	'timeZone' | 'projectIds' | 'employeeIds' | 'teamIds'
+> {
+	startDate: string;
+	endDate: string;
+}
+
 export interface ITimeLogReportDailyChartProps {
 	activityLevel: {
 		start: number;

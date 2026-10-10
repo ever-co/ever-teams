@@ -10,6 +10,7 @@ import {
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { IActivityReport, ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 import { ITimeLogReportDailyChart } from '@/core/types/interfaces/activity/activity-report';
+import type { TTimeLogReportWeekly } from '@/core/types/schemas';
 
 export type TTasksTimesheetStatisticsParams = {
 	tenantId: string;
@@ -251,6 +252,17 @@ export async function getTimeLogReportDailyRequest(params: ITimeLogRequestParams
 
 	return serverFetch<ITimeLogGroupedDailyReport[]>({
 		path: `/timesheet/time-log/report/daily?${queries}`,
+		method: 'GET',
+		bearer_token,
+		tenantId: params.tenantId
+	});
+}
+
+export async function getTimeLogReportWeeklyRequest(params: ITimeLogRequestParams, bearer_token: string) {
+	const queries = buildTimeLogParams(params);
+
+	return serverFetch<TTimeLogReportWeekly[]>({
+		path: `/timesheet/time-log/report/weekly?${queries}`,
 		method: 'GET',
 		bearer_token,
 		tenantId: params.tenantId

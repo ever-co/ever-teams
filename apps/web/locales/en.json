@@ -481,7 +481,11 @@
 		"GROUP_BY": "Group by",
 		"DATE": "Date",
 		"VIEW": "View",
-		"HOURS_ON_DATE": "{hours} hours on {date}"
+		"HOURS_ON_DATE": "{hours} hours on {date}",
+		"PREVIOUS_WEEK": "Previous week",
+		"NEXT_WEEK": "Next week",
+		"WEEKLY_REPORT_ERROR": "Weekly report unavailable",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "The time tracked during the selected week could not be loaded."
 	},
 	"hotkeys": {
 		"HELP": "Help",

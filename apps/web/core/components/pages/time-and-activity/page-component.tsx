@@ -21,7 +21,7 @@ import {
 	LazyTimeActivityHeader,
 	LazyCardTimeAndActivity,
 	LazyActivityTable,
-	LazyTimeActivityTable
+	LazyWeeklyReportTable
 } from '@/core/components/optimized-components/reports';
 import { activeTeamState, isTrackingEnabledState, tasksByTeamState } from '@/core/stores';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
@@ -226,7 +226,7 @@ const TimeActivityComponents = () => {
 									/>
 								);
 							case 'weekly':
-								return <LazyTimeActivityTable data={rapportDailyActivity as any} loading={loading} />;
+								return <LazyWeeklyReportTable mergedProps={mergedProps} enabled={enabled} />;
 							default:
 								return (
 									<LazyActivityTable

@@ -481,7 +481,11 @@
 		"GROUP_BY": "Групиране по",
 		"DATE": "Дата",
 		"VIEW": "Изглед",
-		"HOURS_ON_DATE": "{hours} часа на {date}"
+		"HOURS_ON_DATE": "{hours} часа на {date}",
+		"PREVIOUS_WEEK": "Предишна седмица",
+		"NEXT_WEEK": "Следваща седмица",
+		"WEEKLY_REPORT_ERROR": "Седмичният отчет не е наличен",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "Проследеното време за избраната седмица не можа да се зареди."
 	},
 	"hotkeys": {
 		"HELP": "Помощ",

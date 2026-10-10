@@ -481,7 +481,11 @@
 		"GROUP_BY": "Grupuj według",
 		"DATE": "Data",
 		"VIEW": "Widok",
-		"HOURS_ON_DATE": "{hours} godzin w dniu {date}"
+		"HOURS_ON_DATE": "{hours} godzin w dniu {date}",
+		"PREVIOUS_WEEK": "Poprzedni tydzień",
+		"NEXT_WEEK": "Następny tydzień",
+		"WEEKLY_REPORT_ERROR": "Raport tygodniowy niedostępny",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "Nie udało się wczytać czasu zarejestrowanego w wybranym tygodniu."
 	},
 	"hotkeys": {
 		"HELP": "Pomoc",

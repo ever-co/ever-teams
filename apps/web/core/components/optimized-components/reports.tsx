@@ -64,6 +64,13 @@ export const LazyTimeActivityTable = dynamic(
 	}
 );
 
+export const LazyWeeklyReportTable = dynamic(
+	() => import('../pages/time-and-activity/weekly-report-table').then((mod) => ({ default: mod.WeeklyReportTable })),
+	{
+		ssr: false
+	}
+);
+
 // Time Activity Header
 export const LazyTimeActivityHeader = dynamic(
 	() =>
