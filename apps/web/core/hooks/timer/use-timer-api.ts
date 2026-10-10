@@ -2,7 +2,6 @@
 
 import { useAtom, useAtomValue } from 'jotai';
 import isEqual from 'lodash/isEqual';
-import moment from 'moment';
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
@@ -13,7 +12,7 @@ import {
 	STOP_TIMER_EFFECT_DEBOUNCE_MS,
 	SYNC_TIMER_INTERVAL
 } from '@/core/constants/config/constants';
-import { getDailyPlanDay } from '@/core/lib/helpers/daily-plan-day';
+import { findTimerPlans } from '@/core/lib/helpers/daily-plan-day';
 import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
 import { canRunTimerForState } from '@/core/lib/helpers/timer-policy';
 import { queryKeys } from '@/core/query/keys';
@@ -242,21 +241,7 @@ export function useTimerApi({
 
 	// ==================== DERIVED STATE ====================
 
-	const hasPlan = useMemo(
-		() =>
-			myDailyPlans?.items.find(
-				(plan: TDailyPlan) =>
-					getDailyPlanDay(plan.date) === moment().format('YYYY-MM-DD') && plan.tasks && plan.tasks?.length > 0
-			),
-		[myDailyPlans?.items]
-	);
-
-	const hasPlanForTomorrow = useMemo(() => {
-		const tomorrow = moment().add(1, 'days');
-		return myDailyPlans?.items.find(
-			(plan: TDailyPlan) => getDailyPlanDay(plan.date) === tomorrow.format('YYYY-MM-DD')
-		);
-	}, [myDailyPlans?.items]);
+	const { hasPlan, hasPlanForTomorrow } = useMemo(() => findTimerPlans(myDailyPlans?.items), [myDailyPlans?.items]);
 
 	const requirePlan = activeTeam?.requirePlanToTrack;
 
