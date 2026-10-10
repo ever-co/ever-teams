@@ -3,8 +3,26 @@ import { deleteCookie as _deleteCookie, getCookie as _getCookie, setCookie as _s
 type DeleteCookieOptions = Parameters<typeof _deleteCookie>[1];
 type CookieOptions = Parameters<typeof _setCookie>[2];
 
-/** Whether the page, or on the server the incoming request, is served over https. */
+/** The first protocol a proxy in front of the app reports in x-forwarded-proto, if any. */
+const forwardedProto = (options: CookieOptions): string | undefined => {
+	const headers = options?.req?.headers;
+	// A Fetch API Headers on app router requests, a plain object on a Node IncomingMessage
+	const header =
+		typeof (headers as Headers | undefined)?.get === 'function'
+			? (headers as Headers).get('x-forwarded-proto')
+			: (headers as Record<string, string | string[] | undefined> | undefined)?.['x-forwarded-proto'];
+	const value = Array.isArray(header) ? header[0] : header;
+	return value?.split(',')[0]?.trim().toLowerCase() || undefined;
+};
+
+/**
+ * Whether the page, or on the server the incoming request, is served over https. On the server the proxy header comes
+ * first, as for the Ever ID handoff cookie: behind a TLS-terminating proxy the request URL can carry the internal http.
+ */
 const isHttps = (options: CookieOptions): boolean => {
+	const forwarded = forwardedProto(options);
+	if (forwarded) return forwarded === 'https';
+
 	const url = options?.req?.url ?? (typeof window !== 'undefined' ? window.location.href : undefined);
 	try {
 		return !!url && new URL(url).protocol === 'https:';
