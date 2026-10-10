@@ -9,7 +9,7 @@ import { useAuthenticateUser } from '@/core/hooks/auth';
 import { readRuntimeEnv } from '@/env-config';
 
 // Import optimized components from centralized location
-import { LazyLiveKit as LiveKit } from '@/core/components/optimized-components/meet';
+import { LazyLiveKit as LiveKit, preloadLiveKit } from '@/core/components/optimized-components/meet';
 
 function LiveKitPage() {
 	const router = useRouter();
@@ -21,6 +21,11 @@ function LiveKitPage() {
 		window.localStorage.removeItem('current-room-live-kit');
 		router.push('/');
 	}, [router]);
+
+	// LiveKit only renders once the token arrives; fetch its chunk alongside the token, not after it.
+	useEffect(() => {
+		preloadLiveKit();
+	}, []);
 
 	useEffect(() => {
 		const room = params.get('roomName');
