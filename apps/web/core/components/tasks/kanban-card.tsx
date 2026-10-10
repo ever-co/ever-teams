@@ -1,5 +1,6 @@
 import { useAtom, useAtomValue } from 'jotai';
 import Link from 'next/link';
+import { memo } from 'react';
 
 import { LazyImageComponent, LazyMenuKanbanCard } from '@/core/components/optimized-components/kanban';
 import {
@@ -9,12 +10,16 @@ import {
 } from '@/core/components/optimized-components/tasks';
 import CircularProgress from '@/core/components/svgs/circular-progress';
 import PriorityIcon from '@/core/components/svgs/priority-icon';
-import { useTaskStatistics } from '@/core/hooks';
 import { useTimerActions } from '@/core/hooks/timer';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { secondsToTime } from '@/core/lib/helpers/index';
-import { getTaskTotalWorkedDuration } from '@/core/lib/utils/task.utils';
-import { activeTeamState, activeTeamTaskId, activeTeamTaskState } from '@/core/stores';
+import { getTaskEstimation } from '@/core/lib/utils/task.utils';
+import {
+	activeTeamState,
+	activeTeamTaskId,
+	activeTeamTaskState,
+	activeTeamWorkedDurationByTaskState
+} from '@/core/stores';
 import { ETaskPriority } from '@/core/types/generics/enums/task';
 import { ITag } from '@/core/types/interfaces/tag/tag';
 import { TTaskStatistics } from '@/core/types/interfaces/task/task';
@@ -129,16 +134,11 @@ type ItemProps = {
 	index: number;
 };
 
-/**
- * Card that represents each task
- * @param props
- * @returns
- */
-export default function Item(props: ItemProps) {
-	const { item, isDragging, provided, style } = props;
+// Memoized on the task alone: drag frames re-render the wrapper below, not this subtree.
+const ItemContent = memo(function ItemContent({ item }: { item: TTask }) {
 	const activeTeam = useAtomValue(activeTeamState);
+	const workedDurationByTask = useAtomValue(activeTeamWorkedDurationByTaskState);
 	const { data: user } = useUserQuery();
-	const { getEstimation } = useTaskStatistics(0);
 	const [activeTask, setActiveTask] = useAtom(activeTeamTaskId);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	// PERF: per-card hook — see the note in use-timer-button.ts. useTimerView() would subscribe this card to
@@ -147,8 +147,8 @@ export default function Item(props: ItemProps) {
 	const { timerStatus } = useTimerActions();
 
 	const members = activeTeam?.members || [];
-	const currentUser = members.find((m) => m.employee?.userId === user?.id);
-	const totalWorkedTasksTimer = getTaskTotalWorkedDuration(activeTeam?.members, item.id);
+	const currentMember = members.find((m) => m.employee?.userId === user?.id);
+	const totalWorkedTasksTimer = workedDurationByTask.get(item.id) ?? 0;
 
 	const taskAssignee: ImageOverlapperProps[] =
 		item.members?.map((member: any) => {
@@ -159,8 +159,7 @@ export default function Item(props: ItemProps) {
 			};
 		}) || [];
 
-	const progress = getEstimation(null, item, totalWorkedTasksTimer || 1, item.estimate || 0);
-	const currentMember = activeTeam?.members?.find((member) => member.id === currentUser?.id);
+	const progress = getTaskEstimation(null, item, totalWorkedTasksTimer || 1, item.estimate || 0);
 
 	const {
 		hours: h,
@@ -179,6 +178,116 @@ export default function Item(props: ItemProps) {
 			0
 	);
 	return (
+		<div className="justify-between w-full h-fit">
+			<div className="flex justify-between w-full">
+				<span className="!w-64">
+					<LazyTaskAllStatusTypes
+						className="justify-start"
+						task={item}
+						showStatus={false}
+						tab="default"
+						dayPlanTab="All Tasks"
+					/>
+				</span>
+				<span>
+					<LazyMenuKanbanCard member={currentMember} item={item} />
+				</span>
+			</div>
+			<div className="flex justify-between my-3 w-full">
+				<div className="flex items-center w-64">
+					{activeTask?.id == item.id ? (
+						<>
+							<div className="w-56">
+								<LazyTaskInput
+									task={item}
+									initEditMode={true}
+									keepOpen={true}
+									showCombobox={false}
+									autoFocus={true}
+									autoInputSelectText={true}
+									onTaskClick={(e: any) => {
+										// TODO: implement
+										console.log(e);
+									}}
+									onEnterKey={() => {
+										setActiveTask({ id: '' });
+									}}
+								/>
+							</div>
+						</>
+					) : (
+						<Link href={`/task/${item.id}`}>
+							<div className="overflow-hidden relative w-64">
+								{item.issueType && (
+									<span className="inline-block w-6 h-5">
+										<span className="absolute top-1">
+											<LazyTaskIssueStatus
+												showIssueLabels={false}
+												type="HORIZONTAL"
+												task={item}
+												className="rounded-sm mr-1 h-6 w-6 !p-0 flex justify-center items-center"
+											/>
+										</span>
+									</span>
+								)}
+								<span className="mx-1 text-grey text-normal">#{item.number}</span>
+								{item.title}
+								<span className="inline-block ml-1">
+									{item.priority && <Priority level={item.priority} />}
+								</span>
+							</div>
+						</Link>
+					)}
+				</div>
+
+				<CircularProgress percentage={progress} />
+			</div>
+			<div className="my-2">
+				<HorizontalSeparator />
+			</div>
+			<div className="flex justify-between items-center w-full h-10">
+				<div>
+					{item.id === activeTeamTask?.id && timerStatus?.running ? (
+						<div className="flex gap-2 items-center">
+							<small className="text-xs text-grey text-normal">Live:</small>
+							<p className="text-[#219653] font-medium text-sm">
+								{h}h : {m}m : {s}s
+							</p>
+						</div>
+					) : (
+						<div className="flex gap-2 items-center">
+							<small className="text-xs text-grey text-normal">Worked:</small>
+							<p className="text-sm font-medium text-black dark:text-white">
+								{h}h : {m}m
+							</p>
+						</div>
+					)}
+				</div>
+				<LazyImageComponent radius={30} images={taskAssignee} item={item} />
+				{item.issueType && (
+					<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-[1] bg-[#e5e7eb] dark:bg-[#181920] absolute top-0 right-0">
+						<div
+							className="w-3.5 h-3.5 rounded-full"
+							style={setCommentIconColor(item.issueType as any)}
+						></div>
+					</div>
+				)}
+			</div>
+		</div>
+	);
+});
+
+/**
+ * Card that represents each task
+ * @param props
+ * @returns
+ */
+export default function Item(props: ItemProps) {
+	const { item, isDragging, provided, style } = props;
+
+	// @hello-pangea/dnd passes a new `provided` on every drag frame. Keep this wrapper unmemoized: a comparator
+	// that skips `provided` freezes the card mid-drag and breaks keyboard dragging.
+	return (
 		<div
 			draggable={isDragging}
 			ref={provided.innerRef}
@@ -188,102 +297,7 @@ export default function Item(props: ItemProps) {
 			className="flex flex-col my-2.5 rounded-2xl bg-white dark:bg-dark--theme-light p-4 relative"
 			aria-label={item.title}
 		>
-			<div className="justify-between w-full h-fit">
-				<div className="flex justify-between w-full">
-					<span className="!w-64">
-						<LazyTaskAllStatusTypes
-							className="justify-start"
-							task={item}
-							showStatus={false}
-							tab="default"
-							dayPlanTab="All Tasks"
-						/>
-					</span>
-					<span>
-						<LazyMenuKanbanCard member={currentMember} item={props.item} />
-					</span>
-				</div>
-				<div className="flex justify-between my-3 w-full">
-					<div className="flex items-center w-64">
-						{activeTask?.id == item.id ? (
-							<>
-								<div className="w-56">
-									<LazyTaskInput
-										task={item}
-										initEditMode={true}
-										keepOpen={true}
-										showCombobox={false}
-										autoFocus={true}
-										autoInputSelectText={true}
-										onTaskClick={(e: any) => {
-											// TODO: implement
-											console.log(e);
-										}}
-										onEnterKey={() => {
-											setActiveTask({ id: '' });
-										}}
-									/>
-								</div>
-							</>
-						) : (
-							<Link href={`/task/${item.id}`}>
-								<div className="overflow-hidden relative w-64">
-									{item.issueType && (
-										<span className="inline-block w-6 h-5">
-											<span className="absolute top-1">
-												<LazyTaskIssueStatus
-													showIssueLabels={false}
-													type="HORIZONTAL"
-													task={item}
-													className="rounded-sm mr-1 h-6 w-6 !p-0 flex justify-center items-center"
-												/>
-											</span>
-										</span>
-									)}
-									<span className="mx-1 text-grey text-normal">#{item.number}</span>
-									{item.title}
-									<span className="inline-block ml-1">
-										{item.priority && <Priority level={item.priority} />}
-									</span>
-								</div>
-							</Link>
-						)}
-					</div>
-
-					<CircularProgress percentage={progress} />
-				</div>
-				<div className="my-2">
-					<HorizontalSeparator />
-				</div>
-				<div className="flex justify-between items-center w-full h-10">
-					<div>
-						{item.id === activeTeamTask?.id && timerStatus?.running ? (
-							<div className="flex gap-2 items-center">
-								<small className="text-xs text-grey text-normal">Live:</small>
-								<p className="text-[#219653] font-medium text-sm">
-									{h}h : {m}m : {s}s
-								</p>
-							</div>
-						) : (
-							<div className="flex gap-2 items-center">
-								<small className="text-xs text-grey text-normal">Worked:</small>
-								<p className="text-sm font-medium text-black dark:text-white">
-									{h}h : {m}m
-								</p>
-							</div>
-						)}
-					</div>
-					<LazyImageComponent radius={30} images={taskAssignee} item={item} />
-					{item.issueType && (
-						<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-[1] bg-[#e5e7eb] dark:bg-[#181920] absolute top-0 right-0">
-							<div
-								className="w-3.5 h-3.5 rounded-full"
-								style={setCommentIconColor(item.issueType as any)}
-							></div>
-						</div>
-					)}
-				</div>
-			</div>
+			<ItemContent item={item} />
 		</div>
 	);
 }
