@@ -51,7 +51,8 @@ const baseTaskSchema = z
 		// POST /tasks). Since the list is validated STRICTLY, one such task used to fail the whole
 		// team task list ("Tasks validation failed … expected string, received null" — seen on demo).
 		description: z.string().optional().nullable(),
-		status: z.nativeEnum(ETaskStatusName).optional().nullable(),
+		// Statuses are per-organization rows in Gauzy: besides the standard values, a task can hold a custom one.
+		status: z.nativeEnum(ETaskStatusName).or(z.string()).optional().nullable(),
 		priority: z
 			.nativeEnum(ETaskPriority)
 			.or(z.enum(['Urgent', 'High', 'Medium', 'Low']))

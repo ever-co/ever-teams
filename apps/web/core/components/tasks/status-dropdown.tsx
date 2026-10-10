@@ -21,7 +21,7 @@ const StatusDropdown = () => {
 export function RawStatusDropdown({ task }: { task: TTask | null }) {
 	const { updateTask, updateLoading } = useUpdateTask();
 	const t = useTranslations();
-	const [selected, setSelected] = useState<ETaskStatusName | null>(task?.status || null);
+	const [selected, setSelected] = useState<string | null>(task?.status || null);
 
 	useEffect(() => {
 		setSelected(task?.status || null);
@@ -32,7 +32,7 @@ export function RawStatusDropdown({ task }: { task: TTask | null }) {
 	}, [task]);
 
 	const handleChange = useCallback(
-		(status: ETaskStatusName | null) => {
+		(status: string | null) => {
 			// Guard against null values - preserve existing behavior
 			if (!status) return;
 
