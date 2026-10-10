@@ -36,7 +36,7 @@ jest.mock('../bootstrap/use-scope-guard', () => ({ useScopeGuard: () => mockIsCu
 jest.mock('../auth/use-reactive-access-token-cookie', () => ({
 	useReactiveAccessTokenCookie: () => mockAccessToken
 }));
-jest.mock('@/core/services/client/api', () => ({
+jest.mock('@/core/services/client/api/languages/language.service', () => ({
 	languageService: { getLanguages: (...args: unknown[]) => mockGetLanguages(...args) }
 }));
 

@@ -1,5 +1,5 @@
 import { queryKeys } from '@/core/query/keys';
-import { userService } from '@/core/services/client/api';
+import { userService } from '@/core/services/client/api/users/user.service';
 import { useQuery } from '@tanstack/react-query';
 
 import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
