@@ -97,14 +97,14 @@ function getDefaultProps(): DefaultProps {
  * const { data: chartData } = useActivityChartQuery({ mergedProps, enabled: true });
  * ```
  */
-export function useActivityFilters() {
+export function useActivityFilters({ includeTeamManagers = true }: { includeTeamManagers?: boolean } = {}) {
 	// User and authentication
 	const { user, isTeamManager } = useAuthenticateUser();
 	const { allteamsState, alluserState, isUserAllowedToAccess } = useTimelogFilterOptions();
 	// A team manager usually holds the EMPLOYEE role; the API checks which members they manage
 	const isManage = useMemo(
-		() => user && (isUserAllowedToAccess(user) || isTeamManager),
-		[user, isUserAllowedToAccess, isTeamManager]
+		() => user && (isUserAllowedToAccess(user) || (includeTeamManagers && isTeamManager)),
+		[user, isUserAllowedToAccess, includeTeamManagers, isTeamManager]
 	);
 
 	// State management — lazy initializer so dates are fresh at mount time
