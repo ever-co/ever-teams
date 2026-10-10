@@ -1,5 +1,6 @@
 export * from './cookies';
 export * from './date-and-time';
+export * from './daily-plan-day';
 export * from './generate-token';
 export * from './img-title';
 export * from './merge-refs';

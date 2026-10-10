@@ -10,6 +10,7 @@ import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TOrganizationTeam } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
+import { getDailyPlanDay } from '@/core/lib/helpers/daily-plan-day';
 import { canRunTimerForState } from '@/core/lib/helpers/timer-policy';
 
 import { useAuthenticateUser } from '../auth';
@@ -64,9 +65,7 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 		() =>
 			myDailyPlans?.items.find(
 				(plan: TDailyPlan) =>
-					moment(plan.date).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD') &&
-					plan.tasks &&
-					plan.tasks?.length > 0
+					getDailyPlanDay(plan.date) === moment().format('YYYY-MM-DD') && plan.tasks && plan.tasks?.length > 0
 			),
 		[myDailyPlans?.items]
 	);
@@ -74,7 +73,7 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 	const hasPlanForTomorrow = useMemo(() => {
 		const tomorrow = moment().add(1, 'days');
 		return myDailyPlans?.items.find(
-			(plan: TDailyPlan) => moment(plan.date).format('YYYY-MM-DD') === tomorrow.format('YYYY-MM-DD')
+			(plan: TDailyPlan) => getDailyPlanDay(plan.date) === tomorrow.format('YYYY-MM-DD')
 		);
 	}, [myDailyPlans?.items]);
 

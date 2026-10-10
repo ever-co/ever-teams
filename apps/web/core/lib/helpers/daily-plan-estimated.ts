@@ -1,4 +1,6 @@
+import moment from 'moment';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
+import { getDailyPlanDay } from './daily-plan-day';
 import { convertHourToSeconds } from './date-and-time';
 
 export interface IDailyPlanCompareEstimated {
@@ -9,7 +11,7 @@ export interface IDailyPlanCompareEstimated {
 }
 
 export const dailyPlanCompareEstimated = (plans: TDailyPlan[]): IDailyPlanCompareEstimated => {
-	const plan = plans.find((plan) => plan.date?.toString()?.startsWith(new Date().toISOString().split('T')[0]));
+	const plan = plans.find((plan) => getDailyPlanDay(plan.date) === moment().format('YYYY-MM-DD'));
 
 	if (!plan) {
 		return {

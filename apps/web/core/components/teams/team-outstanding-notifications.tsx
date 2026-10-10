@@ -14,6 +14,7 @@ import {
 	markOutstandingTasksVisited,
 	shouldShowNotification
 } from '@/core/lib/helpers/notifications';
+import { getDailyPlanDay } from '@/core/lib/helpers/daily-plan-day';
 import { NOTIFICATION_KEYS } from '@/core/constants/config/notification';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
@@ -112,7 +113,7 @@ const ManagerOutstandingUsersNotification = memo(function ManagerOutstandingUser
 		return outstandingTasks
 			.filter((plan) => {
 				if (plan.employeeId === user?.employee?.id || !plan.date) return false;
-				const isDue = moment(plan.date).isSameOrBefore(moment().endOf('day'));
+				const isDue = getDailyPlanDay(plan.date) <= moment().format('YYYY-MM-DD');
 				const hasIncomplete = plan.tasks?.some((task) => task.status !== ETaskStatusName.COMPLETED);
 				return isDue && hasIncomplete;
 			})
