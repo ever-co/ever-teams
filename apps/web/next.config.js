@@ -105,7 +105,6 @@ const nextConfig = {
 		'@ever-teams/utils',
 		'@ever-teams/ui',
 		'@radix-ui/react-icons',
-		'react-icons',
 		'@heroicons/react'
 	],
 
