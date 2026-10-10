@@ -36,6 +36,7 @@ export function InitState() {
 		currentWorkspace
 	);
 	const autoRefreshEnabled = !DISABLE_AUTO_REFRESH.value;
+	const shellRefreshInterval = autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false;
 	const baseScope = useMemo(
 		() => ({
 			tenantId,
@@ -48,8 +49,8 @@ export function InitState() {
 	const teamOwner = useOrganizationTeamsQuery({
 		enabled: workspaceReady,
 		scope: baseScope,
-		refetchInterval: autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false,
-		detailRefetchInterval: autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false
+		refetchInterval: shellRefreshInterval,
+		detailRefetchInterval: shellRefreshInterval
 	});
 	const { activeTeam, teams } = teamOwner;
 	const teamReady = !!(
@@ -69,13 +70,13 @@ export function InitState() {
 	const tasksOwner = useTeamTasksQuery({
 		enabled: teamReady,
 		scope: teamScope,
-		refetchInterval: autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false
+		refetchInterval: shellRefreshInterval
 	});
 	const timerOwner = useTimer({
 		enabled: teamReady,
 		scope: teamScope,
 		statusEnabled: teamReady,
-		statusRefetchInterval: autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false,
+		statusRefetchInterval: shellRefreshInterval,
 		plansEnabled: Boolean(activeTeam?.requirePlanToTrack),
 		plansRefetchInterval: autoRefreshEnabled ? 5 * SHELL_REFRESH_INTERVAL : false,
 		manageRuntime: false
