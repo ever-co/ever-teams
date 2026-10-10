@@ -716,7 +716,7 @@ function TaskCard({
 									datas.filter === 'open' && ['text-primary dark:text-primary-light font-semibold']
 								)}
 							>
-								{datas.openTaskCount || 0} {t('common.OPEN')}
+								{datas.tasksComplete && (datas.openTaskCount || 0)} {t('common.OPEN')}
 							</span>
 						</OutlineBadge>
 
@@ -730,7 +730,7 @@ function TaskCard({
 									datas.filter === 'closed' && ['text-primary dark:text-primary-light font-semibold']
 								)}
 							>
-								{datas.closedTaskCount || 0} {t('common.CLOSED')}
+								{datas.tasksComplete && (datas.closedTaskCount || 0)} {t('common.CLOSED')}
 							</span>
 						</OutlineBadge>
 					</div>

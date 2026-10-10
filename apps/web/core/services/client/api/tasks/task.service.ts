@@ -82,15 +82,21 @@ class TaskService extends APIService {
 	 * Fetches a paginated list of tasks with validation
 	 *
 	 * @param {string} projectId - Project identifier
+	 * @param {number} [take] - Page size, capped at 100, only sent together with `page`
+	 * @param {number} [page] - 1-based page number; without `take` and `page` the whole list is returned
 	 * @returns {Promise<PaginationResponse<TTask>>} - Validated paginated tasks data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getTasks = async ({
 		projectId,
-		options
+		options,
+		take,
+		page
 	}: {
 		projectId: string;
 		options?: ScopedReadOptions;
+		take?: number;
+		page?: number;
 	}): Promise<PaginationResponse<TTask>> => {
 		try {
 			const tenantId = options?.scope.tenantId ?? this.tenantId;
@@ -101,7 +107,17 @@ class TaskService extends APIService {
 				'where[organizationId]': organizationId,
 				'where[tenantId]': tenantId,
 				'where[projectId]': projectId,
-				'where[teams][0]': teamId
+				'where[teams][0]': teamId,
+				// Gauzy reads `skip` as a 1-based page number (0 yields a negative offset) and applies
+				// no default order, so pages need an explicit stable sort to not overlap.
+				...(take !== undefined && page !== undefined
+					? {
+							take: Math.min(take, 100),
+							skip: Math.max(page, 1),
+							'order[createdAt]': 'DESC',
+							'order[id]': 'DESC'
+						}
+					: {})
 			});
 			const endpoint = `/tasks/team?${query}`;
 

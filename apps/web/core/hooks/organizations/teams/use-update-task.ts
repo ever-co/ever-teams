@@ -12,10 +12,11 @@ import { useCallback, useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import { flattenTaskPages } from '@/core/lib/utils/task.utils';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 import { useTaskQueries } from './use-task-queries';
 
@@ -72,21 +73,23 @@ export function useUpdateTask() {
 			await queryClient.cancelQueries({ queryKey: taskListQueryKey });
 
 			// Snapshot the previous value
-			const previousTasks = queryClient.getQueryData<PaginationResponse<TTask>>(taskListQueryKey);
+			const previousTasks =
+				queryClient.getQueryData<InfiniteData<PaginationResponse<TTask>, number>>(taskListQueryKey);
 
 			// Optimistically update to the new value
-			if (previousTasks?.items) {
-				const optimisticTasksItems = previousTasks.items.map((task) =>
-					task.id === taskId ? { ...task, ...taskData } : task
-				);
+			if (previousTasks?.pages) {
+				const optimisticPages = previousTasks.pages.map((page) => ({
+					...page,
+					items: page.items.map((task) => (task.id === taskId ? { ...task, ...taskData } : task))
+				}));
 
-				const optimisticData = { ...previousTasks, items: optimisticTasksItems };
+				const optimisticData = { ...previousTasks, pages: optimisticPages };
 
 				// 1. Update React Query Cache
 				queryClient.setQueryData(taskListQueryKey, optimisticData);
 
 				// 2. Update Jotai State immediately (for instant UI feedback)
-				setAllTasks(optimisticTasksItems as TTask[]);
+				setAllTasks(flattenTaskPages(optimisticPages));
 
 				// 3. Update Detailed Task State if applicable
 				if (detailedTask?.id === taskId) {
@@ -102,8 +105,8 @@ export function useUpdateTask() {
 			if (context?.previousTasks) {
 				queryClient.setQueryData(context.queryKey, context.previousTasks);
 
-				if (context.scopeFingerprint === currentScopeFingerprintRef.current && context.previousTasks.items) {
-					setAllTasks(context.previousTasks.items);
+				if (context.scopeFingerprint === currentScopeFingerprintRef.current && context.previousTasks.pages) {
+					setAllTasks(flattenTaskPages(context.previousTasks.pages));
 				}
 			}
 		},

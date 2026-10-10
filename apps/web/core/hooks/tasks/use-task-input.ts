@@ -42,7 +42,7 @@ export function useTaskInput({
 	const { taskStatuses: taskStatusList } = useTaskStatusesQuery();
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
-	const { tasks: teamTasks, tasksFetching } = useTeamTasksQuery();
+	const { tasks: teamTasks, tasksFetching, tasksComplete } = useTeamTasksQuery();
 	const { setActiveTask } = useTeamTasksState();
 	const { createTask, createLoading } = useCreateTask();
 	const { updateTask, updateLoading } = useUpdateTask();
@@ -122,19 +122,20 @@ export function useTaskInput({
 		});
 	}, [query, tasks]);
 
-	// Detect when user is creating a task to stabilize hasCreateForm
+	// Detect when user is creating a task to stabilize hasCreateForm.
+	// No match in a partly loaded list is not proof the task is missing, so no create form until it is complete.
 	useEffect(() => {
-		const isCreating = filteredTasks2.length === 0 && query !== '' && query.trim().length >= 2;
+		const isCreating = tasksComplete && filteredTasks2.length === 0 && query !== '' && query.trim().length >= 2;
 		setIsCreatingTask(isCreating);
-	}, [filteredTasks2.length, query]);
+	}, [filteredTasks2.length, query, tasksComplete]);
 
 	// Stabilized hasCreateForm that doesn't reset during task creation
 	const hasCreateForm = useMemo(() => {
 		if (isCreatingTask) {
 			return true; // Keep form visible during creation
 		}
-		return filteredTasks2.length === 0 && query !== '';
-	}, [filteredTasks2.length, query, isCreatingTask]);
+		return tasksComplete && filteredTasks2.length === 0 && query !== '';
+	}, [filteredTasks2.length, query, isCreatingTask, tasksComplete]);
 
 	const handleTaskCreation = ({
 		autoActiveTask = true,
@@ -212,6 +213,7 @@ export function useTaskInput({
 		handleOpenModal,
 		createLoading,
 		tasksFetching,
+		tasksComplete,
 		updateLoading,
 		setFilter,
 		closeModal,
