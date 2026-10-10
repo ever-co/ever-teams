@@ -1,4 +1,6 @@
 import { Queue } from '.';
+import { Nullable } from '@/core/types/generics/utils';
+import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
@@ -40,6 +42,56 @@ export function getTaskTotalWorkedDuration(
 	}
 
 	return 0;
+}
+
+/**
+ * `getTaskTotalWorkedDuration` for every task at once, keyed by task id, with the same first-match rule.
+ * Lets components rendered once per task read their duration without each scanning members × tasks.
+ */
+export function indexTaskTotalWorkedDurations(
+	members: TOrganizationTeamEmployee[] | null | undefined
+): Map<string, number> {
+	const durations = new Map<string, number>();
+
+	for (const member of members ?? []) {
+		for (const taskStat of member?.totalWorkedTasks ?? []) {
+			if (taskStat?.id && taskStat.duration && !durations.has(taskStat.id)) {
+				durations.set(taskStat.id, taskStat.duration);
+			}
+		}
+	}
+
+	return durations;
+}
+
+/**
+ * Get task estimation percentage.
+ *
+ * @param timeSheet - Optional timesheet stat (used for daily estimation fallback)
+ * @param task - The task to estimate progress for
+ * @param addSeconds - Total worked seconds (callers provide totalWorkedTasksTimer + localTimerSeconds)
+ * @param estimate - Override for the task estimate (in seconds)
+ * @returns Progress percentage (0-100)
+ */
+export function getTaskEstimation(
+	timeSheet: Nullable<TTaskStatistic>,
+	task: Nullable<TTask>,
+	addSeconds: number,
+	estimate = 0
+): number {
+	const totalEstimate = estimate || task?.estimate || 0;
+
+	// Return 0 (neutral state) when there's no estimation data
+	if (totalEstimate === 0) {
+		return 0;
+	}
+
+	// Use timeSheet?.duration as base only when provided (daily estimation).
+	// Do NOT add task?.totalWorkedTime: callers already include total worked time in addSeconds,
+	// which would cause double-counting and inflate the progress bar.
+	const baseWorkedTime = timeSheet?.duration || 0;
+
+	return Math.min(Math.floor(((baseWorkedTime + addSeconds) * 100) / totalEstimate), 100);
 }
 
 /**
