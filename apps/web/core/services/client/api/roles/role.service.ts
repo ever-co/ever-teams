@@ -23,12 +23,24 @@ class RoleService extends APIService {
 	 * @returns Promise<PaginationResponse<Role>> - Validated roles data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getRoles = async (options?: ScopedReadOptions): Promise<TRoleList> => {
+	getRoles = (options?: ScopedReadOptions): Promise<TRoleList> => this.getRoleList('/roles', 'getRoles', options);
+
+	/**
+	 * Get the roles a team manager can assign to members (EMPLOYEE and MANAGER).
+	 * Unlike `getRoles`, it does not require role administration rights.
+	 *
+	 * @returns Promise<PaginationResponse<Role>> - Validated roles data
+	 * @throws ValidationError if response data doesn't match schema
+	 */
+	getTeamAssignableRoles = (options?: ScopedReadOptions): Promise<TRoleList> =>
+		this.getRoleList('/roles/team-assignable', 'getTeamAssignableRoles', options);
+
+	private async getRoleList(path: string, operation: string, options?: ScopedReadOptions): Promise<TRoleList> {
 		try {
-			const response = await this.get<TRoleList>('/roles', options ? scopedReadConfig(options) : undefined);
+			const response = await this.get<TRoleList>(path, options ? scopedReadConfig(options) : undefined);
 
 			// Validate the response data using Zod schema
-			return validateApiResponse(roleListSchema, response.data, 'getRoles API response');
+			return validateApiResponse(roleListSchema, response.data, `${operation} API response`);
 		} catch (error) {
 			// Error logging is handled by the base APIService and HttpLoggerAdapter
 			// This maintains proper separation of concerns
@@ -44,7 +56,7 @@ class RoleService extends APIService {
 			}
 			throw error;
 		}
-	};
+	}
 
 	/**
 	 * Create a new role with validation

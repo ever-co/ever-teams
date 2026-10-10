@@ -13,15 +13,19 @@ import { CREDENTIAL_SCOPED_QUERY_META } from '@/core/query/credential-query';
 
 interface UseRolesQueryOptions {
 	enabled?: boolean;
+	/** For role administration screens: non-admins get no roles rather than the assignable ones. */
+	adminOnly?: boolean;
 }
 
 /**
  * Hook for reading roles data (READ only).
  * Replaces direct `useAtomValue(rolesState)` usage across the app.
+ * Admins get every tenant role. Reading that list requires role administration rights, so other users
+ * get the roles a team manager can assign instead (EMPLOYEE and MANAGER).
  *
  * @returns Object containing roles array, loading state, and refetch callback
  */
-export function useRolesQuery({ enabled = true }: UseRolesQueryOptions = {}) {
+export function useRolesQuery({ enabled = true, adminOnly = false }: UseRolesQueryOptions = {}) {
 	const { data: user } = useUserQuery();
 	const isAdmin = user?.role?.name
 		? [ERoleName.ADMIN, ERoleName.SUPER_ADMIN].includes(user.role.name as ERoleName)
@@ -34,9 +38,12 @@ export function useRolesQuery({ enabled = true }: UseRolesQueryOptions = {}) {
 		userId: user?.id,
 		accessToken
 	};
-	const queryKey = queryKeys.roles.byTenant(scope.tenantId);
+	const queryKey = isAdmin
+		? queryKeys.roles.byTenant(scope.tenantId)
+		: queryKeys.roles.teamAssignable(scope.tenantId);
 	const ownerActive = enabled;
-	const queryEnabled = ownerActive && isAdmin && !!(scope.tenantId && scope.userId && scope.accessToken);
+	const allowed = isAdmin || !adminOnly;
+	const queryEnabled = ownerActive && allowed && !!(scope.tenantId && scope.userId && scope.accessToken);
 	useScopeGuard(queryKey, ownerActive);
 
 	const {
@@ -46,18 +53,22 @@ export function useRolesQuery({ enabled = true }: UseRolesQueryOptions = {}) {
 	} = useQuery({
 		queryKey,
 		meta: CREDENTIAL_SCOPED_QUERY_META,
-		queryFn: ({ signal }) => roleService.getRoles({ scope, signal }),
+		queryFn: ({ signal }) =>
+			isAdmin ? roleService.getRoles({ scope, signal }) : roleService.getTeamAssignableRoles({ scope, signal }),
 		enabled: queryEnabled,
 		staleTime: 1000 * 60 * 10, // 10 minutes — roles are relatively stable
 		gcTime: 1000 * 60 * 30 // 30 minutes
 	});
 
+	// A disabled query still serves the cached team-assignable roles, so adminOnly must gate the data too.
+	const rolesReady = allowed && isSuccess;
+
 	// Stable memoized reference — prevents re-render cascades in consumers
-	const roles = useMemo(() => (isSuccess ? (rolesData?.items ?? []) : []), [rolesData?.items, isSuccess]);
+	const roles = useMemo(() => (rolesReady ? (rolesData?.items ?? []) : []), [rolesData?.items, rolesReady]);
 
 	return {
 		roles,
 		isLoading,
-		isSuccess
+		isSuccess: rolesReady
 	};
 }
