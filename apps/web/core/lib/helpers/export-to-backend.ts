@@ -4,12 +4,8 @@ import { generateEncryptionKey } from './encryption';
 import { BOARD_APP_DOMAIN, BOARD_BACKEND_POST_URL, FILE_UPLOAD_MAX_BYTES } from '@/core/constants/config/constants';
 import { saveFilesToFirebase } from './firebase';
 import { encodeFilesForUpload, isInitializedImageElement } from './files';
-import {
-	ExcalidrawElement,
-	FileId,
-	InitializedExcalidrawImageElement
-} from '@excalidraw/excalidraw/dist/types/excalidraw/element/types';
-import { AppState, BinaryFileData, BinaryFiles } from '@excalidraw/excalidraw/dist/types/excalidraw/types';
+import { ExcalidrawElement, FileId, InitializedExcalidrawImageElement } from '@excalidraw/excalidraw/element/types';
+import { AppState, BinaryFileData, BinaryFiles } from '@excalidraw/excalidraw/types';
 
 type ExportToBackendResult = { url: null; errorMessage: string } | { url: string; errorMessage: null };
 

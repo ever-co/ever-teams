@@ -1,6 +1,6 @@
 import { BOARD_FIREBASE_CONFIG, FILE_CACHE_MAX_AGE_SEC } from '@/core/constants/config/constants';
 import { MIME_TYPES } from '@excalidraw/excalidraw';
-import { FileId } from '@excalidraw/excalidraw/dist/types/excalidraw/element/types';
+import { FileId } from '@excalidraw/excalidraw/element/types';
 
 // Variables
 let firebasePromise: Promise<any> | null = null;

@@ -1,4 +1,4 @@
-import { NullableGridSize } from '@excalidraw/excalidraw/dist/types/excalidraw/types';
+import { NullableGridSize } from '@excalidraw/excalidraw/types';
 import { EProjectBudgetType, EProjectBilling, EProjectOwner, EProjectRelation } from '../../generics/enums/project';
 import { ETaskListType, ETaskStatusName } from '../../generics/enums/task';
 import { TTag } from '../../schemas';
