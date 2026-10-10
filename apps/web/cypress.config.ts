@@ -4,6 +4,7 @@ import { dirname, resolve } from 'node:path';
 import { defineConfig } from 'cypress';
 
 import { createMockGauzyServer } from './cypress/support/mock-gauzy-server.mjs';
+import { createMockPlatform } from '@ever-co/connect-tools/mock-platform';
 import {
 	assertDeterministicApiOrigins,
 	resolvePerformanceOutput
@@ -75,6 +76,17 @@ export default defineConfig({
 			}
 			config.env.GAUZY_API_ORIGIN = mockServer.origin;
 
+			// The Ever Platform API mock of the SDK's dev tools (signature and schema checks of every report),
+			// where the web app's statistics reporter sends (EVER_STATS_API_URL=http://127.0.0.1:3989 on the
+			// server under test). Generous limits: the reporter runs every few seconds for the whole run.
+			const statsSink = createMockPlatform({
+				config: {
+					clock: { real: true },
+					limits: { stats_reports_per_day: 1_000_000, stats_periods_per_day: 100, stats_new_ids_per_address_hour: 1_000 }
+				}
+			});
+			await statsSink.listen(3989, '127.0.0.1');
+
 			on('task', {
 				'auth:live': liveAuthenticate,
 				'mock:requests': () => mockServer.requests(),
@@ -87,6 +99,19 @@ export default defineConfig({
 					return null;
 				},
 				'mock:state': () => mockServer.state(),
+				'stats:reports': () =>
+					statsSink.state.statsReports
+						.filter((report: { product: string }) => report.product === 'teams')
+						.map((report: { instance_id: string; period: string; product: string }) => ({
+							instanceId: report.instance_id,
+							period: report.period,
+							product: report.product
+						})),
+				'stats:reset': () => {
+					statsSink.state.reset();
+					statsSink.recorder.clear();
+					return null;
+				},
 				'performance:write': (candidate: { mode: string; samples: Array<Record<string, unknown>> }) => {
 					const safeCandidate = {
 						version: 1,
@@ -112,6 +137,7 @@ export default defineConfig({
 			});
 			on('after:run', async () => {
 				await mockServer.close();
+				await statsSink.close();
 			});
 			return config;
 		}

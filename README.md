@@ -276,6 +276,29 @@ Ever Teams can offer Ever ID as one more sign-in method, through OpenID Connect.
 
 The button appears after Google, and demo mode (`NEXT_PUBLIC_DEMO=true`) hides it like the other sign-in buttons. No token, key or e-mail address is ever put in a URL: the steps that continue on another page (the API's one-time e-mail code before an existing account is linked, or the confirmation of a new workspace) carry only a step marker, and their one-time key travels in a short-lived, encrypted, httpOnly cookie that only the web app's own `/api/auth` routes receive.
 
+#### Ever Platform (optional)
+
+Ever Teams can show an **Ever Platform** section in *Settings → Team*, backed entirely by the Gauzy API it uses
+(Ever Teams stores nothing of it). Everything in it is optional, and every existing feature works exactly the
+same without it.
+
+-   **Anonymous usage statistics.** Once a day the web app can send an anonymous report: the release that runs
+    and how it was installed, nothing about people, organizations or their data. It sends only while the Gauzy
+    API says its statistics are on; the operator of the installation switches them off in the section (the
+    switch is stored in the Gauzy API), and `EVER_STATS_ENABLED=false` does not even load the code. See
+    [docs/ever-platform/anonymous-usage-statistics.md](docs/ever-platform/anonymous-usage-statistics.md).
+-   **Connection parts** (organization link, integrations with their data scopes, entitlements): off unless
+    `NEXT_PUBLIC_EVER_CONNECT_ENABLED=true`, and shown only while the Gauzy API answers its connection
+    `health` to the signed-in person.
+-   **Pairing:** the Gauzy API answers both only when it declares that it serves Ever Teams
+    (`EVER_STATS_SERVES=gauzy,teams` in its environment). Without it the web app sends nothing and hides the
+    connection parts.
+
+Every outbound call these features can make, and what switches it off, is listed in
+[docs/ever-platform/outbound-calls.md](docs/ever-platform/outbound-calls.md); the
+[egress audit](tools/egress-audit/README.md) proves on every change that with them off the web app and its UI
+make none.
+
 ### Run in Gitpod
 
 -   Launch a ready-to-use Gitpod workspace (WIP):
@@ -331,6 +354,10 @@ Please see our [Wiki](https://github.com/ever-co/ever-teams/wiki/Deploy-to-Digit
 ### Northflank
 
 [Deploy to Northflank](https://app.northflank.com/s/account/templates/new?data=656ed069216b5d387f5379c6)
+
+### RepoCloud
+
+[![Deploy on RepoCloud](https://d16t0pc4846x52.cloudfront.net/deploylobe.svg)](https://repocloud.io/details/ever-teams/)
 
 ## 📄 Content
 

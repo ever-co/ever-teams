@@ -33,6 +33,7 @@
 		"@auth/core": "^0.34.3",
 		"@emoji-mart/data": "^1.2.1",
 		"@emoji-mart/react": "^1.1.1",
+		"@ever-co/connect-sdk": "1.0.0-rc.5",
 		"@ever-teams/constants": "*",
 		"@ever-teams/hooks": "*",
 		"@ever-teams/services": "*",
@@ -164,6 +165,8 @@
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.38.1",
+		"@ever-co/connect-contracts": "1.0.0-rc.5",
+		"@ever-co/connect-tools": "1.0.0-rc.5",
 		"@ever-teams/eslint-config": "*",
 		"@ever-teams/ts-config": "*",
 		"@next/bundle-analyzer": "^16.1.1",

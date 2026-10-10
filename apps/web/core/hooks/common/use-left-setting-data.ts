@@ -67,6 +67,14 @@ export const useLeftSettingData = () => {
 			managerOnly: true
 		},
 		{
+			// Optional: listed only while the Ever Platform section shows (left-side-setting-menu.tsx)
+			title: t('pages.settingsTeam.everPlatform.TITLE'),
+			color: '#7E7991',
+			href: '#ever-platform',
+			managerOnly: true,
+			everPlatform: true
+		},
+		{
 			title: t('pages.settingsTeam.ISSUES_HEADING_TITLE'),
 			color: '#7E7991',
 			href: '#issues-settings',

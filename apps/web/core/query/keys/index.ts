@@ -828,5 +828,27 @@ export const queryKeys = {
 				'with-params',
 				...(params ? Object.entries(params).map(([key, value]) => `${key}-${value}`) : [])
 			] as const
+	},
+	// Ever Platform settings (the paired API's connection parts and this app's anonymous usage statistics)
+	everPlatform: {
+		all: ['ever-platform'] as const,
+		connect: {
+			all: ['ever-platform', 'connect'] as const,
+			health: (tenantId: string | undefined | null, userId: string | undefined | null) =>
+				['ever-platform', 'connect', 'health', tenantId ?? null, userId ?? null] as const,
+			status: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+				['ever-platform', 'connect', 'status', tenantId ?? null, organizationId ?? null] as const,
+			integrations: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+				['ever-platform', 'connect', 'integrations', tenantId ?? null, organizationId ?? null] as const,
+			entitlement: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+				['ever-platform', 'connect', 'entitlement', tenantId ?? null, organizationId ?? null] as const
+		},
+		stats: {
+			all: ['ever-platform', 'stats'] as const,
+			view: (tenantId: string | undefined | null, userId: string | undefined | null) =>
+				['ever-platform', 'stats', 'view', tenantId ?? null, userId ?? null] as const,
+			last: (tenantId: string | undefined | null, userId: string | undefined | null) =>
+				['ever-platform', 'stats', 'last', tenantId ?? null, userId ?? null] as const
+		}
 	}
 };

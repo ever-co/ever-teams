@@ -91,7 +91,7 @@ export function SidebarOptInForm() {
 									<FormControl>
 										<SidebarInput
 											type="email"
-											placeholder="Email"
+											placeholder={t('common.EMAIL')}
 											className="border-gray-200 placeholder:text-xs dark:bg-gray-800 dark:border-gray-700"
 											{...field}
 										/>
@@ -105,7 +105,7 @@ export function SidebarOptInForm() {
 							className="w-full shadow-none bg-sidebar-primary text-sidebar-primary-foreground"
 							size="sm"
 						>
-							{isLoading ? 'Subscribing...' : 'Subscribe'}
+							{isLoading ? t('common.SUBSCRIBING') : t('common.SUBSCRIBE')}
 						</Button>
 					</CardContent>
 				</form>

@@ -5123,6 +5123,29 @@
     "@eslint/core" "^0.17.0"
     levn "^0.4.1"
 
+"@ever-co/connect-contracts@1.0.0-rc.5":
+  version "1.0.0-rc.5"
+  resolved "https://registry.yarnpkg.com/@ever-co/connect-contracts/-/connect-contracts-1.0.0-rc.5.tgz#eb06b83ca77f5a6ea36dd39b352b9302bfd5856f"
+  integrity sha512-sMm8n49h+0F5I9qIbtKBMcpk0vFMi3mL8u3AwjHHnPE1hyPccLKgeBJXYzp5+Aqe29g7H/H9+Nqld5WkXIQ1Mg==
+
+"@ever-co/connect-sdk@1.0.0-rc.5":
+  version "1.0.0-rc.5"
+  resolved "https://registry.yarnpkg.com/@ever-co/connect-sdk/-/connect-sdk-1.0.0-rc.5.tgz#ee199008dae1da92c7503091ebf3364c01434fbf"
+  integrity sha512-w20ccCAvWcCaaWDps/BpHOgRfQc1qRHk87wvOF5GBSckLMXNcTWZnmW3cxEPg5MaarUQiqxCrxcoAgvRzdvRyg==
+  dependencies:
+    "@ever-co/connect-contracts" "1.0.0-rc.5"
+    ajv "8.20.0"
+
+"@ever-co/connect-tools@1.0.0-rc.5":
+  version "1.0.0-rc.5"
+  resolved "https://registry.yarnpkg.com/@ever-co/connect-tools/-/connect-tools-1.0.0-rc.5.tgz#10af17ab5d3965e1a1564e4c84a6d6a590333f77"
+  integrity sha512-eaP1JBDEaD9ao4ILLk7l2Sn5saO8LmVUNYbGSOLQodRNHrk88YGqMeLgwteQCpls1L1PQIwjnbLIrsu/zWTesg==
+  dependencies:
+    ajv "8.20.0"
+    ajv-formats "3.0.1"
+    playwright-core "1.62.1"
+    yaml "2.9.1"
+
 "@excalidraw/excalidraw@^0.18.1":
   version "0.18.1"
   resolved "https://registry.npmjs.org/@excalidraw/excalidraw/-/excalidraw-0.18.1.tgz#fd6ad752807c814698c5f51dab778845b7e4bba7"
@@ -22009,6 +22032,16 @@ ajv@8.18.0, ajv@^8.0.0, ajv@^8.11.0, ajv@^8.12.0, ajv@^8.17.1, ajv@^8.6.2, ajv@^
   version "8.18.0"
   resolved "https://registry.yarnpkg.com/ajv/-/ajv-8.18.0.tgz#8864186b6738d003eb3a933172bb3833e10cefbc"
   integrity sha512-PlXPeEWMXMZ7sPYOHqmDyCJzcfNrUr3fGNKtezX14ykXOEIvyK81d+qydx89KY5O71FKMPaQ2vBfBFI5NHR63A==
+  dependencies:
+    fast-deep-equal "^3.1.3"
+    fast-uri "^3.0.1"
+    json-schema-traverse "^1.0.0"
+    require-from-string "^2.0.2"
+
+ajv@8.20.0:
+  version "8.20.0"
+  resolved "https://registry.yarnpkg.com/ajv/-/ajv-8.20.0.tgz#304b3636add88ba7d936760dd50ece006dea95f9"
+  integrity sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA==
   dependencies:
     fast-deep-equal "^3.1.3"
     fast-uri "^3.0.1"
@@ -43899,6 +43932,11 @@ playwright-core@1.59.1, playwright-core@>=1.2.0:
   resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.59.1.tgz#d8a2b28bcb8f2bd08ef3df93b02ae83c813244b2"
   integrity sha512-HBV/RJg81z5BiiZ9yPzIiClYV/QMsDCKUyogwH9p3MCP6IYjUFu/MActgYAvK0oWyV9NlwM3GLBjADyWgydVyg==
 
+playwright-core@1.62.1:
+  version "1.62.1"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.62.1.tgz#120f67a19181bfd183c60fa903c0d99330b56785"
+  integrity sha512-wPYSwEBJY9GHraISXqyqtx0na0LpO3XEX7jNDhntbex7tzUS7kLnZsOlFruFJB4Hi/rhDMjXGqHewDZ68nYZVw==
+
 playwright@1.59.1, playwright@^1.14.0, playwright@^1.57.0:
   version "1.59.1"
   resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.59.1.tgz#f7b0ca61637ae25264cec370df671bbe1f368a4a"
@@ -53924,6 +53962,11 @@ yaml-eslint-parser@^2.0.0:
   dependencies:
     eslint-visitor-keys "^5.0.0"
     yaml "^2.0.0"
+
+yaml@2.9.1:
+  version "2.9.1"
+  resolved "https://registry.yarnpkg.com/yaml/-/yaml-2.9.1.tgz#c16233fb31944e705cfefaff38795587f57588ce"
+  integrity sha512-3NxN8+78OdzbT7C/WjGsyfPAtJaN3FNDsWxv7Y7mcDsT/oOmgW8BpyQQFFBnvZE3j9Y2Sdz1ULFLezL7Eb2yFw==
 
 yaml@^1.10.0, yaml@^1.10.2, yaml@^1.7.2:
   version "1.10.3"
