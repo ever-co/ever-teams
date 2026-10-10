@@ -90,11 +90,10 @@ class StatisticsService extends APIService {
 		options?: ScopedReadOptions
 	) => {
 		try {
-			const query = qs.stringify(queries, { arrayFormat: 'indices' });
-
+			// Gauzy reads this POST endpoint's filters from the body only, never from the query string.
 			const response = await this.post<TTaskStatistics>(
-				`/timesheet/statistics/tasks?${query}`,
-				{ tenantId: options?.scope.tenantId ?? this.tenantId },
+				'/timesheet/statistics/tasks',
+				{ ...queries, tenantId: options?.scope.tenantId ?? this.tenantId },
 				options ? scopedReadConfig(options) : undefined
 			);
 
