@@ -23,9 +23,9 @@ This directory holds only Ever Teams' inputs:
 
 | File | What it is |
 |---|---|
-| `egress-audit.config.json` | The services, the Ever Platform routes probed in `off`, the browser leg (the web app as `webapp`, the idle pages, the positive control) |
+| `egress-audit.config.json` | The services, the Ever Platform routes probed in `off`, the watched window (`wait_s`, 660 s: longer than one `loaded_off` reporter interval), the browser leg (the web app as `webapp`, the idle pages, the positive control) |
 | `compose.egress-audit.yml` | The web image under test (`TEAMS_WEB_IMAGE`), the paired Gauzy API (`GAUZY_API_IMAGE`, with `EVER_STATS_SERVES=gauzy,teams`) and its PostgreSQL; random secrets per run; nothing published to the host |
-| `adapter.mjs` | Makes the seeded super admin a team manager, switches the statistics off as the operator (`loaded_off`), calls every Ever Platform route of the app (404 in `off`), signs in through the password sign-in page, and gives the ids of the pages that take one |
+| `adapter.mjs` | Makes the seeded super admin a team manager, switches the statistics off as the operator (`loaded_off`), calls every Ever Platform route of the app (404 in `off`), sets the web app's statistics switch explicitly in every mode (its own default is on), signs in through the password sign-in page, and gives the ids of the pages that take one |
 | `ui-routes.json` | Every page of the Next.js app router (generated, checked in CI), plus the settings' health probe path |
 | `route-params.json` | The locale of the walk (`en`); the adapter adds the ids only a run knows |
 | `ui-baseline.json` | Links to Ever hosts the UI rendered before the Ever Platform settings existed, recorded from `base_commit` (it may only shrink; the change that adds it is checked with `--first-version`) |
@@ -39,9 +39,9 @@ a dependency here, not what is audited (the Gauzy repository audits its own egre
 
 | Mode | The web app | The paired API | Passes when |
 |---|---|---|---|
-| `off` | `EVER_STATS_ENABLED=false`, `NEXT_PUBLIC_EVER_CONNECT_ENABLED` unset | statistics off | no Ever host looked up, requested or linked outside `ui-baseline.json`, no connection attempt out, every `/api/ever-stats` and `/api/ever-connect` route 404, no health probe from the browser |
-| `loaded_off` | both loaded; a local reporting address outside the sealed setup and a 5-second interval, so a report sent by mistake is seen | statistics on, switched off by the operator in its settings; connection on, not connected | no call at all |
-| `positive_stats` | statistics on, reporting to the mock platform every 5 seconds | statistics on | reports accepted (202), no other call; the settings page asks `GET /api/ever-stats/status` (the browser's positive control) |
+| `off` | `EVER_STATS_ENABLED=false`, `NEXT_PUBLIC_EVER_CONNECT_ENABLED` unset | statistics off | no Ever host looked up, requested or linked outside `ui-baseline.json`, no connection attempt out, every `/api/ever-stats` and `/api/ever-connect` route 404, no health probe from the browser, and the web server logs `ever_stats.reporter state=not_loaded` |
+| `loaded_off` | both loaded (`EVER_STATS_ENABLED=true`, `NEXT_PUBLIC_EVER_CONNECT_ENABLED=true`); a local reporting address outside the sealed setup and a 600-second interval (the first question 10 minutes after the start, as in production, so it comes after the operator's switch-off) | statistics on, switched off by the operator in its settings; connection on, not connected | no call at all; the run watches 660 seconds (`wait_s`), longer than one interval, and the web server must have logged `ever_stats.send outcome=skipped_gauzy_off` (the reporter asked the API after the switch-off), so a run in which the reporter never asked fails |
+| `positive_stats` | statistics on (`EVER_STATS_ENABLED=true`), reporting to the mock platform every 5 seconds | statistics on | reports accepted (202), no other call; the settings page asks `GET /api/ever-stats/status` (the browser's positive control) |
 | control | `positive_stats` without the mock platform | | must **fail** (exit 1): a green run is not a blind one |
 
 ## Running it

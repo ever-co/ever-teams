@@ -8,7 +8,9 @@ name: Egress audit
 #                   requested or linked (outside ui-baseline.json), no connection attempt out, every
 #                   /api/ever-stats and /api/ever-connect route 404, and no health probe from the browser
 #   loaded_off      both loaded, the operator's statistics switch off in the paired API, the API not
-#                   connected: not a single call before an operator acts
+#                   connected: not a single call before an operator acts; the watched window is longer
+#                   than one reporter interval and the reporter must have logged the API answering "off"
+#                   (skipped_gauzy_off), so a run in which it never asked fails
 #   positive_stats  statistics on against the mock platform: reports accepted (202), nothing else; the
 #                   settings page asks this app's /api/ever-stats/status (the browser's positive control)
 #   control         positive_stats without the mock must FAIL, so a green run is not a blind one
@@ -236,6 +238,34 @@ jobs:
             });
             if (probes.length) { console.error(`::error::with the flag unset the UI asked health ${probes.length} time(s)`); process.exit(1); }
             console.log("No health probe from the UI with the flag unset.");
+          '
+
+      - name: 'The reporter: not loaded in off, and in loaded_off it asked after the switch-off'
+        if: ${{ !cancelled() }}
+        run: |
+          node -e '
+            // The web server log of each mode (the harness saves it as product-<service>.log).
+            const fs = require("fs"), path = require("path");
+            const logOf = (mode) => {
+              const dir = path.join(process.env.AUDIT_ARTIFACTS, mode);
+              const file = fs.existsSync(dir) ? fs.readdirSync(dir).find((name) => /^product-webapp.*\.log$/.test(name)) : null;
+              return file ? fs.readFileSync(path.join(dir, file), "utf8") : null;
+            };
+            let failed = false;
+            const fail = (message) => { console.error(`::error::${message}`); failed = true; };
+            const off = logOf("off");
+            if (off === null) fail("off: the web server log is missing");
+            else if (!off.includes("ever_stats.reporter state=not_loaded")) fail("off: the web server did not log that the reporter is not loaded");
+            else if (/ever_stats\.send /.test(off)) fail("off: the reporter ran");
+            else console.log("off: the reporter was not loaded.");
+            // loaded_off proves the switch-off only if the reporter asked the paired API after it: the watched
+            // window (wait_s) is longer than its interval, so it must have logged the API answering "off".
+            const loaded = logOf("loaded_off");
+            if (loaded === null) fail("loaded_off: the web server log is missing");
+            else if (!loaded.includes("ever_stats.send outcome=skipped_gauzy_off")) fail("loaded_off: the reporter never asked the paired API after the switch-off (no skipped_gauzy_off): the run proves nothing");
+            else if (/ever_stats\.send outcome=(sent|rejected|failed)/.test(loaded)) fail("loaded_off: the reporter tried to send");
+            else console.log("loaded_off: the reporter asked the paired API after the switch-off and sent nothing.");
+            process.exit(failed ? 1 : 0);
           '
 
       - name: 'Static scan: Ever hosts in the client bundle'

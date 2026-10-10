@@ -25,6 +25,8 @@ export async function register() {
 		if (isEverStatsEnabled()) {
 			const { startEverStats } = await import('./core/services/server/ever-stats/scheduler');
 			startEverStats();
+		} else {
+			console.info('ever_stats.reporter state=not_loaded (EVER_STATS_ENABLED=false)');
 		}
 	}
 

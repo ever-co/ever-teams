@@ -20,7 +20,8 @@ import { reporterState, type ReporterStatus } from './state';
  * - First attempt 10 minutes after the start, then once a day at a second drawn at random each day
  *   (never derived from the instance id), UTC.
  * - Before EVERY send it asks the paired API (`GET /ever-stats/state`) and sends nothing unless the
- *   answer is `200 { "enabled": true }`.
+ *   answer is `200 { "enabled": true }`: also before the second report of a slot (the closed month) and
+ *   before a resend under a new identity, so a switch-off during a slot stops the rest of it.
  * - On days 1-3 of a month it also sends the closed previous month once (`final: true`).
  * - A failed delivery (no answer, 429, 5xx) is retried after 1 h, 4 h and 12 h, then at the next day's
  *   slot. A refused report is not retried before the next slot. `409 key_mismatch`: a random identity
@@ -167,8 +168,20 @@ export function startEverStats(deps: SchedulerDeps = {}): EverStatsScheduler | n
 		];
 		pendingRetry = null;
 		let renewed = false;
+		// run() asked the paired API right before the first request; every later request asks again.
+		let requests = 0;
 		while (reports.length > 0) {
 			if (stopped) return 'stopped';
+			if (requests > 0) {
+				// What is left is owed if the paired API is only unreachable; pairedAllows() drops it when the
+				// operator switched the statistics off (or the API is no longer paired).
+				pendingRetry = reports;
+				const allowed = await pairedAllows();
+				if (stopped) return 'stopped';
+				if (!allowed) return 'next';
+				pendingRetry = null;
+			}
+			requests += 1;
 			const { final, period } = reports[0];
 			const report = buildTeamsReport({ now: at, instanceId: identity.instanceId, installSource, country, final, period });
 			const result = await sendTeamsReport(report, identity, {
