@@ -52,7 +52,8 @@ class StatisticsService extends APIService {
 			const queryParams = {
 				tenantId: this.tenantId,
 				organizationId: this.organizationId,
-				employeeId: params.employeeId,
+				employeeIds: [params.employeeId],
+				teamIds: params.teamIds ?? [],
 				todayEnd: params.todayEnd.toISOString(),
 				todayStart: params.todayStart.toISOString(),
 				relations: ['timeSlots.timeLogs.projectId', 'timeSlots.timeLogs.taskId']

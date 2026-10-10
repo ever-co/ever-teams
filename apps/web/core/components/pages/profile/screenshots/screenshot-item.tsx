@@ -21,7 +21,7 @@ const ScreenshotItem = ({
 	isTeamPage = false
 }: IScreenShootItem) => {
 	const t = useTranslations();
-	const { deleteTimeSlots } = useTimeSlots();
+	const { deleteTimeSlots, isOwnTimeSlots } = useTimeSlots();
 	const { isOpen, openModal, closeModal } = useModal();
 	const [isLoading, setIsLoading] = useState(false);
 	const handleDelete = async () => {
@@ -56,12 +56,14 @@ const ScreenshotItem = ({
 				/>
 				<div className=" group-hover:absolute w-full group-hover:top-[0%] transition-all left-0 h-full bg-[rgba(1,2,4,.4)] top-full ">
 					<div className="relative flex items-end w-full h-full">
-						<div
-							className="absolute z-10 flex items-center justify-center w-8 h-8 text-center bg-red-700 rounded-full top-3 right-3 "
-							onClick={() => openModal()}
-						>
-							<TrashIcon className="w-3 text-center text-white" />
-						</div>
+						{isOwnTimeSlots && (
+							<div
+								className="absolute z-10 flex items-center justify-center w-8 h-8 text-center bg-red-700 rounded-full top-3 right-3 "
+								onClick={() => openModal()}
+							>
+								<TrashIcon className="w-3 text-center text-white" />
+							</div>
+						)}
 
 						{viewMode === 'screenShot-only' ? null : (
 							<div className="flex flex-col items-center justify-center w-full h-auto gap-4 py-4">
