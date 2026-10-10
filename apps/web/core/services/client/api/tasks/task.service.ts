@@ -309,7 +309,7 @@ class TaskService extends APIService {
 					'createTask input data'
 				) as TCreateTask;
 
-				await this.post('/tasks', validatedInput, { tenantId });
+				const { data: createdTask } = await this.post<TTask>('/tasks', validatedInput, { tenantId });
 
 				// The task exists from here on. A failed list refresh must not read as a failed creation,
 				// or the user retries and creates it twice; callers refresh the task lists on success.
@@ -321,7 +321,10 @@ class TaskService extends APIService {
 						{ message: error instanceof Error ? error.message : String(error) },
 						'TaskService'
 					);
-					return { items: [], total: 0 };
+					// Hand back the created task so the caller can still activate it. The API echoes `teams` as
+					// the `{ id }` refs sent above, which the team schema rejects, so they are left out.
+					const created = taskSchema.omit({ teams: true }).safeParse(createdTask);
+					return created.success ? { items: [created.data], total: 1 } : { items: [], total: 0 };
 				}
 			}
 
