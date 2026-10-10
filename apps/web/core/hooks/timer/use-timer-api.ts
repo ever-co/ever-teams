@@ -593,9 +593,10 @@ export function useTimerApi({
 		const request = stopTimerMutate(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS)
 			.catch((error) => {
 				// The last known server status still says running: undo the optimistic stop so the clock agrees
-				// with it, and refetch the status in case the stop landed after all.
+				// with it, and refetch the status in case the stop landed after all. Only a running snapshot is put
+				// back: a stop sent while another one was pending captured that one's optimistic running:false.
 				if (
-					previousLocalTimerStatus &&
+					previousLocalTimerStatus?.running &&
 					timerStatusRef.current?.running &&
 					(!statusEnabled || isCurrentScope())
 				) {
