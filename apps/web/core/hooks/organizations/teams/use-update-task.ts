@@ -99,14 +99,29 @@ export function useUpdateTask() {
 
 			return { previousTasks, queryKey: taskListQueryKey, scopeFingerprint };
 		},
-		onError: (_err, _newTodo, context) => {
+		onError: (_err, { taskId }, context) => {
 			// Always restore the cache that owned the mutation. Shared mirrors may only
 			// be restored while that same scope is still active.
-			if (context?.previousTasks) {
-				queryClient.setQueryData(context.queryKey, context.previousTasks);
+			if (context?.previousTasks?.pages) {
+				// Pages may have been loaded since the snapshot: put back only the edited task, keep the rest.
+				const previousTask = flattenTaskPages(context.previousTasks.pages).find((task) => task.id === taskId);
+				const currentTasks = queryClient.getQueryData<InfiniteData<PaginationResponse<TTask>, number>>(
+					context.queryKey
+				);
+				const restoredTasks =
+					previousTask && currentTasks?.pages
+						? {
+								...currentTasks,
+								pages: currentTasks.pages.map((page) => ({
+									...page,
+									items: page.items.map((task) => (task.id === taskId ? previousTask : task))
+								}))
+							}
+						: context.previousTasks;
+				queryClient.setQueryData(context.queryKey, restoredTasks);
 
-				if (context.scopeFingerprint === currentScopeFingerprintRef.current && context.previousTasks.pages) {
-					setAllTasks(flattenTaskPages(context.previousTasks.pages));
+				if (context.scopeFingerprint === currentScopeFingerprintRef.current) {
+					setAllTasks(flattenTaskPages(restoredTasks.pages));
 				}
 			}
 		},

@@ -46,6 +46,8 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 type Props = {
 	task?: Nullable<TTask>;
 	tasks?: TTask[];
+	// False when `tasks` is a copy taken before every team task page was loaded.
+	tasksComplete?: boolean;
 	onTaskClick?: (task: TTask) => void;
 	initEditMode?: boolean;
 	onCloseCombobox?: () => void;
@@ -90,7 +92,8 @@ export function TaskInput(props: Props) {
 	const datas = useTaskInput({
 		task: props.task,
 		initEditMode: props.initEditMode,
-		tasks: props.tasks
+		tasks: props.tasks,
+		tasksComplete: props.tasksComplete
 	});
 
 	const onCloseComboboxRef = useCallbackRef(props.onCloseCombobox);

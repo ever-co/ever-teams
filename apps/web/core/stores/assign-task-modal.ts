@@ -13,6 +13,9 @@ import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 export interface IAssignTaskModalState {
 	isOpen: boolean;
 	tasks: TTask[];
+	// Whether every team task page was loaded when `tasks` was copied: an earlier copy can lack
+	// existing tasks, so a search miss in it must not offer to create one.
+	tasksComplete: boolean;
 	userProfile: TOrganizationTeamEmployee | null;
 	employeeId: string | null;
 	onTaskClick?: (task: TTask, close: () => void) => void;
@@ -22,9 +25,9 @@ export interface IAssignTaskModalState {
 export const assignTaskModalState = atom<IAssignTaskModalState>({
 	isOpen: false,
 	tasks: [],
+	tasksComplete: false,
 	userProfile: null,
 	employeeId: null,
 	onTaskClick: undefined,
 	onTaskCreated: undefined
 });
-

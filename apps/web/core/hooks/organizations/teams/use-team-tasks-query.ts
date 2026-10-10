@@ -12,13 +12,14 @@ import {
 	teamTasksState
 } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useAuthenticateUser } from '../../auth';
 import { useFirstLoad, useConditionalUpdateEffect, useSyncRef } from '../../common';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import type { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useScopeGuard } from '../../bootstrap/use-scope-guard';
@@ -26,6 +27,12 @@ import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-tok
 
 // Below Gauzy's take limit of 100, and a team with 50 tasks or fewer keeps a single request.
 const TEAM_TASKS_PAGE_SIZE = 50;
+// Reloads of a shifted page sequence before waiting for the next refetch, so constant writes cannot loop.
+const MAX_PAGE_SEQUENCE_RESTARTS = 3;
+
+function haveSameTotal(pages: PaginationResponse<TTask>[]) {
+	return pages.every((page) => page.total === pages[0].total);
+}
 
 interface UseTeamTasksQueryOptions {
 	enabled?: boolean;
@@ -118,6 +125,8 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 		},
 		initialPageParam: 1,
 		getNextPageParam: (lastPage, allPages, lastPageParam) => {
+			// A total that changed between two pages means the offsets shifted: stop, the sequence is reloaded below.
+			if (!haveSameTotal(allPages)) return undefined;
 			const loadedCount = allPages.reduce((count, page) => count + page.items.length, 0);
 			// An empty page ends the list even if `total` says otherwise, so the loop cannot run forever.
 			return lastPage.items.length > 0 && loadedCount < lastPage.total ? lastPageParam + 1 : undefined;
@@ -128,16 +137,26 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 		refetchInterval,
 		refetchIntervalInBackground: false
 	});
-	const { data: teamTasksData, hasNextPage, isFetching, isError, fetchNextPage } = teamTasksQuery;
+	const { data: teamTasksData, hasNextPage, isFetching, isError, fetchNextPage, refetch } = teamTasksQuery;
 	const teamTasksItems = useMemo(() => teamTasksData && flattenTaskPages(teamTasksData.pages), [teamTasksData]);
-	const pagesComplete = !!teamTasksData && !hasNextPage && isCurrentScope();
+	// Pages are read one after the other: a task created or deleted in between shifts the offsets, so a task
+	// can be skipped while the count still reaches `total`. The total then differs between pages.
+	const pagesConsistent = !!teamTasksData && haveSameTotal(teamTasksData.pages);
+	const pagesComplete = pagesConsistent && !hasNextPage && isCurrentScope();
+	const pageRestartsRef = useRef(0);
 
 	// Only the owner loads the next pages, one at a time, and stops on error until the next refetch.
+	// Shifted pages are reloaded from page 1, a bounded number of times; until then the list is not complete.
 	useEffect(() => {
-		if (queryEnabled && hasNextPage && !isFetching && !isError) {
-			void fetchNextPage();
+		if (!queryEnabled || !teamTasksData || isFetching || isError) return;
+		if (pagesConsistent) {
+			pageRestartsRef.current = 0;
+			if (hasNextPage) void fetchNextPage();
+		} else if (pageRestartsRef.current < MAX_PAGE_SEQUENCE_RESTARTS) {
+			pageRestartsRef.current += 1;
+			void refetch();
 		}
-	}, [queryEnabled, hasNextPage, isFetching, isError, fetchNextPage]);
+	}, [queryEnabled, teamTasksData, pagesConsistent, hasNextPage, isFetching, isError, fetchNextPage, refetch]);
 
 	// Deep update function for React Query → Jotai sync
 	const deepCheckAndUpdateTasks = useCallback(

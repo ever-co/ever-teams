@@ -31,9 +31,11 @@ export const h_filter = (status: ETaskStatusName, filters: 'closed' | 'open') =>
 export function useTaskInput({
 	task,
 	initEditMode,
-	tasks: customTasks
+	tasks: customTasks,
+	tasksComplete: customTasksComplete
 }: {
 	tasks?: TTask[];
+	tasksComplete?: boolean;
 	task?: Nullable<TTask>;
 	initEditMode?: boolean;
 } = {}) {
@@ -42,7 +44,9 @@ export function useTaskInput({
 	const { taskStatuses: taskStatusList } = useTaskStatusesQuery();
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
-	const { tasks: teamTasks, tasksFetching, tasksComplete } = useTeamTasksQuery();
+	const { tasks: teamTasks, tasksFetching, tasksComplete: teamTasksComplete } = useTeamTasksQuery();
+	// A copied list taken before every page loaded stays partial even once the team list is complete.
+	const tasksComplete = teamTasksComplete && customTasksComplete !== false;
 	const { setActiveTask } = useTeamTasksState();
 	const { createTask, createLoading } = useCreateTask();
 	const { updateTask, updateLoading } = useUpdateTask();

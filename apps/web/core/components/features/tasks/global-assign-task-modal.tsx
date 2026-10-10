@@ -84,6 +84,7 @@ export function GlobalAssignTaskModal() {
 			<TaskInput
 				task={null}
 				tasks={modalState.tasks}
+				tasksComplete={modalState.tasksComplete}
 				initEditMode={true}
 				keepOpen={true}
 				autoAssignTaskAuth={false}
