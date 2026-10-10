@@ -107,6 +107,17 @@ function IntegrationRow({
 }: Readonly<{ integration: IEverConnectIntegration; actions: Actions; onConsentOpened: () => void }>) {
 	const t = useTranslations();
 	const [showScope, setShowScope] = useState(false);
+	// The tab opened for a consent still waiting for its link: closed if this row goes away first.
+	const consentTab = useRef<Window | null>(null);
+	const mounted = useRef(true);
+	useEffect(() => {
+		mounted.current = true;
+		return () => {
+			mounted.current = false;
+			consentTab.current?.close();
+			consentTab.current = null;
+		};
+	}, []);
 	const canConsent =
 		integration.policy === 'allowed' && integration.state !== 'enabled' && integration.state !== 'pending_operator';
 
@@ -115,14 +126,20 @@ function IntegrationRow({
 		// consent page once the paired API answers; it never gets a handle on this page.
 		const tab = window.open('', '_blank');
 		if (tab) tab.opener = null;
+		consentTab.current = tab;
 		actions.openConsent.mutate(integration.key, {
 			onSuccess: ({ url }) => {
+				consentTab.current = null;
+				if (!mounted.current) return;
 				// The paired API builds this link; it carries no token and no e-mail.
 				if (tab) tab.location.href = url;
 				else window.location.assign(url);
 				onConsentOpened();
 			},
-			onError: () => tab?.close()
+			onError: () => {
+				consentTab.current = null;
+				tab?.close();
+			}
 		});
 	};
 

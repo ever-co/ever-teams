@@ -77,6 +77,8 @@ export interface BuildReportInput {
 	country: string;
 	/** The closed previous month (`true`), or the running one. */
 	final: boolean;
+	/** The month the report covers (`YYYY-MM`; default: from `now` and `final`), for a retry that crossed a month. */
+	period?: string;
 	/** The release this web app was built as (default: the build info). */
 	buildVersion?: string;
 }
@@ -96,7 +98,7 @@ export function buildTeamsReport(input: BuildReportInput): TeamsStatsReport {
 		channel,
 		install_source: input.installSource,
 		country: input.country,
-		period: input.final ? previousUtcPeriod(input.now) : utcPeriod(input.now),
+		period: input.period ?? (input.final ? previousUtcPeriod(input.now) : utcPeriod(input.now)),
 		final: input.final,
 		counts: {},
 		features: {},

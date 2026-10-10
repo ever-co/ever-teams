@@ -217,4 +217,39 @@ describe('the statistics reporter', () => {
 		await scheduler?.runNow();
 		expect(reports.map((report) => report.final)).toEqual([false, true, true, true]);
 	});
+
+	it('sends nothing once stopped while it was asking the paired API', async () => {
+		let answer: (response: Response) => void = () => undefined;
+		const { fetch, reports } = world({ state: () => new Promise<Response>((resolve) => (answer = resolve)) });
+		const { deps: d, timers } = deps(fetch);
+		const scheduler = startEverStats(d);
+		const run = scheduler?.runNow();
+		await Promise.resolve();
+		scheduler?.stop();
+		answer(json({ enabled: true }));
+		await run;
+		expect(reports).toHaveLength(0);
+		expect(timers.filter((timer) => !timer.cleared)).toHaveLength(0);
+	});
+
+	it('retries a failed report for the month it was due for, after the month changed', async () => {
+		let sinkStatus = 503;
+		const reports: Array<{ period: string; final: boolean }> = [];
+		const fetch = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+			if (String(input) === `${PAIRED}/api/ever-stats/state`) return json({ enabled: true });
+			reports.push(JSON.parse(Buffer.from(init?.body as Uint8Array).toString('utf8')));
+			return json({}, sinkStatus);
+		}) as unknown as typeof globalThis.fetch;
+		const { deps: d, setClock } = deps(fetch);
+		setClock(new Date('2026-11-30T23:30:00Z'));
+		const scheduler = startEverStats(d);
+		await scheduler?.runNow();
+		sinkStatus = 202;
+		setClock(new Date('2026-12-01T00:30:00Z'));
+		await scheduler?.runNow();
+		expect(reports.map(({ period, final }) => ({ period, final }))).toEqual([
+			{ period: '2026-11', final: false },
+			{ period: '2026-11', final: false }
+		]);
+	});
 });

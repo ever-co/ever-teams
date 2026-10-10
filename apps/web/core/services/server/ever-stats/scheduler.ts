@@ -9,7 +9,7 @@ import {
 import { readPairedStatsState, type PairedStatsState } from './gauzy-state';
 import { ephemeralIdentity, loadStatsIdentity, type ReadyStatsIdentity } from './instance';
 import { logReporterState, logSendOutcome, type SendOutcome } from '../ever-platform/log';
-import { buildTeamsReport, previousUtcPeriod } from './report';
+import { buildTeamsReport, previousUtcPeriod, utcPeriod } from './report';
 import { sendTeamsReport } from './sender';
 import { reporterState, type ReporterStatus } from './state';
 
@@ -31,6 +31,9 @@ import { reporterState, type ReporterStatus } from './state';
 type Env = Record<string, string | undefined>;
 
 type Timer = { unref?: () => unknown };
+
+/** A report a slot has to send: the month it covers, and whether it is the closed month's final one. */
+type PendingReport = { final: boolean; period: string };
 
 export interface SchedulerDeps {
 	env?: Env;
@@ -105,8 +108,8 @@ export function startEverStats(deps: SchedulerDeps = {}): EverStatsScheduler | n
 	let running = false;
 	let failures = 0;
 	let finalSentFor: string | null = null;
-	/** What a failed slot still has to send (`final` of each report), for its retries. */
-	let pendingRetry: boolean[] | null = null;
+	/** What a failed slot still has to send (each report's month and kind), for its retries. */
+	let pendingRetry: PendingReport[] | null = null;
 	let lastSkip: SendOutcome | null = null;
 
 	const nextDailySlot = (at: Date): number => {
@@ -143,7 +146,8 @@ export function startEverStats(deps: SchedulerDeps = {}): EverStatsScheduler | n
 		lastSkip = outcome;
 		setStatus('paused_by_api');
 		failures = 0;
-		pendingRetry = null;
+		// Switched off or unpaired: nothing is owed any more. Unreachable: the slot's reports wait for it.
+		if (paired !== 'unreachable') pendingRetry = null;
 		return false;
 	}
 
@@ -153,16 +157,20 @@ export function startEverStats(deps: SchedulerDeps = {}): EverStatsScheduler | n
 	 */
 	async function sendPeriods(at: Date): Promise<'next' | 'retry' | 'stopped'> {
 		const finalPeriod = previousUtcPeriod(at);
-		// A retry sends only what its slot still misses: a report already accepted is not sent twice.
-		const reports = pendingRetry ?? [
-			false,
-			...(at.getUTCDate() <= FINAL_RESEND_LAST_DAY && finalSentFor !== finalPeriod ? [true] : [])
+		// A retry sends only what its slot still misses, for the month it was due for: a report already
+		// accepted is not sent twice, and a retry after the month changed keeps its month.
+		const reports: PendingReport[] = pendingRetry ?? [
+			{ final: false, period: utcPeriod(at) },
+			...(at.getUTCDate() <= FINAL_RESEND_LAST_DAY && finalSentFor !== finalPeriod
+				? [{ final: true, period: finalPeriod }]
+				: [])
 		];
 		pendingRetry = null;
 		let renewed = false;
 		while (reports.length > 0) {
-			const final = reports[0];
-			const report = buildTeamsReport({ now: at, instanceId: identity.instanceId, installSource, country, final });
+			if (stopped) return 'stopped';
+			const { final, period } = reports[0];
+			const report = buildTeamsReport({ now: at, instanceId: identity.instanceId, installSource, country, final, period });
 			const result = await sendTeamsReport(report, identity, {
 				baseUrl: statsApiUrl,
 				now: at,
@@ -184,7 +192,7 @@ export function startEverStats(deps: SchedulerDeps = {}): EverStatsScheduler | n
 				renewed = true;
 				continue;
 			}
-			if (result.kind === 'sent' && final) finalSentFor = finalPeriod;
+			if (result.kind === 'sent' && final) finalSentFor = period;
 			reports.shift();
 		}
 		failures = 0;
@@ -196,7 +204,11 @@ export function startEverStats(deps: SchedulerDeps = {}): EverStatsScheduler | n
 		running = true;
 		try {
 			const at = now();
-			const outcome = (await pairedAllows()) ? await sendPeriods(at) : 'next';
+			const allowed = await pairedAllows();
+			// Stopped while the paired API was asked: nothing more is sent or scheduled.
+			if (stopped) return;
+			const outcome = allowed ? await sendPeriods(at) : 'next';
+			if (stopped) return;
 			if (outcome === 'retry') {
 				schedule(retryDelay());
 			} else if (outcome === 'stopped') {
