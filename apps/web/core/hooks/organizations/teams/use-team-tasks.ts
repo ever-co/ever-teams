@@ -538,7 +538,7 @@ export function useTeamTasks() {
 				/**
 				 * Unassign previous active task
 				 */
-				if ($memberActiveTaskId.current && $user.current) {
+				if ($memberActiveTaskId.current && $user.current && $memberActiveTaskId.current !== task?.id) {
 					const _task = tasksRef.current.find((t) => t.id === $memberActiveTaskId.current);
 
 					if (_task) {
