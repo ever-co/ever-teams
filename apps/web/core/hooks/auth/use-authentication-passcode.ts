@@ -9,6 +9,7 @@ import { useQueryCall } from '../common/use-query';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { authService } from '@/core/services/client/api/auth/auth.service';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
 import { EVER_ID_STEP_PARAM, isEverIdStep } from '@/core/lib/auth/ever-id/step';
 import {
@@ -184,7 +185,7 @@ export function useAuthenticationPasscode() {
 			}
 
 			// Already limited: the invite-code attempt would only add one more request to a refusing server.
-			if (isAxiosError(confirmError) && confirmError.response?.status === 429) {
+			if (ApiErrorService.isApiError(confirmError) && confirmError.hasHttpResponseStatus(429)) {
 				setStatus('error');
 				setErrors({ code: t(TOO_MANY_ATTEMPTS) });
 				return;
@@ -388,7 +389,7 @@ export function useAuthenticationPasscode() {
 		promise.catch((err: AxiosError) => {
 			if (err.response?.status === 400) {
 				setErrors((err.response?.data as any)?.errors || {});
-			} else if (err.response?.status === 429) {
+			} else if (ApiErrorService.isApiError(err) && err.hasHttpResponseStatus(429)) {
 				setErrors({ email: t(TOO_MANY_ATTEMPTS) });
 			}
 		});
