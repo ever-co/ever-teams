@@ -21,6 +21,7 @@ import {
 import { ISuccessResponse } from '@/core/types/interfaces/common/data-response';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { TUser } from '@/core/types/schemas';
+import { logInDev } from '@/core/lib/helpers/error-message';
 
 class AuthService extends APIService {
 	/**
@@ -47,11 +48,11 @@ class AuthService extends APIService {
 			throw new Error('No refresh token available');
 		}
 
-		console.log('[AuthService] Attempting token refresh...');
+		logInDev('[AuthService] Attempting token refresh...');
 
 		try {
 			if (GAUZY_API_BASE_SERVER_URL.value) {
-				console.log('[AuthService] Using direct Gauzy API for token refresh');
+				logInDev('[AuthService] Using direct Gauzy API for token refresh');
 				const { data } = await this.post<{ token: string; refresh_token: string }>('/auth/refresh-token', {
 					refresh_token
 				});
@@ -66,16 +67,16 @@ class AuthService extends APIService {
 				// Update refresh token if a new one is provided (token rotation)
 				if (data.refresh_token) {
 					setRefreshTokenCookie(data.refresh_token);
-					console.log('[AuthService] Refresh token rotated successfully');
+					logInDev('[AuthService] Refresh token rotated successfully');
 				}
 
-				console.log('[AuthService] Token refreshed successfully via direct API');
+				logInDev('[AuthService] Token refreshed successfully via direct API');
 
 				// Get fresh user data with the new token
 				return userService.getAuthenticatedUserData();
 			}
 
-			console.log('[AuthService] Using Next.js API route for token refresh');
+			logInDev('[AuthService] Using Next.js API route for token refresh');
 			const api = await getFallbackAPI();
 			const result = await api.post<IAuthResponse>(`/auth/refresh`, {
 				refresh_token
@@ -91,10 +92,10 @@ class AuthService extends APIService {
 			// Update refresh token if a new one is provided (token rotation)
 			if (result.data?.refresh_token) {
 				setRefreshTokenCookie(result.data.refresh_token);
-				console.log('[AuthService] Refresh token rotated successfully via API route');
+				logInDev('[AuthService] Refresh token rotated successfully via API route');
 			}
 
-			console.log('[AuthService] Token refreshed successfully via API route');
+			logInDev('[AuthService] Token refreshed successfully via API route');
 			return result;
 		} catch (error: any) {
 			console.error('[AuthService] Token refresh failed:', {

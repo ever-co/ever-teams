@@ -18,7 +18,7 @@ import {
 import { handleUnauthorized } from '@/core/lib/auth/handle-unauthorized';
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { retryWithBackoff, isUnauthorizedError } from '@/core/lib/auth/retry-logic';
-import { logErrorInDev } from '@/core/lib/helpers/error-message';
+import { logErrorInDev, logInDev } from '@/core/lib/helpers/error-message';
 import { INIT_DELAY_MS } from '@/core/constants/config/constants';
 import { usePathname } from 'next/navigation';
 
@@ -61,7 +61,7 @@ export function useProactiveTokenRefresh() {
 
 			// Prevent concurrent refresh attempts
 			if (isRefreshingRef.current) {
-				console.log('[ProactiveTokenRefresh] Refresh already in progress, skipping');
+				logInDev('[ProactiveTokenRefresh] Refresh already in progress, skipping');
 				return false;
 			}
 
@@ -69,7 +69,7 @@ export function useProactiveTokenRefresh() {
 			const refresh_token = getRefreshTokenCookie();
 
 			if (!refresh_token) {
-				console.log('[ProactiveTokenRefresh] No refresh token available, skipping');
+				logInDev('[ProactiveTokenRefresh] No refresh token available, skipping');
 				return false;
 			}
 
@@ -83,7 +83,7 @@ export function useProactiveTokenRefresh() {
 
 				if (remainingSeconds > halfLifeSeconds) {
 					// Token has more than 50% life remaining - no need to refresh yet
-					console.log(
+					logInDev(
 						`[ProactiveTokenRefresh] Token still valid (${formatRemainingTime(remainingSeconds)} remaining > 50% lifetime), skipping refresh`
 					);
 					return false;
@@ -93,7 +93,7 @@ export function useProactiveTokenRefresh() {
 			isRefreshingRef.current = true;
 
 			try {
-				console.log('[ProactiveTokenRefresh] Token expired/expiring, refreshing now...');
+				logInDev('[ProactiveTokenRefresh] Token expired/expiring, refreshing now...');
 
 				// Use retry logic with exponential backoff for network errors
 				// Client-side call → runtime API base URL. The server-only refreshTokenRequest (serverFetch) resolves
@@ -112,12 +112,12 @@ export function useProactiveTokenRefresh() {
 				// Update refresh token if a new one is provided (token rotation)
 				if (data.refresh_token) {
 					setRefreshTokenCookie(data.refresh_token);
-					console.log('[ProactiveTokenRefresh] Refresh token rotated successfully');
+					logInDev('[ProactiveTokenRefresh] Refresh token rotated successfully');
 				}
 
 				// Log success with next check timing
 				const newRemaining = getTokenRemainingTime(data.token);
-				console.log(
+				logInDev(
 					`[ProactiveTokenRefresh] ✅ Token refreshed! New expiration in ${formatRemainingTime(newRemaining)}`
 				);
 				return true;
@@ -153,7 +153,7 @@ export function useProactiveTokenRefresh() {
 
 			const currentToken = getAccessTokenCookie();
 			if (!currentToken) {
-				console.log('[ProactiveTokenRefresh] No access token, stopping scheduler');
+				logInDev('[ProactiveTokenRefresh] No access token, stopping scheduler');
 				return;
 			}
 
@@ -161,14 +161,14 @@ export function useProactiveTokenRefresh() {
 			// but never schedule a check after the token is expected to expire
 			const remainingTimeSeconds = getTokenRemainingTime(currentToken);
 			if (remainingTimeSeconds <= 0) {
-				console.log('[ProactiveTokenRefresh] Token already expired, not scheduling further checks');
+				logInDev('[ProactiveTokenRefresh] Token already expired, not scheduling further checks');
 				return;
 			}
 
 			const rawInterval = calculateRefreshInterval(currentToken);
 			const interval = Math.min(rawInterval, remainingTimeSeconds * 1000);
 
-			console.log(
+			logInDev(
 				`[ProactiveTokenRefresh] Token remaining: ${formatRemainingTime(remainingTimeSeconds)}, ` +
 					`Next check in: ${formatRemainingTime(interval / 1000)}`
 			);
@@ -177,7 +177,7 @@ export function useProactiveTokenRefresh() {
 				typeof window !== 'undefined'
 					? window.setTimeout(async () => {
 							if (!active) return;
-							console.log('[ProactiveTokenRefresh] Scheduled check triggered...');
+							logInDev('[ProactiveTokenRefresh] Scheduled check triggered...');
 							await performRefreshIfNeeded();
 							if (!active) return;
 							// Always reschedule (whether refresh happened or was skipped)
@@ -196,13 +196,13 @@ export function useProactiveTokenRefresh() {
 			const accessToken = getAccessTokenCookie();
 
 			if (!accessToken) {
-				console.log('[ProactiveTokenRefresh] No access token, waiting for login');
+				logInDev('[ProactiveTokenRefresh] No access token, waiting for login');
 				return;
 			}
 
 			// Check if we need to refresh immediately (token expiring within 5 min)
 			if (shouldRefreshToken(accessToken, 300)) {
-				console.log('[ProactiveTokenRefresh] Token needs refresh, doing it now...');
+				logInDev('[ProactiveTokenRefresh] Token needs refresh, doing it now...');
 				const success = await performRefreshIfNeeded();
 				if (!active) return;
 
@@ -230,7 +230,7 @@ export function useProactiveTokenRefresh() {
 				// Success - continue to start scheduler with new token
 			} else {
 				const remainingTime = getTokenRemainingTime(accessToken);
-				console.log(`[ProactiveTokenRefresh] Token valid, remaining: ${formatRemainingTime(remainingTime)}`);
+				logInDev(`[ProactiveTokenRefresh] Token valid, remaining: ${formatRemainingTime(remainingTime)}`);
 			}
 
 			// Start the recursive scheduler (only if refresh succeeded or wasn't needed)
