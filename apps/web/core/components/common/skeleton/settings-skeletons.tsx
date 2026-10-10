@@ -272,3 +272,19 @@ export const DangerZoneTeamSkeleton: FC<SettingsSkeletonProps> = ({ className })
 		</div>
 	);
 };
+
+/**
+ * Skeleton for the Ever Platform section: a heading, a line of text and a switch row
+ */
+export const EverPlatformSectionSkeleton: FC<SettingsSkeletonProps> = ({ className }) => {
+	return (
+		<div className={cn('flex flex-col gap-4', className)}>
+			<div className="w-48 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+			<div className="w-full h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+			<div className="flex justify-between items-center">
+				<div className="w-40 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+				<div className="w-11 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
+			</div>
+		</div>
+	);
+};
