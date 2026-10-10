@@ -4,6 +4,8 @@ import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { useUpdateTimesheet } from '@/core/hooks/timesheet/use-update-timesheet';
 import { useDeleteTimesheet } from '@/core/hooks/timesheet/use-delete-timesheet';
+import { useModal } from '@/core/hooks';
+import { RejectSelectedModal } from '../../features/timesheet/reject-selected-modal';
 
 type ActionButtonProps = {
 	label: string;
@@ -72,6 +74,7 @@ interface SelectedTimesheetProps {
 export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({ selectTimesheetId, setSelectTimesheetId }) => {
 	const { updateTimesheetStatus } = useUpdateTimesheet();
 	const { deleteTaskTimesheet } = useDeleteTimesheet();
+	const { isOpen: isRejectModalOpen, openModal: openRejectModal, closeModal: closeRejectModal } = useModal();
 
 	const getSelectedIds = useCallback(
 		() => selectTimesheetId.map((select) => select.timesheet?.id).filter((id): id is string => Boolean(id)),
@@ -82,18 +85,6 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({ selectTime
 		try {
 			await updateTimesheetStatus({
 				status: ETimesheetStatus.APPROVED,
-				ids: getSelectedIds()
-			});
-			setSelectTimesheetId([]);
-		} catch (error) {
-			console.error(error);
-		}
-	}, [getSelectedIds, updateTimesheetStatus, setSelectTimesheetId]);
-
-	const handleReject = useCallback(async () => {
-		try {
-			await updateTimesheetStatus({
-				status: ETimesheetStatus.DENIED,
 				ids: getSelectedIds()
 			});
 			setSelectTimesheetId([]);
@@ -114,12 +105,22 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({ selectTime
 	}, [getSelectedIds, deleteTaskTimesheet, setSelectTimesheetId]);
 
 	return (
-		<SelectionBar
-			selectedCount={selectTimesheetId.length}
-			onApprove={handleApprove}
-			onReject={handleReject}
-			onDelete={handleDelete}
-			onClearSelection={() => setSelectTimesheetId([])}
-		/>
+		<>
+			<RejectSelectedModal
+				selectTimesheetId={getSelectedIds()}
+				onReject={() => setSelectTimesheetId([])}
+				maxReasonLength={120}
+				minReasonLength={0}
+				closeModal={closeRejectModal}
+				isOpen={isRejectModalOpen}
+			/>
+			<SelectionBar
+				selectedCount={selectTimesheetId.length}
+				onApprove={handleApprove}
+				onReject={openRejectModal}
+				onDelete={handleDelete}
+				onClearSelection={() => setSelectTimesheetId([])}
+			/>
+		</>
 	);
 };

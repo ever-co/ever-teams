@@ -146,9 +146,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 				selectTimesheetId={selectTimesheetId
 					.map((select) => select.timesheetId || '')
 					.filter((timesheetId) => timesheetId !== undefined)}
-				onReject={() => {
-					// Pending implementation
-				}}
+				onReject={() => setSelectTimesheetId([])}
 				maxReasonLength={120}
 				minReasonLength={0}
 				closeModal={closeModal}
@@ -242,6 +240,15 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 														</div>
 													</AccordionTrigger>
 													<AccordionContent className="flex flex-col w-full">
+														{status === ETimesheetStatus.DENIED &&
+															timesheetRows[0].timesheet?.reason && (
+																<p className="px-2 py-3 text-sm text-[#71717A] dark:text-gray-400 whitespace-pre-line break-words">
+																	<span className="font-medium">
+																		{t('pages.timesheet.REJECTION_REASON')}:
+																	</span>{' '}
+																	{timesheetRows[0].timesheet.reason}
+																</p>
+															)}
 														<HeaderRow
 															handleSelectRowByStatusAndDate={() =>
 																handleSelectRowByStatusAndDate(
@@ -412,6 +419,7 @@ const TaskActionMenu = ({
 }) => {
 	const { isOpen: isEditTask, openModal: isOpenModalEditTask, closeModal: isCloseModalEditTask } = useModal();
 	const { isOpen: isOpenAlert, openModal: openAlertConfirmation, closeModal: closeAlertConfirmation } = useModal();
+	const { isOpen: isRejectOpen, openModal: openRejectModal, closeModal: closeRejectModal } = useModal();
 	const { deleteTaskTimesheet, loadingDeleteTimesheet } = useDeleteTimesheet();
 	const canEdit = isManage || user?.id === timeLog.employee?.user.id;
 
@@ -441,6 +449,18 @@ const TaskActionMenu = ({
 				title={t('common.DELETE_CONFIRMATION')}
 			/>
 			<EditTaskModal closeModal={isCloseModalEditTask} isOpen={isEditTask} timeLogData={timeLog} />
+			<RejectSelectedModal
+				selectTimesheetId={timeLog.timesheetId ? [timeLog.timesheetId] : []}
+				onReject={() =>
+					sonnerToast.success(t('pages.timeLog.MODIFICATION_CONFIRMED'), {
+						description: t('pages.timeLog.STATUS_MODIFY_SUCCESS')
+					})
+				}
+				maxReasonLength={120}
+				minReasonLength={0}
+				closeModal={closeRejectModal}
+				isOpen={isRejectOpen}
+			/>
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<Button variant="ghost" className="w-8 h-8 p-0 text-sm sm:text-base">
@@ -455,7 +475,7 @@ const TaskActionMenu = ({
 						</DropdownMenuItem>
 					)}
 					<DropdownMenuSeparator />
-					<StatusTask timeLog={timeLog} />
+					<StatusTask timeLog={timeLog} onReject={openRejectModal} />
 					<DropdownMenuItem
 						onClick={openAlertConfirmation}
 						className="text-red-600 hover:!text-red-600 cursor-pointer"
@@ -468,7 +488,7 @@ const TaskActionMenu = ({
 	);
 };
 
-export const StatusTask = ({ timeLog }: { timeLog: ITimeLog }) => {
+export const StatusTask = ({ timeLog, onReject }: { timeLog: ITimeLog; onReject: () => void }) => {
 	const t = useTranslations();
 
 	const { mutateAsync: updateTimelog } = useUpdateTimeLogMutation();
@@ -531,7 +551,9 @@ export const StatusTask = ({ timeLog }: { timeLog: ITimeLog }) => {
 								<DropdownMenuItem
 									onClick={() => {
 										if (!timeLog.timesheetId) return;
-										handleStatusChange(status.label as ETimesheetStatus, [timeLog.timesheetId!]);
+										// A rejection carries a reason, and only the reject modal collects one.
+										if (status.label === ETimesheetStatus.DENIED) return onReject();
+										handleStatusChange(status.label as ETimesheetStatus, [timeLog.timesheetId]);
 									}}
 									key={index}
 									textValue={status.label}

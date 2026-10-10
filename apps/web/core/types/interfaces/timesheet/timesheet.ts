@@ -23,6 +23,8 @@ export interface ITimesheet extends IBasePerTenantAndOrganizationEntityModel {
 	editedAt?: Date;
 	isBilled?: boolean;
 	status: ETimesheetStatus;
+	/** Why the timesheet was last denied. */
+	reason?: string;
 	isEdited?: boolean;
 	version?: string;
 }
@@ -31,6 +33,8 @@ export interface IUpdateTimesheetStatus {
 	organizationId?: ID;
 	status: ID;
 	tenantId?: ID;
+	/** Stored by the API only when `status` is DENIED. */
+	reason?: string;
 }
 
 export interface ITimesheetCountsStatistics {

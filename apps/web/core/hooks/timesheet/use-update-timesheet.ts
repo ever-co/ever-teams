@@ -27,9 +27,17 @@ export function useUpdateTimesheet() {
 	});
 
 	const updateTimesheetStatusMutation = useMutation({
-		mutationFn: async ({ status, ids }: { status: ETimesheetStatus; ids: string[] | string }) => {
+		mutationFn: async ({
+			status,
+			ids,
+			reason
+		}: {
+			status: ETimesheetStatus;
+			ids: string[] | string;
+			reason?: string;
+		}) => {
 			const idsArray = Array.isArray(ids) ? ids : [ids];
-			return await timeSheetService.updateStatusTimesheetFrom({ ids: idsArray, status });
+			return await timeSheetService.updateStatusTimesheetFrom({ ids: idsArray, status, reason });
 		},
 		onSuccess: () => {
 			invalidateTimesheetData();
@@ -56,11 +64,11 @@ export function useUpdateTimesheet() {
 
 	const updateTimesheetStatusMutate = updateTimesheetStatusMutation.mutateAsync;
 	const updateTimesheetStatus = useCallback(
-		async ({ status, ids }: { status: ETimesheetStatus; ids: string[] | string }) => {
+		async ({ status, ids, reason }: { status: ETimesheetStatus; ids: string[] | string; reason?: string }) => {
 			if (!user) return;
 			const idsArray = Array.isArray(ids) ? ids : [ids];
 			try {
-				await updateTimesheetStatusMutate({ status, ids: idsArray });
+				await updateTimesheetStatusMutate({ status, ids: idsArray, reason });
 			} catch (error) {
 				console.error('Error updating timesheet status:', error);
 			}

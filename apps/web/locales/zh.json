@@ -1084,6 +1084,7 @@
 			"LOADING": "加载时间表数据...",
 			"NO_ENTRIES_FOUND": "未找到时间表记录",
 			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "你即将拒绝选定的条目，是否继续？",
+			"REJECTION_REASON": "拒绝原因",
 			"ALL_TASKS": "所有任务",
 			"PENDING": "待处理",
 			"APPROVED": "已批准",
