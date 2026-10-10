@@ -18,6 +18,12 @@ You can start editing the page by modifying `pages/index.tsx`. The page auto-upd
 
 The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
+## Dev Server Memory
+
+`next dev` holds on to everything it has compiled for as long as it runs, so its memory grows with each page you open and does not go down afterwards. After a walk through the app it can use several GB, and two dev servers side by side can push a 16 GB machine into swap, which slows the editor and the terminal too.
+
+When that happens, stop the dev server and start it again. Turbopack keeps its compiler cache on disk in `apps/web/.next/dev`, so the restarted server reuses what it already compiled and the restart is quick. Keep that folder between restarts: deleting `.next` makes every page compile from scratch again.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
