@@ -4,14 +4,16 @@ import { useAtomValue } from 'jotai';
 import { timerStatusState, activeTeamIdState } from '@/core/stores';
 import { useFirstLoad } from '../common/use-first-load';
 import { useTaskStatistics } from '../tasks/use-task-statistics';
-import { useRefreshIntervalV2 } from '../common';
+import { useRefreshIntervalV2 } from '../common/use-refresh-interval';
 import { useTimerPolling } from './use-timer-polling';
-import { useTimerApi, useTimerStorage, useTimerUi } from '../timer';
+import { useTimerApi } from '../timer/use-timer-api';
+import { useTimerStorage } from '../timer/use-timer-storage';
+import { useTimerUi } from '../timer/use-timer-ui';
 import { REFRESH_INTERVAL } from '@/core/constants/config/constants';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 
 // Re-export useLiveTimerStatus from the new timer module for backward compatibility
-export { useLiveTimerStatus } from '../timer';
+export { useLiveTimerStatus } from '../timer/use-timer-ui';
 
 /**
  * Composite timer hook — Full 3-layer facade.

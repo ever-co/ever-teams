@@ -1,5 +1,6 @@
 import { EverTeamsLogo } from '@/core/components/svgs';
-import { Text, ThemeToggler } from '@/core/components';
+import { Text } from '@/core/components/common/typography';
+import { ThemeToggler } from '@/core/components/common/toggler';
 import { LanguageDropDownWithFlags } from '@/core/components/common/language-dropdown-flags';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';

@@ -1,10 +1,10 @@
 'use client';
 
 import { useNetworkState } from '@uidotdev/usehooks';
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import Offline from '@/core/components/pages/offline';
-import { useTimerView } from '@/core/hooks';
+import Offline, { preloadOfflineTimer } from '@/core/components/pages/offline';
+import { useTimerView } from '@/core/hooks/activities/use-timer';
 import { usePathname } from 'next/navigation';
 
 /**
@@ -25,6 +25,13 @@ const OfflineWrapper = ({ children }: PropsWithChildren) => {
 	const { online } = useNetworkState();
 	const { timerStatus } = useTimerView();
 	const pathname = usePathname();
+	const timerRunning = !!timerStatus?.running;
+
+	useEffect(() => {
+		if (online && timerRunning) {
+			preloadOfflineTimer().catch(() => undefined);
+		}
+	}, [online, timerRunning]);
 
 	// Compute conditions after all hooks are called
 	const isAuthPage = pathname?.startsWith('/auth');

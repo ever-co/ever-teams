@@ -1,6 +1,6 @@
 'use client';
 
-import { AuthLayout } from '@/core/components/layouts/default-layout';
+import { AuthLayout } from '@/core/components/layouts/default-layout/auth-layout';
 import { useAcceptInvite } from '@/core/hooks/auth/use-accept-invite';
 import { CompleteInvitationRegistrationForm } from './complete-invitation-registration-form';
 import { EInvitationState } from '@/core/types/schemas/user/invite.schema';

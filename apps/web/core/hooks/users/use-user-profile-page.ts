@@ -4,8 +4,10 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
 import { useParams } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
-import { useAuthTeamTasks, useUpdateTask, useTeamTasksQuery } from '../organizations';
-import { useGetTasksStatsData } from '../tasks';
+import { useAuthTeamTasks } from '../organizations/teams/use-auth-team-tasks';
+import { useUpdateTask } from '../organizations/teams/use-update-task';
+import { useTeamTasksQuery } from '../organizations/teams/use-team-tasks-query';
+import { useGetTasksStatsData } from '../tasks/use-get-tasks-stats-data';
 import { useUserQuery } from '../queries/user-user.query';
 
 export function useUserProfilePage() {

@@ -1,7 +1,8 @@
 'use client';
 
 import { LockClosedIcon } from '@radix-ui/react-icons';
-import { Button, Text } from '@/core/components';
+import { Button } from '@/core/components/common/button';
+import { Text } from '@/core/components/common/typography';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { DEFAULT_APP_PATH } from '@/core/constants/config/constants';

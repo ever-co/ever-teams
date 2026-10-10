@@ -17,7 +17,7 @@ import {
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import { IconsEmojiEmotions } from '@/core/components/icons';
-import { useOutsideClick } from '@/core/hooks/common';
+import { useOutsideClick } from '@/core/hooks/common/use-outside-click';
 import { Text } from '../common/typography';
 import { SpinnerLoader } from '../common/loader';
 

@@ -1,5 +1,8 @@
 import { dataSyncModeState, isDataSyncState } from '@/core/stores/common/data-sync';
-import { Button, DataSyncModeToggler, DataSyncToggler, Modal, Text } from '@/core/components';
+import { Button } from '@/core/components/common/button';
+import { DataSyncModeToggler, DataSyncToggler } from '@/core/components/common/toggler';
+import { Modal } from '@/core/components/common/modal';
+import { Text } from '@/core/components/common/typography';
 import { useTranslations } from 'next-intl';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { EverCard } from '@/core/components/common/ever-card';

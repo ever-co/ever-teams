@@ -1,4 +1,4 @@
-import { useHasMounted } from '@/core/hooks';
+import { useHasMounted } from '@/core/hooks/common/use-has-mounted';
 import { clsxm } from '@/core/lib/utils';
 import { createPortal } from 'react-dom';
 import { EverCard } from '../common/ever-card';

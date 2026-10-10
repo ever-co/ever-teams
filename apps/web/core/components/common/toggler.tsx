@@ -15,7 +15,7 @@ import { Text } from './typography';
 import { Cross2Icon, LightningBoltIcon, UpdateIcon } from '@radix-ui/react-icons';
 import { useAtom } from 'jotai';
 import { dataSyncModeState, isDataSyncState } from '@/core/stores/common/data-sync';
-import { useModal } from '@/core/hooks';
+import { useModal } from '@/core/hooks/common/use-modal';
 import { RealTimePopup } from '@/core/components/pages/settings/personal/sync.zone';
 
 type Props = {
