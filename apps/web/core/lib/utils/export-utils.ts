@@ -42,7 +42,7 @@ export function generateExportFilename(
 	return `${baseName}-${dateRange}.${getFileExtension(format)}`;
 }
 
-export interface XLSXColumn<Row> {
+interface XLSXColumn<Row> {
 	header: string;
 	value: (row: Row) => string;
 	width?: number;
