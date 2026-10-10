@@ -14,7 +14,6 @@ import { useFirstLoad } from '../common/use-first-load';
 import debounce from 'lodash/debounce';
 import { useSyncRef } from '../common/use-sync-ref';
 import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
-import { useRefreshIntervalV2 } from '../common';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '../queries/user-user.query';
@@ -307,10 +306,4 @@ export function useTaskStatistics(addSeconds = 0, options: UseTaskStatisticsOpti
 		getEstimation,
 		allTaskStatistics
 	};
-}
-
-export function useAllTaskStatistics() {
-	const { getAllTasksStatsData } = useTaskStatistics();
-
-	useRefreshIntervalV2(getAllTasksStatsData, 5000);
 }

@@ -13,6 +13,11 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { publicOrganizationTeamService } from '@/core/services/client/api/organizations';
 
+// Shared by the queries and their loaders, so the public page's refresh interval
+// refetches each query once it is stale instead of only reading the cache
+const PUBLIC_TEAM_STALE_TIME = 1000 * 60 * 5; // 5 minutes - public team data is relatively stable
+const PUBLIC_TEAM_MISC_STALE_TIME = 1000 * 60 * 15; // 15 minutes - misc data changes less frequently
+
 export function usePublicOrganizationTeams() {
 	const activeTeam = useAtomValue(activeTeamState);
 
@@ -37,7 +42,7 @@ export function usePublicOrganizationTeams() {
 		queryKey: queryKeys.teams.public.byProfileAndTeam(memoizedProfileLink, memoizedTeamId),
 		queryFn: () => publicOrganizationTeamService.getPublicOrganizationTeams(memoizedProfileLink!, memoizedTeamId!),
 		enabled: !!(memoizedProfileLink && memoizedTeamId),
-		staleTime: 1000 * 60 * 5, // 5 minutes - public team data is relatively stable
+		staleTime: PUBLIC_TEAM_STALE_TIME,
 		refetchOnWindowFocus: false
 	});
 
@@ -50,7 +55,7 @@ export function usePublicOrganizationTeams() {
 				memoizedMiscTeamId!
 			),
 		enabled: !!(memoizedMiscProfileLink && memoizedMiscTeamId),
-		staleTime: 1000 * 60 * 15 // 15 minutes - misc data changes less frequently
+		staleTime: PUBLIC_TEAM_MISC_STALE_TIME
 	});
 
 	// Synchronize React Query data with Jotai stores for backward compatibility
@@ -135,7 +140,9 @@ export function usePublicOrganizationTeams() {
 			}
 
 			return queryClient.ensureQueryData({
-				queryKey: queryKeys.teams.public.byProfileAndTeam(profileLink, teamId)
+				queryKey: queryKeys.teams.public.byProfileAndTeam(profileLink, teamId),
+				staleTime: PUBLIC_TEAM_STALE_TIME,
+				revalidateIfStale: true
 			});
 		},
 		[setQueryParams, queryParams?.profileLink, queryParams?.teamId]
@@ -149,7 +156,9 @@ export function usePublicOrganizationTeams() {
 			}
 
 			return queryClient.ensureQueryData({
-				queryKey: queryKeys.teams.public.miscData(profileLink, teamId)
+				queryKey: queryKeys.teams.public.miscData(profileLink, teamId),
+				staleTime: PUBLIC_TEAM_MISC_STALE_TIME,
+				revalidateIfStale: true
 			});
 		},
 		[setMiscQueryParams, miscQueryParams?.profileLink, miscQueryParams?.teamId]

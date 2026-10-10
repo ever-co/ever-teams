@@ -15,7 +15,6 @@ export const isTeamMemberJustDeletedState = atom<boolean>(false);
 export const isTeamJustDeletedState = atom<boolean>(false);
 
 export const isOTRefreshingState = atom<boolean>(false);
-export const OTRefreshIntervalState = atom<number>();
 
 export const activeTeamState = atom<
 	TOrganizationTeam | null,

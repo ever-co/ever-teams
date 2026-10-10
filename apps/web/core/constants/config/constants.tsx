@@ -714,7 +714,6 @@ export const manualTimeReasons: EManualTimeReasons[] = [
 ];
 export const STOP_TIMER_DEBOUNCE_MS = 500; // 0.5 seconds
 export const STOP_TIMER_EFFECT_DEBOUNCE_MS = 2000; // 2 seconds
-export const REFRESH_INTERVAL = 5000; // 5 seconds
 export const SYNC_TIMER_INTERVAL = 60000; // 1 minute
 
 export const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
