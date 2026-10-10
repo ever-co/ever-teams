@@ -186,7 +186,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				items: [
 					{
 						title: t('sidebar.TEAM_DASHBOARD'),
-						url: `/dashboard/team-dashboard/${user?.id}?name=${encodeURIComponent(username || '')}`,
+						url: `/dashboard/team-dashboard/${activeTeam?.id ?? user?.id}?name=${encodeURIComponent(username || '')}`,
 						label: 'team dashboard'
 					},
 					{
