@@ -1,13 +1,14 @@
 import { useTimer } from '@/core/hooks/activities';
-import { useTimerPolling } from '@/core/hooks/activities/use-timer-polling';
 import { useWorkspaces } from '@/core/hooks/auth';
 import { useReactiveAccessTokenCookie } from '@/core/hooks/auth/use-reactive-access-token-cookie';
 import { useIsomorphicLayoutEffect } from '@/core/hooks/common/use-isomorphic-layout-effect';
 import { useOrganizationTeamsQuery, useTeamTasksQuery } from '@/core/hooks/organizations';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useAutoAssignTask, useTaskStatistics } from '@/core/hooks/tasks';
-import { DISABLE_AUTO_REFRESH } from '@/core/constants/config/constants';
+import { DISABLE_AUTO_REFRESH, TEAM_PRESENCE_REFRESH_INTERVAL } from '@/core/constants/config/constants';
+import { teamPresenceViewCountState } from '@/core/stores/teams/organization-team';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
 import { useEffect, useMemo, useRef } from 'react';
 import { reownActiveQueriesAfterTokenRefresh } from './token-refresh-query-ownership';
 import { getShellCriticalQueryKeys, useScopeTransitionGuard } from './use-scope-transition-guard';
@@ -44,11 +45,14 @@ export function InitState() {
 		}),
 		[accessToken, organizationId, tenantId, user?.id]
 	);
+	const teamPresenceViewActive = useAtomValue(teamPresenceViewCountState) > 0;
+	const detailRefreshInterval = teamPresenceViewActive ? TEAM_PRESENCE_REFRESH_INTERVAL : SHELL_REFRESH_INTERVAL;
 	const teamOwner = useOrganizationTeamsQuery({
 		enabled: workspaceReady,
 		scope: baseScope,
 		refetchInterval: autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false,
-		detailRefetchInterval: autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false
+		detailRefetchInterval: autoRefreshEnabled ? detailRefreshInterval : false,
+		detailRefetchOnWindowFocus: autoRefreshEnabled && teamPresenceViewActive
 	});
 	const { activeTeam, teams } = teamOwner;
 	const teamReady = !!(
@@ -88,8 +92,7 @@ export function InitState() {
 		}
 	}, [teamReady, timerOwner.firstLoadTimerData]);
 
-	// The single full timer owner supplies both callbacks and the unfiltered running state.
-	useTimerPolling(autoRefreshEnabled && teamReady && timerOwner.rawTimerRunning);
+	// The single full timer owner supplies the sync callback and the unfiltered running state.
 	useEffect(() => {
 		if (!autoRefreshEnabled || !teamReady || !timerOwner.rawTimerRunning) return;
 		const interval = window.setInterval(() => timerOwner.syncTimer(), SHELL_REFRESH_INTERVAL);

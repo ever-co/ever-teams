@@ -36,6 +36,7 @@ interface UseOrganizationTeamsQueryOptions {
 	scope?: ApiRequestScope;
 	refetchInterval?: number | false;
 	detailRefetchInterval?: number | false;
+	detailRefetchOnWindowFocus?: boolean;
 }
 
 /**
@@ -70,7 +71,13 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 	const setActiveTeamTask = useSetAtom(activeTeamTaskState);
 	const setTeamTasks = useSetAtom(teamTasksState);
 	const reactiveAccessToken = useReactiveAccessTokenCookie();
-	const { enabled = true, scope: explicitScope, refetchInterval = false, detailRefetchInterval = false } = options;
+	const {
+		enabled = true,
+		scope: explicitScope,
+		refetchInterval = false,
+		detailRefetchInterval = false,
+		detailRefetchOnWindowFocus = false
+	} = options;
 	const scope = useMemo<ApiRequestScope | undefined>(
 		() =>
 			explicitScope ?? {
@@ -159,7 +166,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 		enabled: enabled && scopedDetailReady && canHydrateSharedState,
 		staleTime: 1000 * 60 * 10,
 		gcTime: 1000 * 60 * 30,
-		refetchOnWindowFocus: false,
+		refetchOnWindowFocus: detailRefetchOnWindowFocus ? 'always' : false,
 		refetchOnReconnect: false,
 		refetchInterval: detailRefetchInterval,
 		refetchIntervalInBackground: false
@@ -282,7 +289,15 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 
 			const memberActiveTaskIds = newTeam.members?.map((m) => m.activeTaskId || 'null').join(',') || '';
 			const memberRoles = newTeam.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}`).join(',') || '';
-			const newSignature = `${newTeam.id}:${newTeam.updatedAt ?? ''}:${newTeam.members?.length ?? 0}:${memberActiveTaskIds}:${memberRoles}`;
+			// Presence changes made from another client only reach the UI if they alter the signature.
+			const memberPresence =
+				newTeam.members
+					?.map(
+						(m) =>
+							`${m.timerStatus ?? ''}:${m.employee?.isOnline ?? ''}:${m.employee?.isTrackingTime ?? ''}:${m.employee?.isActive ?? ''}`
+					)
+					.join(',') || '';
+			const newSignature = `${newTeam.id}:${newTeam.updatedAt ?? ''}:${newTeam.members?.length ?? 0}:${memberActiveTaskIds}:${memberRoles}:${memberPresence}`;
 
 			if (newSignature === lastProcessedTeamSignatureRef.current) {
 				return;

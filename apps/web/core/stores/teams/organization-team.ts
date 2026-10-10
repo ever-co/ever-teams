@@ -17,6 +17,9 @@ export const isTeamJustDeletedState = atom<boolean>(false);
 export const isOTRefreshingState = atom<boolean>(false);
 export const OTRefreshIntervalState = atom<number>();
 
+// Number of mounted team views. While positive, the shell refreshes the team detail faster.
+export const teamPresenceViewCountState = atom<number>(0);
+
 export const activeTeamState = atom<
 	TOrganizationTeam | null,
 	[((prev: TOrganizationTeam) => TOrganizationTeam) | TOrganizationTeam],
