@@ -13,8 +13,8 @@ import { useUpdateDailyPlan } from './use-update-daily-plan';
 
 /**
  * Drag and drop state for a list of plans. A task moved inside its plan is shown in place at once,
- * and the plan's new task order is saved; if saving fails the previous order comes back. A task
- * dropped on another plan only moves on screen, as before.
+ * and the plan's new task order is saved; if saving fails the previous order comes back. Moving a
+ * task to another plan is not saved, so a task dropped on another plan goes back to its place.
  *
  * @param plans - The plans as displayed, possibly with filtered tasks
  * @returns The plans to render and the `onDragEnd` handler for their `DragDropContext`
@@ -30,13 +30,13 @@ export function useDailyPlanTaskOrder(plans: TDailyPlan[] | undefined) {
 
 	const onDragEnd = useCallback(
 		async (result: DropResult) => {
-			const previousPlans = dragPlans;
-			handleDragAndDrop(result, previousPlans, setDragPlans);
-
 			const { source, destination } = result;
 			if (!destination || destination.droppableId !== source.droppableId || destination.index === source.index) {
 				return;
 			}
+
+			const previousPlans = dragPlans;
+			handleDragAndDrop(result, previousPlans, setDragPlans);
 
 			const plan = previousPlans.find((item) => item.id === source.droppableId);
 			if (!plan?.id || plan.id === OUTSTANDING_NO_PLAN_ID) return;
