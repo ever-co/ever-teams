@@ -223,8 +223,8 @@ export function useTimerApi({
 	});
 
 	const syncTimerMutation = useMutation({
-		mutationFn: async (data: { source: ETimeLogSource; user?: TUser | null }) => {
-			await timerService.syncTimer({ source: data.source, user: data.user });
+		mutationFn: async (data: { source: ETimeLogSource; user?: TUser | null; timeLogId?: string }) => {
+			await timerService.syncTimer({ source: data.source, user: data.user, timeLogId: data.timeLogId });
 		},
 		onError: (error: any) => {
 			if (error?.response?.status !== 401) {
@@ -349,7 +349,8 @@ export function useTimerApi({
 		}
 		return syncTimerMutate({
 			source: timerStatus?.lastLog?.source || ETimeLogSource.TEAMS,
-			user: $user.current
+			user: $user.current,
+			timeLogId: timerStatus?.lastLog?.id
 		}).then((res) => {
 			return res;
 		});
