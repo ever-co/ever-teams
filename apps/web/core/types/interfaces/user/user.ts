@@ -72,7 +72,6 @@ export interface UseAuthenticateUserResult {
 	refreshUserData: () => Promise<TUser | undefined>;
 	refreshUserLoading: boolean;
 	logOut: () => void;
-	timeToTimeRefreshToken: (interval?: number) => () => void;
 	refreshToken: () => Promise<void>;
 	userDataQuery: UseQueryResult<TUser, Error>;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
