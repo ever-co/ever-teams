@@ -801,6 +801,8 @@
 			"LOADING_WORKSPACE": "We are loading the workspace, hold on...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Redirecting to your workspace...",
 			"VERIFY_EMAIL_LOADING_TEXT": "We are verifying your email, hold on...",
+			"VERIFY_EMAIL_FAILED_TITLE": "We couldn't verify your email",
+			"VERIFY_EMAIL_FAILED_MESSAGE": "This verification link is invalid, has expired or was already used. Open the app to request a new one.",
 			"INPUT_TEAM_NAME": "Enter your team name",
 			"JOIN_EXISTING_TEAM": "Joining existing team?",
 			"CREATE_FIRST_TEAM": "Create your first team",

@@ -201,6 +201,22 @@ export const resentVerifyUserLinkRequest = (data: {
 	});
 };
 
+export const requestPasswordRequest = (email: string) => {
+	return serverFetch<boolean>({
+		path: '/auth/request-password',
+		method: 'POST',
+		body: { email }
+	});
+};
+
+export const resetPasswordRequest = (data: { token: string; password: string; confirmPassword: string }) => {
+	return serverFetch<boolean>({
+		path: '/auth/reset-password',
+		method: 'POST',
+		body: data
+	});
+};
+
 export const signinGetUserBySocialEmailRequest = (data: { email: string }) => {
 	return serverFetch<ISocialAccountExistUser>({
 		method: 'POST',

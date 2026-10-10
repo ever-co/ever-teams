@@ -801,6 +801,8 @@
 			"LOADING_WORKSPACE": "Ładujemy przestrzeń roboczą, proszę czekać...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Przekierowywanie do Twojej przestrzeni roboczej...",
 			"VERIFY_EMAIL_LOADING_TEXT": "Weryfikujemy twój e-mail, proszę czekać...",
+			"VERIFY_EMAIL_FAILED_TITLE": "Nie udało się zweryfikować twojego e-maila",
+			"VERIFY_EMAIL_FAILED_MESSAGE": "Ten link weryfikacyjny jest nieprawidłowy, wygasł lub został już użyty. Otwórz aplikację, aby poprosić o nowy.",
 			"INPUT_TEAM_NAME": "Wprowadź nazwę swojego zespołu",
 			"JOIN_EXISTING_TEAM": "Dołączasz do istniejącego zespołu?",
 			"CREATE_FIRST_TEAM": "Stwórz swój pierwszy zespół",
