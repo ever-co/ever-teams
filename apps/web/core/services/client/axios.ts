@@ -9,6 +9,15 @@ import { buildAPIService, buildDirectAPIService } from './api-factory';
 let api: APIService;
 let apiDirect: APIService;
 
+// Public team pages are open to visitors without a session, so a 401 there must not log anyone out.
+const isPublicTeamPage = () => {
+	const paths = location.pathname.split('/').filter(Boolean);
+	return (
+		!paths.includes('join') &&
+		(paths[0] === 'team' || (APPLICATION_LANGUAGES_CODE.includes(paths[0]) && paths[1] === 'team'))
+	);
+};
+
 export const getAPI = async (): Promise<APIService> => {
 	if (!api) {
 		api = await buildAPIService();
@@ -31,7 +40,7 @@ export const getAPI = async (): Promise<APIService> => {
 		api.axiosInstance.interceptors.response.use(
 			(response: AxiosResponse) => response,
 			async (error: { response: AxiosResponse; config?: any }) => {
-				if (error.response?.status === 401) {
+				if (error.response?.status === 401 && !isPublicTeamPage()) {
 					// Let handleUnauthorized() attempt token refresh before logging out
 					handleUnauthorized(DisconnectionReason.UNAUTHORIZED_401, {
 						status: 401,
@@ -71,11 +80,7 @@ export const getAPIDirect = async (): Promise<APIService> => {
 			async (error: { response: AxiosResponse; config?: any }) => {
 				const statusCode = error.response?.status;
 				if (statusCode === 401) {
-					const paths = location.pathname.split('/').filter(Boolean);
-					if (
-						!paths.includes('join') &&
-						(paths[0] === 'team' || (APPLICATION_LANGUAGES_CODE.includes(paths[0]) && paths[1] === 'team'))
-					) {
+					if (isPublicTeamPage()) {
 						return error.response;
 					}
 					// Don't disconnect immediately - let handleUnauthorized() trigger the 600ms debounce
