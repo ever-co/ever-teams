@@ -24,6 +24,13 @@ export async function forwardToGauzy(req: Request, path: string): Promise<Respon
 
 	const body = req.method === 'GET' || req.method === 'HEAD' ? undefined : (await req.text()) || undefined;
 
+	// The token comes from a cookie, which a browser can attach to a request another site makes. Such a site can
+	// post text/plain or form data without a CORS preflight, but not JSON, so only a JSON body is forwarded.
+	const mediaType = req.headers.get('content-type')?.split(';')[0].trim().toLowerCase();
+	if (body && mediaType !== 'application/json') {
+		return NextResponse.json({ statusCode: 415, message: 'Unsupported Media Type' }, { status: 415 });
+	}
+
 	const upstream = await fetch(`${GAUZY_API_SERVER_URL}${path}${new URL(req.url).search}`, {
 		method: req.method,
 		headers: {
