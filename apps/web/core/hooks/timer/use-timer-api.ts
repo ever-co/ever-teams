@@ -98,6 +98,28 @@ export interface UseTimerApiReturn {
 	plansResolved: boolean;
 }
 
+// ==================== SHARED REQUEST GUARDS ====================
+
+// Module scope on purpose: every task card, the timer and the shell mount their own useTimerApi, and a ref
+// only guards the instance that owns it. A guard is held until its timer request lands, not through the
+// bookkeeping that follows (active task update, invalidations), so it never swallows a later start or stop.
+let pendingStartTimer: Promise<void> | null = null;
+let pendingStartTaskId: string | null = null;
+let pendingStopTimer: Promise<void> | null = null;
+/** Track last stopTimer call to prevent duplicate calls within short time window */
+let lastStopTimerTimestamp = 0;
+
+// Identity check: an older flow settling late must not clear the guard of a newer request
+function releaseStartGuard(request: Promise<void>) {
+	if (pendingStartTimer !== request) return;
+	pendingStartTimer = null;
+	pendingStartTaskId = null;
+}
+
+function releaseStopGuard(request: Promise<void>) {
+	if (pendingStopTimer === request) pendingStopTimer = null;
+}
+
 // ==================== HOOK ====================
 
 /**
@@ -153,8 +175,6 @@ export function useTimerApi({
 	const lastActiveTeam = useRef<typeof activeTeam | null>(null);
 	const lastActiveTaskId = useRef<string | null>(null);
 	const lastActiveTask = useRef<TTask | null>(null);
-	/** Track last stopTimer call to prevent duplicate calls within short time window */
-	const lastStopTimerTimestamp = useRef<number>(0);
 
 	// ==================== EXTERNAL HOOKS ====================
 
@@ -358,8 +378,8 @@ export function useTimerApi({
 	// ==================== START TIMER ====================
 
 	const startTimerMutate = startTimerMutation.mutateAsync;
-	const startTimer = useCallback(
-		async (explicitTask?: TTask) => {
+	const runStartTimer = useCallback(
+		async (explicitTask?: TTask, onRequestLanded?: () => void) => {
 			// Check if the user is tracking time in another tab or device
 			try {
 				const userData = await refreshUserData();
@@ -423,6 +443,7 @@ export function useTimerApi({
 					(!statusEnabled || isCurrentScope()) &&
 					!isEqual(timerStatus, res.data) &&
 					setTimerStatus(res.data);
+				onRequestLanded?.();
 
 				// Save active task via API when timer starts
 				// Skip if we're on /task/ page because setActiveTask already does it
@@ -538,6 +559,27 @@ export function useTimerApi({
 		]
 	);
 
+	// Set before refreshUserData so its round trip is covered too: a call made while a start is running waits
+	// for that start instead of sending a second POST /timer/start.
+	const startTimer = useCallback(
+		(explicitTask?: TTask) => {
+			if (pendingStartTimer) {
+				// No task named, or the same one: the start in flight is the one asked for
+				if (!explicitTask || explicitTask.id === pendingStartTaskId) return pendingStartTimer;
+				// Another task: fail, so the caller does not report the first task's start as its own
+				return Promise.reject(new Error('A timer start for another task is already in progress'));
+			}
+
+			const request: Promise<void> = runStartTimer(explicitTask, () => releaseStartGuard(request)).finally(() =>
+				releaseStartGuard(request)
+			);
+			pendingStartTimer = request;
+			pendingStartTaskId = explicitTask?.id ?? activeTeamTaskRef.current?.id ?? null;
+			return request;
+		},
+		[runStartTimer, activeTeamTaskRef]
+	);
+
 	// ==================== STOP TIMER ====================
 
 	const stopTimerMutate = stopTimerMutation.mutateAsync;
@@ -553,28 +595,34 @@ export function useTimerApi({
 			return Promise.resolve();
 		}
 
+		// The status stays "running" until the stop response lands, so a second stop sent meanwhile gets a 406
+		if (pendingStopTimer) {
+			return pendingStopTimer;
+		}
+
 		// Prevent duplicate stopTimer calls within 500ms
 		// PRIMARY defense against race conditions causing 406 errors
-		const timeSinceLastStop = Date.now() - lastStopTimerTimestamp.current;
+		const timeSinceLastStop = Date.now() - lastStopTimerTimestamp;
 		if (timeSinceLastStop < STOP_TIMER_DEBOUNCE_MS) {
 			console.warn(`[stopTimer] Debounced duplicate call (${timeSinceLastStop}ms since last stop)`);
 			return Promise.resolve();
 		}
 
 		// Update timestamp BEFORE calling the API to prevent race conditions
-		lastStopTimerTimestamp.current = Date.now();
+		lastStopTimerTimestamp = Date.now();
 
 		// Sync the last few seconds of work before stopping
 		// Placed after debounce check to avoid wasteful duplicate sync calls
 		syncTimer();
 
 		if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
-		return stopTimerMutate(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS)
+		const request: Promise<void> = stopTimerMutate(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS)
 			.then(async (res) => {
 				res.data &&
 					(!statusEnabled || isCurrentScope()) &&
 					!isEqual(timerStatus, res.data) &&
 					setTimerStatus(res.data);
+				releaseStopGuard(request);
 
 				// Clear active task via API when timer stops
 				if (activeTeamId && user) {
@@ -609,7 +657,10 @@ export function useTimerApi({
 			})
 			.finally(() => {
 				if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(false);
+				releaseStopGuard(request);
 			});
+		pendingStopTimer = request;
+		return request;
 	}, [
 		timerStatus,
 		setTimerStatus,
@@ -656,7 +707,7 @@ export function useTimerApi({
 			// Stop timer if it's running from TEAMS source
 			if (timerStatusRef.current?.running) {
 				if (timerStatusRef.current.lastLog?.source === ETimeLogSource.TEAMS) {
-					const timeSinceLastStop = Date.now() - lastStopTimerTimestamp.current;
+					const timeSinceLastStop = Date.now() - lastStopTimerTimestamp;
 					if (timeSinceLastStop > STOP_TIMER_EFFECT_DEBOUNCE_MS) {
 						stopTimer();
 					}
@@ -736,7 +787,7 @@ export function useTimerApi({
 			// If timer is started at some other source keep the timer running...
 			// If timer is started in the browser Stop the timer on Task Change
 			if (timerStatusRef.current.lastLog?.source === ETimeLogSource.TEAMS) {
-				const timeSinceLastStop = Date.now() - lastStopTimerTimestamp.current;
+				const timeSinceLastStop = Date.now() - lastStopTimerTimestamp;
 				if (timeSinceLastStop > STOP_TIMER_EFFECT_DEBOUNCE_MS) {
 					stopTimer();
 				}
