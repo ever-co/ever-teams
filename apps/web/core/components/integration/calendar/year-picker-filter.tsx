@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
-import { CalendarDaysIcon as CalendarIcon } from 'lucide-react';
-import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
+import { CalendarDaysIcon as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import FullCalendar from '@fullcalendar/react';
 import moment from 'moment';
 interface IYearDateFilter {
@@ -51,12 +50,10 @@ export function YearDateFilter({ calendarRef }: IYearDateFilter) {
 			</div>
 			<div className="flex items-center space-x-2">
 				<button onClick={goPrev}>
-					{/* @ts-ignore */}
-					<MdKeyboardArrowLeft />
+					<ChevronLeft size="1em" />
 				</button>
 				<button onClick={goNext}>
-					{/* @ts-ignore */}
-					<MdKeyboardArrowRight />
+					<ChevronRight size="1em" />
 				</button>
 			</div>
 		</div>

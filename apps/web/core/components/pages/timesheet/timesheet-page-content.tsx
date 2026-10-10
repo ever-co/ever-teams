@@ -19,7 +19,6 @@ import {
 	SelectedTimesheet
 } from '@/core/components/timesheet';
 import { ArrowLeftIcon } from 'assets/svg';
-import type { IconBaseProps } from 'react-icons';
 import { TimesheetDetailModalSkeleton } from '@/core/components/common/skeleton/timesheet-skeletons';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { IconsSearch } from '@/core/components/icons';
@@ -197,7 +196,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 		timesheetNavigator === 'ListView' ||
 		(timesheetGroupByDays === 'Daily' && timesheetNavigator === 'CalendarView');
 
-	const SearchIcon: React.FC<IconBaseProps> = (props) => {
+	const SearchIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
 		return <IconsSearch {...props} />;
 	};
 

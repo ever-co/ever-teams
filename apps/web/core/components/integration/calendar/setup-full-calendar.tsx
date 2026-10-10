@@ -1,7 +1,7 @@
 'use client';
 import { useState, useRef, JSX } from 'react';
-import { IoIosArrowDown, IoIosArrowForward } from 'react-icons/io';
-import { IoTimeSharp } from 'react-icons/io5';
+import { ChevronDown, ChevronRight, Timer } from 'lucide-react';
+import { ClockIcon } from '@heroicons/react/24/solid';
 import FullCalendar from '@fullcalendar/react';
 import { format } from 'date-fns';
 import Image from 'next/image';
@@ -9,7 +9,6 @@ import { Button } from '@/core/components';
 import { SettingFilterIcon } from 'assets/svg';
 import { YearDateFilter } from './year-picker-filter';
 import CalendarComponent from './calendar-component';
-import { PiTimerBold } from 'react-icons/pi';
 import { formatWithSuffix } from '@/core/lib/helpers';
 import { useLocalStorageState } from '@/core/hooks';
 import { IconsAlarmOutline, IconsCalendarMonthOutline } from '@/core/components/icons';
@@ -45,8 +44,7 @@ export function SetupFullCalendar() {
 			color: '#dcfce7',
 			textColor: '#16a34a',
 			extendedProps: {
-				// @ts-ignore
-				icon: <PiTimerBold className="inline-block mr-1 text-[#16a34a]" />
+				icon: <Timer size="1em" className="inline-block mr-1 text-[#16a34a]" />
 			}
 		},
 		{
@@ -217,8 +215,7 @@ export const CardItemsMember = ({ imageUrl, name, time }: { imageUrl?: string; n
 				</div>
 				<div className="flex items-center space-x-2">
 					<span className="text-[14px] text-gray-400">{time}</span>
-					{/* @ts-ignore */}
-					<IoIosArrowForward />
+					<ChevronRight size="1em" />
 				</div>
 			</div>
 		</div>
@@ -249,8 +246,7 @@ export const CardItemsProjects = ({
 					<span className="text-gray-400 text-[12px] leading-4">{totalHours}</span>
 				</div>
 			</div>
-			{/* @ts-ignore */}
-			<IoIosArrowDown />
+			<ChevronDown size="1em" />
 		</div>
 	);
 };
@@ -259,8 +255,7 @@ export function TotalHours() {
 	return (
 		<div className="w-[200px] flex items-center !text-gray-800 dark:!text-slate-200 justify-between text-left font-normal h-10 border border-slate-200 rounded-lg px-2">
 			<div className="flex items-center">
-				{/* @ts-ignore */}
-				<IoTimeSharp className="mr-2 w-5 h-5" />
+				<ClockIcon className="mr-2 w-5 h-5" />
 				<span>Total Hours 240</span>
 			</div>
 		</div>
