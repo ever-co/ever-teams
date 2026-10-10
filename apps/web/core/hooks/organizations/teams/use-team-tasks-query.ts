@@ -1,6 +1,6 @@
 'use client';
 
-import { getValidActiveTask } from '@/core/lib/utils/task.utils';
+import { flattenTaskPages, getValidActiveTask } from '@/core/lib/utils/task.utils';
 import { taskService } from '@/core/services/client/api';
 import {
 	activeTeamState,
@@ -8,20 +8,31 @@ import {
 	detailedTaskState,
 	memberActiveTaskIdState,
 	tasksByTeamState,
+	teamTasksCompleteState,
 	teamTasksState
 } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useAuthenticateUser } from '../../auth';
 import { useFirstLoad, useConditionalUpdateEffect, useSyncRef } from '../../common';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import type { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useScopeGuard } from '../../bootstrap/use-scope-guard';
 import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
+
+// Below Gauzy's take limit of 100, and a team with 50 tasks or fewer keeps a single request.
+const TEAM_TASKS_PAGE_SIZE = 50;
+// Reloads of a shifted page sequence before waiting for the next refetch, so constant writes cannot loop.
+const MAX_PAGE_SEQUENCE_RESTARTS = 3;
+
+function haveSameTotal(pages: PaginationResponse<TTask>[]) {
+	return pages.every((page) => page.total === pages[0].total);
+}
 
 interface UseTeamTasksQueryOptions {
 	enabled?: boolean;
@@ -43,6 +54,7 @@ interface UseTeamTasksQueryOptions {
  * - `tasks` - Array of team tasks
  * - `loading` - Initial loading state
  * - `tasksFetching` - Refetch loading state
+ * - `tasksComplete` - True once every page of the team tasks is loaded
  * - `activeTeamTask` - Currently active task
  * - `activeTeam` - Active team object
  * - `activeTeamId` - Active team ID
@@ -58,6 +70,7 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 	// Jotai state
 	const setAllTasks = useSetAtom(teamTasksState);
 	const tasks = useAtomValue(tasksByTeamState);
+	const [tasksComplete, setTasksComplete] = useAtom(teamTasksCompleteState);
 	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamRef = useSyncRef(activeTeam);
@@ -93,26 +106,57 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 	const queryKey = queryKeys.tasks.byTeamByScope(scope?.tenantId, scope?.organizationId, scope?.teamId, projectId);
 	const isCurrentScope = useScopeGuard(queryKey, enabled);
 	const scopedReady = !!(scope?.tenantId && scope.organizationId && scope.teamId && scope.accessToken);
+	const queryEnabled = enabled && scopedReady && !!activeTeam?.id && canHydrateSharedState;
 
-	// React Query for team tasks
-	const teamTasksQuery = useQuery({
+	// React Query for team tasks: pages of 50 accumulated until the server total is reached
+	const teamTasksQuery = useInfiniteQuery({
 		queryKey,
-		queryFn: async ({ signal }) => {
+		queryFn: async ({ signal, pageParam }) => {
 			if (!activeTeam?.id) {
 				throw new Error('Required parameters missing');
 			}
 			const activeProjectId = projectId ?? '';
 			return await taskService.getTasks({
 				projectId: activeProjectId,
-				options: { scope: scope!, signal }
+				options: { scope: scope!, signal },
+				take: TEAM_TASKS_PAGE_SIZE,
+				page: pageParam
 			});
 		},
-		enabled: enabled && scopedReady && !!activeTeam?.id && canHydrateSharedState,
+		initialPageParam: 1,
+		getNextPageParam: (lastPage, allPages, lastPageParam) => {
+			// A total that changed between two pages means the offsets shifted: stop, the sequence is reloaded below.
+			if (!haveSameTotal(allPages)) return undefined;
+			const loadedCount = allPages.reduce((count, page) => count + page.items.length, 0);
+			// An empty page ends the list even if `total` says otherwise, so the loop cannot run forever.
+			return lastPage.items.length > 0 && loadedCount < lastPage.total ? lastPageParam + 1 : undefined;
+		},
+		enabled: queryEnabled,
 		staleTime: 60_000,
 		gcTime: 1000 * 60 * 60,
 		refetchInterval,
 		refetchIntervalInBackground: false
 	});
+	const { data: teamTasksData, hasNextPage, isFetching, isError, fetchNextPage, refetch } = teamTasksQuery;
+	const teamTasksItems = useMemo(() => teamTasksData && flattenTaskPages(teamTasksData.pages), [teamTasksData]);
+	// Pages are read one after the other: a task created or deleted in between shifts the offsets, so a task
+	// can be skipped while the count still reaches `total`. The total then differs between pages.
+	const pagesConsistent = !!teamTasksData && haveSameTotal(teamTasksData.pages);
+	const pagesComplete = pagesConsistent && !hasNextPage && isCurrentScope();
+	const pageRestartsRef = useRef(0);
+
+	// Only the owner loads the next pages, one at a time, and stops on error until the next refetch.
+	// Shifted pages are reloaded from page 1, a bounded number of times; until then the list is not complete.
+	useEffect(() => {
+		if (!queryEnabled || !teamTasksData || isFetching || isError) return;
+		if (pagesConsistent) {
+			pageRestartsRef.current = 0;
+			if (hasNextPage) void fetchNextPage();
+		} else if (pageRestartsRef.current < MAX_PAGE_SEQUENCE_RESTARTS) {
+			pageRestartsRef.current += 1;
+			void refetch();
+		}
+	}, [queryEnabled, teamTasksData, pagesConsistent, hasNextPage, isFetching, isError, fetchNextPage, refetch]);
 
 	// Deep update function for React Query → Jotai sync
 	const deepCheckAndUpdateTasks = useCallback(
@@ -163,8 +207,8 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 
 			try {
 				const res = await teamTasksQuery.refetch();
-				if (res.data?.items) {
-					deepCheckAndUpdateTasks(res.data.items, deepCheck);
+				if (res.data?.pages) {
+					deepCheckAndUpdateTasks(flattenTaskPages(res.data.pages), deepCheck);
 				}
 				return res;
 			} catch (error) {
@@ -191,13 +235,20 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 	// Sync React Query data with Jotai state
 	useConditionalUpdateEffect(
 		() => {
-			if (teamTasksQuery.data?.items && isCurrentScope()) {
-				deepCheckAndUpdateTasks(teamTasksQuery.data.items, true);
+			if (teamTasksItems && isCurrentScope()) {
+				deepCheckAndUpdateTasks(teamTasksItems, true);
 			}
 		},
-		[teamTasksQuery.data?.items, isCurrentScope],
+		[teamTasksItems, isCurrentScope],
 		Boolean(tasks?.length)
 	);
+
+	// Declared after the list sync so both atoms change in the same render.
+	useEffect(() => {
+		if (canHydrateSharedState) {
+			setTasksComplete(pagesComplete);
+		}
+	}, [canHydrateSharedState, pagesComplete, setTasksComplete]);
 
 	// Sync active team task from member data
 	useConditionalUpdateEffect(
@@ -208,12 +259,12 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 			if (!isCurrentScope()) return;
 			if (memberActiveTask) {
 				setActiveTeamTask(memberActiveTask);
-			} else if (memberActiveTaskId && activeTeam?.id) {
+			} else if (memberActiveTaskId && activeTeam?.id && tasksComplete) {
 				// Task ID exists but doesn't belong to this team - clear it
 				setActiveTeamTask(null);
 			}
 		},
-		[activeTeam, tasks, memberActiveTaskId, canHydrateSharedState, isCurrentScope],
+		[activeTeam, tasks, tasksComplete, memberActiveTaskId, canHydrateSharedState, isCurrentScope],
 		true
 	);
 
@@ -229,6 +280,7 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 		loading: teamTasksQuery.isLoading,
 		tasksFetching: teamTasksQuery.isFetching,
 		querySuccess: teamTasksQuery.isSuccess && isCurrentScope(),
+		tasksComplete,
 
 		// Functions
 		loadTeamTasksData,

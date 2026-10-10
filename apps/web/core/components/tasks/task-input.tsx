@@ -46,6 +46,8 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 type Props = {
 	task?: Nullable<TTask>;
 	tasks?: TTask[];
+	// False when `tasks` is a copy taken before every team task page was loaded.
+	tasksComplete?: boolean;
 	onTaskClick?: (task: TTask) => void;
 	initEditMode?: boolean;
 	onCloseCombobox?: () => void;
@@ -90,7 +92,8 @@ export function TaskInput(props: Props) {
 	const datas = useTaskInput({
 		task: props.task,
 		initEditMode: props.initEditMode,
-		tasks: props.tasks
+		tasks: props.tasks,
+		tasksComplete: props.tasksComplete
 	});
 
 	const onCloseComboboxRef = useCallbackRef(props.onCloseCombobox);
@@ -716,7 +719,7 @@ function TaskCard({
 									datas.filter === 'open' && ['text-primary dark:text-primary-light font-semibold']
 								)}
 							>
-								{datas.openTaskCount || 0} {t('common.OPEN')}
+								{datas.tasksComplete && (datas.openTaskCount || 0)} {t('common.OPEN')}
 							</span>
 						</OutlineBadge>
 
@@ -730,7 +733,7 @@ function TaskCard({
 									datas.filter === 'closed' && ['text-primary dark:text-primary-light font-semibold']
 								)}
 							>
-								{datas.closedTaskCount || 0} {t('common.CLOSED')}
+								{datas.tasksComplete && (datas.closedTaskCount || 0)} {t('common.CLOSED')}
 							</span>
 						</OutlineBadge>
 					</div>

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, type InfiniteData } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import type { PaginationResponse } from '@/core/types/interfaces/common/data-response';
@@ -84,6 +84,14 @@ function list(title: string): PaginationResponse<TTask> {
 	return { items: [{ ...originalTask, title }], total: 1 };
 }
 
+function pagedList(title: string): InfiniteData<PaginationResponse<TTask>, number> {
+	return { pages: [list(title)], pageParams: [1] };
+}
+
+function firstPagedTitle(client: QueryClient, queryKey: readonly unknown[]) {
+	return client.getQueryData<InfiniteData<PaginationResponse<TTask>, number>>(queryKey)?.pages[0].items[0].title;
+}
+
 async function expectOptimisticUpdateAndRollback(
 	client: QueryClient,
 	queryKey: readonly unknown[],
@@ -100,7 +108,7 @@ async function expectOptimisticUpdateAndRollback(
 	const updatePromise = result.current.updateTask({ ...originalTask, title: 'After' });
 	const settled = updatePromise.catch((error) => error);
 
-	await waitFor(() => expect(client.getQueryData<PaginationResponse<TTask>>(queryKey)?.items[0].title).toBe('After'));
+	await waitFor(() => expect(firstPagedTitle(client, queryKey)).toBe('After'));
 	if (otherQueryKey) {
 		expect(client.getQueryData<PaginationResponse<TTask>>(otherQueryKey)?.items[0].title).toBe('Other cache');
 	}
@@ -110,9 +118,7 @@ async function expectOptimisticUpdateAndRollback(
 		rejectUpdate(failure);
 		expect(await settled).toBe(failure);
 	});
-	await waitFor(() =>
-		expect(client.getQueryData<PaginationResponse<TTask>>(queryKey)?.items[0].title).toBe('Before')
-	);
+	await waitFor(() => expect(firstPagedTitle(client, queryKey)).toBe('Before'));
 }
 
 describe('useUpdateTask authoritative task cache', () => {
@@ -131,7 +137,7 @@ describe('useUpdateTask authoritative task cache', () => {
 
 	it('optimistically updates and rolls back only the active scoped cache', async () => {
 		const client = createQueryClient();
-		client.setQueryData(scopedKey, list('Before'));
+		client.setQueryData(scopedKey, pagedList('Before'));
 		client.setQueryData(legacyKey, list('Other cache'));
 
 		await expectOptimisticUpdateAndRollback(client, scopedKey, legacyKey);
@@ -139,7 +145,7 @@ describe('useUpdateTask authoritative task cache', () => {
 
 	it('rolls back the captured cache without overwriting mirrors after the active scope changes', async () => {
 		const client = createQueryClient();
-		client.setQueryData(scopedKey, list('Before'));
+		client.setQueryData(scopedKey, pagedList('Before'));
 		let rejectUpdate!: (reason: Error) => void;
 		mockUpdateTask.mockImplementation(
 			() =>
@@ -149,9 +155,7 @@ describe('useUpdateTask authoritative task cache', () => {
 		);
 		const { result, rerender } = renderHook(() => useUpdateTask(), { wrapper: createWrapper(client) });
 		const updatePromise = result.current.updateTask({ ...originalTask, title: 'After' }).catch((error) => error);
-		await waitFor(() =>
-			expect(client.getQueryData<PaginationResponse<TTask>>(scopedKey)?.items[0].title).toBe('After')
-		);
+		await waitFor(() => expect(firstPagedTitle(client, scopedKey)).toBe('After'));
 
 		mockActiveTeam = {
 			id: 'team-2',
@@ -160,7 +164,7 @@ describe('useUpdateTask authoritative task cache', () => {
 			projects: [{ id: 'project-2' }]
 		};
 		const nextKey = queryKeys.tasks.byTeamByScope('tenant-1', 'organization-1', 'team-2', 'project-2');
-		client.setQueryData(nextKey, list('Current scope'));
+		client.setQueryData(nextKey, pagedList('Current scope'));
 		rerender();
 		mockSetAllTasks.mockClear();
 
@@ -169,8 +173,8 @@ describe('useUpdateTask authoritative task cache', () => {
 			await updatePromise;
 		});
 
-		expect(client.getQueryData<PaginationResponse<TTask>>(scopedKey)?.items[0].title).toBe('Before');
-		expect(client.getQueryData<PaginationResponse<TTask>>(nextKey)?.items[0].title).toBe('Current scope');
+		expect(firstPagedTitle(client, scopedKey)).toBe('Before');
+		expect(firstPagedTitle(client, nextKey)).toBe('Current scope');
 		expect(mockSetAllTasks).not.toHaveBeenCalled();
 	});
 });

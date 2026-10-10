@@ -13,6 +13,7 @@ import {
 	activeTeamTaskState,
 	memberActiveTaskIdState,
 	tasksByTeamState,
+	teamTasksCompleteState,
 	teamTasksState
 } from '@/core/stores';
 import { useCallback, useRef, useState } from 'react';
@@ -48,6 +49,7 @@ export function useTeamTasksState() {
 
 	const setAllTasks = useSetAtom(teamTasksState);
 	const tasks = useAtomValue(tasksByTeamState);
+	const tasksComplete = useAtomValue(teamTasksCompleteState);
 	const tasksRef = useSyncRef(tasks);
 	const { data: userData } = useUserQuery();
 	const authUser = useSyncRef(userData);
@@ -220,11 +222,11 @@ export function useTeamTasksState() {
 			const memberActiveTask = getValidActiveTask(tasks, memberActiveTaskId, activeTeam?.id);
 			if (memberActiveTask) {
 				setActiveTeamTask(memberActiveTask);
-			} else if (memberActiveTaskId && activeTeam?.id) {
+			} else if (memberActiveTaskId && activeTeam?.id && tasksComplete) {
 				setActiveTeamTask(null);
 			}
 		},
-		[activeTeam, tasks, memberActiveTaskId, isUpdatingActiveTask],
+		[activeTeam, tasks, tasksComplete, memberActiveTaskId, isUpdatingActiveTask],
 		true
 	);
 
@@ -238,9 +240,11 @@ export function useTeamTasksState() {
 					: getActiveTaskIdCookie() || '';
 
 			const validTask = getValidActiveTask(tasks, active_taskid, activeTeam?.id);
-			setActiveTeamTask(validTask);
+			if (validTask || tasksComplete) {
+				setActiveTeamTask(validTask);
+			}
 		},
-		[tasks, authUser, activeTeam?.id],
+		[tasks, tasksComplete, authUser, activeTeam?.id],
 		Boolean(activeTeamTask)
 	);
 

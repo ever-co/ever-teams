@@ -5,6 +5,8 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
 
 export const teamTasksState = atom<TTask[]>([]);
+// False while team task pages are still loading: a task missing from the list may simply not be loaded yet.
+export const teamTasksCompleteState = atom<boolean>(false);
 
 export const activeTeamTaskState = atom<TTask | null>(null);
 export const activeTeamTaskId = atom<{ id: string }>({

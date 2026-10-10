@@ -1,8 +1,18 @@
 import { Queue } from '.';
+import { removeDuplicateItems } from './remove-duplicate-item';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import type { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 
 export const taskUpdateQueue = new Queue(1);
+
+/**
+ * Joins the pages of a paginated task list into one list.
+ * A task created while the pages load shifts the next page by one, hence the de-duplication by id.
+ */
+export function flattenTaskPages(pages: PaginationResponse<TTask>[]): TTask[] {
+	return removeDuplicateItems(pages.flatMap((page) => page.items));
+}
 
 /**
  * Get the total worked duration for a specific task from team member statistics.
