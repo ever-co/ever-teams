@@ -385,11 +385,17 @@ export function useAuthenticationPasscode() {
 		}
 		const promise = signInEmailQueryCall(formValues['email']);
 
-		void promise.then(() => setErrors({}));
+		void promise.then(() => {
+			setErrors({});
+			// A code that went out also clears the error state a refused send left on the passcode screen
+			setStatus((current) => (current === 'error' ? 'idle' : current));
+		});
 		promise.catch((err: AxiosError) => {
 			if (err.response?.status === 400) {
 				setErrors((err.response?.data as any)?.errors || {});
 			} else if (ApiErrorService.isApiError(err) && err.hasHttpResponseStatus(429)) {
+				// The passcode screen only shows a message while the status is error
+				setStatus('error');
 				setErrors({ email: t(TOO_MANY_ATTEMPTS) });
 			}
 		});

@@ -21,6 +21,8 @@ import { activeTeamState } from '@/core/stores';
 
 export const RequestToJoinModal = ({ open, closeModal }: { open: boolean; closeModal: () => void }) => {
 	const [currentTab, setCurrentTab] = useState<'ALREADY_MEMBER' | 'BECOME_MEMBER'>('ALREADY_MEMBER');
+	// Held here so switching tabs, which unmounts AlreadyMember, does not end the wait
+	const resendCooldown = useResendCooldown();
 
 	const t = useTranslations();
 
@@ -54,14 +56,22 @@ export const RequestToJoinModal = ({ open, closeModal }: { open: boolean; closeM
 					</Text.Heading>
 				</div>
 
-				{currentTab === 'ALREADY_MEMBER' && <AlreadyMember closeModal={closeModal} />}
+				{currentTab === 'ALREADY_MEMBER' && (
+					<AlreadyMember closeModal={closeModal} resendCooldown={resendCooldown} />
+				)}
 				{currentTab === 'BECOME_MEMBER' && <BecomeMember closeModal={closeModal} />}
 			</EverCard>
 		</Modal>
 	);
 };
 
-const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
+const AlreadyMember = ({
+	closeModal,
+	resendCooldown
+}: {
+	closeModal: any;
+	resendCooldown: ReturnType<typeof useResendCooldown>;
+}) => {
 	const t = useTranslations();
 	const {
 		loading,
@@ -74,7 +84,6 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 		sendAuthCodeHandler,
 		inputCodeRef
 	} = useAuthenticationPasscode();
-	const resendCooldown = useResendCooldown();
 
 	// Only a code that went out starts the wait; the hook already shows the error of a failed send
 	const resendCode = () => sendAuthCodeHandler()?.then(resendCooldown.start, () => undefined);
