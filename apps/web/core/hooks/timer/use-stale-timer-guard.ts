@@ -71,6 +71,7 @@ export function useStaleTimerGuard(
 	const isTrackingTime = !!employee?.isTrackingTime;
 	const checkedRef = useRef<string | null>(null);
 	const [settledFor, setSettledFor] = useState<string | null>(null);
+	const [attempt, setAttempt] = useState(0);
 
 	useEffect(() => {
 		if (!enabled || !employeeId || checkedRef.current === employeeId) return;
@@ -79,10 +80,22 @@ export function useStaleTimerGuard(
 			setSettledFor(employeeId);
 			return;
 		}
-		void stopStaleTeamsTimer(employeeId)
-			.catch((error) => logErrorInDev('[Timer] Stale timer check failed:', error))
-			.finally(() => setSettledFor(employeeId));
-	}, [enabled, employeeId, isTrackingTime, stopStaleTeamsTimer]);
+		let retryTimer: number | undefined;
+		void stopStaleTeamsTimer(employeeId).then(
+			() => {
+				if (checkedRef.current === employeeId) setSettledFor(employeeId);
+			},
+			(error) => {
+				logErrorInDev('[Timer] Stale timer check failed, retrying:', error);
+				// Releasing the heartbeat now would move a stale log's stoppedAt to the present and credit the
+				// closed-tab gap, so it keeps waiting until a check goes through.
+				if (checkedRef.current !== employeeId) return;
+				checkedRef.current = null;
+				retryTimer = window.setTimeout(() => setAttempt((count) => count + 1), SYNC_TIMER_INTERVAL);
+			}
+		);
+		return () => window.clearTimeout(retryTimer);
+	}, [attempt, enabled, employeeId, isTrackingTime, stopStaleTeamsTimer]);
 
 	return !employeeId || settledFor === employeeId;
 }
@@ -111,7 +124,10 @@ export function useTimerRunningPastMidnight(
 		queryFn: async () => (await timerService.getLastTimerLog(employeeId!)).data?.[0]?.lastLog ?? null,
 		enabled: checkLastLog,
 		staleTime: 0,
-		refetchInterval: (query) => (isRunningTeamsLog(query.state.data) ? SYNC_TIMER_INTERVAL : false)
+		// A failed read keeps polling: a first read that fails has no data, and stopping there would end the
+		// heartbeat of a timer that may still run.
+		refetchInterval: (query) =>
+			query.state.status === 'error' || isRunningTeamsLog(query.state.data) ? SYNC_TIMER_INTERVAL : false
 	});
 
 	return statusRunning || (checkLastLog && isRunningTeamsLog(lastLog));
