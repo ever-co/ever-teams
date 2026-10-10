@@ -481,7 +481,8 @@
 		"GROUP_BY": "Gruppieren nach",
 		"DATE": "Datum",
 		"VIEW": "Ansicht",
-		"HOURS_ON_DATE": "{hours} Stunden am {date}"
+		"HOURS_ON_DATE": "{hours} Stunden am {date}",
+		"EXPORT_FAILED": "Die Datei konnte nicht erstellt werden. Bitte versuchen Sie es erneut."
 	},
 	"hotkeys": {
 		"HELP": "Hilfe",
