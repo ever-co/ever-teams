@@ -25,15 +25,8 @@ class TimerService extends APIService {
 				logType: 'TRACKED',
 				taskId: body.taskId,
 				tenantId: this.tenantId,
-				organizationId: this.organizationId
-			});
-
-			await this.post('/timesheet/timer/stop', {
-				source: ETimeLogSource.TEAMS,
-				logType: 'TRACKED',
-				taskId: body.taskId,
-				tenantId: this.tenantId,
-				organizationId: this.organizationId
+				organizationId: this.organizationId,
+				organizationTeamId: this.activeTeamId
 			});
 
 			return this.getTimerStatus();
