@@ -97,6 +97,14 @@ class EmployeeService extends APIService {
 		}
 	};
 
+	/**
+	 * Sends a presence heartbeat for the signed-in employee. Gauzy resolves the employee from the
+	 * token and stamps the time with its own clock.
+	 */
+	sendPresenceHeartbeat = async (isIdle: boolean): Promise<void> => {
+		await this.put('/employee/me/presence', { isIdle });
+	};
+
 	createEmployeeFromUser = async ({
 		data,
 		bearer_token

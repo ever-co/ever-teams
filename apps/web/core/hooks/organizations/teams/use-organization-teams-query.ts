@@ -23,7 +23,7 @@ import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
 import { useFirstLoad, useSyncRef } from '../../common';
 import { useTeamsState } from './use-teams-state';
-import { mergePreservingOrder } from '@/core/lib/utils/team-members.utils';
+import { getMembersPresenceSignature, mergePreservingOrder } from '@/core/lib/utils/team-members.utils';
 import { queryKeys } from '@/core/query/keys';
 import { useSettings } from '../../users';
 import { TOrganizationTeam } from '@/core/types/schemas';
@@ -182,7 +182,8 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 				.map((t) => {
 					const memberRolesSignature =
 						t.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}`).join(',') || '';
-					return `${t.id}:${t.updatedAt ?? ''}:${t.name}:${t.shareProfileView ?? ''}:${t.requirePlanToTrack ?? ''}:${t.public ?? ''}:${t.color ?? ''}:${t.emoji ?? ''}:${t.prefix ?? ''}:${t.members?.length ?? 0}:${memberRolesSignature}`;
+					const memberPresenceSignature = getMembersPresenceSignature(t.members);
+					return `${t.id}:${t.updatedAt ?? ''}:${t.name}:${t.shareProfileView ?? ''}:${t.requirePlanToTrack ?? ''}:${t.public ?? ''}:${t.color ?? ''}:${t.emoji ?? ''}:${t.prefix ?? ''}:${t.members?.length ?? 0}:${memberRolesSignature}:${memberPresenceSignature}`;
 				})
 				.sort()
 				.join('|');
@@ -282,7 +283,8 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 
 			const memberActiveTaskIds = newTeam.members?.map((m) => m.activeTaskId || 'null').join(',') || '';
 			const memberRoles = newTeam.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}`).join(',') || '';
-			const newSignature = `${newTeam.id}:${newTeam.updatedAt ?? ''}:${newTeam.members?.length ?? 0}:${memberActiveTaskIds}:${memberRoles}`;
+			const memberPresence = getMembersPresenceSignature(newTeam.members);
+			const newSignature = `${newTeam.id}:${newTeam.updatedAt ?? ''}:${newTeam.members?.length ?? 0}:${memberActiveTaskIds}:${memberRoles}:${memberPresence}`;
 
 			if (newSignature === lastProcessedTeamSignatureRef.current) {
 				return;

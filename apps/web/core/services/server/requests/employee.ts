@@ -65,3 +65,21 @@ export function updateEmployees({
 		body
 	});
 }
+
+export function updateEmployeePresenceRequest({
+	bearer_token,
+	tenantId,
+	isIdle
+}: {
+	bearer_token: string;
+	tenantId: string;
+	isIdle: boolean;
+}) {
+	return serverFetch<{ lastSeenAt: string; isIdle: boolean }>({
+		path: '/employee/me/presence',
+		method: 'PUT',
+		bearer_token,
+		tenantId,
+		body: { isIdle }
+	});
+}
