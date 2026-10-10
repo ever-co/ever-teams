@@ -110,7 +110,15 @@ class TimerService extends APIService {
 		// A reference from another run (stopped and restarted from another tab or device) would credit the gap.
 		const sameRun = previous !== null && (!previous.timeLogId || !timeLogId || previous.timeLogId === timeLogId);
 		const duration = toTimeSlotDuration(sameRun ? (now - previous.at) / 1000 : undefined);
-		this.lastTimeSlotSync = { at: now, timeLogId: timeLogId ?? previous?.timeLogId };
+		const reference = { at: now, timeLogId: timeLogId ?? previous?.timeLogId };
+		this.lastTimeSlotSync = reference;
+		// A failed write credited nothing: unless a newer sync took over, the previous reference comes back so the retry covers this interval.
+		const restoreReference = (error: unknown): never => {
+			if (this.lastTimeSlotSync === reference) {
+				this.lastTimeSlotSync = previous;
+			}
+			throw error;
+		};
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			await this.post('/timesheet/time-slot', {
@@ -120,16 +128,18 @@ class TimerService extends APIService {
 				source,
 				employeeId: user?.employee?.id,
 				duration
-			});
+			}).catch(restoreReference);
 
 			return this.getTimerStatus();
 		}
 
 		const api = await getFallbackAPI();
-		return api.post<ITimerStatus>('/timer/sync', {
-			source,
-			duration
-		});
+		return api
+			.post<ITimerStatus>('/timer/sync', {
+				source,
+				duration
+			})
+			.catch(restoreReference);
 	};
 
 	getTaskStatusList = async ({ employeeId }: { employeeId: string }) => {
