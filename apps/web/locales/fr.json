@@ -1113,6 +1113,7 @@
 		"STARTING_TIMER": "Démarrage du chronomètre...",
 		"TIMER_STARTED": "Chronomètre démarré avec succès",
 		"TIMER_START_FAILED": "Échec du démarrage du chronomètre",
+		"STALE_TIMER_STOPPED_DESCRIPTION": "Votre chronomètre a continué de tourner après la fermeture de l'application. Il a donc été arrêté au dernier moment où l'application était ouverte ({stoppedAt}). Si vous avez travaillé après, ajoutez ce temps manuellement.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Chronomètre arrêté",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Le chronomètre s'est arrêté en raison du changement d'équipe"

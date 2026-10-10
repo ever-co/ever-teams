@@ -1113,6 +1113,7 @@
 		"STARTING_TIMER": "Timer wordt gestart…",
 		"TIMER_STARTED": "Timer succesvol gestart",
 		"TIMER_START_FAILED": "Kan de timer niet starten",
+		"STALE_TIMER_STOPPED_DESCRIPTION": "Je timer bleef lopen nadat de app was gesloten. Daarom is hij gestopt op het laatste moment dat de app open was ({stoppedAt}). Heb je daarna nog gewerkt, voeg de tijd dan handmatig toe.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer gestopt",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer gestopt wegens teamwissel"

@@ -307,8 +307,8 @@ function UserNavMenu() {
 						<button
 							className="flex space-x-3 items-center font-normal text-[#DE437B]"
 							onClick={() => {
-								logOut();
-								signOutFunction();
+								// signOut navigates away: let logOut stop the timer and clear the session first
+								void logOut().then(signOutFunction);
 							}}
 						>
 							<LogoutRoundIcon className="w-5 h-5 stroke-[#DE437B]" /> <span>{t('common.LOGOUT')}</span>

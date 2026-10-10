@@ -64,14 +64,24 @@ class TimerService extends APIService {
 		return api.post<ITimerStatus>('/timer/start');
 	};
 
-	stopTimer = async ({ source }: { source: ETimeLogSource }) => {
+	stopTimer = async ({
+		source,
+		startedAt,
+		stoppedAt
+	}: {
+		source: ETimeLogSource;
+		startedAt?: Date | string;
+		stoppedAt?: Date | string;
+	}) => {
 		const taskId = getActiveTaskIdCookie();
+		const range = { ...(startedAt ? { startedAt } : {}), ...(stoppedAt ? { stoppedAt } : {}) };
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			await this.post('/timesheet/timer/stop', {
 				source,
 				logType: 'TRACKED',
 				...(taskId ? { taskId } : {}),
+				...range,
 				tenantId: this.tenantId,
 				organizationId: this.organizationId
 			});
@@ -81,8 +91,19 @@ class TimerService extends APIService {
 
 		const api = await getFallbackAPI();
 		return api.post<ITimerStatus>('/timer/stop', {
-			source
+			source,
+			...range
 		});
+	};
+
+	// /timesheet/timer/status only sees logs started today; this returns the employee's last log of any day.
+	getLastTimerLog = async (employeeId: string) => {
+		const params = qs.stringify({ tenantId: this.tenantId, organizationId: this.organizationId, employeeId });
+		const endpoint = GAUZY_API_BASE_SERVER_URL.value
+			? `/timesheet/timer/status/worked?${params}`
+			: '/timer/status/worked';
+
+		return this.get<ITimerStatus[]>(endpoint);
 	};
 
 	syncTimer = async ({ source, user }: { source: ETimeLogSource; user?: TUser | null }) => {

@@ -6,6 +6,7 @@ import { useIsomorphicLayoutEffect } from '@/core/hooks/common/use-isomorphic-la
 import { useOrganizationTeamsQuery, useTeamTasksQuery } from '@/core/hooks/organizations';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useAutoAssignTask, useTaskStatistics } from '@/core/hooks/tasks';
+import { useStaleTimerGuard, useTimerRunningPastMidnight } from '@/core/hooks/timer/use-stale-timer-guard';
 import { DISABLE_AUTO_REFRESH } from '@/core/constants/config/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef } from 'react';
@@ -35,6 +36,7 @@ export function InitState() {
 		currentWorkspace
 	);
 	const autoRefreshEnabled = !DISABLE_AUTO_REFRESH.value;
+	const shellRefreshInterval = autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false;
 	const baseScope = useMemo(
 		() => ({
 			tenantId,
@@ -47,8 +49,8 @@ export function InitState() {
 	const teamOwner = useOrganizationTeamsQuery({
 		enabled: workspaceReady,
 		scope: baseScope,
-		refetchInterval: autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false,
-		detailRefetchInterval: autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false
+		refetchInterval: shellRefreshInterval,
+		detailRefetchInterval: shellRefreshInterval
 	});
 	const { activeTeam, teams } = teamOwner;
 	const teamReady = !!(
@@ -68,13 +70,13 @@ export function InitState() {
 	const tasksOwner = useTeamTasksQuery({
 		enabled: teamReady,
 		scope: teamScope,
-		refetchInterval: autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false
+		refetchInterval: shellRefreshInterval
 	});
 	const timerOwner = useTimer({
 		enabled: teamReady,
 		scope: teamScope,
 		statusEnabled: teamReady,
-		statusRefetchInterval: autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false,
+		statusRefetchInterval: shellRefreshInterval,
 		plansEnabled: Boolean(activeTeam?.requirePlanToTrack),
 		plansRefetchInterval: autoRefreshEnabled ? 5 * SHELL_REFRESH_INTERVAL : false,
 		manageRuntime: false
@@ -88,13 +90,21 @@ export function InitState() {
 		}
 	}, [teamReady, timerOwner.firstLoadTimerData]);
 
+	const staleTimerChecked = useStaleTimerGuard(user?.employee, workspaceReady);
+	const timerRunning = useTimerRunningPastMidnight(
+		user?.employee,
+		timerOwner.rawTimerRunning,
+		teamReady && staleTimerChecked && timerOwner.statusResolved
+	);
+
 	// The single full timer owner supplies both callbacks and the unfiltered running state.
 	useTimerPolling(autoRefreshEnabled && teamReady && timerOwner.rawTimerRunning);
+	// The heartbeat is what proves a TEAMS timer is still open, so it runs even with auto refresh disabled.
 	useEffect(() => {
-		if (!autoRefreshEnabled || !teamReady || !timerOwner.rawTimerRunning) return;
+		if (!teamReady || !staleTimerChecked || !timerRunning) return;
 		const interval = window.setInterval(() => timerOwner.syncTimer(), SHELL_REFRESH_INTERVAL);
 		return () => window.clearInterval(interval);
-	}, [autoRefreshEnabled, teamReady, timerOwner.rawTimerRunning, timerOwner.syncTimer]);
+	}, [staleTimerChecked, teamReady, timerRunning, timerOwner.syncTimer]);
 
 	const activeTask = tasksOwner.activeTeamTask;
 	useAutoAssignTask({ enabled: teamReady && timerOwner.statusResolved && !!activeTask });

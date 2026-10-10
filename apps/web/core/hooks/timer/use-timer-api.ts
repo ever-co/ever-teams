@@ -42,6 +42,7 @@ import { useOrganizationEmployeeTeams, useTeamTasksState, useUpdateTask } from '
 import { useTaskStatusesQuery } from '../tasks/use-task-statuses-query';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useScopeGuard } from '../bootstrap/use-scope-guard';
+import { useStopStaleTeamsTimer } from './use-stale-timer-guard';
 
 // ==================== TYPES ====================
 
@@ -162,6 +163,7 @@ export function useTimerApi({
 	const { setActiveTask, isUpdatingActiveTask } = useTeamTasksState();
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
 	const { user, $user, refreshUserData } = useAuthenticateUser();
+	const stopStaleTeamsTimer = useStopStaleTeamsTimer();
 	const { myDailyPlans, isSuccess: plansResolved } = useMyDailyPlans({
 		enabled: enabled && plansEnabled,
 		...(statusEnabled && scope ? { scope, refetchInterval: plansRefetchInterval } : {})
@@ -381,9 +383,13 @@ export function useTimerApi({
 						'Desync detected: employee.isTrackingTime=true but timer not running. Auto-healing...'
 					);
 					try {
-						await timerService.stopTimer({
-							source: timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS
-						});
+						// A TEAMS timer left behind by a closed tab is credited up to its last heartbeat, not now
+						const stoppedStale = await stopStaleTeamsTimer(userData.employee.id);
+						if (!stoppedStale) {
+							await timerService.stopTimer({
+								source: timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS
+							});
+						}
 						// Refresh user data to confirm the flag was reset
 						const refreshed = await refreshUserData();
 						if (refreshed?.employee.isTrackingTime) {
@@ -531,6 +537,7 @@ export function useTimerApi({
 			updateOrganizationTeamEmployeeActiveTask,
 			t,
 			refreshUserData,
+			stopStaleTeamsTimer,
 			queryClient,
 			activeTeamId,
 			isCurrentScope,

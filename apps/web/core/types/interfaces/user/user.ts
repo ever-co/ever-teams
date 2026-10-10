@@ -71,7 +71,7 @@ export interface UseAuthenticateUserResult {
 	isTeamManager: boolean;
 	refreshUserData: () => Promise<TUser | undefined>;
 	refreshUserLoading: boolean;
-	logOut: () => void;
+	logOut: () => Promise<void>;
 	timeToTimeRefreshToken: (interval?: number) => () => void;
 	refreshToken: () => Promise<void>;
 	userDataQuery: UseQueryResult<TUser, Error>;
