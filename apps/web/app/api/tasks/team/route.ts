@@ -42,15 +42,21 @@ export async function POST(req: Request) {
 		}
 	});
 
-	const { data: tasks } = await getTeamTasksRequest({
-		tenantId,
-		organizationId,
-		projectId,
-		teamId,
-		bearer_token: access_token
-	});
+	// The task exists from here on. A failed list refresh must not become a 500 that reads as a failed
+	// creation, or the user retries and creates it twice; the client refreshes the task lists on success.
+	try {
+		const { data: tasks } = await getTeamTasksRequest({
+			tenantId,
+			organizationId,
+			projectId,
+			teamId,
+			bearer_token: access_token
+		});
 
-	return $res(tasks);
+		return $res(tasks);
+	} catch {
+		return $res({ items: [], total: 0 });
+	}
 }
 
 export async function GET(req: Request) {

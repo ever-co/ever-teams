@@ -311,7 +311,18 @@ class TaskService extends APIService {
 
 				await this.post('/tasks', validatedInput, { tenantId });
 
-				return this.getTasks({ projectId });
+				// The task exists from here on. A failed list refresh must not read as a failed creation,
+				// or the user retries and creates it twice; callers refresh the task lists on success.
+				try {
+					return await this.getTasks({ projectId });
+				} catch (error) {
+					this.logger.warn(
+						'Task created but the task list refresh failed:',
+						{ message: error instanceof Error ? error.message : String(error) },
+						'TaskService'
+					);
+					return { items: [], total: 0 };
+				}
 			}
 
 			const api = await getFallbackAPI();
