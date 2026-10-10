@@ -13,7 +13,15 @@ function dispatchBodyClick(ev: MouseEvent) {
 	// Snapshot like the DOM does for separate listeners: a handler added during this click waits for the next one,
 	// a handler removed during it is skipped.
 	for (const handler of Array.from(bodyClickHandlers)) {
-		if (bodyClickHandlers.has(handler)) handler(ev);
+		if (!bodyClickHandlers.has(handler)) continue;
+		try {
+			handler(ev);
+		} catch (error) {
+			// Separate listeners kept running when one threw: report it outside the loop and serve the others
+			setTimeout(() => {
+				throw error;
+			});
+		}
 	}
 }
 

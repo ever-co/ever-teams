@@ -421,7 +421,7 @@ export const UserTeamCard = React.memo(function UserTeamCard({
 });
 
 // Only the authenticated member's card shows this total, so only that card subscribes to the per-second timer
-function AuthUserTotalWork({ member }: { member: IUserTeamCard['member'] }) {
+function AuthUserTotalWork({ member }: Readonly<{ member: IUserTeamCard['member'] }>) {
 	const t = useTranslations();
 	const seconds = useAtomValue(timerSecondsState);
 	const statActiveTask = useAtomValue(activeTaskStatisticsState);
@@ -462,7 +462,7 @@ function MemberActivityPanel({
 	activityFilter,
 	onActivityFilterChange,
 	isLoading
-}: MemberActivityPanelProps) {
+}: Readonly<MemberActivityPanelProps>) {
 	const profile = useUserProfilePage();
 	// Use isolated tab state for UserTeamCard to prevent global state leak from profile page
 	// With 'auto' default: shows daily plans if user has them, otherwise shows assigned tasks
