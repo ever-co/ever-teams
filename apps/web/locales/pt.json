@@ -1110,6 +1110,7 @@
 		"START_TIMER": "Por favor, selecione ou crie uma nova tarefa para começar a rastrear o tempo ou crie um plano",
 		"ALREADY_TRACKING_MESSAGE": "Você já está rastreando o tempo em outra aba ou dispositivo.",
 		"TASK_CLOSED": "A tarefa está fechada",
+		"PLAN_REQUIRED_TO_START": "Adicione esta tarefa ao plano de hoje para começar",
 		"STARTING_TIMER": "Iniciando temporizador...",
 		"TIMER_STARTED": "Temporizador iniciado com sucesso",
 		"TIMER_START_FAILED": "Falha ao iniciar o temporizador",
@@ -1227,6 +1228,7 @@
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plano para hoje",
+		"ADD_TO_TODAY_PLAN": "Adicionar ao plano de hoje",
 		"TASK_TIME": "tempo de tarefa",
 		"TOTAL_TODAY": "Total Hoje",
 		"PLAN_FOR_TOMORROW": "Plano para amanhã",

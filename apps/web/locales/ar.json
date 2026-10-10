@@ -1110,6 +1110,7 @@
 		"START_TIMER": "يرجى تحديد أو إنشاء مهمة جديدة لبدء تتبع الوقت أو وضع خطة",
 		"ALREADY_TRACKING_MESSAGE": "أنت تتبع الوقت بالفعل في علامة تبويب أو جهاز آخر.",
 		"TASK_CLOSED": "المهمة مغلقة",
+		"PLAN_REQUIRED_TO_START": "أضف هذه المهمة إلى خطة اليوم للبدء",
 		"STARTING_TIMER": "جاري بدء المؤقت...",
 		"TIMER_STARTED": "تم بدء المؤقت بنجاح",
 		"TIMER_START_FAILED": "فشل بدء المؤقت",
@@ -1227,6 +1228,7 @@
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "خطة اليوم",
+		"ADD_TO_TODAY_PLAN": "أضف إلى خطة اليوم",
 		"TASK_TIME": "وقت المهمة",
 		"TOTAL_TODAY": "الإجمالي اليوم",
 		"PLAN_FOR_TOMORROW": "خطة الغد",

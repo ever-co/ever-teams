@@ -1110,6 +1110,7 @@
 		"START_TIMER": "Proszę wybrać lub utworzyć nowe zadanie, aby rozpocząć śledzenie czasu lub utwórz plan",
 		"ALREADY_TRACKING_MESSAGE": "Już śledzisz czas w innej karcie lub urządzeniu.",
 		"TASK_CLOSED": "Zadanie jest zamknięte",
+		"PLAN_REQUIRED_TO_START": "Dodaj to zadanie do dzisiejszego planu, aby rozpocząć",
 		"STARTING_TIMER": "Uruchamianie timera...",
 		"TIMER_STARTED": "Timer uruchomiony pomyślnie",
 		"TIMER_START_FAILED": "Nie udało się uruchomić timera",
@@ -1227,6 +1228,7 @@
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan na dzisiaj",
+		"ADD_TO_TODAY_PLAN": "Dodaj do dzisiejszego planu",
 		"TASK_TIME": "czas zadania",
 		"TOTAL_TODAY": "Całkowity Dzisiaj",
 		"PLAN_FOR_TOMORROW": "Plan na jutro",

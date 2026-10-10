@@ -1110,6 +1110,7 @@
 		"START_TIMER": "אנא בחר או צור משימה חדשה כדי להתחיל לעקוב אחר הזמן או ליצור תוכנית",
 		"ALREADY_TRACKING_MESSAGE": "אתה כבר עוקב אחר הזמן בכרטיסייה או במכשיר אחר.",
 		"TASK_CLOSED": "המשימה סגורה",
+		"PLAN_REQUIRED_TO_START": "הוסף משימה זו לתוכנית של היום כדי להתחיל",
 		"STARTING_TIMER": "הפעלת טיימר...",
 		"TIMER_STARTED": "טיימר הופעל בהצלחה",
 		"TIMER_START_FAILED": "כישלון בהפעלת טיימר",
@@ -1227,6 +1228,7 @@
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "תוכנית להיום",
+		"ADD_TO_TODAY_PLAN": "הוסף לתוכנית של היום",
 		"TASK_TIME": "זמן משימה",
 		"TOTAL_TODAY": "סך הכול היום",
 		"PLAN_FOR_TOMORROW": "תוכנית למחר",

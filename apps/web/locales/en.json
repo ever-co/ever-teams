@@ -1110,6 +1110,7 @@
 		"START_TIMER": "Please, select or create a new task to start tracking the time or create a plan",
 		"ALREADY_TRACKING_MESSAGE": "You're already tracking time in another tab or device.",
 		"TASK_CLOSED": "Task is closed",
+		"PLAN_REQUIRED_TO_START": "Add this task to today's plan to start",
 		"STARTING_TIMER": "Starting timer...",
 		"TIMER_STARTED": "Timer started successfully",
 		"TIMER_START_FAILED": "Failed to start timer",
@@ -1227,6 +1228,7 @@
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan for today",
+		"ADD_TO_TODAY_PLAN": "Add to today's plan",
 		"TASK_TIME": "task time",
 		"TOTAL_TODAY": "Total Today",
 		"PLAN_FOR_TOMORROW": "Plan for tomorrow",

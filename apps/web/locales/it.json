@@ -1110,6 +1110,7 @@
 		"START_TIMER": "Per favore, seleziona o crea un nuovo compito per iniziare a tracciare il tempo o creare un piano",
 		"ALREADY_TRACKING_MESSAGE": "Stai già tracciando il tempo in un'altra scheda o dispositivo.",
 		"TASK_CLOSED": "L'attività è chiusa",
+		"PLAN_REQUIRED_TO_START": "Aggiungi questa attività al piano di oggi per iniziare",
 		"STARTING_TIMER": "Avvio del timer...",
 		"TIMER_STARTED": "Timer avviato con successo",
 		"TIMER_START_FAILED": "Impossibile avviare il Timer",
@@ -1227,6 +1228,7 @@
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Piano per oggi",
+		"ADD_TO_TODAY_PLAN": "Aggiungi al piano di oggi",
 		"TASK_TIME": "tempo di compito",
 		"TOTAL_TODAY": "Totale Oggi",
 		"PLAN_FOR_TOMORROW": "Piano per domani",
