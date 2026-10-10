@@ -46,7 +46,7 @@ import { toast } from 'sonner';
  * - **Create operations**: `useCreateTask()` - createTask, createLoading
  * - **Update operations**: `useUpdateTask()` - updateTask, updateLoading, updateTitle, updateDescription, handleStatusUpdate
  * - **Delete operations**: `useDeleteTask()` - deleteTask, deleteLoading, deleteEmployeeFromTasks
- * - **Single task queries**: `useTaskQueries()` - getTaskById, getTasksByEmployeeId, detailedTask
+ * - **Single task queries**: `useTaskQueries()` - getTaskById, detailedTask
  * - **State management**: `useTeamTasksState()` - setActiveTask, setAllTasks, isUpdatingActiveTask
  *
  * **Migration example**:
@@ -75,8 +75,6 @@ import { toast } from 'sonner';
  * @property {(newDescription: string, task?: TTask | null, loader?: boolean) => Promise<any>} updateDescription - A function to update the description of a task.
  * @property {(publicity: boolean, task?: TTask | null, loader?: boolean) => Promise<any>} updatePublicity - A function to update the publicity of a task.
  * @property {<T extends ITaskStatusField>(status: ITaskStatusStack[T], field: T, taskStatusId: TTask['taskStatusId'], task?: TTask | null, loader?: boolean) => Promise<any>} handleStatusUpdate - A function to update the status of a task.
- * @property {(employeeId: string, organizationTeamId: string) => void} getTasksByEmployeeId - A function to fetch tasks by employee ID.
- * @property {boolean} getTasksByEmployeeIdLoading - Indicates whether tasks are currently being fetched by employee ID.
  * @property {TTask['organizationId']} activeTeamId - The ID of the active team.
  * @property {() => void} unassignAuthActiveTask - A function to unassign the active task of the authenticated user.
  * @property {(tasks: TTask[]) => void} setAllTasks - A function to set all the tasks.
@@ -105,8 +103,6 @@ export function useTeamTasks() {
 	const { taskStatuses } = useTaskStatusesQuery();
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamRef = useSyncRef(activeTeam);
-	const [selectedEmployeeId, setSelectedEmployeeId] = useState(user?.employee?.id);
-	const [selectedOrganizationTeamId, setSelectedOrganizationTeamId] = useState(activeTeam?.id);
 	const [activeTeamTask, setActiveTeamTask] = useAtom(activeTeamTaskState);
 	const [isUpdatingActiveTask, setIsUpdatingActiveTask] = useState(false);
 
@@ -144,18 +140,6 @@ export function useTeamTasks() {
 			}
 		})
 	);
-
-	const getTasksByEmployeeIdQuery = useQuery({
-		queryKey: queryKeys.tasks.byEmployee(selectedEmployeeId, selectedOrganizationTeamId),
-		queryFn: async () => {
-			if (!activeTeam?.id) {
-				throw new Error('Required parameters missing');
-			}
-			return await taskService.getTasksByEmployeeId({ employeeId: selectedEmployeeId! });
-		},
-		enabled: !!selectedEmployeeId && !!activeTeam?.id && !!selectedOrganizationTeamId,
-		gcTime: 1000 * 60 * 60
-	});
 
 	const { invalidateTeamTasksData } = useInvalidateTeamTasks();
 	// Mutations
@@ -262,26 +246,6 @@ export function useTeamTasks() {
 			}
 		},
 		[setDetailedTask, tasksRef]
-	);
-
-	const getTasksByEmployeeId = useCallback(
-		async (employeeId: string, organizationTeamId: string) => {
-			try {
-				if (!employeeId || !organizationTeamId) {
-					throw new Error('Required parameters missing : employeeId or organizationTeamId');
-				}
-
-				setSelectedEmployeeId(employeeId);
-				setSelectedOrganizationTeamId(organizationTeamId);
-
-				const res = await getTasksByEmployeeIdQuery.refetch();
-				return res.data;
-			} catch (error) {
-				console.error('Error fetching tasks by employee ID:', error);
-				return [];
-			}
-		},
-		[getTasksByEmployeeIdQuery]
 	);
 
 	const loadTeamTasksData = useCallback(
@@ -758,8 +722,6 @@ export function useTeamTasks() {
 		updateDescription,
 		updatePublicity,
 		handleStatusUpdate,
-		getTasksByEmployeeId,
-		getTasksByEmployeeIdLoading: getTasksByEmployeeIdQuery.isLoading,
 		activeTeam,
 		activeTeamId: activeTeam?.id,
 		unassignAuthActiveTask,
