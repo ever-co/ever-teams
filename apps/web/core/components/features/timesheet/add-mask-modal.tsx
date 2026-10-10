@@ -50,6 +50,7 @@ interface FormState {
 	}[];
 }
 
+/** Minutes since midnight for a time option such as "01:30:00 PM". */
 const convertToMinutesHour = (time: string): number => {
 	const [hourMinute, period] = time.split(' ');
 	const [hours, minutes] = hourMinute.split(':').map(Number);
@@ -60,9 +61,12 @@ const convertToMinutesHour = (time: string): number => {
 	return totalMinutes;
 };
 
-// The picked times are the user's wall-clock times; the Date is serialized to UTC when sent.
-// Returns null when that time does not exist on the day (skipped by a daylight saving change),
-// because the local constructor would silently move it forward.
+/**
+ * Builds the Date for a picked time on the given day. The picked times are the user's wall-clock
+ * times; the Date is serialized to UTC when sent.
+ * Returns null when that time does not exist on the day (skipped by a daylight saving change),
+ * because the local constructor would silently move it forward.
+ */
 const createLocalDate = (baseDate: Date, time: string): Date | null => {
 	const minutesOfDay = convertToMinutesHour(time);
 	const date = new Date(
@@ -73,6 +77,18 @@ const createLocalDate = (baseDate: Date, time: string): Date | null => {
 		minutesOfDay % 60
 	);
 	return date.getHours() * 60 + date.getMinutes() === minutesOfDay ? date : null;
+};
+
+/**
+ * Clears the times of a shift that do not exist on its new day (daylight saving change),
+ * so they are picked again instead of being saved as something else.
+ */
+const clearSkippedTimes = (shift: Shift, day: Date) => {
+	const clearStart = !!shift.startTime && !createLocalDate(day, shift.startTime);
+	const clearEnd = !!shift.endTime && !createLocalDate(day, shift.endTime);
+	if (clearStart) shift.startTime = '';
+	if (clearEnd) shift.endTime = '';
+	if (clearStart || clearEnd) shift.totalHours = '00:00h';
 };
 
 export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
@@ -438,14 +454,7 @@ const OptimizedAccordion = ({
 		updatedShifts[index][field] = value;
 
 		if (field === 'dateFrom' && value) {
-			// A time picked earlier may not exist on the new day (daylight saving change): clear it so it is picked again.
-			const shift = updatedShifts[index];
-			const day = new Date(value);
-			const clearStart = !!shift.startTime && !createLocalDate(day, shift.startTime);
-			const clearEnd = !!shift.endTime && !createLocalDate(day, shift.endTime);
-			if (clearStart) shift.startTime = '';
-			if (clearEnd) shift.endTime = '';
-			if (clearStart || clearEnd) shift.totalHours = '00:00h';
+			clearSkippedTimes(updatedShifts[index], new Date(value));
 		}
 
 		if (field === 'startTime' || field === 'endTime') {
