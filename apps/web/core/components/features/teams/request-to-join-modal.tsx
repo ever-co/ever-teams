@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuthenticationPasscode } from '@/core/hooks';
+import { useResendCooldown } from '@/core/hooks/auth/use-resend-cooldown';
 import { useRequestToJoinMutation } from '@/core/hooks/organizations/teams/use-request-to-join-mutation';
 import { useValidateRequestToJoin } from '@/core/hooks/organizations/teams/use-validate-request-to-join';
 import { useResendCodeRequestToJoin } from '@/core/hooks/organizations/teams/use-resend-code-request-to-join';
@@ -69,10 +70,14 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 		errors,
 		handleChange,
 		handleCodeSubmit,
-		sendCodeLoading,
+		signInEmailLoading,
 		sendAuthCodeHandler,
 		inputCodeRef
 	} = useAuthenticationPasscode();
+	const resendCooldown = useResendCooldown();
+
+	// Only a code that went out starts the wait; the hook already shows the error of a failed send
+	const resendCode = () => sendAuthCodeHandler()?.then(resendCooldown.start, () => undefined);
 
 	return (
 		<form autoComplete="off" onSubmit={handleCodeSubmit}>
@@ -112,19 +117,26 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 							<div className="flex flex-col items-start">
 								<div className="text-xs font-normal text-gray-500 dark:text-gray-400">
 									{t('pages.auth.UNRECEIVED_CODE')}
-									{!sendCodeLoading && (
+									{!signInEmailLoading && (
 										<button
 											type="button"
 											className="text-xs font-normal text-gray-500 dark:text-gray-400"
-											onClick={sendAuthCodeHandler}
+											onClick={resendCode}
+											disabled={resendCooldown.locked}
 										>
-											{'Re'}
-											<span className="text-primary dark:text-primary-light">
-												{t('pages.auth.SEND_CODE')}
-											</span>
+											{resendCooldown.locked ? (
+												`${t('pages.auth.RESEND_CODE_IN')} ${resendCooldown.countdown}`
+											) : (
+												<>
+													{'Re'}
+													<span className="text-primary dark:text-primary-light">
+														{t('pages.auth.SEND_CODE')}
+													</span>
+												</>
+											)}
 										</button>
 									)}
-									{sendCodeLoading && <SpinnerLoader size={22} className="self-center" />}
+									{signInEmailLoading && <SpinnerLoader size={22} className="self-center" />}
 								</div>
 							</div>
 						</div>

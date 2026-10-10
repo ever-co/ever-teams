@@ -1,4 +1,5 @@
 import { useAuthenticationPasscode } from '@/core/hooks';
+import { useResendCooldown } from '@/core/hooks/auth/use-resend-cooldown';
 import { Button, Modal, SpinnerLoader, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { EverCard } from '../../common/ever-card';
@@ -17,12 +18,16 @@ export function JoinTeamModal({ open, closeModal }: { open: boolean; closeModal:
 		errors,
 		handleChange,
 		handleSubmit,
-		sendCodeLoading,
+		signInEmailLoading,
 		sendAuthCodeHandler,
 		inputCodeRef
 	} = useAuthenticationPasscode();
+	const resendCooldown = useResendCooldown();
 
 	const t = useTranslations();
+
+	// Only a code that went out starts the wait; the hook already shows the error of a failed send
+	const resendCode = () => sendAuthCodeHandler()?.then(resendCooldown.start, () => undefined);
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>
@@ -73,19 +78,26 @@ export function JoinTeamModal({ open, closeModal }: { open: boolean; closeModal:
 									{t('pages.auth.UNRECEIVED_CODE')}
 								</Text>
 
-								{!sendCodeLoading && (
+								{!signInEmailLoading && (
 									<button
 										type="button"
-										className="text-xs font-normal text-gray-500 cursor-pointer dark:text-gray-400"
-										onClick={sendAuthCodeHandler}
+										className="text-xs font-normal text-gray-500 cursor-pointer disabled:cursor-default dark:text-gray-400"
+										onClick={resendCode}
+										disabled={resendCooldown.locked}
 									>
-										{'Re'}
-										<span className="text-primary dark:text-primary-light">
-											{t('pages.auth.SEND_CODE')}
-										</span>
+										{resendCooldown.locked ? (
+											`${t('pages.auth.RESEND_CODE_IN')} ${resendCooldown.countdown}`
+										) : (
+											<>
+												{'Re'}
+												<span className="text-primary dark:text-primary-light">
+													{t('pages.auth.SEND_CODE')}
+												</span>
+											</>
+										)}
 									</button>
 								)}
-								{sendCodeLoading && <SpinnerLoader size={22} className="self-center" />}
+								{signInEmailLoading && <SpinnerLoader size={22} className="self-center" />}
 							</div>
 
 							<Button type="submit" loading={loading} disabled={loading}>

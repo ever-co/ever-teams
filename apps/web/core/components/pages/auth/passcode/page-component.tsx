@@ -38,6 +38,7 @@ import { Avatar } from '@/core/components/duplicated-components/avatar';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
 import { hasTeams, getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
 import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
+import { useResendCooldown } from '@/core/hooks/auth/use-resend-cooldown';
 import { buttonVariants } from '@/core/components/duplicated-components/_button';
 
 function AuthPasscode() {
@@ -170,34 +171,8 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 	const formRef = useRef<HTMLFormElement>(null);
 	const urlSearchParams = new URLSearchParams(window.location.search);
 	const code = urlSearchParams.get('code');
-
-	const formatTime = (seconds: number) => {
-		const minutes = Math.floor(seconds / 60);
-		const remainingSeconds = seconds % 60;
-		return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
-	};
-
-	const [timer, setTimer] = useState(60);
-	const [disabled, setDisabled] = useState(true);
-
-	useEffect(() => {
-		let interval: NodeJS.Timeout | undefined = undefined;
-		if (timer > 0) {
-			interval = setInterval(() => {
-				setTimer((prevTimer) => prevTimer - 1);
-			}, 1000);
-		} else {
-			setDisabled(false);
-			clearInterval(interval);
-		}
-
-		return () => clearInterval(interval);
-	}, [timer]);
-
-	const handleResendClick = () => {
-		setDisabled(true);
-		setTimer(60);
-	};
+	// This screen opens right after a code was sent
+	const resendCooldown = useResendCooldown(true);
 
 	const resetForm = () => {
 		if (inputsRef.current) {
@@ -263,24 +238,24 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 				<div className={cn('flex flex-col gap-2 text-sm', form.everIdConfirm && 'hidden')}>
 					<div className="flex flex-row gap-2 items-center">
 						<span className="text-muted-foreground">{t('pages.auth.UNRECEIVED_CODE')}</span>
-						{!form.sendCodeLoading ? (
+						{!form.signInEmailLoading ? (
 							<button
 								type="button"
 								className="text-sm cursor-pointer"
 								onClick={() => {
-									if (!disabled) {
+									if (!resendCooldown.locked) {
 										form.sendAuthCodeHandler();
-										handleResendClick();
+										resendCooldown.start();
 									}
 								}}
 							>
-								{!disabled ? (
+								{!resendCooldown.locked ? (
 									<span className="font-medium text-primary hover:underline">
 										{t('pages.auth.RESEND_CODE')}
 									</span>
 								) : (
 									<span className="text-muted-foreground">
-										{t('pages.auth.RESEND_CODE_IN')} {formatTime(timer)}
+										{t('pages.auth.RESEND_CODE_IN')} {resendCooldown.countdown}
 									</span>
 								)}
 							</button>

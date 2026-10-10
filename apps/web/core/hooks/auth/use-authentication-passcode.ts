@@ -19,11 +19,14 @@ import {
 import { restartEverIdSignIn } from '@/core/lib/auth/ever-id/restart';
 import { everIdService } from '@/core/services/client/api/auth/ever-id.service';
 
+/** Shown for a 429: Gauzy throttles the code endpoints and locks an account after repeated wrong codes. */
+const TOO_MANY_ATTEMPTS = 'pages.auth.everId.TOO_MANY_ATTEMPTS';
+
 /** The message for each answer of the Ever ID code confirmation that is not a success. */
 const EVER_ID_CONFIRM_ERRORS = {
 	400: 'pages.auth.INVALID_CODE_TRY_AGAIN',
 	410: 'pages.auth.everId.CODE_EXPIRED',
-	429: 'pages.auth.everId.TOO_MANY_ATTEMPTS'
+	429: TOO_MANY_ATTEMPTS
 } as const;
 
 type AuthCodeRef = {
@@ -178,6 +181,13 @@ export function useAuthenticationPasscode() {
 				}
 			} catch (error) {
 				confirmError = error;
+			}
+
+			// Already limited: the invite-code attempt would only add one more request to a refusing server.
+			if (isAxiosError(confirmError) && confirmError.response?.status === 429) {
+				setStatus('error');
+				setErrors({ code: t(TOO_MANY_ATTEMPTS) });
+				return;
 			}
 
 			// Attempt 2: invite-code path (Next.js route). Only reached when attempt 1 did not sign the user in.
@@ -378,11 +388,13 @@ export function useAuthenticationPasscode() {
 		promise.catch((err: AxiosError) => {
 			if (err.response?.status === 400) {
 				setErrors((err.response?.data as any)?.errors || {});
+			} else if (err.response?.status === 429) {
+				setErrors({ email: t(TOO_MANY_ATTEMPTS) });
 			}
 		});
 
 		return promise;
-	}, [formValues, signInEmailQueryCall]);
+	}, [formValues, signInEmailQueryCall, t]);
 
 	const getLastTeamIdWithRecentLogout = useCallback((): string | null => {
 		if (workspaces.length === 0) {
