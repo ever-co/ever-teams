@@ -1,9 +1,4 @@
-import {
-	publicActiveTeamState,
-	activeTeamState,
-	teamTasksState,
-	organizationTeamsState
-} from '@/core/stores';
+import { publicActiveTeamState, activeTeamState, teamTasksState, organizationTeamsState } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -18,13 +13,15 @@ import { publicOrganizationTeamService } from '@/core/services/client/api/organi
 const PUBLIC_TEAM_STALE_TIME = 1000 * 60 * 5; // 5 minutes - public team data is relatively stable
 const PUBLIC_TEAM_MISC_STALE_TIME = 1000 * 60 * 15; // 15 minutes - misc data changes less frequently
 
-// A query that failed before loading any data is left to its useQuery, which retries it on mount.
-// Without data, ensureQueryData ignores staleTime and fetches, so every tick would call the
-// unauthenticated endpoint again. Failures resolve to undefined: the query keeps the error.
+// A query in error is not refetched on every tick, or each tick would call the unauthenticated endpoint
+// again. Without data it is left to its useQuery, which retries it on mount: ensureQueryData would ignore
+// staleTime and fetch. With data, a failed refresh keeps the old dataUpdatedAt and marks the query
+// invalidated, so the next attempt waits one stale window after the error. Failures resolve to undefined:
+// the query keeps the error.
 function ensurePublicTeamQueryData(queryClient: QueryClient, queryKey: QueryKey, staleTime: number): Promise<unknown> {
 	const state = queryClient.getQueryState(queryKey);
-	if (state?.status === 'error' && state.data === undefined) {
-		return Promise.resolve(undefined);
+	if (state?.status === 'error' && (state.data === undefined || Date.now() - state.errorUpdatedAt < staleTime)) {
+		return Promise.resolve(state.data);
 	}
 
 	return queryClient.ensureQueryData({ queryKey, staleTime, revalidateIfStale: true }).catch(() => undefined);
