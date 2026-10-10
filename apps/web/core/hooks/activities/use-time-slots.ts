@@ -142,13 +142,23 @@ export function useTimeSlots(hasFilter?: boolean) {
 		getTimeSlots();
 	}, [getTimeSlots]);
 
+	// The API deletes only the caller's own slots unless they may act for every employee. The rendered
+	// slots are checked too: they still belong to the previous member until the new scope has loaded.
+	const ownEmployeeId = user?.employee?.id;
+	const isOwnTimeSlots = useMemo(
+		() =>
+			!!ownEmployeeId &&
+			queryParams?.employeeId === ownEmployeeId &&
+			timeSlots.every((slot) => slot.employeeId === ownEmployeeId),
+		[ownEmployeeId, queryParams?.employeeId, timeSlots]
+	);
+
 	return {
 		// Preserve exact interface names and behavior
 		timeSlots,
 		getTimeSlots,
 		deleteTimeSlots,
-		// The API deletes only the caller's own slots unless they may act for every employee
-		isOwnTimeSlots: !!user?.employee?.id && queryParams?.employeeId === user.employee.id,
+		isOwnTimeSlots,
 		loadingDelete: deleteTimeSlotsMutation.isPending,
 		loading: timeSlotsQuery.isLoading
 	};
