@@ -17,7 +17,7 @@ import { TaskEstimate } from '../../tasks/task-estimate';
 import clsx from 'clsx';
 import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { clsxm } from '@/core/lib/utils';
-import { formatIntegerToHour, formatTimeString } from '@/core/lib/helpers/index';
+import { formatIntegerToHour, formatTimeString, getDailyPlanDay } from '@/core/lib/helpers/index';
 import { ActiveTaskHandlerModal } from './active-task-handler-modal';
 import { TaskDetailsModal } from '../../tasks/task-details-modal';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
@@ -162,8 +162,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	});
 
 	const canStartWorking = useMemo(() => {
-		const isTodayPlan =
-			plan && new Date(Date.now()).toLocaleDateString('en') == new Date(plan.date).toLocaleDateString('en');
+		const isTodayPlan = plan && getDailyPlanDay(plan.date) === moment().format('YYYY-MM-DD');
 
 		return isTodayPlan;
 		// Can add others conditions
@@ -854,8 +853,7 @@ function TaskCard(props: ITaskCardProps) {
 	const [addToPlanLoading, setAddToPlanLoading] = useState(false);
 
 	const { taskStatuses } = useTaskStatusesQuery();
-	const isTaskRenderedInTodayPlan =
-		plan && new Date(Date.now()).toLocaleDateString('en') == new Date(plan.date).toLocaleDateString('en');
+	const isTaskRenderedInTodayPlan = plan && getDailyPlanDay(plan.date) === moment().format('YYYY-MM-DD');
 	const {
 		isOpen: isTaskDetailsModalOpen,
 		closeModal: closeTaskDetailsModal,
@@ -1080,7 +1078,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 
 		if (!planDate || !todayPlanDate) return false;
 
-		return new Date(planDate).toLocaleDateString('en') == new Date(todayPlanDate).toLocaleDateString('en');
+		return getDailyPlanDay(planDate) === getDailyPlanDay(todayPlanDate);
 	}, [selectedPlan?.date, employeeTodayPlan]);
 
 	/**

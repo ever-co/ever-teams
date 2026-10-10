@@ -1,6 +1,7 @@
 import moment from 'moment';
 import * as momentTimezone from 'moment-timezone';
 import { TranslationHooks } from 'next-intl';
+import { getDailyPlanDay } from './daily-plan-day';
 
 const months: { [key: string]: string } = {
 	'01': 'January',
@@ -174,9 +175,7 @@ export const tomorrowDate = moment().add(1, 'days').toDate();
 export const yesterdayDate = moment().subtract(1, 'days').toDate();
 
 export const formatDayPlanDate = (dateString: string | Date, format?: string) => {
-	if (dateString.toString().length > 10) {
-		dateString = dateString.toString().split('T')[0];
-	}
+	dateString = getDailyPlanDay(dateString);
 	const date = moment(dateString, 'YYYY-MM-DD');
 
 	if (date.isSame(moment(), 'day')) return 'Today';

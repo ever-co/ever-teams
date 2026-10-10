@@ -1,5 +1,5 @@
 'use client';
-import { secondsToTime, tomorrowDate } from '@/core/lib/helpers/index';
+import { getDailyPlanDay, secondsToTime } from '@/core/lib/helpers/index';
 import {
 	I_UserProfilePage,
 	I_TeamMemberMutationsHook,
@@ -623,12 +623,7 @@ export function TaskCardMenu({
 	const taskPlannedTomorrow = useMemo(
 		() =>
 			myFuturePlans
-				.filter((_plan) =>
-					moment(_plan.date)
-						.format('YYYY-MM-DD')
-						?.toString()
-						?.startsWith(moment()?.add(1, 'day').format('YYYY-MM-DD'))
-				)[0]
+				.filter((_plan) => getDailyPlanDay(_plan.date) === moment().add(1, 'day').format('YYYY-MM-DD'))[0]
 				?.tasks?.find((planTask) => planTask.id === task.id),
 		[myFuturePlans, task.id]
 	);
@@ -820,7 +815,7 @@ export function PlanTask({
 						await createDailyPlan({
 							workTimePlanned: 0,
 							taskId,
-							date: String(new Date()),
+							date: moment().format('YYYY-MM-DD'),
 							status: EDailyPlanStatus.OPEN,
 							tenantId: user?.tenantId ?? '',
 							employeeId: employeeId,
@@ -842,7 +837,7 @@ export function PlanTask({
 						await createDailyPlan({
 							workTimePlanned: 0,
 							taskId,
-							date: String(tomorrowDate),
+							date: moment().add(1, 'day').format('YYYY-MM-DD'),
 							status: EDailyPlanStatus.OPEN,
 							tenantId: user?.tenantId ?? '',
 							employeeId: employeeId,

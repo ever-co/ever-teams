@@ -1,6 +1,8 @@
 'use client';
 
 import { useMemo } from 'react';
+import moment from 'moment';
+import { getDailyPlanDay } from '@/core/lib/helpers/daily-plan-day';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
@@ -33,34 +35,22 @@ export function useDailyPlanCalculations(
 
 	// Future plans (dates after today)
 	const futurePlans = useMemo(() => {
-		return ascSortedPlans.filter((plan) => {
-			const planDate = new Date(plan.date);
-			const today = new Date();
-			today.setHours(23, 59, 59, 0); // Set today time to exclude timestamps in comparison
-			// NOTE_FIX: Use > instead of >= to exclude today's plans from future plans
-			// Future plans should only include dates AFTER today, not today itself
-			return planDate.getTime() > today.getTime();
-		});
+		const today = moment().format('YYYY-MM-DD');
+		return ascSortedPlans.filter((plan) => getDailyPlanDay(plan.date) > today);
 	}, [ascSortedPlans]);
 
 	// Past plans (dates before today)
 	const pastPlans = useMemo(() => {
-		return descSortedPlans.filter((plan) => {
-			const planDate = new Date(plan.date);
-			const today = new Date();
-			today.setHours(0, 0, 0, 0); // Set today time to exclude timestamps in comparison
-			return planDate.getTime() < today.getTime();
-		});
+		const today = moment().format('YYYY-MM-DD');
+		return descSortedPlans.filter((plan) => getDailyPlanDay(plan.date) < today);
 	}, [descSortedPlans]);
 
 	// Today's plan (plans for current date)
 	const todayPlan = useMemo(() => {
+		const today = moment().format('YYYY-MM-DD');
 		return [...(dailyPlans?.items ?? [])].filter((plan) => {
 			if (!plan.date) return false;
-			// Use local date comparison instead of UTC (toISOString) to avoid timezone drift
-			const planDate = new Date(plan.date);
-			const today = new Date();
-			return planDate.toLocaleDateString('en') === today.toLocaleDateString('en');
+			return getDailyPlanDay(plan.date) === today;
 		});
 	}, [dailyPlans]);
 
@@ -79,18 +69,12 @@ export function useDailyPlanCalculations(
 	const outstandingPlans = useMemo(() => {
 		// Build a Set of task IDs from today/future to avoid repeated linear searches (O(1) lookup instead of O(n²))
 		const usedIds = new Set<string>([...todayTasks, ...futureTasks].map((t: TTask) => t.id));
+		const today = moment().format('YYYY-MM-DD');
 
 		// PART 1: Past plans with incomplete tasks not in today/future
 		const pastPlansWithIncompleteTasks = [...(dailyPlans?.items ?? [])]
-			// Exclude today plans
-			.filter((plan) => !plan.date?.toString()?.startsWith(new Date()?.toISOString().split('T')[0]))
-			// Exclude future plans (keep only past plans)
-			.filter((plan) => {
-				const planDate = new Date(plan.date);
-				const today = new Date();
-				today.setHours(23, 59, 59, 0);
-				return planDate.getTime() <= today.getTime();
-			})
+			// Keep only past plans (today and future plans excluded)
+			.filter((plan) => getDailyPlanDay(plan.date) < today)
 			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 			.map((plan) => ({
 				...plan,
