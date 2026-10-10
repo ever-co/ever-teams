@@ -101,11 +101,24 @@ export interface UseTimerApiReturn {
 // ==================== SHARED REQUEST GUARDS ====================
 
 // Module scope on purpose: every task card, the timer and the shell mount their own useTimerApi, and a ref
-// only guards the instance that owns it.
+// only guards the instance that owns it. A guard is held until its timer request lands, not through the
+// bookkeeping that follows (active task update, invalidations), so it never swallows a later start or stop.
 let pendingStartTimer: Promise<void> | null = null;
+let pendingStartTaskId: string | null = null;
 let pendingStopTimer: Promise<void> | null = null;
 /** Track last stopTimer call to prevent duplicate calls within short time window */
 let lastStopTimerTimestamp = 0;
+
+// Identity check: an older flow settling late must not clear the guard of a newer request
+function releaseStartGuard(request: Promise<void>) {
+	if (pendingStartTimer !== request) return;
+	pendingStartTimer = null;
+	pendingStartTaskId = null;
+}
+
+function releaseStopGuard(request: Promise<void>) {
+	if (pendingStopTimer === request) pendingStopTimer = null;
+}
 
 // ==================== HOOK ====================
 
@@ -366,7 +379,7 @@ export function useTimerApi({
 
 	const startTimerMutate = startTimerMutation.mutateAsync;
 	const runStartTimer = useCallback(
-		async (explicitTask?: TTask) => {
+		async (explicitTask?: TTask, onRequestLanded?: () => void) => {
 			// Check if the user is tracking time in another tab or device
 			try {
 				const userData = await refreshUserData();
@@ -430,6 +443,7 @@ export function useTimerApi({
 					(!statusEnabled || isCurrentScope()) &&
 					!isEqual(timerStatus, res.data) &&
 					setTimerStatus(res.data);
+				onRequestLanded?.();
 
 				// Save active task via API when timer starts
 				// Skip if we're on /task/ page because setActiveTask already does it
@@ -549,12 +563,21 @@ export function useTimerApi({
 	// for that start instead of sending a second POST /timer/start.
 	const startTimer = useCallback(
 		(explicitTask?: TTask) => {
-			pendingStartTimer ??= runStartTimer(explicitTask).finally(() => {
-				pendingStartTimer = null;
-			});
-			return pendingStartTimer;
+			if (pendingStartTimer) {
+				// No task named, or the same one: the start in flight is the one asked for
+				if (!explicitTask || explicitTask.id === pendingStartTaskId) return pendingStartTimer;
+				// Another task: fail, so the caller does not report the first task's start as its own
+				return Promise.reject(new Error('A timer start for another task is already in progress'));
+			}
+
+			const request: Promise<void> = runStartTimer(explicitTask, () => releaseStartGuard(request)).finally(() =>
+				releaseStartGuard(request)
+			);
+			pendingStartTimer = request;
+			pendingStartTaskId = explicitTask?.id ?? activeTeamTaskRef.current?.id ?? null;
+			return request;
 		},
-		[runStartTimer]
+		[runStartTimer, activeTeamTaskRef]
 	);
 
 	// ==================== STOP TIMER ====================
@@ -593,12 +616,13 @@ export function useTimerApi({
 		syncTimer();
 
 		if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
-		pendingStopTimer = stopTimerMutate(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS)
+		const request: Promise<void> = stopTimerMutate(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS)
 			.then(async (res) => {
 				res.data &&
 					(!statusEnabled || isCurrentScope()) &&
 					!isEqual(timerStatus, res.data) &&
 					setTimerStatus(res.data);
+				releaseStopGuard(request);
 
 				// Clear active task via API when timer stops
 				if (activeTeamId && user) {
@@ -633,9 +657,10 @@ export function useTimerApi({
 			})
 			.finally(() => {
 				if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(false);
-				pendingStopTimer = null;
+				releaseStopGuard(request);
 			});
-		return pendingStopTimer;
+		pendingStopTimer = request;
+		return request;
 	}, [
 		timerStatus,
 		setTimerStatus,
