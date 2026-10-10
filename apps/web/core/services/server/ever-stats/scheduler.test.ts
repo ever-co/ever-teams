@@ -188,6 +188,7 @@ describe('the statistics reporter', () => {
 		expect(reporterState().status).toBe('paused_by_api');
 		// Switched off: nothing is owed, so switching back on sends the running month, not a stale retry.
 		enabled = true;
+		sendThenSwitchOff.mockImplementation(original);
 		await scheduler?.runNow();
 		expect(reports.map((report) => [report.period, report.final])).toEqual([
 			['2026-11', false],
