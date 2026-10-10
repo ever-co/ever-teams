@@ -34,6 +34,15 @@ class TaskService extends APIService {
 		];
 	}
 
+	/**
+	 * Relations the team task list reads. Linked issues and estimations are one-to-many joins that
+	 * multiply the rows behind /tasks/team, and only the task detail shows them and the creator, so
+	 * they stay in `baseRelations`, loaded by getTaskById.
+	 */
+	get listRelations() {
+		return ['tags', 'teams', 'members', 'members.user', 'parent', 'children'];
+	}
+
 	get baseQueries() {
 		return {
 			'where[organizationId]': this.organizationId,
@@ -42,8 +51,12 @@ class TaskService extends APIService {
 			'join[leftJoinAndSelect][members]': 'task.members',
 			'join[leftJoinAndSelect][user]': 'members.user',
 			'join[leftJoinAndSelect][estimations]': 'task.estimations',
-			...Object.fromEntries(this.baseRelations.map((relation, index) => [`relations[${index}]`, relation]))
+			...this.relationQueries(this.baseRelations)
 		};
+	}
+
+	private relationQueries(relations: string[]) {
+		return Object.fromEntries(relations.map((relation, index) => [`relations[${index}]`, relation]));
 	}
 	/**
 	 * Fetches a single task by its ID with validation
@@ -97,7 +110,7 @@ class TaskService extends APIService {
 			const organizationId = options?.scope.organizationId ?? this.organizationId;
 			const teamId = options?.scope.teamId ?? this.activeTeamId;
 			const query = qs.stringify({
-				...this.baseQueries,
+				...this.relationQueries(this.listRelations),
 				'where[organizationId]': organizationId,
 				'where[tenantId]': tenantId,
 				'where[projectId]': projectId,
