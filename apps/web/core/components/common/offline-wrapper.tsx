@@ -1,9 +1,9 @@
 'use client';
 
 import { useNetworkState } from '@uidotdev/usehooks';
-import { PropsWithChildren, useEffect } from 'react';
+import { PropsWithChildren } from 'react';
 import dynamic from 'next/dynamic';
-import Offline, { preloadOfflineTimer } from '@/core/components/pages/offline';
+import Offline from '@/core/components/pages/offline';
 import { useTimerView } from '@/core/hooks/activities/use-timer';
 
 /**
@@ -23,13 +23,6 @@ const OfflineWrapper = ({ children }: PropsWithChildren) => {
 	// All hooks must be called before any conditional returns
 	const { online } = useNetworkState();
 	const { timerStatus } = useTimerView();
-	const timerRunning = !!timerStatus?.running;
-
-	useEffect(() => {
-		if (online && timerRunning) {
-			preloadOfflineTimer().catch(() => undefined);
-		}
-	}, [online, timerRunning]);
 
 	// Conditional rendering after all hooks
 	if (online === false) {
