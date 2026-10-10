@@ -27,6 +27,15 @@ export function getRolesRequest({ bearer_token, tenantId }: { bearer_token: stri
 	});
 }
 
+export function getTeamAssignableRolesRequest({ bearer_token, tenantId }: { bearer_token: string; tenantId: string }) {
+	return serverFetch<IRole>({
+		path: `/roles/team-assignable`,
+		method: 'GET',
+		bearer_token,
+		tenantId
+	});
+}
+
 export function createRoleRequest({
 	bearer_token,
 	tenantId,
