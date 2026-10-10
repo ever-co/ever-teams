@@ -30,6 +30,7 @@ import { useTimesheetFilters } from '@/core/hooks/activities/use-timesheet-filte
 import { useTimesheetPagination } from '@/core/hooks/activities/use-timesheet-pagination';
 import { useTimesheetViewData } from '@/core/hooks/activities/use-timesheet-view-data';
 import { differenceBetweenHours, getGreeting, secondsToTime } from '@/core/lib/helpers/index';
+import { type GroupedTimesheet, getStatusTimesheet } from '@/core/lib/helpers/timesheet-grouping';
 import { activeTeamState } from '@/core/stores';
 import {
 	LazyCalendarView,
@@ -43,6 +44,11 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
 export type TimesheetDetailMode = 'Pending' | 'MenHours' | 'MemberWork';
+
+// Stable empty values used in place of the stored logs when the current range failed to load
+const NO_TIMESHEET_GROUPS: GroupedTimesheet[] = [];
+const NO_STATUS_TIMESHEET = getStatusTimesheet();
+
 export function TimeSheetPageContent({ params }: { params: { memberId: string } }) {
 	const unwrappedParams = use(params as any) as { memberId: string };
 	const t = useTranslations();
@@ -129,8 +135,8 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 	);
 
 	const {
-		timesheetElementGroup: filterDataTimesheet,
-		statusTimesheet,
+		timesheetElementGroup,
+		statusTimesheet: loadedStatusTimesheet,
 		loadingTimesheet,
 		timesheetLogsQuery,
 		isManage,
@@ -143,6 +149,11 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 		timesheetViewMode: timesheetNavigator,
 		inputSearch: search
 	});
+	// A failed load falls back to the logs left in the store, which belong to another range:
+	// keep them out of the list, the summary cards, the status filter and the detail modal
+	const hasLogsLoadError = timesheetLogsQuery.isLoadingError;
+	const filterDataTimesheet = hasLogsLoadError ? NO_TIMESHEET_GROUPS : timesheetElementGroup;
+	const statusTimesheet = hasLogsLoadError ? NO_STATUS_TIMESHEET : loadedStatusTimesheet;
 	const {
 		paginatedGroups,
 		currentPage,
@@ -329,8 +340,8 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 				<div className="flex flex-col w-full border-1 rounded-lg bg-[#FFFFFF] dark:bg-dark--theme mt-6">
 					<div className="rounded-lg border border-gray-200 dark:border-gray-800">
 						{/* Use lazy loaded components with conditional rendering */}
-						{/* A failed load would otherwise show the logs left in the store as if they matched this range */}
-						{timesheetLogsQuery.isLoadingError ? (
+						{/* A failed load shows an error instead of an empty range */}
+						{hasLogsLoadError ? (
 							<AnimatedEmptyState
 								title={t('pages.error.HEADING_TITLE')}
 								message={t('pages.error.HEADING_DESCRIPTION')}
@@ -360,7 +371,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 							</>
 						)}
 						{/*  Use lazy loaded TimesheetPagination */}
-						{shouldRenderPagination && !timesheetLogsQuery.isLoadingError && (
+						{shouldRenderPagination && !hasLogsLoadError && (
 							<LazyTimesheetPagination
 								currentPage={currentPage}
 								totalPages={totalPages}
