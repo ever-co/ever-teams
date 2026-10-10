@@ -1,0 +1,354 @@
+/**
+ * The reporter asks the paired API before EVERY send and sends nothing unless it answers
+ * `200 {enabled:true}`; an unpaired API (404) is logged once as skipped_gauzy_unpaired. It never keeps
+ * the process alive, retries failed deliveries, re-sends the closed month once on days 1-3, and stays
+ * off without a usable configuration.
+ */
+import { startEverStats, stopEverStats, FIRST_SEND_DELAY_MS, type SchedulerDeps } from './scheduler';
+import { reporterState, resetReporterState } from './state';
+
+const PAIRED = 'http://api:3000';
+const SINK = 'http://127.0.0.1:3989';
+
+type Timer = { callback: () => void; delayMs: number; unref: jest.Mock; cleared: boolean };
+
+let info: jest.SpyInstance;
+let warn: jest.SpyInstance;
+
+beforeEach(() => {
+	stopEverStats();
+	resetReporterState();
+	delete (globalThis as { __everTeamsConfigWarnings?: Set<string> }).__everTeamsConfigWarnings;
+	info = jest.spyOn(console, 'info').mockImplementation(() => undefined);
+	warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+});
+
+afterEach(() => {
+	stopEverStats();
+	info.mockRestore();
+	warn.mockRestore();
+});
+
+/** A paired API answering `state`, and a sink answering 202 (or `sinkStatus`). */
+function world({
+	state,
+	sinkStatus = 202
+}: {
+	state: () => Response | Promise<Response>;
+	sinkStatus?: number;
+}) {
+	const stateCalls: string[] = [];
+	const reports: Array<Record<string, unknown>> = [];
+	const fetch = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+		const url = String(input);
+		if (url === `${PAIRED}/api/ever-stats/state`) {
+			stateCalls.push(url);
+			return state();
+		}
+		if (url === `${SINK}/v1/stats/reports`) {
+			reports.push(JSON.parse(Buffer.from(init?.body as Uint8Array).toString('utf8')));
+			return new Response('{}', { status: sinkStatus, headers: { 'content-type': 'application/json' } });
+		}
+		throw new Error(`unexpected request to ${url}`);
+	}) as unknown as typeof globalThis.fetch;
+	return { fetch, stateCalls, reports };
+}
+
+function deps(fetch: typeof globalThis.fetch, overrides: Partial<SchedulerDeps> = {}) {
+	const timers: Timer[] = [];
+	let clock = new Date('2026-11-10T08:00:00Z');
+	const base: SchedulerDeps = {
+		env: { GAUZY_API_SERVER_URL: PAIRED, EVER_STATS_API_URL: SINK },
+		now: () => clock,
+		fetch,
+		random: () => 0.5,
+		setTimer: (callback, delayMs) => {
+			const timer = { callback, delayMs, unref: jest.fn(), cleared: false };
+			timers.push(timer);
+			return timer;
+		},
+		clearTimer: (timer) => {
+			(timer as Timer).cleared = true;
+		},
+		...overrides
+	};
+	return { deps: base, timers, setClock: (next: Date) => (clock = next) };
+}
+
+const json = (body: unknown, status = 200) =>
+	new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
+
+describe('the statistics reporter', () => {
+	it('schedules its first attempt 10 minutes after the start, on a timer that never keeps the process alive', () => {
+		const { fetch } = world({ state: () => json({ enabled: true }) });
+		const { deps: d, timers } = deps(fetch);
+		expect(startEverStats(d)).not.toBeNull();
+		expect(timers).toHaveLength(1);
+		expect(timers[0].delayMs).toBe(FIRST_SEND_DELAY_MS);
+		expect(timers[0].unref).toHaveBeenCalled();
+		expect(fetch).not.toHaveBeenCalled();
+		// One reporter per process.
+		expect(startEverStats(d)).toBe(startEverStats(d));
+	});
+
+	it('sends exactly one report when the paired API says enabled', async () => {
+		const { fetch, reports, stateCalls } = world({ state: () => json({ enabled: true }) });
+		const { deps: d } = deps(fetch);
+		await startEverStats(d)?.runNow();
+		expect(stateCalls).toHaveLength(1);
+		expect(reports).toHaveLength(1);
+		expect(reports[0]).toMatchObject({ product: 'teams', instance_kind: 'frontend', serves: ['teams'], final: false });
+		expect(reporterState().status).toBe('running');
+	});
+
+	it.each([
+		['{enabled:false}', () => json({ enabled: false }), 'skipped_gauzy_off'],
+		['404 (unpaired)', () => json({ statusCode: 404 }, 404), 'skipped_gauzy_unpaired'],
+		['500', () => json({}, 500), 'skipped_gauzy_unreachable'],
+		['a body that is not {enabled:true}', () => json({ enabled: 'true' }), 'skipped_gauzy_unreachable'],
+		[
+			'no answer',
+			() => {
+				throw new TypeError('fetch failed');
+			},
+			'skipped_gauzy_unreachable'
+		]
+	])('sends nothing when the paired API answers %s, and logs it once', async (_label, state, outcome) => {
+		const { fetch, reports } = world({ state: state as () => Response });
+		const { deps: d } = deps(fetch);
+		const scheduler = startEverStats(d);
+		await scheduler?.runNow();
+		await scheduler?.runNow();
+		await scheduler?.runNow();
+		expect(reports).toHaveLength(0);
+		const lines = info.mock.calls.map((call) => String(call[0])).filter((line) => line.startsWith('ever_stats.send'));
+		expect(lines).toEqual([`ever_stats.send outcome=${outcome} status=- final=false`]);
+		expect(reporterState().status).toBe('paused_by_api');
+	});
+
+	it('follows the switch of the paired API: off stops the next report, on sends the next one', async () => {
+		let enabled = true;
+		const { fetch, reports } = world({ state: () => json({ enabled }) });
+		const { deps: d } = deps(fetch);
+		const scheduler = startEverStats(d);
+		await scheduler?.runNow();
+		expect(reports).toHaveLength(1);
+		enabled = false;
+		await scheduler?.runNow();
+		await scheduler?.runNow();
+		await scheduler?.runNow();
+		expect(reports).toHaveLength(1);
+		enabled = true;
+		await scheduler?.runNow();
+		expect(reports).toHaveLength(2);
+	});
+
+	it('re-sends the closed previous month once on days 1-3', async () => {
+		const { fetch, reports } = world({ state: () => json({ enabled: true }) });
+		const { deps: d, setClock } = deps(fetch);
+		setClock(new Date('2026-11-02T08:00:00Z'));
+		const scheduler = startEverStats(d);
+		await scheduler?.runNow();
+		await scheduler?.runNow();
+		expect(reports.map((report) => [report.period, report.final])).toEqual([
+			['2026-11', false],
+			['2026-10', true],
+			['2026-11', false]
+		]);
+		setClock(new Date('2026-11-04T08:00:00Z'));
+		await scheduler?.runNow();
+		expect(reports.filter((report) => report.final)).toHaveLength(1);
+	});
+
+	it('asks the paired API again before the second report of a slot, and stops when it was switched off', async () => {
+		const states: boolean[] = [];
+		let enabled = true;
+		const { fetch, reports, stateCalls } = world({
+			state: () => {
+				states.push(enabled);
+				return json({ enabled });
+			}
+		});
+		const { deps: d, setClock } = deps(fetch);
+		// Day 2 of the month: the running month and the closed previous one are both due.
+		setClock(new Date('2026-11-02T08:00:00Z'));
+		const sendThenSwitchOff = fetch as unknown as jest.Mock;
+		const original = sendThenSwitchOff.getMockImplementation()!;
+		sendThenSwitchOff.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const answer = await original(input, init);
+			// The operator switches the statistics off while the first report is being delivered.
+			if (String(input).endsWith('/v1/stats/reports')) enabled = false;
+			return answer;
+		});
+		const scheduler = startEverStats(d);
+		await scheduler?.runNow();
+		expect(reports.map((report) => [report.period, report.final])).toEqual([['2026-11', false]]);
+		expect(stateCalls).toHaveLength(2);
+		expect(states).toEqual([true, false]);
+		expect(reporterState().status).toBe('paused_by_api');
+		// Switched off: nothing is owed, so switching back on sends the running month, not a stale retry.
+		enabled = true;
+		sendThenSwitchOff.mockImplementation(original);
+		await scheduler?.runNow();
+		expect(reports.map((report) => [report.period, report.final])).toEqual([
+			['2026-11', false],
+			['2026-11', false],
+			['2026-10', true]
+		]);
+	});
+
+	it.each([
+		['switched off after the 409: no report under the new identity', false, 1],
+		['(control) still on after the 409: the report is resent under the new identity', true, 2]
+	])('asks the paired API again before a resend after 409 key_mismatch; %s', async (_label, stillOn, sinkRequests) => {
+		let enabled = true;
+		const stateCalls: boolean[] = [];
+		const sent: string[] = [];
+		const fetch = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const url = String(input);
+			if (url === `${PAIRED}/api/ever-stats/state`) {
+				stateCalls.push(enabled);
+				return json({ enabled });
+			}
+			const report = JSON.parse(Buffer.from(init?.body as Uint8Array).toString('utf8')) as { instance_id: string };
+			sent.push(report.instance_id);
+			if (sent.length === 1) {
+				// The random id met another key; the operator switches the statistics off meanwhile.
+				enabled = stillOn;
+				return new Response(JSON.stringify({ code: 'key_mismatch' }), {
+					status: 409,
+					headers: { 'content-type': 'application/problem+json' }
+				});
+			}
+			return json({}, 202);
+		}) as unknown as typeof globalThis.fetch;
+		const { deps: d } = deps(fetch);
+		await startEverStats(d)?.runNow();
+		expect(stateCalls).toEqual([true, stillOn]);
+		expect(sent).toHaveLength(sinkRequests);
+		if (sinkRequests === 2) expect(sent[1]).not.toBe(sent[0]);
+	});
+
+	it('keeps the rest of a slot when the paired API becomes unreachable between two reports', async () => {
+		let reachable = true;
+		const { fetch, reports } = world({
+			state: () => {
+				if (!reachable) throw new TypeError('fetch failed');
+				return json({ enabled: true });
+			}
+		});
+		const mock = fetch as unknown as jest.Mock;
+		const original = mock.getMockImplementation()!;
+		mock.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const answer = await original(input, init);
+			if (String(input).endsWith('/v1/stats/reports')) reachable = false;
+			return answer;
+		});
+		const { deps: d, setClock } = deps(fetch);
+		setClock(new Date('2026-11-02T08:00:00Z'));
+		const scheduler = startEverStats(d);
+		await scheduler?.runNow();
+		expect(reports.map((report) => report.final)).toEqual([false]);
+		reachable = true;
+		mock.mockImplementation(original);
+		await scheduler?.runNow();
+		// Only what the slot still owed: the closed month, once.
+		expect(reports.map((report) => [report.period, report.final])).toEqual([
+			['2026-11', false],
+			['2026-10', true]
+		]);
+	});
+
+	it('retries a failed delivery after 1 h, then 4 h, then 12 h', async () => {
+		const { fetch } = world({ state: () => json({ enabled: true }), sinkStatus: 503 });
+		const { deps: d, timers } = deps(fetch);
+		const scheduler = startEverStats(d);
+		await scheduler?.runNow();
+		await scheduler?.runNow();
+		await scheduler?.runNow();
+		expect(timers.slice(1).map((timer) => timer.delayMs / 3_600_000)).toEqual([1, 4, 12]);
+	});
+
+	it('uses EVER_STATS_SEND_INTERVAL_S for a local statistics address (tests)', () => {
+		const { fetch } = world({ state: () => json({ enabled: true }) });
+		const { deps: d, timers } = deps(fetch, {
+			env: { GAUZY_API_SERVER_URL: PAIRED, EVER_STATS_API_URL: SINK, EVER_STATS_SEND_INTERVAL_S: '5' }
+		});
+		startEverStats(d);
+		expect(timers[0].delayMs).toBe(5_000);
+	});
+
+	it.each([
+		['no paired API is configured', { EVER_STATS_API_URL: SINK }, 'off_api_unconfigured'],
+		['the statistics address is plain http to a public host', { GAUZY_API_SERVER_URL: PAIRED, EVER_STATS_API_URL: 'http://example.com' }, 'off_api_url'],
+		['only the instance id is pinned', { GAUZY_API_SERVER_URL: PAIRED, EVER_INSTANCE_ID: '3ddf1821-761d-4247-8f3d-e65e4bc66ac8' }, 'off_key_missing']
+	])('stays off, without any request or timer, when %s', (_label, env, status) => {
+		const { fetch } = world({ state: () => json({ enabled: true }) });
+		const { deps: d, timers } = deps(fetch, { env });
+		expect(startEverStats(d)).toBeNull();
+		expect(timers).toHaveLength(0);
+		expect(fetch).not.toHaveBeenCalled();
+		expect(reporterState().status).toBe(status);
+	});
+
+	it('retries only the report a slot still misses, stepping through the retry waits', async () => {
+		const reports: Array<{ final: boolean }> = [];
+		const finalAnswers = [503, 503, 202];
+		const fetch = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const url = String(input);
+			if (url === `${PAIRED}/api/ever-stats/state`) return json({ enabled: true });
+			const report = JSON.parse(Buffer.from(init?.body as Uint8Array).toString('utf8')) as { final: boolean };
+			reports.push(report);
+			const status = report.final ? (finalAnswers.shift() ?? 202) : 202;
+			return json({}, status);
+		}) as unknown as typeof globalThis.fetch;
+		// Day 2 of the month: the running month and the closed previous one.
+		const { deps: d, timers, setClock } = deps(fetch);
+		setClock(new Date('2026-11-02T08:00:00Z'));
+		const scheduler = startEverStats(d);
+		await scheduler?.runNow();
+		expect(reports.map((report) => report.final)).toEqual([false, true]);
+		expect(timers.at(-1)?.delayMs).toBe(3600 * 1000);
+		await scheduler?.runNow();
+		// Only the closed month again, and the next wait is the second step.
+		expect(reports.map((report) => report.final)).toEqual([false, true, true]);
+		expect(timers.at(-1)?.delayMs).toBe(14400 * 1000);
+		await scheduler?.runNow();
+		expect(reports.map((report) => report.final)).toEqual([false, true, true, true]);
+	});
+
+	it('sends nothing once stopped while it was asking the paired API', async () => {
+		let answer: (response: Response) => void = () => undefined;
+		const { fetch, reports } = world({ state: () => new Promise<Response>((resolve) => (answer = resolve)) });
+		const { deps: d, timers } = deps(fetch);
+		const scheduler = startEverStats(d);
+		const run = scheduler?.runNow();
+		await Promise.resolve();
+		scheduler?.stop();
+		answer(json({ enabled: true }));
+		await run;
+		expect(reports).toHaveLength(0);
+		expect(timers.filter((timer) => !timer.cleared)).toHaveLength(0);
+	});
+
+	it('retries a failed report for the month it was due for, after the month changed', async () => {
+		let sinkStatus = 503;
+		const reports: Array<{ period: string; final: boolean }> = [];
+		const fetch = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+			if (String(input) === `${PAIRED}/api/ever-stats/state`) return json({ enabled: true });
+			reports.push(JSON.parse(Buffer.from(init?.body as Uint8Array).toString('utf8')));
+			return json({}, sinkStatus);
+		}) as unknown as typeof globalThis.fetch;
+		const { deps: d, setClock } = deps(fetch);
+		setClock(new Date('2026-11-30T23:30:00Z'));
+		const scheduler = startEverStats(d);
+		await scheduler?.runNow();
+		sinkStatus = 202;
+		setClock(new Date('2026-12-01T00:30:00Z'));
+		await scheduler?.runNow();
+		expect(reports.map(({ period, final }) => ({ period, final }))).toEqual([
+			{ period: '2026-11', final: false },
+			{ period: '2026-11', final: false }
+		]);
+	});
+});
