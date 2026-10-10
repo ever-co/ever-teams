@@ -203,6 +203,7 @@ jobs:
           fi
           yarn e2e:web
           node tools/performance/compare-startup.mjs --candidate=artifacts/startup-candidate.json --out=artifacts/startup-report.json
+          node tools/performance/page-weight.mjs --base-url=http://127.0.0.1:3030
 
       - name: Record live performance status
         run: echo "Live performance NOT RUN in CI; this job uses the deterministic browser fixture and does not claim database-backed timing evidence."
