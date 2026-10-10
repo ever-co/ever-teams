@@ -1,4 +1,4 @@
-import { Modal } from '@/core/components';
+import { Modal, SpinnerLoader } from '@/core/components';
 import { useMemo } from 'react';
 import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
@@ -25,7 +25,7 @@ export function EditProjectModal(props: IEditProjectModalProps) {
 	const { open, closeModal, projectId } = props;
 	const { organizationProjects } = useOrganizationProjectsQuery();
 
-	const { roles: rolesFromApi } = useRolesQuery();
+	const { roles: rolesFromApi, isLoading: rolesLoading } = useRolesQuery();
 
 	// Get role IDs with fallback to constants if API doesn't return roles
 	const { simpleMemberRoleId, managerRoleId } = useMemo(() => {
@@ -68,7 +68,12 @@ export function EditProjectModal(props: IEditProjectModalProps) {
 
 	return (
 		<Modal className="w-[50rem]" isOpen={open} closeModal={closeModal} alignCloseIcon>
-			<AddOrEditProjectForm onFinish={closeModal} mode="edit" projectData={data} />
+			{/* The form copies projectData into its state once, so member role ids must be final before it mounts. */}
+			{rolesLoading ? (
+				<SpinnerLoader className="self-center" />
+			) : (
+				<AddOrEditProjectForm onFinish={closeModal} mode="edit" projectData={data} />
+			)}
 		</Modal>
 	);
 }
