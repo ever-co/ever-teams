@@ -196,6 +196,38 @@ describe('the statistics reporter', () => {
 		]);
 	});
 
+	it.each([
+		['switched off after the 409: no report under the new identity', false, 1],
+		['(control) still on after the 409: the report is resent under the new identity', true, 2]
+	])('asks the paired API again before a resend after 409 key_mismatch; %s', async (_label, stillOn, sinkRequests) => {
+		let enabled = true;
+		const stateCalls: boolean[] = [];
+		const sent: string[] = [];
+		const fetch = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const url = String(input);
+			if (url === `${PAIRED}/api/ever-stats/state`) {
+				stateCalls.push(enabled);
+				return json({ enabled });
+			}
+			const report = JSON.parse(Buffer.from(init?.body as Uint8Array).toString('utf8')) as { instance_id: string };
+			sent.push(report.instance_id);
+			if (sent.length === 1) {
+				// The random id met another key; the operator switches the statistics off meanwhile.
+				enabled = stillOn;
+				return new Response(JSON.stringify({ code: 'key_mismatch' }), {
+					status: 409,
+					headers: { 'content-type': 'application/problem+json' }
+				});
+			}
+			return json({}, 202);
+		}) as unknown as typeof globalThis.fetch;
+		const { deps: d } = deps(fetch);
+		await startEverStats(d)?.runNow();
+		expect(stateCalls).toEqual([true, stillOn]);
+		expect(sent).toHaveLength(sinkRequests);
+		if (sinkRequests === 2) expect(sent[1]).not.toBe(sent[0]);
+	});
+
 	it('keeps the rest of a slot when the paired API becomes unreachable between two reports', async () => {
 		let reachable = true;
 		const { fetch, reports } = world({
