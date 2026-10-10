@@ -588,7 +588,14 @@ export function useTimerApi({
 		syncTimer();
 
 		if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
-		inFlightStopRequest = stopTimerMutate(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS)
+		// Release the shared request as soon as Gauzy answers the stop, before the stopped status is stored: a
+		// timer started while the active task is cleared below is a new one and needs its own stop request.
+		const stopRequest = stopTimerMutate(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS).finally(
+			() => {
+				inFlightStopRequest = null;
+			}
+		);
+		inFlightStopRequest = stopRequest
 			.then(async (res) => {
 				res.data &&
 					(!statusEnabled || isCurrentScope()) &&
@@ -627,7 +634,6 @@ export function useTimerApi({
 				}
 			})
 			.finally(() => {
-				inFlightStopRequest = null;
 				if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(false);
 			});
 		return inFlightStopRequest;
