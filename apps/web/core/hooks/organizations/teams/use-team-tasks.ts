@@ -33,6 +33,7 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { useUserQuery } from '../../queries/user-user.query';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
+import { useTasksByEmployeeQuery } from './use-tasks-by-employee-query';
 import { EIssueType, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
 import { useTaskStatusesQuery } from '../../tasks/use-task-statuses-query';
 import { toast } from 'sonner';
@@ -105,8 +106,10 @@ export function useTeamTasks() {
 	const { taskStatuses } = useTaskStatusesQuery();
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamRef = useSyncRef(activeTeam);
-	const [selectedEmployeeId, setSelectedEmployeeId] = useState(user?.employee?.id);
-	const [selectedOrganizationTeamId, setSelectedOrganizationTeamId] = useState(activeTeam?.id);
+	const { getTasksByEmployeeId, getTasksByEmployeeIdLoading } = useTasksByEmployeeQuery(
+		user?.employee?.id,
+		activeTeam?.id
+	);
 	const [activeTeamTask, setActiveTeamTask] = useAtom(activeTeamTaskState);
 	const [isUpdatingActiveTask, setIsUpdatingActiveTask] = useState(false);
 
@@ -144,21 +147,6 @@ export function useTeamTasks() {
 			}
 		})
 	);
-
-	const getTasksByEmployeeIdQuery = useQuery({
-		queryKey: queryKeys.tasks.byEmployee(selectedEmployeeId, selectedOrganizationTeamId),
-		queryFn: async () => {
-			if (!activeTeam?.id) {
-				throw new Error('Required parameters missing');
-			}
-			return await taskService.getTasksByEmployeeId({
-				employeeId: selectedEmployeeId!,
-				organizationTeamId: selectedOrganizationTeamId!
-			});
-		},
-		enabled: !!selectedEmployeeId && !!activeTeam?.id && !!selectedOrganizationTeamId,
-		gcTime: 1000 * 60 * 60
-	});
 
 	const { invalidateTeamTasksData } = useInvalidateTeamTasks();
 	// Mutations
@@ -265,31 +253,6 @@ export function useTeamTasks() {
 			}
 		},
 		[setDetailedTask, tasksRef]
-	);
-
-	const getTasksByEmployeeId = useCallback(
-		async (employeeId: string, organizationTeamId: string) => {
-			try {
-				if (!employeeId || !organizationTeamId) {
-					throw new Error('Required parameters missing : employeeId or organizationTeamId');
-				}
-
-				// Updates state for UI, but fetches with the arguments: the query closure only sees them next render
-				setSelectedEmployeeId(employeeId);
-				setSelectedOrganizationTeamId(organizationTeamId);
-
-				return await queryClient.fetchQuery({
-					queryKey: queryKeys.tasks.byEmployee(employeeId, organizationTeamId),
-					queryFn: async () => {
-						return await taskService.getTasksByEmployeeId({ employeeId, organizationTeamId });
-					}
-				});
-			} catch (error) {
-				console.error('Error fetching tasks by employee ID:', error);
-				return [];
-			}
-		},
-		[queryClient]
 	);
 
 	const loadTeamTasksData = useCallback(
@@ -767,7 +730,7 @@ export function useTeamTasks() {
 		updatePublicity,
 		handleStatusUpdate,
 		getTasksByEmployeeId,
-		getTasksByEmployeeIdLoading: getTasksByEmployeeIdQuery.isLoading,
+		getTasksByEmployeeIdLoading,
 		activeTeam,
 		activeTeamId: activeTeam?.id,
 		unassignAuthActiveTask,
