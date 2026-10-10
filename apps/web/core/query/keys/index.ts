@@ -678,6 +678,7 @@ export const queryKeys = {
 			teamId: string | undefined | null,
 			userId: string | undefined | null
 		) => ['timer', 'scope', tenantId ?? null, organizationId ?? null, teamId ?? null, userId ?? null] as const,
+		lastLog: (employeeId: string | undefined | null) => ['timer', 'last-log', employeeId ?? null] as const,
 		timeLimits: {
 			all: ['timer', 'time-limits'] as const,
 			byParams: (params: Record<string, any> | null) =>

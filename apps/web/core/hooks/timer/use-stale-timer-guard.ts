@@ -1,12 +1,13 @@
 'use client';
 
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
+import { SYNC_TIMER_INTERVAL } from '@/core/constants/config/constants';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
-import { isStaleTeamsTimer } from '@/core/lib/helpers/timer-policy';
+import { isRunningTeamsLog, isStaleTeamsTimer } from '@/core/lib/helpers/timer-policy';
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { timerService } from '@/core/services/client/api/timers';
@@ -84,4 +85,34 @@ export function useStaleTimerGuard(
 	}, [enabled, employeeId, isTrackingTime, stopStaleTeamsTimer]);
 
 	return !employeeId || settledFor === employeeId;
+}
+
+/**
+ * /timesheet/timer/status only sees logs started on the server's current day, so a timer still running past the
+ * server's midnight reads as stopped there, and without its heartbeat the stale check would cut it at that midnight.
+ * When the status says stopped although this tab saw the timer run or the employee is tracking time, the last log
+ * (any day) tells whether a TEAMS timer still runs. It is polled only while one does, so the heartbeat stops with it.
+ */
+export function useTimerRunningPastMidnight(
+	employee: Pick<TEmployee, 'id' | 'isTrackingTime'> | null | undefined,
+	statusRunning: boolean,
+	enabled: boolean
+): boolean {
+	const employeeId = employee?.id;
+	const [sawRunning, setSawRunning] = useState(statusRunning);
+
+	useEffect(() => {
+		if (statusRunning) setSawRunning(true);
+	}, [statusRunning]);
+
+	const checkLastLog = enabled && !statusRunning && !!employeeId && (sawRunning || !!employee?.isTrackingTime);
+	const { data: lastLog } = useQuery({
+		queryKey: queryKeys.timer.lastLog(employeeId),
+		queryFn: async () => (await timerService.getLastTimerLog(employeeId!)).data?.[0]?.lastLog ?? null,
+		enabled: checkLastLog,
+		staleTime: 0,
+		refetchInterval: (query) => (isRunningTeamsLog(query.state.data) ? SYNC_TIMER_INTERVAL : false)
+	});
+
+	return statusRunning || (checkLastLog && isRunningTeamsLog(lastLog));
 }
