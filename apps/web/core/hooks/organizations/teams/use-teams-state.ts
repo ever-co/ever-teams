@@ -2,6 +2,7 @@
 import { organizationTeamsState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
+import isEqual from 'lodash/isEqual';
 import { useSyncRef } from '../../common';
 import { TOrganizationTeam } from '@/core/types/schemas';
 import { mergePreservingOrder } from '@/core/lib/utils/team-members.utils';
@@ -57,6 +58,11 @@ export function useTeamsState() {
 					// Intelligently preserve members during race conditions
 					members: finalMembers
 				};
+
+				// Nothing changed: returning the same array lets Jotai skip notifying every team reader
+				if (isEqual(mergedTeam, existingTeam)) {
+					return tms;
+				}
 
 				return tms.map((t) => (t.id === team.id ? mergedTeam : t));
 			});

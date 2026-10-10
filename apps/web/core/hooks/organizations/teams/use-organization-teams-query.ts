@@ -19,6 +19,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import isEqual from 'lodash/isEqual';
 import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
 import { useFirstLoad, useSyncRef } from '../../common';
@@ -26,7 +27,7 @@ import { useTeamsState } from './use-teams-state';
 import { mergePreservingOrder } from '@/core/lib/utils/team-members.utils';
 import { queryKeys } from '@/core/query/keys';
 import { useSettings } from '../../users';
-import { TOrganizationTeam } from '@/core/types/schemas';
+import { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useScopeGuard } from '../../bootstrap/use-scope-guard';
 import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
@@ -37,6 +38,19 @@ interface UseOrganizationTeamsQueryOptions {
 	refetchInterval?: number | false;
 	detailRefetchInterval?: number | false;
 }
+
+// Presence changes never move team.updatedAt: a start or stop only touches the employee row, and Gauzy
+// computes the timer fields on each read. Worked durations stay out because they grow on every read
+// while a timer runs, which would rebuild the active team on each poll.
+const getMemberPresenceSignature = (member: TOrganizationTeamEmployee) =>
+	[
+		member.timerStatus,
+		member.running,
+		member.lastWorkedTask?.id,
+		member.employee?.isOnline,
+		member.employee?.isTrackingTime,
+		member.employee?.isActive
+	].join(':');
 
 /**
  * Hook for read-only organization teams operations.
@@ -182,7 +196,8 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 				.map((t) => {
 					const memberRolesSignature =
 						t.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}`).join(',') || '';
-					return `${t.id}:${t.updatedAt ?? ''}:${t.name}:${t.shareProfileView ?? ''}:${t.requirePlanToTrack ?? ''}:${t.public ?? ''}:${t.color ?? ''}:${t.emoji ?? ''}:${t.prefix ?? ''}:${t.members?.length ?? 0}:${memberRolesSignature}`;
+					const memberPresenceSignature = t.members?.map(getMemberPresenceSignature).join(',') || '';
+					return `${t.id}:${t.updatedAt ?? ''}:${t.name}:${t.shareProfileView ?? ''}:${t.requirePlanToTrack ?? ''}:${t.public ?? ''}:${t.color ?? ''}:${t.emoji ?? ''}:${t.prefix ?? ''}:${t.members?.length ?? 0}:${memberRolesSignature}:${memberPresenceSignature}`;
 				})
 				.sort()
 				.join('|');
@@ -214,14 +229,20 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 					finalMembers = mergePreservingOrder(existingTeam.members ?? [], latestTeam.members);
 				}
 
-				return {
+				const mergedTeam: TOrganizationTeam = {
 					...existingTeam,
 					...latestTeam,
 					members: finalMembers
 				};
+
+				return isEqual(mergedTeam, existingTeam) ? existingTeam : mergedTeam;
 			});
 
-			setTeams(mergedTeams);
+			// No team changed: passing the current array back lets Jotai skip notifying every team reader
+			const teamsChanged =
+				mergedTeams.length !== currentTeams.length ||
+				mergedTeams.some((team, index) => team !== currentTeams[index]);
+			setTeams(teamsChanged ? mergedTeams : currentTeams);
 
 			if (latestTeams.length === 0) {
 				setIsTeamMember(false);
@@ -282,7 +303,8 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 
 			const memberActiveTaskIds = newTeam.members?.map((m) => m.activeTaskId || 'null').join(',') || '';
 			const memberRoles = newTeam.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}`).join(',') || '';
-			const newSignature = `${newTeam.id}:${newTeam.updatedAt ?? ''}:${newTeam.members?.length ?? 0}:${memberActiveTaskIds}:${memberRoles}`;
+			const memberPresence = newTeam.members?.map(getMemberPresenceSignature).join(',') || '';
+			const newSignature = `${newTeam.id}:${newTeam.updatedAt ?? ''}:${newTeam.members?.length ?? 0}:${memberActiveTaskIds}:${memberRoles}:${memberPresence}`;
 
 			if (newSignature === lastProcessedTeamSignatureRef.current) {
 				return;
