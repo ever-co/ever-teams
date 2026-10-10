@@ -14,14 +14,17 @@ import {
 	SYNC_TIMER_INTERVAL
 } from '@/core/constants/config/constants';
 import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
+import { shouldRetryQuery } from '@/core/lib/helpers/retry-utils';
 import { canRunTimerForState } from '@/core/lib/helpers/timer-policy';
 import { queryKeys } from '@/core/query/keys';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { timerService } from '@/core/services/client/api/timers';
 import {
 	activeTeamIdState,
 	activeTeamState,
 	activeTeamTaskState,
 	detailedTaskState,
+	localTimerStatusState,
 	teamTasksState,
 	timerStatusFetchingState,
 	timerStatusState
@@ -143,10 +146,12 @@ export function useTimerApi({
 	const teamTasks = useAtomValue(teamTasksState);
 	const [timerStatusFetching, setTimerStatusFetching] = useAtom(timerStatusFetchingState);
 	const [timerStatus, setTimerStatus] = useAtom(timerStatusState);
+	const localTimerStatus = useAtomValue(localTimerStatusState);
 
 	// ==================== REFS ====================
 
 	const timerStatusRef = useSyncRef(timerStatus);
+	const localTimerStatusRef = useSyncRef(localTimerStatus);
 	const taskId = useSyncRef(activeTeamTask?.id);
 	const activeTeamTaskRef = useSyncRef(activeTeamTask);
 	const lastActiveTeamId = useRef<string | null>(null);
@@ -218,7 +223,22 @@ export function useTimerApi({
 
 	const stopTimerMutation = useMutation({
 		mutationFn: async (source: ETimeLogSource) => {
-			return await timerService.stopTimer({ source });
+			try {
+				return await timerService.stopTimer({ source });
+			} catch (error) {
+				// 406 means Gauzy has no running timer left: a previous attempt whose response was lost,
+				// or another device, already stopped it. Report the real status instead of a failure.
+				if (ApiErrorService.isApiError(error) && error.hasHttpResponseStatus(406)) {
+					return { ...(await timerService.getTimerStatus()), alreadyStopped: true };
+				}
+				throw error;
+			}
+		},
+		// The stop is not idempotent: only a network error or a 5xx gets one retry, never a timeout or a 4xx
+		retry: shouldRetryQuery,
+		// Replaces the generic global mutation toast, which showed the raw error message
+		onError: () => {
+			toast.error(t('timer.TIMER_STOP_FAILED'));
 		}
 	});
 
@@ -542,6 +562,7 @@ export function useTimerApi({
 
 	const stopTimerMutate = stopTimerMutation.mutateAsync;
 	const stopTimer = useCallback(() => {
+		const previousLocalTimerStatus = localTimerStatusRef.current;
 		updateLocalTimerStatus({
 			lastTaskId: taskId.current || null,
 			runnedDateTime: 0,
@@ -569,15 +590,30 @@ export function useTimerApi({
 		syncTimer();
 
 		if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
-		return stopTimerMutate(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS)
+		const request = stopTimerMutate(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS)
+			.catch((error) => {
+				// The last known server status still says running: undo the optimistic stop so the clock agrees
+				// with it, and refetch the status in case the stop landed after all. Only a running snapshot is put
+				// back: a stop sent while another one was pending captured that one's optimistic running:false.
+				if (
+					previousLocalTimerStatus?.running &&
+					timerStatusRef.current?.running &&
+					(!statusEnabled || isCurrentScope())
+				) {
+					updateLocalTimerStatus(previousLocalTimerStatus);
+				}
+				queryClient.invalidateQueries({ queryKey: queryKeys.timer.all });
+				throw error;
+			})
 			.then(async (res) => {
 				res.data &&
 					(!statusEnabled || isCurrentScope()) &&
 					!isEqual(timerStatus, res.data) &&
 					setTimerStatus(res.data);
 
-				// Clear active task via API when timer stops
-				if (activeTeamId && user) {
+				// Clear active task via API when timer stops. Skipped when the timer was already stopped: a team
+				// switch can send two stops, and the one answered 406 may already carry the new team.
+				if (activeTeamId && user && !('alreadyStopped' in res)) {
 					const currentMember = activeTeam?.members?.find((m) => m.employee?.userId === user.id);
 
 					if (currentMember?.id) {
@@ -610,6 +646,10 @@ export function useTimerApi({
 			.finally(() => {
 				if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(false);
 			});
+		// onError already told the user. Most callers fire and forget the stop, so the rejection must not go
+		// unhandled; callers that await it (stop then start) still receive it.
+		request.catch(() => undefined);
+		return request;
 	}, [
 		timerStatus,
 		setTimerStatus,
@@ -619,6 +659,7 @@ export function useTimerApi({
 		queryClient,
 		activeTeamId,
 		timerStatusRef,
+		localTimerStatusRef,
 		user,
 		activeTeam,
 		updateOrganizationTeamEmployeeActiveTask,

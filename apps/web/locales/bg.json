@@ -1114,6 +1114,7 @@
 		"STARTING_TIMER": "Стартиране на таймера...",
 		"TIMER_STARTED": "Таймерът е стартиран успешно",
 		"TIMER_START_FAILED": "Неуспешно стартиране на таймера",
+		"TIMER_STOP_FAILED": "Неуспешно спиране на таймера. Моля, опитайте отново.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Таймерът спря",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Таймерът спря поради смяна на отбора"
