@@ -334,7 +334,7 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 });
 
 // Holds the per-second timer subscription so a tick re-renders this text, not the memoized TaskCard
-function ActiveTaskWorkedTime({ period }: { period: 'total' | 'today' }) {
+function ActiveTaskWorkedTime({ period }: Readonly<{ period: 'total' | 'today' }>) {
 	const seconds = useAtomValue(timerSecondsState);
 	const statActiveTask = useAtomValue(activeTaskStatisticsState);
 	const { hours, minutes } = secondsToTime((statActiveTask[period]?.duration || 0) + seconds);
