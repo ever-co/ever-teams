@@ -14,13 +14,13 @@ const PUBLIC_TEAM_STALE_TIME = 1000 * 60 * 5; // 5 minutes - public team data is
 const PUBLIC_TEAM_MISC_STALE_TIME = 1000 * 60 * 15; // 15 minutes - misc data changes less frequently
 
 // A query in error is not refetched on every tick, or each tick would call the unauthenticated endpoint
-// again. Without data it is left to its useQuery, which retries it on mount: ensureQueryData would ignore
-// staleTime and fetch. With data, a failed refresh keeps the old dataUpdatedAt and marks the query
-// invalidated, so the next attempt waits one stale window after the error. Failures resolve to undefined:
-// the query keeps the error.
+// again: without data ensureQueryData ignores staleTime and fetches, and with data a failed refresh keeps
+// the old dataUpdatedAt and marks the query invalidated. The next attempt waits one stale window after the
+// error, so a failing link costs one attempt per window and the page recovers on its own once the endpoint
+// answers again. Failures resolve to undefined: the query keeps the error.
 function ensurePublicTeamQueryData(queryClient: QueryClient, queryKey: QueryKey, staleTime: number): Promise<unknown> {
 	const state = queryClient.getQueryState(queryKey);
-	if (state?.status === 'error' && (state.data === undefined || Date.now() - state.errorUpdatedAt < staleTime)) {
+	if (state?.status === 'error' && Date.now() - state.errorUpdatedAt < staleTime) {
 		return Promise.resolve(state.data);
 	}
 
