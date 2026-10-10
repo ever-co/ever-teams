@@ -423,6 +423,7 @@ export const queryKeys = {
 			] as const,
 		dailyChart: (params: Record<string, any>) => ['activities', 'daily-activity-report-chart', params] as const,
 		daily: (params: Record<string, any>) => ['activities', 'daily-activity-report', params] as const,
+		weekly: (params: Record<string, any>) => ['activities', 'weekly-activity-report', params] as const,
 		statisticsCounts: (params: Record<string, any>) => ['activities', 'statistics-counts', params] as const,
 		activityReport: (params: Record<string, any>) => ['activities', 'activity-report', params] as const
 	},

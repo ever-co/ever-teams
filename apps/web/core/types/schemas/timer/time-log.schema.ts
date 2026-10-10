@@ -129,8 +129,25 @@ export const timeLogReportDailySchema = z.object({
 	activity: z.number()
 });
 
+// One row per employee; each day of the requested range is 0 when nothing was tracked, else its total in seconds
+export const timeLogReportWeeklySchema = z.object({
+	employee: z.object({
+		id: z.string(),
+		fullName: z.string().nullable().optional(),
+		user: z
+			.object({
+				name: z.string().nullable().optional(),
+				imageUrl: z.string().nullable().optional()
+			})
+			.nullable()
+			.optional()
+	}),
+	dates: z.record(z.string(), z.union([z.literal(0), z.object({ sum: z.coerce.number() })]))
+});
+
 // Inferred TypeScript types from Zod schemas
 export type TAddManualTimeRequest = z.infer<typeof addManualTimeRequestSchema>;
 export type TTimeLog = z.infer<typeof timeLogSchema>;
 export type TTimeLogReportDaily = z.infer<typeof timeLogReportDailySchema>;
+export type TTimeLogReportWeekly = z.infer<typeof timeLogReportWeeklySchema>;
 export type TGetTimerLogsDailyReportRequest = z.infer<typeof timerLogReportRequestSchema>;

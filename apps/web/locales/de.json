@@ -481,7 +481,11 @@
 		"GROUP_BY": "Gruppieren nach",
 		"DATE": "Datum",
 		"VIEW": "Ansicht",
-		"HOURS_ON_DATE": "{hours} Stunden am {date}"
+		"HOURS_ON_DATE": "{hours} Stunden am {date}",
+		"PREVIOUS_WEEK": "Vorherige Woche",
+		"NEXT_WEEK": "Nächste Woche",
+		"WEEKLY_REPORT_ERROR": "Wochenbericht nicht verfügbar",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "Die in der ausgewählten Woche erfasste Zeit konnte nicht geladen werden."
 	},
 	"hotkeys": {
 		"HELP": "Hilfe",

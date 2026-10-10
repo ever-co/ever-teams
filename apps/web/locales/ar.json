@@ -455,7 +455,11 @@
 		"GROUP_BY": "تجميع حسب",
 		"DATE": "التاريخ",
 		"VIEW": "عرض",
-		"HOURS_ON_DATE": "{hours} ساعة في {date}"
+		"HOURS_ON_DATE": "{hours} ساعة في {date}",
+		"PREVIOUS_WEEK": "الأسبوع السابق",
+		"NEXT_WEEK": "الأسبوع التالي",
+		"WEEKLY_REPORT_ERROR": "التقرير الأسبوعي غير متاح",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "تعذّر تحميل الوقت المسجّل خلال الأسبوع المحدد."
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",

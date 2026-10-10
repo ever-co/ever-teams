@@ -481,7 +481,11 @@
 		"GROUP_BY": "קבץ לפי",
 		"DATE": "תאריך",
 		"VIEW": "תצוגה",
-		"HOURS_ON_DATE": "{hours} שעות ב-{date}"
+		"HOURS_ON_DATE": "{hours} שעות ב-{date}",
+		"PREVIOUS_WEEK": "השבוע הקודם",
+		"NEXT_WEEK": "השבוע הבא",
+		"WEEKLY_REPORT_ERROR": "הדוח השבועי אינו זמין",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "לא ניתן היה לטעון את הזמן שנרשם בשבוע שנבחר."
 	},
 	"hotkeys": {
 		"HELP": "עזרה",
