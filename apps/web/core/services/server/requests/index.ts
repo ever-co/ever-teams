@@ -35,4 +35,6 @@ export * from './integrations/integration-tenant';
 export * from './integrations/types';
 
 export * from './organization-projects';
+export * from './currency';
+export * from './favorite';
 export * from './default';
