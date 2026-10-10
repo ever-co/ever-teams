@@ -10,8 +10,15 @@ import { TUser } from '@/core/types/schemas';
 import { scopedReadConfig, type ScopedReadOptions } from '../../api-request-scope';
 
 // Without these bounds Gauzy counts "today" from the API server's midnight, not the user's.
-const getTodayRangeQuery = () =>
-	qs.stringify({ todayStart: moment().startOf('day').toISOString(), todayEnd: moment().endOf('day').toISOString() });
+// One clock read for both bounds, so a call at midnight cannot span two days.
+const getTodayRangeQuery = () => {
+	const now = moment();
+
+	return qs.stringify({
+		todayStart: now.clone().startOf('day').toISOString(),
+		todayEnd: now.clone().endOf('day').toISOString()
+	});
+};
 
 class TimerService extends APIService {
 	getTimerStatus = async (options?: ScopedReadOptions) => {
