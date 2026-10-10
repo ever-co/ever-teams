@@ -1117,6 +1117,10 @@
 			"STOPPED_TIMER_TOAST_TITLE": "计时器已停止",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "由于切换团队,计时器已停止"
 		},
+		"TASK_SWITCH": {
+			"STOPPED_TIMER_TOAST_TITLE": "计时器已停止",
+			"STOPPED_TIMER_TOAST_DESCRIPTION": "由于切换活动任务，计时器已停止"
+		},
 		"ACTIVE": "活跃",
 		"APPS": "应用",
 		"ARCHIVED": "已归档",

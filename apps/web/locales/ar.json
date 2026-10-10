@@ -1117,6 +1117,10 @@
 			"STOPPED_TIMER_TOAST_TITLE": "توقف المؤقت",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "توقف المؤقت بسبب التبديل بين الفرق"
 		},
+		"TASK_SWITCH": {
+			"STOPPED_TIMER_TOAST_TITLE": "توقف المؤقت",
+			"STOPPED_TIMER_TOAST_DESCRIPTION": "توقف المؤقت بسبب تغيير المهمة النشطة"
+		},
 		"ACTIVE": "نشط",
 		"APPS": "تطبيقات",
 		"ARCHIVED": "مؤرشف",

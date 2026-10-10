@@ -1117,6 +1117,10 @@
 			"STOPPED_TIMER_TOAST_TITLE": "Таймер остановлен",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Таймер остановлен из-за смены команды"
 		},
+		"TASK_SWITCH": {
+			"STOPPED_TIMER_TOAST_TITLE": "Таймер остановлен",
+			"STOPPED_TIMER_TOAST_DESCRIPTION": "Таймер остановлен из-за смены активной задачи"
+		},
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Оценка"
 		},

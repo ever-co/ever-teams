@@ -1117,6 +1117,10 @@
 			"STOPPED_TIMER_TOAST_TITLE": "Timer gestoppt",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer wegen Teamwechsel gestoppt"
 		},
+		"TASK_SWITCH": {
+			"STOPPED_TIMER_TOAST_TITLE": "Timer gestoppt",
+			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer wegen Wechsel der aktiven Aufgabe gestoppt"
+		},
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Schätzen"
 		},
