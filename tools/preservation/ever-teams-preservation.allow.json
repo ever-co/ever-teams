@@ -14,5 +14,9 @@
 	{
 		"id": "removed:navigation:packages/toolkit/builder/app/providers.tsx::constant=TEAMS_API_URL::#1",
 		"reason": "The builder demo image froze its API URL at build time. The value is now read per request in app/layout.tsx and passed to this provider as a prop, so the module-level constant is gone by design."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/components/optimized-components/index.tsx::runtime::LazyTimeActivityTable",
+		"reason": "The Weekly view now renders the member by day matrix from the server weekly report, so the browser-side weekly table has no consumer left."
 	}
 ]
