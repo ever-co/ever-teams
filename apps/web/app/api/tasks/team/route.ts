@@ -1,6 +1,7 @@
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createTaskRequest, getTeamTasksIRequest, getTeamTasksRequest } from '@/core/services/server/requests';
+import { taskSchema } from '@/core/types/schemas/task/task.schema';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
@@ -21,7 +22,7 @@ export async function POST(req: Request) {
 
 	const activeTeam = getActiveTeamIdCookie({ req, res });
 
-	await createTaskRequest({
+	const { data: createdTask } = await createTaskRequest({
 		bearer_token: access_token,
 		data: {
 			description: '',
@@ -42,15 +43,24 @@ export async function POST(req: Request) {
 		}
 	});
 
-	const { data: tasks } = await getTeamTasksRequest({
-		tenantId,
-		organizationId,
-		projectId,
-		teamId,
-		bearer_token: access_token
-	});
+	// The task exists from here on. A failed list refresh must not become a 500 that reads as a failed
+	// creation, or the user retries and creates it twice; the client refreshes the task lists on success.
+	try {
+		const { data: tasks } = await getTeamTasksRequest({
+			tenantId,
+			organizationId,
+			projectId,
+			teamId,
+			bearer_token: access_token
+		});
 
-	return $res(tasks);
+		return $res(tasks);
+	} catch {
+		// Hand back the created task so the client can still activate it. The API echoes `teams` as the
+		// `{ id }` refs sent above, which the team schema rejects, so they are left out.
+		const created = taskSchema.omit({ teams: true }).safeParse(createdTask);
+		return $res(created.success ? { items: [created.data], total: 1 } : { items: [], total: 0 });
+	}
 }
 
 export async function GET(req: Request) {
