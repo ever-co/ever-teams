@@ -43,7 +43,8 @@ export function ActiveTaskHandlerModal({
 
 	const handleCloseModal = useCallback(() => {
 		closeModal();
-		startTimer();
+		// startTimer reports its own failure, this only keeps the rejection from going unhandled
+		startTimer()?.catch(() => undefined);
 	}, [closeModal, startTimer]);
 
 	const options = useMemo(

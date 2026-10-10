@@ -50,7 +50,8 @@ export function DailyPlanCompareEstimatedModal({
 	const onClick = () => {
 		updateDailyPlan({ workTimePlanned: parseInt(times.hours) }, plan?.id ?? '');
 		if (!updateDailyPlanLoading) {
-			startTimer();
+			// startTimer reports its own failure, this only keeps the rejection from going unhandled
+			startTimer()?.catch(() => undefined);
 			closeModal();
 			window.localStorage.setItem(DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE, new Date().toISOString().split('T')[0]);
 		}

@@ -112,7 +112,8 @@ export function useTimerView() {
 		if (timerStatus?.running) {
 			stopTimer();
 		} else {
-			startTimer();
+			// startTimer reports its own failure, this only keeps the rejection from going unhandled
+			startTimer()?.catch(() => undefined);
 		}
 	};
 
