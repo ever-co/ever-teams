@@ -1110,6 +1110,7 @@
 		"START_TIMER": "Selecteer of maak een nieuwe taak aan om de tijd bij te houden of maak een plan",
 		"ALREADY_TRACKING_MESSAGE": "Je houdt al tijd bij in een ander tabblad of apparaat.",
 		"TASK_CLOSED": "Taak is gesloten",
+		"PLAN_REQUIRED_TO_START": "Voeg deze taak toe aan het plan van vandaag om te starten",
 		"STARTING_TIMER": "Timer wordt gestart…",
 		"TIMER_STARTED": "Timer succesvol gestart",
 		"TIMER_START_FAILED": "Kan de timer niet starten",
@@ -1227,6 +1228,7 @@
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan voor vandaag",
+		"ADD_TO_TODAY_PLAN": "Toevoegen aan het plan van vandaag",
 		"TASK_TIME": "taken tijd",
 		"TOTAL_TODAY": "Totaal Vandaag",
 		"PLAN_FOR_TOMORROW": "Plan voor morgen",

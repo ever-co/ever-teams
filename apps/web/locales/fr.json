@@ -1110,6 +1110,7 @@
 		"START_TIMER": "Veuillez sélectionner ou créer une nouvelle tâche pour commencer le suivi du temps ou créer un plan",
 		"ALREADY_TRACKING_MESSAGE": "Vous suivez déjà le temps dans un autre onglet ou appareil.",
 		"TASK_CLOSED": "La tâche est fermée",
+		"PLAN_REQUIRED_TO_START": "Ajoute cette tâche au plan du jour pour démarrer",
 		"STARTING_TIMER": "Démarrage du chronomètre...",
 		"TIMER_STARTED": "Chronomètre démarré avec succès",
 		"TIMER_START_FAILED": "Échec du démarrage du chronomètre",
@@ -1227,6 +1228,7 @@
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan pour aujourd'hui",
+		"ADD_TO_TODAY_PLAN": "Ajouter au plan du jour",
 		"TASK_TIME": "temps de tâche",
 		"TOTAL_TODAY": "Total Aujourd'hui",
 		"PLAN_FOR_TOMORROW": "Plan pour demain",

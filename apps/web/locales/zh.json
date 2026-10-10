@@ -1110,6 +1110,7 @@
 		"START_TIMER": "请选择或创建新任务以开始计时 或製定計劃",
 		"ALREADY_TRACKING_MESSAGE": "您已经在另一个标签页或设备上跟踪时间。",
 		"TASK_CLOSED": "任务已关闭",
+		"PLAN_REQUIRED_TO_START": "将此任务添加到今日计划后即可开始",
 		"STARTING_TIMER": "正在启动计时器...",
 		"TIMER_STARTED": "计时器启动成功",
 		"TIMER_START_FAILED": "启动计时器失败",
@@ -1227,6 +1228,7 @@
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "今日计划",
+		"ADD_TO_TODAY_PLAN": "添加到今日计划",
 		"TASK_TIME": "任务时间",
 		"TOTAL_TODAY": "今天的总计",
 		"PLAN_FOR_TOMORROW": "明日计划",

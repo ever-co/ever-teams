@@ -9,14 +9,16 @@ type Props = {
 	onClick?: MouseEventHandler<HTMLButtonElement>;
 	running: boolean | undefined;
 	disabled: boolean;
+	'aria-describedby'?: string;
 } & IClassName;
 
-export function TimerButton({ onClick, running, disabled, className }: Props) {
+export function TimerButton({ onClick, running, disabled, className, 'aria-describedby': ariaDescribedBy }: Props) {
 	return (
 		<Button
 			onClick={onClick}
 			aria-label={running ? 'Stop timer' : 'Start timer'}
 			aria-disabled={disabled}
+			aria-describedby={ariaDescribedBy}
 			className={clsxm(
 				running
 					? ['bg-rose-600 dark:bg-rose-600 border-none shadow-rose-600/30']
