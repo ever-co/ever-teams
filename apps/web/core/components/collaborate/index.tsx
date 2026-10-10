@@ -34,7 +34,8 @@ import { useAtomValue } from 'jotai';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 const Collaborate = () => {
-	const { onMeetClick, onBoardClick, collaborativeMembers, setCollaborativeMembers } = useCollaborative();
+	const { onMeetClick, preloadMeet, onBoardClick, collaborativeMembers, setCollaborativeMembers } =
+		useCollaborative();
 	const { analytics } = useJitsu();
 	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();
@@ -220,6 +221,8 @@ const Collaborate = () => {
 						<div className="flex space-x-3">
 							<Button
 								onClick={handleMeetClick}
+								onPointerEnter={preloadMeet}
+								onFocus={preloadMeet}
 								className={clsxm('flex w-28 min-w-0 h-12 rounded-xl', 'gap-1 items-center')}
 								variant="outline"
 							>
