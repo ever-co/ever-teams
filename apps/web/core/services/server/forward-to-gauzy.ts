@@ -1,6 +1,6 @@
 import { GAUZY_API_SERVER_URL } from '@/core/constants/config/constants';
+import { getAccessTokenCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { NextResponse } from 'next/server';
-import { authenticatedGuard } from './guards/authenticated-guard-app';
 
 // The browser client gives up after 60 seconds (api.service.ts): past that, nobody is waiting for the answer.
 const UPSTREAM_TIMEOUT_MS = 60_000;
@@ -10,12 +10,17 @@ const UPSTREAM_TIMEOUT_MS = 60_000;
  * calls in direct mode, with the session's token, and answers with Gauzy's own status and body, so both modes
  * succeed and fail the same way.
  *
+ * Gauzy checks the token itself, as in direct mode: an invalid session gets Gauzy's 401, while an outage gets a
+ * 502 or 504 below and never a 401 that would sign the user out.
+ *
  * The route fixes `path`; only the query string and the body come from the request, so a caller cannot point
  * this at another Gauzy endpoint.
  */
 export async function forwardToGauzy(req: Request, path: string): Promise<Response> {
-	const { user, access_token, tenantId } = await authenticatedGuard(req, new NextResponse());
-	if (!user) return NextResponse.json({ statusCode: 401, message: 'Unauthorized' }, { status: 401 });
+	const ctx = { req, res: new NextResponse() };
+	const access_token = getAccessTokenCookie(ctx);
+	if (!access_token) return NextResponse.json({ statusCode: 401, message: 'Unauthorized' }, { status: 401 });
+	const tenantId = getTenantIdCookie(ctx);
 
 	const body = req.method === 'GET' || req.method === 'HEAD' ? undefined : (await req.text()) || undefined;
 
@@ -33,6 +38,10 @@ export async function forwardToGauzy(req: Request, path: string): Promise<Respon
 	}).catch((error: Error) => error);
 
 	if (!(upstream instanceof Response)) {
+		// The browser cancelled (Next aborts with a `ResponseAborted` error, not an `AbortError`): nobody reads
+		// this answer and Gauzy did not fail, so there is nothing to log.
+		if (req.signal.aborted) return new NextResponse(null, { status: 499 });
+
 		const timedOut = upstream.name === 'TimeoutError';
 		const status = timedOut ? 504 : 502;
 		const message = timedOut ? 'The Gauzy API did not answer in time' : 'The Gauzy API is unreachable';
