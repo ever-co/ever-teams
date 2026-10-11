@@ -9,7 +9,7 @@ export async function GET(req: Request) {
 	const { $res, user, tenantId, organizationId, access_token, taskId } = await authenticatedGuard(req, res);
 	if (!user) return $res('unauthorized');
 
-	const activeTask = searchParams.get('activeTask');
+	const activeTask = searchParams.get('activeTask') === 'true';
 	const employeeId = searchParams.get('employeeId') || user.employee?.id || '';
 
 	if (activeTask && !taskId) {
