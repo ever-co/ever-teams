@@ -14,7 +14,7 @@ import { useActivityFilters } from '@/core/hooks/activities/use-activity-filters
 import { useActivityChartQuery } from '@/core/hooks/activities/queries/use-activity-chart-query';
 import { useActivityDailyReportQuery } from '@/core/hooks/activities/queries/use-activity-daily-report-query';
 import { useActivityStatisticsQuery } from '@/core/hooks/activities/queries/use-activity-statistics-query';
-import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
+import { useTeamDashboardStatisticsProps } from '@/core/hooks/activities/use-team-dashboard-statistics-props';
 import { useTranslations } from 'next-intl';
 
 import { TeamStatsTableSkeleton } from '@/core/components/common/skeleton/team-stats-table-skeleton';
@@ -28,7 +28,7 @@ import {
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { LazyDashboardHeader } from '@/core/components/pages/dashboard/team-dashboard/lazy-components';
-import { activeTeamState, isTrackingEnabledState, organizationTeamsState } from '@/core/stores';
+import { isTrackingEnabledState } from '@/core/stores';
 import { DashboardReportFlow } from '@/core/components/pages/dashboard/team-dashboard/dashboard-report-flow';
 
 function TeamDashboard() {
@@ -37,27 +37,9 @@ function TeamDashboard() {
 	const router = useRouter();
 	const paramsUrl = useParams<{ locale: string; teamId: string }>();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
-	const organizationTeams = useAtomValue(organizationTeamsState);
-	const activeTeam = useAtomValue(activeTeamState);
-	const { userManagedTeams } = useOrganizationAndTeamManagers();
 
 	const { mergedProps, enabled, currentFilters, updateDateRange, isManage } = useActivityFilters();
-
-	// Links saved before the segment carried a team id hold a user id: they fall back to the active team.
-	const statisticsTeamId = organizationTeams.some(({ id }) => id === paramsUrl?.teamId)
-		? paramsUrl.teamId
-		: activeTeam?.id;
-	const managesStatisticsTeam = userManagedTeams.some(({ id }) => id === statisticsTeamId);
-	const statisticsProps = useMemo(() => {
-		if (!mergedProps || !statisticsTeamId) return mergedProps;
-		return {
-			...mergedProps,
-			teamId: statisticsTeamId,
-			teamIds: mergedProps.teamIds.length ? mergedProps.teamIds : [statisticsTeamId],
-			// A team manager sends no employee ids so the server resolves the team's members; admins keep their picks.
-			employeeIds: managesStatisticsTeam && !isManage ? [] : mergedProps.employeeIds
-		};
-	}, [mergedProps, statisticsTeamId, managesStatisticsTeam, isManage]);
+	const statisticsProps = useTeamDashboardStatisticsProps({ mergedProps, isManage, routeTeamId: paramsUrl?.teamId });
 	const {
 		rapportChartActivity,
 		refetchChartActivity,
