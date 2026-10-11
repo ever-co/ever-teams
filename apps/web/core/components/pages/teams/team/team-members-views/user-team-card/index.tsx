@@ -450,7 +450,11 @@ export function UserTeamCard({
 				) : null}
 				{showActivity && (
 					<Suspense fallback={<UserTeamActivitySkeleton />}>
-						<LazyUserTeamActivity showActivity={showActivity} member={member} />
+						<LazyUserTeamActivity
+							showActivity={showActivity}
+							member={member}
+							canSeeActivity={canSeeActivity}
+						/>
 					</Suspense>
 				)}
 			</EverCard>

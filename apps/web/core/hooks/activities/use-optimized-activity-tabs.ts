@@ -240,7 +240,6 @@ export const useOptimizedActivityTabs = ({
 		// Additional task data for compatibility
 		profile,
 		user,
-		canSeeActivity: profile?.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER',
 
 		// Screenshots tab data
 		screenshots: screenshotsData,

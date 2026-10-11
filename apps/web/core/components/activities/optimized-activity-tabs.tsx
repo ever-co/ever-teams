@@ -207,8 +207,8 @@ OptimizedVisitedSitesTab.displayName = 'OptimizedVisitedSitesTab';
  * Uses intelligent caching to prevent recalculation on tab switches
  * This was the main bottleneck causing 80% of performance issues
  */
-export const OptimizedTasksTab = memo(({ member }: { member?: any }) => {
-	const { tasks, profile, canSeeActivity } = useOptimizedActivityTabs({ member });
+export const OptimizedTasksTab = memo(({ member, canSeeActivity }: { member?: any; canSeeActivity: boolean }) => {
+	const { tasks, profile } = useOptimizedActivityTabs({ member });
 	const { firstFiveTasks, remainingTasks, totalCount } = tasks;
 	const activeTaskId = profile?.activeUserTeamTask?.id
 	// Memoized render function for task items to prevent unnecessary re-renders
