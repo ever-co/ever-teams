@@ -553,7 +553,9 @@ export const StatusTask = ({ timeLog, onReject }: { timeLog: ITimeLog; onReject:
 										if (!timeLog.timesheetId) return;
 										// A rejection carries a reason, and only the reject modal collects one.
 										if (status.label === ETimesheetStatus.DENIED) return onReject();
-										handleStatusChange(status.label as ETimesheetStatus, [timeLog.timesheetId]);
+										void handleStatusChange(status.label as ETimesheetStatus, [
+											timeLog.timesheetId
+										]);
 									}}
 									key={index}
 									textValue={status.label}

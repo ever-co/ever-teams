@@ -38,6 +38,11 @@ export function RejectSelectedModal({
 	const { updateTimesheetStatus, loadingUpdateTimesheetStatus } = useUpdateTimesheet();
 
 	const t = useTranslations();
+	// The modal stays mounted between openings, so a reason typed for one selection must not carry over to the next.
+	const handleClose = () => {
+		setReason('');
+		closeModal();
+	};
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setIsSubmitting(true);
@@ -48,8 +53,7 @@ export function RejectSelectedModal({
 				reason
 			})
 				.then(() => {
-					closeModal();
-					setReason('');
+					handleClose();
 					onReject(reason);
 				})
 				.catch((error) => console.error(error));
@@ -61,7 +65,7 @@ export function RejectSelectedModal({
 		<Modal
 			isOpen={isOpen}
 			showCloseIcon={false}
-			closeModal={closeModal}
+			closeModal={handleClose}
 			title={'Reject Selected'}
 			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[24rem] justify-start"
 			titleClass="font-bold"
@@ -92,7 +96,7 @@ export function RejectSelectedModal({
 					</div>
 					<div className="flex gap-x-4 justify-end items-center">
 						<button
-							onClick={closeModal}
+							onClick={handleClose}
 							type="button"
 							disabled={isSubmitting}
 							aria-label="Cancel rejection"
