@@ -1,4 +1,9 @@
-import { deleteCookie as _deleteCookie, getCookie as _getCookie, setCookie as _setCookie } from 'cookies-next';
+import {
+	deleteCookie as _deleteCookie,
+	getCookie as _getCookie,
+	setCookie as _setCookie,
+	type HttpContext
+} from 'cookies-next';
 
 type DeleteCookieOptions = Parameters<typeof _deleteCookie>[1];
 type CookieOptions = Parameters<typeof _setCookie>[2];
@@ -36,11 +41,11 @@ const isHttps = (options: CookieOptions): boolean => {
  * keeps them off plain http. Secure follows the protocol in use rather than NODE_ENV, so an http setup (local dev,
  * the desktop app, a self-hosted instance without TLS) still gets its cookies stored.
  */
-const withSafeAttributes = (options: CookieOptions): CookieOptions => ({
-	sameSite: 'lax',
-	secure: isHttps(options),
-	...options
-});
+const withSafeAttributes = (options: CookieOptions): CookieOptions => {
+	// Defaults fill only what the caller left unset, so an explicit undefined cannot drop them
+	const { sameSite, secure } = (options ?? {}) as Pick<HttpContext, 'sameSite' | 'secure'>;
+	return { ...options, sameSite: sameSite ?? 'lax', secure: secure ?? isHttps(options) };
+};
 
 export const deleteCookie: typeof _deleteCookie = (key, options) => {
 	_deleteCookie(key, options);
