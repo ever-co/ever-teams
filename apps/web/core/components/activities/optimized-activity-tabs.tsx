@@ -2,10 +2,9 @@ import { memo, useCallback, useMemo } from 'react';
 import { useOptimizedActivityTabs } from '@/core/hooks/activities/use-optimized-activity-tabs';
 import { LazyTaskCard } from '@/core/components/optimized-components';
 import { OptimizedTaskAccordion } from './optimized-task-accordion';
-import { groupDataByHour, groupAppsByHour } from '@/core/lib/helpers/array-data';
+import { groupAppsByHour } from '@/core/lib/helpers/array-data';
 import { useTranslations } from 'next-intl';
-import { ScreenshotPerHourTeam } from '../pages/profile/screenshots/screenshoots-per-hour';
-import { ScreenshootSkeleton } from '../pages/profile/screenshots/screenshoots-per-hour-skeleton';
+import { ScreenshotsTeamList } from '../pages/profile/screenshots/screenshoots';
 import VisitedItem from '../pages/profile/visited-Item';
 import { VisitedItemSkeleton } from '../pages/profile/visited-item-skeleton';
 import { TrackingSourceEmptyState } from '../pages/profile/tracking-source-empty-state';
@@ -17,28 +16,8 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
  */
 export const OptimizedScreenshotsTab = memo(() => {
 	const { screenshots } = useOptimizedActivityTabs();
-	const { timeSlots, loading } = screenshots;
-	const t = useTranslations();
-	const hasScreenshots = timeSlots.some((slot) => slot.screenshots?.length);
 
-	return (
-		<div>
-			{!hasScreenshots && !loading && (
-				<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
-					<TrackingSourceEmptyState label={t('timer.NO_SCREENSHOOT')} />
-				</div>
-			)}
-			{groupDataByHour(timeSlots).map((hourData, i) => (
-				<ScreenshotPerHourTeam
-					key={i}
-					timeSlots={hourData.items}
-					startedAt={hourData.startedAt}
-					stoppedAt={hourData.stoppedAt}
-				/>
-			))}
-			{loading && timeSlots.length < 1 && <ScreenshootSkeleton />}
-		</div>
-	);
+	return <ScreenshotsTeamList timeSlots={screenshots.timeSlots} loading={screenshots.loading} />;
 });
 
 OptimizedScreenshotsTab.displayName = 'OptimizedScreenshotsTab';
