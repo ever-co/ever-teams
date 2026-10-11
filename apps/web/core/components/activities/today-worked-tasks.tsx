@@ -13,6 +13,9 @@ import {
 	TableRow
 } from '@/core/components/common/table';
 
+// Nothing in this table is clickable, so its rows drop the hover of the shared table row.
+const STATIC_ROW = 'hover:bg-transparent';
+
 /**
  * Today's worked time of a team member, task by task, read from the member's
  * `totalTodayTasks` so the footer matches the total shown on the card.
@@ -33,7 +36,7 @@ export function TodayWorkedTasks({ memberId }: { memberId: string }) {
 	return (
 		<Table className="mb-6">
 			<TableHeader>
-				<TableRow>
+				<TableRow className={STATIC_ROW}>
 					<TableHead className="px-3 h-9">{t('common.TASK')}</TableHead>
 					<TableHead className="px-3 h-9 text-right">{t('common.DURATION')}</TableHead>
 					<TableHead className="px-3 h-9 text-right">%</TableHead>
@@ -45,7 +48,7 @@ export function TodayWorkedTasks({ memberId }: { memberId: string }) {
 					const { hours: h, minutes: m } = secondsToTime(duration);
 
 					return (
-						<TableRow key={task.id}>
+						<TableRow key={task.id} className={STATIC_ROW}>
 							<TableCell className="px-3 py-2 break-words">{task.title}</TableCell>
 							<TableCell className="px-3 py-2 text-right whitespace-nowrap">
 								{h}h : {m}m
@@ -58,7 +61,7 @@ export function TodayWorkedTasks({ memberId }: { memberId: string }) {
 				})}
 			</TableBody>
 			<TableFooter>
-				<TableRow>
+				<TableRow className={STATIC_ROW}>
 					<TableCell className="px-3 py-2">{t('common.TOTAL_WORKED_TODAY')}</TableCell>
 					<TableCell className="px-3 py-2 text-right whitespace-nowrap">
 						{hours}h : {minutes}m
