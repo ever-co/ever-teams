@@ -5,7 +5,7 @@ import { DropResult } from '@hello-pangea/dnd';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { handleDragAndDrop } from '@/core/lib/helpers/drag-and-drop';
-import { movePlanTask } from '@/core/lib/helpers/daily-plan-task-order';
+import { movePlanTask, orderPlanTasks } from '@/core/lib/helpers/daily-plan-task-order';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { OUTSTANDING_NO_PLAN_ID } from './use-daily-plan-calculations';
@@ -61,12 +61,25 @@ export function useDailyPlanTaskOrder(plans: TDailyPlan[] | undefined) {
 			save.queue = save.queue.then(async () => {
 				try {
 					await updateDailyPlan(data, planId);
+					// The API stores the list as sent: a later failed save of the plan goes back to it,
+					// even before the refetch lands
+					loadedPlans.current = loadedPlans.current?.map((item) =>
+						item.id === planId ? orderPlanTasks({ ...item, taskOrder: data.taskOrder }) : item
+					);
 				} catch (error) {
 					logErrorInDev('Failed to save the task order of the plan', error);
 					// A later drop still to be saved carries this move too: only the last one rolls back
 					if (save.pending === 1) {
-						const loaded = loadedPlans.current?.find((item) => item.id === planId) ?? plan;
-						setDragPlans((current) => current.map((item) => (item.id === planId ? loaded : item)));
+						// Back to the plans as last loaded, except the other plans whose order is still being saved
+						const loaded = loadedPlans.current ?? [];
+						const pendingIds = new Set<string | undefined>(
+							[...saves.current.keys()].filter((id) => id !== planId)
+						);
+						setDragPlans((current) =>
+							loaded.map((item) =>
+								pendingIds.has(item.id) ? (current.find((shown) => shown.id === item.id) ?? item) : item
+							)
+						);
 						toast.error(t('dailyPlan.TASK_ORDER_SAVE_FAILED'));
 					}
 				} finally {
