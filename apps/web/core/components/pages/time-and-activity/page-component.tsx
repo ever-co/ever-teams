@@ -73,6 +73,15 @@ const TimeActivityComponents = () => {
 		[updateFilters]
 	);
 
+	// mergedProps takes its team ids from the team dashboard filter, so the teams picked in this page's filter are passed to the weekly report here
+	const weeklyProps = useMemo(
+		() =>
+			mergedProps && currentFilters.teamIds?.length
+				? { ...mergedProps, teamIds: currentFilters.teamIds }
+				: mergedProps,
+		[mergedProps, currentFilters.teamIds]
+	);
+
 	// Calculate dynamic statistics from real data
 	const {
 		totalHours,
@@ -226,7 +235,7 @@ const TimeActivityComponents = () => {
 									/>
 								);
 							case 'weekly':
-								return <LazyWeeklyReportTable mergedProps={mergedProps} enabled={enabled} />;
+								return <LazyWeeklyReportTable mergedProps={weeklyProps} enabled={enabled} />;
 							default:
 								return (
 									<LazyActivityTable
