@@ -11,6 +11,10 @@ import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { OUTSTANDING_NO_PLAN_ID } from './use-daily-plan-calculations';
 import { useUpdateDailyPlan } from './use-update-daily-plan';
 
+/** The plans as last loaded, keeping the shown version of the plans whose order is still being saved. */
+const keepPendingPlans = (loaded: TDailyPlan[], shown: TDailyPlan[], pendingIds: Set<string | undefined>) =>
+	loaded.map((item) => (pendingIds.has(item.id) ? (shown.find((plan) => plan.id === item.id) ?? item) : item));
+
 /**
  * Drag and drop state for a list of plans. A task moved inside its plan is shown in place at once,
  * and the plan's new task order is saved; if saving fails the plan goes back to its last loaded
@@ -75,11 +79,7 @@ export function useDailyPlanTaskOrder(plans: TDailyPlan[] | undefined) {
 						const pendingIds = new Set<string | undefined>(
 							[...saves.current.keys()].filter((id) => id !== planId)
 						);
-						setDragPlans((current) =>
-							loaded.map((item) =>
-								pendingIds.has(item.id) ? (current.find((shown) => shown.id === item.id) ?? item) : item
-							)
-						);
+						setDragPlans((current) => keepPendingPlans(loaded, current, pendingIds));
 						toast.error(t('dailyPlan.TASK_ORDER_SAVE_FAILED'));
 					}
 				} finally {
