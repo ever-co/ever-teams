@@ -3,7 +3,6 @@ import { useTimeSlots } from './use-time-slots';
 import { useTimeDailyActivity } from './use-time-daily-activity';
 import { useUserSelectedPage } from '@/core/hooks/users';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
-import { useAuthenticateUser } from '@/core/hooks/auth';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
 interface ActivityTabCache {
@@ -55,7 +54,6 @@ export const useOptimizedActivityTabs = ({
 	// Tasks data with caching - THE MAIN PERFORMANCE BOTTLENECK
 	const profile = useUserSelectedPage(member?.employee?.userId);
 	const hook = useTaskFilter(profile);
-	const { user } = useAuthenticateUser();
 
 	const tasksData = useMemo(() => {
 		const now = Date.now();
@@ -239,7 +237,6 @@ export const useOptimizedActivityTabs = ({
 
 		// Additional task data for compatibility
 		profile,
-		user,
 
 		// Screenshots tab data
 		screenshots: screenshotsData,

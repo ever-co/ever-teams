@@ -20,7 +20,7 @@ const STATIC_ROW = 'hover:bg-transparent';
  * Today's worked time of a team member, task by task, read from the member's
  * `totalTodayTasks` so the footer matches the total shown on the card.
  */
-export function TodayWorkedTasks({ memberId }: { memberId: string }) {
+export function TodayWorkedTasks({ memberId }: Readonly<{ memberId: string }>) {
 	const t = useTranslations();
 	const { hours, minutes, totalSeconds, currentMember } = useTodayWorkedTime({ id: memberId });
 
