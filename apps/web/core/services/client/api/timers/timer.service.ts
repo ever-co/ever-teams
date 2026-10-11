@@ -69,7 +69,7 @@ class TimerService extends APIService {
 		return this.resetTimeSlotSync(startedAt, await api.post<ITimerStatus>('/timer/start'));
 	};
 
-	private resetTimeSlotSync = <R extends { data?: ITimerStatus }>(at: number, response: R): R => {
+	private readonly resetTimeSlotSync = <R extends { data?: ITimerStatus }>(at: number, response: R): R => {
 		this.lastTimeSlotSync = { at, timeLogId: response.data?.lastLog?.id };
 		return response;
 	};

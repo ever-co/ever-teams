@@ -22,7 +22,12 @@ export async function POST(req: Request) {
 		access_token
 	);
 
-	const { data: timerStatus } = await getTimerStatusRequest({ tenantId, organizationId }, access_token);
+	// The time slot is recorded by now: a failed status read must not fail the sync, or the client
+	// would restore its reference and the retry would credit this interval a second time.
+	const timerStatus = await getTimerStatusRequest({ tenantId, organizationId }, access_token).then(
+		({ data }) => data,
+		() => null
+	);
 
 	return $res(timerStatus);
 }
