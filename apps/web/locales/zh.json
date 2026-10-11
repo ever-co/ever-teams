@@ -1155,7 +1155,9 @@
 			"WARNING_PLAN_ESTIMATION": "请更正计划工时或重新估算任务工时"
 		},
 		"VISITED_SITES": "访问过的网站",
-		"NO_VISITED_SITE_MESSAGE": "没有访问过的网站"
+		"NO_VISITED_SITE_MESSAGE": "没有访问过的网站",
+		"TRACKING_SOURCE_HINT": "截图、应用和访问过的网站由桌面应用或代理程序采集，在浏览器中计时不会记录这些数据。",
+		"DOWNLOAD_DESKTOP_APP": "下载桌面应用"
 	},
 	"task": {
 		"TITLE": "任务",

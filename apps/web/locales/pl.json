@@ -1155,7 +1155,9 @@
 		"ARCHIVED": "Zarchiwizowany",
 		"NOT_ARCHIVED": "Niezarchiwizowany",
 		"VISITED_SITES": "Odwiedzone strony",
-		"NO_VISITED_SITE_MESSAGE": "Brak odwiedzonych stron"
+		"NO_VISITED_SITE_MESSAGE": "Brak odwiedzonych stron",
+		"TRACKING_SOURCE_HINT": "Zrzuty ekranu, aplikacje i odwiedzone strony są rejestrowane przez aplikację desktopową lub agenta, a nie podczas śledzenia czasu w przeglądarce.",
+		"DOWNLOAD_DESKTOP_APP": "Pobierz aplikację desktopową"
 	},
 	"task": {
 		"TITLE": "Zadanie",

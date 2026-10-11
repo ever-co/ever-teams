@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import VisitedItem from '../visited-Item';
 import { VisitedItemSkeleton } from '../visited-item-skeleton';
+import { TrackingSourceEmptyState } from '../tracking-source-empty-state';
 
 export function AppsTab() {
 	const { visitedApps, loading } = useTimeDailyActivity('APP');
@@ -57,7 +58,7 @@ export function AppsTab() {
 				</section>
 				{visitedApps?.length < 1 && !loading && (
 					<div className="hover:dark:bg-[#26272C] border dark:border-[#26272C] dark:bg-[#191a20] p-4 py-16 rounded-md flex justify-center items-center my-2">
-						<p className="text-center">{t('timer.THERE_IS_NO_APPS_VISITED')}</p>
+						<TrackingSourceEmptyState label={t('timer.THERE_IS_NO_APPS_VISITED')} />
 					</div>
 				)}
 				{loading && visitedApps?.length < 1 && (

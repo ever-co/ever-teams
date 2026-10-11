@@ -1155,7 +1155,9 @@
 		"ARCHIVED": "Arquivado",
 		"NOT_ARCHIVED": "Não arquivado",
 		"VISITED_SITES": "Sites visitados",
-		"NO_VISITED_SITE_MESSAGE": "Não há sites visitados"
+		"NO_VISITED_SITE_MESSAGE": "Não há sites visitados",
+		"TRACKING_SOURCE_HINT": "Capturas de tela, aplicativos e sites visitados são registrados pelo aplicativo desktop ou pelo agente, não quando o tempo é rastreado no navegador.",
+		"DOWNLOAD_DESKTOP_APP": "Baixar o aplicativo desktop"
 	},
 	"task": {
 		"TITLE": "Tarefa",

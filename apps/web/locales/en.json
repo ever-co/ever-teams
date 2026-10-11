@@ -1155,7 +1155,9 @@
 			"WARNING_PLAN_ESTIMATION": "Please correct planned work hours or  re-estimate task(s)"
 		},
 		"VISITED_SITES": "Visited sites",
-		"NO_VISITED_SITE_MESSAGE": "There are no visited sites"
+		"NO_VISITED_SITE_MESSAGE": "There are no visited sites",
+		"TRACKING_SOURCE_HINT": "Screenshots, apps and visited sites are captured by the desktop app or the agent, not when time is tracked in the browser.",
+		"DOWNLOAD_DESKTOP_APP": "Download the desktop app"
 	},
 	"task": {
 		"TITLE": "Task",

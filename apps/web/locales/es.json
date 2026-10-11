@@ -1155,7 +1155,9 @@
 			"WARNING_PLAN_ESTIMATION": "Por favor, corrija las horas de trabajo previstas o reevalúe la(s) tarea(s)"
 		},
 		"VISITED_SITES": "Sitios visitados",
-		"NO_VISITED_SITE_MESSAGE": "No hay sitios visitados"
+		"NO_VISITED_SITE_MESSAGE": "No hay sitios visitados",
+		"TRACKING_SOURCE_HINT": "Las capturas de pantalla, las aplicaciones y los sitios visitados los registra la aplicación de escritorio o el agente, no el seguimiento del tiempo en el navegador.",
+		"DOWNLOAD_DESKTOP_APP": "Descargar la aplicación de escritorio"
 	},
 	"task": {
 		"TITLE": "Tarea",

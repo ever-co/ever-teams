@@ -1155,7 +1155,9 @@
 		"ARCHIVED": "Archivé",
 		"NOT_ARCHIVED": "Non archivé",
 		"VISITED_SITES": "Sites visités",
-		"NO_VISITED_SITE_MESSAGE": "Il n'y a pas de sites visités"
+		"NO_VISITED_SITE_MESSAGE": "Il n'y a pas de sites visités",
+		"TRACKING_SOURCE_HINT": "Les captures d'écran, les applications et les sites visités sont enregistrés par l'application de bureau ou l'agent, pas lorsque le temps est suivi dans le navigateur.",
+		"DOWNLOAD_DESKTOP_APP": "Télécharger l'application de bureau"
 	},
 	"task": {
 		"TITLE": "Tâche",

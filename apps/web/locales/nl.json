@@ -1155,7 +1155,9 @@
 			"WARNING_PLAN_ESTIMATION": "Corrigeer de geplande werkuren of schat de taak(en) opnieuw in"
 		},
 		"VISITED_SITES": "Bezochte sites",
-		"NO_VISITED_SITE_MESSAGE": "Er zijn geen bezochte sites"
+		"NO_VISITED_SITE_MESSAGE": "Er zijn geen bezochte sites",
+		"TRACKING_SOURCE_HINT": "Schermafbeeldingen, apps en bezochte sites worden vastgelegd door de desktop-app of de agent, niet wanneer tijd in de browser wordt bijgehouden.",
+		"DOWNLOAD_DESKTOP_APP": "Desktop-app downloaden"
 	},
 	"task": {
 		"TITLE": "Taak",

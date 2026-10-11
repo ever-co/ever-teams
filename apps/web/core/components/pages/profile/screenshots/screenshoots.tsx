@@ -6,6 +6,7 @@ import { ScreenshotPerHour, ScreenshotPerHourTeam } from './screenshoots-per-hou
 import { ScreenshootSkeleton } from './screenshoots-per-hour-skeleton';
 import { ProgressBar } from '@/core/components/common/progress-bar';
 import { SegmentedProgressBar } from '@/core/components/duplicated-components/_progress-bar';
+import { TrackingSourceEmptyState } from '../tracking-source-empty-state';
 
 export function ScreenshootTab() {
 	const { loading, timeSlots } = useTimeSlots();
@@ -50,7 +51,7 @@ export function ScreenshootTab() {
 			))}
 			{timeSlots.length < 1 && !loading && (
 				<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
-					<h3>{t('timer.NO_SCREENSHOOT')}</h3>
+					<TrackingSourceEmptyState label={t('timer.NO_SCREENSHOOT')} />
 				</div>
 			)}
 			{loading && timeSlots.length < 1 && <ScreenshootSkeleton />}
@@ -74,7 +75,7 @@ export function ScreenshootTeamTab() {
 			))}
 			{timeSlots.length < 1 && !loading && (
 				<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
-					<h3>{t('timer.NO_SCREENSHOOT')}</h3>
+					<TrackingSourceEmptyState label={t('timer.NO_SCREENSHOOT')} />
 				</div>
 			)}
 			{loading && timeSlots.length < 1 && <ScreenshootSkeleton />}
