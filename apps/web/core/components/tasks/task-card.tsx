@@ -968,6 +968,9 @@ export function PlanTask({
 		}
 	};
 
+	const todayLabel = label ?? t('dailyPlan.PLAN_FOR_TODAY');
+	const tomorrowLabel = label ?? t('dailyPlan.PLAN_FOR_TOMORROW');
+
 	return (
 		<div>
 			<button
@@ -983,7 +986,7 @@ export function PlanTask({
 						{isPending || createDailyPlanLoading ? (
 							<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
 						) : (
-							(label ?? t('dailyPlan.PLAN_FOR_TODAY'))
+							todayLabel
 						)}
 					</span>
 				)}
@@ -992,7 +995,7 @@ export function PlanTask({
 						{isPending || createDailyPlanLoading ? (
 							<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
 						) : (
-							(label ?? t('dailyPlan.PLAN_FOR_TOMORROW'))
+							tomorrowLabel
 						)}
 					</span>
 				)}
