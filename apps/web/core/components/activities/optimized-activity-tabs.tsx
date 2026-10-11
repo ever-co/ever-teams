@@ -19,9 +19,15 @@ export const OptimizedScreenshotsTab = memo(() => {
 	const { screenshots } = useOptimizedActivityTabs();
 	const { timeSlots, loading } = screenshots;
 	const t = useTranslations();
+	const hasScreenshots = timeSlots.some((slot) => slot.screenshots?.length);
 
 	return (
 		<div>
+			{!hasScreenshots && !loading && (
+				<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
+					<TrackingSourceEmptyState label={t('timer.NO_SCREENSHOOT')} />
+				</div>
+			)}
 			{groupDataByHour(timeSlots).map((hourData, i) => (
 				<ScreenshotPerHourTeam
 					key={i}
@@ -30,11 +36,6 @@ export const OptimizedScreenshotsTab = memo(() => {
 					stoppedAt={hourData.stoppedAt}
 				/>
 			))}
-			{timeSlots.length < 1 && !loading && (
-				<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
-					<TrackingSourceEmptyState label={t('timer.NO_SCREENSHOOT')} />
-				</div>
-			)}
 			{loading && timeSlots.length < 1 && <ScreenshootSkeleton />}
 		</div>
 	);

@@ -11,6 +11,8 @@ import { TrackingSourceEmptyState } from '../tracking-source-empty-state';
 export function ScreenshootTab() {
 	const { loading, timeSlots } = useTimeSlots();
 	const t = useTranslations();
+	// The browser timer also creates time slots, without any screenshot attached.
+	const hasScreenshots = timeSlots.some((slot) => slot.screenshots?.length);
 
 	const activityPercent = timeSlots.reduce((acc, el) => acc + (el.percentage || 0), 0) / timeSlots.length;
 	// const workedSeconds = timeSlots.reduce((acc, el) => acc + el.duration, 0);
@@ -41,6 +43,11 @@ export function ScreenshootTab() {
 				</div>
 			</div>
 
+			{!hasScreenshots && !loading && (
+				<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
+					<TrackingSourceEmptyState label={t('timer.NO_SCREENSHOOT')} />
+				</div>
+			)}
 			{groupDataByHour(timeSlots).map((hourData, i) => (
 				<ScreenshotPerHour
 					key={i}
@@ -49,11 +56,6 @@ export function ScreenshootTab() {
 					stoppedAt={hourData.stoppedAt}
 				/>
 			))}
-			{timeSlots.length < 1 && !loading && (
-				<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
-					<TrackingSourceEmptyState label={t('timer.NO_SCREENSHOOT')} />
-				</div>
-			)}
 			{loading && timeSlots.length < 1 && <ScreenshootSkeleton />}
 		</div>
 	);
@@ -62,9 +64,15 @@ export function ScreenshootTab() {
 export function ScreenshootTeamTab() {
 	const { timeSlots, loading } = useTimeSlots(true);
 	const t = useTranslations();
+	const hasScreenshots = timeSlots.some((slot) => slot.screenshots?.length);
 
 	return (
 		<div>
+			{!hasScreenshots && !loading && (
+				<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
+					<TrackingSourceEmptyState label={t('timer.NO_SCREENSHOOT')} />
+				</div>
+			)}
 			{groupDataByHour(timeSlots).map((hourData, i) => (
 				<ScreenshotPerHourTeam
 					key={i}
@@ -73,11 +81,6 @@ export function ScreenshootTeamTab() {
 					stoppedAt={hourData.stoppedAt}
 				/>
 			))}
-			{timeSlots.length < 1 && !loading && (
-				<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
-					<TrackingSourceEmptyState label={t('timer.NO_SCREENSHOOT')} />
-				</div>
-			)}
 			{loading && timeSlots.length < 1 && <ScreenshootSkeleton />}
 		</div>
 	);
