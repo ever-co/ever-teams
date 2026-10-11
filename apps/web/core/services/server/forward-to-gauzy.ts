@@ -5,6 +5,9 @@ import { NextResponse } from 'next/server';
 // The browser client gives up after 60 seconds (api.service.ts): past that, nobody is waiting for the answer.
 const UPSTREAM_TIMEOUT_MS = 60_000;
 
+const unsupportedMediaType = () =>
+	NextResponse.json({ statusCode: 415, message: 'Unsupported Media Type' }, { status: 415 });
+
 /**
  * Hands a proxy mode request (the browser calls this app's /api routes) on to the Gauzy endpoint the browser
  * calls in direct mode, with the session's token, and answers with Gauzy's own status and body, so both modes
@@ -22,14 +25,15 @@ export async function forwardToGauzy(req: Request, path: string): Promise<Respon
 	if (!access_token) return NextResponse.json({ statusCode: 401, message: 'Unauthorized' }, { status: 401 });
 	const tenantId = getTenantIdCookie(ctx);
 
-	const body = req.method === 'GET' || req.method === 'HEAD' ? undefined : (await req.text()) || undefined;
-
 	// The token comes from a cookie, which a browser can attach to a request another site makes. Such a site can
-	// post text/plain or form data without a CORS preflight, but not JSON, so only a JSON body is forwarded.
+	// post text/plain, form data or an untyped body without a CORS preflight, but not JSON, so only a JSON body is
+	// forwarded. A declared type is refused before the body is read; an untyped body is only known once read.
 	const mediaType = req.headers.get('content-type')?.split(';')[0].trim().toLowerCase();
-	if (body && mediaType !== 'application/json') {
-		return NextResponse.json({ statusCode: 415, message: 'Unsupported Media Type' }, { status: 415 });
-	}
+	const hasBody = req.method !== 'GET' && req.method !== 'HEAD';
+	if (hasBody && mediaType && mediaType !== 'application/json') return unsupportedMediaType();
+
+	const body = hasBody ? (await req.text()) || undefined : undefined;
+	if (body && !mediaType) return unsupportedMediaType();
 
 	const upstream = await fetch(`${GAUZY_API_SERVER_URL}${path}${new URL(req.url).search}`, {
 		method: req.method,
