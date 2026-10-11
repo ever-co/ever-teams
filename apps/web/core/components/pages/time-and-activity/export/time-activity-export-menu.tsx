@@ -59,6 +59,25 @@ interface ExportRow {
 	activityPercent: number;
 }
 
+/**
+ * Measures of one export row: the strings the PDF prints and the raw values the XLSX keeps numeric
+ */
+function buildRowMeasures(durationSeconds: number, employeeLog: ITimerEmployeeLog) {
+	const hours = Math.floor(durationSeconds / 3600);
+	const minutes = Math.floor((durationSeconds % 3600) / 60);
+	const earningsAmount = (durationSeconds / 3600) * (employeeLog.employee?.billRateValue || 0);
+	const activityPercent = employeeLog.activity || 0;
+
+	return {
+		trackedHours: `${hours}h ${minutes}m`,
+		earnings: `$${earningsAmount.toFixed(2)}`,
+		activityLevel: `${activityPercent}%`,
+		durationSeconds,
+		earningsAmount,
+		activityPercent
+	};
+}
+
 // Using existing types from activity-report.ts
 // No need for custom interfaces as we use ITimerProjectLog, ITimerEmployeeLog, ITimerTaskLog
 export function TimeActivityExportMenu({
@@ -190,65 +209,24 @@ export function TimeActivityExportMenu({
 						// If there are tasks, process them
 						if (employeeLog.tasks && employeeLog.tasks.length > 0) {
 							employeeLog.tasks.forEach((taskLog: ITimerTaskLog) => {
-								const taskTitle = taskLog.task?.title || 'No Task';
-								const duration = taskLog.duration || 0;
-								const hours = Math.floor(duration / 3600);
-								const minutes = Math.floor((duration % 3600) / 60);
-								const trackedHours = `${hours}h ${minutes}m`;
-
-								// Calculate earnings
-								const hourlyRate = employeeLog.employee?.billRateValue || 0;
-								const totalHours = duration / 3600;
-								const earningsAmount = totalHours * hourlyRate;
-								const earnings = `$${earningsAmount.toFixed(2)}`;
-
-								// Activity level
-								const activityPercent = employeeLog.activity || 0;
-								const activityLevel = `${activityPercent}%`;
-
 								rows.push({
 									date,
 									member: memberName,
 									project: projectName,
-									task: taskTitle,
+									task: taskLog.task?.title || 'No Task',
 									status: taskLog.task?.taskStatus?.name || taskLog.task?.status || '',
-									trackedHours,
-									earnings,
-									activityLevel,
-									durationSeconds: duration,
-									earningsAmount,
-									activityPercent
+									...buildRowMeasures(taskLog.duration || 0, employeeLog)
 								});
 							});
 						} else {
 							// No specific tasks, create one entry for the employee's total time
-							const duration = employeeLog.sum || 0;
-							const hours = Math.floor(duration / 3600);
-							const minutes = Math.floor((duration % 3600) / 60);
-							const trackedHours = `${hours}h ${minutes}m`;
-
-							// Calculate earnings
-							const hourlyRate = employeeLog.employee?.billRateValue || 0;
-							const totalHours = duration / 3600;
-							const earningsAmount = totalHours * hourlyRate;
-							const earnings = `$${earningsAmount.toFixed(2)}`;
-
-							// Activity level
-							const activityPercent = employeeLog.activity || 0;
-							const activityLevel = `${activityPercent}%`;
-
 							rows.push({
 								date,
 								member: memberName,
 								project: projectName,
 								task: 'General Work',
 								status: '',
-								trackedHours,
-								earnings,
-								activityLevel,
-								durationSeconds: duration,
-								earningsAmount,
-								activityPercent
+								...buildRowMeasures(employeeLog.sum || 0, employeeLog)
 							});
 						}
 					});
@@ -335,7 +313,7 @@ export function TimeActivityExportMenu({
 		const exportId = ++activeExportIdRef.current;
 		setCurrentExportType('xlsx');
 		setShowProgressModal(true);
-		startExport(1);
+		startExport();
 		try {
 			await exportToXLSX(
 				transformedDataForPDF.rows,
