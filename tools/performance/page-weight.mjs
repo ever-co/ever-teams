@@ -9,6 +9,10 @@ import { gzipSync } from 'node:zlib';
 // this check bring both pages to an estimated 1,345 kB, so each budget is that estimate plus 10 %.
 // English is the default locale and paths are prefixed only as needed, so /en/auth/passcode and /en/kanban
 // redirect to these paths.
+// Only the scripts listed in the served HTML are counted, the JavaScript a visit downloads before the page
+// is interactive. Chunks loaded later through a dynamic import, like the /kanban board view (`ssr: false`),
+// are not part of this measurement.
+const MEASURED = 'chunk scripts listed in the initial HTML; chunks loaded later by dynamic imports are not counted';
 const PAGES = [
 	{ path: '/auth/passcode', gzipBudgetBytes: 1_480_000 },
 	{ path: '/kanban', gzipBudgetBytes: 1_480_000 }
@@ -65,7 +69,9 @@ async function runCli() {
 			failures.push(`${path}: ${measured} bytes gzip exceed the ${budget} bytes budget.`);
 		}
 	}
-	process.stdout.write(`${JSON.stringify({ pages, passed: failures.length === 0, failures }, null, 2)}\n`);
+	process.stdout.write(
+		`${JSON.stringify({ measured: MEASURED, pages, passed: failures.length === 0, failures }, null, 2)}\n`
+	);
 	if (failures.length) process.exitCode = 1;
 }
 
