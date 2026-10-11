@@ -3,18 +3,27 @@ import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { clsxm } from '@/core/lib/utils';
 import { Button } from '@/core/components';
 import { TimerPlayIcon, TimerStopIcon } from 'assets/svg';
-import { MouseEventHandler } from 'react';
+import { MouseEventHandler, Ref } from 'react';
 
 type Props = {
 	onClick?: MouseEventHandler<HTMLButtonElement>;
 	running: boolean | undefined;
 	disabled: boolean;
 	'aria-describedby'?: string;
+	ref?: Ref<HTMLButtonElement>;
 } & IClassName;
 
-export function TimerButton({ onClick, running, disabled, className, 'aria-describedby': ariaDescribedBy }: Props) {
+export function TimerButton({
+	onClick,
+	running,
+	disabled,
+	className,
+	'aria-describedby': ariaDescribedBy,
+	ref
+}: Props) {
 	return (
 		<Button
+			ref={ref}
 			onClick={onClick}
 			aria-label={running ? 'Stop timer' : 'Start timer'}
 			aria-disabled={disabled}

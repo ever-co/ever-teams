@@ -34,7 +34,16 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { SpinnerLoader, Text } from '@/core/components';
 import Link from 'next/link';
-import React, { PropsWithChildren, useCallback, useId, useMemo, useRef, useState, useTransition } from 'react';
+import React, {
+	PropsWithChildren,
+	useCallback,
+	useEffect,
+	useId,
+	useMemo,
+	useRef,
+	useState,
+	useTransition
+} from 'react';
 import { SetStateAction, useAtomValue } from 'jotai';
 import { TimerButton } from '../timer/timer-button';
 import { TaskAllStatusTypes } from './task-all-status-type';
@@ -423,9 +432,21 @@ const TimerButtonCall = React.memo(
 
 		const blockedByPlan = !activeTaskStatus && task.status !== 'closed' && !canTrack;
 		const planReasonId = useId();
+		const startButtonRef = useRef<HTMLButtonElement>(null);
+		// Set when this card's "Add to today's plan" succeeds: the focused action goes away with the tooltip once Start is enabled.
+		const refocusStartRef = useRef(false);
+
+		useEffect(() => {
+			if (blockedByPlan || !refocusStartRef.current) return;
+			refocusStartRef.current = false;
+			// Give focus back to Start only when it was lost with the tooltip, never take it from another control.
+			const active = document.activeElement;
+			if (!active || active === document.body) startButtonRef.current?.focus();
+		}, [blockedByPlan]);
 
 		const timerButton = (
 			<TimerButton
+				ref={startButtonRef}
 				onClick={activeTaskStatus ? startStopTimerHandler : startTimerWithTask}
 				running={displayRunning}
 				disabled={activeTaskStatus ? disabled : task.status === 'closed' || !canTrack}
@@ -439,7 +460,13 @@ const TimerButtonCall = React.memo(
 		) : (
 			<>
 				{blockedByPlan ? (
-					<PlanRequiredTooltip taskId={task.id} reasonId={planReasonId}>
+					<PlanRequiredTooltip
+						taskId={task.id}
+						reasonId={planReasonId}
+						onPlanned={() => {
+							refocusStartRef.current = true;
+						}}
+					>
 						{timerButton}
 					</PlanRequiredTooltip>
 				) : (
@@ -493,7 +520,12 @@ const TimerButtonCall = React.memo(
 );
 
 // Explains a Start button greyed by the team's "require a plan to track" rule and offers the "plan for today" action.
-function PlanRequiredTooltip({ taskId, reasonId, children }: PropsWithChildren<{ taskId: string; reasonId: string }>) {
+function PlanRequiredTooltip({
+	taskId,
+	reasonId,
+	onPlanned,
+	children
+}: PropsWithChildren<{ taskId: string; reasonId: string; onPlanned: () => void }>) {
 	const t = useTranslations();
 	const { data: user } = useUserQuery();
 	const [open, setOpen] = useState(false);
@@ -527,6 +559,7 @@ function PlanRequiredTooltip({ taskId, reasonId, children }: PropsWithChildren<{
 								taskId={taskId}
 								employeeId={user?.employee?.id}
 								label={t('dailyPlan.ADD_TO_TODAY_PLAN')}
+								onPlanned={onPlanned}
 							/>
 						</div>
 					</TooltipContent>
@@ -856,7 +889,8 @@ export function PlanTask({
 	taskPlannedToday,
 	taskPlannedForTomorrow,
 	openModal,
-	label
+	label,
+	onPlanned
 }: {
 	taskId: string;
 	planMode: EDailyPlanMode;
@@ -867,6 +901,8 @@ export function PlanTask({
 	openModal?: () => void;
 	/** Replaces the default label of the plan mode */
 	label?: string;
+	/** Called once the plan is created, in today and tomorrow modes */
+	onPlanned?: () => void;
 }) {
 	const t = useTranslations();
 	const [isPending, startTransition] = useTransition();
@@ -894,6 +930,7 @@ export function PlanTask({
 						toast.success(t('task.toastMessages.TASK_PLANNED_FOR_TODAY'), {
 							id: 'task-planned-for-today'
 						});
+						onPlanned?.();
 					} catch (error) {
 						console.error('Plan creation error:', error);
 						toast.error(t('task.toastMessages.TASK_PLAN_FAILED'), {
@@ -916,6 +953,7 @@ export function PlanTask({
 						toast.success(t('task.toastMessages.TASK_PLANNED_FOR_TOMORROW'), {
 							id: 'task-planned-for-tomorrow'
 						});
+						onPlanned?.();
 					} catch (error) {
 						console.error('Plan creation error:', error);
 						toast.error(t('task.toastMessages.TASK_PLAN_FAILED'), {
