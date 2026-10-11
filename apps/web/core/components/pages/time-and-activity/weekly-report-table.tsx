@@ -27,7 +27,7 @@ interface WeeklyReportTableProps {
 	enabled: boolean;
 }
 
-export function WeeklyReportTable({ mergedProps, enabled }: WeeklyReportTableProps) {
+export function WeeklyReportTable({ mergedProps, enabled }: Readonly<WeeklyReportTableProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date(), WEEK_OPTIONS));
@@ -128,7 +128,7 @@ export function WeeklyReportTable({ mergedProps, enabled }: WeeklyReportTablePro
 								))
 							: rows.map((row) => (
 									<TableRow key={row.id}>
-										<TableCell className="px-6 py-4">
+										<TableHead scope="row" className="px-6 py-4">
 											<div className="flex gap-3 items-center">
 												<Avatar
 													size={32}
@@ -141,7 +141,7 @@ export function WeeklyReportTable({ mergedProps, enabled }: WeeklyReportTablePro
 													{row.name}
 												</span>
 											</div>
-										</TableCell>
+										</TableHead>
 										{row.durations.map((duration, index) => (
 											<TableCell
 												key={days[index].toISOString()}
