@@ -286,8 +286,9 @@ export const CHATWOOT_API_KEY = getNextPublicEnv(
 );
 
 // Desktop app download link of the screenshots, apps and visited sites empty states; unset hides it.
+// `??`: a blank runtime value hides the link instead of reviving a URL baked in at build time.
 export const DESKTOP_APP_DOWNLOAD_URL = blankToUndefined(
-	readRuntimeEnv('NEXT_PUBLIC_DESKTOP_APP_DOWNLOAD_URL') || process.env.NEXT_PUBLIC_DESKTOP_APP_DOWNLOAD_URL
+	readRuntimeEnv('NEXT_PUBLIC_DESKTOP_APP_DOWNLOAD_URL') ?? process.env.NEXT_PUBLIC_DESKTOP_APP_DOWNLOAD_URL
 );
 
 export const SMTP_FROM_ADDRESS = process.env.SMTP_FROM_ADDRESS || '';

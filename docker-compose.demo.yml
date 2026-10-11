@@ -75,6 +75,8 @@ services:
       ACTIVE_LOCAL_LOG_SYSTEM: ${ACTIVE_LOCAL_LOG_SYSTEM:-false}
       NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM: ${NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM:-false}
       IS_DESKTOP_APP: ${IS_DESKTOP_APP:-false}
+      # Desktop app download link of the empty screenshots, apps and visited sites sections; empty = no link
+      NEXT_PUBLIC_DESKTOP_APP_DOWNLOAD_URL: ${NEXT_PUBLIC_DESKTOP_APP_DOWNLOAD_URL:-}
       # Board and Firebase: your own whiteboard deployment; empty = whiteboard off (Ever-operated:
       # https://board.ever.team and https://jsonboard.ever.team/api/v2/post/)
       NEXT_PUBLIC_BOARD_APP_DOMAIN: ${NEXT_PUBLIC_BOARD_APP_DOMAIN:-}
