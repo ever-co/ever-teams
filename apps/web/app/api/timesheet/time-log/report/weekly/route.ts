@@ -16,6 +16,15 @@ export async function GET(req: Request) {
 		);
 	}
 
+	const start = Date.parse(startDate);
+	const end = Date.parse(endDate);
+	if (Number.isNaN(start) || Number.isNaN(end) || start > end) {
+		return NextResponse.json(
+			{ error: 'Invalid parameters: startDate and endDate must be valid dates, startDate not after endDate' },
+			{ status: 400 }
+		);
+	}
+
 	const { user, access_token, tenantId, organizationId } = await authenticatedGuard(req, res);
 	if (!user) return NextResponse.json({}, { status: 401 });
 
