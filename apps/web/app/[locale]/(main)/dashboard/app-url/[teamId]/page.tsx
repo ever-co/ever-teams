@@ -55,8 +55,9 @@ function AppUrls() {
 	const { closeModal, isOpen, openModal } = useModal();
 	const { user } = useAuthenticateUser();
 
+	// The activity report API returns only the caller's own data to anyone without CHANGE_SELECTED_EMPLOYEE
 	const { mergedProps, enabled, currentFilters, updateDateRange, updateFilters, handleGroupByChange, isManage } =
-		useActivityFilters();
+		useActivityFilters({ includeTeamManagers: false });
 	const {
 		activityReport,
 		isLoading: loading,

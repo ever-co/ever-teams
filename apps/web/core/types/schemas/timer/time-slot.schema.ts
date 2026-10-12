@@ -7,6 +7,7 @@ import { z } from 'zod';
 // Schema for get time slots statistics request parameters
 export const getTimeSlotsStatisticsRequestSchema = z.object({
 	employeeId: z.string().min(1, 'Employee ID is required'),
+	teamIds: z.array(z.string()).optional(),
 	todayEnd: z.date(),
 	todayStart: z.date()
 });

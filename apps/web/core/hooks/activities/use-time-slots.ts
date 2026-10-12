@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAtom, useAtomValue } from 'jotai';
 import { timeSlotsState } from '@/core/stores/timer/time-slot';
+import { activeTeamState } from '@/core/stores';
 import moment from 'moment';
 import { activityTypeState } from '@/core/stores/timer/activity-type';
 import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
@@ -15,9 +16,10 @@ import { TGetTimeSlotsStatisticsRequest, TDeleteTimeSlotsRequest } from '@/core/
 import { toast } from 'sonner';
 
 export function useTimeSlots(hasFilter?: boolean) {
-	const { user } = useAuthenticateUser();
+	const { user, isTeamManager } = useAuthenticateUser();
 	const [timeSlots, setTimeSlots] = useAtom(timeSlotsState);
 	const activityFilter = useAtomValue(activityTypeState);
+	const activeTeamId = useAtomValue(activeTeamState)?.id;
 	const queryClient = useQueryClient();
 
 	// Memoized parameters to avoid unnecessary re-renders
@@ -30,17 +32,17 @@ export function useTimeSlots(hasFilter?: boolean) {
 
 		return {
 			employeeId: employeeId ?? '',
+			// The API returns another member's slots only to a manager of the team sent here
+			teamIds: employeeId !== user?.employee?.id && activeTeamId ? [activeTeamId] : [],
 			todayEnd,
 			todayStart
 		} satisfies TGetTimeSlotsStatisticsRequest;
-	}, [user?.employee?.id, activityFilter.member?.employeeId]);
+	}, [user?.employee?.id, activityFilter.member?.employeeId, activeTeamId]);
 
 	// Check if user is authorized to view time slots
 	const isAuthorized = useMemo(() => {
-		return (
-			activityFilter.member?.employeeId === user?.employee?.id || user?.role?.name?.toUpperCase() === 'MANAGER'
-		);
-	}, [activityFilter.member?.employeeId, user?.employee?.id, user?.role?.name]);
+		return activityFilter.member?.employeeId === user?.employee?.id || isTeamManager;
+	}, [activityFilter.member?.employeeId, user?.employee?.id, isTeamManager]);
 	const invalidateTimeSlots = useCallback(() => {
 		queryClient.invalidateQueries({ queryKey: queryKeys.timer.timeSlots.all });
 	}, [queryClient]);
@@ -79,7 +81,9 @@ export function useTimeSlots(hasFilter?: boolean) {
 	// Sync React Query data with Jotai state for backward compatibility
 	useEffect(() => {
 		if (timeSlotsQuery.data && Array.isArray(timeSlotsQuery.data)) {
-			const extractedTimeSlots = timeSlotsQuery.data[0]?.timeSlots || [];
+			// When the caller may not see this member, the API returns other slots (usually the caller's own)
+			const extractedTimeSlots =
+				timeSlotsQuery.data.find((entry) => entry.id === queryParams?.employeeId)?.timeSlots || [];
 			// Convert string dates to Date objects for compatibility with ITimeSlot interface
 			const convertedTimeSlots = extractedTimeSlots.map((slot) => ({
 				...slot,
@@ -94,7 +98,7 @@ export function useTimeSlots(hasFilter?: boolean) {
 		} else if (!isAuthorized) {
 			setTimeSlots([]);
 		}
-	}, [timeSlotsQuery.data, isAuthorized, setTimeSlots]);
+	}, [timeSlotsQuery.data, queryParams?.employeeId, isAuthorized, setTimeSlots]);
 
 	// Preserve exact interface - getTimeSlots function
 	const getTimeSlots = useCallback(() => {
@@ -138,11 +142,23 @@ export function useTimeSlots(hasFilter?: boolean) {
 		getTimeSlots();
 	}, [getTimeSlots]);
 
+	// The API deletes only the caller's own slots unless they may act for every employee. The rendered
+	// slots are checked too: they still belong to the previous member until the new scope has loaded.
+	const ownEmployeeId = user?.employee?.id;
+	const isOwnTimeSlots = useMemo(
+		() =>
+			!!ownEmployeeId &&
+			queryParams?.employeeId === ownEmployeeId &&
+			timeSlots.every((slot) => slot.employeeId === ownEmployeeId),
+		[ownEmployeeId, queryParams?.employeeId, timeSlots]
+	);
+
 	return {
 		// Preserve exact interface names and behavior
 		timeSlots,
 		getTimeSlots,
 		deleteTimeSlots,
+		isOwnTimeSlots,
 		loadingDelete: deleteTimeSlotsMutation.isPending,
 		loading: timeSlotsQuery.isLoading
 	};
