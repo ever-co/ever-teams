@@ -28,7 +28,7 @@ export async function authenticatedGuard(req: Request, res: NextResponse<unknown
 	const taskId = getActiveTaskIdCookie({ req, res });
 	const projectId = getActiveProjectIdCookie({ req, res });
 
-	let rejection: { statusCode?: number } | undefined;
+	let rejection: { statusCode?: number; message?: string } | undefined;
 	const r_res = await currentAuthenticatedUserRequest({
 		bearer_token: access_token?.toString() || ''
 	}).catch(async (error: unknown) => {
@@ -39,13 +39,24 @@ export async function authenticatedGuard(req: Request, res: NextResponse<unknown
 
 	// A 2xx with an empty or unreadable body leaves data undefined: treat it as a check without an answer.
 	if (!r_res?.data || (r_res.data as any).statusCode === 401) {
-		// The browser clients re-authenticate on the HTTP status, so the refusal carries Gauzy's own status.
-		// A check that never got a usable answer is a 503: an outage must not look like an expired session.
-		const upstreamStatus = (rejection ?? (r_res?.data as any))?.statusCode;
-		const status = typeof upstreamStatus === 'number' && upstreamStatus >= 400 ? upstreamStatus : 503;
+		// The browser clients re-authenticate on the HTTP status, so the refusal carries Gauzy's own status
+		// (401, 404, 429...). A check that never got a usable answer is a 503: an outage must not look like an
+		// expired session that the client should log out.
+		const upstream: { statusCode?: number; message?: string } | undefined = rejection ?? (r_res?.data as any);
+		const status =
+			typeof upstream?.statusCode === 'number' && upstream.statusCode >= 400 ? upstream.statusCode : 503;
 		return {
 			$res: (data: any) => NextResponse.json({ statusCode: status, message: data }, { status }),
-			user: null
+			user: null,
+			status,
+			deny: () =>
+				NextResponse.json(
+					{
+						message:
+							status === 503 ? 'Session check unavailable, retry later' : upstream?.message || 'Unauthorized'
+					},
+					{ status }
+				)
 		};
 	}
 
