@@ -73,6 +73,16 @@ LOOPBACK.addAddress('::1', 'ipv6');
 
 const LOCALHOST_NAME = /(^|\.)localhost$/;
 
+/** Longer is not a base URL: it bounds the work spent on a caller's value (2,048 = the common URL limit). */
+const MAX_BASE_URL_LENGTH = 2048;
+
+/** Drops trailing slashes in linear time (a `/\/+$/` replace backtracks quadratically on a long slash run). */
+function withoutTrailingSlashes(value: string): string {
+	let end = value.length;
+	while (end > 0 && value.charCodeAt(end - 1) === 47) end--;
+	return value.slice(0, end);
+}
+
 /** The eight 16-bit groups of an IPv6 address, or `null` when it is not one. */
 function ipv6Groups(address: string): number[] | null {
 	let text = address.split('%')[0];
@@ -156,7 +166,7 @@ async function resolvesToPublic(host: string): Promise<boolean> {
  * (no trailing slash) and `allowLoopback` tells `createGuardedFetch` whether it is a local-development URL.
  */
 export async function checkCustomBaseUrl(raw: unknown, env: Env = process.env as Env): Promise<CustomBaseUrlCheck> {
-	if (typeof raw !== 'string') return REFUSED;
+	if (typeof raw !== 'string' || raw.length > MAX_BASE_URL_LENGTH) return REFUSED;
 	let url: URL;
 	try {
 		url = new URL(raw.trim());
@@ -180,5 +190,5 @@ export async function checkCustomBaseUrl(raw: unknown, env: Env = process.env as
 		if (!isPublic) return REFUSED;
 	}
 
-	return { ok: true, baseURL: url.href.replace(/\/+$/, ''), allowLoopback: localDevelopment };
+	return { ok: true, baseURL: withoutTrailingSlashes(url.href), allowLoopback: localDevelopment };
 }
