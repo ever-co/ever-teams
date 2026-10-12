@@ -11,11 +11,17 @@ import { isBlockedAddress } from './custom-base-url';
  * rebinding), and the global fetch exposes no hook for that. It also:
  * - only fetches URLs under the checked origin;
  * - never follows a redirect (a public endpoint could send the request on to a private one): the
- *   redirect comes back as the response, which the provider SDK reports as an error.
+ *   redirect comes back as the response, which the provider SDK reports as an error;
+ * - gives up when the socket stays silent for `timeoutMs` (connecting, waiting for the headers or between
+ *   two body chunks), like the global fetch's headers and body timeouts: Node's client has none;
+ * - rejects an answer a fetch `Response` cannot carry (a status outside 200-599...) instead of throwing.
  */
 
 /** Statuses whose response has no body (the Response constructor rejects one). */
 const NULL_BODY_STATUSES = new Set([101, 103, 204, 205, 304]);
+
+/** undici's (the global fetch's) default headers and body timeout. */
+const DEFAULT_TIMEOUT_MS = 300_000;
 
 function blockedAddressError(hostname: string) {
 	return Object.assign(new Error(`Refusing to connect to ${hostname}: not a public address`), {
@@ -45,7 +51,15 @@ function requestBody(body: RequestInit['body']): Buffer | undefined {
 	throw new TypeError('The guarded fetch sends string or binary request bodies only');
 }
 
-export function createGuardedFetch({ baseURL, allowLoopback }: { baseURL: string; allowLoopback: boolean }) {
+export function createGuardedFetch({
+	baseURL,
+	allowLoopback,
+	timeoutMs = DEFAULT_TIMEOUT_MS
+}: {
+	baseURL: string;
+	allowLoopback: boolean;
+	timeoutMs?: number;
+}) {
 	const origin = new URL(baseURL).origin;
 	const lookup = guardedLookup(allowLoopback);
 
@@ -68,26 +82,42 @@ export function createGuardedFetch({ baseURL, allowLoopback }: { baseURL: string
 		return new Promise<Response>((resolve, reject) => {
 			const request = send(
 				url,
-				{ method, headers: Object.fromEntries(headers), lookup, signal: init.signal ?? undefined },
+				{
+					method,
+					headers: Object.fromEntries(headers),
+					lookup,
+					signal: init.signal ?? undefined,
+					timeout: timeoutMs
+				},
 				(response) => {
-					const status = response.statusCode ?? 502;
-					const responseHeaders = new Headers();
-					for (let i = 0; i < response.rawHeaders.length; i += 2) {
-						responseHeaders.append(response.rawHeaders[i], response.rawHeaders[i + 1]);
+					try {
+						const status = response.statusCode ?? 502;
+						const responseHeaders = new Headers();
+						for (let i = 0; i < response.rawHeaders.length; i += 2) {
+							responseHeaders.append(response.rawHeaders[i], response.rawHeaders[i + 1]);
+						}
+						const hasBody = method !== 'HEAD' && !NULL_BODY_STATUSES.has(status);
+						if (!hasBody) response.resume();
+						resolve(
+							new Response(
+								hasBody ? (Readable.toWeb(response) as unknown as ReadableStream<Uint8Array>) : null,
+								{
+									status,
+									statusText: response.statusMessage,
+									headers: responseHeaders
+								}
+							)
+						);
+					} catch (error) {
+						// An answer a fetch Response cannot carry (status outside 200-599, invalid header...): an
+						// error thrown here would escape this callback and could stop the server.
+						request.destroy();
+						reject(new TypeError(`Unusable answer from ${origin}`, { cause: error }));
 					}
-					const hasBody = method !== 'HEAD' && !NULL_BODY_STATUSES.has(status);
-					if (!hasBody) response.resume();
-					resolve(
-						new Response(
-							hasBody ? (Readable.toWeb(response) as unknown as ReadableStream<Uint8Array>) : null,
-							{
-								status,
-								statusText: response.statusMessage,
-								headers: responseHeaders
-							}
-						)
-					);
 				}
+			);
+			request.on('timeout', () =>
+				request.destroy(new Error(`No answer from ${origin} for ${Math.round(timeoutMs / 1000)} s`))
 			);
 			request.on('error', reject);
 			request.end(body);

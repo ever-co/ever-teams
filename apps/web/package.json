@@ -23,7 +23,7 @@
 		"start": "yarn node env.js && yarn next start -p 3030",
 		"lint": "eslint . --max-warnings=0 --pass-on-unpruned-suppressions",
 		"lint:prune": "eslint . --prune-suppressions",
-		"lint:staged": "eslint --fix --no-warn-ignored --pass-on-unpruned-suppressions",
+		"lint:staged": "eslint --fix --max-warnings=0 --no-warn-ignored --pass-on-unpruned-suppressions",
 		"test": "jest --ci",
 		"test:watch": "jest --watch",
 		"format": "prettier --ignore-path .gitignore \"./**/*.+(ts|js|tsx)\" --write",

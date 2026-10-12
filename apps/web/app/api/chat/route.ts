@@ -7,9 +7,10 @@ import { createGuardedFetch } from '@/core/lib/chat/guarded-fetch';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 
 export async function POST(req: Request) {
-	// The server calls the provider for the caller: signed-in users only.
-	const { user } = await authenticatedGuard(req, new NextResponse());
-	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+	// The server calls the provider for the caller: signed-in users only. The guard's own status: 401 for
+	// a refused session, 503 when Gauzy could not answer (an outage must not look like a sign-out).
+	const guard = await authenticatedGuard(req, new NextResponse());
+	if (!guard.user) return guard.deny();
 
 	const { messages, config } = await req.json();
 
@@ -51,7 +52,9 @@ export async function POST(req: Request) {
 		system: `You are a helpful AI assistant integrated into ${APP_NAME}, a work and project management platform.
 You help users with their tasks, projects, and team collaboration questions.
 Be concise, professional, and helpful. You can format your responses using Markdown.`,
-		messages
+		messages,
+		// The caller leaving (closed tab, Stop) ends the provider request too.
+		abortSignal: req.signal
 	});
 
 	return result.toDataStreamResponse();

@@ -120,4 +120,24 @@ describe('createGuardedFetch', () => {
 
 		await expect(guardedFetch(`${origin}/v1/models`, { signal: controller.signal })).rejects.toThrow();
 	});
+
+	it('rejects an answer whose status a fetch Response cannot carry, instead of throwing out of the callback', async () => {
+		handler = (_req, res) => {
+			res.writeHead(700);
+			res.end('not http');
+		};
+		const origin = `http://127.0.0.1:${port}`;
+		const guardedFetch = createGuardedFetch({ baseURL: `${origin}/v1`, allowLoopback: true });
+
+		await expect(chatCompletion(guardedFetch, origin)).rejects.toThrow();
+	});
+
+	it('gives up on an endpoint that takes the request and never answers', async () => {
+		handler = () => undefined;
+		const origin = `http://127.0.0.1:${port}`;
+		const guardedFetch = createGuardedFetch({ baseURL: `${origin}/v1`, allowLoopback: true, timeoutMs: 200 });
+
+		await expect(chatCompletion(guardedFetch, origin)).rejects.toThrow(/no answer/i);
+		expect(received).toHaveLength(1);
+	});
 });

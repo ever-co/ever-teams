@@ -48,6 +48,12 @@ describe('checkCustomBaseUrl', () => {
 		['IPv4-mapped cloud metadata', 'https://[::ffff:a9fe:a9fe]/v1'],
 		['NAT64 of a private address', 'https://[64:ff9b::a00:1]/v1'],
 		['6to4 of a private address', 'https://[2002:c0a8:101::1]/v1'],
+		['IPv4-translated private address', 'https://[::ffff:0:a00:1]/v1'],
+		['IPv6 benchmarking', 'https://[2001:2::1]/v1'],
+		['IPv6 IETF protocol assignments', 'https://[2001:10::1]/v1'],
+		['IPv6 documentation 3fff::/20', 'https://[3fff::1]/v1'],
+		['IPv6 segment-routing SIDs', 'https://[5f00::1]/v1'],
+		['IPv6 dummy prefix', 'https://[100:0:0:1::1]/v1'],
 		['localhost', 'https://localhost:11434/v1'],
 		['a *.localhost name', 'https://ollama.localhost/v1']
 	])('rejects %s', async (_case, raw) => {
