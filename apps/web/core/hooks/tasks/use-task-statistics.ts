@@ -92,6 +92,12 @@ export function useTaskStatistics(addSeconds = 0, options: UseTaskStatisticsOpti
 			statisticsService
 				.tasksTimesheetStatistics({
 					employeeId,
+					// Another member's profile: name the team, so a team manager gets that member's figures and not
+					// their own (Gauzy falls back to the caller when no team is named)
+					teamId:
+						employeeId && employeeId !== user?.employee?.id
+							? (scope?.teamId ?? activeTeam?.id ?? undefined)
+							: undefined,
 					...(scoped ? { options: { scope: scope! } } : {})
 				})
 				.then(({ data }) => {
@@ -102,7 +108,7 @@ export function useTaskStatistics(addSeconds = 0, options: UseTaskStatisticsOpti
 					});
 				});
 		},
-		[isCurrentScope, scope, scoped, setStatTasks, user?.employee?.tenantId]
+		[isCurrentScope, scope, scoped, setStatTasks, user?.employee?.tenantId, user?.employee?.id, activeTeam?.id]
 	);
 	const getAllTasksStatsData = useCallback(() => {
 		statisticsService.allTaskTimesheetStatistics().then((data) => {

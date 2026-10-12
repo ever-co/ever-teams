@@ -113,9 +113,12 @@ class StatisticsService extends APIService {
 
 	tasksTimesheetStatistics = async ({
 		employeeId,
+		teamId,
 		options
 	}: {
 		employeeId?: string;
+		/** The team another member is viewed through: Gauzy returns a member's figures to a team manager only then */
+		teamId?: string;
 		options?: ScopedReadOptions;
 	}) => {
 		const api = await getFallbackAPI();
@@ -130,7 +133,8 @@ class StatisticsService extends APIService {
 				const commonParams = {
 					tenantId,
 					organizationId,
-					...(employeeId ? { employeeIds: [employeeId] } : {})
+					...(employeeId ? { employeeIds: [employeeId] } : {}),
+					...(teamId ? { teamIds: [teamId] } : {})
 				};
 				const globalParams = {
 					...commonParams,
@@ -154,7 +158,7 @@ class StatisticsService extends APIService {
 				};
 			} else {
 				return api.get<{ global: TTaskStatistics; today: TTaskStatistics }>(
-					`/timer/timesheet/statistics-tasks${employeeId ? '?employeeId=' + employeeId : ''}`
+					`/timer/timesheet/statistics-tasks${employeeId || teamId ? '?' + qs.stringify({ employeeId, teamId }) : ''}`
 				);
 			}
 		} catch (error) {

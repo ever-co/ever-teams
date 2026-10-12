@@ -11,6 +11,8 @@ export async function GET(req: Request) {
 
 	const activeTask = searchParams.get('activeTask') === 'true';
 	const employeeId = searchParams.get('employeeId') || user.employee?.id || '';
+	// The team another member is viewed through (see statisticsService.tasksTimesheetStatistics)
+	const teamIds = searchParams.get('teamId') ? [searchParams.get('teamId') as string] : undefined;
 
 	if (activeTask && !taskId) {
 		return $res({
@@ -24,6 +26,7 @@ export async function GET(req: Request) {
 			tenantId,
 			organizationId,
 			employeeIds: employeeId ? [employeeId] : [],
+			...(teamIds ? { teamIds } : {}),
 			defaultRange: 'false',
 			...(activeTask && taskId ? { taskIds: [taskId] } : {})
 		},
@@ -35,6 +38,7 @@ export async function GET(req: Request) {
 			tenantId,
 			organizationId,
 			employeeIds: employeeId ? [employeeId] : [],
+			...(teamIds ? { teamIds } : {}),
 			defaultRange: 'true',
 			...(activeTask && taskId ? { taskIds: [taskId] } : {}),
 			unitOfTime: 'day'

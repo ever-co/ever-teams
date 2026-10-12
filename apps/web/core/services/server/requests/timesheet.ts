@@ -18,6 +18,7 @@ export type TTasksTimesheetStatisticsParams = {
 	startDate?: string;
 	endDate?: string;
 	employeeIds?: string[];
+	teamIds?: string[];
 	defaultRange?: string;
 	taskIds?: string[];
 	unitOfTime?: 'day';
