@@ -3,8 +3,11 @@ permissions:
   contents: read
 
 on:
+  # Feature and fix PRs into develop deliberately run no CI (cost). This gate runs on the promotion PRs
+  # (develop -> stage, stage -> main) and on demand for any branch through "Run workflow".
   pull_request:
     types: [opened, synchronize, reopened]
+    branches: [stage, main, master]
     paths:
       - '.deploy/web/**'
       - '.github/workflows/web.before-merge.yml'
@@ -20,6 +23,12 @@ on:
       - 'turbo.json'
       - 'yarn.lock'
       - 'README.md'
+  workflow_dispatch:
+    inputs:
+      base:
+        description: 'Branch the preserved feature surface is compared against'
+        required: true
+        default: 'develop'
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -88,8 +97,8 @@ jobs:
 
       - name: Verify preserved feature surface
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || format('origin/{0}', inputs.base) }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           node tools/preservation/ever-teams-surface.mjs \
             --base="$BASE_SHA" \
