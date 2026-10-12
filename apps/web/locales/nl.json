@@ -481,7 +481,8 @@
 		"GROUP_BY": "Groeperen op",
 		"DATE": "Datum",
 		"VIEW": "Weergave",
-		"HOURS_ON_DATE": "{hours} uur op {date}"
+		"HOURS_ON_DATE": "{hours} uur op {date}",
+		"EXPORT_FAILED": "Het bestand kon niet worden gemaakt. Probeer het opnieuw."
 	},
 	"hotkeys": {
 		"HELP": "Help",

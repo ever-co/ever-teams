@@ -481,7 +481,8 @@
 		"GROUP_BY": "分组依据",
 		"DATE": "日期",
 		"VIEW": "视图",
-		"HOURS_ON_DATE": "{date} 的 {hours} 小时"
+		"HOURS_ON_DATE": "{date} 的 {hours} 小时",
+		"EXPORT_FAILED": "无法创建文件，请重试。"
 	},
 	"hotkeys": {
 		"HELP": "帮助",

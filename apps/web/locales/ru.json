@@ -481,7 +481,8 @@
 		"GROUP_BY": "Группировать по",
 		"DATE": "Дата",
 		"VIEW": "Вид",
-		"HOURS_ON_DATE": "{hours} часов {date}"
+		"HOURS_ON_DATE": "{hours} часов {date}",
+		"EXPORT_FAILED": "Не удалось создать файл. Попробуйте еще раз."
 	},
 	"hotkeys": {
 		"HELP": "Помощь",

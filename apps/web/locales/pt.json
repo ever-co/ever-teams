@@ -481,7 +481,8 @@
 		"GROUP_BY": "Agrupar por",
 		"DATE": "Data",
 		"VIEW": "Visualização",
-		"HOURS_ON_DATE": "{hours} horas em {date}"
+		"HOURS_ON_DATE": "{hours} horas em {date}",
+		"EXPORT_FAILED": "Não foi possível criar o arquivo. Tente novamente."
 	},
 	"hotkeys": {
 		"HELP": "Ajuda",

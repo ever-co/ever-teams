@@ -455,7 +455,8 @@
 		"GROUP_BY": "تجميع حسب",
 		"DATE": "التاريخ",
 		"VIEW": "عرض",
-		"HOURS_ON_DATE": "{hours} ساعة في {date}"
+		"HOURS_ON_DATE": "{hours} ساعة في {date}",
+		"EXPORT_FAILED": "تعذّر إنشاء الملف. حاول مرة أخرى."
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",

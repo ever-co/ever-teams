@@ -481,7 +481,8 @@
 		"GROUP_BY": "קבץ לפי",
 		"DATE": "תאריך",
 		"VIEW": "תצוגה",
-		"HOURS_ON_DATE": "{hours} שעות ב-{date}"
+		"HOURS_ON_DATE": "{hours} שעות ב-{date}",
+		"EXPORT_FAILED": "לא ניתן היה ליצור את הקובץ. נסה שוב."
 	},
 	"hotkeys": {
 		"HELP": "עזרה",

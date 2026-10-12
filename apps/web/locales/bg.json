@@ -481,7 +481,8 @@
 		"GROUP_BY": "Групиране по",
 		"DATE": "Дата",
 		"VIEW": "Изглед",
-		"HOURS_ON_DATE": "{hours} часа на {date}"
+		"HOURS_ON_DATE": "{hours} часа на {date}",
+		"EXPORT_FAILED": "Файлът не можа да бъде създаден. Опитайте отново."
 	},
 	"hotkeys": {
 		"HELP": "Помощ",
