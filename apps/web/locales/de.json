@@ -1170,7 +1170,9 @@
 			"WARNING_PLAN_ESTIMATION": "Bitte korrigieren Sie die geplanten Arbeitsstunden oder schätzen Sie die Aufgabe(n) neu ein."
 		},
 		"VISITED_SITES": "Besuchte Seiten",
-		"NO_VISITED_SITE_MESSAGE": "Es gibt keine besuchten Seiten"
+		"NO_VISITED_SITE_MESSAGE": "Es gibt keine besuchten Seiten",
+		"TRACKING_SOURCE_HINT": "Screenshots, Apps und besuchte Seiten werden von der Desktop-App oder dem Agenten erfasst, nicht bei der Zeiterfassung im Browser.",
+		"DOWNLOAD_DESKTOP_APP": "Desktop-App herunterladen"
 	},
 	"task": {
 		"TITLE": "Aufgabe",

@@ -1170,7 +1170,9 @@
 		"ARCHIVED": "Archiviato",
 		"NOT_ARCHIVED": "Non archiviato",
 		"VISITED_SITES": "Siti visitati",
-		"NO_VISITED_SITE_MESSAGE": "Non ci sono siti visitati"
+		"NO_VISITED_SITE_MESSAGE": "Non ci sono siti visitati",
+		"TRACKING_SOURCE_HINT": "Schermate, app e siti visitati vengono registrati dall'app desktop o dall'agente, non quando il tempo viene tracciato nel browser.",
+		"DOWNLOAD_DESKTOP_APP": "Scarica l'app desktop"
 	},
 	"task": {
 		"TITLE": "Compito",
