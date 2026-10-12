@@ -936,6 +936,7 @@
 		"**/vscode-extension/**",
 		"package-lock.json",
 		"yarn.lock",
+		"**/eslint-suppressions.json",
 		"**/assets/i18n/*.json",
 		"**/migrations/**",
 		"packages/**/*.seed.json",
