@@ -54,6 +54,70 @@ cannot make those tokens itself and calls these routes through this app in both
 API modes, so the app is their authorization boundary and the route must decide
 who may get a token.
 
+## Linting
+
+`yarn workspace @ever-teams/web lint` runs ESLint 9 with `eslint.config.mjs`
+over every `.js`, `.jsx`, `.ts` and `.tsx` file and fails on any warning. CI's
+`nx run web:lint` runs that same script, and the pre-commit hook runs
+`lint:staged` (with `--fix`) on the staged `apps/web` files. Run ESLint through
+these scripts: the repository root has its own ESLint 8.46, which cannot load
+this config.
+
+The rules come from eslint-config-next's `core-web-vitals` and `typescript`
+configs (Next, React, hooks, accessibility, import and typescript-eslint).
+Violations that existed when TypeScript linting was turned on are recorded in
+`eslint-suppressions.json` ([ESLint bulk suppressions](https://eslint.org/docs/latest/use/suppressions)),
+so every rule already applies to new code:
+
+- A new violation fails. So does one more violation of a rule in a file that
+  has suppressed ones: ESLint then lists all of that rule's violations in the
+  file, old and new, and you fix the new one.
+- After fixing suppressed violations, run
+  `yarn workspace @ever-teams/web lint:prune` and commit the smaller
+  `eslint-suppressions.json`. `lint` does not fail on a stale entry, so a fix
+  never turns a promotion red, but a stale count would let the file take the
+  violation back.
+- Do not use `--suppress-all` to make a new violation pass. It is only for
+  recording the backlog of a rule you turn on, in its own pull request.
+
+Backlog when TypeScript linting was turned on (1,690 violations in 512 files),
+in the order to burn it down:
+
+1.  Possible bugs, a handful each: `no-constant-binary-expression` (an
+    always-true `!false &&` in `email-reset-modal.tsx`),
+    `react-hooks/static-components` (a component created during render in
+    `review-summary.tsx`), `react/no-children-prop`, `react-hooks/use-memo` (3),
+    `react-hooks/purity` (8), `react-hooks/immutability` (28),
+    `@typescript-eslint/no-non-null-asserted-optional-chain` (5), `prefer-const`
+    (5, auto-fixable).
+2.  Hook correctness: `react-hooks/exhaustive-deps` (118),
+    `react-hooks/set-state-in-effect` (121), `react-hooks/refs` (122),
+    `react-hooks/preserve-manual-memoization` (76),
+    `react-hooks/incompatible-library` (6).
+3.  TypeScript hygiene: `@typescript-eslint/no-unused-vars` (90),
+    `@typescript-eslint/no-unused-expressions` (97),
+    `@typescript-eslint/ban-ts-comment` (55),
+    `@typescript-eslint/no-require-imports` (85),
+    `@typescript-eslint/no-explicit-any` (854, folder by folder), and the
+    one-offs: `no-empty-object-type` (4), `import/no-anonymous-default-export`
+    (4), `react/no-unescaped-entities` (2), `no-namespace`, `no-redeclare` (a
+    `/* global module */` that Node's globals now cover), `no-head-element`
+    and `jsx-a11y/role-has-required-aria-props` (both in tests).
+4.  About 67 `eslint-disable` comments name rules that are not enabled
+    (`no-console`, `no-mixed-spaces-and-tabs`, the old
+    `@typescript-eslint/no-var-requires`...). Remove them, then turn
+    `reportUnusedDisableDirectives` back on in `eslint.config.mjs`.
+5.  The house rules of `@ever-teams/eslint-config/next.js` (`import/order`,
+    `@typescript-eslint/naming-convention`, `react/self-closing-comp`...), which
+    only the ESLint 8 era `.eslintrc.json` loaded, are not enabled. Measure each
+    one and add it with its own baseline.
+
+`eslint-plugin-unused-imports` only checks JavaScript: it builds on the root's
+`@typescript-eslint/eslint-plugin` 5.60, which crashes on TypeScript under
+ESLint 9, so `@typescript-eslint/no-unused-vars` reports unused imports in
+TypeScript instead (without the automatic removal). Upgrading the root's lint
+packages would let it cover TypeScript again.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
