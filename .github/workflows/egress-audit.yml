@@ -19,8 +19,11 @@ name: Egress audit
 # the version and integrity yarn.lock pins. Nothing of it is copied into this repository. The paired Gauzy
 # API runs from its published develop image (or the one given to a manual run); see tools/egress-audit.
 on:
+  # Feature and fix PRs into develop deliberately run no CI (cost). The audit runs on the promotion PRs
+  # (develop -> stage, stage -> main) and on demand for any branch through "Run workflow".
   pull_request:
     types: [opened, synchronize, reopened]
+    branches: [stage, main, master]
     paths:
       - '.deploy/web/**'
       - '.github/workflows/egress-audit.yml'
