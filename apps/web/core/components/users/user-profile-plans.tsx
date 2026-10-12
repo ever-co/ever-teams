@@ -10,6 +10,7 @@ import { useDeleteDailyPlan } from '@/core/hooks/daily-plans/use-delete-daily-pl
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
+import { estimatedTotalTime, getTotalTasks } from '@/core/hooks/daily-plans/daily-plan-totals';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
 import {
 	DAILY_PLAN_SUGGESTION_MODAL_DATE,
@@ -23,14 +24,7 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
 import { ReloadIcon, StarIcon } from '@radix-ui/react-icons';
 
-import {
-	estimatedTotalTime,
-	getTotalTasks,
-	Outstanding,
-	OutstandingAll,
-	OutstandingFilterDate,
-	PastTasks
-} from '../tasks/daily-plan';
+import { Outstanding, OutstandingAll, OutstandingFilterDate, PastTasks } from '../tasks/daily-plan';
 import { FutureTasks } from '../tasks/daily-plan/future-tasks';
 import ViewsHeaderTabs from '../tasks/daily-plan/views-header-tabs';
 import moment from 'moment';
