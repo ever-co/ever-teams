@@ -89,7 +89,6 @@ export function RejectSelectedModal({
 						maxLength={120}
 						minLength={0}
 						aria-label="Rejection reason"
-						required
 					/>
 					<div className="text-sm text-right text-gray-500">
 						{reason.length}/{maxReasonLength}
