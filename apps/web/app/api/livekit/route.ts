@@ -1,61 +1,47 @@
-import { AccessToken } from "livekit-server-sdk";
-import { NextRequest, NextResponse } from "next/server";
-import { readRuntimeEnv } from "@/env-config";
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { AccessToken } from 'livekit-server-sdk';
+import { NextRequest, NextResponse } from 'next/server';
+import { readRuntimeEnv } from '@/env-config';
 
 export async function GET(req: NextRequest) {
-    const room = req.nextUrl.searchParams.get("roomName");
-    const username = req.nextUrl.searchParams.get("username");
+	const res = new NextResponse();
+	const { user } = await authenticatedGuard(req, res);
 
-    if (!room || typeof room !== 'string' || room.trim() === '') {
-        return NextResponse.json(
-            { error: 'Missing or invalid "roomName" query parameter' },
-            { status: 400 }
-        );
-    }
+	// Session tenant, not the guard's auth-tenant-id cookie: that one is client-writable
+	if (!user?.tenantId) {
+		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+	}
 
-    if (!username || typeof username !== 'string' || username.trim() === '') {
-        return NextResponse.json(
-            { error: 'Missing or invalid "username" query parameter' },
-            { status: 400 }
-        );
-    }
+	const room = req.nextUrl.searchParams.get('roomName')?.trim();
 
-    const apiKey = process.env.LIVEKIT_API_KEY;
-    const apiSecret = process.env.LIVEKIT_API_SECRET;
-    // Next inlines a build-time NEXT_PUBLIC_* literal into server bundles too: read the container env first.
-    const wsUrl = readRuntimeEnv("NEXT_PUBLIC_LIVEKIT_URL") || process.env.NEXT_PUBLIC_LIVEKIT_URL?.trim();
+	if (!room) {
+		return NextResponse.json({ error: 'Missing or invalid "roomName" query parameter' }, { status: 400 });
+	}
 
-    if (!apiKey || !apiSecret || !wsUrl) {
-        console.error("Server misconfigured: missing environment variables.");
-        return NextResponse.json(
-            { error: "Server misconfigured" },
-            { status: 500 }
-        );
-    }
+	const apiKey = process.env.LIVEKIT_API_KEY;
+	const apiSecret = process.env.LIVEKIT_API_SECRET;
+	// Next inlines a build-time NEXT_PUBLIC_* literal into server bundles too: read the container env first.
+	const wsUrl = readRuntimeEnv('NEXT_PUBLIC_LIVEKIT_URL') || process.env.NEXT_PUBLIC_LIVEKIT_URL?.trim();
 
-    try {
-        const at = new AccessToken(apiKey, apiSecret, { identity: username, ttl: '1h' });
-        at.addGrant({
-            room,
-            roomJoin: true,
-            canPublish: true,
-            canSubscribe: true,
-            roomRecord: true,
-            roomCreate: true,
-            roomAdmin: true,
-            recorder: true,
-            roomList: true,
-            canUpdateOwnMetadata: true,
-            agent: true,
-            canPublishData: true,
-        });
-        const token = await at.toJwt();
-        return NextResponse.json({ token: token });
-    } catch (error) {
-        console.error("Failed to generate token:", error);
-        return NextResponse.json(
-            { error: "Failed to generate token" },
-            { status: 500 }
-        );
-    }
+	if (!apiKey || !apiSecret || !wsUrl) {
+		console.error('Server misconfigured: missing environment variables.');
+		return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 });
+	}
+
+	try {
+		const at = new AccessToken(apiKey, apiSecret, { identity: user.email || user.id, ttl: '1h' });
+		at.addGrant({
+			// Rooms are shared by link, so scoping per tenant keeps a leaked link within its tenant
+			room: `${user.tenantId}:${room}`,
+			roomJoin: true,
+			canPublish: true,
+			canSubscribe: true,
+			canPublishData: true
+		});
+		const token = await at.toJwt();
+		return NextResponse.json({ token: token });
+	} catch (error) {
+		console.error('Failed to generate token:', error);
+		return NextResponse.json({ error: 'Failed to generate token' }, { status: 500 });
+	}
 }

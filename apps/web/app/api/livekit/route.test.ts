@@ -7,6 +7,13 @@
 import { NextRequest } from 'next/server';
 import { GET } from './route';
 
+// The route authenticates first; these cases cover the env handling, not the guard.
+jest.mock('@/core/services/server/guards/authenticated-guard-app', () => ({
+	authenticatedGuard: jest.fn().mockResolvedValue({
+		user: { id: 'user-1', email: 'user@example.org', tenantId: 'tenant-1' }
+	})
+}));
+
 // livekit-server-sdk ships ESM only; the route only needs a token.
 jest.mock('livekit-server-sdk', () => ({
 	AccessToken: jest.fn().mockImplementation(() => ({
@@ -19,7 +26,7 @@ const ORIGINAL_ENV = process.env;
 let consoleError: jest.SpyInstance;
 
 function tokenRequest() {
-	return new NextRequest('https://teams.example.org/api/livekit?roomName=room-1&username=user%40example.org');
+	return new NextRequest('https://teams.example.org/api/livekit?roomName=room-1');
 }
 
 beforeEach(() => {
