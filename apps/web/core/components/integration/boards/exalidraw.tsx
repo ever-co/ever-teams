@@ -1,5 +1,5 @@
 import { Excalidraw, THEME } from '@excalidraw/excalidraw';
-import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/dist/types/excalidraw/types';
+import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
 import { useTheme } from 'next-themes';
 import { EverTeamsLogo } from '@/core/components/svgs';
 import debounce from 'lodash/debounce';

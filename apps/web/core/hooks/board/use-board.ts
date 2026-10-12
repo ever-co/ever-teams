@@ -1,8 +1,8 @@
 import { exportToBackend } from '@/core/lib/helpers/export-to-backend';
 import { queryKeys } from '@/core/query/keys';
-import { ExcalidrawElement } from '@excalidraw/excalidraw/dist/types/excalidraw/element/types';
-import { AppState, BinaryFiles } from '@excalidraw/excalidraw/dist/types/excalidraw/types';
-import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/dist/types/excalidraw/types';
+import { ExcalidrawElement } from '@excalidraw/excalidraw/element/types';
+import { AppState, BinaryFiles } from '@excalidraw/excalidraw/types';
+import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRef, useState, useEffect, useCallback } from 'react';
 
