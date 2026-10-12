@@ -63,6 +63,7 @@ export function useUpdateTimesheet() {
 				await updateTimesheetStatusMutate({ status, ids: idsArray });
 			} catch (error) {
 				console.error('Error updating timesheet status:', error);
+				throw error;
 			}
 		},
 		[updateTimesheetStatusMutate, user]
