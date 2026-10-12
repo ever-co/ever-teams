@@ -482,6 +482,10 @@
 		"DATE": "Date",
 		"VIEW": "Vue",
 		"HOURS_ON_DATE": "{hours} heures le {date}",
+		"PREVIOUS_WEEK": "Semaine précédente",
+		"NEXT_WEEK": "Semaine suivante",
+		"WEEKLY_REPORT_ERROR": "Rapport hebdomadaire indisponible",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "Le temps suivi pendant la semaine sélectionnée n'a pas pu être chargé.",
 		"EXPORT_FAILED": "Le fichier n'a pas pu être créé. Veuillez réessayer."
 	},
 	"hotkeys": {

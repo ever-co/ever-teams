@@ -482,6 +482,10 @@
 		"DATE": "תאריך",
 		"VIEW": "תצוגה",
 		"HOURS_ON_DATE": "{hours} שעות ב-{date}",
+		"PREVIOUS_WEEK": "השבוע הקודם",
+		"NEXT_WEEK": "השבוע הבא",
+		"WEEKLY_REPORT_ERROR": "הדוח השבועי אינו זמין",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "לא ניתן היה לטעון את הזמן שנרשם בשבוע שנבחר.",
 		"EXPORT_FAILED": "לא ניתן היה ליצור את הקובץ. נסה שוב."
 	},
 	"hotkeys": {

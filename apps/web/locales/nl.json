@@ -482,6 +482,10 @@
 		"DATE": "Datum",
 		"VIEW": "Weergave",
 		"HOURS_ON_DATE": "{hours} uur op {date}",
+		"PREVIOUS_WEEK": "Vorige week",
+		"NEXT_WEEK": "Volgende week",
+		"WEEKLY_REPORT_ERROR": "Weekrapport niet beschikbaar",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "De geregistreerde tijd van de geselecteerde week kon niet worden geladen.",
 		"EXPORT_FAILED": "Het bestand kon niet worden gemaakt. Probeer het opnieuw."
 	},
 	"hotkeys": {

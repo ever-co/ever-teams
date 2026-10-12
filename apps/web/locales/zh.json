@@ -482,6 +482,10 @@
 		"DATE": "日期",
 		"VIEW": "视图",
 		"HOURS_ON_DATE": "{date} 的 {hours} 小时",
+		"PREVIOUS_WEEK": "上一周",
+		"NEXT_WEEK": "下一周",
+		"WEEKLY_REPORT_ERROR": "周报告不可用",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "无法加载所选周的跟踪时间。",
 		"EXPORT_FAILED": "无法创建文件，请重试。"
 	},
 	"hotkeys": {

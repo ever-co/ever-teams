@@ -57,8 +57,8 @@ export const LazyActivityTable = dynamic(() => import('../pages/time-and-activit
 	ssr: false
 });
 
-export const LazyTimeActivityTable = dynamic(
-	() => import('../pages/time-and-activity/time-activity-table').then((mod) => ({ default: mod.TimeActivityTable })),
+export const LazyWeeklyReportTable = dynamic(
+	() => import('../pages/time-and-activity/weekly-report-table').then((mod) => ({ default: mod.WeeklyReportTable })),
 	{
 		ssr: false
 	}

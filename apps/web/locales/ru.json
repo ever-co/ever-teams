@@ -482,6 +482,10 @@
 		"DATE": "Дата",
 		"VIEW": "Вид",
 		"HOURS_ON_DATE": "{hours} часов {date}",
+		"PREVIOUS_WEEK": "Предыдущая неделя",
+		"NEXT_WEEK": "Следующая неделя",
+		"WEEKLY_REPORT_ERROR": "Недельный отчет недоступен",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "Не удалось загрузить время, отслеженное за выбранную неделю.",
 		"EXPORT_FAILED": "Не удалось создать файл. Попробуйте еще раз."
 	},
 	"hotkeys": {
