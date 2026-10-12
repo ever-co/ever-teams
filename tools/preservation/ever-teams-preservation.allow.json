@@ -14,5 +14,13 @@
 	{
 		"id": "removed:navigation:packages/toolkit/builder/app/providers.tsx::constant=TEAMS_API_URL::#1",
 		"reason": "The builder demo image froze its API URL at build time. The value is now read per request in app/layout.tsx and passed to this provider as a prop, so the module-level constant is gone by design."
+	},
+	{
+		"id": "removed:navigation:apps/web/app/[locale]/layout.tsx::router.push=/maintenance::#1",
+		"reason": "Moved unchanged to app/[locale]/layout-component.tsx. The locale layout is now a server component that imports only the active locale's messages, and its client part, maintenance redirect included, lives in that file."
+	},
+	{
+		"id": "removed:navigation:apps/web/app/[locale]/layout.tsx::router.replace=/::#1",
+		"reason": "Moved unchanged to app/[locale]/layout-component.tsx with the maintenance redirect above: it sends the user home once the API answers again."
 	}
 ]
