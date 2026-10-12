@@ -53,26 +53,6 @@ const imageRemotePatterns = [
 
 const BUILD_OUTPUT_MODE = process.env.NEXT_BUILD_OUTPUT_TYPE;
 
-const sentryConfig = isSentryEnabled && {
-	sentry: {
-		// For all available options, see: https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
-
-		// Upload a larger set of source maps for prettier stack traces (increases build time)
-		widenClientFileUpload: true,
-
-		// Transpiles SDK to be compatible with IE11 (increases bundle size)
-		transpileClientSDK: true,
-
-		// Routes browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers (increases server load)
-		tunnelRoute: '/monitoring',
-
-		// Hides source maps from generated client bundles
-		hideSourceMaps: true,
-
-		// Automatically tree-shake Sentry logger statements to reduce bundle size
-		disableLogger: true
-	}
-};
 // Next.js 16: eslint configuration in next.config.js is no longer supported
 // Use eslint.config.mjs for ESLint configuration instead
 /** @type {import('next').NextConfig} */
@@ -142,8 +122,7 @@ const nextConfig = {
 		EVER_TEAMS_OPTIMIZED_IMAGE_HOSTS: serializeImageRemotePatterns(imageRemotePatterns),
 		ANALYZE: process.env.ANALYZE
 		// NEXT_PUBLIC_DEMO is automatically accessible (no need to add it here)
-	},
-	...sentryConfig
+	}
 };
 
 // Injected content via Sentry wizard below
@@ -156,14 +135,25 @@ const sentryWebpackPluginOptions = {
 
 	silent: true, // Suppresses all logs
 
-	dryRun: process.env.NODE_ENV !== 'production'
+	// Upload a larger set of source maps for prettier stack traces (increases build time)
+	widenClientFileUpload: true,
+
+	// Webpack builds only: Turbopack, the `next build` default, ignores this option.
+	webpack: {
+		treeshake: {
+			removeDebugLogging: true
+		}
+	}
+
+	// No tunnelRoute: proxy.ts runs before rewrites and its matcher catches the tunnel path, so next-intl would
+	// rewrite or redirect Sentry's requests before the SDK's rewrite applies, and a static export
+	// (NEXT_BUILD_OUTPUT_TYPE=export) cannot serve a tunnel at all. Exclude the path from that matcher first.
 
 	// Additional config options for the Sentry Webpack plugin.
 	// Keep in mind that https://github.com/getsentry/sentry-webpack-plugin#options.
 };
 
 // Make sure adding Sentry options is the last code to run before exporting
-module.exports =
-	process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN
-		? withSentryConfig(withNextIntl(withBundleAnalyzer(nextConfig)), sentryWebpackPluginOptions)
-		: withNextIntl(withBundleAnalyzer(nextConfig));
+module.exports = isSentryEnabled
+	? withSentryConfig(withNextIntl(withBundleAnalyzer(nextConfig)), sentryWebpackPluginOptions)
+	: withNextIntl(withBundleAnalyzer(nextConfig));
