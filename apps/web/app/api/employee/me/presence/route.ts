@@ -16,11 +16,22 @@ export async function PUT(req: Request) {
 		return NextResponse.json({ error: 'isIdle must be a boolean' }, { status: 400 });
 	}
 
-	const response = await updateEmployeePresenceRequest({
-		bearer_token: access_token,
-		tenantId,
-		isIdle: body.data.isIdle
-	});
+	try {
+		const response = await updateEmployeePresenceRequest({
+			bearer_token: access_token,
+			tenantId,
+			isIdle: body.data.isIdle
+		});
 
-	return $res(response.data);
+		return $res(response.data);
+	} catch (error) {
+		// serverFetch rejects a non-2xx answer with Promise.reject(data): pass Gauzy's status on (404 on an API
+		// without the presence endpoint), so the heartbeat can stop asking, instead of a 500.
+		const rejection: { statusCode?: number } | undefined = await Promise.resolve(error).then(
+			() => undefined,
+			(gauzyError) => gauzyError
+		);
+		const status = typeof rejection?.statusCode === 'number' && rejection.statusCode >= 400 ? rejection.statusCode : 502;
+		return NextResponse.json(rejection ?? { message: 'Presence heartbeat failed' }, { status });
+	}
 }

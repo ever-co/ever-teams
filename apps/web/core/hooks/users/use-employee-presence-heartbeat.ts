@@ -5,6 +5,7 @@ import { EMPLOYEE_PRESENCE_CONSTANTS } from '@/core/constants/config/constants';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { syncServerClock } from '@/core/lib/utils/team-members.utils';
 import { employeeService } from '@/core/services/client/api/organizations/teams';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 
 const INTERACTION_EVENTS = ['keydown', 'mousedown', 'mousemove', 'wheel', 'touchstart'] as const;
 
@@ -42,6 +43,9 @@ export function useEmployeePresenceHeartbeat() {
 	useEffect(() => {
 		if (!employeeId) return;
 
+		// A Gauzy API without the presence endpoint (before ever-gauzy #10508) answers 404: stop asking
+		// instead of sending a failing request every minute from every open tab.
+		let unavailable = false;
 		let lastInteractionAt = 0;
 		let lastSharedAt = 0;
 		const markInteraction = () => {
@@ -53,7 +57,7 @@ export function useEmployeePresenceHeartbeat() {
 		};
 
 		const sendHeartbeat = () => {
-			if (document.visibilityState !== 'visible') return;
+			if (unavailable || document.visibilityState !== 'visible') return;
 
 			const lastInput = Math.max(lastInteractionAt, readSharedInteraction());
 			const isIdle = Date.now() - lastInput >= EMPLOYEE_PRESENCE_CONSTANTS.IDLE_AFTER_MS;
@@ -61,7 +65,9 @@ export function useEmployeePresenceHeartbeat() {
 			employeeService
 				.sendPresenceHeartbeat(isIdle)
 				.then((presence) => syncServerClock(presence?.lastSeenAt))
-				.catch(() => undefined);
+				.catch((error) => {
+					if (ApiErrorService.isApiError(error) && error.isEndpointUnavailable()) unavailable = true;
+				});
 		};
 
 		const onVisibilityChange = () => {

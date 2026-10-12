@@ -51,6 +51,24 @@ export const getMemberPresence = (
 };
 
 /**
+ * The status the team filters and their counts go by: Gauzy's timerStatus, except that a member who is not
+ * tracking, paused or suspended and sent a recent heartbeat is online, as the status badge shows it
+ * (getTimerStatusValue).
+ */
+export const getMemberFilterStatus = (member: TOrganizationTeamEmployee): string | undefined => {
+	const tracking = !!member.employee?.isTrackingTime || member.timerStatus === ETimerStatus.RUNNING;
+	if (
+		!tracking &&
+		member.timerStatus !== ETimerStatus.PAUSE &&
+		member.timerStatus !== ETimerStatus.SUSPENDED &&
+		getMemberPresence(member.employee) === 'online'
+	) {
+		return ETimerStatus.ONLINE;
+	}
+	return member.timerStatus ?? undefined;
+};
+
+/**
  * The part of a team's sync signature that follows its members' presence. It changes on every
  * heartbeat, and also when a heartbeat gets too old although the data itself did not change.
  */
@@ -165,20 +183,21 @@ export const sortByWorkStatus = (a: TOrganizationTeamEmployee, b: TOrganizationT
  */
 export const createFilterCondition = (activeFilter: TeamMemberFilterType, currentUserId?: string) => {
 	return (member: TOrganizationTeamEmployee): boolean => {
+		const status = getMemberFilterStatus(member);
 		switch (activeFilter) {
 			case 'idle':
 				// Include users with no timer status (new users) or idle status
-				return !member.timerStatus || member.timerStatus === ETimerStatus.IDLE;
+				return !status || status === ETimerStatus.IDLE;
 			case 'online':
 				// Current user should ALWAYS appear in ONLINE filter when authenticated
 				// regardless of their timer status (they're online by definition)
-				return member.timerStatus === ETimerStatus.ONLINE || member.employee?.user?.id === currentUserId;
+				return status === ETimerStatus.ONLINE || member.employee?.user?.id === currentUserId;
 			case 'running':
-				return member.timerStatus === ETimerStatus.RUNNING;
+				return status === ETimerStatus.RUNNING;
 			case 'pause':
-				return member.timerStatus === ETimerStatus.PAUSE;
+				return status === ETimerStatus.PAUSE;
 			default:
-				return member.timerStatus === activeFilter;
+				return status === activeFilter;
 		}
 	};
 };

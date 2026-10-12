@@ -108,20 +108,21 @@ export function getTimerStatusValue(
 		return ETimerStatus.SUSPENDED;
 	}
 
-	// Time tracking keeps the badge it has today; for anyone not tracking, a recent heartbeat wins.
-	// The public team payload carries no heartbeat, so a public view never shows presence.
-	if (!conditions.isTracking()) {
-		const presence = getMemberPresence(employee);
-		if (presence === 'online') return ETimerStatus.ONLINE;
-		if (presence === 'idle') return ETimerStatus.IDLE;
-	}
-
 	if (conditions.isExplicitlyPaused() || conditions.shouldPauseDueToTimerStatus()) {
 		return ETimerStatus.PAUSE;
 	}
 
 	if (conditions.isRunning()) {
 		return ETimerStatus.RUNNING;
+	}
+
+	// Tracking and pause keep the badge they have today (a manager still sees "worked today, paused"); for anyone
+	// else a recent heartbeat wins. The public team payload carries no heartbeat, so a public view never shows
+	// presence. getMemberFilterStatus applies the same rule to the team filters and their counts.
+	if (!conditions.isTracking()) {
+		const presence = getMemberPresence(employee);
+		if (presence === 'online') return ETimerStatus.ONLINE;
+		if (presence === 'idle') return ETimerStatus.IDLE;
 	}
 
 	if (conditions.isOnline()) {
