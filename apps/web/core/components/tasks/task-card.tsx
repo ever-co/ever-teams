@@ -33,7 +33,16 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { SpinnerLoader, Text } from '@/core/components';
 import Link from 'next/link';
-import React, { useCallback, useMemo, useState, useTransition } from 'react';
+import React, {
+	PropsWithChildren,
+	useCallback,
+	useEffect,
+	useId,
+	useMemo,
+	useRef,
+	useState,
+	useTransition
+} from 'react';
 import { SetStateAction, useAtomValue } from 'jotai';
 import { TimerButton } from '../timer/timer-button';
 import { TaskAllStatusTypes } from './task-all-status-type';
@@ -51,6 +60,7 @@ import { Nullable, SetAtom } from '@/core/types/generics';
 import { TaskEstimateInfo } from '../pages/teams/team/team-members-views/user-team-card/task-estimate';
 import { EverCard } from '../common/ever-card';
 import { VerticalSeparator } from '../duplicated-components/separator';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../common/tooltip';
 import { AddTaskToPlan } from '../features/daily-plan/add-task-to-plan';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
@@ -418,16 +428,48 @@ const TimerButtonCall = React.memo(
 		// Use optimistic state if available, otherwise use real state
 		const displayRunning = optimisticRunning ?? activeTaskStatus?.running;
 
+		const blockedByPlan = !activeTaskStatus && task.status !== 'closed' && !canTrack;
+		const planReasonId = useId();
+		const startButtonRef = useRef<HTMLButtonElement>(null);
+		// Set when this card's "Add to today's plan" succeeds: the focused action goes away with the tooltip once Start is enabled.
+		const refocusStartRef = useRef(false);
+
+		useEffect(() => {
+			if (blockedByPlan || !refocusStartRef.current) return;
+			refocusStartRef.current = false;
+			// Give focus back to Start only when it was lost with the tooltip, never take it from another control.
+			const active = document.activeElement;
+			if (!active || active === document.body) startButtonRef.current?.focus();
+		}, [blockedByPlan]);
+
+		const timerButton = (
+			<TimerButton
+				ref={startButtonRef}
+				onClick={activeTaskStatus ? startStopTimerHandler : startTimerWithTask}
+				running={displayRunning}
+				disabled={activeTaskStatus ? disabled : task.status === 'closed' || !canTrack}
+				aria-describedby={blockedByPlan ? planReasonId : undefined}
+				className={clsxm('w-14 h-14', className)}
+			/>
+		);
+
 		return loading ? (
 			<SpinnerLoader size={30} />
 		) : (
 			<>
-				<TimerButton
-					onClick={activeTaskStatus ? startStopTimerHandler : startTimerWithTask}
-					running={displayRunning}
-					disabled={activeTaskStatus ? disabled : task.status === 'closed' || !canTrack}
-					className={clsxm('w-14 h-14', className)}
-				/>
+				{blockedByPlan ? (
+					<PlanRequiredTooltip
+						taskId={task.id}
+						reasonId={planReasonId}
+						onPlanned={() => {
+							refocusStartRef.current = true;
+						}}
+					>
+						{timerButton}
+					</PlanRequiredTooltip>
+				) : (
+					timerButton
+				)}
 
 				<SuggestDailyPlanModal
 					isOpen={modals.isSuggestDailyPlanModalOpen}
@@ -474,6 +516,59 @@ const TimerButtonCall = React.memo(
 		);
 	}
 );
+
+// Explains a Start button greyed by the team's "require a plan to track" rule and offers the "plan for today" action.
+function PlanRequiredTooltip({
+	taskId,
+	reasonId,
+	onPlanned,
+	children
+}: PropsWithChildren<{ taskId: string; reasonId: string; onPlanned: () => void }>) {
+	const t = useTranslations();
+	const { data: user } = useUserQuery();
+	const [open, setOpen] = useState(false);
+	const containerRef = useRef<HTMLDivElement>(null);
+	const reason = t('timer.PLAN_REQUIRED_TO_START');
+
+	// The tooltip holds a focusable action: keyboard focus moving between the Start button and that action keeps it open.
+	return (
+		<TooltipProvider>
+			<Tooltip open={open} onOpenChange={setOpen}>
+				<div
+					ref={containerRef}
+					className="inline-flex"
+					onBlur={(event) => {
+						if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+					}}
+				>
+					<TooltipTrigger
+						asChild
+						onBlur={(event) => {
+							if (containerRef.current?.contains(event.relatedTarget)) event.preventDefault();
+						}}
+					>
+						<div className="inline-flex">{children}</div>
+					</TooltipTrigger>
+					<TooltipContent aria-label={reason} className="flex flex-col gap-1 items-start max-w-xs text-xs">
+						<p>{reason}</p>
+						<div className="text-primary dark:text-primary-light">
+							<PlanTask
+								planMode={EDailyPlanMode.TODAY}
+								taskId={taskId}
+								employeeId={user?.employee?.id}
+								label={t('dailyPlan.ADD_TO_TODAY_PLAN')}
+								onPlanned={onPlanned}
+							/>
+						</div>
+					</TooltipContent>
+					<span id={reasonId} hidden>
+						{reason}
+					</span>
+				</div>
+			</Tooltip>
+		</TooltipProvider>
+	);
+}
 
 //* Task Estimate info *
 //* Task Info FC *
@@ -791,7 +886,9 @@ export function PlanTask({
 	chooseMember = false,
 	taskPlannedToday,
 	taskPlannedForTomorrow,
-	openModal
+	openModal,
+	label,
+	onPlanned
 }: {
 	taskId: string;
 	planMode: EDailyPlanMode;
@@ -800,6 +897,10 @@ export function PlanTask({
 	taskPlannedToday?: TTask;
 	taskPlannedForTomorrow?: TTask;
 	openModal?: () => void;
+	/** Replaces the default label of the plan mode */
+	label?: string;
+	/** Called once the plan is created, in today and tomorrow modes */
+	onPlanned?: () => void;
 }) {
 	const t = useTranslations();
 	const [isPending, startTransition] = useTransition();
@@ -827,6 +928,7 @@ export function PlanTask({
 						toast.success(t('task.toastMessages.TASK_PLANNED_FOR_TODAY'), {
 							id: 'task-planned-for-today'
 						});
+						onPlanned?.();
 					} catch (error) {
 						console.error('Plan creation error:', error);
 						toast.error(t('task.toastMessages.TASK_PLAN_FAILED'), {
@@ -849,6 +951,7 @@ export function PlanTask({
 						toast.success(t('task.toastMessages.TASK_PLANNED_FOR_TOMORROW'), {
 							id: 'task-planned-for-tomorrow'
 						});
+						onPlanned?.();
 					} catch (error) {
 						console.error('Plan creation error:', error);
 						toast.error(t('task.toastMessages.TASK_PLAN_FAILED'), {
@@ -862,6 +965,9 @@ export function PlanTask({
 			toast.error(t('task.toastMessages.TASK_PLAN_FAILED'));
 		}
 	};
+
+	const todayLabel = label ?? t('dailyPlan.PLAN_FOR_TODAY');
+	const tomorrowLabel = label ?? t('dailyPlan.PLAN_FOR_TOMORROW');
 
 	return (
 		<div>
@@ -878,7 +984,7 @@ export function PlanTask({
 						{isPending || createDailyPlanLoading ? (
 							<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
 						) : (
-							t('dailyPlan.PLAN_FOR_TODAY')
+							todayLabel
 						)}
 					</span>
 				)}
@@ -887,11 +993,11 @@ export function PlanTask({
 						{isPending || createDailyPlanLoading ? (
 							<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
 						) : (
-							t('dailyPlan.PLAN_FOR_TOMORROW')
+							tomorrowLabel
 						)}
 					</span>
 				)}
-				{planMode === 'custom' && t('dailyPlan.PLAN_FOR_SOME_DAY')}
+				{planMode === 'custom' && (label ?? t('dailyPlan.PLAN_FOR_SOME_DAY'))}
 			</button>
 		</div>
 	);
