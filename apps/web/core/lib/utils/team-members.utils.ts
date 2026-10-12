@@ -1,7 +1,7 @@
 import isEqual from 'lodash/isEqual';
 import { TOrganizationTeamEmployee, TOrganizationTeam, TUser } from '@/core/types/schemas';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
-import { EMPLOYEE_PRESENCE_CONSTANTS } from '@/core/constants/config/constants';
+import { EMPLOYEE_PRESENCE_CONSTANTS, EMPLOYEE_PRESENCE_ENABLED } from '@/core/constants/config/constants';
 
 // Constants for team member utilities
 export const TEAM_MEMBER_CONSTANTS = {
@@ -42,6 +42,8 @@ export const syncServerClock = (serverTime?: string | Date | null): void => {
 export const getMemberPresence = (
 	employee?: { lastSeenAt?: string | Date | null; isIdle?: boolean | null } | null
 ): TMemberPresence => {
+	// Presence turned off for this deployment: every member reads as before presence existed
+	if (!EMPLOYEE_PRESENCE_ENABLED.value) return 'offline';
 	if (!employee?.lastSeenAt) return 'offline';
 
 	const age = Date.now() + serverClockOffsetMs - new Date(employee.lastSeenAt).getTime();

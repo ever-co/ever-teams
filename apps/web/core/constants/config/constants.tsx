@@ -1067,6 +1067,17 @@ export const TIMER_STATUS_CONSTANTS = {
 	HOURS_THRESHOLD: 24
 } as const;
 
+/**
+ * Team presence (Online / Idle from a heartbeat every visible tab sends). NEXT_PUBLIC_EMPLOYEE_PRESENCE_ENABLED=false
+ * turns it off for a deployment: no heartbeat is sent, and no presence badge or filter is shown. Default: on.
+ */
+export const EMPLOYEE_PRESENCE_ENABLED = getNextPublicEnv('NEXT_PUBLIC_EMPLOYEE_PRESENCE_ENABLED', {
+	default: process.env.NEXT_PUBLIC_EMPLOYEE_PRESENCE_ENABLED,
+	map(value) {
+		return String(value ?? '').trim().toLowerCase() !== 'false';
+	}
+});
+
 export const EMPLOYEE_PRESENCE_CONSTANTS = {
 	/** A heartbeat is sent this often while the tab is visible. */
 	HEARTBEAT_INTERVAL_MS: 60_000,

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { EMPLOYEE_PRESENCE_CONSTANTS } from '@/core/constants/config/constants';
+import { EMPLOYEE_PRESENCE_CONSTANTS, EMPLOYEE_PRESENCE_ENABLED } from '@/core/constants/config/constants';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { syncServerClock } from '@/core/lib/utils/team-members.utils';
 import { employeeService } from '@/core/services/client/api/organizations/teams';
@@ -41,7 +41,8 @@ export function useEmployeePresenceHeartbeat() {
 	const employeeId = user?.employee?.id;
 
 	useEffect(() => {
-		if (!employeeId) return;
+		// NEXT_PUBLIC_EMPLOYEE_PRESENCE_ENABLED=false: this deployment does not report presence at all
+		if (!employeeId || !EMPLOYEE_PRESENCE_ENABLED.value) return;
 
 		// A Gauzy API without the presence endpoint (before ever-gauzy #10508) answers 404: stop asking
 		// instead of sending a failing request every minute from every open tab.
