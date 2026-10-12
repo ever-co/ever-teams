@@ -18,10 +18,13 @@ const ScreenshotItem = ({
 	startTime,
 	viewMode = 'default',
 	onShow,
-	isTeamPage = false
+	isTeamPage = false,
+	ownerEmployeeId
 }: IScreenShootItem) => {
 	const t = useTranslations();
-	const { deleteTimeSlots, isOwnTimeSlots } = useTimeSlots();
+	const { deleteTimeSlots, canDeleteTimeSlots, ownEmployeeId, canActForOthers } = useTimeSlots();
+	// A slot that names its owner is judged on its own; otherwise by the slots of the member on screen
+	const canDelete = ownerEmployeeId ? ownerEmployeeId === ownEmployeeId || canActForOthers : canDeleteTimeSlots;
 	const { isOpen, openModal, closeModal } = useModal();
 	const [isLoading, setIsLoading] = useState(false);
 	const handleDelete = async () => {
@@ -56,7 +59,7 @@ const ScreenshotItem = ({
 				/>
 				<div className=" group-hover:absolute w-full group-hover:top-[0%] transition-all left-0 h-full bg-[rgba(1,2,4,.4)] top-full ">
 					<div className="relative flex items-end w-full h-full">
-						{isOwnTimeSlots && (
+						{canDelete && (
 							<div
 								className="absolute z-10 flex items-center justify-center w-8 h-8 text-center bg-red-700 rounded-full top-3 right-3 "
 								onClick={() => openModal()}

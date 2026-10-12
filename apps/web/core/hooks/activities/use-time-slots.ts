@@ -10,6 +10,7 @@ import { activityTypeState } from '@/core/stores/timer/activity-type';
 import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
 import { timeSlotService } from '@/core/services/client/api/timesheets/time-slot.service';
 import { useAuthenticateUser } from '../auth';
+import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 
 import { queryKeys } from '@/core/query/keys';
 import { TGetTimeSlotsStatisticsRequest, TDeleteTimeSlotsRequest } from '@/core/types/schemas';
@@ -17,6 +18,9 @@ import { toast } from 'sonner';
 
 export function useTimeSlots(hasFilter?: boolean) {
 	const { user, isTeamManager } = useAuthenticateUser();
+	const { myPermissions } = useMyRolePermissionsQuery();
+	// The API lets a holder of CHANGE_SELECTED_EMPLOYEE act on (and delete) any employee's time slots
+	const canActForOthers = myPermissions.includes('CHANGE_SELECTED_EMPLOYEE');
 	const [timeSlots, setTimeSlots] = useAtom(timeSlotsState);
 	const activityFilter = useAtomValue(activityTypeState);
 	const activeTeamId = useAtomValue(activeTeamState)?.id;
@@ -39,10 +43,16 @@ export function useTimeSlots(hasFilter?: boolean) {
 		} satisfies TGetTimeSlotsStatisticsRequest;
 	}, [user?.employee?.id, activityFilter.member?.employeeId, activeTeamId]);
 
-	// Check if user is authorized to view time slots
+	// Check if user is authorized to view time slots: their own, a manager of the member's team, or (as before)
+	// the MANAGER role. No request without an employee id to ask for.
 	const isAuthorized = useMemo(() => {
-		return activityFilter.member?.employeeId === user?.employee?.id || isTeamManager;
-	}, [activityFilter.member?.employeeId, user?.employee?.id, isTeamManager]);
+		return (
+			!!queryParams?.employeeId &&
+			(activityFilter.member?.employeeId === user?.employee?.id ||
+				isTeamManager ||
+				user?.role?.name?.toUpperCase() === 'MANAGER')
+		);
+	}, [queryParams?.employeeId, activityFilter.member?.employeeId, user?.employee?.id, user?.role?.name, isTeamManager]);
 	const invalidateTimeSlots = useCallback(() => {
 		queryClient.invalidateQueries({ queryKey: queryKeys.timer.timeSlots.all });
 	}, [queryClient]);
@@ -153,12 +163,23 @@ export function useTimeSlots(hasFilter?: boolean) {
 		[ownEmployeeId, queryParams?.employeeId, timeSlots]
 	);
 
+	// Delete is offered where the API allows it: on the caller's own slots, or on anyone's with
+	// CHANGE_SELECTED_EMPLOYEE. Until the viewed member's slots have loaded, the previous member's are on screen.
+	const canDeleteTimeSlots = useMemo(() => {
+		const viewed = queryParams?.employeeId;
+		if (!viewed || !timeSlots.every((slot) => slot.employeeId === viewed)) return false;
+		return viewed === ownEmployeeId || canActForOthers;
+	}, [queryParams?.employeeId, timeSlots, ownEmployeeId, canActForOthers]);
+
 	return {
 		// Preserve exact interface names and behavior
 		timeSlots,
 		getTimeSlots,
 		deleteTimeSlots,
 		isOwnTimeSlots,
+		canDeleteTimeSlots,
+		ownEmployeeId,
+		canActForOthers,
 		loadingDelete: deleteTimeSlotsMutation.isPending,
 		loading: timeSlotsQuery.isLoading
 	};

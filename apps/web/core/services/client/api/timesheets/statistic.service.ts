@@ -52,7 +52,8 @@ class StatisticsService extends APIService {
 			const queryParams = {
 				tenantId: this.tenantId,
 				organizationId: this.organizationId,
-				employeeIds: [params.employeeId],
+				// An empty id (user without an employee record) must not reach Gauzy: IN ('') on a uuid column is a 500
+				employeeIds: params.employeeId ? [params.employeeId] : [],
 				teamIds: params.teamIds ?? [],
 				todayEnd: params.todayEnd.toISOString(),
 				todayStart: params.todayStart.toISOString(),

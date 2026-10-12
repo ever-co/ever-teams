@@ -67,6 +67,7 @@ export const UserTaskActivity = ({ timesheet }: { timesheet: TActivity }) => {
 										>
 											<ScreenshotItem
 												idSlot={timesheet.timeSlot?.id ?? ''}
+												ownerEmployeeId={timesheet.employeeId ?? undefined}
 												endTime={timesheet.timeSlot?.stoppedAt ?? ''}
 												startTime={screenshot.recordedAt || ''}
 												imageUrl={screenshot.thumbUrl || ''}
