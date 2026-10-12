@@ -12,8 +12,9 @@ const FINISHED_TASK_STATUSES = new Set<ETaskStatusName>([
 /**
  * A finished task has no work left: it is not outstanding and does not count as left in a plan.
  */
-export function isTaskFinished(status?: ETaskStatusName | null): boolean {
-	return !!status && FINISHED_TASK_STATUSES.has(status);
+export function isTaskFinished(status?: ETaskStatusName | string | null): boolean {
+	// A custom status (#4545) is never one of the finished ones
+	return !!status && FINISHED_TASK_STATUSES.has(status as ETaskStatusName);
 }
 
 /**
