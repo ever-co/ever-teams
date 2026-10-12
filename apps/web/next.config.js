@@ -64,7 +64,6 @@ const workspaceRoot = path.resolve(__dirname, '../..');
 const nextConfig = {
 	output: ['standalone', 'export'].includes(BUILD_OUTPUT_MODE) ? BUILD_OUTPUT_MODE : undefined,
 	outputFileTracingRoot: workspaceRoot,
-	turbopack: { root: workspaceRoot },
 	// Next.js 16: Cache Components for explicit caching control
 	// Note: Disabled for now due to incompatibility with route segment config "runtime"
 	// cacheComponents: true,
@@ -74,12 +73,16 @@ const nextConfig = {
 		// country-flag-icons/react/1x1 keep every icon in a single module that it cannot split.
 		// Turbopack caching is enabled by default in Next.js 16
 	},
+	// One turbopack object: a second `turbopack:` key would silently replace the first.
 	turbopack: {
+		root: workspaceRoot,
 		resolveAlias: {
 			// Turbopack ignores excludeDefaultMomentLocales, so the dynamic require('./locale/' + name) in
 			// moment.js bundles all 137 locale files on every route. The min build has no locale folder next
 			// to it, and the app only uses moment's built-in English locale. moment-timezone requires
 			// 'moment' too, so it resolves to the same instance.
+			// moment.locale('xx') and import 'moment/locale/xx' do not reach this instance: before using a
+			// moment locale, remove this alias (or point it at moment/min/moment-with-locales.min.js).
 			moment: 'moment/min/moment.min.js'
 		}
 	},
