@@ -20,6 +20,9 @@ export interface UseReportActivityProps
 	teamIds?: string[];
 	taskIds?: string[];
 	groupBy?: string;
+	/** Ids applied through `updateFilters`, without the dashboard filter fallback: used in the report query key */
+	selectedEmployeeIds?: string[];
+	selectedTeamIds?: string[];
 }
 
 export type GroupByType = 'date' | 'project' | 'employee' | 'application' | 'daily' | 'weekly' | 'member';
@@ -104,7 +107,10 @@ export function getActivityQueryKeyParams(mergedProps: Required<UseReportActivit
 		projectIds: mergedProps?.projectIds,
 		taskIds: mergedProps?.taskIds,
 		logType: mergedProps?.logType,
-		activityLevel: mergedProps?.activityLevel
+		activityLevel: mergedProps?.activityLevel,
+		// The member and team picks applied on the page itself (not the dashboard fallback described above)
+		selectedEmployeeIds: mergedProps?.selectedEmployeeIds,
+		selectedTeamIds: mergedProps?.selectedTeamIds
 	};
 }
 
@@ -169,8 +175,11 @@ export function useActivityFilters({ includeTeamManagers = true }: { includeTeam
 			endDate: (currentFilters.endDate || defaults.endDate) as string,
 			groupBy: (currentFilters.groupBy || defaults.groupBy) as string,
 			projectIds: (currentFilters.projectIds || defaults.projectIds) as string[],
-			employeeIds,
-			teamIds: teamIds,
+			// Members and teams applied through updateFilters win over the dashboard filter state
+			employeeIds: currentFilters.employeeIds?.length ? currentFilters.employeeIds : employeeIds,
+			teamIds: currentFilters.teamIds?.length ? currentFilters.teamIds : teamIds,
+			selectedEmployeeIds: currentFilters.employeeIds ?? [],
+			selectedTeamIds: currentFilters.teamIds ?? [],
 			activityLevel: {
 				start: currentFilters.activityLevel?.start ?? defaults.activityLevel.start,
 				end: currentFilters.activityLevel?.end ?? defaults.activityLevel.end
