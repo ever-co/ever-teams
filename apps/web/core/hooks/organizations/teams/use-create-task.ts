@@ -10,7 +10,6 @@ import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 
 import { TEmployee, TTag } from '@/core/types/schemas';
 import { EIssueType, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
-import { ETaskStatusName } from '@/core/types/schemas';
 import { useTaskStatusesQuery } from '../../tasks/use-task-statuses-query';
 
 /**
@@ -77,7 +76,7 @@ export function useCreateTask() {
 		}: {
 			title: string;
 			issueType?: EIssueType | null;
-			status?: ETaskStatusName | null;
+			status?: string | null;
 			taskStatusId: string;
 			priority?: ETaskPriority | null;
 			size?: ETaskSize | null;
