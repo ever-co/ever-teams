@@ -25,7 +25,7 @@ import { VerticalSeparator } from '../duplicated-components/separator';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, activeTeamTaskState } from '@/core/stores';
+import { activeTeamState, activeTeamTaskState, timerStatusState } from '@/core/stores';
 
 function useHydrated() {
 	const [hydrated, setHydrated] = useState(false);
@@ -44,7 +44,6 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 		activeTaskEstimation,
 		ms_p,
 		canRunTimer,
-		timerHanlder,
 		timerStatus,
 		hasPlan,
 		startTimer,
@@ -54,6 +53,9 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
+	// Unfiltered status, the one startStopTimerHandler decides on. timerStatus above reports a timer
+	// running on another team's task as stopped, while the handler would stop that timer.
+	const rawTimerRunning = useAtomValue(timerStatusState)?.running === true;
 
 	// FIX_NOTE: Use team-scoped time instead of global timerStatus.duration
 	// timerStatus.duration is global and doesn't change when switching teams
@@ -87,20 +89,20 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 		}
 	}, [os, timerStatus?.running]);
 
-	// Handling Hotkeys
+	// Handling Hotkeys: same handler as the button, so the shortcut cannot skip the daily plan rules
 	const handleStartSTOPTimer = useCallback(
 		(e?: KeyboardEvent, h?: HotkeysEvent) => {
-			// Start Timer
-			if ((h?.shortcut === 'ctrl+option+]' || h?.shortcut === 'ctrl+alt+]') && !timerStatus?.running) {
-				timerHanlder();
+			// Start Timer: only when no timer runs at all, so the start key never stops one
+			if ((h?.shortcut === 'ctrl+option+]' || h?.shortcut === 'ctrl+alt+]') && !rawTimerRunning) {
+				startStopTimerHandler();
 			}
 
 			// Stop Timer
 			if ((h?.shortcut === 'ctrl+option+[' || h?.shortcut === 'ctrl+alt+[') && timerStatus?.running) {
-				timerHanlder();
+				startStopTimerHandler();
 			}
 		},
-		[timerHanlder, timerStatus]
+		[startStopTimerHandler, timerStatus, rawTimerRunning]
 	);
 	useHotkeys(HostKeys.START_STOP_TIMER, handleStartSTOPTimer);
 

@@ -106,23 +106,12 @@ export function useTimerView() {
 
 	const { activeTaskEstimation } = useTaskStatistics(timerSeconds);
 
-	const timerHanlder = () => {
-		if (timerStatusFetching || !canRunTimer) return;
-		if (timerStatus?.running) {
-			stopTimer();
-		} else {
-			// startTimer reports its own failure, this only keeps the rejection from going unhandled
-			startTimer()?.catch(() => undefined);
-		}
-	};
-
 	return {
 		hours,
 		minutes,
 		seconds,
 		ms_p,
 		activeTaskEstimation,
-		timerHanlder,
 		canRunTimer,
 		timerStatusFetching,
 		timerStatus,
