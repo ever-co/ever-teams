@@ -1989,7 +1989,8 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/ever-connect/[...path]/route.ts::DELETE',
 				'apps/web/app/api/ever-stats/enabled/route.ts::PUT',
 				'apps/web/app/api/ever-stats/last/route.ts::GET',
-				'apps/web/app/api/ever-stats/status/route.ts::GET'
+				'apps/web/app/api/ever-stats/status/route.ts::GET',
+				'apps/web/app/api/employee/me/presence/route.ts::PUT'
 			])
 		);
 	});

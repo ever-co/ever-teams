@@ -1,6 +1,7 @@
 import isEqual from 'lodash/isEqual';
 import { TOrganizationTeamEmployee, TOrganizationTeam, TUser } from '@/core/types/schemas';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
+import { EMPLOYEE_PRESENCE_CONSTANTS } from '@/core/constants/config/constants';
 
 // Constants for team member utilities
 export const TEAM_MEMBER_CONSTANTS = {
@@ -19,6 +20,42 @@ export const TEAM_MEMBER_CONSTANTS = {
 
 // Filter types for better type safety
 export type TeamMemberFilterType = 'all' | 'idle' | 'online' | 'running' | 'pause' | 'suspended';
+
+export type TMemberPresence = 'online' | 'idle' | 'offline';
+
+// How far the server clock is ahead of this browser. `lastSeenAt` is stamped by the server, so its
+// age is measured on the server clock. It stays 0 until a heartbeat answer gives the server time.
+let serverClockOffsetMs = 0;
+
+/** Records the server clock from a time the server just stamped, such as the heartbeat answer. */
+export const syncServerClock = (serverTime?: string | Date | null): void => {
+	if (!serverTime) return;
+
+	const offset = new Date(serverTime).getTime() - Date.now();
+	if (!Number.isNaN(offset)) serverClockOffsetMs = offset;
+};
+
+/**
+ * Presence from the member's last heartbeat: online when it is recent and not idle, idle when it is
+ * recent and idle, offline otherwise, including members that never sent one.
+ */
+export const getMemberPresence = (
+	employee?: { lastSeenAt?: string | Date | null; isIdle?: boolean | null } | null
+): TMemberPresence => {
+	if (!employee?.lastSeenAt) return 'offline';
+
+	const age = Date.now() + serverClockOffsetMs - new Date(employee.lastSeenAt).getTime();
+	if (Number.isNaN(age) || age >= EMPLOYEE_PRESENCE_CONSTANTS.ONLINE_WINDOW_MS) return 'offline';
+
+	return employee.isIdle ? 'idle' : 'online';
+};
+
+/**
+ * The part of a team's sync signature that follows its members' presence. It changes on every
+ * heartbeat, and also when a heartbeat gets too old although the data itself did not change.
+ */
+export const getMembersPresenceSignature = (members?: TOrganizationTeamEmployee[] | null): string =>
+	members?.map((m) => `${m.employee?.lastSeenAt ?? ''}:${getMemberPresence(m.employee)}`).join(',') || '';
 
 /**
  * Creates a placeholder team member object for users not yet in the team
