@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getActivityReportRequest } from '@/core/services/server/requests/timesheet';
-import { IActivityRequestParams } from '@/core/services/server/requests/timesheet';
+import { IActivityRequestParams, readArrayParam } from '@/core/services/server/requests/timesheet';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 
 export const dynamic = 'force-dynamic';
@@ -49,10 +49,10 @@ export async function GET(req: NextRequest) {
 		}
 
 		// Get array parameters
-		const projectIds = searchParams.getAll('projectIds[]');
-		const employeeIds = searchParams.getAll('employeeIds[]');
-		const sources = searchParams.getAll('source[]');
-		const logTypes = searchParams.getAll('logType[]');
+		const projectIds = readArrayParam(searchParams, 'projectIds');
+		const employeeIds = readArrayParam(searchParams, 'employeeIds');
+		const sources = readArrayParam(searchParams, 'source');
+		const logTypes = readArrayParam(searchParams, 'logType');
 
 		// Add array parameters if they exist
 		if (projectIds.length) params.projectIds = projectIds;
