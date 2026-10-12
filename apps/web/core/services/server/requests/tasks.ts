@@ -16,7 +16,8 @@ export function getTeamTasksRequest({
 		'teams',
 		'members',
 		'members.user',
-		'creator',
+		// Gauzy's task relation is createdByUser (since 2025-03); 'creator' made the whole list read fail
+		'createdByUser',
 		'linkedIssues',
 		'linkedIssues.taskTo',
 		'linkedIssues.taskFrom',

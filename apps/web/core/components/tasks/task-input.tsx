@@ -1,4 +1,5 @@
 'use client';
+import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import {
 	HostKeys,
 	RTuseTaskInput,
@@ -227,8 +228,10 @@ export function TaskInput(props: Props) {
 					onTaskCreated(createdTask);
 					viewType === 'one-view' && setTaskName('');
 				})
-				.catch(() => {
-					// useCreateTask already showed the error toast; the typed title stays for a retry.
+				.catch((error) => {
+					// useCreateTask already showed the error toast; the typed title stays for a retry. Logged so a
+					// failure in the caller's onTaskCreated is not swallowed silently.
+					logErrorInDev('[TaskInput] task creation flow failed', error);
 				});
 	}, [datas, props, autoActiveTask, onTaskCreated, viewType, t]);
 

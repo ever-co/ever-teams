@@ -50,13 +50,14 @@ export function useTaskQueries() {
 
 	const getTaskById = useCallback(
 		async (taskId: string, updateState = true) => {
-			// First check local tasks
+			// First check local tasks. The list copy has no detail-only relations (linked issues, estimations,
+			// creator): merge it into the detail already shown instead of replacing it, so they do not vanish and
+			// come back after every edit on the task page.
 			if (updateState) {
-				tasksRef.current.forEach((task) => {
-					if (task.id === taskId) {
-						setDetailedTask(task);
-					}
-				});
+				const localTask = tasksRef.current.find((task) => task.id === taskId);
+				if (localTask) {
+					setDetailedTask((current) => (current?.id === taskId ? { ...current, ...localTask } : localTask));
+				}
 			}
 
 			try {
