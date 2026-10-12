@@ -3,6 +3,7 @@ import moment from 'moment';
 import { twMerge } from 'tailwind-merge';
 import React, { JSX, ReactNode } from 'react';
 import { ETaskStatusName } from '../types/generics/enums/task';
+import { getDailyPlanDay } from './helpers/daily-plan-day';
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
@@ -67,13 +68,7 @@ export function formatWithSuffix(date: Date) {
 
 export function checkPastDate(dateToBeChecked?: Date | string): boolean {
 	if (dateToBeChecked) {
-		const todayDate = new Date(new Date().toUTCString());
-		const date = new Date(new Date(dateToBeChecked).toUTCString());
-
-		date.setHours(0, 0, 0, 0);
-		todayDate.setHours(0, 0, 0, 0);
-
-		return todayDate > date;
+		return getDailyPlanDay(dateToBeChecked) < moment().format('YYYY-MM-DD');
 	} else {
 		return false; // Return false if dateToBeChecked is not provided or is null or undefined.
 	}
