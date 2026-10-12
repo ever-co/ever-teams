@@ -4,7 +4,7 @@ import { clsxm } from '@/core/lib/utils';
 import React, { MutableRefObject, forwardRef, useState, useEffect, useImperativeHandle, useRef } from 'react';
 // import { InputField } from './input';
 import { useTranslations } from 'next-intl';
-import { useCallbackRef } from '@/core/hooks';
+import { useCallbackRef } from '@/core/hooks/common/use-callback-ref';
 import { InputField } from '../duplicated-components/_input';
 import { AUTH_CODE_LENGTH } from '@/core/constants/config/constants';
 

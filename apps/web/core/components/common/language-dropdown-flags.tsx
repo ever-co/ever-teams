@@ -1,6 +1,7 @@
 import { languagesFlags } from '@/core/constants/config/constants';
 import { setActiveLanguageIdCookie } from '@/core/lib/helpers/index';
-import { useLanguage, useLanguageSettings } from '@/core/hooks';
+import { useLanguage } from '@/core/hooks/common/use-language';
+import { useLanguageSettings } from '@/core/hooks/common/use-language-settings';
 import { clsxm } from '@/core/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/core/components/common/select';
 import { usePathname, useRouter } from 'next/navigation';

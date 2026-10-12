@@ -3,7 +3,7 @@ import { organizationTeamsState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
 import isEqual from 'lodash/isEqual';
-import { useSyncRef } from '../../common';
+import { useSyncRef } from '../../common/use-sync-ref';
 import { TOrganizationTeam } from '@/core/types/schemas';
 import { mergePreservingOrder } from '@/core/lib/utils/team-members.utils';
 

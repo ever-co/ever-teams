@@ -16,7 +16,7 @@ import {
 } from 'react';
 import dynamic from 'next/dynamic';
 import { IconsEmojiEmotions } from '@/core/components/icons';
-import { useOutsideClick } from '@/core/hooks/common';
+import { useOutsideClick } from '@/core/hooks/common/use-outside-click';
 import { Text } from '../common/typography';
 import { SpinnerLoader } from '../common/loader';
 

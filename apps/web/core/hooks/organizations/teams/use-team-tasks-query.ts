@@ -14,8 +14,10 @@ import {
 import isEqual from 'lodash/isEqual';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useAuthenticateUser } from '../../auth';
-import { useFirstLoad, useConditionalUpdateEffect, useSyncRef } from '../../common';
+import { useAuthenticateUser } from '../../auth/use-authenticate-user';
+import { useFirstLoad } from '../../common/use-first-load';
+import { useConditionalUpdateEffect } from '../../common/use-has-mounted';
+import { useSyncRef } from '../../common/use-sync-ref';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';

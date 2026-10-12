@@ -13,8 +13,10 @@ const english: Language = { code: 'en', id: 'language-en', name: 'English' };
 jest.mock('@/core/constants/config/constants', () => ({
 	languagesFlags: [{ code: 'en', Flag: () => <span data-testid="english-flag" /> }]
 }));
-jest.mock('@/core/hooks', () => ({
-	useLanguage: () => ({ changeLanguage: jest.fn() }),
+jest.mock('@/core/hooks/common/use-language', () => ({
+	useLanguage: () => ({ changeLanguage: jest.fn() })
+}));
+jest.mock('@/core/hooks/common/use-language-settings', () => ({
 	useLanguageSettings: (options: unknown) => mockUseLanguageSettings(options)
 }));
 jest.mock('@/core/lib/helpers/index', () => ({ setActiveLanguageIdCookie: jest.fn() }));

@@ -4,12 +4,11 @@ import { useNetworkState } from '@uidotdev/usehooks';
 import { PropsWithChildren } from 'react';
 import dynamic from 'next/dynamic';
 import Offline from '@/core/components/pages/offline';
-import { useTimerActions } from '@/core/hooks/timer';
-import { usePathname } from 'next/navigation';
+import { useTimerActions } from '@/core/hooks/timer/use-timer-actions';
 
 /**
  * A wrapper component that conditionally renders the Offline component if the user is not online.
- * The Offline component is not shown on authentication pages (paths starting with /auth).
+ * It is mounted by the (main) layout only, so authentication pages never show the Offline component.
  * When the user is offline, the Offline component is rendered with the showTimer prop set to
  * whether the timer is running or not.
  *
@@ -18,21 +17,16 @@ import { usePathname } from 'next/navigation';
  *   <MyComponent />
  * </OfflineWrapper>
  * @param {React.ReactNode} children - The children components to render when the user is online
- * @returns {React.ReactElement} - The Offline component if the user is offline (except on auth pages), or the children components if the user is online
+ * @returns {React.ReactElement} - The Offline component if the user is offline, or the children components if the user is online
  */
 const OfflineWrapper = ({ children }: PropsWithChildren) => {
 	// All hooks must be called before any conditional returns
 	const { online } = useNetworkState();
 	// Team-filtered status, not the raw timerStatusState atom: a timer running on another team's task stays hidden.
 	const { timerStatus } = useTimerActions();
-	const pathname = usePathname();
-
-	// Compute conditions after all hooks are called
-	const isAuthPage = pathname?.startsWith('/auth');
-	const shouldShowOffline = online === false && !isAuthPage;
 
 	// Conditional rendering after all hooks
-	if (shouldShowOffline) {
+	if (online === false) {
 		return <Offline showTimer={timerStatus?.running} />;
 	}
 
