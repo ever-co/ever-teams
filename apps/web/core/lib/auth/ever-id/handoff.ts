@@ -1,5 +1,5 @@
 import { createCipheriv, createDecipheriv, createHash, hkdfSync, randomBytes } from 'node:crypto';
-import { AUTH_SECRET, developmentAuthSecret, isDevelopment } from '@/core/constants/config/constants';
+import { authSecret } from '@/core/constants/config/constants';
 import type { EverIdStep } from './step';
 
 /**
@@ -46,7 +46,7 @@ let derived: { secret: string; key: Buffer } | undefined;
 
 /** The sealing key, derived from the secret next-auth uses; `null` when none is configured. */
 function sealingKey(): Buffer | null {
-	const secret = AUTH_SECRET || (isDevelopment ? developmentAuthSecret : '');
+	const secret = authSecret;
 	if (!secret) return null;
 	if (derived?.secret !== secret) {
 		derived = { secret, key: Buffer.from(hkdfSync('sha256', secret, 'ever-teams/ever-id-handoff', 'v1', 32)) };

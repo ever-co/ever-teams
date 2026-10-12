@@ -2,7 +2,7 @@ import NextAuth, { type DefaultSession, type NextAuthConfig } from 'next-auth';
 import { filteredProviders } from '@/core/lib/utils/check-provider-env-vars';
 import { GauzyAdapter, jwtCallback, signInCallback } from '@/core/services/server/requests/o-auth';
 import { NextRequest } from 'next/server';
-import { AUTH_SECRET, IS_DESKTOP_APP, developmentAuthSecret, isDevelopment } from '@/core/constants/config/constants';
+import { IS_DESKTOP_APP, authSecret, isDevelopment } from '@/core/constants/config/constants';
 import { EProvider } from '@/core/types/generics/enums/social-accounts';
 import {
 	everIdJwtPayload,
@@ -17,16 +17,10 @@ declare module 'next-auth' {
 	}
 }
 
-const secretKey = AUTH_SECRET || (isDevelopment ? developmentAuthSecret : '');
-
-if (!secretKey) {
-	console.warn('Missing secret: Please define AUTH_SECRET in the environment variables.');
-}
-
 const config: NextAuthConfig = {
 	providers: filteredProviders,
 	trustHost: IS_DESKTOP_APP || process.env.NODE_ENV === 'production' || isDevelopment,
-	secret: secretKey,
+	secret: authSecret,
 	debug: process.env.NODE_ENV === 'development',
 	session: { strategy: 'jwt' },
 	callbacks: {

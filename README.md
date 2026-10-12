@@ -201,7 +201,7 @@ docker run -d -p 3030:3030 \
 ```
 
 - `GAUZY_API_SERVER_URL` is used by the Next.js server, so it must be reachable from inside the container; `NEXT_PUBLIC_GAUZY_API_SERVER_URL` is used by the browser. Both are the API origin, without a trailing `/api`. If `NEXT_PUBLIC_GAUZY_API_SERVER_URL` is unset, the browser calls the API through the web app's own `/api` proxy.
-- `AUTH_SECRET` is required in production (sessions and social login).
+- `AUTH_SECRET` is required in production (sessions and social login). With a social login or Ever ID configured, the server refuses to start without it.
 - `NEXT_PUBLIC_CAPTCHA_TYPE` is `recaptcha` (default), `hcaptcha` or `cloudflare` (Turnstile). Set `NEXT_PUBLIC_CAPTCHA_SITE_KEY` and `CAPTCHA_SECRET_KEY` together, or leave both empty to sign up without a captcha.
 - Branding: `APP_NAME`, `APP_SIGNATURE`, `APP_LOGO_URL`, `APP_FAVICON_URL` (default `/favicon.ico`), `APP_LINK`,
   `APP_SLOGAN_TEXT`, `COMPANY_NAME`, `COMPANY_LINK`, `TERMS_LINK`, `PRIVACY_POLICY_LINK`, `MAIN_PICTURE`,
