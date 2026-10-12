@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { addDays, addWeeks, endOfWeek, format, isSameWeek, startOfWeek } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -25,12 +25,25 @@ const formatDuration = (seconds: number) => {
 interface WeeklyReportTableProps {
 	mergedProps: Required<UseReportActivityProps> | null;
 	enabled: boolean;
+	/** The start of the page's selected date range: the table opens on that week (never a future one) */
+	initialDate?: Date;
 }
 
-export function WeeklyReportTable({ mergedProps, enabled }: Readonly<WeeklyReportTableProps>) {
+// The week of the page's range start, or the current week when there is none or it lies ahead
+const initialWeekStart = (initialDate?: Date) => {
+	const today = new Date();
+	return startOfWeek(initialDate && initialDate < today ? initialDate : today, WEEK_OPTIONS);
+};
+
+export function WeeklyReportTable({ mergedProps, enabled, initialDate }: Readonly<WeeklyReportTableProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
-	const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date(), WEEK_OPTIONS));
+	const [weekStart, setWeekStart] = useState(() => initialWeekStart(initialDate));
+	// A new date range picked on the page moves the table to its week; prev/next still browse from there
+	const initialTime = initialDate?.getTime();
+	useEffect(() => {
+		setWeekStart(initialWeekStart(initialTime === undefined ? undefined : new Date(initialTime)));
+	}, [initialTime]);
 	const weekEnd = useMemo(() => endOfWeek(weekStart, WEEK_OPTIONS), [weekStart]);
 	const days = useMemo(() => Array.from({ length: 7 }, (_, index) => addDays(weekStart, index)), [weekStart]);
 	const isCurrentWeek = isSameWeek(weekStart, new Date(), WEEK_OPTIONS);

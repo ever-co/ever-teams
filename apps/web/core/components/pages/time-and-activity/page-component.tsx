@@ -235,7 +235,11 @@ const TimeActivityComponents = () => {
 									/>
 								);
 							case 'weekly':
-								return <LazyWeeklyReportTable mergedProps={weeklyProps} enabled={enabled} />;
+								return <LazyWeeklyReportTable
+										mergedProps={weeklyProps}
+										enabled={enabled}
+										initialDate={dateRange.startDate}
+									/>;
 							default:
 								return (
 									<LazyActivityTable
