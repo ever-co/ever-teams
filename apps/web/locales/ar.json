@@ -1113,6 +1113,7 @@
 		"STARTING_TIMER": "جاري بدء المؤقت...",
 		"TIMER_STARTED": "تم بدء المؤقت بنجاح",
 		"TIMER_START_FAILED": "فشل بدء المؤقت",
+		"TIMER_STOP_FAILED": "فشل إيقاف المؤقت. يرجى المحاولة مرة أخرى.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "توقف المؤقت",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "توقف المؤقت بسبب التبديل بين الفرق"

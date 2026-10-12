@@ -1113,6 +1113,7 @@
 		"STARTING_TIMER": "正在启动计时器...",
 		"TIMER_STARTED": "计时器启动成功",
 		"TIMER_START_FAILED": "启动计时器失败",
+		"TIMER_STOP_FAILED": "停止计时器失败。请重试。",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "计时器已停止",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "由于切换团队,计时器已停止"
