@@ -22,5 +22,13 @@
 	{
 		"id": "removed:navigation:apps/web/app/[locale]/layout.tsx::router.replace=/::#1",
 		"reason": "Moved unchanged to app/[locale]/layout-component.tsx with the maintenance redirect above: it sends the user home once the API answers again."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/hooks/activities/index.ts::runtime::useSyncTimer",
+		"reason": "useSyncTimer had no caller. The timer-gated 5 s team polling it wrapped is replaced by the team presence cadence in InitState."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/hooks/index.ts::runtime::useSyncTimer",
+		"reason": "useSyncTimer had no caller. The timer-gated 5 s team polling it wrapped is replaced by the team presence cadence in InitState."
 	}
 ]

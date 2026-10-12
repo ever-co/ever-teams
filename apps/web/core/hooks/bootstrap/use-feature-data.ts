@@ -8,6 +8,8 @@ import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invit
 import { useEmployee } from '@/core/hooks/organizations/employees/use-employee';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
+import { teamPresenceViewCountState } from '@/core/stores/teams/organization-team';
+import { useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 
 export function useCurrentOrganizationOwner() {
@@ -34,6 +36,16 @@ export function useInviteDataOwner(open: boolean) {
 
 export function useTeamDailyPlansOwner(featureEnabled = true) {
 	return useTeamDailyPlans({ enabled: featureEnabled });
+}
+
+export function useTeamPresenceView(enabled: boolean) {
+	const setViewCount = useSetAtom(teamPresenceViewCountState);
+
+	useEffect(() => {
+		if (!enabled) return;
+		setViewCount((count) => count + 1);
+		return () => setViewCount((count) => count - 1);
+	}, [enabled, setViewCount]);
 }
 
 export function useSidebarDataOwner(publicTeam: boolean | undefined) {

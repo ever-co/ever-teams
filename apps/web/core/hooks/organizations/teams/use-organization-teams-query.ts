@@ -37,6 +37,7 @@ interface UseOrganizationTeamsQueryOptions {
 	scope?: ApiRequestScope;
 	refetchInterval?: number | false;
 	detailRefetchInterval?: number | false;
+	detailRefetchOnWindowFocus?: boolean;
 }
 
 // Presence changes never move team.updatedAt: a start or stop only touches the employee row, and Gauzy
@@ -84,7 +85,13 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 	const setActiveTeamTask = useSetAtom(activeTeamTaskState);
 	const setTeamTasks = useSetAtom(teamTasksState);
 	const reactiveAccessToken = useReactiveAccessTokenCookie();
-	const { enabled = true, scope: explicitScope, refetchInterval = false, detailRefetchInterval = false } = options;
+	const {
+		enabled = true,
+		scope: explicitScope,
+		refetchInterval = false,
+		detailRefetchInterval = false,
+		detailRefetchOnWindowFocus = false
+	} = options;
 	const scope = useMemo<ApiRequestScope | undefined>(
 		() =>
 			explicitScope ?? {
@@ -173,7 +180,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 		enabled: enabled && scopedDetailReady && canHydrateSharedState,
 		staleTime: 1000 * 60 * 10,
 		gcTime: 1000 * 60 * 30,
-		refetchOnWindowFocus: false,
+		refetchOnWindowFocus: detailRefetchOnWindowFocus ? 'always' : false,
 		refetchOnReconnect: false,
 		refetchInterval: detailRefetchInterval,
 		refetchIntervalInBackground: false
