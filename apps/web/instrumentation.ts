@@ -13,15 +13,17 @@ let captureRequestError: Instrumentation.onRequestError | undefined;
 export async function register() {
 	// Literal NEXT_RUNTIME checks: Next inlines them per bundle, so each runtime only bundles its own SDK build.
 	if (process.env.NEXT_RUNTIME === 'nodejs') {
-		// register() never runs during `next build`. In production Next only logs a throw from here, then answers
-		// every page and API request with a 500 since they all wait for register(), so exit instead.
+		// register() never runs during `next build`. A missing AUTH_SECRET with a sign-in provider configured is
+		// logged loudly; the server keeps serving (email and password sign-in keep working, only the social and Ever ID
+		// sign-ins fail, as before this check existed). AUTH_SECRET_REQUIRED=true makes the server refuse to start
+		// instead: in production Next only logs a throw from here and then answers every request with a 500.
 		if (process.env.NODE_ENV === 'production') {
 			const { assertAuthSecret } = await import('@/core/lib/utils/check-provider-env-vars');
 			try {
 				assertAuthSecret();
 			} catch (error) {
 				console.error(error);
-				process.exit(1);
+				if (process.env.AUTH_SECRET_REQUIRED?.trim().toLowerCase() === 'true') process.exit(1);
 			}
 		}
 
