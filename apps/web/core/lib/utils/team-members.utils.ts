@@ -1,3 +1,4 @@
+import isEqual from 'lodash/isEqual';
 import { TOrganizationTeamEmployee, TOrganizationTeam, TUser } from '@/core/types/schemas';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
 
@@ -192,6 +193,8 @@ export const filterAndPositionTeamMembers = (
  * Merges new members data with existing members while preserving their order.
  * This prevents visual glitches when API returns members in a different order
  * (e.g., during role changes where the API may reorder the response).
+ * A member whose data did not change keeps its object, and the input array is returned
+ * as is when nothing changed, so a refetch only replaces the members whose data changed.
  *
  * @param existingMembers - Current members in the UI (order to preserve)
  * @param newMembers - New members data from API (data to use)
@@ -207,14 +210,26 @@ export const mergePreservingOrder = (
 	// Update existing members preserving their order, but only keep those still in new list
 	const updatedExisting = existingMembers
 		.filter((m) => newMembersMap.has(m.id)) // Only keep members that still exist
-		.map((m) => ({
-			...m,
-			...newMembersMap.get(m.id) // Update with new data (including role changes)
-		})) as TOrganizationTeamEmployee[];
+		.map((m) => {
+			const merged = {
+				...m,
+				...newMembersMap.get(m.id) // Update with new data (including role changes)
+			} as TOrganizationTeamEmployee;
+			// Deep on purpose: live fields such as employee.isOnline sit one level down
+			return isEqual(merged, m) ? m : merged;
+		});
 
 	// Find truly new members that weren't in the existing list
 	const existingMemberIds = new Set(existingMembers.map((m) => m.id));
 	const trulyNewMembers = newMembers.filter((m) => !existingMemberIds.has(m.id));
+
+	if (
+		trulyNewMembers.length === 0 &&
+		updatedExisting.length === existingMembers.length &&
+		updatedExisting.every((m, index) => m === existingMembers[index])
+	) {
+		return existingMembers;
+	}
 
 	// Return existing members (updated) + new members at the end
 	return [...updatedExisting, ...trulyNewMembers];
