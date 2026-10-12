@@ -7,6 +7,7 @@ import { useDeleteTimesheet } from '@/core/hooks/timesheet/use-delete-timesheet'
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { useModal } from '@/core/hooks';
 import { RejectSelectedModal } from '../../features/timesheet/reject-selected-modal';
+import { AlertConfirmationModal } from '@/core/components/common/alert-dialog-confirmation';
 
 type ActionButtonProps = {
 	label: string;
@@ -77,8 +78,11 @@ interface SelectedTimesheetProps {
  * @returns {React.ReactElement} - The rendered timesheet component.
  */
 export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({ selectTimesheetId, setSelectTimesheetId }) => {
+	const t = useTranslations();
 	const { updateTimesheetStatus } = useUpdateTimesheet();
-	const { deleteTaskTimesheet } = useDeleteTimesheet();
+	const { deleteTaskTimesheet, loadingDeleteTimesheet } = useDeleteTimesheet();
+	// Deleting time logs cannot be undone: ask first, as the list view does
+	const { isOpen: isDeleteOpen, openModal: openDeleteConfirm, closeModal: closeDeleteConfirm } = useModal();
 	// Approve and reject call PUT /timesheet/status, which requires this permission
 	const canUpdateTimeSheetStatus = useMyRolePermissionsQuery().myPermissions.includes('CAN_APPROVE_TIMESHEET');
 	const { isOpen: isRejectModalOpen, openModal: openRejectModal, closeModal: closeRejectModal } = useModal();
@@ -114,6 +118,18 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({ selectTime
 
 	return (
 		<>
+			<AlertConfirmationModal
+				title={t('common.DELETE_CONFIRMATION')}
+				description={t('common.IRREVERSIBLE_ACTION_WARNING')}
+				open={isDeleteOpen}
+				close={closeDeleteConfirm}
+				loading={loadingDeleteTimesheet}
+				countID={selectTimesheetId.length}
+				onAction={async () => {
+					await handleDelete();
+					closeDeleteConfirm();
+				}}
+			/>
 			{canUpdateTimeSheetStatus && (
 				<RejectSelectedModal
 					selectTimesheetId={getSelectedIds()}
@@ -128,7 +144,7 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({ selectTime
 				selectedCount={selectTimesheetId.length}
 				onApprove={canUpdateTimeSheetStatus ? handleApprove : undefined}
 				onReject={canUpdateTimeSheetStatus ? openRejectModal : undefined}
-				onDelete={handleDelete}
+				onDelete={openDeleteConfirm}
 				onClearSelection={() => setSelectTimesheetId([])}
 			/>
 		</>
