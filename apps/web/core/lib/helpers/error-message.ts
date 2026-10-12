@@ -59,3 +59,16 @@ export function logErrorInDev(context: string, error: unknown): void {
 		console.error(`[${context}]`, error);
 	}
 }
+
+/**
+ * Logs to console in development mode only, for traces that must not reach a
+ * production console (token lifetimes, refresh cycles)
+ *
+ * @param message - The message to log
+ * @param details - Optional values logged after the message
+ */
+export function logInDev(message: string, ...details: unknown[]): void {
+	if (IS_DEV_MODE) {
+		console.log(message, ...details);
+	}
+}

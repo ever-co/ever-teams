@@ -14,7 +14,6 @@ export async function POST(req: Request) {
 		taskId: activeTaskIdCookie,
 		teamId: organizationTeamId
 	} = await authenticatedGuard(req, res);
-
 	if (!user) return $res('Unauthorized');
 
 	// The caller names the task to start; the cookie is only a fallback for an older client that sends no body.

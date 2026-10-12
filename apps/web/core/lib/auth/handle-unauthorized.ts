@@ -4,6 +4,7 @@ import { globalQueryClient } from '@/core/query/config';
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { logDisconnection } from '@/core/lib/auth/disconnect-logger';
 import { isUnauthorizedError, isRetryableError } from '@/core/lib/auth/retry-logic';
+import { logInDev } from '@/core/lib/helpers/error-message';
 
 let isHandling401 = false;
 let isRedirecting = false;
@@ -61,7 +62,7 @@ export async function handleUnauthorized(
 	try {
 		// Attempt token refresh immediately if callbacks are registered
 		if (reason === DisconnectionReason.UNAUTHORIZED_401 && refreshTokenCallbacks.size > 0) {
-			console.log(
+			logInDev(
 				`[Auth] Attempting automatic token refresh on 401 (${refreshTokenCallbacks.size} callback(s) registered)...`
 			);
 
@@ -69,28 +70,28 @@ export async function handleUnauthorized(
 			for (const callback of refreshTokenCallbacks) {
 				try {
 					await callback();
-					console.log('[Auth] ✅ Token refresh succeeded, user stays logged in');
+					logInDev('[Auth] ✅ Token refresh succeeded, user stays logged in');
 					// Success! User stays logged in, no redirect
 					return;
 				} catch (error) {
 					// Distinguish between 401 and network errors
 					if (isUnauthorizedError(error)) {
-						console.log('[Auth] ⚠️ Token refresh returned 401 (refresh token invalid)');
+						logInDev('[Auth] ⚠️ Token refresh returned 401 (refresh token invalid)');
 						// Don't try more callbacks - the refresh token itself is invalid
 						break;
 					} else if (isRetryableError(error)) {
-						console.log('[Auth] ⚠️ Token refresh failed (network error), trying next callback:', error);
+						logInDev('[Auth] ⚠️ Token refresh failed (network error), trying next callback:', error);
 						// Network error - try next callback
 						continue;
 					} else {
-						console.log('[Auth] ⚠️ Token refresh failed (unknown error):', error);
+						logInDev('[Auth] ⚠️ Token refresh failed (unknown error):', error);
 						continue;
 					}
 				}
 			}
 
 			// All callbacks failed
-			console.log('[Auth] ❌ All token refresh attempts failed, proceeding with logout');
+			logInDev('[Auth] ❌ All token refresh attempts failed, proceeding with logout');
 		} else if (reason === DisconnectionReason.UNAUTHORIZED_401) {
 			console.warn('[Auth] No refresh callback registered, proceeding with logout');
 		}
