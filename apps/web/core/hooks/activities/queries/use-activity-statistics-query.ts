@@ -42,6 +42,8 @@ export function useActivityStatisticsQuery({ mergedProps, enabled = true }: UseA
 		queryKey: queryKeys.activities.statisticsCounts({
 			tenantId: mergedProps?.tenantId,
 			organizationId: mergedProps?.organizationId,
+			// The team a dashboard page is scoped to. It does not follow the filter picks.
+			teamId: mergedProps?.teamId,
 			startDate: mergedProps?.startDate,
 			endDate: mergedProps?.endDate,
 			projectIds: mergedProps?.projectIds,
