@@ -1,3 +1,4 @@
+const path = require('node:path');
 const withNextIntl = require('next-intl/plugin')('./core/lib/i18n/request.ts');
 const { withSentryConfig } = require('@sentry/nextjs');
 const { parseImageHosts, serializeImageRemotePatterns } = require('./image-hosts');
@@ -53,11 +54,17 @@ const imageRemotePatterns = [
 
 const BUILD_OUTPUT_MODE = process.env.NEXT_BUILD_OUTPUT_TYPE;
 
+// Left unset, Next takes the directory of the highest lockfile above apps/web as the workspace root,
+// so a stray lockfile in a parent folder (e.g. the home directory) wins over the monorepo. The
+// standalone output must stay laid out as apps/web/server.js (Docker CMD, Procfile, server-web).
+const workspaceRoot = path.resolve(__dirname, '../..');
 // Next.js 16: eslint configuration in next.config.js is no longer supported
 // Use eslint.config.mjs for ESLint configuration instead
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	output: ['standalone', 'export'].includes(BUILD_OUTPUT_MODE) ? BUILD_OUTPUT_MODE : undefined,
+	outputFileTracingRoot: workspaceRoot,
+	turbopack: { root: workspaceRoot },
 	// Next.js 16: Cache Components for explicit caching control
 	// Note: Disabled for now due to incompatibility with route segment config "runtime"
 	// cacheComponents: true,
