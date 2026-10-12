@@ -186,6 +186,8 @@ jobs:
           EVER_STATS_API_URL: http://127.0.0.1:3989
           EVER_STATS_SEND_INTERVAL_S: '5'
           NEXT_PUBLIC_EVER_CONNECT_ENABLED: 'true'
+          # Repository variable PAGE_WEIGHT_ENFORCE=false turns the page weight budget into a warning
+          PAGE_WEIGHT_ENFORCE: ${{ vars.PAGE_WEIGHT_ENFORCE || 'true' }}
         run: |
           yarn start:web > "$RUNNER_TEMP/ever-teams-web.log" 2>&1 &
           server_pid=$!

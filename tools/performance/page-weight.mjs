@@ -72,7 +72,16 @@ async function runCli() {
 	process.stdout.write(
 		`${JSON.stringify({ measured: MEASURED, pages, passed: failures.length === 0, failures }, null, 2)}\n`
 	);
-	if (failures.length) process.exitCode = 1;
+	if (failures.length) {
+		// PAGE_WEIGHT_ENFORCE=false reports an over-budget page as a warning instead of failing the run, so a
+		// wrong budget can never block a promotion while it is being corrected
+		if (process.env.PAGE_WEIGHT_ENFORCE?.trim().toLowerCase() === 'false') {
+			for (const failure of failures) process.stdout.write(`::warning::${failure}
+`);
+		} else {
+			process.exitCode = 1;
+		}
+	}
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
