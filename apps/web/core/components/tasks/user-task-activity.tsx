@@ -6,10 +6,14 @@ import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import ScreenshotItem from '../pages/profile/screenshots/screenshot-item';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { TActivity } from '@/core/types/schemas';
+import { useTranslations } from 'next-intl';
 
 export const UserTaskActivity = ({ timesheet }: { timesheet: TActivity }) => {
 	const [hidden, setHidden] = React.useState(true);
-	// TODO: fetch Apps et Sites Visited
+	const t = useTranslations();
+	// Each activity record is one app or one visited site (Gauzy ActivityType APP | URL), with its own duration
+	const activityType = timesheet.type?.toUpperCase();
+	const visitedUrl = typeof timesheet.metaData === 'object' ? timesheet.metaData?.url : undefined;
 	return (
 		<div className="shadow-md rounded-md  p-4 my-4 bg-[#00000014] dark:bg-[#26272C]">
 			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-[#7B8089]">
@@ -31,17 +35,24 @@ export const UserTaskActivity = ({ timesheet }: { timesheet: TActivity }) => {
 			<div className={clsxm('flex flex-col max-h-96 gap-3 overflow-y-auto', hidden && ['hidden'])}>
 				<Tab.Group>
 					<Tab.List className="w-full flex rounded-xl bg-gray-200 dark:bg-[#FFFFFF14] p-2">
-						<Tab
-							className={({ selected }) =>
-								clsxm(
-									'w-full rounded-lg py-2.5 text-sm font-medium leading-5',
-									' focus:outline-none focus:ring-2',
-									selected ? 'bg-white dark:bg-dark text-blue-700 shadow' : ' hover:bg-white/[0.50]'
-								)
-							}
-						>
-							{ActivityFilters.SCREENSHOOTS}
-						</Tab>
+						{Object.values(ActivityFilters)
+							.filter((filter) => filter !== 'Tasks')
+							.map((filter: string) => (
+								<Tab
+									key={filter}
+									className={({ selected }) =>
+										clsxm(
+											'w-full rounded-lg py-2.5 text-sm font-medium leading-5',
+											' focus:outline-none focus:ring-2',
+											selected
+												? 'bg-white dark:bg-dark text-blue-700 shadow'
+												: ' hover:bg-white/[0.50]'
+										)
+									}
+								>
+									{filter}
+								</Tab>
+							))}
 					</Tab.List>
 					<Tab.Panels>
 						<Tab.Panel className="py-4 mx-4 w-full">
@@ -84,6 +95,26 @@ export const UserTaskActivity = ({ timesheet }: { timesheet: TActivity }) => {
 									</div>
 								))}
 							</div>
+						</Tab.Panel>
+						<Tab.Panel className="py-4 mx-4 w-full">
+							{activityType === 'APP' ? (
+								<div className="flex justify-between gap-4">
+									<span className="font-medium">{timesheet.title}</span>
+									<span>{timesheet.duration}</span>
+								</div>
+							) : (
+								<p className="text-sm text-gray-500">{t('common.NO_ACTIVITY_DATA')}</p>
+							)}
+						</Tab.Panel>
+						<Tab.Panel className="py-4 mx-4 w-full">
+							{activityType === 'URL' ? (
+								<div className="flex justify-between gap-4">
+									<span className="font-medium break-all">{visitedUrl || timesheet.title}</span>
+									<span>{timesheet.duration}</span>
+								</div>
+							) : (
+								<p className="text-sm text-gray-500">{t('common.NO_ACTIVITY_DATA')}</p>
+							)}
 						</Tab.Panel>
 					</Tab.Panels>
 				</Tab.Group>

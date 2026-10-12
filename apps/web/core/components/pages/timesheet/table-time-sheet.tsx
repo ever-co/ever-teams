@@ -58,6 +58,7 @@ import {
 	DropdownMenuTrigger,
 	DropdownMenuSeparator
 } from '@/core/components/common/dropdown-menu';
+import { CaretDownIcon, CaretUpIcon } from '@radix-ui/react-icons';
 import { ETimeFrequency } from '@/core/types/generics/enums/date';
 import moment from 'moment';
 import { useUpdateTimeLogMutation } from '@/core/hooks/timesheet';
@@ -104,6 +105,36 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 	};
 
 	const t = useTranslations();
+	// The header carets sort the rows of every status group by the chosen column
+	const [sort, setSort] = React.useState<{ key: string; order: SortOrder } | null>(null);
+	const handleSort = (key: string, order: SortOrder) => {
+		setSort({ key, order });
+	};
+	const sortValue = (log: ITimeLog, key: string): string => {
+		switch (key) {
+			case 'Task':
+				return log.task?.title ?? '';
+			case 'Project':
+				return log.project?.name ?? '';
+			case 'Employee':
+				return log.employee?.fullName ?? '';
+			case 'Status':
+				return log.timesheet?.status ?? '';
+			default:
+				return '';
+		}
+	};
+	// Rows keep their identity, so the selection (selectTimesheetId.includes(row)) still matches
+	const sortRows = (rows: ITimeLog[]): ITimeLog[] =>
+		!sort
+			? rows
+			: [...rows].sort((a, b) => {
+					const result = sortValue(a, sort.key).localeCompare(sortValue(b, sort.key), undefined, {
+						numeric: true,
+						sensitivity: 'base'
+					});
+					return sort.order === 'ASC' ? result : -result;
+				});
 	const handleButtonClick = async (action: StatusAction) => {
 		switch (action) {
 			case 'Approved':
@@ -259,10 +290,11 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 															}
 															data={timesheetRows}
 															status={status}
+															onSort={handleSort}
 															date={plan.date}
 															selectedIds={selectTimesheetId}
 														/>
-														{timesheetRows.map((task) => (
+														{sortRows(timesheetRows).map((task) => (
 															<div
 																key={task.id}
 																style={{
@@ -623,27 +655,69 @@ export const getBadgeColor = (timesheetStatus: ETimesheetStatus | null) => {
 	}
 };
 
-const HeaderColumn = ({ label }: { label: string }) => (
+type SortOrder = 'ASC' | 'DESC';
+
+const HeaderColumn = ({
+	label,
+	onSort,
+	currentSort
+}: {
+	label: string;
+	onSort: () => void;
+	currentSort: SortOrder | null;
+}) => (
 	<div className="flex gap-x-2" role="columnheader">
 		<span>{label}</span>
+		<button
+			onClick={onSort}
+			aria-label={`Sort ${label} column ${currentSort ? `currently ${currentSort.toLowerCase()}` : ''}`}
+			className="flex flex-col items-start gap-0 leading-none"
+		>
+			<CaretUpIcon
+				style={{
+					height: 10,
+					color: '#71717A'
+				}}
+			/>
+			<CaretDownIcon
+				style={{
+					height: 10,
+					color: '#71717A'
+				}}
+			/>
+		</button>
 	</div>
 );
 
 const HeaderRow = ({
 	status,
+	onSort,
 	data,
 	handleSelectRowByStatusAndDate,
 	date,
 	selectedIds
 }: {
 	status: string;
+	onSort: (key: string, order: SortOrder) => void;
 	data: ITimeLog[];
 	handleSelectRowByStatusAndDate: (status: string, date: string) => void;
 	date?: string;
 	selectedIds: ITimeLog[];
 }) => {
 	const { bg, bgOpacity } = statusColor(status);
+	const [sortState, setSortState] = React.useState<{ [key: string]: SortOrder | null }>({
+		Task: null,
+		Project: null,
+		Employee: null,
+		Status: null
+	});
 	const isAllSelected = data.length > 0 && data.every((row) => selectedIds.includes(row));
+
+	const handleSort = (key: string) => {
+		const newOrder = sortState[key] === 'ASC' ? 'DESC' : 'ASC';
+		setSortState({ ...sortState, [key]: newOrder });
+		onSort(key, newOrder);
+	};
 
 	return (
 		<div
@@ -657,16 +731,20 @@ const HeaderRow = ({
 				disabled={!date}
 			/>
 			<div className="flex-[2]">
-				<HeaderColumn label="Task" />
+				<HeaderColumn label="Task" onSort={() => handleSort('Task')} currentSort={sortState['Task']} />
 			</div>
 			<div className="flex-1">
-				<HeaderColumn label="Project" />
+				<HeaderColumn label="Project" onSort={() => handleSort('Project')} currentSort={sortState['Project']} />
 			</div>
 			<div className="flex-1">
-				<HeaderColumn label="Employee" />
+				<HeaderColumn
+					label="Employee"
+					onSort={() => handleSort('Employee')}
+					currentSort={sortState['Employee']}
+				/>
 			</div>
 			<div className="flex-auto">
-				<HeaderColumn label="Status" />
+				<HeaderColumn label="Status" onSort={() => handleSort('Status')} currentSort={sortState['Status']} />
 			</div>
 			<div className="ml-auto">
 				<span>Time</span>

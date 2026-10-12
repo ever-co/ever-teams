@@ -3,6 +3,8 @@ import { useMemo, useCallback, useState, useEffect, useRef, Dispatch, SetStateAc
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
+import { getMyWorkNavigation } from '@/core/components/layouts/my-work-navigation';
 import { useModal } from '@/core/hooks';
 import { useTimerActions } from '@/core/hooks/timer';
 import { useTeamTasksState } from '@/core/hooks/organizations/teams/use-team-tasks-state';
@@ -423,6 +425,30 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		</Button>
 	);
 
+	const router = useRouter();
+	const { data: currentUser } = useUserQuery();
+	// A past plan's time is in the Work Diary of the plan's employee (the signed-in user when the plan carries none)
+	const openPlanTimesheet = useCallback(() => {
+		const planUserId: string | undefined = plan?.employee?.user?.id;
+		const planUserName: string | undefined = plan?.employee?.fullName || plan?.employee?.user?.name;
+		closeModal();
+		router.push(
+			getMyWorkNavigation(
+				planUserId ?? currentUser?.id,
+				(planUserId ? planUserName : currentUser?.name) || undefined
+			).workDiary
+		);
+	}, [closeModal, currentUser?.id, currentUser?.name, plan?.employee, router]);
+
+	const TimeSheetsButton = (
+		<Button
+			onClick={openPlanTimesheet}
+			className="px-5 py-3 w-full font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+		>
+			{t('common.timesheets.PLURAL')}
+		</Button>
+	);
+
 	const content = (
 		<div className="flex flex-col justify-between w-full">
 			<div className="flex flex-col gap-4 w-full">
@@ -598,9 +624,9 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 									{StartWorkingButton}
 								</Tooltip>
 							) : (
-								!checkPastDate(plan.date) && (
-									<div className="w-40 h-full border">{StartWorkingButton}</div>
-								)
+								<div className="w-40 h-full border">
+									{checkPastDate(plan.date) ? TimeSheetsButton : StartWorkingButton}
+								</div>
 							)}
 						</div>
 					</>
