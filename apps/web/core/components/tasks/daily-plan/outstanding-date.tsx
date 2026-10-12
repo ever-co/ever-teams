@@ -1,4 +1,4 @@
-import { formatDayPlanDate, handleDragAndDrop } from '@/core/lib/helpers/index';
+import { formatDayPlanDate } from '@/core/lib/helpers/index';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
 
@@ -8,12 +8,13 @@ import { clsxm } from '@/core/lib/utils';
 import { useAtomValue } from 'jotai';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
-import { useMemo, useCallback, useState, useEffect } from 'react';
+import { useMemo, useCallback } from 'react';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import DailyPlanTasksTableView from './table-view';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { filterDailyPlansByEmployee, filterDailyPlansByTasks } from '@/core/hooks/daily-plans/use-filter-date-range';
+import { useDailyPlanTaskOrder } from '@/core/hooks/daily-plans/use-daily-plan-task-order';
 
 interface IOutstandingFilterDate {
 	profile: any;
@@ -48,12 +49,7 @@ export function OutstandingFilterDate({
 	}, [outstandingPlans, user, filterByEmployee, filteredTaskIds]);
 
 	// Local state for drag-and-drop functionality (minimal approach)
-	const [plans, setPlans] = useState(filteredPlans);
-
-	// Sync local state only when filteredPlans changes (conservative update)
-	useEffect(() => {
-		setPlans(filteredPlans);
-	}, [filteredPlans]);
+	const { dragPlans: plans, onDragEnd } = useDailyPlanTaskOrder(filteredPlans);
 
 	// Performance: static style object created once instead of on every render
 	const draggableStyle = useMemo(() => ({ marginBottom: 8 }), []);
@@ -106,7 +102,7 @@ export function OutstandingFilterDate({
 		<div className="flex flex-col gap-6">
 			{plans?.length > 0 ? (
 				// @ts-ignore
-				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, plans, setPlans)}>
+				<DragDropContext onDragEnd={onDragEnd}>
 					<Accordion
 						type="multiple"
 						className="text-sm"

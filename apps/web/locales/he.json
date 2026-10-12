@@ -1267,6 +1267,7 @@
 		"TOTAL_TASK": "סך כל המשימות",
 		"DAILY_PLAN_DESCRIPTION": "'תוכנית יומית' עוזרת לארגן את תהליך העבודה להשגת התוצאות הטובות ביותר",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "משימה זו לא תוכננה עבור התוכנית של היום. האם תרצה להוסיף לתוכנית?",
+		"TASK_ORDER_SAVE_FAILED": "לא ניתן היה לשמור את הסדר החדש של המשימות. אנא נסה שוב.",
 		"planned_tasks_popup": {
 			"warning": {
 				"PLANNED_TIME": "אנא הוסף זמן מתוכנן",

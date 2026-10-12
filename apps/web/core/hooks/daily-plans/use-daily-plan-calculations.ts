@@ -8,6 +8,9 @@ import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { isTaskFinished } from '@/core/lib/helpers/task';
 
+/** Id of the outstanding view's placeholder plan for unplanned tasks: it does not exist on the API. */
+export const OUTSTANDING_NO_PLAN_ID = 'outstanding-no-plan';
+
 /**
  * Shared calculations for daily plan derived state.
  * Used by useMyDailyPlans, useEmployeeDailyPlans, and useTeamDailyPlans
@@ -114,7 +117,7 @@ export function useDailyPlanCalculations(
 			tasksNotInAnyPlan.length > 0
 				? [
 						{
-							id: 'outstanding-no-plan',
+							id: OUTSTANDING_NO_PLAN_ID,
 							date: new Date().toISOString(),
 							tasks: tasksNotInAnyPlan,
 							workTimePlanned: 0,
