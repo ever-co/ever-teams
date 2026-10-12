@@ -46,7 +46,8 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 				await updateDailyPlan({ workTimePlanned, employeeId: plan.employeeId || undefined }, plan.id ?? '');
 			}
 
-			startTimer();
+			// startTimer reports its own failure, this only keeps the rejection from going unhandled
+			startTimer()?.catch(() => undefined);
 
 			handleCloseModal();
 		} catch (error) {
