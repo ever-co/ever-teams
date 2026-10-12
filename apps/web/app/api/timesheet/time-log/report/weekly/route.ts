@@ -25,8 +25,10 @@ export async function GET(req: Request) {
 		);
 	}
 
-	const { user, access_token, tenantId, organizationId } = await authenticatedGuard(req, res);
-	if (!user) return NextResponse.json({}, { status: 401 });
+	const guard = await authenticatedGuard(req, res);
+	// The guard's own status: 401 for a refused session, 503 when Gauzy could not answer (no logout then)
+	if (!guard.user) return guard.deny();
+	const { access_token, tenantId, organizationId } = guard;
 
 	// The client sends arrays as indexed keys (projectIds[0], projectIds[1], ...)
 	const listParam = (name: string) =>

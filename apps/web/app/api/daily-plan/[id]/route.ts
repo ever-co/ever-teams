@@ -11,9 +11,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
 	const { $res, user, tenantId, access_token } = await authenticatedGuard(req, new NextResponse());
 
-	if (!user) {
-		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-	}
+	// The guard's own status: 401 for a refused session, 503 when Gauzy could not answer (no logout then)
+	if (!user) return $res('Unauthorized');
 
 	const response = await getPlanByIdRequest({
 		planId: id,

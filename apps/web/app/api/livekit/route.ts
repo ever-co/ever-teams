@@ -5,7 +5,10 @@ import { readRuntimeEnv } from '@/env-config';
 
 export async function GET(req: NextRequest) {
 	const res = new NextResponse();
-	const { user } = await authenticatedGuard(req, res);
+	const guard = await authenticatedGuard(req, res);
+	// The guard's own status: 401 for a refused session, 503 when Gauzy could not answer (no logout then)
+	if (!guard.user) return guard.deny();
+	const { user } = guard;
 
 	// Session tenant, not the guard's auth-tenant-id cookie: that one is client-writable
 	if (!user?.tenantId) {

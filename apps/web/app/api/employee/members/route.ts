@@ -6,10 +6,9 @@ export async function GET(req: NextRequest) {
 	const res = new NextResponse();
 	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, res);
 
-	// A real 401, not $res, whose body carries statusCode 401 under an HTTP 200: the client
-	// interceptor keys on the HTTP status, so a 200 skips re-authentication and the error body
-	// reaches the member list validator instead.
-	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+	// The guard's refusal carries a real HTTP status (401 for a refused session, 503 when Gauzy could not
+	// answer), so the client interceptor re-authenticates on a 401 and never logs out on an outage.
+	if (!user) return $res('Unauthorized');
 
 	const organizationTeamId = req.nextUrl.searchParams.get('organizationTeamId') ?? undefined;
 
