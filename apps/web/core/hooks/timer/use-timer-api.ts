@@ -136,9 +136,7 @@ function notifyAutomaticStop(stopRequest: Promise<unknown> | void, title: string
 			toast.info(title, { description });
 		})
 		.catch((error) => {
-			toast.error('Could not confirm the timer stopped', {
-				description: getErrorMessage(error, 'The timer may still be running. Check it and stop it manually.')
-			});
+			// The stop mutation already showed the translated TIMER_STOP_FAILED toast
 			logErrorInDev('Automatic timer stop failed', error);
 		});
 }
@@ -698,12 +696,18 @@ export function useTimerApi({
 					const currentMember = activeTeam?.members?.find((m) => m.employee?.userId === user.id);
 
 					if (currentMember?.id) {
-						await updateOrganizationTeamEmployeeActiveTask(currentMember.id, {
-							organizationId: activeTeam?.organizationId,
-							activeTaskId: null,
-							organizationTeamId: activeTeam?.id,
-							tenantId: activeTeam?.tenantId ?? ''
-						});
+						// The timer is stopped by now: failing to clear the active task must not make the stop
+						// look failed to its callers (a task card would then refuse to start the next task)
+						try {
+							await updateOrganizationTeamEmployeeActiveTask(currentMember.id, {
+								organizationId: activeTeam?.organizationId,
+								activeTaskId: null,
+								organizationTeamId: activeTeam?.id,
+								tenantId: activeTeam?.tenantId ?? ''
+							});
+						} catch (error) {
+							logErrorInDev('[Timer] Failed to clear the active task after stop:', error);
+						}
 					}
 				}
 
