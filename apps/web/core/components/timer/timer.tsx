@@ -17,6 +17,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { HotkeysEvent } from 'hotkeys-js';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
 import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
 import { ProgressBar } from '../duplicated-components/_progress-bar';
@@ -93,8 +94,10 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 	const handleStartSTOPTimer = useCallback(
 		(e?: KeyboardEvent, h?: HotkeysEvent) => {
 			// Start Timer: only when no timer runs at all, so the start key never stops one
-			if ((h?.shortcut === 'ctrl+option+]' || h?.shortcut === 'ctrl+alt+]') && !rawTimerRunning) {
-				startStopTimerHandler();
+			if (h?.shortcut === 'ctrl+option+]' || h?.shortcut === 'ctrl+alt+]') {
+				if (!rawTimerRunning) startStopTimerHandler();
+				// A timer runs on another team's task: say so, as the start key did before
+				else if (!timerStatus?.running) toast.info(t('timer.ALREADY_TRACKING_MESSAGE'));
 			}
 
 			// Stop Timer
@@ -102,7 +105,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 				startStopTimerHandler();
 			}
 		},
-		[startStopTimerHandler, timerStatus, rawTimerRunning]
+		[startStopTimerHandler, timerStatus, rawTimerRunning, t]
 	);
 	useHotkeys(HostKeys.START_STOP_TIMER, handleStartSTOPTimer);
 
