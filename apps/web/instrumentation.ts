@@ -1,4 +1,5 @@
 import type { Instrumentation } from 'next';
+import { isEverStatsEnabled } from './core/lib/ever-platform/env';
 
 // Server-side Sentry. Next.js calls register() once per runtime when the server starts — in the published Docker
 // image too, unlike next.config.js's withSentryConfig, which only matters when SENTRY_DSN is set at BUILD time
@@ -12,8 +13,35 @@ let captureRequestError: Instrumentation.onRequestError | undefined;
 export async function register() {
 	// Literal NEXT_RUNTIME checks: Next inlines them per bundle, so each runtime only bundles its own SDK build.
 	if (process.env.NEXT_RUNTIME === 'nodejs') {
+		// register() never runs during `next build`. A missing AUTH_SECRET with a sign-in provider configured is
+		// logged loudly; the server keeps serving (email and password sign-in keep working, only the social and Ever ID
+		// sign-ins fail, as before this check existed). AUTH_SECRET_REQUIRED=true makes the server refuse to start
+		// instead: in production Next only logs a throw from here and then answers every request with a 500.
+		if (process.env.NODE_ENV === 'production') {
+			const { assertAuthSecret } = await import('@/core/lib/utils/check-provider-env-vars');
+			try {
+				assertAuthSecret();
+			} catch (error) {
+				console.error(error);
+				if (process.env.AUTH_SECRET_REQUIRED?.trim().toLowerCase() === 'true') process.exit(1);
+			}
+		}
+
+		// Demo deployments: the default sign-in presets, kept out of the client code (see the module).
+		const { applyDemoAccountDefaults } = await import('./core/lib/demo/default-demo-accounts');
+		applyDemoAccountDefaults();
+
 		const { initSentryServer } = await import('./sentry.server.config');
 		captureRequestError = (await initSentryServer())?.captureRequestError;
+
+		// Anonymous usage statistics (docs/ever-platform/anonymous-usage-statistics.md): loaded only when
+		// EVER_STATS_ENABLED is not 'false', and silent unless the paired API says its statistics are on.
+		if (isEverStatsEnabled()) {
+			const { startEverStats } = await import('./core/services/server/ever-stats/scheduler');
+			startEverStats();
+		} else {
+			console.info('ever_stats.reporter state=not_loaded (EVER_STATS_ENABLED=false)');
+		}
 	}
 
 	if (process.env.NEXT_RUNTIME === 'edge') {

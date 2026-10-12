@@ -20,7 +20,8 @@ import {
 	LazyMemberSetting,
 	LazyIntegrationSetting,
 	LazyIssuesSettings,
-	LazyDangerZoneTeam
+	LazyDangerZoneTeam,
+	LazyEverPlatformSection
 } from '@/core/components/optimized-components/settings';
 import { Suspense } from 'react';
 import {
@@ -29,8 +30,10 @@ import {
 	MemberSettingSkeleton,
 	IntegrationSettingSkeleton,
 	IssuesSettingsSkeleton,
-	DangerZoneTeamSkeleton
+	DangerZoneTeamSkeleton,
+	EverPlatformSectionSkeleton
 } from '@/core/components/common/skeleton/settings-skeletons';
+import { useEverPlatformSection } from '@/core/hooks/ever-platform/use-ever-platform-section';
 
 const Team = () => {
 	const t = useTranslations();
@@ -41,6 +44,8 @@ const Team = () => {
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const isTeamMember = useAtomValue(isTeamMemberState);
+	// Optional Ever Platform section: team managers only, never on a demo deployment (see the hook).
+	const everPlatform = useEverPlatformSection(Boolean(user) && isTeamManager);
 
 	if (!user) {
 		return (
@@ -112,6 +117,20 @@ const Team = () => {
 								{/* Use lazy loaded IntegrationSetting with Suspense */}
 								<Suspense fallback={<IntegrationSettingSkeleton />}>
 									<LazyIntegrationSetting />
+								</Suspense>
+							</Accordian>
+						</InteractionObserverVisible>
+					)}
+
+					{/* Ever Platform (optional) */}
+					{everPlatform.visible && (
+						<InteractionObserverVisible id="ever-platform" setActiveSection={setActiveTeam}>
+							<Accordian title={t('pages.settingsTeam.everPlatform.TITLE')} className="w-full">
+								<Suspense fallback={<EverPlatformSectionSkeleton />}>
+									<LazyEverPlatformSection
+										connectAvailable={everPlatform.connect.available}
+										connected={everPlatform.connect.connected}
+									/>
 								</Suspense>
 							</Accordian>
 						</InteractionObserverVisible>

@@ -3,6 +3,8 @@ import { Divider, Text } from '@/core/components';
 import { I_TaskFilter } from './task-filters';
 import { useTranslations } from 'next-intl';
 import { ComponentProps, memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { useAtomValue } from 'jotai';
+import { timerStatusState } from '@/core/stores';
 import { cn } from '@/core/lib/helpers';
 import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
 import { useTaskFilterCache } from '@/core/hooks/common/use-memoized-cache';
@@ -33,8 +35,7 @@ type Props = {
 export const UserProfileTask = memo(
 	({ profile, tabFiltered, useVirtualization = false, user, employeeId, activityScope }: Props) => {
 		const t = useTranslations();
-		// Get current timer seconds
-		const { time, timerStatus } = useLiveTimerStatus();
+		const timerStatus = useAtomValue(timerStatusState);
 
 		// Initialize cache for expensive operations
 		const { memoizeTaskFilter } = useTaskFilterCache();
@@ -99,9 +100,7 @@ export const UserProfileTask = memo(
 							<div className="flex items-center space-x-4">
 								<Text className="text-xs font-normal text-gray-500">{t('common.TOTAL_TIME')}:</Text>
 								{profile.isAuthUser ? (
-									<Text className="font-normal">
-										{time.h}h : {time.m}m
-									</Text>
+									<LiveTotalTime />
 								) : (
 									<Text className="font-normal">00h : 00m</Text>
 								)}
@@ -156,6 +155,18 @@ export const UserProfileTask = memo(
 		);
 	}
 );
+
+// Reads the per-second clock here so a tick re-renders this text, not the whole tab and its task cards
+function LiveTotalTime() {
+	const { time } = useLiveTimerStatus();
+
+	return (
+		<Text className="font-normal">
+			{time.h}h : {time.m}m
+		</Text>
+	);
+}
+
 /**
  * Cache to track which tasks have already been rendered.
  * Prevents showing skeleton for tasks that were already displayed.

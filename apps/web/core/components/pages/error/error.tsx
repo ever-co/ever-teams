@@ -1,5 +1,5 @@
 import SadCry from '@/core/components/svgs/sad-cry';
-import { Text } from '@/core/components';
+import { Text } from '@/core/components/common/typography';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { DEFAULT_APP_PATH } from '@/core/constants/config/constants';

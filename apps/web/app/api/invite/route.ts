@@ -6,7 +6,7 @@ export async function GET(req: Request) {
 	const res = new NextResponse();
 	const { $res, user, access_token, tenantId, organizationId, teamId } = await authenticatedGuard(req, res);
 	if (!user) {
-		return NextResponse.json({ error: 'Unauthorized' });
+		return $res('Unauthorized');
 	}
 
 	// Get all team invitations (all roles)

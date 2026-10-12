@@ -32,6 +32,13 @@ const CONTROLLED_KEYS = [
 
 type Constants = typeof import('@/core/constants/config/constants');
 
+/** What the server does at start (instrumentation.ts): a demo deployment gets its default presets. */
+function startServer() {
+	jest.isolateModules(() => {
+		require('@/core/lib/demo/default-demo-accounts').applyDemoAccountDefaults(process.env);
+	});
+}
+
 function loadConstants(env: Record<string, string> = {}): Constants {
 	Object.assign(process.env, env);
 	let constants!: Constants;
@@ -225,7 +232,9 @@ describe('DEMO_ACCOUNTS_CONFIG', () => {
 	});
 
 	it('keeps the Gauzy demo seed accounts by default, with their icons', () => {
-		const constants = loadConstants({ NEXT_PUBLIC_DEMO: 'true' });
+		process.env.NEXT_PUBLIC_DEMO = 'true';
+		startServer();
+		const constants = loadConstants();
 
 		expect(summary(constants)).toEqual(DEFAULT_ACCOUNTS);
 		expect(constants.DEMO_ACCOUNTS_CONFIG.every((account) => typeof account.icon === 'object')).toBe(true);
@@ -258,7 +267,9 @@ describe('DEMO_ACCOUNTS_CONFIG', () => {
 			}
 		]);
 		// Icons follow the type, as for the default accounts (compared by name: each load has its own copy).
-		const defaults = loadConstants({ NEXT_PUBLIC_DEMO_ACCOUNTS: '' }).DEMO_ACCOUNTS_CONFIG;
+		process.env.NEXT_PUBLIC_DEMO_ACCOUNTS = '';
+		startServer();
+		const defaults = loadConstants().DEMO_ACCOUNTS_CONFIG;
 		expect(constants.DEMO_ACCOUNTS_CONFIG.map((account) => account.icon.displayName)).toEqual(
 			['EMPLOYEE', 'SUPER_ADMIN'].map(
 				(type) => defaults.find((account) => account.type === type)?.icon.displayName
@@ -276,7 +287,10 @@ describe('DEMO_ACCOUNTS_CONFIG', () => {
 			'[{"type":"ADMIN","email":"a@example.org","password":"x"},{"type":"ADMIN","email":"b@example.org","password":"y"}]'
 		]
 	])('falls back to the default accounts on %s, with one warning that never shows the value', (_case, raw) => {
-		const first = loadConstants({ NEXT_PUBLIC_DEMO: 'true', NEXT_PUBLIC_DEMO_ACCOUNTS: raw });
+		Object.assign(process.env, { NEXT_PUBLIC_DEMO: 'true', NEXT_PUBLIC_DEMO_ACCOUNTS: raw });
+		startServer();
+		const first = loadConstants();
+		startServer();
 		const second = loadConstants();
 
 		expect(summary(first)).toEqual(DEFAULT_ACCOUNTS);
@@ -304,5 +318,22 @@ describe('third-party integrations', () => {
 	it("has no GitHub App by default (never Ever's), and uses the configured one", () => {
 		expect(loadConstants().GITHUB_APP_NAME.value).toBe('');
 		expect(loadConstants({ NEXT_PUBLIC_GITHUB_APP_NAME: 'acme-github' }).GITHUB_APP_NAME.value).toBe('acme-github');
+	});
+});
+
+describe('demo sign-in presets in the client code', () => {
+	it('names no demo account outside the server-only defaults module', () => {
+		const constants = readFileSync(resolve(__dirname, '../../core/constants/config/constants.tsx'), 'utf8');
+		const shared = readFileSync(resolve(__dirname, '../../core/lib/demo/demo-accounts.ts'), 'utf8');
+		for (const source of [constants, shared]) expect(source).not.toMatch(/@ever\.co\b/);
+	});
+
+	it('lists none on a client that received no presets', () => {
+		expect(loadConstants({ NEXT_PUBLIC_DEMO: 'true' }).DEMO_ACCOUNTS_CONFIG).toEqual([]);
+	});
+
+	it('changes nothing on a deployment that is not a demo', () => {
+		startServer();
+		expect(process.env.NEXT_PUBLIC_DEMO_ACCOUNTS).toBeUndefined();
 	});
 });

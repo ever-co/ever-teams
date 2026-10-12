@@ -16,7 +16,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 		return;
 	}
 
-	const { $res, user, organizationId, access_token, tenantId, teamId } = await authenticatedGuard(req, res);
+	const { $res, user, organizationId, access_token, tenantId } = await authenticatedGuard(req, res);
 
 	if (!user) return NextResponse.json({}, { status: 400 });
 
@@ -24,7 +24,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 		{
 			organizationId,
 			tenantId,
-			teamId: teamId
+			teamId: id
 		},
 		access_token || ''
 	);
@@ -40,22 +40,22 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 		return;
 	}
 
-	const { $res, user, organizationId, access_token, tenantId, teamId } = await authenticatedGuard(req, res);
+	const { $res, user, organizationId, access_token, tenantId } = await authenticatedGuard(req, res);
 
 	if (!user) return NextResponse.json({}, { status: 400 });
 
 	const body = await req.json();
 
+	await updateOrganizationTeamRequest({ ...body, id }, access_token || '');
+
 	const { data } = await getOrganizationTeamRequest(
 		{
 			organizationId,
 			tenantId,
-			teamId: teamId
+			teamId: id
 		},
 		access_token || ''
 	);
-
-	await updateOrganizationTeamRequest(body, access_token || '');
 
 	return $res(data);
 }

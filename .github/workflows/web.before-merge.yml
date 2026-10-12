@@ -3,8 +3,11 @@ permissions:
   contents: read
 
 on:
+  # Feature and fix PRs into develop deliberately run no CI (cost). This gate runs on the promotion PRs
+  # (develop -> stage, stage -> main) and on demand for any branch through "Run workflow".
   pull_request:
     types: [opened, synchronize, reopened]
+    branches: [stage, main, master]
     paths:
       - '.deploy/web/**'
       - '.github/workflows/web.before-merge.yml'
@@ -20,6 +23,12 @@ on:
       - 'turbo.json'
       - 'yarn.lock'
       - 'README.md'
+  workflow_dispatch:
+    inputs:
+      base:
+        description: 'Branch the preserved feature surface is compared against'
+        required: true
+        default: 'develop'
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -88,8 +97,8 @@ jobs:
 
       - name: Verify preserved feature surface
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || format('origin/{0}', inputs.base) }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           node tools/preservation/ever-teams-surface.mjs \
             --base="$BASE_SHA" \
@@ -171,6 +180,14 @@ jobs:
           CYPRESS_BASE_URL: http://127.0.0.1:3030
           GAUZY_API_SERVER_URL: http://127.0.0.1:3988
           NEXT_PUBLIC_GAUZY_API_SERVER_URL: http://127.0.0.1:3988
+          # Ever Platform settings specs (ever-stats-toggle, ever-platform-section): the statistics reporter
+          # sends every 5 s to the SDK's Ever Platform API mock that cypress.config.ts starts on 3989, and the
+          # settings' connection parts are on (they still show only while the synthetic API answers health).
+          EVER_STATS_API_URL: http://127.0.0.1:3989
+          EVER_STATS_SEND_INTERVAL_S: '5'
+          NEXT_PUBLIC_EVER_CONNECT_ENABLED: 'true'
+          # Repository variable PAGE_WEIGHT_ENFORCE=false turns the page weight budget into a warning
+          PAGE_WEIGHT_ENFORCE: ${{ vars.PAGE_WEIGHT_ENFORCE || 'true' }}
         run: |
           yarn start:web > "$RUNNER_TEMP/ever-teams-web.log" 2>&1 &
           server_pid=$!
@@ -197,6 +214,7 @@ jobs:
           fi
           yarn e2e:web
           node tools/performance/compare-startup.mjs --candidate=artifacts/startup-candidate.json --out=artifacts/startup-report.json
+          node tools/performance/page-weight.mjs --base-url=http://127.0.0.1:3030
 
       - name: Record live performance status
         run: echo "Live performance NOT RUN in CI; this job uses the deterministic browser fixture and does not claim database-backed timing evidence."

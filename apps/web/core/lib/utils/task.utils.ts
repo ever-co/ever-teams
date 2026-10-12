@@ -1,8 +1,20 @@
 import { Queue } from '.';
+import { Nullable } from '@/core/types/generics/utils';
+import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
+import { removeDuplicateItems } from './remove-duplicate-item';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
+import type { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 
 export const taskUpdateQueue = new Queue(1);
+
+/**
+ * Joins the pages of a paginated task list into one list.
+ * A task created while the pages load shifts the next page by one, hence the de-duplication by id.
+ */
+export function flattenTaskPages(pages: PaginationResponse<TTask>[]): TTask[] {
+	return removeDuplicateItems(pages.flatMap((page) => page.items));
+}
 
 /**
  * Get the total worked duration for a specific task from team member statistics.
@@ -40,6 +52,64 @@ export function getTaskTotalWorkedDuration(
 	}
 
 	return 0;
+}
+
+/**
+ * `getTaskTotalWorkedDuration` for every task at once, keyed by task id, with the same first-match rule.
+ * Lets components rendered once per task read their duration without each scanning members × tasks.
+ */
+export function indexTaskTotalWorkedDurations(
+	members: TOrganizationTeamEmployee[] | null | undefined
+): Map<string, number> {
+	const durations = new Map<string, number>();
+
+	for (const member of members ?? []) {
+		// Like `find`, only a task's first entry within a member counts, even when its duration is 0.
+		const seenInMember = new Set<string>();
+
+		for (const taskStat of member?.totalWorkedTasks ?? []) {
+			if (!taskStat?.id || seenInMember.has(taskStat.id)) {
+				continue;
+			}
+			seenInMember.add(taskStat.id);
+
+			if (taskStat.duration && !durations.has(taskStat.id)) {
+				durations.set(taskStat.id, taskStat.duration);
+			}
+		}
+	}
+
+	return durations;
+}
+
+/**
+ * Get task estimation percentage.
+ *
+ * @param timeSheet - Optional timesheet stat (used for daily estimation fallback)
+ * @param task - The task to estimate progress for
+ * @param addSeconds - Total worked seconds (callers provide totalWorkedTasksTimer + localTimerSeconds)
+ * @param estimate - Override for the task estimate (in seconds)
+ * @returns Progress percentage (0-100)
+ */
+export function getTaskEstimation(
+	timeSheet: Nullable<TTaskStatistic>,
+	task: Nullable<TTask>,
+	addSeconds: number,
+	estimate = 0
+): number {
+	const totalEstimate = estimate || task?.estimate || 0;
+
+	// Return 0 (neutral state) when there's no estimation data
+	if (totalEstimate === 0) {
+		return 0;
+	}
+
+	// Use timeSheet?.duration as base only when provided (daily estimation).
+	// Do NOT add task?.totalWorkedTime: callers already include total worked time in addSeconds,
+	// which would cause double-counting and inflate the progress bar.
+	const baseWorkedTime = timeSheet?.duration || 0;
+
+	return Math.min(Math.floor(((baseWorkedTime + addSeconds) * 100) / totalEstimate), 100);
 }
 
 /**

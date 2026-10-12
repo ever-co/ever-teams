@@ -1,4 +1,3 @@
-import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import React from 'react';
 import { ClosedTaskIcon } from '../svgs/closed-task';
 import { CompletedTaskIcon } from '../svgs/completed-task';
@@ -18,18 +17,18 @@ export const statusIcons: { [x: string]: React.ReactElement } = {
 	Unassigned: <UnassignedTaskIcon color="#5f5f5f" />
 };
 
-export function StatusIcon({ status }: { status: ETaskStatusName }) {
+export function StatusIcon({ status }: { status: string }) {
 	return <>{statusIcons[status] || ''}</>;
 }
 
-export function BadgedTaskStatus({ status }: { status: ETaskStatusName }) {
-	const node = statusIcons[status] as React.ReactElement<{ background?: string; color?: string }>;
+export function BadgedTaskStatus({ status }: { status: string }) {
+	const node = statusIcons[status] as React.ReactElement<{ background?: string; color?: string }> | undefined;
 
 	return (
 		<div
 			style={{
-				background: node.props.background || '#F2F4F6',
-				color: node.props.color || '#8F97A1'
+				background: node?.props.background || '#F2F4F6',
+				color: node?.props.color || '#8F97A1'
 			}}
 			className={`px-2 py-1 rounded-2xl text-xs flex items-center justify-center`}
 		>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useQueryClient, type QueryKey } from '@tanstack/react-query';
+import { hashKey, useQueryClient, type QueryKey } from '@tanstack/react-query';
 import { useSetAtom } from 'jotai';
 import { useCallback, useRef } from 'react';
 import { useIsomorphicLayoutEffect } from '@/core/hooks/common/use-isomorphic-layout-effect';
@@ -93,7 +93,11 @@ export function useScopeTransitionGuard(scope: ShellScope, enabled = true) {
 		if (!enabled) return;
 		const previous = previousRef.current;
 		if (previous && previous.fingerprint !== fingerprint) {
+			const currentKeyHashes = new Set(getShellCriticalQueryKeys(scope).map((queryKey) => hashKey(queryKey)));
 			getShellCriticalQueryKeys(previous.scope).forEach((queryKey) => {
+				// A key the new scope still uses belongs to it too. Cancelling would revert a first fetch to an
+				// idle query without data, and nothing restarts it before its refetch interval.
+				if (currentKeyHashes.has(hashKey(queryKey))) return;
 				void queryClient.cancelQueries({ queryKey, exact: true });
 			});
 

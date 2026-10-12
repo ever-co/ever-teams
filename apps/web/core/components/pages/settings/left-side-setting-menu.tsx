@@ -10,12 +10,15 @@ import Link from 'next/link';
 import { clsxm } from '@/core/lib/utils';
 import { activeSettingPersonalTab, activeSettingTeamTab } from '@/core/stores/common/setting';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useEverPlatformSection } from '@/core/hooks/ever-platform/use-ever-platform-section';
 
 type SettingsLink = {
 	title: string;
 	href: string;
 	color?: string;
 	managerOnly?: boolean;
+	/** The optional Ever Platform section: listed only while it shows. */
+	everPlatform?: boolean;
 };
 
 export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
@@ -28,6 +31,7 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 	const { PersonalAccordianData, TeamAccordianData } = useLeftSettingData();
 	const { data: user } = useUserQuery();
 	const { isTeamManager } = useIsMemberManager(user);
+	const everPlatform = useEverPlatformSection(Boolean(user) && isTeamManager);
 
 	useEffect(() => {
 		const hash = typeof window !== 'undefined' ? window.location.hash : '';
@@ -51,6 +55,7 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 	const renderLinks = (scope: 'personal' | 'team', links: SettingsLink[], activeHash: string) =>
 		links
 			.filter((item) => scope === 'personal' || (!isTeamManager && !item.managerOnly) || isTeamManager)
+			.filter((item) => !item.everPlatform || everPlatform.visible)
 			.map((item) => {
 				const active = `#${activeHash}` === item.href;
 				return (

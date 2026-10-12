@@ -1,9 +1,13 @@
 name: Knip Review - Cleanup Unused Code - WEB
 
 on:
+  # Feature and fix PRs into develop deliberately run no CI (cost). The review runs on the promotion PRs
+  # (develop -> stage, stage -> main).
   pull_request:
     branches:
-      - develop
+      - stage
+      - main
+      - master
     paths:
       - 'apps/web/**'
 

@@ -6,6 +6,7 @@ import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { dailyPlanService } from '../../services/client/api';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
+import { orderTasksInPlans } from '@/core/lib/helpers/daily-plan-task-order';
 import { useUserQuery } from '../queries/user-user.query';
 import { useDailyPlanCalculations } from './use-daily-plan-calculations';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
@@ -99,6 +100,7 @@ export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
 	const getMyDailyPlansQuery = useQuery({
 		queryKey,
 		queryFn: ({ signal }) => dailyPlanService.getMyDailyPlans({ scope: scope!, signal }),
+		select: orderTasksInPlans,
 		enabled: enabled && scopedReady && canOwnScopedQuery,
 		staleTime: 60_000,
 		gcTime: 1000 * 60 * 60, // 1 hour

@@ -71,8 +71,7 @@ export interface UseAuthenticateUserResult {
 	isTeamManager: boolean;
 	refreshUserData: () => Promise<TUser | undefined>;
 	refreshUserLoading: boolean;
-	logOut: () => void;
-	timeToTimeRefreshToken: (interval?: number) => () => void;
+	logOut: () => Promise<void>;
 	refreshToken: () => Promise<void>;
 	userDataQuery: UseQueryResult<TUser, Error>;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any

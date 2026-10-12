@@ -8,7 +8,7 @@ import { setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/coo
 
 import { inviteService } from '../organizations/teams/invites';
 import { userOrganizationService } from '../users/user-organization.service';
-import { organizationTeamService } from '../organizations/teams';
+import { organizationTeamService } from '../organizations/teams/team.service';
 import { IAuthResponse, ISigninEmailConfirmResponse, ISigninWorkspaceInput } from '@/core/types/interfaces/auth/auth';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { TOrganizationTeam } from '@/core/types/schemas';

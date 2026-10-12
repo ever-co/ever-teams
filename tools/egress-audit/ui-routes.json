@@ -1,0 +1,188 @@
+{
+  "$schema": "../../node_modules/@ever-co/connect-tools/dist/egress-audit/ui-routes.schema.json",
+  "framework": "next-app",
+  "entry": "apps/web/app",
+  "routes": [
+    {
+      "path": "/:locale",
+      "file": "apps/web/app/[locale]/(main)/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/all-teams",
+      "file": "apps/web/app/[locale]/(main)/(teams)/all-teams/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/auth/accept-invite",
+      "file": "apps/web/app/[locale]/auth/accept-invite/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/auth/error",
+      "file": "apps/web/app/[locale]/auth/error/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/auth/forgot-password",
+      "file": "apps/web/app/[locale]/auth/forgot-password/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/auth/passcode",
+      "file": "apps/web/app/[locale]/auth/passcode/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/auth/password",
+      "file": "apps/web/app/[locale]/auth/password/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/auth/reset-password",
+      "file": "apps/web/app/[locale]/auth/reset-password/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/auth/signup",
+      "file": "apps/web/app/[locale]/auth/signup/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/auth/social-welcome",
+      "file": "apps/web/app/[locale]/auth/social-welcome/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/auth/workspace",
+      "file": "apps/web/app/[locale]/auth/workspace/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/board",
+      "file": "apps/web/app/[locale]/(main)/board/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/calendar",
+      "file": "apps/web/app/[locale]/(main)/calendar/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/dashboard/app-url/:teamId",
+      "file": "apps/web/app/[locale]/(main)/dashboard/app-url/[teamId]/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/dashboard/team-dashboard/:teamId",
+      "file": "apps/web/app/[locale]/(main)/dashboard/team-dashboard/[teamId]/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/integration/github",
+      "file": "apps/web/app/[locale]/(main)/integration/github/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/kanban",
+      "file": "apps/web/app/[locale]/(main)/kanban/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/maintenance",
+      "file": "apps/web/app/[locale]/(main)/maintenance/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/meet/jitsi",
+      "file": "apps/web/app/[locale]/(main)/meet/jitsi/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/meet/livekit",
+      "file": "apps/web/app/[locale]/(main)/meet/livekit/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/permissions",
+      "file": "apps/web/app/[locale]/(main)/permissions/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/profile/:memberId",
+      "file": "apps/web/app/[locale]/(main)/profile/[memberId]/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/projects",
+      "file": "apps/web/app/[locale]/(main)/projects/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/projects/:id",
+      "file": "apps/web/app/[locale]/(main)/projects/[id]/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/reports/time-and-activity",
+      "file": "apps/web/app/[locale]/(main)/reports/time-and-activity/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/reports/timesheet/:memberId",
+      "file": "apps/web/app/[locale]/(main)/reports/timesheet/[memberId]/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/reports/weekly-limit",
+      "file": "apps/web/app/[locale]/(main)/reports/weekly-limit/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/settings/personal",
+      "file": "apps/web/app/[locale]/(main)/settings/personal/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/settings/team",
+      "file": "apps/web/app/[locale]/(main)/settings/team/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/task/:id",
+      "file": "apps/web/app/[locale]/(main)/task/[id]/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/team/:teamId/:profileLink",
+      "file": "apps/web/app/[locale]/(main)/(teams)/team/[teamId]/[profileLink]/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/team/join",
+      "file": "apps/web/app/[locale]/(main)/(teams)/team/join/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/team/tasks",
+      "file": "apps/web/app/[locale]/(main)/(teams)/team/tasks/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/unauthorized",
+      "file": "apps/web/app/[locale]/(main)/unauthorized/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/verify-email",
+      "file": "apps/web/app/[locale]/(main)/verify-email/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/api/ever-connect/health",
+      "source": "manual",
+      "note": "The Ever Platform section's health probe, on this app: 404 unless NEXT_PUBLIC_EVER_CONNECT_ENABLED is true."
+    }
+  ],
+  "notes": []
+}

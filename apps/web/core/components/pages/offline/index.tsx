@@ -1,7 +1,9 @@
 import { cn } from '@/core/lib/helpers';
 import SadCry from '@/core/components/svgs/sad-cry';
-import { Text } from '@/core/components';
+import { Text } from '@/core/components/common/typography';
 import { useTranslations } from 'next-intl';
+// Static on purpose: this screen shows up once the network is gone, when a lazy chunk can no longer be fetched.
+// Only the (main) layout reaches this file, so the auth routes do not compile the Timer.
 import { Timer } from '../../timer/timer';
 
 interface IPropsOffline {

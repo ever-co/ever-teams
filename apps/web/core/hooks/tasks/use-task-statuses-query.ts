@@ -19,6 +19,7 @@ import { updateTaskMetadataSectionCaches } from './task-metadata-cache';
  * - `taskStatuses` - Array of task statuses (from React Query cache)
  * - `loading` - Loading state for task statuses query
  * - `getTaskStatusesLoading` - Alias for loading state (backward compat)
+ * - `isError` / `refetch` - Error state and retry of whichever query feeds `taskStatuses`
  * - `setTaskStatuses` - Function to optimistically update task statuses in cache
  * - `loadTaskStatuses` - Legacy load function (backward compat)
  * - `firstLoadTaskStatusesData` - First load handler (backward compat)
@@ -52,6 +53,8 @@ export function useTaskStatusesQuery({ enabled = true }: { enabled?: boolean } =
 	const taskStatusesLoading = taskMetadataQuery.useBootstrap
 		? taskMetadataQuery.isLoading
 		: taskStatusesQuery.isLoading;
+	const taskStatusesError = taskMetadataQuery.useBootstrap ? taskMetadataQuery.isError : taskStatusesQuery.isError;
+	const refetchTaskStatuses = taskMetadataQuery.useBootstrap ? taskMetadataQuery.refetch : taskStatusesQuery.refetch;
 
 	// Wrapper around queryClient.setQueryData to keep the same API as the old Jotai setter
 	// Used by consumers for optimistic updates: setTaskStatuses((prev) => prev.map/filter(...))
@@ -91,6 +94,8 @@ export function useTaskStatusesQuery({ enabled = true }: { enabled?: boolean } =
 		taskStatuses,
 		loading: taskStatusesLoading,
 		getTaskStatusesLoading: taskStatusesLoading,
+		isError: taskStatusesError,
+		refetch: refetchTaskStatuses,
 		setTaskStatuses,
 		loadTaskStatuses,
 		firstLoadTaskStatusesData: handleFirstLoad

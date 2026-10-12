@@ -59,3 +59,28 @@ export function logErrorInDev(context: string, error: unknown): void {
 		console.error(`[${context}]`, error);
 	}
 }
+
+// Opt-in for a production browser, to trace a "random logout" report:
+// localStorage.setItem('ever-teams:debug-auth', 'true'), then reload. Server-side callers stay silent.
+const isAuthDebugOn = (): boolean => {
+	if (IS_DEV_MODE) return true;
+	try {
+		return typeof window !== 'undefined' && window.localStorage.getItem('ever-teams:debug-auth') === 'true';
+	} catch {
+		return false;
+	}
+};
+
+/**
+ * Logs to console in development mode, for traces that must not reach a production console by default
+ * (token lifetimes, refresh cycles). In a production browser they can be turned on with the
+ * `ever-teams:debug-auth` localStorage flag.
+ *
+ * @param message - The message to log
+ * @param details - Optional values logged after the message
+ */
+export function logInDev(message: string, ...details: unknown[]): void {
+	if (isAuthDebugOn()) {
+		console.log(message, ...details);
+	}
+}

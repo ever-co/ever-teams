@@ -3,6 +3,11 @@
 	"sidebar": {
 		"DASHBOARD": "Dashboard",
 		"FORYOU": "Algemeen",
+		"QUICK_CREATE": "Snel aanmaken",
+		"COMMAND": "Opdracht",
+		"PLATFORM": "Platform",
+		"TEAM_DASHBOARD": "Team Dashboard",
+		"APPS_AND_URLS": "Apps & URL's",
 		"HOME": "Startpagina",
 		"INBOX": "Postvak IN",
 		"PROJECTS": "Projecten",
@@ -44,6 +49,9 @@
 		"ADD_TIME_ENTRY": "Tijdinvoer toevoegen",
 		"OPT_IN_UPDATES": "Kies ervoor om updates en nieuws over {appName} te ontvangen.",
 		"SUBSCRIBE_NEWSLETTER": "Abonneer je op onze nieuwsbrief",
+		"SUBSCRIBE": "Abonneren",
+		"SUBSCRIBING": "Bezig met abonneren...",
+		"EMAIL": "E-mail",
 		"VIEW_PROJECT": "Project bekijken",
 		"SHARE_PROJECT": "Project delen",
 		"DELETE_PROJECT": "Project verwijderen",
@@ -473,7 +481,12 @@
 		"GROUP_BY": "Groeperen op",
 		"DATE": "Datum",
 		"VIEW": "Weergave",
-		"HOURS_ON_DATE": "{hours} uur op {date}"
+		"HOURS_ON_DATE": "{hours} uur op {date}",
+		"PREVIOUS_WEEK": "Vorige week",
+		"NEXT_WEEK": "Volgende week",
+		"WEEKLY_REPORT_ERROR": "Weekrapport niet beschikbaar",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "De geregistreerde tijd van de geselecteerde week kon niet worden geladen.",
+		"EXPORT_FAILED": "Het bestand kon niet worden gemaakt. Probeer het opnieuw."
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -793,6 +806,8 @@
 			"LOADING_WORKSPACE": "We laden de werkruimte, even geduld...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Doorverwijzen naar uw werkruimte...",
 			"VERIFY_EMAIL_LOADING_TEXT": "We controleren uw e-mailadres, even geduld...",
+			"VERIFY_EMAIL_FAILED_TITLE": "We konden uw e-mailadres niet verifiëren",
+			"VERIFY_EMAIL_FAILED_MESSAGE": "De link is mogelijk ongeldig, verlopen of al gebruikt, of de server was niet bereikbaar. Probeer de link zo meteen opnieuw of open de app om een nieuwe aan te vragen.",
 			"INPUT_TEAM_NAME": "Voer uw teamnaam in",
 			"JOIN_EXISTING_TEAM": "Bestaand team joinen?",
 			"CREATE_FIRST_TEAM": "Maak uw eerste team",
@@ -937,7 +952,56 @@
 			"NO_INVITATIONS": "Er zijn op dit moment geen uitnodigingen!",
 			"NO_MEMBERS": "Er zijn op dit moment geen leden!",
 			"GO_TO_PERSONAL_SETTINGS": "Ga naar persoonlijke instellingen",
-			"SHARE_MEMBERS_PROFILE_VIEWS": "Deel profielweergaven van leden"
+			"SHARE_MEMBERS_PROFILE_VIEWS": "Deel profielweergaven van leden",
+			"everPlatform": {
+				"TITLE": "Ever Platform",
+				"DESCRIPTION": "Optionele functies van deze installatie. Alles wat hier wordt getoond, bewaart de API ervan, en elk onderdeel kan worden uitgeschakeld.",
+				"STATS_TITLE": "Anonieme gebruiksstatistieken",
+				"STATS_DESCRIPTION": "Eén keer per dag kan deze installatie een anoniem rapport sturen: de versie die draait en hoe ze is geïnstalleerd. Namen, e-mailadressen, inhoud of gebruiksgegevens van een persoon worden nooit verstuurd.",
+				"STATS_TOGGLE_LABEL": "Anonieme gebruiksstatistieken versturen",
+				"STATS_ON": "Aan",
+				"STATS_OFF": "Uit",
+				"STATS_REASON_UI": "uitgeschakeld in de instellingen",
+				"STATS_REASON_CONFIG": "het ingestelde statistiekadres is niet bruikbaar",
+				"STATS_REASON_KEY": "de statistieksleutel kan niet worden gelezen",
+				"STATS_NEXT_SEND": "Volgend rapport",
+				"STATS_WEB_APP": "Webapp",
+				"STATS_API": "API",
+				"STATS_LAST_PAYLOAD": "Laatst verstuurde rapport",
+				"STATS_NO_PAYLOAD": "Er is nog geen rapport verstuurd.",
+				"STATS_SENT_AT": "Verstuurd",
+				"STATS_HTTP_STATUS": "Antwoord",
+				"STATS_TOGGLE_ERROR": "De instelling kon niet worden opgeslagen. Probeer het opnieuw.",
+				"STATS_MANAGED_CLOUD": "Beheerd door Ever Cloud",
+				"STATS_MANAGED_OPERATOR": "Beheerd door de beheerder van de instantie",
+				"STATS_DOCS_LINK": "Wat wordt verstuurd en hoe u het uitschakelt",
+				"CONNECT_LINK_TITLE": "Koppeling van de organisatie",
+				"CONNECT_LINKED_AS": "Gekoppeld aan",
+				"CONNECT_NOT_LINKED": "Deze organisatie is niet gekoppeld aan Ever Platform.",
+				"CONNECT_LINK_CODE_HINT": "Plak de koppelcode van Ever Platform (EVL-XXXX-XXXX-XXXX).",
+				"CONNECT_LINK_CODE_INVALID": "Dit is geen geldige koppelcode.",
+				"CONNECT_LINK": "Koppelen",
+				"CONNECT_UNLINK": "Ontkoppelen",
+				"CONNECT_NOT_CONNECTED": "De beheerder van deze installatie heeft ze niet met Ever Platform verbonden.",
+				"INTEGRATIONS_TITLE": "Integraties & gegevens",
+				"INTEGRATIONS_EMPTY": "Er wordt geen integratie aangeboden aan deze organisatie.",
+				"SHOW_SCOPE": "Bereik tonen",
+				"HIDE_SCOPE": "Bereik verbergen",
+				"MANAGE_IN_APP": "Beheren in Ever Platform",
+				"DISABLE": "Uitschakelen",
+				"STATE_ENABLED": "Ingeschakeld",
+				"STATE_OFF": "Niet ingeschakeld",
+				"STATE_PENDING": "Wacht op de beheerder",
+				"STATE_DENIED": "Hier niet toegestaan",
+				"ENTITLEMENTS_TITLE": "Rechten",
+				"ENTITLEMENT_PLAN": "Abonnement",
+				"ENTITLEMENT_FEATURES": "Functies",
+				"ENTITLEMENT_EXPIRES": "Geldig tot",
+				"ENTITLEMENT_NONE": "Nog geen rechten.",
+				"REFRESH": "Vernieuwen",
+				"LOAD_ERROR": "Deze informatie kon niet worden geladen.",
+				"ACTION_FAILED": "De actie is mislukt. Probeer het opnieuw."
+			}
 		},
 		"invite": {
 			"HEADING_TITLE": "Invite member to your team",
@@ -1027,6 +1091,7 @@
 			"LOADING": "Tijdregistratiegegevens laden...",
 			"NO_ENTRIES_FOUND": "Geen tijdregistratie-invoeren gevonden",
 			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Je staat op het punt de geselecteerde invoer te weigeren, wil je doorgaan?",
+			"REJECTION_REASON": "Reden van afwijzing",
 			"ALL_TASKS": "Alle taken",
 			"PENDING": "In behandeling",
 			"APPROVED": "Goedgekeurd",
@@ -1053,12 +1118,19 @@
 		"START_TIMER": "Selecteer of maak een nieuwe taak aan om de tijd bij te houden of maak een plan",
 		"ALREADY_TRACKING_MESSAGE": "Je houdt al tijd bij in een ander tabblad of apparaat.",
 		"TASK_CLOSED": "Taak is gesloten",
+		"PLAN_REQUIRED_TO_START": "Voeg deze taak toe aan het plan van vandaag om te starten",
 		"STARTING_TIMER": "Timer wordt gestart…",
 		"TIMER_STARTED": "Timer succesvol gestart",
 		"TIMER_START_FAILED": "Kan de timer niet starten",
+		"STALE_TIMER_STOPPED_DESCRIPTION": "Je timer bleef lopen nadat de app was gesloten. Daarom is hij gestopt op het laatste moment dat de app open was ({stoppedAt}). Heb je daarna nog gewerkt, voeg de tijd dan handmatig toe.",
+		"TIMER_STOP_FAILED": "Kan de timer niet stoppen. Probeer het opnieuw.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer gestopt",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer gestopt wegens teamwissel"
+		},
+		"TASK_SWITCH": {
+			"STOPPED_TIMER_TOAST_TITLE": "Timer gestopt",
+			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer gestopt wegens wissel van actieve taak"
 		},
 		"ACTIVE": "Actief",
 		"APPS": "Apps",
@@ -1098,7 +1170,9 @@
 			"WARNING_PLAN_ESTIMATION": "Corrigeer de geplande werkuren of schat de taak(en) opnieuw in"
 		},
 		"VISITED_SITES": "Bezochte sites",
-		"NO_VISITED_SITE_MESSAGE": "Er zijn geen bezochte sites"
+		"NO_VISITED_SITE_MESSAGE": "Er zijn geen bezochte sites",
+		"TRACKING_SOURCE_HINT": "Schermafbeeldingen, apps en bezochte sites worden vastgelegd door de desktop-app of de agent, niet wanneer tijd in de browser wordt bijgehouden.",
+		"DOWNLOAD_DESKTOP_APP": "Desktop-app downloaden"
 	},
 	"task": {
 		"TITLE": "Taak",
@@ -1164,12 +1238,14 @@
 			"TASK_PLAN_FAILED": "Taak plannen mislukt. Probeer opnieuw.",
 			"TASK_ASSIGNMENT_FAILED": "Taak toewijzen/intrekken mislukt. Probeer opnieuw.",
 			"TASK_FAVORITE_FAILED": "Favorieten bijwerken mislukt. Probeer opnieuw.",
+			"TASK_CREATION_FAILED": "Taak aanmaken mislukt. Probeer opnieuw.",
 			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "Favoriet item succesvol aangemaakt",
 			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "Favoriet item succesvol verwijderd"
 		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan voor vandaag",
+		"ADD_TO_TODAY_PLAN": "Toevoegen aan het plan van vandaag",
 		"TASK_TIME": "taken tijd",
 		"TOTAL_TODAY": "Totaal Vandaag",
 		"PLAN_FOR_TOMORROW": "Plan voor morgen",
@@ -1193,6 +1269,7 @@
 		"TOTAL_TASK": "Totale taken",
 		"DAILY_PLAN_DESCRIPTION": "'Dagelijkse planning' helpt om het werkproces te organiseren om de beste resultaten te behalen",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Diese Aufgabe war für den heutigen Plan nicht vorgesehen. Möchten Sie den Plan ergänzen?",
+		"TASK_ORDER_SAVE_FAILED": "De nieuwe volgorde van de taken kon niet worden opgeslagen. Probeer het opnieuw.",
 		"planned_tasks_popup": {
 			"warning": {
 				"PLANNED_TIME": "Voeg alstublieft de geplande tijd toe",
@@ -1259,7 +1336,8 @@
 		"PASSWORDS_DO_NOT_MATCH": "Wachtwoorden komen niet overeen"
 	},
 	"placeholders": {
-		"ENTER_TO_VALIDATE": "Druk op Enter om te valideren"
+		"ENTER_TO_VALIDATE": "Druk op Enter om te valideren",
+		"ENTER_A_COMMAND": "Voer een opdracht in..."
 	},
 	"team": {
 		"BACK_LABEL": "Terug naar team",

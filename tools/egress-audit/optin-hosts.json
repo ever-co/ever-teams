@@ -1,0 +1,16 @@
+{
+  "$schema": "../../node_modules/@ever-co/connect-tools/dist/egress-audit/optin-hosts.schema.json",
+  "description": "Features older than the Ever Platform settings that can reach an Ever host. Each is off in the default configuration and documented in docs/ever-platform/outbound-calls.md as an operator opt-in. Only the static scan reads this file.",
+  "hosts": [
+    {
+      "host": "api.ever.team",
+      "setting": "GAUZY_API_SERVER_URL / NEXT_PUBLIC_GAUZY_API_SERVER_URL",
+      "reason": "The hosted Gauzy API, the backend this web app uses when the deployment names no other one (a production server logs a warning then); not an Ever Platform service. Set both variables to your own Gauzy API. Listed in docs/ever-platform/outbound-calls.md."
+    },
+    {
+      "host": "ever.team",
+      "setting": "NEXT_PUBLIC_COOKIE_DOMAINS",
+      "reason": "The default cookie domain of the hosted Ever Teams; a cookie attribute that applies only when the app is served under that domain, never a request. Set NEXT_PUBLIC_COOKIE_DOMAINS to your own domain. Listed in docs/ever-platform/outbound-calls.md."
+    }
+  ]
+}

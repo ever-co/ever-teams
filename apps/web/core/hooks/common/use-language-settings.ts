@@ -8,7 +8,7 @@ import { useFirstLoad } from './use-first-load';
 import { useLanguage } from './use-language';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
-import { languageService } from '@/core/services/client/api';
+import { languageService } from '@/core/services/client/api/languages/language.service';
 import { ILanguageItemList, UseLanguageSettingsReturn } from '@/core/types/interfaces/common/language';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { TLanguageItemList } from '@/core/types/schemas';

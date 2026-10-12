@@ -207,7 +207,7 @@
 	},
 	"lint-staged": {
 		"./apps/web/**/*.{ts,tsx,css,js,jsx,md}": [
-			"eslint --fix",
+			"yarn --cwd apps/web lint:staged",
 			"prettier --write --config \"apps/web/.prettierrc\""
 		]
 	},

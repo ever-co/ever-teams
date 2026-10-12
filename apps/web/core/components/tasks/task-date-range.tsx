@@ -2,6 +2,7 @@
 import { format } from 'date-fns';
 import { CalendarDays } from 'lucide-react';
 import { cn } from '@/core/lib/helpers';
+import { getDailyPlanDay } from '@/core/lib/helpers/daily-plan-day';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Calendar } from '@/core/components/common/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
@@ -31,7 +32,7 @@ export function TaskDatePickerWithRange({
 
 		const checkDate = moment(dateToCheck).format('YYYY-MM-DD');
 		return !data.some((item) => {
-			const itemDate = moment(item.date).format('YYYY-MM-DD');
+			const itemDate = getDailyPlanDay(item.date);
 			return itemDate === checkDate;
 		});
 	};
@@ -82,7 +83,7 @@ export function TaskDatePickerWithRange({
 								if (!data || !Array.isArray(data)) return false;
 								const checkDate = moment(date).format('YYYY-MM-DD');
 								return data.some((item) => {
-									const itemDate = moment(item.date).format('YYYY-MM-DD');
+									const itemDate = getDailyPlanDay(item.date);
 									return itemDate === checkDate;
 								});
 							}

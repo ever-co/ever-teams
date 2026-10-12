@@ -178,8 +178,8 @@ export function cookiesKeys() {
 }
 
 /**
- * Delete access token cookie with cross-site attributes
- * Access tokens are set with SameSite=None; Secure, so they must be deleted with the same attributes
+ * Delete access token cookie (single or chunked) through deleteCookieCrossSite,
+ * which uses the same attributes setCookie writes the token with
  */
 function deleteAccessTokenCookie() {
 	const totalChunksCookie = getTotalChunksCookie(TOKEN_COOKIE_NAME);

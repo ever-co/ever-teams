@@ -3,7 +3,6 @@ import { useTimeSlots } from './use-time-slots';
 import { useTimeDailyActivity } from './use-time-daily-activity';
 import { useUserSelectedPage } from '@/core/hooks/users';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
-import { useAuthenticateUser } from '@/core/hooks/auth';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
 interface ActivityTabCache {
@@ -14,6 +13,8 @@ interface ActivityTabCache {
 		timestamp: number;
 		loading: boolean;
 		activeTaskId?: string;
+		/** The list the cached tasks were computed from: a new list (e.g. more pages loaded) is never served stale */
+		source?: TTask[];
 	};
 	screenshots: {
 		data: any[];
@@ -55,7 +56,6 @@ export const useOptimizedActivityTabs = ({
 	// Tasks data with caching - THE MAIN PERFORMANCE BOTTLENECK
 	const profile = useUserSelectedPage(member?.employee?.userId);
 	const hook = useTaskFilter(profile);
-	const { user } = useAuthenticateUser();
 
 	const tasksData = useMemo(() => {
 		const now = Date.now();
@@ -65,7 +65,8 @@ export const useOptimizedActivityTabs = ({
 		if (
 			cache.data.length > 0 &&
 			now - cache.timestamp < cacheTimeout &&
-			cache.activeTaskId === profile?.activeUserTeamTask?.id
+			cache.activeTaskId === profile?.activeUserTeamTask?.id &&
+			cache.source === hook.tasksFiltered
 		) {
 			return {
 				firstFiveTasks: cache.firstFiveTasks,
@@ -98,7 +99,8 @@ export const useOptimizedActivityTabs = ({
 			remainingTasks,
 			timestamp: now,
 			loading: false, // useTaskFilter doesn't have loading state
-			activeTaskId
+			activeTaskId,
+			source: tasks
 		};
 
 		return {
@@ -239,8 +241,6 @@ export const useOptimizedActivityTabs = ({
 
 		// Additional task data for compatibility
 		profile,
-		user,
-		canSeeActivity: profile?.userProfile?.id === user?.id || user?.role?.name?.toUpperCase() == 'MANAGER',
 
 		// Screenshots tab data
 		screenshots: screenshotsData,

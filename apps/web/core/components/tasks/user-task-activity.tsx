@@ -6,10 +6,14 @@ import { ChevronDownIcon, ChevronUpIcon } from 'assets/svg';
 import ScreenshotItem from '../pages/profile/screenshots/screenshot-item';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { TActivity } from '@/core/types/schemas';
+import { useTranslations } from 'next-intl';
 
 export const UserTaskActivity = ({ timesheet }: { timesheet: TActivity }) => {
 	const [hidden, setHidden] = React.useState(true);
-	// TODO: fetch Apps et Sites Visited
+	const t = useTranslations();
+	// Each activity record is one app or one visited site (Gauzy ActivityType APP | URL), with its own duration
+	const activityType = timesheet.type?.toUpperCase();
+	const visitedUrl = typeof timesheet.metaData === 'object' ? timesheet.metaData?.url : undefined;
 	return (
 		<div className="shadow-md rounded-md  p-4 my-4 bg-[#00000014] dark:bg-[#26272C]">
 			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-[#7B8089]">
@@ -63,6 +67,7 @@ export const UserTaskActivity = ({ timesheet }: { timesheet: TActivity }) => {
 										>
 											<ScreenshotItem
 												idSlot={timesheet.timeSlot?.id ?? ''}
+												ownerEmployeeId={timesheet.employeeId ?? undefined}
 												endTime={timesheet.timeSlot?.stoppedAt ?? ''}
 												startTime={screenshot.recordedAt || ''}
 												imageUrl={screenshot.thumbUrl || ''}
@@ -92,8 +97,26 @@ export const UserTaskActivity = ({ timesheet }: { timesheet: TActivity }) => {
 								))}
 							</div>
 						</Tab.Panel>
-						<Tab.Panel className="py-4 mx-4 w-full">{'Apps Tab'}</Tab.Panel>
-						<Tab.Panel className="py-4 mx-4 w-full">{'VisitedSites Tab'}</Tab.Panel>
+						<Tab.Panel className="py-4 mx-4 w-full">
+							{activityType === 'APP' ? (
+								<div className="flex justify-between gap-4">
+									<span className="font-medium">{timesheet.title}</span>
+									<span>{timesheet.duration}</span>
+								</div>
+							) : (
+								<p className="text-sm text-gray-500">{t('common.NO_ACTIVITY_DATA')}</p>
+							)}
+						</Tab.Panel>
+						<Tab.Panel className="py-4 mx-4 w-full">
+							{activityType === 'URL' ? (
+								<div className="flex justify-between gap-4">
+									<span className="font-medium break-all">{visitedUrl || timesheet.title}</span>
+									<span>{timesheet.duration}</span>
+								</div>
+							) : (
+								<p className="text-sm text-gray-500">{t('common.NO_ACTIVITY_DATA')}</p>
+							)}
+						</Tab.Panel>
 					</Tab.Panels>
 				</Tab.Group>
 			</div>

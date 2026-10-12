@@ -10,7 +10,7 @@ export interface ExportProgress {
 
 export interface ExportProgressHook {
 	exportProgress: ExportProgress;
-	startExport: (totalSteps: number) => void;
+	startExport: () => void;
 	updateProgress: (step: number, stepName: string) => void;
 	setError: (error: string) => void;
 	setSuccess: () => void;

@@ -3,6 +3,11 @@
 	"sidebar": {
 		"DASHBOARD": "Painel",
 		"FORYOU": "Geral",
+		"QUICK_CREATE": "Criação rápida",
+		"COMMAND": "Comando",
+		"PLATFORM": "Plataforma",
+		"TEAM_DASHBOARD": "Dashboard da Equipe",
+		"APPS_AND_URLS": "Apps e URLs",
 		"HOME": "Início",
 		"INBOX": "Caixa de entrada",
 		"PROJECTS": "Projetos",
@@ -44,6 +49,9 @@
 		"ADD_TIME_ENTRY": "Adicionar Entrada de Tempo",
 		"OPT_IN_UPDATES": "Concorde em receber atualizações e notícias sobre {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "Inscreva-se na nossa newsletter",
+		"SUBSCRIBE": "Inscrever-se",
+		"SUBSCRIBING": "Inscrevendo...",
+		"EMAIL": "E-mail",
 		"VIEW_PROJECT": "Ver Projeto",
 		"SHARE_PROJECT": "Compartilhar Projeto",
 		"DELETE_PROJECT": "Excluir Projeto",
@@ -473,7 +481,12 @@
 		"GROUP_BY": "Agrupar por",
 		"DATE": "Data",
 		"VIEW": "Visualização",
-		"HOURS_ON_DATE": "{hours} horas em {date}"
+		"HOURS_ON_DATE": "{hours} horas em {date}",
+		"PREVIOUS_WEEK": "Semana anterior",
+		"NEXT_WEEK": "Próxima semana",
+		"WEEKLY_REPORT_ERROR": "Relatório semanal indisponível",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "Não foi possível carregar o tempo registrado na semana selecionada.",
+		"EXPORT_FAILED": "Não foi possível criar o arquivo. Tente novamente."
 	},
 	"hotkeys": {
 		"HELP": "Ajuda",
@@ -793,6 +806,8 @@
 			"LOADING_WORKSPACE": "Estamos carregando o espaço de trabalho, aguarde...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Redirecionando para o seu espaço de trabalho...",
 			"VERIFY_EMAIL_LOADING_TEXT": "Estamos verificando o seu e-mail, aguarde...",
+			"VERIFY_EMAIL_FAILED_TITLE": "Não foi possível verificar o seu e-mail",
+			"VERIFY_EMAIL_FAILED_MESSAGE": "O link pode ser inválido, ter expirado ou já ter sido usado, ou não foi possível acessar o servidor. Tente o link novamente em instantes ou abra o aplicativo para solicitar um novo.",
 			"INPUT_TEAM_NAME": "Insira o nome da sua equipe",
 			"JOIN_EXISTING_TEAM": "Já faz parte de uma equipe?",
 			"CREATE_FIRST_TEAM": "Crie sua primeira equipe",
@@ -937,7 +952,56 @@
 			"NO_INVITATIONS": "Não há convites no momento!",
 			"NO_MEMBERS": "Não há membros no momento!",
 			"GO_TO_PERSONAL_SETTINGS": "Ir para configurações pessoais",
-			"SHARE_MEMBERS_PROFILE_VIEWS": "Compartilhar visualizações de perfil de membros"
+			"SHARE_MEMBERS_PROFILE_VIEWS": "Compartilhar visualizações de perfil de membros",
+			"everPlatform": {
+				"TITLE": "Ever Platform",
+				"DESCRIPTION": "Funcionalidades opcionais desta instalação. Tudo o que é mostrado aqui é guardado pela sua API, e cada parte pode ser desativada.",
+				"STATS_TITLE": "Estatísticas de uso anónimas",
+				"STATS_DESCRIPTION": "Uma vez por dia esta instalação pode enviar um relatório anónimo: a versão em execução e como foi instalada. Nunca são enviados nomes, endereços de e-mail, conteúdos ou dados de uso de uma pessoa.",
+				"STATS_TOGGLE_LABEL": "Enviar estatísticas de uso anónimas",
+				"STATS_ON": "Ativadas",
+				"STATS_OFF": "Desativadas",
+				"STATS_REASON_UI": "desativadas nas definições",
+				"STATS_REASON_CONFIG": "o endereço de estatísticas configurado não pode ser usado",
+				"STATS_REASON_KEY": "não é possível ler a chave das estatísticas",
+				"STATS_NEXT_SEND": "Próximo relatório",
+				"STATS_WEB_APP": "Aplicação web",
+				"STATS_API": "API",
+				"STATS_LAST_PAYLOAD": "Último relatório enviado",
+				"STATS_NO_PAYLOAD": "Ainda não foi enviado nenhum relatório.",
+				"STATS_SENT_AT": "Enviado",
+				"STATS_HTTP_STATUS": "Resposta",
+				"STATS_TOGGLE_ERROR": "Não foi possível guardar a definição. Tente novamente.",
+				"STATS_MANAGED_CLOUD": "Gerido pela Ever Cloud",
+				"STATS_MANAGED_OPERATOR": "Gerido pelo operador da instância",
+				"STATS_DOCS_LINK": "O que é enviado e como desativar",
+				"CONNECT_LINK_TITLE": "Ligação da organização",
+				"CONNECT_LINKED_AS": "Ligada a",
+				"CONNECT_NOT_LINKED": "Esta organização não está ligada à Ever Platform.",
+				"CONNECT_LINK_CODE_HINT": "Cole o código de ligação de Ever Platform (EVL-XXXX-XXXX-XXXX).",
+				"CONNECT_LINK_CODE_INVALID": "Este código de ligação não é válido.",
+				"CONNECT_LINK": "Ligar",
+				"CONNECT_UNLINK": "Desligar",
+				"CONNECT_NOT_CONNECTED": "O operador desta instalação não a ligou à Ever Platform.",
+				"INTEGRATIONS_TITLE": "Integrações e dados",
+				"INTEGRATIONS_EMPTY": "Nenhuma integração é oferecida a esta organização.",
+				"SHOW_SCOPE": "Mostrar âmbito",
+				"HIDE_SCOPE": "Ocultar âmbito",
+				"MANAGE_IN_APP": "Gerir em Ever Platform",
+				"DISABLE": "Desativar",
+				"STATE_ENABLED": "Ativada",
+				"STATE_OFF": "Não ativada",
+				"STATE_PENDING": "A aguardar o operador",
+				"STATE_DENIED": "Não permitida aqui",
+				"ENTITLEMENTS_TITLE": "Direitos",
+				"ENTITLEMENT_PLAN": "Plano",
+				"ENTITLEMENT_FEATURES": "Funcionalidades",
+				"ENTITLEMENT_EXPIRES": "Válido até",
+				"ENTITLEMENT_NONE": "Ainda sem direitos.",
+				"REFRESH": "Atualizar",
+				"LOAD_ERROR": "Não foi possível carregar esta informação.",
+				"ACTION_FAILED": "A ação falhou. Tente novamente."
+			}
 		},
 		"invite": {
 			"HEADING_TITLE": "Convidar membro para sua equipe",
@@ -1027,6 +1091,7 @@
 			"LOADING": "Загрузка данных учета рабочего времени...",
 			"NO_ENTRIES_FOUND": "Записи учета рабочего времени не найдены",
 			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Você está prestes a rejeitar a entrada selecionada, deseja continuar?",
+			"REJECTION_REASON": "Motivo da rejeição",
 			"ALL_TASKS": "Todas as tarefas",
 			"PENDING": "Pendente",
 			"APPROVED": "Aprovado",
@@ -1053,12 +1118,19 @@
 		"START_TIMER": "Por favor, selecione ou crie uma nova tarefa para começar a rastrear o tempo ou crie um plano",
 		"ALREADY_TRACKING_MESSAGE": "Você já está rastreando o tempo em outra aba ou dispositivo.",
 		"TASK_CLOSED": "A tarefa está fechada",
+		"PLAN_REQUIRED_TO_START": "Adicione esta tarefa ao plano de hoje para começar",
 		"STARTING_TIMER": "Iniciando temporizador...",
 		"TIMER_STARTED": "Temporizador iniciado com sucesso",
 		"TIMER_START_FAILED": "Falha ao iniciar o temporizador",
+		"STALE_TIMER_STOPPED_DESCRIPTION": "Seu temporizador continuou rodando depois que o aplicativo foi fechado. Por isso, ele foi parado no último momento em que o aplicativo estava aberto ({stoppedAt}). Se você trabalhou depois disso, adicione o tempo manualmente.",
+		"TIMER_STOP_FAILED": "Falha ao parar o temporizador. Tente novamente.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Temporizador Parado",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Temporizador Parado devido à Troca de Equipe"
+		},
+		"TASK_SWITCH": {
+			"STOPPED_TIMER_TOAST_TITLE": "Temporizador Parado",
+			"STOPPED_TIMER_TOAST_DESCRIPTION": "Temporizador Parado devido à Troca da Tarefa Ativa"
 		},
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Estimativa"
@@ -1098,7 +1170,9 @@
 		"ARCHIVED": "Arquivado",
 		"NOT_ARCHIVED": "Não arquivado",
 		"VISITED_SITES": "Sites visitados",
-		"NO_VISITED_SITE_MESSAGE": "Não há sites visitados"
+		"NO_VISITED_SITE_MESSAGE": "Não há sites visitados",
+		"TRACKING_SOURCE_HINT": "Capturas de tela, aplicativos e sites visitados são registrados pelo aplicativo desktop ou pelo agente, não quando o tempo é rastreado no navegador.",
+		"DOWNLOAD_DESKTOP_APP": "Baixar o aplicativo desktop"
 	},
 	"task": {
 		"TITLE": "Tarefa",
@@ -1164,12 +1238,14 @@
 			"TASK_PLAN_FAILED": "Falha ao planejar a tarefa. Tente novamente.",
 			"TASK_ASSIGNMENT_FAILED": "Falha ao atribuir/desatribuir a tarefa. Tente novamente.",
 			"TASK_FAVORITE_FAILED": "Falha ao atualizar favoritos. Tente novamente.",
+			"TASK_CREATION_FAILED": "Falha ao criar a tarefa. Tente novamente.",
 			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "Item favorito criado com sucesso",
 			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "Item favorito excluído com sucesso"
 		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plano para hoje",
+		"ADD_TO_TODAY_PLAN": "Adicionar ao plano de hoje",
 		"TASK_TIME": "tempo de tarefa",
 		"TOTAL_TODAY": "Total Hoje",
 		"PLAN_FOR_TOMORROW": "Plano para amanhã",
@@ -1193,6 +1269,7 @@
 		"TOTAL_TASK": "Tarefas totais",
 		"DAILY_PLAN_DESCRIPTION": "'Plano diário' ajuda a organizar o processo de trabalho para obter os melhores resultados",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Esta tarefa não foi planeada no plano de hoje. Gostaria de acrescentar ao plano?",
+		"TASK_ORDER_SAVE_FAILED": "Não foi possível guardar a nova ordem das tarefas. Tente novamente.",
 		"planned_tasks_popup": {
 			"warning": {
 				"PLANNED_TIME": "Por favor, adicione o tempo planejado",
@@ -1259,7 +1336,8 @@
 		"PASSWORDS_DO_NOT_MATCH": "As senhas não coincidem"
 	},
 	"placeholders": {
-		"ENTER_TO_VALIDATE": "Pressione Enter para validar"
+		"ENTER_TO_VALIDATE": "Pressione Enter para validar",
+		"ENTER_A_COMMAND": "Digite um comando..."
 	},
 	"team": {
 		"BACK_LABEL": "Voltar para a Equipe",

@@ -38,7 +38,7 @@ jest.mock('@/core/hooks/daily-plans/use-employee-daily-plans', () => ({
 	})
 }));
 
-jest.mock('@/core/components/tasks/daily-plan', () => ({
+jest.mock('@/core/hooks/daily-plans/daily-plan-totals', () => ({
 	estimatedTotalTime: () => ({ totalTasks: 0 }),
 	getTotalTasks: () => 0
 }));

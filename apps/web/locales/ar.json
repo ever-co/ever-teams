@@ -19,6 +19,9 @@
 		"ADD_TIME_ENTRY": "إضافة إدخال وقت",
 		"OPT_IN_UPDATES": "اشترك لتلقي التحديثات والأخبار حول {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "اشترك في النشرة الإخبارية",
+		"SUBSCRIBE": "اشترك",
+		"SUBSCRIBING": "جارٍ الاشتراك...",
+		"EMAIL": "البريد الإلكتروني",
 		"VIEW_PROJECT": "عرض المشروع",
 		"SHARE_PROJECT": "مشاركة المشروع",
 		"DELETE_PROJECT": "حذف المشروع",
@@ -452,11 +455,21 @@
 		"GROUP_BY": "تجميع حسب",
 		"DATE": "التاريخ",
 		"VIEW": "عرض",
-		"HOURS_ON_DATE": "{hours} ساعة في {date}"
+		"HOURS_ON_DATE": "{hours} ساعة في {date}",
+		"PREVIOUS_WEEK": "الأسبوع السابق",
+		"NEXT_WEEK": "الأسبوع التالي",
+		"WEEKLY_REPORT_ERROR": "التقرير الأسبوعي غير متاح",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "تعذّر تحميل الوقت المسجّل خلال الأسبوع المحدد.",
+		"EXPORT_FAILED": "تعذّر إنشاء الملف. حاول مرة أخرى."
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",
 		"FORYOU": "عام",
+		"QUICK_CREATE": "إنشاء سريع",
+		"COMMAND": "أمر",
+		"PLATFORM": "المنصة",
+		"TEAM_DASHBOARD": "لوحة تحكم الفريق",
+		"APPS_AND_URLS": "التطبيقات والروابط",
 		"HOME": "الصفحة الرئيسية",
 		"INBOX": "الوارد",
 		"PROJECTS": "المشاريع",
@@ -793,6 +806,8 @@
 			"LOADING_WORKSPACE": "نحن نقوم بتحميل مساحة العمل، انتظر...",
 			"REDIRECT_TO_WORSPACE_LOADING": "إعادة التوجيه إلى مساحة العمل الخاصة بك",
 			"VERIFY_EMAIL_LOADING_TEXT": "نحن نحقق من بريدك الإلكتروني، انتظر...",
+			"VERIFY_EMAIL_FAILED_TITLE": "تعذر التحقق من بريدك الإلكتروني",
+			"VERIFY_EMAIL_FAILED_MESSAGE": "قد يكون الرابط غير صالح أو منتهي الصلاحية أو تم استخدامه بالفعل، أو تعذّر الاتصال بالخادم. أعد المحاولة بعد قليل أو افتح التطبيق لطلب رابط جديد.",
 			"INPUT_TEAM_NAME": "أدخل اسم فريقك",
 			"JOIN_EXISTING_TEAM": "الانضمام إلى فريق موجود؟",
 			"CREATE_FIRST_TEAM": "أنشئ أول فريق لك",
@@ -937,7 +952,56 @@
 			"NO_INVITATIONS": "لا توجد دعوات حاليًا!",
 			"NO_MEMBERS": "لا يوجد أعضاء حاليًا!",
 			"GO_TO_PERSONAL_SETTINGS": "الانتقال إلى الإعدادات الشخصية",
-			"SHARE_MEMBERS_PROFILE_VIEWS": "مشاركة مشاهدات ملفات تعريف الأعضاء"
+			"SHARE_MEMBERS_PROFILE_VIEWS": "مشاركة مشاهدات ملفات تعريف الأعضاء",
+			"everPlatform": {
+				"TITLE": "Ever Platform",
+				"DESCRIPTION": "ميزات اختيارية لهذا التثبيت. كل ما يظهر هنا يحفظه الـ API الخاص به، ويمكن إيقاف كل جزء منه.",
+				"STATS_TITLE": "إحصاءات استخدام مجهولة الهوية",
+				"STATS_DESCRIPTION": "يمكن لهذا التثبيت إرسال تقرير مجهول الهوية مرة واحدة يوميًا: الإصدار الذي يعمل وطريقة تثبيته. لا يُرسل أبدًا اسم أي شخص أو عنوان بريده الإلكتروني أو أي محتوى أو بيانات استخدامه.",
+				"STATS_TOGGLE_LABEL": "إرسال إحصاءات استخدام مجهولة الهوية",
+				"STATS_ON": "مُفعّلة",
+				"STATS_OFF": "متوقفة",
+				"STATS_REASON_UI": "أُوقفت من الإعدادات",
+				"STATS_REASON_CONFIG": "لا يمكن استخدام عنوان الإحصاءات المُعدّ",
+				"STATS_REASON_KEY": "تعذّرت قراءة مفتاح الإحصاءات",
+				"STATS_NEXT_SEND": "التقرير التالي",
+				"STATS_WEB_APP": "تطبيق الويب",
+				"STATS_API": "API",
+				"STATS_LAST_PAYLOAD": "آخر تقرير مُرسل",
+				"STATS_NO_PAYLOAD": "لم يُرسل أي تقرير بعد.",
+				"STATS_SENT_AT": "أُرسل",
+				"STATS_HTTP_STATUS": "الاستجابة",
+				"STATS_TOGGLE_ERROR": "تعذّر حفظ الإعداد. حاول مرة أخرى.",
+				"STATS_MANAGED_CLOUD": "تديره Ever Cloud",
+				"STATS_MANAGED_OPERATOR": "يديره مشغّل المثيل",
+				"STATS_DOCS_LINK": "ما الذي يُرسل وكيفية إيقافه",
+				"CONNECT_LINK_TITLE": "ربط المؤسسة",
+				"CONNECT_LINKED_AS": "مرتبطة بـ",
+				"CONNECT_NOT_LINKED": "هذه المؤسسة غير مرتبطة بـ Ever Platform.",
+				"CONNECT_LINK_CODE_HINT": "الصق رمز الربط من Ever Platform (EVL-XXXX-XXXX-XXXX).",
+				"CONNECT_LINK_CODE_INVALID": "هذا ليس رمز ربط صالحًا.",
+				"CONNECT_LINK": "ربط",
+				"CONNECT_UNLINK": "إلغاء الربط",
+				"CONNECT_NOT_CONNECTED": "لم يقم مشغّل هذا التثبيت بتوصيله بـ Ever Platform.",
+				"INTEGRATIONS_TITLE": "التكاملات والبيانات",
+				"INTEGRATIONS_EMPTY": "لا يوجد تكامل مُتاح لهذه المؤسسة.",
+				"SHOW_SCOPE": "عرض النطاق",
+				"HIDE_SCOPE": "إخفاء النطاق",
+				"MANAGE_IN_APP": "الإدارة في Ever Platform",
+				"DISABLE": "إيقاف",
+				"STATE_ENABLED": "مُفعّل",
+				"STATE_OFF": "غير مُفعّل",
+				"STATE_PENDING": "بانتظار المشغّل",
+				"STATE_DENIED": "غير مسموح هنا",
+				"ENTITLEMENTS_TITLE": "الصلاحيات",
+				"ENTITLEMENT_PLAN": "الخطة",
+				"ENTITLEMENT_FEATURES": "الميزات",
+				"ENTITLEMENT_EXPIRES": "صالح حتى",
+				"ENTITLEMENT_NONE": "لا توجد صلاحيات بعد.",
+				"REFRESH": "تحديث",
+				"LOAD_ERROR": "تعذّر تحميل هذه المعلومات.",
+				"ACTION_FAILED": "فشل الإجراء. حاول مرة أخرى."
+			}
 		},
 		"invite": {
 			"HEADING_TITLE": "دعوة عضو لفريقك",
@@ -1027,6 +1091,7 @@
 			"LOADING": "جار تحميل بيانات الجدول الزمني...",
 			"NO_ENTRIES_FOUND": "لم يتم العثور على مدخلات في الجدول الزمني",
 			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "أنت على وشك رفض الإدخال المحدد، هل ترغب في المتابعة؟",
+			"REJECTION_REASON": "سبب الرفض",
 			"ALL_TASKS": "جميع المهام",
 			"PENDING": "قيد الانتظار",
 			"APPROVED": "تمت الموافقة",
@@ -1053,12 +1118,19 @@
 		"START_TIMER": "يرجى تحديد أو إنشاء مهمة جديدة لبدء تتبع الوقت أو وضع خطة",
 		"ALREADY_TRACKING_MESSAGE": "أنت تتبع الوقت بالفعل في علامة تبويب أو جهاز آخر.",
 		"TASK_CLOSED": "المهمة مغلقة",
+		"PLAN_REQUIRED_TO_START": "أضف هذه المهمة إلى خطة اليوم للبدء",
 		"STARTING_TIMER": "جاري بدء المؤقت...",
 		"TIMER_STARTED": "تم بدء المؤقت بنجاح",
 		"TIMER_START_FAILED": "فشل بدء المؤقت",
+		"STALE_TIMER_STOPPED_DESCRIPTION": "استمر المؤقت في العمل بعد إغلاق التطبيق، لذلك تم إيقافه عند آخر لحظة كان فيها التطبيق مفتوحًا ({stoppedAt}). إذا عملت بعد ذلك، فأضف الوقت يدويًا.",
+		"TIMER_STOP_FAILED": "فشل إيقاف المؤقت. يرجى المحاولة مرة أخرى.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "توقف المؤقت",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "توقف المؤقت بسبب التبديل بين الفرق"
+		},
+		"TASK_SWITCH": {
+			"STOPPED_TIMER_TOAST_TITLE": "توقف المؤقت",
+			"STOPPED_TIMER_TOAST_DESCRIPTION": "توقف المؤقت بسبب تغيير المهمة النشطة"
 		},
 		"ACTIVE": "نشط",
 		"APPS": "تطبيقات",
@@ -1098,7 +1170,9 @@
 			"WARNING_PLAN_ESTIMATION": "رجى تصحيح ساعات العمل المخطط لها أو إعادة تقدير المهمة (المهام)"
 		},
 		"VISITED_SITES": "المواقع التي تمت زيارتها",
-		"NO_VISITED_SITE_MESSAGE": "لا يوجد مواقع تمت زيارتها"
+		"NO_VISITED_SITE_MESSAGE": "لا يوجد مواقع تمت زيارتها",
+		"TRACKING_SOURCE_HINT": "يتم التقاط لقطات الشاشة والتطبيقات والمواقع التي تمت زيارتها بواسطة تطبيق سطح المكتب أو الوكيل، وليس عند تتبع الوقت في المتصفح.",
+		"DOWNLOAD_DESKTOP_APP": "تنزيل تطبيق سطح المكتب"
 	},
 	"task": {
 		"TITLE": "المهمة",
@@ -1164,12 +1238,14 @@
 			"TASK_PLAN_FAILED": "فشل في تخطيط المهمة. يرجى المحاولة مرة أخرى.",
 			"TASK_ASSIGNMENT_FAILED": "فشل في تعيين/إلغاء تعيين المهمة. يرجى المحاولة مرة أخرى.",
 			"TASK_FAVORITE_FAILED": "فشل في تحديث المفضلة. يرجى المحاولة مرة أخرى.",
+			"TASK_CREATION_FAILED": "فشل في إنشاء المهمة. يرجى المحاولة مرة أخرى.",
 			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "تم إنشاء العنصر المفضل بنجاح",
 			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "تم حذف العنصر المفضل بنجاح"
 		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "خطة اليوم",
+		"ADD_TO_TODAY_PLAN": "أضف إلى خطة اليوم",
 		"TASK_TIME": "وقت المهمة",
 		"TOTAL_TODAY": "الإجمالي اليوم",
 		"PLAN_FOR_TOMORROW": "خطة الغد",
@@ -1193,6 +1269,7 @@
 		"TOTAL_TASK": "إجمالي المهام",
 		"DAILY_PLAN_DESCRIPTION": "'الخطة اليومية' تساعد في تنظيم عملية العمل لتحقيق أفضل النتائج",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "لم تكن هذه المهمة مخططة لخطة اليوم. هل ترغب في إضافة شيء إلى الخطة؟",
+		"TASK_ORDER_SAVE_FAILED": "تعذّر حفظ الترتيب الجديد للمهام. يرجى المحاولة مرة أخرى.",
 		"planned_tasks_popup": {
 			"warning": {
 				"PLANNED_TIME": "يرجى إضافة الوقت المخطط",
@@ -1259,7 +1336,8 @@
 		"PASSWORDS_DO_NOT_MATCH": "كلمات المرور غير متطابقة"
 	},
 	"placeholders": {
-		"ENTER_TO_VALIDATE": "اضغط إدخال للتحقق"
+		"ENTER_TO_VALIDATE": "اضغط إدخال للتحقق",
+		"ENTER_A_COMMAND": "أدخل أمرًا..."
 	},
 	"team": {
 		"BACK_LABEL": "العودة إلى الفريق",

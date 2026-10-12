@@ -71,7 +71,7 @@ export function useTimeActivityExport({
 	endDate
 }: UseTimeActivityExportProps) {
 	const { user } = useAuthenticateUser();
-	const { exportProgress, resetProgress } = useExportProgress();
+	const { exportProgress, startExport, setError, setSuccess, resetProgress } = useExportProgress();
 
 	// Filter data based on user permissions
 	const exportableData = useMemo(() => {
@@ -276,6 +276,9 @@ export function useTimeActivityExport({
 		exportSummary,
 		isManager: isManage,
 		exportProgress,
+		startExport,
+		setError,
+		setSuccess,
 		resetProgress
 	};
 }

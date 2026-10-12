@@ -19,6 +19,7 @@ import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
+import { useDailyPlanTaskOrder } from '@/core/hooks/daily-plans/use-daily-plan-task-order';
 
 export function FutureTasks({
 	profile,
@@ -37,7 +38,7 @@ export function FutureTasks({
 	const targetEmployeeId = employeeId ?? user?.employee?.id ?? user?.employeeId ?? '';
 	const { employeeFuturePlans } = useEmployeeDailyPlans(targetEmployeeId);
 	// Use a safe default instead of direct localStorage access
-	const { date } = useDateRange('Future Tasks');
+	const { date } = useDateRange('Future Tasks', targetEmployeeId);
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 
 	// Use useMemo instead of useEffect to prevent infinite re-render loop
@@ -59,21 +60,19 @@ export function FutureTasks({
 		return filteredData;
 	}, [date, employeeFuturePlans, user, filterByEmployee, filteredTaskIds]);
 
+	const { dragPlans, onDragEnd } = useDailyPlanTaskOrder(futureDailyPlanTasks);
+
 	if (!futureDailyPlanTasks) return null;
 	return (
 		<div className="flex flex-col gap-6">
-			{futureDailyPlanTasks?.length > 0 ? (
-				<DragDropContext
-					onDragEnd={() => {
-						/* TODO: Implement drag and drop for filtered plans */
-					}}
-				>
+			{dragPlans.length > 0 ? (
+				<DragDropContext onDragEnd={onDragEnd}>
 					<Accordion
 						type="multiple"
 						className="text-sm"
 						defaultValue={[tomorrowDate.toISOString().split('T')[0]]}
 					>
-						{futureDailyPlanTasks?.map((plan) => (
+						{dragPlans.map((plan) => (
 							<AccordionItem
 								value={plan.date.toString().split('T')[0]}
 								key={plan.id}

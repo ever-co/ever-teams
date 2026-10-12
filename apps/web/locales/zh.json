@@ -3,6 +3,11 @@
 	"sidebar": {
 		"DASHBOARD": "仪表板",
 		"FORYOU": "常规",
+		"QUICK_CREATE": "快速创建",
+		"COMMAND": "命令",
+		"PLATFORM": "平台",
+		"TEAM_DASHBOARD": "团队仪表板",
+		"APPS_AND_URLS": "应用和网址",
 		"HOME": "主页",
 		"INBOX": "收件箱",
 		"PROJECTS": "项目",
@@ -40,6 +45,9 @@
 		"ADD_TIME_ENTRY": "添加时间条目",
 		"OPT_IN_UPDATES": "选择接收关于 {appName} 的更新和新闻。",
 		"SUBSCRIBE_NEWSLETTER": "订阅我们的新闻通讯",
+		"SUBSCRIBE": "订阅",
+		"SUBSCRIBING": "订阅中...",
+		"EMAIL": "电子邮箱",
 		"VIEW_PROJECT": "查看项目",
 		"SHARE_PROJECT": "分享项目",
 		"DELETE_PROJECT": "删除项目",
@@ -473,7 +481,12 @@
 		"GROUP_BY": "分组依据",
 		"DATE": "日期",
 		"VIEW": "视图",
-		"HOURS_ON_DATE": "{date} 的 {hours} 小时"
+		"HOURS_ON_DATE": "{date} 的 {hours} 小时",
+		"PREVIOUS_WEEK": "上一周",
+		"NEXT_WEEK": "下一周",
+		"WEEKLY_REPORT_ERROR": "周报告不可用",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "无法加载所选周的跟踪时间。",
+		"EXPORT_FAILED": "无法创建文件，请重试。"
 	},
 	"hotkeys": {
 		"HELP": "帮助",
@@ -793,6 +806,8 @@
 			"LOADING_WORKSPACE": "正在加载工作空间,请稍候......",
 			"REDIRECT_TO_WORSPACE_LOADING": "正在重定向到您的工作空间......",
 			"VERIFY_EMAIL_LOADING_TEXT": "正在验证您的电子邮箱,请稍候......",
+			"VERIFY_EMAIL_FAILED_TITLE": "无法验证您的电子邮箱",
+			"VERIFY_EMAIL_FAILED_MESSAGE": "该链接可能无效、已过期或已被使用，也可能是暂时无法连接服务器。请稍后重试，或打开应用重新申请。",
 			"INPUT_TEAM_NAME": "输入您的团队名称",
 			"JOIN_EXISTING_TEAM": "加入已有团队?",
 			"CREATE_FIRST_TEAM": "创建您的第一个团队",
@@ -937,7 +952,56 @@
 			"NO_INVITATIONS": "目前没有邀请!",
 			"NO_MEMBERS": "目前没有成员!",
 			"GO_TO_PERSONAL_SETTINGS": "转到个人设置",
-			"SHARE_MEMBERS_PROFILE_VIEWS": "共享成员资料视图"
+			"SHARE_MEMBERS_PROFILE_VIEWS": "共享成员资料视图",
+			"everPlatform": {
+				"TITLE": "Ever Platform",
+				"DESCRIPTION": "此安装的可选功能。此处显示的所有内容都由其 API 存储，每个部分都可以关闭。",
+				"STATS_TITLE": "匿名使用统计",
+				"STATS_DESCRIPTION": "此安装每天可以发送一份匿名报告：正在运行的版本及其安装方式。绝不会发送任何人的姓名、电子邮件地址、内容或使用数据。",
+				"STATS_TOGGLE_LABEL": "发送匿名使用统计",
+				"STATS_ON": "已开启",
+				"STATS_OFF": "已关闭",
+				"STATS_REASON_UI": "已在设置中关闭",
+				"STATS_REASON_CONFIG": "配置的统计地址无法使用",
+				"STATS_REASON_KEY": "无法读取统计密钥",
+				"STATS_NEXT_SEND": "下一份报告",
+				"STATS_WEB_APP": "Web 应用",
+				"STATS_API": "API",
+				"STATS_LAST_PAYLOAD": "最近发送的报告",
+				"STATS_NO_PAYLOAD": "尚未发送任何报告。",
+				"STATS_SENT_AT": "发送时间",
+				"STATS_HTTP_STATUS": "响应",
+				"STATS_TOGGLE_ERROR": "无法保存该设置。请重试。",
+				"STATS_MANAGED_CLOUD": "由 Ever Cloud 管理",
+				"STATS_MANAGED_OPERATOR": "由实例运营方管理",
+				"STATS_DOCS_LINK": "发送的内容以及如何关闭",
+				"CONNECT_LINK_TITLE": "组织关联",
+				"CONNECT_LINKED_AS": "已关联到",
+				"CONNECT_NOT_LINKED": "此组织尚未关联到 Ever Platform。",
+				"CONNECT_LINK_CODE_HINT": "粘贴来自 Ever Platform 的关联码（EVL-XXXX-XXXX-XXXX）。",
+				"CONNECT_LINK_CODE_INVALID": "这不是有效的关联码。",
+				"CONNECT_LINK": "关联",
+				"CONNECT_UNLINK": "取消关联",
+				"CONNECT_NOT_CONNECTED": "此安装的运营方尚未将其连接到 Ever Platform。",
+				"INTEGRATIONS_TITLE": "集成与数据",
+				"INTEGRATIONS_EMPTY": "此组织没有可用的集成。",
+				"SHOW_SCOPE": "显示范围",
+				"HIDE_SCOPE": "隐藏范围",
+				"MANAGE_IN_APP": "在 Ever Platform 中管理",
+				"DISABLE": "停用",
+				"STATE_ENABLED": "已启用",
+				"STATE_OFF": "未启用",
+				"STATE_PENDING": "等待运营方",
+				"STATE_DENIED": "此处不允许",
+				"ENTITLEMENTS_TITLE": "权益",
+				"ENTITLEMENT_PLAN": "套餐",
+				"ENTITLEMENT_FEATURES": "功能",
+				"ENTITLEMENT_EXPIRES": "有效期至",
+				"ENTITLEMENT_NONE": "暂无权益。",
+				"REFRESH": "刷新",
+				"LOAD_ERROR": "无法加载此信息。",
+				"ACTION_FAILED": "操作失败。请重试。"
+			}
 		},
 		"unauthorized": {
 			"TITLE": "未經授權",
@@ -1027,6 +1091,7 @@
 			"LOADING": "加载时间表数据...",
 			"NO_ENTRIES_FOUND": "未找到时间表记录",
 			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "你即将拒绝选定的条目，是否继续？",
+			"REJECTION_REASON": "拒绝原因",
 			"ALL_TASKS": "所有任务",
 			"PENDING": "待处理",
 			"APPROVED": "已批准",
@@ -1053,12 +1118,19 @@
 		"START_TIMER": "请选择或创建新任务以开始计时 或製定計劃",
 		"ALREADY_TRACKING_MESSAGE": "您已经在另一个标签页或设备上跟踪时间。",
 		"TASK_CLOSED": "任务已关闭",
+		"PLAN_REQUIRED_TO_START": "将此任务添加到今日计划后即可开始",
 		"STARTING_TIMER": "正在启动计时器...",
 		"TIMER_STARTED": "计时器启动成功",
 		"TIMER_START_FAILED": "启动计时器失败",
+		"STALE_TIMER_STOPPED_DESCRIPTION": "应用关闭后计时器仍在运行，因此已在应用最后一次打开的时间（{stoppedAt}）将其停止。如果之后仍在工作，请手动添加时间。",
+		"TIMER_STOP_FAILED": "停止计时器失败。请重试。",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "计时器已停止",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "由于切换团队,计时器已停止"
+		},
+		"TASK_SWITCH": {
+			"STOPPED_TIMER_TOAST_TITLE": "计时器已停止",
+			"STOPPED_TIMER_TOAST_DESCRIPTION": "由于切换活动任务，计时器已停止"
 		},
 		"ACTIVE": "活跃",
 		"APPS": "应用",
@@ -1098,7 +1170,9 @@
 			"WARNING_PLAN_ESTIMATION": "请更正计划工时或重新估算任务工时"
 		},
 		"VISITED_SITES": "访问过的网站",
-		"NO_VISITED_SITE_MESSAGE": "没有访问过的网站"
+		"NO_VISITED_SITE_MESSAGE": "没有访问过的网站",
+		"TRACKING_SOURCE_HINT": "截图、应用和访问过的网站由桌面应用或代理程序采集，在浏览器中计时不会记录这些数据。",
+		"DOWNLOAD_DESKTOP_APP": "下载桌面应用"
 	},
 	"task": {
 		"TITLE": "任务",
@@ -1164,12 +1238,14 @@
 			"TASK_PLAN_FAILED": "任务规划失败。请重试。",
 			"TASK_ASSIGNMENT_FAILED": "任务分配/取消分配失败。请重试。",
 			"TASK_FAVORITE_FAILED": "更新收藏夹失败。请重试。",
+			"TASK_CREATION_FAILED": "任务创建失败。请重试。",
 			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "收藏项创建成功",
 			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "收藏项删除成功"
 		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "今日计划",
+		"ADD_TO_TODAY_PLAN": "添加到今日计划",
 		"TASK_TIME": "任务时间",
 		"TOTAL_TODAY": "今天的总计",
 		"PLAN_FOR_TOMORROW": "明日计划",
@@ -1193,6 +1269,7 @@
 		"TOTAL_TASK": "总任务",
 		"DAILY_PLAN_DESCRIPTION": "'每日计划' 有助于组织工作流程以实现最佳结果",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "此任务未列入今日计划。要添加到计划中吗？",
+		"TASK_ORDER_SAVE_FAILED": "无法保存新的任务顺序。请重试。",
 		"planned_tasks_popup": {
 			"warning": {
 				"PLANNED_TIME": "请添加计划时间",
@@ -1259,7 +1336,8 @@
 		"PASSWORDS_DO_NOT_MATCH": "密码不匹配"
 	},
 	"placeholders": {
-		"ENTER_TO_VALIDATE": "按Enter键验证"
+		"ENTER_TO_VALIDATE": "按Enter键验证",
+		"ENTER_A_COMMAND": "输入命令..."
 	},
 	"team": {
 		"BACK_LABEL": "返回团队",
