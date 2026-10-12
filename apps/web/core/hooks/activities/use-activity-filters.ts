@@ -18,6 +18,7 @@ export interface UseReportActivityProps
 	projectIds?: string[];
 	employeeIds?: string[];
 	teamIds?: string[];
+	taskIds?: string[];
 	groupBy?: string;
 }
 
@@ -53,6 +54,7 @@ type DefaultProps = Required<
 		| 'employeeIds'
 		| 'projectIds'
 		| 'teamIds'
+		| 'taskIds'
 	>
 >;
 
@@ -78,7 +80,31 @@ function getDefaultProps(): DefaultProps {
 		end: 100,
 		employeeIds: [],
 		projectIds: [],
-		teamIds: []
+		teamIds: [],
+		taskIds: []
+	};
+}
+
+// ==================== QUERY KEY ====================
+
+/**
+ * Query key params shared by the activity report queries (chart, daily report, report list).
+ *
+ * Employee and team ids stay out on purpose: they follow the dashboard filter, which changes them on
+ * every pick and applies them with an explicit refetch. Keying on them would refetch on each pick and
+ * swap the page for its loading skeleton while the filter is still open.
+ */
+export function getActivityQueryKeyParams(mergedProps: Required<UseReportActivityProps> | null) {
+	return {
+		tenantId: mergedProps?.tenantId,
+		organizationId: mergedProps?.organizationId,
+		startDate: mergedProps?.startDate,
+		endDate: mergedProps?.endDate,
+		groupBy: mergedProps?.groupBy,
+		projectIds: mergedProps?.projectIds,
+		taskIds: mergedProps?.taskIds,
+		logType: mergedProps?.logType,
+		activityLevel: mergedProps?.activityLevel
 	};
 }
 
