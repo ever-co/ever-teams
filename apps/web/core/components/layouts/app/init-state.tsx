@@ -51,12 +51,9 @@ export function InitState() {
 		detailRefetchInterval: autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false
 	});
 	const { activeTeam, teams } = teamOwner;
-	const teamReady = !!(
-		workspaceReady &&
-		teamOwner.organizationTeamsSuccess &&
-		teamOwner.organizationTeamSuccess &&
-		activeTeam?.id
-	);
+	// The list already resolves the team with its projects and plan policy. The detail only adds member work
+	// statistics, so team-scoped reads start alongside it instead of one round trip after it.
+	const teamReady = !!(workspaceReady && teamOwner.organizationTeamsSuccess && activeTeam?.id);
 	const projectId = activeTeam?.projects?.[0]?.id ?? null;
 	const teamScope = useMemo(
 		() => ({
@@ -174,7 +171,12 @@ export function InitState() {
 	const plansReady = !activeTeam?.requirePlanToTrack || timerOwner.plansResolved;
 	const criticalReady =
 		workspaceReady &&
-		(noTeams || (teamReady && tasksOwner.querySuccess && timerOwner.statusResolved && plansReady));
+		(noTeams ||
+			(teamReady &&
+				teamOwner.organizationTeamSuccess &&
+				tasksOwner.querySuccess &&
+				timerOwner.statusResolved &&
+				plansReady));
 	const readyScope = `${tenantId ?? ''}:${organizationId ?? ''}:${activeTeam?.id ?? 'no-team'}`;
 	const markedReadyScopeRef = useRef<string | null>(null);
 	const bootstrapMarkedRef = useRef(false);
