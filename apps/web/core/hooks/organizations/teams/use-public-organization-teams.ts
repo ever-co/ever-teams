@@ -1,17 +1,31 @@
-import {
-	publicActiveTeamState,
-	activeTeamState,
-	teamTasksState,
-	organizationTeamsState
-} from '@/core/stores';
+import { publicActiveTeamState, activeTeamState, teamTasksState, organizationTeamsState } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useOrganizationTeamsQuery } from './use-organization-teams-query';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryKey, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { publicOrganizationTeamService } from '@/core/services/client/api/organizations';
+
+// Shared by the queries and their loaders, so the public page's refresh interval
+// refetches each query once it is stale instead of only reading the cache
+const PUBLIC_TEAM_STALE_TIME = 1000 * 60 * 5; // 5 minutes - public team data is relatively stable
+const PUBLIC_TEAM_MISC_STALE_TIME = 1000 * 60 * 15; // 15 minutes - misc data changes less frequently
+
+// A query in error is not refetched on every tick, or each tick would call the unauthenticated endpoint
+// again: without data ensureQueryData ignores staleTime and fetches, and with data a failed refresh keeps
+// the old dataUpdatedAt and marks the query invalidated. The next attempt waits one stale window after the
+// error, so a failing link costs one attempt per window and the page recovers on its own once the endpoint
+// answers again. Failures resolve to undefined: the query keeps the error.
+function ensurePublicTeamQueryData(queryClient: QueryClient, queryKey: QueryKey, staleTime: number): Promise<unknown> {
+	const state = queryClient.getQueryState(queryKey);
+	if (state?.status === 'error' && Date.now() - state.errorUpdatedAt < staleTime) {
+		return Promise.resolve(state.data);
+	}
+
+	return queryClient.ensureQueryData({ queryKey, staleTime, revalidateIfStale: true }).catch(() => undefined);
+}
 
 export function usePublicOrganizationTeams() {
 	const activeTeam = useAtomValue(activeTeamState);
@@ -37,7 +51,7 @@ export function usePublicOrganizationTeams() {
 		queryKey: queryKeys.teams.public.byProfileAndTeam(memoizedProfileLink, memoizedTeamId),
 		queryFn: () => publicOrganizationTeamService.getPublicOrganizationTeams(memoizedProfileLink!, memoizedTeamId!),
 		enabled: !!(memoizedProfileLink && memoizedTeamId),
-		staleTime: 1000 * 60 * 5, // 5 minutes - public team data is relatively stable
+		staleTime: PUBLIC_TEAM_STALE_TIME,
 		refetchOnWindowFocus: false
 	});
 
@@ -50,7 +64,7 @@ export function usePublicOrganizationTeams() {
 				memoizedMiscTeamId!
 			),
 		enabled: !!(memoizedMiscProfileLink && memoizedMiscTeamId),
-		staleTime: 1000 * 60 * 15 // 15 minutes - misc data changes less frequently
+		staleTime: PUBLIC_TEAM_MISC_STALE_TIME
 	});
 
 	// Synchronize React Query data with Jotai stores for backward compatibility
@@ -134,9 +148,11 @@ export function usePublicOrganizationTeams() {
 				setQueryParams({ profileLink, teamId });
 			}
 
-			return queryClient.ensureQueryData({
-				queryKey: queryKeys.teams.public.byProfileAndTeam(profileLink, teamId)
-			});
+			return ensurePublicTeamQueryData(
+				queryClient,
+				queryKeys.teams.public.byProfileAndTeam(profileLink, teamId),
+				PUBLIC_TEAM_STALE_TIME
+			);
 		},
 		[setQueryParams, queryParams?.profileLink, queryParams?.teamId]
 	);
@@ -148,9 +164,11 @@ export function usePublicOrganizationTeams() {
 				setMiscQueryParams({ profileLink, teamId });
 			}
 
-			return queryClient.ensureQueryData({
-				queryKey: queryKeys.teams.public.miscData(profileLink, teamId)
-			});
+			return ensurePublicTeamQueryData(
+				queryClient,
+				queryKeys.teams.public.miscData(profileLink, teamId),
+				PUBLIC_TEAM_MISC_STALE_TIME
+			);
 		},
 		[setMiscQueryParams, miscQueryParams?.profileLink, miscQueryParams?.teamId]
 	);
