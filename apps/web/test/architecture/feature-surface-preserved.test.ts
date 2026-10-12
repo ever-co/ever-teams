@@ -1967,12 +1967,36 @@ describe('Ever Teams feature surface preservation', () => {
 
 	it('covers all real App Router route files and outward handler verbs', () => {
 		const routes = collectRealHeadSurface().routes;
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(118);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(133);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(161);
+		).toHaveLength(179);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy routes added by the 2026-10 PR batch, and the old misspelled toggle path kept as an alias
+				'apps/web/app/api/auth/request-password/route.ts::POST',
+				'apps/web/app/api/auth/reset-password/route.ts::POST',
+				'apps/web/app/api/currency/route.ts::GET',
+				'apps/web/app/api/daily-plan/[id]/task/route.ts::POST',
+				'apps/web/app/api/daily-plan/[id]/task/route.ts::PUT',
+				'apps/web/app/api/daily-plan/employee/[employeeId]/route.ts::GET',
+				'apps/web/app/api/employee/me/presence/route.ts::PUT',
+				'apps/web/app/api/employee/members/route.ts::GET',
+				'apps/web/app/api/favorite/[id]/route.ts::DELETE',
+				'apps/web/app/api/favorite/employee/route.ts::GET',
+				'apps/web/app/api/favorite/route.ts::POST',
+				'apps/web/app/api/role-permissions/me/route.ts::GET',
+				'apps/web/app/api/roles/team-assignable/route.ts::GET',
+				'apps/web/app/api/timer/status/worked/route.ts::GET',
+				'apps/web/app/api/timer/toggle/route.ts::POST',
+				'apps/web/app/api/timer/toogle/route.ts::POST',
+				'apps/web/app/api/timesheet/status/route.ts::PUT',
+				'apps/web/app/api/timesheet/time-log/[id]/route.ts::PUT',
+				'apps/web/app/api/timesheet/time-log/report/weekly/route.ts::GET',
+				'apps/web/app/api/timesheet/time-log/route.ts::DELETE',
+				'apps/web/app/api/timesheet/time-log/route.ts::GET',
+				'apps/web/app/api/timesheet/time-log/route.ts::POST',
+				'apps/web/app/api/timesheet/time-log/time-limit/route.ts::GET',
 				'apps/web/app/api/auth/[...nextauth]/route.ts::GET',
 				'apps/web/app/api/auth/[...nextauth]/route.ts::POST',
 				'apps/web/app/api/daily-plan/[id]/route.ts::GET',
