@@ -25,10 +25,42 @@
 	},
 	{
 		"id": "removed:publicExports:apps/web/core/hooks/activities/index.ts::runtime::useSyncTimer",
-		"reason": "useSyncTimer had no caller. The timer-gated 5 s team polling it wrapped is replaced by the team presence cadence in InitState."
+		"reason": "useSyncTimer had no caller (git grep across apps and packages). The 5 s team polling it wrapped still runs from InitState through useTimerPolling."
 	},
 	{
 		"id": "removed:publicExports:apps/web/core/hooks/index.ts::runtime::useSyncTimer",
-		"reason": "useSyncTimer had no caller. The timer-gated 5 s team polling it wrapped is replaced by the team presence cadence in InitState."
+		"reason": "useSyncTimer had no caller (git grep across apps and packages). The 5 s team polling it wrapped still runs from InitState through useTimerPolling."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/hooks/common/index.ts::runtime::useOTRefreshInterval",
+		"reason": "useOTRefreshInterval had no caller anywhere in the repo (git grep across apps and packages on develop finds only its own definition); #4560 removed it as dead code, no behaviour depended on it."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/hooks/index.ts::runtime::useOTRefreshInterval",
+		"reason": "useOTRefreshInterval had no caller anywhere in the repo (git grep across apps and packages on develop finds only its own definition); #4560 removed it as dead code, no behaviour depended on it."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/hooks/common/index.ts::runtime::useRefreshInterval",
+		"reason": "useRefreshInterval had no caller anywhere in the repo (git grep across apps and packages on develop finds only its own definition); #4560 removed it as dead code, no behaviour depended on it."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/hooks/index.ts::runtime::useRefreshInterval",
+		"reason": "useRefreshInterval had no caller anywhere in the repo (git grep across apps and packages on develop finds only its own definition); #4560 removed it as dead code, no behaviour depended on it."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/hooks/tasks/index.ts::runtime::useAllTaskStatistics",
+		"reason": "useAllTaskStatistics had no caller anywhere in the repo (git grep across apps and packages on develop finds only its own definition); #4560 removed it as dead code, no behaviour depended on it."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/hooks/index.ts::runtime::useAllTaskStatistics",
+		"reason": "useAllTaskStatistics had no caller anywhere in the repo (git grep across apps and packages on develop finds only its own definition); #4560 removed it as dead code, no behaviour depended on it."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/stores/teams/index.ts::runtime::OTRefreshIntervalState",
+		"reason": "OTRefreshIntervalState had no caller anywhere in the repo (git grep across apps and packages on develop finds only its own definition); #4560 removed it as dead code, no behaviour depended on it."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/stores/index.ts::runtime::OTRefreshIntervalState",
+		"reason": "OTRefreshIntervalState had no caller anywhere in the repo (git grep across apps and packages on develop finds only its own definition); #4560 removed it as dead code, no behaviour depended on it."
 	}
 ]
