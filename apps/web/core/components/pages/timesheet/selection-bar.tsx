@@ -5,6 +5,8 @@ import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { useUpdateTimesheet } from '@/core/hooks/timesheet/use-update-timesheet';
 import { useDeleteTimesheet } from '@/core/hooks/timesheet/use-delete-timesheet';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
+import { useModal } from '@/core/hooks';
+import { RejectSelectedModal } from '../../features/timesheet/reject-selected-modal';
 
 type ActionButtonProps = {
 	label: string;
@@ -79,6 +81,7 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({ selectTime
 	const { deleteTaskTimesheet } = useDeleteTimesheet();
 	// Approve and reject call PUT /timesheet/status, which requires this permission
 	const canUpdateTimeSheetStatus = useMyRolePermissionsQuery().myPermissions.includes('CAN_APPROVE_TIMESHEET');
+	const { isOpen: isRejectModalOpen, openModal: openRejectModal, closeModal: closeRejectModal } = useModal();
 
 	const getSelectedIds = useCallback(
 		() => selectTimesheetId.map((select) => select.timesheet?.id).filter((id): id is string => Boolean(id)),
@@ -89,18 +92,6 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({ selectTime
 		try {
 			await updateTimesheetStatus({
 				status: ETimesheetStatus.APPROVED,
-				ids: getSelectedIds()
-			});
-			setSelectTimesheetId([]);
-		} catch (error) {
-			console.error(error);
-		}
-	}, [getSelectedIds, updateTimesheetStatus, setSelectTimesheetId]);
-
-	const handleReject = useCallback(async () => {
-		try {
-			await updateTimesheetStatus({
-				status: ETimesheetStatus.DENIED,
 				ids: getSelectedIds()
 			});
 			setSelectTimesheetId([]);
@@ -122,12 +113,24 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({ selectTime
 	}, [selectTimesheetId, deleteTaskTimesheet, setSelectTimesheetId]);
 
 	return (
-		<SelectionBar
-			selectedCount={selectTimesheetId.length}
-			onApprove={canUpdateTimeSheetStatus ? handleApprove : undefined}
-			onReject={canUpdateTimeSheetStatus ? handleReject : undefined}
-			onDelete={handleDelete}
-			onClearSelection={() => setSelectTimesheetId([])}
-		/>
+		<>
+			{canUpdateTimeSheetStatus && (
+				<RejectSelectedModal
+					selectTimesheetId={getSelectedIds()}
+					onReject={() => setSelectTimesheetId([])}
+					maxReasonLength={120}
+					minReasonLength={0}
+					closeModal={closeRejectModal}
+					isOpen={isRejectModalOpen}
+				/>
+			)}
+			<SelectionBar
+				selectedCount={selectTimesheetId.length}
+				onApprove={canUpdateTimeSheetStatus ? handleApprove : undefined}
+				onReject={canUpdateTimeSheetStatus ? openRejectModal : undefined}
+				onDelete={handleDelete}
+				onClearSelection={() => setSelectTimesheetId([])}
+			/>
+		</>
 	);
 };
