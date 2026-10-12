@@ -9,10 +9,8 @@ export async function GET(req: Request) {
 	const { $res, user, tenantId, organizationId, access_token, taskId } = await authenticatedGuard(req, res);
 	if (!user) return $res('unauthorized');
 
-	const query = searchParams as unknown as { activeTask: string; employeeId: string };
-	const activeTask = query.activeTask;
-	let employeeId = query.employeeId;
-	employeeId = employeeId || user.employee?.id || '';
+	const activeTask = searchParams.get('activeTask') === 'true';
+	const employeeId = searchParams.get('employeeId') || user.employee?.id || '';
 
 	if (activeTask && !taskId) {
 		return $res({
@@ -27,7 +25,7 @@ export async function GET(req: Request) {
 			organizationId,
 			employeeIds: employeeId ? [employeeId] : [],
 			defaultRange: 'false',
-			...(activeTask && taskId ? { 'taskIds[0]': taskId } : {})
+			...(activeTask && taskId ? { taskIds: [taskId] } : {})
 		},
 		access_token
 	);
@@ -38,7 +36,7 @@ export async function GET(req: Request) {
 			organizationId,
 			employeeIds: employeeId ? [employeeId] : [],
 			defaultRange: 'true',
-			...(activeTask && taskId ? { 'taskIds[0]': taskId } : {}),
+			...(activeTask && taskId ? { taskIds: [taskId] } : {}),
 			unitOfTime: 'day'
 		},
 		access_token

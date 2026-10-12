@@ -23,11 +23,10 @@ export type TTasksTimesheetStatisticsParams = {
 	unitOfTime?: 'day';
 };
 export function tasksTimesheetStatisticsRequest(params: TTasksTimesheetStatisticsParams, bearer_token: string) {
-	const queries = qs.stringify(params, { arrayFormat: 'indices' });
-
 	return serverFetch<TTaskStatistics[]>({
-		path: `/timesheet/statistics/tasks?${queries}`,
+		path: '/timesheet/statistics/tasks',
 		method: 'POST',
+		body: params,
 		bearer_token,
 		tenantId: params.tenantId
 	});
