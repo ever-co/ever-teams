@@ -19,7 +19,6 @@ import {
 	SelectedTimesheet
 } from '@/core/components/timesheet';
 import { ArrowLeftIcon } from 'assets/svg';
-import type { IconBaseProps } from 'react-icons';
 import { TimesheetDetailModalSkeleton } from '@/core/components/common/skeleton/timesheet-skeletons';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { IconsSearch } from '@/core/components/icons';
@@ -197,10 +196,6 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 		timesheetNavigator === 'ListView' ||
 		(timesheetGroupByDays === 'Daily' && timesheetNavigator === 'CalendarView');
 
-	const SearchIcon: React.FC<IconBaseProps> = (props) => {
-		return <IconsSearch {...props} />;
-	};
-
 	return (
 		<>
 			<PageLayout
@@ -290,7 +285,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 									/>
 								</div>
 								<div className="flex items-center !h-[2.2rem] w-[700px] bg-white dark:bg-dark--theme-light gap-x-2 px-2 border border-gray-200 dark:border-gray-700 rounded-xs mb-2">
-									<SearchIcon className="text-[#7E7991]" />
+									<IconsSearch className="text-[#7E7991]" />
 									<input
 										onChange={(v) => setSearch(v.target.value)}
 										role="searchbox"
