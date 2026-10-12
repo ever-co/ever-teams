@@ -21,6 +21,11 @@ export async function POST(req: Request) {
 	if ((body.startedAt != null && !startedAt) || (body.stoppedAt != null && !stoppedAt)) {
 		return NextResponse.json({ message: 'startedAt and stoppedAt must be ISO dates' }, { status: 400 });
 	}
+	// A stop is only ever back-dated (to a closed tab's last heartbeat), never set in the future, which would
+	// credit time not worked. One minute of slack covers clock skew.
+	if (stoppedAt && Date.parse(stoppedAt) > Date.now() + 60_000) {
+		return NextResponse.json({ message: 'stoppedAt cannot be in the future' }, { status: 400 });
+	}
 
 	try {
 		await stopTimerRequest(

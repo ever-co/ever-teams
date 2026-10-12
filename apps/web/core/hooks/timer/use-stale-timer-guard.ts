@@ -28,8 +28,10 @@ export function useStopStaleTeamsTimer() {
 			const response = await timerService.getLastTimerLog(employeeId);
 			const lastLog = response.data?.[0]?.lastLog;
 			// A client clock running fast would cut live timers: use the server clock when the response exposes it.
+			// Without it (the Gauzy API's CORS does not expose Date in direct mode), allow 5 minutes of client skew.
 			const serverNow = Date.parse(response.headers?.date ?? '');
-			if (!isStaleTeamsTimer(lastLog, Number.isNaN(serverNow) ? Date.now() : serverNow)) return false;
+			const now = Number.isNaN(serverNow) ? Date.now() - 5 * 60_000 : serverNow;
+			if (!isStaleTeamsTimer(lastLog, now)) return false;
 
 			try {
 				await timerService.stopTimer({

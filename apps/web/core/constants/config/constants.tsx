@@ -731,6 +731,19 @@ export const TEAM_PRESENCE_REFRESH_INTERVAL = 25_000; // 25 seconds
 export const SYNC_TIMER_INTERVAL = 60000; // 1 minute
 // Gauzy's own cut-off for a timer without time slots (calculateStoppedAt, inactivityTimeLimit default).
 export const STALE_TIMER_THRESHOLD_MS = 10 * 60 * 1000; // 10 minutes
+/**
+ * How long a running Ever Teams timer may go without a heartbeat before the app stops it at its last
+ * heartbeat (a tab closed without stopping it). NEXT_PUBLIC_STALE_TIMER_THRESHOLD_MINUTES, default 10;
+ * 0 turns the automatic stop off. Value in milliseconds.
+ */
+export const STALE_TIMER_THRESHOLD = getNextPublicEnv('NEXT_PUBLIC_STALE_TIMER_THRESHOLD_MINUTES', {
+	default: process.env.NEXT_PUBLIC_STALE_TIMER_THRESHOLD_MINUTES,
+	map(value) {
+		if (value === undefined || value === null || String(value).trim() === '') return STALE_TIMER_THRESHOLD_MS;
+		const minutes = Number(value);
+		return Number.isFinite(minutes) && minutes >= 0 ? minutes * 60 * 1000 : STALE_TIMER_THRESHOLD_MS;
+	}
+});
 
 export const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
