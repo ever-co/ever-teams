@@ -54,8 +54,11 @@ for (const [network, prefix] of [
 	['::1', 128], // loopback
 	['64:ff9b:1::', 48], // local-use NAT64
 	['100::', 64], // discard-only
-	['2001::', 32], // Teredo
+	['100:0:0:1::', 64], // dummy prefix
+	['2001::', 23], // IETF protocol assignments (Teredo, benchmarking, ORCHID...)
 	['2001:db8::', 32], // documentation
+	['3fff::', 20], // documentation
+	['5f00::', 16], // segment-routing SIDs
 	['fc00::', 7], // unique local
 	['fe80::', 10], // link-local
 	['fec0::', 10], // site-local (deprecated)
@@ -88,13 +91,14 @@ function ipv6Groups(address: string): number[] | null {
 	return parts.map((part) => parseInt(part, 16));
 }
 
-/** The IPv4 address an IPv6 address carries (IPv4-mapped, IPv4-compatible, NAT64 or 6to4), if any. */
+/** The IPv4 address an IPv6 address carries (IPv4-mapped, -translated, -compatible, NAT64 or 6to4), if any. */
 function embeddedIPv4(address: string): string | null {
 	const groups = ipv6Groups(address);
 	if (!groups) return null;
 	const ipv4 = (high: number, low: number) => `${high >> 8}.${high & 255}.${low >> 8}.${low & 255}`;
 	const zeros = (from: number, to: number) => groups.slice(from, to).every((group) => group === 0);
 	if (zeros(0, 5) && (groups[5] === 0xffff || groups[5] === 0)) return ipv4(groups[6], groups[7]);
+	if (zeros(0, 4) && groups[4] === 0xffff && groups[5] === 0) return ipv4(groups[6], groups[7]);
 	if (groups[0] === 0x64 && groups[1] === 0xff9b && zeros(2, 6)) return ipv4(groups[6], groups[7]);
 	if (groups[0] === 0x2002) return ipv4(groups[1], groups[2]);
 	return null;

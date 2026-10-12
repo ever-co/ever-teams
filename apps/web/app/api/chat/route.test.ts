@@ -36,10 +36,16 @@ const SIGNED_IN = {
 	projectId: undefined
 };
 
-const SIGNED_OUT = {
-	$res: (data: unknown) => Response.json({ statusCode: 401, message: data }),
-	user: null
-};
+/** The guard's answer when Gauzy refuses the session (401) or cannot answer (503). */
+function refused(status: number) {
+	const message = status === 503 ? 'Session check unavailable, retry later' : 'Unauthorized';
+	return {
+		$res: (data: unknown) => Response.json({ statusCode: status, message: data }, { status }),
+		user: null,
+		status,
+		deny: () => Response.json({ message }, { status })
+	};
+}
 
 const originalFetch = global.fetch;
 let globalFetch: jest.Mock;
@@ -87,7 +93,7 @@ afterEach(() => {
 
 describe('POST /api/chat', () => {
 	it('answers 401 without a signed-in session, before calling any provider', async () => {
-		mockAuthenticatedGuard.mockResolvedValue(SIGNED_OUT);
+		mockAuthenticatedGuard.mockResolvedValue(refused(401));
 		const request = chatRequest({ apiKey: 'sk-test', provider: 'custom', baseURL: 'https://api.example.com/v1' });
 
 		const response = await POST(request);
@@ -97,6 +103,38 @@ describe('POST /api/chat', () => {
 		expect(globalFetch).not.toHaveBeenCalled();
 		expect(mockCreateGuardedFetch).not.toHaveBeenCalled();
 		expect(mockLookup).not.toHaveBeenCalled();
+	});
+
+	it('answers 503 when Gauzy could not check the session (not a sign-out), before calling any provider', async () => {
+		mockAuthenticatedGuard.mockResolvedValue(refused(503));
+
+		const response = await POST(
+			chatRequest({ apiKey: 'sk-test', provider: 'custom', baseURL: 'https://api.example.com/v1' })
+		);
+
+		expect(response.status).toBe(503);
+		expect(globalFetch).not.toHaveBeenCalled();
+		expect(mockCreateGuardedFetch).not.toHaveBeenCalled();
+	});
+
+	it('stops the provider request when the caller goes away', async () => {
+		const caller = new AbortController();
+		const request = new Request('https://app.ever.team/api/chat', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({
+				messages: [{ role: 'user', content: 'Hi' }],
+				config: { apiKey: 'sk-test', provider: 'openai' }
+			}),
+			signal: caller.signal
+		});
+
+		const response = await POST(request);
+		await response.text();
+		const providerSignal = (globalFetch.mock.calls[0][1] as RequestInit).signal;
+		caller.abort();
+
+		expect(providerSignal?.aborted).toBe(true);
 	});
 
 	it('still asks a signed-in user for an API key', async () => {
