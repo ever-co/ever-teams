@@ -30,6 +30,20 @@ export function getTimerStatusRequest(
 	});
 }
 
+export function getTimerWorkedStatusRequest(
+	{ tenantId, organizationId, employeeId }: IGetTimerStatusParams & { employeeId?: string },
+	bearer_token: string
+) {
+	const params = qs.stringify({ tenantId, organizationId, employeeId });
+
+	return serverFetch<ITimerStatus[]>({
+		path: `/timesheet/timer/status/worked?${params}`,
+		method: 'GET',
+		bearer_token,
+		tenantId
+	});
+}
+
 export function startTimerRequest(params: IUpdateTimerStatusParams, bearer_token: string) {
 	return serverFetch<ITimeLog>({
 		path: '/timesheet/timer/start',
@@ -40,7 +54,10 @@ export function startTimerRequest(params: IUpdateTimerStatusParams, bearer_token
 	});
 }
 
-export function stopTimerRequest(params: IUpdateTimerStatusParams, bearer_token: string) {
+export function stopTimerRequest(
+	params: IUpdateTimerStatusParams & { startedAt?: string; stoppedAt?: string },
+	bearer_token: string
+) {
 	return serverFetch<ITimeLog | null>({
 		path: '/timesheet/timer/stop',
 		method: 'POST',

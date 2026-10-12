@@ -1116,6 +1116,7 @@
 		"STARTING_TIMER": "Uruchamianie timera...",
 		"TIMER_STARTED": "Timer uruchomiony pomyślnie",
 		"TIMER_START_FAILED": "Nie udało się uruchomić timera",
+		"STALE_TIMER_STOPPED_DESCRIPTION": "Timer działał dalej po zamknięciu aplikacji, dlatego został zatrzymany w ostatniej chwili, gdy aplikacja była otwarta ({stoppedAt}). Jeśli praca trwała dłużej, dodaj czas ręcznie.",
 		"TIMER_STOP_FAILED": "Nie udało się zatrzymać timera. Spróbuj ponownie.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Zatrzymany Timer",

@@ -5,12 +5,16 @@ import { handleUnauthorized, registerRefreshTokenCallback } from '@/core/lib/aut
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { logDisconnection } from '@/core/lib/auth/disconnect-logger';
 import { isUnauthorizedError } from '@/core/lib/auth/retry-logic';
-import { activeTeamManagersState, activeTeamState, userState } from '@/core/stores';
+import { activeTeamManagersState, activeTeamState, timerStatusState, userState } from '@/core/stores';
 import { useCallback, useMemo, useRef, useEffect } from 'react';
-import { useSetAtom, useAtomValue } from 'jotai';
+import { useSetAtom, useAtomValue, useStore } from 'jotai';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { authService } from '@/core/services/client/api/auth/auth.service';
+import { timerService } from '@/core/services/client/api/timers';
+import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { isRunningTeamsLog } from '@/core/lib/helpers/timer-policy';
 import { useIsMemberManager } from '../organizations';
 import { useUserProfilePage } from '../users';
 import { TUser } from '@/core/types/schemas';
@@ -27,6 +31,8 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 	const setUser = useSetAtom(userState);
 	const $user = useRef<TUser | null>(defaultUser || user || null);
 	const activeTeam = useAtomValue(activeTeamState);
+	// Read at logout time only: subscribing to the timer status would re-render every caller of this hook.
+	const store = useStore();
 	const queryClient = useQueryClient();
 
 	// Track consecutive refresh failures for smarter error handling
@@ -156,7 +162,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		return user || $user.current;
 	}, [user]);
 
-	const logOut = useCallback(() => {
+	const logOut = useCallback(async () => {
 		// Log the intentional logout
 		logDisconnection(DisconnectionReason.USER_LOGOUT, {
 			userId: user?.id,
@@ -165,10 +171,28 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 
 		window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, activeTeam?.id ?? '');
 		clearChatHistoryForUser(user?.id);
+
+		// A TEAMS timer left running would keep counting after logout: stop it while the session still
+		// exists, without letting a failed or slow request hold the logout back. Past the server's midnight
+		// the status reads stopped while the last log still runs (useTimerRunningPastMidnight): check it too.
+		const timerStatus = store.get(timerStatusState);
+		const pastMidnightLog = timerStatus?.running
+			? null
+			: queryClient.getQueryData<ITimeLog | null>(queryKeys.timer.lastLog(user?.employee?.id));
+		if (
+			(timerStatus?.running && timerStatus.lastLog?.source === ETimeLogSource.TEAMS) ||
+			isRunningTeamsLog(pastMidnightLog)
+		) {
+			const stopTimer = timerService
+				.stopTimer({ source: ETimeLogSource.TEAMS })
+				.catch((error) => logErrorInDev('[Auth] Timer stop before logout failed:', error));
+			await Promise.race([stopTimer, new Promise((resolve) => window.setTimeout(resolve, 3000))]);
+		}
+
 		removeAuthCookies();
 		queryClient.clear();
 		window?.location.replace(DEFAULT_APP_PATH);
-	}, [activeTeam?.id, queryClient, user?.id, user?.email]);
+	}, [activeTeam?.id, queryClient, store, user?.id, user?.email, user?.employee?.id]);
 
 	const refreshToken = useCallback(async (): Promise<void> => {
 		await refreshTokenMutateAsync();

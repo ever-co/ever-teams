@@ -81,6 +81,10 @@ jest.mock('@/core/hooks/tasks', () => ({
 jest.mock('@/core/hooks/activities/use-timer-polling', () => ({
 	useTimerPolling: (running: boolean) => calls.polling(running)
 }));
+jest.mock('@/core/hooks/timer/use-stale-timer-guard', () => ({
+	useStaleTimerGuard: () => true,
+	useTimerRunningPastMidnight: (_employee: unknown, statusRunning: boolean) => statusRunning
+}));
 jest.mock('./use-scope-transition-guard', () => ({
 	useScopeTransitionGuard: (scope: unknown, enabled: boolean) => calls.guard(scope, enabled),
 	getShellCriticalQueryKeys: (scope: any) => [
