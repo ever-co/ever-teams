@@ -32,6 +32,28 @@ compiler cache on disk in `apps/web/.next/dev`, so the restarted server reuses
 what it already compiled and the restart is quick. Keep that folder between
 restarts: deleting `.next` makes every page compile from scratch again.
 
+## API routes and authorization
+
+When the browser reaches the Gauzy API through this app
+(`NEXT_PUBLIC_GAUZY_API_SERVER_URL` not set), it calls the routes under
+`app/api` that forward the call to the Gauzy API. Their guard,
+`authenticatedGuard` in
+`core/services/server/guards/authenticated-guard-app.ts`, only authenticates: it
+checks the access token and reads the tenant, organization and team from the
+caller's cookies. Such a route then sends the caller's own token, so the Gauzy
+API is its authorization boundary: it decides from the caller's role and
+permissions whether an id sent by the client (an employee, a team, a daily plan)
+may be read or changed. Do not add an ownership or membership check in a route
+that forwards to the Gauzy API. The access token is readable in the browser and
+can be sent to the Gauzy API directly, so such a check protects nothing, and it
+would break the legitimate reads of managers and admins on other members.
+
+This does not apply to the routes that sign their own credentials with a server
+secret, such as `app/api/livekit` and `app/api/auth/meet/jwt`. The browser
+cannot make those tokens itself and calls these routes through this app in both
+API modes, so the app is their authorization boundary and the route must decide
+who may get a token.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
