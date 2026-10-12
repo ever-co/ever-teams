@@ -419,7 +419,8 @@ class TaskService extends APIService {
 		organizationTeamId
 	}: {
 		employeeId: string;
-		organizationTeamId: string;
+		/** Optional, as before #4546: without it the employee's tasks of every team are returned */
+		organizationTeamId?: string;
 	}): Promise<TTask[]> => {
 		try {
 			const organizationId = this.organizationId;
@@ -428,7 +429,7 @@ class TaskService extends APIService {
 				'where[tenantId]': tenantId,
 				'where[organizationId]': organizationId,
 				// Gauzy passes `where` to the ORM unchanged on this endpoint and never reads a root `teams` key.
-				'where[teams][id]': organizationTeamId
+				...(organizationTeamId ? { 'where[teams][id]': organizationTeamId } : {})
 			} as Record<string, string>;
 			const query = qs.stringify(obj);
 
