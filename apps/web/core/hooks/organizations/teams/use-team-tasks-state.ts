@@ -93,7 +93,7 @@ export function useTeamTasksState() {
 				/**
 				 * Unassign previous active task
 				 */
-				if ($memberActiveTaskId.current && $user.current) {
+				if ($memberActiveTaskId.current && $user.current && $memberActiveTaskId.current !== task?.id) {
 					const _task = tasksRef.current.find((t) => t.id === $memberActiveTaskId.current);
 
 					if (_task) {
@@ -168,9 +168,13 @@ export function useTeamTasksState() {
 								description: `"${task.title}" is now your active task`
 							});
 
-							// Short delay to let React Query stabilize
-							await new Promise((resolve) => setTimeout(resolve, 600));
-							expectedActiveTaskIdRef.current = null;
+							// The sync effect below clears the expectation once the server echoes this id. This is only
+							// the fallback, and it is not awaited because the timer start waits for this function.
+							setTimeout(() => {
+								if (expectedActiveTaskIdRef.current === task.id) {
+									expectedActiveTaskIdRef.current = null;
+								}
+							}, 600);
 						}
 					} catch (error) {
 						logErrorInDev('[setActiveTask] API call failed:', error);
