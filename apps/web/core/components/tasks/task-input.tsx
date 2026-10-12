@@ -222,9 +222,10 @@ export function TaskInput(props: Props) {
 						});
 					}
 					onTaskCreated(createdTask);
-				})
-				.finally(() => {
 					viewType === 'one-view' && setTaskName('');
+				})
+				.catch(() => {
+					// useCreateTask already showed the error toast; the typed title stays for a retry.
 				});
 	}, [datas, props, autoActiveTask, onTaskCreated, viewType, t]);
 

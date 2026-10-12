@@ -1,14 +1,30 @@
 'use client';
 
 import { taskService } from '@/core/services/client/api';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 
 import { TEmployee, TTag } from '@/core/types/schemas';
 import { EIssueType, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
 import { ETaskStatusName } from '@/core/types/schemas';
 import { useTaskStatusesQuery } from '../../tasks/use-task-statuses-query';
+
+/**
+ * No HTTP response means the API could not be reached. A 4xx carries the API's own reason
+ * (validation, permission); other failure messages are written for developers, not users.
+ */
+function getCreateTaskErrorDetail(error: Error, networkIssueMessage: string): string | undefined {
+	if (!ApiErrorService.isApiError(error)) return undefined;
+
+	const status = error.httpResponseStatus;
+	if (status === undefined) return networkIssueMessage;
+
+	return status >= 400 && status < 500 ? error.message : undefined;
+}
 
 /**
  * Hook for creating team tasks (CREATE operations only).
@@ -23,6 +39,7 @@ import { useTaskStatusesQuery } from '../../tasks/use-task-statuses-query';
  * - `createLoading` - Mutation pending state
  */
 export function useCreateTask() {
+	const t = useTranslations();
 	const { taskStatuses } = useTaskStatusesQuery();
 
 	const { invalidateTeamTasksData } = useInvalidateTeamTasks();
@@ -34,6 +51,12 @@ export function useCreateTask() {
 		},
 		onSuccess: () => {
 			invalidateTeamTasksData();
+		},
+		// Overrides the query client's generic "Mutation Error" toast for this mutation only.
+		onError: (error) => {
+			toast.error(t('task.toastMessages.TASK_CREATION_FAILED'), {
+				description: getCreateTaskErrorDetail(error, t('errors.NETWORK_ISSUE'))
+			});
 		}
 	});
 

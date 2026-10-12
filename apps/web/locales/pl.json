@@ -1221,6 +1221,7 @@
 			"TASK_PLAN_FAILED": "Nie udało się zaplanować zadania. Spróbuj ponownie.",
 			"TASK_ASSIGNMENT_FAILED": "Nie udało się przypisać/cofnąć przypisania zadania. Spróbuj ponownie.",
 			"TASK_FAVORITE_FAILED": "Nie udało się zaktualizować ulubionych. Spróbuj ponownie.",
+			"TASK_CREATION_FAILED": "Nie udało się utworzyć zadania. Spróbuj ponownie.",
 			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "Element ulubiony został pomyślnie utworzony",
 			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "Element ulubiony został pomyślnie usunięty"
 		}
