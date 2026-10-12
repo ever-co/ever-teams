@@ -12,7 +12,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ planId:
 	}
 
 	const { $res, user, tenantId, access_token } = await authenticatedGuard(req, res);
-	if (!user) return $res('Unauthorized');
+	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
 	const body = (await req.json()) as unknown as IDailyPlanTasksUpdate;
 
@@ -35,7 +35,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ planId: 
 	}
 
 	const { $res, user, tenantId, access_token } = await authenticatedGuard(req, res);
-	if (!user) return $res('Unauthorized');
+	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
 	const body = (await req.json()) as unknown as IDailyPlanTasksUpdate;
 
