@@ -481,7 +481,12 @@
 		"GROUP_BY": "Group by",
 		"DATE": "Date",
 		"VIEW": "View",
-		"HOURS_ON_DATE": "{hours} hours on {date}"
+		"HOURS_ON_DATE": "{hours} hours on {date}",
+		"PREVIOUS_WEEK": "Previous week",
+		"NEXT_WEEK": "Next week",
+		"WEEKLY_REPORT_ERROR": "Weekly report unavailable",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "The time tracked during the selected week could not be loaded.",
+		"EXPORT_FAILED": "The file could not be created. Please try again."
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -801,6 +806,8 @@
 			"LOADING_WORKSPACE": "We are loading the workspace, hold on...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Redirecting to your workspace...",
 			"VERIFY_EMAIL_LOADING_TEXT": "We are verifying your email, hold on...",
+			"VERIFY_EMAIL_FAILED_TITLE": "We couldn't verify your email",
+			"VERIFY_EMAIL_FAILED_MESSAGE": "The link may be invalid, expired or already used, or the server could not be reached. Try the link again in a moment, or open the app to request a new one.",
 			"INPUT_TEAM_NAME": "Enter your team name",
 			"JOIN_EXISTING_TEAM": "Joining existing team?",
 			"CREATE_FIRST_TEAM": "Create your first team",
@@ -1084,6 +1091,7 @@
 			"LOADING": "Loading timesheet data...",
 			"NO_ENTRIES_FOUND": "No timesheet entries found",
 			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "You are about to reject the selected entry, would you like to proceed?",
+			"REJECTION_REASON": "Rejection reason",
 			"ALL_TASKS": "All Tasks",
 			"PENDING": "Pending",
 			"APPROVED": "Approved",
@@ -1110,12 +1118,19 @@
 		"START_TIMER": "Please, select or create a new task to start tracking the time or create a plan",
 		"ALREADY_TRACKING_MESSAGE": "You're already tracking time in another tab or device.",
 		"TASK_CLOSED": "Task is closed",
+		"PLAN_REQUIRED_TO_START": "Add this task to today's plan to start",
 		"STARTING_TIMER": "Starting timer...",
 		"TIMER_STARTED": "Timer started successfully",
 		"TIMER_START_FAILED": "Failed to start timer",
+		"STALE_TIMER_STOPPED_DESCRIPTION": "Your timer kept running after the app was closed, so it was stopped at the last moment the app was open ({stoppedAt}). If you worked after that, add the time manually.",
+		"TIMER_STOP_FAILED": "Failed to stop timer. Please try again.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer Stopped",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer Stopped due to Team Switch"
+		},
+		"TASK_SWITCH": {
+			"STOPPED_TIMER_TOAST_TITLE": "Timer Stopped",
+			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer stopped because your active task changed"
 		},
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Estimate"
@@ -1155,7 +1170,9 @@
 			"WARNING_PLAN_ESTIMATION": "Please correct planned work hours or  re-estimate task(s)"
 		},
 		"VISITED_SITES": "Visited sites",
-		"NO_VISITED_SITE_MESSAGE": "There are no visited sites"
+		"NO_VISITED_SITE_MESSAGE": "There are no visited sites",
+		"TRACKING_SOURCE_HINT": "Screenshots, apps and visited sites are captured by the desktop app or the agent, not when time is tracked in the browser.",
+		"DOWNLOAD_DESKTOP_APP": "Download the desktop app"
 	},
 	"task": {
 		"TITLE": "Task",
@@ -1221,12 +1238,14 @@
 			"TASK_PLAN_FAILED": "Failed to plan task. Please try again.",
 			"TASK_ASSIGNMENT_FAILED": "Failed to assign/unassign task. Please try again.",
 			"TASK_FAVORITE_FAILED": "Failed to update favorites. Please try again.",
+			"TASK_CREATION_FAILED": "Failed to create task. Please try again.",
 			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "Favorite item created successfully",
 			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "Favorite item deleted successfully"
 		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan for today",
+		"ADD_TO_TODAY_PLAN": "Add to today's plan",
 		"TASK_TIME": "task time",
 		"TOTAL_TODAY": "Total Today",
 		"PLAN_FOR_TOMORROW": "Plan for tomorrow",
@@ -1250,6 +1269,7 @@
 		"TOTAL_TASK": "Total tasks",
 		"DAILY_PLAN_DESCRIPTION": "'Daily Plan' helps organize the work process to achieve the best results",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "This task was not planned for Today's plan. Would you like to add to the plan?",
+		"TASK_ORDER_SAVE_FAILED": "The new task order could not be saved. Please try again.",
 		"planned_tasks_popup": {
 			"warning": {
 				"PLANNED_TIME": "Please, add planned time",

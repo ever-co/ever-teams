@@ -19,6 +19,8 @@ export type IGetTimerStatusParams = {
 	source?: ETimeLogSource;
 	tenantId: string;
 	organizationId: string;
+	todayStart?: string;
+	todayEnd?: string;
 };
 export type IUpdateTimerStatusParams = {
 	organizationId: string;

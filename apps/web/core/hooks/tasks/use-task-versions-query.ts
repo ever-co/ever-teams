@@ -17,14 +17,14 @@ import { useTaskMetadataBootstrapQuery } from './use-task-metadata-bootstrap-que
  * - `loadTaskVersionData` / `firstLoadTaskVersionData` — legacy backward compat
  */
 export function useTaskVersionsQuery() {
-	const { activeTeamId } = useInvalidateTaskVersions();
+	const { activeTeamId, organizationId, tenantId } = useInvalidateTaskVersions();
 	const { firstLoadData: firstLoadTaskVersionData } = useFirstLoad();
 	const taskMetadataQuery = useTaskMetadataBootstrapQuery();
 
 	const taskVersionsQuery = useQuery({
 		queryKey: queryKeys.taskVersions.byTeam(activeTeamId),
 		queryFn: async () => taskVersionService.getTaskVersions(),
-		enabled: !taskMetadataQuery.useBootstrap
+		enabled: !taskMetadataQuery.useBootstrap && Boolean(activeTeamId && organizationId && tenantId)
 	});
 
 	const taskVersionsData = taskMetadataQuery.useBootstrap

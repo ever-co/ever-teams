@@ -9,6 +9,7 @@ import { OnlineIcon } from '../icons';
 import { differenceInHours } from 'date-fns';
 import { toast } from 'sonner';
 import { TIMER_STATUS_CONSTANTS } from '@/core/constants/config/constants';
+import { getMemberPresence } from '@/core/lib/utils/team-members.utils';
 
 type Props = {
 	status: ETimerStatus;
@@ -96,6 +97,8 @@ export function getTimerStatusValue(
 
 		isRunning: (): boolean => Boolean(employee?.isOnline && employee?.isTrackingTime),
 
+		isTracking: (): boolean => Boolean(employee?.isTrackingTime) || memberTimerStatus === ETimerStatus.RUNNING,
+
 		isOnline: (): boolean => Boolean(employee?.isOnline),
 
 		isIdle: (): boolean => !totalTodayTasks?.length
@@ -111,6 +114,15 @@ export function getTimerStatusValue(
 
 	if (conditions.isRunning()) {
 		return ETimerStatus.RUNNING;
+	}
+
+	// Tracking and pause keep the badge they have today (a manager still sees "worked today, paused"); for anyone
+	// else a recent heartbeat wins. The public team payload carries no heartbeat, so a public view never shows
+	// presence. getMemberFilterStatus applies the same rule to the team filters and their counts.
+	if (!conditions.isTracking()) {
+		const presence = getMemberPresence(employee);
+		if (presence === 'online') return ETimerStatus.ONLINE;
+		if (presence === 'idle') return ETimerStatus.IDLE;
 	}
 
 	if (conditions.isOnline()) {

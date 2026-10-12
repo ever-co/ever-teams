@@ -10,13 +10,16 @@ import {
 	TTimeLog,
 	timeLogReportDailySchema,
 	TTimeLogReportDaily,
-	TGetTimerLogsDailyReportRequest
+	TGetTimerLogsDailyReportRequest,
+	timeLogReportWeeklySchema,
+	TTimeLogReportWeekly
 } from '@/core/types/schemas';
 import {
 	ITimeLogGroupedDailyReport,
 	ITimeLogReportDailyChart,
 	ITimeLogReportDailyChartProps,
-	ITimeLogReportDailyRequest
+	ITimeLogReportDailyRequest,
+	ITimeLogReportWeeklyRequest
 } from '@/core/types/interfaces/activity/activity-report';
 import { IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/timesheet';
 import { formatStartAndEndDateRange } from '@/core/lib/helpers/format-date-range';
@@ -375,6 +378,57 @@ class TimeLogService extends APIService {
 		return this.get<ITimeLogGroupedDailyReport[]>(`/timesheet/time-log/report/daily?${queryString}`, {
 			tenantId: this.tenantId
 		});
+	};
+
+	/**
+	 * Get the time tracked per employee and per day over a range.
+	 *
+	 * `startDate` and `endDate` are the exact instants bounding the range: the API lists the days
+	 * between them in `timeZone`, so day bounds shifted to UTC would move every column by one day
+	 * for users west of UTC.
+	 */
+	getTimeLogReportWeekly = async ({
+		startDate,
+		endDate,
+		timeZone = getDefaultTimezone(),
+		projectIds = [],
+		employeeIds = [],
+		teamIds = []
+	}: ITimeLogReportWeeklyRequest): Promise<TTimeLogReportWeekly[]> => {
+		if (!this.organizationId || !this.tenantId) {
+			throw new Error('Required parameters missing: organizationId and tenantId are required');
+		}
+
+		const query = qs.stringify({
+			organizationId: this.organizationId,
+			tenantId: this.tenantId,
+			startDate,
+			endDate,
+			timeZone,
+			projectIds,
+			employeeIds,
+			teamIds
+		});
+
+		try {
+			const response = await this.get<TTimeLogReportWeekly[]>(`/timesheet/time-log/report/weekly?${query}`, {
+				tenantId: this.tenantId
+			});
+
+			return validateApiResponse(
+				timeLogReportWeeklySchema.array(),
+				response.data,
+				'getTimeLogReportWeekly API response'
+			);
+		} catch (error) {
+			if (error instanceof ZodValidationError) {
+				this.logger.error('Weekly report validation failed:', {
+					message: error.message,
+					issues: error.issues
+				});
+			}
+			throw error;
+		}
 	};
 
 	private dateToEndOfDay(dateInput: Date | string) {

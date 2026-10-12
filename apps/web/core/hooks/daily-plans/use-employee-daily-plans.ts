@@ -6,6 +6,7 @@ import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { dailyPlanService } from '../../services/client/api';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
+import { orderTasksInPlans } from '@/core/lib/helpers/daily-plan-task-order';
 import { useDailyPlanCalculations } from './use-daily-plan-calculations';
 import { toast } from 'sonner';
 import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
@@ -77,6 +78,7 @@ export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEm
 			const res = await dailyPlanService.getDayPlansByEmployee({ employeeId: internalEmployeeId });
 			return res;
 		},
+		select: orderTasksInPlans,
 		enabled: enabled && !!internalEmployeeId,
 		gcTime: 1000 * 60 * 60 // 1 hour
 	});

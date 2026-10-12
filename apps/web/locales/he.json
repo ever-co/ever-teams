@@ -481,7 +481,12 @@
 		"GROUP_BY": "קבץ לפי",
 		"DATE": "תאריך",
 		"VIEW": "תצוגה",
-		"HOURS_ON_DATE": "{hours} שעות ב-{date}"
+		"HOURS_ON_DATE": "{hours} שעות ב-{date}",
+		"PREVIOUS_WEEK": "השבוע הקודם",
+		"NEXT_WEEK": "השבוע הבא",
+		"WEEKLY_REPORT_ERROR": "הדוח השבועי אינו זמין",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "לא ניתן היה לטעון את הזמן שנרשם בשבוע שנבחר.",
+		"EXPORT_FAILED": "לא ניתן היה ליצור את הקובץ. נסה שוב."
 	},
 	"hotkeys": {
 		"HELP": "עזרה",
@@ -801,6 +806,8 @@
 			"LOADING_WORKSPACE": "אנחנו טוענים את סביבת העבודה, רגע קטן...",
 			"REDIRECT_TO_WORSPACE_LOADING": "מכוון מחדש לחלל העבודה שלך",
 			"VERIFY_EMAIL_LOADING_TEXT": "אנחנו מאמתים את האימייל שלך, רגע קטן...",
+			"VERIFY_EMAIL_FAILED_TITLE": "לא הצלחנו לאמת את האימייל שלך",
+			"VERIFY_EMAIL_FAILED_MESSAGE": "ייתכן שהקישור אינו תקין, שפג תוקפו או שכבר נעשה בו שימוש, או שלא ניתן היה להתחבר לשרת. נסה שוב בעוד רגע או פתח את האפליקציה כדי לבקש קישור חדש.",
 			"INPUT_TEAM_NAME": "הכנס את שם הצוות שלך",
 			"JOIN_EXISTING_TEAM": "מצטרף לצוות קיים?",
 			"CREATE_FIRST_TEAM": "צור את הצוות הראשון שלך",
@@ -1084,6 +1091,7 @@
 			"LOADING": "טוען נתוני רשומת זמן...",
 			"NO_ENTRIES_FOUND": "לא נמצאו רשומות זמן",
 			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "אתה עומד לדחות את הרשומה הנבחרת, האם ברצונך להמשיך?",
+			"REJECTION_REASON": "סיבת הדחייה",
 			"ALL_TASKS": "כל המשימות",
 			"PENDING": "ממתין",
 			"APPROVED": "מאושר",
@@ -1110,12 +1118,19 @@
 		"START_TIMER": "אנא בחר או צור משימה חדשה כדי להתחיל לעקוב אחר הזמן או ליצור תוכנית",
 		"ALREADY_TRACKING_MESSAGE": "אתה כבר עוקב אחר הזמן בכרטיסייה או במכשיר אחר.",
 		"TASK_CLOSED": "המשימה סגורה",
+		"PLAN_REQUIRED_TO_START": "הוסף משימה זו לתוכנית של היום כדי להתחיל",
 		"STARTING_TIMER": "הפעלת טיימר...",
 		"TIMER_STARTED": "טיימר הופעל בהצלחה",
 		"TIMER_START_FAILED": "כישלון בהפעלת טיימר",
+		"STALE_TIMER_STOPPED_DESCRIPTION": "הטיימר המשיך לרוץ לאחר סגירת האפליקציה, ולכן הוא הופסק ברגע האחרון שבו האפליקציה הייתה פתוחה ({stoppedAt}). אם עבדת לאחר מכן, הוסף את הזמן באופן ידני.",
+		"TIMER_STOP_FAILED": "כישלון בעצירת טיימר. אנא נסה שוב.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "טיימר הופסק",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "הטיימר הופסק בגלל מעבר צוות"
+		},
+		"TASK_SWITCH": {
+			"STOPPED_TIMER_TOAST_TITLE": "טיימר הופסק",
+			"STOPPED_TIMER_TOAST_DESCRIPTION": "הטיימר הופסק בגלל החלפת המשימה הפעילה"
 		},
 		"ACTIVE": "פעיל",
 		"APPS": "אפליקציות",
@@ -1155,7 +1170,9 @@
 			"WARNING_PLAN_ESTIMATION": "נא לתקן את שעות העבודה המתוכננות או להעריך מחדש את המשימות"
 		},
 		"VISITED_SITES": "אתרים שביקרת בהם",
-		"NO_VISITED_SITE_MESSAGE": "אין אתרים שביקרת בהם"
+		"NO_VISITED_SITE_MESSAGE": "אין אתרים שביקרת בהם",
+		"TRACKING_SOURCE_HINT": "צילומי מסך, יישומים ואתרים שבוקרו נאספים על ידי אפליקציית שולחן העבודה או הסוכן, ולא בעת מעקב זמן בדפדפן.",
+		"DOWNLOAD_DESKTOP_APP": "הורדת אפליקציית שולחן העבודה"
 	},
 	"task": {
 		"TITLE": "משימה",
@@ -1221,12 +1238,14 @@
 			"TASK_PLAN_FAILED": "נכשל לתכנן את המשימה. אנא נסה שוב.",
 			"TASK_ASSIGNMENT_FAILED": "נכשל להקצות/להסיר את המשימה. אנא נסה שוב.",
 			"TASK_FAVORITE_FAILED": "נכשל לעדכן את המועדפים. אנא נסה שוב.",
+			"TASK_CREATION_FAILED": "נכשל ליצור את המשימה. אנא נסה שוב.",
 			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "פריט מועדף נוצר בהצלחה",
 			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "פריט מועדף נמחק בהצלחה"
 		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "תוכנית להיום",
+		"ADD_TO_TODAY_PLAN": "הוסף לתוכנית של היום",
 		"TASK_TIME": "זמן משימה",
 		"TOTAL_TODAY": "סך הכול היום",
 		"PLAN_FOR_TOMORROW": "תוכנית למחר",
@@ -1250,6 +1269,7 @@
 		"TOTAL_TASK": "סך כל המשימות",
 		"DAILY_PLAN_DESCRIPTION": "'תוכנית יומית' עוזרת לארגן את תהליך העבודה להשגת התוצאות הטובות ביותר",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "משימה זו לא תוכננה עבור התוכנית של היום. האם תרצה להוסיף לתוכנית?",
+		"TASK_ORDER_SAVE_FAILED": "לא ניתן היה לשמור את הסדר החדש של המשימות. אנא נסה שוב.",
 		"planned_tasks_popup": {
 			"warning": {
 				"PLANNED_TIME": "אנא הוסף זמן מתוכנן",

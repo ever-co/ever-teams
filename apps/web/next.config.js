@@ -1,3 +1,4 @@
+const path = require('node:path');
 const withNextIntl = require('next-intl/plugin')('./core/lib/i18n/request.ts');
 const { withSentryConfig } = require('@sentry/nextjs');
 const { parseImageHosts, serializeImageRemotePatterns } = require('./image-hosts');
@@ -53,59 +54,43 @@ const imageRemotePatterns = [
 
 const BUILD_OUTPUT_MODE = process.env.NEXT_BUILD_OUTPUT_TYPE;
 
-const sentryConfig = isSentryEnabled && {
-	sentry: {
-		// For all available options, see: https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
-
-		// Upload a larger set of source maps for prettier stack traces (increases build time)
-		widenClientFileUpload: true,
-
-		// Transpiles SDK to be compatible with IE11 (increases bundle size)
-		transpileClientSDK: true,
-
-		// Routes browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers (increases server load)
-		tunnelRoute: '/monitoring',
-
-		// Hides source maps from generated client bundles
-		hideSourceMaps: true,
-
-		// Automatically tree-shake Sentry logger statements to reduce bundle size
-		disableLogger: true
-	}
-};
+// Left unset, Next takes the directory of the highest lockfile above apps/web as the workspace root,
+// so a stray lockfile in a parent folder (e.g. the home directory) wins over the monorepo. The
+// standalone output must stay laid out as apps/web/server.js (Docker CMD, Procfile, server-web).
+const workspaceRoot = path.resolve(__dirname, '../..');
 // Next.js 16: eslint configuration in next.config.js is no longer supported
 // Use eslint.config.mjs for ESLint configuration instead
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	output: ['standalone', 'export'].includes(BUILD_OUTPUT_MODE) ? BUILD_OUTPUT_MODE : undefined,
+	outputFileTracingRoot: workspaceRoot,
 	// Next.js 16: Cache Components for explicit caching control
 	// Note: Disabled for now due to incompatibility with route segment config "runtime"
 	// cacheComponents: true,
 	experimental: {
-		optimizePackageImports: [
-			'geist',
-			'@ever-teams/constants',
-			'@ever-teams/hooks',
-			'@ever-teams/services',
-			'@ever-teams/tookit',
-			'@ever-teams/tookit-ui',
-			'@ever-teams/tookit-types',
-			'@ever-teams/types',
-			'@ever-teams/utils',
-			'@ever-teams/ui'
-		],
+		// No optimizePackageImports list: Next 16 already rewrites lodash imports per method and optimizes
+		// react-icons/* and the @heroicons/react sets used here by default, while @radix-ui/react-icons and
+		// country-flag-icons/react/1x1 keep every icon in a single module that it cannot split.
 		// Turbopack caching is enabled by default in Next.js 16
 	},
+	// One turbopack object: a second `turbopack:` key would silently replace the first.
+	turbopack: {
+		root: workspaceRoot,
+		resolveAlias: {
+			// Turbopack ignores excludeDefaultMomentLocales, so the dynamic require('./locale/' + name) in
+			// moment.js bundles all 137 locale files on every route. The min build has no locale folder next
+			// to it, and the app only uses moment's built-in English locale. moment-timezone requires
+			// 'moment' too, so it resolves to the same instance.
+			// moment.locale('xx') and import 'moment/locale/xx' do not reach this instance: before using a
+			// moment locale, remove this alias (or point it at moment/min/moment-with-locales.min.js).
+			moment: 'moment/min/moment.min.js'
+		}
+	},
 	transpilePackages: [
-		'geist',
+		// Their entry point is raw TypeScript (main: ./src/index.ts), so Next must compile them once imported.
 		'@ever-teams/constants',
-		'@ever-teams/hooks',
-		'@ever-teams/services',
 		'@ever-teams/types',
-		'@ever-teams/utils',
-		'@ever-teams/ui',
 		'@radix-ui/react-icons',
-		'react-icons',
 		'@heroicons/react'
 	],
 
@@ -142,8 +127,7 @@ const nextConfig = {
 		EVER_TEAMS_OPTIMIZED_IMAGE_HOSTS: serializeImageRemotePatterns(imageRemotePatterns),
 		ANALYZE: process.env.ANALYZE
 		// NEXT_PUBLIC_DEMO is automatically accessible (no need to add it here)
-	},
-	...sentryConfig
+	}
 };
 
 // Injected content via Sentry wizard below
@@ -156,14 +140,25 @@ const sentryWebpackPluginOptions = {
 
 	silent: true, // Suppresses all logs
 
-	dryRun: process.env.NODE_ENV !== 'production'
+	// Upload a larger set of source maps for prettier stack traces (increases build time)
+	widenClientFileUpload: true,
+
+	// Webpack builds only: Turbopack, the `next build` default, ignores this option.
+	webpack: {
+		treeshake: {
+			removeDebugLogging: true
+		}
+	}
+
+	// No tunnelRoute: proxy.ts runs before rewrites and its matcher catches the tunnel path, so next-intl would
+	// rewrite or redirect Sentry's requests before the SDK's rewrite applies, and a static export
+	// (NEXT_BUILD_OUTPUT_TYPE=export) cannot serve a tunnel at all. Exclude the path from that matcher first.
 
 	// Additional config options for the Sentry Webpack plugin.
 	// Keep in mind that https://github.com/getsentry/sentry-webpack-plugin#options.
 };
 
 // Make sure adding Sentry options is the last code to run before exporting
-module.exports =
-	process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN
-		? withSentryConfig(withNextIntl(withBundleAnalyzer(nextConfig)), sentryWebpackPluginOptions)
-		: withNextIntl(withBundleAnalyzer(nextConfig));
+module.exports = isSentryEnabled
+	? withSentryConfig(withNextIntl(withBundleAnalyzer(nextConfig)), sentryWebpackPluginOptions)
+	: withNextIntl(withBundleAnalyzer(nextConfig));

@@ -28,7 +28,7 @@ class TimeSlotService extends APIService {
 			};
 			const query = qs.stringify(queryParams, { arrayFormat: 'indices' });
 
-			const endpoint = `/timesheet/time-slot?${query}`;
+			const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/timesheet/time-slot?${query}` : `/timer/slot?${query}`;
 
 			const response = await this.delete<TDeleteTimeSlotsResponse>(endpoint);
 

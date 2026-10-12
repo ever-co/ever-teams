@@ -140,6 +140,8 @@ export const queryKeys = {
 	roles: {
 		all: ['roles'] as const,
 		byTenant: (tenantId: string | undefined | null) => ['roles', 'tenant', tenantId ?? null] as const,
+		teamAssignable: (tenantId: string | undefined | null) =>
+			['roles', 'team-assignable', tenantId ?? null] as const,
 		detail: (roleId: string | undefined | null) => ['roles', ...(roleId ? [roleId] : [])] as const,
 		permissions: (roleId: string | undefined | null) =>
 			['roles', ...(roleId ? [roleId] : []), 'permissions'] as const,
@@ -423,6 +425,7 @@ export const queryKeys = {
 			] as const,
 		dailyChart: (params: Record<string, any>) => ['activities', 'daily-activity-report-chart', params] as const,
 		daily: (params: Record<string, any>) => ['activities', 'daily-activity-report', params] as const,
+		weekly: (params: Record<string, any>) => ['activities', 'weekly-activity-report', params] as const,
 		statisticsCounts: (params: Record<string, any>) => ['activities', 'statistics-counts', params] as const,
 		activityReport: (params: Record<string, any>) => ['activities', 'activity-report', params] as const
 	},
@@ -678,17 +681,11 @@ export const queryKeys = {
 			teamId: string | undefined | null,
 			userId: string | undefined | null
 		) => ['timer', 'scope', tenantId ?? null, organizationId ?? null, teamId ?? null, userId ?? null] as const,
+		lastLog: (employeeId: string | undefined | null) => ['timer', 'last-log', employeeId ?? null] as const,
 		timeLimits: {
 			all: ['timer', 'time-limits'] as const,
 			byParams: (params: Record<string, any> | null) =>
 				['timer', 'time-limits', 'by-params', ...(params ? [params] : [])] as const
-		},
-		timeLogs: {
-			all: ['timer', 'time-logs'] as const,
-			byEmployee: (employeeId: string | undefined | null) =>
-				['timer', 'time-logs', 'by-employee', ...(employeeId ? [employeeId] : [])] as const,
-			byParams: (params: Record<string, any> | null) =>
-				['timer', 'time-logs', 'by-params', ...(params ? [params] : [])] as const
 		},
 		timeSlots: {
 			all: ['timer', 'time-slots'] as const,

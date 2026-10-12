@@ -6,6 +6,23 @@ import { ScreenshotPerHour, ScreenshotPerHourTeam } from './screenshoots-per-hou
 import { ScreenshootSkeleton } from './screenshoots-per-hour-skeleton';
 import { ProgressBar } from '@/core/components/common/progress-bar';
 import { SegmentedProgressBar } from '@/core/components/duplicated-components/_progress-bar';
+import { TrackingSourceEmptyState } from '../tracking-source-empty-state';
+import { TTimeSlot } from '@/core/types/schemas';
+
+type ScreenshotsListProps = Readonly<{ timeSlots: TTimeSlot[]; loading: boolean }>;
+
+/** Shown once loaded when no time slot carries a screenshot. */
+function NoScreenshotsState({ timeSlots, loading }: ScreenshotsListProps) {
+	const t = useTranslations();
+	// The browser timer also creates time slots, without any screenshot attached.
+	if (loading || timeSlots.some((slot) => slot.screenshots?.length)) return null;
+
+	return (
+		<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
+			<TrackingSourceEmptyState label={t('timer.NO_SCREENSHOOT')} />
+		</div>
+	);
+}
 
 export function ScreenshootTab() {
 	const { loading, timeSlots } = useTimeSlots();
@@ -40,6 +57,7 @@ export function ScreenshootTab() {
 				</div>
 			</div>
 
+			<NoScreenshotsState timeSlots={timeSlots} loading={loading} />
 			{groupDataByHour(timeSlots).map((hourData, i) => (
 				<ScreenshotPerHour
 					key={i}
@@ -48,22 +66,16 @@ export function ScreenshootTab() {
 					stoppedAt={hourData.stoppedAt}
 				/>
 			))}
-			{timeSlots.length < 1 && !loading && (
-				<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
-					<h3>{t('timer.NO_SCREENSHOOT')}</h3>
-				</div>
-			)}
 			{loading && timeSlots.length < 1 && <ScreenshootSkeleton />}
 		</div>
 	);
 }
 
-export function ScreenshootTeamTab() {
-	const { timeSlots, loading } = useTimeSlots(true);
-	const t = useTranslations();
-
+/** Hourly screenshots of a member's card, shared by the team tab and the optimized activity panel. */
+export function ScreenshotsTeamList({ timeSlots, loading }: ScreenshotsListProps) {
 	return (
 		<div>
+			<NoScreenshotsState timeSlots={timeSlots} loading={loading} />
 			{groupDataByHour(timeSlots).map((hourData, i) => (
 				<ScreenshotPerHourTeam
 					key={i}
@@ -72,12 +84,13 @@ export function ScreenshootTeamTab() {
 					stoppedAt={hourData.stoppedAt}
 				/>
 			))}
-			{timeSlots.length < 1 && !loading && (
-				<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
-					<h3>{t('timer.NO_SCREENSHOOT')}</h3>
-				</div>
-			)}
 			{loading && timeSlots.length < 1 && <ScreenshootSkeleton />}
 		</div>
 	);
+}
+
+export function ScreenshootTeamTab() {
+	const { timeSlots, loading } = useTimeSlots(true);
+
+	return <ScreenshotsTeamList timeSlots={timeSlots} loading={loading} />;
 }

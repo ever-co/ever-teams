@@ -1,4 +1,5 @@
 import { atom } from 'jotai';
+import { indexTaskTotalWorkedDurations } from '@/core/lib/utils/task.utils';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
 
@@ -15,7 +16,9 @@ export const isTeamMemberJustDeletedState = atom<boolean>(false);
 export const isTeamJustDeletedState = atom<boolean>(false);
 
 export const isOTRefreshingState = atom<boolean>(false);
-export const OTRefreshIntervalState = atom<number>();
+
+// Number of mounted team views. While positive, the shell refreshes the team detail faster.
+export const teamPresenceViewCountState = atom<number>(0);
 
 export const activeTeamState = atom<
 	TOrganizationTeam | null,
@@ -72,3 +75,8 @@ export const activeTeamManagersState = atom<TOrganizationTeamEmployee[]>((get) =
 		) || []
 	);
 });
+
+/** Built once per team update so components rendered per task only do a map lookup. */
+export const activeTeamWorkedDurationByTaskState = atom((get) =>
+	indexTaskTotalWorkedDurations(get(activeTeamState)?.members)
+);

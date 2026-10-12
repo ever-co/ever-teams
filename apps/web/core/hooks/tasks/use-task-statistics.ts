@@ -14,12 +14,10 @@ import { useFirstLoad } from '../common/use-first-load';
 import debounce from 'lodash/debounce';
 import { useSyncRef } from '../common/use-sync-ref';
 import { statisticsService } from '@/core/services/client/api/timesheets/statistic.service';
-import { useRefreshIntervalV2 } from '../common';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '../queries/user-user.query';
-import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
-import { getTaskTotalWorkedDuration } from '@/core/lib/utils/task.utils';
+import { getTaskEstimation, getTaskTotalWorkedDuration } from '@/core/lib/utils/task.utils';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
@@ -94,6 +92,12 @@ export function useTaskStatistics(addSeconds = 0, options: UseTaskStatisticsOpti
 			statisticsService
 				.tasksTimesheetStatistics({
 					employeeId,
+					// Another member's profile: name the team, so a team manager gets that member's figures and not
+					// their own (Gauzy falls back to the caller when no team is named)
+					teamId:
+						employeeId && employeeId !== user?.employee?.id
+							? (scope?.teamId ?? activeTeam?.id ?? undefined)
+							: undefined,
 					...(scoped ? { options: { scope: scope! } } : {})
 				})
 				.then(({ data }) => {
@@ -104,7 +108,7 @@ export function useTaskStatistics(addSeconds = 0, options: UseTaskStatisticsOpti
 					});
 				});
 		},
-		[isCurrentScope, scope, scoped, setStatTasks, user?.employee?.tenantId]
+		[isCurrentScope, scope, scoped, setStatTasks, user?.employee?.tenantId, user?.employee?.id, activeTeam?.id]
 	);
 	const getAllTasksStatsData = useCallback(() => {
 		statisticsService.allTaskTimesheetStatistics().then((data) => {
@@ -247,33 +251,7 @@ export function useTaskStatistics(addSeconds = 0, options: UseTaskStatisticsOpti
 		}
 	}, [activeTeamTask?.id, enabled, firstLoad, isCurrentScope, scoped, setStatActiveTask]);
 
-	/**
-	 * Get task estimation percentage.
-	 *
-	 * @param timeSheet - Optional timesheet stat (used for daily estimation fallback)
-	 * @param _task - The task to estimate progress for
-	 * @param addSeconds - Total worked seconds (callers provide totalWorkedTasksTimer + localTimerSeconds)
-	 * @param estimate - Override for the task estimate (in seconds)
-	 * @returns Progress percentage (0-100)
-	 */
-	const getEstimation = useCallback(
-		(timeSheet: Nullable<TTaskStatistic>, _task: Nullable<TTask>, addSeconds: number, estimate = 0) => {
-			const totalEstimate = estimate || _task?.estimate || 0;
-
-			// Return 0 (neutral state) when there's no estimation data
-			if (totalEstimate === 0) {
-				return 0;
-			}
-
-			// Use timeSheet?.duration as base only when provided (daily estimation).
-			// Do NOT add _task?.totalWorkedTime — callers already include total worked time in addSeconds,
-			// which would cause double-counting and inflate the progress bar.
-			const baseWorkedTime = timeSheet?.duration || 0;
-
-			return Math.min(Math.floor(((baseWorkedTime + addSeconds) * 100) / totalEstimate), 100);
-		},
-		[]
-	);
+	const getEstimation = getTaskEstimation;
 
 	const activeTaskEstimation = useMemo(() => {
 		const totalWorkedTasksTimer = getTaskTotalWorkedDuration(activeTeam?.members, activeTeamTask?.id);
@@ -307,10 +285,4 @@ export function useTaskStatistics(addSeconds = 0, options: UseTaskStatisticsOpti
 		getEstimation,
 		allTaskStatistics
 	};
-}
-
-export function useAllTaskStatistics() {
-	const { getAllTasksStatsData } = useTaskStatistics();
-
-	useRefreshIntervalV2(getAllTasksStatsData, 5000);
 }

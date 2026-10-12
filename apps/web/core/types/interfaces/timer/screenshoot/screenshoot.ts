@@ -35,4 +35,6 @@ export interface IScreenShootItem {
 	isTeamPage?: boolean;
 	onShow: () => any;
 	viewMode?: 'default' | 'screenShot-only';
+	/** The employee the slot belongs to, when the caller knows it (e.g. a task activity record) */
+	ownerEmployeeId?: string;
 }

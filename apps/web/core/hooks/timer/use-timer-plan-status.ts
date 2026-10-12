@@ -1,7 +1,6 @@
 'use client';
 
 import { useAtomValue } from 'jotai';
-import moment from 'moment';
 import { useMemo } from 'react';
 
 import { activeTeamState, activeTeamTaskState, timerStatusState } from '@/core/stores';
@@ -10,6 +9,7 @@ import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TOrganizationTeam } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
+import { findTimerPlans } from '@/core/lib/helpers/daily-plan-day';
 import { canRunTimerForState } from '@/core/lib/helpers/timer-policy';
 
 import { useAuthenticateUser } from '../auth';
@@ -36,7 +36,6 @@ export interface UseTimerPlanStatusReturn {
 	timerStatus: ITimerStatus | null;
 }
 
-
 /**
  * Lightweight read-only hook for plan-related timer state.
  *
@@ -60,23 +59,7 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 
 	// ==================== DERIVED STATE ====================
 
-	const hasPlan = useMemo(
-		() =>
-			myDailyPlans?.items.find(
-				(plan: TDailyPlan) =>
-					moment(plan.date).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD') &&
-					plan.tasks &&
-					plan.tasks?.length > 0
-			),
-		[myDailyPlans?.items]
-	);
-
-	const hasPlanForTomorrow = useMemo(() => {
-		const tomorrow = moment().add(1, 'days');
-		return myDailyPlans?.items.find(
-			(plan: TDailyPlan) => moment(plan.date).format('YYYY-MM-DD') === tomorrow.format('YYYY-MM-DD')
-		);
-	}, [myDailyPlans?.items]);
+	const { hasPlan, hasPlanForTomorrow } = useMemo(() => findTimerPlans(myDailyPlans?.items), [myDailyPlans?.items]);
 
 	const requirePlan = activeTeam?.requirePlanToTrack;
 

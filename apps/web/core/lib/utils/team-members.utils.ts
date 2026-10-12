@@ -1,5 +1,7 @@
+import isEqual from 'lodash/isEqual';
 import { TOrganizationTeamEmployee, TOrganizationTeam, TUser } from '@/core/types/schemas';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
+import { EMPLOYEE_PRESENCE_CONSTANTS, EMPLOYEE_PRESENCE_ENABLED } from '@/core/constants/config/constants';
 
 // Constants for team member utilities
 export const TEAM_MEMBER_CONSTANTS = {
@@ -18,6 +20,62 @@ export const TEAM_MEMBER_CONSTANTS = {
 
 // Filter types for better type safety
 export type TeamMemberFilterType = 'all' | 'idle' | 'online' | 'running' | 'pause' | 'suspended';
+
+export type TMemberPresence = 'online' | 'idle' | 'offline';
+
+// How far the server clock is ahead of this browser. `lastSeenAt` is stamped by the server, so its
+// age is measured on the server clock. It stays 0 until a heartbeat answer gives the server time.
+let serverClockOffsetMs = 0;
+
+/** Records the server clock from a time the server just stamped, such as the heartbeat answer. */
+export const syncServerClock = (serverTime?: string | Date | null): void => {
+	if (!serverTime) return;
+
+	const offset = new Date(serverTime).getTime() - Date.now();
+	if (!Number.isNaN(offset)) serverClockOffsetMs = offset;
+};
+
+/**
+ * Presence from the member's last heartbeat: online when it is recent and not idle, idle when it is
+ * recent and idle, offline otherwise, including members that never sent one.
+ */
+export const getMemberPresence = (
+	employee?: { lastSeenAt?: string | Date | null; isIdle?: boolean | null } | null
+): TMemberPresence => {
+	// Presence turned off for this deployment: every member reads as before presence existed
+	if (!EMPLOYEE_PRESENCE_ENABLED.value) return 'offline';
+	if (!employee?.lastSeenAt) return 'offline';
+
+	const age = Date.now() + serverClockOffsetMs - new Date(employee.lastSeenAt).getTime();
+	if (Number.isNaN(age) || age >= EMPLOYEE_PRESENCE_CONSTANTS.ONLINE_WINDOW_MS) return 'offline';
+
+	return employee.isIdle ? 'idle' : 'online';
+};
+
+/**
+ * The status the team filters and their counts go by: Gauzy's timerStatus, except that a member who is not
+ * tracking, paused or suspended and sent a recent heartbeat is online, as the status badge shows it
+ * (getTimerStatusValue).
+ */
+export const getMemberFilterStatus = (member: TOrganizationTeamEmployee): string | undefined => {
+	const tracking = !!member.employee?.isTrackingTime || member.timerStatus === ETimerStatus.RUNNING;
+	if (
+		!tracking &&
+		member.timerStatus !== ETimerStatus.PAUSE &&
+		member.timerStatus !== ETimerStatus.SUSPENDED &&
+		getMemberPresence(member.employee) === 'online'
+	) {
+		return ETimerStatus.ONLINE;
+	}
+	return member.timerStatus ?? undefined;
+};
+
+/**
+ * The part of a team's sync signature that follows its members' presence. It changes on every
+ * heartbeat, and also when a heartbeat gets too old although the data itself did not change.
+ */
+export const getMembersPresenceSignature = (members?: TOrganizationTeamEmployee[] | null): string =>
+	members?.map((m) => `${m.employee?.lastSeenAt ?? ''}:${getMemberPresence(m.employee)}`).join(',') || '';
 
 /**
  * Creates a placeholder team member object for users not yet in the team
@@ -127,20 +185,21 @@ export const sortByWorkStatus = (a: TOrganizationTeamEmployee, b: TOrganizationT
  */
 export const createFilterCondition = (activeFilter: TeamMemberFilterType, currentUserId?: string) => {
 	return (member: TOrganizationTeamEmployee): boolean => {
+		const status = getMemberFilterStatus(member);
 		switch (activeFilter) {
 			case 'idle':
 				// Include users with no timer status (new users) or idle status
-				return !member.timerStatus || member.timerStatus === ETimerStatus.IDLE;
+				return !status || status === ETimerStatus.IDLE;
 			case 'online':
 				// Current user should ALWAYS appear in ONLINE filter when authenticated
 				// regardless of their timer status (they're online by definition)
-				return member.timerStatus === ETimerStatus.ONLINE || member.employee?.user?.id === currentUserId;
+				return status === ETimerStatus.ONLINE || member.employee?.user?.id === currentUserId;
 			case 'running':
-				return member.timerStatus === ETimerStatus.RUNNING;
+				return status === ETimerStatus.RUNNING;
 			case 'pause':
-				return member.timerStatus === ETimerStatus.PAUSE;
+				return status === ETimerStatus.PAUSE;
 			default:
-				return member.timerStatus === activeFilter;
+				return status === activeFilter;
 		}
 	};
 };
@@ -192,6 +251,8 @@ export const filterAndPositionTeamMembers = (
  * Merges new members data with existing members while preserving their order.
  * This prevents visual glitches when API returns members in a different order
  * (e.g., during role changes where the API may reorder the response).
+ * A member whose data did not change keeps its object, and the input array is returned
+ * as is when nothing changed, so a refetch only replaces the members whose data changed.
  *
  * @param existingMembers - Current members in the UI (order to preserve)
  * @param newMembers - New members data from API (data to use)
@@ -207,14 +268,26 @@ export const mergePreservingOrder = (
 	// Update existing members preserving their order, but only keep those still in new list
 	const updatedExisting = existingMembers
 		.filter((m) => newMembersMap.has(m.id)) // Only keep members that still exist
-		.map((m) => ({
-			...m,
-			...newMembersMap.get(m.id) // Update with new data (including role changes)
-		})) as TOrganizationTeamEmployee[];
+		.map((m) => {
+			const merged = {
+				...m,
+				...newMembersMap.get(m.id) // Update with new data (including role changes)
+			} as TOrganizationTeamEmployee;
+			// Deep on purpose: live fields such as employee.isOnline sit one level down
+			return isEqual(merged, m) ? m : merged;
+		});
 
 	// Find truly new members that weren't in the existing list
 	const existingMemberIds = new Set(existingMembers.map((m) => m.id));
 	const trulyNewMembers = newMembers.filter((m) => !existingMemberIds.has(m.id));
+
+	if (
+		trulyNewMembers.length === 0 &&
+		updatedExisting.length === existingMembers.length &&
+		updatedExisting.every((m, index) => m === existingMembers[index])
+	) {
+		return existingMembers;
+	}
 
 	// Return existing members (updated) + new members at the end
 	return [...updatedExisting, ...trulyNewMembers];

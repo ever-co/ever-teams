@@ -20,6 +20,7 @@ import DailyPlanTasksTableView from './table-view';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
+import { useDailyPlanTaskOrder } from '@/core/hooks/daily-plans/use-daily-plan-task-order';
 
 export function PastTasks({
 	user,
@@ -43,7 +44,7 @@ export function PastTasks({
 
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 	// Use a safe default instead of direct localStorage access
-	const { date } = useDateRange('Past Tasks');
+	const { date } = useDateRange('Past Tasks', employeeId);
 
 	// Use useMemo instead of useEffect to prevent infinite re-render loop
 	// The previous useEffect was modifying pastPlans while depending on pastPlans, causing infinite loop
@@ -62,21 +63,18 @@ export function PastTasks({
 
 		return filteredData;
 	}, [date, employeePastPlans, user, filterByEmployee, filteredTaskIds]);
+	const { dragPlans, onDragEnd } = useDailyPlanTaskOrder(filteredPastPlans);
 	if (!filteredPastPlans) return null;
 	return (
 		<div className="flex flex-col gap-6">
-			{filteredPastPlans?.length > 0 ? (
-				<DragDropContext
-					onDragEnd={() => {
-						/* TODO: Implement drag and drop for filtered plans */
-					}}
-				>
+			{dragPlans.length > 0 ? (
+				<DragDropContext onDragEnd={onDragEnd}>
 					<Accordion
 						type="multiple"
 						className="text-sm"
 						defaultValue={[yesterdayDate.toISOString().split('T')[0]]}
 					>
-						{filteredPastPlans?.map((plan) => (
+						{dragPlans.map((plan) => (
 							<AccordionItem
 								value={plan.date.toString().split('T')[0]}
 								key={plan.id}

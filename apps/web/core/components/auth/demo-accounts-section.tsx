@@ -1,7 +1,7 @@
 'use client';
 
 import { IS_DEMO_MODE, DEMO_ACCOUNTS_CONFIG } from '@/core/constants/config/constants';
-import { Button } from '@/core/components';
+import { Button } from '@/core/components/common/button';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
 import { DottedLanguageObjectStringPaths } from 'next-intl';

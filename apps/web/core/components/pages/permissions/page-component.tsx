@@ -33,7 +33,7 @@ const Permissions = () => {
 	const { rolePermissionsFormated } = useRolePermissionsQuery(selectedRoleId);
 	const { updateRolePermission } = useUpdateRolePermission(selectedRoleId);
 	const { isTeamManager } = useIsMemberManager(user);
-	const { roles } = useRolesQuery();
+	const { roles } = useRolesQuery({ adminOnly: true });
 
 	// Memoized values
 	const canAccessPermissions = useMemo(() => {

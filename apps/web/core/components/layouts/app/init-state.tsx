@@ -6,13 +6,28 @@ import { useIsomorphicLayoutEffect } from '@/core/hooks/common/use-isomorphic-la
 import { useOrganizationTeamsQuery, useTeamTasksQuery } from '@/core/hooks/organizations';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useAutoAssignTask, useTaskStatistics } from '@/core/hooks/tasks';
-import { DISABLE_AUTO_REFRESH } from '@/core/constants/config/constants';
+import { useStaleTimerGuard, useTimerRunningPastMidnight } from '@/core/hooks/timer/use-stale-timer-guard';
+import { DISABLE_AUTO_REFRESH, TEAM_PRESENCE_REFRESH_INTERVAL } from '@/core/constants/config/constants';
+import { teamPresenceViewCountState } from '@/core/stores/teams/organization-team';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
 import { useEffect, useMemo, useRef } from 'react';
 import { reownActiveQueriesAfterTokenRefresh } from './token-refresh-query-ownership';
 import { getShellCriticalQueryKeys, useScopeTransitionGuard } from './use-scope-transition-guard';
 
 const SHELL_REFRESH_INTERVAL = 60_000;
+
+// Team detail cadence: faster with a refresh on tab return while a team view is mounted, off without auto refresh.
+function getTeamDetailRefresh(
+	autoRefreshEnabled: boolean,
+	teamPresenceViewActive: boolean
+): { interval: number | false; onWindowFocus: boolean } {
+	if (!autoRefreshEnabled) return { interval: false, onWindowFocus: false };
+	return {
+		interval: teamPresenceViewActive ? TEAM_PRESENCE_REFRESH_INTERVAL : SHELL_REFRESH_INTERVAL,
+		onWindowFocus: teamPresenceViewActive
+	};
+}
 
 export function AppState() {
 	const { data: user } = useUserQuery();
@@ -35,6 +50,7 @@ export function InitState() {
 		currentWorkspace
 	);
 	const autoRefreshEnabled = !DISABLE_AUTO_REFRESH.value;
+	const shellRefreshInterval = autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false;
 	const baseScope = useMemo(
 		() => ({
 			tenantId,
@@ -44,19 +60,19 @@ export function InitState() {
 		}),
 		[accessToken, organizationId, tenantId, user?.id]
 	);
+	const teamPresenceViewActive = useAtomValue(teamPresenceViewCountState) > 0;
+	const teamDetailRefresh = getTeamDetailRefresh(autoRefreshEnabled, teamPresenceViewActive);
 	const teamOwner = useOrganizationTeamsQuery({
 		enabled: workspaceReady,
 		scope: baseScope,
-		refetchInterval: autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false,
-		detailRefetchInterval: autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false
+		refetchInterval: shellRefreshInterval,
+		detailRefetchInterval: teamDetailRefresh.interval,
+		detailRefetchOnWindowFocus: teamDetailRefresh.onWindowFocus
 	});
 	const { activeTeam, teams } = teamOwner;
-	const teamReady = !!(
-		workspaceReady &&
-		teamOwner.organizationTeamsSuccess &&
-		teamOwner.organizationTeamSuccess &&
-		activeTeam?.id
-	);
+	// The list already resolves the team with its projects and plan policy. The detail only adds member work
+	// statistics, so team-scoped reads start alongside it instead of one round trip after it.
+	const teamReady = !!(workspaceReady && teamOwner.organizationTeamsSuccess && activeTeam?.id);
 	const projectId = activeTeam?.projects?.[0]?.id ?? null;
 	const teamScope = useMemo(
 		() => ({
@@ -68,13 +84,13 @@ export function InitState() {
 	const tasksOwner = useTeamTasksQuery({
 		enabled: teamReady,
 		scope: teamScope,
-		refetchInterval: autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false
+		refetchInterval: shellRefreshInterval
 	});
 	const timerOwner = useTimer({
 		enabled: teamReady,
 		scope: teamScope,
 		statusEnabled: teamReady,
-		statusRefetchInterval: autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false,
+		statusRefetchInterval: shellRefreshInterval,
 		plansEnabled: Boolean(activeTeam?.requirePlanToTrack),
 		plansRefetchInterval: autoRefreshEnabled ? 5 * SHELL_REFRESH_INTERVAL : false,
 		manageRuntime: false
@@ -88,13 +104,22 @@ export function InitState() {
 		}
 	}, [teamReady, timerOwner.firstLoadTimerData]);
 
-	// The single full timer owner supplies both callbacks and the unfiltered running state.
+	const staleTimerChecked = useStaleTimerGuard(user?.employee, workspaceReady);
+	const timerRunning = useTimerRunningPastMidnight(
+		user?.employee,
+		timerOwner.rawTimerRunning,
+		teamReady && staleTimerChecked && timerOwner.statusResolved
+	);
+
+	// The single full timer owner supplies both callbacks and the unfiltered running state. While the own timer
+	// runs, the active team detail is still refreshed every 5 s (the team presence cadence above covers the rest).
 	useTimerPolling(autoRefreshEnabled && teamReady && timerOwner.rawTimerRunning);
+	// The heartbeat is what proves a TEAMS timer is still open, so it runs even with auto refresh disabled.
 	useEffect(() => {
-		if (!autoRefreshEnabled || !teamReady || !timerOwner.rawTimerRunning) return;
+		if (!teamReady || !staleTimerChecked || !timerRunning) return;
 		const interval = window.setInterval(() => timerOwner.syncTimer(), SHELL_REFRESH_INTERVAL);
 		return () => window.clearInterval(interval);
-	}, [autoRefreshEnabled, teamReady, timerOwner.rawTimerRunning, timerOwner.syncTimer]);
+	}, [staleTimerChecked, teamReady, timerRunning, timerOwner.syncTimer]);
 
 	const activeTask = tasksOwner.activeTeamTask;
 	useAutoAssignTask({ enabled: teamReady && timerOwner.statusResolved && !!activeTask });
@@ -174,7 +199,12 @@ export function InitState() {
 	const plansReady = !activeTeam?.requirePlanToTrack || timerOwner.plansResolved;
 	const criticalReady =
 		workspaceReady &&
-		(noTeams || (teamReady && tasksOwner.querySuccess && timerOwner.statusResolved && plansReady));
+		(noTeams ||
+			(teamReady &&
+				teamOwner.organizationTeamSuccess &&
+				tasksOwner.querySuccess &&
+				timerOwner.statusResolved &&
+				plansReady));
 	const readyScope = `${tenantId ?? ''}:${organizationId ?? ''}:${activeTeam?.id ?? 'no-team'}`;
 	const markedReadyScopeRef = useRef<string | null>(null);
 	const bootstrapMarkedRef = useRef(false);

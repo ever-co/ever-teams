@@ -4,6 +4,10 @@ import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { useUpdateTimesheet } from '@/core/hooks/timesheet/use-update-timesheet';
 import { useDeleteTimesheet } from '@/core/hooks/timesheet/use-delete-timesheet';
+import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
+import { useModal } from '@/core/hooks';
+import { RejectSelectedModal } from '../../features/timesheet/reject-selected-modal';
+import { AlertConfirmationModal } from '@/core/components/common/alert-dialog-confirmation';
 
 type ActionButtonProps = {
 	label: string;
@@ -21,8 +25,8 @@ const ActionButton = ({ label, onClick }: ActionButtonProps) => (
 
 interface SelectionBarProps {
 	selectedCount: number;
-	onApprove: () => void;
-	onReject: () => void;
+	onApprove?: () => void;
+	onReject?: () => void;
 	onDelete: () => void;
 	onClearSelection: () => void;
 }
@@ -38,8 +42,12 @@ export const SelectionBar = ({ selectedCount, onApprove, onReject, onDelete, onC
 					</div>
 					<span>selected</span>
 				</div>
-				<ActionButton label={t('pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED')} onClick={onApprove} />
-				<ActionButton label={t('pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED')} onClick={onReject} />
+				{onApprove && (
+					<ActionButton label={t('pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED')} onClick={onApprove} />
+				)}
+				{onReject && (
+					<ActionButton label={t('pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED')} onClick={onReject} />
+				)}
 				<ActionButton label={t('pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED')} onClick={onDelete} />
 			</div>
 			<button
@@ -70,8 +78,14 @@ interface SelectedTimesheetProps {
  * @returns {React.ReactElement} - The rendered timesheet component.
  */
 export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({ selectTimesheetId, setSelectTimesheetId }) => {
+	const t = useTranslations();
 	const { updateTimesheetStatus } = useUpdateTimesheet();
-	const { deleteTaskTimesheet } = useDeleteTimesheet();
+	const { deleteTaskTimesheet, loadingDeleteTimesheet } = useDeleteTimesheet();
+	// Deleting time logs cannot be undone: ask first, as the list view does
+	const { isOpen: isDeleteOpen, openModal: openDeleteConfirm, closeModal: closeDeleteConfirm } = useModal();
+	// Approve and reject call PUT /timesheet/status, which requires this permission
+	const canUpdateTimeSheetStatus = useMyRolePermissionsQuery().myPermissions.includes('CAN_APPROVE_TIMESHEET');
+	const { isOpen: isRejectModalOpen, openModal: openRejectModal, closeModal: closeRejectModal } = useModal();
 
 	const getSelectedIds = useCallback(
 		() => selectTimesheetId.map((select) => select.timesheet?.id).filter((id): id is string => Boolean(id)),
@@ -90,36 +104,49 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({ selectTime
 		}
 	}, [getSelectedIds, updateTimesheetStatus, setSelectTimesheetId]);
 
-	const handleReject = useCallback(async () => {
-		try {
-			await updateTimesheetStatus({
-				status: ETimesheetStatus.DENIED,
-				ids: getSelectedIds()
-			});
-			setSelectTimesheetId([]);
-		} catch (error) {
-			console.error(error);
-		}
-	}, [getSelectedIds, updateTimesheetStatus, setSelectTimesheetId]);
-
 	const handleDelete = useCallback(async () => {
 		try {
 			await deleteTaskTimesheet({
-				logIds: getSelectedIds()
+				// Delete takes time-log ids, not the timesheet ids getSelectedIds returns for approve and reject
+				logIds: selectTimesheetId.map((select) => select.id)
 			});
 			setSelectTimesheetId([]);
 		} catch (error) {
 			console.error(error);
 		}
-	}, [getSelectedIds, deleteTaskTimesheet, setSelectTimesheetId]);
+	}, [selectTimesheetId, deleteTaskTimesheet, setSelectTimesheetId]);
 
 	return (
-		<SelectionBar
-			selectedCount={selectTimesheetId.length}
-			onApprove={handleApprove}
-			onReject={handleReject}
-			onDelete={handleDelete}
-			onClearSelection={() => setSelectTimesheetId([])}
-		/>
+		<>
+			<AlertConfirmationModal
+				title={t('common.DELETE_CONFIRMATION')}
+				description={t('common.IRREVERSIBLE_ACTION_WARNING')}
+				open={isDeleteOpen}
+				close={closeDeleteConfirm}
+				loading={loadingDeleteTimesheet}
+				countID={selectTimesheetId.length}
+				onAction={async () => {
+					await handleDelete();
+					closeDeleteConfirm();
+				}}
+			/>
+			{canUpdateTimeSheetStatus && (
+				<RejectSelectedModal
+					selectTimesheetId={getSelectedIds()}
+					onReject={() => setSelectTimesheetId([])}
+					maxReasonLength={120}
+					minReasonLength={0}
+					closeModal={closeRejectModal}
+					isOpen={isRejectModalOpen}
+				/>
+			)}
+			<SelectionBar
+				selectedCount={selectTimesheetId.length}
+				onApprove={canUpdateTimeSheetStatus ? handleApprove : undefined}
+				onReject={canUpdateTimeSheetStatus ? openRejectModal : undefined}
+				onDelete={openDeleteConfirm}
+				onClearSelection={() => setSelectTimesheetId([])}
+			/>
+		</>
 	);
 };

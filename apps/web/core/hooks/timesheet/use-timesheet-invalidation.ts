@@ -5,10 +5,11 @@ import { useCallback } from 'react';
 import { queryKeys } from '@/core/query/keys';
 
 /**
- * Shared cache invalidation logic for timesheet mutations.
- * Uses broad prefix invalidation (`queryKeys.timesheet.all`) to ensure
- * all timesheet-related queries (logs, dailyReport, timerLogsDailyReport, timeLog)
- * are invalidated consistently across all operations.
+ * Shared cache invalidation logic for timesheet and time log mutations.
+ * Uses broad prefix invalidation on both namespaces that read time logs:
+ * `queryKeys.timesheet.all` (logs, dailyReport, timerLogsDailyReport, timeLog)
+ * and `queryKeys.timeLogs.all` (time logs and their daily report, e.g. the daily plan worked time),
+ * so every operation refreshes the same views.
  *
  * @returns Object containing the invalidation function
  */
@@ -18,6 +19,9 @@ export function useTimesheetInvalidation() {
 	const invalidateTimesheetData = useCallback(() => {
 		queryClient.invalidateQueries({
 			queryKey: queryKeys.timesheet.all
+		});
+		queryClient.invalidateQueries({
+			queryKey: queryKeys.timeLogs.all
 		});
 	}, [queryClient]);
 

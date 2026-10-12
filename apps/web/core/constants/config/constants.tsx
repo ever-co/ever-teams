@@ -285,6 +285,12 @@ export const CHATWOOT_API_KEY = getNextPublicEnv(
 	process.env.NEXT_PUBLIC_CHATWOOT_API_KEY
 );
 
+// Desktop app download link of the screenshots, apps and visited sites empty states; unset hides it.
+// `??`: a blank runtime value hides the link instead of reviving a URL baked in at build time.
+export const DESKTOP_APP_DOWNLOAD_URL = blankToUndefined(
+	readRuntimeEnv('NEXT_PUBLIC_DESKTOP_APP_DOWNLOAD_URL') ?? process.env.NEXT_PUBLIC_DESKTOP_APP_DOWNLOAD_URL
+);
+
 export const SMTP_FROM_ADDRESS = process.env.SMTP_FROM_ADDRESS || '';
 export const SMTP_HOST = process.env.SMTP_HOST || '';
 export const SMTP_PORT = process.env.SMTP_PORT || '';
@@ -701,6 +707,12 @@ export const EVER_ID_TEAMS_AUTO_PROVISION = blankToUndefined(process.env.EVER_ID
 
 export const developmentAuthSecret = 'DEFAULT_VALUE_OF_SECRET_FOR_DEVELOPMENT';
 export const isDevelopment = process.env.NODE_ENV === 'development';
+/**
+ * The secret next-auth and the Ever ID hand-off use; only `next dev` has a built-in one. A blank AUTH_SECRET counts
+ * as unset, a set one is used as written.
+ */
+export const authSecret =
+	(AUTH_SECRET?.trim() ? AUTH_SECRET : undefined) ?? (isDevelopment ? developmentAuthSecret : undefined);
 
 // Add manual timer reason
 
@@ -714,8 +726,24 @@ export const manualTimeReasons: EManualTimeReasons[] = [
 ];
 export const STOP_TIMER_DEBOUNCE_MS = 500; // 0.5 seconds
 export const STOP_TIMER_EFFECT_DEBOUNCE_MS = 2000; // 2 seconds
-export const REFRESH_INTERVAL = 5000; // 5 seconds
+// Matches Gauzy BACKGROUND_SYNC_INTERVAL, used by its web and desktop apps to resync a timer changed elsewhere.
+export const TEAM_PRESENCE_REFRESH_INTERVAL = 25_000; // 25 seconds
 export const SYNC_TIMER_INTERVAL = 60000; // 1 minute
+// Gauzy's own cut-off for a timer without time slots (calculateStoppedAt, inactivityTimeLimit default).
+export const STALE_TIMER_THRESHOLD_MS = 10 * 60 * 1000; // 10 minutes
+/**
+ * How long a running Ever Teams timer may go without a heartbeat before the app stops it at its last
+ * heartbeat (a tab closed without stopping it). NEXT_PUBLIC_STALE_TIMER_THRESHOLD_MINUTES, default 10;
+ * 0 turns the automatic stop off. Value in milliseconds.
+ */
+export const STALE_TIMER_THRESHOLD = getNextPublicEnv('NEXT_PUBLIC_STALE_TIMER_THRESHOLD_MINUTES', {
+	default: process.env.NEXT_PUBLIC_STALE_TIMER_THRESHOLD_MINUTES,
+	map(value) {
+		if (value === undefined || value === null || String(value).trim() === '') return STALE_TIMER_THRESHOLD_MS;
+		const minutes = Number(value);
+		return Number.isFinite(minutes) && minutes >= 0 ? minutes * 60 * 1000 : STALE_TIMER_THRESHOLD_MS;
+	}
+});
 
 export const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
@@ -1037,6 +1065,26 @@ export const TIMER_STATUS_CONSTANTS = {
 	PAUSE: 'pause',
 	TEAMS_SOURCE: 'TEAMS',
 	HOURS_THRESHOLD: 24
+} as const;
+
+/**
+ * Team presence (Online / Idle from a heartbeat every visible tab sends). NEXT_PUBLIC_EMPLOYEE_PRESENCE_ENABLED=false
+ * turns it off for a deployment: no heartbeat is sent, and no presence badge or filter is shown. Default: on.
+ */
+export const EMPLOYEE_PRESENCE_ENABLED = getNextPublicEnv('NEXT_PUBLIC_EMPLOYEE_PRESENCE_ENABLED', {
+	default: process.env.NEXT_PUBLIC_EMPLOYEE_PRESENCE_ENABLED,
+	map(value) {
+		return String(value ?? '').trim().toLowerCase() !== 'false';
+	}
+});
+
+export const EMPLOYEE_PRESENCE_CONSTANTS = {
+	/** A heartbeat is sent this often while the tab is visible. */
+	HEARTBEAT_INTERVAL_MS: 60_000,
+	/** No keyboard, mouse or touch input for this long makes the heartbeat report idle. */
+	IDLE_AFTER_MS: 10 * 60_000,
+	/** A member whose last heartbeat is older than this is offline. */
+	ONLINE_WINDOW_MS: 3 * 60_000
 } as const;
 
 export const paginationPageSizeOptions = [5, 10, 20, 30, 40, 50];

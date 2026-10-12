@@ -15,6 +15,7 @@
  */
 
 import { jwtDecode } from 'jwt-decode';
+import { logInDev } from '@/core/lib/helpers/error-message';
 
 export interface JWTPayload {
 	id: string;
@@ -157,7 +158,7 @@ export function calculateRefreshInterval(token: string): number {
 	// Apply constraints
 	const interval = Math.max(MIN_INTERVAL, Math.min(optimalInterval, MAX_INTERVAL));
 
-	console.log(`[JWT] Token lifetime: ${lifetime}s, Refresh interval: ${interval / 1000 / 60}min`);
+	logInDev(`[JWT] Token lifetime: ${lifetime}s, Refresh interval: ${interval / 1000 / 60}min`);
 
 	return interval;
 }
