@@ -233,6 +233,9 @@ export function useTimerApi({
 				if (ApiErrorService.isApiError(error) && error.hasHttpResponseStatus(406)) {
 					return { ...(await timerService.getTimerStatus()), alreadyStopped: true };
 				}
+				// The proxy route turns Gauzy's 406 into a 500: the stop only failed if the timer still runs.
+				const status = await timerService.getTimerStatus().catch(() => null);
+				if (status?.data?.running === false) return { ...status, alreadyStopped: true };
 				throw error;
 			}
 		},
