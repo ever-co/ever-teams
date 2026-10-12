@@ -4,6 +4,12 @@ import { useTranslations } from 'next-intl';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { estimatedTotalTime } from '@/core/hooks/daily-plans/daily-plan-totals';
 
+/**
+ * @deprecated Import from '@/core/hooks/daily-plans/daily-plan-totals'. Re-exported so the daily-plan barrel keeps
+ * them; hooks still never import this component module, so the import cycle stays broken.
+ */
+export { estimatedTotalTime, getTotalTasks } from '@/core/hooks/daily-plans/daily-plan-totals';
+
 interface ITaskEstimatedCount {
 	outstandingPlans: TDailyPlan[];
 }
