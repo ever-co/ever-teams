@@ -123,6 +123,23 @@ function releaseStopGuard(request: Promise<void>) {
 	if (pendingStopTimer === request) pendingStopTimer = null;
 }
 
+/**
+ * Tell the user about an automatic stop once its request has settled, so a
+ * failed stop never reads as "timer stopped" while the server keeps tracking.
+ */
+function notifyAutomaticStop(stopRequest: Promise<unknown> | void, title: string, description: string) {
+	Promise.resolve(stopRequest)
+		.then(() => {
+			toast.info(title, { description });
+		})
+		.catch((error) => {
+			toast.error('Could not confirm the timer stopped', {
+				description: getErrorMessage(error, 'The timer may still be running. Check it and stop it manually.')
+			});
+			logErrorInDev('Automatic timer stop failed', error);
+		});
+}
+
 // ==================== HOOK ====================
 
 /**
@@ -764,7 +781,11 @@ export function useTimerApi({
 				if (timerStatusRef.current.lastLog?.source === ETimeLogSource.TEAMS) {
 					const timeSinceLastStop = Date.now() - lastStopTimerTimestamp;
 					if (timeSinceLastStop > STOP_TIMER_EFFECT_DEBOUNCE_MS) {
-						stopTimer();
+						notifyAutomaticStop(
+							stopTimer(),
+							t('timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_TITLE'),
+							t('timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_DESCRIPTION')
+						);
 					}
 				}
 			}
@@ -818,7 +839,8 @@ export function useTimerApi({
 		setTimerStatus,
 		queryClient,
 		user,
-		updateOrganizationTeamEmployeeActiveTask
+		updateOrganizationTeamEmployeeActiveTask,
+		t
 	]);
 
 	// Track active task changes separately to keep lastActiveTask.current in sync
@@ -844,7 +866,11 @@ export function useTimerApi({
 			if (timerStatusRef.current.lastLog?.source === ETimeLogSource.TEAMS) {
 				const timeSinceLastStop = Date.now() - lastStopTimerTimestamp;
 				if (timeSinceLastStop > STOP_TIMER_EFFECT_DEBOUNCE_MS) {
-					stopTimer();
+					notifyAutomaticStop(
+						stopTimer(),
+						t('timer.TASK_SWITCH.STOPPED_TIMER_TOAST_TITLE'),
+						t('timer.TASK_SWITCH.STOPPED_TIMER_TOAST_DESCRIPTION')
+					);
 				}
 			}
 		}
@@ -852,7 +878,7 @@ export function useTimerApi({
 		if (currentTaskId) {
 			lastActiveTaskId.current = currentTaskId;
 		}
-	}, [firstLoad, activeTeamTask?.id, stopTimer, timerStatusRef, isUpdatingActiveTask]);
+	}, [firstLoad, activeTeamTask?.id, stopTimer, timerStatusRef, isUpdatingActiveTask, t]);
 
 	// ==================== FILTERED TIMER STATUS ====================
 
