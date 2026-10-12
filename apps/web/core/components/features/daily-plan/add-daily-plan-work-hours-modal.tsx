@@ -2,7 +2,7 @@ import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useCallback, useMemo, useState } from 'react';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@/core/constants/config/constants';
-import { useTimerView } from '@/core/hooks';
+import { useTimerActions } from '@/core/hooks/timer';
 import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { useTranslations } from 'next-intl';
 import { EverCard } from '../../common/ever-card';
@@ -22,7 +22,7 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 
 	const t = useTranslations();
 	const { updateDailyPlan } = useUpdateDailyPlan();
-	const { startTimer } = useTimerView();
+	const { startTimer } = useTimerActions();
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const [workTimePlanned, setworkTimePlanned] = useState<number | undefined>(plan.workTimePlanned);
