@@ -66,6 +66,27 @@ describe('checkCustomBaseUrl', () => {
 		});
 	});
 
+	it('rejects a base URL longer than 2,048 characters without looking it up', async () => {
+		const longPath = `https://api.example.com/${'/'.repeat(80_000)}v1`;
+
+		const started = Date.now();
+		await expect(checkCustomBaseUrl(longPath, PRODUCTION)).resolves.toMatchObject({ ok: false });
+
+		expect(Date.now() - started).toBeLessThan(500);
+		expect(mockLookup).not.toHaveBeenCalled();
+	});
+
+	it('accepts a 2,048-character base URL and drops its trailing slashes', async () => {
+		const prefix = 'https://api.example.com/v1';
+		const raw = `${prefix}${'/'.repeat(2048 - prefix.length)}`;
+
+		await expect(checkCustomBaseUrl(raw, PRODUCTION)).resolves.toEqual({
+			ok: true,
+			baseURL: prefix,
+			allowLoopback: false
+		});
+	});
+
 	it('rejects a host name that resolves to a private address', async () => {
 		resolvesTo('10.43.0.10');
 
