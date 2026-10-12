@@ -801,6 +801,8 @@
 			"LOADING_WORKSPACE": "Estamos cargando el espacio de trabajo, espere...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Redirigiendo a tu espacio de trabajo...",
 			"VERIFY_EMAIL_LOADING_TEXT": "Estamos verificando su correo electrónico, espere...",
+			"VERIFY_EMAIL_FAILED_TITLE": "No pudimos verificar su correo electrónico",
+			"VERIFY_EMAIL_FAILED_MESSAGE": "Es posible que el enlace no sea válido, haya caducado o ya se haya utilizado, o que no se haya podido contactar con el servidor. Vuelva a intentarlo en unos momentos o abra la aplicación para solicitar uno nuevo.",
 			"INPUT_TEAM_NAME": "Ingrese el nombre de su equipo",
 			"JOIN_EXISTING_TEAM": "¿Unirse a un equipo existente?",
 			"CREATE_FIRST_TEAM": "Crea tu primer equipo",

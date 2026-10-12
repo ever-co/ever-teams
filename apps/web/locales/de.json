@@ -801,6 +801,8 @@
 			"LOADING_WORKSPACE": "Wir laden den Arbeitsbereich, bitte warten...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Weiterleitung zu Ihrem Arbeitsbereich...",
 			"VERIFY_EMAIL_LOADING_TEXT": "Wir verifizieren gerade Ihre E-Mail, bitte warten...",
+			"VERIFY_EMAIL_FAILED_TITLE": "Wir konnten Ihre E-Mail nicht verifizieren",
+			"VERIFY_EMAIL_FAILED_MESSAGE": "Der Link ist möglicherweise ungültig, abgelaufen oder bereits verwendet, oder der Server war nicht erreichbar. Versuchen Sie den Link in Kürze erneut oder öffnen Sie die App, um einen neuen anzufordern.",
 			"INPUT_TEAM_NAME": "Teamnamen eingeben",
 			"JOIN_EXISTING_TEAM": "Einem bestehenden Team beitreten?",
 			"CREATE_FIRST_TEAM": "Ihr erstes Team erstellen",
