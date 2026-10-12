@@ -229,7 +229,10 @@ export function useTimerApi({
 		queryFn: ({ signal }) => timerService.getTimerStatus({ scope: scope!, signal }),
 		enabled: statusEnabled && enabled && scopedStatusReady,
 		refetchInterval: statusEnabled ? statusRefetchInterval : false,
-		refetchIntervalInBackground: false
+		refetchIntervalInBackground: false,
+		// Opts back in to the reconnect refetch the app default turns off: after any outage the timer resyncs
+		// (it may have been stopped or started elsewhere meanwhile), also in a background tab or without auto refresh
+		refetchOnReconnect: 'always'
 	});
 	const {
 		queryCall,
