@@ -1,5 +1,20 @@
 import { ITagCreate } from '@/core/types/interfaces/tag/tag';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { generateDefaultColor } from './colors';
+
+const FINISHED_TASK_STATUSES = new Set<ETaskStatusName>([
+	ETaskStatusName.COMPLETED,
+	ETaskStatusName.DONE,
+	ETaskStatusName.CLOSED,
+	ETaskStatusName.CANCELLED
+]);
+
+/**
+ * A finished task has no work left: it is not outstanding and does not count as left in a plan.
+ */
+export function isTaskFinished(status?: ETaskStatusName | null): boolean {
+	return !!status && FINISHED_TASK_STATUSES.has(status);
+}
 
 /**
  * Intelligently merges label data with defaults and existing values
