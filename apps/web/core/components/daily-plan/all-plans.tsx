@@ -53,7 +53,7 @@ export function AllPlans({
 	const targetEmployeeId = employeeId ?? user?.employee?.id ?? user?.employeeId ?? '';
 	const { employeeSortedPlans, employeeTodayPlan } = useEmployeeDailyPlans(targetEmployeeId);
 
-	const { date } = useDateRange(currentTab);
+	const { date } = useDateRange(currentTab, targetEmployeeId);
 
 	if (currentTab === 'Today Tasks') {
 		filteredPlans.current = employeeTodayPlan;

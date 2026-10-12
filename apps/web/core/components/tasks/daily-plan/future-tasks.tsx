@@ -37,7 +37,7 @@ export function FutureTasks({
 	const targetEmployeeId = employeeId ?? user?.employee?.id ?? user?.employeeId ?? '';
 	const { employeeFuturePlans } = useEmployeeDailyPlans(targetEmployeeId);
 	// Use a safe default instead of direct localStorage access
-	const { date } = useDateRange('Future Tasks');
+	const { date } = useDateRange('Future Tasks', targetEmployeeId);
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 
 	// Use useMemo instead of useEffect to prevent infinite re-render loop

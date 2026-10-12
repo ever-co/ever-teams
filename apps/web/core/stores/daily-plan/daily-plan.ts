@@ -1,4 +1,5 @@
 import { atom } from 'jotai';
+import { DateRange } from 'react-day-picker';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 
@@ -19,3 +20,14 @@ export const dailyPlanListState = atom<PaginationResponse<TDailyPlan>>({
 	items: [],
 	total: 0
 });
+
+/**
+ * Daily plan date ranges keyed by employee and plan tab, read and written through `useDateRange`.
+ */
+export const dailyPlanDateRangesState = atom<Record<string, DateRange | undefined>>({});
+
+/**
+ * Plan tab shown by `UserProfilePlans`, keyed by employee. The profile filter bar reads it so its
+ * date picker edits the range of the tab on screen, since it keeps its own copy of 'daily-plan-tab'.
+ */
+export const dailyPlanVisibleTabsState = atom<Record<string, string>>({});
