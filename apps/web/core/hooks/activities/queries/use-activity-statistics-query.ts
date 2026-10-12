@@ -48,7 +48,11 @@ export function useActivityStatisticsQuery({ mergedProps, enabled = true }: UseA
 			endDate: mergedProps?.endDate,
 			projectIds: mergedProps?.projectIds,
 			activityLevel: mergedProps?.activityLevel,
-			logType: STATISTICS_LOG_TYPE
+			logType: STATISTICS_LOG_TYPE,
+			// The member and team picks applied on the Time and Activity page itself: the counts request
+			// sends them, so the cached counts must follow them (not the dashboard fallback described above)
+			selectedEmployeeIds: mergedProps?.selectedEmployeeIds,
+			selectedTeamIds: mergedProps?.selectedTeamIds
 		}),
 		queryFn: () =>
 			statisticsService.getTimesheetStatisticsCounts({
