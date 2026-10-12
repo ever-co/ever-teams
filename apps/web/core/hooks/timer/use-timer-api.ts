@@ -255,7 +255,10 @@ export function useTimerApi({
 	const startTimerMutation = useMutation({
 		mutationFn: async ({ taskId }: { taskId: string }) => {
 			return await timerService.startTimer({ taskId });
-		}
+		},
+		// runStartTimer shows the translated TIMER_START_FAILED toast; this keeps the raw global
+		// "Mutation Error" toast from showing a second one
+		onError: () => undefined
 	});
 
 	const toggleTimerMutation = useMutation({
@@ -526,13 +529,12 @@ export function useTimerApi({
 
 			promise
 				.catch((error) => {
-					if (taskId.current) {
-						updateLocalTimerStatus({
-							lastTaskId: taskId.current,
-							runnedDateTime: 0,
-							running: false
-						});
-					}
+					// Roll back the optimistic start, also when no active task was set (explicit or page task)
+					updateLocalTimerStatus({
+						lastTaskId: taskIdToUse ?? taskId.current ?? null,
+						runnedDateTime: 0,
+						running: false
+					});
 					toast.error(t('timer.TIMER_START_FAILED'));
 					logErrorInDev('startTimer', error);
 				})
@@ -612,6 +614,7 @@ export function useTimerApi({
 				// No task named, or the same one: the start in flight is the one asked for
 				if (!explicitTask || explicitTask.id === pendingStartTaskId) return pendingStartTimer;
 				// Another task: fail, so the caller does not report the first task's start as its own
+				toast.error(t('timer.TIMER_START_FAILED'));
 				return Promise.reject(new Error('A timer start for another task is already in progress'));
 			}
 
@@ -619,10 +622,15 @@ export function useTimerApi({
 				releaseStartGuard(request)
 			);
 			pendingStartTimer = request;
-			pendingStartTaskId = explicitTask?.id ?? activeTeamTaskRef.current?.id ?? null;
+			// The task runStartTimer will start: explicit, else the page's task on /task/*, else the active one
+			pendingStartTaskId =
+				explicitTask?.id ??
+				(pathname?.startsWith('/task/') ? detailedTask?.id : undefined) ??
+				activeTeamTaskRef.current?.id ??
+				null;
 			return request;
 		},
-		[runStartTimer, activeTeamTaskRef]
+		[runStartTimer, activeTeamTaskRef, pathname, detailedTask, t]
 	);
 
 	// ==================== STOP TIMER ====================
