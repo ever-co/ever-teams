@@ -1,6 +1,7 @@
 import { useIsMemberManager, useModal, useOrganizationEmployeeTeams } from '@/core/hooks';
 import { Transition } from '@headlessui/react';
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
+import { useSyncRef } from '@/core/hooks/common/use-sync-ref';
 import { InviteUserTeamSkeleton, UserTeamCardSkeleton } from './team-members-header';
 import { UserTeamCard } from './user-team-card';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
@@ -38,15 +39,34 @@ const TeamMembersCardView: React.FC<Props> = memo(
 			[updateOrganizationTeamEmployeeOrderOnList]
 		);
 
+		// Read through a ref so handleSort keeps its identity and does not re-render every memoized card
+		const membersRef = useSyncRef(members);
+
 		const handleSort = useCallback(() => {
-			const peopleClone = [...members];
+			const peopleClone = [...membersRef.current];
 			const temp = peopleClone[dragTeamMember.current];
 			peopleClone[dragTeamMember.current] = peopleClone[draggedOverTeamMember.current];
 			peopleClone[draggedOverTeamMember.current] = temp;
 			// TODO: update teamMembers index
 			handleChangeOrder(peopleClone[dragTeamMember.current], draggedOverTeamMember.current);
 			handleChangeOrder(peopleClone[draggedOverTeamMember.current], dragTeamMember.current);
-		}, [members, dragTeamMember, draggedOverTeamMember, handleChangeOrder]);
+		}, [membersRef, dragTeamMember, draggedOverTeamMember, handleChangeOrder]);
+
+		const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => e.preventDefault(), []);
+
+		// One stable pair of handlers per list position, so a card only re-renders when its own props change
+		const dragHandlers = useMemo(
+			() =>
+				Array.from({ length: Math.max(members.length, 1) }, (_, i) => ({
+					onDragStart: () => {
+						dragTeamMember.current = i;
+					},
+					onDragEnter: () => {
+						draggedOverTeamMember.current = i;
+					}
+				})),
+			[members.length]
+		);
 
 		return (
 			<>
@@ -69,10 +89,10 @@ const TeamMembersCardView: React.FC<Props> = memo(
 									publicTeam={publicTeam}
 									draggable={true}
 									currentExit={false}
-									onDragStart={() => (dragTeamMember.current = 0)}
-									onDragEnter={() => (draggedOverTeamMember.current = 0)}
+									onDragStart={dragHandlers[0].onDragStart}
+									onDragEnter={dragHandlers[0].onDragEnter}
 									onDragEnd={handleSort}
-									onDragOver={(e: React.DragEvent<HTMLDivElement>) => e.preventDefault()}
+									onDragOver={handleDragOver}
 								/>
 							</li>
 						</Transition>
@@ -97,14 +117,10 @@ const TeamMembersCardView: React.FC<Props> = memo(
 										publicTeam={publicTeam}
 										currentExit={draggedOverTeamMember.current == i}
 										draggable={isTeamManager}
-										onDragStart={() => {
-											dragTeamMember.current = i;
-										}}
-										onDragEnter={() => {
-											draggedOverTeamMember.current = i;
-										}}
+										onDragStart={dragHandlers[i].onDragStart}
+										onDragEnter={dragHandlers[i].onDragEnter}
 										onDragEnd={handleSort}
-										onDragOver={(e: React.DragEvent<HTMLDivElement>) => e.preventDefault()}
+										onDragOver={handleDragOver}
 									/>
 								</li>
 							</Transition>
