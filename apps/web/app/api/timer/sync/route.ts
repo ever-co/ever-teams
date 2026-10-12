@@ -1,5 +1,5 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
-import { getTimerStatusRequest, syncTimeSlotRequest } from '@/core/services/server/requests';
+import { getTimerStatusRequest, readTodayRange, syncTimeSlotRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
@@ -21,7 +21,10 @@ export async function POST(req: Request) {
 		access_token
 	);
 
-	const { data: timerStatus } = await getTimerStatusRequest({ tenantId, organizationId }, access_token);
+	const { data: timerStatus } = await getTimerStatusRequest(
+		{ tenantId, organizationId, ...readTodayRange(req) },
+		access_token
+	);
 
 	return $res(timerStatus);
 }
