@@ -12,6 +12,9 @@ services:
       DB_HOST: db
       API_BASE_URL: ${API_BASE_URL:-http://localhost:3000}
       CLIENT_BASE_URL: ${CLIENT_BASE_URL:-http://localhost:4200}
+      # Origins the API may put in sign-in, invite and verification e-mail links besides CLIENT_BASE_URL: the
+      # Ever Teams web app of this stack (published on 3030)
+      EMAIL_LINK_ALLOWED_ORIGINS: ${EMAIL_LINK_ALLOWED_ORIGINS:-http://localhost:3030}
       CLOUD_PROVIDER: ${CLOUD_PROVIDER:-}
       SENTRY_DSN: ${SENTRY_DSN:-}
       SENTRY_HTTP_TRACING_ENABLED: ${SENTRY_HTTP_TRACING_ENABLED:-}
@@ -97,7 +100,9 @@ services:
       # and setting NEXT_PUBLIC_GAUZY_API_SERVER_URL to it, or leaving that variable empty so the
       # browser calls the API through this app's own /api proxy on its own origin.
       GAUZY_API_SERVER_URL: ${GAUZY_API_SERVER_URL:-http://api:${API_PORT:-3000}}
-      NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${NEXT_PUBLIC_GAUZY_API_SERVER_URL:-http://localhost:3000}
+      # No colon on purpose: an explicitly empty value stays empty (proxy mode, as described above); only an
+      # unset variable gets the default.
+      NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${NEXT_PUBLIC_GAUZY_API_SERVER_URL-http://localhost:3000}
       NODE_ENV: ${NODE_ENV:-development}
       # Demo mode (password login with one-click demo accounts) only makes sense against a Gauzy API seeded
       # with the demo accounts (e.g. apidemo.ever.team). The previous image ignored this value (demo was baked
