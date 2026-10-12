@@ -19,10 +19,16 @@ export async function GET(req: Request) {
 		return NextResponse.json({ error: 'todayStart and todayEnd must be valid dates' }, { status: 400 });
 	}
 
+	// The client sends employeeIds[0] and teamIds[n] (qs indices); a plain employeeId is still accepted
+	const listParam = (key: string) =>
+		[...searchParams].filter(([name]) => name === key || (name.startsWith(`${key}[`) && name.endsWith(']'))).map(([, value]) => value);
+
 	const { data } = await getEmployeeTimeSlotsRequest({
 		tenantId,
 		organizationId,
-		employeeId: searchParams.get('employeeId') || user.employee?.id || '',
+		employeeId: searchParams.get('employeeId') || listParam('employeeIds')[0] || user.employee?.id || '',
+		// A manager sees another member's slots only when that member's team is named
+		teamIds: listParam('teamIds'),
 		todayEnd,
 		todayStart,
 		bearer_token: access_token

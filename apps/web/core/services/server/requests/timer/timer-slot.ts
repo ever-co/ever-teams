@@ -8,7 +8,8 @@ export function getEmployeeTimeSlotsRequest({
 	organizationId,
 	todayEnd,
 	todayStart,
-	employeeId
+	employeeId,
+	teamIds = []
 }: {
 	bearer_token: string;
 	tenantId: string;
@@ -16,6 +17,7 @@ export function getEmployeeTimeSlotsRequest({
 	todayEnd: Date;
 	todayStart: Date;
 	employeeId: string;
+	teamIds?: string[];
 }) {
 	const params = {
 		tenantId: tenantId,
@@ -28,6 +30,9 @@ export function getEmployeeTimeSlotsRequest({
 	if (employeeId) {
 		params['employeeIds[0]'] = employeeId;
 	}
+	teamIds.forEach((teamId, index) => {
+		params[`teamIds[${index}]`] = teamId;
+	});
 
 	const relations = ['timeSlots.timeLogs.projectId', 'timeSlots.timeLogs.taskId'];
 
