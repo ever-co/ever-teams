@@ -51,7 +51,14 @@ export function stopTimerRequest(params: IUpdateTimerStatusParams, bearer_token:
 }
 
 export function toggleTimerRequest(
-	{ source = ETimeLogSource.TEAMS, logType = 'TRACKED', taskId, tenantId, organizationId }: IUpdateTimerStatusParams,
+	{
+		source = ETimeLogSource.TEAMS,
+		logType = 'TRACKED',
+		taskId,
+		tenantId,
+		organizationId,
+		organizationTeamId
+	}: IUpdateTimerStatusParams,
 	bearer_token: string
 ) {
 	return serverFetch<ITimeLog | null>({
@@ -62,7 +69,8 @@ export function toggleTimerRequest(
 			logType,
 			taskId,
 			tenantId,
-			organizationId
+			organizationId,
+			organizationTeamId
 		},
 		bearer_token,
 		tenantId
