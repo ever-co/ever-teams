@@ -37,7 +37,7 @@ import { ID } from '@/core/types/interfaces/common/base-interfaces';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
-import { activeTeamTaskState, tasksByTeamState, timerStatusState } from '@/core/stores';
+import { activeTeamTaskState, tasksByTeamState, teamTasksPagesLoadingState, timerStatusState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { EIssueType } from '@/core/types/generics/enums/task';
 import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
@@ -705,6 +705,8 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 	} = props;
 
 	const teamTasks = useAtomValue(tasksByTeamState);
+	// No match in a list whose pages are still loading is not proof the task is missing: no create meanwhile
+	const teamTasksPagesLoading = useAtomValue(teamTasksPagesLoadingState);
 	const { createTask } = useCreateTask();
 	const { taskStatuses } = useTaskStatusesQuery();
 	const [taskName, setTaskName] = useState('');
@@ -829,7 +831,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 				) : (
 					<EverCard shadow="custom" className="shadow-lg border z-40 !rounded !p-2">
 						<Button
-							disabled={createTaskLoading || taskName.trim().length < 5}
+							disabled={createTaskLoading || teamTasksPagesLoading || taskName.trim().length < 5}
 							onClick={handleCreateTask}
 							className="w-full h-full min-h-12"
 						>

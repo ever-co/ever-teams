@@ -9,6 +9,7 @@ import {
 	memberActiveTaskIdState,
 	tasksByTeamState,
 	teamTasksCompleteState,
+	teamTasksPagesLoadingState,
 	teamTasksState
 } from '@/core/stores';
 import isEqual from 'lodash/isEqual';
@@ -251,6 +252,15 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 			setTasksComplete(pagesComplete);
 		}
 	}, [canHydrateSharedState, pagesComplete, setTasksComplete]);
+
+	// Pages still on their way (not an error, not a spent restart budget, not a disabled query)
+	const setPagesLoading = useSetAtom(teamTasksPagesLoadingState);
+	const restartsExhausted =
+		!!teamTasksData && !pagesConsistent && pageRestartsRef.current >= MAX_PAGE_SEQUENCE_RESTARTS;
+	const pagesLoading = queryEnabled && !pagesComplete && !isError && (!restartsExhausted || isFetching);
+	useEffect(() => {
+		if (canHydrateSharedState) setPagesLoading(pagesLoading);
+	}, [canHydrateSharedState, pagesLoading, setPagesLoading]);
 
 	// Sync active team task from member data
 	useConditionalUpdateEffect(

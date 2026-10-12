@@ -1,4 +1,10 @@
-import { publicActiveTeamState, activeTeamState, teamTasksState, organizationTeamsState } from '@/core/stores';
+import {
+	publicActiveTeamState,
+	activeTeamState,
+	teamTasksState,
+	teamTasksCompleteState,
+	organizationTeamsState
+} from '@/core/stores';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -33,6 +39,8 @@ export function usePublicOrganizationTeams() {
 	const [teams, setTeams] = useAtom(organizationTeamsState);
 	const { getOrganizationTeamsLoading } = useOrganizationTeamsQuery();
 	const setAllTasks = useSetAtom(teamTasksState);
+	// The public payload carries the whole task list, so it is complete as soon as it is set
+	const setTasksComplete = useSetAtom(teamTasksCompleteState);
 
 	const [publicTeam, setPublicTeam] = useAtom(publicActiveTeamState);
 
@@ -116,8 +124,9 @@ export function usePublicOrganizationTeams() {
 				});
 			}
 			setAllTasks(responseTasks);
+			setTasksComplete(true);
 		}
-	}, [publicTeamData, setTeams, setPublicTeam, setAllTasks, teams, publicTeam]);
+	}, [publicTeamData, setTeams, setPublicTeam, setAllTasks, setTasksComplete, teams, publicTeam]);
 
 	useEffect(() => {
 		if (publicTeamMiscData) {

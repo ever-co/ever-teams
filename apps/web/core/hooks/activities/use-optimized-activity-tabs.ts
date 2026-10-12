@@ -13,6 +13,8 @@ interface ActivityTabCache {
 		timestamp: number;
 		loading: boolean;
 		activeTaskId?: string;
+		/** The list the cached tasks were computed from: a new list (e.g. more pages loaded) is never served stale */
+		source?: TTask[];
 	};
 	screenshots: {
 		data: any[];
@@ -63,7 +65,8 @@ export const useOptimizedActivityTabs = ({
 		if (
 			cache.data.length > 0 &&
 			now - cache.timestamp < cacheTimeout &&
-			cache.activeTaskId === profile?.activeUserTeamTask?.id
+			cache.activeTaskId === profile?.activeUserTeamTask?.id &&
+			cache.source === hook.tasksFiltered
 		) {
 			return {
 				firstFiveTasks: cache.firstFiveTasks,
@@ -96,7 +99,8 @@ export const useOptimizedActivityTabs = ({
 			remainingTasks,
 			timestamp: now,
 			loading: false, // useTaskFilter doesn't have loading state
-			activeTaskId
+			activeTaskId,
+			source: tasks
 		};
 
 		return {

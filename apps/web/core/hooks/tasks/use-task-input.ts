@@ -1,6 +1,6 @@
 'use client';
 import { EIssueType, ETaskPriority, ETaskSize, ETaskStatusName } from '@/core/types/generics/enums/task';
-import { activeTeamTaskState, memberActiveTaskIdState } from '@/core/stores';
+import { activeTeamTaskState, memberActiveTaskIdState, teamTasksPagesLoadingState } from '@/core/stores';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useModal, useSyncRef } from '../common';
@@ -47,6 +47,10 @@ export function useTaskInput({
 	const { tasks: teamTasks, tasksFetching, tasksComplete: teamTasksComplete } = useTeamTasksQuery();
 	// A copied list taken before every page loaded stays partial even once the team list is complete.
 	const tasksComplete = teamTasksComplete && customTasksComplete !== false;
+	// Creating waits only while pages are still loading: after a page error (or a spent restart budget) the list will
+	// not complete until the next refetch, and creating a task must not stay blocked until then.
+	const teamTasksPagesLoading = useAtomValue(teamTasksPagesLoadingState);
+	const canOfferCreate = !teamTasksPagesLoading && customTasksComplete !== false;
 	const { setActiveTask } = useTeamTasksState();
 	const { createTask, createLoading } = useCreateTask();
 	const { updateTask, updateLoading } = useUpdateTask();
@@ -129,17 +133,17 @@ export function useTaskInput({
 	// Detect when user is creating a task to stabilize hasCreateForm.
 	// No match in a partly loaded list is not proof the task is missing, so no create form until it is complete.
 	useEffect(() => {
-		const isCreating = tasksComplete && filteredTasks2.length === 0 && query !== '' && query.trim().length >= 2;
+		const isCreating = canOfferCreate && filteredTasks2.length === 0 && query !== '' && query.trim().length >= 2;
 		setIsCreatingTask(isCreating);
-	}, [filteredTasks2.length, query, tasksComplete]);
+	}, [filteredTasks2.length, query, canOfferCreate]);
 
 	// Stabilized hasCreateForm that doesn't reset during task creation
 	const hasCreateForm = useMemo(() => {
 		if (isCreatingTask) {
 			return true; // Keep form visible during creation
 		}
-		return tasksComplete && filteredTasks2.length === 0 && query !== '';
-	}, [filteredTasks2.length, query, isCreatingTask, tasksComplete]);
+		return canOfferCreate && filteredTasks2.length === 0 && query !== '';
+	}, [filteredTasks2.length, query, isCreatingTask, canOfferCreate]);
 
 	const handleTaskCreation = ({
 		autoActiveTask = true,
