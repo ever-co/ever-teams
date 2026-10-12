@@ -5,8 +5,9 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { gzipSync } from 'node:zlib';
 
-// The targets are 500 kB gzip for the sign-in page and 1 MB for an app page. The bundle fixes merged before
-// this check bring both pages to an estimated 1,345 kB, so each budget is that estimate plus 10 %.
+// The targets are 500 kB gzip for the sign-in page and 1 MB for an app page. Measured on a production build of
+// the integrated branch with the bundle fixes merged (2026-10-12, next build + next start): /auth/passcode
+// 671,691 bytes gzip, /kanban 1,370,340 bytes gzip. Each budget is that measurement plus 10 %.
 // English is the default locale and paths are prefixed only as needed, so /en/auth/passcode and /en/kanban
 // redirect to these paths.
 // Only the scripts listed in the served HTML are counted, the JavaScript a visit downloads before the page
@@ -14,8 +15,8 @@ import { gzipSync } from 'node:zlib';
 // are not part of this measurement.
 const MEASURED = 'chunk scripts listed in the initial HTML; chunks loaded later by dynamic imports are not counted';
 const PAGES = [
-	{ path: '/auth/passcode', gzipBudgetBytes: 1_480_000 },
-	{ path: '/kanban', gzipBudgetBytes: 1_480_000 }
+	{ path: '/auth/passcode', gzipBudgetBytes: 740_000 },
+	{ path: '/kanban', gzipBudgetBytes: 1_510_000 }
 ];
 
 export function chunkScriptUrls(html, baseUrl) {
