@@ -8,10 +8,14 @@ import capitalize from 'lodash/capitalize';
 import { TUser } from '@/core/types/schemas';
 import { useUserQuery } from '../queries/user-user.query';
 import { readRuntimeEnv } from '@/env-config';
+import { preloadLiveKit } from '@/core/components/optimized-components/meet';
 
 export function useCollaborative(user?: TUser) {
 	// Runtime (container) env first, so a published Docker image can switch to LiveKit without a rebuild.
 	const meetType = readRuntimeEnv('NEXT_PUBLIC_MEET_TYPE') || process.env.NEXT_PUBLIC_MEET_TYPE || 'Jitsi';
+	// Case-insensitive: deployments commonly write 'jitsi' (e.g. the docker-compose defaults), which the
+	// published image used to ignore (it baked the value at build time) but now honours at runtime.
+	const isJitsi = meetType.toLowerCase() === 'jitsi';
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const { data: authUser } = useUserQuery();
@@ -63,14 +67,14 @@ export function useCollaborative(user?: TUser) {
 		// LiveKit | Jitsi
 		const meetName = getMeetRoomName();
 		const encodedName = Buffer.from(meetName).toString('base64');
-		// Case-insensitive: deployments commonly write 'jitsi' (e.g. the docker-compose defaults), which the
-		// published image used to ignore (it baked the value at build time) but now honours at runtime.
-		const path =
-			meetType.toLowerCase() === 'jitsi'
-				? `/meet/jitsi?room=${encodedName}`
-				: `/meet/livekit?roomName=${encodedName}`;
+		const path = isJitsi ? `/meet/jitsi?room=${encodedName}` : `/meet/livekit?roomName=${encodedName}`;
 		router.push(path);
-	}, [getMeetRoomName, router, meetType]);
+	}, [getMeetRoomName, router, isJitsi]);
+
+	// Called when the user is about to start a meeting, so the LiveKit room does not wait for its chunk.
+	const preloadMeet = useCallback(() => {
+		if (!isJitsi) preloadLiveKit();
+	}, [isJitsi]);
 
 	const onBoardClick = useCallback(() => {
 		const members = collaborativeMembers.map((m) => m.id).join(',');
@@ -92,6 +96,7 @@ export function useCollaborative(user?: TUser) {
 		setCollaborativeSelect,
 		onBoardClick,
 		onMeetClick,
+		preloadMeet,
 		collaborativeMembers,
 		setCollaborativeMembers,
 		user_selected,
