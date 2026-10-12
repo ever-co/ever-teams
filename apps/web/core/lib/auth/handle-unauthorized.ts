@@ -80,11 +80,11 @@ export async function handleUnauthorized(
 						// Don't try more callbacks - the refresh token itself is invalid
 						break;
 					} else if (isRetryableError(error)) {
-						logInDev('[Auth] ⚠️ Token refresh failed (network error), trying next callback:', error);
+						logInDev('[Auth] ⚠️ Token refresh failed (network error), trying next callback:', (error as Error)?.message);
 						// Network error - try next callback
 						continue;
 					} else {
-						logInDev('[Auth] ⚠️ Token refresh failed (unknown error):', error);
+						logInDev('[Auth] ⚠️ Token refresh failed (unknown error):', (error as Error)?.message);
 						continue;
 					}
 				}
