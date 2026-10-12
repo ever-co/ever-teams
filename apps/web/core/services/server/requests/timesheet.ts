@@ -168,6 +168,9 @@ export interface ITimesheetStatisticsCountsProps {
 	startDate: string;
 	endDate: string;
 	timeZone?: string;
+	employeeIds?: string[];
+	projectIds?: string[];
+	teamIds?: string[];
 }
 
 /**
