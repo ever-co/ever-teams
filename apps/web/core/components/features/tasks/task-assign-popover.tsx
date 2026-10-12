@@ -3,8 +3,9 @@ import { clsxm } from '@/core/lib/utils';
 import { PropsWithChildren, useCallback } from 'react';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { assignTaskModalState } from '@/core/stores/assign-task-modal';
+import { teamTasksCompleteState } from '@/core/stores';
 
 /**
  * TaskUnOrAssignPopover - Trigger component for the global assign task modal
@@ -35,17 +36,19 @@ export function TaskUnOrAssignPopover({
 	userProfile?: TOrganizationTeamEmployee;
 }>) {
 	const [modalState, setModalState] = useAtom(assignTaskModalState);
+	const tasksComplete = useAtomValue(teamTasksCompleteState);
 
 	const openModal = useCallback(() => {
 		setModalState({
 			isOpen: true,
 			tasks: tasks ?? [],
+			tasksComplete,
 			userProfile: userProfile ?? null,
 			employeeId: usersTaskCreatedAssignTo?.[0]?.id ?? null,
 			onTaskClick,
 			onTaskCreated
 		});
-	}, [setModalState, tasks, userProfile, usersTaskCreatedAssignTo, onTaskClick, onTaskCreated]);
+	}, [setModalState, tasks, tasksComplete, userProfile, usersTaskCreatedAssignTo, onTaskClick, onTaskCreated]);
 
 	const closeModal = useCallback(() => {
 		setModalState((prev) => ({ ...prev, isOpen: false }));
