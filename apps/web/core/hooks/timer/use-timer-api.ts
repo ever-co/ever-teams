@@ -2,7 +2,6 @@
 
 import { useAtom, useAtomValue } from 'jotai';
 import isEqual from 'lodash/isEqual';
-import moment from 'moment';
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
@@ -13,15 +12,19 @@ import {
 	STOP_TIMER_EFFECT_DEBOUNCE_MS,
 	SYNC_TIMER_INTERVAL
 } from '@/core/constants/config/constants';
+import { findTimerPlans } from '@/core/lib/helpers/daily-plan-day';
 import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
+import { shouldRetryQuery } from '@/core/lib/helpers/retry-utils';
 import { canRunTimerForState } from '@/core/lib/helpers/timer-policy';
 import { queryKeys } from '@/core/query/keys';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { timerService } from '@/core/services/client/api/timers';
 import {
 	activeTeamIdState,
 	activeTeamState,
 	activeTeamTaskState,
 	detailedTaskState,
+	localTimerStatusState,
 	teamTasksState,
 	timerStatusFetchingState,
 	timerStatusState
@@ -34,14 +37,17 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TUser } from '@/core/types/schemas/user/user.schema';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { useAuthenticateUser } from '../auth';
+import { useAuthenticateUser } from '../auth/use-authenticate-user';
 import { useQueryCall } from '../common/use-query';
 import { useSyncRef } from '../common/use-sync-ref';
 import { useMyDailyPlans } from '../daily-plans/use-my-daily-plans';
-import { useOrganizationEmployeeTeams, useTeamTasksState, useUpdateTask } from '../organizations';
+import { useOrganizationEmployeeTeams } from '../organizations/teams/use-organization-teams-employee';
+import { useTeamTasksState } from '../organizations/teams/use-team-tasks-state';
+import { useUpdateTask } from '../organizations/teams/use-update-task';
 import { useTaskStatusesQuery } from '../tasks/use-task-statuses-query';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useScopeGuard } from '../bootstrap/use-scope-guard';
+import { useStopStaleTeamsTimer } from './use-stale-timer-guard';
 
 // ==================== TYPES ====================
 
@@ -98,6 +104,43 @@ export interface UseTimerApiReturn {
 	plansResolved: boolean;
 }
 
+// ==================== SHARED REQUEST GUARDS ====================
+
+// Module scope on purpose: every task card, the timer and the shell mount their own useTimerApi, and a ref
+// only guards the instance that owns it. A guard is held until its timer request lands, not through the
+// bookkeeping that follows (active task update, invalidations), so it never swallows a later start or stop.
+let pendingStartTimer: Promise<void> | null = null;
+let pendingStartTaskId: string | null = null;
+let pendingStopTimer: Promise<void> | null = null;
+/** Track last stopTimer call to prevent duplicate calls within short time window */
+let lastStopTimerTimestamp = 0;
+
+// Identity check: an older flow settling late must not clear the guard of a newer request
+function releaseStartGuard(request: Promise<void>) {
+	if (pendingStartTimer !== request) return;
+	pendingStartTimer = null;
+	pendingStartTaskId = null;
+}
+
+function releaseStopGuard(request: Promise<void>) {
+	if (pendingStopTimer === request) pendingStopTimer = null;
+}
+
+/**
+ * Tell the user about an automatic stop once its request has settled, so a
+ * failed stop never reads as "timer stopped" while the server keeps tracking.
+ */
+function notifyAutomaticStop(stopRequest: Promise<unknown> | void, title: string, description: string) {
+	Promise.resolve(stopRequest)
+		.then(() => {
+			toast.info(title, { description });
+		})
+		.catch((error) => {
+			// The stop mutation already showed the translated TIMER_STOP_FAILED toast
+			logErrorInDev('Automatic timer stop failed', error);
+		});
+}
+
 // ==================== HOOK ====================
 
 /**
@@ -143,18 +186,18 @@ export function useTimerApi({
 	const teamTasks = useAtomValue(teamTasksState);
 	const [timerStatusFetching, setTimerStatusFetching] = useAtom(timerStatusFetchingState);
 	const [timerStatus, setTimerStatus] = useAtom(timerStatusState);
+	const localTimerStatus = useAtomValue(localTimerStatusState);
 
 	// ==================== REFS ====================
 
 	const timerStatusRef = useSyncRef(timerStatus);
+	const localTimerStatusRef = useSyncRef(localTimerStatus);
 	const taskId = useSyncRef(activeTeamTask?.id);
 	const activeTeamTaskRef = useSyncRef(activeTeamTask);
 	const lastActiveTeamId = useRef<string | null>(null);
 	const lastActiveTeam = useRef<typeof activeTeam | null>(null);
 	const lastActiveTaskId = useRef<string | null>(null);
 	const lastActiveTask = useRef<TTask | null>(null);
-	/** Track last stopTimer call to prevent duplicate calls within short time window */
-	const lastStopTimerTimestamp = useRef<number>(0);
 
 	// ==================== EXTERNAL HOOKS ====================
 
@@ -162,6 +205,7 @@ export function useTimerApi({
 	const { setActiveTask, isUpdatingActiveTask } = useTeamTasksState();
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
 	const { user, $user, refreshUserData } = useAuthenticateUser();
+	const stopStaleTeamsTimer = useStopStaleTeamsTimer();
 	const { myDailyPlans, isSuccess: plansResolved } = useMyDailyPlans({
 		enabled: enabled && plansEnabled,
 		...(statusEnabled && scope ? { scope, refetchInterval: plansRefetchInterval } : {})
@@ -185,7 +229,10 @@ export function useTimerApi({
 		queryFn: ({ signal }) => timerService.getTimerStatus({ scope: scope!, signal }),
 		enabled: statusEnabled && enabled && scopedStatusReady,
 		refetchInterval: statusEnabled ? statusRefetchInterval : false,
-		refetchIntervalInBackground: false
+		refetchIntervalInBackground: false,
+		// Opts back in to the reconnect refetch the app default turns off: after any outage the timer resyncs
+		// (it may have been stopped or started elsewhere meanwhile), also in a background tab or without auto refresh
+		refetchOnReconnect: 'always'
 	});
 	const {
 		queryCall,
@@ -207,7 +254,12 @@ export function useTimerApi({
 	}, [isCurrentScope, scopedStatusQuery.data, setTimerStatus, statusEnabled, timerStatusRef]);
 
 	const startTimerMutation = useMutation({
-		mutationFn: timerService.startTimer
+		mutationFn: async ({ taskId }: { taskId: string }) => {
+			return await timerService.startTimer({ taskId });
+		},
+		// runStartTimer shows the translated TIMER_START_FAILED toast; this keeps the raw global
+		// "Mutation Error" toast from showing a second one
+		onError: () => undefined
 	});
 
 	const toggleTimerMutation = useMutation({
@@ -218,13 +270,31 @@ export function useTimerApi({
 
 	const stopTimerMutation = useMutation({
 		mutationFn: async (source: ETimeLogSource) => {
-			return await timerService.stopTimer({ source });
+			try {
+				return await timerService.stopTimer({ source });
+			} catch (error) {
+				// 406 means Gauzy has no running timer left: a previous attempt whose response was lost,
+				// or another device, already stopped it. Report the real status instead of a failure.
+				if (ApiErrorService.isApiError(error) && error.hasHttpResponseStatus(406)) {
+					return { ...(await timerService.getTimerStatus()), alreadyStopped: true };
+				}
+				// The proxy route turns Gauzy's 406 into a 500: the stop only failed if the timer still runs.
+				const status = await timerService.getTimerStatus().catch(() => null);
+				if (status?.data?.running === false) return { ...status, alreadyStopped: true };
+				throw error;
+			}
+		},
+		// The stop is not idempotent: only a network error or a 5xx gets one retry, never a timeout or a 4xx
+		retry: shouldRetryQuery,
+		// Replaces the generic global mutation toast, which showed the raw error message
+		onError: () => {
+			toast.error(t('timer.TIMER_STOP_FAILED'));
 		}
 	});
 
 	const syncTimerMutation = useMutation({
-		mutationFn: async (data: { source: ETimeLogSource; user?: TUser | null }) => {
-			await timerService.syncTimer({ source: data.source, user: data.user });
+		mutationFn: async (data: { source: ETimeLogSource; user?: TUser | null; timeLogId?: string }) => {
+			await timerService.syncTimer({ source: data.source, user: data.user, timeLogId: data.timeLogId });
 		},
 		onError: (error: any) => {
 			if (error?.response?.status !== 401) {
@@ -241,23 +311,7 @@ export function useTimerApi({
 
 	// ==================== DERIVED STATE ====================
 
-	const hasPlan = useMemo(
-		() =>
-			myDailyPlans?.items.find(
-				(plan: TDailyPlan) =>
-					moment(plan.date).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD') &&
-					plan.tasks &&
-					plan.tasks?.length > 0
-			),
-		[myDailyPlans?.items]
-	);
-
-	const hasPlanForTomorrow = useMemo(() => {
-		const tomorrow = moment().add(1, 'days');
-		return myDailyPlans?.items.find(
-			(plan: TDailyPlan) => moment(plan.date).format('YYYY-MM-DD') === tomorrow.format('YYYY-MM-DD')
-		);
-	}, [myDailyPlans?.items]);
+	const { hasPlan, hasPlanForTomorrow } = useMemo(() => findTimerPlans(myDailyPlans?.items), [myDailyPlans?.items]);
 
 	const requirePlan = activeTeam?.requirePlanToTrack;
 
@@ -349,7 +403,8 @@ export function useTimerApi({
 		}
 		return syncTimerMutate({
 			source: timerStatus?.lastLog?.source || ETimeLogSource.TEAMS,
-			user: $user.current
+			user: $user.current,
+			timeLogId: timerStatus?.lastLog?.id
 		}).then((res) => {
 			return res;
 		});
@@ -358,8 +413,8 @@ export function useTimerApi({
 	// ==================== START TIMER ====================
 
 	const startTimerMutate = startTimerMutation.mutateAsync;
-	const startTimer = useCallback(
-		async (explicitTask?: TTask) => {
+	const runStartTimer = useCallback(
+		async (explicitTask?: TTask, onRequestLanded?: () => void) => {
 			// Check if the user is tracking time in another tab or device
 			try {
 				const userData = await refreshUserData();
@@ -381,9 +436,13 @@ export function useTimerApi({
 						'Desync detected: employee.isTrackingTime=true but timer not running. Auto-healing...'
 					);
 					try {
-						await timerService.stopTimer({
-							source: timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS
-						});
+						// A TEAMS timer left behind by a closed tab is credited up to its last heartbeat, not now
+						const stoppedStale = await stopStaleTeamsTimer(userData.employee.id);
+						if (!stoppedStale) {
+							await timerService.stopTimer({
+								source: timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS
+							});
+						}
 						// Refresh user data to confirm the flag was reset
 						const refreshed = await refreshUserData();
 						if (refreshed?.employee.isTrackingTime) {
@@ -405,12 +464,19 @@ export function useTimerApi({
 				return;
 			}
 
-			// NOTE_FIX: Use explicit task if provided to avoid race conditions with taskId.current
-			const taskToUse = explicitTask || activeTeamTaskRef.current;
+			// NOTE_FIX: Use explicit task if provided to avoid race conditions with taskId.current.
+			// On a task page that page's task becomes the active one, so it is also the one to start.
+			const pageTask = pathname?.startsWith('/task/') ? detailedTask : null;
+			const taskToUse = explicitTask || pageTask || activeTeamTaskRef.current;
 			const taskIdToUse = taskToUse?.id;
 
-			if (pathname?.startsWith('/task/')) setActiveTask(detailedTask);
-			if (!taskIdToUse) return;
+			if (pageTask) setActiveTask(pageTask);
+
+			if (!taskIdToUse) {
+				toast.error(t('timer.START_TIMER'));
+				return;
+			}
+
 			updateLocalTimerStatus({
 				lastTaskId: taskIdToUse,
 				runnedDateTime: Date.now(),
@@ -418,11 +484,12 @@ export function useTimerApi({
 			});
 
 			if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
-			const promise = startTimerMutate().then(async (res) => {
+			const promise = startTimerMutate({ taskId: taskIdToUse }).then(async (res) => {
 				res.data &&
 					(!statusEnabled || isCurrentScope()) &&
 					!isEqual(timerStatus, res.data) &&
 					setTimerStatus(res.data);
+				onRequestLanded?.();
 
 				// Save active task via API when timer starts
 				// Skip if we're on /task/ page because setActiveTask already does it
@@ -461,15 +528,20 @@ export function useTimerApi({
 				});
 			});
 
-			promise.catch(() => {
-				if (taskId.current) {
+			promise
+				.catch((error) => {
+					// Roll back the optimistic start, also when no active task was set (explicit or page task)
 					updateLocalTimerStatus({
-						lastTaskId: taskId.current,
+						lastTaskId: taskIdToUse ?? taskId.current ?? null,
 						runnedDateTime: 0,
 						running: false
 					});
-				}
-			});
+					toast.error(t('timer.TIMER_START_FAILED'));
+					logErrorInDev('startTimer', error);
+				})
+				.finally(() => {
+					if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(false);
+				});
 			// Updating the task status to "In Progress" when the timer is started
 			if (taskToUse && taskToUse.status !== ETaskStatusName.IN_PROGRESS) {
 				const selectedStatus = taskStatuses.find(
@@ -504,10 +576,6 @@ export function useTimerApi({
 				}
 			}
 
-			promise.finally(() => {
-				if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(false);
-			});
-
 			return promise;
 		},
 		[
@@ -531,6 +599,7 @@ export function useTimerApi({
 			updateOrganizationTeamEmployeeActiveTask,
 			t,
 			refreshUserData,
+			stopStaleTeamsTimer,
 			queryClient,
 			activeTeamId,
 			isCurrentScope,
@@ -538,10 +607,38 @@ export function useTimerApi({
 		]
 	);
 
+	// Set before refreshUserData so its round trip is covered too: a call made while a start is running waits
+	// for that start instead of sending a second POST /timer/start.
+	const startTimer = useCallback(
+		(explicitTask?: TTask) => {
+			if (pendingStartTimer) {
+				// No task named, or the same one: the start in flight is the one asked for
+				if (!explicitTask || explicitTask.id === pendingStartTaskId) return pendingStartTimer;
+				// Another task: fail, so the caller does not report the first task's start as its own
+				toast.error(t('timer.TIMER_START_FAILED'));
+				return Promise.reject(new Error('A timer start for another task is already in progress'));
+			}
+
+			const request: Promise<void> = runStartTimer(explicitTask, () => releaseStartGuard(request)).finally(() =>
+				releaseStartGuard(request)
+			);
+			pendingStartTimer = request;
+			// The task runStartTimer will start: explicit, else the page's task on /task/*, else the active one
+			pendingStartTaskId =
+				explicitTask?.id ??
+				(pathname?.startsWith('/task/') ? detailedTask?.id : undefined) ??
+				activeTeamTaskRef.current?.id ??
+				null;
+			return request;
+		},
+		[runStartTimer, activeTeamTaskRef, pathname, detailedTask, t]
+	);
+
 	// ==================== STOP TIMER ====================
 
 	const stopTimerMutate = stopTimerMutation.mutateAsync;
 	const stopTimer = useCallback(() => {
+		const previousLocalTimerStatus = localTimerStatusRef.current;
 		updateLocalTimerStatus({
 			lastTaskId: taskId.current || null,
 			runnedDateTime: 0,
@@ -553,40 +650,67 @@ export function useTimerApi({
 			return Promise.resolve();
 		}
 
+		// The status stays "running" until the stop response lands, so a second stop sent meanwhile gets a 406
+		if (pendingStopTimer) {
+			return pendingStopTimer;
+		}
+
 		// Prevent duplicate stopTimer calls within 500ms
 		// PRIMARY defense against race conditions causing 406 errors
-		const timeSinceLastStop = Date.now() - lastStopTimerTimestamp.current;
+		const timeSinceLastStop = Date.now() - lastStopTimerTimestamp;
 		if (timeSinceLastStop < STOP_TIMER_DEBOUNCE_MS) {
 			console.warn(`[stopTimer] Debounced duplicate call (${timeSinceLastStop}ms since last stop)`);
 			return Promise.resolve();
 		}
 
 		// Update timestamp BEFORE calling the API to prevent race conditions
-		lastStopTimerTimestamp.current = Date.now();
+		lastStopTimerTimestamp = Date.now();
 
 		// Sync the last few seconds of work before stopping
 		// Placed after debounce check to avoid wasteful duplicate sync calls
 		syncTimer();
 
 		if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
-		return stopTimerMutate(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS)
+		const request: Promise<void> = stopTimerMutate(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS)
+			.catch((error) => {
+				// The last known server status still says running: undo the optimistic stop so the clock agrees
+				// with it, and refetch the status in case the stop landed after all. Only a running snapshot is put
+				// back: a stop sent while another one was pending captured that one's optimistic running:false.
+				if (
+					previousLocalTimerStatus?.running &&
+					timerStatusRef.current?.running &&
+					(!statusEnabled || isCurrentScope())
+				) {
+					updateLocalTimerStatus(previousLocalTimerStatus);
+				}
+				queryClient.invalidateQueries({ queryKey: queryKeys.timer.all });
+				throw error;
+			})
 			.then(async (res) => {
 				res.data &&
 					(!statusEnabled || isCurrentScope()) &&
 					!isEqual(timerStatus, res.data) &&
 					setTimerStatus(res.data);
+				releaseStopGuard(request);
 
-				// Clear active task via API when timer stops
-				if (activeTeamId && user) {
+				// Clear active task via API when timer stops. Skipped when the timer was already stopped: a team
+				// switch can send two stops, and the one answered 406 may already carry the new team.
+				if (activeTeamId && user && !('alreadyStopped' in res)) {
 					const currentMember = activeTeam?.members?.find((m) => m.employee?.userId === user.id);
 
 					if (currentMember?.id) {
-						await updateOrganizationTeamEmployeeActiveTask(currentMember.id, {
-							organizationId: activeTeam?.organizationId,
-							activeTaskId: null,
-							organizationTeamId: activeTeam?.id,
-							tenantId: activeTeam?.tenantId ?? ''
-						});
+						// The timer is stopped by now: failing to clear the active task must not make the stop
+						// look failed to its callers (a task card would then refuse to start the next task)
+						try {
+							await updateOrganizationTeamEmployeeActiveTask(currentMember.id, {
+								organizationId: activeTeam?.organizationId,
+								activeTaskId: null,
+								organizationTeamId: activeTeam?.id,
+								tenantId: activeTeam?.tenantId ?? ''
+							});
+						} catch (error) {
+							logErrorInDev('[Timer] Failed to clear the active task after stop:', error);
+						}
 					}
 				}
 
@@ -609,7 +733,13 @@ export function useTimerApi({
 			})
 			.finally(() => {
 				if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(false);
+				releaseStopGuard(request);
 			});
+		// onError already told the user. Most callers fire and forget the stop, so the rejection must not go
+		// unhandled; callers that await it (stop then start) still receive it.
+		request.catch(() => undefined);
+		pendingStopTimer = request;
+		return request;
 	}, [
 		timerStatus,
 		setTimerStatus,
@@ -619,6 +749,7 @@ export function useTimerApi({
 		queryClient,
 		activeTeamId,
 		timerStatusRef,
+		localTimerStatusRef,
 		user,
 		activeTeam,
 		updateOrganizationTeamEmployeeActiveTask,
@@ -656,9 +787,13 @@ export function useTimerApi({
 			// Stop timer if it's running from TEAMS source
 			if (timerStatusRef.current?.running) {
 				if (timerStatusRef.current.lastLog?.source === ETimeLogSource.TEAMS) {
-					const timeSinceLastStop = Date.now() - lastStopTimerTimestamp.current;
+					const timeSinceLastStop = Date.now() - lastStopTimerTimestamp;
 					if (timeSinceLastStop > STOP_TIMER_EFFECT_DEBOUNCE_MS) {
-						stopTimer();
+						notifyAutomaticStop(
+							stopTimer(),
+							t('timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_TITLE'),
+							t('timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_DESCRIPTION')
+						);
 					}
 				}
 			}
@@ -712,7 +847,8 @@ export function useTimerApi({
 		setTimerStatus,
 		queryClient,
 		user,
-		updateOrganizationTeamEmployeeActiveTask
+		updateOrganizationTeamEmployeeActiveTask,
+		t
 	]);
 
 	// Track active task changes separately to keep lastActiveTask.current in sync
@@ -736,9 +872,13 @@ export function useTimerApi({
 			// If timer is started at some other source keep the timer running...
 			// If timer is started in the browser Stop the timer on Task Change
 			if (timerStatusRef.current.lastLog?.source === ETimeLogSource.TEAMS) {
-				const timeSinceLastStop = Date.now() - lastStopTimerTimestamp.current;
+				const timeSinceLastStop = Date.now() - lastStopTimerTimestamp;
 				if (timeSinceLastStop > STOP_TIMER_EFFECT_DEBOUNCE_MS) {
-					stopTimer();
+					notifyAutomaticStop(
+						stopTimer(),
+						t('timer.TASK_SWITCH.STOPPED_TIMER_TOAST_TITLE'),
+						t('timer.TASK_SWITCH.STOPPED_TIMER_TOAST_DESCRIPTION')
+					);
 				}
 			}
 		}
@@ -746,7 +886,7 @@ export function useTimerApi({
 		if (currentTaskId) {
 			lastActiveTaskId.current = currentTaskId;
 		}
-	}, [firstLoad, activeTeamTask?.id, stopTimer, timerStatusRef, isUpdatingActiveTask]);
+	}, [firstLoad, activeTeamTask?.id, stopTimer, timerStatusRef, isUpdatingActiveTask, t]);
 
 	// ==================== FILTERED TIMER STATUS ====================
 

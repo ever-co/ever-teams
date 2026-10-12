@@ -14,6 +14,7 @@ import { useActivityFilters } from '@/core/hooks/activities/use-activity-filters
 import { useActivityChartQuery } from '@/core/hooks/activities/queries/use-activity-chart-query';
 import { useActivityDailyReportQuery } from '@/core/hooks/activities/queries/use-activity-daily-report-query';
 import { useActivityStatisticsQuery } from '@/core/hooks/activities/queries/use-activity-statistics-query';
+import { useTeamDashboardStatisticsProps } from '@/core/hooks/activities/use-team-dashboard-statistics-props';
 import { useTranslations } from 'next-intl';
 
 import { TeamStatsTableSkeleton } from '@/core/components/common/skeleton/team-stats-table-skeleton';
@@ -34,10 +35,11 @@ function TeamDashboard() {
 	const t = useTranslations();
 	const [showChart, setShowChart] = useState(false);
 	const router = useRouter();
-	const paramsUrl = useParams<{ locale: string }>();
+	const paramsUrl = useParams<{ locale: string; teamId: string }>();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
 	const { mergedProps, enabled, currentFilters, updateDateRange, isManage } = useActivityFilters();
+	const statisticsProps = useTeamDashboardStatisticsProps({ mergedProps, isManage, routeTeamId: paramsUrl?.teamId });
 	const {
 		rapportChartActivity,
 		refetchChartActivity,
@@ -52,7 +54,7 @@ function TeamDashboard() {
 		statisticsCounts,
 		refetchStatisticsCounts,
 		isLoading: isStatsLoading
-	} = useActivityStatisticsQuery({ mergedProps, enabled });
+	} = useActivityStatisticsQuery({ mergedProps: statisticsProps, enabled });
 	const loading = isChartLoading || isDailyLoading || isStatsLoading;
 
 	const currentLocale = paramsUrl?.locale;

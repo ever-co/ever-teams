@@ -18,7 +18,11 @@ export interface UseReportActivityProps
 	projectIds?: string[];
 	employeeIds?: string[];
 	teamIds?: string[];
+	taskIds?: string[];
 	groupBy?: string;
+	/** Ids applied through `updateFilters`, without the dashboard filter fallback: used in the report query key */
+	selectedEmployeeIds?: string[];
+	selectedTeamIds?: string[];
 }
 
 export type GroupByType = 'date' | 'project' | 'employee' | 'application' | 'daily' | 'weekly' | 'member';
@@ -53,6 +57,7 @@ type DefaultProps = Required<
 		| 'employeeIds'
 		| 'projectIds'
 		| 'teamIds'
+		| 'taskIds'
 	>
 >;
 
@@ -78,7 +83,34 @@ function getDefaultProps(): DefaultProps {
 		end: 100,
 		employeeIds: [],
 		projectIds: [],
-		teamIds: []
+		teamIds: [],
+		taskIds: []
+	};
+}
+
+// ==================== QUERY KEY ====================
+
+/**
+ * Query key params shared by the activity report queries (chart, daily report, report list).
+ *
+ * Employee and team ids stay out on purpose: they follow the dashboard filter, which changes them on
+ * every pick and applies them with an explicit refetch. Keying on them would refetch on each pick and
+ * swap the page for its loading skeleton while the filter is still open.
+ */
+export function getActivityQueryKeyParams(mergedProps: Required<UseReportActivityProps> | null) {
+	return {
+		tenantId: mergedProps?.tenantId,
+		organizationId: mergedProps?.organizationId,
+		startDate: mergedProps?.startDate,
+		endDate: mergedProps?.endDate,
+		groupBy: mergedProps?.groupBy,
+		projectIds: mergedProps?.projectIds,
+		taskIds: mergedProps?.taskIds,
+		logType: mergedProps?.logType,
+		activityLevel: mergedProps?.activityLevel,
+		// The member and team picks applied on the page itself (not the dashboard fallback described above)
+		selectedEmployeeIds: mergedProps?.selectedEmployeeIds,
+		selectedTeamIds: mergedProps?.selectedTeamIds
 	};
 }
 
@@ -97,11 +129,15 @@ function getDefaultProps(): DefaultProps {
  * const { data: chartData } = useActivityChartQuery({ mergedProps, enabled: true });
  * ```
  */
-export function useActivityFilters() {
+export function useActivityFilters({ includeTeamManagers = true }: { includeTeamManagers?: boolean } = {}) {
 	// User and authentication
-	const { user } = useAuthenticateUser();
+	const { user, isTeamManager } = useAuthenticateUser();
 	const { allteamsState, alluserState, isUserAllowedToAccess } = useTimelogFilterOptions();
-	const isManage = useMemo(() => user && isUserAllowedToAccess(user), [user, isUserAllowedToAccess]);
+	// A team manager usually holds the EMPLOYEE role; the API checks which members they manage
+	const isManage = useMemo(
+		() => user && (isUserAllowedToAccess(user) || (includeTeamManagers && isTeamManager)),
+		[user, isUserAllowedToAccess, includeTeamManagers, isTeamManager]
+	);
 
 	// State management — lazy initializer so dates are fresh at mount time
 	const [currentFilters, setCurrentFilters] = useState<Partial<UseReportActivityProps>>(getDefaultProps);
@@ -139,8 +175,11 @@ export function useActivityFilters() {
 			endDate: (currentFilters.endDate || defaults.endDate) as string,
 			groupBy: (currentFilters.groupBy || defaults.groupBy) as string,
 			projectIds: (currentFilters.projectIds || defaults.projectIds) as string[],
-			employeeIds,
-			teamIds: teamIds,
+			// Members and teams applied through updateFilters win over the dashboard filter state
+			employeeIds: currentFilters.employeeIds?.length ? currentFilters.employeeIds : employeeIds,
+			teamIds: currentFilters.teamIds?.length ? currentFilters.teamIds : teamIds,
+			selectedEmployeeIds: currentFilters.employeeIds ?? [],
+			selectedTeamIds: currentFilters.teamIds ?? [],
 			activityLevel: {
 				start: currentFilters.activityLevel?.start ?? defaults.activityLevel.start,
 				end: currentFilters.activityLevel?.end ?? defaults.activityLevel.end

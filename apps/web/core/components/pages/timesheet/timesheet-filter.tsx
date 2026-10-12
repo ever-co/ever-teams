@@ -7,7 +7,7 @@ import {
 } from '../../timesheet';
 import { Button } from '@/core/components';
 import { TranslationHooks } from 'next-intl';
-import { useTimelogFilterOptions } from '@/core/hooks';
+import { useIsMemberManager, useTimelogFilterOptions } from '@/core/hooks';
 import { PlusIcon } from '../../timesheet/timesheet-icons';
 import { AddTaskModal } from '../../features/timesheet/add-mask-modal';
 import { TUser } from '@/core/types/schemas';
@@ -39,6 +39,7 @@ export function TimesheetFilter({
 }: ITimesheetFilter) {
 	const { isUserAllowedToAccess } = useTimelogFilterOptions();
 	const isManage = isUserAllowedToAccess(user);
+	const { isTeamManager } = useIsMemberManager(user);
 	return (
 		<>
 			{isOpen && <AddTaskModal closeModal={closeModal} isOpen={isOpen} />}
@@ -52,18 +53,17 @@ export function TimesheetFilter({
 				<div className="flex gap-2">
 					<FrequencySelect />
 					<TimesheetFilterDate t={t} {...initDate} data={Object.values(data || {}).flat()} />
+					{(isManage || isTeamManager) && <TimeSheetFilterPopover />}
+					{/* The API records manual time for the caller unless they may act for every employee */}
 					{isManage && (
-						<>
-							<TimeSheetFilterPopover />
-							<Button
-								onClick={openModal}
-								variant="outline"
-								className="bg-primary/5 dark:bg-primary-light dark:border-transparent  !h-[2.2rem] font-medium"
-							>
-								<PlusIcon />
-								{t('common.ADD_TIME')}
-							</Button>
-						</>
+						<Button
+							onClick={openModal}
+							variant="outline"
+							className="bg-primary/5 dark:bg-primary-light dark:border-transparent  !h-[2.2rem] font-medium"
+						>
+							<PlusIcon />
+							{t('common.ADD_TIME')}
+						</Button>
 					)}
 				</div>
 			</div>

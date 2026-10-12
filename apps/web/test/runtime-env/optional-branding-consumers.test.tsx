@@ -33,12 +33,9 @@ jest.mock('@/core/components/layouts/default-layout/toggle-theme-btns', () => ({
 	__esModule: true,
 	default: () => null
 }));
-jest.mock('@/core/components', () => ({
-	Text: {
-		Link: ({ children, href }: React.ComponentProps<'a'>) => <a href={href}>{children}</a>
-	},
-	ThemeToggler: () => null,
-	BackdropLoader: () => null,
+jest.mock('@/core/components/common/toggler', () => ({ ThemeToggler: () => null }));
+jest.mock('@/core/components/common/loader', () => ({ BackdropLoader: () => null }));
+jest.mock('@/core/components/common/button', () => ({
 	Button: ({ children, disabled, type }: React.ComponentProps<'button'> & { loading?: boolean }) => (
 		<button disabled={disabled} type={type}>
 			{children}
@@ -55,6 +52,7 @@ jest.mock('@/core/components/common/ever-card', () => ({
 }));
 jest.mock('@/core/components/common/typography', () => ({
 	Text: {
+		Link: ({ children, href }: React.ComponentProps<'a'>) => <a href={href}>{children}</a>,
 		Heading: ({ children }: React.PropsWithChildren) => <h3>{children}</h3>,
 		Error: ({ children }: React.PropsWithChildren) => <p>{children}</p>
 	}

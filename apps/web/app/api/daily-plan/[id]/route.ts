@@ -1,33 +1,23 @@
 import { NextResponse } from 'next/server';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
-import { deleteDailyPlanRequest, getDayPlansByEmployee, updatePlanRequest } from '@/core/services/server/requests';
+import { deleteDailyPlanRequest, getPlanByIdRequest, updatePlanRequest } from '@/core/services/server/requests';
 import { IUpdateDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
 	const id = (await params).id;
 	if (!id) {
-		return NextResponse.json({ error: 'Employee ID is required' }, { status: 400 });
+		return NextResponse.json({ error: 'Plan ID is required' }, { status: 400 });
 	}
 
-	const {
-		$res,
-		user,
-		tenantId,
-		organizationId,
-		teamId: organizationTeamId,
-		access_token
-	} = await authenticatedGuard(req, new NextResponse());
+	const { $res, user, tenantId, access_token } = await authenticatedGuard(req, new NextResponse());
 
-	if (!user) {
-		return $res('Unauthorized');
-	}
+	// The guard's own status: 401 for a refused session, 503 when Gauzy could not answer (no logout then)
+	if (!user) return $res('Unauthorized');
 
-	const response = await getDayPlansByEmployee({
-		bearer_token: access_token || '',
-		employeeId: id,
-		organizationId,
-		tenantId,
-		organizationTeamId
+	const response = await getPlanByIdRequest({
+		planId: id,
+		bearer_token: access_token,
+		tenantId
 	});
 
 	return $res(response.data);

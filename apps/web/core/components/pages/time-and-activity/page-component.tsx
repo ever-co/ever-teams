@@ -21,7 +21,7 @@ import {
 	LazyTimeActivityHeader,
 	LazyCardTimeAndActivity,
 	LazyActivityTable,
-	LazyTimeActivityTable
+	LazyWeeklyReportTable
 } from '@/core/components/optimized-components/reports';
 import { activeTeamState, isTrackingEnabledState, tasksByTeamState } from '@/core/stores';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
@@ -71,6 +71,15 @@ const TimeActivityComponents = () => {
 			updateFilters(filterParams);
 		},
 		[updateFilters]
+	);
+
+	// mergedProps takes its team ids from the team dashboard filter, so the teams picked in this page's filter are passed to the weekly report here
+	const weeklyProps = useMemo(
+		() =>
+			mergedProps && currentFilters.teamIds?.length
+				? { ...mergedProps, teamIds: currentFilters.teamIds }
+				: mergedProps,
+		[mergedProps, currentFilters.teamIds]
 	);
 
 	// Calculate dynamic statistics from real data
@@ -226,7 +235,11 @@ const TimeActivityComponents = () => {
 									/>
 								);
 							case 'weekly':
-								return <LazyTimeActivityTable data={rapportDailyActivity as any} loading={loading} />;
+								return <LazyWeeklyReportTable
+										mergedProps={weeklyProps}
+										enabled={enabled}
+										initialDate={dateRange.startDate}
+									/>;
 							default:
 								return (
 									<LazyActivityTable

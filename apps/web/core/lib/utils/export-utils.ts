@@ -41,3 +41,27 @@ export function generateExportFilename(
 
 	return `${baseName}-${dateRange}.${getFileExtension(format)}`;
 }
+
+interface XLSXColumn<Row> {
+	header: string;
+	value: (row: Row) => string | number;
+	width?: number;
+	/** Excel number format for numeric cells, e.g. '0%' */
+	format?: string;
+}
+
+/**
+ * Writes the rows to an .xlsx file and starts its download.
+ * The writer is loaded on demand so it stays out of the page bundle.
+ */
+export async function exportToXLSX<Row>(rows: Row[], columns: XLSXColumn<Row>[], fileName: string): Promise<void> {
+	const { default: writeXlsxFile } = await import('write-excel-file/browser');
+
+	await writeXlsxFile(rows, {
+		columns: columns.map(({ header, value, width, format }) => ({
+			header: { value: header, fontWeight: 'bold' as const },
+			cell: (row: Row) => ({ value: value(row), format }),
+			width
+		}))
+	}).toFile(fileName);
+}

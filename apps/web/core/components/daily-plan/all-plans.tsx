@@ -1,14 +1,14 @@
 'use client';
 import { useAtomValue } from 'jotai';
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useRef, useMemo } from 'react';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
 
 import { formatDayPlanDate } from '@/core/lib/helpers/index';
-import { handleDragAndDrop } from '@/core/lib/helpers/drag-and-drop';
 
 import { FilterTabs } from '@/core/types/daily-plan-types';
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
+import { useDailyPlanTaskOrder } from '@/core/hooks/daily-plans/use-daily-plan-task-order';
 import {
 	filterDailyPlan,
 	filterDailyPlansByEmployee,
@@ -53,7 +53,7 @@ export function AllPlans({
 	const targetEmployeeId = employeeId ?? user?.employee?.id ?? user?.employeeId ?? '';
 	const { employeeSortedPlans, employeeTodayPlan } = useEmployeeDailyPlans(targetEmployeeId);
 
-	const { date } = useDateRange(currentTab);
+	const { date } = useDateRange(currentTab, targetEmployeeId);
 
 	if (currentTab === 'Today Tasks') {
 		filteredPlans.current = employeeTodayPlan;
@@ -84,18 +84,13 @@ export function AllPlans({
 	}, [date, employeeTodayPlan, employeeSortedPlans, user, filterByEmployee, filteredTaskIds]);
 
 	// Local state for drag-and-drop functionality
-	const [dragPlans, setDragPlans] = useState(plans);
-
-	// Sync drag state when plans change
-	useEffect(() => {
-		setDragPlans(plans);
-	}, [plans]);
+	const { dragPlans, onDragEnd } = useDailyPlanTaskOrder(plans);
 	if (!dragPlans) return null;
 	return (
 		<div className="flex flex-col gap-6">
 			{Array.isArray(dragPlans) && dragPlans?.length > 0 ? (
 				// @ts-ignore
-				<DragDropContext onDragEnd={(result) => handleDragAndDrop(result, dragPlans, setDragPlans)}>
+				<DragDropContext onDragEnd={onDragEnd}>
 					<Accordion
 						type="multiple"
 						className="text-sm"

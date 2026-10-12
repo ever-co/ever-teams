@@ -106,8 +106,16 @@ workflows:
   version: 2
 
   # ----------------------------------------------------------------------------
-  # Main Build Workflow - Runs on all branches
+  # Main Build Workflow - Runs on the develop, stage and production branches only.
+  # Feature and fix branches (and PR branches) deliberately run no CI (cost).
   # ----------------------------------------------------------------------------
   build:
     jobs:
-      - build-monorepo-root
+      - build-monorepo-root:
+          filters:
+            branches:
+              only:
+                - develop
+                - stage
+                - main
+                - master

@@ -20,6 +20,7 @@ import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 // dynamic import removed - using optimized components
 import { KanbanViewSkeleton } from '@/core/components/common/skeleton/kanban-view-skeleton';
+import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 import { KanbanPageSkeleton } from '@/core/components/layouts/skeletons/kanban-page-skeleton';
 import { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
@@ -56,6 +57,8 @@ const Kanban = () => {
 		setSearchTasks,
 		searchTasks,
 		isLoading,
+		isError,
+		refetchTaskStatuses,
 		setPriority,
 		setSizes,
 		setLabels,
@@ -412,7 +415,17 @@ const Kanban = () => {
 							</div>
 						) : (
 							<div className="flex flex-col flex-1 w-full h-full">
-								<KanbanViewSkeleton />
+								{/* No columns means no task statuses: a failed load must not spin forever */}
+								{isError ? (
+									<AnimatedEmptyState
+										title={t('pages.error.HEADING_TITLE')}
+										message={t('pages.error.HEADING_DESCRIPTION')}
+										actionLabel={t('pages.unauthorized.TRY_AGAIN')}
+										onAction={() => refetchTaskStatuses()}
+									/>
+								) : (
+									<KanbanViewSkeleton />
+								)}
 							</div>
 						)}
 					</div>

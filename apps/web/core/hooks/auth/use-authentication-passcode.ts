@@ -9,6 +9,7 @@ import { useQueryCall } from '../common/use-query';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { authService } from '@/core/services/client/api/auth/auth.service';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
 import { EVER_ID_STEP_PARAM, isEverIdStep } from '@/core/lib/auth/ever-id/step';
 import {
@@ -19,11 +20,14 @@ import {
 import { restartEverIdSignIn } from '@/core/lib/auth/ever-id/restart';
 import { everIdService } from '@/core/services/client/api/auth/ever-id.service';
 
+/** Shown for a 429: Gauzy throttles the code endpoints and locks an account after repeated wrong codes. */
+const TOO_MANY_ATTEMPTS = 'pages.auth.everId.TOO_MANY_ATTEMPTS';
+
 /** The message for each answer of the Ever ID code confirmation that is not a success. */
 const EVER_ID_CONFIRM_ERRORS = {
 	400: 'pages.auth.INVALID_CODE_TRY_AGAIN',
 	410: 'pages.auth.everId.CODE_EXPIRED',
-	429: 'pages.auth.everId.TOO_MANY_ATTEMPTS'
+	429: TOO_MANY_ATTEMPTS
 } as const;
 
 type AuthCodeRef = {
@@ -178,6 +182,13 @@ export function useAuthenticationPasscode() {
 				}
 			} catch (error) {
 				confirmError = error;
+			}
+
+			// Already limited: the invite-code attempt would only add one more request to a refusing server.
+			if (ApiErrorService.isApiError(confirmError) && confirmError.hasHttpResponseStatus(429)) {
+				setStatus('error');
+				setErrors({ code: t(TOO_MANY_ATTEMPTS) });
+				return;
 			}
 
 			// Attempt 2: invite-code path (Next.js route). Only reached when attempt 1 did not sign the user in.
@@ -374,15 +385,23 @@ export function useAuthenticationPasscode() {
 		}
 		const promise = signInEmailQueryCall(formValues['email']);
 
-		void promise.then(() => setErrors({}));
+		void promise.then(() => {
+			setErrors({});
+			// A code that went out also clears the error state a refused send left on the passcode screen
+			setStatus((current) => (current === 'error' ? 'idle' : current));
+		});
 		promise.catch((err: AxiosError) => {
 			if (err.response?.status === 400) {
 				setErrors((err.response?.data as any)?.errors || {});
+			} else if (ApiErrorService.isApiError(err) && err.hasHttpResponseStatus(429)) {
+				// The passcode screen only shows a message while the status is error
+				setStatus('error');
+				setErrors({ email: t(TOO_MANY_ATTEMPTS) });
 			}
 		});
 
 		return promise;
-	}, [formValues, signInEmailQueryCall]);
+	}, [formValues, signInEmailQueryCall, t]);
 
 	const getLastTeamIdWithRecentLogout = useCallback((): string | null => {
 		if (workspaces.length === 0) {

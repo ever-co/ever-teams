@@ -57,8 +57,16 @@ export const LazyActivityTable = dynamic(() => import('../pages/time-and-activit
 	ssr: false
 });
 
+/** @deprecated The weekly view now renders LazyWeeklyReportTable; kept for existing imports. */
 export const LazyTimeActivityTable = dynamic(
 	() => import('../pages/time-and-activity/time-activity-table').then((mod) => ({ default: mod.TimeActivityTable })),
+	{
+		ssr: false
+	}
+);
+
+export const LazyWeeklyReportTable = dynamic(
+	() => import('../pages/time-and-activity/weekly-report-table').then((mod) => ({ default: mod.WeeklyReportTable })),
 	{
 		ssr: false
 	}

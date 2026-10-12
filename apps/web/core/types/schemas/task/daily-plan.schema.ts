@@ -52,7 +52,10 @@ export const dailyPlanSchema = dailyPlanBaseSchema.extend({
 	tasks: z
 		.array(z.lazy(() => taskSchema))
 		.optional()
-		.nullable()
+		.nullable(),
+
+	// Task ids in the order the owner arranged them, as stored by the API (see `orderPlanTasks`)
+	taskOrder: z.array(z.string()).optional().nullable()
 });
 
 /**
@@ -81,7 +84,9 @@ export const updateDailyPlanSchema = dailyPlanBaseSchema.partial().extend({
 	employeeId: z.string().optional(),
 
 	// Optional from Partial<Pick<IRelationalOrganizationTeam, 'organizationTeamId'>>
-	organizationTeamId: z.string().optional().nullable()
+	organizationTeamId: z.string().optional().nullable(),
+
+	taskOrder: z.array(z.string()).optional()
 });
 
 /**

@@ -1,6 +1,7 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getActivityReportRequest } from '@/core/services/server/requests/timesheet';
-import { IActivityRequestParams } from '@/core/services/server/requests/timesheet';
+import { IActivityRequestParams, readArrayParam } from '@/core/services/server/requests/timesheet';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 
 export const dynamic = 'force-dynamic';
@@ -11,7 +12,15 @@ export const runtime = 'nodejs';
  * Fetches activity report data based on provided query parameters
  */
 export async function GET(req: NextRequest) {
+	const res = new NextResponse();
+
 	try {
+		// Authenticate before reading parameters: the guard answers 401 to a rejected token and 503 when
+		// the session check could not reach Gauzy, so an outage never looks like an expired session
+		const guard = await authenticatedGuard(req, res);
+		if (!guard.user) return guard.deny();
+		const { access_token } = guard;
+
 		const searchParams = req.nextUrl.searchParams;
 
 		const params: Partial<IActivityRequestParams> = {
@@ -40,10 +49,10 @@ export async function GET(req: NextRequest) {
 		}
 
 		// Get array parameters
-		const projectIds = searchParams.getAll('projectIds[]');
-		const employeeIds = searchParams.getAll('employeeIds[]');
-		const sources = searchParams.getAll('source[]');
-		const logTypes = searchParams.getAll('logType[]');
+		const projectIds = readArrayParam(searchParams, 'projectIds');
+		const employeeIds = readArrayParam(searchParams, 'employeeIds');
+		const sources = readArrayParam(searchParams, 'source');
+		const logTypes = readArrayParam(searchParams, 'logType');
 
 		// Add array parameters if they exist
 		if (projectIds.length) params.projectIds = projectIds;
@@ -63,7 +72,7 @@ export async function GET(req: NextRequest) {
 		}
 
 		// Fetch activity report data
-		const data = await getActivityReportRequest(params as IActivityRequestParams);
+		const { data } = await getActivityReportRequest(params as IActivityRequestParams, access_token);
 
 		return new Response(JSON.stringify(data), {
 			status: 200,

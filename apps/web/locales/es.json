@@ -481,7 +481,12 @@
 		"GROUP_BY": "Agrupar por",
 		"DATE": "Fecha",
 		"VIEW": "Vista",
-		"HOURS_ON_DATE": "{hours} horas el {date}"
+		"HOURS_ON_DATE": "{hours} horas el {date}",
+		"PREVIOUS_WEEK": "Semana anterior",
+		"NEXT_WEEK": "Semana siguiente",
+		"WEEKLY_REPORT_ERROR": "Informe semanal no disponible",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "No se pudo cargar el tiempo registrado durante la semana seleccionada.",
+		"EXPORT_FAILED": "No se pudo crear el archivo. Vuelva a intentarlo."
 	},
 	"hotkeys": {
 		"HELP": "Ayuda",
@@ -801,6 +806,8 @@
 			"LOADING_WORKSPACE": "Estamos cargando el espacio de trabajo, espere...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Redirigiendo a tu espacio de trabajo...",
 			"VERIFY_EMAIL_LOADING_TEXT": "Estamos verificando su correo electrónico, espere...",
+			"VERIFY_EMAIL_FAILED_TITLE": "No pudimos verificar su correo electrónico",
+			"VERIFY_EMAIL_FAILED_MESSAGE": "Es posible que el enlace no sea válido, haya caducado o ya se haya utilizado, o que no se haya podido contactar con el servidor. Vuelva a intentarlo en unos momentos o abra la aplicación para solicitar uno nuevo.",
 			"INPUT_TEAM_NAME": "Ingrese el nombre de su equipo",
 			"JOIN_EXISTING_TEAM": "¿Unirse a un equipo existente?",
 			"CREATE_FIRST_TEAM": "Crea tu primer equipo",
@@ -1084,6 +1091,7 @@
 			"LOADING": "Cargando datos del registro de horas...",
 			"NO_ENTRIES_FOUND": "No se encontraron entradas en el registro de horas",
 			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Estás a punto de rechazar la entrada seleccionada, ¿te gustaría continuar?",
+			"REJECTION_REASON": "Motivo del rechazo",
 			"ALL_TASKS": "Todas las tareas",
 			"PENDING": "Pendiente",
 			"APPROVED": "Aprobado",
@@ -1110,12 +1118,19 @@
 		"START_TIMER": "Por favor, selecciona o crea una nueva tarea para comenzar a rastrear el tiempo o crear un plan",
 		"ALREADY_TRACKING_MESSAGE": "Ya estás rastreando el tiempo en otra pestaña o dispositivo.",
 		"TASK_CLOSED": "La tarea está cerrada",
+		"PLAN_REQUIRED_TO_START": "Añade esta tarea al plan de hoy para empezar",
 		"STARTING_TIMER": "Iniciando temporizador...",
 		"TIMER_STARTED": "Temporizador iniciado exitosamente",
 		"TIMER_START_FAILED": "Error al iniciar el temporizador",
+		"STALE_TIMER_STOPPED_DESCRIPTION": "Tu temporizador siguió en marcha después de cerrar la aplicación. Por eso se detuvo en el último momento en que la aplicación estaba abierta ({stoppedAt}). Si trabajaste después, añade el tiempo manualmente.",
+		"TIMER_STOP_FAILED": "Error al detener el temporizador. Inténtelo de nuevo.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Temporizador detenido",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Temporizador detenido debido al cambio de equipo"
+		},
+		"TASK_SWITCH": {
+			"STOPPED_TIMER_TOAST_TITLE": "Temporizador detenido",
+			"STOPPED_TIMER_TOAST_DESCRIPTION": "Temporizador detenido debido al cambio de la tarea activa"
 		},
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Estimar"
@@ -1155,7 +1170,9 @@
 			"WARNING_PLAN_ESTIMATION": "Por favor, corrija las horas de trabajo previstas o reevalúe la(s) tarea(s)"
 		},
 		"VISITED_SITES": "Sitios visitados",
-		"NO_VISITED_SITE_MESSAGE": "No hay sitios visitados"
+		"NO_VISITED_SITE_MESSAGE": "No hay sitios visitados",
+		"TRACKING_SOURCE_HINT": "Las capturas de pantalla, las aplicaciones y los sitios visitados los registra la aplicación de escritorio o el agente, no el seguimiento del tiempo en el navegador.",
+		"DOWNLOAD_DESKTOP_APP": "Descargar la aplicación de escritorio"
 	},
 	"task": {
 		"TITLE": "Tarea",
@@ -1221,12 +1238,14 @@
 			"TASK_PLAN_FAILED": "Error al planificar la tarea. Por favor, inténtalo de nuevo.",
 			"TASK_ASSIGNMENT_FAILED": "Error al asignar/desasignar la tarea. Por favor, inténtalo de nuevo.",
 			"TASK_FAVORITE_FAILED": "Error al actualizar favoritos. Por favor, inténtalo de nuevo.",
+			"TASK_CREATION_FAILED": "Error al crear la tarea. Por favor, inténtalo de nuevo.",
 			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "Elemento favorito creado exitosamente",
 			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "Elemento favorito eliminado exitosamente"
 		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan para hoy",
+		"ADD_TO_TODAY_PLAN": "Añadir al plan de hoy",
 		"TASK_TIME": "tiempo de tarea",
 		"TOTAL_TODAY": "Total Hoy",
 		"PLAN_FOR_TOMORROW": "Plan para mañana",
@@ -1250,6 +1269,7 @@
 		"TOTAL_TASK": "Tareas totales",
 		"DAILY_PLAN_DESCRIPTION": "'Plan diario' ayuda a organizar el proceso de trabajo para lograr los mejores resultados",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Esta tarea no estaba prevista en el plan de hoy. ¿Te gustaría añadir algo al plan?",
+		"TASK_ORDER_SAVE_FAILED": "No se pudo guardar el nuevo orden de las tareas. Inténtalo de nuevo.",
 		"planned_tasks_popup": {
 			"warning": {
 				"PLANNED_TIME": "Por favor, añade tiempo planificado",

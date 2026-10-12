@@ -1,4 +1,5 @@
 'use client';
+import { logErrorInDev } from '@/core/lib/helpers/error-message';
 
 import {
 	HostKeys,
@@ -175,10 +176,15 @@ export function TaskInputKanban(props: Props) {
 					assignToUsers: props.usersTaskCreatedAssignTo || []
 				})
 				?.then(onTaskCreated)
-				.finally(async () => {
+				.then(() => {
 					setTaskName('');
 
 					props.onClose && props.onClose();
+				})
+				.catch((error) => {
+					// useCreateTask already showed the error toast; the modal stays open for a retry. Logged so a
+					// failure in the caller's onTaskCreated is not swallowed silently.
+					logErrorInDev('[TaskInputKanban] task creation flow failed', error);
 				});
 	}, [datas, props, onTaskCreated]);
 

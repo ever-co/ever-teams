@@ -5,7 +5,7 @@ import {
 	TASKS_ESTIMATE_HOURS_MODAL_DATE,
 	DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE
 } from '@/core/constants/config/constants';
-import { estimatedTotalTime } from '@/core/components/tasks/daily-plan';
+import { estimatedTotalTime } from '@/core/hooks/daily-plans/daily-plan-totals';
 import { useTimerPlanStatus } from '../timer';
 import { useAtomValue } from 'jotai';
 import { timerStatusFetchingState } from '@/core/stores';
@@ -136,7 +136,8 @@ export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStop
 				stopTimer();
 				return;
 			case 'START_TIMER':
-				startTimer();
+				// startTimer reports its own failure, this only keeps the rejection from going unhandled
+				Promise.resolve(startTimer()).catch(() => undefined);
 				return;
 			case 'SHOW_MODAL':
 				modalDispatch[action.modal]();

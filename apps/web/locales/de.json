@@ -481,7 +481,12 @@
 		"GROUP_BY": "Gruppieren nach",
 		"DATE": "Datum",
 		"VIEW": "Ansicht",
-		"HOURS_ON_DATE": "{hours} Stunden am {date}"
+		"HOURS_ON_DATE": "{hours} Stunden am {date}",
+		"PREVIOUS_WEEK": "Vorherige Woche",
+		"NEXT_WEEK": "Nächste Woche",
+		"WEEKLY_REPORT_ERROR": "Wochenbericht nicht verfügbar",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "Die in der ausgewählten Woche erfasste Zeit konnte nicht geladen werden.",
+		"EXPORT_FAILED": "Die Datei konnte nicht erstellt werden. Bitte versuchen Sie es erneut."
 	},
 	"hotkeys": {
 		"HELP": "Hilfe",
@@ -801,6 +806,8 @@
 			"LOADING_WORKSPACE": "Wir laden den Arbeitsbereich, bitte warten...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Weiterleitung zu Ihrem Arbeitsbereich...",
 			"VERIFY_EMAIL_LOADING_TEXT": "Wir verifizieren gerade Ihre E-Mail, bitte warten...",
+			"VERIFY_EMAIL_FAILED_TITLE": "Wir konnten Ihre E-Mail nicht verifizieren",
+			"VERIFY_EMAIL_FAILED_MESSAGE": "Der Link ist möglicherweise ungültig, abgelaufen oder bereits verwendet, oder der Server war nicht erreichbar. Versuchen Sie den Link in Kürze erneut oder öffnen Sie die App, um einen neuen anzufordern.",
 			"INPUT_TEAM_NAME": "Teamnamen eingeben",
 			"JOIN_EXISTING_TEAM": "Einem bestehenden Team beitreten?",
 			"CREATE_FIRST_TEAM": "Ihr erstes Team erstellen",
@@ -1084,6 +1091,7 @@
 			"LOADING": "Lade Zeiterfassungsdaten...",
 			"NO_ENTRIES_FOUND": "Keine Zeiterfassungseinträge gefunden",
 			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Sie sind dabei, den ausgewählten Eintrag abzulehnen. Möchten Sie fortfahren?",
+			"REJECTION_REASON": "Ablehnungsgrund",
 			"ALL_TASKS": "Alle Aufgaben",
 			"PENDING": "Ausstehend",
 			"APPROVED": "Genehmigt",
@@ -1110,12 +1118,19 @@
 		"START_TIMER": "Bitte wählen oder erstellen Sie eine neue Aufgabe, um die Zeit zu tracken oder einen Plan erstellen",
 		"ALREADY_TRACKING_MESSAGE": "Sie verfolgen bereits die Zeit in einem anderen Tab oder Gerät.",
 		"TASK_CLOSED": "Aufgabe ist geschlossen",
+		"PLAN_REQUIRED_TO_START": "Fügen Sie diese Aufgabe zum heutigen Plan hinzu, um zu starten",
 		"STARTING_TIMER": "Timer wird gestartet...",
 		"TIMER_STARTED": "Timer erfolgreich gestartet",
 		"TIMER_START_FAILED": "Timer konnte nicht gestartet werden",
+		"STALE_TIMER_STOPPED_DESCRIPTION": "Ihr Timer lief weiter, nachdem die App geschlossen wurde. Er wurde daher zum letzten Zeitpunkt gestoppt, an dem die App geöffnet war ({stoppedAt}). Wenn Sie danach gearbeitet haben, fügen Sie die Zeit manuell hinzu.",
+		"TIMER_STOP_FAILED": "Timer konnte nicht gestoppt werden. Bitte versuchen Sie es erneut.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer gestoppt",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer wegen Teamwechsel gestoppt"
+		},
+		"TASK_SWITCH": {
+			"STOPPED_TIMER_TOAST_TITLE": "Timer gestoppt",
+			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer wegen Wechsel der aktiven Aufgabe gestoppt"
 		},
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Schätzen"
@@ -1155,7 +1170,9 @@
 			"WARNING_PLAN_ESTIMATION": "Bitte korrigieren Sie die geplanten Arbeitsstunden oder schätzen Sie die Aufgabe(n) neu ein."
 		},
 		"VISITED_SITES": "Besuchte Seiten",
-		"NO_VISITED_SITE_MESSAGE": "Es gibt keine besuchten Seiten"
+		"NO_VISITED_SITE_MESSAGE": "Es gibt keine besuchten Seiten",
+		"TRACKING_SOURCE_HINT": "Screenshots, Apps und besuchte Seiten werden von der Desktop-App oder dem Agenten erfasst, nicht bei der Zeiterfassung im Browser.",
+		"DOWNLOAD_DESKTOP_APP": "Desktop-App herunterladen"
 	},
 	"task": {
 		"TITLE": "Aufgabe",
@@ -1221,12 +1238,14 @@
 			"TASK_PLAN_FAILED": "Aufgabenplanung fehlgeschlagen. Bitte versuchen Sie es erneut.",
 			"TASK_ASSIGNMENT_FAILED": "Aufgabenzuweisung/-entfernung fehlgeschlagen. Bitte versuchen Sie es erneut.",
 			"TASK_FAVORITE_FAILED": "Favoriten-Update fehlgeschlagen. Bitte versuchen Sie es erneut.",
+			"TASK_CREATION_FAILED": "Aufgabenerstellung fehlgeschlagen. Bitte versuchen Sie es erneut.",
 			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "Favorit erfolgreich erstellt",
 			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "Favorit erfolgreich gelöscht"
 		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan für heute",
+		"ADD_TO_TODAY_PLAN": "Zum heutigen Plan hinzufügen",
 		"TASK_TIME": "aufgabenzeit",
 		"TOTAL_TODAY": "Gesamt Heute",
 		"PLAN_FOR_TOMORROW": "Plan für morgen",
@@ -1250,6 +1269,7 @@
 		"TOTAL_TASK": "Gesamte Aufgaben",
 		"DAILY_PLAN_DESCRIPTION": "'Tagesplan' hilft, den Arbeitsprozess zu organisieren, um die besten Ergebnisse zu erzielen",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Deze taak was niet gepland voor het plan van vandaag. Wilt u iets toevoegen aan het plan?",
+		"TASK_ORDER_SAVE_FAILED": "Die neue Reihenfolge der Aufgaben konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.",
 		"planned_tasks_popup": {
 			"warning": {
 				"PLANNED_TIME": "Bitte fügen Sie die geplante Zeit hinzu",

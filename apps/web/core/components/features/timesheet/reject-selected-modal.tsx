@@ -38,16 +38,23 @@ export function RejectSelectedModal({
 	const { updateTimesheetStatus, loadingUpdateTimesheetStatus } = useUpdateTimesheet();
 
 	const t = useTranslations();
+	// The modal stays mounted between openings, so a reason typed for one selection must not carry over to the next.
+	const handleClose = () => {
+		setReason('');
+		closeModal();
+	};
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setIsSubmitting(true);
 		try {
 			updateTimesheetStatus({
 				status: ETimesheetStatus.DENIED,
-				ids: selectTimesheetId || []
+				ids: selectTimesheetId || [],
+				reason
 			})
 				.then(() => {
-					closeModal();
+					handleClose();
+					onReject(reason);
 				})
 				.catch((error) => console.error(error));
 		} finally {
@@ -58,7 +65,7 @@ export function RejectSelectedModal({
 		<Modal
 			isOpen={isOpen}
 			showCloseIcon={false}
-			closeModal={closeModal}
+			closeModal={handleClose}
 			title={'Reject Selected'}
 			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[24rem] justify-start"
 			titleClass="font-bold"
@@ -82,14 +89,13 @@ export function RejectSelectedModal({
 						maxLength={120}
 						minLength={0}
 						aria-label="Rejection reason"
-						required
 					/>
 					<div className="text-sm text-right text-gray-500">
 						{reason.length}/{maxReasonLength}
 					</div>
 					<div className="flex gap-x-4 justify-end items-center">
 						<button
-							onClick={closeModal}
+							onClick={handleClose}
 							type="button"
 							disabled={isSubmitting}
 							aria-label="Cancel rejection"

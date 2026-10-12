@@ -1,4 +1,5 @@
 'use client';
+import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import {
 	HostKeys,
 	RTuseTaskInput,
@@ -46,6 +47,8 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 type Props = {
 	task?: Nullable<TTask>;
 	tasks?: TTask[];
+	// False when `tasks` is a copy taken before every team task page was loaded.
+	tasksComplete?: boolean;
 	onTaskClick?: (task: TTask) => void;
 	initEditMode?: boolean;
 	onCloseCombobox?: () => void;
@@ -90,7 +93,8 @@ export function TaskInput(props: Props) {
 	const datas = useTaskInput({
 		task: props.task,
 		initEditMode: props.initEditMode,
-		tasks: props.tasks
+		tasks: props.tasks,
+		tasksComplete: props.tasksComplete
 	});
 
 	const onCloseComboboxRef = useCallbackRef(props.onCloseCombobox);
@@ -222,9 +226,12 @@ export function TaskInput(props: Props) {
 						});
 					}
 					onTaskCreated(createdTask);
-				})
-				.finally(() => {
 					viewType === 'one-view' && setTaskName('');
+				})
+				.catch((error) => {
+					// useCreateTask already showed the error toast; the typed title stays for a retry. Logged so a
+					// failure in the caller's onTaskCreated is not swallowed silently.
+					logErrorInDev('[TaskInput] task creation flow failed', error);
 				});
 	}, [datas, props, autoActiveTask, onTaskCreated, viewType, t]);
 
@@ -716,7 +723,7 @@ function TaskCard({
 									datas.filter === 'open' && ['text-primary dark:text-primary-light font-semibold']
 								)}
 							>
-								{datas.openTaskCount || 0} {t('common.OPEN')}
+								{datas.tasksComplete && (datas.openTaskCount || 0)} {t('common.OPEN')}
 							</span>
 						</OutlineBadge>
 
@@ -730,7 +737,7 @@ function TaskCard({
 									datas.filter === 'closed' && ['text-primary dark:text-primary-light font-semibold']
 								)}
 							>
-								{datas.closedTaskCount || 0} {t('common.CLOSED')}
+								{datas.tasksComplete && (datas.closedTaskCount || 0)} {t('common.CLOSED')}
 							</span>
 						</OutlineBadge>
 					</div>

@@ -23,8 +23,10 @@ jest.mock('next/link', () => ({
 		</a>
 	)
 }));
-jest.mock('@/core/components', () => ({
-	Text: ({ children, className }: React.ComponentProps<'span'>) => <span className={className}>{children}</span>,
+jest.mock('@/core/components/common/typography', () => ({
+	Text: ({ children, className }: React.ComponentProps<'span'>) => <span className={className}>{children}</span>
+}));
+jest.mock('@/core/components/common/button', () => ({
 	Button: ({ children }: React.ComponentProps<'button'>) => <button type="button">{children}</button>
 }));
 

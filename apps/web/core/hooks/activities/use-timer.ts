@@ -1,17 +1,16 @@
 'use client';
 
 import { useAtomValue } from 'jotai';
-import { timerStatusState, activeTeamIdState } from '@/core/stores';
+import { activeTeamIdState } from '@/core/stores';
 import { useFirstLoad } from '../common/use-first-load';
 import { useTaskStatistics } from '../tasks/use-task-statistics';
-import { useRefreshIntervalV2 } from '../common';
-import { useTimerPolling } from './use-timer-polling';
-import { useTimerApi, useTimerStorage, useTimerUi } from '../timer';
-import { REFRESH_INTERVAL } from '@/core/constants/config/constants';
+import { useTimerApi } from '../timer/use-timer-api';
+import { useTimerStorage } from '../timer/use-timer-storage';
+import { useTimerUi } from '../timer/use-timer-ui';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 
 // Re-export useLiveTimerStatus from the new timer module for backward compatibility
-export { useLiveTimerStatus } from '../timer';
+export { useLiveTimerStatus } from '../timer/use-timer-ui';
 
 /**
  * Composite timer hook — Full 3-layer facade.
@@ -107,22 +106,12 @@ export function useTimerView() {
 
 	const { activeTaskEstimation } = useTaskStatistics(timerSeconds);
 
-	const timerHanlder = () => {
-		if (timerStatusFetching || !canRunTimer) return;
-		if (timerStatus?.running) {
-			stopTimer();
-		} else {
-			startTimer();
-		}
-	};
-
 	return {
 		hours,
 		minutes,
 		seconds,
 		ms_p,
 		activeTaskEstimation,
-		timerHanlder,
 		canRunTimer,
 		timerStatusFetching,
 		timerStatus,
@@ -136,12 +125,4 @@ export function useTimerView() {
 		stopTimer,
 		syncTimerLoading
 	};
-}
-
-export function useSyncTimer() {
-	const { syncTimer } = useTimer();
-	const timerStatus = useAtomValue(timerStatusState);
-
-	useTimerPolling(timerStatus?.running ?? false);
-	useRefreshIntervalV2(timerStatus?.running ? syncTimer : () => void 0, REFRESH_INTERVAL);
 }

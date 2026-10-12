@@ -1,4 +1,5 @@
-import { BackdropLoader, Button } from '@/core/components';
+import { BackdropLoader } from '@/core/components/common/loader';
+import { Button } from '@/core/components/common/button';
 import { Checkbox } from '@/core/components/common/checkbox';
 import { EverCard } from '@/core/components/common/ever-card';
 import { Text } from '@/core/components/common/typography';

@@ -13,6 +13,7 @@ import { Calendar } from '@/core/components/common/calendar';
 import moment from 'moment';
 import { ValueNoneIcon } from '@radix-ui/react-icons';
 import { checkPastDate } from '@/core/lib/helpers';
+import { getDailyPlanDay } from '@/core/lib/helpers/daily-plan-day';
 import { useTranslations } from 'next-intl';
 import { ActiveModifiers } from 'react-day-picker';
 import { EverCard } from '../common/ever-card';
@@ -44,7 +45,7 @@ type TNavigationMode = 'DATE' | 'PLAN';
 export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) {
 	// Utility function for checking if two dates are the same
 	const isSameDate = useCallback((date1: Date | number | string, date2: Date | number | string) => {
-		return moment(date1).toISOString().split('T')[0] === moment(date2).toISOString().split('T')[0];
+		return getDailyPlanDay(date1) === getDailyPlanDay(date2);
 	}, []);
 
 	const { isOpen, closeModal, employeeId } = props;
@@ -99,7 +100,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 		() =>
 			customDate &&
 			employeeDailyPlans?.items?.find((plan: TDailyPlan) => {
-				return isSameDate(plan.date.toString().split('T')[0], customDate.setHours(0, 0, 0, 0));
+				return isSameDate(plan.date, customDate.setHours(0, 0, 0, 0));
 			}),
 		[customDate, employeeDailyPlans?.items, isSameDate]
 	);
@@ -208,7 +209,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	const arrowNavigationHandler = useCallback(
 		async (date: Date) => {
 			const existPlan = employeeDailyPlans?.items?.find((plan: TDailyPlan) => {
-				return isSameDate(plan.date.toString().split('T')[0], date.setHours(0, 0, 0, 0));
+				return isSameDate(plan.date, date.setHours(0, 0, 0, 0));
 			});
 
 			setCustomDate(date);
@@ -240,7 +241,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 			if (direction) {
 				// Select the next plan
 				if (nextPlan) {
-					setCustomDate(moment(nextPlan.date).toDate());
+					setCustomDate(moment(getDailyPlanDay(nextPlan.date)).toDate());
 					setSelectedTab('Calendar');
 					setShowCalendar(false);
 					setShowCustomPlan(true);
@@ -248,7 +249,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 			} else {
 				// Select the previous plan
 				if (previousPlan) {
-					setCustomDate(moment(previousPlan.date).toDate());
+					setCustomDate(moment(getDailyPlanDay(previousPlan.date)).toDate());
 					setSelectedTab('Calendar');
 					setShowCalendar(false);
 					setShowCustomPlan(true);
@@ -261,7 +262,7 @@ export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) 
 	// A handler function to display the plan title
 	const displayPlanTitle = (selectedTab: TCalendarTab, selectedPlan?: TDailyPlan) => {
 		const isCalendarTab = selectedTab === 'Calendar';
-		const planDate = selectedPlan?.date ? new Date(selectedPlan.date).toLocaleDateString('en-GB') : '';
+		const planDate = selectedPlan?.date ? moment(getDailyPlanDay(selectedPlan.date)).format('DD/MM/YYYY') : '';
 		const hasTasks = selectedPlan?.tasks?.length;
 		const isTodayOrTomorrow =
 			selectedTab === 'Today'
@@ -490,10 +491,10 @@ const FuturePlansCalendar = memo(function FuturePlansCalendar(props: ICalendarPr
 		(dateToCheck: Date) => {
 			return !plans
 				.map((plan) => {
-					return moment(plan.date.toString().split('T')[0]).toISOString().split('T')[0];
+					return getDailyPlanDay(plan.date);
 				})
 				.some((date) => {
-					return date === moment(dateToCheck).toISOString().split('T')[0];
+					return date === moment(dateToCheck).format('YYYY-MM-DD');
 				});
 		},
 		[plans]
@@ -550,8 +551,8 @@ const FuturePlansCalendar = memo(function FuturePlansCalendar(props: ICalendarPr
 				return checkPastDate(date) && isDateUnplanned(date);
 			}}
 			modifiers={{
-				booked: sortedPlans?.map((plan) => moment.utc(plan.date.toString().split('T')[0]).toDate()),
-				pastDay: pastPlans?.map((plan) => moment.utc(plan.date.toString().split('T')[0]).toDate())
+				booked: sortedPlans?.map((plan) => moment(getDailyPlanDay(plan.date)).toDate()),
+				pastDay: pastPlans?.map((plan) => moment(getDailyPlanDay(plan.date)).toDate())
 			}}
 			modifiersClassNames={{
 				booked: clsxm(

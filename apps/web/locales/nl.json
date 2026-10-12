@@ -481,7 +481,12 @@
 		"GROUP_BY": "Groeperen op",
 		"DATE": "Datum",
 		"VIEW": "Weergave",
-		"HOURS_ON_DATE": "{hours} uur op {date}"
+		"HOURS_ON_DATE": "{hours} uur op {date}",
+		"PREVIOUS_WEEK": "Vorige week",
+		"NEXT_WEEK": "Volgende week",
+		"WEEKLY_REPORT_ERROR": "Weekrapport niet beschikbaar",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "De geregistreerde tijd van de geselecteerde week kon niet worden geladen.",
+		"EXPORT_FAILED": "Het bestand kon niet worden gemaakt. Probeer het opnieuw."
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -801,6 +806,8 @@
 			"LOADING_WORKSPACE": "We laden de werkruimte, even geduld...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Doorverwijzen naar uw werkruimte...",
 			"VERIFY_EMAIL_LOADING_TEXT": "We controleren uw e-mailadres, even geduld...",
+			"VERIFY_EMAIL_FAILED_TITLE": "We konden uw e-mailadres niet verifiëren",
+			"VERIFY_EMAIL_FAILED_MESSAGE": "De link is mogelijk ongeldig, verlopen of al gebruikt, of de server was niet bereikbaar. Probeer de link zo meteen opnieuw of open de app om een nieuwe aan te vragen.",
 			"INPUT_TEAM_NAME": "Voer uw teamnaam in",
 			"JOIN_EXISTING_TEAM": "Bestaand team joinen?",
 			"CREATE_FIRST_TEAM": "Maak uw eerste team",
@@ -1084,6 +1091,7 @@
 			"LOADING": "Tijdregistratiegegevens laden...",
 			"NO_ENTRIES_FOUND": "Geen tijdregistratie-invoeren gevonden",
 			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Je staat op het punt de geselecteerde invoer te weigeren, wil je doorgaan?",
+			"REJECTION_REASON": "Reden van afwijzing",
 			"ALL_TASKS": "Alle taken",
 			"PENDING": "In behandeling",
 			"APPROVED": "Goedgekeurd",
@@ -1110,12 +1118,19 @@
 		"START_TIMER": "Selecteer of maak een nieuwe taak aan om de tijd bij te houden of maak een plan",
 		"ALREADY_TRACKING_MESSAGE": "Je houdt al tijd bij in een ander tabblad of apparaat.",
 		"TASK_CLOSED": "Taak is gesloten",
+		"PLAN_REQUIRED_TO_START": "Voeg deze taak toe aan het plan van vandaag om te starten",
 		"STARTING_TIMER": "Timer wordt gestart…",
 		"TIMER_STARTED": "Timer succesvol gestart",
 		"TIMER_START_FAILED": "Kan de timer niet starten",
+		"STALE_TIMER_STOPPED_DESCRIPTION": "Je timer bleef lopen nadat de app was gesloten. Daarom is hij gestopt op het laatste moment dat de app open was ({stoppedAt}). Heb je daarna nog gewerkt, voeg de tijd dan handmatig toe.",
+		"TIMER_STOP_FAILED": "Kan de timer niet stoppen. Probeer het opnieuw.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer gestopt",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer gestopt wegens teamwissel"
+		},
+		"TASK_SWITCH": {
+			"STOPPED_TIMER_TOAST_TITLE": "Timer gestopt",
+			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer gestopt wegens wissel van actieve taak"
 		},
 		"ACTIVE": "Actief",
 		"APPS": "Apps",
@@ -1155,7 +1170,9 @@
 			"WARNING_PLAN_ESTIMATION": "Corrigeer de geplande werkuren of schat de taak(en) opnieuw in"
 		},
 		"VISITED_SITES": "Bezochte sites",
-		"NO_VISITED_SITE_MESSAGE": "Er zijn geen bezochte sites"
+		"NO_VISITED_SITE_MESSAGE": "Er zijn geen bezochte sites",
+		"TRACKING_SOURCE_HINT": "Schermafbeeldingen, apps en bezochte sites worden vastgelegd door de desktop-app of de agent, niet wanneer tijd in de browser wordt bijgehouden.",
+		"DOWNLOAD_DESKTOP_APP": "Desktop-app downloaden"
 	},
 	"task": {
 		"TITLE": "Taak",
@@ -1221,12 +1238,14 @@
 			"TASK_PLAN_FAILED": "Taak plannen mislukt. Probeer opnieuw.",
 			"TASK_ASSIGNMENT_FAILED": "Taak toewijzen/intrekken mislukt. Probeer opnieuw.",
 			"TASK_FAVORITE_FAILED": "Favorieten bijwerken mislukt. Probeer opnieuw.",
+			"TASK_CREATION_FAILED": "Taak aanmaken mislukt. Probeer opnieuw.",
 			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "Favoriet item succesvol aangemaakt",
 			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "Favoriet item succesvol verwijderd"
 		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan voor vandaag",
+		"ADD_TO_TODAY_PLAN": "Toevoegen aan het plan van vandaag",
 		"TASK_TIME": "taken tijd",
 		"TOTAL_TODAY": "Totaal Vandaag",
 		"PLAN_FOR_TOMORROW": "Plan voor morgen",
@@ -1250,6 +1269,7 @@
 		"TOTAL_TASK": "Totale taken",
 		"DAILY_PLAN_DESCRIPTION": "'Dagelijkse planning' helpt om het werkproces te organiseren om de beste resultaten te behalen",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Diese Aufgabe war für den heutigen Plan nicht vorgesehen. Möchten Sie den Plan ergänzen?",
+		"TASK_ORDER_SAVE_FAILED": "De nieuwe volgorde van de taken kon niet worden opgeslagen. Probeer het opnieuw.",
 		"planned_tasks_popup": {
 			"warning": {
 				"PLANNED_TIME": "Voeg alstublieft de geplande tijd toe",

@@ -12,6 +12,9 @@ services:
       DB_HOST: db
       API_BASE_URL: ${API_BASE_URL:-http://localhost:3000}
       CLIENT_BASE_URL: ${CLIENT_BASE_URL:-http://localhost:4200}
+      # Origins the API may put in sign-in, invite and verification e-mail links besides CLIENT_BASE_URL: the
+      # Ever Teams web app of this stack (published on 3030)
+      EMAIL_LINK_ALLOWED_ORIGINS: ${EMAIL_LINK_ALLOWED_ORIGINS:-http://localhost:3030}
       CLOUD_PROVIDER: ${CLOUD_PROVIDER:-}
       SENTRY_DSN: ${SENTRY_DSN:-}
       SENTRY_HTTP_TRACING_ENABLED: ${SENTRY_HTTP_TRACING_ENABLED:-}
@@ -85,8 +88,21 @@ services:
     # and branding included) is read by the container at runtime; change it and recreate the container, no rebuild.
     # An empty value means unset (built-in default). Full reference: .env.docker
     environment:
-      GAUZY_API_SERVER_URL: ${GAUZY_API_SERVER_URL:-https://api.ever.team}
-      NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${NEXT_PUBLIC_GAUZY_API_SERVER_URL:-https://api.ever.team}
+      # This file starts a Gauzy API of its own (service "api" above), so the webapp points at it rather
+      # than at Ever's SaaS: a `docker compose up` with no .env must not authenticate against
+      # api.ever.team. The two values differ on purpose. The first is read inside this container, which
+      # reaches the API by service name on the overlay network, on the container port, hence API_PORT.
+      # The second is read by the browser, which reaches it through the published host port, fixed at
+      # 3000 by the api service above.
+      #
+      # localhost in the public value assumes the browser runs on this host, which is the case this
+      # file is for. Serving remote browsers means either publishing the API under a reachable origin
+      # and setting NEXT_PUBLIC_GAUZY_API_SERVER_URL to it, or leaving that variable empty so the
+      # browser calls the API through this app's own /api proxy on its own origin.
+      GAUZY_API_SERVER_URL: ${GAUZY_API_SERVER_URL:-http://api:${API_PORT:-3000}}
+      # No colon on purpose: an explicitly empty value stays empty (proxy mode, as described above); only an
+      # unset variable gets the default.
+      NEXT_PUBLIC_GAUZY_API_SERVER_URL: ${NEXT_PUBLIC_GAUZY_API_SERVER_URL-http://localhost:3000}
       NODE_ENV: ${NODE_ENV:-development}
       # Demo mode (password login with one-click demo accounts) only makes sense against a Gauzy API seeded
       # with the demo accounts (e.g. apidemo.ever.team). The previous image ignored this value (demo was baked
@@ -157,6 +173,8 @@ services:
       VERIFY_EMAIL_CALLBACK_URL: ${VERIFY_EMAIL_CALLBACK_URL:-}
       SMTP_PORT: ${SMTP_PORT:-587}
       NEXT_PUBLIC_DISABLE_AUTO_REFRESH: ${NEXT_PUBLIC_DISABLE_AUTO_REFRESH:-false}
+      # false turns team presence (Online / Idle badges and their heartbeat) off; empty = on
+      NEXT_PUBLIC_EMPLOYEE_PRESENCE_ENABLED: ${NEXT_PUBLIC_EMPLOYEE_PRESENCE_ENABLED:-}
       SENTRY_LOG_LEVEL: ${SENTRY_LOG_LEVEL:-error}
       NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
       NEXT_PUBLIC_POSTHOG_KEY: ${NEXT_PUBLIC_POSTHOG_KEY:-}
@@ -170,6 +188,8 @@ services:
       ACTIVE_LOCAL_LOG_SYSTEM: ${ACTIVE_LOCAL_LOG_SYSTEM:-false}
       NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM: ${NEXT_PUBLIC_ACTIVE_LOCAL_LOG_SYSTEM:-false}
       IS_DESKTOP_APP: ${IS_DESKTOP_APP:-false}
+      # Desktop app download link of the empty screenshots, apps and visited sites sections; empty = no link
+      NEXT_PUBLIC_DESKTOP_APP_DOWNLOAD_URL: ${NEXT_PUBLIC_DESKTOP_APP_DOWNLOAD_URL:-}
       # Board and Firebase: your own whiteboard deployment; empty = whiteboard off (Ever-operated:
       # https://board.ever.team and https://jsonboard.ever.team/api/v2/post/)
       NEXT_PUBLIC_BOARD_APP_DOMAIN: ${NEXT_PUBLIC_BOARD_APP_DOMAIN:-}

@@ -13,13 +13,15 @@ import {
 	activeTeamTaskState,
 	memberActiveTaskIdState,
 	tasksByTeamState,
+	teamTasksCompleteState,
 	teamTasksState
 } from '@/core/stores';
 import { useCallback, useRef, useState } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useOrganizationEmployeeTeams } from './use-organization-teams-employee';
-import { useAuthenticateUser } from '../../auth';
-import { useConditionalUpdateEffect, useSyncRef } from '../../common';
+import { useAuthenticateUser } from '../../auth/use-authenticate-user';
+import { useConditionalUpdateEffect } from '../../common/use-has-mounted';
+import { useSyncRef } from '../../common/use-sync-ref';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '../../queries/user-user.query';
@@ -48,6 +50,7 @@ export function useTeamTasksState() {
 
 	const setAllTasks = useSetAtom(teamTasksState);
 	const tasks = useAtomValue(tasksByTeamState);
+	const tasksComplete = useAtomValue(teamTasksCompleteState);
 	const tasksRef = useSyncRef(tasks);
 	const { data: userData } = useUserQuery();
 	const authUser = useSyncRef(userData);
@@ -93,7 +96,7 @@ export function useTeamTasksState() {
 				/**
 				 * Unassign previous active task
 				 */
-				if ($memberActiveTaskId.current && $user.current) {
+				if ($memberActiveTaskId.current && $user.current && $memberActiveTaskId.current !== task?.id) {
 					const _task = tasksRef.current.find((t) => t.id === $memberActiveTaskId.current);
 
 					if (_task) {
@@ -168,9 +171,13 @@ export function useTeamTasksState() {
 								description: `"${task.title}" is now your active task`
 							});
 
-							// Short delay to let React Query stabilize
-							await new Promise((resolve) => setTimeout(resolve, 600));
-							expectedActiveTaskIdRef.current = null;
+							// The sync effect below clears the expectation once the server echoes this id. This is only
+							// the fallback, and it is not awaited because the timer start waits for this function.
+							setTimeout(() => {
+								if (expectedActiveTaskIdRef.current === task.id) {
+									expectedActiveTaskIdRef.current = null;
+								}
+							}, 600);
 						}
 					} catch (error) {
 						logErrorInDev('[setActiveTask] API call failed:', error);
@@ -220,11 +227,18 @@ export function useTeamTasksState() {
 			const memberActiveTask = getValidActiveTask(tasks, memberActiveTaskId, activeTeam?.id);
 			if (memberActiveTask) {
 				setActiveTeamTask(memberActiveTask);
-			} else if (memberActiveTaskId && activeTeam?.id) {
+				// Both cookies follow the atom here too, as in setActiveTask: the server guards and the fallback
+				// routes read the task id one, and the hydration effect below prefers the user one, so leaving
+				// either behind brings the old task back on the next task-list refresh.
+				setActiveTaskIdCookie(memberActiveTask.id);
+				setActiveUserTaskCookieCb(memberActiveTask);
+			} else if (memberActiveTaskId && activeTeam?.id && tasksComplete) {
 				setActiveTeamTask(null);
+				setActiveTaskIdCookie('');
+				setActiveUserTaskCookieCb(null);
 			}
 		},
-		[activeTeam, tasks, memberActiveTaskId, isUpdatingActiveTask],
+		[activeTeam, tasks, tasksComplete, memberActiveTaskId, isUpdatingActiveTask],
 		true
 	);
 
@@ -238,9 +252,11 @@ export function useTeamTasksState() {
 					: getActiveTaskIdCookie() || '';
 
 			const validTask = getValidActiveTask(tasks, active_taskid, activeTeam?.id);
-			setActiveTeamTask(validTask);
+			if (validTask || tasksComplete) {
+				setActiveTeamTask(validTask);
+			}
 		},
-		[tasks, authUser, activeTeam?.id],
+		[tasks, tasksComplete, authUser, activeTeam?.id],
 		Boolean(activeTeamTask)
 	);
 

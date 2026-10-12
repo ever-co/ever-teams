@@ -12,8 +12,17 @@ import {
 } from '@/core/components/optimized-components';
 import { HorizontalSeparator } from '../duplicated-components/separator';
 import { ProgressBar } from '../duplicated-components/_progress-bar';
+import { TodayWorkedTasks } from './today-worked-tasks';
 
-const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; member?: any }) => {
+const UserTeamActivity = ({
+	showActivity,
+	member,
+	canSeeActivity
+}: {
+	showActivity: boolean;
+	member?: any;
+	canSeeActivity: boolean;
+}) => {
 	const { timeSlots } = useTimeSlots(true);
 	const t = useTranslations();
 
@@ -59,7 +68,8 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 							</TabsList>
 
 							<TabsContent value={ActivityFilters.TASKS} className="overflow-hidden mt-2 w-full">
-								<LazyOptimizedTasksTab member={member} />
+								{canSeeActivity && member?.id ? <TodayWorkedTasks memberId={member.id} /> : null}
+								<LazyOptimizedTasksTab member={member} canSeeActivity={canSeeActivity} />
 							</TabsContent>
 							<TabsContent value={ActivityFilters.SCREENSHOOTS} className="mt-2 w-full">
 								<LazyOptimizedScreenshotsTab />

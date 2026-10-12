@@ -1,4 +1,6 @@
+import { STALE_TIMER_THRESHOLD } from '@/core/constants/config/constants';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 // ==================== TYPES ====================
 
@@ -14,6 +16,31 @@ export function canRunTimerForState(state: TimerEligibilityState): boolean {
 	if (!state.isEmailVerified) return false;
 	if (state.hasActiveTask && !state.isActiveTaskClosed) return true;
 	return state.isTimerRunning && state.timerSource !== ETimeLogSource.TEAMS;
+}
+
+export function isRunningTeamsLog(lastLog: ITimeLog | null | undefined): lastLog is ITimeLog {
+	return !!lastLog?.isRunning && lastLog.source === ETimeLogSource.TEAMS;
+}
+
+/**
+ * Every web heartbeat moves the running log's stoppedAt to the server time, so a TEAMS log that is still
+ * running with an old stoppedAt was left behind by a tab that closed without stopping it.
+ *
+ * A log whose stoppedAt never moved past its startedAt has had no heartbeat at all: it may come from a client
+ * that sends none (the @ever-teams/atoms toolkit timers start with source TEAMS), so its age proves nothing
+ * and it is never treated as stale. A threshold of 0 (NEXT_PUBLIC_STALE_TIMER_THRESHOLD_MINUTES=0) turns the
+ * check off.
+ */
+export function isStaleTeamsTimer(
+	lastLog: ITimeLog | null | undefined,
+	now: number,
+	thresholdMs: number = STALE_TIMER_THRESHOLD.value
+): lastLog is ITimeLog & { stoppedAt: Date } {
+	if (!thresholdMs || thresholdMs <= 0) return false;
+	if (!isRunningTeamsLog(lastLog) || !lastLog.stoppedAt || !lastLog.startedAt) return false;
+	const heartbeat = new Date(lastLog.stoppedAt).getTime();
+	if (Number.isNaN(heartbeat) || heartbeat <= new Date(lastLog.startedAt).getTime()) return false;
+	return now - heartbeat > thresholdMs;
 }
 
 /**

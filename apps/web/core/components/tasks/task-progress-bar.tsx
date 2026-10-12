@@ -1,11 +1,14 @@
 import { useTaskStatistics } from '@/core/hooks';
 import { Nullable } from '@/core/types/generics/utils';
 import { activeTeamState, timerSecondsState } from '@/core/stores';
-import { useAtomValue } from 'jotai';
+import { atom, useAtomValue } from 'jotai';
 import RadialProgress from '@/core/components/common/radial-progress';
 import { ProgressBar } from '../duplicated-components/_progress-bar';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { getTaskTotalWorkedDuration } from '@/core/lib/utils/task.utils';
+
+// Read instead of the timer by the bars that do not follow it, so they skip its per-second updates
+const noTimerSecondsState = atom(0);
 
 export function TaskProgressBar({
 	isAuthUser,
@@ -20,7 +23,9 @@ export function TaskProgressBar({
 	showPercents?: boolean;
 	radial?: boolean;
 }) {
-	const seconds = useAtomValue(timerSecondsState);
+	// Only the authenticated user's active task moves with the local timer. The other bars (two per team member
+	// row) would otherwise re-render every second for a value they ignore below.
+	const seconds = useAtomValue(isAuthUser && activeAuthTask ? timerSecondsState : noTimerSecondsState);
 	const { getEstimation } = useTaskStatistics(isAuthUser && activeAuthTask ? seconds : 0);
 
 	const activeTeam = useAtomValue(activeTeamState);

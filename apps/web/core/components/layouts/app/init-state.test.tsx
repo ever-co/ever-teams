@@ -37,6 +37,14 @@ let timerSuccess = false;
 let plansSuccess = false;
 let rawTimerRunning = false;
 let accessToken = 'token-1';
+// Mounted team views (teamPresenceViewCountState), the only atom InitState reads. A real jotai read subscribes on mount
+// and makes React call the component once more before bailing out, which the render counts below would see.
+let teamPresenceViewCount = 0;
+
+jest.mock('jotai', () => ({
+	...jest.requireActual('jotai'),
+	useAtomValue: () => teamPresenceViewCount
+}));
 
 jest.mock('@tanstack/react-query', () => ({
 	...jest.requireActual('@tanstack/react-query'),
@@ -81,6 +89,10 @@ jest.mock('@/core/hooks/tasks', () => ({
 jest.mock('@/core/hooks/activities/use-timer-polling', () => ({
 	useTimerPolling: (running: boolean) => calls.polling(running)
 }));
+jest.mock('@/core/hooks/timer/use-stale-timer-guard', () => ({
+	useStaleTimerGuard: () => true,
+	useTimerRunningPastMidnight: (_employee: unknown, statusRunning: boolean) => statusRunning
+}));
 jest.mock('./use-scope-transition-guard', () => ({
 	useScopeTransitionGuard: (scope: unknown, enabled: boolean) => calls.guard(scope, enabled),
 	getShellCriticalQueryKeys: (scope: any) => [
@@ -121,6 +133,7 @@ function resetState() {
 	plansSuccess = false;
 	rawTimerRunning = false;
 	accessToken = 'token-1';
+	teamPresenceViewCount = 0;
 	mockCredentialQueries = [];
 	jest.clearAllMocks();
 	mockCancelQueries.mockResolvedValue(undefined);
@@ -216,6 +229,21 @@ describe('InitState dependency DAG', () => {
 		render(<InitState />);
 		expect(calls.autoAssign).toHaveBeenLastCalledWith({ enabled: true });
 		expect(calls.statistics).toHaveBeenLastCalledWith(expect.objectContaining({ enabled: true }));
+	});
+
+	it('refreshes the team detail every 25 s, and on tab return, only while a team view is mounted', () => {
+		resolveWorkspace();
+		resolveTeam();
+		render(<InitState />);
+		expect(calls.teams).toHaveBeenLastCalledWith(
+			expect.objectContaining({ detailRefetchInterval: 60_000, detailRefetchOnWindowFocus: false })
+		);
+
+		teamPresenceViewCount = 1;
+		render(<InitState />);
+		expect(calls.teams).toHaveBeenLastCalledWith(
+			expect.objectContaining({ detailRefetchInterval: 25_000, detailRefetchOnWindowFocus: true })
+		);
 	});
 
 	it('owns one timer facade without a global time-log preload or duplicate token scheduler', () => {

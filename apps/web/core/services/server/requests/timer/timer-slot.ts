@@ -8,7 +8,8 @@ export function getEmployeeTimeSlotsRequest({
 	organizationId,
 	todayEnd,
 	todayStart,
-	employeeId
+	employeeId,
+	teamIds = []
 }: {
 	bearer_token: string;
 	tenantId: string;
@@ -16,14 +17,22 @@ export function getEmployeeTimeSlotsRequest({
 	todayEnd: Date;
 	todayStart: Date;
 	employeeId: string;
+	teamIds?: string[];
 }) {
 	const params = {
 		tenantId: tenantId,
 		organizationId: organizationId,
-		employeeId,
-		startDate: todayEnd.toISOString(),
-		endDate: todayStart.toISOString()
+		startDate: todayStart.toISOString(),
+		endDate: todayEnd.toISOString()
 	} as Record<string, string>;
+
+	// Gauzy filters this endpoint by employeeIds only: its validation strips an employeeId parameter
+	if (employeeId) {
+		params['employeeIds[0]'] = employeeId;
+	}
+	teamIds.forEach((teamId, index) => {
+		params[`teamIds[${index}]`] = teamId;
+	});
 
 	const relations = ['timeSlots.timeLogs.projectId', 'timeSlots.timeLogs.taskId'];
 
@@ -44,31 +53,20 @@ export function deleteEmployeeTimeSlotsRequest({
 	bearer_token,
 	tenantId,
 	organizationId,
-	ids
+	ids,
+	forceDelete
 }: {
 	bearer_token: string;
 	tenantId: string;
 	organizationId: string;
 	ids: string[];
+	forceDelete?: boolean;
 }) {
-	let idParams = '';
-	ids.map((id, i) => {
-		idParams += `&ids[${i}]=${id}`;
-	});
-	const params = {
-		tenantId: tenantId,
-		organizationId: organizationId
-	} as Record<string, string>;
+	const query = qs.stringify({ tenantId, organizationId, ids, forceDelete }, { arrayFormat: 'indices' });
 
-	const relations = ['timeSlots.timeLogs.projectId', 'timeSlots.timeLogs.taskId'];
-
-	relations.forEach((rl, i) => {
-		params[`relations[${i}]`] = rl;
-	});
-	const query = qs.stringify(params);
-	return serverFetch<ITimerSlotDataRequest>({
-		path: `/timesheet/statistics/time-slots?${query}${idParams}`,
-		method: 'GET',
+	return serverFetch<boolean>({
+		path: `/timesheet/time-slot?${query}`,
+		method: 'DELETE',
 		bearer_token,
 		tenantId
 	});

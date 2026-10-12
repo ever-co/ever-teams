@@ -2,12 +2,12 @@ import { memo, useCallback, useMemo } from 'react';
 import { useOptimizedActivityTabs } from '@/core/hooks/activities/use-optimized-activity-tabs';
 import { LazyTaskCard } from '@/core/components/optimized-components';
 import { OptimizedTaskAccordion } from './optimized-task-accordion';
-import { groupDataByHour, groupAppsByHour } from '@/core/lib/helpers/array-data';
+import { groupAppsByHour } from '@/core/lib/helpers/array-data';
 import { useTranslations } from 'next-intl';
-import { ScreenshotPerHourTeam } from '../pages/profile/screenshots/screenshoots-per-hour';
-import { ScreenshootSkeleton } from '../pages/profile/screenshots/screenshoots-per-hour-skeleton';
+import { ScreenshotsTeamList } from '../pages/profile/screenshots/screenshoots';
 import VisitedItem from '../pages/profile/visited-Item';
 import { VisitedItemSkeleton } from '../pages/profile/visited-item-skeleton';
+import { TrackingSourceEmptyState } from '../pages/profile/tracking-source-empty-state';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
 /**
@@ -16,27 +16,8 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
  */
 export const OptimizedScreenshotsTab = memo(() => {
 	const { screenshots } = useOptimizedActivityTabs();
-	const { timeSlots, loading } = screenshots;
-	const t = useTranslations();
 
-	return (
-		<div>
-			{groupDataByHour(timeSlots).map((hourData, i) => (
-				<ScreenshotPerHourTeam
-					key={i}
-					timeSlots={hourData.items}
-					startedAt={hourData.startedAt}
-					stoppedAt={hourData.stoppedAt}
-				/>
-			))}
-			{timeSlots.length < 1 && !loading && (
-				<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
-					<h3>{t('timer.NO_SCREENSHOOT')}</h3>
-				</div>
-			)}
-			{loading && timeSlots.length < 1 && <ScreenshootSkeleton />}
-		</div>
-	);
+	return <ScreenshotsTeamList timeSlots={screenshots.timeSlots} loading={screenshots.loading} />;
 });
 
 OptimizedScreenshotsTab.displayName = 'OptimizedScreenshotsTab';
@@ -101,7 +82,7 @@ export const OptimizedAppsTab = memo(() => {
 				</section>
 				{visitedApps.length < 1 && !loading && (
 					<div className="hover:dark:bg-[#26272C] border dark:border-[#26272C] dark:bg-[#191a20] p-4 py-16 rounded-md flex justify-center items-center my-2">
-						<p className="text-center">{t('timer.THERE_IS_NO_APPS_VISITED')}</p>
+						<TrackingSourceEmptyState label={t('timer.THERE_IS_NO_APPS_VISITED')} />
 					</div>
 				)}
 				{loading && visitedApps.length < 1 && (
@@ -186,7 +167,7 @@ export const OptimizedVisitedSitesTab = memo(() => {
 				</section>
 				{(sites?.length || 0) < 1 && !loading && (
 					<div className="hover:dark:bg-[#26272C] border dark:border-[#26272C] dark:bg-[#191a20] p-4 py-16 rounded-md flex justify-center items-center my-2">
-						<p className="text-center">{t('timer.NO_VISITED_SITE_MESSAGE')}</p>
+						<TrackingSourceEmptyState label={t('timer.NO_VISITED_SITE_MESSAGE')} />
 					</div>
 				)}
 				{loading && (sites?.length || 0) < 1 && (
@@ -207,8 +188,8 @@ OptimizedVisitedSitesTab.displayName = 'OptimizedVisitedSitesTab';
  * Uses intelligent caching to prevent recalculation on tab switches
  * This was the main bottleneck causing 80% of performance issues
  */
-export const OptimizedTasksTab = memo(({ member }: { member?: any }) => {
-	const { tasks, profile, canSeeActivity } = useOptimizedActivityTabs({ member });
+export const OptimizedTasksTab = memo(({ member, canSeeActivity }: { member?: any; canSeeActivity: boolean }) => {
+	const { tasks, profile } = useOptimizedActivityTabs({ member });
 	const { firstFiveTasks, remainingTasks, totalCount } = tasks;
 	const activeTaskId = profile?.activeUserTeamTask?.id
 	// Memoized render function for task items to prevent unnecessary re-renders

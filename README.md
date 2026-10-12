@@ -150,7 +150,7 @@ Please refer to our official [Platform Documentation](https://docs.ever.team) (W
   
 _Notes:_ 
 - _You can execute `docker-compose` command with `-d` option to run it in the "detached" mode (allows containers to run in the background, separate from the terminal)._
-- _By default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in the environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see more in the [Run with a Self-hosted Backend](#run-with-a-self-hosted-backend) section._
+- _`docker-compose.yml` starts a Gauzy API of its own, and the web frontend is connected to that one: `GAUZY_API_SERVER_URL` defaults to `http://api:3000` (read inside the container, over the Compose network, and following `API_PORT` when you change it) and `NEXT_PUBLIC_GAUZY_API_SERVER_URL` to `http://localhost:3000` (read by the browser, through the published port). That `localhost` assumes the browser runs on the Docker host: for remote browsers, set `NEXT_PUBLIC_GAUZY_API_SERVER_URL` to an origin that reaches the API, or leave it empty so the browser calls the API through the web app's own `/api` proxy. `docker-compose.demo.yml` and `docker-compose.build.yml` run the web app alone, so they stay connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) endpoint <https://api.ever.team>. Set both variables to use another API, see the [Run with a Self-hosted Backend](#run-with-a-self-hosted-backend) section. To keep `docker-compose.yml` on Ever's hosted API (its previous default), run `GAUZY_API_SERVER_URL=https://api.ever.team NEXT_PUBLIC_GAUZY_API_SERVER_URL=https://api.ever.team docker-compose up` or put both in a root `.env` file (values in `.env.compose` do not override the `environment:` block)._
 - _The web app is configured at runtime by the `environment:` block of the `webapp` service (no rebuild needed, see [Configure at Runtime](#configure-at-runtime)). Values listed there take precedence over the `env_file` (`.env.compose` / `.env.demo.compose`); to change one, export it in your shell or pass `--env-file <file>` to `docker-compose`, which fills the `${VAR:-default}` placeholders._
 - _Both `docker-compose.yml` and `docker-compose.demo.yml` default `NEXT_PUBLIC_DEMO` to `false`. Demo mode (password login page with one-click demo accounts) only works against a Gauzy API seeded with the demo accounts; enable it with `NEXT_PUBLIC_DEMO=true docker-compose up` (or in a root `.env` file, which Compose uses for `${...}` substitution)._
 - _`docker-compose.build.yml` defaults `NEXT_PUBLIC_DEMO` to `true`, and an empty value keeps that default there:
@@ -201,7 +201,7 @@ docker run -d -p 3030:3030 \
 ```
 
 - `GAUZY_API_SERVER_URL` is used by the Next.js server, so it must be reachable from inside the container; `NEXT_PUBLIC_GAUZY_API_SERVER_URL` is used by the browser. Both are the API origin, without a trailing `/api`. If `NEXT_PUBLIC_GAUZY_API_SERVER_URL` is unset, the browser calls the API through the web app's own `/api` proxy.
-- `AUTH_SECRET` is required in production (sessions and social login).
+- `AUTH_SECRET` is required in production (sessions and social login). With a social login or Ever ID configured and no `AUTH_SECRET`, the server logs an error at start-up and those sign-ins fail; set `AUTH_SECRET_REQUIRED=true` to make it refuse to start instead.
 - `NEXT_PUBLIC_CAPTCHA_TYPE` is `recaptcha` (default), `hcaptcha` or `cloudflare` (Turnstile). Set `NEXT_PUBLIC_CAPTCHA_SITE_KEY` and `CAPTCHA_SECRET_KEY` together, or leave both empty to sign up without a captcha.
 - Branding: `APP_NAME`, `APP_SIGNATURE`, `APP_LOGO_URL`, `APP_FAVICON_URL` (default `/favicon.ico`), `APP_LINK`,
   `APP_SLOGAN_TEXT`, `COMPANY_NAME`, `COMPANY_LINK`, `TERMS_LINK`, `PRIVACY_POLICY_LINK`, `MAIN_PICTURE`,
@@ -247,6 +247,7 @@ We have Ever Teams Docker images published into:
 
 _Notes:_
 - _By default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see the [Run with a Self-hosted Backend](#run-with-a-self-hosted-backend) section below._
+- _`yarn start:web:dev` runs `next dev` with Turbopack, which compiles each page the first time it is requested. The `Ready in ...` line only means the server is listening, so with an empty cache the first visit to a page can still take several seconds. The compiler cache lives in `apps/web/.next/dev` and is reused after a restart: keep that folder between sessions, because deleting `.next` makes every page compile from scratch again._
 
 ### Run with a Self-hosted Backend
 

@@ -41,7 +41,8 @@ export function TransferTeamModal({ open, closeModal }: { open: boolean; closeMo
 					name: activeTeam.name
 				})
 					.then(closeModal)
-					.catch(closeModal);
+					// useEditOrganizationTeam already toasts the failure; keep the modal open so the user can retry
+					.catch(() => undefined);
 			}
 		},
 		[activeTeam, selectedMember, user, activeTeamManagers, closeModal, editOrganizationTeam]

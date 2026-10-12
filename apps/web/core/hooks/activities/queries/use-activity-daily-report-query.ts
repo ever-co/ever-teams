@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
-import { UseReportActivityProps } from '../use-activity-filters';
+import { UseReportActivityProps, getActivityQueryKeyParams } from '../use-activity-filters';
 import { shouldRetryQuery } from '../../../lib/helpers/retry-utils';
 
 // ==================== TYPES ====================
@@ -33,13 +33,7 @@ export interface UseActivityDailyReportQueryOptions {
  */
 export function useActivityDailyReportQuery({ mergedProps, enabled = true }: UseActivityDailyReportQueryOptions) {
 	const query = useQuery({
-		queryKey: queryKeys.activities.daily({
-			tenantId: mergedProps?.tenantId,
-			organizationId: mergedProps?.organizationId,
-			startDate: mergedProps?.startDate,
-			endDate: mergedProps?.endDate,
-			groupBy: mergedProps?.groupBy
-		}),
+		queryKey: queryKeys.activities.daily(getActivityQueryKeyParams(mergedProps)),
 		queryFn: () => timeLogService.getTimeLogReportDaily(mergedProps!),
 		enabled: enabled && !!mergedProps,
 		staleTime: 1000 * 60 * 10,
