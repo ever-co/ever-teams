@@ -30,9 +30,19 @@ export function useDailyPlanInvalidation() {
 		queryClient
 			.getQueryCache()
 			.findAll({ queryKey: queryKeys.dailyPlans.myPlansByScopeAll, type: 'inactive' })
-			.filter((query) => query.state.data !== undefined && query.getObserversCount() > 0)
+			.filter(
+				(query) =>
+					query.getObserversCount() > 0 &&
+					(query.state.data !== undefined || query.state.fetchStatus === 'fetching')
+			)
 			.forEach((query) => {
-				void query.fetch(undefined, { cancelRefetch: true }).catch(() => undefined);
+				const refresh = () => query.fetch(undefined, { cancelRefetch: true }).catch(() => undefined);
+				if (query.state.data !== undefined) {
+					void refresh();
+					return;
+				}
+				// A first read still running is joined instead of cancelled, so the refresh waits for it to land
+				void query.fetch().then(refresh, () => undefined);
 			});
 	}, [queryClient]);
 
