@@ -855,6 +855,8 @@
 			"SIZES_HEADING": "Formaten",
 			"TEAM_NAME": "Teamnaam",
 			"TEAM_TYPE": "Teamtype",
+			"TEAM_TYPE_UPDATED": "Teamtype succesvol bijgewerkt",
+			"TEAM_TYPE_UPDATE_FAILED": "Teamtype bijwerken mislukt. Probeer opnieuw.",
 			"TIME_TRACKING": "Tijd bijhouden",
 			"ENFORCE_PLAN": "Plan afdwingen",
 			"ADD_NEW_MEMBER": "Nieuw lid toevoegen",

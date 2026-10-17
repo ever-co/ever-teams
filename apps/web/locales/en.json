@@ -855,6 +855,8 @@
 			"SIZES_HEADING": "Sizes",
 			"TEAM_NAME": "Team Name",
 			"TEAM_TYPE": "Team Type",
+			"TEAM_TYPE_UPDATED": "Team type updated successfully",
+			"TEAM_TYPE_UPDATE_FAILED": "Failed to update team type. Please try again.",
 			"TIME_TRACKING": "Time Tracking",
 			"ENFORCE_PLAN": "Enforce plan",
 			"ADD_NEW_MEMBER": "Add new member",
