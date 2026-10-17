@@ -1,3 +1,6 @@
+import { pipeline, Readable, type Transform } from 'node:stream';
+import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
+import { constants, createBrotliDecompress, createGunzip, createInflate, createZstdDecompress } from 'node:zlib';
 import { convertToCoreMessages, coreMessageSchema, type CoreMessage, type Message } from 'ai';
 import { createGuardedFetch } from './guarded-fetch';
 
@@ -22,6 +25,24 @@ const MAX_REDIRECTS = 20;
 
 /** Sent like the global fetch sends them, for hosts that turn away a request without them. */
 const DOWNLOAD_HEADERS = { accept: '*/*', 'user-agent': 'node' };
+
+/** The content codings the global fetch decodes, set up the way it does, and how many it takes at most. */
+const ZLIB_FLUSH = { flush: constants.Z_SYNC_FLUSH, finishFlush: constants.Z_SYNC_FLUSH };
+const DECODERS = new Map<string, () => Transform>([
+	['gzip', () => createGunzip(ZLIB_FLUSH)],
+	['x-gzip', () => createGunzip(ZLIB_FLUSH)],
+	['deflate', () => createInflate(ZLIB_FLUSH)],
+	[
+		'br',
+		() =>
+			createBrotliDecompress({
+				flush: constants.BROTLI_OPERATION_FLUSH,
+				finishFlush: constants.BROTLI_OPERATION_FLUSH
+			})
+	],
+	['zstd', () => createZstdDecompress({ flush: constants.ZSTD_e_continue, finishFlush: constants.ZSTD_e_end })]
+]);
+const MAX_CODINGS = 5;
 
 const NOT_PUBLIC = 'File URLs in chat messages must be valid http or https URLs of public addresses.';
 const TOO_LARGE = `Files in chat messages must be ${MAX_FILE_BYTES / 1024 / 1024} MB or smaller.`;
@@ -72,13 +93,44 @@ function isUiMessage(message: unknown): boolean {
 	);
 }
 
+/**
+ * The guarded fetch asks for an uncompressed answer but does not decode one, and a host can send one all the
+ * same (a file stored compressed): decoded here like the global fetch does, so the size limit applies to the
+ * decoded bytes. A coding it does not know leaves the body as it came, as the global fetch does.
+ */
+async function decodedBody(response: Response): Promise<ReadableStream<Uint8Array> | null> {
+	const contentEncoding = response.headers.get('content-encoding');
+	if (!response.body || !contentEncoding) return response.body;
+	const codings = contentEncoding
+		.toLowerCase()
+		.split(',')
+		.map((coding) => coding.trim())
+		.reverse();
+	if (codings.length > MAX_CODINGS) {
+		await response.body.cancel();
+		throw new FileDownloadError(502, FAILED);
+	}
+	const decoders = codings.map((coding) => DECODERS.get(coding));
+	if (!decoders.every((decoder) => decoder !== undefined)) return response.body;
+	// An error in any stage destroys them all and reaches the reader through the last one.
+	const decoded = pipeline(
+		[
+			Readable.fromWeb(response.body as unknown as NodeReadableStream<Uint8Array>),
+			...decoders.map((decoder) => decoder())
+		],
+		() => undefined
+	) as unknown as Readable;
+	return Readable.toWeb(decoded) as unknown as ReadableStream<Uint8Array>;
+}
+
 async function readBody(response: Response): Promise<Uint8Array> {
 	if (Number(response.headers.get('content-length')) > MAX_FILE_BYTES) {
 		await response.body?.cancel();
 		throw new FileDownloadError(400, TOO_LARGE);
 	}
-	if (!response.body) return new Uint8Array();
-	const reader = response.body.getReader();
+	const body = await decodedBody(response);
+	if (!body) return new Uint8Array();
+	const reader = body.getReader();
 	const chunks: Uint8Array[] = [];
 	let size = 0;
 	for (;;) {
