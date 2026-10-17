@@ -51,6 +51,9 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const [startTime, setStartTime] = useState<string>('');
 	const [team, setTeam] = useState<TOrganizationTeam>();
 	const [taskId, setTaskId] = useState<string>('');
+	const [projectId, setProjectId] = useState<string>('');
+	const [employeeId, setEmployeeId] = useState<string>('');
+	const isTaskPickedRef = useRef(false);
 	const [timeDifference, setTimeDifference] = useState<string>('');
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
@@ -96,14 +99,18 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			stoppedAt.setHours(parseInt(endTime.split(':')[0]));
 			stoppedAt.setMinutes(parseInt(endTime.split(':')[1]));
 
-			const requestData: Omit<IAddManualTimeRequest, 'tenantId' | 'employeeId' | 'logType' | 'source'> = {
+			const requestData: Omit<IAddManualTimeRequest, 'tenantId' | 'employeeId' | 'logType' | 'source'> & {
+				employeeId?: string;
+			} = {
 				startedAt,
 				stoppedAt,
 				taskId,
 				description,
 				reason,
 				isBillable,
-				organizationId: team?.organizationId
+				organizationId: team?.organizationId,
+				...(projectId && { projectId }),
+				...(employeeId && { employeeId })
 			};
 
 			// Improved validation with better error messages
@@ -129,7 +136,20 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			// All validation passed, submit the request
 			addManualTime(requestData);
 		},
-		[addManualTime, date, description, endTime, isBillable, reason, startTime, taskId, team, activeTeam]
+		[
+			addManualTime,
+			date,
+			description,
+			endTime,
+			isBillable,
+			reason,
+			startTime,
+			taskId,
+			projectId,
+			employeeId,
+			team,
+			activeTeam
+		]
 	);
 
 	const calculateTimeDifference = useCallback(() => {
@@ -264,7 +284,10 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			// Only set taskId if the task is valid and available in filtered tasks
 			const isTaskAvailable = activeTeamTasks.some((task) => task.id === activeTeamTask.id);
 			if (isTaskAvailable) {
-				setTaskId(activeTeamTask.id);
+				// A task picked in the form must not be replaced by the active task when the task list refreshes
+				if (!isTaskPickedRef.current) {
+					setTaskId(activeTeamTask.id);
+				}
 			} else if (process.env.NODE_ENV === 'development') {
 				console.warn('🚨 activeTeamTask not available in filtered tasks:', {
 					activeTeamTaskId: activeTeamTask.id,
@@ -333,7 +356,15 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	}, []);
 
 	const handleChange = useCallback((field: string, selectedItem: Item | null) => {
-		console.log(`Field: ${field}, Selected Item:`, selectedItem);
+		if (field === 'Project') {
+			setProjectId(selectedItem?.id ?? '');
+		} else if (field === 'Employee') {
+			// Employee items are team member rows, whose own id is not the employee id
+			setEmployeeId(selectedItem?.employeeId ?? selectedItem?.employee?.id ?? '');
+		} else if (field === 'Task') {
+			isTaskPickedRef.current = true;
+			setTaskId(selectedItem?.id ?? '');
+		}
 	}, []);
 
 	const itemToString = useCallback(
