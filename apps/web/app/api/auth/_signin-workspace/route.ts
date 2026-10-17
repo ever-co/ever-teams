@@ -85,8 +85,6 @@ export async function POST(req: Request) {
 			}
 		}
 		if (loginResponse) {
-			console.log('loginResponse>>>', loginResponse);
-
 			/**
 			 * Get the first team from first organization
 			 */
