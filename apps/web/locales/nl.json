@@ -746,7 +746,12 @@
 				"SIGNUP_TERMS_REQUIRED": "Accepteer de documenten om verder te gaan.",
 				"SIGNUP_EXPIRED": "Deze registratie is verlopen. Log opnieuw in met Ever ID.",
 				"SIGNUP_CHECKOUT": "Er is een abonnement nodig voordat uw werkruimte kan worden gemaakt.",
-				"CONTINUE_TO_CHECKOUT": "Doorgaan naar betalen"
+				"CONTINUE_TO_CHECKOUT": "Doorgaan naar betalen",
+				"EMAIL_UNVERIFIED_TITLE": "Bevestig je Ever ID e-mail",
+				"EMAIL_UNVERIFIED_BODY": "Ever ID heeft je e-mailadres nog niet bevestigd. Open de bevestigingsmail die Ever ID je stuurde, of bevestig je adres nu bij Ever ID, en log daarna opnieuw in met Ever ID.",
+				"VERIFY_EMAIL": "Mijn e-mail bevestigen bij Ever ID",
+				"SIGN_IN_AGAIN": "Opnieuw inloggen met Ever ID",
+				"LOGIN_WITH_EVER_ID": "Inloggen met <wordmark>Ever ID</wordmark>"
 			}
 		},
 		"authPasscode": {

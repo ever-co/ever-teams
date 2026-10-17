@@ -746,7 +746,12 @@
 				"SIGNUP_TERMS_REQUIRED": "Zaakceptuj dokumenty, aby kontynuować.",
 				"SIGNUP_EXPIRED": "Ta rejestracja wygasła. Zaloguj się ponownie przez Ever ID.",
 				"SIGNUP_CHECKOUT": "Przed utworzeniem przestrzeni roboczej potrzebna jest subskrypcja.",
-				"CONTINUE_TO_CHECKOUT": "Przejdź do płatności"
+				"CONTINUE_TO_CHECKOUT": "Przejdź do płatności",
+				"EMAIL_UNVERIFIED_TITLE": "Zweryfikuj e-mail Ever ID",
+				"EMAIL_UNVERIFIED_BODY": "Ever ID nie zweryfikował jeszcze Twojego adresu e-mail. Otwórz wiadomość weryfikacyjną od Ever ID albo zweryfikuj adres w Ever ID teraz, a potem zaloguj się ponownie przez Ever ID.",
+				"VERIFY_EMAIL": "Zweryfikuj mój e-mail w Ever ID",
+				"SIGN_IN_AGAIN": "Zaloguj się ponownie przez Ever ID",
+				"LOGIN_WITH_EVER_ID": "Zaloguj się przez <wordmark>Ever ID</wordmark>"
 			}
 		},
 		"authPasscode": {

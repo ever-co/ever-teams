@@ -746,7 +746,12 @@
 				"SIGNUP_TERMS_REQUIRED": "请接受这些文件以继续。",
 				"SIGNUP_EXPIRED": "此注册已过期。请重新使用 Ever ID 登录。",
 				"SIGNUP_CHECKOUT": "创建工作区之前需要订阅。",
-				"CONTINUE_TO_CHECKOUT": "继续付款"
+				"CONTINUE_TO_CHECKOUT": "继续付款",
+				"EMAIL_UNVERIFIED_TITLE": "验证您的 Ever ID 邮箱",
+				"EMAIL_UNVERIFIED_BODY": "Ever ID 尚未验证您的邮箱地址。请打开 Ever ID 发送给您的验证邮件，或立即在 Ever ID 上验证您的地址，然后再次使用 Ever ID 登录。",
+				"VERIFY_EMAIL": "在 Ever ID 上验证我的邮箱",
+				"SIGN_IN_AGAIN": "再次使用 Ever ID 登录",
+				"LOGIN_WITH_EVER_ID": "使用 <wordmark>Ever ID</wordmark> 登录"
 			}
 		},
 		"authPasscode": {

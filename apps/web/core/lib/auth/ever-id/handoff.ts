@@ -10,9 +10,16 @@ import type { EverIdStep } from './step';
  * AUTH_SECRET, together with its step and an expiry, into an httpOnly, SameSite=Lax cookie scoped to /api/auth;
  * the page only gets the step marker (step.ts). The routes of that step open the cookie: a value this server did
  * not seal, of another step or past its expiry is no key at all, and the Gauzy API is not called.
+ *
+ * The same cookie carries the Ever ID subject when a sign-in is refused because Ever ID has not verified the
+ * person's e-mail address yet (step `verify_email`): the route that opens Ever ID's verification form reads it
+ * there, so the subject never goes into a URL of this app either.
  */
 
 const EVER_ID_HANDOFF_COOKIE = 'ever-id-handoff';
+
+/** What a sealed cookie is for: a step that carries the API's one-time key, or the e-mail verification. */
+export type EverIdSealedStep = EverIdStep | 'verify_email';
 
 /** Only the routes that use the key receive the cookie: /api/auth/ever-id/* and the sign-up (/api/auth/register). */
 const COOKIE_PATH = '/api/auth';
@@ -22,6 +29,9 @@ const MAX_AGE_S = 1800;
 
 /** The API issues 43 base64url characters; anything far outside that shape is not a key. */
 const HANDOFF_PATTERN = /^[A-Za-z0-9_-]{16,128}$/;
+
+/** An Ever ID subject (a numeric ZITADEL user id); anything else is not one. */
+const SUBJECT_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
 
 const IV_BYTES = 12;
 const TAG_BYTES = 16;
@@ -42,6 +52,12 @@ export function readEverIdHandoff(value: unknown): string | null {
 	return typeof value === 'string' && HANDOFF_PATTERN.test(value) ? value : null;
 }
 
+/** The value a cookie of `step` may carry, when `value` has its shape, otherwise `null`. */
+function readSealedValue(value: unknown, step: EverIdSealedStep): string | null {
+	if (step !== 'verify_email') return readEverIdHandoff(value);
+	return typeof value === 'string' && SUBJECT_PATTERN.test(value) ? value : null;
+}
+
 let derived: { secret: string; key: Buffer } | undefined;
 
 /** The sealing key, derived from the secret next-auth uses; `null` when none is configured. */
@@ -55,9 +71,9 @@ function sealingKey(): Buffer | null {
 }
 
 /** The cookie value carrying `handoff` for `step`, or `null` when there is no secret to seal it with. */
-export function sealEverIdHandoff(handoff: string, step: EverIdStep, now = Date.now()): string | null {
+export function sealEverIdHandoff(handoff: string, step: EverIdSealedStep, now = Date.now()): string | null {
 	const key = sealingKey();
-	if (!key || !readEverIdHandoff(handoff)) return null;
+	if (!key || !readSealedValue(handoff, step)) return null;
 	const iv = randomBytes(IV_BYTES);
 	const cipher = createCipheriv('aes-256-gcm', key, iv, { authTagLength: TAG_BYTES });
 	const sealed = Buffer.concat([
@@ -70,7 +86,7 @@ export function sealEverIdHandoff(handoff: string, step: EverIdStep, now = Date.
 /** The key a cookie value carries for `step`, or `null` (not sealed here, another step, expired or malformed). */
 export function openEverIdHandoff(
 	sealed: string | null | undefined,
-	step: EverIdStep,
+	step: EverIdSealedStep,
 	now = Date.now()
 ): string | null {
 	const key = sealingKey();
@@ -83,7 +99,7 @@ export function openEverIdHandoff(
 		const opened = Buffer.concat([decipher.update(raw.subarray(IV_BYTES + TAG_BYTES)), decipher.final()]);
 		const payload = JSON.parse(opened.toString('utf8')) as { k?: unknown; s?: unknown; e?: unknown };
 		if (payload.s !== step || typeof payload.e !== 'number' || payload.e <= now) return null;
-		return readEverIdHandoff(payload.k);
+		return readSealedValue(payload.k, step);
 	} catch {
 		return null;
 	}
@@ -148,7 +164,7 @@ function cookieValues(header: string | null, name: string): string[] {
 }
 
 /** The key of `step` that the request's cookie carries, or `null` (the first value sealed here wins). */
-export function everIdHandoffFromRequest(req: Request, step: EverIdStep): string | null {
+export function everIdHandoffFromRequest(req: Request, step: EverIdSealedStep): string | null {
 	for (const value of cookieValues(req.headers.get('cookie'), EVER_ID_HANDOFF_COOKIE).slice(0, 5)) {
 		const handoff = openEverIdHandoff(value, step);
 		if (handoff) return handoff;
