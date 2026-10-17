@@ -9,6 +9,7 @@ import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TOrganizationTeam } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { findTimerPlans } from '@/core/lib/helpers/daily-plan-day';
 import { canRunTimerForState } from '@/core/lib/helpers/timer-policy';
 
@@ -34,6 +35,8 @@ export interface UseTimerPlanStatusReturn {
 	activeTeamTask: TTask | null;
 	/** The timer status (shared atom — avoids duplicate subscriptions in consumers) */
 	timerStatus: ITimerStatus | null;
+	/** Reads the personal plans when nothing has loaded them yet, from cache when they are fresh */
+	ensureMyDailyPlans?: () => Promise<PaginationResponse<TDailyPlan> | undefined>;
 }
 
 /**
@@ -55,7 +58,7 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 	const timerStatus = useAtomValue(timerStatusState);
 
 	const { user } = useAuthenticateUser();
-	const { myDailyPlans } = useMyDailyPlans();
+	const { myDailyPlans, ensureMyDailyPlans } = useMyDailyPlans();
 
 	// ==================== DERIVED STATE ====================
 
@@ -100,6 +103,7 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 		canRunTimer,
 		activeTeam,
 		activeTeamTask,
-		timerStatus
+		timerStatus,
+		ensureMyDailyPlans
 	};
 }

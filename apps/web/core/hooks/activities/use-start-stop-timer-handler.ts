@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useModal } from '../common/use-modal';
 import {
 	DAILY_PLAN_SUGGESTION_MODAL_DATE,
@@ -10,12 +10,27 @@ import { useTimerPlanStatus } from '../timer';
 import { useAtomValue } from 'jotai';
 import { timerStatusFetchingState } from '@/core/stores';
 import { getTimerAction, hasSeenModalToday, type TimerPolicyState } from '@/core/lib/helpers/timer-policy';
+import { findTimerPlans } from '@/core/lib/helpers/daily-plan-day';
+import type { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 
 export interface UseStartStopTimerHandlerParams {
 	/** Start the timer — injected from the caller's existing timer hook (useTimerView, useTimer, etc.) */
 	startTimer: () => void | Promise<any>;
 	/** Stop the timer — injected from the caller's existing timer hook (useTimerView, useTimer, etc.) */
 	stopTimer: () => void | Promise<any>;
+}
+
+/** Policy inputs read from today's plan, so the cached plan and a plan fetched on click give the same state. */
+function getPlanPolicyInputs(plan: TDailyPlan | undefined, activeTaskId: string | undefined) {
+	const tasksEstimationTimes = plan && plan.tasks ? estimatedTotalTime(plan.tasks).timesEstimated / 3600 : 0;
+
+	return {
+		hasPlan: !!plan,
+		isActiveTaskPlanned: !!plan?.tasks?.some((task) => task.id === activeTaskId),
+		areAllTasksEstimated: !!plan?.tasks?.every((el) => typeof el?.estimate === 'number' && el.estimate > 0),
+		hasWorkedHours: !!(plan?.workTimePlanned && plan.workTimePlanned > 0),
+		estimationTimeDifference: Math.abs(Number(plan?.workTimePlanned ?? 0) - tasksEstimationTimes)
+	};
 }
 
 /**
@@ -63,30 +78,11 @@ export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStop
 	} = useModal();
 
 	const timerStatusFetching = useAtomValue(timerStatusFetchingState);
-	const { hasPlan, canRunTimer, activeTeam, activeTeamTask, timerStatus } = useTimerPlanStatus();
+	const { hasPlan, canRunTimer, activeTeam, activeTeamTask, timerStatus, ensureMyDailyPlans } = useTimerPlanStatus();
 	const actionDisabled = timerStatusFetching || !canRunTimer;
+	const planRequestPendingRef = useRef(false);
 
 	const requirePlan = useMemo(() => !!activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
-
-	const hasWorkedHours = useMemo(
-		() => !!(hasPlan?.workTimePlanned && hasPlan.workTimePlanned > 0),
-		[hasPlan?.workTimePlanned]
-	);
-
-	const areAllTasksEstimated = useMemo(
-		() => !!hasPlan?.tasks?.every((el) => typeof el?.estimate === 'number' && el.estimate > 0),
-		[hasPlan?.tasks]
-	);
-
-	const isActiveTaskPlanned = useMemo(
-		() => !!hasPlan?.tasks?.some((task) => task.id === activeTeamTask?.id),
-		[activeTeamTask?.id, hasPlan?.tasks]
-	);
-
-	const tasksEstimationTimes = useMemo(
-		() => (hasPlan && hasPlan.tasks ? estimatedTotalTime(hasPlan.tasks).timesEstimated / 3600 : 0),
-		[hasPlan]
-	);
 
 	const enforceTaskSoftCloseModal = useCallback(() => {
 		_enforceTaskSoftCloseModal();
@@ -109,54 +105,65 @@ export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStop
 		]
 	);
 
-	const startStopTimerHandler = useCallback(() => {
-		const currentDate = new Date().toISOString().split('T')[0];
+	const runTimerAction = useCallback(
+		(plan: TDailyPlan | undefined) => {
+			const currentDate = new Date().toISOString().split('T')[0];
 
-		const policyState: TimerPolicyState = {
-			isTimerStatusFetching: timerStatusFetching,
+			const policyState: TimerPolicyState = {
+				isTimerStatusFetching: timerStatusFetching,
+				canRunTimer,
+				isTimerRunning: !!timerStatus?.running,
+				requirePlan,
+				...getPlanPolicyInputs(plan, activeTeamTask?.id),
+				hasSeenSuggestionModalToday: hasSeenModalToday(DAILY_PLAN_SUGGESTION_MODAL_DATE, currentDate),
+				hasSeenEstimateHoursModalToday: hasSeenModalToday(TASKS_ESTIMATE_HOURS_MODAL_DATE, currentDate),
+				hasSeenPlanEstimateHoursModalToday: hasSeenModalToday(DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE, currentDate)
+			};
+
+			const action = getTimerAction(policyState);
+
+			switch (action.type) {
+				case 'NOOP':
+					return;
+				case 'STOP_TIMER':
+					stopTimer();
+					return;
+				case 'START_TIMER':
+					// startTimer reports its own failure, this only keeps the rejection from going unhandled
+					Promise.resolve(startTimer()).catch(() => undefined);
+					return;
+				case 'SHOW_MODAL':
+					modalDispatch[action.modal]();
+					return;
+			}
+		},
+		[
+			activeTeamTask?.id,
 			canRunTimer,
-			isTimerRunning: !!timerStatus?.running,
+			modalDispatch,
 			requirePlan,
-			hasPlan: !!hasPlan,
-			isActiveTaskPlanned,
-			areAllTasksEstimated,
-			hasWorkedHours,
-			estimationTimeDifference: Math.abs(Number(hasPlan?.workTimePlanned ?? 0) - tasksEstimationTimes),
-			hasSeenSuggestionModalToday: hasSeenModalToday(DAILY_PLAN_SUGGESTION_MODAL_DATE, currentDate),
-			hasSeenEstimateHoursModalToday: hasSeenModalToday(TASKS_ESTIMATE_HOURS_MODAL_DATE, currentDate),
-			hasSeenPlanEstimateHoursModalToday: hasSeenModalToday(DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE, currentDate)
-		};
+			startTimer,
+			stopTimer,
+			timerStatus?.running,
+			timerStatusFetching
+		]
+	);
 
-		const action = getTimerAction(policyState);
-
-		switch (action.type) {
-			case 'NOOP':
-				return;
-			case 'STOP_TIMER':
-				stopTimer();
-				return;
-			case 'START_TIMER':
-				// startTimer reports its own failure, this only keeps the rejection from going unhandled
-				Promise.resolve(startTimer()).catch(() => undefined);
-				return;
-			case 'SHOW_MODAL':
-				modalDispatch[action.modal]();
-				return;
+	const startStopTimerHandler = useCallback(() => {
+		// Teams that do not require a plan never load the personal plans at startup, so a start reads them first
+		if (actionDisabled || timerStatus?.running || requirePlan || !ensureMyDailyPlans) {
+			runTimerAction(hasPlan);
+			return;
 		}
-	}, [
-		areAllTasksEstimated,
-		canRunTimer,
-		hasPlan,
-		hasWorkedHours,
-		isActiveTaskPlanned,
-		modalDispatch,
-		requirePlan,
-		startTimer,
-		stopTimer,
-		tasksEstimationTimes,
-		timerStatus?.running,
-		timerStatusFetching
-	]);
+		// A second click while the plans load would start the timer twice
+		if (planRequestPendingRef.current) return;
+		planRequestPendingRef.current = true;
+		void ensureMyDailyPlans()
+			.then((plans) => runTimerAction(plans ? findTimerPlans(plans.items).hasPlan : hasPlan))
+			.finally(() => {
+				planRequestPendingRef.current = false;
+			});
+	}, [actionDisabled, ensureMyDailyPlans, hasPlan, requirePlan, runTimerAction, timerStatus?.running]);
 
 	return {
 		modals: {

@@ -696,7 +696,7 @@ export function TaskCardMenu({
 
 	const canSeeActivity = useCanSeeActivityScreen();
 
-	const { myTodayPlan, myFuturePlans } = useMyDailyPlans();
+	const { myTodayPlan, myFuturePlans, ensureMyDailyPlans } = useMyDailyPlans();
 
 	const taskPlannedToday = useMemo(
 		() => myTodayPlan[myTodayPlan.length - 1]?.tasks?.find((planTask) => planTask.id === task.id),
@@ -726,7 +726,8 @@ export function TaskCardMenu({
 
 	return (
 		<>
-			<DropdownMenu>
+			{/* The plan items below read the personal plans, which teams without a plan requirement do not preload */}
+			<DropdownMenu onOpenChange={(open) => open && void ensureMyDailyPlans()}>
 				<DropdownMenuTrigger asChild>
 					<button className="flex items-center border-none outline-none">
 						{!isMenuLoading && (
