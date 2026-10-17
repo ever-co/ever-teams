@@ -12,10 +12,10 @@ export async function DELETE(req: Request, props: INextParams) {
 		return NextResponse.json({}, { status: 400 });
 	}
 
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+	const { $res, user, access_token, tenantId, status } = await authenticatedGuard(req, res);
 
 	if (!user) {
-		return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+		return NextResponse.json({ error: 'unauthorized' }, { status: status ?? 401 });
 	}
 
 	const response = await deleteTaskLabelsRequest({
@@ -37,10 +37,10 @@ export async function PUT(req: Request, props: INextParams) {
 
 	const body = (await req.json()) as unknown as ITagCreate;
 
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+	const { $res, user, access_token, tenantId, status } = await authenticatedGuard(req, res);
 
 	if (!user) {
-		return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+		return NextResponse.json({ error: 'unauthorized' }, { status: status ?? 401 });
 	}
 
 	const response = await editTaskLabelsRequest({

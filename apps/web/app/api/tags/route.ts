@@ -7,9 +7,9 @@ export async function GET(req: Request) {
 	const res = new NextResponse();
 	const { searchParams } = new URL(req.url);
 
-	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, res);
+	const { $res, user, access_token, tenantId, organizationId, status } = await authenticatedGuard(req, res);
 
-	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: status ?? 401 });
 
 	const { organizationTeamId } = searchParams as unknown as { organizationTeamId: string };
 
@@ -26,9 +26,9 @@ export async function POST(req: Request) {
 	const res = new NextResponse();
 	const body = (await req.json()) as ITagCreate;
 
-	const { $res, user, access_token } = await authenticatedGuard(req, res);
+	const { $res, user, access_token, status } = await authenticatedGuard(req, res);
 
-	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: status ?? 401 });
 
 	const response = await createLabelsRequest(body, access_token || '', body?.tenantId);
 

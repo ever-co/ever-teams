@@ -6,8 +6,8 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
 	const res = new NextResponse();
-	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, res);
-	if (!user) return NextResponse.json({}, { status: 401 });
+	const { $res, user, access_token, tenantId, organizationId, status } = await authenticatedGuard(req, res);
+	if (!user) return NextResponse.json({}, { status: status ?? 401 });
 
 	const url = new URL(req.url);
 
