@@ -1,11 +1,11 @@
 import {
-	getAccessTokenCookie,
-	getActiveProjectIdCookie,
-	getActiveTaskIdCookie,
-	getActiveTeamIdCookie,
-	getOrganizationIdCookie,
-	getTenantIdCookie
-} from '@/core/lib/helpers/cookies';
+	ACTIVE_PROJECT_COOKIE_NAME,
+	ACTIVE_TASK_COOKIE_NAME,
+	ACTIVE_TEAM_COOKIE_NAME,
+	ORGANIZATION_ID_COOKIE_NAME,
+	TENANT_ID_COOKIE_NAME
+} from '@/core/constants/config/constants';
+import { requestAccessToken, requestCookies } from '../request-cookies';
 import { currentAuthenticatedUserRequest } from '../requests/auth';
 import { NextResponse } from 'next/server';
 
@@ -32,13 +32,15 @@ async function unwrapRejection(error: unknown): Promise<unknown> {
  * A route that signs its own token with a server secret (`auth/meet/jwt`, `livekit`) is its own authorization
  * boundary and must authorize the caller itself. See "API routes and authorization" in apps/web/README.md.
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- the routes still pass their response; the cookies come from the request
 export async function authenticatedGuard(req: Request, res: NextResponse<unknown>) {
-	const access_token = getAccessTokenCookie({ req, res });
-	const tenantId = getTenantIdCookie({ req, res });
-	const organizationId = getOrganizationIdCookie({ req, res });
-	const teamId = getActiveTeamIdCookie({ req, res });
-	const taskId = getActiveTaskIdCookie({ req, res });
-	const projectId = getActiveProjectIdCookie({ req, res });
+	const cookies = requestCookies(req);
+	const access_token = requestAccessToken(cookies);
+	const tenantId = cookies.get(TENANT_ID_COOKIE_NAME) as string;
+	const organizationId = cookies.get(ORGANIZATION_ID_COOKIE_NAME) as string;
+	const teamId = cookies.get(ACTIVE_TEAM_COOKIE_NAME) as string;
+	const taskId = cookies.get(ACTIVE_TASK_COOKIE_NAME) as string;
+	const projectId = cookies.get(ACTIVE_PROJECT_COOKIE_NAME) as string;
 
 	let rejection: { statusCode?: number; message?: string } | undefined;
 	const r_res = await currentAuthenticatedUserRequest({
