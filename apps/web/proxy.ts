@@ -9,6 +9,7 @@ import {
 } from '@/core/constants/config/constants';
 import { cookiesKeys, setAccessTokenCookie, setRefreshTokenCookie } from '@/core/lib/helpers/cookies';
 import { currentAuthenticatedUserRequest, refreshTokenRequest } from '@/core/services/server/requests/auth';
+import { unwrapRejection } from '@/core/services/server/fetch';
 import { range } from '@/core/lib/helpers';
 import { isTokenExpired, decodeJWT, getTokenRemainingTime, formatRemainingTime } from '@/core/lib/auth/jwt-utils';
 import {
@@ -58,6 +59,13 @@ function setUserHeader(response: NextResponse, user: unknown): void {
 	}
 	response.headers.set('x-user', serialized);
 }
+
+// The 401 messages Gauzy answers when the refresh token was rotated (or is being rotated) by another request.
+const ROTATED_REFRESH_TOKEN_MESSAGES = new Set([
+	'Token is rotated',
+	'Token is not active',
+	'Failed to rotate token - concurrent modification'
+]);
 
 export const config = {
 	matcher: [
@@ -215,6 +223,7 @@ export async function proxy(request: NextRequest) {
 		userData?: any;
 		error?: string;
 		isExpired?: boolean;
+		retryable?: boolean;
 	}> => {
 		if (!refresh_token) {
 			console.log('[Proxy] No refresh token available for refresh attempt');
@@ -223,7 +232,10 @@ export async function proxy(request: NextRequest) {
 
 		try {
 			console.log('[Proxy] Attempting token refresh...');
-			const refreshRes = await refreshTokenRequest(refresh_token);
+			const refreshRes = await refreshTokenRequest(refresh_token).catch(async (error: unknown) => {
+				// Hand Gauzy's error body to the catch below, so a refused refresh token is recognized
+				throw await unwrapRejection(error);
+			});
 			if (!refreshRes?.data?.token) {
 				console.error('[Proxy] Token refresh failed: No token in response', refreshRes);
 				return { success: false, error: 'No token in refresh response', isExpired: true };
@@ -254,8 +266,19 @@ export async function proxy(request: NextRequest) {
 			return { success: false, error: `Token verification failed: ${verifyRes?.response?.status}`, isExpired };
 		} catch (error: any) {
 			const errorMsg = error?.message || 'Unknown error';
-			const statusCode = error?.response?.status || error?.status;
+			const statusCode = error?.statusCode || error?.response?.status || error?.status;
 			const isExpired = isTokenExpiredError(error);
+
+			// Another request already rotated this refresh token and its response may have given the browser the
+			// new pair: a redirect would clear those cookies, and a retry with this token fails the same way.
+			if (isExpired && ROTATED_REFRESH_TOKEN_MESSAGES.has(error?.message)) {
+				return {
+					success: false,
+					error: `Refresh token already rotated: ${errorMsg}`,
+					isExpired: false,
+					retryable: false
+				};
+			}
 
 			return {
 				success: false,
@@ -287,6 +310,11 @@ export async function proxy(request: NextRequest) {
 				// If token is expired, don't retry
 				if (result.isExpired) {
 					console.log('[Proxy] Token expired, not retrying');
+					return result;
+				}
+
+				if (result.retryable === false) {
+					console.log('[Proxy] Refresh token already rotated, not retrying');
 					return result;
 				}
 
