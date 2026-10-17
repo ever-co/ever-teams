@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import { format, addDays, startOfWeek, endOfWeek, eachDayOfInterval, Locale } from 'date-fns';
+import { format, addDays, startOfWeek, endOfWeek, eachDayOfInterval, Locale, parseISO } from 'date-fns';
 import { enGB } from 'date-fns/locale';
 import { cn } from '@/core/lib/helpers';
 import type { GroupedTimesheet } from '@/core/lib/helpers/timesheet-grouping';
@@ -63,7 +63,7 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
 	// Initialize with the first data date if available, otherwise use current date
 	const initialDate = useMemo(() => {
 		if (data.length > 0) {
-			const firstDate = new Date(data[0].date);
+			const firstDate = parseISO(data[0].date);
 			return isNaN(firstDate.getTime()) ? new Date() : firstDate;
 		}
 		return new Date();
@@ -71,22 +71,22 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
 
 	const [currentDate, setCurrentDate] = useState(initialDate);
 
-	// Update currentDate when data changes
+	// Follow the latest entry when the data changes; currentDate stays out of the deps so Prev/Next is kept
+	const firstDataDate = data[0]?.date;
 	useEffect(() => {
-		if (data.length > 0) {
-			const firstDataDate = new Date(data[0].date);
-			if (firstDataDate.getTime() !== currentDate.getTime()) {
-				setCurrentDate(firstDataDate);
-			}
+		if (!firstDataDate) return;
+		const parsedDate = parseISO(firstDataDate);
+		if (!isNaN(parsedDate.getTime())) {
+			setCurrentDate((prev) => (prev.getTime() === parsedDate.getTime() ? prev : parsedDate));
 		}
-	}, [data, currentDate]);
+	}, [firstDataDate]);
 
 	// Calculate the current week based on `currentDate`
 	const weekDates = useMemo(() => generateWeek(currentDate), [currentDate]);
 
 	// Map data to the respective dates
 	const groupedData = useMemo(
-		() => new Map(data.map((plan) => [format(new Date(plan.date), 'yyyy-MM-dd'), plan])),
+		() => new Map(data.map((plan) => [format(parseISO(plan.date), 'yyyy-MM-dd'), plan])),
 		[data]
 	);
 
