@@ -62,7 +62,7 @@ export function KeyboardShortcuts() {
 													(label) => (
 														<div
 															key={label}
-															className="border rounded-md py-1 px-3 text-dark-high dark:text-white min-w-[2.5rem] text-center"
+															className="border rounded-md py-1 px-3 text-foreground dark:text-white min-w-[2.5rem] text-center"
 														>
 															{label}
 														</div>

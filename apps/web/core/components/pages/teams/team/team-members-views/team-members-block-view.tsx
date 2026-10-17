@@ -2,6 +2,8 @@ import * as React from 'react';
 import { Transition } from '@headlessui/react';
 import { useAtomValue } from 'jotai';
 import { taskBlockFilterState } from '@/core/stores/tasks/task-filter';
+import { chatPanelOpenAtom } from '@/core/components/features/chat-panel/atoms/chat-panel-open.atom';
+import { cn } from '@/core/lib/helpers';
 import { UserTeamCardSkeleton } from './team-members-header';
 import { useTranslations } from 'next-intl';
 import { UserTeamBlock } from './user-team-block';
@@ -16,6 +18,8 @@ interface Props {
 const TeamMembersBlockView: React.FC<Props> = React.memo(
 	({ teamMembers: members, publicTeam = false, teamsFetching }) => {
 		const activeFilter = useAtomValue(taskBlockFilterState);
+		// Blocks need ~320px each; the AI chat panel takes part of the width, so add columns later while it is open.
+		const chatOpen = useAtomValue(chatPanelOpenAtom);
 		const t = useTranslations();
 		const objectEmptyMessage = React.useMemo(
 			() => ({
@@ -35,7 +39,13 @@ const TeamMembersBlockView: React.FC<Props> = React.memo(
 					<div className="flex flex-wrap items-center w-full">
 						{members.map((member) => {
 							return (
-								<div className="w-full p-1 @2xl/page:w-1/2 @4xl/page:w-1/3 @6xl/page:w-1/4" key={member.id}>
+								<div
+									className={cn(
+										'w-full p-1',
+										chatOpen ? 'xl:w-1/2 4xl:w-1/3 7xl:w-1/4' : 'lg:w-1/2 xl:w-1/3 3xl:w-1/4'
+									)}
+									key={member.id}
+								>
 									<Transition
 										as="div"
 										key={member.id}

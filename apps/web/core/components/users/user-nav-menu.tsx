@@ -46,7 +46,7 @@ type UserNavAvatarProps = {
 	variant?: 'header' | 'sidebar';
 };
 
-export function UserNavAvatar({ variant = 'header' }: UserNavAvatarProps) {
+export function UserNavAvatar({ variant = 'header' }: Readonly<UserNavAvatarProps>) {
 	const { data: user } = useUserQuery();
 	const imageUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
 	const name = user?.name || user?.firstName || user?.lastName || user?.username || '';
@@ -137,14 +137,14 @@ function SidebarUserNav({
 	imageUrl,
 	name,
 	timerStatusValue
-}: {
+}: Readonly<{
 	user: ReturnType<typeof useUserQuery>['data'];
 	imageUrl?: string | null;
 	name: string;
 	timerStatusValue: ETimerStatus;
-}) {
-	const { state } = useSidebar();
-	const collapsed = state === 'collapsed';
+}>) {
+	const { state, isMobile } = useSidebar();
+	const collapsed = state === 'collapsed' && !isMobile;
 	const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || name;
 
 	return (
@@ -193,13 +193,16 @@ function SidebarUserNav({
 				)}
 			</PopoverButton>
 
-			{/* Anchored = portaled to <body>: the sidebar sits in its own stacking layer below the chat
-			    panel's edge handle, so an in-tree panel had that handle painted through it. */}
+			{/* Desktop: anchored = portaled to <body>, because the sidebar sits in its own stacking layer
+			    below the chat panel's edge handle and an in-tree panel had that handle painted through it.
+			    Phones: the sidebar is a modal sheet that blocks pointer events outside itself, so the panel
+			    stays in the sheet, opening upwards. */}
 			<PopoverPanel
-				anchor={collapsed ? { to: 'right end', gap: 8 } : { to: 'top start', gap: 8 }}
+				anchor={isMobile ? undefined : collapsed ? { to: 'right end', gap: 8 } : { to: 'top start', gap: 8 }}
 				transition
 				className={clsxm(
-					'z-[1060] w-[308px] focus:outline-none',
+					'z-[1060] focus:outline-none',
+					isMobile ? 'absolute bottom-full left-0 mb-2 w-full' : 'w-[308px]',
 					'transition duration-100 ease-out data-[closed]:scale-95 data-[closed]:opacity-0'
 				)}
 			>
@@ -225,7 +228,7 @@ function MenuIndicator() {
 	);
 }
 
-function UserNavMenu({ placement = 'header' }: { placement?: 'header' | 'sidebar' }) {
+function UserNavMenu({ placement = 'header' }: Readonly<{ placement?: 'header' | 'sidebar' }>) {
 	const { user, logOut } = useAuthenticateUser();
 	const t = useTranslations();
 	const imageUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;

@@ -19,7 +19,7 @@ import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton'
 // Import optimized components from centralized location
 import { LazyMinTimerFrame, LazyCollaborate } from '@/core/components/optimized-components/dashboard';
 import { LazyRequestToJoinModal, LazyTeamsDropDown } from '@/core/components/optimized-components/teams';
-import { LazySidebarCommandModal } from '@/core/components/optimized-components/common';
+import { CommandPaletteTrigger } from './header/command-palette-trigger';
 
 // Import skeletons
 import { TeamsDropDownSkeleton } from '@/core/components/common/skeleton/teams-dropdown-skeleton';
@@ -91,14 +91,12 @@ export function Navbar({
 						</Suspense>
 					)}
 
+					{/* The command palette trigger lives here, left of Collaborate, as Ever Works keeps its
+					    search in the top bar; outside the md-only group so phones keep it. The palette itself
+					    is mounted once for the shell (app-sidebar.tsx). */}
+					<CommandPaletteTrigger />
+
 					<div className="hidden items-center gap-2 md:flex">
-						{/* The command palette trigger lives here, left of Collaborate, as Ever Works keeps
-						    its search in the top bar; the palette itself is unchanged. */}
-						{!publicTeam && (
-							<Suspense fallback={<div className="h-8 w-52 animate-pulse rounded-md bg-muted" />}>
-								<LazySidebarCommandModal publicTeam={publicTeam || false} variant="header" />
-							</Suspense>
-						)}
 						{!publicTeam && (
 							<Suspense fallback={<CollaborateSkeleton />}>
 								<LazyCollaborate />

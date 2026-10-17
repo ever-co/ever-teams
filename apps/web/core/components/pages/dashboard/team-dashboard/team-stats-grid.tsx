@@ -3,6 +3,8 @@
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { Card } from '@/core/components/common/card';
 import { cn } from '@/core/lib/helpers';
+import { useAtomValue } from 'jotai';
+import { chatPanelOpenAtom } from '@/core/components/features/chat-panel/atoms/chat-panel-open.atom';
 import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
@@ -40,6 +42,8 @@ export function TeamStatsGrid({
 	const timeValue = formatTime(hours, minutes, seconds);
 	const progress = formatPercentage(statisticsCounts?.weekActivities);
 	const t = useTranslations();
+	// The AI chat panel takes part of the width: step the columns up later while it is open.
+	const chatOpen = useAtomValue(chatPanelOpenAtom);
 
 	const stats: StatItem[] = useMemo(
 		() => [
@@ -91,7 +95,12 @@ export function TeamStatsGrid({
 	return loadingTimesheetStatisticsCounts ? (
 		<StatsCardSkeleton />
 	) : (
-		<div className="grid grid-cols-1 gap-3 @md/page:grid-cols-2 @3xl/page:grid-cols-3 @5xl/page:grid-cols-5">
+		<div
+			className={cn(
+				'grid grid-cols-1 gap-3',
+				chatOpen ? 'md:grid-cols-2 xl:grid-cols-3 4xl:grid-cols-5' : 'sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5'
+			)}
+		>
 			{stats.map((stat) => (
 				<Card key={stat.title} className="flex flex-col gap-2 rounded-xl px-4 py-3.5 shadow-none">
 					<div className="flex min-w-0 items-center gap-1.5">

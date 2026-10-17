@@ -103,7 +103,7 @@ export function RawStatusDropdown({ task }: { task: TTask | null }) {
 									className={({ active }) =>
 										`relative cursor-pointer select-none py-2 pl-5 pr-4 ${
 											active
-												? 'bg-[#F9FAFB] text-primary dark:text-white dark:bg-card cursor-pointer'
+												? 'bg-muted text-primary dark:text-white cursor-pointer'
 												: ` dark:text-white`
 										}`
 									}

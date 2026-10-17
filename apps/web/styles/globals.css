@@ -45,9 +45,10 @@ html.dark {
 @theme {
 	--default-ring-width: 3px;
 	--default-ring-color: var(--color-blue-500);
+
 	/* Same system stack as Ever Works, so both products render in the OS UI face. */
 	--font-sans:
-		-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
+		-apple-system, 'BlinkMacSystemFont', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
 		'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
@@ -62,7 +63,7 @@ html.dark {
 
 	input::placeholder,
 	textarea::placeholder {
-		color: hsl(var(--muted-foreground) / 0.8);
+		color: hsl(var(--muted-foreground) / 80%);
 	}
 
 	button:not(:disabled),
@@ -82,49 +83,31 @@ html.dark {
 	:root {
 		--background: 0 0% 98%; /* #fafafa */
 		--foreground: 222 47% 11%; /* #0f172a */
-
 		--muted: 210 40% 96%; /* #f1f5f9 */
 		--muted-foreground: 215 16% 47%; /* #64748b */
-
 		--popover: 0 0% 100%;
 		--popover-foreground: 222 47% 11%;
-
 		--card: 0 0% 100%;
 		--card-foreground: 222 47% 11%;
-
 		--border: 214 32% 91%; /* hsl(var(--border)) */
 		--input: 214 32% 91%;
-
 		--primary: 239 84% 67%;
 		--primary-foreground: 0 0% 100%;
-
 		--secondary: 210 40% 96%;
 		--secondary-foreground: 222 47% 11%;
-
 		--accent: 210 40% 96%;
 		--accent-foreground: 222 47% 11%;
-
 		--destructive: 0 84% 60%;
 		--destructive-foreground: 0 0% 100%;
-
 		--ring: 239 84% 67%;
-
 		--radius: 0.625rem;
-
 		--sidebar-background: 0 0% 100%;
-
 		--sidebar-foreground: 222 47% 11%;
-
 		--sidebar-primary: 222 47% 11%;
-
 		--sidebar-primary-foreground: 0 0% 98%;
-
 		--sidebar-accent: 210 40% 96%;
-
 		--sidebar-accent-foreground: 222 47% 11%;
-
 		--sidebar-border: 214 32% 91%;
-
 		--sidebar-ring: 239 84% 67%;
 	}
 
@@ -139,56 +122,43 @@ html.dark {
 	.dark {
 		--background: 0 0% 4%; /* #0a0a0a */
 		--foreground: 214 32% 91%; /* hsl(var(--border)) */
-
 		--muted: 0 0% 10%; /* ≈ white/6% on the shell */
 		--muted-foreground: 218 11% 65%; /* #9ca3af */
-
 		--popover: 0 0% 7%;
 		--popover-foreground: 214 32% 91%;
-
 		--card: 0 0% 7%; /* ≈ white/3% on the shell */
 		--card-foreground: 214 32% 91%;
-
 		--border: 0 0% 13%; /* ≈ white/9% on the shell */
 		--input: 0 0% 15%;
-
 		--primary: 239 84% 67%;
 		--primary-foreground: 0 0% 100%;
-
 		--secondary: 0 0% 10%;
 		--secondary-foreground: 214 32% 91%;
-
 		--accent: 0 0% 10%;
 		--accent-foreground: 0 0% 100%;
-
 		--destructive: 0 72% 51%;
 		--destructive-foreground: 0 0% 100%;
-
 		--ring: 0 0% 40%;
-
 		--sidebar-background: 0 0% 4%;
-
 		--sidebar-foreground: 214 32% 91%;
-
 		--sidebar-primary: 239 84% 67%;
-
 		--sidebar-primary-foreground: 0 0% 100%;
-
 		--sidebar-accent: 0 0% 13%;
-
 		--sidebar-accent-foreground: 0 0% 100%;
-
 		--sidebar-border: 0 0% 13%;
-
 		--sidebar-ring: 0 0% 40%;
 	}
 
+	/* Hairlines from the border token; thin, translucent scrollbars everywhere (Ever Works' rules):
+	   the 8px grey bars were part of why the app read as heavy. */
 	* {
 		@apply border-border;
+		scrollbar-width: thin;
+		scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
 	}
 
 	body {
-		font-family: var(--font-sans) !important;
+		font-family: var(--font-sans);
 		font-style: normal;
 		font-weight: 400;
 		line-height: 1.5;
@@ -200,12 +170,6 @@ html.dark {
 		@apply bg-background text-foreground text-sm;
 	}
 
-	/* Thin, translucent scrollbars everywhere (Ever Works' rules): the 8px grey bars were part of
-	   why the app read as heavy. */
-	* {
-		scrollbar-width: thin;
-		scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
-	}
 	.dark * {
 		scrollbar-color: rgba(115, 115, 115, 0.45) transparent;
 	}

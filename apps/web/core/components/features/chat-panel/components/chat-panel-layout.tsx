@@ -6,8 +6,9 @@ import type { PropsWithChildren } from 'react';
 import { CHAT_PANEL_CONSTRAINTS } from '../constants/chat-panel-constraints.constant';
 import { useChatPanel } from '../hooks/use-chat-panel';
 import { ChatView } from './chat-view';
-import { ChevronLeft, ChevronRight, GripVertical } from 'lucide-react';
+import { Bot, ChevronLeft, ChevronRight, GripVertical } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { APP_NAME } from '@/core/constants/config/constants';
 
 /** A 20px round hairline button on the panel edge: quiet until hovered. */
 const EDGE_BUTTON =
@@ -16,6 +17,7 @@ const EDGE_BUTTON =
 export function ChatPanelLayout({ children }: PropsWithChildren) {
 	const chatPanel = useChatPanel();
 	const t = useTranslations();
+	const openAssistantLabel = t('chatView.OPEN_ASSISTANT', { appName: APP_NAME });
 
 	return (
 		// Provide chat controls to the entire subtree (children included)
@@ -57,7 +59,7 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 					minSize={50}
 					className="relative"
 				>
-					<div className="absolute inset-0 overflow-hidden @container/page">{children}</div>
+					<div className="absolute inset-0 overflow-hidden">{children}</div>
 				</ResizablePanel>
 			</ResizablePanelGroup>
 
@@ -96,9 +98,20 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 						<ChevronRight className="size-3.5" />
 					</button>
 				</div>
-			) : null}
-			{/* Closed: the open button sits on the sidebar's edge (app-sidebar.tsx ChatPanelOpenButton),
-			    since this wrapper clips anything crossing its own left edge. */}
+			) : (
+				// Closed, from md up: the open button sits on the sidebar's edge (app-sidebar.tsx
+				// ChatPanelOpenButton). Below md the sidebar is a sheet, so this one keeps the assistant
+				// reachable on phones.
+				<button
+					type="button"
+					onClick={chatPanel.openPanel}
+					className={cn(EDGE_BUTTON, 'absolute left-2 top-1/2 z-[1030] size-8 -translate-y-1/2 shadow-sm md:hidden')}
+					title={openAssistantLabel}
+					aria-label={openAssistantLabel}
+				>
+					<Bot className="size-4" aria-hidden="true" />
+				</button>
+			)}
 		</div>
 	);
 }

@@ -69,7 +69,7 @@ export function TaskBlockInfo({ className, edition, publicTeam, tab, dayPlanTab 
 					dayPlanTab={dayPlanTab}
 				/>
 			)}
-			{!edition.task && <div className="self-center text-center text-white dark:text-dark">_</div>}
+			{!edition.task && <div className="self-center text-center text-transparent">_</div>}
 		</div>
 	);
 }

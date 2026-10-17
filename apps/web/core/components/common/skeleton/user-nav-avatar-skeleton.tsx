@@ -6,7 +6,7 @@ interface UserNavAvatarSkeletonProps {
 	variant?: 'header' | 'sidebar';
 }
 
-export function UserNavAvatarSkeleton({ className, variant = 'header' }: UserNavAvatarSkeletonProps) {
+export function UserNavAvatarSkeleton({ className, variant = 'header' }: Readonly<UserNavAvatarSkeletonProps>) {
 	if (variant === 'sidebar') {
 		return (
 			<div className={clsxm('flex items-center gap-2 p-2', className)}>

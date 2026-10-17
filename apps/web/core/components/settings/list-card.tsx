@@ -40,7 +40,7 @@ export const StatusesListCard = ({
 	useEffect(() => {
 		if (statusIcon) {
 			// The chip is no longer filled with the colour, so the icon follows the text colour.
-			loadSVG(statusIcon, `icon-container-${statusTitle}-${statusId}`, 'currentColor');
+			void loadSVG(statusIcon, `icon-container-${statusTitle}-${statusId}`, 'currentColor');
 		}
 	}, [statusIcon, statusTitle, statusId]);
 

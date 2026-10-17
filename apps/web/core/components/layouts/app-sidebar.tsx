@@ -10,7 +10,6 @@ import {
 	LoaderCircle,
 	Bot
 } from 'lucide-react';
-import { useAtom } from 'jotai';
 import { chatPanelOpenAtom } from '@/core/components/features/chat-panel/atoms/chat-panel-open.atom';
 import Image from 'next/image';
 
@@ -41,13 +40,14 @@ import { TaskIssueStatus } from '../tasks/task-issue';
 import { WorkspacesSwitcher } from '../common/workspace-switcher';
 // Import optimized components from centralized location
 import { LazyCreateTeamModal } from '@/core/components/optimized-components/teams';
+import { LazySidebarCommandModal } from '@/core/components/optimized-components/common';
 import { NavHome } from '../nav-home';
 import { NavMain } from './nav-main';
 import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useFavoritesQuery } from '@/core/hooks/favorites/use-favorites-query';
 import { activeTeamState, isTeamManagerState, tasksByTeamState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
@@ -419,6 +419,12 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 					<LazyCreateTeamModal open={isOpen} closeModal={closeModal} />
 				</Suspense>
 			)}
+
+			{/* Command palette - rendered once for the entire app (outside the mobile sheet), so its
+			    shortcuts work on every page; the header's CommandPaletteTrigger opens it. */}
+			<Suspense fallback={null}>
+				<LazySidebarCommandModal publicTeam={publicTeam || false} variant="none" />
+			</Suspense>
 
 			{/* Global AllPlansModal - rendered once for the entire app */}
 			<GlobalAllPlansModal />

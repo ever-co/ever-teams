@@ -16,7 +16,7 @@ const GlobalHeader = forwardRef(
 				ref={ref as LegacyRef<HTMLDivElement>}
 				className="relative z-40 flex w-full shrink-0 flex-col border-b border-border bg-background"
 			>
-				<header className="relative z-50 flex h-16 min-h-16 w-full shrink-0 items-center bg-background px-6">
+				<header className="relative z-50 flex h-16 min-h-16 w-full shrink-0 items-center bg-background pl-14 pr-4 md:px-6">
 					<Navbar
 						className="flex w-full items-center"
 						showTimer={showTimer}
