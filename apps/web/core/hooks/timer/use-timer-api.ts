@@ -114,6 +114,16 @@ let pendingStartTaskId: string | null = null;
 let pendingStopTimer: Promise<void> | null = null;
 /** Track last stopTimer call to prevent duplicate calls within short time window */
 let lastStopTimerTimestamp = 0;
+// Bumped when a start, stop or toggle is sent and again when it lands. A sync reads the status back after its
+// time slot, so that read may predate such a command: it only updates the status when none happened meanwhile.
+let timerCommandSeq = 0;
+
+function trackTimerCommand<T>(request: Promise<T>): Promise<T> {
+	timerCommandSeq += 1;
+	return request.finally(() => {
+		timerCommandSeq += 1;
+	});
+}
 
 // Identity check: an older flow settling late must not clear the guard of a newer request
 function releaseStartGuard(request: Promise<void>) {
@@ -294,7 +304,7 @@ export function useTimerApi({
 
 	const syncTimerMutation = useMutation({
 		mutationFn: async (data: { source: ETimeLogSource; user?: TUser | null; timeLogId?: string }) => {
-			await timerService.syncTimer({ source: data.source, user: data.user, timeLogId: data.timeLogId });
+			return await timerService.syncTimer({ source: data.source, user: data.user, timeLogId: data.timeLogId });
 		},
 		onError: (error: any) => {
 			if (error?.response?.status !== 401) {
@@ -380,7 +390,7 @@ export function useTimerApi({
 	const toggleTimerMutate = toggleTimerMutation.mutateAsync;
 	const toggleTimer = useCallback(
 		(taskIdParam: string, updateStore = true) => {
-			return toggleTimerMutate(taskIdParam).then((res) => {
+			return trackTimerCommand(toggleTimerMutate(taskIdParam)).then((res) => {
 				if (
 					updateStore &&
 					(!statusEnabled || isCurrentScope()) &&
@@ -401,14 +411,26 @@ export function useTimerApi({
 		if (syncTimerPending) {
 			return;
 		}
+		const commandSeq = timerCommandSeq;
 		return syncTimerMutate({
 			source: timerStatus?.lastLog?.source || ETimeLogSource.TEAMS,
 			user: $user.current,
 			timeLogId: timerStatus?.lastLog?.id
 		}).then((res) => {
+			// A hidden tab, or one without auto refresh, never refetches the status: this is how its heartbeat
+			// learns that the timer was stopped elsewhere. The proxy route answers null when its status read fails.
+			const status = res?.data;
+			if (
+				typeof status?.running === 'boolean' &&
+				commandSeq === timerCommandSeq &&
+				(!statusEnabled || isCurrentScope()) &&
+				!isEqual(timerStatusRef.current, status)
+			) {
+				setTimerStatus(status);
+			}
 			return res;
 		});
-	}, [syncTimerMutate, syncTimerPending, timerStatus]);
+	}, [isCurrentScope, setTimerStatus, statusEnabled, syncTimerMutate, syncTimerPending, timerStatus, timerStatusRef]);
 
 	// ==================== START TIMER ====================
 
@@ -484,7 +506,7 @@ export function useTimerApi({
 			});
 
 			if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
-			const promise = startTimerMutate({ taskId: taskIdToUse }).then(async (res) => {
+			const promise = trackTimerCommand(startTimerMutate({ taskId: taskIdToUse })).then(async (res) => {
 				res.data &&
 					(!statusEnabled || isCurrentScope()) &&
 					!isEqual(timerStatus, res.data) &&
@@ -671,7 +693,10 @@ export function useTimerApi({
 		syncTimer();
 
 		if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
-		const request: Promise<void> = stopTimerMutate(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS)
+		// Tracked after the sync above, so that sync's status read can never put a running timer back
+		const request: Promise<void> = trackTimerCommand(
+			stopTimerMutate(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS)
+		)
 			.catch((error) => {
 				// The last known server status still says running: undo the optimistic stop so the clock agrees
 				// with it, and refetch the status in case the stop landed after all. Only a running snapshot is put
