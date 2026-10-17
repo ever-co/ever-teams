@@ -14,8 +14,6 @@ import { APP_NAME } from '@/core/constants/config/constants';
 
 export async function POST(req: Request) {
 	try {
-		const res = new NextResponse();
-
 		const body = (await req.json()) as unknown as {
 			email: string;
 			token: string;
@@ -117,8 +115,9 @@ export async function POST(req: Request) {
 			);
 
 			const team = teams.items[0];
+			const res = NextResponse.json({ team, loginResponse });
 			if (!team) {
-				setNoTeamPopupShowCookie(true);
+				setNoTeamPopupShowCookie(true, { req, res });
 			}
 			setAuthCookies(
 				{
@@ -135,7 +134,7 @@ export async function POST(req: Request) {
 				},
 				{ req, res }
 			);
-			return NextResponse.json({ team, loginResponse });
+			return res;
 		}
 		// Accept Invite Flow End
 		const { email, token, defaultTeamId, lastTeamId } = body;
@@ -163,6 +162,7 @@ export async function POST(req: Request) {
 			);
 		}
 
+		const res = NextResponse.json({ loginResponse: data });
 		setAuthCookies(
 			{
 				access_token: data.token,
@@ -179,7 +179,7 @@ export async function POST(req: Request) {
 			{ req, res }
 		);
 
-		return NextResponse.json({ loginResponse: data });
+		return res;
 	} catch (err) {
 		console.log({ err });
 		return NextResponse.json(
