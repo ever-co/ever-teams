@@ -1,4 +1,5 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { getTeamProjectScope } from '@/core/services/server/team-project-scope';
 import { createVersionRequest, getTaskVersionListRequest } from '@/core/services/server/requests/task-version';
 import { TTaskVersionCreate } from '@/core/types/schemas/task/task-version.schema';
 import { NextResponse } from 'next/server';
@@ -9,17 +10,7 @@ export async function GET(req: Request) {
 
 	if (!user) return $res('Unauthorized');
 
-	const { searchParams } = new URL(req.url);
-
-	const organizationTeamId = searchParams.get('organizationTeamId') || null;
-	const projectId = searchParams.get('projectId') || null;
-
-	const par = {
-		tenantId,
-		organizationId,
-		organizationTeamId,
-		...(projectId !== null ? { projectId } : {})
-	};
+	const par = { tenantId, organizationId, ...getTeamProjectScope(req) };
 
 	const { data } = await getTaskVersionListRequest(par, access_token);
 

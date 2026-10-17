@@ -1,4 +1,5 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { getTeamProjectScope } from '@/core/services/server/team-project-scope';
 import { IIssueTypesCreate } from '@/core/types/interfaces/task/issue-type';
 import { createIssueTypeRequest, getIssueTypesListRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
@@ -9,16 +10,7 @@ export async function GET(req: Request) {
 
 	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: status ?? 401 });
 
-	const { searchParams } = new URL(req.url);
-	const organizationTeamId = searchParams.get('organizationTeamId') || null;
-	const projectId = searchParams.get('projectId') || null;
-
-	const par = {
-		tenantId,
-		organizationId,
-		organizationTeamId,
-		...(projectId !== null ? { projectId } : {})
-	};
+	const par = { tenantId, organizationId, ...getTeamProjectScope(req) };
 
 	const { data } = await getIssueTypesListRequest(par, access_token);
 

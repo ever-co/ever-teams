@@ -1,5 +1,6 @@
 import { ITaskRelatedIssueTypeCreate } from '@/core/types/interfaces/task/related-issue-type';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { getTeamProjectScope } from '@/core/services/server/team-project-scope';
 import {
 	createRelatedIssueTypeRequest,
 	getTaskRelatedIssueTypeListRequest
@@ -12,17 +13,7 @@ export async function GET(req: Request) {
 
 	if (!user) return $res('Unauthorized');
 
-	const { searchParams } = new URL(req.url);
-
-	const organizationTeamId = searchParams.get('organizationTeamId') || null;
-	const projectId = searchParams.get('projectId') || null;
-
-	const par = {
-		tenantId,
-		organizationId,
-		organizationTeamId,
-		...(projectId !== null ? { projectId } : {})
-	};
+	const par = { tenantId, organizationId, ...getTeamProjectScope(req) };
 
 	const { data } = await getTaskRelatedIssueTypeListRequest(par, access_token);
 
