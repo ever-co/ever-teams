@@ -1,4 +1,4 @@
-import { pipeline, Readable, type Transform } from 'node:stream';
+import { pipeline, Readable, Transform } from 'node:stream';
 import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
 import { constants, createBrotliDecompress, createGunzip, createInflate, createZstdDecompress } from 'node:zlib';
 import { convertToCoreMessages, coreMessageSchema, type CoreMessage, type Message } from 'ai';
@@ -93,6 +93,17 @@ function isUiMessage(message: unknown): boolean {
 	);
 }
 
+/** Passes the bytes through and fails once more than `MAX_FILE_BYTES` went by. */
+function sizeLimit(): Transform {
+	let size = 0;
+	return new Transform({
+		transform(chunk: Uint8Array, _encoding, callback) {
+			size += chunk.byteLength;
+			callback(size > MAX_FILE_BYTES ? new FileDownloadError(400, TOO_LARGE) : null, chunk);
+		}
+	});
+}
+
 /**
  * The guarded fetch asks for an uncompressed answer but does not decode one, and a host can send one all the
  * same (a file stored compressed): decoded here like the global fetch does, so the size limit applies to the
@@ -112,11 +123,13 @@ async function decodedBody(response: Response): Promise<ReadableStream<Uint8Arra
 	}
 	const decoders = codings.map((coding) => DECODERS.get(coding));
 	if (!decoders.every((decoder) => decoder !== undefined)) return response.body;
-	// An error in any stage destroys them all and reaches the reader through the last one.
+	// Every stage is held to the size limit, not only the last: layered codings can blow up in between (a
+	// small br body holding endless empty gzip members). An error in any stage destroys them all and reaches
+	// the reader through the last one.
 	const decoded = pipeline(
 		[
 			Readable.fromWeb(response.body as unknown as NodeReadableStream<Uint8Array>),
-			...decoders.map((decoder) => decoder())
+			...decoders.flatMap((decoder) => [decoder(), sizeLimit()])
 		],
 		() => undefined
 	) as unknown as Readable;
