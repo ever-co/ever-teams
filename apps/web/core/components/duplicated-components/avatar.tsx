@@ -30,13 +30,17 @@ export function Avatar({
 }: Props) {
 	const [avatar, setAvatar] = useAtom(avatarState);
 
+	// One entry per object (host + path): the cache stays bounded however often a presigned URL is
+	// re-signed, and the effect below refreshes the entry when the signature changes, so an expired
+	// link is never reused.
 	const imagePathName =
 		imageUrl && isValidUrl(imageUrl) ? `${new URL(imageUrl).host}${new URL(imageUrl).pathname}` : '';
 
 	const avatarPresent = hasOwn(avatar, imagePathName);
+	const cachedUrl = avatarPresent ? avatar[imagePathName] : undefined;
 
 	const imgUrl = useMemo(() => {
-		const raw = avatarPresent ? avatar[imagePathName] : imageUrl;
+		const raw = cachedUrl ?? imageUrl;
 
 		// Normalised here so the fallback branch below and the <Image> `src` agree on one value: the
 		// API can return a route-relative path (e.g. the seeded `assets/images/avatars/…`) which
@@ -44,10 +48,12 @@ export function Avatar({
 		// truthy while normalising to '' — which next/image rejects. See `normalizeImageUrl`.
 		return normalizeImageUrl(raw) || undefined;
 		/* eslint-disable react-hooks/exhaustive-deps */
-	}, [imagePathName, avatarPresent]);
+	}, [imagePathName, cachedUrl]);
 
 	useEffect(() => {
-		setAvatar((avatar: any) => ({ ...avatar, [imagePathName]: imageUrl }));
+		setAvatar((avatar: any) =>
+			avatar[imagePathName] === imageUrl ? avatar : { ...avatar, [imagePathName]: imageUrl }
+		);
 	}, [imageUrl, imagePathName]);
 
 	return (

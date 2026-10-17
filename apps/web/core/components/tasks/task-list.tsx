@@ -83,10 +83,10 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: TTask) => void
 		<>
 			<Combobox value={inputTask} onChange={handleTaskChange}>
 				<div className="relative mt-1">
-					<div className="relative w-full cursor-default overflow-hidden rounded-lg  bg-[#EEEFF5] dark:bg-[#1B1B1E] text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm ">
+					<div className="relative w-full cursor-default overflow-hidden rounded-lg  bg-[#EEEFF5] dark:bg-card text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm ">
 						<Combobox.Input
 							key={`${editMode}`}
-							className="h-[60px] bg-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] py-[18px] shadow-inner"
+							className="h-[60px] bg-[#EEEFF5] dark:bg-card placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] py-[18px] shadow-inner"
 							displayValue={(task: TTask) => {
 								return task ? (!editMode ? `#${task.taskNumber} ` : '') + task.title : '';
 							}}
@@ -125,7 +125,7 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: TTask) => void
 							setFilter('open');
 						}}
 					>
-						<Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+						<Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-card py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
 							<div className="flex justify-start items-center mt-2 mb-4 ml-10 space-x-2">
 								<TaskFilter
 									count={openTaskCount}
@@ -157,7 +157,7 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: TTask) => void
 												className={({ active }) =>
 													`relative text-[14px] cursor-pointer select-none pl-10 pr-4 text-primary ${
 														active
-															? 'bg-[#F9FAFB] text-primary/80 dark:text-white dark:bg-[#202023] cursor-pointer'
+															? 'bg-[#F9FAFB] text-primary/80 dark:text-white dark:bg-card cursor-pointer'
 															: ' dark:text-white text-primary/100'
 													}`
 												}
@@ -175,7 +175,7 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: TTask) => void
 																	onReopen={() => handleReopenTask(task)}
 																/>
 															</div>
-															<div className="w-full h-[1px] bg-[#EDEEF2] dark:bg-gray-700" />
+															<div className="w-full h-[1px] bg-[#EDEEF2] dark:bg-muted" />
 														</div>
 													);
 												}}

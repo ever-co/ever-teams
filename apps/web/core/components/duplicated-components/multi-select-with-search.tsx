@@ -68,7 +68,7 @@ export function MultiSelectWithSearch<T extends { value: string | number; id: st
 				></PopoverButton>
 				<ChevronDown size={20} className=" text-slate-400  absolute top-1/2 -translate-y-1/2 right-3" />
 			</div>
-			<PopoverPanel className={'absolute w-full mt-1 z-20 bg-white dark:bg-gray-800 rounded-md shadow-md'}>
+			<PopoverPanel className={'absolute w-full mt-1 z-20 bg-white dark:bg-muted rounded-md shadow-md'}>
 				<ul className="w-full flex flex-col h-52 gap-[.125rem] p-[.125rem]">
 					<ScrollArea>
 						{options

@@ -32,7 +32,7 @@ export const TimeReportTable = ({
 	header
 }: ITimeReportTableProps) => (
 	<div className="w-full p-1" key={report.date}>
-		<div className="flex items-center h-12 px-4 border rounded-md bg-slate-100 dark:bg-gray-800 dark:text-white">
+		<div className="flex items-center h-12 px-4 border rounded-md bg-slate-100 dark:bg-muted dark:text-white">
 			{header}
 		</div>
 		<div>
@@ -84,7 +84,7 @@ export const TimeReportTableByMember = ({
 	header
 }: ITimeReportTableByMemberProps) => (
 	<div className="w-full p-1" key={report.employee.id}>
-		<div className="flex items-center h-12 px-4 border rounded-md bg-slate-100 dark:bg-gray-800 dark:text-white">
+		<div className="flex items-center h-12 px-4 border rounded-md bg-slate-100 dark:bg-muted dark:text-white">
 			{header}
 		</div>
 		<div>

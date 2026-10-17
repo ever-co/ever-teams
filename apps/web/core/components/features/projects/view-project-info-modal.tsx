@@ -101,7 +101,7 @@ export function ViewProjectInfoModal(props: Readonly<IViewProjectInfoModalProps>
 							{/* Quick Info Row */}
 							<div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
 								{project.code && (
-									<span className="font-mono bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded text-xs">
+									<span className="font-mono bg-gray-100 dark:bg-muted px-2 py-0.5 rounded text-xs">
 										{project.code}
 									</span>
 								)}
@@ -164,7 +164,7 @@ export function ViewProjectInfoModal(props: Readonly<IViewProjectInfoModalProps>
 				{project.description && (
 					<Section title={t('common.DESCRIPTION')}>
 						<div
-							className="p-3 text-sm text-gray-700 whitespace-pre-wrap rounded-lg bg-gray-50 dark:bg-dark--theme dark:text-gray-300 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-gray-700 [&_code]:px-1 [&_code]:rounded [&_p]:mb-1 [&_p:last-child]:mb-0"
+							className="p-3 text-sm text-gray-700 whitespace-pre-wrap rounded-lg bg-gray-50 dark:bg-dark--theme dark:text-gray-300 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-muted [&_code]:px-1 [&_code]:rounded [&_p]:mb-1 [&_p:last-child]:mb-0"
 							dangerouslySetInnerHTML={{ __html: sanitizeHtml(project.description) }}
 						/>
 					</Section>
@@ -271,7 +271,7 @@ export function ViewProjectInfoModal(props: Readonly<IViewProjectInfoModalProps>
 									{teams.map((team) => (
 										<span
 											key={team.id}
-											className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg bg-gray-100 dark:bg-gray-800"
+											className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg bg-gray-100 dark:bg-muted"
 										>
 											{team.image?.thumbUrl ? (
 												<Image
@@ -379,7 +379,7 @@ function StatusBadge({ isArchived, isActive }: Readonly<{ isArchived?: boolean; 
 	const t = useTranslations();
 	if (isArchived) {
 		return (
-			<span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+			<span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-muted text-gray-600 dark:text-gray-400">
 				<Archive size={10} />
 				{t('timer.ARCHIVED')}
 			</span>
@@ -419,7 +419,7 @@ function MemberCard({
 	const email = member.employee?.user?.email;
 
 	return (
-		<div className="flex items-center gap-3 p-2 border rounded-lg bg-gray-50 dark:bg-gray-800/50 dark:border-gray-700">
+		<div className="flex items-center gap-3 p-2 border rounded-lg bg-gray-50 dark:bg-white/5 dark:border-gray-700">
 			<div
 				className={cn(
 					'w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-sm font-medium shrink-0',

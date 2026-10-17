@@ -224,7 +224,7 @@ const Kanban = () => {
 				mainHeaderSlot={
 					<div
 						className={
-							'flex flex-col min-h-fit border-b-[1px] dark:border-[#26272C] mx-[0px] w-full bg-white dark:bg-dark-high'
+							'flex flex-col min-h-fit border-b-[1px] dark:border-border mx-[0px] w-full bg-white dark:bg-dark-high'
 						}
 					>
 						<Container className="!pt-0">
@@ -263,7 +263,7 @@ const Kanban = () => {
 								</div>
 							</div>
 							<div className="flex flex-col gap-4 justify-between items-start pt-6 mb-4 bg-white xl:flex-row xl:items-center dark:bg-dark-high">
-								<div className="flex flex-row overflow-x-auto no-scrollbar w-full xl:w-auto border-b border-gray-100 dark:border-[#26272C]">
+								<div className="flex flex-row overflow-x-auto no-scrollbar w-full xl:w-auto border-b border-gray-100 dark:border-border">
 									{tabs.map((tab) => (
 										<div
 											key={tab.name}
@@ -336,7 +336,7 @@ const Kanban = () => {
 															value: ''
 														}))
 													}
-													className="flex justify-center items-center ml-1 w-5 h-5 rounded transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+													className="flex justify-center items-center ml-1 w-5 h-5 rounded transition-colors hover:bg-gray-100 dark:hover:bg-muted"
 												>
 													<XMarkIcon className="w-3.5 h-3.5 text-gray-500 dark:text-gray-300" />
 												</button>
@@ -380,7 +380,7 @@ const Kanban = () => {
 										taskStatusClassName="!text-sm"
 									/>
 
-									<div className="mx-1 w-px h-6 bg-gray-200 dark:bg-gray-700" />
+									<div className="mx-1 w-px h-6 bg-gray-200 dark:bg-muted" />
 
 									<LazyKanbanSearch
 										setSearchTasks={setSearchTasks}

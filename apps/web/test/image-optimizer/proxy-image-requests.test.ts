@@ -125,8 +125,13 @@ describe('image-hosts.js (shared by next.config.js and proxy.ts)', () => {
 			'app.ever.team',
 			'apidev.ever.team',
 			'gauzy.s3.wasabisys.com',
-			'gauzystage.s3.wasabisys.com'
+			'gauzystage.s3.wasabisys.com',
+			'cdn.ever.co'
 		]);
+	});
+
+	it('optimizes the cdn.ever.co file storage (avatars broke when it was missing)', () => {
+		expect(DEFAULT_IMAGE_HOSTS).toContain('cdn.ever.co');
 	});
 
 	it('parses NEXT_PUBLIC_IMAGES_HOSTS exactly as next.config.js always did', () => {

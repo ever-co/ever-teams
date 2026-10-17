@@ -14,10 +14,10 @@ export const CalendarViewSkeleton: FC<TimesheetSkeletonProps> = ({ className }) 
 		<div className={clsxm('grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme p-4', className)}>
 			{/* Calendar Header */}
 			<div className="flex justify-between items-center mb-4">
-				<div className="w-32 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+				<div className="w-32 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 				<div className="flex gap-2">
-					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 				</div>
 			</div>
 
@@ -27,9 +27,9 @@ export const CalendarViewSkeleton: FC<TimesheetSkeletonProps> = ({ className }) 
 				{[...Array(7)].map((_, i) => (
 					<div
 						key={i}
-						className="h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm text-center flex items-center justify-center"
+						className="h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm text-center flex items-center justify-center"
 					>
-						<div className="w-8 h-4 bg-[#E0E0E0] dark:bg-[#404040] animate-pulse rounded" />
+						<div className="w-8 h-4 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded" />
 					</div>
 				))}
 			</div>
@@ -39,16 +39,16 @@ export const CalendarViewSkeleton: FC<TimesheetSkeletonProps> = ({ className }) 
 				{[...Array(35)].map((_, i) => (
 					<div
 						key={i}
-						className="h-24 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm p-2 border border-gray-200 dark:border-gray-700"
+						className="h-24 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm p-2 border border-gray-200 dark:border-gray-700"
 					>
 						{/* Day number */}
-						<div className="w-6 h-4 bg-[#E0E0E0] dark:bg-[#404040] animate-pulse rounded-sm mb-2" />
+						<div className="w-6 h-4 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded-sm mb-2" />
 
 						{/* Time entries */}
 						{i % 3 === 0 && (
 							<div className="space-y-1">
-								<div className="w-full h-2 bg-[#E0E0E0] dark:bg-[#404040] animate-pulse rounded" />
-								<div className="w-3/4 h-2 bg-[#E0E0E0] dark:bg-[#404040] animate-pulse rounded" />
+								<div className="w-full h-2 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded" />
+								<div className="w-3/4 h-2 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded" />
 							</div>
 						)}
 					</div>
@@ -70,32 +70,32 @@ export const TimesheetViewSkeleton: FC<TimesheetSkeletonProps> = ({ className })
 				<div key={groupIndex} className="mb-6">
 					{/* Date Header */}
 					<div className="h-[48px] flex justify-between items-center w-full bg-[#ffffffcc] dark:bg-dark--theme rounded-md border border-gray-400 px-5 mb-2">
-						<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-						<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+						<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+						<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 					</div>
 
 					{/* Status Sections */}
 					{[...Array(2)].map((_, statusIndex) => (
 						<div key={statusIndex} className="mb-4">
 							{/* Status Header */}
-							<div className="h-12 flex justify-between items-center w-full bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-xs px-2 mb-2">
+							<div className="h-12 flex justify-between items-center w-full bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-xs px-2 mb-2">
 								<div className="flex gap-2 items-center">
-									<div className="w-4 h-4 bg-[#E0E0E0] dark:bg-[#404040] animate-pulse rounded" />
-									<div className="w-24 h-4 bg-[#E0E0E0] dark:bg-[#404040] animate-pulse rounded" />
-									<div className="w-16 h-6 bg-[#E0E0E0] dark:bg-[#404040] animate-pulse rounded-full" />
+									<div className="w-4 h-4 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded" />
+									<div className="w-24 h-4 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded" />
+									<div className="w-16 h-6 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded-full" />
 								</div>
 								<div className="flex gap-2">
-									<div className="w-16 h-6 bg-[#E0E0E0] dark:bg-[#404040] animate-pulse rounded" />
-									<div className="w-16 h-6 bg-[#E0E0E0] dark:bg-[#404040] animate-pulse rounded" />
+									<div className="w-16 h-6 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded" />
+									<div className="w-16 h-6 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded" />
 								</div>
 							</div>
 
 							{/* Table Header */}
-							<div className="grid grid-cols-6 gap-4 p-2 bg-gray-50 rounded-sm dark:bg-gray-800">
+							<div className="grid grid-cols-6 gap-4 p-2 bg-gray-50 rounded-sm dark:bg-muted">
 								{[...Array(6)].map((_, colIndex) => (
 									<div
 										key={colIndex}
-										className="w-full h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded"
+										className="w-full h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded"
 									/>
 								))}
 							</div>
@@ -107,16 +107,16 @@ export const TimesheetViewSkeleton: FC<TimesheetSkeletonProps> = ({ className })
 									className="grid grid-cols-6 gap-4 p-2 border-b border-gray-200 dark:border-gray-600 h-[60px] items-center"
 								>
 									<div className="flex gap-2 items-center">
-										<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-										<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
+										<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+										<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
 									</div>
-									<div className="w-full h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-									<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-									<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+									<div className="w-full h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+									<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+									<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 									<div className="flex gap-1">
-										<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-										<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+										<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+										<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 									</div>
 								</div>
 							))}
@@ -137,8 +137,8 @@ export const TimesheetDetailModalSkeleton: FC<TimesheetSkeletonProps> = ({ class
 			<div className="bg-white dark:bg-dark--theme rounded-lg shadow-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
 				{/* Modal Header */}
 				<div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
-					<div className="w-48 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-					<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+					<div className="w-48 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+					<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 				</div>
 
 				{/* Modal Content */}
@@ -147,8 +147,8 @@ export const TimesheetDetailModalSkeleton: FC<TimesheetSkeletonProps> = ({ class
 					<div className="grid grid-cols-3 gap-4">
 						{[...Array(3)].map((_, i) => (
 							<div key={i} className="p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-								<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
-								<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mb-2" />
+								<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 							</div>
 						))}
 					</div>
@@ -158,12 +158,12 @@ export const TimesheetDetailModalSkeleton: FC<TimesheetSkeletonProps> = ({ class
 						{[...Array(5)].map((_, i) => (
 							<div key={i} className="p-4 rounded-sm border border-gray-200 dark:border-gray-700">
 								<div className="flex justify-between items-center mb-2">
-									<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+									<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 								</div>
 								<div className="space-y-2">
-									<div className="w-full h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-									<div className="w-3/4 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+									<div className="w-full h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+									<div className="w-3/4 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 								</div>
 							</div>
 						))}
@@ -172,8 +172,8 @@ export const TimesheetDetailModalSkeleton: FC<TimesheetSkeletonProps> = ({ class
 
 				{/* Modal Footer */}
 				<div className="flex gap-2 justify-end p-6 border-t border-gray-200 dark:border-gray-700">
-					<div className="w-20 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-					<div className="w-24 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+					<div className="w-20 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+					<div className="w-24 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 				</div>
 			</div>
 		</div>
@@ -191,19 +191,19 @@ export const TimesheetFilterSkeleton: FC<TimesheetSkeletonProps> = ({ className 
 				{[...Array(4)].map((_, i) => (
 					<div
 						key={i}
-						className="h-8 px-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm flex items-center"
+						className="h-8 px-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm flex items-center"
 					>
-						<div className="w-16 h-4 bg-[#E0E0E0] dark:bg-[#404040] animate-pulse rounded" />
+						<div className="w-16 h-4 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded" />
 					</div>
 				))}
 			</div>
 
 			{/* Filter Controls */}
 			<div className="flex gap-2">
-				<div className="w-32 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-				<div className="w-40 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-				<div className="w-24 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-				<div className="w-28 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+				<div className="w-32 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+				<div className="w-40 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+				<div className="w-24 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+				<div className="w-28 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 			</div>
 		</div>
 	);
@@ -226,20 +226,20 @@ export const TimesheetCardSkeleton: FC<TimesheetSkeletonProps> = ({ className })
 				{/* Title, subtitle, description */}
 				<div className="flex flex-col gap-1 justify-start items-start">
 					{/* Main number/hours (text-2xl md:text-[25px]) */}
-					<div className="w-16 h-7 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+					<div className="w-16 h-7 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 					{/* Title (text-base md:text-[16px]) */}
-					<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+					<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 					{/* Description/date (text-sm md:text-[14px]) */}
-					<div className="w-40 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+					<div className="w-40 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 				</div>
 
 				{/* Button (h-9 px-2 py-2 w-fit) */}
-				<div className="h-9 w-48 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600 mt-auto" />
+				<div className="h-9 w-48 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600 mt-auto" />
 			</div>
 
 			{/* Icon area (p-5 w-16 h-16) */}
-			<div className="p-5 w-16 h-16 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg shadow-lg dark:shadow-gray-800 flex justify-center items-center">
-				<div className="w-6 h-6 bg-[#E0E0E0] dark:bg-[#404040] animate-pulse rounded" />
+			<div className="p-5 w-16 h-16 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg shadow-lg dark:shadow-gray-800 flex justify-center items-center">
+				<div className="w-6 h-6 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded" />
 			</div>
 		</div>
 	);
@@ -259,37 +259,37 @@ export const TimesheetPaginationSkeleton: FC<TimesheetSkeletonProps> = ({ classN
 		>
 			{/* Left side - row info */}
 			<div className="flex gap-4 items-center">
-				<div className="w-32 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+				<div className="w-32 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 			</div>
 
 			{/* Right side - pagination controls */}
 			<div className="flex justify-end w-full">
 				<div className="flex gap-x-3 justify-start items-center pr-2">
 					{/* "Rows per page" label */}
-					<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+					<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 
 					{/* Page size selector */}
-					<div className="w-[80px] h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-[6px] border border-gray-200 dark:border-gray-800" />
+					<div className="w-[80px] h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-[6px] border border-gray-200 dark:border-gray-800" />
 
 					{/* "Page X of Y" */}
-					<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+					<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 				</div>
 
 				{/* Pagination buttons */}
 				<div className="flex gap-1">
 					{/* Previous button */}
-					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-[6px] border border-gray-200 dark:border-gray-800" />
+					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-[6px] border border-gray-200 dark:border-gray-800" />
 
 					{/* Page numbers (3-5 buttons) */}
 					{[...Array(4)].map((_, i) => (
 						<div
 							key={i}
-							className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-[6px] border border-gray-200 dark:border-gray-800"
+							className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-[6px] border border-gray-200 dark:border-gray-800"
 						/>
 					))}
 
 					{/* Next button */}
-					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-[6px] border border-gray-200 dark:border-gray-800" />
+					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-[6px] border border-gray-200 dark:border-gray-800" />
 				</div>
 			</div>
 		</div>

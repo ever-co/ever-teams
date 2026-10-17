@@ -88,14 +88,14 @@ function TeamDashboard() {
 			childrenClassName="w-full"
 			showTimer={isTrackingEnabled}
 			mainHeaderSlot={
-				<div className="flex flex-col py-4 bg-gray-100 dark:bg-dark--theme">
+				<div className="flex flex-col bg-background py-4">
 					<Container className={cn('flex flex-col gap-4 w-full')}>
-						<div className="flex items-center pt-6 dark:bg-dark--theme">
+						<div className="flex items-center gap-1">
 							<button
 								onClick={handleBack}
-								className="p-1 rounded-full transition-colors hover:bg-gray-100"
+								className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
 							>
-								<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
+								<ArrowLeftIcon className="size-5" />
 							</button>
 							<Breadcrumb paths={breadcrumbPath} />
 						</div>
@@ -146,7 +146,7 @@ function TeamDashboard() {
 									<Button
 										variant="outline"
 										size="sm"
-										className="h-9 gap-1.5 text-xs"
+										className="h-8 gap-1.5 text-xs"
 										onClick={() => setShowChart(true)}
 									>
 										<ChevronDownIcon className="h-3.5 w-3.5" />

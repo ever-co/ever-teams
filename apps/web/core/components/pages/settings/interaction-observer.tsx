@@ -33,7 +33,9 @@ export const InteractionObserverVisible = ({
 			<div
 				id={id}
 				ref={ref}
-				className={clsxm('-z-50 absolute top-0 right-0 w-[1vw] h-[calc(100vh-_296px)]')}
+				// Capped at the section's own height: the 100vh-tall marker used to hang below the last
+				// (short) section and stretch the page past its content.
+				className={clsxm('pointer-events-none absolute right-0 top-0 -z-50 h-[calc(100vh-296px)] max-h-full w-px')}
 			></div>
 		</div>
 	);

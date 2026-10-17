@@ -53,7 +53,7 @@ const Team = () => {
 				<div className="flex flex-col w-full sm:mr-[20px] lg:mr-0">
 					<EverCard className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
 						<div className="flex justify-center items-center p-8">
-							<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
+							<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
 							<span className="ml-3 text-gray-600 dark:text-gray-400">Loading team settings...</span>
 						</div>
 					</EverCard>

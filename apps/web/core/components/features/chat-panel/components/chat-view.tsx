@@ -162,10 +162,10 @@ export function ChatView({ pageContext }: ChatViewProps) {
 			<div className="relative border-b border-border px-3 py-2">
 				<div className="flex items-center justify-between">
 					<div className="flex items-center gap-2">
-						<div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
-							<Bot className="h-4 w-4 text-primary dark:text-primary-light" />
+						<div className="flex size-6 items-center justify-center rounded-md bg-primary/10">
+							<Bot className="size-3.5 text-primary dark:text-primary-light" />
 						</div>
-						<span className="text-sm font-semibold text-foreground">{t('chatView.HEADER_TITLE')}</span>
+						<span className="text-[13px] font-medium text-foreground">{t('chatView.HEADER_TITLE')}</span>
 					</div>
 					<div className="flex items-center gap-1">
 						{messages.length > 0 && (
@@ -195,18 +195,18 @@ export function ChatView({ pageContext }: ChatViewProps) {
 					<button
 						type="button"
 						onClick={handleNewChat}
-						className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-medium hover:bg-muted"
+						className="inline-flex h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
 					>
-						<Plus className="h-3.5 w-3.5" />
+						<Plus className="size-3" />
 						{t('chatView.NEW_CHAT')}
 					</button>
 					<button
 						type="button"
 						onClick={() => setHistoryOpen((open) => !open)}
-						className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-medium hover:bg-muted"
+						className="inline-flex h-7 items-center gap-1 rounded-md px-2 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
 						aria-expanded={historyOpen}
 					>
-						<History className="h-3.5 w-3.5" />
+						<History className="size-3" />
 						{t('chatView.HISTORY')}
 					</button>
 				</div>

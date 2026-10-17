@@ -50,7 +50,7 @@ export function TaskLinkedIssue({
 				{relatedTaskDropdown && issue && (
 					<Dropdown
 						buttonClassName={
-							'px-2 py-0 rounded-[0.1875rem] bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]'
+							'px-2 py-0 rounded-[0.1875rem] bg-transparent border dark:border-[#FFFFFF33] dark:bg-card'
 						}
 						optionsClassName={'mt-0 3xl:text-xs'}
 						value={actionType}
@@ -86,7 +86,7 @@ function mapToActionType(items: ActionType[] = []) {
 					<button
 						className={clsxm(
 							'whitespace-nowrap mb-2 w-full',
-							'flex justify-start flex-col border-b border-[#00000014] dark:border-[#26272C] 3xl:text-sm'
+							'flex justify-start flex-col border-b border-[#00000014] dark:border-border 3xl:text-sm'
 						)}
 					>
 						<span className="pb-1">{item.name}</span>

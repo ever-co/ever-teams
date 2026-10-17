@@ -9,6 +9,7 @@ import { InvitationTable } from '../../../teams/invite/invitation-table';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invitations-query';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { Plus } from 'lucide-react';
 
 export const InvitationSetting = () => {
 	const t = useTranslations();
@@ -32,39 +33,41 @@ export const InvitationSetting = () => {
 	);
 
 	return (
-		<div className="flex overflow-auto flex-col">
-			<div className="flex justify-between items-center mt-8 w-full">
-				<div className="w-auto">
-					<InputField
-						type="text"
-						placeholder={t('pages.settingsTeam.SEARCH_MEMBER')}
-						className="mb-0 h-11"
-						leadingNode={
-							<Button variant="ghost" className="p-0 m-0 ml-[0.9rem] min-w-0" type="submit">
-								<SearchNormalIcon className="w-[1rem] dark:stroke-[#ffffff] " />
-							</Button>
-						}
-						onChange={(e: ChangeEvent<HTMLInputElement>) => {
-							setFilterString(e.target.value ? e.target.value.toLowerCase() : '');
-						}}
-					/>
-				</div>
-				<div className="flex gap-0 justify-between items-center w-auto md:gap-4">
+		<div className="flex flex-col gap-4 overflow-auto">
+			<div className="flex w-full flex-wrap items-center justify-between gap-2">
+				<InputField
+					type="text"
+					placeholder={t('pages.settingsTeam.SEARCH_MEMBER')}
+					className="mb-0 h-9 pl-1"
+					wrapperClassName="mb-0 w-full max-w-xs"
+					leadingNode={
+						<Button
+							variant="ghost"
+							className="ml-1 size-7 min-w-0 shrink-0 rounded-md p-0 text-muted-foreground"
+							type="submit"
+						>
+							<SearchNormalIcon className="size-4" />
+						</Button>
+					}
+					onChange={(e: ChangeEvent<HTMLInputElement>) => {
+						setFilterString(e.target.value ? e.target.value.toLowerCase() : '');
+					}}
+				/>
+				<div className="flex items-center gap-2">
 					{/* TODO: Will imlement Sort/FIlter logic in future */}
 					{/* <FilterDropdown setValue={() => console.log('filter')} /> */}
 					<Button
 						variant="primary"
-						className="font-normal rounded-xl text-md  h-[45px] min-w-[120px]"
+						className="h-9 shrink-0 gap-1.5 rounded-md px-3 py-0 text-sm font-medium hover:bg-primary/90"
 						onClick={openModal}
 					>
-						{'+  Invite'}
+						<Plus className="size-4" aria-hidden="true" />
+						{'Invite'}
 					</Button>
 				</div>
 			</div>
 			{invitations.length > 0 ? (
-				<div className="mt-7 mb-8">
-					<InvitationTable invitations={invitations} />
-				</div>
+				<InvitationTable invitations={invitations} />
 			) : (
 				<NoData text={t('pages.settingsTeam.NO_INVITATIONS')} />
 			)}

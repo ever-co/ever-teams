@@ -77,7 +77,7 @@ const TaskDetails = () => {
 			<div
 				className={clsxm(
 					'flex flex-col items-center justify-center min-h-[400px] p-8 text-center',
-					'bg-white dark:bg-dark--theme rounded-xl border border-[#00000014] dark:border-[#26272C]',
+					'bg-white dark:bg-dark--theme rounded-xl border border-[#00000014] dark:border-border',
 					'mt-6 mb-10'
 				)}
 			>

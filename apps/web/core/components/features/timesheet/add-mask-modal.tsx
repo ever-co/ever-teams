@@ -391,7 +391,7 @@ const ShiftTimingSelect = ({
 	<div className="flex gap-2 items-center w-full rounded-sm border border-gray-200 dark:border-gray-700">
 		<button
 			className={clsxm(
-				'flex items-center px-2 py-2 font-medium text-center border-r hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none',
+				'flex items-center px-2 py-2 font-medium text-center border-r hover:bg-gray-200 dark:hover:bg-muted focus:outline-none',
 				className
 			)}
 		>
@@ -582,7 +582,7 @@ const ShiftManagement = ({
 						onChange={(value) => onChange(index, 'endTime', value)}
 						isTimeDisabled={isTimeDisabled}
 					/>
-					<button className="flex items-center px-2 py-2 font-medium text-center bg-gray-100 border-r dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none">
+					<button className="flex items-center px-2 py-2 font-medium text-center bg-gray-100 border-r dark:bg-muted hover:bg-gray-200 dark:hover:bg-muted focus:outline-none">
 						{value.totalHours}
 					</button>
 				</div>

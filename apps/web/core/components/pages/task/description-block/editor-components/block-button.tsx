@@ -30,7 +30,7 @@ const BlockButton = ({ format, icon: Icon, isBlockActive, className }: IMarkButt
 			className={clsxm(
 				className,
 				'my-1 rounded-md transition duration-300 p-[2px]',
-				isBlockActiveMemo(format) ? 'dark:bg-[#47484D] bg-[#ddd]' : 'bg-transparent'
+				isBlockActiveMemo(format) ? 'dark:bg-muted bg-[#ddd]' : 'bg-transparent'
 			)}
 			onMouseDown={(event) => {
 				event.preventDefault();

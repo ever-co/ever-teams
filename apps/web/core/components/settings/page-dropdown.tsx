@@ -84,7 +84,7 @@ export const PaginationItemsDropdown = ({ onChange, totalItems, itemsPerPage }: 
 					<div
 						key={item}
 						onClick={() => handleChange(item)}
-						className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 p-2 text-xs rounded"
+						className="cursor-pointer hover:bg-gray-100 dark:hover:bg-muted p-2 text-xs rounded"
 					>
 						{`Show ${item} item${item > 1 ? 's' : ''}`}
 					</div>

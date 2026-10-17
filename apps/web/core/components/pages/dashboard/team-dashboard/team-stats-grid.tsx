@@ -2,6 +2,9 @@
 
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { Card } from '@/core/components/common/card';
+import { cn } from '@/core/lib/helpers';
+import { useAtomValue } from 'jotai';
+import { chatPanelOpenAtom } from '@/core/components/features/chat-panel/atoms/chat-panel-open.atom';
 import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
@@ -21,6 +24,7 @@ interface StatItem {
 	title: string;
 	value: string;
 	type: 'number' | 'time';
+	/** The small dot in front of the label: the stat's colour lives here, not in the number. */
 	color?: string;
 	progress?: number;
 	progressColor?: string;
@@ -38,6 +42,8 @@ export function TeamStatsGrid({
 	const timeValue = formatTime(hours, minutes, seconds);
 	const progress = formatPercentage(statisticsCounts?.weekActivities);
 	const t = useTranslations();
+	// The AI chat panel takes part of the width: step the columns up later while it is open.
+	const chatOpen = useAtomValue(chatPanelOpenAtom);
 
 	const stats: StatItem[] = useMemo(
 		() => [
@@ -45,13 +51,14 @@ export function TeamStatsGrid({
 				title: t('common.teamStats.MEMBERS_WORKED'),
 				value: statisticsCounts?.employeesCount?.toString() || '0',
 				type: 'number',
+				color: 'bg-violet-500',
 				showProgress: false
 			},
 			{
 				title: t('common.teamStats.TRACKED'),
 				value: timeValue,
 				type: 'time',
-				color: 'text-blue-500',
+				color: 'bg-blue-500',
 				progress,
 				progressColor: 'bg-blue-500',
 				showProgress: true
@@ -60,25 +67,25 @@ export function TeamStatsGrid({
 				title: t('common.teamStats.MANUAL'),
 				value: timeValue,
 				type: 'time',
-				color: 'text-red-500',
+				color: 'bg-rose-500',
 				progress,
-				progressColor: 'bg-red-500',
+				progressColor: 'bg-rose-500',
 				showProgress: true
 			},
 			{
 				title: t('common.teamStats.IDLE'),
 				value: timeValue,
 				type: 'time',
-				color: 'text-yellow-500',
+				color: 'bg-amber-500',
 				progress,
-				progressColor: 'bg-yellow-500',
+				progressColor: 'bg-amber-500',
 				showProgress: true
 			},
 			{
 				title: t('common.teamStats.TOTAL_HOURS'),
 				value: timeValue,
 				type: 'time',
-				color: 'text-green-500',
+				color: 'bg-emerald-500',
 				showProgress: false
 			}
 		],
@@ -88,35 +95,37 @@ export function TeamStatsGrid({
 	return loadingTimesheetStatisticsCounts ? (
 		<StatsCardSkeleton />
 	) : (
-		<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+		<div
+			className={cn(
+				'grid grid-cols-1 gap-3',
+				chatOpen ? 'md:grid-cols-2 xl:grid-cols-3 4xl:grid-cols-5' : 'sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5'
+			)}
+		>
 			{stats.map((stat) => (
-				<Card key={stat.title} className="p-6 dark:bg-dark--theme-light">
-					<div className="flex flex-col">
-						<span className="text-sm font-medium text-gray-500">{stat.title}</span>
-						<div className="mt-2 h-9">
-							{loadingTimesheetStatisticsCounts ? (
-								<Loader2 className="w-6 h-6 text-gray-500 animate-spin" />
-							) : (
-								<span
-									className={`text-2xl font-semibold ${stat.color || 'text-gray-900 dark:text-white'}`}
-								>
-									{stat.value}
-								</span>
-							)}
-						</div>
-						{stat.showProgress && (
-							<div className="mt-4">
-								<div className="w-full h-2 bg-gray-100 rounded-full dark:bg-gray-700">
-									<div
-										className={`h-full rounded-full ${stat.progressColor} transition-all duration-300`}
-										style={{
-											width: `${loadingTimesheetStatisticsCounts ? 0 : stat.progress}%`
-										}}
-									/>
-								</div>
-							</div>
+				<Card key={stat.title} className="flex flex-col gap-2 rounded-xl px-4 py-3.5 shadow-none">
+					<div className="flex min-w-0 items-center gap-1.5">
+						<span className={cn('size-1.5 shrink-0 rounded-full', stat.color)} aria-hidden="true" />
+						<span className="truncate text-xs text-muted-foreground">{stat.title}</span>
+					</div>
+					<div className="flex h-6 items-center">
+						{loadingTimesheetStatisticsCounts ? (
+							<Loader2 className="size-5 animate-spin text-muted-foreground" />
+						) : (
+							<span className="text-xl font-semibold leading-none tracking-tight tabular-nums text-foreground">
+								{stat.value}
+							</span>
 						)}
 					</div>
+					{stat.showProgress && (
+						<div className="h-1 w-full rounded-full bg-muted">
+							<div
+								className={cn('h-full rounded-full transition-all duration-300', stat.progressColor)}
+								style={{
+									width: `${loadingTimesheetStatisticsCounts ? 0 : stat.progress}%`
+								}}
+							/>
+						</div>
+					)}
 				</Card>
 			))}
 		</div>

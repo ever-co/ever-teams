@@ -13,7 +13,7 @@ import { useTranslations } from 'next-intl';
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({ percentage, className }) => (
 	<div className={cn('flex gap-2 items-center', className)}>
-		<div className="w-full h-2 overflow-hidden bg-gray-200 rounded-full dark:bg-gray-700">
+		<div className="w-full h-2 overflow-hidden bg-gray-200 rounded-full dark:bg-muted">
 			<div className="h-full bg-blue-500" style={{ width: `${percentage}%` }} />
 		</div>
 		<span className="text-gray-600 dark:text-gray-300">{Math.round(percentage)}%</span>
@@ -22,7 +22,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({ percentage, className 
 
 export const ActivityRow: React.FC<ActivityRowProps> = ({ employee, activity }) =>
 	employee && (
-		<TableRow className="hover:bg-gray-50 dark:hover:bg-gray-800">
+		<TableRow className="hover:bg-gray-50 dark:hover:bg-muted">
 			<TableCell></TableCell>
 			<TableCell>
 				<div className="flex items-center gap-2">
@@ -73,7 +73,7 @@ export const DateSummaryRow: React.FC<DateSummaryRowProps> = ({ date, activities
 };
 
 export const ProjectHeaderRow: React.FC<ProjectHeaderRowProps> = ({ projectName }) => (
-	<TableRow className="bg-gray-50/50 dark:bg-gray-800">
+	<TableRow className="bg-gray-50/50 dark:bg-muted">
 		<TableCell colSpan={5} className="py-2">
 			<div className="flex items-center gap-2">
 				<Avatar className="w-6 h-6">
@@ -95,7 +95,7 @@ export const DateHeaderRow: React.FC<DateHeaderRowProps> = ({ date, activities }
 	const t = useTranslations();
 
 	return (
-		<TableRow className="bg-gray-50/30 dark:bg-gray-800">
+		<TableRow className="bg-gray-50/30 dark:bg-muted">
 			<TableCell className="text-gray-700 dark:text-gray-300">
 				{format(new Date(date), 'EEEE dd MMM yyyy')}
 			</TableCell>

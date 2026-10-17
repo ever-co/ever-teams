@@ -53,7 +53,7 @@ export function FilterWithStatus({
 	return (
 		<div
 			className={clsxm(
-				'relative flex h-[36px] items-center bg-[#e2e8f0aa] dark:bg-gray-800 rounded-[8px] border-[1px] overflow-hidden',
+				'relative flex h-[36px] items-center bg-[#e2e8f0aa] dark:bg-muted rounded-[8px] border-[1px] overflow-hidden',
 				'w-fit max-w-full',
 				className
 			)}
@@ -66,9 +66,9 @@ export function FilterWithStatus({
 							'group flex gap-1 items-center justify-start h-[36px] rounded-[8px] shrink-0',
 							'min-w-20 sm:min-w-fit',
 							'px-2 sm:px-3',
-							'dark:bg-gray-800 dark:border-primary-light bg-transparent text-[#71717A]',
+							'dark:bg-muted dark:border-primary-light bg-transparent text-[#71717A]',
 							'transition-colors duration-200 ease-in-out',
-							'hover:bg-gray-50 dark:hover:bg-gray-700',
+							'hover:bg-gray-50 dark:hover:bg-muted',
 							activeStatus === label &&
 								'text-primary bg-white shadow-2xl dark:text-primary-light font-bold border'
 						)}

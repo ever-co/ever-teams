@@ -22,11 +22,11 @@ export const ProfilePageSkeleton: FC<ProfilePageSkeletonProps> = ({ className, s
 					<div className="space-y-4 w-full">
 						{/* SKELETON: Section 1 - Back Button + Breadcrumb */}
 						<div className="flex gap-8 items-center">
-							<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+							<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 							<div className="flex gap-2 items-center">
-								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-								<div className="w-1 h-1 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-								<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+								<div className="w-1 h-1 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
+								<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 							</div>
 						</div>
 

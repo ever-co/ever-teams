@@ -127,7 +127,7 @@ export function ProductivityTable({ data, isLoading }: { data?: IActivityReport[
 									<TableRow>
 										<TableCell
 											colSpan={5}
-											className="px-6 py-4 font-medium bg-gray-50 dark:bg-gray-800"
+											className="px-6 py-4 font-medium bg-gray-50 dark:bg-muted"
 										>
 											{format(new Date(dayData.date), 'EEEE dd MMM yyyy')}
 										</TableCell>
@@ -149,7 +149,7 @@ export function ProductivityTable({ data, isLoading }: { data?: IActivityReport[
 								<TableRow>
 									<TableCell
 										colSpan={5}
-										className="px-6 py-4 font-medium bg-gray-50 dark:bg-gray-800"
+										className="px-6 py-4 font-medium bg-gray-50 dark:bg-muted"
 									>
 										{format(new Date(dayData.date), 'EEEE dd MMM yyyy')}
 									</TableCell>

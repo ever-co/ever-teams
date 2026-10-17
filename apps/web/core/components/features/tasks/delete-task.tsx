@@ -57,7 +57,7 @@ const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 							leaveFrom="opacity-100 scale-100"
 							leaveTo="opacity-0 scale-95"
 						>
-							<DialogPanel className="w-[414px] px-[40px] py-[16px] max-w-md transform overflow-hidden rounded-[40px] bg-[#FFFFFF] dark:bg-[#202023] text-left align-middle shadow-xl shadow-[#3E1DAD0D] transition-all">
+							<DialogPanel className="w-[414px] px-[40px] py-[16px] max-w-md transform overflow-hidden rounded-[40px] bg-[#FFFFFF] dark:bg-card text-left align-middle shadow-xl shadow-[#3E1DAD0D] transition-all">
 								<div className="text-primary text-[18px] dark:text-white text-center mb-4 mt-[30px]">
 									{t('task.CONFIRM_CLOSE_TASK')} :{' '}
 									{task?.taskNumber && <span>#{task?.taskNumber} </span>}
@@ -77,7 +77,7 @@ const DeleteTask = ({ isOpen, closeModal, task }: IInviteProps) => {
 										{t('common.CONFIRM')}
 									</button>
 									<button
-										className={`inline-flex justify-center items-center my-4 tracking-wide text-white bg-gray-600 transition-colors duration-200 transform w-[120px] h-[40px] dark:bg-gray-700 rounded-[12px] hover:text-white/90 focus:outline-none`}
+										className={`inline-flex justify-center items-center my-4 tracking-wide text-white bg-gray-600 transition-colors duration-200 transform w-[120px] h-[40px] dark:bg-muted rounded-[12px] hover:text-white/90 focus:outline-none`}
 										type="submit"
 										onClick={closeModal}
 									>

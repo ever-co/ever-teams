@@ -31,7 +31,7 @@ export const ProductivityApplicationTableSkeleton: FC<ProductivityApplicationTab
 						<Fragment key={`app-group-${appIndex}`}>
 							{/* Application Header Row */}
 							<TableRow key={`app-header-${appIndex}`}>
-								<TableCell colSpan={5} className="px-6 py-4 font-medium bg-gray-50 dark:bg-gray-800">
+								<TableCell colSpan={5} className="px-6 py-4 font-medium bg-gray-50 dark:bg-muted">
 									<Skeleton className="w-40 h-5" />
 								</TableCell>
 							</TableRow>

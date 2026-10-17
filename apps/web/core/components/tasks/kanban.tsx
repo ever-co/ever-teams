@@ -130,8 +130,8 @@ function InnerItemList({
 					// Show empty state only if items array is empty
 					if (items.length === 0) {
 						return (
-							<div className="bg-[#f2f2f2] dark:bg-[#191a20] absolute w-full">
-								<div className="h-[180px] bg-transparent bg-white dark:bg-[#1e2025] mt-3 flex justify-center items-center my-2 rounded-xl">
+							<div className="bg-[#f2f2f2] dark:bg-background absolute w-full">
+								<div className="h-[180px] bg-transparent bg-white dark:bg-card mt-3 flex justify-center items-center my-2 rounded-xl">
 									{t('common.NOT_FOUND')}!
 								</div>
 								<div
@@ -316,7 +316,7 @@ export const EmptyKanbanDroppable = ({
 												</PopoverTrigger>
 												<PopoverContent
 													align="start"
-													className="md:p-1 rounded-x dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C] w-40"
+													className="md:p-1 rounded-x dark:bg-card dark:border-[0.125rem] border-[#0000001A] dark:border-border w-40"
 												>
 													<div
 														className="hover:font-medium p-1.5 text-sm cursor-pointer"
@@ -462,7 +462,7 @@ const KanbanDraggableHeader = ({
 							</PopoverTrigger>
 							<PopoverContent
 								align="start"
-								className="md:p-1 rounded-x dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C] w-40"
+								className="md:p-1 rounded-x dark:bg-card dark:border-[0.125rem] border-[#0000001A] dark:border-border w-40"
 							>
 								<div
 									className="hover:font-medium p-1.5 text-sm cursor-pointer"

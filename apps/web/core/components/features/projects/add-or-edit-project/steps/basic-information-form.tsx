@@ -382,7 +382,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 								<label
 									htmlFor="dropzone-file"
 									className={cn(
-										'flex flex-col justify-center items-center w-full h-20 bg-gray-50 rounded-lg border-2 border-gray-300 border-dashed cursor-pointer grow dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500'
+										'flex flex-col justify-center items-center w-full h-20 bg-gray-50 rounded-lg border-2 border-gray-300 border-dashed cursor-pointer grow dark:hover:bg-muted dark:bg-muted hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500'
 									)}
 								>
 									<div className="flex gap-3 justify-center items-center grow">

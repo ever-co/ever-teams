@@ -15,8 +15,8 @@ import { EverStatsCard } from './ever-stats-card';
 export function EverPlatformSection({ connectAvailable, connected }: Readonly<{ connectAvailable: boolean; connected: boolean }>) {
 	const t = useTranslations();
 	return (
-		<div className="flex flex-col gap-6" data-testid="ever-platform-section">
-			<p className="text-sm">{t('pages.settingsTeam.everPlatform.DESCRIPTION')}</p>
+		<div className="flex flex-col gap-4" data-testid="ever-platform-section">
+			<p className="text-sm text-muted-foreground">{t('pages.settingsTeam.everPlatform.DESCRIPTION')}</p>
 			{connectAvailable ? <EverConnectPanel connected={connected} /> : null}
 			<EverStatsCard />
 		</div>

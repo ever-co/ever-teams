@@ -11,7 +11,7 @@ export function ActivityCalendarSkeleton() {
 				<Skeleton
 					key={index}
 					style={{ width: (deviceWith - (deviceWith * 10) / 100) / 12 }}
-					className="h-32 dark:bg-gray-700"
+					className="h-32 dark:bg-muted"
 				/>
 			))}
 		</div>

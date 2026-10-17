@@ -86,9 +86,9 @@ export function DashboardHeader({
 				</Suspense>
 			)}
 
-			<div className="flex justify-between items-center w-full">
-				<h1 className="text-2xl font-semibold">{title}</h1>
-				<div className="flex gap-4 items-center">
+			<div className="flex w-full flex-wrap items-center justify-between gap-3">
+				<h1 className="text-xl font-semibold tracking-tight">{title}</h1>
+				<div className="flex flex-wrap items-center gap-2">
 					{showGroupBy && (
 						<LazyGroupBySelectTimeActivity groupByType={groupByType} onGroupByChange={onGroupByChange} />
 					)}

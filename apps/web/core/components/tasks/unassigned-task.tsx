@@ -47,8 +47,8 @@ const UnAssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 			className={`w-full rounded-[10px] drop-shadow-[0px_3px_15px_#3E1DAD1A] border relative  ${
 				now === true
 					? '  border-primary dark:border-gray-100'
-					: ' hover:border hover:border-primary dark:border-[#202023]'
-			} bg-[#FFFFFF] my-[15px] dark:bg-[#202023] justify-between dark:hover:border-gray-100 font-bold px-[24px] dark:text-[#FFFFFF] py-[10px]`}
+					: ' hover:border hover:border-primary dark:border-border'
+			} bg-[#FFFFFF] my-[15px] dark:bg-card justify-between dark:hover:border-gray-100 font-bold px-[24px] dark:text-[#FFFFFF] py-[10px]`}
 		>
 			<div className="flex justify-between items-center">
 				<div
@@ -58,12 +58,12 @@ const UnAssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 				>
 					{`#${task && task.taskNumber} `} {task && task.title}
 				</div>
-				<div className="h-[35px] text-[#D7E1EB] border-l border-[#E8EBF8] dark:border-[#27272A] flex justify-center items-center"></div>
+				<div className="h-[35px] text-[#D7E1EB] border-l border-[#E8EBF8] dark:border-border flex justify-center items-center"></div>
 				<div className="w-[236px]  text-center text-[#C1BFC9] dark:text-[#FFFFFF] flex flex-col justify-center items-center">
 					<div className="">{t('task.ASSIGNED_BY')}</div>
 					<div className="text-black flex-2">{t('task.NO_ONE_FOR_TASK')}</div>
 				</div>
-				<div className="h-[35px] text-[#D7E1EB] border-l border-[#E8EBF8] dark:border-[#27272A] flex justify-center items-center"></div>
+				<div className="h-[35px] text-[#D7E1EB] border-l border-[#E8EBF8] dark:border-border flex justify-center items-center"></div>
 
 				<div className="w-[245px]  flex justify-center items-center">
 					<div>
@@ -81,7 +81,7 @@ const UnAssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 						<PlayIcon></PlayIcon>
 					</div>
 				</div>
-				<div className="h-[35px] text-[#D7E1EB] border-l border-[#E8EBF8] dark:border-[#27272A] flex justify-center items-center"></div>
+				<div className="h-[35px] text-[#D7E1EB] border-l border-[#E8EBF8] dark:border-border flex justify-center items-center"></div>
 
 				<div className="text-center text-[14px] text-[#9490A0]  py-1 font-light flex flex-col items-center justify-center">
 					<RawStatusDropdown task={task} />

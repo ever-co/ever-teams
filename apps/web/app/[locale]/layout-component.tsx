@@ -8,7 +8,6 @@ import { ThemeProvider } from 'next-themes';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
-import { Geist } from 'next/font/google';
 import { useCheckAPI } from '@/core/hooks/common/use-check-api';
 import { useRuntimeEnvHtmlProps } from '@/core/components/providers/runtime-env-provider';
 
@@ -23,12 +22,8 @@ interface Props {
 	messages: Messages;
 }
 
-const font = Geist({
-	subsets: ['latin'],
-	variable: '--font-sans',
-	display: 'swap'
-});
-
+// The UI face is the system stack (`--font-sans` in styles/globals.css, shared with Ever Works);
+// no webfont is loaded any more.
 const PostHogPageView = dynamic(() => import('./(main)/integration/posthog/page-view'), {
 	ssr: false
 });
@@ -93,7 +88,7 @@ const LocaleLayoutComponent = (props: Props) => {
 	return (
 		<html
 			lang={locale}
-			className={`${font.variable} ${font.className}`}
+			className="font-sans"
 			data-scroll-behavior="smooth"
 			suppressHydrationWarning
 			{...runtimeEnvHtmlProps}
@@ -122,7 +117,7 @@ const LocaleLayoutComponent = (props: Props) => {
 				<PHProvider>
 					<body
 						className={cn(
-							'flex h-full flex-col overflow-x-hidden min-w-fit w-full dark:!bg-[#191A20] !bg-gray-100 antialiased '
+							'flex h-full flex-col overflow-x-clip min-w-fit w-full bg-background antialiased'
 						)}
 					>
 						<PostHogPageView />

@@ -22,10 +22,10 @@ export const ChildIssueCard: FC<{ task: TTask }> = ({ task }) => {
 
 	return (
 		<EverCard
-			className="w-full pt-0 px-4 md:pt-0 md:px-4 dark:bg-[#25272D] flex flex-col gap-[1.125rem] border border-[#00000014] dark:border-[#26272C]"
+			className="w-full pt-0 px-4 md:pt-0 md:px-4 dark:bg-muted flex flex-col gap-[1.125rem] border border-[#00000014] dark:border-border"
 			shadow="bigger"
 		>
-			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-[#7B8089]">
+			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-border">
 				<p className="text-base font-semibold">{t('common.CHILD_ISSUES')}</p>
 				<div className="flex items-center justify-end gap-2.5">
 					<div className="border-r border-r-[#0000001A] flex items-center gap-2.5">
@@ -47,7 +47,7 @@ export const ChildIssueCard: FC<{ task: TTask }> = ({ task }) => {
 			{task.children?.length ? (
 				<div className={clsxm('flex flex-col max-h-96 gap-3 overflow-y-auto', hidden && ['hidden'])}>
 					{task.children?.map((task) => {
-						return <TaskLinkedIssue key={task.id} task={task} className="dark:bg-[#25272D] py-0" />;
+						return <TaskLinkedIssue key={task.id} task={task} className="dark:bg-muted py-0" />;
 					})}
 				</div>
 			) : null}

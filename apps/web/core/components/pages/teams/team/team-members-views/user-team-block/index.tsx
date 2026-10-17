@@ -86,7 +86,7 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 
 	const totalWork = (
 		<div className={clsxm('flex flex-col justify-center items-center mr-4 space-x-2 font-normal')}>
-			<span className="text-xs text-center text-gray-500 capitalize">{t('common.TOTAL_WORKED_TODAY')}</span>
+			<span className="text-center text-xs capitalize text-muted-foreground">{t('common.TOTAL_WORKED_TODAY')}</span>
 			<Text className="text-sm">{identity.isAuthUser ? `${h}h : ${m}m` : `0h : 0m`}</Text>
 		</div>
 	);
@@ -120,13 +120,13 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 			<EverCard
 				shadow="bigger"
 				className={clsxm(
-					'relative items-center py-3 !px-4 dark:bg-[#1E2025] min-h-[7rem]',
-					['dark:border border-t-[6px] dark:border-t-[6px]', cardColorType[timerStatusValue]],
+					'relative items-center !px-4 py-2',
+					['border-t-[3px]', cardColorType[timerStatusValue]],
 					className
 				)}
 			>
 				{/* flex */}
-				<div className="flex justify-between items-center py-2 w-full">
+				<div className="flex w-full items-center justify-between py-1.5">
 					<UserBoxInfo memberInfo={identity} className="w-3/5" publicTeam={publicTeam} />
 					{/* total time  */}
 					<div className="flex gap-1 justify-end items-center w-2/5">
@@ -141,14 +141,14 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 
 				<TaskBlockInfo
 					edition={taskEdition}
-					className="overflow-hidden px-1 py-2 w-full"
+					className="w-full overflow-hidden px-1 py-1.5"
 					publicTeam={publicTeam}
 				/>
 
 				<HorizontalSeparator />
 
 				{/* flex */}
-				<div className="flex justify-between items-center py-2 w-full">
+				<div className="flex w-full items-center justify-between py-1.5">
 					<div className="flex justify-start items-center">
 						{/* total time */}
 						<TaskTimes
@@ -156,7 +156,7 @@ export function UserTeamBlock({ className, active, member, publicTeam = false }:
 							memberInfo={identity}
 							task={memberTask}
 							isAuthUser={identity.isAuthUser}
-							className=" w-full  px-2 flex flex-col gap-y-[1.125rem] justify-center"
+							className="flex w-full flex-col justify-center gap-y-1 px-2"
 							isBlock={true}
 						/>
 						{/* today time */}

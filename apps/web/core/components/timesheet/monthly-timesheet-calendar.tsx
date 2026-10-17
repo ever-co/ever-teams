@@ -151,7 +151,7 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
 								classNames.day,
 								'border flex flex-col gap-2 relative shadow-xs rounded-sm min-h-[150px] sm:w-[250px] md:w-[300px] lg:w-[350px] max-w-full',
 								{
-									'bg-gray-100 dark:bg-gray-900': date.getMonth() !== currentMonth.getMonth()
+									'bg-gray-100 dark:bg-card': date.getMonth() !== currentMonth.getMonth()
 								}
 							)}
 							onClick={() => onDateClick?.(date)}
