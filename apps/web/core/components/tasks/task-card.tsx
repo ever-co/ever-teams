@@ -696,7 +696,7 @@ export function TaskCardMenu({
 
 	const canSeeActivity = useCanSeeActivityScreen();
 
-	const { myTodayPlan, myFuturePlans, ensureMyDailyPlans } = useMyDailyPlans();
+	const { myTodayPlan, myFuturePlans, ensureMyDailyPlans, isLoading: isPlansLoading } = useMyDailyPlans();
 
 	const taskPlannedToday = useMemo(
 		() => myTodayPlan[myTodayPlan.length - 1]?.tasks?.find((planTask) => planTask.id === task.id),
@@ -783,7 +783,8 @@ export function TaskCardMenu({
 							<>
 								<DropdownMenuSeparator className="my-3" />
 								<div className="mt-3">
-									{!taskPlannedToday && (
+									{/* Until the first read lands the plans look empty, and a planned task would be offered again */}
+									{!taskPlannedToday && !isPlansLoading && (
 										<DropdownMenuItem
 											asChild
 											className="p-0 mb-2 transition-all duration-300 hover:font-semibold hover:!bg-transparent"
@@ -796,7 +797,7 @@ export function TaskCardMenu({
 											/>
 										</DropdownMenuItem>
 									)}
-									{!taskPlannedTomorrow && (
+									{!taskPlannedTomorrow && !isPlansLoading && (
 										<DropdownMenuItem
 											asChild
 											className="p-0 mb-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent"
