@@ -323,13 +323,12 @@ export function useOrganizationTeam() {
 	const updateOrganizationTeamEmployeeActiveTask = useCallback(
 		async (user: OT_Member, activeTaskId: string, activeTeamId: string) => {
 			// The generic member update only lets managers through, this route lets members set their own task.
-			// A cleared task goes as null because JSON drops undefined and the server would have nothing to write.
 			const { data, response } = await updateOrganizationTeamEmployeeActiveTaskRequest({
 				id: user.id,
 				body: {
 					organizationId,
 					organizationTeamId: activeTeamId,
-					activeTaskId: activeTaskId ?? null,
+					activeTaskId,
 					tenantId
 				},
 				tenantId,
