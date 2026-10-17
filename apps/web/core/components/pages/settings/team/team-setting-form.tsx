@@ -250,10 +250,12 @@ export const TeamSettingForm = () => {
 				toast.success(t('pages.settingsTeam.TEAM_TYPE_UPDATED'));
 			} catch (error) {
 				console.error('Team type update failed:', error);
+				// Put the radio back on the saved value, the sync effect skips it since activeTeam did not change
+				setValue('teamType', activeTeam?.public ? 'PUBLIC' : 'PRIVATE');
 				toast.error(t('pages.settingsTeam.TEAM_TYPE_UPDATE_FAILED'));
 			}
 		},
-		[editOrganizationTeam, activeTeam?.id, t]
+		[editOrganizationTeam, activeTeam?.id, activeTeam?.public, setValue, t]
 	);
 
 	return (
@@ -407,7 +409,7 @@ export const TeamSettingForm = () => {
 														onChange: (event) => handleTeamTypeUpdate(event.target.value)
 													})}
 													value="PUBLIC"
-													disabled={!isTeamManager}
+													disabled={!isTeamManager || editOrganizationTeamLoading}
 												/>
 
 												<Text.Label
@@ -426,7 +428,7 @@ export const TeamSettingForm = () => {
 														onChange: (event) => handleTeamTypeUpdate(event.target.value)
 													})}
 													value="PRIVATE"
-													disabled={!isTeamManager}
+													disabled={!isTeamManager || editOrganizationTeamLoading}
 												/>
 												<Text.Label
 													className="mt-px text-nowrap whitespace-nowrap inline-block pl-[0.15rem] hover:cursor-pointer"
