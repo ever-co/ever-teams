@@ -4,40 +4,42 @@ import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { EverIdWordmark } from '@/core/components/icons/ever-id-wordmark';
 import { EverStar } from '@/core/components/icons/ever-star';
-import { Button } from '../common/button';
 
 /**
- * Full width (the width of the form's primary button), the height of the other sign-in buttons, and the card look of
- * the social buttons in both themes. Unlike them it does not force its icons to one size: the star and the wordmark
- * have their own.
+ * The Ever brand kit's "Login with Ever ID" button (`ever-co/platform` packages/brand, README "The Login with Ever ID
+ * button"): the full width of the form, 40 px, radius 8, padding 0 16px, 8 px gaps, 14/20 px at weight 500. Light: a
+ * #0A0A0A button with white text (hover #262626); dark: #EDEDED with #0A0A0A text (hover #FFF). Focus ring 2 px,
+ * offset 2 (#231645 light, #CC66FF dark). The same values as the kit's `.ever-id-button`, written as classes so they
+ * follow this app's own theme switch instead of the kit's global tokens.
  */
 const EVER_ID_BUTTON_CLASS =
-	'cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 shadow-sm shadow-black/10 border border-transparent bg-card ring-1 ring-foreground/10 duration-200 hover:bg-muted/50 dark:ring-foreground/15 dark:hover:bg-muted/50 h-9 px-4 py-2 w-full text-foreground';
+	'box-border flex w-full h-10 items-center justify-center gap-2 px-4 rounded-lg border text-sm leading-5 font-medium whitespace-nowrap cursor-pointer select-none transition-colors duration-150 bg-[#0a0a0a] border-[#0a0a0a] text-white hover:bg-[#262626] dark:bg-[#ededed] dark:border-white/[0.09] dark:text-[#0a0a0a] dark:hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#231645] dark:focus-visible:outline-[#cc66ff] disabled:opacity-50 disabled:pointer-events-none';
 
 /** The `<wordmark>` tag of the label: the drawn wordmark, and its words for screen readers. */
 function renderWordmark(chunks: ReactNode) {
 	return (
 		<>
-			<EverIdWordmark className="h-3.5 w-auto translate-y-px" />
+			<EverIdWordmark className="block h-3.5 w-auto" />
 			<span className="sr-only">{chunks}</span>
 		</>
 	);
 }
 
 /**
- * "Login with Ever ID": the Ever star (spinning like the ever.works logo, still with a reduced-motion setting), the
- * words, and "Ever ID" as its wordmark. Screen readers read the same words: the wordmark is decorative and the name
- * of the provider is in the button's text. A submit button: the form around it starts the sign-in.
+ * "Login with Ever ID": the Ever star (one turn every 9 s like the ever.works logo, still with a reduced-motion
+ * setting), the words, and "Ever ID" as its wordmark. Screen readers read the same words: the star and the wordmark
+ * are decorative and the name of the provider is in the button's text. A submit button: the form around it starts
+ * the sign-in.
  */
 export function EverIdLoginButton() {
 	const t = useTranslations();
 
 	return (
-		<Button type="submit" variant="secondary" className={EVER_ID_BUTTON_CLASS}>
-			<EverStar className="size-5 motion-safe:animate-[spin_9s_linear_infinite]" />
-			<span className="inline-flex items-center gap-1.5">
+		<button type="submit" className={EVER_ID_BUTTON_CLASS}>
+			<EverStar className="h-5 w-auto shrink-0 motion-safe:animate-[spin_9s_linear_infinite]" />
+			<span className="inline-flex items-center gap-2">
 				{t.rich('pages.auth.everId.LOGIN_WITH_EVER_ID', { wordmark: renderWordmark })}
 			</span>
-		</Button>
+		</button>
 	);
 }

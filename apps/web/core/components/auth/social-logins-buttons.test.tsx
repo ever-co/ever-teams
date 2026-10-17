@@ -150,11 +150,13 @@ describe('SocialLogins: Ever ID', () => {
 		expect(container.querySelector('.grid-cols-2')).toBeNull();
 	});
 
-	it("is as wide as the form's primary button and as high as the other sign-in buttons", () => {
+	it("follows the brand kit: the form's full width, 40 px high, black in light and #EDEDED in dark", () => {
 		renderWithRuntimeEnv({ EVER_TEAMS_AUTH_PROVIDERS: 'ever-id' });
 
 		const classes = screen.getByRole('button', { name: 'Login with Ever ID' }).className.split(' ');
-		expect(classes).toEqual(expect.arrayContaining(['w-full', 'h-9']));
+		expect(classes).toEqual(
+			expect.arrayContaining(['w-full', 'h-10', 'rounded-lg', 'bg-[#0a0a0a]', 'text-white', 'dark:bg-[#ededed]'])
+		);
 	});
 
 	it('spins the Ever star only without a reduced-motion setting, and draws "Ever ID" as its wordmark', () => {
@@ -166,7 +168,8 @@ describe('SocialLogins: Ever ID', () => {
 		expect(star.getAttribute('class')).toContain('motion-safe:animate-[spin_9s_linear_infinite]');
 		expect(star.getAttribute('class')).not.toMatch(/(^|\s)animate-/);
 		expect(star.getAttribute('viewBox')).toBe('0 0 40 42');
-		expect(wordmark.getAttribute('fill')).toBe('currentColor');
+		expect(wordmark.getAttribute('viewBox')).toBe('0 0 92 17');
+		expect(wordmark.querySelector('path')?.getAttribute('fill')).toBe('currentColor');
 	});
 
 	it('renders no Ever ID button when the server did not publish it', () => {
