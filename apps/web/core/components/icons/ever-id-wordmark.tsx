@@ -6,7 +6,7 @@ const EVER_ID_WORDMARK_PATH =
 
 /**
  * The "ever® ID" wordmark from the Ever brand kit (`ever-co/platform` packages/brand, `svg/ever-id-wordmark.svg`):
- * "ever®" of the ever.works wordmark and "ID" in its "works" lettering. It takes the text colour (`currentColor`),
+ * "ever®" of the Ever Works wordmark and "ID" in its "works" lettering. It takes the text colour (`currentColor`),
  * so it follows the light and dark themes. Set its height, never its width. Decorative: the caller puts the words
  * "Ever ID" next to it for screen readers.
  */

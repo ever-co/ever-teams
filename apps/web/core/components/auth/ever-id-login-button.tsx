@@ -27,7 +27,7 @@ function renderWordmark(chunks: ReactNode) {
 }
 
 /**
- * "Login with Ever ID": the Ever star (one turn every 9 s like the ever.works logo, still with a reduced-motion
+ * "Login with Ever ID": the Ever star (one turn every 9 s like the Ever Works logo, still with a reduced-motion
  * setting), the words, and "Ever ID" as its wordmark. Screen readers read the same words: the star and the wordmark
  * are decorative and the name of the provider is in the button's text. A submit button: the form around it starts
  * the sign-in.
