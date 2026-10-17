@@ -746,7 +746,12 @@
 				"SIGNUP_TERMS_REQUIRED": "Приемете документите, за да продължите.",
 				"SIGNUP_EXPIRED": "Тази регистрация е изтекла. Влезте отново с Ever ID.",
 				"SIGNUP_CHECKOUT": "Необходим е абонамент, преди работното ви пространство да бъде създадено.",
-				"CONTINUE_TO_CHECKOUT": "Продължете към плащане"
+				"CONTINUE_TO_CHECKOUT": "Продължете към плащане",
+				"EMAIL_UNVERIFIED_TITLE": "Потвърдете имейла си в Ever ID",
+				"EMAIL_UNVERIFIED_BODY": "Ever ID все още не е потвърдил вашия имейл адрес. Отворете имейла за потвърждение от Ever ID или потвърдете адреса си в Ever ID сега, след което влезте отново с Ever ID.",
+				"VERIFY_EMAIL": "Потвърди имейла ми в Ever ID",
+				"SIGN_IN_AGAIN": "Влез отново с Ever ID",
+				"LOGIN_WITH_EVER_ID": "Вход с <wordmark>Ever ID</wordmark>"
 			}
 		},
 		"authPasscode": {

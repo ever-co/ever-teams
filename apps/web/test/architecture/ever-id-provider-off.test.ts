@@ -33,7 +33,16 @@ jest.mock('next-auth/providers/linkedin', () => mockProvider('linkedin', 'Linked
 jest.mock('next-auth/providers/microsoft-entra-id', () => mockProvider('microsoft-entra-id', 'Microsoft Entra ID'));
 jest.mock('next-auth/providers/slack', () => mockProvider('slack', 'Slack'));
 jest.mock('next-auth/providers/twitter', () => mockProvider('twitter', 'Twitter'));
-jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+// Rich text (the "Login with Ever ID" button) renders its tags with the words "Ever ID", as the English message does.
+jest.mock('next-intl', () => ({
+	useTranslations: () =>
+		Object.assign((key: string) => key, {
+			rich: (key: string, tags: Record<string, (chunks: string) => unknown>) => [
+				key,
+				...Object.values(tags).map((tag) => tag('Ever ID'))
+			]
+		})
+}));
 // jose ships as an ES module only and jest runs CommonJS: Node itself loads it (require of an ES module).
 jest.mock('jose', () => process.getBuiltinModule('node:module').createRequire(__filename)('jose'));
 // A server action: the real module imports next-auth, which only runs on the server.

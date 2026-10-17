@@ -746,7 +746,12 @@
 				"SIGNUP_TERMS_REQUIRED": "Accetta i documenti per continuare.",
 				"SIGNUP_EXPIRED": "Questa registrazione è scaduta. Accedi di nuovo con Ever ID.",
 				"SIGNUP_CHECKOUT": "È necessario un abbonamento prima di poter creare il tuo spazio di lavoro.",
-				"CONTINUE_TO_CHECKOUT": "Continua al pagamento"
+				"CONTINUE_TO_CHECKOUT": "Continua al pagamento",
+				"EMAIL_UNVERIFIED_TITLE": "Verifica la tua e-mail Ever ID",
+				"EMAIL_UNVERIFIED_BODY": "Ever ID non ha ancora verificato il tuo indirizzo e-mail. Apri l'e-mail di verifica che Ever ID ti ha inviato oppure verifica ora il tuo indirizzo su Ever ID, poi accedi di nuovo con Ever ID.",
+				"VERIFY_EMAIL": "Verifica la mia e-mail su Ever ID",
+				"SIGN_IN_AGAIN": "Accedi di nuovo con Ever ID",
+				"LOGIN_WITH_EVER_ID": "Accedi con <wordmark>Ever ID</wordmark>"
 			}
 		},
 		"authPasscode": {

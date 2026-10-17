@@ -1,4 +1,5 @@
 import { Languages } from '@/core/constants/config/constants';
+import type { ReactNode } from 'react';
 
 declare module 'next-intl' {
 	export type Translations = Languages;
@@ -17,9 +18,15 @@ declare module 'next-intl' {
 				: string;
 
 	export type DottedLanguageObjectStringPaths = Join<PathsToStringProps<Translations>, '.'>;
-	export type TranslationHooks = (
+	export type TranslationHooks = ((
 		key: DottedLanguageObjectStringPaths,
 		value?: any
-	) => DottedLanguageObjectStringPaths;
+	) => DottedLanguageObjectStringPaths) & {
+		/** A message with tags (`<wordmark>Ever ID</wordmark>`), each rendered by the function of its name. */
+		rich: (
+			key: DottedLanguageObjectStringPaths,
+			values: Record<string, ReactNode | ((chunks: ReactNode) => ReactNode)>
+		) => ReactNode;
+	};
 	export const useTranslations: () => TranslationHooks;
 }

@@ -746,7 +746,12 @@
 				"SIGNUP_TERMS_REQUIRED": "Примите документы, чтобы продолжить.",
 				"SIGNUP_EXPIRED": "Срок действия этой регистрации истёк. Войдите с Ever ID ещё раз.",
 				"SIGNUP_CHECKOUT": "Чтобы создать рабочее пространство, нужна подписка.",
-				"CONTINUE_TO_CHECKOUT": "Перейти к оплате"
+				"CONTINUE_TO_CHECKOUT": "Перейти к оплате",
+				"EMAIL_UNVERIFIED_TITLE": "Подтвердите e-mail Ever ID",
+				"EMAIL_UNVERIFIED_BODY": "Ever ID ещё не подтвердил ваш адрес e-mail. Откройте письмо с подтверждением от Ever ID или подтвердите адрес в Ever ID сейчас, затем снова войдите через Ever ID.",
+				"VERIFY_EMAIL": "Подтвердить e-mail в Ever ID",
+				"SIGN_IN_AGAIN": "Снова войти через Ever ID",
+				"LOGIN_WITH_EVER_ID": "Войти через <wordmark>Ever ID</wordmark>"
 			}
 		},
 		"authPasscode": {

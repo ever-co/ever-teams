@@ -14,7 +14,7 @@ import {
 	readEverIdHandoff,
 	sealEverIdHandoff
 } from '@/core/lib/auth/ever-id/handoff';
-import { logEverIdOutcome, type EverIdSignInOutcome } from '@/core/lib/auth/ever-id/log';
+import { logEverIdOutcome, type EverIdSignInOutcome, type EverIdSignInRejectReason } from '@/core/lib/auth/ever-id/log';
 import { everIdStepPath, type EverIdStep } from '@/core/lib/auth/ever-id/step';
 import {
 	isHandoffBusy,
@@ -43,6 +43,8 @@ import type {
  * - a person new to the product (where the API offers the sign-up): /auth/signup?ever_id=signup;
  * - no workspace: an error page, and nothing is created. With EVER_ID_TEAMS_AUTO_PROVISION=true the page also offers
  *   the usual sign-up: an account is only ever created by that sign-up, after the person confirms it there.
+ * - refused because Ever ID has not verified the person's e-mail address yet (the API signs in verified addresses
+ *   only): a page that asks to verify it, with a link to Ever ID's verification form, instead of "access denied".
  *
  * For those two steps the API's one-time key goes into a sealed httpOnly cookie for this app's routes
  * (core/lib/auth/ever-id/handoff.ts), never into the URL.
@@ -62,6 +64,9 @@ const EVER_ID_NO_WORKSPACE_SIGNUP_PATH = '/auth/error?error=EverIdNoWorkspaceSig
 /** Where a sign-in ends whose every workspace requires another sign-in method (its company sign-in). */
 const EVER_ID_BLOCKED_PATH = '/auth/error?error=EverIdWorkspaceBlocked';
 
+/** Where a sign-in ends that the API refused because Ever ID has not verified the e-mail address yet. */
+const EVER_ID_EMAIL_UNVERIFIED_PATH = '/auth/error?error=EverIdEmailUnverified';
+
 /** How long the adapter can still read an exchange by provider account id. */
 const MEMO_TTL_MS = 30_000;
 
@@ -77,7 +82,8 @@ type EverIdExchange =
 	| { kind: 'confirm_required'; handoff: string }
 	| { kind: 'signup_required'; handoff: string }
 	| { kind: 'no_workspace' }
-	| { kind: 'rejected' }
+	| { kind: 'email_unverified' }
+	| { kind: 'rejected'; reason: EverIdSignInRejectReason }
 	| { kind: 'gauzy_error' };
 
 interface EverIdSignInRecord {
@@ -131,15 +137,38 @@ function fromNotFound(data: Record<string, unknown>): EverIdExchange {
 	return data.code === 'no_workspace' ? { kind: 'no_workspace' } : { kind: 'gauzy_error' };
 }
 
+/**
+ * A 401 answer: the API refused the token. It signs in verified e-mail addresses only, so a token whose address Ever
+ * ID has not verified yet (`email_verified` of the verified ID token, or the API's own `email_unverified` code) asks
+ * the person to verify it; any other refusal is the token's (audience, issuer, signature, expiry).
+ */
+function fromUnauthorized(data: unknown, emailVerified: boolean): EverIdExchange {
+	const code = isRecord(data) ? data.code : undefined;
+	// The API's own reason first: verifying the address cannot give it the ID token it asks for.
+	if (code === 'id_token_required') return { kind: 'rejected', reason: 'id_token_required' };
+	if (code === 'email_unverified' || !emailVerified) return { kind: 'email_unverified' };
+	return { kind: 'rejected', reason: 'token_refused' };
+}
+
 /** Maps an answer of `POST /api/auth/zitadel/token` to what the sign-in does next. */
-function toEverIdExchange(result: EverIdApiResult<IEverIdTokenResponse | IEverIdTokenNotFound>): EverIdExchange {
+function toEverIdExchange(
+	result: EverIdApiResult<IEverIdTokenResponse | IEverIdTokenNotFound>,
+	emailVerified: boolean
+): EverIdExchange {
 	const data: unknown = result.data;
 	if (result.status === 200 && isRecord(data)) return fromSuccess(data);
 	if (result.status === 404 && isRecord(data)) return fromNotFound(data);
+	if (result.status === 401) return fromUnauthorized(data, emailVerified);
 	// Still 409 after the retries: a sign-up of the same Ever ID is being finished.
 	if (isHandoffBusy(result)) return { kind: 'busy' };
-	// 401: the API refused the token. Anything else (the routes switched off, a rate limit, an outage) is the API's.
-	return result.status === 401 ? { kind: 'rejected' } : { kind: 'gauzy_error' };
+	// Anything else (the routes switched off, a rate limit, an outage) is the API's.
+	return { kind: 'gauzy_error' };
+}
+
+/** Whether the verified ID token says Ever ID verified the e-mail address (next-auth's `profile` is its claims). */
+function isEmailVerified(profile: Record<string, unknown> | undefined): boolean {
+	const claim = profile?.email_verified;
+	return claim === true || claim === 'true';
 }
 
 /**
@@ -175,6 +204,7 @@ const OUTCOMES: Record<EverIdExchange['kind'], EverIdSignInOutcome> = {
 	confirm_required: 'confirm_required',
 	signup_required: 'signup_required',
 	no_workspace: 'no_workspace',
+	email_unverified: 'email_unverified',
 	rejected: 'rejected',
 	gauzy_error: 'gauzy_error'
 };
@@ -231,12 +261,12 @@ async function signInRecord(account: EverIdAccount, profile?: Record<string, unk
 			// While a sign-up of the same Ever ID is being finished the API answers 409 for a moment: try again.
 			const result = await retryWhileBusy(() => signWithEverIdRequest(idToken, everIdEmailBranding()));
 			status = result.status;
-			exchange = toEverIdExchange(result);
+			exchange = toEverIdExchange(result, isEmailVerified(profile));
 		} catch {
 			exchange = { kind: 'gauzy_error' };
 		}
 	} else {
-		exchange = { kind: 'rejected' };
+		exchange = { kind: 'rejected', reason: 'no_id_token' };
 	}
 
 	const record: EverIdSignInRecord = {
@@ -245,7 +275,12 @@ async function signInRecord(account: EverIdAccount, profile?: Record<string, unk
 			exchange.kind === 'workspaces' ? everIdPreselectTenantId(profile, exchange.response.workspaces) : undefined
 	};
 	remember(account, record);
-	logEverIdOutcome('ever_id.signin', { outcome: OUTCOMES[exchange.kind], latencyMs: Date.now() - startedAt, status });
+	logEverIdOutcome('ever_id.signin', {
+		outcome: OUTCOMES[exchange.kind],
+		latencyMs: Date.now() - startedAt,
+		status,
+		...(exchange.kind === 'rejected' ? { reason: exchange.reason } : {})
+	});
 	return record;
 }
 
@@ -261,6 +296,19 @@ async function continueWithStep(step: EverIdStep, handoff: string): Promise<stri
 	// when no proxy did).
 	(await cookies()).set(everIdHandoffCookie(sealed, everIdCookieSecure(await headers())));
 	return everIdStepPath(step);
+}
+
+/**
+ * Leaves the Ever ID subject for the route that opens Ever ID's verification form (in the sealed cookie, never in a
+ * URL of this app) and returns the page that asks to verify the e-mail address. Without a secret to seal it with
+ * the page still shows; its link then leads back to the sign-in.
+ */
+async function continueToEmailVerification(subject: string): Promise<string> {
+	const sealed = sealEverIdHandoff(subject, 'verify_email');
+	if (sealed) {
+		(await cookies()).set(everIdHandoffCookie(sealed, everIdCookieSecure(await headers())));
+	}
+	return EVER_ID_EMAIL_UNVERIFIED_PATH;
 }
 
 /**
@@ -285,6 +333,8 @@ export async function everIdSignInCallback(
 			return config.autoProvision ? EVER_ID_NO_WORKSPACE_SIGNUP_PATH : EVER_ID_NO_WORKSPACE_PATH;
 		case 'blocked':
 			return EVER_ID_BLOCKED_PATH;
+		case 'email_unverified':
+			return continueToEmailVerification(account.providerAccountId);
 		default:
 			return false;
 	}

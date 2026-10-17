@@ -1967,10 +1967,10 @@ describe('Ever Teams feature surface preservation', () => {
 
 	it('covers all real App Router route files and outward handler verbs', () => {
 		const routes = collectRealHeadSurface().routes;
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(133);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(134);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(179);
+		).toHaveLength(180);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy routes added by the 2026-10 PR batch, and the old misspelled toggle path kept as an alias
@@ -2007,6 +2007,7 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/auth/ever-id/confirm/route.ts::POST',
 				'apps/web/app/api/auth/ever-id/finish-setup/route.ts::POST',
 				'apps/web/app/api/auth/ever-id/signup-handoff/route.ts::POST',
+				'apps/web/app/api/auth/ever-id/verify-email/route.ts::GET',
 				'apps/web/app/api/ever-connect/[...path]/route.ts::GET',
 				'apps/web/app/api/ever-connect/[...path]/route.ts::POST',
 				'apps/web/app/api/ever-connect/[...path]/route.ts::PUT',
