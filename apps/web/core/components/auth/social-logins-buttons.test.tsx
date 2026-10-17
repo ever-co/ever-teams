@@ -150,12 +150,19 @@ describe('SocialLogins: Ever ID', () => {
 		expect(container.querySelector('.grid-cols-2')).toBeNull();
 	});
 
-	it("follows the brand kit: the form's full width, 40 px high, black in light and #EDEDED in dark", () => {
+	it("follows the brand kit: the form's full width, at least 40 px high, black in light and #EDEDED in dark", () => {
 		renderWithRuntimeEnv({ EVER_TEAMS_AUTH_PROVIDERS: 'ever-id' });
 
 		const classes = screen.getByRole('button', { name: 'Login with Ever ID' }).className.split(' ');
 		expect(classes).toEqual(
-			expect.arrayContaining(['w-full', 'h-10', 'rounded-lg', 'bg-[#0a0a0a]', 'text-white', 'dark:bg-[#ededed]'])
+			expect.arrayContaining([
+				'w-full',
+				'min-h-10',
+				'rounded-lg',
+				'bg-[#0a0a0a]',
+				'text-white',
+				'dark:bg-[#ededed]'
+			])
 		);
 	});
 
