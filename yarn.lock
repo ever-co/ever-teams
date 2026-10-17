@@ -5649,10 +5649,10 @@
     chalk "^4.1.0"
     js-yaml "^4.1.0"
 
-"@faker-js/faker@^9.4.0":
-  version "9.9.0"
-  resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-9.9.0.tgz#3ad015fbbaaae7af3149555e0f22b4b30134c69d"
-  integrity sha512-OEl393iCOoo/z8bMezRlJu+GlRGlsKbUAN7jKB6LhnKoqKve5DXRpalbItIIcwnCjs1k/FOPjFzcA6Qn+H+YbA==
+"@faker-js/faker@^10.5.0":
+  version "10.5.0"
+  resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-10.5.0.tgz#d2f6a8c7f08d087ac5f077d6babd0821edf24c03"
+  integrity sha512-bsxD8WLS5lIj7aaoCx1YJkktqYj5vlBUE6HWzu2Q51ksrGJ0H737ECCKlFU7Yf8Br45z9t99frBp/J7kzbMPAg==
 
 "@fastify/otel@0.18.0":
   version "0.18.0"
@@ -44257,6 +44257,11 @@ plasmo@^0.90.5:
     tempy "3.1.0"
     typescript "5.8.2"
 
+playwright-core@1.57.0:
+  version "1.57.0"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.57.0.tgz#3dcc9a865af256fa9f0af0d67fc8dd54eecaebf5"
+  integrity sha512-agTcKlMw/mjBWOnD6kFZttAAGHgi/Nw0CZ2o6JqWSbMlI219lAFLZZCyqByTsvVAJq5XA5H8cA6PrvBRpBWEuQ==
+
 playwright-core@1.59.1, playwright-core@>=1.2.0:
   version "1.59.1"
   resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.59.1.tgz#d8a2b28bcb8f2bd08ef3df93b02ae83c813244b2"
@@ -44267,12 +44272,21 @@ playwright-core@1.62.1:
   resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.62.1.tgz#120f67a19181bfd183c60fa903c0d99330b56785"
   integrity sha512-wPYSwEBJY9GHraISXqyqtx0na0LpO3XEX7jNDhntbex7tzUS7kLnZsOlFruFJB4Hi/rhDMjXGqHewDZ68nYZVw==
 
-playwright@1.59.1, playwright@^1.14.0, playwright@^1.57.0:
+playwright@1.59.1:
   version "1.59.1"
   resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.59.1.tgz#f7b0ca61637ae25264cec370df671bbe1f368a4a"
   integrity sha512-C8oWjPR3F81yljW9o5OxcWzfh6avkVwDD2VYdwIGqTkl+OGFISgypqzfu7dOe4QNLL2aqcWBmI3PMtLIK233lw==
   dependencies:
     playwright-core "1.59.1"
+  optionalDependencies:
+    fsevents "2.3.2"
+
+playwright@^1.14.0, playwright@^1.57.0:
+  version "1.57.0"
+  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.57.0.tgz#74d1dacff5048dc40bf4676940b1901e18ad0f46"
+  integrity sha512-ilYQj1s8sr2ppEJ2YVadYBN0Mb3mdo9J0wQ+UuDhzYqURwSoW4n1Xs5vs7ORwgDGmyEh33tRMeS8KhdkMoLXQw==
+  dependencies:
+    playwright-core "1.57.0"
   optionalDependencies:
     fsevents "2.3.2"
 
