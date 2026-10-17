@@ -25,7 +25,9 @@ export default function EverIdVerifyEmail() {
 			<Text className="text-3xl font-bold text-[#282048] dark:text-light--theme">
 				{t('pages.auth.everId.EMAIL_UNVERIFIED_TITLE')}
 			</Text>
-			<Text className="text-lg leading-7 text-gray-400">{t('pages.auth.everId.EMAIL_UNVERIFIED_BODY')}</Text>
+			<Text className="text-lg leading-7 text-gray-600 dark:text-gray-400">
+				{t('pages.auth.everId.EMAIL_UNVERIFIED_BODY')}
+			</Text>
 			<div className="flex flex-wrap gap-3 justify-center">
 				{/* A full page load: the route answers with a redirect to Ever ID. */}
 				<Button asChild className="px-7 font-normal rounded-lg">
@@ -40,7 +42,10 @@ export default function EverIdVerifyEmail() {
 					{t('pages.auth.everId.SIGN_IN_AGAIN')}
 				</Button>
 			</div>
-			<Link href={DEFAULT_APP_PATH} className="text-sm underline text-gray-400 underline-offset-4">
+			<Link
+				href={DEFAULT_APP_PATH}
+				className="text-sm underline text-gray-600 dark:text-gray-400 underline-offset-4"
+			>
 				{t('pages.auth.everId.SIGN_IN_ANOTHER_WAY')}
 			</Link>
 		</div>

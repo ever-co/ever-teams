@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { EverIdWordmark } from '@/core/components/icons/ever-id-wordmark';
 import { EverStar } from '@/core/components/icons/ever-star';
@@ -13,6 +14,16 @@ import { Button } from '../common/button';
 const EVER_ID_BUTTON_CLASS =
 	'cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 shadow-sm shadow-black/10 border border-transparent bg-card ring-1 ring-foreground/10 duration-200 hover:bg-muted/50 dark:ring-foreground/15 dark:hover:bg-muted/50 h-9 px-4 py-2 w-full text-foreground';
 
+/** The `<wordmark>` tag of the label: the drawn wordmark, and its words for screen readers. */
+function renderWordmark(chunks: ReactNode) {
+	return (
+		<>
+			<EverIdWordmark className="h-3.5 w-auto translate-y-px" />
+			<span className="sr-only">{chunks}</span>
+		</>
+	);
+}
+
 /**
  * "Login with Ever ID": the Ever star (spinning like the ever.works logo, still with a reduced-motion setting), the
  * words, and "Ever ID" as its wordmark. Screen readers read the same words: the wordmark is decorative and the name
@@ -25,14 +36,7 @@ export function EverIdLoginButton() {
 		<Button type="submit" variant="secondary" className={EVER_ID_BUTTON_CLASS}>
 			<EverStar className="size-5 motion-safe:animate-[spin_9s_linear_infinite]" />
 			<span className="inline-flex items-center gap-1.5">
-				{t.rich('pages.auth.everId.LOGIN_WITH_EVER_ID', {
-					wordmark: (chunks) => (
-						<>
-							<EverIdWordmark className="h-3.5 w-auto translate-y-px" />
-							<span className="sr-only">{chunks}</span>
-						</>
-					)
-				})}
+				{t.rich('pages.auth.everId.LOGIN_WITH_EVER_ID', { wordmark: renderWordmark })}
 			</span>
 		</Button>
 	);

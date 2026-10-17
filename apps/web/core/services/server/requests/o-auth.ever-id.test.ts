@@ -466,6 +466,17 @@ describe('Ever ID sign-in: the ID token exchange', () => {
 		}
 	);
 
+	it("keeps the API's own reason when it asks for an ID token, whatever the e-mail claim says", async () => {
+		mockSignWithEverId.mockResolvedValue({ status: 401, data: { code: 'id_token_required' } });
+		const auth = await loadAuth();
+
+		const { signIn } = await signInWithEverId(auth, { sub: 'person-1', email_verified: false });
+
+		expect(signIn).toBe(false);
+		expect(logs.find((entry) => entry.startsWith('ever_id.signin'))).toContain('reason=id_token_required');
+		expect(mockCookieStore.set).not.toHaveBeenCalled();
+	});
+
 	it('still shows the verification page, without a cookie, when there is no secret to seal the subject with', async () => {
 		mockSignWithEverId.mockResolvedValue({ status: 401, data: { statusCode: 401 } });
 		const auth = await loadAuth({ AUTH_SECRET: undefined as unknown as string });

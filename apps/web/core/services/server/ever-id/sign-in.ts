@@ -144,8 +144,10 @@ function fromNotFound(data: Record<string, unknown>): EverIdExchange {
  */
 function fromUnauthorized(data: unknown, emailVerified: boolean): EverIdExchange {
 	const code = isRecord(data) ? data.code : undefined;
+	// The API's own reason first: verifying the address cannot give it the ID token it asks for.
+	if (code === 'id_token_required') return { kind: 'rejected', reason: 'id_token_required' };
 	if (code === 'email_unverified' || !emailVerified) return { kind: 'email_unverified' };
-	return { kind: 'rejected', reason: code === 'id_token_required' ? 'id_token_required' : 'token_refused' };
+	return { kind: 'rejected', reason: 'token_refused' };
 }
 
 /** Maps an answer of `POST /api/auth/zitadel/token` to what the sign-in does next. */
