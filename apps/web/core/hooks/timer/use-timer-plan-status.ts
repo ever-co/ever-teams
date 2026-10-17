@@ -37,6 +37,8 @@ export interface UseTimerPlanStatusReturn {
 	timerStatus: ITimerStatus | null;
 	/** Reads the personal plans when nothing has loaded them yet, from cache when they are fresh */
 	ensureMyDailyPlans?: () => Promise<PaginationResponse<TDailyPlan> | undefined>;
+	/** Whether the personal plans were already read in this scope */
+	hasCachedMyDailyPlans?: () => boolean;
 }
 
 /**
@@ -58,7 +60,7 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 	const timerStatus = useAtomValue(timerStatusState);
 
 	const { user } = useAuthenticateUser();
-	const { myDailyPlans, ensureMyDailyPlans } = useMyDailyPlans();
+	const { myDailyPlans, ensureMyDailyPlans, hasCachedMyDailyPlans } = useMyDailyPlans();
 
 	// ==================== DERIVED STATE ====================
 
@@ -104,6 +106,7 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 		activeTeam,
 		activeTeamTask,
 		timerStatus,
-		ensureMyDailyPlans
+		ensureMyDailyPlans,
+		hasCachedMyDailyPlans
 	};
 }

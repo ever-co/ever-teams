@@ -52,7 +52,6 @@ function getPlanPolicyInputs(plan: TDailyPlan | undefined, activeTaskId: string 
  * @see useTimerPlanStatus — Lightweight read-only plan state (core/hooks/timer)
  */
 export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStopTimerHandlerParams) {
-
 	const {
 		isOpen: isEnforceTaskModalOpen,
 		closeModal: enforceTaskCloseModal,
@@ -78,7 +77,8 @@ export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStop
 	} = useModal();
 
 	const timerStatusFetching = useAtomValue(timerStatusFetchingState);
-	const { hasPlan, canRunTimer, activeTeam, activeTeamTask, timerStatus, ensureMyDailyPlans } = useTimerPlanStatus();
+	const { hasPlan, canRunTimer, activeTeam, activeTeamTask, timerStatus, ensureMyDailyPlans, hasCachedMyDailyPlans } =
+		useTimerPlanStatus();
 	const actionDisabled = timerStatusFetching || !canRunTimer;
 	const planRequestPendingRef = useRef(false);
 
@@ -86,8 +86,13 @@ export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStop
 
 	const enforceTaskSoftCloseModal = useCallback(() => {
 		_enforceTaskSoftCloseModal();
-		openAddTasksEstimationHoursModal();
-	}, [_enforceTaskSoftCloseModal, openAddTasksEstimationHoursModal]);
+		if (requirePlan || !ensureMyDailyPlans) {
+			openAddTasksEstimationHoursModal();
+			return;
+		}
+		// Yes may have just added the task, and nothing refetches the plans on its own in these teams
+		void ensureMyDailyPlans().finally(openAddTasksEstimationHoursModal);
+	}, [_enforceTaskSoftCloseModal, ensureMyDailyPlans, openAddTasksEstimationHoursModal, requirePlan]);
 
 	const modalDispatch = useMemo(
 		() =>
@@ -150,20 +155,43 @@ export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStop
 	);
 
 	const startStopTimerHandler = useCallback(() => {
-		// Teams that do not require a plan never load the personal plans at startup, so a start reads them first
+		// Teams that do not require a plan never load the personal plans at startup, so a start may have to read them
 		if (actionDisabled || timerStatus?.running || requirePlan || !ensureMyDailyPlans) {
 			runTimerAction(hasPlan);
 			return;
 		}
 		// A second click while the plans load would start the timer twice
 		if (planRequestPendingRef.current) return;
+		const currentDate = new Date().toISOString().split('T')[0];
+		// Without a plan requirement, once both prompts were seen today the policy starts whatever the plan holds
+		if (
+			hasSeenModalToday(DAILY_PLAN_SUGGESTION_MODAL_DATE, currentDate) &&
+			hasSeenModalToday(TASKS_ESTIMATE_HOURS_MODAL_DATE, currentDate)
+		) {
+			runTimerAction(hasPlan);
+			return;
+		}
+		// Plans read earlier in the session answer at once and refresh in the background, only the first read waits
+		if (hasCachedMyDailyPlans?.()) {
+			runTimerAction(hasPlan);
+			void ensureMyDailyPlans();
+			return;
+		}
 		planRequestPendingRef.current = true;
 		void ensureMyDailyPlans()
 			.then((plans) => runTimerAction(plans ? findTimerPlans(plans.items).hasPlan : hasPlan))
 			.finally(() => {
 				planRequestPendingRef.current = false;
 			});
-	}, [actionDisabled, ensureMyDailyPlans, hasPlan, requirePlan, runTimerAction, timerStatus?.running]);
+	}, [
+		actionDisabled,
+		ensureMyDailyPlans,
+		hasCachedMyDailyPlans,
+		hasPlan,
+		requirePlan,
+		runTimerAction,
+		timerStatus?.running
+	]);
 
 	return {
 		modals: {

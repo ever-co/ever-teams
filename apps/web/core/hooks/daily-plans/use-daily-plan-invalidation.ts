@@ -24,6 +24,16 @@ export function useDailyPlanInvalidation() {
 		queryClient.invalidateQueries({
 			queryKey: queryKeys.dailyPlans.all
 		});
+		// Teams that do not require a plan read the personal plans on demand, with every observer disabled, so the
+		// invalidation above refetches nothing there. Refresh the ones already read and still on screen, so the start
+		// button sees this change. A fetch already running predates it, hence cancelRefetch.
+		queryClient
+			.getQueryCache()
+			.findAll({ queryKey: queryKeys.dailyPlans.myPlansByScopeAll, type: 'inactive' })
+			.filter((query) => query.state.data !== undefined && query.getObserversCount() > 0)
+			.forEach((query) => {
+				void query.fetch(undefined, { cancelRefetch: true }).catch(() => undefined);
+			});
 	}, [queryClient]);
 
 	return {

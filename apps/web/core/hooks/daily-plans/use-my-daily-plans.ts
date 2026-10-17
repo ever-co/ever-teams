@@ -156,13 +156,25 @@ export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
 					scope.userId
 				),
 				queryFn: ({ signal }) => dailyPlanService.getMyDailyPlans({ scope, signal }),
-				staleTime: 60_000
+				staleTime: 60_000,
+				// Callers fall back to the cached plans, a retry would only delay them
+				retry: false
 			});
 			return isCurrentScope() ? orderTasksInPlans(plans) : undefined;
 		} catch {
 			return undefined;
 		}
 	}, [enabled, isCurrentScope, queryClient, scope, scopedReady]);
+
+	/** Whether the personal plans were already read in this scope, so a caller can use them without waiting */
+	const hasCachedMyDailyPlans = useCallback(
+		() =>
+			!!scope &&
+			queryClient.getQueryData(
+				queryKeys.dailyPlans.myPlansByScope(scope.tenantId, scope.organizationId, scope.teamId, scope.userId)
+			) !== undefined,
+		[queryClient, scope]
+	);
 
 	return {
 		// Raw data
@@ -182,6 +194,7 @@ export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
 		loadMyDailyPlans,
 		firstLoadMyDailyPlans,
 		ensureMyDailyPlans,
+		hasCachedMyDailyPlans,
 
 		// Loading states
 		isLoading: getMyDailyPlansQuery.isLoading,
