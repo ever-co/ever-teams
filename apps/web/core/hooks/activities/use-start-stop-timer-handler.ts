@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { useModal } from '../common/use-modal';
+import { useSyncRef } from '../common/use-sync-ref';
 import {
 	DAILY_PLAN_SUGGESTION_MODAL_DATE,
 	TASKS_ESTIMATE_HOURS_MODAL_DATE,
@@ -22,7 +23,7 @@ export interface UseStartStopTimerHandlerParams {
 
 /** Policy inputs read from today's plan, so the cached plan and a plan fetched on click give the same state. */
 function getPlanPolicyInputs(plan: TDailyPlan | undefined, activeTaskId: string | undefined) {
-	const tasksEstimationTimes = plan && plan.tasks ? estimatedTotalTime(plan.tasks).timesEstimated / 3600 : 0;
+	const tasksEstimationTimes = plan?.tasks ? estimatedTotalTime(plan.tasks).timesEstimated / 3600 : 0;
 
 	return {
 		hasPlan: !!plan,
@@ -154,6 +155,15 @@ export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStop
 		]
 	);
 
+	// Read when a start resumes after the first plan read, which may land after the selection or the timer changed
+	const latestRef = useSyncRef({
+		runTimerAction,
+		hasPlan,
+		teamId: activeTeam?.id,
+		taskId: activeTeamTask?.id,
+		isTimerRunning: !!timerStatus?.running
+	});
+
 	const startStopTimerHandler = useCallback(() => {
 		// Teams that do not require a plan never load the personal plans at startup, so a start may have to read them
 		if (actionDisabled || timerStatus?.running || requirePlan || !ensureMyDailyPlans) {
@@ -178,16 +188,26 @@ export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStop
 			return;
 		}
 		planRequestPendingRef.current = true;
+		const teamId = activeTeam?.id;
+		const taskId = activeTeamTask?.id;
 		void ensureMyDailyPlans()
-			.then((plans) => runTimerAction(plans ? findTimerPlans(plans.items).hasPlan : hasPlan))
+			.then((plans) => {
+				const latest = latestRef.current;
+				// The click was for another team or task, or the timer started meanwhile and acting now would stop it
+				if (latest.teamId !== teamId || latest.taskId !== taskId || latest.isTimerRunning) return;
+				latest.runTimerAction(plans ? findTimerPlans(plans.items).hasPlan : latest.hasPlan);
+			})
 			.finally(() => {
 				planRequestPendingRef.current = false;
 			});
 	}, [
 		actionDisabled,
+		activeTeam?.id,
+		activeTeamTask?.id,
 		ensureMyDailyPlans,
 		hasCachedMyDailyPlans,
 		hasPlan,
+		latestRef,
 		requirePlan,
 		runTimerAction,
 		timerStatus?.running
