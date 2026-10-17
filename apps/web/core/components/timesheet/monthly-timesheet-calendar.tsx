@@ -107,7 +107,7 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
 	useEffect(() => {
 		if (!firstDataDate) return;
 		const parsedDate = parseISO(firstDataDate);
-		if (!isNaN(parsedDate.getTime())) {
+		if (!Number.isNaN(parsedDate.getTime())) {
 			setCurrentMonth((prev) => (prev.getTime() === parsedDate.getTime() ? prev : parsedDate));
 		}
 	}, [firstDataDate]);

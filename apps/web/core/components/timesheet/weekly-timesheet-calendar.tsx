@@ -76,7 +76,7 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
 	useEffect(() => {
 		if (!firstDataDate) return;
 		const parsedDate = parseISO(firstDataDate);
-		if (!isNaN(parsedDate.getTime())) {
+		if (!Number.isNaN(parsedDate.getTime())) {
 			setCurrentDate((prev) => (prev.getTime() === parsedDate.getTime() ? prev : parsedDate));
 		}
 	}, [firstDataDate]);
