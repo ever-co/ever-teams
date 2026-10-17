@@ -185,6 +185,34 @@ async function download(href: string, signal: AbortSignal | undefined): Promise<
 	}
 }
 
+/** The http(s) file URLs of the user messages, the ones the SDK downloads. */
+function fileUrls(prompt: CoreMessage[]): Set<string> {
+	const urls = new Set<string>();
+	for (const message of prompt) {
+		if (message.role !== 'user' || !Array.isArray(message.content)) continue;
+		for (const part of message.content) {
+			if (part.type === 'file' && isHttpUrl(part.data)) urls.add(String(part.data));
+		}
+	}
+	return urls;
+}
+
+/** The prompt with the downloaded bytes in place of the file URLs. */
+function withFileBytes(prompt: CoreMessage[], files: Map<string, Uint8Array>): CoreMessage[] {
+	return prompt.map((message) =>
+		message.role === 'user' && Array.isArray(message.content)
+			? {
+					...message,
+					content: message.content.map((part) =>
+						part.type === 'file' && isHttpUrl(part.data)
+							? { ...part, data: files.get(String(part.data)) ?? part.data }
+							: part
+					)
+				}
+			: message
+	);
+}
+
 /**
  * Downloads, through the guard, the files the SDK would download for these messages, and returns the
  * messages with the bytes in place of the URLs, or the 400/502 answer when a file cannot be had.
@@ -204,13 +232,7 @@ export async function resolveFileUrls<T>(messages: T, signal?: AbortSignal): Pro
 	}
 	if (!coreMessageSchema.array().safeParse(prompt).success) return { ok: true, messages };
 
-	const urls = new Set<string>();
-	for (const message of prompt) {
-		if (message.role !== 'user' || !Array.isArray(message.content)) continue;
-		for (const part of message.content) {
-			if (part.type === 'file' && isHttpUrl(part.data)) urls.add(String(part.data));
-		}
-	}
+	const urls = fileUrls(prompt);
 	if (urls.size === 0) return { ok: true, messages };
 
 	// A file that cannot be had ends the other downloads too, instead of leaving them to finish for nothing.
@@ -230,19 +252,5 @@ export async function resolveFileUrls<T>(messages: T, signal?: AbortSignal): Pro
 		return { ok: false, status: 502, error: FAILED };
 	}
 
-	return {
-		ok: true,
-		messages: prompt.map((message) =>
-			message.role === 'user' && Array.isArray(message.content)
-				? {
-						...message,
-						content: message.content.map((part) =>
-							part.type === 'file' && isHttpUrl(part.data)
-								? { ...part, data: files.get(String(part.data)) ?? part.data }
-								: part
-						)
-					}
-				: message
-		)
-	};
+	return { ok: true, messages: withFileBytes(prompt, files) };
 }
