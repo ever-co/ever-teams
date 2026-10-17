@@ -48,7 +48,7 @@ html.dark {
 
 	/* Same system stack as Ever Works, so both products render in the OS UI face. */
 	--font-sans:
-		-apple-system, 'BlinkMacSystemFont', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
+		-apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', sans-serif,
 		'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
@@ -153,8 +153,9 @@ html.dark {
 	   the 8px grey bars were part of why the app read as heavy. */
 	* {
 		@apply border-border;
+
 		scrollbar-width: thin;
-		scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+		scrollbar-color: rgb(148 163 184 / 50%) transparent;
 	}
 
 	body {
@@ -167,42 +168,52 @@ html.dark {
 		text-rendering: optimizeLegibility;
 		-webkit-tap-highlight-color: transparent;
 		-webkit-touch-callout: none;
+
 		@apply bg-background text-foreground text-sm;
 	}
 
 	.dark * {
-		scrollbar-color: rgba(115, 115, 115, 0.45) transparent;
+		scrollbar-color: rgb(115 115 115 / 45%) transparent;
 	}
+
 	::-webkit-scrollbar {
 		width: 6px;
 		height: 6px;
 	}
+
 	::-webkit-scrollbar-track {
 		background: transparent;
 		border-radius: 3px;
 	}
+
 	::-webkit-scrollbar-thumb {
-		background: rgba(148, 163, 184, 0.4);
+		background: rgb(148 163 184 / 40%);
 		border-radius: 3px;
 		transition: background 0.2s ease;
 	}
+
 	::-webkit-scrollbar-thumb:hover {
-		background: rgba(148, 163, 184, 0.6);
+		background: rgb(148 163 184 / 60%);
 	}
+
 	::-webkit-scrollbar-thumb:active {
-		background: rgba(148, 163, 184, 0.8);
+		background: rgb(148 163 184 / 80%);
 	}
+
 	::-webkit-scrollbar-corner {
 		background: transparent;
 	}
+
 	.dark ::-webkit-scrollbar-thumb {
-		background: rgba(115, 115, 115, 0.4);
+		background: rgb(115 115 115 / 40%);
 	}
+
 	.dark ::-webkit-scrollbar-thumb:hover {
-		background: rgba(115, 115, 115, 0.6);
+		background: rgb(115 115 115 / 60%);
 	}
+
 	.dark ::-webkit-scrollbar-thumb:active {
-		background: rgba(115, 115, 115, 0.8);
+		background: rgb(115 115 115 / 80%);
 	}
 
 	.x-container {
