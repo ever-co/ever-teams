@@ -16,8 +16,8 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
 		return NextResponse.json({}, { status: 400 });
 	}
 
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
-	if (!user) return NextResponse.json({}, { status: 401 });
+	const { $res, user, access_token, tenantId, status } = await authenticatedGuard(req, res);
+	if (!user) return NextResponse.json({}, { status: status ?? 401 });
 
 	const { data } = await getMyInvitationsRequest(tenantId || '', access_token || '');
 
@@ -33,8 +33,8 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
 		return NextResponse.json({}, { status: 400 });
 	}
 
-	const { $res, user, access_token, tenantId, organizationId, teamId } = await authenticatedGuard(req, res);
-	if (!user) return NextResponse.json({}, { status: 401 });
+	const { $res, user, access_token, tenantId, organizationId, teamId, status } = await authenticatedGuard(req, res);
+	if (!user) return NextResponse.json({}, { status: status ?? 401 });
 
 	await removeTeamInvitationsRequest({
 		bearer_token: access_token || '',
@@ -58,8 +58,8 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
 export async function PUT(req: Request, props: { params: Promise<{ id: string }> }) {
 	const params = await props.params;
 	const res = new NextResponse();
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
-	if (!user) return NextResponse.json({}, { status: 401 });
+	const { $res, user, access_token, tenantId, status } = await authenticatedGuard(req, res);
+	if (!user) return NextResponse.json({}, { status: status ?? 401 });
 
 	const invitationId = params.id;
 

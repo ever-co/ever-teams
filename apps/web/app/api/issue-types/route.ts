@@ -5,9 +5,9 @@ import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {
 	const res = new NextResponse();
-	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, res);
+	const { $res, user, access_token, tenantId, organizationId, status } = await authenticatedGuard(req, res);
 
-	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: status ?? 401 });
 
 	const { searchParams } = new URL(req.url);
 	const { organizationTeamId } = searchParams as unknown as { organizationTeamId: string };
@@ -25,9 +25,9 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
 	const res = new NextResponse();
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+	const { $res, user, access_token, tenantId, status } = await authenticatedGuard(req, res);
 
-	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: status ?? 401 });
 
 	const body = (await req.json()) as IIssueTypesCreate;
 

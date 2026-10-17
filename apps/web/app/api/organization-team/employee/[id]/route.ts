@@ -13,9 +13,9 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 		return NextResponse.json({}, { status: 405 });
 	}
 
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+	const { $res, user, access_token, tenantId, status } = await authenticatedGuard(req, res);
 
-	if (!user) return NextResponse.json({}, { status: 401 });
+	if (!user) return NextResponse.json({}, { status: status ?? 401 });
 
 	const response = await removeEmployeeOrganizationTeamRequest({
 		bearer_token: access_token,
@@ -34,9 +34,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 		return NextResponse.json({}, { status: 405 });
 	}
 
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+	const { $res, user, access_token, tenantId, status } = await authenticatedGuard(req, res);
 
-	if (!user) return NextResponse.json({}, { status: 401 });
+	if (!user) return NextResponse.json({}, { status: status ?? 401 });
 
 	const body = await req.json();
 
