@@ -15,8 +15,18 @@ const GLOBAL = '__EVER_TEAMS_RUNTIME_ENV__';
 const mockSignInFunction = jest.fn();
 let mockDemoMode = false;
 
+// The English messages the Ever ID button reads, with next-intl's rich text (a tag becomes a component).
+const mockMessages: Record<string, string> = {
+	'pages.auth.everId.LOGIN_WITH_EVER_ID': 'Login with <wordmark>Ever ID</wordmark>'
+};
 jest.mock('next-intl', () => ({
-	useTranslations: () => (key: string) => key
+	useTranslations: () =>
+		Object.assign((key: string) => key, {
+			rich: (key: string, tags: Record<string, (chunks: React.ReactNode) => React.ReactNode>) => {
+				const [before, tag, chunks, after] = (mockMessages[key] ?? key).split(/<(\w+)>(.*?)<\/\w+>/);
+				return [before, tags[tag]?.(chunks), after];
+			}
+		})
 }));
 
 // A server action: the real module imports next-auth, which only runs on the server.
@@ -118,21 +128,45 @@ describe('SocialLogins', () => {
 });
 
 /**
- * The Ever ID button: one more provider, rendered from the published list like the others (it comes after Google)
- * and hidden in demo mode. These cases extend the suite; the ones above are unchanged.
+ * The Ever ID button: rendered from the published list like the others and hidden in demo mode, but on a row of its
+ * own above them, as wide as the form's primary button: the spinning Ever star, "Login with" and the "Ever ID"
+ * wordmark. These cases extend the suite; the ones above are unchanged.
  */
 describe('SocialLogins: Ever ID', () => {
-	it('renders the Ever ID button right after Google', () => {
-		renderWithRuntimeEnv({ EVER_TEAMS_AUTH_PROVIDERS: 'github,ever-id,google' });
+	it('renders "Login with Ever ID" on its own row, above the other providers', () => {
+		const { container } = renderWithRuntimeEnv({ EVER_TEAMS_AUTH_PROVIDERS: 'github,ever-id,google' });
 
-		expect(buttonLabels()).toEqual(['Google', 'Ever ID', 'GitHub']);
+		expect(buttonLabels()).toEqual(['Login with Ever ID', 'Google', 'GitHub']);
+		const everIdForm = screen.getByRole('button', { name: 'Login with Ever ID' }).closest('form');
+		expect(everIdForm?.closest('.grid-cols-2')).toBeNull();
+		expect(container.querySelectorAll('.grid-cols-2 form')).toHaveLength(2);
 	});
 
 	it('renders the Ever ID button alone when it is the only published provider', () => {
+		const { container } = renderWithRuntimeEnv({ EVER_TEAMS_AUTH_PROVIDERS: 'ever-id' });
+
+		expect(buttonLabels()).toEqual(['Login with Ever ID']);
+		expect(screen.getByText('pages.auth.OR_CONTINUE_WITH')).toBeTruthy();
+		expect(container.querySelector('.grid-cols-2')).toBeNull();
+	});
+
+	it("is as wide as the form's primary button and as high as the other sign-in buttons", () => {
 		renderWithRuntimeEnv({ EVER_TEAMS_AUTH_PROVIDERS: 'ever-id' });
 
-		expect(buttonLabels()).toEqual(['Ever ID']);
-		expect(screen.getByText('pages.auth.OR_CONTINUE_WITH')).toBeTruthy();
+		const classes = screen.getByRole('button', { name: 'Login with Ever ID' }).className.split(' ');
+		expect(classes).toEqual(expect.arrayContaining(['w-full', 'h-9']));
+	});
+
+	it('spins the Ever star only without a reduced-motion setting, and draws "Ever ID" as its wordmark', () => {
+		renderWithRuntimeEnv({ EVER_TEAMS_AUTH_PROVIDERS: 'ever-id' });
+
+		const [star, wordmark] = Array.from(
+			screen.getByRole('button', { name: 'Login with Ever ID' }).querySelectorAll('svg')
+		);
+		expect(star.getAttribute('class')).toContain('motion-safe:animate-[spin_9s_linear_infinite]');
+		expect(star.getAttribute('class')).not.toMatch(/(^|\s)animate-/);
+		expect(star.getAttribute('viewBox')).toBe('0 0 40 42');
+		expect(wordmark.getAttribute('fill')).toBe('currentColor');
 	});
 
 	it('renders no Ever ID button when the server did not publish it', () => {
@@ -152,17 +186,19 @@ describe('SocialLogins: Ever ID', () => {
 	it('starts the Ever ID sign-in', () => {
 		renderWithRuntimeEnv({ EVER_TEAMS_AUTH_PROVIDERS: 'google,ever-id' });
 
-		fireEvent.click(screen.getByRole('button', { name: 'Ever ID' }));
+		fireEvent.click(screen.getByRole('button', { name: 'Login with Ever ID' }));
 
 		expect(mockSignInFunction).toHaveBeenCalledTimes(1);
 		expect(mockSignInFunction).toHaveBeenCalledWith({ id: 'ever-id', name: 'Ever ID' });
 	});
 
-	it('labels the button with the provider name only, with a decorative icon', () => {
+	it('reads "Login with Ever ID" to screen readers, with a decorative star and wordmark', () => {
 		renderWithRuntimeEnv({ EVER_TEAMS_AUTH_PROVIDERS: 'ever-id' });
 
-		const button = screen.getByRole('button', { name: 'Ever ID' });
-		expect(button.textContent).toBe('Ever ID');
-		expect(button.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+		const button = screen.getByRole('button', { name: 'Login with Ever ID' });
+		expect(button.textContent).toBe('Login with Ever ID');
+		const svgs = Array.from(button.querySelectorAll('svg'));
+		expect(svgs).toHaveLength(2);
+		for (const svg of svgs) expect(svg.getAttribute('aria-hidden')).toBe('true');
 	});
 });
