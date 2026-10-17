@@ -115,13 +115,17 @@ let pendingStopTimer: Promise<void> | null = null;
 /** Track last stopTimer call to prevent duplicate calls within short time window */
 let lastStopTimerTimestamp = 0;
 // Bumped when a start, stop or toggle is sent and again when it lands. A sync reads the status back after its
-// time slot, so that read may predate such a command: it only updates the status when none happened meanwhile.
+// time slot, so that read may predate such a command: it only updates the status when none was in flight when
+// the sync started and none happened meanwhile.
 let timerCommandSeq = 0;
+let timerCommandsInFlight = 0;
 
 function trackTimerCommand<T>(request: Promise<T>): Promise<T> {
 	timerCommandSeq += 1;
+	timerCommandsInFlight += 1;
 	return request.finally(() => {
 		timerCommandSeq += 1;
+		timerCommandsInFlight -= 1;
 	});
 }
 
@@ -411,7 +415,8 @@ export function useTimerApi({
 		if (syncTimerPending) {
 			return;
 		}
-		const commandSeq = timerCommandSeq;
+		// No status update from a sync that starts while a command is pending, e.g. a slow stop from another instance
+		const commandSeq = timerCommandsInFlight === 0 ? timerCommandSeq : null;
 		return syncTimerMutate({
 			source: timerStatus?.lastLog?.source || ETimeLogSource.TEAMS,
 			user: $user.current,
