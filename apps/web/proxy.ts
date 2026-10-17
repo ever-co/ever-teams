@@ -67,6 +67,15 @@ const ROTATED_REFRESH_TOKEN_MESSAGES = new Set([
 	'Failed to rotate token - concurrent modification'
 ]);
 
+// serverFetch rejects with a promise holding Gauzy's body: unwrap it so a refused refresh token is recognized.
+async function requestTokenRefresh(refreshToken: string) {
+	try {
+		return await refreshTokenRequest(refreshToken);
+	} catch (error) {
+		throw await unwrapRejection(error);
+	}
+}
+
 export const config = {
 	matcher: [
 		'/',
@@ -232,10 +241,7 @@ export async function proxy(request: NextRequest) {
 
 		try {
 			console.log('[Proxy] Attempting token refresh...');
-			const refreshRes = await refreshTokenRequest(refresh_token).catch(async (error: unknown) => {
-				// Hand Gauzy's error body to the catch below, so a refused refresh token is recognized
-				throw await unwrapRejection(error);
-			});
+			const refreshRes = await requestTokenRefresh(refresh_token);
 			if (!refreshRes?.data?.token) {
 				console.error('[Proxy] Token refresh failed: No token in response', refreshRes);
 				return { success: false, error: 'No token in refresh response', isExpired: true };
