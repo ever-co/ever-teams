@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { FC, useCallback, useMemo } from 'react';
 import { useAtom } from 'jotai';
-import { commandPaletteOpenAtom } from './command-palette-trigger';
+import { commandPaletteOpenAtom } from '@/core/stores/common/command-palette';
 import { useRouter } from 'next/navigation';
 
 import {

@@ -17,7 +17,8 @@ import { KeyboardShortcuts } from '../../common/keyboard-shortcuts';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 
 // Import optimized components from centralized location
-import { LazyMinTimerFrame, LazyCollaborate } from '@/core/components/optimized-components/dashboard';
+import { LazyMinTimerFrame, LazyCollaborate, LazyUserNavAvatar } from '@/core/components/optimized-components/dashboard';
+import { UserNavAvatarSkeleton } from '@/core/components/common/skeleton/user-nav-avatar-skeleton';
 import { LazyRequestToJoinModal, LazyTeamsDropDown } from '@/core/components/optimized-components/teams';
 import { CommandPaletteTrigger } from './header/command-palette-trigger';
 
@@ -111,6 +112,16 @@ export function Navbar({
 
 						<KeyboardShortcuts />
 					</div>
+
+					{/* Phones only: the account menu (with Collaborate, team switcher and shortcuts) stays in the
+					    header there; from md up it lives at the foot of the sidebar. */}
+					{!publicTeam && (
+						<div className="md:hidden">
+							<Suspense fallback={<UserNavAvatarSkeleton />}>
+								<LazyUserNavAvatar />
+							</Suspense>
+						</div>
+					)}
 				</div>
 			)}
 			{isOpen && (

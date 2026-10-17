@@ -1,17 +1,11 @@
 'use client';
 
-import { atom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
 import { chatPanelOpenAtom } from '@/core/components/features/chat-panel/atoms/chat-panel-open.atom';
+import { commandPaletteOpenAtom } from '@/core/stores/common/command-palette';
 import { CommandIcon } from '../../../icons';
-
-/**
- * Whether the command palette is open. The palette (SidebarCommandModal) is mounted once for the whole
- * shell, next to the other global modals in app-sidebar.tsx, so its keyboard shortcuts work on every
- * page; anything can open it by setting this atom.
- */
-export const commandPaletteOpenAtom = atom(false);
 
 /**
  * The compact search button Ever Works keeps in its top bar (icon · placeholder · ⌘K), left of

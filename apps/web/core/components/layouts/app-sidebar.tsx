@@ -402,9 +402,10 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 
 				<SidebarFooter className="mt-auto gap-2 p-2">
 					<SidebarOptInForm />
-					{/* The account menu lives here, at the foot of the sidebar, as in Ever Works. */}
+					{/* The account menu lives here, at the foot of the sidebar, as in Ever Works. On phones the
+					    sidebar is a modal sheet that would cover the menu's dialogs, so there the header keeps it. */}
 					{!publicTeam && (
-						<div className="border-t border-sidebar-border pt-2">
+						<div className="hidden border-t border-sidebar-border pt-2 md:block">
 							<Suspense fallback={<UserNavAvatarSkeleton variant="sidebar" />}>
 								<LazyUserNavAvatar variant="sidebar" />
 							</Suspense>
