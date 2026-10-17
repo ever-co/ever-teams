@@ -81,6 +81,12 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		setEndTime(currentTime);
 	}, []);
 
+	// Picks are only sent when set, so an empty pick keeps the hook defaults
+	const pickedFields = useMemo(
+		() => ({ ...(projectId && { projectId }), ...(employeeId && { employeeId }) }),
+		[projectId, employeeId]
+	);
+
 	const handleSubmit = useCallback(
 		(e: FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
@@ -109,8 +115,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				reason,
 				isBillable,
 				organizationId: team?.organizationId,
-				...(projectId && { projectId }),
-				...(employeeId && { employeeId })
+				...pickedFields
 			};
 
 			// Improved validation with better error messages
@@ -145,8 +150,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			reason,
 			startTime,
 			taskId,
-			projectId,
-			employeeId,
+			pickedFields,
 			team,
 			activeTeam
 		]
