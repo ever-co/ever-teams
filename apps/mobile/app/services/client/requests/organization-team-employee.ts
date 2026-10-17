@@ -43,3 +43,28 @@ export function updateOrganizationTeamEmployeeRequest({
 		body
 	});
 }
+
+export function updateOrganizationTeamEmployeeActiveTaskRequest({
+	id,
+	bearer_token,
+	tenantId,
+	body
+}: {
+	id: string;
+	bearer_token: string;
+	tenantId: string;
+	body: {
+		organizationId: string;
+		organizationTeamId: string;
+		activeTaskId: string | null;
+		tenantId: string;
+	};
+}) {
+	return serverFetch<IOrganizationTeamEmployeeUpdate>({
+		path: `/organization-team-employee/${id}/active-task`,
+		method: 'PUT',
+		bearer_token,
+		tenantId,
+		body
+	});
+}
