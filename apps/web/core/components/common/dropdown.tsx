@@ -70,7 +70,7 @@ export function Dropdown<T extends DropdownItem>({
 	const orderedItems = selectedItem ? [selectedItem, ...otherItems] : items;
 
 	return (
-		<div className={clsxm('rounded-xl relative', className)}>
+		<div className={clsxm('relative', className)}>
 			{/* Backdrop for clicking outside */}
 			{open && (
 				<div
@@ -84,7 +84,7 @@ export function Dropdown<T extends DropdownItem>({
 				type="button"
 				className={clsxm(
 					'input-border',
-					'w-full flex justify-between rounded-xl px-3 py-2 text-sm items-center',
+					'flex w-full items-center justify-between rounded-md px-3 py-1.5 text-sm',
 					'font-normal outline-none',
 					buttonClassName
 				)}
@@ -115,17 +115,17 @@ export function Dropdown<T extends DropdownItem>({
 					<EverCard
 						shadow="custom"
 						className={clsxm(
-							'md:px-4 py-2 rounded-xl dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]',
+							'md:px-4 py-2 rounded-xl dark:bg-card dark:border-[0.125rem] border-[#0000001A] dark:border-border',
 							searchBar && 'w-96'
 						)}
 						style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.12)' }}
 					>
 						{/* Search input */}
 						{searchBar && (
-							<div className="sticky top-0 z-40 mb-4 dark:bg-[#1B1D22] bg-white border-b">
+							<div className="sticky top-0 z-40 mb-4 dark:bg-card bg-white border-b">
 								<input
 									placeholder={t('pages.settingsPersonal.TIMEZONE_SEARCH_PLACEHOLDER')}
-									className="w-full h-7 focus:outline-0 rounded-md dark:bg-[#1B1D22] dark:text-white"
+									className="w-full h-7 focus:outline-0 rounded-md dark:bg-card dark:text-white"
 									value={searchValue}
 									onChange={(e) => setSearchValue(e.target.value)}
 								/>

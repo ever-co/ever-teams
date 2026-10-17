@@ -35,14 +35,14 @@ const ScreenshotItem = ({
 	return (
 		<div
 			className={clsxm(
-				'rounded-[1.5rem] shrink-0 bg-white cursor-pointer max-w-[14rem] border-2 hover:border-transparent  dark:border-[#26272C] dark:bg-[#191a20] overflow-hidden h-[16rem] max-h-[16rem] w-full',
+				'rounded-[1.5rem] shrink-0 bg-white cursor-pointer max-w-[14rem] border-2 hover:border-transparent  dark:border-border dark:bg-background overflow-hidden h-[16rem] max-h-[16rem] w-full',
 				isTeamPage && '!h-32',
 				viewMode === 'screenShot-only' && 'h-[10rem]'
 			)}
 		>
 			<div
 				className={clsxm(
-					'w-full group h-[60%] bg-gray-200 overflow-hidden dark:bg-[#26272C] relative',
+					'w-full group h-[60%] bg-gray-200 overflow-hidden dark:bg-muted relative',
 					viewMode === 'screenShot-only' && 'h-full'
 				)}
 			>
@@ -84,7 +84,7 @@ const ScreenshotItem = ({
 					</div>
 				</div>
 			</div>
-			<div className={clsxm('w-full h-[40%] p-4 dark:bg-[#191a20]')} onClick={onShow}>
+			<div className={clsxm('w-full h-[40%] p-4 dark:bg-background')} onClick={onShow}>
 				<>
 					<h4 className="text-xs font-semibold">
 						{new Date(startTime).toLocaleTimeString('en-US', {

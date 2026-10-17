@@ -118,7 +118,7 @@ const CalendarPage = () => {
 					<Container>{renderComponent}</Container>
 				</div>
 			</PageLayout>
-			<div className="bg-white dark:bg-[#1e2025] w-screen z-[999] fixed bottom-0">
+			<div className="bg-white dark:bg-card w-screen z-[999] fixed bottom-0">
 				<Divider />
 				<Footer className={clsxm('justify-between px-8 mx-auto w-full')} />
 			</div>

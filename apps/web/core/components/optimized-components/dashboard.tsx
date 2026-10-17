@@ -20,7 +20,7 @@ export const LazyDateRangePicker = dynamic(
 	() => import('@/core/components/common/date-range-picker').then((mod) => mod.DateRangePicker),
 	{
 		ssr: false,
-		loading: () => <div className="w-48 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg" />
+		loading: () => <div className="w-48 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg" />
 	}
 );
 
@@ -28,7 +28,7 @@ export const LazyTeamDashboardFilter = dynamic(
 	() => import('@/core/components/pages/dashboard/team-dashboard-filter').then((mod) => mod.TeamDashboardFilter),
 	{
 		ssr: false,
-		loading: () => <div className="w-24 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg" />
+		loading: () => <div className="w-24 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg" />
 	}
 );
 
@@ -46,7 +46,7 @@ export const LazyProductivityChart = dynamic(
 	{
 		ssr: false,
 		loading: () => (
-			<div className="w-full h-64 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg flex items-center justify-center">
+			<div className="w-full h-64 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg flex items-center justify-center">
 				<div className="text-gray-500">Loading Chart...</div>
 			</div>
 		)
@@ -59,8 +59,8 @@ export const LazyProductivityHeader = dynamic(
 		ssr: false,
 		loading: () => (
 			<div className="flex flex-col gap-2">
-				<div className="w-32 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-				<div className="w-16 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+				<div className="w-32 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+				<div className="w-16 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 			</div>
 		)
 	}
@@ -74,8 +74,8 @@ export const LazyProductivityStats = dynamic(
 			<div className="flex gap-6">
 				{Array.from({ length: 3 }).map((_, index) => (
 					<div key={index} className="flex flex-col gap-2 items-center">
-						<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-						<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+						<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+						<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 					</div>
 				))}
 			</div>

@@ -15,8 +15,8 @@ export const UserTaskActivity = ({ timesheet }: { timesheet: TActivity }) => {
 	const activityType = timesheet.type?.toUpperCase();
 	const visitedUrl = typeof timesheet.metaData === 'object' ? timesheet.metaData?.url : undefined;
 	return (
-		<div className="shadow-md rounded-md  p-4 my-4 bg-[#00000014] dark:bg-[#26272C]">
-			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-[#7B8089]">
+		<div className="shadow-md rounded-md  p-4 my-4 bg-[#00000014] dark:bg-muted">
+			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-border">
 				<div className="flex gap-2 items-center my-2">
 					<h4 className="text-base">{timesheet.employee?.fullName}</h4>
 					<span>{timesheet.duration}</span>
@@ -45,7 +45,7 @@ export const UserTaskActivity = ({ timesheet }: { timesheet: TActivity }) => {
 											'w-full rounded-lg py-2.5 text-sm font-medium leading-5',
 											' focus:outline-none focus:ring-2',
 											selected
-												? 'bg-white dark:bg-dark text-blue-700 shadow'
+												? 'bg-white dark:bg-card text-blue-700 shadow'
 												: ' hover:bg-white/[0.50]'
 										)
 									}
@@ -76,7 +76,7 @@ export const UserTaskActivity = ({ timesheet }: { timesheet: TActivity }) => {
 												onShow={() => null}
 											/>
 										</Tooltip>
-										<div className="bg-gray-100 dark:dark:bg-[#26272C] rounded-b-lg p-2">
+										<div className="bg-gray-100 dark:dark:bg-muted rounded-b-lg p-2">
 											<h5>Source</h5>
 											<div className="flex flex-wrap gap-1 my-1">
 												<span className="px-1 mb-1 text-white bg-blue-600 rounded-lg">

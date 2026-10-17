@@ -14,7 +14,7 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({ percentage, title }) =
 			<Tooltip>
 				<TooltipTrigger asChild>
 					<div className="flex gap-2 items-center">
-						<div className="overflow-hidden w-full h-2 bg-gray-200 rounded-full dark:bg-gray-700">
+						<div className="overflow-hidden w-full h-2 bg-gray-200 rounded-full dark:bg-muted">
 							<div
 								className="h-full bg-blue-500 dark:bg-blue-600"
 								style={{ width: `${percentageValue}%` }}

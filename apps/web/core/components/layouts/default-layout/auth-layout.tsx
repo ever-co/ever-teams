@@ -163,7 +163,7 @@ export function AuthLayout({ children, title, description, isAuthPage = true, he
 						<div className="flex gap-3 justify-center items-center">
 							<LanguageDropDownWithFlags
 								showFlag
-								btnClassName="bg-light--theme-dark dark:bg-[#1D222A] border-none max-w-28 text-xs"
+								btnClassName="bg-light--theme-dark dark:bg-card border-none max-w-28 text-xs"
 							/>
 							<ThemeToggler />
 						</div>

@@ -185,7 +185,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 			>
 				{taskNumber && (
 					<div className="flex gap-2 items-center">
-						<span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
+						<span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-muted px-1.5 py-0.5 rounded">
 							{taskNumber}
 						</span>
 					</div>
@@ -400,7 +400,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 								<Button
 									onClick={clearAllFilters}
 									variant={'outline'}
-									className="flex justify-center items-center h-10 text-sm rounded-lg transition-colors dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+									className="flex justify-center items-center h-10 text-sm rounded-lg transition-colors dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-muted"
 									disabled={!totalFilteredItems}
 								>
 									<span className="text-sm">{t('common.CLEAR_FILTER')}</span>

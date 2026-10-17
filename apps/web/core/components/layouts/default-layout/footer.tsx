@@ -38,7 +38,7 @@ export function Footer({ className }: IClassName) {
 				{t('layout.footer.RIGHTS_RESERVED')} · <BuildVersion />
 			</p>
 			<div className="flex gap-3 items-center" style={{ marginRight: showChatwoot ? '66px' : 0 }}>
-				<LanguageDropDownWithFlags deferLoading btnClassName="bg-light--theme-dark dark:bg-[#1D222A]" />
+				<LanguageDropDownWithFlags deferLoading btnClassName="bg-light--theme-dark dark:bg-card" />
 				<ThemeToggler />
 			</div>
 		</footer>

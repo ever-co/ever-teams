@@ -36,8 +36,8 @@ export function HeadCalendar({
 				<button
 					onClick={() => setCalendarTimeSheet('TimeSheet')}
 					className={clsxm(
-						'hover:bg-gray-200 dark:hover:bg-gray-700 text-xl h-10 w-10 rounded-lg flex items-center justify-center',
-						`${timesheet === 'TimeSheet' ? 'bg-gray-200 dark:bg-gray-700' : ''}`
+						'hover:bg-gray-200 dark:hover:bg-muted text-xl h-10 w-10 rounded-lg flex items-center justify-center',
+						`${timesheet === 'TimeSheet' ? 'bg-gray-200 dark:bg-muted' : ''}`
 					)}
 				>
 					<QueueListIcon className={clsxm('w-5 h-5')} />
@@ -45,8 +45,8 @@ export function HeadCalendar({
 				<button
 					onClick={() => setCalendarTimeSheet('Calendar')}
 					className={clsxm(
-						'hover:bg-gray-200 dark:hover:bg-gray-700 text-xl h-10 w-10 rounded-lg flex items-center justify-center',
-						`${timesheet === 'Calendar' ? 'bg-gray-200 dark:bg-gray-700' : ''}`
+						'hover:bg-gray-200 dark:hover:bg-muted text-xl h-10 w-10 rounded-lg flex items-center justify-center',
+						`${timesheet === 'Calendar' ? 'bg-gray-200 dark:bg-muted' : ''}`
 					)}
 				>
 					<IconsCalendarMonthOutline className={clsxm('w-5 h-5')} strokeWidth="1.8" />

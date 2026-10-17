@@ -8,7 +8,7 @@ export function AuthUserTaskInputSkeleton({ className }: IClassName) {
 			<div
 				className={clsxm(
 					'overflow-hidden relative rounded-lg border',
-					'bg-gray-100 dark:bg-gray-800/50',
+					'bg-gray-100 dark:bg-white/5',
 					'border-gray-200 dark:border-gray-700',
 					'mb-4 h-12',
 					'animate-pulse'
@@ -52,7 +52,7 @@ export function AuthUserTaskInputSkeleton({ className }: IClassName) {
 						<div
 							className={clsxm(
 								'w-12 h-6 rounded',
-								'bg-gray-200 dark:bg-gray-700',
+								'bg-gray-200 dark:bg-muted',
 								'border border-gray-300 dark:border-gray-600'
 							)}
 						/>
@@ -67,7 +67,7 @@ export function AuthUserTaskInputSkeleton({ className }: IClassName) {
 							'overflow-hidden relative',
 							'h-8 w-fit lg:max-w-[190px] min-w-[120px]',
 							'rounded border',
-							'bg-gray-100 dark:bg-gray-800/50',
+							'bg-gray-100 dark:bg-white/5',
 							'border-gray-200 dark:border-gray-700',
 							'animate-pulse'
 						)}
@@ -101,7 +101,7 @@ export function AuthUserTaskInputSkeleton({ className }: IClassName) {
 							'overflow-hidden relative',
 							'h-8 w-fit lg:max-w-[190px] min-w-[120px]',
 							'rounded border',
-							'bg-gray-100 dark:bg-gray-800/50',
+							'bg-gray-100 dark:bg-white/5',
 							'border-gray-200 dark:border-gray-700',
 							'animate-pulse'
 						)}
@@ -128,7 +128,7 @@ export function AuthUserTaskInputSkeleton({ className }: IClassName) {
 							'overflow-hidden relative',
 							'h-8 w-fit lg:max-w-[190px] min-w-[100px]',
 							'rounded border',
-							'bg-gray-100 dark:bg-gray-800/50',
+							'bg-gray-100 dark:bg-white/5',
 							'border-gray-200 dark:border-gray-700',
 							'animate-pulse'
 						)}
@@ -155,7 +155,7 @@ export function AuthUserTaskInputSkeleton({ className }: IClassName) {
 							'overflow-hidden relative',
 							'h-8 w-fit lg:max-w-[170px] min-w-[80px]',
 							'rounded border',
-							'bg-gray-100 dark:bg-gray-800/50',
+							'bg-gray-100 dark:bg-white/5',
 							'border-gray-200 dark:border-gray-700',
 							'animate-pulse'
 						)}
@@ -179,7 +179,7 @@ export function AuthUserTaskInputSkeleton({ className }: IClassName) {
 							'overflow-hidden relative',
 							'h-8 w-fit max-w-[140px] min-w-[90px]',
 							'rounded-xl border',
-							'bg-gray-100 dark:bg-gray-800/50',
+							'bg-gray-100 dark:bg-white/5',
 							'border-gray-200 dark:border-gray-700',
 							'animate-pulse'
 						)}

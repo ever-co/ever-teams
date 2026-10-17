@@ -55,7 +55,7 @@ export function UnverifiedEmail({ user: propUser }: UnverifiedEmailProps = {}) {
 				shadow="bigger"
 				className={clsxm(
 					'w-full mt-4 py-3 px-2 flex justify-between',
-					'border dark:border-[#28292F] dark:shadow-lg dark:bg-[#1B1D22] my-3'
+					'border dark:border-border dark:shadow-lg dark:bg-card my-3'
 				)}
 			>
 				<div className="flex items-center gap-1 flex-wrap">

@@ -35,7 +35,7 @@ export const LazyCalendarView = dynamic(
 	{
 		ssr: false,
 		loading: () => (
-			<div className="w-full h-96 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg flex items-center justify-center">
+			<div className="w-full h-96 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg flex items-center justify-center">
 				<div className="text-gray-500">Loading Calendar...</div>
 			</div>
 		)
@@ -48,7 +48,7 @@ export const LazyTimesheetView = dynamic(
 	{
 		ssr: false,
 		loading: () => (
-			<div className="w-full h-64 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg flex items-center justify-center">
+			<div className="w-full h-64 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg flex items-center justify-center">
 				<div className="text-gray-500">Loading Timesheet...</div>
 			</div>
 		)
@@ -60,7 +60,7 @@ export const LazyTimesheetDetailModal = dynamic(
 	{
 		ssr: false,
 		loading: () => (
-			<div className="w-96 h-64 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg flex items-center justify-center">
+			<div className="w-96 h-64 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg flex items-center justify-center">
 				<div className="text-gray-500">Loading Modal...</div>
 			</div>
 		)
@@ -72,7 +72,7 @@ export const LazyTimesheetFilter = dynamic(
 		import('@/core/components/pages/timesheet/timesheet-filter').then((mod) => ({ default: mod.TimesheetFilter })),
 	{
 		ssr: false,
-		loading: () => <div className="w-48 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg" />
+		loading: () => <div className="w-48 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg" />
 	}
 );
 
@@ -81,7 +81,7 @@ export const LazyTimesheetCard = dynamic(
 	{
 		ssr: false,
 		loading: () => (
-			<div className="w-full h-32 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg flex items-center justify-center">
+			<div className="w-full h-32 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg flex items-center justify-center">
 				<div className="text-gray-500">Loading Card...</div>
 			</div>
 		)
@@ -92,6 +92,6 @@ export const LazyTimesheetPagination = dynamic(
 	() => import('@/core/components/timesheet/timesheet-pagination').then((mod) => ({ default: mod.default })),
 	{
 		ssr: false,
-		loading: () => <div className="w-64 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg" />
+		loading: () => <div className="w-64 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg" />
 	}
 );

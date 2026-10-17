@@ -201,7 +201,7 @@ export const KanbanView = ({
 	return (
 		<div>
 			<ScrollArea
-				className="w-[100vw]  mt-6  relative bg-transparent dark:bg-[#181920] min-h-svh h-svh px-3"
+				className="w-[100vw]  mt-6  relative bg-transparent dark:bg-background min-h-svh h-svh px-3"
 				ref={containerRef}
 			>
 				<DragDropContext onDragEnd={onDragEnd}>

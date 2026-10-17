@@ -156,7 +156,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 					)}
 					optionsClassName="min-w-fit md:max-w-[223px] outline-none"
 					buttonClassName={cn(
-						'py-0 font-medium outline-hidden dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C] cursor-pointer',
+						'h-8 rounded-md border border-border bg-card py-0 text-sm font-medium outline-hidden dark:bg-card cursor-pointer',
 						items.length === 0 && ['py-2'],
 						timerRunningStatus && '!cursor-not-allowed opacity-50'
 					)}

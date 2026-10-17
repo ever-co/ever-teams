@@ -87,7 +87,7 @@ export function TimeActivityExportMenu({
 	startDate,
 	endDate,
 	groupByType = 'daily',
-	buttonClassName = 'w-[100px] border border-[#E4E4E7] dark:border-[#2D2D2D] dark:bg-dark--theme-light py-1 h-9'
+	buttonClassName = 'w-[100px] border border-[#E4E4E7] dark:border-border dark:bg-dark--theme-light py-1 h-9'
 }: TimeActivityExportMenuProps) {
 	const t = useTranslations();
 	const [showProgressModal, setShowProgressModal] = useState(false);

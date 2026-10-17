@@ -39,7 +39,11 @@ const DEFAULT_IMAGE_HOSTS = [
 	'app.ever.team',
 	'apidev.ever.team',
 	'gauzy.s3.wasabisys.com',
-	'gauzystage.s3.wasabisys.com'
+	'gauzystage.s3.wasabisys.com',
+	// Ever's file storage since 2026-07: presigned MinIO objects (avatars, team/project images,
+	// screenshots) are served from cdn.ever.co. Without it the optimizer answers 400 and every
+	// avatar on app.ever.team renders as its alt text.
+	'cdn.ever.co'
 ];
 
 /**

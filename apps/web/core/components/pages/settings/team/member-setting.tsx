@@ -30,32 +30,31 @@ export const MemberSetting = () => {
 	}, [activeTeam, filterString]);
 
 	return (
-		<div className="flex flex-col">
-			<Text className="flex-none grow-0 mt-8 mb-2 w-full text-xl font-normal text-gray-400 md:w-1/5">
-				{t('pages.settingsTeam.MEMBER_AND_ROLES')}
-			</Text>
-			<div className="flex justify-between items-center mt-8 w-full">
-				<div className="w-auto">
-					<InputField
-						type="text"
-						placeholder={t('pages.settingsTeam.SEARCH_MEMBER')}
-						className="mb-0 h-11"
-						leadingNode={
-							<Button variant="ghost" className="p-0 m-0 ml-[0.9rem] min-w-0" type="submit">
-								<SearchNormalIcon className="w-[1rem] dark:stroke-[#ffffff] " />
-							</Button>
-						}
-						onChange={(e: ChangeEvent<HTMLInputElement>) => {
-							setFilterString(e.target.value ? e.target.value.toLowerCase() : '');
-						}}
-					/>
-				</div>
+		<div className="flex flex-col gap-3">
+			<Text className="text-sm font-semibold text-foreground">{t('pages.settingsTeam.MEMBER_AND_ROLES')}</Text>
+			<div className="flex w-full flex-wrap items-center justify-between gap-2">
+				<InputField
+					type="text"
+					placeholder={t('pages.settingsTeam.SEARCH_MEMBER')}
+					className="mb-0 h-9 pl-1"
+					wrapperClassName="mb-0 w-full max-w-xs"
+					leadingNode={
+						<Button
+							variant="ghost"
+							className="ml-1 size-7 min-w-0 shrink-0 rounded-md p-0 text-muted-foreground"
+							type="submit"
+						>
+							<SearchNormalIcon className="size-4" />
+						</Button>
+					}
+					onChange={(e: ChangeEvent<HTMLInputElement>) => {
+						setFilterString(e.target.value ? e.target.value.toLowerCase() : '');
+					}}
+				/>
 			</div>
 
 			{members.length > 0 ? (
-				<div className="mt-7 mb-8">
-					<MemberTable members={members as any} />
-				</div>
+				<MemberTable members={members as any} />
 			) : (
 				<NoData text={t('pages.settingsTeam.NO_MEMBERS')} />
 			)}

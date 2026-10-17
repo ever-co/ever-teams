@@ -2,13 +2,19 @@ import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
 import { Button, Text } from '@/core/components';
 import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
 import { clsxm } from '@/core/lib/utils';
-import { getTextColor } from '@/core/lib/helpers/index';
 import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
 import { svgFetch } from '@/core/services/server/fetch';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 
+const ICON_BUTTON =
+	'size-8 min-w-0 shrink-0 rounded-md p-0 text-muted-foreground hover:bg-muted hover:text-foreground';
+
+/**
+ * A compact chip for a status / priority / size / label / version: the colour as a dot, the icon in
+ * the text colour, the name, and the edit / delete actions.
+ */
 export const StatusesListCard = ({
 	statusId,
 	statusIcon,
@@ -17,7 +23,8 @@ export const StatusesListCard = ({
 	onEdit,
 	onDelete,
 	showDeleteButton = true,
-	isStatus
+	isStatus,
+	className
 }: IClassName<{
 	statusIcon: string;
 	statusTitle: string;
@@ -28,55 +35,60 @@ export const StatusesListCard = ({
 	isStatus?: boolean;
 	statusId?: string;
 }>) => {
-	const textColor = getTextColor(bgColor);
 	const t = useTranslations();
 
 	useEffect(() => {
 		if (statusIcon) {
-			loadSVG(statusIcon, `icon-container-${statusTitle}-${statusId}`, textColor);
+			// The chip is no longer filled with the colour, so the icon follows the text colour.
+			void loadSVG(statusIcon, `icon-container-${statusTitle}-${statusId}`, 'currentColor');
 		}
-	}, [statusIcon, statusTitle, textColor, statusId]);
+	}, [statusIcon, statusTitle, statusId]);
 
 	return (
-		<div className="border w-[21.4rem] flex items-center p-1 rounded-xl justify-between">
-			<div
-				className={clsxm(
-					'rounded-xl',
-					isStatus || statusTitle.length >= CHARACTER_LIMIT_TO_SHOW ? 'w-2/3' : 'w-auto',
-					'flex items-center p-3 gap-x-2 overflow-hidden mr-1'
-				)}
-				style={{ backgroundColor: bgColor === '' ? undefined : bgColor }}
+		<div
+			className={clsxm(
+				'inline-flex h-9 max-w-full items-center gap-2 rounded-md border border-border bg-card pl-2.5 pr-1 text-sm text-foreground',
+				className
+			)}
+		>
+			{bgColor ? (
+				<span
+					aria-hidden="true"
+					className="size-2.5 shrink-0 rounded-full ring-1 ring-inset ring-foreground/10"
+					style={{ backgroundColor: bgColor }}
+				/>
+			) : null}
+			{statusIcon && (
+				<div
+					id={`icon-container-${statusTitle}-${statusId}`}
+					className="flex size-4 shrink-0 items-center justify-center [&>svg]:size-4"
+				></div>
+			)}
+			<Tooltip
+				label={statusTitle}
+				enabled={statusTitle.length >= CHARACTER_LIMIT_TO_SHOW}
+				placement="auto"
+				className="min-w-0"
 			>
-				{statusIcon && <div id={`icon-container-${statusTitle}-${statusId}`}></div>}
-				<Tooltip
-					label={statusTitle}
-					enabled={statusTitle.length >= CHARACTER_LIMIT_TO_SHOW}
-					placement="auto"
-					className={clsxm('overflow-hidden text-ellipsis whitespace-nowrap w-full')}
+				<Text.Label
+					className={clsxm(
+						'ml-0 block truncate font-normal capitalize text-foreground dark:text-foreground',
+						isStatus ? 'max-w-[12rem]' : 'max-w-[10rem]'
+					)}
 				>
-					<Text.Label
-						className={clsxm(
-							'flex-none grow-0 !w-40 max-w-[190px] font-normal',
-							'capitalize overflow-hidden text-ellipsis whitespace-nowrap w-full',
-							bgColor === '' && ['dark:text-[#cdd1d8]'],
-							statusIcon && 'max-w-[135px]'
-						)}
-						style={{ color: bgColor === '' ? undefined : textColor }}
-					>
-						{statusTitle}
-					</Text.Label>
-				</Tooltip>
-			</div>
-			<div className="flex items-center gap-x-[12PX] mr-[4px]">
+					{statusTitle}
+				</Text.Label>
+			</Tooltip>
+			<div className="flex shrink-0 items-center">
 				<Tooltip label={t('common.EDIT')}>
-					<Button variant="ghost" className="p-0 m-0 min-w-0" onClick={onEdit}>
-						<EditPenUnderlineIcon className="w-6 h-6 text-inherit" />
+					<Button variant="ghost" className={ICON_BUTTON} onClick={onEdit}>
+						<EditPenUnderlineIcon className="size-4 text-inherit" />
 					</Button>
 				</Tooltip>
 
 				{showDeleteButton && (
-					<Button variant="ghost" className="p-0 m-0 min-w-0" onClick={onDelete}>
-						<TrashIcon className="h-5 w-5" />
+					<Button variant="ghost" className={ICON_BUTTON} onClick={onDelete}>
+						<TrashIcon className="size-4" />
 					</Button>
 				)}
 			</div>

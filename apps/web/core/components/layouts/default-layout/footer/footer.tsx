@@ -13,7 +13,7 @@ import Link from 'next/link';
 const Footer = () => {
 	const t = useTranslations();
 	return (
-		<footer className="flex flex-col justify-between items-center py-2 text-sm font-light text-center md:flex-row lg:text-base sm:text-start x-container-fluid">
+		<footer className="flex flex-col justify-between items-center py-2 text-xs text-muted-foreground text-center md:flex-row sm:text-start x-container-fluid">
 			<div className="flex flex-col space-x-1 text-center text-light sm:flex-row md:flex-start sm:items-center md:flex-row">
 				<div className="flex justify-between items-center space-x-1 sm:justify-start sm:space-x-2">
 					<span className="px-1">{t('layout.footer.COPY_RIGHT1', { date: new Date().getFullYear() })}</span>

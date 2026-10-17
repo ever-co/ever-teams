@@ -10,6 +10,14 @@ import { RemoveModal } from '@/core/components/settings/remove-modal';
 import { TransferTeamModal } from '@/core/components/features/teams/transfer-team-modal';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
+// Danger-zone row: title + description on the left, an outline danger action on the right.
+const DANGER_ROW =
+	'flex flex-col gap-3 border-t border-border py-4 first:border-t-0 first:pt-0 sm:flex-row sm:items-center sm:justify-between';
+const DANGER_TITLE = 'text-sm font-medium text-foreground';
+const DANGER_DESCRIPTION = 'mt-0.5 text-xs text-muted-foreground';
+const DANGER_BUTTON =
+	'h-9 shrink-0 whitespace-nowrap rounded-md border-destructive/40 bg-transparent px-3 py-0 text-sm font-medium text-destructive hover:bg-destructive/10 disabled:hover:bg-transparent';
+
 export const DangerZoneTeam = () => {
 	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();
@@ -50,95 +58,67 @@ export const DangerZoneTeam = () => {
 
 	return (
 		<>
-			<div className="flex flex-col justify-between items-center">
-				<div className="mt-5 w-full">
-					<div className="">
-						{/* Current User is the Manager of the Team and there are more that 1 Managers */}
-						<div className="flex flex-col gap-6 justify-center items-center w-full sm:justify-between sm:flex-row">
-							<div className="flex-auto md:w-64">
-								<Text className="text-xl font-normal">{t('common.TRANSFERT_OWNERSHIP')}</Text>
-							</div>
-							<div className="flex-auto md:w-64 sm:w-40">
-								<Text className="font-normal text-center text-gray-400 text-md sm:text-left">
-									{t('common.TRANSFERT_OWNERSHIP_TO')}
-								</Text>
-							</div>
-							<div className="flex-auto w-full sm:w-10">
-								<Button
-									variant="danger"
-									type="submit"
-									className="float-right w-full bg-[#DE5536]  text-nowrap whitespace-nowrap min-w-32 px-3.5"
-									onClick={openModal}
-									disabled={!(isTeamManager && activeTeamManagers.length >= 2)}
-								>
-									{t('common.TRANSFER')}
-								</Button>
-							</div>
-						</div>
-
-						{/* Current User is the Only Manager of the Team*/}
-						<div className="flex flex-col gap-6 justify-center items-center mt-5 w-full sm:justify-between sm:flex-row">
-							<div className="flex-auto md:w-64">
-								<Text className="text-xl font-normal text-center sm:text-left">
-									{t('common.REMOVE_TEAM')}
-								</Text>
-							</div>
-							<div className="flex-auto md:w-64 sm:w-40">
-								<Text className="font-normal text-center text-gray-400 text-md sm:text-left">
-									{t('alerts.ALERT_REMOVE_TEAM')}
-								</Text>
-							</div>
-							<div className="flex-auto w-full sm:w-10">
-								<Button
-									variant="danger"
-									type="submit"
-									className="float-right w-full bg-[#DE5536]  text-nowrap whitespace-nowrap min-w-32 px-3.5"
-									onClick={() => {
-										setRemoveModalType('DISPOSE');
-										dangerOpenaModal();
-									}}
-									disabled={!(isTeamManager && activeTeamManagers.length === 1)}
-								>
-									{t('common.DISPOSE_TEAM')}
-								</Button>
-							</div>
-						</div>
-
-						<div className="flex flex-col gap-6 justify-center items-center mt-5 w-full sm:justify-between sm:flex-row">
-							<div className="flex-auto md:w-64">
-								<Text className="text-xl font-normal text-center sm:text-left">
-									{t('common.QUIT_TEAM')}
-								</Text>
-							</div>
-							<div className="flex-auto md:w-64 sm:w-40">
-								<Text className="font-normal text-center text-gray-400 text-md sm:text-left">
-									{t('alerts.ALERT_QUIT_TEAM')}
-								</Text>
-							</div>
-							<div className="flex-auto w-full sm:w-10">
-								<Button
-									variant="danger"
-									type="submit"
-									className="float-right w-full bg-[#DE5536]  text-nowrap whitespace-nowrap min-w-32 px-3.5"
-									onClick={() => {
-										setRemoveModalType('QUIT');
-										dangerOpenaModal();
-									}}
-									disabled={
-										!(
-											(isTeamManager && activeTeamManagers.length > 1) ||
-											(!isTeamManager &&
-												activeTeam?.members?.some(
-													(member) => member.employee?.userId === user?.id
-												))
-										)
-									}
-								>
-									{t('common.QUIT')}
-								</Button>
-							</div>
-						</div>
+			<div className="flex w-full flex-col">
+				{/* Current User is the Manager of the Team and there are more that 1 Managers */}
+				<div className={DANGER_ROW}>
+					<div className="min-w-0">
+						<Text className={DANGER_TITLE}>{t('common.TRANSFERT_OWNERSHIP')}</Text>
+						<Text className={DANGER_DESCRIPTION}>{t('common.TRANSFERT_OWNERSHIP_TO')}</Text>
 					</div>
+					<Button
+						variant="outline-danger"
+						type="submit"
+						className={DANGER_BUTTON}
+						onClick={openModal}
+						disabled={!(isTeamManager && activeTeamManagers.length >= 2)}
+					>
+						{t('common.TRANSFER')}
+					</Button>
+				</div>
+
+				{/* Current User is the Only Manager of the Team*/}
+				<div className={DANGER_ROW}>
+					<div className="min-w-0">
+						<Text className={DANGER_TITLE}>{t('common.REMOVE_TEAM')}</Text>
+						<Text className={DANGER_DESCRIPTION}>{t('alerts.ALERT_REMOVE_TEAM')}</Text>
+					</div>
+					<Button
+						variant="outline-danger"
+						type="submit"
+						className={DANGER_BUTTON}
+						onClick={() => {
+							setRemoveModalType('DISPOSE');
+							dangerOpenaModal();
+						}}
+						disabled={!(isTeamManager && activeTeamManagers.length === 1)}
+					>
+						{t('common.DISPOSE_TEAM')}
+					</Button>
+				</div>
+
+				<div className={DANGER_ROW}>
+					<div className="min-w-0">
+						<Text className={DANGER_TITLE}>{t('common.QUIT_TEAM')}</Text>
+						<Text className={DANGER_DESCRIPTION}>{t('alerts.ALERT_QUIT_TEAM')}</Text>
+					</div>
+					<Button
+						variant="outline-danger"
+						type="submit"
+						className={DANGER_BUTTON}
+						onClick={() => {
+							setRemoveModalType('QUIT');
+							dangerOpenaModal();
+						}}
+						disabled={
+							!(
+								(isTeamManager && activeTeamManagers.length > 1) ||
+								(!isTeamManager &&
+									activeTeam?.members?.some((member) => member.employee?.userId === user?.id))
+							)
+						}
+					>
+						{t('common.QUIT')}
+					</Button>
 				</div>
 			</div>
 

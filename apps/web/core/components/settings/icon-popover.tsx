@@ -39,7 +39,7 @@ const IconPopover = ({
 			{() => (
 				<>
 					<PopoverButton className="w-full outline-none" ref={buttonRef}>
-						<div className="cursor-pointer relative w-[100%] h-[54px] border border-[#00000021] dark:border-[#34353D] rounded-xl flex items-center justify-between bg-white dark:bg-[#1B1D22]">
+						<div className="cursor-pointer relative w-[100%] h-[54px] border border-[#00000021] dark:border-border rounded-xl flex items-center justify-between bg-white dark:bg-card">
 							<div className="flex gap-[8px] h-[40px] items-center pl-[15px] text-gray-900 dark:text-gray-100">
 								<IconItem
 									title={values?.title ? values.title.split('-').join(' ') : 'Icons'}
@@ -67,11 +67,11 @@ const IconPopover = ({
 						leaveTo="opacity-0 translate-y-1"
 					>
 						<PopoverPanel className="absolute left-1/2 z-10 mt-0 w-[375px] max-w-sm -translate-x-1/2 transform  sm:px-0 lg:max-w-3xl shandow ">
-							<div className="bg-white shadow-sm dark:bg-[#1B1D22] rounded-[10px] text-[14px] p-[16px]">
-								<div className="text-[18px] dark:text-gray-300 font-[500] border-b border-[#00000021] dark:border-[#34353D]">
+							<div className="bg-white shadow-sm dark:bg-card rounded-[10px] text-[14px] p-[16px]">
+								<div className="text-[18px] dark:text-gray-300 font-[500] border-b border-[#00000021] dark:border-border">
 									<InputField
 										type="search"
-										wrapperClassName="search-border bg-transparent dark:bg-[#282A30]"
+										wrapperClassName="search-border bg-transparent dark:bg-muted"
 										placeholder="Search Icon"
 										className="px-0 rounded-none dark:text-gray-200"
 										// trailingNode={
@@ -117,7 +117,7 @@ const IconPopover = ({
 													key={index}
 												>
 													<div
-														className="hover:bg-[#F1EDFD] dark:hover:bg-[#282A30] rounded-[10px] h-[48px] w-[48px] hover:cursor-pointer flex items-center justify-center"
+														className="hover:bg-[#F1EDFD] dark:hover:bg-muted rounded-[10px] h-[48px] w-[48px] hover:cursor-pointer flex items-center justify-center"
 														key={index}
 														onClick={() => onSelect(ic)}
 													>

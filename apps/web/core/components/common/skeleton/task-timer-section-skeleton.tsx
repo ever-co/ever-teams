@@ -13,7 +13,7 @@ export function TaskTimerSectionSkeleton({ isTrackingEnabled }: Readonly<{ isTra
 			shadow="bigger"
 			className={clsxm(
 				'w-full flex lg:flex-row gap-4 lg:gap-4 xl:gap-6 max-w-full flex-col-reverse justify-center md:justify-between items-center py-4 mb-2',
-				'border-[#00000008] border-[0.125rem] dark:border-[#26272C] dark:shadow-lg dark:bg-[#1B1D22] md:px-4',
+				'border-[#00000008] border-[0.125rem] dark:border-border dark:shadow-lg dark:bg-card md:px-4',
 				'animate-pulse'
 			)}
 		>
@@ -34,9 +34,9 @@ export function TaskTimerSectionSkeleton({ isTrackingEnabled }: Readonly<{ isTra
 				<div
 					onClick={() => setShowInput((p) => !p)}
 					className={clsxm(
-						'border dark:border-[#26272C] w-full rounded-sm p-2 flex justify-center items-center',
-						'bg-gray-50 dark:bg-gray-800/30',
-						'hover:bg-gray-100 dark:hover:bg-gray-700/30',
+						'border dark:border-border w-full rounded-sm p-2 flex justify-center items-center',
+						'bg-gray-50 dark:bg-white/5',
+						'hover:bg-gray-100 dark:hover:bg-white/8',
 						'transition-all duration-200 ease-in-out cursor-pointer',
 						'active:scale-95'
 					)}
@@ -75,7 +75,7 @@ export function TaskTimerSectionSkeleton({ isTrackingEnabled }: Readonly<{ isTra
 					<div
 						className={clsxm(
 							'w-full h-16 rounded-lg',
-							'bg-gray-100 dark:bg-gray-800/50',
+							'bg-gray-100 dark:bg-white/5',
 							'border border-gray-200 dark:border-gray-700',
 							'animate-pulse',
 							'flex justify-center items-center'

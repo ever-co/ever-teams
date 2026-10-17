@@ -12,7 +12,7 @@ const TaskDetailsAside = () => {
 	return (
 		<section
 			className={clsxm(
-				'border border-solid border-[#00000014] dark:border-[#26272C] dark:bg-dark--theme rounded-xl',
+				'border border-solid border-[#00000014] dark:border-border dark:bg-dark--theme rounded-xl',
 				'flex flex-col'
 			)}
 		>
@@ -27,22 +27,22 @@ const TaskDetailsAside = () => {
 				<TaskMainInfo />
 
 				{/* Divider */}
-				<div className="h-[0.0625rem] bg-[#F2F2F2] dark:bg-[#26272C] w-[95%] mx-auto"></div>
+				<div className="h-[0.0625rem] bg-[#F2F2F2] dark:bg-muted w-[95%] mx-auto"></div>
 
 				<TaskPlans />
 
 				{/* Divider */}
-				<div className="h-[0.0625rem] bg-[#F2F2F2] dark:bg-[#26272C] w-[95%] mx-auto"></div>
+				<div className="h-[0.0625rem] bg-[#F2F2F2] dark:bg-muted w-[95%] mx-auto"></div>
 
 				<TaskSecondaryInfo />
 
 				{/* Divider */}
-				<div className="h-[0.0625rem] bg-[#F2F2F2] dark:bg-[#26272C] w-[95%] mx-auto"></div>
+				<div className="h-[0.0625rem] bg-[#F2F2F2] dark:bg-muted w-[95%] mx-auto"></div>
 
 				<TaskEstimationsInfo />
 
 				{/* Divider */}
-				<div className="h-[0.0625rem] bg-[#F2F2F2] dark:bg-[#26272C] w-[95%] mx-auto"></div>
+				<div className="h-[0.0625rem] bg-[#F2F2F2] dark:bg-muted w-[95%] mx-auto"></div>
 
 				<TaskProgress />
 			</div>

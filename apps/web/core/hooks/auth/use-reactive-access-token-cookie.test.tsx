@@ -80,7 +80,9 @@ describe('useReactiveAccessTokenCookie', () => {
 	it('keeps pageshow and Cookie Store reconciliation active', () => {
 		jest.useFakeTimers();
 		const cookieStore = new EventTarget();
-		const cookieWindow = window as typeof window & { cookieStore?: EventTarget };
+		// Typed through `unknown`: TypeScript 5.9's lib.dom declares `cookieStore` as a required
+		// property, so an intersection with `typeof window` is no longer optional and `delete` is refused.
+		const cookieWindow = window as unknown as { cookieStore?: EventTarget };
 		Object.defineProperty(cookieWindow, 'cookieStore', { configurable: true, value: cookieStore });
 		const view = renderHook(() => useReactiveAccessTokenCookie());
 

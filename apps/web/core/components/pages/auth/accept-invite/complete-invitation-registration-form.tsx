@@ -90,7 +90,7 @@ export function CompleteInvitationRegistrationForm(props: {
 					{t('pages.invite.acceptInvite.COMPLETE_REGISTRATION', { userEmail: invitationData.email })}
 				</p>
 			</div>
-			<EverCard className={cn('w-full  bg-[#ffffff] dark:bg-[#25272D]')} shadow="custom">
+			<EverCard className={cn('w-full  bg-[#ffffff] dark:bg-muted')} shadow="custom">
 				<form className="flex flex-col gap-1 items-center justify-between" onSubmit={handleSubmit}>
 					<div className="w-full flex flex-col items-center gap-8">
 						<Text.Heading as="h3" className="text-center">
@@ -105,8 +105,8 @@ export function CompleteInvitationRegistrationForm(props: {
 								errors={errors}
 								onChange={(e) => setUserDetails({ ...userDetails, fullName: e.target.value })}
 								autoComplete="off"
-								wrapperClassName="dark:bg-[#25272D]"
-								className="dark:bg-[#25272D]"
+								wrapperClassName="dark:bg-muted"
+								className="dark:bg-muted"
 								required
 							/>
 
@@ -114,8 +114,8 @@ export function CompleteInvitationRegistrationForm(props: {
 								type="password"
 								name="password"
 								placeholder={t('form.PASSWORD_PLACEHOLDER')}
-								className="dark:bg-[#25272D]"
-								wrapperClassName="dark:bg-[#25272D]"
+								className="dark:bg-muted"
+								wrapperClassName="dark:bg-muted"
 								value={userDetails.password}
 								errors={errors}
 								onChange={(e) => setUserDetails({ ...userDetails, password: e.target.value })}
@@ -126,8 +126,8 @@ export function CompleteInvitationRegistrationForm(props: {
 								type="password"
 								name="confirmPassword"
 								placeholder={t('form.CONFIRM_PASSWORD_PLACEHOLDER')}
-								className="dark:bg-[#25272D]"
-								wrapperClassName="mb-5 dark:bg-[#25272D]"
+								className="dark:bg-muted"
+								wrapperClassName="mb-5 dark:bg-muted"
 								value={userDetails.confirmPassword}
 								errors={errors}
 								onChange={(e) => {

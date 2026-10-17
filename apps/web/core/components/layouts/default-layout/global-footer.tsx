@@ -16,7 +16,7 @@ const GlobalFooter = forwardRef(({ footerClassName, isFixed = false }: GlobalFoo
 		<div
 			ref={ref as LegacyRef<HTMLDivElement>}
 			className={cn(
-				'bg-white dark:bg-[#1e2025] shrink-0 transition-all duration-300 mt-auto',
+				'bg-background shrink-0 transition-all duration-300 mt-auto',
 				isFixed
 					? `fixed z-50 bottom-0 left-0 right-0 !lg:pl-[${state === 'expanded' ? '--sidebar-width' : '--sidebar-width-icon'}] !lg:pl-[var(${state === 'expanded' ? '--sidebar-width' : '--sidebar-width-icon'})]`
 					: ''

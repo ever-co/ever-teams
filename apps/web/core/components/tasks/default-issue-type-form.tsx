@@ -4,7 +4,6 @@ import { SpinnerLoader, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useIssueTypesQuery } from '@/core/hooks/tasks/use-issue-types-query';
 import { useEditIssueType } from '@/core/hooks/tasks/use-edit-issue-type';
-import { getTextColor } from '@/core/lib/helpers/index';
 import { StatusesListCard } from '../settings/list-card';
 import { EditPenUnderlineIcon } from 'assets/svg';
 import { clsxm } from '@/core/lib/utils';
@@ -18,6 +17,9 @@ import {
 import { Tooltip } from '../duplicated-components/tooltip';
 import { IIssueType } from '@/core/types/interfaces/task/issue-type';
 
+// Settings row: label column on the left, content on the right (see the settings design contract).
+const ROW = 'grid grid-cols-1 gap-2 sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-4';
+const LABEL = 'text-sm font-medium text-muted-foreground sm:pt-2';
 
 export const DefaultIssueTypeForm = () => {
 	const t = useTranslations();
@@ -25,138 +27,124 @@ export const DefaultIssueTypeForm = () => {
 	const { issueTypes } = useIssueTypesQuery();
 	const { editIssueType, editIssueTypeLoading } = useEditIssueType();
 	const defaultIssueType: IIssueType | undefined = issueTypes.find((issue) => issue.isDefault);
-	const textColor = defaultIssueType?.color ? getTextColor(defaultIssueType.color) : '#cdd1d8';
 
 	return (
 		<>
 			<form className="w-full" autoComplete="off">
-				<div className="flex w-full">
-					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] w-full">
-						<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px]">
-							{t('pages.settingsTeam.DEFAULT_ISSUE_TYPE')}
-						</Text>
+				<div className={ROW}>
+					<Text className={LABEL}>{t('pages.settingsTeam.DEFAULT_ISSUE_TYPE')}</Text>
 
-						<div className="flex flex-col w-full">
-							<div className="flex flex-wrap gap-3 w-full">
-								{defaultIssueType ? (
-									<div className="border w-[21.4rem] flex items-center p-1 rounded-xl justify-between">
-										<div
+					<div className="flex min-w-0 flex-col">
+						<div className="flex w-full flex-wrap gap-2">
+							{defaultIssueType ? (
+								<div className="inline-flex h-9 max-w-full items-center gap-2 rounded-md border border-border bg-card pl-2.5 pr-1 text-sm text-foreground">
+									{defaultIssueType.color ? (
+										<span
+											aria-hidden="true"
+											className="size-2.5 shrink-0 rounded-full ring-1 ring-inset ring-foreground/10"
+											style={{ backgroundColor: defaultIssueType.color as string }}
+										/>
+									) : null}
+									{defaultIssueType.icon && (
+										<Image
+											src={defaultIssueType.fullIconUrl as string}
+											alt={defaultIssueType.name}
+											width={16}
+											height={16}
+											decoding="async"
+											data-nimg="1"
+											loading="lazy"
+											className="size-4 shrink-0"
+										/>
+									)}
+									<Tooltip
+										label={defaultIssueType.name as string}
+										// enabled={defaultIssueType.description.length >= CHARACTER_LIMIT_TO_SHOW}
+										placement="auto"
+										className="min-w-0"
+									>
+										<Text.Label
 											className={clsxm(
-												'rounded-xl',
-												'w-2/3',
-												'flex overflow-hidden gap-x-2 items-center p-3 mr-1'
+												'ml-0 block max-w-[10rem] truncate font-normal capitalize text-foreground dark:text-foreground'
 											)}
-											style={{
-												backgroundColor:
-													(defaultIssueType?.color as string) === ''
-														? undefined
-														: (defaultIssueType.color as string)
-											}}
 										>
-											{defaultIssueType.icon && (
-												<Image
-													src={defaultIssueType.fullIconUrl as string}
-													alt={defaultIssueType.name}
-													width={20}
-													height={20}
-													decoding="async"
-													data-nimg="1"
-													loading="lazy"
-													className="min-h-[20px]"
-												/>
-											)}
-											<Tooltip
-												label={defaultIssueType.name as string}
-												// enabled={defaultIssueType.description.length >= CHARACTER_LIMIT_TO_SHOW}
-												placement="auto"
-												className={clsxm(
-													'overflow-hidden w-full whitespace-nowrap text-ellipsis'
-												)}
-											>
-												<Text.Label
-													className={clsxm(
-														'flex-none grow-0 !w-40 max-w-[190px] font-normal',
-														'capitalize overflow-hidden text-ellipsis whitespace-nowrap w-full',
-														defaultIssueType.color === '' && ['dark:text-[#cdd1d8]'],
-														defaultIssueType.icon && 'max-w-[135px]'
-													)}
-													style={{
-														color: defaultIssueType.color === '' ? undefined : textColor
-													}}
-												>
-													{defaultIssueType.name}
-												</Text.Label>
-											</Tooltip>
-										</div>
-										<div className="flex h-10 items-center gap-x-[12PX] mr-[4px]">
-											{editIssueTypeLoading ? (
-												<SpinnerLoader size={25} />
-											) : (
-												<Tooltip label={t('common.EDIT')}>
-													<DropdownMenu>
-														<DropdownMenuTrigger className={'rounded-lg'}>
-															<EditPenUnderlineIcon className="w-6 h-6 text-inherit" />
-														</DropdownMenuTrigger>
-														<DropdownMenuContent className="dark:bg-[#1E2025] bg-white w-10/12 flex flex-col gap-3 p-4 rounded-2xl dark:border-gray-500 border-gray-200 border-[1px] shadow-2xl shadow-black/20">
-															{issueTypes.map((issue, index) => {
-																return (
-																	!issue.isDefault && (
-																		<DropdownMenuItem
-																			onClick={async () => {
-																				await editIssueType(issue.id, {
-																					...issue,
-																					isDefault: true
-																				});
-																				issueTypes.forEach(async (is) => {
-																					issue.id != is.id &&
-																						(await editIssueType(is.id, {
-																							...is,
-																							isDefault: false
-																						}));
-																				});
-																			}}
-																			className={clsxm(
-																				'flex gap-2 p-2 rounded-lg cursor-pointer text-black/70 hover:text-black/70'
-																			)}
-																			style={{ background: issue.color }}
-																			key={index}
-																		>
-																			<Image
-																				src={issue.fullIconUrl as string}
-																				alt={issue.name}
-																				width={10}
-																				height={10}
-																				decoding="async"
-																				data-nimg="1"
-																				loading="lazy"
-																				className="min-h-[20px]"
+											{defaultIssueType.name}
+										</Text.Label>
+									</Tooltip>
+									<div className="flex shrink-0 items-center">
+										{editIssueTypeLoading ? (
+											<SpinnerLoader size={16} className="mx-2" />
+										) : (
+											<Tooltip label={t('common.EDIT')}>
+												<DropdownMenu>
+													<DropdownMenuTrigger className="flex size-8 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-muted hover:text-foreground">
+														<EditPenUnderlineIcon className="size-4 text-inherit" />
+													</DropdownMenuTrigger>
+													<DropdownMenuContent className="min-w-[12rem] rounded-md border border-border bg-card p-1 shadow-lg">
+														{issueTypes.map((issue, index) => {
+															return (
+																!issue.isDefault && (
+																	<DropdownMenuItem
+																		onClick={async () => {
+																			await editIssueType(issue.id, {
+																				...issue,
+																				isDefault: true
+																			});
+																			issueTypes.forEach(async (is) => {
+																				issue.id != is.id &&
+																					(await editIssueType(is.id, {
+																						...is,
+																						isDefault: false
+																					}));
+																			});
+																		}}
+																		className={clsxm(
+																			'flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm text-foreground hover:bg-muted focus:bg-muted'
+																		)}
+																		key={index}
+																	>
+																		{issue.color ? (
+																			<span
+																				aria-hidden="true"
+																				className="size-2.5 shrink-0 rounded-full ring-1 ring-inset ring-foreground/10"
+																				style={{ backgroundColor: issue.color }}
 																			/>
-																			<div>{issue.name}</div>
-																		</DropdownMenuItem>
-																	)
-																);
-															})}
-														</DropdownMenuContent>
-													</DropdownMenu>
-												</Tooltip>
-											)}
-										</div>
+																		) : null}
+																		<Image
+																			src={issue.fullIconUrl as string}
+																			alt={issue.name}
+																			width={16}
+																			height={16}
+																			decoding="async"
+																			data-nimg="1"
+																			loading="lazy"
+																			className="size-4 shrink-0"
+																		/>
+																		<div className="truncate">{issue.name}</div>
+																	</DropdownMenuItem>
+																)
+															);
+														})}
+													</DropdownMenuContent>
+												</DropdownMenu>
+											</Tooltip>
+										)}
 									</div>
-								) : (
-									<StatusesListCard
-										statusTitle={t('pages.settingsTeam.NO_DEFAULT_ISSUE_TYPE')}
-										bgColor={''}
-										statusIcon={''}
-										showDeleteButton={false}
-										onEdit={() => {
-											// await editIssueType(defaultIssueType.id);
-										}}
-										onDelete={() => {
-											console.log('click delete');
-										}}
-									/>
-								)}
-							</div>
+								</div>
+							) : (
+								<StatusesListCard
+									statusTitle={t('pages.settingsTeam.NO_DEFAULT_ISSUE_TYPE')}
+									bgColor={''}
+									statusIcon={''}
+									showDeleteButton={false}
+									onEdit={() => {
+										// await editIssueType(defaultIssueType.id);
+									}}
+									onDelete={() => {
+										console.log('click delete');
+									}}
+								/>
+							)}
 						</div>
 					</div>
 				</div>

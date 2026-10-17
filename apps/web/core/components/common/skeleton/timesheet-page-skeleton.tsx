@@ -26,15 +26,15 @@ export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({ classNam
 						<div className="flex flex-row justify-between items-start">
 							<div className="flex gap-8 justify-center items-center h-10">
 								{/* Back Arrow Skeleton */}
-								<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 
 								{/* Breadcrumb Skeleton */}
 								<div className="flex gap-2 items-center">
-									<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-									<div className="w-1 h-1 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-									<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-									<div className="w-1 h-1 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-									<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+									<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+									<div className="w-1 h-1 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
+									<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+									<div className="w-1 h-1 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
+									<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 								</div>
 							</div>
 						</div>
@@ -42,10 +42,10 @@ export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({ classNam
 						{/* SKELETON: Section 2 - Greeting & Description */}
 						<div className="flex flex-col gap-y-2 justify-start items-start">
 							{/* Greeting Title Skeleton */}
-							<div className="w-64 h-7 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+							<div className="w-64 h-7 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 
 							{/* Description Skeleton */}
-							<div className="w-80 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+							<div className="w-80 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 						</div>
 
 						{/* SKELETON: Section 3 - Statistics Cards */}
@@ -58,13 +58,13 @@ export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({ classNam
 
 									<div className="flex flex-col gap-2">
 										{/* Count Skeleton */}
-										<div className="w-8 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+										<div className="w-8 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 
 										{/* Title Skeleton */}
-										<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+										<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 
 										{/* Description Skeleton */}
-										<div className="w-32 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+										<div className="w-32 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 									</div>
 								</div>
 							</div>
@@ -77,13 +77,13 @@ export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({ classNam
 
 									<div className="flex flex-col gap-2">
 										{/* Hours Skeleton */}
-										<div className="w-16 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+										<div className="w-16 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 
 										{/* Title Skeleton */}
-										<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+										<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 
 										{/* Date Range Skeleton */}
-										<div className="w-40 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+										<div className="w-40 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 									</div>
 								</div>
 							</div>
@@ -96,13 +96,13 @@ export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({ classNam
 
 									<div className="flex flex-col gap-2">
 										{/* Count Skeleton */}
-										<div className="w-8 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+										<div className="w-8 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 
 										{/* Title Skeleton */}
-										<div className="w-28 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+										<div className="w-28 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 
 										{/* Description Skeleton */}
-										<div className="w-36 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+										<div className="w-36 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 									</div>
 								</div>
 							</div>
@@ -114,24 +114,24 @@ export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({ classNam
 							<div className="flex w-full">
 								{/* ListView Toggle Skeleton */}
 								<div className="flex gap-2 items-center px-4 py-2 bg-white rounded-l-lg border border-gray-200 dark:bg-dark--theme-light dark:border-gray-600">
-									<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+									<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 								</div>
 
 								{/* CalendarView Toggle Skeleton */}
 								<div className="flex gap-2 items-center px-4 py-2 bg-white rounded-r-lg border border-l-0 border-gray-200 dark:bg-dark--theme-light dark:border-gray-600">
-									<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-									<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+									<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+									<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 								</div>
 							</div>
 
 							{/* Search Input Skeleton */}
 							<div className="flex items-center !h-[2.2rem] w-[700px] bg-white dark:bg-dark--theme-light gap-x-2 px-2 border border-gray-200 dark:border-gray-700 rounded-xs mb-2">
 								{/* Search Icon Skeleton */}
-								<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 
 								{/* Search Input Skeleton */}
-								<div className="w-full h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-full h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 							</div>
 						</div>
 
@@ -140,16 +140,16 @@ export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({ classNam
 							{/* Filter Controls Row */}
 							<div className="flex gap-4 items-center">
 								{/* Status Filter Skeleton */}
-								<div className="w-32 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
+								<div className="w-32 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
 
 								{/* Date Range Picker Skeleton */}
-								<div className="w-48 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
+								<div className="w-48 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
 
 								{/* Manual Time Button Skeleton */}
-								<div className="w-28 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
+								<div className="w-28 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
 
 								{/* Additional Filter Skeleton */}
-								<div className="w-24 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
+								<div className="w-24 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
 							</div>
 						</div>
 					</Container>
@@ -166,15 +166,15 @@ export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({ classNam
 							<div className="flex justify-between items-center mb-6">
 								{/* Navigation Skeleton */}
 								<div className="flex gap-4 items-center">
-									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-									<div className="w-32 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+									<div className="w-32 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 								</div>
 
 								{/* View Controls Skeleton */}
 								<div className="flex gap-2 items-center">
-									<div className="w-20 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-									<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+									<div className="w-20 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+									<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 								</div>
 							</div>
 
@@ -183,7 +183,7 @@ export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({ classNam
 								{/* Week Headers */}
 								{['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, index) => (
 									<div key={index} className="p-2 text-center">
-										<div className="w-8 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mx-auto" />
+										<div className="w-8 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mx-auto" />
 									</div>
 								))}
 
@@ -194,13 +194,13 @@ export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({ classNam
 										className="p-2 rounded-sm border border-gray-200 aspect-square dark:border-gray-600"
 									>
 										{/* Day Number */}
-										<div className="w-6 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
+										<div className="w-6 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mb-2" />
 
 										{/* Time Entries */}
 										{index % 3 === 0 && (
 											<div className="space-y-1">
-												<div className="w-full h-2 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-												<div className="w-3/4 h-2 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+												<div className="w-full h-2 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+												<div className="w-3/4 h-2 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 											</div>
 										)}
 									</div>
@@ -210,16 +210,16 @@ export const TimesheetPageSkeleton: FC<TimesheetPageSkeletonProps> = ({ classNam
 							{/* Pagination Skeleton */}
 							<div className="flex justify-between items-center mt-6">
 								<div className="flex gap-2 items-center">
-									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-									<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-									<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+									<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+									<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 								</div>
 
 								<div className="flex gap-2 items-center">
-									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 								</div>
 							</div>
 						</div>

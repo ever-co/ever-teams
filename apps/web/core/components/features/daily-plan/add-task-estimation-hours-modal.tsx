@@ -983,7 +983,7 @@ function TaskCard(props: ITaskCardProps) {
 		<EverCard
 			shadow="custom"
 			className={clsx(
-				'lg:flex  items-center gap-2 py-3  md:px-4 hidden min-h-18 w-full h-18 dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative text-xs! cursor-pointer',
+				'lg:flex  items-center gap-2 py-3  md:px-4 hidden min-h-18 w-full h-18 dark:bg-card border-[0.05rem] dark:border-[#FFFFFF0D] relative text-xs! cursor-pointer',
 				isTaskRenderedInTodayPlan && isDefaultTask && 'border-primary-light border-[0.15rem]'
 			)}
 		>

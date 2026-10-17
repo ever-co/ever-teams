@@ -10,9 +10,8 @@ export function EverCard({ children, className, shadow, ...rest }: Props) {
 	return (
 		<div
 			className={clsxm(
-				'bg-light--theme-light',
-				'dark:bg-dark--theme-light',
-				'rounded-[16px] px-3 py-6 md:px-6',
+				'bg-card border border-border',
+				'rounded-xl px-3 py-4 md:px-5',
 				shadow === 'bigger' && ['shadow-lg card dark:shadow-none'],
 				className
 			)}

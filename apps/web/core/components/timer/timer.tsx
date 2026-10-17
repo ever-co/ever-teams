@@ -132,7 +132,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 						>
 							<Text.Heading
 								as="h3"
-								className={`text-4xl w-[200px] lg:text-start tracking-wide font-normal ${
+								className={`text-3xl w-[9.5rem] lg:text-start tabular-nums tracking-tight font-medium ${
 									timerStatus?.running &&
 									timerStatus?.lastLog?.source &&
 									timerStatus?.lastLog?.source !== ETimeLogSource.TEAMS
@@ -260,8 +260,8 @@ export function MinTimerFrame({ className }: IClassName) {
 	return (
 		<div
 			className={clsxm(
-				'input-border rounded-lg py-2 px-4 h-fit dark:bg-[#1B1D22] dark:border-2 border-[#0000001A] dark:border-[#26272C]',
-				'flex items-center md:space-x-4 space-x-1',
+				'h-9 rounded-md border border-border bg-card px-3',
+				'flex items-center gap-2 md:gap-3',
 				className
 			)}
 		>
@@ -276,7 +276,7 @@ export function MinTimerFrame({ className }: IClassName) {
 				leaveTo="opacity-0"
 				key={timerStatus?.running ? 'running' : 'stopped'}
 			>
-				<Text className="text-lg tracking-wide font-normal w-[110px]">
+				<Text className="w-[84px] text-sm font-medium tabular-nums">
 					{timerStatus?.running
 						? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
 						: `${pad(todayHours)}:${pad(todayMinutes)}:${pad(todaySeconds)}`}
