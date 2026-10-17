@@ -343,6 +343,7 @@ html.dark {
 
 	.custom-scrollbar::-webkit-scrollbar-thumb {
 		border-radius: 3px;
+
 		@apply bg-slate-400/40 dark:bg-neutral-500/40;
 	}
 
@@ -467,6 +468,7 @@ html.dark {
 
 		.no-scrollbar::-webkit-scrollbar-thumb {
 			border-radius: 3px;
+
 			@apply bg-slate-400/40 dark:bg-neutral-500/40;
 		}
 
