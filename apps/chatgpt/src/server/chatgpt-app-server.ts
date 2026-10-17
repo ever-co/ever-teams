@@ -306,7 +306,7 @@ export class ChatGPTAppServer {
 				}
 			} else if (method === 'initialize') {
 				// Initialize MCP connection
-				mcpResponse = await this.mcpProxy.initialize(params.clientInfo);
+				mcpResponse = await this.mcpProxy.initialize(params?.clientInfo, authToken);
 			} else if (method === 'prompts/list') {
 				// List prompts
 				mcpResponse = await this.mcpProxy.listPrompts(authToken);
