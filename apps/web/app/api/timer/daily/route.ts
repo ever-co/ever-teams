@@ -2,6 +2,12 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { getEmployeeDailyRequest } from '@/core/services/server/requests/timer/daily';
 import { NextResponse } from 'next/server';
 
+function toDate(value: string | null): Date | undefined {
+	if (!value) return undefined;
+	const date = new Date(value);
+	return Number.isNaN(date.getTime()) ? undefined : date;
+}
+
 export async function GET(req: Request) {
 	const res = new NextResponse();
 	const { $res, user, tenantId, organizationId, access_token } = await authenticatedGuard(req, res);
@@ -9,19 +15,19 @@ export async function GET(req: Request) {
 
 	const { searchParams } = new URL(req.url);
 
-	const { endDate, startDate, type } = searchParams as unknown as {
-		startDate: Date;
-		endDate: Date;
-		type: string;
-	};
+	const startDate = toDate(searchParams.get('startDate'));
+	const endDate = toDate(searchParams.get('endDate'));
+	const type = searchParams.get('types[0]') || searchParams.get('type') || undefined;
+	const title = searchParams.get('title[0]') || undefined;
 
 	const { data } = await getEmployeeDailyRequest({
 		tenantId,
 		organizationId,
-		employeeId: user.employee?.id || '',
+		employeeId: searchParams.get('employeeIds[0]') || user.employee?.id || '',
 		todayEnd: endDate,
 		todayStart: startDate,
 		type,
+		title,
 		bearer_token: access_token,
 		activityLevel: { start: 0, end: 100 }
 	});
