@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { TENANT_ID_COOKIE_NAME } from '@/core/constants/config/constants';
 import { readInstallSource } from '@/core/lib/ever-platform/stats-config';
-import { requestAccessToken, requestCookies } from '../request-cookies';
+import { requestAccessToken, requestCookies as readRequestCookies } from '../request-cookies';
 
 /**
  * Shared pieces of the /api/ever-stats and /api/ever-connect route handlers: the signed-in person's
@@ -16,7 +16,10 @@ export interface RouteSession {
 	readonly tenantId: string | null;
 }
 
-export { requestCookies };
+/** The cookies of a request, read from its `Cookie` header (synchronously, as the handlers need them). */
+export function requestCookies(req: Request): Map<string, string> {
+	return readRequestCookies(req);
+}
 
 /** The person's own token and tenant, or `null` when nobody is signed in. */
 export function routeSession(req: Request): RouteSession | null {
