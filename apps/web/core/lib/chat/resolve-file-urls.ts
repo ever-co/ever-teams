@@ -200,10 +200,16 @@ export async function resolveFileUrls<T>(messages: T, signal?: AbortSignal): Pro
 	}
 	if (urls.size === 0) return { ok: true, messages };
 
+	// A file that cannot be had ends the other downloads too, instead of leaving them to finish for nothing.
+	const failed = new AbortController();
+	const downloadSignal = signal ? AbortSignal.any([signal, failed.signal]) : failed.signal;
 	let files: Map<string, Uint8Array>;
 	try {
-		files = new Map(await Promise.all([...urls].map(async (url) => [url, await download(url, signal)] as const)));
+		files = new Map(
+			await Promise.all([...urls].map(async (url) => [url, await download(url, downloadSignal)] as const))
+		);
 	} catch (error) {
+		failed.abort();
 		if (error instanceof FileDownloadError) return { ok: false, status: error.status, error: error.message };
 		if ((error as { code?: unknown } | null)?.code === 'ERR_ADDRESS_NOT_PUBLIC') {
 			return { ok: false, status: 400, error: NOT_PUBLIC };
