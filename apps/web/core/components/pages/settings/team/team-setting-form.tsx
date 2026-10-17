@@ -19,6 +19,8 @@ import { toast } from 'sonner';
 import { TOrganizationTeam, TOrganizationTeamUpdate } from '@/core/types/schemas';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { LoaderCircle } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/core/query/keys';
 
 // Settings row: label column on the left, control on the right (see the settings design contract).
 const ROW =
@@ -36,6 +38,7 @@ export const TeamSettingForm = () => {
 	const { data: user } = useUserQuery();
 	const { register, setValue, handleSubmit, getValues, trigger } = useForm();
 	const t = useTranslations();
+	const queryClient = useQueryClient();
 
 	const [activeTeam, setActiveTeam] = useAtom(activeTeamState);
 	const setTeams = useSetAtom(organizationTeamsState);
@@ -262,12 +265,15 @@ export const TeamSettingForm = () => {
 				toast.success(t('pages.settingsTeam.TEAM_TYPE_UPDATED'));
 			} catch (error) {
 				console.error('Team type update failed:', error);
-				// Put the radio back on the saved value, the sync effect skips it since activeTeam did not change
-				setValue('teamType', activeTeam?.public ? 'PUBLIC' : 'PRIVATE');
+				// Put the radio back on the last synced value of the team on screen, which can differ from the
+				// one this request targeted if the active team switched. Then refetch: the PUT may have landed
+				// even though the read that follows it failed.
+				setValue('teamType', formDetails.current.teamType);
+				queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
 				toast.error(t('pages.settingsTeam.TEAM_TYPE_UPDATE_FAILED'));
 			}
 		},
-		[editOrganizationTeam, activeTeam?.id, activeTeam?.public, setValue, t]
+		[editOrganizationTeam, activeTeam?.id, setValue, queryClient, t]
 	);
 
 	return (
