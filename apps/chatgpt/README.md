@@ -270,6 +270,14 @@ Stack (Logtail), see Monitoring below. The image sets
 `NODE_ENV=production`, `CHATGPT_APP_HOST=0.0.0.0` and `CHATGPT_APP_PORT=3004`;
 `SESSION_SECRET` is required in production.
 
+`POST /mcp` allows 60 requests per minute per caller address. Behind a reverse
+proxy (an ingress, nginx, ngrok), set `TRUST_PROXY` to Express's
+[`trust proxy`](https://expressjs.com/en/guide/behind-proxies.html) value, for
+example `1` for a single proxy hop, so each caller is counted on its own
+address instead of all sharing the proxy's. `CHATGPT_MCP_RATE_LIMIT` changes
+the per-minute limit. Both are optional: when unset, no proxy is trusted and
+the limit stays at 60.
+
 ```bash
 # Build Docker image (from the repository root)
 docker build -f apps/chatgpt/Dockerfile -t ever-teams-chatgpt-app .

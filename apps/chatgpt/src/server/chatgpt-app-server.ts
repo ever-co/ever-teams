@@ -33,6 +33,10 @@ export class ChatGPTAppServer {
 	constructor(config: AppConfig) {
 		this.config = config;
 		this.app = express();
+		// Behind a reverse proxy, req.ip (the /mcp rate limit key) is the proxy's address unless Express trusts it
+		if (config.trustProxy !== undefined) {
+			this.app.set('trust proxy', config.trustProxy);
+		}
 		this.mcpProxy = new McpProxy(config.mcpServerUrl);
 		this.componentResources = new ComponentResourcesHandler();
 
@@ -162,7 +166,11 @@ export class ChatGPTAppServer {
 		this.app.get('/.well-known/oauth-authorization-server', this.handleOAuthDiscovery.bind(this));
 
 		// MCP endpoint (main proxy endpoint) - rate limited to mitigate abuse
-		this.app.post('/mcp', this.createRateLimiter(), this.handleMcpRequest.bind(this));
+		this.app.post(
+			'/mcp',
+			this.createRateLimiter({ max: this.config.mcpRateLimit }),
+			this.handleMcpRequest.bind(this)
+		);
 
 		// OAuth callback endpoint
 		this.app.get('/oauth2/callback', this.handleOAuthCallback.bind(this));
