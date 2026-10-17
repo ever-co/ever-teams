@@ -17,32 +17,28 @@ import { KeyboardShortcuts } from '../../common/keyboard-shortcuts';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 
 // Import optimized components from centralized location
-import {
-	LazyMinTimerFrame,
-	LazyCollaborate,
-	LazyUserNavAvatar
-} from '@/core/components/optimized-components/dashboard';
+import { LazyMinTimerFrame, LazyCollaborate } from '@/core/components/optimized-components/dashboard';
 import { LazyRequestToJoinModal, LazyTeamsDropDown } from '@/core/components/optimized-components/teams';
+import { LazySidebarCommandModal } from '@/core/components/optimized-components/common';
 
 // Import skeletons
 import { TeamsDropDownSkeleton } from '@/core/components/common/skeleton/teams-dropdown-skeleton';
 import { CollaborateSkeleton } from '@/core/components/common/skeleton/collaborate-skeleton';
-import { UserNavAvatarSkeleton } from '@/core/components/common/skeleton/user-nav-avatar-skeleton';
 import { TimerSkeleton } from '@/core/components/common/skeleton/timer-skeleton';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 const HeaderSkeleton = () => {
 	return (
-		<nav className="bg-white dark:bg-dark-high w-full nav-items--shadow fixed z-[999]">
+		<nav className="w-full bg-background">
 			<Container>
-				<div className="w-full flex justify-between items-center min-h-[70px]">
-					<Skeleton height={45} width={200} borderRadius={20} className="dark:bg-[#272930]" />
+				<div className="flex h-16 w-full items-center justify-between">
+					<Skeleton height={32} width={120} borderRadius={6} className="dark:bg-muted" />
 					<div className="flex items-center space-x-5">
 						<div className="hidden sm:block">
-							<Skeleton height={45} width={175} borderRadius={20} className="dark:bg-[#272930]" />
+							<Skeleton height={32} width={160} borderRadius={6} className="dark:bg-muted" />
 						</div>
 
-						<Skeleton circle={true} height={45} width={45} className="dark:bg-[#272930]" />
+						<Skeleton height={32} width={180} borderRadius={6} className="dark:bg-muted" />
 					</div>
 				</div>
 			</Container>
@@ -83,9 +79,9 @@ export function Navbar({
 			<DefaultCreateAction publicTeam={publicTeam} />
 
 			{!notFound && (
-				<div className="flex ml-auto items-center gap-8 min-h-[90px]">
+				<div className="ml-auto flex items-center gap-3">
 					{publicTeam && (
-						<Button className="py-3.5 px-4 gap-3 rounded-xl outline-none" onClick={openModal}>
+						<Button className="h-8 gap-2 rounded-md px-3 py-0 text-xs outline-none" onClick={openModal}>
 							{t('common.JOIN_REQUEST')}
 						</Button>
 					)}
@@ -95,7 +91,14 @@ export function Navbar({
 						</Suspense>
 					)}
 
-					<div className="items-center hidden gap-3.5 md:flex">
+					<div className="hidden items-center gap-2 md:flex">
+						{/* The command palette trigger lives here, left of Collaborate, as Ever Works keeps
+						    its search in the top bar; the palette itself is unchanged. */}
+						{!publicTeam && (
+							<Suspense fallback={<div className="h-8 w-52 animate-pulse rounded-md bg-muted" />}>
+								<LazySidebarCommandModal publicTeam={publicTeam || false} variant="header" />
+							</Suspense>
+						)}
 						{!publicTeam && (
 							<Suspense fallback={<CollaborateSkeleton />}>
 								<LazyCollaborate />
@@ -110,11 +113,6 @@ export function Navbar({
 
 						<KeyboardShortcuts />
 					</div>
-					{!publicTeam && (
-						<Suspense fallback={<UserNavAvatarSkeleton />}>
-							<LazyUserNavAvatar />
-						</Suspense>
-					)}
 				</div>
 			)}
 			{isOpen && (

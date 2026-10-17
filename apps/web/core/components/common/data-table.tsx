@@ -129,7 +129,7 @@ function DataTable<TData, TValue>({
 											width: index === 4 ? '2rem' : '13rem'
 										}}
 										className={clsxm(
-											'my-4 border-r border-b border-[#00000008] border-[0.125rem] dark:border-[#26272C]'
+											'my-4 border-r border-b border-[#00000008] border-[0.125rem] dark:border-border'
 										)}
 									>
 										{flexRender(cell.column.columnDef.cell, cell.getContext()) as React.ReactNode}
@@ -142,7 +142,7 @@ function DataTable<TData, TValue>({
 									key={row.id}
 									data-state={row.getIsSelected() && 'selected'}
 									className={clsxm(
-										'my-4 hover:bg-[#00000008] dark:hover:bg-[#26272C]/40',
+										'my-4 hover:bg-[#00000008] dark:hover:bg-muted/40',
 										i == 1 && 'max-w-[615px]'
 									)}
 								>
@@ -159,7 +159,7 @@ function DataTable<TData, TValue>({
 					)}
 				</TableBody>
 				{footerRows && footerRows?.length > 0 && (
-					<TableFooter className="bg-gray-50 dark:bg-gray-800">
+					<TableFooter className="bg-gray-50 dark:bg-muted">
 						{footerRows.map((row, index) => (
 							<TableRow key={`footer-row-${index}}`}>{row}</TableRow>
 						))}

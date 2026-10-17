@@ -53,15 +53,14 @@ export const ProfileAvatar = () => {
 			<div className="flex flex-col items-center justify-between">
 				<div className="w-full">
 					<div className="">
-						<div className="flex items-center justify-center w-full gap-8 sm:justify-between">
+						<div className="flex w-full items-center gap-4 pb-4">
 							<div className="relative">
 								<div
 									className={clsxm(
-										'w-[80px] h-[80px]',
+										'size-16',
 										'flex justify-center items-center',
 										'rounded-full text-xs text-default dark:text-white',
-										'shadow-md text-4xl font-normal',
-										'mt-8'
+										'text-2xl font-medium'
 									)}
 									style={{
 										backgroundColor: `${stc(user?.name || '')}80`
@@ -69,7 +68,7 @@ export const ProfileAvatar = () => {
 								>
 									{user?.imageId ? (
 										<Avatar
-											size={80}
+											size={64}
 											className="relative cursor-pointer"
 											imageUrl={user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl}
 											alt={t('common.USER_AVATAR')}
@@ -82,7 +81,7 @@ export const ProfileAvatar = () => {
 								</div>
 
 								<span
-									className="absolute top-[30px] right-[-4px] bg-[#282048] w-[27px] h-[27px] rounded-full flex justify-center items-center border-[3px] border-[#F7F7F8] cursor-pointer p-1"
+									className="absolute -bottom-0.5 -right-0.5 flex size-6 cursor-pointer items-center justify-center rounded-full border-2 border-card bg-foreground p-1 text-background"
 									onClick={() => changeAvatarState()}
 								>
 									<Image
@@ -94,9 +93,9 @@ export const ProfileAvatar = () => {
 								</span>
 							</div>
 							{avatarBtn ? (
-								<div className="flex items-center w-full gap-3">
-									<div className="mt-6">
-										<label className="flex flex-row items-center justify-center py-3 px-4 gap-3 rounded-xl min-w-[140px] text-primary border-2 border-primary font-medium dark:text-primary-light dark:border-primary-light disabled:opacity-40 cursor-pointer">
+								<div className="flex items-center gap-2">
+									<div>
+										<label className="inline-flex h-9 cursor-pointer items-center justify-center rounded-md border border-border bg-card px-3 text-sm font-medium text-foreground hover:bg-muted">
 											<span>{t('form.CHANGE_AVATAR')}</span>
 											<input
 												type="file"
@@ -106,8 +105,8 @@ export const ProfileAvatar = () => {
 											/>
 										</label>
 									</div>
-									<div className="mt-6">
-										<Button variant="grey" onClick={() => onDeleteAvatar()} className="rounded-xl">
+									<div>
+										<Button variant="grey" onClick={() => onDeleteAvatar()} className="h-9 rounded-md px-3 py-0 text-sm font-medium">
 											{t('common.DELETE')}
 										</Button>
 									</div>

@@ -32,7 +32,7 @@ export const ProductivityEmployeeTableSkeleton: FC<ProductivityEmployeeTableSkel
 							{/* Employee Header Row */}
 							<TableRow
 								key={`employee-header-${employeeIndex}`}
-								className="bg-gray-50/50 dark:bg-gray-800"
+								className="bg-gray-50/50 dark:bg-muted"
 							>
 								<TableCell colSpan={5} className="py-3">
 									<div className="flex gap-3 items-center">

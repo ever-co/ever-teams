@@ -109,30 +109,30 @@ export function UserTeamBlockHeader() {
 		<>
 			<div
 				ref={profile.loadTaskStatsIObserverRef}
-				className="hidden sm:flex dark:bg-dark-high font-normal pt-4 justify-between dark:text-[#7B8089]"
+				className="hidden items-center justify-between gap-3 pt-2 font-normal sm:flex"
 			>
-				<div className="flex items-center w-9/12">
+				<div className="flex min-w-0 flex-1 items-center overflow-x-auto">
 					{statusButtons(t, membersStatusNumber, totalMembersCount).map((button) => (
 						<div
 							key={button.status}
 							className={clsxm(
-								'w-1/6 text-center flex items-center justify-center gap-2 py-4 cursor-pointer text-sm border-b-4 border-transparent',
+								'flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap border-b-2 border-transparent px-3 py-2.5 text-sm text-muted-foreground',
 								activeFilter === button.status &&
-									'border-primary dark:border-white text-primary dark:text-white'
+									'border-primary text-foreground dark:border-white'
 							)}
 							onClick={() => setActiveFilter(button.status)}
 						>
 							<button.icon
 								className={clsxm(
-									'w-7 h-7 p-1 !text-gray-300 dark:!text-white',
-									activeFilter === button.status && 'text-primary dark:text-white'
+									'size-4 !text-muted-foreground',
+									activeFilter === button.status && '!text-foreground'
 								)}
 							/>
 							<p>{button.label}</p>
 							<span
 								className={clsxm(
-									'bg-gray-500/40 p-1 px-2 text-xs rounded-md',
-									activeFilter === button.status && 'bg-primary dark:bg-[#47484D] text-white'
+									'rounded-md bg-muted px-1.5 py-0.5 text-xs',
+									activeFilter === button.status && 'bg-primary text-white dark:bg-muted'
 								)}
 							>
 								{button.count}
@@ -141,7 +141,7 @@ export function UserTeamBlockHeader() {
 					))}
 				</div>
 
-				<div className="flex items-center justify-end w-3/12 gap-2 pr-4">
+				<div className="flex shrink-0 items-center justify-end gap-2 pr-1">
 					{hook.filterType === 'search' ? (
 						<TaskNameFilter
 							fullWidth={true}
@@ -152,7 +152,7 @@ export function UserTeamBlockHeader() {
 							}}
 						/>
 					) : (
-						<div className="flex gap-6">
+						<div className="flex items-center gap-3">
 							<button
 								ref={hook.outclickFilterCard.ignoreElementRef}
 								className={clsxm('outline-none')}
@@ -163,7 +163,7 @@ export function UserTeamBlockHeader() {
 
 							<VerticalSeparator />
 
-							<Button className="py-3.5 px-4 gap-3 rounded-xl outline-hidden w-44" onClick={openModal}>
+							<Button className="h-9 rounded-md px-4 py-0 text-sm font-medium outline-hidden" onClick={openModal}>
 								Invite
 							</Button>
 						</div>

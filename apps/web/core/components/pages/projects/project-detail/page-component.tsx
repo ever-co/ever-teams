@@ -190,7 +190,7 @@ export default function ProjectDetailPageComponent() {
 					<div className="flex items-center w-full">
 						<button
 							onClick={handleBack}
-							className="p-1 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+							className="p-1 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-muted"
 						>
 							<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 						</button>
@@ -299,7 +299,7 @@ function ProjectDetailContent({
 							{/* Actions Dropdown - Only for Admins or Project Managers */}
 							{(hasAnyPermission || isArchived) && (
 								<Menu as="div" className="relative shrink-0">
-									<Menu.Button className="flex items-center justify-center w-10 h-10 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+									<Menu.Button className="flex items-center justify-center w-10 h-10 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-muted">
 										<MoreVertical size={20} className="text-gray-500" />
 									</Menu.Button>
 									<Transition
@@ -399,7 +399,7 @@ function ProjectDetailContent({
 						{/* Quick Info Row */}
 						<div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
 							{project.code && (
-								<span className="font-mono bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded text-xs">
+								<span className="font-mono bg-gray-100 dark:bg-muted px-2 py-0.5 rounded text-xs">
 									{project.code}
 								</span>
 							)}
@@ -435,7 +435,7 @@ function ProjectDetailContent({
 						{/* Description preview */}
 						{project.description && (
 							<div
-								className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-gray-700 [&_code]:px-1 [&_code]:rounded [&_p]:inline [&_p:not(:last-child)]:after:content-['_·_']"
+								className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-muted [&_code]:px-1 [&_code]:rounded [&_p]:inline [&_p:not(:last-child)]:after:content-['_·_']"
 								dangerouslySetInnerHTML={{ __html: sanitizeHtml(project.description) }}
 							/>
 						)}
@@ -478,7 +478,7 @@ function ProjectDetailContent({
 				{project.description && (
 					<Section title={t('common.DESCRIPTION')}>
 						<div
-							className="p-4 text-sm leading-relaxed text-gray-700 whitespace-pre-wrap rounded-lg bg-gray-50 dark:bg-dark--theme dark:text-gray-300 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-gray-700 [&_code]:px-1 [&_code]:rounded [&_p]:mb-1 [&_p:last-child]:mb-0"
+							className="p-4 text-sm leading-relaxed text-gray-700 whitespace-pre-wrap rounded-lg bg-gray-50 dark:bg-dark--theme dark:text-gray-300 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-muted [&_code]:px-1 [&_code]:rounded [&_p]:mb-1 [&_p:last-child]:mb-0"
 							dangerouslySetInnerHTML={{ __html: sanitizeHtml(project.description) }}
 						/>
 					</Section>
@@ -585,7 +585,7 @@ function ProjectDetailContent({
 								{teams.map((team) => (
 									<span
 										key={team.id}
-										className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg bg-gray-100 dark:bg-gray-800"
+										className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg bg-gray-100 dark:bg-muted"
 									>
 										{team.image?.thumbUrl ? (
 											<Image

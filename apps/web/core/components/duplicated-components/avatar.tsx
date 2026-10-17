@@ -31,7 +31,9 @@ export function Avatar({
 	const [avatar, setAvatar] = useAtom(avatarState);
 
 	const imagePathName =
-		imageUrl && isValidUrl(imageUrl) ? `${new URL(imageUrl).host}${new URL(imageUrl).pathname}` : '';
+		// The whole URL, query string included: storage URLs are presigned, so two URLs for one
+		// object differ only by signature, and the first one seen would be reused after it expired.
+		imageUrl && isValidUrl(imageUrl) ? new URL(imageUrl).href : '';
 
 	const avatarPresent = hasOwn(avatar, imagePathName);
 

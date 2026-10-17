@@ -15,7 +15,7 @@ const InviteCard = () => {
 		setIsOpen(true);
 	};
 	return (
-		<div className="w-full rounded-[15px] bg-[#FFFFFF] my-[15px] dark:bg-[#202023] flex justify-between text-primary border border-white dark:border-[#202023] hover:border-primary dark:hover:border-gray-100  font-bold py-[24px] dark:text-[#FFFFFF]">
+		<div className="my-3 flex w-full items-center justify-between rounded-xl border border-dashed border-border bg-card py-3 text-primary hover:border-primary dark:text-foreground">
 			<div className="w-[60px]  flex justify-center items-center">
 				<div className="rounded-[50%] w-5 h-5 bg-[#E8EBF8]"></div>
 			</div>
@@ -23,7 +23,7 @@ const InviteCard = () => {
 				<div className="flex items-center justify-center">
 					<button
 						onClick={openModal}
-						className="text-center bg-primary dark:bg-white dark:text-black w-[105px] text-[#FFFFFF] h-[35px] rounded-[8px]"
+						className="h-9 rounded-md bg-primary px-4 text-center text-sm font-medium text-white hover:bg-primary/90"
 					>
 						{t('common.INVITE')}
 					</button>
@@ -37,7 +37,7 @@ const InviteCard = () => {
 			<Separator />
 			<div className="w-[245px]  flex justify-center items-center">
 				<div>
-					<div className="bg-[#E8EBF8] dark:bg-[#18181B] w-[245px] h-[8px] rounded-full text-center" />
+					<div className="bg-[#E8EBF8] dark:bg-background w-[245px] h-[8px] rounded-full text-center" />
 					<div className="text-center text-[14px] text-[#9490A0] py-1 font-light"></div>
 				</div>
 			</div>

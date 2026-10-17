@@ -131,7 +131,7 @@ const InviteModal = ({ isOpen, closeModal }: IInviteProps) => {
 							leaveFrom="opacity-100 scale-100"
 							leaveTo="opacity-0 scale-95"
 						>
-							<DialogPanel className="w-full px-[70px] py-[46px] max-w-md transform overflow-hidden rounded-[40px] bg-white dark:bg-[#18181B] text-left align-middle shadow-xl transition-all">
+							<DialogPanel className="w-full px-[70px] py-[46px] max-w-md transform overflow-hidden rounded-[40px] bg-white dark:bg-background text-left align-middle shadow-xl transition-all">
 								<div className="flex justify-center items-center w-full">
 									<UserOutlineIcon className="w-6" />
 								</div>

@@ -65,16 +65,16 @@ export const TeamMemberSection = () => {
 							>
 								<div className="flex justify-between items-center">
 									<div className="flex items-center space-x-3">
-										<div className="w-5 h-5 mr-8 rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
-										<div className="w-14 h-14 rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
+										<div className="w-5 h-5 mr-8 rounded-[50%] bg-gray-200 dark:bg-muted"></div>
+										<div className="w-14 h-14 rounded-[50%] bg-gray-200 dark:bg-muted"></div>
 										<div>
-											<div className="mb-2 w-32 h-3 bg-gray-200 rounded-full dark:bg-gray-700"></div>
+											<div className="mb-2 w-32 h-3 bg-gray-200 rounded-full dark:bg-muted"></div>
 										</div>
 									</div>
 									<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24" />
 									<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24" />
 									<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24" />
-									<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-700 w-24" />
+									<div className="h-2.5 bg-gray-300 rounded-full dark:bg-muted w-24" />
 								</div>
 							</li>
 						);
@@ -87,8 +87,8 @@ export const TeamMemberSection = () => {
 					>
 						<div className="flex justify-between items-center">
 							<div className="flex items-center space-x-3">
-								<div className="w-5 h-5 mr-8 rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
-								<div className="w-24 h-9 bg-gray-200 rounded-xl dark:bg-gray-700"></div>
+								<div className="w-5 h-5 mr-8 rounded-[50%] bg-gray-200 dark:bg-muted"></div>
+								<div className="w-24 h-9 bg-gray-200 rounded-xl dark:bg-muted"></div>
 							</div>
 						</div>
 					</li>

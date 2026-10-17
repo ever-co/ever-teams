@@ -49,7 +49,7 @@ export const LazyEpicPropertiesDropdown = dynamic(
 		ssr: false,
 		loading: () => (
 			<div className="min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full">
-				<div className="w-24 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+				<div className="w-24 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 			</div>
 		)
 	}
@@ -59,7 +59,7 @@ export const LazyStatusDropdown = dynamic(
 	() => import('@/core/components/tasks/task-status').then((mod) => mod.StatusDropdown),
 	{
 		ssr: false,
-		loading: () => <div className="w-20 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+		loading: () => <div className="w-20 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 	}
 );
 
@@ -69,7 +69,7 @@ export const LazyTaskLabelsDropdown = dynamic(
 		ssr: false,
 		loading: () => (
 			<div className="relative min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl text-gray-900 dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full">
-				<div className="w-20 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+				<div className="w-20 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 			</div>
 		)
 	}
@@ -81,7 +81,7 @@ export const LazyTaskPropertiesDropdown = dynamic(
 		ssr: false,
 		loading: () => (
 			<div className="min-w-fit lg:mt-0 input-border rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light flex flex-col justify-center">
-				<div className="w-24 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mx-2" />
+				<div className="w-24 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mx-2" />
 			</div>
 		)
 	}
@@ -93,7 +93,7 @@ export const LazyTaskSizesDropdown = dynamic(
 		ssr: false,
 		loading: () => (
 			<div className="relative min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full">
-				<div className="w-20 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+				<div className="w-20 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 			</div>
 		)
 	}
@@ -167,19 +167,19 @@ export const LazyTaskAllStatusTypes = dynamic(
 	() => import('../tasks/task-all-status-type').then((mod) => ({ default: mod.TaskAllStatusTypes })),
 	{
 		ssr: false,
-		loading: () => <div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+		loading: () => <div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 	}
 );
 
 export const LazyTaskInput = dynamic(() => import('../tasks/task-input').then((mod) => ({ default: mod.TaskInput })), {
 	ssr: false,
-	loading: () => <div className="w-full h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+	loading: () => <div className="w-full h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 });
 
 export const LazyTaskIssueStatus = dynamic(
 	() => import('../tasks/task-issue').then((mod) => ({ default: mod.TaskIssueStatus })),
 	{
 		ssr: false,
-		loading: () => <div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+		loading: () => <div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 	}
 );

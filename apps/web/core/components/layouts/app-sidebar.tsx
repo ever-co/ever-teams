@@ -7,8 +7,11 @@ import {
 	AudioWaveform,
 	GalleryVerticalEnd,
 	FolderKanban,
-	LoaderCircle
+	LoaderCircle,
+	Bot
 } from 'lucide-react';
+import { useAtom } from 'jotai';
+import { chatPanelOpenAtom } from '@/core/components/features/chat-panel/atoms/chat-panel-open.atom';
 import Image from 'next/image';
 
 import {
@@ -23,18 +26,20 @@ import {
 	SidebarSeparator
 } from '@/core/components/common/sidebar';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { cn } from '@/core/lib/helpers';
-import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
+import { isValidProjectForDisplay, projectBelongsToTeam } from '@/core/lib/helpers/type-guards';
 import { useModal } from '@/core/hooks';
 import { useDeleteFavorite } from '@/core/hooks/favorites/use-delete-favorite';
 import { useTranslations } from 'next-intl';
 import { SidebarOptInForm } from './sidebar-opt-in-form';
+import { LazyUserNavAvatar } from '@/core/components/optimized-components/dashboard';
+import { UserNavAvatarSkeleton } from '@/core/components/common/skeleton/user-nav-avatar-skeleton';
 import { useMemo } from 'react';
 import { DashboardIcon, FavoriteIcon, HomeIcon, InboxIcon, SidebarTaskIcon } from '../icons';
 import { TaskIssueStatus } from '../tasks/task-issue';
 import { WorkspacesSwitcher } from '../common/workspace-switcher';
 // Import optimized components from centralized location
-import { LazySidebarCommandModal } from '@/core/components/optimized-components/common';
 import { LazyCreateTeamModal } from '@/core/components/optimized-components/teams';
 import { NavHome } from '../nav-home';
 import { NavMain } from './nav-main';
@@ -66,27 +71,26 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const t = useTranslations();
 	const { organizationProjects } = useSidebarDataOwner(publicTeam);
 	const activeTeam = useAtomValue(activeTeamState);
+	const pathname = usePathname();
 	const myWorkNavigation = getMyWorkNavigation(user?.id, username || undefined);
 
-	// Filter projects based on active team context:
-	// - "All Teams" mode (no active team): show ALL projects
-	// - Specific team: show team projects + global projects (no team assigned)
+	// The sidebar lists the projects of the team picked in the header. "All teams" is the
+	// /all-teams page (the header entry links there), not a cleared team: activeTeamState falls
+	// back to the first team, so `!activeTeam` never meant "all" and every project used to show.
+	const showAllTeams = Boolean(pathname?.includes('/all-teams'));
 	const validProjects = useMemo(() => {
 		return organizationProjects.filter((project) => {
 			// Base validation using type-guard helper
 			if (!isValidProjectForDisplay(project)) return false;
 
-			// "All Teams" selected (no active team) → show ALL projects (team-specific + global)
-			if (!activeTeam?.id) return true;
+			if (showAllTeams || !activeTeam?.id) return true;
 
-			// Show projects that either:
-			// 1. Belong to the active team
-			// 2. Have no teams assigned ("Global" projects - accessible to everyone)
-			const belongsToTeam = projectBelongsToTeam(project, activeTeam.id);
-			const isGlobalProject = projectHasNoTeams(project);
-			return belongsToTeam || isGlobalProject;
+			// A project the API returned without its `teams` relation cannot be placed: keep it.
+			if (project.teams === undefined) return true;
+
+			return projectBelongsToTeam(project, activeTeam.id);
 		});
-	}, [organizationProjects, activeTeam]);
+	}, [organizationProjects, activeTeam, showAllTeams]);
 
 	// Limit to 5 projects for sidebar display
 	const MAX_SIDEBAR_PROJECTS = 5;
@@ -257,7 +261,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 											key={project?.name}
 											style={{ backgroundColor: project?.color || undefined }}
 											className={cn(
-												'flex overflow-hidden flex-none justify-center items-center rounded-full border size-7 shrink-0'
+												'flex size-5 flex-none shrink-0 items-center justify-center overflow-hidden rounded-md border border-border text-[10px] font-medium uppercase'
 											)}
 										>
 											{!project?.imageUrl ? (
@@ -265,8 +269,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 											) : (
 												<Image
 													alt={project?.name ?? ''}
-													height={28}
-													width={28}
+													height={20}
+													width={20}
 													className="w-full h-full"
 													src={project?.imageUrl}
 												/>
@@ -379,21 +383,16 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			>
 				<SidebarTrigger
 					className={cn(
-						state === 'collapsed' ? 'right-[-20%]' : ' right-[-5%]',
-						'absolute  top-[8%] size-7 bg-[#1C75FD]! flex items-center justify-center rounded-full! transition-all duration-300 filter drop-shadow-[0px_0px_6px_rgba(28,117,253,0.30)] z-[1030]'
+						'absolute top-4 z-[1030] bg-sidebar transition-all duration-300',
+						state === 'collapsed' ? '-right-7' : '-right-3'
 					)}
 				/>
+				<ChatPanelOpenButton />
 				<SidebarHeader className={cn(state === 'collapsed' ? 'items-center' : '')}>
 					<WorkspacesSwitcher />
 
 					<SidebarSeparator />
-					{state !== 'collapsed' && (
-						<Suspense
-							fallback={<div className="h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-md" />}
-						>
-							<LazySidebarCommandModal publicTeam={publicTeam || false} />
-						</Suspense>
-					)}
+					{/* The command palette trigger moved to the header (navbar.tsx), left of Collaborate. */}
 					<NavHome homeData={data.home} />
 					<SidebarSeparator />
 				</SidebarHeader>
@@ -401,8 +400,16 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 					<NavMain items={data.navMain} />
 				</SidebarContent>
 
-				<SidebarFooter className="p-1 mt-auto">
+				<SidebarFooter className="mt-auto gap-2 p-2">
 					<SidebarOptInForm />
+					{/* The account menu lives here, at the foot of the sidebar, as in Ever Works. */}
+					{!publicTeam && (
+						<div className="border-t border-sidebar-border pt-2">
+							<Suspense fallback={<UserNavAvatarSkeleton variant="sidebar" />}>
+								<LazyUserNavAvatar variant="sidebar" />
+							</Suspense>
+						</div>
+					)}
 				</SidebarFooter>
 				<SidebarRail />
 			</Sidebar>
@@ -428,6 +435,35 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 }
 
 /**
+ * Opens the AI chat panel: a 24px round button centred on the sidebar's right edge, as Ever Works
+ * draws it. Shown only while the panel is closed; it sets the shared atom and the panel layout
+ * expands itself (useChatPanel keeps the panel in step with the atom).
+ */
+function ChatPanelOpenButton() {
+	const t = useTranslations();
+	const [chatOpen, setChatOpen] = useAtom(chatPanelOpenAtom);
+	const label = t('chatView.OPEN_ASSISTANT', { appName: APP_NAME });
+
+	if (chatOpen) return null;
+
+	return (
+		<button
+			type="button"
+			onClick={() => setChatOpen(true)}
+			title={label}
+			aria-label={label}
+			className={cn(
+				'absolute -right-3 top-1/2 z-[1030] hidden size-6 -translate-y-1/2 items-center justify-center rounded-full md:flex',
+				'border border-border bg-sidebar text-muted-foreground shadow-sm transition-colors',
+				'hover:border-foreground/30 hover:text-foreground dark:hover:text-white'
+			)}
+		>
+			<Bot className="size-3.5" aria-hidden="true" />
+		</button>
+	);
+}
+
+/**
  * Sidebar | Favorite Task item
  */
 
@@ -438,7 +474,7 @@ const FavoriteTaskItem = ({ task }: { task: TTask }) => {
 		<SidebarMenuSubButton
 			key={task?.id}
 			className={cn(
-				'hover:bg-[#eaeef4] first:mt-1 last:mb-1 flex items-center text-[#1F2937] dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent transition-colors duration-300'
+				'flex h-8 min-h-8 items-center rounded-md text-muted-foreground transition-colors first:mt-0.5 last:mb-0.5 hover:bg-black/[0.04] hover:text-foreground dark:hover:bg-white/[0.04]'
 			)}
 			asChild
 		>
@@ -455,12 +491,12 @@ const FavoriteTaskItem = ({ task }: { task: TTask }) => {
 						/>
 					)}
 					<span className={cn('flex items-center font-normal')}>
-						<small className={cn('mr-1 text-xs font-normal text-gray-300 whitespace-nowrap text-nowrap')}>
+						<small className={cn('mr-1 text-xs font-normal text-muted-foreground/70 whitespace-nowrap text-nowrap')}>
 							#{task?.taskNumber}
 						</small>
 						<span
 							className={cn(
-								'!font-light text-nowrap text-sm max-w-[100px] whitespace-nowrap text-ellipsis overflow-hidden'
+								'text-nowrap text-sm max-w-[100px] whitespace-nowrap text-ellipsis overflow-hidden'
 							)}
 						>
 							{task?.title}
@@ -471,7 +507,7 @@ const FavoriteTaskItem = ({ task }: { task: TTask }) => {
 					<LoaderCircle className="animate-spin" size={15} />
 				) : (
 					<X
-						className="w-5 h-5 cursor-pointer"
+						className="size-4 cursor-pointer text-muted-foreground hover:text-foreground"
 						onClick={async () => {
 							await deleteFavorite(task.id);
 						}}

@@ -63,7 +63,7 @@ export function ExportMenu({
 	fileName,
 	onCSVExport,
 	csvDisabled = true,
-	buttonClassName = 'w-[100px] border border-[#E4E4E7] dark:border-[#2D2D2D] dark:bg-dark--theme-light py-1 h-9',
+	buttonClassName = 'w-[100px] border border-[#E4E4E7] dark:border-border dark:bg-dark--theme-light py-1 h-9',
 	showModal = true,
 	openModal
 }: ExportMenuProps) {

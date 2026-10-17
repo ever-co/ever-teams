@@ -18,7 +18,7 @@ function NoScreenshotsState({ timeSlots, loading }: ScreenshotsListProps) {
 	if (loading || timeSlots.some((slot) => slot.screenshots?.length)) return null;
 
 	return (
-		<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
+		<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-card border-[0.125rem] dark:border-[#FFFFFF0D]">
 			<TrackingSourceEmptyState label={t('timer.NO_SCREENSHOOT')} />
 		</div>
 	);
@@ -37,7 +37,7 @@ export function ScreenshootTab() {
 		<div>
 			<div className="flex items-center gap-4">
 				{/* Activity */}
-				<div className=" border-2 rounded-[1rem] p-6 min-h-[8rem] min-w-[20rem] flex flex-col justify-between gap-3  bg-white dark:bg-[#26272C]">
+				<div className=" border-2 rounded-[1rem] p-6 min-h-[8rem] min-w-[20rem] flex flex-col justify-between gap-3  bg-white dark:bg-muted">
 					<span>{t('timer.TIME_ACTIVITY')}</span>
 					<div className="flex flex-col gap-3">
 						<h2 className="text-3xl font-medium">
@@ -48,7 +48,7 @@ export function ScreenshootTab() {
 				</div>
 
 				{/* Total hours */}
-				<div className=" border-2 rounded-[1rem] p-6 min-h-[8rem] min-w-[20rem] flex flex-col justify-between gap-3  bg-white dark:bg-[#26272C]">
+				<div className=" border-2 rounded-[1rem] p-6 min-h-[8rem] min-w-[20rem] flex flex-col justify-between gap-3  bg-white dark:bg-muted">
 					<span>{t('timer.TOTAL_HOURS')}</span>
 					<div className="flex flex-col gap-3">
 						<h2 className="text-3xl font-medium">{`${h}:${m}:00`}</h2>

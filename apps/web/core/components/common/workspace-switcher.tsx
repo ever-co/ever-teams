@@ -294,9 +294,9 @@ export function WorkspacesSwitcher() {
 		if (actualCurrentWorkspace) {
 			return (
 				<>
-					<div className="flex justify-center items-center rounded-lg aspect-square size-7 bg-sidebar-primary text-sidebar-primary-foreground">
+					<div className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
 						{actualCurrentWorkspace.user.tenant.logo || actualCurrentWorkspace.user.tenant.name ? (
-							<Avatar className="rounded size-8!">
+							<Avatar className="size-7 rounded-md">
 								<AvatarImage
 									width={24}
 									height={24}
@@ -309,7 +309,7 @@ export function WorkspacesSwitcher() {
 							<DefaultWorkspaceIcon className="size-4" />
 						)}
 					</div>
-					<div className="grid flex-1 text-sm leading-tight text-left">
+					<div className="grid flex-1 text-sm leading-tight text-left group-data-[collapsible=icon]:hidden">
 						<span className="font-semibold truncate">{actualCurrentWorkspace.user.tenant.name}</span>
 						{actualCurrentWorkspace.current_teams.length > 0 && (
 							<span className="text-xs text-muted-foreground">
@@ -328,7 +328,7 @@ export function WorkspacesSwitcher() {
 				<div className="flex justify-center items-center rounded-lg aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground">
 					<DefaultWorkspaceIcon className="!size-6" />
 				</div>
-				<div className="grid flex-1 text-sm leading-tight text-left">
+				<div className="grid flex-1 text-sm leading-tight text-left group-data-[collapsible=icon]:hidden">
 					<span className="font-semibold truncate">{APP_NAME}</span>
 					<span className="text-xs truncate">Free</span>
 				</div>
@@ -349,7 +349,7 @@ export function WorkspacesSwitcher() {
 							<DropdownMenuTrigger asChild>
 								<SidebarMenuButton
 									size="lg"
-									className={`data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground ${
+									className={`data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:justify-center ${
 										timerRunningStatus ? 'opacity-50 cursor-not-allowed' : ''
 									}`}
 									disabled={isSwitching || isWorkspaceLoading || timerRunningStatus}
@@ -365,9 +365,9 @@ export function WorkspacesSwitcher() {
 								>
 									{renderActiveWorkspace()}
 									{isSwitching ? (
-										<Loader2 className="ml-auto animate-spin size-4" />
+										<Loader2 className="ml-auto size-4 animate-spin group-data-[collapsible=icon]:hidden" />
 									) : (
-										<ChevronsUpDown className="ml-auto size-4" />
+										<ChevronsUpDown className="ml-auto size-4 text-muted-foreground group-data-[collapsible=icon]:hidden" />
 									)}
 								</SidebarMenuButton>
 							</DropdownMenuTrigger>

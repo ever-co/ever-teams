@@ -147,7 +147,7 @@ const ActivityBar: React.FC<{ percentage: string; title: string }> = React.memo(
 		<Tooltip>
 			<TooltipTrigger asChild>
 				<div className="flex items-center flex-1 gap-2">
-					<div className="overflow-hidden flex-1 h-2 bg-[#EDF2F7] rounded-full dark:bg-gray-700">
+					<div className="overflow-hidden flex-1 h-2 bg-[#EDF2F7] rounded-full dark:bg-muted">
 						<div className="h-full bg-[#422AFB] rounded-full" style={{ width: `${percentage}%` }} />
 					</div>
 					<span className="w-8 text-sm text-gray-600 dark:text-gray-400">
@@ -178,7 +178,7 @@ interface ActivityRowProps {
 }
 
 const ActivityRow: React.FC<ActivityRowProps> = React.memo(({ date, activity, isFirstOfDay }) => (
-	<TableRow className="hover:bg-gray-50 dark:hover:bg-gray-800">
+	<TableRow className="hover:bg-gray-50 dark:hover:bg-muted">
 		<TableCell className="font-medium text-gray-600">{isFirstOfDay ? formatDate(date) : ''}</TableCell>
 		<TableCell>
 			<TooltipProvider>
@@ -355,7 +355,7 @@ export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoadin
 
 						return (
 							<React.Fragment key={`${employee.id}-${dates.join('-')}`}>
-								<TableRow className="bg-gray-50/50 dark:bg-gray-800/50">
+								<TableRow className="bg-gray-50/50 dark:bg-white/5">
 									<TableCell colSpan={5}>
 										<div className="flex items-center gap-2 px-1 py-2">
 											<EmployeeAvatar employee={employee} />

@@ -18,9 +18,9 @@ const GlobalSkeleton: FC<{ className?: string }> = ({ className }) => {
 	return (
 		<PageLayout title={t('common.LOADING')} className={className}>
 			<Container className={cn('flex flex-col items-stretch gap-4 pt-6', className)}>
-				<div className="w-full bg-[#F0F0F0] dark:bg-[#353741] h-10 rounded-lg animate-pulse" />
-				<div className="w-full bg-[#F0F0F0] dark:bg-[#353741] h-48 rounded-xl animate-pulse" />
-				<div className="w-2/3 bg-[#F0F0F0] dark:bg-[#353741] h-10 rounded-lg animate-pulse" />
+				<div className="w-full bg-[#F0F0F0] dark:bg-white/8 h-10 rounded-lg animate-pulse" />
+				<div className="w-full bg-[#F0F0F0] dark:bg-white/8 h-48 rounded-xl animate-pulse" />
+				<div className="w-2/3 bg-[#F0F0F0] dark:bg-white/8 h-10 rounded-lg animate-pulse" />
 			</Container>
 		</PageLayout>
 	);

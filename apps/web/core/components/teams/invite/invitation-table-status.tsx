@@ -7,51 +7,40 @@ interface isProps {
 	rejectJoinRequest: () => void;
 }
 
+const CHIP = 'inline-flex h-7 items-center justify-center whitespace-nowrap rounded-md px-2.5 text-xs font-medium';
+const ACTION = 'inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md transition-colors';
+
 export const InvitationTableStatus = ({ status, acceptJoinRequest, rejectJoinRequest }: isProps) => {
 	const t = useTranslations();
 	const RenderStatus = (status: string | undefined) => {
 		switch (status) {
 			case 'ACCEPTED':
 				return (
-					<div className="flex items-center bg-[#D4EFDF] justify-center rounded-xl w-28 h-7 text-[#5D846D] dark:text-whit font-medium">
+					<div className={`${CHIP} bg-emerald-500/10 text-emerald-700 dark:text-emerald-400`}>
 						{t('common.ACCEPTED')}
 					</div>
 				);
 			case 'INVITED':
-				return (
-					<div className="flex items-center bg-[#EDEDED] justify-center rounded-xl w-28 h-7 text-[#6B6B6B]  font-medium">
-						{t('common.INVITED')}
-					</div>
-				);
+				return <div className={`${CHIP} bg-muted text-muted-foreground`}>{t('common.INVITED')}</div>;
 			case 'REJECTED':
-				return (
-					<div className="flex items-center bg-[#F5B8B8] justify-center rounded-xl w-28 h-7 text-[#A44A36]  font-medium">
-						{t('common.REJECTED')}
-					</div>
-				);
+				return <div className={`${CHIP} bg-destructive/10 text-destructive`}>{t('common.REJECTED')}</div>;
 			case 'EXPIRED':
-				return (
-					<div className="flex items-center bg-[#F5B8B8] justify-center rounded-xl w-28 h-7 text-[#A44A36] font-medium">
-						{t('common.EXPIRED')}
-					</div>
-				);
+				return <div className={`${CHIP} bg-destructive/10 text-destructive`}>{t('common.EXPIRED')}</div>;
 			case 'REQUESTED':
 				return (
-					<div className="flex items-center justify-center gap-1 font-medium rounded-xl w-36 h-7">
-						<div className="bg-[#CBE6F5] text-[#2772E2] w-24 h-7 rounded-xl flex items-center p-2 justify-center text-xs">
-							{t('common.REQUEST')}
-						</div>
+					<div className="flex items-center gap-1">
+						<div className={`${CHIP} bg-primary/10 text-primary`}>{t('common.REQUEST')}</div>
 						<div
-							className="bg-[#27AE60] dark:bg-[#27AE60] w-10 h-7 rounded-lg  flex items-center justify-center cursor-pointer"
+							className={`${ACTION} bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 dark:text-emerald-400`}
 							onClick={acceptJoinRequest}
 						>
-							<CheckIcon />
+							<CheckIcon className="size-4" />
 						</div>
 						<div
-							className="bg-[#EE6C4D] w-10 h-7 rounded-lg flex items-center justify-center cursor-pointer"
+							className={`${ACTION} bg-destructive/10 text-destructive hover:bg-destructive/20`}
 							onClick={rejectJoinRequest}
 						>
-							<CrossIcon className="text-white w-5 h-5" />
+							<CrossIcon className="size-4" />
 						</div>
 					</div>
 				);

@@ -185,7 +185,7 @@ function PlansList({
 	selectedPlan: TDailyPlan | null;
 }) {
 	return (
-		<Command className="overflow-hidden rounded-t-none border-t border-[#0000001A] dark:border-[#26272C]">
+		<Command className="overflow-hidden rounded-t-none border-t border-[#0000001A] dark:border-border">
 			<CommandInput placeholder="Search plan..." />
 			<CommandList>
 				<CommandEmpty>No plan founded</CommandEmpty>

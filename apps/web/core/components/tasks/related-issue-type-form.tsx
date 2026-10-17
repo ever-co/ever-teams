@@ -16,7 +16,16 @@ import { InputField } from '../duplicated-components/_input';
 import { ITaskRelatedIssueType } from '@/core/types/interfaces/task/related-issue-type';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
-export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
+// Settings row (label column + content) and the compact controls of the issue-settings blocks.
+const ROW = 'grid grid-cols-1 gap-2 sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-4';
+const LABEL = 'text-sm font-medium text-muted-foreground sm:pt-2';
+const SUB_LABEL = 'text-xs font-medium text-muted-foreground';
+const SECONDARY_BUTTON =
+	'h-9 shrink-0 gap-1.5 rounded-md bg-card px-3 py-0 text-sm font-medium text-foreground hover:bg-muted';
+const PRIMARY_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium hover:bg-primary/90';
+const CANCEL_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium';
+
+export const RelatedIssueTypeForm =({ formOnly = false } = {}) => {
 	const t = useTranslations();
 
 	const { data: user } = useUserQuery();
@@ -86,108 +95,100 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 	return (
 		<>
 			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
-				<div className="flex w-full">
-					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] w-full">
-						<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px]">
-							{t('pages.settingsTeam.RELATED_ISSUE_TYPE')}
-						</Text>
+				<div className={ROW}>
+					<Text className={LABEL}>{t('pages.settingsTeam.RELATED_ISSUE_TYPE')}</Text>
 
-						<div className="flex flex-col w-f">
-							{!createNew && !edit && (
+					<div className="flex min-w-0 flex-col gap-3">
+						{!createNew && !edit && (
+							<div className="flex flex-wrap items-center gap-2">
 								<Button
-									variant="outline"
-									className="font-normal justify-center border-2 rounded-[10px] text-md w-[230px] gap-2 h-[46px]"
+									variant="outline-dark"
+									className={SECONDARY_BUTTON}
 									onClick={() => {
 										setEdit(null);
 										setCreateNew(true);
 									}}
 								>
-									<PlusIcon className="font-normal w-[16px] h-[16px]" />
+									<PlusIcon className="size-4" />
 									{t('pages.settingsTeam.CREATE_NEW_ISSUE_TYPES')}
 								</Button>
-							)}
+							</div>
+						)}
 
-							{(createNew || edit) && (
-								<>
-									<Text className="flex-none grow-0 mb-2 text-lg font-normal text-gray-400">
-										{createNew && 'New'}
-										{edit && 'Edit'} {t('pages.settingsTeam.RELATED_TYPE')}
-									</Text>
-									<div className="flex gap-x-5 items-center mt-3 w-full">
-										<InputField
-											type="text"
-											placeholder={t('pages.settingsTeam.CREATE_NEW_ISSUE_TYPES')}
-											className="mb-0 min-w-[350px]"
-											wrapperClassName="mb-0 rounded-lg"
-											{...register('name')}
-										/>
-									</div>
-									<div className="flex gap-x-4 mt-5">
+						{(createNew || edit) && (
+							<>
+								<Text className={SUB_LABEL}>
+									{createNew && 'New'}
+									{edit && 'Edit'} {t('pages.settingsTeam.RELATED_TYPE')}
+								</Text>
+								<div className="flex w-full flex-wrap items-center gap-2">
+									<InputField
+										type="text"
+										placeholder={t('pages.settingsTeam.CREATE_NEW_ISSUE_TYPES')}
+										className="mb-0 h-9 w-full"
+										wrapperClassName="mb-0 min-w-[12rem] flex-1 sm:max-w-xs"
+										{...register('name')}
+									/>
+								</div>
+								<div className="flex flex-wrap gap-2">
+									<Button
+										variant="primary"
+										className={PRIMARY_BUTTON}
+										type="submit"
+										disabled={createTaskRelatedIssueTypeLoading || editTaskRelatedIssueTypeLoading}
+										loading={createTaskRelatedIssueTypeLoading || editTaskRelatedIssueTypeLoading}
+									>
+										{edit ? t('common.SAVE') : t('common.CREATE')}
+									</Button>
+
+									{!formOnly && (
 										<Button
-											variant="primary"
-											className="px-4 py-4 font-normal rounded-xl text-md"
-											type="submit"
-											disabled={
-												createTaskRelatedIssueTypeLoading || editTaskRelatedIssueTypeLoading
-											}
-											loading={
-												createTaskRelatedIssueTypeLoading || editTaskRelatedIssueTypeLoading
-											}
+											variant="grey"
+											className={CANCEL_BUTTON}
+											onClick={() => {
+												setCreateNew(false);
+												setEdit(null);
+											}}
 										>
-											{edit ? t('common.SAVE') : t('common.CREATE')}
+											Cancel
 										</Button>
+									)}
+								</div>
+							</>
+						)}
 
-										{!formOnly && (
-											<Button
-												variant="grey"
-												className="px-4 py-4 font-normal rounded-xl text-md"
-												onClick={() => {
+						{!formOnly && taskRelatedIssueTypes?.length > 0 && (
+							<>
+								<Text className={`${SUB_LABEL} pt-1`}>{t('pages.settingsTeam.LIST_OF_RELATED_TYPE')}</Text>
+								<div className="flex w-full flex-wrap gap-2">
+									{loading && !taskRelatedIssueTypes?.length && <Spinner dark={false} />}
+									{taskRelatedIssueTypes && taskRelatedIssueTypes?.length ? (
+										taskRelatedIssueTypes.map((relatedIssueType) => (
+											<StatusesListCard
+												key={relatedIssueType.id}
+												statusTitle={
+													relatedIssueType.name
+														? relatedIssueType.name?.split('-').join(' ')
+														: ''
+												}
+												bgColor={''}
+												statusIcon={''}
+												onEdit={() => {
 													setCreateNew(false);
-													setEdit(null);
+													setEdit(relatedIssueType);
 												}}
-											>
-												Cancel
-											</Button>
-										)}
-									</div>
-								</>
-							)}
-
-							{!formOnly && taskRelatedIssueTypes?.length > 0 && (
-								<>
-									<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem]">
-										{t('pages.settingsTeam.LIST_OF_RELATED_TYPE')}
-									</Text>
-									<div className="flex flex-wrap gap-3 justify-center w-full sm:justify-start">
-										{loading && !taskRelatedIssueTypes?.length && <Spinner dark={false} />}
-										{taskRelatedIssueTypes && taskRelatedIssueTypes?.length ? (
-											taskRelatedIssueTypes.map((relatedIssueType) => (
-												<StatusesListCard
-													key={relatedIssueType.id}
-													statusTitle={
-														relatedIssueType.name
-															? relatedIssueType.name?.split('-').join(' ')
-															: ''
-													}
-													bgColor={''}
-													statusIcon={''}
-													onEdit={() => {
-														setCreateNew(false);
-														setEdit(relatedIssueType);
-													}}
-													onDelete={() => {
-														deleteTaskRelatedIssueType(relatedIssueType.id);
-													}}
-													isStatus={true}
-												/>
-											))
-										) : (
-											<></>
-										)}
-									</div>
-								</>
-							)}
-						</div>
+												onDelete={() => {
+													deleteTaskRelatedIssueType(relatedIssueType.id);
+												}}
+												isStatus={true}
+											/>
+										))
+									) : (
+										<></>
+									)}
+								</div>
+							</>
+						)}
 					</div>
 				</div>
 			</form>

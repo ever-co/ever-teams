@@ -35,6 +35,8 @@ describe('resolveImageRequest', () => {
 		expect(resolve('https://api.ever.team/public/avatar.png')).toBe('optimize');
 		expect(resolve('https://gauzy.s3.wasabisys.com/screenshots/1.png')).toBe('optimize');
 		expect(resolve('https://API.EVER.TEAM/public/avatar.png')).toBe('optimize');
+		// Presigned MinIO objects behind cdn.ever.co (Ever's storage since 2026-07).
+		expect(resolve('https://cdn.ever.co/gauzy/profile/avatar.png?X-Amz-Signature=abc')).toBe('optimize');
 	});
 
 	it('keeps build-time hosts over http on the optimizer (unchanged behaviour)', () => {

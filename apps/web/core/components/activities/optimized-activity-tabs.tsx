@@ -62,7 +62,7 @@ export const OptimizedAppsTab = memo(() => {
 		<div>
 			<div className="flex justify-end w-full">{/* TODO: Filters components */}</div>
 			<div className="space-y-6 w-full">
-				<header className="bg-gray-200 dark:bg-[#26272C] rounded-[1rem] px-6 h-14 flex items-center">
+				<header className="bg-gray-200 dark:bg-muted rounded-[1rem] px-6 h-14 flex items-center">
 					{headers.map((header, i) => (
 						<div style={{ flexBasis: header.width }} key={i} className="font-medium border">
 							{header.title}
@@ -71,7 +71,7 @@ export const OptimizedAppsTab = memo(() => {
 				</header>
 				<section className="space-y-6">
 					{appsGrouped?.map((app, i) => (
-						<div key={i} className=" p-6 rounded-[1rem] bg-white dark:bg-[#26272C]">
+						<div key={i} className=" p-6 rounded-[1rem] bg-white dark:bg-muted">
 							{app?.apps?.map((item, i) => (
 								<div key={i} className="w-full">
 									<VisitedItem app={item} totalMilliseconds={app?.totalMilliseconds} type="APP" />
@@ -81,7 +81,7 @@ export const OptimizedAppsTab = memo(() => {
 					))}
 				</section>
 				{visitedApps.length < 1 && !loading && (
-					<div className="hover:dark:bg-[#26272C] border dark:border-[#26272C] dark:bg-[#191a20] p-4 py-16 rounded-md flex justify-center items-center my-2">
+					<div className="hover:dark:bg-muted border dark:border-border dark:bg-background p-4 py-16 rounded-md flex justify-center items-center my-2">
 						<TrackingSourceEmptyState label={t('timer.THERE_IS_NO_APPS_VISITED')} />
 					</div>
 				)}
@@ -138,7 +138,7 @@ export const OptimizedVisitedSitesTab = memo(() => {
 		<div>
 			<div className="flex justify-end w-full">{/* TODO: Filters components */}</div>
 			<div className="space-y-6 w-full">
-				<header className="bg-gray-200 dark:bg-[#26272C] rounded-[1rem] px-6 h-14 flex items-center">
+				<header className="bg-gray-200 dark:bg-muted rounded-[1rem] px-6 h-14 flex items-center">
 					{headers.map((header, i) => (
 						<div style={{ flexBasis: header.width }} key={i} className="font-medium border">
 							{header.title}
@@ -151,7 +151,7 @@ export const OptimizedVisitedSitesTab = memo(() => {
 							key={i}
 							className="rounded-[1rem] p-[3px] bg-[linear-gradient(90deg,_rgba(185,147,230,1)_0%,_rgba(110,176,236,1)_100%)]"
 						>
-							<div className=" p-6 rounded-[1rem] bg-white dark:bg-[#26272C]">
+							<div className=" p-6 rounded-[1rem] bg-white dark:bg-muted">
 								{site?.apps?.map((item, i) => (
 									<div key={i} className="w-full">
 										<VisitedItem
@@ -166,7 +166,7 @@ export const OptimizedVisitedSitesTab = memo(() => {
 					))}
 				</section>
 				{(sites?.length || 0) < 1 && !loading && (
-					<div className="hover:dark:bg-[#26272C] border dark:border-[#26272C] dark:bg-[#191a20] p-4 py-16 rounded-md flex justify-center items-center my-2">
+					<div className="hover:dark:bg-muted border dark:border-border dark:bg-background p-4 py-16 rounded-md flex justify-center items-center my-2">
 						<TrackingSourceEmptyState label={t('timer.NO_VISITED_SITE_MESSAGE')} />
 					</div>
 				)}

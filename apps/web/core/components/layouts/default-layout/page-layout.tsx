@@ -128,7 +128,9 @@ export function PageLayout({
 			>
 				<main className={cn('relative flex min-h-full w-full flex-col p-4', className)}>
 					<MainSidebarTrigger />
-					<div className={cn('min-h-0 w-full flex-1 overflow-x-hidden', childrenClassName)}>{children}</div>
+					{/* `clip`, not `hidden`: overflow-x hidden makes this a scroll container of its own (the second
+				    vertical scrollbar Settings showed); clip only clips. PageContentScroller owns scrolling. */}
+				<div className={cn('min-h-0 w-full flex-1 overflow-x-clip', childrenClassName)}>{children}</div>
 				</main>
 			</PageContentScroller>
 		</div>

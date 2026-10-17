@@ -14,7 +14,7 @@ export function GroupBySelectTimeActivity({ onGroupByChange, groupByType }: Grou
 
 	return (
 		<Select defaultValue={groupByType} onValueChange={onGroupByChange}>
-			<SelectTrigger className="w-[180px] border border-[#E4E4E7] dark:border-[#2D2D2D] dark:bg-dark--theme-light">
+			<SelectTrigger className="w-[180px] border border-[#E4E4E7] dark:border-border dark:bg-dark--theme-light">
 				<div className="flex gap-2 items-center">
 					<span className="text-gray-500">{t('timeActivity.GROUP_BY')}</span>
 					<SelectValue placeholder={t('timeActivity.DATE')} className="text-blue-600 dark:text-blue-500" />

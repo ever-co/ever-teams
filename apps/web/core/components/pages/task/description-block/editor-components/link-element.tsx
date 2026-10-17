@@ -44,7 +44,7 @@ const LinkElement = ({ attributes, element, children }: any) => {
 			</a>
 			{selected && focused && visible && (
 				<div
-					className="absolute left-0 flex items-center max-w-xs bg-white dark:bg-dark--theme-light p-2 gap-1 rounded-md border border-gray-300 dark:border-[#7B8089] z-10 "
+					className="absolute left-0 flex items-center max-w-xs bg-white dark:bg-dark--theme-light p-2 gap-1 rounded-md border border-gray-300 dark:border-border z-10 "
 					contentEditable="false"
 				>
 					<div className="flex items-center pr-2 text-xs border-r dark:bg-dark--theme-light border-gray-300">

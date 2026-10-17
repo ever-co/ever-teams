@@ -130,7 +130,7 @@ export function ProductivityApplicationTable({ data, isLoading }: { data?: IActi
 						<React.Fragment key={`${appName}-${index}`}>
 							{/* Application Header */}
 							<TableRow>
-								<TableCell colSpan={5} className="px-6 py-4 font-medium bg-gray-50 dark:bg-gray-800">
+								<TableCell colSpan={5} className="px-6 py-4 font-medium bg-gray-50 dark:bg-muted">
 									{appName}
 								</TableCell>
 							</TableRow>

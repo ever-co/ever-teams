@@ -23,6 +23,18 @@ import { InputField } from '../duplicated-components/_input';
 import { TTaskStatus } from '@/core/types/schemas';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
+// Settings row (label column + content) and the compact controls of the issue-settings blocks.
+const ROW = 'sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-4';
+const LABEL = 'text-sm font-medium text-muted-foreground sm:pt-2';
+const SUB_LABEL = 'text-xs font-medium text-muted-foreground';
+const SECONDARY_BUTTON =
+	'h-9 shrink-0 gap-1.5 rounded-md bg-card px-3 py-0 text-sm font-medium text-foreground hover:bg-muted';
+const PRIMARY_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium hover:bg-primary/90';
+const CANCEL_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium';
+// The icon and colour pickers draw their own 54px box; this sizes them like the other controls of the
+// row without touching the shared picker components.
+const PICKER = 'shrink-0 [&_.input-border]:h-9 [&_.input-border]:rounded-md [&_.rounded-xl]:h-9 [&_.rounded-xl]:rounded-md';
+
 type StatusForm = {
 	formOnly?: boolean;
 	onCreated?: () => void;
@@ -192,60 +204,51 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 				<SortTasksStatusSettings onClose={closeModal} arr={sortedArray} />
 			</Modal>
 			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
-				<div className="flex">
-					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
-						{!formOnly && (
-							<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
-								{t('pages.settingsTeam.TASK_STATUSES')}
-							</Text>
-						)}
+				<div className={clsxm('grid grid-cols-1 gap-2', !formOnly && ROW)}>
+					{!formOnly && <Text className={LABEL}>{t('pages.settingsTeam.TASK_STATUSES')}</Text>}
 
-						<div className="flex flex-col gap-2 items-center sm:items-start">
-							<div className="flex gap-2">
-								{!createNew && !edit && (
-									<Button
-										variant="outline"
-										className="font-normal justify-center border-2 rounded-[10px] text-md w-[230px] gap-2 h-[46px]"
-										onClick={() => {
-											setEdit(null);
-											setCreateNew(true);
-										}}
-									>
-										<PlusIcon className=" font-normal w-[16px] h-[16px]" />
-										{t('pages.settingsTeam.CREATE_NEW_STATUS')}
-									</Button>
-								)}
-								<Button onClick={openModal} variant="outline" className="rounded-[10px]">
-									{t('common.SORT')}
+					<div className="flex min-w-0 flex-col gap-3">
+						<div className="flex flex-wrap items-center gap-2">
+							{!createNew && !edit && (
+								<Button
+									variant="outline-dark"
+									className={SECONDARY_BUTTON}
+									onClick={() => {
+										setEdit(null);
+										setCreateNew(true);
+									}}
+								>
+									<PlusIcon className="size-4" />
+									{t('pages.settingsTeam.CREATE_NEW_STATUS')}
 								</Button>
-							</div>
-							{(createNew || edit) && (
-								<>
-									<Text className="flex-none grow-0 mb-2 text-lg font-normal text-gray-400">
-										{createNew && t('common.NEW')}
-										{edit && t('common.EDIT')} {t('common.STATUSES')}
-									</Text>
-									<div
-										className={clsxm(
-											'flex w-full gap-x-5 items-center mt-3',
-											formOnly && ['flex-wrap space-y-2']
-										)}
-									>
-										<InputField
-											type="text"
-											placeholder={t('pages.settingsTeam.CREATE_NEW_STATUS')}
-											className="mb-0 w-full"
-											wrapperClassName="mb-0 rounded-lg flex-grow"
-											{...register('name')}
-										/>
-										<StandardTaskStatusDropDown
-											onValueChange={(status) => {
-												setValue('template', status);
-												setSelectedStatusType(status);
-											}}
-											className="h-14 shrink-0"
-											defaultValue={edit?.value}
-										/>
+							)}
+							<Button onClick={openModal} variant="outline-dark" className={SECONDARY_BUTTON}>
+								{t('common.SORT')}
+							</Button>
+						</div>
+						{(createNew || edit) && (
+							<>
+								<Text className={SUB_LABEL}>
+									{createNew && t('common.NEW')}
+									{edit && t('common.EDIT')} {t('common.STATUSES')}
+								</Text>
+								<div className="flex w-full flex-wrap items-center gap-2">
+									<InputField
+										type="text"
+										placeholder={t('pages.settingsTeam.CREATE_NEW_STATUS')}
+										className="mb-0 h-9 w-full"
+										wrapperClassName="mb-0 min-w-[12rem] flex-1 sm:max-w-xs"
+										{...register('name')}
+									/>
+									<StandardTaskStatusDropDown
+										onValueChange={(status) => {
+											setValue('template', status);
+											setSelectedStatusType(status);
+										}}
+										className="h-9 shrink-0"
+										defaultValue={edit?.value}
+									/>
+									<div className={PICKER}>
 										<IconPopover
 											iconList={iconList}
 											setValue={setValue}
@@ -257,48 +260,49 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 														: null
 											}
 										/>
+									</div>
+									<div className={PICKER}>
 										<ColorPicker
 											defaultColor={edit ? (edit.color ?? undefined) : randomColor}
 											onChange={(color) => setValue('color', color)}
 											className="shrink-0"
 										/>
 									</div>
-									<div className="flex gap-x-4 mt-5">
+								</div>
+								<div className="flex flex-wrap gap-2">
+									<Button
+										variant="primary"
+										className={PRIMARY_BUTTON}
+										type="submit"
+										disabled={createTaskStatusLoading || editTaskStatusLoading}
+										loading={createTaskStatusLoading || editTaskStatusLoading}
+										onClick={() => {
+											setSelectedStatusType(null);
+										}}
+									>
+										{edit ? t('common.SAVE') : t('common.CREATE')}
+									</Button>
+									{!formOnly && (
 										<Button
-											variant="primary"
-											className="px-4 py-4 font-normal rounded-xl text-md"
-											type="submit"
-											disabled={createTaskStatusLoading || editTaskStatusLoading}
-											loading={createTaskStatusLoading || editTaskStatusLoading}
+											variant="grey"
+											className={CANCEL_BUTTON}
 											onClick={() => {
+												setCreateNew(false);
+												setEdit(null);
 												setSelectedStatusType(null);
 											}}
 										>
-											{edit ? t('common.SAVE') : t('common.CREATE')}
+											{t('common.CANCEL')}
 										</Button>
-										{!formOnly && (
-											<Button
-												variant="grey"
-												className="px-4 py-4 font-normal rounded-xl text-md"
-												onClick={() => {
-													setCreateNew(false);
-													setEdit(null);
-													setSelectedStatusType(null);
-												}}
-											>
-												{t('common.CANCEL')}
-											</Button>
-										)}
-									</div>
-								</>
-							)}
+									)}
+								</div>
+							</>
+						)}
 
-							{!formOnly && taskStatuses.length > 0 && (
-								<>
-									<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
-										{t('pages.settingsTeam.LIST_OF_STATUSES')}
-									</Text>
-									<div className="flex flex-wrap gap-3 justify-center w-full sm:justify-start">
+						{!formOnly && taskStatuses.length > 0 && (
+							<>
+								<Text className={clsxm(SUB_LABEL, 'pt-1')}>{t('pages.settingsTeam.LIST_OF_STATUSES')}</Text>
+								<div className="flex w-full flex-wrap gap-2">
 										{getTaskStatusesLoading && <Spinner dark={false} />}
 										{!getTaskStatusesLoading && sortedArray.length ? (
 											sortedArray.map((status) => (
@@ -342,7 +346,6 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 									</div>
 								</>
 							)}
-						</div>
 					</div>
 				</div>
 			</form>

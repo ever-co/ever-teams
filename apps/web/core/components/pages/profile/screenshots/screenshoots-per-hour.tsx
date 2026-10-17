@@ -35,8 +35,8 @@ export const ScreenshotPerHour = ({
 	}, [timeSlots]);
 
 	const containerClasses = isTeamPage
-		? 'p-4 my-4 rounded-md dark:bg-[#1E2025] border-[0.125rem] bg-light--theme dark:border-[#FFFFFF0D]'
-		: 'p-5 my-4 rounded-[1rem] space-y-5 dark:bg-[#1E2025] border-[.2rem] dark:border-[#FFFFFF0D] border-[#B993E6]';
+		? 'p-4 my-4 rounded-md dark:bg-card border-[0.125rem] bg-light--theme dark:border-[#FFFFFF0D]'
+		: 'p-5 my-4 rounded-[1rem] space-y-5 dark:bg-card border-[.2rem] dark:border-[#FFFFFF0D] border-[#B993E6]';
 
 	const headingClasses = isTeamPage ? 'px-4' : 'font-medium';
 

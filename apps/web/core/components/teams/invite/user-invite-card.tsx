@@ -222,7 +222,7 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 									</li>
 									<li>
 										<ConfirmDropdown
-											className="right-[110%] top-0 border-gray-200 shadow-sm shadow-gray-100 dark:shadow-gray-900 dark:border-gray-800 dark:bg-gray-900"
+											className="right-[110%] top-0 border-gray-200 shadow-sm shadow-gray-100 dark:shadow-gray-900 dark:border-gray-800 dark:bg-card"
 											onConfirm={async () => {
 												try {
 													await removeTeamInvitation(
@@ -266,7 +266,7 @@ export function InviteUserTeamCard({
 			<EverCard
 				shadow="bigger"
 				className={clsxm(
-					'relative hidden sm:flex items-center py-2.5 min-h-24 dark:bg-[#1E2025] border-[0.1875rem] border-transparent',
+					'relative hidden sm:flex items-center py-2.5 min-h-24 dark:bg-card border-[0.1875rem] border-transparent',
 					'dark:border dark:border-[#FFFFFF14] w-full',
 					className
 				)}

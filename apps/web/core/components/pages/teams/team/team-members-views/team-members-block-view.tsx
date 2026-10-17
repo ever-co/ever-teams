@@ -30,12 +30,12 @@ const TeamMembersBlockView: React.FC<Props> = React.memo(
 
 		return (
 			<>
-				<div className="mt-7">
+				<div className="mt-4">
 					{/* Current user is now included in the filtered members list */}
 					<div className="flex flex-wrap items-center w-full">
 						{members.map((member) => {
 							return (
-								<div className="p-1 w-full md:w-1/2 lg:w-1/4" key={member.id}>
+								<div className="w-full p-1 @2xl/page:w-1/2 @4xl/page:w-1/3 @6xl/page:w-1/4" key={member.id}>
 									<Transition
 										as="div"
 										key={member.id}

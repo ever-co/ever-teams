@@ -13,7 +13,10 @@ import { ERequestStatus } from '@/core/types/generics/enums';
 import { TInvite } from '@/core/types/schemas';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/core/components/common/table';
 
-export const InvitationTable = ({ invitations }: { invitations: (TInvite | IJoinTeamResponse)[] }) => {
+const HEAD_CELL = 'h-auto px-0 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground';
+const BODY_CELL = 'px-0 py-2.5 text-sm text-foreground';
+
+export const InvitationTable =({ invitations }: { invitations: (TInvite | IJoinTeamResponse)[] }) => {
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } = usePagination<
 		TInvite | IJoinTeamResponse
 	>({ items: invitations });
@@ -23,60 +26,39 @@ export const InvitationTable = ({ invitations }: { invitations: (TInvite | IJoin
 	return (
 		<div>
 			<div className="sm:rounded-lg">
-				<Table className="w-full text-sm text-left text-gray-500 dark:bg-dark--theme-light">
-					<TableHeader className="text-xs text-gray-700 uppercase border-b">
-						<TableRow>
-							<TableHead
-								scope="col"
-								className="pl-5 w-fit  py-3 text-sm font-normal capitalize text-[#B1AEBC] dark:text-white h-auto px-0"
-							>
+				<Table className="w-full text-left text-sm">
+					<TableHeader className="border-b border-border">
+						<TableRow className="hover:bg-transparent">
+							<TableHead scope="col" className={HEAD_CELL}>
 								{t('pages.invite.invitationTable.NAME_AND_EMAIL')}
 							</TableHead>
-							<TableHead
-								scope="col"
-								className="text-sm w-fit font-normal capitalize py-3 text-[#B1AEBC] dark:text-white h-auto px-0"
-							>
+							<TableHead scope="col" className={HEAD_CELL}>
 								{t('pages.invite.invitationTable.POSITION')}
 							</TableHead>
-							<TableHead
-								scope="col"
-								className="text-sm w-fit  font-normal capitalize py-3 text-[#B1AEBC] dark:text-white h-auto px-0"
-							>
+							<TableHead scope="col" className={HEAD_CELL}>
 								{t('pages.invite.invitationTable.DATE_AND_TIME_REQUEST')}
 							</TableHead>
-							<TableHead
-								scope="col"
-								className="text-sm w-fit  font-normal capitalize py-3 text-[#B1AEBC] dark:text-white h-auto px-0"
-							>
+							<TableHead scope="col" className={HEAD_CELL}>
 								{t('pages.invite.invitationTable.CV_OR_ATTACHMENT')}
 							</TableHead>
-							<TableHead
-								scope="col"
-								className="text-sm w-fit  font-normal capitalize py-3 text-[#B1AEBC] dark:text-white h-auto px-0"
-							>
+							<TableHead scope="col" className={HEAD_CELL}>
 								{t('common.LINK')}
 							</TableHead>
-							<TableHead
-								scope="col"
-								className="text-sm w-[13%]  font-normal capitalize py-3 text-[#B1AEBC] dark:text-white h-auto px-0"
-							>
+							<TableHead scope="col" className={clsxm(HEAD_CELL, 'w-[13%]')}>
 								{t('common.STATUS')}
 							</TableHead>
 						</TableRow>
 					</TableHeader>
-					<TableBody className="dark:bg-dark--theme-light">
+					<TableBody>
 						{currentItems.map((invitation, index) => (
-							<TableRow
-								className="bg-white dark:bg-dark--theme-light dark:border-gray-700 w-fit"
-								key={index}
-							>
+							<TableRow className="border-border hover:bg-muted/40" key={index}>
 								<TableCell
 									scope="row"
-									className="flex items-center p-0 py-4 pl-0 text-gray-900 whitespace-nowrap dark:text-white w-fit"
+									className="flex items-center gap-3 whitespace-nowrap px-0 py-2.5 text-foreground"
 								>
 									<div
 										className={clsxm(
-											'flex justify-center items-center text-xs font-normal rounded-full shadow-md size-9 text-default dark:text-white'
+											'flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-normal text-default dark:text-white'
 										)}
 										style={{
 											backgroundColor: `${stc(invitation.fullName || '')}80`
@@ -84,29 +66,27 @@ export const InvitationTable = ({ invitations }: { invitations: (TInvite | IJoin
 									>
 										{imgTitle(invitation.fullName || '')}
 									</div>
-									<div className="flex flex-col gap-1 pl-3">
-										<div className="text-sm font-semibold text-[#282048] dark:text-white">
-											{invitation.fullName}
-										</div>
-										<Text className="text-xs w-fit truncate dark:text-white text-[#B1AEBC] font-normal">
+									<div className="flex min-w-0 flex-col gap-0.5">
+										<div className="text-sm font-medium text-foreground">{invitation.fullName}</div>
+										<Text className="w-fit truncate text-xs font-normal text-muted-foreground">
 											{invitation.email || ''}
 										</Text>
 									</div>
 								</TableCell>
-								<TableCell className="text-xs font-semibold py-4 text-[#282048] dark:text-white p-0 px-0 w-fit">
+								<TableCell className={BODY_CELL}>
 									{/* TODO: Position is not implemented yet */}-
 								</TableCell>
-								<TableCell className="text-xs font-semibold py-4 text-[#282048] dark:text-white p-0 px-0 w-fit">
+								<TableCell className={BODY_CELL}>
 									{/* 12 Feb 2020 12:00 pm */}
 									{moment(invitation.createdAt).format('DD MMM YYYY hh:mm a')}
 								</TableCell>
-								<TableCell className="text-xs font-semibold py-4 text-[#282048] dark:text-white p-0 px-0 w-fit">
+								<TableCell className={BODY_CELL}>
 									{/* curriculum vitae.pdf */}-
 								</TableCell>
-								<TableCell className="text-xs font-semibold py-4 text-[#1A79D0] dark:text-white p-0 px-0 w-fit">
+								<TableCell className={clsxm(BODY_CELL, 'text-primary')}>
 									{/* http:// www.borde.. */}-
 								</TableCell>
-								<TableCell className="p-0 px-0 py-4 text-xs font-semibold w-fit">
+								<TableCell className="px-0 py-2.5">
 									<InvitationTableStatus
 										status={invitation.status || undefined} // Handle null status
 										acceptJoinRequest={() => {

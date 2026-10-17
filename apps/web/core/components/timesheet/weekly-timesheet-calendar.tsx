@@ -137,7 +137,7 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
 								classNames.day,
 								'border flex flex-col gap-2 relative shadow-xs rounded-sm min-h-[150px]',
 								{
-									'bg-gray-100 dark:bg-gray-900': date.getMonth() !== currentDate.getMonth()
+									'bg-gray-100 dark:bg-card': date.getMonth() !== currentDate.getMonth()
 								}
 							)}
 							onClick={() => onDateClick?.(date)}

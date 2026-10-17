@@ -19,6 +19,7 @@ import {
 	AddTaskIcon,
 	AddTeamIcon,
 	AddUserIcon,
+	CommandIcon,
 	DashboardIcon,
 	MoonIcon,
 	ProfileIcon,
@@ -27,6 +28,7 @@ import {
 	TeamIcon,
 	UserCircleIcon
 } from '../../../icons';
+import { cn } from '@/core/lib/helpers';
 import { useAuthenticateUser } from '../../../../hooks/auth';
 import { useModal } from '../../../../hooks';
 import { useTranslations } from 'next-intl';
@@ -84,7 +86,15 @@ const ClickableCommandItem: FC<{ children: React.ReactNode; action: ShortcutActi
 		</div>
 	);
 };
-export const SidebarCommandModal: FC<{ publicTeam: boolean }> = ({ publicTeam }) => {
+/**
+ * The command palette and its trigger.
+ * `variant="sidebar"` is the original full-width input in the sidebar; `variant="header"` is the compact
+ * search button Ever Works keeps in its top bar (icon · placeholder · ⌘K), placed left of "Collaborate".
+ */
+export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' | 'header' }> = ({
+	publicTeam,
+	variant = 'sidebar'
+}) => {
 	const [open, setOpen] = useState(false);
 
 	const t = useTranslations();
@@ -378,7 +388,26 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean }> = ({ publicTeam })
 
 	return (
 		<>
-			<SidebarCommandForm onClick={() => setOpen(true)} />
+			{variant === 'header' ? (
+				<button
+					type="button"
+					onClick={() => setOpen(true)}
+					aria-label={t('sidebar.COMMAND')}
+					className={cn(
+						'inline-flex h-8 shrink-0 items-center gap-2 rounded-md border border-border bg-card px-2.5 text-sm text-muted-foreground transition-colors',
+						'hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40',
+						'w-8 justify-center px-0 @4xl/page:w-auto @4xl/page:min-w-52 @4xl/page:justify-start @4xl/page:px-2.5'
+					)}
+				>
+					<CommandIcon className="size-4 shrink-0 opacity-70" aria-hidden="true" />
+					<span className="hidden flex-1 truncate text-left @4xl/page:inline">{t('placeholders.ENTER_A_COMMAND')}</span>
+					<kbd className="hidden rounded border border-border bg-background px-1.5 py-0.5 font-sans text-[11px] leading-none text-muted-foreground @4xl/page:inline">
+						⌘K
+					</kbd>
+				</button>
+			) : (
+				<SidebarCommandForm onClick={() => setOpen(true)} />
+			)}
 			<CommandDialog open={open} onOpenChange={setOpen}>
 				<Badge className="m-3 rounded-lg w-fit dark:bg-white/60 dark:text-black">Home</Badge>
 				<CommandInput placeholder="Type a command or search..." />

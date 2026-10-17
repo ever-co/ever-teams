@@ -12,26 +12,26 @@ const SettingsTeamSkeleton = () => {
 		<PageLayout>
 			<div className="pt-16 pb-4 -mt-8 bg-white dark:bg-dark--theme">
 				<Container>
-					<Skeleton height={20} width={180} borderRadius={10} className="dark:bg-[#272930]" />
+					<Skeleton height={20} width={180} borderRadius={10} className="dark:bg-muted" />
 				</Container>
 			</div>
 			<Container className="mb-10">
 				<div className="flex w-full">
 					<LeftSideSettingMenuSkeleton />
-					<div className="flex flex-col w-full dark:bg-[#191A1F]">
+					<div className="flex flex-col w-full dark:bg-card">
 						<EverCard className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
 							<Text className="mb-2 text-4xl font-medium">
-								<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
+								<Skeleton width={200} borderRadius={20} className="dark:bg-muted" />
 							</Text>
 							<Text className="text-base font-normal text-gray-400">
-								<Skeleton width={300} borderRadius={20} className="dark:bg-[#272930]" />
+								<Skeleton width={300} borderRadius={20} className="dark:bg-muted" />
 							</Text>
 							<div className="w-[98%] md:w-[930px]">
 								<div className="flex flex-col items-center justify-between">
 									<div className="w-full mt-5">
 										<div className="">
 											<div className="flex items-center justify-between w-full gap-12 mt-8">
-												<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
+												<Skeleton width={200} borderRadius={20} className="dark:bg-muted" />
 
 												<div className="flex flex-row items-center justify-between grow-0 w-4/5">
 													<InputField type="text" className="" />
@@ -42,24 +42,24 @@ const SettingsTeamSkeleton = () => {
 													<Skeleton
 														width={200}
 														borderRadius={20}
-														className="dark:bg-[#272930]"
+														className="dark:bg-muted"
 													/>
 													<Skeleton
 														width={200}
 														borderRadius={20}
-														className="dark:bg-[#272930] mt-8"
+														className="dark:bg-muted mt-8"
 													/>
 												</div>
 												<div className="flex flex-col">
 													<Skeleton
 														width={200}
 														borderRadius={20}
-														className="dark:bg-[#272930]"
+														className="dark:bg-muted"
 													/>
 													<Skeleton
 														width={200}
 														borderRadius={20}
-														className="dark:bg-[#272930] mt-8"
+														className="dark:bg-muted mt-8"
 													/>
 												</div>
 												<div className="flex gap-12">
@@ -74,13 +74,13 @@ const SettingsTeamSkeleton = () => {
 															width={105}
 															height={54}
 															borderRadius={8}
-															className="dark:bg-[#272930]"
+															className="dark:bg-muted"
 														/>
 													</div>
 												</div>
 											</div>
 											<div className="flex items-center justify-between w-full gap-12 mt-20">
-												<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
+												<Skeleton width={200} borderRadius={20} className="dark:bg-muted" />
 
 												<div className="flex flex-row items-center justify-between grow-0 w-1/2">
 													<InputField type="text" className="" />
@@ -95,7 +95,7 @@ const SettingsTeamSkeleton = () => {
 													<Skeleton
 														width={200}
 														borderRadius={20}
-														className="dark:bg-[#272930]"
+														className="dark:bg-muted"
 													/>
 												</Text>
 												<div className="flex gap-3 mt-4">
@@ -134,18 +134,18 @@ const SettingsTeamSkeleton = () => {
 							<StatusListCard />
 							<div className="w-1/2 mb-8">
 								<div className="flex items-center justify-between mt-12">
-									<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
-									<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
+									<Skeleton width={200} borderRadius={20} className="dark:bg-muted" />
+									<Skeleton width={200} borderRadius={20} className="dark:bg-muted" />
 								</div>
 								<div className="flex items-center justify-between mt-20 ">
-									<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
-									<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
+									<Skeleton width={200} borderRadius={20} className="dark:bg-muted" />
+									<Skeleton width={200} borderRadius={20} className="dark:bg-muted" />
 								</div>
 							</div>
 						</EverCard>
 						<EverCard className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
 							<Text className="text-2xl text-[#EB6961] font-normal">
-								<Skeleton width={200} borderRadius={20} height={25} className="dark:bg-[#272930]" />
+								<Skeleton width={200} borderRadius={20} height={25} className="dark:bg-muted" />
 							</Text>
 							<DangerZoneSkeleton />
 						</EverCard>

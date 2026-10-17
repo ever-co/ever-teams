@@ -11,20 +11,20 @@ const SettingsPersonalSkeleton = () => {
 		<PageLayout>
 			<div className="pt-16 pb-4 -mt-8 bg-white dark:bg-dark--theme">
 				<Container>
-					<Skeleton height={20} width={180} borderRadius={10} className="dark:bg-[#272930]" />
+					<Skeleton height={20} width={180} borderRadius={10} className="dark:bg-muted" />
 				</Container>
 			</div>
 
 			<Container className="mb-10">
 				<div className="flex w-full">
 					<LeftSideSettingMenuSkeleton />
-					<div className="flex flex-col w-full dark:bg-[#191A1F]">
+					<div className="flex flex-col w-full dark:bg-card">
 						<EverCard className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
 							<Text className="mb-2 text-4xl font-medium">
-								<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
+								<Skeleton width={200} borderRadius={20} className="dark:bg-muted" />
 							</Text>
 							<Text className="text-base font-normal text-gray-400">
-								<Skeleton width={300} borderRadius={20} className="dark:bg-[#272930]" />
+								<Skeleton width={300} borderRadius={20} className="dark:bg-muted" />
 							</Text>
 							<div className="flex flex-col justify-between items-center">
 								<div className="w-full">
@@ -35,7 +35,7 @@ const SettingsPersonalSkeleton = () => {
 													circle={true}
 													width={80}
 													height={80}
-													className="relative mt-[32px] dark:bg-[#272930]"
+													className="relative mt-[32px] dark:bg-muted"
 												/>
 											</div>
 										</div>
@@ -53,20 +53,20 @@ const SettingsPersonalSkeleton = () => {
 															<Skeleton
 																width={100}
 																borderRadius={20}
-																className="dark:bg-[#272930]"
+																className="dark:bg-muted"
 															/>
 														</Text>
 														<InputField
 															type="text"
 															placeholder=""
-															className="md:w-[220px] m-0 h-[54px] dark:bg-[#272930] rounded-lg"
+															className="md:w-[220px] m-0 h-[54px] dark:bg-muted rounded-lg"
 														/>
 													</div>
 													<div className="mt-[2rem]">
 														<InputField
 															type="text"
 															placeholder=""
-															className="md:w-[220px] m-0  h-[54px] dark:bg-[#272930] rounded-lg"
+															className="md:w-[220px] m-0  h-[54px] dark:bg-muted rounded-lg"
 														/>
 													</div>
 												</div>
@@ -75,7 +75,7 @@ const SettingsPersonalSkeleton = () => {
 														width={150}
 														borderRadius={8}
 														height={54}
-														className="dark:bg-[#272930]"
+														className="dark:bg-muted"
 													/>
 												</div>
 											</div>
@@ -86,20 +86,20 @@ const SettingsPersonalSkeleton = () => {
 															<Skeleton
 																width={100}
 																borderRadius={20}
-																className="dark:bg-[#272930]"
+																className="dark:bg-muted"
 															/>
 														</Text>
 														<InputField
 															type="text"
 															placeholder=""
-															className="md:w-[220px] m-0  h-[54px] dark:bg-[#272930] rounded-lg"
+															className="md:w-[220px] m-0  h-[54px] dark:bg-muted rounded-lg"
 														/>
 													</div>
 													<div className="mt-5">
 														<InputField
 															type="text"
 															placeholder=""
-															className="md:w-[220px] h-[54px]  dark:bg-[#272930] rounded-lg"
+															className="md:w-[220px] h-[54px]  dark:bg-muted rounded-lg"
 														/>
 													</div>
 												</div>
@@ -108,7 +108,7 @@ const SettingsPersonalSkeleton = () => {
 														width={150}
 														borderRadius={8}
 														height={54}
-														className="dark:bg-[#272930]"
+														className="dark:bg-muted"
 													/>
 												</div>
 											</div>
@@ -119,7 +119,7 @@ const SettingsPersonalSkeleton = () => {
 															width={200}
 															borderRadius={20}
 															height={25}
-															className="dark:bg-[#272930]"
+															className="dark:bg-muted"
 														/>
 													</Text>
 												</div>
@@ -131,7 +131,7 @@ const SettingsPersonalSkeleton = () => {
 															width={300}
 															borderRadius={20}
 															height={35}
-															className="dark:bg-[#272930]"
+															className="dark:bg-muted"
 														/>
 													</Text>
 												</div>
@@ -143,7 +143,7 @@ const SettingsPersonalSkeleton = () => {
 															width={200}
 															borderRadius={20}
 															height={25}
-															className="dark:bg-[#272930]"
+															className="dark:bg-muted"
 														/>
 													</Text>
 												</div>
@@ -151,7 +151,7 @@ const SettingsPersonalSkeleton = () => {
 											<InputField
 												type="text"
 												placeholder=""
-												className="w-full m-0 h-[54px]  dark:bg-[#272930] rounded-lg"
+												className="w-full m-0 h-[54px]  dark:bg-muted rounded-lg"
 											/>
 
 											<div className="flex gap-5 justify-between items-center mt-8 w-full">
@@ -161,7 +161,7 @@ const SettingsPersonalSkeleton = () => {
 															width={200}
 															borderRadius={20}
 															height={25}
-															className="dark:bg-[#272930]"
+															className="dark:bg-muted"
 														/>
 													</Text>
 												</div>
@@ -174,7 +174,7 @@ const SettingsPersonalSkeleton = () => {
 															width={300}
 															borderRadius={20}
 															height={30}
-															className="dark:bg-[#272930]"
+															className="dark:bg-muted"
 														/>
 													</Text>
 												</div>
@@ -184,9 +184,9 @@ const SettingsPersonalSkeleton = () => {
 								</div>
 							</div>
 						</EverCard>
-						<EverCard className="dark:bg-[#272930] p-[32px] mt-[36px]" shadow="bigger">
+						<EverCard className="dark:bg-muted p-[32px] mt-[36px]" shadow="bigger">
 							<Text className="text-2xl text-[#EB6961] font-normal">
-								<Skeleton width={200} borderRadius={20} height={25} className="dark:bg-[#353741]" />
+								<Skeleton width={200} borderRadius={20} height={25} className="dark:bg-white/8" />
 							</Text>
 							<DangerZoneSkeleton />
 						</EverCard>

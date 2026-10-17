@@ -132,7 +132,7 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 		<div className="w-full">
 			<div>
 				<div className="grid grid-cols-[10rem_minmax(0,1fr)] items-center gap-3 pb-4">
-					<p className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('common.TIME_ZONE')}</p>
+					<p className="text-sm font-medium text-muted-foreground">{t('common.TIME_ZONE')}</p>
 					<div className="max-w-sm">
 						<TimezoneDropDown
 							currentTimezone={currentTimezone}
@@ -160,10 +160,10 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 							<button
 								type="button"
 								onClick={() => handleAddTimeSlot(dayIndex)}
-								className="col-start-2 row-start-1 ml-auto flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary hover:bg-primary/15 sm:col-start-3"
+								className="col-start-2 row-start-1 ml-auto flex size-7 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted hover:text-foreground sm:col-start-3"
 								aria-label={t('pages.settingsPersonal.ADD_HOURS_FOR', { day: workDay.day })}
 							>
-								<span className="text-2xl leading-none">+</span>
+								<span className="text-base leading-none">+</span>
 							</button>
 						)}
 						{workDay.enabled &&
@@ -175,19 +175,19 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 									<TimePicker
 										value={timeSlot.startTime}
 										onChange={(value) => handleTimeChange(dayIndex, slotIndex, 'startTime', value)}
-										className="w-full text-sm bg-white dark:bg-gray-700/50 dark:text-gray-300 rounded-md sm:w-24"
+										className="h-9 w-full rounded-md border border-border bg-card text-sm sm:w-24"
 									/>
-									<span className="mx-1 text-gray-400 dark:text-gray-500">-</span>
+									<span className="mx-1 text-muted-foreground">–</span>
 									<TimePicker
 										value={timeSlot.endTime}
 										onChange={(value) => handleTimeChange(dayIndex, slotIndex, 'endTime', value)}
-										className="w-full text-sm bg-white dark:bg-dark--theme-light dark:text-gray-400 sm:w-24"
+										className="h-9 w-full rounded-md border border-border bg-card text-sm sm:w-24"
 									/>
 									{workDay.timeSlots.length > 1 && (
 										<button
 											type="button"
 											onClick={() => handleRemoveTimeSlot(dayIndex, slotIndex)}
-											className="flex justify-center items-center w-7 h-7 text-gray-400 rounded-md hover:text-gray-600 hover:bg-gray-100/80 dark:hover:bg-gray-600/30"
+											className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
 											aria-label={t('pages.settingsPersonal.REMOVE_HOURS_FOR', {
 												day: workDay.day
 											})}
@@ -198,7 +198,7 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 								</div>
 							))}
 						{!workDay.enabled && (
-							<div className="col-span-2 py-2 text-sm text-gray-400 dark:text-gray-500 sm:col-span-1 sm:col-start-2">
+							<div className="col-span-2 py-2 text-sm text-muted-foreground sm:col-span-1 sm:col-start-2">
 								{t('pages.settingsPersonal.UNAVAILABLE')}
 							</div>
 						)}
@@ -233,7 +233,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ enabled, onToggle, label, a
 		{label && (
 			<button
 				type="button"
-				className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-400"
+				className="ml-2 text-sm font-medium text-foreground"
 				onClick={onToggle}
 			>
 				{label}

@@ -39,7 +39,7 @@ export default function UserTeamCard({
 			<EverCard
 				shadow="bigger"
 				className={clsxm(
-					'sm:block hidden transition-all dark:bg-[#1E2025] min-h-[7rem] w-full !py-4',
+					'sm:block hidden transition-all dark:bg-card min-h-[7rem] w-full !py-4',
 					'dark:border border border-transparent dark:border-[#FFFFFF14]',
 					className
 				)}

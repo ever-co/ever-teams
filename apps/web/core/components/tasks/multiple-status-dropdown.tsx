@@ -92,7 +92,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 					'justify-between w-full capitalize',
 					sidebarUI && ['text-xs'],
 					' dark:text-white dark:bg-dark--theme-light',
-					forDetails && 'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
+					forDetails && 'bg-transparent border dark:border-[#FFFFFF33] dark:bg-card',
 					taskStatusClassName
 				)}
 				titleClassName={cn(
@@ -173,7 +173,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 					items={items}
 					renderItem={renderItem as any}
 					multiple={true}
-					dropdownClassName="flex flex-col gap-2.5 max-h-[320px] overflow-auto scrollbar-hide !border-b-0 dark:bg-[#1B1D22]"
+					dropdownClassName="flex flex-col gap-2.5 max-h-[320px] overflow-auto scrollbar-hide !border-b-0 dark:bg-card"
 				>
 					{children && <div className="mt-2">{children}</div>}
 				</CustomListboxDropdown>

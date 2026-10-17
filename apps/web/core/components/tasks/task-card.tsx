@@ -177,9 +177,9 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 			<EverCard
 				shadow="bigger"
 				className={clsxm(
-					'lg:flex items-center justify-between py-3 px-4 md:px-4 hidden h-[7rem] dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D] relative',
-					active && ['border-primary-light dark:bg-[#1E2025]'],
-					'xl:gap-5 gap-2',
+					'relative hidden min-h-[4.5rem] items-center justify-between px-3 py-2.5 lg:flex',
+					active && ['border-primary-light'],
+					'gap-2 xl:gap-3',
 					className
 				)}
 			>
@@ -189,7 +189,7 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 
 				<div
 					className={clsxm(
-						'flex flex-row flex-1 justify-between min-w-[12rem] max-w-[22rem]',
+						'flex min-w-[10rem] flex-1 flex-row justify-between',
 						taskContentClassName
 					)}
 				>
@@ -207,7 +207,7 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 				{(viewType === 'default' || viewType === 'dailyplan') && (
 					<>
 						{/* TaskEstimateInfo */}
-						<div className="flex items-center flex-col justify-center lg:flex-row w-[20%]">
+						<div className="flex min-w-[9rem] shrink-0 flex-col items-center justify-center lg:flex-row">
 							<TaskEstimateInfo
 								plan={plan}
 								memberInfo={memberInfo}
@@ -235,7 +235,7 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 				<VerticalSeparator />
 
 				{/* TaskTimes */}
-				<div className="flex items-center justify-between gap-[1.125rem] min-w-fit px-5 w-max lg:px-3 2xl:max-w-52 3xl:max-w-72">
+				<div className="flex shrink-0 items-center gap-3 px-2">
 					<TaskTimes
 						activeAuthTask={activeAuthTask}
 						task={task}
@@ -249,23 +249,23 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 							activeTeam={activeTeam}
 							currentMember={currentMember}
 							task={task}
-							className="w-11 h-11"
+							className="size-9"
 						/>
 					)}
 				</div>
 				<VerticalSeparator />
 
-				<div className="flex justify-center items-center w-1/5 h-full min-w-fit xl:justify-between lg:px-3 2xl:max-w-52 3xl:max-w-72">
+				<div className="flex shrink-0 items-center justify-end gap-2 px-2">
 					{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
 					<div className="flex justify-center items-center">
 						<ActiveTaskStatusDropdown
 							task={task}
 							onChangeLoading={(load: boolean) => setLoading(load)}
-							className="min-w-[10.625rem] text-sm"
+							className="min-w-[8.5rem] text-sm"
 						/>
 					</div>
 					{/* TaskCardMenu */}
-					<div className="flex justify-end items-end mt-2 shrink-0 xl:mt-0 text-start">
+					<div className="flex shrink-0 items-center justify-end text-start">
 						{task && (currentMember || authMember) && (
 							<TaskCardMenu
 								task={task}

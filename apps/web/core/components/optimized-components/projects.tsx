@@ -62,6 +62,6 @@ export const LazyProjectExportMenu = dynamic(
 	() => import('../pages/projects/project-export-menu').then((mod) => ({ default: mod.ProjectExportMenu })),
 	{
 		ssr: false,
-		loading: () => <div className="w-32 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+		loading: () => <div className="w-32 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 	}
 );

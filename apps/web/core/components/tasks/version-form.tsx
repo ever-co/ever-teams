@@ -19,6 +19,15 @@ import { TTaskVersion } from '@/core/types/schemas';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
+// Settings row (label column + content) and the compact controls of the issue-settings blocks.
+const ROW = 'sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-4';
+const LABEL = 'text-sm font-medium text-muted-foreground sm:pt-2';
+const SUB_LABEL = 'text-xs font-medium text-muted-foreground';
+const SECONDARY_BUTTON =
+	'h-9 shrink-0 gap-1.5 rounded-md bg-card px-3 py-0 text-sm font-medium text-foreground hover:bg-muted';
+const PRIMARY_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium hover:bg-primary/90';
+const CANCEL_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium';
+
 type StatusForm = {
 	formOnly?: boolean;
 	onCreated?: () => void;
@@ -105,108 +114,96 @@ export const TaskVersionForm = ({ formOnly = false, onCreated, onVersionCreated 
 	return (
 		<>
 			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
-				<div className="flex flex-row w-full">
-					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] w-full">
-						{!formOnly && (
-							<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-2 w-full  md:w-[200px]">
-								{t('pages.settingsTeam.VERSIONS')}
-							</Text>
-						)}
+				<div className={clsxm('grid grid-cols-1 gap-2', !formOnly && ROW)}>
+					{!formOnly && <Text className={LABEL}>{t('pages.settingsTeam.VERSIONS')}</Text>}
 
-						<div className="flex flex-col items-center w-full sm:items-start">
-							{!createNew && !edit && (
+					<div className="flex min-w-0 flex-col gap-3">
+						{!createNew && !edit && (
+							<div className="flex flex-wrap items-center gap-2">
 								<Button
-									variant="outline"
-									className="font-normal justify-center border-2 rounded-[10px] text-md w-[230px] gap-2 h-[46px]"
+									variant="outline-dark"
+									className={SECONDARY_BUTTON}
 									onClick={() => {
 										setEdit(null);
 										setCreateNew(true);
 									}}
 								>
-									<PlusIcon className=" font-normal w-[16px] h-[16px]" />
+									<PlusIcon className="size-4" />
 									{t('pages.settingsTeam.CREATE_NEW_VERSION')}
 								</Button>
-							)}
+							</div>
+						)}
 
-							{(createNew || edit) && (
-								<>
-									<Text className="flex-none grow-0 mb-2 text-lg font-normal text-gray-400">
-										{createNew && 'New'}
-										{edit && t('common.EDIT')} {t('common.VERSION')}
-									</Text>
-									<div
-										className={clsxm(
-											'flex w-full gap-x-5 items-center mt-3',
-											formOnly && ['flex-wrap space-y-2']
-										)}
+						{(createNew || edit) && (
+							<>
+								<Text className={SUB_LABEL}>
+									{createNew && 'New'}
+									{edit && t('common.EDIT')} {t('common.VERSION')}
+								</Text>
+								<div className="flex w-full flex-wrap items-center gap-2">
+									<InputField
+										type="text"
+										placeholder={t('pages.settingsTeam.CREATE_NEW_VERSION')}
+										className="mb-0 h-9 w-full"
+										wrapperClassName="mb-0 min-w-[12rem] flex-1 sm:max-w-xs"
+										{...register('name')}
+									/>
+								</div>
+								<div className="flex flex-wrap gap-2">
+									<Button
+										variant="primary"
+										className={PRIMARY_BUTTON}
+										type="submit"
+										disabled={createTaskVersionLoading || editTaskVersionLoading}
+										loading={createTaskVersionLoading || editTaskVersionLoading}
 									>
-										<InputField
-											type="text"
-											placeholder={t('pages.settingsTeam.CREATE_NEW_VERSION')}
-											className="mb-0 min-w-[350px]"
-											wrapperClassName="mb-0 rounded-lg"
-											{...register('name')}
-										/>
-									</div>
-									<div className="flex gap-x-4 mt-5">
+										{edit ? t('common.SAVE') : t('common.CREATE')}
+									</Button>
+
+									{!formOnly && (
 										<Button
-											variant="primary"
-											className="px-4 py-4 font-normal rounded-xl text-md"
-											type="submit"
-											disabled={createTaskVersionLoading || editTaskVersionLoading}
-											loading={createTaskVersionLoading || editTaskVersionLoading}
+											variant="grey"
+											className={CANCEL_BUTTON}
+											onClick={() => {
+												setCreateNew(false);
+												setEdit(null);
+											}}
 										>
-											{edit ? t('common.SAVE') : t('common.CREATE')}
+											{t('common.CANCEL')}
 										</Button>
+									)}
+								</div>
+							</>
+						)}
 
-										{!formOnly && (
-											<Button
-												variant="grey"
-												className="px-4 py-4 font-normal rounded-xl text-md"
-												onClick={() => {
+						{!formOnly && taskVersions?.length > 0 && (
+							<>
+								<Text className={clsxm(SUB_LABEL, 'pt-1')}>{t('pages.settingsTeam.LIST_OF_VERSONS')}</Text>
+								<div className="flex w-full flex-wrap gap-2">
+									{loading && !taskVersions?.length && <Spinner dark={false} />}
+									{taskVersions && taskVersions?.length ? (
+										taskVersions.map((version) => (
+											<StatusesListCard
+												key={version.id}
+												statusTitle={version.name ? version.name?.split('-').join(' ') : ''}
+												bgColor={''}
+												statusIcon={''}
+												onEdit={() => {
 													setCreateNew(false);
-													setEdit(null);
+													setEdit(version);
 												}}
-											>
-												{t('common.CANCEL')}
-											</Button>
-										)}
-									</div>
-								</>
-							)}
-
-							{!formOnly && taskVersions?.length > 0 && (
-								<>
-									<Text className="flex-none grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
-										{t('pages.settingsTeam.LIST_OF_VERSONS')}
-									</Text>
-									<div className="flex flex-wrap gap-3 justify-center w-full sm:justify-start">
-										{loading && !taskVersions?.length && <Spinner dark={false} />}
-										{taskVersions && taskVersions?.length ? (
-											taskVersions.map((version) => (
-												<StatusesListCard
-													key={version.id}
-													statusTitle={version.name ? version.name?.split('-').join(' ') : ''}
-													bgColor={''}
-													statusIcon={''}
-													onEdit={() => {
-														setCreateNew(false);
-														setEdit(version);
-													}}
-													onDelete={() => {
-														deleteTaskVersion(version.id);
-													}}
-													className="dark:text-gray-100"
-													isStatus={true}
-												/>
-											))
-										) : (
-											<></>
-										)}
-									</div>
-								</>
-							)}
-						</div>
+												onDelete={() => {
+													deleteTaskVersion(version.id);
+												}}
+												isStatus={true}
+											/>
+										))
+									) : (
+										<></>
+									)}
+								</div>
+							</>
+						)}
 					</div>
 				</div>
 			</form>

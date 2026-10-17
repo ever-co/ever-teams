@@ -8,12 +8,12 @@ const KanbanBoardSkeleton = () => {
 
 	return (
 		<>
-			<div className="flex flex-row gap-[20px] w-full min-h-[600px] p-[32px] bg-transparent dark:bg-[#181920]">
+			<div className="flex flex-row gap-[20px] w-full min-h-[600px] p-[32px] bg-transparent dark:bg-background">
 				{columns.map((_, index: number) => {
 					return (
 						<React.Fragment key={index}>
 							<div className="flex flex-col gap-[10px]">
-								<Skeleton height={40} width={325} borderRadius={10} className="dark:bg-[#353741]" />
+								<Skeleton height={40} width={325} borderRadius={10} className="dark:bg-white/8" />
 
 								<div className="flex flex-col gap-[5px]">
 									{tasks.map((_, index: number) => {
@@ -23,13 +23,13 @@ const KanbanBoardSkeleton = () => {
 													height={155}
 													width={325}
 													borderRadius={10}
-													className="dark:bg-[#353741]"
+													className="dark:bg-white/8"
 												/>
 											</React.Fragment>
 										);
 									})}
 
-									<Skeleton height={56} width={325} borderRadius={10} className="dark:bg-[#353741]" />
+									<Skeleton height={56} width={325} borderRadius={10} className="dark:bg-white/8" />
 								</div>
 							</div>
 						</React.Fragment>

@@ -296,7 +296,7 @@ function MembersList({
 	handleMemberClick: (member: TOrganizationTeamEmployee) => void;
 }) {
 	return (
-		<Command className="overflow-hidden rounded-t-none border-t border-[#0000001A] dark:border-[#26272C]">
+		<Command className="overflow-hidden rounded-t-none border-t border-[#0000001A] dark:border-border">
 			<CommandInput placeholder="Search member..." />
 			<CommandList>
 				<CommandEmpty>No member founded</CommandEmpty>
@@ -332,7 +332,7 @@ function MembersList({
 									) ? (
 										<Avatar
 											size={36}
-											className="relative cursor-pointer dark:border-[0.25rem] dark:border-[#26272C]"
+											className="relative cursor-pointer dark:border-[0.25rem] dark:border-border"
 											imageUrl={
 												member?.employee?.user?.image?.thumbUrl ||
 												member?.employee?.user?.image?.fullUrl ||

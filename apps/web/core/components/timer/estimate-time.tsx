@@ -145,7 +145,7 @@ export function EstimateTime() {
 						handleFocus={handleFocus}
 						handleBlur={handleBlur}
 					/>
-					<div className="mr-1 h-[27px] text-[14px] flex items-end border-b-2 dark:border-[#616164] border-dashed ">
+					<div className="mr-1 h-[27px] text-[14px] flex items-end border-b-2 dark:border-border border-dashed ">
 						h
 					</div>
 					:
@@ -160,7 +160,7 @@ export function EstimateTime() {
 						handleFocus={handleFocusMinutes}
 						handleBlur={handleBlurMinutes}
 					/>
-					<div className="mr-1 h-[27px] text-[14px] flex items-end border-b-2 dark:border-[#616164] border-dashed ">
+					<div className="mr-1 h-[27px] text-[14px] flex items-end border-b-2 dark:border-border border-dashed ">
 						m
 					</div>
 				</div>
