@@ -348,7 +348,13 @@ export class McpProxy {
 			// Public health route of the MCP server; POST /sse needs a token and has no ping method
 			await this.client.get('/health');
 			return true;
-		} catch {
+		} catch (error) {
+			// A 5xx from the health route is an explicit failure that a ping must not hide
+			const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+			if (status !== undefined && status >= 500) {
+				logger.warn({ status }, 'MCP Server health check failed');
+				return false;
+			}
 			// Fall back to a ping for MCP servers without a /health route
 		}
 
