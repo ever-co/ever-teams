@@ -43,8 +43,9 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 		[myPermissions]
 	);
 
+	const initialDate = timeLogData.startedAt ?? timeLogData.timesheet?.startedAt;
 	const [dateRange, setDateRange] = useState<{ date: Date | null }>({
-		date: timeLogData.timesheet?.startedAt ? new Date(timeLogData.timesheet.startedAt) : new Date()
+		date: initialDate ? new Date(initialDate) : new Date()
 	});
 	const seconds =
 		timeLogData.startedAt && timeLogData.stoppedAt
@@ -116,21 +117,18 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 			}
 
 			const baseDate = dateRange.date ?? new Date();
+			// The inputs show local times, so they are read back in local time, not as UTC.
 			const startedAt = new Date(
-				Date.UTC(
-					baseDate.getFullYear(),
-					baseDate.getMonth(),
-					baseDate.getDate(),
-					...timeRange.startTime.split(':').map(Number)
-				)
+				baseDate.getFullYear(),
+				baseDate.getMonth(),
+				baseDate.getDate(),
+				...timeRange.startTime.split(':').map(Number)
 			);
 			const stoppedAt = new Date(
-				Date.UTC(
-					baseDate.getFullYear(),
-					baseDate.getMonth(),
-					baseDate.getDate(),
-					...timeRange.endTime.split(':').map(Number)
-				)
+				baseDate.getFullYear(),
+				baseDate.getMonth(),
+				baseDate.getDate(),
+				...timeRange.endTime.split(':').map(Number)
 			);
 			const updatePayload: ITimeLogUpdatePayload = {
 				timeLogId: timeLogData.id,
