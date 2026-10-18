@@ -20,9 +20,11 @@ export class TrackingApiClient {
 	private baseUrl: string;
 	private defaultHeaders: ITrackingApiHeaders;
 	private timeout: number;
+	private explicitBaseUrl: boolean;
 
 	constructor(baseUrl?: string, defaultHeaders: ITrackingApiHeaders = {}, timeout: number = 30000) {
 		this.baseUrl = baseUrl || 'https://apidemo.gauzy.co/api'; // Default to Demo Gauzy API
+		this.explicitBaseUrl = !!baseUrl;
 
 		this.defaultHeaders = {
 			'Content-Type': 'application/json',
@@ -325,12 +327,17 @@ export class TrackingApiClient {
 	updateConfig(
 		config: Partial<{
 			baseUrl: string;
+			// Only applied while no explicit baseUrl was given, so a host's own baseUrl always wins
+			defaultBaseUrl: string;
 			headers: ITrackingApiHeaders;
 			timeout: number;
 		}>
 	) {
 		if (config.baseUrl) {
 			this.baseUrl = config.baseUrl;
+			this.explicitBaseUrl = true;
+		} else if (config.defaultBaseUrl && !this.explicitBaseUrl) {
+			this.baseUrl = config.defaultBaseUrl;
 		}
 		if (config.headers) {
 			this.defaultHeaders = { ...this.defaultHeaders, ...config.headers };

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { TENANT_ID_COOKIE_NAME, TOKEN_COOKIE_NAME } from '@/core/constants/config/constants';
+import { TENANT_ID_COOKIE_NAME } from '@/core/constants/config/constants';
 import { readInstallSource } from '@/core/lib/ever-platform/stats-config';
+import { requestAccessToken, requestCookies as readRequestCookies } from '../request-cookies';
 
 /**
  * Shared pieces of the /api/ever-stats and /api/ever-connect route handlers: the signed-in person's
@@ -17,41 +18,13 @@ export interface RouteSession {
 
 /** The cookies of a request, read from its `Cookie` header (synchronously, as the handlers need them). */
 export function requestCookies(req: Request): Map<string, string> {
-	const cookies = new Map<string, string>();
-	for (const part of (req.headers.get('cookie') ?? '').split(';')) {
-		const at = part.indexOf('=');
-		if (at <= 0) continue;
-		const name = part.slice(0, at).trim();
-		if (!name || cookies.has(name)) continue;
-		const raw = part.slice(at + 1).trim();
-		try {
-			cookies.set(name, decodeURIComponent(raw));
-		} catch {
-			cookies.set(name, raw);
-		}
-	}
-	return cookies;
-}
-
-/** The access token: one cookie, or the chunks the sign-in writes for a long one (`auth-token_totalChunks`). */
-function accessToken(cookies: Map<string, string>): string | null {
-	const total = Number(cookies.get(`${TOKEN_COOKIE_NAME}_totalChunks`));
-	if (Number.isInteger(total) && total > 0 && total <= 64) {
-		const chunks: string[] = [];
-		for (let index = 0; index < total; index += 1) {
-			const chunk = cookies.get(`${TOKEN_COOKIE_NAME}${index}`);
-			if (!chunk) return null;
-			chunks.push(chunk);
-		}
-		return chunks.join('');
-	}
-	return cookies.get(TOKEN_COOKIE_NAME) || null;
+	return readRequestCookies(req);
 }
 
 /** The person's own token and tenant, or `null` when nobody is signed in. */
 export function routeSession(req: Request): RouteSession | null {
 	const cookies = requestCookies(req);
-	const bearer = accessToken(cookies);
+	const bearer = requestAccessToken(cookies);
 	if (!bearer) return null;
 	return { bearer, tenantId: cookies.get(TENANT_ID_COOKIE_NAME) || null };
 }

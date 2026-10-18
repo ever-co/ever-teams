@@ -860,6 +860,8 @@
 			"SIZES_HEADING": "גדלים",
 			"TEAM_NAME": "שם צוות",
 			"TEAM_TYPE": "סוג צוות",
+			"TEAM_TYPE_UPDATED": "סוג הצוות עודכן בהצלחה",
+			"TEAM_TYPE_UPDATE_FAILED": "נכשל לעדכן את סוג הצוות. אנא נסה שוב.",
 			"TIME_TRACKING": "מעקב זמן",
 			"ENFORCE_PLAN": "אכוף את התוכנית",
 			"ADD_NEW_MEMBER": "הוסף חבר חדש",

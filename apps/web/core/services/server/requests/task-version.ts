@@ -52,16 +52,25 @@ export function getTaskVersionListRequest(
 	{
 		organizationId,
 		tenantId,
-		organizationTeamId
+		organizationTeamId,
+		projectId
 	}: {
 		tenantId: string;
 		organizationId: string;
 		organizationTeamId: string | null;
+		projectId?: string | null;
 	},
 	bearer_token: string
 ) {
+	const query = new URLSearchParams({
+		tenantId,
+		organizationId,
+		organizationTeamId: organizationTeamId ?? 'null'
+	});
+	if (projectId !== undefined && projectId !== null) query.set('projectId', projectId);
+
 	return serverFetch({
-		path: `/task-versions?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`,
+		path: `/task-versions?${query}`,
 		method: 'GET',
 		bearer_token
 	});

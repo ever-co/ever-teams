@@ -1,4 +1,3 @@
-import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createTaskRequest, getTeamTasksIRequest, getTeamTasksRequest } from '@/core/services/server/requests';
 import { taskSchema } from '@/core/types/schemas/task/task.schema';
@@ -20,8 +19,6 @@ export async function POST(req: Request) {
 		return $res({ errors: { name: 'Invalid task name !' } });
 	}
 
-	const activeTeam = getActiveTeamIdCookie({ req, res });
-
 	const { data: createdTask } = await createTaskRequest({
 		bearer_token: access_token,
 		data: {
@@ -30,7 +27,7 @@ export async function POST(req: Request) {
 			members: user?.employee?.id ? [{ id: user.employee.id }] : [],
 			teams: [
 				{
-					id: activeTeam
+					id: teamId
 				}
 			],
 			tags: [],

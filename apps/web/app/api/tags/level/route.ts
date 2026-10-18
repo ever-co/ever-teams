@@ -10,12 +10,12 @@ export async function GET(req: Request) {
 
 	if (!user) return $res('Unauthorized');
 
-	const { organizationTeamId } = searchParams as unknown as { organizationTeamId: string };
+	const organizationTeamId = searchParams.get('organizationTeamId') || null;
 
 	const par = {
 		tenantId,
 		organizationId,
-		organizationTeamId: (organizationTeamId as string) || null
+		organizationTeamId
 	};
 
 	const { data } = await getTaskLabelsListRequest(par, access_token);
