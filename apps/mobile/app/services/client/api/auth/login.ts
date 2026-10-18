@@ -52,7 +52,7 @@ export async function login(params: ILoginDataAPI) {
 
 		// The confirm reply lists the workspaces (no user or token) and the code is single-use,
 		// so hand the workspaces back as they are instead of reading them as a login reply.
-		if (Array.isArray((authReq.data as any)?.workspaces)) {
+		if (Array.isArray(authReq.data?.workspaces)) {
 			return {
 				status: 201,
 				workspacesResponse: authReq.data
