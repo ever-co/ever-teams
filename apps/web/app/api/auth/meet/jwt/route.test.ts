@@ -8,7 +8,8 @@
  * plugin lowercases the room claim and compares it with the room Jitsi Meet joins (lowercased, URI-encoded).
  */
 import jwt from 'jsonwebtoken';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { refused, signedIn } from '@/test/auth/guard-answers';
 import { GET } from './route';
 
 const mockAuthenticatedGuard = jest.fn();
@@ -44,31 +45,6 @@ const SESSION_USER = {
 	tenantId: 'session-tenant'
 };
 
-/** The guard's answer for a valid session; the tenant cookie deliberately differs from the session tenant. */
-function signedIn(user: Record<string, unknown> = SESSION_USER) {
-	return {
-		$res: (data: unknown) => NextResponse.json(data),
-		user,
-		access_token: 'access-token',
-		tenantId: 'cookie-tenant',
-		organizationId: 'organization-1',
-		teamId: 'team-1',
-		taskId: undefined,
-		projectId: undefined
-	};
-}
-
-/** The guard's answer when Gauzy refuses the session (401) or cannot answer (503). */
-function refused(status: number) {
-	const message = status === 503 ? 'Session check unavailable, retry later' : 'Unauthorized';
-	return {
-		$res: (data: unknown) => NextResponse.json({ statusCode: status, message: data }, { status }),
-		user: null,
-		status,
-		deny: () => NextResponse.json({ message }, { status })
-	};
-}
-
 function tokenRequest(query = 'room=TeamName-Alice-room0123456789a') {
 	return new NextRequest(`https://teams.example.org/api/auth/meet/jwt?${query}`);
 }
@@ -88,7 +64,7 @@ beforeEach(() => {
 	mockMeetConfig.domain = 'meet.example.org';
 	mockMeetConfig.appId = 'ever_teams';
 	mockMeetConfig.secret = 'meet-secret';
-	mockAuthenticatedGuard.mockResolvedValue(signedIn());
+	mockAuthenticatedGuard.mockResolvedValue(signedIn(SESSION_USER));
 	consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 });
 
@@ -98,36 +74,23 @@ afterEach(() => {
 
 describe('GET /api/auth/meet/jwt', () => {
 	describe('who gets a token', () => {
+		// Each refusal comes first: with the secret unset, a later check would answer 500 instead
 		it.each([
-			['a refused session', 401],
-			['a session check Gauzy could not answer', 503]
-		])('answers %s with the guard status and signs no token', async (_case, status) => {
-			mockAuthenticatedGuard.mockResolvedValue(refused(status));
+			['a refused session', refused(401), 401],
+			['a session check Gauzy could not answer', refused(503), 503],
+			['a session without a tenant', signedIn({ ...SESSION_USER, tenantId: null }), 401]
+		])('answers %s with %d before reading the Jitsi configuration', async (_case, guardAnswer, status) => {
+			mockAuthenticatedGuard.mockResolvedValue(guardAnswer);
+			mockMeetConfig.secret = undefined;
 			const request = tokenRequest();
 
 			const response = await GET(request);
 
-			expect(response.status).toBe(status);
-			expect(mockAuthenticatedGuard.mock.calls[0][0]).toBe(request);
-			expect(await response.json()).not.toHaveProperty('token');
-		});
-
-		it('refuses an anonymous caller before looking at the Jitsi configuration', async () => {
-			mockAuthenticatedGuard.mockResolvedValue(refused(401));
-			mockMeetConfig.secret = undefined;
-
-			const response = await GET(tokenRequest());
-
-			expect(response.status).toBe(401);
-		});
-
-		it('refuses a session without a tenant', async () => {
-			mockAuthenticatedGuard.mockResolvedValue(signedIn({ ...SESSION_USER, tenantId: null }));
-
-			const response = await GET(tokenRequest());
-
-			expect(response.status).toBe(401);
-			expect(await response.json()).not.toHaveProperty('token');
+			expect(mockAuthenticatedGuard).toHaveBeenCalledWith(request, expect.anything());
+			expect({ status: response.status, body: await response.json() }).toEqual({
+				status,
+				body: expect.not.objectContaining({ token: expect.anything() })
+			});
 		});
 
 		it.each([

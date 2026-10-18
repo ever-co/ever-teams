@@ -9,7 +9,8 @@
  * the absence) it was built with. Behaviour-preservation tests: Jest never inlines env, so the "not frozen
  * at build time" half is pinned by test/architecture/self-hostable-docker-image.test.ts.
  */
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { refused, signedIn } from '@/test/auth/guard-answers';
 import { GET } from './route';
 
 const mockAuthenticatedGuard = jest.fn();
@@ -30,31 +31,6 @@ jest.mock('livekit-server-sdk', () => ({
 
 const SESSION_USER = { id: 'user-1', email: 'member@example.org', name: 'Team Member', tenantId: 'session-tenant' };
 
-/** The guard's answer for a valid session; the tenant cookie deliberately differs from the session tenant. */
-function signedIn(user: Record<string, unknown> = SESSION_USER) {
-	return {
-		$res: (data: unknown) => NextResponse.json(data),
-		user,
-		access_token: 'access-token',
-		tenantId: 'cookie-tenant',
-		organizationId: 'organization-1',
-		teamId: 'team-1',
-		taskId: undefined,
-		projectId: undefined
-	};
-}
-
-/** The guard's answer when Gauzy refuses the session (401) or cannot answer (503). */
-function refused(status: number) {
-	const message = status === 503 ? 'Session check unavailable, retry later' : 'Unauthorized';
-	return {
-		$res: (data: unknown) => NextResponse.json({ statusCode: status, message: data }, { status }),
-		user: null,
-		status,
-		deny: () => NextResponse.json({ message }, { status })
-	};
-}
-
 const ORIGINAL_ENV = process.env;
 let consoleError: jest.SpyInstance;
 
@@ -69,7 +45,7 @@ beforeEach(() => {
 		LIVEKIT_API_SECRET: 'api-secret',
 		NEXT_PUBLIC_LIVEKIT_URL: 'wss://livekit.example.org'
 	};
-	mockAuthenticatedGuard.mockResolvedValue(signedIn());
+	mockAuthenticatedGuard.mockResolvedValue(signedIn(SESSION_USER));
 	consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 });
 
