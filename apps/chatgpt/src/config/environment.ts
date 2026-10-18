@@ -42,6 +42,10 @@ export interface AppConfig {
 	// ChatGPT widget metadata (`openai/widgetDomain` / `openai/widgetCSP`, see MetaEnhancer)
 	widgetDomain: string;
 	widgetCsp: string;
+
+	// Reverse proxy and POST /mcp rate limit (TRUST_PROXY / CHATGPT_MCP_RATE_LIMIT, see resolveRateLimitConfig)
+	trustProxy?: boolean | number | string;
+	mcpRateLimit?: number;
 }
 
 /**
@@ -82,6 +86,38 @@ export function resolveWidgetConfig(
 	};
 }
 
+export const DEFAULT_CHATGPT_MCP_RATE_LIMIT = 60;
+
+/**
+ * Resolve how POST /mcp counts its callers (read at runtime, empty values count as unset):
+ * - TRUST_PROXY: Express's `trust proxy` setting, so `req.ip` is the caller's address and not the address of the
+ *   proxy in front of the app. `true`/`false`, a hop count (`1` behind a single ingress or ngrok) or the
+ *   addresses/subnets Express accepts (e.g. `loopback`, `10.0.0.0/8,172.16.0.0/12`). Unset keeps Express's
+ *   default, which trusts no proxy.
+ * - CHATGPT_MCP_RATE_LIMIT: requests allowed per caller and per minute (default: 60).
+ */
+export function resolveRateLimitConfig(
+	env: NodeJS.ProcessEnv = process.env
+): Pick<AppConfig, 'trustProxy' | 'mcpRateLimit'> {
+	const mcpRateLimit = Number(env.CHATGPT_MCP_RATE_LIMIT?.trim() || undefined);
+
+	return {
+		trustProxy: parseTrustProxy(env.TRUST_PROXY?.trim()),
+		mcpRateLimit: Number.isInteger(mcpRateLimit) && mcpRateLimit > 0 ? mcpRateLimit : DEFAULT_CHATGPT_MCP_RATE_LIMIT
+	};
+}
+
+function parseTrustProxy(value: string | undefined): AppConfig['trustProxy'] {
+	if (!value) {
+		return undefined;
+	}
+	if (/^(true|false)$/i.test(value)) {
+		return value.toLowerCase() === 'true';
+	}
+	// A plain number is a hop count; Express would read the string '1' as an address and reject it
+	return /^\d+$/.test(value) ? Number(value) : value;
+}
+
 /**
  * Application configuration loaded from environment variables
  */
@@ -117,7 +153,10 @@ export const config: AppConfig = {
 	sessionSecret: process.env.SESSION_SECRET || 'default-secret-change-in-production',
 
 	// ChatGPT widget metadata (CHATGPT_WIDGET_DOMAIN / CHATGPT_WIDGET_CSP)
-	...resolveWidgetConfig(process.env)
+	...resolveWidgetConfig(process.env),
+
+	// Reverse proxy and POST /mcp rate limit (TRUST_PROXY / CHATGPT_MCP_RATE_LIMIT)
+	...resolveRateLimitConfig(process.env)
 };
 
 /**

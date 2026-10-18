@@ -94,6 +94,8 @@ spec:
                         value: '3004'
                       - name: CHATGPT_APP_HOST
                         value: '0.0.0.0'
+                      - name: TRUST_PROXY
+                        value: '1'
                       - name: MCP_SERVER_URL
                         value: '$MCP_SERVER_URL'
                       - name: OAUTH_SERVER_URL
