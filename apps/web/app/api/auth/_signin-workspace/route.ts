@@ -95,7 +95,12 @@ export async function POST(req: Request) {
 			const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, access_token);
 			const organization = organizations?.items[0];
 
-			console.log({ t: 5, organization });
+			// Ids only: the server log is readable by anyone with cluster access.
+			console.log('[API /auth/signin-workspace] invite accepted', {
+				userId,
+				tenantId,
+				organizationId: organization?.organizationId
+			});
 
 			if (!organization) {
 				return NextResponse.json(
