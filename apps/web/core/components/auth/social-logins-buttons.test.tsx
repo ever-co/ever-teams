@@ -158,7 +158,7 @@ describe('SocialLogins: Ever ID', () => {
 			expect.arrayContaining([
 				'w-full',
 				'min-h-10',
-				'rounded-lg',
+				'rounded-[8px]',
 				'bg-[#0a0a0a]',
 				'text-white',
 				'dark:bg-[#ededed]'

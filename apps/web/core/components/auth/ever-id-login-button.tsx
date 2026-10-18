@@ -14,7 +14,7 @@ import { EverStar } from '@/core/components/icons/ever-star';
  * grows past 40 px) only when the text is enlarged or a translation is long, so nothing is pushed out of it.
  */
 const EVER_ID_BUTTON_CLASS =
-	'box-border flex w-full min-h-10 items-center justify-center gap-2 px-4 py-[9px] rounded-lg border text-sm leading-5 font-medium cursor-pointer select-none transition-colors duration-150 bg-[#0a0a0a] border-[#0a0a0a] text-white hover:bg-[#262626] dark:bg-[#ededed] dark:border-white/[0.09] dark:text-[#0a0a0a] dark:hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#231645] dark:focus-visible:outline-[#cc66ff] disabled:opacity-50 disabled:pointer-events-none';
+	'box-border flex w-full min-h-10 items-center justify-center gap-2 px-4 py-[9px] rounded-[8px] border text-sm leading-5 font-medium cursor-pointer select-none transition-colors duration-150 bg-[#0a0a0a] border-[#0a0a0a] text-white hover:bg-[#262626] dark:bg-[#ededed] dark:border-white/[0.09] dark:text-[#0a0a0a] dark:hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#231645] dark:focus-visible:outline-[#cc66ff] disabled:opacity-50 disabled:pointer-events-none';
 
 /** The `<wordmark>` tag of the label: the drawn wordmark, and its words for screen readers. */
 function renderWordmark(chunks: ReactNode) {
