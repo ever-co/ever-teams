@@ -49,7 +49,14 @@ export function stopTimerRequest(params: ITimerParams, bearer_token: string) {
 }
 
 export function toggleTimerRequest(
-	{ source = TimerSource.MOBILE, logType = 'TRACKED', taskId, tenantId, organizationId }: ITimerParams,
+	{
+		source = TimerSource.MOBILE,
+		logType = 'TRACKED',
+		taskId,
+		tenantId,
+		organizationId,
+		organizationTeamId
+	}: ITimerParams,
 	bearer_token: string
 ) {
 	return serverFetch<ITimer>({
@@ -60,7 +67,8 @@ export function toggleTimerRequest(
 			logType,
 			taskId,
 			tenantId,
-			organizationId
+			organizationId,
+			...(organizationTeamId ? { organizationTeamId } : {})
 		},
 		bearer_token,
 		tenantId
