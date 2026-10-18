@@ -1,5 +1,6 @@
 import { ITaskStatusCreate } from '@/core/types/interfaces/task/task-status/task-status';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { getTeamProjectScope } from '@/core/services/server/team-project-scope';
 import { createStatusRequest, getTaskStatusListRequest } from '@/core/services/server/requests/taskStatus';
 import { NextResponse } from 'next/server';
 
@@ -9,15 +10,7 @@ export async function GET(req: Request) {
 
 	if (!user) return $res('Unauthorized');
 
-	const { searchParams } = new URL(req.url);
-
-	const { organizationTeamId } = searchParams as unknown as { organizationTeamId: string };
-
-	const par = {
-		tenantId,
-		organizationId,
-		organizationTeamId: (organizationTeamId as string) || null
-	};
+	const par = { tenantId, organizationId, ...getTeamProjectScope(req) };
 
 	const { data } = await getTaskStatusListRequest(par, access_token);
 

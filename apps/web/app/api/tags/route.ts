@@ -11,12 +11,12 @@ export async function GET(req: Request) {
 
 	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: status ?? 401 });
 
-	const { organizationTeamId } = searchParams as unknown as { organizationTeamId: string };
+	const organizationTeamId = searchParams.get('organizationTeamId') || null;
 
 	const par = {
 		tenantId,
 		organizationId,
-		organizationTeamId: (organizationTeamId as string) || null
+		organizationTeamId
 	};
 
 	return $res(await getTaskLabelsListRequest(par, access_token));
