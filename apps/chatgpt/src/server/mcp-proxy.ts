@@ -150,15 +150,22 @@ export class McpProxy {
 	/**
 	 * Initialize MCP connection
 	 */
-	async initialize(clientInfo: {
-		name: string;
-		version: string;
-	}): Promise<any> {
-		return this.forwardRequest('initialize', {
-			protocolVersion: '2024-11-05',
-			capabilities: {},
-			clientInfo
-		});
+	async initialize(
+		clientInfo: {
+			name: string;
+			version: string;
+		},
+		authToken?: string
+	): Promise<any> {
+		return this.forwardRequest(
+			'initialize',
+			{
+				protocolVersion: '2024-11-05',
+				capabilities: {},
+				clientInfo
+			},
+			authToken
+		);
 	}
 
 	/**
