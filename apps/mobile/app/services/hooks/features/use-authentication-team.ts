@@ -183,7 +183,11 @@ export function useAuthenticationTeam() {
 		setJoinError('');
 
 		try {
-			await login({ email: authEmail, code: authInviteCode }).then((res) => {
+			const workspacesResponse = await login({ email: authEmail, code: authInviteCode }).then((res) => {
+				if ('workspacesResponse' in res) {
+					return res.workspacesResponse;
+				}
+
 				const { response, errors, status } = res;
 
 				if (status === 200) {
@@ -227,6 +231,18 @@ export function useAuthenticationTeam() {
 					}
 				}
 			});
+
+			// login() already used the single-use code, so it must not be confirmed a second time.
+			if (workspacesResponse) {
+				setIsLoading(false);
+
+				return {
+					response: 201,
+					success: true,
+					data: workspacesResponse,
+					error: null
+				};
+			}
 
 			return {
 				success: false,
