@@ -43,3 +43,31 @@ export function updateOrganizationTeamEmployeeRequest({
 		body
 	});
 }
+
+// Fields read by PUT /organization-team-employee/:id/active-task.
+type OrganizationTeamEmployeeActiveTaskBody = {
+	organizationId: string;
+	organizationTeamId: string;
+	activeTaskId: string | null;
+	tenantId: string;
+};
+
+export function updateOrganizationTeamEmployeeActiveTaskRequest({
+	id,
+	bearer_token,
+	tenantId,
+	body
+}: {
+	id: string;
+	bearer_token: string;
+	tenantId: string;
+	body: OrganizationTeamEmployeeActiveTaskBody;
+}) {
+	return serverFetch<IOrganizationTeamEmployeeUpdate>({
+		path: `/organization-team-employee/${id}/active-task`,
+		method: 'PUT',
+		bearer_token,
+		tenantId,
+		body
+	});
+}
