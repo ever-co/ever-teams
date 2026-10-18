@@ -10,7 +10,7 @@ export function MainHeader({ children, className }: PropsWithChildren<IClassName
 				className={clsxm(
 					'bg-white dark:bg-dark-high  pt-20 -mt-8 pb-4',
 					className,
-					'border-[#eeeeeee9]  border-b-[0.125rem] dark:border-b-[#26272cd6] dark:shadow-lg '
+					'border-[#eeeeeee9]  border-b-[0.125rem] dark:border-b-border dark:shadow-lg '
 				)}
 			>
 				<Container>{children}</Container>

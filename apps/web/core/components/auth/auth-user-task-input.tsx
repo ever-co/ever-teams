@@ -38,28 +38,28 @@ export function AuthUserTaskInput({ className }: IClassName) {
 						task={activeTeamTask}
 						className="w-fit lg:max-w-[190px] dark:text-white dark:border-gray-800"
 						disabled={!activeTeamTask}
-						taskStatusClassName="text-xs py-1.5 w-full dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] overflow-hidden text-ellipsis whitespace-nowrap"
+						taskStatusClassName="text-xs py-1.5 w-full dark:bg-card dark:border dark:border-[#FFFFFF33] overflow-hidden text-ellipsis whitespace-nowrap"
 					/>
 
 					<ActiveTaskPropertiesDropdown
 						task={activeTeamTask}
 						className="w-fit lg:max-w-[190px] dark:text-white dark:border-gray-800"
 						disabled={!activeTeamTask}
-						taskStatusClassName="w-full py-1.5 text-xs dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] overflow-hidden text-ellipsis whitespace-nowrap"
+						taskStatusClassName="w-full py-1.5 text-xs dark:bg-card dark:border dark:border-[#FFFFFF33] overflow-hidden text-ellipsis whitespace-nowrap"
 					/>
 
 					<ActiveTaskSizesDropdown
 						task={activeTeamTask}
 						className="w-fit lg:max-w-[190px] dark:text-white dark:border-gray-800"
 						disabled={!activeTeamTask}
-						taskStatusClassName="w-full py-1.5 text-xs dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] overflow-hidden text-ellipsis whitespace-nowrap"
+						taskStatusClassName="w-full py-1.5 text-xs dark:bg-card dark:border dark:border-[#FFFFFF33] overflow-hidden text-ellipsis whitespace-nowrap"
 					/>
 
 					<TaskLabels
 						task={activeTeamTask}
 						className="w-fit lg:max-w-[170px] text-xs"
 						forDetails={false}
-						taskStatusClassName="dark:bg-[#1B1D22] text-xs border dark:border-gray-700 overflow-hidden text-ellipsis whitespace-nowrap"
+						taskStatusClassName="dark:bg-card text-xs border dark:border-gray-700 overflow-hidden text-ellipsis whitespace-nowrap"
 					/>
 					{activeTeamTask && (
 						<ProjectDropDown

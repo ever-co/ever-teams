@@ -55,7 +55,7 @@ export const compactCalendarClassNames = {
 	months: 'flex flex-col gap-2 sm:flex-row',
 	month: 'space-y-2',
 	head_cell: 'text-gray-500 dark:text-gray-400 w-8 font-medium text-xs flex-1 text-center py-1',
-	day: 'h-8 w-8 p-0 mx-auto text-xs font-normal aria-selected:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors dark:text-gray-300'
+	day: 'h-8 w-8 p-0 mx-auto text-xs font-normal aria-selected:opacity-100 hover:bg-gray-100 dark:hover:bg-muted rounded-full flex items-center justify-center transition-colors dark:text-gray-300'
 } as const;
 
 interface CustomCaptionProps extends CaptionProps {
@@ -102,21 +102,21 @@ function CustomCaption({ displayMonth, onMonthChange }: CustomCaptionProps) {
 			<div className="flex gap-1 justify-between items-center w-full">
 				<div className="relative z-[999]">
 					<Select value={MONTHS[displayMonth.getMonth()]} onValueChange={handleMonthChange}>
-						<SelectTrigger className="px-2 h-8 text-sm font-medium text-gray-700 bg-transparent border-none transition hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-0 dark:text-gray-300">
+						<SelectTrigger className="px-2 h-8 text-sm font-medium text-gray-700 bg-transparent border-none transition hover:bg-gray-50 dark:hover:bg-muted focus:ring-0 dark:text-gray-300">
 							<SelectValue placeholder="Month" />
 						</SelectTrigger>
 						<SelectContent
 							position="popper"
 							sideOffset={4}
-							className="z-[1000] bg-white dark:bg-gray-800 rounded-md py-1 shadow-md dark:border dark:border-gray-700 max-h-[200px] overflow-y-auto"
+							className="z-[1000] bg-white dark:bg-muted rounded-md py-1 shadow-md dark:border dark:border-gray-700 max-h-[200px] overflow-y-auto"
 						>
 							{MONTHS.map((month, index) => (
 								<CustomSelectItem
 									key={month}
 									value={month}
 									className={cn(
-										'text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm transition dark:text-gray-300',
-										displayMonth.getMonth() === index ? 'bg-gray-100 dark:bg-gray-700' : ''
+										'text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-muted rounded-sm transition dark:text-gray-300',
+										displayMonth.getMonth() === index ? 'bg-gray-100 dark:bg-muted' : ''
 									)}
 								>
 									{month}
@@ -127,21 +127,21 @@ function CustomCaption({ displayMonth, onMonthChange }: CustomCaptionProps) {
 				</div>
 				<div className="relative z-[999]">
 					<Select value={displayMonth.getFullYear().toString()} onValueChange={handleYearChange}>
-						<SelectTrigger className="px-2 h-8 text-sm font-medium text-gray-700 bg-transparent border-none transition hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-0 dark:text-gray-300">
+						<SelectTrigger className="px-2 h-8 text-sm font-medium text-gray-700 bg-transparent border-none transition hover:bg-gray-50 dark:hover:bg-muted focus:ring-0 dark:text-gray-300">
 							<SelectValue placeholder="Year" />
 						</SelectTrigger>
 						<SelectContent
 							position="popper"
 							sideOffset={4}
-							className="z-[1000] bg-white dark:bg-gray-800 rounded-md py-1 shadow-md dark:border dark:border-gray-700 max-h-[200px] overflow-y-auto"
+							className="z-[1000] bg-white dark:bg-muted rounded-md py-1 shadow-md dark:border dark:border-gray-700 max-h-[200px] overflow-y-auto"
 						>
 							{years.map((year) => (
 								<CustomSelectItem
 									key={year}
 									value={year.toString()}
 									className={cn(
-										'text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm transition dark:text-gray-300',
-										displayMonth.getFullYear() === year ? 'bg-gray-100 dark:bg-gray-700' : ''
+										'text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-muted rounded-sm transition dark:text-gray-300',
+										displayMonth.getFullYear() === year ? 'bg-gray-100 dark:bg-muted' : ''
 									)}
 								>
 									{year}
@@ -180,7 +180,7 @@ function Calendar({
 				nav: 'space-x-1 flex items-center',
 				nav_button: cn(
 					buttonVariants({ variant: 'ghost' }),
-					'h-7 w-7 bg-transparent p-0 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full'
+					'h-7 w-7 bg-transparent p-0 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-muted rounded-full'
 				),
 				nav_button_previous: 'absolute left-1',
 				nav_button_next: 'absolute right-1',

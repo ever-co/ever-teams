@@ -5,179 +5,170 @@ interface SettingsSkeletonProps {
 	className?: string;
 }
 
+const PULSE = 'bg-[#F0F0F0] dark:bg-white/8 animate-pulse';
+// A settings row: a label column on the left and a 36px control on the right.
+const ROW =
+	'grid grid-cols-1 gap-2 border-t border-border py-3 first:border-t-0 first:pt-0 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4';
+
+const SettingRowSkeleton: FC<{ labelWidth?: string; control?: React.ReactNode }> = ({
+	labelWidth = 'w-24',
+	control
+}) => (
+	<div className={ROW}>
+		<div className={cn('h-4 rounded', labelWidth, PULSE)} />
+		{control ?? <div className={cn('h-9 w-full max-w-md rounded-md', PULSE)} />}
+	</div>
+);
+
+const TableSkeleton: FC<{ columns: number; rows: number; avatar?: boolean }> = ({ columns, rows, avatar }) => (
+	<div className="w-full">
+		{/* Header */}
+		<div
+			className="grid gap-4 border-b border-border py-2.5"
+			style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+		>
+			{[...Array(columns)].map((_, i) => (
+				<div key={i} className={cn('h-3 w-16 rounded', PULSE)} />
+			))}
+		</div>
+
+		{/* Rows */}
+		{[...Array(rows)].map((_, i) => (
+			<div
+				key={i}
+				className="grid items-center gap-4 border-b border-border py-2.5 last:border-b-0"
+				style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+			>
+				{[...Array(columns)].map((_, col) => (
+					<div key={col} className="flex items-center gap-3">
+						{avatar && col === 0 ? <div className={cn('size-8 shrink-0 rounded-full', PULSE)} /> : null}
+						<div className={cn('h-4 rounded', col === columns - 1 ? 'h-7 w-20 rounded-md' : 'w-24', PULSE)} />
+					</div>
+				))}
+			</div>
+		))}
+	</div>
+);
+
 /**
  * Skeleton for TeamSettingForm component
- * Matches exact structure: TeamAvatar + form fields
+ * Matches exact structure: the settings rows under the team avatar
  */
 export const TeamSettingFormSkeleton: FC<SettingsSkeletonProps> = ({ className }) => {
 	return (
-		<div className={cn('flex flex-col gap-6', className)}>
-			{/* Team Avatar Section */}
-			<div className="flex gap-4 items-center mb-6">
-				<div className="w-20 h-20 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-				<div className="flex flex-col gap-2">
-					<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-					<div className="w-24 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-				</div>
-			</div>
-
-			{/* Form Fields */}
-			<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-				{/* Team Name */}
-				<div className="flex flex-col gap-2">
-					<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-					<div className="w-full h-12 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
-				</div>
-
-				{/* Team Description */}
-				<div className="flex flex-col gap-2">
-					<div className="w-28 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-					<div className="w-full h-12 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
-				</div>
-			</div>
-
-			{/* Additional Settings */}
-			<div className="flex flex-col gap-4">
-				<div className="w-40 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-				<div className="w-full h-32 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
-			</div>
-
-			{/* Save Button */}
-			<div className="flex justify-end">
-				<div className="w-24 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg" />
-			</div>
+		<div className={cn('flex flex-col', className)}>
+			<SettingRowSkeleton labelWidth="w-20" />
+			<SettingRowSkeleton labelWidth="w-20" />
+			<SettingRowSkeleton labelWidth="w-12" />
+			<SettingRowSkeleton labelWidth="w-16" />
+			<SettingRowSkeleton
+				labelWidth="w-16"
+				control={
+					<div className="flex flex-wrap items-center gap-4">
+						<div className="flex items-center gap-2">
+							<div className={cn('size-4 rounded-full', PULSE)} />
+							<div className={cn('h-4 w-20 rounded', PULSE)} />
+						</div>
+						<div className="flex items-center gap-2">
+							<div className={cn('size-4 rounded-full', PULSE)} />
+							<div className={cn('h-4 w-20 rounded', PULSE)} />
+						</div>
+					</div>
+				}
+			/>
+			{[...Array(3)].map((_, i) => (
+				<SettingRowSkeleton
+					key={i}
+					labelWidth="w-28"
+					control={
+						<div className="flex items-center gap-2.5">
+							<div className={cn('h-[38px] w-[74px] rounded-full', PULSE)} />
+							<div className={cn('h-4 w-16 rounded', PULSE)} />
+						</div>
+					}
+				/>
+			))}
 		</div>
 	);
 };
 
 /**
  * Skeleton for InvitationSetting component
- * Matches exact structure: invitation table with actions
+ * Matches exact structure: search + invite toolbar, then the invitation table
  */
 export const InvitationSettingSkeleton: FC<SettingsSkeletonProps> = ({ className }) => {
 	return (
 		<div className={cn('flex flex-col gap-4', className)}>
-			{/* Invitation Form */}
-			<div className="flex gap-4 items-end">
-				<div className="flex-1">
-					<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
-					<div className="w-full h-12 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
-				</div>
-				<div className="w-24 h-12 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg" />
+			{/* Toolbar */}
+			<div className="flex items-center justify-between gap-2">
+				<div className={cn('h-9 w-full max-w-xs rounded-lg', PULSE)} />
+				<div className={cn('h-9 w-24 rounded-md', PULSE)} />
 			</div>
 
 			{/* Invitations Table */}
-			<div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-600">
-				{/* Table Header */}
-				<div className="p-4 bg-gray-50 border-b border-gray-200 dark:bg-gray-800 dark:border-gray-600">
-					<div className="grid grid-cols-4 gap-4">
-						<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-						<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-						<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-						<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-					</div>
-				</div>
-
-				{/* Table Rows */}
-				{[...Array(3)].map((_, i) => (
-					<div key={i} className="p-4 border-b border-gray-200 dark:border-gray-600 last:border-b-0">
-						<div className="grid grid-cols-4 gap-4 items-center">
-							<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-							<div className="w-20 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-							<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-							<div className="flex gap-2">
-								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-							</div>
-						</div>
-					</div>
-				))}
-			</div>
+			<TableSkeleton columns={4} rows={3} avatar />
 		</div>
 	);
 };
 
 /**
  * Skeleton for MemberSetting component
- * Matches exact structure: member management table
+ * Matches exact structure: sub-heading, search, then the member table
  */
 export const MemberSettingSkeleton: FC<SettingsSkeletonProps> = ({ className }) => {
 	return (
-		<div className={cn('flex flex-col gap-4', className)}>
-			{/* Search and Filters */}
-			<div className="flex gap-4 items-center">
-				<div className="flex-1 h-12 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
-				<div className="w-32 h-12 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
-			</div>
+		<div className={cn('flex flex-col gap-3', className)}>
+			<div className={cn('h-4 w-32 rounded', PULSE)} />
+			<div className={cn('h-9 w-full max-w-xs rounded-lg', PULSE)} />
 
 			{/* Members Table */}
-			<div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-600">
-				{/* Table Header */}
-				<div className="p-4 bg-gray-50 border-b border-gray-200 dark:bg-gray-800 dark:border-gray-600">
-					<div className="grid grid-cols-5 gap-4">
-						<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-						<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-						<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-						<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-						<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-					</div>
-				</div>
-
-				{/* Table Rows */}
-				{[...Array(5)].map((_, i) => (
-					<div key={i} className="p-4 border-b border-gray-200 dark:border-gray-600 last:border-b-0">
-						<div className="grid grid-cols-5 gap-4 items-center">
-							{/* Avatar + Name */}
-							<div className="flex gap-3 items-center">
-								<div className="w-10 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-								<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-							</div>
-							<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-							<div className="w-20 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-							<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-							<div className="flex gap-2">
-								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-							</div>
-						</div>
-					</div>
-				))}
-			</div>
+			<TableSkeleton columns={5} rows={5} avatar />
 		</div>
 	);
 };
 
 /**
  * Skeleton for IntegrationSetting component
- * Matches exact structure: integration cards with toggles
+ * Matches exact structure: the GitHub row (logo, name, description, action)
  */
 export const IntegrationSettingSkeleton: FC<SettingsSkeletonProps> = ({ className }) => {
 	return (
-		<div className={cn('grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3', className)}>
-			{[...Array(6)].map((_, i) => (
+		<div className={cn('flex flex-col gap-4', className)}>
+			<div className="flex items-center justify-between gap-3">
+				<div className="flex items-center gap-3">
+					<div className={cn('size-9 shrink-0 rounded-md', PULSE)} />
+					<div className="flex flex-col gap-2">
+						<div className={cn('h-4 w-20 rounded', PULSE)} />
+						<div className={cn('h-3 w-64 rounded', PULSE)} />
+					</div>
+				</div>
+				<div className={cn('h-9 w-20 rounded-md', PULSE)} />
+			</div>
+		</div>
+	);
+};
+
+/**
+ * Skeleton for IssuesSettings component
+ * Matches exact structure: one section per list (versions, statuses, priorities, sizes, labels)
+ */
+export const IssuesSettingsSkeleton: FC<SettingsSkeletonProps> = ({ className }) => {
+	return (
+		<div className={cn('flex flex-col divide-y divide-border', className)}>
+			{[...Array(5)].map((_, i) => (
 				<div
 					key={i}
-					className="p-6 bg-white rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-800"
+					className="grid grid-cols-1 gap-2 py-4 first:pt-0 last:pb-0 sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-4"
 				>
-					{/* Integration Icon + Name */}
-					<div className="flex gap-4 items-center mb-4">
-						<div className="w-12 h-12 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg" />
-						<div className="flex flex-col gap-2">
-							<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-							<div className="w-32 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+					<div className={cn('h-4 w-24 rounded sm:mt-2', PULSE)} />
+					<div className="flex flex-col gap-3">
+						<div className={cn('h-9 w-44 rounded-md', PULSE)} />
+						<div className={cn('h-3 w-20 rounded', PULSE)} />
+						<div className="flex flex-wrap gap-2">
+							{[...Array(4)].map((_, chip) => (
+								<div key={chip} className={cn('h-9 w-36 rounded-md', PULSE)} />
+							))}
 						</div>
-					</div>
-
-					{/* Description */}
-					<div className="mb-4">
-						<div className="w-full h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
-						<div className="w-3/4 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-					</div>
-
-					{/* Toggle Switch */}
-					<div className="flex justify-between items-center">
-						<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-						<div className="w-12 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
 					</div>
 				</div>
 			))}
@@ -186,87 +177,22 @@ export const IntegrationSettingSkeleton: FC<SettingsSkeletonProps> = ({ classNam
 };
 
 /**
- * Skeleton for IssuesSettings component
- * Matches exact structure: issue type configurations
- */
-export const IssuesSettingsSkeleton: FC<SettingsSkeletonProps> = ({ className }) => {
-	return (
-		<div className={cn('flex flex-col gap-6', className)}>
-			{/* Issue Types Section */}
-			<div className="flex flex-col gap-4">
-				<div className="w-32 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-
-				{/* Issue Type Cards */}
-				<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-					{[...Array(4)].map((_, i) => (
-						<div
-							key={i}
-							className="p-4 bg-white rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-800"
-						>
-							<div className="flex justify-between items-center">
-								<div className="flex gap-3 items-center">
-									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-									<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-								</div>
-								<div className="w-12 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-							</div>
-						</div>
-					))}
-				</div>
-			</div>
-
-			{/* Priority Settings */}
-			<div className="flex flex-col gap-4">
-				<div className="w-28 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-
-				{/* Priority Cards */}
-				<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-					{[...Array(3)].map((_, i) => (
-						<div
-							key={i}
-							className="p-4 bg-white rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-800"
-						>
-							<div className="flex justify-between items-center">
-								<div className="flex gap-3 items-center">
-									<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-								</div>
-								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-							</div>
-						</div>
-					))}
-				</div>
-			</div>
-		</div>
-	);
-};
-
-/**
  * Skeleton for DangerZoneTeam component
- * Matches exact structure: danger actions with confirmations
+ * Matches exact structure: three rows of title + description with an outline action
  */
 export const DangerZoneTeamSkeleton: FC<SettingsSkeletonProps> = ({ className }) => {
 	return (
-		<div className={cn('flex flex-col gap-6', className)}>
-			{/* Warning Message */}
-			<div className="p-4 bg-red-50 rounded-lg border border-red-200 dark:bg-red-900/20 dark:border-red-800">
-				<div className="w-full h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
-				<div className="w-3/4 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-			</div>
-
-			{/* Danger Actions */}
+		<div className={cn('flex flex-col', className)}>
 			{[...Array(3)].map((_, i) => (
 				<div
 					key={i}
-					className="p-4 bg-red-50 rounded-lg border border-red-200 dark:border-red-800 dark:bg-red-900/10"
+					className="flex items-center justify-between gap-3 border-t border-border py-4 first:border-t-0 first:pt-0"
 				>
-					<div className="flex justify-between items-center">
-						<div className="flex flex-col gap-2">
-							<div className="w-32 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-							<div className="w-48 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-						</div>
-						<div className="w-24 h-10 bg-red-200 rounded-lg animate-pulse dark:bg-red-800" />
+					<div className="flex flex-col gap-2">
+						<div className={cn('h-4 w-32 rounded', PULSE)} />
+						<div className={cn('h-3 w-64 rounded', PULSE)} />
 					</div>
+					<div className={cn('h-9 w-24 rounded-md', PULSE)} />
 				</div>
 			))}
 		</div>
@@ -279,11 +205,11 @@ export const DangerZoneTeamSkeleton: FC<SettingsSkeletonProps> = ({ className })
 export const EverPlatformSectionSkeleton: FC<SettingsSkeletonProps> = ({ className }) => {
 	return (
 		<div className={cn('flex flex-col gap-4', className)}>
-			<div className="w-48 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-			<div className="w-full h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-			<div className="flex justify-between items-center">
-				<div className="w-40 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-				<div className="w-11 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
+			<div className={cn('h-4 w-48 rounded', PULSE)} />
+			<div className={cn('h-3 w-full rounded', PULSE)} />
+			<div className="flex items-center justify-between">
+				<div className={cn('h-4 w-40 rounded', PULSE)} />
+				<div className={cn('h-6 w-11 rounded-full', PULSE)} />
 			</div>
 		</div>
 	);

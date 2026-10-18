@@ -23,7 +23,10 @@ import { useUpdateOrganizationTeam } from '@/core/hooks/organizations/teams/use-
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/core/components/common/table';
 
-export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] }) => {
+const HEAD_CELL = 'h-auto px-0 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground';
+const BODY_CELL = 'px-0 py-2.5 text-sm text-foreground';
+
+export const MemberTable =({ members }: { members: TOrganizationTeamEmployee[] }) => {
 	const t = useTranslations();
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems, pageCount } =
 		usePagination<TOrganizationTeamEmployee>({ items: members, defaultItemsPerPage: 5 });
@@ -159,59 +162,38 @@ export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] 
 					itemsPerPage > 20 ? 'h-[55rem]' : ''
 				)}
 			>
-				<Table className="w-full text-sm text-left text-gray-500 dark:bg-dark--theme-light">
-					<TableHeader className="text-xs text-gray-700 uppercase border-b">
-						<TableRow>
-							<TableHead
-								scope="col"
-								className="pl-0 py-3 text-sm font-normal capitalize min-w-32 w-fit text-[#B1AEBC] dark:text-white h-auto px-0"
-							>
+				<Table className="w-full text-left text-sm">
+					<TableHeader className="border-b border-border">
+						<TableRow className="hover:bg-transparent">
+							<TableHead scope="col" className={clsxm(HEAD_CELL, 'min-w-32')}>
 								{t('common.NAME')}
 							</TableHead>
-							<TableHead
-								scope="col"
-								className="text-sm font-normal capitalize min-w-32 text-[#B1AEBC] dark:text-white w-fit h-auto px-0 py-3"
-							>
+							<TableHead scope="col" className={clsxm(HEAD_CELL, 'min-w-32')}>
 								{t('common.POSITION')}
 							</TableHead>
-							<TableHead
-								scope="col"
-								className="text-sm font-normal capitalize min-w-32 text-[#B1AEBC] dark:text-white w-fit h-auto px-0 py-3"
-							>
+							<TableHead scope="col" className={clsxm(HEAD_CELL, 'min-w-32')}>
 								{t('common.ROLES')}
 							</TableHead>
-							<TableHead
-								scope="col"
-								className="text-sm font-normal capitalize min-w-36 text-[#B1AEBC] dark:text-white w-fit h-auto px-0 py-3"
-							>
+							<TableHead scope="col" className={clsxm(HEAD_CELL, 'min-w-36')}>
 								{t('common.JOIN_OR_LEFT')}
 							</TableHead>
-							<TableHead
-								scope="col"
-								className="text-sm font-normal capitalize min-w-32 text-[#B1AEBC] dark:text-white w-fit h-auto px-0 py-3"
-							>
+							<TableHead scope="col" className={clsxm(HEAD_CELL, 'min-w-32')}>
 								{t('common.STATUS')}
 							</TableHead>
-							<TableHead
-								scope="col"
-								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-fit h-auto px-0 py-3"
-							></TableHead>
+							<TableHead scope="col" className={HEAD_CELL}></TableHead>
 						</TableRow>
 					</TableHeader>
-					<TableBody className="dark:bg-dark--theme-light">
+					<TableBody>
 						{currentItems.map((member, index) => (
-							<TableRow
-								className="bg-white dark:bg-dark--theme-light dark:border-gray-700 w-fit"
-								key={index}
-							>
+							<TableRow className="border-border hover:bg-muted/40" key={index}>
 								<TableCell
 									scope="row"
-									className="flex items-center p-0 py-4 pl-0 text-gray-900 whitespace-nowrap dark:text-white w-fit"
+									className="flex items-center gap-3 whitespace-nowrap px-0 py-2.5 text-foreground"
 								>
 									{member.employee.user?.imageId ? (
 										<Avatar
-											size={35}
-											className="relative cursor-pointer"
+											size={32}
+											className="relative shrink-0 cursor-pointer"
 											imageUrl={
 												member.employee.user?.image?.thumbUrl ||
 												member.employee.user?.image?.fullUrl ||
@@ -222,10 +204,10 @@ export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] 
 									) : member.employee.user?.name ? (
 										<div
 											className={clsxm(
-												'w-[35px] h-[35px]',
+												'size-8 shrink-0',
 												'flex justify-center items-center',
 												'text-xs rounded-full text-default dark:text-white',
-												'font-normal shadow-md'
+												'font-normal'
 											)}
 											style={{
 												backgroundColor: `${stc(member.employee.user?.name || '')}80`
@@ -236,7 +218,7 @@ export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] 
 									) : (
 										''
 									)}
-									<div className="flex flex-col gap-1 pl-3">
+									<div className="flex min-w-0 flex-col gap-0.5">
 										{editMemberRef.current && editMemberRef.current.id === member.id ? (
 											<InputField
 												type="text"
@@ -258,7 +240,7 @@ export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] 
 												}
 											>
 												<div
-													className="text-sm font-semibold text-[#282048] dark:text-white max-w-[12.5rem] 3xl:max-w-[14.25rem] overflow-hidden text-ellipsis whitespace-nowrap"
+													className="max-w-[12.5rem] overflow-hidden text-ellipsis whitespace-nowrap text-sm font-medium text-foreground 3xl:max-w-[14.25rem]"
 													onDoubleClick={() => {
 														handleEdit(member);
 													}}
@@ -276,34 +258,31 @@ export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] 
 												CHARACTER_LIMIT_TO_SHOW
 											}
 										>
-											<Text className="text-xs dark:text-white text-[#B1AEBC] font-normal max-w-[12.5rem] 3xl:max-w-[14.25rem] overflow-hidden text-ellipsis whitespace-nowrap">
+											<Text className="max-w-[12.5rem] overflow-hidden text-ellipsis whitespace-nowrap text-xs font-normal text-muted-foreground 3xl:max-w-[14.25rem]">
 												{member.employee.user?.email || ''}
 											</Text>
 										</Tooltip>
 									</div>
 								</TableCell>
-								<TableCell className="text-xs font-semibold py-4 text-[#282048] dark:text-white p-0 px-0 w-fit">
+								<TableCell className={BODY_CELL}>
 									{/* TODO Position */}-
 								</TableCell>
-								<TableCell
-									className="text-xs font-semibold py-4 text-[#282048] dark:text-white p-0 px-0 w-fit"
-									onDoubleClick={() => handleEdit(member)}
-								>
+								<TableCell className={BODY_CELL} onDoubleClick={() => handleEdit(member)}>
 									{editMemberRef.current && editMemberRef.current.id === member.id ? (
 										<EditUserRoleDropdown member={member} handleRoleChange={handleRoleChange} />
 									) : (
 										<span className="capitalize">{getRoleString(member.role)}</span>
 									)}
 								</TableCell>
-								<TableCell className="text-xs font-semibold py-4 text-[#282048] dark:text-white p-0 px-0 w-fit">
+								<TableCell className={BODY_CELL}>
 									{/* 12 Feb 2020 12:00 pm */}
 									{moment(member.employee.createdAt).format('DD MMM YYYY hh:mm a')}
 								</TableCell>
-								<TableCell className="p-0 px-0 py-4 text-sm font-semibold w-fit">
+								<TableCell className="px-0 py-2.5">
 									{/* TODO dynamic */}
 									<MemberTableStatus status={member.employee.isActive ? 'Member' : 'Suspended'} />
 								</TableCell>
-								<TableCell className="flex justify-center items-center p-0 px-0 py-4 w-fit">
+								<TableCell className="flex items-center justify-center px-0 py-2.5">
 									<TableActionPopover member={member} handleEdit={handleEdit} status="settings" />
 								</TableCell>
 							</TableRow>

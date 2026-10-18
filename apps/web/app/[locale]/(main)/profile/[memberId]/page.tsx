@@ -220,8 +220,8 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 									<LazyTimer
 										className={cn(
 											'p-5 rounded-2xl shadow-xl card',
-											'dark:border-[0.125rem] dark:border-[#28292F]',
-											'dark:bg-[#1B1D22]'
+											'dark:border-[0.125rem] dark:border-border',
+											'dark:bg-card'
 										)}
 									/>
 								</Suspense>

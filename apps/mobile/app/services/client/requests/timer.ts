@@ -1,4 +1,5 @@
 /* eslint-disable camelcase */
+import moment from 'moment-timezone';
 import {
 	ITimer,
 	ITimerStatusParams,
@@ -10,7 +11,15 @@ import {
 import { serverFetch } from '../fetch';
 
 export function getTimerStatusRequest({ tenantId, organizationId }: ITimerStatusParams, bearer_token: string) {
-	const params = new URLSearchParams({ tenantId, organizationId });
+	// Without these bounds Gauzy counts "today" from the API server's midnight, not the user's.
+	// One clock read for both bounds, so a call at midnight cannot span two days.
+	const now = moment();
+	const params = new URLSearchParams({
+		tenantId,
+		organizationId,
+		todayStart: now.clone().startOf('day').toISOString(),
+		todayEnd: now.clone().endOf('day').toISOString()
+	});
 	return serverFetch<ITimerStatus>({
 		path: `/timesheet/timer/status?${params.toString()}`,
 		method: 'GET',
@@ -40,7 +49,14 @@ export function stopTimerRequest(params: ITimerParams, bearer_token: string) {
 }
 
 export function toggleTimerRequest(
-	{ source = TimerSource.MOBILE, logType = 'TRACKED', taskId, tenantId, organizationId }: ITimerParams,
+	{
+		source = TimerSource.MOBILE,
+		logType = 'TRACKED',
+		taskId,
+		tenantId,
+		organizationId,
+		organizationTeamId
+	}: ITimerParams,
 	bearer_token: string
 ) {
 	return serverFetch<ITimer>({
@@ -51,7 +67,8 @@ export function toggleTimerRequest(
 			logType,
 			taskId,
 			tenantId,
-			organizationId
+			organizationId,
+			...(organizationTeamId ? { organizationTeamId } : {})
 		},
 		bearer_token,
 		tenantId

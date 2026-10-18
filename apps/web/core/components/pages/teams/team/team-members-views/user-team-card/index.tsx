@@ -244,7 +244,7 @@ export const UserTeamCard = React.memo(function UserTeamCard({
 			<EverCard
 				shadow="bigger"
 				className={clsxm(
-					'sm:flex sm:flex-col hidden transition-all dark:bg-[#1E2025] min-h-24 !py-2.5 px-2.5 md:px-4 sm:justify-center',
+					'sm:flex sm:flex-col hidden transition-all dark:bg-card min-h-24 !py-2.5 px-2.5 md:px-4 sm:justify-center',
 					active
 						? ['border-primary-light border-[0.1875rem]']
 						: ['dark:border border border-transparent dark:border-[#FFFFFF14]'],

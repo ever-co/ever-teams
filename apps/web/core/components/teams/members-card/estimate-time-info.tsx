@@ -63,7 +63,7 @@ export const EstimateTimeInfo = forwardRef<HTMLDivElement, Props>(
 						)}
 						{editMode && (
 							<div className="flex items-center justify-center">
-								<div className="bg-[#F2F4FB] dark:bg-[#18181B] flex" ref={ref}>
+								<div className="bg-[#F2F4FB] dark:bg-background flex" ref={ref}>
 									<TimeInput
 										value={'' + editable.estimateHours}
 										type="string"
@@ -74,7 +74,7 @@ export const EstimateTimeInfo = forwardRef<HTMLDivElement, Props>(
 										handleDoubleClick={canEditMode}
 										style={`w-[30px] h-[30px] pt-1 bg-transparent`}
 									/>
-									<div className="mr-2 h-[30px] flex items-end text-[14px] border-b-2 dark:border-[#616164] border-dashed">
+									<div className="mr-2 h-[30px] flex items-end text-[14px] border-b-2 dark:border-border border-dashed">
 										h
 									</div>
 									<div className="flex items-center">:</div>
@@ -88,7 +88,7 @@ export const EstimateTimeInfo = forwardRef<HTMLDivElement, Props>(
 										handleEnter={onSubmitEstimation}
 										style={`w-[30px] bg-transparent h-[30px] pt-1`}
 									/>
-									<div className="mr-2 h-[30px] flex items-end text-[14px] border-b-2 dark:border-[#616164] border-dashed">
+									<div className="mr-2 h-[30px] flex items-end text-[14px] border-b-2 dark:border-border border-dashed">
 										m
 									</div>
 								</div>{' '}

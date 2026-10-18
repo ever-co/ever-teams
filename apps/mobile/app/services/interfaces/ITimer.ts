@@ -75,6 +75,7 @@ export type ITimerParams = {
 	logType: 'TRACKED';
 	source: TimerSource;
 	tags: any[];
+	organizationTeamId?: string;
 };
 
 export type IToggleTimerParams = ITimerStatusParams & {

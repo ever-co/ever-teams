@@ -24,7 +24,7 @@ const TeamMembersSkeleton = ({ view = IssuesView.CARDS, className }: TeamMembers
 			{/* Table header */}
 			<div className="grid grid-cols-6 gap-4 p-4 border-b dark:border-gray-700">
 				{Array.from({ length: 6 }, (_, index) => (
-					<div key={index} className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+					<div key={index} className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 				))}
 			</div>
 
@@ -34,7 +34,7 @@ const TeamMembersSkeleton = ({ view = IssuesView.CARDS, className }: TeamMembers
 					{Array.from({ length: 6 }, (_, colIndex) => (
 						<div
 							key={colIndex}
-							className="w-full h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded"
+							className="w-full h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded"
 						/>
 					))}
 				</div>
@@ -47,15 +47,15 @@ const TeamMembersSkeleton = ({ view = IssuesView.CARDS, className }: TeamMembers
 			{Array.from({ length: 6 }, (_, index) => (
 				<div key={index} className="p-4 rounded-lg border dark:border-gray-700">
 					<div className="flex gap-3 items-center mb-3">
-						<div className="w-10 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
+						<div className="w-10 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
 						<div className="flex-1">
-							<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
-							<div className="w-16 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+							<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mb-2" />
+							<div className="w-16 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 						</div>
 					</div>
 					<div className="space-y-2">
-						<div className="w-full h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-						<div className="w-3/4 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+						<div className="w-full h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+						<div className="w-3/4 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 					</div>
 				</div>
 			))}

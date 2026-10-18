@@ -85,6 +85,7 @@ describe('Ever ID outcome logs', () => {
 		['ever_id.signin', 'signup_required', 'info'],
 		['ever_id.signin', 'no_workspace', 'info'],
 		['ever_id.signin', 'blocked', 'info'],
+		['ever_id.signin', 'email_unverified', 'info'],
 		['ever_id.signin', 'rejected', 'warn'],
 		['ever_id.signin', 'gauzy_error', 'warn'],
 		['ever_id.confirm', 'invalid', 'info'],
@@ -104,6 +105,23 @@ describe('Ever ID outcome logs', () => {
 
 		expect((level === 'info' ? info : warn).mock.calls).toHaveLength(1);
 		expect((level === 'info' ? warn : info).mock.calls).toHaveLength(0);
+	});
+
+	it('writes why a sign-in was rejected, from the fixed reasons only', () => {
+		delete process.env.HOSTNAME;
+		const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+		logEverIdOutcome('ever_id.signin', { outcome: 'rejected', latencyMs: 7, status: 401, reason: 'token_refused' });
+		logEverIdOutcome('ever_id.signin', {
+			outcome: 'rejected',
+			status: 401,
+			reason: 'person@example.test' as unknown as 'token_refused'
+		});
+
+		expect(warn.mock.calls).toEqual([
+			['ever_id.signin outcome=rejected latency_ms=7 status=401 reason=token_refused'],
+			['ever_id.signin outcome=rejected status=401']
+		]);
 	});
 
 	it('keeps every value on one line', () => {

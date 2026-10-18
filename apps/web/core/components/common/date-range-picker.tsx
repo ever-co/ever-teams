@@ -77,7 +77,7 @@ export function DateRangePicker({ className, onDateRangeChange, data, initialRan
 	return (
 		<Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
 			<PopoverTrigger asChild>
-				<div className="flex items-center border border-[#E4E4E7] dark:border-[#2D2D2D] rounded-md w-[225px]">
+				<div className="flex items-center border border-[#E4E4E7] dark:border-border rounded-md w-[225px]">
 					<Button
 						variant="outline"
 						className={cn(
@@ -104,7 +104,7 @@ export function DateRangePicker({ className, onDateRangeChange, data, initialRan
 						title="Open date settings"
 						aria-label="Open date settings"
 						size="icon"
-						className="flex items-center justify-center w-[36px] h-[36px] bg-white dark:bg-dark--theme-light border-l border-l-[#E4E4E7] dark:border-l-[#2D2D2D] rounded-r-md hover:bg-gray-50 dark:hover:bg-gray-800"
+						className="flex items-center justify-center w-[36px] h-[36px] bg-white dark:bg-dark--theme-light border-l border-l-[#E4E4E7] dark:border-l-border rounded-r-md hover:bg-gray-50 dark:hover:bg-muted"
 					>
 						<SettingsIcon />
 					</Button>
@@ -114,7 +114,7 @@ export function DateRangePicker({ className, onDateRangeChange, data, initialRan
 				onClick={(e) => e.stopPropagation()}
 				onMouseDown={(e) => e.stopPropagation()}
 				onChange={(e) => e.stopPropagation()}
-				className="p-0 w-auto dark:bg-dark--theme-light dark:border-[#2D2D2D] border border-[#E4E4E7] rounded-md shadow-lg"
+				className="p-0 w-auto dark:bg-dark--theme-light dark:border-border border border-[#E4E4E7] rounded-md shadow-lg"
 				align="center"
 			>
 				<div className="flex">

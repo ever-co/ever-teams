@@ -9,9 +9,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 		return;
 	}
 
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+	const { $res, user, access_token, tenantId, status } = await authenticatedGuard(req, res);
 
-	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: status ?? 401 });
 
 	const body = await req.json();
 
@@ -32,9 +32,9 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 		return;
 	}
 
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+	const { $res, user, access_token, tenantId, status } = await authenticatedGuard(req, res);
 
-	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: status ?? 401 });
 
 	const response = await deleteIssueTypesRequest({
 		id: id,

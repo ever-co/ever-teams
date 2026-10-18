@@ -18,7 +18,7 @@ export function UserProfileDetail({ member }: { member?: TOrganizationTeamEmploy
 	const userName = `${user?.firstName || ''} ${user?.lastName || ''}`;
 	const imgUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
 	const imageUrl = useMemo(() => imgUrl, [imgUrl]);
-	const size = 100;
+	const size = 64;
 	const timerStatus = useAtomValue(timerStatusState);
 	// const isManager = activeTeamManagers.find((member) => member.employee.user?.id === member?.employee.user?.id);
 	const timerStatusValue: ETimerStatus = useMemo(() => {
@@ -28,11 +28,11 @@ export function UserProfileDetail({ member }: { member?: TOrganizationTeamEmploy
 		<div className="flex items-center mb-4 space-x-4 md:mb-0">
 			<div
 				className={cn(
-					`w-[100px] h-[100px]`, // removed the size variable from width and height, as passing variables is not supported by tailwind
+					'size-16', // keep in step with `size` above (Tailwind cannot read a variable)
 					'flex justify-center items-center relative',
 					'rounded-full text-white',
-					'shadow-md text-7xl dark:text-6xl font-thin font-PlusJakartaSans ',
-					!imageUrl && 'dark:border-[0.375rem] dark:border-[#26272C]'
+					'text-2xl font-medium',
+					!imageUrl && 'dark:border-[0.375rem] dark:border-border'
 				)}
 				style={{
 					backgroundColor: `${stc(userName)}80`
@@ -41,14 +41,14 @@ export function UserProfileDetail({ member }: { member?: TOrganizationTeamEmploy
 				{imageUrl && isValidUrl(imageUrl) ? (
 					<Avatar
 						size={size}
-						className="relative dark:border-[0.375rem] dark:border-[#26272C]"
+						className="relative dark:border-[0.375rem] dark:border-border"
 						imageUrl={imageUrl}
 						alt={userName}
 						imageTitle={userName.charAt(0)}
 					>
 						<TimerStatus
 							status={timerStatusValue}
-							className="absolute z-20 bottom-3 right-[10%] -mb-5 border-[0.2956rem] border-white dark:border-[#26272C]"
+							className="absolute z-20 bottom-3 right-[10%] -mb-5 border-[0.2956rem] border-white dark:border-border"
 							tooltipClassName="mt-24 dark:mt-20 mr-3"
 						/>
 					</Avatar>
@@ -58,22 +58,22 @@ export function UserProfileDetail({ member }: { member?: TOrganizationTeamEmploy
 
 						<TimerStatus
 							status={timerStatusValue}
-							className="absolute z-20 border-[0.2956rem] border-white dark:border-[#26272C]"
+							className="absolute z-20 border-[0.2956rem] border-white dark:border-border"
 							tooltipClassName="absolute -bottom-[0.625rem] dark:-bottom-[0.75rem] right-[10%] w-[1.875rem] h-[1.875rem] rounded-full"
 						/>
 					</>
 				)}
 			</div>
-			<div className="flex flex-col gap-3.5 w-full">
+			<div className="flex min-w-0 w-full flex-col gap-0.5">
 				<div className="flex gap-x-4 items-center">
-					<Text.Heading as="h3" className="text-2xl md:text-4xl">
+					<Text.Heading as="h3" className="truncate text-xl font-semibold tracking-tight md:text-2xl">
 						{user?.firstName} {user?.lastName}
 					</Text.Heading>
 					<div className="w-8 h-8">
 						{member ? <TableActionPopover member={member} status="profile" /> : <></>}
 					</div>
 				</div>
-				<Text className="text-lg text-gray-500">{user?.email}</Text>
+				<Text className="truncate text-sm text-muted-foreground">{user?.email}</Text>
 			</div>
 		</div>
 	);

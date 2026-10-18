@@ -212,3 +212,36 @@ describe('the request protocol, without a configured app URL', () => {
 		expect(everIdCookieSecure(new Headers(headers as Record<string, string>), url)).toBe(expected);
 	});
 });
+
+describe('the Ever ID subject for the e-mail verification', () => {
+	const { sealEverIdHandoff, openEverIdHandoff } = load('test-only-auth-secret');
+	const SUBJECT = '395561089942685120';
+
+	it('seals a subject for the verify_email step only', () => {
+		const sealed = sealEverIdHandoff(SUBJECT, 'verify_email');
+
+		expect(sealed).not.toContain(SUBJECT);
+		expect(openEverIdHandoff(sealed, 'verify_email')).toBe(SUBJECT);
+		expect(openEverIdHandoff(sealed, 'confirm')).toBeNull();
+		expect(openEverIdHandoff(sealed, 'signup')).toBeNull();
+	});
+
+	it('never opens a hand-off key as a subject, nor a subject as a key', () => {
+		expect(openEverIdHandoff(sealEverIdHandoff(KEY, 'confirm'), 'verify_email')).toBeNull();
+		expect(openEverIdHandoff(sealEverIdHandoff(SUBJECT, 'verify_email'), 'confirm')).toBeNull();
+	});
+
+	it.each([
+		['an e-mail address', 'person@example.test'],
+		['a path', '../../auth/passcode'],
+		['empty', '']
+	])('seals nothing for %s', (_label, value) => {
+		expect(sealEverIdHandoff(value, 'verify_email')).toBeNull();
+	});
+
+	it('expires like the other steps', () => {
+		const sealed = sealEverIdHandoff(SUBJECT, 'verify_email', 0);
+
+		expect(openEverIdHandoff(sealed, 'verify_email', 1_800_001)).toBeNull();
+	});
+});

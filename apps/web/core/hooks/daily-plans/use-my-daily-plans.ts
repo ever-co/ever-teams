@@ -4,7 +4,7 @@ import { useAtomValue } from 'jotai';
 import { useCallback, useMemo } from 'react';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { dailyPlanService } from '../../services/client/api';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { orderTasksInPlans } from '@/core/lib/helpers/daily-plan-task-order';
 import { useUserQuery } from '../queries/user-user.query';
@@ -52,6 +52,7 @@ export interface UseMyDailyPlansOptions {
  * ```
  */
 export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
+	const queryClient = useQueryClient();
 	const { data: user } = useUserQuery();
 	const activeTeam = useAtomValue(activeTeamState);
 	const allTeamTasks = useAtomValue(tasksByTeamState);
@@ -142,6 +143,39 @@ export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
 		await loadMyDailyPlans();
 	}, [loadMyDailyPlans]);
 
+	// Only the shell owns this query, and only when the team requires a plan. A consumer that needs the plans
+	// anyway reads them here: a fresh cache answers without a request.
+	const ensureMyDailyPlans = useCallback(async () => {
+		if (!enabled || !scopedReady || !scope) return undefined;
+		try {
+			const plans = await queryClient.fetchQuery({
+				queryKey: queryKeys.dailyPlans.myPlansByScope(
+					scope.tenantId,
+					scope.organizationId,
+					scope.teamId,
+					scope.userId
+				),
+				queryFn: ({ signal }) => dailyPlanService.getMyDailyPlans({ scope, signal }),
+				staleTime: 60_000,
+				// Callers fall back to the cached plans, a retry would only delay them
+				retry: false
+			});
+			return isCurrentScope() ? orderTasksInPlans(plans) : undefined;
+		} catch {
+			return undefined;
+		}
+	}, [enabled, isCurrentScope, queryClient, scope, scopedReady]);
+
+	/** Whether the personal plans were already read in this scope, so a caller can use them without waiting */
+	const hasCachedMyDailyPlans = useCallback(
+		() =>
+			!!scope &&
+			queryClient.getQueryData(
+				queryKeys.dailyPlans.myPlansByScope(scope.tenantId, scope.organizationId, scope.teamId, scope.userId)
+			) !== undefined,
+		[queryClient, scope]
+	);
+
 	return {
 		// Raw data
 		myDailyPlans: getMyDailyPlansQuery.data || { items: [], total: 0 },
@@ -159,6 +193,8 @@ export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
 		getMyDailyPlans,
 		loadMyDailyPlans,
 		firstLoadMyDailyPlans,
+		ensureMyDailyPlans,
+		hasCachedMyDailyPlans,
 
 		// Loading states
 		isLoading: getMyDailyPlansQuery.isLoading,

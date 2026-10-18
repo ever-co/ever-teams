@@ -71,17 +71,19 @@ export function useChatPanel() {
 		return () => observer.disconnect();
 	}, []);
 
-	// On mount: if the atom says "closed" but no autoSave data collapsed the panel,
-	// collapse it programmatically so the layout is consistent from the first frame.
+	// Keep the panel in step with the shared atom: on mount (autoSave data may disagree with it)
+	// and whenever something outside this layout flips it — the open button on the sidebar's
+	// edge only sets the atom, it has no handle on the panel.
 	useLayoutEffect(() => {
-		if (!isOpen && panelRef.current) {
-			const currentSize = panelRef.current.getSize();
-			if (currentSize > CHAT_PANEL_CONSTRAINTS.collapsedSize) {
-				panelRef.current.collapse();
-			}
+		const panel = panelRef.current;
+		if (!panel) return;
+		const currentSize = panel.getSize();
+		if (!isOpen && currentSize > CHAT_PANEL_CONSTRAINTS.collapsedSize) {
+			panel.collapse();
+		} else if (isOpen && currentSize <= CHAT_PANEL_CONSTRAINTS.collapsedSize) {
+			panel.expand();
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [isOpen]);
 
 	return {
 		panelRef,

@@ -408,7 +408,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 									`cursor-pointer outline-hidden min-w-fit w-full flex dark:text-white
 										items-center justify-between h-fit p-1
 										border-solid border-color-[#F2F2F2]
-										dark:bg-[#1B1D22] dark:border dark:border-gray-800 gap-[.4rem] rounded-lg`,
+										dark:bg-card dark:border dark:border-gray-800 gap-[.4rem] rounded-lg`,
 									styles?.value
 								)}
 								aria-label={selected ? `Current project: ${selected.name}` : 'Select a project'}
@@ -465,7 +465,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 							<EverCard
 								shadow="bigger"
 								className={clsxm(
-									'p-0 md:p-4 shadow-xl card dark:shadow-lg card-white dark:bg-[#1c1f26] dark:border dark:border-transparent flex flex-col gap-2.5 min-h-24  h-52  max-h-52 overflow-x-auto rounded-none overflow-hidden',
+									'p-0 md:p-4 shadow-xl card dark:shadow-lg card-white dark:bg-card dark:border dark:border-transparent flex flex-col gap-2.5 min-h-24  h-52  max-h-52 overflow-x-auto rounded-none overflow-hidden',
 									styles?.listCard
 								)}
 							>

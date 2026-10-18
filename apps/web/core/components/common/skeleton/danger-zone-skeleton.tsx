@@ -1,46 +1,21 @@
 import Skeleton from 'react-loading-skeleton';
-import { Text } from '@/core/components';
+
+const DangerZoneRowSkeleton = () => (
+	<div className="flex items-center justify-between gap-3 border-t border-border py-4 first:border-t-0 first:pt-0">
+		<div className="flex flex-col gap-2">
+			<Skeleton width={160} height={14} borderRadius={6} className="dark:bg-white/8" />
+			<Skeleton width={320} height={12} borderRadius={6} className="dark:bg-white/8" />
+		</div>
+		<Skeleton width={110} height={36} borderRadius={8} className="dark:bg-white/8" />
+	</div>
+);
 
 const DangerZoneSkeleton = () => {
 	return (
-		<div className="flex flex-col justify-between items-center">
-			<div className="w-full mt-5">
-				<div className="">
-					<div className="flex w-full items-center justify-between gap-6">
-						<div className="flex-auto">
-							<Text className="text-xl  font-normal">
-								<Skeleton width={200} borderRadius={20} height={25} className="dark:bg-[#353741]" />
-							</Text>
-						</div>
-						<div className="flex-auto">
-							<Text className="text-md text-gray-400 font-normal">
-								<Skeleton width={400} borderRadius={20} height={15} className="dark:bg-[#353741]" />
-								<Skeleton width={100} borderRadius={20} height={15} className="dark:bg-[#353741]" />
-							</Text>
-						</div>
-						<div className="flex-auto w-20">
-							<Skeleton className="float-right dark:bg-[#353741]" height={45} borderRadius={8} />
-						</div>
-					</div>
-					<div className="flex w-full items-center justify-between gap-6 mt-5">
-						<div className="flex-auto">
-							<Text className="text-xl  font-normal">
-								<Skeleton className="dark:bg-[#353741]" width={200} borderRadius={20} height={25} />
-							</Text>
-						</div>
-
-						<div className="flex-auto">
-							<Text className="text-md text-gray-400 font-normal">
-								<Skeleton className="dark:bg-[#353741]" width={400} borderRadius={20} height={15} />
-								<Skeleton className="dark:bg-[#353741]" width={100} borderRadius={20} height={15} />
-							</Text>
-						</div>
-						<div className="flex-auto w-20">
-							<Skeleton height={45} borderRadius={8} className="float-right dark:bg-[#353741]" />
-						</div>
-					</div>
-				</div>
-			</div>
+		<div className="flex w-full flex-col">
+			<DangerZoneRowSkeleton />
+			<DangerZoneRowSkeleton />
+			<DangerZoneRowSkeleton />
 		</div>
 	);
 };

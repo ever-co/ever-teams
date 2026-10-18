@@ -52,7 +52,7 @@ export const ProductivityTableSkeleton: FC<ProductivityTableSkeletonProps> = ({ 
 					{[1, 2, 3].map((groupIndex) => (
 						<Fragment key={`date-group-${groupIndex}`}>
 							{/* Date Header Row */}
-							<TableRow key={`date-group-${groupIndex}`} className="bg-gray-50/30 dark:bg-gray-800">
+							<TableRow key={`date-group-${groupIndex}`} className="bg-gray-50/30 dark:bg-muted">
 								<TableCell colSpan={5} className="py-3">
 									<div className="flex gap-3 items-center">
 										<Skeleton className="w-40 h-5" />

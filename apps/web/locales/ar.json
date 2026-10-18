@@ -746,7 +746,12 @@
 				"SIGNUP_TERMS_REQUIRED": "وافق على المستندات للمتابعة.",
 				"SIGNUP_EXPIRED": "انتهت صلاحية هذا التسجيل. سجّل الدخول مرة أخرى باستخدام Ever ID.",
 				"SIGNUP_CHECKOUT": "يلزم اشتراك قبل أن يمكن إنشاء مساحة عملك.",
-				"CONTINUE_TO_CHECKOUT": "المتابعة إلى الدفع"
+				"CONTINUE_TO_CHECKOUT": "المتابعة إلى الدفع",
+				"EMAIL_UNVERIFIED_TITLE": "أكّد بريدك الإلكتروني في Ever ID",
+				"EMAIL_UNVERIFIED_BODY": "لم يتحقق Ever ID من عنوان بريدك الإلكتروني بعد. افتح رسالة التحقق التي أرسلها Ever ID، أو تحقق من عنوانك في Ever ID الآن، ثم سجّل الدخول باستخدام Ever ID مرة أخرى.",
+				"VERIFY_EMAIL": "تأكيد بريدي الإلكتروني في Ever ID",
+				"SIGN_IN_AGAIN": "تسجيل الدخول باستخدام Ever ID مرة أخرى",
+				"LOGIN_WITH_EVER_ID": "تسجيل الدخول باستخدام <wordmark>Ever ID</wordmark>"
 			}
 		},
 		"authPasscode": {
@@ -855,6 +860,8 @@
 			"SIZES_HEADING": "الأحجام",
 			"TEAM_NAME": "اسم الفريق",
 			"TEAM_TYPE": "نوع الفريق",
+			"TEAM_TYPE_UPDATED": "تم تحديث نوع الفريق بنجاح",
+			"TEAM_TYPE_UPDATE_FAILED": "فشل في تحديث نوع الفريق. يرجى المحاولة مرة أخرى.",
 			"TIME_TRACKING": "تتبع الوقت",
 			"ENFORCE_PLAN": "فرض الخطة",
 			"ADD_NEW_MEMBER": "إضافة عضو جديد",

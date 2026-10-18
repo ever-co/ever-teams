@@ -50,7 +50,7 @@ export function Breadcrumb({ paths, className }: Props) {
 												height={20}
 												width={120}
 												borderRadius={5}
-												className="rounded-full dark:bg-[#353741]"
+												className="rounded-full dark:bg-white/8"
 											/>
 										)}
 									</Link>

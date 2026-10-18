@@ -28,7 +28,7 @@ export default function ViewsHeaderTabs() {
 					<button
 						className={clsxm(
 							'rounded-md p-2 text-gray-700 dark:text-gray-300',
-							view === optionView && 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
+							view === optionView && 'bg-gray-100 text-gray-900 dark:bg-muted dark:text-gray-100'
 						)}
 						onClick={() => {
 							setView(optionView);

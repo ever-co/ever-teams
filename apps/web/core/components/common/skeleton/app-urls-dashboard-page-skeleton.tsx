@@ -28,12 +28,12 @@ export const AppUrlsDashboardPageSkeleton: FC<AppUrlsDashboardPageSkeletonProps>
 						{/* SKELETON: Section 1 - Back Button + Breadcrumb */}
 						<div className="flex items-center pt-6 w-full">
 							<div className="p-1 rounded-full">
-								<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 							</div>
 							<div className="flex items-center gap-2 ml-2">
-								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-								<div className="w-1 h-1 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-								<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+								<div className="w-1 h-1 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
+								<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 							</div>
 						</div>
 
@@ -41,16 +41,16 @@ export const AppUrlsDashboardPageSkeleton: FC<AppUrlsDashboardPageSkeletonProps>
 						<div className="flex flex-col gap-6 w-full">
 							{/* Dashboard Header Skeleton */}
 							<div className="flex justify-between items-center w-full">
-								<div className="w-56 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-56 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 								<div className="flex gap-4 items-center">
 									{/* Group By Select */}
-									<div className="w-32 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
+									<div className="w-32 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
 									{/* Date Range Picker */}
-									<div className="w-48 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
+									<div className="w-48 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
 									{/* Team Filter */}
-									<div className="w-24 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
+									<div className="w-24 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
 									{/* Export Button */}
-									<div className="w-20 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
+									<div className="w-20 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
 								</div>
 							</div>
 
@@ -61,33 +61,33 @@ export const AppUrlsDashboardPageSkeleton: FC<AppUrlsDashboardPageSkeletonProps>
 									<div className="flex justify-between items-center h-[105px] w-full border-b border-b-gray-200 dark:border-b-gray-700 pl-8">
 										{/* Month/Year Header */}
 										<div className="flex flex-col gap-2">
-											<div className="w-32 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-											<div className="w-16 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+											<div className="w-32 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+											<div className="w-16 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 										</div>
 
 										{/* Productivity Stats */}
 										<div className="flex gap-6 pr-8">
 											{/* Productive */}
 											<div className="flex flex-col items-center gap-2">
-												<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-												<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+												<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+												<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 											</div>
 											{/* Neutral */}
 											<div className="flex flex-col items-center gap-2">
-												<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-												<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+												<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+												<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 											</div>
 											{/* Unproductive */}
 											<div className="flex flex-col items-center gap-2">
-												<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-												<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+												<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+												<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 											</div>
 										</div>
 									</div>
 
 									{/* Productivity Chart */}
 									<div className="flex flex-col px-8 w-full">
-										<div className="w-full h-[250px] bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg" />
+										<div className="w-full h-[250px] bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg" />
 									</div>
 								</div>
 							</div>
@@ -100,8 +100,8 @@ export const AppUrlsDashboardPageSkeleton: FC<AppUrlsDashboardPageSkeletonProps>
 			<Container className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
 				<div className="w-full bg-white dark:bg-dark--theme-light rounded-lg border border-gray-200 dark:border-gray-600">
 					{/* Table Header */}
-					<div className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-600 p-4">
-						<div className="w-40 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+					<div className="bg-gray-50 dark:bg-white/5 border-b border-gray-200 dark:border-gray-600 p-4">
+						<div className="w-40 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 					</div>
 
 					{/* Table Content */}
@@ -111,7 +111,7 @@ export const AppUrlsDashboardPageSkeleton: FC<AppUrlsDashboardPageSkeletonProps>
 							{['Date', 'Application', 'Duration', 'Productivity', 'Sessions'].map((header, index) => (
 								<div
 									key={index}
-									className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded"
+									className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded"
 								/>
 							))}
 						</div>
@@ -123,45 +123,45 @@ export const AppUrlsDashboardPageSkeleton: FC<AppUrlsDashboardPageSkeletonProps>
 								className="grid grid-cols-5 gap-4 py-3 border-b border-gray-100 dark:border-gray-700"
 							>
 								{/* Date Cell */}
-								<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 
 								{/* Application Cell with Icon */}
 								<div className="flex items-center gap-3">
-									<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-									<div className="w-28 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+									<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+									<div className="w-28 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 								</div>
 
 								{/* Duration Cell */}
-								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 
 								{/* Productivity Cell with Progress Bar */}
 								<div className="flex items-center gap-2">
-									<div className="w-20 h-2 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-									<div className="w-8 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+									<div className="w-20 h-2 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
+									<div className="w-8 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 								</div>
 
 								{/* Sessions Cell */}
-								<div className="w-8 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-8 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 							</div>
 						))}
 					</div>
 
 					{/* Table Footer - Pagination */}
-					<div className="bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-600 p-4">
+					<div className="bg-gray-50 dark:bg-white/5 border-t border-gray-200 dark:border-gray-600 p-4">
 						<div className="flex items-center justify-between">
 							{/* Left Info */}
 							<div className="flex items-center gap-2">
-								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-								<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-								<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+								<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+								<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 							</div>
 
 							{/* Right Navigation */}
 							<div className="flex items-center gap-2">
-								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 							</div>
 						</div>
 					</div>

@@ -228,7 +228,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 										'flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors',
 										isSelected
 											? 'bg-primary text-primary-foreground'
-											: 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700',
+											: 'bg-gray-100 dark:bg-muted hover:bg-gray-200 dark:hover:bg-muted',
 										isLocked && isSelected && 'cursor-not-allowed opacity-80'
 									)}
 									title={

@@ -15,7 +15,8 @@ export const LINK_CODE_PATTERN = /^EVL(-[0-9A-HJKMNP-TV-Z]{4}){3}$/;
 export const RETURN_PARAM = 'ever_connect_return';
 
 const buttonClass =
-	'rounded-md border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/60 disabled:opacity-50 dark:border-white/10';
+	'inline-flex h-9 shrink-0 items-center rounded-md border border-border bg-card px-3 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-50 disabled:hover:bg-card';
+const sectionTitleClass = 'text-sm font-semibold text-foreground';
 
 type Actions = ReturnType<typeof useEverConnectActions>;
 
@@ -36,7 +37,7 @@ function OrganizationLink({
 	if (handle !== null || integrationTenantId !== null) {
 		return (
 			<div className="flex flex-wrap items-center justify-between gap-3" data-testid="ever-connect-link">
-				<p className="text-sm">
+				<p className="text-sm text-muted-foreground">
 					{t('pages.settingsTeam.everPlatform.CONNECT_LINKED_AS')}{' '}
 					<span className="font-medium text-foreground">{handle ? `@${handle}` : '-'}</span>
 				</p>
@@ -63,11 +64,11 @@ function OrganizationLink({
 				if (valid) actions.addLink.mutate(normalized, { onSuccess: () => setCode('') });
 			}}
 		>
-			<p className="text-sm">{t('pages.settingsTeam.everPlatform.CONNECT_NOT_LINKED')}</p>
+			<p className="text-sm text-muted-foreground">{t('pages.settingsTeam.everPlatform.CONNECT_NOT_LINKED')}</p>
 			<label className="text-xs text-muted-foreground" htmlFor="ever-connect-link-code">
 				{t('pages.settingsTeam.everPlatform.CONNECT_LINK_CODE_HINT')}
 			</label>
-			<div className="flex flex-wrap gap-2">
+			<div className="flex flex-wrap items-center gap-2">
 				<input
 					id="ever-connect-link-code"
 					value={code}
@@ -75,7 +76,7 @@ function OrganizationLink({
 					placeholder="EVL-XXXX-XXXX-XXXX"
 					autoComplete="off"
 					spellCheck={false}
-					className="min-w-[14rem] flex-1 rounded-md border bg-transparent px-3 py-1.5 text-sm text-foreground dark:border-white/10"
+					className="h-9 min-w-[14rem] flex-1 rounded-md border border-border bg-background px-3 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/40 sm:max-w-xs"
 				/>
 				<button type="submit" className={buttonClass} disabled={!valid || actions.addLink.isPending}>
 					{t('pages.settingsTeam.everPlatform.CONNECT_LINK')}
@@ -97,7 +98,11 @@ function StateChip({ integration }: Readonly<{ integration: IEverConnectIntegrat
 	if (integration.state === 'enabled') label = t('pages.settingsTeam.everPlatform.STATE_ENABLED');
 	else if (integration.state === 'pending_operator') label = t('pages.settingsTeam.everPlatform.STATE_PENDING');
 	else if (integration.policy !== 'allowed') label = t('pages.settingsTeam.everPlatform.STATE_DENIED');
-	return <span className="rounded-full border px-2 py-0.5 text-[11px] dark:border-white/10">{label}</span>;
+	return (
+		<span className="rounded-md border border-border px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+			{label}
+		</span>
+	);
 }
 
 function IntegrationRow({
@@ -144,10 +149,10 @@ function IntegrationRow({
 	};
 
 	return (
-		<li className="flex flex-col gap-2 rounded-md border p-3 dark:border-white/10" data-testid="ever-connect-integration">
+		<li className="flex flex-col gap-2 rounded-md border border-border p-3" data-testid="ever-connect-integration">
 			<div className="flex flex-wrap items-center justify-between gap-2">
 				<div className="flex items-center gap-2">
-					<span className="font-medium text-foreground">{integration.name}</span>
+					<span className="text-sm font-medium text-foreground">{integration.name}</span>
 					<StateChip integration={integration} />
 				</div>
 				<div className="flex flex-wrap gap-2">
@@ -173,9 +178,9 @@ function IntegrationRow({
 					) : null}
 				</div>
 			</div>
-			<p className="text-xs">{integration.description}</p>
+			<p className="text-xs text-muted-foreground">{integration.description}</p>
 			{showScope ? (
-				<ul className="flex flex-col gap-1 text-xs" data-testid="ever-connect-scope">
+				<ul className="flex flex-col gap-1 text-xs text-muted-foreground" data-testid="ever-connect-scope">
 					{integration.scope.map((row) => (
 						<li key={`${row.field_path}-${row.direction}`}>
 							<span className="font-mono">{row.field_path}</span> · {row.direction} · {row.frequency} ·{' '}
@@ -197,19 +202,19 @@ function Entitlement({ summary, actions }: Readonly<{ summary: IEverConnectEntit
 				<dl className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-3">
 					<div>
 						<dt className="text-muted-foreground">{t('pages.settingsTeam.everPlatform.ENTITLEMENT_PLAN')}</dt>
-						<dd>{summary.plan ?? summary.tier ?? '-'}</dd>
+						<dd className="text-foreground">{summary.plan ?? summary.tier ?? '-'}</dd>
 					</div>
 					<div>
 						<dt className="text-muted-foreground">{t('pages.settingsTeam.everPlatform.ENTITLEMENT_FEATURES')}</dt>
-						<dd>{features.length ? features.map(([name]) => name).join(', ') : '-'}</dd>
+						<dd className="text-foreground">{features.length ? features.map(([name]) => name).join(', ') : '-'}</dd>
 					</div>
 					<div>
 						<dt className="text-muted-foreground">{t('pages.settingsTeam.everPlatform.ENTITLEMENT_EXPIRES')}</dt>
-						<dd>{summary.expires_at ?? '-'}</dd>
+						<dd className="text-foreground">{summary.expires_at ?? '-'}</dd>
 					</div>
 				</dl>
 			) : (
-				<p className="text-xs">{t('pages.settingsTeam.everPlatform.ENTITLEMENT_NONE')}</p>
+				<p className="text-xs text-muted-foreground">{t('pages.settingsTeam.everPlatform.ENTITLEMENT_NONE')}</p>
 			)}
 			<div>
 				<button
@@ -262,7 +267,7 @@ export function EverConnectPanel({ connected }: Readonly<{ connected: boolean }>
 
 	if (!connected) {
 		return (
-			<p className="text-sm" data-testid="ever-connect-not-connected">
+			<p className="text-sm text-muted-foreground" data-testid="ever-connect-not-connected">
 				{t('pages.settingsTeam.everPlatform.CONNECT_NOT_CONNECTED')}
 			</p>
 		);
@@ -270,11 +275,9 @@ export function EverConnectPanel({ connected }: Readonly<{ connected: boolean }>
 
 	const failed = status.isError || integrations.isError || entitlement.isError;
 	return (
-		<div className="flex flex-col gap-6" data-testid="ever-connect-panel">
+		<div className="flex flex-col gap-4" data-testid="ever-connect-panel">
 			<section className="flex flex-col gap-2">
-				<h3 className="text-base font-semibold text-foreground">
-					{t('pages.settingsTeam.everPlatform.CONNECT_LINK_TITLE')}
-				</h3>
+				<h3 className={sectionTitleClass}>{t('pages.settingsTeam.everPlatform.CONNECT_LINK_TITLE')}</h3>
 				{status.data ? (
 					<OrganizationLink
 						handle={status.data.link?.handle ?? null}
@@ -284,9 +287,7 @@ export function EverConnectPanel({ connected }: Readonly<{ connected: boolean }>
 				) : null}
 			</section>
 			<section className="flex flex-col gap-2">
-				<h3 className="text-base font-semibold text-foreground">
-					{t('pages.settingsTeam.everPlatform.INTEGRATIONS_TITLE')}
-				</h3>
+				<h3 className={sectionTitleClass}>{t('pages.settingsTeam.everPlatform.INTEGRATIONS_TITLE')}</h3>
 				{integrations.data && integrations.data.length > 0 ? (
 					<ul className="flex flex-col gap-2">
 						{integrations.data.map((integration: IEverConnectIntegration) => (
@@ -299,13 +300,11 @@ export function EverConnectPanel({ connected }: Readonly<{ connected: boolean }>
 						))}
 					</ul>
 				) : (
-					<p className="text-xs">{t('pages.settingsTeam.everPlatform.INTEGRATIONS_EMPTY')}</p>
+					<p className="text-xs text-muted-foreground">{t('pages.settingsTeam.everPlatform.INTEGRATIONS_EMPTY')}</p>
 				)}
 			</section>
 			<section className="flex flex-col gap-2">
-				<h3 className="text-base font-semibold text-foreground">
-					{t('pages.settingsTeam.everPlatform.ENTITLEMENTS_TITLE')}
-				</h3>
+				<h3 className={sectionTitleClass}>{t('pages.settingsTeam.everPlatform.ENTITLEMENTS_TITLE')}</h3>
 				<Entitlement summary={entitlement.data?.link ?? null} actions={actions} />
 			</section>
 			{failed ? <p className="text-xs text-destructive">{t('pages.settingsTeam.everPlatform.LOAD_ERROR')}</p> : null}

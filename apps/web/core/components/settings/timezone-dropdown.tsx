@@ -68,15 +68,15 @@ export const TimezoneDropDown = ({
 			<Listbox value={currentTimezone} onChange={handleChange}>
 				<ListboxButton
 					className={cn(
-						'w-full font-medium text-sm rounded-xl  input-border flex items-center justify-between text-left px-2 py-1 h-[54px] dark:bg-dark--theme-light'
+						'flex h-9 w-full items-center justify-between rounded-md border border-border bg-card px-3 text-left text-sm font-medium'
 					)}
 				>
-					<span className={cn('  capitalize', !currentTimezone?.length && 'text-gray-400')}>
+					<span className={cn('truncate capitalize', !currentTimezone?.length && 'text-muted-foreground')}>
 						{items?.find((el) => el.value.toLowerCase() == currentTimezone.toLowerCase())?.value ||
 							'Pick a timezone'}
 					</span>
 
-					<ChevronDown size={15} className="text-gray-400 " />
+					<ChevronDown size={15} className="shrink-0 text-muted-foreground" />
 				</ListboxButton>
 				<ListboxOptions
 					className={cn(

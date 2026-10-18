@@ -4,8 +4,8 @@ import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {
 	const res = new NextResponse();
-	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, res);
-	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+	const { $res, user, access_token, tenantId, organizationId, status } = await authenticatedGuard(req, res);
+	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: status ?? 401 });
 
 	const { searchParams } = new URL(req.url);
 	const { name } = searchParams as unknown as { name: string };

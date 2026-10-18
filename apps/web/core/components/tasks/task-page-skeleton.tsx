@@ -12,7 +12,7 @@ const TaskPageSkeleton = () => {
 		<PageLayout>
 			<div className="pt-16 pb-4 -mt-8 bg-white dark:bg-dark--theme">
 				<Container>
-					<Skeleton height={20} width={180} borderRadius={10} className="dark:bg-[#272930]" />
+					<Skeleton height={20} width={180} borderRadius={10} className="dark:bg-muted" />
 					<div className="flex items-center justify-between">
 						<div className="flex flex-col w-full">
 							<div className="flex items-center">
@@ -20,20 +20,20 @@ const TaskPageSkeleton = () => {
 									height={100}
 									width={100}
 									borderRadius={50}
-									className="dark:bg-[#272930] mt-16 mr-8"
+									className="dark:bg-muted mt-16 mr-8"
 								/>
 								<div>
 									<Skeleton
 										height={35}
 										width={200}
 										borderRadius={25}
-										className="dark:bg-[#272930] mt-16"
+										className="dark:bg-muted mt-16"
 									/>
 									<Skeleton
 										height={20}
 										width={350}
 										borderRadius={25}
-										className="dark:bg-[#272930] mt-4"
+										className="dark:bg-muted mt-4"
 									/>
 								</div>
 							</div>
@@ -46,21 +46,21 @@ const TaskPageSkeleton = () => {
 												height={30}
 												width={180}
 												borderRadius={15}
-												className="dark:bg-[#272930]"
+												className="dark:bg-muted"
 											/>
 
 											<Skeleton
 												height={30}
 												width={180}
 												borderRadius={15}
-												className="dark:bg-[#272930]"
+												className="dark:bg-muted"
 											/>
 
 											<Skeleton
 												height={30}
 												width={180}
 												borderRadius={15}
-												className="dark:bg-[#272930]"
+												className="dark:bg-muted"
 											/>
 										</div>
 									</div>

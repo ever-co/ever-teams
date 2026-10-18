@@ -81,7 +81,7 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 				if (!value) return <div>{t('common.NO_PROJECT_DATA')}</div>;
 				return (
 					<div className="flex items-center gap-3">
-						<Avatar className="flex items-center justify-center bg-gray-100 rounded-xl dark:bg-gray-800">
+						<Avatar className="flex items-center justify-center bg-gray-100 rounded-xl dark:bg-muted">
 							{value.imageUrl && (
 								<Image
 									src={value.imageUrl}

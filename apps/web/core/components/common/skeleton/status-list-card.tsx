@@ -1,162 +1,34 @@
 import Skeleton from 'react-loading-skeleton';
-import { Text } from '@/core/components';
-import { InputField } from '../../duplicated-components/_input';
+
+/**
+ * One issue-settings section while it loads: the label column, the "create new" button, the list
+ * heading and a row of chips.
+ */
+const SectionSkeleton = () => (
+	<div className="grid grid-cols-1 gap-2 py-4 first:pt-0 last:pb-0 sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-4">
+		<div className="sm:pt-2">
+			<Skeleton width={120} height={14} borderRadius={6} className="dark:bg-muted" />
+		</div>
+
+		<div className="flex flex-col gap-3">
+			<Skeleton width={180} height={36} borderRadius={8} className="dark:bg-muted" />
+			<Skeleton width={100} height={12} borderRadius={6} className="dark:bg-muted" />
+			<div className="flex flex-wrap gap-2">
+				{[...Array(4)].map((_, i) => (
+					<Skeleton key={i} width={144} height={36} borderRadius={8} className="dark:bg-muted" />
+				))}
+			</div>
+		</div>
+	</div>
+);
 
 const StatusListCard = () => {
 	return (
-		<>
-			<div className="w-full mt-20">
-				<div className="flex">
-					<div className="rounded-md m-h-64  flex gap-12">
-						<Text className="flex-none grow-0 text-md text-gray-400 font-medium mt-4 w-[200px]">
-							<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
-						</Text>
-
-						<div className="flex flex-col">
-							<Skeleton width={250} borderRadius={8} height={45} className="dark:bg-[#272930]" />
-
-							<Text className="flex-none grow-0 text-md text-gray-400 font-medium mb-[1rem] w-full mt-[2.4rem]">
-								<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
-							</Text>
-							<div className="flex gap-3 mt-4">
-								<InputField
-									type="text"
-									className="mb-0 h-[54px] w-80"
-									wrapperClassName="mb-0 h-[54px]"
-									disabled={true}
-								/>
-								<InputField
-									type="text"
-									className="mb-0 h-[54px] w-80"
-									wrapperClassName="mb-0 h-[54px]"
-									disabled={true}
-								/>
-							</div>
-							<div className="flex w-full gap-3 mt-4">
-								<InputField
-									type="text"
-									className="mb-0 h-[54px] w-80"
-									wrapperClassName="mb-0 h-[54px]"
-									disabled={true}
-								/>
-								<InputField
-									type="text"
-									className="mb-0 h-[54px] w-80"
-									wrapperClassName="mb-0 h-[54px]"
-									disabled={true}
-								/>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div className="w-full mt-20">
-				<div className="flex">
-					<div className="rounded-md m-h-64  flex gap-x-[2rem]">
-						<Text className="flex-none grow-0 text-md text-gray-400 font-medium mt-4 w-[200px]">
-							<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
-						</Text>
-
-						<div className="flex flex-col">
-							<Skeleton width={250} borderRadius={8} height={45} className="dark:bg-[#272930]" />
-
-							<Text className="flex-none grow-0 text-md text-gray-400 font-medium mb-[1rem] w-full mt-[2.4rem]">
-								<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
-							</Text>
-							<div className="flex w-full gap-3 mt-4">
-								<InputField
-									type="text"
-									className="mb-0 h-[54px] w-80"
-									wrapperClassName="mb-0 h-[54px]"
-									disabled={true}
-								/>
-								<InputField
-									type="text"
-									className="mb-0 h-[54px] w-80"
-									wrapperClassName="mb-0 h-[54px]"
-									disabled={true}
-								/>
-							</div>
-							<div className="flex w-full gap-3 mt-4">
-								<InputField
-									type="text"
-									className="mb-0 h-[54px] w-80"
-									wrapperClassName="mb-0 h-[54px]"
-									disabled={true}
-								/>
-								<InputField
-									type="text"
-									className="mb-0 h-[54px] w-80"
-									wrapperClassName="mb-0 h-[54px]"
-									disabled={true}
-								/>
-							</div>
-							<div className="flex w-1/2 gap-3 mt-4">
-								<InputField
-									type="text"
-									className="mb-0 h-[54px] w-40"
-									wrapperClassName="mb-0 h-[54px]"
-									disabled={true}
-								/>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div className="w-full mt-20">
-				<div className="flex">
-					<div className="rounded-md m-h-64  flex gap-x-[2rem]">
-						<Text className="flex-none grow-0 text-md text-gray-400 font-medium mt-4 w-[200px]">
-							<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
-						</Text>
-
-						<div className="flex flex-col">
-							<Skeleton width={250} borderRadius={8} height={45} className="dark:bg-[#272930]" />
-
-							<Text className="flex-none grow-0 text-md text-gray-400 font-medium mb-[1rem] w-full mt-[2.4rem]">
-								<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
-							</Text>
-							<div className="flex w-full gap-3 mt-4">
-								<InputField
-									type="text"
-									className="mb-0 h-[54px] w-80"
-									wrapperClassName="mb-0 h-[54px]"
-									disabled={true}
-								/>
-								<InputField
-									type="text"
-									className="mb-0 h-[54px] w-80"
-									wrapperClassName="mb-0 h-[54px]"
-									disabled={true}
-								/>
-							</div>
-							<div className="flex w-full gap-3 mt-4">
-								<InputField
-									type="text"
-									className="mb-0 h-[54px] w-80"
-									wrapperClassName="mb-0 h-[54px]"
-									disabled={true}
-								/>
-								<InputField
-									type="text"
-									className="mb-0 h-[54px] w-80"
-									wrapperClassName="mb-0 h-[54px]"
-									disabled={true}
-								/>
-							</div>
-							<div className="flex w-1/2 gap-3 mt-4">
-								<InputField
-									type="text"
-									className="mb-0 h-[54px] w-40"
-									wrapperClassName="mb-0 h-[54px]"
-									disabled={true}
-								/>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</>
+		<div className="mt-6 flex w-full flex-col divide-y divide-border">
+			<SectionSkeleton />
+			<SectionSkeleton />
+			<SectionSkeleton />
+		</div>
 	);
 };
 

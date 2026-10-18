@@ -139,9 +139,9 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 				className={clsxm(
 					'bg-light--theme-light dark:bg-dark--theme-light dark:text-white',
 					noWrapper && ['input-border'],
-					'py-2 px-4 rounded-[10px]',
+					'py-2 px-3 rounded-lg',
 					'text-sm outline-hidden ',
-					'h-11 w-full',
+					'h-10 w-full',
 					className
 				)}
 				onKeyUp={onKeyUp}
@@ -173,7 +173,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 				<div
 					className={clsxm(
 						notValidBorder ? 'border border-red-500' : 'input-border',
-						'flex justify-between items-center h-auto rounded-[10px] bg-light--theme-light dark:bg-transparent'
+						'flex justify-between items-center h-auto rounded-lg bg-light--theme-light dark:bg-transparent'
 					)}
 				>
 					{leadingNode && <div className="flex items-center">{leadingNode}</div>}
@@ -277,7 +277,7 @@ export const RadioButtonField = forwardRef<HTMLInputElement, Props>(
 				className={clsxm(
 					'w-4 h-4',
 					'text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6]',
-					'dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600',
+					'dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-muted dark:border-gray-600',
 					className
 				)}
 				onKeyUp={() => setError(undefined)}

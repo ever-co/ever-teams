@@ -10,8 +10,8 @@ import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {
 	const res = new NextResponse();
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
-	if (!user) return NextResponse.json({ errors: 'Unauthorized' }, { status: 401 });
+	const { $res, user, access_token, tenantId, status } = await authenticatedGuard(req, res);
+	if (!user) return NextResponse.json({ errors: 'Unauthorized' }, { status: status ?? 401 });
 
 	const { data: employeeRole } = await getEmployeeRoleRequest({
 		tenantId,
@@ -24,8 +24,8 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
 	const res = new NextResponse();
-	const { $res, user, organizationId, access_token, teamId, tenantId } = await authenticatedGuard(req, res);
-	if (!user) return NextResponse.json({ errors: 'Unauthorized' }, { status: 401 });
+	const { $res, user, organizationId, access_token, teamId, tenantId, status } = await authenticatedGuard(req, res);
+	if (!user) return NextResponse.json({ errors: 'Unauthorized' }, { status: status ?? 401 });
 
 	const { origin } = new URL(req.url);
 

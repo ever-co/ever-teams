@@ -5,7 +5,8 @@
 # deployment passes its own values with `docker run -e ...` / compose `environment:` / a k8s Secret:
 #   MCP_SERVER_URL, OAUTH_SERVER_URL, PUBLIC_URL, ALLOWED_ORIGINS, CHATGPT_WIDGET_DOMAIN, CHATGPT_WIDGET_CSP,
 #   CHATGPT_APP_ID, CHATGPT_APP_SECRET, SESSION_SECRET (required with NODE_ENV=production), LOG_LEVEL,
-#   LOGTAIL_SOURCE_TOKEN (optional: also ship logs to Better Stack / Logtail), ...
+#   LOGTAIL_SOURCE_TOKEN (optional: also ship logs to Better Stack / Logtail), TRUST_PROXY (optional: Express
+#   "trust proxy", e.g. 1 behind one ingress hop), CHATGPT_MCP_RATE_LIMIT (optional: /mcp requests per minute), ...
 # (see apps/chatgpt/.env.example). None of them is a build argument - do not add any here.
 
 # The root package.json requires Node >= 24 ("engines"), which `yarn install` enforces (Node 20 fails it).

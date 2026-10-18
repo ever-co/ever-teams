@@ -50,7 +50,7 @@ export function DemoCredentialsDropdown({ onCredentialSelect, className }: DemoC
 					className={cn(
 						'w-full px-3 py-1.5 h-auto',
 						'bg-gray-100 hover:bg-gray-200',
-						'dark:bg-[#1B1D22] dark:hover:bg-[#25272D]',
+						'dark:bg-card dark:hover:bg-muted',
 						'border border-gray-200 dark:border-gray-700',
 						'text-gray-700 dark:text-gray-300 font-medium text-sm',
 						'transition-all duration-200',
@@ -61,14 +61,14 @@ export function DemoCredentialsDropdown({ onCredentialSelect, className }: DemoC
 						{selectedRole || 'Demo Credentials'}
 					</SelectValue>
 				</SelectTrigger>
-				<SelectContent className="w-full dark:bg-[#1B1D22] border-gray-200 dark:border-gray-700">
+				<SelectContent className="w-full dark:bg-card border-gray-200 dark:border-gray-700">
 					<SelectGroup>
 						{DEMO_ACCOUNTS_CONFIG.map((account) => (
 							<SelectItem
 								key={account.type}
 								value={account.type}
 								className={cn(
-									'cursor-pointer focus:bg-gray-100 dark:focus:bg-[#25272D]',
+									'cursor-pointer focus:bg-gray-100 dark:focus:bg-muted',
 									'py-3 px-4'
 								)}
 							>

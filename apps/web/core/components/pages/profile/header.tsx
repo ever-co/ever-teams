@@ -10,7 +10,7 @@ export function Header({ user }: { user: TUser | undefined }) {
 	const t = useTranslations();
 
 	return (
-		<div className="bg-[#FFFF] dark:bg-[#202023] mt-[100px] rounded-[20px] w-full flex items-center justify-between">
+		<div className="bg-[#FFFF] dark:bg-card mt-[100px] rounded-[20px] w-full flex items-center justify-between">
 			<div className="ml-[16px] mb-[20px] flex flex-col space-y-[15px]">
 				<div className="w-[171px] bg-[#ACB3BB] mt-[20px] mb-2 text-[18px] text-[#FFFFFF] rounded-[8px] px-[17px] py-[5px] flex items-center cursor-pointer hover:opacity-80">
 					<ChevronLeftIcon className="w-[15px] mr-[10px]" />
@@ -29,7 +29,7 @@ export function Header({ user }: { user: TUser | undefined }) {
 						)}
 
 						<div className="absolute inset-0 z-10 w-full h-full shadow-sm animate-pulse dark:divide-gray-700 dark:border-gray-700">
-							<div className="w-full h-full rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
+							<div className="w-full h-full rounded-[50%] bg-gray-200 dark:bg-muted"></div>
 						</div>
 
 						<div className="absolute z-30 rounded-full bg-white p-[1px] top-[100px] right-[5px]">

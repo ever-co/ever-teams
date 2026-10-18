@@ -60,7 +60,7 @@ export function mapTeamItems(teams: TOrganizationTeam[], onChangeActiveTeam: (it
 						<TeamItem
 							title={team.name}
 							count={team.members?.length || 0}
-							className="py-2 mb-0"
+							className="py-0 mb-0"
 							logo={team.image?.thumbUrl || team.image?.fullUrl || ''}
 							color={team.color}
 						/>
@@ -119,10 +119,10 @@ export function TeamItem({
 			<div>
 				<div
 					className={clsxm(
-						'w-[27px] h-[27px]',
+						'size-6',
 						'flex justify-center items-center',
 						'rounded-full text-xs text-default dark:text-white',
-						'shadow-md',
+						'shadow-none',
 						disabled && ['dark:text-default']
 					)}
 					style={{
@@ -132,7 +132,7 @@ export function TeamItem({
 					}}
 				>
 					{logo && isValidUrl(logo) ? (
-						<Avatar size={27} className="relative cursor-pointer" imageUrl={logo} alt="user avatar" />
+						<Avatar size={24} className="relative cursor-pointer" imageUrl={logo} alt="user avatar" />
 					) : title ? (
 						imgTitle(title)
 					) : (
@@ -166,10 +166,10 @@ export function AllTeamItem({ title, count }: { title: string; count: number }) 
 				<div>
 					<div
 						className={clsxm(
-							'w-[27px] h-[27px]',
+							'size-6',
 							'flex justify-center items-center',
 							'text-xs rounded-full text-default dark:text-white',
-							'shadow-md'
+							'shadow-none'
 						)}
 					>
 						{imgTitle(title)}

@@ -5,7 +5,7 @@ import Link from 'next/link';
 export function WorkspaceNotFoundMessageCard() {
 	const t = useTranslations();
 	return (
-		<div className="w-full flex flex-col gap-4 bg-[#ffffff] dark:bg-[#25272D] p-6 rounded-2xl md:w-[35rem]">
+		<div className="w-full flex flex-col gap-4 bg-[#ffffff] dark:bg-muted p-6 rounded-2xl md:w-[35rem]">
 			<div className="flex flex-col gap-2 px-4 w-full text-center">
 				<h2 className="text-3xl font-medium">
 					{t('pages.invite.acceptInvite.messages.WORKSPACE_NOT_EXIST.TITLE')}

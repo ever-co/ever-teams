@@ -11,9 +11,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 		return;
 	}
 
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+	const { $res, user, access_token, tenantId, status } = await authenticatedGuard(req, res);
 
-	if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+	if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: status ?? 401 });
 
 	const body = (await req.json()) as IOrganizationTeamEmployeeUpdate;
 

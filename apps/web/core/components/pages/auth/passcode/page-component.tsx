@@ -548,16 +548,16 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 											isEmpty &&
 												'border-amber-200 dark:border-amber-800 bg-amber-50/30 dark:bg-amber-900/10',
 											// Normal workspace styling
-											!isEmpty && 'border-[#0000001A] dark:border-[#34353D]',
+											!isEmpty && 'border-[#0000001A] dark:border-border',
 											// Selected workspace styling
 											props.selectedWorkspace === originalIndex &&
 												!isEmpty &&
-												'bg-[#FCFCFC] -order-1 dark:bg-[#1F2024]',
+												'bg-[#FCFCFC] -order-1 dark:bg-card',
 											props.selectedWorkspace === originalIndex &&
 												isEmpty &&
 												'bg-amber-100/50 -order-1 dark:bg-amber-900/20',
 											// Hover styling
-											!isEmpty && 'hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024]',
+											!isEmpty && 'hover:bg-[#FCFCFC] dark:hover:bg-card',
 											isEmpty && 'hover:bg-amber-100/40 dark:hover:bg-amber-900/15'
 										)}
 									>
@@ -588,7 +588,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 
 														{/* Team count badge for non-empty workspaces */}
 														{!isEmpty && teamCount > 0 && (
-															<span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 shrink-0">
+															<span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-muted dark:text-gray-300 shrink-0">
 																{teamCount}{' '}
 																{teamCount === 1
 																	? t('pages.auth.TEAM_COUNT_SINGULAR')
@@ -640,7 +640,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 											<span
 												className={`bg-[#E5E5E5] w-full h-px hidden ${expandedWorkspace === index && 'block'}`}
 											></span>
-											{/* <div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div> */}
+											{/* <div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-muted"></div> */}
 											<div className="flex flex-col gap-4 px-5 py-1.5">
 												{workspace.current_teams
 													?.filter((team) => team && team.team_name)

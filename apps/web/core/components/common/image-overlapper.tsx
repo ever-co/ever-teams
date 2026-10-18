@@ -183,7 +183,7 @@ export default function ImageOverlapper({
 	const hasMembers = item?.members?.length > 0;
 
 	if (imageLength === undefined) {
-		return <Skeleton height={40} width={40} borderRadius={100} className="rounded-full dark:bg-[#353741]" />;
+		return <Skeleton height={40} width={40} borderRadius={100} className="rounded-full dark:bg-white/8" />;
 	}
 
 	if ((!hasMembers && item) || hasActiveMembers || assignTaskButtonCall) {
@@ -325,7 +325,7 @@ export default function ImageOverlapper({
 			{isMoreThanDisplay && (
 				<Popover>
 					<PopoverTrigger asChild>
-						<div className="flex absolute cursor-pointer rounded-full top-1/2 -translate-y-1/2 left-28 z-[6] flex-row text-sm text-[#282048] dark:text-white font-semibold items-center justify-center !h-10 !w-10 border-2 border-[#0000001a] dark:border-white bg-white dark:bg-[#191A20]">
+						<div className="flex absolute cursor-pointer rounded-full top-1/2 -translate-y-1/2 left-28 z-[6] flex-row text-sm text-[#282048] dark:text-white font-semibold items-center justify-center !h-10 !w-10 border-2 border-[#0000001a] dark:border-white bg-white dark:bg-background">
 							{secondArray.length < 100 ? secondArray.length : 99}+
 						</div>
 					</PopoverTrigger>
@@ -336,7 +336,7 @@ export default function ImageOverlapper({
 									return (
 										<Link
 											href={onRedirect(image)}
-											className="relative hover:bg-gray-300 hover:dark:bg-[#24262c] p-1 rounded-md"
+											className="relative hover:bg-gray-300 hover:dark:bg-muted p-1 rounded-md"
 											key={index}
 										>
 											<div className="flex items-center">

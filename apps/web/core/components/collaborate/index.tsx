@@ -95,20 +95,20 @@ const Collaborate = () => {
 						isOpen ? closeModal() : openModal();
 					}}
 					className={clsxm(
-						'flex flex-row gap-2 justify-center items-center px-4 py-3 text-xs rounded-lg outline-hidden h-fit',
-						'text-sm text-white bg-primary dark:bg-primary-light',
+						'flex h-8 items-center justify-center gap-1.5 rounded-md px-3 text-xs font-medium outline-hidden',
+						'text-white bg-primary dark:bg-primary-light hover:bg-primary/90',
 						'disabled:bg-primary-light disabled:opacity-40'
 					)}
 				>
-					<UserLinearIcon className="w-4 h-4 text-white" />
+					<UserLinearIcon className="size-3.5 text-white" />
 					{t('common.COLLABORATE')}
 				</DialogTrigger>
-				<DialogContent className="gap-0 p-0 outline-hidden border-[#0000001A] dark:border-[#26272C]">
+				<DialogContent className="gap-0 p-0 outline-hidden border-[#0000001A] dark:border-border">
 					<DialogHeader className="px-4 pt-5 pb-4">
 						<DialogTitle>{t('common.COLLABORATE_DIALOG_TITLE')}</DialogTitle>
 						<DialogDescription>{t('common.COLLABORATE_DIALOG_SUB_TITLE')}</DialogDescription>
 					</DialogHeader>
-					<Command className="overflow-hidden rounded-t-none border-t border-[#0000001A] dark:border-[#26272C]">
+					<Command className="overflow-hidden rounded-t-none border-t border-[#0000001A] dark:border-border">
 						<CommandInput placeholder="Search member..." />
 						<CommandList>
 							<CommandEmpty>{t('common.USER_NOT_FOUND')}</CommandEmpty>
@@ -144,7 +144,7 @@ const Collaborate = () => {
 												) ? (
 													<Avatar
 														size={36}
-														className="relative cursor-pointer dark:border-[0.25rem] dark:border-[#26272C]"
+														className="relative cursor-pointer dark:border-[0.25rem] dark:border-border"
 														imageUrl={
 															member?.image?.thumbUrl ||
 															member?.image?.fullUrl ||
@@ -173,7 +173,7 @@ const Collaborate = () => {
 							</ScrollArea>
 						</CommandList>
 					</Command>
-					<DialogFooter className="flex items-center border-t border-[#0000001A] dark:border-[#26272C] p-4 sm:justify-between">
+					<DialogFooter className="flex items-center border-t border-[#0000001A] dark:border-border p-4 sm:justify-between">
 						{collaborativeMembers.length > 0 ? (
 							<div className="flex -space-x-3.5 overflow-hidden">
 								{collaborativeMembers.map((member) => (
@@ -195,7 +195,7 @@ const Collaborate = () => {
 										) ? (
 											<Avatar
 												size={32}
-												className="relative cursor-pointer dark:border-[0.25rem] dark:border-[#26272C]"
+												className="relative cursor-pointer dark:border-[0.25rem] dark:border-border"
 												imageUrl={
 													member?.image?.thumbUrl ||
 													member?.image?.fullUrl ||

@@ -13,10 +13,10 @@ export const TimerSkeleton = ({ className }: { className?: string }) => {
 				<div className="flex justify-between items-start w-full">
 					<div className="mx-auto w-full">
 						{/* Timer display */}
-						<div className="w-[200px] h-12 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg" />
+						<div className="w-[200px] h-12 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg" />
 
 						{/* Timer status */}
-						<div className="mt-2 w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+						<div className="mt-2 w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 					</div>
 				</div>
 			</div>
@@ -25,7 +25,7 @@ export const TimerSkeleton = ({ className }: { className?: string }) => {
 
 			<div className="flex justify-center items-center w-1/4 xl:w-2/5 h-fit">
 				{/* Timer button */}
-				<div className="w-12 h-12 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
+				<div className="w-12 h-12 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
 			</div>
 		</div>
 	);
