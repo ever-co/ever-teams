@@ -160,7 +160,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 				</PopoverTrigger>
 				<PopoverContent
 					align="end"
-					className=" w-44 border-[0.125rem] dark:border-[#26272C] bg-white dark:bg-dark--theme-light p-0"
+					className=" w-44 border-[0.125rem] dark:border-border bg-white dark:bg-dark--theme-light p-0"
 				>
 					<ul>
 						{menu.map((item) => {

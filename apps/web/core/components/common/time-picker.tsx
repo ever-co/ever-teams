@@ -117,7 +117,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, disable
 								<SelectItem
 									key={time}
 									value={time}
-									className="hover:bg-gray-100 dark:hover:bg-gray-800 bg-light--theme-light dark:bg-dark--theme-light dark:text-white font-normal "
+									className="hover:bg-gray-100 dark:hover:bg-muted bg-light--theme-light dark:bg-dark--theme-light dark:text-white font-normal "
 								>
 									{time}
 								</SelectItem>

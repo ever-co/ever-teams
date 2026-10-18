@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
-import { FC, useState, useCallback, useMemo } from 'react';
+import { FC, useCallback, useMemo } from 'react';
+import { useAtom } from 'jotai';
+import { commandPaletteOpenAtom } from '@/core/stores/common/command-palette';
 import { useRouter } from 'next/navigation';
 
 import {
@@ -84,8 +86,17 @@ const ClickableCommandItem: FC<{ children: React.ReactNode; action: ShortcutActi
 		</div>
 	);
 };
-export const SidebarCommandModal: FC<{ publicTeam: boolean }> = ({ publicTeam }) => {
-	const [open, setOpen] = useState(false);
+/**
+ * The command palette.
+ * `variant="sidebar"` renders the original full-width input as its trigger; `variant="none"` renders no
+ * trigger: the shell mounts it once that way (app-sidebar.tsx) so its shortcuts work on every page, and
+ * the header's CommandPaletteTrigger opens it through `commandPaletteOpenAtom`.
+ */
+export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' | 'none' }> = ({
+	publicTeam,
+	variant = 'sidebar'
+}) => {
+	const [open, setOpen] = useAtom(commandPaletteOpenAtom);
 
 	const t = useTranslations();
 	const { user } = useAuthenticateUser();
@@ -105,7 +116,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean }> = ({ publicTeam })
 	const executeAction = useCallback((action: ShortcutAction) => {
 		action();
 		setOpen(false);
-	}, []);
+	}, [setOpen]);
 
 	// Reusable actions
 	const actions = useMemo(
@@ -346,7 +357,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean }> = ({ publicTeam })
 
 		document.addEventListener('keydown', down);
 		return () => document.removeEventListener('keydown', down);
-	}, []);
+	}, [setOpen]);
 
 	// Rendering of command groups from the configuration
 	const renderCommandGroups = () => {
@@ -378,7 +389,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean }> = ({ publicTeam })
 
 	return (
 		<>
-			<SidebarCommandForm onClick={() => setOpen(true)} />
+			{variant === 'sidebar' ? <SidebarCommandForm onClick={() => setOpen(true)} /> : null}
 			<CommandDialog open={open} onOpenChange={setOpen}>
 				<Badge className="m-3 rounded-lg w-fit dark:bg-white/60 dark:text-black">Home</Badge>
 				<CommandInput placeholder="Type a command or search..." />

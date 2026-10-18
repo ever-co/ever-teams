@@ -10,10 +10,10 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 		return NextResponse.json({}, { status: 400 });
 	}
 
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+	const { $res, user, access_token, tenantId, status } = await authenticatedGuard(req, res);
 
 	if (!user) {
-		return NextResponse.json({}, { status: 401 });
+		return NextResponse.json({}, { status: status ?? 401 });
 	}
 
 	const response = await removeUserFromAllTeam({

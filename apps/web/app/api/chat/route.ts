@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { checkCustomBaseUrl } from '@/core/lib/chat/custom-base-url';
 import { createGuardedFetch } from '@/core/lib/chat/guarded-fetch';
+import { resolveFileUrls } from '@/core/lib/chat/resolve-file-urls';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 
 export async function POST(req: Request) {
@@ -38,6 +39,11 @@ export async function POST(req: Request) {
 		};
 	}
 
+	// The SDK would download the file URLs of the messages on this server with the global fetch: they are
+	// downloaded here instead, through the guarded fetch (SSRF).
+	const files = await resolveFileUrls(messages, req.signal);
+	if (!files.ok) return NextResponse.json({ error: files.error }, { status: files.status });
+
 	const openai = createOpenAI({
 		apiKey,
 		...(custom ?? {}),
@@ -52,7 +58,7 @@ export async function POST(req: Request) {
 		system: `You are a helpful AI assistant integrated into ${APP_NAME}, a work and project management platform.
 You help users with their tasks, projects, and team collaboration questions.
 Be concise, professional, and helpful. You can format your responses using Markdown.`,
-		messages,
+		messages: files.messages,
 		// The caller leaving (closed tab, Stop) ends the provider request too.
 		abortSignal: req.signal
 	});

@@ -331,7 +331,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 										projectLog.employeeLogs.map((employeeLog) => (
 											<TableRow
 												key={`${projectLog.project?.id || 'no-project'}-${employeeLog.employee?.id || 'no-employee'}`}
-												className="hover:bg-gray-50 dark:hover:bg-gray-800/50"
+												className="hover:bg-gray-50 dark:hover:bg-white/5"
 											>
 												{columnVisibility.member && employeeLog.employee && (
 													<TableCell className="px-6 py-4">
@@ -429,7 +429,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 					<div className="relative">
 						<button
 							onClick={() => setShowEntriesDropdown(!showEntriesDropdown)}
-							className="px-4 py-2 text-sm text-gray-700 bg-white rounded-sm border border-gray-200 dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+							className="px-4 py-2 text-sm text-gray-700 bg-white rounded-sm border border-gray-200 dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-primary/20"
 						>
 							{t('timeActivity.SHOW_ENTRIES', { count: entriesPerPage })}
 							<svg
@@ -447,7 +447,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 									<button
 										key={option}
 										onClick={() => handleEntriesPerPageChange(option)}
-										className="px-4 py-2 w-full text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+										className="px-4 py-2 w-full text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5"
 									>
 										{t('timeActivity.SHOW_ENTRIES', { count: option })}
 									</button>
@@ -466,28 +466,28 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 
 				<div className="flex gap-2 items-center">
 					<button
-						className="px-4 py-2 text-sm text-gray-700 bg-white rounded-sm border border-gray-200 dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+						className="px-4 py-2 text-sm text-gray-700 bg-white rounded-sm border border-gray-200 dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
 						onClick={() => handlePageChange(1)}
 						disabled={currentPage === 1}
 					>
 						{t('timeActivity.FIRST')}
 					</button>
 					<button
-						className="px-4 py-2 text-sm text-gray-700 bg-white rounded-sm border border-gray-200 dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+						className="px-4 py-2 text-sm text-gray-700 bg-white rounded-sm border border-gray-200 dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
 						onClick={() => handlePageChange(currentPage - 1)}
 						disabled={currentPage === 1}
 					>
 						{t('timeActivity.PREVIOUS')}
 					</button>
 					<button
-						className="px-4 py-2 text-sm text-gray-700 bg-white rounded-sm border border-gray-200 dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+						className="px-4 py-2 text-sm text-gray-700 bg-white rounded-sm border border-gray-200 dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-primary/20"
 						onClick={() => handlePageChange(currentPage + 1)}
 						disabled={currentPage === totalPages}
 					>
 						{t('timeActivity.NEXT')}
 					</button>
 					<button
-						className="px-4 py-2 text-sm text-gray-700 bg-white rounded-sm border border-gray-200 dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+						className="px-4 py-2 text-sm text-gray-700 bg-white rounded-sm border border-gray-200 dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
 						onClick={() => handlePageChange(totalPages)}
 						disabled={currentPage === totalPages}
 					>

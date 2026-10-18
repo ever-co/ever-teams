@@ -46,7 +46,11 @@ export function useManualTime() {
 	const addManualTimeMutate = addManualTimeMutation.mutate;
 	// Preserve exact same interface for existing consumers
 	const addManualTime = useCallback(
-		(data: Omit<TAddManualTimeRequest, 'tenantId' | 'employeeId' | 'logType' | 'source'>) => {
+		(
+			data: Omit<TAddManualTimeRequest, 'tenantId' | 'employeeId' | 'logType' | 'source'> & {
+				employeeId?: string;
+			}
+		) => {
 			const requestData: TAddManualTimeRequest = {
 				tenantId: user?.tenantId ?? '',
 				employeeId: user?.employee?.id ?? '',

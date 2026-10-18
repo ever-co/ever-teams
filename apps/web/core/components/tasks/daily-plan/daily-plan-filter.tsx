@@ -105,19 +105,19 @@ export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
 						</Button>
 					</PopoverTrigger>
 					<PopoverContent
-						className="p-0 min-w-[220px] border-none shadow-md dark:shadow-lg dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]"
+						className="p-0 min-w-[220px] border-none shadow-md dark:shadow-lg dark:bg-card dark:border dark:border-[#FFFFFF33]"
 						align="center"
 						sideOffset={5}
 					>
-						<Command className="rounded-lg overflow-hidden dark:bg-[#1B1D22]">
-							<CommandList className="max-h-[300px] overflow-auto dark:bg-[#1B1D22]">
+						<Command className="rounded-lg overflow-hidden dark:bg-card">
+							<CommandList className="max-h-[300px] overflow-auto dark:bg-card">
 								<CommandEmpty className="dark:text-gray-300">No plans found.</CommandEmpty>
 								<CommandGroup className="dark:text-white">
 									{filteredPlans.map((item) => (
 										<CommandItem
 											key={item.id}
 											onSelect={() => togglePlanSelection(item.date.toString())}
-											className="flex items-center gap-2 cursor-pointer data-[selected=true]:bg-accent dark:data-[selected=true]:bg-gray-700 dark:hover:bg-gray-800 dark:text-white whitespace-nowrap text-ellipsis"
+											className="flex items-center gap-2 cursor-pointer data-[selected=true]:bg-accent dark:data-[selected=true]:bg-gray-700 dark:hover:bg-muted dark:text-white whitespace-nowrap text-ellipsis"
 										>
 											<div className="flex items-center flex-1 whitespace-nowrap text-ellipsis">
 												{selectedPlans?.includes(item.date.toString()) && (

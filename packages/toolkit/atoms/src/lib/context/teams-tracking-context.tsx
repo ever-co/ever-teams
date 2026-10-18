@@ -54,6 +54,7 @@ interface ITrackingProviderProps {
 	children: ReactNode;
 	config?: {
 		baseUrl?: string;
+		defaultBaseUrl?: string;
 		headers?: ITrackingApiHeaders;
 		timeout?: number;
 	};

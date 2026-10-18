@@ -37,7 +37,7 @@ const HeaderTabs = ({ linkAll, kanban = false }: { linkAll: boolean; kanban?: bo
 							className={clsxm(
 								'rounded-md p-2 text-gray-700 dark:text-gray-300',
 								activeView === optionView &&
-									'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
+									'bg-gray-100 text-gray-900 dark:bg-muted dark:text-gray-100'
 							)}
 							onClick={() => {
 								if (links[index] !== '/kanban') {

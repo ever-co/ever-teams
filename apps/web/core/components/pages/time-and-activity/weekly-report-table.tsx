@@ -187,7 +187,7 @@ export function WeeklyReportTable({ mergedProps, enabled, initialDate }: Readonl
 					onClick={() => setWeekStart((current) => addWeeks(current, -1))}
 					aria-label={t('timeActivity.PREVIOUS_WEEK')}
 					title={t('timeActivity.PREVIOUS_WEEK')}
-					className="dark:bg-dark--theme-light dark:border-[#2D2D2D]"
+					className="dark:bg-dark--theme-light dark:border-border"
 				>
 					<ChevronLeft />
 				</Button>
@@ -201,7 +201,7 @@ export function WeeklyReportTable({ mergedProps, enabled, initialDate }: Readonl
 					disabled={isCurrentWeek}
 					aria-label={t('timeActivity.NEXT_WEEK')}
 					title={t('timeActivity.NEXT_WEEK')}
-					className="dark:bg-dark--theme-light dark:border-[#2D2D2D]"
+					className="dark:bg-dark--theme-light dark:border-border"
 				>
 					<ChevronRight />
 				</Button>

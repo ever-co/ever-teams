@@ -27,13 +27,17 @@ export function KeyboardShortcuts() {
 	return (
 		<>
 			<Tooltip label={t('common.KEYBOARD_SHORTCUTS')} placement="auto">
-				<Button variant="ghost" className="min-w-0 p-0 m-0" onClick={toggle}>
-					<LineDotBoxIcon className="h-7 w-7 " />
+				<Button
+					variant="ghost"
+					className="m-0 size-8 min-w-0 rounded-md p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
+					onClick={toggle}
+				>
+					<LineDotBoxIcon className="size-5" />
 				</Button>
 			</Tooltip>
 
 			<Dialog open={isOpen} defaultOpen={isOpen} onOpenChange={toggle}>
-				<DialogContent className="border-[#0000001A] dark:border-[#26272C]">
+				<DialogContent className="border-[#0000001A] dark:border-border">
 					<DialogHeader className="flex flex-col gap-5">
 						<DialogTitle>{t('common.KEYBOARD_SHORTCUTS')}</DialogTitle>
 						<DialogDescription className="flex flex-col gap-2">
@@ -58,7 +62,7 @@ export function KeyboardShortcuts() {
 													(label) => (
 														<div
 															key={label}
-															className="border rounded-md py-1 px-3 text-dark-high dark:text-white min-w-[2.5rem] text-center"
+															className="border rounded-md py-1 px-3 text-foreground dark:text-white min-w-[2.5rem] text-center"
 														>
 															{label}
 														</div>
@@ -70,7 +74,7 @@ export function KeyboardShortcuts() {
 
 									{/* Divider */}
 									{index !== HostKeysMapping.length - 1 && (
-										<div className="h-[0.0625rem] bg-[#F2F2F2] dark:bg-[#26272C] w-full mx-auto"></div>
+										<div className="h-[0.0625rem] bg-[#F2F2F2] dark:bg-muted w-full mx-auto"></div>
 									)}
 								</div>
 							))}

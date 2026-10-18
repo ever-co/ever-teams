@@ -6,3 +6,4 @@ export * from './header-tabs';
 export * from './public';
 export * from './menu';
 export * from './timezones';
+export * from './command-palette';

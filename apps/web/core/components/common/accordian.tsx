@@ -19,21 +19,21 @@ export const Accordian = ({ children, title, className, isDanger, id, defaultOpe
 
 	return (
 		<div className="w-full scroll-mt-6" id={id}>
-			<div className={`overflow-hidden rounded-xl border bg-card shadow-sm dark:border-white/10 ${className}`}>
+			<div className={`overflow-hidden rounded-lg border border-border bg-card ${className}`}>
 				<Accordion type="single" collapsible defaultValue={defaultValue}>
 					<AccordionItem value={accordionValue} className="border-none">
-						<AccordionTrigger className="flex h-auto w-full items-center justify-between px-5 py-4 text-left hover:bg-muted/40 hover:no-underline [&>svg]:hidden">
+						<AccordionTrigger className="flex h-auto w-full items-center justify-between px-5 py-3.5 text-left hover:bg-muted/40 hover:no-underline [&>svg]:hidden">
 							<>
 								<Text
-									className={`text-left text-lg font-semibold tracking-tight ${
+									className={`text-left text-[15px] font-semibold tracking-tight ${
 										isDanger
 											? 'text-[#EB6961] dark:text-[#EB6961]'
-											: 'text-[#282048] dark:text-white'
+											: 'text-foreground'
 									}`}
 								>
 									{title}
 								</Text>
-								<ChevronUpIcon className="h-5 w-5 text-[#292D32] dark:text-white transition-transform duration-200 data-[state=closed]:rotate-180" />
+								<ChevronUpIcon className="size-4 text-muted-foreground transition-transform duration-200 data-[state=closed]:rotate-180" />
 							</>
 						</AccordionTrigger>
 						<AccordionContent className="px-5 pb-5 pt-0 text-sm text-muted-foreground">

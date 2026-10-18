@@ -4,9 +4,9 @@ import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {
 	const res = new NextResponse();
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+	const { $res, user, access_token, tenantId, status } = await authenticatedGuard(req, res);
 
-	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: status ?? 401 });
 
 	const par = {
 		is_system: user.role?.isSystem as boolean,

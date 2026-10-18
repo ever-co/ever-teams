@@ -746,7 +746,12 @@
 				"SIGNUP_TERMS_REQUIRED": "קבל את המסמכים כדי להמשיך.",
 				"SIGNUP_EXPIRED": "תוקף ההרשמה הזו פג. התחבר שוב עם Ever ID.",
 				"SIGNUP_CHECKOUT": "נדרש מנוי לפני שניתן ליצור את סביבת העבודה שלך.",
-				"CONTINUE_TO_CHECKOUT": "המשך לתשלום"
+				"CONTINUE_TO_CHECKOUT": "המשך לתשלום",
+				"EMAIL_UNVERIFIED_TITLE": "אמתו את כתובת הדוא״ל שלכם ב-Ever ID",
+				"EMAIL_UNVERIFIED_BODY": "Ever ID עדיין לא אימת את כתובת הדוא״ל שלכם. פתחו את הודעת האימות ש-Ever ID שלח לכם, או אמתו את הכתובת ב-Ever ID עכשיו, ואז התחברו שוב עם Ever ID.",
+				"VERIFY_EMAIL": "אימות הדוא״ל שלי ב-Ever ID",
+				"SIGN_IN_AGAIN": "התחברות מחדש עם Ever ID",
+				"LOGIN_WITH_EVER_ID": "התחברות עם <wordmark>Ever ID</wordmark>"
 			}
 		},
 		"authPasscode": {
@@ -855,6 +860,8 @@
 			"SIZES_HEADING": "גדלים",
 			"TEAM_NAME": "שם צוות",
 			"TEAM_TYPE": "סוג צוות",
+			"TEAM_TYPE_UPDATED": "סוג הצוות עודכן בהצלחה",
+			"TEAM_TYPE_UPDATE_FAILED": "נכשל לעדכן את סוג הצוות. אנא נסה שוב.",
 			"TIME_TRACKING": "מעקב זמן",
 			"ENFORCE_PLAN": "אכוף את התוכנית",
 			"ADD_NEW_MEMBER": "הוסף חבר חדש",

@@ -173,11 +173,14 @@ async function loadAuth(env: Record<string, string> = {}, request: Request = CAL
 	return { config, adapter: config.adapter };
 }
 
+/** The claims of an ID token whose e-mail address Ever ID verified. */
+const VERIFIED_PROFILE = { sub: 'person-1', email: 'person@example.test', email_verified: true };
+
 /** The cookie the callback set for a step, and the key it opens to (with the same secret). */
 function setStepCookie() {
 	expect(mockCookieStore.set).toHaveBeenCalledTimes(1);
 	const cookie = mockCookieStore.set.mock.calls[0][0] as Record<string, unknown>;
-	const open = (step: 'confirm' | 'signup') => {
+	const open = (step: 'confirm' | 'signup' | 'verify_email') => {
 		let key: string | null = null;
 		jest.isolateModules(() => {
 			key = require('@/core/lib/auth/ever-id/handoff').openEverIdHandoff(cookie.value, step);
@@ -407,17 +410,81 @@ describe('Ever ID sign-in: the ID token exchange', () => {
 	});
 
 	it.each([
-		['the API refused the token (401)', { status: 401, data: { statusCode: 401 } }, 'rejected'],
-		['the routes are switched off (404)', { status: 404, data: { statusCode: 404 } }, 'gauzy_error'],
-		['the API limits the rate (429)', { status: 429, data: {} }, 'gauzy_error']
-	])('refuses the sign-in when %s', async (_label, answer, outcome) => {
+		[
+			'the API refused a token whose e-mail is verified (401)',
+			{ status: 401, data: { statusCode: 401 } },
+			['outcome=rejected', 'status=401 reason=token_refused']
+		],
+		[
+			'the API asks for an ID token (401)',
+			{ status: 401, data: { code: 'id_token_required' } },
+			['outcome=rejected', 'status=401 reason=id_token_required']
+		],
+		['the routes are switched off (404)', { status: 404, data: { statusCode: 404 } }, ['outcome=gauzy_error']],
+		['the API limits the rate (429)', { status: 429, data: {} }, ['outcome=gauzy_error']]
+	])('refuses the sign-in when %s', async (_label, answer, fragments) => {
 		mockSignWithEverId.mockResolvedValue(answer);
 		const auth = await loadAuth();
 
-		const { signIn } = await signInWithEverId(auth);
+		const { signIn } = await signInWithEverId(auth, VERIFIED_PROFILE);
 
 		expect(signIn).toBe(false);
-		expect(logs.join('\n')).toContain(`ever_id.signin outcome=${outcome}`);
+		const line = logs.find((entry) => entry.startsWith('ever_id.signin')) ?? '';
+		for (const fragment of fragments) expect(line).toContain(fragment);
+		expect(mockCookieStore.set).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		['the ID token says the e-mail is not verified', { email_verified: false }, { statusCode: 401 }],
+		['the ID token has no e-mail verification claim', {}, { statusCode: 401 }],
+		['the API says so, whatever the ID token says', { email_verified: true }, { code: 'email_unverified' }]
+	])(
+		'asks to verify the Ever ID e-mail instead of denying access when %s; the subject goes into a sealed cookie',
+		async (_label, claims, data) => {
+			mockSignWithEverId.mockResolvedValue({ status: 401, data });
+			const auth = await loadAuth();
+
+			const { signIn, token } = await signInWithEverId(auth, {
+				sub: 'person-1',
+				email: 'person@example.test',
+				...claims
+			});
+
+			expect(signIn).toBe('/auth/error?error=EverIdEmailUnverified');
+			const { cookie, open } = setStepCookie();
+			expect(cookie).toEqual(
+				expect.objectContaining({ name: 'ever-id-handoff', httpOnly: true, sameSite: 'lax', path: '/api/auth' })
+			);
+			expect(String(cookie.value)).not.toContain('person-1');
+			expect(open('verify_email')).toBe('person-1');
+			expect(open('confirm')).toBeNull();
+			expect(token).toBeNull();
+			expect(mockSignWithEverId).toHaveBeenCalledTimes(1);
+			const log = logs.join('\n');
+			expect(log).toContain('ever_id.signin outcome=email_unverified');
+			expect(log).not.toMatch(/person-1|person@example\.test/);
+		}
+	);
+
+	it("keeps the API's own reason when it asks for an ID token, whatever the e-mail claim says", async () => {
+		mockSignWithEverId.mockResolvedValue({ status: 401, data: { code: 'id_token_required' } });
+		const auth = await loadAuth();
+
+		const { signIn } = await signInWithEverId(auth, { sub: 'person-1', email_verified: false });
+
+		expect(signIn).toBe(false);
+		expect(logs.find((entry) => entry.startsWith('ever_id.signin'))).toContain('reason=id_token_required');
+		expect(mockCookieStore.set).not.toHaveBeenCalled();
+	});
+
+	it('still shows the verification page, without a cookie, when there is no secret to seal the subject with', async () => {
+		mockSignWithEverId.mockResolvedValue({ status: 401, data: { statusCode: 401 } });
+		const auth = await loadAuth({ AUTH_SECRET: undefined as unknown as string });
+
+		const { signIn } = await signInWithEverId(auth, { sub: 'person-1', email_verified: false });
+
+		expect(signIn).toBe('/auth/error?error=EverIdEmailUnverified');
+		expect(mockCookieStore.set).not.toHaveBeenCalled();
 	});
 
 	it('refuses the sign-in when the API cannot be reached', async () => {

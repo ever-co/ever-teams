@@ -65,7 +65,7 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 						onClick={onLinkClick}
 						aria-current={active ? 'location' : undefined}
 						className={clsxm(
-							'flex min-h-9 items-center rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground',
+							'flex min-h-8 items-center rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground',
 							active && 'bg-muted font-medium text-foreground'
 						)}
 						style={item.color && item.href.includes('danger') ? { color: item.color } : undefined}
@@ -77,41 +77,41 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 
 	return (
 		<nav
-			className={clsxm('rounded-xl border bg-card p-2 shadow-sm dark:border-white/10', className)}
+			className={clsxm('w-full', className)}
 			aria-label={t('common.SETTINGS')}
 		>
-			<div className="px-3 pb-2 pt-1">
-				<h1 className="text-xl font-semibold tracking-tight">{t('common.SETTINGS')}</h1>
-				<p className="mt-1 text-xs text-muted-foreground">{t('pages.settings.HEADING_DESCRIPTION')}</p>
+			<div className="px-3 pb-3">
+				<h1 className="text-2xl font-semibold tracking-tight">{t('common.SETTINGS')}</h1>
+				<p className="mt-1 text-sm text-muted-foreground">{t('pages.settings.HEADING_DESCRIPTION')}</p>
 			</div>
-			<div className="space-y-4">
+			<div className="space-y-2">
 				<section>
 					<Link
 						href={`/${locale}/settings/personal`}
 						className={clsxm(
-							'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium',
-							pathname?.endsWith('/settings/personal') && 'bg-primary/10 text-primary'
+							'flex items-center gap-2 px-3 pb-1.5 pt-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70 [&>svg]:size-3.5',
+							pathname?.endsWith('/settings/personal') && 'text-foreground'
 						)}
 					>
 						<UserOutlineIcon className="h-4 w-4" />
 						{t('common.PERSONAL')}
 					</Link>
-					<div className="mt-1 pl-3">
+					<div className="space-y-0.5">
 						{renderLinks('personal', PersonalAccordianData, activePersonalMenu)}
 					</div>
 				</section>
-				<section className="border-t pt-3 dark:border-white/10">
+				<section>
 					<Link
 						href={`/${locale}/settings/team`}
 						className={clsxm(
-							'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium',
-							pathname?.endsWith('/settings/team') && 'bg-primary/10 text-primary'
+							'flex items-center gap-2 px-3 pb-1.5 pt-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70 [&>svg]:size-3.5',
+							pathname?.endsWith('/settings/team') && 'text-foreground'
 						)}
 					>
 						<PeoplesIcon className="h-4 w-4" />
 						{t('common.TEAM')}
 					</Link>
-					<div className="mt-1 pl-3">{renderLinks('team', TeamAccordianData, activeTeamMenu)}</div>
+					<div className="space-y-0.5">{renderLinks('team', TeamAccordianData, activeTeamMenu)}</div>
 				</section>
 			</div>
 		</nav>

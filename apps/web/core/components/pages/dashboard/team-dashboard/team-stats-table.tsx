@@ -147,7 +147,7 @@ export function TeamStatsTable({
 							<div className="overflow-hidden">
 								<Table className="w-full">
 									<TableHeader>
-										<TableRow className="font-normal text-gray-700 bg-gray-50 dark:bg-gray-800 dark:text-gray-200">
+										<TableRow className="font-normal text-gray-700 bg-gray-50 dark:bg-muted dark:text-gray-200">
 											<TableHead className="w-[320px] py-3">
 												<SortPopover
 													label={t('common.teamStats.MEMBER')}
@@ -218,7 +218,7 @@ export function TeamStatsTable({
 									<TableBody>
 										{currentItems?.map((dayData) => (
 											<Fragment key={`date-group-${dayData.date}`}>
-												<TableRow className="bg-gray-50/50 dark:bg-gray-800/50">
+												<TableRow className="bg-gray-50/50 dark:bg-white/5">
 													<TableCell colSpan={9} className="py-3 font-medium">
 														{format(new Date(dayData.date), 'EEEE dd MMM yyyy')}
 													</TableCell>
@@ -335,7 +335,7 @@ const LoadingTable = () => {
 		<Card className="bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px]">
 			<Table>
 				<TableHeader>
-					<TableRow className="font-normal text-gray-700 bg-gray-50 dark:bg-gray-800 dark:text-gray-200">
+					<TableRow className="font-normal text-gray-700 bg-gray-50 dark:bg-muted dark:text-gray-200">
 						<TableHead className="w-[320px] py-3">{t('common.teamStats.MEMBER')}</TableHead>
 						<TableHead className="w-[100px]">{t('common.teamStats.TOTAL_TIME')}</TableHead>
 						<TableHead className="w-[80px]">{t('common.teamStats.TRACKED')}</TableHead>

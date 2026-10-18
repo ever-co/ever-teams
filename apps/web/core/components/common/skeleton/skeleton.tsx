@@ -14,7 +14,7 @@ const Skeleton = ({
 	return (
 		<div
 			className={clsxm(
-				'p-1  animate-pulse rounded-lg bg-[#F0F0F0] dark:bg-[#353741]',
+				'p-1  animate-pulse rounded-lg bg-[#F0F0F0] dark:bg-white/8',
 				height ? `h-[${height}px]` : 'h-[20px]',
 				width ? `w-[${width}px]` : 'w-[160px]',
 				className

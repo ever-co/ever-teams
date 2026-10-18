@@ -54,7 +54,7 @@ export function StatusBadge({ isArchived, isActive }: Readonly<{ isArchived?: bo
 
 	if (isArchived) {
 		return (
-			<span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+			<span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-muted text-gray-600 dark:text-gray-400">
 				<Archive size={10} />
 				{t('timer.ARCHIVED')}
 			</span>
@@ -99,7 +99,7 @@ export function MemberCard({
 	const email = member.employee?.user?.email;
 
 	return (
-		<div className="flex items-center gap-3 p-3 border rounded-lg bg-gray-50 dark:bg-gray-800/50 dark:border-gray-700 hover:border-primary/50 transition-colors">
+		<div className="flex items-center gap-3 p-3 border rounded-lg bg-gray-50 dark:bg-white/5 dark:border-gray-700 hover:border-primary/50 transition-colors">
 			<div
 				className={cn(
 					'w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-sm font-medium shrink-0',

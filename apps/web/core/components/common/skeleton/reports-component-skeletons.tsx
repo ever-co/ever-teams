@@ -17,18 +17,18 @@ export const TimeReportTableSkeleton: FC<SkeletonProps> = ({ className }) => {
 	return (
 		<div className={`w-full p-1 ${className || ''}`}>
 			{/* Table Header */}
-			<div className="flex items-center h-12 px-4 border rounded-md bg-slate-100 dark:bg-gray-800 dark:text-white">
-				<div className="w-48 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+			<div className="flex items-center h-12 px-4 border rounded-md bg-slate-100 dark:bg-muted dark:text-white">
+				<div className="w-48 h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 			</div>
 
 			{/* Data Table */}
 			<div className="bg-white dark:bg-dark--theme-light rounded-lg border border-gray-200 dark:border-gray-600">
 				{/* Table Header */}
-				<div className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-600">
+				<div className="bg-gray-50 dark:bg-white/5 border-b border-gray-200 dark:border-gray-600">
 					<div className="flex">
 						{['Member', 'Limit', 'Time Spent', 'Percentage Used', 'Remaining'].map((header, index) => (
 							<div key={index} className="px-6 py-3 flex-1">
-								<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 							</div>
 						))}
 					</div>
@@ -37,36 +37,36 @@ export const TimeReportTableSkeleton: FC<SkeletonProps> = ({ className }) => {
 				{/* Table Rows */}
 				{[...Array(6)].map((_, rowIndex) => (
 					<div key={rowIndex} className="border-b border-gray-200 dark:border-gray-600">
-						<div className="flex hover:bg-gray-50 dark:hover:bg-gray-800/50">
+						<div className="flex hover:bg-gray-50 dark:hover:bg-white/5">
 							{/* Member Cell */}
 							<div className="px-6 py-4 flex-1">
 								<div className="flex items-center gap-3">
-									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-									<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
+									<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 								</div>
 							</div>
 
 							{/* Limit Cell */}
 							<div className="px-6 py-4 flex-1">
-								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 							</div>
 
 							{/* Time Spent Cell */}
 							<div className="px-6 py-4 flex-1">
-								<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 							</div>
 
 							{/* Percentage Used Cell */}
 							<div className="px-6 py-4 flex-1">
 								<div className="flex gap-2 items-center">
-									<div className="w-32 h-2 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-									<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+									<div className="w-32 h-2 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
+									<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 								</div>
 							</div>
 
 							{/* Remaining Cell */}
 							<div className="px-6 py-4 flex-1">
-								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 							</div>
 						</div>
 					</div>
@@ -84,18 +84,18 @@ export const TimeReportTableByMemberSkeleton: FC<SkeletonProps> = ({ className }
 	return (
 		<div className={`w-full p-1 ${className || ''}`}>
 			{/* Member Header */}
-			<div className="flex items-center h-12 px-4 border rounded-md bg-slate-100 dark:bg-gray-800 dark:text-white">
-				<div className="w-32 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+			<div className="flex items-center h-12 px-4 border rounded-md bg-slate-100 dark:bg-muted dark:text-white">
+				<div className="w-32 h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 			</div>
 
 			{/* Data Table */}
 			<div className="bg-white dark:bg-dark--theme-light rounded-lg border border-gray-200 dark:border-gray-600">
 				{/* Table Header */}
-				<div className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-600">
+				<div className="bg-gray-50 dark:bg-white/5 border-b border-gray-200 dark:border-gray-600">
 					<div className="flex">
 						{['Date/Week', 'Limit', 'Time Spent', 'Percentage Used', 'Remaining'].map((header, index) => (
 							<div key={index} className="px-6 py-3 flex-1">
-								<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 							</div>
 						))}
 					</div>
@@ -104,33 +104,33 @@ export const TimeReportTableByMemberSkeleton: FC<SkeletonProps> = ({ className }
 				{/* Table Rows */}
 				{[...Array(4)].map((_, rowIndex) => (
 					<div key={rowIndex} className="border-b border-gray-200 dark:border-gray-600">
-						<div className="flex hover:bg-gray-50 dark:hover:bg-gray-800/50">
+						<div className="flex hover:bg-gray-50 dark:hover:bg-white/5">
 							{/* Date/Week Cell */}
 							<div className="px-6 py-4 flex-1">
-								<div className="w-28 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-28 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 							</div>
 
 							{/* Limit Cell */}
 							<div className="px-6 py-4 flex-1">
-								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 							</div>
 
 							{/* Time Spent Cell */}
 							<div className="px-6 py-4 flex-1">
-								<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 							</div>
 
 							{/* Percentage Used Cell */}
 							<div className="px-6 py-4 flex-1">
 								<div className="flex gap-2 items-center">
-									<div className="w-32 h-2 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-									<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+									<div className="w-32 h-2 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
+									<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 								</div>
 							</div>
 
 							{/* Remaining Cell */}
 							<div className="px-6 py-4 flex-1">
-								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 							</div>
 						</div>
 					</div>
@@ -146,7 +146,7 @@ export const TimeReportTableByMemberSkeleton: FC<SkeletonProps> = ({ className }
  */
 export const MembersSelectSkeleton: FC<SkeletonProps> = ({ className }) => {
 	return (
-		<div className={`w-48 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600 ${className || ''}`} />
+		<div className={`w-48 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600 ${className || ''}`} />
 	);
 };
 
@@ -156,7 +156,7 @@ export const MembersSelectSkeleton: FC<SkeletonProps> = ({ className }) => {
  */
 export const GroupBySelectSkeleton: FC<SkeletonProps> = ({ className }) => {
 	return (
-		<div className={`w-32 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600 ${className || ''}`} />
+		<div className={`w-32 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600 ${className || ''}`} />
 	);
 };
 
@@ -166,7 +166,7 @@ export const GroupBySelectSkeleton: FC<SkeletonProps> = ({ className }) => {
  */
 export const DatePickerWithRangeSkeleton: FC<SkeletonProps> = ({ className }) => {
 	return (
-		<div className={`w-64 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600 ${className || ''}`} />
+		<div className={`w-64 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600 ${className || ''}`} />
 	);
 };
 
@@ -176,7 +176,7 @@ export const DatePickerWithRangeSkeleton: FC<SkeletonProps> = ({ className }) =>
  */
 export const WeeklyLimitExportMenuSkeleton: FC<SkeletonProps> = ({ className }) => {
 	return (
-		<div className={`w-24 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600 ${className || ''}`} />
+		<div className={`w-24 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600 ${className || ''}`} />
 	);
 };
 
@@ -189,17 +189,17 @@ export const PaginateSkeleton: FC<SkeletonProps> = ({ className }) => {
 		<div className={`flex items-center justify-between p-4 bg-white dark:bg-dark--theme ${className || ''}`}>
 			{/* Left Info */}
 			<div className="flex items-center gap-2">
-				<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-				<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-				<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+				<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+				<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+				<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 			</div>
 
 			{/* Right Navigation */}
 			<div className="flex items-center gap-2">
-				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 			</div>
 		</div>
 	);

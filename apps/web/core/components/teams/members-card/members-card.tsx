@@ -172,8 +172,8 @@ const Card = ({ member }: { member: TOrganizationTeamEmployee }) => {
 			className={`w-full rounded-[15px] border ${
 				isManager
 					? 'border-primary dark:border-gray-100'
-					: 'hover:border hover:border-primary dark:border-[#202023]'
-			} bg-[#FFFFFF] my-[15px] dark:bg-[#202023] flex justify-between text-primary dark:hover:border-gray-100 font-bold py-[24px] dark:text-[#FFFFFF]`}
+					: 'hover:border hover:border-primary dark:border-border'
+			} bg-[#FFFFFF] my-[15px] dark:bg-card flex justify-between text-primary dark:hover:border-gray-100 font-bold py-[24px] dark:text-[#FFFFFF]`}
 		>
 			<div className="w-[60px]  flex justify-center items-center">
 				<div className={`rounded-[50%] w-5 h-5 bg-[#02b102]`}></div>

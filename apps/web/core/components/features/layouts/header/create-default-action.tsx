@@ -60,7 +60,7 @@ export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) =>
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<Button
-						className="px-5 py-2.5 text-xs text-indigo-500 border-indigo-500 rounded-full h-fit group dark:bg-black/10 dark:hover:text-gray-50 dark:hover:border-gray-50"
+						className="group h-8 shrink-0 gap-1.5 whitespace-nowrap rounded-md border-border bg-card px-3 text-xs font-medium text-foreground hover:bg-muted dark:bg-card dark:hover:bg-muted"
 						variant="outline"
 						aria-expanded={open}
 						aria-label={open ? 'Close menu' : 'Open menu'}
@@ -69,7 +69,7 @@ export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) =>
 						<svg
 							aria-hidden="true"
 							xmlns="http://www.w3.org/2000/svg"
-							className="transition-transform duration-500 w-5 ease-out group-aria-expanded:rotate-[135deg] text-indigo-500"
+							className="size-4 text-primary transition-transform duration-500 ease-out group-aria-expanded:rotate-[135deg]"
 							width={24}
 							height={24}
 							viewBox="0 0 24 24"

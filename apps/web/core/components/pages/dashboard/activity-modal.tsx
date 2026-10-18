@@ -111,7 +111,7 @@ export const ActivityModal = ({ employeeLog, isOpen, closeModal }: ActivityModal
 					</div>
 				</div>
 
-				<div className="flex p-1 min-w-full max-w-fit space-x-2 w-full bg-gray-100 dark:bg-[#1B1D22] rounded-lg">
+				<div className="flex p-1 min-w-full max-w-fit space-x-2 w-full bg-gray-100 dark:bg-card rounded-lg">
 					{(['tracked', 'activity'] as const).map((tab) => (
 						<button
 							key={tab}

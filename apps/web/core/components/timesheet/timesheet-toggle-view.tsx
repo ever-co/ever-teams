@@ -17,7 +17,7 @@ export const ViewToggleButton: React.FC<ViewToggleButtonProps> = ({ mode, active
 		className={clsxm(
 			'box-border text-[#7E7991]  font-medium min-w-40 w-fit h-fit flex items-center gap-x-4 text-sm p-2',
 			active &&
-				'border-b-primary text-primary border-b-2 dark:text-primary-light dark:border-b-primary-light bg-[#F1F5F9] dark:bg-gray-800 font-medium'
+				'border-b-primary text-primary border-b-2 dark:text-primary-light dark:border-b-primary-light bg-[#F1F5F9] dark:bg-muted font-medium'
 		)}
 	>
 		{icon}

@@ -7,38 +7,35 @@ import { useTranslations } from 'next-intl';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { EverCard } from '@/core/components/common/ever-card';
 
+/** Settings row: label column, control column (see settings-design-contract). */
+const ROW = 'grid w-full grid-cols-1 gap-2 border-t border-border py-3 first:border-t-0 first:pt-0 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4';
+
 export function SyncZone() {
 	const t = useTranslations();
 	const isDataSync = useAtomValue(isDataSyncState);
 	const dataSyncMode = useAtomValue(dataSyncModeState);
 	return (
-		<div className="flex flex-col items-center justify-between">
-			<div className="w-full mt-5">
-				<div className="flex flex-col items-center justify-between w-full gap-6 lg:flex-row">
-					<div className="flex flex-col items-center justify-between w-full  md:w-1/2 sm:gap-4 sm:flex-row">
-						<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">Auto Sync</Text>
-						<div className="flex items-center w-full">
-							<DataSyncToggler />
-							<Text className="flex items-center ml-5 text-sm font-normal text-gray-400">
-								{isDataSync ? t('common.ENABLED') : t('common.DISABLED')}
-							</Text>
-						</div>
-					</div>
-					{isDataSync ? (
-						<div className="flex flex-col items-center justify-between w-full  md:w-1/2 sm:gap-4 sm:flex-row">
-							<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
-								Sync Mode
-							</Text>
-							<div className="flex items-center w-full">
-								<DataSyncModeToggler />
-								<Text className="flex items-center ml-5 text-sm font-normal text-gray-400">
-									{dataSyncMode == 'REAL_TIME' ? 'Real Time' : 'Pull'}
-								</Text>
-							</div>
-						</div>
-					) : null}
+		<div className="w-full">
+			<div className={ROW}>
+				<Text className="text-sm font-medium text-muted-foreground">Auto Sync</Text>
+				<div className="flex items-center gap-3">
+					<DataSyncToggler />
+					<Text className="text-sm text-muted-foreground">
+						{isDataSync ? t('common.ENABLED') : t('common.DISABLED')}
+					</Text>
 				</div>
 			</div>
+			{isDataSync ? (
+				<div className={ROW}>
+					<Text className="text-sm font-medium text-muted-foreground">Sync Mode</Text>
+					<div className="flex items-center gap-3">
+						<DataSyncModeToggler />
+						<Text className="text-sm text-muted-foreground">
+							{dataSyncMode == 'REAL_TIME' ? 'Real Time' : 'Pull'}
+						</Text>
+					</div>
+				</div>
+			) : null}
 		</div>
 	);
 }

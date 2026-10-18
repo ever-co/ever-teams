@@ -15,16 +15,16 @@ export const LoadingApp: FC<{ className?: string }> = ({ className }) => {
 				<AppSidebarSkeleton />
 				{/* Layout content structure implementation */}
 				<SidebarInset className="relative flex-1 overflow-x-hidden size-full!">
-					<header className="flex max-h-fit flex-col flex-1 my-auto inset-x-0 w-full min-h-20 top-0 h-fit shrink-0 justify-start gap-2 px-8 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-20 bg-white dark:bg-dark-high mx-0! !nav-items--shadow dark:shadow-none! border-b-[0.5px] dark:border-b-2 border-gray-200 relative z-50 dark:border-b-[#26272C]">
+					<header className="flex max-h-fit flex-col flex-1 my-auto inset-x-0 w-full min-h-20 top-0 h-fit shrink-0 justify-start gap-2 px-8 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-20 bg-white dark:bg-dark-high mx-0! !nav-items--shadow dark:shadow-none! border-b-[0.5px] dark:border-b-2 border-gray-200 relative z-50 dark:border-b-border">
 						<div
 							role="status"
 							className="flex h-12 w-full animate-pulse items-center justify-between gap-3 mx-0!"
 						>
-							<div className="w-20 h-8 bg-gray-200 rounded-full dark:bg-gray-700 me-3" />
+							<div className="w-20 h-8 bg-gray-200 rounded-full dark:bg-muted me-3" />
 							<div className="flex items-center justify-center gap-4 mt-4">
-								<div className="w-20 h-8 bg-gray-200 rounded-full dark:bg-gray-700 me-3" />
-								<div className="w-20 h-8 bg-gray-200 rounded-full dark:bg-gray-700 me-1" />
-								<div className="w-24 h-8 bg-gray-200 rounded-full dark:bg-gray-700" />
+								<div className="w-20 h-8 bg-gray-200 rounded-full dark:bg-muted me-3" />
+								<div className="w-20 h-8 bg-gray-200 rounded-full dark:bg-muted me-1" />
+								<div className="w-24 h-8 bg-gray-200 rounded-full dark:bg-muted" />
 								<svg
 									className="text-gray-200 size-8 dark:text-gray-700 me-4"
 									aria-hidden="true"
@@ -41,12 +41,12 @@ export const LoadingApp: FC<{ className?: string }> = ({ className }) => {
 					<div className="w-full bg-light--theme-dark dark:bg-dark--theme-light">
 						<Container className="flex justify-between mt-10">
 							<div className="flex justify-start gap-2">
-								<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
-								<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
+								<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-card" />
+								<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-card" />
 							</div>
 							<div className="flex justify-end gap-2">
-								<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
-								<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
+								<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-card" />
+								<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-card" />
 							</div>
 						</Container>
 						{/* Task Input Skeleton */}
@@ -54,10 +54,10 @@ export const LoadingApp: FC<{ className?: string }> = ({ className }) => {
 							<div className="w-full bg-white h-36 rounded-xl animate-pulse dark:bg-dark-high" />
 						</Container>
 						<div className="flex items-center w-full pb-16 justify-evenly">
-							<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
-							<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
-							<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
-							<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-dark" />
+							<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-card" />
+							<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-card" />
+							<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-card" />
+							<span className="w-24 h-6 rounded-md animate-pulse bg-light--theme dark:bg-card" />
 						</div>
 					</div>
 					<div className="w-full py-4">

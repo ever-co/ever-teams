@@ -92,7 +92,9 @@ const TeamsDataProvider = ({ children, config: apiConfig, theme, lang = 'en' }: 
 				setSelectedFont
 			}}
 		>
-			<TrackingProvider config={{ baseUrl: apiConfig?.apiUrl }}>
+			<TrackingProvider
+				config={{ baseUrl: apiConfig?.apiUrl, defaultBaseUrl: apiConfigManager.getConfig().apiUrl }}
+			>
 				<I18nextProvider i18n={i18n}>
 					<ThemeProvider attribute="class">
 						<ThemeUIProvider theme={appliedTheme}>{children}</ThemeUIProvider>

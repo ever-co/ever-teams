@@ -61,7 +61,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 				)}
 				<TimerStatus
 					status={timerStatusValue}
-					className="w-[1.3rem] h-[1.3rem] absolute z-20 bottom-3 -right-1 -mb-3 border-[0.125rem] border-white dark:border-[#26272C]"
+					className="w-[1.3rem] h-[1.3rem] absolute z-20 bottom-3 -right-1 -mb-3 border-[0.125rem] border-white dark:border-border"
 					tooltipClassName="absolute right-0 bottom-3 -mb-3 w-[1.3rem] h-[1.3rem] rounded-full"
 				/>
 			</div>

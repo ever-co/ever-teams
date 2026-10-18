@@ -1,15 +1,18 @@
 'use client';
 
 import { IconsBrandGoogleSolid, IconsFacebook, IconsGithubFilled, IconsTwitterFilled } from '@/core/components/icons';
-import { IconsEverId } from '@/core/components/icons/ever-id';
 import { useRuntimeEnvValue } from '@/core/components/providers/runtime-env-provider';
 import { signInFunction } from '../../lib/helpers/social-logins';
 import { IS_DEMO_MODE } from '@/core/constants/config/constants';
 import { Button } from '../common/button';
+import { EverIdLoginButton } from './ever-id-login-button';
 import { useTranslations } from 'next-intl';
 
 const SOCIAL_BUTTON_CLASS =
 	'cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-sm shadow-black/10 border border-transparent bg-card ring-1 ring-foreground/10 duration-200 hover:bg-muted/50 dark:ring-foreground/15 dark:hover:bg-muted/50 h-9 px-4 py-2 w-full text-foreground';
+
+/** The next-auth provider id of Ever ID (the server-only config module is not imported here, see below). */
+const EVER_ID = 'ever-id';
 
 /**
  * Which providers are usable is decided on the server (their client ids are server-only config) and
@@ -33,10 +36,6 @@ export default function SocialLogins() {
 			icon: <IconsBrandGoogleSolid aria-hidden="true" className="size-4" />,
 			label: 'Google'
 		},
-		'ever-id': {
-			icon: <IconsEverId aria-hidden="true" className="size-4" />,
-			label: 'Ever ID'
-		},
 		github: {
 			icon: <IconsGithubFilled aria-hidden="true" className="size-4" />,
 			label: 'GitHub'
@@ -51,8 +50,10 @@ export default function SocialLogins() {
 	const availableProviders = Object.keys(providerIcons)
 		.filter((id) => configuredProviderIds.has(id))
 		.map((id) => ({ id, name: providerIcons[id].label }));
+	// Ever ID has a button of its own: "Login with Ever ID", as wide as the form's primary button, above the others.
+	const everId = configuredProviderIds.has(EVER_ID) ? { id: EVER_ID, name: 'Ever ID' } : null;
 
-	if (availableProviders.length === 0 || IS_DEMO_MODE) {
+	if ((availableProviders.length === 0 && !everId) || IS_DEMO_MODE) {
 		return null;
 	}
 
@@ -67,26 +68,41 @@ export default function SocialLogins() {
 				<div className="bg-border border-card h-0.5 border-b" />
 			</div>
 
-			{/* Social buttons in 2x2 grid */}
-			<div className="grid grid-cols-2 gap-3">
-				{availableProviders.map((provider) => {
-					const providerInfo = providerIcons[provider.id];
+			<div className="space-y-3">
+				{everId && (
+					<form
+						onSubmit={(e) => {
+							e.preventDefault();
+							void signInFunction(everId);
+						}}
+					>
+						<EverIdLoginButton />
+					</form>
+				)}
 
-					return (
-						<form
-							key={provider.id}
-							onSubmit={(e) => {
-								e.preventDefault();
-								void signInFunction(provider);
-							}}
-						>
-							<Button type="submit" variant="secondary" className={SOCIAL_BUTTON_CLASS}>
-								{providerInfo.icon}
-								{providerInfo.label}
-							</Button>
-						</form>
-					);
-				})}
+				{/* Social buttons in 2x2 grid */}
+				{availableProviders.length > 0 && (
+					<div className="grid grid-cols-2 gap-3">
+						{availableProviders.map((provider) => {
+							const providerInfo = providerIcons[provider.id];
+
+							return (
+								<form
+									key={provider.id}
+									onSubmit={(e) => {
+										e.preventDefault();
+										void signInFunction(provider);
+									}}
+								>
+									<Button type="submit" variant="secondary" className={SOCIAL_BUTTON_CLASS}>
+										{providerInfo.icon}
+										{providerInfo.label}
+									</Button>
+								</form>
+							);
+						})}
+					</div>
+				)}
 			</div>
 		</div>
 	);

@@ -746,7 +746,12 @@
 				"SIGNUP_TERMS_REQUIRED": "Aceite os documentos para continuar.",
 				"SIGNUP_EXPIRED": "Este cadastro expirou. Entre novamente com o Ever ID.",
 				"SIGNUP_CHECKOUT": "É necessária uma assinatura antes de criar seu espaço de trabalho.",
-				"CONTINUE_TO_CHECKOUT": "Continuar para o pagamento"
+				"CONTINUE_TO_CHECKOUT": "Continuar para o pagamento",
+				"EMAIL_UNVERIFIED_TITLE": "Verifique seu e-mail do Ever ID",
+				"EMAIL_UNVERIFIED_BODY": "O Ever ID ainda não verificou seu endereço de e-mail. Abra o e-mail de verificação que o Ever ID enviou ou verifique seu endereço no Ever ID agora e, em seguida, entre novamente com o Ever ID.",
+				"VERIFY_EMAIL": "Verificar meu e-mail no Ever ID",
+				"SIGN_IN_AGAIN": "Entrar novamente com o Ever ID",
+				"LOGIN_WITH_EVER_ID": "Entrar com <wordmark>Ever ID</wordmark>"
 			}
 		},
 		"authPasscode": {
@@ -855,6 +860,8 @@
 			"SIZES_HEADING": "Tamanhos",
 			"TEAM_NAME": "Nome da Equipe",
 			"TEAM_TYPE": "Tipo de Equipe",
+			"TEAM_TYPE_UPDATED": "Tipo de equipe atualizado com sucesso",
+			"TEAM_TYPE_UPDATE_FAILED": "Falha ao atualizar o tipo de equipe. Tente novamente.",
 			"TIME_TRACKING": "Rastreamento de Tempo",
 			"ENFORCE_PLAN": "Fazer cumprir o plano",
 			"ADD_NEW_MEMBER": "Adicionar novo membro",

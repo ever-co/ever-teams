@@ -1,5 +1,15 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import { format, addMonths, eachDayOfInterval, startOfMonth, endOfMonth, addDays, Locale, isLeapYear } from 'date-fns';
+import {
+	format,
+	addMonths,
+	eachDayOfInterval,
+	startOfMonth,
+	endOfMonth,
+	addDays,
+	Locale,
+	isLeapYear,
+	parseISO
+} from 'date-fns';
 import type { GroupedTimesheet } from '@/core/lib/helpers/timesheet-grouping';
 import { enGB } from 'date-fns/locale';
 import { cn } from '@/core/lib/helpers';
@@ -84,7 +94,7 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
 	// Initialize with the first data date if available, otherwise use current date
 	const initialMonth = useMemo(() => {
 		if (data?.length > 0) {
-			const firstDate = new Date(data[0].date);
+			const firstDate = parseISO(data[0].date);
 			return isNaN(firstDate.getTime()) ? new Date() : firstDate;
 		}
 		return new Date();
@@ -92,19 +102,19 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
 
 	const [currentMonth, setCurrentMonth] = useState(initialMonth);
 
-	// Update currentMonth when data changes
+	// Follow the latest entry when the data changes; currentMonth stays out of the deps so Prev/Next is kept
+	const firstDataDate = data[0]?.date;
 	useEffect(() => {
-		if (data?.length > 0) {
-			const firstDataDate = new Date(data[0].date);
-			if (firstDataDate.getTime() !== currentMonth.getTime()) {
-				setCurrentMonth(firstDataDate);
-			}
+		if (!firstDataDate) return;
+		const parsedDate = parseISO(firstDataDate);
+		if (!Number.isNaN(parsedDate.getTime())) {
+			setCurrentMonth((prev) => (prev.getTime() === parsedDate.getTime() ? prev : parsedDate));
 		}
-	}, [data, currentMonth]);
+	}, [firstDataDate]);
 
 	const calendarDates = useMemo(() => generateFullCalendar(currentMonth), [currentMonth]);
 	const groupedData = useMemo(
-		() => new Map(data.map((plan) => [format(new Date(plan.date), 'yyyy-MM-dd'), plan])),
+		() => new Map(data.map((plan) => [format(parseISO(plan.date), 'yyyy-MM-dd'), plan])),
 		[data]
 	);
 
@@ -151,7 +161,7 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
 								classNames.day,
 								'border flex flex-col gap-2 relative shadow-xs rounded-sm min-h-[150px] sm:w-[250px] md:w-[300px] lg:w-[350px] max-w-full',
 								{
-									'bg-gray-100 dark:bg-gray-900': date.getMonth() !== currentMonth.getMonth()
+									'bg-gray-100 dark:bg-card': date.getMonth() !== currentMonth.getMonth()
 								}
 							)}
 							onClick={() => onDateClick?.(date)}

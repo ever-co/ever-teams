@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import { VariantProps, cva } from 'class-variance-authority';
+import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 
 import { cn } from '@/core/lib/helpers';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -13,9 +14,10 @@ import { useIsMobile } from '@/core/hooks';
 
 const SIDEBAR_COOKIE_NAME = 'sidebar:state';
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
-const SIDEBAR_WIDTH = '16rem';
-const SIDEBAR_WIDTH_MOBILE = '19rem';
-const SIDEBAR_WIDTH_ICON = '3rem';
+// 240px / 64px: the Ever Works shell widths.
+const SIDEBAR_WIDTH = '15rem';
+const SIDEBAR_WIDTH_MOBILE = '18rem';
+const SIDEBAR_WIDTH_ICON = '4rem';
 const SIDEBAR_KEYBOARD_SHORTCUT = 'b';
 
 type SidebarContext = {
@@ -227,29 +229,22 @@ const SidebarTrigger = React.forwardRef<React.ElementRef<typeof Button>, React.C
 				data-sidebar="trigger"
 				variant="ghost"
 				size="icon"
-				className={cn('w-7 h-7', className)}
+				className={cn(
+					// The quiet panel icon of Ever Works, not a coloured pill: it should be findable, not loud.
+					'size-6 rounded-md text-muted-foreground hover:bg-black/5 hover:text-foreground dark:hover:bg-white/5 dark:hover:text-white [&_svg]:size-4',
+					className
+				)}
 				onClick={(event) => {
 					onClick?.(event);
 					toggleSidebar();
 				}}
 				{...props}
 			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					className={cn(
-						state === 'collapsed' ? 'rotate-180' : '',
-						'transition-transform duration-300 size-3'
-					)}
-					width={9}
-					height={16}
-					viewBox="0 0 9 16"
-					fill="none"
-				>
-					<path
-						d="M7.4999 15.225C7.34157 15.225 7.18324 15.1667 7.05824 15.0417L1.6249 9.60835C0.741569 8.72502 0.741569 7.27502 1.6249 6.39168L7.05824 0.95835C7.2999 0.716683 7.6999 0.716683 7.94157 0.95835C8.18324 1.20002 8.18324 1.60002 7.94157 1.84168L2.50824 7.27502C2.10824 7.67502 2.10824 8.32502 2.50824 8.72502L7.94157 14.1583C8.18324 14.4 8.18324 14.8 7.94157 15.0417C7.81657 15.1584 7.65824 15.225 7.4999 15.225Z"
-						fill="white"
-					/>
-				</svg>
+				{state === 'collapsed' ? (
+					<PanelLeftOpen strokeWidth={1.5} aria-hidden="true" />
+				) : (
+					<PanelLeftClose strokeWidth={1.5} aria-hidden="true" />
+				)}
 
 				<span className="sr-only">Toggle Sidebar</span>
 			</Button>
@@ -399,7 +394,7 @@ const SidebarGroupLabel = React.forwardRef<HTMLDivElement, React.ComponentProps<
 				ref={ref as any}
 				data-sidebar="group-label"
 				className={cn(
-					'duration-300 flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 outline-hidden ring-sidebar-ring transition-[margin,opa] ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',
+					'duration-300 flex h-7 shrink-0 items-center rounded-md px-2.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70 outline-hidden ring-sidebar-ring transition-[margin,opa] ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',
 					'group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0',
 					className
 				)}
@@ -606,7 +601,7 @@ const SidebarMenuSub = React.forwardRef<HTMLUListElement, React.ComponentProps<'
 			ref={ref}
 			data-sidebar="menu-sub"
 			className={cn(
-				'mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5',
+				'mx-3.5 flex min-w-0 translate-x-px flex-col gap-0.5 border-l border-sidebar-border px-2 py-0.5',
 				'group-data-[collapsible=icon]:hidden',
 				className
 			)}

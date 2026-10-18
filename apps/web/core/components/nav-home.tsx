@@ -34,17 +34,17 @@ export function NavHome({
 		<SidebarGroup>
 			<SidebarGroupLabel>{t('sidebar.FORYOU')}</SidebarGroupLabel>
 			<SidebarMenu
-				className={cn('w-full max-w-[230px]', state === 'collapsed' ? 'items-center gap-y-2' : '', 'gap-y-1')}
+				className={cn('w-full', state === 'collapsed' ? 'items-center gap-y-1' : '', 'gap-y-0.5')}
 			>
 				{homeData.map((item, index) => (
 					<SidebarMenuItem key={item.label}>
 						<SidebarMenuButton
 							className={cn(
-								'hover:bg-[#eaeef4] text-[#1F2937] items-center dark:text-gray-50 data-[active=true]:bg-[#eaeef4] min-h-10 h-10 dark:hover:bg-sidebar-accent px-3 py-2 transition-colors duration-300 !text-sm',
+								'h-8 min-h-8 items-center gap-2.5 rounded-md px-2.5 text-sm text-foreground/90 transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.04] [&>svg]:size-[18px] [&>svg]:shrink-0',
 								state === 'collapsed' ? ' justify-center' : '',
 								index === activeMenuIndex
-									? 'font-medium bg-[#eaeef4] dark:text-gray-50 dark:bg-sidebar-accent'
-									: '!font-normal'
+									? 'bg-black/[0.06] font-medium text-foreground dark:bg-white/[0.09]'
+									: 'font-normal'
 							)}
 							onClick={() => setActiveMenuIndex(index)}
 							asChild
@@ -60,7 +60,7 @@ export function NavHome({
 								)}
 								<span
 									className={cn(
-										'transition-all text-sm',
+										'truncate transition-all text-sm',
 										state === 'collapsed' ? 'opacity-0 hidden' : 'opacity-100'
 									)}
 								>

@@ -107,8 +107,8 @@ export const LazyAnimatedEmptyState = dynamic(
 		ssr: false,
 		loading: () => (
 			<div className="grow w-full min-h-[600px] flex items-center justify-center flex-col">
-				<div className="w-32 h-32 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full mb-4" />
-				<div className="w-48 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+				<div className="w-32 h-32 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full mb-4" />
+				<div className="w-48 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 			</div>
 		)
 	}

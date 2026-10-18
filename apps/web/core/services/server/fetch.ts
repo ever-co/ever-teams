@@ -55,6 +55,17 @@ export function serverFetch<T>({
 	});
 }
 
+// serverFetch rejects a non-2xx answer with Promise.reject(data), so Gauzy's error body sits inside
+// that promise; a network failure rejects with a plain error that carries no status code.
+export async function unwrapRejection(error: unknown): Promise<unknown> {
+	if (!(error instanceof Promise)) return error;
+	try {
+		return await error;
+	} catch (error_) {
+		return error_;
+	}
+}
+
 /** Tasks status SVG icons fetch */
 
 // In memory cache for performance

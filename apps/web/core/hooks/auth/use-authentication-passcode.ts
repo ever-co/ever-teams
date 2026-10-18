@@ -168,7 +168,10 @@ export function useAuthenticationPasscode() {
 			try {
 				setStatus('loading');
 				const response = await signInEmailConfirmQueryCall(email, code);
-				if (response?.data?.user || (response?.data?.workspaces?.length ?? 0) > 0) {
+				// Proxy mode: the confirm route accepts an invite code itself and answers { team, loginResponse }.
+				// That is a sign-in already; attempt 2 would only fail on the used-up invite.
+				const inviteSignedIn = !!(response?.data as { loginResponse?: unknown } | undefined)?.loginResponse;
+				if (response?.data?.user || (response?.data?.workspaces?.length ?? 0) > 0 || inviteSignedIn) {
 					setAuthenticated(true);
 					setStatus('success');
 					if (response.data.workspaces?.length > 0) {

@@ -82,7 +82,7 @@ export function ExportProgressModal({
 							<span>Progress</span>
 							<span>{exportProgress.progress}%</span>
 						</div>
-						<div className="w-full h-2 bg-gray-200 rounded-full dark:bg-gray-700">
+						<div className="w-full h-2 bg-gray-200 rounded-full dark:bg-muted">
 							<div
 								className={`h-2 rounded-full transition-all duration-300 ${getProgressColor()}`}
 								style={{ width: `${exportProgress.progress}%` }}
@@ -132,7 +132,7 @@ export function ExportProgressModal({
 
 				{/* Export Tips */}
 				{exportProgress.isExporting && (
-					<div className="p-3 mt-4 bg-gray-50 rounded-lg dark:bg-gray-800">
+					<div className="p-3 mt-4 bg-gray-50 rounded-lg dark:bg-muted">
 						<h4 className="mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">Export Tips</h4>
 						<ul className="space-y-1 text-xs text-gray-600 dark:text-gray-400">
 							<li>• Don't close the browser</li>

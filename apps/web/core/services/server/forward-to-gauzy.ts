@@ -1,6 +1,6 @@
-import { GAUZY_API_SERVER_URL } from '@/core/constants/config/constants';
-import { getAccessTokenCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { GAUZY_API_SERVER_URL, TENANT_ID_COOKIE_NAME } from '@/core/constants/config/constants';
 import { NextResponse } from 'next/server';
+import { requestAccessToken, requestCookies } from './request-cookies';
 
 // The browser client gives up after 60 seconds (api.service.ts): past that, nobody is waiting for the answer.
 const UPSTREAM_TIMEOUT_MS = 60_000;
@@ -20,10 +20,10 @@ const unsupportedMediaType = () =>
  * this at another Gauzy endpoint.
  */
 export async function forwardToGauzy(req: Request, path: string): Promise<Response> {
-	const ctx = { req, res: new NextResponse() };
-	const access_token = getAccessTokenCookie(ctx);
+	const cookies = requestCookies(req);
+	const access_token = requestAccessToken(cookies);
 	if (!access_token) return NextResponse.json({ statusCode: 401, message: 'Unauthorized' }, { status: 401 });
-	const tenantId = getTenantIdCookie(ctx);
+	const tenantId = cookies.get(TENANT_ID_COOKIE_NAME);
 
 	// The token comes from a cookie, which a browser can attach to a request another site makes. Such a site can
 	// post text/plain, form data or an untyped body without a CORS preflight, but not JSON, so only a JSON body is

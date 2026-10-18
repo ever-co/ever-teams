@@ -49,10 +49,10 @@ const SettingsLayout = ({ children }: { children: ReactNode }) => {
 			className="items-start !p-0 w-full"
 			childrenClassName="w-full"
 			mainHeaderSlot={
-				<div className="py-3 w-full bg-white dark:bg-dark-high">
+				<div className="w-full bg-background py-2.5">
 					<Container className={cn('flex flex-row gap-4 justify-start items-center w-full')}>
 						<Link href="/">
-							<ArrowLeftIcon className="w-6 h-6" />
+							<ArrowLeftIcon className="size-5 text-muted-foreground" />
 						</Link>
 
 						<Breadcrumb paths={breadcrumb} className="text-sm" />

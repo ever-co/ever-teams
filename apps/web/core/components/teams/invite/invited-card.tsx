@@ -4,7 +4,7 @@ import { TInvite } from '@/core/types/schemas';
 
 export function InvitedCard({ invitation }: { invitation: TInvite }) {
 	return (
-		<div className="w-full rounded-[15px] bg-[#FFFFFF] my-[15px] dark:bg-[#202023] flex justify-between text-primary border border-white dark:border-[#202023] font-bold py-[24px] dark:text-[#FFFFFF]">
+		<div className="w-full rounded-[15px] bg-[#FFFFFF] my-[15px] dark:bg-card flex justify-between text-primary border border-white dark:border-border font-bold py-[24px] dark:text-[#FFFFFF]">
 			<div className="w-[60px] flex justify-center items-center">
 				<div className="rounded-[50%] w-5 h-5 bg-[#E8EBF8] opacity-40"></div>
 			</div>
@@ -27,7 +27,7 @@ export function InvitedCard({ invitation }: { invitation: TInvite }) {
 			<Separator />
 			<div className="w-[245px]  flex justify-center items-center">
 				<div>
-					<div className="bg-[#E8EBF8] dark:bg-[#18181B] w-[245px] opacity-40 h-[8px] rounded-full text-center" />
+					<div className="bg-[#E8EBF8] dark:bg-background w-[245px] opacity-40 h-[8px] rounded-full text-center" />
 					<div className="text-center text-[14px] text-[#9490A0] py-1 font-light opacity-40"></div>
 				</div>
 			</div>

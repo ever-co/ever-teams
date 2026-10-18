@@ -259,7 +259,7 @@ export function TaskInputKanban(props: Props) {
 			disabled={timerRunningStatus}
 			// ref={targetEl}
 			autoFocus={props.autoFocus}
-			wrapperClassName={`rounded-lg dark:bg-[#1B1D22]`}
+			wrapperClassName={`rounded-lg dark:bg-card`}
 			placeholder={props.placeholder || t('form.TASK_INPUT_PLACEHOLDER')}
 			onFocus={(e) => {
 				setEditMode(true);
@@ -292,7 +292,7 @@ export function TaskInputKanban(props: Props) {
 			}
 			className={clsxm(
 				showTaskNumber && inputTask && ['pl-6'],
-				'dark:bg-[#1B1D22]',
+				'dark:bg-card',
 				props.initEditMode && 'h-10'
 			)}
 			/* Showing the task number. */
@@ -518,7 +518,7 @@ function TaskCard({
 											taskDescription.current = e.target.value;
 										}
 									}}
-									className={'dark:bg-[#1B1D22]'}
+									className={'dark:bg-card'}
 								/>
 
 								<div className="flex flex-wrap gap-2 justify-start">

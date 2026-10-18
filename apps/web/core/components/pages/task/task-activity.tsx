@@ -21,10 +21,10 @@ export function TaskActivity({ task }: { task: TTask }) {
 	// No manual getTaskTimesheets() call needed
 	return (
 		<EverCard
-			className="w-full p-4 md:px-4 dark:bg-[#25272D] flex flex-col gap-6 border border-[#00000014] dark:border-[#26272C]"
+			className="w-full p-4 md:px-4 dark:bg-muted flex flex-col gap-6 border border-[#00000014] dark:border-border"
 			shadow="bigger"
 		>
-			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-[#7B8089]">
+			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-border">
 				<div className="flex gap-2 items-center mb-2">
 					<h4 className="text-base font-semibold">{'Timesheet'}</h4>
 				</div>
@@ -46,7 +46,7 @@ export function TaskActivity({ task }: { task: TTask }) {
 					groupedData.map((timesheet, i) => (
 						<div
 							key={i}
-							className="shadow-lg rounded-lg p-4 bg-light dark:bg-dark border border-[#00000014] dark:border-[#26272C]"
+							className="shadow-lg rounded-lg p-4 bg-light dark:bg-card border border-[#00000014] dark:border-border"
 						>
 							<h3 className="py-2 text-base font-semibold">{timesheet.date}</h3>
 							{timesheet.items.map((item) => (

@@ -8,7 +8,7 @@ interface StatSkeletonProps {
 
 function StatCardSkeleton({ showProgress = false, progressColor = 'bg-gray-300' }: StatSkeletonProps) {
 	return (
-		<Card className={clsxm('p-6 dark:bg-dark--theme-light min-w-56', 'overflow-hidden relative', 'animate-pulse')}>
+		<Card className={clsxm('rounded-xl px-4 py-3.5 shadow-none', 'overflow-hidden relative', 'animate-pulse')}>
 			{/* Shimmer overlay */}
 			<div
 				className={clsxm(
@@ -20,19 +20,19 @@ function StatCardSkeleton({ showProgress = false, progressColor = 'bg-gray-300' 
 
 			<div className="flex relative z-10 flex-col">
 				{/* Title skeleton */}
-				<div className={clsxm('w-3/4 h-4 rounded', 'bg-gray-300 dark:bg-gray-600', 'mb-1')} />
+				<div className={clsxm('h-3 w-1/2 rounded', 'bg-gray-300 dark:bg-gray-600', 'mb-1')} />
 
 				{/* Value skeleton */}
-				<div className="flex items-center mt-2 h-9">
-					<div className={clsxm('w-20 h-8 rounded', 'bg-gray-400 dark:bg-gray-500')} />
+				<div className="mt-2 flex h-6 items-center">
+					<div className={clsxm('h-5 w-16 rounded', 'bg-gray-400 dark:bg-gray-500')} />
 				</div>
 
 				{/* Progress bar skeleton */}
 				{showProgress && (
-					<div className="mt-4">
+					<div className="mt-1">
 						<div
 							className={clsxm(
-								'w-full h-2 bg-gray-100 rounded-full dark:bg-gray-700',
+								'h-1 w-full rounded-full bg-muted',
 								'overflow-hidden relative'
 							)}
 						>
