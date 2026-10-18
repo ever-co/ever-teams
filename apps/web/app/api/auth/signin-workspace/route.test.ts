@@ -37,7 +37,7 @@ afterEach(() => {
 });
 
 /** Loads a module of this route against the stand-in, isolated so the API URL constant re-evaluates. */
-function load<T>(path: './route' | './signin-workspace'): T {
+function load<T extends object>(path: './route' | './signin-workspace'): T {
 	process.env.GAUZY_API_SERVER_URL = gauzy.origin;
 	let mod: T | undefined;
 	jest.isolateModules(() => {
@@ -86,7 +86,8 @@ describe('Pages-style workspace sign-in handler (signin-workspace.ts) — server
 	/** The few parts of NextApiRequest / NextApiResponse the handler and cookies-next use. */
 	function pagesExchange(body: Record<string, unknown>) {
 		const headers = new Map<string, unknown>();
-		const sent: { status?: number; body?: { loginResponse?: { token?: string }; team?: { id?: string } } } = {};
+		type Answer = { loginResponse?: { token?: string }; team?: { id?: string } };
+		const sent: { status?: number; body?: Answer } = {};
 		const req = { method: 'POST', body, cookies: {}, headers: {} } as unknown as NextApiRequest;
 		const res = {
 			getHeader: (name: string) => headers.get(name.toLowerCase()),
@@ -98,7 +99,7 @@ describe('Pages-style workspace sign-in handler (signin-workspace.ts) — server
 				sent.status = code;
 				return this;
 			},
-			json(payload: unknown) {
+			json(payload: Answer) {
 				sent.body = payload;
 				return this;
 			}
