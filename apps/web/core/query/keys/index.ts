@@ -206,6 +206,8 @@ export const queryKeys = {
 		all: ['daily-plans'] as const,
 		myPlans: (teamId: string | undefined | null) =>
 			['daily-plans', 'my-plans', ...(teamId ? [teamId] : [])] as const,
+		/** Prefix shared by every myPlansByScope key */
+		myPlansByScopeAll: ['daily-plans', 'my-plans-scope'] as const,
 		myPlansByScope: (
 			tenantId: string | undefined | null,
 			organizationId: string | undefined | null,
