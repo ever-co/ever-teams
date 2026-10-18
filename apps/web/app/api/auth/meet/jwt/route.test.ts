@@ -45,7 +45,7 @@ const SESSION_USER = {
 	tenantId: 'session-tenant'
 };
 
-function tokenRequest(query = 'room=TeamName-Alice-room0123456789a') {
+function tokenRequest(query = 'room=Design-Alice-room0123456789a') {
 	return new NextRequest(`https://teams.example.org/api/auth/meet/jwt?${query}`);
 }
 
@@ -76,10 +76,10 @@ describe('GET /api/auth/meet/jwt', () => {
 	describe('who gets a token', () => {
 		// Each refusal comes first: with the secret unset, a later check would answer 500 instead
 		it.each([
-			['a refused session', refused(401), 401],
-			['a session check Gauzy could not answer', refused(503), 503],
-			['a session without a tenant', signedIn({ ...SESSION_USER, tenantId: null }), 401]
-		])('answers %s with %d before reading the Jitsi configuration', async (_case, guardAnswer, status) => {
+			['a refused session', 401, refused(401)],
+			['a session check Gauzy could not answer', 503, refused(503)],
+			['a session without a tenant', 401, signedIn({ ...SESSION_USER, tenantId: null })]
+		])('answers %s with %d before reading the Jitsi configuration', async (_case, status, guardAnswer) => {
 			mockAuthenticatedGuard.mockResolvedValue(guardAnswer);
 			mockMeetConfig.secret = undefined;
 			const request = tokenRequest();
@@ -132,7 +132,7 @@ describe('GET /api/auth/meet/jwt', () => {
 			const claims = verified(body.token);
 
 			expect(response.status).toBe(200);
-			expect(claims.room).toBe('teamname-alice-room0123456789a_session-tenant');
+			expect(claims.room).toBe('design-alice-room0123456789a_session-tenant');
 			expect(claims.room).not.toContain('*');
 			// The page joins the room the response names, which is the one the token opens
 			expect(body.room).toBe(claims.room);
@@ -170,18 +170,18 @@ describe('GET /api/auth/meet/jwt', () => {
 		});
 
 		it("cannot be pointed at another tenant's room through the room name", async () => {
-			// Another tenant's room for the same link is "teamname-alice-room0123456789a_victim-tenant"
-			const body = await (await GET(tokenRequest('room=TeamName-Alice-room0123456789a_victim-tenant'))).json();
+			// Another tenant's room for the same link is "design-alice-room0123456789a_victim-tenant"
+			const body = await (await GET(tokenRequest('room=Design-Alice-room0123456789a_victim-tenant'))).json();
 
-			expect(body.room).toBe('teamname-alice-room0123456789a-victim-tenant_session-tenant');
+			expect(body.room).toBe('design-alice-room0123456789a-victim-tenant_session-tenant');
 			// Everything after the first "_" is the tenant, and that is always the caller's
 			expect(body.room.slice(body.room.indexOf('_') + 1)).toBe('session-tenant');
 		});
 
 		it('keeps only the characters Jitsi leaves unchanged when it lowercases and URI-encodes the room', async () => {
-			const body = await (await GET(tokenRequest('room=%20Équipe%20Été%3A%2F%25Ab_c%20'))).json();
+			const body = await (await GET(tokenRequest('room=%20Café%20Crème%3A%2F%25Ab_c%20'))).json();
 
-			expect(body.room).toBe('equipe-ete-ab-c_session-tenant');
+			expect(body.room).toBe('cafe-creme-ab-c_session-tenant');
 			expect(encodeURIComponent(body.room.normalize('NFKC').toLowerCase()).toLowerCase()).toBe(body.room);
 		});
 	});
