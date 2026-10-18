@@ -7,18 +7,8 @@ import {
 } from '@/core/constants/config/constants';
 import { requestAccessToken, requestCookies } from '../request-cookies';
 import { currentAuthenticatedUserRequest } from '../requests/auth';
+import { unwrapRejection } from '../fetch';
 import { NextResponse } from 'next/server';
-
-// serverFetch rejects a non-2xx answer with Promise.reject(data), so Gauzy's error body sits inside
-// that promise; a network failure rejects with a plain error that carries no status code.
-async function unwrapRejection(error: unknown): Promise<unknown> {
-	if (!(error instanceof Promise)) return error;
-	try {
-		return await error;
-	} catch (error_) {
-		return error_;
-	}
-}
 
 /**
  * Authenticates an `app/api` request: it checks the access token against the Gauzy API (`/user/me`) and
