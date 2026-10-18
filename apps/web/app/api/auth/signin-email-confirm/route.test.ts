@@ -35,6 +35,7 @@ afterEach(() => {
 	jest.restoreAllMocks();
 });
 
+/** Loads the route against the stand-in, isolated so the API URL constant re-evaluates. */
 function loadRoute(): RouteModule {
 	process.env.GAUZY_API_SERVER_URL = gauzy.origin;
 	let mod: RouteModule | undefined;

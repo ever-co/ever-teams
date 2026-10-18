@@ -5,6 +5,7 @@
  */
 import { formatWithOptions } from 'node:util';
 
+/** Spies on the console methods; `text()` returns everything written since. `jest.restoreAllMocks()` undoes it. */
 export function captureConsole(): { text: () => string } {
 	const lines: string[] = [];
 	for (const method of ['log', 'info', 'warn', 'error', 'debug'] as const) {

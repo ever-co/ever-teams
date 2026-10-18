@@ -17,6 +17,7 @@ export const INVITED = {
 	refreshToken: 'refresh-token-2b8d4e6f-never-log-me'
 } as const;
 
+/** Sets the stand-in's invite, accept, user-organization and team answers for the INVITED person. */
 export function primeInvitedPerson(gauzy: MockGauzyApi): void {
 	gauzy.on('POST', '/api/invite/validate-by-code', {
 		status: 201,
