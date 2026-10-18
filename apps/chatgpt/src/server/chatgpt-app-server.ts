@@ -257,6 +257,17 @@ export class ChatGPTAppServer {
 				hasAuth: !!authToken
 			}, 'Processing MCP request');
 
+			// Notifications carry no id and expect 202 with no body (MCP Streamable HTTP)
+			if (
+				(mcpRequest.id === undefined || mcpRequest.id === null) &&
+				typeof method === 'string' &&
+				method.startsWith('notifications/')
+			) {
+				await this.mcpProxy.forwardNotification(method, params, authToken);
+				res.status(202).end();
+				return;
+			}
+
 			// Forward request to MCP server
 			let mcpResponse: any;
 
@@ -350,6 +361,9 @@ export class ChatGPTAppServer {
 					// MCP server resource
 					mcpResponse = await this.mcpProxy.readResource(resourceUri, authToken);
 				}
+			} else if (method === 'ping') {
+				// Answered here with the empty result the MCP spec requires; the MCP server has no ping method
+				mcpResponse = {};
 			} else {
 				// Generic forward for any other method
 				mcpResponse = await this.mcpProxy.forwardRequest(

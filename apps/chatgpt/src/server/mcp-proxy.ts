@@ -148,6 +148,28 @@ export class McpProxy {
 	}
 
 	/**
+	 * Forward a JSON-RPC notification to the server. Notifications get no
+	 * response, so failures are logged and never thrown.
+	 */
+	async forwardNotification(method: string, params: any = {}, authToken?: string): Promise<void> {
+		try {
+			const headers: Record<string, string> = {};
+
+			if (authToken) {
+				headers['Authorization'] = `Bearer ${authToken}`;
+			}
+
+			// The MCP server treats id null as a notification (no body) and rejects a missing id
+			await this.client.post('/sse', { jsonrpc: '2.0', id: null, method, params }, { headers });
+		} catch (error) {
+			logger.warn(
+				{ method, error: error instanceof Error ? error.message : String(error) },
+				'Failed to forward MCP notification'
+			);
+		}
+	}
+
+	/**
 	 * Initialize MCP connection
 	 */
 	async initialize(
@@ -329,6 +351,20 @@ export class McpProxy {
 	 * Check if MCP server is healthy
 	 */
 	async healthCheck(): Promise<boolean> {
+		try {
+			// Public health route of the MCP server; POST /sse needs a token and has no ping method
+			await this.client.get('/health');
+			return true;
+		} catch (error) {
+			// A 5xx from the health route is an explicit failure that a ping must not hide
+			const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+			if (status !== undefined && status >= 500) {
+				logger.warn({ status }, 'MCP Server health check failed');
+				return false;
+			}
+			// Fall back to a ping for MCP servers without a /health route
+		}
+
 		try {
 			// Try to call a simple method to check connectivity
 			await this.forwardRequest('ping', {});
