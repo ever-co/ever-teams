@@ -19,6 +19,8 @@ import { toast } from 'sonner';
 import { TOrganizationTeam, TOrganizationTeamUpdate } from '@/core/types/schemas';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { LoaderCircle } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/core/query/keys';
 
 // Settings row: label column on the left, control on the right (see the settings design contract).
 const ROW =
@@ -36,6 +38,7 @@ export const TeamSettingForm = () => {
 	const { data: user } = useUserQuery();
 	const { register, setValue, handleSubmit, getValues, trigger } = useForm();
 	const t = useTranslations();
+	const queryClient = useQueryClient();
 
 	const [activeTeam, setActiveTeam] = useAtom(activeTeamState);
 	const setTeams = useSetAtom(organizationTeamsState);
@@ -250,6 +253,29 @@ export const TeamSettingForm = () => {
 		}
 	}, [editOrganizationTeam, activeTeam?.id, getValues]);
 
+	// Sends only `public`: onSubmit builds memberIds from team-employee row ids, which Gauzy would treat as removals
+	const handleTeamTypeUpdate = useCallback(
+		async (teamType: string) => {
+			try {
+				await editOrganizationTeam({
+					id: activeTeam?.id,
+					public: teamType === 'PUBLIC'
+				});
+
+				toast.success(t('pages.settingsTeam.TEAM_TYPE_UPDATED'));
+			} catch (error) {
+				console.error('Team type update failed:', error);
+				// Put the radio back on the last synced value of the team on screen, which can differ from the
+				// one this request targeted if the active team switched. Then refetch: the PUT may have landed
+				// even though the read that follows it failed.
+				setValue('teamType', formDetails.current.teamType);
+				queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
+				toast.error(t('pages.settingsTeam.TEAM_TYPE_UPDATE_FAILED'));
+			}
+		},
+		[editOrganizationTeam, activeTeam?.id, setValue, queryClient, t]
+	);
+
 	return (
 		<>
 			<form className="mt-2 w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
@@ -377,9 +403,11 @@ export const TeamSettingForm = () => {
 										id="team-type-radio-public"
 										className="size-4 shrink-0 cursor-pointer accent-primary disabled:cursor-not-allowed"
 										type="radio"
-										{...register('teamType')}
+										{...register('teamType', {
+											onChange: (event) => handleTeamTypeUpdate(event.target.value)
+										})}
 										value="PUBLIC"
-										disabled={!isTeamManager}
+										disabled={!isTeamManager || editOrganizationTeamLoading}
 									/>
 
 									<Text.Label
@@ -394,9 +422,11 @@ export const TeamSettingForm = () => {
 										id="team-type-radio-private"
 										className="size-4 shrink-0 cursor-pointer accent-primary disabled:cursor-not-allowed"
 										type="radio"
-										{...register('teamType')}
+										{...register('teamType', {
+											onChange: (event) => handleTeamTypeUpdate(event.target.value)
+										})}
 										value="PRIVATE"
-										disabled={!isTeamManager}
+										disabled={!isTeamManager || editOrganizationTeamLoading}
 									/>
 									<Text.Label
 										className="ml-0 cursor-pointer whitespace-nowrap font-normal text-foreground dark:text-foreground"
