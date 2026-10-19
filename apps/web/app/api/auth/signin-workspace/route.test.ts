@@ -46,6 +46,31 @@ function load<T extends object>(path: './route' | './signin-workspace'): T {
 	return mod as T;
 }
 
+/** POSTs a JSON body to the public route, whose handler sits in `../_signin-workspace`. */
+async function postToRoute(body: Record<string, unknown>) {
+	const { POST } = load<typeof import('./route')>('./route');
+	return POST(
+		new NextRequest('https://app.ever.team/api/auth/signin-workspace', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify(body)
+		})
+	);
+}
+
+/** Behaviour is unchanged: the auth cookies still carry both tokens. */
+function expectAuthCookies(setCookie: string, accessToken: string, refreshToken: string): void {
+	expect(setCookie).toContain(`auth-token=${accessToken}`);
+	expect(setCookie).toContain(`auth-refresh-token=${refreshToken}`);
+}
+
+/** The log still says who signed in, by id: the line ran, it just no longer carries the invited person's secrets. */
+function expectInviteLoggedByIdOnly(...moreIds: string[]): void {
+	const log = logs.text();
+	expectNoInvitedSecretsIn(log, gauzy);
+	for (const id of [INVITED.userId, INVITED.tenantId, ...moreIds]) expect(log).toContain(id);
+}
+
 describe('POST /api/auth/signin-workspace — server log', () => {
 	it('signs a person in to the workspace they picked without writing a token to the log', async () => {
 		// No code to accept an invite with: Gauzy answers 400, so the route signs in with the workspace token.
@@ -58,27 +83,32 @@ describe('POST /api/auth/signin-workspace — server log', () => {
 		const workspaceToken = `workspace-token-${INVITED.userId}`;
 		const accessToken = `gauzy-access-${INVITED.userId}`;
 		const refreshToken = `gauzy-refresh-${INVITED.userId}`;
-		const { POST } = load<typeof import('./route')>('./route');
 
-		const res = await POST(
-			new NextRequest('https://app.ever.team/api/auth/signin-workspace', {
-				method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({ email: 'person@example.test', token: workspaceToken, teamId: INVITED.teamId })
-			})
-		);
+		const res = await postToRoute({ email: 'person@example.test', token: workspaceToken, teamId: INVITED.teamId });
 
 		// Behaviour is unchanged: the answer and the cookies carry the tokens.
 		expect(res.status).toBe(200);
 		expect((await res.json()).loginResponse.token).toBe(accessToken);
-		const cookies = res.headers.get('set-cookie') ?? '';
-		expect(cookies).toContain(`auth-token=${accessToken}`);
-		expect(cookies).toContain(`auth-refresh-token=${refreshToken}`);
+		expectAuthCookies(res.headers.get('set-cookie') ?? '', accessToken, refreshToken);
 
 		const log = logs.text();
 		expect(log).not.toContain(workspaceToken);
 		expect(log).not.toContain(accessToken);
 		expect(log).not.toContain(refreshToken);
+	});
+
+	it('signs an invited person in without writing their tokens or generated password to the log', async () => {
+		// The e-mailed code matches an invite: the route accepts it, which signs the person in.
+		const res = await postToRoute({ email: INVITED.email, code: INVITED.code, token: '', teamId: INVITED.teamId });
+
+		// Behaviour is unchanged: the answer and the cookies carry the tokens.
+		expect(res.status).toBe(200);
+		const answer = await res.json();
+		expect(answer.loginResponse.token).toBe(INVITED.accessToken);
+		expect(answer.team.id).toBe(INVITED.teamId);
+		expectAuthCookies(res.headers.get('set-cookie') ?? '', INVITED.accessToken, INVITED.refreshToken);
+
+		expectInviteLoggedByIdOnly(INVITED.organizationId);
 	});
 });
 
@@ -124,14 +154,8 @@ describe('Pages-style workspace sign-in handler (signin-workspace.ts) — server
 		expect(sent.status).toBe(200);
 		expect(sent.body?.loginResponse?.token).toBe(INVITED.accessToken);
 		expect(sent.body?.team?.id).toBe(INVITED.teamId);
-		const cookies = String(headers.get('set-cookie') ?? '');
-		expect(cookies).toContain(`auth-token=${INVITED.accessToken}`);
-		expect(cookies).toContain(`auth-refresh-token=${INVITED.refreshToken}`);
+		expectAuthCookies(String(headers.get('set-cookie') ?? ''), INVITED.accessToken, INVITED.refreshToken);
 
-		const log = logs.text();
-		expectNoInvitedSecretsIn(log, gauzy);
-		// The log still says who signed in, by id: the line ran, it just no longer carries the secrets.
-		expect(log).toContain(INVITED.userId);
-		expect(log).toContain(INVITED.tenantId);
+		expectInviteLoggedByIdOnly();
 	});
 });
