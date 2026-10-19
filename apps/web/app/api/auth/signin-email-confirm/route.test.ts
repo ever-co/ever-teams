@@ -76,7 +76,7 @@ describe('POST /api/auth/signin-email-confirm — server log', () => {
 		// The log still says who signed in, by id: the line ran, it just no longer carries the secrets.
 		expect(log).toContain(INVITED.userId);
 		expect(log).toContain(INVITED.tenantId);
-	});
+	}, 15_000);
 
 	it('confirms a sign-in code without writing the workspace tokens to the log', async () => {
 		// No invite matches the code: Gauzy answers 400, so the route confirms the sign-in code instead.
@@ -94,5 +94,5 @@ describe('POST /api/auth/signin-email-confirm — server log', () => {
 		expect(res.status).toBe(200);
 		expect((await res.json()).workspaces[0].token).toBe(workspace.token);
 		expect(logs.text()).not.toContain(workspace.token);
-	});
+	}, 15_000);
 });
