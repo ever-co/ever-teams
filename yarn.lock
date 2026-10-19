@@ -6370,7 +6370,7 @@
 
 "@hono/node-server@^1.19.9 || ^2.0.5":
   version "2.1.5"
-  resolved "https://registry.yarnpkg.com/@hono/node-server/-/node-server-2.1.5.tgz#273db93e8bfb44ef361e55f3d00048013668aa09"
+  resolved "https://registry.npmjs.org/@hono/node-server/-/node-server-2.1.5.tgz#273db93e8bfb44ef361e55f3d00048013668aa09"
   integrity sha512-MgP/I06GdvsilDspMk/qmRzpk8LOUStP6jFAbSRi40W09DhoyUn+Mj7eyKICPqeYKybOjVFLVIAQzvu1bfIa7Q==
 
 "@hookform/resolvers@^4.0.0":
@@ -8530,10 +8530,10 @@
     "@lezer/lr" "^1.0.0"
     json5 "^2.2.1"
 
-"@modelcontextprotocol/sdk@^1.26.0":
-  version "1.31.0"
-  resolved "https://registry.yarnpkg.com/@modelcontextprotocol/sdk/-/sdk-1.31.0.tgz#86ce85651376ae54e5df2db29b18da0eef7054d4"
-  integrity sha512-UvTMgnNlnIBO/22ob2RcVGDlcvOslQs8T59+FTGdA0L27a39fdGF/EDETNtDVK4DZGpwomlsYpRdA8UXcVL/pw==
+"@modelcontextprotocol/sdk@^1.32.1":
+  version "1.32.1"
+  resolved "https://registry.npmjs.org/@modelcontextprotocol/sdk/-/sdk-1.32.1.tgz#853286b3240b6d8143f5f8e6d58af85c77d475ab"
+  integrity sha512-2DdE+SJDtzLEEWzY1ZjY7Q+VcPhcV1KisD3zI4u0XZyktsjHum1mwbMI+JaulUBi2OZk+KJAi2uPXzxichPkdw==
   dependencies:
     "@hono/node-server" "^1.19.9 || ^2.0.5"
     ajv "^8.17.1"
@@ -22092,7 +22092,7 @@ ajv@8.17.1:
     json-schema-traverse "^1.0.0"
     require-from-string "^2.0.2"
 
-ajv@8.18.0:
+ajv@8.18.0, ajv@^8.0.0, ajv@^8.11.0, ajv@^8.12.0, ajv@^8.17.1, ajv@^8.6.2, ajv@^8.6.3, ajv@^8.9.0:
   version "8.18.0"
   resolved "https://registry.yarnpkg.com/ajv/-/ajv-8.18.0.tgz#8864186b6738d003eb3a933172bb3833e10cefbc"
   integrity sha512-PlXPeEWMXMZ7sPYOHqmDyCJzcfNrUr3fGNKtezX14ykXOEIvyK81d+qydx89KY5O71FKMPaQ2vBfBFI5NHR63A==
@@ -22102,7 +22102,7 @@ ajv@8.18.0:
     json-schema-traverse "^1.0.0"
     require-from-string "^2.0.2"
 
-ajv@8.20.0, ajv@^8.0.0, ajv@^8.11.0, ajv@^8.12.0, ajv@^8.17.1, ajv@^8.6.2, ajv@^8.6.3, ajv@^8.9.0:
+ajv@8.20.0:
   version "8.20.0"
   resolved "https://registry.yarnpkg.com/ajv/-/ajv-8.20.0.tgz#304b3636add88ba7d936760dd50ece006dea95f9"
   integrity sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA==
@@ -28184,7 +28184,7 @@ domhandler@^5.0.2, domhandler@^5.0.3:
 
 dompurify@3.4.17, dompurify@^3.3.1, dompurify@^3.3.2, dompurify@^3.3.3, dompurify@^3.4.0:
   version "3.4.17"
-  resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-3.4.17.tgz#074bbb24eaa419535ac19ffe7f663104b0e1543d"
+  resolved "https://registry.npmjs.org/dompurify/-/dompurify-3.4.17.tgz#074bbb24eaa419535ac19ffe7f663104b0e1543d"
   integrity sha512-B/pSlYVHQ58kqISD/yDjuJ1yfzI34m1gF4lAod2bwSRhiN4K5Cl3H8Af7hqB2PmTL911tdEudnnXn5FnhRoz0w==
   optionalDependencies:
     "@types/trusted-types" "^2.0.7"
@@ -45012,7 +45012,7 @@ postcss-value-parser@^4.0.0, postcss-value-parser@^4.0.2, postcss-value-parser@^
 
 postcss@8.4.49, postcss@8.5.23, postcss@8.5.31, postcss@^8.1.10, postcss@^8.2.14, postcss@^8.4.19, postcss@^8.4.24, postcss@^8.4.33, postcss@^8.4.38, postcss@^8.4.4, postcss@^8.4.40, postcss@^8.4.43, postcss@^8.4.47, postcss@^8.5.10, postcss@^8.5.14, postcss@^8.5.15, postcss@^8.5.3, postcss@^8.5.6:
   version "8.5.31"
-  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.5.31.tgz#d44731fa02f8ae8371629ec7220e2ae0dbdf23ec"
+  resolved "https://registry.npmjs.org/postcss/-/postcss-8.5.31.tgz#d44731fa02f8ae8371629ec7220e2ae0dbdf23ec"
   integrity sha512-YUbWYCgErwnMAVkjUnYa+KlMBzGpHwiIt/DE7f0G33AuX2LH9UcTk6KgWxd3zRU+pN3u/C+Xl3EnMLM4Hea7Sg==
   dependencies:
     nanoid "^3.3.20"
