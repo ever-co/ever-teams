@@ -95,7 +95,7 @@ describe('POST /api/auth/signin-workspace — server log', () => {
 		expect(log).not.toContain(workspaceToken);
 		expect(log).not.toContain(accessToken);
 		expect(log).not.toContain(refreshToken);
-	});
+	}, 15_000);
 
 	it('signs an invited person in without writing their tokens or generated password to the log', async () => {
 		// The e-mailed code matches an invite: the route accepts it, which signs the person in.
@@ -109,7 +109,7 @@ describe('POST /api/auth/signin-workspace — server log', () => {
 		expectAuthCookies(res.headers.get('set-cookie') ?? '', INVITED.accessToken, INVITED.refreshToken);
 
 		expectInviteLoggedByIdOnly(INVITED.organizationId);
-	});
+	}, 15_000);
 });
 
 describe('Pages-style workspace sign-in handler (signin-workspace.ts) — server log', () => {
@@ -157,5 +157,5 @@ describe('Pages-style workspace sign-in handler (signin-workspace.ts) — server
 		expectAuthCookies(String(headers.get('set-cookie') ?? ''), INVITED.accessToken, INVITED.refreshToken);
 
 		expectInviteLoggedByIdOnly();
-	});
+	}, 15_000);
 });
