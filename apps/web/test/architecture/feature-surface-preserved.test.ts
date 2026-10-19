@@ -1967,10 +1967,10 @@ describe('Ever Teams feature surface preservation', () => {
 
 	it('covers all real App Router route files and outward handler verbs', () => {
 		const routes = collectRealHeadSurface().routes;
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(134);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(135);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(180);
+		).toHaveLength(181);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy routes added by the 2026-10 PR batch, and the old misspelled toggle path kept as an alias
@@ -2015,7 +2015,9 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/ever-stats/enabled/route.ts::PUT',
 				'apps/web/app/api/ever-stats/last/route.ts::GET',
 				'apps/web/app/api/ever-stats/status/route.ts::GET',
-				'apps/web/app/api/employee/me/presence/route.ts::PUT'
+				'apps/web/app/api/employee/me/presence/route.ts::PUT',
+				// Public path of the workspace sign-in handler, which lives in a private folder the router skips
+				'apps/web/app/api/auth/signin-workspace/route.ts::POST'
 			])
 		);
 	});

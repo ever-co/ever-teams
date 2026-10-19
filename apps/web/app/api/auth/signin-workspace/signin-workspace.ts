@@ -89,14 +89,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		}
 
 		if (loginResponse) {
-			console.log('loginResponse>>>', loginResponse);
-
 			/**
 			 * Get the first team from first organization
 			 */
 			const tenantId = loginResponse.user?.tenantId || '';
 			const access_token = loginResponse.token;
 			const userId = loginResponse.user?.id;
+
+			// Never the login response itself: it holds the access and refresh tokens.
+			console.log('[API /auth/signin-workspace] invite accepted', { userId, tenantId });
 
 			const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, access_token);
 			const organization = organizations?.items[0];

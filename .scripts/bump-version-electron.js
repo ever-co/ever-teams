@@ -1,5 +1,5 @@
 const fs = require('fs');
-const simpleGit = require('simple-git');
+const { simpleGit } = require('simple-git');
 const git = simpleGit();
 
 async function getLatestTag(repoURL) {

@@ -33,7 +33,8 @@ export async function POST(req: Request) {
 	// General a random password with 8 chars
 	if (inviteReq && inviteReq.data.fullName) {
 		const password = generateToken(8);
-		console.log('inviteReq', inviteReq.data);
+		// Ids only: the server log is readable by anyone with cluster access.
+		console.log('[API /auth/signin-email-confirm] invite code matched', { inviteId: inviteReq.data.id });
 
 		const names = inviteReq.data.fullName.split(' ');
 		const acceptInviteRes = await acceptInviteRequest({
@@ -80,14 +81,15 @@ export async function POST(req: Request) {
 
 	// Login from Invitation
 	if (loginResponse) {
-		console.log('loginResponse>>>', loginResponse);
-
 		/**
 		 * Get the first team from first organization
 		 */
 		const tenantId = loginResponse.user?.tenantId || '';
 		const access_token = loginResponse.token;
 		const userId = loginResponse.user?.id;
+
+		// Never the login response itself: it holds the access and refresh tokens.
+		console.log('[API /auth/signin-email-confirm] invite accepted', { userId, tenantId });
 
 		const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, access_token);
 		const organization = organizations?.items[0];

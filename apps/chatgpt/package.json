@@ -24,7 +24,7 @@
 		"lint": "eslint src/**/*.ts"
 	},
 	"dependencies": {
-		"@modelcontextprotocol/sdk": "^1.26.0",
+		"@modelcontextprotocol/sdk": "^1.32.1",
 		"axios": "^1.17.0",
 		"express": "^5.1.0",
 		"dotenv": "^17.2.3",
