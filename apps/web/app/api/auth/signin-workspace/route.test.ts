@@ -80,6 +80,35 @@ describe('POST /api/auth/signin-workspace — server log', () => {
 		expect(log).not.toContain(accessToken);
 		expect(log).not.toContain(refreshToken);
 	});
+
+	it('signs an invited person in without writing their tokens or generated password to the log', async () => {
+		// The e-mailed code matches an invite: the route accepts it, which signs the person in.
+		const { POST } = load<typeof import('./route')>('./route');
+
+		const res = await POST(
+			new NextRequest('https://app.ever.team/api/auth/signin-workspace', {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({ email: INVITED.email, code: INVITED.code, token: '', teamId: INVITED.teamId })
+			})
+		);
+
+		// Behaviour is unchanged: the answer and the cookies carry the tokens.
+		expect(res.status).toBe(200);
+		const answer = await res.json();
+		expect(answer.loginResponse.token).toBe(INVITED.accessToken);
+		expect(answer.team.id).toBe(INVITED.teamId);
+		const cookies = res.headers.get('set-cookie') ?? '';
+		expect(cookies).toContain(`auth-token=${INVITED.accessToken}`);
+		expect(cookies).toContain(`auth-refresh-token=${INVITED.refreshToken}`);
+
+		const log = logs.text();
+		expectNoInvitedSecretsIn(log, gauzy);
+		// The log still says who signed in, by id: the line ran, it just no longer carries the secrets.
+		expect(log).toContain(INVITED.userId);
+		expect(log).toContain(INVITED.tenantId);
+		expect(log).toContain(INVITED.organizationId);
+	});
 });
 
 describe('Pages-style workspace sign-in handler (signin-workspace.ts) — server log', () => {
