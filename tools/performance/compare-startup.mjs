@@ -4,7 +4,11 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { DEFAULT_SHELL_READY_BUDGET_MS } from './startup-budget.mjs';
+import {
+	DEFAULT_SHELL_READY_BUDGET_MS,
+	DEFAULT_SHELL_READY_CEILING_MS,
+	evaluateShellReady
+} from './startup-budget.mjs';
 
 const REQUIRED_SHELL_ROUTE_KEYS = [
 	'GET /api/user/me',
@@ -96,7 +100,14 @@ export function summarizeCandidate(candidate) {
 
 export function compareStartup(
 	candidateSummary,
-	{ samples = 5, criticalReads = 12, firstFiveSeconds = 20, shellReadyMs = DEFAULT_SHELL_READY_BUDGET_MS, baseline } = {}
+	{
+		samples = 5,
+		criticalReads = 12,
+		firstFiveSeconds = 20,
+		shellReadyMs = DEFAULT_SHELL_READY_BUDGET_MS,
+		shellReadyCeilingMs = DEFAULT_SHELL_READY_CEILING_MS,
+		baseline
+	} = {}
 ) {
 	const failures = [];
 	if (candidateSummary.sampleCount !== samples) {
@@ -112,15 +123,6 @@ export function compareStartup(
 		}
 		if (sample.missingCriticalRouteKeys.length > 0) {
 			failures.push(`${label}: missing critical route keys: ${sample.missingCriticalRouteKeys.join(', ')}.`);
-		}
-		if (!Number.isFinite(sample.shellReadyMs) || sample.shellReadyMs <= 0) {
-			failures.push(`${label}: shell-ready timing is missing or invalid.`);
-		} else if (sample.shellReadyMs > shellReadyMs) {
-			failures.push(
-				`${label}: shell-ready ${sample.shellReadyMs.toLocaleString('en-US')} ms exceeds ${shellReadyMs.toLocaleString(
-					'en-US'
-				)} ms.`
-			);
 		}
 		if (sample.criticalReadsBeforeShellReady > criticalReads) {
 			failures.push(
@@ -139,7 +141,12 @@ export function compareStartup(
 			failures.push(`${label}: rich global time-log/report read count is ${sample.richGlobalReadCount}.`);
 		}
 	}
-	return { passed: failures.length === 0, failures };
+	const { failures: shellReadyFailures, ...shellReady } = evaluateShellReady(candidateSummary.samples, {
+		budgetMs: shellReadyMs,
+		ceilingMs: shellReadyCeilingMs
+	});
+	failures.push(...shellReadyFailures);
+	return { passed: failures.length === 0, failures, shellReady };
 }
 
 function parseArgs(argv) {
