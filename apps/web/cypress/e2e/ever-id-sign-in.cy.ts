@@ -1,8 +1,9 @@
 /// <reference types="cypress" />
 
 /**
- * The Ever ID sign-in on a deployed environment. Skipped unless CYPRESS_EVER_ID_STAGE=1, so the deterministic
- * browser run (which has no identity provider) skips it; its own configuration refuses to run without that flag.
+ * The Ever ID sign-in on a deployed environment. Runs only under its own configuration, which refuses to start
+ * without CYPRESS_EVER_ID_STAGE=1 and then exposes EVER_ID_STAGE to this spec, so the deterministic browser run
+ * (which has no identity provider) skips it.
  *
  * Run it against a deployment with its own configuration (no mock API, the real next-auth session):
  *
@@ -26,8 +27,28 @@
  * or an e-mail address.
  */
 
-const enabled = String(Cypress.env('EVER_ID_STAGE')) === '1';
+const enabled = String(Cypress.expose('EVER_ID_STAGE')) === '1';
 const describeOnStage = enabled ? describe : describe.skip;
+
+/** The CYPRESS_* variables the cases read. Credentials among them, so they stay `env` values, read with cy.env(). */
+const SETTINGS = [
+	'EVER_ID_ISSUER_ORIGIN',
+	'EVER_ID_USERNAME',
+	'EVER_ID_PASSWORD',
+	'EVER_ID_TENANT_NAME',
+	'EVER_ID_UNLINKED_USERNAME',
+	'EVER_ID_UNLINKED_PASSWORD',
+	'EVER_ID_UNLINKED_TENANT_NAME',
+	'EVER_ID_CONFIRM_CODE_URL',
+	'EVER_ID_SIGNUP',
+	'EVER_ID_NEW_USERNAME',
+	'EVER_ID_NEW_PASSWORD'
+] as const;
+
+type Setting = (typeof SETTINGS)[number];
+
+/** Filled by the suite's before() hook, so every case reads them synchronously. */
+const settings: Partial<Record<Setting, string>> = {};
 
 /** A token, a one-time key, a JWT or an e-mail address (plain or encoded) in a URL. */
 const LEAK = /id_token|access_token|refresh_token|[?&]token=|ever_id_handoff|handoff=|eyJ[A-Za-z0-9_-]{10,}|%40|@/i;
@@ -35,9 +56,8 @@ const LEAK = /id_token|access_token|refresh_token|[?&]token=|ever_id_handoff|han
 /** The main app after a direct sign-in: `/`, or `/<locale>`. */
 const APP_HOME = /^\/(?:[a-z]{2}(?:-[A-Za-z]{2})?)?\/?$/;
 
-function setting(name: string): string {
-	const value = Cypress.env(name);
-	return typeof value === 'string' ? value : value === undefined ? '' : String(value);
+function setting(name: Setting): string {
+	return settings[name] ?? '';
 }
 
 /** Records every URL requested on the web app's origin, to check none leaks anything. */
@@ -118,6 +138,15 @@ function expectChooserOrApp(tenantName: string) {
 }
 
 describeOnStage('Ever ID sign-in (deployed environment)', () => {
+	before(() => {
+		cy.env([...SETTINGS], { log: false }).then((values) => {
+			for (const name of SETTINGS) {
+				// CYPRESS_* values arrive parsed (CYPRESS_EVER_ID_SIGNUP=1 is the number 1).
+				settings[name] = values[name] === undefined || values[name] === null ? '' : String(values[name]);
+			}
+		});
+	});
+
 	it('shows the Ever ID button on the sign-in page', () => {
 		cy.visit('/auth/passcode');
 		cy.contains('button', 'Ever ID', { timeout: 30_000 }).should('be.visible');
