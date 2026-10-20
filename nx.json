@@ -11,7 +11,7 @@
 		"sharedGlobals": [
 			"{workspaceRoot}/package.json",
 			"{workspaceRoot}/tsconfig.json",
-			"{workspaceRoot}/.eslintrc.json",
+			"{workspaceRoot}/eslint.config.mjs",
 			"{workspaceRoot}/.env",
 			"{workspaceRoot}/.env.local",
 			{
@@ -36,7 +36,8 @@
 			"!{projectRoot}/**/*.spec.js",
 			"!{projectRoot}/**/*.spec.jsx",
 			"!{projectRoot}/**/*.test.js",
-			"!{projectRoot}/**/*.test.jsx"
+			"!{projectRoot}/**/*.test.jsx",
+			"!{projectRoot}/eslint.config.mjs"
 		]
 	},
 	"generators": {
@@ -69,7 +70,8 @@
 			"inputs": ["production", "^production"]
 		},
 		"lint": {
-			"cache": true
+			"cache": true,
+			"inputs": ["default", "{workspaceRoot}/packages/eslint-config/**/*"]
 		},
 		"test": {
 			"cache": true
@@ -79,7 +81,7 @@
 		},
 		"@nx/eslint:lint": {
 			"cache": true,
-			"inputs": ["default", "{workspaceRoot}/.eslintrc.json", "{workspaceRoot}/.eslintignore"]
+			"inputs": ["default", "{workspaceRoot}/eslint.config.mjs", "{workspaceRoot}/packages/eslint-config/**/*"]
 		},
 		"@nx/jest:jest": {
 			"cache": true,
