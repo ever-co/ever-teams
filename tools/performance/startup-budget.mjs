@@ -13,6 +13,15 @@ function formatMs(value) {
 	return value.toLocaleString('en-US');
 }
 
+/**
+ * Evaluates the shell-ready timings of a set of cold samples: the median against `budgetMs` and every
+ * sample against `ceilingMs`. A missing or non-positive timing is a failure and is left out of the median.
+ *
+ * @param {ReadonlyArray<{ index?: number; shellReadyMs: number }>} samples
+ * @param {{ budgetMs?: number; ceilingMs?: number }} [options]
+ * @returns {{ budgetMs: number; ceilingMs: number; medianMs: number | null; maxMs: number | null;
+ *   samplesOverBudget: number; failures: string[] }} The summary, with `failures` empty when the samples pass.
+ */
 export function evaluateShellReady(
 	samples,
 	{ budgetMs = DEFAULT_SHELL_READY_BUDGET_MS, ceilingMs = DEFAULT_SHELL_READY_CEILING_MS } = {}
@@ -49,7 +58,7 @@ export function evaluateShellReady(
 		budgetMs,
 		ceilingMs,
 		medianMs,
-		maxMs: sorted.length ? sorted[sorted.length - 1] : null,
+		maxMs: sorted.at(-1) ?? null,
 		samplesOverBudget: valid.filter((value) => value > budgetMs).length,
 		failures
 	};
