@@ -30,8 +30,9 @@ export function evaluateShellReady(
 	const valid = [];
 	samples.forEach((sample, position) => {
 		const label = `Sample ${sample.index ?? position + 1}`;
-		const value = Number(sample.shellReadyMs);
-		if (!Number.isFinite(value) || value <= 0) {
+		// No coercion: `true` or a numeric string in a candidate file is malformed, not a fast start.
+		const value = sample.shellReadyMs;
+		if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) {
 			failures.push(`${label}: shell-ready timing is missing or invalid.`);
 			return;
 		}

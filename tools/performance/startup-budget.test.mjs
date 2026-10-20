@@ -65,13 +65,17 @@ test('reports invalid timings and keeps them out of the median', () => {
 	const result = evaluateShellReady([
 		{ index: 1, shellReadyMs: 0 },
 		{ index: 2, shellReadyMs: Number.NaN },
-		{ index: 3, shellReadyMs: 5_000 }
+		{ index: 3, shellReadyMs: 5_000 },
+		{ index: 4, shellReadyMs: true },
+		{ index: 5, shellReadyMs: '6000' }
 	]);
 
 	assert.equal(result.medianMs, 5_000);
 	assert.deepEqual(result.failures, [
 		'Sample 1: shell-ready timing is missing or invalid.',
-		'Sample 2: shell-ready timing is missing or invalid.'
+		'Sample 2: shell-ready timing is missing or invalid.',
+		'Sample 4: shell-ready timing is missing or invalid.',
+		'Sample 5: shell-ready timing is missing or invalid.'
 	]);
 	assert.equal(evaluateShellReady([]).medianMs, null);
 });

@@ -59,7 +59,7 @@ export function summarizeHar(har, { apiOrigins = [] } = {}) {
 export function summarizeCandidate(candidate) {
 	const samples = (candidate?.samples ?? []).map((sample, index) => {
 		const requests = Array.isArray(sample.requests) ? sample.requests : [];
-		const shellReadyMs = Number(sample.shellReadyMs);
+		const shellReadyMs = typeof sample.shellReadyMs === 'number' ? sample.shellReadyMs : Number.NaN;
 		const readsBeforeReady = requests.filter(
 			(request) => request.method === 'GET' && Number(request.startMs) <= shellReadyMs
 		);

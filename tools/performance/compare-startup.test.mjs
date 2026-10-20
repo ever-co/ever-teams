@@ -167,11 +167,15 @@ test('holds the median shell-ready to the budget and every sample to the ceiling
 test('rejects a cold sample without a shell-ready timing', () => {
 	const candidate = makeCandidate();
 	delete candidate.samples[1].shellReadyMs;
+	candidate.samples[3].shellReadyMs = true;
+	candidate.samples[4].shellReadyMs = '900';
 
 	const result = compareStartup(summarizeCandidate(candidate));
 
 	assert.equal(result.passed, false);
 	assert.match(result.failures.join('\n'), /Sample 2: shell-ready timing is missing or invalid/);
+	assert.match(result.failures.join('\n'), /Sample 4: shell-ready timing is missing or invalid/);
+	assert.match(result.failures.join('\n'), /Sample 5: shell-ready timing is missing or invalid/);
 });
 
 test('rejects a supplied HAR reference with no matching Gauzy traffic', () => {
