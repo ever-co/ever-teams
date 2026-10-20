@@ -130,6 +130,52 @@ test('rejects cold samples that exceed the shell-ready budget', () => {
 
 	assert.equal(result.passed, false);
 	assert.match(result.failures.join('\n'), /shell-ready.*8,001.*8,000/i);
+	assert.equal(result.shellReady.medianMs, 8_001);
+});
+
+test('holds the median shell-ready to the budget and every sample to the ceiling', () => {
+	const withShellReady = (...values) => {
+		const candidate = makeCandidate();
+		values.forEach((value, position) => {
+			candidate.samples[position].shellReadyMs = value;
+		});
+		return compareStartup(summarizeCandidate(candidate));
+	};
+
+	const loadedRunner = withShellReady(7_872, 6_144, 6_192, 6_024, 10_233);
+	assert.equal(loadedRunner.passed, true);
+	assert.deepEqual(loadedRunner.shellReady, {
+		budgetMs: 8_000,
+		ceilingMs: 15_000,
+		medianMs: 6_192,
+		maxMs: 10_233,
+		samplesOverBudget: 1
+	});
+
+	const slowMajority = withShellReady(7_000, 8_100, 8_200, 8_300, 6_000);
+	assert.equal(slowMajority.passed, false);
+	assert.match(slowMajority.failures.join('\n'), /Median shell-ready 8,100 ms.*exceeds 8,000 ms/);
+
+	const pathologicalSample = withShellReady(4_000, 4_100, 15_001, 4_200, 4_300);
+	assert.equal(pathologicalSample.passed, false);
+	assert.match(
+		pathologicalSample.failures.join('\n'),
+		/Sample 3: shell-ready 15,001 ms exceeds the per-sample ceiling/
+	);
+});
+
+test('rejects a cold sample without a shell-ready timing', () => {
+	const candidate = makeCandidate();
+	delete candidate.samples[1].shellReadyMs;
+	candidate.samples[3].shellReadyMs = true;
+	candidate.samples[4].shellReadyMs = '900';
+
+	const result = compareStartup(summarizeCandidate(candidate));
+
+	assert.equal(result.passed, false);
+	assert.match(result.failures.join('\n'), /Sample 2: shell-ready timing is missing or invalid/);
+	assert.match(result.failures.join('\n'), /Sample 4: shell-ready timing is missing or invalid/);
+	assert.match(result.failures.join('\n'), /Sample 5: shell-ready timing is missing or invalid/);
 });
 
 test('rejects a supplied HAR reference with no matching Gauzy traffic', () => {
