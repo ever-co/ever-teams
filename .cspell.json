@@ -906,7 +906,9 @@
 		"JKMN",
 		"ILOU",
 		"HJKMNP",
-		"purecatamphetamine"
+		"purecatamphetamine",
+		"tolower",
+		"NOERROR"
 ],
 	"useGitignore": true,
 	"ignorePaths": [
