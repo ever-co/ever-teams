@@ -143,10 +143,22 @@ jobs:
           fi
           echo "📏 Diff range: $DIFF_RANGE"
 
+          # Only files that can change what npm ships count. Every SDK package publishes `dist` (built
+          # from its sources) plus package.json/README/LICENSE; lint, format, test and story files never
+          # reach the tarball, so a change to them alone must not cut a release. It did on 2026-10-20:
+          # #4715 added eslint.config.mjs to toolkit-ui and atoms, and this step auto-bumped both.
+          DEV_ONLY=(
+            ':(exclude,glob)**/eslint.config.*' ':(exclude,glob)**/.eslintrc*' ':(exclude,glob)**/.eslintignore'
+            ':(exclude,glob)**/.prettierrc*' ':(exclude,glob)**/.prettierignore'
+            ':(exclude,glob)**/*.test.*' ':(exclude,glob)**/*.spec.*' ':(exclude,glob)**/__tests__/**'
+            ':(exclude,glob)**/jest.config.*' ':(exclude,glob)**/vitest.config.*'
+            ':(exclude,glob)**/*.stories.*' ':(exclude,glob)**/.storybook/**'
+          )
+
           # Check each SDK package for changes across the full push range
           for pkg_path in "${!SDK_PACKAGES[@]}"; do
             pkg_name="${SDK_PACKAGES[$pkg_path]}"
-            if git diff --quiet "$DIFF_RANGE" -- "$pkg_path" 2>/dev/null; then
+            if git diff --quiet "$DIFF_RANGE" -- "$pkg_path" "${DEV_ONLY[@]}" 2>/dev/null; then
               echo "  ⏭️  No changes in $pkg_name ($pkg_path)"
             else
               echo "  ✅ Changes detected in $pkg_name ($pkg_path)"
