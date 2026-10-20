@@ -13,7 +13,7 @@ describe('five-sample cold-start performance budget', () => {
 	it('meets normalized Gauzy request budgets without rich global reports', () => {
 		const samples: Sample[] = [];
 		let activeSample: Sample | undefined;
-		const apiOrigin = String(Cypress.env('GAUZY_API_ORIGIN'));
+		const apiOrigin = String(Cypress.expose('GAUZY_API_ORIGIN'));
 		cy.intercept({ url: `${apiOrigin}/api/**`, middleware: true }, (request) => {
 			const normalized = normalizeGauzyRequest(
 				{
@@ -85,9 +85,9 @@ describe('five-sample cold-start performance budget', () => {
 			});
 		}
 
-		cy.then(() => {
+		cy.env(['LIVE_AUTH'], { log: false }).then(({ LIVE_AUTH }) => {
 			const candidate = {
-				mode: Cypress.env('LIVE_AUTH') ? 'live' : 'deterministic',
+				mode: LIVE_AUTH ? 'live' : 'deterministic',
 				samples: samples.map(({ startedAt: _startedAt, ...sample }) => sample)
 			};
 			return cy.task('performance:write', candidate, { log: false }).then((written: any) => {

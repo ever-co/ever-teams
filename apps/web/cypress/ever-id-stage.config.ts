@@ -31,6 +31,8 @@ export default defineConfig({
 			if (String(config.env.EVER_ID_STAGE) !== '1') {
 				throw new Error('The Ever ID run needs CYPRESS_EVER_ID_STAGE=1.');
 			}
+			// The spec picks describe or describe.skip when it loads, which only an exposed value can tell it.
+			config.expose.EVER_ID_STAGE = '1';
 			return config;
 		}
 	},
