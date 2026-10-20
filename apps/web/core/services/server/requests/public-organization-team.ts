@@ -34,7 +34,7 @@ export function getPublicOrganizationTeamRequest({
 	const queries = qs.stringify(params);
 
 	return serverFetch<IOrganizationTeam>({
-		path: `/public/team/${profileLink}/${teamId}?${queries.toString()}`,
+		path: `/public/team/${encodeURIComponent(profileLink)}/${encodeURIComponent(teamId)}?${queries.toString()}`,
 		method: 'GET'
 	});
 }
@@ -61,7 +61,7 @@ export function getPublicOrganizationTeamMiscDataRequest({
 	const queries = qs.stringify(params);
 
 	return serverFetch<IOrganizationTeam>({
-		path: `/public/team/${profileLink}/${teamId}?${queries.toString()}`,
+		path: `/public/team/${encodeURIComponent(profileLink)}/${encodeURIComponent(teamId)}?${queries.toString()}`,
 		method: 'GET'
 	});
 }
