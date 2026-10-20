@@ -126,8 +126,10 @@ jobs:
           # -------------------------------------------------------------------------------
           probe_once() {
             local url="$1" body="$2" w rc
-            # Reset per attempt: if curl dies before any header arrives, a stale header file from
-            # the previous attempt must not be read as this attempt's answer.
+            # Reset both per attempt: if curl dies before any header or body arrives, a stale file
+            # from the previous attempt (a challenge page, say) must not be read as this attempt's
+            # answer.
+            : > "$body"
             : > "$body.hdr"
             w="$(curl -sS -A "$UA" \
                   -L --max-redirs 5 \
@@ -155,20 +157,36 @@ jobs:
           # From 2026-10-18 11:36Z every run got HTTP 403 with a ~5.4 KB page on all three hosts
           # while the sites answered 200 to everyone else: Cloudflare was refusing GitHub's runner
           # IPs, and the origin never saw the request. The status code alone cannot say that, and
-          # the report showed it as a plain "DOWN". `cf-mitigated` is set only when Cloudflare
-          # itself challenged or blocked the request (https://developers.cloudflare.com/cloudflare-challenges/challenge-types/challenge-pages/detect-response/),
-          # and the page <title> tells a challenge apart from a block. Printed as one sanitized
-          # line, because it lands in a markdown table: no pipes, no backticks.
+          # the report showed it as a plain "DOWN". Cloudflare sets `cf-mitigated: challenge` on
+          # every challenge page it serves (https://developers.cloudflare.com/cloudflare-challenges/challenge-types/challenge-pages/detect-response/).
+          # A WAF *block* has no such header; it is recognized by its branded page title instead,
+          # which is only a strong hint, so it is reported as "likely". `cf-ray` is kept for
+          # correlation with the zone's Security events: it proves the request crossed Cloudflare,
+          # not who answered. Printed as one sanitized line, because it lands in a markdown
+          # table: no pipes, no backticks.
           # -------------------------------------------------------------------------------
+          # header_value <name> <header-file>: the value from the FINAL response only. `curl -L -D`
+          # writes every response of a redirect chain, so a Cloudflare 301 followed by an origin
+          # 503 must not report the 301's headers: each status line starts a new block and resets.
           header_value() {
-            grep -i "^$1:" "$2" 2>/dev/null | tail -n 1 | cut -d: -f2- | tr -d '\r' | sed -E 's/^ +//; s/ +$//'
+            awk -v want="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" '
+              /^HTTP\// { v = "" }
+              {
+                line = $0; sub(/\r$/, "", line)
+                i = index(line, ":")
+                if (i > 0 && tolower(substr(line, 1, i - 1)) == want) v = substr(line, i + 1)
+              }
+              END { sub(/^[ \t]+/, "", v); sub(/[ \t]+$/, "", v); printf "%s", v }' "$2" 2>/dev/null
+          }
+          page_title() {
+            grep -o -i -m 1 '<title>[^<]*</title>' "$1" 2>/dev/null | head -n 1 | sed -E 's#</?[Tt][Ii][Tt][Ll][Ee]>##g'
           }
           edge_info() {
             local hdr="$1" body="$2" server mitigated ray title out=''
             server="$(header_value server "$hdr")"
             mitigated="$(header_value cf-mitigated "$hdr")"
             ray="$(header_value cf-ray "$hdr")"
-            title="$(grep -o -i -m 1 '<title>[^<]*</title>' "$body" 2>/dev/null | head -n 1 | sed -E 's#</?[Tt][Ii][Tt][Ll][Ee]>##g')"
+            title="$(page_title "$body")"
             [ -n "$server" ] && out="server=$server"
             [ -n "$mitigated" ] && out="$out cf-mitigated=$mitigated"
             [ -n "$ray" ] && out="$out cf-ray=$ray"
@@ -198,6 +216,9 @@ jobs:
                 # say who refused, so nobody hunts an origin outage that is an edge rule.
                 if [ -n "$(header_value cf-mitigated "$body.hdr")" ]; then
                   reason="$reason -- refused by Cloudflare's edge (cf-mitigated: $(header_value cf-mitigated "$body.hdr" | tr -d '|`')), the origin was not reached"
+                elif [ "$(header_value server "$body.hdr")" = 'cloudflare' ] \
+                  && page_title "$body" | grep -qi 'Attention Required.*Cloudflare'; then
+                  reason="$reason -- likely blocked by Cloudflare's WAF (its block page), the origin was probably not reached"
                 fi
               elif [ "${size:-0}" -lt "$min_bytes" ]; then
                 reason="body too small: ${size}B < ${min_bytes}B"
