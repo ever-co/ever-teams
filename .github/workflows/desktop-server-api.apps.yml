@@ -82,7 +82,7 @@ jobs:
         run: 'sudo npm install -g npm@11.6.2'
 
       - name: Install globally node-gyp, ts-node and nx packages
-        run: 'sudo npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^22.5.2'
+        run: 'sudo npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^23.3.0'
 
       - name: Configure Registry
         uses: ever-co/ever-gauzy/.github/actions/configure-registry@727973d766f3968d3f1184300af085872abcb20b
@@ -356,7 +356,7 @@ jobs:
         run: 'sudo npm install -g npm@11.6.2'
 
       - name: Install globally node-gyp, ts-node and nx packages
-        run: 'sudo npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^22.5.2'
+        run: 'sudo npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^23.3.0'
 
       - name: Configure Registry
         shell: bash
@@ -575,7 +575,7 @@ jobs:
         run: 'sudo npm install -g npm@11.6.2'
 
       - name: Install globally node-gyp, ts-node and nx packages
-        run: 'sudo npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^22.5.2'
+        run: 'sudo npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^23.3.0'
 
       - name: Configure Registry
         shell: bash
@@ -883,7 +883,7 @@ jobs:
         run: 'npm install -g npm@11.6.2'
 
       - name: Install globally node-gyp, ts-node and nx packages
-        run: 'npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^22.5.2'
+        run: 'npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^23.3.0'
 
       # yarn 1 rebuilds native modules with `npm_config_node_gyp` and, when it is unset, defaults to the
       # npm-BUNDLED copy <node>/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js. After the
@@ -1171,7 +1171,7 @@ jobs:
         run: 'npm install -g npm@11.6.2'
 
       - name: Install globally node-gyp, ts-node and nx packages
-        run: 'npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^22.5.2'
+        run: 'npm install --quiet -g node-gyp@10.2.0 ts-node@10.9.2 nx@^23.3.0'
 
       # yarn 1 rebuilds native modules with `npm_config_node_gyp` and, when it is unset, defaults to the
       # npm-BUNDLED copy <node>/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js. After the
