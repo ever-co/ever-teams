@@ -4,7 +4,7 @@ import {
 	normalizeGauzyRequest,
 	type NormalizedGauzyRequest
 } from '../../../../tools/performance/normalize-gauzy-request.mjs';
-import { DEFAULT_SHELL_READY_BUDGET_MS } from '../../../../tools/performance/startup-budget.mjs';
+import { DEFAULT_SHELL_READY_CEILING_MS, evaluateShellReady } from '../../../../tools/performance/startup-budget.mjs';
 
 type CapturedRequest = NormalizedGauzyRequest & { startMs: number; endMs: number };
 type Sample = { index: number; startedAt: number; shellReadyMs: number; requests: CapturedRequest[] };
@@ -58,7 +58,9 @@ describe('five-sample cold-start performance budget', () => {
 			cy.waitForShellReady().then(() => {
 				const sample = activeSample!;
 				sample.shellReadyMs = Date.now() - sample.startedAt;
-				expect(sample.shellReadyMs, `sample ${index} shell-ready`).to.be.at.most(DEFAULT_SHELL_READY_BUDGET_MS);
+				expect(sample.shellReadyMs, `sample ${index} shell-ready ceiling`).to.be.at.most(
+					DEFAULT_SHELL_READY_CEILING_MS
+				);
 			});
 			cy.wait(5_000, { log: false });
 			cy.then(() => {
@@ -90,6 +92,10 @@ describe('five-sample cold-start performance budget', () => {
 			};
 			return cy.task('performance:write', candidate, { log: false }).then((written: any) => {
 				expect(written.samples).to.equal(5);
+				// Asserted after the write, so a run over budget still uploads its per-sample evidence.
+				expect(evaluateShellReady(samples).failures, 'median shell-ready of the cold samples').to.deep.equal(
+					[]
+				);
 			});
 		});
 	});

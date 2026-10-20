@@ -5,11 +5,11 @@ function requestMatcher(path: string): RegExp {
 	return new RegExp(path.endsWith('/') ? `${escaped}.*` : `${escaped}(?:\\?.*)?$`);
 }
 
-function observeRequests(paths: string[]): string[] {
+function observeRequests(paths: string[]): `@${string}`[] {
 	return paths.map((path, index) => {
 		const alias = `routeOwner${index}`;
 		cy.intercept('GET', requestMatcher(path)).as(alias);
-		return `@${alias}`;
+		return `@${alias}` as const;
 	});
 }
 

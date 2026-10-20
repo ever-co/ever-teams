@@ -126,9 +126,15 @@ jobs:
           # -------------------------------------------------------------------------------
           probe_once() {
             local url="$1" body="$2" w rc
+            # Reset both per attempt: if curl dies before any header or body arrives, a stale file
+            # from the previous attempt (a challenge page, say) must not be read as this attempt's
+            # answer.
+            : > "$body"
+            : > "$body.hdr"
             w="$(curl -sS -A "$UA" \
                   -L --max-redirs 5 \
                   --connect-timeout 10 --max-time 25 \
+                  -D "$body.hdr" \
                   -o "$body" \
                   -w '%{http_code}|%{time_namelookup}|%{time_connect}|%{time_appconnect}|%{time_starttransfer}|%{time_total}|%{size_download}|%{remote_ip}' \
                   "$url" 2>"$body.err")"
@@ -145,23 +151,75 @@ jobs:
             printf '%s|%s' "$w" "$rc"
           }
 
+          # -------------------------------------------------------------------------------
+          # Who answered a failed probe: Cloudflare's edge, or our origin behind it?
+          #
+          # From 2026-10-18 11:36Z every run got HTTP 403 with a ~5.4 KB page on all three hosts
+          # while the sites answered 200 to everyone else: Cloudflare was refusing GitHub's runner
+          # IPs, and the origin never saw the request. The status code alone cannot say that, and
+          # the report showed it as a plain "DOWN". Cloudflare sets `cf-mitigated: challenge` on
+          # every challenge page it serves (https://developers.cloudflare.com/cloudflare-challenges/challenge-types/challenge-pages/detect-response/).
+          # A WAF *block* has no such header; it is recognized by its branded page title instead,
+          # which is only a strong hint, so it is reported as "likely". `cf-ray` is kept for
+          # correlation with the zone's Security events: it proves the request crossed Cloudflare,
+          # not who answered. Printed as one sanitized line, because it lands in a markdown
+          # table: no pipes, no backticks.
+          # -------------------------------------------------------------------------------
+          # header_value <name> <header-file>: the value from the FINAL response only. `curl -L -D`
+          # writes every response of a redirect chain, so a Cloudflare 301 followed by an origin
+          # 503 must not report the 301's headers: each status line starts a new block and resets.
+          header_value() {
+            awk -v want="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" '
+              /^HTTP\// { v = "" }
+              {
+                line = $0; sub(/\r$/, "", line)
+                i = index(line, ":")
+                if (i > 0 && tolower(substr(line, 1, i - 1)) == want) v = substr(line, i + 1)
+              }
+              END { sub(/^[ \t]+/, "", v); sub(/[ \t]+$/, "", v); printf "%s", v }' "$2" 2>/dev/null
+          }
+          page_title() {
+            grep -o -i -m 1 '<title>[^<]*</title>' "$1" 2>/dev/null | head -n 1 | sed -E 's#</?[Tt][Ii][Tt][Ll][Ee]>##g'
+          }
+          edge_info() {
+            local hdr="$1" body="$2" server mitigated ray title out=''
+            server="$(header_value server "$hdr")"
+            mitigated="$(header_value cf-mitigated "$hdr")"
+            ray="$(header_value cf-ray "$hdr")"
+            title="$(page_title "$body")"
+            [ -n "$server" ] && out="server=$server"
+            [ -n "$mitigated" ] && out="$out cf-mitigated=$mitigated"
+            [ -n "$ray" ] && out="$out cf-ray=$ray"
+            [ -n "$title" ] && out="$out title=\"$title\""
+            printf '%s' "$out" | tr -d '|`' | tr -cd '[:print:]' | sed -E 's/^ +//' | head -c 160
+          }
+
           # check_endpoint <url> <expected-body-marker-or-empty> <min-bytes>
           # Returns 0 if healthy, 1 if it failed every attempt. Appends a report row either way.
           check_endpoint() {
             local url="$1" marker="$2" min_bytes="$3"
             local attempt code dns conn tls ttfb total size ip rc
             local body="$WORK/body.$RANDOM"
-            local ok=0 fails=0 reason='' last=''
+            local ok=0 fails=0 reason='' last='' edge=''
 
             for attempt in $(seq 1 "$ATTEMPTS"); do
               last="$(probe_once "$url" "$body")"
               IFS='|' read -r code dns conn tls ttfb total size ip rc <<< "$last"
 
               reason=''
+              edge=''
               if [ "${rc:-0}" -ne 0 ]; then
                 reason="curl exit ${rc} (transfer did not complete cleanly)"
               elif [ "$code" != "200" ]; then
                 reason="HTTP $code (expected 200)"
+                # Still a failure: a monitor that cannot reach the site cannot vouch for it. But
+                # say who refused, so nobody hunts an origin outage that is an edge rule.
+                if [ -n "$(header_value cf-mitigated "$body.hdr")" ]; then
+                  reason="$reason -- refused by Cloudflare's edge (cf-mitigated: $(header_value cf-mitigated "$body.hdr" | tr -d '|`')), the origin was not reached"
+                elif [ "$(header_value server "$body.hdr")" = 'cloudflare' ] \
+                  && page_title "$body" | grep -qi 'Attention Required.*Cloudflare'; then
+                  reason="$reason -- likely blocked by Cloudflare's WAF (its block page), the origin was probably not reached"
+                fi
               elif [ "${size:-0}" -lt "$min_bytes" ]; then
                 reason="body too small: ${size}B < ${min_bytes}B"
               elif [ -n "$marker" ] && ! grep -qF -- "$marker" "$body"; then
@@ -177,6 +235,10 @@ jobs:
               fails=$((fails + 1))
               echo "FAIL  $url  (attempt $attempt/$ATTEMPTS) -- $reason"
               echo "      dns=${dns}s connect=${conn}s tls=${tls}s ttfb=${ttfb}s total=${total}s peer=${ip:-none}"
+              edge="$(edge_info "$body.hdr" "$body")"
+              if [ -n "$edge" ]; then
+                echo "      edge: $edge"
+              fi
               if [ -s "$body.err" ]; then
                 echo "      curl: $(head -c 300 "$body.err" | tr '\n' ' ')"
               fi
@@ -192,8 +254,8 @@ jobs:
               verdict="DOWN ($fails/$ATTEMPTS consecutive failures)"
             fi
 
-            printf '| `%s` | %s | %s | %s | %s | %s | %s | %s | %s |\n' \
-              "$url" "$verdict" "$code" "$dns" "$conn" "$tls" "$ttfb" "${size}B" "${ip:-none}" >> "$TABLE"
+            printf '| `%s` | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n' \
+              "$url" "$verdict" "$code" "$dns" "$conn" "$tls" "$ttfb" "${size}B" "${ip:-none}" "${edge:--}" >> "$TABLE"
 
             if [ "$ok" -eq 1 ]; then
               return 0
@@ -247,6 +309,13 @@ jobs:
           # Deliberately NOT monitored: stage.ever.team and demo.ever.team. Those are WIP
           # environments where short outages are expected and tolerated, and alerting on them
           # would train everyone to ignore this label. Add rows below if that ever changes.
+          #
+          # Not monitored YET: mcp.ever.team (the MCP server the ChatGPT app in apps/chatgpt proxies
+          # to, with mcpauth.ever.team for OAuth and chatgpt.ever.team for the app itself). On
+          # 2026-10-20 none of the three had a DNS record (NOERROR, no A/AAAA/CNAME), and the
+          # chatgpt.deploy-do-* workflows have only ever been skipped, so there is nothing to probe:
+          # a row now would only report "DNS failure" forever. Add a row once it is deployed, with
+          # a marker taken from its real health response.
           # -------------------------------------------------------------------------------
           FAILED=false
           FAILURES=''
@@ -304,8 +373,8 @@ jobs:
             fi
             echo "### Timing breakdown"
             echo ""
-            echo "| endpoint | result | http | dns | connect | tls | ttfb | bytes | peer |"
-            echo "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"
+            echo "| endpoint | result | http | dns | connect | tls | ttfb | bytes | peer | edge |"
+            echo "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"
             cat "$TABLE"
             echo ""
             echo "> **How to read this:** a non-zero \`dns\` with \`connect\` stuck at \`0.000000\`"
@@ -313,6 +382,9 @@ jobs:
             echo "> (a routing blackhole or a firewall), not an application fault. An application"
             echo "> that is merely broken still connects and answers with a 5xx. \`peer\` is the"
             echo "> edge IP actually reached, which tells you which Cloudflare prefix was in play."
+            echo "> \`edge\` (failures only) carries \`cf-mitigated\` when Cloudflare itself challenged or"
+            echo "> blocked the probe: the origin never saw the request, so look at the zone's Security"
+            echo "> events for the runner's egress IP before looking at the cluster."
           } > "$REPORT"
 
           cat "$REPORT" >> "$GITHUB_STEP_SUMMARY"
