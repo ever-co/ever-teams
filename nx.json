@@ -70,7 +70,8 @@
 			"inputs": ["production", "^production"]
 		},
 		"lint": {
-			"cache": true
+			"cache": true,
+			"inputs": ["default", "{workspaceRoot}/packages/eslint-config/**/*"]
 		},
 		"test": {
 			"cache": true
@@ -80,7 +81,7 @@
 		},
 		"@nx/eslint:lint": {
 			"cache": true,
-			"inputs": ["default", "{workspaceRoot}/eslint.config.mjs"]
+			"inputs": ["default", "{workspaceRoot}/eslint.config.mjs", "{workspaceRoot}/packages/eslint-config/**/*"]
 		},
 		"@nx/jest:jest": {
 			"cache": true,

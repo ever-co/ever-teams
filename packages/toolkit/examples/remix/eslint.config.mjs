@@ -13,6 +13,11 @@ import globals from 'globals';
  * `plugin:react-hooks/recommended` (v4) enabled only the two rules below, so those are what is enabled here.
  */
 export default [
+	{
+		// What .gitignore leaves out: `eslint . --ext .ts,.tsx` lints JavaScript too under flat config, so the build
+		// output would be linted.
+		ignores: ['.cache/**', 'build/**', '.vercel/**']
+	},
 	js.configs.recommended,
 	{
 		languageOptions: {
