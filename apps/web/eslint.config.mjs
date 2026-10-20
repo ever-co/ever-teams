@@ -53,9 +53,10 @@ const eslintConfig = [
 	},
 	{
 		// eslint-plugin-unused-imports builds on the first @typescript-eslint/eslint-plugin it can load, which
-		// is the root's 5.60 (pinned for the root ESLint 8): its rule crashes on TypeScript under ESLint 9. For
-		// .ts/.tsx, typescript-eslint 8's @typescript-eslint/no-unused-vars (from the typescript config) reports
-		// unused imports and variables instead.
+		// was the root's 5.60 (pinned for the root ESLint 8), on which its rule crashed on TypeScript under ESLint 9.
+		// For .ts/.tsx, typescript-eslint 8's @typescript-eslint/no-unused-vars (from the typescript config) reports
+		// unused imports and variables instead. The root is on typescript-eslint 8 now: turning the rule on for
+		// TypeScript is a change of its own (README.md, "Linting").
 		files: ['**/*.{ts,tsx,mts,cts}'],
 		rules: {
 			'unused-imports/no-unused-imports': 'off',

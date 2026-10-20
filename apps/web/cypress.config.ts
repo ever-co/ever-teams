@@ -74,7 +74,8 @@ export default defineConfig({
 				await mockServer.close();
 				throw error;
 			}
-			config.env.GAUZY_API_ORIGIN = mockServer.origin;
+			// Public (the mock's own address), so exposed: specs read it with Cypress.expose().
+			config.expose.GAUZY_API_ORIGIN = mockServer.origin;
 
 			// The Ever Platform API mock of the SDK's dev tools (signature and schema checks of every report),
 			// where the web app's statistics reporter sends (EVER_STATS_API_URL=http://127.0.0.1:3989 on the

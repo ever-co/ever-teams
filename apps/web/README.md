@@ -60,8 +60,8 @@ who may get a token.
 over every `.js`, `.jsx`, `.ts` and `.tsx` file and fails on any warning. CI's
 `nx run web:lint` runs that same script, and the pre-commit hook runs
 `lint:staged` (with `--fix`) on the staged `apps/web` files. Run ESLint through
-these scripts: the repository root has its own ESLint 8.46, which cannot load
-this config.
+these scripts: they run in `apps/web`, where ESLint finds this config, whereas
+from the repository root it would use the root `eslint.config.mjs`.
 
 The rules come from eslint-config-next's `core-web-vitals` and `typescript`
 configs (Next, React, hooks, accessibility, import and typescript-eslint).
@@ -113,10 +113,11 @@ in the order to burn it down:
     one and add it with its own baseline.
 
 `eslint-plugin-unused-imports` only checks JavaScript: it builds on the root's
-`@typescript-eslint/eslint-plugin` 5.60, which crashes on TypeScript under
-ESLint 9, so `@typescript-eslint/no-unused-vars` reports unused imports in
-TypeScript instead (without the automatic removal). Upgrading the root's lint
-packages would let it cover TypeScript again.
+`@typescript-eslint/eslint-plugin`, which was 5.60 and crashed on TypeScript
+under ESLint 9, so `@typescript-eslint/no-unused-vars` reports unused imports in
+TypeScript instead (without the automatic removal). The root is now on
+typescript-eslint 8, where the rule runs on TypeScript: turning it on there is
+a change of its own, with its own baseline.
 
 ## Learn More
 
