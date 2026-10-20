@@ -1,10 +1,8 @@
 'use server';
-import { appendFile, mkdir } from 'fs/promises';
-import { join } from 'path';
+import { appendFile, mkdir, readdir, stat, rm } from 'fs/promises';
+import { basename, join } from 'path';
 import { existsSync } from 'fs';
 import { LogEntry } from '@/core/types/generics';
-
-import { readdir, stat, rm } from 'fs/promises';
 
 /*
  * 🛑 Every function exported from this 'use server' module is a Server Action: client code imports the logger, so
@@ -36,7 +34,8 @@ export async function logServerToFile(filename: string, logEntry: LogEntry) {
 
 	const logString = JSON.stringify(logEntry, null, 2) + '\n';
 
-	await appendFile(join(LOG_DIR, filename), logString, { encoding: 'utf8' });
+	// `basename` as well: the name is already one segment, and the path is built from nothing else.
+	await appendFile(join(LOG_DIR, basename(filename)), logString, { encoding: 'utf8' });
 }
 
 /**
@@ -53,7 +52,7 @@ export async function createLogDir(): Promise<void> {
 			await mkdir(LOG_DIR, { recursive: true });
 		} else {
 			// Clean up logs if they're too big - don't await to avoid blocking
-			cleanIfTooBig(LOG_DIR, Number(process.env.LOG_FOLDER_MAX_SIZE || 10)).catch((error) => {});
+			cleanIfTooBig(LOG_DIR, Number(process.env.LOG_FOLDER_MAX_SIZE || 10)).catch(() => undefined);
 		}
 	} catch (error) {
 		console.error(`[Logger] Failed to create log directory: ${LOG_DIR}`, error);

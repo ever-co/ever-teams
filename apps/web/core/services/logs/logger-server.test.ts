@@ -13,6 +13,10 @@ import { createLogDir, logServerToFile } from './logger-server';
 
 const entry: LogEntry = { timestamp: '2026-10-20T10:00:00.000Z', level: LogLevel.INFO, message: 'hello' };
 
+/** How a client calls a Server Action: with whatever arguments it chooses. */
+const callFromClient = (action: (...args: never[]) => Promise<void>, ...args: unknown[]): Promise<void> =>
+	Reflect.apply(action, undefined, args);
+
 describe('logger-server actions', () => {
 	const cwd = process.cwd();
 	const nodeEnv = process.env.NODE_ENV;
@@ -65,13 +69,13 @@ describe('logger-server actions', () => {
 		['no name', ''],
 		['not a string', 42]
 	])('refuses %s, and writes nothing', async (_label, filename) => {
-		await expect(logServerToFile(filename as string, entry)).rejects.toThrow('Invalid log file name');
+		await expect(callFromClient(logServerToFile, filename, entry)).rejects.toThrow('Invalid log file name');
 
 		expect(tree()).toEqual(['app/', 'app/logs/']);
 	});
 
 	it('takes no directory from its caller: an extra argument is not a path', async () => {
-		await (logServerToFile as (...args: unknown[]) => Promise<void>)('2026-10-20.log', entry, root);
+		await callFromClient(logServerToFile, '2026-10-20.log', entry, root);
 
 		expect(tree()).toEqual(['app/', 'app/logs/', 'app/logs/2026-10-20.log']);
 	});
@@ -79,9 +83,7 @@ describe('logger-server actions', () => {
 	it('creates the log directory, and only that, whatever it is passed', async () => {
 		rmSync(join(work, 'logs'), { recursive: true });
 
-		await (createLogDir as (...args: unknown[]) => Promise<void>)({
-			getConfig: () => ({ logDir: join(root, 'elsewhere') })
-		});
+		await callFromClient(createLogDir, { getConfig: () => ({ logDir: join(root, 'elsewhere') }) });
 
 		expect(tree()).toEqual(['app/', 'app/logs/']);
 	});
