@@ -93,9 +93,12 @@ jobs:
       #  From 2026-10-18 ~11:3xZ every probe from a GitHub-hosted (Azure) runner got HTTP 403 "Just a
       #  moment..." (a Cloudflare managed challenge, `cf-mitigated: challenge`) on all three targets,
       #  while real users were served normally - so the monitor stayed red and could no longer see a
-      #  real outage. gauzy.co and ever.works (same Cloudflare account) did the same within the hour;
-      #  the Security events name the cause: Bot Fight Mode, newly switched on, challenging
-      #  Microsoft's ASN 8075. The same fix ships for gauzy.co in ever-co/ever-gauzy#11175.
+      #  real outage. gauzy.co and ever.works (same Cloudflare account) did the same within the hour.
+      #  ever.works' Security events name the cause: Bot Fight Mode (source botFight, managed
+      #  challenge), newly switched on, challenging Microsoft's ASN 8075 from 2026-10-18 11:55Z. For
+      #  ever.team that is an inference (same account, same hour, same challenge page); the step logs
+      #  the zone's plan, and on Pro or above a WAF Skip rule would do instead. The same fix ships for
+      #  gauzy.co in ever-co/ever-gauzy#11175.
       #
       #  On the Free plan Bot Fight Mode CANNOT be skipped by a WAF custom rule (no Skip / Allow action
       #  reaches it - it runs outside the Ruleset Engine). The one thing that takes precedence is an IP
@@ -165,7 +168,15 @@ jobs:
               | select(.scope.type == "zone" and ((.notes // "") | startswith($tag)))
               | select((.created_on | sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601) < (now - 1200))
               | .id' <<< "${RESP}" 2>/dev/null || true)
+            # Time-boxed: the probe and its alert matter more than tidying up. If leftovers piled up
+            # and Cloudflare is slow, stop starting deletes after 60 s and leave the rest to the next
+            # run (one in-flight call can still add up to 30 s).
+            SWEEP_DEADLINE=$((SECONDS + 60))
             for id in ${STALE}; do
+              if [ "${SECONDS}" -ge "${SWEEP_DEADLINE}" ]; then
+                echo "::warning::Stale-rule sweep hit its 60 s budget; the next run removes the rest."
+                break
+              fi
               if cf DELETE "/zones/${ZONE_ID}/firewall/access_rules/rules/${id}" | jq -e '.success == true' > /dev/null 2>&1; then
                 echo "Removed a stale allow rule left by an earlier run: ${id}"
               else
@@ -184,9 +195,19 @@ jobs:
             # IP Access rules apply within seconds; the probe's own retries cover any remaining lag.
             sleep 5
           else
-            # Most likely "already exists": another rule (ours from an overlapping run, or the owner's)
-            # already allows this IP. Not ours to delete, so no rule_id: the probe simply runs.
             echo "::warning::Could not create the allow rule for ${EGRESS_IP}: $(cf_errors)"
+            # The POST may have landed even though its answer was lost (a timeout, a dropped
+            # connection). Look for a zone rule carrying THIS run's exact note for this IP: if there is
+            # one, it is ours and must be cleaned up. Anything else - most likely an "already exists"
+            # rule of the owner's - is not ours to delete, so no rule_id and the probe simply runs.
+            if RESP=$(cf GET "/zones/${ZONE_ID}/firewall/access_rules/rules?per_page=100&mode=whitelist&configuration.target=ip&configuration.value=${EGRESS_IP}") \
+                && RULE_ID=$(jq -er --arg n "${NOTE}" --arg ip "${EGRESS_IP}" '[.result[]?
+                  | select(.scope.type == "zone" and .notes == $n and .configuration.value == $ip)][0].id
+                  // empty' <<< "${RESP}" 2>/dev/null); then
+              echo "rule_id=${RULE_ID}" >> "$GITHUB_OUTPUT"
+              echo "The allow rule was created after all (${RULE_ID}); it will be removed after the probe."
+              sleep 5
+            fi
           fi
 
       - name: Probe endpoints from outside the homelab
