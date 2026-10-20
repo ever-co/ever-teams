@@ -59,7 +59,11 @@ jobs:
     # = ~460s, plus runner boot and the gh steps. 10 minutes left almost no margin, and the
     # failure mode is the bad one: the step is killed, no outputs are written, every later `if:`
     # evaluates false, and a genuine outage produces a red X with no issue and no report.
-    timeout-minutes: 15
+    # The temporary Cloudflare allow (below) adds up to ~4 minutes before the probe on a slow
+    # Cloudflare API (zone lookup, a 60 s-boxed sweep, create, and the lost-answer lookup) and
+    # ~2 minutes after it (the delete with retries), hence 25. The stale-rule sweep's age
+    # threshold (30 minutes) must stay above this timeout.
+    timeout-minutes: 25
 
     steps:
       # No actions/checkout on purpose -- this job needs nothing from the repository tree, and
@@ -106,7 +110,7 @@ jobs:
       #    1. allow THIS runner's own IPv4 egress address on the ever.team zone (not account-wide);
       #    2. probe;
       #    3. delete the rule in an `always()` step, even if the probe failed or the run was cancelled;
-      #    4. every run also deletes OUR rules older than 20 minutes (longer than the 15-minute job
+      #    4. every run also deletes OUR rules older than 30 minutes (longer than the 25-minute job
       #       timeout, so never a rule a running job still needs), in case a run died before step 3.
       #  Bot Fight Mode stays on for everyone else.
       #
@@ -161,7 +165,7 @@ jobs:
           # rule, which would make this whole step unnecessary - so say which plan the zone is on.
           echo "Zone ${CF_ZONE_NAME} plan: $(jq -r '.result[0].plan.name // "unknown"' <<< "${RESP}" 2>/dev/null || echo unknown)"
 
-          # Sweep: only IP allow rules carrying OUR note, older than 20 minutes. The owner's own
+          # Sweep: only IP allow rules carrying OUR note, older than 30 minutes. The owner's own
           # rules (inherited user/account-level ones show up in this listing too) never carry that
           # note, so they are never touched. The note is the key on purpose, not `scope.type`:
           # Cloudflare documents that field as only "user" or "organization", so a zone-scope
@@ -170,7 +174,7 @@ jobs:
             STALE=$(jq -r --arg tag "${NOTE_TAG}" '.result[]?
               | select(((.notes // "") | startswith($tag)) and .mode == "whitelist"
                   and .configuration.target == "ip")
-              | select((.created_on | sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601) < (now - 1200))
+              | select((.created_on | sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601) < (now - 1800))
               | .id' <<< "${RESP}" 2>/dev/null || true)
             # Time-boxed: the probe and its alert matter more than tidying up. If leftovers piled up
             # and Cloudflare is slow, stop starting deletes after 60 s and leave the rest to the next
@@ -240,6 +244,9 @@ jobs:
 
       - name: Probe endpoints from outside the homelab
         id: probe
+        # Runs even if the Cloudflare allow step failed outright: that step stays red in the run,
+        # but the probe, its report and the alert issue must not be skipped because of it.
+        if: ${{ !cancelled() }}
         shell: bash
         env:
           EGRESS_IP: ${{ steps.egress.outputs.ip }}
@@ -613,7 +620,7 @@ jobs:
       # spam is the most common reason monitoring like this gets muted and then deleted.
       # -----------------------------------------------------------------------------------
       - name: Open or update the alert issue
-        if: steps.probe.outputs.failed == 'true' && steps.probe.outputs.control_down == 'false'
+        if: ${{ !cancelled() && steps.probe.outputs.failed == 'true' && steps.probe.outputs.control_down == 'false' }}
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -660,7 +667,7 @@ jobs:
         # flapped would print "these results cannot tell an outage from a network fault" onto a
         # GREEN run -- which is false there, and is the kind of noise that teaches people to stop
         # reading this workflow's output.
-        if: steps.probe.outputs.control_down == 'true' && steps.probe.outputs.failed == 'true'
+        if: ${{ !cancelled() && steps.probe.outputs.control_down == 'true' && steps.probe.outputs.failed == 'true' }}
         shell: bash
         run: |
           echo "::error::The known-good control endpoint was also unreachable, so this runner's own"
@@ -668,14 +675,14 @@ jobs:
           echo "::error::Ever Teams outage apart from a GitHub Actions network fault."
 
       - name: Note that the control endpoint flapped on an otherwise healthy run
-        if: steps.probe.outputs.control_down == 'true' && steps.probe.outputs.failed == 'false'
+        if: ${{ !cancelled() && steps.probe.outputs.control_down == 'true' && steps.probe.outputs.failed == 'false' }}
         shell: bash
         run: |
           echo "::warning::The control endpoint failed but every Ever Teams endpoint answered"
           echo "::warning::correctly, so this run is still valid evidence that the service is up."
 
       - name: Close the alert issue on recovery
-        if: steps.probe.outputs.failed == 'false'
+        if: ${{ !cancelled() && steps.probe.outputs.failed == 'false' }}
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -730,7 +737,7 @@ jobs:
         # Deliberately NOT gated on control_down. Going green when the control is unhealthy would
         # make this a monitor that can only report success -- worse than no monitor at all. Stay
         # red, and say plainly which of the two situations this is.
-        if: steps.probe.outputs.failed == 'true'
+        if: ${{ !cancelled() && steps.probe.outputs.failed == 'true' }}
         shell: bash
         env:
           CONTROL_DOWN: ${{ steps.probe.outputs.control_down }}
@@ -745,8 +752,8 @@ jobs:
 
       - name: Fail the run if the temporary allow rule was left behind
         # A leftover rule lets one Azure IP past Bot Fight Mode on ever.team until a later SUCCESSFUL
-        # sweep removes it. The sweep takes rules older than 20 minutes and runs every 15, so the
-        # earliest is the second run after this one (~35 minutes) - later if Cloudflare cannot be
+        # sweep removes it. The sweep takes rules older than 30 minutes and runs every 15, so that is
+        # as early as ~30 minutes and usually ~45 - later if runs queue, Cloudflare cannot be
         # reached or the delete fails then too. Rare, but it must be loud, not a warning in a log.
         # Same for a create call whose outcome could not be confirmed either way.
         if: >-
@@ -759,8 +766,8 @@ jobs:
         run: |
           WHERE="Cloudflare dashboard → ever.team → Security → WAF → Tools → IP Access Rules, note 'ever-teams-uptime-monitor run ${GITHUB_RUN_ID}/${GITHUB_RUN_ATTEMPT}'"
           if [ "${UNCERTAIN}" = 'true' ]; then
-            echo "::error::The temporary Cloudflare allow rule's create call got no usable answer and the follow-up lookup could not confirm the outcome, so a rule may have been left on ever.team. A later successful sweep removes it (~35 minutes at the earliest); check now: ${WHERE}."
+            echo "::error::The temporary Cloudflare allow rule's create call got no usable answer and the follow-up lookup could not confirm the outcome, so a rule may have been left on ever.team. A later successful sweep removes it (as early as ~30 minutes, usually ~45); check now: ${WHERE}."
           else
-            echo "::error::Temporary Cloudflare allow rule ${RULE_ID} on ever.team could not be removed. A later successful sweep removes it (rules older than 20 minutes, so ~35 minutes at the earliest); remove it now: ${WHERE}."
+            echo "::error::Temporary Cloudflare allow rule ${RULE_ID} on ever.team could not be removed. A later successful sweep removes it (rules older than 30 minutes, so as early as ~30 minutes, usually ~45); remove it now: ${WHERE}."
           fi
           exit 1

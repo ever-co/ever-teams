@@ -51284,7 +51284,7 @@ typeid-js@1.2.0:
   dependencies:
     uuid "^10.0.0"
 
-typescript-eslint@8.72.0, typescript-eslint@^8.22.0, typescript-eslint@^8.46.0, typescript-eslint@^8.48.1, typescript-eslint@^8.56.0, typescript-eslint@^8.72.0:
+typescript-eslint@8.72.0, typescript-eslint@^8.22.0, typescript-eslint@^8.46.0, typescript-eslint@^8.48.1, typescript-eslint@^8.56.0:
   version "8.72.0"
   resolved "https://registry.npmjs.org/typescript-eslint/-/typescript-eslint-8.72.0.tgz#50a8fd6d4304ffd1e7fd375f8a439c6f15488071"
   integrity sha512-r26Fkc8As+mZvqp7SLsMmNFyYUup/6CjK7/eHBHmhOw6GH6n6YFxHVFrG0jN1c5CMpDzelLPxvgeCOzx7BjN+A==
