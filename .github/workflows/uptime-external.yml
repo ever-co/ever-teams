@@ -206,23 +206,35 @@ jobs:
           else
             # No usable answer (a timeout, a dropped connection, a cut-off body): the rule may exist
             # anyway. Adopt only a rule carrying THIS run attempt's exact note for this IP - never a
-            # duplicate or anyone else's. If even that lookup fails, nobody can say whether a rule was
-            # left behind, so the last step fails the run to get a human to look.
+            # duplicate or anyone else's. The listing is filtered to this one IP, so it is a handful of
+            # rules, but a just-created rule may not be listed yet: look three times, 5 s apart. Not
+            # finding it is NOT proof that none was made, so then (or if the lookup itself fails) the
+            # last step fails the run to get a human to look.
             echo "::warning::The create call for ${EGRESS_IP} got no usable answer; checking whether the rule exists."
-            if RESP=$(cf GET "/zones/${ZONE_ID}/firewall/access_rules/rules?per_page=100&mode=whitelist&configuration.target=ip&configuration.value=${EGRESS_IP}") \
-                && jq -e '.success == true' <<< "${RESP}" > /dev/null 2>&1; then
-              if RULE_ID=$(jq -er --arg n "${NOTE}" --arg ip "${EGRESS_IP}" '[.result[]?
-                  | select(.notes == $n and .mode == "whitelist" and .configuration.value == $ip)][0].id
-                  // empty' <<< "${RESP}" 2>/dev/null); then
-                echo "rule_id=${RULE_ID}" >> "$GITHUB_OUTPUT"
-                echo "The allow rule was created after all (${RULE_ID}); it will be removed after the probe."
-                sleep 5
-              else
-                echo "No rule was created for ${EGRESS_IP}; the probe runs without one."
+            RULE_ID=''
+            for attempt in 1 2 3; do
+              if RESP=$(cf GET "/zones/${ZONE_ID}/firewall/access_rules/rules?per_page=100&mode=whitelist&configuration.target=ip&configuration.value=${EGRESS_IP}") \
+                  && jq -e '.success == true' <<< "${RESP}" > /dev/null 2>&1 \
+                  && RULE_ID=$(jq -er --arg n "${NOTE}" --arg ip "${EGRESS_IP}" '[.result[]?
+                    | select(.notes == $n and .mode == "whitelist" and .configuration.value == $ip)][0].id
+                    // empty' <<< "${RESP}" 2>/dev/null); then
+                break
               fi
+              RULE_ID=''
+              [ "${attempt}" -lt 3 ] && sleep 5
+            done
+            if [ -n "${RULE_ID}" ]; then
+              echo "rule_id=${RULE_ID}" >> "$GITHUB_OUTPUT"
+              echo "The allow rule was created after all (${RULE_ID}); it will be removed after the probe."
+              sleep 5
             else
               echo "uncertain=true" >> "$GITHUB_OUTPUT"
-              echo "::warning::Could not check whether an allow rule for ${EGRESS_IP} exists: $(cf_errors)"
+              if jq -e '.success == true' <<< "${RESP}" > /dev/null 2>&1; then
+                WHY='not listed after 3 lookups'
+              else
+                WHY="lookup failed: $(cf_errors)"
+              fi
+              echo "::warning::Could not confirm whether an allow rule for ${EGRESS_IP} was created (${WHY})."
             fi
           fi
 
@@ -572,7 +584,7 @@ jobs:
         # always(): also when the probe failed, its own tooling broke, or the run was cancelled. Placed
         # straight after the probe so the IP is allowed for as short a time as possible. It never fails
         # itself (that would skip the alert steps below); a rule it could not remove fails the run in
-        # the last step instead, and a later run's sweep removes it (within ~35 minutes).
+        # the last step instead, and a later successful sweep removes it.
         if: always() && steps.cfallow.outputs.rule_id != ''
         shell: bash
         env:
@@ -732,10 +744,11 @@ jobs:
           exit 1
 
       - name: Fail the run if the temporary allow rule was left behind
-        # A leftover rule lets one Azure IP past Bot Fight Mode on ever.team until a later run's sweep
-        # removes it. The sweep takes rules older than 20 minutes and runs every 15, so that is the
-        # second run after this one: up to ~35 minutes. Rare, but it must be loud, not a warning in a
-        # log. Same for a create call whose outcome could not be confirmed either way.
+        # A leftover rule lets one Azure IP past Bot Fight Mode on ever.team until a later SUCCESSFUL
+        # sweep removes it. The sweep takes rules older than 20 minutes and runs every 15, so the
+        # earliest is the second run after this one (~35 minutes) - later if Cloudflare cannot be
+        # reached or the delete fails then too. Rare, but it must be loud, not a warning in a log.
+        # Same for a create call whose outcome could not be confirmed either way.
         if: >-
           always() && (steps.cfallow.outputs.uncertain == 'true'
           || (steps.cfcleanup.outcome == 'success' && steps.cfcleanup.outputs.removed != 'true'))
@@ -746,8 +759,8 @@ jobs:
         run: |
           WHERE="Cloudflare dashboard → ever.team → Security → WAF → Tools → IP Access Rules, note 'ever-teams-uptime-monitor run ${GITHUB_RUN_ID}/${GITHUB_RUN_ATTEMPT}'"
           if [ "${UNCERTAIN}" = 'true' ]; then
-            echo "::error::The temporary Cloudflare allow rule's create call got no usable answer and the follow-up lookup failed, so a rule may have been left on ever.team. A later run's sweep removes it within ~35 minutes; to check now: ${WHERE}."
+            echo "::error::The temporary Cloudflare allow rule's create call got no usable answer and the follow-up lookup could not confirm the outcome, so a rule may have been left on ever.team. A later successful sweep removes it (~35 minutes at the earliest); check now: ${WHERE}."
           else
-            echo "::error::Temporary Cloudflare allow rule ${RULE_ID} on ever.team could not be removed. A later run's sweep removes it within ~35 minutes (rules older than 20 minutes); to remove it now: ${WHERE}."
+            echo "::error::Temporary Cloudflare allow rule ${RULE_ID} on ever.team could not be removed. A later successful sweep removes it (rules older than 20 minutes, so ~35 minutes at the earliest); remove it now: ${WHERE}."
           fi
           exit 1
