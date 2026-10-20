@@ -161,11 +161,15 @@ jobs:
           # rule, which would make this whole step unnecessary - so say which plan the zone is on.
           echo "Zone ${CF_ZONE_NAME} plan: $(jq -r '.result[0].plan.name // "unknown"' <<< "${RESP}" 2>/dev/null || echo unknown)"
 
-          # Sweep: only zone-scoped rules carrying OUR note, older than 20 minutes. The owner's own
-          # user/account-level rules show up in this listing too and are never touched.
+          # Sweep: only IP allow rules carrying OUR note, older than 20 minutes. The owner's own
+          # rules (inherited user/account-level ones show up in this listing too) never carry that
+          # note, so they are never touched. The note is the key on purpose, not `scope.type`:
+          # Cloudflare documents that field as only "user" or "organization", so a zone-scope
+          # filter could hide our own leftovers from the sweep.
           if RESP=$(cf GET "/zones/${ZONE_ID}/firewall/access_rules/rules?per_page=100&mode=whitelist&notes=${NOTE_TAG}"); then
             STALE=$(jq -r --arg tag "${NOTE_TAG}" '.result[]?
-              | select(.scope.type == "zone" and ((.notes // "") | startswith($tag)))
+              | select(((.notes // "") | startswith($tag)) and .mode == "whitelist"
+                  and .configuration.target == "ip")
               | select((.created_on | sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601) < (now - 1200))
               | .id' <<< "${RESP}" 2>/dev/null || true)
             # Time-boxed: the probe and its alert matter more than tidying up. If leftovers piled up
@@ -197,12 +201,12 @@ jobs:
           else
             echo "::warning::Could not create the allow rule for ${EGRESS_IP}: $(cf_errors)"
             # The POST may have landed even though its answer was lost (a timeout, a dropped
-            # connection). Look for a zone rule carrying THIS run's exact note for this IP: if there is
+            # connection). Look for a rule carrying THIS run's exact note for this IP: if there is
             # one, it is ours and must be cleaned up. Anything else - most likely an "already exists"
             # rule of the owner's - is not ours to delete, so no rule_id and the probe simply runs.
             if RESP=$(cf GET "/zones/${ZONE_ID}/firewall/access_rules/rules?per_page=100&mode=whitelist&configuration.target=ip&configuration.value=${EGRESS_IP}") \
                 && RULE_ID=$(jq -er --arg n "${NOTE}" --arg ip "${EGRESS_IP}" '[.result[]?
-                  | select(.scope.type == "zone" and .notes == $n and .configuration.value == $ip)][0].id
+                  | select(.notes == $n and .mode == "whitelist" and .configuration.value == $ip)][0].id
                   // empty' <<< "${RESP}" 2>/dev/null); then
               echo "rule_id=${RULE_ID}" >> "$GITHUB_OUTPUT"
               echo "The allow rule was created after all (${RULE_ID}); it will be removed after the probe."
