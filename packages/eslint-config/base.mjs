@@ -4,6 +4,9 @@ import importPlugin from 'eslint-plugin-import';
 import reactPlugin from 'eslint-plugin-react';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+import rules from './rules.js';
+
+const { basePathGroups, commonRules, importOrder, typescriptEslint5RecommendedRules } = rules;
 
 const project = resolve(process.cwd(), 'tsconfig.json');
 
@@ -44,61 +47,12 @@ const baseConfig = [
 			}
 		},
 		rules: {
-			'arrow-body-style': ['error', 'as-needed'],
-			'no-useless-escape': 'off',
-			'no-irregular-whitespace': 'error',
-			'no-trailing-spaces': 'error',
-			'no-useless-catch': 'warn',
-			'no-case-declarations': 'error',
-			'no-duplicate-imports': 'error',
-			'no-unreachable': 'error',
-			'no-undef': 'error',
-			'prefer-const': 'error',
-			'react/jsx-boolean-value': 'error',
-			'react/jsx-key': 'error',
-			'react/self-closing-comp': ['error', { component: true, html: true }],
-			'react/jsx-no-duplicate-props': 'error',
-			'@typescript-eslint/no-unused-vars': ['warn'],
-			'@typescript-eslint/no-explicit-any': 'warn',
-			'@typescript-eslint/no-useless-empty-export': 'error',
-			'@typescript-eslint/no-unused-expressions': 'warn',
-			'@typescript-eslint/prefer-ts-expect-error': 'warn',
-			'import/order': [
-				'warn',
-				{
-					groups: ['builtin', 'external', 'internal', 'parent', 'sibling'],
-					pathGroups: [
-						{
-							pattern: '@ever-teams/**',
-							group: 'external',
-							position: 'after'
-						},
-						{
-							pattern: '@/**',
-							group: 'internal',
-							position: 'before'
-						}
-					],
-					pathGroupsExcludedImportTypes: ['builtin', 'internal', 'react'],
-					alphabetize: {
-						order: 'asc',
-						caseInsensitive: true
-					}
-				}
-			]
+			...commonRules,
+			'import/order': importOrder('warn', basePathGroups)
 		}
 	},
 	{
-		// Enforced by base.js through typescript-eslint 5's recommended preset, which typescript-eslint 8 dropped them
-		// from (moved to its stylistic and strict presets; `@typescript-eslint/no-loss-of-precision` was removed for
-		// the core rule): kept so that the upgrade does not stop enforcing them.
-		rules: {
-			'no-loss-of-precision': 'error',
-			'@typescript-eslint/adjacent-overload-signatures': 'error',
-			'@typescript-eslint/no-empty-function': 'error',
-			'@typescript-eslint/no-inferrable-types': 'error',
-			'@typescript-eslint/no-non-null-assertion': 'warn'
-		}
+		rules: typescriptEslint5RecommendedRules
 	}
 ];
 

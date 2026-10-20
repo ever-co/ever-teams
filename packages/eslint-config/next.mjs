@@ -3,6 +3,9 @@ import nextConfig from 'eslint-config-next';
 import prettierConfig from 'eslint-config-prettier';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+import rules from './rules.js';
+
+const { commonRules, importOrder, nextPathGroups, typescriptEslint5RecommendedRules } = rules;
 
 const project = resolve(process.cwd(), 'tsconfig.json');
 
@@ -39,28 +42,10 @@ const nextConfigs = [
 			}
 		},
 		rules: {
-			'no-useless-escape': 'off',
-			'prefer-const': 'error',
-			'no-irregular-whitespace': 'error',
-			'no-trailing-spaces': 'error',
-			'no-duplicate-imports': 'error',
-			'no-useless-catch': 'warn',
-			'no-case-declarations': 'error',
-			'no-undef': 'error',
-			'no-unreachable': 'error',
-			'arrow-body-style': ['error', 'as-needed'],
+			...commonRules,
 			'@next/next/no-html-link-for-pages': 'off',
 			'@next/next/no-img-element': 'off',
-			'react/jsx-key': 'error',
-			'react/self-closing-comp': ['error', { component: true, html: true }],
-			'react/jsx-boolean-value': 'error',
-			'react/jsx-no-duplicate-props': 'error',
 			'react-hooks/exhaustive-deps': 'warn',
-			'@typescript-eslint/no-unused-expressions': 'warn',
-			'@typescript-eslint/no-unused-vars': ['warn'],
-			'@typescript-eslint/no-explicit-any': 'warn',
-			'@typescript-eslint/no-useless-empty-export': 'error',
-			'@typescript-eslint/prefer-ts-expect-error': 'warn',
 			'@typescript-eslint/naming-convention': [
 				'warn',
 				{
@@ -69,51 +54,11 @@ const nextConfigs = [
 					leadingUnderscore: 'allow'
 				}
 			],
-			'import/order': [
-				'error',
-				{
-					groups: ['builtin', 'external', 'internal', 'parent', 'sibling'],
-					pathGroups: [
-						{
-							pattern: 'react',
-							group: 'external',
-							position: 'before'
-						},
-						{
-							pattern: 'lucide-react',
-							group: 'external',
-							position: 'after'
-						},
-						{
-							pattern: '@ever-teams/**',
-							group: 'external',
-							position: 'after'
-						},
-						{
-							pattern: '@/**',
-							group: 'internal'
-						}
-					],
-					pathGroupsExcludedImportTypes: ['builtin', 'internal', 'react'],
-					alphabetize: {
-						order: 'asc',
-						caseInsensitive: true
-					}
-				}
-			]
+			'import/order': importOrder('error', nextPathGroups)
 		}
 	},
 	{
-		// Enforced by next.js through typescript-eslint 5's recommended preset, which typescript-eslint 8 dropped them
-		// from (moved to its stylistic and strict presets; `@typescript-eslint/no-loss-of-precision` was removed for
-		// the core rule): kept so that the upgrade does not stop enforcing them.
-		rules: {
-			'no-loss-of-precision': 'error',
-			'@typescript-eslint/adjacent-overload-signatures': 'error',
-			'@typescript-eslint/no-empty-function': 'error',
-			'@typescript-eslint/no-inferrable-types': 'error',
-			'@typescript-eslint/no-non-null-assertion': 'warn'
-		}
+		rules: typescriptEslint5RecommendedRules
 	}
 ];
 

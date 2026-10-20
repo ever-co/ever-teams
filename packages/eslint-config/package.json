@@ -8,6 +8,7 @@
 		"base.mjs",
 		"next.js",
 		"next.mjs",
+		"rules.js",
 		"server.js",
 		"server.mjs"
 	],
