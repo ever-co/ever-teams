@@ -16,6 +16,7 @@ import {
 import { IDecodedRefreshToken } from '@/core/types/interfaces/auth/auth';
 import { deleteCookie, getCookie, setCookie, deleteCookieCrossSite as _deleteCookieCrossSite } from './helpers';
 import { chunk, range } from '@/core/lib/helpers';
+import { tokenCookieChunkCount } from './token-chunks';
 
 // Re-export for use in other modules
 export const deleteCookieCrossSite = _deleteCookieCrossSite;
@@ -36,29 +37,26 @@ export const ACCESS_TOKEN_REFRESHED_EVENT = 'ever-teams:access-token-refreshed';
  * @param crossSite - Whether to also delete cross-site cookies (with domain attribute)
  */
 const clearExistingChunks = (COOKIE_NAME: string, ctx: NextCtx | undefined, crossSite = false) => {
+	const deleteChunkCookie = (name: string) => {
+		if (crossSite) {
+			deleteCookieCrossSite(name, ctx ? { req: ctx.req, res: ctx.res } : undefined);
+		} else {
+			deleteCookie(name, ctx ? { req: ctx.req, res: ctx.res } : undefined);
+		}
+	};
+
 	// Get the total chunks cookie to know how many chunks exist
 	const totalChunksValue = getCookie(`${COOKIE_NAME}_totalChunks`, ctx);
 
 	if (totalChunksValue) {
-		const totalChunks = parseInt(totalChunksValue as string);
-
-		if (!isNaN(totalChunks) && totalChunks > 0) {
-			// Delete all existing chunk cookies
-			range(totalChunks).forEach((index) => {
-				if (crossSite) {
-					deleteCookieCrossSite(`${COOKIE_NAME}${index}`, ctx ? { req: ctx.req, res: ctx.res } : undefined);
-				} else {
-					deleteCookie(`${COOKIE_NAME}${index}`, ctx ? { req: ctx.req, res: ctx.res } : undefined);
-				}
-			});
-
-			// Delete the totalChunks cookie
-			if (crossSite) {
-				deleteCookieCrossSite(`${COOKIE_NAME}_totalChunks`, ctx ? { req: ctx.req, res: ctx.res } : undefined);
-			} else {
-				deleteCookie(`${COOKIE_NAME}_totalChunks`, ctx ? { req: ctx.req, res: ctx.res } : undefined);
-			}
+		// Delete all existing chunk cookies; a count no sign-in writes names none
+		const totalChunks = tokenCookieChunkCount(totalChunksValue);
+		if (totalChunks) {
+			range(totalChunks).forEach((index) => deleteChunkCookie(`${COOKIE_NAME}${index}`));
 		}
+
+		// Delete the totalChunks cookie
+		deleteChunkCookie(`${COOKIE_NAME}_totalChunks`);
 	}
 
 	// Also delete the base cookie in case the previous token was not chunked
@@ -106,21 +104,19 @@ export const setLargeStringInCookies = (
 };
 
 export const getLargeStringFromCookies = (COOKIE_NAME: string, ctx?: NextCtx) => {
-	const totalChunksCookie = getTotalChunksCookie(COOKIE_NAME, ctx);
-	if (!totalChunksCookie) {
-		return null; // Total chunks cookie not found.
+	const totalChunks = tokenCookieChunkCount(getTotalChunksCookie(COOKIE_NAME, ctx));
+	if (!totalChunks) {
+		return null; // No chunk count, or not one a sign-in writes.
 	}
 
-	const totalChunks = parseInt(totalChunksCookie);
-
-	const chunks = range(totalChunks).map((index) => {
+	const chunks: string[] = [];
+	for (const index of range(totalChunks)) {
 		const chunkCookie = getCookie(`${COOKIE_NAME}${index}`, ctx);
-		if (!chunkCookie) {
-			return null; // Chunk cookie not found.
+		if (typeof chunkCookie !== 'string' || !chunkCookie) {
+			return null; // A missing chunk leaves no usable string.
 		}
-
-		return chunkCookie;
-	});
+		chunks.push(chunkCookie);
+	}
 
 	// Concatenate and return the large string.
 	return chunks.join('');
@@ -186,8 +182,8 @@ function deleteAccessTokenCookie() {
 
 	// Delete chunked access tokens if they exist
 	if (totalChunksCookie) {
-		const totalChunks = parseInt(totalChunksCookie);
-		range(totalChunks).forEach((index) => {
+		// A count no sign-in writes names no chunk to delete
+		range(tokenCookieChunkCount(totalChunksCookie) ?? 0).forEach((index) => {
 			deleteCookieCrossSite(`${TOKEN_COOKIE_NAME}${index}`);
 		});
 		deleteCookieCrossSite(`${TOKEN_COOKIE_NAME}_totalChunks`);
