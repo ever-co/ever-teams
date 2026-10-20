@@ -752,8 +752,8 @@ jobs:
 
       - name: Fail the run if the temporary allow rule was left behind
         # A leftover rule lets one Azure IP past Bot Fight Mode on ever.team until a later SUCCESSFUL
-        # sweep removes it. The sweep takes rules older than 30 minutes and runs every 15, so the
-        # earliest is the third run after this one (~45 minutes) - later if Cloudflare cannot be
+        # sweep removes it. The sweep takes rules older than 30 minutes and runs every 15, so that is
+        # as early as ~30 minutes and usually ~45 - later if runs queue, Cloudflare cannot be
         # reached or the delete fails then too. Rare, but it must be loud, not a warning in a log.
         # Same for a create call whose outcome could not be confirmed either way.
         if: >-
@@ -766,8 +766,8 @@ jobs:
         run: |
           WHERE="Cloudflare dashboard → ever.team → Security → WAF → Tools → IP Access Rules, note 'ever-teams-uptime-monitor run ${GITHUB_RUN_ID}/${GITHUB_RUN_ATTEMPT}'"
           if [ "${UNCERTAIN}" = 'true' ]; then
-            echo "::error::The temporary Cloudflare allow rule's create call got no usable answer and the follow-up lookup could not confirm the outcome, so a rule may have been left on ever.team. A later successful sweep removes it (~45 minutes at the earliest); check now: ${WHERE}."
+            echo "::error::The temporary Cloudflare allow rule's create call got no usable answer and the follow-up lookup could not confirm the outcome, so a rule may have been left on ever.team. A later successful sweep removes it (as early as ~30 minutes, usually ~45); check now: ${WHERE}."
           else
-            echo "::error::Temporary Cloudflare allow rule ${RULE_ID} on ever.team could not be removed. A later successful sweep removes it (rules older than 30 minutes, so ~45 minutes at the earliest); remove it now: ${WHERE}."
+            echo "::error::Temporary Cloudflare allow rule ${RULE_ID} on ever.team could not be removed. A later successful sweep removes it (rules older than 30 minutes, so as early as ~30 minutes, usually ~45); remove it now: ${WHERE}."
           fi
           exit 1
