@@ -1,5 +1,5 @@
 import type { CaptureResult } from 'posthog-js';
-import { redactCaptureResult, redactUrl } from './analytics-redaction';
+import { redactCaptureResult, redactedPageLocation, redactUrl } from './analytics-redaction';
 
 /**
  * PostHog records the full address of every page in its events, and the pages the auth e-mails open carry a live
@@ -90,5 +90,30 @@ describe('redactCaptureResult', () => {
 
 	it('passes a dropped event through', () => {
 		expect(redactCaptureResult(null)).toBeNull();
+	});
+});
+
+describe('redactedPageLocation', () => {
+	it('redacts the address, its query, its fragment and the referrer', () => {
+		expect(
+			redactedPageLocation(
+				'https://app.ever.team/auth/accept-invite?email=ada%40example.com&code=123456#access_token=abc',
+				'https://app.ever.team/auth/passcode?email=ada%40example.com&code=AB12CD34'
+			)
+		).toEqual({
+			url: 'https://app.ever.team/auth/accept-invite?email=redacted&code=redacted#access_token=redacted',
+			search: '?email=redacted&code=redacted',
+			hash: '#access_token=redacted',
+			referrer: 'https://app.ever.team/auth/passcode?email=redacted&code=redacted'
+		});
+	});
+
+	it('describes an ordinary page as it is, and no referrer as none', () => {
+		expect(redactedPageLocation('https://app.ever.team/tasks?tab=2', '')).toEqual({
+			url: 'https://app.ever.team/tasks?tab=2',
+			search: '?tab=2',
+			hash: '',
+			referrer: ''
+		});
 	});
 });

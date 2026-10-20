@@ -56,6 +56,37 @@ export function redactUrl(value: string): string {
 	return url.toString();
 }
 
+/** The page address an analytics event describes, as an SDK that reads the browser itself would send it. */
+export interface RedactedPageLocation {
+	/** The address, with its secret query and fragment parameters redacted. */
+	url: string;
+	/** Its query string (`?a=b`), redacted; empty when it has none. */
+	search: string;
+	/** Its fragment (`#a=b`), redacted; empty when it has none. */
+	hash: string;
+	/** The referrer, redacted the same way; empty when there is none. */
+	referrer: string;
+}
+
+/**
+ * The page address and the referrer, with their secret parameters redacted, for an SDK that reads them from
+ * `window.location` and `document.referrer` itself rather than from the event (Jitsu): its events are handed these to
+ * send instead. A referrer is an auth link too when a sign-in page loads the app with a full navigation.
+ */
+export function redactedPageLocation(href: string, referrer: string): RedactedPageLocation {
+	const url = redactUrl(href);
+	let search = '';
+	let hash = '';
+	try {
+		const parsed = new URL(url);
+		search = parsed.search;
+		hash = parsed.hash;
+	} catch {
+		// Not an absolute URL: there is no query or fragment to describe.
+	}
+	return { url, search, hash, referrer: referrer ? redactUrl(referrer) : '' };
+}
+
 function redactProperties(properties: Record<string, unknown> | undefined): void {
 	if (!properties) return;
 	for (const [key, value] of Object.entries(properties)) {
