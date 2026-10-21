@@ -188,15 +188,21 @@ export const formatDayPlanDate = (dateString: string | Date, format?: string) =>
 // Formats a given number into hours
 export const formatIntegerToHour = (number: number) => {
 	// Separate decimal and in parts
-	const integerPart = Math.floor(number);
+	let integerPart = Math.floor(number);
 	const decimalPart = number - integerPart;
+	let minutes = Math.round(decimalPart * 60);
+
+	// Rounding can produce 60 minutes (e.g. 7199 seconds), carry it into the hours
+	if (minutes === 60) {
+		integerPart += 1;
+		minutes = 0;
+	}
 
 	// Format int part with 'h'
 	let formattedHour = `${integerPart}h`;
 
-	// if the decimal part is not zero, add minutes
-	if (decimalPart !== 0) {
-		const minutes = Math.round(decimalPart * 60);
+	// if the rounded minutes are not zero, add them
+	if (minutes !== 0) {
 		formattedHour += `${minutes < 10 ? '0' : ''}${minutes}m`;
 	}
 
