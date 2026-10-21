@@ -18,6 +18,11 @@ describe('formatIntegerToHour', () => {
 		expect(formatTimeString(formatIntegerToHour(7199 / 3600))).toBe('2h');
 	});
 
+	it('rounds an exact half-minute up', () => {
+		expect(formatIntegerToHour(1 + 30 / 3600)).toBe('1h01m');
+		expect(formatIntegerToHour(3630 / 3600)).toBe('1h01m');
+	});
+
 	it('drops minutes that round down to 0', () => {
 		expect(formatIntegerToHour(1 + 1 / 3600)).toBe('1h');
 	});
