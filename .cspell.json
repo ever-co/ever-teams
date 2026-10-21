@@ -908,7 +908,8 @@
 		"HJKMNP",
 		"purecatamphetamine",
 		"tolower",
-		"NOERROR"
+		"NOERROR",
+		"vitest"
 ],
 	"useGitignore": true,
 	"ignorePaths": [
