@@ -5,6 +5,7 @@ import EventEmitter from 'events';
 import { EventLists, LOG_TYPES } from '../../constant';
 // import { Timeout } from '../../decorators';
 import { ServerProxy, ProxyConfig } from '../server-proxy';
+import { redactSecrets } from '../../../util';
 
 export abstract class ServerTask {
   private processPath: string;
@@ -73,10 +74,10 @@ export abstract class ServerTask {
   }
 
   protected async runTask(signal: AbortSignal): Promise<void> {
-    console.log('Run Server Task', this.args);
+    console.log('Run Server Task', redactSecrets(this.args));
     return new Promise<void>((resolve, reject) => {
       try {
-        console.log('creating process with processPath:', this.processPath, 'args:', JSON.stringify(this.args));
+        console.log('creating process with processPath:', this.processPath, 'args:', JSON.stringify(redactSecrets(this.args)));
         const runtimeEnv = { ...this.args };
 
         const service = ChildProcessFactory.createProcess(this.processPath, runtimeEnv, signal);
@@ -92,7 +93,7 @@ export abstract class ServerTask {
           if (msg.includes(this.successMessage)) {
             const name = String(this.args.serviceName);
             this.stateObserver.notify(true);
-            console.log(this.args)
+            console.log(redactSecrets(this.args))
             this.loggerObserver.notify(
               `☣︎ ${name.toUpperCase()} running on http://${this.args.DESKTOP_WEB_SERVER_HOSTNAME}:${this.args.PORT}`
             );
