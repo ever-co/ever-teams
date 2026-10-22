@@ -20,8 +20,9 @@ export async function register(params: IRegisterDataAPI) {
 		};
 	}
 
-	// General a random password with 8 chars
-	const password = '123456' + await generateSecureToken(6);
+	// A random password the user never sees (they sign in with a code): 32 hex characters, 128 bits.
+	// It used to be '123456' and 6 hex characters, 24 bits, which a lockout-free login could be made to guess.
+	const password = '123456' + (await generateSecureToken(32));
 	const names = params.name.split(' ');
 
 	// Register user
