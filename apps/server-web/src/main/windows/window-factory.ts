@@ -1,8 +1,6 @@
 
-import { BrowserWindow, app, BrowserWindowConstructorOptions, ipcMain, Menu } from 'electron';
+import { BrowserWindow, app, BrowserWindowConstructorOptions, Menu } from 'electron';
 import { resolveHtmlPath } from '../util';
-import { mainBindings } from 'i18next-electron-fs-backend';
-import fs from 'fs';
 import { EventEmitter } from 'events';
 import { EventLists, WindowOptions, WindowTypes, WINDOW_EVENTS } from '../helpers/constant';
 import { IAppWindow, IWindowTypes } from '../helpers/interfaces';
@@ -64,7 +62,6 @@ export default class WindowsFactory {
     const url = resolveHtmlPath('index.html', hashPath);
     browserWindow.loadURL(url);
     attachTitlebarToWindow(browserWindow);
-    mainBindings(ipcMain, browserWindow, fs);
     Menu.setApplicationMenu(menu);
     return browserWindow;
   }
