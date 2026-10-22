@@ -128,7 +128,7 @@ export function EmailResetModal({ open, closeModal, email }: { open: boolean; cl
 							<div className="flex items-center justify-between w-full mt-5">
 								<div className="flex flex-col items-start">
 									<div className="text-xs font-normal text-gray-500 dark:text-gray-400">
-										{"Didn't recieve code ?"}
+										{t('pages.auth.UNRECEIVED_CODE')}
 										{!false && (
 											<button
 												type="button"
