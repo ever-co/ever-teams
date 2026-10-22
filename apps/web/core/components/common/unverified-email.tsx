@@ -155,7 +155,7 @@ export function ConfirmUserModal({
 						<div className="flex justify-between items-center mt-6 w-full">
 							<div className="flex flex-col items-start">
 								<div className="text-xs font-normal text-gray-500 dark:text-gray-400">
-									{"Didn't recieve code ?"}
+									{t('pages.auth.UNRECEIVED_CODE')}
 								</div>
 
 								{resendLinkLoading && <SpinnerLoader size={22} className="self-center" />}
