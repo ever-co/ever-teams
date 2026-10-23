@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { checkCustomBaseUrl } from '@/core/lib/chat/custom-base-url';
 import { createGuardedFetch } from '@/core/lib/chat/guarded-fetch';
-import { resolveFileUrls } from '@/core/lib/chat/resolve-file-urls';
+import { refuseImageUrls, resolveFileUrls } from '@/core/lib/chat/resolve-file-urls';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 
 export async function POST(req: Request) {
@@ -39,6 +39,13 @@ export async function POST(req: Request) {
 		};
 	}
 
+	const modelId = model || 'gpt-4o-mini';
+
+	// A completion model takes no image URL, so the SDK would download them with the global fetch (SSRF) before
+	// refusing images: they are refused here first.
+	const images = refuseImageUrls(messages, modelId);
+	if (images && !images.ok) return NextResponse.json({ error: images.error }, { status: images.status });
+
 	// The SDK would download the file URLs of the messages on this server with the global fetch: they are
 	// downloaded here instead, through the guarded fetch (SSRF).
 	const files = await resolveFileUrls(messages, req.signal);
@@ -52,7 +59,7 @@ export async function POST(req: Request) {
 	});
 
 	const result = streamText({
-		model: openai(model || 'gpt-4o-mini'),
+		model: openai(modelId),
 		// APP_NAME is the deployment's runtime brand (container env), so a rebranded image's assistant
 		// introduces the product by its own name.
 		system: `You are a helpful AI assistant integrated into ${APP_NAME}, a work and project management platform.

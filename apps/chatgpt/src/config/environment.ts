@@ -46,6 +46,8 @@ export interface AppConfig {
 	// Reverse proxy and POST /mcp rate limit (TRUST_PROXY / CHATGPT_MCP_RATE_LIMIT, see resolveRateLimitConfig)
 	trustProxy?: boolean | number | string;
 	mcpRateLimit?: number;
+	// Header holding the caller's address, set by the edge (CLIENT_IP_HEADER, see resolveRateLimitConfig)
+	clientIpHeader?: string;
 }
 
 /**
@@ -95,15 +97,20 @@ export const DEFAULT_CHATGPT_MCP_RATE_LIMIT = 60;
  *   addresses/subnets Express accepts (e.g. `loopback`, `10.0.0.0/8,172.16.0.0/12`). Unset keeps Express's
  *   default, which trusts no proxy.
  * - CHATGPT_MCP_RATE_LIMIT: requests allowed per caller and per minute (default: 60).
+ * - CLIENT_IP_HEADER: a header the edge in front of the app always sets to the caller's address, used as the rate
+ *   limit key instead of `req.ip` (behind Cloudflare: `cf-connecting-ip`). With TRUST_PROXY behind an ingress that
+ *   passes X-Forwarded-For on, a caller can send a new X-Forwarded-For with every request and never hit the limit.
+ *   Unset keeps `req.ip`.
  */
 export function resolveRateLimitConfig(
 	env: NodeJS.ProcessEnv = process.env
-): Pick<AppConfig, 'trustProxy' | 'mcpRateLimit'> {
+): Pick<AppConfig, 'trustProxy' | 'mcpRateLimit' | 'clientIpHeader'> {
 	const mcpRateLimit = Number(env.CHATGPT_MCP_RATE_LIMIT?.trim() || undefined);
 
 	return {
 		trustProxy: parseTrustProxy(env.TRUST_PROXY?.trim()),
-		mcpRateLimit: Number.isInteger(mcpRateLimit) && mcpRateLimit > 0 ? mcpRateLimit : DEFAULT_CHATGPT_MCP_RATE_LIMIT
+		mcpRateLimit: Number.isInteger(mcpRateLimit) && mcpRateLimit > 0 ? mcpRateLimit : DEFAULT_CHATGPT_MCP_RATE_LIMIT,
+		clientIpHeader: env.CLIENT_IP_HEADER?.trim().toLowerCase() || undefined
 	};
 }
 

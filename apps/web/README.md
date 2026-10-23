@@ -65,8 +65,9 @@ invites, e-mail verification) would count all users together. Set the same `EVER
 (`core/services/server/client-ip.ts`). Gauzy trusts the address only with a valid, recent proof. Unset, nothing is
 sent.
 
-The address is read from the header named by `EVER_TEAMS_CLIENT_IP_HEADER` (behind Cloudflare: `cf-connecting-ip`),
-otherwise `x-real-ip`, otherwise the last `x-forwarded-for` entry. Name only a header your proxy always sets itself.
+The address is read only from the header named by `EVER_TEAMS_CLIENT_IP_HEADER` (behind Cloudflare:
+`cf-connecting-ip`); without it nothing is sent. Name only a header your proxy always sets itself, never one a
+caller can send through it.
 
 ## Linting
 

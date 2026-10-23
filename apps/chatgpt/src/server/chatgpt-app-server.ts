@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
+import { isIP } from 'node:net';
 import cors from 'cors';
 import helmet from 'helmet';
 import { McpProxy, McpRequest, McpResponse } from './mcp-proxy.js';
@@ -109,6 +110,15 @@ export class ChatGPTAppServer {
 	 * as a basic safeguard for the authenticated /mcp proxy endpoint and is not
 	 * a substitute for an edge/CDN rate limiter in production.
 	 */
+	private rateLimitKey(req: Request): string {
+		// The edge's own header when one is configured (CLIENT_IP_HEADER): unlike X-Forwarded-For, the caller cannot set it
+		const header = this.config.clientIpHeader ? req.get(this.config.clientIpHeader)?.trim() : undefined;
+		if (header && isIP(header)) {
+			return header;
+		}
+		return req.ip ?? req.socket.remoteAddress ?? 'unknown';
+	}
+
 	private createRateLimiter(
 		options: { windowMs?: number; max?: number } = {}
 	): (req: Request, res: Response, next: NextFunction) => void {
@@ -118,7 +128,7 @@ export class ChatGPTAppServer {
 
 		return (req: Request, res: Response, next: NextFunction): void => {
 			const now = Date.now();
-			const key = req.ip ?? req.socket.remoteAddress ?? 'unknown';
+			const key = this.rateLimitKey(req);
 
 			// Lazily prune expired buckets to bound memory usage.
 			if (hits.size > 10_000) {
