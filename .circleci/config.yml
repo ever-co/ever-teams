@@ -10,18 +10,18 @@ aliases:
     command: |
       echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
       echo ' [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
-      nvm install v26
-      nvm alias default v26
+      nvm install 26.12.1
+      nvm alias default 26.12.1
       echo 'export NODE_OPTIONS=--max-old-space-size=12288' >> $BASH_ENV
       echo 'export NG_CLI_ANALYTICS=false' >> $BASH_ENV
       source $BASH_ENV
-      nvm use v26
+      nvm use 26.12.1
       node --version
 
   - &install-chrome
     name: Install Chrome
     command: |
-      nvm use v26
+      nvm use 26.12.1
       sudo apt install -y libappindicator3-1
       curl -L -o google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
       sudo dpkg -i google-chrome.deb
@@ -31,7 +31,7 @@ aliases:
   - &install-deps
     name: Install Global Dependencies
     command: |
-      nvm use v26
+      nvm use 26.12.1
       sudo rm -rf /etc/apt/sources.list.d/heroku.list
       sudo apt-get update
       sudo apt install -y npm build-essential unzip openjdk-17-jre python3-pip
@@ -45,7 +45,7 @@ aliases:
   - &install-yarn
     name: Install Latest Yarn
     command: |
-      nvm use v26
+      nvm use 26.12.1
       # remove default yarn
       sudo rm -rf $(dirname $(which yarn))/yarn*
       # download latest
@@ -84,14 +84,14 @@ jobs:
             - yarn-packages-monorepo-
       - run:
           name: Verify Node version
-          command: nvm use v26 && node --version
+          command: nvm use 26.12.1 && node --version
       - run:
           name: Install Yarn Dependencies
-          command: nvm use v26 && yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts
+          command: nvm use 26.12.1 && yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts
           no_output_timeout: 60m
       - run:
           name: Run Postinstall Manually
-          command: nvm use v26 && yarn postinstall.manual
+          command: nvm use 26.12.1 && yarn postinstall.manual
       - save_cache:
           name: Save Yarn Package Cache
           key: yarn-packages-monorepo-{{ checksum "yarn.lock" }}
