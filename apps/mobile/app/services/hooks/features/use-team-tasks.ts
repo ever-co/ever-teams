@@ -277,11 +277,10 @@ export function useTeamTasks() {
 				)
 
 				if (response.ok) {
-					const synchedActiveTask = allTasks?.find(
-						(task) => task.id === currentUser.activeTaskId,
-					)
-					setActiveTask(synchedActiveTask || task)
-					setActiveTaskId(synchedActiveTask?.id || task.id)
+					// The task just sent is the active one now: currentUser.activeTaskId still names the previous one
+					// until the next teams refresh, so looking it up showed the old task
+					setActiveTask(task)
+					setActiveTaskId(task?.id ?? "")
 				}
 			} catch (error) {
 				console.log(error)
