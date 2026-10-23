@@ -15,9 +15,10 @@ import { isIP } from 'node:net';
  * - `X-Ever-Client-IP-Timestamp`: Unix seconds when it was signed (Gauzy accepts about 5 minutes either way)
  * - `X-Ever-Client-IP-Signature`: hex HMAC-SHA256 of `<timestamp>.<address>` with the shared secret
  *
- * Where the address comes from: the header named by `EVER_TEAMS_CLIENT_IP_HEADER` (behind Cloudflare,
- * `cf-connecting-ip`), otherwise `x-real-ip`, otherwise the last `x-forwarded-for` entry (the one the nearest proxy
- * added). Name only a header that the proxy in front of this app always sets itself, never one a client can send.
+ * Where the address comes from: only the header named by `EVER_TEAMS_CLIENT_IP_HEADER` (behind Cloudflare,
+ * `cf-connecting-ip`), which must be one the proxy in front of this app always sets itself. There is no default:
+ * `x-real-ip` or `x-forwarded-for` pass through untouched behind some proxies, and signing a caller-chosen address
+ * would let callers rotate past Gauzy's limits. Without the header setting nothing is sent.
  */
 export const CLIENT_IP_HEADER = 'X-Ever-Client-IP';
 export const CLIENT_IP_TIMESTAMP_HEADER = 'X-Ever-Client-IP-Timestamp';
@@ -33,13 +34,15 @@ export function clientIpSecret(env: Env = process.env): string | null {
 	return secret && secret.length >= MIN_SECRET_LENGTH ? secret : null;
 }
 
-/** The browser's address from the request headers (see the module doc), or null when none is a valid IP. */
+/** The configured client-IP header (lower case), or null: then no address is sent. */
+export function clientIpHeaderName(env: Env = process.env): string | null {
+	return env.EVER_TEAMS_CLIENT_IP_HEADER?.trim().toLowerCase() || null;
+}
+
+/** The browser's address from the configured header (see the module doc), or null when it is no valid IP. */
 export function clientIpOf(headers: Pick<Headers, 'get'>, env: Env = process.env): string | null {
-	const configured = env.EVER_TEAMS_CLIENT_IP_HEADER?.trim().toLowerCase();
-	const candidate = configured
-		? headers.get(configured)
-		: (headers.get('x-real-ip') ?? headers.get('x-forwarded-for')?.split(',').pop());
-	const ip = candidate?.trim();
+	const name = clientIpHeaderName(env);
+	const ip = name ? headers.get(name)?.trim() : undefined;
 	return ip && isIP(ip) ? ip : null;
 }
 
@@ -56,11 +59,12 @@ export function signClientIp(ip: string, secret: string, nowSeconds: number): Re
 
 /**
  * The signed client-IP headers for a call made while handling a request, or none: the feature is off, the call runs
- * outside a request (start-up, schedulers, the proxy), or no valid address was found.
+ * outside a request (start-up, schedulers, the proxy), no client-IP header is configured, or it holds no valid
+ * address.
  */
 export async function clientIpHeaders(env: Env = process.env): Promise<Record<string, string>> {
 	const secret = clientIpSecret(env);
-	if (!secret) return {};
+	if (!secret || !clientIpHeaderName(env)) return {};
 
 	let ip: string | null;
 	try {

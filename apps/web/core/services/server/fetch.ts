@@ -1,4 +1,4 @@
-import { GAUZY_API_SERVER_URL, tasksStatusSvgCacheDuration } from '@/core/constants/config/constants';
+import { GAUZY_API_SERVER_URL } from '@/core/constants/config/constants';
 import { clientIpHeaders } from './client-ip';
 
 export function serverFetch<T>({
@@ -78,39 +78,5 @@ export async function unwrapRejection(error: unknown): Promise<unknown> {
 	}
 }
 
-/** Tasks status SVG icons fetch */
-
-// In memory cache for performance
-
-const tasksStatusSvgCache = new Map<
-	string,
-	{
-		content: Response;
-		timestamp: number;
-	}
->();
-
-export async function svgFetch(url: string): Promise<Response> {
-	try {
-		//Url validation
-		new URL(url);
-
-		const cached = tasksStatusSvgCache.get(url);
-		const now = Date.now();
-
-		if (cached && now - cached.timestamp < tasksStatusSvgCacheDuration) {
-			return cached.content.clone();
-		}
-
-		// Fetch the SVG
-		const response = await fetch(url);
-
-		tasksStatusSvgCache.set(url, {
-			content: response.clone(),
-			timestamp: now
-		});
-		return response;
-	} catch {
-		throw new Error('Invalid URL provided');
-	}
-}
+// Browser-safe, so it lives in its own module (list-card.tsx loads it in the browser): re-exported for server callers
+export { svgFetch } from '@/core/lib/helpers/svg-fetch';

@@ -19,7 +19,13 @@ describe('serverFetch on a non-2xx answer', () => {
 	});
 
 	it("rejects with Gauzy's error body, which unwrapRejection reads", async () => {
-		const error = await serverFetch({ path: '/invite/validate-by-code', method: 'POST', body: {} }).catch((e) => e);
+		// try/catch, not .catch((e) => e): returning the rejected promise from a handler would adopt it
+		let error: unknown;
+		try {
+			await serverFetch({ path: '/invite/validate-by-code', method: 'POST', body: {} });
+		} catch (caught) {
+			error = caught;
+		}
 
 		expect(error).toBeInstanceOf(Promise);
 		expect(await unwrapRejection(error)).toEqual({ statusCode: 400, message: 'bad code' });
