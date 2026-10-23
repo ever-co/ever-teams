@@ -52,7 +52,9 @@ This does not apply to the routes that sign their own credentials with a server
 secret, such as `app/api/livekit` and `app/api/auth/meet/jwt`. The browser
 cannot make those tokens itself and calls these routes through this app in both
 API modes, so the app is their authorization boundary and the route must decide
-who may get a token.
+who may get a token. Both take the identity and the tenant from the session
+(never from the query or the client-writable tenant cookie) and sign a token
+for one room of the caller's tenant, never a wildcard room.
 
 ## Linting
 
