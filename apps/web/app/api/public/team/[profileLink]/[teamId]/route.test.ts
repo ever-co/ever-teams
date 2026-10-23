@@ -41,6 +41,17 @@ describe('GET /api/public/team/:profileLink/:teamId', () => {
 		expect(requestedPath()).toMatch(/\/public\/team\/acme-team\/0f8b1c2e-6a3d-4f5e-9b7a-1c2d3e4f5a6b$/);
 	});
 
+	it.each([
+		['..', 'team'],
+		['acme-team', '..'],
+		['.', 'team']
+	])('answers 400 for the dot segment %s / %s, and asks Gauzy nothing', async (profileLink, teamId) => {
+		const response = await call(profileLink, teamId);
+
+		expect(response.status).toBe(400);
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
 	it('answers 400 without both parameters, and asks Gauzy nothing', async () => {
 		const response = await call('', 'team');
 
