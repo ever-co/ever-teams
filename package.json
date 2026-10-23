@@ -243,6 +243,7 @@
 		"nohoist": []
 	},
 	"resolutions": {
+		"isolated-vm": "7.0.1",
 		"postcss": "8.5.31",
 		"qs": "6.15.2",
 		"js-cookie": "3.0.8",
