@@ -45,7 +45,12 @@ export function serverFetch<T>({
 		const data = (await res.json().catch(console.error)) as T;
 
 		if (!res.ok) {
-			throw Promise.reject(data);
+			// Callers read Gauzy's error body with unwrapRejection(), so the rejection value stays a rejected promise.
+			// It is marked handled: left as it was, every non-2xx answer (e.g. the 400 of /invite/validate-by-code on
+			// each sign-in) was also reported as an unhandled rejection.
+			const rejection = Promise.reject(data);
+			rejection.catch(() => undefined);
+			throw rejection;
 		}
 
 		return {
