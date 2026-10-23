@@ -3,14 +3,11 @@ import { serverFetch } from '../fetch';
 import { ICustomSmtp } from '@/core/types/interfaces/auth/custom-smtp';
 
 export function createTenantSmtpRequest({ tenantId, access_token }: { tenantId: string; access_token: string }) {
-	const config = smtpConfiguration();
-
-	console.log(`SMTP Config: ${JSON.stringify(config)}`);
-
+	// The config holds the operator's SMTP password: it goes to the Gauzy API, never to the server log
 	return serverFetch<ICustomSmtp>({
 		path: '/smtp',
 		method: 'POST',
-		body: config,
+		body: smtpConfiguration(),
 		bearer_token: access_token,
 		tenantId
 	});

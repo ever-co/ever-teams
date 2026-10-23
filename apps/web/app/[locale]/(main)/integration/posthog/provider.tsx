@@ -1,6 +1,7 @@
 'use client';
 
 import { POSTHOG_HOST, POSTHOG_KEY } from '@/core/constants/config/constants';
+import { redactCaptureResult } from '@/core/lib/helpers/analytics-redaction';
 import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
 
@@ -12,7 +13,9 @@ if (typeof window !== 'undefined' && key && host) {
 		api_host: host,
 		person_profiles: 'identified_only',
 		capture_pageview: false,
-		capture_pageleave: true
+		capture_pageleave: true,
+		// The auth e-mail links carry their token / code in the address every event records
+		before_send: redactCaptureResult
 	});
 }
 

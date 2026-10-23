@@ -172,7 +172,7 @@ export class Logger {
 
 		try {
 			if (isServer()) {
-				await logServerToFile(this.config.logDir!, filename, logEntry); // fs
+				await logServerToFile(filename, logEntry); // fs, in the `logs` directory
 			} else if (process.env.NODE_ENV !== 'production') {
 				await sendLogToAPI(logEntry); // client
 			}

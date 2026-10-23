@@ -26,4 +26,18 @@ describe('formatIntegerToHour', () => {
 	it('drops minutes that round down to 0', () => {
 		expect(formatIntegerToHour(1 + 1 / 3600)).toBe('1h');
 	});
+
+	it('formats negative durations symmetrically to positive ones', () => {
+		expect(formatIntegerToHour(-1.5)).toBe('-1h30m');
+		expect(formatIntegerToHour(-0.5)).toBe('-0h30m');
+		expect(formatIntegerToHour(-2)).toBe('-2h');
+		expect(formatIntegerToHour(-7199 / 3600)).toBe('-2h');
+		expect(formatIntegerToHour(-1 / 3600)).toBe('0h');
+	});
+
+	it('keeps the magnitude of an exceeded weekly limit (remaining < 0)', () => {
+		// The weekly-limit report renders its own '-' and relies on formatTimeString for the magnitude
+		expect(formatTimeString(formatIntegerToHour(-5400 / 3600))).toBe('1h 30m');
+		expect(formatTimeString(formatIntegerToHour(-1800 / 3600))).toBe('30m');
+	});
 });

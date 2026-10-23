@@ -7,6 +7,9 @@ import fs from 'node:fs';
 type HttpProxyServer = ReturnType<typeof httpProxy.createProxyServer>;
 type HttpsServer = ReturnType<typeof createServer>;
 
+/** Where the web server listens behind the proxy: never reachable from another machine. */
+export const LOOPBACK_HOST = '127.0.0.1';
+
 export interface ProxyConfig {
   port: number;
   host: string;
@@ -67,7 +70,7 @@ export class ServerProxy {
       http.IncomingMessage,
       http.ServerResponse
     >({
-      target: `http://${this.host}:${this.nextPort}`,
+      target: `http://${LOOPBACK_HOST}:${this.nextPort}`,
       ws: true,
       xfwd: true,
       changeOrigin: true,

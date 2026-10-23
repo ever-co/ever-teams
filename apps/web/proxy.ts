@@ -10,7 +10,7 @@ import {
 import { cookiesKeys, setAccessTokenCookie, setRefreshTokenCookie } from '@/core/lib/helpers/cookies';
 import { currentAuthenticatedUserRequest, refreshTokenRequest } from '@/core/services/server/requests/auth';
 import { unwrapRejection } from '@/core/services/server/fetch';
-import { range } from '@/core/lib/helpers';
+import { requestAccessToken, requestCookies } from '@/core/services/server/request-cookies';
 import { isTokenExpired, decodeJWT, getTokenRemainingTime, formatRemainingTime } from '@/core/lib/auth/jwt-utils';
 import {
 	getRuntimeImageHosts,
@@ -139,47 +139,9 @@ export async function proxy(request: NextRequest) {
 		return response;
 	}
 
-	let access_token = null;
-
-	const totalChunksCookie = request.cookies.get(`${TOKEN_COOKIE_NAME}_totalChunks`)?.value.trim();
-
-	// Helper function to reconstruct token from chunks with retry logic
-	const reconstructTokenFromChunks = (totalChunks: number, retryCount: number = 0): string | null => {
-		const chunks = range(totalChunks).map((index) => {
-			const chunkCookie = request.cookies.get(`${TOKEN_COOKIE_NAME}${index}`)?.value.trim();
-
-			if (!chunkCookie) {
-				console.warn(`[Proxy] Missing chunk ${index} of ${totalChunks}`);
-				return null;
-			}
-
-			return chunkCookie;
-		});
-
-		const missingChunks = chunks.filter((chunk) => chunk === null).length;
-		if (missingChunks > 0) {
-			return null;
-		}
-
-		return chunks.join('');
-	};
-
-	if (!totalChunksCookie) {
-		access_token = request.cookies.get(TOKEN_COOKIE_NAME)?.value.trim() || '';
-	} else if (totalChunksCookie) {
-		const totalChunks = Number.parseInt(totalChunksCookie);
-		access_token = reconstructTokenFromChunks(totalChunks, 0);
-
-		// If token reconstruction failed and we have chunks, it might be a race condition
-		// during login where cookies are still being set. Add a small delay to allow
-		// all cookies to be properly set before verification.
-		if (!access_token && totalChunks > 0) {
-			console.log('[Proxy] Token reconstruction failed, likely race condition during login. Adding delay...');
-			// Small delay to allow cookies to settle
-			await delay(50);
-			access_token = reconstructTokenFromChunks(totalChunks, 1);
-		}
-	}
+	// The route guards' reader: the chunk count comes from a client cookie, so it is bounded before it sizes
+	// anything (an unbounded `auth-token_totalChunks` blocked the event loop for every user of the server)
+	const access_token = requestAccessToken(requestCookies(request));
 
 	const refresh_token = request.cookies.get(REFRESH_TOKEN_COOKIE_NAME)?.value.trim();
 

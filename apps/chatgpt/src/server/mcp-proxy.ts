@@ -41,6 +41,41 @@ export interface McpTool {
 }
 
 /**
+ * What the proxy logs of a JSON-RPC message: its method, the tool it calls and its error code, never its body.
+ *
+ * Bodies carry what users type and what the MCP server answers: the `login` tool's email and password, the session
+ * id the server hands back, and whatever the other tools read and write. Logs leave the process (Better Stack when
+ * LOGTAIL_SOURCE_TOKEN is set), so a body logged at `debug`, or an error body logged at `error`, published them.
+ *
+ * @param data The request or response body.
+ * @returns The fields of it that are safe to log.
+ */
+export function describeRpc(data: unknown): Record<string, unknown> {
+	let message: any = data;
+	if (typeof data === 'string') {
+		try {
+			message = JSON.parse(data);
+		} catch {
+			return {};
+		}
+	}
+	if (!message || typeof message !== 'object') {
+		return {};
+	}
+	const summary: Record<string, unknown> = {};
+	if (typeof message.method === 'string') {
+		summary.rpcMethod = message.method;
+	}
+	if (typeof message.params?.name === 'string') {
+		summary.tool = message.params.name;
+	}
+	if (message.error && typeof message.error === 'object') {
+		summary.rpcError = message.error.code;
+	}
+	return summary;
+}
+
+/**
  * MCP Proxy Client
  *
  * Forwards MCP requests to the existing mcp.gauzy.co server
@@ -70,7 +105,7 @@ export class McpProxy {
 				logger.debug({
 					method: config.method,
 					url: config.url,
-					data: config.data
+					...describeRpc(config.data)
 				}, 'MCP Request');
 				return config;
 			},
@@ -85,14 +120,14 @@ export class McpProxy {
 			(response) => {
 				logger.debug({
 					status: response.status,
-					data: response.data
+					...describeRpc(response.data)
 				}, 'MCP Response');
 				return response;
 			},
 			(error) => {
 				logger.error({
 					status: error.response?.status,
-					data: error.response?.data,
+					...describeRpc(error.response?.data),
 					message: error.message
 				}, 'MCP Response Error');
 				return Promise.reject(error);
@@ -311,7 +346,7 @@ export class McpProxy {
 				logger.error({
 					method,
 					status,
-					data
+					...describeRpc(data)
 				}, 'MCP Server HTTP Error');
 
 				if (status === 401) {
