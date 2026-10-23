@@ -335,9 +335,15 @@ export function useOrganizationTeam() {
 				bearer_token: authToken
 			});
 
+			// currentUser.activeTaskId comes from the teams query: refresh it, or the task hook's sync restores the
+			// previous task until the next teams refresh
+			if (response.ok) {
+				refetch().catch((e) => console.log(e));
+			}
+
 			return { data, response };
 		},
-		[]
+		[refetch]
 	);
 
 	/**
