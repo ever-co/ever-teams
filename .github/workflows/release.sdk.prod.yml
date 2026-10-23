@@ -45,7 +45,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: '24.14.0'
+          node-version: '24.22.1'
           registry-url: 'https://registry.npmjs.org'
           # NOTE: setup-node >= v4 dropped the `always-auth` input — the runner
           # logs "Unexpected input(s) 'always-auth'" as a WARNING only (not

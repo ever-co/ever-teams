@@ -30,7 +30,7 @@
 # ==============================================================================
 
 # Node.js version (same as production for consistency)
-ARG NODE_VERSION=24.14.0
+ARG NODE_VERSION=24.22.1
 
 # ==============================================================================
 # SINGLE STAGE: DEVELOPMENT

@@ -10,7 +10,7 @@
 # (see apps/chatgpt/.env.example). None of them is a build argument - do not add any here.
 
 # The root package.json requires Node >= 24 ("engines"), which `yarn install` enforces (Node 20 fails it).
-ARG NODE_VERSION=24.14.0
+ARG NODE_VERSION=24.22.1
 
 # Stage 1: Build stage
 FROM node:${NODE_VERSION}-alpine AS builder
