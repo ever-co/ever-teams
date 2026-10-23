@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { GroupedTimesheet } from './use-timesheet';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { localDateKey } from '@/core/lib/helpers/timesheet-grouping';
 
 type ViewMode = 'ListView' | 'CalendarView';
 type GroupByDays = 'Daily' | 'Weekly' | 'Monthly';
@@ -36,28 +37,26 @@ export const useTimesheetViewData = ({
 			(timesheetGroupByDays === 'Weekly' || timesheetGroupByDays === 'Monthly') &&
 			result
 		) {
-			// Convert weekly groups back to daily groups for calendar display
-			const dailyGroups: GroupedTimesheet[] = [];
+			// Convert weekly groups back to daily groups for calendar display. One group per local day across all the
+			// week groups: the calendars key their days in a Map, so two groups of one day would drop one of them.
+			// The local day, as groupByDate uses (a UTC key put evening entries west of UTC under the next day).
+			const tasksByDate: Record<string, ITimeLog[]> = {};
 			result.forEach((weekGroup) => {
-				// For each task in the week group, create a daily group based on the task's actual date
-				const tasksByDate: Record<string, ITimeLog[]> = {};
 				weekGroup.tasks.forEach((task) => {
 					const taskDate = task.timesheet?.createdAt || task.createdAt || task.startedAt;
-					if (taskDate) {
-						const dateKey = new Date(taskDate).toISOString().split('T')[0];
+					const date = taskDate ? new Date(taskDate) : null;
+					if (date && !Number.isNaN(date.getTime())) {
+						const dateKey = localDateKey(date);
 						if (!tasksByDate[dateKey]) {
 							tasksByDate[dateKey] = [];
 						}
 						tasksByDate[dateKey].push(task);
 					}
 				});
-
-				// Create daily groups from the tasks
-				Object.entries(tasksByDate).forEach(([date, tasks]) => {
-					dailyGroups.push({ date, tasks });
-				});
 			});
-			result = dailyGroups.sort((a, b) => b.date.localeCompare(a.date));
+			result = Object.entries(tasksByDate)
+				.map(([date, tasks]) => ({ date, tasks }))
+				.sort((a, b) => b.date.localeCompare(a.date));
 		}
 
 		return result;

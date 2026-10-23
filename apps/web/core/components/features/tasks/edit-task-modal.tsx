@@ -129,16 +129,16 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 				baseDate.getDate(),
 				...timeRange.startTime.split(':').map(Number)
 			);
+			// An end at or before the start is on the next day (a log across local midnight), never before its start.
+			// Chosen from the HH:MM values and built on that day directly: building it on the start day first and then
+			// moving it would carry a daylight-saving shift of the start day into the end time.
+			const endDayOffset = timeRange.endTime <= timeRange.startTime ? 1 : 0;
 			const stoppedAt = new Date(
 				baseDate.getFullYear(),
 				baseDate.getMonth(),
-				baseDate.getDate(),
+				baseDate.getDate() + endDayOffset,
 				...timeRange.endTime.split(':').map(Number)
 			);
-			// An end at or before the start is on the next day (a log across local midnight), never before its start
-			if (stoppedAt <= startedAt) {
-				stoppedAt.setDate(stoppedAt.getDate() + 1);
-			}
 			const updatePayload: ITimeLogUpdatePayload = {
 				timeLogId: timeLogData.id,
 				isBillable: timesheetData.isBillable,
