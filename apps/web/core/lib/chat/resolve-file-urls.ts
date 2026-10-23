@@ -222,6 +222,21 @@ export const COMPLETION_MODEL_IDS: ReadonlySet<string> = new Set(['gpt-3.5-turbo
 const NO_IMAGES = 'This model does not take images.';
 
 /**
+ * Whether an image part's value is an http(s) URL the SDK would download. The SDK parses a string image with
+ * `new URL()`, which accepts `HTTP://…` and surrounding whitespace, so the check parses it the same way.
+ */
+function isHttpImageUrl(image: unknown): boolean {
+	if (image instanceof URL) return image.protocol === 'http:' || image.protocol === 'https:';
+	if (typeof image !== 'string') return false;
+	try {
+		const { protocol } = new URL(image);
+		return protocol === 'http:' || protocol === 'https:';
+	} catch {
+		return false;
+	}
+}
+
+/**
  * Whether the user messages carry an image given as an http(s) URL (an image part, or an image attachment of a UI
  * message), which the SDK downloads for a model that takes no image URL.
  */
@@ -239,7 +254,7 @@ export function holdsImageUrl(messages: unknown): boolean {
 		(message) =>
 			message.role === 'user' &&
 			Array.isArray(message.content) &&
-			message.content.some((part) => part.type === 'image' && isHttpUrl(part.image))
+			message.content.some((part) => part.type === 'image' && isHttpImageUrl(part.image))
 	);
 }
 
