@@ -40,7 +40,7 @@ import { debounce } from 'lodash';
 import WindowFactory from './windows/window-factory';
 import { setupTitlebar } from 'custom-electron-titlebar/main';
 import { config } from '../configs/config';
-import { ProxyConfig } from './helpers/services/server-proxy';
+import { LOOPBACK_HOST, ProxyConfig } from './helpers/services/server-proxy';
 import { isAppPage, isExternalLink, pickServerSettings } from './util';
 
 console.log = Log.log;
@@ -366,14 +366,17 @@ const runServer = async () => {
       {
         ...pickServerSettings(envVal),
         IS_DESKTOP_APP: true,
-        HOSTNAME: envVal?.DESKTOP_WEB_SERVER_HOSTNAME || '0.0.0.0',
+        // Behind the HTTPS proxy, the web server itself answers on loopback only: on the configured host, its plain HTTP
+        // port (DEFAULT_NEXT_PORT) let anyone on the network around the TLS the user turned on.
+        HOSTNAME: envVal?.useSsl ? LOOPBACK_HOST : envVal?.DESKTOP_WEB_SERVER_HOSTNAME || '0.0.0.0',
         NEXT_SHARP_PATH: path.join(
           process.resourcesPath,
           'app.asar',
           'node_modules',
           'sharp',
         ),
-        AUTH_SECRET: config.AUTH_SECRET,
+        // Generated for this install: the configured value is one constant baked into every build
+        AUTH_SECRET: LocalStore.getInstallSecret('authSecret'),
         ...sslOption,
         useSsl: envVal?.useSsl,
         PORT: envVal?.useSsl ? sslOption.nextPort : envVal?.PORT
