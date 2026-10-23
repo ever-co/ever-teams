@@ -30,7 +30,7 @@
 # ==============================================================================
 
 # Node.js version (same as production for consistency)
-ARG NODE_VERSION=24.22.1
+ARG NODE_VERSION=26.12.1
 
 # ==============================================================================
 # SINGLE STAGE: DEVELOPMENT
@@ -57,6 +57,9 @@ RUN apk add --no-cache \
 	g++ \
 	git \
 	curl
+
+# The node:26 images ship without Yarn: install it
+RUN npm install -g yarn --force
 
 # ==============================================================================
 # STEP 2: SET WORKING DIRECTORY

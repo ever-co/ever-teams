@@ -10,7 +10,7 @@
 # (see apps/chatgpt/.env.example). None of them is a build argument - do not add any here.
 
 # The root package.json requires Node >= 24 ("engines"), which `yarn install` enforces (Node 20 fails it).
-ARG NODE_VERSION=24.22.1
+ARG NODE_VERSION=26.12.1
 
 # Stage 1: Build stage
 FROM node:${NODE_VERSION}-alpine AS builder
@@ -20,6 +20,9 @@ WORKDIR /app
 
 # Install dependencies needed for build
 RUN apk add --no-cache python3 make g++
+
+# The node:26 images ship without Yarn: every stage that runs yarn installs it
+RUN npm install -g yarn --force
 
 # Copy package files: the root manifest plus every workspace manifest the install has to resolve
 # (Yarn resolves the root's own dependencies too, even with --production):
@@ -52,6 +55,9 @@ WORKDIR /app
 
 # Install production dependencies only
 RUN apk add --no-cache dumb-init
+
+# The node:26 images ship without Yarn: every stage that runs yarn installs it
+RUN npm install -g yarn --force
 
 # Copy package files (same workspace manifests as the build stage, so the frozen lockfile resolves)
 COPY package.json yarn.lock ./
