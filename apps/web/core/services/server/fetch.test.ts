@@ -9,7 +9,9 @@ describe('serverFetch on a non-2xx answer', () => {
 	const realFetch = global.fetch;
 
 	beforeEach(() => {
-		global.fetch = jest.fn(async () => new Response(JSON.stringify({ statusCode: 400, message: 'bad code' }), { status: 400 })) as unknown as typeof fetch;
+		global.fetch = jest.fn(
+			async () => new Response(JSON.stringify({ statusCode: 400, message: 'bad code' }), { status: 400 })
+		) as unknown as typeof fetch;
 	});
 
 	afterEach(() => {
