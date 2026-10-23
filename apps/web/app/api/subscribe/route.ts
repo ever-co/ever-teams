@@ -17,7 +17,7 @@ const subscriberTags = () => [`${APP_NAME}, ${APP_NAME} App`, 'Open', 'Cloud'];
  * The route was open to anyone, never checked the captcha it asked for, and put any address straight on the list as
  * `subscribed` with tags of the caller's choosing: anyone could sign third parties up to the operator's list, which
  * is what gets a Mailchimp account suspended. It now needs a signed-in user. The user's own address (which the
- * account already verified) is subscribed outright; any other address is `pending`, so Mailchimp asks its owner to
+ * account has verified) is subscribed outright; any other address is `pending`, so Mailchimp asks its owner to
  * confirm before anything is sent.
  */
 export const POST = async (req: NextRequest) => {
@@ -31,7 +31,11 @@ export const POST = async (req: NextRequest) => {
 		return NextResponse.json({ error: 'A valid email is required' }, { status: 400 });
 	}
 	const email = parsed.data.email_address;
-	const isOwnAddress = typeof user.email === 'string' && email.toLowerCase() === user.email.toLowerCase();
+	// Registration signs the user in before the address is confirmed: only a verified address counts as the user's own
+	const isOwnAddress =
+		user.isEmailVerified === true &&
+		typeof user.email === 'string' &&
+		email.toLowerCase() === user.email.toLowerCase();
 
 	try {
 		const LIST_ID = process.env.MAILCHIMP_LIST_ID;

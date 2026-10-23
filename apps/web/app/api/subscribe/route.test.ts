@@ -22,7 +22,7 @@ describe('POST /api/subscribe', () => {
 	beforeEach(() => {
 		process.env.MAILCHIMP_LIST_ID = 'list-1';
 		process.env.MAILCHIMP_API_KEY = 'key-us3';
-		mockGuard.mockResolvedValue({ user: { id: 'user-1', email: 'Ada@Example.com' } });
+		mockGuard.mockResolvedValue({ user: { id: 'user-1', email: 'Ada@Example.com', isEmailVerified: true } });
 		fetchMock.mockResolvedValue(new Response(JSON.stringify({ id: 'member' }), { status: 200 }));
 		global.fetch = fetchMock as unknown as typeof fetch;
 	});
@@ -62,6 +62,18 @@ describe('POST /api/subscribe', () => {
 			status: 'subscribed',
 			tags: [`${APP_NAME}, ${APP_NAME} App`, 'Open', 'Cloud']
 		});
+	});
+
+	it.each([
+		['not verified', false],
+		['of unknown verification', undefined]
+	])("leaves the user's own address pending while it is %s", async (_label, isEmailVerified) => {
+		// Registration signs the user in before the address is confirmed, so the account proves nothing yet
+		mockGuard.mockResolvedValue({ user: { id: 'user-1', email: 'Ada@Example.com', isEmailVerified } });
+
+		await post({ email_address: 'ada@example.com' });
+
+		expect(member()).toMatchObject({ email_address: 'ada@example.com', status: 'pending' });
 	});
 
 	it("leaves anyone else's address pending until its owner confirms, whatever the body asks for", async () => {

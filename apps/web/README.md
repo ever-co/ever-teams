@@ -56,6 +56,18 @@ who may get a token. Both take the identity and the tenant from the session
 (never from the query or the client-writable tenant cookie) and sign a token
 for one room of the caller's tenant, never a wildcard room.
 
+## Client IP for Gauzy's rate limits
+
+Gauzy sees every server-side call of this app as one address, so its per-IP limits (sign-in, password reset,
+invites, e-mail verification) would count all users together. Set the same `EVER_TEAMS_CLIENT_IP_SECRET` (at least
+32 characters) on this app and on the Gauzy API, and each server-side call carries the browser's address in
+`X-Ever-Client-IP`, with `X-Ever-Client-IP-Timestamp` and an HMAC-SHA256 proof in `X-Ever-Client-IP-Signature`
+(`core/services/server/client-ip.ts`). Gauzy trusts the address only with a valid, recent proof. Unset, nothing is
+sent.
+
+The address is read from the header named by `EVER_TEAMS_CLIENT_IP_HEADER` (behind Cloudflare: `cf-connecting-ip`),
+otherwise `x-real-ip`, otherwise the last `x-forwarded-for` entry. Name only a header your proxy always sets itself.
+
 ## Linting
 
 `yarn workspace @ever-teams/web lint` runs ESLint 9 with `eslint.config.mjs`

@@ -1,4 +1,5 @@
 import { GAUZY_API_SERVER_URL } from '@/core/constants/config/constants';
+import { clientIpHeaders } from '../client-ip';
 import type {
 	IEverIdEmailBranding,
 	IEverIdSignupDetails,
@@ -60,7 +61,12 @@ function retryAfterOf(header: string | null, data: unknown): number | undefined 
 }
 
 async function everIdApiFetch<T>(path: string, request: EverIdApiRequest): Promise<EverIdApiResult<T>> {
-	const headers: Record<string, string> = { Accept: 'application/json', ...request.headers };
+	// The Ever ID exchange is anonymous: Gauzy limits it per client IP (client-ip.ts)
+	const headers: Record<string, string> = {
+		Accept: 'application/json',
+		...(await clientIpHeaders()),
+		...request.headers
+	};
 	let body: string | undefined;
 	if (request.form) {
 		headers['Content-Type'] = 'application/x-www-form-urlencoded';
