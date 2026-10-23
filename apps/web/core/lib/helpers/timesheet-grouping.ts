@@ -120,6 +120,15 @@ export const groupByMonth = createGroupingFunction(getMonthKey);
 
 // ─── Group by Date (Daily) ───────────────────────────────────────────────────
 
+/**
+ * The `YYYY-MM-DD` of a date in the viewer's time zone. `toISOString()` gives the UTC day, which put an entry made in
+ * the evening west of UTC (or after midnight east of it) under the wrong day.
+ */
+export const localDateKey = (date: Date): string => {
+	const pad = (value: number) => String(value).padStart(2, '0');
+	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+};
+
 export const groupByDate = (items: ITimeLog[]): GroupedTimesheet[] => {
 	if (!items?.length) return [];
 
@@ -144,7 +153,9 @@ export const groupByDate = (items: ITimeLog[]): GroupedTimesheet[] => {
 		const byDate = timesheetLogs.reduce(
 			(acc, item) => {
 				try {
-					const date = new Date(String(item.timesheet?.createdAt)).toISOString().split('T')[0];
+					const createdAt = new Date(String(item.timesheet?.createdAt));
+					if (Number.isNaN(createdAt.getTime())) throw new RangeError('Invalid time value');
+					const date = localDateKey(createdAt);
 					if (!acc[date]) acc[date] = [];
 					acc[date].push(item);
 				} catch (error) {
@@ -163,7 +174,7 @@ export const groupByDate = (items: ITimeLog[]): GroupedTimesheet[] => {
 	const sorted = result.sort((a, b) => b.date.localeCompare(a.date));
 
 	if (sorted.length === 0 && items.length > 0) {
-		const today = new Date().toISOString().split('T')[0];
+		const today = localDateKey(new Date());
 		return [
 			{
 				date: today,

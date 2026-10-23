@@ -12,6 +12,21 @@ import { AppConfig } from '../config/environment.js';
 const logger = createLogger('ChatGPTAppServer');
 
 /**
+ * The POST /mcp rate limit key: the edge's own header when one is configured (CLIENT_IP_HEADER) and it holds an IP
+ * (unlike X-Forwarded-For, the caller cannot set it), otherwise `req.ip`.
+ */
+export function rateLimitKey(
+	req: Pick<Request, 'get' | 'ip'> & { socket?: { remoteAddress?: string } },
+	clientIpHeader?: string
+): string {
+	const header = clientIpHeader ? req.get(clientIpHeader)?.trim() : undefined;
+	if (header && isIP(header)) {
+		return header;
+	}
+	return req.ip ?? req.socket?.remoteAddress ?? 'unknown';
+}
+
+/**
  * ChatGPT App Server
  *
  * Main server that:
@@ -110,15 +125,6 @@ export class ChatGPTAppServer {
 	 * as a basic safeguard for the authenticated /mcp proxy endpoint and is not
 	 * a substitute for an edge/CDN rate limiter in production.
 	 */
-	private rateLimitKey(req: Request): string {
-		// The edge's own header when one is configured (CLIENT_IP_HEADER): unlike X-Forwarded-For, the caller cannot set it
-		const header = this.config.clientIpHeader ? req.get(this.config.clientIpHeader)?.trim() : undefined;
-		if (header && isIP(header)) {
-			return header;
-		}
-		return req.ip ?? req.socket.remoteAddress ?? 'unknown';
-	}
-
 	private createRateLimiter(
 		options: { windowMs?: number; max?: number } = {}
 	): (req: Request, res: Response, next: NextFunction) => void {
@@ -128,7 +134,7 @@ export class ChatGPTAppServer {
 
 		return (req: Request, res: Response, next: NextFunction): void => {
 			const now = Date.now();
-			const key = this.rateLimitKey(req);
+			const key = rateLimitKey(req, this.config.clientIpHeader);
 
 			// Lazily prune expired buckets to bound memory usage.
 			if (hits.size > 10_000) {
