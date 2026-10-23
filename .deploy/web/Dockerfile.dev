@@ -48,7 +48,8 @@ LABEL description='Ever Teams Web - Development Environment with Hot Reload'
 # STEP 1: INSTALL SYSTEM DEPENDENCIES
 # ==============================================================================
 # These packages are required to compile native Node.js modules
-# (like Sharp for image optimization)
+# (like Sharp for image optimization), plus Yarn: the node:26 images ship without it, so install
+# the version .yarnrc's yarn-path pins.
 
 RUN apk add --no-cache \
 	libc6-compat \
@@ -56,10 +57,8 @@ RUN apk add --no-cache \
 	make \
 	g++ \
 	git \
-	curl
-
-# The node:26 images ship without Yarn: install it
-RUN npm install -g yarn --force
+	curl && \
+	npm install -g yarn@1.22.22 --ignore-scripts
 
 # ==============================================================================
 # STEP 2: SET WORKING DIRECTORY

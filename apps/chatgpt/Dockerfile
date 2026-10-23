@@ -18,11 +18,10 @@ FROM node:${NODE_VERSION}-alpine AS builder
 # Set working directory
 WORKDIR /app
 
-# Install dependencies needed for build
-RUN apk add --no-cache python3 make g++
-
-# The node:26 images ship without Yarn: every stage that runs yarn installs it
-RUN npm install -g yarn --force
+# Install dependencies needed for build. The node:26 images ship without Yarn, so every stage that runs
+# yarn installs the version .yarnrc's yarn-path pins.
+RUN apk add --no-cache python3 make g++ && \
+	npm install -g yarn@1.22.22 --ignore-scripts
 
 # Copy package files: the root manifest plus every workspace manifest the install has to resolve
 # (Yarn resolves the root's own dependencies too, even with --production):
@@ -53,11 +52,9 @@ FROM node:${NODE_VERSION}-alpine AS production
 # Set working directory
 WORKDIR /app
 
-# Install production dependencies only
-RUN apk add --no-cache dumb-init
-
-# The node:26 images ship without Yarn: every stage that runs yarn installs it
-RUN npm install -g yarn --force
+# Install production dependencies only (and Yarn, which the node:26 images do not ship)
+RUN apk add --no-cache dumb-init && \
+	npm install -g yarn@1.22.22 --ignore-scripts
 
 # Copy package files (same workspace manifests as the build stage, so the frozen lockfile resolves)
 COPY package.json yarn.lock ./
