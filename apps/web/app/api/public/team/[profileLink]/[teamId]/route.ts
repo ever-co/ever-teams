@@ -10,7 +10,7 @@ export async function GET(req: Request, { params }: INextParams) {
 	const { searchParams } = new URL(req.url);
 
 	if (!profileLink || !teamId) {
-		return;
+		return NextResponse.json({ message: 'A profile link and a team are required' }, { status: 400 });
 	}
 
 	const type = searchParams.get('type') as string;
