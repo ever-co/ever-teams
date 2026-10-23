@@ -359,8 +359,10 @@ export class McpProxy {
 					throw new Error('MCP Server error. Please try again later.');
 				}
 
+				// The message is logged with its stack by the app server: the body stays out of it, like out of the log
+				const { rpcError } = describeRpc(data);
 				throw new Error(
-					`MCP Server error (${status}): ${JSON.stringify(data)}`
+					`MCP Server error (${status})${rpcError !== undefined ? `: JSON-RPC error ${rpcError}` : ''}`
 				);
 			} else if (axiosError.request) {
 				// Request made but no response received
