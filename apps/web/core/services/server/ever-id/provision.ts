@@ -99,14 +99,20 @@ export async function provisionEverIdWorkspace(input: EverIdProvisionInput): Pro
 				auth_token
 			);
 			tenantId = existingTenantId;
-			organizationId = memberships?.items?.[0]?.organizationId ?? undefined;
-			if (organizationId) {
+			const organizationIds = (memberships?.items ?? [])
+				.map((membership) => membership.organizationId)
+				.filter((id): id is string => typeof id === 'string' && !!id);
+			// A team in ANY of the owner's organizations is a finished workspace
+			for (const id of organizationIds) {
 				const { data: teams } = await getAllOrganizationTeamRequest(
-					{ organizationId, tenantId, relations: [] },
+					{ organizationId: id, tenantId, relations: [] },
 					auth_token
 				);
 				if (!Array.isArray(teams?.items)) return 'failed';
 				if (teams.items.length) return 'has_workspace';
+			}
+			organizationId = organizationIds[0];
+			if (organizationId) {
 				const { data: employees } = await getOrganizationEmployees(auth_token, tenantId, organizationId);
 				employeeId = employees?.items?.find((employee) => employee.userId === userId)?.id ?? undefined;
 			}

@@ -291,6 +291,48 @@ describe('POST /api/auth/ever-id/finish-setup', () => {
 		if (!memberships) expect(mockRequests.getUserOrganizationsRequest).not.toHaveBeenCalled();
 	});
 
+	function primeOwnerWithOrganizations(organizationIds: string[]) {
+		mockWorkspaceSignin.mockResolvedValue({
+			status: 200,
+			data: {
+				user: { id: 'u1', tenantId: 't1', role: { name: 'SUPER_ADMIN' } },
+				token: 'access-1',
+				refresh_token: 'refresh-1'
+			}
+		});
+		mockRequests.getUserOrganizationsRequest.mockResolvedValue({
+			data: { items: organizationIds.map((organizationId) => ({ organizationId })), total: organizationIds.length }
+		});
+	}
+
+	it('answers 409 when a team exists in a later organization of the owner', async () => {
+		primeOwnerWithOrganizations(['org-1', 'org-2']);
+		mockRequests.getAllOrganizationTeamRequest
+			.mockResolvedValueOnce({ data: { items: [], total: 0 } })
+			.mockResolvedValueOnce({ data: { items: [{ id: 'team-2' }], total: 1 } });
+		const { POST } = loadRoute();
+
+		expect((await POST(post({ workspace: 0 }))).status).toBe(409);
+		expect(mockRequests.getAllOrganizationTeamRequest).toHaveBeenCalledTimes(2);
+		expect(mockRequests.createEmployeeFromUser).not.toHaveBeenCalled();
+		expect(mockRequests.createOrganizationTeamRequest).not.toHaveBeenCalled();
+		expect(mockSetAuthCookies).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		['is refused', () => mockRequests.getAllOrganizationTeamRequest.mockRejectedValue(new Error('API down'))],
+		['has no items', () => mockRequests.getAllOrganizationTeamRequest.mockResolvedValue({ data: { message: 'x' } })]
+	])('answers 502 and creates nothing when the team list %s (never read as "no team")', async (_label, arrange) => {
+		primeOwnerWithOrganizations(['org-1']);
+		arrange();
+		const { POST } = loadRoute();
+
+		expect((await POST(post({ workspace: 0 }))).status).toBe(502);
+		expect(mockRequests.createEmployeeFromUser).not.toHaveBeenCalled();
+		expect(mockRequests.createOrganizationTeamRequest).not.toHaveBeenCalled();
+		expect(mockSetAuthCookies).not.toHaveBeenCalled();
+	});
+
 	it.each([
 		['its employee exists', { items: [{ id: 'emp-1', userId: 'u1' }], total: 1 }, 'emp-1'],
 		['its employee is missing too', { items: [], total: 0 }, 'emp-new']
