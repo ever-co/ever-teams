@@ -1,4 +1,5 @@
 import { TOKEN_COOKIE_NAME } from '@/core/constants/config/constants';
+import { tokenCookieChunkCount } from '@/core/lib/helpers/cookies/token-chunks';
 
 /**
  * The cookies of a request, read from its `Cookie` header. The route handlers need them synchronously, and the
@@ -23,8 +24,8 @@ export function requestCookies(req: Request): Map<string, string> {
 
 /** The access token: one cookie, or the chunks the sign-in writes for a long one (`auth-token_totalChunks`). */
 export function requestAccessToken(cookies: Map<string, string>): string | null {
-	const total = Number(cookies.get(`${TOKEN_COOKIE_NAME}_totalChunks`));
-	if (Number.isInteger(total) && total > 0 && total <= 64) {
+	const total = tokenCookieChunkCount(cookies.get(`${TOKEN_COOKIE_NAME}_totalChunks`));
+	if (total) {
 		const chunks: string[] = [];
 		for (let index = 0; index < total; index += 1) {
 			const chunk = cookies.get(`${TOKEN_COOKIE_NAME}${index}`);

@@ -214,6 +214,58 @@ function withFileBytes(prompt: CoreMessage[], files: Map<string, Uint8Array>): C
 }
 
 /**
+ * The model the OpenAI provider builds for `gpt-3.5-turbo-instruct` is a completion model: it takes no image URL,
+ * so the SDK downloads every image URL of the prompt with the global fetch (SSRF), and only then refuses images.
+ */
+export const COMPLETION_MODEL_IDS: ReadonlySet<string> = new Set(['gpt-3.5-turbo-instruct']);
+
+const NO_IMAGES = 'This model does not take images.';
+
+/**
+ * Whether an image part's value is an http(s) URL the SDK would download. The SDK parses a string image with
+ * `new URL()`, which accepts `HTTP://…` and surrounding whitespace, so the check parses it the same way.
+ */
+function isHttpImageUrl(image: unknown): boolean {
+	if (image instanceof URL) return image.protocol === 'http:' || image.protocol === 'https:';
+	if (typeof image !== 'string') return false;
+	try {
+		const { protocol } = new URL(image);
+		return protocol === 'http:' || protocol === 'https:';
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * Whether the user messages carry an image given as an http(s) URL (an image part, or an image attachment of a UI
+ * message), which the SDK downloads for a model that takes no image URL.
+ */
+export function holdsImageUrl(messages: unknown): boolean {
+	if (!Array.isArray(messages) || messages.length === 0) return false;
+	let prompt: CoreMessage[];
+	try {
+		prompt = messages.some(isUiMessage)
+			? convertToCoreMessages(messages as Array<Omit<Message, 'id'>>)
+			: (messages as CoreMessage[]);
+	} catch {
+		return false;
+	}
+	return prompt.some(
+		(message) =>
+			message.role === 'user' &&
+			Array.isArray(message.content) &&
+			message.content.some((part) => part.type === 'image' && isHttpImageUrl(part.image))
+	);
+}
+
+/** The 400 answer for image URLs sent to a model that takes no image (see {@link COMPLETION_MODEL_IDS}). */
+export function refuseImageUrls<T>(messages: T, modelId: string): FileUrlsResolution<T> | null {
+	return COMPLETION_MODEL_IDS.has(modelId) && holdsImageUrl(messages)
+		? { ok: false, status: 400, error: NO_IMAGES }
+		: null;
+}
+
+/**
  * Downloads, through the guard, the files the SDK would download for these messages, and returns the
  * messages with the bytes in place of the URLs, or the 400/502 answer when a file cannot be had.
  */

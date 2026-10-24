@@ -1,39 +1,55 @@
 import { APP_NAME } from '@/core/constants/config/constants';
+import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
+const subscribeSchema = z.object({ email_address: z.email() });
+
+/**
+ * The tags a newsletter sign-up from the app carries. Set here, not by the caller: tags can start Mailchimp
+ * automations.
+ */
+const subscriberTags = () => [`${APP_NAME}, ${APP_NAME} App`, 'Open', 'Cloud'];
+
+/**
+ * Adds an address to the newsletter list (the opt-in box at the foot of the sidebar).
+ *
+ * The route was open to anyone, never checked the captcha it asked for, and put any address straight on the list as
+ * `subscribed` with tags of the caller's choosing: anyone could sign third parties up to the operator's list, which
+ * is what gets a Mailchimp account suspended. It now needs a signed-in user. The user's own address (which the
+ * account has verified) is subscribed outright; any other address is `pending`, so Mailchimp asks its owner to
+ * confirm before anything is sent.
+ */
 export const POST = async (req: NextRequest) => {
-	// 1. Destructure the email address from the request body.
-	const reqData = (await req.json()) as {
-		email_address: string;
-		tags: string[];
-		captcha?: string;
-	};
-
-	if (!reqData.email_address) {
-		// 2. Throw an error if an email wasn't provided.
-		return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+	const { user, status } = await authenticatedGuard(req, new NextResponse());
+	if (!user) {
+		return NextResponse.json({ error: 'Unauthorized' }, { status: status ?? 401 });
 	}
 
-	if (!reqData.captcha) {
-		// 2. Display an error if the captcha code wasn't provided.
-		console.error('ERROR: Please provide required fields', 'STATUS: 400');
+	const parsed = subscribeSchema.safeParse(await req.json().catch(() => null));
+	if (!parsed.success) {
+		return NextResponse.json({ error: 'A valid email is required' }, { status: 400 });
 	}
+	const email = parsed.data.email_address;
+	// Registration signs the user in before the address is confirmed: only a verified address counts as the user's own
+	const isOwnAddress =
+		user.isEmailVerified === true &&
+		typeof user.email === 'string' &&
+		email.toLowerCase() === user.email.toLowerCase();
 
 	try {
-		// 3. Fetch the environment variables.
 		const LIST_ID = process.env.MAILCHIMP_LIST_ID;
 		const API_KEY = process.env.MAILCHIMP_API_KEY ? process.env.MAILCHIMP_API_KEY : '';
 		if (!LIST_ID || !API_KEY) {
 			throw new Error('Missing Mailchimp environment variables');
 		}
-		// 4. API keys are in the form <key>-us3.
+		// API keys are in the form <key>-us3.
 		const DATACENTER = API_KEY.split('-')[1];
 		const mailchimpData = {
-			email_address: reqData.email_address,
-			status: 'subscribed',
-			tags: reqData.tags ? [...reqData.tags] : [APP_NAME]
+			email_address: email,
+			status: isOwnAddress ? 'subscribed' : 'pending',
+			tags: subscriberTags()
 		};
-		// 5. Send a POST request to Mailchimp.
 		const response = await fetch(`https://${DATACENTER}.api.mailchimp.com/3.0/lists/${LIST_ID}/members`, {
 			body: JSON.stringify(mailchimpData),
 			headers: {
@@ -42,8 +58,7 @@ export const POST = async (req: NextRequest) => {
 			},
 			method: 'POST'
 		});
-		console.log(response);
-		// 6. Swallow any errors from Mailchimp and return a better error message.
+		// Swallow any errors from Mailchimp and return a better error message.
 		if (response.status >= 400) {
 			const errorResponse = await response.json();
 			return NextResponse.json(
@@ -54,8 +69,7 @@ export const POST = async (req: NextRequest) => {
 			);
 		}
 
-		// 7. If we made it this far, it was a success! 🎉
-		return NextResponse.json({ error: '', resp: response }, { status: 201 });
+		return NextResponse.json({ error: '', status: mailchimpData.status }, { status: 201 });
 	} catch (error) {
 		return NextResponse.json(
 			{

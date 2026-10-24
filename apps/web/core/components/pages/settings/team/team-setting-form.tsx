@@ -43,7 +43,8 @@ export const TeamSettingForm = () => {
 	const [activeTeam, setActiveTeam] = useAtom(activeTeamState);
 	const setTeams = useSetAtom(organizationTeamsState);
 	const { getOrganizationTeamsLoading: loading, loadingTeam } = useOrganizationTeamsQuery();
-	const { editOrganizationTeam, editOrganizationTeamLoading } = useEditOrganizationTeam();
+	// Every save below shows its own error toast
+	const { editOrganizationTeam, editOrganizationTeamLoading } = useEditOrganizationTeam({ toastOnError: false });
 	const { isTeamManager, activeManager } = useIsMemberManager(user);
 	const [copied, setCopied] = useState<boolean>(false);
 	const [disabled, setDisabled] = useState<boolean>(true);

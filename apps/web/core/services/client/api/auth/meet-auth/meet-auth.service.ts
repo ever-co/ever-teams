@@ -6,7 +6,8 @@ import { IMeetAuthRequest } from '@/core/types/interfaces/auth/auth';
 class MeetAuthService extends APIService {
 	getMeetJwtAuthToken = async (params?: IMeetAuthRequest) => {
 		const api = await getFallbackAPI();
-		return api.get<{ token: string }>('/auth/meet/jwt', {
+		// `room` is the Jitsi room the token opens: the requested name scoped to the caller's tenant
+		return api.get<{ token: string; room: string }>('/auth/meet/jwt', {
 			params
 		});
 	};

@@ -4,6 +4,10 @@
 	"caseSensitive": false,
 	"$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
 	"words": [
+		"autocapture",
+		"xlink",
+		"Fanything",
+		"Fuser",
 		"jotai",
 		"unmemoized",
 		"subrequests",
