@@ -18,6 +18,7 @@ import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth
 import { getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
 import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
 import { readEverIdSession } from '@/core/lib/auth/ever-id/session';
+import { readSocialSession } from '@/core/lib/auth/social-session';
 import { useEverIdWorkspaceChoice } from '@/core/hooks/auth/use-ever-id-workspace-choice';
 
 export default function SocialLoginChooseWorspace() {
@@ -58,10 +59,11 @@ function WorkSpaceScreen() {
 
 	useEffect(() => {
 		const loadOAuthSession = async () => {
-			if (session) {
-				const { access_token, confirmed_mail, organizationId, refresh_token, tenantId, userId } = session.user;
+			const social = readSocialSession(session);
+			if (social) {
+				const { access_token, confirmed_mail, organizationId, refresh_token, tenantId, userId } = social;
 				setSigninResult({ access_token, confirmed_mail, organizationId, refresh_token, tenantId, userId });
-				setWorkspaces(session.user.workspaces);
+				setWorkspaces(Array.isArray(social.workspaces) ? social.workspaces : []);
 			} else {
 				return;
 			}
