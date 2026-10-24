@@ -1,5 +1,6 @@
 /* eslint-disable no-void */
 import { authFormValidate } from '../../../../helpers/validations';
+import { translate } from '../../../../i18n';
 import { ISignInDataAPI } from '../../../interfaces/IAuthentication';
 import { signInWorkspaceRequest } from '../../requests/auth';
 
@@ -19,7 +20,7 @@ function setupError() {
 		response: {
 			status: 400,
 			errors: {
-				email: 'Your workspace setup could not be completed. Please try again.'
+				email: translate('loginScreen.workspaceSetupFailed')
 			}
 		}
 	};
