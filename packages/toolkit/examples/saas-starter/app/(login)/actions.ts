@@ -17,6 +17,7 @@ import {
 	invitations
 } from '@/lib/db/schema';
 import { comparePasswords, hashPassword, setSession } from '@/lib/auth/session';
+import { connectTeamsAccount } from '@/lib/auth/teams-handoff';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { createCheckoutSession } from '@/lib/payments/stripe';
@@ -75,8 +76,12 @@ export const signIn = validatedAction(signInSchema, async (data, formData) => {
 		};
 	}
 
-	// Set local session after successful Teams authentication
-	await Promise.all([setSession(foundUser), logActivity(foundTeam?.id, foundUser.id, ActivityType.SIGN_IN)]);
+	await Promise.all([
+		setSession(foundUser),
+		logActivity(foundTeam?.id, foundUser.id, ActivityType.SIGN_IN),
+		// On the server, with the password this action already has: only the Teams token reaches the browser
+		connectTeamsAccount({ email, password })
+	]);
 
 	// Handle redirect logic
 	const redirectTo = formData.get('redirect') as string | null;
@@ -187,7 +192,8 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
 	await Promise.all([
 		db.insert(teamMembers).values(newTeamMember),
 		logActivity(teamId, createdUser.id, ActivityType.SIGN_UP),
-		setSession(createdUser)
+		setSession(createdUser),
+		connectTeamsAccount({ email, password })
 	]);
 
 	const redirectTo = formData.get('redirect') as string | null;
