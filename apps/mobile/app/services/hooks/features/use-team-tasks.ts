@@ -285,6 +285,9 @@ export function useTeamTasks() {
 					activeTeamId,
 				)
 
+				// The user switched teams while the request was in flight: this answer is for a team no longer on screen
+				if (response.ok && activeTeamRef.current?.id !== activeTeamId) return
+
 				if (response.ok) {
 					// The task just sent is the active one now: currentUser.activeTaskId still names the previous one
 					// until the next teams refresh, so looking it up showed the old task
