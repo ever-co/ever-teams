@@ -65,9 +65,6 @@ export function syncTokenOrganization(
 	const pending = inFlight.get(key);
 	if (pending) return pending;
 
-	// The user the switch is for: an answer that arrives after another sign-in (another tab) is not theirs to keep
-	const startedFor = decodeJWT(token)?.id ?? null;
-
 	const switching = authService
 		.switchOrganizationRaw(target)
 		.then(({ data }) => {
@@ -76,8 +73,9 @@ export function syncTokenOrganization(
 			// The answer is late: the user chose another organization meanwhile (it no longer is the cookie's), or
 			// signed out. Saving it would put the tokens out of step with the active team.
 			const chosen = getOrganizationIdCookie() || null;
-			const current = getAccessTokenCookie();
-			if (!current || (decodeJWT(current)?.id ?? null) !== startedFor || (chosen && chosen !== target)) return false;
+			// The answer is for the token that asked only: once the cookie holds another one (a sign-in as someone else in
+			// another tab, a refresh, a newer switch that answered first), saving it would replace newer tokens.
+			if (getAccessTokenCookie() !== token || (chosen && chosen !== target)) return false;
 			setAccessTokenCookie(data.token);
 			if (data.refresh_token) setRefreshTokenCookie(data.refresh_token);
 			setOrganizationIdCookie(target);
