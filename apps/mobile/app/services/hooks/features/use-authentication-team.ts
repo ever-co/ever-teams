@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, TextInput } from 'react-native';
+import { translate } from '../../../i18n';
 import { useStores } from '../../../models';
 import { login } from '../../client/api/auth/login';
 import { register } from '../../client/api/auth/register';
@@ -127,8 +128,8 @@ export function useAuthenticationTeam() {
 					setIsLoading(false);
 					setIsSubmitted(false);
 					Alert.alert(
-						'Check your e-mail',
-						`Your account has been created. Open the link in the e-mail we sent to ${authEmail} to activate it, then sign in with your e-mail.`
+						translate('loginScreen.verifyEmailTitle'),
+						translate('loginScreen.verifyEmailMessage', { email: authEmail })
 					);
 					return;
 				}

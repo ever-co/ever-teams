@@ -37,6 +37,8 @@ const en = {
 	},
 	loginScreen: {
 		name: 'Login',
+		verifyEmailTitle: 'Check your e-mail',
+		verifyEmailMessage: 'Your account has been created. Open the link in the e-mail we sent to {{email}} to activate it, then sign in with your e-mail.',
 		enterDetails: 'Create New Team',
 		enterDetails2: 'Login',
 		enterDetails3: 'Workspace',

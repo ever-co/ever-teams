@@ -39,6 +39,8 @@ const ko: Translations = {
 	},
 	loginScreen: {
 		name: '로그인',
+		verifyEmailTitle: '이메일을 확인하세요',
+		verifyEmailMessage: '계정이 생성되었습니다. {{email}}(으)로 보낸 이메일의 링크를 열어 계정을 활성화한 다음 이메일로 로그인하세요.',
 		enterDetails: '새 팀 만들기',
 		enterDetails2: '기존 팀에 합류',
 		enterDetails3: '작업공간',

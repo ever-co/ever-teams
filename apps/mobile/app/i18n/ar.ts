@@ -40,6 +40,8 @@ const ar: Translations = {
 	},
 	loginScreen: {
 		name: 'تسجيل الدخول',
+		verifyEmailTitle: 'تحقق من بريدك الإلكتروني',
+		verifyEmailMessage: 'تم إنشاء حسابك. افتح الرابط في البريد الإلكتروني الذي أرسلناه إلى {{email}} لتفعيله، ثم سجّل الدخول ببريدك الإلكتروني.',
 		enterDetails: 'إنشاء فريق جديد',
 		enterDetails2: 'انضم إلى الفريق الحالي',
 		hintDetails: 'الرجاء إدخال تفاصيل فريقك لإنشاء فريق جديد.',

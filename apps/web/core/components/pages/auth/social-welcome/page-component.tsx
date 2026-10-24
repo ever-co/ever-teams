@@ -11,7 +11,11 @@ export default function Welcome() {
 	const { data: session, update }: any = useSession();
 	const router = useRouter();
 	const t = useTranslations();
+	// A social sign-up whose account waits for its e-mail confirmation (auth.ts jwt callback): no session to open
+	const verifyEmail = session?.authCookie?.verifyEmail === true ? (session.authCookie.email as string) : null;
+
 	useEffect(() => {
+		if (verifyEmail !== null) return;
 		const loadOAuthSession = () => {
 			if (session) {
 				const { access_token, organizationId, refresh_token, tenantId, teamId, userId } = session.user;
@@ -35,7 +39,15 @@ export default function Welcome() {
 		};
 		loadOAuthSession();
 		router.replace(DEFAULT_APP_PATH);
-	}, [router, session, update]);
+	}, [router, session, update, verifyEmail]);
+
+	if (verifyEmail !== null) {
+		return (
+			<p role="status" className="m-auto max-w-md p-6 text-center text-sm">
+				{t('pages.auth.SIGNUP_VERIFY_EMAIL', { email: verifyEmail })}
+			</p>
+		);
+	}
 
 	return <BackdropLoader show={true} title={t('pages.authTeam.LOADING_TEXT')} />;
 }
