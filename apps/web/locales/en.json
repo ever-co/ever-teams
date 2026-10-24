@@ -1118,7 +1118,8 @@
 			"BILLABLE_MODIFY_SUCCESS": "The billable state has been successfully modified.",
 			"BILLABLE_MODIFY_ERROR": "Failed to modify billable state. Please try again.",
 			"STATUS_MODIFY_SUCCESS": "The timesheet status has been successfully modified.",
-			"STATUS_MODIFY_ERROR": "Failed to modify timesheet status. Please try again."
+			"STATUS_MODIFY_ERROR": "Failed to modify timesheet status. Please try again.",
+			"END_AFTER_START": "The end time must be after the start time."
 		}
 	},
 	"timer": {

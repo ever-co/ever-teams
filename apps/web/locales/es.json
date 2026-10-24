@@ -1118,7 +1118,8 @@
 			"BILLABLE_MODIFY_SUCCESS": "El estado facturable se ha modificado correctamente.",
 			"BILLABLE_MODIFY_ERROR": "No se pudo modificar el estado facturable. Inténtelo de nuevo.",
 			"STATUS_MODIFY_SUCCESS": "El estado de la hoja de tiempo se ha modificado correctamente.",
-			"STATUS_MODIFY_ERROR": "No se pudo modificar el estado de la hoja de tiempo. Inténtelo de nuevo."
+			"STATUS_MODIFY_ERROR": "No se pudo modificar el estado de la hoja de tiempo. Inténtelo de nuevo.",
+			"END_AFTER_START": "La hora de fin debe ser posterior a la hora de inicio."
 		}
 	},
 	"timer": {

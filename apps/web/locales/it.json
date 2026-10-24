@@ -1118,7 +1118,8 @@
 			"BILLABLE_MODIFY_SUCCESS": "Lo stato fatturabile è stato modificato con successo.",
 			"BILLABLE_MODIFY_ERROR": "Impossibile modificare lo stato fatturabile. Riprova.",
 			"STATUS_MODIFY_SUCCESS": "Lo stato del foglio presenze è stato modificato con successo.",
-			"STATUS_MODIFY_ERROR": "Impossibile modificare lo stato del foglio presenze. Riprova."
+			"STATUS_MODIFY_ERROR": "Impossibile modificare lo stato del foglio presenze. Riprova.",
+			"END_AFTER_START": "L'ora di fine deve essere successiva all'ora di inizio."
 		}
 	},
 	"timer": {

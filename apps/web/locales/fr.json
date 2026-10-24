@@ -1118,7 +1118,8 @@
 			"BILLABLE_MODIFY_SUCCESS": "L'état facturable a été modifié avec succès.",
 			"BILLABLE_MODIFY_ERROR": "Échec de la modification de l'état facturable. Veuillez réessayer.",
 			"STATUS_MODIFY_SUCCESS": "Le statut de la feuille de temps a été modifié avec succès.",
-			"STATUS_MODIFY_ERROR": "Échec de la modification du statut de la feuille de temps. Veuillez réessayer."
+			"STATUS_MODIFY_ERROR": "Échec de la modification du statut de la feuille de temps. Veuillez réessayer.",
+			"END_AFTER_START": "L'heure de fin doit être postérieure à l'heure de début."
 		}
 	},
 	"timer": {

@@ -1118,7 +1118,8 @@
 			"BILLABLE_MODIFY_SUCCESS": "计费状态已成功修改。",
 			"BILLABLE_MODIFY_ERROR": "修改计费状态失败。请重试。",
 			"STATUS_MODIFY_SUCCESS": "工时表状态已成功修改。",
-			"STATUS_MODIFY_ERROR": "修改工时表状态失败。请重试。"
+			"STATUS_MODIFY_ERROR": "修改工时表状态失败。请重试。",
+			"END_AFTER_START": "结束时间必须晚于开始时间。"
 		}
 	},
 	"timer": {

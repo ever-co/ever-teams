@@ -28364,9 +28364,9 @@ electron-updater@^6.1.7:
     tiny-typed-emitter "^2.1.0"
 
 electron@*, electron@^42.11.9:
-  version "42.11.9"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-42.11.9.tgz#3f5d349f49c72eb6add797b24dd49abcb0a5126a"
-  integrity sha512-vPTlQws45virTh1jb/dSROz6xGkXgtEcdyT5n+0+etCmHqMtvp4Pgs6Sx5bvna+AEDAMeq10uRcjdMKCTk2Gtw==
+  version "42.11.16"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-42.11.16.tgz#fdf64707a465550f92f301654efbab9c64d1ce92"
+  integrity sha512-CHCEsZbWm9zspEnYsro+g8FFllh0e82A1Jtofi/XqPs/XqlrpDPdLP0OhzfhG/IkxNXQ8iHEoYms+wVepZNzZA==
   dependencies:
     "@electron-internal/extract-zip" "^1.0.1"
     "@electron/get" "^5.0.0"

@@ -1118,7 +1118,8 @@
 			"BILLABLE_MODIFY_SUCCESS": "De factureerbare status is succesvol gewijzigd.",
 			"BILLABLE_MODIFY_ERROR": "De factureerbare status kon niet worden gewijzigd. Probeer het opnieuw.",
 			"STATUS_MODIFY_SUCCESS": "De status van de urenstaat is succesvol gewijzigd.",
-			"STATUS_MODIFY_ERROR": "De status van de urenstaat kon niet worden gewijzigd. Probeer het opnieuw."
+			"STATUS_MODIFY_ERROR": "De status van de urenstaat kon niet worden gewijzigd. Probeer het opnieuw.",
+			"END_AFTER_START": "De eindtijd moet na de begintijd liggen."
 		}
 	},
 	"timer": {

@@ -1118,7 +1118,8 @@
 			"BILLABLE_MODIFY_SUCCESS": "Der Abrechnungsstatus wurde erfolgreich geändert.",
 			"BILLABLE_MODIFY_ERROR": "Der Abrechnungsstatus konnte nicht geändert werden. Bitte versuchen Sie es erneut.",
 			"STATUS_MODIFY_SUCCESS": "Der Status der Zeiterfassung wurde erfolgreich geändert.",
-			"STATUS_MODIFY_ERROR": "Der Status der Zeiterfassung konnte nicht geändert werden. Bitte versuchen Sie es erneut."
+			"STATUS_MODIFY_ERROR": "Der Status der Zeiterfassung konnte nicht geändert werden. Bitte versuchen Sie es erneut.",
+			"END_AFTER_START": "Die Endzeit muss nach der Startzeit liegen."
 		}
 	},
 	"timer": {
