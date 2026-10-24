@@ -227,36 +227,45 @@ describe('POST /api/auth/ever-id/finish-setup', () => {
 		expect((await POST(post({ workspace: 1 }))).status).toBe(409);
 	});
 
-	it('answers 429 to a request that overlaps a running setup of the same workspace (two tabs), without calling the API', async () => {
-		primeSetup();
-		let answerSignin: (value: unknown) => void = () => undefined;
-		mockWorkspaceSignin.mockReturnValueOnce(new Promise((resolve) => (answerSignin = resolve)));
-		const { POST } = loadRoute();
+	it.each([
+		['the same sign-in (two tabs)', 'workspace-token-u2'],
+		['another sign-in of the same account (another workspace token)', 'workspace-token-u2-again']
+	])(
+		'answers 429 to a request from %s that overlaps a running setup of the account, without calling the API',
+		async (_label, overlappingToken) => {
+			primeSetup();
+			let answerSignin: (value: unknown) => void = () => undefined;
+			mockWorkspaceSignin.mockReturnValueOnce(new Promise((resolve) => (answerSignin = resolve)));
+			const { POST } = loadRoute();
 
-		const first = POST(post({ workspace: 1 }));
-		await new Promise((resolve) => setTimeout(resolve, 0));
-		const overlapping = await POST(post({ workspace: 1 }));
-		answerSignin({
-			status: 200,
-			data: {
-				user: { id: 'u2', tenantId: null, name: 'Test Person' },
-				token: 'access-1',
-				refresh_token: 'refresh-1'
-			}
-		});
+			const first = POST(post({ workspace: 1 }));
+			await new Promise((resolve) => setTimeout(resolve, 0));
+			mockAuth.mockResolvedValueOnce(
+				everIdSession([workspace('u1', 't1'), { ...workspace('u2', null), token: overlappingToken }])
+			);
+			const overlapping = await POST(post({ workspace: 1 }));
+			answerSignin({
+				status: 200,
+				data: {
+					user: { id: 'u2', tenantId: null, name: 'Test Person' },
+					token: 'access-1',
+					refresh_token: 'refresh-1'
+				}
+			});
 
-		expect(overlapping.status).toBe(429);
-		expect(overlapping.headers.get('retry-after')).toBe('5');
-		expect((await first).status).toBe(200);
-		expect(mockWorkspaceSignin).toHaveBeenCalledTimes(1);
-		expect(mockRequests.createOrganizationTeamRequest).toHaveBeenCalledTimes(1);
-		// Once the setup is over, the workspace can be set up again (the overlapping attempt was given back).
-		mockWorkspaceSignin.mockResolvedValue({
-			status: 200,
-			data: { user: { id: 'u2', tenantId: 'tenant-9' }, token: 'access-1', refresh_token: 'refresh-1' }
-		});
-		expect((await POST(post({ workspace: 1 }))).status).toBe(409);
-	});
+			expect(overlapping.status).toBe(429);
+			expect(overlapping.headers.get('retry-after')).toBe('5');
+			expect((await first).status).toBe(200);
+			expect(mockWorkspaceSignin).toHaveBeenCalledTimes(1);
+			expect(mockRequests.createOrganizationTeamRequest).toHaveBeenCalledTimes(1);
+			// Once the setup is over, the workspace can be set up again (the overlapping attempt was given back).
+			mockWorkspaceSignin.mockResolvedValue({
+				status: 200,
+				data: { user: { id: 'u2', tenantId: 'tenant-9' }, token: 'access-1', refresh_token: 'refresh-1' }
+			});
+			expect((await POST(post({ workspace: 1 }))).status).toBe(409);
+		}
+	);
 
 	it("resumes a setup that stopped after the tenant: the owner's tenant is kept, the remaining steps run", async () => {
 		primeSetup();
@@ -407,6 +416,11 @@ describe('POST /api/auth/ever-id/finish-setup', () => {
 
 	it.each([
 		['its employee exists', { items: [{ id: 'emp-1', userId: 'u1' }], total: 1 }, 'emp-1'],
+		[
+			'its employee exists, named by its user relation only',
+			{ items: [{ id: 'emp-1', user: { id: 'u1' } }], total: 1 },
+			'emp-1'
+		],
 		['its employee is missing too', { items: [], total: 0 }, 'emp-new']
 	])(
 		'resumes a setup that stopped after the organization (%s): only the missing steps run',

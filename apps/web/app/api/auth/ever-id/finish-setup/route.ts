@@ -20,7 +20,7 @@ import { provisionEverIdWorkspace } from '@/core/services/server/ever-id/provisi
  * an index that is not a workspace of that session; 410 when there is no such session or its workspace token
  * expired (sign in with Ever ID again); 409 when there is nothing to set up (the account has its organization, or
  * a tenant it does not own); 429 (with a Retry-After) after 3 attempts a minute for one workspace, or while a setup of
- * that workspace is still running in this process (two tabs); 502 when the API fails.
+ * that account is still running in this process (two tabs or two sign-ins); 502 when the API fails.
  */
 
 export const dynamic = 'force-dynamic';
@@ -31,8 +31,10 @@ const MAX_BODY_BYTES = 1_024;
 const RUNNING_RETRY_AFTER_S = 5;
 
 /**
- * Workspaces whose setup is running in this process (hashed tokens): two overlapping setups of one workspace would
- * both find no team and both create one. Each replica keeps its own set.
+ * Accounts whose setup is running in this process (hashed user ids; the workspace token when the session names no
+ * user): two overlapping setups of one account would both find no team and both create one. Two sign-ins of one
+ * account carry different workspace tokens, so the token alone would not tell them apart. Each replica keeps its
+ * own set.
  */
 const runningSetups = new Set<string>();
 
@@ -76,7 +78,9 @@ export async function POST(req: Request) {
 		return refuse(429, 'throttled', attempt.retryAfterS);
 	}
 
-	const setupKey = createHash('sha256').update(target.token).digest('hex');
+	const setupKey = createHash('sha256')
+		.update(target.userId ? `user:${target.userId}` : `token:${target.token}`)
+		.digest('hex');
 	if (runningSetups.has(setupKey)) {
 		attempt.giveBack();
 		log('throttled');
