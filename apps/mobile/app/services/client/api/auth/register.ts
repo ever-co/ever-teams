@@ -36,6 +36,17 @@ export async function register(params: IRegisterDataAPI) {
 		}
 	});
 
+	// Gauzy keeps a self-registration inactive until the link in its verification e-mail is opened (owner decision 4,
+	// ever-co/ever-gauzy#11341): logging in now answers 401. The person confirms, then signs in with the e-mail code.
+	if ((user as { isActive?: boolean } | undefined)?.isActive === false) {
+		return {
+			response: {
+				status: 202,
+				verifyEmail: true
+			}
+		};
+	}
+
 	const { data: loginRes } = await loginUserRequest(params.email, password);
 	const authToken = loginRes.token;
 

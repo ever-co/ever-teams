@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { TextInput } from 'react-native';
+import { Alert, TextInput } from 'react-native';
 import { useStores } from '../../../models';
 import { login } from '../../client/api/auth/login';
 import { register } from '../../client/api/auth/register';
@@ -121,6 +121,17 @@ export function useAuthenticationTeam() {
 		})
 			.then((res) => {
 				const { response } = res;
+
+				// The account waits for its e-mail confirmation: no session yet
+				if ((response as { verifyEmail?: boolean }).verifyEmail) {
+					setIsLoading(false);
+					setIsSubmitted(false);
+					Alert.alert(
+						'Check your e-mail',
+						`Your account has been created. Open the link in the e-mail we sent to ${authEmail} to activate it, then sign in with your e-mail.`
+					);
+					return;
+				}
 
 				// If successful, reset the fields and set the token.
 				if (response.status === 200) {

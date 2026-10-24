@@ -42,6 +42,13 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 				appEmailConfirmationUrl
 			});
 
+			// Gauzy keeps a self-registration inactive until its e-mail link is opened (owner decision 4,
+			// ever-co/ever-gauzy#11341): a login now answers 401. The account exists and the link is on its way; the
+			// workspace is set up at the first sign-in after the confirmation (finish-signup.ts).
+			if ((createdUser.data as { isActive?: boolean } | undefined)?.isActive === false) {
+				return createdUser.data;
+			}
+
 			// User Login, get the access token
 			const { data: loginRes } = await loginUserRequest(email, password);
 			const auth_token = loginRes.token;
