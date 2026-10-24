@@ -41,7 +41,10 @@ export async function register(params: IRegisterDataAPI) {
 	// ever-co/ever-gauzy#11341): logging in now answers 401. The person confirms, then signs in with the e-mail code.
 	if ((user as { isActive?: boolean } | undefined)?.isActive === false) {
 		// The workspace is set up at the first sign-in after the confirmation: keep the team name asked for until then
-		await savePendingSignup(params.email, params.team);
+		if (!(await savePendingSignup(params.email, params.team))) {
+			// Nothing for the person to do: the account exists, the workspace gets the default name (renamable later)
+			console.log('Sign-up: the requested team name could not be kept on this device');
+		}
 		return {
 			response: {
 				status: 202,

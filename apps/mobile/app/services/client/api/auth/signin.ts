@@ -13,6 +13,18 @@ import {
 	setupConfirmedSignupWorkspace
 } from './workspace-setup';
 
+/** The sign-in answer for a workspace whose setup could not be checked or completed: the person signs in again. */
+function setupError() {
+	return {
+		response: {
+			status: 400,
+			errors: {
+				email: 'Your workspace setup could not be completed. Please try again.'
+			}
+		}
+	};
+}
+
 export async function signIn(params: ISignInDataAPI) {
 	const { errors, valid: formValid } = authFormValidate(['email'], params as any);
 
@@ -67,9 +79,10 @@ export async function signIn(params: ISignInDataAPI) {
 			{ tenantId, organizationId: organization.organizationId, relations: [] },
 			accessToken
 		);
-		if (teams.response.ok && Array.isArray(teams.data?.items) && teams.data.items.length === 0) {
-			resumeOrganizationId = organization.organizationId;
-		}
+		// As for the organizations: a failed read is a sign-in error, never "it has teams" (that would admit a
+		// workspace whose setup did not finish)
+		if (!teams.response.ok || !Array.isArray(teams.data?.items)) return setupError();
+		if (teams.data.items.length === 0) resumeOrganizationId = organization.organizationId;
 	}
 
 	if (userId && (resumeOrganizationId || (!organization && (!tenantId || ownsIncompleteTenant)))) {
@@ -85,6 +98,8 @@ export async function signIn(params: ISignInDataAPI) {
 			existingOrganizationId: resumeOrganizationId,
 			existingEmployeeId: resumeOrganizationId ? employeeId : undefined
 		});
+		// A resumed setup that failed again keeps its mark: the next sign-in retries, this one does not get in
+		if (!setup && resumeOrganizationId) return setupError();
 		if (setup) {
 			await clearPendingSignup(params.email);
 			return {

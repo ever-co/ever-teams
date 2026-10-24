@@ -21,8 +21,11 @@ const inFlight = new Map<string, Promise<boolean>>();
 // asked again WITH THAT TOKEN: a refreshed or new token retries. A network error or a 5xx retries at the next call.
 const refused = new Set<string>();
 
-/** The refusal key: the organization and the token that was refused it. */
-const refusalKey = (token: string, organizationId: string) => `${organizationId} ${token}`;
+/**
+ * A switch request and its refusal belong to the organization AND the token that asked: a refreshed token, or another
+ * user's after a sign-in in another tab, asks on its own instead of joining (or inheriting the refusal of) the old one.
+ */
+const requestKey = (token: string, organizationId: string) => `${organizationId} ${token}`;
 
 /**
  * The HTTP status of a failed request, when it got an answer: an Axios error (`response.status`, proxy mode) or the
@@ -48,11 +51,11 @@ export function syncTokenOrganization(
 ): Promise<boolean> {
 	const target = organizationId || null;
 	const token = getAccessTokenCookie();
-	if (!target || !token || tokenOrganizationId(token) === target || refused.has(refusalKey(token, target))) {
-		return Promise.resolve(false);
-	}
+	if (!target || !token || tokenOrganizationId(token) === target) return Promise.resolve(false);
 
-	const pending = inFlight.get(target);
+	const key = requestKey(token, target);
+	if (refused.has(key)) return Promise.resolve(false);
+	const pending = inFlight.get(key);
 	if (pending) return pending;
 
 	// The user the switch is for: an answer that arrives after another sign-in (another tab) is not theirs to keep
@@ -75,14 +78,14 @@ export function syncTokenOrganization(
 		})
 		.catch((error: unknown) => {
 			const status = statusOf(error);
-			if (status === 401 || status === 403) refused.add(refusalKey(token, target));
+			if (status === 401 || status === 403) refused.add(key);
 			console.error('[Auth] Could not switch the token to the organization of the active team:', error);
 			return false;
 		})
 		.finally(() => {
-			inFlight.delete(target);
+			inFlight.delete(key);
 		});
-	inFlight.set(target, switching);
+	inFlight.set(key, switching);
 	return switching;
 }
 

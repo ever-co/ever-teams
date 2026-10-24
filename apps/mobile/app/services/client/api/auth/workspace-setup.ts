@@ -14,8 +14,9 @@ import { load, remove, save } from '../../../../utils/storage';
  */
 const pendingSignupKey = (email: string) => `ever-teams-pending-signup:${email.trim().toLowerCase()}`;
 
-export async function savePendingSignup(email: string, team: string | null): Promise<void> {
-	await save(pendingSignupKey(email), { team: team?.trim() || null });
+/** @returns false when the device could not store it (the setup then uses the default team name). */
+export async function savePendingSignup(email: string, team: string | null): Promise<boolean> {
+	return save(pendingSignupKey(email), { team: team?.trim() || null });
 }
 
 export async function loadPendingSignup(email: string): Promise<{ team: string | null } | null> {
