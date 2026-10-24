@@ -227,6 +227,37 @@ describe('POST /api/auth/ever-id/finish-setup', () => {
 		expect((await POST(post({ workspace: 1 }))).status).toBe(409);
 	});
 
+	it('answers 429 to a request that overlaps a running setup of the same workspace (two tabs), without calling the API', async () => {
+		primeSetup();
+		let answerSignin: (value: unknown) => void = () => undefined;
+		mockWorkspaceSignin.mockReturnValueOnce(new Promise((resolve) => (answerSignin = resolve)));
+		const { POST } = loadRoute();
+
+		const first = POST(post({ workspace: 1 }));
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		const overlapping = await POST(post({ workspace: 1 }));
+		answerSignin({
+			status: 200,
+			data: {
+				user: { id: 'u2', tenantId: null, name: 'Test Person' },
+				token: 'access-1',
+				refresh_token: 'refresh-1'
+			}
+		});
+
+		expect(overlapping.status).toBe(429);
+		expect(overlapping.headers.get('retry-after')).toBe('5');
+		expect((await first).status).toBe(200);
+		expect(mockWorkspaceSignin).toHaveBeenCalledTimes(1);
+		expect(mockRequests.createOrganizationTeamRequest).toHaveBeenCalledTimes(1);
+		// Once the setup is over, the workspace can be set up again (the overlapping attempt was given back).
+		mockWorkspaceSignin.mockResolvedValue({
+			status: 200,
+			data: { user: { id: 'u2', tenantId: 'tenant-9' }, token: 'access-1', refresh_token: 'refresh-1' }
+		});
+		expect((await POST(post({ workspace: 1 }))).status).toBe(409);
+	});
+
 	it("resumes a setup that stopped after the tenant: the owner's tenant is kept, the remaining steps run", async () => {
 		primeSetup();
 		mockWorkspaceSignin.mockResolvedValue({
@@ -301,7 +332,10 @@ describe('POST /api/auth/ever-id/finish-setup', () => {
 			}
 		});
 		mockRequests.getUserOrganizationsRequest.mockResolvedValue({
-			data: { items: organizationIds.map((organizationId) => ({ organizationId })), total: organizationIds.length }
+			data: {
+				items: organizationIds.map((organizationId) => ({ organizationId })),
+				total: organizationIds.length
+			}
 		});
 	}
 
@@ -333,31 +367,43 @@ describe('POST /api/auth/ever-id/finish-setup', () => {
 		expect(mockSetAuthCookies).not.toHaveBeenCalled();
 	});
 
-	it('answers 502 and creates nothing when the membership list has no items (never read as "no organization")', async () => {
-		primeOwnerWithOrganizations([]);
-		mockRequests.getUserOrganizationsRequest.mockResolvedValue({ data: { message: 'x' } });
-		const { POST } = loadRoute();
+	it.each([
+		['has no items', { message: 'x' }],
+		['has a membership without its organization', { items: [{ organizationId: 'org-1' }, { id: 'm-2' }], total: 2 }]
+	])(
+		'answers 502 and creates nothing when the membership list %s (never read as "no organization")',
+		async (_label, memberships) => {
+			primeOwnerWithOrganizations([]);
+			mockRequests.getUserOrganizationsRequest.mockResolvedValue({ data: memberships });
+			const { POST } = loadRoute();
 
-		expect((await POST(post({ workspace: 0 }))).status).toBe(502);
-		expect(mockRequests.getAllOrganizationTeamRequest).not.toHaveBeenCalled();
-		expect(mockRequests.createOrganizationRequest).not.toHaveBeenCalled();
-		expect(mockRequests.createEmployeeFromUser).not.toHaveBeenCalled();
-		expect(mockRequests.createOrganizationTeamRequest).not.toHaveBeenCalled();
-		expect(mockSetAuthCookies).not.toHaveBeenCalled();
-	});
+			expect((await POST(post({ workspace: 0 }))).status).toBe(502);
+			expect(mockRequests.getAllOrganizationTeamRequest).not.toHaveBeenCalled();
+			expect(mockRequests.createOrganizationRequest).not.toHaveBeenCalled();
+			expect(mockRequests.createEmployeeFromUser).not.toHaveBeenCalled();
+			expect(mockRequests.createOrganizationTeamRequest).not.toHaveBeenCalled();
+			expect(mockSetAuthCookies).not.toHaveBeenCalled();
+		}
+	);
 
-	it('answers 502 and creates nothing when the employee list has no items (never read as "no employee")', async () => {
-		primeOwnerWithOrganizations(['org-1']);
-		mockRequests.getAllOrganizationTeamRequest.mockResolvedValue({ data: { items: [], total: 0 } });
-		mockRequests.getOrganizationEmployees.mockResolvedValue({ data: undefined });
-		const { POST } = loadRoute();
+	it.each([
+		['has no items', undefined],
+		['names the employee without its id', { items: [{ userId: 'u1' }], total: 1 }]
+	])(
+		'answers 502 and creates nothing when the employee list %s (never read as "no employee")',
+		async (_label, employees) => {
+			primeOwnerWithOrganizations(['org-1']);
+			mockRequests.getAllOrganizationTeamRequest.mockResolvedValue({ data: { items: [], total: 0 } });
+			mockRequests.getOrganizationEmployees.mockResolvedValue({ data: employees });
+			const { POST } = loadRoute();
 
-		expect((await POST(post({ workspace: 0 }))).status).toBe(502);
-		expect(mockRequests.getOrganizationEmployees).toHaveBeenCalledWith('access-1', 't1', 'org-1');
-		expect(mockRequests.createEmployeeFromUser).not.toHaveBeenCalled();
-		expect(mockRequests.createOrganizationTeamRequest).not.toHaveBeenCalled();
-		expect(mockSetAuthCookies).not.toHaveBeenCalled();
-	});
+			expect((await POST(post({ workspace: 0 }))).status).toBe(502);
+			expect(mockRequests.getOrganizationEmployees).toHaveBeenCalledWith('access-1', 't1', 'org-1');
+			expect(mockRequests.createEmployeeFromUser).not.toHaveBeenCalled();
+			expect(mockRequests.createOrganizationTeamRequest).not.toHaveBeenCalled();
+			expect(mockSetAuthCookies).not.toHaveBeenCalled();
+		}
+	);
 
 	it.each([
 		['its employee exists', { items: [{ id: 'emp-1', userId: 'u1' }], total: 1 }, 'emp-1'],
@@ -380,7 +426,9 @@ describe('POST /api/auth/ever-id/finish-setup', () => {
 			mockRequests.getOrganizationEmployees.mockResolvedValue({ data: employees });
 			mockRequests.createEmployeeFromUser.mockResolvedValue({ data: { id: 'emp-new' } });
 			mockRequests.createOrganizationTeamRequest.mockResolvedValue({ data: { id: 'team-new' } });
-			mockRequests.refreshTokenRequest.mockResolvedValue({ data: { token: 'access-2', refresh_token: 'refresh-2' } });
+			mockRequests.refreshTokenRequest.mockResolvedValue({
+				data: { token: 'access-2', refresh_token: 'refresh-2' }
+			});
 			const { POST } = loadRoute();
 
 			expect((await POST(post({ workspace: 0 }))).status).toBe(200);

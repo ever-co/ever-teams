@@ -101,9 +101,8 @@ export async function provisionEverIdWorkspace(input: EverIdProvisionInput): Pro
 			tenantId = existingTenantId;
 			// An unreadable list is never read as "no organization" or "no employee": that would create a second one
 			if (!Array.isArray(memberships?.items)) return 'failed';
-			const organizationIds = memberships.items
-				.map((membership) => membership.organizationId)
-				.filter((id): id is string => typeof id === 'string' && !!id);
+			const organizationIds = memberships.items.map((membership) => membership.organizationId);
+			if (!organizationIds.every((id): id is string => typeof id === 'string' && !!id)) return 'failed';
 			// A team in ANY of the owner's organizations is a finished workspace
 			for (const id of organizationIds) {
 				const { data: teams } = await getAllOrganizationTeamRequest(
@@ -117,7 +116,9 @@ export async function provisionEverIdWorkspace(input: EverIdProvisionInput): Pro
 			if (organizationId) {
 				const { data: employees } = await getOrganizationEmployees(auth_token, tenantId, organizationId);
 				if (!Array.isArray(employees?.items)) return 'failed';
-				employeeId = employees.items.find((employee) => employee.userId === userId)?.id ?? undefined;
+				const employee = employees.items.find((item) => item.userId === userId);
+				if (employee && (typeof employee.id !== 'string' || !employee.id)) return 'failed';
+				employeeId = employee?.id;
 			}
 		} else {
 			const { data: tenant } = await createTenantRequest(team, auth_token);
