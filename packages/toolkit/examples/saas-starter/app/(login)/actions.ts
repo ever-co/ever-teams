@@ -17,7 +17,7 @@ import {
 	invitations
 } from '@/lib/db/schema';
 import { comparePasswords, hashPassword, setSession } from '@/lib/auth/session';
-import { connectTeamsAccount } from '@/lib/auth/teams-handoff';
+import { clearTeamsHandoff, connectTeamsAccount } from '@/lib/auth/teams-handoff';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { createCheckoutSession } from '@/lib/payments/stripe';
@@ -80,7 +80,7 @@ export const signIn = validatedAction(signInSchema, async (data, formData) => {
 		setSession(foundUser),
 		logActivity(foundTeam?.id, foundUser.id, ActivityType.SIGN_IN),
 		// On the server, with the password this action already has: only the Teams token reaches the browser
-		connectTeamsAccount({ email, password })
+		connectTeamsAccount({ userId: foundUser.id, email, password })
 	]);
 
 	// Handle redirect logic
@@ -193,7 +193,7 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
 		db.insert(teamMembers).values(newTeamMember),
 		logActivity(teamId, createdUser.id, ActivityType.SIGN_UP),
 		setSession(createdUser),
-		connectTeamsAccount({ email, password })
+		connectTeamsAccount({ userId: createdUser.id, email, password })
 	]);
 
 	const redirectTo = formData.get('redirect') as string | null;
@@ -210,6 +210,7 @@ export async function signOut() {
 	const userWithTeam = await getUserWithTeam(user.id);
 	await logActivity(userWithTeam?.teamId, user.id, ActivityType.SIGN_OUT);
 	(await cookies()).delete('session');
+	await clearTeamsHandoff();
 }
 
 const updatePasswordSchema = z
@@ -281,6 +282,7 @@ export const deleteAccount = validatedActionWithUser(deleteAccountSchema, async 
 	}
 
 	(await cookies()).delete('session');
+	await clearTeamsHandoff();
 	redirect('/sign-in');
 });
 

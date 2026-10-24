@@ -321,9 +321,12 @@ function routeResponse(method, pathname, requestUrl, data, fixture, state, body)
 	if (pathname === '/api/auth/workspaces') return data.workspaces;
 	if (pathname === '/api/auth/refresh-token')
 		return { token: 'synthetic-refreshed-token', refresh_token: 'synthetic-refresh-token' };
-	// Tokens for another organization of the caller's tenant (the web app switches when the token's differs)
+	// Tokens for another organization of the caller's tenant (the web app switches when the token's differs). Like
+	// Gauzy, only an organization of the request's tenant is granted: anything else is refused without tokens, so a
+	// tenant-boundary regression in the web app cannot pass unnoticed.
 	if (pathname === '/api/auth/switch-organization' && method === 'POST') {
-		const organizationId = typeof body?.organizationId === 'string' ? body.organizationId : ids.organizationA;
+		const organizationId = typeof body?.organizationId === 'string' ? body.organizationId : '';
+		if (organizationId !== data.organization.id) return { statusCode: 401, message: 'Unauthorized' };
 		return {
 			token: syntheticToken(ids.user, organizationId, `switched-${organizationId}`),
 			refresh_token: 'synthetic-refresh-token'

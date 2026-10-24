@@ -8,12 +8,15 @@ import { readRuntimeEnv } from '@/lib/runtime-env';
  * password, and hands only the resulting Teams token to the browser.
  *
  * The password never reaches browser storage: the token waits in a short-lived httpOnly cookie, scoped to the
- * hand-off route, and `TeamsAuthHandler` collects it once from `POST /api/teams/handoff` after the redirect.
+ * hand-off route and bound to the local user it was made for, and `TeamsAuthHandler` collects it once from
+ * `POST /api/teams/handoff` after the redirect.
  */
 
 const HANDOFF_COOKIE = 'teams-handoff';
 const HANDOFF_PATH = '/api/teams/handoff';
 const HANDOFF_MAX_AGE_S = 60;
+/** How long a sign-in waits for Teams; after that the local sign-in goes on without a Teams token. */
+const TEAMS_DEADLINE_MS = 8_000;
 
 function configureTeamsApi() {
 	const apiUrl = readRuntimeEnv('NEXT_PUBLIC_TEAMS_API_URL') || process.env.NEXT_PUBLIC_TEAMS_API_URL;
@@ -22,45 +25,73 @@ function configureTeamsApi() {
 
 /**
  * Signs in to Ever Teams with the local credentials, or creates the Teams account (tenant, organization, team) when
- * there is none, and leaves the Teams token for the hand-off. A Teams failure never fails the local sign-in.
+ * there is none. Never rejects: a Teams failure is logged and answers `undefined`.
  */
-export async function connectTeamsAccount({ email, password }: { email: string; password: string }): Promise<void> {
+async function teamsToken(email: string, password: string): Promise<string | undefined> {
 	try {
 		configureTeamsApi();
-		let token: string | undefined;
 		const login = await authLogin({ email, password });
-		if (login && 'token' in login && login.token) {
-			token = login.token;
-		} else {
-			const setup = await createCompleteAccount({
-				fullName: email.includes('@') ? email.split('@')[0] : email,
-				email,
-				password,
-				confirmPassword: password
-			});
-			if ('token' in setup) {
-				token = setup.token;
-			} else {
-				console.warn('Teams account setup failed:', setup.error || setup.message);
-			}
-		}
+		if (login && 'token' in login && login.token) return login.token;
+		const setup = await createCompleteAccount({
+			fullName: email.includes('@') ? email.split('@')[0] : email,
+			email,
+			password,
+			confirmPassword: password
+		});
+		if ('token' in setup) return setup.token;
+		console.warn('Teams account setup failed:', setup.error || setup.message);
+	} catch (error) {
+		console.warn('Teams authentication failed:', error instanceof Error ? error.message : error);
+	}
+	return undefined;
+}
+
+/** Removes a pending hand-off (an earlier sign-in's, perhaps another account's). */
+export async function clearTeamsHandoff(): Promise<void> {
+	(await cookies()).delete({ name: HANDOFF_COOKIE, path: HANDOFF_PATH });
+}
+
+/**
+ * Leaves the Teams token of `email` for the hand-off, bound to the local user `userId`. A Teams failure or a Teams
+ * API slower than {@link TEAMS_DEADLINE_MS} never fails or holds up the local sign-in. The SDK requests take no
+ * cancellation signal, so a late answer is dropped, not cancelled: an account created late is found by the next
+ * sign-in's `authLogin`.
+ */
+export async function connectTeamsAccount({
+	userId,
+	email,
+	password
+}: {
+	userId: number;
+	email: string;
+	password: string;
+}): Promise<void> {
+	await clearTeamsHandoff();
+	let timer: ReturnType<typeof setTimeout> | undefined;
+	const deadline = new Promise<undefined>((resolve) => {
+		timer = setTimeout(() => resolve(undefined), TEAMS_DEADLINE_MS);
+	});
+	try {
+		const token = await Promise.race([teamsToken(email, password), deadline]);
 		if (!token) return;
-		(await cookies()).set(HANDOFF_COOKIE, token, {
+		(await cookies()).set(HANDOFF_COOKIE, `${userId}.${token}`, {
 			httpOnly: true,
 			secure: true,
 			sameSite: 'strict',
 			path: HANDOFF_PATH,
 			maxAge: HANDOFF_MAX_AGE_S
 		});
-	} catch (error) {
-		console.warn('Teams authentication failed:', error instanceof Error ? error.message : error);
+	} finally {
+		clearTimeout(timer);
 	}
 }
 
-/** The Teams token left by the last sign-in, once: reading it removes it. */
-export async function takeTeamsHandoff(): Promise<string | null> {
-	const store = await cookies();
-	const token = store.get(HANDOFF_COOKIE)?.value ?? null;
-	if (token) store.delete({ name: HANDOFF_COOKIE, path: HANDOFF_PATH });
-	return token;
+/** The Teams token the last sign-in left for local user `userId`, once: reading it removes it, whoever it was for. */
+export async function takeTeamsHandoff(userId: number): Promise<string | null> {
+	const value = (await cookies()).get(HANDOFF_COOKIE)?.value;
+	if (!value) return null;
+	await clearTeamsHandoff();
+	const separator = value.indexOf('.');
+	if (separator < 1 || value.slice(0, separator) !== String(userId)) return null;
+	return value.slice(separator + 1) || null;
 }
