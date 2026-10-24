@@ -67,7 +67,17 @@ export function useAuthenticationTeam() {
 
 			const { response } = await signIn({ email: authEmail, token });
 
-			if (response) {
+			// A sign-in error (workspace not loaded, setup not complete) has no data: show it and keep the form, so the
+			// person can try again. Reading the data first threw, and the message never reached the screen.
+			if (response && 'errors' in response) {
+				setIsSubmitted(false);
+				setJoinError(response.errors.email);
+				return;
+			}
+
+			// Narrowed by `in`: this project type-checks without strictNullChecks, where the early return above does not
+			// narrow `response` for what follows
+			if (response && 'data' in response) {
 				setUser(response.data.authStoreData.user);
 				setEmployeeId(response.data.authStoreData.user.employeeId);
 				// Save Auth Token
@@ -90,10 +100,6 @@ export function useAuthenticationTeam() {
 				setAuthUsername('');
 				setAuthInviteCode('');
 				setAuthConfirmCode('');
-
-				if (response.errors) {
-					setJoinError(response.errors.email);
-				}
 			}
 		} catch (error) {
 			setIsSubmitted(false);

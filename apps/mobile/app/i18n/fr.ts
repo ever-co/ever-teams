@@ -39,6 +39,7 @@ const fr = {
 		name: 'Connexion',
 		verifyEmailTitle: 'Vérifiez votre e-mail',
 		verifyEmailMessage: "Votre compte a été créé. Ouvrez le lien de l'e-mail envoyé à {{email}} pour l'activer, puis connectez-vous avec votre e-mail.",
+		workspaceSetupFailed: "La configuration de votre espace de travail n'a pas pu être terminée. Veuillez réessayer.",
 		enterDetails: 'Créer une nouvelle équipe',
 		enterDetails2: "Rejoignez l'équipe existante",
 		enterDetails3: 'Espace de travail',
