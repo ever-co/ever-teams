@@ -275,7 +275,8 @@
 		"**/react-router-dom": "6.30.6",
 		"**/shell-quote": "1.12.0",
 		"**/tinypool": "2.2.0",
-		"**/underscore": "1.13.8"
+		"**/underscore": "1.13.8",
+		"**/plasmo/fflate": "0.8.3"
 	},
 	"dependencies": {
 		"@lexical/react": "^0.41.0",
