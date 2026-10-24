@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useStores } from "../../../models"
 import useFetchAllTasks from "../../client/queries/task/tasks"
 import {
@@ -14,6 +14,13 @@ import { useSyncRef } from "../use-sync-ref"
 import { useFirstLoad } from "../use-first-load"
 import isEqual from "lodash/isEqual"
 import { useOrganizationTeam } from "../use-organization"
+
+/**
+ * The active task id the teams data still held when a new task was chosen. Until the store names another one, no
+ * sync effect may restore it (the refetch reaches the MobX store only through the teams effect). One for the app:
+ * every useTeamTasks instance writes the same TaskStore, so each must honour a selection made by another.
+ */
+const pendingSelection: { staleActiveTaskId: string | null } = { staleActiveTaskId: null }
 
 export function useTeamTasks() {
 	const {
@@ -38,6 +45,8 @@ export function useTeamTasks() {
 	const [isUpdatingActiveTask, setIsUpdatingActiveTask] = useState<boolean>(false)
 	const [createLoading, setCreateLoading] = useState<boolean>(false)
 	const activeTeamRef = useSyncRef(activeTeam)
+	// The live member, for callbacks memoized with fewer dependencies (createNewTask keeps an older setActiveTeamTask)
+	const currentUserRef = useSyncRef(currentUser)
 
 	const { firstLoad, firstLoadData: firstLoadTaskData } = useFirstLoad()
 
@@ -263,10 +272,6 @@ export function useTeamTasks() {
 		[setTasksFetching],
 	)
 
-	// The active task id the teams data still held when a new task was chosen: until the store names another one,
-	// the sync effect below must not restore it (the refetch lands in the MobX store only through the teams effect)
-	const staleActiveTaskId = useRef<string | null>(null)
-
 	/**
 	 * Change active task
 	 */
@@ -283,8 +288,9 @@ export function useTeamTasks() {
 				if (response.ok) {
 					// The task just sent is the active one now: currentUser.activeTaskId still names the previous one
 					// until the next teams refresh, so looking it up showed the old task
-					if ((task?.id ?? "") !== (currentUser?.activeTaskId ?? "")) {
-						staleActiveTaskId.current = currentUser?.activeTaskId ?? ""
+					const liveActiveTaskId = currentUserRef.current?.activeTaskId ?? ""
+					if ((task?.id ?? "") !== liveActiveTaskId) {
+						pendingSelection.staleActiveTaskId = liveActiveTaskId
 					}
 					setActiveTask(task)
 					setActiveTaskId(task?.id ?? "")
@@ -300,10 +306,10 @@ export function useTeamTasks() {
 
 	useEffect(() => {
 		if (!isUpdatingActiveTask) {
-			if (staleActiveTaskId.current !== null) {
+			if (pendingSelection.staleActiveTaskId !== null) {
 				// The teams data still names the task the user just left
-				if ((currentUser?.activeTaskId ?? "") === staleActiveTaskId.current) return
-				staleActiveTaskId.current = null
+				if ((currentUser?.activeTaskId ?? "") === pendingSelection.staleActiveTaskId) return
+				pendingSelection.staleActiveTaskId = null
 			}
 			const synchedActiveTask =
 				allTasks && currentUser
