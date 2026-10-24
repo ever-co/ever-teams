@@ -293,12 +293,12 @@
                 const totalHours = toCount(projectData.totalHours || projectData.stats?.totalHours);
                 const totalTasks = toCount(projectData.totalTasks || projectData.stats?.totalTasks);
                 const completedTasks = toCount(projectData.completedTasks || projectData.stats?.completedTasks);
-                const teamSize = toCount(projectData.teamSize || projectData.members?.length);
+                const members = Array.isArray(projectData.members) ? projectData.members : [];
+                const teamSize = toCount(projectData.teamSize || members.length);
                 const budget = projectData.budget;
                 const spent = projectData.spent;
                 const startDate = projectData.startDate;
                 const endDate = projectData.endDate;
-                const members = Array.isArray(projectData.members) ? projectData.members : [];
                 const client = projectData.organizationContact?.name || projectData.clientName;
                 const progress = Math.min(
                     100,
