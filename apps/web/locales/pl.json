@@ -1118,7 +1118,8 @@
 			"BILLABLE_MODIFY_SUCCESS": "Stan rozliczeniowy został pomyślnie zmieniony.",
 			"BILLABLE_MODIFY_ERROR": "Nie udało się zmienić stanu rozliczeniowego. Spróbuj ponownie.",
 			"STATUS_MODIFY_SUCCESS": "Status karty czasu pracy został pomyślnie zmieniony.",
-			"STATUS_MODIFY_ERROR": "Nie udało się zmienić statusu karty czasu pracy. Spróbuj ponownie."
+			"STATUS_MODIFY_ERROR": "Nie udało się zmienić statusu karty czasu pracy. Spróbuj ponownie.",
+			"END_AFTER_START": "Godzina zakończenia musi być późniejsza niż godzina rozpoczęcia."
 		}
 	},
 	"timer": {

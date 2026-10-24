@@ -142,7 +142,7 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 			// A time inside a daylight-saving gap (e.g. 02:30 on the spring-forward day) is moved an hour by Date,
 			// which can still put the end at or before the start: refuse it rather than save a reversed log
 			if (stoppedAt.getTime() <= startedAt.getTime()) {
-				alert('The end time must be after the start time.');
+				alert(t('pages.timeLog.END_AFTER_START'));
 				return;
 			}
 			const updatePayload: ITimeLogUpdatePayload = {

@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useStores } from "../../../models"
 import useFetchAllTasks from "../../client/queries/task/tasks"
 import {
@@ -263,6 +263,10 @@ export function useTeamTasks() {
 		[setTasksFetching],
 	)
 
+	// The active task id the teams data still held when a new task was chosen: until the store names another one,
+	// the sync effect below must not restore it (the refetch lands in the MobX store only through the teams effect)
+	const staleActiveTaskId = useRef<string | null>(null)
+
 	/**
 	 * Change active task
 	 */
@@ -279,6 +283,9 @@ export function useTeamTasks() {
 				if (response.ok) {
 					// The task just sent is the active one now: currentUser.activeTaskId still names the previous one
 					// until the next teams refresh, so looking it up showed the old task
+					if ((task?.id ?? "") !== (currentUser?.activeTaskId ?? "")) {
+						staleActiveTaskId.current = currentUser?.activeTaskId ?? ""
+					}
 					setActiveTask(task)
 					setActiveTaskId(task?.id ?? "")
 				}
@@ -288,11 +295,16 @@ export function useTeamTasks() {
 				setIsUpdatingActiveTask(false)
 			}
 		},
-		[setActiveTask, updateOrganizationTeamEmployeeActiveTask, activeTeamId],
+		[setActiveTask, updateOrganizationTeamEmployeeActiveTask, activeTeamId, currentUser],
 	)
 
 	useEffect(() => {
 		if (!isUpdatingActiveTask) {
+			if (staleActiveTaskId.current !== null) {
+				// The teams data still names the task the user just left
+				if ((currentUser?.activeTaskId ?? "") === staleActiveTaskId.current) return
+				staleActiveTaskId.current = null
+			}
 			const synchedActiveTask =
 				allTasks && currentUser
 					? allTasks?.find((task) => task.id === currentUser.activeTaskId)

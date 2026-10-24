@@ -1118,7 +1118,8 @@
 			"BILLABLE_MODIFY_SUCCESS": "O estado faturável foi modificado com sucesso.",
 			"BILLABLE_MODIFY_ERROR": "Falha ao modificar o estado faturável. Tente novamente.",
 			"STATUS_MODIFY_SUCCESS": "O status da folha de ponto foi modificado com sucesso.",
-			"STATUS_MODIFY_ERROR": "Falha ao modificar o status da folha de ponto. Tente novamente."
+			"STATUS_MODIFY_ERROR": "Falha ao modificar o status da folha de ponto. Tente novamente.",
+			"END_AFTER_START": "A hora de término deve ser posterior à hora de início."
 		}
 	},
 	"timer": {
