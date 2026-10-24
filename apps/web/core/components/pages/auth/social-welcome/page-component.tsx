@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { DEFAULT_APP_PATH } from '@/core/constants/config/constants';
+import { readSocialSession, socialRefreshToken } from '@/core/lib/auth/social-session';
 
 export default function Welcome() {
 	const { data: session, update }: any = useSession();
@@ -18,12 +19,13 @@ export default function Welcome() {
 		if (verifyEmail !== null) return;
 		const loadOAuthSession = () => {
 			if (session) {
-				const { access_token, organizationId, refresh_token, tenantId, teamId, userId } = session.user;
+				const { access_token, organizationId, refresh_token, tenantId, teamId, userId } =
+					readSocialSession(session) ?? {};
 				if (access_token) {
 					setAuthCookies({
 						access_token: access_token,
 						refresh_token: {
-							token: refresh_token
+							token: socialRefreshToken(refresh_token) ?? ''
 						},
 						timezone: '',
 						teamId,
