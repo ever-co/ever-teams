@@ -4,6 +4,7 @@ import { ISignInDataAPI } from '../../../interfaces/IAuthentication';
 import { signInWorkspaceRequest } from '../../requests/auth';
 
 import { getUserOrganizationsRequest } from '../../requests/organization';
+import { pickTokenOrganization, setupConfirmedSignupWorkspace } from './workspace-setup';
 
 export async function signIn(params: ISignInDataAPI) {
 	const { errors, valid: formValid } = authFormValidate(['email'], params as any);
@@ -28,9 +29,38 @@ export async function signIn(params: ISignInDataAPI) {
 	const accessToken = data.token;
 	const userId = data.user?.id;
 
-	const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, accessToken);
+	// An account with no tenant yet has no organization to list (and the list needs a tenant)
+	const organizations = tenantId
+		? (await getUserOrganizationsRequest({ tenantId, userId }, accessToken)).data
+		: undefined;
 
-	const organization = organizations?.items[0];
+	const organization = pickTokenOrganization(organizations?.items, accessToken);
+
+	// A sign-up confirmed after register has no workspace yet: set it up now (an account in a tenant is left alone)
+	if (!organization && !tenantId && userId) {
+		const setup = await setupConfirmedSignupWorkspace({
+			accessToken,
+			refreshToken: data.refresh_token,
+			userId,
+			name: [data.user?.firstName, data.user?.lastName].filter(Boolean).join(' ')
+		});
+		if (setup) {
+			return {
+				response: {
+					data: {
+						authStoreData: {
+							access_token: setup.accessToken,
+							refresh_token: data.refresh_token,
+							tenantId: setup.tenantId,
+							organizationId: setup.organizationId,
+							user: data.user
+						}
+					}
+				},
+				status: 200
+			};
+		}
+	}
 
 	if (!organization) {
 		return {
