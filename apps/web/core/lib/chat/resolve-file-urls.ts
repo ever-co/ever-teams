@@ -217,7 +217,7 @@ function withFileBytes(prompt: CoreMessage[], files: Map<string, Uint8Array>): C
  * The model the OpenAI provider builds for `gpt-3.5-turbo-instruct` is a completion model: it takes no image URL,
  * so the SDK downloads every image URL of the prompt with the global fetch (SSRF), and only then refuses images.
  */
-export const COMPLETION_MODEL_IDS: ReadonlySet<string> = new Set(['gpt-3.5-turbo-instruct']);
+const COMPLETION_MODEL_IDS: ReadonlySet<string> = new Set(['gpt-3.5-turbo-instruct']);
 
 const NO_IMAGES = 'This model does not take images.';
 
@@ -240,7 +240,7 @@ function isHttpImageUrl(image: unknown): boolean {
  * Whether the user messages carry an image given as an http(s) URL (an image part, or an image attachment of a UI
  * message), which the SDK downloads for a model that takes no image URL.
  */
-export function holdsImageUrl(messages: unknown): boolean {
+function holdsImageUrl(messages: unknown): boolean {
 	if (!Array.isArray(messages) || messages.length === 0) return false;
 	let prompt: CoreMessage[];
 	try {
