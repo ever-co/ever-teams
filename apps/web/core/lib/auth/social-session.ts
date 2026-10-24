@@ -8,6 +8,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  * The welcome and workspace pages read them from `session.user`, which holds only the profile (name, e-mail, image),
  * so a social sign-in never reached a workspace. `session.user` stays the fallback for a session written before.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- the next-auth record is untyped, as `session.user` was: each page picks the fields it reads
 export function readSocialSession(session: unknown): Record<string, any> | null {
 	if (!isRecord(session)) return null;
 	// An Ever ID session has its own reader (ever-id/session.ts)
