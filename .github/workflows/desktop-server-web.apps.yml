@@ -11,6 +11,10 @@ concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
   cancel-in-progress: true
 
+# Least privilege for the workflow token (CodeQL actions/missing-workflow-permissions): the builds publish with the GH_TOKEN secret
+permissions:
+  contents: read
+
 jobs:
   release-linux:
     runs-on: ${{ matrix.os }}

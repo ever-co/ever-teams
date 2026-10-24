@@ -19,6 +19,7 @@ import { signinService } from '../../client/api/auth/signin.service';
 import { userOrganizationService } from '../../client/api/users/user-organization.service';
 import { EProvider } from '@/core/types/generics/enums/social-accounts';
 import { everIdUserByAccount, isEverIdCallbackRequest } from '@/core/services/server/ever-id/sign-in';
+import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
 
 export function GauzyAdapter(req: NextRequest): Adapter {
 	return {
@@ -41,6 +42,13 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 				user: { email, firstName, lastName, timeZone: '' },
 				appEmailConfirmationUrl
 			});
+
+			// Gauzy keeps a self-registration inactive until its e-mail link is opened (owner decision 4,
+			// ever-co/ever-gauzy#11341): a login now answers 401. The account exists and the link is on its way; the
+			// workspace is set up at the first sign-in after the confirmation (finish-signup.ts).
+			if ((createdUser.data as { isActive?: boolean } | undefined)?.isActive === false) {
+				return createdUser.data;
+			}
 
 			// User Login, get the access token
 			const { data: loginRes } = await loginUserRequest(email, password);
@@ -179,7 +187,7 @@ async function signIn(provider: EProvider, access_token: string) {
 			token
 		});
 
-		const organization = organizations?.items[0];
+		const organization = pickTokenOrganization(organizations?.items, token);
 
 		if (!organization) {
 			return Promise.reject({

@@ -179,7 +179,7 @@
         "yarn": ">=1.22.17"
     },
     "build": {
-        "electronVersion": "42.11.9",
+        "electronVersion": "42.11.16",
         "appId": "com.ever.teams.serverweb",
         "artifactName": "${name}-${arch}-${version}.${ext}",
         "productName": "Ever Teams Server Web",

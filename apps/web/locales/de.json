@@ -727,6 +727,7 @@
 			"TERMS_OF_SERVICE": "Nutzungsbedingungen",
 			"PRIVACY_POLICY": "Datenschutzrichtlinie",
 			"OR_CONTINUE_WITH": "oder weiter mit",
+			"SIGNUP_VERIFY_EMAIL": "Ihr Konto wurde erstellt. Öffnen Sie den Link in der E-Mail an {email}, um es zu aktivieren, und melden Sie sich dann mit Ihrer E-Mail an.",
 			"everId": {
 				"NO_WORKSPACE_TITLE": "Noch kein Arbeitsbereich für diese Ever ID",
 				"NO_WORKSPACE_BODY": "Mit dieser Ever ID ist noch kein Arbeitsbereich verknüpft. Melden Sie sich auf andere Weise an oder bitten Sie den Administrator Ihres Arbeitsbereichs um eine Einladung.",
@@ -1118,7 +1119,8 @@
 			"BILLABLE_MODIFY_SUCCESS": "Der Abrechnungsstatus wurde erfolgreich geändert.",
 			"BILLABLE_MODIFY_ERROR": "Der Abrechnungsstatus konnte nicht geändert werden. Bitte versuchen Sie es erneut.",
 			"STATUS_MODIFY_SUCCESS": "Der Status der Zeiterfassung wurde erfolgreich geändert.",
-			"STATUS_MODIFY_ERROR": "Der Status der Zeiterfassung konnte nicht geändert werden. Bitte versuchen Sie es erneut."
+			"STATUS_MODIFY_ERROR": "Der Status der Zeiterfassung konnte nicht geändert werden. Bitte versuchen Sie es erneut.",
+			"END_AFTER_START": "Die Endzeit muss nach der Startzeit liegen."
 		}
 	},
 	"timer": {

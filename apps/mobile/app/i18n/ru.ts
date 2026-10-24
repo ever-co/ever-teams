@@ -37,6 +37,8 @@ const ru = {
 	},
 	loginScreen: {
 		name: 'Login',
+		verifyEmailTitle: 'Проверьте почту',
+		verifyEmailMessage: 'Ваша учётная запись создана. Откройте ссылку в письме, отправленном на {{email}}, чтобы активировать её, затем войдите по электронной почте.',
 		enterDetails: 'Create New Team',
 		enterDetails2: 'Join Existed Team',
 		enterDetails3: 'Workspace',

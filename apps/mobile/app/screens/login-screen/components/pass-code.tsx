@@ -97,11 +97,12 @@ const PassCode: FC<Props> = observer(
 						!isLoading &&
 						response.data?.workspaces &&
 						response.data?.workspaces.length === 1 &&
-						response.data?.workspaces[0].current_teams.length === 1
+						response.data?.workspaces[0].current_teams.length <= 1
 					) {
+						// One workspace with one team, or with none yet (a confirmed sign-up: the sign-in sets it up)
 						// if there is 1 workspace and 1 team -> log the user
 						setTempAuthToken(response.data?.workspaces[0]?.token);
-						setActiveTeamId(response.data?.workspaces[0].current_teams[0]?.team_id);
+						setActiveTeamId(response.data?.workspaces[0].current_teams[0]?.team_id ?? '');
 
 						// login
 						// @ts-ignore

@@ -37,6 +37,8 @@ const bg = {
 	},
 	loginScreen: {
 		name: 'Login',
+		verifyEmailTitle: 'Проверете имейла си',
+		verifyEmailMessage: 'Акаунтът ви е създаден. Отворете връзката в имейла, който изпратихме на {{email}}, за да го активирате, след което влезте с имейла си.',
 		enterDetails: 'Create New Team',
 		enterDetails2: 'Join Existed Team',
 		enterDetails3: 'Workspace',
