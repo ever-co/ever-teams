@@ -7,6 +7,7 @@ import { createSmtpTenantRequest } from '../../requests/features/smtp';
 import { createOrganizationRequest } from '../../requests/organization';
 import { createOrganizationTeamRequest, getAllOrganizationTeamRequest } from '../../requests/organization-team';
 import { createTenantRequest } from '../../requests/tenant';
+import { savePendingSignup } from './workspace-setup';
 
 export async function register(params: IRegisterDataAPI) {
 	const { errors, valid: formValid } = authFormValidate(['email', 'name', 'team'], params);
@@ -39,6 +40,8 @@ export async function register(params: IRegisterDataAPI) {
 	// Gauzy keeps a self-registration inactive until the link in its verification e-mail is opened (owner decision 4,
 	// ever-co/ever-gauzy#11341): logging in now answers 401. The person confirms, then signs in with the e-mail code.
 	if ((user as { isActive?: boolean } | undefined)?.isActive === false) {
+		// The workspace is set up at the first sign-in after the confirmation: keep the team name asked for until then
+		await savePendingSignup(params.email, params.team);
 		return {
 			response: {
 				status: 202,

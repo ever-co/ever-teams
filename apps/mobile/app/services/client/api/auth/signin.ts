@@ -4,7 +4,14 @@ import { ISignInDataAPI } from '../../../interfaces/IAuthentication';
 import { signInWorkspaceRequest } from '../../requests/auth';
 
 import { getUserOrganizationsRequest } from '../../requests/organization';
-import { pickTokenOrganization, setupConfirmedSignupWorkspace } from './workspace-setup';
+import { getAllOrganizationTeamRequest } from '../../requests/organization-team';
+import {
+	clearPendingSignup,
+	loadPendingSignup,
+	pickTokenOrganization,
+	savePendingSignup,
+	setupConfirmedSignupWorkspace
+} from './workspace-setup';
 
 export async function signIn(params: ISignInDataAPI) {
 	const { errors, valid: formValid } = authFormValidate(['email'], params as any);
@@ -50,15 +57,36 @@ export async function signIn(params: ISignInDataAPI) {
 	// A sign-up confirmed after register has no workspace yet: set it up now. The owner of a tenant whose setup stopped
 	// half-way (no organization yet) resumes it in that tenant; any other account in a tenant is left alone.
 	const ownsIncompleteTenant = !!tenantId && (data.user as { role?: { name?: string } })?.role?.name === 'SUPER_ADMIN';
-	if (!organization && userId && (!tenantId || ownsIncompleteTenant)) {
+	const pending = await loadPendingSignup(params.email);
+
+	// A setup that stopped after the organization (it has no team yet) resumes too, where it was started: the device
+	// keeps the mark of a setup in progress until it completes
+	let resumeOrganizationId: string | undefined;
+	if (organization && ownsIncompleteTenant && pending) {
+		const teams = await getAllOrganizationTeamRequest(
+			{ tenantId, organizationId: organization.organizationId, relations: [] },
+			accessToken
+		);
+		if (teams.response.ok && Array.isArray(teams.data?.items) && teams.data.items.length === 0) {
+			resumeOrganizationId = organization.organizationId;
+		}
+	}
+
+	if (userId && (resumeOrganizationId || (!organization && (!tenantId || ownsIncompleteTenant)))) {
+		if (!pending) await savePendingSignup(params.email, null);
+		const employeeId = (data.user as { employee?: { id?: string } } | undefined)?.employee?.id;
 		const setup = await setupConfirmedSignupWorkspace({
 			accessToken,
 			refreshToken: data.refresh_token,
 			userId,
 			name: [data.user?.firstName, data.user?.lastName].filter(Boolean).join(' '),
-			existingTenantId: tenantId || undefined
+			team: pending?.team,
+			existingTenantId: tenantId || undefined,
+			existingOrganizationId: resumeOrganizationId,
+			existingEmployeeId: resumeOrganizationId ? employeeId : undefined
 		});
 		if (setup) {
+			await clearPendingSignup(params.email);
 			return {
 				response: {
 					data: {
