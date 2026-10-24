@@ -45,6 +45,8 @@ describe('syncTokenOrganization', () => {
 	});
 
 	it("switches the token to the active team's organization and stores the new tokens", async () => {
+		// setActiveTeam writes the organization cookie before it asks for the switch
+		mockCookies.organizationId = 'org-b';
 		mockSwitch.mockResolvedValue({ data: { token: 'new-access', refresh_token: 'new-refresh' } });
 
 		expect(await syncTokenOrganization('org-b')).toBe(true);
@@ -64,6 +66,7 @@ describe('syncTokenOrganization', () => {
 	});
 
 	it('asks once for concurrent callers', async () => {
+		mockCookies.organizationId = 'org-b';
 		mockSwitch.mockResolvedValue({ data: { token: 'new-access', refresh_token: 'new-refresh' } });
 
 		await Promise.all([syncTokenOrganization('org-b'), syncTokenOrganization('org-b')]);
@@ -72,10 +75,12 @@ describe('syncTokenOrganization', () => {
 	});
 
 	it.each([
-		['refuses the membership (401)', 401],
-		['refuses the permission (403)', 403]
-	])('keeps the tokens, and does not ask again, when Gauzy %s', async (_label, status) => {
-		mockSwitch.mockRejectedValue(Object.assign(new Error('refused'), { response: { status } }));
+		['refuses the membership (401, proxy mode)', { response: { status: 401 } }],
+		['refuses the permission (403, proxy mode)', { response: { status: 403 } }],
+		['refuses the permission (403, direct mode ApiErrorService)', { httpResponseStatus: 403 }]
+	])('keeps the tokens, and does not ask again, when Gauzy %s', async (_label, shape) => {
+		mockCookies.organizationId = 'org-b';
+		mockSwitch.mockRejectedValue(Object.assign(new Error('refused'), shape));
 
 		expect(await syncTokenOrganization('org-b')).toBe(false);
 		expect(await syncTokenOrganization('org-b')).toBe(false);
@@ -92,6 +97,7 @@ describe('syncTokenOrganization', () => {
 			() => mockSwitch.mockRejectedValueOnce(Object.assign(new Error('bad'), { response: { status: 502 } }))
 		]
 	])('keeps the tokens but asks again later when Gauzy %s', async (_label, arrange) => {
+		mockCookies.organizationId = 'org-b';
 		arrange();
 		expect(await syncTokenOrganization('org-b')).toBe(false);
 
@@ -104,6 +110,7 @@ describe('syncTokenOrganization', () => {
 		let answer: (value: unknown) => void = () => undefined;
 		mockSwitch.mockReturnValue(new Promise((resolve) => (answer = resolve)));
 
+		mockCookies.organizationId = 'org-b';
 		const switching = syncTokenOrganization('org-b');
 		// Back on a team of organization A before B's answer arrives
 		mockCookies.organizationId = 'org-a';
