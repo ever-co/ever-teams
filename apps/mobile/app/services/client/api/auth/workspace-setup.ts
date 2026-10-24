@@ -24,43 +24,76 @@ export function pickTokenOrganization<T extends { organizationId?: string }>(
 	return items?.find((item) => item.organizationId === tokenOrganizationId) ?? items?.[0];
 }
 
+/** The request helpers answer an HTTP error instead of throwing: this one throws, with the step that failed. */
+function required<T extends { id?: string }>(step: string, result: { data: T; response: Response }): T {
+	if (!result.response.ok || !result.data?.id) {
+		throw new Error(`Workspace setup failed at ${step} (HTTP ${result.response.status})`);
+	}
+	return result.data;
+}
+
 /**
  * Sets up the workspace (tenant, SMTP, organization, employee, team) of a confirmed sign-up that has none. Gauzy keeps
  * a self-registration inactive until its e-mail link is opened (ever-co/ever-gauzy#11341), so the register flow can no
- * longer do this at once: the first sign-in after the confirmation does, with the same steps.
+ * longer do this at once: the first sign-in after the confirmation does, with the same steps. A tenant left by an
+ * earlier attempt that stopped half-way (`existingTenantId`, owned by this account) is kept and the remaining steps run.
  *
- * @returns the new tenant and organization ids and a refreshed access token, or null when a step failed.
+ * @returns the tenant and organization ids and the refreshed tokens, or null when a step failed.
  */
 export async function setupConfirmedSignupWorkspace(input: {
 	accessToken: string;
 	refreshToken: string;
 	userId: string;
 	name?: string;
-}): Promise<{ tenantId: string; organizationId: string; accessToken: string } | null> {
+	existingTenantId?: string;
+}): Promise<{ tenantId: string; organizationId: string; accessToken: string; refreshToken: string } | null> {
 	try {
 		const team = input.name?.trim() ? `${input.name.trim()}'s Team` : 'My Team';
-		const { data: tenant } = await createTenantRequest(team, input.accessToken);
-		await createSmtpTenantRequest(input.accessToken, tenant.id);
-		const { data: organization } = await createOrganizationRequest(
-			{ currency: 'USD', name: team, tenantId: tenant.id, invitesAllowed: true },
-			input.accessToken
+
+		let tenantId = input.existingTenantId;
+		if (!tenantId) {
+			tenantId = required('tenant', await createTenantRequest(team, input.accessToken)).id as string;
+			// The SMTP settings are a convenience: a failure there does not stop the setup
+			await createSmtpTenantRequest(input.accessToken, tenantId).catch(() => undefined);
+		}
+
+		const organization = required(
+			'organization',
+			await createOrganizationRequest({ currency: 'USD', name: team, tenantId, invitesAllowed: true }, input.accessToken)
 		);
-		const { data: employee } = await createEmployeeFromUser(
-			{
-				organizationId: organization.id,
-				startedWorkOn: new Date().toISOString(),
-				tenantId: tenant.id,
-				userId: input.userId
-			},
-			input.accessToken
+		const employee = required(
+			'employee',
+			await createEmployeeFromUser(
+				{
+					organizationId: organization.id as string,
+					startedWorkOn: new Date().toISOString(),
+					tenantId,
+					userId: input.userId
+				},
+				input.accessToken
+			)
 		);
-		await createOrganizationTeamRequest(
-			{ name: team, tenantId: tenant.id, organizationId: organization.id, managerIds: [employee.id] },
-			input.accessToken
+		required(
+			'team',
+			await createOrganizationTeamRequest(
+				{ name: team, tenantId, organizationId: organization.id as string, managerIds: [employee.id as string] },
+				input.accessToken
+			)
 		);
-		const { data: refreshed } = await refreshTokenRequest(input.refreshToken);
-		return { tenantId: tenant.id, organizationId: organization.id, accessToken: refreshed.token };
-	} catch {
+
+		// A token minted before the tenant existed names none: refresh it, and keep the rotated refresh token
+		const refreshed = await refreshTokenRequest(input.refreshToken);
+		if (!refreshed.response.ok || !refreshed.data?.token) {
+			throw new Error(`Workspace setup failed at token refresh (HTTP ${refreshed.response.status})`);
+		}
+		return {
+			tenantId,
+			organizationId: organization.id as string,
+			accessToken: refreshed.data.token,
+			refreshToken: refreshed.data.refresh_token || input.refreshToken
+		};
+	} catch (error) {
+		console.log(error);
 		return null;
 	}
 }
