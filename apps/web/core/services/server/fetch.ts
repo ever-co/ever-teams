@@ -77,6 +77,3 @@ export async function unwrapRejection(error: unknown): Promise<unknown> {
 		return error_;
 	}
 }
-
-// Browser-safe, so it lives in its own module (list-card.tsx loads it in the browser): re-exported for server callers
-export { svgFetch } from '@/core/lib/helpers/svg-fetch';

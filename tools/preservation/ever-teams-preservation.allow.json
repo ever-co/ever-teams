@@ -62,5 +62,21 @@
 	{
 		"id": "removed:publicExports:apps/web/core/stores/index.ts::runtime::OTRefreshIntervalState",
 		"reason": "OTRefreshIntervalState had no caller anywhere in the repo (git grep across apps and packages on develop finds only its own definition); #4560 removed it as dead code, no behaviour depended on it."
+	},
+	{
+		"id": "removed:serviceMethods:apps/web/core/services/logs/logger-server.ts::ensureDirectoryExists",
+		"reason": "Security (ever-co/ever-teams#4702): logger-server.ts is a 'use server' module imported by client code, so every export was a Server Action callable with any arguments. These path helpers let a caller pick the directory the server writes to; the module now writes plain .log names in logs/ only and exports no path helper."
+	},
+	{
+		"id": "removed:serviceMethods:apps/web/core/services/logs/logger-server.ts::getAbsolutePath",
+		"reason": "Security (ever-co/ever-teams#4702): logger-server.ts is a 'use server' module imported by client code, so every export was a Server Action callable with any arguments. These path helpers let a caller pick the directory the server writes to; the module now writes plain .log names in logs/ only and exports no path helper."
+	},
+	{
+		"id": "removed:serviceMethods:apps/web/core/services/logs/logger-server.ts::isProjectRootDir",
+		"reason": "Security (ever-co/ever-teams#4702): logger-server.ts is a 'use server' module imported by client code, so every export was a Server Action callable with any arguments. These path helpers let a caller pick the directory the server writes to; the module now writes plain .log names in logs/ only and exports no path helper."
+	},
+	{
+		"id": "removed:serviceMethods:apps/web/core/services/server/fetch.ts::svgFetch",
+		"reason": "Moved unchanged to core/lib/helpers/svg-fetch.ts (ever-co/ever-teams#4743): the settings chips load it in the browser, and server/fetch.ts now imports server-only code (client-ip.ts: node:crypto, node:net, next/headers) that broke the client build. Its only caller, settings/list-card.tsx, imports the new module."
 	}
 ]
