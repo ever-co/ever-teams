@@ -20,10 +20,9 @@ jest.mock('@/core/services/client/api/auth/auth.service', () => ({
 import { resetTokenOrganizationState, syncTokenOrganization, tokenOrganizationId } from './token-organization';
 
 /** An access token that decodes (only its payload is read). */
-function token(organizationId: string | null) {
+function token(organizationId: string | null, userId = 'user-1', issuedAt = Math.floor(Date.now() / 1000)) {
 	const encode = (part: object) => Buffer.from(JSON.stringify(part)).toString('base64url');
-	const now = Math.floor(Date.now() / 1000);
-	const payload = { id: 'user-1', organizationId, iat: now, exp: now + 3600 };
+	const payload = { id: userId, organizationId, iat: issuedAt, exp: issuedAt + 3600 };
 	return `${encode({ alg: 'HS256', typ: 'JWT' })}.${encode(payload)}.sig`;
 }
 
@@ -89,6 +88,18 @@ describe('syncTokenOrganization', () => {
 		expect(mockSet.access).not.toHaveBeenCalled();
 	});
 
+	it('asks again with a new token after a refusal (an expired token is refused with 401 too)', async () => {
+		mockCookies.organizationId = 'org-b';
+		mockSwitch.mockRejectedValueOnce(Object.assign(new Error('refused'), { response: { status: 401 } }));
+		expect(await syncTokenOrganization('org-b')).toBe(false);
+
+		// The token was refreshed: the refusal was for the old one
+		mockCookies.token = token('org-a', 'user-1', Math.floor(Date.now() / 1000) + 60);
+		mockSwitch.mockResolvedValueOnce({ data: { token: 'new-access', refresh_token: 'new-refresh' } });
+		expect(await syncTokenOrganization('org-b')).toBe(true);
+		expect(mockSwitch).toHaveBeenCalledTimes(2);
+	});
+
 	it.each([
 		['answers null', () => mockSwitch.mockResolvedValueOnce({ data: null })],
 		['is unreachable', () => mockSwitch.mockRejectedValueOnce(new Error('Network Error'))],
@@ -119,6 +130,21 @@ describe('syncTokenOrganization', () => {
 		expect(await switching).toBe(false);
 		expect(mockSet.access).not.toHaveBeenCalled();
 		expect(mockSet.organization).not.toHaveBeenCalled();
+	});
+
+	it('drops an answer that arrives after another user signed in', async () => {
+		let answer: (value: unknown) => void = () => undefined;
+		mockSwitch.mockReturnValue(new Promise((resolve) => (answer = resolve)));
+
+		mockCookies.organizationId = 'org-b';
+		const switching = syncTokenOrganization('org-b');
+		// Another tab signed in as someone else, in the same organization, before the answer arrived
+		mockCookies.token = token('org-a', 'user-2');
+		answer({ data: { token: 'b-access', refresh_token: 'b-refresh' } });
+
+		expect(await switching).toBe(false);
+		expect(mockSet.access).not.toHaveBeenCalled();
+		expect(mockSet.refresh).not.toHaveBeenCalled();
 	});
 
 	it('asks nothing without a token or an organization', async () => {

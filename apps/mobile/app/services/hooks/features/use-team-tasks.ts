@@ -18,9 +18,13 @@ import { useOrganizationTeam } from "../use-organization"
 /**
  * The active task id the teams data still held when a new task was chosen. Until the store names another one, no
  * sync effect may restore it (the refetch reaches the MobX store only through the teams effect). One for the app:
- * every useTeamTasks instance writes the same TaskStore, so each must honour a selection made by another.
+ * every useTeamTasks instance writes the same TaskStore, so each must honour a selection made by another. It holds
+ * for the team it was made in only: another team's data names its own active task.
  */
-const pendingSelection: { staleActiveTaskId: string | null } = { staleActiveTaskId: null }
+const pendingSelection: { staleActiveTaskId: string | null; teamId: string | null } = {
+	staleActiveTaskId: null,
+	teamId: null,
+}
 
 export function useTeamTasks() {
 	const {
@@ -294,6 +298,7 @@ export function useTeamTasks() {
 					const liveActiveTaskId = currentUserRef.current?.activeTaskId ?? ""
 					if ((task?.id ?? "") !== liveActiveTaskId) {
 						pendingSelection.staleActiveTaskId = liveActiveTaskId
+						pendingSelection.teamId = activeTeamId ?? null
 					}
 					setActiveTask(task)
 					setActiveTaskId(task?.id ?? "")
@@ -310,9 +315,15 @@ export function useTeamTasks() {
 	useEffect(() => {
 		if (!isUpdatingActiveTask) {
 			if (pendingSelection.staleActiveTaskId !== null) {
-				// The teams data still names the task the user just left
-				if ((currentUser?.activeTaskId ?? "") === pendingSelection.staleActiveTaskId) return
+				// The teams data still names the task the user just left (in the team the choice was made in)
+				if (
+					pendingSelection.teamId === (activeTeamId ?? null) &&
+					(currentUser?.activeTaskId ?? "") === pendingSelection.staleActiveTaskId
+				) {
+					return
+				}
 				pendingSelection.staleActiveTaskId = null
+				pendingSelection.teamId = null
 			}
 			const synchedActiveTask =
 				allTasks && currentUser
@@ -328,7 +339,7 @@ export function useTeamTasks() {
 			setActiveTask("")
 			setActiveTaskId("")
 		}
-	}, [tasksFetching, isUpdatingActiveTask, isSuccess, currentUser?.activeTaskId, allTasks])
+	}, [tasksFetching, isUpdatingActiveTask, isSuccess, currentUser?.activeTaskId, allTasks, activeTeamId])
 
 	const deleteEmployeeFromTasks = useCallback(
 		(employeeId: string, organizationTeamId: string) => {

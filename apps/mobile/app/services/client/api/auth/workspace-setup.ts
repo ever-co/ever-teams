@@ -5,6 +5,27 @@ import { createSmtpTenantRequest } from '../../requests/features/smtp';
 import { createOrganizationRequest } from '../../requests/organization';
 import { createOrganizationTeamRequest } from '../../requests/organization-team';
 import { createTenantRequest } from '../../requests/tenant';
+import { load, remove, save } from '../../../../utils/storage';
+
+/**
+ * A sign-up whose workspace is not set up yet, kept on the device by e-mail: the team name asked for at register (Gauzy
+ * keeps the account inactive until its e-mail is confirmed, so the workspace is set up at the first sign-in after), and
+ * the mark that a setup started, so one that stopped half-way resumes at the next sign-in.
+ */
+const pendingSignupKey = (email: string) => `ever-teams-pending-signup:${email.trim().toLowerCase()}`;
+
+export async function savePendingSignup(email: string, team: string | null): Promise<void> {
+	await save(pendingSignupKey(email), { team: team?.trim() || null });
+}
+
+export async function loadPendingSignup(email: string): Promise<{ team: string | null } | null> {
+	const pending = await load(pendingSignupKey(email));
+	return pending && typeof pending === 'object' ? { team: typeof pending.team === 'string' ? pending.team : null } : null;
+}
+
+export async function clearPendingSignup(email: string): Promise<void> {
+	await remove(pendingSignupKey(email));
+}
 
 /**
  * The user organization `token` acts in, else the first one. Gauzy confines a non-admin to the token's organization
@@ -35,8 +56,9 @@ function required<T extends { id?: string }>(step: string, result: { data: T; re
 /**
  * Sets up the workspace (tenant, SMTP, organization, employee, team) of a confirmed sign-up that has none. Gauzy keeps
  * a self-registration inactive until its e-mail link is opened (ever-co/ever-gauzy#11341), so the register flow can no
- * longer do this at once: the first sign-in after the confirmation does, with the same steps. A tenant left by an
- * earlier attempt that stopped half-way (`existingTenantId`, owned by this account) is kept and the remaining steps run.
+ * longer do this at once: the first sign-in after the confirmation does, with the same steps. What an earlier attempt
+ * that stopped half-way left (`existingTenantId`, `existingOrganizationId`, `existingEmployeeId`, owned by this account)
+ * is kept and the remaining steps run. The workspace takes the `team` name asked for at register, else the person's.
  *
  * @returns the tenant and organization ids and the refreshed tokens, or null when a step failed.
  */
@@ -45,10 +67,13 @@ export async function setupConfirmedSignupWorkspace(input: {
 	refreshToken: string;
 	userId: string;
 	name?: string;
+	team?: string | null;
 	existingTenantId?: string;
+	existingOrganizationId?: string;
+	existingEmployeeId?: string;
 }): Promise<{ tenantId: string; organizationId: string; accessToken: string; refreshToken: string } | null> {
 	try {
-		const team = input.name?.trim() ? `${input.name.trim()}'s Team` : 'My Team';
+		const team = input.team?.trim() || (input.name?.trim() ? `${input.name.trim()}'s Team` : 'My Team');
 
 		let tenantId = input.existingTenantId;
 		if (!tenantId) {
@@ -57,26 +82,33 @@ export async function setupConfirmedSignupWorkspace(input: {
 			await createSmtpTenantRequest(input.accessToken, tenantId).catch(() => undefined);
 		}
 
-		const organization = required(
-			'organization',
-			await createOrganizationRequest({ currency: 'USD', name: team, tenantId, invitesAllowed: true }, input.accessToken)
-		);
-		const employee = required(
-			'employee',
-			await createEmployeeFromUser(
-				{
-					organizationId: organization.id as string,
-					startedWorkOn: new Date().toISOString(),
-					tenantId,
-					userId: input.userId
-				},
-				input.accessToken
-			)
-		);
+		const organizationId =
+			input.existingOrganizationId ||
+			(required(
+				'organization',
+				await createOrganizationRequest(
+					{ currency: 'USD', name: team, tenantId, invitesAllowed: true },
+					input.accessToken
+				)
+			).id as string);
+		const employeeId =
+			input.existingEmployeeId ||
+			(required(
+				'employee',
+				await createEmployeeFromUser(
+					{
+						organizationId,
+						startedWorkOn: new Date().toISOString(),
+						tenantId,
+						userId: input.userId
+					},
+					input.accessToken
+				)
+			).id as string);
 		required(
 			'team',
 			await createOrganizationTeamRequest(
-				{ name: team, tenantId, organizationId: organization.id as string, managerIds: [employee.id as string] },
+				{ name: team, tenantId, organizationId, managerIds: [employeeId] },
 				input.accessToken
 			)
 		);
@@ -88,7 +120,7 @@ export async function setupConfirmedSignupWorkspace(input: {
 		}
 		return {
 			tenantId,
-			organizationId: organization.id as string,
+			organizationId,
 			accessToken: refreshed.data.token,
 			refreshToken: refreshed.data.refresh_token || input.refreshToken
 		};
