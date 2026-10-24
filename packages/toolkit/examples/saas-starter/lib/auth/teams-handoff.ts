@@ -15,6 +15,8 @@ import { readRuntimeEnv } from '@/lib/runtime-env';
 const HANDOFF_COOKIE = 'teams-handoff';
 const HANDOFF_PATH = '/api/teams/handoff';
 const HANDOFF_MAX_AGE_S = 60;
+/** A sign-in that goes to Stripe Checkout first collects its token only on the way back, which the person paces. */
+export const CHECKOUT_HANDOFF_MAX_AGE_S = 30 * 60;
 /** How long a sign-in waits for Teams; after that the local sign-in goes on without a Teams token. */
 const TEAMS_DEADLINE_MS = 8_000;
 
@@ -66,11 +68,14 @@ export async function clearTeamsHandoff(): Promise<void> {
 export async function connectTeamsAccount({
 	userId,
 	email,
-	password
+	password,
+	maxAgeS = HANDOFF_MAX_AGE_S
 }: {
 	userId: number;
 	email: string;
 	password: string;
+	/** How long the hand-off waits for the page ({@link CHECKOUT_HANDOFF_MAX_AGE_S} when the sign-in goes to checkout). */
+	maxAgeS?: number;
 }): Promise<void> {
 	await clearTeamsHandoff();
 	let timer: ReturnType<typeof setTimeout> | undefined;
@@ -85,7 +90,7 @@ export async function connectTeamsAccount({
 			secure: true,
 			sameSite: 'strict',
 			path: HANDOFF_PATH,
-			maxAge: HANDOFF_MAX_AGE_S
+			maxAge: maxAgeS
 		});
 	} finally {
 		clearTimeout(timer);
